@@ -1,0 +1,141 @@
+#include "SkCullPoints.h"
+#include "Sk64.h"
+
+static bool cross_product_is_neg(const SkPoint32& v, int dx, int dy)
+{
+#if 0
+    return v.fX * dy - v.fY * dx < 0;
+#else
+    Sk64   tmp0, tmp1;
+    
+    tmp0.setMul(v.fX, dy);
+    tmp1.setMul(dx, v.fY);
+    tmp0.sub(tmp1);
+    return tmp0.isNeg();
+#endif
+}
+
+bool SkCullPoints::sect_test(int x0, int y0, int x1, int y1) const
+{
+    const SkRect16& r = fR;
+
+    if (x0 < r.fLeft    && x1 < r.fLeft ||
+        x0 > r.fRight   && x1 > r.fRight ||
+        y0 < r.fTop     && y1 < r.fTop ||
+        y0 > r.fBottom  && y1 > r.fBottom)
+        return false;
+
+    // since the crossprod test is a little expensive, check for easy-in cases first    
+    if (r.contains(x0, y0) || r.contains(x1, y1))
+        return true;
+
+    // At this point we're not sure, so we do a crossprod test
+    SkPoint32           vec;
+    const SkPoint16*    rAsQuad = fAsQuad;
+    
+    vec.set(x1 - x0, y1 - y0);
+    bool isNeg = cross_product_is_neg(vec, x0 - rAsQuad[0].fX, y0 - rAsQuad[0].fY);
+    for (int i = 1; i < 4; i++) {
+        if (cross_product_is_neg(vec, x0 - rAsQuad[i].fX, y0 - rAsQuad[i].fY) != isNeg)
+        {
+            return true;
+        }
+    }
+    return false;   // we didn't intersect
+}
+
+static void toQuad(const SkRect16& r, SkPoint16 quad[4])
+{
+	SkASSERT(quad);
+
+	quad[0].set(r.fLeft, r.fTop);
+	quad[1].set(r.fRight, r.fTop);
+	quad[2].set(r.fRight, r.fBottom);
+	quad[3].set(r.fLeft, r.fBottom);
+}
+
+SkCullPoints::SkCullPoints()
+{
+    SkRect16    r;
+    r.setEmpty();
+    this->reset(r);
+}
+
+SkCullPoints::SkCullPoints(const SkRect16& r)
+{
+    this->reset(r);
+}
+
+void SkCullPoints::reset(const SkRect16& r)
+{
+    fR = r;
+    toQuad(fR, fAsQuad);
+    fPrevPt.set(0, 0);
+}
+
+void SkCullPoints::moveTo(int x, int y)
+{
+    fPrevPt.set(x, y);
+}
+
+SkCullPoints::LineToResult SkCullPoints::lineTo(int x, int y, SkPoint16 result[])
+{
+    SkASSERT(result != NULL);
+
+    int x0 = fPrevPt.fX;
+    int y0 = fPrevPt.fY;
+    fPrevPt.set(x, y);
+    
+    // need to upgrade sect_test to chop the result
+    // and to correctly return kLineTo_Result when the result is connected
+    // to the previous call-out
+    if (this->sect_test(x0, y0, x, y))
+    {
+        result[0].set(x0, y0);
+        result[1].set(x, y);
+        return kMoveToLineTo_Result;
+    }
+    return kNo_Result;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkPath.h"
+
+SkCullPointsPath::SkCullPointsPath()
+    : fCP(), fPath(NULL)
+{
+}
+
+SkCullPointsPath::SkCullPointsPath(const SkRect16& r, SkPath* dst)
+    : fCP(r), fPath(dst)
+{
+}
+
+void SkCullPointsPath::reset(const SkRect16& r, SkPath* dst)
+{
+    fCP.reset(r);
+    fPath = dst;
+}
+    
+void SkCullPointsPath::moveTo(int x, int y)
+{
+    fCP.moveTo(x, y);
+}
+
+void SkCullPointsPath::lineTo(int x, int y)
+{
+    SkPoint16   pts[2];
+    
+    switch (fCP.lineTo(x, y, pts)) {
+    case SkCullPoints::kMoveToLineTo_Result:
+        fPath->moveTo(SkIntToScalar(pts[0].fX), SkIntToScalar(pts[0].fY));
+        // fall through to the lineto case
+    case SkCullPoints::kLineTo_Result:
+        fPath->lineTo(SkIntToScalar(pts[1].fX), SkIntToScalar(pts[1].fY));
+        break;
+    default:
+        break;
+    }
+}
+
