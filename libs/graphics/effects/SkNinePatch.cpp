@@ -1,3 +1,20 @@
+/* libs/graphics/effects/SkNinePatch.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkNinePatch.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -11,8 +28,8 @@
 
 static void* getSubAddr(const SkBitmap& bm, int x, int y)
 {
-    SkASSERT((unsigned)x < bm.width());
-    SkASSERT((unsigned)y < bm.height());
+    SkASSERT((unsigned)x < (unsigned)bm.width());
+    SkASSERT((unsigned)y < (unsigned)bm.height());
     
     switch (bm.getConfig()) {
     case SkBitmap::kNo_Config:
@@ -25,7 +42,7 @@ static void* getSubAddr(const SkBitmap& bm, int x, int y)
     case SkBitmap::kRGB_565_Config:
         x <<= 1;
         break;
-	case SkBitmap::kARGB_8888_Config:
+    case SkBitmap::kARGB_8888_Config:
         x <<= 2;
         break;
     default:
@@ -61,14 +78,20 @@ static void drawPatch(SkCanvas* canvas, const SkRect16& src, const SkRect& dst,
     canvas->restore();
 }
 
-static bool pixel_is_transparent(const SkBitmap& bm, int x, int y)
+#include "SkColorPriv.h"
+
+static SkColor undo_premultiply(SkPMColor c)
 {
-    switch (bm.getConfig()) {
-    case SkBitmap::kARGB_8888_Config:
-        return 0 == *bm.getAddr32(x, y);
-    default:
-        return false;
+    unsigned a = SkGetPackedA32(c);
+    if (a != 0 && a != 0xFF)
+    {
+        unsigned scale = (SK_Fixed1 * 255) / a;
+        unsigned r = SkFixedRound(SkGetPackedR32(c) * scale);
+        unsigned g = SkFixedRound(SkGetPackedG32(c) * scale);
+        unsigned b = SkFixedRound(SkGetPackedB32(c) * scale);
+        c = SkColorSetARGB(a, r, g, b);
     }
+    return c;
 }
 
 static void drawColumn(SkCanvas* canvas, SkRect16* src, SkRect* dst,
@@ -86,15 +109,48 @@ static void drawColumn(SkCanvas* canvas, SkRect16* src, SkRect* dst,
     src->fBottom = bitmap.height() - mar.fBottom;
     dst->fTop = dst->fBottom;
     dst->fBottom = bounds.fBottom - SkIntToScalar(mar.fBottom);
-    if (src->width() != 1 || src->height() != 1 ||
-        !pixel_is_transparent(bitmap, src->fLeft, src->fTop))
+    
+    if (src->width() == 1 && src->height() == 1)
     {
-        drawPatch(canvas, *src, *dst, bitmap, paint);
+        SkColor c = 0;
+        int     x = src->fLeft;
+        int     y = src->fTop;
+
+        switch (bitmap.getConfig()) {
+        case SkBitmap::kARGB_8888_Config:
+            c = undo_premultiply(*bitmap.getAddr32(x, y));
+            break;
+        case SkBitmap::kRGB_565_Config:
+            c = SkPixel16ToPixel32(*bitmap.getAddr16(x, y));
+            break;
+        case SkBitmap::kIndex8_Config:
+            {
+                SkColorTable* ctable = bitmap.getColorTable();
+                c = undo_premultiply((*ctable)[*bitmap.getAddr8(x, y)]);
+            }
+            break;
+        default:
+            goto SLOW_CASE;
+        }
+
+#ifdef SK_DEBUG
+        printf("---------------- center color for the ninepatch: 0x%X\n", c);
+#endif
+
+        if (0 != c || paint.getXfermode() != NULL)
+        {
+            SkColor prev = paint.getColor();
+            ((SkPaint*)&paint)->setColor(c);
+            canvas->drawRect(*dst, paint);
+            ((SkPaint*)&paint)->setColor(prev);
+        }
     }
     else
     {
-    //    SkDEBUGF(("========= Skip transparent center of ninepatch\n"));
+        SLOW_CASE:
+        drawPatch(canvas, *src, *dst, bitmap, paint);
     }
+
 // lower row
     src->fTop = src->fBottom;
     src->fBottom = bitmap.height();

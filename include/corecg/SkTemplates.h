@@ -1,114 +1,131 @@
+/* include/corecg/SkTemplates.h
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #ifndef SkTemplates_DEFINED
 #define SkTemplates_DEFINED
 
 #include "SkTypes.h"
 
-/**	\file SkTemplates.h
+/** \file SkTemplates.h
 
-	This file contains light-weight template classes for type-safe and exception-safe
-	resource management.
+    This file contains light-weight template classes for type-safe and exception-safe
+    resource management.
 */
 
 /** \class SkAutoTCallProc
 
-	Similar to SkAutoTDelete, this class is used to auto delete an object
-	when leaving the scope of the object. This is mostly useful when
-	errors occur and objects need to be cleaned up. The template uses two
-	parameters, the object, and a function that is to be called in the destructor.
-	If detach() is called then the function is not called when SkAutoTCallProc goes out
-	of scope. This also happens is the passed in object is nil.
+    Similar to SkAutoTDelete, this class is used to auto delete an object
+    when leaving the scope of the object. This is mostly useful when
+    errors occur and objects need to be cleaned up. The template uses two
+    parameters, the object, and a function that is to be called in the destructor.
+    If detach() is called then the function is not called when SkAutoTCallProc goes out
+    of scope. This also happens is the passed in object is nil.
 
 */
 template <typename T, void (*P)(T*)> class SkAutoTCallProc {
 public:
-	SkAutoTCallProc(T* obj): fObj(obj) {}
-	~SkAutoTCallProc()
-	{
-		if (fObj)
-			P(fObj);
-	}
-	T* detach() { T* obj = fObj; fObj = nil; return obj; }
+    SkAutoTCallProc(T* obj): fObj(obj) {}
+    ~SkAutoTCallProc()
+    {
+        if (fObj)
+            P(fObj);
+    }
+    T* detach() { T* obj = fObj; fObj = nil; return obj; }
 private:
-	T* fObj;
+    T* fObj;
 };
 
 template <typename T> class SkAutoTDelete {
 public:
-	SkAutoTDelete(T* obj) : fObj(obj) {}
-	~SkAutoTDelete() { delete fObj; }
+    SkAutoTDelete(T* obj) : fObj(obj) {}
+    ~SkAutoTDelete() { delete fObj; }
 
-	void	free() { delete fObj; fObj = nil; }
-	T*		detach() { T* obj = fObj; fObj = nil; return obj; }
+    void    free() { delete fObj; fObj = nil; }
+    T*      detach() { T* obj = fObj; fObj = nil; return obj; }
 
 private:
-	T*	fObj;
+    T*  fObj;
 };
 
 template <typename T> class SkAutoTDeleteArray {
 public:
-	SkAutoTDeleteArray(T array[]) : fArray(array) {}
-	~SkAutoTDeleteArray() { delete[] fArray; }
+    SkAutoTDeleteArray(T array[]) : fArray(array) {}
+    ~SkAutoTDeleteArray() { delete[] fArray; }
 
-	void	free() { delete[] fArray; fArray = nil; }
-	T*		detach() { T* array = fArray; fArray = nil; return array; }
+    void    free() { delete[] fArray; fArray = nil; }
+    T*      detach() { T* array = fArray; fArray = nil; return array; }
 
 private:
-	T*	fArray;
+    T*  fArray;
 };
 
 template <typename T> class SkAutoTArray {
 public:
-	SkAutoTArray(size_t count)
-	{
-		fArray = nil;	// init first in case we throw
-		if (count)
-			fArray = new T[count];
+    SkAutoTArray(size_t count)
+    {
+        fArray = nil;   // init first in case we throw
+        if (count)
+            fArray = new T[count];
 #ifdef SK_DEBUG
-		fCount = count;
+        fCount = count;
 #endif
-	}
-	~SkAutoTArray()
-	{
-		delete[] fArray;
-	}
+    }
+    ~SkAutoTArray()
+    {
+        delete[] fArray;
+    }
 
-	T* get() const { return fArray; }
-	T&	operator[](int index) const { SkASSERT((unsigned)index < fCount); return fArray[index]; }
+    T* get() const { return fArray; }
+    T&  operator[](int index) const { SkASSERT((unsigned)index < fCount); return fArray[index]; }
 
-	void reset()
-	{
-		if (fArray)
-		{
-			delete[] fArray;
-			fArray = nil;
-		}
-	}
+    void reset()
+    {
+        if (fArray)
+        {
+            delete[] fArray;
+            fArray = nil;
+        }
+    }
 
-	void replace(T* array)
-	{
-		if (fArray != array)
-		{
-			delete[] fArray;
-			fArray = array;
-		}
-	}
+    void replace(T* array)
+    {
+        if (fArray != array)
+        {
+            delete[] fArray;
+            fArray = array;
+        }
+    }
 
-	/**	Call swap to exchange your pointer to an array of T with the SkAutoTArray object.
-		After this call, the SkAutoTArray object will be responsible for deleting your
-		array, and you will be responsible for deleting its.
-	*/
-	void swap(T*& other)
-	{
-		T*	tmp = fArray;
-		fArray = other;
-		other = tmp;
-	}
+    /** Call swap to exchange your pointer to an array of T with the SkAutoTArray object.
+        After this call, the SkAutoTArray object will be responsible for deleting your
+        array, and you will be responsible for deleting its.
+    */
+    void swap(T*& other)
+    {
+        T*  tmp = fArray;
+        fArray = other;
+        other = tmp;
+    }
 
 private:
 #ifdef SK_DEBUG
-	size_t fCount;
+    size_t fCount;
 #endif
-	T*	fArray;
+    T*  fArray;
 };
 
 /** Allocate a temp array on the stack/heap.
@@ -119,42 +136,45 @@ public:
     SkAutoTMalloc(size_t count)
     {
         fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
-	}
-	~SkAutoTMalloc()
-	{
+    }
+    ~SkAutoTMalloc()
+    {
         sk_free(fPtr);
-	}
-	T* get() const { return fPtr; }
+    }
+    T* get() const { return fPtr; }
 
 private:
-	T*  fPtr;
-	// illegal
-	SkAutoTMalloc(const SkAutoTMalloc&);
-	SkAutoTMalloc& operator=(const SkAutoTMalloc&);        
+    T*  fPtr;
+    // illegal
+    SkAutoTMalloc(const SkAutoTMalloc&);
+    SkAutoTMalloc& operator=(const SkAutoTMalloc&);        
 };
 
 template <size_t N, typename T> class SkAutoSTMalloc {
 public:
     SkAutoSTMalloc(size_t count)
     {
-		if (count <= N)
-			fPtr = (T*)fStorage;
-		else
-			fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
-	}
-	~SkAutoSTMalloc()
-	{
-		if (fPtr != (T*)fStorage)
-			sk_free(fPtr);
-	}
-	T* get() const { return fPtr; }
+        if (count <= N)
+            fPtr = fTStorage;
+        else
+            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+    }
+    ~SkAutoSTMalloc()
+    {
+        if (fPtr != fTStorage)
+            sk_free(fPtr);
+    }
+    T* get() const { return fPtr; }
 
 private:
-	T*          fPtr;
-	uint32_t	fStorage[(N*sizeof(T) + 3) >> 2];
-	// illegal
-	SkAutoSTMalloc(const SkAutoSTMalloc&);
-	SkAutoSTMalloc& operator=(const SkAutoSTMalloc&);        
+    T*          fPtr;
+    union {
+        uint32_t    fStorage32[(N*sizeof(T) + 3) >> 2];
+        T           fTStorage[1];   // do NOT want to invoke T::T()
+    };
+    // illegal
+    SkAutoSTMalloc(const SkAutoSTMalloc&);
+    SkAutoSTMalloc& operator=(const SkAutoSTMalloc&);        
 };
 
 #endif

@@ -1,3 +1,20 @@
+/* libs/graphics/animator/SkDisplayable.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkDisplayable.h"
 #include "SkDisplayApply.h"
 #include "SkParse.h"
@@ -13,112 +30,112 @@ SkTDDisplayableArray SkDisplayable::fAllocations;
 
 #ifdef SK_DEBUG
 SkDisplayable::SkDisplayable() { 
-	id = _id.c_str();
+    id = _id.c_str();
 #ifdef SK_FIND_LEAKS
-	// fAllocationCount++;
-	*fAllocations.append() = this;
+    // fAllocationCount++;
+    *fAllocations.append() = this;
 #endif
 }
 #endif
 
 SkDisplayable::~SkDisplayable() {
 #ifdef SK_FIND_LEAKS
-    //	fAllocationCount--;
-	int index = fAllocations.find(this);
-	SkASSERT(index >= 0);
-	fAllocations.remove(index);
+    //  fAllocationCount--;
+    int index = fAllocations.find(this);
+    SkASSERT(index >= 0);
+    fAllocations.remove(index);
 #endif
 }
 
 bool SkDisplayable::add(SkAnimateMaker& , SkDisplayable* child) {
-	return false; 
+    return false; 
 }
 
 //void SkDisplayable::apply(SkAnimateMaker& , const SkMemberInfo* , 
-//		SkDisplayable* , SkScalar [], int count) { 
-//	SkASSERT(0); 
+//      SkDisplayable* , SkScalar [], int count) { 
+//  SkASSERT(0); 
 //}
 
 bool SkDisplayable::canContainDependents() const {
-	return false; 
+    return false; 
 }
  
 bool SkDisplayable::childrenNeedDisposing() const { 
-	return false; 
+    return false; 
 }
 
 void SkDisplayable::clearBounder() {
 }
 
 bool SkDisplayable::contains(SkDisplayable* ) {
-	return false;
+    return false;
 }
 
 SkDisplayable* SkDisplayable::contains(const SkString& ) {
-	return nil;
+    return nil;
 }
 
 SkDisplayable* SkDisplayable::deepCopy(SkAnimateMaker* maker) {
-	SkDisplayTypes type = getType();
-	if (type == SkType_Unknown) {
-		SkASSERT(0);
-		return nil;
-	}
-	SkDisplayable* copy = SkDisplayType::CreateInstance(maker, type);
-	int index = -1;
-	int propIndex = 0;
-	const SkMemberInfo* info;
-	do {
-		info = copy->getMember(++index);
-		if (info == nil)
-			break;
-		if (info->fType == SkType_MemberProperty) {
-			SkScriptValue value;
-			if (getProperty(propIndex, &value))
-				copy->setProperty(propIndex, value);
-			propIndex++;
-			continue;
-		}
-		if (info->fType == SkType_MemberFunction)
-			continue;
-		if (info->fType == SkType_Array) {
-			SkTDOperandArray* array = (SkTDOperandArray*) info->memberData(this);
-			int arrayCount;
-			if (array == nil || (arrayCount = array->count()) == 0)
-				continue;
-			SkTDOperandArray* copyArray = (SkTDOperandArray*) info->memberData(copy);
-			copyArray->setCount(arrayCount);
-			SkDisplayTypes elementType;
-			if (type == SkType_Array) {
-				SkDisplayArray* dispArray = (SkDisplayArray*) this;
-				elementType = dispArray->values.getType();
-			} else
-				elementType = info->arrayType();
-			size_t elementSize = SkMemberInfo::GetSize(elementType);
-			size_t byteSize = elementSize * arrayCount;
-			memcpy(copyArray->begin(), array->begin(), byteSize);
-			continue;
-		}
-		if (SkDisplayType::IsDisplayable(maker, info->fType)) {
-			SkDisplayable** displayable = (SkDisplayable**) info->memberData(this);
-			if (*displayable == nil || *displayable == (SkDisplayable*) -1)
-				continue;
-			SkDisplayable* deeper = (*displayable)->deepCopy(maker);
-			info->setMemberData(copy, deeper, sizeof(deeper));
-			continue;
-		}
-		if (info->fType == SkType_String || info->fType == SkType_DynamicString) {
-			SkString* string;
-			info->getString(this, &string);
-			info->setString(copy, string);
-			continue;
-		}
-		void* data = info->memberData(this);
-		size_t size = SkMemberInfo::GetSize(info->fType);
-		info->setMemberData(copy, data, size);
-	} while (true);
-	copy->dirty();
-	return copy;
+    SkDisplayTypes type = getType();
+    if (type == SkType_Unknown) {
+        SkASSERT(0);
+        return nil;
+    }
+    SkDisplayable* copy = SkDisplayType::CreateInstance(maker, type);
+    int index = -1;
+    int propIndex = 0;
+    const SkMemberInfo* info;
+    do {
+        info = copy->getMember(++index);
+        if (info == nil)
+            break;
+        if (info->fType == SkType_MemberProperty) {
+            SkScriptValue value;
+            if (getProperty(propIndex, &value))
+                copy->setProperty(propIndex, value);
+            propIndex++;
+            continue;
+        }
+        if (info->fType == SkType_MemberFunction)
+            continue;
+        if (info->fType == SkType_Array) {
+            SkTDOperandArray* array = (SkTDOperandArray*) info->memberData(this);
+            int arrayCount;
+            if (array == nil || (arrayCount = array->count()) == 0)
+                continue;
+            SkTDOperandArray* copyArray = (SkTDOperandArray*) info->memberData(copy);
+            copyArray->setCount(arrayCount);
+            SkDisplayTypes elementType;
+            if (type == SkType_Array) {
+                SkDisplayArray* dispArray = (SkDisplayArray*) this;
+                elementType = dispArray->values.getType();
+            } else
+                elementType = info->arrayType();
+            size_t elementSize = SkMemberInfo::GetSize(elementType);
+            size_t byteSize = elementSize * arrayCount;
+            memcpy(copyArray->begin(), array->begin(), byteSize);
+            continue;
+        }
+        if (SkDisplayType::IsDisplayable(maker, info->fType)) {
+            SkDisplayable** displayable = (SkDisplayable**) info->memberData(this);
+            if (*displayable == nil || *displayable == (SkDisplayable*) -1)
+                continue;
+            SkDisplayable* deeper = (*displayable)->deepCopy(maker);
+            info->setMemberData(copy, deeper, sizeof(deeper));
+            continue;
+        }
+        if (info->fType == SkType_String || info->fType == SkType_DynamicString) {
+            SkString* string;
+            info->getString(this, &string);
+            info->setString(copy, string);
+            continue;
+        }
+        void* data = info->memberData(this);
+        size_t size = SkMemberInfo::GetSize(info->fType);
+        info->setMemberData(copy, data, size);
+    } while (true);
+    copy->dirty();
+    return copy;
 }
 
 void SkDisplayable::dirty() {
@@ -126,7 +143,7 @@ void SkDisplayable::dirty() {
 
 #ifdef SK_DUMP_ENABLED
 void SkDisplayable::dump(SkAnimateMaker* maker) {
-	dumpBase(maker);
+    dumpBase(maker);
 #if SK_USE_CONDENSED_INFO == 0
     this->dumpAttrs(maker);
     this->dumpChildren(maker);
@@ -135,11 +152,11 @@ void SkDisplayable::dump(SkAnimateMaker* maker) {
 
 void SkDisplayable::dumpAttrs(SkAnimateMaker* maker) {
     SkDisplayTypes type = getType();
-	if (type == SkType_Unknown) {
-		//SkDebugf("/>\n");
-		return;
-	}
-	SkDisplayable* blankCopy = SkDisplayType::CreateInstance(maker, type);
+    if (type == SkType_Unknown) {
+        //SkDebugf("/>\n");
+        return;
+    }
+    SkDisplayable* blankCopy = SkDisplayType::CreateInstance(maker, type);
 
     int index = -1;
     int propIndex = 0;
@@ -175,15 +192,15 @@ void SkDisplayable::dumpAttrs(SkAnimateMaker* maker) {
             
         if (info->fType == SkType_Array) {
             SkTDOperandArray* array = (SkTDOperandArray*) info->memberData(this);
-			int arrayCount;
-			if (array == nil || (arrayCount = array->count()) == 0)
-				continue;
-			SkDisplayTypes elementType;
-			if (type == SkType_Array) {
-				SkDisplayArray* dispArray = (SkDisplayArray*) this;
-				elementType = dispArray->values.getType();
-			} else
-				elementType = info->arrayType();
+            int arrayCount;
+            if (array == nil || (arrayCount = array->count()) == 0)
+                continue;
+            SkDisplayTypes elementType;
+            if (type == SkType_Array) {
+                SkDisplayArray* dispArray = (SkDisplayArray*) this;
+                elementType = dispArray->values.getType();
+            } else
+                elementType = info->arrayType();
             bool firstElem = true;
             SkDebugf("%s=\"[", info->fName);
             for (SkOperand* op = array->begin(); op < array->end(); op++) {
@@ -235,13 +252,13 @@ void SkDisplayable::dumpAttrs(SkAnimateMaker* maker) {
 
 void SkDisplayable::dumpBase(SkAnimateMaker* maker) {
     SkDisplayTypes type = getType();
-	const char* elementName = "(unknown)";
-	if (type != SkType_Unknown && type != SkType_Screenplay)
-		elementName = SkDisplayType::GetName(maker, type);
-	SkDebugf("%*s", SkDisplayList::fIndent, "");
-	if (SkDisplayList::fDumpIndex != 0 && SkDisplayList::fIndent == 0)
-		SkDebugf("%d: ", SkDisplayList::fDumpIndex);
-	SkDebugf("<%s ", elementName);
+    const char* elementName = "(unknown)";
+    if (type != SkType_Unknown && type != SkType_Screenplay)
+        elementName = SkDisplayType::GetName(maker, type);
+    SkDebugf("%*s", SkDisplayList::fIndent, "");
+    if (SkDisplayList::fDumpIndex != 0 && SkDisplayList::fIndent == 0)
+        SkDebugf("%d: ", SkDisplayList::fDumpIndex);
+    SkDebugf("<%s ", elementName);
     if (strcmp(id,"") != 0)
         SkDebugf("id=\"%s\" ", id);
 }
@@ -277,11 +294,11 @@ void SkDisplayable::dumpChildren(SkAnimateMaker* maker, bool closedAngle) {
 
 void SkDisplayable::dumpEnd(SkAnimateMaker* maker) {
     SkDisplayTypes type = getType();
-	const char* elementName = "(unknown)";
-	if (type != SkType_Unknown && type != SkType_Screenplay)
-		elementName = SkDisplayType::GetName(maker, type);
-	SkDebugf("%*s", SkDisplayList::fIndent, "");
-	SkDebugf("</%s>\n", elementName);
+    const char* elementName = "(unknown)";
+    if (type != SkType_Unknown && type != SkType_Screenplay)
+        elementName = SkDisplayType::GetName(maker, type);
+    SkDebugf("%*s", SkDisplayList::fIndent, "");
+    SkDebugf("</%s>\n", elementName);
 }
 
 void SkDisplayable::dumpEvents() {
@@ -394,151 +411,151 @@ void SkDisplayable::dumpValues(const SkMemberInfo* info, SkDisplayTypes type, Sk
 #endif
 
 bool SkDisplayable::enable( SkAnimateMaker& ) { 
-	return false;
+    return false;
 }
 
 void SkDisplayable::enableBounder() {
 }
 
 void SkDisplayable::executeFunction(SkDisplayable* , int index, 
-		SkTDArray<SkScriptValue>& , SkDisplayTypes, SkScriptValue*  ) {
-	SkASSERT(0); 
+        SkTDArray<SkScriptValue>& , SkDisplayTypes, SkScriptValue*  ) {
+    SkASSERT(0); 
 }
 
 void SkDisplayable::executeFunction(SkDisplayable* target, 
-		const SkMemberInfo* info, SkTypedArray* values, SkScriptValue* value) {
-	SkTDArray<SkScriptValue> typedValues;
-	for (SkOperand* op = values->begin(); op < values->end(); op++) {
-		SkScriptValue temp;
-		temp.fType = values->getType();
-		temp.fOperand = *op;
-		*typedValues.append() = temp;
-	}
-	executeFunction(target, info->functionIndex(), typedValues, info->getType(), value);
+        const SkMemberInfo* info, SkTypedArray* values, SkScriptValue* value) {
+    SkTDArray<SkScriptValue> typedValues;
+    for (SkOperand* op = values->begin(); op < values->end(); op++) {
+        SkScriptValue temp;
+        temp.fType = values->getType();
+        temp.fOperand = *op;
+        *typedValues.append() = temp;
+    }
+    executeFunction(target, info->functionIndex(), typedValues, info->getType(), value);
 }
 
 void SkDisplayable::executeFunction2(SkDisplayable* , int index, 
-		SkOpArray* params, SkDisplayTypes, SkOperand2*  ) {
-	SkASSERT(0); 
+        SkOpArray* params, SkDisplayTypes, SkOperand2*  ) {
+    SkASSERT(0); 
 }
 
 void SkDisplayable::getBounds(SkRect* rect) {
-	SkASSERT(rect);
-	rect->fLeft = rect->fTop = SK_ScalarMax;
-	rect->fRight= rect->fBottom = -SK_ScalarMax;
+    SkASSERT(rect);
+    rect->fLeft = rect->fTop = SK_ScalarMax;
+    rect->fRight= rect->fBottom = -SK_ScalarMax;
 }
 
 const SkFunctionParamType* SkDisplayable::getFunctionsParameters() {
-	return nil;
+    return nil;
 }
 
 const SkMemberInfo* SkDisplayable::getMember(int index) { 
-	return nil; 
+    return nil; 
 }
 
 const SkMemberInfo* SkDisplayable::getMember(const char name[]) { 
-	return nil; 
+    return nil; 
 }
 
 const SkFunctionParamType* SkDisplayable::getParameters(const SkMemberInfo* info, 
-		int* paramCount) {
-	const SkFunctionParamType* params = getFunctionsParameters();
-	SkASSERT(params != nil);
-	int funcIndex = info->functionIndex();
-	// !!! eventually break traversing params into an external function (maybe this whole function)
-	int index = funcIndex;
-	int offset = 0;
-	while (--index >= 0) {
-		while (params[offset] != 0)
-			offset++;
-		offset++;
-	}
-	int count = 0;
-	while (params[offset] != 0) {
-		count++;
-		offset++;
-	}
-	*paramCount = count;
-	return &params[offset - count];
+        int* paramCount) {
+    const SkFunctionParamType* params = getFunctionsParameters();
+    SkASSERT(params != nil);
+    int funcIndex = info->functionIndex();
+    // !!! eventually break traversing params into an external function (maybe this whole function)
+    int index = funcIndex;
+    int offset = 0;
+    while (--index >= 0) {
+        while (params[offset] != 0)
+            offset++;
+        offset++;
+    }
+    int count = 0;
+    while (params[offset] != 0) {
+        count++;
+        offset++;
+    }
+    *paramCount = count;
+    return &params[offset - count];
 }
 
 SkDisplayable* SkDisplayable::getParent() const {
-	return nil;
+    return nil;
 }
 
 bool SkDisplayable::getProperty(int index, SkScriptValue* ) const {
-//	SkASSERT(0); 
-	return false; 
+//  SkASSERT(0); 
+    return false; 
 }
 
 bool SkDisplayable::getProperty2(int index, SkOperand2* value) const {
-	SkASSERT(0); 
-	return false; 
+    SkASSERT(0); 
+    return false; 
 }
 
 SkDisplayTypes SkDisplayable::getType() const { 
-	return SkType_Unknown; 
+    return SkType_Unknown; 
 }
 
 bool SkDisplayable::hasEnable() const {
-	return false;
+    return false;
 }
 
 bool SkDisplayable::isDrawable() const {
-	return false; 
+    return false; 
 }
 
 void SkDisplayable::onEndElement(SkAnimateMaker& ) {}
 
 const SkMemberInfo* SkDisplayable::preferredChild(SkDisplayTypes type) {
-	return nil;
+    return nil;
 }
 
 bool SkDisplayable::resolveIDs(SkAnimateMaker& maker, SkDisplayable* original, SkApply* apply) {
-	return false;
+    return false;
 }
 
 //SkDisplayable* SkDisplayable::resolveTarget(SkAnimateMaker& ) { 
-//	return this; 
+//  return this; 
 //}
 
 void SkDisplayable::setChildHasID() {
 }
 
 bool SkDisplayable::setParent(SkDisplayable* ) {
-	return false;
+    return false;
 }
 
 bool SkDisplayable::setProperty(int index, SkScriptValue& ) {
-	//SkASSERT(0); 
-	return false; 
+    //SkASSERT(0); 
+    return false; 
 }
 
 void SkDisplayable::setReference(const SkMemberInfo* info, SkDisplayable* displayable) {
-	if (info->fType == SkType_MemberProperty) {
-		SkScriptValue scriptValue;
-		scriptValue.fOperand.fDisplayable = displayable;
-		scriptValue.fType = displayable->getType();
-		setProperty(info->propertyIndex(), scriptValue);
-	} else if (info->fType == SkType_Array) {
-		SkASSERT(displayable->getType() == SkType_Array);
-		SkDisplayArray* dispArray = (SkDisplayArray*) displayable;
-		SkTDScalarArray* array = (SkTDScalarArray* ) info->memberData(this);
-		array->setCount(dispArray->values.count());
-		memcpy(array->begin(), dispArray->values.begin(), dispArray->values.count() * sizeof(int));
-		//
+    if (info->fType == SkType_MemberProperty) {
+        SkScriptValue scriptValue;
+        scriptValue.fOperand.fDisplayable = displayable;
+        scriptValue.fType = displayable->getType();
+        setProperty(info->propertyIndex(), scriptValue);
+    } else if (info->fType == SkType_Array) {
+        SkASSERT(displayable->getType() == SkType_Array);
+        SkDisplayArray* dispArray = (SkDisplayArray*) displayable;
+        SkTDScalarArray* array = (SkTDScalarArray* ) info->memberData(this);
+        array->setCount(dispArray->values.count());
+        memcpy(array->begin(), dispArray->values.begin(), dispArray->values.count() * sizeof(int));
+        //
 
-		// !!! need a way for interpreter engine to own array
-		// !!! probably need to replace all scriptable arrays with single bigger array
-		// that has operand and type on every element -- or
-		// when array is dirtied, need to get parent to reparse to local array
-	} else {
-		void* storage = info->memberData(this);
-		memcpy(storage, &displayable, sizeof(SkDisplayable*));
-	}
+        // !!! need a way for interpreter engine to own array
+        // !!! probably need to replace all scriptable arrays with single bigger array
+        // that has operand and type on every element -- or
+        // when array is dirtied, need to get parent to reparse to local array
+    } else {
+        void* storage = info->memberData(this);
+        memcpy(storage, &displayable, sizeof(SkDisplayable*));
+    }
 // !!! unclear why displayable is dirtied here
 // if this is called, this breaks fromPath.xml
-//	displayable->dirty();
+//  displayable->dirty();
 }
 
 #ifdef SK_DEBUG

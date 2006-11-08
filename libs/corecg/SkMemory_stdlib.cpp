@@ -1,3 +1,20 @@
+/* libs/corecg/SkMemory_stdlib.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkTypes.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,60 +37,60 @@ void sk_out_of_memory(void)
 
 void* sk_malloc_throw(size_t size)
 {
-	return sk_malloc_flags(size, SK_MALLOC_THROW);
+    return sk_malloc_flags(size, SK_MALLOC_THROW);
 }
 
 void* sk_realloc_throw(void* addr, size_t size)
 {
-	SkDEBUGCODE(if (size) size += 4;)
-	SkDEBUGCODE(if (addr) addr = (char*)addr - 4;)
+    SkDEBUGCODE(if (size) size += 4;)
+    SkDEBUGCODE(if (addr) addr = (char*)addr - 4;)
 
-	void* p = realloc(addr, size);
-	if (size == 0)
-		return p;
+    void* p = realloc(addr, size);
+    if (size == 0)
+        return p;
 
-	if (p == NULL)
-		sk_throw();
+    if (p == NULL)
+        sk_throw();
 #ifdef SK_DEBUG
-	else
-	{
-		memcpy(p, "skia", 4);
-		p = (char*)p + 4;
-	}
+    else
+    {
+        memcpy(p, "skia", 4);
+        p = (char*)p + 4;
+    }
 #endif
-	return p;
+    return p;
 }
 
 void sk_free(void* p)
 {
-	if (p)
-	{
+    if (p)
+    {
 #ifdef SK_DEBUG
-		SkDEBUGCODE(p = (char*)p - 4;)
-		SkASSERT(memcmp(p, "skia", 4) == 0);
+        SkDEBUGCODE(p = (char*)p - 4;)
+        SkASSERT(memcmp(p, "skia", 4) == 0);
 #endif
-		free(p);
-	}
+        free(p);
+    }
 }
 
 void* sk_malloc_flags(size_t size, unsigned flags)
 {
-	SkDEBUGCODE(size += 4;)
-	
-	void* p = malloc(size);
-	if (p == NULL)
-	{
-		if (flags & SK_MALLOC_THROW)
-			sk_throw();
-	}
+    SkDEBUGCODE(size += 4;)
+    
+    void* p = malloc(size);
+    if (p == NULL)
+    {
+        if (flags & SK_MALLOC_THROW)
+            sk_throw();
+    }
 #ifdef SK_DEBUG
-	else
-	{
-		memcpy(p, "skia", 4);
-		p = (char*)p + 4;
-		memset(p, 0xCD, size - 4);
-	}
+    else
+    {
+        memcpy(p, "skia", 4);
+        p = (char*)p + 4;
+        memset(p, 0xCD, size - 4);
+    }
 #endif
-	return p;
+    return p;
 }
 

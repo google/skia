@@ -1,3 +1,20 @@
+/* libs/graphics/animator/SkDrawGradient.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkDrawGradient.h"
 #include "SkAnimateMaker.h"
 #include "SkAnimatorScript.h"
@@ -6,57 +23,57 @@
 
 SkScalar SkUnitToScalar(U16CPU x) {
 #ifdef SK_SCALAR_IS_FLOAT
-	return x / 65535.0f;
+    return x / 65535.0f;
 #else
-	return x + (x >> 8);
+    return x + (x >> 8);
 #endif
 }
 
 U16CPU SkScalarToUnit(SkScalar x) {
-	SkScalar pin =  SkScalarPin(x, 0, SK_Scalar1);
+    SkScalar pin =  SkScalarPin(x, 0, SK_Scalar1);
 #ifdef SK_SCALAR_IS_FLOAT
-	return (int) (pin * 65535.0f);
+    return (int) (pin * 65535.0f);
 #else
-	return pin - (pin >= 32768);
+    return pin - (pin >= 32768);
 #endif
 }
 
 class SkGradientUnitMapper : public SkUnitMapper {
 public:
-	SkGradientUnitMapper(SkAnimateMaker* maker, const char* script) : fMaker(maker), fScript(script) {
-	}
+    SkGradientUnitMapper(SkAnimateMaker* maker, const char* script) : fMaker(maker), fScript(script) {
+    }
 protected:
-	virtual U16CPU mapUnit16(U16CPU x) {
-		fUnit = SkUnitToScalar(x);
-		SkScriptValue value;
-		SkAnimatorScript engine(*fMaker, nil, SkType_Float);
-		engine.propertyCallBack(GetUnitValue, &fUnit);
-		if (engine.evaluate(fScript, &value, SkType_Float)) 
-			x = SkScalarToUnit(value.fOperand.fScalar);
-		return x;
-	}
+    virtual U16CPU mapUnit16(U16CPU x) {
+        fUnit = SkUnitToScalar(x);
+        SkScriptValue value;
+        SkAnimatorScript engine(*fMaker, nil, SkType_Float);
+        engine.propertyCallBack(GetUnitValue, &fUnit);
+        if (engine.evaluate(fScript, &value, SkType_Float)) 
+            x = SkScalarToUnit(value.fOperand.fScalar);
+        return x;
+    }
 
-	static bool GetUnitValue(const char* token, size_t len, void* unitPtr, SkScriptValue* value) {
-		if (SK_LITERAL_STR_EQUAL("unit", token, len)) {
-			value->fOperand.fScalar = *(SkScalar*) unitPtr;
-			value->fType = SkType_Float;
-			return true;
-		}
-		return false;
-	}
+    static bool GetUnitValue(const char* token, size_t len, void* unitPtr, SkScriptValue* value) {
+        if (SK_LITERAL_STR_EQUAL("unit", token, len)) {
+            value->fOperand.fScalar = *(SkScalar*) unitPtr;
+            value->fType = SkType_Float;
+            return true;
+        }
+        return false;
+    }
 
-	SkAnimateMaker* fMaker;
-	const char* fScript;
-	SkScalar fUnit;
+    SkAnimateMaker* fMaker;
+    const char* fScript;
+    SkScalar fUnit;
 };
 
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkGradient::fInfo[] = {
-	SK_MEMBER_INHERITED,
-	SK_MEMBER_ARRAY(offsets, Float),
-	SK_MEMBER(unitMapper, String)
+    SK_MEMBER_INHERITED,
+    SK_MEMBER_ARRAY(offsets, Float),
+    SK_MEMBER(unitMapper, String)
 };
 
 #endif
@@ -67,27 +84,27 @@ SkGradient::SkGradient() : fUnitMapper(nil) {
 }
 
 SkGradient::~SkGradient() {
-	for (int index = 0; index < fDrawColors.count(); index++) 
-		delete fDrawColors[index];
-	delete fUnitMapper;
+    for (int index = 0; index < fDrawColors.count(); index++) 
+        delete fDrawColors[index];
+    delete fUnitMapper;
 }
 
 bool SkGradient::add(SkAnimateMaker& , SkDisplayable* child) {
-	SkASSERT(child);
-	if (child->isColor()) {
-		SkDrawColor* color = (SkDrawColor*) child;
-		*fDrawColors.append() = color;
-		return true;
-	}
-	return false;
+    SkASSERT(child);
+    if (child->isColor()) {
+        SkDrawColor* color = (SkDrawColor*) child;
+        *fDrawColors.append() = color;
+        return true;
+    }
+    return false;
 }
 
 int SkGradient::addPrelude() {
-	int count = fDrawColors.count();
-	fColors.setCount(count);
-	for (int index = 0; index < count; index++) 
-		fColors[index] = fDrawColors[index]->color;
-	return count;
+    int count = fDrawColors.count();
+    fColors.setCount(count);
+    for (int index = 0; index < count; index++) 
+        fColors[index] = fDrawColors[index]->color;
+    return count;
 }
 
 #ifdef SK_DUMP_ENABLED
@@ -134,15 +151,15 @@ void SkGradient::onEndElement(SkAnimateMaker& maker) {
             }
         }
     }
-	if (unitMapper.size() > 0) 
-		fUnitMapper = new SkGradientUnitMapper(&maker, unitMapper.c_str());
-	INHERITED::onEndElement(maker);
+    if (unitMapper.size() > 0) 
+        fUnitMapper = new SkGradientUnitMapper(&maker, unitMapper.c_str());
+    INHERITED::onEndElement(maker);
 }
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkLinearGradient::fInfo[] = {
-	SK_MEMBER_INHERITED,
+    SK_MEMBER_INHERITED,
     SK_MEMBER_ARRAY(points, Float),
 };
 
@@ -168,23 +185,23 @@ void SkLinearGradient::dump(SkAnimateMaker* maker) {
 #endif
 
 SkShader* SkLinearGradient::getShader() {
-	if (addPrelude() == 0 || points.count() != 4)
-		return nil;
-	SkShader* shader = SkGradientShader::CreateLinear((SkPoint*)points.begin(),
-		fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode, fUnitMapper);
-	SkAutoTDelete<SkShader> autoDel(shader);
-	addPostlude(shader);
-	(void)autoDel.detach();
-	return shader;
+    if (addPrelude() == 0 || points.count() != 4)
+        return nil;
+    SkShader* shader = SkGradientShader::CreateLinear((SkPoint*)points.begin(),
+        fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode, fUnitMapper);
+    SkAutoTDelete<SkShader> autoDel(shader);
+    addPostlude(shader);
+    (void)autoDel.detach();
+    return shader;
 }
 
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkRadialGradient::fInfo[] = {
-	SK_MEMBER_INHERITED,
-	SK_MEMBER(center, Point),
-	SK_MEMBER(radius, Float)
+    SK_MEMBER_INHERITED,
+    SK_MEMBER(center, Point),
+    SK_MEMBER(radius, Float)
 };
 
 #endif
@@ -192,7 +209,7 @@ const SkMemberInfo SkRadialGradient::fInfo[] = {
 DEFINE_GET_MEMBER(SkRadialGradient);
 
 SkRadialGradient::SkRadialGradient() : radius(0) { 
-	center.set(0, 0); 
+    center.set(0, 0); 
 }
 
 #ifdef SK_DUMP_ENABLED
@@ -203,12 +220,12 @@ void SkRadialGradient::dump(SkAnimateMaker* maker) {
 #endif
 
 SkShader* SkRadialGradient::getShader() {
-	if (addPrelude() == 0)
-		return nil;
-	SkShader* shader = SkGradientShader::CreateRadial(center,
-		radius, fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode, fUnitMapper);
-	SkAutoTDelete<SkShader> autoDel(shader);
-	addPostlude(shader);
-	(void)autoDel.detach();
-	return shader;
+    if (addPrelude() == 0)
+        return nil;
+    SkShader* shader = SkGradientShader::CreateRadial(center,
+        radius, fColors.begin(), offsets.begin(), fColors.count(), (SkShader::TileMode) tileMode, fUnitMapper);
+    SkAutoTDelete<SkShader> autoDel(shader);
+    addPostlude(shader);
+    (void)autoDel.detach();
+    return shader;
 }

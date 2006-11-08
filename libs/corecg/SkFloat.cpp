@@ -1,233 +1,250 @@
+/* libs/corecg/SkFloat.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkFloat.h"
 
-#define EXP_BIAS	(127+23)
+#define EXP_BIAS    (127+23)
 
 static int get_unsigned_exp(U32 packed)
 {
-	return (packed << 1 >> 24);
+    return (packed << 1 >> 24);
 }
 
 static unsigned get_unsigned_value(U32 packed)
 {
-	return (packed << 9 >> 9) | (1 << 23);
+    return (packed << 9 >> 9) | (1 << 23);
 }
 
 static int get_signed_value(S32 packed)
 {
-	return SkApplySign(get_unsigned_value(packed), SkExtractSign(packed));
+    return SkApplySign(get_unsigned_value(packed), SkExtractSign(packed));
 }
 
 /////////////////////////////////////////////////////////////////////////
 
 int SkFloat::GetShift(S32 packed, int shift)
 {
-	if (packed == 0)
-		return 0;
+    if (packed == 0)
+        return 0;
 
-	int	exp = get_unsigned_exp(packed) - EXP_BIAS - shift;
-	int value = get_unsigned_value(packed);
+    int exp = get_unsigned_exp(packed) - EXP_BIAS - shift;
+    int value = get_unsigned_value(packed);
 
-	if (exp >= 0)
-	{
-		if (exp > 8)	// overflow
-			value = SK_MaxS32;
-		else
-			value <<= exp;
-	}
-	else
-	{
-		exp = -exp;
-		if (exp > 23)	// underflow
-			value = 0;
-		else
-			value >>= exp;
-	}
-	return SkApplySign(value, SkExtractSign(packed));
+    if (exp >= 0)
+    {
+        if (exp > 8)    // overflow
+            value = SK_MaxS32;
+        else
+            value <<= exp;
+    }
+    else
+    {
+        exp = -exp;
+        if (exp > 23)   // underflow
+            value = 0;
+        else
+            value >>= exp;
+    }
+    return SkApplySign(value, SkExtractSign(packed));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 S32 SkFloat::SetShift(int value, int shift)
 {
-	if (value == 0)
-		return 0;
+    if (value == 0)
+        return 0;
 
-	// record the sign and make value positive
-	int	sign = SkExtractSign(value);
-	value = SkApplySign(value, sign);
+    // record the sign and make value positive
+    int sign = SkExtractSign(value);
+    value = SkApplySign(value, sign);
 
-	if (value >> 24)	// value is too big (has more than 24 bits set)
-	{
-		int bias = 8 - SkCLZ(value);
-		SkASSERT(bias > 0 && bias < 8);
-		value >>= bias;
-		shift += bias;
-	}
-	else
-	{
-		int zeros = SkCLZ(value << 8);
-		SkASSERT(zeros >= 0 && zeros <= 23);
-		value <<= zeros;
-		shift -= zeros;
-	}
-	// now value is left-aligned to 24 bits
-	SkASSERT((value >> 23) == 1);
+    if (value >> 24)    // value is too big (has more than 24 bits set)
+    {
+        int bias = 8 - SkCLZ(value);
+        SkASSERT(bias > 0 && bias < 8);
+        value >>= bias;
+        shift += bias;
+    }
+    else
+    {
+        int zeros = SkCLZ(value << 8);
+        SkASSERT(zeros >= 0 && zeros <= 23);
+        value <<= zeros;
+        shift -= zeros;
+    }
+    // now value is left-aligned to 24 bits
+    SkASSERT((value >> 23) == 1);
 
-	shift += EXP_BIAS;
-	if (shift < 0)	// underflow
-		return 0;
-	else
-	{
-		if (shift > 255)	// overflow
-		{
-			shift = 255;
-			value = 0x00FFFFFF;
-		}
-		S32 packed = sign << 31;		// set the sign-bit
-		packed |= shift << 23;			// store the packed exponent
-		packed |= ((unsigned)(value << 9) >> 9);	// clear 24th bit of value (its implied)
+    shift += EXP_BIAS;
+    if (shift < 0)  // underflow
+        return 0;
+    else
+    {
+        if (shift > 255)    // overflow
+        {
+            shift = 255;
+            value = 0x00FFFFFF;
+        }
+        S32 packed = sign << 31;        // set the sign-bit
+        packed |= shift << 23;          // store the packed exponent
+        packed |= ((unsigned)(value << 9) >> 9);    // clear 24th bit of value (its implied)
 
 #ifdef SK_DEBUG
-		{
-			int	n;
+        {
+            int n;
 
-			n = SkExtractSign(packed);
-			SkASSERT(n == sign);
-			n = get_unsigned_exp(packed);
-			SkASSERT(n == shift);
-			n = get_unsigned_value(packed);
-			SkASSERT(n == value);
-		}
+            n = SkExtractSign(packed);
+            SkASSERT(n == sign);
+            n = get_unsigned_exp(packed);
+            SkASSERT(n == shift);
+            n = get_unsigned_value(packed);
+            SkASSERT(n == value);
+        }
 #endif
-		return packed;
-	}
+        return packed;
+    }
 }
 
 S32 SkFloat::Neg(S32 packed)
 {
-	if (packed)
-		packed = packed ^ (1 << 31);
-	return packed;
+    if (packed)
+        packed = packed ^ (1 << 31);
+    return packed;
 }
 
 S32 SkFloat::Add(S32 packed_a, S32 packed_b)
 {
-	if (packed_a == 0)
-		return packed_b;
-	if (packed_b == 0)
-		return packed_a;
+    if (packed_a == 0)
+        return packed_b;
+    if (packed_b == 0)
+        return packed_a;
 
-	int	exp_a = get_unsigned_exp(packed_a);
-	int	exp_b = get_unsigned_exp(packed_b);
-	int exp_diff = exp_a - exp_b;
+    int exp_a = get_unsigned_exp(packed_a);
+    int exp_b = get_unsigned_exp(packed_b);
+    int exp_diff = exp_a - exp_b;
 
-	int	shift_a = 0, shift_b = 0;
-	int	exp;
+    int shift_a = 0, shift_b = 0;
+    int exp;
 
-	if (exp_diff >= 0)
-	{
-		if (exp_diff > 24)	// B is too small to contribute
-			return packed_a;
-		shift_b = exp_diff;
-		exp = exp_a;
-	}
-	else
-	{
-		exp_diff = -exp_diff;
-		if (exp_diff > 24)	// A is too small to contribute
-			return packed_b;
-		shift_a = exp_diff;
-		exp = exp_b;
-	}
+    if (exp_diff >= 0)
+    {
+        if (exp_diff > 24)  // B is too small to contribute
+            return packed_a;
+        shift_b = exp_diff;
+        exp = exp_a;
+    }
+    else
+    {
+        exp_diff = -exp_diff;
+        if (exp_diff > 24)  // A is too small to contribute
+            return packed_b;
+        shift_a = exp_diff;
+        exp = exp_b;
+    }
 
-	int	value_a = get_signed_value(packed_a) >> shift_a;
-	int value_b = get_signed_value(packed_b) >> shift_b;
+    int value_a = get_signed_value(packed_a) >> shift_a;
+    int value_b = get_signed_value(packed_b) >> shift_b;
 
-	return SkFloat::SetShift(value_a + value_b, exp - EXP_BIAS);
+    return SkFloat::SetShift(value_a + value_b, exp - EXP_BIAS);
 }
 
 #include "Sk64.h"
 
 static inline S32 mul24(S32 a, S32 b)
 {
-	Sk64 tmp;
+    Sk64 tmp;
 
-	tmp.setMul(a, b);
-	tmp.roundRight(24);
-	return tmp.get32();
+    tmp.setMul(a, b);
+    tmp.roundRight(24);
+    return tmp.get32();
 }
 
 S32 SkFloat::Mul(S32 packed_a, S32 packed_b)
 {
-	if (packed_a == 0 || packed_b == 0)
-		return 0;
+    if (packed_a == 0 || packed_b == 0)
+        return 0;
 
-	int	exp_a = get_unsigned_exp(packed_a);
-	int	exp_b = get_unsigned_exp(packed_b);
+    int exp_a = get_unsigned_exp(packed_a);
+    int exp_b = get_unsigned_exp(packed_b);
 
-	int	value_a = get_signed_value(packed_a);
-	int value_b = get_signed_value(packed_b);
+    int value_a = get_signed_value(packed_a);
+    int value_b = get_signed_value(packed_b);
 
-	return SkFloat::SetShift(mul24(value_a, value_b), exp_a + exp_b - 2*EXP_BIAS + 24);
+    return SkFloat::SetShift(mul24(value_a, value_b), exp_a + exp_b - 2*EXP_BIAS + 24);
 }
 
 S32 SkFloat::MulInt(S32 packed, int n)
 {
-	return Mul(packed, SetShift(n, 0));
+    return Mul(packed, SetShift(n, 0));
 }
 
 S32 SkFloat::Div(S32 packed_n, S32 packed_d)
 {
-	SkASSERT(packed_d != 0);
+    SkASSERT(packed_d != 0);
 
-	if (packed_n == 0)
-		return 0;
+    if (packed_n == 0)
+        return 0;
 
-	int	exp_n = get_unsigned_exp(packed_n);
-	int	exp_d = get_unsigned_exp(packed_d);
+    int exp_n = get_unsigned_exp(packed_n);
+    int exp_d = get_unsigned_exp(packed_d);
 
-	int	value_n = get_signed_value(packed_n);
-	int value_d = get_signed_value(packed_d);
+    int value_n = get_signed_value(packed_n);
+    int value_d = get_signed_value(packed_d);
 
-	return SkFloat::SetShift(SkDivBits(value_n, value_d, 24), exp_n - exp_d - 24);
+    return SkFloat::SetShift(SkDivBits(value_n, value_d, 24), exp_n - exp_d - 24);
 }
 
 S32 SkFloat::DivInt(S32 packed, int n)
 {
-	return Div(packed, SetShift(n, 0));
+    return Div(packed, SetShift(n, 0));
 }
 
 S32 SkFloat::Invert(S32 packed)
 {
-	return Div(packed, SetShift(1, 0));
+    return Div(packed, SetShift(1, 0));
 }
 
 S32 SkFloat::Sqrt(S32 packed)
 {
-	if (packed < 0)
-	{
-		SkASSERT(!"can't sqrt a negative number");
-		return 0;
-	}
+    if (packed < 0)
+    {
+        SkASSERT(!"can't sqrt a negative number");
+        return 0;
+    }
 
-	int	exp = get_unsigned_exp(packed);
-	int	value = get_unsigned_value(packed);
+    int exp = get_unsigned_exp(packed);
+    int value = get_unsigned_value(packed);
 
-	int nexp = exp - EXP_BIAS;
-	int root = SkSqrtBits(value << (nexp & 1), 26);
-	nexp >>= 1;
-	return SkFloat::SetShift(root, nexp - 11);
+    int nexp = exp - EXP_BIAS;
+    int root = SkSqrtBits(value << (nexp & 1), 26);
+    nexp >>= 1;
+    return SkFloat::SetShift(root, nexp - 11);
 }
 
-#if defined _WIN32 && _MSC_VER >= 1300	// disable warning : unreachable code
+#if defined _WIN32 && _MSC_VER >= 1300  // disable warning : unreachable code
 #pragma warning ( push )
 #pragma warning ( disable : 4702 )
 #endif
 
 S32 SkFloat::CubeRoot(S32 packed)
 {
-	sk_throw();
-	return 0;
+    sk_throw();
+    return 0;
 }
 
 #if defined _WIN32 && _MSC_VER >= 1300
@@ -236,20 +253,20 @@ S32 SkFloat::CubeRoot(S32 packed)
 
 static inline S32 clear_high_bit(S32 n)
 {
-	return ((U32)(n << 1)) >> 1;
+    return ((U32)(n << 1)) >> 1;
 }
 
 static inline int int_sign(S32 a, S32 b)
 {
-	return a > b ? 1 : (a < b ? -1 : 0);
+    return a > b ? 1 : (a < b ? -1 : 0);
 }
 
 int SkFloat::Cmp(S32 packed_a, S32 packed_b)
 {
-	packed_a = SkApplySign(clear_high_bit(packed_a), SkExtractSign(packed_a));
-	packed_b = SkApplySign(clear_high_bit(packed_b), SkExtractSign(packed_b));
+    packed_a = SkApplySign(clear_high_bit(packed_a), SkExtractSign(packed_a));
+    packed_b = SkApplySign(clear_high_bit(packed_b), SkExtractSign(packed_b));
 
-	return int_sign(packed_a, packed_b);
+    return int_sign(packed_a, packed_b);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -265,121 +282,121 @@ int SkFloat::Cmp(S32 packed_a, S32 packed_b)
 void SkFloat::UnitTest()
 {
 #ifdef SK_SUPPORT_UNITTEST
-	SkFloat	a, b, c, d;
-	int		n;
+    SkFloat a, b, c, d;
+    int     n;
 
-	a.setZero();
-	n = a.getInt();
-	SkASSERT(n == 0);
+    a.setZero();
+    n = a.getInt();
+    SkASSERT(n == 0);
 
-	b.setInt(5);
-	n = b.getInt();
-	SkASSERT(n == 5);
+    b.setInt(5);
+    n = b.getInt();
+    SkASSERT(n == 5);
 
-	c.setInt(-3);
-	n = c.getInt();
-	SkASSERT(n == -3);
+    c.setInt(-3);
+    n = c.getInt();
+    SkASSERT(n == -3);
 
-	d.setAdd(c, b);
-	SkDebugf("SkFloat: %d + %d = %d\n", c.getInt(), b.getInt(), d.getInt());	
+    d.setAdd(c, b);
+    SkDebugf("SkFloat: %d + %d = %d\n", c.getInt(), b.getInt(), d.getInt());    
 
-	SkRandom	rand;
+    SkRandom    rand;
 
 #ifdef SK_CAN_USE_FLOAT
-	int i;
-	for (i = 0; i < 1000; i++)
-	{
-		float fa, fb;
-		int	aa = rand.nextS() >> 14;
-		int bb = rand.nextS() >> 14;
-		a.setInt(aa);
-		b.setInt(bb);
-		SkASSERT(a.getInt() == aa);
-		SkASSERT(b.getInt() == bb);
+    int i;
+    for (i = 0; i < 1000; i++)
+    {
+        float fa, fb;
+        int aa = rand.nextS() >> 14;
+        int bb = rand.nextS() >> 14;
+        a.setInt(aa);
+        b.setInt(bb);
+        SkASSERT(a.getInt() == aa);
+        SkASSERT(b.getInt() == bb);
 
-		c.setAdd(a, b);
-		int	cc = c.getInt();
-		SkASSERT(cc == aa + bb);
+        c.setAdd(a, b);
+        int cc = c.getInt();
+        SkASSERT(cc == aa + bb);
 
-		c.setSub(a, b);
-		cc = c.getInt();
-		SkASSERT(cc == aa - bb);
+        c.setSub(a, b);
+        cc = c.getInt();
+        SkASSERT(cc == aa - bb);
 
-		aa >>= 5;
-		bb >>= 5;
-		a.setInt(aa);
-		b.setInt(bb);
-		c.setMul(a, b);
-		cc = c.getInt();
-		SkASSERT(cc == aa * bb);
-		/////////////////////////////////////
+        aa >>= 5;
+        bb >>= 5;
+        a.setInt(aa);
+        b.setInt(bb);
+        c.setMul(a, b);
+        cc = c.getInt();
+        SkASSERT(cc == aa * bb);
+        /////////////////////////////////////
 
-		aa = rand.nextS() >> 11;
-		a.setFixed(aa);
-		cc = a.getFixed();
-		SkASSERT(aa == cc);
+        aa = rand.nextS() >> 11;
+        a.setFixed(aa);
+        cc = a.getFixed();
+        SkASSERT(aa == cc);
 
-		bb = rand.nextS() >> 11;
-		b.setFixed(bb);
-		cc = b.getFixed();
-		SkASSERT(bb == cc);
+        bb = rand.nextS() >> 11;
+        b.setFixed(bb);
+        cc = b.getFixed();
+        SkASSERT(bb == cc);
 
-		cc = SkFixedMul(aa, bb);
-		c.setMul(a, b);
-		SkFixed dd = c.getFixed();
-		int diff = cc - dd;
-		SkASSERT(SkAbs32(diff) <= 1);
+        cc = SkFixedMul(aa, bb);
+        c.setMul(a, b);
+        SkFixed dd = c.getFixed();
+        int diff = cc - dd;
+        SkASSERT(SkAbs32(diff) <= 1);
 
-		fa = (float)aa / 65536.0f;
-		fb = (float)bb / 65536.0f;
-		a.assertEquals(fa);
-		b.assertEquals(fb);
-		fa = a.getFloat();
-		fb = b.getFloat();
+        fa = (float)aa / 65536.0f;
+        fb = (float)bb / 65536.0f;
+        a.assertEquals(fa);
+        b.assertEquals(fb);
+        fa = a.getFloat();
+        fb = b.getFloat();
 
-		c.assertEquals(fa * fb, 1);
+        c.assertEquals(fa * fb, 1);
 
-		c.setDiv(a, b);
-		cc = SkFixedDiv(aa, bb);
-		dd = c.getFixed();
-		diff = cc - dd;
-		SkASSERT(SkAbs32(diff) <= 3);
+        c.setDiv(a, b);
+        cc = SkFixedDiv(aa, bb);
+        dd = c.getFixed();
+        diff = cc - dd;
+        SkASSERT(SkAbs32(diff) <= 3);
 
-		c.assertEquals(fa / fb, 1);
+        c.assertEquals(fa / fb, 1);
 
-		SkASSERT((aa == bb) == (a == b));
-		SkASSERT((aa != bb) == (a != b));
-		SkASSERT((aa < bb) == (a < b));
-		SkASSERT((aa <= bb) == (a <= b));
-		SkASSERT((aa > bb) == (a > b));
-		SkASSERT((aa >= bb) == (a >= b));
+        SkASSERT((aa == bb) == (a == b));
+        SkASSERT((aa != bb) == (a != b));
+        SkASSERT((aa < bb) == (a < b));
+        SkASSERT((aa <= bb) == (a <= b));
+        SkASSERT((aa > bb) == (a > b));
+        SkASSERT((aa >= bb) == (a >= b));
 
-		if (aa < 0)
-		{
-			aa = -aa;
-			fa = -fa;
-		}
-		a.setFixed(aa);
-		c.setSqrt(a);
-		cc = SkFixedSqrt(aa);
-		dd = c.getFixed();
-		SkASSERT(dd == cc);
+        if (aa < 0)
+        {
+            aa = -aa;
+            fa = -fa;
+        }
+        a.setFixed(aa);
+        c.setSqrt(a);
+        cc = SkFixedSqrt(aa);
+        dd = c.getFixed();
+        SkASSERT(dd == cc);
 
-		c.assertEquals(sk_float_sqrt(fa), 2);
+        c.assertEquals(sk_float_sqrt(fa), 2);
 
-		// cuberoot
+        // cuberoot
 #if 0
-		a.setInt(1);
-		a.cubeRoot();
-		a.assertEquals(1.0f, 0);
-		a.setInt(8);
-		a.cubeRoot();
-		a.assertEquals(2.0f, 0);
-		a.setInt(27);
-		a.cubeRoot();
-		a.assertEquals(3.0f, 0);
+        a.setInt(1);
+        a.cubeRoot();
+        a.assertEquals(1.0f, 0);
+        a.setInt(8);
+        a.cubeRoot();
+        a.assertEquals(2.0f, 0);
+        a.setInt(27);
+        a.cubeRoot();
+        a.assertEquals(3.0f, 0);
 #endif
-	}
+    }
 #endif
 #endif
 }

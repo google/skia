@@ -1,3 +1,20 @@
+/* libs/graphics/xml/SkJS.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include <jsapi.h>
 
 #include "SkJS.h"
@@ -5,61 +22,61 @@
 
 #ifdef _WIN32_WCE
 extern "C" {
-	void abort() {
-		SkASSERT(0);
-	}
+    void abort() {
+        SkASSERT(0);
+    }
 
-	unsigned int _control87(unsigned int _new, unsigned int mask ) {
-		SkASSERT(0);
-		return 0;
-	}
+    unsigned int _control87(unsigned int _new, unsigned int mask ) {
+        SkASSERT(0);
+        return 0;
+    }
 
-	time_t mktime(struct tm *timeptr ) {
-		SkASSERT(0);
-		return 0;
-	}
+    time_t mktime(struct tm *timeptr ) {
+        SkASSERT(0);
+        return 0;
+    }
 
-//	int errno;
+//  int errno;
 
-	char *strdup(const char *) {
-		SkASSERT(0);
-		return 0;
-	}
+    char *strdup(const char *) {
+        SkASSERT(0);
+        return 0;
+    }
 
-	char *strerror(int errnum) {
-		SkASSERT(0);
-		return 0;
-	}
+    char *strerror(int errnum) {
+        SkASSERT(0);
+        return 0;
+    }
 
-	int isatty(void* fd) {
-		SkASSERT(0);
-		return 0;
-	}
+    int isatty(void* fd) {
+        SkASSERT(0);
+        return 0;
+    }
 
-	int putenv(const char *envstring) {
-		SkASSERT(0);
-		return 0;
-	}
+    int putenv(const char *envstring) {
+        SkASSERT(0);
+        return 0;
+    }
 
-	char *getenv(const char *varname) {
-		SkASSERT(0);
-		return 0;
-	}
+    char *getenv(const char *varname) {
+        SkASSERT(0);
+        return 0;
+    }
 
-	void GetSystemTimeAsFileTime(LPFILETIME lpSystemTimeAsFileTime) {
-		SkASSERT(0);
-	}
+    void GetSystemTimeAsFileTime(LPFILETIME lpSystemTimeAsFileTime) {
+        SkASSERT(0);
+    }
 
-	struct tm * localtime(const time_t *timer) {
-		SkASSERT(0);
-		return 0;
-	}
+    struct tm * localtime(const time_t *timer) {
+        SkASSERT(0);
+        return 0;
+    }
 
-	size_t strftime(char *strDest, size_t maxsize, const char *format,
-		const struct tm *timeptr ) {
-		SkASSERT(0);
-		return 0;
-	}
+    size_t strftime(char *strDest, size_t maxsize, const char *format,
+        const struct tm *timeptr ) {
+        SkASSERT(0);
+        return 0;
+    }
 
 }
 #endif
@@ -150,70 +167,71 @@ JSClass global_class = {
 };
 
 SkJS::SkJS(void* hwnd) : SkOSWindow(hwnd) {
-	if ((fRuntime = JS_NewRuntime(0x100000)) == nil) {
-		SkASSERT(0);
-		return;
-	}
-	if ((fContext = JS_NewContext(fRuntime, 0x1000)) == nil) {
-		SkASSERT(0);
-		return;
-	}
-	;
-	if ((fGlobal = JS_NewObject(fContext, &global_class, NULL, NULL)) == nil) {
-		SkASSERT(0);
-		return;
-	}
-	if (JS_InitStandardClasses(fContext, fGlobal) == nil) {
-		SkASSERT(0);
-		return;
-	}
-	setConfig(SkBitmap::kARGB32_Config);
-	updateSize();
-	setVisibleP(true);
-	InitializeDisplayables(getBitmap(), fContext, fGlobal, NULL);
+    if ((fRuntime = JS_NewRuntime(0x100000)) == nil) {
+        SkASSERT(0);
+        return;
+    }
+    if ((fContext = JS_NewContext(fRuntime, 0x1000)) == nil) {
+        SkASSERT(0);
+        return;
+    }
+    ;
+    if ((fGlobal = JS_NewObject(fContext, &global_class, NULL, NULL)) == nil) {
+        SkASSERT(0);
+        return;
+    }
+    if (JS_InitStandardClasses(fContext, fGlobal) == nil) {
+        SkASSERT(0);
+        return;
+    }
+    setConfig(SkBitmap::kARGB32_Config);
+    updateSize();
+    setVisibleP(true);
+    InitializeDisplayables(getBitmap(), fContext, fGlobal, NULL);
 }
 
 SkJS::~SkJS() {
-	DisposeDisplayables();
+    DisposeDisplayables();
     JS_DestroyContext(fContext);
     JS_DestroyRuntime(fRuntime);
     JS_ShutDown();
 }
 
 SkBool SkJS::EvaluateScript(const char* script, jsval* rVal) {
-	return JS_EvaluateScript(fContext, fGlobal, script, strlen(script),
-		"memory" /* no file name */, 0 /* no line number */, rVal);
+    return JS_EvaluateScript(fContext, fGlobal, script, strlen(script),
+        "memory" /* no file name */, 0 /* no line number */, rVal);
 }
 
 SkBool SkJS::ValueToString(jsval value, SkString* string) {
-	 JSString* str = JS_ValueToString(fContext, value);
-	 if (str == NULL)
-		 return false;
-	 string->set(JS_GetStringBytes(str));
-	 return true;
+     JSString* str = JS_ValueToString(fContext, value);
+     if (str == NULL)
+         return false;
+     string->set(JS_GetStringBytes(str));
+     return true;
 }
 
 #ifdef SK_DEBUG
 void SkJS::Test(void* hwnd) {
-	SkJS js(hwnd);
-	jsval val;
-	SkBool success = js.EvaluateScript("22/7", &val);
-	SkASSERT(success);
-	SkString string;
-	success = js.ValueToString(val, &string);
-	SkASSERT(success);
-	SkASSERT(strcmp(string.c_str(), "3.142857142857143") == 0);
-	success = js.EvaluateScript(
-		"var rect = new rectangle();"
-		"rect.left = 4;"
-		"rect.top = 10;"
-		"rect.right = 20;"
-		"rect.bottom = 30;"
-		"rect.width = rect.height + 20;"
-		"rect.draw();"
-		, &val);
-	SkASSERT(success);
-	success = js.ValueToString(val, &string);
-	SkASSERT(success);
+    SkJS js(hwnd);
+    jsval val;
+    SkBool success = js.EvaluateScript("22/7", &val);
+    SkASSERT(success);
+    SkString string;
+    success = js.ValueToString(val, &string);
+    SkASSERT(success);
+    SkASSERT(strcmp(string.c_str(), "3.142857142857143") == 0);
+    success = js.EvaluateScript(
+        "var rect = new rectangle();"
+        "rect.left = 4;"
+        "rect.top = 10;"
+        "rect.right = 20;"
+        "rect.bottom = 30;"
+        "rect.width = rect.height + 20;"
+        "rect.draw();"
+        , &val);
+    SkASSERT(success);
+    success = js.ValueToString(val, &string);
+    SkASSERT(success);
 }
-#endif
+#endifASSERT(success);
+

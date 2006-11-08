@@ -1,3 +1,20 @@
+/* include/graphics/SkPath.h
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #ifndef SkPath_DEFINED
 #define SkPath_DEFINED
 
@@ -6,367 +23,382 @@
 
 class SkString;
 
-/**	\class SkPath
+/** \class SkPath
 
-	The SkPath class encapsulates compound (multiple contour) geometric paths consisting
-	of straight line segments, quadratic curves, and cubic curves.
+    The SkPath class encapsulates compound (multiple contour) geometric paths consisting
+    of straight line segments, quadratic curves, and cubic curves.
 */
 class SkPath {
 public:
-	SkPath();
-	SkPath(const SkPath&);
-	~SkPath();
+    SkPath();
+    SkPath(const SkPath&);
+    ~SkPath();
 
-	SkPath& operator=(const SkPath&);
+    SkPath& operator=(const SkPath&);
 
-	enum FillType {
-		kWinding_FillType,	//!< Specifies that "inside" is computed by a non-zero sum of signed edge crossings
-		kEvenOdd_FillType	//!< Specifies that "inside" is computed by an odd number of edge crossings
-	};
-	/**	Return the path's fill type. This is used to define how "inside" is computed.
-		The default value is kWinding_FillType.
+    enum FillType {
+        kWinding_FillType,  //!< Specifies that "inside" is computed by a non-zero sum of signed edge crossings
+        kEvenOdd_FillType   //!< Specifies that "inside" is computed by an odd number of edge crossings
+    };
+    /** Return the path's fill type. This is used to define how "inside" is computed.
+        The default value is kWinding_FillType.
         @return the path's fill type
-	*/
-	FillType	getFillType() const { return (FillType)fFillType; }
-	/**	Set the path's fill type. This is used to define how "inside" is computed.
-		The default value is kWinding_FillType.
+    */
+    FillType    getFillType() const { return (FillType)fFillType; }
+    /** Set the path's fill type. This is used to define how "inside" is computed.
+        The default value is kWinding_FillType.
         @param ft The new fill type for this path
-	*/
-	void		setFillType(FillType ft) { fFillType = SkToU8(ft); }
+    */
+    void        setFillType(FillType ft) { fFillType = SkToU8(ft); }
 
-	/**	Clear any lines and curves from the path, making it empty.
-		This does NOT change the fill-type setting.
-	*/
-	void	reset();
-	/**	Returns true if the path is empty (contains no lines or curves)
+    /** Clear any lines and curves from the path, making it empty.
+        This does NOT change the fill-type setting.
+    */
+    void    reset();
+    /** Returns true if the path is empty (contains no lines or curves)
         @return true if the path is empty (contains no lines or curves)
-	*/
-	bool	isEmpty() const;
-	/**	Returns true if the path specifies a rectangle. If so, and if rect is not nil,
-		set rect to the bounds of the path. If the path does not specify a rectangle,
-		return false and ignore rect.
-		@param rect	If not nil, returns the bounds of the path if it specifies a rectangle
-		@return true if the path specifies a rectangle
-	*/
-	bool	isRect(SkRect* rect) const;
-	/**	Returns the number of points in the path. Up to max points are copied.
-		@param points If not null, receives up to max points
-		@param max The maximum number of points to copy into points
-		@return the actual number of points in the path
-	*/
-	int 	getPoints(SkPoint points[], int max) const;
-	//!	Swap contents of this and other. Guaranteed not to throw
-	void	swap(SkPath& other);
+    */
+    bool    isEmpty() const;
+    /** Returns true if the path specifies a rectangle. If so, and if rect is not nil,
+        set rect to the bounds of the path. If the path does not specify a rectangle,
+        return false and ignore rect.
+        @param rect If not nil, returns the bounds of the path if it specifies a rectangle
+        @return true if the path specifies a rectangle
+    */
+    bool    isRect(SkRect* rect) const;
+    /** Returns the number of points in the path. Up to max points are copied.
+        @param points If not null, receives up to max points
+        @param max The maximum number of points to copy into points
+        @return the actual number of points in the path
+    */
+    int     getPoints(SkPoint points[], int max) const;
+    //! Swap contents of this and other. Guaranteed not to throw
+    void    swap(SkPath& other);
 
-	enum BoundsType {
-		kFast_BoundsType,	//!< compute the bounds of the path's control points, may be larger than with kExact_BoundsType, but may be faster to compute
-		kExact_BoundsType	//!< compute the exact bounds of the path, may be smaller than with kFast_BoundsType, but may be slower to compute
-	};
-	/**	Compute the bounds of the path, and write the answer into bounds. If the path contains 0 or 1 points,
-		the bounds is set to (0,0,0,0)
+    enum BoundsType {
+        kFast_BoundsType,   //!< compute the bounds of the path's control points, may be larger than with kExact_BoundsType, but may be faster to compute
+        kExact_BoundsType   //!< compute the exact bounds of the path, may be smaller than with kFast_BoundsType, but may be slower to compute
+    };
+    /** Compute the bounds of the path, and write the answer into bounds. If the path contains 0 or 1 points,
+        the bounds is set to (0,0,0,0)
         @param bounds   Returns the computed bounds of the path
         @param btype    Specifies if the computed bounds should be exact (slower) or approximate (faster)
-	*/
-	void	computeBounds(SkRect* bounds, BoundsType btype) const;
+    */
+    void    computeBounds(SkRect* bounds, BoundsType btype) const;
 
-	//	Construction methods
+    //  Construction methods
 
     /** Hint to the path to prepare for adding more points. This can allow the path to more efficiently grow its storage.
         @param extraPtCount The number of extra points that may be added to this path
     */
-	void	incReserve(unsigned extraPtCount);
+    void    incReserve(unsigned extraPtCount);
 
-	/**	Set the beginning of the next contour to the point (x,y).
+    /** Set the beginning of the next contour to the point (x,y).
         @param x    The x-coordinate of the start of a new contour
         @param y    The y-coordinate of the start of a new contour
-	*/
-	void	moveTo(SkScalar x, SkScalar y);
+    */
+    void    moveTo(SkScalar x, SkScalar y);
     /** Set the beginning of the next contour to the point
         @param p    The start of a new contour
     */
-	void moveTo(const SkPoint& p)
-	{
-		this->moveTo(p.fX, p.fY);
-	}
-	/**	Set the beginning of the next contour relative to the last point on the previous
-		contour. If there is no previous contour, this is treated the same as moveTo().
+    void moveTo(const SkPoint& p)
+    {
+        this->moveTo(p.fX, p.fY);
+    }
+    /** Set the beginning of the next contour relative to the last point on the previous
+        contour. If there is no previous contour, this is treated the same as moveTo().
         @param dx   The amount to add to the x-coordinate of the end of the previous contour, to specify the start of a new contour
         @param dy   The amount to add to the y-coordinate of the end of the previous contour, to specify the start of a new contour
-	*/
-	void	rMoveTo(SkScalar dx, SkScalar dy);
-	/**	Add a line from the last point to the specified point (x,y).
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    rMoveTo(SkScalar dx, SkScalar dy);
+    /** Add a line from the last point to the specified point (x,y).
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
         @param x    The x-coordinate of the end of a line
         @param y    The y-coordinate of the end of a line
-	*/
-	void	lineTo(SkScalar x, SkScalar y);
-	/**	Add a line from the last point to the specified point.
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    lineTo(SkScalar x, SkScalar y);
+    /** Add a line from the last point to the specified point.
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
         @param p    The end of a line
-	*/
-	void	lineTo(const SkPoint& p)
-	{
-		this->lineTo(p.fX, p.fY);
-	}
-	/**	Same as lineTo, but the coordinates are considered relative to the last point on this
-		contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
+    */
+    void    lineTo(const SkPoint& p)
+    {
+        this->lineTo(p.fX, p.fY);
+    }
+    /** Same as lineTo, but the coordinates are considered relative to the last point on this
+        contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
         @param dx   The amount to add to the x-coordinate of the previous point on this contour, to specify a line
         @param dy   The amount to add to the y-coordinate of the previous point on this contour, to specify a line
-	*/
-	void	rLineTo(SkScalar dx, SkScalar dy);
-	/**	Add a quadratic bezier from the last point, approaching control point (x1,y1), and ending at (x2,y2).
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    rLineTo(SkScalar dx, SkScalar dy);
+    /** Add a quadratic bezier from the last point, approaching control point (x1,y1), and ending at (x2,y2).
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
         @param x1   The x-coordinate of the control point on a quadratic curve
         @param y1   The y-coordinate of the control point on a quadratic curve
         @param x2   The x-coordinate of the end point on a quadratic curve
         @param y2   The y-coordinate of the end point on a quadratic curve
-	*/
-	void	quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2);
-	/**	Add a quadratic bezier from the last point, approaching control point p1, and ending at p2.
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2);
+    /** Add a quadratic bezier from the last point, approaching control point p1, and ending at p2.
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
         @param p1   The control point on a quadratic curve
         @param p2   The end point on a quadratic curve
-	*/
-	void	quadTo(const SkPoint& p1, const SkPoint& p2)
-	{
-		this->quadTo(p1.fX, p1.fY, p2.fX, p2.fY);
-	}
-	/**	Same as quadTo, but the coordinates are considered relative to the last point on this
-		contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
+    */
+    void    quadTo(const SkPoint& p1, const SkPoint& p2)
+    {
+        this->quadTo(p1.fX, p1.fY, p2.fX, p2.fY);
+    }
+    /** Same as quadTo, but the coordinates are considered relative to the last point on this
+        contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
         @param dx1   The amount to add to the x-coordinate of the last point on this contour, to specify the control point of a quadratic curve
         @param dy1   The amount to add to the y-coordinate of the last point on this contour, to specify the control point of a quadratic curve
         @param dx2   The amount to add to the x-coordinate of the last point on this contour, to specify the end point of a quadratic curve
         @param dy2   The amount to add to the y-coordinate of the last point on this contour, to specify the end point of a quadratic curve
-	*/
-	void	rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2);
-	/**	Add a cubic bezier from the last point, approaching control points (x1,y1) and (x2,y2), and ending at (x3,y3).
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    rQuadTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2);
+    /** Add a cubic bezier from the last point, approaching control points (x1,y1) and (x2,y2), and ending at (x3,y3).
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
         @param x1   The x-coordinate of the 1st control point on a cubic curve
         @param y1   The y-coordinate of the 1st control point on a cubic curve
         @param x2   The x-coordinate of the 2nd control point on a cubic curve
         @param y2   The y-coordinate of the 2nd control point on a cubic curve
         @param x3   The x-coordinate of the end point on a cubic curve
         @param y3   The y-coordinate of the end point on a cubic curve
-	*/
-	void	cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3);
-	/**	Add a cubic bezier from the last point, approaching control points p1 and p2, and ending at p3.
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3);
+    /** Add a cubic bezier from the last point, approaching control points p1 and p2, and ending at p3.
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
         @param p1   The 1st control point on a cubic curve
         @param p2   The 2nd control point on a cubic curve
         @param p3   The end point on a cubic curve
-	*/
-	void	cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3)
-	{
-		this->cubicTo(p1.fX, p1.fY, p2.fX, p2.fY, p3.fX, p3.fY);
-	}
-	/**	Same as cubicTo, but the coordinates are considered relative to the current point on this
-		contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
+    */
+    void    cubicTo(const SkPoint& p1, const SkPoint& p2, const SkPoint& p3)
+    {
+        this->cubicTo(p1.fX, p1.fY, p2.fX, p2.fY, p3.fX, p3.fY);
+    }
+    /** Same as cubicTo, but the coordinates are considered relative to the current point on this
+        contour. If there is no previous point, then a moveTo(0,0) is inserted automatically.
         @param dx1   The amount to add to the x-coordinate of the last point on this contour, to specify the 1st control point of a cubic curve
         @param dy1   The amount to add to the y-coordinate of the last point on this contour, to specify the 1st control point of a cubic curve
         @param dx2   The amount to add to the x-coordinate of the last point on this contour, to specify the 2nd control point of a cubic curve
         @param dy2   The amount to add to the y-coordinate of the last point on this contour, to specify the 2nd control point of a cubic curve
         @param dx3   The amount to add to the x-coordinate of the last point on this contour, to specify the end point of a cubic curve
         @param dy3   The amount to add to the y-coordinate of the last point on this contour, to specify the end point of a cubic curve
-	*/
-	void	rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3);
-	/**	Close the current contour. If the current point is not equal to the first point of the contour,
-		a line segment is automatically added.
-	*/
-	void	close();
+    */
+    void    rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3);
+    /** Append the specified arc to the path as a new contour. If the start of the path is different from the
+        path's current last point, then an automatic lineTo() is added to connect the current contour to the
+        start of the arc. However, if the path is empty, then we call moveTo() with the first point of the arc.
+        @param oval The bounds of oval used to define the shape and size of the arc
+        @param startAngle Starting angle (in degrees) where the arc begins
+        @param sweepAngle Sweep angle (in degrees) measured clockwise
+        @param forceMoveTo If true, always begin a new contour with the arc
+    */
+    void    arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo = false);
+    /** Close the current contour. If the current point is not equal to the first point of the contour,
+        a line segment is automatically added.
+    */
+    void    close();
 
-	enum Direction {
-		kCW_Direction,	//!< clockwise direction for adding closed contours
-		kCCW_Direction	//!< counter-clockwise direction for adding closed contours
-	};
-	/**	Add a closed rectangle contour to the path
+    enum Direction {
+        kCW_Direction,  //!< clockwise direction for adding closed contours
+        kCCW_Direction  //!< counter-clockwise direction for adding closed contours
+    };
+    /** Add a closed rectangle contour to the path
         @param rect The rectangle to add as a closed contour to the path
         @param dir  The direction to wind the rectangle's contour
-	*/
-	void	addRect(const SkRect& rect, Direction dir = kCW_Direction);
-	/**	Add a closed rectangle contour to the path
+    */
+    void    addRect(const SkRect& rect, Direction dir = kCW_Direction);
+    /** Add a closed rectangle contour to the path
         @param left     The left side of a rectangle to add as a closed contour to the path
         @param top      The top of a rectangle to add as a closed contour to the path
         @param right    The right side of a rectangle to add as a closed contour to the path
         @param bottom   The bottom of a rectangle to add as a closed contour to the path
         @param dir      The direction to wind the rectangle's contour
-	*/
-	void	addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom, Direction dir = kCW_Direction);
-	/**	Add a closed oval contour to the path
+    */
+    void    addRect(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom, Direction dir = kCW_Direction);
+    /** Add a closed oval contour to the path
         @param oval The bounds of the oval to add as a closed contour to the path
         @param dir  The direction to wind the oval's contour
-	*/
-	void	addOval(const SkRect& oval, Direction dir = kCW_Direction);
-	/**	Add a closed circle contour to the path
+    */
+    void    addOval(const SkRect& oval, Direction dir = kCW_Direction);
+    /** Add a closed circle contour to the path
         @param x        The x-coordinate of the center of a circle to add as a closed contour to the path
         @param y        The y-coordinate of the center of a circle to add as a closed contour to the path
         @param radius   The radius of a circle to add as a closed contour to the path
         @param dir      The direction to wind the circle's contour
-	*/
-	void	addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir = kCW_Direction);
-	/**	Add a closed round-rectangle contour to the path
+    */
+    void    addCircle(SkScalar x, SkScalar y, SkScalar radius, Direction dir = kCW_Direction);
+    /** Add the specified arc to the path as a new contour.
+        @param oval The bounds of oval used to define the shape and size of the arc
+        @param startAngle Starting angle (in degrees) where the arc begins
+        @param sweepAngle Sweep angle (in degrees) measured clockwise
+    */
+    void    addArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle);
+    /** Add a closed round-rectangle contour to the path
         @param rect The bounds of a round-rectangle to add as a closed contour to the path
         @param rx   The x-radius of the rounded corners on the round-rectangle
         @param ry   The y-radius of the rounded corners on the round-rectangle
         @param dir  The direction to wind the round-rectangle's contour
-	*/
-	void	addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir = kCW_Direction);
-	/**	Add a copy of src to the path, offset by (dx,dy)
+    */
+    void    addRoundRect(const SkRect& rect, SkScalar rx, SkScalar ry, Direction dir = kCW_Direction);
+    /** Add a copy of src to the path, offset by (dx,dy)
         @param src  The path to add as a new contour
         @param dx   The amount to translate the path in X as it is added
         @param dx   The amount to translate the path in Y as it is added
-	*/
-	void	addPath(const SkPath& src, SkScalar dx, SkScalar dy);
-	/**	Add a copy of src to the path
-	*/
-	void	addPath(const SkPath& src) { SkMatrix m; m.reset(); this->addPath(src, m); }
-	/**	Add a copy of src to the path, transformed by matrix
+    */
+    void    addPath(const SkPath& src, SkScalar dx, SkScalar dy);
+    /** Add a copy of src to the path
+    */
+    void    addPath(const SkPath& src) { SkMatrix m; m.reset(); this->addPath(src, m); }
+    /** Add a copy of src to the path, transformed by matrix
         @param src  The path to add as a new contour
-	*/
-	void	addPath(const SkPath& src, const SkMatrix& matrix);
+    */
+    void    addPath(const SkPath& src, const SkMatrix& matrix);
 
-	/**	Offset the path by (dx,dy), returning true on success
+    /** Offset the path by (dx,dy), returning true on success
         @param dx   The amount in the X direction to offset the entire path 
         @param dy   The amount in the Y direction to offset the entire path 
         @param dst  The translated path is written here
         @return true
-	*/
-	bool	offset(SkScalar dx, SkScalar dy, SkPath* dst) const;
-	/**	Offset the path by (dx,dy), returning true on success
+    */
+    bool    offset(SkScalar dx, SkScalar dy, SkPath* dst) const;
+    /** Offset the path by (dx,dy), returning true on success
         @param dx   The amount in the X direction to offset the entire path 
         @param dy   The amount in the Y direction to offset the entire path 
         @return true
-	*/
+    */
     bool    offset(SkScalar dx, SkScalar dy)
     {
         return this->offset(dx, dy, this);
     }
-	/**	Transform the points in this path by matrix, and write the answer into dst.
+    /** Transform the points in this path by matrix, and write the answer into dst.
         @param matrix   The matrix to apply to the path
         @param dst      The transformed path is written here
-		@return true
-	*/
-	bool	transform(const SkMatrix& matrix, SkPath* dst) const;
-	/**	Transform the points in this path by matrix, and write the answer into dst.
+        @return true
+    */
+    bool    transform(const SkMatrix& matrix, SkPath* dst) const;
+    /** Transform the points in this path by matrix, and write the answer into dst.
         @param matrix   The matrix to apply to the path
-		@return true
-	*/
-	bool	transform(const SkMatrix& matrix)
-	{
-		return this->transform(matrix, this);
-	}
+        @return true
+    */
+    bool    transform(const SkMatrix& matrix)
+    {
+        return this->transform(matrix, this);
+    }
 
-	/**	Return the last point on the path. If no points have been added, (0,0) is returned.
+    /** Return the last point on the path. If no points have been added, (0,0) is returned.
         @param lastPt   The last point on the path is returned here
-	*/
-	void	getLastPt(SkPoint* lastPt) const;
-	/**	Set the last point on the path. If no points have been added, moveTo(x,y) is automatically called.
+    */
+    void    getLastPt(SkPoint* lastPt) const;
+    /** Set the last point on the path. If no points have been added, moveTo(x,y) is automatically called.
         @param x    The new x-coordinate for the last point
         @param y    The new y-coordinate for the last point
-	*/
-	void	setLastPt(SkScalar x, SkScalar y);
-	/**	Set the last point on the path. If no points have been added, moveTo(p) is automatically called.
+    */
+    void    setLastPt(SkScalar x, SkScalar y);
+    /** Set the last point on the path. If no points have been added, moveTo(p) is automatically called.
         @param p    The new location for the last point
-	*/
-	void	setLastPt(const SkPoint& p) { this->setLastPt(p.fX, p.fY); }
+    */
+    void    setLastPt(const SkPoint& p) { this->setLastPt(p.fX, p.fY); }
 
-	enum Verb {
-		kMove_Verb,		//!< iter.next returns 1 point
-		kLine_Verb,		//!< iter.next returns 2 points
-		kQuad_Verb,		//!< iter.next returns 3 points
-		kCubic_Verb,	//!< iter.next returns 4 points
-		kClose_Verb,	//!< iter.next returns 1 point (the last point)
-		kDone_Verb		//!< iter.next returns 0 points
-	};
-	/**	Iterate through all of the segments (lines, quadratics, cubics) of
-		each contours in a path.
-	*/
-	class Iter {
-	public:
-				Iter();
-				Iter(const SkPath&, bool forceClose);
-		void	setPath(const SkPath&, bool forceClose);
+    enum Verb {
+        kMove_Verb,     //!< iter.next returns 1 point
+        kLine_Verb,     //!< iter.next returns 2 points
+        kQuad_Verb,     //!< iter.next returns 3 points
+        kCubic_Verb,    //!< iter.next returns 4 points
+        kClose_Verb,    //!< iter.next returns 1 point (the last point)
+        kDone_Verb      //!< iter.next returns 0 points
+    };
+    /** Iterate through all of the segments (lines, quadratics, cubics) of
+        each contours in a path.
+    */
+    class Iter {
+    public:
+                Iter();
+                Iter(const SkPath&, bool forceClose);
+        void    setPath(const SkPath&, bool forceClose);
 
         /** Return the next verb in this iteration of the path. When all segments have been
             visited, return kDone_Verb.
             @param  pts The point(s) representing the current verb and/or segment
             @return The verb for the current segment
         */
-		Verb	next(SkPoint pts[4]);
+        Verb    next(SkPoint pts[4]);
 
-		/**	If next() returns kLine_Verb, then this query returns
-			true if the line was the result of a close() command
-			(i.e. the end point is the initial moveto for this contour).
-			If next() returned a different verb, this returns an
-			undefined value.
+        /** If next() returns kLine_Verb, then this query returns
+            true if the line was the result of a close() command
+            (i.e. the end point is the initial moveto for this contour).
+            If next() returned a different verb, this returns an
+            undefined value.
             @return If the last call to next() returned kLine_Verb, return true if it was
                     the result of an explicit close command.
-		*/
-		bool	isCloseLine() const { return SkToBool(fCloseLine); }
+        */
+        bool    isCloseLine() const { return SkToBool(fCloseLine); }
         
         /** Returns true if the current contour is closed (i.e. has a kClose_Verb)
             @return true if the current contour is closed (i.e. has a kClose_Verb)
         */
         bool    isClosedContour() const;
 
-	private:
-		const SkPoint*	fPts;
-		const uint8_t*	fVerbs;
-		const uint8_t*	fVerbStop;
-		SkPoint			fMoveTo;
-		SkPoint			fLastPt;
-		SkBool8			fForceClose;
-		SkBool8			fNeedClose;
-		SkBool8			fNeedMoveTo;
-		SkBool8			fCloseLine;
+    private:
+        const SkPoint*  fPts;
+        const uint8_t*  fVerbs;
+        const uint8_t*  fVerbStop;
+        SkPoint         fMoveTo;
+        SkPoint         fLastPt;
+        SkBool8         fForceClose;
+        SkBool8         fNeedClose;
+        SkBool8         fNeedMoveTo;
+        SkBool8         fCloseLine;
 
-		bool cons_moveTo(SkPoint pts[1]);
-		Verb autoClose(SkPoint pts[2]);
-	};
+        bool cons_moveTo(SkPoint pts[1]);
+        Verb autoClose(SkPoint pts[2]);
+    };
 
 #ifdef SK_DEBUG
   /** @cond UNIT_TEST */
-	void dump(bool forceClose, const char title[] = nil) const;
-	static void UnitTest();
+    void dump(bool forceClose, const char title[] = nil) const;
+    static void UnitTest();
   /** @endcond */
 #endif
 
-	/**	Return the number of bytes (padded to a multiple of 4) needed to
-		flatten the path into a block of memory. If bufferOrNil is not nil,
-		the path is written into it. The format of the buffer is private,
-		and can be used to create a new path by calling unflatten().
-	*/
-	uint32_t    flatten(void* bufferOrNil) const;
-	void        unflatten(const void* buffer);
+    /** Return the number of bytes (padded to a multiple of 4) needed to
+        flatten the path into a block of memory. If bufferOrNil is not nil,
+        the path is written into it. The format of the buffer is private,
+        and can be used to create a new path by calling unflatten().
+    */
+    uint32_t    flatten(void* bufferOrNil) const;
+    void        unflatten(const void* buffer);
 
-	/**	Subdivide the path so that no segment is longer that dist.
-		If bendLines is true, then turn all line segments into curves.
-		If dst == nil, then the original path itself is modified (not const!)
-	*/
-	void subdivide(SkScalar dist, bool bendLines, SkPath* dst = nil) const;
+    /** Subdivide the path so that no segment is longer that dist.
+        If bendLines is true, then turn all line segments into curves.
+        If dst == nil, then the original path itself is modified (not const!)
+    */
+    void subdivide(SkScalar dist, bool bendLines, SkPath* dst = nil) const;
 
     /** Return an SVG-compatible string of the path.
     */
     void toString(SkString*) const;
 
 private:
-	SkTDArray<SkPoint>	fPts;
-	SkTDArray<uint8_t>  fVerbs;
-	uint8_t				fFillType;
+    SkTDArray<SkPoint>  fPts;
+    SkTDArray<uint8_t>  fVerbs;
+    uint8_t             fFillType;
 
-	friend class Iter;
-	void cons_moveto();
+    friend class Iter;
+    void cons_moveto();
 
-	friend class SkPathStroker;
-	/*	Append the first contour of path, ignoring path's initial point.
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
-	*/
-	void	pathTo(const SkPath& path);
-	/*	Append, in reverse order, the first contour of path, ignoring path's last point.
-		If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
-	*/
-	void	reversePathTo(const SkPath&);
+    friend class SkPathStroker;
+    /*  Append the first contour of path, ignoring path's initial point.
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    pathTo(const SkPath& path);
+    /*  Append, in reverse order, the first contour of path, ignoring path's last point.
+        If no moveTo() call has been made for this contour, the first point is automatically set to (0,0).
+    */
+    void    reversePathTo(const SkPath&);
 
-	friend const SkPoint* sk_get_path_points(const SkPath&, int index);
+    friend const SkPoint* sk_get_path_points(const SkPath&, int index);
 };
 
 #endif

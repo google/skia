@@ -1,3 +1,20 @@
+/* libs/graphics/ports/SkFontHost_android.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
 #include "SkString.h"
@@ -63,19 +80,16 @@ enum {
     CJK_FAMILY_INDEX,
     MONO_FAMILY_INDEX,
     SERIF_FAMILY_INDEX,
-    DROID_FAMILY_INDEX,
-	DROID_MORE_FAMILY_INDEX,
-	
+    MORE_FAMILY_INDEX,
+    
     FAMILY_INDEX_COUNT
 };
 
 
 
 static const FontFaceRec gSansFaces[] = {
-//    { "DejaVuSansCondensed.ttf",        SANS_FAMILY_INDEX, 0,  0 },
-//    { "DejaVuSansCondensed-Bold.ttf",   SANS_FAMILY_INDEX, 1,  0 }
-    { "DroidSans_bd100.ttf",        SANS_FAMILY_INDEX, 0,  0 },
-    { "DroidSans-Bold_bd100.ttf",   SANS_FAMILY_INDEX, 1,  0 }
+    { "DroidSans.ttf",        SANS_FAMILY_INDEX, 0,  0 },
+    { "DroidSans-Bold.ttf",   SANS_FAMILY_INDEX, 1,  0 }
 };
 
 static const FontFaceRec gCJKFaces[] = {
@@ -93,27 +107,18 @@ static const FontFaceRec gMonoFaces[] = {
     { "DejaVuSansMono.ttf", MONO_FAMILY_INDEX, 0,  0 }
 };
 
-static const FontFaceRec gDroidFaces[] = {
-	{ "DroidSansLight.ttf",  DROID_FAMILY_INDEX, 0,  0 },
-    { "DroidSans.ttf",        DROID_FAMILY_INDEX, 1,  0 },
-    { "DroidSansDemiBold.ttf",  DROID_FAMILY_INDEX, 0,  1 },
-	{ "DroidSans-SemiBold.ttf",   DROID_FAMILY_INDEX, 1,  1 }
-};
-
-static const FontFaceRec gDroidMoreFaces[] = {
-    { "DroidSans-Bold.ttf",   DROID_MORE_FAMILY_INDEX, 0,  0 },
-	{ "DroidSansBlack.ttf",  DROID_MORE_FAMILY_INDEX, 1,  0 },
-	{ "DroidSerifScotch.ttf", DROID_MORE_FAMILY_INDEX, 0,  1 }
+static const FontFaceRec gMoreFaces[] = {
+    { "DroidSansBlack.ttf",  MORE_FAMILY_INDEX, 1,  0 },
+    { "DroidSerifScotch.ttf", MORE_FAMILY_INDEX, 0,  1 }
 };
 
 // This table must be in the same order as the ..._FAMILY_INDEX enum specifies
 static const FontFamilyRec gFamilies[] = {
-    { gSansFaces,     SK_ARRAY_COUNT(gSansFaces)  },
-    { gCJKFaces,      SK_ARRAY_COUNT(gCJKFaces)   },
-    { gMonoFaces,     SK_ARRAY_COUNT(gMonoFaces)  },
-    { gSerifFaces,    SK_ARRAY_COUNT(gSerifFaces) },
-	{ gDroidFaces,    SK_ARRAY_COUNT(gDroidFaces) },
-	{ gDroidMoreFaces,    SK_ARRAY_COUNT(gDroidMoreFaces) }
+    { gSansFaces,   SK_ARRAY_COUNT(gSansFaces)  },
+    { gCJKFaces,    SK_ARRAY_COUNT(gCJKFaces)   },
+    { gMonoFaces,   SK_ARRAY_COUNT(gMonoFaces)  },
+    { gSerifFaces,  SK_ARRAY_COUNT(gSerifFaces) },
+    { gMoreFaces,   SK_ARRAY_COUNT(gMoreFaces)  }
 };
 
 #define DEFAULT_FAMILY_INDEX            SANS_FAMILY_INDEX
@@ -139,11 +144,7 @@ static const FontFamilyMatchRec gMatches[] = {
     { "courier",            MONO_FAMILY_INDEX },
     { "courier new",        MONO_FAMILY_INDEX },
     { "cursive",            SERIF_FAMILY_INDEX },
-    { "dejavu mono",        MONO_FAMILY_INDEX },
-    { "dejavu sans",        SANS_FAMILY_INDEX },
-    { "dejavu serif",       SANS_FAMILY_INDEX },
-	{ "droid more",         DROID_MORE_FAMILY_INDEX },
-	{ "droid sans",         SANS_FAMILY_INDEX },
+    { "droid more",         MORE_FAMILY_INDEX },
     { "fantasy",            SERIF_FAMILY_INDEX },
     { "goudy",              SERIF_FAMILY_INDEX },
     { "helvetica",          SANS_FAMILY_INDEX },
@@ -244,6 +245,7 @@ uint32_t SkFontHost::FlattenTypeface(const SkTypeface* tface, void* buffer)
     return size;
 }
 
+#if 0
 SkFontHost::ScalerContextID SkFontHost::FindScalerContextIDForUnichar(int32_t unichar)
 {
     // when we have more than one fall-back font, will have to do a search based on unichar
@@ -259,13 +261,29 @@ SkScalerContext* SkFontHost::CreateScalerContextFromID(ScalerContextID id, const
 
     const FontFaceRec* face = &gFamilies[(int)id - 1].fFaces[0];
 
-	SkAutoDescriptor	ad(sizeof(rec) + sizeof(face) + SkDescriptor::ComputeOverhead(2));
-	SkDescriptor*		desc = ad.getDesc();
+    SkAutoDescriptor    ad(sizeof(rec) + sizeof(face) + SkDescriptor::ComputeOverhead(2));
+    SkDescriptor*       desc = ad.getDesc();
 
-	desc->init();
-	desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+    desc->init();
+    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     desc->addEntry(kTypeface_SkDescriptorTag, sizeof(face), &face);
-	desc->computeChecksum();
+    desc->computeChecksum();
+
+    return SkFontHost::CreateScalerContext(desc);
+}
+#endif
+
+SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::Rec& rec)
+{
+    const FontFaceRec* face = &gFamilies[CJK_FAMILY_INDEX].fFaces[0];
+
+    SkAutoDescriptor    ad(sizeof(rec) + sizeof(face) + SkDescriptor::ComputeOverhead(2));
+    SkDescriptor*       desc = ad.getDesc();
+
+    desc->init();
+    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+    desc->addEntry(kTypeface_SkDescriptorTag, sizeof(face), &face);
+    desc->computeChecksum();
 
     return SkFontHost::CreateScalerContext(desc);
 }

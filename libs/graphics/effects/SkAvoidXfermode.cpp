@@ -1,3 +1,20 @@
+/* libs/graphics/effects/SkAvoidXfermode.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkAvoidXfermode.h"
 #include "SkColorPriv.h"
 
@@ -44,28 +61,28 @@ static int scale_dist_14(int dist, uint32_t mul, uint32_t sub)
 
 static SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst, U8CPU alpha)
 {
-	unsigned scale = SkAlpha255To256(alpha);
+    unsigned scale = SkAlpha255To256(alpha);
 
-	unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
-	unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
-	unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
-	unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
+    unsigned a = SkAlphaBlend(SkGetPackedA32(src), SkGetPackedA32(dst), scale);
+    unsigned r = SkAlphaBlend(SkGetPackedR32(src), SkGetPackedR32(dst), scale);
+    unsigned g = SkAlphaBlend(SkGetPackedG32(src), SkGetPackedG32(dst), scale);
+    unsigned b = SkAlphaBlend(SkGetPackedB32(src), SkGetPackedB32(dst), scale);
 
-	return SkPackARGB32(a, r, g, b);
+    return SkPackARGB32(a, r, g, b);
 }
 
 void SkAvoidXfermode::xfer32(SkPMColor dst[], const SkPMColor src[], int count, const SkAlpha aa[])
 {
-	// override in subclass
+    // override in subclass
 }
 
 static inline U16CPU SkBlend3216(SkPMColor src, U16CPU dst, unsigned scale)
 {
-	SkASSERT(scale <= 256);
+    SkASSERT(scale <= 256);
 
-	return SkPackRGB16(	SkAlphaBlend(SkPacked32ToR16(src), SkGetPackedR16(dst), scale),
-						SkAlphaBlend(SkPacked32ToG16(src), SkGetPackedG16(dst), scale),
-						SkAlphaBlend(SkPacked32ToB16(src), SkGetPackedB16(dst), scale));
+    return SkPackRGB16( SkAlphaBlend(SkPacked32ToR16(src), SkGetPackedR16(dst), scale),
+                        SkAlphaBlend(SkPacked32ToG16(src), SkGetPackedG16(dst), scale),
+                        SkAlphaBlend(SkPacked32ToB16(src), SkGetPackedB16(dst), scale));
 }
 
 void SkAvoidXfermode::xfer16(uint16_t dst[], const SkPMColor src[], int count, const SkAlpha aa[])
@@ -126,6 +143,6 @@ void SkAvoidXfermode::xfer16(uint16_t dst[], const SkPMColor src[], int count, c
 
 void SkAvoidXfermode::xferA8(SkAlpha dst[], const SkPMColor src[], int count, const SkAlpha aa[])
 {
-	// override in subclass
+    // override in subclass
 }
 

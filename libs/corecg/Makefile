@@ -9,6 +9,7 @@ LOCAL_SRC_FILES:= \
 	SkDebug.cpp \
 	SkDebug_stdio.cpp \
 	SkFloat.cpp \
+	SkInterpolator.cpp \
 	SkMath.cpp \
 	SkMatrix.cpp \
 	SkMemory_stdlib.cpp \
@@ -26,5 +27,11 @@ LOCAL_C_INCLUDES += \
 #LOCAL_LDFLAGS:= 
 
 LOCAL_TARGET:= libcorecg
+
+LOCAL_CFLAGS += -fstrict-aliasing
+
+ifeq ($(DEVICE_ARCH),arm)
+	LOCAL_CFLAGS += -fomit-frame-pointer
+endif
 
 include $(BUILD_SHARED_LIBRARY)

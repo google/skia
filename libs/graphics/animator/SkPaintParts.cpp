@@ -1,3 +1,20 @@
+/* libs/graphics/animator/SkPaintParts.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkPaintParts.h"
 #include "SkDrawPaint.h"
 #ifdef SK_DUMP_ENABLED
@@ -9,53 +26,53 @@ SkPaintPart::SkPaintPart() : fPaint(nil) {
 }
 
 SkDisplayable* SkPaintPart::getParent() const {
-	return fPaint;
+    return fPaint;
 }
 
 bool SkPaintPart::setParent(SkDisplayable* parent) {
-	SkASSERT(parent != nil);
-	if (parent->isPaint() == false)
-		return true;
-	fPaint = (SkDrawPaint*) parent;
-	return false;
+    SkASSERT(parent != nil);
+    if (parent->isPaint() == false)
+        return true;
+    fPaint = (SkDrawPaint*) parent;
+    return false;
 }
 
 
 // SkDrawMaskFilter
 bool SkDrawMaskFilter::add() {
-	if (fPaint->maskFilter != (SkDrawMaskFilter*) -1)
-		return true;
-	fPaint->maskFilter = this;
-	fPaint->fOwnsMaskFilter = true;
-	return false;
+    if (fPaint->maskFilter != (SkDrawMaskFilter*) -1)
+        return true;
+    fPaint->maskFilter = this;
+    fPaint->fOwnsMaskFilter = true;
+    return false;
 }
 
 SkMaskFilter* SkDrawMaskFilter::getMaskFilter() {
-	return nil;
+    return nil;
 }
 
 
 // SkDrawPathEffect
 bool SkDrawPathEffect::add() {
-	if (fPaint->isPaint()) {
-		if (fPaint->pathEffect != (SkDrawPathEffect*) -1)
-			return true;
-		fPaint->pathEffect = this;
-		fPaint->fOwnsPathEffect = true;
-		return false;
-	}
-	fPaint->add(*(SkAnimateMaker*) nil, this);
-	return false;
+    if (fPaint->isPaint()) {
+        if (fPaint->pathEffect != (SkDrawPathEffect*) -1)
+            return true;
+        fPaint->pathEffect = this;
+        fPaint->fOwnsPathEffect = true;
+        return false;
+    }
+    fPaint->add(*(SkAnimateMaker*) nil, this);
+    return false;
 }
 
 SkPathEffect* SkDrawPathEffect::getPathEffect() {
-	return nil;
+    return nil;
 }
 
 
 // SkDrawShader
 SkShader* SkDrawShader::getShader() {
-	return nil;
+    return nil;
 }
 
 
@@ -63,7 +80,7 @@ SkShader* SkDrawShader::getShader() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDrawTypeface::fInfo[] = {
-	SK_MEMBER(fontName, String),
+    SK_MEMBER(fontName, String),
     SK_MEMBER(style, FontStyle)
 };
 
@@ -75,11 +92,11 @@ SkDrawTypeface::SkDrawTypeface() : style (SkTypeface::kNormal){
 }
 
 bool SkDrawTypeface::add() {
-	if (fPaint->typeface != (SkDrawTypeface*) -1)
-		return true;
-	fPaint->typeface = this;
-	fPaint->fOwnsTypeface = true;
-	return false;
+    if (fPaint->typeface != (SkDrawTypeface*) -1)
+        return true;
+    fPaint->typeface = this;
+    fPaint->fOwnsTypeface = true;
+    return false;
 }
 
 #ifdef SK_DUMP_ENABLED

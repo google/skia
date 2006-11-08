@@ -1,3 +1,20 @@
+/* include/graphics/SkBlurMaskFilter.h
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #ifndef SkBlurMaskFilter_DEFINED
 #define SkBlurMaskFilter_DEFINED
 
@@ -5,14 +22,14 @@
 
 class SkBlurMaskFilter : public SkMaskFilter {
 public:
-	enum BlurStyle {
-		kNormal_BlurStyle,	//!< fuzzy inside and outside
-		kSolid_BlurStyle,	//!< solid inside, fuzzy outside
-		kOuter_BlurStyle,	//!< nothing inside, fuzzy outside
-		kInner_BlurStyle,	//!< fuzzy inside, nothing outside
+    enum BlurStyle {
+        kNormal_BlurStyle,  //!< fuzzy inside and outside
+        kSolid_BlurStyle,   //!< solid inside, fuzzy outside
+        kOuter_BlurStyle,   //!< nothing inside, fuzzy outside
+        kInner_BlurStyle,   //!< fuzzy inside, nothing outside
 
-		kBlurStyleCount
-	};
+        kBlurStyleCount
+    };
 
     /** Create a blur maskfilter.
         @param radius   The radius to extend the blur from the original mask. Must be > 0.

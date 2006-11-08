@@ -1,3 +1,20 @@
+/* libs/graphics/animator/SkDrawPath.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkDrawPath.h"
 #include "SkAnimateMaker.h"
 #include "SkCanvas.h"
@@ -7,16 +24,16 @@
 #include "SkPathParts.h"
 
 enum SkPath_Properties {
-	SK_PROPERTY(fillType),
-	SK_PROPERTY(length)
+    SK_PROPERTY(fillType),
+    SK_PROPERTY(length)
 };
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDrawPath::fInfo[] = {
-	SK_MEMBER(d, String),
-	SK_MEMBER_PROPERTY(fillType, FillType),
-	SK_MEMBER_PROPERTY(length, Float)
+    SK_MEMBER(d, String),
+    SK_MEMBER_PROPERTY(fillType, FillType),
+    SK_MEMBER_PROPERTY(length, Float)
 };
 
 #endif
@@ -25,47 +42,47 @@ DEFINE_GET_MEMBER(SkDrawPath);
 
 SkDrawPath::SkDrawPath()
 {
-	fParent = nil;
-	fLength	= SK_ScalarNaN;
-	fChildHasID = false;
-	fDirty = false;
+    fParent = nil;
+    fLength = SK_ScalarNaN;
+    fChildHasID = false;
+    fDirty = false;
 }
 
 SkDrawPath::~SkDrawPath() {
-	for (SkPathPart** part = fParts.begin(); part < fParts.end();  part++)
-		delete *part;
+    for (SkPathPart** part = fParts.begin(); part < fParts.end();  part++)
+        delete *part;
 }
 
 bool SkDrawPath::add(SkAnimateMaker& maker, SkDisplayable* child) {
-	SkASSERT(child && child->isPathPart());
-	SkPathPart* part = (SkPathPart*) child;
-	*fParts.append() = part;
-	if (part->add())
-		maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToPath); 
-	fDirty = false;
-	return true;
+    SkASSERT(child && child->isPathPart());
+    SkPathPart* part = (SkPathPart*) child;
+    *fParts.append() = part;
+    if (part->add())
+        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToPath); 
+    fDirty = false;
+    return true;
 }
 
 bool SkDrawPath::childrenNeedDisposing() const { 
-	return false; 
+    return false; 
 }
 
 void SkDrawPath::dirty() { 
-	fDirty = true; 
-	fLength = SK_ScalarNaN;
-	if (fParent)
-		fParent->dirty();
+    fDirty = true; 
+    fLength = SK_ScalarNaN;
+    if (fParent)
+        fParent->dirty();
 }
 
 bool SkDrawPath::draw(SkAnimateMaker& maker) {
-	SkPath& path = getPath();
-	SkBoundableAuto boundable(this, maker);
-	maker.fCanvas->drawPath(path, *maker.fPaint);
-	return false;
+    SkPath& path = getPath();
+    SkBoundableAuto boundable(this, maker);
+    maker.fCanvas->drawPath(path, *maker.fPaint);
+    return false;
 }
 
 SkDisplayable* SkDrawPath::getParent() const {
-	return fParent;
+    return fParent;
 }
 
 #ifdef SK_DUMP_ENABLED
@@ -90,8 +107,8 @@ void SkDrawPath::dump(SkAnimateMaker* maker) {
 #endif
 
 SkPath& SkDrawPath::getPath() {
-	if (fDirty == false)
-		return fPath;
+    if (fDirty == false)
+        return fPath;
     if (d.size() > 0)
     {
         parseSVG();
@@ -103,76 +120,76 @@ SkPath& SkDrawPath::getPath() {
         for (SkPathPart** part = fParts.begin(); part < fParts.end();  part++)
             (*part)->add();
     }
-	fDirty = false;
-	return fPath;
+    fDirty = false;
+    return fPath;
 }
-	
+    
 void SkDrawPath::onEndElement(SkAnimateMaker& ) {
-	if (d.size() > 0) {
-		parseSVG();
-		d.reset();
+    if (d.size() > 0) {
+        parseSVG();
+        d.reset();
         fDirty = false;
         return;
-	}
-	if (fChildHasID == false) {
-		for (SkPathPart** part = fParts.begin(); part < fParts.end();  part++)
-			delete *part;
-		fParts.reset();
-		fDirty = false;
-	}
+    }
+    if (fChildHasID == false) {
+        for (SkPathPart** part = fParts.begin(); part < fParts.end();  part++)
+            delete *part;
+        fParts.reset();
+        fDirty = false;
+    }
 }
 
 bool SkDrawPath::getProperty(int index, SkScriptValue* value) const {
-	switch (index) {
-		case SK_PROPERTY(length):
-			if (SkScalarIsNaN(fLength)) {
-				const SkPath& path = ((SkDrawPath*) this)->getPath();
-				SkPathMeasure pathMeasure(path, false);
-				fLength = pathMeasure.getLength();
-			}
-			value->fType = SkType_Float;
-			value->fOperand.fScalar = fLength;
-			break;
+    switch (index) {
+        case SK_PROPERTY(length):
+            if (SkScalarIsNaN(fLength)) {
+                const SkPath& path = ((SkDrawPath*) this)->getPath();
+                SkPathMeasure pathMeasure(path, false);
+                fLength = pathMeasure.getLength();
+            }
+            value->fType = SkType_Float;
+            value->fOperand.fScalar = fLength;
+            break;
         case SK_PROPERTY(fillType):
             value->fType = SkType_FillType;
             value->fOperand.fS32 = (int) fPath.getFillType();
             break;
-		default:
-			SkASSERT(0);
-			return false;
-	}
-	return true;
+        default:
+            SkASSERT(0);
+            return false;
+    }
+    return true;
 }
 
 void SkDrawPath::setChildHasID() { 
-	fChildHasID = true; 
+    fChildHasID = true; 
 }
 
 bool SkDrawPath::setParent(SkDisplayable* parent) {
-	fParent = parent;
-	return false;
+    fParent = parent;
+    return false;
 }
 
 bool SkDrawPath::setProperty(int index, SkScriptValue& value)
 {
-	switch (index) {
-		case SK_PROPERTY(fillType):
-			SkASSERT(value.fType == SkType_FillType);
-			SkASSERT(value.fOperand.fS32 >= SkPath::kWinding_FillType &&
-				value.fOperand.fS32 <= SkPath::kEvenOdd_FillType);
-			fPath.setFillType((SkPath::FillType) value.fOperand.fS32);
-			break;
-		default:
-			SkASSERT(0);
-			return false;
-	}
-	return true;
+    switch (index) {
+        case SK_PROPERTY(fillType):
+            SkASSERT(value.fType == SkType_FillType);
+            SkASSERT(value.fOperand.fS32 >= SkPath::kWinding_FillType &&
+                value.fOperand.fS32 <= SkPath::kEvenOdd_FillType);
+            fPath.setFillType((SkPath::FillType) value.fOperand.fS32);
+            break;
+        default:
+            SkASSERT(0);
+            return false;
+    }
+    return true;
 }
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkPolyline::fInfo[] = {
-	SK_MEMBER_ARRAY(points, Float)
+    SK_MEMBER_ARRAY(points, Float)
 };
 
 #endif
@@ -180,25 +197,25 @@ const SkMemberInfo SkPolyline::fInfo[] = {
 DEFINE_GET_MEMBER(SkPolyline);
 
 bool SkPolyline::add(SkAnimateMaker& , SkDisplayable*) const {
-	return false; 
+    return false; 
 }
 
 void SkPolyline::onEndElement(SkAnimateMaker& maker) {
-	INHERITED::onEndElement(maker);
-	if (points.count() <= 0)
-		return;
-	fPath.reset();
-	fPath.moveTo(points[0], points[1]);
-	int count = points.count();
-	for (int index = 2; index < count; index += 2)
-		fPath.lineTo(points[index], points[index+1]);
+    INHERITED::onEndElement(maker);
+    if (points.count() <= 0)
+        return;
+    fPath.reset();
+    fPath.moveTo(points[0], points[1]);
+    int count = points.count();
+    for (int index = 2; index < count; index += 2)
+        fPath.lineTo(points[index], points[index+1]);
 }
 
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkPolygon::fInfo[] = {
-	SK_MEMBER_INHERITED
+    SK_MEMBER_INHERITED
 };
 
 #endif
@@ -206,7 +223,7 @@ const SkMemberInfo SkPolygon::fInfo[] = {
 DEFINE_GET_MEMBER(SkPolygon);
 
 void SkPolygon::onEndElement(SkAnimateMaker& maker) {
-	INHERITED::onEndElement(maker);
-	fPath.close();
+    INHERITED::onEndElement(maker);
+    fPath.close();
 }
 

@@ -1,3 +1,20 @@
+/* libs/graphics/animator/SkPathParts.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkPathParts.h"
 #include "SkAnimateMaker.h"
 #include "SkDrawMatrix.h"
@@ -8,27 +25,27 @@ SkPathPart::SkPathPart() : fPath(nil) {
 }
 
 void SkPathPart::dirty() { 
-	fPath->dirty(); 
+    fPath->dirty(); 
 }
 
 SkDisplayable* SkPathPart::getParent() const {
-	return fPath;
+    return fPath;
 }
 
 bool SkPathPart::setParent(SkDisplayable* parent) {
-	SkASSERT(parent != nil);
-	if (parent->isPath() == false)
-		return true;
-	fPath = (SkDrawPath*) parent;
-	return false;
+    SkASSERT(parent != nil);
+    if (parent->isPath() == false)
+        return true;
+    fPath = (SkDrawPath*) parent;
+    return false;
 }
 
 // MoveTo
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkMoveTo::fInfo[] = {
-	SK_MEMBER(x, Float),
-	SK_MEMBER(y, Float)
+    SK_MEMBER(x, Float),
+    SK_MEMBER(y, Float)
 };
 
 #endif
@@ -39,8 +56,8 @@ SkMoveTo::SkMoveTo() : x(0), y(0) {
 }
 
 bool SkMoveTo::add() {
-	fPath->fPath.moveTo(x, y);
-	return false;
+    fPath->fPath.moveTo(x, y);
+    return false;
 }
 
 
@@ -48,7 +65,7 @@ bool SkMoveTo::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkRMoveTo::fInfo[] = {
-	SK_MEMBER_INHERITED
+    SK_MEMBER_INHERITED
 };
 
 #endif
@@ -56,8 +73,8 @@ const SkMemberInfo SkRMoveTo::fInfo[] = {
 DEFINE_GET_MEMBER(SkRMoveTo);
 
 bool SkRMoveTo::add() {
-	fPath->fPath.rMoveTo(x, y);
-	return false;
+    fPath->fPath.rMoveTo(x, y);
+    return false;
 }
 
 
@@ -65,8 +82,8 @@ bool SkRMoveTo::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkLineTo::fInfo[] = {
-	SK_MEMBER(x, Float),
-	SK_MEMBER(y, Float)
+    SK_MEMBER(x, Float),
+    SK_MEMBER(y, Float)
 };
 
 #endif
@@ -77,8 +94,8 @@ SkLineTo::SkLineTo() : x(0), y(0) {
 }
 
 bool SkLineTo::add() {
-	fPath->fPath.lineTo(x, y);	
-	return false;
+    fPath->fPath.lineTo(x, y);  
+    return false;
 }
 
 
@@ -86,7 +103,7 @@ bool SkLineTo::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkRLineTo::fInfo[] = {
-	SK_MEMBER_INHERITED
+    SK_MEMBER_INHERITED
 };
 
 #endif
@@ -94,8 +111,8 @@ const SkMemberInfo SkRLineTo::fInfo[] = {
 DEFINE_GET_MEMBER(SkRLineTo);
 
 bool SkRLineTo::add() {
-	fPath->fPath.rLineTo(x, y);	
-	return false;
+    fPath->fPath.rLineTo(x, y); 
+    return false;
 }
 
 
@@ -103,10 +120,10 @@ bool SkRLineTo::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkQuadTo::fInfo[] = {
-	SK_MEMBER(x1, Float),
-	SK_MEMBER(x2, Float),
-	SK_MEMBER(y1, Float),
-	SK_MEMBER(y2, Float)
+    SK_MEMBER(x1, Float),
+    SK_MEMBER(x2, Float),
+    SK_MEMBER(y1, Float),
+    SK_MEMBER(y2, Float)
 };
 
 #endif
@@ -117,8 +134,8 @@ SkQuadTo::SkQuadTo() : x1(0), y1(0), x2(0), y2(0) {
 }
 
 bool SkQuadTo::add() {
-	fPath->fPath.quadTo(x1, y1, x2, y2);
-	return false;
+    fPath->fPath.quadTo(x1, y1, x2, y2);
+    return false;
 }
 
 
@@ -126,7 +143,7 @@ bool SkQuadTo::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkRQuadTo::fInfo[] = {
-	SK_MEMBER_INHERITED
+    SK_MEMBER_INHERITED
 };
 
 #endif
@@ -134,8 +151,8 @@ const SkMemberInfo SkRQuadTo::fInfo[] = {
 DEFINE_GET_MEMBER(SkRQuadTo);
 
 bool SkRQuadTo::add() {
-	fPath->fPath.rQuadTo(x1, y1, x2, y2);
-	return false;
+    fPath->fPath.rQuadTo(x1, y1, x2, y2);
+    return false;
 }
 
 
@@ -143,12 +160,12 @@ bool SkRQuadTo::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkCubicTo::fInfo[] = {
-	SK_MEMBER(x1, Float),
-	SK_MEMBER(x2, Float),
-	SK_MEMBER(x3, Float),
-	SK_MEMBER(y1, Float),
-	SK_MEMBER(y2, Float),
-	SK_MEMBER(y3, Float)
+    SK_MEMBER(x1, Float),
+    SK_MEMBER(x2, Float),
+    SK_MEMBER(x3, Float),
+    SK_MEMBER(y1, Float),
+    SK_MEMBER(y2, Float),
+    SK_MEMBER(y3, Float)
 };
 
 #endif
@@ -159,8 +176,8 @@ SkCubicTo::SkCubicTo() : x1(0), y1(0), x2(0), y2(0), x3(0), y3(0) {
 }
 
 bool SkCubicTo::add() {
-	fPath->fPath.cubicTo(x1, y1, x2, y2, x3, y3);
-	return false;
+    fPath->fPath.cubicTo(x1, y1, x2, y2, x3, y3);
+    return false;
 }
 
 
@@ -168,7 +185,7 @@ bool SkCubicTo::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkRCubicTo::fInfo[] = {
-	SK_MEMBER_INHERITED
+    SK_MEMBER_INHERITED
 };
 
 #endif
@@ -176,15 +193,15 @@ const SkMemberInfo SkRCubicTo::fInfo[] = {
 DEFINE_GET_MEMBER(SkRCubicTo);
 
 bool SkRCubicTo::add() {
-	fPath->fPath.rCubicTo(x1, y1, x2, y2, x3, y3);
-	return false;
+    fPath->fPath.rCubicTo(x1, y1, x2, y2, x3, y3);
+    return false;
 }
 
 
 // SkClose
 bool SkClose::add() {
-	fPath->fPath.close();
-	return false;
+    fPath->fPath.close();
+    return false;
 }
 
 
@@ -192,7 +209,7 @@ bool SkClose::add() {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkAddGeom::fInfo[] = {
-	SK_MEMBER(direction, PathDirection)
+    SK_MEMBER(direction, PathDirection)
 };
 
 #endif
@@ -205,11 +222,11 @@ SkAddGeom::SkAddGeom() : direction(SkPath::kCCW_Direction) {
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkAddRect::fInfo[] = {
-	SK_MEMBER_INHERITED,
-	SK_MEMBER_ALIAS(bottom, fRect.fBottom, Float),
-	SK_MEMBER_ALIAS(left, fRect.fLeft, Float),
-	SK_MEMBER_ALIAS(right, fRect.fRight, Float),
-	SK_MEMBER_ALIAS(top, fRect.fTop, Float)
+    SK_MEMBER_INHERITED,
+    SK_MEMBER_ALIAS(bottom, fRect.fBottom, Float),
+    SK_MEMBER_ALIAS(left, fRect.fLeft, Float),
+    SK_MEMBER_ALIAS(right, fRect.fRight, Float),
+    SK_MEMBER_ALIAS(top, fRect.fTop, Float)
 };
 
 #endif
@@ -217,19 +234,19 @@ const SkMemberInfo SkAddRect::fInfo[] = {
 DEFINE_GET_MEMBER(SkAddRect);
 
 SkAddRect::SkAddRect() { 
-	fRect.setEmpty(); 
+    fRect.setEmpty(); 
 }
 
 bool SkAddRect::add() {
-	fPath->fPath.addRect(fRect, (SkPath::Direction) direction);
-	return false;
+    fPath->fPath.addRect(fRect, (SkPath::Direction) direction);
+    return false;
 }
 
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkAddOval::fInfo[] = {
-	SK_MEMBER_INHERITED
+    SK_MEMBER_INHERITED
 };
 
 #endif
@@ -237,18 +254,18 @@ const SkMemberInfo SkAddOval::fInfo[] = {
 DEFINE_GET_MEMBER(SkAddOval);
 
 bool SkAddOval::add() {
-	fPath->fPath.addOval(fRect,  (SkPath::Direction) direction);
-	return false;
+    fPath->fPath.addOval(fRect,  (SkPath::Direction) direction);
+    return false;
 }
 
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkAddCircle::fInfo[] = {
-	SK_MEMBER_INHERITED,
-	SK_MEMBER(radius, Float),
-	SK_MEMBER(x, Float),
-	SK_MEMBER(y, Float)
+    SK_MEMBER_INHERITED,
+    SK_MEMBER(radius, Float),
+    SK_MEMBER(x, Float),
+    SK_MEMBER(y, Float)
 };
 
 #endif
@@ -259,17 +276,17 @@ SkAddCircle::SkAddCircle() : radius(0), x(0), y(0) {
 }
 
 bool SkAddCircle::add() {
-	fPath->fPath.addCircle(x, y, radius,  (SkPath::Direction) direction);
-	return false;
+    fPath->fPath.addCircle(x, y, radius,  (SkPath::Direction) direction);
+    return false;
 }
 
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkAddRoundRect::fInfo[] = {
-	SK_MEMBER_INHERITED,
-	SK_MEMBER(rx, Float),
-	SK_MEMBER(ry, Float)
+    SK_MEMBER_INHERITED,
+    SK_MEMBER(rx, Float),
+    SK_MEMBER(ry, Float)
 };
 
 #endif
@@ -280,16 +297,16 @@ SkAddRoundRect::SkAddRoundRect() : rx(0), ry(0) {
 }
 
 bool SkAddRoundRect::add() {
-	fPath->fPath.addRoundRect(fRect, rx, ry,  (SkPath::Direction) direction);
-	return false;
+    fPath->fPath.addRoundRect(fRect, rx, ry,  (SkPath::Direction) direction);
+    return false;
 }
 
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkAddPath::fInfo[] = {
-	SK_MEMBER(matrix, Matrix),
-	SK_MEMBER(path, Path)
+    SK_MEMBER(matrix, Matrix),
+    SK_MEMBER(path, Path)
 };
 
 #endif
@@ -300,12 +317,12 @@ SkAddPath::SkAddPath() : matrix(nil), path(nil) {
 }
 
 bool SkAddPath::add() {
-	SkASSERT (path != nil); 
-	if (matrix)
-		fPath->fPath.addPath(path->fPath, matrix->getMatrix());
-	else
-		fPath->fPath.addPath(path->fPath);
-	return false;
+    SkASSERT (path != nil); 
+    if (matrix)
+        fPath->fPath.addPath(path->fPath, matrix->getMatrix());
+    else
+        fPath->fPath.addPath(path->fPath);
+    return false;
 }
 
 

@@ -1,3 +1,20 @@
+/* include/graphics/SkUtils.h
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #ifndef SkUtils_DEFINED
 #define SkUtils_DEFINED
 
@@ -16,9 +33,9 @@
     #define sk_memset16(dst, value, count)  SK_MEMSET16_REDIRECT(dst, value, count)
 #else
     /** Similar to memset(), but this function assigns a 16bit value into the buffer.
-        @param buffer	The memory to have value copied into it
-        @param value	The 16bit value to be copied into buffer
-        @param count	The number of times value should be copied into the buffer.
+        @param buffer   The memory to have value copied into it
+        @param value    The 16bit value to be copied into buffer
+        @param count    The number of times value should be copied into the buffer.
     */
     void sk_memset16(uint16_t dst[], U16CPU value, int count);
 #endif
@@ -27,9 +44,9 @@
     #define sk_memset32(dst, value, count)  SK_MEMSET32_REDIRECT(dst, value, count)
 #else
     /** Similar to memset(), but this function assigns a 32bit value into the buffer.
-        @param buffer	The memory to have value copied into it
-        @param value	The 32bit value to be copied into buffer
-        @param count	The number of times value should be copied into the buffer.
+        @param buffer   The memory to have value copied into it
+        @param value    The 32bit value to be copied into buffer
+        @param count    The number of times value should be copied into the buffer.
     */
     void sk_memset32(uint32_t dst[], uint32_t value, int count);
 #endif
@@ -37,30 +54,30 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-#define kMaxBytesInUTF8Sequence		4
+#define kMaxBytesInUTF8Sequence     4
 
 #ifdef SK_DEBUG
-	int SkUTF8_LeadByteToCount(unsigned c);
+    int SkUTF8_LeadByteToCount(unsigned c);
 #else
-	#define SkUTF8_LeadByteToCount(c)	((((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1)
+    #define SkUTF8_LeadByteToCount(c)   ((((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1)
 #endif
 
 inline int SkUTF8_CountUTF8Bytes(const char utf8[])
 {
-	SkASSERT(utf8);
-	return SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
+    SkASSERT(utf8);
+    return SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
 }
 
-int			SkUTF8_CountUnichars(const char utf8[]);
-int			SkUTF8_CountUnichars(const char utf8[], size_t byteLength);
-SkUnichar	SkUTF8_ToUnichar(const char utf8[]);
-SkUnichar	SkUTF8_NextUnichar(const char**);
+int         SkUTF8_CountUnichars(const char utf8[]);
+int         SkUTF8_CountUnichars(const char utf8[], size_t byteLength);
+SkUnichar   SkUTF8_ToUnichar(const char utf8[]);
+SkUnichar   SkUTF8_NextUnichar(const char**);
 
-/**	Return the number of bytes need to convert a unichar
-	into a utf8 sequence. Will be 1..kMaxBytesInUTF8Sequence,
-	or 0 if uni is illegal.
+/** Return the number of bytes need to convert a unichar
+    into a utf8 sequence. Will be 1..kMaxBytesInUTF8Sequence,
+    or 0 if uni is illegal.
 */
-size_t		SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nil);
+size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nil);
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +94,7 @@ size_t      SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues, char
 class SkUtils {
 public:
 #ifdef SK_DEBUG
-	static void UnitTest();
+    static void UnitTest();
 #endif
 };
 

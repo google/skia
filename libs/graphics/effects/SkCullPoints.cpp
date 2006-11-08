@@ -1,3 +1,20 @@
+/* libs/graphics/effects/SkCullPoints.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkCullPoints.h"
 #include "Sk64.h"
 
@@ -46,12 +63,12 @@ bool SkCullPoints::sect_test(int x0, int y0, int x1, int y1) const
 
 static void toQuad(const SkRect16& r, SkPoint16 quad[4])
 {
-	SkASSERT(quad);
+    SkASSERT(quad);
 
-	quad[0].set(r.fLeft, r.fTop);
-	quad[1].set(r.fRight, r.fTop);
-	quad[2].set(r.fRight, r.fBottom);
-	quad[3].set(r.fLeft, r.fBottom);
+    quad[0].set(r.fLeft, r.fTop);
+    quad[1].set(r.fRight, r.fTop);
+    quad[2].set(r.fRight, r.fBottom);
+    quad[3].set(r.fLeft, r.fBottom);
 }
 
 SkCullPoints::SkCullPoints()
@@ -71,31 +88,41 @@ void SkCullPoints::reset(const SkRect16& r)
     fR = r;
     toQuad(fR, fAsQuad);
     fPrevPt.set(0, 0);
+    fPrevResult = kNo_Result;
 }
 
 void SkCullPoints::moveTo(int x, int y)
 {
     fPrevPt.set(x, y);
+    fPrevResult = kNo_Result;   // so we trigger a movetolineto later
 }
 
-SkCullPoints::LineToResult SkCullPoints::lineTo(int x, int y, SkPoint16 result[])
+SkCullPoints::LineToResult SkCullPoints::lineTo(int x, int y, SkPoint16 line[])
 {
-    SkASSERT(result != NULL);
+    SkASSERT(line != NULL);
 
+    LineToResult result = kNo_Result;
     int x0 = fPrevPt.fX;
     int y0 = fPrevPt.fY;
-    fPrevPt.set(x, y);
     
     // need to upgrade sect_test to chop the result
     // and to correctly return kLineTo_Result when the result is connected
     // to the previous call-out
     if (this->sect_test(x0, y0, x, y))
     {
-        result[0].set(x0, y0);
-        result[1].set(x, y);
-        return kMoveToLineTo_Result;
+        line[0].set(x0, y0);
+        line[1].set(x, y);
+        
+        if (fPrevResult != kNo_Result && fPrevPt.equals(x0, y0))
+            result = kLineTo_Result;
+        else
+            result = kMoveToLineTo_Result;
     }
-    return kNo_Result;
+
+    fPrevPt.set(x, y);
+    fPrevResult = result;
+
+    return result;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

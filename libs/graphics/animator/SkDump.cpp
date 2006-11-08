@@ -1,3 +1,20 @@
+/* libs/graphics/animator/SkDump.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkDump.h"
 
 #ifdef SK_DUMP_ENABLED
@@ -11,12 +28,12 @@
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDump::fInfo[] = {
-	SK_MEMBER(displayList, Boolean),
-	SK_MEMBER(eventList, Boolean),
-	SK_MEMBER(events, Boolean),
-	SK_MEMBER(groups, Boolean),
-	SK_MEMBER(name, String),
-	SK_MEMBER(posts, Boolean),
+    SK_MEMBER(displayList, Boolean),
+    SK_MEMBER(eventList, Boolean),
+    SK_MEMBER(events, Boolean),
+    SK_MEMBER(groups, Boolean),
+    SK_MEMBER(name, String),
+    SK_MEMBER(posts, Boolean),
     SK_MEMBER(script, String)
 };
 
@@ -28,22 +45,22 @@ SkDump::SkDump() : displayList(-1), eventList(-1), events(-1), groups(-1), posts
 }
 
 bool SkDump::enable(SkAnimateMaker& maker ) {
-	if (script.size() > 0)
+    if (script.size() > 0)
         return evaluate(maker);
-	bool hasAttr = false;
-	if (events > 0)
-		hasAttr |= maker.fDumpEvents = true;
-	if (posts > 0)
-		hasAttr |= maker.fDumpPosts = true;
-	if (groups > 0)
-		hasAttr |= maker.fDumpGConditions = true;
-	if ((hasAttr |= (eventList > 0)) == true)
-		maker.fEvents.dump(maker);
-	if ((hasAttr |= (name.size() > 0)) == true)
-		maker.dump(name.c_str());
+    bool hasAttr = false;
+    if (events > 0)
+        hasAttr |= maker.fDumpEvents = true;
+    if (posts > 0)
+        hasAttr |= maker.fDumpPosts = true;
+    if (groups > 0)
+        hasAttr |= maker.fDumpGConditions = true;
+    if ((hasAttr |= (eventList > 0)) == true)
+        maker.fEvents.dump(maker);
+    if ((hasAttr |= (name.size() > 0)) == true)
+        maker.dump(name.c_str());
     if (displayList > 0 || displayList != 0 && hasAttr == false)
-		maker.fDisplayList.dump(&maker);
-	return true;
+        maker.fDisplayList.dump(&maker);
+    return true;
 }
 
 bool SkDump::evaluate(SkAnimateMaker &maker) {
@@ -73,15 +90,15 @@ bool SkDump::evaluate(SkAnimateMaker &maker) {
 }
 
 bool SkDump::hasEnable() const {
-	return true;
+    return true;
 }
 
 void SkDump::GetEnumString(SkDisplayTypes type, int index, SkString* result) {
     int badEnum = index;
-	const SkDisplayEnumMap& map = SkAnimatorScript::GetEnumValues(type);
-	const char* str  = map.fValues;
-	while (--index >= 0) {
-		str = strchr(str, '|');
+    const SkDisplayEnumMap& map = SkAnimatorScript::GetEnumValues(type);
+    const char* str  = map.fValues;
+    while (--index >= 0) {
+        str = strchr(str, '|');
         if (str == nil) {
             result->reset();
             result->appendS32(badEnum);
@@ -89,10 +106,10 @@ void SkDump::GetEnumString(SkDisplayTypes type, int index, SkString* result) {
         }
         str += 1;
     }
-	const char* end = strchr(str, '|');
-	if (end == nil)
-		end = str + strlen(str);
-	result->set(str, end - str);
+    const char* end = strchr(str, '|');
+    if (end == nil)
+        end = str + strlen(str);
+    result->set(str, end - str);
 }
 
 #else
@@ -103,22 +120,22 @@ void SkDump::GetEnumString(SkDisplayTypes type, int index, SkString* result) {
 #if SK_USE_CONDENSED_INFO == 0
 
 enum SkDump_Properties {
-	SK_PROPERTY(displayList),
-	SK_PROPERTY(eventList),
-	SK_PROPERTY(events),
-	SK_PROPERTY(groups),
-	SK_PROPERTY(name),
-	SK_PROPERTY(posts),
+    SK_PROPERTY(displayList),
+    SK_PROPERTY(eventList),
+    SK_PROPERTY(events),
+    SK_PROPERTY(groups),
+    SK_PROPERTY(name),
+    SK_PROPERTY(posts),
     SK_PROPERTY(script)
 };
 
 const SkMemberInfo SkDump::fInfo[] = {
-	SK_MEMBER_PROPERTY(displayList, Boolean),
-	SK_MEMBER_PROPERTY(eventList, Boolean),
-	SK_MEMBER_PROPERTY(events, Boolean),
-	SK_MEMBER_PROPERTY(groups, Boolean),
-	SK_MEMBER_PROPERTY(name, String),
-	SK_MEMBER_PROPERTY(posts, Boolean),
+    SK_MEMBER_PROPERTY(displayList, Boolean),
+    SK_MEMBER_PROPERTY(eventList, Boolean),
+    SK_MEMBER_PROPERTY(events, Boolean),
+    SK_MEMBER_PROPERTY(groups, Boolean),
+    SK_MEMBER_PROPERTY(name, String),
+    SK_MEMBER_PROPERTY(posts, Boolean),
     SK_MEMBER_PROPERTY(script, String)
 };
 
@@ -127,15 +144,15 @@ const SkMemberInfo SkDump::fInfo[] = {
 DEFINE_GET_MEMBER(SkDump);
 
 bool SkDump::enable(SkAnimateMaker& maker ) {
-	return true;
+    return true;
 }
 
 bool SkDump::hasEnable() const {
-	return true;
+    return true;
 }
 
 bool SkDump::setProperty(int index, SkScriptValue& ) {
-	return index <= SK_PROPERTY(posts); 
+    return index <= SK_PROPERTY(posts); 
 }
 
 #endif

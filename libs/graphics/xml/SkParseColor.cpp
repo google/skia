@@ -1,213 +1,230 @@
+/* libs/graphics/xml/SkParseColor.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkParse.h"
 
 #ifdef SK_DEBUG
 #include "SkString.h"
 
-	// compress names 6 chars per long (packed 5 bits/char )
-		// note: little advantage to splitting chars across longs, since 3 longs at 2 unused bits each 
-		// allow for one additional split char (vs. the 18 unsplit chars in the three longs)
-	// use extra two bits to represent:
-		// 00 : final 6 (or fewer) chars (if 'a' is 0x01, zero could have special meaning)
-		// 01 : not final 6 chars
-		// 10 : color
-		// 11 : unused, except as debugging sentinal? (could be -1 for easier test)
-	// !!! the bit to end the word (last) is at the low bit for binary search
-	// lookup first character in offset for quick start
-		// offset is 27-entry table of bytes(?) that trims linear search to at most 21 entries ('d')
-	// shift match into long; set bit 30 if it all doesn't fit
-	// while longs don't match, march forward
-		// if they do match, and bit 30 is set, advance match, clearing bit 30 if
-		// final chars, and advance to next test
-		// if they do match, and bit 30 is clear, get next long (color) and return it
-	// stop at lookup of first char + 1
+    // compress names 6 chars per long (packed 5 bits/char )
+        // note: little advantage to splitting chars across longs, since 3 longs at 2 unused bits each 
+        // allow for one additional split char (vs. the 18 unsplit chars in the three longs)
+    // use extra two bits to represent:
+        // 00 : final 6 (or fewer) chars (if 'a' is 0x01, zero could have special meaning)
+        // 01 : not final 6 chars
+        // 10 : color
+        // 11 : unused, except as debugging sentinal? (could be -1 for easier test)
+    // !!! the bit to end the word (last) is at the low bit for binary search
+    // lookup first character in offset for quick start
+        // offset is 27-entry table of bytes(?) that trims linear search to at most 21 entries ('d')
+    // shift match into long; set bit 30 if it all doesn't fit
+    // while longs don't match, march forward
+        // if they do match, and bit 30 is set, advance match, clearing bit 30 if
+        // final chars, and advance to next test
+        // if they do match, and bit 30 is clear, get next long (color) and return it
+    // stop at lookup of first char + 1
 static const struct SkNameRGB {
-	const char* name;
-	int rgb;
+    const char* name;
+    int rgb;
 } colorNames[] = {
-	{ "aliceblue",            0xF0F8FF },
-	{ "antiquewhite",         0xFAEBD7 },
-	{ "aqua",                 0x00FFFF },
-	{ "aquamarine",           0x7FFFD4 },
-	{ "azure",                0xF0FFFF },
-	{ "beige",                0xF5F5DC },
-	{ "bisque",               0xFFE4C4 },
-	{ "black",                0x000000 },
-	{ "blanchedalmond",       0xFFEBCD },
-	{ "blue",                 0x0000FF },
-	{ "blueviolet",           0x8A2BE2 },
-	{ "brown",                0xA52A2A },
-	{ "burlywood",            0xDEB887 },
-	{ "cadetblue",            0x5F9EA0 },
-	{ "chartreuse",           0x7FFF00 },
-	{ "chocolate",            0xD2691E },
-	{ "coral",                0xFF7F50 },
-	{ "cornflowerblue",       0x6495ED },
-	{ "cornsilk",             0xFFF8DC },
-	{ "crimson",              0xDC143C },
-	{ "cyan",                 0x00FFFF },
-	{ "darkblue",             0x00008B },
-	{ "darkcyan",             0x008B8B },
-	{ "darkgoldenrod",        0xB8860B },
-	{ "darkgray",             0xA9A9A9 },
-	{ "darkgreen",            0x006400 },
-	{ "darkkhaki",            0xBDB76B },
-	{ "darkmagenta",          0x8B008B },
-	{ "darkolivegreen",       0x556B2F },
-	{ "darkorange",           0xFF8C00 },
-	{ "darkorchid",           0x9932CC },
-	{ "darkred",              0x8B0000 },
-	{ "darksalmon",           0xE9967A },
-	{ "darkseagreen",         0x8FBC8F },
-	{ "darkslateblue",        0x483D8B },
-	{ "darkslategray",        0x2F4F4F },
-	{ "darkturquoise",        0x00CED1 },
-	{ "darkviolet",           0x9400D3 },
-	{ "deeppink",             0xFF1493 },
-	{ "deepskyblue",          0x00BFFF },
-	{ "dimgray",              0x696969 },
-	{ "dodgerblue",           0x1E90FF },
-	{ "firebrick",            0xB22222 },
-	{ "floralwhite",          0xFFFAF0 },
-	{ "forestgreen",          0x228B22 },
-	{ "fuchsia",              0xFF00FF },
-	{ "gainsboro",            0xDCDCDC },
-	{ "ghostwhite",           0xF8F8FF },
-	{ "gold",                 0xFFD700 },
-	{ "goldenrod",            0xDAA520 },
-	{ "gray",                 0x808080 },
-	{ "green",                0x008000 },
-	{ "greenyellow",          0xADFF2F },
-	{ "honeydew",             0xF0FFF0 },
-	{ "hotpink",              0xFF69B4 },
-	{ "indianred",            0xCD5C5C },
-	{ "indigo",               0x4B0082 },
-	{ "ivory",                0xFFFFF0 },
-	{ "khaki",                0xF0E68C },
-	{ "lavender",             0xE6E6FA },
-	{ "lavenderblush",        0xFFF0F5 },
-	{ "lawngreen",            0x7CFC00 },
-	{ "lemonchiffon",         0xFFFACD },
-	{ "lightblue",            0xADD8E6 },
-	{ "lightcoral",           0xF08080 },
-	{ "lightcyan",            0xE0FFFF },
-	{ "lightgoldenrodyellow", 0xFAFAD2 },
-	{ "lightgreen",           0x90EE90 },
-	{ "lightgrey",            0xD3D3D3 },
-	{ "lightpink",            0xFFB6C1 },
-	{ "lightsalmon",          0xFFA07A },
-	{ "lightseagreen",        0x20B2AA },
-	{ "lightskyblue",         0x87CEFA },
-	{ "lightslategray",       0x778899 },
-	{ "lightsteelblue",       0xB0C4DE },
-	{ "lightyellow",          0xFFFFE0 },
-	{ "lime",                 0x00FF00 },
-	{ "limegreen",            0x32CD32 },
-	{ "linen",                0xFAF0E6 },
-	{ "magenta",              0xFF00FF },
-	{ "maroon",               0x800000 },
-	{ "mediumaquamarine",     0x66CDAA },
-	{ "mediumblue",           0x0000CD },
-	{ "mediumorchid",         0xBA55D3 },
-	{ "mediumpurple",         0x9370DB },
-	{ "mediumseagreen",       0x3CB371 },
-	{ "mediumslateblue",      0x7B68EE },
-	{ "mediumspringgreen",    0x00FA9A },
-	{ "mediumturquoise",      0x48D1CC },
-	{ "mediumvioletred",      0xC71585 },
-	{ "midnightblue",         0x191970 },
-	{ "mintcream",            0xF5FFFA },
-	{ "mistyrose",            0xFFE4E1 },
-	{ "moccasin",             0xFFE4B5 },
-	{ "navajowhite",          0xFFDEAD },
-	{ "navy",                 0x000080 },
-	{ "oldlace",              0xFDF5E6 },
-	{ "olive",                0x808000 },
-	{ "olivedrab",            0x6B8E23 },
-	{ "orange",               0xFFA500 },
-	{ "orangered",            0xFF4500 },
-	{ "orchid",               0xDA70D6 },
-	{ "palegoldenrod",        0xEEE8AA },
-	{ "palegreen",            0x98FB98 },
-	{ "paleturquoise",        0xAFEEEE },
-	{ "palevioletred",        0xDB7093 },
-	{ "papayawhip",           0xFFEFD5 },
-	{ "peachpuff",            0xFFDAB9 },
-	{ "peru",                 0xCD853F },
-	{ "pink",                 0xFFC0CB },
-	{ "plum",                 0xDDA0DD },
-	{ "powderblue",           0xB0E0E6 },
-	{ "purple",               0x800080 },
-	{ "red",                  0xFF0000 },
-	{ "rosybrown",            0xBC8F8F },
-	{ "royalblue",            0x4169E1 },
-	{ "saddlebrown",          0x8B4513 },
-	{ "salmon",               0xFA8072 },
-	{ "sandybrown",           0xF4A460 },
-	{ "seagreen",             0x2E8B57 },
-	{ "seashell",             0xFFF5EE },
-	{ "sienna",               0xA0522D },
-	{ "silver",               0xC0C0C0 },
-	{ "skyblue",              0x87CEEB },
-	{ "slateblue",            0x6A5ACD },
-	{ "slategray",            0x708090 },
-	{ "snow",                 0xFFFAFA },
-	{ "springgreen",          0x00FF7F },
-	{ "steelblue",            0x4682B4 },
-	{ "tan",                  0xD2B48C },
-	{ "teal",                 0x008080 },
-	{ "thistle",              0xD8BFD8 },
-	{ "tomato",               0xFF6347 },
-	{ "turquoise",            0x40E0D0 },
-	{ "violet",               0xEE82EE },
-	{ "wheat",                0xF5DEB3 },
-	{ "white",                0xFFFFFF },
-	{ "whitesmoke",           0xF5F5F5 },
-	{ "yellow",               0xFFFF00 },
-	{ "yellowgreen",          0x9ACD32 }
+    { "aliceblue",            0xF0F8FF },
+    { "antiquewhite",         0xFAEBD7 },
+    { "aqua",                 0x00FFFF },
+    { "aquamarine",           0x7FFFD4 },
+    { "azure",                0xF0FFFF },
+    { "beige",                0xF5F5DC },
+    { "bisque",               0xFFE4C4 },
+    { "black",                0x000000 },
+    { "blanchedalmond",       0xFFEBCD },
+    { "blue",                 0x0000FF },
+    { "blueviolet",           0x8A2BE2 },
+    { "brown",                0xA52A2A },
+    { "burlywood",            0xDEB887 },
+    { "cadetblue",            0x5F9EA0 },
+    { "chartreuse",           0x7FFF00 },
+    { "chocolate",            0xD2691E },
+    { "coral",                0xFF7F50 },
+    { "cornflowerblue",       0x6495ED },
+    { "cornsilk",             0xFFF8DC },
+    { "crimson",              0xDC143C },
+    { "cyan",                 0x00FFFF },
+    { "darkblue",             0x00008B },
+    { "darkcyan",             0x008B8B },
+    { "darkgoldenrod",        0xB8860B },
+    { "darkgray",             0xA9A9A9 },
+    { "darkgreen",            0x006400 },
+    { "darkkhaki",            0xBDB76B },
+    { "darkmagenta",          0x8B008B },
+    { "darkolivegreen",       0x556B2F },
+    { "darkorange",           0xFF8C00 },
+    { "darkorchid",           0x9932CC },
+    { "darkred",              0x8B0000 },
+    { "darksalmon",           0xE9967A },
+    { "darkseagreen",         0x8FBC8F },
+    { "darkslateblue",        0x483D8B },
+    { "darkslategray",        0x2F4F4F },
+    { "darkturquoise",        0x00CED1 },
+    { "darkviolet",           0x9400D3 },
+    { "deeppink",             0xFF1493 },
+    { "deepskyblue",          0x00BFFF },
+    { "dimgray",              0x696969 },
+    { "dodgerblue",           0x1E90FF },
+    { "firebrick",            0xB22222 },
+    { "floralwhite",          0xFFFAF0 },
+    { "forestgreen",          0x228B22 },
+    { "fuchsia",              0xFF00FF },
+    { "gainsboro",            0xDCDCDC },
+    { "ghostwhite",           0xF8F8FF },
+    { "gold",                 0xFFD700 },
+    { "goldenrod",            0xDAA520 },
+    { "gray",                 0x808080 },
+    { "green",                0x008000 },
+    { "greenyellow",          0xADFF2F },
+    { "honeydew",             0xF0FFF0 },
+    { "hotpink",              0xFF69B4 },
+    { "indianred",            0xCD5C5C },
+    { "indigo",               0x4B0082 },
+    { "ivory",                0xFFFFF0 },
+    { "khaki",                0xF0E68C },
+    { "lavender",             0xE6E6FA },
+    { "lavenderblush",        0xFFF0F5 },
+    { "lawngreen",            0x7CFC00 },
+    { "lemonchiffon",         0xFFFACD },
+    { "lightblue",            0xADD8E6 },
+    { "lightcoral",           0xF08080 },
+    { "lightcyan",            0xE0FFFF },
+    { "lightgoldenrodyellow", 0xFAFAD2 },
+    { "lightgreen",           0x90EE90 },
+    { "lightgrey",            0xD3D3D3 },
+    { "lightpink",            0xFFB6C1 },
+    { "lightsalmon",          0xFFA07A },
+    { "lightseagreen",        0x20B2AA },
+    { "lightskyblue",         0x87CEFA },
+    { "lightslategray",       0x778899 },
+    { "lightsteelblue",       0xB0C4DE },
+    { "lightyellow",          0xFFFFE0 },
+    { "lime",                 0x00FF00 },
+    { "limegreen",            0x32CD32 },
+    { "linen",                0xFAF0E6 },
+    { "magenta",              0xFF00FF },
+    { "maroon",               0x800000 },
+    { "mediumaquamarine",     0x66CDAA },
+    { "mediumblue",           0x0000CD },
+    { "mediumorchid",         0xBA55D3 },
+    { "mediumpurple",         0x9370DB },
+    { "mediumseagreen",       0x3CB371 },
+    { "mediumslateblue",      0x7B68EE },
+    { "mediumspringgreen",    0x00FA9A },
+    { "mediumturquoise",      0x48D1CC },
+    { "mediumvioletred",      0xC71585 },
+    { "midnightblue",         0x191970 },
+    { "mintcream",            0xF5FFFA },
+    { "mistyrose",            0xFFE4E1 },
+    { "moccasin",             0xFFE4B5 },
+    { "navajowhite",          0xFFDEAD },
+    { "navy",                 0x000080 },
+    { "oldlace",              0xFDF5E6 },
+    { "olive",                0x808000 },
+    { "olivedrab",            0x6B8E23 },
+    { "orange",               0xFFA500 },
+    { "orangered",            0xFF4500 },
+    { "orchid",               0xDA70D6 },
+    { "palegoldenrod",        0xEEE8AA },
+    { "palegreen",            0x98FB98 },
+    { "paleturquoise",        0xAFEEEE },
+    { "palevioletred",        0xDB7093 },
+    { "papayawhip",           0xFFEFD5 },
+    { "peachpuff",            0xFFDAB9 },
+    { "peru",                 0xCD853F },
+    { "pink",                 0xFFC0CB },
+    { "plum",                 0xDDA0DD },
+    { "powderblue",           0xB0E0E6 },
+    { "purple",               0x800080 },
+    { "red",                  0xFF0000 },
+    { "rosybrown",            0xBC8F8F },
+    { "royalblue",            0x4169E1 },
+    { "saddlebrown",          0x8B4513 },
+    { "salmon",               0xFA8072 },
+    { "sandybrown",           0xF4A460 },
+    { "seagreen",             0x2E8B57 },
+    { "seashell",             0xFFF5EE },
+    { "sienna",               0xA0522D },
+    { "silver",               0xC0C0C0 },
+    { "skyblue",              0x87CEEB },
+    { "slateblue",            0x6A5ACD },
+    { "slategray",            0x708090 },
+    { "snow",                 0xFFFAFA },
+    { "springgreen",          0x00FF7F },
+    { "steelblue",            0x4682B4 },
+    { "tan",                  0xD2B48C },
+    { "teal",                 0x008080 },
+    { "thistle",              0xD8BFD8 },
+    { "tomato",               0xFF6347 },
+    { "turquoise",            0x40E0D0 },
+    { "violet",               0xEE82EE },
+    { "wheat",                0xF5DEB3 },
+    { "white",                0xFFFFFF },
+    { "whitesmoke",           0xF5F5F5 },
+    { "yellow",               0xFFFF00 },
+    { "yellowgreen",          0x9ACD32 }
 };
 
 int colorNamesSize = sizeof(colorNames) / sizeof(colorNames[0]);
 
 static void CreateTable() {
-	SkString comment;
-	size_t originalSize = 0;
-	int replacement = 0;
-	for (int index = 0; index < colorNamesSize; index++) {
-		SkNameRGB nameRGB =  colorNames[index];
-		const char* name = nameRGB.name;
-		size_t len = strlen(name);
-		originalSize += len + 9;
-		bool first = true;
-		bool last = false;
-		do {
-			int compressed = 0;
-			const char* start = name;
-			for (int chIndex = 0; chIndex < 6; chIndex++) {
-				compressed <<= 5;
-				compressed |= *name ? *name++ - 'a' + 1 : 0 ;
-			}
-			replacement += sizeof(int);
-			compressed <<= 1;
-			compressed |= 1;
-			if (first) {
-				compressed |= 0x80000000;
-				first = false;
-			}
-			if (len <= 6) {	// last
-				compressed &= ~1;
-				last = true;
-			}
-			len -= 6;
-			SkDebugf("0x%08x, ", compressed);
-			comment.append(start, name - start);
-		} while (last == false);
-		replacement += sizeof(int);
-		SkDebugf("0x%08x, ", nameRGB.rgb);
-		SkDebugf("// %s\n", comment.c_str());
-		comment.reset();
-	}
-	SkDebugf("// original = %d : replacement = %d\n", originalSize, replacement);
-	SkASSERT(0); // always stop after creating table
+    SkString comment;
+    size_t originalSize = 0;
+    int replacement = 0;
+    for (int index = 0; index < colorNamesSize; index++) {
+        SkNameRGB nameRGB =  colorNames[index];
+        const char* name = nameRGB.name;
+        size_t len = strlen(name);
+        originalSize += len + 9;
+        bool first = true;
+        bool last = false;
+        do {
+            int compressed = 0;
+            const char* start = name;
+            for (int chIndex = 0; chIndex < 6; chIndex++) {
+                compressed <<= 5;
+                compressed |= *name ? *name++ - 'a' + 1 : 0 ;
+            }
+            replacement += sizeof(int);
+            compressed <<= 1;
+            compressed |= 1;
+            if (first) {
+                compressed |= 0x80000000;
+                first = false;
+            }
+            if (len <= 6) { // last
+                compressed &= ~1;
+                last = true;
+            }
+            len -= 6;
+            SkDebugf("0x%08x, ", compressed);
+            comment.append(start, name - start);
+        } while (last == false);
+        replacement += sizeof(int);
+        SkDebugf("0x%08x, ", nameRGB.rgb);
+        SkDebugf("// %s\n", comment.c_str());
+        comment.reset();
+    }
+    SkDebugf("// original = %d : replacement = %d\n", originalSize, replacement);
+    SkASSERT(0); // always stop after creating table
 }
 
 #endif
@@ -357,173 +374,173 @@ static const unsigned int gColorNames[] = {
 
 
 const char* SkParse::FindNamedColor(const char* name, size_t len, SkColor* color) {
-	const char* namePtr = name;
-	unsigned int sixMatches[4];
-	unsigned int* sixMatchPtr = sixMatches;
-	bool first = true;
-	bool last = false;
-	char ch;
-	do {
-		unsigned int sixMatch = 0;
-		for (int chIndex = 0; chIndex < 6; chIndex++) {
-			sixMatch <<= 5;
-			ch = *namePtr  | 0x20;
-			if (ch < 'a' || ch > 'z')
-				ch = 0;
-			else {
-				ch = ch - 'a' + 1;
-				namePtr++;
-			}
-			sixMatch |= ch ;  // turn 'A' (0x41) into 'a' (0x61);
-		}
-		sixMatch <<= 1;
-		sixMatch |= 1;
-		if (first) {
-			sixMatch |= 0x80000000;
-			first = false;
-		}
-		ch = *namePtr | 0x20;
-		last = ch < 'a' || ch > 'z';
-		if (last) 
-			sixMatch &= ~1;
-		len -= 6;
-		*sixMatchPtr++ = sixMatch;
-	} while (last == false && len > 0);
-	const int colorNameSize = sizeof(gColorNames) / sizeof(unsigned int);
-	int lo = 0;
-	int hi = colorNameSize - 3;	// back off to beginning of yellowgreen
-	while (lo <= hi) {
-		int mid = (hi + lo) >> 1;
-		while ((int) gColorNames[mid] >= 0)
-			--mid;
-		sixMatchPtr = sixMatches;
-		while (gColorNames[mid] == *sixMatchPtr) {
-			++mid;
-			if ((*sixMatchPtr & 1) == 0) { // last
-				*color = gColorNames[mid] | 0xFF000000;
-				return namePtr;
-			}
-			++sixMatchPtr;
-		}
-		int sixMask = *sixMatchPtr & ~0x80000000;
-		int midMask = gColorNames[mid] & ~0x80000000;
-		if (sixMask > midMask) {
-			lo = mid + 2;	// skip color
-			while ((int) gColorNames[lo] >= 0)
-				++lo;
-		} else if (hi == mid)
-			return nil;
-		else
-			hi = mid;
-	}
-	return nil;
+    const char* namePtr = name;
+    unsigned int sixMatches[4];
+    unsigned int* sixMatchPtr = sixMatches;
+    bool first = true;
+    bool last = false;
+    char ch;
+    do {
+        unsigned int sixMatch = 0;
+        for (int chIndex = 0; chIndex < 6; chIndex++) {
+            sixMatch <<= 5;
+            ch = *namePtr  | 0x20;
+            if (ch < 'a' || ch > 'z')
+                ch = 0;
+            else {
+                ch = ch - 'a' + 1;
+                namePtr++;
+            }
+            sixMatch |= ch ;  // turn 'A' (0x41) into 'a' (0x61);
+        }
+        sixMatch <<= 1;
+        sixMatch |= 1;
+        if (first) {
+            sixMatch |= 0x80000000;
+            first = false;
+        }
+        ch = *namePtr | 0x20;
+        last = ch < 'a' || ch > 'z';
+        if (last) 
+            sixMatch &= ~1;
+        len -= 6;
+        *sixMatchPtr++ = sixMatch;
+    } while (last == false && len > 0);
+    const int colorNameSize = sizeof(gColorNames) / sizeof(unsigned int);
+    int lo = 0;
+    int hi = colorNameSize - 3; // back off to beginning of yellowgreen
+    while (lo <= hi) {
+        int mid = (hi + lo) >> 1;
+        while ((int) gColorNames[mid] >= 0)
+            --mid;
+        sixMatchPtr = sixMatches;
+        while (gColorNames[mid] == *sixMatchPtr) {
+            ++mid;
+            if ((*sixMatchPtr & 1) == 0) { // last
+                *color = gColorNames[mid] | 0xFF000000;
+                return namePtr;
+            }
+            ++sixMatchPtr;
+        }
+        int sixMask = *sixMatchPtr & ~0x80000000;
+        int midMask = gColorNames[mid] & ~0x80000000;
+        if (sixMask > midMask) {
+            lo = mid + 2;   // skip color
+            while ((int) gColorNames[lo] >= 0)
+                ++lo;
+        } else if (hi == mid)
+            return nil;
+        else
+            hi = mid;
+    }
+    return nil;
 }
 
 // !!! move to char utilities
 //static int count_separators(const char* str, const char* sep) {
-//	char c;
-//	int separators = 0;
-//	while ((c = *str++) != '\0') {
-//		if (strchr(sep, c) == nil)
-//			continue;
-//		do {
-//			if ((c = *str++) == '\0')
-//				goto goHome;
-//		} while (strchr(sep, c) != nil);
-//		separators++;
-//	}
+//  char c;
+//  int separators = 0;
+//  while ((c = *str++) != '\0') {
+//      if (strchr(sep, c) == nil)
+//          continue;
+//      do {
+//          if ((c = *str++) == '\0')
+//              goto goHome;
+//      } while (strchr(sep, c) != nil);
+//      separators++;
+//  }
 //goHome:
-//	return separators;
+//  return separators;
 //}
 
 static inline unsigned nib2byte(unsigned n)
 {
-	SkASSERT((n & ~0xF) == 0);
-	return (n << 4) | n;
+    SkASSERT((n & ~0xF) == 0);
+    return (n << 4) | n;
 }
 
 const char* SkParse::FindColor(const char* value, SkColor* colorPtr) {
-	unsigned int oldAlpha = SkColorGetA(*colorPtr);
-	if (value[0] == '#') {
-		uint32_t	hex;
-		const char* end = SkParse::FindHex(value + 1, &hex);
-//		SkASSERT(end);
-		if (end == nil)
-			return end;
-		size_t len = end - value - 1;
-		if (len == 3 || len == 4) {
-			unsigned a = len == 4 ? nib2byte(hex >> 12) : oldAlpha;
-			unsigned r = nib2byte((hex >> 8) & 0xF);
-			unsigned g = nib2byte((hex >> 4) & 0xF);
-			unsigned b = nib2byte(hex & 0xF);
-			*colorPtr = SkColorSetARGB(a, r, g, b);
-			return end;
-		} else if (len == 6 || len == 8) {
-			if (len == 6)
-				hex |= oldAlpha << 24;
-			*colorPtr = hex;
-			return end;
-		} else {
-//			SkASSERT(0);
-			return nil;
-		}
-//	} else if (strchr(value, ',')) {
-//		SkScalar array[4];
-//		int count = count_separators(value, ",") + 1; // !!! count commas, add 1
-//		SkASSERT(count == 3 || count == 4);
-//		array[0] = SK_Scalar1 * 255;
-//		const char* end = SkParse::FindScalars(value, &array[4 - count], count);
-//		if (end == nil)
-//			return nil;
-		// !!! range check for errors?
-//		*colorPtr = SkColorSetARGB(SkScalarRound(array[0]), SkScalarRound(array[1]), 
-//			SkScalarRound(array[2]), SkScalarRound(array[3]));
-//		return end;
-	} else
-		return FindNamedColor(value, strlen(value), colorPtr);
+    unsigned int oldAlpha = SkColorGetA(*colorPtr);
+    if (value[0] == '#') {
+        uint32_t    hex;
+        const char* end = SkParse::FindHex(value + 1, &hex);
+//      SkASSERT(end);
+        if (end == nil)
+            return end;
+        size_t len = end - value - 1;
+        if (len == 3 || len == 4) {
+            unsigned a = len == 4 ? nib2byte(hex >> 12) : oldAlpha;
+            unsigned r = nib2byte((hex >> 8) & 0xF);
+            unsigned g = nib2byte((hex >> 4) & 0xF);
+            unsigned b = nib2byte(hex & 0xF);
+            *colorPtr = SkColorSetARGB(a, r, g, b);
+            return end;
+        } else if (len == 6 || len == 8) {
+            if (len == 6)
+                hex |= oldAlpha << 24;
+            *colorPtr = hex;
+            return end;
+        } else {
+//          SkASSERT(0);
+            return nil;
+        }
+//  } else if (strchr(value, ',')) {
+//      SkScalar array[4];
+//      int count = count_separators(value, ",") + 1; // !!! count commas, add 1
+//      SkASSERT(count == 3 || count == 4);
+//      array[0] = SK_Scalar1 * 255;
+//      const char* end = SkParse::FindScalars(value, &array[4 - count], count);
+//      if (end == nil)
+//          return nil;
+        // !!! range check for errors?
+//      *colorPtr = SkColorSetARGB(SkScalarRound(array[0]), SkScalarRound(array[1]), 
+//          SkScalarRound(array[2]), SkScalarRound(array[3]));
+//      return end;
+    } else
+        return FindNamedColor(value, strlen(value), colorPtr);
 }
 
 #ifdef SK_DEBUG
 void SkParse::TestColor() {
-	if (false)
-		CreateTable();	// regenerates data table in the output window
-	SkColor result;
-	int index;
-	for (index = 0; index < colorNamesSize; index++) {
-		result = SK_ColorBLACK;
-		SkNameRGB nameRGB = colorNames[index];
-		SkASSERT(FindColor(nameRGB.name, &result) != nil);
-		SkASSERT(result == (SkColor) (nameRGB.rgb | 0xFF000000));
-	}
-	for (index = 0; index < colorNamesSize; index++) {
-		result = SK_ColorBLACK;
-		SkNameRGB nameRGB = colorNames[index];
-		char bad[24];
-		size_t len = strlen(nameRGB.name);
-		memcpy(bad, nameRGB.name, len);
-		bad[len - 1] -= 1; 
-		SkASSERT(FindColor(bad, &result) == false);
-		bad[len - 1] += 2; 
-		SkASSERT(FindColor(bad, &result) == false);
-	}
-	result = SK_ColorBLACK;
-	SkASSERT(FindColor("lightGrey", &result));
-	SkASSERT(result == 0xffd3d3d3);
-//	SkASSERT(FindColor("12,34,56,78", &result));
-//	SkASSERT(result == ((12 << 24) | (34 << 16) | (56 << 8) | (78 << 0)));
-	result = SK_ColorBLACK;
-	SkASSERT(FindColor("#ABCdef", &result));
-	SkASSERT(result == 0XFFABCdef);
-	SkASSERT(FindColor("#12ABCdef", &result));
-	SkASSERT(result == 0X12ABCdef);
-	result = SK_ColorBLACK;
-	SkASSERT(FindColor("#123", &result));
-	SkASSERT(result == 0Xff112233);
-	SkASSERT(FindColor("#abcd", &result));
-	SkASSERT(result == 0Xaabbccdd);
-	result = SK_ColorBLACK;
-//	SkASSERT(FindColor("71,162,253", &result));
-//	SkASSERT(result == ((0xFF << 24) | (71 << 16) | (162 << 8) | (253 << 0)));
+    if (false)
+        CreateTable();  // regenerates data table in the output window
+    SkColor result;
+    int index;
+    for (index = 0; index < colorNamesSize; index++) {
+        result = SK_ColorBLACK;
+        SkNameRGB nameRGB = colorNames[index];
+        SkASSERT(FindColor(nameRGB.name, &result) != nil);
+        SkASSERT(result == (SkColor) (nameRGB.rgb | 0xFF000000));
+    }
+    for (index = 0; index < colorNamesSize; index++) {
+        result = SK_ColorBLACK;
+        SkNameRGB nameRGB = colorNames[index];
+        char bad[24];
+        size_t len = strlen(nameRGB.name);
+        memcpy(bad, nameRGB.name, len);
+        bad[len - 1] -= 1; 
+        SkASSERT(FindColor(bad, &result) == false);
+        bad[len - 1] += 2; 
+        SkASSERT(FindColor(bad, &result) == false);
+    }
+    result = SK_ColorBLACK;
+    SkASSERT(FindColor("lightGrey", &result));
+    SkASSERT(result == 0xffd3d3d3);
+//  SkASSERT(FindColor("12,34,56,78", &result));
+//  SkASSERT(result == ((12 << 24) | (34 << 16) | (56 << 8) | (78 << 0)));
+    result = SK_ColorBLACK;
+    SkASSERT(FindColor("#ABCdef", &result));
+    SkASSERT(result == 0XFFABCdef);
+    SkASSERT(FindColor("#12ABCdef", &result));
+    SkASSERT(result == 0X12ABCdef);
+    result = SK_ColorBLACK;
+    SkASSERT(FindColor("#123", &result));
+    SkASSERT(result == 0Xff112233);
+    SkASSERT(FindColor("#abcd", &result));
+    SkASSERT(result == 0Xaabbccdd);
+    result = SK_ColorBLACK;
+//  SkASSERT(FindColor("71,162,253", &result));
+//  SkASSERT(result == ((0xFF << 24) | (71 << 16) | (162 << 8) | (253 << 0)));
 }
 #endif
 

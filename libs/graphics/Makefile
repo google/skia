@@ -23,6 +23,8 @@ LOCAL_SRC_FILES:= \
 	images/SkImageDecoder_libgif.cpp \
 	images/SkImageDecoder_libjpeg.cpp \
 	images/SkImageDecoder_libpng.cpp \
+	images/SkImageDecoder_libico.cpp \
+	images/SkImageDecoder_zbm.cpp \
 	images/SkStream.cpp \
 	sgl/SkAlphaRuns.cpp \
 	sgl/SkBitmap.cpp \
@@ -68,27 +70,14 @@ LOCAL_SRC_FILES:= \
 	sgl/SkStroke.cpp \
 	sgl/SkStrokerPriv.cpp \
 	sgl/SkTSearch.cpp \
-    sgl/SkTextLayout.cpp \
 	sgl/SkUtils.cpp \
 	sgl/SkXfermode.cpp \
-	views/SkEvent.cpp \
-    views/SkEventSink.cpp \
-    views/SkMetaData.cpp \
-    views/SkTagList.cpp \
-    views/SkTextBox.cpp \
 	ports/SkImageDecoder_Factory.cpp \
-	ports/SkFontHost.cpp \
+	ports/SkFontHost_android.cpp \
 	ports/SkFontHost_FreeType.cpp \
 	ports/SkGlobals_global.cpp \
 	ports/SkOSFile_stdio.cpp \
-	ports/SkOSEvent_android.cpp \
-	ports/SkTime_Unix.cpp \
-	ports/SkXMLParser_expat.cpp \
-	xml/SkDOM.cpp \
-	xml/SkXMLParser.cpp \
-	xml/SkXMLWriter.cpp \
-	xml/SkParseColor.cpp \
-	xml/SkParse.cpp
+	ports/SkTime_Unix.cpp
 
 LOCAL_SHARED_LIBRARIES := \
 	libutils \
@@ -121,8 +110,10 @@ else
 	LOCAL_CFLAGS += -fpic
 endif
 
+LOCAL_CFLAGS += -fstrict-aliasing
+
 ifeq ($(DEVICE_ARCH),arm)
-	LOCAL_CFLAGS += -DFMS_ARCH_ANDROID_ARM
+	LOCAL_CFLAGS += -DFMS_ARCH_ANDROID_ARM -fomit-frame-pointer
 endif
 
 # TODO RELEASE_BUILD isn't right

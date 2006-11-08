@@ -1,23 +1,40 @@
+/* libs/graphics/animator/SkDisplayTypes.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkDisplayTypes.h"
 #include "SkAnimateBase.h"
 
 bool SkDisplayDepend::canContainDependents() const {
-	return true; 
+    return true; 
 }
 
 void SkDisplayDepend::dirty() {
-	SkDisplayable** last = fDependents.end();
-	for (SkDisplayable** depPtr = fDependents.begin(); depPtr < last; depPtr++) {
-		SkAnimateBase* animate = (SkAnimateBase* ) *depPtr;
-		animate->setChanged(true);
-	}
+    SkDisplayable** last = fDependents.end();
+    for (SkDisplayable** depPtr = fDependents.begin(); depPtr < last; depPtr++) {
+        SkAnimateBase* animate = (SkAnimateBase* ) *depPtr;
+        animate->setChanged(true);
+    }
 }
 
 // Boolean
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDisplayBoolean::fInfo[] = {
-	SK_MEMBER(value, Boolean)
+    SK_MEMBER(value, Boolean)
 };
 
 #endif
@@ -29,8 +46,8 @@ SkDisplayBoolean::SkDisplayBoolean() : value(false) {
 
 #ifdef SK_DUMP_ENABLED
 void SkDisplayBoolean::dump(SkAnimateMaker* maker){
-	dumpBase(maker);
-	SkDebugf("value=\"%s\" />\n", value ? "true" : "false");
+    dumpBase(maker);
+    SkDebugf("value=\"%s\" />\n", value ? "true" : "false");
 }
 #endif
 
@@ -38,7 +55,7 @@ void SkDisplayBoolean::dump(SkAnimateMaker* maker){
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDisplayInt::fInfo[] = {
-	SK_MEMBER(value, Int)
+    SK_MEMBER(value, Int)
 };
 
 #endif
@@ -50,8 +67,8 @@ SkDisplayInt::SkDisplayInt() : value(0) {
 
 #ifdef SK_DUMP_ENABLED
 void SkDisplayInt::dump(SkAnimateMaker* maker){
-	dumpBase(maker);
-	SkDebugf("value=\"%d\" />\n", value);
+    dumpBase(maker);
+    SkDebugf("value=\"%d\" />\n", value);
 }
 #endif
 
@@ -59,7 +76,7 @@ void SkDisplayInt::dump(SkAnimateMaker* maker){
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDisplayFloat::fInfo[] = {
-	SK_MEMBER(value, Float)
+    SK_MEMBER(value, Float)
 };
 
 #endif
@@ -71,36 +88,36 @@ SkDisplayFloat::SkDisplayFloat() : value(0) {
 
 #ifdef SK_DUMP_ENABLED
 void SkDisplayFloat::dump(SkAnimateMaker* maker) {
-	dumpBase(maker);
+    dumpBase(maker);
 #ifdef SK_CAN_USE_FLOAT
-	SkDebugf("value=\"%g\" />\n", SkScalarToFloat(value));
+    SkDebugf("value=\"%g\" />\n", SkScalarToFloat(value));
 #else
-	SkDebugf("value=\"%x\" />\n", value);
+    SkDebugf("value=\"%x\" />\n", value);
 #endif
 }
 #endif
 
 // SkString
 enum SkDisplayString_Functions {
-	SK_FUNCTION(slice)
+    SK_FUNCTION(slice)
 };
 
 enum SkDisplayString_Properties {
-	SK_PROPERTY(length)
+    SK_PROPERTY(length)
 };
 
 const SkFunctionParamType SkDisplayString::fFunctionParameters[] = {
-	(SkFunctionParamType) SkType_Int,	// slice
-	(SkFunctionParamType) SkType_Int,
-	(SkFunctionParamType) 0
+    (SkFunctionParamType) SkType_Int,   // slice
+    (SkFunctionParamType) SkType_Int,
+    (SkFunctionParamType) 0
 };
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDisplayString::fInfo[] = {
-	SK_MEMBER_PROPERTY(length, Int),
-	SK_MEMBER_FUNCTION(slice, String),
-	SK_MEMBER(value, String)
+    SK_MEMBER_PROPERTY(length, Int),
+    SK_MEMBER_FUNCTION(slice, String),
+    SK_MEMBER(value, String)
 };
 
 #endif
@@ -114,62 +131,62 @@ SkDisplayString::SkDisplayString(SkString& copyFrom) : value(copyFrom) {
 }
 
 void SkDisplayString::executeFunction(SkDisplayable* target, int index, 
-		SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
-		SkScriptValue* scriptValue) {
-	if (scriptValue == nil)
-		return;
-	SkASSERT(target == this);
-	switch (index) {
-		case SK_FUNCTION(slice):
-			scriptValue->fType = SkType_String;
-			SkASSERT(parameters[0].fType == SkType_Int);
-			int start =  parameters[0].fOperand.fS32;
-			if (start < 0)
-				start = (int) (value.size() - start);
-			int end = (int) value.size();
-			if (parameters.count() > 1) {
-				SkASSERT(parameters[1].fType == SkType_Int);
-				end = parameters[1].fOperand.fS32;
-			}
-			//if (end >= 0 && end < (int) value.size())
-			if (end >= 0 && end <= (int) value.size())
-				scriptValue->fOperand.fString = new SkString(&value.c_str()[start], end - start);
-			else
-				scriptValue->fOperand.fString = new SkString(value);
-		break;
-	}
+        SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
+        SkScriptValue* scriptValue) {
+    if (scriptValue == nil)
+        return;
+    SkASSERT(target == this);
+    switch (index) {
+        case SK_FUNCTION(slice):
+            scriptValue->fType = SkType_String;
+            SkASSERT(parameters[0].fType == SkType_Int);
+            int start =  parameters[0].fOperand.fS32;
+            if (start < 0)
+                start = (int) (value.size() - start);
+            int end = (int) value.size();
+            if (parameters.count() > 1) {
+                SkASSERT(parameters[1].fType == SkType_Int);
+                end = parameters[1].fOperand.fS32;
+            }
+            //if (end >= 0 && end < (int) value.size())
+            if (end >= 0 && end <= (int) value.size())
+                scriptValue->fOperand.fString = new SkString(&value.c_str()[start], end - start);
+            else
+                scriptValue->fOperand.fString = new SkString(value);
+        break;
+    }
 }
 
 const SkFunctionParamType* SkDisplayString::getFunctionsParameters() {
-	return fFunctionParameters;
+    return fFunctionParameters;
 }
 
 bool SkDisplayString::getProperty(int index, SkScriptValue* scriptValue) const {
-	switch (index) { 
-		case SK_PROPERTY(length):
-			scriptValue->fType = SkType_Int;
-			scriptValue->fOperand.fS32 = (S32) value.size();
-			break;
-		default:
-			SkASSERT(0);
-			return false;
-	}
-	return true;
+    switch (index) { 
+        case SK_PROPERTY(length):
+            scriptValue->fType = SkType_Int;
+            scriptValue->fOperand.fS32 = (S32) value.size();
+            break;
+        default:
+            SkASSERT(0);
+            return false;
+    }
+    return true;
 }
 
 
 // SkArray
-#if 0	// !!! reason enough to qualify enum with class name or move typedArray into its own file
+#if 0   // !!! reason enough to qualify enum with class name or move typedArray into its own file
 enum SkDisplayArray_Properties {
-	SK_PROPERTY(length)
+    SK_PROPERTY(length)
 };
 #endif
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDisplayArray::fInfo[] = {
-	SK_MEMBER_PROPERTY(length, Int),
-	SK_MEMBER_ARRAY(values, Unknown)
+    SK_MEMBER_PROPERTY(length, Int),
+    SK_MEMBER_ARRAY(values, Unknown)
 };
 
 #endif
@@ -184,28 +201,28 @@ SkDisplayArray::SkDisplayArray(SkTypedArray& copyFrom) : values(copyFrom) {
 }
 
 SkDisplayArray::~SkDisplayArray() {
-	if (values.getType() == SkType_String) {
-		for (int index = 0; index < values.count(); index++)
-			delete values[index].fString;
-		return;
-	}
-	if (values.getType() == SkType_Array) {
-		for (int index = 0; index < values.count(); index++)
-			delete values[index].fArray;
-	}
+    if (values.getType() == SkType_String) {
+        for (int index = 0; index < values.count(); index++)
+            delete values[index].fString;
+        return;
+    }
+    if (values.getType() == SkType_Array) {
+        for (int index = 0; index < values.count(); index++)
+            delete values[index].fArray;
+    }
 }
 
 bool SkDisplayArray::getProperty(int index, SkScriptValue* value) const {
-	switch (index) { 
-		case SK_PROPERTY(length):
-			value->fType = SkType_Int;
-			value->fOperand.fS32 = values.count();
-			break;
-		default:
-			SkASSERT(0);
-			return false;
-	}
-	return true;
+    switch (index) { 
+        case SK_PROPERTY(length):
+            value->fType = SkType_Int;
+            value->fOperand.fS32 = values.count();
+            break;
+        default:
+            SkASSERT(0);
+            return false;
+    }
+    return true;
 }
 
 

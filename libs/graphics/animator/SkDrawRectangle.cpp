@@ -1,3 +1,20 @@
+/* libs/graphics/animator/SkDrawRectangle.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkDrawRectangle.h"
 #include "SkAnimateMaker.h"
 #include "SkCanvas.h"
@@ -6,21 +23,21 @@
 #include "SkScript.h"
 
 enum SkRectangle_Properties {
-	SK_PROPERTY(height),
-	SK_PROPERTY(needsRedraw),
-	SK_PROPERTY(width)
+    SK_PROPERTY(height),
+    SK_PROPERTY(needsRedraw),
+    SK_PROPERTY(width)
 };
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkDrawRect::fInfo[] = {
-	SK_MEMBER_ALIAS(bottom, fRect.fBottom, Float),
-	SK_MEMBER_PROPERTY(height, Float),
-	SK_MEMBER_ALIAS(left, fRect.fLeft, Float),
-	SK_MEMBER_PROPERTY(needsRedraw, Boolean),
-	SK_MEMBER_ALIAS(right, fRect.fRight, Float),
-	SK_MEMBER_ALIAS(top, fRect.fTop, Float),
-	SK_MEMBER_PROPERTY(width, Float)
+    SK_MEMBER_ALIAS(bottom, fRect.fBottom, Float),
+    SK_MEMBER_PROPERTY(height, Float),
+    SK_MEMBER_ALIAS(left, fRect.fLeft, Float),
+    SK_MEMBER_PROPERTY(needsRedraw, Boolean),
+    SK_MEMBER_ALIAS(right, fRect.fRight, Float),
+    SK_MEMBER_ALIAS(top, fRect.fTop, Float),
+    SK_MEMBER_PROPERTY(width, Float)
 };
 
 #endif
@@ -28,18 +45,18 @@ const SkMemberInfo SkDrawRect::fInfo[] = {
 DEFINE_GET_MEMBER(SkDrawRect);
 
 SkDrawRect::SkDrawRect() : fParent(nil) { 
-	fRect.setEmpty(); 
+    fRect.setEmpty(); 
 }
 
 void SkDrawRect::dirty() {
-	if (fParent)
-		fParent->dirty();
+    if (fParent)
+        fParent->dirty();
 }
 
 bool SkDrawRect::draw(SkAnimateMaker& maker) {
-	SkBoundableAuto boundable(this, maker);
-	maker.fCanvas->drawRect(fRect, *maker.fPaint);
-	return false;
+    SkBoundableAuto boundable(this, maker);
+    maker.fCanvas->drawRect(fRect, *maker.fPaint);
+    return false;
 }
 
 #ifdef SK_DUMP_ENABLED
@@ -52,62 +69,62 @@ void SkDrawRect::dump(SkAnimateMaker* maker) {
 #endif
 
 SkDisplayable* SkDrawRect::getParent() const {
-	return fParent;
+    return fParent;
 }
 
 bool SkDrawRect::getProperty(int index, SkScriptValue* value) const {
-	SkScalar result;
-	switch (index) {
-		case SK_PROPERTY(height):
-			result = fRect.height();
-			break;
-		case SK_PROPERTY(needsRedraw):
-			value->fType = SkType_Boolean;
-			value->fOperand.fS32 = fBounds.isEmpty() == false;
-			return true;
-		case SK_PROPERTY(width):
-			result = fRect.width();
-			break;
-		default:
-			SkASSERT(0);
-			return false;
-	}
-	value->fType = SkType_Float;
-	value->fOperand.fScalar = result;
-	return true;
+    SkScalar result;
+    switch (index) {
+        case SK_PROPERTY(height):
+            result = fRect.height();
+            break;
+        case SK_PROPERTY(needsRedraw):
+            value->fType = SkType_Boolean;
+            value->fOperand.fS32 = fBounds.isEmpty() == false;
+            return true;
+        case SK_PROPERTY(width):
+            result = fRect.width();
+            break;
+        default:
+            SkASSERT(0);
+            return false;
+    }
+    value->fType = SkType_Float;
+    value->fOperand.fScalar = result;
+    return true;
 }
 
 
 bool SkDrawRect::setParent(SkDisplayable* parent) {
-	fParent = parent;
-	return false;
+    fParent = parent;
+    return false;
 }
 
 bool SkDrawRect::setProperty(int index, SkScriptValue& value) {
-	SkScalar scalar = value.fOperand.fScalar;
-	switch (index) {
-		case SK_PROPERTY(height):
-        	SkASSERT(value.fType == SkType_Float);
-			fRect.fBottom = scalar + fRect.fTop;
-			return true;
+    SkScalar scalar = value.fOperand.fScalar;
+    switch (index) {
+        case SK_PROPERTY(height):
+            SkASSERT(value.fType == SkType_Float);
+            fRect.fBottom = scalar + fRect.fTop;
+            return true;
         case SK_PROPERTY(needsRedraw):
             return false;
-		case SK_PROPERTY(width):
-        	SkASSERT(value.fType == SkType_Float);
-			fRect.fRight = scalar + fRect.fLeft;
-			return true;
-		default:
-			SkASSERT(0);
-	}
-	return false;
+        case SK_PROPERTY(width):
+            SkASSERT(value.fType == SkType_Float);
+            fRect.fRight = scalar + fRect.fLeft;
+            return true;
+        default:
+            SkASSERT(0);
+    }
+    return false;
 }
 
 #if SK_USE_CONDENSED_INFO == 0
 
 const SkMemberInfo SkRoundRect::fInfo[] = {
-	SK_MEMBER_INHERITED,
-	SK_MEMBER(rx, Float),
-	SK_MEMBER(ry, Float),
+    SK_MEMBER_INHERITED,
+    SK_MEMBER(rx, Float),
+    SK_MEMBER(ry, Float),
 };
 
 #endif
@@ -118,9 +135,9 @@ SkRoundRect::SkRoundRect() : rx(0), ry(0) {
 }
 
 bool SkRoundRect::draw(SkAnimateMaker& maker) {
-	SkBoundableAuto boundable(this, maker);
-	maker.fCanvas->drawRoundRect(fRect, rx, ry, *maker.fPaint);
-	return false;
+    SkBoundableAuto boundable(this, maker);
+    maker.fCanvas->drawRoundRect(fRect, rx, ry, *maker.fPaint);
+    return false;
 }
 
 #ifdef SK_DUMP_ENABLED

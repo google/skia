@@ -1,29 +1,46 @@
+/* libs/graphics/sgl/SkUtils.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkUtils.h"
 
 #if 0
-#define assign_16_longs(dst, value)				\
-	do {										\
-		(dst)[0] = value;	(dst)[1] = value;	\
-		(dst)[2] = value;	(dst)[3] = value;	\
-		(dst)[4] = value;	(dst)[5] = value;	\
-		(dst)[6] = value;	(dst)[7] = value;	\
-		(dst)[8] = value;	(dst)[9] = value;	\
-		(dst)[10] = value;	(dst)[11] = value;	\
-		(dst)[12] = value;	(dst)[13] = value;	\
-		(dst)[14] = value;	(dst)[15] = value;	\
-	} while (0)
+#define assign_16_longs(dst, value)             \
+    do {                                        \
+        (dst)[0] = value;   (dst)[1] = value;   \
+        (dst)[2] = value;   (dst)[3] = value;   \
+        (dst)[4] = value;   (dst)[5] = value;   \
+        (dst)[6] = value;   (dst)[7] = value;   \
+        (dst)[8] = value;   (dst)[9] = value;   \
+        (dst)[10] = value;  (dst)[11] = value;  \
+        (dst)[12] = value;  (dst)[13] = value;  \
+        (dst)[14] = value;  (dst)[15] = value;  \
+    } while (0)
 #else
-#define assign_16_longs(dst, value)				\
-	do {										\
-		*(dst)++ = value;	*(dst)++ = value;	\
-		*(dst)++ = value;	*(dst)++ = value;	\
-		*(dst)++ = value;	*(dst)++ = value;	\
-		*(dst)++ = value;	*(dst)++ = value;	\
-		*(dst)++ = value;	*(dst)++ = value;	\
-		*(dst)++ = value;	*(dst)++ = value;	\
-		*(dst)++ = value;	*(dst)++ = value;	\
-		*(dst)++ = value;	*(dst)++ = value;	\
-	} while (0)
+#define assign_16_longs(dst, value)             \
+    do {                                        \
+        *(dst)++ = value;   *(dst)++ = value;   \
+        *(dst)++ = value;   *(dst)++ = value;   \
+        *(dst)++ = value;   *(dst)++ = value;   \
+        *(dst)++ = value;   *(dst)++ = value;   \
+        *(dst)++ = value;   *(dst)++ = value;   \
+        *(dst)++ = value;   *(dst)++ = value;   \
+        *(dst)++ = value;   *(dst)++ = value;   \
+        *(dst)++ = value;   *(dst)++ = value;   \
+    } while (0)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////
@@ -31,234 +48,234 @@
 #ifndef SK_MEMSET16_REDIRECT
 void sk_memset16(uint16_t dst[], U16CPU value, int count)
 {
-	SkASSERT(dst != NULL && count >= 0);
+    SkASSERT(dst != NULL && count >= 0);
 
-	if (count <= 0)
-		return;
+    if (count <= 0)
+        return;
 
-	// not sure if this helps to short-circuit on small values of count
-	if (count < 8)
-	{
-		do {
-			*dst++ = (uint16_t)value;
-		} while (--count != 0);
-		return;
-	}
+    // not sure if this helps to short-circuit on small values of count
+    if (count < 8)
+    {
+        do {
+            *dst++ = (uint16_t)value;
+        } while (--count != 0);
+        return;
+    }
 
-	// ensure we're on a long boundary
-	if ((size_t)dst & 2)
-	{
-		*dst++ = (uint16_t)value;
-		count -= 1;
-	}
+    // ensure we're on a long boundary
+    if ((size_t)dst & 2)
+    {
+        *dst++ = (uint16_t)value;
+        count -= 1;
+    }
 
-	uint32_t value32 = ((uint32_t)value << 16) | value;
+    uint32_t value32 = ((uint32_t)value << 16) | value;
 
-	// handle the bulk with our unrolled macro
-	{
-		int sixteenlongs = count >> 5;
-		if (sixteenlongs)
-		{
-			U32* dst32 = (U32*)dst;
-			do {
-				assign_16_longs(dst32, value32);
-			} while (--sixteenlongs != 0);
-			dst = (uint16_t*)dst32;
-			count &= 31;
-		}
-	}
+    // handle the bulk with our unrolled macro
+    {
+        int sixteenlongs = count >> 5;
+        if (sixteenlongs)
+        {
+            U32* dst32 = (U32*)dst;
+            do {
+                assign_16_longs(dst32, value32);
+            } while (--sixteenlongs != 0);
+            dst = (uint16_t*)dst32;
+            count &= 31;
+        }
+    }
 
-	// handle (most) of the rest
-	{
-		int longs = count >> 1;
-		if (longs)
-		{
-			do {
-				*(uint32_t*)dst = value32;
-				dst += 2;
-			} while (--longs != 0);
-		}
-	}
+    // handle (most) of the rest
+    {
+        int longs = count >> 1;
+        if (longs)
+        {
+            do {
+                *(uint32_t*)dst = value32;
+                dst += 2;
+            } while (--longs != 0);
+        }
+    }
 
-	// cleanup a possible trailing short
-	if (count & 1)
-		*dst = (uint16_t)value;
+    // cleanup a possible trailing short
+    if (count & 1)
+        *dst = (uint16_t)value;
 }
 #endif
 
 #ifndef SK_MEMSET32_REDIRECT
 void sk_memset32(uint32_t dst[], uint32_t value, int count)
 {
-	SkASSERT(dst != NULL && count >= 0);
+    SkASSERT(dst != NULL && count >= 0);
 
-	{
-		int sixteenlongs = count >> 4;
-		if (sixteenlongs)
-		{
-			do {
-				assign_16_longs(dst, value);
-			} while (--sixteenlongs != 0);
-			count &= 15;
-		}
-	}
+    {
+        int sixteenlongs = count >> 4;
+        if (sixteenlongs)
+        {
+            do {
+                assign_16_longs(dst, value);
+            } while (--sixteenlongs != 0);
+            count &= 15;
+        }
+    }
 
-	if (count)
-	{
-		do {
-			*dst++ = value;
-		} while (--count != 0);
-	}
+    if (count)
+    {
+        do {
+            *dst++ = value;
+        } while (--count != 0);
+    }
 }
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 
-/*	0xxxxxxx	1 total
-	10xxxxxx	// never a leading byte
-	110xxxxx	2 total
-	1110xxxx	3 total
-	11110xxx	4 total
+/*  0xxxxxxx    1 total
+    10xxxxxx    // never a leading byte
+    110xxxxx    2 total
+    1110xxxx    3 total
+    11110xxx    4 total
 
-	11 10 01 01 xx xx xx xx 0...
-	0xE5XX0000
-	0xE5 << 24
+    11 10 01 01 xx xx xx xx 0...
+    0xE5XX0000
+    0xE5 << 24
 */
 
 #ifdef SK_DEBUG
-	static void assert_utf8_leadingbyte(unsigned c)
-	{
-		SkASSERT(c <= 0xF7);	// otherwise leading byte is too big (more than 4 bytes)
-		SkASSERT((c & 0xC0) != 0x80);	// can't begin with a middle char
-	}
+    static void assert_utf8_leadingbyte(unsigned c)
+    {
+        SkASSERT(c <= 0xF7);    // otherwise leading byte is too big (more than 4 bytes)
+        SkASSERT((c & 0xC0) != 0x80);   // can't begin with a middle char
+    }
 
-	int SkUTF8_LeadByteToCount(unsigned c)
-	{
-		assert_utf8_leadingbyte(c);
-		return (((0xE5 << 24) >> (c >> 4 << 1)) & 3) + 1;
-	}
+    int SkUTF8_LeadByteToCount(unsigned c)
+    {
+        assert_utf8_leadingbyte(c);
+        return (((0xE5 << 24) >> (c >> 4 << 1)) & 3) + 1;
+    }
 #else
-	#define assert_utf8_leadingbyte(c)
+    #define assert_utf8_leadingbyte(c)
 #endif
 
 int SkUTF8_CountUnichars(const char utf8[])
 {
-	SkASSERT(utf8);
+    SkASSERT(utf8);
 
-	int count = 0;
+    int count = 0;
 
-	for (;;)
-	{
-		int c = *(const U8*)utf8;
-		if (c == 0)
-			break;
+    for (;;)
+    {
+        int c = *(const U8*)utf8;
+        if (c == 0)
+            break;
 
-		utf8 += SkUTF8_LeadByteToCount(c);
-		count += 1;
-	}
-	return count;
+        utf8 += SkUTF8_LeadByteToCount(c);
+        count += 1;
+    }
+    return count;
 }
 
 int SkUTF8_CountUnichars(const char utf8[], size_t byteLength)
 {
-	SkASSERT(NULL != utf8 || 0 == byteLength);
+    SkASSERT(NULL != utf8 || 0 == byteLength);
 
-	int         count = 0;
+    int         count = 0;
     const char* stop = utf8 + byteLength;
 
-	while (utf8 < stop)
-	{
-		utf8 += SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
-		count += 1;
-	}
-	return count;
+    while (utf8 < stop)
+    {
+        utf8 += SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
+        count += 1;
+    }
+    return count;
 }
 
 SkUnichar SkUTF8_ToUnichar(const char utf8[])
 {
     SkASSERT(NULL != utf8);
 
-	const U8*	p = (const U8*)utf8;
-	int			c = *p;
-	int			hic = c << 24;
+    const U8*   p = (const U8*)utf8;
+    int         c = *p;
+    int         hic = c << 24;
 
-	assert_utf8_leadingbyte(c);
+    assert_utf8_leadingbyte(c);
 
-	if (hic < 0)
-	{
-		U32 mask = (U32)~0x3F;
-		hic <<= 1;
-		do {
-			c = (c << 6) | (*++p & 0x3F);
-			mask <<= 5;
-		} while ((hic <<= 1) < 0);
-		c &= ~mask;
-	}
-	return c;
+    if (hic < 0)
+    {
+        U32 mask = (U32)~0x3F;
+        hic <<= 1;
+        do {
+            c = (c << 6) | (*++p & 0x3F);
+            mask <<= 5;
+        } while ((hic <<= 1) < 0);
+        c &= ~mask;
+    }
+    return c;
 }
 
 SkUnichar SkUTF8_NextUnichar(const char** ptr)
 {
     SkASSERT(NULL != ptr && NULL != *ptr);
 
-	const U8*	p = (const U8*)*ptr;
-	int			c = *p;
-	int			hic = c << 24;
-	
-	assert_utf8_leadingbyte(c);
+    const U8*   p = (const U8*)*ptr;
+    int         c = *p;
+    int         hic = c << 24;
+    
+    assert_utf8_leadingbyte(c);
 
-	if (hic < 0)
-	{
-		U32 mask = (U32)~0x3F;
-		hic <<= 1;
-		do {
-			c = (c << 6) | (*++p & 0x3F);
-			mask <<= 5;
-		} while ((hic <<= 1) < 0);
-		c &= ~mask;
-	}
-	*ptr = (char*)p + 1;
-	return c;
+    if (hic < 0)
+    {
+        U32 mask = (U32)~0x3F;
+        hic <<= 1;
+        do {
+            c = (c << 6) | (*++p & 0x3F);
+            mask <<= 5;
+        } while ((hic <<= 1) < 0);
+        c &= ~mask;
+    }
+    *ptr = (char*)p + 1;
+    return c;
 }
 
 size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[])
 {
-	if ((uint32_t)uni > 0x10FFFF)
-	{
-		SkASSERT(!"bad unichar");
-		return 0;
-	}
+    if ((uint32_t)uni > 0x10FFFF)
+    {
+        SkASSERT(!"bad unichar");
+        return 0;
+    }
 
-	if (uni <= 127)
-	{
-		if (utf8)
-			*utf8 = (char)uni;
-		return 1;
-	}
+    if (uni <= 127)
+    {
+        if (utf8)
+            *utf8 = (char)uni;
+        return 1;
+    }
 
-	char	tmp[4];
-	char*	p = tmp;
-	size_t	count = 1;
+    char    tmp[4];
+    char*   p = tmp;
+    size_t  count = 1;
 
-	SkDEBUGCODE(SkUnichar orig = uni;)
+    SkDEBUGCODE(SkUnichar orig = uni;)
 
-	while (uni > 0x3F)
-	{
-		*p++ = (char)(0x80 | (uni & 0x3F));
-		uni >>= 6;
-		count += 1;
-	}
+    while (uni > 0x3F)
+    {
+        *p++ = (char)(0x80 | (uni & 0x3F));
+        uni >>= 6;
+        count += 1;
+    }
 
-	if (utf8)
-	{
-		p = tmp;
-		utf8 += count;
-		while (p < tmp + count - 1)
-			*--utf8 = *p++;
-		*--utf8 = (char)(~(0xFF >> count) | uni);
-	}
+    if (utf8)
+    {
+        p = tmp;
+        utf8 += count;
+        while (p < tmp + count - 1)
+            *--utf8 = *p++;
+        *--utf8 = (char)(~(0xFF >> count) | uni);
+    }
 
-	SkASSERT(utf8 == NULL || orig == SkUTF8_ToUnichar(utf8));
-	return count;
+    SkASSERT(utf8 == NULL || orig == SkUTF8_ToUnichar(utf8));
+    return count;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -386,54 +403,54 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues, char utf8
 #include "SkTSearch.h"
 #include "SkTSort.h"
 
-#define kSEARCH_COUNT	91
+#define kSEARCH_COUNT   91
 
 #ifdef SK_SUPPORT_UNITTEST
 static void test_search()
 {
-	int			i, array[kSEARCH_COUNT];
-	SkRandom	rand;
+    int         i, array[kSEARCH_COUNT];
+    SkRandom    rand;
 
-	for (i = 0; i < kSEARCH_COUNT; i++)
-		array[i] = rand.nextS();
+    for (i = 0; i < kSEARCH_COUNT; i++)
+        array[i] = rand.nextS();
 
-	SkTHeapSort<int>(array, kSEARCH_COUNT);
-	// make sure we got sorted properly
-	for (i = 1; i < kSEARCH_COUNT; i++)
-		SkASSERT(array[i-1] <= array[i]);
+    SkTHeapSort<int>(array, kSEARCH_COUNT);
+    // make sure we got sorted properly
+    for (i = 1; i < kSEARCH_COUNT; i++)
+        SkASSERT(array[i-1] <= array[i]);
 
-	// make sure we can find all of our values
-	for (i = 0; i < kSEARCH_COUNT; i++)
-	{
-		int index = SkTSearch<int>(array, kSEARCH_COUNT, array[i], sizeof(int));
-		SkASSERT(index == i);
-	}
+    // make sure we can find all of our values
+    for (i = 0; i < kSEARCH_COUNT; i++)
+    {
+        int index = SkTSearch<int>(array, kSEARCH_COUNT, array[i], sizeof(int));
+        SkASSERT(index == i);
+    }
 
-	// make sure that random values are either found, or the correct
-	// insertion index is returned
-	for (i = 0; i < 10000; i++)
-	{
-		int value = rand.nextS();
-		int index = SkTSearch<int>(array, kSEARCH_COUNT, value, sizeof(int));
+    // make sure that random values are either found, or the correct
+    // insertion index is returned
+    for (i = 0; i < 10000; i++)
+    {
+        int value = rand.nextS();
+        int index = SkTSearch<int>(array, kSEARCH_COUNT, value, sizeof(int));
 
-		if (index >= 0)
-			SkASSERT(index < kSEARCH_COUNT && array[index] == value);
-		else
-		{
-			index = ~index;
-			SkASSERT(index <= kSEARCH_COUNT);
-			if (index < kSEARCH_COUNT)
-			{
-				SkASSERT(value < array[index]);
-				if (index > 0)
-					SkASSERT(value > array[index - 1]);
-			}
-			else	// we should append the new value
-			{
-				SkASSERT(value > array[kSEARCH_COUNT - 1]);
-			}
-		}
-	}
+        if (index >= 0)
+            SkASSERT(index < kSEARCH_COUNT && array[index] == value);
+        else
+        {
+            index = ~index;
+            SkASSERT(index <= kSEARCH_COUNT);
+            if (index < kSEARCH_COUNT)
+            {
+                SkASSERT(value < array[index]);
+                if (index > 0)
+                    SkASSERT(value > array[index - 1]);
+            }
+            else    // we should append the new value
+            {
+                SkASSERT(value > array[kSEARCH_COUNT - 1]);
+            }
+        }
+    }
 }
 
 static void test_utf16()
@@ -462,32 +479,32 @@ static void test_utf16()
 void SkUtils::UnitTest()
 {
 #ifdef SK_SUPPORT_UNITTEST
-	static const struct {
-		const char*	fUtf8;
-		SkUnichar	fUni;
-	} gTest[] = {
-		{ "a",					'a'	},
-		{ "\xC3\x83",			(3 << 6) | 3	},
-		{ "\xE3\x83\x83",		(3 << 12) | (3 << 6) | 3	},
-		{ "\xF3\x83\x83\x83",	(3 << 18) | (3 << 12) | (3 << 6) | 3	}
-	};
+    static const struct {
+        const char* fUtf8;
+        SkUnichar   fUni;
+    } gTest[] = {
+        { "a",                  'a' },
+        { "\xC3\x83",           (3 << 6) | 3    },
+        { "\xE3\x83\x83",       (3 << 12) | (3 << 6) | 3    },
+        { "\xF3\x83\x83\x83",   (3 << 18) | (3 << 12) | (3 << 6) | 3    }
+    };
 
-	for (unsigned i = 0; i < SK_ARRAY_COUNT(gTest); i++)
-	{
-		const char*	p = gTest[i].fUtf8;
-		int			n = SkUTF8_CountUnichars(p);
-		SkUnichar	u0 = SkUTF8_ToUnichar(gTest[i].fUtf8);
-		SkUnichar	u1 = SkUTF8_NextUnichar(&p);
+    for (unsigned i = 0; i < SK_ARRAY_COUNT(gTest); i++)
+    {
+        const char* p = gTest[i].fUtf8;
+        int         n = SkUTF8_CountUnichars(p);
+        SkUnichar   u0 = SkUTF8_ToUnichar(gTest[i].fUtf8);
+        SkUnichar   u1 = SkUTF8_NextUnichar(&p);
 
-		SkASSERT(n == 1);
-		SkASSERT(u0 == u1);
-		SkASSERT(u0 == gTest[i].fUni);
-		SkASSERT(p - gTest[i].fUtf8 == (int)strlen(gTest[i].fUtf8));
-	}
+        SkASSERT(n == 1);
+        SkASSERT(u0 == u1);
+        SkASSERT(u0 == gTest[i].fUni);
+        SkASSERT(p - gTest[i].fUtf8 == (int)strlen(gTest[i].fUtf8));
+    }
     
     test_utf16();
 
-	test_search();
+    test_search();
 #endif
 }
 

@@ -1,3 +1,20 @@
+/* libs/graphics/effects/SkCornerPathEffect.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkCornerPathEffect.h"
 #include "SkPath.h"
 #include "SkPoint.h"
@@ -40,6 +57,11 @@ bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* wi
     SkPoint     moveTo, lastCorner;
     SkVector    firstStep, step;
     bool        prevIsValid = true;
+
+    // to avoid warnings
+    moveTo.set(0, 0);
+    firstStep.set(0, 0);
+    lastCorner.set(0, 0);
 
     for (;;) {
         switch (verb = iter.next(pts)) {
@@ -91,12 +113,12 @@ bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* wi
         prevVerb = verb;
     }
 DONE:
-	return true;
+    return true;
 }
 
 SkFlattenable::Factory SkCornerPathEffect::getFactory()
 {
-	return CreateProc;
+    return CreateProc;
 }
 
 void SkCornerPathEffect::flatten(SkWBuffer& buffer)

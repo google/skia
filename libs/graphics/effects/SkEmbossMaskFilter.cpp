@@ -1,3 +1,20 @@
+/* libs/graphics/effects/SkEmbossMaskFilter.cpp
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+
 #include "SkEmbossMaskFilter.h"
 #include "SkBlurMaskFilter.h"
 #include "SkBlurMask.h"
@@ -34,58 +51,58 @@ SkMaskFilter* SkBlurMaskFilter::CreateEmboss(const SkScalar direction[3],
 
 static void normalize(SkScalar v[3])
 {
-	SkScalar mag = SkScalarSquare(v[0]) + SkScalarSquare(v[1]) + SkScalarSquare(v[2]);
-	mag = SkScalarSqrt(mag);
+    SkScalar mag = SkScalarSquare(v[0]) + SkScalarSquare(v[1]) + SkScalarSquare(v[2]);
+    mag = SkScalarSqrt(mag);
 
-	for (int i = 0; i < 3; i++)
-		v[i] = SkScalarDiv(v[i], mag);
+    for (int i = 0; i < 3; i++)
+        v[i] = SkScalarDiv(v[i], mag);
 }
 
 SkEmbossMaskFilter::SkEmbossMaskFilter(const Light& light, SkScalar blurRadius)
-		: fLight(light), fBlurRadius(blurRadius)
+        : fLight(light), fBlurRadius(blurRadius)
 {
-	normalize(fLight.fDirection);
+    normalize(fLight.fDirection);
 }
 
 SkMask::Format SkEmbossMaskFilter::getFormat()
 {
-	return SkMask::k3D_Format;
+    return SkMask::k3D_Format;
 }
 
 bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& matrix, SkPoint16* margin)
 {
-	SkScalar radius = matrix.mapRadius(fBlurRadius);
+    SkScalar radius = matrix.mapRadius(fBlurRadius);
 
-	SkBlurMask::Blur(dst, src, radius, SkBlurMask::kInner_Style);
+    SkBlurMask::Blur(dst, src, radius, SkBlurMask::kInner_Style);
 
-	dst->fFormat = SkMask::k3D_Format;
-	if (src.fImage == NULL)
-		return true;
+    dst->fFormat = SkMask::k3D_Format;
+    if (src.fImage == NULL)
+        return true;
 
-	// create a larger buffer for the other two channels (should force fBlur to do this for us)
+    // create a larger buffer for the other two channels (should force fBlur to do this for us)
 
-	{
-		U8*		alphaPlane = dst->fImage;
-		size_t	planeSize = dst->computeImageSize();
+    {
+        U8*     alphaPlane = dst->fImage;
+        size_t  planeSize = dst->computeImageSize();
 
-		dst->fImage = SkMask::AllocImage(planeSize * 3);
-		memcpy(dst->fImage, alphaPlane, planeSize);
-		SkMask::FreeImage(alphaPlane);
-	}
+        dst->fImage = SkMask::AllocImage(planeSize * 3);
+        memcpy(dst->fImage, alphaPlane, planeSize);
+        SkMask::FreeImage(alphaPlane);
+    }
 
-	// run the light direction through the matrix...
-	Light	light = fLight;
-	matrix.mapVectors((SkVector*)light.fDirection, (SkVector*)fLight.fDirection, 1);
-	// now restore the length of the XY component
-	((SkVector*)light.fDirection)->setLength(light.fDirection[0], light.fDirection[1],
-											SkPoint::Length(fLight.fDirection[0], fLight.fDirection[1]));
+    // run the light direction through the matrix...
+    Light   light = fLight;
+    matrix.mapVectors((SkVector*)light.fDirection, (SkVector*)fLight.fDirection, 1);
+    // now restore the length of the XY component
+    ((SkVector*)light.fDirection)->setLength(light.fDirection[0], light.fDirection[1],
+                                            SkPoint::Length(fLight.fDirection[0], fLight.fDirection[1]));
 
-	SkEmbossMask::Emboss(dst, light);
+    SkEmbossMask::Emboss(dst, light);
 
-	// restore original alpha
-	memcpy(dst->fImage, src.fImage, src.computeImageSize());
+    // restore original alpha
+    memcpy(dst->fImage, src.fImage, src.computeImageSize());
 
-	return true;
+    return true;
 }
 
 SkFlattenable* SkEmbossMaskFilter::CreateProc(SkRBuffer& buffer)
@@ -95,13 +112,13 @@ SkFlattenable* SkEmbossMaskFilter::CreateProc(SkRBuffer& buffer)
 
 SkFlattenable::Factory SkEmbossMaskFilter::getFactory()
 {
-	return CreateProc;
+    return CreateProc;
 }
 
 SkEmbossMaskFilter::SkEmbossMaskFilter(SkRBuffer& buffer) : SkMaskFilter(buffer)
 {
     buffer.read(&fLight, sizeof(fLight));
-    SkASSERT(fLight.fPad == 0);	// for the font-cache lookup to be clean
+    SkASSERT(fLight.fPad == 0); // for the font-cache lookup to be clean
     fBlurRadius = buffer.readScalar();
 }
 
@@ -109,7 +126,7 @@ void SkEmbossMaskFilter::flatten(SkWBuffer& buffer)
 {
     this->INHERITED::flatten(buffer);
 
-    fLight.fPad = 0;	// for the font-cache lookup to be clean
+    fLight.fPad = 0;    // for the font-cache lookup to be clean
     buffer.write(&fLight, sizeof(fLight));
     buffer.writeScalar(fBlurRadius);
 }

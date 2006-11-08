@@ -1,122 +1,248 @@
+/* libs/graphics/sgl/SkBitmapShader16BilerpTemplate.h
+**
+** Copyright 2006, Google Inc.
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
 
+#include "SkFilterProc.h"
 
 class BILERP_BITMAP16_SHADER_CLASS : public HasSpan16_Sampler_BitmapShader {
 public:
-	BILERP_BITMAP16_SHADER_CLASS(const SkBitmap& src, bool transferOwnershipOfPixels)
-		: HasSpan16_Sampler_BitmapShader(src, transferOwnershipOfPixels, SkPaint::kBilinear_FilterType,
+    BILERP_BITMAP16_SHADER_CLASS(const SkBitmap& src, bool transferOwnershipOfPixels)
+        : HasSpan16_Sampler_BitmapShader(src, transferOwnershipOfPixels, SkPaint::kBilinear_FilterType,
                                          SkShader::kClamp_TileMode, SkShader::kClamp_TileMode)
-	{
-	}
+    {
+    }
 
-	virtual void shadeSpanOpaque16(int x, int y, U16 dstC[], int count)
-	{
-		SkASSERT(count > 0);
-		SkASSERT(this->getInverseClass() != kPerspective_MatrixClass);
-		SkASSERT(this->getPaintAlpha() == 0xFF);
+    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count)
+    {
+        SkASSERT(count > 0);
+        
+        U8CPU alpha = this->getPaintAlpha();
 
-		const SkMatrix&	inv = this->getTotalInverse();
-		const SkBitmap&	srcBitmap = this->getSrcBitmap();
-		unsigned		srcMaxX = srcBitmap.width() - 1;
-		unsigned		srcMaxY = srcBitmap.height() - 1;
-		unsigned		srcRB = srcBitmap.rowBytes();
-		SkFixed			fx, fy, dx, dy;
+        const SkMatrix& inv = this->getTotalInverse();
+        const SkBitmap& srcBitmap = this->getSrcBitmap();
+        unsigned        srcMaxX = srcBitmap.width() - 1;
+        unsigned        srcMaxY = srcBitmap.height() - 1;
+        unsigned        srcRB = srcBitmap.rowBytes();
 
-		// now init fx, fy, dx, dy
-		{
-			SkPoint	srcPt;
-			this->getInverseMapPtProc()(inv, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+        BILERP_BITMAP16_SHADER_PREAMBLE(srcBitmap);
 
-			fx = SkScalarToFixed(srcPt.fX);
-			fy = SkScalarToFixed(srcPt.fY);
+        const SkFilterProc* proc_table = SkGetBilinearFilterProcTable();
+        const BILERP_BITMAP16_SHADER_TYPE* srcPixels = (const BILERP_BITMAP16_SHADER_TYPE*)srcBitmap.getPixels();
 
-			if (this->getInverseClass() == kFixedStepInX_MatrixClass)
-				(void)inv.fixedStepInX(SkIntToScalar(y), &dx, &dy);
-			else
-			{
-				dx = SkScalarToFixed(inv.getScaleX());
-				dy = SkScalarToFixed(inv.getSkewY());
-			}
-		}
+        if (this->getInverseClass() == kPerspective_MatrixClass)
+        {
+            SkPerspIter   iter(inv, SkIntToScalar(x), SkIntToScalar(y), count);
+            while ((count = iter.next()) != 0)
+            {
+                const SkFixed* srcXY = iter.getXY();
+                while (--count >= 0)
+                {
+                    SkFixed fx = *srcXY++;
+                    SkFixed fy = *srcXY++;
+                    unsigned x = SkClampMax(fx, srcMaxX << 16) >> 16;
+                    unsigned y = SkClampMax(fy, srcMaxY << 16) >> 16;
 
-		BILERP_BITMAP16_SHADER_PREAMBLE(srcBitmap);
+                    SkASSERT(x <= srcMaxX);
+                    SkASSERT(y <= srcMaxY);
 
-		const U32* coeff_table = gBilerpPackedCoeff;
-		const BILERP_BITMAP16_SHADER_TYPE* srcPixels = (const BILERP_BITMAP16_SHADER_TYPE*)srcBitmap.getPixels();
-		U16CPU rbMask = gRBMask_Bilerp_BitmapShader;
+                    const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
 
-		if (dy == 0)
-		{
-			fy = SkClampMax(fy, srcMaxY << 16);
-			coeff_table += SK_BILERP_GET_BITS(fy) << 2;	// jump the table to the correct section (so we can just use fx to index it)
+                    p00 = p01 = ((const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels + y * srcRB)) + x;
+                    if (x < srcMaxX)
+                        p01 += 1;
+                    p10 = p00;
+                    p11 = p01;
+                    if (y < srcMaxY)
+                    {
+                        p10 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p10 + srcRB);
+                        p11 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p11 + srcRB);
+                    }
 
-			unsigned y = fy >> 16;
-			SkASSERT((int)y >= 0 && y <= srcMaxY);
-			// pre-bias srcPixels since y won't change
-			srcPixels = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels + y * srcRB);
-			// now make y the step from one row to the next
-			y = srcRB;
-			if (y == srcMaxY)
-				y = 0;
+                    SkFilterProc proc = SkGetBilinearFilterProc(proc_table, fx, fy);
+                    uint32_t c = proc(SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p00)),
+                                      SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p01)),
+                                      SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p10)),
+                                      SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p11)));
 
-			do {
-				unsigned fx_clamped = SkClampMax(fx, srcMaxX << 16);
-				unsigned x = fx_clamped >> 16;
-				SkASSERT((int)x >= 0 && x <= srcMaxX);
+                    *dstC++ = expanded_rgb16_to_8888(c, alpha);
+                }
+            }
+        }
+        else    // linear case
+        {
+            SkFixed fx, fy, dx, dy;
 
-				const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
+            // now init fx, fy, dx, dy
+            {
+                SkPoint srcPt;
+                this->getInverseMapPtProc()(inv, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
 
-				p00 = p01 = srcPixels + x;
-				if (x < srcMaxX)
-					p01 += 1;
-				p10 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p00 + y);
-				p11 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p01 + y);
+                fx = SkScalarToFixed(srcPt.fX);
+                fy = SkScalarToFixed(srcPt.fY);
 
-				*dstC++ = SkToU16(sk_bilerp16(	BILERP_BITMAP16_SHADER_PIXEL(*p00),
-												BILERP_BITMAP16_SHADER_PIXEL(*p01),
-												BILERP_BITMAP16_SHADER_PIXEL(*p10),
-												BILERP_BITMAP16_SHADER_PIXEL(*p11),
-												coeff_table[SK_BILERP_GET_BITS(fx_clamped)],
-												rbMask));
+                if (this->getInverseClass() == kFixedStepInX_MatrixClass)
+                    (void)inv.fixedStepInX(SkIntToScalar(y), &dx, &dy);
+                else
+                {
+                    dx = SkScalarToFixed(inv.getScaleX());
+                    dy = SkScalarToFixed(inv.getSkewY());
+                }
+            }
 
-				fx += dx;
-			} while (--count != 0);
-		}
-		else
-		{
-			do {
-				unsigned x = SkClampMax(fx, srcMaxX << 16) >> 16;
-				unsigned y = SkClampMax(fy, srcMaxY << 16) >> 16;
+            do {
+                unsigned x = SkClampMax(fx, srcMaxX << 16) >> 16;
+                unsigned y = SkClampMax(fy, srcMaxY << 16) >> 16;
 
-				SkASSERT((int)x >= 0 && x <= srcMaxX);
-				SkASSERT((int)y >= 0 && y <= srcMaxY);
+                SkASSERT((int)x >= 0 && x <= srcMaxX);
+                SkASSERT((int)y >= 0 && y <= srcMaxY);
 
-				const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
+                const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
 
-				p00 = p01 = ((const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels + y * srcRB)) + x;
-				if (x < srcMaxX)
-					p01 += 1;
-				p10 = p00;
-				p11 = p01;
-				if (y < srcMaxY)
-				{
-					p10 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p10 + srcRB);
-					p11 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p11 + srcRB);
-				}
+                p00 = p01 = ((const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels + y * srcRB)) + x;
+                if (x < srcMaxX)
+                    p01 += 1;
+                p10 = p00;
+                p11 = p01;
+                if (y < srcMaxY)
+                {
+                    p10 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p10 + srcRB);
+                    p11 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p11 + srcRB);
+                }
 
-				*dstC++ = SkToU16(sk_bilerp16(	BILERP_BITMAP16_SHADER_PIXEL(*p00),
-												BILERP_BITMAP16_SHADER_PIXEL(*p01),
-												BILERP_BITMAP16_SHADER_PIXEL(*p10),
-												BILERP_BITMAP16_SHADER_PIXEL(*p11),
-												sk_find_bilerp_coeff(coeff_table, fx, fy),
-												rbMask));
+                SkFilterProc proc = SkGetBilinearFilterProc(proc_table, fx, fy);
+                uint32_t c = proc(SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p00)),
+                                  SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p01)),
+                                  SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p10)),
+                                  SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p11)));
+                *dstC++ = expanded_rgb16_to_8888(c, alpha);
 
-				fx += dx;
-				fy += dy;
-			} while (--count != 0);
-		}
+                fx += dx;
+                fy += dy;
+            } while (--count != 0);
+        }
+        BILERP_BITMAP16_SHADER_POSTAMBLE(srcBitmap);
+    }
 
-		BILERP_BITMAP16_SHADER_POSTAMBLE(srcBitmap);
-	}
+    virtual void shadeSpan16(int x, int y, U16 dstC[], int count)
+    {
+        SkASSERT(count > 0);
+
+        const SkMatrix& inv = this->getTotalInverse();
+        const SkBitmap& srcBitmap = this->getSrcBitmap();
+        unsigned        srcMaxX = srcBitmap.width() - 1;
+        unsigned        srcMaxY = srcBitmap.height() - 1;
+        unsigned        srcRB = srcBitmap.rowBytes();
+
+        BILERP_BITMAP16_SHADER_PREAMBLE(srcBitmap);
+
+        const SkFilterProc* proc_table = SkGetBilinearFilterProcTable();
+        const BILERP_BITMAP16_SHADER_TYPE* srcPixels = (const BILERP_BITMAP16_SHADER_TYPE*)srcBitmap.getPixels();
+
+        if (this->getInverseClass() == kPerspective_MatrixClass)
+        {
+            SkPerspIter   iter(inv, SkIntToScalar(x), SkIntToScalar(y), count);
+            while ((count = iter.next()) != 0)
+            {
+                const SkFixed* srcXY = iter.getXY();
+                while (--count >= 0)
+                {
+                    SkFixed fx = *srcXY++;
+                    SkFixed fy = *srcXY++;
+                    unsigned x = SkClampMax(fx, srcMaxX << 16) >> 16;
+                    unsigned y = SkClampMax(fy, srcMaxY << 16) >> 16;
+
+                    SkASSERT(x <= srcMaxX);
+                    SkASSERT(y <= srcMaxY);
+
+                    const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
+
+                    p00 = p01 = ((const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels + y * srcRB)) + x;
+                    if (x < srcMaxX)
+                        p01 += 1;
+                    p10 = p00;
+                    p11 = p01;
+                    if (y < srcMaxY)
+                    {
+                        p10 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p10 + srcRB);
+                        p11 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p11 + srcRB);
+                    }
+
+                    SkFilterProc proc = SkGetBilinearFilterProc(proc_table, fx, fy);
+                    uint32_t c = proc(SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p00)),
+                                      SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p01)),
+                                      SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p10)),
+                                      SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p11)));
+                    *dstC++ = SkCompact_rgb_16(c);
+                }
+            }
+        }
+        else    // linear case
+        {
+            SkFixed fx, fy, dx, dy;
+
+            // now init fx, fy, dx, dy
+            {
+                SkPoint srcPt;
+                this->getInverseMapPtProc()(inv, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+
+                fx = SkScalarToFixed(srcPt.fX);
+                fy = SkScalarToFixed(srcPt.fY);
+
+                if (this->getInverseClass() == kFixedStepInX_MatrixClass)
+                    (void)inv.fixedStepInX(SkIntToScalar(y), &dx, &dy);
+                else
+                {
+                    dx = SkScalarToFixed(inv.getScaleX());
+                    dy = SkScalarToFixed(inv.getSkewY());
+                }
+            }
+
+            do {
+                unsigned x = SkClampMax(fx, srcMaxX << 16) >> 16;
+                unsigned y = SkClampMax(fy, srcMaxY << 16) >> 16;
+
+                SkASSERT((int)x >= 0 && x <= srcMaxX);
+                SkASSERT((int)y >= 0 && y <= srcMaxY);
+
+                const BILERP_BITMAP16_SHADER_TYPE *p00, *p01, *p10, *p11;
+
+                p00 = p01 = ((const BILERP_BITMAP16_SHADER_TYPE*)((const char*)srcPixels + y * srcRB)) + x;
+                if (x < srcMaxX)
+                    p01 += 1;
+                p10 = p00;
+                p11 = p01;
+                if (y < srcMaxY)
+                {
+                    p10 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p10 + srcRB);
+                    p11 = (const BILERP_BITMAP16_SHADER_TYPE*)((const char*)p11 + srcRB);
+                }
+
+                SkFilterProc proc = SkGetBilinearFilterProc(proc_table, fx, fy);
+                uint32_t c = proc(SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p00)),
+                                  SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p01)),
+                                  SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p10)),
+                                  SkExpand_rgb_16(BILERP_BITMAP16_SHADER_PIXEL(*p11)));
+                *dstC++ = SkCompact_rgb_16(c);
+
+                fx += dx;
+                fy += dy;
+            } while (--count != 0);
+        }
+        BILERP_BITMAP16_SHADER_POSTAMBLE(srcBitmap);
+    }
 };
 
 #undef BILERP_BITMAP16_SHADER_CLASS
