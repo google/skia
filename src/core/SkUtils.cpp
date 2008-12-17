@@ -268,7 +268,7 @@ size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[])
 
     SkDEBUGCODE(SkUnichar orig = uni;)
 
-    while (uni > 0x3F)
+    while (uni > 0x7F >> count)
     {
         *p++ = (char)(0x80 | (uni & 0x3F));
         uni >>= 6;
@@ -545,8 +545,15 @@ void SkUtils::UnitTest()
         SkUnichar   fUni;
     } gTest[] = {
         { "a",                  'a' },
+        { "\x7f",               0x7f },
+        { "\xC2\x80",           0x80 },
         { "\xC3\x83",           (3 << 6) | 3    },
+        { "\xDF\xBF",           0x7ff },
+        { "\xE0\xA0\x80",       0x800 },
+        { "\xE0\xB0\xB8",       0xC38 },
         { "\xE3\x83\x83",       (3 << 12) | (3 << 6) | 3    },
+        { "\xEF\xBF\xBF",       0xFFFF },
+        { "\xF0\x90\x80\x80",   0x10000 },
         { "\xF3\x83\x83\x83",   (3 << 18) | (3 << 12) | (3 << 6) | 3    }
     };
 
