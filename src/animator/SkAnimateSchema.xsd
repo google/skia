@@ -1,0 +1,2787 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+xmlns:Sk="urn:screenplay" targetNamespace="urn:screenplay">
+
+	<!-- /** Animate
+		An ID of an element of type <animate> or <set> 
+	*/ -->
+	<xs:simpleType name="Animate">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
+	<!-- /** 3D_Point
+		An array of three floats in ECMAScript notation: [x, y, z].
+	*/ -->
+	<xs:simpleType name="3D_Point">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[+-]?([0-9]*\.[0-9]+|[0-9]+\.?)( *, *[+-]?([0-9]*\.[0-9]+|[0-9]+\.?)){2}" /> 
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** ARGB
+		The red, green, blue, and optional alpha color components.
+	*/ -->
+	<xs:simpleType name="ARGB">
+		<xs:restriction base="xs:string">
+		<!-- @pattern #[0-9a-fA-F]{3} #rgb contains three hexadecimal digits. #rgb is equivalent to 0xFFrrggbb. -->
+			<xs:pattern value="#[0-9a-fA-F]{3}"/>
+		<!-- @pattern #[0-9a-fA-F]{4} #argb contains four hexadecimal digits. #argb is equivalent to 0xaarrggbb. -->
+			<xs:pattern value="#[0-9a-fA-F]{4}"/>
+		<!-- @pattern #[0-9a-fA-F]{6} #rrggbb contains six hexadecimal digits. #rrggbb is equivalent to 0xFFrrggbb. -->
+			<xs:pattern value="#[0-9a-fA-F]{6}"/>
+		<!-- @pattern #[0-9a-fA-F]{8} #aarrggbb contains eight hexadecimal digits. #aarrggbb is equivalent to 0xaarrggbb. -->
+			<xs:pattern value="#[0-9a-fA-F]{8}"/>
+		<!-- @pattern 0[xX][0-9a-fA-F]{8} 0xaarrggbb describes the color as a packed hexadecimal; each pair of digits 
+			corresponds to alpha, red, green, and blue respectively. -->
+			<xs:pattern value="0[xX][0-9a-fA-F]{8}"/>
+		<!-- @pattern rgb\(\d+{1,3},\d+{1,3},\d+{1,3}\) rgb(r, g, b) describes color with three integers ranging from 0 to 255, 
+			corresponding to red, green, and blue respectively. -->
+			<xs:pattern value="rgb\(\d+{1,3},\d+{1,3},\d+{1,3}\)"/>
+		<!-- @patternList Color can be described by the following standard CSS color names. -->
+			<xs:pattern value="aliceblue"/>
+			<xs:pattern value="antiquewhite"/>
+			<xs:pattern value="aqua"/>
+			<xs:pattern value="aquamarine"/>
+			<xs:pattern value="azure"/>
+			<xs:pattern value="beige"/>
+			<xs:pattern value="bisque"/>
+			<xs:pattern value="black"/>
+			<xs:pattern value="blanchedalmond"/>
+			<xs:pattern value="blue"/>
+			<xs:pattern value="blueviolet"/>
+			<xs:pattern value="brown"/>
+			<xs:pattern value="burlywood"/>
+			<xs:pattern value="cadetblue"/>
+			<xs:pattern value="chartreuse"/>
+			<xs:pattern value="chocolate"/>
+			<xs:pattern value="coral"/>
+			<xs:pattern value="cornflowerblue"/>
+			<xs:pattern value="cornsilk"/>
+			<xs:pattern value="crimson"/>
+			<xs:pattern value="cyan"/>
+			<xs:pattern value="darkblue"/>
+			<xs:pattern value="darkcyan"/>
+			<xs:pattern value="darkgoldenrod"/>
+			<xs:pattern value="darkgray"/>
+			<xs:pattern value="darkgreen"/>
+			<xs:pattern value="darkkhaki"/>
+			<xs:pattern value="darkmagenta"/>
+			<xs:pattern value="darkolivegreen"/>
+			<xs:pattern value="darkorange"/>
+			<xs:pattern value="darkorchid"/>
+			<xs:pattern value="darkred"/>
+			<xs:pattern value="darksalmon"/>
+			<xs:pattern value="darkseagreen"/>
+			<xs:pattern value="darkslateblue"/>
+			<xs:pattern value="darkslategray"/>
+			<xs:pattern value="darkturquoise"/>
+			<xs:pattern value="darkviolet"/>
+			<xs:pattern value="deeppink"/>
+			<xs:pattern value="deepskyblue"/>
+			<xs:pattern value="dimgray"/>
+			<xs:pattern value="dodgerblue"/>
+			<xs:pattern value="firebrick"/>
+			<xs:pattern value="floralwhite"/>
+			<xs:pattern value="forestgreen"/>
+			<xs:pattern value="fuchsia"/>
+			<xs:pattern value="gainsboro"/>
+			<xs:pattern value="ghostwhite"/>
+			<xs:pattern value="gold"/>
+			<xs:pattern value="goldenrod"/>
+			<xs:pattern value="gray"/>
+			<xs:pattern value="green"/>
+			<xs:pattern value="greenyellow"/>
+			<xs:pattern value="honeydew"/>
+			<xs:pattern value="hotpink"/>
+			<xs:pattern value="indianred"/>
+			<xs:pattern value="indigo"/>
+			<xs:pattern value="ivory"/>
+			<xs:pattern value="khaki"/>
+			<xs:pattern value="lavender"/>
+			<xs:pattern value="lavenderblush"/>
+			<xs:pattern value="lawngreen"/>
+			<xs:pattern value="lemonchiffon"/>
+			<xs:pattern value="lightblue"/>
+			<xs:pattern value="lightcoral"/>
+			<xs:pattern value="lightcyan"/>
+			<xs:pattern value="lightgoldenrodyellow"/>
+			<xs:pattern value="lightgreen"/>
+			<xs:pattern value="lightgrey"/>
+			<xs:pattern value="lightpink"/>
+			<xs:pattern value="lightsalmon"/>
+			<xs:pattern value="lightseagreen"/>
+			<xs:pattern value="lightskyblue"/>
+			<xs:pattern value="lightslategray"/>
+			<xs:pattern value="lightsteelblue"/>
+			<xs:pattern value="lightyellow"/>
+			<xs:pattern value="lime"/>
+			<xs:pattern value="limegreen"/>
+			<xs:pattern value="linen"/>
+			<xs:pattern value="magenta"/>
+			<xs:pattern value="maroon"/>
+			<xs:pattern value="mediumaquamarine"/>
+			<xs:pattern value="mediumblue"/>
+			<xs:pattern value="mediumorchid"/>
+			<xs:pattern value="mediumpurple"/>
+			<xs:pattern value="mediumseagreen"/>
+			<xs:pattern value="mediumslateblue"/>
+			<xs:pattern value="mediumspringgreen"/>
+			<xs:pattern value="mediumturquoise"/>
+			<xs:pattern value="mediumvioletred"/>
+			<xs:pattern value="midnightblue"/>
+			<xs:pattern value="mintcream"/>
+			<xs:pattern value="mistyrose"/>
+			<xs:pattern value="moccasin"/>
+			<xs:pattern value="navajowhite"/>
+			<xs:pattern value="navy"/>
+			<xs:pattern value="oldlace"/>
+			<xs:pattern value="olive"/>
+			<xs:pattern value="olivedrab"/>
+			<xs:pattern value="orange"/>
+			<xs:pattern value="orangered"/>
+			<xs:pattern value="orchid"/>
+			<xs:pattern value="palegoldenrod"/>
+			<xs:pattern value="palegreen"/>
+			<xs:pattern value="paleturquoise"/>
+			<xs:pattern value="palevioletred"/>
+			<xs:pattern value="papayawhip"/>
+			<xs:pattern value="peachpuff"/>
+			<xs:pattern value="peru"/>
+			<xs:pattern value="pink"/>
+			<xs:pattern value="plum"/>
+			<xs:pattern value="powderblue"/>
+			<xs:pattern value="purple"/>
+			<xs:pattern value="red"/>
+			<xs:pattern value="rosybrown"/>
+			<xs:pattern value="royalblue"/>
+			<xs:pattern value="saddlebrown"/>
+			<xs:pattern value="salmon"/>
+			<xs:pattern value="sandybrown"/>
+			<xs:pattern value="seagreen"/>
+			<xs:pattern value="seashell"/>
+			<xs:pattern value="sienna"/>
+			<xs:pattern value="silver"/>
+			<xs:pattern value="skyblue"/>
+			<xs:pattern value="slateblue"/>
+			<xs:pattern value="slategray"/>
+			<xs:pattern value="snow"/>
+			<xs:pattern value="springgreen"/>
+			<xs:pattern value="steelblue"/>
+			<xs:pattern value="tan"/>
+			<xs:pattern value="teal"/>
+			<xs:pattern value="thistle"/>
+			<xs:pattern value="tomato"/>
+			<xs:pattern value="turquoise"/>
+			<xs:pattern value="violet"/>
+			<xs:pattern value="wheat"/>
+			<xs:pattern value="white"/>
+			<xs:pattern value="whitesmoke"/>
+			<xs:pattern value="yellow"/>
+		<!--@patternListLast -->
+			<xs:pattern value="yellowgreen"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** AddMode
+		AddMode controls how the add element adds its referenced element to the 
+		display list. By default, the referenced element remains in the add element
+		so that the add element's use attribute may be animated to change the 
+		element it refers to. Setting the mode attribute to "immediate" causes the 
+		add element to put the referenced element in the display list directly. 
+		The move and replace elements are not affected by the mode attribute;
+		they always move or replace the referenced element directly.
+	*/ -->
+	<xs:simpleType name="AddMode">
+		<xs:restriction base="xs:string">
+			<!-- @pattern immediate Puts the referenced element in the display list. -->
+			<xs:pattern value="immediate"/>
+			<!-- @pattern indirect Puts the containing element in the display list. -->
+			<xs:pattern value="indirect"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Align
+		Align places text to the left, center, or right of the text position.
+	*/ -->
+	<xs:simpleType name="Align">
+		<xs:restriction base="xs:string">
+			<!-- @pattern left The first character in the text string is drawn at the text position. -->
+			<xs:pattern value="left"/>
+			<!-- @pattern center The  text string is measured and centered on the text position. -->
+			<xs:pattern value="center"/>
+			<!-- @pattern right The last character in the text string is drawn to the left of the text position. -->
+			<xs:pattern value="right"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** ApplyMode
+		ApplyMode affects how the apply element animates values.
+	*/ -->
+	<xs:simpleType name="ApplyMode">
+		<xs:restriction base="xs:string">
+			<!-- @pattern immediate Iterates through all animation values immediately. -->
+			<xs:pattern value="immediate"/>
+			<!-- @pattern once Performs the animation at once without adding the scope to
+				the display list. -->
+			<xs:pattern value="once"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** ApplyTransition
+		ApplyTransition affects how the apply element sets the time of the animators.
+	*/ -->
+	<xs:simpleType name="ApplyTransition">
+		<xs:restriction base="xs:string">
+			<!-- @pattern reverse Performs the animation in reverse. -->
+			<xs:pattern value="reverse"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Base64
+		Base64 describes 8 bit binary using 64 character values. 
+		See http://rfc.net/rfc2045.html for the base64 format.
+	*/ -->
+	<xs:simpleType name="Base64">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Za-z0-9+/ ]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** BaseBitmap
+		A reference to an image like a JPEG, GIF, or PNG; or a reference to a bitmap element
+		that has been drawn into with a drawTo element.
+	*/ -->
+	<xs:simpleType name="BaseBitmap">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** BitmapEncoding
+		Used to specify the compression format for writing an image file with the snapshot element.
+	*/ -->
+	<xs:simpleType name="BitmapEncoding">
+		<xs:restriction base="xs:string">
+			<!-- @pattern jpeg See http://www.jpeg.org/jpeg/ for more information about JPEG. -->
+			<xs:pattern value="jpeg"/>
+			<!-- @pattern png See http://www.libpng.org/pub/png/ for more information about PNG. -->
+			<xs:pattern value="png"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- /** BitmapFormat
+		Determines the number of bits per pixel in a bitmap.
+	*/ -->
+	<xs:simpleType name="BitmapFormat">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="none"/>
+			<!-- @pattern A1 1-bit per pixel, (0 is transparent, 1 is opaque). -->
+			<xs:pattern value="A1"/>
+			<!-- @pattern A8 8-bits per pixel, with only alpha specified (0 is transparent, 0xFF is opaque). -->
+			<xs:pattern value="A8"/>
+			<!-- @pattern Index8 8-bits per pixel, using a ColorTable element to specify the colors. -->
+			<xs:pattern value="Index8"/>
+			<!-- @pattern RGB16 16-bits per pixel, compile-time configured to be either 555 or 565. -->
+			<xs:pattern value="RGB16"/>
+			<!-- @pattern RGB32 32-bits per pixel, plus alpha. -->
+			<xs:pattern value="RGB32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Boolean
+		Either "true" (non-zero) or "false" (zero). 
+	*/ -->
+	<xs:simpleType name="Boolean">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="false"/>
+			<xs:pattern value="true"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Cap
+		The values for the strokeCap attribute. 
+	*/ -->
+	<xs:simpleType name="Cap">
+		<xs:restriction base="xs:string">
+			<!-- @pattern butt begin and end a contour with no extension -->
+			<xs:pattern value="butt"/>
+			<!-- @pattern round begin and end a contour with a semi-circle extension -->
+			<xs:pattern value="round"/>
+			<!-- @pattern  square begin and end a contour with a half square extension -->
+			<xs:pattern value="square"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Color
+		A reference to a color element. 
+	*/ -->
+	<xs:simpleType name="Color">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** Displayable
+		A reference to any element: @list(Displayable)
+	*/ -->
+	<xs:simpleType name="Displayable">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
+	<!-- /** DisplayableArray
+		An array of one or more element IDs.
+	*/ -->
+	<xs:simpleType name="DisplayableArray">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
+	<!-- /** Drawable
+		A reference to an element that can be drawn: @list(Drawable)
+	*/ -->
+	<xs:simpleType name="Drawable">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
+	<!-- /** DynamicString
+		Dynamic strings contain scripts that are re-evaluated each time the script is enabled.
+	*/ -->
+	<xs:simpleType name="DynamicString">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** EventCode
+		Key codes that can trigger events, usually corresponding to physical buttons on the device.
+	*/ -->
+	<xs:simpleType name="EventCode">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="none"/>
+			<!-- @pattern up The up arrow. -->
+			<xs:pattern value="up"/>
+			<!-- @pattern down The down arrow. -->
+			<xs:pattern value="down"/>
+			<!-- @pattern left The left arrow. -->
+			<xs:pattern value="left"/>
+			<!-- @pattern right The right arrow. -->
+			<xs:pattern value="right"/>
+			<!-- @pattern back The back button (may not be present; the Backspace key on a PC). -->
+			<xs:pattern value="back"/>
+			<!-- @pattern end The end button (may not be present; the Esc key on a PC). -->
+			<xs:pattern value="end"/>
+			<!-- @pattern OK The OK button (the Enter key on a PC). -->
+			<xs:pattern value="OK"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** EventKind
+		Specifies how an event is triggered; by a key, when an animation ends, when the 
+		document is loaded, or when this event is triggered by the user's C++ or XML.
+	*/ -->
+	<xs:simpleType name="EventKind">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="none"/>
+			<!-- @pattern keyChar A key corresponding to a Unichar value. -->
+			<xs:pattern value="keyChar"/>
+			<!-- @pattern keyPress A key with a particular function, such as an arrow key or the OK button. -->
+			<xs:pattern value="keyPress"/>
+			<!-- @pattern mouseDown Triggered when the primary mouse button is pressed. -->
+			<xs:pattern value="mouseDown"/>
+			<!-- @pattern mouseDrag Triggered when the primary mouse is moved while the button is pressed. -->
+			<xs:pattern value="mouseDrag"/>
+			<!-- @pattern mouseMove Triggered when the primary mouse is moved. -->
+			<xs:pattern value="mouseMove"/>
+			<!-- @pattern mouseUp Triggered when the primary mouse button is released. -->
+			<xs:pattern value="mouseUp"/>
+			<!-- @pattern onEnd Triggered when an event ends. -->
+			<xs:pattern value="onEnd"/>
+			<!-- @pattern onLoad Triggered when the document loads. -->
+			<xs:pattern value="onLoad"/>
+			<!-- @pattern user Triggered when a post element or C++ event is activated. -->
+			<xs:pattern value="user"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** EventMode
+		Specifies whether the event is delivered immediately to matching event element or deferred to 
+		the application-wide event handler.
+	*/ -->
+	<xs:simpleType name="EventMode">
+		<xs:restriction base="xs:string">
+			<!-- @pattern deferred Process the event using the host's event queue. -->
+			<xs:pattern value="deferred"/>
+			<!-- @pattern immediate Activate the event element immediately. -->
+			<xs:pattern value="immediate"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- /** FillType
+		Filled paths that self-intersect use the winding or evenOdd rule to determine whether the 
+		overlaps are filled or are holes.
+	*/ -->
+	<xs:simpleType name="FillType">
+		<xs:restriction base="xs:string">
+			<!-- @pattern winding Fill if the sum of edge directions is non-zero. -->
+			<xs:pattern value="winding"/>
+			<!-- @pattern evenOdd Fill if the sum of edges is an odd number. -->
+			<xs:pattern value="evenOdd"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** FilterType
+		Scaled bitmaps without a filter type set point-sample the source bitmap to determine the
+		destination pixels' colors. Bilinear and bicubic compute the values of intermediate pixels
+		by sampling the pixels around them.
+	*/ -->
+	<xs:simpleType name="FilterType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="none"/>
+			<!-- @pattern bilinear Compute the pixel value as the linear interpolation of adjacent pixels. -->
+			<xs:pattern value="bilinear"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Float
+		A signed fractional value.
+	*/ -->
+	<xs:simpleType name="Float">
+		<xs:restriction base="xs:float">
+			<xs:pattern value="[+-]?([0-9]*\.[0-9]+|[0-9]+\.?)"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** FloatArray
+		An array of one or more signed fractional values.
+	*/ -->
+	<xs:simpleType name="FloatArray">
+		<xs:restriction base="xs:float">
+			<xs:pattern value="\[[+-]?([0-9]*\.[0-9]+|[0-9]+\.?)( *, *[+-]?([0-9]*\.[0-9]+|[0-9]+\.?))*\]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** FromPathMode
+		A matrix computed from an offset along a path may include the point's position, the angle 
+		tangent, or both. 
+		.
+	*/ -->
+	<xs:simpleType name="FromPathMode">
+		<xs:restriction base="xs:string">
+			<!-- @pattern normal Compute the matrix using the path's angle and position. -->
+			<xs:pattern value="normal"/>
+			<!-- @pattern angle Compute the matrix using only the path's angle. -->
+			<xs:pattern value="angle"/>
+			<!-- @pattern position Compute the matrix using only the path's position. -->
+			<xs:pattern value="position"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- /** Int
+		A signed integer.
+	*/ -->
+	<xs:simpleType name="Int">
+		<xs:restriction base="xs:integer"/>
+	</xs:simpleType>
+	
+	<!-- /** IntArray
+		An array of one or more signed integer values.
+	*/ -->
+	<xs:simpleType name="IntArray">
+		<xs:restriction base="xs:integer">
+			<xs:pattern value="\[[+-]?[0-9]+( *, *[+-]?[0-9]+)*\]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Join
+		The edges of thick lines in a path are joined by extending the outer edges to form a miter, 
+		or by adding a round circle at the intersection point, or by connecting the outer edges with a line 
+		to form a blunt joint.
+	*/ -->
+	<xs:simpleType name="Join">
+		<xs:restriction base="xs:string">
+			<!-- @pattern miter Extend the outer edges to form a miter. -->
+			<xs:pattern value="miter"/>
+			<!-- @pattern round Join the outer edges with a circular arc. -->
+			<xs:pattern value="round"/>
+			<!-- @pattern blunt Connect the outer edges with a line. -->
+			<xs:pattern value="blunt"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** MaskFilterBlurStyle
+		A blur can affect the inside or outside part of the shape, or it can affect both. The shape
+		itself can be drawn solid, or can be invisible.
+	*/ -->
+	<xs:simpleType name="MaskFilterBlurStyle">
+		<xs:restriction base="xs:string">
+			<!-- @pattern normal Blur inside and outside. -->
+			<xs:pattern value="normal"/>
+			<!-- @pattern solid Solid inside, blur outside. -->
+			<xs:pattern value="solid"/>
+			<!-- @pattern outer Invisible inside, blur outside. -->
+			<xs:pattern value="outer"/>
+			<!-- @pattern inner Blur inside only.. -->
+			<xs:pattern value="inner"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** MaskFilter
+		The ID of a blur or emboss element.
+	*/ -->
+	<xs:simpleType name="MaskFilter">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** Matrix
+		The ID of a matrix element.
+	*/ -->
+	<xs:simpleType name="Matrix">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** MSec
+		A fractional second with millisecond resolution.
+	*/ -->
+	<xs:simpleType name="MSec">
+		<xs:restriction base="xs:float"/>
+	</xs:simpleType>
+	
+	<!-- /** Paint
+		The ID of a paint element.
+	*/ -->
+	<xs:simpleType name="Paint">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
+	<!-- /** Path
+		The ID of a path element.
+	*/ -->
+	<xs:simpleType name="Path">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** PathDirection
+		PathDirection determines if the path is traveled clockwise or counterclockwise.
+	*/ -->
+	<xs:simpleType name="PathDirection">
+		<xs:restriction base="xs:string">
+		<!-- @pattern cw The path is traveled clockwise. -->
+			<xs:pattern value="cw"/>
+		<!-- @pattern ccw The path is traveled counterclockwise. -->
+			<xs:pattern value="ccw"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** PathEffect
+		The ID of a dash or discrete element.
+	*/ -->
+	<xs:simpleType name="PathEffect">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** Point
+		A pair of signed values representing the x and y coordinates of a point.
+	*/ -->
+	<xs:simpleType name="Point">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\[ *[+-]?([0-9]*\.[0-9]+|[0-9]+\.?) *[ ,] *[+-]?([0-9]*\.[0-9]+|[0-9]+\.?)\]"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Rect
+		The ID of a rectangle element.
+	*/ -->
+	<xs:simpleType name="Rect">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** Shader
+		The ID of a linear or radial gradient.
+	*/ -->
+	<xs:simpleType name="Shader">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** String
+		A sequence of characters.
+	*/ -->
+	<xs:simpleType name="String">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** Style
+		Geometry can be filled, stroked or both.
+	*/ -->
+	<xs:simpleType name="Style">
+		<xs:restriction base="xs:string">
+		<!-- @pattern fill The interior of the geometry is filled with the paint's color. -->
+			<xs:pattern value="fill"/>
+		<!-- @pattern stroke The outline of the geometry is stroked with the paint's color. -->
+			<xs:pattern value="stroke"/>
+		<!-- @pattern strokeAndFill The interior is filled and outline is stroked with the paint's color. -->
+			<xs:pattern value="strokeAndFill"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Text
+		The ID of a text element.
+	*/ -->
+	<xs:simpleType name="Text">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** TextBoxAlign
+		Multiple lines of text may be aligned to the start of the box, the center, or the end.
+	*/ -->
+	<xs:simpleType name="TextBoxAlign">
+		<xs:restriction base="xs:string">
+		<!-- @pattern start The text begins within the upper left of the box. -->
+			<xs:pattern value="start"/>
+		<!-- @pattern center The text is positioned in the center of the box. -->
+			<xs:pattern value="center"/>
+		<!-- @pattern end The text ends within the lower right of the box. -->
+			<xs:pattern value="end"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- /** TextBoxMode
+		Fitting the text may optionally introduce line breaks.
+	*/ -->
+	<xs:simpleType name="TextBoxMode">
+		<xs:restriction base="xs:string">
+		<!-- @pattern oneLine No additional linebreaks are added. -->
+			<xs:pattern value="oneLine"/>
+		<!-- @pattern lineBreak Line breaks may be added to fit the text to the box. -->
+			<xs:pattern value="lineBreak"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** TileMode
+		A shader describes how to draw within a rectangle. 
+		Outside of the rectangle, the shader may be ignored, clamped on the edges, or repeated.
+		The repetitions may be mirrored from the original shader.
+	*/ -->
+	<xs:simpleType name="TileMode">
+		<xs:restriction base="xs:string">
+		<!-- @pattern clamp The edge shader color is extended. -->
+			<xs:pattern value="clamp"/>
+		<!-- @pattern repeat The shader is repeated horizontally and vertically. -->
+			<xs:pattern value="repeat"/>
+		<!-- @pattern mirror The shader is mirrored horizontally and vertically. -->
+			<xs:pattern value="mirror"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<!-- /** Typeface
+		The ID of a typeface element.
+	*/ -->
+	<xs:simpleType name="Typeface">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+	
+	<!-- /** UnknownArray
+		An array of values of any type.
+	*/ -->
+	<xs:simpleType name="UnknownArray">
+		<xs:restriction base="xs:string"/>
+	</xs:simpleType>
+
+	<!-- /** Xfermode
+		The operation applied when drawing a color to the destination background.
+	*/ -->
+	<xs:simpleType name="Xfermode">
+		<xs:restriction base="xs:string">
+		<!-- @pattern clear Set the destination alpha to zero and the destination color to black. -->
+			<xs:pattern value="clear"/>
+		<!-- @pattern src Set the destination to the source alpha and color. -->
+			<xs:pattern value="src"/>
+		<!-- @pattern dst Set the destination to the destination alpha and color. -->
+			<xs:pattern value="dst"/>
+		<!-- @pattern srcOver The default. Set the destination to the source color blended
+			with the destination by the source alpha. -->
+			<xs:pattern value="srcOver"/>
+		<!-- @pattern dstOver Set the destination to the destination color blended
+			with the source by the destination alpha. -->
+			<xs:pattern value="dstOver"/>
+		<!-- @pattern srcIn Set the destination to the source color scaled by the destination
+			alpha. -->
+			<xs:pattern value="srcIn"/>
+		<!-- @pattern dstIn Set the destination to the destination color scaled by the source
+			alpha. -->
+			<xs:pattern value="dstIn"/>
+		<!-- @pattern srcOut Set the destination to the source color scaled by the 
+			inverse of the destination alpha. -->
+			<xs:pattern value="srcOut"/>
+		<!-- @pattern dstOut Set the destination to the destination color scaled by the 
+			inverse of the source alpha. -->
+			<xs:pattern value="dstOut"/>
+		<!-- @pattern srcATop Set the destination to the source color times the destination alpha, 
+			blended	with the destination times the inverse of the source alpha. -->
+			<xs:pattern value="srcATop"/>
+		<!-- @pattern dstATop Set the destination to the destination color times the source alpha, 
+			blended	with the source times the inverse of the destination alpha. -->
+			<xs:pattern value="dstATop"/>
+		<!-- @pattern xor Set the destination to the destination color times the 
+			inverse of the source alpha, 
+			blended	with the source times the inverse of the destination alpha. -->
+			<xs:pattern value="xor"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- /** Math
+		Math provides functions and properties in the ECMAScript library to screenplay script expressions.
+		The Math element is always implicitly added at the top of every screenplay description, so
+		its functions and properties are always available.
+	*/ -->
+	<xs:element name="Math">
+		<xs:complexType>
+			<!-- @attribute E The value 2.718281828. -->
+			<xs:attribute name="E" type="Sk:Float"/>
+			<!-- @attribute LN10 The value 2.302585093. -->
+			<xs:attribute name="LN10" type="Sk:Float"/>
+			<!-- @attribute LN2 The value 0.693147181. -->
+			<xs:attribute name="LN2" type="Sk:Float"/>
+			<!-- @attribute LOG10E The value 0.434294482. -->
+			<xs:attribute name="LOG10E" type="Sk:Float"/>
+			<!-- @attribute LOG2E The value 1.442695041. -->
+			<xs:attribute name="LOG2E" type="Sk:Float"/>
+			<!-- @attribute PI The value 3.141592654. -->
+			<xs:attribute name="PI" type="Sk:Float"/>
+			<!-- @attribute SQRT1_2 The value 0.707106781. -->
+			<xs:attribute name="SQRT1_2" type="Sk:Float"/>
+			<!-- @attribute SQRT2 The value 1.414213562. -->
+			<xs:attribute name="SQRT2" type="Sk:Float"/>
+			<!-- @attribute abs A function that returns the absolute value of its argument. -->
+			<xs:attribute name="abs" type="Sk:Float"/>
+			<!-- @attribute acos A function that returns the arc cosine of its argument. -->
+			<xs:attribute name="acos" type="Sk:Float"/>
+			<!-- @attribute asin A function that returns the arc sine of its argument. -->
+			<xs:attribute name="asin" type="Sk:Float"/>
+			<!-- @attribute atan A function that returns the arc tan of its argument. -->
+			<xs:attribute name="atan" type="Sk:Float"/>
+			<!-- @attribute atan2 A function that returns the arc tan of the ratio of its two arguments. -->
+			<xs:attribute name="atan2" type="Sk:Float"/>
+			<!-- @attribute ceil A function that returns the rounded up value of its argument. -->
+			<xs:attribute name="ceil" type="Sk:Float"/>
+			<!-- @attribute cos A function that returns the cosine of its argument. -->
+			<xs:attribute name="cos" type="Sk:Float"/>
+			<!-- @attribute exp A function that returns E raised to a power (the argument). -->
+			<xs:attribute name="exp" type="Sk:Float"/>
+			<!-- @attribute floor A function that returns the rounded down value of its argument. -->
+			<xs:attribute name="floor" type="Sk:Float"/>
+			<!-- @attribute log A function that returns the natural logarithm its argument. -->
+			<xs:attribute name="log" type="Sk:Float"/>
+			<!-- @attribute max A function that returns the largest of any number of arguments. -->
+			<xs:attribute name="max" type="Sk:Float"/>
+			<!-- @attribute min A function that returns the smallest of any number of arguments. -->
+			<xs:attribute name="min" type="Sk:Float"/>
+			<!-- @attribute pow A function that returns the first argument raised to the power of the second argument. -->
+			<xs:attribute name="pow" type="Sk:Float"/>
+			<!-- @attribute random A function that returns a random value from zero to one.
+				(See also the &lt;random&gt; element.) -->
+			<xs:attribute name="random" type="Sk:Float"/>
+			<!-- @attribute round A function that returns the rounded value of its argument. -->
+			<xs:attribute name="round" type="Sk:Float"/>
+			<!-- @attribute sin A function that returns the sine of its argument. -->
+			<xs:attribute name="sin" type="Sk:Float"/>
+			<!-- @attribute sqrt A function that returns the square root of its argument. -->
+			<xs:attribute name="sqrt" type="Sk:Float"/>
+			<!-- @attribute tan A function that returns the tangent of its argument. -->
+			<xs:attribute name="tan" type="Sk:Float"/>	
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** Number
+		Number provides properties in the ECMAScript library to screenplay script expressions.
+		The Number element is always implicitly added at the top of every screenplay description, so
+		its properties are always available.
+	*/ -->
+	<xs:element name="Number">
+		<xs:complexType>
+			<!-- @attribute MAX_VALUE The maximum number value; approximately 32767.999985 fixed point, 
+				3.4028235e+38 floating point. -->
+			<xs:attribute name="MAX_VALUE" type="Sk:Float"/>
+			<!-- @attribute MIN_VALUE The minimum number value; approximately 0.000015 fixed point, 
+				1.1754944e-38 floating point. -->
+			<xs:attribute name="MIN_VALUE" type="Sk:Float"/>
+			<!-- @attribute NEGATIVE_INFINITY The most negative number value. Fixed point does not
+				have a value for negative infinity, and approximates it with -32767.999985. -->
+			<xs:attribute name="NEGATIVE_INFINITY" type="Sk:Float"/>
+			<!-- @attribute NaN A bit pattern representing "Not a Number". Fixed point does not
+				have a value for NaN, and approximates it with -32768. -->
+			<xs:attribute name="NaN" type="Sk:Float"/>
+			<!-- @attribute POSITIVE_INFINITY The greatest positive number value. Fixed point does not
+				have a value for positive infinity, and approximates it with 32767.999985. -->
+			<xs:attribute name="POSITIVE_INFINITY" type="Sk:Float"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- /** add
+		Add references a drawable element, and adds it to the display list. 
+		If where and offset are omitted, the element is appended to the end of the display list.
+		If where is specified, the element is inserted at the first occurance of where in the display list.
+		If offset and where are specified, the element is inserted at where plus offset.
+		A positive offset without where inserts the element at the start of the list plus offset.
+		A negative offset without where inserts the element at the end of the list minus offset.
+	*/ -->
+	<xs:element name="add">
+		<xs:complexType>
+			<!-- @attribute mode If indirect (the default), keep the add element in the display list,
+				and draw the add's use element. If immediate, put the add's use element in the display list. -->
+			<xs:attribute name="mode" type="Sk:AddMode"/>
+			<!-- @attribute offset The offset added to the insert index. -->
+			<xs:attribute name="offset" type="Sk:Int"/>
+			<!-- @attribute use The drawable element to add to the display list. -->
+			<xs:attribute name="use" type="Sk:Drawable"/>
+			<!-- @attribute where The drawable element marking where to insert. -->
+			<xs:attribute name="where" type="Sk:Drawable"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** addCircle
+		AddCircle adds a closed circle to the parent path element. 
+	*/ -->
+	<xs:element name="addCircle">
+		<xs:complexType>
+			<!-- @attribute direction One of @pattern. @patternDescription -->
+			<xs:attribute name="direction" type="Sk:PathDirection"/>
+			<!-- @attribute radius The distance from the center to the edge of the circle. -->
+			<xs:attribute name="radius" type="Sk:Float"/>
+			<!-- @attribute x The x coordinate of the circle's center. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The y coordinate of the circle's center.-->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** addOval
+		AddOval adds a closed oval described by its bounding box to the parent path element. 
+	*/ -->
+	<xs:element name="addOval">
+		<xs:complexType>
+			<!-- @attribute direction One of @pattern. @patternDescription -->
+			<xs:attribute name="direction" type="Sk:PathDirection"/>
+			<!-- @attribute bottom The bottom edge of the oval's bounding box. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute left The left edge of the oval's bounding box. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute right The right edge of the oval's bounding box. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute top The top edge of the oval's bounding box. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** addPath
+		AddPath adds a path to the parent path element. 
+		An optional matrix may transform the path as it is added.
+	*/ -->
+	<xs:element name="addPath">
+		<xs:complexType>
+			<!-- @attribute matrix The matrix applied to the path as it is added.  -->
+			<xs:attribute name="matrix" type="Sk:Matrix"/>
+			<!-- @attribute path The path to add.  -->
+			<xs:attribute name="path" type="Sk:Path"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** addRect
+		AddRect adds a closed rectangle to the parent path element. 
+	*/ -->
+	<xs:element name="addRect">
+		<xs:complexType>
+			<!-- @attribute direction One of @pattern. @patternDescription -->
+			<xs:attribute name="direction" type="Sk:PathDirection"/>
+			<!-- @attribute bottom The bottom edge of the rectangle. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute left The left edge of the rectangle. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute right The right edge of the rectangle. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute top" The top" edge of the rectangle. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** addRoundRect
+		AddRoundRect adds a closed rounded rectangle to the parent path element. 
+	*/ -->
+	<xs:element name="addRoundRect">
+		<xs:complexType>
+			<!-- @attribute direction One of @pattern. @patternDescription -->
+			<xs:attribute name="direction" type="Sk:PathDirection"/>
+			<!-- @attribute bottom The bottom edge of the rounded rectangle's bounding box. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute left The left edge of the rounded rectangle's bounding box. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute right The right edge of the rounded rectangle's bounding box. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute top The top edge of the rounded rectangle's bounding box. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<!-- @attribute rx The X-radius of the oval used to round the corners. -->
+			<xs:attribute name="rx" type="Sk:Float"/>
+			<!-- @attribute ry The Y-radius of the oval used to round the corners. -->
+			<xs:attribute name="ry" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+		
+	<!-- /** animate
+		Animate varies the value of an element's attribute over time.
+		The animation may vary starting at the 'from' attribute, and ending at the 'to' attribute,
+		or may compute the value using the 'formula' attribute.
+	*/ -->
+	<xs:element name="animate">
+		<xs:complexType>
+			<!-- @attribute begin An optional offset that must elapse before the animation begins. The apply
+				begin attribute is added to any animator's begin attribute. -->
+			<xs:attribute name="begin" type="Sk:MSec"/>
+			<!-- @attribute blend Specifies how the from and to values are blended. A value from 0.0 to
+				1.0 specifies a cubic lag/log/lag blend (slow to change at the beginning and end); the closer
+				blend is to 1.0, the more linear the blend. If omitted, the blend is linear. -->
+			<xs:attribute name="blend" type="Sk:FloatArray"/>
+			<!-- @attribute dur The duration of the animation in milliseconds. -->
+			<xs:attribute name="dur" type="Sk:MSec"/>
+			<!-- @attribute dynamic If true, restart the animation if any of the simple values the 'from', 'formula',
+			 'lval', or 'to' attributes reference are changed. Simple values are contained by the array, boolean, float, int, 
+			 and string elements. -->
+			<xs:attribute name="dynamic" type="Sk:Boolean" />
+			<!-- @attribute field The attribute to animate. -->
+			<xs:attribute name="field" type="Sk:String"/>
+			<!-- @attribute formula A script to execute over time to compute the field's value. Typically,
+				the fomula is a script expression which includes a reference to the time attribute of the 
+				containing apply	element.  Requires a dur.  For animations that do not stop, set dur="Number.POSITIVE_INFINITY" -->
+			<xs:attribute name="formula" type="Sk:DynamicString"/>
+			<!-- @attribute from The starting value (requires a 'to' attribute) -->
+			<xs:attribute name="from" type="Sk:DynamicString"/>
+			<!-- @attribute lval An expression evaluating to the attribute to animate.
+				If present, lval overrides 'field'. The expression is typically an array element,
+				e.g. lval="x[y]" . -->
+			<xs:attribute name="lval" type="Sk:DynamicString"/>
+			<!-- @attribute mirror If true, reverses the interpolated value during even repeat cycles. -->
+			<xs:attribute name="mirror" type="Sk:Boolean"/>
+			<!-- @attribute repeat Specifies the number of times to repeat the animation. 
+				(May be fractional.)  -->
+			<xs:attribute name="repeat" type="Sk:Float"/>
+			<!-- @attribute reset  If true, the computed value is the initial value after the 
+				animation is complete. If false, or by default, the computed value is the final value 
+				after the animation is complete. -->
+			<xs:attribute name="reset" type="Sk:Boolean"/>
+			<!-- @attribute step When the apply's attribute mode="immediate" or "create", the step attribute can be read by 
+				script to determine the current animation iteration.  -->
+			<xs:attribute name="step" type="Sk:Int" />
+			<!-- @attribute target The element to animate. By default, the element contained by the apply
+				or referenced by the apply's scope attribute is the animate target. -->
+			<xs:attribute name="target" type="Sk:DynamicString"/>
+			<!-- @attribute to The ending value (requires a 'from' attribute) -->
+			<xs:attribute name="to" type="Sk:DynamicString"/>
+			<!-- @attribute values [Depreciated]  -->
+			<xs:attribute name="values" type="Sk:DynamicString"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+		
+	<!-- /** apply
+		Apply changes one or more attributes of an element.
+		Apply either contains one displayable element or references the element scoping the change
+		with the 'scope' attribute. Apply either contains one animator element or references it with 
+		the 'animator' attribute.
+		In the display list, apply draws the element it scopes after evaluating the animation.
+	*/ -->
+	<xs:element name="apply">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="1">
+				<xs:element ref="Sk:animate"/>
+				<xs:element ref="Sk:set" />
+		<!-- not quite right; want to say 'one of the above, one of the below'
+			</xs:choice>
+			<xs:choice minOccurs="0" maxOccurs="1">
+		-->
+				<xs:element ref="Sk:add"/>
+				<xs:element ref="Sk:array"/>
+				<xs:element ref="Sk:apply"/>
+				<xs:element ref="Sk:bitmap"/>
+				<xs:element ref="Sk:boolean"/>
+				<xs:element ref="Sk:bounds"/>
+		<!--		<xs:element ref="Sk3D:camera"/>    -->
+				<xs:element ref="Sk:clear"/>
+				<xs:element ref="Sk:clip"/>
+				<xs:element ref="Sk:color"/>
+				<xs:element ref="Sk:drawTo"/>
+				<xs:element ref="Sk:float"/>
+				<xs:element ref="Sk:full"/>
+				<xs:element ref="Sk:group"/>
+				<xs:element ref="Sk:image"/>
+				<xs:element ref="Sk:int"/>
+				<xs:element ref="Sk:line"/>
+				<xs:element ref="Sk:matrix"/>
+				<xs:element ref="Sk:move"/>
+				<xs:element ref="Sk:oval"/>
+				<xs:element ref="Sk:paint"/>
+			<!--	<xs:element ref="Sk:patch"/>   -->
+				<xs:element ref="Sk:path"/>
+				<xs:element ref="Sk:point"/>
+				<xs:element ref="Sk:polygon"/>
+				<xs:element ref="Sk:polyline"/>
+				<xs:element ref="Sk:post"/>
+				<xs:element ref="Sk:random"/>
+				<xs:element ref="Sk:rect"/>
+				<xs:element ref="Sk:remove"/>
+				<xs:element ref="Sk:replace"/>
+				<xs:element ref="Sk:roundRect"/>
+				<xs:element ref="Sk:save"/>
+				<xs:element ref="Sk:snapshot"/>
+				<xs:element ref="Sk:string"/>
+				<xs:element ref="Sk:text"/>
+				<xs:element ref="Sk:textBox"/>
+				<xs:element ref="Sk:textOnPath"/>
+				<xs:element ref="Sk:textToPath"/>
+			</xs:choice>
+			<!-- @attribute animator The description of how the element is changed over time. -->
+			<xs:attribute name="animator" type="Sk:Animate"/>
+			<!-- @attribute begin An optional offset that must elapse before the animation begins. The apply
+				begin attribute is added to any animator's begin attribute. -->
+			<xs:attribute name="begin" type="Sk:MSec" />
+			<!-- @attribute dontDraw Edits an element's attribute without drawing it; for instance,
+				to edit a clip's rectangle without drawing the rectangle, set dontDraw="true".  -->
+			<xs:attribute name="dontDraw" type="Sk:Boolean"/>
+			<!-- @attribute dynamicScope The location in the display list where animations are stored. Use 
+			dynamicScope instead of scope if a script expression with potentially different values is desired to 
+			describe the scope. -->
+			<xs:attribute name="dynamicScope" type="Sk:String"/>
+			<!-- @attribute interval The optional time interval from one animation frame to the next. -->
+			<xs:attribute name="interval" type="Sk:MSec" />
+			<!-- @attribute mode One of @pattern. @patternDescription  -->
+			<xs:attribute name="mode" type="Sk:ApplyMode"/>
+			<!-- @attribute pickup Starts the animation at the current target's attribute value. Enabling
+				'pickup' permits omitting the 'from' attribute of the animator.  -->
+			<xs:attribute name="pickup" type="Sk:Boolean"/>
+			<!-- @attribute restore If true, multiple references to the same apply statement save and
+				restore the interpolated target values.  -->
+			<xs:attribute name="restore" type="Sk:Boolean"/>
+			<!-- @attribute scope The location in the display list where animations are stored.  -->
+			<xs:attribute name="scope" type="Sk:Drawable"/>
+			<!-- @attribute step When mode="immediate" or "create", the step attribute can be read by 
+				script to determine the current animation iteration.  -->
+			<xs:attribute name="step" type="Sk:Int" />
+			<!-- @attribute steps When mode="immediate", the number of times the animation
+				is stepped. The animation iterates 'steps' times plus one.  -->
+			<xs:attribute name="steps" type="Sk:Int" />
+			<!-- @attribute time When read from script, returns the animation time. Typically used by
+				an animate element's formula attribute.  -->
+			<xs:attribute name="time" type="Sk:MSec" />
+			<!-- @attribute transition One of @pattern. @patternDescription  -->
+			<xs:attribute name="transition" type="Sk:ApplyTransition"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** array
+		Array contains an array of values of the same type. The values may be
+		numbers or strings.
+	*/ -->
+	<xs:element name="array">
+		<xs:complexType>
+			<!-- @attribute length The number of elements in the array (read only). -->
+			<xs:attribute name="length" type="Sk:Int"/>
+			<!-- @attribute values The elements in the array. -->
+			<xs:attribute name="values" type="Sk:UnknownArray"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** bitmap
+		Bitmap describes a rectangle of pixels. 
+		Use the <drawTo> element to draw to a bitmap.
+		Add the bitmap to the display list to draw from a bitmap.  
+	*/ -->
+	<xs:element name="bitmap">
+		<xs:complexType>
+			<!-- @attribute erase The color, including the alpha, the bitmap is intially set to.  -->
+			<xs:attribute name="erase" type="Sk:ARGB"/>
+			<!-- @attribute format One of @pattern. @patternDescription  -->
+			<xs:attribute name="format" type="Sk:BitmapFormat"/>
+			<!-- @attribute height The height of the bitmap in pixels.  -->
+			<xs:attribute name="height" type="Sk:Int"/>
+			<!-- @attribute rowBytes The number of byte describing each row of pixels (optional).  -->
+			<xs:attribute name="rowBytes" type="Sk:Int"/>
+			<!-- @attribute  width The height of the width in pixels. -->
+			<xs:attribute name="width" type="Sk:Int"/>
+			<!-- @attribute x The left edge of the bitmap in unit space.  -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The top edge of teh bitmap in unit space.  -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** bitmapShader
+		BitmapShader sets the paint shader to draw the bitmap as a texture. 
+	*/ -->
+	<xs:element name="bitmapShader">
+		<xs:complexType>
+			<xs:choice >
+				<xs:element ref="Sk:image" minOccurs="0" />
+				<xs:element ref="Sk:matrix" minOccurs="0" />
+			</xs:choice>
+			<!-- @attribute matrix Matrix applies a 3x3 transform to the gradient. -->
+			<xs:attribute name="matrix" type="Sk:Matrix"/>
+			<!-- @attribute tileMode One of @pattern. @patternDescription -->
+			<xs:attribute name="tileMode" type="Sk:TileMode"/>
+			<!-- @attribute filterType The bitmap filter to employ, one of @pattern. -->
+			<xs:attribute name="filterType" type="Sk:FilterType"/>
+			<!-- @attribute image The bitmap to draw. -->
+			<xs:attribute name="image" type="Sk:BaseBitmap"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	
+	<!-- /** blur
+		Blur describes an image filter in the paint that blurs the drawn geometry.  
+	*/ -->
+	<xs:element name="blur">
+		<xs:complexType>
+			<!-- @attribute blurStyle One of @pattern. @patternDescription  -->
+			<xs:attribute name="blurStyle" type="Sk:MaskFilterBlurStyle"/>
+			<!-- @attribute radius The extent of the filter effect in unit space. If the radius is less 
+				than zero,	the blur has no effect. -->		
+			<xs:attribute name="radius" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** boolean
+		Boolean contains an boolean. The boolean element cannot be added to a display list, but can
+		by set by animations and read by any attribute definition. An boolean element may be referenced,
+		for instance, by a group's condition attribute to make an animation conditionally execute.
+	*/ -->
+	<xs:element name="boolean">
+		<xs:complexType>
+			<!-- @attribute value The contained boolean. -->
+			<xs:attribute name="value" type="Sk:Boolean"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- /** bounds
+		Bounds describes a bounding box that is not drawn. Bounds is used to specify a rectangle to
+		invalidate or record whether the specified area was drawn.
+		The width and height attribute compute the rectangle's right and bottom edges when the rectangle
+		description is first seen. Animating the rectangle's left or top will not recompute the right or bottom
+		if the width or height have been specified.
+	*/ -->
+	<xs:element name="bounds">
+		<xs:complexType>
+			<!-- @attribute bottom The bottom edge of the rectangle. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute height The height of the rectangle. Setting height computes the 
+				bottom attribute from the top attribute. -->
+			<xs:attribute name="height" type="Sk:Float"/>
+			<!-- @attribute inval If set to true, union the drawn bounds to compute an inval area. -->
+			<xs:attribute name="inval" type="Sk:Boolean"/>
+			<!-- @attribute left The left edge of the rectangle. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute needsRedraw Set to true if last draw was visible. -->
+			<xs:attribute name="needsRedraw" type="Sk:Boolean"/>
+			<!-- @attribute right The right edge of the rectangle. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute top The top edge of the rectangle. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<!-- @attribute width The width of the rectangle. -->
+			<xs:attribute name="width" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** clear
+		Clear removes all entries in the display list.  
+	*/ -->
+	<xs:element name="clear">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** clip
+		Clip sets the canvas to clip drawing to an element's geometry.  
+		A clip element may contain an element or reference an element with the path or
+		rectangle attributes. To make the clip unrestricted, enclose a 'full' element.
+	*/ -->
+	<xs:element name="clip">
+		<xs:complexType>
+			<xs:choice minOccurs="0" maxOccurs="1">
+				<xs:element ref="Sk:full"/>
+				<xs:element ref="Sk:rect"/>
+				<xs:element ref="Sk:path"/>
+				<xs:element ref="Sk:polygon"/>
+				<xs:element ref="Sk:polyline"/>
+			</xs:choice>
+			<!-- @attribute path A path-derived element to clip to: either an oval,
+				a path, a polygon, a polyline, or a roundRect.  -->
+			<xs:attribute name="path" type="Sk:Path"/>
+			<!-- @attribute rect A rectangle element to clip to.  -->
+			<xs:attribute name="rect" type="Sk:Rect"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** close
+		Close connects the last point in the path's contour to the first if the contour is not already closed.  
+	*/ -->
+	<xs:element name="close">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** color
+		Color describes a color in RGB space or HSV space, and its alpha (transparency).  
+	*/ -->
+	<xs:element name="color">
+		<xs:complexType>
+			<!-- @attribute alpha The alpha component, which describes transparency.
+			 Alpha ranges from 0.0 (transparent) to 1.0 (completely opaque). -->
+			<xs:attribute name="alpha" type="Sk:Float"/>
+			<!-- @attribute blue The blue component of an RGB color. Blue ranges from 0 to 255.  -->
+			<xs:attribute name="blue" type="Sk:Float"/>
+			<!-- @attribute color The complete color. The color can be specified by name,
+				by hexadecimal value, or with the rgb function.  -->
+			<xs:attribute name="color" type="Sk:ARGB"/>
+			<!-- @attribute green The green component of an RGB color. Green ranges from 0 to 255.  -->
+			<xs:attribute name="green" type="Sk:Float"/>
+			<!-- @attribute hue The hue component of an HSV color. Hue ranges from 0 to 360. -->
+			<xs:attribute name="hue" type="Sk:Float"/>
+			<!-- @attribute red The red component of an RGB color. Red ranges from 0 to 255.  -->
+			<xs:attribute name="red" type="Sk:Float"/>
+			<!-- @attribute saturation The saturation component of an HSV color. Saturation ranges from 0 to 1. -->
+			<xs:attribute name="saturation" type="Sk:Float"/>
+			<!-- @attribute value The value component of an HSV color. Value ranges from 0 to 1. -->
+			<xs:attribute name="value" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** cubicTo
+		CubicTo adds a cubic to the path, using the last point in the path as the first point of the cubic. 
+	*/ -->
+	<xs:element name="cubicTo">
+		<xs:complexType>
+			<!-- @attribute x1 The x position of the first off-curve point. -->
+			<xs:attribute name="x1" type="Sk:Float"/>
+			<!-- @attribute x2 The x position of the second off-curve point. -->
+			<xs:attribute name="x2" type="Sk:Float"/>
+			<!-- @attribute x3 The x position of the final on-curve point. -->
+			<xs:attribute name="x3" type="Sk:Float"/>
+			<!-- @attribute y1 The y position of the first off-curve point. -->
+			<xs:attribute name="y1" type="Sk:Float"/>
+			<!-- @attribute y2 The y position of the second off-curve point. -->
+			<xs:attribute name="y2" type="Sk:Float"/>
+			<!-- @attribute y3 The y position of the final on-curve point. -->
+			<xs:attribute name="y3" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** dash
+		Dash describes an array of dashes and gaps that describe how the paint strokes lines,
+		rectangles, and paths. The intervals, phase, and dashed path are all measured in the same 
+		unit space. The phase and distance between dashes is unaffected by the paint's stroke width.
+	*/ -->
+	<xs:element name="dash">
+		<xs:complexType>
+			<!-- @attribute intervals An array of floats that alternately describe the lengths of 
+			dashes and gaps. Intervals must contain an even number of entries. -->
+			<xs:attribute name="intervals" type="Sk:FloatArray"/>
+			<!-- @attribute phase Phase advances the placement of the first dash. A positive phase 
+			preceeds the first dash with a gap. A negative phase shortens the length of the first dash. -->
+			<xs:attribute name="phase" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** data
+		Data provides metadata to an event. The metadata may be an integer, a float, 
+			or a string. 
+	*/ -->
+	<xs:element name="data">
+		<xs:complexType>
+			<!-- @attribute float The float value associated with the metadata. -->
+			<xs:attribute name="float" type="Sk:Float"/>
+			<!-- @attribute initialized A read-only value set to false (unused by data). -->
+			<xs:attribute name="initialized" type="Sk:Boolean"/>
+			<!-- @attribute int The integer value associated with the metadata. -->
+			<xs:attribute name="int" type="Sk:Int"/>
+			<!-- @attribute name The name of the metadata. This is the name of the data. --> 
+			<xs:attribute name="name" type="Sk:String"/>
+			<!-- @attribute string The string value associated with the metadata. -->
+			<xs:attribute name="string" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- /** discrete
+		Discrete alters the edge of the stroke randomly.  Discrete is a path effect, and only has an 
+		effect when referenced from a paint.. A <pathEffect/>
+		element with no attributes will dissable discrete. 
+	*/ -->
+	<xs:element name="discrete">
+		<xs:complexType>
+			<!-- @attribute deviation The amount of wobble in the stroke. -->
+			<xs:attribute name="deviation" type="Sk:Float"/>
+			<!-- @attribute segLength The length of wobble in the stroke. -->
+			<xs:attribute name="segLength" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** drawTo
+		DrawTo images to a bitmap. The bitmap can be added to the display list
+		to draw the composite image. 
+		DrawTo can be used as an offscreen to speed complicated animations, and
+		for bitmap effects such as pixelated zooming.  
+		DrawTo can only reference a single drawable element. Use <add>,
+		<group>, or <save> to draw multiple elements with <drawTo>.
+	*/ -->
+	<xs:element name="drawTo">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded" >
+				<xs:element ref="Sk:add"/>
+				<xs:element ref="Sk:apply"/>
+				<xs:element ref="Sk:bitmap"/>
+				<xs:element ref="Sk:bounds"/>
+		<!--		<xs:element ref="Sk3D:camera"/>    -->
+				<xs:element ref="Sk:clear"/>
+				<xs:element ref="Sk:clip"/>
+				<xs:element ref="Sk:color"/>
+				<xs:element ref="Sk:full"/>
+				<xs:element ref="Sk:group"/>
+				<xs:element ref="Sk:image"/>
+				<xs:element ref="Sk:line"/>
+				<xs:element ref="Sk:matrix"/>
+				<xs:element ref="Sk:move"/>
+				<xs:element ref="Sk:oval"/>
+				<xs:element ref="Sk:paint"/>
+			<!--	<xs:element ref="Sk:patch"/>   -->
+				<xs:element ref="Sk:path"/>
+				<xs:element ref="Sk:point"/>
+				<xs:element ref="Sk:polygon"/>
+				<xs:element ref="Sk:polyline"/>
+				<xs:element ref="Sk:rect"/>
+				<xs:element ref="Sk:remove"/>
+				<xs:element ref="Sk:replace"/>
+				<xs:element ref="Sk:roundRect"/>
+				<xs:element ref="Sk:save"/>
+				<xs:element ref="Sk:text"/>
+				<xs:element ref="Sk:textBox"/>
+				<xs:element ref="Sk:textOnPath"/>
+				<xs:element ref="Sk:textToPath"/>
+			</xs:choice>
+			<!-- @attribute drawOnce If set, the drawTo will only draw a single time. -->
+			<xs:attribute name="drawOnce" type="Sk:Boolean"/>
+			<!-- @attribute use The bitmap to draw into. -->
+			<xs:attribute name="use" type="Sk:bitmap"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** dump
+		Dump prints a list of the items in the display list and all items' 
+		children to the debug console. Dump is only available in Debug
+		builds. */ -->
+	<xs:element name="dump">	
+		<xs:complexType>
+			<!-- @attribute displayList Dumps the current display list if true. The display list is also
+			dumped if dump has no attributes. -->
+			<xs:attribute name="displayList" type="Sk:Boolean"/>
+			<!-- @attribute eventList Dumps the list of events, both enabled and disabled. -->
+			<xs:attribute name="eventList" type="Sk:Boolean"/>
+			<!-- @attribute events Outputs each event element as it is enabled. -->
+			<xs:attribute name="events" type="Sk:Boolean"/>
+			<!-- @attribute groups Outputs each group element as its condition is evaluated. -->
+			<xs:attribute name="groups" type="Sk:Boolean"/>
+			<!-- @attribute name Outputs the values associated with a single named element. -->
+			<xs:attribute name="name" type="Sk:String"/>
+			<!-- @attribute posts Outputs each post element as it is enabled. -->
+			<xs:attribute name="posts" type="Sk:Boolean"/>
+            <!-- @attribute script Evaluates the provided script -->
+            <xs:attribute name="script" type=Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** emboss
+		PRELIMINARY [to be replaced with SkEmbossMaskFilter.h doxyfomation
+		at some point]
+		Emboss applies a mask filter to the paint that makes bias the object's color
+		towards white or black depending on the normals of the path contour, giving
+		the shape a 3D raised or depressed effect.
+		Embossing is replaced by subsequent mask filter elements, or
+		disabled a negative radius, or by an empty <mask filter> element.
+	*/ -->
+	<xs:element name="emboss">
+		<xs:complexType>
+			<!-- @attribute ambient The amount of ambient light, from 0 to 1. -->		
+			<xs:attribute name="ambient" type="Sk:Float"/>
+			<!--  @attribute direction The direction of the light source, as descibed by a 3D vector. 
+				(The vector is normalized to a unit length of 1.0.) -->		
+			<xs:attribute name="direction" type="Sk:FloatArray"/>
+			<!-- @attribute radius The extent of the filter effect in unit space. If the radius is less 
+				than zero,	the emboss has no effect. -->		
+			<xs:attribute name="radius" type="Sk:Float"/>
+			<!--  @attribute specular The expotential intensity of the light, from 0 to 1. 
+				Each increase of 0.0625 doubles the intensity. -->		
+			<xs:attribute name="specular" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** event
+		Event contains a series of actions performed each time the event's criteria are satisfied.
+		These actions may modify the display list, may enable animations which in turn modify 
+		elements' attributes, and may post other events. 
+	*/ -->
+	<xs:element name="event">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded" >
+				<xs:element ref="Sk:add"/>
+				<xs:element ref="Sk:apply"/>
+				<xs:element ref="Sk:array"/>
+				<xs:element ref="Sk:bitmap"/>
+				<xs:element ref="Sk:boolean"/>
+				<xs:element ref="Sk:bounds"/>
+		<!--		<xs:element ref="Sk3D:camera"/>    -->
+				<xs:element ref="Sk:clear"/>
+				<xs:element ref="Sk:clip"/>
+				<xs:element ref="Sk:color"/>
+				<xs:element ref="Sk:drawTo"/>
+				<xs:element ref="Sk:dump"/>
+				<xs:element ref="Sk:float"/>
+				<xs:element ref="Sk:full"/>
+				<xs:element ref="Sk:group"/>
+				<xs:element ref="Sk:hitClear"/>
+				<xs:element ref="Sk:hitTest"/>
+				<xs:element ref="Sk:image"/>
+				<xs:element ref="Sk:input"/>
+				<xs:element ref="Sk:int"/>
+				<xs:element ref="Sk:line"/>
+				<xs:element ref="Sk:matrix"/>
+				<xs:element ref="Sk:move"/>
+				<xs:element ref="Sk:movie"/>
+				<xs:element ref="Sk:oval"/>
+				<xs:element ref="Sk:paint"/>
+			<!--	<xs:element ref="Sk:patch"/>   -->
+				<xs:element ref="Sk:path"/>
+				<xs:element ref="Sk:point"/>
+				<xs:element ref="Sk:polygon"/>
+				<xs:element ref="Sk:polyline"/>
+				<xs:element ref="Sk:post"/>
+				<xs:element ref="Sk:random"/>
+				<xs:element ref="Sk:rect"/>
+				<xs:element ref="Sk:remove"/>
+				<xs:element ref="Sk:replace"/>
+				<xs:element ref="Sk:roundRect"/>
+				<xs:element ref="Sk:save"/>
+				<xs:element ref="Sk:snapshot"/>
+				<xs:element ref="Sk:string"/>
+				<xs:element ref="Sk:text"/>
+				<xs:element ref="Sk:textBox"/>
+				<xs:element ref="Sk:textOnPath"/>
+				<xs:element ref="Sk:textToPath"/>
+			</xs:choice>
+			<!-- @attribute code The key code to match to a key press event, one of @pattern. 
+				If the code is set to @pattern[0], the event is never activated. -->		
+			<xs:attribute name="code" type="Sk:EventCode"/>
+			<!-- @attribute disable If true, the event cannot be activated. By default false.. -->		
+			<xs:attribute name="disable" type="Sk:Boolean"/>
+			<!-- @attribute key The character code to match to a key down event.
+				 When read, the key that activated this event. -->		
+			<xs:attribute name="key" type="Sk:String"/>
+			<!-- @attribute keys A dash-separated continuous range of character codes to match 
+				to a key	 down event. Read the key attribute to determine the key that activated this event. -->		
+			<xs:attribute name="keys" type="Sk:String"/> <!-- single or range of keys -->
+			<!-- @attribute kind The event kind that activates this event, one of @pattern. 
+				If kind equals keyChar, either attribute key or keys is expected.
+				If kind equals keyPress, attribute code is expected.
+				If kind equals onEnd, attribute target is expected. 
+				If kind equals onLoad, the event is activated when the document containing the event
+				is loaded. The onLoad attribute cannot be activated through a post event.
+				If kind equals user, the event is activated when the posted event targets this event's ID.  -->		
+			<xs:attribute name="kind" type="Sk:EventKind"/>
+			<!-- @attribute target The element to listen to which activates this event. -->
+			<xs:attribute name="target" type="Sk:String" />
+			<!-- @attribute x For click events, the x-coordinate of the click.  -->
+			<xs:attribute name="x" type="Sk:Float" />
+			<!-- @attribute y For click events, the y-coordinate of the click.  -->
+			<xs:attribute name="y" type="Sk:Float" />
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** float
+		Float contains a signed fractional value. The float element cannot be added to a display list, 
+		but can be set by animations and read by any attribute definition.
+	*/ -->
+	<xs:element name="float">
+		<xs:complexType>
+			<!-- @attribute value The contained float. -->
+			<xs:attribute name="value" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- /** fromPath
+		FromPath concatenates the parent matrix with a new matrix 
+		that maps a unit vector to a point on the given path. 
+		A fromPath element may contain a path element, or may refer to a previously
+		defined path element with the path attribute.
+	*/ -->
+	<xs:element name="fromPath">
+		<xs:complexType>
+			<xs:choice >
+				<!-- @element path The path to evaluate. -->
+				<xs:element ref="Sk:path" minOccurs="0" />
+			</xs:choice>
+			<!-- @attribute mode One of @pattern. 
+			If mode is set to normal, the matrix maps the unit vector's angle and position.
+			If mode is set to angle, the matrix maps only the unit vector's angle.
+			If mode is set to position, the matrix maps only the unit vector's position. -->
+			<xs:attribute name="mode" type="Sk:FromPathMode"/>
+			<!-- @attribute offset The distance along the path to evaluate. -->
+			<xs:attribute name="offset" type="Sk:Float"/>
+			<!-- @attribute path The path to evaluate. -->
+			<xs:attribute name="path" type="Sk:Path"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** full
+		Full paints the entire canvas to the limit of the canvas' clip.
+	*/ -->
+	<xs:element name="full">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** group
+		The group element collects a series of elements into a group.  The group can be referenced
+		or defined within elements, like apply, which operate on any kind of element. Groups 
+		may contain groups. An element in a group draws identically to an element outside a group.
+	*/ -->
+	<xs:element name="group">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="Sk:add"/>
+				<xs:element ref="Sk:apply"/>
+				<xs:element ref="Sk:array"/>
+				<xs:element ref="Sk:bitmap"/>
+				<xs:element ref="Sk:boolean"/>
+				<xs:element ref="Sk:bounds"/>
+		<!--		<xs:element ref="Sk3D:camera"/>    -->
+				<xs:element ref="Sk:clear"/>
+				<xs:element ref="Sk:clip"/>
+				<xs:element ref="Sk:drawTo"/>
+				<xs:element ref="Sk:float"/>
+				<xs:element ref="Sk:full"/>
+				<xs:element ref="Sk:group"/>
+				<xs:element ref="Sk:hitClear"/>
+				<xs:element ref="Sk:hitTest"/>
+				<xs:element ref="Sk:image"/>
+				<xs:element ref="Sk:int"/>
+				<xs:element ref="Sk:line"/>
+				<xs:element ref="Sk:matrix"/>
+				<xs:element ref="Sk:move"/>
+				<xs:element ref="Sk:oval"/>
+				<xs:element ref="Sk:paint"/>
+			<!--	<xs:element ref="Sk:patch"/>   -->
+				<xs:element ref="Sk:path"/>
+				<xs:element ref="Sk:point"/>
+				<xs:element ref="Sk:polygon"/>
+				<xs:element ref="Sk:polyline"/>
+				<xs:element ref="Sk:post"/>
+				<xs:element ref="Sk:random"/>
+				<xs:element ref="Sk:rect"/>
+				<xs:element ref="Sk:remove"/>
+				<xs:element ref="Sk:replace"/>
+				<xs:element ref="Sk:roundRect"/>
+				<xs:element ref="Sk:save"/>
+				<xs:element ref="Sk:snapshot"/>
+				<xs:element ref="Sk:string"/>
+				<xs:element ref="Sk:text"/>
+				<xs:element ref="Sk:textBox"/>
+				<xs:element ref="Sk:textOnPath"/>
+				<xs:element ref="Sk:textToPath"/>
+			</xs:choice>
+			<!-- @attribute condition If present and zero, the contained elements are ignored
+				when drawn. -->
+			<xs:attribute name="condition" type="Sk:DynamicString"/>
+			<!-- @attribute enableCondition If present and zero, the contained elements are ignored
+				when enabled. -->
+			<xs:attribute name="enableCondition" type="Sk:DynamicString"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="hitClear" >
+		<xs:complexType>
+			<xs:choice maxOccurs="1">
+				<xs:element ref="Sk:array"/>
+			</xs:choice>
+			<!-- @attribute targets An array of element IDs to clear their hit-tested state. -->
+			<xs:attribute name="targets" type="Sk:DisplayableArray"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="hitTest" >
+		<xs:complexType>
+			<xs:choice maxOccurs="2">
+				<xs:element ref="Sk:array"/>
+			</xs:choice>
+			<!-- @attribute bullets An array of element IDs to test for intersection with targets. -->
+			<xs:attribute name="bullets" type="Sk:DisplayableArray"/>
+			<!-- @attribute hits The targets the bullets hit. A read-only array of indices, one index
+				per bullet. The value of the array element is the index of the target hit, or -1 if no
+				target was hit. -->
+			<xs:attribute name="hits" type="Sk:IntArray"/>
+			<!-- @attribute targets An array of element IDs to test for intersection with bullets. -->
+			<xs:attribute name="targets" type="Sk:DisplayableArray"/>
+			<!-- @attribute value Read only; set to true if some bullet hit some target. -->
+			<xs:attribute name="value" type="Sk:Boolean"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** image
+		Image creates a reference to a JPEG, PNG or GIF. The image may be referenced
+		through the local file system, the internet, or embedded in the document in Base64
+		format. The specific image type is determined by examining the byte stream.  
+	*/ -->
+	<xs:element name="image">
+		<xs:complexType>
+			<!-- @attribute base64 The image in Base64 notation. See http://rfc.net/rfc2045.html 
+			for the base64 format. -->
+			<xs:attribute name="base64" type="Sk:Base64"/>
+			<!-- @attribute height The height of the image (read-only). -->
+			<xs:attribute name="height" type="Sk:Int"/>
+			<!-- @attribute src The URI reference, local to the contaiing document. -->
+			<xs:attribute name="src" type="Sk:String"/>
+			<!-- @attribute width The width of the image (read-only). -->
+			<xs:attribute name="width" type="Sk:Int"/>
+			<!-- @attribute x The position of the left edge of the image in local coordinates. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The position of the top edge of the image in local coordinates. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** include
+		Include adds the referenced XML to the containing document. Unlike movie, the XML
+		directives can reference the document's IDs and can define new IDs that are referenced
+		by the remainder of the document or subsequent includes.  
+	*/ -->
+	<xs:element name="include">
+		<xs:complexType>
+			<!-- @attribute src The URI reference, local to the containing document, 
+			containing the include's XML. -->
+			<xs:attribute name="src" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** input
+		Input captures the metadata passed from an event. When the metadata's name or id 
+		matches the metadata's name, the metadata's payload is copied to the corresponding
+		input attribute.
+	*/ -->
+	<xs:element name="input">
+		<xs:complexType>
+			<!-- @attribute float The floating point payload carried by the metadata. -->
+			<xs:attribute name="float" type="Sk:Float"/>
+			<!-- @attribute initialized A read-only value set to true if the input received a value 
+				from the event. -->
+			<xs:attribute name="initialized" type="Sk:Boolean"/>
+			<!-- @attribute int The signed integer payload carried by the metadata. -->
+			<xs:attribute name="int" type="Sk:Int"/>
+			<!-- @attribute name The name of the metadata containing the payload. Note that 
+				the name or id may match the payload, but that XML requires the id to be
+				uniquely defined in the document, while multiple input elements may reuse 
+				the name. -->
+			<xs:attribute name="name" type="Sk:String"/>
+			<!-- @attribute string The text payload carried by the metadata. -->
+			<xs:attribute name="string" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** int
+		Int contains an integer. The int element cannot be added to a display list, but can
+		by set by animations and read by any attribute definition. An int element may be used,
+		for instance, to index through an array element.
+	*/ -->
+	<xs:element name="int">
+		<xs:complexType>
+			<!-- @attribute value The contained integer. -->
+			<xs:attribute name="value" type="Sk:Int"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- /** line
+		Line describes a line between two points. As noted below, the paint's stroke and
+		strokeAndFill attributes are ignored.
+	*/ -->
+	<xs:element name="line">
+		<xs:complexType>
+			<!-- @attribute x1 The start point's x value. -->
+			<xs:attribute name="x1" type="Sk:Float"/>
+			<!-- @attribute x2 The stop point's x value. -->
+			<xs:attribute name="x2" type="Sk:Float"/>
+			<!-- @attribute y1 The start point's y value. -->
+			<xs:attribute name="y1" type="Sk:Float"/>
+			<!-- @attribute y2 The stop point's y value. -->
+			<xs:attribute name="y2" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** lineTo
+		LineTo adds a line from the last point in a path to the specified point. 
+	*/ -->
+	<xs:element name="lineTo">
+		<xs:complexType>
+			<!-- @attribute x The final path x coordinate. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The final path y coordinate. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** linearGradient
+		LinearGradient sets the paint shader to ramp between two or more colors. 
+	*/ -->
+	<xs:element name="linearGradient">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="Sk:color"/>
+				<xs:element ref="Sk:matrix"/>
+			</xs:choice>
+			<!-- @attribute matrix Matrix applies a 3x3 transform to the gradient. -->
+			<xs:attribute name="matrix" type="Sk:Matrix"/>
+			<!-- @attribute tileMode One of @pattern. @patternDescription -->
+			<xs:attribute name="tileMode" type="Sk:TileMode"/>
+			<!-- @attribute offsets An optional array of values used to bias the colors. The first entry
+				in the array must be 0.0, the last must be 1.0, and intermediate values must ascend. -->
+			<xs:attribute name="offsets" type="Sk:FloatArray"/>
+			<!-- @attribute points Two points describing the start and end of the gradient. -->
+			<xs:attribute name="points" type="Sk:Point"/>	<!-- not right; should be array of 2 points -->
+			<!-- @attribute unitMapper A script that returns the mapping for [0,1] for the gradient.
+				The script can use the predefined variable 'unit' to compute the mapping. For instance,
+				"unit*unit" squares the value (while still keeping it in the range of [0,1].) The computed number
+				is pinned to from 0 to 1 after the script is executed. -->
+			<xs:attribute name="unitMapper" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** maskFilter
+		MaskFilter disables any mask filter referenced by the paint. 
+	*/ -->
+	<xs:element name="maskFilter">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** matrix
+		Matrix transforms all points drawn to the canvas. The matrix may translate, scale, skew, rotate,
+		or apply perspective, or apply any combination.  
+	*/ -->
+	<xs:element name="matrix">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+			<!-- @element fromPath FromPath maps a unit vector to a position and direction on a path. -->
+				<xs:element ref="Sk:fromPath"/>
+			<!-- @element polyToPoly PolyToPoly maps a points between two polygons. -->
+				<xs:element ref="Sk:polyToPoly"/>
+			<!-- @element rectToRect RectToRect maps a points between two rectangles. -->
+				<xs:element ref="Sk:rectToRect"/>
+			<!-- @element rotate Rotate computes the matrix rotation in degrees. -->
+				<xs:element ref="Sk:rotate"/>
+			<!-- @element scale Scale stretches or shrinks horizontally, vertically, or both. -->
+				<xs:element ref="Sk:scale"/>
+			<!-- @element skew Skew slants horizontally, vertically, or both. -->
+				<xs:element ref="Sk:skew"/>
+			<!-- @element translate Translate moves horizontally, vertically, or both. -->
+				<xs:element ref="Sk:translate"/>
+			</xs:choice>
+			<!-- @attribute matrix Nine floats describing a 3x3 matrix. -->
+			<xs:attribute name="matrix" type="Sk:FloatArray"/>
+			<!-- @attribute perspectX The [0][2] element of the 3x3 matrix. -->
+			<xs:attribute name="perspectX" type="Sk:Float"/>
+			<!-- @attribute perspectY The [1][2] element of the 3x3 matrix. -->
+			<xs:attribute name="perspectY" type="Sk:Float"/>
+			<!-- @attribute rotate The angle to rotate in degrees. -->
+			<xs:attribute name="rotate" type="Sk:Float"/>
+			<!-- @attribute scale The scale to apply in both X and Y.. -->
+			<xs:attribute name="scale" type="Sk:Float"/>
+			<!-- @attribute scaleX The [0][0] element of the 3x3 matrix. -->
+			<xs:attribute name="scaleX" type="Sk:Float"/>
+			<!-- @attribute scaleY The [1][1] element of the 3x3 matrix. -->
+			<xs:attribute name="scaleY" type="Sk:Float"/>
+			<!-- @attribute skewX The [0][1] element of the 3x3 matrix. -->
+			<xs:attribute name="skewX" type="Sk:Float"/>
+			<!-- @attribute skewY The [1][0] element of the 3x3 matrix. -->
+			<xs:attribute name="skewY" type="Sk:Float"/>
+			<!-- @attribute translate A point specifying the translation in X and Y. -->
+			<xs:attribute name="translate" type="Sk:Point"/>
+			<!-- @attribute translateX The [2][0] element of the 3x3 matrix. -->
+			<xs:attribute name="translateX" type="Sk:Float"/>
+			<!-- @attribute translateY The [2][1] element of the 3x3 matrix. -->
+			<xs:attribute name="translateY" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** move
+		Move an element in the display list in front or behind other elements.  
+		If where and offset are omitted, the element is moved to the end of the display list.
+		If where is specified, the element is moved before the first occurance of where in the display list.
+		If offset and where are specified, the element is moved before where plus offset.
+		A positive offset without where moves the element to the start of the list plus offset.
+		A negative offset without where moves the element to the end of the list minus offset.
+	*/ -->
+	<xs:element name="move">
+		<xs:complexType>
+			<!-- @attribute mode Has no effect. -->
+			<xs:attribute name="mode" type="Sk:AddMode"/>
+			<!-- @attribute offset The destination position using the rules listed above. -->
+			<xs:attribute name="offset" type="Sk:Int"/>
+			<!-- @attribute use The element to move. -->
+			<xs:attribute name="use" type="Sk:Drawable"/>
+			<!-- @attribute where The ID of the first display list entry to move to. -->
+			<xs:attribute name="where" type="Sk:Drawable"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** moveTo
+		MoveTo specifies the first point in a path contour.
+	*/ -->
+	<xs:element name="moveTo">
+		<xs:complexType>
+			<!-- @attribute x The point's x coordinate. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The point's y coordinate. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** movie
+		Movie describes a display list within the current canvas and paint. Movies can contain 
+		movies. One movie cannot affect how another movie draws, but movies can communicate
+		with each other by posting events.
+	*/ -->
+	<xs:element name="movie">
+		<xs:complexType>
+			<!-- @attribute src The URI reference, local to the containing document, containing the movie's XML. -->
+			<xs:attribute name="src" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** oval
+		Oval describes a circle stretched to fit in a rectangle.
+		The width and height attribute compute the oval's right and bottom edges when the oval
+		description is first seen. Animating the oval's left or top will not recompute the right or bottom
+		if the width or height have been specified.
+	*/ -->
+	<xs:element name="oval">
+		<xs:complexType>
+			<!-- @attribute bottom The bottom edge of the oval. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute height The height of the oval. -->
+			<xs:attribute name="height" type="Sk:Float"/>
+			<!-- @attribute left The left edge of the oval. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute needsRedraw Set to true if last draw was visible. -->
+			<xs:attribute name="needsRedraw" type="Sk:Boolean"/>
+			<!-- @attribute right The right edge of the oval. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute top The top edge of the oval. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<!-- @attribute width The width of the oval. -->
+			<xs:attribute name="width" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** paint
+		Paint uses color, flags, path effects, mask filters, shaders, and stroke effects when drawing 
+		geometries, images, and text.
+	*/ -->
+	<xs:element name="paint">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+			<!-- @element bitmapShader Sets or cancels an image to draw as the color. -->
+				<xs:element ref="Sk:bitmapShader"/>
+			<!-- @element blur Blur radially draws the shape with varying transparency. -->
+				<xs:element ref="Sk:blur"/>
+			<!-- @element color Color specifies a solid color in RGB or HSV. -->
+				<xs:element ref="Sk:color"/>
+			<!-- @element dash Dashes alternates stroking with dashes and gaps. -->
+				<xs:element ref="Sk:dash"/>
+			<!-- @element discrete Discrete wobbles the geometry randomly. -->
+				<xs:element ref="Sk:discrete"/>
+			<!-- @element emboss Emboss simulates a 3D light to show highlights and relief. -->
+				<xs:element ref="Sk:emboss"/>
+			<!-- @element linearGradient LinearGradient linearly ramps between two or more colors. -->
+				<xs:element ref="Sk:linearGradient"/>
+			<!-- @element maskFilter MaskFilter cancels a blur or emboss. -->
+				<xs:element ref="Sk:maskFilter"/>
+			<!-- @element  pathEffect PathEffect cancels a discrete or dash. -->
+				<xs:element ref="Sk:pathEffect"/>
+			<!-- @element radialGradient RadialGradient radially ramps between two or more colors. -->
+				<xs:element ref="Sk:radialGradient"/>
+			<!-- @element shader Shader cancels a linear or radial gradient. -->
+				<xs:element ref="Sk:shader"/>
+			<!-- @element typeface Typeface chooses a font out of a font family. -->
+				<xs:element ref="Sk:typeface"/>
+			<!-- @element transparentShader  TransparentShader ? [not sure what this is for] -->
+				<xs:element ref="Sk:transparentShader"/>
+			</xs:choice>
+			<!-- @attribute antiAlias AntiAlias uses gray shades to increase the definition of paths. -->
+			<xs:attribute name="antiAlias" type="Sk:Boolean"/>
+			<!-- @attribute ascent Ascent returns the height above the baseline defined by the font. -->
+			<xs:attribute name="ascent" type="Sk:Float"/>
+			<!-- @attribute color Color sets the paint to the color element with this ID. -->
+			<xs:attribute name="color" type="Sk:Color"/>
+			<!-- @attribute descent Descent returns the height below the baseline defined by thte font -->
+			<xs:attribute name="descent" type="Sk:Float"/>
+			<!-- @attribute fakeBold FakeBold enables a faked bold for text. -->
+			<xs:attribute name="fakeBold" type="Sk:Boolean"/>
+			<!-- @attribute filterType FilterType -->
+			<xs:attribute name="filterType" type="Sk:FilterType"/>
+			<!-- @attribute linearText LinearText uses the ideal path metrics at all sizes to describe text. -->
+			<xs:attribute name="linearText" type="Sk:Boolean"/>
+			<!-- @attribute maskFilter MaskFilter specifies a blur or emboss with this ID. -->
+			<xs:attribute name="maskFilter" type="Sk:MaskFilter"/>
+			<!-- @attribute measureText MeasureText(String) returns the width of the string in this paint. -->
+			<xs:attribute name="measureText" type="Sk:Float"/>
+			<!-- @attribute pathEffect PathEffect specifies a discrete or dash with this ID. -->
+			<xs:attribute name="pathEffect" type="Sk:PathEffect"/>
+			<!-- @attribute shader Shader specifies a gradient with this ID. -->
+			<xs:attribute name="shader" type="Sk:Shader"/>
+			<!-- @attribute strikeThru StrikeThru adds a line through the middle of drawn text. -->
+			<xs:attribute name="strikeThru" type="Sk:Boolean"/>
+			<!-- @attribute stroke Stroke draws the outline of geometry according to the pen attributes. 
+				If style is also present, its setting overrides stroke. -->
+			<xs:attribute name="stroke" type="Sk:Boolean"/>
+			<!-- @attribute strokeCap StrokeCap is one of @pattern. -->
+			<xs:attribute name="strokeCap" type="Sk:Cap"/>
+			<!-- @attribute strokeJoin StrokeJoin is one of @pattern. -->
+			<xs:attribute name="strokeJoin" type="Sk:Join"/>
+			<!-- @attribute strokeMiter StrokeMiter limits the pen's joins on narrow angles. -->
+			<xs:attribute name="strokeMiter" type="Sk:Float"/>
+			<!-- @attribute strokeWidth StrokeWidth specifies the width of the pen. -->
+			<xs:attribute name="strokeWidth" type="Sk:Float"/>
+			<!-- @attribute style Style fills, strokes, or strokes and fills the geometry with the paint's color. -->
+			<xs:attribute name="style" type="Sk:Style"/>
+			<!-- @attribute textAlign TextAlign is one of @pattern. -->
+			<xs:attribute name="textAlign" type="Sk:Align"/>
+			<!-- @attribute textScaleX TextScaleX condenses or exapnds the text. -->
+			<xs:attribute name="textScaleX" type="Sk:Float"/>
+			<!-- @attribute textSize TextSize specifies the point size of the text. -->
+			<xs:attribute name="textSize" type="Sk:Float"/>
+			<!-- @attribute textSkewX TextSkewX draws the text obliquely. -->
+			<xs:attribute name="textSkewX" type="Sk:Float"/>
+			<!-- @attribute textTracking TextTracking specifies the space between letters. -->
+			<xs:attribute name="textTracking" type="Sk:Float"/>
+			<!-- @attribute typeface Typeface specifies a typeface element with this ID. -->
+			<xs:attribute name="typeface" type="Sk:Typeface"/>
+			<!-- @attribute underline Underline draws a line under the baseline of the text. -->
+			<xs:attribute name="underline" type="Sk:Boolean"/>
+			<!-- @attribute xfermode Xfermode specifies a transfer mode, one of @pattern. -->
+			<xs:attribute name="xfermode" type="Sk:Xfermode"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** path
+		Path creates a geometry out of lines and curves.
+	*/ -->
+	<xs:element name="path">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+			<!-- @element addCircle Adds a circle to the path. -->
+				<xs:element ref="Sk:addCircle"/>
+			<!-- @element addOval Adds an oval to the path. -->
+				<xs:element ref="Sk:addOval"/>
+			<!-- @element addPath Adds another path to the path. -->
+				<xs:element ref="Sk:addPath"/>
+			<!-- @element addRoundRect Adds a rounded-corner rectangle  to the path. -->
+				<xs:element ref="Sk:addRoundRect"/>
+			<!-- @element close Connects the last point on the path to the first. -->
+				<xs:element ref="Sk:close"/>
+			<!-- @element cubicTo Extends the path with a cubic curve. -->
+				<xs:element ref="Sk:cubicTo"/>
+			<!-- @element lineTo Extends the path with a line. -->
+				<xs:element ref="Sk:lineTo"/>
+			<!-- @element moveTo Starts a new path contour. -->
+				<xs:element ref="Sk:moveTo"/>
+			<!-- @element quadTo Extends the path with a quadratic curve. -->
+				<xs:element ref="Sk:quadTo"/>
+			<!-- @element rCubicTo Extends the path with a cubic curve expressed with relative offsets. -->
+				<xs:element ref="Sk:rCubicTo"/>
+			<!-- @element rLineTo Extends the path with a line expressed with relative offsets. -->
+				<xs:element ref="Sk:rLineTo"/>
+			<!-- @element rMoveTo Starts a new path contour relative to the path's last point. -->
+				<xs:element ref="Sk:rMoveTo"/>
+			<!-- @element rQuadTo Extends the path with a quadratic curve expressed with relative offsets. -->
+				<xs:element ref="Sk:rQuadTo"/>
+			</xs:choice>
+			<!-- @attribute d Creates a path using SVG path notation. -->
+			<xs:attribute name="d" type="Sk:String"/>
+			<!-- @attribute fillType One of @pattern. -->
+			<xs:attribute name="fillType" type="Sk:FillType"/>
+			<!-- @attribute length Returns the length of the path. -->
+			<xs:attribute name="length" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** pathEffect
+		PathEffect cancels any current path effect within the paint, such as dashing or discrete.
+	*/ -->
+	<xs:element name="pathEffect">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+		
+	<!-- /** point
+		Point describes a two dimensional point in space. The point element can be added
+		to the display list and drawn.
+	*/ -->
+	<xs:element name="point">
+		<xs:complexType>
+			<!-- @attribute x The x coordinate of the point. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The y coordinate of the point. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** polygon
+		Polygon creates a geometry out of lines. Polygon is a specialization of path; element that 
+		refers to a path can refer to a polygon also. A polygon specified through elements behaves identically
+		to a path. A polygon specified by the points attribute contains a single contour, and the contour is 
+		automatically closed.
+	*/ -->
+	<xs:element name="polygon">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+			<!-- @element close Connects the last point on the path to the first. -->
+				<xs:element ref="Sk:close"/>
+			<!-- @element addPath Adds another path to the path. -->
+				<xs:element ref="Sk:addPath"/>
+			<!-- @element lineTo Extends the path with a line. -->
+				<xs:element ref="Sk:lineTo"/>
+			<!-- @element moveTo Starts a new path contour. -->
+				<xs:element ref="Sk:moveTo"/>
+			<!-- @element rLineTo Extends the path with a line expressed with relative offsets. -->
+				<xs:element ref="Sk:rLineTo"/>
+			<!-- @element rMoveTo Starts a new path contour relative to the path's last point. -->
+				<xs:element ref="Sk:rMoveTo"/>
+			</xs:choice>
+			<!-- @attribute points An array of values that describe a sequence of points, compatible with SVG. -->
+			<xs:attribute name="points" type="Sk:FloatArray"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** polyline
+		Polyline creates a geometry out of lines. Polygon is a specialization of path; element that 
+		refers to a path can refer to a polygon also. A polygon specified through elements behaves identically
+		to a path. A polygon specified by the points attribute contains a single contour, and the contour is 
+		not automatically closed.
+	*/ -->
+	<xs:element name="polyline">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+			<!-- @element close Connects the last point on the path to the first. -->
+				<xs:element ref="Sk:close"/>
+			<!-- @element addPath Adds another path to the path. -->
+				<xs:element ref="Sk:addPath"/>
+			<!-- @element lineTo Extends the path with a line. -->
+				<xs:element ref="Sk:lineTo"/>
+			<!-- @element moveTo Starts a new path contour. -->
+				<xs:element ref="Sk:moveTo"/>
+			<!-- @element rLineTo Extends the path with a line expressed with relative offsets. -->
+				<xs:element ref="Sk:rLineTo"/>
+			<!-- @element rMoveTo Starts a new path contour relative to the path's last point. -->
+				<xs:element ref="Sk:rMoveTo"/>
+			</xs:choice>
+			<!-- @attribute points An array of values that describe a sequence of points, compatible with SVG. -->
+			<xs:attribute name="points" type="Sk:FloatArray"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** polyToPoly
+		PolyToPoly creates a matrix which maps points proportionally from one polygon to the other.
+	*/ -->
+	<xs:element name="polyToPoly">
+		<xs:complexType>
+			<xs:choice maxOccurs="2">
+				<xs:element ref="Sk:polygon"/>
+			</xs:choice>
+			<!-- @attribute source The polygon to map from.. -->
+			<xs:attribute name="source" type="Sk:polygon"/>
+			<!-- @attribute destination The polygon to map to.. -->
+			<xs:attribute name="destination" type="Sk:polygon"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** post
+		Post activates an event. The event can trigger one or more actions, and can carry a data payload.
+	*/ -->
+	<xs:element name="post">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="Sk:data"/>
+			</xs:choice>
+			<!-- @attribute delay Time in seconds that must elapse before the target event is activated. -->
+			<xs:attribute name="delay" type="Sk:MSec"/>
+			<!-- @attribute mode One of @pattern. @patternDescription -->
+			<xs:attribute name="mode" type="Sk:EventMode"/>
+			<!-- @attribute sink The optional named EventSink to direct the event to. -->
+			<xs:attribute name="sink" type="Sk:String"/>
+			<!-- @attribute target The ID of the user event to trigger. -->
+			<xs:attribute name="target" type="Sk:String"/>
+			<!-- @attribute type The name of the external event to post. -->
+			<xs:attribute name="type" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- /** quadTo
+		QuadTo adds a quadratic curve to a path.
+	*/ -->
+	<xs:element name="quadTo">
+		<xs:complexType>
+			<!-- @attribute x1 The x position of the off-curve point. -->
+			<xs:attribute name="x1" type="Sk:Float"/>
+			<!-- @attribute x2 The x position of the final point. -->
+			<xs:attribute name="x2" type="Sk:Float"/>
+			<!-- @attribute y1 The y position of the off-curve point. -->
+			<xs:attribute name="y1" type="Sk:Float"/>
+			<!-- @attribute y2 The y position of the final point. -->
+			<xs:attribute name="y2" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** rCubicTo
+		RCubicTo adds a cubic to the path, using the last point in the path as the first point of the cubic.  THe
+		added points are offsets from the last point in the path.
+	*/ -->
+	<xs:element name="rCubicTo">
+		<xs:complexType>
+			<!-- @attribute x1 The x offset of the first off-curve point. -->
+			<xs:attribute name="x1" type="Sk:Float"/>
+			<!-- @attribute x2 The x offset of the second off-curve point. -->
+			<xs:attribute name="x2" type="Sk:Float"/>
+			<!-- @attribute x3 The x offset of the final on-curve point. -->
+			<xs:attribute name="x3" type="Sk:Float"/>
+			<!-- @attribute y1 The y offset of the first off-curve point. -->
+			<xs:attribute name="y1" type="Sk:Float"/>
+			<!-- @attribute y2 The y offset of the second off-curve point. -->
+			<xs:attribute name="y2" type="Sk:Float"/>
+			<!-- @attribute y3 The y offset of the final on-curve point. -->
+			<xs:attribute name="y3" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** rLineTo
+		RLineTo adds a line from the last point in a path to the specified point. The specified
+		point is relative to the last point in the path.
+	*/ -->
+	<xs:element name="rLineTo">
+		<xs:complexType>
+			<!-- @attribute x The final path x coordinate. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The final path y coordinate. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** rMoveTo
+		RMoveTo specifies the first point in a path contour. The specified
+		point is relative to the last point in the path.
+	*/ -->
+	<xs:element name="rMoveTo">
+		<xs:complexType>
+			<!-- @attribute x The point's x coordinate. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The point's y coordinate. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+		
+	<!-- /** rQuadTo
+		RQuadTo adds a quadratic curve to a path. The quadratic 
+		points are relative to the last point in the path.
+	*/ -->
+	<xs:element name="rQuadTo">
+		<xs:complexType>
+			<!-- @attribute x1 The x position of the off-curve point. -->
+			<xs:attribute name="x1" type="Sk:Float"/>
+			<!-- @attribute x2 The x position of the final point. -->
+			<xs:attribute name="x2" type="Sk:Float"/>
+			<!-- @attribute y1 The y position of the off-curve point. -->
+			<xs:attribute name="y1" type="Sk:Float"/>
+			<!-- @attribute y2 The y position of the final point. -->
+			<xs:attribute name="y2" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+		
+	<!-- /** radialGradient
+		RadialGradient sets the paint shader to ramp between two or more colors in concentric circles. 
+	*/ -->
+	<xs:element name="radialGradient">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="Sk:color"/>
+				<xs:element ref="Sk:matrix"/>
+			</xs:choice>
+			<!-- @attribute matrix Matrix applies a 3x3 transform to the gradient. -->
+			<xs:attribute name="matrix" type="Sk:Matrix"/>
+			<!-- @attribute tileMode One of @pattern. @patternDescription -->
+			<xs:attribute name="tileMode" type="Sk:TileMode"/>
+			<!-- @attribute center The center point of the radial gradient. -->
+			<xs:attribute name="center" type="Sk:Point"/>
+			<!-- @attribute offsets An optional array of values used to bias the colors. The first entry
+				in the array must be 0.0, the last must be 1.0, and intermediate values must ascend. -->
+			<xs:attribute name="offsets" type="Sk:FloatArray"/>
+			<!-- @attribute radius The distance from the first color to the last color. -->
+			<xs:attribute name="radius" type="Sk:Float"/>
+			<!-- @attribute unitMapper A script that returns the mapping for [0,1] for the gradient.
+				The script can use the predefined variable 'unit' to compute the mapping. For instance,
+				"unit*unit" squares the value (while still keeping it in the range of [0,1].) The computed number
+				is pinned to from 0 to 1 after the script is executed. -->
+			<xs:attribute name="unitMapper" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** random
+		Random generates a random number, from min to max. Each time the random attribute is
+		read, a new random number is generated.
+	*/ -->
+	<xs:element name="random">
+		<xs:complexType>
+			<!-- @attribute blend The random bias from 0.0 to 1.0.
+			 0.0 biias the number towards the start and end of the range.
+			 1.0 (the default) generates a linear distribution.-->
+			<xs:attribute name="blend" type="Sk:Float"/>
+			<!-- @attribute max The largest value to generate. -->
+			<xs:attribute name="max" type="Sk:Float"/>
+			<!-- @attribute min The smallest value to generate. -->
+			<xs:attribute name="min" type="Sk:Float"/>
+			<!-- @attribute random The generated value. -->
+			<xs:attribute name="random" type="Sk:Float"/>
+			<!-- @attribute seed The random seed. Identical seeds generate the same series of 
+			numbers. -->
+			<xs:attribute name="seed" type="Sk:Int"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- /** rect
+		Rect describes a bounding box.
+		The width and height attribute compute the rectangle's right and bottom edges when the rectangle
+		description is first seen. Animating the rectangle's left or top will not recompute the right or bottom
+		if the width or height have been specified.
+	*/ -->
+	<xs:element name="rect">
+		<xs:complexType>
+			<!-- @attribute bottom The bottom edge of the rectangle. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute height The height of the rectangle. Setting height computes the 
+				bottom attribute from the top attribute. -->
+			<xs:attribute name="height" type="Sk:Float"/>
+			<!-- @attribute left The left edge of the rectangle. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute needsRedraw Set to true if last draw was visible. -->
+			<xs:attribute name="needsRedraw" type="Sk:Boolean"/>
+			<!-- @attribute right The right edge of the rectangle. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute top The top edge of the rectangle. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<!-- @attribute width The width of the rectangle. -->
+			<xs:attribute name="width" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** rectToRect
+		RectToRect adds a matrix to map one rectangle's coordinates to another.
+	*/ -->
+	<xs:element name="rectToRect">
+		<xs:complexType>
+			<xs:choice maxOccurs="2">
+				<xs:element ref="Sk:rect"/>
+			</xs:choice>
+			<!-- @attribute source The rectangle to map from. -->
+			<xs:attribute name="source" type="Sk:rect"/>
+			<!-- @attribute destination The rectangle to map to. -->
+			<xs:attribute name="destination" type="Sk:rect"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** remove
+		Remove an item from the display list.
+		If where is specified, the first occurance of where in the display list is removed.
+		If offset and where are specified, the element at where plus offset is removed.
+		A positive offset without where removes the element at the start of the list plus offset.
+		A negative offset without where removes the element at the end of the list minus offset.
+	*/ -->
+	<xs:element name="remove">
+		<xs:complexType>
+			<!-- @attribute delete If true, reverse the action of apply's attribute mode="create". 
+				(Experimental.) -->
+			<xs:attribute name="delete" type="Sk:Boolean"/>
+			<!-- @attribute offset The destination position using the rules listed above. -->
+			<xs:attribute name="offset" type="Sk:Int"/>
+			<!-- @attribute where The ID of the first display list entry to remove. -->
+			<xs:attribute name="where" type="Sk:Drawable"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** replace
+		Replace an item in the display list.
+		If where is specified, the first occurance of where in the display list is replaced by use.
+		If offset and where are specified, the element at where plus offset is replaced by use.
+		A positive offset without where replaces  the element at the start of the list plus offset.
+		A negative offset without where replaces the element at the end of the list minus offset.
+	*/ -->
+	<xs:element name="replace">
+		<xs:complexType>
+			<!-- @attribute mode Has no effect. -->
+			<xs:attribute name="mode" type="Sk:AddMode"/>
+			<!-- @attribute offset The destination position using the rules listed above. -->
+			<xs:attribute name="offset" type="Sk:Int"/>
+			<!-- @attribute use The element to be added to the display list.. -->
+			<xs:attribute name="use" type="Sk:Drawable"/>
+			<!-- @attribute where The ID of the first display list entry to remove. -->
+			<xs:attribute name="where" type="Sk:Drawable"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+		
+	<!-- /** rotate
+		Rotate creates a matrix that rotates a unit vector about a center point, and concatenated
+		with the containing matrix.
+	*/ -->
+	<xs:element name="rotate">
+		<xs:complexType>
+			<!-- @attribute center A point the rotation is centered about; by default, [0.0, 0.0]. -->
+			<xs:attribute name="center" type="Sk:Point"/>
+			<!-- @attribute degrees The rotation in degrees. -->
+			<xs:attribute name="degrees" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** roundRect
+		RoundRect creates a rectangle with rounded corners. The rounded corners are specified by
+		two axes, which describe an quarter-section of the oval which is used in each corner.
+		The width and height attribute compute the rectangle's right and bottom edges when the rectangle
+		description is first seen. Animating the rectangle's left or top will not recompute the right or bottom
+		if the width or height have been specified.
+	*/ -->
+	<xs:element name="roundRect">
+		<xs:complexType>
+			<!-- @attribute bottom The bottom edge of the rectangle. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute height The height of the rectangle. Setting height computes the 
+				bottom attribute from the top attribute. -->
+			<xs:attribute name="height" type="Sk:Float"/>
+			<!-- @attribute left The left edge of the rectangle. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute needsRedraw Set to true if last draw was visible. -->
+			<xs:attribute name="needsRedraw" type="Sk:Boolean"/>
+			<!-- @attribute right The right edge of the rectangle. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute top The top edge of the rectangle. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<!-- @attribute rx The radius of the corners on the x axis. -->
+			<xs:attribute name="rx" type="Sk:Float"/>
+			<!-- @attribute ry The radius of the corners on the y axis. -->
+			<xs:attribute name="ry" type="Sk:Float"/>
+			<!-- @attribute width The width of the rectangle. Setting width computes the 
+				right attribute from the left attribute. -->
+			<xs:attribute name="width" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** save
+		The save element collects a series of elements into a group. The state of the paint and
+		canvas are saved, so that edits to the paint and canvas within the group are restored
+		to their original value at the end of the group. 
+		The save element can be referenced
+		or defined within elements, like apply, which operate on any kind of element. Groups 
+		may contain groups. 
+	*/ -->
+	<xs:element name="save">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="Sk:add"/>
+				<xs:element ref="Sk:apply"/>
+				<xs:element ref="Sk:array"/>
+				<xs:element ref="Sk:bitmap"/>
+				<xs:element ref="Sk:boolean"/>
+				<xs:element ref="Sk:bounds"/>
+		<!--		<xs:element ref="Sk3D:camera"/>    -->
+				<xs:element ref="Sk:clear"/>
+				<xs:element ref="Sk:clip"/>
+				<xs:element ref="Sk:color"/>
+				<xs:element ref="Sk:drawTo"/>
+				<xs:element ref="Sk:float"/>
+				<xs:element ref="Sk:full"/>
+				<xs:element ref="Sk:group"/>
+				<xs:element ref="Sk:hitClear"/>
+				<xs:element ref="Sk:hitTest"/>
+				<xs:element ref="Sk:image"/>
+				<xs:element ref="Sk:int"/>
+				<xs:element ref="Sk:line"/>
+				<xs:element ref="Sk:matrix"/>
+				<xs:element ref="Sk:move"/>
+				<xs:element ref="Sk:oval"/>
+				<xs:element ref="Sk:paint"/>
+			<!--	<xs:element ref="Sk:patch"/>   -->
+				<xs:element ref="Sk:path"/>
+				<xs:element ref="Sk:point"/>
+				<xs:element ref="Sk:polygon"/>
+				<xs:element ref="Sk:polyline"/>
+				<xs:element ref="Sk:post"/>
+				<xs:element ref="Sk:random"/>
+				<xs:element ref="Sk:rect"/>
+				<xs:element ref="Sk:remove"/>
+				<xs:element ref="Sk:replace"/>
+				<xs:element ref="Sk:roundRect"/>
+				<xs:element ref="Sk:save"/>
+				<xs:element ref="Sk:set"/>
+				<xs:element ref="Sk:snapshot"/>
+				<xs:element ref="Sk:string"/>
+				<xs:element ref="Sk:text"/>
+				<xs:element ref="Sk:textBox"/>
+				<xs:element ref="Sk:textOnPath"/>
+				<xs:element ref="Sk:textToPath"/>
+			</xs:choice>
+			<!-- @attribute condition If present and zero, the contained elements are ignored. -->
+			<xs:attribute name="condition" type="Sk:DynamicString"/>
+			<!-- @attribute enableCondition If present and zero, the contained elements are ignored
+				when enabled. -->
+			<xs:attribute name="enableCondition" type="Sk:DynamicString"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** scale
+		Scale creates a matrix that scales a unit vector about a center point, and concatenated
+		with the containing matrix.
+	*/ -->
+	<xs:element name="scale">
+		<xs:complexType>
+			<!-- @attribute center A point the scale is centered about; by default, [0.0, 0.0]. -->
+			<xs:attribute name="center" type="Sk:Point"/>
+			<!-- @attribute x The factor all x values are scaled by; by default, 1.0.  -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The factor all y values are scaled by; by default, 1.0.  -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** screenplay
+		Screenplay contains all events and elements referenced by the events.
+		A document may only contain a single screenplay element.
+	*/ -->
+	<xs:element name="screenplay">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded" >
+				<xs:element ref="Sk:add"/>
+				<xs:element ref="Sk:apply"/>
+				<xs:element ref="Sk:array"/>
+				<xs:element ref="Sk:bitmap"/>
+				<xs:element ref="Sk:boolean"/>
+				<xs:element ref="Sk:bounds"/>
+		<!--		<xs:element ref="Sk3D:camera"/>    -->
+				<xs:element ref="Sk:clear"/>
+				<xs:element ref="Sk:clip"/>
+				<xs:element ref="Sk:color"/>
+				<xs:element ref="Sk:drawTo"/>
+				<xs:element ref="Sk:event"/>
+				<xs:element ref="Sk:float"/>
+				<xs:element ref="Sk:full"/>
+				<xs:element ref="Sk:group"/>
+				<xs:element ref="Sk:hitClear"/>
+				<xs:element ref="Sk:hitTest"/>
+				<xs:element ref="Sk:image"/>
+				<xs:element ref="Sk:include"/>
+				<xs:element ref="Sk:int"/>
+				<xs:element ref="Sk:line"/>
+				<xs:element ref="Sk:matrix"/>
+				<xs:element ref="Sk:move"/>
+				<xs:element ref="Sk:movie"/>
+				<xs:element ref="Sk:oval"/>
+				<xs:element ref="Sk:paint"/>
+			<!--	<xs:element ref="Sk:patch"/>   -->
+				<xs:element ref="Sk:path"/>
+				<xs:element ref="Sk:point"/>
+				<xs:element ref="Sk:polygon"/>
+				<xs:element ref="Sk:polyline"/>
+				<xs:element ref="Sk:post"/>
+				<xs:element ref="Sk:random"/>
+				<xs:element ref="Sk:rect"/>
+				<xs:element ref="Sk:remove"/>
+				<xs:element ref="Sk:replace"/>
+				<xs:element ref="Sk:roundRect"/>
+				<xs:element ref="Sk:save"/>
+				<xs:element ref="Sk:set"/>
+				<xs:element ref="Sk:snapshot"/>
+				<xs:element ref="Sk:string"/>
+				<xs:element ref="Sk:text"/>
+				<xs:element ref="Sk:textBox"/>
+				<xs:element ref="Sk:textOnPath"/>
+				<xs:element ref="Sk:textToPath"/>
+			</xs:choice>
+			<!-- @attribute time The time of the draw (readable from script; not part of the document XML) -->
+			<xs:attribute name="time" type="Sk:MSec"/>
+	</xs:complexType>
+	</xs:element>
+	
+	<!-- /** set
+		Set animates the target element's attribute directly to the specified value.
+	*/ -->
+	<xs:element name="set">
+		<xs:complexType>
+			<!-- @attribute begin An optional offset that must elapse before the animation begins. The apply
+				begin attribute is added to any animator's begin attribute. -->
+			<xs:attribute name="begin" type="Sk:MSec"/>
+			<!-- @attribute dur The duration of the animation in milliseconds. -->
+			<xs:attribute name="dur" type="Sk:MSec"/>
+			<!-- @attribute dynamic If true, restart the animation if any of the simple values the 
+			 'lval' or 'to' attributes reference are changed. Simple values are contained by the array, boolean, float, int, 
+			 and string elements. -->
+			<!-- @attribute dynamic [Depreciated.] -->
+			<xs:attribute name="dynamic" type="Sk:Boolean" />
+			<!-- @attribute field The attribute to animate. -->
+			<xs:attribute name="field" type="Sk:String"/>
+			<!-- @attribute formula A script to execute over time to compute the field's value. Typically,
+				the fomula is a script expression which includes a reference to the time attribute of the 
+				containing apply	element.  -->
+			<xs:attribute name="formula" type="Sk:DynamicString"/>
+			<!-- @attribute lval An expression evaluating to the attribute to animate.
+				If present, lval overrides 'field'. The expression is typically an array element,
+				e.g. lval="x[y]" . -->
+			<xs:attribute name="lval" type="Sk:DynamicString"/>
+			<!-- @attribute reset  If true, the computed value is the initial value after the 
+				animation is complete. If false, or by default, the computed value is the final value 
+				after the animation is complete. -->
+			<xs:attribute name="reset" type="Sk:Boolean"/>
+			<!-- @attribute step When apply's attribute mode="immediate" or "create", the step attribute can be read by 
+				script to determine the current animation iteration.  -->
+			<xs:attribute name="step" type="Sk:Int" />
+			<!-- @attribute target The element to animate. By default, the element contained by the apply
+				or referenced by the apply's scope attribute is the animate target. -->
+			<xs:attribute name="target" type="Sk:DynamicString"/>
+			<!-- @attribute to The ending value (requires a 'from' attribute) -->
+			<xs:attribute name="to" type="Sk:DynamicString"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** skew
+		Skew creates a matrix that skews a unit vector about a center point, and concatenated
+		with the containing matrix.
+	*/ -->
+	<xs:element name="skew">
+		<xs:complexType>
+			<!-- @attribute center A point the skew is centered about; by default, [0.0, 0.0]. -->
+			<xs:attribute name="center" type="Sk:Point"/>
+			<!-- @attribute x The factor all x values are skewed by; by default, 0.0.  -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The factor all y values are skewed by; by default, 0.0.  -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** snapshot
+		Snapshot creates an image file containing the display list.
+	*/ -->
+	<xs:element name="snapshot">
+		<xs:complexType>
+			<!-- @attribute filename The name of the file to generate. -->
+			<xs:attribute name="filename" type="Sk:String"/>
+			<!-- @attribute quality The quality of the image, from 0 to 100. -->
+			<xs:attribute name="quality" type="Sk:Float"/>
+			<!-- @attribute sequence Set to true to number the filenames sequentially. -->
+			<xs:attribute name="sequence" type="Sk:Boolean"/>
+			<!-- @attribute type One of @pattern. The type of encoding to use. -->
+			<xs:attribute name="type" type="Sk:BitmapEncoding"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** string
+		String contains an array of characters.
+	*/ -->
+	<xs:element name="string" >
+		<xs:complexType>
+			<!-- @attribute length The number of characters in the string (read only). -->
+			<xs:attribute name="length" type="Sk:Int"/>
+			<!-- @attribute slice An ECMAScript compatible function that returns part of the string. -->
+			<xs:attribute name="slice" type="Sk:String"/>
+			<!-- @attribute value The string itself. -->
+			<xs:attribute name="value" type="Sk:String"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** text
+		A drawable string with a position.
+	*/ -->
+	<xs:element name="text">
+		<xs:complexType>
+			<!-- @attribute length The number of characters in the string (read only). -->
+			<xs:attribute name="length" type="Sk:Int"/>
+			<!-- @attribute text The string itself. -->
+			<xs:attribute name="text" type="Sk:String"/>
+			<!-- @attribute x The x coordinate of the string. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The y coordinate of the string. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** textBox
+		A drawable string fit into a box.
+	*/ -->
+	<xs:element name="textBox" >
+		<xs:complexType>
+			<!-- @attribute bottom The bottom of the box. -->
+			<xs:attribute name="bottom" type="Sk:Float"/>
+			<!-- @attribute height The height of the box, computed from top and bottom. -->
+			<xs:attribute name="height" type="Sk:Float"/>
+			<!-- @attribute left The left side of the box. -->
+			<xs:attribute name="left" type="Sk:Float"/>
+			<!-- @attribute mode One of @pattern. -->
+			<xs:attribute name="mode" type="Sk:TextBoxMode"/>
+			<!-- @attribute needsRedraw Set to true if last draw was visible. -->
+			<xs:attribute name="needsRedraw" type="Sk:Boolean"/>
+			<!-- @attribute right The right side of the box. -->
+			<xs:attribute name="right" type="Sk:Float"/>
+			<!-- @attribute spacingAdd The extra spacing between lines. -->
+			<xs:attribute name="spacingAdd" type="Sk:Float"/>
+			<!-- @attribute spacingAlign One of @pattern. -->
+			<xs:attribute name="spacingAlign" type="Sk:TextBoxAlign"/>
+			<!-- @attribute spacingMul The line spacing scaled by the text height. -->
+			<xs:attribute name="spacingMul" type="Sk:Float"/>
+			<!-- @attribute text The text to fit to the box. -->
+			<xs:attribute name="text" type="Sk:String"/>
+			<!-- @attribute top The top of the box. -->
+			<xs:attribute name="top" type="Sk:Float"/>
+			<!-- @attribute width The width of the box, computed from left and right. -->
+			<xs:attribute name="width" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** textOnPath
+		TextOnPath specifies the baseline for a string of text with a path.
+	*/ -->
+	<xs:element name="textOnPath">
+		<xs:complexType>
+			<xs:choice >
+				<xs:element ref="Sk:text" minOccurs="0" />
+				<xs:element ref="Sk:path" minOccurs="0" />
+			</xs:choice>
+			<!-- @attribute offset The distance along the path to place the first text character. -->
+			<xs:attribute name="offset" type="Sk:Float"/>
+			<!-- @attribute path The baseline of the text. -->
+			<xs:attribute name="path" type="Sk:Path"/>
+			<!-- @attribute text The text to place along the path. -->
+			<xs:attribute name="text" type="Sk:Text"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** textToPath
+		TextToPath sets the path to the contours described by the text's glyphs, using the current paint.
+	*/ -->
+	<xs:element name="textToPath">
+		<xs:complexType>
+			<xs:choice >
+				<xs:element ref="Sk:text" minOccurs="0" />
+				<xs:element ref="Sk:paint" minOccurs="0" />
+				<xs:element ref="Sk:path" minOccurs="0" />
+			</xs:choice>
+			<!-- @attribute paint The paint selects the text font, size and other text properties. -->
+			<xs:attribute name="paint" type="Sk:Paint"/>
+			<!-- @attribute path The reference to the path element where the text as path is stored. -->
+			<xs:attribute name="path" type="Sk:Path"/>
+			<!-- @attribute text The reference to the text element to turn into a path. -->
+			<xs:attribute name="text" type="Sk:Text"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** translate
+		Translate concatenates a translation-only matrix onto the current matrix.
+	*/ -->
+	<xs:element name="translate">
+		<xs:complexType>
+			<!-- @attribute x The translation in x. -->
+			<xs:attribute name="x" type="Sk:Float"/>
+			<!-- @attribute y The translation in y. -->
+			<xs:attribute name="y" type="Sk:Float"/>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** transparentShader
+		TransparentShader uses the background for its paint.  Works well with emboss.
+	*/ -->
+	<xs:element name="transparentShader">
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:ID"/>
+		</xs:complexType>
+	</xs:element>
+	
+	<!-- /** typeface
+		Typeface describes the text font.
+	*/ -->
+	<xs:element name="typeface">
+		<xs:complexType>
+			<!-- @attribute fontName The name of the font. -->
+			<xs:attribute name="fontName" type="Sk:String"/>
+		</xs:complexType>
+	</xs:element>
+	
+</xs:schema>
+
