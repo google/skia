@@ -1,8 +1,8 @@
 #include <Carbon/Carbon.h>
+#include "SkCGUtils.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
-extern CGImageRef SkCreateCGImageRef(const SkBitmap&);
 extern "C" void SkiaDraw(CGContextRef cg, CGRect bounds);
 
 static void sampleDraw(SkCanvas* canvas) {

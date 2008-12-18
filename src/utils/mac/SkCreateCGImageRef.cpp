@@ -1,4 +1,4 @@
-#include <Carbon/Carbon.h>
+#include "SkCGUtils.h"
 #include "SkBitmap.h"
 
 extern CGImageRef SkCreateCGImageRef(const SkBitmap&);

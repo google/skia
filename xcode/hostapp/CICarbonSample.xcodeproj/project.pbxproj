@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		002884150EFA97F80083E387 /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884140EFA97F80083E387 /* test.cpp */; };
-		0028845E0EFAB2190083E387 /* SkCreateCGImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0028845D0EFAB2190083E387 /* SkCreateCGImageRef.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
 		002884D90EFABFE60083E387 /* SkFontHost_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884D80EFABFE60083E387 /* SkFontHost_none.cpp */; };
@@ -54,7 +53,6 @@
 /* Begin PBXFileReference section */
 		002884140EFA97F80083E387 /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = "<group>"; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
-		0028845D0EFAB2190083E387 /* SkCreateCGImageRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkCreateCGImageRef.cpp; sourceTree = "<group>"; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884D80EFABFE60083E387 /* SkFontHost_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_none.cpp; path = ../../src/ports/SkFontHost_none.cpp; sourceTree = SOURCE_ROOT; };
 		0156F80307C56A3000C6122B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -127,7 +125,6 @@
 		20286C2AFDCF999611CA2CEA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				0028845D0EFAB2190083E387 /* SkCreateCGImageRef.cpp */,
 				32DBCF6D0370B57F00C91783 /* CICarbonSample_Prefix.pch */,
 				20286C2BFDCF999611CA2CEA /* main.c */,
 				002884140EFA97F80083E387 /* test.cpp */,
@@ -243,7 +240,6 @@
 			files = (
 				8D0C4E900486CD37000505A6 /* main.c in Sources */,
 				002884150EFA97F80083E387 /* test.cpp in Sources */,
-				0028845E0EFAB2190083E387 /* SkCreateCGImageRef.cpp in Sources */,
 				002884D90EFABFE60083E387 /* SkFontHost_none.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -344,6 +340,10 @@
 		01E2163E09EDAC6600E66AF8 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_BUILD_FOR_MAC,
+					SK_DEBUG,
+				);
 				USER_HEADER_SEARCH_PATHS = "../../include/**";
 			};
 			name = Development;
@@ -351,6 +351,11 @@
 		01E2163F09EDAC6600E66AF8 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_BUILD_FOR_MAC,
+					SK_RELEASE,
+				);
+				USER_HEADER_SEARCH_PATHS = "../../include/**";
 			};
 			name = Deployment;
 		};
