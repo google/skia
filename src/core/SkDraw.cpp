@@ -1989,7 +1989,7 @@ bool SkTriColorShader::setup(const SkPoint pts[], const SkColor colors[],
 
 #include "SkColorPriv.h"
 #include "SkPorterDuff.h"
-#include "SkComposShader.h"
+#include "SkComposeShader.h"
 #include "SkXfermode.h"
 
 static int ScalarTo256(SkScalar v) {
