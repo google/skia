@@ -177,7 +177,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
-				USER_HEADER_SEARCH_PATHS = "../../src/utils/mac ../../include/ports ../../include/core";
+				USER_HEADER_SEARCH_PATHS = "../../include/utils/mac ../../include/ports ../../include/core";
 			};
 			name = Debug;
 		};
