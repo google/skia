@@ -24,13 +24,18 @@ public:
     SkOSWindow(void* hwnd);
 
     void*   getHWND() const { return fHWND; }
+    void*   getHVIEW() const { return fHVIEW; }
     void    updateSize();
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
     static pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRef inEvent, void* userData );
 
+    void    doPaint(void* ctx);
+
 protected:
+    // overrides from SkEventSink
+    virtual bool onEvent(const SkEvent& evt);
     // overrides from SkWindow
     virtual void onHandleInval(const SkIRect&);
     // overrides from SkView
@@ -39,8 +44,7 @@ protected:
 
 private:
     void*   fHWND;
-
-    void    doPaint(void* ctx);
+    void*   fHVIEW;
 
     typedef SkWindow INHERITED;
 };

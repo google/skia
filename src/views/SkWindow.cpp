@@ -62,8 +62,6 @@ void SkWindow::setConfig(SkBitmap::Config config)
 	this->resize(fBitmap.width(), fBitmap.height(), config);
 }
 
-#include "SkImageDecoder.h"
-
 void SkWindow::resize(int width, int height, SkBitmap::Config config)
 {
 	if (config == SkBitmap::kNo_Config)
@@ -78,8 +76,6 @@ void SkWindow::resize(int width, int height, SkBitmap::Config config)
 		this->setSize(SkIntToScalar(width), SkIntToScalar(height));
 		this->inval(NULL);
 	}
-
-	SkImageDecoder::SetDeviceConfig(fConfig);
 }
 
 void SkWindow::eraseARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)

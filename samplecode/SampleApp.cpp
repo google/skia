@@ -9,8 +9,12 @@
 
 #include "SampleCode.h"
 
+//#define SK_SUPPORT_GL
+
+#ifdef SK_SUPPORT_GL
 #include <AGL/agl.h>
 #include <OpenGL/gl.h>
+#endif
 
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
@@ -29,6 +33,7 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
     gHead = this;
 }
 
+#ifdef SK_SUPPORT_GL
 static AGLContext   gAGLContext;
 
 static void init_gl(WindowRef wref) {
@@ -85,6 +90,7 @@ static void setup_offscreen_gl(const SkBitmap& offscreen, WindowRef wref) {
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT);
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -187,8 +193,10 @@ SampleWindow::CanvasType SampleWindow::cycle_canvastype(CanvasType ct) {
 }
 
 SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
+#ifdef SK_SUPPORT_GL
     init_gl((WindowRef)hwnd);
-    
+#endif
+
     fPicture = NULL;
     fGLCanvas = NULL;
 
@@ -237,8 +245,10 @@ static void reverseRedAndBlue(const SkBitmap& bm) {
 }
 
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
+#ifdef SK_SUPPORT_GL
 #ifndef USE_OFFSCREEN
     aglSetWindowRef(gAGLContext, NULL);
+#endif
 #endif
     switch (fCanvasType) {
         case kRaster_CanvasType:
@@ -248,6 +258,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
             fPicture = new SkPicture;
             canvas = fPicture->beginRecording(9999, 9999);
             break;
+#ifdef SK_SUPPORT_GL
         case kOpenGL_CanvasType: {
             //SkGLCanvas::DeleteAllTextures();  // just for testing
             SkDevice* device = canvas->getDevice();
@@ -261,6 +272,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
             canvas = fGLCanvas;
             break;
         }
+#endif
     }
 
     if (fUseClip) {
@@ -305,6 +317,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             }
             fPicture = NULL;
             break;
+#ifdef SK_SUPPORT_GL
         case kOpenGL_CanvasType:
             glFlush();
             delete fGLCanvas;
@@ -313,6 +326,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             reverseRedAndBlue(orig->getDevice()->accessBitmap(true));
 #endif
             break;
+#endif
     }
     
 //    if ((fScrollTestX | fScrollTestY) != 0)

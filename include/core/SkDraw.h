@@ -92,7 +92,7 @@ public:
 #endif
 };
 
-#include "SkGlyphCache.h"
+class SkGlyphCache;
 
 class SkTextToPathIter {
 public:
