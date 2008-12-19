@@ -3,26 +3,55 @@
   <object name="rootObject" class="NSCustomObject" id="1">
   </object>
   <array count="18" name="allObjects">
-    <object class="IBCarbonWindow" id="166">
-      <boolean name="receiveUpdates">FALSE</boolean>
-      <boolean name="hasCloseBox">FALSE</boolean>
-      <boolean name="liveResize">TRUE</boolean>
-      <boolean name="compositing">TRUE</boolean>
-      <boolean name="asyncDrag">TRUE</boolean>
-      <boolean name="isConstrained">FALSE</boolean>
-      <boolean name="hideOnFullScreen">TRUE</boolean>
-      <boolean name="hideOnSuspend">TRUE</boolean>
-      <boolean name="doesNotCycle">TRUE</boolean>
-      <int name="windowPosition">1</int>
-      <int name="scalingMode">1048576</int>
-      <string name="title">Window</string>
-      <object name="rootControl" class="IBCarbonRootControl" id="167">
-        <string name="viewFrame">0 0 480 360 </string>
-        <string name="bounds">0 0 360 480 </string>
-      </object>
-      <string name="windowRect">504 338 864 818 </string>
-      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    <object class="IBCarbonMenuItem" id="193">
+      <string name="title">Arrange in Front</string>
+      <boolean name="dynamic">TRUE</boolean>
+      <int name="keyEquivalentModifier">1572864</int>
+      <ostype name="command">frnt</ostype>
     </object>
+    <object class="IBCarbonMenuItem" id="190">
+      <string name="title">Minimize</string>
+      <string name="keyEquivalent">m</string>
+      <boolean name="dynamic">TRUE</boolean>
+      <ostype name="command">mini</ostype>
+    </object>
+    <object class="IBCarbonMenuItem" id="194">
+      <boolean name="separator">TRUE</boolean>
+    </object>
+    <object class="IBCarbonMenu" id="131">
+      <string name="title">File</string>
+      <array count="2" name="items">
+        <object class="IBCarbonMenuItem" id="135">
+          <string name="title">Page Setup…</string>
+          <string name="keyEquivalent">P</string>
+          <ostype name="command">page</ostype>
+        </object>
+        <object class="IBCarbonMenuItem" id="136">
+          <string name="title">Print…</string>
+          <string name="keyEquivalent">p</string>
+          <ostype name="command">prnt</ostype>
+        </object>
+      </array>
+    </object>
+    <object class="IBCarbonMenuItem" id="197">
+      <string name="title">Zoom</string>
+      <ostype name="command">zoom</ostype>
+    </object>
+    <object class="IBCarbonRootControl" id="167">
+      <string name="viewFrame">0 0 480 360 </string>
+      <string name="bounds">0 0 360 480 </string>
+    </object>
+    <reference idRef="136"/>
+    <object class="IBCarbonMenuItem" id="127">
+      <string name="title">File</string>
+      <reference name="submenu" idRef="131"/>
+    </object>
+    <object class="IBCarbonMenuItem" id="196">
+      <string name="title">Bring All to Front</string>
+      <boolean name="dynamic">TRUE</boolean>
+      <ostype name="command">bfrt</ostype>
+    </object>
+    <reference idRef="135"/>
     <object class="IBCarbonMenu" id="29">
       <string name="title">main</string>
       <string name="name">_NSMainMenu</string>
@@ -41,36 +70,14 @@
             </array>
           </object>
         </object>
-        <object class="IBCarbonMenuItem" id="127">
-          <string name="title">File</string>
-          <object name="submenu" class="IBCarbonMenu" id="131">
-            <string name="title">File</string>
-            <array count="2" name="items">
-              <object class="IBCarbonMenuItem" id="135">
-                <string name="title">Page Setup…</string>
-                <string name="keyEquivalent">P</string>
-                <ostype name="command">page</ostype>
-              </object>
-              <object class="IBCarbonMenuItem" id="136">
-                <string name="title">Print…</string>
-                <string name="keyEquivalent">p</string>
-                <ostype name="command">prnt</ostype>
-              </object>
-            </array>
-          </object>
-        </object>
+        <reference idRef="127"/>
         <object class="IBCarbonMenuItem" id="192">
           <string name="title">Window</string>
           <object name="submenu" class="IBCarbonMenu" id="195">
             <string name="title">Window</string>
             <string name="name">_NSWindowsMenu</string>
             <array count="6" name="items">
-              <object class="IBCarbonMenuItem" id="190">
-                <string name="title">Minimize</string>
-                <string name="keyEquivalent">m</string>
-                <boolean name="dynamic">TRUE</boolean>
-                <ostype name="command">mini</ostype>
-              </object>
+              <reference idRef="190"/>
               <object class="IBCarbonMenuItem" id="191">
                 <string name="title">Minimize All</string>
                 <string name="keyEquivalent">m</string>
@@ -78,65 +85,57 @@
                 <int name="keyEquivalentModifier">1572864</int>
                 <ostype name="command">mina</ostype>
               </object>
-              <object class="IBCarbonMenuItem" id="197">
-                <string name="title">Zoom</string>
-                <ostype name="command">zoom</ostype>
-              </object>
-              <object class="IBCarbonMenuItem" id="194">
-                <boolean name="separator">TRUE</boolean>
-              </object>
-              <object class="IBCarbonMenuItem" id="196">
-                <string name="title">Bring All to Front</string>
-                <boolean name="dynamic">TRUE</boolean>
-                <ostype name="command">bfrt</ostype>
-              </object>
-              <object class="IBCarbonMenuItem" id="193">
-                <string name="title">Arrange in Front</string>
-                <boolean name="dynamic">TRUE</boolean>
-                <int name="keyEquivalentModifier">1572864</int>
-                <ostype name="command">frnt</ostype>
-              </object>
+              <reference idRef="197"/>
+              <reference idRef="194"/>
+              <reference idRef="196"/>
+              <reference idRef="193"/>
             </array>
           </object>
         </object>
       </array>
     </object>
-    <reference idRef="193"/>
-    <reference idRef="191"/>
-    <reference idRef="135"/>
-    <reference idRef="196"/>
-    <reference idRef="192"/>
-    <reference idRef="127"/>
-    <reference idRef="195"/>
-    <reference idRef="194"/>
-    <reference idRef="187"/>
-    <reference idRef="131"/>
+    <object class="IBCarbonWindow" id="166">
+      <boolean name="receiveUpdates">FALSE</boolean>
+      <boolean name="hasCloseBox">FALSE</boolean>
+      <boolean name="liveResize">TRUE</boolean>
+      <boolean name="compositing">TRUE</boolean>
+      <boolean name="asyncDrag">TRUE</boolean>
+      <boolean name="isConstrained">FALSE</boolean>
+      <boolean name="hideOnFullScreen">TRUE</boolean>
+      <boolean name="doesNotCycle">TRUE</boolean>
+      <int name="windowPosition">1</int>
+      <int name="scalingMode">1048576</int>
+      <string name="title">Window</string>
+      <reference name="rootControl" idRef="167"/>
+      <string name="windowRect">504 338 864 818 </string>
+      <string name="ScreenRectAtEncodeTime">0 0 768 1024 </string>
+    </object>
     <reference idRef="184"/>
-    <reference idRef="136"/>
-    <reference idRef="167"/>
+    <reference idRef="191"/>
+    <reference idRef="187"/>
+    <reference idRef="195"/>
+    <reference idRef="192"/>
     <reference idRef="185"/>
-    <reference idRef="190"/>
-    <reference idRef="197"/>
   </array>
   <array count="18" name="allParents">
-    <reference idRef="1"/>
-    <reference idRef="1"/>
     <reference idRef="195"/>
+    <reference idRef="195"/>
+    <reference idRef="195"/>
+    <reference idRef="127"/>
+    <reference idRef="195"/>
+    <reference idRef="166"/>
+    <reference idRef="131"/>
+    <reference idRef="29"/>
     <reference idRef="195"/>
     <reference idRef="131"/>
-    <reference idRef="195"/>
-    <reference idRef="29"/>
-    <reference idRef="29"/>
-    <reference idRef="192"/>
+    <reference idRef="1"/>
+    <reference idRef="1"/>
+    <reference idRef="185"/>
     <reference idRef="195"/>
     <reference idRef="184"/>
-    <reference idRef="127"/>
-    <reference idRef="185"/>
-    <reference idRef="131"/>
-    <reference idRef="166"/>
+    <reference idRef="192"/>
     <reference idRef="29"/>
-    <reference idRef="195"/>
-    <reference idRef="195"/>
+    <reference idRef="29"/>
   </array>
   <dictionary count="3" name="nameTable">
     <string>File&apos;s Owner</string>

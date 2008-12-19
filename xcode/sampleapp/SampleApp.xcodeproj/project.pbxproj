@@ -29,7 +29,8 @@
 		00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
-		002884D90EFABFE60083E387 /* SkFontHost_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884D80EFABFE60083E387 /* SkFontHost_none.cpp */; };
+		00A41E3E0EFC30EC00C9CBEB /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E3D0EFC30EC00C9CBEB /* SkFontHost_mac.cpp */; };
+		00A41E4B0EFC312F00C9CBEB /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
@@ -105,7 +106,8 @@
 		00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_empty.cpp; path = ../../src/ports/SkXMLParser_empty.cpp; sourceTree = SOURCE_ROOT; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
-		002884D80EFABFE60083E387 /* SkFontHost_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_none.cpp; path = ../../src/ports/SkFontHost_none.cpp; sourceTree = SOURCE_ROOT; };
+		00A41E3D0EFC30EC00C9CBEB /* SkFontHost_mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_mac.cpp; path = ../../src/ports/SkFontHost_mac.cpp; sourceTree = SOURCE_ROOT; };
+		00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
 		0156F80307C56A3000C6122B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		01FC44D407BD3BB800D228F4 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -138,6 +140,7 @@
 		00003C610EFC2287000FF73A /* samples */ = {
 			isa = PBXGroup;
 			children = (
+				00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */,
 				00003C620EFC22A8000FF73A /* SampleApp.cpp */,
 				00003C640EFC22A8000FF73A /* SamplePath.cpp */,
 				00003C650EFC22A8000FF73A /* SamplePathEffects.cpp */,
@@ -204,7 +207,7 @@
 			children = (
 				00003C6A0EFC22AD000FF73A /* views */,
 				00003C610EFC2287000FF73A /* samples */,
-				002884D80EFABFE60083E387 /* SkFontHost_none.cpp */,
+				00A41E3D0EFC30EC00C9CBEB /* SkFontHost_mac.cpp */,
 				00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */,
 				20286C2AFDCF999611CA2CEA /* Sources */,
 				20286C2CFDCF999611CA2CEA /* Resources */,
@@ -343,7 +346,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				002884D90EFABFE60083E387 /* SkFontHost_none.cpp in Sources */,
 				00003C660EFC22A8000FF73A /* SampleApp.cpp in Sources */,
 				00003C680EFC22A8000FF73A /* SamplePath.cpp in Sources */,
 				00003C690EFC22A8000FF73A /* SamplePathEffects.cpp in Sources */,
@@ -363,6 +365,8 @@
 				00003CA00EFC233F000FF73A /* SkParseColor.cpp in Sources */,
 				00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */,
 				00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */,
+				00A41E3E0EFC30EC00C9CBEB /* SkFontHost_mac.cpp in Sources */,
+				00A41E4B0EFC312F00C9CBEB /* SampleArc.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

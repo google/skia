@@ -263,7 +263,7 @@ protected:
     virtual void generatePath(const SkGlyph& glyph, SkPath* path);
     virtual void generateLineHeight(SkPoint* ascent, SkPoint* descent);
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY);
-    virtual SkDeviceContext getDC() { return NULL; } // not implemented on Mac
+//    virtual SkDeviceContext getDC() { return NULL; } // not implemented on Mac
 
 private:
     ATSUTextLayout  fLayout;
@@ -292,7 +292,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
         err = ::ATSUCreateStyle(&fStyle);
     }
 
-    uint32_t size = SkFixedFloor(fRec.fTextSize);
+    uint32_t size = SkScalarFloor(fRec.fTextSize);
     Fixed fixedSize = IntToFixed(size);
     static const ATSUAttributeTag sizeTag = kATSUSizeTag;
     static const ByteCount sizeTagSize = sizeof(Fixed);

@@ -38,6 +38,15 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
             *info = kCGBitmapByteOrder32Big |
                     kCGImageAlphaPremultipliedLast;
             break;
+        case SkBitmap::kRGB_565_Config:
+            // doesn't see quite right. Are they thinking 1555?
+            *bitsPerComponent = 5;
+            *info = kCGBitmapByteOrder16Little;
+            break;
+        case SkBitmap::kARGB_4444_Config:
+            *bitsPerComponent = 4;
+            *info = kCGBitmapByteOrder16Little | kCGImageAlphaPremultipliedLast;
+            break;
         default:
             return NULL;
     }
