@@ -3,27 +3,7 @@
 
 extern CGImageRef SkCreateCGImageRef(const SkBitmap&);
 
-static const void* SkBitmap_GetBytesPointer(void* info) {
-    SkBitmap* bitmap = reinterpret_cast<SkBitmap*>(info);
-    bitmap->lockPixels();
-    return bitmap->getPixels();
-}
-
-static void SkBitmap_ReleaseBytePointer(void* info, const void* pointer) {
-    SkBitmap* bitmap = reinterpret_cast<SkBitmap*>(info);
-    bitmap->unlockPixels();
-}
-
-static size_t SkBitmap_GetBytesAtPosition(void* info, void* buffer,
-                                             off_t offset, size_t count) {
-    SkBitmap* bitmap = reinterpret_cast<SkBitmap*>(info);
-    bitmap->lockPixels();
-    memcpy(buffer, (const char*)bitmap->getPixels() + offset, count);
-    bitmap->unlockPixels();
-    return count;
-}
-
-static void SkBitmap_ReleaseInfo(void* info) {
+static void SkBitmap_ReleaseInfo(void* info, const void* pixelData, size_t size) {
     SkBitmap* bitmap = reinterpret_cast<SkBitmap*>(info);
     delete bitmap;
 }
@@ -67,15 +47,13 @@ CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     const int h = bitmap->height();
     const size_t s = bitmap->getSize();
 
-    CGDataProviderDirectCallbacks procs;
-    procs.version = 0;
-    procs.getBytePointer = SkBitmap_GetBytesPointer;
-    procs.releaseBytePointer = SkBitmap_ReleaseBytePointer;
-    procs.getBytesAtPosition = SkBitmap_GetBytesAtPosition;
-    procs.releaseInfo = SkBitmap_ReleaseInfo;
-
     // our provider "owns" the bitmap*, and will take care of deleting it
-    CGDataProviderRef dataRef = CGDataProviderCreateDirect(bitmap, s, &procs);
+	// we initially lock it, so we can access the pixels. The bitmap will be deleted in the release
+	// proc, which will in turn unlock the pixels
+	bitmap->lockPixels();
+    CGDataProviderRef dataRef = CGDataProviderCreateWithData(bitmap, bitmap->getPixels(), s,
+															 SkBitmap_ReleaseInfo);
+
     CGColorSpaceRef space = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     CGImageRef ref = CGImageCreate(w, h, bitsPerComponent,
                                    bitmap->bytesPerPixel() * 8,

@@ -280,7 +280,6 @@
 		20286C28FDCF999611CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 01E2163D09EDAC6600E66AF8 /* Build configuration list for PBXProject "SampleApp" */;
-			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 20286C29FDCF999611CA2CEA /* CICarbonSample */;
 			projectDirPath = "";
@@ -478,6 +477,7 @@
 					SK_DEBUG,
 				);
 				GCC_THREADSAFE_STATICS = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = "../../include/**";
 			};
 			name = Development;
@@ -492,6 +492,7 @@
 					SK_RELEASE,
 				);
 				GCC_THREADSAFE_STATICS = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = "../../include/**";
 			};
 			name = Deployment;
@@ -502,6 +503,7 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_THREADSAFE_STATICS = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = "../../include/**";
 			};
 			name = Default;

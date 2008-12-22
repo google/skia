@@ -203,7 +203,6 @@ bool SkOSWindow::onEvent(const SkEvent& evt) {
         this->update(NULL);
 
         const SkBitmap& bm = this->getBitmap();
-        SkDebugf("------ bitmap %d %d\n", bm.width(), bm.height());
 
         CGImageRef img = SkCreateCGImageRef(bm);
         HIImageViewSetImage((HIViewRef)getHVIEW(), img);

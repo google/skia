@@ -29,9 +29,15 @@ void SkiaDraw(CGContextRef cg, CGRect bounds) {
         gImage = SkCreateCGImageRef(bitmap);
     }
 
-    CGColorRef color = CGColorCreateGenericRGB(1, 1, 1, 1);
+	float components[] = { 1, 1, 1, 1 };
+
+	CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+	CGColorRef color = CGColorCreate(colorspace, components);
+
     CGContextSetFillColorWithColor(cg, color);
     CGColorRelease(color);
+	CGColorSpaceRelease(colorspace);
+
     CGContextFillRect(cg, bounds);
 
     CGRect r = CGRectMake(0, 0, 640, 480);

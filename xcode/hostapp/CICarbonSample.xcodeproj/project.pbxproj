@@ -186,7 +186,6 @@
 		20286C28FDCF999611CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = 01E2163D09EDAC6600E66AF8 /* Build configuration list for PBXProject "CICarbonSample" */;
-			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 20286C29FDCF999611CA2CEA /* CICarbonSample */;
 			projectDirPath = "";
