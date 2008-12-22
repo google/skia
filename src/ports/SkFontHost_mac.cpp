@@ -351,8 +351,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
         glyph->fAdvanceY = -SkFloatToFixed(metrics.deviceAdvance.y);
         glyph->fWidth = metrics.width;
         glyph->fHeight = metrics.height;
-        glyph->fTop = -SkFloatToFixed(metrics.topLeft.y);
-        glyph->fLeft = SkFloatToFixed(metrics.topLeft.x);
+        glyph->fTop = -sk_float_round2int(metrics.topLeft.y);
+        glyph->fLeft = sk_float_round2int(metrics.topLeft.x);
     }
 }
 
