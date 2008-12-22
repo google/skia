@@ -71,7 +71,13 @@ public:
         responsible for unref-ing the returned typeface (if it is not null).
     */
     static SkTypeface* CreateTypeface(SkStream*);
-
+    
+    /** Return a new typeface from the specified file path. If the file does not
+        represent a valid font, this returns null. If a typeface is returned,
+        the caller is responsible for calling unref() when it is no longer used.
+     */
+    static SkTypeface* CreateTypefaceFromFile(const char path[]);
+    
     ///////////////////////////////////////////////////////////////////////////
 
     /** Write a unique identifier to the stream, so that the same typeface can

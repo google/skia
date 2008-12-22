@@ -43,10 +43,9 @@ SkTypeface* SkTypeface::CreateFromStream(SkStream* stream)
     return SkFontHost::CreateTypeface(stream);
 }
 
-#include "SkMMapStream.h"
 SkTypeface* SkTypeface::CreateFromFile(const char path[])
 {
-    return SkFontHost::CreateTypeface(SkNEW_ARGS(SkMMAPStream, (path)));
+    return SkFontHost::CreateTypefaceFromFile(path);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

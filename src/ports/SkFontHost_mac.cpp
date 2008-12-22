@@ -23,14 +23,12 @@
 const char* gDefaultfont = "Arial"; // hard code for now
 static SkMutex      gFTMutex;
 
-inline SkPoint F32PtToSkPoint(const Float32Point p)
-{
-    SkPoint sp = { SkFloatToFixed(p.x),SkFloatToFixed(p.y) };
+static inline SkPoint F32PtToSkPoint(const Float32Point p) {
+    SkPoint sp = { SkFloatToScalar(p.x), SkFloatToScalar(p.y) };
     return sp;
 }
 
-static inline uint32_t _rotl(uint32_t v, uint32_t r) 
-{
+static inline uint32_t _rotl(uint32_t v, uint32_t r) {
     return (v << r | v >> (32 - r));
 }
 
@@ -341,7 +339,8 @@ void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
 {
     GlyphID glyphID = glyph->fID;
-    ATSGlyphScreenMetrics metrics= { 0 };
+
+    ATSGlyphScreenMetrics metrics;
     
     glyph->fRsbDelta = 0;
     glyph->fLsbDelta = 0;
@@ -349,18 +348,22 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     OSStatus err = ATSUGlyphGetScreenMetrics(fStyle,1,&glyphID,0,true,true,&metrics);
     if (err == noErr) {
         glyph->fAdvanceX = SkFloatToFixed(metrics.deviceAdvance.x);
-        glyph->fAdvanceY = SkFloatToFixed(metrics.deviceAdvance.y);
-        //glyph->fWidth = metrics.width;
-        //glyph->fHeight = metrics.height;
-        glyph->fWidth = metrics.width + ceil(metrics.sideBearing.x - metrics.otherSideBearing.x);
-        glyph->fHeight = metrics.height + ceil(metrics.sideBearing.y - metrics.otherSideBearing.y) + 1;
-
-        glyph->fTop = -metrics.topLeft.y;
-        glyph->fLeft = metrics.topLeft.x;
+        glyph->fAdvanceY = -SkFloatToFixed(metrics.deviceAdvance.y);
+        glyph->fWidth = metrics.width;
+        glyph->fHeight = metrics.height;
+        glyph->fTop = -SkFloatToFixed(metrics.topLeft.y);
+        glyph->fLeft = SkFloatToFixed(metrics.topLeft.x);
     }
 }
 
 void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my) {
+#if 0
+    OSStatus ATSFontGetVerticalMetrics (
+                                        ATSFontRef iFont,
+                                        ATSOptionFlags iOptions,
+                                        ATSFontMetrics *oMetrics
+    );
+#endif
     //SkASSERT(false);
     if (mx)
         memset(mx, 0, sizeof(SkPaint::FontMetrics));
@@ -448,9 +451,13 @@ OSStatus SkScalerContext_Mac::Line(const Float32Point *pt, void *cb)
     return noErr;
 }
 
-OSStatus SkScalerContext_Mac::Curve(const Float32Point *pt1, const Float32Point *pt2, const Float32Point *pt3, void *cb)
+OSStatus SkScalerContext_Mac::Curve(const Float32Point *pt1,
+                                    const Float32Point *pt2,
+                                    const Float32Point *pt3, void *cb)
 {
-    reinterpret_cast<SkPath*>(cb)->cubicTo(F32PtToSkPoint(*pt1),F32PtToSkPoint(*pt2),F32PtToSkPoint(*pt3));
+    reinterpret_cast<SkPath*>(cb)->cubicTo(F32PtToSkPoint(*pt1),
+                                           F32PtToSkPoint(*pt2),
+                                           F32PtToSkPoint(*pt3));
     return noErr;
 }
 
@@ -472,8 +479,14 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 }
 
 SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
-
+    
     //Should not be used on Mac, keep linker happy
+    SkASSERT(false);
+    return CreateTypeface_(gDefaultfont,SkTypeface::kNormal);
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
+    // TODO
     SkASSERT(false);
     return CreateTypeface_(gDefaultfont,SkTypeface::kNormal);
 }
