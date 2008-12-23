@@ -52,6 +52,8 @@ public:
     bool    handleMenu(uint32_t os_cmd);
 
     void    addMenu(SkOSMenu*);
+    
+    const char* getTitle() const { return fTitle.c_str(); }
     void    setTitle(const char title[]);
 
 protected:
@@ -80,6 +82,8 @@ private:
 
     SkView* fFocusView;
     bool    fWaitingOnInval;
+    
+    SkString    fTitle;
 
     typedef SkView INHERITED;
 };

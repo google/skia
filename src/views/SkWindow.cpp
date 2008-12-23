@@ -248,10 +248,11 @@ void SkWindow::addMenu(SkOSMenu* menu)
 	this->onAddMenu(menu);
 }
 
-void SkWindow::setTitle(const char title[])
-{
-    if (NULL == title)
+void SkWindow::setTitle(const char title[]) {
+    if (NULL == title) {
         title = "";
+    }
+    fTitle.set(title);
     this->onSetTitle(title);
 }
 

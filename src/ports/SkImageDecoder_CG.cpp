@@ -54,14 +54,12 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm,
     if (NULL == imageSrc) {
         return false;
     }
-
     SkAutoTCallVProc<const void, CFRelease> arsrc(imageSrc);
     
     CGImageRef image = CGImageSourceCreateImageAtIndex(imageSrc, 0, NULL);
     if (NULL == image) {
         return false;
     }
-    
     SkAutoTCallVProc<CGImage, CGImageRelease> arimage(image);
     
     const int width = CGImageGetWidth(image);
@@ -109,19 +107,92 @@ SkMovie* SkMovie::DecodeStream(SkStream* stream) {
 
 #ifdef SK_SUPPORT_IMAGE_ENCODE
 
+static size_t consumer_put(void* info, const void* buffer, size_t count) {
+    SkWStream* stream = reinterpret_cast<SkWStream*>(info);
+    return stream->write(buffer, count) ? count : 0;
+}
+
+static void consumer_release(void* info) {
+    // we do nothing, since by design we don't "own" the stream (i.e. info)
+}
+
+static CGDataConsumerRef SkStreamToCGDataConsumer(SkWStream* stream) {
+    CGDataConsumerCallbacks procs;
+    procs.putBytes = consumer_put;
+    procs.releaseConsumer = consumer_release;
+    // we don't own/reference the stream, so it our consumer must not live
+    // longer that our caller's ownership of the stream
+    return CGDataConsumerCreate(stream, &procs);
+}
+
+static CGImageDestinationRef SkStreamToImageDestination(SkWStream* stream,
+                                                        CFStringRef type) {
+    CGDataConsumerRef consumer = SkStreamToCGDataConsumer(stream);
+    if (NULL == consumer) {
+        return NULL;
+    }
+    SkAutoTCallVProc<const void, CFRelease> arconsumer(consumer);
+    
+    return CGImageDestinationCreateWithDataConsumer(consumer, type, 1, NULL);
+}
+
+class SkImageEncoder_CG : public SkImageEncoder {
+public:
+    SkImageEncoder_CG(Type t) : fType(t) {}
+
+protected:
+    virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality);
+    
+private:
+    Type fType;
+};
+
+extern CGImageRef SkCreateCGImageRef(const SkBitmap&);
+
+/*  Encode bitmaps via CGImageDestination. We setup a DataConsumer which writes
+    to our SkWStream. Since we don't reference/own the SkWStream, our consumer
+    must only live for the duration of the onEncode() method.
+ */
+bool SkImageEncoder_CG::onEncode(SkWStream* stream, const SkBitmap& bm,
+                                 int quality) {
+    CFStringRef type;
+    switch (fType) {
+        case kJPEG_Type:
+            type = kUTTypeJPEG;
+            break;
+        case kPNG_Type:
+            type = kUTTypePNG;
+            break;
+        default:
+            return false;
+    }
+    
+    CGImageDestinationRef dst = SkStreamToImageDestination(stream, type);
+    if (NULL == dst) {
+        return false;
+    }
+    SkAutoTCallVProc<const void, CFRelease> ardst(dst);
+
+    CGImageRef image = SkCreateCGImageRef(bm);
+    if (NULL == image) {
+        return false;
+    }
+    SkAutoTCallVProc<CGImage, CGImageRelease> agimage(image);
+    
+	CGImageDestinationAddImage(dst, image, NULL);
+	CGImageDestinationFinalize(dst);
+    return true;
+}
+
 SkImageEncoder* SkImageEncoder::Create(Type t) {
-#if 0
     switch (t) {
         case kJPEG_Type:
-            return SkImageEncoder_JPEG_Factory();
         case kPNG_Type:
-            return SkImageEncoder_PNG_Factory();
+            break;
         default:
             return NULL;
     }
-#else
-    return NULL;
-#endif
+    return SkNEW_ARGS(SkImageEncoder_CG, (t));
 }
 
 #endif

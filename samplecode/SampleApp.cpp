@@ -2,6 +2,7 @@
 #include "SkDevice.h"
 #include "SkGLCanvas.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -380,6 +381,17 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     return this->INHERITED::onEvent(evt);
 }
 
+static void cleanup_for_filename(SkString* name) {
+    char* str = name->writable_str();
+    for (int i = 0; i < name->size(); i++) {
+        switch (str[i]) {
+            case ':': str[i] = '-'; break;
+            case '/': str[i] = '-'; break;
+            case ' ': str[i] = '_'; break;
+            default: break;
+        }
+    }
+}
 
 bool SampleWindow::onHandleChar(SkUnichar uni) {
     int dx = 0xFF;
@@ -411,10 +423,28 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         return true;
     }
     
-    if ('a' == uni) {
-        fAnimating = !fAnimating;
-        this->postAnimatingEvent();
-        this->updateTitle();
+    switch (uni) {
+        case 'a':
+            fAnimating = !fAnimating;
+            this->postAnimatingEvent();
+            this->updateTitle();
+            return true;
+        case 'f': {
+            const char* title = this->getTitle();
+            if (title[0] == 0) {
+                title = "sampleapp";
+            }
+            SkString name(title);
+            cleanup_for_filename(&name);
+            name.append(".png");
+            if (SkImageEncoder::EncodeFile(name.c_str(), this->getBitmap(),
+                                           SkImageEncoder::kPNG_Type)) {
+                SkDebugf("Created %s\n", name.c_str());
+            }
+            return true;
+        }
+        default:
+            break;
     }
     
     return this->INHERITED::onHandleChar(uni);
