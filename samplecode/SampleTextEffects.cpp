@@ -6,7 +6,6 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkShaderExtras.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTypeface.h"

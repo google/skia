@@ -491,7 +491,6 @@ SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     // TODO
-    SkASSERT(false);
     return CreateTypeface_(gDefaultfont,SkTypeface::kNormal);
 }
 

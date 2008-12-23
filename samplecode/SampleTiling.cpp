@@ -12,7 +12,6 @@
 
 // effects
 #include "SkGradientShader.h"
-#include "SkShaderExtras.h"
 #include "SkUnitMappers.h"
 #include "SkBlurDrawLooper.h"
 

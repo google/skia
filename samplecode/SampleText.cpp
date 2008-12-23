@@ -11,7 +11,6 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
-#include "SkShaderExtras.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkTime.h"
@@ -96,9 +95,11 @@ static void test_typefaceCache()
     SkTypeface* t2 = SkTypeface::Create("arial", SkTypeface::kNormal);
     SkTypeface* t3 = SkTypeface::Create("helvetica", SkTypeface::kItalic);
     
+#ifndef SK_BUILD_FOR_MAC
     SkASSERT(t0 == t1);
     SkASSERT(t0 == t2);
     SkASSERT(t0 == t3);
+#endif
 }
 
 static void test_breakText()
