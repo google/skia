@@ -4,6 +4,7 @@
 #include "SkDraw.h"
 #include "SkDrawProcs.h"
 #include "SkGL.h"
+#include "SkGlyphCache.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
