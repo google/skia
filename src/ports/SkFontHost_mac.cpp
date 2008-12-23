@@ -266,6 +266,7 @@ protected:
 private:
     ATSUTextLayout  fLayout;
     ATSUStyle       fStyle;
+    CGColorSpaceRef fGrayColorSpace;
     
     static OSStatus MoveTo(const Float32Point *pt, void *cb);
     static OSStatus Line(const Float32Point *pt, void *cb);
@@ -298,10 +299,14 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     err = ::ATSUSetAttributes(fStyle,1,&sizeTag,&sizeTagSize,values);
 
     err = ::ATSUCreateTextLayout(&fLayout);
+
+    fGrayColorSpace = ::CGColorSpaceCreateDeviceGray();
 }
 
 SkScalerContext_Mac::~SkScalerContext_Mac()
 {
+    ::CGColorSpaceRelease(fGrayColorSpace);
+
     unref_ft_face(fRec.fFontID);
 
     ::ATSUDisposeTextLayout(fLayout);
@@ -332,31 +337,41 @@ uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni)
     return glyph;
 }
 
+static void set_glyph_metrics_on_error(SkGlyph* glyph) {
+    glyph->fRsbDelta = 0;
+    glyph->fLsbDelta = 0;
+    glyph->fWidth    = 0;
+    glyph->fHeight   = 0;
+    glyph->fTop      = 0;
+    glyph->fLeft     = 0;
+    glyph->fAdvanceX = 0;
+    glyph->fAdvanceY = 0;
+}
+
 void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
     this->generateMetrics(glyph);
 }
 
-void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
-{
-    GlyphID glyphID = glyph->fID;
-
+void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
+    GlyphID glyphID = glyph->getGlyphID(fBaseGlyphCount);
     ATSGlyphScreenMetrics metrics;
-    
-    glyph->fRsbDelta = 0;
-    glyph->fLsbDelta = 0;
-    
-    OSStatus err = ATSUGlyphGetScreenMetrics(fStyle,1,&glyphID,0,true,true,&metrics);
-    if (err == noErr) {
+
+    OSStatus err = ATSUGlyphGetScreenMetrics(fStyle, 1, &glyphID, 0, true, true,
+                                             &metrics);
+    if (noErr != err) {
+        set_glyph_metrics_on_error(glyph);
+    } else {
         glyph->fAdvanceX = SkFloatToFixed(metrics.deviceAdvance.x);
         glyph->fAdvanceY = -SkFloatToFixed(metrics.deviceAdvance.y);
         glyph->fWidth = metrics.width;
         glyph->fHeight = metrics.height;
-        glyph->fTop = -sk_float_round2int(metrics.topLeft.y);
         glyph->fLeft = sk_float_round2int(metrics.topLeft.x);
+        glyph->fTop = -sk_float_round2int(metrics.topLeft.y);
     }
 }
 
-void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my) {
+void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
+                                              SkPaint::FontMetrics* my) {
 #if 0
     OSStatus ATSFontGetVerticalMetrics (
                                         ATSFontRef iFont,
@@ -375,42 +390,31 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint:
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
 {
     SkAutoMutexAcquire  ac(gFTMutex);
-    
-    GlyphID glyphID = glyph.fID;
-    ATSGlyphScreenMetrics metrics= { 0 };
-    
     SkASSERT(fLayout);
-    OSStatus err = ::ATSUGlyphGetScreenMetrics(fStyle,1,&glyphID,0,true,true,&metrics);
+    OSStatus err;
 
-//    uint32_t w = metrics.width;
-//    uint32_t h = metrics.height;
-//    uint32_t pitch = (w + 3) & ~0x3;
-//    if (pitch != glyph.rowBytes()) {
-//        SkASSERT(false); // it's different from previously cacluated in generateMetrics(), so the size of glyph.fImage buffer is incorrect!
-//    }
-    
-    CGColorSpaceRef greyColorSpace = ::CGColorSpaceCreateWithName(kCGColorSpaceGenericGray);
-    CGContextRef contextRef = ::CGBitmapContextCreate((uint8_t*)glyph.fImage, glyph.fWidth, glyph.fHeight, 8, glyph.rowBytes(), greyColorSpace, kCGImageAlphaNone);
+    bzero(glyph.fImage, glyph.fHeight * glyph.rowBytes());
+    CGContextRef contextRef = ::CGBitmapContextCreate(glyph.fImage,
+                                            glyph.fWidth, glyph.fHeight, 8,
+                                            glyph.rowBytes(), fGrayColorSpace,
+                                            kCGImageAlphaNone);
     if (!contextRef) {
         SkASSERT(false);
         return;
     }
-        
-    ::CGContextSetFillColorSpace(contextRef, greyColorSpace); 
-    ::CGContextSetStrokeColorSpace(contextRef, greyColorSpace); 
-                
-    ::CGContextSetGrayFillColor(contextRef, 0.0, 1.0);
-    ::CGContextFillRect(contextRef, ::CGRectMake(0, 0, glyph.fWidth, glyph.fHeight));
-                
+
     ::CGContextSetGrayFillColor(contextRef, 1.0, 1.0);
-    ::CGContextSetGrayStrokeColor(contextRef, 1.0, 1.0);
     ::CGContextSetTextDrawingMode(contextRef, kCGTextFill);
     
     ATSUAttributeTag tag = kATSUCGContextTag;
     ByteCount size = sizeof(CGContextRef);
     ATSUAttributeValuePtr value = &contextRef;
-    err = ::ATSUSetLayoutControls(fLayout,1,&tag,&size,&value);
-    err = ::ATSUDrawText(fLayout,kATSUFromTextBeginning,kATSUToTextEnd,FloatToFixed(-metrics.topLeft.x),FloatToFixed(glyph.fHeight-metrics.topLeft.y));
+    err = ::ATSUSetLayoutControls(fLayout, 1, &tag, &size, &value);
+    SkASSERT(!err);
+    err = ::ATSUDrawText(fLayout, kATSUFromTextBeginning, kATSUToTextEnd,
+                         SkIntToFixed(-glyph.fLeft),
+                         SkIntToFixed(glyph.fTop + glyph.fHeight));
+    SkASSERT(!err);
     ::CGContextRelease(contextRef);
 }
 

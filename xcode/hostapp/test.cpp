@@ -13,6 +13,17 @@ static void sampleDraw(SkCanvas* canvas) {
 
     canvas->drawCircle(SkIntToScalar(100), SkIntToScalar(100),
                        SkIntToScalar(90), paint);
+    
+    const char text[] = "fry42";
+    const size_t len = strlen(text);
+
+    paint.setColor(SK_ColorWHITE);
+    paint.setTextSize(SkIntToScalar(50));
+    canvas->drawText(text, len, SkIntToScalar(100), SkIntToScalar(50), paint);
+    paint.setTextAlign(SkPaint::kCenter_Align);
+    canvas->drawText(text, len, SkIntToScalar(100), SkIntToScalar(100), paint);
+    paint.setTextAlign(SkPaint::kRight_Align);
+    canvas->drawText(text, len, SkIntToScalar(100), SkIntToScalar(150), paint);
 }
 
 static CGImageRef gImage;
