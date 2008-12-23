@@ -13,7 +13,6 @@
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkShader.h"
-#include "SkShaderExtras.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
