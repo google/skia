@@ -39,13 +39,6 @@ protected:
         dst.offset(SkIntToScalar(2), SkIntToScalar(2));
         
         SkNinePatch::DrawNine(canvas, dst, fBM, margins);
-        
-        int cx = fBM.width()/2;
-        int cy = fBM.height()/2;
-        SkPMColor pm = *fBM.getAddr32(cx, cy);
-        SkColor c = SkUnPreMultiply::PMColorToColor(pm);
-        SkColor pm2 = SkPreMultiplyColor(c);
-        //SkDebugf("--- pm %x c %x pm2 %x\n", pm, c, pm2);
     }
     
     virtual void onDraw(SkCanvas* canvas) {
