@@ -12,6 +12,9 @@
 		002884A70EFAB5DE0083E387 /* SkTime_Unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884A40EFAB5DE0083E387 /* SkTime_Unix.cpp */; };
 		002884E10EFABFFC0083E387 /* SkGlobals_global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884E00EFABFFC0083E387 /* SkGlobals_global.cpp */; };
 		007A7BEF0F01427100A2D6EE /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7BEE0F01427100A2D6EE /* SkFontHost_mac.cpp */; };
+		27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */; };
+		27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2C0F11408100F233EA /* SkImageDecoder.cpp */; };
+		27739F2F0F11409100F233EA /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +23,9 @@
 		002884A40EFAB5DE0083E387 /* SkTime_Unix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTime_Unix.cpp; path = ../../src/ports/SkTime_Unix.cpp; sourceTree = SOURCE_ROOT; };
 		002884E00EFABFFC0083E387 /* SkGlobals_global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGlobals_global.cpp; path = ../../src/ports/SkGlobals_global.cpp; sourceTree = SOURCE_ROOT; };
 		007A7BEE0F01427100A2D6EE /* SkFontHost_mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_mac.cpp; path = ../../src/ports/SkFontHost_mac.cpp; sourceTree = SOURCE_ROOT; };
+		27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkCreateCGImageRef.cpp; path = ../../src/utils/mac/SkCreateCGImageRef.cpp; sourceTree = SOURCE_ROOT; };
+		27739F2C0F11408100F233EA /* SkImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageDecoder.cpp; path = ../../src/images/SkImageDecoder.cpp; sourceTree = SOURCE_ROOT; };
+		27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageDecoder_CG.cpp; path = ../../src/ports/SkImageDecoder_CG.cpp; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libmaccore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libmaccore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -37,6 +43,7 @@
 		08FB7794FE84155DC02AAC07 /* maccore */ = {
 			isa = PBXGroup;
 			children = (
+				27739F280F11405800F233EA /* Images */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6A0FF2B0290797F04C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -62,6 +69,16 @@
 				D2AAC046055464E500DB518D /* libmaccore.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		27739F280F11405800F233EA /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */,
+				27739F2C0F11408100F233EA /* SkImageDecoder.cpp */,
+				27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */,
+			);
+			name = Images;
 			sourceTree = "<group>";
 		};
 		C6A0FF2B0290797F04C91782 /* Documentation */ = {
@@ -128,6 +145,9 @@
 				002884A70EFAB5DE0083E387 /* SkTime_Unix.cpp in Sources */,
 				002884E10EFABFFC0083E387 /* SkGlobals_global.cpp in Sources */,
 				007A7BEF0F01427100A2D6EE /* SkFontHost_mac.cpp in Sources */,
+				27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */,
+				27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */,
+				27739F2F0F11409100F233EA /* SkImageDecoder_CG.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -172,7 +192,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/utils/mac ../../include/ports ../../include/core";
+				USER_HEADER_SEARCH_PATHS = "../../include/images ../../include/utils/mac ../../include/ports ../../include/core";
 			};
 			name = Debug;
 		};
@@ -194,7 +214,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/utils/mac ../../include/ports ../../include/core";
+				USER_HEADER_SEARCH_PATHS = "../../include/images ../../include/utils/mac ../../include/ports ../../include/core";
 			};
 			name = Release;
 		};
