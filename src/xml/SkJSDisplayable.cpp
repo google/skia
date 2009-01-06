@@ -179,9 +179,7 @@ JS_INIT(Sk, Set)
 JS_INIT(Sk, Skew)
 // JS_INIT(Sk, 3D_Camera)
 // JS_INIT(Sk, 3D_Patch)
-#ifdef SK_SUPPORT_IMAGE_ENCODE
 JS_INIT(Sk, Snapshot)
-#endif
 // JS_INIT(SkDraw, Stroke)
 JS_INIT(Sk, Text)
 JS_INIT(Sk, TextOnPath)
@@ -451,9 +449,7 @@ void SkJS::InitializeDisplayables(const SkBitmap& bitmap, JSContext *cx, JSObjec
     SkewInit(cx, obj, proto);
     // 3D_CameraInit(cx, obj, proto);
     // 3D_PatchInit(cx, obj, proto);
-    #ifdef SK_SUPPORT_IMAGE_ENCODE
     SnapshotInit(cx, obj, proto);
-    #endif
 //  StrokeInit(cx, obj, proto);
     TextInit(cx, obj, proto);
     TextOnPathInit(cx, obj, proto);

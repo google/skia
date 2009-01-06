@@ -16,6 +16,7 @@
 */
 
 #include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
@@ -443,8 +444,6 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
 #include "SkColorPriv.h"
 #include "SkUnPreMultiply.h"
 
@@ -792,4 +791,3 @@ SkImageEncoder* SkImageEncoder_PNG_Factory() {
     return SkNEW(SkPNGImageEncoder);
 }
 
-#endif /* SK_SUPPORT_IMAGE_ENCODE */

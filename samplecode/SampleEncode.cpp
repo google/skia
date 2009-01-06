@@ -3,7 +3,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 #include "SkPath.h"
 #include "SkPorterDuff.h"
 #include "SkRegion.h"
@@ -129,7 +129,7 @@ public:
                 remove(path.c_str());
                 
                 SkImageEncoder* codec = SkImageEncoder::Create(gTypes[j]);
-                if (!codec->encodeFile(path.c_str(), fBitmaps[i])) {
+                if (!codec->encodeFile(path.c_str(), fBitmaps[i], 100)) {
                     SkDebugf("------ failed to encode %s\n", path.c_str());
                     remove(path.c_str());   // remove any partial file
                 }

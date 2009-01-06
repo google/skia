@@ -279,28 +279,6 @@ protected:
             
             canvas->translate(SkIntToScalar(200), 0);
         }
-
-        if (false)
-        {
-            SkBitmap    bitmap;
-            
-            bitmap.setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
-            bitmap.allocPixels();
-            bitmap.eraseColor(0);
-
-            SkCanvas    canvas(bitmap);
-            SkPaint     paint;
-            SkRect      r;
-            
-            paint.setAntiAlias(true);
-            paint.setARGB(0xFF, 0xFF, 0, 0xFF);
-            r.set(0, 0, SkIntToScalar(100), SkIntToScalar(100));
-            canvas.drawOval(r, paint);
-
-            SkImageEncoder* en = SkImageEncoder::Create(SkImageEncoder::kPNG_Type);
-            en->encodeFile("testfile.png", bitmap);
-            delete en;
-        }
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 

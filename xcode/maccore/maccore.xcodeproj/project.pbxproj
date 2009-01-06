@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		001EA8910F13F2CE00900BA9 /* SkImageEncoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001EA8900F13F2CE00900BA9 /* SkImageEncoder.cpp */; };
 		002884A50EFAB5DE0083E387 /* SkOSFile_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884A20EFAB5DE0083E387 /* SkOSFile_stdio.cpp */; };
 		002884A60EFAB5DE0083E387 /* SkThread_pthread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884A30EFAB5DE0083E387 /* SkThread_pthread.cpp */; };
 		002884A70EFAB5DE0083E387 /* SkTime_Unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884A40EFAB5DE0083E387 /* SkTime_Unix.cpp */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		001EA8900F13F2CE00900BA9 /* SkImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageEncoder.cpp; path = ../../src/images/SkImageEncoder.cpp; sourceTree = SOURCE_ROOT; };
 		002884A20EFAB5DE0083E387 /* SkOSFile_stdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOSFile_stdio.cpp; path = ../../src/ports/SkOSFile_stdio.cpp; sourceTree = SOURCE_ROOT; };
 		002884A30EFAB5DE0083E387 /* SkThread_pthread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkThread_pthread.cpp; path = ../../src/ports/SkThread_pthread.cpp; sourceTree = SOURCE_ROOT; };
 		002884A40EFAB5DE0083E387 /* SkTime_Unix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTime_Unix.cpp; path = ../../src/ports/SkTime_Unix.cpp; sourceTree = SOURCE_ROOT; };
@@ -74,6 +76,7 @@
 		27739F280F11405800F233EA /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				001EA8900F13F2CE00900BA9 /* SkImageEncoder.cpp */,
 				27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */,
 				27739F2C0F11408100F233EA /* SkImageDecoder.cpp */,
 				27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */,
@@ -148,6 +151,7 @@
 				27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */,
 				27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */,
 				27739F2F0F11409100F233EA /* SkImageDecoder_CG.cpp in Sources */,
+				001EA8910F13F2CE00900BA9 /* SkImageEncoder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

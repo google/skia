@@ -96,12 +96,6 @@
 //////////////////////////////////////////////////////////////////////
 // Conditional features based on build target
 
-#if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_UNIX)
-    #ifndef SK_BUILD_NO_IMAGE_ENCODE
-        #define SK_SUPPORT_IMAGE_ENCODE
-    #endif
-#endif
-
 #ifdef SK_BUILD_FOR_SYMBIAN
     #define SK_USE_RUNTIME_GLOBALS
 #endif

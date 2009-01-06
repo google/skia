@@ -15,6 +15,7 @@
  */
 
 #include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkScaledBitmapSampler.h"
@@ -501,8 +502,6 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
 #include "SkColorPriv.h"
 
 // taken from jcolor.c in libjpeg
@@ -794,8 +793,6 @@ SkImageEncoder* SkImageEncoder_JPEG_Factory();
 SkImageEncoder* SkImageEncoder_JPEG_Factory() {
     return SkNEW(SkJPEGImageEncoder);
 }
-
-#endif /* SK_SUPPORT_IMAGE_ENCODE */
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

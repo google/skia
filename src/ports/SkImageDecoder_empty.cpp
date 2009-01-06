@@ -89,8 +89,6 @@ SkMovie* SkMovie::DecodeStream(SkStream* stream) {
 
 /////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
 extern SkImageEncoder* SkImageEncoder_JPEG_Factory();
 extern SkImageEncoder* SkImageEncoder_PNG_Factory();
 
@@ -107,4 +105,3 @@ SkImageEncoder* SkImageEncoder::Create(Type t) {
     }
 }
 
-#endif

@@ -155,36 +155,3 @@ bool SkImageDecoder::DecodeStream(SkStream* stream, SkBitmap* bm,
     return success;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
-SkImageEncoder::~SkImageEncoder() {}
-
-bool SkImageEncoder::encodeStream(SkWStream* stream, const SkBitmap& bm,
-                                  int quality) {
-    quality = SkMin32(100, SkMax32(0, quality));
-    return this->onEncode(stream, bm, quality);
-}
-
-bool SkImageEncoder::encodeFile(const char file[], const SkBitmap& bm,
-                                int quality) {
-    quality = SkMin32(100, SkMax32(0, quality));
-    SkFILEWStream   stream(file);
-    return this->onEncode(&stream, bm, quality);
-}
-
-bool SkImageEncoder::EncodeFile(const char file[], const SkBitmap& bm, Type t,
-                                int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() && enc.get()->encodeFile(file, bm, quality);
-}
-
-bool SkImageEncoder::EncodeStream(SkWStream* stream, const SkBitmap& bm, Type t,
-                                int quality) {
-    SkAutoTDelete<SkImageEncoder> enc(SkImageEncoder::Create(t));
-    return enc.get() && enc.get()->encodeStream(stream, bm, quality);
-}
-
-#endif
-

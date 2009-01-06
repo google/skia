@@ -18,8 +18,6 @@
 #ifndef SkSnapShot_DEFINED
 #define SkSnapShot_DEFINED
 
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
 #include "SkDrawable.h"
 #include "SkImageDecoder.h"
 #include "SkMemberInfo.h"
@@ -37,6 +35,5 @@ class SkSnapshot: public SkDrawable {
     int fSeqVal;
 };
 
-#endif // SK_SUPPORT_IMAGE_ENCODE
 #endif // SkSnapShot_DEFINED
 

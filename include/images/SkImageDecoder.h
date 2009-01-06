@@ -266,36 +266,4 @@ private:
     SkImageDecoder& operator=(const SkImageDecoder&);
 };
 
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
-class SkWStream;
-
-class SkImageEncoder {
-public:
-    enum Type {
-        kJPEG_Type,
-        kPNG_Type
-    };
-    static SkImageEncoder* Create(Type);
-
-    virtual ~SkImageEncoder();
-    
-    /*  Quality ranges from 0..100 */
-
-    bool encodeFile(const char file[], const SkBitmap&, int quality = 80);
-    bool encodeStream(SkWStream*, const SkBitmap&, int quality = 80);
-
-    static bool EncodeFile(const char file[], const SkBitmap&, Type,
-                           int quality = 80);
-    static bool EncodeStream(SkWStream*, const SkBitmap&, Type,
-                           int quality = 80);
-
-protected:
-    virtual bool onEncode(SkWStream*, const SkBitmap&, int quality) = 0;
-};
-
-#endif /* SK_SUPPORT_IMAGE_ENCODE */
-
-///////////////////////////////////////////////////////////////////////
-
 #endif

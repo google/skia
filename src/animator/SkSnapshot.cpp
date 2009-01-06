@@ -17,8 +17,6 @@
 
 #include "SkTypes.h"
 
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
 #include "SkSnapshot.h"
 #include "SkAnimateMaker.h"
 #include "SkCanvas.h"
@@ -71,4 +69,3 @@ bool SkSnapshot::draw(SkAnimateMaker& maker) {
     return false;
 }
 
-#endif

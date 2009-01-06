@@ -15,6 +15,7 @@
 
 #include <Carbon/Carbon.h>
 #include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 #include "SkMovie.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
@@ -105,8 +106,6 @@ SkMovie* SkMovie::DecodeStream(SkStream* stream) {
 
 /////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_IMAGE_ENCODE
-
 static size_t consumer_put(void* info, const void* buffer, size_t count) {
     SkWStream* stream = reinterpret_cast<SkWStream*>(info);
     return stream->write(buffer, count) ? count : 0;
@@ -195,4 +194,3 @@ SkImageEncoder* SkImageEncoder::Create(Type t) {
     return SkNEW_ARGS(SkImageEncoder_CG, (t));
 }
 
-#endif

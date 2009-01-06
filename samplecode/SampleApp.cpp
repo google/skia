@@ -2,7 +2,7 @@
 #include "SkDevice.h"
 #include "SkGLCanvas.h"
 #include "SkGraphics.h"
-#include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkStream.h"
@@ -438,7 +438,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             cleanup_for_filename(&name);
             name.append(".png");
             if (SkImageEncoder::EncodeFile(name.c_str(), this->getBitmap(),
-                                           SkImageEncoder::kPNG_Type)) {
+                                           SkImageEncoder::kPNG_Type, 100)) {
                 SkDebugf("Created %s\n", name.c_str());
             }
             return true;
