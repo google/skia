@@ -653,6 +653,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkScalar sy = getScalar();
                 canvas.scale(sx, sy);
             } break;
+            case SET_MATRIX:
+                canvas.setMatrix(*getMatrix());
+                break;
             case SKEW: {
                 SkScalar sx = getScalar();
                 SkScalar sy = getScalar();

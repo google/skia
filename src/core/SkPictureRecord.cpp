@@ -105,6 +105,14 @@ bool SkPictureRecord::concat(const SkMatrix& matrix) {
     return this->INHERITED::concat(matrix);
 }
 
+void SkPictureRecord::setMatrix(const SkMatrix& matrix) {
+    validate();
+    addDraw(SET_MATRIX);
+    addMatrix(matrix);
+    validate();
+    this->INHERITED::setMatrix(matrix);
+}
+
 bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op) {
     addDraw(CLIP_RECT);
     addRect(rect);

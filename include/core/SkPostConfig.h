@@ -98,14 +98,6 @@
     #ifndef SK_DEBUGBREAK
         #define SK_DEBUGBREAK(cond)     do { if (!(cond)) DebugBreak(); } while (false)
     #endif
-
-    #ifdef SK_BUILD_FOR_WIN32
-        #define strcasecmp(a, b)        stricmp(a, b)
-        #define strncasecmp(a, b, c)    strnicmp(a, b, c)
-    #elif defined(SK_BUILD_FOR_WINCE)
-        #define strcasecmp(a, b)        _stricmp(a, b)
-        #define strncasecmp(a, b, c)    _strnicmp(a, b, c)
-    #endif
 #elif defined(SK_BUILD_FOR_MAC)
     #ifndef SK_DEBUGBREAK
         #define SK_DEBUGBREAK(cond)     do { if (!(cond)) SK_CRASH(); } while (false)

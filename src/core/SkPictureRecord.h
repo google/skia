@@ -23,6 +23,7 @@ public:
     virtual bool rotate(SkScalar degrees);
     virtual bool skew(SkScalar sx, SkScalar sy);
     virtual bool concat(const SkMatrix& matrix);
+    virtual void setMatrix(const SkMatrix& matrix);
     virtual bool clipRect(const SkRect& rect, SkRegion::Op op);
     virtual bool clipPath(const SkPath& path, SkRegion::Op op);
     virtual bool clipRegion(const SkRegion& region, SkRegion::Op op);

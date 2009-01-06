@@ -36,6 +36,7 @@ enum DrawType {
     SAVE,
     SAVE_LAYER,
     SCALE,
+    SET_MATRIX,
     SKEW,
     TRANSLATE
 };
