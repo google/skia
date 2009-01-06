@@ -41,6 +41,11 @@ SkTypeface* SkFontHost::CreateTypeface(SkStream*) {
     return NULL;
 }
 
+SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
+    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
+    return NULL;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
@@ -64,6 +69,7 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(
     SkASSERT(!"SkFontHost::CreateFallbackScalerContext unimplemented");
     return NULL;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
