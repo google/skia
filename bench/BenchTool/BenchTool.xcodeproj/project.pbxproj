@@ -9,10 +9,10 @@
 /* Begin PBXBuildFile section */
 		272FB43A0F11A19C00CA935D /* RectBench.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 272FB4390F11A19C00CA935D /* RectBench.cpp */; };
 		272FB4F30F11B40300CA935D /* SkBenchmark.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 272FB4F20F11B40300CA935D /* SkBenchmark.cpp */; };
+		2752A08A0F14CE1300BBDC03 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2752A0890F14CE1300BBDC03 /* main.cpp */; };
 		27739F4D0F11439200F233EA /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27739F240F11404A00F233EA /* libmaccore.a */; };
 		27739F4E0F11439300F233EA /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27739F1A0F11403B00F233EA /* libcore.a */; };
 		27739F520F1143C000F233EA /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27739F510F1143C000F233EA /* Carbon.framework */; };
-		8DD76F650486A84900D96B5E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* main.cpp */; settings = {ATTRIBUTES = (); }; };
 		8DD76F6A0486A84900D96B5E /* BenchTool.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* BenchTool.1 */; };
 /* End PBXBuildFile section */
 
@@ -61,9 +61,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		08FB7796FE84155DC02AAC07 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		272FB4390F11A19C00CA935D /* RectBench.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RectBench.cpp; path = ../RectBench.cpp; sourceTree = SOURCE_ROOT; };
 		272FB4F20F11B40300CA935D /* SkBenchmark.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBenchmark.cpp; path = ../SkBenchmark.cpp; sourceTree = SOURCE_ROOT; };
+		2752A0890F14CE1300BBDC03 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../main.cpp; sourceTree = SOURCE_ROOT; };
 		27739F120F11403B00F233EA /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../../xcode/core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		27739F1C0F11404A00F233EA /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../../xcode/maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		27739F510F1143C000F233EA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -101,7 +101,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				08FB7796FE84155DC02AAC07 /* main.cpp */,
+				2752A0890F14CE1300BBDC03 /* main.cpp */,
 				272FB4F20F11B40300CA935D /* SkBenchmark.cpp */,
 				272FB4390F11A19C00CA935D /* RectBench.cpp */,
 			);
@@ -212,9 +212,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DD76F650486A84900D96B5E /* main.cpp in Sources */,
 				272FB43A0F11A19C00CA935D /* RectBench.cpp in Sources */,
 				272FB4F30F11B40300CA935D /* SkBenchmark.cpp in Sources */,
+				2752A08A0F14CE1300BBDC03 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
