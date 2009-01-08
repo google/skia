@@ -500,7 +500,7 @@ const char* SkParse::FindColor(const char* value, SkColor* colorPtr) {
         return FindNamedColor(value, strlen(value), colorPtr);
 }
 
-#ifdef SK_DEBUG
+#ifdef SK_SUPPORT_UNITTEST
 void SkParse::TestColor() {
     if (false)
         CreateTable();  // regenerates data table in the output window

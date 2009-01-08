@@ -88,6 +88,9 @@
     #ifndef SK_SCALAR_SLOW_COMPARES
         #define SK_SCALAR_SLOW_COMPARES
     #endif
+    #ifndef SK_USE_FLOATBITS
+        #define SK_USE_FLOATBITS
+    #endif
 #endif
 
 #ifdef SK_BUILD_FOR_WIN
@@ -151,6 +154,21 @@
 #define sk_strequal(s, t)           (!sk_strcmp(s, t))
 #define sk_strnequal(s, t, n)       (!sk_strncmp(s, t, n))
 #endif
+
+//////////////////////////////////////////////////////////////////////
+
+#if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC)
+    #ifndef SkLONGLONG
+        #ifdef SK_BUILD_FOR_WIN32
+            #define SkLONGLONG  __int64
+        #else
+            #define SkLONGLONG  long long
+        #endif
+    #endif
+#endif
+
+// experimental for now
+#define SK_SUPPORT_MIPMAP
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef SK_BUILD_FOR_WINCE

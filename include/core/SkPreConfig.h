@@ -17,11 +17,6 @@
 #ifndef SkPreConfig_DEFINED
 #define SkPreConfig_DEFINED
 
-#ifdef ANDROID
-    #define SK_BUILD_FOR_UNIX
-    #define SkLONGLONG  int64_t
-#endif
-
 //////////////////////////////////////////////////////////////////////
 
 #if !defined(SK_BUILD_FOR_PALM) && !defined(SK_BUILD_FOR_WINCE) && !defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_SYMBIAN) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC)
@@ -54,26 +49,15 @@
 
 //////////////////////////////////////////////////////////////////////
 
-// define to blank or change this in SkUserConfig.h as needed
-#define SK_RESTRICT __restrict__
+#if !defined(SK_RESTRICT)
+    #define SK_RESTRICT __restrict__
+#endif
 
 //////////////////////////////////////////////////////////////////////
 
-#if defined(SK_BUILD_FOR_WIN32) || defined(SK_BUILD_FOR_MAC)
-    #ifndef SK_CAN_USE_FLOAT
-        #define SK_CAN_USE_FLOAT
-    #endif
-    #if !defined(SK_SCALAR_IS_FIXED) && !defined(SK_SCALAR_IS_FLOAT)
-        #define SK_SCALAR_IS_FIXED
-    #endif
-
-    #ifndef SkLONGLONG
-        #ifdef SK_BUILD_FOR_WIN32
-            #define SkLONGLONG  __int64
-        #else
-            #define SkLONGLONG  long long
-        #endif
-    #endif
+#if !defined(SK_SCALAR_IS_FLOAT) && !defined(SK_SCALAR_IS_FIXED)
+    #define SK_SCALAR_IS_FLOAT
+    #define SK_CAN_USE_FLOAT
 #endif
 
 //////////////////////////////////////////////////////////////////////
@@ -91,13 +75,6 @@
 #if (defined(__arm__) && !defined(__thumb__)) || defined(SK_BUILD_FOR_BREW) || defined(SK_BUILD_FOR_WINCE) || (defined(SK_BUILD_FOR_SYMBIAN) && !defined(__MARM_THUMB__))
     /* e.g. the ARM instructions have conditional execution, making tiny branches cheap */
     #define SK_CPU_HAS_CONDITIONAL_INSTR
-#endif
-
-//////////////////////////////////////////////////////////////////////
-// Conditional features based on build target
-
-#ifdef SK_BUILD_FOR_SYMBIAN
-    #define SK_USE_RUNTIME_GLOBALS
 #endif
 
 #endif
