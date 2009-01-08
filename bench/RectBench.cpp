@@ -2,26 +2,28 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
+#include "SkString.h"
 
 class RectBench : public SkBenchmark {
 public:
+    int fShift;
     enum {
         W = 640,
         H = 480,
-        N = 100
+        N = 300
     };
     SkRect  fRects[N];
     SkColor fColors[N];
 
-    RectBench() {
+    RectBench(int shift) : fShift(shift) {
         SkRandom rand;
         for (int i = 0; i < N; i++) {
             int x = rand.nextU() % W;
             int y = rand.nextU() % H;
             int w = rand.nextU() % W;
             int h = rand.nextU() % H;
-            w >>= 1;
-            h >>= 1;
+            w >>= shift;
+            h >>= shift;
             x -= w/2;
             y -= h/2;
             fRects[i].set(SkIntToScalar(x), SkIntToScalar(y),
@@ -29,16 +31,24 @@ public:
             fColors[i] = rand.nextU() | 0xFF808080;
         }
     }
+    
+    SkString fName;
+    const char* computeName(const char root[]) {
+        fName.set(root);
+        fName.appendS32(fShift);
+        return fName.c_str();
+    }
         
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRect(r, p);
     }
 
-    virtual const char* onGetName() { return "rectangles"; }
+    virtual const char* onGetName() { return computeName("rectangles"); }
     virtual SkIPoint onGetSize() { return SkMakeIPoint(640, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
+        paint.setAntiAlias(true);
         for (int i = 0; i < N; i++) {
             paint.setColor(fColors[i]);
             this->drawThisRect(canvas, fRects[i], paint);
@@ -47,19 +57,23 @@ protected:
 };
 
 class OvalBench : public RectBench {
+public:
+    OvalBench(int shift) : RectBench(shift) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawOval(r, p);
     }
-    virtual const char* onGetName() { return "ovals"; }
+    virtual const char* onGetName() { return computeName("ovals"); }
 };
 
 class RRectBench : public RectBench {
+public:
+    RRectBench(int shift) : RectBench(shift) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRoundRect(r, r.width() / 4, r.height() / 4, p);
     }
-    virtual const char* onGetName() { return "roundrects"; }
+    virtual const char* onGetName() { return computeName("roundrects"); }
 };
 
 class PointsBench : public RectBench {
@@ -67,7 +81,8 @@ public:
     SkCanvas::PointMode fMode;
     const char* fName;
 
-    PointsBench(SkCanvas::PointMode mode, const char* name) : fMode(mode) {
+    PointsBench(SkCanvas::PointMode mode, const char* name) : 
+        RectBench(2), fMode(mode) {
         fName = name;
     }
 
@@ -91,9 +106,12 @@ protected:
     virtual const char* onGetName() { return fName; }
 };
 
-static SkBenchmark* RectFactory() { return SkNEW(RectBench); }
-static SkBenchmark* OvalFactory() { return SkNEW(OvalBench); }
-static SkBenchmark* RRectFactory() { return SkNEW(RRectBench); }
+static SkBenchmark* RectFactory1() { return SkNEW_ARGS(RectBench, (1)); }
+static SkBenchmark* RectFactory2() { return SkNEW_ARGS(RectBench, (3)); }
+static SkBenchmark* OvalFactory1() { return SkNEW_ARGS(OvalBench, (1)); }
+static SkBenchmark* OvalFactory2() { return SkNEW_ARGS(OvalBench, (3)); }
+static SkBenchmark* RRectFactory1() { return SkNEW_ARGS(RRectBench, (1)); }
+static SkBenchmark* RRectFactory2() { return SkNEW_ARGS(RRectBench, (3)); }
 static SkBenchmark* PointsFactory() {
     return SkNEW_ARGS(PointsBench, (SkCanvas::kPoints_PointMode, "points"));
 }
@@ -104,9 +122,12 @@ static SkBenchmark* PolygonFactory() {
     return SkNEW_ARGS(PointsBench, (SkCanvas::kPolygon_PointMode, "polygon"));
 }
 
-static SkTRegistry<SkBenchmark> gRectReg(RectFactory);
-static SkTRegistry<SkBenchmark> gOvalReg(OvalFactory);
-static SkTRegistry<SkBenchmark> gRRectReg(RRectFactory);
+static SkTRegistry<SkBenchmark> gRectReg1(RectFactory1);
+static SkTRegistry<SkBenchmark> gRectReg2(RectFactory2);
+static SkTRegistry<SkBenchmark> gOvalReg1(OvalFactory1);
+static SkTRegistry<SkBenchmark> gOvalReg2(OvalFactory2);
+static SkTRegistry<SkBenchmark> gRRectReg1(RRectFactory1);
+static SkTRegistry<SkBenchmark> gRRectReg2(RRectFactory2);
 static SkTRegistry<SkBenchmark> gPointsReg(PointsFactory);
 static SkTRegistry<SkBenchmark> gLinesReg(LinesFactory);
 static SkTRegistry<SkBenchmark> gPolygonReg(PolygonFactory);
