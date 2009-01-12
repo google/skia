@@ -333,20 +333,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fInvSx          = SkScalarToFixed(m->getScaleX());
     fInvSy          = SkScalarToFixed(m->getScaleY());
     fInvKy          = SkScalarToFixed(m->getSkewY());
-    fInvTxPlusHalf  = SkScalarToFixed(m->getTranslateX()) + (fInvSx >> 1);
-    fInvTyPlusHalf  = SkScalarToFixed(m->getTranslateY()) + (fInvSy >> 1);
-
-    /*  the -1 keeps us symetric with general policy for rounding, which is
-        (x + 1/2) >> 16. This sends exact halves to the next large pixel
-        e.g. x==3.5, round(x) == 4. However, our state is working with the
-        inverse matrix, and so to match the result of "normal" rounding, we
-        subtract 1 so that we in effect behave the same at the half-way point.
-        To compare, try drawing a bitmap with y == exact-half using the sprite
-        blitters and with us. Without the -1, we will draw the colors a whole
-        pixel shifted up (yikes).
-    */
-    fInvTxPlusHalf -= 1;
-    fInvTyPlusHalf -= 1;
 
     fAlphaScale = SkAlpha255To256(paint.getAlpha());
 

@@ -61,8 +61,6 @@ struct SkBitmapProcState {
     SkMatrix::MapXYProc fInvProc;           // chooseProcs
     SkFixed             fInvSx, fInvSy;     // chooseProcs
     SkFixed             fInvKy;             // chooseProcs
-    SkFixed             fInvTxPlusHalf;     // chooseProcs
-    SkFixed             fInvTyPlusHalf;     // chooseProcs
     uint16_t            fAlphaScale;        // chooseProcs
     uint8_t             fInvType;           // chooseProcs
     uint8_t             fTileModeX;         // CONSTRUCTOR
