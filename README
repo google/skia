@@ -1,0 +1,5 @@
+Skia is a complete 2D graphic library for drawing Text, Geometries, and Images.
+
+- 3x3 matrices w/ perspective
+- antialiasing, transparency, filters
+- shaders, xfermodes, maskfilters, patheffects
