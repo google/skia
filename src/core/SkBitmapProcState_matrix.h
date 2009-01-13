@@ -26,7 +26,6 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
     // we store y, x, x, x, x, x
 
     const unsigned maxX = s.fBitmap->width() - 1;
-    const SkFixed dx = s.fInvSx;
     SkFixed fx;
     {
         SkPoint pt;
@@ -37,6 +36,14 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
         *xy++ = TILEY_PROCF(fx, maxY);
         fx = SkScalarToFixed(pt.fX);
     }
+    
+    if (0 == maxX) {
+        // all of the following X values must be 0
+        memset(xy, 0, count * sizeof(uint16_t));
+        return;
+    }
+
+    const SkFixed dx = s.fInvSx;
 
 #ifdef CHECK_FOR_DECAL
     // test if we don't need to apply the tile proc

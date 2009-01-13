@@ -12,13 +12,41 @@
 #include "SkMaskFilter.h"
 
 static void toString(const SkRect& r, SkString* str) {
-    str->printf("[(%g %g) %g %g]",
+    str->printf("[%g,%g %g:%g]",
                 SkScalarToFloat(r.fLeft), SkScalarToFloat(r.fTop),
                 SkScalarToFloat(r.width()), SkScalarToFloat(r.height()));
 }
 
 static void toString(const SkIRect& r, SkString* str) {
-    str->printf("[(%d %d) %d %d]", r.fLeft, r.fTop, r.width(), r.height());
+    str->printf("[%d,%d %d:%d]", r.fLeft, r.fTop, r.width(), r.height());
+}
+
+static void dumpVerbs(const SkPath& path, SkString* str) {
+    SkPath::Iter iter(path, false);
+    SkPoint pts[4];
+    for (;;) {
+        switch (iter.next(pts)) {
+            case SkPath::kMove_Verb:
+                str->appendf(" M%g,%g", pts[0].fX, pts[0].fY);
+                break;
+            case SkPath::kLine_Verb:
+                str->appendf(" L%g,%g", pts[0].fX, pts[0].fY);
+                break;
+            case SkPath::kQuad_Verb:
+                str->appendf(" Q%g,%g,%g,%g", pts[1].fX, pts[1].fY,
+                             pts[2].fX, pts[2].fY);
+                break;
+            case SkPath::kCubic_Verb:
+                str->appendf(" C%g,%g,%g,%g,%g,%g", pts[1].fX, pts[1].fY,
+                             pts[2].fX, pts[2].fY, pts[3].fX, pts[3].fY);
+                break;
+            case SkPath::kClose_Verb:
+                str->appendf("X");
+                break;
+            case SkPath::kDone_Verb:
+                return;
+        }
+    }
 }
 
 static void toString(const SkPath& path, SkString* str) {
@@ -28,6 +56,11 @@ static void toString(const SkPath& path, SkString* str) {
         SkRect bounds;
         path.computeBounds(&bounds, SkPath::kFast_BoundsType);
         toString(bounds, str);
+#if 1
+        SkString s;
+        dumpVerbs(path, &s);
+        str->append(s.c_str());
+#endif
         str->append("]");
         str->prepend("path:[");
     }
@@ -244,7 +277,7 @@ void SkDumpCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                                const SkPaint* paint) {
     SkString str;
     toString(bitmap, &str);
-    this->dump(kDrawBitmap_Verb, paint, "drawBitmap(%s (%g %g))", str.c_str(),
+    this->dump(kDrawBitmap_Verb, paint, "drawBitmap(%s %g %g)", str.c_str(),
                SkScalarToFloat(x), SkScalarToFloat(y));
 }
 
@@ -279,7 +312,7 @@ void SkDumpCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                                const SkPaint* paint) {
     SkString str;
     toString(bitmap, &str);
-    this->dump(kDrawBitmap_Verb, paint, "drawSprite(%s (%d %d))", str.c_str(),
+    this->dump(kDrawBitmap_Verb, paint, "drawSprite(%s %d %d)", str.c_str(),
                x, y);
 }
 
@@ -287,7 +320,7 @@ void SkDumpCanvas::drawText(const void* text, size_t byteLength, SkScalar x,
                              SkScalar y, const SkPaint& paint) {
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
-    this->dump(kDrawText_Verb, &paint, "drawText(%s [%d] (%g %g))", str.c_str(),
+    this->dump(kDrawText_Verb, &paint, "drawText(%s [%d] %g %g)", str.c_str(),
                byteLength, SkScalarToFloat(x), SkScalarToFloat(y));
 }
 
@@ -295,7 +328,7 @@ void SkDumpCanvas::drawPosText(const void* text, size_t byteLength,
                                 const SkPoint pos[], const SkPaint& paint) {
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
-    this->dump(kDrawText_Verb, &paint, "drawPosText(%s [%d] (%g %g ...))",
+    this->dump(kDrawText_Verb, &paint, "drawPosText(%s [%d] %g %g ...)",
                str.c_str(), byteLength, SkScalarToFloat(pos[0].fX),
                SkScalarToFloat(pos[0].fY));
 }
@@ -305,7 +338,7 @@ void SkDumpCanvas::drawPosTextH(const void* text, size_t byteLength,
                                  const SkPaint& paint) {
     SkString str;
     toString(text, byteLength, paint.getTextEncoding(), &str);
-    this->dump(kDrawText_Verb, &paint, "drawPosTextH(%s [%d] (%g %g ...))",
+    this->dump(kDrawText_Verb, &paint, "drawPosTextH(%s [%d] %g %g ...)",
                str.c_str(), byteLength, SkScalarToFloat(xpos[0]),
                SkScalarToFloat(constY));
 }
@@ -328,7 +361,7 @@ void SkDumpCanvas::drawVertices(VertexMode vmode, int vertexCount,
                                  const SkColor colors[], SkXfermode* xmode,
                                  const uint16_t indices[], int indexCount,
                                  const SkPaint& paint) {
-    this->dump(kDrawVertices_Verb, &paint, "drawVertices(%s [%d] [%g %g ...]",
+    this->dump(kDrawVertices_Verb, &paint, "drawVertices(%s [%d] %g %g ...)",
                toString(vmode), vertexCount, SkScalarToFloat(vertices[0].fX),
                SkScalarToFloat(vertices[0].fY));
 }

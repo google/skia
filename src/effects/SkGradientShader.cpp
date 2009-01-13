@@ -733,7 +733,7 @@ bool Linear_Gradient::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
 #ifdef TEST_GRADIENT_DITHER
 static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other, int count)
 {
-    if ((unsigned)dst & 2)
+    if (reinterpret_cast<uintptr_t>(dst) & 2)
     {
         *dst++ = value;
         count -= 1;

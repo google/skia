@@ -1,3 +1,4 @@
+#include "SkUtils.h"
 
 #if DSTSIZE==32
     #define DSTTYPE SkPMColor
@@ -5,6 +6,14 @@
     #define DSTTYPE uint16_t
 #else
     #error "need DSTSIZE to be 32 or 16"
+#endif
+
+#if (DSTSIZE == 32)
+    #define BITMAPPROC_MEMSET(ptr, value, n) sk_memset32(ptr, value, n)
+#elif (DSTSIZE == 16)
+    #define BITMAPPROC_MEMSET(ptr, value, n) sk_memset16(ptr, value, n)
+#else
+    #error "unsupported DSTSIZE
 #endif
 
 static void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
@@ -61,33 +70,39 @@ static void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
     PREAMBLE(s);
 #endif
     const SRCTYPE* SK_RESTRICT srcAddr = (const SRCTYPE*)s.fBitmap->getPixels();
-    int i;
 
+    // buffer is y32, x16, x16, x16, x16, x16
     // bump srcAddr to the proper row, since we're told Y never changes
     SkASSERT((unsigned)xy[0] < (unsigned)s.fBitmap->height());
     srcAddr = (const SRCTYPE*)((const char*)srcAddr +
                                                 xy[0] * s.fBitmap->rowBytes());
-    // buffer is y32, x16, x16, x16, x16, x16
-    const uint16_t* SK_RESTRICT xx = (const uint16_t*)(xy + 1);
     
     SRCTYPE src;
     
-    for (i = (count >> 2); i > 0; --i) {
-        SkASSERT(*xx < (unsigned)s.fBitmap->width());
-        src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
-        
-        SkASSERT(*xx < (unsigned)s.fBitmap->width());
-        src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
-        
-        SkASSERT(*xx < (unsigned)s.fBitmap->width());
-        src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
-        
-        SkASSERT(*xx < (unsigned)s.fBitmap->width());
-        src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
-    }
-    for (i = (count & 3); i > 0; --i) {
-        SkASSERT(*xx < (unsigned)s.fBitmap->width());
-        src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+    if (1 == s.fBitmap->width()) {
+        src = srcAddr[0];
+        DSTTYPE dstValue = RETURNDST(src);
+        BITMAPPROC_MEMSET(colors, dstValue, count);
+    } else {
+        int i;
+        const uint16_t* SK_RESTRICT xx = (const uint16_t*)(xy + 1);
+        for (i = (count >> 2); i > 0; --i) {
+            SkASSERT(*xx < (unsigned)s.fBitmap->width());
+            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+            
+            SkASSERT(*xx < (unsigned)s.fBitmap->width());
+            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+            
+            SkASSERT(*xx < (unsigned)s.fBitmap->width());
+            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+            
+            SkASSERT(*xx < (unsigned)s.fBitmap->width());
+            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+        }
+        for (i = (count & 3); i > 0; --i) {
+            SkASSERT(*xx < (unsigned)s.fBitmap->width());
+            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+        }
     }
     
 #ifdef POSTAMBLE
@@ -205,3 +220,4 @@ static void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
 #undef GET_FILTER_ROW
 #undef GET_FILTER_ROW_PROC
 #undef GET_FILTER_PROC
+#undef BITMAPPROC_MEMSET

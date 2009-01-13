@@ -592,6 +592,11 @@ SkTypeface* SkFontHost::CreateTypeface(SkStream* stream)
     return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream));
 }
 
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
+{
+    return SkFontHost::CreateTypeface(SkNEW_ARGS(SkMMAPStream, (path)));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar)
