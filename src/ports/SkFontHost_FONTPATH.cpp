@@ -34,7 +34,8 @@ struct FontFaceRec {
     SkBool8     fBold;
     SkBool8     fItalic;
 
-    static const FontFaceRec& FindFace(const FontFaceRec rec[], int count, int isBold, int isItalic);
+    static const FontFaceRec& FindFace(const FontFaceRec rec[], int count,
+                                       int isBold, int isItalic);
 };
 
 struct FontFamilyRec {
@@ -42,7 +43,8 @@ struct FontFamilyRec {
     int                 fFaceCount;
 };
 
-const FontFaceRec& FontFaceRec::FindFace(const FontFaceRec rec[], int count, int isBold, int isItalic)
+const FontFaceRec& FontFaceRec::FindFace(const FontFaceRec rec[], int count,
+                                         int isBold, int isItalic)
 {
     SkASSERT(count > 0);
     
@@ -85,7 +87,7 @@ static const FontFamilyRec gFamilies[] = {
 #define DEFAULT_FAMILY_INDEX            DEFAULT_FAMILY_INDEX
 #define DEFAULT_FAMILY_FACE_INDEX       0
 
-////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 /* map common "web" font names to our font list */
 
@@ -121,7 +123,7 @@ static const FontFamilyMatchRec gMatches[] = {
 #endif
 };
 
-////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkTSearch.h"
 
@@ -154,7 +156,8 @@ TRACE_FONT_NAME(printf("----------------- font request <%s>", target);)
     if (contains_only_ascii(target))
     {
         // Search for the font by matching the entire name
-        index = SkStrLCSearch(&gMatches[0].fLCName, SK_ARRAY_COUNT(gMatches), target, sizeof(gMatches[0]));
+        index = SkStrLCSearch(&gMatches[0].fLCName, SK_ARRAY_COUNT(gMatches),
+                              target, sizeof(gMatches[0]));
         if (index >= 0)
         {
             TRACE_FONT_NAME(printf(" found %d\n", index);)
@@ -187,7 +190,7 @@ TRACE_FONT_NAME(printf("----------------- font request <%s>", target);)
     return &gFamilies[DEFAULT_FAMILY_INDEX];
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 static const FontFaceRec* get_default_face()
 {
@@ -236,23 +239,28 @@ static uint32_t ptr2uint32(const void* p)
     return (uint32_t)((char*)p - (char*)0);
 }
 
-SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace, const char familyName[], SkTypeface::Style style)
+SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
+                                     const char familyName[],
+                                     SkTypeface::Style style)
 {
     const FontFamilyRec* family;
     
     if (familyFace)
-        family = &gFamilies[((FontFaceRec_Typeface*)familyFace)->fFace.fFamilyIndex];
+        family = &gFamilies[
+                    ((FontFaceRec_Typeface*)familyFace)->fFace.fFamilyIndex];
     else if (familyName)
         family = find_family_rec(familyName);
     else
         family = &gFamilies[DEFAULT_FAMILY_INDEX];
 
-    const FontFaceRec& face = FontFaceRec::FindFace(family->fFaces, family->fFaceCount,
-                                                    (style & SkTypeface::kBold) != 0,
-                                                    (style & SkTypeface::kItalic) != 0);
+    const FontFaceRec& face = FontFaceRec::FindFace(family->fFaces,
+                                            family->fFaceCount,
+                                            (style & SkTypeface::kBold) != 0,
+                                            (style & SkTypeface::kItalic) != 0);
 
     // if we're returning our input parameter, no need to create a new instance
-    if (familyFace != NULL && &((FontFaceRec_Typeface*)familyFace)->fFace == &face)
+    if (familyFace != NULL &&
+            &((FontFaceRec_Typeface*)familyFace)->fFace == &face)
     {
         familyFace->ref();
         return (SkTypeface*)familyFace;
@@ -286,11 +294,7 @@ void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream) {
 }
 
 void SkFontHost::Serialize(const SkTypeface* tface, SkWStream* stream) {
-    const FontFaceRec* face;
-    
-    face = &((const FontFaceRec_Typeface*)tface)->fFace;
-
-    size_t  size = sizeof(face);
+    const FontFaceRec* face = &((const FontFaceRec_Typeface*)tface)->fFace;
     stream->write(face, sizeof(face));
 }
 
@@ -300,11 +304,13 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     return new FontFaceRec_Typeface(*face);
 }
 
-SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::Rec& rec)
+SkScalerContext* SkFontHost::CreateFallbackScalerContext(
+                                                const SkScalerContext::Rec& rec)
 {
     const FontFaceRec* face = get_default_face();
 
-    SkAutoDescriptor    ad(sizeof(rec) + sizeof(face) + SkDescriptor::ComputeOverhead(2));
+    SkAutoDescriptor    ad(sizeof(rec) + sizeof(face) +
+                           SkDescriptor::ComputeOverhead(2));
     SkDescriptor*       desc = ad.getDesc();
     SkScalerContext::Rec* newRec;
 

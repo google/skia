@@ -2,11 +2,11 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-static U16* concat_to_16(const char src[], const char suffix[])
+static uint16_t* concat_to_16(const char src[], const char suffix[])
 {
     size_t  i, len = strlen(src);
     size_t  len2 = 3 + (suffix ? strlen(suffix) : 0);
-    U16*    dst = (U16*)sk_malloc_throw((len + len2) * sizeof(U16));
+    uint16_t* dst = (uint16_t*)sk_malloc_throw((len + len2) * sizeof(uint16_t));
 
     for (i = 0; i < len; i++)
         dst[i] = src[i];
@@ -30,7 +30,7 @@ SkUTF16_Str::SkUTF16_Str(const char src[])
 {
     size_t  len = strlen(src);
 
-    fStr = (U16*)sk_malloc_throw((len + 1) * sizeof(U16));
+    fStr = (uint16_t*)sk_malloc_throw((len + 1) * sizeof(uint16_t));
     for (size_t i = 0; i < len; i++)
         fStr[i] = src[i];
     fStr[i] = 0;
@@ -68,7 +68,7 @@ void SkOSFile::Iter::reset(const char path[], const char suffix[])
     fPath16 = concat_to_16(path, suffix);
 }
 
-static bool is_magic_dir(const U16 dir[])
+static bool is_magic_dir(const uint16_t dir[])
 {
     // return true for "." and ".."
     return dir[0] == '.' && (dir[1] == 0 || dir[1] == '.' && dir[2] == 0);
