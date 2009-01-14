@@ -625,7 +625,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
 #define ft2sk(x)    SkFixedToScalar((x) << 10)
 
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 3
+#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 2
     #define CONST_PARAM const
 #else   // older freetype doesn't use const here
     #define CONST_PARAM

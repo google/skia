@@ -13,7 +13,7 @@
 #elif (DSTSIZE == 16)
     #define BITMAPPROC_MEMSET(ptr, value, n) sk_memset16(ptr, value, n)
 #else
-    #error "unsupported DSTSIZE
+    #error "unsupported DSTSIZE"
 #endif
 
 static void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,

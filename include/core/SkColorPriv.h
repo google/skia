@@ -402,7 +402,7 @@ typedef uint16_t SkPMColor16;
 #define SkG32To4444(g)  ((unsigned)(g) >> 4)
 #define SkB32To4444(b)  ((unsigned)(b) >> 4)
 
-static U8CPU SkReplicateNibble(unsigned nib)
+static inline U8CPU SkReplicateNibble(unsigned nib)
 {
     SkASSERT(nib <= 0xF);
     return (nib << 4) | nib;
@@ -618,7 +618,7 @@ static inline SkPMColor16 SkDitherPixel32To4444(SkPMColor c)
     Transforms a normal ARGB_8888 into the same byte order as
     expanded ARGB_4444, but keeps each component 8bits
 */
-static uint32_t SkExpand_8888(SkPMColor c)
+static inline uint32_t SkExpand_8888(SkPMColor c)
 {
     return  (((c >> SK_R32_SHIFT) & 0xFF) << 24) |
             (((c >> SK_G32_SHIFT) & 0xFF) <<  8) |
@@ -629,7 +629,7 @@ static uint32_t SkExpand_8888(SkPMColor c)
 /*  Undo the operation of SkExpand_8888, turning the argument back into
     a SkPMColor.
 */
-static SkPMColor SkCompact_8888(uint32_t c)
+static inline SkPMColor SkCompact_8888(uint32_t c)
 {
     return  (((c >> 24) & 0xFF) << SK_R32_SHIFT) |
             (((c >>  8) & 0xFF) << SK_G32_SHIFT) |
@@ -641,7 +641,7 @@ static SkPMColor SkCompact_8888(uint32_t c)
     but this routine just keeps the high 4bits of each component in the low
     4bits of the result (just like a newly expanded PMColor16).
 */
-static uint32_t SkExpand32_4444(SkPMColor c)
+static inline uint32_t SkExpand32_4444(SkPMColor c)
 {
     return  (((c >> (SK_R32_SHIFT + 4)) & 0xF) << 24) |
             (((c >> (SK_G32_SHIFT + 4)) & 0xF) <<  8) |

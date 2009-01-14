@@ -24,7 +24,7 @@ public:
     SkMMAPStream(const char filename[]);
     virtual ~SkMMAPStream();
 
-    virtual void setMemory(const void* data, size_t length);
+    virtual void setMemory(const void* data, size_t length, bool);
 private:
     int     fFildes;
     void*   fAddr;

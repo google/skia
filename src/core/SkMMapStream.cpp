@@ -45,10 +45,10 @@ SkMMAPStream::~SkMMAPStream()
     this->closeMMap();
 }
 
-void SkMMAPStream::setMemory(const void* data, size_t length)
+void SkMMAPStream::setMemory(const void* data, size_t length, bool copyData)
 {
     this->closeMMap();
-    this->INHERITED::setMemory(data, length);
+    this->INHERITED::setMemory(data, length, copyData);
 }
 
 void SkMMAPStream::closeMMap()

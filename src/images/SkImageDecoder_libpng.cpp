@@ -599,7 +599,8 @@ static int computeBitDepth(int colorCount) {
     Note: this routine takes care of unpremultiplying the RGB values when we
     have alpha in the colortable, since png doesn't support premul colors
 */
-static int pack_palette(SkColorTable* ctable, png_color* SK_RESTRICT palette,
+static inline int pack_palette(SkColorTable* ctable,
+			png_color* SK_RESTRICT palette,
                         png_byte* SK_RESTRICT trans, bool hasAlpha) {
     SkAutoLockColors alc(ctable);
     const SkPMColor* SK_RESTRICT colors = alc.colors();
