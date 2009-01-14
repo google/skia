@@ -194,16 +194,29 @@ static const FontFaceRec* get_default_face()
     return &gFamilies[DEFAULT_FAMILY_INDEX].fFaces[DEFAULT_FAMILY_FACE_INDEX];
 }
 
+static SkTypeface::Style get_style(const FontFaceRec& face) {
+    int style = 0;
+    if (face.fBold) {
+        style |= SkTypeface::kBold;
+    }
+    if (face.fItalic) {
+        style |= SkTypeface::kItalic;
+    }
+    return static_cast<SkTypeface::Style>(style);
+}
+
+// This global const reference completely identifies the face
+static uint32_t get_id(const FontFaceRec& face) {
+    uintptr_t id = reinterpret_cast<uintptr_t>(&face);
+    return static_cast<uint32_t>(id);
+}
+
 class FontFaceRec_Typeface : public SkTypeface {
 public:
-    FontFaceRec_Typeface(const FontFaceRec& face) : fFace(face)
+    FontFaceRec_Typeface(const FontFaceRec& face) :
+                         SkTypeface(get_style(face), get_id(face)),
+                         fFace(face)
     {
-        int style = 0;
-        if (face.fBold)
-            style |= SkTypeface::kBold;
-        if (face.fItalic)
-            style |= SkTypeface::kItalic;
-        this->setStyle((SkTypeface::Style)style);
     }
 
     // This global const reference completely identifies the face
@@ -223,18 +236,7 @@ static uint32_t ptr2uint32(const void* p)
     return (uint32_t)((char*)p - (char*)0);
 }
 
-uint32_t SkFontHost::TypefaceHash(const SkTypeface* face)
-{
-    // just use our address as the hash value
-    return ptr2uint32(get_typeface_rec(face));
-}
-
-bool SkFontHost::TypefaceEqual(const SkTypeface* facea, const SkTypeface* faceb)
-{
-    return get_typeface_rec(facea) == get_typeface_rec(faceb);
-}
-
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace, const char familyName[], SkTypeface::Style style)
+SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace, const char familyName[], SkTypeface::Style style)
 {
     const FontFamilyRec* family;
     
@@ -258,128 +260,44 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace, const char 
     return SkNEW_ARGS(FontFaceRec_Typeface, (face));
 }
 
-uint32_t SkFontHost::FlattenTypeface(const SkTypeface* tface, void* buffer)
-{
+SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
+    sk_throw();  // not implemented
+    return NULL;
+}
+
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
+    sk_throw();  // not implemented
+    return NULL;
+}
+
+SkTypeface* SkFontHost::ResolveTypeface(uint32_t fontID) {
+    // TODO: this should just return a bool if fontID is valid
+    // since we don't keep a global-list, this will leak at the moment
+    return new FontFaceRec_Typeface(*get_default_face());
+}
+
+SkStream* SkFontHost::OpenStream(uint32_t fontID) {
+    sk_throw();  // not implemented
+    return NULL;
+}
+
+void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream) {
+    // not implemented
+}
+
+void SkFontHost::Serialize(const SkTypeface* tface, SkWStream* stream) {
     const FontFaceRec* face;
     
-    if (tface)
-        face = &((const FontFaceRec_Typeface*)tface)->fFace;
-    else
-       face = get_default_face();
+    face = &((const FontFaceRec_Typeface*)tface)->fFace;
 
     size_t  size = sizeof(face);
-    if (buffer)
-        memcpy(buffer, &face, size);
-    return size;
+    stream->write(face, sizeof(face));
 }
 
-void SkFontHost::GetDescriptorKeyString(const SkDescriptor* desc, SkString* key)
-{
-    key->set(SK_FONTPATH);
-}
-
-#ifdef SK_CAN_USE_MMAP
-#include <unistd.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <errno.h>
-
-class SkMMAPStream : public SkMemoryStream {
-public:
-    SkMMAPStream(const char filename[]);
-    virtual ~SkMMAPStream();
-
-    virtual void setMemory(const void* data, size_t length);
-private:
-    int     fFildes;
-    void*   fAddr;
-    size_t  fSize;
-    
-    void closeMMap();
-    
-    typedef SkMemoryStream INHERITED;
-};
-
-SkMMAPStream::SkMMAPStream(const char filename[])
-{
-    fFildes = -1;   // initialize to failure case
-
-    int fildes = open(filename, O_RDONLY);
-    if (fildes < 0)
-    {
-        SkDEBUGF(("---- failed to open(%s) for mmap stream error=%d\n", filename, errno));
-        return;
-    }
-
-    off_t size = lseek(fildes, 0, SEEK_END);    // find the file size
-    if (size == -1)
-    {
-        SkDEBUGF(("---- failed to lseek(%s) for mmap stream error=%d\n", filename, errno));
-        close(fildes);
-        return;
-    }
-    (void)lseek(fildes, 0, SEEK_SET);   // restore file offset to beginning
-
-    void* addr = mmap(NULL, size, PROT_READ, MAP_SHARED, fildes, 0);
-    if (MAP_FAILED == addr)
-    {
-        SkDEBUGF(("---- failed to mmap(%s) for mmap stream error=%d\n", filename, errno));
-        close(fildes);
-        return;
-    }
-
-    this->INHERITED::setMemory(addr, size);
-
-    fFildes = fildes;
-    fAddr = addr;
-    fSize = size;
-}
-
-SkMMAPStream::~SkMMAPStream()
-{
-    this->closeMMap();
-}
-
-void SkMMAPStream::setMemory(const void* data, size_t length)
-{
-    this->closeMMap();
-    this->INHERITED::setMemory(data, length);
-}
-
-void SkMMAPStream::closeMMap()
-{
-    if (fFildes >= 0)
-    {
-        munmap(fAddr, fSize);
-        close(fFildes);
-        fFildes = -1;
-    }
-}
-
-#endif
-
-SkStream* SkFontHost::OpenDescriptorStream(const SkDescriptor* desc, const char keyString[])
-{
-    // our key string IS our filename, so we can ignore desc
-    SkStream* strm;
-
-#ifdef SK_CAN_USE_MMAP
-    strm = new SkMMAPStream(keyString);
-    if (strm->getLength() > 0)
-        return strm;
-
-    // strm not valid
-    delete strm;
-    // fall through to FILEStream attempt
-#endif
-
-    strm = new SkFILEStream(keyString);
-    if (strm->getLength() > 0)
-        return strm;
-
-    // strm not valid
-    delete strm;
-    return NULL;
+SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
+    const FontFaceRec* face;
+    stream->read(&face, sizeof(face));
+    return new FontFaceRec_Typeface(*face);
 }
 
 SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::Rec& rec)
@@ -388,10 +306,12 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::
 
     SkAutoDescriptor    ad(sizeof(rec) + sizeof(face) + SkDescriptor::ComputeOverhead(2));
     SkDescriptor*       desc = ad.getDesc();
+    SkScalerContext::Rec* newRec;
 
     desc->init();
-    desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-    desc->addEntry(kTypeface_SkDescriptorTag, sizeof(face), &face);
+    newRec = reinterpret_cast<SkScalerContext::Rec*>(
+        desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec));
+    newRec->fFontID = get_id(*face);
     desc->computeChecksum();
 
     return SkFontHost::CreateScalerContext(desc);
@@ -400,16 +320,5 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::
 size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar)
 {
     return 0;   // nothing to do (change me if you want to limit the font cache)
-}
-
-int SkFontHost::ComputeGammaFlag(const SkPaint& paint)
-{
-    return 0;
-}
-
-void SkFontHost::GetGammaTables(const uint8_t* tables[2])
-{
-    tables[0] = NULL;   // black gamma (e.g. exp=1.4)
-    tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
 }
 
