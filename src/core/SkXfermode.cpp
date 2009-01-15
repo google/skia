@@ -30,6 +30,7 @@ static SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst, U8CPU alpha) {
     return SkPackARGB32(a, r, g, b);
 }
 
+#if 0
 // idea for higher precision blends in xfer procs (and slightly faster)
 // see DstATop as a probable caller
 static U8CPU mulmuldiv255round(U8CPU a, U8CPU b, U8CPU c, U8CPU d) {
@@ -42,6 +43,7 @@ static U8CPU mulmuldiv255round(U8CPU a, U8CPU b, U8CPU c, U8CPU d) {
     SkASSERT(result <= 255);
     return result;
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -778,7 +780,7 @@ bool SkPorterDuff::IsMode(SkXfermode* xfer, Mode* mode) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
+#ifdef SK_DEBUGx
 static void unit_test() {
     for (unsigned a = 0; a <= 255; a++) {
         for (unsigned c = 0; c <= a; c++) {

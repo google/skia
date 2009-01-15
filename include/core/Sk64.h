@@ -84,7 +84,7 @@ struct Sk64 {
     SkBool  isPos() const { return ~(fHi >> 31) & (fHi | fLo); }
 
     /** Returns -1,0,+1 based on the sign of the number */
-    int     sign() const { return (fHi >> 31) | Sk32ToBool(fHi | fLo); }
+    int     getSign() const { return (fHi >> 31) | Sk32ToBool(fHi | fLo); }
 
     /** Negate the number */
     void    negate();

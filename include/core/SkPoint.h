@@ -178,7 +178,7 @@ struct SkPoint {
     /** Scale the point's coordinates by scale, writing the answer back into
         the point.
     */
-    void scale(SkScalar scale) { this->scale(scale, this); }
+    void scale(SkScalar value) { this->scale(value, this); }
 
     /** Rotate the point clockwise by 90 degrees, writing the answer into dst.
         It is legal for dst == this.

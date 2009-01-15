@@ -37,15 +37,6 @@ struct SkWriter32::Block {
     }
 };
 
-static size_t compute_block_size(size_t currSize, size_t minSize)
-{
-    if (currSize < minSize)
-        currSize = minSize;
-    
-    currSize += (currSize >> 1);
-    return SkAlign4(currSize);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkWriter32::~SkWriter32()

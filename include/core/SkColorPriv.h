@@ -142,7 +142,7 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
 }
 
 #ifdef SK_DEBUG
-    static U16CPU SkRGB16Add(U16CPU a, U16CPU b) {
+    static inline U16CPU SkRGB16Add(U16CPU a, U16CPU b) {
         SkASSERT(SkGetPackedR16(a) + SkGetPackedR16(b) <= SK_R16_MASK);
         SkASSERT(SkGetPackedG16(a) + SkGetPackedG16(b) <= SK_G16_MASK);
         SkASSERT(SkGetPackedB16(a) + SkGetPackedB16(b) <= SK_B16_MASK);

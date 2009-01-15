@@ -140,7 +140,7 @@ SkFixed SkFixedMul_portable(SkFixed a, SkFixed b) {
     tmp.shiftRight(16);
     return tmp.fLo;
 #elif defined(SkLONGLONG)
-    return (SkLONGLONG)a * b >> 16;
+    return static_cast<SkFixed>((SkLONGLONG)a * b >> 16);
 #else
     int sa = SkExtractSign(a);
     int sb = SkExtractSign(b);
@@ -165,7 +165,7 @@ SkFract SkFractMul_portable(SkFract a, SkFract b) {
     tmp.setMul(a, b);
     return tmp.getFract();
 #elif defined(SkLONGLONG)
-    return (SkLONGLONG)a * b >> 30;
+    return static_cast<SkFract>((SkLONGLONG)a * b >> 30);
 #else
     int sa = SkExtractSign(a);
     int sb = SkExtractSign(b);
@@ -550,7 +550,7 @@ SkFixed SkFixedLog(SkFixed x) { return SkCordicLog(x); }
 
 #include "SkRandom.h"
 
-#ifdef SkLONGLONG
+#if defined(SkLONGLONG) && defined(SK_SUPPORT_UNITTEST)
 static int symmetric_fixmul(int a, int b) {
     int sa = SkExtractSign(a);
     int sb = SkExtractSign(b);
@@ -586,7 +586,7 @@ static void check_length(const SkPoint& p, SkScalar targetLen) {
 }
 #endif
 
-#ifdef SK_CAN_USE_FLOAT
+#if defined(SK_CAN_USE_FLOAT) && defined(SK_SUPPORT_UNITTEST)
 
 static float nextFloat(SkRandom& rand) {
     SkFloatIntUnion data;
@@ -696,6 +696,7 @@ static void unittest_fastfloat() {
 
 #endif
 
+#ifdef SK_SUPPORT_UNITTEST
 static void test_muldiv255() {
     for (int a = 0; a <= 255; a++) {
         for (int b = 0; b <= 255; b++) {
@@ -716,6 +717,7 @@ static void test_muldiv255() {
         }
     }
 }
+#endif
 
 void SkMath::UnitTest() {    
 #ifdef SK_SUPPORT_UNITTEST

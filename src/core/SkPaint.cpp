@@ -367,26 +367,6 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static uint32_t sk_glyphID_next(const char** text)
-{
-    const uint16_t* glyph = (const uint16_t*)text;
-    int32_t value = *glyph;
-    glyph += 1;
-    *text = (const char*)glyph;
-    return value;
-}
-
-static uint32_t sk_glyphID_prev(const char** text)
-{
-    const uint16_t* glyph = (const uint16_t*)text;
-    glyph -= 1;
-    int32_t value = *glyph;
-    *text = (const char*)glyph;
-    return value;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache, const char** text)
 {
     SkASSERT(cache != NULL);

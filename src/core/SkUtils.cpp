@@ -427,10 +427,12 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues, char utf8
 
 #include <stdlib.h>
 
+#if 0
 static int round_to_K(size_t bytes)
 {
     return (bytes + 512) >> 10;
 }
+#endif
 
 SkAutoMemoryUsageProbe::SkAutoMemoryUsageProbe(const char label[])
     : fLabel(label)

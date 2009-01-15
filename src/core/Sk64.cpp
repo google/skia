@@ -387,7 +387,7 @@ static void bool_table_test(const Sk64& a, const BoolTable& table)
     SkASSERT(!a.isZero() == !table.zero);
     SkASSERT(!a.isPos() == !table.pos);
     SkASSERT(!a.isNeg() == !table.neg);
-    SkASSERT(a.sign() == table.sign);
+    SkASSERT(a.getSign() == table.sign);
 }
 
 #ifdef SkLONGLONG

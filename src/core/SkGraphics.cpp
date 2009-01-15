@@ -228,6 +228,7 @@ int time_math() {
     return sum;
 }
 
+#if 0
 static float time_intToFloat() {
     const int repeat = 1000000;
     int i, n;
@@ -266,6 +267,7 @@ static float time_intToFloat() {
 
     return sum;
 }
+#endif
 
 void SkGraphics::Init(bool runUnitTests)
 {

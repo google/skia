@@ -255,12 +255,12 @@ int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValue[1])
 #endif
 }
 
-static void flatten_double_quad_extrema(SkScalar coords[14])
+static inline void flatten_double_quad_extrema(SkScalar coords[14])
 {
     coords[2] = coords[6] = coords[4];
 }
 
-static void force_quad_monotonic_in_y(SkPoint pts[3])
+static inline void force_quad_monotonic_in_y(SkPoint pts[3])
 {
     // zap pts[1].fY to the nearest value
     SkScalar ab = SkScalarAbs(pts[0].fY - pts[1].fY);

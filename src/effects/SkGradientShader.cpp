@@ -608,7 +608,7 @@ private:
 };
 
 //  Return true if fx, fx+dx, fx+2*dx, ... is always in range
-static bool no_need_for_clamp(int fx, int dx, int count)
+static inline bool no_need_for_clamp(int fx, int dx, int count)
 {
     SkASSERT(count > 0);
     return (unsigned)((fx | (fx + (count - 1) * dx)) >> 8) <= 0xFF;

@@ -16,14 +16,17 @@ SkMMAPStream::SkMMAPStream(const char filename[])
         return;
     }
 
-    off_t size = lseek(fildes, 0, SEEK_END);    // find the file size
-    if (size == -1)
+    off_t offset = lseek(fildes, 0, SEEK_END);    // find the file size
+    if (offset == -1)
     {
         SkDEBUGF(("---- failed to lseek(%s) for mmap stream error=%d\n", filename, errno));
         close(fildes);
         return;
     }
     (void)lseek(fildes, 0, SEEK_SET);   // restore file offset to beginning
+
+    // to avoid a 64bit->32bit warning, I explicitly create a size_t size
+    size_t size = static_cast<size_t>(offset);
 
     void* addr = mmap(NULL, size, PROT_READ, MAP_SHARED, fildes, 0);
     if (MAP_FAILED == addr)

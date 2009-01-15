@@ -182,17 +182,6 @@ SkScalerContext* SkScalerContext::getGlyphContext(const SkGlyph& glyph) const {
     return ctx;
 }
 
-static int plus_minus_pin(int value, int max) {
-    SkASSERT(max >= 0);
-    
-    if (value > max) {
-        value = max;
-    } else if (value < -max) {
-        value = -max;
-    }
-    return value;
-}    
-
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
     // mark us as just having a valid advance
     glyph->fMaskFormat = MASK_FORMAT_JUST_ADVANCE;
