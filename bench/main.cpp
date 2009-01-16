@@ -81,8 +81,10 @@ int main (int argc, char * const argv[]) {
         
         SkCanvas canvas(bm);
         canvas.drawColor(SK_ColorWHITE);
+        printf("running bench %s\n", bench->getName());
         bench->draw(&canvas);
-        
+
+#if 0        
         SkString str;
         make_filename(bench->getName(), &str);
         str.prepend(outDir);
@@ -90,6 +92,7 @@ int main (int argc, char * const argv[]) {
         ::remove(str.c_str());
         SkImageEncoder::EncodeFile(str.c_str(), bm, SkImageEncoder::kPNG_Type,
                                    100);
+#endif
     }
     
     return 0;
