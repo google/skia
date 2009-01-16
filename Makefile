@@ -40,7 +40,7 @@ BENCH_OBJS := $(BENCH_SRCS:.cpp=.o)
 BENCH_OBJS := $(addprefix out/, $(BENCH_OBJS))
 
 bench: $(BENCH_OBJS) out/libskia.a
-	g++ $(BENCH_OBJS) out/libskia.a -o out/bench/bench
+	g++ $(BENCH_OBJS) out/libskia.a -o out/bench/bench -lpthread
 	
 clean:
 	$(HIDE)rm -rf out
