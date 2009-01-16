@@ -148,6 +148,7 @@ static void test_drawText(SkBitmap::Config config, SkColor color)
 
 #endif
 
+#ifdef SK_CAN_USE_FLOAT
 #include "SkFloatBits.h"
 
 static inline float fast_inc(float x) {
@@ -268,13 +269,16 @@ static float time_intToFloat() {
     return sum;
 }
 #endif
+#endif
 
 void SkGraphics::Init(bool runUnitTests)
 {
     SkGlobals::Init();
 
+#ifdef SK_CAN_USE_FLOAT
 //    time_math();
 //    time_intToFloat();
+#endif
     
 #ifdef BUILD_EMBOSS_TABLE
     SkEmbossMask_BuildTable();

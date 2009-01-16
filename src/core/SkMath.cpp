@@ -576,6 +576,7 @@ static int symmetric_fixmul(int a, int b) {
 
 #ifdef SK_SUPPORT_UNITTEST
 static void check_length(const SkPoint& p, SkScalar targetLen) {
+#ifdef SK_CAN_USE_FLOAT
     float x = SkScalarToFloat(p.fX);
     float y = SkScalarToFloat(p.fY);
     float len = sk_float_sqrt(x*x + y*y);
@@ -583,6 +584,7 @@ static void check_length(const SkPoint& p, SkScalar targetLen) {
     len /= SkScalarToFloat(targetLen);
 
     SkASSERT(len > 0.999f && len < 1.001f);
+#endif
 }
 #endif
 
@@ -698,6 +700,7 @@ static void unittest_fastfloat() {
 
 #ifdef SK_SUPPORT_UNITTEST
 static void test_muldiv255() {
+#ifdef SK_CAN_USE_FLOAT
     for (int a = 0; a <= 255; a++) {
         for (int b = 0; b <= 255; b++) {
             int ab = a * b;
@@ -716,6 +719,7 @@ static void test_muldiv255() {
             SkASSERT(iround <= b);
         }
     }
+#endif
 }
 #endif
 
