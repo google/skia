@@ -14,8 +14,10 @@
  ** limitations under the License.
 */
 
+#include <carbon/carbon.h>
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
+#include "SkPoint.h"
 
 // Give 1MB font cache budget
 #define FONT_CACHE_MEMORY_BUDGET    (1024 * 1024)

@@ -22,10 +22,6 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-#if defined(SK_BUILD_FOR_MAC)
-#include <carbon/carbon.h>
-#endif
-
 struct SkIRect;
 class SkColorTable;
 class SkPaint;
@@ -357,21 +353,6 @@ public:
         colortable based bitmaps.
     */
     inline SkPMColor getIndex8Color(int x, int y) const;
-
-    //  OS-specific helpers
-#ifndef SK_USE_WXWIDGETS
-#ifdef SK_BUILD_FOR_WIN
-    /** On Windows and PocketPC builds, this will draw the SkBitmap onto the
-        specified HDC
-    */
-    void drawToHDC(HDC, int left, int top) const;
-#elif defined(SK_BUILD_FOR_MAC)
-    /** On Mac OS X and Carbon builds, this will draw the SkBitmap onto the
-        specified WindowRef
-    */
-    void drawToPort(WindowRef, CGContextRef) const;
-#endif
-#endif
 
     /** Set dst to be a setset of this bitmap. If possible, it will share the
         pixel memory, and just point into a subset of it. However, if the config
