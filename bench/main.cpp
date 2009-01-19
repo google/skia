@@ -2,6 +2,7 @@
 #include "SkCanvas.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
+#include "SkTime.h"
 
 #include "SkBenchmark.h"
 
@@ -42,7 +43,21 @@ static void make_filename(const char name[], SkString* path) {
     }
 }
 
+static const struct {
+    SkBitmap::Config    fConfig;
+    const char*         fName;
+} gConfigs[] = {
+    { SkBitmap::kARGB_8888_Config,  "8888" },
+    { SkBitmap::kRGB_565_Config,    "565",  },
+    { SkBitmap::kARGB_4444_Config,  "4444", },
+    { SkBitmap::kA8_Config,         "A8",   }
+};
+
 int main (int argc, char * const argv[]) {
+    int repeatDraw = 1;
+    int forceAlpha = 0xFF;
+    bool forceAA = true;
+
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kARGB_8888_Config;
 
@@ -64,9 +79,31 @@ int main (int argc, char * const argv[]) {
             outConfig = SkBitmap::kARGB_4444_Config;
         } else if (strcmp(*argv, "-a8") == 0) {
             outConfig = SkBitmap::kA8_Config;
+        } else if (strcmp(*argv, "-repeat") == 0) {
+            argv++;
+            if (argv < stop) {
+                repeatDraw = atoi(*argv);
+                if (repeatDraw < 1) {
+                    repeatDraw = 1;
+                }
+            } else {
+                fprintf(stderr, "missing arg for -repeat\n");
+                return -1;
+            }
+        } else if (strcmp(*argv, "-forceAA") == 0) {
+            forceAA = true;
+        } else if (strcmp(*argv, "-forceBW") == 0) {
+            forceAA = false;
+        } else if (strcmp(*argv, "-forceBlend") == 0) {
+            forceAlpha = 0x80;
+        } else if (strcmp(*argv, "-forceOpaque") == 0) {
+            forceAlpha = 0xFF;
         }
     }
-
+    
+    const char* configName = "";
+    int configCount = SK_ARRAY_COUNT(gConfigs);
+    
     Iter iter;
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
@@ -74,15 +111,35 @@ int main (int argc, char * const argv[]) {
         if (dim.fX <= 0 || dim.fY <= 0) {
             continue;
         }
-
-        SkBitmap bm;
-        bm.setConfig(outConfig, dim.fX, dim.fY);
-        bm.allocPixels();
         
-        SkCanvas canvas(bm);
-        canvas.drawColor(SK_ColorWHITE);
-        printf("running bench %s\n", bench->getName());
-        bench->draw(&canvas);
+        bench->setForceAlpha(forceAlpha);
+        bench->setForceAA(forceAA);
+
+        printf("running bench %16s", bench->getName());
+
+        for (int configIndex = 0; configIndex < configCount; configIndex++) {
+            if (configCount > 1) {
+                outConfig = gConfigs[configIndex].fConfig;
+                configName = gConfigs[configIndex].fName;
+            }
+            
+            SkBitmap bm;
+            bm.setConfig(outConfig, dim.fX, dim.fY);
+            bm.allocPixels();
+            
+            SkCanvas canvas(bm);
+            canvas.drawColor(SK_ColorWHITE);
+            
+            SkMSec now = SkTime::GetMSecs();
+            for (int i = 0; i < repeatDraw; i++) {
+                bench->draw(&canvas);
+            }
+            if (repeatDraw > 1) {
+                printf("  %4s:%7.2f", configName,
+                       (SkTime::GetMSecs() - now) / (double)repeatDraw);
+            }
+        }
+        printf("\n");
 
 #if 0        
         SkString str;

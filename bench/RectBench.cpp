@@ -44,13 +44,13 @@ protected:
         c->drawRect(r, p);
     }
 
-    virtual const char* onGetName() { return computeName("rectangles"); }
+    virtual const char* onGetName() { return computeName("rects"); }
     virtual SkIPoint onGetSize() { return SkMakeIPoint(640, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
-        paint.setAntiAlias(true);
         for (int i = 0; i < N; i++) {
             paint.setColor(fColors[i]);
+            this->setupPaint(&paint);
             this->drawThisRect(canvas, fRects[i], paint);
         }
     }
@@ -73,7 +73,7 @@ protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRoundRect(r, r.width() / 4, r.height() / 4, p);
     }
-    virtual const char* onGetName() { return computeName("roundrects"); }
+    virtual const char* onGetName() { return computeName("rrects"); }
 };
 
 class PointsBench : public RectBench {
@@ -93,11 +93,11 @@ protected:
         };
 
         SkPaint paint;
-        paint.setAntiAlias(true);
         paint.setStrokeCap(SkPaint::kRound_Cap);
         
         for (size_t i = 0; i < SK_ARRAY_COUNT(gSizes); i++) {
             paint.setStrokeWidth(gSizes[i]);
+            this->setupPaint(&paint);
             canvas->drawPoints(fMode, N * 2,
                                reinterpret_cast<const SkPoint*>(fRects), paint);
             paint.setColor(fColors[i]);
