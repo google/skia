@@ -1,13 +1,23 @@
+# Simple makefile for skia library and test apps
 
-CC = gcc
+CC := gcc
 C_INCLUDES := -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
-CFLAGS = -O2 
-DEFINES = -DSK_BUILD_FOR_UNIX
+CFLAGS := -O2 
+LINKER_OPTS := -lpthread
+DEFINES := -DSK_CAN_USE_FLOAT
 HIDE = @
 
-DEFINES += -DSK_RELEASE
-#DEFINES += -DSK_DEBUG -DSK_SUPPORT_UNITTEST
-#DEFINES += -DSK_SCALAR_IS_FIXED
+ifeq ($(SKIA_FIXED),true)
+	DEFINES += -DSK_SCALAR_IS_FIXED
+else
+	DEFINES += -DSK_SCALAR_IS_FLOAT
+endif
+
+ifeq ($(SKIA_DEBUG),true)
+ 	DEFINES += -DSK_DEBUG -DSK_SUPPORT_UNIT
+else
+	DEFINES += -DSK_RELEASE
+endif
 
 # start with the core (required)
 include src/core/core_files.mk
@@ -20,6 +30,26 @@ SRC_LIST += $(addprefix src/ports/, $(SOURCE))
 # do we want effects?
 include src/effects/effects_files.mk
 SRC_LIST += $(addprefix src/effects/, $(SOURCE))
+
+# core image files
+include src/images/images_files.mk
+SRC_LIST += $(addprefix src/images/, $(SOURCE))
+
+# conditional files based on our platform
+ifeq ($(BUILD_SKIA_FOR_MAC),true)
+	LINKER_OPTS += -framework Carbon
+	DEFINES += -DSK_BUILD_FOR_MAC
+
+	C_INCLUDES += -Iinclude/utils/mac
+	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
+	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
+else
+	LINKER_OPTS += -lpng -ljpeg
+	DEFINES += -DSK_BUILD_FOR_UNIX
+
+	SRC_LIST += src/images/SkImageDecoder_libpng.cpp
+	SRC_LIST += src/images/SkImageDecoder_libjpeg.cpp
+endif
 
 out/%.o : %.cpp
 	@mkdir -p $(dir $@)
@@ -40,8 +70,22 @@ BENCH_OBJS := $(BENCH_SRCS:.cpp=.o)
 BENCH_OBJS := $(addprefix out/, $(BENCH_OBJS))
 
 bench: $(BENCH_OBJS) out/libskia.a
-	g++ $(BENCH_OBJS) out/libskia.a -o out/bench/bench -lpthread
+	@echo "linking bench..."
+	$(HIDE)g++ $(BENCH_OBJS) out/libskia.a -o out/bench/bench $(LINKER_OPTS)
 	
 clean:
 	$(HIDE)rm -rf out
     
+help:
+	@echo "Targets:"
+	@echo "    <default>: out/libskia.a"
+	@echo "    bench: out/bench/bench"
+	@echo "    clean: removes entire out/ directory"
+	@echo "    help: this text"
+	@echo "Options: (to add to the command line with make"
+	@echo "    SKIA_DEBUG=true for debug build"
+	@echo "    SKIA_FIXED=true for fixed-point build"
+	@echo "To build for the Mac:"
+	@echo "    export BUILD_SKIA_FOR_MAC=true (in bash shell or equivalent)"
+	@echo ""
+	

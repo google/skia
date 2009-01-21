@@ -1,4 +1,5 @@
-//#include <iostream>
+#define SAVE_FILE
+
 #include "SkCanvas.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
@@ -43,6 +44,45 @@ static void make_filename(const char name[], SkString* path) {
     }
 }
 
+static void saveFile(const char name[], const char config[], const char dir[],
+                     const SkBitmap& bm) {
+#ifdef SAVE_FILE
+    SkBitmap copy;
+    if (!bm.copyTo(&copy, SkBitmap::kARGB_8888_Config)) {
+        return;
+    }
+
+    SkString str;
+    make_filename(name, &str);
+    str.appendf("_%s.png", config);
+    str.prepend(dir);
+    ::remove(str.c_str());
+    SkImageEncoder::EncodeFile(str.c_str(), copy, SkImageEncoder::kPNG_Type,
+                               100);
+#endif
+}
+
+static void performClip(SkCanvas* canvas, int w, int h) {
+    SkRect r;
+    
+    r.set(SkIntToScalar(10), SkIntToScalar(10),
+          SkIntToScalar(w*2/3), SkIntToScalar(h*2/3));
+    canvas->clipRect(r, SkRegion::kIntersect_Op);
+
+    r.set(SkIntToScalar(w/3), SkIntToScalar(h/3),
+          SkIntToScalar(w-10), SkIntToScalar(h-10));
+    canvas->clipRect(r, SkRegion::kXOR_Op);
+}
+
+static void performRotate(SkCanvas* canvas, int w, int h) {
+    const SkScalar x = SkIntToScalar(w) / 2;
+    const SkScalar y = SkIntToScalar(h) / 2;
+    
+    canvas->translate(x, y);
+    canvas->rotate(SkIntToScalar(35));
+    canvas->translate(-x, -y);
+}
+
 static const struct {
     SkBitmap::Config    fConfig;
     const char*         fName;
@@ -53,10 +93,21 @@ static const struct {
     { SkBitmap::kA8_Config,         "A8",   }
 };
 
+static int findConfig(const char config[]) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
+        if (!strcmp(config, gConfigs[i].fName)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 int main (int argc, char * const argv[]) {
     int repeatDraw = 1;
     int forceAlpha = 0xFF;
     bool forceAA = true;
+    bool doRotate = false;
+    bool doClip = false;
 
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kARGB_8888_Config;
@@ -71,14 +122,6 @@ int main (int argc, char * const argv[]) {
                     outDir.append("/");
                 }
             }
-        } else if (strcmp(*argv, "-8888") == 0) {
-            outConfig = SkBitmap::kARGB_8888_Config;
-        } else if (strcmp(*argv, "-565") == 0) {
-            outConfig = SkBitmap::kRGB_565_Config;
-        } else if (strcmp(*argv, "-4444") == 0) {
-            outConfig = SkBitmap::kARGB_4444_Config;
-        } else if (strcmp(*argv, "-a8") == 0) {
-            outConfig = SkBitmap::kA8_Config;
         } else if (strcmp(*argv, "-repeat") == 0) {
             argv++;
             if (argv < stop) {
@@ -90,6 +133,10 @@ int main (int argc, char * const argv[]) {
                 fprintf(stderr, "missing arg for -repeat\n");
                 return -1;
             }
+        } else if (!strcmp(*argv, "-rotate")) {
+            doRotate = true;
+        } else if (!strcmp(*argv, "-clip")) {
+            doClip = true;
         } else if (strcmp(*argv, "-forceAA") == 0) {
             forceAA = true;
         } else if (strcmp(*argv, "-forceBW") == 0) {
@@ -98,6 +145,11 @@ int main (int argc, char * const argv[]) {
             forceAlpha = 0x80;
         } else if (strcmp(*argv, "-forceOpaque") == 0) {
             forceAlpha = 0xFF;
+        } else {
+            int index = findConfig(*argv);
+            if (index >= 0) {
+                outConfig = gConfigs[index].fConfig;
+            }
         }
     }
     
@@ -115,7 +167,7 @@ int main (int argc, char * const argv[]) {
         bench->setForceAlpha(forceAlpha);
         bench->setForceAA(forceAA);
 
-        printf("running bench %16s", bench->getName());
+        printf("running bench %8s", bench->getName());
 
         for (int configIndex = 0; configIndex < configCount; configIndex++) {
             if (configCount > 1) {
@@ -130,26 +182,27 @@ int main (int argc, char * const argv[]) {
             SkCanvas canvas(bm);
             canvas.drawColor(SK_ColorWHITE);
             
+            if (doClip) {
+                performClip(&canvas, dim.fX, dim.fY);
+            }
+            if (doRotate) {
+                performRotate(&canvas, dim.fX, dim.fY);
+            }
+
             SkMSec now = SkTime::GetMSecs();
             for (int i = 0; i < repeatDraw; i++) {
+                SkAutoCanvasRestore acr(&canvas, true);
                 bench->draw(&canvas);
             }
             if (repeatDraw > 1) {
                 printf("  %4s:%7.2f", configName,
                        (SkTime::GetMSecs() - now) / (double)repeatDraw);
             }
+            if (outDir.size() > 0) {
+                saveFile(bench->getName(), configName, outDir.c_str(), bm);
+            }
         }
         printf("\n");
-
-#if 0        
-        SkString str;
-        make_filename(bench->getName(), &str);
-        str.prepend(outDir);
-        str.append(".png");
-        ::remove(str.c_str());
-        SkImageEncoder::EncodeFile(str.c_str(), bm, SkImageEncoder::kPNG_Type,
-                                   100);
-#endif
     }
     
     return 0;
