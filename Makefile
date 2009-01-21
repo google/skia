@@ -1,5 +1,6 @@
 # Simple makefile for skia library and test apps
 
+# setup our defaults
 CC := gcc
 C_INCLUDES := -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
 CFLAGS := -O2 
@@ -7,7 +8,7 @@ LINKER_OPTS := -lpthread
 DEFINES := -DSK_CAN_USE_FLOAT
 HIDE = @
 
-ifeq ($(SKIA_FIXED),true)
+ifeq ($(SKIA_SCALAR),fixed)
 	DEFINES += -DSK_SCALAR_IS_FIXED
 else
 	DEFINES += -DSK_SCALAR_IS_FLOAT
@@ -36,7 +37,7 @@ include src/images/images_files.mk
 SRC_LIST += $(addprefix src/images/, $(SOURCE))
 
 # conditional files based on our platform
-ifeq ($(BUILD_SKIA_FOR_MAC),true)
+ifeq ($(SKIA_BUILD_FOR),mac)
 	LINKER_OPTS += -framework Carbon
 	DEFINES += -DSK_BUILD_FOR_MAC
 
@@ -73,19 +74,20 @@ bench: $(BENCH_OBJS) out/libskia.a
 	@echo "linking bench..."
 	$(HIDE)g++ $(BENCH_OBJS) out/libskia.a -o out/bench/bench $(LINKER_OPTS)
 	
+.PHONY: clean
 clean:
 	$(HIDE)rm -rf out
-    
+
+.PHONY: help
 help:
 	@echo "Targets:"
 	@echo "    <default>: out/libskia.a"
 	@echo "    bench: out/bench/bench"
 	@echo "    clean: removes entire out/ directory"
 	@echo "    help: this text"
-	@echo "Options: (to add to the command line with make"
+	@echo "Options: (after make, or in bash shell)"
 	@echo "    SKIA_DEBUG=true for debug build"
-	@echo "    SKIA_FIXED=true for fixed-point build"
-	@echo "To build for the Mac:"
-	@echo "    export BUILD_SKIA_FOR_MAC=true (in bash shell or equivalent)"
+	@echo "    SKIA_SCALAR=fixed for fixed-point build"
+	@echo "    SKIA_BUILD_FOR=mac for mac build (e.g. CG for image decoding)"
 	@echo ""
 	
