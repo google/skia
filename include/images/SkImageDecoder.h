@@ -199,12 +199,6 @@ public:
                             kDecodePixels_Mode);
     }
     
-    /*  Given a format, return true if there is a currently installed decoder
-        for that format. Since a given build may not include all codecs (to save
-        code-size), this may return false.
-    */
-    static bool SupportsFormat(Format);
-
     /** Return the default config for the running device.
         Currently this used as a suggestion to image decoders that need to guess
         what config they should decode into.

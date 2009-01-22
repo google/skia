@@ -58,15 +58,6 @@ private:
     png_infop info_ptr;
 };
 
-SkImageDecoder* SkImageDecoder_PNG_Factory(SkStream* stream) {
-    char buf[PNG_BYTES_TO_CHECK];
-    if (stream->read(buf, PNG_BYTES_TO_CHECK) == PNG_BYTES_TO_CHECK &&
-            !png_sig_cmp((png_bytep) buf, (png_size_t)0, PNG_BYTES_TO_CHECK)) {
-        return SkNEW(SkPNGImageDecoder);
-    }
-    return NULL;
-}
-
 static void sk_read_fn(png_structp png_ptr, png_bytep data, png_size_t length) {
     SkStream* sk_stream = (SkStream*) png_ptr->io_ptr;
     size_t bytes = sk_stream->read(data, length);
@@ -787,8 +778,22 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
     return true;
 }
 
-SkImageEncoder* SkImageEncoder_PNG_Factory();
-SkImageEncoder* SkImageEncoder_PNG_Factory() {
-    return SkNEW(SkPNGImageEncoder);
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkTRegistry.h"
+
+static SkImageDecoder* DFactory(SkStream* stream) {
+    char buf[PNG_BYTES_TO_CHECK];
+    if (stream->read(buf, PNG_BYTES_TO_CHECK) == PNG_BYTES_TO_CHECK &&
+        !png_sig_cmp((png_bytep) buf, (png_size_t)0, PNG_BYTES_TO_CHECK)) {
+        return SkNEW(SkPNGImageDecoder);
+    }
+    return NULL;
 }
 
+static SkImageEncoder* EFactory(SkImageEncoder::Type t) {
+    return (SkImageEncoder::kPNG_Type == t) ? SkNEW(SkPNGImageEncoder) : NULL;
+}
+
+static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(EFactory);
+static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(DFactory);

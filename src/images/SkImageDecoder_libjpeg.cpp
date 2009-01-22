@@ -51,24 +51,6 @@ protected:
                           SkBitmap::Config pref, Mode);
 };
 
-SkImageDecoder* SkImageDecoder_JPEG_Factory(SkStream* stream) {
-    static const char gHeader[] = { 0xFF, 0xD8, 0xFF };
-    static const size_t HEADER_SIZE = sizeof(gHeader);
-
-    char buffer[HEADER_SIZE];
-    size_t len = stream->read(buffer, HEADER_SIZE);
-
-    if (len != HEADER_SIZE) {
-        return NULL;   // can't read enough
-    }
-    
-    if (memcmp(buffer, gHeader, HEADER_SIZE)) {
-        return NULL;
-    }
-
-    return SkNEW(SkJPEGImageDecoder);
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 #include "SkTime.h"
@@ -789,20 +771,30 @@ protected:
     }
 };
 
-SkImageEncoder* SkImageEncoder_JPEG_Factory();
-SkImageEncoder* SkImageEncoder_JPEG_Factory() {
-    return SkNEW(SkJPEGImageEncoder);
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkTRegistry.h"
+
+static SkImageDecoder* DFactory(SkStream* stream) {
+    static const char gHeader[] = { 0xFF, 0xD8, 0xFF };
+    static const size_t HEADER_SIZE = sizeof(gHeader);
+
+    char buffer[HEADER_SIZE];
+    size_t len = stream->read(buffer, HEADER_SIZE);
+
+    if (len != HEADER_SIZE) {
+        return NULL;   // can't read enough
+    }
+    if (memcmp(buffer, gHeader, HEADER_SIZE)) {
+        return NULL;
+    }
+    return SkNEW(SkJPEGImageDecoder);
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-
-void SkImageDecoder::UnitTest() {
-    SkBitmap    bm;
-
-    (void)SkImageDecoder::DecodeFile("logo.jpg", &bm);
+static SkImageEncoder* EFactory(SkImageEncoder::Type t) {
+    return (SkImageEncoder::kJPEG_Type == t) ? SkNEW(SkJPEGImageEncoder) : NULL;
 }
 
-#endif
+static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(DFactory);
+static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(EFactory);
+

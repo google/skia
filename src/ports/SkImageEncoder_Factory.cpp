@@ -15,18 +15,19 @@
  */
 
 #include "SkImageEncoder.h"
+#include "SkTRegistry.h"
 
-extern SkImageEncoder* SkImageEncoder_JPEG_Factory();
-extern SkImageEncoder* SkImageEncoder_PNG_Factory();
+typedef SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> EncodeReg;
 
 SkImageEncoder* SkImageEncoder::Create(Type t) {
-    switch (t) {
-        case kJPEG_Type:
-            return SkImageEncoder_JPEG_Factory();
-        case kPNG_Type:
-            return SkImageEncoder_PNG_Factory();
-        default:
-            return NULL;
+    const EncodeReg* curr = EncodeReg::Head();
+    while (curr) {
+        SkImageEncoder* codec = curr->factory()(t);
+        if (codec) {
+            return codec;
+        }
+        curr = curr->next();
     }
+    return NULL;
 }
 

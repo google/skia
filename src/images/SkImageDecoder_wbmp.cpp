@@ -77,16 +77,6 @@ struct wbmp_head {
     }
 };
     
-SkImageDecoder* SkImageDecoder_WBMP_Factory(SkStream* stream)
-{
-    wbmp_head   head;
-
-    if (head.init(stream)) {
-        return SkNEW(SkWBMPImageDecoder);
-    }
-    return NULL;
-}
-
 static void expand_bits_to_bytes(uint8_t dst[], const uint8_t src[], int bits)
 {
     int bytes = bits >> 3;
@@ -164,4 +154,19 @@ bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
 
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkTRegistry.h"
+
+static SkImageDecoder* Factory(SkStream* stream) {
+    wbmp_head   head;
+
+    if (head.init(stream)) {
+        return SkNEW(SkWBMPImageDecoder);
+    }
+    return NULL;
+}
+
+static SkTRegistry<SkImageDecoder*, SkStream*> gReg(Factory);
 

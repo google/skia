@@ -44,23 +44,6 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-SkImageDecoder* SkImageDecoder_ICO_Factory(SkStream*);
-SkImageDecoder* SkImageDecoder_ICO_Factory(SkStream* stream)
-{
-    //i'm going to check if we basically have 0,0,1,0 (reserved = 0, type = 1)
-    //is that required and sufficient?
-    SkAutoMalloc autoMal(4);
-    unsigned char* buf = (unsigned char*)autoMal.get();
-    stream->read((void*)buf, 4);
-    int reserved = read2Bytes(buf, 0);
-    int type = read2Bytes(buf, 2);
-    if (reserved != 0 || type != 1) //it's not an ico
-        return NULL;
-    return SkNEW(SkICOImageDecoder);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-
 SkICOImageDecoder::SkICOImageDecoder()
 {
 }
@@ -385,4 +368,25 @@ static void editPixelBit32(const int pixelNo, const unsigned char* buf,
     int alpha = readByte(buf, xorOffset + 4*pixelNo + 3) & ((alphaBit-1)&0xFF);
     *address = SkPackARGB32(alpha, red & alpha, green & alpha, blue & alpha);
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////
+
+#include "SkTRegistry.h"
+
+static SkImageDecoder* Factory(SkStream* stream) {
+    // Check to see if the first four bytes are 0,0,1,0
+    // FIXME: Is that required and sufficient?
+    SkAutoMalloc autoMal(4);
+    unsigned char* buf = (unsigned char*)autoMal.get();
+    stream->read((void*)buf, 4);
+    int reserved = read2Bytes(buf, 0);
+    int type = read2Bytes(buf, 2);
+    if (reserved != 0 || type != 1) {
+        // This stream does not represent an ICO image.
+        return NULL;
+    }
+    return SkNEW(SkICOImageDecoder);
+}
+
+static SkTRegistry<SkImageDecoder*, SkStream*> gReg(Factory);
 

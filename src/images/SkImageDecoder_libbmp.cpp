@@ -20,6 +20,7 @@
 #include "SkStream.h"
 #include "SkColorPriv.h"
 #include "SkTDArray.h"
+#include "SkTRegistry.h"
 
 class SkBMPImageDecoder : public SkImageDecoder {
 public:
@@ -34,8 +35,7 @@ protected:
                           SkBitmap::Config pref, Mode mode);
 };
 
-SkImageDecoder* SkImageDecoder_BMP_Factory(SkStream*);
-SkImageDecoder* SkImageDecoder_BMP_Factory(SkStream* stream) {
+static SkImageDecoder* Factory(SkStream* stream) {
     static const char kBmpMagic[] = { 'B', 'M' };
     
     size_t len = stream->getLength();
@@ -48,6 +48,8 @@ SkImageDecoder* SkImageDecoder_BMP_Factory(SkStream* stream) {
     }
     return NULL;
 }
+
+static SkTRegistry<SkImageDecoder*, SkStream*> gReg(Factory);
 
 ///////////////////////////////////////////////////////////////////////////////
 

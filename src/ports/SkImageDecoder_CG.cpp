@@ -94,10 +94,6 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
     return SkNEW(SkImageDecoder_CG);
 }
 
-bool SkImageDecoder::SupportsFormat(Format format) {
-    return true;
-}
-
 /////////////////////////////////////////////////////////////////////////
 
 SkMovie* SkMovie::DecodeStream(SkStream* stream) {

@@ -18,67 +18,36 @@
 #include "SkImageDecoder.h"
 #include "SkMovie.h"
 #include "SkStream.h"
+#include "SkTRegistry.h"
 
-extern SkImageDecoder* SkImageDecoder_GIF_Factory(SkStream*);
-extern SkImageDecoder* SkImageDecoder_BMP_Factory(SkStream*);
-extern SkImageDecoder* SkImageDecoder_ICO_Factory(SkStream*);
-extern SkImageDecoder* SkImageDecoder_PNG_Factory(SkStream*);
-extern SkImageDecoder* SkImageDecoder_WBMP_Factory(SkStream*);
-extern SkImageDecoder* SkImageDecoder_JPEG_Factory(SkStream*);
-
-typedef SkImageDecoder* (*SkImageDecoderFactoryProc)(SkStream*);
-
-struct CodecFormat {
-    SkImageDecoderFactoryProc   fProc;
-    SkImageDecoder::Format      fFormat;
-};
-
-static const CodecFormat gPairs[] = {
-    { SkImageDecoder_GIF_Factory,   SkImageDecoder::kGIF_Format },
-    { SkImageDecoder_PNG_Factory,   SkImageDecoder::kPNG_Format },
-    { SkImageDecoder_ICO_Factory,   SkImageDecoder::kICO_Format },
-    { SkImageDecoder_WBMP_Factory,  SkImageDecoder::kWBMP_Format },
-    { SkImageDecoder_BMP_Factory,   SkImageDecoder::kBMP_Format },
-    { SkImageDecoder_JPEG_Factory,  SkImageDecoder::kJPEG_Format }
-};
+typedef SkTRegistry<SkImageDecoder*, SkStream*> DecodeReg;
 
 SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
-        SkImageDecoder* codec = gPairs[i].fProc(stream);
+    const DecodeReg* curr = DecodeReg::Head();
+    while (curr) {
+        SkImageDecoder* codec = curr->factory()(stream);
         stream->rewind();
-        if (NULL != codec) {
+        if (codec) {
             return codec;
         }
+        curr = curr->next();
     }
     return NULL;
 }
 
-bool SkImageDecoder::SupportsFormat(Format format) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
-        if (gPairs[i].fFormat == format) {
-            return true;
-        }
-    }
-    return false;
-}
-
 /////////////////////////////////////////////////////////////////////////
 
-typedef SkMovie* (*SkMovieFactoryProc)(SkStream*);
-
-extern SkMovie* SkMovie_GIF_Factory(SkStream*);
-
-static const SkMovieFactoryProc gMovieProcs[] = {
-    SkMovie_GIF_Factory
-};
+typedef SkTRegistry<SkMovie*, SkStream*> MovieReg;
 
 SkMovie* SkMovie::DecodeStream(SkStream* stream) {
-    for (unsigned i = 0; i < SK_ARRAY_COUNT(gMovieProcs); i++) {
-        SkMovie* movie = gMovieProcs[i](stream);
-        if (NULL != movie) {
+    const MovieReg* curr = MovieReg::Head();
+    while (curr) {
+        SkMovie* movie = curr->factory()(stream);
+        if (movie) {
             return movie;
         }
         stream->rewind();
+        curr = curr->next();
     }
     return NULL;
 }
