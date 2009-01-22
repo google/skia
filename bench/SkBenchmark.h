@@ -41,31 +41,5 @@ static inline SkIPoint SkMakeIPoint(int x, int y) {
     return p;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-template <typename T> class SkTRegistry : SkNoncopyable {
-public:
-    typedef T* (*Factory)();
-    
-    SkTRegistry(Factory fact) {
-        fFact = fact;
-        fChain = gHead;
-        gHead = this;
-    }
-    
-    static const SkTRegistry* Head() { return gHead; }
-    
-    SkTRegistry* next() const { return fChain; }
-    Factory factory() const { return fFact; }
-    
-private:
-    Factory   fFact;
-    SkTRegistry* fChain;
-    
-    static SkTRegistry* gHead;
-};
-
-template <typename T> SkTRegistry<T>* SkTRegistry<T>::gHead;
-
 #endif
 

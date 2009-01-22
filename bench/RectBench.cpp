@@ -3,6 +3,7 @@
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
+#include "SkTRegistry.h"
 
 class RectBench : public SkBenchmark {
 public:
@@ -106,29 +107,29 @@ protected:
     virtual const char* onGetName() { return fName; }
 };
 
-static SkBenchmark* RectFactory1() { return SkNEW_ARGS(RectBench, (1)); }
-static SkBenchmark* RectFactory2() { return SkNEW_ARGS(RectBench, (3)); }
-static SkBenchmark* OvalFactory1() { return SkNEW_ARGS(OvalBench, (1)); }
-static SkBenchmark* OvalFactory2() { return SkNEW_ARGS(OvalBench, (3)); }
-static SkBenchmark* RRectFactory1() { return SkNEW_ARGS(RRectBench, (1)); }
-static SkBenchmark* RRectFactory2() { return SkNEW_ARGS(RRectBench, (3)); }
-static SkBenchmark* PointsFactory() {
+static SkBenchmark* RectFactory1(void*) { return SkNEW_ARGS(RectBench, (1)); }
+static SkBenchmark* RectFactory2(void*) { return SkNEW_ARGS(RectBench, (3)); }
+static SkBenchmark* OvalFactory1(void*) { return SkNEW_ARGS(OvalBench, (1)); }
+static SkBenchmark* OvalFactory2(void*) { return SkNEW_ARGS(OvalBench, (3)); }
+static SkBenchmark* RRectFactory1(void*) { return SkNEW_ARGS(RRectBench, (1)); }
+static SkBenchmark* RRectFactory2(void*) { return SkNEW_ARGS(RRectBench, (3)); }
+static SkBenchmark* PointsFactory(void*) {
     return SkNEW_ARGS(PointsBench, (SkCanvas::kPoints_PointMode, "points"));
 }
-static SkBenchmark* LinesFactory() {
+static SkBenchmark* LinesFactory(void*) {
     return SkNEW_ARGS(PointsBench, (SkCanvas::kLines_PointMode, "lines"));
 }
-static SkBenchmark* PolygonFactory() {
+static SkBenchmark* PolygonFactory(void*) {
     return SkNEW_ARGS(PointsBench, (SkCanvas::kPolygon_PointMode, "polygon"));
 }
 
-static SkTRegistry<SkBenchmark> gRectReg1(RectFactory1);
-static SkTRegistry<SkBenchmark> gRectReg2(RectFactory2);
-static SkTRegistry<SkBenchmark> gOvalReg1(OvalFactory1);
-static SkTRegistry<SkBenchmark> gOvalReg2(OvalFactory2);
-static SkTRegistry<SkBenchmark> gRRectReg1(RRectFactory1);
-static SkTRegistry<SkBenchmark> gRRectReg2(RRectFactory2);
-static SkTRegistry<SkBenchmark> gPointsReg(PointsFactory);
-static SkTRegistry<SkBenchmark> gLinesReg(LinesFactory);
-static SkTRegistry<SkBenchmark> gPolygonReg(PolygonFactory);
+static SkTRegistry<SkBenchmark*, void*> gRectReg1(RectFactory1);
+static SkTRegistry<SkBenchmark*, void*> gRectReg2(RectFactory2);
+static SkTRegistry<SkBenchmark*, void*> gOvalReg1(OvalFactory1);
+static SkTRegistry<SkBenchmark*, void*> gOvalReg2(OvalFactory2);
+static SkTRegistry<SkBenchmark*, void*> gRRectReg1(RRectFactory1);
+static SkTRegistry<SkBenchmark*, void*> gRRectReg2(RRectFactory2);
+static SkTRegistry<SkBenchmark*, void*> gPointsReg(PointsFactory);
+static SkTRegistry<SkBenchmark*, void*> gLinesReg(LinesFactory);
+static SkTRegistry<SkBenchmark*, void*> gPolygonReg(PolygonFactory);
 

@@ -1,13 +1,12 @@
-#define SAVE_FILE
-
 #include "SkCanvas.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
 #include "SkTime.h"
+#include "SkTRegistry.h"
 
 #include "SkBenchmark.h"
 
-typedef SkTRegistry<SkBenchmark> BenchRegistry;
+typedef SkTRegistry<SkBenchmark*, void*> BenchRegistry;
 
 class Iter {
 public:
@@ -19,7 +18,7 @@ public:
         if (fBench) {
             BenchRegistry::Factory f = fBench->factory();
             fBench = fBench->next();
-            return f();
+            return f(0);
         }
         return NULL;
     }
@@ -46,7 +45,6 @@ static void make_filename(const char name[], SkString* path) {
 
 static void saveFile(const char name[], const char config[], const char dir[],
                      const SkBitmap& bm) {
-#ifdef SAVE_FILE
     SkBitmap copy;
     if (!bm.copyTo(&copy, SkBitmap::kARGB_8888_Config)) {
         return;
@@ -59,7 +57,6 @@ static void saveFile(const char name[], const char config[], const char dir[],
     ::remove(str.c_str());
     SkImageEncoder::EncodeFile(str.c_str(), copy, SkImageEncoder::kPNG_Type,
                                100);
-#endif
 }
 
 static void performClip(SkCanvas* canvas, int w, int h) {
