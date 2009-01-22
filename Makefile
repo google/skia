@@ -48,8 +48,14 @@ else
 	LINKER_OPTS += -lpng -ljpeg
 	DEFINES += -DSK_BUILD_FOR_UNIX
 
+    # these are our registry-based factories
+	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
+	SRC_LIST += src/images/SkImageEncoder_Factory.cpp
+    # this is our list of optional codecs
 	SRC_LIST += src/images/SkImageDecoder_libpng.cpp
 	SRC_LIST += src/images/SkImageDecoder_libjpeg.cpp
+    # support files
+	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
 endif
 
 out/%.o : %.cpp
