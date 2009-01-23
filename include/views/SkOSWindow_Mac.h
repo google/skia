@@ -17,6 +17,7 @@
 #ifndef SkOSWindow_Mac_DEFINED
 #define SkOSWindow_Mac_DEFINED
 
+#include <Carbon/Carbon.h>
 #include "SkWindow.h"
 
 class SkOSWindow : public SkWindow {
