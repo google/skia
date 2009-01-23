@@ -45,15 +45,12 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
 	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
 else
-	LINKER_OPTS += -lpng -ljpeg
+	LINKER_OPTS += -lpng
 	DEFINES += -DSK_BUILD_FOR_UNIX
 
     # these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
 	SRC_LIST += src/images/SkImageEncoder_Factory.cpp
-    # this is our list of optional codecs
-	SRC_LIST += src/images/SkImageDecoder_libpng.cpp
-	SRC_LIST += src/images/SkImageDecoder_libjpeg.cpp
     # support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
 endif
@@ -73,6 +70,9 @@ out/libskia.a: Makefile $(OBJ_LIST)
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp main.cpp
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
+# add any optional codecs for this app
+BENCH_SRCS += src/images/SkImageDecoder_libpng.cpp
+
 BENCH_OBJS := $(BENCH_SRCS:.cpp=.o)
 BENCH_OBJS := $(addprefix out/, $(BENCH_OBJS))
 
