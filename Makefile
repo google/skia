@@ -70,8 +70,11 @@ out/libskia.a: Makefile $(OBJ_LIST)
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp main.cpp
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
+
 # add any optional codecs for this app
-BENCH_SRCS += src/images/SkImageDecoder_libpng.cpp
+ifneq ($(SKIA_BUILD_FOR),mac)
+#    BENCH_SRCS += src/images/SkImageDecoder_libpng.cpp
+endif
 
 BENCH_OBJS := $(BENCH_SRCS:.cpp=.o)
 BENCH_OBJS := $(addprefix out/, $(BENCH_OBJS))
