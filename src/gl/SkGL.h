@@ -9,7 +9,7 @@
     #define SK_GL_DEVICE_FBO
 #elif defined(ANDROID)
     #include <GLES/gl.h>
-    #include <GLES/egl.h>
+    #include <EGL/egl.h>
 #endif
 
 #include "SkColor.h"
