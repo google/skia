@@ -68,7 +68,7 @@ out/libskia.a: Makefile $(OBJ_LIST)
 	$(HIDE)$(AR) ru $@ $(OBJ_LIST)
 	$(HIDE)ranlib $@
 
-BENCH_SRCS := RectBench.cpp SkBenchmark.cpp main.cpp
+BENCH_SRCS := RectBench.cpp SkBenchmark.cpp main.cpp BitmapBench.cpp
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
 # add any optional codecs for this app

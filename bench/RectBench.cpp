@@ -3,7 +3,6 @@
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
-#include "SkTRegistry.h"
 
 class RectBench : public SkBenchmark {
 public:
@@ -46,7 +45,6 @@ protected:
     }
 
     virtual const char* onGetName() { return computeName("rects"); }
-    virtual SkIPoint onGetSize() { return SkMakeIPoint(640, 480); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         for (int i = 0; i < N; i++) {
@@ -123,13 +121,13 @@ static SkBenchmark* PolygonFactory(void*) {
     return SkNEW_ARGS(PointsBench, (SkCanvas::kPolygon_PointMode, "polygon"));
 }
 
-static SkTRegistry<SkBenchmark*, void*> gRectReg1(RectFactory1);
-static SkTRegistry<SkBenchmark*, void*> gRectReg2(RectFactory2);
-static SkTRegistry<SkBenchmark*, void*> gOvalReg1(OvalFactory1);
-static SkTRegistry<SkBenchmark*, void*> gOvalReg2(OvalFactory2);
-static SkTRegistry<SkBenchmark*, void*> gRRectReg1(RRectFactory1);
-static SkTRegistry<SkBenchmark*, void*> gRRectReg2(RRectFactory2);
-static SkTRegistry<SkBenchmark*, void*> gPointsReg(PointsFactory);
-static SkTRegistry<SkBenchmark*, void*> gLinesReg(LinesFactory);
-static SkTRegistry<SkBenchmark*, void*> gPolygonReg(PolygonFactory);
+static BenchRegistry gRectReg1(RectFactory1);
+static BenchRegistry gRectReg2(RectFactory2);
+static BenchRegistry gOvalReg1(OvalFactory1);
+static BenchRegistry gOvalReg2(OvalFactory2);
+static BenchRegistry gRRectReg1(RRectFactory1);
+static BenchRegistry gRRectReg2(RRectFactory2);
+static BenchRegistry gPointsReg(PointsFactory);
+static BenchRegistry gLinesReg(LinesFactory);
+static BenchRegistry gPolygonReg(PolygonFactory);
 

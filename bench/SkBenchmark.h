@@ -3,6 +3,7 @@
 
 #include "SkRefCnt.h"
 #include "SkPoint.h"
+#include "SkTRegistry.h"
 
 class SkCanvas;
 class SkPaint;
@@ -27,9 +28,10 @@ protected:
     void setupPaint(SkPaint* paint);
 
     virtual const char* onGetName() = 0;
-    virtual SkIPoint onGetSize() = 0;
     virtual void onDraw(SkCanvas*) = 0;
-    
+
+    virtual SkIPoint onGetSize();
+
 private:
     int     fForceAlpha;
     bool    fForceAA;
@@ -40,6 +42,8 @@ static inline SkIPoint SkMakeIPoint(int x, int y) {
     p.set(x, y);
     return p;
 }
+
+typedef SkTRegistry<SkBenchmark*, void*> BenchRegistry;
 
 #endif
 

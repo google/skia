@@ -1,12 +1,10 @@
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
 #include "SkTime.h"
-#include "SkTRegistry.h"
 
 #include "SkBenchmark.h"
-
-typedef SkTRegistry<SkBenchmark*, void*> BenchRegistry;
 
 class Iter {
 public:
@@ -48,6 +46,18 @@ static void saveFile(const char name[], const char config[], const char dir[],
     SkBitmap copy;
     if (!bm.copyTo(&copy, SkBitmap::kARGB_8888_Config)) {
         return;
+    }
+    
+    if (bm.config() == SkBitmap::kA8_Config) {
+        // turn alpha into gray-scale
+        size_t size = copy.getSize() >> 2;
+        SkPMColor* p = copy.getAddr32(0, 0);
+        for (size_t i = 0; i < size; i++) {
+            int c = (*p >> SK_A32_SHIFT) & 0xFF;
+            c = 255 - c;
+            c |= (c << 24) | (c << 16) | (c << 8);
+            *p++ = c | (SK_A32_MASK << SK_A32_SHIFT);
+        }
     }
 
     SkString str;
@@ -164,7 +174,7 @@ int main (int argc, char * const argv[]) {
         bench->setForceAlpha(forceAlpha);
         bench->setForceAA(forceAA);
 
-        printf("running bench %8s", bench->getName());
+        printf("running bench %16s", bench->getName());
 
         for (int configIndex = 0; configIndex < configCount; configIndex++) {
             if (configCount > 1) {
@@ -176,9 +186,14 @@ int main (int argc, char * const argv[]) {
             bm.setConfig(outConfig, dim.fX, dim.fY);
             bm.allocPixels();
             
+            if (bm.config() == SkBitmap::kA8_Config) {
+                bm.eraseColor(0);
+            } else {
+                bm.eraseColor(SK_ColorWHITE);
+            }
+
             SkCanvas canvas(bm);
-            canvas.drawColor(SK_ColorWHITE);
-            
+
             if (doClip) {
                 performClip(&canvas, dim.fX, dim.fY);
             }

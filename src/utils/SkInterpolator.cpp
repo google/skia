@@ -80,7 +80,7 @@ SkInterpolatorBase::Result SkInterpolatorBase::timeToT(SkMSec time, SkScalar* T,
     SkASSERT(fFrameCount > 0);
     Result  result = kNormal_Result;
     if (fRepeat != SK_Scalar1) {
-        SkMSec startTime, endTime;
+        SkMSec startTime = 0, endTime = 0;  // initialize to avoid warning
         this->getDuration(&startTime, &endTime);
         SkMSec totalTime = endTime - startTime;
         SkMSec offsetTime = time - startTime;

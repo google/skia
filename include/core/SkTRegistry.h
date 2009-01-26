@@ -45,6 +45,7 @@ private:
     static SkTRegistry* gHead;
 };
 
+// The caller still needs to declare an instance of this somewhere
 template <typename T, typename P> SkTRegistry<T, P>* SkTRegistry<T, P>::gHead;
 
 #endif

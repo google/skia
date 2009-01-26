@@ -1,6 +1,8 @@
 #include "SkBenchmark.h"
 #include "SkPaint.h"
 
+template BenchRegistry* BenchRegistry::gHead;
+
 SkBenchmark::SkBenchmark() {
     fForceAlpha = 0xFF;
     fForceAA = true;
@@ -23,4 +25,8 @@ void SkBenchmark::setupPaint(SkPaint* paint) {
     paint->setAntiAlias(fForceAA);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
+SkIPoint SkBenchmark::onGetSize() {
+    return SkMakeIPoint(640, 480);
+}
