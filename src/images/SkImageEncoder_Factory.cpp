@@ -19,6 +19,8 @@
 
 typedef SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> EncodeReg;
 
+template EncodeReg* EncodeReg::gHead;
+
 SkImageEncoder* SkImageEncoder::Create(Type t) {
     const EncodeReg* curr = EncodeReg::Head();
     while (curr) {

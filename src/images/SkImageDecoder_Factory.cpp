@@ -22,6 +22,8 @@
 
 typedef SkTRegistry<SkImageDecoder*, SkStream*> DecodeReg;
 
+template DecodeReg* DecodeReg::gHead;
+
 SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
     const DecodeReg* curr = DecodeReg::Head();
     while (curr) {
