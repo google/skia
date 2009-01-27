@@ -73,7 +73,7 @@ BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
 # add any optional codecs for this app
 ifneq ($(SKIA_BUILD_FOR),mac)
-#    BENCH_SRCS += src/images/SkImageDecoder_libpng.cpp
+    BENCH_SRCS += src/images/SkImageDecoder_libpng.cpp
 endif
 
 BENCH_OBJS := $(BENCH_SRCS:.cpp=.o)
