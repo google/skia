@@ -44,6 +44,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 	C_INCLUDES += -Iinclude/utils/mac
 	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
 	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
+	SRC_LIST += src/ports/SkFontHost_mac.cpp
 else
 	LINKER_OPTS += -lpng
 	DEFINES += -DSK_BUILD_FOR_UNIX
@@ -72,7 +73,9 @@ BENCH_SRCS := RectBench.cpp SkBenchmark.cpp main.cpp BitmapBench.cpp
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
 # add any optional codecs for this app
-ifneq ($(SKIA_BUILD_FOR),mac)
+ifeq ($(SKIA_BUILD_FOR),mac)
+#    BENCH_SRCS += bench/TextBench.cpp
+else
     BENCH_SRCS += src/images/SkImageDecoder_libpng.cpp
 endif
 

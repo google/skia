@@ -1,5 +1,6 @@
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkString.h"
 #include "SkTime.h"
@@ -109,7 +110,19 @@ static int findConfig(const char config[]) {
     return -1;
 }
 
+class SkAutoGraphics {
+public:
+    SkAutoGraphics(bool runUnitTests = false) {
+        SkGraphics::Init(runUnitTests);
+    }
+    ~SkAutoGraphics() {
+        SkGraphics::Term();
+    }
+};
+
 int main (int argc, char * const argv[]) {
+    SkAutoGraphics ag;
+
     int repeatDraw = 1;
     int forceAlpha = 0xFF;
     bool forceAA = true;
