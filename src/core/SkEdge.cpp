@@ -173,7 +173,7 @@ static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy)
     return (32 - SkCLZ(dist)) >> 1;
 }
 
-int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], const SkIRect* clip, int shift)
+int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift)
 {
     SkFDot6 x0, y0, x1, y1, x2, y2;
 
@@ -212,9 +212,6 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], const SkIRect* clip, int
     // are we a zero-height quad (line)?
     if (top == bot)
         return 0;
-    // are we completely above or below the clip?
-    if (clip && (top >= clip->fBottom || bot <= clip->fTop))
-        return 0;
 
     // compute number of steps needed (1 << shift)
     {
@@ -252,15 +249,6 @@ int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], const SkIRect* clip, int
     fQLastX = SkFDot6ToFixed(x2);
     fQLastY = SkFDot6ToFixed(y2);
 
-    if (clip)
-    {
-        do {
-            for (;!this->updateQuadratic();)
-                ;
-        } while (!this->intersectsClip(*clip));
-        this->chopLineWithClip(*clip);
-        return 1;
-    }
     return this->updateQuadratic();
 }
 

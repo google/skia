@@ -75,7 +75,7 @@ struct SkQuadraticEdge : public SkEdge {
     SkFixed fQDDx, fQDDy;
     SkFixed fQLastX, fQLastY;
 
-    int setQuadratic(const SkPoint pts[3], const SkIRect* clip, int shiftUp);
+    int setQuadratic(const SkPoint pts[3], int shiftUp);
     int updateQuadratic();
 };
 

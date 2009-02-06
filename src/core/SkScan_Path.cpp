@@ -20,6 +20,7 @@
 #include "SkEdge.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
+#include "SkQuadClipper.h"
 #include "SkRegion.h"
 #include "SkTemplates.h"
 
@@ -306,6 +307,14 @@ static int build_edges(SkEdge edge[], const SkPath& path,
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
     SkPath::Verb    verb;
+    
+    SkQuadClipper qclipper;
+    if (clipRect) {
+        SkIRect r;
+        r.set(clipRect->fLeft >> shiftUp, clipRect->fTop >> shiftUp,
+              clipRect->fRight >> shiftUp, clipRect->fBottom >> shiftUp);
+        qclipper.setClip(r);
+    }
 
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
@@ -316,17 +325,23 @@ static int build_edges(SkEdge edge[], const SkPath& path,
                 }
                 break;
             case SkPath::kQuad_Verb: {
-                SkPoint tmp[5];
+                SkPoint tmp[5], clippedPts[3];
                 SkPoint* p = tmp;
                 int     count = SkChopQuadAtYExtrema(pts, tmp);
 
                 do {
-                    if (((SkQuadraticEdge*)edge)->setQuadratic(p, clipRect,
-                                                               shiftUp))
-                    {
+                    const SkPoint* qpts = p;
+                    if (clipRect) {
+                        if (!qclipper.clipQuad(p, clippedPts)) {
+                            goto NEXT_CHOPPED_QUAD;
+                        }
+                        qpts = clippedPts;
+                    }
+                    if (((SkQuadraticEdge*)edge)->setQuadratic(qpts, shiftUp)) {
                         *list++ = edge;
                         edge = (SkEdge*)((char*)edge + sizeof(SkQuadraticEdge));
                     }
+                NEXT_CHOPPED_QUAD:
                     p += 2;
                 } while (--count >= 0);
                 break;

@@ -64,6 +64,7 @@
 		007A7CBF0F01658C00A2D6EE /* SampleTypeface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB00F01658C00A2D6EE /* SampleTypeface.cpp */; };
 		007A7CC00F01658C00A2D6EE /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB10F01658C00A2D6EE /* SampleVertices.cpp */; };
 		007A7CC10F01658C00A2D6EE /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */; };
+		007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C785D0F3B4C230004B142 /* SamplePathClip.cpp */; };
 		00A41E4B0EFC312F00C9CBEB /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
@@ -176,6 +177,7 @@
 		007A7CB00F01658C00A2D6EE /* SampleTypeface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTypeface.cpp; path = ../../samplecode/SampleTypeface.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CB10F01658C00A2D6EE /* SampleVertices.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleVertices.cpp; path = ../../samplecode/SampleVertices.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleXfermodes.cpp; path = ../../samplecode/SampleXfermodes.cpp; sourceTree = SOURCE_ROOT; };
+		007C785D0F3B4C230004B142 /* SamplePathClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePathClip.cpp; path = ../../samplecode/SamplePathClip.cpp; sourceTree = SOURCE_ROOT; };
 		00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
 		0156F80307C56A3000C6122B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		01FC44D407BD3BB800D228F4 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
@@ -246,6 +248,7 @@
 				00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */,
 				00003C620EFC22A8000FF73A /* SampleApp.cpp */,
 				00003C640EFC22A8000FF73A /* SamplePath.cpp */,
+				007C785D0F3B4C230004B142 /* SamplePathClip.cpp */,
 				00003C650EFC22A8000FF73A /* SamplePathEffects.cpp */,
 			);
 			name = samples;
@@ -505,6 +508,7 @@
 				007A7CC10F01658C00A2D6EE /* SampleXfermodes.cpp in Sources */,
 				0041CE3C0F00A12400695E8C /* SampleEncode.cpp in Sources */,
 				007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */,
+				007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

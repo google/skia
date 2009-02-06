@@ -58,6 +58,7 @@ SOURCE := \
     SkPixelRef.cpp \
     SkPoint.cpp \
     SkPtrRecorder.cpp \
+    SkQuadClipper.cpp \
     SkRasterizer.cpp \
     SkRect.cpp \
     SkRefCnt.cpp \
