@@ -957,12 +957,14 @@ bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
         return false;
     }
 
-    if (NULL != bounds) {
-        SkMatrix inverse;
-        SkRect   r;
+    SkMatrix inverse;
+    // if we can't invert the CTM, we can't return local clip bounds
+    if (!fMCRec->fMatrix->invert(&inverse)) {
+        return false;
+    }
 
-        fMCRec->fMatrix->invert(&inverse);
-        
+    if (NULL != bounds) {
+        SkRect   r;
         // get the clip's bounds
         const SkIRect& ibounds = clip.getBounds();
         // adjust it outwards if we are antialiasing
