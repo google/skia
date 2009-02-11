@@ -1135,13 +1135,13 @@ void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
 void SkCanvas::commonDrawBitmap(const SkBitmap& bitmap, const SkMatrix& matrix,
                                 const SkPaint& paint) {
     SkDEBUGCODE(bitmap.validate();)
-    
+
     ITER_BEGIN(paint, SkDrawFilter::kBitmap_Type)
-    
+
     while (iter.next()) {
         iter.fDevice->drawBitmap(iter, bitmap, matrix, paint);
     }
-    
+
     ITER_END
 }
 
