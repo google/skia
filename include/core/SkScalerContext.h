@@ -85,6 +85,12 @@ struct SkGlyph {
     
     size_t computeImageSize() const;
     
+    /** Call this to set all of the metrics fields to 0 (e.g. if the scaler
+        encounters an error measuring a glyph). Note: this does not alter the
+        fImage, fPath, fID, fMaskFormat fields.
+     */
+    void zeroMetrics();
+    
     enum {
         kSubBits = 2,
         kSubMask = ((1 << kSubBits) - 1),

@@ -91,25 +91,62 @@ bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*  Technically, this should be 342, since that is the cutoff point between
+    an index and 32bit bitmap (they take equal ram), but since 32bit is almost
+    always faster, I bump up the value a bit.
+*/
+#define MIN_SIZE_FOR_INDEX  (512)
+
+/*  Return the "optimal" config for this bitmap. In this case, we just look to
+    promote index bitmaps to full-color, since those are a little faster to
+    draw (fewer memory lookups).
+
+    Seems like we could expose this to the caller through some exising or new
+    proxy object, allowing them to decide (after sniffing some aspect of the
+    original bitmap) what config they really want.
+ */
+static SkBitmap::Config optimal_config(const SkBitmap& bm,
+                                       SkBitmap::Config pref) {
+    if (bm.config() != pref) {
+        if (bm.config() == SkBitmap::kIndex8_Config) {
+            Sk64 size64 = bm.getSize64();
+            if (size64.is32()) {
+                int32_t size = size64.get32();
+                if (size < MIN_SIZE_FOR_INDEX) {
+                    return SkBitmap::kARGB_8888_Config;
+                }
+            }
+        }
+    }
+    return bm.config();
+}
+
 bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
                             SkBitmap::Config pref, Mode mode) {
+    // pass a temporary bitmap, so that if we return false, we are assured of
+    // leaving the caller's bitmap untouched.
     SkBitmap    tmp;
 
     // we reset this to false before calling onDecode
     fShouldCancelDecode = false;
 
-    // pass a temporary bitmap, so that if we return false, we are assured of
-    // leaving the caller's bitmap untouched.
-    if (this->onDecode(stream, &tmp, pref, mode)) {
-        /*  We operate on a tmp bitmap until we know we succeed. This way
-         we're sure we don't change the caller's bitmap and then later
-         return false. Returning false must mean that their parameter
-         is unchanged.
-         */
-        bm->swap(tmp);
-        return true;
+    if (!this->onDecode(stream, &tmp, pref, mode)) {
+        return false;
     }
-    return false;
+
+    SkBitmap::Config c = optimal_config(tmp, pref);
+    if (c != tmp.config()) {
+        if (mode == kDecodeBounds_Mode) {
+            tmp.setConfig(c, tmp.width(), tmp.height());
+        } else {
+            SkBitmap tmp2;
+            if (tmp.copyTo(&tmp2, c, this->getAllocator())) {
+                tmp.swap(tmp2);
+            }
+        }
+    }
+    bm->swap(tmp);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -52,6 +52,19 @@ size_t SkGlyph::computeImageSize() const {
     return size;
 }
 
+void SkGlyph::zeroMetrics() {
+    fAdvanceX = 0;
+    fAdvanceY = 0;
+    fWidth    = 0;
+    fHeight   = 0;
+    fTop      = 0;
+    fLeft     = 0;
+    fRsbDelta = 0;
+    fLsbDelta = 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 #ifdef SK_DEBUG
     #define DUMP_RECx
 #endif
@@ -521,10 +534,46 @@ void SkScalerContext::Rec::getSingleMatrix(SkMatrix* m) const
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 #include "SkFontHost.h"
+
+class SkScalerContext_Empty : public SkScalerContext {
+public:
+    SkScalerContext_Empty(const SkDescriptor* desc) : SkScalerContext(desc) {}
+
+protected:
+    virtual unsigned generateGlyphCount() const {
+        return 0;
+    }
+    virtual uint16_t generateCharToGlyph(SkUnichar uni) {
+        return 0;
+    }
+    virtual void generateAdvance(SkGlyph* glyph) {
+        glyph->zeroMetrics();
+    }
+    virtual void generateMetrics(SkGlyph* glyph) {
+        glyph->zeroMetrics();
+    }
+    virtual void generateImage(const SkGlyph& glyph) {}
+    virtual void generatePath(const SkGlyph& glyph, SkPath* path) {}
+    virtual void generateFontMetrics(SkPaint::FontMetrics* mx,
+                                     SkPaint::FontMetrics* my) {
+        if (mx) {
+            bzero(mx, sizeof(*mx));
+        }
+        if (my) {
+            bzero(my, sizeof(*my));
+        }
+    }
+};
 
 SkScalerContext* SkScalerContext::Create(const SkDescriptor* desc)
 {
-    return SkFontHost::CreateScalerContext(desc);
+    SkScalerContext* c = SkFontHost::CreateScalerContext(desc);
+    if (NULL == c) {
+        c = SkNEW_ARGS(SkScalerContext_Empty, (desc));
+    }
+    return c;
 }
 
