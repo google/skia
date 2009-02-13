@@ -3,6 +3,11 @@
 #include "SkTypeface.h"
 #include <new>
 
+/*  Define this to spew out a debug statement whenever we skip the remainder of
+    a save/restore block because a clip... command returned false (empty).
+ */
+#define SPEW_CLIP_SKIPPINGx
+
 SkPicturePlayback::SkPicturePlayback() {
     this->init();
 }
@@ -461,9 +466,30 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SPEW_CLIP_SKIPPING
+struct SkipClipRec {
+    int     fCount;
+    size_t  fSize;
+    
+    SkipClipRec() {
+        fCount = 0;
+        fSize = 0;
+    }
+    
+    void recordSkip(size_t bytes) {
+        fCount += 1;
+        fSize += bytes;
+    }
+};
+#endif
+
 void SkPicturePlayback::draw(SkCanvas& canvas) {
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
+#endif
+    
+#ifdef SPEW_CLIP_SKIPPING
+    SkipClipRec skipRect, skipRegion, skipPath;
 #endif
 
     TextContainer text;
@@ -476,8 +502,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
                 // HACK (false) until I can handle op==kReplace 
-                if (!canvas.clipPath(path, op) && false) {
-                    //SkDebugf("---- skip clipPath for %d bytes\n", offsetToRestore - fReader.offset());
+                if (!canvas.clipPath(path, op)) {
+#ifdef SPEW_CLIP_SKIPPING
+                    skipPath.recordSkip(offsetToRestore - fReader.offset());
+#endif
                     fReader.setOffset(offsetToRestore);
                 }
             } break;
@@ -486,7 +514,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
                 if (!canvas.clipRegion(region, op)) {
-                    //SkDebugf("---- skip clipDeviceRgn for %d bytes\n", offsetToRestore - fReader.offset());
+#ifdef SPEW_CLIP_SKIPPING
+                    skipRegion.recordSkip(offsetToRestore - fReader.offset());
+#endif
                     fReader.setOffset(offsetToRestore);
                 }
             } break;
@@ -495,7 +525,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
                 if (!canvas.clipRect(*rect, op)) {
-                    //SkDebugf("---- skip clipRect for %d bytes\n", offsetToRestore - fReader.offset());
+#ifdef SPEW_CLIP_SKIPPING
+                    skipRect.recordSkip(offsetToRestore - fReader.offset());
+#endif
                     fReader.setOffset(offsetToRestore);
                 }
             } break;
@@ -671,6 +703,14 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
         }
     }
     
+#ifdef SPEW_CLIP_SKIPPING
+    {
+        size_t size =  skipRect.fSize + skipPath.fSize + skipRegion.fSize;
+        SkDebugf("--- Clip skips %d%% rect:%d path:%d rgn:%d\n",
+             size * 100 / fReader.offset(), skipRect.fCount, skipPath.fCount,
+             skipRegion.fCount);
+    }
+#endif
 //    this->dumpSize();
 }
 

@@ -4,8 +4,8 @@
 #define MIN_WRITER_SIZE 16384
 #define HEAP_BLOCK_SIZE 4096
 
-SkPictureRecord::SkPictureRecord() :
-        fHeap(HEAP_BLOCK_SIZE), fWriter(MIN_WRITER_SIZE) {
+SkPictureRecord::SkPictureRecord(uint32_t flags) :
+        fHeap(HEAP_BLOCK_SIZE), fWriter(MIN_WRITER_SIZE), fRecordFlags(flags) {
     fBitmapIndex = fMatrixIndex = fPaintIndex = fRegionIndex = 1;
 #ifdef SK_DEBUG_SIZE
     fPointBytes = fRectBytes = fTextBytes = 0;
@@ -136,7 +136,14 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op) {
     fRestoreOffsetStack.top() = offset;
     
     validate();
-    return this->INHERITED::clipPath(path, op);
+    
+    if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
+        SkRect bounds;
+        path.computeBounds(&bounds, SkPath::kFast_BoundsType);
+        return this->INHERITED::clipRect(bounds, op);
+    } else {
+        return this->INHERITED::clipPath(path, op);
+    }
 }
 
 bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {

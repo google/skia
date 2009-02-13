@@ -49,10 +49,28 @@ public:
      */
     void swap(SkPicture& other);
     
+    enum RecordingFlags {
+        /*  This flag specifies that when clipPath() is called, the path will
+            be faithfully recorded, but the recording canvas' current clip will
+            only see the path's bounds. This speeds up the recording process
+            without compromising the fidelity of the playback. The only side-
+            effect for recording is that calling getTotalClip() or related
+            clip-query calls will reflect the path's bounds, not the actual
+            path.
+         */
+        kUsePathBoundsForClip_RecordingFlag = 0x01
+    };
+
     /** Returns the canvas that records the drawing commands.
+        @param width the base width for the picture, as if the recording
+                     canvas' bitmap had this width.
+        @param height the base width for the picture, as if the recording
+                     canvas' bitmap had this height.
+        @param recordFlags optional flags that control recording.
         @return the picture canvas.
     */
-    SkCanvas* beginRecording(int width, int height);
+    SkCanvas* beginRecording(int width, int height, uint32_t recordFlags = 0);
+
     /** Returns the recording canvas if one is active, or NULL if recording is
         not active. This does not alter the refcnt on the canvas (if present).
     */
@@ -103,9 +121,10 @@ private:
 
 class SkAutoPictureRecord : SkNoncopyable {
 public:
-    SkAutoPictureRecord(SkPicture* pict, int width, int height) {
+    SkAutoPictureRecord(SkPicture* pict, int width, int height,
+                        uint32_t recordingFlags = 0) {
         fPicture = pict;
-        fCanvas = pict->beginRecording(width, height);
+        fCanvas = pict->beginRecording(width, height, recordingFlags);
     }
     ~SkAutoPictureRecord() {
         fPicture->endRecording();

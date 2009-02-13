@@ -146,7 +146,8 @@ void SkPicture::swap(SkPicture& other) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkCanvas* SkPicture::beginRecording(int width, int height) {
+SkCanvas* SkPicture::beginRecording(int width, int height,
+                                    uint32_t recordingFlags) {
     if (fPlayback) {
         SkDELETE(fPlayback);
         fPlayback = NULL;
@@ -157,7 +158,7 @@ SkCanvas* SkPicture::beginRecording(int width, int height) {
         fRecord = NULL;
     }
 
-    fRecord = SkNEW(SkPictureRecord);
+    fRecord = SkNEW_ARGS(SkPictureRecord, (recordingFlags));
 
     fWidth = width;
     fHeight = height;

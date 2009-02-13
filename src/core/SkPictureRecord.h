@@ -11,7 +11,7 @@
 
 class SkPictureRecord : public SkCanvas {
 public:
-    SkPictureRecord();
+    SkPictureRecord(uint32_t recordFlags);
     virtual ~SkPictureRecord();
 
     // overrides from SkCanvas
@@ -171,6 +171,8 @@ private:
     SkRefCntRecorder fRCRecorder;
     SkRefCntRecorder fTFRecorder;
     
+    uint32_t fRecordFlags;
+
     friend class SkPicturePlayback;
 
     typedef SkCanvas INHERITED;
