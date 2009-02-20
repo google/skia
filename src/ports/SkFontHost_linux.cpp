@@ -86,8 +86,7 @@ struct FamilyRec {
 };
 
 static SkTypeface* find_best_face(const FamilyRec* family,
-                                  SkTypeface::Style style)
-{
+                                  SkTypeface::Style style) {
     SkTypeface* const* faces = family->fFaces;
     
     if (faces[style] != NULL) { // exact match
@@ -113,8 +112,7 @@ static SkTypeface* find_best_face(const FamilyRec* family,
     return NULL;
 }
 
-static FamilyRec* find_family(const SkTypeface* member)
-{
+static FamilyRec* find_family(const SkTypeface* member) {
     FamilyRec* curr = gFamilyHead;
     while (curr != NULL) {
         for (int i = 0; i < 4; i++) {
@@ -127,8 +125,7 @@ static FamilyRec* find_family(const SkTypeface* member)
     return NULL;
 }
 
-static SkTypeface* resolve_uniqueID(uint32_t uniqueID)
-{
+static SkTypeface* resolve_uniqueID(uint32_t uniqueID) {
     FamilyRec* curr = gFamilyHead;
     while (curr != NULL) {
         for (int i = 0; i < 4; i++) {
@@ -145,8 +142,7 @@ static SkTypeface* resolve_uniqueID(uint32_t uniqueID)
 /*  Remove reference to this face from its family. If the resulting family
  is empty (has no faces), return that family, otherwise return NULL
  */
-static FamilyRec* remove_from_family(const SkTypeface* face)
-{
+static FamilyRec* remove_from_family(const SkTypeface* face) {
     FamilyRec* family = find_family(face);
     SkASSERT(family->fFaces[face->style()] == face);
     family->fFaces[face->style()] = NULL;
@@ -160,8 +156,7 @@ static FamilyRec* remove_from_family(const SkTypeface* face)
 }
 
 // maybe we should make FamilyRec be doubly-linked
-static void detach_and_delete_family(FamilyRec* family)
-{
+static void detach_and_delete_family(FamilyRec* family) {
     FamilyRec* curr = gFamilyHead;
     FamilyRec* prev = NULL;
     
@@ -195,14 +190,12 @@ static SkTypeface* find_typeface(const char name[], SkTypeface::Style style) {
 }
 
 static SkTypeface* find_typeface(const SkTypeface* familyMember,
-                                 SkTypeface::Style style)
-{
+                                 SkTypeface::Style style) {
     const FamilyRec* family = find_family(familyMember);
     return family ? find_best_face(family, style) : NULL;
 }
 
-static void add_name(const char name[], FamilyRec* family)
-{
+static void add_name(const char name[], FamilyRec* family) {
     SkAutoAsciiToLC tolc(name);
     name = tolc.lc();
     
@@ -217,8 +210,7 @@ static void add_name(const char name[], FamilyRec* family)
     }
 }
 
-static void remove_from_names(FamilyRec* emptyFamily)
-{
+static void remove_from_names(FamilyRec* emptyFamily) {
 #ifdef SK_DEBUG
     for (int i = 0; i < 4; i++) {
         SkASSERT(emptyFamily->fFaces[i] == NULL);
@@ -242,8 +234,7 @@ static void remove_from_names(FamilyRec* emptyFamily)
 class FamilyTypeface : public SkTypeface {
 public:
     FamilyTypeface(Style style, bool sysFont, FamilyRec* family)
-    : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1)
-    {
+    : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1) {
         fIsSysFont = sysFont;
         
         SkAutoMutexAcquire  ac(gFamilyMutex);
@@ -255,8 +246,7 @@ public:
         fFamilyRec = family;    // just record it so we can return it if asked
     }
     
-    virtual ~FamilyTypeface()
-    {
+    virtual ~FamilyTypeface() {
         SkAutoMutexAcquire  ac(gFamilyMutex);
         
         // remove us from our family. If the family is now empty, we return
@@ -288,12 +278,10 @@ class StreamTypeface : public FamilyTypeface {
 public:
     StreamTypeface(Style style, bool sysFont, FamilyRec* family,
                    SkStream* stream)
-    : INHERITED(style, sysFont, family)
-    {
+    : INHERITED(style, sysFont, family) {
         fStream = stream;
     }
-    virtual ~StreamTypeface()
-    {
+    virtual ~StreamTypeface() {
         SkDELETE(fStream);
     }
     
@@ -355,8 +343,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool get_name_and_style(const char path[], SkString* name,
-                               SkTypeface::Style* style)
-{    
+                               SkTypeface::Style* style) {    
     SkMMAPStream stream(path);
     if (stream.getLength() > 0) {
         *style = find_name_and_style(&stream, name);
@@ -379,8 +366,7 @@ static SkTypeface* gFallBackTypeface;
 static FamilyRec* gDefaultFamily;
 static SkTypeface* gDefaultNormal;
 
-static void load_system_fonts()
-{
+static void load_system_fonts() {
     // check if we've already be called
     if (NULL != gDefaultNormal) {
         return;
@@ -507,8 +493,7 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
                                      const char familyName[],
-                                     SkTypeface::Style style)
-{
+                                     SkTypeface::Style style) {
     load_system_fonts();
     
     SkAutoMutexAcquire  ac(gFamilyMutex);
@@ -532,16 +517,13 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-SkTypeface* SkFontHost::ResolveTypeface(uint32_t fontID)
-{
+SkTypeface* SkFontHost::ResolveTypeface(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
     
     return resolve_uniqueID(fontID);
 }
 
-SkStream* SkFontHost::OpenStream(uint32_t fontID)
-{
-    
+SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     FamilyTypeface* tf = (FamilyTypeface*)SkFontHost::ResolveTypeface(fontID);
     SkStream* stream = tf ? tf->openStream() : NULL;
     
@@ -552,8 +534,7 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID)
     return stream;
 }
 
-void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream)
-{
+void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream) {
     FamilyTypeface* tf = (FamilyTypeface*)SkFontHost::ResolveTypeface(fontID);
     if (NULL != tf) {
         tf->closeStream(stream);
@@ -561,8 +542,7 @@ void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream)
 }
 
 SkScalerContext* SkFontHost::CreateFallbackScalerContext(
-                                                         const SkScalerContext::Rec& rec)
-{
+                                            const SkScalerContext::Rec& rec) {
     load_system_fonts();
     
     SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
@@ -580,8 +560,7 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkFontHost::CreateTypeface(SkStream* stream)
-{
+SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
     if (NULL == stream || stream->getLength() <= 0) {
         SkDELETE(stream);
         return NULL;
@@ -593,15 +572,20 @@ SkTypeface* SkFontHost::CreateTypeface(SkStream* stream)
     return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream));
 }
 
-SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
-{
-    return NULL;
+SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
+    SkTypeface* face = NULL;
+    SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
+
+    if (stream->isValid()) {
+        face = CreateTypeface(stream);
+    }
+    stream->unref();
+    return face;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar)
-{
+size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
     if (sizeAllocatedSoFar > FONT_CACHE_MEMORY_BUDGET)
         return sizeAllocatedSoFar - FONT_CACHE_MEMORY_BUDGET;
     else
