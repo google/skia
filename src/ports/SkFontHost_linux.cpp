@@ -577,10 +577,10 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
 
     if (stream->isValid()) {
-        face = CreateTypeface(stream);
+        return CreateTypeface(stream);
     }
     stream->unref();
-    return face;
+    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
