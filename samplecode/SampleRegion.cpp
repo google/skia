@@ -219,6 +219,24 @@ protected:
         }
         this->drawBG(canvas);
         
+        if (false) {
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            SkBitmap bm;
+            bm.setConfig(SkBitmap::kA8_Config, 100, 100);
+            bm.allocPixels();
+            bm.eraseColor(0);
+            SkCanvas c(bm);
+            c.drawCircle(50, 50, 50, paint);
+
+            paint.setColor(SK_ColorBLUE);
+            canvas->drawBitmap(bm, 0, 0, &paint);
+            canvas->scale(SK_Scalar1/2, SK_Scalar1/2);
+            paint.setColor(SK_ColorRED);
+            canvas->drawBitmap(bm, 0, 0, &paint);
+            return;
+        }
+        
 #ifdef SK_DEBUG
         if (true) {
             SkRegion a, b, c;

@@ -932,7 +932,16 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
             c.translate(-SkIntToScalar(mask.fBounds.fLeft),
                         -SkIntToScalar(mask.fBounds.fTop));
             c.concat(*fMatrix);
-            c.drawBitmap(bitmap, 0, 0, NULL);
+
+            // We can't call drawBitmap, or we'll infinitely recurse. Instead
+            // we mannually build a shader and draw that into our new mask
+            SkPaint tmpPaint;
+            tmpPaint.setFlags(paint.getFlags());
+            SkAutoBitmapShaderInstall   install(bitmap, &tmpPaint);
+            SkRect rr;
+            rr.set(0, 0, SkIntToScalar(bitmap.width()),
+                   SkIntToScalar(bitmap.height()));
+            c.drawRect(rr, tmpPaint);
         }
         this->drawDevMask(mask, paint);
     }
