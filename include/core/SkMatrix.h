@@ -403,13 +403,6 @@ public:
     void dump() const;
     void toDumpString(SkString*) const;
 
-#ifdef SK_DEBUG
-  /** @cond UNIT_TEST */
-
-    static void UnitTest();
-  /** @endcond */
-#endif
-
 private:
     enum {
         /** Set if the matrix will map a rectangle to another rectangle. This

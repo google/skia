@@ -217,14 +217,5 @@ static inline unsigned SkMul16ShiftRound(unsigned a, unsigned b, int shift) {
     return (prod + (prod >> shift)) >> shift;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-    class SkMath {
-    public:
-        static void UnitTest();
-    };
-#endif
-
 #endif
 

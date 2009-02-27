@@ -96,13 +96,6 @@ size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = NULL);
 size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
                            char utf8[] = NULL);
 
-class SkUtils {
-public:
-#ifdef SK_DEBUG
-    static void UnitTest();
-#endif
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkAutoTrace {

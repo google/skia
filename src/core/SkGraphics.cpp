@@ -345,10 +345,7 @@ void SkGraphics::Init(bool runUnitTests)
         void (*fUnitTest)();
     } gUnitTests[] = {
         unittestline(Sk64),
-        unittestline(SkMath),
-        unittestline(SkUtils),
         unittestline(SkString),
-        unittestline(SkMatrix),
         unittestline(SkGeometry),
         unittestline(SkPath),
         unittestline(SkPathMeasure),

@@ -118,7 +118,7 @@
     so this flag is optional.
  */
 #ifdef SK_DEBUG
-//#define SK_SUPPORT_UNITTEST
+#define SK_SUPPORT_UNITTEST
 #endif
 
 #endif
