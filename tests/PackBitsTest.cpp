@@ -118,27 +118,10 @@ static void test_pack8(skiatest::Reporter* reporter) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-namespace skiatest {
-    
-    class PackBitsTest : public Test {
-    public:
-        static Test* Factory(void*) {
-            return SkNEW(PackBitsTest);
-        }
-        
-    protected:
-        virtual void onGetName(SkString* name) {
-            name->set("PackBits");
-        }
-        
-        virtual void onRun(Reporter* reporter) {
-            test_pack8(reporter);
-            test_pack16(reporter);
-        }
-    };
-    
-    static TestRegistry gReg(PackBitsTest::Factory);
+static void TestPackBits(skiatest::Reporter* reporter) {
+    test_pack8(reporter);
+    test_pack16(reporter);
 }
 
+#include "TestClassDef.h"
+DEFINE_TESTCLASS("PackBits", PackBitsTestClass, TestPackBits)

@@ -105,26 +105,5 @@ static void TestUTF(skiatest::Reporter* reporter) {
     test_search(reporter);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-namespace skiatest {
-    
-    class UtfTest : public Test {
-    public:
-        static Test* Factory(void*) {
-            return SkNEW(UtfTest);
-        }
-        
-    protected:
-        virtual void onGetName(SkString* name) {
-            name->set("UTF");
-        }
-        
-        virtual void onRun(Reporter* reporter) {
-            TestUTF(reporter);
-        }
-    };
-    
-    static TestRegistry gReg(UtfTest::Factory);
-}
-
+#include "TestClassDef.h"
+DEFINE_TESTCLASS("UTF", UtfTestClass, TestUTF)

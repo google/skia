@@ -120,10 +120,6 @@ public:
         to never fail or throw.
     */
     void    swap(SkString& other);
-
-  /** @cond UNIT_TEST */
-    SkDEBUGCODE(static void UnitTest();)
-  /** @endcond */
     
 private:
     struct Rec {

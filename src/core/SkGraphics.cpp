@@ -344,9 +344,6 @@ void SkGraphics::Init(bool runUnitTests)
         const char* fTypeName;
         void (*fUnitTest)();
     } gUnitTests[] = {
-        unittestline(Sk64),
-        unittestline(SkString),
-        unittestline(SkGeometry),
         unittestline(SkPath),
         unittestline(SkPathMeasure),
         unittestline(SkStream),

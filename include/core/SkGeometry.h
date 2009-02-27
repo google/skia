@@ -151,13 +151,4 @@ enum SkRotationDirection {
 int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop, SkRotationDirection,
                    const SkMatrix* matrix, SkPoint quadPoints[]);
 
-//////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-    class SkGeometry {
-    public:
-        static void UnitTest();
-    };
-#endif
-
 #endif

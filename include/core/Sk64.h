@@ -233,12 +233,6 @@ struct Sk64 {
 #ifdef SkLONGLONG
     SkLONGLONG getLongLong() const;
 #endif
-
-#ifdef SK_DEBUG
-  /** @cond UNIT_TEST */
-    static void UnitTest();
-  /** @endcond */
-#endif
 };
 
 #endif

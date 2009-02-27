@@ -1047,26 +1047,3 @@ int SkBuildQuadArc(const SkVector& uStart, const SkVector& uStop,
     return pointCount;
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-
-void SkGeometry::UnitTest()
-{
-#ifdef SK_SUPPORT_UNITTEST
-    SkPoint pts[3], dst[5];
-
-    pts[0].set(0, 0);
-    pts[1].set(100, 50);
-    pts[2].set(0, 100);
-
-    int count = SkChopQuadAtMaxCurvature(pts, dst);
-    SkASSERT(count == 1 || count == 2);
-#endif
-}
-
-#endif
-
-

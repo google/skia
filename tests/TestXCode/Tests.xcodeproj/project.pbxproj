@@ -15,6 +15,9 @@
 		008634DC0F579B7A0044DA64 /* PackBitsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008634DB0F579B7A0044DA64 /* PackBitsTest.cpp */; };
 		008634F10F579E410044DA64 /* MatrixTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008634F00F579E410044DA64 /* MatrixTest.cpp */; };
 		0086350F0F57A3140044DA64 /* UtilsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0086350E0F57A3140044DA64 /* UtilsTest.cpp */; };
+		00A9BF860F584CF30091AD2D /* Sk64Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A9BF850F584CF30091AD2D /* Sk64Test.cpp */; };
+		00A9BFA30F584E150091AD2D /* StringTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A9BFA20F584E150091AD2D /* StringTest.cpp */; };
+		00A9BFBC0F5851570091AD2D /* GeometryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A9BFBB0F5851570091AD2D /* GeometryTest.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Tests.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Tests.1 */; };
 /* End PBXBuildFile section */
 
@@ -37,14 +40,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 00857F6B0F56F71B0078BE26 /* core.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* core */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = core;
 		};
 		0086351E0F57A5200044DA64 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00857F890F56F9150078BE26 /* maccore.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* maccore */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = maccore;
 		};
 /* End PBXContainerItemProxy section */
@@ -72,6 +75,10 @@
 		008634DB0F579B7A0044DA64 /* PackBitsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PackBitsTest.cpp; path = ../PackBitsTest.cpp; sourceTree = SOURCE_ROOT; };
 		008634F00F579E410044DA64 /* MatrixTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MatrixTest.cpp; path = ../MatrixTest.cpp; sourceTree = SOURCE_ROOT; };
 		0086350E0F57A3140044DA64 /* UtilsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UtilsTest.cpp; path = ../UtilsTest.cpp; sourceTree = SOURCE_ROOT; };
+		00A9BF850F584CF30091AD2D /* Sk64Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sk64Test.cpp; path = ../Sk64Test.cpp; sourceTree = SOURCE_ROOT; };
+		00A9BFA20F584E150091AD2D /* StringTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StringTest.cpp; path = ../StringTest.cpp; sourceTree = SOURCE_ROOT; };
+		00A9BFA60F584F200091AD2D /* TestClassDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestClassDef.h; path = ../TestClassDef.h; sourceTree = SOURCE_ROOT; };
+		00A9BFBB0F5851570091AD2D /* GeometryTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryTest.cpp; path = ../GeometryTest.cpp; sourceTree = SOURCE_ROOT; };
 		8DD76F6C0486A84900D96B5E /* Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859E8B029090EE04C91782 /* Tests.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Tests.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -120,12 +127,16 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				00A9BF850F584CF30091AD2D /* Sk64Test.cpp */,
+				00A9BFBB0F5851570091AD2D /* GeometryTest.cpp */,
+				00A9BFA20F584E150091AD2D /* StringTest.cpp */,
 				00857FA80F56F9620078BE26 /* Test.cpp */,
 				00857FA90F56F9620078BE26 /* main.cpp */,
 				00857F630F56F4220078BE26 /* Test.h */,
 				00857FB60F56FD340078BE26 /* MathTest.cpp */,
 				0086350E0F57A3140044DA64 /* UtilsTest.cpp */,
 				008634F00F579E410044DA64 /* MatrixTest.cpp */,
+				00A9BFA60F584F200091AD2D /* TestClassDef.h */,
 				008634DB0F579B7A0044DA64 /* PackBitsTest.cpp */,
 			);
 			name = Source;
@@ -225,6 +236,9 @@
 				008634DC0F579B7A0044DA64 /* PackBitsTest.cpp in Sources */,
 				008634F10F579E410044DA64 /* MatrixTest.cpp in Sources */,
 				0086350F0F57A3140044DA64 /* UtilsTest.cpp in Sources */,
+				00A9BF860F584CF30091AD2D /* Sk64Test.cpp in Sources */,
+				00A9BFA30F584E150091AD2D /* StringTest.cpp in Sources */,
+				00A9BFBC0F5851570091AD2D /* GeometryTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

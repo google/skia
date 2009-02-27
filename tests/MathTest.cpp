@@ -213,8 +213,6 @@ static void TestMath(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, x == i);
     }
     
-    REPORTER_ASSERT(reporter, !"test the reporter");
-    
     x = SkFixedSqrt(SK_Fixed1);
     REPORTER_ASSERT(reporter, x == SK_Fixed1);
     x = SkFixedSqrt(SK_Fixed1/4);
@@ -375,26 +373,5 @@ static void TestMath(skiatest::Reporter* reporter) {
 #endif
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-namespace skiatest {
-
-    class MathTest : public Test {
-    public:
-        static Test* Factory(void*) {
-            return SkNEW(MathTest);
-        }
-
-    protected:
-        virtual void onGetName(SkString* name) {
-            name->set("Math");
-        }
-        
-        virtual void onRun(Reporter* reporter) {
-            TestMath(reporter);
-        }
-    };
-
-    static TestRegistry gReg(MathTest::Factory);
-}
-
+#include "TestClassDef.h"
+DEFINE_TESTCLASS("Math", MathTestClass, TestMath)

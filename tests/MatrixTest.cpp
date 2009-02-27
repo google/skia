@@ -94,26 +94,5 @@ void TestMatrix(skiatest::Reporter* reporter) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-namespace skiatest {
-
-    class MatrixTest : public Test {
-    public:
-        static Test* Factory(void*) {
-            return SkNEW(MatrixTest);
-        }
-
-    protected:
-        virtual void onGetName(SkString* name) {
-            name->set("Matrix");
-        }
-        
-        virtual void onRun(Reporter* reporter) {
-            TestMatrix(reporter);
-        }
-    };
-
-    static TestRegistry gReg(MatrixTest::Factory);
-}
-
+#include "TestClassDef.h"
+DEFINE_TESTCLASS("Matrix", MatrixTestClass, TestMatrix)
