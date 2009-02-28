@@ -2,7 +2,6 @@
 #include "SkRandom.h"
 #include <math.h>
 
-#ifdef SK_SUPPORT_UNITTEST
 struct BoolTable {
     int8_t  zero, pos, neg, toBool, sign;
 };
@@ -23,7 +22,6 @@ static void bool_table_test(skiatest::Reporter* reporter,
     {
         return ((SkLONGLONG)a.fHi << 32) | a.fLo;
     }
-#endif
 #endif
 
 static void TestSk64(skiatest::Reporter* reporter) {

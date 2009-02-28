@@ -69,6 +69,8 @@ out/libskia.a: Makefile $(OBJ_LIST)
 	$(HIDE)$(AR) ru $@ $(OBJ_LIST)
 	$(HIDE)ranlib $@
 
+##############################################################################
+
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp main.cpp BitmapBench.cpp
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
@@ -86,6 +88,21 @@ bench: $(BENCH_OBJS) out/libskia.a
 	@echo "linking bench..."
 	$(HIDE)g++ $(BENCH_OBJS) out/libskia.a -o out/bench/bench $(LINKER_OPTS)
 	
+##############################################################################
+
+TESTS_SRCS := GeometryTest.cpp MathTest.cpp MatrixTest.cpp PackBitsTest.cpp \
+              Sk64Test.cpp StringTest.cpp Test.cpp UtilsTest.cpp main.cpp
+TESTS_SRCS := $(addprefix tests/, $(TESTS_SRCS))
+
+TESTS_OBJS := $(TESTS_SRCS:.cpp=.o)
+TESTS_OBJS := $(addprefix out/, $(TESTS_OBJS))
+
+tests: $(TESTS_OBJS) out/libskia.a
+	@echo "linking tests..."
+	$(HIDE)g++ $(TESTS_OBJS) out/libskia.a -o out/tests/tests $(LINKER_OPTS)
+	
+##############################################################################
+
 .PHONY: clean
 clean:
 	$(HIDE)rm -rf out
@@ -95,6 +112,7 @@ help:
 	@echo "Targets:"
 	@echo "    <default>: out/libskia.a"
 	@echo "    bench: out/bench/bench"
+	@echo "    tests: out/tests/tests"
 	@echo "    clean: removes entire out/ directory"
 	@echo "    help: this text"
 	@echo "Options: (after make, or in bash shell)"
