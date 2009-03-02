@@ -24,6 +24,7 @@ SOURCE := \
     SkColorTable.cpp \
     SkComposeShader.cpp \
     SkCordic.cpp \
+    SkCubicClipper.cpp \
     SkDebug.cpp \
     SkDebug_stdio.cpp \
     SkDeque.cpp \

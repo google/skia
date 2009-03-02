@@ -27,6 +27,7 @@ SkColorFilter.cpp \
 SkColorTable.cpp \
 SkComposeShader.cpp \
 SkCordic.cpp \
+skCubicClipper.cpp \
 SkDebug.cpp \
 SkDebug_stdio.cpp \
 SkDeque.cpp \
