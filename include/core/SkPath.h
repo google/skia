@@ -37,6 +37,11 @@ public:
     ~SkPath();
 
     SkPath& operator=(const SkPath&);
+    
+    friend bool operator==(const SkPath&, const SkPath&);
+    friend bool operator!=(const SkPath& a, const SkPath& b) {
+        return !(a == b);
+    }
 
     enum FillType {
         /** Specifies that "inside" is computed by a non-zero sum of signed
@@ -538,7 +543,6 @@ public:
 #ifdef SK_DEBUG
   /** @cond UNIT_TEST */
     void dump(bool forceClose, const char title[] = NULL) const;
-    static void UnitTest();
   /** @endcond */
 #endif
 

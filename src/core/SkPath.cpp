@@ -114,6 +114,11 @@ SkPath& SkPath::operator=(const SkPath& src) {
     return *this;
 }
 
+bool operator==(const SkPath& a, const SkPath& b) {
+    return &a == &b ||
+        (a.fFillType == b.fFillType && a.fVerbs == b.fVerbs && a.fPts == b.fPts);
+}
+
 void SkPath::swap(SkPath& other) {
     SkASSERT(&other != NULL);
 
@@ -151,7 +156,7 @@ bool SkPath::isEmpty() const {
 
 bool SkPath::isRect(SkRect*) const {
     SkDEBUGCODE(this->validate();)
-
+    
     SkASSERT(!"unimplemented");
     return false;
 }
@@ -1287,57 +1292,6 @@ void SkPath::validate() const {
     }
 }
 
-#if 0   // test to ensure that the iterator returns the same data as the path
-void SkPath::test() const
-{
-    Iter    iter(*this, false);
-    SkPoint pts[4];
-    Verb    verb;
-
-    const uint8_t*  verbs = fVerbs.begin();
-    const SkPoint*  points = fPts.begin();
-
-    while ((verb = iter.next(pts)) != kDone_Verb)
-    {
-        SkASSERT(*verbs == verb);
-        verbs += 1;
-
-        int count;
-        switch (verb) {
-        case kMove_Verb:
-            count = 1;
-            break;
-        case kLine_Verb:
-            count = 2;
-            break;
-        case kQuad_Verb:
-            count = 3;
-            break;
-        case kCubic_Verb:
-            count = 4;
-            break;
-        case kClose_Verb:
-        default:
-            count = 0;
-            break;
-        }
-        if (count > 1)
-            points -= 1;
-        SkASSERT(memcmp(pts, points, count * sizeof(SkPoint)) == 0);
-        points += count;
-    }
-
-    int vc = fVerbs.count(), pc = fPts.count();
-    if (vc && fVerbs.begin()[vc-1] == kMove_Verb)
-    {
-        vc -= 1;
-        pc -= 1;
-    }
-    SkASSERT(verbs - fVerbs.begin() == vc);
-    SkASSERT(points - fPts.begin() == pc);
-}
-#endif
-
 void SkPath::dump(bool forceClose, const char title[]) const {
     Iter    iter(*this, forceClose);
     SkPoint pts[4];
@@ -1396,43 +1350,6 @@ void SkPath::dump(bool forceClose, const char title[]) const {
         }
     }
     SkDebugf("path: done %s\n", title ? title : "");
-}
-
-#include "SkTSort.h"
-
-void SkPath::UnitTest() {
-#ifdef SK_SUPPORT_UNITTEST
-    SkPath  p;
-    SkRect  r;
-
-    r.set(0, 0, 10, 20);
-    p.addRect(r);
-    p.dump(false);
-    p.dump(true);
-
-    {
-        int array[] = { 5, 3, 7, 2, 6, 1, 2, 9, 5, 0 };
-        int i;
-
-        for (i = 0; i < (int)SK_ARRAY_COUNT(array); i++) {
-            SkDebugf(" %d", array[i]);
-        }
-        SkDebugf("\n");
-        SkTHeapSort<int>(array, SK_ARRAY_COUNT(array));
-        for (i = 0; i < (int)SK_ARRAY_COUNT(array); i++)
-            SkDebugf(" %d", array[i]);
-        SkDebugf("\n");
-    }
-
-    {
-        SkPath  p;
-        SkPoint pt;
-
-        p.moveTo(SK_Scalar1, 0);
-        p.getLastPt(&pt);
-        SkASSERT(pt.fX == SK_Scalar1);
-    }
-#endif
 }
 
 #endif
