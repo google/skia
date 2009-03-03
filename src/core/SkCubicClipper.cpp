@@ -122,39 +122,41 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
     bool reverse;
 
     // we need the data to be monotonically descending in Y
-    if (srcPts[0].fY > srcPts[2].fY) {
+    if (srcPts[0].fY > srcPts[3].fY) {
         dst[0] = srcPts[3];
         dst[1] = srcPts[2];
         dst[2] = srcPts[1];
         dst[3] = srcPts[0];
         reverse = true;
     } else {
-        memcpy(dst, srcPts, 3 * sizeof(SkPoint));
+        memcpy(dst, srcPts, 4 * sizeof(SkPoint));
         reverse = false;
     }
 
     // are we completely above or below
     const SkScalar ctop = fClip.fTop;
     const SkScalar cbot = fClip.fBottom;
-    if (dst[2].fY <= ctop || dst[0].fY >= cbot) {
+    if (dst[3].fY <= ctop || dst[0].fY >= cbot) {
         return false;
     }
     
     SkScalar t;
-    SkPoint tmp[5]; // for SkChopCubicAt
+    SkPoint tmp[7]; // for SkChopCubicAt
     
     // are we partially above
     if (dst[0].fY < ctop && chopMonoCubicAtY(dst, ctop, &t)) {
         SkChopCubicAt(dst, tmp, t);
-        dst[0] = tmp[2];
-        dst[1] = tmp[3];
+        dst[0] = tmp[3];
+        dst[1] = tmp[4];
+        dst[2] = tmp[5];
     }
     
     // are we partially below
-    if (dst[2].fY > cbot && chopMonoCubicAtY(dst, cbot, &t)) {
+    if (dst[3].fY > cbot && chopMonoCubicAtY(dst, cbot, &t)) {
         SkChopCubicAt(dst, tmp, t);
         dst[1] = tmp[1];
         dst[2] = tmp[2];
+        dst[3] = tmp[3];
     }
     
     if (reverse) {

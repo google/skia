@@ -92,6 +92,7 @@ bench: $(BENCH_OBJS) out/libskia.a
 
 TESTS_SRCS := GeometryTest.cpp MathTest.cpp MatrixTest.cpp PackBitsTest.cpp \
               Sk64Test.cpp StringTest.cpp Test.cpp UtilsTest.cpp PathTest.cpp \
+	      ClipCubicTest.cpp \
               main.cpp
 TESTS_SRCS := $(addprefix tests/, $(TESTS_SRCS))
 
@@ -121,4 +122,3 @@ help:
 	@echo "    SKIA_SCALAR=fixed for fixed-point build"
 	@echo "    SKIA_BUILD_FOR=mac for mac build (e.g. CG for image decoding)"
 	@echo ""
-	
