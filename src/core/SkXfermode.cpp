@@ -344,21 +344,24 @@ static SkPMColor dst_modeproc(SkPMColor src, SkPMColor dst) {
     return dst;
 }
 
-//  kSrcOver_Mode,  //!< [Sa + (1 - Sa)*Da, Sc + (1 - Sa)*Dc] 
+//  kSrcOver_Mode,  //!< [Sa + Da - Sa*Da, Sc + (1 - Sa)*Dc] 
 static SkPMColor srcover_modeproc(SkPMColor src, SkPMColor dst) {
+#if 0
+    // this is the old, more-correct way, but it doesn't guarantee that dst==255
+    // will always stay opaque
     return src + SkAlphaMulQ(dst, SkAlpha255To256(255 - SkGetPackedA32(src)));
+#else
+    // this is slightly faster, but more importantly guarantees that dst==255
+    // will always stay opaque
+    return src + SkAlphaMulQ(dst, 256 - SkGetPackedA32(src));
+#endif
 }
 
-//  kDstOver_Mode,  //!< [Sa + (1 - Sa)*Da, Dc + (1 - Da)*Sc]
+//  kDstOver_Mode,  //!< [Sa + Da - Sa*Da, Dc + (1 - Da)*Sc]
 static SkPMColor dstover_modeproc(SkPMColor src, SkPMColor dst) {
-    unsigned sa = SkGetPackedA32(src);
-    unsigned da = SkGetPackedA32(dst);
-    unsigned ida = 255 - da;
-    
-    return SkPackARGB32(sa + da - SkAlphaMulAlpha(sa, da),
-        SkGetPackedR32(dst) + SkAlphaMulAlpha(ida, SkGetPackedR32(src)),
-        SkGetPackedG32(dst) + SkAlphaMulAlpha(ida, SkGetPackedG32(src)),
-        SkGetPackedB32(dst) + SkAlphaMulAlpha(ida, SkGetPackedB32(src)));
+    // this is the reverse of srcover, just flipping src and dst
+    // see srcover's comment about the 256 for opaqueness guarantees
+    return dst + SkAlphaMulQ(src, 256 - SkGetPackedA32(dst));
 }
 
 //  kSrcIn_Mode,    //!< [Sa * Da, Sc * Da]
