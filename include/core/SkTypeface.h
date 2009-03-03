@@ -60,6 +60,9 @@ public:
     */
     bool isItalic() const { return (fStyle & kItalic) != 0; }
     
+    /** Return a 32bit value for this typeface, unique for the underlying font
+        data. Will never return 0.
+     */
     uint32_t uniqueID() const { return fUniqueID; }
 
     /** Return the uniqueID for the specified typeface. If the face is null,
@@ -67,6 +70,11 @@ public:
     */
     static uint32_t UniqueID(const SkTypeface* face);
 
+    /** Returns true if the two typefaces reference the same underlying font,
+        handling either being null (treating null as the default font)
+     */
+    static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
+    
     /** Return a new reference to the typeface that most closely matches the
         requested familyName and style. Pass null as the familyName to return
         the default font for the requested style. Will never return null
@@ -89,16 +97,6 @@ public:
                 unref() when they are done.
     */
     static SkTypeface* CreateFromTypeface(const SkTypeface* family, Style s);
-
-    /** Returns true if the two typefaces reference the same underlying font,
-        even if one is null (which maps to the default font).
-    */
-    static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
-    
-    /** Returns a 32bit hash value for the typeface. Takes care of mapping null
-        to the default typeface.
-    */
-    static uint32_t Hash(const SkTypeface* face);
 
     /** Return a new typeface given a file. If the file does not exist, or is
         not a valid font file, returns null.
