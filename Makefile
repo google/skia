@@ -92,8 +92,8 @@ bench: $(BENCH_OBJS) out/libskia.a
 
 TESTS_SRCS := GeometryTest.cpp MathTest.cpp MatrixTest.cpp PackBitsTest.cpp \
               Sk64Test.cpp StringTest.cpp Test.cpp UtilsTest.cpp PathTest.cpp \
-	      ClipCubicTest.cpp \
-              main.cpp
+              ClipCubicTest.cpp SrcOverTest.cpp main.cpp
+
 TESTS_SRCS := $(addprefix tests/, $(TESTS_SRCS))
 
 TESTS_OBJS := $(TESTS_SRCS:.cpp=.o)

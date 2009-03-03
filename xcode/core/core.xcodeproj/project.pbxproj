@@ -126,6 +126,7 @@
 		005F25E70EF94F7900582A90 /* SkXfermode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F256E0EF94F7900582A90 /* SkXfermode.cpp */; };
 		005F26960EF955D400582A90 /* SkComposeShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F26950EF955D400582A90 /* SkComposeShader.cpp */; };
 		007C786A0F3B4D5F0004B142 /* SkQuadClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */; };
+		009CC7920F5DAF4B002185BE /* SkCubicClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009CC7910F5DAF4B002185BE /* SkCubicClipper.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -248,6 +249,7 @@
 		005F256E0EF94F7900582A90 /* SkXfermode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXfermode.cpp; path = ../../src/core/SkXfermode.cpp; sourceTree = SOURCE_ROOT; };
 		005F26950EF955D400582A90 /* SkComposeShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkComposeShader.cpp; path = ../../src/core/SkComposeShader.cpp; sourceTree = SOURCE_ROOT; };
 		007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkQuadClipper.cpp; path = ../../src/core/SkQuadClipper.cpp; sourceTree = SOURCE_ROOT; };
+		009CC7910F5DAF4B002185BE /* SkCubicClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkCubicClipper.cpp; path = ../../src/core/SkCubicClipper.cpp; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libcore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libcore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -275,6 +277,7 @@
 		08FB7795FE84155DC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				009CC7910F5DAF4B002185BE /* SkCubicClipper.cpp */,
 				007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */,
 				002884D40EFAB8F80083E387 /* SkStream.cpp */,
 				002884C70EFAB8B90083E387 /* SkMMapStream.cpp */,
@@ -584,6 +587,7 @@
 				002884C80EFAB8B90083E387 /* SkMMapStream.cpp in Sources */,
 				002884D50EFAB8F80083E387 /* SkStream.cpp in Sources */,
 				007C786A0F3B4D5F0004B142 /* SkQuadClipper.cpp in Sources */,
+				009CC7920F5DAF4B002185BE /* SkCubicClipper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
