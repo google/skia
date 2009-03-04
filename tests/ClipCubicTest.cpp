@@ -1,6 +1,6 @@
 #include "Test.h"
 
-#include "../../src/core/SkCubicClipper.h"
+#include "SkCubicClipper.h"
 #include "SkGeometry.h"
 
 

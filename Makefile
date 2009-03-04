@@ -90,6 +90,9 @@ bench: $(BENCH_OBJS) out/libskia.a
 	
 ##############################################################################
 
+# we let tests cheat and see private headers, so we can unittest modules
+C_INCLUDES += -Isrc/core
+
 TESTS_SRCS := GeometryTest.cpp MathTest.cpp MatrixTest.cpp PackBitsTest.cpp \
               Sk64Test.cpp StringTest.cpp Test.cpp UtilsTest.cpp PathTest.cpp \
               ClipCubicTest.cpp SrcOverTest.cpp main.cpp
