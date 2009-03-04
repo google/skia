@@ -22,14 +22,14 @@
 
 /** This class is initialized with a clip rectangle, and then can be fed cubics,
     which must already be monotonic in Y.
- 
+
     In the future, it might return a series of segments, allowing it to clip
     also in X, to ensure that all segments fit in a finite coordinate system.
  */
 class SkCubicClipper {
 public:
     SkCubicClipper();
-    
+
     void setClip(const SkIRect& clip);
 
     bool clipCubic(const SkPoint src[4], SkPoint dst[4]);

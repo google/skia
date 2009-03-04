@@ -77,7 +77,7 @@ static bool chopMonoCubicAtY(SkPoint pts[4], SkScalar y, SkScalar* t) {
 #else  // BISECTION    // Linear convergence, typically 16 iterations.
 
     // Check that the endpoints straddle zero.
-    SkScalar tNeg, tPos;    // Parameter where the function is negative and positive, respectively.
+    SkScalar tNeg, tPos;    // Negative and positive function parameters.
     if (ycrv[0] < 0) {
         if (ycrv[3] < 0)
             return false;
@@ -92,7 +92,7 @@ static bool chopMonoCubicAtY(SkPoint pts[4], SkScalar y, SkScalar* t) {
         *t = 0;
         return true;
     }
-    
+
     const SkScalar tol = SK_Scalar1 / 65536;  // 1 for fixed, 1e-5 for float.
     int iters = 0;
     do {
@@ -139,10 +139,10 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
     if (dst[3].fY <= ctop || dst[0].fY >= cbot) {
         return false;
     }
-    
+
     SkScalar t;
     SkPoint tmp[7]; // for SkChopCubicAt
-    
+
     // are we partially above
     if (dst[0].fY < ctop && chopMonoCubicAtY(dst, ctop, &t)) {
         SkChopCubicAt(dst, tmp, t);
@@ -150,7 +150,7 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
         dst[1] = tmp[4];
         dst[2] = tmp[5];
     }
-    
+
     // are we partially below
     if (dst[3].fY > cbot && chopMonoCubicAtY(dst, cbot, &t)) {
         SkChopCubicAt(dst, tmp, t);
@@ -158,7 +158,7 @@ bool SkCubicClipper::clipCubic(const SkPoint srcPts[4], SkPoint dst[4]) {
         dst[2] = tmp[2];
         dst[3] = tmp[3];
     }
-    
+
     if (reverse) {
         SkTSwap<SkPoint>(dst[0], dst[3]);
         SkTSwap<SkPoint>(dst[1], dst[2]);
