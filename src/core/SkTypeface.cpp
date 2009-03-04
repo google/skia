@@ -20,7 +20,7 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkTypeface::Create(const char name[], Style style) {
+SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
     SkTypeface* face = SkFontHost::FindTypeface(NULL, name, style);
     face->ref();
     return face;

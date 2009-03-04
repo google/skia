@@ -29,8 +29,7 @@ class SkWStream;
     textSize, textSkewX, textScaleX, kFakeBoldText_Mask, to specify
     how text appears when drawn (and measured).
 
-    Typeface objects are immutable, and so they can be shred between threads.
-    To enable this, Typeface inherits from the thread-safe version of SkRefCnt.
+    Typeface objects are immutable, and so they can be shared between threads.
 */
 class SkTypeface : public SkRefCnt {
 public:
@@ -48,9 +47,6 @@ public:
     /** Returns the typeface's intrinsic style attributes
     */
     Style style() const { return fStyle; }
-    
-    /** DEPRECATED */
-    Style getStyle() const { return this->style(); }
 
     /** Returns true if getStyle() has the kBold bit set.
     */
@@ -84,7 +80,7 @@ public:
         @return reference to the closest-matching typeface. Call must call
                 unref() when they are done.
     */
-    static SkTypeface* Create(const char familyName[], Style style = kNormal);
+    static SkTypeface* CreateFromName(const char familyName[], Style style);
 
     /** Return a new reference to the typeface that most closely matches the
         requested typeface and specified Style. Use this call if you want to

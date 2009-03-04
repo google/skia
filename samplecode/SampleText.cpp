@@ -90,10 +90,11 @@ static SkMaskFilter* makemf() { return new Darken(0x30); }
 
 static void test_typefaceCache()
 {
-    SkTypeface* t0 = SkTypeface::Create("sans-serif", SkTypeface::kNormal);
-    SkTypeface* t1 = SkTypeface::Create(NULL, SkTypeface::kNormal);
-    SkTypeface* t2 = SkTypeface::Create("arial", SkTypeface::kNormal);
-    SkTypeface* t3 = SkTypeface::Create("helvetica", SkTypeface::kItalic);
+    SkTypeface* t0 = SkTypeface::CreateFromName("sans-serif",
+                                                SkTypeface::kNormal);
+    SkTypeface* t1 = SkTypeface::CreateFromName(NULL, SkTypeface::kNormal);
+    SkTypeface* t2 = SkTypeface::CreateFromName("arial", SkTypeface::kNormal);
+    SkTypeface* t3 = SkTypeface::CreateFromName("helvetica", SkTypeface::kItalic);
     
 #ifndef SK_BUILD_FOR_MAC
     SkASSERT(t0 == t1);
@@ -413,7 +414,8 @@ public:
             static const char extra[] = { '.', ',', ':', ';', '!' };
             SkPaint   paint, paint2;
 
-            paint2.setTypeface(SkTypeface::Create(NULL, SkTypeface::kItalic))->unref();
+            paint2.setTypeface(SkTypeface::CreateFromName(NULL,
+                                                SkTypeface::kItalic))->unref();
 
             for (int i = 0; i < 26; i++)
                 ::dump('a' + i, count_char_points(paint, 'a' + i), count_char_points(paint2, 'a' + i));

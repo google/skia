@@ -35,7 +35,8 @@ class TypefaceView : public SkView {
 public:
 	TypefaceView() {
         for (int i = 0; i < gFaceCount; i++) {
-            fFaces[i] = SkTypeface::Create(gFaces[i].fName, gFaces[i].fStyle);
+            fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,
+                                                   gFaces[i].fStyle);
         }
     }
     
