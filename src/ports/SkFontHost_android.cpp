@@ -127,7 +127,10 @@ static FamilyRec* find_family(const SkTypeface* member)
     return NULL;
 }
 
-static SkTypeface* resolve_uniqueID(uint32_t uniqueID)
+/*  Returns the matching typeface, or NULL. If a typeface is found, its refcnt
+    is not modified.
+ */
+static SkTypeface* find_from_uniqueID(uint32_t uniqueID)
 {
     FamilyRec* curr = gFamilyHead;
     while (curr != NULL) {
@@ -275,7 +278,6 @@ public:
     bool isSysFont() const { return fIsSysFont; }
     
     virtual SkStream* openStream() = 0;
-    virtual void closeStream(SkStream*) = 0;
     virtual const char* getUniqueString() const = 0;
     
 private:
@@ -292,16 +294,21 @@ public:
                    SkStream* stream)
         : INHERITED(style, sysFont, familyMember)
     {
+        SkASSERT(stream);
+        stream->ref();
         fStream = stream;
     }
-    virtual ~StreamTypeface()
-    {
-        SkDELETE(fStream);
+    virtual ~StreamTypeface() {
+        fStream->unref();
     }
     
     // overrides
-    virtual SkStream* openStream() { return fStream; }
-    virtual void closeStream(SkStream*) {}
+    virtual SkStream* openStream() {
+        // we just ref our existing stream, since the caller will call unref()
+        // when they are through
+        fStream->ref();
+        return fStream;
+    }
     virtual const char* getUniqueString() const { return NULL; }
 
 private:
@@ -341,10 +348,6 @@ public:
             }
         }
         return stream;
-    }
-    virtual void closeStream(SkStream* stream)
-    {
-        SkDELETE(stream);
     }
     virtual const char* getUniqueString() const {
         const char* str = strrchr(fPath.c_str(), '/');
@@ -495,7 +498,7 @@ static void load_system_fonts()
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
     const char* name = ((FamilyTypeface*)face)->getUniqueString();
 
-    stream->write8((uint8_t)face->getStyle());
+    stream->write8((uint8_t)face->style());
 
     if (NULL == name || 0 == *name) {
         stream->writePackedUInt(0);
@@ -504,7 +507,7 @@ void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
         uint32_t len = strlen(name);
         stream->writePackedUInt(len);
         stream->write(name, len);
-//      SkDebugf("--- fonthost serialize <%s> %d\n", name, face->getStyle());
+//      SkDebugf("--- fonthost serialize <%s> %d\n", name, face->style());
     }
 }
 
@@ -525,21 +528,21 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
                 // backup until we hit the fNames
                 for (int j = i; j >= 0; --j) {
                     if (rec[j].fNames != NULL) {
-                        return SkFontHost::FindTypeface(NULL, rec[j].fNames[0],
-                                                    (SkTypeface::Style)style);
+                        return SkFontHost::CreateTypeface(NULL,
+                                    rec[j].fNames[0], (SkTypeface::Style)style);
                     }
                 }
             }
         }
     }
-    return SkFontHost::FindTypeface(NULL, NULL, (SkTypeface::Style)style);
+    return SkFontHost::CreateTypeface(NULL, NULL, (SkTypeface::Style)style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
-                                     const char familyName[],
-                                     SkTypeface::Style style)
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       SkTypeface::Style style)
 {
     load_system_fonts();
 
@@ -564,32 +567,23 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-SkTypeface* SkFontHost::ResolveTypeface(uint32_t fontID)
+bool SkFontHost::ValidFontID(uint32_t fontID)
 {
     SkAutoMutexAcquire  ac(gFamilyMutex);
     
-    return resolve_uniqueID(fontID);
+    return find_from_uniqueID(fontID) != NULL;
 }
 
 SkStream* SkFontHost::OpenStream(uint32_t fontID)
 {
-    
-    FamilyTypeface* tf = (FamilyTypeface*)SkFontHost::ResolveTypeface(fontID);
+    FamilyTypeface* tf = (FamilyTypeface*)find_from_uniqueID(fontID);
     SkStream* stream = tf ? tf->openStream() : NULL;
 
-    if (NULL == stream || stream->getLength() == 0) {
-        delete stream;
+    if (stream && stream->getLength() == 0) {
+        stream->unref();
         stream = NULL;
     }
     return stream;
-}
-
-void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream)
-{
-    FamilyTypeface* tf = (FamilyTypeface*)SkFontHost::ResolveTypeface(fontID);
-    if (NULL != tf) {
-        tf->closeStream(stream);
-    }
 }
 
 SkScalerContext* SkFontHost::CreateFallbackScalerContext(
@@ -612,10 +606,9 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkFontHost::CreateTypeface(SkStream* stream)
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
 {
     if (NULL == stream || stream->getLength() <= 0) {
-        SkDELETE(stream);
         return NULL;
     }
     
@@ -627,7 +620,11 @@ SkTypeface* SkFontHost::CreateTypeface(SkStream* stream)
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
 {
-    return SkFontHost::CreateTypeface(SkNEW_ARGS(SkMMAPStream, (path)));
+    SkStream* stream = SkNEW_ARGS(SkMMAPStream, (path));
+    SkTypeface* face = SkFontHost::CreateTypefaceFromStream(stream);
+    // since we created the stream, we let go of our ref() here
+    stream->unref();
+    return face;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

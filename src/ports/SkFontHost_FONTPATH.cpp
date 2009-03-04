@@ -239,9 +239,9 @@ static uint32_t ptr2uint32(const void* p)
     return (uint32_t)((char*)p - (char*)0);
 }
 
-SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
-                                     const char familyName[],
-                                     SkTypeface::Style style)
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       SkTypeface::Style style)
 {
     const FontFamilyRec* family;
     
@@ -268,7 +268,7 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
     return SkNEW_ARGS(FontFaceRec_Typeface, (face));
 }
 
-SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     sk_throw();  // not implemented
     return NULL;
 }
@@ -278,19 +278,13 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return NULL;
 }
 
-SkTypeface* SkFontHost::ResolveTypeface(uint32_t fontID) {
-    // TODO: this should just return a bool if fontID is valid
-    // since we don't keep a global-list, this will leak at the moment
-    return new FontFaceRec_Typeface(*get_default_face());
+bool SkFontHost::ValidFontID(uint32_t fontID) {
+    return get_id(*get_default_face()) == fontID;
 }
 
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     sk_throw();  // not implemented
     return NULL;
-}
-
-void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream) {
-    // not implemented
 }
 
 void SkFontHost::Serialize(const SkTypeface* tface, SkWStream* stream) {

@@ -15,34 +15,32 @@
 
 #include "SkFontHost.h"
 
-SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                      const char famillyName[],
                                      SkTypeface::Style style) {
     SkASSERT(!"SkFontHost::FindTypeface unimplemented");
     return NULL;
 }
 
-SkTypeface* SkFontHost::ResolveTypeface(uint32_t uniqueID) {
-    SkASSERT(!"SkFontHost::ResolveTypeface unimplemented");
-    return NULL;
-}
-
-SkStream* SkFontHost::OpenStream(uint32_t uniqueID) {
-    SkASSERT(!"SkFontHost::OpenStream unimplemented");
-    return NULL;
-}
-
-void SkFontHost::CloseStream(uint32_t uniqueID, SkStream*) {
-    SkASSERT(!"SkFontHost::CloseStream unimplemented");
-}
-
-SkTypeface* SkFontHost::CreateTypeface(SkStream*) {
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream*) {
     SkASSERT(!"SkFontHost::CreateTypeface unimplemented");
     return NULL;
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
     SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
+    return NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkFontHost::ValidFontID(uint32_t uniqueID) {
+    SkASSERT(!"SkFontHost::ResolveTypeface unimplemented");
+    return false;
+}
+
+SkStream* SkFontHost::OpenStream(uint32_t uniqueID) {
+    SkASSERT(!"SkFontHost::OpenStream unimplemented");
     return NULL;
 }
 

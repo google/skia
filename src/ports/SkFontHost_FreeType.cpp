@@ -102,9 +102,10 @@ struct SkFaceRec {
     uint32_t        fRefCnt;
     uint32_t        fFontID;
 
+    // assumes ownership of the stream, will call unref() when its done
     SkFaceRec(SkStream* strm, uint32_t fontID);
     ~SkFaceRec() {
-        SkFontHost::CloseStream(fFontID, fSkStream);
+        fSkStream->unref();
     }
 };
 
@@ -387,7 +388,7 @@ FT_Error SkScalerContext_FreeType::setupSize() {
         killing all of the contexts when we know that a given fontID is going
         away...
      */
-    if (SkFontHost::ResolveTypeface(fRec.fFontID) == NULL) {
+    if (!SkFontHost::ValidFontID(fRec.fFontID)) {
         return (FT_Error)-1;
     }
 

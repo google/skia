@@ -125,18 +125,18 @@ static FamilyRec* find_family(const SkTypeface* member) {
     return NULL;
 }
 
-static SkTypeface* resolve_uniqueID(uint32_t uniqueID) {
+static bool valid_uniqueID(uint32_t uniqueID) {
     FamilyRec* curr = gFamilyHead;
     while (curr != NULL) {
         for (int i = 0; i < 4; i++) {
             SkTypeface* face = curr->fFaces[i];
             if (face != NULL && face->uniqueID() == uniqueID) {
-                return face;
+                return true;
             }
         }
         curr = curr->fNext;
     }
-    return NULL;
+    return false;
 }
 
 /*  Remove reference to this face from its family. If the resulting family
@@ -476,14 +476,14 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
                 // backup until we hit the fNames
                 for (int j = i; j >= 0; --j) {
                     if (rec[j].fNames != NULL) {
-                        return SkFontHost::FindTypeface(NULL, rec[j].fNames[0],
-                                                        (SkTypeface::Style)style);
+                        return SkFontHost::CreateTypeface(NULL, rec[j].fNames[0],
+                                                          (SkTypeface::Style)style);
                     }
                 }
             }
         }
     }
-    return SkFontHost::FindTypeface(NULL, NULL, (SkTypeface::Style)style);
+    return SkFontHost::CreateTypeface(NULL, NULL, (SkTypeface::Style)style);
 #endif
     sk_throw();
     return NULL;
@@ -491,9 +491,9 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
-                                     const char familyName[],
-                                     SkTypeface::Style style) {
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       SkTypeface::Style style) {
     load_system_fonts();
     
     SkAutoMutexAcquire  ac(gFamilyMutex);
@@ -517,10 +517,10 @@ SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-SkTypeface* SkFontHost::ResolveTypeface(uint32_t fontID) {
+SkTypeface* SkFontHost::ValidFontID(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
     
-    return resolve_uniqueID(fontID);
+    return valid_uniqueID(fontID);
 }
 
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
@@ -560,7 +560,7 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     if (NULL == stream || stream->getLength() <= 0) {
         SkDELETE(stream);
         return NULL;

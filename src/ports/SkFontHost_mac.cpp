@@ -484,7 +484,7 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     return NULL;
 }
 
-SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     
     //Should not be used on Mac, keep linker happy
     SkASSERT(false);
@@ -517,17 +517,8 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::
     return SkFontHost::CreateScalerContext(desc);
 }
 
-
-    /** Return the closest matching typeface given either an existing family
-        (specified by a typeface in that family) or by a familyName, and a
-        requested style.
-        1) If familyFace is null, use famillyName.
-        2) If famillyName is null, use familyFace.
-        3) If both are null, return the default font that best matches style
-        This MUST not return NULL.
-    */
-
-SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace, const char familyName[], SkTypeface::Style style) {
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                            const char familyName[], SkTypeface::Style style) {
     
     SkAutoMutexAcquire  ac(gFTMutex);
     

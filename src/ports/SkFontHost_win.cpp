@@ -482,7 +482,7 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     return NULL;
 }
 
-SkTypeface* SkFontHost::CreateTypeface(SkStream* stream) {
+SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     
     //Should not be used on Windows, keep linker happy
     SkASSERT(false);
@@ -521,7 +521,8 @@ SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::
  This MUST not return NULL.
  */
 
-SkTypeface* SkFontHost::FindTypeface(const SkTypeface* familyFace, const char familyName[], SkTypeface::Style style) {
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                            const char familyName[], SkTypeface::Style style) {
     
     SkAutoMutexAcquire  ac(gFTMutex);
 

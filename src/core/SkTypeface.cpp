@@ -1,40 +1,42 @@
 #include "SkTypeface.h"
 #include "SkFontHost.h"
 
-static const SkTypeface* resolve_null_typeface(const SkTypeface* face) {
-    if (NULL == face) {
-        face = SkFontHost::FindTypeface(NULL, NULL, SkTypeface::kNormal);
-        SkASSERT(face);
-    }
-    return face;
-}
-
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
-    return resolve_null_typeface(face)->uniqueID();
+    if (face) {
+        return face->uniqueID();
+    }
+
+    // We cache the default fontID, assuming it will not change during a boot
+    // The initial value of 0 is fine, since a typeface's uniqueID should not
+    // be zero.
+    static uint32_t gDefaultFontID;
+    
+    if (0 == gDefaultFontID) {
+        SkTypeface* defaultFace = SkFontHost::CreateTypeface(NULL, NULL,
+                                                    SkTypeface::kNormal);
+        SkASSERT(defaultFace);
+        gDefaultFontID = defaultFace->uniqueID();
+        defaultFace->unref();
+    }
+    return gDefaultFontID;
 }
 
 bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
-    return resolve_null_typeface(facea)->uniqueID() ==
-           resolve_null_typeface(faceb)->uniqueID();
+    return SkTypeface::UniqueID(facea) == SkTypeface::UniqueID(faceb);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
-    SkTypeface* face = SkFontHost::FindTypeface(NULL, name, style);
-    face->ref();
-    return face;
+    return SkFontHost::CreateTypeface(NULL, name, style);
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
-    family = resolve_null_typeface(family);
-    SkTypeface* face = SkFontHost::FindTypeface(family, NULL, s);
-    face->ref();
-    return face;
+    return SkFontHost::CreateTypeface(family, NULL, s);
 }
 
 SkTypeface* SkTypeface::CreateFromStream(SkStream* stream) {
-    return SkFontHost::CreateTypeface(stream);
+    return SkFontHost::CreateTypefaceFromStream(stream);
 }
 
 SkTypeface* SkTypeface::CreateFromFile(const char path[]) {

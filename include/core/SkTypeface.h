@@ -62,7 +62,8 @@ public:
     uint32_t uniqueID() const { return fUniqueID; }
 
     /** Return the uniqueID for the specified typeface. If the face is null,
-        resolve it to the default font and return its uniqueID.
+        resolve it to the default font and return its uniqueID. Will never
+        return 0.
     */
     static uint32_t UniqueID(const SkTypeface* face);
 
