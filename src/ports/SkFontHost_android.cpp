@@ -564,6 +564,8 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         tf = find_best_face(gDefaultFamily, style);
     }
 
+    // we ref(), since the symantic is to return a new instance
+    tf->ref();
     return tf;
 }
 
@@ -576,6 +578,8 @@ bool SkFontHost::ValidFontID(uint32_t fontID)
 
 SkStream* SkFontHost::OpenStream(uint32_t fontID)
 {
+    SkAutoMutexAcquire  ac(gFamilyMutex);
+    
     FamilyTypeface* tf = (FamilyTypeface*)find_from_uniqueID(fontID);
     SkStream* stream = tf ? tf->openStream() : NULL;
 
