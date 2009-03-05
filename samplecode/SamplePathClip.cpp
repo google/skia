@@ -15,6 +15,57 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 
+#if 0
+static void CFString2SkString(CFStringRef ref, SkString* str) {
+    str->reset();
+    int count = CFStringGetLength(ref);
+    for (int i = 0; i < count; i++) {
+        SkString tmp;
+        UniChar c = CFStringGetCharacterAtIndex(ref, i);
+        tmp.setUTF16(&c, 1);
+        str->append(tmp);
+    }
+}
+
+static size_t get_table_size(ATSFontRef font, uint32_t tableTag) {
+    ByteCount size;
+    OSStatus status = ATSFontGetTable(font, tableTag, 0, 0, NULL, &size);
+    if (status) {
+        SkDebugf("*** ATSFontGetTable returned %d\n", status);
+        size = -1;
+    }
+    return size;
+}
+
+static void test_ats() {
+    OSStatus status;
+    ATSFontIterator iter;
+    status = ATSFontIteratorCreate(kATSFontContextLocal, NULL, NULL,
+                                   kATSOptionFlagsUnRestrictedScope, &iter);
+
+    for (int index = 0;; index++) {
+        ATSFontRef fontRef;
+        status = ATSFontIteratorNext(iter, &fontRef);
+        if (status) {
+            break;
+        }
+        
+        CFStringRef name;
+        SkString str;
+        ATSFontGetName(fontRef, kATSOptionFlagsDefault, &name);
+        CFString2SkString(name, &str);
+        if (str.size() > 0 && str.c_str()[0] != '.') {
+            SkDebugf("[%3d] font %x cmap %d 'name' %d <%s>\n", index, fontRef,
+                     get_table_size(fontRef, 'cmap'),
+                     get_table_size(fontRef, 'name'),
+                     str.c_str());
+        }
+        CFRelease(name);
+    }
+    ATSFontIteratorRelease(&iter);
+}
+#endif
+
 class PathClipView : public SkView {
 public:
     SkRect fOval;
@@ -23,6 +74,8 @@ public:
 	PathClipView() {
         fOval.set(0, 0, SkIntToScalar(200), SkIntToScalar(50));
         fCenter.set(SkIntToScalar(250), SkIntToScalar(250));
+        
+//        test_ats();
     }
     
     virtual ~PathClipView() {}
