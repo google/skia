@@ -535,7 +535,7 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
             }
         }
     }
-    return SkFontHost::CreateTypeface(NULL, NULL, (SkTypeface::Style)style);
+    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

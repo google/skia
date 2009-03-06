@@ -50,9 +50,7 @@ void SkTypeface::serialize(SkWStream* stream) const {
 }
 
 SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
-    SkTypeface* face = SkFontHost::Deserialize(stream);
-    face->ref();
-    return face;
+    return SkFontHost::Deserialize(stream);
 }
 
 
