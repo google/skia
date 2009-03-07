@@ -185,35 +185,3 @@ void SkQSort(void* base, size_t count, size_t elemSize, SkQSortCompareProc compa
     SkQSort_Partition((char*)base, (char*)base + (count - 1) * elemSize, elemSize, compare);
 }
 
-#ifdef SK_DEBUG
-
-#include "SkRandom.h"
-
-#ifdef SK_SUPPORT_UNITTEST
-extern "C" {
-    int compare_int(const void* a, const void* b)
-    {
-        return *(const int*)a - *(const int*)b;
-    }
-}
-#endif
-
-void SkQSort_UnitTest()
-{
-#ifdef SK_SUPPORT_UNITTEST
-    int         array[100];
-    SkRandom    rand;
-
-    for (int i = 0; i < 1000; i++)
-    {
-        int j, count = rand.nextRangeU(1, SK_ARRAY_COUNT(array));
-        for (j = 0; j < count; j++)
-            array[j] = rand.nextS() & 0xFF;
-        SkQSort(array, count, sizeof(int), compare_int);
-        for (j = 1; j < count; j++)
-            SkASSERT(array[j-1] <= array[j]);
-    }
-#endif
-}
-
-#endif

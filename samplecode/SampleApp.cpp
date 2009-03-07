@@ -597,7 +597,7 @@ void get_preferred_size(int* x, int* y, int* width, int* height) {
 void application_init() {
 //    setenv("ANDROID_ROOT", "../../../data", 0);
     setenv("ANDROID_ROOT", "/android/device/data", 0);
-	SkGraphics::Init(true);
+	SkGraphics::Init();
 	SkEvent::Init();
 }
 

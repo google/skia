@@ -21,7 +21,7 @@
 
 class SkGraphics {
 public:
-    static void Init(bool runUnitTests);
+    static void Init();
     static void Term();
 
     /** Return the (approximate) number of bytes used by the font cache.

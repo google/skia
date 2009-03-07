@@ -112,8 +112,8 @@ static int findConfig(const char config[]) {
 
 class SkAutoGraphics {
 public:
-    SkAutoGraphics(bool runUnitTests = false) {
-        SkGraphics::Init(runUnitTests);
+    SkAutoGraphics() {
+        SkGraphics::Init();
     }
     ~SkAutoGraphics() {
         SkGraphics::Term();

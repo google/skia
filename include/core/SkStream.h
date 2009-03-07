@@ -68,8 +68,6 @@ public:
     bool     readBool() { return this->readU8() != 0; }
     SkScalar readScalar();
     size_t   readPackedUInt();
-
-    static void UnitTest();
 };
 
 class SkWStream : SkNoncopyable {
@@ -101,8 +99,6 @@ public:
     bool    writePackedUInt(size_t);
     
     bool writeStream(SkStream* input, size_t length);
-
-    static void UnitTest();
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////

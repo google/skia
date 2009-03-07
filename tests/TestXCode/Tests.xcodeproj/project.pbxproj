@@ -21,6 +21,9 @@
 		00A9BFA30F584E150091AD2D /* StringTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A9BFA20F584E150091AD2D /* StringTest.cpp */; };
 		00A9BFBC0F5851570091AD2D /* GeometryTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A9BFBB0F5851570091AD2D /* GeometryTest.cpp */; };
 		276D93080F5B9FEA0081B3B9 /* PathTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 276D93070F5B9FEA0081B3B9 /* PathTest.cpp */; };
+		27C9A9C70F6222EE00E9C93D /* PathMeasureTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C9A9C40F6222EE00E9C93D /* PathMeasureTest.cpp */; };
+		27C9A9C80F6222EE00E9C93D /* SortTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C9A9C50F6222EE00E9C93D /* SortTest.cpp */; };
+		27C9A9C90F6222EE00E9C93D /* StreamTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C9A9C60F6222EE00E9C93D /* StreamTest.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Tests.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Tests.1 */; };
 /* End PBXBuildFile section */
 
@@ -85,6 +88,9 @@
 		00A9BFA60F584F200091AD2D /* TestClassDef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestClassDef.h; path = ../TestClassDef.h; sourceTree = SOURCE_ROOT; };
 		00A9BFBB0F5851570091AD2D /* GeometryTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryTest.cpp; path = ../GeometryTest.cpp; sourceTree = SOURCE_ROOT; };
 		276D93070F5B9FEA0081B3B9 /* PathTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathTest.cpp; path = ../PathTest.cpp; sourceTree = SOURCE_ROOT; };
+		27C9A9C40F6222EE00E9C93D /* PathMeasureTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathMeasureTest.cpp; path = ../PathMeasureTest.cpp; sourceTree = SOURCE_ROOT; };
+		27C9A9C50F6222EE00E9C93D /* SortTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SortTest.cpp; path = ../SortTest.cpp; sourceTree = SOURCE_ROOT; };
+		27C9A9C60F6222EE00E9C93D /* StreamTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StreamTest.cpp; path = ../StreamTest.cpp; sourceTree = SOURCE_ROOT; };
 		8DD76F6C0486A84900D96B5E /* Tests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Tests; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859E8B029090EE04C91782 /* Tests.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Tests.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,6 +139,9 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				27C9A9C40F6222EE00E9C93D /* PathMeasureTest.cpp */,
+				27C9A9C50F6222EE00E9C93D /* SortTest.cpp */,
+				27C9A9C60F6222EE00E9C93D /* StreamTest.cpp */,
 				009CC7870F5DAF16002185BE /* ClipCubicTest.cpp */,
 				276D93070F5B9FEA0081B3B9 /* PathTest.cpp */,
 				00A9BF850F584CF30091AD2D /* Sk64Test.cpp */,
@@ -251,6 +260,9 @@
 				276D93080F5B9FEA0081B3B9 /* PathTest.cpp in Sources */,
 				009CC7840F5DAE2B002185BE /* SrcOverTest.cpp in Sources */,
 				009CC7880F5DAF16002185BE /* ClipCubicTest.cpp in Sources */,
+				27C9A9C70F6222EE00E9C93D /* PathMeasureTest.cpp in Sources */,
+				27C9A9C80F6222EE00E9C93D /* SortTest.cpp in Sources */,
+				27C9A9C90F6222EE00E9C93D /* StreamTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

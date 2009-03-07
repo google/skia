@@ -80,7 +80,6 @@ public:
 
 #ifdef SK_DEBUG
     void    dump();
-    static void UnitTest();
 #endif
 
 private:

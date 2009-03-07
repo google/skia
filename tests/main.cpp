@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include "SkGraphics.h"
 #include "Test.h"
 
 using namespace skiatest;
@@ -46,7 +46,19 @@ protected:
     virtual void onEnd(Test* test) {}
 };
 
+class SkAutoGraphics {
+public:
+    SkAutoGraphics() {
+        SkGraphics::Init();
+    }
+    ~SkAutoGraphics() {
+        SkGraphics::Term();
+    }
+};
+
 int main (int argc, char * const argv[]) {
+    SkAutoGraphics ag;
+
     PrintfReporter reporter;
     Iter iter(&reporter);
     Test* test;

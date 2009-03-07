@@ -161,7 +161,5 @@ extern "C" {
     void SkQSort(void* base, size_t count, size_t elemSize, SkQSortCompareProc);
 }
 
-SkDEBUGCODE(void SkQSort_UnitTest();)
-
 #endif
 

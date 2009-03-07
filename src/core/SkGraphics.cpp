@@ -27,7 +27,6 @@
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkPathEffect.h"
-#include "SkPathMeasure.h"
 #include "SkRandom.h"
 #include "SkRefCnt.h"
 #include "SkScalerContext.h"
@@ -78,7 +77,6 @@ static void test_sort()
 #define SPEED_TESTx
 
 #define typesizeline(type)  { #type , sizeof(type) }
-#define unittestline(type)  { #type , type::UnitTest }
 
 
 #ifdef BUILD_EMBOSS_TABLE
@@ -271,7 +269,7 @@ static float time_intToFloat() {
 #endif
 #endif
 
-void SkGraphics::Init(bool runUnitTests)
+void SkGraphics::Init()
 {
     SkGlobals::Init();
 
@@ -287,9 +285,7 @@ void SkGraphics::Init(bool runUnitTests)
     SkRadialGradient_BuildTable();
 #endif
 
-#ifdef SK_SUPPORT_UNITTEST
-    if (runUnitTests == false)
-        return;
+#ifdef SK_DEBUGx
     int i;
 
     static const struct {
@@ -337,25 +333,10 @@ void SkGraphics::Init(bool runUnitTests)
         else
             SkDebugf("SkGraphics: char is unsigned\n");
     }
-    for (i = 0; i < (int)SK_ARRAY_COUNT(gTypeSize); i++)
-        SkDebugf("SkGraphics: sizeof(%s) = %d\n", gTypeSize[i].fTypeName, gTypeSize[i].fSizeOf);
-
-    static const struct {
-        const char* fTypeName;
-        void (*fUnitTest)();
-    } gUnitTests[] = {
-        unittestline(SkPathMeasure),
-        unittestline(SkStream),
-        unittestline(SkWStream),
-    };
-
-    for (i = 0; i < (int)SK_ARRAY_COUNT(gUnitTests); i++)
-    {
-        SkDebugf("SkGraphics: Running UnitTest for %s\n", gUnitTests[i].fTypeName);
-        gUnitTests[i].fUnitTest();
-        SkDebugf("SkGraphics: End UnitTest for %s\n", gUnitTests[i].fTypeName);
+    for (i = 0; i < (int)SK_ARRAY_COUNT(gTypeSize); i++) {
+        SkDebugf("SkGraphics: sizeof(%s) = %d\n",
+                 gTypeSize[i].fTypeName, gTypeSize[i].fSizeOf);
     }
-    SkQSort_UnitTest();
 
 #endif
 
