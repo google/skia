@@ -17,6 +17,7 @@
 #include <carbon/carbon.h>
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
+#include "SkEndian.h"
 #include "SkPoint.h"
 
 // Give 1MB font cache budget
@@ -90,14 +91,13 @@ protected:
     virtual void generateMetrics(SkGlyph* glyph);
     virtual void generateImage(const SkGlyph& glyph);
     virtual void generatePath(const SkGlyph& glyph, SkPath* path);
-    virtual void generateLineHeight(SkPoint* ascent, SkPoint* descent);
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY);
-//    virtual SkDeviceContext getDC() { return NULL; } // not implemented on Mac
 
 private:
     ATSUTextLayout  fLayout;
     ATSUStyle       fStyle;
     CGColorSpaceRef fGrayColorSpace;
+    CGAffineTransform   fTransform;
     
     static OSStatus MoveTo(const Float32Point *pt, void *cb);
     static OSStatus Line(const Float32Point *pt, void *cb);
@@ -106,18 +106,31 @@ private:
 };
 
 SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
-        : SkScalerContext(desc), fLayout(0), fStyle(0) {
+    : SkScalerContext(desc), fLayout(0), fStyle(0)
+{
     SkAutoMutexAcquire  ac(gFTMutex);
     OSStatus err;
     
     err = ::ATSUCreateStyle(&fStyle);
     SkASSERT(0 == err);
-
-    Fixed fixedSize = SkScalarToFixed(fRec.fTextSize);
-    static const ATSUAttributeTag sizeTag = kATSUSizeTag;
-    static const ByteCount sizeTagSize = sizeof(Fixed);
-    const ATSUAttributeValuePtr values[] = { &fixedSize };
-    err = ::ATSUSetAttributes(fStyle,1,&sizeTag,&sizeTagSize,values);
+            
+    SkMatrix    m;
+    fRec.getSingleMatrix(&m);
+    
+    fTransform = CGAffineTransformMake(SkScalarToFloat(m[SkMatrix::kMScaleX]),
+                                       SkScalarToFloat(m[SkMatrix::kMSkewX]),
+                                       SkScalarToFloat(m[SkMatrix::kMSkewY]),
+                                       SkScalarToFloat(m[SkMatrix::kMScaleY]),
+                                       SkScalarToFloat(m[SkMatrix::kMTransX]),
+                                       SkScalarToFloat(m[SkMatrix::kMTransY]));
+                                       
+    
+    Fixed fixedSize = SK_Fixed1;    //SkScalarToFixed(fRec.fTextSize);
+    static const ATSUAttributeTag tags[] = { kATSUSizeTag, kATSUFontMatrixTag };
+    static const ByteCount sizes[] = { sizeof(Fixed), sizeof(fTransform) };
+    const ATSUAttributeValuePtr values[] = { &fixedSize, &fTransform };
+    err = ::ATSUSetAttributes(fStyle, SK_ARRAY_COUNT(tags),
+                              tags, sizes, values);
     SkASSERT(0 == err);
 
     err = ::ATSUCreateTextLayout(&fLayout);
@@ -188,21 +201,118 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     }
 }
 
+static void convert_metrics(SkPaint::FontMetrics* dst,
+                            const ATSFontMetrics& src) {
+    dst->fTop     = -SkFloatToScalar(src.ascent);
+    dst->fAscent  = -SkFloatToScalar(src.ascent);
+    dst->fDescent = SkFloatToScalar(src.descent);
+    dst->fBottom  = SkFloatToScalar(src.descent);
+    dst->fLeading = SkFloatToScalar(src.leading);
+}
+
+static void* get_font_table(ATSFontRef fontID, uint32_t tag) {
+    ByteCount size;
+    OSStatus err = ATSFontGetTable(fontID, tag, 0, 0, NULL, &size);
+    if (err) {
+        return NULL;
+    }
+    void* data = sk_malloc_throw(size);
+    err = ATSFontGetTable(fontID, tag, 0, size, data, &size);
+    if (err) {
+        sk_free(data);
+        data = NULL;
+    }
+    return data;
+}
+
+static int get_be16(const void* data, size_t offset) {
+    const char* ptr = reinterpret_cast<const char*>(data);
+    uint16_t value = *reinterpret_cast<const uint16_t*>(ptr + offset);
+    int n = SkEndian_SwapBE16(value);
+    // now force it to be signed
+    return n << 16 >> 16;
+}
+
+#define SFNT_HEAD_UPEM_OFFSET       18
+#define SFNT_HEAD_YMIN_OFFSET       38
+#define SFNT_HEAD_YMAX_OFFSET       42
+#define SFNT_HEAD_STYLE_OFFSET      44
+
+#define SFNT_HHEA_ASCENT_OFFSET     4
+#define SFNT_HHEA_DESCENT_OFFSET    6
+#define SFNT_HHEA_LEADING_OFFSET    8
+
+static bool init_vertical_metrics(ATSFontRef font, SkPoint pts[5]) {
+    void* head = get_font_table(font, 'head');
+    if (NULL == head) {
+        return false;
+    }
+    void* hhea = get_font_table(font, 'hhea');
+    if (NULL == hhea) {
+        sk_free(head);
+        return false;
+    }
+
+    int upem = get_be16(head, SFNT_HEAD_UPEM_OFFSET);
+    int ys[5];
+
+    ys[0] = -get_be16(head, SFNT_HEAD_YMAX_OFFSET);
+    ys[1] = -get_be16(hhea, SFNT_HHEA_ASCENT_OFFSET);
+    ys[2] = -get_be16(hhea, SFNT_HHEA_DESCENT_OFFSET);
+    ys[3] = -get_be16(head, SFNT_HEAD_YMIN_OFFSET);
+    ys[4] =  get_be16(hhea, SFNT_HHEA_LEADING_OFFSET);
+
+    // now do some cleanup, to ensure y[max,min] are really that
+    if (ys[0] > ys[1]) {
+        ys[0] = ys[1];
+    }
+    if (ys[3] < ys[2]) {
+        ys[3] = ys[2];
+    }
+
+    for (int i = 0; i < 5; i++) {
+        pts[i].set(0, SkIntToScalar(ys[i]) / upem);
+    }
+    
+    sk_free(hhea);
+    sk_free(head);
+    return true;
+}
+
 void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
                                               SkPaint::FontMetrics* my) {
-#if 0
-    OSStatus ATSFontGetVerticalMetrics (
-                                        ATSFontRef iFont,
-                                        ATSOptionFlags iOptions,
-                                        ATSFontMetrics *oMetrics
-    );
-#endif
-    //SkASSERT(false);
-    if (mx)
-        memset(mx, 0, sizeof(SkPaint::FontMetrics));
-    if (my)
-        memset(my, 0, sizeof(SkPaint::FontMetrics));
-    return;
+    SkPoint pts[5];
+    
+    if (!init_vertical_metrics(fRec.fFontID, pts)) {
+        // these are not as accurate as init_vertical_metrics :(
+        ATSFontMetrics metrics;
+        ATSFontGetVerticalMetrics(fRec.fFontID, kATSOptionFlagsDefault,
+                                  &metrics);
+        pts[0].set(0, -SkFloatToScalar(metrics.ascent));
+        pts[1].set(0, -SkFloatToScalar(metrics.ascent));
+        pts[2].set(0, -SkFloatToScalar(metrics.descent));
+        pts[3].set(0, -SkFloatToScalar(metrics.descent));
+        pts[4].set(0, SkFloatToScalar(metrics.leading));    //+ or -?
+    }
+    
+    SkMatrix m;
+    fRec.getSingleMatrix(&m);
+    m.mapPoints(pts, 5);
+
+    if (mx) {
+        mx->fTop = pts[0].fX;
+        mx->fAscent = pts[1].fX;
+        mx->fDescent = pts[2].fX;
+        mx->fBottom = pts[3].fX;
+        mx->fLeading = pts[4].fX;
+    }
+    if (my) {
+        my->fTop = pts[0].fY;
+        my->fAscent = pts[1].fY;
+        my->fDescent = pts[2].fY;
+        my->fBottom = pts[3].fY;
+        my->fLeading = pts[4].fY;
+    }
 }
 
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
@@ -226,7 +336,8 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     CGGlyph glyphID = glyph.getGlyphID();
     CGFontRef fontRef = CGFontCreateWithPlatformFont(&fRec.fFontID);
     CGContextSetFont(contextRef, fontRef);
-    CGContextSetFontSize(contextRef, SkScalarToFloat(fRec.fTextSize));
+    CGContextSetFontSize(contextRef, 1);    //SkScalarToFloat(fRec.fTextSize));
+    CGContextSetTextMatrix(contextRef, fTransform);
     CGContextShowGlyphsAtPoint(contextRef, -glyph.fLeft,
                                glyph.fTop + glyph.fHeight, &glyphID, 1);
 
@@ -246,16 +357,6 @@ void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path)
             &SkScalerContext_Mac::Close,
             path,&result);
     SkASSERT(err == noErr);
-}
-
-void SkScalerContext_Mac::generateLineHeight(SkPoint* ascent, SkPoint* descent)
-{
-    ATSUTextMeasurement     textAscent, textDescent;
-    ByteCount actual = 0;
-    OSStatus err = ::ATSUGetAttribute(fStyle,kATSULineAscentTag,sizeof(ATSUTextMeasurement),&textAscent,&actual);
-    ascent->set(0,textAscent);
-    err = ::ATSUGetAttribute(fStyle,kATSULineDescentTag,sizeof(ATSUTextMeasurement),&textDescent,&actual);
-    descent->set(0,textDescent);
 }
 
 OSStatus SkScalerContext_Mac::MoveTo(const Float32Point *pt, void *cb)
