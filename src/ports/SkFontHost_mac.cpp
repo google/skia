@@ -393,7 +393,6 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
 {
     SkAutoMutexAcquire  ac(gFTMutex);
     SkASSERT(fLayout);
-    OSStatus err;
 
     bzero(glyph.fImage, glyph.fHeight * glyph.rowBytes());
     CGContextRef contextRef = ::CGBitmapContextCreate(glyph.fImage,
@@ -408,15 +407,24 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     ::CGContextSetGrayFillColor(contextRef, 1.0, 1.0);
     ::CGContextSetTextDrawingMode(contextRef, kCGTextFill);
     
+#if 1
     ATSUAttributeTag tag = kATSUCGContextTag;
     ByteCount size = sizeof(CGContextRef);
     ATSUAttributeValuePtr value = &contextRef;
-    err = ::ATSUSetLayoutControls(fLayout, 1, &tag, &size, &value);
+    OSStatus err = ::ATSUSetLayoutControls(fLayout, 1, &tag, &size, &value);
     SkASSERT(!err);
     err = ::ATSUDrawText(fLayout, kATSUFromTextBeginning, kATSUToTextEnd,
                          SkIntToFixed(-glyph.fLeft),
                          SkIntToFixed(glyph.fTop + glyph.fHeight));
     SkASSERT(!err);
+#else
+    CGGlyph glyphID = glyph.getGlyphID();
+    CGFontRef fontRef = CGFontCreateWithPlatformFont(&fRec.fFontID);
+    CGContextSetFont(contextRef, fontRef);
+    CGContextSetFontSize(contextRef, SkScalarToFloat(fRec.fTextSize));
+    CGContextShowGlyphsAtPoint(contextRef, -glyph.fLeft,
+                               glyph.fTop + glyph.fHeight, &glyphID, 1);
+#endif
     ::CGContextRelease(contextRef);
 }
 
