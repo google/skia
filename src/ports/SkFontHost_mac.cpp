@@ -185,20 +185,64 @@ void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
 
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     GlyphID glyphID = glyph->getGlyphID(fBaseGlyphCount);
-    ATSGlyphScreenMetrics metrics;
+    ATSGlyphScreenMetrics screenMetrics;
+    ATSGlyphIdealMetrics idealMetrics;
 
     OSStatus err = ATSUGlyphGetScreenMetrics(fStyle, 1, &glyphID, 0, true, true,
-                                             &metrics);
+                                             &screenMetrics);
     if (noErr != err) {
         set_glyph_metrics_on_error(glyph);
-    } else {
-        glyph->fAdvanceX = SkFloatToFixed(metrics.deviceAdvance.x);
-        glyph->fAdvanceY = -SkFloatToFixed(metrics.deviceAdvance.y);
-        glyph->fWidth = metrics.width;
-        glyph->fHeight = metrics.height;
-        glyph->fLeft = sk_float_round2int(metrics.topLeft.x);
-        glyph->fTop = -sk_float_round2int(metrics.topLeft.y);
+        return;
     }
+    err = ATSUGlyphGetIdealMetrics(fStyle, 1, &glyphID, 0, &idealMetrics);
+    if (noErr != err) {
+        set_glyph_metrics_on_error(glyph);
+        return;
+    }
+
+    if (kNormal_Hints == fRec.fHints) {
+        glyph->fAdvanceX = SkFloatToFixed(screenMetrics.deviceAdvance.x);
+        glyph->fAdvanceY = -SkFloatToFixed(screenMetrics.deviceAdvance.y);
+    } else {
+        glyph->fAdvanceX = SkFloatToFixed(idealMetrics.advance.x);
+        glyph->fAdvanceY = -SkFloatToFixed(idealMetrics.advance.y);
+    }
+
+    // specify an extra 1-pixel border, go tive CG room for its antialiasing
+    // i.e. without this, I was seeing some edges chopped off!
+    glyph->fWidth = screenMetrics.width + 2;
+    glyph->fHeight = screenMetrics.height + 2;
+    glyph->fLeft = sk_float_round2int(screenMetrics.topLeft.x) - 1;
+    glyph->fTop = -sk_float_round2int(screenMetrics.topLeft.y) - 1;
+}
+
+void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
+{
+    SkAutoMutexAcquire  ac(gFTMutex);
+    SkASSERT(fLayout);
+    
+    bzero(glyph.fImage, glyph.fHeight * glyph.rowBytes());
+    CGContextRef contextRef = ::CGBitmapContextCreate(glyph.fImage,
+                                              glyph.fWidth, glyph.fHeight, 8,
+                                              glyph.rowBytes(), fGrayColorSpace,
+                                              kCGImageAlphaNone);
+    if (!contextRef) {
+        SkASSERT(false);
+        return;
+    }
+    
+    ::CGContextSetGrayFillColor(contextRef, 1.0, 1.0);
+    ::CGContextSetTextDrawingMode(contextRef, kCGTextFill);
+    
+    CGGlyph glyphID = glyph.getGlyphID();
+    CGFontRef fontRef = CGFontCreateWithPlatformFont(&fRec.fFontID);
+    CGContextSetFont(contextRef, fontRef);
+    CGContextSetFontSize(contextRef, 1);
+    CGContextSetTextMatrix(contextRef, fTransform);
+    CGContextShowGlyphsAtPoint(contextRef, -glyph.fLeft,
+                               glyph.fTop + glyph.fHeight, &glyphID, 1);
+    
+    ::CGContextRelease(contextRef);
 }
 
 static void convert_metrics(SkPaint::FontMetrics* dst,
@@ -313,35 +357,6 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fBottom = pts[3].fY;
         my->fLeading = pts[4].fY;
     }
-}
-
-void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
-{
-    SkAutoMutexAcquire  ac(gFTMutex);
-    SkASSERT(fLayout);
-
-    bzero(glyph.fImage, glyph.fHeight * glyph.rowBytes());
-    CGContextRef contextRef = ::CGBitmapContextCreate(glyph.fImage,
-                                            glyph.fWidth, glyph.fHeight, 8,
-                                            glyph.rowBytes(), fGrayColorSpace,
-                                            kCGImageAlphaNone);
-    if (!contextRef) {
-        SkASSERT(false);
-        return;
-    }
-
-    ::CGContextSetGrayFillColor(contextRef, 1.0, 1.0);
-    ::CGContextSetTextDrawingMode(contextRef, kCGTextFill);
-    
-    CGGlyph glyphID = glyph.getGlyphID();
-    CGFontRef fontRef = CGFontCreateWithPlatformFont(&fRec.fFontID);
-    CGContextSetFont(contextRef, fontRef);
-    CGContextSetFontSize(contextRef, 1);    //SkScalarToFloat(fRec.fTextSize));
-    CGContextSetTextMatrix(contextRef, fTransform);
-    CGContextShowGlyphsAtPoint(contextRef, -glyph.fLeft,
-                               glyph.fTop + glyph.fHeight, &glyphID, 1);
-
-    ::CGContextRelease(contextRef);
 }
 
 void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path)
