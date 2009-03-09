@@ -34,217 +34,46 @@ static inline uint32_t _rotl(uint32_t v, uint32_t r) {
     return (v << r | v >> (32 - r));
 }
 
-// This will generate a unique ID based on the fontname + fontstyle
-// and also used by upper layer
-uint32_t FontFaceChecksum(const char *name,SkTypeface::Style style)
-{
-    if (!name) return style;
-    
-    char* q = (char*)name;
-
-    // From "Performance in Practice of String Hashing Functions"
-    // Ramakrishna & Zobel
-    const uint32_t L = 5;
-    const uint32_t R = 2;
-     
-    uint32_t h = 0x12345678;
-    while (*q) {
-        uint32_t ql = tolower(*q);
-        h ^= ((h << L) + (h >> R) + ql);
-        q ++;
-    }
-
-    // add style
-    h = _rotl(h, 3) ^ style;
-
-    return h;
-}
-
-#pragma mark -
-struct SkFaceRec {
-    SkFaceRec*      fNext;
-    uint32_t        fRefCnt;
-    ATSUFontID      fFontID;
-    ATSUStyle       fStyle;
-
-    SkFaceRec() : fFontID(0), fRefCnt(0), fStyle(NULL) {};
-
-    ~SkFaceRec() {
-        if (fStyle) {
-            ::ATSUDisposeStyle(fStyle);
-            fStyle = NULL;
-        }
-    }
-
-    uint32_t ref() {
-        return ++fRefCnt;
-    }
-};
-
-// Font Face list
-static SkFaceRec*   gFaceRecHead = NULL;
-
-static SkFaceRec* find_ft_face(const ATSUFontID fontID) {
-    SkFaceRec* rec = gFaceRecHead;
-    while (rec) {
-        if (rec->fFontID == fontID) {
-            return rec;
-        }
-        rec = rec->fNext;
-    }
-
-    return NULL;
-}
-
-static SkFaceRec* insert_ft_face(const ATSUFontID afontID, const ATSUStyle atsuStyle) {
-    SkFaceRec* rec = find_ft_face(afontID);
-    if (rec) {
-        return rec;  // found?
-    }
-
-    rec = SkNEW(SkFaceRec);
-    rec->fFontID = afontID;
-    rec->fStyle = atsuStyle;
-    rec->fNext = gFaceRecHead;
-    gFaceRecHead = rec;
-
-    return rec;
-}
-
-static void unref_ft_face(const ATSUFontID fontID) {
-
-    SkFaceRec* rec = gFaceRecHead;
-    SkFaceRec* prev = NULL;
-    while (rec) {
-        SkFaceRec* next = rec->fNext;
-        if (rec->fFontID == fontID) {
-            if (--rec->fRefCnt == 0) {
-                if (prev)
-                    prev->fNext = next;
-                else
-                    gFaceRecHead = next;
-
-                SkDELETE(rec);
-            }
-            return;
-        }
-        prev = rec;
-        rec = next;
-    }
-    SkASSERT("shouldn't get here, face not in list");
-}
-
-#pragma mark -
-
-// have to do this because SkTypeface::SkTypeface() is protected
 class SkTypeface_Mac : public SkTypeface {
 public:
-    SkTypeface_Mac(SkTypeface::Style style, uint32_t id) : SkTypeface(style, id) {}
-
-    ~SkTypeface_Mac() {}
+    SkTypeface_Mac(SkTypeface::Style style, uint32_t id)
+        : SkTypeface(style, id) {}
 };
 
 #pragma mark -
 
-static SkTypeface* CreateTypeface_(const char *name, const SkTypeface::Style style) {
-
-    OSStatus err;
-    ATSUStyle atsuStyle;
-    ::ATSUCreateStyle(&atsuStyle);
-    if (name != NULL) {
-        static const ATSUAttributeTag fontTag = kATSUFontTag;
-        static const ByteCount fontTagSize =  sizeof(ATSUFontID);
-    
-        ATSUFontID fontID = 0;
-#if 1
-        err = ::ATSUFindFontFromName(
-                name,strlen(name),kFontNoNameCode,   /*  instead of regular, kFontFamilyName returns bold and/or italic sometimes, but why this works?? */
-                kFontMacintoshPlatform,kFontNoScriptCode,kFontNoLanguageCode,&fontID);
-#else    
-        CFStringRef cfontName = CFStringCreateWithCString(NULL, name, kCFStringEncodingASCII); 
-        ATSFontRef fontRef = ::ATSFontFindFromName(cfontName,kATSOptionFlagsDefault);
-        fontID = ::FMGetFontFromATSFontRef(fontRef);
-        CFRelease(cfontName);
-#endif    
-        if (0 != fontID) {
-            const ATSUAttributeValuePtr values[] = { &fontID };
-            err = ::ATSUSetAttributes(atsuStyle,1,&fontTag,&fontTagSize,values);
-        }
-        else {
-        }
-    }
-    if (style != SkTypeface::kNormal) {
-        Boolean fontItalic = ((style & SkTypeface::kItalic) != 0);
-        Boolean fontBold = ((style & SkTypeface::kBold) != 0);
-        const ATSUAttributeTag tags[2] =        { kATSUQDBoldfaceTag, kATSUQDItalicTag };
-        const ATSUAttributeValuePtr values[2] = { &fontBold, &fontItalic };
-        const ByteCount sizes[2] =                { sizeof(Boolean), sizeof(Boolean) };
-        err = ::ATSUSetAttributes(atsuStyle,2,tags,sizes,values);
-    }
-
-    uint32_t cs = FontFaceChecksum(name,style);
-    SkTypeface_Mac* ptypeface = new SkTypeface_Mac(style,cs);
-
-    if (NULL == ptypeface) {
-        SkASSERT(false);
-        return NULL;
-    }
-
-    SkFaceRec* rec = insert_ft_face(cs, atsuStyle);
-    SkASSERT(rec);
-
-    return ptypeface;
+static uint32_t find_from_name(const char name[]) {
+    CFStringRef str = CFStringCreateWithCString(NULL, name,
+                                                kCFStringEncodingUTF8); 
+    uint32_t fontID = ::ATSFontFindFromName(str, kATSOptionFlagsDefault);
+    CFRelease(str);
+    return fontID;
 }
 
-static SkTypeface* CreateTypeface_(const SkFaceRec* rec, const SkTypeface::Style style) {
+static uint32_t find_default_fontID() {
+    static const char* gDefaultNames[] = { "Arial", "Tahoma", "Helvetica" };
 
-    OSStatus err;
-    ATSUStyle atsuStyle;
-    err = ::ATSUCreateAndCopyStyle(rec->fStyle, &atsuStyle);
-
-    Boolean fontItalic = ((style & SkTypeface::kItalic) != 0);
-    Boolean fontBold = ((style & SkTypeface::kBold) != 0);
-    const ATSUAttributeTag tags[2] =        { kATSUQDBoldfaceTag, kATSUQDItalicTag };
-    const ATSUAttributeValuePtr values[2] = { &fontBold, &fontItalic };
-    const ByteCount sizes[2] =                { sizeof(Boolean), sizeof(Boolean) };
-    err = ::ATSUSetAttributes(atsuStyle,2,tags,sizes,values);
-
-    // get old font id and name
-    ATSUFontID fontID = 0;
-    ByteCount actual = 0;
-    err = ::ATSUGetAttribute(rec->fStyle,kATSUFontTag,sizeof(ATSUFontID),&fontID,&actual);
-
-    ByteCount actualLength = 0;
-    char *fontname = NULL;
-    err = ::ATSUFindFontName(fontID , kFontFamilyName, kFontUnicodePlatform, kFontNoScriptCode,
-        kFontNoLanguageCode , 0 , NULL , &actualLength , NULL );
-    if ( err == noErr)
-    {
-        actualLength += 1 ;
-        fontname = (char*)malloc( actualLength );
-        err = ::ATSUFindFontName(fontID, kFontFamilyName, kFontUnicodePlatform, kFontNoScriptCode,
-            kFontNoLanguageCode, actualLength, fontname , NULL, NULL);
-    }
-
-    SkTypeface_Mac* ptypeface = NULL;
-    if (fontname == NULL) {
-        ptypeface = new SkTypeface_Mac(style,rec->fFontID);
-        return ptypeface;
-    }
-    else {
-        uint32_t cs = FontFaceChecksum(fontname,style);
-        ptypeface = new SkTypeface_Mac(style, cs);
-
-        if (NULL == ptypeface) {
-            SkASSERT(false);
-            return NULL;
+    uint32_t fontID;
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gDefaultNames); i++) {
+        fontID = find_from_name(gDefaultNames[i]);
+        if (fontID) {
+            return fontID;
         }
-
-        free(fontname);
-
-        insert_ft_face(cs,atsuStyle);
     }
-    return ptypeface;
+    sk_throw();
+    return 0;
+}
+
+static SkTypeface* CreateTypeface_(const char name[], SkTypeface::Style style) {
+    uint32_t fontID = 0;
+    if (NULL != name) {
+        fontID = find_from_name(name);
+    }
+    if (0 == fontID) {
+        fontID = find_default_fontID();
+    }
+    // we lie (for now) and report that we found the exact style bits
+    return new SkTypeface_Mac(style, fontID);
 }
 
 #pragma mark -
@@ -277,46 +106,33 @@ private:
 };
 
 SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
-    : SkScalerContext(desc), fLayout(0), fStyle(0)
-{
+        : SkScalerContext(desc), fLayout(0), fStyle(0) {
     SkAutoMutexAcquire  ac(gFTMutex);
     OSStatus err;
     
-    SkFaceRec* rec = find_ft_face(fRec.fFontID);
-    if (rec) {
-        rec->ref();
-        err = ::ATSUCreateAndCopyStyle(rec->fStyle, &fStyle);
-    }
-    else {
-        SkASSERT(false);
-        // create a default
-        err = ::ATSUCreateStyle(&fStyle);
-    }
+    err = ::ATSUCreateStyle(&fStyle);
+    SkASSERT(0 == err);
 
-    uint32_t size = SkScalarFloor(fRec.fTextSize);
-    Fixed fixedSize = IntToFixed(size);
+    Fixed fixedSize = SkScalarToFixed(fRec.fTextSize);
     static const ATSUAttributeTag sizeTag = kATSUSizeTag;
     static const ByteCount sizeTagSize = sizeof(Fixed);
     const ATSUAttributeValuePtr values[] = { &fixedSize };
     err = ::ATSUSetAttributes(fStyle,1,&sizeTag,&sizeTagSize,values);
+    SkASSERT(0 == err);
 
     err = ::ATSUCreateTextLayout(&fLayout);
+    SkASSERT(0 == err);
 
     fGrayColorSpace = ::CGColorSpaceCreateDeviceGray();
 }
 
-SkScalerContext_Mac::~SkScalerContext_Mac()
-{
+SkScalerContext_Mac::~SkScalerContext_Mac() {
     ::CGColorSpaceRelease(fGrayColorSpace);
-
-    unref_ft_face(fRec.fFontID);
-
     ::ATSUDisposeTextLayout(fLayout);
     ::ATSUDisposeStyle(fStyle);
 }
 
-unsigned SkScalerContext_Mac::generateGlyphCount() const
-{
+unsigned SkScalerContext_Mac::generateGlyphCount() const {
     return 0xFFFF;
 }
 
@@ -407,24 +223,13 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     ::CGContextSetGrayFillColor(contextRef, 1.0, 1.0);
     ::CGContextSetTextDrawingMode(contextRef, kCGTextFill);
     
-#if 1
-    ATSUAttributeTag tag = kATSUCGContextTag;
-    ByteCount size = sizeof(CGContextRef);
-    ATSUAttributeValuePtr value = &contextRef;
-    OSStatus err = ::ATSUSetLayoutControls(fLayout, 1, &tag, &size, &value);
-    SkASSERT(!err);
-    err = ::ATSUDrawText(fLayout, kATSUFromTextBeginning, kATSUToTextEnd,
-                         SkIntToFixed(-glyph.fLeft),
-                         SkIntToFixed(glyph.fTop + glyph.fHeight));
-    SkASSERT(!err);
-#else
     CGGlyph glyphID = glyph.getGlyphID();
     CGFontRef fontRef = CGFontCreateWithPlatformFont(&fRec.fFontID);
     CGContextSetFont(contextRef, fontRef);
     CGContextSetFontSize(contextRef, SkScalarToFloat(fRec.fTextSize));
     CGContextShowGlyphsAtPoint(contextRef, -glyph.fLeft,
                                glyph.fTop + glyph.fHeight, &glyphID, 1);
-#endif
+
     ::CGContextRelease(contextRef);
 }
 
@@ -493,73 +298,41 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
-    
-    //Should not be used on Mac, keep linker happy
-    SkASSERT(false);
-    return CreateTypeface_(gDefaultfont,SkTypeface::kNormal);
+    return NULL;
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
-    // TODO
-    return CreateTypeface_(gDefaultfont,SkTypeface::kNormal);
+    return NULL;
 }
 
-SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc)
-{
+SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return new SkScalerContext_Mac(desc);
 }
 
 SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::Rec& rec)
 {
-    SkAutoDescriptor    ad(sizeof(rec) + sizeof(gDefaultfont) + SkDescriptor::ComputeOverhead(2));
+    SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
     SkDescriptor*       desc = ad.getDesc();
-
+    
     desc->init();
     SkScalerContext::Rec* newRec =
-        (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
-
-    CreateTypeface_(gDefaultfont,SkTypeface::kNormal);
-    newRec->fFontID = FontFaceChecksum(gDefaultfont,SkTypeface::kNormal);
+    (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
+                                          sizeof(rec), &rec);
+    newRec->fFontID = find_default_fontID();
     desc->computeChecksum();
-
+    
     return SkFontHost::CreateScalerContext(desc);
 }
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                             const char familyName[], SkTypeface::Style style) {
-    
-    SkAutoMutexAcquire  ac(gFTMutex);
-    
-    // clip to legal style bits
-    style = (SkTypeface::Style)(style & SkTypeface::kBoldItalic);
-    
-    SkTypeface* tf = NULL;
-    
-    if (NULL == familyFace && NULL == familyName) {
-        tf = CreateTypeface_(gDefaultfont,style);
+    // todo: we don't know how to respect style bits
+    if (NULL == familyName && NULL != familyFace) {
+        familyFace->ref();
+        return const_cast<SkTypeface*>(familyFace);
+    } else {
+        return CreateTypeface_(familyName, style);
     }
-    else {        
-        if (NULL != familyFace) {
-            uint32_t id = familyFace->uniqueID();
-            SkFaceRec* rec = find_ft_face(id);
-            if (!rec) {
-                SkASSERT(false);
-                tf = CreateTypeface_(gDefaultfont,style);
-            }
-            else {
-                tf = CreateTypeface_(rec,style);
-            }
-        }
-        else {
-            tf = CreateTypeface_(familyName,style);
-        }
-    }
-
-    if (NULL == tf) {
-        tf = CreateTypeface_(gDefaultfont,style);
-    }
-    return tf;
-
 }
 
 size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
