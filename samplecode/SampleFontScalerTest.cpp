@@ -29,6 +29,14 @@ static const struct {
 
 static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
 
+static const char* gStrings[] = {
+    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
+    "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
+    "......................................",
+    "11111111111111111111111111111111111111",
+    "00000000000000000000000000000000000000"
+};
+
 class FontScalerTestView : public SkView {
     SkTypeface* fFaces[gFaceCount];
 
@@ -67,16 +75,29 @@ protected:
         paint.setAntiAlias(true);
         paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal))->safeUnref();
         
-        const char* text = "HHHaaammmbbbuuurrrgggeeefffooonnnsss";
-        const size_t textLen = strlen(text);
+//        const char* text = "abcdefghijklmnopqrstuvwxyz";
+        const char* text = "HnHnHnHnHnHnHnHnH";
+        size_t textLen = strlen(text);
 
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(20);
 
+        {
+            SkPaint p;
+            p.setColor(SK_ColorRED);
+            SkRect r;
+            r.set(0, 0, x, y*20);
+            canvas->drawRect(r, p);
+        }
+        
+        int index = 0;
         for (int ps = 9; ps <= 24; ps++) {
+         //   text = gStrings[index % SK_ARRAY_COUNT(gStrings)];
+            textLen = strlen(text);
             paint.setTextSize(SkIntToScalar(ps));
             canvas->drawText(text, textLen, x, y, paint);
             y += paint.getFontMetrics(NULL);
+            index += 1;
         }
     }
     

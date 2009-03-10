@@ -124,11 +124,32 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
                                        SkScalarToFloat(m[SkMatrix::kMTransX]),
                                        SkScalarToFloat(m[SkMatrix::kMTransY]));
                                        
-    
-    Fixed fixedSize = SK_Fixed1;    //SkScalarToFixed(fRec.fTextSize);
-    static const ATSUAttributeTag tags[] = { kATSUSizeTag, kATSUFontMatrixTag };
-    static const ByteCount sizes[] = { sizeof(Fixed), sizeof(fTransform) };
-    const ATSUAttributeValuePtr values[] = { &fixedSize, &fTransform };
+    ATSStyleRenderingOptions renderOpts = kATSStyleApplyAntiAliasing;
+    switch (fRec.fHints) {
+        case kNo_Hints:
+            renderOpts |= kATSStyleNoHinting;
+            break;
+        case kSubpixel_Hints:
+            // hmmm, need to support subpixel... from path?
+            renderOpts |= kATSStyleNoHinting;
+            break;
+        case kNormal_Hints:
+            renderOpts |= kATSStyleApplyHints;
+            break;
+    }
+
+    ATSUFontID fontID = FMGetFontFromATSFontRef(fRec.fFontID);
+    // we put everything in the matrix, so our pt size is just 1.0
+    Fixed fixedSize = SK_Fixed1;
+    static const ATSUAttributeTag tags[] = {
+        kATSUFontTag, kATSUSizeTag, kATSUFontMatrixTag, kATSUStyleRenderingOptionsTag
+    };
+    static const ByteCount sizes[] = {
+        sizeof(fontID), sizeof(fixedSize), sizeof(fTransform), sizeof(renderOpts)
+    };
+    const ATSUAttributeValuePtr values[] = {
+        &fontID, &fixedSize, &fTransform, &renderOpts
+    };
     err = ::ATSUSetAttributes(fStyle, SK_ARRAY_COUNT(tags),
                               tags, sizes, values);
     SkASSERT(0 == err);
@@ -199,7 +220,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         set_glyph_metrics_on_error(glyph);
         return;
     }
-
+    
     if (kNormal_Hints == fRec.fHints) {
         glyph->fAdvanceX = SkFloatToFixed(screenMetrics.deviceAdvance.x);
         glyph->fAdvanceY = -SkFloatToFixed(screenMetrics.deviceAdvance.y);
@@ -234,7 +255,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     ::CGContextSetGrayFillColor(contextRef, 1.0, 1.0);
     ::CGContextSetTextDrawingMode(contextRef, kCGTextFill);
     
-    CGGlyph glyphID = glyph.getGlyphID();
+    CGGlyph glyphID = glyph.getGlyphID(fBaseGlyphCount);
     CGFontRef fontRef = CGFontCreateWithPlatformFont(&fRec.fFontID);
     CGContextSetFont(contextRef, fontRef);
     CGContextSetFontSize(contextRef, 1);
