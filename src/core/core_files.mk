@@ -22,6 +22,7 @@ SOURCE := \
     SkColor.cpp \
     SkColorFilter.cpp \
     SkColorTable.cpp \
+    SkConcaveToTriangles.cpp \
     SkComposeShader.cpp \
     SkCordic.cpp \
     SkCubicClipper.cpp \

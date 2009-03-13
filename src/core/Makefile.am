@@ -26,6 +26,7 @@ SkColor.cpp \
 SkColorFilter.cpp \
 SkColorTable.cpp \
 SkComposeShader.cpp \
+SkConcaveToTriangles.cpp \
 SkCordic.cpp \
 skCubicClipper.cpp \
 SkDebug.cpp \
