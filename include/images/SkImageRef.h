@@ -35,9 +35,9 @@ public:
         that this imageref is the only owner of the stream. i.e. - sole
         ownership of the stream object is transferred to this imageref object.
     
-        @param stream The stream containing the encoded image data. Ownership
-                      of this stream is transferred to the imageref, and
-                      therefore the stream's ownercount must be 1.
+        @param stream The stream containing the encoded image data. This may be
+                      retained (by calling ref()), so the caller should not
+                      explicitly delete it.
         @param config The preferred config of the decoded bitmap.
         @param sampleSize Requested sampleSize for decoding. Defaults to 1.
     */

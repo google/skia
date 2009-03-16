@@ -15,8 +15,7 @@ SkImageRef::SkImageRef(SkStream* stream, SkBitmap::Config config,
                        int sampleSize)
         : SkPixelRef(&gImageRefMutex), fErrorInDecoding(false) {
     SkASSERT(stream);
-    SkASSERT(1 == stream->getRefCnt());
-
+    stream->ref();
     fStream = stream;
     fConfig = config;
     fSampleSize = sampleSize;
@@ -36,7 +35,7 @@ SkImageRef::~SkImageRef() {
               this, fConfig, (int)fStream->getLength());
 #endif
 
-    delete fStream;
+    fStream->unref();
 }
 
 bool SkImageRef::getInfo(SkBitmap* bitmap) {
