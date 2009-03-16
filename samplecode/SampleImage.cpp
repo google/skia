@@ -23,7 +23,6 @@ static const char* gNames[] = {
     "2.bmp", "2.gif", "2.jpg", "2.png"
 };
 
-// ownership of the stream is transferred
 static bool SetImageRef(SkBitmap* bitmap, SkStream* stream,
                         SkBitmap::Config pref, const char name[] = NULL)
 {
@@ -36,7 +35,6 @@ static bool SetImageRef(SkBitmap* bitmap, SkStream* stream,
         bitmap->setPixelRef(ref)->unref();
         return true;
     } else {
-        delete stream;
         return false;
     }
 }
@@ -60,6 +58,7 @@ public:
             SetImageRef(&fBitmaps[i], stream, SkBitmap::kNo_Config, gNames[i]);
             if (i & 1)
                 fBitmaps[i].buildMipMap();
+            stream->unref();
         }
         
         fShader = SkShader::CreateBitmapShader(fBitmaps[5],

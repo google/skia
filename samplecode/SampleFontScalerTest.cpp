@@ -70,6 +70,9 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
+        
+        canvas->translate(200, 20);
+        canvas->rotate(30);
 
         SkPaint paint;
         paint.setAntiAlias(true);

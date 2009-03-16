@@ -91,7 +91,6 @@ static void DrawRoundRect(SkCanvas& canvas) {
    canvas.drawRoundRect(r, SkFloatToFixed(91.756363), SkFloatToFixed(91.756363), paint);
 }
 
-// ownership of the stream is transferred
 static bool SetImageRef(SkBitmap* bitmap, SkStream* stream,
                         SkBitmap::Config pref, const char name[] = NULL) {
 #if 0
@@ -142,6 +141,7 @@ public:
 #if 1
             SkStream* stream = new SkFILEStream(SPECIFIC_IMAGE);
             SetImageRef(&fBitmaps[i], stream, configs[i], SPECIFIC_IMAGE);
+            stream->unref();
 #else
             SkImageDecoder::DecodeFile(SPECIFIC_IMAGE, &fBitmaps[i]);
 #endif
@@ -164,6 +164,7 @@ public:
             
             SetImageRef(&fBitmaps[i], stream, SkBitmap::kNo_Config,
                         name.c_str());
+            stream->unref();
             fStrings[i] = name;
         }
         fBitmapCount = N;

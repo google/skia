@@ -3,6 +3,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
+#include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkPath.h"
 #include "SkPorterDuff.h"
@@ -15,7 +16,6 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 
-#include "SkImageRef.h"
 #include "SkStream.h"
 
 static void make_image(SkBitmap* bm, SkBitmap::Config config, int configIndex) {

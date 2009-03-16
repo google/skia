@@ -15,7 +15,6 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 
-#include "SkImageRef.h"
 #include "SkOSFile.h"
 #include "SkStream.h"
 
