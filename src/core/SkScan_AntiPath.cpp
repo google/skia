@@ -335,8 +335,13 @@ void MaskSuperBlitter::blitH(int x, int y, int width)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static int overflows_short(int value) {
-    return value - (short)value;
+/*  Returns non-zero if (value << shift) overflows a short, which would mean
+    we could not shift it up and then convert to SkFixed.
+    i.e. is x expressible as signed (16-shift) bits?
+ */
+static int overflows_short_shift(int value, int shift) {
+    const int s = 16 + shift;
+    return (value << s >> s) - value;
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
@@ -354,13 +359,13 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
         return;
     }
 
-    if (overflows_short(ir.fLeft << SHIFT) ||
-            overflows_short(ir.fRight << SHIFT) ||
-            overflows_short(ir.width() << SHIFT) ||
-            overflows_short(ir.fTop << SHIFT) ||
-            overflows_short(ir.fBottom << SHIFT) ||
-            overflows_short(ir.height() << SHIFT)) {
-        // can't supersample, try drawing w/o antialiasing
+    // use bit-or since we expect all to pass, so no need to go slower with
+    // a short-circuiting logical-or
+    if (overflows_short_shift(ir.fLeft, SHIFT) |
+            overflows_short_shift(ir.fRight, SHIFT) |
+            overflows_short_shift(ir.fTop, SHIFT) |
+            overflows_short_shift(ir.fBottom, SHIFT)) {
+        // can't supersample, so draw w/o antialiasing
         SkScan::FillPath(path, clip, blitter);
         return;
     }

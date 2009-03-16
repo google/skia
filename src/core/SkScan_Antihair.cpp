@@ -212,8 +212,14 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
 
     if (SkAbs32(x1 - x0) > SkIntToFDot6(511) || SkAbs32(y1 - y0) > SkIntToFDot6(511))
     {
-        int hx = (x0 + x1) >> 1;
-        int hy = (y0 + y1) >> 1;
+        /*  instead of (x0 + x1) >> 1, we shift each separately. This is less
+            precise, but avoids overflowing the intermediate result if the
+            values are huge. A better fix might be to clip the original pts
+            directly (i.e. do the divide), so we don't spend time subdividing
+            huge lines at all.
+         */
+        int hx = (x0 >> 1) + (x1 >> 1);
+        int hy = (y0 >> 1) + (y1 >> 1);
         do_anti_hairline(x0, y0, hx, hy, clip, blitter);
         do_anti_hairline(hx, hy, x1, y1, clip, blitter);
         return;

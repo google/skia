@@ -71,10 +71,24 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
         
+        SkPaint paint;
+
+        {
+            SkPoint pts[4];
+            pts[0].set(1.61061274e+09, 6291456);
+            pts[1].set(-7.18397061e+15, -1.53091184e+13);
+            pts[2].set(-1.30077315e+16, -2.77196141e+13);
+            pts[3].set(-1.30077315e+16, -2.77196162e+13);
+            
+            SkPath path;
+            path.moveTo(pts[0]);
+            path.cubicTo(pts[1], pts[2], pts[3]);
+            canvas->drawPath(path, paint);
+        }
+        
         canvas->translate(200, 20);
         canvas->rotate(30);
 
-        SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal))->safeUnref();
         

@@ -81,11 +81,19 @@ SkMask::Format SkBlurMaskFilterImpl::getFormat()
 bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& matrix, SkIPoint* margin)
 {
     SkScalar radius = matrix.mapRadius(fRadius);
+    // To avoid unseemly allocation requests (esp. for finite platforms like
+    // handset) we limit the radius so something manageable. (as opposed to
+    // a request like 10,000)
+    static const SkScalar MAX_RADIUS = SkIntToScalar(128);
+    radius = SkMinScalar(radius, MAX_RADIUS);
 
     if (SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle))
     {
-        if (margin)
+        if (margin) {
+            // we need to integralize radius for our margin, so take the ceil
+            // just to be safe.
             margin->set(SkScalarCeil(radius), SkScalarCeil(radius));
+        }
         return true;
     }
     return false;

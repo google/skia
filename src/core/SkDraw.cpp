@@ -2305,7 +2305,15 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
     if (clipBounds && !clipBounds->contains(*bounds)) {
         SkIRect tmp = *bounds;
         (void)tmp.intersect(*clipBounds);
-        tmp.inset(-margin.fX, -margin.fY);
+        // Ugh. Guard against gigantic margins from wacky filters. Without this
+        // check we can request arbitrary amounts of slop beyond our visible
+        // clip, and bring down the renderer (at least on finite RAM machines
+        // like handsets, etc.). Need to balance this invented value between
+        // quality of large filters like blurs, and the corresponding memory
+        // requests.
+        static const int MAX_MARGIN = 128;
+        tmp.inset(-SkMin32(margin.fX, MAX_MARGIN),
+                  -SkMin32(margin.fY, MAX_MARGIN));
         (void)bounds->intersect(tmp);
     }
 
