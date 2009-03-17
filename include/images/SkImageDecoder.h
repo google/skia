@@ -147,7 +147,7 @@ public:
         If none is found, the method returns NULL.
     */
     static SkImageDecoder* Factory(SkStream*);
-    
+
     /** Decode the image stored in the specified file, and store the result
         in bitmap. Return true for success or false on failure.
 
@@ -259,5 +259,25 @@ private:
     SkImageDecoder(const SkImageDecoder&);
     SkImageDecoder& operator=(const SkImageDecoder&);
 };
+
+/** Calling newDecoder with a stream returns a new matching imagedecoder
+    instance, or NULL if none can be found. The caller must manage its ownership
+    of the stream as usual, calling unref() when it is done, as the returned
+    decoder may have called ref() (and if so, the decoder is responsible for
+    balancing its ownership when it is destroyed).
+ */
+class SkImageDecoderFactory : public SkRefCnt {
+public:
+    virtual SkImageDecoder* newDecoder(SkStream*) = 0;
+};
+
+class SkDefaultImageDecoderFactory : SkImageDecoderFactory {
+public:
+    // calls SkImageDecoder::Factory(stream)
+    virtual SkImageDecoder* newDecoder(SkStream* stream) {
+        return SkImageDecoder::Factory(stream);
+    }
+};
+
 
 #endif

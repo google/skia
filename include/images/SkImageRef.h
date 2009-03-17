@@ -52,6 +52,10 @@ public:
         and ignore the bitmap parameter.
     */
     bool getInfo(SkBitmap* bm);
+    
+    SkImageDecoderFactory* getDecoderFactory() const { return fFactory; }
+    // returns the factory parameter
+    SkImageDecoderFactory* setDecoderFactory(SkImageDecoderFactory*);
 
     // overrides
     virtual void flatten(SkFlattenableWriteBuffer&) const;
@@ -81,10 +85,11 @@ private:
     // requested state (or further, i.e. has pixels)
     bool prepareBitmap(SkImageDecoder::Mode);
 
-    SkStream*           fStream;
-    SkBitmap::Config    fConfig;
-    int                 fSampleSize;
-    bool                fErrorInDecoding;
+    SkImageDecoderFactory*  fFactory;    // may be null
+    SkStream*               fStream;
+    SkBitmap::Config        fConfig;
+    int                     fSampleSize;
+    bool                    fErrorInDecoding;
     
     friend class SkImageRefPool;
     

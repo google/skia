@@ -95,7 +95,7 @@ SkScalerContext::SkScalerContext(const SkDescriptor* desc)
     }
 
     fBaseGlyphCount = 0;
-    fAuxScalerContext = NULL;
+    fNextContext = NULL;
 
     const Rec* rec = (const Rec*)desc->findEntry(kRec_SkDescriptorTag, NULL);
     SkASSERT(rec);
@@ -121,78 +121,97 @@ SkScalerContext::SkScalerContext(const SkDescriptor* desc)
 }
 
 SkScalerContext::~SkScalerContext() {
+    SkDELETE(fNextContext);
+
     fPathEffect->safeUnref();
     fMaskFilter->safeUnref();
     fRasterizer->safeUnref();
-
-    SkDELETE(fAuxScalerContext);
 }
 
-SkScalerContext* SkScalerContext::loadAuxContext() const {
-    if (NULL == fAuxScalerContext) {
-        fAuxScalerContext = SkFontHost::CreateFallbackScalerContext(fRec);
-        if (NULL != fAuxScalerContext) {
-            fAuxScalerContext->setBaseGlyphCount(this->getGlyphCount());
-        }
+static SkScalerContext* allocNextContext(const SkScalerContext::Rec& rec) {
+    // fonthost will determine the next possible font to search, based
+    // on the current font in fRec. It will return NULL if ctx is our
+    // last font that can be searched (i.e. ultimate fallback font)
+    uint32_t newFontID = SkFontHost::NextLogicalFont(rec.fFontID);
+    if (0 == newFontID) {
+        return NULL;
     }
-    return fAuxScalerContext;
+
+    SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
+    SkDescriptor*       desc = ad.getDesc();
+
+    desc->init();
+    SkScalerContext::Rec* newRec =
+    (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
+                                          sizeof(rec), &rec);
+    newRec->fFontID = newFontID;
+    desc->computeChecksum();
+
+    return SkFontHost::CreateScalerContext(desc);
 }
 
-#ifdef TRACK_MISSING_CHARS
-    static uint8_t gMissingChars[1 << 13];
-#endif
-
-uint16_t SkScalerContext::charToGlyphID(SkUnichar uni) {
-    unsigned glyphID = this->generateCharToGlyph(uni);
-
-    if (0 == glyphID) {   // try auxcontext
-        SkScalerContext* ctx = this->loadAuxContext();
-        if (NULL != ctx) {
-            glyphID = ctx->generateCharToGlyph(uni);
-            if (0 != glyphID) {   // only fiddle with it if its not missing
-                glyphID += this->getGlyphCount();
-                if (glyphID > 0xFFFF) {
-                    glyphID = 0;
-                }
-            }
+/*  Return the next context, creating it if its not already created, but return
+    NULL if the fonthost says there are no more fonts to fallback to.
+ */
+SkScalerContext* SkScalerContext::getNextContext() {
+    SkScalerContext* next = fNextContext;
+    // if next is null, then either it isn't cached yet, or we're at the
+    // end of our possible chain
+    if (NULL == next) {
+        next = allocNextContext(fRec);
+        if (NULL == next) {
+            return NULL;
         }
+        // next's base is our base + our local count
+        next->setBaseGlyphCount(fBaseGlyphCount + this->getGlyphCount());
+        // cache the answer
+        fNextContext = next;
     }
-#ifdef TRACK_MISSING_CHARS
-    if (0 == glyphID) {
-        bool announce = false;
-        if (uni > 0xFFFF) {   // we don't record these
-            announce = true;
-        } else {
-            unsigned index = uni >> 3;
-            unsigned mask = 1 << (uni & 7);
-            SkASSERT(index < SK_ARRAY_COUNT(gMissingChars));
-            if ((gMissingChars[index] & mask) == 0) {
-                gMissingChars[index] |= mask;
-                announce = true;
-            }
-        }
-        if (announce) {
-            printf(">>> MISSING CHAR <<< 0x%04X\n", uni);
-        }
-    }
-#endif
-    return SkToU16(glyphID);
+    return next;
 }
 
-/*  Internal routine to resolve auxContextID into a real context.
-    Only makes sense to call once the glyph has been given a
-    valid auxGlyphID.
-*/
-SkScalerContext* SkScalerContext::getGlyphContext(const SkGlyph& glyph) const {
-    SkScalerContext* ctx = const_cast<SkScalerContext*>(this);
-    
-    if (glyph.getGlyphID() >= this->getGlyphCount()) {
-        ctx = this->loadAuxContext();
-        if (NULL == ctx) {    // if no aux, just return us
-            ctx = const_cast<SkScalerContext*>(this);
+SkScalerContext* SkScalerContext::getGlyphContext(const SkGlyph& glyph) {
+    unsigned glyphID = glyph.getGlyphID();
+    SkScalerContext* ctx = this;
+    for (;;) {
+        unsigned count = ctx->getGlyphCount();
+        if (glyphID < count) {
+            break;
+        }
+        glyphID -= count;
+        ctx = ctx->getNextContext();
+        if (NULL == ctx) {
+            SkDebugf("--- no context for glyph %x\n", glyph.getGlyphID());
+            // just return the original context (this)
+            return this;
         }
     }
     return ctx;
+}
+
+/*  This loops through all available fallback contexts (if needed) until it
+    finds some context that can handle the unichar. If all fail, returns 0
+ */
+uint16_t SkScalerContext::charToGlyphID(SkUnichar uni) {
+    SkScalerContext* ctx = this;
+    unsigned glyphID;
+    for (;;) {
+        glyphID = ctx->generateCharToGlyph(uni);
+        if (glyphID) {
+            break;  // found it
+        }
+        ctx = ctx->getNextContext();
+        if (NULL == ctx) {
+            return 0;   // no more contexts, return missing glyph
+        }
+    }
+    // add the ctx's base, making glyphID unique for chain of contexts
+    glyphID += ctx->fBaseGlyphCount;
+    // check for overflow of 16bits, since our glyphID cannot exceed that
+    if (glyphID > 0xFFFF) {
+        glyphID = 0;
+    }
+    return SkToU16(glyphID);
 }
 
 void SkScalerContext::getAdvance(SkGlyph* glyph) {

@@ -169,10 +169,16 @@ public:
     SkScalerContext(const SkDescriptor* desc);
     virtual ~SkScalerContext();
 
+    // remember our glyph offset/base
     void setBaseGlyphCount(unsigned baseGlyphCount) {
         fBaseGlyphCount = baseGlyphCount;
     }
 
+    /** Return the corresponding glyph for the specified unichar. Since contexts
+        may be chained (under the hood), the glyphID that is returned may in
+        fact correspond to a different font/context. In that case, we use the
+        base-glyph-count to know how to translate back into local glyph space.
+     */
     uint16_t    charToGlyphID(SkUnichar uni);
 
     unsigned    getGlyphCount() const { return this->generateGlyphCount(); }
@@ -208,12 +214,15 @@ private:
     void internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
                          SkPath* devPath, SkMatrix* fillToDevMatrix);
 
-    mutable SkScalerContext* fAuxScalerContext;
+    // return the next context, treating fNextContext as a cache of the answer
+    SkScalerContext* getNextContext();
 
-    SkScalerContext* getGlyphContext(const SkGlyph& glyph) const;
-    
-    // return loaded fAuxScalerContext or NULL
-    SkScalerContext* loadAuxContext() const;
+    // returns the right context from our link-list for this glyph. If no match
+    // is found, just returns the original context (this)
+    SkScalerContext* getGlyphContext(const SkGlyph& glyph);
+
+    // link-list of context, to handle missing chars. null-terminated.
+    SkScalerContext* fNextContext;
 };
 
 #define kRec_SkDescriptorTag            SkSetFourByteTag('s', 'r', 'e', 'c')

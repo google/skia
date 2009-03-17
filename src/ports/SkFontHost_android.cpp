@@ -590,22 +590,14 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID)
     return stream;
 }
 
-SkScalerContext* SkFontHost::CreateFallbackScalerContext(
-                                                const SkScalerContext::Rec& rec)
-{
+uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
     load_system_fonts();
 
-    SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
-    SkDescriptor*       desc = ad.getDesc();
-    
-    desc->init();
-    SkScalerContext::Rec* newRec =
-        (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
-                                              sizeof(rec), &rec);
-    newRec->fFontID = gFallBackTypeface->uniqueID();
-    desc->computeChecksum();
-    
-    return SkFontHost::CreateScalerContext(desc);
+    if (gFallBackTypeface->uniqueID() == fontID) {
+        // no where to go, just return NULL
+        return 0;
+    }
+    return gFallBackTypeface->uniqueID();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

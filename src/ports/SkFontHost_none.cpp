@@ -62,10 +62,8 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return NULL;
 }
 
-SkScalerContext* SkFontHost::CreateFallbackScalerContext(
-                                                const SkScalerContext::Rec&) {
-    SkASSERT(!"SkFontHost::CreateFallbackScalerContext unimplemented");
-    return NULL;
+uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
+    return 0;
 }
 
 

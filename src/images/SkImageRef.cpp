@@ -20,6 +20,7 @@ SkImageRef::SkImageRef(SkStream* stream, SkBitmap::Config config,
     fConfig = config;
     fSampleSize = sampleSize;
     fPrev = fNext = NULL;
+    fFactory = NULL;
 
 #ifdef DUMP_IMAGEREF_LIFECYCLE
     SkDebugf("add ImageRef %p [%d] data=%d\n",
@@ -36,6 +37,7 @@ SkImageRef::~SkImageRef() {
 #endif
 
     fStream->unref();
+    fFactory->safeUnref();
 }
 
 bool SkImageRef::getInfo(SkBitmap* bitmap) {
@@ -50,6 +52,12 @@ bool SkImageRef::getInfo(SkBitmap* bitmap) {
         bitmap->setConfig(fBitmap.config(), fBitmap.width(), fBitmap.height());
     }
     return true;
+}
+
+SkImageDecoderFactory* SkImageRef::setDecoderFactory(
+                                                SkImageDecoderFactory* fact) {
+    SkRefCnt_SafeAssign(fFactory, fact);
+    return fact;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,8 +92,14 @@ bool SkImageRef::prepareBitmap(SkImageDecoder::Mode mode) {
     SkASSERT(fBitmap.getPixels() == NULL);
 
     fStream->rewind();
-        
-    SkImageDecoder* codec = SkImageDecoder::Factory(fStream);
+
+    SkImageDecoder* codec;
+    if (fFactory) {
+        codec = fFactory->newDecoder(fStream);
+    } else {
+        codec = SkImageDecoder::Factory(fStream);
+    }
+
     if (codec) {
         SkAutoTDelete<SkImageDecoder> ad(codec);
 

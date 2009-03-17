@@ -446,19 +446,12 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return new SkScalerContext_Mac(desc);
 }
 
-SkScalerContext* SkFontHost::CreateFallbackScalerContext(const SkScalerContext::Rec& rec)
-{
-    SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
-    SkDescriptor*       desc = ad.getDesc();
-    
-    desc->init();
-    SkScalerContext::Rec* newRec =
-    (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
-                                          sizeof(rec), &rec);
-    newRec->fFontID = find_default_fontID();
-    desc->computeChecksum();
-    
-    return SkFontHost::CreateScalerContext(desc);
+uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
+    uint32_t newFontID = find_default_fontID();
+    if (newFontID == fontID) {
+        newFontID = 0;
+    }
+    return newFontID;
 }
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,

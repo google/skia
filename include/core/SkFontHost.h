@@ -117,11 +117,14 @@ public:
     */
     static SkScalerContext* CreateScalerContext(const SkDescriptor* desc);
 
-    /** Return a scalercontext using the "fallback" font. If there is no
-        designated fallback, return null.
+    /** Given a "current" fontID, return the next logical fontID to use
+        when searching fonts for a given unicode value. Typically the caller
+        will query a given font, and if a unicode value is not supported, they
+        will call this, and if 0 is not returned, will search that font, and so
+        on. This process must be finite, and when the fonthost sees a
+        font with no logical successor, it must return 0.
     */
-    static SkScalerContext* CreateFallbackScalerContext(
-                                                const SkScalerContext::Rec&);
+    static uint32_t NextLogicalFont(uint32_t fontID);
 
     ///////////////////////////////////////////////////////////////////////////
     
