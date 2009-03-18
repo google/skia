@@ -14,7 +14,7 @@
  ** limitations under the License.
 */
 
-#include <carbon/carbon.h>
+#include <Carbon/Carbon.h>
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
 #include "SkEndian.h"
