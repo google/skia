@@ -37,13 +37,14 @@ struct SkMask {
 
     uint8_t*    fImage;
     SkIRect     fBounds;
-    uint16_t    fRowBytes;
-    uint8_t     fFormat;    // Format
+    uint32_t    fRowBytes;
+    Format      fFormat;
 
     /** Return the byte size of the mask, assuming only 1 plane.
         Does not account for k3D_Format. For that, use computeFormatImageSize()
     */
     size_t computeImageSize() const;
+
     /** Return the byte size of the mask, taking into account
         any extra planes (e.g. k3D_Format).
     */
@@ -53,19 +54,18 @@ struct SkMask {
         Asserts that the mask is kBW_Format, and that x,y are in range.
         x,y are in the same coordiate space as fBounds.
     */
-    uint8_t* getAddr1(int x, int y) const
-    {
+    uint8_t* getAddr1(int x, int y) const {
         SkASSERT(fFormat == kBW_Format);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);
         return fImage + ((x - fBounds.fLeft) >> 3) + (y - fBounds.fTop) * fRowBytes;
     }
+
     /** Returns the address of the specified byte.
         Asserts that the mask is kA8_Format, and that x,y are in range.
         x,y are in the same coordiate space as fBounds.
     */
-    uint8_t* getAddr(int x, int y) const
-    {
+    uint8_t* getAddr(int x, int y) const {
         SkASSERT(fFormat != kBW_Format);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);

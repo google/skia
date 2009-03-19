@@ -228,7 +228,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
     dst->fBounds.set(src.fBounds.fLeft - rx, src.fBounds.fTop - ry,
                         src.fBounds.fRight + rx, src.fBounds.fBottom + ry);
-    dst->fRowBytes = SkToU16(dst->fBounds.width());
+    dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
 
@@ -277,7 +277,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
     if (style == kInner_Style)
     {
         dst->fBounds = src.fBounds; // restore trimmed bounds
-        dst->fRowBytes = SkToU16(dst->fBounds.width());
+        dst->fRowBytes = dst->fBounds.width();
     }
 
 #if 0

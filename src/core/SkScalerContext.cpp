@@ -41,7 +41,7 @@ void SkGlyph::toMask(SkMask* mask) const {
     mask->fImage = (uint8_t*)fImage;
     mask->fBounds.set(fLeft, fTop, fLeft + fWidth, fTop + fHeight);
     mask->fRowBytes = this->rowBytes();
-    mask->fFormat = fMaskFormat;
+    mask->fFormat = (SkMask::Format)fMaskFormat;
 }
 
 size_t SkGlyph::computeImageSize() const {

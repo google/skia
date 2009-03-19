@@ -107,7 +107,7 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     if (SkMask::kComputeBoundsAndRenderImage_CreateMode == mode)
     {
         mask->fFormat   = SkMask::kA8_Format;
-        mask->fRowBytes = SkToU16(mask->fBounds.width());
+        mask->fRowBytes = mask->fBounds.width();
         mask->fImage = SkMask::AllocImage(mask->computeImageSize());
         memset(mask->fImage, 0, mask->computeImageSize());
     }

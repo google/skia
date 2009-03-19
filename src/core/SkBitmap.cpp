@@ -893,7 +893,7 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
         level[i].fPixels   = addr;
         level[i].fWidth    = SkToU16(width);
         level[i].fHeight   = SkToU16(height);
-        level[i].fRowBytes = SkToU16(rowBytes);
+        level[i].fRowBytes = rowBytes;
 
         dstBM.setConfig(config, width, height, rowBytes);
         dstBM.setPixels(addr);

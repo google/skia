@@ -62,6 +62,8 @@ private:
         fPath = path;
         fDirty = path->fFastBoundsIsDirty;
         fEmpty = path->isEmpty();
+        // can't use fRect for our bounds unless we know is upright and proper
+        fRect.sort();
     }
 };
 
