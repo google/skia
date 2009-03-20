@@ -163,6 +163,7 @@ SkImageRef::SkImageRef(SkFlattenableReadBuffer& buffer)
     buffer.read((void*)fStream->getMemoryBase(), length);
 
     fPrev = fNext = NULL;
+    fFactory = NULL;
 }
 
 void SkImageRef::flatten(SkFlattenableWriteBuffer& buffer) const {
