@@ -266,6 +266,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     ::CGContextRelease(contextRef);
 }
 
+#if 0
 static void convert_metrics(SkPaint::FontMetrics* dst,
                             const ATSFontMetrics& src) {
     dst->fTop     = -SkFloatToScalar(src.ascent);
@@ -274,6 +275,7 @@ static void convert_metrics(SkPaint::FontMetrics* dst,
     dst->fBottom  = SkFloatToScalar(src.descent);
     dst->fLeading = SkFloatToScalar(src.leading);
 }
+#endif
 
 static void* get_font_table(ATSFontRef fontID, uint32_t tag) {
     ByteCount size;

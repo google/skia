@@ -36,7 +36,7 @@ static void PrintTriangles(const SkTDArray<SkPoint> &triangles,
 }
 
 
-static bool CompareTriangleList(size_t numTriangles,
+static bool CompareTriangleList(int numTriangles,
                                 const float refTriangles[][3][2],
                                 const SkTDArray<SkPoint> &triangles) {
     if (triangles.count() != numTriangles * 3) {
@@ -44,8 +44,8 @@ static bool CompareTriangleList(size_t numTriangles,
                numTriangles, triangles.count() / 3);
         return false;
     }
-    size_t numErrors = 0;
-    for (size_t i = 0; i < numTriangles; ++i) {
+    int numErrors = 0;
+    for (int i = 0; i < numTriangles; ++i) {
         const float *r = &refTriangles[i][0][0];
         const SkScalar *t = &triangles[i * 3].fX;
         bool equalTriangle = true;

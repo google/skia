@@ -586,7 +586,7 @@ static const char* GetVertexTypeString(Vertex::VertexType type) {
 
 static void PrintVertices(size_t numPts, Vertex *vt) {
     DebugPrintf("\nVertices:\n");
-    for (int i = 0; i < numPts; i++) {
+    for (size_t i = 0; i < numPts; i++) {
         Vertex *e0, *e1;
         Vertex::VertexType type = vt[i].classify(&e0, &e1);
         DebugPrintf("%2d: (%.7g, %.7g), prev(%d), next(%d), "
@@ -596,12 +596,14 @@ static void PrintVertices(size_t numPts, Vertex *vt) {
                     GetVertexTypeString(type), e0 - vt, e1 - vt);
         Trapezoid *trap[2];
         vt[i].trapezoids(trap, trap+1);
-        for (int i = 0; i < 2; ++i)
-            if (trap[i] != NULL)
+        for (int j = 0; j < 2; ++j) {
+            if (trap[j] != NULL) {
                 DebugPrintf(", trap(L=%d, R=%d, B=%d)",
-                            trap[i]->left()   - vt,
-                            trap[i]->right()  - vt,
-                            trap[i]->bottom() - vt);
+                            trap[j]->left()   - vt,
+                            trap[j]->right()  - vt,
+                            trap[j]->bottom() - vt);
+            }
+        }
         DebugPrintf("\n");
     }
 }
@@ -609,7 +611,7 @@ static void PrintVertices(size_t numPts, Vertex *vt) {
 
 static void PrintVertexPtrs(size_t numPts, VertexPtr *vp, Vertex *vtBase) {
     DebugPrintf("\nSorted Vertices:\n");
-    for (int i = 0; i < numPts; i++) {
+    for (size_t i = 0; i < numPts; i++) {
         Vertex *e0, *e1;
         Vertex *vt = vp[i].vt;
         Vertex::VertexType type = vt->classify(&e0, &e1);
@@ -620,12 +622,14 @@ static void PrintVertexPtrs(size_t numPts, VertexPtr *vp, Vertex *vtBase) {
                     GetVertexTypeString(type), e0 - vtBase, e1 - vtBase);
         Trapezoid *trap[2];
         vt->trapezoids(trap, trap+1);
-        for (int i = 0; i < 2; ++i)
-            if (trap[i] != NULL)
+        for (int j = 0; j < 2; ++j) {
+            if (trap[j] != NULL) {
                 DebugPrintf(", trap(L=%d, R=%d, B=%d)",
-                            trap[i]->left()   - vtBase,
-                            trap[i]->right()  - vtBase,
-                            trap[i]->bottom() - vtBase);
+                            trap[j]->left()   - vtBase,
+                            trap[j]->right()  - vtBase,
+                            trap[j]->bottom() - vtBase);
+            }
+        }
         DebugPrintf("\n");
     }
 }
@@ -642,7 +646,7 @@ void BubbleSort(T *array, size_t count) {
     size_t count_1 = count - 1;
     do {
         sorted = true;
-        for (int i = 0; i < count_1; ++i) {
+        for (size_t i = 0; i < count_1; ++i) {
             if (array[i + 1] < array[i]) {
                 T t = array[i];
                 array[i] = array[i + 1];
@@ -859,7 +863,6 @@ static void PrintLinkedVertices(size_t n, Vertex *vertices) {
 // Triangulate an unimonotone chain.
 bool TriangulateMonotone(Vertex *first, Vertex *last,
                          SkTDArray<SkPoint> *triangles) {
-    bool success = true;
     DebugPrintf("TriangulateMonotone()\n");
 
     size_t numVertices = CountVertices(first, last);

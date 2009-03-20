@@ -45,7 +45,7 @@ static void test_pack16(skiatest::Reporter* reporter) {
         size_t maxSize = SkPackBits::ComputeMaxSize16(size);
         REPORTER_ASSERT(reporter, maxSize >= dstSize);
 
-        int srcCount = SkPackBits::Unpack16(dst, dstSize, src2);
+        size_t srcCount = SkPackBits::Unpack16(dst, dstSize, src2);
         REPORTER_ASSERT(reporter, size == srcCount);
         bool match = memcmp(src, src2, size * sizeof(uint16_t)) == 0;
         REPORTER_ASSERT(reporter, match);
@@ -99,7 +99,7 @@ static void test_pack8(skiatest::Reporter* reporter) {
             size_t maxSize = SkPackBits::ComputeMaxSize8(size);
             REPORTER_ASSERT(reporter, maxSize >= dstSize);
 
-            int srcCount = SkPackBits::Unpack8(dst, dstSize, src2);
+            size_t srcCount = SkPackBits::Unpack8(dst, dstSize, src2);
             REPORTER_ASSERT(reporter, size == srcCount);
             bool match = memcmp(src, src2, size * sizeof(uint8_t)) == 0;
             REPORTER_ASSERT(reporter, match);

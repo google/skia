@@ -458,7 +458,7 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
         uint32_t size = buffer.readU32();
-        uint32_t bytes = fRegions[i].unflatten(buffer.skip(size));
+        SkDEBUGCODE(uint32_t bytes =) fRegions[i].unflatten(buffer.skip(size));
         SkASSERT(size == bytes);
     }
 }

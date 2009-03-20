@@ -176,11 +176,6 @@ static void TestMath(skiatest::Reporter* reporter) {
     int32_t     x;
     SkRandom    rand;
     
-    // these should not assert
-    SkToS8(127);    SkToS8(-128);       SkToU8(255);
-    SkToS16(32767); SkToS16(-32768);    SkToU16(65535);
-    SkToS32(2*1024*1024);   SkToS32(-2*1024*1024);  SkToU32(4*1024*1024);
-    
     // these should assert
 #if 0
     SkToS8(128);
