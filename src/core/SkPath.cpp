@@ -989,6 +989,14 @@ bool SkPath::Iter::isClosedContour() const {
 
 SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
     if (fLastPt != fMoveTo) {
+        // A special case: if both points are NaN, SkPoint::operation== returns
+        // false, but the iterator expects that they are treated as the same.
+        // (consider SkPoint is a 2-dimension float point).
+        if (SkScalarIsNaN(fLastPt.fX) && SkScalarIsNaN(fLastPt.fY) &&
+            SkScalarIsNaN(fMoveTo.fX) && SkScalarIsNaN(fMoveTo.fY)) {
+            return kClose_Verb;
+        }
+
         if (pts) {
             pts[0] = fLastPt;
             pts[1] = fMoveTo;
