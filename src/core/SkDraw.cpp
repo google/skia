@@ -1250,7 +1250,7 @@ static void D1G_NoBounder_RectClip(const SkDraw1Glyph& state,
 	}
 
 	mask.fRowBytes = glyph.rowBytes();
-	mask.fFormat = (SkMask::Format)glyph.fMaskFormat;
+	mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
 	mask.fImage = aa;
 	state.fBlitter->blitMask(mask, *bounds);
 }
@@ -1280,7 +1280,7 @@ static void D1G_NoBounder_RgnClip(const SkDraw1Glyph& state,
 		}
 		
 		mask.fRowBytes = glyph.rowBytes();
-		mask.fFormat = (SkMask::Format)glyph.fMaskFormat;
+		mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
 		mask.fImage = (uint8_t*)aa;
 		do {
 			state.fBlitter->blitMask(mask, cr);
@@ -1313,7 +1313,7 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
 		
 		if (state.fBounder->doIRect(cr)) {
 			mask.fRowBytes = glyph.rowBytes();
-			mask.fFormat = (SkMask::Format)glyph.fMaskFormat;
+			mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
 			mask.fImage = (uint8_t*)aa;
 			do {
 				state.fBlitter->blitMask(mask, cr);

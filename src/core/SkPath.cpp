@@ -62,7 +62,7 @@ private:
         fPath = path;
         fDirty = path->fFastBoundsIsDirty;
         fEmpty = path->isEmpty();
-        // can't use fRect for our bounds unless we know is upright and proper
+        // Cannot use fRect for our bounds unless we know it is sorted
         fRect.sort();
     }
 };
