@@ -69,6 +69,7 @@
 		00A41E4B0EFC312F00C9CBEB /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
+		2714E7960F7733EE00E95AE0 /* SkDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2714E7950F7733EE00E95AE0 /* SkDrawable.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
@@ -187,6 +188,7 @@
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1870340FFE93FCAF11CA0CD7 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/main.nib; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		2714E7950F7733EE00E95AE0 /* SkDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDrawable.cpp; path = ../../src/core/SkDrawable.cpp; sourceTree = SOURCE_ROOT; };
 		32DBCF6D0370B57F00C91783 /* CICarbonSample_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CICarbonSample_Prefix.pch; sourceTree = "<group>"; };
 		4A9504C8FFE6A3BC11CA0CBA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		4A9504CAFFE6A41611CA0CBA /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
@@ -328,6 +330,7 @@
 				002884490EFAA35C0083E387 /* core.xcodeproj */,
 				002884B40EFAB69F0083E387 /* maccore.xcodeproj */,
 				00003C8C0EFC230E000FF73A /* effects.xcodeproj */,
+				2714E7950F7733EE00E95AE0 /* SkDrawable.cpp */,
 			);
 			name = CICarbonSample;
 			sourceTree = "<group>";
@@ -515,6 +518,7 @@
 				007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */,
 				009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */,
 				007A7CB30F01658C00A2D6EE /* SamplePicture.cpp in Sources */,
+				2714E7960F7733EE00E95AE0 /* SkDrawable.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
