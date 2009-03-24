@@ -66,10 +66,11 @@ uint32_t SkPixelRef::getGenerationID() const {
 }
 
 void SkPixelRef::notifyPixelsChanged() {
+#ifdef SK_DEBUG
     if (fIsImmutable) {
         SkDebugf("========== notifyPixelsChanged called on immutable pixelref");
-        sk_throw();
     }
+#endif
     // this signals us to recompute this next time around
     fGenerationID = 0;
 }
