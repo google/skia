@@ -464,7 +464,8 @@ private:
     };
 
     uint32_t    fRowBytes;
-    uint16_t    fWidth, fHeight;
+    uint32_t    fWidth;
+    uint32_t    fHeight;
     uint8_t     fConfig;
     uint8_t     fFlags;
     uint8_t     fBytesPerPixel; // based on config

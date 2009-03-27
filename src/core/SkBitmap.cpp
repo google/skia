@@ -30,7 +30,7 @@
 struct MipLevel {
     void*       fPixels;
     uint32_t    fRowBytes;
-    uint16_t    fWidth, fHeight;
+    uint32_t    fWidth, fHeight;
 };
 
 struct SkBitmap::MipMap : SkNoncopyable {
@@ -132,9 +132,9 @@ void SkBitmap::swap(SkBitmap& other) {
     SkTSwap<MipMap*>(fMipMap, other.fMipMap);
 #endif
     SkTSwap<void*>(fPixels, other.fPixels);
-    SkTSwap<uint16_t>(fWidth, other.fWidth);
-    SkTSwap<uint16_t>(fHeight, other.fHeight);
     SkTSwap<uint32_t>(fRowBytes, other.fRowBytes);
+    SkTSwap<uint32_t>(fWidth, other.fWidth);
+    SkTSwap<uint32_t>(fHeight, other.fHeight);
     SkTSwap<uint8_t>(fConfig, other.fConfig);
     SkTSwap<uint8_t>(fFlags, other.fFlags);
     SkTSwap<uint8_t>(fBytesPerPixel, other.fBytesPerPixel);
@@ -225,8 +225,8 @@ void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
         rowBytes = SkBitmap::ComputeRowBytes(c, width);
     }
     fConfig     = SkToU8(c);
-    fWidth      = SkToU16(width);
-    fHeight     = SkToU16(height);
+    fWidth      = width;
+    fHeight     = height;
     fRowBytes   = rowBytes;
 
     fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
@@ -891,8 +891,8 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
         rowBytes = ComputeRowBytes(config, width);
 
         level[i].fPixels   = addr;
-        level[i].fWidth    = SkToU16(width);
-        level[i].fHeight   = SkToU16(height);
+        level[i].fWidth    = width;
+        level[i].fHeight   = height;
         level[i].fRowBytes = rowBytes;
 
         dstBM.setConfig(config, width, height, rowBytes);
