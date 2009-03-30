@@ -46,6 +46,14 @@ public:
         return this->alloc(bytes, kThrow_AllocFailType);
     }
     
+    /** Call this to unalloc the most-recently allocated ptr by alloc(). On
+        success, the number of bytes freed is returned, or 0 if the block could
+        not be unallocated. This is a hint to the underlying allocator that
+        the previous allocation may be reused, but the implementation is free
+        to ignore this call (and return 0).
+     */
+    size_t unalloc(void* ptr);
+    
     size_t totalCapacity() const { return fTotalCapacity; }
     
 private:

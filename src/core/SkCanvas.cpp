@@ -943,8 +943,8 @@ bool SkCanvas::quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const {
         return true;
     }
     
-    SkScalarCompareType userT = SkScalarAs2sCompliment(top);
-    SkScalarCompareType userB = SkScalarAs2sCompliment(bottom);
+    SkScalarCompareType userT = SkScalarToCompareType(top);
+    SkScalarCompareType userB = SkScalarToCompareType(bottom);
     
     // check for invalid user Y coordinates (i.e. empty)
     if (userT >= userB) {

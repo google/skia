@@ -23,6 +23,10 @@ struct SkChunkAlloc::Block {
     char*   fFreePtr;
     // data[] follows
     
+    char* startOfData() {
+        return reinterpret_cast<char*>(this + 1);
+    }
+
     void freeChain() {    // this can be null
         Block* block = this;
         while (block) {
@@ -89,7 +93,7 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
     if (block) {
         //    block->fNext = fBlock;
         block->fFreeSize = size;
-        block->fFreePtr = (char*)block + sizeof(Block);
+        block->fFreePtr = block->startOfData();
         
         fTotalCapacity += size;
     }
@@ -116,5 +120,20 @@ void* SkChunkAlloc::alloc(size_t bytes, AllocFailType ftype) {
     block->fFreeSize -= bytes;
     block->fFreePtr += bytes;
     return ptr;
+}
+
+size_t SkChunkAlloc::unalloc(void* ptr) {
+    size_t bytes = 0;
+    Block* block = fBlock;
+    if (block) {
+        char* cPtr = reinterpret_cast<char*>(ptr);
+        char* start = block->startOfData();
+        if (start <= cPtr && cPtr < block->fFreePtr) {
+            bytes = block->fFreePtr - cPtr;
+            block->fFreeSize += bytes;
+            block->fFreePtr = cPtr;
+        }
+    }
+    return bytes;
 }
 

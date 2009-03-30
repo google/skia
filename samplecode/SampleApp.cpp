@@ -299,12 +299,12 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         case kRaster_CanvasType:
             break;
         case kPicture_CanvasType:
-            if (false) {
+            if (true) {
                 SkPicture* pict = new SkPicture(*fPicture);
                 fPicture->unref();
                 orig->drawPicture(*pict);
                 pict->unref();
-            } if (true) {
+            } else if (true) {
                 SkDynamicMemoryWStream ostream;
                 fPicture->serialize(&ostream);
                 fPicture->unref();

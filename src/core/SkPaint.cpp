@@ -1278,50 +1278,143 @@ SkGlyphCache* SkPaint::detachCache(const SkMatrix* deviceMatrix) const
 
 #include "SkStream.h"
 
+static uintptr_t asint(const void* p) {
+    return reinterpret_cast<uintptr_t>(p);
+}
+
+union Scalar32 {
+    SkScalar    fScalar;
+    uint32_t    f32;
+};
+
+static uint32_t* write_scalar(uint32_t* ptr, SkScalar value) {
+    SkASSERT(sizeof(SkScalar) == sizeof(uint32_t));
+    Scalar32 tmp;
+    tmp.fScalar = value;
+    *ptr = tmp.f32;
+    return ptr + 1;
+}
+
+static SkScalar read_scalar(const uint32_t*& ptr) {
+    SkASSERT(sizeof(SkScalar) == sizeof(uint32_t));
+    Scalar32 tmp;
+    tmp.f32 = *ptr++;
+    return tmp.fScalar;
+}
+
+static uint32_t pack_4(unsigned a, unsigned b, unsigned c, unsigned d) {
+    SkASSERT(a == (uint8_t)a);
+    SkASSERT(b == (uint8_t)b);
+    SkASSERT(c == (uint8_t)c);
+    SkASSERT(d == (uint8_t)d);
+    return (a << 24) | (b << 16) | (c << 8) | d;
+}
+
+enum FlatFlags {
+    kHasTypeface_FlatFlag   = 0x01,
+    kHasEffects_FlatFlag    = 0x02
+};
+
+// The size of a flat paint's POD fields
+static const uint32_t kPODPaintSize =   5 * sizeof(SkScalar) +
+                                        1 * sizeof(SkColor) +
+                                        1 * sizeof(uint16_t) +
+                                        6 * sizeof(uint8_t);
+
+/*  To save space/time, we analyze the paint, and write a truncated version of
+    it if there are not tricky elements like shaders, etc.
+ */
 void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
-    buffer.writeTypeface(this->getTypeface());
-    buffer.writeScalar(this->getTextSize());
-    buffer.writeScalar(this->getTextScaleX());
-    buffer.writeScalar(this->getTextSkewX());
-    buffer.writeFlattenable(this->getPathEffect());
-    buffer.writeFlattenable(this->getShader());
-    buffer.writeFlattenable(this->getXfermode());
-    buffer.writeFlattenable(this->getMaskFilter());
-    buffer.writeFlattenable(this->getColorFilter());
-    buffer.writeFlattenable(this->getRasterizer());
-    buffer.writeFlattenable(this->getLooper());
-    buffer.write32(this->getColor());
-    buffer.writeScalar(this->getStrokeWidth());
-    buffer.writeScalar(this->getStrokeMiter());
-    buffer.write16(this->getFlags());
-    buffer.write8(this->getTextAlign());
-    buffer.write8(this->getStrokeCap());
-    buffer.write8(this->getStrokeJoin());
-    buffer.write8(this->getStyle());
-    buffer.write8(this->getTextEncoding());
+    uint8_t flatFlags = 0;
+    if (this->getTypeface()) {
+        flatFlags |= kHasTypeface_FlatFlag;
+    }
+    if (asint(this->getPathEffect()) |
+        asint(this->getShader()) |
+        asint(this->getXfermode()) |
+        asint(this->getMaskFilter()) |
+        asint(this->getColorFilter()) |
+        asint(this->getRasterizer()) |
+        asint(this->getLooper())) {
+        flatFlags |= kHasEffects_FlatFlag;
+    }
+    
+    SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
+    uint32_t* ptr = buffer.reserve(kPODPaintSize);
+
+    ptr = write_scalar(ptr, this->getTextSize());
+    ptr = write_scalar(ptr, this->getTextScaleX());
+    ptr = write_scalar(ptr, this->getTextSkewX());
+    ptr = write_scalar(ptr, this->getStrokeWidth());
+    ptr = write_scalar(ptr, this->getStrokeMiter());
+    *ptr++ = this->getColor();
+    *ptr++ = (this->getFlags() << 16) | (this->getTextAlign() << 8) | flatFlags;
+    *ptr++ = pack_4(this->getStrokeCap(), this->getStrokeJoin(),
+                    this->getStyle(), this->getTextEncoding());
+
+    // now we're done with ptr and the (pre)reserved space. If we need to write
+    // additional fields, use the buffer directly
+    if (flatFlags & kHasTypeface_FlatFlag) {
+        buffer.writeTypeface(this->getTypeface());
+    }
+    if (flatFlags & kHasEffects_FlatFlag) {
+        buffer.writeFlattenable(this->getPathEffect());
+        buffer.writeFlattenable(this->getShader());
+        buffer.writeFlattenable(this->getXfermode());
+        buffer.writeFlattenable(this->getMaskFilter());
+        buffer.writeFlattenable(this->getColorFilter());
+        buffer.writeFlattenable(this->getRasterizer());
+        buffer.writeFlattenable(this->getLooper());
+    }
 }
 
 void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
-    this->setTypeface(buffer.readTypeface());
-    this->setTextSize(buffer.readScalar());
-    this->setTextScaleX(buffer.readScalar());
-    this->setTextSkewX(buffer.readScalar());
-    this->setPathEffect((SkPathEffect*) buffer.readFlattenable())->safeUnref();
-    this->setShader((SkShader*) buffer.readFlattenable())->safeUnref();
-    this->setXfermode((SkXfermode*) buffer.readFlattenable())->safeUnref();
-    this->setMaskFilter((SkMaskFilter*) buffer.readFlattenable())->safeUnref();
-    this->setColorFilter((SkColorFilter*) buffer.readFlattenable())->safeUnref();
-    this->setRasterizer((SkRasterizer*) buffer.readFlattenable())->safeUnref();
-    this->setLooper((SkDrawLooper*) buffer.readFlattenable())->safeUnref();
-    this->setColor(buffer.readU32());
-    this->setStrokeWidth(buffer.readScalar());
-    this->setStrokeMiter(buffer.readScalar());
-    this->setFlags(buffer.readU16());
-    this->setTextAlign((SkPaint::Align) buffer.readU8());
-    this->setStrokeCap((SkPaint::Cap) buffer.readU8());
-    this->setStrokeJoin((SkPaint::Join) buffer.readU8());
-    this->setStyle((SkPaint::Style) buffer.readU8());
-    this->setTextEncoding((SkPaint::TextEncoding) buffer.readU8());
+    SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
+    const void* podData = buffer.skip(kPODPaintSize);
+    const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
+    
+    // the order we read must match the order we wrote in flatten()
+    this->setTextSize(read_scalar(pod));
+    this->setTextScaleX(read_scalar(pod));
+    this->setTextSkewX(read_scalar(pod));
+    this->setStrokeWidth(read_scalar(pod));
+    this->setStrokeMiter(read_scalar(pod));    
+    this->setColor(*pod++);
+
+    uint32_t tmp = *pod++;
+    this->setFlags(tmp >> 16);
+    this->setTextAlign(static_cast<Align>((tmp >> 8) & 0xFF));
+    uint8_t flatFlags = tmp & 0xFF;
+
+    tmp = *pod++;
+    this->setStrokeCap(static_cast<Cap>((tmp >> 24) & 0xFF));
+    this->setStrokeJoin(static_cast<Join>((tmp >> 16) & 0xFF));
+    this->setStyle(static_cast<Style>((tmp >> 8) & 0xFF));
+    this->setTextEncoding(static_cast<TextEncoding>((tmp >> 0) & 0xFF));
+
+    if (flatFlags & kHasTypeface_FlatFlag) {
+        this->setTypeface(buffer.readTypeface());
+    } else {
+        this->setTypeface(NULL);
+    }
+
+    if (flatFlags & kHasEffects_FlatFlag) {
+        this->setPathEffect((SkPathEffect*) buffer.readFlattenable())->safeUnref();
+        this->setShader((SkShader*) buffer.readFlattenable())->safeUnref();
+        this->setXfermode((SkXfermode*) buffer.readFlattenable())->safeUnref();
+        this->setMaskFilter((SkMaskFilter*) buffer.readFlattenable())->safeUnref();
+        this->setColorFilter((SkColorFilter*) buffer.readFlattenable())->safeUnref();
+        this->setRasterizer((SkRasterizer*) buffer.readFlattenable())->safeUnref();
+        this->setLooper((SkDrawLooper*) buffer.readFlattenable())->safeUnref();
+    } else {
+        this->setPathEffect(NULL);
+        this->setShader(NULL);
+        this->setXfermode(NULL);
+        this->setMaskFilter(NULL);
+        this->setColorFilter(NULL);
+        this->setRasterizer(NULL);
+        this->setLooper(NULL);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
