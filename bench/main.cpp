@@ -2,10 +2,37 @@
 #include "SkColorPriv.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
+#include "SkNWayCanvas.h"
+#include "SkPicture.h"
 #include "SkString.h"
 #include "SkTime.h"
 
 #include "SkBenchmark.h"
+
+static void erase(SkBitmap& bm) {
+    if (bm.config() == SkBitmap::kA8_Config) {
+        bm.eraseColor(0);
+    } else {
+        bm.eraseColor(SK_ColorWHITE);
+    }
+}
+
+static bool equal(const SkBitmap& bm1, const SkBitmap& bm2) {
+    if (bm1.width() != bm2.width() ||
+        bm1.height() != bm2.height() ||
+        bm1.config() != bm2.config()) {
+        return false;
+    }
+    
+    size_t pixelBytes = bm1.width() * bm1.bytesPerPixel();
+    for (int y = 0; y < bm1.height(); y++) {
+        if (memcmp(bm1.getAddr(0, y), bm2.getAddr(0, y), pixelBytes)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 class Iter {
 public:
@@ -91,6 +118,21 @@ static void performRotate(SkCanvas* canvas, int w, int h) {
     canvas->translate(-x, -y);
 }
 
+static void compare_pict_to_bitmap(SkPicture* pict, const SkBitmap& bm) {
+    SkBitmap bm2;
+    
+    bm2.setConfig(bm.config(), bm.width(), bm.height());
+    bm2.allocPixels();
+    erase(bm2);
+
+    SkCanvas canvas(bm2);
+    canvas.drawPicture(*pict);
+
+    if (!equal(bm, bm2)) {
+        SkDebugf("----- compare_pict_to_bitmap failed\n");
+    }
+}
+
 static const struct {
     SkBitmap::Config    fConfig;
     const char*         fName;
@@ -128,6 +170,7 @@ int main (int argc, char * const argv[]) {
     bool forceAA = true;
     bool doRotate = false;
     bool doClip = false;
+    bool doPict = false;
 
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kARGB_8888_Config;
@@ -142,6 +185,8 @@ int main (int argc, char * const argv[]) {
                     outDir.append("/");
                 }
             }
+        } else if (strcmp(*argv, "-pict") == 0) {
+            doPict = true;
         } else if (strcmp(*argv, "-repeat") == 0) {
             argv++;
             if (argv < stop) {
@@ -198,12 +243,7 @@ int main (int argc, char * const argv[]) {
             SkBitmap bm;
             bm.setConfig(outConfig, dim.fX, dim.fY);
             bm.allocPixels();
-            
-            if (bm.config() == SkBitmap::kA8_Config) {
-                bm.eraseColor(0);
-            } else {
-                bm.eraseColor(SK_ColorWHITE);
-            }
+            erase(bm);
 
             SkCanvas canvas(bm);
 
@@ -216,8 +256,24 @@ int main (int argc, char * const argv[]) {
 
             SkMSec now = SkTime::GetMSecs();
             for (int i = 0; i < repeatDraw; i++) {
-                SkAutoCanvasRestore acr(&canvas, true);
-                bench->draw(&canvas);
+                SkCanvas* c = &canvas;
+
+                SkNWayCanvas nway;
+                SkPicture* pict = NULL;
+                if (doPict) {
+                    pict = new SkPicture;
+                    nway.addCanvas(pict->beginRecording(bm.width(), bm.height()));
+                    nway.addCanvas(&canvas);
+                    c = &nway;
+                }
+
+                SkAutoCanvasRestore acr(c, true);
+                bench->draw(c);
+                
+                if (pict) {
+                    compare_pict_to_bitmap(pict, bm);
+                    pict->unref();
+                }
             }
             if (repeatDraw > 1) {
                 printf("  %4s:%7.2f", configName,
