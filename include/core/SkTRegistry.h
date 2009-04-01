@@ -28,6 +28,18 @@ public:
     typedef T (*Factory)(P);
 
     SkTRegistry(Factory fact) {
+#ifdef ANDROID
+        // work-around for double-initialization bug
+        {
+            SkTRegistry* reg = gHead;
+            while (reg) {
+                if (reg == this) {
+                    return;
+                }
+                reg = reg->fChain;
+            }
+        }
+#endif
         fFact = fact;
         fChain = gHead;
         gHead = this;
