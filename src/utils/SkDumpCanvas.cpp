@@ -53,9 +53,7 @@ static void toString(const SkPath& path, SkString* str) {
     if (path.isEmpty()) {
         str->set("path:empty");
     } else {
-        SkRect bounds;
-        path.computeBounds(&bounds, SkPath::kFast_BoundsType);
-        toString(bounds, str);
+        toString(path.getBounds(), str);
 #if 1
         SkString s;
         dumpVerbs(path, &s);

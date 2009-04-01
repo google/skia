@@ -29,8 +29,7 @@ static void lettersToBitmap(SkBitmap* dst, const char chars[],
         original.getTextWidths(&chars[i], 1, &width);
         x += width;
     }
-    SkRect bounds;
-    path.computeBounds(&bounds, SkPath::kExact_BoundsType);
+    SkRect bounds = path.getBounds();
     SkScalar sw = -original.getStrokeWidth();
     bounds.inset(sw, sw);
     path.offset(-bounds.fLeft, -bounds.fTop);
@@ -76,8 +75,7 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
         original.getTextWidths(&chars[i], 1, &width);
         x += width;
     }
-    SkRect bounds;
-    path.computeBounds(&bounds, SkPath::kExact_BoundsType);
+    SkRect bounds = path.getBounds();
     SkScalar sw = -original.getStrokeWidth();
     bounds.inset(sw, sw);
     path.offset(-bounds.fLeft, -bounds.fTop);

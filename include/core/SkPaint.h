@@ -371,8 +371,14 @@ public:
         bounds (i.e. there is nothing complex like a patheffect that would make
         the bounds computation expensive.
     */
-    bool canComputeFastBounds() const;
-    
+    bool canComputeFastBounds() const {
+        // use bit-or since no need for early exit
+        return (reinterpret_cast<uintptr_t>(this->getMaskFilter()) |
+                reinterpret_cast<uintptr_t>(this->getLooper()) |
+                reinterpret_cast<uintptr_t>(this->getRasterizer()) |
+                reinterpret_cast<uintptr_t>(this->getPathEffect())) == 0;
+    }
+
     /** Only call this if canComputeFastBounds() returned true. This takes a
         raw rectangle (the raw bounds of a shape), and adjusts it for stylistic
         effects in the paint (e.g. stroking). If needed, it uses the storage
@@ -394,7 +400,10 @@ public:
             }
         }
     */
-    const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const;
+    const SkRect& computeFastBounds(const SkRect& orig, SkRect* storage) const {
+        return this->getStyle() == kFill_Style ? orig :
+                    this->computeStrokeFastBounds(orig, storage);
+    }
 
     /** Get the paint's shader object.
         <p />
@@ -759,7 +768,10 @@ private:
     void descriptorProc(const SkMatrix* deviceMatrix,
                         void (*proc)(const SkDescriptor*, void*),
                         void* context) const;
-        
+
+    const SkRect& computeStrokeFastBounds(const SkRect& orig,
+                                          SkRect* storage) const;
+
     enum {
         kCanonicalTextSizeForPaths = 64
     };

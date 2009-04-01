@@ -248,11 +248,8 @@ static void hair_path(const SkPath& path, const SkRegion* clip, SkBlitter* blitt
 
     if (clip)
     {
-        SkRect      bounds;
-        SkIRect     ibounds;
-
-        path.computeBounds(&bounds, SkPath::kFast_BoundsType);
-        bounds.roundOut(&ibounds);
+        SkIRect ibounds;
+        path.getBounds().roundOut(&ibounds);
         ibounds.inset(-1, -1);
 
         if (clip->quickReject(ibounds))

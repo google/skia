@@ -784,6 +784,64 @@ static void delete_blitter(void* blitter)
     SkDELETE((SkBlitter*)blitter);
 }
 
+static bool just_solid_color(const SkPaint& paint) {
+    if (paint.getAlpha() == 0xFF && paint.getColorFilter() == NULL) {
+        SkShader* shader = paint.getShader();
+        if (NULL == shader ||
+            (shader->getFlags() & SkShader::kOpaqueAlpha_Flag)) {
+            return true;
+        }
+    }
+    return false;
+}
+    
+/** By analyzing the paint (with an xfermode), we may decide we can take
+    special action. This enum lists our possible actions
+ */
+enum XferInterp {
+    kNormal_XferInterp,         // no special interpretation, draw normally
+    kSrcOver_XferInterp,        // draw as if in srcover mode
+    kSkipDrawing_XferInterp     // draw nothing
+};
+
+static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
+                                     SkBitmap::Config deviceConfig) {
+    SkPorterDuff::Mode  mode;
+    
+    if (SkPorterDuff::IsMode(xfer, &mode)) {
+        switch (mode) {
+            case SkPorterDuff::kSrc_Mode:
+                if (just_solid_color(paint)) {
+                    return kSrcOver_XferInterp;
+                }
+                break;
+            case SkPorterDuff::kDst_Mode:
+                return kSkipDrawing_XferInterp;
+            case SkPorterDuff::kSrcOver_Mode:
+                return kSrcOver_XferInterp;
+            case SkPorterDuff::kDstOver_Mode:
+                if (SkBitmap::kRGB_565_Config == deviceConfig) {
+                    return kSkipDrawing_XferInterp;
+                }
+                break;
+            case SkPorterDuff::kSrcIn_Mode:
+                if (SkBitmap::kRGB_565_Config == deviceConfig &&
+                    just_solid_color(paint)) {
+                    return kSrcOver_XferInterp;
+                }
+                break;
+            case SkPorterDuff::kDstIn_Mode:
+                if (just_solid_color(paint)) {
+                    return kSkipDrawing_XferInterp;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return kNormal_XferInterp;
+}
+
 SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                              const SkMatrix& matrix,
                              const SkPaint& paint,
@@ -813,6 +871,19 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     }
 
     SkXfermode* mode = paint.getXfermode();
+    if (NULL != mode) {
+        switch (interpret_xfermode(paint, mode, device.config())) {
+            case kSrcOver_XferInterp:
+                mode = NULL;
+                break;
+            case kSkipDrawing_XferInterp:
+                SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+                return blitter;
+            default:
+                break;
+        }
+    }
+
     if (NULL == shader && (NULL != mode || paint.getColorFilter() != NULL))
     {
         // xfermodes require shaders for our current set of blitters

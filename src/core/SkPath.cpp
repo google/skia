@@ -27,7 +27,7 @@
  
     It captures some state about the path up front (i.e. if it already has a
     cached bounds), and the if it can, it updates the cache bounds explicitly,
-    avoiding the need to revisit all of the points in computeBounds().
+    avoiding the need to revisit all of the points in getBounds().
  */
 class SkAutoPathBoundsUpdate {
 public:
@@ -43,11 +43,11 @@ public:
     
     ~SkAutoPathBoundsUpdate() {
         if (fEmpty) {
-            fPath->fFastBounds = fRect;
-            fPath->fFastBoundsIsDirty = false;
+            fPath->fBounds = fRect;
+            fPath->fBoundsIsDirty = false;
         } else if (!fDirty) {
-            fPath->fFastBounds.join(fRect);
-            fPath->fFastBoundsIsDirty = false;
+            fPath->fBounds.join(fRect);
+            fPath->fBoundsIsDirty = false;
         }
     }
     
@@ -60,14 +60,14 @@ private:
     // returns true if we should proceed
     void init(const SkPath* path) {
         fPath = path;
-        fDirty = path->fFastBoundsIsDirty;
+        fDirty = path->fBoundsIsDirty;
         fEmpty = path->isEmpty();
         // Cannot use fRect for our bounds unless we know it is sorted
         fRect.sort();
     }
 };
 
-static void compute_fast_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
+static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
     if (pts.count() <= 1) {  // we ignore just 1 point (moveto)
         bounds->set(0, 0, 0, 0);
     } else {
@@ -91,7 +91,7 @@ static void compute_fast_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-SkPath::SkPath() : fFastBoundsIsDirty(true), fFillType(kWinding_FillType) {}
+SkPath::SkPath() : fBoundsIsDirty(true), fFillType(kWinding_FillType) {}
 
 SkPath::SkPath(const SkPath& src) {
     SkDEBUGCODE(src.validate();)
@@ -106,11 +106,11 @@ SkPath& SkPath::operator=(const SkPath& src) {
     SkDEBUGCODE(src.validate();)
 
     if (this != &src) {
-        fFastBounds         = src.fFastBounds;
-        fPts                = src.fPts;
-        fVerbs              = src.fVerbs;
-        fFillType           = src.fFillType;
-        fFastBoundsIsDirty  = src.fFastBoundsIsDirty;
+        fBounds         = src.fBounds;
+        fPts            = src.fPts;
+        fVerbs          = src.fVerbs;
+        fFillType       = src.fFillType;
+        fBoundsIsDirty  = src.fBoundsIsDirty;
     }
     SkDEBUGCODE(this->validate();)
     return *this;
@@ -125,11 +125,11 @@ void SkPath::swap(SkPath& other) {
     SkASSERT(&other != NULL);
 
     if (this != &other) {
-        SkTSwap<SkRect>(fFastBounds, other.fFastBounds);
+        SkTSwap<SkRect>(fBounds, other.fBounds);
         fPts.swap(other.fPts);
         fVerbs.swap(other.fVerbs);
         SkTSwap<uint8_t>(fFillType, other.fFillType);
-        SkTSwap<uint8_t>(fFastBoundsIsDirty, other.fFastBoundsIsDirty);
+        SkTSwap<uint8_t>(fBoundsIsDirty, other.fBoundsIsDirty);
     }
 }
 
@@ -138,7 +138,7 @@ void SkPath::reset() {
 
     fPts.reset();
     fVerbs.reset();
-    fFastBoundsIsDirty = true;
+    fBoundsIsDirty = true;
 }
 
 void SkPath::rewind() {
@@ -146,7 +146,7 @@ void SkPath::rewind() {
 
     fPts.rewind();
     fVerbs.rewind();
-    fFastBoundsIsDirty = true;
+    fBoundsIsDirty = true;
 }
 
 bool SkPath::isEmpty() const {
@@ -198,20 +198,12 @@ void SkPath::setLastPt(SkScalar x, SkScalar y) {
     }
 }
 
-#define ALWAYS_FAST_BOUNDS_FOR_NOW  true
-
-void SkPath::computeBounds(SkRect* bounds, BoundsType bt) const {
+void SkPath::computeBounds() const {
     SkDEBUGCODE(this->validate();)
+    SkASSERT(fBoundsIsDirty);
 
-    SkASSERT(bounds);
-    
-    // we BoundsType for now
-
-    if (fFastBoundsIsDirty) {
-        fFastBoundsIsDirty = false;
-        compute_fast_bounds(&fFastBounds, fPts);
-    }
-    *bounds = fFastBounds;
+    fBoundsIsDirty = false;
+    compute_pt_bounds(&fBounds, fPts);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -240,7 +232,7 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     }
     pt->set(x, y);
 
-    fFastBoundsIsDirty = true;
+    fBoundsIsDirty = true;
 }
 
 void SkPath::rMoveTo(SkScalar x, SkScalar y) {
@@ -259,7 +251,7 @@ void SkPath::lineTo(SkScalar x, SkScalar y) {
     fPts.append()->set(x, y);
     *fVerbs.append() = kLine_Verb;
 
-    fFastBoundsIsDirty = true;
+    fBoundsIsDirty = true;
 }
 
 void SkPath::rLineTo(SkScalar x, SkScalar y) {
@@ -281,7 +273,7 @@ void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     pts[1].set(x2, y2);
     *fVerbs.append() = kQuad_Verb;
 
-    fFastBoundsIsDirty = true;
+    fBoundsIsDirty = true;
 }
 
 void SkPath::rQuadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
@@ -304,7 +296,7 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     pts[2].set(x3, y3);
     *fVerbs.append() = kCubic_Verb;
 
-    fFastBoundsIsDirty = true;
+    fBoundsIsDirty = true;
 }
 
 void SkPath::rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
@@ -899,13 +891,13 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         matrix.mapPoints(dst->fPts.begin(), dst->fPts.count());
     } else {
         // remember that dst might == this, so be sure to check
-        // fFastBoundsIsDirty before we set it
-        if (!fFastBoundsIsDirty && matrix.rectStaysRect() && fPts.count() > 1) {
+        // fBoundsIsDirty before we set it
+        if (!fBoundsIsDirty && matrix.rectStaysRect() && fPts.count() > 1) {
             // if we're empty, fastbounds should not be mapped
-            matrix.mapRect(&dst->fFastBounds, fFastBounds);
-            dst->fFastBoundsIsDirty = false;
+            matrix.mapRect(&dst->fBounds, fBounds);
+            dst->fBoundsIsDirty = false;
         } else {
-            dst->fFastBoundsIsDirty = true;
+            dst->fBoundsIsDirty = true;
         }
 
         if (this != dst) {
@@ -915,14 +907,6 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         }
         matrix.mapPoints(dst->fPts.begin(), fPts.begin(), fPts.count());
         SkDEBUGCODE(dst->validate();)
-    }
-}
-
-void SkPath::updateBoundsCache() const {
-    if (fFastBoundsIsDirty) {
-        SkRect  r;
-        this->computeBounds(&r, kFast_BoundsType);
-        SkASSERT(!fFastBoundsIsDirty);
     }
 }
 
@@ -1220,7 +1204,7 @@ void SkPath::unflatten(SkFlattenableReadBuffer& buffer) {
     buffer.read(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.read(fVerbs.begin(), fVerbs.count());
     
-    fFastBoundsIsDirty = true;
+    fBoundsIsDirty = true;
 
     SkDEBUGCODE(this->validate();)
 }
@@ -1291,14 +1275,14 @@ void SkPath::validate() const {
     fPts.validate();
     fVerbs.validate();
 
-    if (!fFastBoundsIsDirty) {
+    if (!fBoundsIsDirty) {
         SkRect bounds;
-        compute_fast_bounds(&bounds, fPts);
+        compute_pt_bounds(&bounds, fPts);
         // can't call contains(), since it returns false if the rect is empty
-        SkASSERT(fFastBounds.fLeft <= bounds.fLeft);
-        SkASSERT(fFastBounds.fTop <= bounds.fTop);
-        SkASSERT(fFastBounds.fRight >= bounds.fRight);
-        SkASSERT(fFastBounds.fBottom >= bounds.fBottom);
+        SkASSERT(fBounds.fLeft <= bounds.fLeft);
+        SkASSERT(fBounds.fTop <= bounds.fTop);
+        SkASSERT(fBounds.fRight >= bounds.fRight);
+        SkASSERT(fBounds.fBottom >= bounds.fBottom);
     }
 }
 

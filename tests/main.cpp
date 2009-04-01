@@ -1,8 +1,10 @@
-#include <iostream>
 #include "SkGraphics.h"
 #include "Test.h"
 
 using namespace skiatest;
+
+// need to explicitly declare this, or we get some weird infinite loop llist
+template TestRegistry* TestRegistry::gHead;
 
 class Iter {
 public:
@@ -35,13 +37,13 @@ static const char* result2string(Reporter::Result result) {
     return result == Reporter::kPassed ? "passed" : "FAILED";
 }
 
-class PrintfReporter : public Reporter {
+class DebugfReporter : public Reporter {
 protected:
     virtual void onStart(Test* test) {
-        printf("Running %s...\n", test->getName());
+        SkDebugf("Running %s...\n", test->getName());
     }
     virtual void onReport(const char desc[], Reporter::Result result) {
-        printf("\t%s: %s\n", result2string(result), desc);
+        SkDebugf("\t%s: %s\n", result2string(result), desc);
     }
     virtual void onEnd(Test* test) {}
 };
@@ -59,7 +61,7 @@ public:
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
 
-    PrintfReporter reporter;
+    DebugfReporter reporter;
     Iter iter(&reporter);
     Test* test;
     
@@ -71,7 +73,7 @@ int main (int argc, char * const argv[]) {
     int total = reporter.countTests();
     int passed = reporter.countResults(Reporter::kPassed);
     int failed = reporter.countResults(Reporter::kFailed);
-    printf("Tests=%d Passed=%d (%g%%) Failed=%d (%g%%)\n", total,
+    SkDebugf("Tests=%d Passed=%d (%g%%) Failed=%d (%g%%)\n", total,
            passed, passed * 100.f / total,
            failed, failed * 100.f / total);
 

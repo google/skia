@@ -2236,10 +2236,8 @@ bool SkBounder::doRect(const SkRect& rect, const SkPaint& paint) {
 }
 
 bool SkBounder::doPath(const SkPath& path, const SkPaint& paint, bool doFill) {
-    SkRect      bounds;
-    SkIRect     r;
-
-    path.computeBounds(&bounds, SkPath::kFast_BoundsType);
+    SkIRect       r;
+    const SkRect& bounds = path.getBounds();
 
     if (doFill) {
         bounds.round(&r);
@@ -2276,8 +2274,7 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
 
     //  init our bounds from the path
     {
-        SkRect      pathBounds;
-        devPath.computeBounds(&pathBounds, SkPath::kExact_BoundsType);
+        SkRect pathBounds = devPath.getBounds();
         pathBounds.inset(-SK_ScalarHalf, -SK_ScalarHalf);
         pathBounds.roundOut(bounds);
     }

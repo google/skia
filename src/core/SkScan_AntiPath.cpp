@@ -350,11 +350,8 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
         return;
     }
 
-    SkRect      r;
-    SkIRect     ir;
-
-    path.computeBounds(&r, SkPath::kFast_BoundsType);
-    r.roundOut(&ir);
+    SkIRect ir;
+    path.getBounds().roundOut(&ir);
     if (ir.isEmpty()) {
         return;
     }

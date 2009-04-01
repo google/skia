@@ -443,9 +443,7 @@ static int worst_case_edge_count(const SkPath& path) {
 }
 
 void SkGL::DrawPath(const SkPath& path, bool useTex, SkGLClipIter* clipIter) {
-    SkRect  bounds;
-    
-    path.computeBounds(&bounds, SkPath::kFast_BoundsType);
+    const SkRect& bounds = path.getBounds();
     if (bounds.isEmpty()) {
         return;
     }

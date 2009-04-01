@@ -13,9 +13,7 @@ static void test_circlebounds(SkCanvas* canvas) {
     SkRect r = { 1.39999998, 1, 21.3999996, 21 };
     SkPath p;
     p.addOval(r);
-    SkRect r2;
-    p.computeBounds(&r2, SkPath::kFast_BoundsType);
-    SkASSERT(r == r2);
+    SkASSERT(r == p.getBounds());
 #endif
 }
 

@@ -271,11 +271,8 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             }
         } else {
             // just use devPath
-            SkRect  r;
             SkIRect ir;
-
-            devPath.computeBounds(&r, SkPath::kExact_BoundsType);
-            r.roundOut(&ir);
+            devPath.getBounds().roundOut(&ir);
             
             glyph->fLeft    = ir.fLeft;
             glyph->fTop     = ir.fTop;

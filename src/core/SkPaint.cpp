@@ -1517,36 +1517,24 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const
     return width != 0;  // return true if we're filled, or false if we're hairline (width == 0)
 }
 
-bool SkPaint::canComputeFastBounds() const {
-    // use bit-or since no need for early exit
-    return (reinterpret_cast<uintptr_t>(this->getMaskFilter()) |
-            reinterpret_cast<uintptr_t>(this->getLooper()) |
-            reinterpret_cast<uintptr_t>(this->getRasterizer()) |
-            reinterpret_cast<uintptr_t>(this->getPathEffect())) == 0;
-}
-
-const SkRect& SkPaint::computeFastBounds(const SkRect& src,
-                                         SkRect* storage) const {
+const SkRect& SkPaint::computeStrokeFastBounds(const SkRect& src,
+                                               SkRect* storage) const {
     SkASSERT(storage);
-    
-    if (this->getStyle() != SkPaint::kFill_Style) {
-        // if we're stroked, outset the rect by the radius (and join type)
-        SkScalar radius = SkScalarHalf(this->getStrokeWidth());
-        
-        if (0 == radius) {  // hairline
-            radius = SK_Scalar1;
-        } else if (this->getStrokeJoin() == SkPaint::kMiter_Join) {
-            SkScalar scale = this->getStrokeMiter();
-            if (scale > SK_Scalar1) {
-                radius = SkScalarMul(radius, scale);
-            }
+    SkASSERT(this->getStyle() != SkPaint::kFill_Style);
+
+    // since we're stroked, outset the rect by the radius (and join type)
+    SkScalar radius = SkScalarHalf(this->getStrokeWidth());
+    if (0 == radius) {  // hairline
+        radius = SK_Scalar1;
+    } else if (this->getStrokeJoin() == SkPaint::kMiter_Join) {
+        SkScalar scale = this->getStrokeMiter();
+        if (scale > SK_Scalar1) {
+            radius = SkScalarMul(radius, scale);
         }
-        storage->set(src.fLeft - radius, src.fTop - radius,
-                     src.fRight + radius, src.fBottom + radius);
-        return *storage;
     }
-    // no adjustments needed, just return the original rect
-    return src;
+    storage->set(src.fLeft - radius, src.fTop - radius,
+                 src.fRight + radius, src.fBottom + radius);
+    return *storage;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

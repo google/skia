@@ -41,20 +41,38 @@ public:
     virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]);
     
+    /** Enum of possible coefficients to describe some xfermodes
+     */
     enum Coeff {
-        kZero_Coeff,
-        kOne_Coeff,
-        kSC_Coeff,
-        kISC_Coeff,
-        kDC_Coeff,
-        kIDC_Coeff,
-        kSA_Coeff,
-        kISA_Coeff,
-        kDA_Coeff,
-        kIDA_Coeff,
+        kZero_Coeff,    /** 0 */
+        kOne_Coeff,     /** 1 */
+        kSC_Coeff,      /** src color */
+        kISC_Coeff,     /** inverse src color (i.e. 1 - sc) */
+        kDC_Coeff,      /** dst color */
+        kIDC_Coeff,     /** inverse dst color (i.e. 1 - dc) */
+        kSA_Coeff,      /** src alpha */
+        kISA_Coeff,     /** inverse src alpha (i.e. 1 - sa) */
+        kDA_Coeff,      /** dst alpha */
+        kIDA_Coeff,     /** inverse dst alpha (i.e. 1 - da) */
         
         kCoeffCount
     };
+    
+    /** If the xfermode can be expressed as an equation using the coefficients
+        in Coeff, then asCoeff() returns true, and sets (if not null) src and
+        dst accordingly.
+     
+            result = src_coeff * src_color + dst_coeff * dst_color;
+     
+        As examples, here are some of the porterduff coefficients
+     
+        MODE        SRC_COEFF       DST_COEFF
+        clear       zero            zero
+        src         one             zero
+        dst         zero            one
+        srcover     one             isa
+        dstover     ida             one
+     */
     virtual bool asCoeff(Coeff* src, Coeff* dst);
 
 protected:

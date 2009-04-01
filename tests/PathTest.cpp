@@ -11,16 +11,11 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p == p2);
     REPORTER_ASSERT(reporter, !(p != p2));
 
-    // initialize bounds to not-empty
-    bounds.set(0, 0, SK_Scalar1, SK_Scalar1);
-    p.computeBounds(&bounds, SkPath::kFast_BoundsType);
-    REPORTER_ASSERT(reporter, bounds.isEmpty());
+    REPORTER_ASSERT(reporter, p.getBounds().isEmpty());
     
     bounds.set(0, 0, SK_Scalar1, SK_Scalar1);
     p.addRect(bounds);
-    bounds2.setEmpty();
-    p.computeBounds(&bounds2, SkPath::kFast_BoundsType);
-    REPORTER_ASSERT(reporter, bounds == bounds2);
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
 
     REPORTER_ASSERT(reporter, p != p2);
     REPORTER_ASSERT(reporter, !(p == p2));
@@ -35,8 +30,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     
     bounds.offset(SK_Scalar1*3, SK_Scalar1*4);
     p.offset(SK_Scalar1*3, SK_Scalar1*4);
-    p.computeBounds(&bounds2, SkPath::kFast_BoundsType);
-    REPORTER_ASSERT(reporter, bounds == bounds2);
+    REPORTER_ASSERT(reporter, bounds == p.getBounds());
 
 #if 0 // isRect needs to be implemented
     REPORTER_ASSERT(reporter, p.isRect(NULL));

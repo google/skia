@@ -582,11 +582,8 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& clip,
         return;
     }
 
-    SkRect  r;
     SkIRect ir;
-
-    path.computeBounds(&r, SkPath::kFast_BoundsType);
-    r.round(&ir);
+    path.getBounds().round(&ir);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
             blitter->blitRegion(clip);

@@ -538,8 +538,7 @@ void SkStroke::setJoin(SkPaint::Join join) {
         routine
     */
     static int needs_to_shrink(const SkPath& path) {
-        SkRect r;
-        path.computeBounds(&r, SkPath::kFast_BoundsType);
+        const SkRect& r = path.getBounds();
         SkFixed mask = SkAbs32(r.fLeft);
         mask |= SkAbs32(r.fTop);
         mask |= SkAbs32(r.fRight);

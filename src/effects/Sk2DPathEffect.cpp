@@ -45,12 +45,10 @@ bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width)
 {
     Sk2DPathEffectBlitter   blitter(this, dst);
     SkPath                  tmp;
-    SkRect                  bounds;
     SkIRect                 ir;
 
     src.transform(fInverse, &tmp);
-    tmp.computeBounds(&bounds, SkPath::kExact_BoundsType);
-    bounds.round(&ir);
+    tmp.getBounds().round(&ir);
     if (!ir.isEmpty()) {
         // need to pass a clip to fillpath, required for inverse filltypes,
         // even though those do not make sense for this patheffect

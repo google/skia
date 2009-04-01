@@ -68,8 +68,6 @@
 		008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008C4D970F77DAEE0056981C /* SampleHairline.cpp */; };
 		009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */; };
 		00A41E4B0EFC312F00C9CBEB /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
-		00FACE3C0F7D0E6600F8A7FF /* SkLargeBlock_malloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FACE3B0F7D0E6600F8A7FF /* SkLargeBlock_malloc.cpp */; };
-		00FACE680F7D23DD00F8A7FF /* SkWriter32_largeBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FACE5C0F7D209700F8A7FF /* SkWriter32_largeBlock.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
@@ -186,10 +184,6 @@
 		009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFontScalerTest.cpp; path = ../../samplecode/SampleFontScalerTest.cpp; sourceTree = SOURCE_ROOT; };
 		00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
 		00D6B5CB0F72DC4300C466B9 /* SampleFuzz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFuzz.cpp; path = ../../samplecode/SampleFuzz.cpp; sourceTree = SOURCE_ROOT; };
-		00FACE3B0F7D0E6600F8A7FF /* SkLargeBlock_malloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkLargeBlock_malloc.cpp; path = ../../src/utils/SkLargeBlock_malloc.cpp; sourceTree = SOURCE_ROOT; };
-		00FACE3F0F7D167400F8A7FF /* SkLargeBlock_remap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkLargeBlock_remap.cpp; path = ../../src/utils/SkLargeBlock_remap.cpp; sourceTree = SOURCE_ROOT; };
-		00FACE5C0F7D209700F8A7FF /* SkWriter32_largeBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkWriter32_largeBlock.cpp; path = ../../src/utils/SkWriter32_largeBlock.cpp; sourceTree = SOURCE_ROOT; };
-		00FACE600F7D22CF00F8A7FF /* SkWriter32_noLargeBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkWriter32_noLargeBlock.cpp; path = ../../src/utils/SkWriter32_noLargeBlock.cpp; sourceTree = SOURCE_ROOT; };
 		0156F80307C56A3000C6122B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		01FC44D407BD3BB800D228F4 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = /System/Library/Frameworks/Quartz.framework; sourceTree = "<absolute>"; };
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -337,10 +331,6 @@
 				002884490EFAA35C0083E387 /* core.xcodeproj */,
 				002884B40EFAB69F0083E387 /* maccore.xcodeproj */,
 				00003C8C0EFC230E000FF73A /* effects.xcodeproj */,
-				00FACE3B0F7D0E6600F8A7FF /* SkLargeBlock_malloc.cpp */,
-				00FACE3F0F7D167400F8A7FF /* SkLargeBlock_remap.cpp */,
-				00FACE5C0F7D209700F8A7FF /* SkWriter32_largeBlock.cpp */,
-				00FACE600F7D22CF00F8A7FF /* SkWriter32_noLargeBlock.cpp */,
 			);
 			name = CICarbonSample;
 			sourceTree = "<group>";
@@ -529,8 +519,6 @@
 				007A7CB30F01658C00A2D6EE /* SamplePicture.cpp in Sources */,
 				0041CE440F00A12400695E8C /* SampleLines.cpp in Sources */,
 				008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */,
-				00FACE3C0F7D0E6600F8A7FF /* SkLargeBlock_malloc.cpp in Sources */,
-				00FACE680F7D23DD00F8A7FF /* SkWriter32_largeBlock.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

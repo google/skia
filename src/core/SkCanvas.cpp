@@ -879,58 +879,33 @@ void SkCanvas::computeLocalClipBoundsCompareType() const {
     }
 }
 
+/*  current impl ignores edgetype, and relies on
+    getLocalClipBoundsCompareType(), which always returns a value assuming
+    antialiasing (worst case)
+ */
 bool SkCanvas::quickReject(const SkRect& rect, EdgeType) const {
-    /*  current impl ignores edgetype, and relies on
-        getLocalClipBoundsCompareType(), which always returns a value assuming
-        antialiasing (worst case)
-     */
-
     if (fMCRec->fRegion->isEmpty()) {
         return true;
     }
-    
-    // check for empty user rect (horizontal)
-    SkScalarCompareType userL = SkScalarToCompareType(rect.fLeft);
-    SkScalarCompareType userR = SkScalarToCompareType(rect.fRight);
-    if (userL >= userR) {
-        return true;
-    }
 
-    // check for empty user rect (vertical)
+    const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
+
+    // for speed, do the most likely reject compares first
     SkScalarCompareType userT = SkScalarToCompareType(rect.fTop);
     SkScalarCompareType userB = SkScalarToCompareType(rect.fBottom);
-    if (userT >= userB) {
+    if (userT >= clipR.fBottom || userB <= clipR.fTop) {
         return true;
     }
-    
-    // check if we are completely outside of the local clip bounds
-    const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
-    return  userL >= clipR.fRight || userT >= clipR.fBottom ||
-            userR <= clipR.fLeft  || userB <= clipR.fTop;
+    SkScalarCompareType userL = SkScalarToCompareType(rect.fLeft);
+    SkScalarCompareType userR = SkScalarToCompareType(rect.fRight);
+    if (userL >= clipR.fRight || userR <= clipR.fLeft) {
+        return true;
+    }    
+    return false;
 }
 
 bool SkCanvas::quickReject(const SkPath& path, EdgeType et) const {
-    if (fMCRec->fRegion->isEmpty() || path.isEmpty()) {
-        return true;
-    }
-
-    if (fMCRec->fMatrix->rectStaysRect()) {
-        SkRect  r;
-        path.computeBounds(&r, SkPath::kFast_BoundsType);
-        return this->quickReject(r, et);
-    }
-
-    SkPath      dstPath;
-    SkRect      r;
-    SkIRect     ir;
-
-    path.transform(*fMCRec->fMatrix, &dstPath);
-    dstPath.computeBounds(&r, SkPath::kFast_BoundsType);
-    r.round(&ir);
-    if (kAA_EdgeType == et) {
-        ir.inset(-1, -1);
-    }
-    return fMCRec->fRegion->quickReject(ir);
+    return path.isEmpty() || this->quickReject(path.getBounds(), et);
 }
 
 bool SkCanvas::quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const {
@@ -947,6 +922,7 @@ bool SkCanvas::quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const {
     SkScalarCompareType userB = SkScalarToCompareType(bottom);
     
     // check for invalid user Y coordinates (i.e. empty)
+    // reed: why do we need to do this check, since it slows us down?
     if (userT >= userB) {
         return true;
     }
@@ -1063,9 +1039,9 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     if (paint.canComputeFastBounds()) {
-        SkRect r;
-        path.computeBounds(&r, SkPath::kFast_BoundsType);
-        if (this->quickReject(paint.computeFastBounds(r, &r),
+        SkRect storage;
+        const SkRect& bounds = path.getBounds();
+        if (this->quickReject(paint.computeFastBounds(bounds, &storage),
                               paint2EdgeType(&paint))) {
             return;
         }

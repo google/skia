@@ -138,9 +138,7 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op) {
     validate();
     
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        SkRect bounds;
-        path.computeBounds(&bounds, SkPath::kFast_BoundsType);
-        return this->INHERITED::clipRect(bounds, op);
+        return this->INHERITED::clipRect(path.getBounds(), op);
     } else {
         return this->INHERITED::clipPath(path, op);
     }
