@@ -187,10 +187,10 @@ int time_math() {
     f = dummy();
     now = SkTime::GetMSecs();
     for (i = repeat - 1; i >= 0; --i) {
-        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
-        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
-        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
-        sum += (int)floorf(f + 0.5f); f = fast_inc(f);
+        sum += (int)sk_float_floor(f + 0.5f); f = fast_inc(f);
+        sum += (int)sk_float_floor(f + 0.5f); f = fast_inc(f);
+        sum += (int)sk_float_floor(f + 0.5f); f = fast_inc(f);
+        sum += (int)sk_float_floor(f + 0.5f); f = fast_inc(f);
     }
     SkDebugf("---- native round %d\n", SkTime::GetMSecs() - now);
     
