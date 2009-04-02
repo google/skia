@@ -6,7 +6,7 @@
 #include "SkTRegistry.h"
 
 namespace skiatest {
-    
+
     class Test;
 
     class Reporter : public SkRefCnt {
@@ -19,7 +19,7 @@ namespace skiatest {
             /////
             kLastResult = kFailed
         };
-        
+
         void resetReporting();
         int countTests() const { return fTestCount; }
         int countResults(Result r) {
@@ -30,7 +30,7 @@ namespace skiatest {
         void startTest(Test*);
         void report(const char testDesc[], Result);
         void endTest(Test*);
-        
+
         // helpers for tests
         void assertTrue(bool cond, const char desc[]) {
             if (!cond) {
@@ -48,35 +48,35 @@ namespace skiatest {
         void reportFailed(const SkString& desc) {
             this->report(desc.c_str(), kFailed);
         }
-        
+
     protected:
         virtual void onStart(Test*) {}
         virtual void onReport(const char desc[], Result) {}
         virtual void onEnd(Test*) {}
-        
+
     private:
         Test* fCurrTest;
         int fTestCount;
         int fResultCount[kLastResult+1];
-        
+
         typedef SkRefCnt INHERITED;
     };
-    
+
     class Test {
-    public:        
+    public:
         Test();
         virtual ~Test();
 
         Reporter* getReporter() const { return fReporter; }
         void setReporter(Reporter*);
-        
+
         const char* getName();
         void run();
-        
+
     protected:
         virtual void onGetName(SkString*) = 0;
         virtual void onRun(Reporter*) = 0;
-        
+
     private:
         Reporter*   fReporter;
         SkString    fName;

@@ -183,7 +183,7 @@ static void TestSk64(skiatest::Reporter* reporter) {
         else
             dfixdiv = SkFloatToFixed(dnumer / ddenom);
         diff = fixdiv - dfixdiv;
-        
+
         if (SkAbs32(diff) > 1) {
             SkDebugf(" %d === numer %g denom %g div %g xdiv %x fxdiv %x\n",
                      i, dnumer, ddenom, ddiv, dfixdiv, fixdiv);

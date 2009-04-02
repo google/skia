@@ -4,7 +4,7 @@
 static void TestPath(skiatest::Reporter* reporter) {
     SkPath  p, p2;
     SkRect  bounds, bounds2;
-    
+
     REPORTER_ASSERT(reporter, p.isEmpty());
     REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, !p.isInverseFillType());
@@ -12,7 +12,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !(p != p2));
 
     REPORTER_ASSERT(reporter, p.getBounds().isEmpty());
-    
+
     bounds.set(0, 0, SK_Scalar1, SK_Scalar1);
     p.addRect(bounds);
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
@@ -27,7 +27,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, count == 4);
     bounds2.set(pts, 4);
     REPORTER_ASSERT(reporter, bounds == bounds2);
-    
+
     bounds.offset(SK_Scalar1*3, SK_Scalar1*4);
     p.offset(SK_Scalar1*3, SK_Scalar1*4);
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
@@ -37,7 +37,7 @@ static void TestPath(skiatest::Reporter* reporter) {
     bounds.setEmpty();
     REPORTER_ASSERT(reporter, p.isRect(&bounds2));
     REPORTER_ASSERT(reporter, bounds == bounds2);
-    
+
     // now force p to not be a rect
     bounds.set(0, 0, SK_Scalar1/2, SK_Scalar1/2);
     p.addRect(bounds);

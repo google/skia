@@ -21,7 +21,7 @@ static void test_srcover_hack(skiatest::Reporter* reporter) {
     /*  Here's the idea. Can we ensure that when we blend on top of an opaque
         dst, that the result always stay's opaque (i.e. exactly 255)?
      */
-    
+
     unsigned i;
     int opaqueCounter0 = 0;
     int opaqueCounter1 = 0;
@@ -42,7 +42,7 @@ static void test_srcover_hack(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, opaqueCounter0 == 129);
     REPORTER_ASSERT(reporter, opaqueCounter1 == 256);
     REPORTER_ASSERT(reporter, opaqueCounter2 == 256);
-    
+
     // Now ensure that we never over/underflow a byte
     for (i = 0; i <= 255; i++) {
         for (unsigned dst = 0; dst <= 255; dst++) {
@@ -56,11 +56,12 @@ static void test_srcover_hack(skiatest::Reporter* reporter) {
             }
             REPORTER_ASSERT(reporter, r1 <= 255 && r1 >= max);
             REPORTER_ASSERT(reporter, r2 <= 255 && r2 >= max);
-            
+
 #if 0
             // this shows where r1 (faster) differs from r2 (more exact)
             if (r1 != r2) {
-                SkDebugf("--- dst=%d i=%d r1=%d r2=%d exact=%g\n", dst, i, r1, r2, i + dst - dst*i/255.0f);
+                SkDebugf("--- dst=%d i=%d r1=%d r2=%d exact=%g\n",
+                         dst, i, r1, r2, i + dst - dst*i/255.0f);
             }
 #endif
         }

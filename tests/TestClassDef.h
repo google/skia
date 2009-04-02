@@ -1,12 +1,12 @@
-/*  This file is meant be including by .cpp files, so it can spew out a
+/*  This file is meant to be included by .cpp files, so it can spew out a
     customized class + global definition.
- 
+
     e.g.
     #include "TestClassDef.h"
     DEFINE_TESTCLASS("MyTest", MyTestClass, MyTestFunction)
- 
+
     where MyTestFunction is declared as
- 
+
         void MyTestFunction(skiatest::Reporter*)
 */
 

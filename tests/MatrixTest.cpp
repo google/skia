@@ -23,7 +23,7 @@ static bool nearly_equal(const SkMatrix& a, const SkMatrix& b) {
 
 static bool is_identity(const SkMatrix& m) {
     SkMatrix identity;
-    identity.reset();    
+    identity.reset();
     return nearly_equal(m, identity);
 }
 
@@ -54,7 +54,7 @@ void TestMatrix(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, is_identity(iden1));
     iden2.setConcat(inverse, mat);
     REPORTER_ASSERT(reporter, is_identity(iden2));
-    
+
     // rectStaysRect test
     {
         static const struct {
@@ -79,10 +79,10 @@ void TestMatrix(skiatest::Reporter* reporter) {
             { SK_Scalar1, SK_Scalar1, SK_Scalar1,           0, false },
             { SK_Scalar1, SK_Scalar1, SK_Scalar1,  SK_Scalar1, false }
         };
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRectStaysRectSamples); i++) {
             SkMatrix    m;
-            
+
             m.reset();
             m.set(SkMatrix::kMScaleX, gRectStaysRectSamples[i].m00);
             m.set(SkMatrix::kMSkewX,  gRectStaysRectSamples[i].m01);

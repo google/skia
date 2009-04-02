@@ -23,7 +23,7 @@ static void test_pack16(skiatest::Reporter* reporter) {
         { gTest2, SK_ARRAY_COUNT(gTest2) },
         { gTest3, SK_ARRAY_COUNT(gTest3) }
     };
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTests); i++) {
         uint8_t dst[100];
         size_t dstSize = SkPackBits::Pack16(gTests[i].fSrc,
@@ -34,7 +34,7 @@ static void test_pack16(skiatest::Reporter* reporter) {
                                     gTests[i].fCount * sizeof(uint16_t)) == 0;
         REPORTER_ASSERT(reporter, match);
     }
-    
+
     for (int n = 1000; n; n--) {
         size_t size = 50;
         uint16_t src[100], src2[100];
@@ -74,7 +74,7 @@ static void test_pack8(skiatest::Reporter* reporter) {
         { gTest83, SK_ARRAY_COUNT(gTest83) },
         { gTest84, SK_ARRAY_COUNT(gTest84) }
     };
-    
+
     for (size_t i = 4; i < SK_ARRAY_COUNT(gTests); i++) {
         uint8_t dst[100];
         size_t maxSize = SkPackBits::ComputeMaxSize8(gTests[i].fCount);
@@ -103,7 +103,7 @@ static void test_pack8(skiatest::Reporter* reporter) {
             REPORTER_ASSERT(reporter, size == srcCount);
             bool match = memcmp(src, src2, size * sizeof(uint8_t)) == 0;
             REPORTER_ASSERT(reporter, match);
-            
+
             for (int j = 0; j < 200; j++) {
                 size_t skip = gRand.nextU() % size;
                 size_t write = gRand.nextU() % size;

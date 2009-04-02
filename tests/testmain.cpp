@@ -12,11 +12,11 @@ public:
         r->ref();
         fReg = TestRegistry::Head();
     }
-    
+
     ~Iter() {
         fReporter->unref();
     }
-    
+
     Test* next() {
         if (fReg) {
             TestRegistry::Factory fact = fReg->factory();
@@ -27,7 +27,7 @@ public:
         }
         return NULL;
     }
-    
+
     static int Count() {
         const TestRegistry* reg = TestRegistry::Head();
         int count = 0;
@@ -37,7 +37,7 @@ public:
         }
         return count;
     }
-    
+
 private:
     Reporter* fReporter;
     const TestRegistry* fReg;
@@ -81,7 +81,7 @@ int main (int argc, char * const argv[]) {
     DebugfReporter reporter;
     Iter iter(&reporter);
     Test* test;
-    
+
     const int count = Iter::Count();
     int index = 0;
     while ((test = iter.next()) != NULL) {

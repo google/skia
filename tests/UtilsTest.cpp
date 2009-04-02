@@ -55,9 +55,9 @@ static void test_utf16(skiatest::Reporter* reporter) {
     static const SkUnichar gUni[] = {
         0x10000, 0x18080, 0x20202, 0xFFFFF, 0x101234
     };
-    
+
     uint16_t buf[2];
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gUni); i++) {
         size_t count = SkUTF16_FromUnichar(gUni[i], buf);
         REPORTER_ASSERT(reporter, count == 2);
@@ -100,7 +100,7 @@ static void TestUTF(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter,
                         p - gTest[i].fUtf8 == (int)strlen(gTest[i].fUtf8));
     }
-    
+
     test_utf16(reporter);
     test_search(reporter);
 }
