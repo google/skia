@@ -27,7 +27,6 @@ SOURCE := \
     SkCordic.cpp \
     SkCubicClipper.cpp \
     SkDebug.cpp \
-    SkDebug_stdio.cpp \
     SkDeque.cpp \
     SkDevice.cpp \
     SkDither.cpp \

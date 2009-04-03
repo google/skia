@@ -41,7 +41,7 @@
     #define SkFPDivInt(a, n)        ((a) / (n))
     #define SkFPInvert(x)           SkScalarInvert(x)
     #define SkFPSqrt(x)             SkScalarSqrt(x)
-    #define SkFPCubeRoot(x)         static_cast<float>(pow(x, 0.33333333333))
+    #define SkFPCubeRoot(x)         sk_float_pow(x, 0.3333333f)
 
     #define SkFPLT(a, b)            ((a) < (b))
     #define SkFPLE(a, b)            ((a) <= (b))

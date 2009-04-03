@@ -19,8 +19,6 @@
 
 static const size_t kBufferSize = 256;
 
-#ifdef ANDROID
-
 #define LOG_TAG "skia"
 #include <utils/Log.h>
 
@@ -42,20 +40,4 @@ void Android_SkDebugf(const char* file, int line, const char* function,
     va_end(args);
 }
 
-#else
-
-#include <stdarg.h>
-#include <stdio.h>
-
-void SkDebugf(const char format[], ...)
-{
-    char    buffer[kBufferSize + 1];
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer, kBufferSize, format, args);
-    va_end(args);
-    fprintf(stderr, buffer);
-}
-
-#endif
 

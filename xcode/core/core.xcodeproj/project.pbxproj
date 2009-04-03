@@ -50,7 +50,6 @@
 		005F25970EF94F7900582A90 /* SkCordic.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F251E0EF94F7900582A90 /* SkCordic.h */; };
 		005F25980EF94F7900582A90 /* SkCoreBlitters.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F251F0EF94F7900582A90 /* SkCoreBlitters.h */; };
 		005F25990EF94F7900582A90 /* SkDebug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25200EF94F7900582A90 /* SkDebug.cpp */; };
-		005F259A0EF94F7900582A90 /* SkDebug_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25210EF94F7900582A90 /* SkDebug_stdio.cpp */; };
 		005F259B0EF94F7900582A90 /* SkDeque.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25220EF94F7900582A90 /* SkDeque.cpp */; };
 		005F259C0EF94F7900582A90 /* SkDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25230EF94F7900582A90 /* SkDevice.cpp */; };
 		005F259D0EF94F7900582A90 /* SkDither.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25240EF94F7900582A90 /* SkDither.cpp */; };
@@ -173,7 +172,6 @@
 		005F251E0EF94F7900582A90 /* SkCordic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkCordic.h; path = ../../src/core/SkCordic.h; sourceTree = SOURCE_ROOT; };
 		005F251F0EF94F7900582A90 /* SkCoreBlitters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkCoreBlitters.h; path = ../../src/core/SkCoreBlitters.h; sourceTree = SOURCE_ROOT; };
 		005F25200EF94F7900582A90 /* SkDebug.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDebug.cpp; path = ../../src/core/SkDebug.cpp; sourceTree = SOURCE_ROOT; };
-		005F25210EF94F7900582A90 /* SkDebug_stdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDebug_stdio.cpp; path = ../../src/core/SkDebug_stdio.cpp; sourceTree = SOURCE_ROOT; };
 		005F25220EF94F7900582A90 /* SkDeque.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDeque.cpp; path = ../../src/core/SkDeque.cpp; sourceTree = SOURCE_ROOT; };
 		005F25230EF94F7900582A90 /* SkDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDevice.cpp; path = ../../src/core/SkDevice.cpp; sourceTree = SOURCE_ROOT; };
 		005F25240EF94F7900582A90 /* SkDither.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDither.cpp; path = ../../src/core/SkDither.cpp; sourceTree = SOURCE_ROOT; };
@@ -323,7 +321,6 @@
 				005F251E0EF94F7900582A90 /* SkCordic.h */,
 				005F251F0EF94F7900582A90 /* SkCoreBlitters.h */,
 				005F25200EF94F7900582A90 /* SkDebug.cpp */,
-				005F25210EF94F7900582A90 /* SkDebug_stdio.cpp */,
 				005F25220EF94F7900582A90 /* SkDeque.cpp */,
 				005F25230EF94F7900582A90 /* SkDevice.cpp */,
 				005F25240EF94F7900582A90 /* SkDither.cpp */,
@@ -527,7 +524,6 @@
 				005F25950EF94F7900582A90 /* SkColorTable.cpp in Sources */,
 				005F25960EF94F7900582A90 /* SkCordic.cpp in Sources */,
 				005F25990EF94F7900582A90 /* SkDebug.cpp in Sources */,
-				005F259A0EF94F7900582A90 /* SkDebug_stdio.cpp in Sources */,
 				005F259B0EF94F7900582A90 /* SkDeque.cpp in Sources */,
 				005F259C0EF94F7900582A90 /* SkDevice.cpp in Sources */,
 				005F259D0EF94F7900582A90 /* SkDither.cpp in Sources */,

@@ -25,6 +25,12 @@
 #include <float.h>
 #include "SkFloatBits.h"
 
+// If math.h had powf(float, float), I could remove this wrapper
+static inline float sk_float_pow(float base, float exp) {
+    return static_cast<float>(pow(static_cast<double>(base),
+                                  static_cast<double>(exp)));
+}
+
 #ifdef SK_BUILD_FOR_WINCE
     #define sk_float_sqrt(x)        (float)::sqrt(x)
     #define sk_float_sin(x)         (float)::sin(x)

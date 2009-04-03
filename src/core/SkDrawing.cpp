@@ -1,28 +1,28 @@
-#include "SkDrawable.h"
+#include "SkDrawing.h"
 #include "SkCanvas.h"
 
-SkDrawable::SkDrawable() {
+SkDrawing::SkDrawing() {
     fMatrix.reset();
     fParent = fFirstChild = fNextSibling = fPrevSibling = NULL;
 }
 
-SkDrawable::~SkDrawable() {
+SkDrawing::~SkDrawing() {
     this->detachAllChildren();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkDrawable::resetMatrix() {
+void SkDrawing::resetMatrix() {
     fMatrix.reset();
 }
 
-void SkDrawable::getMatrix(SkMatrix* matrix) const {
+void SkDrawing::getMatrix(SkMatrix* matrix) const {
     if (matrix) {
         *matrix = fMatrix;
     }
 }
 
-void SkDrawable::setMatrix(const SkMatrix& matrix) {
+void SkDrawing::setMatrix(const SkMatrix& matrix) {
     if (fMatrix != matrix) {
         this->inval();
         fMatrix = matrix;
@@ -30,7 +30,7 @@ void SkDrawable::setMatrix(const SkMatrix& matrix) {
     }
 }
 
-void SkDrawable::draw(SkCanvas* canvas) {
+void SkDrawing::draw(SkCanvas* canvas) {
     SkAutoCanvasRestore ar(canvas, false);
     canvas->save(SkCanvas::kMatrix_SaveFlag);
     canvas->concat(fMatrix);
@@ -38,7 +38,7 @@ void SkDrawable::draw(SkCanvas* canvas) {
     this->onDraw(canvas);
     
     B2FIter iter(this);
-    SkDrawable* child;
+    SkDrawing* child;
     while ((child = iter.next()) != NULL) {
         child->draw(canvas);
     }
@@ -46,8 +46,8 @@ void SkDrawable::draw(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkDrawable::detachFromParent() {
-	SkDrawable* parent = fParent;
+void SkDrawing::detachFromParent() {
+	SkDrawing* parent = fParent;
 
 	if (NULL == parent) {
 		return;
@@ -55,7 +55,7 @@ void SkDrawable::detachFromParent() {
     
     this->inval();
     
-	SkDrawable*	next = NULL;
+	SkDrawing*	next = NULL;
     
 	if (fNextSibling != this) {	// do we have any siblings
 		fNextSibling->fPrevSibling = fPrevSibling;
@@ -71,7 +71,7 @@ void SkDrawable::detachFromParent() {
 	this->unref();
 }
 
-SkDrawable* SkDrawable::attachChildToBack(SkDrawable* child) {
+SkDrawing* SkDrawing::attachChildToBack(SkDrawing* child) {
 	SkASSERT(child != this);
 
 	if (child == NULL || fFirstChild == child) {
@@ -97,7 +97,7 @@ SkDrawable* SkDrawable::attachChildToBack(SkDrawable* child) {
 	return child;
 }
 
-SkDrawable* SkDrawable::attachChildToFront(SkDrawable* child) {
+SkDrawing* SkDrawing::attachChildToFront(SkDrawing* child) {
 	SkASSERT(child != this);
 
     if (child == NULL || fFirstChild && fFirstChild->fPrevSibling == child) {
@@ -123,7 +123,7 @@ SkDrawable* SkDrawable::attachChildToFront(SkDrawable* child) {
 	return child;
 }
 
-void SkDrawable::detachAllChildren() {
+void SkDrawing::detachAllChildren() {
 	while (fFirstChild) {
 		fFirstChild->detachFromParent();
     }
@@ -131,16 +131,16 @@ void SkDrawable::detachAllChildren() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDrawable::B2FIter::B2FIter(const SkDrawable* parent) {
+SkDrawing::B2FIter::B2FIter(const SkDrawing* parent) {
 	fFirstChild = parent ? parent->fFirstChild : NULL;
 	fChild = fFirstChild;
 }
 
-SkDrawable*	SkDrawable::B2FIter::next() {
-	SkDrawable* curr = fChild;
+SkDrawing*	SkDrawing::B2FIter::next() {
+	SkDrawing* curr = fChild;
     
 	if (fChild) {
-		SkDrawable* next = fChild->fNextSibling;
+		SkDrawing* next = fChild->fNextSibling;
 		if (next == fFirstChild) {
 			next = NULL;
         }
