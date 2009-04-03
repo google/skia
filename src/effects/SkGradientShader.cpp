@@ -36,18 +36,15 @@
 
 typedef SkFixed (*TileProc)(SkFixed);
 
-static SkFixed clamp_tileproc(SkFixed x)
-{
+static SkFixed clamp_tileproc(SkFixed x) {
     return SkClampMax(x, 0xFFFF);
 }
 
-static SkFixed repeat_tileproc(SkFixed x)
-{
+static SkFixed repeat_tileproc(SkFixed x) {
     return x & 0xFFFF;
 }
 
-static inline SkFixed mirror_tileproc(SkFixed x)
-{
+static inline SkFixed mirror_tileproc(SkFixed x) {
     int s = x << 15 >> 31;
     return (x ^ s) & 0xFFFF;
 }
@@ -60,13 +57,11 @@ static const TileProc gTileProcs[] = {
 
 //////////////////////////////////////////////////////////////////////////////
 
-static inline int repeat_6bits(int x)
-{
+static inline int repeat_6bits(int x) {
     return x & 63;
 }
 
-static inline int mirror_6bits(int x)
-{
+static inline int mirror_6bits(int x) {
 #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     if (x & 64)
         x = ~x;
@@ -77,16 +72,15 @@ static inline int mirror_6bits(int x)
 #endif
 }
 
-static inline int repeat_8bits(int x)
-{
+static inline int repeat_8bits(int x) {
     return x & 0xFF;
 }
 
-static inline int mirror_8bits(int x)
-{
+static inline int mirror_8bits(int x) {
 #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (x & 256)
+    if (x & 256) {
         x = ~x;
+    }
     return x & 255;
 #else
     int s = x << 23 >> 31;
@@ -99,7 +93,7 @@ static inline int mirror_8bits(int x)
 class Gradient_Shader : public SkShader {
 public:
     Gradient_Shader(const SkColor colors[], const SkScalar pos[],
-                    int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper);
+                int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper);
     virtual ~Gradient_Shader();
 
     // overrides
@@ -115,7 +109,7 @@ protected:
     SkPMColor*  fARGB32;
     TileMode    fTileMode;
     TileProc    fTileProc;
-    uint16_t    fColorCount;
+    int         fColorCount;
     uint8_t     fDstToIndexClass;
     uint8_t     fFlags;
 
@@ -154,8 +148,7 @@ private:
     typedef SkShader INHERITED;
 };
 
-static inline unsigned scalarToU16(SkScalar x)
-{
+static inline unsigned scalarToU16(SkScalar x) {
     SkASSERT(x >= 0 && x <= SK_Scalar1);
 
 #ifdef SK_SCALAR_IS_FLOAT
@@ -165,9 +158,8 @@ static inline unsigned scalarToU16(SkScalar x)
 #endif
 }
 
-Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[], int colorCount,
-                      SkShader::TileMode mode, SkUnitMapper* mapper)
-{
+Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[],
+             int colorCount, SkShader::TileMode mode, SkUnitMapper* mapper) {
     SkASSERT(colorCount > 1);
 
     fCacheAlpha = 256;  // init to a value that paint.getAlpha() can't return
@@ -175,33 +167,67 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[], i
     fMapper = mapper;
     mapper->safeRef();
 
-    fCache16 = fCache16Storage = NULL;
-    fCache32 = fCache32Storage = NULL;
-
-    fColorCount = SkToU16(colorCount);
-    if (colorCount > kColorStorageCount)
-        fOrigColors = (SkColor*)sk_malloc_throw((sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec)) * colorCount);
-    else
-        fOrigColors = fStorage;
-    memcpy(fOrigColors, colors, colorCount * sizeof(SkColor));
-    // our premul colors point to the 2nd half of the array
-    // these are assigned each time in setContext
-    fARGB32 = fOrigColors + colorCount;
-
     SkASSERT((unsigned)mode < SkShader::kTileModeCount);
     SkASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gTileProcs));
     fTileMode = mode;
     fTileProc = gTileProcs[mode];
+    
+    fCache16 = fCache16Storage = NULL;
+    fCache32 = fCache32Storage = NULL;
 
-    fRecs = (Rec*)(fARGB32 + colorCount);
-    if (colorCount > 2)
+    /*  Note: we let the caller skip the first and/or last position.
+        i.e. pos[0] = 0.3, pos[1] = 0.7
+        In these cases, we insert dummy entries to ensure that the final data
+        will be bracketed by [0, 1].
+        i.e. our_pos[0] = 0, our_pos[1] = 0.3, our_pos[2] = 0.7, our_pos[3] = 1
+
+        Thus colorCount (the caller's value, and fColorCount (our value) may
+        differ by up to 2. In the above example:
+            colorCount = 2
+            fColorCount = 4
+     */
+    fColorCount = colorCount;
+    // check if we need to add in dummy start and/or end position/colors
+    bool dummyFirst = false;
+    bool dummyLast = false;
+    if (pos) {
+        dummyFirst = pos[0] != 0;
+        dummyLast = pos[colorCount - 1] != SK_Scalar1;
+        fColorCount += dummyFirst + dummyLast;
+    }
+
+    if (fColorCount > kColorStorageCount) {
+        size_t size = sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec);
+        fOrigColors = reinterpret_cast<SkColor*>(
+                                        sk_malloc_throw(size * fColorCount));
+    }
+    else {
+        fOrigColors = fStorage;
+    }
+
+    // Now copy over the colors, adding the dummies as needed
     {
-        Rec* recs = fRecs;
+        SkColor* origColors = fOrigColors;
+        if (dummyFirst) {
+            *origColors++ = colors[0];
+        }
+        memcpy(origColors, colors, colorCount * sizeof(SkColor));
+        if (dummyLast) {
+            origColors += colorCount;
+            *origColors = colors[colorCount - 1];
+        }
+    }
 
-        recs[0].fPos = 0;
-    //  recs[0].fScale = 0; // unused;
-        if (pos)
-        {
+    // our premul colors point to the 2nd half of the array
+    // these are assigned each time in setContext
+    fARGB32 = fOrigColors + fColorCount;
+    fRecs = (Rec*)(fARGB32 + fColorCount);
+    if (fColorCount > 2) {
+        Rec* recs = fRecs;
+        recs->fPos = 0;
+        //  recs->fScale = 0; // unused;
+        recs += 1;
+        if (pos) {
             /*  We need to convert the user's array of relative positions into
                 fixed-point positions and scale factors. We need these results
                 to be strictly monotonic (no two values equal or out of order).
@@ -210,39 +236,40 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[], i
                 we start at 0 and end at 1.0
             */
             SkFixed prev = 0;
-            for (int i = 1; i < colorCount; i++)
-            {
+            int startIndex = dummyFirst ? 0 : 1;
+            int count = colorCount + dummyLast;
+            for (int i = startIndex; i < count; i++) {
                 // force the last value to be 1.0
                 SkFixed curr;
-                if (i == colorCount - 1)
+                if (i == colorCount) {  // we're really at the dummyLast
                     curr = SK_Fixed1;
-                else
-                {
+                } else {
                     curr = SkScalarToFixed(pos[i]);
-                    // pin curr withing range
-                    if (curr < 0)
-                        curr = 0;
-                    else if (curr > SK_Fixed1)
-                        curr = SK_Fixed1;
                 }
-                recs[i].fPos = curr;
-                if (curr > prev)
-                    recs[i].fScale = (1 << 24) / (curr - prev);
-                else
-                    recs[i].fScale = 0; // ignore this segment
+                // pin curr withing range
+                if (curr < 0) {
+                    curr = 0;
+                } else if (curr > SK_Fixed1) {
+                    curr = SK_Fixed1;
+                }
+                recs->fPos = curr;
+                if (curr > prev) {
+                    recs->fScale = (1 << 24) / (curr - prev);
+                } else {
+                    recs->fScale = 0; // ignore this segment
+                }
                 // get ready for the next value
                 prev = curr;
+                recs += 1;
             }
-        }
-        else    // assume even distribution
-        {
+        } else {    // assume even distribution
             SkFixed dp = SK_Fixed1 / (colorCount - 1);
             SkFixed p = dp;
             SkFixed scale = (colorCount - 1) << 8;  // (1 << 24) / dp
-            for (int i = 1; i < colorCount; i++)
-            {
-                recs[i].fPos   = p;
-                recs[i].fScale = scale;
+            for (int i = 1; i < colorCount; i++) {
+                recs->fPos   = p;
+                recs->fScale = scale;
+                recs += 1;
                 p += dp;
             }
         }
@@ -250,8 +277,7 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[], i
 }
 
 Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
-    INHERITED(buffer)
-{
+    INHERITED(buffer) {
     fCacheAlpha = 256;
 
     fMapper = static_cast<SkUnitMapper*>(buffer.readFlattenable());
@@ -259,11 +285,13 @@ Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
     fCache16 = fCache16Storage = NULL;
     fCache32 = fCache32Storage = NULL;
 
-    int colorCount = fColorCount = buffer.readU16();
-    if (colorCount > kColorStorageCount)
-        fOrigColors = (SkColor*)sk_malloc_throw((sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec)) * colorCount);
-    else
+    int colorCount = fColorCount = buffer.readU32();
+    if (colorCount > kColorStorageCount) {
+        size_t size = sizeof(SkColor) + sizeof(SkPMColor) + sizeof(Rec);
+        fOrigColors = (SkColor*)sk_malloc_throw(size * colorCount);
+    } else {
         fOrigColors = fStorage;
+    }
     buffer.read(fOrigColors, colorCount * sizeof(SkColor));
     fARGB32 = fOrigColors + colorCount;
 
@@ -281,22 +309,23 @@ Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
     buffer.read(&fPtsToUnit, sizeof(SkMatrix));
 }
 
-Gradient_Shader::~Gradient_Shader()
-{
-    if (fCache16Storage)
+Gradient_Shader::~Gradient_Shader() {
+    if (fCache16Storage) {
         sk_free(fCache16Storage);
-    if (fCache32Storage)
+    }
+    if (fCache32Storage) {
         sk_free(fCache32Storage);
-    if (fOrigColors != fStorage)
+    }
+    if (fOrigColors != fStorage) {
         sk_free(fOrigColors);
+    }
     fMapper->safeUnref();
 }
 
-void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer)
-{
+void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);
     buffer.writeFlattenable(fMapper);
-    buffer.write16(fColorCount);
+    buffer.write32(fColorCount);
     buffer.writeMul4(fOrigColors, fColorCount * sizeof(SkColor));
     buffer.write8(fTileMode);
     if (fColorCount > 2) {
@@ -311,10 +340,10 @@ void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer)
 
 bool Gradient_Shader::setContext(const SkBitmap& device,
                                  const SkPaint& paint,
-                                 const SkMatrix& matrix)
-{
-    if (!this->INHERITED::setContext(device, paint, matrix))
+                                 const SkMatrix& matrix) {
+    if (!this->INHERITED::setContext(device, paint, matrix)) {
         return false;
+    }
 
     const SkMatrix& inverse = this->getTotalInverse();
 
@@ -329,7 +358,7 @@ bool Gradient_Shader::setContext(const SkBitmap& device,
     unsigned paintAlpha = this->getPaintAlpha();
     unsigned colorAlpha = 0xFF;
 
-    for (unsigned i = 0; i < fColorCount; i++) {
+    for (int i = 0; i < fColorCount; i++) {
         SkColor src = fOrigColors[i];
         unsigned sa = SkColorGetA(src);
         colorAlpha &= sa;
@@ -361,17 +390,15 @@ bool Gradient_Shader::setContext(const SkBitmap& device,
     return true;
 }
 
-static inline int blend8(int a, int b, int scale)
-{
+static inline int blend8(int a, int b, int scale) {
     SkASSERT(a == SkToU8(a));
     SkASSERT(b == SkToU8(b));
     SkASSERT(scale >= 0 && scale <= 256);
-
     return a + ((b - a) * scale >> 8);
 }
 
-static inline uint32_t dot8_blend_packed32(uint32_t s0, uint32_t s1, int blend)
-{
+static inline uint32_t dot8_blend_packed32(uint32_t s0, uint32_t s1,
+                                           int blend) {
 #if 0
     int a = blend8(SkGetPackedA32(s0), SkGetPackedA32(s1), blend);
     int r = blend8(SkGetPackedR32(s0), SkGetPackedR32(s1), blend);
@@ -397,11 +424,12 @@ static inline uint32_t dot8_blend_packed32(uint32_t s0, uint32_t s1, int blend)
 
 #define Fixed_To_Dot8(x)        (((x) + 0x80) >> 8)
 
-/** We take the original colors, not our premultiplied PMColors, since we can build a 16bit table
-    as long as the original colors are opaque, even if the paint specifies a non-opaque alpha.
+/** We take the original colors, not our premultiplied PMColors, since we can
+    build a 16bit table as long as the original colors are opaque, even if the
+    paint specifies a non-opaque alpha.
 */
-static void build_16bit_cache(uint16_t cache[], SkColor c0, SkColor c1, int count)
-{
+static void build_16bit_cache(uint16_t cache[], SkColor c0, SkColor c1,
+                              int count) {
     SkASSERT(count > 1);
     SkASSERT(SkColorGetA(c0) == 0xFF);
     SkASSERT(SkColorGetA(c1) == 0xFF);
@@ -431,8 +459,8 @@ static void build_16bit_cache(uint16_t cache[], SkColor c0, SkColor c1, int coun
     } while (--count != 0);
 }
 
-static void build_32bit_cache(SkPMColor cache[], SkPMColor c0, SkPMColor c1, int count)
-{
+static void build_32bit_cache(SkPMColor cache[], SkPMColor c0, SkPMColor c1,
+                              int count) {
     SkASSERT(count > 1);
 
     SkFixed a = SkGetPackedA32(c0);
@@ -459,22 +487,18 @@ static void build_32bit_cache(SkPMColor cache[], SkPMColor c0, SkPMColor c1, int
     } while (--count != 0);
 }
 
-static inline int SkFixedToFFFF(SkFixed x)
-{
+static inline int SkFixedToFFFF(SkFixed x) {
     SkASSERT((unsigned)x <= SK_Fixed1);
     return x - (x >> 16);
 }
 
-static inline U16CPU dot6to16(unsigned x)
-{
+static inline U16CPU dot6to16(unsigned x) {
     SkASSERT(x < 64);
     return (x << 10) | (x << 4) | (x >> 2);
 }
 
-const uint16_t* Gradient_Shader::getCache16()
-{
-    if (fCache16 == NULL)
-    {
+const uint16_t* Gradient_Shader::getCache16() {
+    if (fCache16 == NULL) {
         if (fCache16Storage == NULL) // set the storage and our working ptr
 #ifdef TEST_GRADIENT_DITHER
             fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count * 2);
@@ -482,14 +506,12 @@ const uint16_t* Gradient_Shader::getCache16()
             fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count);
 #endif
         fCache16 = fCache16Storage;
-        if (fColorCount == 2)
+        if (fColorCount == 2) {
             build_16bit_cache(fCache16, fOrigColors[0], fOrigColors[1], kCache16Count);
-        else
-        {
+        } else {
             Rec* rec = fRecs;
             int prevIndex = 0;
-            for (unsigned i = 1; i < fColorCount; i++)
-            {
+            for (int i = 1; i < fColorCount; i++) {
                 int nextIndex = SkFixedToFFFF(rec[i].fPos) >> (16 - kCache16Bits);
                 SkASSERT(nextIndex < kCache16Count);
 
@@ -500,8 +522,7 @@ const uint16_t* Gradient_Shader::getCache16()
             SkASSERT(prevIndex == kCache16Count - 1);
         }
 
-        if (fMapper)
-        {
+        if (fMapper) {
 #ifdef TEST_GRADIENT_DITHER
             fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count * 2);
 #else
@@ -510,8 +531,7 @@ const uint16_t* Gradient_Shader::getCache16()
             uint16_t* linear = fCache16;         // just computed linear data
             uint16_t* mapped = fCache16Storage;  // storage for mapped data
             SkUnitMapper* map = fMapper;
-            for (int i = 0; i < 64; i++)
-            {
+            for (int i = 0; i < 64; i++) {
                 int index = map->mapUnit16(dot6to16(i)) >> 10;
                 mapped[i] = linear[index];
 #ifdef TEST_GRADIENT_DITHER
@@ -525,22 +545,18 @@ const uint16_t* Gradient_Shader::getCache16()
     return fCache16;
 }
 
-const SkPMColor* Gradient_Shader::getCache32()
-{
-    if (fCache32 == NULL)
-    {
+const SkPMColor* Gradient_Shader::getCache32() {
+    if (fCache32 == NULL) {
         if (fCache32Storage == NULL) // set the storage and our working ptr
             fCache32Storage = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor) * kCache32Count);
 
         fCache32 = fCache32Storage;
-        if (fColorCount == 2)
+        if (fColorCount == 2) {
             build_32bit_cache(fCache32, fARGB32[0], fARGB32[1], kCache32Count);
-        else
-        {
+        } else {
             Rec* rec = fRecs;
             int prevIndex = 0;
-            for (unsigned i = 1; i < fColorCount; i++)
-            {
+            for (int i = 1; i < fColorCount; i++) {
                 int nextIndex = SkFixedToFFFF(rec[i].fPos) >> (16 - kCache32Bits);
                 SkASSERT(nextIndex < kCache32Count);
 
@@ -551,14 +567,14 @@ const SkPMColor* Gradient_Shader::getCache32()
             SkASSERT(prevIndex == kCache32Count - 1);
         }
 
-        if (fMapper)
-        {
+        if (fMapper) {
             fCache32Storage = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor) * kCache32Count);
             SkPMColor* linear = fCache32;           // just computed linear data
             SkPMColor* mapped = fCache32Storage;    // storage for mapped data
             SkUnitMapper* map = fMapper;
-            for (int i = 0; i < 256; i++)
+            for (int i = 0; i < 256; i++) {
                 mapped[i] = linear[map->mapUnit16((i << 8) | i) >> 8];
+            }
             sk_free(fCache32);
             fCache32 = fCache32Storage;
         }
@@ -568,8 +584,7 @@ const SkPMColor* Gradient_Shader::getCache32()
 
 ///////////////////////////////////////////////////////////////////////////
 
-static void pts_to_unit_matrix(const SkPoint pts[2], SkMatrix* matrix)
-{
+static void pts_to_unit_matrix(const SkPoint pts[2], SkMatrix* matrix) {
     SkVector    vec = pts[1] - pts[0];
     SkScalar    mag = vec.length();
     SkScalar    inv = mag ? SkScalarInvert(mag) : 0;
@@ -1522,6 +1537,13 @@ SkShader* SkGradientShader::CreateLinear(   const SkPoint pts[2],
         return NULL;
     }
     EXPAND_1_COLOR(colorCount);
+
+    SkScalar posStorage[2];
+    if (colorCount == 2 && pos == NULL) {
+        posStorage[0] = SK_Scalar1/4;
+        posStorage[1] = 3*SK_Scalar1/4;
+        pos = posStorage;
+    }
 
     return SkNEW_ARGS(Linear_Gradient, (pts, colors, pos, colorCount, mode, mapper));
 }
