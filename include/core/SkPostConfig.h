@@ -94,9 +94,17 @@
 #endif
 
 #ifdef SK_BUILD_FOR_WIN
-    #define WIN32_LEAN_AND_MEAN
+    // we want lean_and_mean when we include windows.h
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+        #define WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
+    #endif
+
     #include <windows.h>
-    #undef WIN32_LEAN_AND_MEAN
+
+    #ifdef WIN32_IS_MEAN_WAS_LOCALLY_DEFINED
+        #undef WIN32_LEAN_AND_MEAN
+    #endif
 
     #ifndef SK_DEBUGBREAK
         #define SK_DEBUGBREAK(cond)     do { if (!(cond)) DebugBreak(); } while (false)
