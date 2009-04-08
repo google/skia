@@ -2,7 +2,7 @@
 
 # setup our defaults
 CC := gcc
-C_INCLUDES := -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
+C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
 CFLAGS := -Wall # -O2 
 LINKER_OPTS := -lpthread
 DEFINES := -DSK_CAN_USE_FLOAT
