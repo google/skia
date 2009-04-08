@@ -483,3 +483,91 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
     tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+struct SkSFNTHeader {
+    uint32_t    fVersion;
+    uint16_t    fNumTables;
+    uint16_t    fSearchRange;
+    uint16_t    fEntrySelector;
+    uint16_t    fRangeShift;
+};
+
+struct SkSFNTDirEntry {
+    uint32_t    fTag;
+    uint32_t    fChecksum;
+    uint32_t    fOffset;
+    uint32_t    fLength;
+};
+
+struct SfntHeader {
+    SfntHeader(SkFontID fontID, bool needDir) : fCount(0), fData(NULL) {
+        ByteCount size;
+        if (ATSFontGetTableDirectory(fontID, 0, NULL, &size)) {
+            return;
+        }
+        
+        SkAutoMalloc storage(size);
+        SkSFNTHeader* header = reinterpret_cast<SkSFNTHeader*>(storage.get());
+        if (ATSFontGetTableDirectory(fontID, size, header, &size)) {
+            return;
+        }
+        
+        fCount = SkEndian_SwapBE16(header->fNumTables);
+        fData = header;
+        storage.detach();
+    }
+    
+    ~SfntHeader() {
+        sk_free(fData);
+    }
+    
+    int count() const { return fCount; }
+    const SkSFNTDirEntry* entries() const {
+        return reinterpret_cast<const SkSFNTDirEntry*>
+            (reinterpret_cast<char*>(fData) + sizeof(SkSFNTHeader));
+    }
+    
+private:
+    int     fCount;
+    void*   fData;
+};
+        
+int SkFontHost::CountTables(SkFontID fontID) {
+    SfntHeader header(fontID, false);
+    return header.count();
+}
+
+int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
+    SfntHeader header(fontID, true);
+    int count = header.count();
+    const SkSFNTDirEntry* entry = header.entries();
+    for (int i = 0; i < count; i++) {
+        tags[i] = SkEndian_SwapBE32(entry[i].fTag);
+    }
+    return count;
+}
+
+size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
+    ByteCount size;
+    if (ATSFontGetTable(fontID, tag, 0, 0, NULL, &size)) {
+        return 0;
+    }
+    return size;
+}
+
+size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
+                                size_t offset, size_t length, void* data) {
+    ByteCount size;
+    if (ATSFontGetTable(fontID, tag, offset, length, data, &size)) {
+        return 0;
+    }
+    if (offset >= size) {
+        return 0;
+    }
+    if (offset + length > size) {
+        length = size - offset;
+    }
+    return length;
+}
+

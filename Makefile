@@ -78,7 +78,7 @@ BENCH_SRCS += src/effects/SkNWayCanvas.cpp
 
 # add any optional codecs for this app
 ifeq ($(SKIA_BUILD_FOR),mac)
-#    BENCH_SRCS += bench/TextBench.cpp
+    BENCH_SRCS += bench/TextBench.cpp
 else
     BENCH_SRCS += src/images/SkImageDecoder_libpng.cpp
 endif

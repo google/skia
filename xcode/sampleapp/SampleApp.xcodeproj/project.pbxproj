@@ -167,6 +167,7 @@
 		0041CE310F00A12400695E8C /* SampleNinePatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleNinePatch.cpp; path = ../../samplecode/SampleNinePatch.cpp; sourceTree = SOURCE_ROOT; };
 		0041CE320F00A12400695E8C /* SampleOverflow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleOverflow.cpp; path = ../../samplecode/SampleOverflow.cpp; sourceTree = SOURCE_ROOT; };
 		0041CE340F00A12400695E8C /* SamplePatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePatch.cpp; path = ../../samplecode/SamplePatch.cpp; sourceTree = SOURCE_ROOT; };
+		0053528A0F8C4DFF00EE34B6 /* SkFontHost_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_tables.cpp; path = ../../src/ports/SkFontHost_tables.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CA40F01658C00A2D6EE /* SamplePicture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePicture.cpp; path = ../../samplecode/SamplePicture.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePoints.cpp; path = ../../samplecode/SamplePoints.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleRegion.cpp; path = ../../samplecode/SampleRegion.cpp; sourceTree = SOURCE_ROOT; };
@@ -334,6 +335,7 @@
 				002884490EFAA35C0083E387 /* core.xcodeproj */,
 				002884B40EFAB69F0083E387 /* maccore.xcodeproj */,
 				00003C8C0EFC230E000FF73A /* effects.xcodeproj */,
+				0053528A0F8C4DFF00EE34B6 /* SkFontHost_tables.cpp */,
 			);
 			name = CICarbonSample;
 			sourceTree = "<group>";
