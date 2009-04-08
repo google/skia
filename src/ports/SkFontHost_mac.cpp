@@ -166,8 +166,17 @@ SkScalerContext_Mac::~SkScalerContext_Mac() {
     ::ATSUDisposeStyle(fStyle);
 }
 
+// man, we need to consider caching this, since it is just dependent on
+// fFontID, and not on any of the other settings like matrix or flags
 unsigned SkScalerContext_Mac::generateGlyphCount() const {
-    return 0xFFFF;
+    // The 'maxp' table stores the number of glyphs a offset 4, in 2 bytes
+    uint16_t numGlyphs;
+    if (SkFontHost::GetTableData(fRec.fFontID,
+                                 SkSetFourByteTag('m', 'a', 'x', 'p'),
+                                 4, 2, &numGlyphs) != 2) {
+        return 0xFFFF;
+    }
+    return SkEndian_SwapBE16(numGlyphs);
 }
 
 uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni)
