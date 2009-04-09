@@ -48,7 +48,11 @@ namespace skiatest {
         void reportFailed(const SkString& desc) {
             this->report(desc.c_str(), kFailed);
         }
-
+        
+        bool getCurrSuccess() const {
+            return fCurrTestSuccess;
+        }
+        
     protected:
         virtual void onStart(Test*) {}
         virtual void onReport(const char desc[], Result) {}
@@ -58,6 +62,7 @@ namespace skiatest {
         Test* fCurrTest;
         int fTestCount;
         int fResultCount[kLastResult+1];
+        bool fCurrTestSuccess;
 
         typedef SkRefCnt INHERITED;
     };
@@ -71,7 +76,7 @@ namespace skiatest {
         void setReporter(Reporter*);
 
         const char* getName();
-        void run();
+        bool run(); // returns true on success
 
     protected:
         virtual void onGetName(SkString*) = 0;

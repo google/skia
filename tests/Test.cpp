@@ -17,6 +17,7 @@ void Reporter::startTest(Test* test) {
     fCurrTest = test;
     this->onStart(test);
     fTestCount += 1;
+    fCurrTestSuccess = true;    // we're optimistic
 }
 
 void Reporter::report(const char desc[], Result result) {
@@ -25,6 +26,9 @@ void Reporter::report(const char desc[], Result result) {
     }
     this->onReport(desc, result);
     fResultCount[result] += 1;
+    if (kFailed == result) {
+        fCurrTestSuccess = false;
+    }
 }
 
 void Reporter::endTest(Test* test) {
@@ -52,9 +56,10 @@ const char* Test::getName() {
     return fName.c_str();
 }
 
-void Test::run() {
+bool Test::run() {
     fReporter->startTest(this);
     this->onRun(fReporter);
     fReporter->endTest(this);
+    return fReporter->getCurrSuccess();
 }
 

@@ -49,20 +49,50 @@ static const char* result2string(Reporter::Result result) {
 
 class DebugfReporter : public Reporter {
 public:
+    DebugfReporter(bool androidMode) : fAndroidMode(androidMode) {}
+
     void setIndexOfTotal(int index, int total) {
         fIndex = index;
         fTotal = total;
     }
 protected:
     virtual void onStart(Test* test) {
-        SkDebugf("Running [%d/%d] %s...\n", fIndex+1, fTotal, test->getName());
+        this->dumpState(test, kStarting_State);
     }
     virtual void onReport(const char desc[], Reporter::Result result) {
-        SkDebugf("\t%s: %s\n", result2string(result), desc);
+        if (!fAndroidMode) {
+            SkDebugf("\t%s: %s\n", result2string(result), desc);
+        }
     }
-    virtual void onEnd(Test* test) {}
+    virtual void onEnd(Test* test) {
+        this->dumpState(test, this->getCurrSuccess() ?
+                        kSucceeded_State : kFailed_State);
+    }
 private:
+    enum State {
+        kStarting_State = 1,
+        kSucceeded_State = 0,
+        kFailed_State = -2
+    };
+
+    void dumpState(Test* test, State state) {
+        if (fAndroidMode) {
+            SkDebugf("INSTRUMENTATION_STATUS: test=%s\n", test->getName());
+            SkDebugf("INSTRUMENTATION_STATUS: class=com.skia\n");
+            SkDebugf("INSTRUMENTATION_STATUS: current=%d\n", fIndex+1);
+            SkDebugf("INSTRUMENTATION_STATUS: numtests=%d\n", fTotal);
+            SkDebugf("INSTRUMENTATION_STATUS_CODE: %d\n", state);
+        } else {
+            if (kStarting_State == state) {
+                SkDebugf("[%d/%d] %s...\n", fIndex+1, fTotal, test->getName());
+            } else if (kFailed_State == state) {
+                SkDebugf("---- FAILED\n");
+            }
+        }
+    }
+
     int fIndex, fTotal;
+    bool fAndroidMode;
 };
 
 class SkAutoGraphics {
@@ -77,28 +107,31 @@ public:
 
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
+    
+    bool androidMode = false;
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "-android")) {
+            androidMode = true;
+        }
+    }
 
-    DebugfReporter reporter;
+    DebugfReporter reporter(androidMode);
     Iter iter(&reporter);
     Test* test;
 
     const int count = Iter::Count();
     int index = 0;
+    int successCount = 0;
     while ((test = iter.next()) != NULL) {
         reporter.setIndexOfTotal(index, count);
-        test->run();
+        successCount += test->run();
         SkDELETE(test);
         index += 1;
     }
-    SkDebugf("Finished %d tests.\n", count);
 
-#if 0
-    int total = reporter.countTests();
-    int passed = reporter.countResults(Reporter::kPassed);
-    int failed = reporter.countResults(Reporter::kFailed);
-    SkDebugf("Tests=%d Passed=%d (%g%%) Failed=%d (%g%%)\n", total,
-           passed, passed * 100.f / total,
-           failed, failed * 100.f / total);
-#endif
+    if (!androidMode) {
+        SkDebugf("Finished %d tests, %d failures.\n", count,
+                 count - successCount);
+    }
     return 0;
 }
