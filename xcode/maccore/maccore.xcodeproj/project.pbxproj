@@ -200,7 +200,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/images ../../include/utils/mac ../../include/ports ../../include/core";
+				USER_HEADER_SEARCH_PATHS = "../../include//**";
 			};
 			name = Debug;
 		};
@@ -222,7 +222,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/images ../../include/utils/mac ../../include/ports ../../include/core";
+				USER_HEADER_SEARCH_PATHS = "../../include//**";
 			};
 			name = Release;
 		};

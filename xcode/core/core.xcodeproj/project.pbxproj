@@ -648,7 +648,7 @@
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				USER_HEADER_SEARCH_PATHS = ../../include/core;
+				USER_HEADER_SEARCH_PATHS = "../../include/config ../../include/core";
 			};
 			name = Debug;
 		};
@@ -688,7 +688,7 @@
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				USER_HEADER_SEARCH_PATHS = ../../include/core;
+				USER_HEADER_SEARCH_PATHS = "../../include/config ../../include/core";
 			};
 			name = Release;
 		};
