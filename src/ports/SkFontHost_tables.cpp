@@ -51,7 +51,10 @@ static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
         if (offsetToDir) {
             *offsetToDir = offset;
         }
+    } else {
+        *offsetToDir = 0;
     }
+
     return SkEndian_SwapBE16(shared.fSingle.fNumTables);
 }
 
@@ -60,7 +63,7 @@ static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
 struct SfntHeader {
     SfntHeader() : fCount(0), fDir(NULL) {}
     ~SfntHeader() { sk_free(fDir); }
-    
+
     bool init(SkStream* stream) {
         size_t offsetToDir;
         fCount = count_tables(stream, &offsetToDir);
@@ -69,7 +72,8 @@ struct SfntHeader {
         }
 
         stream->rewind();
-        if (stream->skip(offsetToDir) != offsetToDir) {
+        const size_t tableRecordOffset = offsetToDir + sizeof(SkSFNTHeader);
+        if (stream->skip(tableRecordOffset) != tableRecordOffset) {
             return false;
         }
 
@@ -77,7 +81,7 @@ struct SfntHeader {
         fDir = reinterpret_cast<SkSFNTDirEntry*>(sk_malloc_throw(size));
         return stream->read(fDir, size) == size;
     }
-    
+
     int             fCount;
     SkSFNTDirEntry* fDir;
 };
@@ -99,13 +103,13 @@ int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[]) {
     if (NULL == stream) {
         return 0;
     }
-    
+
     SkAutoUnref au(stream);
     SfntHeader  header;
     if (!header.init(stream)) {
         return 0;
     }
-    
+
     for (int i = 0; i < header.fCount; i++) {
         tags[i] = SkEndian_SwapBE32(header.fDir[i].fTag);
     }
@@ -117,7 +121,7 @@ size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag) {
     if (NULL == stream) {
         return 0;
     }
-    
+
     SkAutoUnref au(stream);
     SfntHeader  header;
     if (!header.init(stream)) {
@@ -138,7 +142,7 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
     if (NULL == stream) {
         return 0;
     }
-    
+
     SkAutoUnref au(stream);
     SfntHeader  header;
     if (!header.init(stream)) {
@@ -151,6 +155,12 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
             size_t realLength = SkEndian_SwapBE32(header.fDir[i].fLength);
             // now sanity check the caller's offset/length
             if (offset >= realLength) {
+                return 0;
+            }
+            // if the caller is trusting the length from the file, then a
+            // hostile file might choose a value which would overflow offset +
+            // length.
+            if (offset + length < offset) {
                 return 0;
             }
             if (offset + length > realLength) {
