@@ -39,7 +39,7 @@ static void test_srcover_hack(skiatest::Reporter* reporter) {
              opaqueCounter0, opaqueCounter1, opaqueCounter2);
 #endif
     // we acknowledge that technique0 does not always return opaque
-    REPORTER_ASSERT(reporter, opaqueCounter0 == 129);
+    REPORTER_ASSERT(reporter, opaqueCounter0 == 256);
     REPORTER_ASSERT(reporter, opaqueCounter1 == 256);
     REPORTER_ASSERT(reporter, opaqueCounter2 == 256);
 

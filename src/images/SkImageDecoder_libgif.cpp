@@ -171,6 +171,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm,
     int width, height;
     GifRecordType recType;
     GifByteType *extData;
+    int transpIndex = -1;   // -1 means we don't have it (yet)
     
     do {
         if (DGifGetRecordType(gif, &recType) == GIF_ERROR) {
@@ -226,7 +227,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm,
                                                    cmap->Colors[index].Green,
                                                    cmap->Colors[index].Blue);
 
-                int transpIndex = find_transpIndex(temp_save, colorCount);
+                transpIndex = find_transpIndex(temp_save, colorCount);
                 if (transpIndex < 0)
                     ctable->setFlags(ctable->getFlags() | SkColorTable::kColorsAreOpaque_Flag);
                 else
@@ -257,12 +258,18 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm,
             if ((desc.Top | desc.Left) > 0 ||
                  innerWidth < width || innerHeight < height)
             {
-                uint8_t fill = (uint8_t)gif->SBackGroundColor;
+                int fill;
+                if (transpIndex >= 0) {
+                    fill = transpIndex;
+                } else {
+                    fill = gif->SBackGroundColor;
+                }
                 // check for valid fill index/color
-                if (fill >= (unsigned)colorCount) {
+                if (static_cast<unsigned>(fill) >=
+                        static_cast<unsigned>(colorCount)) {
                     fill = 0;
                 }
-                memset(scanline, gif->SBackGroundColor, bm->getSize());
+                memset(scanline, fill, bm->getSize());
                 // bump our starting address
                 scanline += desc.Top * rowBytes + desc.Left;
             }

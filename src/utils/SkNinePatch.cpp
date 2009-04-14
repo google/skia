@@ -186,7 +186,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
     if (numXDivs == 2 && numYDivs <= 2) {
         mesh.fIndices = g3x3Indices;
     } else {
-        int n = fillIndices(indices, numXDivs + 1, numYDivs + 1);
+        SkDEBUGCODE(int n =) fillIndices(indices, numXDivs + 1, numYDivs + 1);
         SkASSERT(n == indexCount);
         mesh.fIndices = indices;
     }

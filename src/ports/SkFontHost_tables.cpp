@@ -29,18 +29,30 @@ struct SkSFNTDirEntry {
     uint32_t    fLength;
 };
 
+/** Return the number of tables, or if this is a TTC (collection), return the
+    number of tables in the first element of the collection. In either case,
+    if offsetToDir is not-null, set it to the offset to the beginning of the
+    table headers (SkSFNTDirEntry), relative to the start of the stream.
+ 
+    On an error, return 0 for number of tables, and ignore offsetToDir
+ */
 static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
     SkSharedTTHeader shared;
     if (stream->read(&shared, sizeof(shared)) != sizeof(shared)) {
         return 0;
     }
 
+    // by default, SkSFNTHeader is at the start of the stream
+    size_t offset = 0;
+    
+    // if we're really a collection, the first 4-bytes will be 'ttcf'
     uint32_t tag = SkEndian_SwapBE32(shared.fCollection.fTag);
     if (SkSetFourByteTag('t', 't', 'c', 'f') == tag) {
         if (shared.fCollection.fNumOffsets == 0) {
             return 0;
         }
-        size_t offset = SkEndian_SwapBE32(shared.fCollection.fOffset0);
+        // this is the offset to the first local SkSFNTHeader
+        offset = SkEndian_SwapBE32(shared.fCollection.fOffset0);
         stream->rewind();
         if (stream->skip(offset) != offset) {
             return 0;
@@ -48,13 +60,12 @@ static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
         if (stream->read(&shared, sizeof(shared)) != sizeof(shared)) {
             return 0;
         }
-        if (offsetToDir) {
-            *offsetToDir = offset;
-        }
-    } else {
-        *offsetToDir = 0;
     }
-
+    
+    if (offsetToDir) {
+        // add the size of the header, so we will point to the DirEntries
+        *offsetToDir = offset + sizeof(SkSFNTDirEntry);
+    }
     return SkEndian_SwapBE16(shared.fSingle.fNumTables);
 }
 
@@ -64,6 +75,12 @@ struct SfntHeader {
     SfntHeader() : fCount(0), fDir(NULL) {}
     ~SfntHeader() { sk_free(fDir); }
 
+    /** If it returns true, then fCount and fDir are properly initialized.
+        Note: fDir will point to the raw array of SkSFNTDirEntry values,
+        meaning they will still be in the file's native endianness (BE).
+     
+        fDir will be automatically freed when this object is destroyed
+     */
     bool init(SkStream* stream) {
         size_t offsetToDir;
         fCount = count_tables(stream, &offsetToDir);
@@ -72,8 +89,7 @@ struct SfntHeader {
         }
 
         stream->rewind();
-        const size_t tableRecordOffset = offsetToDir + sizeof(SkSFNTHeader);
-        if (stream->skip(tableRecordOffset) != tableRecordOffset) {
+        if (stream->skip(offsetToDir) != offsetToDir) {
             return false;
         }
 

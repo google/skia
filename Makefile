@@ -36,6 +36,13 @@ SRC_LIST += $(addprefix src/effects/, $(SOURCE))
 include src/images/images_files.mk
 SRC_LIST += $(addprefix src/images/, $(SOURCE))
 
+# core util files
+include src/utils/utils_files.mk
+SRC_LIST += $(addprefix src/utils/, $(SOURCE))
+
+# extra files we want to build to prevent bit-rot, but not link
+JUST_COMPILE_LIST := src/ports/SkFontHost_tables.cpp
+
 # conditional files based on our platform
 ifeq ($(SKIA_BUILD_FOR),mac)
 	LINKER_OPTS += -framework Carbon
@@ -65,7 +72,11 @@ out/%.o : %.cpp
 OBJ_LIST := $(SRC_LIST:.cpp=.o)
 OBJ_LIST := $(addprefix out/, $(OBJ_LIST))
 
-out/libskia.a: Makefile $(OBJ_LIST)
+# we want to compile these, but we don't actually link them
+JUST_COMPILE_OBJS := $(JUST_COMPILE_LIST:.cpp=.o)
+JUST_COMPILE_OBJS := $(addprefix out/, $(JUST_COMPILE_OBJS))
+
+out/libskia.a: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 	$(HIDE)$(AR) ru $@ $(OBJ_LIST)
 	$(HIDE)ranlib $@
 
