@@ -33,7 +33,7 @@ struct SkSFNTDirEntry {
     number of tables in the first element of the collection. In either case,
     if offsetToDir is not-null, set it to the offset to the beginning of the
     table headers (SkSFNTDirEntry), relative to the start of the stream.
- 
+
     On an error, return 0 for number of tables, and ignore offsetToDir
  */
 static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
@@ -44,7 +44,7 @@ static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
 
     // by default, SkSFNTHeader is at the start of the stream
     size_t offset = 0;
-    
+
     // if we're really a collection, the first 4-bytes will be 'ttcf'
     uint32_t tag = SkEndian_SwapBE32(shared.fCollection.fTag);
     if (SkSetFourByteTag('t', 't', 'c', 'f') == tag) {
@@ -61,7 +61,7 @@ static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
             return 0;
         }
     }
-    
+
     if (offsetToDir) {
         // add the size of the header, so we will point to the DirEntries
         *offsetToDir = offset + sizeof(SkSFNTDirEntry);
@@ -78,7 +78,7 @@ struct SfntHeader {
     /** If it returns true, then fCount and fDir are properly initialized.
         Note: fDir will point to the raw array of SkSFNTDirEntry values,
         meaning they will still be in the file's native endianness (BE).
-     
+
         fDir will be automatically freed when this object is destroyed
      */
     bool init(SkStream* stream) {
