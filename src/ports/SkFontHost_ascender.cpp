@@ -190,6 +190,12 @@ void SkScalerContext_Ascender::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         mx->fDescent = SkIntToScalar(4);
         mx->fBottom = SkIntToScalar(4);
         mx->fLeading = 0;
+
+        // FIXME:
+        mx->fAvgCharWidth = 0;
+        mx->fXMin = 0;
+        mx->fXMax = 0;
+        mx->fXHeight = 0;
     }
     if (my)
     {
@@ -198,6 +204,12 @@ void SkScalerContext_Ascender::generateFontMetrics(SkPaint::FontMetrics* mx, SkP
         my->fDescent = SkIntToScalar(4);
         my->fBottom = SkIntToScalar(4);
         my->fLeading = 0;
+
+        // FIXME:
+        my->fAvgCharWidth = 0;
+        my->fXMin = 0;
+        my->fXMax = 0;
+        my->fXHeight = 0;
     }
 }
 

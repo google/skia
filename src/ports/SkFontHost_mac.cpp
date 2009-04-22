@@ -244,6 +244,12 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     glyph->fHeight = screenMetrics.height + 2;
     glyph->fLeft = sk_float_round2int(screenMetrics.topLeft.x) - 1;
     glyph->fTop = -sk_float_round2int(screenMetrics.topLeft.y) - 1;
+
+    // FIXME:
+    mx->fAvgCharWidth = 0;
+    mx->fXMin = 0;
+    mx->fXMax = 0;
+    mx->fXHeight = 0;
 }
 
 void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)

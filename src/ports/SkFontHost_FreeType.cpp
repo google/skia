@@ -31,8 +31,18 @@
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
 #include FT_SIZES_H
+#include FT_TRUETYPE_TABLES_H
 #ifdef   FT_ADVANCES_H
 #include FT_ADVANCES_H
+#endif
+
+#if 0
+// Also include the files by name for build tools which require this.
+#include <freetype/freetype.h>
+#include <freetype/ftoutln.h>
+#include <freetype/ftsizes.h>
+#include <freetype/tttables.h>
+#include <freetype/ftadvanc.h>
 #endif
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
@@ -63,7 +73,7 @@ class SkScalerContext_FreeType : public SkScalerContext {
 public:
     SkScalerContext_FreeType(const SkDescriptor* desc);
     virtual ~SkScalerContext_FreeType();
-    
+
     bool success() const {
         return fFaceRec != NULL && fFTSize != NULL;
     }
@@ -307,8 +317,13 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
             render_flags = FT_LOAD_TARGET_LIGHT;
             break;
         case kNormal_Hints:
-            flags |= FT_LOAD_FORCE_AUTOHINT;
 #ifdef ANDROID
+            // The following line disables the font's hinting tables. For
+            // Chromium we want font hinting on so that we can generate
+            // baselines that look at little like Firefox. It's expected that
+            // Mike Reed will rework this code sometime soon so we don't wish
+            // to make more extensive changes.
+            flags |= FT_LOAD_FORCE_AUTOHINT;
             /*  Switch to light hinting (vertical only) to address some chars
                 that behaved poorly with NORMAL. In the future we could consider
                 making this choice exposed at runtime to the caller.
@@ -600,16 +615,40 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
 
             const uint8_t*  src = (const uint8_t*)fFace->glyph->bitmap.buffer;
             uint8_t*        dst = (uint8_t*)glyph.fImage;
-            unsigned    srcRowBytes = fFace->glyph->bitmap.pitch;
-            unsigned    dstRowBytes = glyph.rowBytes();
-            unsigned    minRowBytes = SkMin32(srcRowBytes, dstRowBytes);
-            unsigned    extraRowBytes = dstRowBytes - minRowBytes;
 
-            for (int y = fFace->glyph->bitmap.rows - 1; y >= 0; --y) {
-                memcpy(dst, src, minRowBytes);
-                memset(dst + minRowBytes, 0, extraRowBytes);
-                src += srcRowBytes;
-                dst += dstRowBytes;
+            if (fFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_GRAY) {
+                unsigned    srcRowBytes = fFace->glyph->bitmap.pitch;
+                unsigned    dstRowBytes = glyph.rowBytes();
+                unsigned    minRowBytes = SkMin32(srcRowBytes, dstRowBytes);
+                unsigned    extraRowBytes = dstRowBytes - minRowBytes;
+
+                for (int y = fFace->glyph->bitmap.rows - 1; y >= 0; --y) {
+                    memcpy(dst, src, minRowBytes);
+                    memset(dst + minRowBytes, 0, extraRowBytes);
+                    src += srcRowBytes;
+                    dst += dstRowBytes;
+                }
+            } else if (fFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_MONO) {
+                for (int y = 0; y < fFace->glyph->bitmap.rows; ++y) {
+                    uint8_t byte = 0;
+                    int bits = 0;
+                    const uint8_t* src_row = src;
+                    uint8_t* dst_row = dst;
+
+                    for (int x = 0; x < fFace->glyph->bitmap.width; ++x) {
+                        if (!bits) {
+                            byte = *src_row++;
+                            bits = 8;
+                        }
+
+                        *dst_row++ = byte & 0x80 ? 0xff : 0;
+                        bits--;
+                        byte <<= 1;
+                    }
+
+                    src += fFace->glyph->bitmap.pitch;
+                    dst += glyph.rowBytes();
+                }
             }
         } break;
 
@@ -720,27 +759,49 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         return;
     }
 
-    SkPoint pts[5];
-    SkFixed ys[5];
+    SkPoint pts[6];
+    SkFixed ys[6];
     FT_Face face = fFace;
     int     upem = face->units_per_EM;
     SkFixed scaleY = fScaleY;
     SkFixed mxy = fMatrix22.xy;
     SkFixed myy = fMatrix22.yy;
+    SkScalar xmin = SkIntToScalar(face->bbox.xMin) / upem;
+    SkScalar xmax = SkIntToScalar(face->bbox.xMax) / upem;
 
-    int leading = face->height - face->ascender + face->descender;
+    int leading = face->height - (face->ascender + -face->descender);
     if (leading < 0) {
         leading = 0;
     }
+
+    // Try to get the OS/2 table from the font. This contains the specific
+    // average font width metrics which Windows uses.
+    TT_OS2* os2 = (TT_OS2*) FT_Get_Sfnt_Table(face, ft_sfnt_os2);
 
     ys[0] = -face->bbox.yMax;
     ys[1] = -face->ascender;
     ys[2] = -face->descender;
     ys[3] = -face->bbox.yMin;
     ys[4] = leading;
+    ys[5] = os2 ? os2->xAvgCharWidth : 0;
+
+    SkScalar x_height;
+    if (os2 && os2->sxHeight) {
+        x_height = SkFixedToScalar(SkMulDiv(fScaleX, os2->sxHeight, upem));
+    } else {
+        const FT_UInt x_glyph = FT_Get_Char_Index(fFace, 'x');
+        if (x_glyph) {
+            FT_BBox bbox;
+            FT_Load_Glyph(fFace, x_glyph, fLoadGlyphFlags);
+            FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
+            x_height = SkIntToScalar(bbox.yMax) / 64;
+        } else {
+            x_height = 0;
+        }
+    }
 
     // convert upem-y values into scalar points
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 6; i++) {
         SkFixed y = SkMulDiv(scaleY, ys[i], upem);
         SkFixed x = SkFixedMul(mxy, y);
         y = SkFixedMul(myy, y);
@@ -753,6 +814,10 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         mx->fDescent = pts[2].fX;
         mx->fBottom = pts[3].fX;
         mx->fLeading = pts[4].fX;
+        mx->fAvgCharWidth = pts[5].fX;
+        mx->fXMin = xmin;
+        mx->fXMax = xmax;
+        mx->fXHeight = x_height;
     }
     if (my) {
         my->fTop = pts[0].fY;
@@ -760,6 +825,10 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         my->fDescent = pts[2].fY;
         my->fBottom = pts[3].fY;
         my->fLeading = pts[4].fY;
+        my->fAvgCharWidth = pts[5].fY;
+        my->fXMin = xmin;
+        my->fXMax = xmax;
+        my->fXHeight = x_height;
     }
 }
 

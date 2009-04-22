@@ -623,6 +623,10 @@ public:
         SkScalar    fDescent;   //!< The recommended distance below the baseline (will be >= 0)
         SkScalar    fBottom;    //!< The greatest distance below the baseline for any glyph (will be >= 0)
         SkScalar    fLeading;   //!< The recommended distance to add between lines of text (will be >= 0)
+        SkScalar    fAvgCharWidth;  //!< the average charactor width (>= 0)
+        SkScalar    fXMin;      //!< The minimum bounding box x value for all glyphs
+        SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
+        SkScalar    fXHeight;   //!< the height of an 'x' in px, or 0 if no 'x' in face
     };
     
     /** Return the recommend spacing between lines (which will be
