@@ -123,6 +123,19 @@ tests: $(TESTS_OBJS) out/libskia.a
 	
 ##############################################################################
 
+SKIMAGE_SRCS := skimage_main.cpp
+
+SKIMAGE_SRCS := $(addprefix tools/, $(SKIMAGE_SRCS))
+
+SKIMAGE_OBJS := $(SKIMAGE_SRCS:.cpp=.o)
+SKIMAGE_OBJS := $(addprefix out/, $(SKIMAGE_OBJS))
+
+skimage: $(SKIMAGE_OBJS) out/libskia.a
+	@echo "linking skimage..."
+	$(HIDE)g++ $(SKIMAGE_OBJS) out/libskia.a -o out/tools/skimage $(LINKER_OPTS)
+
+##############################################################################
+
 .PHONY: clean
 clean:
 	$(HIDE)rm -rf out
@@ -132,6 +145,7 @@ help:
 	@echo "Targets:"
 	@echo "    <default>: out/libskia.a"
 	@echo "    bench: out/bench/bench"
+	@echo "    skimage: out/tools/skimage"
 	@echo "    tests: out/tests/tests"
 	@echo "    clean: removes entire out/ directory"
 	@echo "    help: this text"
