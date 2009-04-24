@@ -15,19 +15,30 @@
 ** limitations under the License.
 */
 
+#include "Sk64.h"
 #include "SkMask.h"
 
-size_t SkMask::computeImageSize() const
-{
-    return fBounds.height() * fRowBytes;
+/** returns the product if it is positive and fits in 31 bits. Otherwise this
+    returns 0.
+ */
+static int32_t safeMul32(int32_t a, int32_t b) {
+    Sk64 size;
+    size.setMul(a, b);
+    if (size.is32() && size.isPos()) {
+        return size.get32();
+    }
+    return 0;
 }
 
-size_t SkMask::computeTotalImageSize() const
-{
-    size_t size = this->computeImageSize();
+size_t SkMask::computeImageSize() const {
+    return safeMul32(fBounds.height(), fRowBytes);
+}
 
-    if (fFormat == SkMask::k3D_Format)
-        size *= 3;
+size_t SkMask::computeTotalImageSize() const {
+    size_t size = this->computeImageSize();
+    if (fFormat == SkMask::k3D_Format) {
+        size = safeMul32(size, 3);
+    }
     return size;
 }
 

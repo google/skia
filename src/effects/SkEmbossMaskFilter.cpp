@@ -88,7 +88,9 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src, const SkMatr
     {
         uint8_t* alphaPlane = dst->fImage;
         size_t   planeSize = dst->computeImageSize();
-
+        if (0 == planeSize) {
+            return false;   // too big to allocate, abort
+        }
         dst->fImage = SkMask::AllocImage(planeSize * 3);
         memcpy(dst->fImage, alphaPlane, planeSize);
         SkMask::FreeImage(alphaPlane);

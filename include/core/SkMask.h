@@ -40,13 +40,19 @@ struct SkMask {
     uint32_t    fRowBytes;
     Format      fFormat;
 
+    /** Returns true if the mask is empty: i.e. it has an empty bounds.
+     */
+    bool isEmpty() const { return fBounds.isEmpty(); }
+
     /** Return the byte size of the mask, assuming only 1 plane.
-        Does not account for k3D_Format. For that, use computeFormatImageSize()
+        Does not account for k3D_Format. For that, use computeTotalImageSize().
+        If there is an overflow of 32bits, then returns 0.
     */
     size_t computeImageSize() const;
 
     /** Return the byte size of the mask, taking into account
         any extra planes (e.g. k3D_Format).
+        If there is an overflow of 32bits, then returns 0.
     */
     size_t computeTotalImageSize() const;
 

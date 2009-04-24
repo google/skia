@@ -48,6 +48,7 @@ public:
         kLighten_Mode,  //!< [Sa + Da - Sa*Da, Sc*(1 - Da) + Dc*(1 - Sa) + max(Sc, Dc)]
         kMultiply_Mode, //!< [Sa * Da, Sc * Dc]
         kScreen_Mode,   //!< [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc]
+        kAdd_Mode,      //!< Saturate(S + D)
 
         kModeCount
     };

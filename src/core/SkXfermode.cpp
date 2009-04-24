@@ -45,6 +45,16 @@ static U8CPU mulmuldiv255round(U8CPU a, U8CPU b, U8CPU c, U8CPU d) {
 }
 #endif
 
+static unsigned saturated_add(unsigned a, unsigned b) {
+    SkASSERT(a <= 255);
+    SkASSERT(b <= 255);
+    unsigned sum = a + b;
+    if (sum > 255) {
+        sum = 255;
+    }
+    return sum;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkXfermode::asCoeff(Coeff* src, Coeff* dst) {
@@ -500,6 +510,14 @@ static SkPMColor screen_modeproc(SkPMColor src, SkPMColor dst) {
     return SkPackARGB32(a, r, g, b);
 }
 
+static SkPMColor add_modeproc(SkPMColor src, SkPMColor dst) {
+    unsigned a = saturated_add(SkGetPackedA32(src), SkGetPackedA32(dst));
+    unsigned r = saturated_add(SkGetPackedR32(src), SkGetPackedR32(dst));
+    unsigned g = saturated_add(SkGetPackedG32(src), SkGetPackedG32(dst));
+    unsigned b = saturated_add(SkGetPackedB32(src), SkGetPackedB32(dst));
+    return SkPackARGB32(a, r, g, b);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkClearXfermode : public SkProcCoeffXfermode {
@@ -701,6 +719,8 @@ struct ProcCoeff {
     SkXfermode::Coeff   fDC;
 };
 
+#define CANNOT_USE_COEFF    SkXfermode::Coeff(-1)
+
 static const ProcCoeff gProcCoeffs[] = {
     { clear_modeproc,   SkXfermode::kZero_Coeff,    SkXfermode::kZero_Coeff },
     { src_modeproc,     SkXfermode::kOne_Coeff,     SkXfermode::kZero_Coeff },
@@ -714,12 +734,11 @@ static const ProcCoeff gProcCoeffs[] = {
     { srcatop_modeproc, SkXfermode::kDA_Coeff,      SkXfermode::kISA_Coeff },
     { dstatop_modeproc, SkXfermode::kIDA_Coeff,     SkXfermode::kSA_Coeff },
     { xor_modeproc,     SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff },
-    // these two can't be represented as coefficients
-    { darken_modeproc,  SkXfermode::Coeff(-1),      SkXfermode::Coeff(-1) },
-    { lighten_modeproc, SkXfermode::Coeff(-1),      SkXfermode::Coeff(-1) },
-    // these can use coefficients
+    { darken_modeproc,  CANNOT_USE_COEFF,           CANNOT_USE_COEFF },
+    { lighten_modeproc, CANNOT_USE_COEFF,           CANNOT_USE_COEFF },
     { mult_modeproc,    SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff },
-    { screen_modeproc,  SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff }
+    { screen_modeproc,  SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff },
+    { add_modeproc,     CANNOT_USE_COEFF,           CANNOT_USE_COEFF }
 };
 
 SkXfermode* SkPorterDuff::CreateXfermode(SkPorterDuff::Mode mode) {

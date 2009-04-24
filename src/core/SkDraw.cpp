@@ -911,11 +911,16 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
                 return;
             }
         }
+
         mask.fFormat = SkMask::kA8_Format;
         mask.fRowBytes = SkAlign4(mask.fBounds.width());
+        size_t size = mask.computeImageSize();
+        if (0 == size) {
+            // the mask is too big to allocated, draw nothing
+            return;
+        }
 
         // allocate (and clear) our temp buffer to hold the transformed bitmap
-        size_t size = mask.computeImageSize();
         SkAutoMalloc    storage(size);
         mask.fImage = (uint8_t*)storage.get();
         memset(mask.fImage, 0, size);
@@ -2350,7 +2355,12 @@ bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
     if (SkMask::kComputeBoundsAndRenderImage_CreateMode == mode) {
         mask->fFormat = SkMask::kA8_Format;
         mask->fRowBytes = mask->fBounds.width();
-        mask->fImage = SkMask::AllocImage(mask->computeImageSize());
+        size_t size = mask->computeImageSize();
+        if (0 == size) {
+            // we're too big to allocate the mask, abort
+            return false;
+        }
+        mask->fImage = SkMask::AllocImage(size);
         memset(mask->fImage, 0, mask->computeImageSize());
     }
 

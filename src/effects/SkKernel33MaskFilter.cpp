@@ -19,6 +19,9 @@ bool SkKernel33ProcMaskFilter::filterMask(SkMask* dst, const SkMask& src, const 
     
     dst->fRowBytes = dst->fBounds.width();
     size_t size = dst->computeImageSize();
+    if (0 == size) {
+        return false;   // too big to allocate, abort
+    }
     dst->fImage = SkMask::AllocImage(size);
     
     const int h = src.fBounds.height();

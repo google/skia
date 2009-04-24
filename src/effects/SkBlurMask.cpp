@@ -234,10 +234,15 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
     if (src.fImage)
     {
+        size_t dstSize = dst->computeImageSize();
+        if (0 == dstSize) {
+            return false;   // too big to allocate, abort
+        }
+
         int             sw = src.fBounds.width();
         int             sh = src.fBounds.height();
         const uint8_t*  sp = src.fImage;
-        uint8_t*        dp = SkMask::AllocImage(dst->computeImageSize());
+        uint8_t*        dp = SkMask::AllocImage(dstSize);
 
         SkAutoTCallVProc<uint8_t, SkMask_FreeImage> autoCall(dp);
 
@@ -258,7 +263,11 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
         // the blur into it (applying the src)
         if (style == kInner_Style)
         {
-            dst->fImage = SkMask::AllocImage(src.computeImageSize());
+            size_t srcSize = src.computeImageSize();
+            if (0 == srcSize) {
+                return false;   // too big to allocate, abort
+            }
+            dst->fImage = SkMask::AllocImage(srcSize);
             merge_src_with_blur(dst->fImage, sp, sw, sh,
                                 dp + rx + ry*dst->fBounds.width(),
                                 dst->fBounds.width());
