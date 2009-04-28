@@ -387,15 +387,32 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         } else {
             sc = SkScaledBitmapSampler::kRGBX;
         }
-
-        SkAutoMalloc storage(origWidth * srcBytesPerPixel);
+        if (!sampler.begin(decodedBitmap, sc, doDither)) {
+            return false;
+        }
         const int height = decodedBitmap->height();
 
-        for (int i = 0; i < number_passes; i++) {
-            if (!sampler.begin(decodedBitmap, sc, doDither)) {
-                return false;
+        if (number_passes > 1) {
+            SkAutoMalloc storage(origWidth * origHeight * srcBytesPerPixel);
+            uint8_t* base = (uint8_t*)storage.get();
+            size_t rb = origWidth * srcBytesPerPixel;
+            
+            for (int i = 0; i < number_passes; i++) {
+                uint8_t* row = base;
+                for (png_uint_32 y = 0; y < origHeight; y++) {
+                    uint8_t* bmRow = row;
+                    png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
+                    row += rb;
+                }
             }
-
+            // now sample it
+            base += sampler.srcY0() * rb;
+            for (int y = 0; y < height; y++) {
+                reallyHasAlpha |= sampler.next(base);
+                base += sampler.srcDY() * rb;
+            }
+        } else {
+            SkAutoMalloc storage(origWidth * srcBytesPerPixel);
             uint8_t* srcRow = (uint8_t*)storage.get();
             skip_src_rows(png_ptr, srcRow, sampler.srcY0());
 
@@ -407,19 +424,12 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
                     skip_src_rows(png_ptr, srcRow, sampler.srcDY() - 1);
                 }
             }
-            
+
             // skip the rest of the rows (if any)
             png_uint_32 read = (height - 1) * sampler.srcDY() +
                                sampler.srcY0() + 1;
             SkASSERT(read <= origHeight);
             skip_src_rows(png_ptr, srcRow, origHeight - read);
-        }
-
-        if (hasAlpha && !reallyHasAlpha) {
-#if 0
-            SkDEBUGF(("Image doesn't really have alpha [%d %d]\n",
-                      origWidth, origHeight));
-#endif
         }
     }
 
