@@ -74,11 +74,11 @@ public:
     */
     //  This method is not exported to java.
     void swap(SkBitmap& other);
-    
+
     /** Return true iff the bitmap has empty dimensions.
     */
     bool empty() const { return 0 == fWidth || 0 == fHeight; }
-    
+
     /** Return true iff the bitmap has no pixels nor a pixelref. Note: this can
         return true even if the dimensions of the bitmap are > 0 (see empty()).
     */
@@ -99,7 +99,7 @@ public:
     /** Return the number of bytes between subsequent rows of the bitmap.
     */
     int rowBytes() const { return fRowBytes; }
-    
+
     /** Return the shift amount per pixel (i.e. 0 for 1-byte per pixel, 1 for
         2-bytes per pixel configs, 2 for 4-bytes per pixel configs). Return 0
         for configs that are not at least 1-byte per pixel (e.g. kA1_Config
@@ -128,7 +128,7 @@ public:
         if the real size exceeds 32bits.
     */
     size_t getSize() const { return fHeight * fRowBytes; }
-    
+
     /** Return the byte size of the pixels, based on the height and rowBytes.
         This routine is slightly slower than getSize(), but does not truncate
         the answer to 32bits.
@@ -138,7 +138,7 @@ public:
         size.setMul(fHeight, fRowBytes);
         return size;
     }
-    
+
     /** Returns true if the bitmap is opaque (has no translucent/transparent pixels).
     */
     bool isOpaque() const;
@@ -168,7 +168,7 @@ public:
     static int ComputeShiftPerPixel(Config c) {
         return ComputeBytesPerPixel(c) >> 1;
     }
-    
+
     static Sk64 ComputeSize64(Config, int width, int height);
     static size_t ComputeSize(Config, int width, int height);
 
@@ -180,7 +180,7 @@ public:
     /** Use this to assign a new pixel address for an existing bitmap. This
         will automatically release any pixelref previously installed. Only call
         this if you are handling ownership/lifetime of the pixel memory.
-     
+
         If the bitmap retains a reference to the colortable (assuming it is
         not null) it will take care of incrementing the reference count.
 
@@ -193,7 +193,7 @@ public:
         pixel memory. It will be sized based on the current width/height/config.
         If this is called multiple times, a new pixelref object will be created
         each time.
-        
+
         If the bitmap retains a reference to the colortable (assuming it is
         not null) it will take care of incrementing the reference count.
 
@@ -205,15 +205,15 @@ public:
     bool allocPixels(SkColorTable* ctable = NULL) {
         return this->allocPixels(NULL, ctable);
     }
-    
+
     /** Use the specified Allocator to create the pixelref that manages the
         pixel memory. It will be sized based on the current width/height/config.
         If this is called multiple times, a new pixelref object will be created
         each time.
-        
+
         If the bitmap retains a reference to the colortable (assuming it is
         not null) it will take care of incrementing the reference count.
-     
+
         @param allocator The Allocator to use to create a pixelref that can
                          manage the pixel memory for the current
                          width/height/config. If allocator is NULL, the standard
@@ -226,7 +226,7 @@ public:
                      the bitmap will be unchanged.
     */
     bool allocPixels(Allocator* allocator, SkColorTable* ctable);
-    
+
     /** Return the current pixelref object, of any
     */
     SkPixelRef* pixelRef() const { return fPixelRef; }
@@ -239,7 +239,7 @@ public:
         ref'd.
     */
     SkPixelRef* setPixelRef(SkPixelRef* pr, size_t offset = 0);
-    
+
     /** Call this to ensure that the bitmap points to the current pixel address
         in the pixelref. Balance it with a call to unlockPixels(). These calls
         are harmless if there is no pixelref.
@@ -251,7 +251,7 @@ public:
         a given image.
     */
     void unlockPixels() const;
-    
+
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
         it has non-null pixels, and if required by its config, it has a
         non-null colortable. Returns true if all of the above are met.
@@ -273,7 +273,7 @@ public:
         will be returned.
     */
     uint32_t getGenerationID() const;
-    
+
     /** Call this if you have changed the contents of the pixels. This will in-
         turn cause a different generation ID value to be returned from
         getGenerationID().
@@ -301,7 +301,7 @@ public:
         this->eraseARGB(SkColorGetA(c), SkColorGetR(c), SkColorGetG(c),
                         SkColorGetB(c));
     }
-    
+
     /** Scroll (a subset of) the contents of this bitmap by dx/dy. If there are
         no pixels allocated (i.e. getPixels() returns null) the method will
         still update the inval region (if present).
@@ -397,7 +397,7 @@ public:
 
     void extractAlpha(SkBitmap* dst, const SkPaint* paint,
                       SkIPoint* offset) const;
-    
+
     void flatten(SkFlattenableWriteBuffer&) const;
     void unflatten(SkFlattenableReadBuffer&);
 
@@ -428,23 +428,23 @@ public:
     public:
         RLEPixels(int width, int height);
         virtual ~RLEPixels();
-        
+
         uint8_t* packedAtY(int y) const {
             SkASSERT((unsigned)y < (unsigned)fHeight);
             return fYPtrs[y];
         }
-        
+
         // called by subclasses during creation
         void setPackedAtY(int y, uint8_t* addr) {
             SkASSERT((unsigned)y < (unsigned)fHeight);
             fYPtrs[y] = addr;
         }
-            
+
     private:
         uint8_t** fYPtrs;
         int       fHeight;
     };
-        
+
 private:
 #ifdef SK_SUPPORT_MIPMAP
     struct MipMap;
@@ -474,7 +474,7 @@ private:
     */
     void freePixels();
     void updatePixelsFromRef() const;
-    
+
     static SkFixed ComputeMipLevel(SkFixed sx, SkFixed dy);
 };
 
@@ -485,7 +485,11 @@ private:
 */
 class SkColorTable : public SkRefCnt {
 public:
-    /** Constructs an empty color table (zero colors).
+    /** Makes a deep copy of colors.
+     */
+    SkColorTable(const SkColorTable& src);
+    /** Preallocates the colortable to have 'count' colors, which
+     *  are initially set to 0.
     */
     explicit SkColorTable(int count);
     explicit SkColorTable(SkFlattenableReadBuffer&);
@@ -599,12 +603,12 @@ public:
             fCTable->unlockColors(false);
         }
     }
-    
+
     /** Return the currently locked colors, or NULL if no bitmap's colortable
         is currently locked.
     */
     const SkPMColor* colors() const { return fColors; }
-    
+
     /** If a previous bitmap has been locked by this object, unlock its colors
         first. If the specified bitmap has a colortable, lock its colors and
         return them.

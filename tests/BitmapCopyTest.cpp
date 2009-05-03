@@ -11,7 +11,7 @@ static const char* gConfigName[] = {
 };
 
 static void init_src(const SkBitmap& bitmap) {
-    SkAutoLockPixels lock(bitmap);    
+    SkAutoLockPixels lock(bitmap);
     if (bitmap.getPixels()) {
         memset(bitmap.getPixels(), 4, bitmap.getSize());
     }
@@ -32,7 +32,7 @@ struct Pair {
 static void TestBitmapCopy(skiatest::Reporter* reporter) {
     static const Pair gPairs[] = {
         { SkBitmap::kNo_Config,         "00000000"  },
-        { SkBitmap::kA1_Config,         "01101110"  },
+        { SkBitmap::kA1_Config,         "01000000"  },
         { SkBitmap::kA8_Config,         "00101110"  },
         { SkBitmap::kIndex8_Config,     "00111110"  },
         { SkBitmap::kRGB_565_Config,    "00101110"  },
@@ -40,15 +40,15 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
         { SkBitmap::kARGB_8888_Config,  "00101110"  },
         { SkBitmap::kRLE_Index8_Config, "00000000"  }
     };
-    
+
     const int W = 20;
     const int H = 33;
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
         for (size_t j = 0; j < SK_ARRAY_COUNT(gPairs); j++) {
             SkBitmap src, dst;
             SkColorTable* ct = NULL;
-            
+
             src.setConfig(gPairs[i].fConfig, W, H);
             if (SkBitmap::kIndex8_Config == src.config()) {
                 ct = init_ctable();
@@ -66,12 +66,13 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                            boolStr(success));
                 reporter->reportFailed(str);
             }
-            
+
             if (success) {
                 REPORTER_ASSERT(reporter, src.width() == dst.width());
                 REPORTER_ASSERT(reporter, src.height() == dst.height());
+                REPORTER_ASSERT(reporter, dst.config() == gPairs[j].fConfig);
                 if (src.config() == dst.config()) {
-                    SkAutoLockPixels srcLock(src);    
+                    SkAutoLockPixels srcLock(src);
                     SkAutoLockPixels dstLock(dst);
                     REPORTER_ASSERT(reporter, src.readyToDraw());
                     REPORTER_ASSERT(reporter, dst.readyToDraw());
