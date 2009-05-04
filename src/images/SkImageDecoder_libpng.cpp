@@ -259,7 +259,20 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             }
         }
     }
-    
+
+    // sanity check for size
+    {
+        Sk64 size;
+        size.setMul(origWidth, origHeight);
+        if (size.isNeg() || !size.is32()) {
+            return false;
+        }
+        // now check that if we are 4-bytes per pixel, we also don't overflow
+        if (size.get32() > (0x7FFFFFFF >> 2)) {
+            return false;
+        }
+    }
+
     if (!this->chooseFromOneChoice(config, origWidth, origHeight)) {
         return false;
     }
@@ -396,7 +409,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             SkAutoMalloc storage(origWidth * origHeight * srcBytesPerPixel);
             uint8_t* base = (uint8_t*)storage.get();
             size_t rb = origWidth * srcBytesPerPixel;
-            
+
             for (int i = 0; i < number_passes; i++) {
                 uint8_t* row = base;
                 for (png_uint_32 y = 0; y < origHeight; y++) {

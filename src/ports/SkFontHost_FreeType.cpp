@@ -750,6 +750,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     SkAutoMutexAcquire  ac(gFTMutex);
 
     if (this->setupSize()) {
+        ERROR:
         if (mx) {
             bzero(mx, sizeof(SkPaint::FontMetrics));
         }
@@ -759,10 +760,14 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         return;
     }
 
+    FT_Face face = fFace;
+    int upem = face->units_per_EM;
+    if (upem <= 0) {
+        goto ERROR;
+    }
+
     SkPoint pts[6];
     SkFixed ys[6];
-    FT_Face face = fFace;
-    int     upem = face->units_per_EM;
     SkFixed scaleY = fScaleY;
     SkFixed mxy = fMatrix22.xy;
     SkFixed myy = fMatrix22.yy;
