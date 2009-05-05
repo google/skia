@@ -262,9 +262,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		009490660FB0AC280063C792 /* opengl */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = opengl;
+			sourceTree = "<group>";
+		};
 		08FB7794FE84155DC02AAC07 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				009490660FB0AC280063C792 /* opengl */,
 				08FB7795FE84155DC02AAC07 /* src */,
 				C6A0FF2B0290797F04C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,

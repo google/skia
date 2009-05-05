@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "SkBitmap.h"
+#include "SkRect.h"
 
 static const char* boolStr(bool value) {
     return value ? "true" : "false";
@@ -81,6 +82,30 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                     REPORTER_ASSERT(reporter, srcP != dstP);
                     REPORTER_ASSERT(reporter, !memcmp(srcP, dstP,
                                                       src.getSize()));
+                }
+                // test extractSubset
+                {
+                    SkBitmap subset;
+                    SkIRect r;
+                    r.set(1, 1, 2, 2);
+                    if (src.extractSubset(&subset, r)) {
+                        REPORTER_ASSERT(reporter, subset.width() == 1);
+                        REPORTER_ASSERT(reporter, subset.height() == 1);
+
+                        SkBitmap copy;
+                        REPORTER_ASSERT(reporter,
+                                        subset.copyTo(&copy, subset.config()));
+                        REPORTER_ASSERT(reporter, copy.width() == 1);
+                        REPORTER_ASSERT(reporter, copy.height() == 1);
+                        REPORTER_ASSERT(reporter, copy.rowBytes() <= 4);
+                        
+                        SkAutoLockPixels alp0(subset);
+                        SkAutoLockPixels alp1(copy);
+                        // they should both have, or both not-have, a colortable
+                        bool hasCT = subset.getColorTable() != NULL;
+                        REPORTER_ASSERT(reporter,
+                                    (copy.getColorTable() != NULL) == hasCT);
+                    }
                 }
             } else {
                 // dst should be unchanged from its initial state

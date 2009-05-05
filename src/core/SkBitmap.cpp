@@ -710,6 +710,9 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         return false;
     }
 
+    // we lock this now, since we may need its colortable
+    SkAutoLockPixels srclock(*this);
+
     SkBitmap tmp;
     tmp.setConfig(dstConfig, this->width(), this->height());
 
@@ -721,7 +724,6 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         return false;
     }
 
-    SkAutoLockPixels srclock(*this);
     SkAutoLockPixels dstlock(tmp);
 
     if (!this->readyToDraw() || !tmp.readyToDraw()) {
@@ -733,7 +735,19 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
        re-draw for the !sameConfigs cases
     */
     if (sameConfigs) {
-       memcpy(tmp.getPixels(), this->getPixels(), this->getSize());
+        if (tmp.getSize() == this->getSize()) {
+            memcpy(tmp.getPixels(), this->getPixels(), this->getSize());
+        } else {
+            const char* srcP = reinterpret_cast<const char*>(this->getPixels());
+            char* dstP = reinterpret_cast<char*>(tmp.getPixels());
+            // to be sure we don't read too much, only copy our logical pixels
+            size_t bytesToCopy = tmp.width() * tmp.bytesPerPixel();
+            for (int y = 0; y < tmp.height(); y++) {
+                memcpy(dstP, srcP, bytesToCopy);
+                srcP += this->rowBytes();
+                dstP += tmp.rowBytes();
+            }
+        }
     } else {
         // if the src has alpha, we have to clear the dst first
         if (!this->isOpaque()) {
