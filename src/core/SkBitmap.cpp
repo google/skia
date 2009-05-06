@@ -682,13 +682,12 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
-bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
-    if (NULL == dst || this->getConfig() == kNo_Config
-            || this->width() == 0 || this->height() == 0) {
+bool SkBitmap::canCopyTo(Config dstConfig) const {
+    if (this->getConfig() == kNo_Config) {
         return false;
     }
 
-    bool sameConfigs = (dstConfig == this->config());
+    bool sameConfigs = (this->config() == dstConfig);
     switch (dstConfig) {
         case kA8_Config:
         case kARGB_4444_Config:
@@ -710,8 +709,19 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         return false;
     }
 
+    return true;
+}
+
+bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
+    if (!this->canCopyTo(dstConfig)) {
+        return false;
+    }
+
     // we lock this now, since we may need its colortable
     SkAutoLockPixels srclock(*this);
+    if (!this->readyToDraw()) {
+        return false;
+    }
 
     SkBitmap tmp;
     tmp.setConfig(dstConfig, this->width(), this->height());
@@ -725,16 +735,14 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     }
 
     SkAutoLockPixels dstlock(tmp);
-
-    if (!this->readyToDraw() || !tmp.readyToDraw()) {
+    if (!tmp.readyToDraw()) {
         // allocator/lock failed
         return false;
     }
 
-    /* do memcpy for the sameConfigs cases and
-       re-draw for the !sameConfigs cases
+    /* do memcpy for the same configs cases, else use drawing
     */
-    if (sameConfigs) {
+    if (this->config() == dstConfig) {
         if (tmp.getSize() == this->getSize()) {
             memcpy(tmp.getPixels(), this->getPixels(), this->getSize());
         } else {

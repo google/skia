@@ -39,7 +39,8 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
         { SkBitmap::kRGB_565_Config,    "00101110"  },
         { SkBitmap::kARGB_4444_Config,  "00101110"  },
         { SkBitmap::kARGB_8888_Config,  "00101110"  },
-        { SkBitmap::kRLE_Index8_Config, "00000000"  }
+// TODO: create valid RLE bitmap to test with
+ //       { SkBitmap::kRLE_Index8_Config, "00101111"  }
     };
 
     const int W = 20;
@@ -51,7 +52,8 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
             SkColorTable* ct = NULL;
 
             src.setConfig(gPairs[i].fConfig, W, H);
-            if (SkBitmap::kIndex8_Config == src.config()) {
+            if (SkBitmap::kIndex8_Config == src.config() ||
+                    SkBitmap::kRLE_Index8_Config == src.config()) {
                 ct = init_ctable();
             }
             src.allocPixels(ct);
@@ -65,6 +67,15 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 str.printf("SkBitmap::copyTo from %s to %s. expected %s returned %s",
                            gConfigName[i], gConfigName[j], boolStr(expected),
                            boolStr(success));
+                reporter->reportFailed(str);
+            }
+            
+            bool canSucceed = src.canCopyTo(gPairs[j].fConfig);
+            if (success != canSucceed) {
+                SkString str;
+                str.printf("SkBitmap::copyTo from %s to %s. returned %s canCopyTo %s",
+                           gConfigName[i], gConfigName[j], boolStr(success),
+                           boolStr(canSucceed));
                 reporter->reportFailed(str);
             }
 

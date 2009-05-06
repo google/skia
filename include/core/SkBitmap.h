@@ -367,12 +367,11 @@ public:
     */
     bool extractSubset(SkBitmap* dst, const SkIRect& subset) const;
 
-    /** Tries to make a new bitmap based on the dimensions of this bitmap,
-        setting the new bitmap's config to the one specified, and then copying
-        this bitmap's pixels into the new bitmap. If the conversion is not
-        supported, or the allocator fails, then this method returns false and
-        dst is left unchanged.
-        @param dst  The bitmap to be sized and allocated
+    /** Makes a deep copy of this bitmap, respecting the requested config.
+        Returns false if either there is an error (i.e. the src does not have
+        pixels) or the request cannot be satisfied (e.g. the src has per-pixel
+        alpha, and the requested config does not support alpha).
+        @param dst The bitmap to be sized and allocated
         @param c The desired config for dst
         @param allocator Allocator used to allocate the pixelref for the dst
                          bitmap. If this is null, the standard HeapAllocator
@@ -380,6 +379,11 @@ public:
         @return true if the copy could be made.
     */
     bool copyTo(SkBitmap* dst, Config c, Allocator* allocator = NULL) const;
+    
+    /** Returns true if this bitmap can be deep copied into the requested config
+        by calling copyTo().
+     */
+    bool canCopyTo(Config newConfig) const;
 
     bool hasMipMap() const;
     void buildMipMap(bool forceRebuild = false);
