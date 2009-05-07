@@ -64,7 +64,7 @@ static int count_tables(SkStream* stream, size_t* offsetToDir = NULL) {
 
     if (offsetToDir) {
         // add the size of the header, so we will point to the DirEntries
-        *offsetToDir = offset + sizeof(SkSFNTDirEntry);
+        *offsetToDir = offset + sizeof(SkSFNTHeader);
     }
     return SkEndian_SwapBE16(shared.fSingle.fNumTables);
 }
