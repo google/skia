@@ -33,7 +33,7 @@
 */
 static inline unsigned SkAlpha255To256(U8CPU alpha) {
     SkASSERT(SkToU8(alpha) == alpha);
-#if 1
+#ifndef SK_USE_OLD_255_TO_256
     // this one assues that blending on top of an opaque dst keeps it that way
     // even though it is less accurate than a+(a>>7) for non-opaque dsts
     return alpha + 1;
