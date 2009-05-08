@@ -110,7 +110,7 @@ TESTS_SRCS := GeometryTest.cpp MathTest.cpp MatrixTest.cpp PackBitsTest.cpp \
               Sk64Test.cpp StringTest.cpp Test.cpp UtilsTest.cpp PathTest.cpp \
               ClipCubicTest.cpp SrcOverTest.cpp StreamTest.cpp SortTest.cpp \
 			  BitmapCopyTest.cpp PathMeasureTest.cpp TriangulationTest.cpp \
-              testmain.cpp
+              TestSize.cpp testmain.cpp
 
 TESTS_SRCS := $(addprefix tests/, $(TESTS_SRCS))
 
