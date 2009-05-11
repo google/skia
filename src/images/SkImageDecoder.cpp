@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -90,37 +90,6 @@ bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-/*  Technically, this should be 342, since that is the cutoff point between
-    an index and 32bit bitmap (they take equal ram), but since 32bit is almost
-    always faster, I bump up the value a bit.
-*/
-#define MIN_SIZE_FOR_INDEX  (512)
-
-/*  Return the "optimal" config for this bitmap. In this case, we just look to
-    promote index bitmaps to full-color, since those are a little faster to
-    draw (fewer memory lookups).
-
-    Seems like we could expose this to the caller through some exising or new
-    proxy object, allowing them to decide (after sniffing some aspect of the
-    original bitmap) what config they really want.
- */
-static SkBitmap::Config optimal_config(const SkBitmap& bm,
-                                       SkBitmap::Config pref) {
-    if (bm.config() != pref) {
-        if (bm.config() == SkBitmap::kIndex8_Config) {
-            Sk64 size64 = bm.getSize64();
-            if (size64.is32()) {
-                int32_t size = size64.get32();
-                if (size < MIN_SIZE_FOR_INDEX) {
-                    return SkBitmap::kARGB_8888_Config;
-                }
-            }
-        }
-    }
-    return bm.config();
-}
-
 bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
                             SkBitmap::Config pref, Mode mode) {
     // pass a temporary bitmap, so that if we return false, we are assured of
@@ -134,13 +103,12 @@ bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
         return false;
     }
 
-    SkBitmap::Config c = optimal_config(tmp, pref);
-    if (c != tmp.config()) {
+    if (tmp.config() != pref && tmp.canCopyTo(pref)) {
         if (mode == kDecodeBounds_Mode) {
-            tmp.setConfig(c, tmp.width(), tmp.height());
-        } else {
+            tmp.setConfig(pref, tmp.width(), tmp.height());
+        } else if (mode == kDecodePixels_Mode) {
             SkBitmap tmp2;
-            if (tmp.copyTo(&tmp2, c, this->getAllocator())) {
+            if (tmp.copyTo(&tmp2, pref, this->getAllocator())) {
                 tmp.swap(tmp2);
             }
         }

@@ -29,7 +29,7 @@ class SkStream;
 class SkImageDecoder {
 public:
     virtual ~SkImageDecoder();
-    
+
     enum Format {
         kUnknown_Format,
         kBMP_Format,
@@ -38,10 +38,10 @@ public:
         kJPEG_Format,
         kPNG_Format,
         kWBMP_Format,
-        
+
         kLastKnownFormat = kWBMP_Format
     };
-        
+
     /** Return the compressed data's format (see Format enum)
     */
     virtual Format getFormat() const;
@@ -50,14 +50,14 @@ public:
         The default setting is true.
     */
     bool getDitherImage() const { return fDitherImage; }
-    
+
     /** Set to true if the the decoder should try to dither the resulting image.
         The default setting is true.
     */
     void setDitherImage(bool dither) { fDitherImage = dither; }
 
     /** \class Peeker
-    
+
         Base class for optional callbacks to retrieve meta/chunk data out of
         an image as it is being decoded.
     */
@@ -71,9 +71,9 @@ public:
 
     Peeker* getPeeker() const { return fPeeker; }
     Peeker* setPeeker(Peeker*);
-    
+
     /** \class Peeker
-    
+
         Base class for optional callbacks to retrieve meta/chunk data out of
         an image as it is being decoded.
     */
@@ -100,7 +100,7 @@ public:
     // approximate the sample size.
     int getSampleSize() const { return fSampleSize; }
     void setSampleSize(int size);
-    
+
     /** Reset the sampleSize to its default of 1
      */
     void resetSampleSize() { this->setSampleSize(1); }
@@ -113,7 +113,7 @@ public:
         it is possible that cancelDecode() will be called, but will be ignored
         and decode() will return true (assuming no other problems were
         encountered).
-     
+
         This state is automatically reset at the beginning of decode().
      */
     void cancelDecode() {
@@ -130,16 +130,19 @@ public:
         kDecodeBounds_Mode, //!< only return width/height/config in bitmap
         kDecodePixels_Mode  //!< return entire bitmap (including pixels)
     };
-    
+
     /** Given a stream, decode it into the specified bitmap.
         If the decoder can decompress the image, it calls bitmap.setConfig(),
         and then if the Mode is kDecodePixels_Mode, call allocPixelRef(),
         which will allocated a pixelRef. To access the pixel memory, the codec
         needs to call lockPixels/unlockPixels on the
         bitmap. It can then set the pixels with the decompressed image.
-        If the image cannot be decompressed, return false.
-        
-        note: document use of Allocator, Peeker and Chooser 
+    *   If the image cannot be decompressed, return false. After the
+    *   decoding, the function converts the decoded config in bitmap
+    *   to pref if possible. Whether a conversion is feasible is
+    *   tested by Bitmap::canCopyTo(pref).
+
+        note: document use of Allocator, Peeker and Chooser
     */
     bool decode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref, Mode);
 
@@ -198,7 +201,7 @@ public:
         return DecodeStream(stream, bitmap, SkBitmap::kNo_Config,
                             kDecodePixels_Mode);
     }
-    
+
     /** Return the default config for the running device.
         Currently this used as a suggestion to image decoders that need to guess
         what config they should decode into.
@@ -227,14 +230,14 @@ protected:
         true, your onDecode() should stop and return false.
         Each subclass needs to decide how often it can query this, to balance
         responsiveness with performance.
-     
+
         Calling this outside of onDecode() may return undefined values.
      */
 
 public:
     bool shouldCancelDecode() const { return fShouldCancelDecode; }
 
-protected:    
+protected:
     SkImageDecoder();
 
     // helper function for decoders to handle the (common) case where there is only
