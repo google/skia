@@ -248,6 +248,13 @@ void SkNWayCanvas::drawPicture(SkPicture& picture) {
     }
 }
 
+void SkNWayCanvas::drawShape(SkShape* shape) {
+    Iter iter(fList);
+    while (iter.next()) {
+        iter->drawShape(shape);
+    }
+}
+
 void SkNWayCanvas::drawVertices(VertexMode vmode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
                           const SkColor colors[], SkXfermode* xmode,

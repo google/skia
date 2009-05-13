@@ -72,6 +72,7 @@ SOURCE := \
     SkScan_Hairline.cpp \
     SkScan_Path.cpp \
     SkShader.cpp \
+    SkShape.cpp \
     SkSpriteBlitter_ARGB32.cpp \
     SkSpriteBlitter_RGB16.cpp \
     SkStream.cpp \

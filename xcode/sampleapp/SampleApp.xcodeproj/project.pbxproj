@@ -28,6 +28,10 @@
 		00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
+		0031450E0FB8CDB100B10956 /* SkShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0031450D0FB8CDB100B10956 /* SkShape.cpp */; };
+		003145200FB99CCE00B10956 /* SkRectShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0031451F0FB99CCE00B10956 /* SkRectShape.cpp */; };
+		003145320FB9B48F00B10956 /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003145310FB9B48F00B10956 /* SampleShapes.cpp */; };
+		003145370FB9BA4000B10956 /* SkGroupShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003145360FB9BA4000B10956 /* SkGroupShape.cpp */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
 		0041CDF30F009ED100695E8C /* SkImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF20F009ED100695E8C /* SkImageRef.cpp */; };
 		0041CDF60F009EED00695E8C /* SkImageRef_GlobalPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF50F009EED00695E8C /* SkImageRef_GlobalPool.cpp */; };
@@ -144,6 +148,12 @@
 		00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_empty.cpp; path = ../../src/ports/SkXMLParser_empty.cpp; sourceTree = SOURCE_ROOT; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
+		0031450D0FB8CDB100B10956 /* SkShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkShape.cpp; path = ../../src/core/SkShape.cpp; sourceTree = SOURCE_ROOT; };
+		0031451D0FB99C9700B10956 /* SkRectShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkRectShape.h; path = ../../src/shapes/SkRectShape.h; sourceTree = SOURCE_ROOT; };
+		0031451F0FB99CCE00B10956 /* SkRectShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRectShape.cpp; path = ../../src/shapes/SkRectShape.cpp; sourceTree = SOURCE_ROOT; };
+		003145310FB9B48F00B10956 /* SampleShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShapes.cpp; path = ../../samplecode/SampleShapes.cpp; sourceTree = SOURCE_ROOT; };
+		003145340FB9B62D00B10956 /* SkGroupShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkGroupShape.h; path = ../../src/shapes/SkGroupShape.h; sourceTree = SOURCE_ROOT; };
+		003145360FB9BA4000B10956 /* SkGroupShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGroupShape.cpp; path = ../../src/shapes/SkGroupShape.cpp; sourceTree = SOURCE_ROOT; };
 		0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleImageDir.cpp; path = ../../samplecode/SampleImageDir.cpp; sourceTree = SOURCE_ROOT; };
 		0041CDF20F009ED100695E8C /* SkImageRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageRef.cpp; path = ../../src/images/SkImageRef.cpp; sourceTree = SOURCE_ROOT; };
 		0041CDF50F009EED00695E8C /* SkImageRef_GlobalPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageRef_GlobalPool.cpp; path = ../../src/images/SkImageRef_GlobalPool.cpp; sourceTree = SOURCE_ROOT; };
@@ -225,6 +235,7 @@
 				00D6B5CB0F72DC4300C466B9 /* SampleFuzz.cpp */,
 				00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */,
 				009490310FB0A5B90063C792 /* SampleLayerMask.cpp */,
+				003145310FB9B48F00B10956 /* SampleShapes.cpp */,
 				009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */,
 				007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */,
 				007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */,
@@ -339,6 +350,11 @@
 				002884B40EFAB69F0083E387 /* maccore.xcodeproj */,
 				00003C8C0EFC230E000FF73A /* effects.xcodeproj */,
 				0053528A0F8C4DFF00EE34B6 /* SkFontHost_tables.cpp */,
+				0031450D0FB8CDB100B10956 /* SkShape.cpp */,
+				0031451D0FB99C9700B10956 /* SkRectShape.h */,
+				0031451F0FB99CCE00B10956 /* SkRectShape.cpp */,
+				003145360FB9BA4000B10956 /* SkGroupShape.cpp */,
+				003145340FB9B62D00B10956 /* SkGroupShape.h */,
 			);
 			name = CICarbonSample;
 			sourceTree = "<group>";
@@ -521,7 +537,6 @@
 				007A7CC00F01658C00A2D6EE /* SampleVertices.cpp in Sources */,
 				007A7CC10F01658C00A2D6EE /* SampleXfermodes.cpp in Sources */,
 				0041CE3C0F00A12400695E8C /* SampleEncode.cpp in Sources */,
-				007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */,
 				007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */,
 				009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */,
 				007A7CB30F01658C00A2D6EE /* SamplePicture.cpp in Sources */,
@@ -529,6 +544,11 @@
 				008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */,
 				00C55DA10F8552DC000CAC09 /* SampleGradients.cpp in Sources */,
 				009490320FB0A5B90063C792 /* SampleLayerMask.cpp in Sources */,
+				007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */,
+				0031450E0FB8CDB100B10956 /* SkShape.cpp in Sources */,
+				003145200FB99CCE00B10956 /* SkRectShape.cpp in Sources */,
+				003145320FB9B48F00B10956 /* SampleShapes.cpp in Sources */,
+				003145370FB9BA4000B10956 /* SkGroupShape.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

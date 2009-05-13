@@ -12,6 +12,12 @@ template <typename T> struct SkTSize {
         fHeight = h;
     }
 
+    /** Returns true iff fWidth == 0 && fHeight == 0
+     */
+    bool isZero() const {
+        return 0 == fWidth && 0 == fHeight;
+    }
+
     /** Returns true if either widht or height are <= 0 */
     bool isEmpty() const {
         return fWidth <= 0 || fHeight <= 0;

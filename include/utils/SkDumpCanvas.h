@@ -33,6 +33,7 @@ public:
         kDrawBitmap_Verb,
         kDrawText_Verb,
         kDrawPicture_Verb,
+        kDrawShape_Verb,
         kDrawVertices_Verb
     };
     
@@ -92,7 +93,8 @@ public:
     virtual void drawTextOnPath(const void* text, size_t byteLength,
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint);
-    virtual void drawPicture(SkPicture& picture);
+    virtual void drawPicture(SkPicture&);
+    virtual void drawShape(SkShape*);
     virtual void drawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,

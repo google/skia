@@ -47,10 +47,32 @@ static void test_union_bug_1505668(SkRegion* ra, SkRegion* rb, SkRegion* rc) {
 }
 #endif
 
-static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn, const SkPaint& paint)
-{
-    SkRegion::Iterator  iter(rgn);
+static void scale_rect(SkIRect* dst, const SkIRect& src, float scale) {
+    dst->fLeft = (int)::roundf(src.fLeft * scale);
+    dst->fTop = (int)::roundf(src.fTop * scale);
+    dst->fRight = (int)::roundf(src.fRight * scale);
+    dst->fBottom = (int)::roundf(src.fBottom * scale);
+}
+
+static void scale_rgn(SkRegion* dst, const SkRegion& src, float scale) {
+    SkRegion tmp;
+    SkRegion::Iterator iter(src);
+
+    for (; !iter.done(); iter.next()) {
+        SkIRect r;
+        scale_rect(&r, iter.rect(), scale);
+        tmp.op(r, SkRegion::kUnion_Op);
+    }
+    dst->swap(tmp);
+}
+
+static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
+                      const SkPaint& paint) {
+    SkRegion scaled;
+    scale_rgn(&scaled, rgn, 0.5f);
     
+    SkRegion::Iterator  iter(rgn);
+
     for (; !iter.done(); iter.next())
     {
         SkRect    r;

@@ -12,11 +12,11 @@
 		002884A60EFAB5DE0083E387 /* SkThread_pthread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884A30EFAB5DE0083E387 /* SkThread_pthread.cpp */; };
 		002884A70EFAB5DE0083E387 /* SkTime_Unix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884A40EFAB5DE0083E387 /* SkTime_Unix.cpp */; };
 		002884E10EFABFFC0083E387 /* SkGlobals_global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884E00EFABFFC0083E387 /* SkGlobals_global.cpp */; };
+		003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */; };
 		00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00488AF30F86532E00C08A57 /* SkDebug_stdio.cpp */; };
 		007A7BEF0F01427100A2D6EE /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7BEE0F01427100A2D6EE /* SkFontHost_mac.cpp */; };
 		27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */; };
 		27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2C0F11408100F233EA /* SkImageDecoder.cpp */; };
-		27739F2F0F11409100F233EA /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -153,9 +153,9 @@
 				007A7BEF0F01427100A2D6EE /* SkFontHost_mac.cpp in Sources */,
 				27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */,
 				27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */,
-				27739F2F0F11409100F233EA /* SkImageDecoder_CG.cpp in Sources */,
 				001EA8910F13F2CE00900BA9 /* SkImageEncoder.cpp in Sources */,
 				00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */,
+				003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

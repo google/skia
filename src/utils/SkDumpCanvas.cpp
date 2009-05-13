@@ -350,6 +350,10 @@ void SkDumpCanvas::drawTextOnPath(const void* text, size_t byteLength,
                str.c_str(), byteLength);
 }
 
+void SkDumpCanvas::drawShape(SkShape* shape) {
+    this->dump(kDrawShape_Verb, NULL, "drawShape(%p)", shape);
+}
+
 void SkDumpCanvas::drawPicture(SkPicture& picture) {
     this->dump(kDrawPicture_Verb, NULL, "drawPicture(%p)", &picture);
 }

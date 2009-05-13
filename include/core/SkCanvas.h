@@ -32,6 +32,7 @@ class SkDevice;
 class SkDraw;
 class SkDrawFilter;
 class SkPicture;
+class SkShape;
 
 /** \class SkCanvas
 
@@ -591,6 +592,10 @@ public:
     */
     virtual void drawPicture(SkPicture& picture);
     
+    /** Draws the specified shape
+     */
+    virtual void drawShape(SkShape*);
+
     enum VertexMode {
         kTriangles_VertexMode,
         kTriangleStrip_VertexMode,
