@@ -134,6 +134,10 @@ void SkProxyCanvas::drawTextOnPath(const void* text, size_t byteLength,
     fProxy->drawTextOnPath(text, byteLength, path, matrix, paint);
 }
 
+void SkProxyCanvas::drawPicture(SkPicture& picture) {
+    fProxy->drawPicture(picture);
+}
+
 void SkProxyCanvas::drawShape(SkShape* shape) {
     fProxy->drawShape(shape);
 }
