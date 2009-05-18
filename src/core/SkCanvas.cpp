@@ -945,6 +945,9 @@ bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
     SkMatrix inverse;
     // if we can't invert the CTM, we can't return local clip bounds
     if (!fMCRec->fMatrix->invert(&inverse)) {
+        if (bounds) {
+            bounds->setEmpty();
+        }
         return false;
     }
 
