@@ -10,50 +10,69 @@ int SkGroupShape::countShapes() const {
     return fList.count();
 }
 
-SkShape* SkGroupShape::getShape(int index) const {
+SkShape* SkGroupShape::getShape(int index, SkMatrixRef** mr) const {
     if ((unsigned)index < (unsigned)fList.count()) {
-        return fList[index];
+        const Rec& rec = fList[index];
+        if (mr) {
+            *mr = rec.fMatrixRef;
+        }
+        return rec.fShape;
     }
     return NULL;
 }
 
-SkShape* SkGroupShape::addShape(int index, SkShape* shape) {
+void SkGroupShape::addShape(int index, SkShape* shape, SkMatrixRef* mr) {
     int count = fList.count();
     if (NULL == shape || index < 0 || index > count) {
-        return shape;
+        return;
     }
 
     shape->ref();
-    SkShape** spot;
+    SkMatrixRef::SafeRef(mr);
+
+    Rec* rec;
     if (index == count) {
-        spot = fList.append();
+        rec = fList.append();
     } else {
-        spot = fList.insert(index);
+        rec = fList.insert(index);
     }
-    *spot = shape;
-    return shape;
+    rec->fShape = shape;
+    rec->fMatrixRef = mr;
 }
 
 void SkGroupShape::removeShape(int index) {
     if ((unsigned)index < (unsigned)fList.count()) {
-        fList[index]->unref();
+        Rec& rec = fList[index];
+        rec.fShape->unref();
+        SkMatrixRef::SafeUnref(rec.fMatrixRef);
         fList.remove(index);
     }
 }
 
 void SkGroupShape::removeAllShapes() {
-    fList.unrefAll();
+    Rec* rec = fList.begin();
+    Rec* stop = fList.end();
+    while (rec < stop) {
+        rec->fShape->unref();
+        SkMatrixRef::SafeUnref(rec->fMatrixRef);
+        rec++;
+    }
     fList.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGroupShape::onDraw(SkCanvas* canvas) {
-    SkShape** iter = fList.begin();
-    SkShape** stop = fList.end();
-    while (iter < stop) {
-        (*iter)->draw(canvas);
-        iter++;
+    const Rec* rec = fList.begin();
+    const Rec* stop = fList.end();
+    while (rec < stop) {
+        SkShape* shape = rec->fShape;
+        if (rec->fMatrixRef) {
+            shape->drawMatrix(canvas, *rec->fMatrixRef);
+        } else {
+            shape->draw(canvas);
+        }
+        rec++;
     }
 }
 
@@ -66,9 +85,13 @@ void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) {
 
     int count = fList.count();
     buffer.write32(count);
-    for (int i = 0; i < count; i++) {
-        buffer.writeFunctionPtr((void*)fList[i]->getFactory());
-        fList[i]->flatten(buffer);
+    const Rec* rec = fList.begin();
+    const Rec* stop = fList.end();
+    while (rec < stop) {
+        SkShape* shape = rec->fShape;
+        buffer.writeFunctionPtr((void*)shape->getFactory());
+        shape->flatten(buffer);
+        // todo: flatten the matrixref if present
     }
 }
 
@@ -78,6 +101,7 @@ SkGroupShape::SkGroupShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer){
         SkFlattenable::Factory fact =
                             (SkFlattenable::Factory)buffer.readFunctionPtr();
         this->appendShape((SkShape*)fact(buffer))->unref();
+        // todo: unflatten the matrixref if present
     }
 }
 

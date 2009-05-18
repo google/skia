@@ -2,19 +2,14 @@
 #define SkShape_DEFINED
 
 #include "SkFlattenable.h"
-#include "SkMatrix.h"
 
 class SkCanvas;
+class SkMatrix;
 class SkWStream;
 
 class SkShape : public SkFlattenable {
 public:
-            SkShape() : fMatrix(NULL) {}
-    virtual ~SkShape();
-
-    void getMatrix(SkMatrix*) const;
-    void setMatrix(const SkMatrix&);
-    void resetMatrix();
+    SkShape() {}
 
     void draw(SkCanvas*);
 
@@ -34,11 +29,9 @@ public:
 protected:
     virtual void onDraw(SkCanvas*) = 0;
 
-    SkShape(SkFlattenableReadBuffer&);
+    SkShape(SkFlattenableReadBuffer&) {}
 
 private:
-    SkMatrix* fMatrix;
-
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
     typedef SkFlattenable INHERITED;
