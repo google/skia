@@ -260,7 +260,7 @@ public:
     
     bool isSysFont() const { return fIsSysFont; }
     FamilyRec* getFamily() const { return fFamilyRec; }
-    
+    // openStream returns a SkStream that has been ref-ed
     virtual SkStream* openStream() = 0;
     virtual void closeStream(SkStream*) = 0;
     virtual const char* getUniqueString() const = 0;
@@ -286,7 +286,12 @@ public:
     }
     
     // overrides
-    virtual SkStream* openStream() { return fStream; }
+    virtual SkStream* openStream() 
+    { 
+      // openStream returns a refed stream.
+      fStream->ref();
+      return fStream;
+    }
     virtual void closeStream(SkStream*) {}
     virtual const char* getUniqueString() const { return NULL; }
     
