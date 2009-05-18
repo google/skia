@@ -1402,7 +1402,7 @@ xmlns:Sk="urn:screenplay" targetNamespace="urn:screenplay">
 			<!-- @attribute posts Outputs each post element as it is enabled. -->
 			<xs:attribute name="posts" type="Sk:Boolean"/>
             <!-- @attribute script Evaluates the provided script -->
-            <xs:attribute name="script" type=Sk:String"/>
+            <xs:attribute name="script" type="Sk:String"/>
 			<xs:attribute name="id" type="xs:ID"/>
 		</xs:complexType>
 	</xs:element>
