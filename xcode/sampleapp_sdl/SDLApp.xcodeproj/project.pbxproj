@@ -640,7 +640,7 @@
 				);
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "/skia/trunk/include/**";
+				USER_HEADER_SEARCH_PATHS = "../../include/**";
 			};
 			name = Debug;
 		};
@@ -652,6 +652,10 @@
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_BUILD_FOR_SDL,
+					SK_RELEASE,
+				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -661,6 +665,7 @@
 				);
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				USER_HEADER_SEARCH_PATHS = "../../include/**";
 			};
 			name = Release;
 		};
