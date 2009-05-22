@@ -149,11 +149,25 @@ protected:
     }
     
     void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
+        canvas->drawColor(SK_ColorGRAY);
     }
     
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
+        
+        if (true) {
+            SkRect r;
+			r.set(SkIntToScalar(0), SkIntToScalar(0),
+				  SkIntToScalar(220), SkIntToScalar(120));
+            SkPaint p;
+            canvas->saveLayer(&r, &p);
+            canvas->drawColor(0xFFFF0000);
+            p.setAlpha(1);  // or 0
+            p.setPorterDuffXfermode(SkPorterDuff::kSrc_Mode);
+            canvas->drawOval(r, p);
+            canvas->restore();
+            return;
+        }
         
         if (false) {
             SkRect r;

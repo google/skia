@@ -91,13 +91,13 @@ protected:
         this->drawBG(canvas);
 
         drawSomething(canvas);
-        
+
         SkPicture* pict = new SkPicture;
         SkAutoUnref aur(pict);
 
         drawSomething(pict->beginRecording(100, 100));
         pict->endRecording();
-        
+    
         canvas->save();
         canvas->translate(SkIntToScalar(300), SkIntToScalar(50));
         canvas->scale(-SK_Scalar1, -SK_Scalar1);

@@ -130,5 +130,22 @@ private:
         dst = src;                      \
     } while (0)
 
+
+/** Check if the argument is non-null, and if so, call obj->ref()
+ */
+template <typename T> static inline void SkSafeRef(T* obj) {
+    if (obj) {
+        obj->ref();
+    }
+}
+
+/** Check if the argument is non-null, and if so, call obj->unref()
+ */
+template <typename T> static inline void SkSafeUnref(T* obj) {
+    if (obj) {
+        obj->unref();
+    }
+}
+
 #endif
 
