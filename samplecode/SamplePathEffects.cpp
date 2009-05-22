@@ -203,7 +203,7 @@ protected:
         }
         
         gPhase -= SK_Scalar1;
-        this->inval(nil);
+        this->inval(NULL);
         
         SkPaint paint;
         

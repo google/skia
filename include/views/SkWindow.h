@@ -90,16 +90,16 @@ private:
 
 ///////////////////////////////////////////////////////////
 
-#ifndef SK_USE_WXWIDGETS
-#ifdef SK_BUILD_FOR_MAC
+#ifdef SK_USE_WXWIDGETS
+    #include "SkOSWindow_wxwidgets.h"
+#elif defined(SK_BUILD_FOR_MAC)
     #include "SkOSWindow_Mac.h"
 #elif defined(SK_BUILD_FOR_WIN)
     #include "SkOSWindow_Win.h"
 #elif defined(SK_BUILD_FOR_UNIXx)
   #include "SkOSWindow_Unix.h"
-#endif
-#else
-  #include "SkOSWindow_wxwidgets.h"
+#elif defined(SK_BUILD_FOR_SDL)
+    #include "SkOSWindow_SDL.h"
 #endif
 
 #endif

@@ -226,7 +226,7 @@ protected:
 //        SkShader* shader = SkShader::CreateBitmapShader(bm, false, SkPaint::kBilinear_FilterType, SkShader::kRepeat_TileMode);
         SkPoint pts[] = { 0, 0, SkIntToScalar(100), SkIntToScalar(0) };
         SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
-        SkShader* shader = SkGradientShader::CreateLinear(pts, colors, nil, 2, SkShader::kMirror_TileMode);
+        SkShader* shader = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kMirror_TileMode);
         paint.setShader(shader)->unref();
 
         canvas->drawPaint(paint);
@@ -323,14 +323,14 @@ protected:
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
     {
-        return fRect.contains(SkScalarRound(x), SkScalarRound(y)) ? new Click(this) : nil;
+        return fRect.contains(SkScalarRound(x), SkScalarRound(y)) ? new Click(this) : NULL;
     }
     
     virtual bool onClick(Click* click) 
     {
         fRect.offset(click->fICurr.fX - click->fIPrev.fX,
                      click->fICurr.fY - click->fIPrev.fY);
-        this->inval(nil);
+        this->inval(NULL);
         return true;
     }
     

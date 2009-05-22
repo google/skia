@@ -125,6 +125,7 @@
 		005F25E70EF94F7900582A90 /* SkXfermode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F256E0EF94F7900582A90 /* SkXfermode.cpp */; };
 		005F26960EF955D400582A90 /* SkComposeShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F26950EF955D400582A90 /* SkComposeShader.cpp */; };
 		007C786A0F3B4D5F0004B142 /* SkQuadClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */; };
+		0096586E0FC7205100C3AE15 /* SkShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0096586D0FC7205100C3AE15 /* SkShape.cpp */; };
 		009CC7920F5DAF4B002185BE /* SkCubicClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009CC7910F5DAF4B002185BE /* SkCubicClipper.cpp */; };
 /* End PBXBuildFile section */
 
@@ -247,6 +248,7 @@
 		005F256E0EF94F7900582A90 /* SkXfermode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXfermode.cpp; path = ../../src/core/SkXfermode.cpp; sourceTree = SOURCE_ROOT; };
 		005F26950EF955D400582A90 /* SkComposeShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkComposeShader.cpp; path = ../../src/core/SkComposeShader.cpp; sourceTree = SOURCE_ROOT; };
 		007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkQuadClipper.cpp; path = ../../src/core/SkQuadClipper.cpp; sourceTree = SOURCE_ROOT; };
+		0096586D0FC7205100C3AE15 /* SkShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkShape.cpp; path = ../../src/core/SkShape.cpp; sourceTree = SOURCE_ROOT; };
 		009CC7910F5DAF4B002185BE /* SkCubicClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkCubicClipper.cpp; path = ../../src/core/SkCubicClipper.cpp; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libcore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libcore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -269,9 +271,18 @@
 			name = opengl;
 			sourceTree = "<group>";
 		};
+		0096586C0FC7203700C3AE15 /* shapes */ = {
+			isa = PBXGroup;
+			children = (
+				0096586D0FC7205100C3AE15 /* SkShape.cpp */,
+			);
+			name = shapes;
+			sourceTree = "<group>";
+		};
 		08FB7794FE84155DC02AAC07 /* core */ = {
 			isa = PBXGroup;
 			children = (
+				0096586C0FC7203700C3AE15 /* shapes */,
 				009490660FB0AC280063C792 /* opengl */,
 				08FB7795FE84155DC02AAC07 /* src */,
 				C6A0FF2B0290797F04C91782 /* Documentation */,
@@ -592,6 +603,7 @@
 				002884D50EFAB8F80083E387 /* SkStream.cpp in Sources */,
 				007C786A0F3B4D5F0004B142 /* SkQuadClipper.cpp in Sources */,
 				009CC7920F5DAF4B002185BE /* SkCubicClipper.cpp in Sources */,
+				0096586E0FC7205100C3AE15 /* SkShape.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -96,7 +96,7 @@ static void test_typefaceCache()
     SkTypeface* t2 = SkTypeface::CreateFromName("arial", SkTypeface::kNormal);
     SkTypeface* t3 = SkTypeface::CreateFromName("helvetica", SkTypeface::kItalic);
     
-#ifndef SK_BUILD_FOR_MAC
+#ifdef ANDROID
     SkASSERT(t0 == t1);
     SkASSERT(t0 == t2);
     SkASSERT(t0 == t3);
