@@ -1,0 +1,691 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		002F39FA09D0881F00EBEB88 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 002F39F909D0881F00EBEB88 /* SDL.framework */; };
+		002F3A0009D0884600EBEB88 /* SDL.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 002F39F909D0881F00EBEB88 /* SDL.framework */; };
+		002F3A2E09D0888800EBEB88 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 002F3A2C09D0888800EBEB88 /* SDLMain.m */; };
+		0064EDE40FC72B1900D71FB0 /* SkOSWindow_SDL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDBF0FC722FA00D71FB0 /* SkOSWindow_SDL.cpp */; };
+		0064EE260FC72BEE00D71FB0 /* SampleApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF10FC72BEE00D71FB0 /* SampleApp.cpp */; };
+		0064EE270FC72BEE00D71FB0 /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF20FC72BEE00D71FB0 /* SampleArc.cpp */; };
+		0064EE280FC72BEE00D71FB0 /* SampleBitmapRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF30FC72BEE00D71FB0 /* SampleBitmapRect.cpp */; };
+		0064EE290FC72BEE00D71FB0 /* SampleCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF40FC72BEE00D71FB0 /* SampleCamera.cpp */; };
+		0064EE2A0FC72BEE00D71FB0 /* SampleCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF50FC72BEE00D71FB0 /* SampleCircle.cpp */; };
+		0064EE2B0FC72BEE00D71FB0 /* SampleCull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF70FC72BEE00D71FB0 /* SampleCull.cpp */; };
+		0064EE2C0FC72BEE00D71FB0 /* SampleDither.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF80FC72BEE00D71FB0 /* SampleDither.cpp */; };
+		0064EE2D0FC72BEE00D71FB0 /* SampleDrawLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF90FC72BEE00D71FB0 /* SampleDrawLooper.cpp */; };
+		0064EE2E0FC72BEE00D71FB0 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFA0FC72BEE00D71FB0 /* SampleEffects.cpp */; };
+		0064EE2F0FC72BEE00D71FB0 /* SampleEmboss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFB0FC72BEE00D71FB0 /* SampleEmboss.cpp */; };
+		0064EE300FC72BEE00D71FB0 /* SampleEncode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFC0FC72BEE00D71FB0 /* SampleEncode.cpp */; };
+		0064EE310FC72BEE00D71FB0 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFD0FC72BEE00D71FB0 /* SampleFillType.cpp */; };
+		0064EE320FC72BEE00D71FB0 /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFE0FC72BEE00D71FB0 /* SampleFilter.cpp */; };
+		0064EE330FC72BEE00D71FB0 /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFF0FC72BEE00D71FB0 /* SampleFilter2.cpp */; };
+		0064EE340FC72BEE00D71FB0 /* SampleFontCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE000FC72BEE00D71FB0 /* SampleFontCache.cpp */; };
+		0064EE350FC72BEE00D71FB0 /* SampleFontScalerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE010FC72BEE00D71FB0 /* SampleFontScalerTest.cpp */; };
+		0064EE380FC72BEE00D71FB0 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE040FC72BEE00D71FB0 /* SampleGradients.cpp */; };
+		0064EE390FC72BEE00D71FB0 /* SampleHairline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE050FC72BEE00D71FB0 /* SampleHairline.cpp */; };
+		0064EE3A0FC72BEE00D71FB0 /* SampleImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE060FC72BEE00D71FB0 /* SampleImage.cpp */; };
+		0064EE3B0FC72BEE00D71FB0 /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE070FC72BEE00D71FB0 /* SampleImageDir.cpp */; };
+		0064EE3C0FC72BEE00D71FB0 /* SampleLayerMask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE080FC72BEE00D71FB0 /* SampleLayerMask.cpp */; };
+		0064EE3D0FC72BEE00D71FB0 /* SampleLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE090FC72BEE00D71FB0 /* SampleLayers.cpp */; };
+		0064EE3E0FC72BEE00D71FB0 /* SampleLines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0A0FC72BEE00D71FB0 /* SampleLines.cpp */; };
+		0064EE3F0FC72BEE00D71FB0 /* SampleMeasure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0B0FC72BEE00D71FB0 /* SampleMeasure.cpp */; };
+		0064EE410FC72BEE00D71FB0 /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0D0FC72BEE00D71FB0 /* SampleNinePatch.cpp */; };
+		0064EE420FC72BEE00D71FB0 /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0E0FC72BEE00D71FB0 /* SampleOverflow.cpp */; };
+		0064EE440FC72BEE00D71FB0 /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE100FC72BEE00D71FB0 /* SamplePatch.cpp */; };
+		0064EE450FC72BEE00D71FB0 /* SamplePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE110FC72BEE00D71FB0 /* SamplePath.cpp */; };
+		0064EE460FC72BEE00D71FB0 /* SamplePathClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE120FC72BEE00D71FB0 /* SamplePathClip.cpp */; };
+		0064EE470FC72BEE00D71FB0 /* SamplePathEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE130FC72BEE00D71FB0 /* SamplePathEffects.cpp */; };
+		0064EE480FC72BEE00D71FB0 /* SamplePicture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE140FC72BEE00D71FB0 /* SamplePicture.cpp */; };
+		0064EE490FC72BEE00D71FB0 /* SamplePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE150FC72BEE00D71FB0 /* SamplePoints.cpp */; };
+		0064EE4B0FC72BEE00D71FB0 /* SampleRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE170FC72BEE00D71FB0 /* SampleRegion.cpp */; };
+		0064EE4C0FC72BEE00D71FB0 /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE180FC72BEE00D71FB0 /* SampleShaders.cpp */; };
+		0064EE4E0FC72BEE00D71FB0 /* SampleStrokeText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE1A0FC72BEE00D71FB0 /* SampleStrokeText.cpp */; };
+		0064EE500FC72BEE00D71FB0 /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE1C0FC72BEE00D71FB0 /* SampleText.cpp */; };
+		0064EE510FC72BEE00D71FB0 /* SampleTextAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE1D0FC72BEE00D71FB0 /* SampleTextAlpha.cpp */; };
+		0064EE520FC72BEE00D71FB0 /* SampleTextEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE1E0FC72BEE00D71FB0 /* SampleTextEffects.cpp */; };
+		0064EE530FC72BEE00D71FB0 /* SampleTextOnPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE1F0FC72BEE00D71FB0 /* SampleTextOnPath.cpp */; };
+		0064EE540FC72BEE00D71FB0 /* SampleTiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE200FC72BEE00D71FB0 /* SampleTiling.cpp */; };
+		0064EE550FC72BEE00D71FB0 /* SampleTypeface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE210FC72BEE00D71FB0 /* SampleTypeface.cpp */; };
+		0064EE560FC72BEE00D71FB0 /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE220FC72BEE00D71FB0 /* SampleVertices.cpp */; };
+		0064EE570FC72BEE00D71FB0 /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE230FC72BEE00D71FB0 /* SampleXfermodes.cpp */; };
+		0064EE580FC72BEE00D71FB0 /* vertexdump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE240FC72BEE00D71FB0 /* vertexdump.cpp */; };
+		0064EE960FC7318500D71FB0 /* SkImageRefPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE930FC7318500D71FB0 /* SkImageRefPool.cpp */; };
+		0064EE970FC7318500D71FB0 /* SkImageRef_GlobalPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE940FC7318500D71FB0 /* SkImageRef_GlobalPool.cpp */; };
+		0064EE980FC7318500D71FB0 /* SkImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE950FC7318500D71FB0 /* SkImageRef.cpp */; };
+		0064EEB30FC7333300D71FB0 /* SkXMLParser_empty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEB20FC7333300D71FB0 /* SkXMLParser_empty.cpp */; };
+		0064EEC50FC7336100D71FB0 /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEB70FC7336100D71FB0 /* SkDOM.cpp */; };
+		0064EEC60FC7336100D71FB0 /* SkParse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEB80FC7336100D71FB0 /* SkParse.cpp */; };
+		0064EEC70FC7336100D71FB0 /* SkParseColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEB90FC7336100D71FB0 /* SkParseColor.cpp */; };
+		0064EEC80FC7336100D71FB0 /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEBA0FC7336100D71FB0 /* SkXMLParser.cpp */; };
+		0064EECA0FC7336100D71FB0 /* SkOSWindow_Mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEBC0FC7336100D71FB0 /* SkOSWindow_Mac.cpp */; };
+		0064EECB0FC7336100D71FB0 /* SkEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEBD0FC7336100D71FB0 /* SkEvent.cpp */; };
+		0064EECC0FC7336100D71FB0 /* SkEventSink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEBE0FC7336100D71FB0 /* SkEventSink.cpp */; };
+		0064EECD0FC7336100D71FB0 /* SkMetaData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEBF0FC7336100D71FB0 /* SkMetaData.cpp */; };
+		0064EECE0FC7336100D71FB0 /* SkOSMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEC00FC7336100D71FB0 /* SkOSMenu.cpp */; };
+		0064EECF0FC7336100D71FB0 /* SkTagList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEC10FC7336100D71FB0 /* SkTagList.cpp */; };
+		0064EED00FC7336100D71FB0 /* SkView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEC20FC7336100D71FB0 /* SkView.cpp */; };
+		0064EED10FC7336100D71FB0 /* SkViewPriv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEC30FC7336100D71FB0 /* SkViewPriv.cpp */; };
+		0064EED20FC7336100D71FB0 /* SkWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EEC40FC7336100D71FB0 /* SkWindow.cpp */; };
+		0064EFA60FC7467C00D71FB0 /* skia_sdl_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EFA50FC7467C00D71FB0 /* skia_sdl_main.cpp */; };
+		006DC7EA0FC7475D00BF5F45 /* libeffects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 006DC7D90FC7475400BF5F45 /* libeffects.a */; };
+		006DC7EB0FC7475E00BF5F45 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 006DC7E10FC7475700BF5F45 /* libmaccore.a */; };
+		006DC7EC0FC7475F00BF5F45 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 006DC7E90FC7475900BF5F45 /* libcore.a */; };
+		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		006DC7D80FC7475400BF5F45 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0064EE5E0FC72C9600D71FB0 /* effects.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libeffects.a */;
+			remoteInfo = effects;
+		};
+		006DC7E00FC7475700BF5F45 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0096585B0FC7201800C3AE15 /* maccore.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libmaccore.a */;
+			remoteInfo = maccore;
+		};
+		006DC7E80FC7475900BF5F45 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0096583F0FC71CA700C3AE15 /* core.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libcore.a */;
+			remoteInfo = core;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		002F39FD09D0883400EBEB88 /* Copy Frameworks into .app bundle */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				002F3A0009D0884600EBEB88 /* SDL.framework in Copy Frameworks into .app bundle */,
+			);
+			name = "Copy Frameworks into .app bundle";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		002F39F909D0881F00EBEB88 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
+		002F3A2B09D0888800EBEB88 /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SDLMain.h; sourceTree = SOURCE_ROOT; };
+		002F3A2C09D0888800EBEB88 /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SDLMain.m; sourceTree = SOURCE_ROOT; };
+		0064EDBF0FC722FA00D71FB0 /* SkOSWindow_SDL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOSWindow_SDL.cpp; path = ../../src/utils/SDL/SkOSWindow_SDL.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDC20FC7233E00D71FB0 /* SkOSWindow_SDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOSWindow_SDL.h; path = ../../include/views/SkOSWindow_SDL.h; sourceTree = SOURCE_ROOT; };
+		0064EDF00FC72BEE00D71FB0 /* SampleAll.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleAll.cpp; path = ../../samplecode/SampleAll.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF10FC72BEE00D71FB0 /* SampleApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleApp.cpp; path = ../../samplecode/SampleApp.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF20FC72BEE00D71FB0 /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF30FC72BEE00D71FB0 /* SampleBitmapRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleBitmapRect.cpp; path = ../../samplecode/SampleBitmapRect.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF40FC72BEE00D71FB0 /* SampleCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleCamera.cpp; path = ../../samplecode/SampleCamera.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF50FC72BEE00D71FB0 /* SampleCircle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleCircle.cpp; path = ../../samplecode/SampleCircle.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF60FC72BEE00D71FB0 /* SampleCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SampleCode.h; path = ../../samplecode/SampleCode.h; sourceTree = SOURCE_ROOT; };
+		0064EDF70FC72BEE00D71FB0 /* SampleCull.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleCull.cpp; path = ../../samplecode/SampleCull.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF80FC72BEE00D71FB0 /* SampleDither.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleDither.cpp; path = ../../samplecode/SampleDither.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDF90FC72BEE00D71FB0 /* SampleDrawLooper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleDrawLooper.cpp; path = ../../samplecode/SampleDrawLooper.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDFA0FC72BEE00D71FB0 /* SampleEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleEffects.cpp; path = ../../samplecode/SampleEffects.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDFB0FC72BEE00D71FB0 /* SampleEmboss.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleEmboss.cpp; path = ../../samplecode/SampleEmboss.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDFC0FC72BEE00D71FB0 /* SampleEncode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleEncode.cpp; path = ../../samplecode/SampleEncode.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDFD0FC72BEE00D71FB0 /* SampleFillType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFillType.cpp; path = ../../samplecode/SampleFillType.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDFE0FC72BEE00D71FB0 /* SampleFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFilter.cpp; path = ../../samplecode/SampleFilter.cpp; sourceTree = SOURCE_ROOT; };
+		0064EDFF0FC72BEE00D71FB0 /* SampleFilter2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFilter2.cpp; path = ../../samplecode/SampleFilter2.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE000FC72BEE00D71FB0 /* SampleFontCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFontCache.cpp; path = ../../samplecode/SampleFontCache.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE010FC72BEE00D71FB0 /* SampleFontScalerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFontScalerTest.cpp; path = ../../samplecode/SampleFontScalerTest.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE020FC72BEE00D71FB0 /* SampleFuzz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFuzz.cpp; path = ../../samplecode/SampleFuzz.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE030FC72BEE00D71FB0 /* SampleGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGL.cpp; path = ../../samplecode/SampleGL.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE040FC72BEE00D71FB0 /* SampleGradients.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGradients.cpp; path = ../../samplecode/SampleGradients.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE050FC72BEE00D71FB0 /* SampleHairline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleHairline.cpp; path = ../../samplecode/SampleHairline.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE060FC72BEE00D71FB0 /* SampleImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleImage.cpp; path = ../../samplecode/SampleImage.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE070FC72BEE00D71FB0 /* SampleImageDir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleImageDir.cpp; path = ../../samplecode/SampleImageDir.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE080FC72BEE00D71FB0 /* SampleLayerMask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleLayerMask.cpp; path = ../../samplecode/SampleLayerMask.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE090FC72BEE00D71FB0 /* SampleLayers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleLayers.cpp; path = ../../samplecode/SampleLayers.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE0A0FC72BEE00D71FB0 /* SampleLines.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleLines.cpp; path = ../../samplecode/SampleLines.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE0B0FC72BEE00D71FB0 /* SampleMeasure.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleMeasure.cpp; path = ../../samplecode/SampleMeasure.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE0C0FC72BEE00D71FB0 /* SampleMovie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleMovie.cpp; path = ../../samplecode/SampleMovie.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE0D0FC72BEE00D71FB0 /* SampleNinePatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleNinePatch.cpp; path = ../../samplecode/SampleNinePatch.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE0E0FC72BEE00D71FB0 /* SampleOverflow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleOverflow.cpp; path = ../../samplecode/SampleOverflow.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE0F0FC72BEE00D71FB0 /* SamplePageFlip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePageFlip.cpp; path = ../../samplecode/SamplePageFlip.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE100FC72BEE00D71FB0 /* SamplePatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePatch.cpp; path = ../../samplecode/SamplePatch.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE110FC72BEE00D71FB0 /* SamplePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePath.cpp; path = ../../samplecode/SamplePath.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE120FC72BEE00D71FB0 /* SamplePathClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePathClip.cpp; path = ../../samplecode/SamplePathClip.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE130FC72BEE00D71FB0 /* SamplePathEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePathEffects.cpp; path = ../../samplecode/SamplePathEffects.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE140FC72BEE00D71FB0 /* SamplePicture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePicture.cpp; path = ../../samplecode/SamplePicture.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE150FC72BEE00D71FB0 /* SamplePoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePoints.cpp; path = ../../samplecode/SamplePoints.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE160FC72BEE00D71FB0 /* SamplePolyToPoly.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePolyToPoly.cpp; path = ../../samplecode/SamplePolyToPoly.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE170FC72BEE00D71FB0 /* SampleRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleRegion.cpp; path = ../../samplecode/SampleRegion.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE180FC72BEE00D71FB0 /* SampleShaders.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShaders.cpp; path = ../../samplecode/SampleShaders.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE190FC72BEE00D71FB0 /* SampleShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShapes.cpp; path = ../../samplecode/SampleShapes.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE1A0FC72BEE00D71FB0 /* SampleStrokeText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleStrokeText.cpp; path = ../../samplecode/SampleStrokeText.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE1B0FC72BEE00D71FB0 /* SampleTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTests.cpp; path = ../../samplecode/SampleTests.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE1C0FC72BEE00D71FB0 /* SampleText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleText.cpp; path = ../../samplecode/SampleText.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE1D0FC72BEE00D71FB0 /* SampleTextAlpha.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTextAlpha.cpp; path = ../../samplecode/SampleTextAlpha.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE1E0FC72BEE00D71FB0 /* SampleTextEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTextEffects.cpp; path = ../../samplecode/SampleTextEffects.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE1F0FC72BEE00D71FB0 /* SampleTextOnPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTextOnPath.cpp; path = ../../samplecode/SampleTextOnPath.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE200FC72BEE00D71FB0 /* SampleTiling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTiling.cpp; path = ../../samplecode/SampleTiling.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE210FC72BEE00D71FB0 /* SampleTypeface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTypeface.cpp; path = ../../samplecode/SampleTypeface.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE220FC72BEE00D71FB0 /* SampleVertices.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleVertices.cpp; path = ../../samplecode/SampleVertices.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE230FC72BEE00D71FB0 /* SampleXfermodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleXfermodes.cpp; path = ../../samplecode/SampleXfermodes.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE240FC72BEE00D71FB0 /* vertexdump.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = vertexdump.cpp; path = ../../samplecode/vertexdump.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE5E0FC72C9600D71FB0 /* effects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = effects.xcodeproj; path = ../effects/effects.xcodeproj; sourceTree = SOURCE_ROOT; };
+		0064EE930FC7318500D71FB0 /* SkImageRefPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageRefPool.cpp; path = ../../src/images/SkImageRefPool.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE940FC7318500D71FB0 /* SkImageRef_GlobalPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageRef_GlobalPool.cpp; path = ../../src/images/SkImageRef_GlobalPool.cpp; sourceTree = SOURCE_ROOT; };
+		0064EE950FC7318500D71FB0 /* SkImageRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageRef.cpp; path = ../../src/images/SkImageRef.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEB20FC7333300D71FB0 /* SkXMLParser_empty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_empty.cpp; path = ../../src/ports/SkXMLParser_empty.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEB70FC7336100D71FB0 /* SkDOM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDOM.cpp; path = ../../src/xml/SkDOM.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEB80FC7336100D71FB0 /* SkParse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkParse.cpp; path = ../../src/xml/SkParse.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEB90FC7336100D71FB0 /* SkParseColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkParseColor.cpp; path = ../../src/xml/SkParseColor.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEBA0FC7336100D71FB0 /* SkXMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser.cpp; path = ../../src/xml/SkXMLParser.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEBC0FC7336100D71FB0 /* SkOSWindow_Mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOSWindow_Mac.cpp; path = ../../src/utils/mac/SkOSWindow_Mac.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEBD0FC7336100D71FB0 /* SkEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEvent.cpp; path = ../../src/views/SkEvent.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEBE0FC7336100D71FB0 /* SkEventSink.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEventSink.cpp; path = ../../src/views/SkEventSink.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEBF0FC7336100D71FB0 /* SkMetaData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMetaData.cpp; path = ../../src/views/SkMetaData.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEC00FC7336100D71FB0 /* SkOSMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOSMenu.cpp; path = ../../src/views/SkOSMenu.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEC10FC7336100D71FB0 /* SkTagList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTagList.cpp; path = ../../src/views/SkTagList.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEC20FC7336100D71FB0 /* SkView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkView.cpp; path = ../../src/views/SkView.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEC30FC7336100D71FB0 /* SkViewPriv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkViewPriv.cpp; path = ../../src/views/SkViewPriv.cpp; sourceTree = SOURCE_ROOT; };
+		0064EEC40FC7336100D71FB0 /* SkWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkWindow.cpp; path = ../../src/views/SkWindow.cpp; sourceTree = SOURCE_ROOT; };
+		0064EFA50FC7467C00D71FB0 /* skia_sdl_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = skia_sdl_main.cpp; sourceTree = SOURCE_ROOT; };
+		0096583F0FC71CA700C3AE15 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
+		0096585B0FC7201800C3AE15 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
+		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8D1107320486CEB800E47090 /* «PROJECTNAME».app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "«PROJECTNAME».app"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D11072E0486CEB800E47090 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				002F39FA09D0881F00EBEB88 /* SDL.framework in Frameworks */,
+				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
+				006DC7EA0FC7475D00BF5F45 /* libeffects.a in Frameworks */,
+				006DC7EB0FC7475E00BF5F45 /* libmaccore.a in Frameworks */,
+				006DC7EC0FC7475F00BF5F45 /* libcore.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0064EDEF0FC72BEE00D71FB0 /* samplecode */ = {
+			isa = PBXGroup;
+			children = (
+				0064EDF00FC72BEE00D71FB0 /* SampleAll.cpp */,
+				0064EDF10FC72BEE00D71FB0 /* SampleApp.cpp */,
+				0064EDF20FC72BEE00D71FB0 /* SampleArc.cpp */,
+				0064EDF30FC72BEE00D71FB0 /* SampleBitmapRect.cpp */,
+				0064EDF40FC72BEE00D71FB0 /* SampleCamera.cpp */,
+				0064EDF50FC72BEE00D71FB0 /* SampleCircle.cpp */,
+				0064EDF60FC72BEE00D71FB0 /* SampleCode.h */,
+				0064EDF70FC72BEE00D71FB0 /* SampleCull.cpp */,
+				0064EDF80FC72BEE00D71FB0 /* SampleDither.cpp */,
+				0064EDF90FC72BEE00D71FB0 /* SampleDrawLooper.cpp */,
+				0064EDFA0FC72BEE00D71FB0 /* SampleEffects.cpp */,
+				0064EDFB0FC72BEE00D71FB0 /* SampleEmboss.cpp */,
+				0064EDFC0FC72BEE00D71FB0 /* SampleEncode.cpp */,
+				0064EDFD0FC72BEE00D71FB0 /* SampleFillType.cpp */,
+				0064EDFE0FC72BEE00D71FB0 /* SampleFilter.cpp */,
+				0064EDFF0FC72BEE00D71FB0 /* SampleFilter2.cpp */,
+				0064EE000FC72BEE00D71FB0 /* SampleFontCache.cpp */,
+				0064EE010FC72BEE00D71FB0 /* SampleFontScalerTest.cpp */,
+				0064EE020FC72BEE00D71FB0 /* SampleFuzz.cpp */,
+				0064EE030FC72BEE00D71FB0 /* SampleGL.cpp */,
+				0064EE040FC72BEE00D71FB0 /* SampleGradients.cpp */,
+				0064EE050FC72BEE00D71FB0 /* SampleHairline.cpp */,
+				0064EE060FC72BEE00D71FB0 /* SampleImage.cpp */,
+				0064EE070FC72BEE00D71FB0 /* SampleImageDir.cpp */,
+				0064EE080FC72BEE00D71FB0 /* SampleLayerMask.cpp */,
+				0064EE090FC72BEE00D71FB0 /* SampleLayers.cpp */,
+				0064EE0A0FC72BEE00D71FB0 /* SampleLines.cpp */,
+				0064EE0B0FC72BEE00D71FB0 /* SampleMeasure.cpp */,
+				0064EE0C0FC72BEE00D71FB0 /* SampleMovie.cpp */,
+				0064EE0D0FC72BEE00D71FB0 /* SampleNinePatch.cpp */,
+				0064EE0E0FC72BEE00D71FB0 /* SampleOverflow.cpp */,
+				0064EE0F0FC72BEE00D71FB0 /* SamplePageFlip.cpp */,
+				0064EE100FC72BEE00D71FB0 /* SamplePatch.cpp */,
+				0064EE110FC72BEE00D71FB0 /* SamplePath.cpp */,
+				0064EE120FC72BEE00D71FB0 /* SamplePathClip.cpp */,
+				0064EE130FC72BEE00D71FB0 /* SamplePathEffects.cpp */,
+				0064EE140FC72BEE00D71FB0 /* SamplePicture.cpp */,
+				0064EE150FC72BEE00D71FB0 /* SamplePoints.cpp */,
+				0064EE160FC72BEE00D71FB0 /* SamplePolyToPoly.cpp */,
+				0064EE170FC72BEE00D71FB0 /* SampleRegion.cpp */,
+				0064EE180FC72BEE00D71FB0 /* SampleShaders.cpp */,
+				0064EE190FC72BEE00D71FB0 /* SampleShapes.cpp */,
+				0064EE1A0FC72BEE00D71FB0 /* SampleStrokeText.cpp */,
+				0064EE1B0FC72BEE00D71FB0 /* SampleTests.cpp */,
+				0064EE1C0FC72BEE00D71FB0 /* SampleText.cpp */,
+				0064EE1D0FC72BEE00D71FB0 /* SampleTextAlpha.cpp */,
+				0064EE1E0FC72BEE00D71FB0 /* SampleTextEffects.cpp */,
+				0064EE1F0FC72BEE00D71FB0 /* SampleTextOnPath.cpp */,
+				0064EE200FC72BEE00D71FB0 /* SampleTiling.cpp */,
+				0064EE210FC72BEE00D71FB0 /* SampleTypeface.cpp */,
+				0064EE220FC72BEE00D71FB0 /* SampleVertices.cpp */,
+				0064EE230FC72BEE00D71FB0 /* SampleXfermodes.cpp */,
+				0064EE240FC72BEE00D71FB0 /* vertexdump.cpp */,
+			);
+			name = samplecode;
+			path = /Volumes/disk/skia/trunk/samplecode;
+			sourceTree = "<absolute>";
+		};
+		0064EEB60FC7336100D71FB0 /* views */ = {
+			isa = PBXGroup;
+			children = (
+				0064EEB70FC7336100D71FB0 /* SkDOM.cpp */,
+				0064EEB80FC7336100D71FB0 /* SkParse.cpp */,
+				0064EEB90FC7336100D71FB0 /* SkParseColor.cpp */,
+				0064EEBA0FC7336100D71FB0 /* SkXMLParser.cpp */,
+				0064EEBC0FC7336100D71FB0 /* SkOSWindow_Mac.cpp */,
+				0064EEBD0FC7336100D71FB0 /* SkEvent.cpp */,
+				0064EEBE0FC7336100D71FB0 /* SkEventSink.cpp */,
+				0064EEBF0FC7336100D71FB0 /* SkMetaData.cpp */,
+				0064EEC00FC7336100D71FB0 /* SkOSMenu.cpp */,
+				0064EEC10FC7336100D71FB0 /* SkTagList.cpp */,
+				0064EEC20FC7336100D71FB0 /* SkView.cpp */,
+				0064EEC30FC7336100D71FB0 /* SkViewPriv.cpp */,
+				0064EEC40FC7336100D71FB0 /* SkWindow.cpp */,
+			);
+			name = views;
+			sourceTree = "<group>";
+		};
+		006DC7D50FC7475400BF5F45 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				006DC7D90FC7475400BF5F45 /* libeffects.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		006DC7DD0FC7475700BF5F45 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				006DC7E10FC7475700BF5F45 /* libmaccore.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		006DC7E50FC7475900BF5F45 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				006DC7E90FC7475900BF5F45 /* libcore.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		080E96DDFE201D6D7F000001 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				002F3A2B09D0888800EBEB88 /* SDLMain.h */,
+				002F3A2C09D0888800EBEB88 /* SDLMain.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				002F39F909D0881F00EBEB88 /* SDL.framework */,
+				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7A2FEA54F0111CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				29B97324FDCFA39411CA2CEA /* AppKit.framework */,
+				29B97325FDCFA39411CA2CEA /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		19C28FACFE9D520D11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D1107320486CEB800E47090 /* «PROJECTNAME».app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* «PROJECTNAMEASXML» */ = {
+			isa = PBXGroup;
+			children = (
+				0064EE930FC7318500D71FB0 /* SkImageRefPool.cpp */,
+				0064EE940FC7318500D71FB0 /* SkImageRef_GlobalPool.cpp */,
+				0064EE950FC7318500D71FB0 /* SkImageRef.cpp */,
+				0064EEB20FC7333300D71FB0 /* SkXMLParser_empty.cpp */,
+				0064EEB60FC7336100D71FB0 /* views */,
+				0064EE5E0FC72C9600D71FB0 /* effects.xcodeproj */,
+				0064EDEF0FC72BEE00D71FB0 /* samplecode */,
+				0096585B0FC7201800C3AE15 /* maccore.xcodeproj */,
+				0096583F0FC71CA700C3AE15 /* core.xcodeproj */,
+				080E96DDFE201D6D7F000001 /* Classes */,
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				19C28FACFE9D520D11CA2CBB /* Products */,
+			);
+			name = "«PROJECTNAMEASXML»";
+			sourceTree = "<group>";
+		};
+		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				0064EFA50FC7467C00D71FB0 /* skia_sdl_main.cpp */,
+				0064EDC20FC7233E00D71FB0 /* SkOSWindow_SDL.h */,
+				0064EDBF0FC722FA00D71FB0 /* SkOSWindow_SDL.cpp */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		29B97317FDCFA39411CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8D1107310486CEB800E47090 /* Info.plist */,
+				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
+				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D1107260486CEB800E47090 /* «PROJECTNAME» */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "«PROJECTNAME»" */;
+			buildPhases = (
+				8D1107290486CEB800E47090 /* Resources */,
+				8D11072C0486CEB800E47090 /* Sources */,
+				8D11072E0486CEB800E47090 /* Frameworks */,
+				002F39FD09D0883400EBEB88 /* Copy Frameworks into .app bundle */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "«PROJECTNAME»";
+			productInstallPath = "$(HOME)/Applications";
+			productName = "«PROJECTNAME»";
+			productReference = 8D1107320486CEB800E47090 /* «PROJECTNAME».app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		29B97313FDCFA39411CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "SDLApp" */;
+			compatibilityVersion = "Xcode 2.4";
+			hasScannedForEncodings = 1;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* «PROJECTNAMEASXML» */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 006DC7E50FC7475900BF5F45 /* Products */;
+					ProjectRef = 0096583F0FC71CA700C3AE15 /* core.xcodeproj */;
+				},
+				{
+					ProductGroup = 006DC7D50FC7475400BF5F45 /* Products */;
+					ProjectRef = 0064EE5E0FC72C9600D71FB0 /* effects.xcodeproj */;
+				},
+				{
+					ProductGroup = 006DC7DD0FC7475700BF5F45 /* Products */;
+					ProjectRef = 0096585B0FC7201800C3AE15 /* maccore.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				8D1107260486CEB800E47090 /* «PROJECTNAME» */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		006DC7D90FC7475400BF5F45 /* libeffects.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libeffects.a;
+			remoteRef = 006DC7D80FC7475400BF5F45 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		006DC7E10FC7475700BF5F45 /* libmaccore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libmaccore.a;
+			remoteRef = 006DC7E00FC7475700BF5F45 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		006DC7E90FC7475900BF5F45 /* libcore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libcore.a;
+			remoteRef = 006DC7E80FC7475900BF5F45 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D1107290486CEB800E47090 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D11072C0486CEB800E47090 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				002F3A2E09D0888800EBEB88 /* SDLMain.m in Sources */,
+				0064EDE40FC72B1900D71FB0 /* SkOSWindow_SDL.cpp in Sources */,
+				0064EE260FC72BEE00D71FB0 /* SampleApp.cpp in Sources */,
+				0064EE270FC72BEE00D71FB0 /* SampleArc.cpp in Sources */,
+				0064EE280FC72BEE00D71FB0 /* SampleBitmapRect.cpp in Sources */,
+				0064EE290FC72BEE00D71FB0 /* SampleCamera.cpp in Sources */,
+				0064EE2A0FC72BEE00D71FB0 /* SampleCircle.cpp in Sources */,
+				0064EE2B0FC72BEE00D71FB0 /* SampleCull.cpp in Sources */,
+				0064EE2C0FC72BEE00D71FB0 /* SampleDither.cpp in Sources */,
+				0064EE2D0FC72BEE00D71FB0 /* SampleDrawLooper.cpp in Sources */,
+				0064EE2E0FC72BEE00D71FB0 /* SampleEffects.cpp in Sources */,
+				0064EE2F0FC72BEE00D71FB0 /* SampleEmboss.cpp in Sources */,
+				0064EE300FC72BEE00D71FB0 /* SampleEncode.cpp in Sources */,
+				0064EE310FC72BEE00D71FB0 /* SampleFillType.cpp in Sources */,
+				0064EE320FC72BEE00D71FB0 /* SampleFilter.cpp in Sources */,
+				0064EE330FC72BEE00D71FB0 /* SampleFilter2.cpp in Sources */,
+				0064EE340FC72BEE00D71FB0 /* SampleFontCache.cpp in Sources */,
+				0064EE350FC72BEE00D71FB0 /* SampleFontScalerTest.cpp in Sources */,
+				0064EE380FC72BEE00D71FB0 /* SampleGradients.cpp in Sources */,
+				0064EE390FC72BEE00D71FB0 /* SampleHairline.cpp in Sources */,
+				0064EE3A0FC72BEE00D71FB0 /* SampleImage.cpp in Sources */,
+				0064EE3B0FC72BEE00D71FB0 /* SampleImageDir.cpp in Sources */,
+				0064EE3C0FC72BEE00D71FB0 /* SampleLayerMask.cpp in Sources */,
+				0064EE3D0FC72BEE00D71FB0 /* SampleLayers.cpp in Sources */,
+				0064EE3E0FC72BEE00D71FB0 /* SampleLines.cpp in Sources */,
+				0064EE3F0FC72BEE00D71FB0 /* SampleMeasure.cpp in Sources */,
+				0064EE410FC72BEE00D71FB0 /* SampleNinePatch.cpp in Sources */,
+				0064EE420FC72BEE00D71FB0 /* SampleOverflow.cpp in Sources */,
+				0064EE440FC72BEE00D71FB0 /* SamplePatch.cpp in Sources */,
+				0064EE450FC72BEE00D71FB0 /* SamplePath.cpp in Sources */,
+				0064EE460FC72BEE00D71FB0 /* SamplePathClip.cpp in Sources */,
+				0064EE470FC72BEE00D71FB0 /* SamplePathEffects.cpp in Sources */,
+				0064EE490FC72BEE00D71FB0 /* SamplePoints.cpp in Sources */,
+				0064EE4B0FC72BEE00D71FB0 /* SampleRegion.cpp in Sources */,
+				0064EE4C0FC72BEE00D71FB0 /* SampleShaders.cpp in Sources */,
+				0064EE4E0FC72BEE00D71FB0 /* SampleStrokeText.cpp in Sources */,
+				0064EE500FC72BEE00D71FB0 /* SampleText.cpp in Sources */,
+				0064EE510FC72BEE00D71FB0 /* SampleTextAlpha.cpp in Sources */,
+				0064EE520FC72BEE00D71FB0 /* SampleTextEffects.cpp in Sources */,
+				0064EE530FC72BEE00D71FB0 /* SampleTextOnPath.cpp in Sources */,
+				0064EE540FC72BEE00D71FB0 /* SampleTiling.cpp in Sources */,
+				0064EE550FC72BEE00D71FB0 /* SampleTypeface.cpp in Sources */,
+				0064EE560FC72BEE00D71FB0 /* SampleVertices.cpp in Sources */,
+				0064EE480FC72BEE00D71FB0 /* SamplePicture.cpp in Sources */,
+				0064EE570FC72BEE00D71FB0 /* SampleXfermodes.cpp in Sources */,
+				0064EE580FC72BEE00D71FB0 /* vertexdump.cpp in Sources */,
+				0064EE960FC7318500D71FB0 /* SkImageRefPool.cpp in Sources */,
+				0064EE970FC7318500D71FB0 /* SkImageRef_GlobalPool.cpp in Sources */,
+				0064EE980FC7318500D71FB0 /* SkImageRef.cpp in Sources */,
+				0064EEB30FC7333300D71FB0 /* SkXMLParser_empty.cpp in Sources */,
+				0064EEC50FC7336100D71FB0 /* SkDOM.cpp in Sources */,
+				0064EEC60FC7336100D71FB0 /* SkParse.cpp in Sources */,
+				0064EEC70FC7336100D71FB0 /* SkParseColor.cpp in Sources */,
+				0064EEC80FC7336100D71FB0 /* SkXMLParser.cpp in Sources */,
+				0064EECA0FC7336100D71FB0 /* SkOSWindow_Mac.cpp in Sources */,
+				0064EECB0FC7336100D71FB0 /* SkEvent.cpp in Sources */,
+				0064EECC0FC7336100D71FB0 /* SkEventSink.cpp in Sources */,
+				0064EECD0FC7336100D71FB0 /* SkMetaData.cpp in Sources */,
+				0064EECE0FC7336100D71FB0 /* SkOSMenu.cpp in Sources */,
+				0064EECF0FC7336100D71FB0 /* SkTagList.cpp in Sources */,
+				0064EED00FC7336100D71FB0 /* SkView.cpp in Sources */,
+				0064EED10FC7336100D71FB0 /* SkViewPriv.cpp in Sources */,
+				0064EED20FC7336100D71FB0 /* SkWindow.cpp in Sources */,
+				0064EFA60FC7467C00D71FB0 /* skia_sdl_main.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C165DFE840E0CC02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C01FCF4B08A954540054247B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = "«PROJECTNAME»";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		C01FCF4C08A954540054247B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PRODUCT_NAME = "«PROJECTNAME»";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		C01FCF4F08A954540054247B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(HOME)/Library/Frameworks",
+					/Library/Frameworks,
+					"$(FRAMEWORK_SEARCH_PATHS)",
+				);
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					SK_DEBUG,
+					SK_BUILD_FOR_SDL,
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+					"$(HEADER_SEARCH_PATHS)",
+				);
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				USER_HEADER_SEARCH_PATHS = "/skia/trunk/include/**";
+			};
+			name = Debug;
+		};
+		C01FCF5008A954540054247B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(HOME)/Library/Frameworks",
+					/Library/Frameworks,
+					"$(FRAMEWORK_SEARCH_PATHS)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+					"$(HEADER_SEARCH_PATHS)",
+				);
+				PREBINDING = NO;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "«PROJECTNAME»" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01FCF4B08A954540054247B /* Debug */,
+				C01FCF4C08A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "SDLApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C01FCF4F08A954540054247B /* Debug */,
+				C01FCF5008A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 29B97313FDCFA39411CA2CEA /* Project object */;
+}
