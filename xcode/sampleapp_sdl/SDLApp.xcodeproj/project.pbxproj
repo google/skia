@@ -85,21 +85,21 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 0064EE5E0FC72C9600D71FB0 /* effects.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libeffects.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = effects;
 		};
 		006DC7E00FC7475700BF5F45 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0096585B0FC7201800C3AE15 /* maccore.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libmaccore.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = maccore;
 		};
 		006DC7E80FC7475900BF5F45 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0096583F0FC71CA700C3AE15 /* core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libcore.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = core;
 		};
 /* End PBXContainerItemProxy section */
