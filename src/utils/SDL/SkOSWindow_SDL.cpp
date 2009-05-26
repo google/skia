@@ -1,5 +1,6 @@
 #include "SkOSWindow_SDL.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkOSMenu.h"
 #include "SkTime.h"
 
@@ -32,9 +33,21 @@ static bool skia_setBitmapFromSurface(SkBitmap* dst, SDL_Surface* src) {
     return true;
 }
 
-SkOSWindow::SkOSWindow(void* surface) {
-    fSurface = reinterpret_cast<SDL_Surface*>(surface);
-    this->resize(fSurface->w, fSurface->h);
+SkOSWindow::SkOSWindow(void* screen) {
+    fScreen = reinterpret_cast<SDL_Surface*>(screen);
+    this->resize(fScreen->w, fScreen->h);
+    
+    uint32_t rmask = SK_R32_MASK << SK_R32_SHIFT;
+    uint32_t gmask = SK_G32_MASK << SK_G32_SHIFT;
+    uint32_t bmask = SK_B32_MASK << SK_B32_SHIFT;
+    uint32_t amask = SK_A32_MASK << SK_A32_SHIFT;
+
+    fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, fScreen->w, fScreen->h, 32,
+                                    rmask, gmask, bmask, amask);
+}
+
+SkOSWindow::~SkOSWindow() {
+    SDL_FreeSurface(fSurface);
 }
 
 void SkOSWindow::doDraw() {
@@ -54,7 +67,12 @@ void SkOSWindow::doDraw() {
     if ( SDL_MUSTLOCK(fSurface) ) {
         SDL_UnlockSurface(fSurface);
     }
-    SDL_UpdateRect(fSurface, 0, 0, fSurface->w, fSurface->h);
+
+    int result = SDL_BlitSurface(fSurface, NULL, fScreen, NULL);
+    if (result) {
+        SkDebugf("------- SDL_BlitSurface returned %d\n", result);
+    }
+    SDL_UpdateRect(fScreen, 0, 0, fScreen->w, fScreen->h);
 }
 
 static SkKey find_skkey(SDLKey src) {

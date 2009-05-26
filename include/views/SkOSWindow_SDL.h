@@ -22,7 +22,8 @@
 
 class SkOSWindow : public SkWindow {
 public:
-    SkOSWindow(void* surface);
+    SkOSWindow(void* screen);
+    virtual ~SkOSWindow();
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
@@ -36,6 +37,7 @@ protected:
     virtual void onSetTitle(const char[]);
 
 private:
+    SDL_Surface* fScreen;
     SDL_Surface* fSurface;
 
     void doDraw();

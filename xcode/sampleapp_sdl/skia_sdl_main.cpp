@@ -15,10 +15,13 @@
 #include "SkApplication.h"
 #include "SkWindow.h"
 
+#define WINDOW_WIDTH    800
+#define WINDOW_HEIGHT   600
+
 int main(int argc, char *argv[]) {
 	Uint32 initflags = SDL_INIT_VIDEO | SDL_INIT_TIMER;
 	SDL_Surface *screen;
-	Uint8  video_bpp = 0;
+	Uint8  video_bpp = 32;
 	Uint32 videoflags = SDL_SWSURFACE;
     SDL_Event event;
 
@@ -30,14 +33,13 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* Set 640x480 video mode */
-	screen=SDL_SetVideoMode(640,480, video_bpp, videoflags);
-        if (screen == NULL) {
-		fprintf(stderr, "Couldn't set 640x480x%d video mode: %s\n",
-                        video_bpp, SDL_GetError());
+	screen=SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, video_bpp, videoflags);
+    if (screen == NULL) {
+		fprintf(stderr, "Couldn't set video mode: %s\n", SDL_GetError());
 		SDL_Quit();
 		exit(2);
 	}
-    
+
     application_init();
     SkOSWindow* skwin = create_sk_window(screen);
 
