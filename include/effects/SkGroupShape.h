@@ -56,6 +56,12 @@ public:
         SkMatrix& m = *this;
         m = matrix;
     }
+    
+    SkMatrix& operator=(const SkMatrix& matrix) {
+        SkMatrix& m = *this;
+        m = matrix;
+        return m;
+    }
 };
 
 class SkGroupShape : public SkShape {
@@ -71,6 +77,14 @@ public:
         owner count of the index'd shape. If index is out of range, returns NULL
      */
     SkShape* getShape(int index, SkMatrixRef** = NULL) const;
+    
+    /** Helper function to return the matrixref of the specified shape.
+     */
+    SkMatrixRef* getShapeMatrixRef(int index) const {
+        SkMatrixRef* mr = NULL;
+        (void)this->getShape(index, &mr);
+        return mr;
+    }
 
     /** Ref the specified shape, and insert it into the child list at the
         specified index. If index == countShapes(), then the shape will be

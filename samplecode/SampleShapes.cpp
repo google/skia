@@ -42,6 +42,7 @@ static SkShape* make_shape2() {
 
 class ShapesView : public SkView {
     SkGroupShape fGroup;
+    SkMatrixRef*    fMatrixRefs[4];
 public:
 	ShapesView() {
         SkMatrix m;
@@ -54,6 +55,18 @@ public:
         fGroup.appendShape(make_shape1(), m)->unref();
         m.postTranslate(0, SkIntToScalar(120));
         fGroup.appendShape(make_shape2(), m)->unref();
+        
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrixRefs); i++) {
+            SkSafeRef(fMatrixRefs[i] = fGroup.getShapeMatrixRef(i));
+        }
+        
+        fAngle = 0;
+    }
+    
+    virtual ~ShapesView() {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrixRefs); i++) {
+            SkSafeUnref(fMatrixRefs[i]);
+        }
     }
     
 protected:
@@ -70,14 +83,22 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
     
+    int fAngle;
+    
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
+        
+        SkMatrix saveM = *fMatrixRefs[3];
+        fAngle = (fAngle + 5) % 360;
+        SkScalar c = SkIntToScalar(50);
+        fMatrixRefs[3]->preRotate(SkIntToScalar(fAngle), c, c);
         
         SkMatrix matrix;
 #if 1        
         SkGroupShape gs;
         gs.appendShape(&fGroup);
-        matrix.setTranslate(0, SkIntToScalar(240));
+        matrix.setScale(-SK_Scalar1, SK_Scalar1);
+        matrix.postTranslate(SkIntToScalar(220), SkIntToScalar(240));
         gs.appendShape(&fGroup, matrix);
         matrix.setTranslate(SkIntToScalar(240), 0);
         matrix.preScale(SK_Scalar1*2, SK_Scalar1*2);
@@ -88,7 +109,10 @@ protected:
         fGroup.drawXY(canvas, 0, SkIntToScalar(240));
         fGroup.drawMatrix(canvas, matrix);
 #endif
-    }
+
+        *fMatrixRefs[3] = saveM;
+        this->inval(NULL);
+}
     
 private:
     typedef SkView INHERITED;
