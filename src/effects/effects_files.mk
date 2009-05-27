@@ -14,8 +14,10 @@ SOURCE := \
 	SkEmbossMask.cpp \
 	SkEmbossMaskFilter.cpp \
 	SkGradientShader.cpp \
+    SkGroupShape.cpp \
 	SkKernel33MaskFilter.cpp \
 	SkLayerDrawLooper.cpp \
 	SkLayerRasterizer.cpp \
 	SkPaintFlagsDrawFilter.cpp \
-	SkPixelXorXfermode.cpp
+	SkPixelXorXfermode.cpp \
+    SkRectShape.cpp

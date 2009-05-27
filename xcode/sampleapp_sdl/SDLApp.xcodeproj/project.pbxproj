@@ -76,6 +76,11 @@
 		006DC7EA0FC7475D00BF5F45 /* libeffects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 006DC7D90FC7475400BF5F45 /* libeffects.a */; };
 		006DC7EB0FC7475E00BF5F45 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 006DC7E10FC7475700BF5F45 /* libmaccore.a */; };
 		006DC7EC0FC7475F00BF5F45 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 006DC7E90FC7475900BF5F45 /* libcore.a */; };
+		2762F6040FCCC832002BD8B4 /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE190FC72BEE00D71FB0 /* SampleShapes.cpp */; };
+		2762F6350FCCCA00002BD8B4 /* SamplePageFlip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0F0FC72BEE00D71FB0 /* SamplePageFlip.cpp */; };
+		2762F6420FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */; };
+		2762F6430FCCCA6C002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6410FCCCA6C002BD8B4 /* SkPageFlipper.cpp */; };
+		2762F6C20FCCCBC0002BD8B4 /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF00FC72BEE00D71FB0 /* SampleAll.cpp */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -200,6 +205,8 @@
 		0096585B0FC7201800C3AE15 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFlipPixelRef.cpp; path = ../../src/images/SkFlipPixelRef.cpp; sourceTree = SOURCE_ROOT; };
+		2762F6410FCCCA6C002BD8B4 /* SkPageFlipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkPageFlipper.cpp; path = ../../src/images/SkPageFlipper.cpp; sourceTree = SOURCE_ROOT; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -362,12 +369,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA /* «PROJECTNAMEASXML» */ = {
+		2762F63F0FCCCA45002BD8B4 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */,
+				2762F6410FCCCA6C002BD8B4 /* SkPageFlipper.cpp */,
 				0064EE930FC7318500D71FB0 /* SkImageRefPool.cpp */,
 				0064EE940FC7318500D71FB0 /* SkImageRef_GlobalPool.cpp */,
 				0064EE950FC7318500D71FB0 /* SkImageRef.cpp */,
+			);
+			name = images;
+			sourceTree = "<group>";
+		};
+		29B97314FDCFA39411CA2CEA /* «PROJECTNAMEASXML» */ = {
+			isa = PBXGroup;
+			children = (
+				2762F63F0FCCCA45002BD8B4 /* images */,
 				0064EEB20FC7333300D71FB0 /* SkXMLParser_empty.cpp */,
 				0064EEB60FC7336100D71FB0 /* views */,
 				0064EE5E0FC72C9600D71FB0 /* effects.xcodeproj */,
@@ -568,6 +585,11 @@
 				0064EED10FC7336100D71FB0 /* SkViewPriv.cpp in Sources */,
 				0064EED20FC7336100D71FB0 /* SkWindow.cpp in Sources */,
 				0064EFA60FC7467C00D71FB0 /* skia_sdl_main.cpp in Sources */,
+				2762F6040FCCC832002BD8B4 /* SampleShapes.cpp in Sources */,
+				2762F6350FCCCA00002BD8B4 /* SamplePageFlip.cpp in Sources */,
+				2762F6420FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp in Sources */,
+				2762F6430FCCCA6C002BD8B4 /* SkPageFlipper.cpp in Sources */,
+				2762F6C20FCCCBC0002BD8B4 /* SampleAll.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
