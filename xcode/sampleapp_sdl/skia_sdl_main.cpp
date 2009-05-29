@@ -17,12 +17,13 @@
 
 #define WINDOW_WIDTH    800
 #define WINDOW_HEIGHT   600
+#define USE_GL          true
 
 int main(int argc, char *argv[]) {
 	Uint32 initflags = SDL_INIT_VIDEO | SDL_INIT_TIMER;
 	SDL_Surface *screen;
 	Uint8  video_bpp = 32;
-	Uint32 videoflags = SDL_SWSURFACE;
+	Uint32 videoflags = SDL_HWSURFACE;
     SDL_Event event;
 
 	/* Initialize the SDL library */
@@ -31,6 +32,14 @@ int main(int argc, char *argv[]) {
 			SDL_GetError());
 		exit(1);
 	}
+
+    if (USE_GL) {
+        videoflags |= SDL_OPENGL;
+        SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
+        SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
+        SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+        SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    }
 
 	/* Set 640x480 video mode */
 	screen=SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, video_bpp, videoflags);

@@ -1,6 +1,7 @@
 #include "SkOSWindow_SDL.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkGLCanvas.h"
 #include "SkOSMenu.h"
 #include "SkTime.h"
 
@@ -42,37 +43,63 @@ SkOSWindow::SkOSWindow(void* screen) {
     uint32_t bmask = SK_B32_MASK << SK_B32_SHIFT;
     uint32_t amask = SK_A32_MASK << SK_A32_SHIFT;
 
-    fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, fScreen->w, fScreen->h, 32,
-                                    rmask, gmask, bmask, amask);
+    if (fScreen->flags & SDL_OPENGL) {
+        fSurface = NULL;
+        fGLCanvas = new SkGLCanvas;
+        fGLCanvas->setViewport(fScreen->w, fScreen->h);
+    } else {
+        fGLCanvas = NULL;
+        fSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, fScreen->w, fScreen->h,
+                                        32, rmask, gmask, bmask, amask);
+    }
 }
 
 SkOSWindow::~SkOSWindow() {
-    SDL_FreeSurface(fSurface);
+    delete fGLCanvas;
+    if (fSurface) {
+        SDL_FreeSurface(fSurface);
+    }
 }
 
+#include <OpenGL/gl.h>
+
 void SkOSWindow::doDraw() {
-    if ( SDL_MUSTLOCK(fSurface) ) {
-        if ( SDL_LockSurface(fSurface) < 0 ) {
-            return;
+    if (fGLCanvas) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
+        glEnable(GL_TEXTURE_2D);
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        int count = fGLCanvas->save();
+        this->draw(fGLCanvas);
+        fGLCanvas->restoreToCount(count);
+        SDL_GL_SwapBuffers( );
+    } else {
+        if ( SDL_MUSTLOCK(fSurface) ) {
+            if ( SDL_LockSurface(fSurface) < 0 ) {
+                return;
+            }
         }
-    }
 
-    SkBitmap bitmap;
+        SkBitmap bitmap;
 
-    if (skia_setBitmapFromSurface(&bitmap, fSurface)) {
-        SkCanvas canvas(bitmap);
-        this->draw(&canvas);
-    }
+        if (skia_setBitmapFromSurface(&bitmap, fSurface)) {
+            SkCanvas canvas(bitmap);
+            this->draw(&canvas);
+        }
 
-    if ( SDL_MUSTLOCK(fSurface) ) {
-        SDL_UnlockSurface(fSurface);
-    }
+        if ( SDL_MUSTLOCK(fSurface) ) {
+            SDL_UnlockSurface(fSurface);
+        }
 
-    int result = SDL_BlitSurface(fSurface, NULL, fScreen, NULL);
-    if (result) {
-        SkDebugf("------- SDL_BlitSurface returned %d\n", result);
+        int result = SDL_BlitSurface(fSurface, NULL, fScreen, NULL);
+        if (result) {
+            SkDebugf("------- SDL_BlitSurface returned %d\n", result);
+        }
+        SDL_UpdateRect(fScreen, 0, 0, fScreen->w, fScreen->h);
     }
-    SDL_UpdateRect(fScreen, 0, 0, fScreen->w, fScreen->h);
 }
 
 static SkKey find_skkey(SDLKey src) {

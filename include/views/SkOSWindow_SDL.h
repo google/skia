@@ -20,6 +20,8 @@
 #include "SDL.h"
 #include "SkWindow.h"
 
+class SkGLCanvas;
+
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void* screen);
@@ -39,6 +41,7 @@ protected:
 private:
     SDL_Surface* fScreen;
     SDL_Surface* fSurface;
+    SkGLCanvas* fGLCanvas;
 
     void doDraw();
 

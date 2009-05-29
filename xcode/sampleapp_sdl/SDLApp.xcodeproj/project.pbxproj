@@ -81,6 +81,13 @@
 		2762F6420FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F6430FCCCA6C002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6410FCCCA6C002BD8B4 /* SkPageFlipper.cpp */; };
 		2762F6C20FCCCBC0002BD8B4 /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF00FC72BEE00D71FB0 /* SampleAll.cpp */; };
+		2778363D0FCF8908006549E4 /* SkGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 277836370FCF8908006549E4 /* SkGL.cpp */; };
+		2778363E0FCF8908006549E4 /* SkGLCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 277836380FCF8908006549E4 /* SkGLCanvas.cpp */; };
+		2778363F0FCF8908006549E4 /* SkGLDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 277836390FCF8908006549E4 /* SkGLDevice.cpp */; };
+		277836400FCF8908006549E4 /* SkGLDevice_FBO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2778363A0FCF8908006549E4 /* SkGLDevice_FBO.cpp */; };
+		277836410FCF8908006549E4 /* SkGLTextCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2778363B0FCF8908006549E4 /* SkGLTextCache.cpp */; };
+		277836420FCF8908006549E4 /* SkTextureCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2778363C0FCF8908006549E4 /* SkTextureCache.cpp */; };
+		277836500FCF89F9006549E4 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2778364F0FCF89F9006549E4 /* OpenGL.framework */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
@@ -207,6 +214,13 @@
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFlipPixelRef.cpp; path = ../../src/images/SkFlipPixelRef.cpp; sourceTree = SOURCE_ROOT; };
 		2762F6410FCCCA6C002BD8B4 /* SkPageFlipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkPageFlipper.cpp; path = ../../src/images/SkPageFlipper.cpp; sourceTree = SOURCE_ROOT; };
+		277836370FCF8908006549E4 /* SkGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGL.cpp; path = ../../src/gl/SkGL.cpp; sourceTree = SOURCE_ROOT; };
+		277836380FCF8908006549E4 /* SkGLCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGLCanvas.cpp; path = ../../src/gl/SkGLCanvas.cpp; sourceTree = SOURCE_ROOT; };
+		277836390FCF8908006549E4 /* SkGLDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGLDevice.cpp; path = ../../src/gl/SkGLDevice.cpp; sourceTree = SOURCE_ROOT; };
+		2778363A0FCF8908006549E4 /* SkGLDevice_FBO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGLDevice_FBO.cpp; path = ../../src/gl/SkGLDevice_FBO.cpp; sourceTree = SOURCE_ROOT; };
+		2778363B0FCF8908006549E4 /* SkGLTextCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGLTextCache.cpp; path = ../../src/gl/SkGLTextCache.cpp; sourceTree = SOURCE_ROOT; };
+		2778363C0FCF8908006549E4 /* SkTextureCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTextureCache.cpp; path = ../../src/gl/SkTextureCache.cpp; sourceTree = SOURCE_ROOT; };
+		2778364F0FCF89F9006549E4 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -223,6 +237,7 @@
 				006DC7EA0FC7475D00BF5F45 /* libeffects.a in Frameworks */,
 				006DC7EB0FC7475E00BF5F45 /* libmaccore.a in Frameworks */,
 				006DC7EC0FC7475F00BF5F45 /* libcore.a in Frameworks */,
+				277836500FCF89F9006549E4 /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,9 +396,24 @@
 			name = images;
 			sourceTree = "<group>";
 		};
+		277836430FCF890D006549E4 /* opengl */ = {
+			isa = PBXGroup;
+			children = (
+				277836370FCF8908006549E4 /* SkGL.cpp */,
+				277836380FCF8908006549E4 /* SkGLCanvas.cpp */,
+				277836390FCF8908006549E4 /* SkGLDevice.cpp */,
+				2778363A0FCF8908006549E4 /* SkGLDevice_FBO.cpp */,
+				2778363B0FCF8908006549E4 /* SkGLTextCache.cpp */,
+				2778363C0FCF8908006549E4 /* SkTextureCache.cpp */,
+			);
+			name = opengl;
+			sourceTree = "<group>";
+		};
 		29B97314FDCFA39411CA2CEA /* «PROJECTNAMEASXML» */ = {
 			isa = PBXGroup;
 			children = (
+				2778364F0FCF89F9006549E4 /* OpenGL.framework */,
+				277836430FCF890D006549E4 /* opengl */,
 				2762F63F0FCCCA45002BD8B4 /* images */,
 				0064EEB20FC7333300D71FB0 /* SkXMLParser_empty.cpp */,
 				0064EEB60FC7336100D71FB0 /* views */,
@@ -590,6 +620,12 @@
 				2762F6420FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp in Sources */,
 				2762F6430FCCCA6C002BD8B4 /* SkPageFlipper.cpp in Sources */,
 				2762F6C20FCCCBC0002BD8B4 /* SampleAll.cpp in Sources */,
+				2778363D0FCF8908006549E4 /* SkGL.cpp in Sources */,
+				2778363E0FCF8908006549E4 /* SkGLCanvas.cpp in Sources */,
+				2778363F0FCF8908006549E4 /* SkGLDevice.cpp in Sources */,
+				277836400FCF8908006549E4 /* SkGLDevice_FBO.cpp in Sources */,
+				277836410FCF8908006549E4 /* SkGLTextCache.cpp in Sources */,
+				277836420FCF8908006549E4 /* SkTextureCache.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -662,7 +698,7 @@
 				);
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/**";
+				USER_HEADER_SEARCH_PATHS = "../../src/** ../../include/**";
 			};
 			name = Debug;
 		};
@@ -687,7 +723,7 @@
 				);
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/**";
+				USER_HEADER_SEARCH_PATHS = "../../src/** ../../include/**";
 			};
 			name = Release;
 		};

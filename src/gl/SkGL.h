@@ -1,7 +1,7 @@
 #ifndef SkGL_DEFINED
 #define SkGL_DEFINED
 
-#ifdef SK_BUILD_FOR_MAC
+#if defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_SDL)
     #include <OpenGL/gl.h>
     #include <OpenGL/glext.h>
     #include <AGL/agl.h>
