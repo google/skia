@@ -21,6 +21,7 @@ SkBitmapProcShader::SkBitmapProcShader(const SkBitmap& src,
     fRawBitmap = src;
     fState.fTileModeX = (uint8_t)tmx;
     fState.fTileModeY = (uint8_t)tmy;
+    fFlags = 0; // computed in setContext
 }
 
 SkBitmapProcShader::SkBitmapProcShader(SkFlattenableReadBuffer& buffer)
@@ -28,6 +29,7 @@ SkBitmapProcShader::SkBitmapProcShader(SkFlattenableReadBuffer& buffer)
     fRawBitmap.unflatten(buffer);
     fState.fTileModeX = buffer.readU8();
     fState.fTileModeY = buffer.readU8();
+    fFlags = 0; // computed in setContext
 }
 
 void SkBitmapProcShader::beginSession() {
@@ -95,8 +97,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
     }
 
     // update fFlags
-    fFlags = 0; // this should happen in SkShader.cpp
-
+    fFlags = 0;
     if (bitmapIsOpaque && (255 == this->getPaintAlpha())) {
         fFlags |= kOpaqueAlpha_Flag;
     }

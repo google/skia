@@ -17,7 +17,7 @@ public:
         shape's matrix (if any).
      */
     void drawXY(SkCanvas*, SkScalar dx, SkScalar dy);
-    
+
     /** Draw the shape with the specified matrix, applied before the shape's
         matrix (if any).
      */

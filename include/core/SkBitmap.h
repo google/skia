@@ -379,7 +379,7 @@ public:
         @return true if the copy could be made.
     */
     bool copyTo(SkBitmap* dst, Config c, Allocator* allocator = NULL) const;
-    
+
     /** Returns true if this bitmap can be deep copied into the requested config
         by calling copyTo().
      */

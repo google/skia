@@ -35,7 +35,8 @@ SkColorTable::SkColorTable(int count)
     SkDEBUGCODE(f16BitCacheLockCount = 0;)
 }
 
-SkColorTable::SkColorTable(const SkColorTable& src) {
+// call SkRefCnt's constructor explicitly, to avoid warning
+SkColorTable::SkColorTable(const SkColorTable& src) : SkRefCnt() {
     f16BitCache = NULL;
     fFlags = src.fFlags;
     int count = src.count();

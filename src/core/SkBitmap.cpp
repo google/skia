@@ -246,7 +246,7 @@ void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
             goto ERROR;
         }
     }
-    
+
     fConfig     = SkToU8(c);
     fWidth      = width;
     fHeight     = height;
@@ -927,7 +927,7 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
         default:
             return; // don't build mipmaps for these configs
     }
-    
+
     SkAutoLockPixels alp(*this);
     if (!this->readyToDraw()) {
         return;
@@ -949,7 +949,7 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
             maxLevels += 1;
         }
     }
-    
+
     // nothing to build
     if (0 == maxLevels) {
         return;
