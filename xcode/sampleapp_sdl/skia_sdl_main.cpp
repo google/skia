@@ -17,7 +17,7 @@
 
 #define WINDOW_WIDTH    800
 #define WINDOW_HEIGHT   600
-#define USE_GL          true
+#define USE_GL          false
 
 int main(int argc, char *argv[]) {
 	Uint32 initflags = SDL_INIT_VIDEO | SDL_INIT_TIMER;

@@ -48,7 +48,7 @@ public:
 
 	ShaderView()
     {
-        SkImageDecoder::DecodeFile("/cover.png", &fBitmap);
+        SkImageDecoder::DecodeFile("/skimages/logo.gif", &fBitmap);
 
         SkPoint pts[2];
         SkColor colors[2];
@@ -79,14 +79,12 @@ public:
     
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-            if (SampleCode::TitleQ(*evt))
-            {
-                SampleCode::TitleR(evt, "Shaders");
-                return true;
-            }
-            return this->INHERITED::onQuery(evt);
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "Shaders");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
     }
     
     void drawBG(SkCanvas* canvas)
@@ -101,18 +99,7 @@ protected:
         
         canvas->drawBitmap(fBitmap, 0, 0);
         
-        {
-            SkIRect src;
-            SkRect  dst;
-            
-            src.set(20, 50, 120, 70);
-            dst.set(src);
-            dst.offset(SkIntToScalar(300), 0);
-
-            canvas->drawBitmapRect(fBitmap, &src, dst);
-        }
-
-        canvas->translate(SkIntToScalar(80), SkIntToScalar(80));
+        canvas->translate(SkIntToScalar(20), SkIntToScalar(120));
         
         SkPaint paint;
         SkRect  r;
@@ -124,7 +111,11 @@ protected:
 
         canvas->translate(SkIntToScalar(110), 0);
 
-        r.set(0, 0, SkIntToScalar(fBitmap.width()), SkIntToScalar(fBitmap.height()));
+        int w = fBitmap.width();
+        int h = fBitmap.height();
+        w = 120;
+        h = 80;
+        r.set(0, 0, SkIntToScalar(w), SkIntToScalar(h));
 
         paint.setShader(NULL);
         canvas->drawRect(r, paint);

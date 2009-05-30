@@ -29,14 +29,6 @@ static const struct {
 
 static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
 
-static const char* gStrings[] = {
-    "HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH",
-    "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii",
-    "......................................",
-    "11111111111111111111111111111111111111",
-    "00000000000000000000000000000000000000"
-};
-
 class FontScalerTestView : public SkView {
     SkTypeface* fFaces[gFaceCount];
 
@@ -110,7 +102,6 @@ protected:
         
         int index = 0;
         for (int ps = 9; ps <= 24; ps++) {
-         //   text = gStrings[index % SK_ARRAY_COUNT(gStrings)];
             textLen = strlen(text);
             paint.setTextSize(SkIntToScalar(ps));
             canvas->drawText(text, textLen, x, y, paint);

@@ -49,6 +49,7 @@ void SkFlipPixelRef::onUnlockPixels() {
 void SkFlipPixelRef::swapPages() {
     fMutex.acquire();
     SkTSwap<void*>(fPage0, fPage1);
+    this->notifyPixelsChanged();
     fMutex.release();
 }
 

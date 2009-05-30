@@ -20,48 +20,6 @@
 #include "SkStream.h"
 #include "SkNinePatch.h"
 
-void setup_vertexbug(SkPoint verts[], SkPoint texs[], uint16_t index[]);
-
-static void drawbug(SkCanvas* canvas, SkScalar scale) {
-    SkBitmap    bm, bm2;
-    
-    SkImageDecoder::DecodeFile("/skimages/btn_default_normal.9.png", &bm);
-    SkPaint paint;
-    
-    SkIRect subset;
-    subset.set(1, 1, bm.width() - 1, bm.height() - 1);
-    bm.extractSubset(&bm2, subset);
-    
-#if 0
-    SkPoint verts[16], texs[16];
-    uint16_t    index[54];
-    
-    SkShader* s = SkShader::CreateBitmapShader(bm2, SkShader::kClamp_TileMode,
-                                        SkShader::kClamp_TileMode);
-    paint.setShader(s)->unref();
-    
-    setup_vertexbug(verts, texs, index);
-    int indexCount = 6;    // 54
-    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, 16, verts, texs,
-                         NULL, NULL, &index[6], indexCount, paint);
-
-#if 0
-    paint.setShader(NULL);
-    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, 16, verts, NULL,
-                         NULL, NULL, index, indexCount, paint);
-#endif
-#else
-    SkRect  dst;
-    SkIRect margin;
-    
-    dst.set(SkIntToScalar(10), SkIntToScalar(10),
-            SkIntToScalar(100) + scale,
-            SkIntToScalar(40) + scale);
-    margin.set(9, 9, 9, 9);
-    SkNinePatch::DrawNine(canvas, dst, bm2, margin, NULL);
-#endif
-}
-
 static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;
     
@@ -121,16 +79,6 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
-#if 1
-        canvas->drawColor(SK_ColorWHITE);
-        canvas->translate(SK_Scalar1/2, SkIntToScalar(15) + SK_Scalar1/2);
-        canvas->scale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
-        drawbug(canvas, fScale);
-        fScale += SK_Scalar1/93;
-        this->inval(NULL);
-        return;
-#endif
         
         SkPaint paint;
         paint.setDither(true);

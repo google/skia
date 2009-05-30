@@ -44,7 +44,7 @@ static void* draw_proc(void* context) {
     SkPaint paint;
     
     paint.setAntiAlias(true);
-    paint.setColor(reinterpret_cast<SkColor>(ref) | (0xFF << 24));
+    paint.setColor(SK_ColorRED);
     
     SkRect oval;
     oval.setEmpty();

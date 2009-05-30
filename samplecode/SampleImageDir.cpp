@@ -234,21 +234,12 @@ protected:
             DrawRoundRect(*canvas);
             return;
         }
-        
-        SkScalar scale = SK_Scalar1 * 999/1000;
-//        scale = SK_Scalar1/2;
-        
+    
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
-   //     canvas->scale(scale, scale);
         
         SkScalar x = SkIntToScalar(32), y = SkIntToScalar(32);
         SkPaint paint;
-        
-    //    x += fDX;
-    //    y += fDY;
-    
-//        paint.setLooper(new SkBlurDrawLooper(SkIntToScalar(12), 0, 0, 0xDD000000))->unref();
-        
+
 #if 0
         for (int i = 0; i < fBitmapCount; i++) {
             SkPaint p;

@@ -90,13 +90,13 @@ static SkMaskFilter* makemf() { return new Darken(0x30); }
 
 static void test_typefaceCache()
 {
+#ifdef ANDROID
     SkTypeface* t0 = SkTypeface::CreateFromName("sans-serif",
                                                 SkTypeface::kNormal);
     SkTypeface* t1 = SkTypeface::CreateFromName(NULL, SkTypeface::kNormal);
     SkTypeface* t2 = SkTypeface::CreateFromName("arial", SkTypeface::kNormal);
     SkTypeface* t3 = SkTypeface::CreateFromName("helvetica", SkTypeface::kItalic);
     
-#ifdef ANDROID
     SkASSERT(t0 == t1);
     SkASSERT(t0 == t2);
     SkASSERT(t0 == t3);
