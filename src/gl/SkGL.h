@@ -10,6 +10,7 @@
 #elif defined(ANDROID)
     #include <GLES/gl.h>
     #include <EGL/egl.h>
+    #include <GLES/glext.h>
 #endif
 
 #include "SkColor.h"
