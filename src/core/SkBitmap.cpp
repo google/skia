@@ -235,15 +235,13 @@ void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
     this->freePixels();
 
     if ((width | height | rowBytes) < 0) {
-    ERROR:
-        this->reset();
-        return;
+        goto err;
     }
 
     if (rowBytes == 0) {
         rowBytes = SkBitmap::ComputeRowBytes(c, width);
         if (0 == rowBytes && kNo_Config != c) {
-            goto ERROR;
+            goto err;
         }
     }
 
@@ -255,6 +253,9 @@ void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
     fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
 
     SkDEBUGCODE(this->validate();)
+
+err:
+    this->reset();
 }
 
 void SkBitmap::updatePixelsFromRef() const {
