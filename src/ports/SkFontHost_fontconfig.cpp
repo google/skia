@@ -72,6 +72,19 @@ static unsigned FileIdAndStyleToUniqueId(unsigned fileid,
     return (fileid << 8) | static_cast<int>(style);
 }
 
+// -----------------------------------------------------------------------------
+// Normally we only return exactly the font asked for. In last-resort cases,
+// the request is for one of the basic font names "Sans", "Serif" or
+// "Monospace". This function tells you whether a given request is for such a
+// fallback.
+// -----------------------------------------------------------------------------
+static bool IsFallbackFontAllowed(const char* request)
+{
+    return strcmp(request, "Sans") == 0 ||
+           strcmp(request, "Serif") == 0 ||
+           strcmp(request, "Monospace") == 0;
+}
+
 class FontConfigTypeface : public SkTypeface {
 public:
     FontConfigTypeface(Style style, uint32_t id)
@@ -85,18 +98,18 @@ public:
 // The variable arguments are a list of triples, just like the first three
 // arguments, and must be NULL terminated.
 //
-// For example, FontMatchString(FC_FILE, FcTypeString,
-//                              "/usr/share/fonts/myfont.ttf", NULL);
+// For example,
+//   FontMatchString(FC_FILE, FcTypeString, "/usr/share/fonts/myfont.ttf",
+//                   NULL);
 // -----------------------------------------------------------------------------
-static FcPattern* FontMatch(bool is_fallback,
-                            const char* type, FcType vtype, const void* value,
+static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
                             ...)
 {
     va_list ap;
     va_start(ap, value);
 
     FcPattern* pattern = FcPatternCreate();
-    bool family_requested = false;
+    const char* family_requested = NULL;
 
     for (;;) {
         FcValue fcvalue;
@@ -114,7 +127,7 @@ static FcPattern* FontMatch(bool is_fallback,
         FcPatternAdd(pattern, type, fcvalue, 0);
 
         if (vtype == FcTypeString && strcmp(type, FC_FAMILY) == 0)
-            family_requested = true;
+            family_requested = (const char*) value;
 
         type = va_arg(ap, const char *);
         if (!type)
@@ -154,6 +167,8 @@ static FcPattern* FontMatch(bool is_fallback,
     //    post_config_family: "Monaco"
     //    post_match_family: "Times New Roman"
     //      -> BAD match
+    //
+    // However, we special-case fallback fonts; see IsFallbackFontAllowed().
     FcChar8* post_config_family;
     FcPatternGetString(pattern, FC_FAMILY, 0, &post_config_family);
 
@@ -173,7 +188,7 @@ static FcPattern* FontMatch(bool is_fallback,
 
     FcPatternDestroy(pattern);
 
-    if (!family_names_match && !is_fallback) {
+    if (!family_names_match && !IsFallbackFontAllowed(family_requested)) {
         FcPatternDestroy(match);
         return NULL;
     }
@@ -227,7 +242,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
             return NULL;
 
         FcInit();
-        face_match = FontMatch(false, FC_FILE, FcTypeString, i->second.c_str(),
+        face_match = FontMatch(FC_FILE, FcTypeString, i->second.c_str(),
                                NULL);
 
         if (!face_match)
@@ -254,8 +269,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                      FC_WEIGHT_BOLD : FC_WEIGHT_NORMAL;
     const int italic = style & SkTypeface::kItalic ?
                        FC_SLANT_ITALIC : FC_SLANT_ROMAN;
-    FcPattern* match = FontMatch(false,
-                                 FC_FAMILY, FcTypeString, resolved_family_name,
+    FcPattern* match = FontMatch(FC_FAMILY, FcTypeString, resolved_family_name,
                                  FC_WEIGHT, FcTypeInteger, bold,
                                  FC_SLANT, FcTypeInteger, italic,
                                  NULL);
