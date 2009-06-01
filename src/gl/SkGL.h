@@ -24,6 +24,9 @@ class SkGLClipIter;
 
 //#define TRACE_TEXTURE_CREATE
 
+static void SkGL_unimpl(const char str[]) {
+    SkDebugf("SkGL unimplemented: %s\n", str);
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GL_OES_compressed_paletted_texture

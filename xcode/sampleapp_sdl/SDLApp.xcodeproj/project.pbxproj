@@ -75,6 +75,7 @@
 		006DC7EC0FC7475F00BF5F45 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 006DC7E90FC7475900BF5F45 /* libcore.a */; };
 		00A728490FD43E7600D5051F /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0C0FC72BEE00D71FB0 /* SampleMovie.cpp */; };
 		00A7284D0FD43E8900D5051F /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7284B0FD43E8900D5051F /* SkMovie.cpp */; };
+		00A7288C0FD4702A00D5051F /* SampleTestGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7288B0FD4702A00D5051F /* SampleTestGL.cpp */; };
 		2762F6040FCCC832002BD8B4 /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE190FC72BEE00D71FB0 /* SampleShapes.cpp */; };
 		2762F6420FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F6430FCCCA6C002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6410FCCCA6C002BD8B4 /* SkPageFlipper.cpp */; };
@@ -213,6 +214,7 @@
 		0096585B0FC7201800C3AE15 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		00A7284B0FD43E8900D5051F /* SkMovie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie.cpp; path = ../../src/images/SkMovie.cpp; sourceTree = SOURCE_ROOT; };
 		00A7284C0FD43E8900D5051F /* SkMovie_gif.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie_gif.cpp; path = ../../src/images/SkMovie_gif.cpp; sourceTree = SOURCE_ROOT; };
+		00A7288B0FD4702A00D5051F /* SampleTestGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleTestGL.cpp; sourceTree = "<group>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFlipPixelRef.cpp; path = ../../src/images/SkFlipPixelRef.cpp; sourceTree = SOURCE_ROOT; };
@@ -264,6 +266,7 @@
 				0064EDFB0FC72BEE00D71FB0 /* SampleEmboss.cpp */,
 				0064EDFC0FC72BEE00D71FB0 /* SampleEncode.cpp */,
 				0064EDFD0FC72BEE00D71FB0 /* SampleFillType.cpp */,
+				00A7288B0FD4702A00D5051F /* SampleTestGL.cpp */,
 				0064EDFE0FC72BEE00D71FB0 /* SampleFilter.cpp */,
 				0064EDFF0FC72BEE00D71FB0 /* SampleFilter2.cpp */,
 				0064EE000FC72BEE00D71FB0 /* SampleFontCache.cpp */,
@@ -632,6 +635,7 @@
 				27E1AB2B0FD0D06600098FC5 /* SamplePageFlip.cpp in Sources */,
 				00A728490FD43E7600D5051F /* SampleMovie.cpp in Sources */,
 				00A7284D0FD43E8900D5051F /* SkMovie.cpp in Sources */,
+				00A7288C0FD4702A00D5051F /* SampleTestGL.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
