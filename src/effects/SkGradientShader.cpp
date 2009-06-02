@@ -274,6 +274,7 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[],
             }
         }
     }
+    fFlags = 0;
 }
 
 Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
@@ -307,6 +308,7 @@ Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
         }
     }
     buffer.read(&fPtsToUnit, sizeof(SkMatrix));
+    fFlags = 0;
 }
 
 Gradient_Shader::~Gradient_Shader() {

@@ -346,7 +346,7 @@ void SkGLDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         vertex->setRectFan(rect);
     }
 
-    const SkGLVertex* texs = shader.useTex() ? vertex : NULL;    
+    const SkGLVertex* texs = shader.useTex() ? vertex : NULL;
     SkGL::DrawVertices(vertCount, vertMode, vertex, texs, NULL, NULL,
                        this->updateMatrixClip());
 }
