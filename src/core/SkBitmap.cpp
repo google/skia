@@ -253,7 +253,9 @@ void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
     fBytesPerPixel = (uint8_t)ComputeBytesPerPixel(c);
 
     SkDEBUGCODE(this->validate();)
+    return;
 
+    // if we got here, we had an error, so we reset the bitmap to empty
 err:
     this->reset();
 }
