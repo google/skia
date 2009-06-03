@@ -82,16 +82,28 @@ public:
     */
     void toggleInverseFillType() { fFillType ^= 2; }
 
+    /** Returns true if the path is flagged as being convex. This is not a
+        confirmed by any analysis, it is just the value set earlier.
+     */
+    bool isConvex() const { return fIsConvex; }
+
+    /** Set the isConvex flag to true or false. Convex paths may draw faster if
+        this flag is set, though setting this to true on a path that is in fact
+        not convex can give undefined results when drawn. Paths default to
+        isConvex == false
+     */
+    void setIsConvex(bool isConvex) { fIsConvex = (isConvex != 0); }
+
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
-        This does NOT change the fill-type setting.
+        This does NOT change the fill-type setting nor isConvex
     */
     void reset();
     
     /** Similar to reset(), in that all lines and curves are removed from the
         path. However, any internal storage for those lines/curves is retained,
         making reuse of the path potentially faster.
-        This does NOT change the fill-type setting.
+        This does NOT change the fill-type setting nor isConvex
     */
     void rewind();
 
@@ -562,6 +574,7 @@ private:
     mutable SkRect      fBounds;
     mutable uint8_t     fBoundsIsDirty;
     uint8_t             fFillType;
+    uint8_t             fIsConvex;
 
     // called, if dirty, by getBounds()
     void computeBounds() const;

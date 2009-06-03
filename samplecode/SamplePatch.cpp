@@ -214,11 +214,11 @@ static void drawpatches(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     SkAutoCanvasRestore ar(canvas, true);
 
     patch->draw(canvas, paint, 10, 10, false, false);
-    canvas->translate(SkIntToScalar(300), 0);
+    canvas->translate(SkIntToScalar(180), 0);
     patch->draw(canvas, paint, 10, 10, true, false);
-    canvas->translate(SkIntToScalar(300), 0);
+    canvas->translate(SkIntToScalar(180), 0);
     patch->draw(canvas, paint, 10, 10, false, true);
-    canvas->translate(SkIntToScalar(300), 0);
+    canvas->translate(SkIntToScalar(180), 0);
     patch->draw(canvas, paint, 10, 10, true, true);
 }
 
@@ -237,20 +237,20 @@ public:
         }
         fShader1 = make_shader1(fSize1);
 
-        const SkScalar S = SkIntToScalar(90);
-        const SkScalar T = SkIntToScalar(64);
-        fPts[0].set(S*1, T);
-        fPts[1].set(S*2, T);
-        fPts[2].set(S*3, T);
-        fPts[3].set(S*4, T);
-        fPts[4].set(S*4, T*2);
-        fPts[5].set(S*4, T*3);
-        fPts[6].set(S*4, T*4);
-        fPts[7].set(S*3, T*4);
-        fPts[8].set(S*2, T*4);
-        fPts[9].set(S*1, T*4);
-        fPts[10].set(S*1, T*3);
-        fPts[11].set(S*1, T*2);
+        const SkScalar S = SkIntToScalar(50);
+        const SkScalar T = SkIntToScalar(40);
+        fPts[0].set(S*0, T);
+        fPts[1].set(S*1, T);
+        fPts[2].set(S*2, T);
+        fPts[3].set(S*3, T);
+        fPts[4].set(S*3, T*2);
+        fPts[5].set(S*3, T*3);
+        fPts[6].set(S*3, T*4);
+        fPts[7].set(S*2, T*4);
+        fPts[8].set(S*1, T*4);
+        fPts[9].set(S*0, T*4);
+        fPts[10].set(S*0, T*3);
+        fPts[11].set(S*0, T*2);
     }
     
     virtual ~PatchView() {
@@ -352,6 +352,8 @@ protected:
             return;
         }
         
+        canvas->translate(SkIntToScalar(20), 0);
+
         Patch   patch;
         
         paint.setShader(fShader0);

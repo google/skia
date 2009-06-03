@@ -1,11 +1,27 @@
 #include "Test.h"
 #include "SkPath.h"
 
+static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
+                                const SkRect& bounds) {
+    REPORTER_ASSERT(reporter, p.isConvex());
+    REPORTER_ASSERT(reporter, p.getBounds() == bounds);
+    
+    SkPath p2(p);
+    REPORTER_ASSERT(reporter, p2.isConvex());
+    REPORTER_ASSERT(reporter, p2.getBounds() == bounds);
+
+    SkPath other;
+    other.swap(p2);
+    REPORTER_ASSERT(reporter, other.isConvex());
+    REPORTER_ASSERT(reporter, other.getBounds() == bounds);
+}
+
 static void TestPath(skiatest::Reporter* reporter) {
     SkPath  p, p2;
     SkRect  bounds, bounds2;
 
     REPORTER_ASSERT(reporter, p.isEmpty());
+    REPORTER_ASSERT(reporter, !p.isConvex());
     REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, !p.isInverseFillType());
     REPORTER_ASSERT(reporter, p == p2);
@@ -14,8 +30,20 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p.getBounds().isEmpty());
 
     bounds.set(0, 0, SK_Scalar1, SK_Scalar1);
+
+    p.setIsConvex(false);
+    p.addRoundRect(bounds, SK_Scalar1, SK_Scalar1);
+    check_convex_bounds(reporter, p, bounds);
+    
+    p.reset();
+    p.setIsConvex(false);
+    p.addOval(bounds);
+    check_convex_bounds(reporter, p, bounds);
+    
+    p.reset();
+    p.setIsConvex(false);
     p.addRect(bounds);
-    REPORTER_ASSERT(reporter, bounds == p.getBounds());
+    check_convex_bounds(reporter, p, bounds);
 
     REPORTER_ASSERT(reporter, p != p2);
     REPORTER_ASSERT(reporter, !(p == p2));

@@ -169,6 +169,7 @@ SkGLDevice::TexCache* SkGLDevice::setupGLPaintShader(const SkPaint& paint) {
     SkMatrix matrix;
     SkShader::TileMode tileModes[2];
     if (!shader->asABitmap(&bitmap, &matrix, tileModes)) {
+        SkGL_unimpl("shader->asABitmap() == false");
         return NULL;
     }
     
@@ -232,6 +233,7 @@ void SkGLDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
                        this->updateMatrixClip());
 }
 
+// must be in SkCanvas::PointMode order
 static const GLenum gPointMode2GL[] = {
     GL_POINTS,
     GL_LINES,
@@ -339,6 +341,7 @@ void SkGLDevice::drawRect(const SkDraw& draw, const SkRect& rect,
             vertex[2].setScalars(rect.fRight, rect.fBottom);
             vertex[3].setScalars(rect.fLeft, rect.fBottom);
             vertex[4].setScalars(rect.fLeft, rect.fTop);
+            glLineWidth(1);
         }
     } else {
         vertCount = 4;
@@ -355,6 +358,7 @@ void SkGLDevice::drawPath(const SkDraw& draw, const SkPath& path,
                           const SkPaint& paint) {
     TRACE_DRAW("coreDrawPath", this, draw);
     if (paint.getStyle() == SkPaint::kStroke_Style) {
+        SkGL_unimpl("stroke path");
         return;
     }
     
@@ -599,7 +603,7 @@ static void SkGL_Draw1Glyph(const SkDraw1Glyph& state, const SkGlyph& glyph,
     SkGLDrawProcs* procs = (SkGLDrawProcs*)state.fDraw->fProcs;
     
     x += glyph.fLeft;
-    y  += glyph.fTop;
+    y += glyph.fTop;
     
     // check if we're clipped out (nothing to draw)
 	SkIRect bounds;
@@ -636,6 +640,7 @@ static void SkGL_Draw1Glyph(const SkDraw1Glyph& state, const SkGlyph& glyph,
         }
         strike = textCache->addGlyphAndBind(glyph, aa, &offset);
         if (NULL == strike) {
+            SkGL_unimpl("addGlyphAndBind failed, too big");
             // too big to cache, need to draw as is...
             return;
         }
@@ -772,6 +777,7 @@ void SkGLDevice::drawText(const SkDraw& draw, const void* text,
      - option to have draw call the font cache, which we could patch (?)
      */
     if (draw.fMatrix->getType() & SkMatrix::kPerspective_Mask) {
+        SkGL_unimpl("drawText in perspective");
         return;
     }
     
@@ -787,6 +793,7 @@ void SkGLDevice::drawPosText(const SkDraw& draw, const void* text,
                              SkScalar constY, int scalarsPerPos,
                              const SkPaint& paint) {
     if (draw.fMatrix->getType() & SkMatrix::kPerspective_Mask) {
+        SkGL_unimpl("drawPosText in perspective");
         return;
     }
     
@@ -801,6 +808,6 @@ void SkGLDevice::drawPosText(const SkDraw& draw, const void* text,
 void SkGLDevice::drawTextOnPath(const SkDraw& draw, const void* text,
                                 size_t byteLength, const SkPath& path,
                                 const SkMatrix* m, const SkPaint& paint) {
-    // not supported yet
+    SkGL_unimpl("drawTextOnPath");
 }
 

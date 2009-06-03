@@ -28,6 +28,9 @@
     It captures some state about the path up front (i.e. if it already has a
     cached bounds), and the if it can, it updates the cache bounds explicitly,
     avoiding the need to revisit all of the points in getBounds().
+ 
+    It also notes if the path was originally empty, and if so, sets isConvex
+    to true. Thus it can only be used if the contour being added is convex.
  */
 class SkAutoPathBoundsUpdate {
 public:
@@ -42,6 +45,7 @@ public:
     }
     
     ~SkAutoPathBoundsUpdate() {
+        fPath->setIsConvex(fEmpty);
         if (fEmpty) {
             fPath->fBounds = fRect;
             fPath->fBoundsIsDirty = false;
@@ -52,13 +56,13 @@ public:
     }
     
 private:
-    const SkPath*   fPath;
-    SkRect          fRect;
-    bool            fDirty;
-    bool            fEmpty;
+    SkPath* fPath;
+    SkRect  fRect;
+    bool    fDirty;
+    bool    fEmpty;
     
     // returns true if we should proceed
-    void init(const SkPath* path) {
+    void init(SkPath* path) {
         fPath = path;
         fDirty = path->fBoundsIsDirty;
         fEmpty = path->isEmpty();
@@ -91,7 +95,9 @@ static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-SkPath::SkPath() : fBoundsIsDirty(true), fFillType(kWinding_FillType) {}
+SkPath::SkPath() : fBoundsIsDirty(true), fFillType(kWinding_FillType) {
+    fIsConvex = false;
+}
 
 SkPath::SkPath(const SkPath& src) {
     SkDEBUGCODE(src.validate();)
@@ -111,12 +117,15 @@ SkPath& SkPath::operator=(const SkPath& src) {
         fVerbs          = src.fVerbs;
         fFillType       = src.fFillType;
         fBoundsIsDirty  = src.fBoundsIsDirty;
+        fIsConvex       = src.fIsConvex;
     }
     SkDEBUGCODE(this->validate();)
     return *this;
 }
 
 bool operator==(const SkPath& a, const SkPath& b) {
+    // note: don't need to look at isConvex or bounds, since just comparing the
+    // raw data is sufficient.
     return &a == &b ||
         (a.fFillType == b.fFillType && a.fVerbs == b.fVerbs && a.fPts == b.fPts);
 }
@@ -130,6 +139,7 @@ void SkPath::swap(SkPath& other) {
         fVerbs.swap(other.fVerbs);
         SkTSwap<uint8_t>(fFillType, other.fFillType);
         SkTSwap<uint8_t>(fBoundsIsDirty, other.fBoundsIsDirty);
+        SkTSwap<uint8_t>(fIsConvex, other.fIsConvex);
     }
 }
 

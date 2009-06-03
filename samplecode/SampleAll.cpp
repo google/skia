@@ -30,8 +30,6 @@
 #include "SkXfermode.h"
 
 #include <math.h>
-
-extern void Dump();
     
 static inline SkPMColor rgb2gray(SkPMColor c)
 {
@@ -427,7 +425,6 @@ protected:
                     break;
             } while (true);
         }
-        Dump();
     }
     
     void drawPicture(SkCanvas* canvas, int spriteOffset)
@@ -710,7 +707,6 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
     void drawOneRaster(SkCanvas* canvas)
     {        
         canvas->save();
-//        canvas->scale(SK_Scalar1*2, SK_Scalar1*2, 0, 0);
 
         SkScalar    x = SkIntToScalar(20);
         SkScalar    y = SkIntToScalar(40);
@@ -742,31 +738,13 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
             paint.setStyle(SkPaint::kStroke_Style);
             canvas->drawOval(oval, paint);
             paint.setStyle(SkPaint::kFill_Style);
-            if (0)
-            {
-                SkPath path;
-                paint.getTextPath(str.c_str(), str.size(), x + SkIntToScalar(260), y, &path);
-                canvas->drawPath(path, paint);
-            }
 
             y += paint.getFontSpacing();
         }
 
         canvas->restore();
         
-        if (0)
-        {
-            SkPoint pts[] = { 0, 0, 0, SkIntToScalar(150) };
-            SkColor colors[] = { 0xFFE6E6E6, 0xFFFFFFFF };
-            SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
-
-            paint.reset();
-            paint.setShader(s)->unref();
-            canvas->drawRectCoords(0, 0, SkIntToScalar(120), SkIntToScalar(150), paint);
-        }
-        
-        if (1)
-        {
+        if (1) {
             SkAvoidXfermode   mode(SK_ColorWHITE, 0xFF,
                                    SkAvoidXfermode::kTargetColor_Mode);
             SkPaint paint;

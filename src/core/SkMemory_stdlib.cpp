@@ -156,17 +156,11 @@ private:
     }
 };
 
-void Dump()
-{
-    SkBlockHeader::Dump();
-}
-
 void ValidateHeap()
 {
     SkBlockHeader::Validate();
 }
 #else
-void Dump() {}
 void ValidateHeap() {}
 #endif
 

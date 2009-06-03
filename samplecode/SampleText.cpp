@@ -436,7 +436,7 @@ public:
 
         test_breakText();        
         test_typefaceCache();
-        test_poly();
+//        test_poly();
     }
     
     virtual ~TextSpeedView()
