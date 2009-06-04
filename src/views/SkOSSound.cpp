@@ -119,7 +119,7 @@ static void init_wave()
 {
 	if (gInited == false)
 	{
-		gWave.hwo = nil;
+		gWave.hwo = NULL;
 		gWavePaused = false;
 		gVolume = 0x80;
 		gInited = true;
@@ -137,7 +137,7 @@ void SkOSSound::Play(const char path[])
 {
 	init_wave();
 
-	if (gWave.hwo != nil)
+	if (gWave.hwo != NULL)
 		SkOSSound::Stop();
 
 	U32 v32 = (gVolume << 8) | gVolume;	// fill it out to 16bits
@@ -163,7 +163,7 @@ void SkOSSound::Pause()
 {
 	init_wave();
 
-	if (gWave.hwo == nil || (gWave.whdr.dwFlags & WHDR_DONE))
+	if (gWave.hwo == NULL || (gWave.whdr.dwFlags & WHDR_DONE))
 		return;
 	waveOutPause(gWave.hwo);
 	gWavePaused = true;
@@ -173,7 +173,7 @@ void SkOSSound::Resume()
 {
 	init_wave();
 
-	if (gWave.hwo == nil || (gWave.whdr.dwFlags & WHDR_DONE))
+	if (gWave.hwo == NULL || (gWave.whdr.dwFlags & WHDR_DONE))
 		return;
 	waveOutRestart(gWave.hwo);
 	gWavePaused = false;
@@ -183,13 +183,13 @@ void SkOSSound::Stop()
 {
 	init_wave();
 
-//	if (gWave.hwo == nil || (gWave.whdr.dwFlags & WHDR_DONE))
-	if (gWave.hwo == nil)
+//	if (gWave.hwo == NULL || (gWave.whdr.dwFlags & WHDR_DONE))
+	if (gWave.hwo == NULL)
 		return;
 	waveOutReset(gWave.hwo);
 	EndWave(&gWave);
 	gWavePaused = false;
-	gWave.hwo = nil;
+	gWave.hwo = NULL;
 }
 
 U8 SkOSSound::GetVolume()
@@ -219,7 +219,7 @@ void SkOSSound::SetVolume(U8CPU vol)
 #if 0
 unsigned long SoundManager::GetPosition()
 {
-	if (fWave.hwo == nil)
+	if (fWave.hwo == NULL)
 		return 0;
 	MMTIME time;
 	time.wType = TIME_MS;
@@ -234,7 +234,7 @@ unsigned long SoundManager::GetPosition()
 
 MMRESULT StartWave(const char path[], SkOSSoundWave* wave, U32 vol)
 {
-	HWAVEOUT hwo = nil;
+	HWAVEOUT hwo = NULL;
 //	WAVEHDR whdr;
 	MMRESULT mmres = 0;
 //	CWaveFile waveFile;

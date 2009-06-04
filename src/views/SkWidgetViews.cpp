@@ -117,7 +117,7 @@ void SkWidgetView::setLabel(const char label[])
 
 void SkWidgetView::setLabel(const char label[], size_t len)
 {
-	if (label == nil && fLabel.size() != 0 || !fLabel.equals(label, len))
+	if (label == NULL && fLabel.size() != 0 || !fLabel.equals(label, len))
 	{
 		SkString	tmp(label, len);
 
@@ -160,13 +160,13 @@ bool SkWidgetView::postWidgetEvent()
 	if (label)
 		this->setLabel(label);
 		
-	if ((node = dom.getFirstChild(node, "event")) != nil)
+	if ((node = dom.getFirstChild(node, "event")) != NULL)
 		fEvent.inflate(dom, node);
 }
 
 /*virtual*/ void SkWidgetView::onLabelChange(const char oldLabel[], const char newLabel[])
 {
-	this->inval(nil);
+	this->inval(NULL);
 }
 
 static const char gWidgetEventSinkIDSlotName[] = "sk-widget-sinkid-slot";
@@ -215,7 +215,7 @@ void SkCheckButtonView::setCheckState(CheckState state)
 	
 /*virtual*/ void SkCheckButtonView::onCheckStateChange(CheckState oldState, CheckState newState)
 {
-	this->inval(nil);
+	this->inval(NULL);
 }
 
 /*virtual*/ void SkCheckButtonView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
@@ -303,7 +303,7 @@ protected:
 		SkAnimator::DifferenceType	diff = fAnim.draw(canvas, &paint, SkTime::GetMSecs());
 		
 		if (diff == SkAnimator::kDifferent)
-			this->inval(nil);
+			this->inval(NULL);
 		else if (diff == SkAnimator::kPartiallyDifferent)
 		{
 			SkRect	bounds;
@@ -316,7 +316,7 @@ protected:
 	{
 		if (evt.isType(SK_EventType_Inval))
 		{
-			this->inval(nil);
+			this->inval(NULL);
 			return true;
 		}
 		if (evt.isType("recommendDim"))
@@ -395,7 +395,7 @@ void SkStaticTextView::setMode(Mode mode)
 void SkStaticTextView::setSpacingAlign(SkTextBox::SpacingAlign align)
 {
 	fSpacingAlign = SkToU8(align);
-	this->inval(nil);
+	this->inval(NULL);
 }
 
 void SkStaticTextView::getMargin(SkPoint* margin) const
@@ -410,7 +410,7 @@ void SkStaticTextView::setMargin(SkScalar dx, SkScalar dy)
 	{
 		fMargin.set(dx, dy);
 		this->computeSize();
-		this->inval(nil);
+		this->inval(NULL);
 	}
 }
 
@@ -435,7 +435,7 @@ void SkStaticTextView::setText(const SkString& text)
 
 void SkStaticTextView::setText(const char text[])
 {
-	if (text == nil)
+	if (text == NULL)
 		text = "";
 	this->setText(text, strlen(text));
 }
@@ -446,7 +446,7 @@ void SkStaticTextView::setText(const char text[], size_t len)
 	{
 		fText.set(text, len);
 		this->computeSize();
-		this->inval(nil);
+		this->inval(NULL);
 	}
 }
 
@@ -462,7 +462,7 @@ void SkStaticTextView::setPaint(const SkPaint& paint)
 	{
 		fPaint = paint;
 		this->computeSize();
-		this->inval(nil);
+		this->inval(NULL);
 	}
 }
 
@@ -506,8 +506,8 @@ void SkStaticTextView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 	if (text)
 		this->setText(text);
 
-	if ((node = dom.getFirstChild(node, "paint")) != nil &&
-		(node = dom.getFirstChild(node, "screenplay")) != nil)
+	if ((node = dom.getFirstChild(node, "paint")) != NULL &&
+		(node = dom.getFirstChild(node, "screenplay")) != NULL)
 	{
 		inflate_paint(dom, node, &fPaint);
 	}
@@ -518,8 +518,8 @@ void SkStaticTextView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 
 SkView* SkWidgetFactory(const char name[])
 {
-	if (name == nil)
-		return nil;
+	if (name == NULL)
+		return NULL;
 	
 	// must be in the same order as the SkSkinWidgetEnum is declared
 	static const char* gNames[] = {
@@ -537,7 +537,7 @@ SkView* SkWidgetFactory(const char name[])
 		if (!strcmp(gNames[i], name))
 			return SkWidgetFactory((SkWidgetEnum)i);
 
-	return nil;
+	return NULL;
 }
 
 #include "SkImageView.h"
@@ -566,5 +566,5 @@ SkView* SkWidgetFactory(SkWidgetEnum sw)
 		SkASSERT(!"unknown enum passed to SkWidgetFactory");
 		break;
 	}
-	return nil;
+	return NULL;
 }

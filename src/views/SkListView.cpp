@@ -9,7 +9,7 @@
 
 SkEvent* SkListSource::getEvent(int index)
 {
-	return nil;
+	return NULL;
 }
 
 #include "SkOSFile.h"
@@ -27,7 +27,7 @@ public:
 		{
 			fCount = 0;
 			fIter.reset(fPath.c_str(), fSuffix.c_str());
-			while (fIter.next(nil))
+			while (fIter.next(NULL))
 				fCount += 1;
 			fIter.reset(fPath.c_str(), fSuffix.c_str());
 			fIndex = 0;
@@ -47,7 +47,7 @@ public:
 
 		while (fIndex < index)
 		{
-			fIter.next(nil);
+			fIter.next(NULL);
 			fIndex += 1;
 		}
 
@@ -73,7 +73,7 @@ public:
 		SkEvent*	evt = new SkEvent();
 		SkString	label;
 
-		this->getRow(index, &label, nil);
+		this->getRow(index, &label, NULL);
 		evt->setString("name", label.c_str());
 
 		int c = fPath.c_str()[fPath.size() - 1];
@@ -129,7 +129,7 @@ public:
 		}
 
 		fCount = count;
-		fList = nil;
+		fList = NULL;
 		if (count)
 		{
 			ItemRec* rec = fList = new ItemRec[count];
@@ -183,7 +183,7 @@ public:
 		if (fList[index].fType == kToggle_Type)
 			fList[index].fTail.swap(fList[index].fAltTail);
 
-		return nil;
+		return NULL;
 	}
 
 private:
@@ -202,12 +202,12 @@ SkListSource* SkListSource::CreateFromDOM(const SkDOM& dom, const SkDOM::Node* n
 
 SkListView::SkListView(U32 flags) : SkWidgetView(flags)
 {
-	fSource = nil;
+	fSource = NULL;
 	fScrollIndex = 0;
 	fCurrIndex = -1;
 	fRowHeight = SkIntToScalar(16);
 	fVisibleRowCount = 0;
-	fStrCache = nil;
+	fStrCache = NULL;
 
 	fPaint[kBG_Attr].setColor(0);
 	fPaint[kNormalText_Attr].setTextSize(SkIntToScalar(14));
@@ -229,7 +229,7 @@ void SkListView::setRowHeight(SkScalar height)
 	if (fRowHeight != height)
 	{
 		fRowHeight = height;
-		this->inval(nil);
+		this->inval(NULL);
 		this->onSizeChange();
 	}
 }
@@ -287,7 +287,7 @@ void SkListView::invalSelection()
 
 void SkListView::ensureSelectionIsVisible()
 {
-	if (fSource == nil)
+	if (fSource == NULL)
 		return;
 
 	if ((unsigned)fCurrIndex < (unsigned)fSource->countRows())
@@ -303,7 +303,7 @@ void SkListView::ensureSelectionIsVisible()
 			SkASSERT((unsigned)fScrollIndex < (unsigned)fSource->countRows());
 
 			this->dirtyStrCache();
-			this->inval(nil);
+			this->inval(NULL);
 		}
 	}
 }
@@ -339,7 +339,7 @@ SkListSource* SkListView::setListSource(SkListSource* src)
 		SkRefCnt_SafeAssign(fSource, src);
 		this->dirtyStrCache();
 		this->ensureSelectionIsVisible();
-		this->inval(nil);
+		this->inval(NULL);
 	}
 	return src;
 }
@@ -373,7 +373,7 @@ void SkListView::onDraw(SkCanvas* canvas)
 
 	{
 		SkScalar ascent, descent;
-		fPaint[kNormalText_Attr].measureText(0, nil, &ascent, &descent);
+		fPaint[kNormalText_Attr].measureText(0, NULL, &ascent, &descent);
 		y = SkScalarHalf(fRowHeight - descent + ascent) - ascent;
 	}
 
@@ -414,13 +414,13 @@ void SkListView::dirtyStrCache()
 	if (fStrCache)
 	{
 		delete[] fStrCache;
-		fStrCache = nil;
+		fStrCache = NULL;
 	}
 }
 
 void SkListView::ensureStrCache(int count)
 {
-	if (fStrCache == nil)
+	if (fStrCache == NULL)
 	{
 		fStrCache = new SkString[count << 1];
 
@@ -450,12 +450,12 @@ bool SkListView::onEvent(const SkEvent& evt)
 				{
 					SkView* view = this->sendEventToParents(*evt);
 					delete evt;
-					return view != nil;
+					return view != NULL;
 				}
 				else	// hack to make toggle work
 				{
 					this->dirtyStrCache();
-					this->inval(nil);
+					this->inval(NULL);
 				}
 			}
 			break;
@@ -474,14 +474,14 @@ void SkListView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 	if (dom.findScalar(node, "row-height", &x))
 		this->setRowHeight(x);
 
-	if ((child = dom.getFirstChild(node, "hilite-paint")) != nil)
+	if ((child = dom.getFirstChild(node, "hilite-paint")) != NULL)
 		SkPaint_Inflate(&this->paint(kHiliteCell_Attr), dom, child);
 
 	// look for a listsource
 	{
-		SkListSource* src = nil;
+		SkListSource* src = NULL;
 
-		if ((child = dom.getFirstChild(node, "file-listsource")) != nil)
+		if ((child = dom.getFirstChild(node, "file-listsource")) != NULL)
 		{
 			const char* path = dom.findAttr(child, "path");
 			if (path)
@@ -489,7 +489,7 @@ void SkListView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 													dom.findAttr(child, "filter"),
 													dom.findAttr(child, "target"));
 		}
-		else if ((child = dom.getFirstChild(node, "xml-listsource")) != nil)
+		else if ((child = dom.getFirstChild(node, "xml-listsource")) != NULL)
 		{
 			src = SkListSource::CreateFromDOM(dom, child);
 		}
@@ -526,7 +526,7 @@ public:
 protected:
 	virtual void onDraw(SkCanvas* canvas)
 	{
-		if (fBGRef == nil) return;
+		if (fBGRef == NULL) return;
 
 		SkPaint	paint;
 
@@ -541,7 +541,7 @@ private:
 
 SkGridView::SkGridView(U32 flags) : SkWidgetView(flags)
 {
-	fSource = nil;
+	fSource = NULL;
 	fCurrIndex = -1;
 	fVisibleCount.set(0, 0);
 
@@ -574,7 +574,7 @@ void SkGridView::setCellSize(SkScalar x, SkScalar y)
 	if (!fCellSize.equals(x, y))
 	{
 		fCellSize.set(x, y);
-		this->inval(nil);
+		this->inval(NULL);
 	}
 }
 
@@ -640,7 +640,7 @@ void SkGridView::invalSelection()
 
 void SkGridView::ensureSelectionIsVisible()
 {
-	if (fSource == nil)
+	if (fSource == NULL)
 		return;
 #if 0
 	if ((unsigned)fCurrIndex < (unsigned)fSource->countRows())
@@ -656,7 +656,7 @@ void SkGridView::ensureSelectionIsVisible()
 			SkASSERT((unsigned)fScrollIndex < (unsigned)fSource->countRows());
 
 			this->dirtyStrCache();
-			this->inval(nil);
+			this->inval(NULL);
 		}
 	}
 #endif
@@ -701,7 +701,7 @@ SkListSource* SkGridView::setListSource(SkListSource* src)
 		SkRefCnt_SafeAssign(fSource, src);
 	//	this->dirtyStrCache();
 		this->ensureSelectionIsVisible();
-		this->inval(nil);
+		this->inval(NULL);
 	}
 	return src;
 }
@@ -733,7 +733,7 @@ void SkGridView::onDraw(SkCanvas* canvas)
 
 	canvas->drawPaint(fPaint[kBG_Attr]);
 
-	if (fSource == nil)
+	if (fSource == NULL)
 		return;
 
 #if 0
@@ -755,7 +755,7 @@ void SkGridView::onDraw(SkCanvas* canvas)
 		delete evt;
 
 		SkBitmapRef* bmr = SkBitmapRef::Decode(path.c_str(), false);
-		if (bmr == nil)
+		if (bmr == NULL)
 		{
 			bmr = SkBitmapRef::Decode(path.c_str(), true);
 			if (bmr)
@@ -773,7 +773,7 @@ void SkGridView::onDraw(SkCanvas* canvas)
 		// only draw one forced bitmap at a time
 		if (forced)
 		{
-			this->inval(nil);	// could inval only the remaining visible cells...
+			this->inval(NULL);	// could inval only the remaining visible cells...
 			break;
 		}
 	}
@@ -840,11 +840,11 @@ bool SkGridView::onEvent(const SkEvent& evt)
 				if (evt)
 				{
 					// augment the event with our local rect
-					(void)this->getCellRect(fCurrIndex, (SkRect*)evt->setScalars("local-rect", 4, nil));
+					(void)this->getCellRect(fCurrIndex, (SkRect*)evt->setScalars("local-rect", 4, NULL));
 
 					SkView* view = this->sendEventToParents(*evt);
 					delete evt;
-					return view != nil;
+					return view != NULL;
 				}
 			}
 			break;
@@ -863,14 +863,14 @@ void SkGridView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 	if (dom.findScalars(node, "cell-size", x, 2))
 		this->setCellSize(x[0], x[1]);
 
-	if ((child = dom.getFirstChild(node, "hilite-paint")) != nil)
+	if ((child = dom.getFirstChild(node, "hilite-paint")) != NULL)
 		SkPaint_Inflate(&this->paint(kHiliteCell_Attr), dom, child);
 
 	// look for a listsource
 	{
-		SkListSource* src = nil;
+		SkListSource* src = NULL;
 
-		if ((child = dom.getFirstChild(node, "file-listsource")) != nil)
+		if ((child = dom.getFirstChild(node, "file-listsource")) != NULL)
 		{
 			const char* path = dom.findAttr(child, "path");
 			if (path)
@@ -878,7 +878,7 @@ void SkGridView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 													dom.findAttr(child, "filter"),
 													dom.findAttr(child, "target"));
 		}
-		else if ((child = dom.getFirstChild(node, "xml-listsource")) != nil)
+		else if ((child = dom.getFirstChild(node, "xml-listsource")) != NULL)
 		{
 			src = SkListSource::CreateFromDOM(dom, child);
 		}

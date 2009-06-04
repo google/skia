@@ -12,10 +12,10 @@ struct SkListView::BindingRec {
 
 SkListView::SkListView()
 {
-	fSource = nil;				// our list-source
-	fScrollBar = nil;
-	fAnims = nil;				// array of animators[fVisibleRowCount]
-	fBindings = nil;			// our fields->slot array
+	fSource = NULL;				// our list-source
+	fScrollBar = NULL;
+	fAnims = NULL;				// array of animators[fVisibleRowCount]
+	fBindings = NULL;			// our fields->slot array
 	fBindingCount = 0;			// number of entries in fSlots array
 	fScrollIndex = 0;			// number of cells to skip before first visible cell
 	fCurrIndex = -1;			// index of "selected" cell
@@ -43,7 +43,7 @@ void SkListView::setHasScrollBar(bool hasSB)
 	{
 		if (hasSB)
 		{
-			SkASSERT(fScrollBar == nil);
+			SkASSERT(fScrollBar == NULL);
 			fScrollBar = (SkScrollBarView*)SkWidgetFactory(kScroll_WidgetEnum);
 			fScrollBar->setVisibleP(true);
 			this->attachChildToFront(fScrollBar);
@@ -56,7 +56,7 @@ void SkListView::setHasScrollBar(bool hasSB)
 			SkASSERT(fScrollBar);
 			fScrollBar->detachFromParent();
 			fScrollBar->unref();
-			fScrollBar = nil;
+			fScrollBar = NULL;
 		}
 		this->dirtyCache(kAnimContent_DirtyFlag);
 	}
@@ -67,7 +67,7 @@ void SkListView::setSelection(int index)
 	if (fCurrIndex != index)
 	{
 		fAnimFocusDirty = true;
-		this->inval(nil);
+		this->inval(NULL);
 
 		this->invalSelection();
 		fCurrIndex = index;
@@ -136,7 +136,7 @@ void SkListView::ensureSelectionIsVisible()
 			else
 				newIndex = fCurrIndex - fVisibleRowCount + 1;
 			SkASSERT((unsigned)newIndex < (unsigned)fSource->countRecords());
-			this->inval(nil);
+			this->inval(NULL);
 			
 			if (fScrollIndex != newIndex)
 			{
@@ -193,7 +193,7 @@ SkListSource* SkListView::setListSource(SkListSource* src)
 	{
 		SkRefCnt_SafeAssign(fSource, src);
 		this->ensureSelectionIsVisible();
-		this->inval(nil);
+		this->inval(NULL);
 		
 		if (fScrollBar)
 			fScrollBar->setTotal(fSource->countRecords());
@@ -206,7 +206,7 @@ void SkListView::dirtyCache(unsigned dirtyFlags)
 	if (dirtyFlags & kAnimCount_DirtyFlag)
 	{
 		delete fAnims;
-		fAnims = nil;
+		fAnims = NULL;
 		fAnimContentDirty = true;
 		fAnimFocusDirty = true;
 	}
@@ -214,7 +214,7 @@ void SkListView::dirtyCache(unsigned dirtyFlags)
 	{
 		if (!fAnimContentDirty)
 		{
-			this->inval(nil);
+			this->inval(NULL);
 			fAnimContentDirty = true;
 		}
 		fAnimFocusDirty = true;
@@ -226,7 +226,7 @@ bool SkListView::ensureCache()
 	if (fSkinName.size() == 0)
 		return false;
 
-	if (fAnims == nil)
+	if (fAnims == NULL)
 	{
 		int n = SkMax32(1, fVisibleRowCount);
 
@@ -437,10 +437,10 @@ void SkListView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 
 	const SkDOM::Node*	child;
 
-	if ((child = dom.getFirstChild(node, "bindings")) != nil)
+	if ((child = dom.getFirstChild(node, "bindings")) != NULL)
 	{
 		delete[] fBindings;
-		fBindings = nil;
+		fBindings = NULL;
 		fBindingCount = 0;
 
 		SkListSource* listSrc = SkListSource::Factory(dom.findAttr(child, "data-fields"));
@@ -467,7 +467,7 @@ void SkListView::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 					if (fBindings[count].fFieldIndex >= 0)
 						fBindings[count++].fSlotName.set(slotName);
 				}
-			} while ((child = dom.getNextSibling(child, "bind")) != nil);
+			} while ((child = dom.getNextSibling(child, "bind")) != NULL);
 
 			fBindingCount = SkToU16(count);
 			if (count == 0)
@@ -538,7 +538,7 @@ private:
 SkXMLListSource::SkXMLListSource(const char doc[], size_t len)
 {
 	fFieldCount = fRecordCount = 0;
-	fFields = fRecords = nil;
+	fFields = fRecords = NULL;
 
 	SkDOM	dom;
 

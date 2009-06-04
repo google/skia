@@ -45,7 +45,7 @@ public:
 		{
 			U8 alpha = paint.getAlpha();
 			SkScalar above, below;
-			(void)paint.measureText(nil, 0, &above, &below);
+			(void)paint.measureText(NULL, 0, &above, &below);
 			SkScalar height = below - above;
 			SkScalar dy = SkScalarMul(height, scale);
 			if (scale < 0)
@@ -68,7 +68,7 @@ private:
 	SkInterpolator	fInterp;
 };
 
-SkTextView::SkTextView(U32 flags) : SkView(flags), fInterp(nil), fDoInterp(false)
+SkTextView::SkTextView(U32 flags) : SkView(flags), fInterp(NULL), fDoInterp(false)
 {
 	fMargin.set(0, 0);
 }
@@ -119,7 +119,7 @@ void SkTextView::privSetText(const SkString& src, AnimaDir dir)
 		fInterp = new Interp(fText, SkTime::GetMSecs(), 500, dir);
 	}
 	fText = src;
-	this->inval(nil);
+	this->inval(NULL);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ void SkTextView::setMargin(const SkPoint& margin)
 	if (fMargin != margin)
 	{
 		fMargin = margin;
-		this->inval(nil);
+		this->inval(NULL);
 	}
 }
 
@@ -162,17 +162,17 @@ void SkTextView::onDraw(SkCanvas* canvas)
 		break;
 	}
 
-	fPaint.measureText(nil, 0, &y, nil);
+	fPaint.measureText(NULL, 0, &y, NULL);
 	y = fMargin.fY - y;
 
 	if (fInterp)
 	{
 		if (fInterp->draw(canvas, fText, x, y, fPaint))
-			this->inval(nil);
+			this->inval(NULL);
 		else
 		{
 			delete fInterp;
-			fInterp = nil;
+			fInterp = NULL;
 		}
 	}
 	else
@@ -216,7 +216,7 @@ void SkSliderView::setMax(U16CPU max)
 	{
 		fMax = SkToU16(max);
 		if (fValue > 0)
-			this->inval(nil);
+			this->inval(NULL);
 	}
 }
 
@@ -230,7 +230,7 @@ void SkSliderView::setValue(U16CPU value)
 		fValue = SkToU16(value);
 		if (prev != next)
 		{
-			this->inval(nil);
+			this->inval(NULL);
 
 			if (this->hasListeners())
 			{
@@ -262,7 +262,7 @@ static void setgrad(SkPaint* paint, const SkRect& r)
 	colors[0] = SK_ColorBLUE;
 	colors[1] = SK_ColorWHITE;
 
-	paint->setShader(SkGradientShader::CreateLinear(pts, colors, nil, 2, SkShader::kMirror_TileMode))->unref();
+	paint->setShader(SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kMirror_TileMode))->unref();
 }
 
 void SkSliderView::onDraw(SkCanvas* canvas)
