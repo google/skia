@@ -72,6 +72,8 @@
 		00A41E4B0EFC312F00C9CBEB /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */; };
 		00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7282D0FD43D3700D5051F /* SkMovie.cpp */; };
+		00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */; };
+		00A729650FD93ED600D5051F /* SampleTestGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A729630FD93ED600D5051F /* SampleTestGL.cpp */; };
 		00C55DA10F8552DC000CAC09 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
 		00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
@@ -79,7 +81,6 @@
 		2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66B0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66C0FCCCABE002BD8B4 /* SkPageFlipper.cpp */; };
 		2762F67D0FCCCB01002BD8B4 /* SamplePageFlip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6770FCCCB01002BD8B4 /* SamplePageFlip.cpp */; };
-		2762F6800FCCCB07002BD8B4 /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
@@ -198,6 +199,7 @@
 		00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
 		00A7282D0FD43D3700D5051F /* SkMovie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie.cpp; path = ../../src/images/SkMovie.cpp; sourceTree = SOURCE_ROOT; };
 		00A7282E0FD43D3700D5051F /* SkMovie_gif.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie_gif.cpp; path = ../../src/images/SkMovie_gif.cpp; sourceTree = SOURCE_ROOT; };
+		00A729630FD93ED600D5051F /* SampleTestGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTestGL.cpp; path = ../../samplecode/SampleTestGL.cpp; sourceTree = SOURCE_ROOT; };
 		00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGradients.cpp; path = ../../samplecode/SampleGradients.cpp; sourceTree = SOURCE_ROOT; };
 		00D6B5CB0F72DC4300C466B9 /* SampleFuzz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFuzz.cpp; path = ../../samplecode/SampleFuzz.cpp; sourceTree = SOURCE_ROOT; };
 		00FF39130FC6ED2C00915187 /* SampleEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleEffects.cpp; path = ../../samplecode/SampleEffects.cpp; sourceTree = SOURCE_ROOT; };
@@ -240,6 +242,7 @@
 		00003C610EFC2287000FF73A /* samples */ = {
 			isa = PBXGroup;
 			children = (
+				00A729630FD93ED600D5051F /* SampleTestGL.cpp */,
 				2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */,
 				2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */,
 				2762F6770FCCCB01002BD8B4 /* SamplePageFlip.cpp */,
@@ -572,9 +575,10 @@
 				2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */,
 				2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */,
 				2762F67D0FCCCB01002BD8B4 /* SamplePageFlip.cpp in Sources */,
-				2762F6800FCCCB07002BD8B4 /* SampleAll.cpp in Sources */,
 				00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */,
 				00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */,
+				00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */,
+				00A729650FD93ED600D5051F /* SampleTestGL.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

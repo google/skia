@@ -49,6 +49,8 @@ public:
     Dumper* getDumper() const { return fDumper; }
     void    setDumper(Dumper*);
     
+    int getNestLevel() const { return fNestLevel; }
+    
     // overrides from SkCanvas
 
     virtual int save(SaveFlags flags = kMatrixClip_SaveFlag);
@@ -103,6 +105,7 @@ public:
 
 private:
     Dumper* fDumper;
+    int     fNestLevel; // for nesting recursive elements like pictures
     
     void dump(Verb, const SkPaint*, const char format[], ...);
 

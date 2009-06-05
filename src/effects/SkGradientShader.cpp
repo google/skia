@@ -129,6 +129,9 @@ protected:
     const uint16_t*     getCache16();
     const SkPMColor*    getCache32();
 
+    // called when we kill our cached colors (to be rebuilt later on demand)
+    virtual void onCacheReset() {}
+
 private:
     enum {
         kColorStorageCount = 4, // more than this many colors, and we'll use sk_malloc for the space
@@ -388,6 +391,8 @@ bool Gradient_Shader::setContext(const SkBitmap& device,
         fCache16 = NULL;                // inval the cache
         fCache32 = NULL;                // inval the cache
         fCacheAlpha = paintAlpha;       // record the new alpha
+        // inform our subclasses
+        this->onCacheReset();
     }
     return true;
 }
@@ -606,11 +611,24 @@ public:
                     SkShader::TileMode mode, SkUnitMapper* mapper)
         : Gradient_Shader(colors, pos, colorCount, mode, mapper)
     {
+        fCachedBitmap = NULL;
         pts_to_unit_matrix(pts, &fPtsToUnit);
     }
+    virtual ~Linear_Gradient() {
+        if (fCachedBitmap) {
+            SkDELETE(fCachedBitmap);
+        }
+    }
+
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
     virtual bool asABitmap(SkBitmap*, SkMatrix*, TileMode*);
+    virtual void onCacheReset() {
+        if (fCachedBitmap) {
+            SkDELETE(fCachedBitmap);
+            fCachedBitmap = NULL;
+        }
+    }
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
         return SkNEW_ARGS(Linear_Gradient, (buffer));
@@ -621,6 +639,8 @@ protected:
     virtual Factory getFactory() { return CreateProc; }
 
 private:
+    SkBitmap* fCachedBitmap;    // allocated on demand
+
     typedef Gradient_Shader INHERITED;
 };
 
@@ -731,10 +751,16 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
 
 bool Linear_Gradient::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
                                 TileMode xy[]) {
+    // we cache our "bitmap", so it's generationID will be const on subsequent
+    // calls to asABitmap
+    if (NULL == fCachedBitmap) {
+        fCachedBitmap = SkNEW(SkBitmap);
+        fCachedBitmap->setConfig(SkBitmap::kARGB_8888_Config, kCache32Count, 1);
+        fCachedBitmap->setPixels((void*)this->getCache32(), NULL);
+    }
+
     if (bitmap) {
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, kCache32Count, 1);
-        bitmap->allocPixels();  // share with shader???
-        memcpy(bitmap->getPixels(), this->getCache32(), kCache32Count * 4);
+        *bitmap = *fCachedBitmap;
     }
     if (matrix) {
         matrix->setScale(SkIntToScalar(kCache32Count), SK_Scalar1);
