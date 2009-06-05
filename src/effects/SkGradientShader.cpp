@@ -130,7 +130,7 @@ protected:
     const SkPMColor*    getCache32();
 
     // called when we kill our cached colors (to be rebuilt later on demand)
-    virtual void onCacheReset() {}
+    virtual void onCacheReset()  = 0;
 
 private:
     enum {
@@ -635,7 +635,9 @@ public:
     }
 
 protected:
-    Linear_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {};
+    Linear_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {
+        fCachedBitmap = NULL;
+    }
     virtual Factory getFactory() { return CreateProc; }
 
 private:
@@ -1181,6 +1183,7 @@ public:
 protected:
     Radial_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {};
     virtual Factory getFactory() { return CreateProc; }
+    virtual void onCacheReset() {}
 
 private:
     typedef Gradient_Shader INHERITED;
@@ -1205,8 +1208,8 @@ public:
 
 protected:
     Sweep_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {}
-
     virtual Factory getFactory() { return CreateProc; }
+    virtual void onCacheReset() {}
 
 private:
     typedef Gradient_Shader INHERITED;
