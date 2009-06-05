@@ -1220,61 +1220,6 @@ void SkPath::unflatten(SkFlattenableReadBuffer& buffer) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "SkString.h"
-#include "SkStream.h"
-
-static void write_scalar(SkWStream* stream, SkScalar value) {
-    char    buffer[SkStrAppendScalar_MaxSize];
-    char*   stop = SkStrAppendScalar(buffer, value);
-    stream->write(buffer, stop - buffer);
-}
-
-static void append_scalars(SkWStream* stream, char verb, const SkScalar data[],
-                           int count) {
-    stream->write(&verb, 1);
-    write_scalar(stream, data[0]);
-    for (int i = 1; i < count; i++) {
-        if (data[i] >= 0) {
-            // can skip the separater if data[i] is negative
-            stream->write(" ", 1);
-        }
-        write_scalar(stream, data[i]);
-    }
-}
-
-void SkPath::toString(SkString* str) const {
-    SkDynamicMemoryWStream  stream;
-
-    SkPath::Iter    iter(*this, false);
-    SkPoint         pts[4];
-    
-    for (;;) {
-        switch (iter.next(pts)) {
-            case SkPath::kMove_Verb:
-                append_scalars(&stream, 'M', &pts[0].fX, 2);
-                break;
-            case SkPath::kLine_Verb:
-                append_scalars(&stream, 'L', &pts[1].fX, 2);
-                break;
-            case SkPath::kQuad_Verb:
-                append_scalars(&stream, 'Q', &pts[1].fX, 4);
-                break;
-            case SkPath::kCubic_Verb:
-                append_scalars(&stream, 'C', &pts[1].fX, 6);
-                break;
-            case SkPath::kClose_Verb:
-                stream.write("Z", 1);
-                break;
-            case SkPath::kDone_Verb:
-                str->resize(stream.getOffset());
-                stream.copyTo(str->writable_str());
-                return;
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG

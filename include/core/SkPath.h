@@ -562,10 +562,6 @@ public:
     */
     void subdivide(SkScalar dist, bool bendLines, SkPath* dst = NULL) const;
 
-    /** Return an SVG-compatible string of the path.
-    */
-    void toString(SkString*) const;
-
     SkDEBUGCODE(void validate() const;)
 
 private:

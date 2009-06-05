@@ -16,10 +16,24 @@
 #include "SkPorterDuff.h"
 #include "SkLayerRasterizer.h"
 
+#include "SkParsePath.h"
+static void testparse() {
+    SkRect r;
+    r.set(0, 0, SkFloatToScalar(10), SkFloatToScalar(10.5));
+    SkPath p, p2;
+    SkString str, str2;
+
+    p.addRect(r);
+    SkParsePath::ToSVGString(p, &str);
+    SkParsePath::FromSVGString(str.c_str(), &p2);
+    SkParsePath::ToSVGString(p2, &str2);
+}
+
 class ArcsView : public SkView {
 public:
 	ArcsView()
     {
+        testparse();
         fSweep = SkIntToScalar(100);
     }
 

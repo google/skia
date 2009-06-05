@@ -106,13 +106,8 @@ bench: $(BENCH_OBJS) out/libskia.a
 # we let tests cheat and see private headers, so we can unittest modules
 C_INCLUDES += -Isrc/core
 
-TESTS_SRCS := GeometryTest.cpp MathTest.cpp MatrixTest.cpp PackBitsTest.cpp \
-              Sk64Test.cpp StringTest.cpp Test.cpp UtilsTest.cpp PathTest.cpp \
-              ClipCubicTest.cpp SrcOverTest.cpp StreamTest.cpp SortTest.cpp \
-			  BitmapCopyTest.cpp PathMeasureTest.cpp TriangulationTest.cpp \
-              TestSize.cpp testmain.cpp
-
-TESTS_SRCS := $(addprefix tests/, $(TESTS_SRCS))
+include tests/tests_files.mk
+TESTS_SRCS := $(addprefix tests/, $(SOURCE))
 
 TESTS_OBJS := $(TESTS_SRCS:.cpp=.o)
 TESTS_OBJS := $(addprefix out/, $(TESTS_OBJS))
