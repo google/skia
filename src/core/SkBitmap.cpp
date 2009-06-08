@@ -813,6 +813,7 @@ static void downsampleby2_proc32(SkBitmap* dst, int x, int y,
     x <<= 1;
     y <<= 1;
     const SkPMColor* p = src.getAddr32(x, y);
+    const SkPMColor* baseP = p;
     SkPMColor c, ag, rb;
 
     c = *p; ag = (c >> 8) & 0xFF00FF; rb = c & 0xFF00FF;
@@ -821,8 +822,9 @@ static void downsampleby2_proc32(SkBitmap* dst, int x, int y,
     }
     c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
 
+    p = baseP;
     if (y < src.height() - 1) {
-        p = src.getAddr32(x, y + 1);
+        p += src.rowBytes() >> 2;
     }
     c = *p; ag += (c >> 8) & 0xFF00FF; rb += c & 0xFF00FF;
     if (x < src.width() - 1) {
@@ -849,19 +851,21 @@ static void downsampleby2_proc16(SkBitmap* dst, int x, int y,
     x <<= 1;
     y <<= 1;
     const uint16_t* p = src.getAddr16(x, y);
+    const uint16_t* baseP = p;
     SkPMColor       c;
 
     c = expand16(*p);
-    if (x < (int)src.width() - 1) {
+    if (x < src.width() - 1) {
         p += 1;
     }
     c += expand16(*p);
 
-    if (y < (int)src.height() - 1) {
-        p = src.getAddr16(x, y + 1);
+    p = baseP;
+    if (y < src.height() - 1) {
+        p += src.rowBytes() >> 1;
     }
     c += expand16(*p);
-    if (x < (int)src.width() - 1) {
+    if (x < src.width() - 1) {
         p += 1;
     }
     c += expand16(*p);
@@ -882,6 +886,7 @@ static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
     x <<= 1;
     y <<= 1;
     const uint16_t* p = src.getAddr16(x, y);
+    const uint16_t* baseP = p;
     uint32_t        c;
 
     c = expand4444(*p);
@@ -890,8 +895,9 @@ static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
     }
     c += expand4444(*p);
 
+    p = baseP;
     if (y < src.height() - 1) {
-        p = src.getAddr16(x, y + 1);
+        p += src.rowBytes() >> 1;
     }
     c += expand4444(*p);
     if (x < src.width() - 1) {
