@@ -741,6 +741,7 @@ private:
     uint32_t    fMCRecStorage[32];
 
     SkBounder*  fBounder;
+    SkDevice*   fLastDeviceToGainFocus;
 
     void prepareForDeviceDraw(SkDevice*);
     

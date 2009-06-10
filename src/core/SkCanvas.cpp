@@ -248,7 +248,7 @@ public:
             }
 
             // fCurrLayer may be NULL now
-            
+
             fCanvas->prepareForDeviceDraw(fDevice);
             return true;
         }
@@ -390,6 +390,7 @@ private:
 SkDevice* SkCanvas::init(SkDevice* device) {
     fBounder = NULL;
     fLocalBoundsCompareTypeDirty = true;
+    fLastDeviceToGainFocus = NULL;
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(NULL, 0);
@@ -546,7 +547,10 @@ void SkCanvas::updateDeviceCMCache() {
 
 void SkCanvas::prepareForDeviceDraw(SkDevice* device) {
     SkASSERT(device);
-    device->gainFocus(this);
+    if (fLastDeviceToGainFocus != device) {
+        device->gainFocus(this);
+        fLastDeviceToGainFocus = device;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
