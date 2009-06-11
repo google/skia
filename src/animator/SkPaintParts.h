@@ -73,7 +73,7 @@ class SkDrawTypeface  : public SkPaintPart {
     virtual void dump(SkAnimateMaker *);
 #endif
     SkTypeface* getTypeface() {
-        return SkTypeface::Create(fontName.c_str(), style); }
+        return SkTypeface::CreateFromName(fontName.c_str(), style); }
 protected:
     virtual bool add();
     SkString fontName;

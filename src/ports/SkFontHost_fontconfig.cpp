@@ -119,7 +119,7 @@ static FcPattern* FontMatch(const char* type, FcType vtype, const void* value,
                 fcvalue.u.s = (FcChar8*) value;
                 break;
             case FcTypeInteger:
-                fcvalue.u.i = (int) value;
+                fcvalue.u.i = (int)(intptr_t)value;
                 break;
             default:
                 SkASSERT(!"FontMatch unhandled type");

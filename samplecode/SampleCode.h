@@ -20,7 +20,7 @@ typedef SkView* (*SkViewFactory)();
 
 class SkViewRegister : SkNoncopyable {
 public:
-    SkViewRegister(SkViewFactory);
+    explicit SkViewRegister(SkViewFactory);
     
     static const SkViewRegister* Head() { return gHead; }
     

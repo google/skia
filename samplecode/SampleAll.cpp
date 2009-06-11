@@ -257,7 +257,7 @@ protected:
         }
     }
     
-    Line2DPathEffect::Line2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
+    Line2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
     {
         fWidth = buffer.readScalar();
     }
