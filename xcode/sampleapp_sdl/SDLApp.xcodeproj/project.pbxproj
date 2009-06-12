@@ -18,7 +18,6 @@
 		0064EE2A0FC72BEE00D71FB0 /* SampleCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF50FC72BEE00D71FB0 /* SampleCircle.cpp */; };
 		0064EE2B0FC72BEE00D71FB0 /* SampleCull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF70FC72BEE00D71FB0 /* SampleCull.cpp */; };
 		0064EE2C0FC72BEE00D71FB0 /* SampleDither.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF80FC72BEE00D71FB0 /* SampleDither.cpp */; };
-		0064EE2D0FC72BEE00D71FB0 /* SampleDrawLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF90FC72BEE00D71FB0 /* SampleDrawLooper.cpp */; };
 		0064EE2E0FC72BEE00D71FB0 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFA0FC72BEE00D71FB0 /* SampleEffects.cpp */; };
 		0064EE2F0FC72BEE00D71FB0 /* SampleEmboss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFB0FC72BEE00D71FB0 /* SampleEmboss.cpp */; };
 		0064EE300FC72BEE00D71FB0 /* SampleEncode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDFC0FC72BEE00D71FB0 /* SampleEncode.cpp */; };
@@ -72,6 +71,9 @@
 		00A728490FD43E7600D5051F /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0C0FC72BEE00D71FB0 /* SampleMovie.cpp */; };
 		00A7284D0FD43E8900D5051F /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7284B0FD43E8900D5051F /* SkMovie.cpp */; };
 		00A728DD0FD6EDA700D5051F /* SkConcaveToTriangles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A728DC0FD6EDA700D5051F /* SkConcaveToTriangles.cpp */; };
+		00AF77290FE15339007F9650 /* SkGLState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AF77280FE15339007F9650 /* SkGLState.cpp */; };
+		00AF77540FE155BE007F9650 /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE220FC72BEE00D71FB0 /* SampleVertices.cpp */; };
+		00AF77810FE19B56007F9650 /* SampleDrawLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EDF90FC72BEE00D71FB0 /* SampleDrawLooper.cpp */; };
 		2762F6040FCCC832002BD8B4 /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE190FC72BEE00D71FB0 /* SampleShapes.cpp */; };
 		2762F6420FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F6430FCCCA6C002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6410FCCCA6C002BD8B4 /* SkPageFlipper.cpp */; };
@@ -84,7 +86,6 @@
 		277836500FCF89F9006549E4 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2778364F0FCF89F9006549E4 /* OpenGL.framework */; };
 		2779F2610FD61678005D376E /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE230FC72BEE00D71FB0 /* SampleXfermodes.cpp */; };
 		2779F27E0FD61829005D376E /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE1C0FC72BEE00D71FB0 /* SampleText.cpp */; };
-		27E1AAA70FD0C51B00098FC5 /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE220FC72BEE00D71FB0 /* SampleVertices.cpp */; };
 		27E1AAE00FD0C9B500098FC5 /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE180FC72BEE00D71FB0 /* SampleShaders.cpp */; };
 		27E1AB2B0FD0D06600098FC5 /* SamplePageFlip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE0F0FC72BEE00D71FB0 /* SamplePageFlip.cpp */; };
 		27F9A4C90FDF4CE900C1CE9A /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0064EE100FC72BEE00D71FB0 /* SamplePatch.cpp */; };
@@ -232,6 +233,7 @@
 		00A7284B0FD43E8900D5051F /* SkMovie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie.cpp; path = ../../src/images/SkMovie.cpp; sourceTree = SOURCE_ROOT; };
 		00A7284C0FD43E8900D5051F /* SkMovie_gif.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie_gif.cpp; path = ../../src/images/SkMovie_gif.cpp; sourceTree = SOURCE_ROOT; };
 		00A728DC0FD6EDA700D5051F /* SkConcaveToTriangles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkConcaveToTriangles.cpp; path = ../../src/core/SkConcaveToTriangles.cpp; sourceTree = SOURCE_ROOT; };
+		00AF77280FE15339007F9650 /* SkGLState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGLState.cpp; path = ../../src/gl/SkGLState.cpp; sourceTree = SOURCE_ROOT; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		2762F6400FCCCA6C002BD8B4 /* SkFlipPixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFlipPixelRef.cpp; path = ../../src/images/SkFlipPixelRef.cpp; sourceTree = SOURCE_ROOT; };
@@ -421,6 +423,7 @@
 		277836430FCF890D006549E4 /* opengl */ = {
 			isa = PBXGroup;
 			children = (
+				00AF77280FE15339007F9650 /* SkGLState.cpp */,
 				00A728DC0FD6EDA700D5051F /* SkConcaveToTriangles.cpp */,
 				277836370FCF8908006549E4 /* SkGL.cpp */,
 				277836380FCF8908006549E4 /* SkGLCanvas.cpp */,
@@ -585,7 +588,6 @@
 				0064EE2A0FC72BEE00D71FB0 /* SampleCircle.cpp in Sources */,
 				0064EE2B0FC72BEE00D71FB0 /* SampleCull.cpp in Sources */,
 				0064EE2C0FC72BEE00D71FB0 /* SampleDither.cpp in Sources */,
-				0064EE2D0FC72BEE00D71FB0 /* SampleDrawLooper.cpp in Sources */,
 				0064EE2E0FC72BEE00D71FB0 /* SampleEffects.cpp in Sources */,
 				0064EE2F0FC72BEE00D71FB0 /* SampleEmboss.cpp in Sources */,
 				0064EE300FC72BEE00D71FB0 /* SampleEncode.cpp in Sources */,
@@ -641,7 +643,6 @@
 				277836400FCF8908006549E4 /* SkGLDevice_FBO.cpp in Sources */,
 				277836410FCF8908006549E4 /* SkGLTextCache.cpp in Sources */,
 				277836420FCF8908006549E4 /* SkTextureCache.cpp in Sources */,
-				27E1AAA70FD0C51B00098FC5 /* SampleVertices.cpp in Sources */,
 				27E1AAE00FD0C9B500098FC5 /* SampleShaders.cpp in Sources */,
 				27E1AB2B0FD0D06600098FC5 /* SamplePageFlip.cpp in Sources */,
 				00A728490FD43E7600D5051F /* SampleMovie.cpp in Sources */,
@@ -652,6 +653,9 @@
 				009611E90FD94A7E0053956C /* SampleAll.cpp in Sources */,
 				27F9A4C90FDF4CE900C1CE9A /* SamplePatch.cpp in Sources */,
 				27F9A4CC0FDF4D0300C1CE9A /* SamplePoints.cpp in Sources */,
+				00AF77290FE15339007F9650 /* SkGLState.cpp in Sources */,
+				00AF77540FE155BE007F9650 /* SampleVertices.cpp in Sources */,
+				00AF77810FE19B56007F9650 /* SampleDrawLooper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
