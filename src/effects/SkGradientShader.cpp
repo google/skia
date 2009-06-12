@@ -794,25 +794,23 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
     int                 toggle = ((x ^ y) & 1) << kCache16Bits;
 #endif
 
-    if (fDstToIndexClass != kPerspective_MatrixClass)
-    {
+    if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
         SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
+        // preround fx by half the amount we throw away
+        fx += 1 << 7;
 
-        if (fDstToIndexClass == kFixedStepInX_MatrixClass)
-        {
+        if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed dxStorage[1];
             (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), dxStorage, NULL);
             dx = dxStorage[0];
-        }
-        else
-        {
+        } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
             dx = SkScalarToFixed(fDstToIndex.getScaleX());
         }
 
-        if (SkFixedNearlyZero(dx))  // we're a vertical gradient, so no change in a span
-        {
+        if (SkFixedNearlyZero(dx)) {
+            // we're a vertical gradient, so no change in a span
             unsigned fi = proc(fx) >> 10;
             SkASSERT(fi <= 63);
 #ifdef TEST_GRADIENT_DITHER
@@ -820,9 +818,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
 #else
             sk_memset16(dstC, cache[fi], count);
 #endif
-        }
-        else if (proc == clamp_tileproc)
-        {
+        } else if (proc == clamp_tileproc) {
             do {
                 unsigned fi = SkClampMax(fx >> 10, 63);
                 SkASSERT(fi <= 63);
@@ -834,9 +830,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
                 *dstC++ = cache[fi];
 #endif
             } while (--count != 0);
-        }
-        else if (proc == mirror_tileproc)
-        {
+        } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_6bits(fx >> 10);
                 SkASSERT(fi <= 0x3F);
@@ -848,9 +842,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
                 *dstC++ = cache[fi];
 #endif
             } while (--count != 0);
-        }
-        else
-        {
+        } else {
             SkASSERT(proc == repeat_tileproc);
             do {
                 unsigned fi = repeat_6bits(fx >> 10);
@@ -864,9 +856,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
 #endif
             } while (--count != 0);
         }
-    }
-    else
-    {
+    } else {
         SkScalar    dstX = SkIntToScalar(x);
         SkScalar    dstY = SkIntToScalar(y);
         do {
