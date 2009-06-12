@@ -483,7 +483,7 @@ void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
 SkRGB16_Shader16_Blitter::SkRGB16_Shader16_Blitter(const SkBitmap& device,
                                                    const SkPaint& paint)
     : SkRGB16_Shader_Blitter(device, paint) {
-    SkASSERT(SkShader::CanCallShadeSpan16(fShader->getFlags()));
+    SkASSERT(SkShader::CanCallShadeSpan16(fShaderFlags));
 }
 
 void SkRGB16_Shader16_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
@@ -569,7 +569,7 @@ SkRGB16_Shader_Blitter::SkRGB16_Shader_Blitter(const SkBitmap& device,
     // compute SkBlitRow::Procs
     unsigned flags = 0;
     
-    uint32_t shaderFlags = fShader->getFlags();
+    uint32_t shaderFlags = fShaderFlags;
     // shaders take care of global alpha, so we never set it in SkBlitRow
     if (!(shaderFlags & SkShader::kOpaqueAlpha_Flag)) {
         flags |= SkBlitRow::kSrcPixelAlpha_Flag;
@@ -595,6 +595,30 @@ void SkRGB16_Shader_Blitter::blitH(int x, int y, int width) {
     fShader->shadeSpan(x, y, fBuffer, width);
     // shaders take care of global alpha, so we pass 0xFF (should be ignored)
     fOpaqueProc(fDevice.getAddr16(x, y), fBuffer, width, 0xFF, x, y);
+}
+
+void SkRGB16_Shader_Blitter::blitRect(int x, int y, int width, int height) {
+    SkShader*       shader = fShader;
+    SkBlitRow::Proc proc = fOpaqueProc;
+    SkPMColor*      buffer = fBuffer;
+    uint16_t*       dst = fDevice.getAddr16(x, y);
+    size_t          dstRB = fDevice.rowBytes();
+
+    if (fShaderFlags & SkShader::kConstInY_Flag) {
+        shader->shadeSpan(x, y, buffer, width);
+        do {
+            proc(dst, buffer, width, 0xFF, x, y);
+            y += 1;
+            dst = (uint16_t*)((char*)dst + dstRB);
+        } while (--height);
+    } else {
+        do {
+            shader->shadeSpan(x, y, buffer, width);
+            proc(dst, buffer, width, 0xFF, x, y);
+            y += 1;
+            dst = (uint16_t*)((char*)dst + dstRB);
+        } while (--height);
+    }
 }
 
 static inline int count_nonzero_span(const int16_t runs[], const SkAlpha aa[]) {

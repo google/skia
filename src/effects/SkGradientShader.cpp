@@ -620,6 +620,7 @@ public:
         }
     }
 
+    virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&);
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
     virtual bool asABitmap(SkBitmap*, SkMatrix*, TileMode*);
@@ -645,6 +646,19 @@ private:
 
     typedef Gradient_Shader INHERITED;
 };
+
+bool Linear_Gradient::setContext(const SkBitmap& device, const SkPaint& paint,
+                                 const SkMatrix& matrix) {
+    if (!this->INHERITED::setContext(device, paint, matrix)) {
+        return false;
+    }
+
+    unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
+    if ((fDstToIndex.getType() & ~mask) == 0) {
+        fFlags |= SkShader::kConstInY_Flag;
+    }
+    return true;
+}
 
 //  Return true if fx, fx+dx, fx+2*dx, ... is always in range
 static inline bool no_need_for_clamp(int fx, int dx, int count)

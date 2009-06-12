@@ -63,14 +63,22 @@ public:
     enum Flags {
         //!< set if all of the colors will be opaque
         kOpaqueAlpha_Flag   = 0x01,
+
         //! set if this shader's shadeSpan16() method can be called
         kHasSpan16_Flag     = 0x02,
+
         /** Set this bit if the shader's native data type is instrinsically 16
             bit, meaning that calling the 32bit shadeSpan() entry point will
             mean the the impl has to up-sample 16bit data into 32bit. Used as a
             a means of clearing a dither request if the it will have no effect
         */
-        kIntrinsicly16_Flag = 0x04
+        kIntrinsicly16_Flag = 0x04,
+
+        /** set (after setContext) if the spans only vary in X (const in Y).
+            e.g. an Nx1 bitmap that is being tiled in Y, or a linear-gradient
+            that varies from left-to-right
+         */
+        kConstInY_Flag = 0x08
     };
 
     /** Called sometimes before drawing with this shader.

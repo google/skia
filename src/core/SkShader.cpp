@@ -210,6 +210,7 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
 #include "SkUtils.h"
 
 SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
+    fFlags = 0; // computed in setContext
     fInheritColor = b.readU8(); 
     if (fInheritColor) {
         return;
@@ -224,11 +225,6 @@ void SkColorShader::flatten(SkFlattenableWriteBuffer& buffer) {
         return;
     }
     buffer.write32(fColor);
-}
-
-uint32_t SkColorShader::getFlags() {
-    return (SkGetPackedA32(fPMColor) == 255 ? kOpaqueAlpha_Flag : 0) |
-            kHasSpan16_Flag;
 }
 
 uint8_t SkColorShader::getSpan16Alpha() const {
@@ -266,6 +262,11 @@ bool SkColorShader::setContext(const SkBitmap& device, const SkPaint& paint,
         b = SkAlphaMul(b, a);
     }
     fPMColor = SkPackARGB32(a, r, g, b);
+
+    fFlags = kHasSpan16_Flag | kConstInY_Flag;
+    if (SkGetPackedA32(fPMColor) == 255) {
+        fFlags |= kOpaqueAlpha_Flag;
+    }
 
     return true;
 }

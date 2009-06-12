@@ -29,14 +29,15 @@ public:
     /** Create a ColorShader that will inherit its color from the Paint
         at draw time.
     */
-    SkColorShader() : fInheritColor(true) {}
+    SkColorShader() : fFlags(0), fInheritColor(true) {}
+
     /** Create a ColorShader that ignores the color in the paint, and uses the
         specified color. Note: like all shaders, at draw time the paint's alpha
         will be respected, and is applied to the specified color.
     */
-    SkColorShader(SkColor c) : fColor(c), fInheritColor(false) {}
+    SkColorShader(SkColor c) : fColor(c), fFlags(0), fInheritColor(false) {}
     
-    virtual uint32_t getFlags();
+    virtual uint32_t getFlags() { return fFlags; }
     virtual uint8_t getSpan16Alpha() const;
     virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
                             const SkMatrix& matrix);
@@ -54,6 +55,7 @@ private:
     }
     SkColor     fColor;         // ignored if fInheritColor is true
     SkPMColor   fPMColor;       // cached after setContext()
+    uint32_t    fFlags;         // cached after setContext()
     uint16_t    fColor16;       // cached after setContext()
     SkBool8     fInheritColor;
 

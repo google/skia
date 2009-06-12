@@ -38,7 +38,8 @@ public:
     virtual ~SkShaderBlitter();
 
 protected:
-    SkShader* fShader;
+    uint32_t    fShaderFlags;
+    SkShader*   fShader;
 
 private:
     // illegal
@@ -192,7 +193,8 @@ public:
     virtual ~SkRGB16_Shader_Blitter();
     virtual void blitH(int x, int y, int width);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-    
+    virtual void blitRect(int x, int y, int width, int height);
+
 protected:
     SkPMColor*      fBuffer;
     SkBlitRow::Proc fOpaqueProc;

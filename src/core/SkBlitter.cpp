@@ -977,17 +977,16 @@ const uint32_t gMask_00FF00FF = 0xFF00FF;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkShaderBlitter::SkShaderBlitter(const SkBitmap& device, const SkPaint& paint)
-    : INHERITED(device)
-{
+        : INHERITED(device) {
     fShader = paint.getShader();
     SkASSERT(fShader);
 
     fShader->ref();
     fShader->beginSession();
+    fShaderFlags = fShader->getFlags();
 }
 
-SkShaderBlitter::~SkShaderBlitter()
-{
+SkShaderBlitter::~SkShaderBlitter() {
     fShader->endSession();
     fShader->unref();
 }

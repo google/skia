@@ -67,6 +67,11 @@ void SkBitmapProcShader::flatten(SkFlattenableWriteBuffer& buffer) {
     buffer.write8(fState.fTileModeY);
 }
 
+static bool only_scale_and_translate(const SkMatrix& matrix) {
+    unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
+    return (matrix.getType() & ~mask) == 0;
+}
+
 bool SkBitmapProcShader::setContext(const SkBitmap& device,
                                     const SkPaint& paint,
                                     const SkMatrix& matrix) {
@@ -116,6 +121,12 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
             break;  // never set kHasSpan16_Flag
         default:
             break;
+    }
+
+    // if we're only 1-pixel heigh, and we don't rotate, then we can claim this
+    if (1 == fState.fBitmap->height() &&
+            only_scale_and_translate(this->getTotalInverse())) {
+        fFlags |= kConstInY_Flag;
     }
     return true;
 }

@@ -9,6 +9,19 @@
 #include "SkShader.h"
 #include "SkUtils.h"
 
+static void show_ramp(SkCanvas* canvas, const SkRect& r) {
+    SkPoint pts[] = { r.fLeft, 0, r.fRight, 0 };
+    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+                                                 SkShader::kRepeat_TileMode);
+    SkPaint p;
+    p.setShader(s)->unref();
+    canvas->drawRect(r, p);
+    canvas->translate(r.width() + SkIntToScalar(8), 0);
+    p.setDither(true);
+    canvas->drawRect(r, p);
+}
+
 class TestGLView : public SkView {
 public:
 	TestGLView() {
@@ -49,6 +62,9 @@ protected:
         canvas->translate(r.width() + SkIntToScalar(20), 0);
         paint.setStrokeWidth(SkIntToScalar(5));
         canvas->drawRect(r, paint);
+        
+        canvas->translate(r.width() * 10/9, 0);
+        show_ramp(canvas, r);
     }
     
 private:
