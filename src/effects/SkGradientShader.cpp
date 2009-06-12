@@ -662,31 +662,27 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
     TileProc            proc = fTileProc;
     const SkPMColor*    cache = this->getCache32();
 
-    if (fDstToIndexClass != kPerspective_MatrixClass)
-    {
+    if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
         SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
+        // preround fx by half the amount we throw away
+        fx += 1 << 7;
 
-        if (fDstToIndexClass == kFixedStepInX_MatrixClass)
-        {
+        if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed dxStorage[1];
             (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), dxStorage, NULL);
             dx = dxStorage[0];
-        }
-        else
-        {
+        } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
             dx = SkScalarToFixed(fDstToIndex.getScaleX());
         }
 
-        if (SkFixedNearlyZero(dx))  // we're a vertical gradient, so no change in a span
-        {
+        if (SkFixedNearlyZero(dx)) {
+            // we're a vertical gradient, so no change in a span
             unsigned fi = proc(fx);
             SkASSERT(fi <= 0xFFFF);
             sk_memset32(dstC, cache[fi >> (16 - kCache32Bits)], count);
-        }
-        else if (proc == clamp_tileproc)
-        {
+        } else if (proc == clamp_tileproc) {
 #if 0
             if (no_need_for_clamp(fx, dx, count))
             {
@@ -716,18 +712,14 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
                     fx += dx;
                     *dstC++ = cache[fi];
                 } while (--count != 0);
-        }
-        else if (proc == mirror_tileproc)
-        {
+        } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_8bits(fx >> 8);
                 SkASSERT(fi <= 0xFF);
                 fx += dx;
                 *dstC++ = cache[fi];
             } while (--count != 0);
-        }
-        else
-        {
+        } else {
             SkASSERT(proc == repeat_tileproc);
             do {
                 unsigned fi = repeat_8bits(fx >> 8);
@@ -736,9 +728,7 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
                 *dstC++ = cache[fi];
             } while (--count != 0);
         }
-    }
-    else
-    {
+    } else {
         SkScalar    dstX = SkIntToScalar(x);
         SkScalar    dstY = SkIntToScalar(y);
         do {
