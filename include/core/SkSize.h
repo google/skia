@@ -37,6 +37,10 @@ template <typename T> struct SkTSize {
             fHeight = 0;
         }
     }
+    
+    bool equals(T w, T h) const {
+        return fWidth == w && fHeight == h;
+    }
 };
 
 template <typename T>
