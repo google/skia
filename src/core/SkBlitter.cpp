@@ -935,11 +935,21 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                 SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader16_Blitter, storage, storageSize, (device, paint));
             else
                 SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Blitter, storage, storageSize, (device, paint));
+        } else {
+            SkColor color = paint.getColor();
+            if (0 == SkColorGetA(color)) {
+                SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+            } else if (SK_ColorBLACK == color) {
+                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Black_Blitter, storage,
+                                      storageSize, (device, paint));
+            } else if (0xFF == SkColorGetA(color)) {
+                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Opaque_Blitter, storage,
+                                      storageSize, (device, paint));
+            } else {
+                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Blitter, storage,
+                                      storageSize, (device, paint));
+            }
         }
-        else if (paint.getColor() == SK_ColorBLACK)
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Black_Blitter, storage, storageSize, (device, paint));
-        else
-            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Blitter, storage, storageSize, (device, paint));
         break;
 
     case SkBitmap::kARGB_8888_Config:

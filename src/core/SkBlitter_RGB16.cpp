@@ -154,8 +154,165 @@ void SkRGB16_Black_Blitter::blitAntiH(int x, int y,
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+SkRGB16_Opaque_Blitter::SkRGB16_Opaque_Blitter(const SkBitmap& device,
+                                               const SkPaint& paint)
+: INHERITED(device, paint) {}
+
+void SkRGB16_Opaque_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
+    SkASSERT(width > 0);
+    SkASSERT(x + width <= fDevice.width());
+    uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
+    uint16_t srcColor = fColor16;
+    
+    SkASSERT(fRawColor16 == srcColor);
+    if (fDoDither) {
+        uint16_t ditherColor = fRawDither16;
+        if ((x ^ y) & 1) {
+            SkTSwap(ditherColor, srcColor);
+        }
+        sk_dither_memset16(device, srcColor, ditherColor, width);
+    } else {
+        sk_memset16(device, srcColor, width);
+    }
+}
+
+// return 1 or 0 from a bool
+static int Bool2Int(bool value) {
+    return !!value;
+}
+
+void SkRGB16_Opaque_Blitter::blitAntiH(int x, int y,
+                                       const SkAlpha* SK_RESTRICT antialias,
+                                       const int16_t* SK_RESTRICT runs) SK_RESTRICT {
+    uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
+    uint16_t    srcColor = fRawColor16;
+    unsigned    scale = fScale;
+    int         ditherInt = Bool2Int(fDoDither);
+    
+    uint16_t    ditherColor = fRawDither16;
+    // if we have no dithering, this will always fail
+    if ((x ^ y) & ditherInt) {
+        SkTSwap(ditherColor, srcColor);
+    }
+    for (;;) {
+        int count = runs[0];
+        SkASSERT(count >= 0);
+        if (count <= 0) {
+            return;
+        }
+        runs += count;
+        
+        unsigned aa = antialias[0];
+        antialias += count;
+        if (aa) {
+            if (aa == 255) {
+                if (ditherInt) {
+                    sk_dither_memset16(device, srcColor,
+                                       ditherColor, count);
+                } else {
+                    sk_memset16(device, srcColor, count);
+                }
+            } else {
+                // TODO: respect fDoDither
+                unsigned scale5 = SkAlpha255To256(aa) >> 3;
+                uint32_t src32 = SkExpand_rgb_16(srcColor) * scale5;
+                scale5 = 32 - scale5; // now we can use it on the device
+                int n = count;
+                do {
+                    uint32_t dst32 = SkExpand_rgb_16(*device) * scale5;
+                    *device++ = SkCompact_rgb_16((src32 + dst32) >> 5);
+                } while (--n != 0);
+                goto DONE;
+            }
+        }
+        device += count;
+        
+    DONE:
+        // if we have no dithering, this will always fail
+        if (count & ditherInt) {
+            SkTSwap(ditherColor, srcColor);
+        }
+    }
+}
+
+#define solid_8_pixels(mask, dst, color)    \
+    do {                                    \
+        if (mask & 0x80) dst[0] = color;    \
+        if (mask & 0x40) dst[1] = color;    \
+        if (mask & 0x20) dst[2] = color;    \
+        if (mask & 0x10) dst[3] = color;    \
+        if (mask & 0x08) dst[4] = color;    \
+        if (mask & 0x04) dst[5] = color;    \
+        if (mask & 0x02) dst[6] = color;    \
+        if (mask & 0x01) dst[7] = color;    \
+    } while (0)
+
+#define SK_BLITBWMASK_NAME                  SkRGB16_BlitBW
+#define SK_BLITBWMASK_ARGS                  , uint16_t color
+#define SK_BLITBWMASK_BLIT8(mask, dst)      solid_8_pixels(mask, dst, color)
+#define SK_BLITBWMASK_GETADDR               getAddr16
+#define SK_BLITBWMASK_DEVTYPE               uint16_t
+#include "SkBlitBWMaskTemplate.h"
+
+static U16CPU blend_compact(uint32_t src32, uint32_t dst32, unsigned scale5) {
+    return SkCompact_rgb_16(dst32 + ((src32 - dst32) * scale5 >> 5));
+}
+
+void SkRGB16_Opaque_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
+                                      const SkIRect& SK_RESTRICT clip) SK_RESTRICT {
+    if (mask.fFormat == SkMask::kBW_Format) {
+        SkRGB16_BlitBW(fDevice, mask, clip, fColor16);
+        return;
+    }
+    
+    uint16_t* SK_RESTRICT device = fDevice.getAddr16(clip.fLeft, clip.fTop);
+    const uint8_t* SK_RESTRICT alpha = mask.getAddr(clip.fLeft, clip.fTop);
+    int width = clip.width();
+    int height = clip.height();
+    unsigned    deviceRB = fDevice.rowBytes() - (width << 1);
+    unsigned    maskRB = mask.fRowBytes - width;
+    uint32_t    color32 = SkExpand_rgb_16(fRawColor16);
+    
+    do {
+        int w = width;
+        do {
+            *device = blend_compact(color32, SkExpand_rgb_16(*device),
+                                    SkAlpha255To256(*alpha++) >> 3);
+            device += 1;
+        } while (--w != 0);
+        device = (uint16_t*)((char*)device + deviceRB);
+        alpha += maskRB;
+    } while (--height != 0);
+}
+
+void SkRGB16_Opaque_Blitter::blitRect(int x, int y, int width, int height) {
+    SkASSERT(x + width <= fDevice.width() && y + height <= fDevice.height());
+    uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
+    unsigned    deviceRB = fDevice.rowBytes();
+    uint16_t    color16 = fColor16;
+    
+    if (fDoDither) {
+        uint16_t ditherColor = fRawDither16;
+        if ((x ^ y) & 1) {
+            SkTSwap(ditherColor, color16);
+        }
+        while (--height >= 0) {
+            sk_dither_memset16(device, color16, ditherColor, width);
+            SkTSwap(ditherColor, color16);
+            device = (uint16_t*)((char*)device + deviceRB);
+        }
+    } else {  // no dither
+        while (--height >= 0) {
+            sk_memset16(device, color16, width);
+            device = (uint16_t*)((char*)device + deviceRB);
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 SkRGB16_Blitter::SkRGB16_Blitter(const SkBitmap& device, const SkPaint& paint)
     : INHERITED(device) {
@@ -190,144 +347,48 @@ const SkBitmap* SkRGB16_Blitter::justAnOpaqueColor(uint32_t* value) {
 void SkRGB16_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
     SkASSERT(width > 0);
     SkASSERT(x + width <= fDevice.width());
-
-    if (fScale == 0) {
-        return;
-    }
-
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
-    uint16_t srcColor = fColor16;
 
-    if (256 == fScale) {
-        SkASSERT(fRawColor16 == srcColor);
-        if (fDoDither) {
-            uint16_t ditherColor = fRawDither16;
-            if ((x ^ y) & 1) {
-                SkTSwap(ditherColor, srcColor);
-            }
-            sk_dither_memset16(device, srcColor, ditherColor, width);
-        } else {
-            sk_memset16(device, srcColor, width);
-        }
-    } else {
-        // TODO: respect fDoDither
-        SkPMColor src32 = fSrcColor32;
-        do {
-            *device = SkSrcOver32To16(src32, *device);
-            device += 1;
-        } while (--width != 0);
-    }
-}
-
-// return 1 or 0 from a bool
-static int Bool2Int(bool value) {
-    return !!value;
+    // TODO: respect fDoDither
+    SkPMColor src32 = fSrcColor32;
+    do {
+        *device = SkSrcOver32To16(src32, *device);
+        device += 1;
+    } while (--width != 0);
 }
 
 void SkRGB16_Blitter::blitAntiH(int x, int y,
                                 const SkAlpha* SK_RESTRICT antialias,
                                 const int16_t* SK_RESTRICT runs) SK_RESTRICT {
-    if (fScale == 0) {
-        return;
-    }
-
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     uint16_t    srcColor = fRawColor16;
     unsigned    scale = fScale;
     int         ditherInt = Bool2Int(fDoDither);
 
-    if (256 == scale) {
-        uint16_t    ditherColor = fRawDither16;
-        // if we have no dithering, this will always fail
-        if ((x ^ y) & ditherInt) {
-            SkTSwap(ditherColor, srcColor);
+    // TODO: respect fDoDither
+    for (;;) {
+        int count = runs[0];
+        SkASSERT(count >= 0);
+        if (count <= 0) {
+            return;
         }
-        for (;;) {
-            int count = runs[0];
-            SkASSERT(count >= 0);
-            if (count <= 0) {
-                return;
-            }
-            runs += count;
+        runs += count;
 
-            unsigned aa = antialias[0];
-            antialias += count;
-            if (aa) {
-                if (aa == 255) {
-                    if (ditherInt) {
-                        sk_dither_memset16(device, srcColor,
-                                           ditherColor, count);
-                    } else {
-                        sk_memset16(device, srcColor, count);
-                    }
-                } else {
-                    // TODO: respect fDoDither
-                    unsigned scale5 = SkAlpha255To256(aa) >> 3;
-                    uint32_t src32 = SkExpand_rgb_16(srcColor) * scale5;
-                    scale5 = 32 - scale5; // now we can use it on the device
-                    int n = count;
-                    do {
-                        uint32_t dst32 = SkExpand_rgb_16(*device) * scale5;
-                        *device++ = SkCompact_rgb_16((src32 + dst32) >> 5);
-                    } while (--n != 0);
-                    goto DONE;
-                }
-            }
-            device += count;
-
-            DONE:
-            // if we have no dithering, this will always fail
-            if (count & ditherInt) {
-                SkTSwap(ditherColor, srcColor);
-            }
+        unsigned aa = antialias[0];
+        antialias += count;
+        if (aa) {
+            unsigned scale5 = SkAlpha255To256(aa) * scale >> (8 + 3);
+            uint32_t src32 =  SkExpand_rgb_16(srcColor) * scale5;
+            scale5 = 32 - scale5;
+            do {
+                uint32_t dst32 = SkExpand_rgb_16(*device) * scale5;
+                *device++ = SkCompact_rgb_16((src32 + dst32) >> 5);
+            } while (--count != 0);
+            continue;
         }
-    } else {
-        // TODO: respect fDoDither
-        for (;;) {
-            int count = runs[0];
-            SkASSERT(count >= 0);
-            if (count <= 0) {
-                return;
-            }
-            runs += count;
-
-            unsigned aa = antialias[0];
-            antialias += count;
-            if (aa) {
-                unsigned scale5 = SkAlpha255To256(aa) * scale >> (8 + 3);
-                uint32_t src32 =  SkExpand_rgb_16(srcColor) * scale5;
-                scale5 = 32 - scale5;
-                do {
-                    uint32_t dst32 = SkExpand_rgb_16(*device) * scale5;
-                    *device++ = SkCompact_rgb_16((src32 + dst32) >> 5);
-                } while (--count != 0);
-                continue;
-            }
-            device += count;
-        }
+        device += count;
     }
 }
-
-//////////////////////////////////////////////////////////////////////////////////////
-
-#define solid_8_pixels(mask, dst, color)    \
-    do {                                    \
-        if (mask & 0x80) dst[0] = color;    \
-        if (mask & 0x40) dst[1] = color;    \
-        if (mask & 0x20) dst[2] = color;    \
-        if (mask & 0x10) dst[3] = color;    \
-        if (mask & 0x08) dst[4] = color;    \
-        if (mask & 0x04) dst[5] = color;    \
-        if (mask & 0x02) dst[6] = color;    \
-        if (mask & 0x01) dst[7] = color;    \
-    } while (0)
-
-#define SK_BLITBWMASK_NAME                  SkRGB16_BlitBW
-#define SK_BLITBWMASK_ARGS                  , uint16_t color
-#define SK_BLITBWMASK_BLIT8(mask, dst)      solid_8_pixels(mask, dst, color)
-#define SK_BLITBWMASK_GETADDR               getAddr16
-#define SK_BLITBWMASK_DEVTYPE               uint16_t
-#include "SkBlitBWMaskTemplate.h"
 
 static inline void blend_8_pixels(U8CPU bw, uint16_t dst[], unsigned dst_scale,
                                   U16CPU srcColor) {
@@ -348,21 +409,10 @@ static inline void blend_8_pixels(U8CPU bw, uint16_t dst[], unsigned dst_scale,
 #define SK_BLITBWMASK_DEVTYPE               uint16_t
 #include "SkBlitBWMaskTemplate.h"
 
-static U16CPU blend_compact(uint32_t src32, uint32_t dst32, unsigned scale5) {
-    return SkCompact_rgb_16(dst32 + ((src32 - dst32) * scale5 >> 5));
-}
-
 void SkRGB16_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
                                const SkIRect& SK_RESTRICT clip) SK_RESTRICT {
-    if (fScale == 0) {
-        return;
-    }
     if (mask.fFormat == SkMask::kBW_Format) {
-        if (fScale == 256) {
-            SkRGB16_BlitBW(fDevice, mask, clip, fColor16);
-        } else {
-            SkRGB16_BlendBW(fDevice, mask, clip, 256 - fScale, fColor16);
-        }
+        SkRGB16_BlendBW(fDevice, mask, clip, 256 - fScale, fColor16);
         return;
     }
 
@@ -374,38 +424,22 @@ void SkRGB16_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
     unsigned    maskRB = mask.fRowBytes - width;
     uint32_t    color32 = SkExpand_rgb_16(fRawColor16);
 
-    if (256 == fScale) {
+    unsigned scale256 = fScale;
+    do {
+        int w = width;
         do {
-            int w = width;
-            do {
-                *device = blend_compact(color32, SkExpand_rgb_16(*device),
-                                        SkAlpha255To256(*alpha++) >> 3);
-                device += 1;
-            } while (--w != 0);
-            device = (uint16_t*)((char*)device + deviceRB);
-            alpha += maskRB;
-        } while (--height != 0);
-    } else {   // scale < 256
-        unsigned scale256 = fScale;
-        do {
-            int w = width;
-            do {
-                unsigned aa = *alpha++;
-                unsigned scale = SkAlpha255To256(aa) * scale256 >> (8 + 3);
-                uint32_t src32 = color32 * scale;
-                uint32_t dst32 = SkExpand_rgb_16(*device) * (32 - scale);
-                *device++ = SkCompact_rgb_16((src32 + dst32) >> 5);
-            } while (--w != 0);
-            device = (uint16_t*)((char*)device + deviceRB);
-            alpha += maskRB;
-        } while (--height != 0);
-    }
+            unsigned aa = *alpha++;
+            unsigned scale = SkAlpha255To256(aa) * scale256 >> (8 + 3);
+            uint32_t src32 = color32 * scale;
+            uint32_t dst32 = SkExpand_rgb_16(*device) * (32 - scale);
+            *device++ = SkCompact_rgb_16((src32 + dst32) >> 5);
+        } while (--w != 0);
+        device = (uint16_t*)((char*)device + deviceRB);
+        alpha += maskRB;
+    } while (--height != 0);
 }
 
 void SkRGB16_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
-    if (fScale == 0) {
-        return;
-    }
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     uint16_t    color16 = fRawColor16;
     unsigned    deviceRB = fDevice.rowBytes();
@@ -442,39 +476,16 @@ void SkRGB16_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
 
 void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(x + width <= fDevice.width() && y + height <= fDevice.height());
-
-    if (fScale == 0) {
-        return;
-    }
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     unsigned    deviceRB = fDevice.rowBytes();
     uint16_t    color16 = fColor16;
+    SkPMColor src32 = fSrcColor32;
 
-    if (256 == fScale) {
-        if (fDoDither) {
-            uint16_t ditherColor = fRawDither16;
-            if ((x ^ y) & 1) {
-                SkTSwap(ditherColor, color16);
-            }
-            while (--height >= 0) {
-                sk_dither_memset16(device, color16, ditherColor, width);
-                SkTSwap(ditherColor, color16);
-                device = (uint16_t*)((char*)device + deviceRB);
-            }
-        } else {  // no dither
-            while (--height >= 0) {
-                sk_memset16(device, color16, width);
-                device = (uint16_t*)((char*)device + deviceRB);
-            }
+    while (--height >= 0) {
+        for (int i = width - 1; i >= 0; --i) {
+            device[i] = SkSrcOver32To16(src32, device[i]);
         }
-    } else {
-        SkPMColor src32 = fSrcColor32;
-        while (--height >= 0) {
-            for (int i = width - 1; i >= 0; --i) {
-                device[i] = SkSrcOver32To16(src32, device[i]);
-            }
-            device = (uint16_t*)((char*)device + deviceRB);
-        }
+        device = (uint16_t*)((char*)device + deviceRB);
     }
 }
 
