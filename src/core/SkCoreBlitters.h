@@ -183,15 +183,14 @@ public:
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
     virtual void blitRect(int x, int y, int width, int height);
     virtual void blitMask(const SkMask&, const SkIRect&);
-    
-private:    
+
+private:
     typedef SkRGB16_Blitter INHERITED;
 };
 
 class SkRGB16_Black_Blitter : public SkRGB16_Blitter {
 public:
     SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint);
-
     virtual void blitMask(const SkMask&, const SkIRect&);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
 

@@ -160,13 +160,13 @@ public:
         there is a conflict (e.g. the image has per-pixel alpha and the bitmap's
         config does not support that), in which case the decoder will choose a
         closest match configuration.
-     
+
         @param format On success, if format is non-null, it is set to the format
                       of the decoded file. On failure it is ignored.
     */
     static bool DecodeFile(const char file[], SkBitmap* bitmap,
                            SkBitmap::Config prefConfig, Mode,
-                           Format* format);
+                           Format* format = NULL);
     static bool DecodeFile(const char file[], SkBitmap* bitmap) {
         return DecodeFile(file, bitmap, SkBitmap::kNo_Config,
                           kDecodePixels_Mode, NULL);
@@ -180,13 +180,13 @@ public:
         there is a conflict (e.g. the image has per-pixel alpha and the bitmap's
         config does not support that), in which case the decoder will choose a
         closest match configuration.
-     
-         @param format On success, if format is non-null, it is set to the format
+
+        @param format On success, if format is non-null, it is set to the format
                        of the decoded buffer. On failure it is ignored.
      */
     static bool DecodeMemory(const void* buffer, size_t size, SkBitmap* bitmap,
                              SkBitmap::Config prefConfig, Mode,
-                             Format* format);
+                             Format* format = NULL);
     static bool DecodeMemory(const void* buffer, size_t size, SkBitmap* bitmap){
         return DecodeMemory(buffer, size, bitmap, SkBitmap::kNo_Config,
                             kDecodePixels_Mode, NULL);
@@ -200,13 +200,13 @@ public:
         format, unless there is a conflict (e.g. the image has per-pixel alpha
         and the bitmap's config does not support that), in which case the
         decoder will choose a closest match configuration.
-     
+
         @param format On success, if format is non-null, it is set to the format
                       of the decoded stream. On failure it is ignored.
      */
     static bool DecodeStream(SkStream* stream, SkBitmap* bitmap,
                              SkBitmap::Config prefConfig, Mode,
-                             Format* format);
+                             Format* format = NULL);
     static bool DecodeStream(SkStream* stream, SkBitmap* bitmap) {
         return DecodeStream(stream, bitmap, SkBitmap::kNo_Config,
                             kDecodePixels_Mode, NULL);

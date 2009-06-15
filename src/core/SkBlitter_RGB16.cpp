@@ -166,7 +166,7 @@ void SkRGB16_Opaque_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
     SkASSERT(x + width <= fDevice.width());
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     uint16_t srcColor = fColor16;
-    
+
     SkASSERT(fRawColor16 == srcColor);
     if (fDoDither) {
         uint16_t ditherColor = fRawDither16;
@@ -189,9 +189,7 @@ void SkRGB16_Opaque_Blitter::blitAntiH(int x, int y,
                                        const int16_t* SK_RESTRICT runs) SK_RESTRICT {
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     uint16_t    srcColor = fRawColor16;
-    unsigned    scale = fScale;
     int         ditherInt = Bool2Int(fDoDither);
-    
     uint16_t    ditherColor = fRawDither16;
     // if we have no dithering, this will always fail
     if ((x ^ y) & ditherInt) {
@@ -204,7 +202,7 @@ void SkRGB16_Opaque_Blitter::blitAntiH(int x, int y,
             return;
         }
         runs += count;
-        
+
         unsigned aa = antialias[0];
         antialias += count;
         if (aa) {
@@ -229,7 +227,7 @@ void SkRGB16_Opaque_Blitter::blitAntiH(int x, int y,
             }
         }
         device += count;
-        
+
     DONE:
         // if we have no dithering, this will always fail
         if (count & ditherInt) {
@@ -267,7 +265,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
         SkRGB16_BlitBW(fDevice, mask, clip, fColor16);
         return;
     }
-    
+
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(clip.fLeft, clip.fTop);
     const uint8_t* SK_RESTRICT alpha = mask.getAddr(clip.fLeft, clip.fTop);
     int width = clip.width();
@@ -275,7 +273,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
     unsigned    deviceRB = fDevice.rowBytes() - (width << 1);
     unsigned    maskRB = mask.fRowBytes - width;
     uint32_t    color32 = SkExpand_rgb_16(fRawColor16);
-    
+
     do {
         int w = width;
         do {
@@ -293,7 +291,7 @@ void SkRGB16_Opaque_Blitter::blitRect(int x, int y, int width, int height) {
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     unsigned    deviceRB = fDevice.rowBytes();
     uint16_t    color16 = fColor16;
-    
+
     if (fDoDither) {
         uint16_t ditherColor = fRawDither16;
         if ((x ^ y) & 1) {
@@ -363,7 +361,6 @@ void SkRGB16_Blitter::blitAntiH(int x, int y,
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     uint16_t    srcColor = fRawColor16;
     unsigned    scale = fScale;
-    int         ditherInt = Bool2Int(fDoDither);
 
     // TODO: respect fDoDither
     for (;;) {
@@ -478,7 +475,6 @@ void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
     SkASSERT(x + width <= fDevice.width() && y + height <= fDevice.height());
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
     unsigned    deviceRB = fDevice.rowBytes();
-    uint16_t    color16 = fColor16;
     SkPMColor src32 = fSrcColor32;
 
     while (--height >= 0) {
