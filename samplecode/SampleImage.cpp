@@ -27,7 +27,7 @@ static bool SetImageRef(SkBitmap* bitmap, SkStream* stream,
                         SkBitmap::Config pref, const char name[] = NULL)
 {
     if (SkImageDecoder::DecodeStream(stream, bitmap, pref,
-                                     SkImageDecoder::kDecodeBounds_Mode)) {
+                                 SkImageDecoder::kDecodeBounds_Mode, NULL)) {
         SkASSERT(bitmap->config() != SkBitmap::kNo_Config);
     
         SkImageRef* ref = new SkImageRef_GlobalPool(stream, bitmap->config());

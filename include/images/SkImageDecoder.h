@@ -160,12 +160,16 @@ public:
         there is a conflict (e.g. the image has per-pixel alpha and the bitmap's
         config does not support that), in which case the decoder will choose a
         closest match configuration.
+     
+        @param format On success, if format is non-null, it is set to the format
+                      of the decoded file. On failure it is ignored.
     */
     static bool DecodeFile(const char file[], SkBitmap* bitmap,
-                             SkBitmap::Config prefConfig, Mode);
-    static bool DecodeFile(const char file[], SkBitmap* bitmap)
-    {
-        return DecodeFile(file, bitmap, SkBitmap::kNo_Config, kDecodePixels_Mode);
+                           SkBitmap::Config prefConfig, Mode,
+                           Format* format);
+    static bool DecodeFile(const char file[], SkBitmap* bitmap) {
+        return DecodeFile(file, bitmap, SkBitmap::kNo_Config,
+                          kDecodePixels_Mode, NULL);
     }
     /** Decode the image stored in the specified memory buffer, and store the
         result in bitmap. Return true for success or false on failure.
@@ -176,13 +180,16 @@ public:
         there is a conflict (e.g. the image has per-pixel alpha and the bitmap's
         config does not support that), in which case the decoder will choose a
         closest match configuration.
-    */
+     
+         @param format On success, if format is non-null, it is set to the format
+                       of the decoded buffer. On failure it is ignored.
+     */
     static bool DecodeMemory(const void* buffer, size_t size, SkBitmap* bitmap,
-                             SkBitmap::Config prefConfig, Mode);
-    static bool DecodeMemory(const void* buffer, size_t size, SkBitmap* bitmap)
-    {
+                             SkBitmap::Config prefConfig, Mode,
+                             Format* format);
+    static bool DecodeMemory(const void* buffer, size_t size, SkBitmap* bitmap){
         return DecodeMemory(buffer, size, bitmap, SkBitmap::kNo_Config,
-                            kDecodePixels_Mode);
+                            kDecodePixels_Mode, NULL);
     }
     /** Decode the image stored in the specified SkStream, and store the result
         in bitmap. Return true for success or false on failure.
@@ -193,13 +200,16 @@ public:
         format, unless there is a conflict (e.g. the image has per-pixel alpha
         and the bitmap's config does not support that), in which case the
         decoder will choose a closest match configuration.
-    */
+     
+        @param format On success, if format is non-null, it is set to the format
+                      of the decoded stream. On failure it is ignored.
+     */
     static bool DecodeStream(SkStream* stream, SkBitmap* bitmap,
-                             SkBitmap::Config prefConfig, Mode);
-    static bool DecodeStream(SkStream* stream, SkBitmap* bitmap)
-    {
+                             SkBitmap::Config prefConfig, Mode,
+                             Format* format);
+    static bool DecodeStream(SkStream* stream, SkBitmap* bitmap) {
         return DecodeStream(stream, bitmap, SkBitmap::kNo_Config,
-                            kDecodePixels_Mode);
+                            kDecodePixels_Mode, NULL);
     }
 
     /** Return the default config for the running device.
