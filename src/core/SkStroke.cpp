@@ -302,9 +302,13 @@ DRAW_LINE:
     bool degenerateBC = !set_normal_unitnormal(pts[1], pts[2], fRadius,
                                                &normalBC, &unitNormalBC);
 
-    if (--subDivide >= 0 &&
-            (degenerateBC || normals_too_curvy(unitNormalAB, unitNormalBC) ||
-             normals_too_curvy(unitNormalBC, *unitNormalCD))) {
+    
+    if (degenerateBC || normals_too_curvy(unitNormalAB, unitNormalBC) ||
+             normals_too_curvy(unitNormalBC, *unitNormalCD)) {
+        // subdivide if we can
+        if (--subDivide < 0) {
+            goto DRAW_LINE;
+        }
         SkPoint     tmp[7];
         SkVector    norm, unit, dummy, unitDummy;
 
