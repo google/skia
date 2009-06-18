@@ -218,9 +218,8 @@ SkMovie* Factory(SkStream* stream) {
     char buf[GIF_STAMP_LEN];
     if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
         if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
-			memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
-			memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
-            stream->rewind();
+                memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
+                memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
             return SkNEW_ARGS(SkGIFMovie, (stream));
         }
     }
