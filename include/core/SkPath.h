@@ -85,7 +85,7 @@ public:
     /** Returns true if the path is flagged as being convex. This is not a
         confirmed by any analysis, it is just the value set earlier.
      */
-    bool isConvex() const { return fIsConvex; }
+    bool isConvex() const { return fIsConvex != 0; }
 
     /** Set the isConvex flag to true or false. Convex paths may draw faster if
         this flag is set, though setting this to true on a path that is in fact
