@@ -28,6 +28,8 @@ SkImageDecoder* SkImageDecoder::Factory(SkStream* stream) {
     const DecodeReg* curr = DecodeReg::Head();
     while (curr) {
         SkImageDecoder* codec = curr->factory()(stream);
+        // we rewind here, because we promise later when we call "decode", that
+        // the stream will be at its beginning.
         stream->rewind();
         if (codec) {
             return codec;
@@ -48,6 +50,8 @@ SkMovie* SkMovie::DecodeStream(SkStream* stream) {
         if (movie) {
             return movie;
         }
+        // we must rewind only if we got NULL, since we gave the stream to the
+        // movie, who may have already started reading from it
         stream->rewind();
         curr = curr->next();
     }

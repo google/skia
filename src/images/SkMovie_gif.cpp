@@ -220,6 +220,8 @@ SkMovie* Factory(SkStream* stream) {
         if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
                 memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
                 memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
+            // must rewind here, since our construct wants to re-read the data
+            stream->rewind();
             return SkNEW_ARGS(SkGIFMovie, (stream));
         }
     }
