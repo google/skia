@@ -38,19 +38,6 @@ private:
     SavedImage* fCurrSavedImage;
 };
 
-SkMovie* SkMovie_GIF_Factory(SkStream* stream) {
-    char buf[GIF_STAMP_LEN];
-    if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
-        if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
-                memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
-                memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
-            stream->rewind();
-            return SkNEW_ARGS(SkGIFMovie, (stream));
-        }
-    }
-    return NULL;
-}
-
 static int Decode(GifFileType* fileType, GifByteType* out, int size) {
     SkStream* stream = (SkStream*) fileType->UserData;
     return (int) stream->read(out, size);
@@ -222,3 +209,22 @@ bool SkGIFMovie::onGetBitmap(SkBitmap* bm)
     }
     return true;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkTRegistry.h"
+
+SkMovie* Factory(SkStream* stream) {
+    char buf[GIF_STAMP_LEN];
+    if (stream->read(buf, GIF_STAMP_LEN) == GIF_STAMP_LEN) {
+        if (memcmp(GIF_STAMP,   buf, GIF_STAMP_LEN) == 0 ||
+			memcmp(GIF87_STAMP, buf, GIF_STAMP_LEN) == 0 ||
+			memcmp(GIF89_STAMP, buf, GIF_STAMP_LEN) == 0) {
+            stream->rewind();
+            return SkNEW_ARGS(SkGIFMovie, (stream));
+        }
+    }
+    return NULL;
+}
+
+static SkTRegistry<SkMovie*, SkStream*> gReg(Factory);
