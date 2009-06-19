@@ -761,6 +761,10 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     }
 
     FT_Face face = fFace;
+    if (!face) {
+        goto ERROR;
+    }
+
     int upem = face->units_per_EM;
     if (upem <= 0) {
         goto ERROR;
