@@ -9,20 +9,20 @@ template GMRegistry* GMRegistry::gHead;
 class Iter {
 public:
     Iter() {
-        fReg = TestRegistry::Head();
+        fReg = GMRegistry::Head();
     }
 	
-    Test* next() {
+    GM* next() {
         if (fReg) {
-            TestRegistry::Factory fact = fReg->factory();
+            GMRegistry::Factory fact = fReg->factory();
             fReg = fReg->next();
-            return fact();
+            return fact(0);
         }
         return NULL;
     }
 	
     static int Count() {
-        const TestRegistry* reg = TestRegistry::Head();
+        const GMRegistry* reg = GMRegistry::Head();
         int count = 0;
         while (reg) {
             count += 1;
@@ -64,23 +64,39 @@ int main (int argc, char * const argv[]) {
 
     while ((gm = iter.next()) != NULL) {
 		SkISize size = gm->getISize();
+		SkDebugf("---- gm %p [%d %d]\n", gm, size.width(), size.height());
 		SkBitmap bitmap;
-		for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
+		for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
 			bitmap.setConfig(gRec[i].fConfig, size.width(), size.height());
 			bitmap.allocPixels();
 			bitmap.eraseColor(0);
 			SkCanvas canvas(bitmap);
 
+			SkDebugf("------- drawing to %s config\n", gRec[i].fName);
 			gm->draw(&canvas);
-			
+#if 0
 			if (gRec[i].fUsePicture) {
 				SkPicture picture;
 				gm->draw(picture.beginRecording(size.width(), size.height(), 0));
 				canvas.drawPicture(picture);
 			} else {
 			}
+#endif
 		}
         SkDELETE(gm);
     }
     return 0;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+using namespace skiagm;
+
+GM::GM() {}
+GM::~GM() {}
+
+void GM::draw(SkCanvas* canvas) {
+	this->onDraw(canvas);
+}
+
+

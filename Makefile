@@ -131,6 +131,18 @@ skimage: $(SKIMAGE_OBJS) out/libskia.a
 
 ##############################################################################
 
+GM_SRCS := gmmain.cpp xfermodes.cpp
+GM_SRCS := $(addprefix gm/, $(GM_SRCS))
+
+GM_OBJS := $(GM_SRCS:.cpp=.o)
+GM_OBJS := $(addprefix out/, $(GM_OBJS))
+
+gm: $(GM_OBJS) out/libskia.a
+	@echo "linking gm..."
+	$(HIDE)g++ $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
+
+##############################################################################
+
 .PHONY: clean
 clean:
 	$(HIDE)rm -rf out
@@ -140,6 +152,7 @@ help:
 	@echo "Targets:"
 	@echo "    <default>: out/libskia.a"
 	@echo "    bench: out/bench/bench"
+	@echo "    gm: out/gm/gm"
 	@echo "    skimage: out/tools/skimage"
 	@echo "    tests: out/tests/tests"
 	@echo "    clean: removes entire out/ directory"
