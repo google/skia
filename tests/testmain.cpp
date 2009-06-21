@@ -95,16 +95,6 @@ private:
     bool fAndroidMode;
 };
 
-class SkAutoGraphics {
-public:
-    SkAutoGraphics() {
-        SkGraphics::Init();
-    }
-    ~SkAutoGraphics() {
-        SkGraphics::Term();
-    }
-};
-
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
     

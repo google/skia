@@ -31,16 +31,6 @@ static bool decodeFile(SkBitmap* bitmap, const char srcPath[]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkAutoGraphics {
-public:
-    SkAutoGraphics() {
-        SkGraphics::Init();
-    }
-    ~SkAutoGraphics() {
-        SkGraphics::Term();
-    }
-};
-
 static void show_help() {
     SkDebugf("usage: skiamge [-o out-dir] inputfiles...\n");
 }

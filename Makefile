@@ -56,6 +56,7 @@ else
 	LINKER_OPTS += -lpng
 	DEFINES += -DSK_BUILD_FOR_UNIX
 
+	SRC_LIST += src/ports/SkFontHost_none.cpp
     # these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
 	SRC_LIST += src/images/SkImageEncoder_Factory.cpp

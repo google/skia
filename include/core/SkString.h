@@ -43,12 +43,13 @@ public:
     explicit    SkString(size_t len);
     explicit    SkString(const char text[]);
                 SkString(const char text[], size_t len);
-    explicit    SkString(const SkString&);
+                SkString(const SkString&);
                 ~SkString();
 
     bool        isEmpty() const { return fRec->fLength == 0; }
     size_t      size() const { return (size_t) fRec->fLength; }
     const char* c_str() const { return fRec->data(); }
+    char operator[](size_t n) const { return this->c_str()[n]; }
 
     bool    equals(const SkString&) const;
     bool    equals(const char text[]) const;
@@ -77,6 +78,7 @@ public:
     SkString&   operator=(const SkString&);
 
     char*   writable_str();
+    char& operator[](size_t n) { return this->writable_str()[n]; }
 
     void    reset();
     void    resize(size_t len) { this->set(NULL, len); }

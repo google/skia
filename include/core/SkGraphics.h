@@ -42,5 +42,15 @@ private:
     static void InstallNewHandler();
 };
 
+class SkAutoGraphics {
+public:
+    SkAutoGraphics() {
+        SkGraphics::Init();
+    }
+    ~SkAutoGraphics() {
+        SkGraphics::Term();
+    }
+};
+
 #endif
 

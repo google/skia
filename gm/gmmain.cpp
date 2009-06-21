@@ -1,5 +1,7 @@
-#include "SkGraphics.h"
 #include "gm.h"
+#include "SkGraphics.h"
+#include "SkImageDecoder.h"
+#include "SkImageEncoder.h"
 
 using namespace skiagm;
 
@@ -35,15 +37,24 @@ private:
     const GMRegistry* fReg;
 };
 
-class SkAutoGraphics {
-public:
-    SkAutoGraphics() {
-        SkGraphics::Init();
+static SkString make_name(const char shortName[], const char configName[]) {
+    SkString name(shortName);
+    name.appendf("_%s", configName);
+    return name;
+}
+
+static SkString make_filename(const char path[], const SkString& name) {
+    SkString filename(path);
+    if (filename.size() && filename[filename.size() - 1] != '/') {
+        filename.append("/");
     }
-    ~SkAutoGraphics() {
-        SkGraphics::Term();
-    }
-};
+    filename.append(name);
+    return filename;
+}
+
+static void compare(const SkBitmap& target, const SkBitmap& base,
+                    const SkString& name) {
+}
 
 static const struct {
 	SkBitmap::Config	fConfig;
@@ -59,12 +70,32 @@ static const struct {
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
     
+    const char* writePath = NULL;   // if non-null, where we write the originals
+    const char* readPath = NULL;    // if non-null, were we read from to compare
+
+    char* const* stop = argv + argc;
+    for (++argv; argv < stop; ++argv) {
+        if (strcmp(*argv, "-w") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                writePath = *argv;
+            }
+        } else if (strcmp(*argv, "-r") == 0) {
+            argv++;
+            if (argv < stop && **argv) {
+                readPath = *argv;
+            }
+        }
+    }
+    
     Iter iter;
     GM* gm;
-
+	
     while ((gm = iter.next()) != NULL) {
 		SkISize size = gm->getISize();
-		SkDebugf("---- gm %p [%d %d]\n", gm, size.width(), size.height());
+        SkDebugf("---- %s [%d %d]\n", gm->shortName(),
+                 size.width(), size.height());
+
 		SkBitmap bitmap;
 		for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
 			bitmap.setConfig(gRec[i].fConfig, size.width(), size.height());
@@ -72,16 +103,29 @@ int main (int argc, char * const argv[]) {
 			bitmap.eraseColor(0);
 			SkCanvas canvas(bitmap);
 
-			SkDebugf("------- drawing to %s config\n", gRec[i].fName);
 			gm->draw(&canvas);
-#if 0
-			if (gRec[i].fUsePicture) {
-				SkPicture picture;
-				gm->draw(picture.beginRecording(size.width(), size.height(), 0));
-				canvas.drawPicture(picture);
-			} else {
-			}
-#endif
+            
+            SkString name = make_name(gm->shortName(), gRec[i].fName);
+
+            if (writePath) {
+                SkString path = make_filename(writePath, name);
+                bool success = SkImageEncoder::EncodeFile(path.c_str(), bitmap,
+                                                SkImageEncoder::kPNG_Type, 100);
+                if (!success) {
+                    fprintf(stderr, "FAILED to write %s\n", path.c_str());
+                }
+            } else if (readPath) {
+                SkString path = make_filename(writePath, name);
+                SkBitmap orig;
+                bool success = SkImageDecoder::DecodeFile(path.c_str(), &orig,
+                                    SkBitmap::kARGB_8888_Config,
+                                    SkImageDecoder::kDecodePixels_Mode, NULL);
+                if (success) {
+                    compare(bitmap, orig, name);
+                } else {
+                    fprintf(stderr, "FAILED to read %s\n", path.c_str());
+                }
+            }
 		}
         SkDELETE(gm);
     }

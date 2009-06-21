@@ -10,7 +10,7 @@
 
 namespace skiagm {
 	
-	static SkISize make_isize(int w, int h) {
+	static inline SkISize make_isize(int w, int h) {
 		SkISize sz;
 		sz.set(w, h);
 		return sz;
@@ -23,10 +23,20 @@ namespace skiagm {
 		
 		void draw(SkCanvas*);
 		SkISize getISize() { return this->onISize(); }
+        const char* shortName() {
+            if (fShortName.size() == 0) {
+                fShortName = this->onShortName();
+            }
+            return fShortName.c_str();
+        }
 
 	protected:
-		virtual void onDraw(SkCanvas*) {}
-		virtual SkISize onISize() { return make_isize(0, 0); }
+		virtual void onDraw(SkCanvas*) = 0;
+		virtual SkISize onISize() = 0;
+        virtual SkString onShortName() = 0;
+        
+    private:
+        SkString fShortName;
     };
 
     typedef SkTRegistry<GM*, void*> GMRegistry;
