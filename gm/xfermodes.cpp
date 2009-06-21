@@ -67,7 +67,7 @@ protected:
         return SkString("xfermodes");
     }
 
-	SkISize onISize() { return make_isize(400, 250); }
+	SkISize onISize() { return make_isize(640, 380); }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);

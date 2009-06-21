@@ -48,7 +48,7 @@ static SkString make_filename(const char path[], const SkString& name) {
     if (filename.size() && filename[filename.size() - 1] != '/') {
         filename.append("/");
     }
-    filename.append(name);
+    filename.appendf("%s.png", name.c_str());
     return filename;
 }
 
@@ -64,7 +64,6 @@ static const struct {
 	{ SkBitmap::kARGB_8888_Config,	false,	"8888" },
 	{ SkBitmap::kARGB_4444_Config,	false,	"4444" },
 	{ SkBitmap::kRGB_565_Config,	false,	"565" },
-	{ SkBitmap::kA8_Config,			false,	"A8" },
 };
 
 int main (int argc, char * const argv[]) {
@@ -109,7 +108,9 @@ int main (int argc, char * const argv[]) {
 
             if (writePath) {
                 SkString path = make_filename(writePath, name);
-                bool success = SkImageEncoder::EncodeFile(path.c_str(), bitmap,
+                SkBitmap copy;
+                bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+                bool success = SkImageEncoder::EncodeFile(path.c_str(), copy,
                                                 SkImageEncoder::kPNG_Type, 100);
                 if (!success) {
                     fprintf(stderr, "FAILED to write %s\n", path.c_str());
