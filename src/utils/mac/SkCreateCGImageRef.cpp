@@ -14,9 +14,33 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
     switch (bm.config()) {
         case SkBitmap::kARGB_8888_Config:
             *bitsPerComponent = 8;
-            // try to match our argb ordering in SkColorPriv
+            // try to match our rgba ordering in SkColorPriv, but take into
+            // account that the data layout could have been overridden in
+            // SkUserConfig.
+#define HAS_ARGB_SHIFTS(a, r, g, b) \
+            (SK_A32_SHIFT == (a) && SK_R32_SHIFT == (r) \
+             && SK_G32_SHIFT == (g) && SK_B32_SHIFT == (b))
+#if defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 0, 8, 16) \
+ || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(0, 24, 16, 8)
+            // The default rgba ordering from SkColorPriv.h
             *info = kCGBitmapByteOrder32Big |
                     kCGImageAlphaPremultipliedLast;
+#elif defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0) \
+   || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0)
+            // Matches the CGBitmapInfo that Apple recommends for best
+            // performance, used by google chrome.
+            *info = kCGBitmapByteOrder32Host |
+                    kCGImageAlphaPremultipliedFirst;
+#else
+// ...add more formats as required...
+#warning Cannot convert SkBitmap to CGImageRef with these shiftmasks. \
+            This will probably not work.
+            // Legacy behavior. Perhaps turn this into an error at some
+            // point.
+            *info = kCGBitmapByteOrder32Big |
+                    kCGImageAlphaPremultipliedLast;
+#endif
+#undef HAS_ARGB_SHIFTS
             break;
         case SkBitmap::kRGB_565_Config:
             // doesn't see quite right. Are they thinking 1555?
