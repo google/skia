@@ -55,6 +55,32 @@ static unsigned saturated_add(unsigned a, unsigned b) {
     return sum;
 }
 
+static int clamp_signed_byte(int n) {
+    if (n < 0) {
+        n = 0;
+    } else if (n > 255) {
+        n = 255;
+    }
+    return n;
+}
+
+static int clamp_div255round(int prod) {
+    if (prod <= 0) {
+        return 0;
+    } else if (prod >= 255*255) {
+        return 255;
+    } else {
+        return SkDiv255Round(prod);
+    }
+}
+
+static int clamp_max(int value, int max) {
+    if (value > max) {
+        value = max;
+    }
+    return value;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkXfermode::asCoeff(Coeff* src, Coeff* dst) {
@@ -440,57 +466,19 @@ static SkPMColor xor_modeproc(SkPMColor src, SkPMColor dst) {
                             SkAlphaMulAlpha(isa, SkGetPackedB32(dst)));
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
-// kDarken_Mode,   [Sa + Da - Sa·Da, Sc·(1 - Da) + Dc·(1 - Sa) + min(Sc, Dc)]
-
-static inline unsigned darken_p(unsigned src, unsigned dst,
-                                unsigned src_mul, unsigned dst_mul) {
-    return ((dst_mul * src + src_mul * dst) >> 8) + SkMin32(src, dst);
+// kPlus_Mode
+static SkPMColor plus_modeproc(SkPMColor src, SkPMColor dst) {
+    unsigned a = saturated_add(SkGetPackedA32(src), SkGetPackedA32(dst));
+    unsigned r = saturated_add(SkGetPackedR32(src), SkGetPackedR32(dst));
+    unsigned g = saturated_add(SkGetPackedG32(src), SkGetPackedG32(dst));
+    unsigned b = saturated_add(SkGetPackedB32(src), SkGetPackedB32(dst));
+    return SkPackARGB32(a, r, g, b);
 }
 
-static SkPMColor darken_modeproc(SkPMColor src, SkPMColor dst) {
-    unsigned sa = SkGetPackedA32(src);
-    unsigned da = SkGetPackedA32(dst);
-    unsigned src_scale = SkAlpha255To256(255 - sa);
-    unsigned dst_scale = SkAlpha255To256(255 - da);
-
-    unsigned ra = sa + da - SkAlphaMulAlpha(sa, da);
-    unsigned rr = darken_p(SkGetPackedR32(src), SkGetPackedR32(dst),
-                           src_scale, dst_scale);
-    unsigned rg = darken_p(SkGetPackedG32(src), SkGetPackedG32(dst),
-                           src_scale, dst_scale);
-    unsigned rb = darken_p(SkGetPackedB32(src), SkGetPackedB32(dst),
-                           src_scale, dst_scale);
-
-    return SkPackARGB32(ra, SkFastMin32(rr, ra),
-                        SkFastMin32(rg, ra), SkFastMin32(rb, ra));
-}
-
-// kLighten_Mode,  [Sa + Da - Sa·Da, Sc·(1 - Da) + Dc·(1 - Sa) + max(Sc, Dc)]
-static inline unsigned lighten_p(unsigned src, unsigned dst,
-                                 unsigned src_mul, unsigned dst_mul) {
-    return ((dst_mul * src + src_mul * dst) >> 8) + SkMax32(src, dst);
-}
-
-static SkPMColor lighten_modeproc(SkPMColor src, SkPMColor dst) {
-    unsigned sa = SkGetPackedA32(src);
-    unsigned da = SkGetPackedA32(dst);
-    unsigned src_scale = SkAlpha255To256(255 - sa);
-    unsigned dst_scale = SkAlpha255To256(255 - da);
-    
-    unsigned ra = sa + da - SkAlphaMulAlpha(sa, da);
-    unsigned rr = lighten_p(SkGetPackedR32(src), SkGetPackedR32(dst),
-                            src_scale, dst_scale);
-    unsigned rg = lighten_p(SkGetPackedG32(src), SkGetPackedG32(dst),
-                            src_scale, dst_scale);
-    unsigned rb = lighten_p(SkGetPackedB32(src), SkGetPackedB32(dst),
-                            src_scale, dst_scale);
-
-    return SkPackARGB32(ra, SkFastMin32(rr, ra),
-                        SkFastMin32(rg, ra), SkFastMin32(rb, ra));
-}
-    
-static SkPMColor mult_modeproc(SkPMColor src, SkPMColor dst) {
+// kMultiply_Mode
+static SkPMColor multiply_modeproc(SkPMColor src, SkPMColor dst) {
     int a = SkAlphaMulAlpha(SkGetPackedA32(src), SkGetPackedA32(dst));
     int r = SkAlphaMulAlpha(SkGetPackedR32(src), SkGetPackedR32(dst));
     int g = SkAlphaMulAlpha(SkGetPackedG32(src), SkGetPackedG32(dst));
@@ -498,23 +486,225 @@ static SkPMColor mult_modeproc(SkPMColor src, SkPMColor dst) {
     return SkPackARGB32(a, r, g, b);
 }
 
-static inline int screen_byte(int a, int b) {
+// kScreen_Mode
+static inline int srcover_byte(int a, int b) {
     return a + b - SkAlphaMulAlpha(a, b);
 }
-
 static SkPMColor screen_modeproc(SkPMColor src, SkPMColor dst) {
-    int a = screen_byte(SkGetPackedA32(src), SkGetPackedA32(dst));
-    int r = screen_byte(SkGetPackedR32(src), SkGetPackedR32(dst));
-    int g = screen_byte(SkGetPackedG32(src), SkGetPackedG32(dst));
-    int b = screen_byte(SkGetPackedB32(src), SkGetPackedB32(dst));
+    int a = srcover_byte(SkGetPackedA32(src), SkGetPackedA32(dst));
+    int r = srcover_byte(SkGetPackedR32(src), SkGetPackedR32(dst));
+    int g = srcover_byte(SkGetPackedG32(src), SkGetPackedG32(dst));
+    int b = srcover_byte(SkGetPackedB32(src), SkGetPackedB32(dst));
     return SkPackARGB32(a, r, g, b);
 }
 
-static SkPMColor add_modeproc(SkPMColor src, SkPMColor dst) {
-    unsigned a = saturated_add(SkGetPackedA32(src), SkGetPackedA32(dst));
-    unsigned r = saturated_add(SkGetPackedR32(src), SkGetPackedR32(dst));
-    unsigned g = saturated_add(SkGetPackedG32(src), SkGetPackedG32(dst));
-    unsigned b = saturated_add(SkGetPackedB32(src), SkGetPackedB32(dst));
+// kOverlay_Mode
+static inline int overlay_byte(int sc, int dc, int sa, int da) {
+    int tmp = sc * (255 - da) + dc * (255 - sa);
+    int rc;
+    if (2 * dc <= da) {
+        rc = 2 * sc * dc;
+    } else {
+        rc = sa * da - 2 * (da - dc) * (sa - sc);
+    }
+    return clamp_div255round(rc + tmp);
+}
+static SkPMColor overlay_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = overlay_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = overlay_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = overlay_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kDarken_Mode
+static inline int darken_byte(int sc, int dc, int sa, int da) {
+    int sd = sc * da;
+    int ds = dc * sa;
+    if (sd < ds) {
+        // srcover
+        return sc + dc - SkDiv255Round(ds);
+    } else {
+        // dstover
+        return dc + sc - SkDiv255Round(sd);
+    }
+}
+static SkPMColor darken_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = darken_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = darken_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = darken_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kLighten_Mode
+static inline int lighten_byte(int sc, int dc, int sa, int da) {
+    int sd = sc * da;
+    int ds = dc * sa;
+    if (sd > ds) {
+        // srcover
+        return sc + dc - SkDiv255Round(ds);
+    } else {
+        // dstover
+        return dc + sc - SkDiv255Round(sd);
+    }
+}
+static SkPMColor lighten_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = lighten_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = lighten_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = lighten_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kColorDodge_Mode
+static inline int colordodge_byte(int sc, int dc, int sa, int da) {
+    int diff = sa - sc;
+    int rc;
+    if (0 == diff) {
+        rc = sa * da + sc * (255 - da) + dc * (255 - sa);
+        rc = SkDiv255Round(rc);
+    } else {
+        int tmp = (dc * sa << 15) / (da * diff);
+        rc = SkDiv255Round(sa * da) * tmp >> 15;
+        // don't clamp here, since we'll do it in our modeproc
+    }
+    return rc;
+}
+static SkPMColor colordodge_modeproc(SkPMColor src, SkPMColor dst) {
+    // added to avoid div-by-zero in colordodge_byte
+    if (0 == dst) {
+        return src;
+    }
+
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = colordodge_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = colordodge_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = colordodge_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    r = clamp_max(r, a);
+    g = clamp_max(g, a);
+    b = clamp_max(b, a);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kColorBurn_Mode
+static inline int colorburn_byte(int sc, int dc, int sa, int da) {
+    int rc;
+    if (dc == da && 0 == sc) {
+        rc = sa * da + dc * (255 - sa);
+    } else if (0 == sc) {
+        return SkAlphaMulAlpha(dc, 255 - sa);
+    } else {
+        int tmp = (sa * (da - dc) * 256) / (sc * da);
+        if (tmp > 256) {
+            tmp = 256;
+        }
+        int tmp2 = sa * da;
+        rc = tmp2 - (tmp2 * tmp >> 8) + sc * (255 - da) + dc * (255 - sa);
+    }
+    return SkDiv255Round(rc);
+}
+static SkPMColor colorburn_modeproc(SkPMColor src, SkPMColor dst) {
+    // added to avoid div-by-zero in colorburn_byte
+    if (0 == dst) {
+        return src;
+    }
+    
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = colorburn_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = colorburn_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = colorburn_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kHardLight_Mode
+static inline int hardlight_byte(int sc, int dc, int sa, int da) {
+    int rc;
+    if (2 * sc <= sa) {
+        rc = 2 * sc * dc;
+    } else {
+        rc = sa * da - 2 * (da - dc) * (sa - sc);
+    }
+    return clamp_div255round(rc + sc * (255 - da) + dc * (255 - sa));
+}
+static SkPMColor hardlight_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = hardlight_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = hardlight_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = hardlight_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// returns 255 * sqrt(n/255)
+static U8CPU sqrt_unit_byte(U8CPU n) {
+    return SkSqrtBits(n, 15+4);
+}
+
+// kSoftLight_Mode
+static inline int softlight_byte(int sc, int dc, int sa, int da) {
+    int m = da ? dc * 256 / da : 0;
+    int rc;
+    if (2 * sc <= sa) {
+        rc = dc * (sa + ((2 * sc - sa) * (256 - m) >> 8));
+    } else if (4 * dc <= da) {
+        int tmp = (4 * m * (4 * m + 256) * (m - 256) >> 16) + 7 * m;
+        rc = dc * sa + (da * (2 * sc - sa) * tmp >> 8);
+    } else {
+        int tmp = sqrt_unit_byte(m) - m;
+        rc = dc * sa + (da * (2 * sc - sa) * tmp >> 8);
+    }
+    return clamp_div255round(rc + sc * (255 - da) + dc * (255 - sa));
+}
+static SkPMColor softlight_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = softlight_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = softlight_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = softlight_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kDifference_Mode
+static inline int difference_byte(int sc, int dc, int sa, int da) {
+    int tmp = SkMin32(sc * da, dc * sa);
+    return clamp_signed_byte(sc + dc - 2 * SkDiv255Round(tmp));
+}
+static SkPMColor difference_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = difference_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = difference_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = difference_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
+    return SkPackARGB32(a, r, g, b);
+}
+
+// kExclusion_Mode
+static inline int exclusion_byte(int sc, int dc, int sa, int da) {
+    // this equations is wacky, wait for SVG to confirm it
+    int r = sc * da + dc * sa - 2 * sc * dc + sc * (255 - da) + dc * (255 - sa);
+    return clamp_div255round(r);
+}
+static SkPMColor exclusion_modeproc(SkPMColor src, SkPMColor dst) {
+    int sa = SkGetPackedA32(src);
+    int da = SkGetPackedA32(dst);
+    int a = srcover_byte(sa, da);
+    int r = exclusion_byte(SkGetPackedR32(src), SkGetPackedR32(dst), sa, da);
+    int g = exclusion_byte(SkGetPackedG32(src), SkGetPackedG32(dst), sa, da);
+    int b = exclusion_byte(SkGetPackedB32(src), SkGetPackedB32(dst), sa, da);
     return SkPackARGB32(a, r, g, b);
 }
 
@@ -711,8 +901,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SkPorterDuff.h"
-
 struct ProcCoeff {
     SkXfermodeProc      fProc;
     SkXfermode::Coeff   fSC;
@@ -734,16 +922,24 @@ static const ProcCoeff gProcCoeffs[] = {
     { srcatop_modeproc, SkXfermode::kDA_Coeff,      SkXfermode::kISA_Coeff },
     { dstatop_modeproc, SkXfermode::kIDA_Coeff,     SkXfermode::kSA_Coeff },
     { xor_modeproc,     SkXfermode::kIDA_Coeff,     SkXfermode::kISA_Coeff },
-    { darken_modeproc,  CANNOT_USE_COEFF,           CANNOT_USE_COEFF },
-    { lighten_modeproc, CANNOT_USE_COEFF,           CANNOT_USE_COEFF },
-    { mult_modeproc,    SkXfermode::kZero_Coeff,    SkXfermode::kSC_Coeff },
-    { screen_modeproc,  SkXfermode::kOne_Coeff,     SkXfermode::kISC_Coeff },
-    { add_modeproc,     CANNOT_USE_COEFF,           CANNOT_USE_COEFF }
+
+    { plus_modeproc,        CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { multiply_modeproc,    CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { screen_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { overlay_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { darken_modeproc,      CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { lighten_modeproc,     CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colordodge_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { colorburn_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { hardlight_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { softlight_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { difference_modeproc,  CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
+    { exclusion_modeproc,   CANNOT_USE_COEFF,       CANNOT_USE_COEFF },
 };
 
-SkXfermode* SkPorterDuff::CreateXfermode(SkPorterDuff::Mode mode) {
-    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == SkPorterDuff::kModeCount);
-    SkASSERT((unsigned)mode < SkPorterDuff::kModeCount);
+SkXfermode* SkXfermode::Create(Mode mode) {
+    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
+    SkASSERT((unsigned)mode < kModeCount);
 
     switch (mode) {
         case kClear_Mode:
@@ -756,23 +952,22 @@ SkXfermode* SkPorterDuff::CreateXfermode(SkPorterDuff::Mode mode) {
             return SkNEW(SkDstInXfermode);
         case kDstOut_Mode:
             return SkNEW(SkDstOutXfermode);
-        // these two can't be represented with Coeff
-        case kDarken_Mode:
-            return SkNEW_ARGS(SkProcXfermode, (darken_modeproc));
-        case kLighten_Mode:
-            return SkNEW_ARGS(SkProcXfermode, (lighten_modeproc));
         // use the table 
         default: {
             const ProcCoeff& rec = gProcCoeffs[mode];
-            SkASSERT((unsigned)rec.fSC < SkXfermode::kCoeffCount);
-            SkASSERT((unsigned)rec.fDC < SkXfermode::kCoeffCount);
-            return SkNEW_ARGS(SkProcCoeffXfermode, (rec.fProc,
-                                                    rec.fSC, rec.fDC));
+            if ((unsigned)rec.fSC < SkXfermode::kCoeffCount &&
+                    (unsigned)rec.fDC < SkXfermode::kCoeffCount) {
+                return SkNEW_ARGS(SkProcCoeffXfermode, (rec.fProc,
+                                                        rec.fSC,
+                                                        rec.fDC));
+            } else {
+                return SkNEW_ARGS(SkProcXfermode, (rec.fProc));
+            }
         }
     }
 }
 
-bool SkPorterDuff::IsMode(SkXfermode* xfer, Mode* mode) {
+bool SkXfermode::IsMode(SkXfermode* xfer, Mode* mode) {
     if (NULL == xfer) {
         if (mode) {
             *mode = kSrcOver_Mode;
@@ -789,7 +984,7 @@ bool SkPorterDuff::IsMode(SkXfermode* xfer, Mode* mode) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gProcCoeffs); i++) {
             if (rec[i].fSC == sc && rec[i].fDC == dc) {
                 if (mode) {
-                    *mode = SkPorterDuff::Mode(i);
+                    *mode = static_cast<Mode>(i);
                 }
                 return true;
             }
@@ -800,40 +995,9 @@ bool SkPorterDuff::IsMode(SkXfermode* xfer, Mode* mode) {
     return false;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUGx
-static void unit_test() {
-    for (unsigned a = 0; a <= 255; a++) {
-        for (unsigned c = 0; c <= a; c++) {
-            SkPMColor pm = SkPackARGB32(a, c, c, c);
-            for (unsigned aa = 0; aa <= 255; aa++) {
-                for (unsigned cc = 0; cc <= aa; cc++) {
-                    SkPMColor pm2 = SkPackARGB32(aa, cc, cc, cc);
-                    
-                    const size_t N = SK_ARRAY_COUNT(gProcCoeffs);
-                    for (size_t i = 0; i < N; i++) {
-                        gProcCoeffs[i].fProc(pm, pm2);
-                    }
-                }
-            }
-        }
-    }            
-}
-#endif
-
-SkXfermodeProc SkPorterDuff::GetXfermodeProc(Mode mode) {
-#ifdef SK_DEBUGx
-    static bool gUnitTest;
-    if (!gUnitTest) {
-        gUnitTest = true;
-        unit_test();
-    }
-#endif
-
+SkXfermodeProc SkXfermode::GetProc(Mode mode) {
     SkXfermodeProc  proc = NULL;
-
-    if ((unsigned)mode < SkPorterDuff::kModeCount) {
+    if ((unsigned)mode < kModeCount) {
         proc = gProcCoeffs[mode].fProc;
     }
     return proc;
@@ -962,7 +1126,7 @@ struct Proc16Rec {
     SkXfermodeProc16    fProc16_General;
 };
 
-static const Proc16Rec gPorterDuffModeProcs16[] = {
+static const Proc16Rec gModeProcs16[] = {
     { NULL,                 NULL,                   NULL            }, // CLEAR
     { NULL,                 src_modeproc16_255,     NULL            },
     { dst_modeproc16,       dst_modeproc16,         dst_modeproc16  },
@@ -975,18 +1139,25 @@ static const Proc16Rec gPorterDuffModeProcs16[] = {
     { srcatop_modeproc16_0, srcatop_modeproc16_255, srcatop_modeproc16  },
     { NULL,                 dstatop_modeproc16_255, NULL            },
     { NULL,                 NULL,                   NULL            }, // XOR
-    { darken_modeproc16_0,  darken_modeproc16_255,  NULL            },
-    { lighten_modeproc16_0, lighten_modeproc16_255, NULL            },
-    { NULL,                 NULL,                   NULL            },//multiply
-    { NULL,                 NULL,                   NULL            }// screen
+
+    { NULL,                 NULL,                   NULL            }, // plus
+    { NULL,                 NULL,                   NULL            }, // multiply
+    { NULL,                 NULL,                   NULL            }, // screen
+    { NULL,                 NULL,                   NULL            }, // overlay
+    { darken_modeproc16_0,  darken_modeproc16_255,  NULL            }, // darken
+    { lighten_modeproc16_0, lighten_modeproc16_255, NULL            }, // lighten
+    { NULL,                 NULL,                   NULL            }, // colordodge
+    { NULL,                 NULL,                   NULL            }, // colorburn
+    { NULL,                 NULL,                   NULL            }, // hardlight
+    { NULL,                 NULL,                   NULL            }, // softlight
+    { NULL,                 NULL,                   NULL            }, // difference
+    { NULL,                 NULL,                   NULL            }, // exclusion
 };
 
-SkXfermodeProc16 SkPorterDuff::GetXfermodeProc16(Mode mode, SkColor srcColor) {
+SkXfermodeProc16 SkXfermode::GetProc16(Mode mode, SkColor srcColor) {
     SkXfermodeProc16  proc16 = NULL;
-
-    if ((unsigned)mode < SkPorterDuff::kModeCount) {
-        const Proc16Rec& rec = gPorterDuffModeProcs16[mode];
-        
+    if ((unsigned)mode < kModeCount) {
+        const Proc16Rec& rec = gModeProcs16[mode];
         unsigned a = SkColorGetA(srcColor);
 
         if (0 == a) {

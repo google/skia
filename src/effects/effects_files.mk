@@ -20,4 +20,5 @@ SOURCE := \
 	SkLayerRasterizer.cpp \
 	SkPaintFlagsDrawFilter.cpp \
 	SkPixelXorXfermode.cpp \
+	SkPorterDuff.cpp \
     SkRectShape.cpp

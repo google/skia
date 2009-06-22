@@ -302,7 +302,6 @@ DRAW_LINE:
     bool degenerateBC = !set_normal_unitnormal(pts[1], pts[2], fRadius,
                                                &normalBC, &unitNormalBC);
 
-    
     if (degenerateBC || normals_too_curvy(unitNormalAB, unitNormalBC) ||
              normals_too_curvy(unitNormalBC, *unitNormalCD)) {
         // subdivide if we can

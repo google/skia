@@ -7,6 +7,7 @@ SOURCE := \
     StringTest.cpp \
     Test.cpp \
     UtilsTest.cpp \
+    PaintTest.cpp \
     ParsePathTest.cpp \
     PathTest.cpp \
     ClipCubicTest.cpp \

@@ -180,25 +180,34 @@ protected:
         }
 
         const struct {
-            SkPorterDuff::Mode  fMode;
+            SkXfermode::Mode  fMode;
             const char*         fLabel;
         } gModes[] = {
-            { SkPorterDuff::kClear_Mode,    "Clear"     },
-            { SkPorterDuff::kSrc_Mode,      "Src"       },
-            { SkPorterDuff::kDst_Mode,      "Dst"       },
-            { SkPorterDuff::kSrcOver_Mode,  "SrcOver"   },
-            { SkPorterDuff::kDstOver_Mode,  "DstOver"   },
-            { SkPorterDuff::kSrcIn_Mode,    "SrcIn"     },
-            { SkPorterDuff::kDstIn_Mode,    "DstIn"     },
-            { SkPorterDuff::kSrcOut_Mode,   "SrcOut"    },
-            { SkPorterDuff::kDstOut_Mode,   "DstOut"    },
-            { SkPorterDuff::kSrcATop_Mode,  "SrcATop"   },
-            { SkPorterDuff::kDstATop_Mode,  "DstATop"   },
-            { SkPorterDuff::kXor_Mode,      "Xor"       },
-            { SkPorterDuff::kDarken_Mode,   "Darken"    },
-            { SkPorterDuff::kLighten_Mode,  "Lighten"   },
-            { SkPorterDuff::kMultiply_Mode, "Multiply"  },
-            { SkPorterDuff::kScreen_Mode,   "Screen"    }
+            { SkXfermode::kClear_Mode,    "Clear"     },
+            { SkXfermode::kSrc_Mode,      "Src"       },
+            { SkXfermode::kDst_Mode,      "Dst"       },
+            { SkXfermode::kSrcOver_Mode,  "SrcOver"   },
+            { SkXfermode::kDstOver_Mode,  "DstOver"   },
+            { SkXfermode::kSrcIn_Mode,    "SrcIn"     },
+            { SkXfermode::kDstIn_Mode,    "DstIn"     },
+            { SkXfermode::kSrcOut_Mode,   "SrcOut"    },
+            { SkXfermode::kDstOut_Mode,   "DstOut"    },
+            { SkXfermode::kSrcATop_Mode,  "SrcATop"   },
+            { SkXfermode::kDstATop_Mode,  "DstATop"   },
+            { SkXfermode::kXor_Mode,      "Xor"       },
+
+            { SkXfermode::kPlus_Mode,         "Plus"          },
+            { SkXfermode::kMultiply_Mode,     "Multiply"      },
+            { SkXfermode::kScreen_Mode,       "Screen"        },
+            { SkXfermode::kOverlay_Mode,      "Overlay"       },
+            { SkXfermode::kDarken_Mode,       "Darken"        },
+            { SkXfermode::kLighten_Mode,      "Lighten"       },
+            { SkXfermode::kColorDodge_Mode,   "ColorDodge"    },
+            { SkXfermode::kColorBurn_Mode,    "ColorBurn"     },
+            { SkXfermode::kHardLight_Mode,    "HardLight"     },
+            { SkXfermode::kSoftLight_Mode,    "SoftLight"     },
+            { SkXfermode::kDifference_Mode,   "Difference"    },
+            { SkXfermode::kExclusion_Mode,    "Exclusion"     },
         };
         
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
@@ -216,16 +225,18 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
         labelP.setTextAlign(SkPaint::kCenter_Align);
+        
+        const int W = 5;
 
         SkScalar x0 = 0;
         for (int twice = 0; twice < 2; twice++) {
             SkScalar x = x0, y = 0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
-                SkXfermode* mode = SkPorterDuff::CreateXfermode(gModes[i].fMode);
+                SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
 
                 fBitmap.eraseColor(0);
                 draw_mode(&c, mode, twice ? 0x88 : 0xFF);
-                mode->safeUnref();
+                SkSafeUnref(mode);
                 
                 SkPaint p;
                 SkRect r;
@@ -244,12 +255,12 @@ protected:
                                  x + w/2, y - labelP.getTextSize()/2, labelP);
 
                 x += w + SkIntToScalar(10);
-                if ((i & 3) == 3) {
+                if ((i % W) == W - 1) {
                     x = x0;
                     y += h + SkIntToScalar(30);
                 }
             }
-            x0 += SkIntToScalar(330);
+            x0 += SkIntToScalar(400);
         }
         s->unref();
     }

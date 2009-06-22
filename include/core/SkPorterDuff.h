@@ -21,6 +21,8 @@
 
 class SkXfermode;
 
+/** DEPRECATED - use SkXfermode::Mode instead
+ */
 class SkPorterDuff {
 public:
     /** List of predefined xfermodes. In general, the algebra for the modes

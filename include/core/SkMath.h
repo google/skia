@@ -217,5 +217,12 @@ static inline unsigned SkMul16ShiftRound(unsigned a, unsigned b, int shift) {
     return (prod + (prod >> shift)) >> shift;
 }
 
+/** Just the rounding step in SkDiv255Round: round(value / 255)
+ */
+static inline unsigned SkDiv255Round(unsigned prod) {
+    prod += 128;
+    return (prod + (prod >> 8)) >> 8;
+}
+
 #endif
 
