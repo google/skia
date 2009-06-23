@@ -144,6 +144,9 @@ gm: $(GM_OBJS) out/libskia.a
 
 ##############################################################################
 
+.PHONY: all
+all: $ bench gm skimage tests
+
 .PHONY: clean
 clean:
 	$(HIDE)rm -rf out
