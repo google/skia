@@ -75,7 +75,6 @@ static SkPathEffect* make_warp_pe()
 ///////////////////////////////////////////////////////////
 
 #include "SkColorFilter.h"
-#include "SkPorterDuff.h"
 #include "SkLayerRasterizer.h"
 
 class testrast : public SkLayerRasterizer {
@@ -91,7 +90,7 @@ public:
         this->addLayer(paint);
     
         paint.setStrokeWidth(SK_Scalar1*1);
-        paint.setPorterDuffXfermode(SkPorterDuff::kClear_Mode);
+        paint.setXfermode(SkXfermode::kClear_Mode);
         this->addLayer(paint);
 #else
         paint.setAlpha(0x66);

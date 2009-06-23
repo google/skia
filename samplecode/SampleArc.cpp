@@ -13,7 +13,6 @@
 #include "SkRandom.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
-#include "SkPorterDuff.h"
 #include "SkLayerRasterizer.h"
 
 #include "SkParsePath.h"

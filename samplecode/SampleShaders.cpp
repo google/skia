@@ -5,7 +5,6 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkPath.h"
-#include "SkPorterDuff.h"
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkUtils.h"
@@ -31,7 +30,7 @@ static SkShader* make_bitmapfade(const SkBitmap& bm)
     SkShader* shaderB = SkShader::CreateBitmapShader(bm,
                         SkShader::kClamp_TileMode, SkShader::kClamp_TileMode);
 
-    SkXfermode* mode = SkPorterDuff::CreateXfermode(SkPorterDuff::kDstIn_Mode);
+    SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
 
     SkShader* shader = new SkComposeShader(shaderB, shaderA, mode);
     shaderA->unref();
@@ -65,7 +64,7 @@ public:
         colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
         SkShader* shaderB = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
         
-        SkXfermode* mode = SkPorterDuff::CreateXfermode(SkPorterDuff::kDstIn_Mode);
+        SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
 
         fShader = new SkComposeShader(shaderA, shaderB, mode);
         shaderA->unref();

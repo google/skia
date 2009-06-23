@@ -74,9 +74,3 @@ SkXfermodeProc16 SkPorterDuff::GetXfermodeProc16(Mode mode, SkColor srcColor) {
     return SkXfermode::GetProc16(gPairs[mode].fXF, srcColor);
 }
 
-// DEPRECATED
-#include "SkPaint.h"
-SkXfermode* SkPaint::setPorterDuffXfermode(SkPorterDuff::Mode mode) {
-    return this->setXfermode(SkPorterDuff::CreateXfermode(mode));
-}
-

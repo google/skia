@@ -36,7 +36,6 @@ protected:
     void drawBG(SkCanvas* canvas)
     {
         canvas->drawColor(0xFFDDDDDD);
-//        canvas->drawColor(0, SkPorterDuff::kClear_Mode);
     }
     
     virtual void onDraw(SkCanvas* canvas)

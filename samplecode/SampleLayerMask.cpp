@@ -1,7 +1,6 @@
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
-#include "SkPorterDuff.h"
 #include "SkView.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,13 +35,13 @@ protected:
             bounds.offset(-bounds.fLeft, -bounds.fTop);
             c.drawOval(bounds, paint);
             
-            paint.setPorterDuffXfermode(SkPorterDuff::kDstIn_Mode);
+            paint.setXfermode(SkXfermode::kDstIn_Mode);
             canvas->drawBitmap(mask, r.fLeft, r.fTop, &paint);
         } else {
             SkPath p;
             p.addOval(r);
             p.setFillType(SkPath::kInverseWinding_FillType);
-            paint.setPorterDuffXfermode(SkPorterDuff::kDstOut_Mode);
+            paint.setXfermode(SkXfermode::kDstOut_Mode);
             canvas->drawPath(p, paint);
         }
     }

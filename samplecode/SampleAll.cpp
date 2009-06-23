@@ -84,7 +84,7 @@ static void r0(SkLayerRasterizer* rast, SkPaint& p)
 
     p.setAlpha(0x11);
     p.setStyle(SkPaint::kFill_Style);
-    p.setPorterDuffXfermode(SkPorterDuff::kSrc_Mode);
+    p.setXfermode(SkXfermode::kSrc_Mode);
     rast->addLayer(p);
 }
 
@@ -93,7 +93,7 @@ static void r1(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 
     p.setAlpha(0x40);
-    p.setPorterDuffXfermode(SkPorterDuff::kSrc_Mode);
+    p.setXfermode(SkXfermode::kSrc_Mode);
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1*2);
     rast->addLayer(p);
@@ -107,7 +107,7 @@ static void r2(SkLayerRasterizer* rast, SkPaint& p)
 
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1*3/2);
-    p.setPorterDuffXfermode(SkPorterDuff::kClear_Mode);
+    p.setXfermode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 }
 
@@ -119,7 +119,7 @@ static void r3(SkLayerRasterizer* rast, SkPaint& p)
 
     p.setAlpha(0x20);
     p.setStyle(SkPaint::kFill_Style);
-    p.setPorterDuffXfermode(SkPorterDuff::kSrc_Mode);
+    p.setXfermode(SkXfermode::kSrc_Mode);
     rast->addLayer(p);
 }
 
@@ -129,7 +129,7 @@ static void r4(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
     p.setAlpha(0xFF);
-    p.setPorterDuffXfermode(SkPorterDuff::kClear_Mode);
+    p.setXfermode(SkXfermode::kClear_Mode);
     rast->addLayer(p, SK_Scalar1*3/2, SK_Scalar1*3/2);
 
     p.setXfermode(NULL);
@@ -141,7 +141,7 @@ static void r5(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 
     p.setPathEffect(new SkDiscretePathEffect(SK_Scalar1*4, SK_Scalar1*3))->unref();
-    p.setPorterDuffXfermode(SkPorterDuff::kSrcOut_Mode);
+    p.setXfermode(SkXfermode::kSrcOut_Mode);
     rast->addLayer(p);
 }
 
@@ -153,7 +153,7 @@ static void r6(SkLayerRasterizer* rast, SkPaint& p)
     SkLayerRasterizer* rast2 = new SkLayerRasterizer;
     r5(rast2, p);
     p.setRasterizer(rast2)->unref();
-    p.setPorterDuffXfermode(SkPorterDuff::kClear_Mode);
+    p.setXfermode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 }
 
@@ -208,7 +208,7 @@ static void r8(SkLayerRasterizer* rast, SkPaint& p)
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
     p.setPathEffect(new Dot2DPathEffect(SK_Scalar1*2, lattice))->unref();
-    p.setPorterDuffXfermode(SkPorterDuff::kClear_Mode);
+    p.setXfermode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 
     p.setPathEffect(NULL);
@@ -278,7 +278,7 @@ static void r9(SkLayerRasterizer* rast, SkPaint& p)
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
     p.setPathEffect(new Line2DPathEffect(SK_Scalar1*2, lattice))->unref();
-    p.setPorterDuffXfermode(SkPorterDuff::kClear_Mode);
+    p.setXfermode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
 
     p.setPathEffect(NULL);
@@ -489,7 +489,7 @@ protected:
         SkEmbossMaskFilter* embossFilter = new SkEmbossMaskFilter(light, 
             radius);
             
-        SkXfermode* xfermode = SkPorterDuff::CreateXfermode(SkPorterDuff::kXor_Mode);
+        SkXfermode* xfermode = SkXfermode::Create(SkXfermode::kXor_Mode);
         SkColorFilter* lightingFilter = SkColorFilter::CreateLightingFilter(
             0xff89bc45, 0xff112233);
         
@@ -684,7 +684,7 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
         SkColor colors2[] = {SK_ColorBLACK,  SkColorSetARGB(0x80, 0, 0, 0)};
         SkShader* shaderB = SkGradientShader::CreateLinear(pts, colors2, NULL, 
             2, SkShader::kClamp_TileMode);
-        SkXfermode* mode = SkPorterDuff::CreateXfermode(SkPorterDuff::kDstIn_Mode);
+        SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
         SkShader* result = new SkComposeShader(shaderA, shaderB, mode);
         shaderA->unref();
         shaderB->unref();

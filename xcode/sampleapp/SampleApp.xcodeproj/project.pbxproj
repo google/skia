@@ -39,9 +39,6 @@
 		0041CE3A0F00A12400695E8C /* SampleDrawLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE240F00A12400695E8C /* SampleDrawLooper.cpp */; };
 		0041CE3B0F00A12400695E8C /* SampleEmboss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE250F00A12400695E8C /* SampleEmboss.cpp */; };
 		0041CE3C0F00A12400695E8C /* SampleEncode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE260F00A12400695E8C /* SampleEncode.cpp */; };
-		0041CE3D0F00A12400695E8C /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
-		0041CE3E0F00A12400695E8C /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE280F00A12400695E8C /* SampleFilter.cpp */; };
-		0041CE3F0F00A12400695E8C /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE290F00A12400695E8C /* SampleFilter2.cpp */; };
 		0041CE400F00A12400695E8C /* SampleFontCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2A0F00A12400695E8C /* SampleFontCache.cpp */; };
 		0041CE420F00A12400695E8C /* SampleImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2C0F00A12400695E8C /* SampleImage.cpp */; };
 		0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2D0F00A12400695E8C /* SampleLayers.cpp */; };
@@ -50,6 +47,9 @@
 		0041CE470F00A12400695E8C /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE310F00A12400695E8C /* SampleNinePatch.cpp */; };
 		0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE320F00A12400695E8C /* SampleOverflow.cpp */; };
 		0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
+		005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE290F00A12400695E8C /* SampleFilter2.cpp */; };
+		005E92DE0FF0850E008965B9 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
+		005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE280F00A12400695E8C /* SampleFilter.cpp */; };
 		007A7CB30F01658C00A2D6EE /* SamplePicture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA40F01658C00A2D6EE /* SamplePicture.cpp */; };
 		007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */; };
 		007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */; };
@@ -533,9 +533,6 @@
 				0041CE390F00A12400695E8C /* SampleDither.cpp in Sources */,
 				0041CE3A0F00A12400695E8C /* SampleDrawLooper.cpp in Sources */,
 				0041CE3B0F00A12400695E8C /* SampleEmboss.cpp in Sources */,
-				0041CE3D0F00A12400695E8C /* SampleFillType.cpp in Sources */,
-				0041CE3E0F00A12400695E8C /* SampleFilter.cpp in Sources */,
-				0041CE3F0F00A12400695E8C /* SampleFilter2.cpp in Sources */,
 				0041CE400F00A12400695E8C /* SampleFontCache.cpp in Sources */,
 				0041CE420F00A12400695E8C /* SampleImage.cpp in Sources */,
 				0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */,
@@ -575,6 +572,9 @@
 				2794C04F0FE72903009AD112 /* SampleMipMap.cpp in Sources */,
 				00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */,
 				0088C1160FEC311C00CE52F5 /* SampleXfermodes.cpp in Sources */,
+				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
+				005E92DE0FF0850E008965B9 /* SampleFillType.cpp in Sources */,
+				005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

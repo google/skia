@@ -63,11 +63,13 @@ public:
     }
     
 protected:
-    SkString onShortName() {
+    virtual SkString onShortName() {
         return SkString("xfermodes");
     }
 
-	SkISize onISize() { return make_isize(790, 480); }
+	virtual SkISize onISize() {
+        return make_isize(790, 480);
+    }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);

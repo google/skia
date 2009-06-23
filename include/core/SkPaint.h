@@ -21,9 +21,6 @@
 #include "SkMath.h"
 #include "SkXfermode.h"
 
-// DEPRECATED - remove
-#include "SkPorterDuff.h"
-
 class SkAutoGlyphCache;
 class SkColorFilter;
 class SkDescriptor;
@@ -464,16 +461,6 @@ public:
         the paint's xfermode is set to null.
      */
     SkXfermode* setXfermode(SkXfermode::Mode);
-
-    /** DEPRECATED
-        Helper for setXfermode, passing the corresponding xfermode object
-        returned from the PorterDuff factory.
-        @param mode The porter-duff mode used to create an xfermode for the
-                    paint.
-        @return     the resulting xfermode object (or NULL if the mode is
-                    SrcOver)
-    */
-    SkXfermode* setPorterDuffXfermode(SkPorterDuff::Mode mode);
 
     /** Get the paint's patheffect object.
         <p />

@@ -4,7 +4,6 @@
 #include "SkBlurMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkPorterDuff.h"
 #include "SkXfermode.h"
 #include "SkMatrix.h"
 #include "SkColor.h"
@@ -117,13 +116,13 @@ static void do_fuzz(SkCanvas* canvas) {
       break;
 
       case 2: {
-          SkPorterDuff::Mode mode;
-      switch (R(3)) {
-          case 0: mode = SkPorterDuff::kSrc_Mode; break;
-        case 1: mode = SkPorterDuff::kXor_Mode; break;
-        case 2: mode = SkPorterDuff::kSrcOver_Mode; break;
-      }
-          paint.setXfermode(SkPorterDuff::CreateXfermode(mode))->safeUnref();
+          SkXfermode::Mode mode;
+          switch (R(3)) {
+              case 0: mode = SkXfermode::kSrc_Mode; break;
+            case 1: mode = SkXfermode::kXor_Mode; break;
+            case 2: mode = SkXfermode::kSrcOver_Mode; break;
+          }
+          paint.setXfermode(mode);
       }
       break;
 

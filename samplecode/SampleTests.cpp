@@ -18,7 +18,6 @@
 #include "SkTypeface.h"
 #include "SkUtils.h"
 #include "SkKey.h"
-#include "SkPorterDuff.h"
 #include "SkXfermode.h"
 #include "SkDrawFilter.h"
 

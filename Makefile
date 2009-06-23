@@ -132,8 +132,8 @@ skimage: $(SKIMAGE_OBJS) out/libskia.a
 
 ##############################################################################
 
-GM_SRCS := gmmain.cpp xfermodes.cpp gradients.cpp tilemodes.cpp
-GM_SRCS := $(addprefix gm/, $(GM_SRCS))
+include gm/gm_files.mk
+GM_SRCS := $(addprefix gm/, $(SOURCE))
 
 GM_OBJS := $(GM_SRCS:.cpp=.o)
 GM_OBJS := $(addprefix out/, $(GM_OBJS))

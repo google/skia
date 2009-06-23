@@ -1,7 +1,6 @@
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
-#include "SkPorterDuff.h"
 #include "SkView.h"
 
 #include "SkRectShape.h"

@@ -6,7 +6,6 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkPath.h"
-#include "SkPorterDuff.h"
 #include "SkRandom.h"
 #include "SkRegion.h"
 #include "SkShader.h"
