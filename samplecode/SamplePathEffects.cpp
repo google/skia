@@ -251,8 +251,8 @@ protected:
             paint.setAntiAlias(true);
             paint.setAlpha(0x80);
             paint.setColorFilter(
-                SkColorFilter::CreatePorterDuffFilter(
-                    SkColorSetARGB(0x44, 0, 0xFF, 0), SkPorterDuff::kSrcATop_Mode))->unref();
+                SkColorFilter::CreateModeFilter(
+                    SkColorSetARGB(0x44, 0, 0xFF, 0), SkXfermode::kSrcATop_Mode))->unref();
             
             bounds.set(SkIntToScalar(10), SkIntToScalar(10), SkIntToScalar(150), SkIntToScalar(70));
             canvas->saveLayer(&bounds, &paint,

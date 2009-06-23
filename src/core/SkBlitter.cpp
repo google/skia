@@ -25,9 +25,7 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
-SkBlitter::~SkBlitter()
-{
-}
+SkBlitter::~SkBlitter() {}
 
 const SkBitmap* SkBlitter::justAnOpaqueColor(uint32_t* value)
 {
@@ -806,31 +804,31 @@ enum XferInterp {
 
 static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
                                      SkBitmap::Config deviceConfig) {
-    SkPorterDuff::Mode  mode;
+    SkXfermode::Mode  mode;
     
-    if (SkPorterDuff::IsMode(xfer, &mode)) {
+    if (SkXfermode::IsMode(xfer, &mode)) {
         switch (mode) {
-            case SkPorterDuff::kSrc_Mode:
+            case SkXfermode::kSrc_Mode:
                 if (just_solid_color(paint)) {
                     return kSrcOver_XferInterp;
                 }
                 break;
-            case SkPorterDuff::kDst_Mode:
+            case SkXfermode::kDst_Mode:
                 return kSkipDrawing_XferInterp;
-            case SkPorterDuff::kSrcOver_Mode:
+            case SkXfermode::kSrcOver_Mode:
                 return kSrcOver_XferInterp;
-            case SkPorterDuff::kDstOver_Mode:
+            case SkXfermode::kDstOver_Mode:
                 if (SkBitmap::kRGB_565_Config == deviceConfig) {
                     return kSkipDrawing_XferInterp;
                 }
                 break;
-            case SkPorterDuff::kSrcIn_Mode:
+            case SkXfermode::kSrcIn_Mode:
                 if (SkBitmap::kRGB_565_Config == deviceConfig &&
                     just_solid_color(paint)) {
                     return kSrcOver_XferInterp;
                 }
                 break;
-            case SkPorterDuff::kDstIn_Mode:
+            case SkXfermode::kDstIn_Mode:
                 if (just_solid_color(paint)) {
                     return kSkipDrawing_XferInterp;
                 }

@@ -64,7 +64,7 @@ static void* draw_proc(void* context) {
 //            SkDebugf("----- dirty [%d %d %d %d]\n", dirty.getBounds().fLeft, dirty.getBounds().fTop, dirty.getBounds().width(), dirty.getBounds().height());
             canvas.clipRegion(update.dirty());
             
-            canvas.drawColor(0, SkPorterDuff::kClear_Mode);            
+            canvas.drawColor(0, SkXfermode::kClear_Mode);            
             canvas.drawOval(oval, paint);
         }
         bounce(&x, &dx, WIDTH-OVALW);

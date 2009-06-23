@@ -177,31 +177,31 @@ static BitmapXferProc ChooseBitmapXferProc(const SkBitmap& bitmap,
         return NULL;
     }
 
-    SkPorterDuff::Mode  mode;
-    if (!SkPorterDuff::IsMode(paint.getXfermode(), &mode)) {
+    SkXfermode::Mode mode;
+    if (!SkXfermode::IsMode(paint.getXfermode(), &mode)) {
         return NULL;
     }
     
     SkColor color = paint.getColor();
     
     // collaps modes based on color...
-    if (SkPorterDuff::kSrcOver_Mode == mode) {
+    if (SkXfermode::kSrcOver_Mode == mode) {
         unsigned alpha = SkColorGetA(color);
         if (0 == alpha) {
-            mode = SkPorterDuff::kDst_Mode;
+            mode = SkXfermode::kDst_Mode;
         } else if (0xFF == alpha) {
-            mode = SkPorterDuff::kSrc_Mode;
+            mode = SkXfermode::kSrc_Mode;
         }
     }
         
     switch (mode) {
-        case SkPorterDuff::kClear_Mode:
+        case SkXfermode::kClear_Mode:
 //            SkDebugf("--- D_Clear_BitmapXferProc\n");
             return D_Clear_BitmapXferProc;  // ignore data
-        case SkPorterDuff::kDst_Mode:
+        case SkXfermode::kDst_Mode:
 //            SkDebugf("--- D_Dst_BitmapXferProc\n");
             return D_Dst_BitmapXferProc;    // ignore data
-        case SkPorterDuff::kSrc_Mode: {
+        case SkXfermode::kSrc_Mode: {
             /*
                 should I worry about dithering for the lower depths? 
             */
@@ -2002,9 +2002,7 @@ bool SkTriColorShader::setup(const SkPoint pts[], const SkColor colors[],
 }
 
 #include "SkColorPriv.h"
-#include "SkPorterDuff.h"
 #include "SkComposeShader.h"
-#include "SkXfermode.h"
 
 static int ScalarTo256(SkScalar v) {
     int scale = SkScalarToFixed(v) >> 8;
@@ -2102,8 +2100,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
             SkASSERT(shader);
             bool releaseMode = false;
             if (NULL == xmode) {
-                xmode = SkPorterDuff::CreateXfermode(
-                                                  SkPorterDuff::kMultiply_Mode);
+                xmode = SkXfermode::Create(SkXfermode::kMultiply_Mode);
                 releaseMode = true;
             }
             SkShader* compose = SkNEW_ARGS(SkComposeShader,

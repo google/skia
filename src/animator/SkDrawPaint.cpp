@@ -81,7 +81,7 @@ SkDrawPaint::SkDrawPaint() : antiAlias(-1), color(NULL), fakeBold(-1), filterBit
     strokeWidth(SK_ScalarNaN), style((SkPaint::Style) -1),
     textAlign((SkPaint::Align) -1), textScaleX(SK_ScalarNaN), textSize(SK_ScalarNaN), 
     textSkewX(SK_ScalarNaN), typeface((SkDrawTypeface*) -1),
-    underline(-1), xfermode((SkPorterDuff::Mode) -1), fOwnsColor(false), fOwnsMaskFilter(false), 
+    underline(-1), xfermode((SkXfermode::Mode) -1), fOwnsColor(false), fOwnsMaskFilter(false), 
     fOwnsPathEffect(false), fOwnsShader(false), fOwnsTypeface(false) {
 }
 
@@ -272,6 +272,6 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
         paint->setTypeface(typeface->getTypeface())->safeUnref();
     if (underline != -1)
         paint->setUnderlineText(SkToBool(underline));
-    if (xfermode != (SkPorterDuff::Mode) -1) 
-        paint->setPorterDuffXfermode((SkPorterDuff::Mode) xfermode);
+    if (xfermode != (SkXfermode::Mode) -1)
+        paint->setXfermode((SkXfermode::Mode) xfermode);
 }

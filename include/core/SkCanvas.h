@@ -22,10 +22,10 @@
 #include "SkDeque.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
-#include "SkPorterDuff.h"
 #include "SkPath.h"
 #include "SkRegion.h"
 #include "SkScalarCompare.h"
+#include "SkXfermode.h"
 
 class SkBounder;
 class SkDevice;
@@ -315,7 +315,7 @@ public:
     bool getClipBounds(SkRect* bounds, EdgeType et = kAA_EdgeType) const;
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
-        specified ARGB color, using the specified PorterDuff mode.
+        specified ARGB color, using the specified mode.
         @param a    the alpha component (0..255) of the color to fill the canvas
         @param r    the red component (0..255) of the color to fill the canvas
         @param g    the green component (0..255) of the color to fill the canvas
@@ -323,15 +323,15 @@ public:
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
     void drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
-                  SkPorterDuff::Mode mode = SkPorterDuff::kSrcOver_Mode);
+                  SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
-        specified color and porter-duff xfermode.
+        specified color and mode.
         @param color    the color to draw with
         @param mode the mode to apply the color in (defaults to SrcOver)
     */
     void drawColor(SkColor color,
-                   SkPorterDuff::Mode mode = SkPorterDuff::kSrcOver_Mode);
+                   SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
 
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified paint.
@@ -614,7 +614,7 @@ public:
         @param xmode Used if both texs and colors are present. In this
                     case the colors are combined with the texture using mode,
                     before being drawn using the paint. If mode is null, then
-                    the porter-duff MULTIPLY mode is used.
+                    kMultiply_Mode is used.
         @param indices If not null, array of indices to reference into the
                     vertex (texs, colors) array.
         @param indexCount number of entries in the indices array (if not null)

@@ -1229,22 +1229,22 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
 //////////////////////////////////////////////////////////////////////////////
 
 void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
-                        SkPorterDuff::Mode mode) {
+                        SkXfermode::Mode mode) {
     SkPaint paint;
 
     paint.setARGB(a, r, g, b);
-    if (SkPorterDuff::kSrcOver_Mode != mode) {
-        paint.setPorterDuffXfermode(mode);
+    if (SkXfermode::kSrcOver_Mode != mode) {
+        paint.setXfermode(mode);
     }
     this->drawPaint(paint);
 }
 
-void SkCanvas::drawColor(SkColor c, SkPorterDuff::Mode mode) {
+void SkCanvas::drawColor(SkColor c, SkXfermode::Mode mode) {
     SkPaint paint;
 
     paint.setColor(c);
-    if (SkPorterDuff::kSrcOver_Mode != mode) {
-        paint.setPorterDuffXfermode(mode);
+    if (SkXfermode::kSrcOver_Mode != mode) {
+        paint.setXfermode(mode);
     }
     this->drawPaint(paint);
 }

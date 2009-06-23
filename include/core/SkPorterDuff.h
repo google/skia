@@ -18,6 +18,7 @@
 #define SkPorterDuff_DEFINED
 
 #include "SkColor.h"
+#include "SkXfermode.h"
 
 class SkXfermode;
 
@@ -54,6 +55,7 @@ public:
 
         kModeCount
     };
+
     /** Return an SkXfermode object for the specified mode.
     */
     static SkXfermode* CreateXfermode(Mode mode);
@@ -76,6 +78,10 @@ public:
         return false and ignore the mode parameter.
     */
     static bool IsMode(SkXfermode*, Mode* mode);
+
+    /** Return the corersponding SkXfermode::Mode
+     */
+    static SkXfermode::Mode ToXfermodeMode(Mode);
 };
 
 #endif

@@ -19,7 +19,7 @@
 
 #include "SkColor.h"
 #include "SkFlattenable.h"
-#include "SkPorterDuff.h"
+#include "SkXfermode.h"
 
 class SkColorFilter : public SkFlattenable {
 public:
@@ -58,25 +58,24 @@ public:
     */
     virtual uint32_t getFlags() { return 0; }
 
-    /** Create a colorfilter that uses the specified color and porter-duff mode.
-        If porterDuffMode is DST, this function will return NULL (since that
+    /** Create a colorfilter that uses the specified color and mode.
+        If the Mode is DST, this function will return NULL (since that
         mode will have no effect on the result).
-        @param srcColor The source color used with the specified mode
-        @param mode     The porter-duff mode that is applied to each color in
+        @param c    The source color used with the specified mode
+        @param mode The xfermode mode that is applied to each color in
                         the colorfilter's filterSpan[16,32] methods
-        @return colorfilter object that applies the src color and porter-duff
-                mode, or NULL if the mode will have no effect.
+        @return colorfilter object that applies the src color and mode,
+                    or NULL if the mode will have no effect.
     */
-    static SkColorFilter* CreatePorterDuffFilter(SkColor srcColor,
-                                                 SkPorterDuff::Mode mode);
+    static SkColorFilter* CreateModeFilter(SkColor c, SkXfermode::Mode mode);
 
     /** Create a colorfilter that calls through to the specified procs to
         filter the colors. The SkXfermodeProc parameter must be non-null, but
         the SkXfermodeProc16 is optional, and may be null.
     */
-    static SkColorFilter* CreatXfermodeProcFilter(SkColor srcColor,
-                                              SkXfermodeProc proc,
-                                              SkXfermodeProc16 proc16 = NULL);
+    static SkColorFilter* CreateProcFilter(SkColor srcColor,
+                                           SkXfermodeProc proc,
+                                           SkXfermodeProc16 proc16 = NULL);
 
     /** Create a colorfilter that multiplies the RGB channels by one color, and
         then adds a second color, pinning the result for each component to
