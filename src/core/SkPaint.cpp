@@ -1437,6 +1437,12 @@ SkXfermode* SkPaint::setXfermode(SkXfermode* mode)
     return mode;
 }
 
+SkXfermode* SkPaint::setXfermode(SkXfermode::Mode mode) {
+    SkSafeUnref(fXfermode);
+    fXfermode = SkXfermode::Create(mode);
+    return fXfermode;
+}
+
 SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect)
 {
     SkRefCnt_SafeAssign(fPathEffect, effect);
@@ -1447,11 +1453,6 @@ SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter)
 {
     SkRefCnt_SafeAssign(fMaskFilter, filter);
     return filter;
-}
-
-// Helpers
-SkXfermode* SkPaint::setXfermode(SkXfermode::Mode mode) {
-    return this->setXfermode(SkXfermode::Create(mode));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
