@@ -1437,7 +1437,7 @@ SkXfermode* SkPaint::setXfermode(SkXfermode* mode)
     return mode;
 }
 
-SkXfermode* SkPaint::setXfermode(SkXfermode::Mode mode) {
+SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     SkSafeUnref(fXfermode);
     fXfermode = SkXfermode::Create(mode);
     return fXfermode;

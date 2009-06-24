@@ -55,7 +55,7 @@ static void lettersToBitmap(SkBitmap* dst, const char chars[],
     dst->eraseColor(SK_ColorWHITE);
     {
         SkCanvas canvas(*dst);
-        paint.setXfermode(SkXfermode::kDstATop_Mode);
+        paint.setXfermodeMode(SkXfermode::kDstATop_Mode);
         canvas.drawBitmap(src, 0, 0, &paint);
         paint.setColor(original.getColor());
         paint.setStyle(SkPaint::kStroke_Style);
@@ -86,7 +86,7 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
     SkPaint paint(original);
 
     paint.setAntiAlias(true);
-    paint.setXfermode(SkXfermode::kDstATop_Mode);
+    paint.setXfermodeMode(SkXfermode::kDstATop_Mode);
     paint.setColor(original.getColor());
     paint.setStyle(SkPaint::kStroke_Style);
     

@@ -873,15 +873,33 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
     }
 }
 
-static inline bool just_translate(const SkMatrix& m) {
-    return (m.getType() & ~SkMatrix::kTranslate_Mask) == 0;
+/** For the purposes of drawing bitmaps, if a matrix is "almost" translate
+    go ahead and treat it as if it were, so that subsequent code can go fast.
+ */
+static bool just_translate(const SkMatrix& matrix, const SkBitmap& bitmap) {
+    SkMatrix::TypeMask mask = matrix.getType();
+
+    if (mask & (SkMatrix::kAffine_Mask | SkMatrix::kPerspective_Mask)) {
+        return false;
+    }
+    if (mask & SkMatrix::kScale_Mask) {
+        SkScalar sx = matrix[SkMatrix::kMScaleX];
+        SkScalar sy = matrix[SkMatrix::kMScaleY];
+        int w = bitmap.width();
+        int h = bitmap.height();
+        int sw = SkScalarRound(SkScalarMul(sx, SkIntToScalar(w)));
+        int sh = SkScalarRound(SkScalarMul(sy, SkIntToScalar(h)));
+        return sw == w && sh == h;
+    }
+    // if we got here, we're either kTranslate_Mask or identity
+    return true;
 }
 
 void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap,
                               const SkPaint& paint) const {
     SkASSERT(bitmap.getConfig() == SkBitmap::kA8_Config);
 
-    if (just_translate(*fMatrix)) {        
+    if (just_translate(*fMatrix, bitmap)) {        
         int ix = SkScalarRound(fMatrix->getTranslateX());
         int iy = SkScalarRound(fMatrix->getTranslateY());
 
@@ -1005,7 +1023,8 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-    if (bitmap.getConfig() != SkBitmap::kA8_Config && just_translate(matrix)) {
+    if (bitmap.getConfig() != SkBitmap::kA8_Config &&
+            just_translate(matrix, bitmap)) {
         int         ix = SkScalarRound(matrix.getTranslateX());
         int         iy = SkScalarRound(matrix.getTranslateY());
         uint32_t    storage[kBlitterStorageLongCount];

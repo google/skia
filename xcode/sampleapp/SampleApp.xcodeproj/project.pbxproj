@@ -47,6 +47,7 @@
 		0041CE470F00A12400695E8C /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE310F00A12400695E8C /* SampleNinePatch.cpp */; };
 		0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE320F00A12400695E8C /* SampleOverflow.cpp */; };
 		0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
+		0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2794C04E0FE72903009AD112 /* SampleMipMap.cpp */; };
 		005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE290F00A12400695E8C /* SampleFilter2.cpp */; };
 		005E92DE0FF0850E008965B9 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 		005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE280F00A12400695E8C /* SampleFilter.cpp */; };
@@ -79,7 +80,6 @@
 		2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66B0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66C0FCCCABE002BD8B4 /* SkPageFlipper.cpp */; };
 		2762F67D0FCCCB01002BD8B4 /* SamplePageFlip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6770FCCCB01002BD8B4 /* SamplePageFlip.cpp */; };
-		2794C04F0FE72903009AD112 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2794C04E0FE72903009AD112 /* SampleMipMap.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
@@ -569,12 +569,12 @@
 				00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */,
 				000A99820FD97526007E45BD /* SampleArc.cpp in Sources */,
 				00AF77B00FE2EA2D007F9650 /* SampleTestGL.cpp in Sources */,
-				2794C04F0FE72903009AD112 /* SampleMipMap.cpp in Sources */,
 				00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */,
 				0088C1160FEC311C00CE52F5 /* SampleXfermodes.cpp in Sources */,
 				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
 				005E92DE0FF0850E008965B9 /* SampleFillType.cpp in Sources */,
 				005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */,
+				0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

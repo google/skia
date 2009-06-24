@@ -65,7 +65,7 @@ protected:
         bg.allocPixels();
         
         SkAutoCanvasRestore acr(canvas, true);
-        for (int i = 0; i < N-2; i++) {
+        for (int i = 0; i < 6; i++) {
             bg.eraseColor(0);
             SkCanvas c(bg);
             c.scale(SK_Scalar1 / (1 << i), SK_Scalar1 / (1 << i));
@@ -87,6 +87,8 @@ protected:
         this->drawBG(canvas);
         
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
+        
+        canvas->scale(1.00000001, 0.9999999);
 
         drawN2(canvas, fBitmap);
 

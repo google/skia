@@ -26,7 +26,7 @@ static void make_paint(SkPaint* paint) {
     SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
     
     paint->setShader(s)->unref();
-    paint->setXfermode(SkXfermode::kDstIn_Mode);
+    paint->setXfermodeMode(SkXfermode::kDstIn_Mode);
 }
 
 static void dump_layers(const char label[], SkCanvas* canvas) {
@@ -162,7 +162,7 @@ protected:
             canvas->saveLayer(&r, &p);
             canvas->drawColor(0xFFFF0000);
             p.setAlpha(1);  // or 0
-            p.setXfermode(SkXfermode::kSrc_Mode);
+            p.setXfermodeMode(SkXfermode::kSrc_Mode);
             canvas->drawOval(r, p);
             canvas->restore();
             return;
@@ -239,7 +239,7 @@ protected:
         canvas->drawOval(r, p);
         
         p.setAlpha(0x80);
-        p.setXfermode(SkXfermode::kDstIn_Mode);
+        p.setXfermodeMode(SkXfermode::kDstIn_Mode);
         canvas->drawRect(bounds, p);
 
         canvas->restore();

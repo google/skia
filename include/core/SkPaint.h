@@ -460,7 +460,7 @@ public:
         paint, returning the mode that was set. If the Mode is SrcOver, then
         the paint's xfermode is set to null.
      */
-    SkXfermode* setXfermode(SkXfermode::Mode);
+    SkXfermode* setXfermodeMode(SkXfermode::Mode);
 
     /** Get the paint's patheffect object.
         <p />

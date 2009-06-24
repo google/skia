@@ -1234,7 +1234,7 @@ void SkCanvas::drawARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b,
 
     paint.setARGB(a, r, g, b);
     if (SkXfermode::kSrcOver_Mode != mode) {
-        paint.setXfermode(mode);
+        paint.setXfermodeMode(mode);
     }
     this->drawPaint(paint);
 }
@@ -1244,7 +1244,7 @@ void SkCanvas::drawColor(SkColor c, SkXfermode::Mode mode) {
 
     paint.setColor(c);
     if (SkXfermode::kSrcOver_Mode != mode) {
-        paint.setXfermode(mode);
+        paint.setXfermodeMode(mode);
     }
     this->drawPaint(paint);
 }
