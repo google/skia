@@ -1,4 +1,5 @@
 #include "SkPictureRecord.h"
+#include "SkShape.h"
 #include "SkTSearch.h"
 
 #define MIN_WRITER_SIZE 16384
@@ -350,6 +351,20 @@ void SkPictureRecord::drawTextOnPath(const void* text, size_t byteLength,
 void SkPictureRecord::drawPicture(SkPicture& picture) {
     addDraw(DRAW_PICTURE);
     addPicture(picture);
+    validate();
+}
+
+void SkPictureRecord::drawShape(SkShape* shape) {
+    addDraw(DRAW_SHAPE);
+
+    int index = fShapes.find(shape);
+    if (index < 0) {    // not found
+        index = fShapes.count();
+        *fShapes.append() = shape;
+        shape->ref();
+    }
+    // follow the convention of recording a 1-based index
+    addInt(index + 1);
     validate();
 }
 

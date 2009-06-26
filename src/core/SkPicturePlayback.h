@@ -11,6 +11,7 @@
 #include "SkPathHeap.h"
 #include "SkRegion.h"
 #include "SkPictureFlat.h"
+#include "SkShape.h"
 
 class SkPictureRecord;
 class SkStream;
@@ -72,7 +73,13 @@ private:
         SkASSERT(index > 0 && index <= fPictureCount);
         return *fPictureRefs[index - 1];
     }
-
+    
+    SkShape* getShape() {
+        int index = getInt();
+        SkASSERT(index > 0 && index <= fShapeCount);
+        return fShapes[index - 1];
+    }
+    
     const SkPaint* getPaint() {
         int index = getInt();
         if (index == 0) {
@@ -159,7 +166,9 @@ private:
 
     SkPicture** fPictureRefs;
     int fPictureCount;
-    
+    SkShape** fShapes;
+    int fShapeCount;
+
     SkRefCntPlayback fRCPlayback;
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback*   fFactoryPlayback;

@@ -119,7 +119,17 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
             fPictureRefs[i]->ref();
         }
     }
-
+    
+    const SkTDArray<SkShape* >& shapes = record.getShapes();
+    fShapeCount = shapes.count();
+    if (fShapeCount > 0) {
+        fShapes = SkNEW_ARRAY(SkShape*, fShapeCount);
+        for (int i = 0; i < fShapeCount; i++) {
+            fShapes[i] = shapes[i];
+            fShapes[i]->ref();
+        }
+    }
+    
     const SkTDArray<const SkFlatRegion* >& regions = record.getRegions();
     fRegionCount = regions.count();
     if (fRegionCount > 0) {
@@ -192,6 +202,13 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
         fPictureRefs[i]->ref();
     }
     
+    fShapeCount = src.fShapeCount;
+    fShapes = SkNEW_ARRAY(SkShape*, fShapeCount);
+    for (int i = 0; i < fShapeCount; i++) {
+        fShapes[i] = src.fShapes[i];
+        fShapes[i]->ref();
+    }
+    
     fRegionCount = src.fRegionCount;
     fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
@@ -205,6 +222,7 @@ void SkPicturePlayback::init() {
     fPaints = NULL;
     fPathHeap = NULL;
     fPictureRefs = NULL;
+    fShapes = NULL;
     fRegions = NULL;
     fBitmapCount = fMatrixCount = fPaintCount = fPictureCount = 
     fRegionCount = 0;
@@ -221,11 +239,16 @@ SkPicturePlayback::~SkPicturePlayback() {
     SkDELETE_ARRAY(fRegions);
     
     fPathHeap->safeUnref();
-
+    
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
     }
     SkDELETE_ARRAY(fPictureRefs);
+    
+    for (int i = 0; i < fShapeCount; i++) {
+        fShapes[i]->unref();
+    }
+    SkDELETE_ARRAY(fShapes);
     
     SkDELETE(fFactoryPlayback);
 }
@@ -362,7 +385,14 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
     for (i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->serialize(stream);
     }
-
+    
+#if 0
+    writeTagSize(stream, PICT_SHAPE_TAG, fShapeCount);
+    for (i = 0; i < fShapeCount; i++) {
+        fShapes[i]->serialize(stream);
+    }
+#endif
+    
     writeTagSize(stream, PICT_ARRAYS_TAG, buffer.size());
     buffer.writeToStream(stream);
 }
@@ -603,6 +633,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPaint& paint = *getPaint();
                 canvas.drawRect(*fReader.skipRect(), paint); 
             } break;
+            case DRAW_SHAPE:
+                canvas.drawShape(getShape());
+                break;
             case DRAW_SPRITE: {
                 const SkPaint* paint = getPaint();
                 const SkBitmap& bitmap = getBitmap(); 

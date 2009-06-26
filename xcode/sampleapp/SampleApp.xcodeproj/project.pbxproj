@@ -26,7 +26,6 @@
 		000A99820FD97526007E45BD /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
-		003145320FB9B48F00B10956 /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003145310FB9B48F00B10956 /* SampleShapes.cpp */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
 		0041CDF30F009ED100695E8C /* SkImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF20F009ED100695E8C /* SkImageRef.cpp */; };
 		0041CDF60F009EED00695E8C /* SkImageRef_GlobalPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF50F009EED00695E8C /* SkImageRef_GlobalPool.cpp */; };
@@ -48,6 +47,7 @@
 		0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE320F00A12400695E8C /* SampleOverflow.cpp */; };
 		0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
 		0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2794C04E0FE72903009AD112 /* SampleMipMap.cpp */; };
+		005778B40FF5616F00582CD9 /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003145310FB9B48F00B10956 /* SampleShapes.cpp */; };
 		005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE290F00A12400695E8C /* SampleFilter2.cpp */; };
 		005E92DE0FF0850E008965B9 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 		005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE280F00A12400695E8C /* SampleFilter.cpp */; };
@@ -559,7 +559,6 @@
 				00C55DA10F8552DC000CAC09 /* SampleGradients.cpp in Sources */,
 				009490320FB0A5B90063C792 /* SampleLayerMask.cpp in Sources */,
 				007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */,
-				003145320FB9B48F00B10956 /* SampleShapes.cpp in Sources */,
 				00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */,
 				2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */,
 				2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */,
@@ -575,6 +574,7 @@
 				005E92DE0FF0850E008965B9 /* SampleFillType.cpp in Sources */,
 				005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */,
 				0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */,
+				005778B40FF5616F00582CD9 /* SampleShapes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

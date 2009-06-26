@@ -1,6 +1,7 @@
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkPicture.h"
 #include "SkView.h"
 
 #include "SkRectShape.h"
@@ -93,20 +94,29 @@ protected:
         fMatrixRefs[3]->preRotate(SkIntToScalar(fAngle), c, c);
         
         SkMatrix matrix;
-#if 1        
-        SkGroupShape gs;
-        gs.appendShape(&fGroup);
+     
+        SkGroupShape* gs = new SkGroupShape;
+        SkAutoUnref aur(gs);
+        gs->appendShape(&fGroup);
         matrix.setScale(-SK_Scalar1, SK_Scalar1);
         matrix.postTranslate(SkIntToScalar(220), SkIntToScalar(240));
-        gs.appendShape(&fGroup, matrix);
+        gs->appendShape(&fGroup, matrix);
         matrix.setTranslate(SkIntToScalar(240), 0);
         matrix.preScale(SK_Scalar1*2, SK_Scalar1*2);
-        gs.appendShape(&fGroup, matrix);
-        canvas->drawShape(&gs);
+        gs->appendShape(&fGroup, matrix);
+        
+#if 0        
+        canvas->drawShape(gs);
 #else
-        fGroup.draw(canvas);
-        fGroup.drawXY(canvas, 0, SkIntToScalar(240));
-        fGroup.drawMatrix(canvas, matrix);
+        SkPicture pict;
+        SkCanvas* cv = pict.beginRecording(1000, 1000);
+        cv->scale(SK_ScalarHalf, SK_ScalarHalf);
+        cv->drawShape(gs);
+        cv->translate(SkIntToScalar(680), SkIntToScalar(480));
+        cv->scale(-SK_Scalar1, SK_Scalar1);
+        cv->drawShape(gs);
+        pict.endRecording();
+        canvas->drawPicture(pict);
 #endif
 
         *fMatrixRefs[3] = saveM;
