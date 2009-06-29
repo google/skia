@@ -80,8 +80,6 @@ SkFlattenable::Factory SkGroupShape::getFactory() {
     return CreateProc;
 }
 
-#define SAFE_MATRIX_STORAGE_SIZE    (sizeof(SkMatrix)*2)
-
 void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);
 
@@ -92,7 +90,7 @@ void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) {
     while (rec < stop) {
         buffer.writeFlattenable(rec->fShape);
         if (rec->fMatrixRef) {
-            char storage[SAFE_MATRIX_STORAGE_SIZE];
+            char storage[SkMatrix::kMaxFlattenSize];
             uint32_t size = rec->fMatrixRef->flatten(storage);
             buffer.write32(size);
             buffer.writePad(storage, size);
@@ -110,8 +108,7 @@ SkGroupShape::SkGroupShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer){
         SkMatrixRef* mr = NULL;
         uint32_t size = buffer.readS32();
         if (size) {
-            char storage[SAFE_MATRIX_STORAGE_SIZE];
-            SkASSERT(size <= SAFE_MATRIX_STORAGE_SIZE);
+            char storage[SkMatrix::kMaxFlattenSize];
             buffer.read(storage, SkAlign4(size));
             mr = SkNEW(SkMatrixRef);
             mr->unflatten(storage);
