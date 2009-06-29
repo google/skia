@@ -2,6 +2,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPicture.h"
+#include "SkStream.h"
 #include "SkView.h"
 
 #include "SkRectShape.h"
@@ -83,6 +84,20 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
     
+    void drawpicture(SkCanvas* canvas, SkPicture& pict) {
+#if 1
+        SkDynamicMemoryWStream ostream;
+        pict.serialize(&ostream);
+
+        SkMemoryStream istream(ostream.getStream(), ostream.getOffset());
+        SkPicture newPict(&istream);
+        
+        canvas->drawPicture(newPict);
+#else
+        canvas->drawPicture(pict);
+#endif
+    }
+    
     int fAngle;
     
     virtual void onDraw(SkCanvas* canvas) {
@@ -105,7 +120,7 @@ protected:
         matrix.preScale(SK_Scalar1*2, SK_Scalar1*2);
         gs->appendShape(&fGroup, matrix);
         
-#if 0        
+#if 0
         canvas->drawShape(gs);
 #else
         SkPicture pict;
@@ -116,7 +131,8 @@ protected:
         cv->scale(-SK_Scalar1, SK_Scalar1);
         cv->drawShape(gs);
         pict.endRecording();
-        canvas->drawPicture(pict);
+        
+        drawpicture(canvas, pict);
 #endif
 
         *fMatrixRefs[3] = saveM;

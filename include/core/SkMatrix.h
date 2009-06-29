@@ -399,6 +399,11 @@ public:
     friend bool operator!=(const SkMatrix& a, const SkMatrix& b) {
         return memcmp(a.fMat, b.fMat, sizeof(a.fMat)) != 0;
     }
+
+    // return the number of bytes written, whether or not buffer is null
+    uint32_t flatten(void* buffer) const;
+    // return the number of bytes read
+    uint32_t unflatten(const void* buffer);
     
     void dump() const;
     void toDumpString(SkString*) const;

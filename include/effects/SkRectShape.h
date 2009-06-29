@@ -37,6 +37,9 @@ public:
     virtual Factory getFactory();
     virtual void flatten(SkFlattenableWriteBuffer&);
 
+    // public for Registrar
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
 protected:
     SkRectShape(SkFlattenableReadBuffer&);
 
@@ -46,8 +49,6 @@ protected:
 private:
     SkRect  fBounds;
     SkSize  fRadii;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
     typedef SkPaintShape INHERITED;
 };

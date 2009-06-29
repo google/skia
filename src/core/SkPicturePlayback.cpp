@@ -246,7 +246,7 @@ SkPicturePlayback::~SkPicturePlayback() {
     SkDELETE_ARRAY(fPictureRefs);
     
     for (int i = 0; i < fShapeCount; i++) {
-        fShapes[i]->unref();
+        SkSafeUnref(fShapes[i]);
     }
     SkDELETE_ARRAY(fShapes);
     
@@ -279,7 +279,7 @@ void SkPicturePlayback::dumpSize() const {
 #define PICT_PAINT_TAG      SkSetFourByteTag('p', 'n', 't', ' ')
 #define PICT_PATH_TAG       SkSetFourByteTag('p', 't', 'h', ' ')
 #define PICT_REGION_TAG     SkSetFourByteTag('r', 'g', 'n', ' ')
-
+#define PICT_SHAPE_TAG      SkSetFourByteTag('s', 'h', 'p', ' ')
 
 #include "SkStream.h"
 
@@ -376,6 +376,11 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
         buffer.writePad(storage.get(), size);
     }
     
+    writeTagSize(buffer, PICT_SHAPE_TAG, fShapeCount);
+    for (i = 0; i < fShapeCount; i++) {
+        buffer.writeFlattenable(fShapes[i]);
+    }
+
     // now we can write to the stream again
 
     writeFactories(stream, factRecorder);
@@ -385,13 +390,6 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
     for (i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->serialize(stream);
     }
-    
-#if 0
-    writeTagSize(stream, PICT_SHAPE_TAG, fShapeCount);
-    for (i = 0; i < fShapeCount; i++) {
-        fShapes[i]->serialize(stream);
-    }
-#endif
     
     writeTagSize(stream, PICT_ARRAYS_TAG, buffer.size());
     buffer.writeToStream(stream);
@@ -490,6 +488,12 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
         uint32_t size = buffer.readU32();
         SkDEBUGCODE(uint32_t bytes =) fRegions[i].unflatten(buffer.skip(size));
         SkASSERT(size == bytes);
+    }
+
+    fShapeCount = readTagSize(buffer, PICT_SHAPE_TAG);
+    fShapes = SkNEW_ARRAY(SkShape*, fShapeCount);
+    for (i = 0; i < fShapeCount; i++) {
+        fShapes[i] = reinterpret_cast<SkShape*>(buffer.readFlattenable());
     }
 }
 
@@ -633,9 +637,12 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPaint& paint = *getPaint();
                 canvas.drawRect(*fReader.skipRect(), paint); 
             } break;
-            case DRAW_SHAPE:
-                canvas.drawShape(getShape());
-                break;
+            case DRAW_SHAPE: {
+                SkShape* shape = getShape();
+                if (shape) {
+                    canvas.drawShape(shape);
+                }
+            } break;
             case DRAW_SPRITE: {
                 const SkPaint* paint = getPaint();
                 const SkBitmap& bitmap = getBitmap(); 

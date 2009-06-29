@@ -9,7 +9,8 @@ class SkWStream;
 
 class SkShape : public SkFlattenable {
 public:
-    SkShape() {}
+    SkShape();
+    virtual ~SkShape();
 
     void draw(SkCanvas*);
 
@@ -24,15 +25,18 @@ public:
     void drawMatrix(SkCanvas*, const SkMatrix&);
 
     // overrides
+    virtual Factory getFactory();
     virtual void flatten(SkFlattenableWriteBuffer&);
 
-protected:
-    virtual void onDraw(SkCanvas*) = 0;
+    // public for Registrar
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
-    SkShape(SkFlattenableReadBuffer&) {}
+protected:
+    virtual void onDraw(SkCanvas*);
+
+    SkShape(SkFlattenableReadBuffer&);
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
     typedef SkFlattenable INHERITED;
 };

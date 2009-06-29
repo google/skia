@@ -57,8 +57,6 @@ public:
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrixRefs); i++) {
             SkSafeRef(fMatrixRefs[i] = fGroup.getShapeMatrixRef(i));
         }
-        
-        fAngle = 0;
     }
     
     virtual ~ShapesGM() {
@@ -80,15 +78,12 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
     
-    int fAngle;
-    
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
         
         SkMatrix saveM = *fMatrixRefs[3];
-        fAngle = (fAngle + 5) % 360;
         SkScalar c = SkIntToScalar(50);
-        fMatrixRefs[3]->preRotate(SkIntToScalar(fAngle), c, c);
+        fMatrixRefs[3]->preRotate(SkIntToScalar(30), c, c);
         
         SkMatrix matrix;
      

@@ -128,6 +128,9 @@ public:
     virtual Factory getFactory();
     virtual void flatten(SkFlattenableWriteBuffer&);
 
+    // public for Registrar
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
 protected:
     // overrides
     virtual void onDraw(SkCanvas*);
@@ -140,8 +143,6 @@ private:
         SkMatrixRef* fMatrixRef;
     };
     SkTDArray<Rec> fList;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
     typedef SkShape INHERITED;
 };

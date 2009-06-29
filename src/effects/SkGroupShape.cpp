@@ -80,6 +80,8 @@ SkFlattenable::Factory SkGroupShape::getFactory() {
     return CreateProc;
 }
 
+#define SAFE_MATRIX_STORAGE_SIZE    (sizeof(SkMatrix)*2)
+
 void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);
 
@@ -88,24 +90,42 @@ void SkGroupShape::flatten(SkFlattenableWriteBuffer& buffer) {
     const Rec* rec = fList.begin();
     const Rec* stop = fList.end();
     while (rec < stop) {
-        SkShape* shape = rec->fShape;
-        buffer.writeFunctionPtr((void*)shape->getFactory());
-        shape->flatten(buffer);
-        // todo: flatten the matrixref if present
+        buffer.writeFlattenable(rec->fShape);
+        if (rec->fMatrixRef) {
+            char storage[SAFE_MATRIX_STORAGE_SIZE];
+            uint32_t size = rec->fMatrixRef->flatten(storage);
+            buffer.write32(size);
+            buffer.writePad(storage, size);
+        } else {
+            buffer.write32(0);
+        }
+        rec += 1;
     }
 }
 
 SkGroupShape::SkGroupShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer){
     int count = buffer.readS32();
     for (int i = 0; i < count; i++) {
-        SkFlattenable::Factory fact =
-                            (SkFlattenable::Factory)buffer.readFunctionPtr();
-        this->appendShape((SkShape*)fact(buffer))->unref();
-        // todo: unflatten the matrixref if present
+        SkShape* shape = reinterpret_cast<SkShape*>(buffer.readFlattenable());
+        SkMatrixRef* mr = NULL;
+        uint32_t size = buffer.readS32();
+        if (size) {
+            char storage[SAFE_MATRIX_STORAGE_SIZE];
+            SkASSERT(size <= SAFE_MATRIX_STORAGE_SIZE);
+            buffer.read(storage, SkAlign4(size));
+            mr = SkNEW(SkMatrixRef);
+            mr->unflatten(storage);
+        }
+        if (shape) {
+            this->appendShape(shape, mr)->unref();
+        }
+        SkSafeUnref(mr);
     }
 }
 
 SkFlattenable* SkGroupShape::CreateProc(SkFlattenableReadBuffer& buffer) {
     return SkNEW_ARGS(SkGroupShape, (buffer));
 }
+
+static SkFlattenable::Registrar gReg("SkGroupShape", SkGroupShape::CreateProc);
 

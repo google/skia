@@ -413,6 +413,7 @@ void SkPictureRecord::reset() {
     fPaints.reset();
     fPictureRefs.unrefAll();
     fRegions.reset();
+    fShapes.unrefAll();
     fWriter.reset();
     fHeap.reset();
     

@@ -83,3 +83,5 @@ SkPaintShape::SkPaintShape(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) 
     fPaint.unflatten(buffer);
 }
 
+static SkFlattenable::Registrar gReg("SkRectShape", SkRectShape::CreateProc);
+
