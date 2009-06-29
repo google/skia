@@ -17,7 +17,7 @@ static void computeOuterProduct(SkMatrix* matrix,
                                 const SkPoint pts0[3], const SkPoint& ave0,
                                 const SkPoint pts1[3], const SkPoint& ave1) {
     SkDScalar tmp[4];
-    bzero(tmp, sizeof(tmp));
+    sk_bzero(tmp, sizeof(tmp));
     
     for (int i = 0; i < 3; i++) {
         SkScalar x0 = pts0[i].fX - ave0.fX;

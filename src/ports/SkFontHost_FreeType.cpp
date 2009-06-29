@@ -156,7 +156,7 @@ SkFaceRec::SkFaceRec(SkStream* strm, uint32_t fontID)
         : fSkStream(strm), fFontID(fontID) {
 //    SkDEBUGF(("SkFaceRec: opening %s (%p)\n", key.c_str(), strm));
 
-    bzero(&fFTStream, sizeof(fFTStream));
+    sk_bzero(&fFTStream, sizeof(fFTStream));
     fFTStream.size = fSkStream->getLength();
     fFTStream.descriptor.pointer = fSkStream;
     fFTStream.read  = sk_stream_read;
@@ -754,10 +754,10 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
     if (this->setupSize()) {
         ERROR:
         if (mx) {
-            bzero(mx, sizeof(SkPaint::FontMetrics));
+            sk_bzero(mx, sizeof(SkPaint::FontMetrics));
         }
         if (my) {
-            bzero(my, sizeof(SkPaint::FontMetrics));
+            sk_bzero(my, sizeof(SkPaint::FontMetrics));
         }
         return;
     }

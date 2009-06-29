@@ -151,7 +151,7 @@ SkDraw::SkDraw(const SkDraw& src) {
 typedef void (*BitmapXferProc)(void* pixels, size_t bytes, uint32_t data);
 
 static void D_Clear_BitmapXferProc(void* pixels, size_t bytes, uint32_t) {
-    bzero(pixels, bytes);
+    sk_bzero(pixels, bytes);
 }
 
 static void D_Dst_BitmapXferProc(void*, size_t, uint32_t data) {}

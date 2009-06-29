@@ -65,6 +65,11 @@ extern void* sk_realloc_throw(void* buffer, size_t size);
 */
 extern void  sk_free(void*);
 
+// bzero is safer than memset, but we can't rely on it, so... sk_bzero()
+static inline void sk_bzero(void* buffer, size_t size) {
+    memset(buffer, 0, size);
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 #define SK_INIT_TO_AVOID_WARNING    = 0

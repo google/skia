@@ -23,7 +23,7 @@ SkTextureCache::SkTextureCache(size_t countMax, size_t sizeMax)
           fTexCountMax(countMax), fTexSizeMax(sizeMax),
           fTexCount(0), fTexSize(0) {
 
-    bzero(fHash, sizeof(fHash));
+    sk_bzero(fHash, sizeof(fHash));
     this->validate();
 }
 
@@ -52,7 +52,7 @@ void SkTextureCache::deleteAllCaches(bool texturesAreValid) {
     }
     
     fSorted.reset();
-    bzero(fHash, sizeof(fHash));
+    sk_bzero(fHash, sizeof(fHash));
     
     fTexCount = 0;
     fTexSize = 0;

@@ -687,7 +687,7 @@ bool ConvertPointsToVertices(size_t numPts, const SkPoint *pts, Vertex *vta) {
 
     // Clear everything.
     DebugPrintf("Zeroing vertices\n");
-    bzero(vta, numPts * sizeof(*vta));
+    sk_bzero(vta, numPts * sizeof(*vta));
 
     // Initialize vertices.
     DebugPrintf("Initializing vertices\n");

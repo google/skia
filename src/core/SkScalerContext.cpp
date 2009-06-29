@@ -334,7 +334,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             
             glyph->toMask(&mask);
             mask.fFormat = SkMask::kA8_Format;
-            bzero(glyph->fImage, mask.computeImageSize());
+            sk_bzero(glyph->fImage, mask.computeImageSize());
             
             if (!fRasterizer->rasterize(fillPath, fillToDevMatrix, NULL,
                                         fMaskFilter, &mask,
@@ -364,7 +364,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             bm.setConfig(config, glyph->fWidth, glyph->fHeight,
                          glyph->rowBytes());
             bm.setPixels(glyph->fImage);
-            bzero(glyph->fImage, bm.height() * bm.rowBytes());
+            sk_bzero(glyph->fImage, bm.height() * bm.rowBytes());
 
             draw.fClip  = &clip;
             draw.fMatrix = &matrix;
@@ -400,7 +400,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             }
 
             // clean out our glyph, since it may be larger than dstM
-            //bzero(dst, height * dstRB);
+            //sk_bzero(dst, height * dstRB);
 
             while (--height >= 0) {
                 memcpy(dst, src, width);
@@ -576,10 +576,10 @@ protected:
     virtual void generateFontMetrics(SkPaint::FontMetrics* mx,
                                      SkPaint::FontMetrics* my) {
         if (mx) {
-            bzero(mx, sizeof(*mx));
+            sk_bzero(mx, sizeof(*mx));
         }
         if (my) {
-            bzero(my, sizeof(*my));
+            sk_bzero(my, sizeof(*my));
         }
     }
 };

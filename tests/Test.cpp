@@ -9,7 +9,7 @@ Reporter::Reporter() {
 void Reporter::resetReporting() {
     fCurrTest = NULL;
     fTestCount = 0;
-    bzero(fResultCount, sizeof(fResultCount));
+    sk_bzero(fResultCount, sizeof(fResultCount));
 }
 
 void Reporter::startTest(Test* test) {

@@ -246,7 +246,7 @@ void SkRefCntPlayback::setCount(int count) {
     
     fCount = count;
     fArray = SkNEW_ARRAY(SkRefCnt*, count);
-    bzero(fArray, count * sizeof(SkRefCnt*));
+    sk_bzero(fArray, count * sizeof(SkRefCnt*));
 }
 
 SkRefCnt* SkRefCntPlayback::set(int index, SkRefCnt* obj) {

@@ -31,7 +31,7 @@ static SkDScalar SkDScalar_setMul(SkScalar a, SkScalar b) {
 static void computeOuterProduct(SkScalar op[4],
                                 const SkPoint pts0[3], const SkPoint& ave0,
                                 const SkPoint pts1[3], const SkPoint& ave1) {
-    bzero(op, 4 * sizeof(op[0]));
+    sk_bzero(op, 4 * sizeof(op[0]));
     for (int i = 0; i < 3; i++) {
         SkScalar x0 = pts0[i].fX - ave0.fX;
         SkScalar y0 = pts0[i].fY - ave0.fY;

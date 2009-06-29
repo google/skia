@@ -67,7 +67,7 @@ void SkRect::set(const SkPoint pts[], int count)
     SkASSERT((pts && count > 0) || count == 0);
 
     if (count <= 0) {
-        bzero(this, sizeof(SkRect));
+        sk_bzero(this, sizeof(SkRect));
     } else {
 #ifdef SK_SCALAR_SLOW_COMPARES
         int32_t    l, t, r, b;

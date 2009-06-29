@@ -120,7 +120,7 @@ void SkGL::Ortho(float left, float right, float bottom, float top,
     
     float mat[16];
     
-    bzero(mat, sizeof(mat));
+    sk_bzero(mat, sizeof(mat));
     
     mat[0] = 2 / (right - left);
     mat[5] = 2 / (top - bottom);

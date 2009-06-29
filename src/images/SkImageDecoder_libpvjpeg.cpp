@@ -107,7 +107,7 @@ static bool getFrame(PVJpgDecoderInterface* codec, SkBitmap* bitmap,
     TPvJpgDecFrame frame;
     uint8*         ptrs[3];
     int32          widths[3], heights[3];
-    bzero(ptrs, sizeof(ptrs));
+    sk_bzero(ptrs, sizeof(ptrs));
     frame.ptr = ptrs;
     frame.iWidth = widths;
     frame.iHeight = heights;

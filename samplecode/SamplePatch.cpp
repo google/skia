@@ -52,7 +52,7 @@ static SkShader* make_shader1(const SkIPoint& size) {
 
 class Patch {
 public:
-    Patch() { bzero(fPts, sizeof(fPts)); }
+    Patch() { sk_bzero(fPts, sizeof(fPts)); }
     ~Patch() {}
     
     void setPatch(const SkPoint pts[12]) {

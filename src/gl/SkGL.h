@@ -193,12 +193,12 @@ struct SkGLMatrix {
     SkGLScalar fMat[16];
     
     void reset() {
-        bzero(fMat, sizeof(fMat));
+        sk_bzero(fMat, sizeof(fMat));
         fMat[0] = fMat[5] = fMat[10] = fMat[15] = SK_GLScalar1;
     }
     
     void set(const SkMatrix& m) {
-        bzero(fMat, sizeof(fMat));
+        sk_bzero(fMat, sizeof(fMat));
         fMat[0] = SkScalarToGL(m[SkMatrix::kMScaleX]);
         fMat[4] = SkScalarToGL(m[SkMatrix::kMSkewX]);
         fMat[12] = SkScalarToGL(m[SkMatrix::kMTransX]);

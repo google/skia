@@ -251,7 +251,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     SkAutoMutexAcquire  ac(gFTMutex);
     SkASSERT(fLayout);
     
-    bzero(glyph.fImage, glyph.fHeight * glyph.rowBytes());
+    sk_bzero(glyph.fImage, glyph.fHeight * glyph.rowBytes());
     CGContextRef contextRef = ::CGBitmapContextCreate(glyph.fImage,
                                               glyph.fWidth, glyph.fHeight, 8,
                                               glyph.rowBytes(), fGrayColorSpace,

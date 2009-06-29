@@ -84,12 +84,12 @@ struct SkBitmap::MipMap : SkNoncopyable {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkBitmap::SkBitmap() {
-    bzero(this, sizeof(*this));
+    sk_bzero(this, sizeof(*this));
 }
 
 SkBitmap::SkBitmap(const SkBitmap& src) {
     SkDEBUGCODE(src.validate();)
-    bzero(this, sizeof(*this));
+    sk_bzero(this, sizeof(*this));
     *this = src;
     SkDEBUGCODE(this->validate();)
 }
@@ -153,7 +153,7 @@ void SkBitmap::swap(SkBitmap& other) {
 
 void SkBitmap::reset() {
     this->freePixels();
-    bzero(this, sizeof(*this));
+    sk_bzero(this, sizeof(*this));
 }
 
 int SkBitmap::ComputeBytesPerPixel(SkBitmap::Config config) {
@@ -1319,7 +1319,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
 SkBitmap::RLEPixels::RLEPixels(int width, int height) {
     fHeight = height;
     fYPtrs = (uint8_t**)sk_malloc_throw(height * sizeof(uint8_t*));
-    bzero(fYPtrs, height * sizeof(uint8_t*));
+    sk_bzero(fYPtrs, height * sizeof(uint8_t*));
 }
 
 SkBitmap::RLEPixels::~RLEPixels() {

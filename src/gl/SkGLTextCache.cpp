@@ -127,7 +127,7 @@ SkGLTextCache::Strike::addGlyphAndBind(const SkGlyph& glyph,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGLTextCache::SkGLTextCache() {
-    bzero(fStrikeList, sizeof(fStrikeList));
+    sk_bzero(fStrikeList, sizeof(fStrikeList));
 }
 
 SkGLTextCache::~SkGLTextCache() {
@@ -146,7 +146,7 @@ void SkGLTextCache::deleteAllStrikes(bool texturesAreValid) {
             strike = next;
         }
     }
-    bzero(fStrikeList, sizeof(fStrikeList));
+    sk_bzero(fStrikeList, sizeof(fStrikeList));
 }
 
 SkGLTextCache::Strike* SkGLTextCache::findGlyph(const SkGlyph& glyph,

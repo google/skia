@@ -397,7 +397,7 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst,
     }
 
     if (dst.isEmpty()) {
-        bzero(fMat, 8 * sizeof(SkScalar));
+        sk_bzero(fMat, 8 * sizeof(SkScalar));
         this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
     } else {
         SkScalar    tx, sx = SkScalarDiv(dst.width(), src.width());
