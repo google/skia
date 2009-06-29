@@ -1,5 +1,6 @@
 #include "SkCGUtils.h"
 #include "SkBitmap.h"
+#include "SkColorPriv.h"
 
 extern CGImageRef SkCreateCGImageRef(const SkBitmap&);
 
@@ -8,21 +9,23 @@ static void SkBitmap_ReleaseInfo(void* info, const void* pixelData, size_t size)
     delete bitmap;
 }
 
+#define HAS_ARGB_SHIFTS(a, r, g, b) \
+    (SK_A32_SHIFT == (a) && SK_R32_SHIFT == (r) \
+    && SK_G32_SHIFT == (g) && SK_B32_SHIFT == (b))
+
 static SkBitmap* prepareForImageRef(const SkBitmap& bm,
                                     size_t* bitsPerComponent,
                                     CGBitmapInfo* info) {
+#if 0
+    SkDebugf("---- %d %d %d %d\n", SK_A32_SHIFT, SK_R32_SHIFT,
+             SK_G32_SHIFT, SK_B32_SHIFT);
+#endif
+
     switch (bm.config()) {
         case SkBitmap::kARGB_8888_Config:
             *bitsPerComponent = 8;
-            // try to match our rgba ordering in SkColorPriv, but take into
-            // account that the data layout could have been overridden in
-            // SkUserConfig.
-#define HAS_ARGB_SHIFTS(a, r, g, b) \
-            (SK_A32_SHIFT == (a) && SK_R32_SHIFT == (r) \
-             && SK_G32_SHIFT == (g) && SK_B32_SHIFT == (b))
 #if defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 0, 8, 16) \
  || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(0, 24, 16, 8)
-            // The default rgba ordering from SkColorPriv.h
             *info = kCGBitmapByteOrder32Big |
                     kCGImageAlphaPremultipliedLast;
 #elif defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0) \
@@ -40,7 +43,6 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
             *info = kCGBitmapByteOrder32Big |
                     kCGImageAlphaPremultipliedLast;
 #endif
-#undef HAS_ARGB_SHIFTS
             break;
         case SkBitmap::kRGB_565_Config:
             // doesn't see quite right. Are they thinking 1555?
@@ -57,6 +59,8 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
 
     return new SkBitmap(bm);
 }
+
+#undef HAS_ARGB_SHIFTS
 
 CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     size_t bitsPerComponent;
