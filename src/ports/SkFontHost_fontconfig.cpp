@@ -68,7 +68,7 @@ static SkTypeface::Style UniqueIdToStyle(unsigned uniqueid)
 static unsigned FileIdAndStyleToUniqueId(unsigned fileid,
                                          SkTypeface::Style style)
 {
-    SkASSERT(style & 0xff == style);
+    SkASSERT((style & 0xff) == style);
     return (fileid << 8) | static_cast<int>(style);
 }
 
