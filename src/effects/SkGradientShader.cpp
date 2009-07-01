@@ -1563,14 +1563,8 @@ SkShader* SkGradientShader::CreateLinear(   const SkPoint pts[2],
     }
     EXPAND_1_COLOR(colorCount);
 
-    SkScalar posStorage[2];
-    if (colorCount == 2 && pos == NULL) {
-        posStorage[0] = SK_Scalar1/4;
-        posStorage[1] = 3*SK_Scalar1/4;
-        pos = posStorage;
-    }
-
-    return SkNEW_ARGS(Linear_Gradient, (pts, colors, pos, colorCount, mode, mapper));
+    return SkNEW_ARGS(Linear_Gradient,
+                      (pts, colors, pos, colorCount, mode, mapper));
 }
 
 SkShader* SkGradientShader::CreateRadial(   const SkPoint& center, SkScalar radius,
@@ -1582,7 +1576,8 @@ SkShader* SkGradientShader::CreateRadial(   const SkPoint& center, SkScalar radi
     }
     EXPAND_1_COLOR(colorCount);
 
-    return SkNEW_ARGS(Radial_Gradient, (center, radius, colors, pos, colorCount, mode, mapper));
+    return SkNEW_ARGS(Radial_Gradient,
+                      (center, radius, colors, pos, colorCount, mode, mapper));
 }
 
 SkShader* SkGradientShader::CreateSweep(SkScalar cx, SkScalar cy,
