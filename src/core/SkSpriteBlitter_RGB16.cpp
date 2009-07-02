@@ -172,6 +172,68 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static intptr_t asint(const void* ptr) {
+    return reinterpret_cast<const char*>(ptr) - (const char*)0;
+}
+
+static void blitrow_d16_si8(SK_RESTRICT uint16_t* dst,
+                            SK_RESTRICT const uint8_t* src, int count,
+                            SK_RESTRICT const uint16_t* ctable) {
+    if (count <= 8) {
+        do {
+            *dst++ = ctable[*src++];
+        } while (--count);
+        return;
+    }
+
+    // eat src until we're on a 4byte boundary
+    while (asint(src) & 3) {
+        *dst++ = ctable[*src++];
+        count -= 1;
+    }
+
+    int qcount = count >> 2;
+    SkASSERT(qcount > 0);
+    const uint32_t* qsrc = reinterpret_cast<const uint32_t*>(src);
+    if (asint(dst) & 2) {
+        do {
+            uint32_t s4 = *qsrc++;
+#ifdef SK_CPU_LENDIAN
+            *dst++ = ctable[s4 & 0xFF];
+            *dst++ = ctable[(s4 >> 8) & 0xFF];
+            *dst++ = ctable[(s4 >> 16) & 0xFF];
+            *dst++ = ctable[s4 >> 24];
+#else   // BENDIAN
+            *dst++ = ctable[s4 >> 24];
+            *dst++ = ctable[(s4 >> 16) & 0xFF];
+            *dst++ = ctable[(s4 >> 8) & 0xFF];
+            *dst++ = ctable[s4 & 0xFF];
+#endif
+        } while (--qcount);
+    } else {    // dst is on a 4byte boundary
+        uint32_t* ddst = reinterpret_cast<uint32_t*>(dst);
+        do {
+            uint32_t s4 = *qsrc++;
+#ifdef SK_CPU_LENDIAN
+            *ddst++ = (ctable[(s4 >> 8) & 0xFF] << 16) | ctable[s4 & 0xFF];
+            *ddst++ = (ctable[s4 >> 24] << 16) | ctable[(s4 >> 16) & 0xFF];
+#else   // BENDIAN
+            *ddst++ = (ctable[s4 >> 24] << 16) | ctable[(s4 >> 16) & 0xFF];
+            *ddst++ = (ctable[(s4 >> 8) & 0xFF] << 16) | ctable[s4 & 0xFF];
+#endif
+        } while (--qcount);
+        dst = reinterpret_cast<uint16_t*>(ddst);
+    }
+    src = reinterpret_cast<const uint8_t*>(qsrc);
+    count &= 3;
+    // catch any remaining (will be < 4)
+    while (--count >= 0) {
+        *dst++ = ctable[*src++];
+    }
+}
+
+#define SkSPRITE_ROW_PROC(d, s, n, x, y)    blitrow_d16_si8(d, s, n, ctable)
+            
 #define SkSPRITE_CLASSNAME                  Sprite_D16_SIndex8_Opaque
 #define SkSPRITE_ARGS
 #define SkSPRITE_FIELDS

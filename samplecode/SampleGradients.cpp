@@ -3,6 +3,37 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 
+static SkShader* setgrad(const SkRect& r, SkColor c0, SkColor c1) {
+    SkColor colors[] = { c0, c1 };
+    SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fTop } };
+    return SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+                                          SkShader::kClamp_TileMode, NULL);
+}
+
+static void test_alphagradients(SkCanvas* canvas) {
+    SkRect r;
+    r.set(SkIntToScalar(10), SkIntToScalar(10),
+          SkIntToScalar(410), SkIntToScalar(30));
+    SkPaint p, p2;
+    p2.setStyle(SkPaint::kStroke_Style);
+    
+    p.setShader(setgrad(r, 0xFF00FF00, 0x0000FF00))->unref();
+    canvas->drawRect(r, p);
+    canvas->drawRect(r, p2);
+    
+    r.offset(0, r.height() + SkIntToScalar(4));
+    p.setShader(setgrad(r, 0xFF00FF00, 0x00000000))->unref();
+    canvas->drawRect(r, p);
+    canvas->drawRect(r, p2);
+    
+    r.offset(0, r.height() + SkIntToScalar(4));
+    p.setShader(setgrad(r, 0xFF00FF00, 0x00FF0000))->unref();
+    canvas->drawRect(r, p);
+    canvas->drawRect(r, p2);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 struct GradData {
     int             fCount;
     const SkColor*  fColors;
@@ -87,7 +118,8 @@ protected:
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
-        
+
+        canvas->save();
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
             canvas->save();
@@ -101,6 +133,10 @@ protected:
             canvas->restore();
             canvas->translate(SkIntToScalar(120), 0);
         }
+        canvas->restore();
+        
+        canvas->translate(0, SkIntToScalar(370));
+        test_alphagradients(canvas);
     }
     
 private:

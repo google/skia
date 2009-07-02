@@ -73,7 +73,7 @@
 		00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */; };
 		00AF77B00FE2EA2D007F9650 /* SampleTestGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A729630FD93ED600D5051F /* SampleTestGL.cpp */; };
 		00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C640EFC22A8000FF73A /* SamplePath.cpp */; };
-		00C55DA10F8552DC000CAC09 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
+		00F53F480FFCFC4D003FA70A /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
 		00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
@@ -556,7 +556,6 @@
 				007A7CB30F01658C00A2D6EE /* SamplePicture.cpp in Sources */,
 				0041CE440F00A12400695E8C /* SampleLines.cpp in Sources */,
 				008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */,
-				00C55DA10F8552DC000CAC09 /* SampleGradients.cpp in Sources */,
 				009490320FB0A5B90063C792 /* SampleLayerMask.cpp in Sources */,
 				007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */,
 				00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */,
@@ -575,6 +574,7 @@
 				005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */,
 				0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */,
 				005778B40FF5616F00582CD9 /* SampleShapes.cpp in Sources */,
+				00F53F480FFCFC4D003FA70A /* SampleGradients.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
