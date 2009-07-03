@@ -45,7 +45,7 @@ static U8CPU mulmuldiv255round(U8CPU a, U8CPU b, U8CPU c, U8CPU d) {
 }
 #endif
 
-static unsigned saturated_add(unsigned a, unsigned b) {
+static inline unsigned saturated_add(unsigned a, unsigned b) {
     SkASSERT(a <= 255);
     SkASSERT(b <= 255);
     unsigned sum = a + b;
@@ -55,7 +55,7 @@ static unsigned saturated_add(unsigned a, unsigned b) {
     return sum;
 }
 
-static int clamp_signed_byte(int n) {
+static inline int clamp_signed_byte(int n) {
     if (n < 0) {
         n = 0;
     } else if (n > 255) {
@@ -64,7 +64,7 @@ static int clamp_signed_byte(int n) {
     return n;
 }
 
-static int clamp_div255round(int prod) {
+static inline int clamp_div255round(int prod) {
     if (prod <= 0) {
         return 0;
     } else if (prod >= 255*255) {
@@ -74,7 +74,7 @@ static int clamp_div255round(int prod) {
     }
 }
 
-static int clamp_max(int value, int max) {
+static inline int clamp_max(int value, int max) {
     if (value > max) {
         value = max;
     }
@@ -470,10 +470,10 @@ static SkPMColor xor_modeproc(SkPMColor src, SkPMColor dst) {
 
 // kPlus_Mode
 static SkPMColor plus_modeproc(SkPMColor src, SkPMColor dst) {
-    unsigned a = saturated_add(SkGetPackedA32(src), SkGetPackedA32(dst));
-    unsigned r = saturated_add(SkGetPackedR32(src), SkGetPackedR32(dst));
-    unsigned g = saturated_add(SkGetPackedG32(src), SkGetPackedG32(dst));
     unsigned b = saturated_add(SkGetPackedB32(src), SkGetPackedB32(dst));
+    unsigned g = saturated_add(SkGetPackedG32(src), SkGetPackedG32(dst));
+    unsigned r = saturated_add(SkGetPackedR32(src), SkGetPackedR32(dst));
+    unsigned a = saturated_add(SkGetPackedA32(src), SkGetPackedA32(dst));
     return SkPackARGB32(a, r, g, b);
 }
 
