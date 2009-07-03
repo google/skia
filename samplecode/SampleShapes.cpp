@@ -90,9 +90,9 @@ protected:
         pict.serialize(&ostream);
 
         SkMemoryStream istream(ostream.getStream(), ostream.getOffset());
-        SkPicture newPict(&istream);
-        
-        canvas->drawPicture(newPict);
+        SkPicture* newPict = new SkPicture(&istream);
+        canvas->drawPicture(*newPict);
+        newPict->unref();
 #else
         canvas->drawPicture(pict);
 #endif

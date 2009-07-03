@@ -251,7 +251,17 @@ public:
         }
         this->reset();
     }
-    
+
+    void safeUnrefAll() {
+        T*  iter = fArray;
+        T*  stop = fArray + fCount;
+        while (iter < stop) {
+            SkSafeUnref(*iter);
+            iter += 1;
+        }
+        this->reset();
+    }
+
 #ifdef SK_DEBUG
     void validate() const {
         SkASSERT((fReserve == 0 && fArray == NULL) ||

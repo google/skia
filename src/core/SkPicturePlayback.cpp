@@ -125,8 +125,9 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     if (fShapeCount > 0) {
         fShapes = SkNEW_ARRAY(SkShape*, fShapeCount);
         for (int i = 0; i < fShapeCount; i++) {
-            fShapes[i] = shapes[i];
-            fShapes[i]->ref();
+            SkShape* s = shapes[i];
+            SkSafeRef(s);
+            fShapes[i] = s;
         }
     }
     
@@ -205,8 +206,9 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
     fShapeCount = src.fShapeCount;
     fShapes = SkNEW_ARRAY(SkShape*, fShapeCount);
     for (int i = 0; i < fShapeCount; i++) {
-        fShapes[i] = src.fShapes[i];
-        fShapes[i]->ref();
+        SkShape* s = src.fShapes[i];
+        SkSafeRef(s);
+        fShapes[i] = s;
     }
     
     fRegionCount = src.fRegionCount;
