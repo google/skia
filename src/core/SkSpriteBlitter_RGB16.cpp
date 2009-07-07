@@ -233,7 +233,7 @@ static void blitrow_d16_si8(SK_RESTRICT uint16_t* dst,
 }
 
 #define SkSPRITE_ROW_PROC(d, s, n, x, y)    blitrow_d16_si8(d, s, n, ctable)
-            
+
 #define SkSPRITE_CLASSNAME                  Sprite_D16_SIndex8_Opaque
 #define SkSPRITE_ARGS
 #define SkSPRITE_FIELDS
