@@ -768,16 +768,17 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
 
-#if 0   // need to support this some day
-    /* set the palette if there is one.  REQUIRED for indexed-color images */
-    palette = (png_colorp)png_malloc(png_ptr, PNG_MAX_PALETTE_LENGTH
-             * png_sizeof (png_color));
-    /* ... set palette colors ... */
-    png_set_PLTE(png_ptr, info_ptr, palette, PNG_MAX_PALETTE_LENGTH);
-    /* You must not free palette here, because png_set_PLTE only makes a link to
-      the palette that you malloced.  Wait until you are about to destroy
-      the png structure. */
-#endif
+    // set our colortable/trans arrays if needed
+    png_color paletteColors[256];
+    png_byte trans[256];
+    if (SkBitmap::kIndex8_Config == config) {
+        SkColorTable* ct = bitmap.getColorTable();
+        int numTrans = pack_palette(ct, paletteColors, trans, hasAlpha);
+        png_set_PLTE(png_ptr, info_ptr, paletteColors, ct->count());
+        if (numTrans > 0) {
+            png_set_tRNS(png_ptr, info_ptr, trans, numTrans, NULL);
+        }
+    }
 
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
     png_write_info(png_ptr, info_ptr);
