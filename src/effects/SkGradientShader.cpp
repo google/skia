@@ -358,7 +358,8 @@ bool Gradient_Shader::setContext(const SkBitmap& device,
     unsigned paintAlpha = this->getPaintAlpha();
     unsigned colorAlpha = 0xFF;
 
-    // should record colorAlpha in constructor
+    // FIXME: record colorAlpha in constructor, since this is not affected
+    // by setContext()
     for (int i = 0; i < fColorCount; i++) {
         SkColor src = fOrigColors[i];
         unsigned sa = SkColorGetA(src);
