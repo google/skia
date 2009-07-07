@@ -128,7 +128,8 @@ public:
                 remove(path.c_str());
                 
                 SkImageEncoder* codec = SkImageEncoder::Create(gTypes[j]);
-                if (!codec->encodeFile(path.c_str(), fBitmaps[i], 100)) {
+                if (NULL == codec ||
+                        !codec->encodeFile(path.c_str(), fBitmaps[i], 100)) {
                     SkDebugf("------ failed to encode %s\n", path.c_str());
                     remove(path.c_str());   // remove any partial file
                 }
