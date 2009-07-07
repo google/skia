@@ -227,7 +227,7 @@ void SkPicturePlayback::init() {
     fShapes = NULL;
     fRegions = NULL;
     fBitmapCount = fMatrixCount = fPaintCount = fPictureCount = 
-    fRegionCount = 0;
+    fRegionCount = fShapeCount = 0;
     
     fFactoryPlayback = NULL;
 }
