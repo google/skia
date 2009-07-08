@@ -77,7 +77,7 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm,
     bm->lockPixels();
     bm->eraseColor(0);
 
-    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     CGContextRef cg = CGBitmapContextCreate(bm->getPixels(), width, height,
                                             8, bm->rowBytes(), cs, BITMAP_INFO);
     CGContextDrawImage(cg, CGRectMake(0, 0, width, height), image);

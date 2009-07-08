@@ -1,4 +1,5 @@
 #include "gm.h"
+#include "SkColorPriv.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -52,8 +53,60 @@ static SkString make_filename(const char path[], const SkString& name) {
     return filename;
 }
 
+/* since PNG insists on unpremultiplying our alpha, we take no precision chances
+    and force all pixels to be 100% opaque, otherwise on compare we may not get
+    a perfect match.
+ */
+static void force_all_opaque(const SkBitmap& bitmap) {
+    SkAutoLockPixels lock(bitmap);
+    for (int y = 0; y < bitmap.height(); y++) {
+        for (int x = 0; x < bitmap.width(); x++) {
+            *bitmap.getAddr32(x, y) |= (SK_A32_MASK << SK_A32_SHIFT);
+        }
+    }
+}
+
+static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
+    SkBitmap copy;
+    bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+    force_all_opaque(copy);
+    return SkImageEncoder::EncodeFile(path.c_str(), copy,
+                                      SkImageEncoder::kPNG_Type, 100);
+}
+
 static void compare(const SkBitmap& target, const SkBitmap& base,
                     const SkString& name) {
+    SkBitmap copy;
+    const SkBitmap* bm = &target;
+    if (target.config() != SkBitmap::kARGB_8888_Config) {
+        target.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+        bm = &copy;
+    }
+
+    force_all_opaque(*bm);
+
+    const int w = bm->width();
+    const int h = bm->height();
+    if (w != base.width() || h != base.height()) {
+        SkDebugf("---- dimensions mismatch for %s base [%d %d] current [%d %d]\n",
+                 name.c_str(), base.width(), base.height(), w, h);
+        return;
+    }
+
+    SkAutoLockPixels bmLock(*bm);
+    SkAutoLockPixels baseLock(base);
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            SkPMColor c0 = *base.getAddr32(x, y);
+            SkPMColor c1 = *bm->getAddr32(x, y);
+            if (c0 != c1) {
+                SkDebugf("----- pixel mismatch for %s at [%d %d] base 0x%08X current 0x%08X\n",
+                         name.c_str(), x, y, c0, c1);
+                return;
+            }
+        }
+    }
 }
 
 static const struct {
@@ -92,7 +145,7 @@ int main (int argc, char * const argv[]) {
 	
     while ((gm = iter.next()) != NULL) {
 		SkISize size = gm->getISize();
-        SkDebugf("---- %s [%d %d]\n", gm->shortName(),
+        SkDebugf("creating... %s [%d %d]\n", gm->shortName(),
                  size.width(), size.height());
 
 		SkBitmap bitmap;
@@ -108,15 +161,12 @@ int main (int argc, char * const argv[]) {
 
             if (writePath) {
                 SkString path = make_filename(writePath, name);
-                SkBitmap copy;
-                bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
-                bool success = SkImageEncoder::EncodeFile(path.c_str(), copy,
-                                                SkImageEncoder::kPNG_Type, 100);
+                bool success = write_bitmap(path, bitmap);
                 if (!success) {
                     fprintf(stderr, "FAILED to write %s\n", path.c_str());
                 }
             } else if (readPath) {
-                SkString path = make_filename(writePath, name);
+                SkString path = make_filename(readPath, name);
                 SkBitmap orig;
                 bool success = SkImageDecoder::DecodeFile(path.c_str(), &orig,
                                     SkBitmap::kARGB_8888_Config,
