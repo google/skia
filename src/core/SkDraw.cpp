@@ -670,7 +670,7 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
         SkPath  tmp;
         tmp.addRect(rect);
         tmp.setFillType(SkPath::kWinding_FillType);
-        this->drawPath(tmp, paint);
+        this->drawPath(tmp, paint, NULL, true);
         return;
     }
 
