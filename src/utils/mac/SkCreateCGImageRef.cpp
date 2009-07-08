@@ -1,7 +1,6 @@
 #include "SkCGUtils.h"
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
-//#include <CoreGraphics/CGColorSpace.h>
 
 extern CGImageRef SkCreateCGImageRef(const SkBitmap&);
 
