@@ -18,6 +18,7 @@
 #include "SkMatrix.h"
 #include "Sk64.h"
 #include "SkFloatBits.h"
+#include "SkScalarCompare.h"
 #include "SkString.h"
 
 #ifdef SK_SCALAR_IS_FLOAT
@@ -115,7 +116,7 @@ uint8_t SkMatrix::computeTypeMask() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
-    if (SkScalarAs2sCompliment(dx) | SkScalarAs2sCompliment(dy)) {
+    if (SkScalarToCompareType(dx) || SkScalarToCompareType(dy)) {
         fMat[kMTransX] = dx;
         fMat[kMTransY] = dy;
 
@@ -137,7 +138,7 @@ bool SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
         return this->preConcat(m);
     }
     
-    if (SkScalarAs2sCompliment(dx) | SkScalarAs2sCompliment(dy)) {
+    if (SkScalarToCompareType(dx) || SkScalarToCompareType(dy)) {
         fMat[kMTransX] += SkScalarMul(fMat[kMScaleX], dx) +
                           SkScalarMul(fMat[kMSkewX], dy);
         fMat[kMTransY] += SkScalarMul(fMat[kMSkewY], dx) +
@@ -155,7 +156,7 @@ bool SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
         return this->postConcat(m);
     }
     
-    if (SkScalarAs2sCompliment(dx) | SkScalarAs2sCompliment(dy)) {
+    if (SkScalarToCompareType(dx) || SkScalarToCompareType(dy)) {
         fMat[kMTransX] += dx;
         fMat[kMTransY] += dy;
         this->setTypeMask(kUnknown_Mask);
