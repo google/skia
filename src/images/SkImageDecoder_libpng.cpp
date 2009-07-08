@@ -110,6 +110,12 @@ static bool substituteTranspColor(SkBitmap* bm, SkPMColor match) {
     return reallyHasAlpha;
 }
 
+static inline bool isDirectModel(SkBitmap::Config config) {
+    return  config == SkBitmap::kARGB_8888_Config ||
+    config == SkBitmap::kARGB_4444_Config ||
+    config == SkBitmap::kRGB_565_Config;
+}
+
 bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
                                  SkBitmap::Config prefConfig, Mode mode) {
 //    SkAutoTrace    apr("SkPNGImageDecoder::onDecode");
@@ -292,7 +298,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     // to |= PNG_COLOR_MASK_ALPHA, but all of its pixels are in fact opaque. We care, since we
     // draw lots faster if we can flag the bitmap has being opaque
     bool reallyHasAlpha = false;
-
+    bool upscaleFromPalette = false;
     SkColorTable* colorTable = NULL;
 
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
@@ -346,11 +352,23 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             *colorPtr = colorPtr[-1];
         }
         colorTable->unlockColors(true);
+
+        // see if we need to upscale to a direct-model
+        if (isDirectModel(prefConfig)) {
+            if (!reallyHasAlpha || SkBitmap::kRGB_565_Config != prefConfig) {
+                upscaleFromPalette = true;
+                config = prefConfig;
+                // need to re-call setConfig
+                decodedBitmap->setConfig(config, sampler.scaledWidth(),
+                                         sampler.scaledHeight(), 0);
+            }
+        }
     }
     
     SkAutoUnref aur(colorTable);
 
-    if (!this->allocPixelRef(decodedBitmap, colorTable)) {
+    if (!this->allocPixelRef(decodedBitmap,
+                             upscaleFromPalette ? NULL : colorTable)) {
         return false;
     }
     
@@ -392,7 +410,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         SkScaledBitmapSampler::SrcConfig sc;
         int srcBytesPerPixel = 4;
         
-        if (SkBitmap::kIndex8_Config == config) {
+        if (colorTable != NULL) {
             sc = SkScaledBitmapSampler::kIndex;
             srcBytesPerPixel = 1;
         } else if (hasAlpha) {
@@ -400,7 +418,13 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         } else {
             sc = SkScaledBitmapSampler::kRGBX;
         }
-        if (!sampler.begin(decodedBitmap, sc, doDither)) {
+
+        /*  We have to pass the colortable explicitly, since we may have one
+            even if our decodedBitmap doesn't, due to the request that we
+            upscale png's palette to a direct model
+         */
+        SkAutoLockColors ctLock(colorTable);
+        if (!sampler.begin(decodedBitmap, sc, doDither, ctLock.colors())) {
             return false;
         }
         const int height = decodedBitmap->height();

@@ -613,17 +613,20 @@ public:
     */
     const SkPMColor* colors() const { return fColors; }
 
-    /** If a previous bitmap has been locked by this object, unlock its colors
-        first. If the specified bitmap has a colortable, lock its colors and
-        return them.
-    */
-    const SkPMColor* lockColors(const SkBitmap& bm) {
+    /** Locks the table and returns is colors (assuming ctable is not null) and
+        unlocks the previous table if one was present
+     */
+    const SkPMColor* lockColors(SkColorTable* ctable) {
         if (fCTable) {
             fCTable->unlockColors(false);
         }
-        fCTable = bm.getColorTable();
-        fColors = fCTable ? fCTable->lockColors() : NULL;
+        fCTable = ctable;
+        fColors = ctable ? ctable->lockColors() : NULL;
         return fColors;
+    }
+
+    const SkPMColor* lockColors(const SkBitmap& bm) {
+        return this->lockColors(bm.getColorTable());
     }
 
 private:
