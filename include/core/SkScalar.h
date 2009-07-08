@@ -232,8 +232,8 @@
 /*  <= is slower than < for floats, so we use < for our tolerance test
 */
 
-inline bool SkScalarNearlyZero(SkScalar x, SkScalar tolerance = SK_ScalarNearlyZero)
-{
+static inline bool SkScalarNearlyZero(SkScalar x,
+                                  SkScalar tolerance = SK_ScalarNearlyZero) {
     SkASSERT(tolerance > 0);
     return SkScalarAbs(x) < tolerance;
 }
@@ -244,8 +244,7 @@ inline bool SkScalarNearlyZero(SkScalar x, SkScalar tolerance = SK_ScalarNearlyZ
     else interpolate.
     t must be [0..SK_Scalar1]
 */
-inline SkScalar SkScalarInterp(SkScalar A, SkScalar B, SkScalar t)
-{
+static inline SkScalar SkScalarInterp(SkScalar A, SkScalar B, SkScalar t) {
     SkASSERT(t >= 0 && t <= SK_Scalar1);
     return A + SkScalarMul(B - A, t);
 }
