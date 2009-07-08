@@ -23,7 +23,7 @@
 
 static bool Sample_Gray_D8888(void* SK_RESTRICT dstRow,
                               const uint8_t* SK_RESTRICT src,
-                              int width, int deltaSrc, int) {
+                              int width, int deltaSrc, int, const SkPMColor[]) {
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < width; x++) {
         dst[x] = SkPackARGB32(0xFF, src[0], src[0], src[0]);
@@ -34,7 +34,7 @@ static bool Sample_Gray_D8888(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBx_D8888(void* SK_RESTRICT dstRow,
                               const uint8_t* SK_RESTRICT src,
-                              int width, int deltaSrc, int) {
+                              int width, int deltaSrc, int, const SkPMColor[]) {
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     for (int x = 0; x < width; x++) {
         dst[x] = SkPackARGB32(0xFF, src[0], src[1], src[2]);
@@ -45,7 +45,7 @@ static bool Sample_RGBx_D8888(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBA_D8888(void* SK_RESTRICT dstRow,
                               const uint8_t* SK_RESTRICT src,
-                              int width, int deltaSrc, int) {
+                              int width, int deltaSrc, int, const SkPMColor[]) {
     SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
     unsigned alphaMask = 0xFF;
     for (int x = 0; x < width; x++) {
@@ -61,7 +61,7 @@ static bool Sample_RGBA_D8888(void* SK_RESTRICT dstRow,
 
 static bool Sample_Gray_D565(void* SK_RESTRICT dstRow,
                              const uint8_t* SK_RESTRICT src,
-                             int width, int deltaSrc, int) {
+                             int width, int deltaSrc, int, const SkPMColor[]) {
     uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
     for (int x = 0; x < width; x++) {
         dst[x] = SkPack888ToRGB16(src[0], src[0], src[0]);
@@ -72,7 +72,7 @@ static bool Sample_Gray_D565(void* SK_RESTRICT dstRow,
 
 static bool Sample_Gray_D565_D(void* SK_RESTRICT dstRow,
                                const uint8_t* SK_RESTRICT src,
-                               int width, int deltaSrc, int y) {
+                           int width, int deltaSrc, int y, const SkPMColor[]) {
     uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
     DITHER_565_SCAN(y);
     for (int x = 0; x < width; x++) {
@@ -84,7 +84,7 @@ static bool Sample_Gray_D565_D(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBx_D565(void* SK_RESTRICT dstRow,
                              const uint8_t* SK_RESTRICT src,
-                             int width, int deltaSrc, int) {
+                             int width, int deltaSrc, int, const SkPMColor[]) {
     uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
     for (int x = 0; x < width; x++) {
         dst[x] = SkPack888ToRGB16(src[0], src[1], src[2]);
@@ -95,7 +95,7 @@ static bool Sample_RGBx_D565(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBx_D565_D(void* SK_RESTRICT dstRow,
                                const uint8_t* SK_RESTRICT src,
-                               int width, int deltaSrc, int y) {
+                           int width, int deltaSrc, int y, const SkPMColor[]) {
     uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
     DITHER_565_SCAN(y);
     for (int x = 0; x < width; x++) {
@@ -109,7 +109,7 @@ static bool Sample_RGBx_D565_D(void* SK_RESTRICT dstRow,
 
 static bool Sample_Gray_D4444(void* SK_RESTRICT dstRow,
                               const uint8_t* SK_RESTRICT src,
-                              int width, int deltaSrc, int) {
+                              int width, int deltaSrc, int, const SkPMColor[]) {
     SkPMColor16* SK_RESTRICT dst = (SkPMColor16*)dstRow;
     for (int x = 0; x < width; x++) {
         unsigned gray = src[0] >> 4;
@@ -121,7 +121,7 @@ static bool Sample_Gray_D4444(void* SK_RESTRICT dstRow,
 
 static bool Sample_Gray_D4444_D(void* SK_RESTRICT dstRow,
                                 const uint8_t* SK_RESTRICT src,
-                                int width, int deltaSrc, int y) {
+                            int width, int deltaSrc, int y, const SkPMColor[]) {
     SkPMColor16* SK_RESTRICT dst = (SkPMColor16*)dstRow;
     DITHER_4444_SCAN(y);
     for (int x = 0; x < width; x++) {
@@ -134,7 +134,7 @@ static bool Sample_Gray_D4444_D(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBx_D4444(void* SK_RESTRICT dstRow,
                               const uint8_t* SK_RESTRICT src,
-                              int width, int deltaSrc, int) {
+                              int width, int deltaSrc, int, const SkPMColor[]) {
     SkPMColor16* SK_RESTRICT dst = (SkPMColor16*)dstRow;
     for (int x = 0; x < width; x++) {
         dst[x] = SkPackARGB4444(0xF, src[0] >> 4, src[1] >> 4, src[2] >> 4);
@@ -145,7 +145,7 @@ static bool Sample_RGBx_D4444(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBx_D4444_D(void* SK_RESTRICT dstRow,
                                 const uint8_t* SK_RESTRICT src,
-                                int width, int deltaSrc, int y) {
+                            int width, int deltaSrc, int y, const SkPMColor[]) {
     SkPMColor16* dst = (SkPMColor16*)dstRow;
     DITHER_4444_SCAN(y);
 
@@ -159,7 +159,7 @@ static bool Sample_RGBx_D4444_D(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBA_D4444(void* SK_RESTRICT dstRow,
                               const uint8_t* SK_RESTRICT src,
-                              int width, int deltaSrc, int) {
+                              int width, int deltaSrc, int, const SkPMColor[]) {
     SkPMColor16* SK_RESTRICT dst = (SkPMColor16*)dstRow;
     unsigned alphaMask = 0xFF;
 
@@ -175,7 +175,7 @@ static bool Sample_RGBA_D4444(void* SK_RESTRICT dstRow,
 
 static bool Sample_RGBA_D4444_D(void* SK_RESTRICT dstRow,
                                 const uint8_t* SK_RESTRICT src,
-                                int width, int deltaSrc, int y) {
+                            int width, int deltaSrc, int y, const SkPMColor[]) {
     SkPMColor16* SK_RESTRICT dst = (SkPMColor16*)dstRow;
     unsigned alphaMask = 0xFF;
     DITHER_4444_SCAN(y);
@@ -192,9 +192,86 @@ static bool Sample_RGBA_D4444_D(void* SK_RESTRICT dstRow,
 
 // Index
 
+#define A32_MASK_IN_PLACE   (SK_A32_MASK << SK_A32_SHIFT)
+
+static bool Sample_Index_D8888(void* SK_RESTRICT dstRow,
+                               const uint8_t* SK_RESTRICT src,
+                       int width, int deltaSrc, int, const SkPMColor ctable[]) {
+
+    SkPMColor* SK_RESTRICT dst = (SkPMColor*)dstRow;
+    SkPMColor cc = A32_MASK_IN_PLACE;
+    for (int x = 0; x < width; x++) {
+        SkPMColor c = ctable[*src];
+        cc &= c;
+        dst[x] = c;
+        src += deltaSrc;
+    }
+    return cc != A32_MASK_IN_PLACE;
+}
+
+static bool Sample_Index_D565(void* SK_RESTRICT dstRow,
+                               const uint8_t* SK_RESTRICT src,
+                       int width, int deltaSrc, int, const SkPMColor ctable[]) {
+
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    for (int x = 0; x < width; x++) {
+        dst[x] = SkPixel32ToPixel16(ctable[*src]);
+        src += deltaSrc;
+    }
+    return false;
+}
+
+static bool Sample_Index_D565_D(void* SK_RESTRICT dstRow,
+                                const uint8_t* SK_RESTRICT src, int width,
+                                int deltaSrc, int y, const SkPMColor ctable[]) {
+
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    DITHER_565_SCAN(y);
+
+    for (int x = 0; x < width; x++) {
+        SkPMColor c = ctable[*src];
+        dst[x] = SkDitherRGBTo565(SkGetPackedR32(c), SkGetPackedG32(c),
+                                  SkGetPackedB32(c), DITHER_VALUE(x));
+        src += deltaSrc;
+    }
+    return false;
+}
+
+static bool Sample_Index_D4444(void* SK_RESTRICT dstRow,
+                               const uint8_t* SK_RESTRICT src, int width,
+                               int deltaSrc, int y, const SkPMColor ctable[]) {
+
+    SkPMColor16* SK_RESTRICT dst = (SkPMColor16*)dstRow;
+    SkPMColor cc = A32_MASK_IN_PLACE;
+    for (int x = 0; x < width; x++) {
+        SkPMColor c = ctable[*src];
+        cc &= c;
+        dst[x] = SkPixel32ToPixel4444(c);
+        src += deltaSrc;
+    }
+    return cc != A32_MASK_IN_PLACE;
+}
+
+static bool Sample_Index_D4444_D(void* SK_RESTRICT dstRow,
+                                 const uint8_t* SK_RESTRICT src, int width,
+                                int deltaSrc, int y, const SkPMColor ctable[]) {
+
+    SkPMColor16* SK_RESTRICT dst = (SkPMColor16*)dstRow;
+    SkPMColor cc = A32_MASK_IN_PLACE;
+    DITHER_4444_SCAN(y);
+
+    for (int x = 0; x < width; x++) {
+        SkPMColor c = ctable[*src];
+        cc &= c;
+        dst[x] = SkDitherARGB32To4444(c, DITHER_VALUE(x));
+        src += deltaSrc;
+    }
+    return cc != A32_MASK_IN_PLACE;
+}
+
 static bool Sample_Index_DI(void* SK_RESTRICT dstRow,
                             const uint8_t* SK_RESTRICT src,
-                            int width, int deltaSrc, int) {
+                            int width, int deltaSrc, int, const SkPMColor[]) {
     if (1 == deltaSrc) {
         memcpy(dstRow, src, width);
     } else {
@@ -247,25 +324,27 @@ SkScaledBitmapSampler::SkScaledBitmapSampler(int width, int height,
     SkASSERT(fDY > 0 && (fY0 + fDY * (fScaledHeight - 1)) < height);
     
     fRowProc = NULL;
+    fCTable = NULL;
 }
 
-bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither) {
+bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
+                                  const SkPMColor ctable[]) {
     static const RowProc gProcs[] = {
         // 8888 (no dither distinction)
         Sample_Gray_D8888,  Sample_Gray_D8888,
         Sample_RGBx_D8888,  Sample_RGBx_D8888,
         Sample_RGBA_D8888,  Sample_RGBA_D8888,
-        NULL,               NULL,
+        Sample_Index_D8888, Sample_Index_D8888,
         // 565 (no alpha distinction)
         Sample_Gray_D565,   Sample_Gray_D565_D,
         Sample_RGBx_D565,   Sample_RGBx_D565_D,
         Sample_RGBx_D565,   Sample_RGBx_D565_D,
-        NULL,               NULL,
+        Sample_Index_D565,  Sample_Index_D565_D,
         // 4444
         Sample_Gray_D4444,  Sample_Gray_D4444_D,
         Sample_RGBx_D4444,  Sample_RGBx_D4444_D,
         Sample_RGBA_D4444,  Sample_RGBA_D4444_D,
-        NULL,               NULL,
+        Sample_Index_D4444, Sample_Index_D4444_D,
         // Index8
         NULL,               NULL,
         NULL,               NULL,
@@ -273,7 +352,8 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither) {
         Sample_Index_DI,    Sample_Index_DI,
     };
 
-    
+    fCTable = ctable;
+
     int index = 0;
     if (dither) {
         index += 1;
@@ -331,7 +411,7 @@ bool SkScaledBitmapSampler::next(const uint8_t* SK_RESTRICT src) {
     SkASSERT((unsigned)fCurrY < (unsigned)fScaledHeight);
 
     bool hadAlpha = fRowProc(fDstRow, src + fX0 * fSrcPixelSize, fScaledWidth,
-                             fDX * fSrcPixelSize, fCurrY);
+                             fDX * fSrcPixelSize, fCurrY, fCTable);
     fDstRow += fDstRowBytes;
     fCurrY += 1;
     return hadAlpha;
