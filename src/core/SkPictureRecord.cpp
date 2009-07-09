@@ -49,18 +49,20 @@ int SkPictureRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
 }
 
 void SkPictureRecord::restore() {
-    
-    // patch up the clip offsets
-    {
-        uint32_t restoreOffset = (uint32_t)fWriter.size();
-        uint32_t offset = fRestoreOffsetStack.top();
-        while (offset) {
-            uint32_t* peek = fWriter.peek32(offset);
-            offset = *peek;
-            *peek = restoreOffset;
-        }
-        fRestoreOffsetStack.pop();
+    // check for underflow
+    if (fRestoreOffsetStack.count() == 0) {
+        return;
     }
+
+    // patch up the clip offsets
+    uint32_t restoreOffset = (uint32_t)fWriter.size();
+    uint32_t offset = fRestoreOffsetStack.top();
+    while (offset) {
+        uint32_t* peek = fWriter.peek32(offset);
+        offset = *peek;
+        *peek = restoreOffset;
+    }
+    fRestoreOffsetStack.pop();
     
     addDraw(RESTORE);
     validate();
