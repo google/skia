@@ -85,13 +85,14 @@ protected:
         p3.setColor(SK_ColorWHITE);
         
      //   fAA = !fAA;
-        
+        fAA = true;
         p0.setAntiAlias(fAA);
         p1.setAntiAlias(fAA);
         p2.setAntiAlias(fAA);
         p3.setAntiAlias(fAA);
         
         p0.setStrokeWidth(SkIntToScalar(4));
+        p2.setStrokeCap(SkPaint::kRound_Cap);
         p2.setStrokeWidth(SkIntToScalar(6));
 
         SkPoint* pts = new SkPoint[n];
