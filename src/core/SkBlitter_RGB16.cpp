@@ -51,7 +51,7 @@ void sk_dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkRGB16_Black_Blitter::SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint)
-    : SkRGB16_Blitter(device, paint) {
+    : INHERITED(device, paint) {
     SkASSERT(paint.getShader() == NULL);
     SkASSERT(paint.getColorFilter() == NULL);
     SkASSERT(paint.getXfermode() == NULL);
@@ -342,17 +342,38 @@ const SkBitmap* SkRGB16_Blitter::justAnOpaqueColor(uint32_t* value) {
     return NULL;
 }
 
+static uint32_t pmcolor_to_expand16(SkPMColor c) {
+    unsigned r = SkGetPackedR32(c);
+    unsigned g = SkGetPackedG32(c);
+    unsigned b = SkGetPackedB32(c);
+    return (g << 24) | (r << 13) | (b << 2);
+}
+
+static inline void blend32_16_row(SkPMColor src, uint16_t dst[], int count) {
+    SkASSERT(count > 0);
+#if 0
+    uint32_t src_expand = pmcolor_to_expand16(src);
+    unsigned scale = (0xFF - SkGetPackedA32(src)) >> 3;
+    do {
+        uint32_t dst_expand = SkExpand_rgb_16(*dst) * scale;
+        *dst = SkCompact_rgb_16((src_expand + dst_expand) >> 5);
+        dst += 1;
+    } while (--count != 0);
+#else
+    do {
+        *dst = SkSrcOver32To16(src, *dst);
+        dst += 1;
+    } while (--count != 0);
+#endif
+}
+
 void SkRGB16_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
     SkASSERT(width > 0);
     SkASSERT(x + width <= fDevice.width());
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(x, y);
 
     // TODO: respect fDoDither
-    SkPMColor src32 = fSrcColor32;
-    do {
-        *device = SkSrcOver32To16(src32, *device);
-        device += 1;
-    } while (--width != 0);
+    blend32_16_row(fSrcColor32, device, width);
 }
 
 void SkRGB16_Blitter::blitAntiH(int x, int y,
@@ -478,9 +499,7 @@ void SkRGB16_Blitter::blitRect(int x, int y, int width, int height) {
     SkPMColor src32 = fSrcColor32;
 
     while (--height >= 0) {
-        for (int i = width - 1; i >= 0; --i) {
-            device[i] = SkSrcOver32To16(src32, device[i]);
-        }
+        blend32_16_row(src32, device, width);
         device = (uint16_t*)((char*)device + deviceRB);
     }
 }
@@ -506,6 +525,53 @@ void SkRGB16_Shader16_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
         uint16_t* span16 = (uint16_t*)fBuffer;
         shader->shadeSpan16(x, y, span16, width);
         SkBlendRGB16(span16, device, SkAlpha255To256(alpha), width);
+    }
+}
+
+void SkRGB16_Shader16_Blitter::blitRect(int x, int y, int width, int height) {
+    SkShader*   shader = fShader;
+    uint16_t*   dst = fDevice.getAddr16(x, y);
+    size_t      dstRB = fDevice.rowBytes();
+    int         alpha = shader->getSpan16Alpha();
+
+    // TODO: take advantage of (fShaderFlags & SkShader::kConstInY_Flag)
+
+    if (0xFF == alpha) {
+        if (fShaderFlags & SkShader::kConstInY_Flag) {
+            // have the shader blit directly into the device the first time
+            shader->shadeSpan16(x, y, dst, width);
+            // and now just memcpy that line on the subsequent lines
+            if (--height > 0) {
+                const uint16_t* orig = dst;
+                do {
+                    dst = (uint16_t*)((char*)dst + dstRB);
+                    memcpy(dst, orig, width << 1);
+                } while (--height);
+            }
+        } else {    // need to call shadeSpan16 for every line
+            do {
+                shader->shadeSpan16(x, y, dst, width);
+                y += 1;
+                dst = (uint16_t*)((char*)dst + dstRB);
+            } while (--height);
+        }
+    } else {
+        int scale = SkAlpha255To256(alpha);
+        uint16_t* span16 = (uint16_t*)fBuffer;
+        if (fShaderFlags & SkShader::kConstInY_Flag) {
+            shader->shadeSpan16(x, y, span16, width);
+            do {
+                SkBlendRGB16(span16, dst, scale, width);
+                dst = (uint16_t*)((char*)dst + dstRB);
+            } while (--height);
+        } else {
+            do {
+                shader->shadeSpan16(x, y, span16, width);
+                SkBlendRGB16(span16, dst, scale, width);
+                y += 1;
+                dst = (uint16_t*)((char*)dst + dstRB);
+            } while (--height);
+        }
     }
 }
 

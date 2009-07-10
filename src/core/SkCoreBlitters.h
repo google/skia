@@ -112,25 +112,25 @@ private:
     typedef SkRasterBlitter INHERITED;
 };
 
-class SkARGB32_Black_Blitter : public SkARGB32_Blitter {
+class SkARGB32_Opaque_Blitter : public SkARGB32_Blitter {
 public:
-    SkARGB32_Black_Blitter(const SkBitmap& device, const SkPaint& paint)
-        : SkARGB32_Blitter(device, paint) {}
+    SkARGB32_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint)
+        : INHERITED(device, paint) { SkASSERT(paint.getAlpha() == 0xFF); }
     virtual void blitMask(const SkMask&, const SkIRect&);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-    
+
 private:
     typedef SkARGB32_Blitter INHERITED;
 };
 
-class SkARGB32_Opaque_Blitter : public SkARGB32_Blitter {
+class SkARGB32_Black_Blitter : public SkARGB32_Opaque_Blitter {
 public:
-    SkARGB32_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint)
-        : SkARGB32_Blitter(device, paint) { SkASSERT(paint.getAlpha() == 0xFF); }
+    SkARGB32_Black_Blitter(const SkBitmap& device, const SkPaint& paint)
+        : INHERITED(device, paint) {}
     virtual void blitMask(const SkMask&, const SkIRect&);
-
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    
 private:
-    typedef SkARGB32_Blitter INHERITED;
+    typedef SkARGB32_Opaque_Blitter INHERITED;
 };
 
 class SkARGB32_Shader_Blitter : public SkShaderBlitter {
@@ -188,14 +188,14 @@ private:
     typedef SkRGB16_Blitter INHERITED;
 };
 
-class SkRGB16_Black_Blitter : public SkRGB16_Blitter {
+class SkRGB16_Black_Blitter : public SkRGB16_Opaque_Blitter {
 public:
     SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint);
     virtual void blitMask(const SkMask&, const SkIRect&);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
 
 private:
-    typedef SkRGB16_Blitter INHERITED;
+    typedef SkRGB16_Opaque_Blitter INHERITED;
 };
 
 class SkRGB16_Shader_Blitter : public SkShaderBlitter {
@@ -224,6 +224,7 @@ public:
     SkRGB16_Shader16_Blitter(const SkBitmap& device, const SkPaint& paint);
     virtual void blitH(int x, int y, int width);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    virtual void blitRect(int x, int y, int width, int height);
     
 private:
     typedef SkRGB16_Shader_Blitter INHERITED;
