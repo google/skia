@@ -351,20 +351,13 @@ static uint32_t pmcolor_to_expand16(SkPMColor c) {
 
 static inline void blend32_16_row(SkPMColor src, uint16_t dst[], int count) {
     SkASSERT(count > 0);
-#if 0
     uint32_t src_expand = pmcolor_to_expand16(src);
-    unsigned scale = (0xFF - SkGetPackedA32(src)) >> 3;
+    unsigned scale = SkAlpha255To256(0xFF - SkGetPackedA32(src)) >> 3;
     do {
         uint32_t dst_expand = SkExpand_rgb_16(*dst) * scale;
         *dst = SkCompact_rgb_16((src_expand + dst_expand) >> 5);
         dst += 1;
     } while (--count != 0);
-#else
-    do {
-        *dst = SkSrcOver32To16(src, *dst);
-        dst += 1;
-    } while (--count != 0);
-#endif
 }
 
 void SkRGB16_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
