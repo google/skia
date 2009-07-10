@@ -118,6 +118,7 @@ protected:
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
         paint.setAntiAlias(true);
+        paint.setDither(true);
 
         canvas->save();
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));

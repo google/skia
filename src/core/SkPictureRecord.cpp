@@ -63,7 +63,7 @@ void SkPictureRecord::restore() {
         *peek = restoreOffset;
     }
     fRestoreOffsetStack.pop();
-    
+
     addDraw(RESTORE);
     validate();
     return this->INHERITED::restore();
