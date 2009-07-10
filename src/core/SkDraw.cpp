@@ -443,6 +443,7 @@ static void aa_square_proc(const PtProcRec& rec, const SkPoint devPts[],
     }
 }
 
+// If this guy returns true, then chooseProc() must return a valid proc
 bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
                      const SkMatrix* matrix, const SkRegion* clip) {
     if (paint.getPathEffect()) {
@@ -456,7 +457,8 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
         fRadius = SK_Fixed1 >> 1;
         return true;
     }
-    if (matrix->rectStaysRect() && SkCanvas::kPoints_PointMode == mode) {
+    if (paint.getStrokeCap() != SkPaint::kRound_Cap &&
+            matrix->rectStaysRect() && SkCanvas::kPoints_PointMode == mode) {
         SkScalar sx = matrix->get(SkMatrix::kMScaleX);
         SkScalar sy = matrix->get(SkMatrix::kMScaleY);
         if (SkScalarNearlyZero(sx - sy)) {
@@ -475,7 +477,7 @@ bool PtProcRec::init(SkCanvas::PointMode mode, const SkPaint& paint,
 }
 
 PtProcRec::Proc PtProcRec::chooseProc(SkBlitter* blitter) {
-    Proc proc;
+    Proc proc = NULL;
     
     // for our arrays
     SkASSERT(0 == SkCanvas::kPoints_PointMode);
@@ -506,7 +508,7 @@ PtProcRec::Proc PtProcRec::chooseProc(SkBlitter* blitter) {
                 proc = gBWProcs[fMode];
             }
         }
-    } else {
+    } else if (fPaint->getStrokeCap() != SkPaint::kRound_Cap) {
         SkASSERT(SkCanvas::kPoints_PointMode == fMode);
         if (fPaint->isAntiAlias()) {
             proc = aa_square_proc;
