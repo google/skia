@@ -128,7 +128,7 @@ public:
         : INHERITED(device, paint) {}
     virtual void blitMask(const SkMask&, const SkIRect&);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-    
+
 private:
     typedef SkARGB32_Opaque_Blitter INHERITED;
 };

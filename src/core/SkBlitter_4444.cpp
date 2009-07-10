@@ -112,7 +112,7 @@ static void src_over_4444(SkPMColor16 dst[], SkPMColor16 color,
         *dst = other + SkAlphaMulQ4(*dst, invScale);
         dst++;
     }
-    if (color & 1) {
+    if (count & 1) {
         *dst = color + SkAlphaMulQ4(*dst, invScale);
     }
 }
@@ -134,7 +134,7 @@ static void src_over_4444x(SkPMColor16 dst[], uint32_t color,
         tmp = SkExpand_4444(*dst) * invScale;
         *dst++ = SkCompact_4444((other + tmp) >> 4);
     }
-    if (color & 1) {
+    if (count & 1) {
         tmp = SkExpand_4444(*dst) * invScale;
         *dst = SkCompact_4444((color + tmp) >> 4);
     }

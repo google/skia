@@ -69,6 +69,7 @@ protected:
         const SkScalar scale = SkIntToScalar(5)/4;
 
         paint.setAntiAlias(false);
+        paint.setColor(0x8000FF00);
 
         showFour(canvas, SK_Scalar1, paint);
         canvas->translate(SkIntToScalar(450), 0);
