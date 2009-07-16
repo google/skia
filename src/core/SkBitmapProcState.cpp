@@ -372,7 +372,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fShaderProc16 = NULL;
     fSampleProc32 = NULL;
     fSampleProc16 = NULL;
-    
+
     fMatrixProc = this->chooseMatrixProc();
     if (NULL == fMatrixProc) {
         return false;
@@ -481,13 +481,13 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         // Don't support A8 -> 565
         NULL, NULL, NULL, NULL
     };
-    
+
     fSampleProc32 = gSample32[index];
     index >>= 1;    // shift away any opaque/alpha distinction
     fSampleProc16 = gSample16[index];
 
     // our special-case shaderprocs
-    if (clamp_clamp && (7 == (index >> 1))) {
+    if (clamp_clamp && (7 == index)) {
         fShaderProc16 = Clamp_S16_D16_filter_DX_shaderproc;
     }
     return true;
