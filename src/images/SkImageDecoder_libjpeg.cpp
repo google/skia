@@ -343,6 +343,12 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
     }
 #endif
 
+    if (sampleSize == 1 && mode == SkImageDecoder::kDecodeBounds_Mode) {
+        bm->setConfig(config, cinfo.image_width, cinfo.image_height);
+        bm->setIsOpaque(true);
+        return true;
+    }
+
     /*  image_width and image_height are the original dimensions, available
         after jpeg_read_header(). To see the scaled dimensions, we have to call
         jpeg_start_decompress(), and then read output_width and output_height.
