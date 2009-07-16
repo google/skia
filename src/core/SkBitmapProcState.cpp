@@ -284,6 +284,26 @@ SkASSERT(state.fAlphaScale < 256)
 #define POSTAMBLE(state)        state.fBitmap->getColorTable()->unlock16BitCache()
 #include "SkBitmapProcState_sample.h"
 
+///////////////////////////////////////////////////////////////////////////////
+
+#undef FILTER_PROC
+#define FILTER_PROC(x, y, a, b, c, d)   Filter_565_Expanded(x, y, a, b, c, d)
+
+#define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
+#define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
+#define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
+#define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
+
+#define MAKENAME(suffix)        Clamp_S16_D16 ## suffix
+#define SRCTYPE                 uint16_t
+#define DSTTYPE                 uint16_t
+#define CHECKSTATE(state)       SkASSERT(state.fBitmap->config() == SkBitmap::kRGB_565_Config)
+#define SRC_TO_FILTER(src)      src
+#define FILTER_TO_DST(c)        SkCompact_rgb_16((c) >> 5)
+#include "SkBitmapProcState_shaderproc.h"
+
+///////////////////////////////////////////////////////////////////////////////
+
 static bool valid_for_filtering(unsigned dimension) {
     // for filtering, width and height must fit in 14bits, since we use steal
     // 2 bits from each to store our 4bit subpixel data
@@ -295,14 +315,17 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
         return false;
     }
     const SkMatrix* m;
-    
+    bool clamp_clamp;
+
     if (SkShader::kClamp_TileMode == fTileModeX &&
             SkShader::kClamp_TileMode == fTileModeY) {
         m = &inv;
+        clamp_clamp = true;
     } else {
         fUnitInvMatrix = inv;
         fUnitInvMatrix.postIDiv(fOrigBitmap.width(), fOrigBitmap.height());
         m = &fUnitInvMatrix;
+        clamp_clamp = false;
     }
     
     fBitmap = &fOrigBitmap;
@@ -463,6 +486,10 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     index >>= 1;    // shift away any opaque/alpha distinction
     fSampleProc16 = gSample16[index];
 
+    // our special-case shaderprocs
+    if (clamp_clamp && (7 == (index >> 1))) {
+        fShaderProc16 = Clamp_S16_D16_filter_DX_shaderproc;
+    }
     return true;
 }
 
