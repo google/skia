@@ -32,7 +32,6 @@
 		0041CDFA0F009F0700695E8C /* SkImageRefPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF90F009F0700695E8C /* SkImageRefPool.cpp */; };
 		0041CE350F00A12400695E8C /* SampleBitmapRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE1E0F00A12400695E8C /* SampleBitmapRect.cpp */; };
 		0041CE360F00A12400695E8C /* SampleCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE1F0F00A12400695E8C /* SampleCamera.cpp */; };
-		0041CE370F00A12400695E8C /* SampleCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE200F00A12400695E8C /* SampleCircle.cpp */; };
 		0041CE380F00A12400695E8C /* SampleCull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE220F00A12400695E8C /* SampleCull.cpp */; };
 		0041CE390F00A12400695E8C /* SampleDither.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE230F00A12400695E8C /* SampleDither.cpp */; };
 		0041CE3A0F00A12400695E8C /* SampleDrawLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE240F00A12400695E8C /* SampleDrawLooper.cpp */; };
@@ -41,7 +40,6 @@
 		0041CE400F00A12400695E8C /* SampleFontCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2A0F00A12400695E8C /* SampleFontCache.cpp */; };
 		0041CE420F00A12400695E8C /* SampleImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2C0F00A12400695E8C /* SampleImage.cpp */; };
 		0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2D0F00A12400695E8C /* SampleLayers.cpp */; };
-		0041CE440F00A12400695E8C /* SampleLines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2E0F00A12400695E8C /* SampleLines.cpp */; };
 		0041CE450F00A12400695E8C /* SampleMeasure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2F0F00A12400695E8C /* SampleMeasure.cpp */; };
 		0041CE470F00A12400695E8C /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE310F00A12400695E8C /* SampleNinePatch.cpp */; };
 		0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE320F00A12400695E8C /* SampleOverflow.cpp */; };
@@ -77,6 +75,8 @@
 		00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
+		27005D16100903C100E275B6 /* SampleLines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2E0F00A12400695E8C /* SampleLines.cpp */; };
+		27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE200F00A12400695E8C /* SampleCircle.cpp */; };
 		2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66B0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66C0FCCCABE002BD8B4 /* SkPageFlipper.cpp */; };
 		2762F67D0FCCCB01002BD8B4 /* SamplePageFlip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6770FCCCB01002BD8B4 /* SamplePageFlip.cpp */; };
@@ -528,7 +528,6 @@
 				0041CDFA0F009F0700695E8C /* SkImageRefPool.cpp in Sources */,
 				0041CE350F00A12400695E8C /* SampleBitmapRect.cpp in Sources */,
 				0041CE360F00A12400695E8C /* SampleCamera.cpp in Sources */,
-				0041CE370F00A12400695E8C /* SampleCircle.cpp in Sources */,
 				0041CE380F00A12400695E8C /* SampleCull.cpp in Sources */,
 				0041CE390F00A12400695E8C /* SampleDither.cpp in Sources */,
 				0041CE3A0F00A12400695E8C /* SampleDrawLooper.cpp in Sources */,
@@ -554,7 +553,6 @@
 				007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */,
 				009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */,
 				007A7CB30F01658C00A2D6EE /* SamplePicture.cpp in Sources */,
-				0041CE440F00A12400695E8C /* SampleLines.cpp in Sources */,
 				008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */,
 				009490320FB0A5B90063C792 /* SampleLayerMask.cpp in Sources */,
 				007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */,
@@ -575,6 +573,8 @@
 				0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */,
 				005778B40FF5616F00582CD9 /* SampleShapes.cpp in Sources */,
 				00F53F480FFCFC4D003FA70A /* SampleGradients.cpp in Sources */,
+				27005D16100903C100E275B6 /* SampleLines.cpp in Sources */,
+				27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
