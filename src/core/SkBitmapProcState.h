@@ -24,6 +24,12 @@ class SkPaint;
 
 struct SkBitmapProcState {
 
+    typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
+                                 SkPMColor[], int count);
+
+    typedef void (*ShaderProc16)(const SkBitmapProcState&, int x, int y,
+                                 uint16_t[], int count);
+
     typedef void (*MatrixProc)(const SkBitmapProcState&,
                                uint32_t bitmapXY[],
                                int count,
@@ -40,7 +46,12 @@ struct SkBitmapProcState {
                                  uint16_t colors[]);
     
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
-    
+
+    // If a shader proc is present, then the corresponding matrix/sample procs
+    // are ignored
+    ShaderProc32        fShaderProc32;      // chooseProcs
+    ShaderProc16        fShaderProc16;      // chooseProcs
+    // These are used if the shaderproc is NULL
     MatrixProc          fMatrixProc;        // chooseProcs
     SampleProc32        fSampleProc32;      // chooseProcs
     SampleProc16        fSampleProc16;      // chooseProcs

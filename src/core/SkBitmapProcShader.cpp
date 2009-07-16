@@ -134,9 +134,13 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 #define BUF_MAX     128
 
 void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
-    uint32_t buffer[BUF_MAX];
+    const SkBitmapProcState& state = fState;
+    if (state.fShaderProc32) {
+        state.fShaderProc32(state, x, y, dstC, count);
+        return;
+    }
 
-    const SkBitmapProcState&        state = fState;
+    uint32_t buffer[BUF_MAX];
     SkBitmapProcState::MatrixProc   mproc = state.fMatrixProc;
     SkBitmapProcState::SampleProc32 sproc = state.fSampleProc32;
     int max = fState.fDoFilter ? (BUF_MAX >> 1) : BUF_MAX;
@@ -162,9 +166,13 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
 }
 
 void SkBitmapProcShader::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
-    uint32_t buffer[BUF_MAX];
+    const SkBitmapProcState& state = fState;
+    if (state.fShaderProc16) {
+        state.fShaderProc16(state, x, y, dstC, count);
+        return;
+    }
     
-    const SkBitmapProcState&        state = fState;
+    uint32_t buffer[BUF_MAX];
     SkBitmapProcState::MatrixProc   mproc = state.fMatrixProc;
     SkBitmapProcState::SampleProc16 sproc = state.fSampleProc16;
     int max = fState.fDoFilter ? (BUF_MAX >> 1) : BUF_MAX;

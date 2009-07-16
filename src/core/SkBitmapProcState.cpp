@@ -345,6 +345,11 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
                 (inv.getType() > SkMatrix::kTranslate_Mask &&
                  valid_for_filtering(fBitmap->width() | fBitmap->height()));
 
+    fShaderProc32 = NULL;
+    fShaderProc16 = NULL;
+    fSampleProc32 = NULL;
+    fSampleProc16 = NULL;
+    
     fMatrixProc = this->chooseMatrixProc();
     if (NULL == fMatrixProc) {
         return false;
