@@ -17,9 +17,9 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fDoFilter);
     SkDEBUGCODE(CHECKSTATE(s);)
-    
+
     PREAMBLE(s);
-    
+
     const unsigned maxX = s.fBitmap->width() - 1;
     const SkFixed oneX = s.fFilterOneX;
     const SkFixed dx = s.fInvSx;
@@ -46,7 +46,7 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
         // now initialize fx
         fx = SkScalarToFixed(pt.fX) - (oneX >> 1);
     }
-    
+
     do {
         unsigned subX = TILEX_LOW_BITS(fx, maxX);
         unsigned x0 = TILEX_PROCF(fx, maxX);
@@ -58,7 +58,7 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
                                  SRC_TO_FILTER(row1[x0]),
                                  SRC_TO_FILTER(row1[x1]));
         *colors++ = FILTER_TO_DST(c);
-        
+
         fx += dx;
     } while (--count != 0);
 }

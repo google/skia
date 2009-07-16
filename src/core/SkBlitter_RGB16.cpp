@@ -527,8 +527,6 @@ void SkRGB16_Shader16_Blitter::blitRect(int x, int y, int width, int height) {
     size_t      dstRB = fDevice.rowBytes();
     int         alpha = shader->getSpan16Alpha();
 
-    // TODO: take advantage of (fShaderFlags & SkShader::kConstInY_Flag)
-
     if (0xFF == alpha) {
         if (fShaderFlags & SkShader::kConstInY_Flag) {
             // have the shader blit directly into the device the first time
