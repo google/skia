@@ -302,6 +302,20 @@ SkASSERT(state.fAlphaScale < 256)
 #define FILTER_TO_DST(c)        SkCompact_rgb_16((c) >> 5)
 #include "SkBitmapProcState_shaderproc.h"
 
+
+#define TILEX_PROCF(fx, max)    (((fx) & 0xFFFF) * ((max) + 1) >> 16)
+#define TILEY_PROCF(fy, max)    (((fy) & 0xFFFF) * ((max) + 1) >> 16)
+#define TILEX_LOW_BITS(fx, max) ((((fx) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+#define TILEY_LOW_BITS(fy, max) ((((fy) & 0xFFFF) * ((max) + 1) >> 12) & 0xF)
+
+#define MAKENAME(suffix)        Repeat_S16_D16 ## suffix
+#define SRCTYPE                 uint16_t
+#define DSTTYPE                 uint16_t
+#define CHECKSTATE(state)       SkASSERT(state.fBitmap->config() == SkBitmap::kRGB_565_Config)
+#define SRC_TO_FILTER(src)      src
+#define FILTER_TO_DST(c)        SkCompact_rgb_16((c) >> 5)
+#include "SkBitmapProcState_shaderproc.h"
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool valid_for_filtering(unsigned dimension) {
@@ -485,8 +499,13 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fSampleProc16 = gSample16[index];
 
     // our special-case shaderprocs
-    if (clamp_clamp && (7 == index)) {
-        fShaderProc16 = Clamp_S16_D16_filter_DX_shaderproc;
+    if (S16_D16_filter_DX == fSampleProc16) {
+        if (clamp_clamp) {
+            fShaderProc16 = Clamp_S16_D16_filter_DX_shaderproc;
+        } else if (SkShader::kRepeat_TileMode == fTileModeX &&
+                   SkShader::kRepeat_TileMode == fTileModeY) {
+            fShaderProc16 = Repeat_S16_D16_filter_DX_shaderproc;
+        }
     }
     return true;
 }

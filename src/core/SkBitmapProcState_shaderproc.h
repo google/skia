@@ -70,6 +70,7 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
 #undef TILEY_PROCF
 #undef TILEX_LOW_BITS
 #undef TILEY_LOW_BITS
+#undef DSTTYPE
 #ifdef CHECK_FOR_DECAL
     #undef CHECK_FOR_DECAL
 #endif
