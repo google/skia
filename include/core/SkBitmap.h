@@ -450,10 +450,8 @@ public:
     };
 
 private:
-#ifdef SK_SUPPORT_MIPMAP
     struct MipMap;
     mutable MipMap* fMipMap;
-#endif
 
     mutable SkPixelRef* fPixelRef;
     mutable size_t      fPixelRefOffset;

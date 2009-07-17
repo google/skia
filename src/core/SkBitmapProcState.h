@@ -64,9 +64,7 @@ struct SkBitmapProcState {
 
     const SkBitmap*     fBitmap;            // chooseProcs - orig or mip
     SkBitmap            fOrigBitmap;        // CONSTRUCTOR
-#ifdef SK_SUPPORT_MIPMAP
     SkBitmap            fMipBitmap;
-#endif
     SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
     const SkMatrix*     fInvMatrix;         // chooseProcs
     SkMatrix::MapXYProc fInvProc;           // chooseProcs

@@ -137,7 +137,7 @@ public:
             }
         }
 
-#if defined(SK_SUPPORT_MIPMAP) && !defined(NOFILTER_BITMAP_SHADER_USE_UNITINVERSE)
+#ifndef NOFILTER_BITMAP_SHADER_USE_UNITINVERSE
         {   int level = this->getMipLevel() >> 16;
             fx >>= level;
             fy >>= level;
@@ -260,7 +260,7 @@ public:
             }
         }
 
-#if defined(SK_SUPPORT_MIPMAP) && !defined(NOFILTER_BITMAP_SHADER_USE_UNITINVERSE)
+#ifndef NOFILTER_BITMAP_SHADER_USE_UNITINVERSE
         {   int level = this->getMipLevel() >> 16;
             fx >>= level;
             fy >>= level;

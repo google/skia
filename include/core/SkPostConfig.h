@@ -175,9 +175,6 @@
     #endif
 #endif
 
-// experimental for now
-#define SK_SUPPORT_MIPMAP
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 #ifndef SK_BUILD_FOR_WINCE
 #include <string.h>

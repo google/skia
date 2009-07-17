@@ -30,7 +30,6 @@ static bool isPos32Bits(const Sk64& value) {
     return !value.isNeg() && value.is32();
 }
 
-#ifdef SK_SUPPORT_MIPMAP
 struct MipLevel {
     void*       fPixels;
     uint32_t    fRowBytes;
@@ -78,7 +77,6 @@ struct SkBitmap::MipMap : SkNoncopyable {
         }
     }
 };
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,10 +103,8 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
         memcpy(this, &src, sizeof(src));
 
         // inc src reference counts
-        src.fPixelRef->safeRef();
-#ifdef SK_SUPPORT_MIPMAP
+        SkSafeRef(src.fPixelRef);
         SkSafeRef(src.fMipMap);
-#endif
 
         // we reset our locks if we get blown away
         fPixelLockCount = 0;
@@ -137,9 +133,7 @@ void SkBitmap::swap(SkBitmap& other) {
     SkTSwap<SkPixelRef*>(fPixelRef, other.fPixelRef);
     SkTSwap<size_t>(fPixelRefOffset, other.fPixelRefOffset);
     SkTSwap<int>(fPixelLockCount, other.fPixelLockCount);
-#ifdef SK_SUPPORT_MIPMAP
     SkTSwap<MipMap*>(fMipMap, other.fMipMap);
-#endif
     SkTSwap<void*>(fPixels, other.fPixels);
     SkTSwap<uint32_t>(fRowBytes, other.fRowBytes);
     SkTSwap<uint32_t>(fWidth, other.fWidth);
@@ -361,12 +355,10 @@ void SkBitmap::freePixels() {
 }
 
 void SkBitmap::freeMipMap() {
-#ifdef SK_SUPPORT_MIPMAP
     if (fMipMap) {
         fMipMap->unref();
         fMipMap = NULL;
     }
-#endif
 }
 
 uint32_t SkBitmap::getGenerationID() const {
@@ -909,7 +901,6 @@ static void downsampleby2_proc4444(SkBitmap* dst, int x, int y,
 }
 
 void SkBitmap::buildMipMap(bool forceRebuild) {
-#ifdef SK_SUPPORT_MIPMAP
     if (forceRebuild)
         this->freeMipMap();
     else if (fMipMap)
@@ -1006,21 +997,16 @@ void SkBitmap::buildMipMap(bool forceRebuild) {
     }
     SkASSERT(addr == (uint8_t*)mm->pixels() + size);
     fMipMap = mm;
-#endif
 }
 
 bool SkBitmap::hasMipMap() const {
-#ifdef SK_SUPPORT_MIPMAP
     return fMipMap != NULL;
-#else
-    return false;
-#endif
 }
 
 int SkBitmap::extractMipLevel(SkBitmap* dst, SkFixed sx, SkFixed sy) {
-#ifdef SK_SUPPORT_MIPMAP
-    if (NULL == fMipMap)
+    if (NULL == fMipMap) {
         return 0;
+    }
 
     int level = ComputeMipLevel(sx, sy) >> 16;
     SkASSERT(level >= 0);
@@ -1038,13 +1024,9 @@ int SkBitmap::extractMipLevel(SkBitmap* dst, SkFixed sx, SkFixed sy) {
         dst->setPixels(mip.fPixels);
     }
     return level;
-#else
-    return 0;
-#endif
 }
 
 SkFixed SkBitmap::ComputeMipLevel(SkFixed sx, SkFixed sy) {
-#ifdef SK_SUPPORT_MIPMAP
     sx = SkAbs32(sx);
     sy = SkAbs32(sy);
     if (sx < sy) {
@@ -1056,9 +1038,6 @@ SkFixed SkBitmap::ComputeMipLevel(SkFixed sx, SkFixed sy) {
     int clz = SkCLZ(sx);
     SkASSERT(clz >= 1 && clz <= 15);
     return SkIntToFixed(15 - clz) + ((unsigned)(sx << (clz + 1)) >> 16);
-#else
-    return 0;
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
