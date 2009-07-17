@@ -3,6 +3,7 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
+#include "SkShader.h"
 
 static SkBitmap createBitmap(int n) {
     SkBitmap bitmap;
@@ -30,7 +31,7 @@ static SkBitmap createBitmap(int n) {
 class MipMapView : public SkView {
     SkBitmap fBitmap;
     enum {
-        N = 128
+        N = 90
     };
 public:
     MipMapView() {
@@ -117,10 +118,23 @@ protected:
         canvas->drawBitmapRect(fBitmap, NULL, dst, NULL);
         canvas->translate(SkIntToScalar(N + 8), 0);
         canvas->drawBitmapRect(fBitmap, NULL, dst, &paint);
-        canvas->translate(SkIntToScalar(N + 8), 0);
+        canvas->translate(-SkIntToScalar(N + 8), SkIntToScalar(N + 8));
         canvas->drawBitmapRect(bitmap, NULL, dst, NULL);
         canvas->translate(SkIntToScalar(N + 8), 0);
         canvas->drawBitmapRect(bitmap, NULL, dst, &paint);
+        
+        SkShader* s = SkShader::CreateBitmapShader(bitmap,
+                                                   SkShader::kRepeat_TileMode,
+                                                   SkShader::kRepeat_TileMode);
+        paint.setShader(s)->unref();
+        SkMatrix m;
+        m.setScale(SkIntToScalar(fWidth) / N,
+                   SkIntToScalar(fWidth) / N);
+        s->setLocalMatrix(m);
+        SkRect r;
+        r.set(0, 0, SkIntToScalar(4*N), SkIntToScalar(5*N/2));
+        r.offset(SkIntToScalar(N + 12), -SkIntToScalar(N + 4));
+        canvas->drawRect(r, paint);
         
         this->inval(NULL);
     }

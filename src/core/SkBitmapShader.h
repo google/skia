@@ -34,33 +34,18 @@ protected:
     SkBitmapShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer& );
     virtual Factory getFactory() { return CreateProc; }
-    const SkBitmap&     getSrcBitmap() const
-    {
-#ifdef SK_SUPPORT_MIPMAP
-        return fMipSrcBitmap;
-#else
-        return fOrigSrcBitmap;
-#endif
-    }
+    const SkBitmap& getSrcBitmap() const { return fMipSrcBitmap; }
     bool        getFilterBitmap() const { return fFilterBitmap != 0; }
     TileMode    getTileModeX() const { return (TileMode)fTileModeX; }
     TileMode    getTileModeY() const { return (TileMode)fTileModeY; }
-    SkFixed     getMipLevel() const 
-    {
-#ifdef SK_SUPPORT_MIPMAP
-        return fMipLevel;
-#else
-        return 0;
-#endif
-    }
+    SkFixed     getMipLevel() const { return fMipLevel; }
 
 private:
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
-        return SkNEW_ARGS(SkBitmapShader, (buffer)); }
-#ifdef SK_SUPPORT_MIPMAP
+        return SkNEW_ARGS(SkBitmapShader, (buffer));
+    }
     SkFixed     fMipLevel;
     SkBitmap    fMipSrcBitmap; // the chosen level (in setContext)
-#endif
     SkBitmap    fOrigSrcBitmap;
     uint8_t     fFilterBitmap;
     uint8_t     fTileModeX;

@@ -329,7 +329,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     }
     
     fBitmap = &fOrigBitmap;
-#ifdef SK_SUPPORT_MIPMAP
     if (fOrigBitmap.hasMipMap()) {
         int shift = fOrigBitmap.extractMipLevel(&fMipBitmap,
                                                 SkScalarToFixed(m->getScaleX()),
@@ -348,7 +347,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             fBitmap = &fMipBitmap;
         }
     }
-#endif
 
     fInvMatrix      = m;
     fInvProc        = m->getMapXYProc();

@@ -25,7 +25,6 @@
 		005F257D0EF94F7900582A90 /* SkBitmapSampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25040EF94F7900582A90 /* SkBitmapSampler.cpp */; };
 		005F257E0EF94F7900582A90 /* SkBitmapSampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F25050EF94F7900582A90 /* SkBitmapSampler.h */; };
 		005F257F0EF94F7900582A90 /* SkBitmapSamplerTemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F25060EF94F7900582A90 /* SkBitmapSamplerTemplate.h */; };
-		005F25800EF94F7900582A90 /* SkBitmapShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25070EF94F7900582A90 /* SkBitmapShader.cpp */; };
 		005F25810EF94F7900582A90 /* SkBitmapShader.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F25080EF94F7900582A90 /* SkBitmapShader.h */; };
 		005F25820EF94F7900582A90 /* SkBitmapShader16BilerpTemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F25090EF94F7900582A90 /* SkBitmapShader16BilerpTemplate.h */; };
 		005F25830EF94F7900582A90 /* SkBitmapShaderTemplate.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F250A0EF94F7900582A90 /* SkBitmapShaderTemplate.h */; };
@@ -148,7 +147,6 @@
 		005F25040EF94F7900582A90 /* SkBitmapSampler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBitmapSampler.cpp; path = ../../src/core/SkBitmapSampler.cpp; sourceTree = SOURCE_ROOT; };
 		005F25050EF94F7900582A90 /* SkBitmapSampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkBitmapSampler.h; path = ../../src/core/SkBitmapSampler.h; sourceTree = SOURCE_ROOT; };
 		005F25060EF94F7900582A90 /* SkBitmapSamplerTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkBitmapSamplerTemplate.h; path = ../../src/core/SkBitmapSamplerTemplate.h; sourceTree = SOURCE_ROOT; };
-		005F25070EF94F7900582A90 /* SkBitmapShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBitmapShader.cpp; path = ../../src/core/SkBitmapShader.cpp; sourceTree = SOURCE_ROOT; };
 		005F25080EF94F7900582A90 /* SkBitmapShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkBitmapShader.h; path = ../../src/core/SkBitmapShader.h; sourceTree = SOURCE_ROOT; };
 		005F25090EF94F7900582A90 /* SkBitmapShader16BilerpTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkBitmapShader16BilerpTemplate.h; path = ../../src/core/SkBitmapShader16BilerpTemplate.h; sourceTree = SOURCE_ROOT; };
 		005F250A0EF94F7900582A90 /* SkBitmapShaderTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkBitmapShaderTemplate.h; path = ../../src/core/SkBitmapShaderTemplate.h; sourceTree = SOURCE_ROOT; };
@@ -315,7 +313,6 @@
 				005F25040EF94F7900582A90 /* SkBitmapSampler.cpp */,
 				005F25050EF94F7900582A90 /* SkBitmapSampler.h */,
 				005F25060EF94F7900582A90 /* SkBitmapSamplerTemplate.h */,
-				005F25070EF94F7900582A90 /* SkBitmapShader.cpp */,
 				005F25080EF94F7900582A90 /* SkBitmapShader.h */,
 				005F25090EF94F7900582A90 /* SkBitmapShader16BilerpTemplate.h */,
 				005F250A0EF94F7900582A90 /* SkBitmapShaderTemplate.h */,
@@ -525,7 +522,6 @@
 				005F25780EF94F7900582A90 /* SkBitmapProcState.cpp in Sources */,
 				005F257B0EF94F7900582A90 /* SkBitmapProcState_matrixProcs.cpp in Sources */,
 				005F257D0EF94F7900582A90 /* SkBitmapSampler.cpp in Sources */,
-				005F25800EF94F7900582A90 /* SkBitmapShader.cpp in Sources */,
 				005F25860EF94F7900582A90 /* SkBlitRow_D16.cpp in Sources */,
 				005F25870EF94F7900582A90 /* SkBlitRow_D4444.cpp in Sources */,
 				005F25880EF94F7900582A90 /* SkBlitter.cpp in Sources */,
