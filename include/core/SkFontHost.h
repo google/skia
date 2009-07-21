@@ -199,7 +199,7 @@ public:
     */
     enum LCDOrientation {
         kHorizontal_LCDOrientation = 0,    //!< this is the default
-        kVertical_LCDOrientatoin   = 1,
+        kVertical_LCDOrientation   = 1,
     };
 
     static void SetSubpixelOrientation(LCDOrientation orientation);
