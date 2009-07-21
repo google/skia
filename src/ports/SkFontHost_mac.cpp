@@ -18,6 +18,7 @@
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
 #include "SkEndian.h"
+#include "SkPaint.h"
 #include "SkPoint.h"
 
 // Give 1MB font cache budget
@@ -125,15 +126,13 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
                                        SkScalarToFloat(m[SkMatrix::kMTransY]));
                                        
     ATSStyleRenderingOptions renderOpts = kATSStyleApplyAntiAliasing;
-    switch (fRec.fHints) {
-        case kNo_Hints:
+    switch (fRec.getHinting()) {
+        case SkPaint::kNo_Hinting:
+        case SkPaint::kSlight_Hinting:
             renderOpts |= kATSStyleNoHinting;
             break;
-        case kSubpixel_Hints:
-            // hmmm, need to support subpixel... from path?
-            renderOpts |= kATSStyleNoHinting;
-            break;
-        case kNormal_Hints:
+        case SkPaint::kNormal_Hinting:
+        case SkPaint::kFull_Hinting:
             renderOpts |= kATSStyleApplyHints;
             break;
     }
@@ -229,8 +228,8 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         set_glyph_metrics_on_error(glyph);
         return;
     }
-    
-    if (kNormal_Hints == fRec.fHints) {
+
+    if (!fRec.fSubpixelPositioning) {
         glyph->fAdvanceX = SkFloatToFixed(screenMetrics.deviceAdvance.x);
         glyph->fAdvanceY = -SkFloatToFixed(screenMetrics.deviceAdvance.y);
     } else {
