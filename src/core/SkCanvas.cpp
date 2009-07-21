@@ -893,20 +893,28 @@ bool SkCanvas::quickReject(const SkRect& rect, EdgeType) const {
         return true;
     }
 
-    const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
+    if (fMCRec->fMatrix->getType() & SkMatrix::kPerspective_Mask) {
+        SkRect dst;
+        fMCRec->fMatrix->mapRect(&dst, rect);
+        SkIRect idst;
+        dst.roundOut(&idst);
+        return !SkIRect::Intersects(idst, fMCRec->fRegion->getBounds());
+    } else {
+        const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
 
-    // for speed, do the most likely reject compares first
-    SkScalarCompareType userT = SkScalarToCompareType(rect.fTop);
-    SkScalarCompareType userB = SkScalarToCompareType(rect.fBottom);
-    if (userT >= clipR.fBottom || userB <= clipR.fTop) {
-        return true;
+        // for speed, do the most likely reject compares first
+        SkScalarCompareType userT = SkScalarToCompareType(rect.fTop);
+        SkScalarCompareType userB = SkScalarToCompareType(rect.fBottom);
+        if (userT >= clipR.fBottom || userB <= clipR.fTop) {
+            return true;
+        }
+        SkScalarCompareType userL = SkScalarToCompareType(rect.fLeft);
+        SkScalarCompareType userR = SkScalarToCompareType(rect.fRight);
+        if (userL >= clipR.fRight || userR <= clipR.fLeft) {
+            return true;
+        }
+        return false;
     }
-    SkScalarCompareType userL = SkScalarToCompareType(rect.fLeft);
-    SkScalarCompareType userR = SkScalarToCompareType(rect.fRight);
-    if (userL >= clipR.fRight || userR <= clipR.fLeft) {
-        return true;
-    }    
-    return false;
 }
 
 bool SkCanvas::quickReject(const SkPath& path, EdgeType et) const {
