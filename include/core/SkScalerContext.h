@@ -136,34 +136,47 @@ struct SkGlyph {
     }
     
     void toMask(SkMask* mask) const;
+
+    /** Given a glyph which is has a mask format of LCD or VerticalLCD, take
+        the A8 plane in fImage and produce a valid LCD plane from it.
+    */
+    void expandA8ToLCD() const;
 };
 
 class SkScalerContext {
 public:
-    enum Hints {
-        kNo_Hints,
-        kSubpixel_Hints,
-        kNormal_Hints
-    };
     enum Flags {
         kFrameAndFill_Flag  = 0x01,
         kDevKernText_Flag   = 0x02,
         kGammaForBlack_Flag = 0x04, // illegal to set both Gamma flags
-        kGammaForWhite_Flag = 0x08  // illegal to set both Gamma flags
+        kGammaForWhite_Flag = 0x08, // illegal to set both Gamma flags
+        // together, these two flags resulting in a two bit value which matches
+        // up with the SkPaint::Hinting enum.
+        kHintingBit1        = 0x10,
+        kHintingBit2        = 0x20,
     };
     struct Rec {
         uint32_t    fFontID;
         SkScalar    fTextSize, fPreScaleX, fPreSkewX;
         SkScalar    fPost2x2[2][2];
         SkScalar    fFrameWidth, fMiterLimit;
-        uint8_t     fHints;
+        bool        fSubpixelPositioning;
         uint8_t     fMaskFormat;
         uint8_t     fStrokeJoin;
         uint8_t     fFlags;
-        
+
         void    getMatrixFrom2x2(SkMatrix*) const;
         void    getLocalMatrix(SkMatrix*) const;
         void    getSingleMatrix(SkMatrix*) const;
+
+        SkPaint::Hinting getHinting() const {
+            return static_cast<SkPaint::Hinting>((fFlags >> 4) & 3);
+        }
+
+        void setHinting(SkPaint::Hinting hinting) {
+            fFlags = (fFlags & ~(kHintingBit1 | kHintingBit2)) |
+                     (static_cast<int>(hinting) << 4);
+        }
     };
 
     SkScalerContext(const SkDescriptor* desc);

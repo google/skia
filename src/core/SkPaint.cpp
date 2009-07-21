@@ -57,6 +57,7 @@ SkPaint::SkPaint()
     fTextAlign  = kLeft_Align;
     fStyle      = kFill_Style;
     fTextEncoding = kUTF8_TextEncoding;
+    fHinting    = kNormal_Hinting;
 }
 
 SkPaint::SkPaint(const SkPaint& src)
@@ -142,6 +143,11 @@ void SkPaint::setDither(bool doDither)
 void SkPaint::setSubpixelText(bool doSubpixel)
 {
     this->setFlags(SkSetClearMask(fFlags, doSubpixel, kSubpixelText_Flag));
+}
+
+void SkPaint::setLCDRenderText(bool doLCDRender)
+{
+    this->setFlags(SkSetClearMask(fFlags, doLCDRender, kLCDRenderText_Flag));
 }
 
 void SkPaint::setLinearText(bool doLinearText)
@@ -1118,20 +1124,17 @@ static const SkScalar multipliers[] = { SK_Scalar1/24, SK_Scalar1/32 };
 static SkMask::Format computeMaskFormat(const SkPaint& paint)
 {
     uint32_t flags = paint.getFlags();
-    
-    return (flags & SkPaint::kAntiAlias_Flag) ? SkMask::kA8_Format : SkMask::kBW_Format;
-}
 
-static SkScalerContext::Hints computeScalerHints(const SkPaint& paint)
-{
-    uint32_t flags = paint.getFlags();
-    
-    if (flags & SkPaint::kLinearText_Flag)
-        return SkScalerContext::kNo_Hints;
-    else if (flags & SkPaint::kSubpixelText_Flag)
-        return SkScalerContext::kSubpixel_Hints;
-    else
-        return SkScalerContext::kNormal_Hints;
+    if (flags & SkPaint::kLCDRenderText_Flag)
+#if defined(SK_BUILD_SUBPIXEL)
+        return SkFontHost::GetSubpixelOrientation() == SkFontHost::kHorizontal_LCDOrientation ?
+                   SkMask::kHorizontalLCD_Format : SkMask::kVerticalLCD_Format;
+#else
+        return SkMask::kA8_Format;
+#endif
+    if (flags & SkPaint::kAntiAlias_Flag)
+        return SkMask::kA8_Format;
+    return SkMask::kBW_Format;
 }
 
 void SkScalerContext::MakeRec(const SkPaint& paint, const SkMatrix* deviceMatrix, Rec* rec)
@@ -1194,9 +1197,10 @@ void SkScalerContext::MakeRec(const SkPaint& paint, const SkMatrix* deviceMatrix
         rec->fStrokeJoin = 0;
     }
 
-    rec->fHints = SkToU8(computeScalerHints(paint));
+    rec->fSubpixelPositioning = paint.isSubpixelText();
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
     rec->fFlags = SkToU8(flags);
+    rec->setHinting(paint.getHinting());
 }
 
 #define MIN_SIZE_FOR_EFFECT_BUFFER  1024

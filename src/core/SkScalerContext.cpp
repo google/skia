@@ -16,6 +16,7 @@
 */
 
 #include "SkScalerContext.h"
+#include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkDraw.h"
 #include "SkFontHost.h"
@@ -45,11 +46,18 @@ void SkGlyph::toMask(SkMask* mask) const {
 }
 
 size_t SkGlyph::computeImageSize() const {
-    size_t size = this->rowBytes() * fHeight;
-    if (fMaskFormat == SkMask::k3D_Format) {
-        size *= 3;
+    const size_t size = this->rowBytes() * fHeight;
+
+    switch (fMaskFormat) {
+    case SkMask::kHorizontalLCD_Format:
+        return SkAlign4(size) + sizeof(uint32_t) * ((fWidth + 2) * fHeight);
+    case SkMask::kVerticalLCD_Format:
+        return SkAlign4(size) + sizeof(uint32_t) * (fWidth * (fHeight + 2));
+    case SkMask::k3D_Format:
+        return 3 * size;
+    default:
+        return size;
     }
-    return size;
 }
 
 void SkGlyph::zeroMetrics() {
@@ -61,6 +69,48 @@ void SkGlyph::zeroMetrics() {
     fLeft     = 0;
     fRsbDelta = 0;
     fLsbDelta = 0;
+}
+
+void SkGlyph::expandA8ToLCD() const {
+    SkASSERT(fMaskFormat == SkMask::kHorizontalLCD_Format ||
+             fMaskFormat == SkMask::kVerticalLCD_Format);
+
+#if defined(SK_BUILD_SUBPIXEL)
+    uint8_t* input = reinterpret_cast<uint8_t*>(fImage);
+    uint32_t* output = reinterpret_cast<uint32_t*>(input + SkAlign4(rowBytes() * fHeight));
+
+    if (fMaskFormat == SkMask::kHorizontalLCD_Format) {
+        for (unsigned y = 0; y < fHeight; ++y) {
+            const uint8_t* inputRow = input;
+            *output++ = 0;  // make the extra column on the left clear
+            for (unsigned x = 0; x < fWidth; ++x) {
+                const uint8_t alpha = *inputRow++;
+                *output++ = SkPackARGB32(alpha, alpha, alpha, alpha);
+            }
+            *output++ = 0;
+
+            input += rowBytes();
+        }
+    } else {
+        const unsigned outputRowBytes = sizeof(uint32_t) * fWidth;
+        memset(output, 0, outputRowBytes);
+        output += fWidth;
+
+        for (unsigned y = 0; y < fHeight; ++y) {
+            const uint8_t* inputRow = input;
+            for (unsigned x = 0; x < fWidth; ++x) {
+                const uint8_t alpha = *inputRow++;
+                *output++ = SkPackARGB32(alpha, alpha, alpha, alpha);
+            }
+
+            input += rowBytes();
+        }
+
+        memset(output, 0, outputRowBytes);
+        output += fWidth;
+    }
+#else
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -329,6 +379,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
         this->internalGetPath(*glyph, &fillPath, &devPath, &fillToDevMatrix);
 
+        const bool lcdMode = fRec.fMaskFormat == SkMask::kHorizontalLCD_Format ||
+                             fRec.fMaskFormat == SkMask::kVerticalLCD_Format;
+
         if (fRasterizer) {
             SkMask  mask;
             
@@ -349,7 +402,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             SkPaint     paint;
             SkDraw      draw;
 
-            if (SkMask::kA8_Format == fRec.fMaskFormat) {
+            if (SkMask::kA8_Format == fRec.fMaskFormat || lcdMode) {
                 config = SkBitmap::kA8_Config;
                 paint.setAntiAlias(true);
             } else {
@@ -372,6 +425,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             draw.fBounder = NULL;
             draw.drawPath(devPath, paint);
         }
+
+        if (lcdMode)
+            glyph->expandA8ToLCD();
     } else {
         this->getGlyphContext(*glyph)->generateImage(*glyph);
     }
