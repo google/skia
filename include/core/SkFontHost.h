@@ -187,6 +187,38 @@ public:
         white (table[1]) gamma tables.
     */
     static void GetGammaTables(const uint8_t* tables[2]);
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    /** LCDs either have their color elements arranged horizontally or
+        vertically. When rendering subpixel glyphs we need to know which way
+        round they are.
+
+        Note, if you change this after startup, you'll need to flush the glyph
+        cache because it'll have the wrong type of masks cached.
+    */
+    enum LCDOrientation {
+        kHorizontal_LCDOrientation = 0,    //!< this is the default
+        kVertical_LCDOrientatoin   = 1,
+    };
+
+    static void SetSubpixelOrientation(LCDOrientation orientation);
+    static LCDOrientation GetSubpixelOrientation();
+
+    /** LCD color elements can vary in order. For subpixel text we need to know
+        the order which the LCDs uses so that the color fringes are in the
+        correct place.
+
+        Note, if you change this after startup, you'll need to flush the glyph
+        cache because it'll have the wrong type of masks cached.
+    */
+    enum LCDOrder {
+        kRGB_LCDOrder = 0,    //!< this is the default
+        kBGR_LCDOrder = 1,
+    };
+
+    static void SetSubpixelOrder(LCDOrder order);
+    static LCDOrder GetSubpixelOrder();
 };
 
 #endif

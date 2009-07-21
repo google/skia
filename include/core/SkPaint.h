@@ -69,6 +69,33 @@ public:
     */
     void reset();
 
+    /** Specifies the level of hinting to be performed. These names are taken
+        from the Gnome/Cairo names for the same. They are translated into
+        Freetype concepts the same as in cairo-ft-font.c:
+           kNo_Hinting     -> FT_LOAD_NO_HINTING
+           kSlight_Hinting -> FT_LOAD_TARGET_LIGHT
+           kNormal_Hinting -> <default, no option>
+           kFull_Hinting   -> <same as kNormalHinting, unless we are rendering
+                              subpixel glyphs, in which case TARGET_LCD or
+                              TARGET_LCD_V is used>
+    */
+    enum Hinting {
+        kNo_Hinting            = 0,
+        kSlight_Hinting        = 1,
+        kNormal_Hinting        = 2,     //!< this is the default
+        kFull_Hinting          = 3,
+    };
+
+    Hinting getHinting() const
+    {
+        return static_cast<Hinting>(fHinting);
+    }
+
+    void setHinting(Hinting hintingLevel)
+    {
+        fHinting = hintingLevel;
+    }
+
     /** Specifies the bit values that are stored in the paint's flags.
     */
     enum Flags {
@@ -79,10 +106,13 @@ public:
         kStrikeThruText_Flag  = 0x10,   //!< mask to enable strike-thru text
         kFakeBoldText_Flag    = 0x20,   //!< mask to enable fake-bold text
         kLinearText_Flag      = 0x40,   //!< mask to enable linear-text
-        kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel-text
+        kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
         kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
+        kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
+        // when adding extra flags, note that the fFlags member is specified
+        // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0x1FF
+        kAllFlags = 0x3FF
     };
 
     /** Return the paint's flags. Use the Flag enum to test flag values.
@@ -143,12 +173,23 @@ public:
         return SkToBool(this->getFlags() & kSubpixelText_Flag);
     }
     
-    /** Helper for setFlags(), setting or clearing the kSubpixelText_Flag bit
-        @param subpixelText true to set the subpixelText bit in the paint's
-                            flags, false to clear it.
+    /** Helper for setFlags(), setting or clearing the kSubpixelText_Flag
+       bit @param subpixelText true to set the subpixelText bit in the paint's flags,
+                               false to clear it.
     */
     void setSubpixelText(bool subpixelText);
-    
+
+    bool isLCDRenderText() const
+    {
+        return SkToBool(this->getFlags() & kLCDRenderText_Flag);
+    }
+
+    /** Helper for setFlags(), setting or clearing the kLCDRenderText_Flag bit
+        @param subpixelRender true to set the subpixelRenderText bit in the paint's flags,
+                              false to clear it.
+    */
+    void setLCDRenderText(bool subpixelRender);
+
     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
         @return true if the underlineText bit is set in the paint's flags.
     */
@@ -749,12 +790,13 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    unsigned        fFlags : 9;
+    unsigned        fFlags : 10;
     unsigned        fTextAlign : 2;
     unsigned        fCapType : 2;
     unsigned        fJoinType : 2;
     unsigned        fStyle : 2;
     unsigned        fTextEncoding : 2;  // 3 values
+    unsigned        fHinting : 2;
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,

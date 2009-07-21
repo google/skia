@@ -15,6 +15,7 @@
 ** limitations under the License.
 */
 
+#include "SkColorPriv.h"
 #include "SkScalerContext.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -32,6 +33,11 @@
 #include FT_OUTLINE_H
 #include FT_SIZES_H
 #include FT_TRUETYPE_TABLES_H
+
+#if defined(SK_BUILD_SUBPIXEL)
+#include FT_LCD_FILTER_H
+#endif
+
 #ifdef   FT_ADVANCES_H
 #include FT_ADVANCES_H
 #endif
@@ -43,6 +49,7 @@
 #include <freetype/ftsizes.h>
 #include <freetype/tttables.h>
 #include <freetype/ftadvanc.h>
+#include <freetype/ftlcdfil.h>
 #endif
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
@@ -68,6 +75,21 @@ static FT_Library   gFTLibrary;
 static SkFaceRec*   gFaceRecHead;
 
 /////////////////////////////////////////////////////////////////////////
+
+static bool
+InitFreetype() {
+    FT_Error err = FT_Init_FreeType(&gFTLibrary);
+    if (err)
+        return false;
+
+#if defined(SK_BUILD_SUBPIXEL)
+    // Setup LCD filtering. This reduces colour fringes for LCD rendered
+    // glyphs.
+    err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
+#endif
+
+    return true;
+}
 
 class SkScalerContext_FreeType : public SkScalerContext {
 public:
@@ -247,9 +269,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
     FT_Error    err;
 
     if (gFTCount == 0) {
-        err = FT_Init_FreeType(&gFTLibrary);
-//        SkDEBUGF(("FT_Init_FreeType returned %d\n", err));
-        SkASSERT(err == 0);
+        const bool success = InitFreetype();
+        SkASSERT(success);
     }
     ++gFTCount;
 
@@ -275,7 +296,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
            SkScalarToFloat(fRec.fPreScaleX), SkScalarToFloat(fRec.fPreSkewX),
            SkScalarToFloat(fRec.fPost2x2[0][0]), SkScalarToFloat(fRec.fPost2x2[0][1]),
            SkScalarToFloat(fRec.fPost2x2[1][0]), SkScalarToFloat(fRec.fPost2x2[1][1]),
-           fRec.fHints, fRec.fMaskFormat, keyString.c_str());
+           fRec.getHinting(), fRec.fMaskFormat, keyString.c_str());
 #endif
 
     //  now compute our scale factors
@@ -305,42 +326,27 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
 
     // compute the flags we send to Load_Glyph
     {
-        uint32_t flags = FT_LOAD_DEFAULT;
-        uint32_t render_flags = FT_LOAD_TARGET_NORMAL;
+        FT_Int32 hintingFlags = FT_LOAD_DEFAULT;
 
-        // we force autohinting at the moment
-
-        switch (fRec.fHints) {
-        case kNo_Hints:
-            flags |= FT_LOAD_NO_HINTING;
+        switch (fRec.getHinting()) {
+        case SkPaint::kNo_Hinting:
+            hintingFlags = FT_LOAD_NO_HINTING;
             break;
-        case kSubpixel_Hints:
-            flags |= FT_LOAD_FORCE_AUTOHINT;
-            render_flags = FT_LOAD_TARGET_LIGHT;
+        case SkPaint::kSlight_Hinting:
+            hintingFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
             break;
-        case kNormal_Hints:
-#ifdef ANDROID
-            // The following line disables the font's hinting tables. For
-            // Chromium we want font hinting on so that we can generate
-            // baselines that look at little like Firefox. It's expected that
-            // Mike Reed will rework this code sometime soon so we don't wish
-            // to make more extensive changes.
-            flags |= FT_LOAD_FORCE_AUTOHINT;
-            /*  Switch to light hinting (vertical only) to address some chars
-                that behaved poorly with NORMAL. In the future we could consider
-                making this choice exposed at runtime to the caller.
-            */
-            render_flags = FT_LOAD_TARGET_LIGHT;
-#endif
+        case SkPaint::kNormal_Hinting:
+            hintingFlags |= FT_LOAD_TARGET_NORMAL;
+            break;
+        case SkPaint::kFull_Hinting:
+            if (SkMask::kHorizontalLCD_Format == fRec.fMaskFormat)
+                hintingFlags = FT_LOAD_TARGET_LCD;
+            else if (SkMask::kVerticalLCD_Format == fRec.fMaskFormat)
+                hintingFlags = FT_LOAD_TARGET_LCD_V;
             break;
         }
 
-        if (SkMask::kBW_Format == fRec.fMaskFormat)
-            render_flags = FT_LOAD_TARGET_MONO;
-        else if (SkMask::kLCD_Format == fRec.fMaskFormat)
-            render_flags = FT_LOAD_TARGET_LCD;
-
-        fLoadGlyphFlags = flags | render_flags;
+        fLoadGlyphFlags = hintingFlags;
     }
 
     // now create the FT_Size
@@ -433,10 +439,12 @@ uint16_t SkScalerContext_FreeType::generateCharToGlyph(SkUnichar uni) {
 
 static FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {
     switch (format) {
+        case SkMask::kHorizontalLCD_Format:
+        case SkMask::kVerticalLCD_Format:
+            SkASSERT(!"An LCD format should never be passed here");
+            return FT_PIXEL_MODE_GRAY;
         case SkMask::kBW_Format:
             return FT_PIXEL_MODE_MONO;
-        case SkMask::kLCD_Format:
-            return FT_PIXEL_MODE_LCD;
         case SkMask::kA8_Format:
         default:
             return FT_PIXEL_MODE_GRAY;
@@ -503,7 +511,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 
         FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
 
-        if (kSubpixel_Hints == fRec.fHints) {
+        if (fRec.fSubpixelPositioning) {
             int dx = glyph->getSubXFixed() >> 10;
             int dy = glyph->getSubYFixed() >> 10;
             // negate dy since freetype-y-goes-up and skia-y-goes-down
@@ -536,7 +544,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         goto ERROR;
     }
 
-    if (kNormal_Hints == fRec.fHints) {
+    if (!fRec.fSubpixelPositioning) {
         glyph->fAdvanceX = SkFDot6ToFixed(fFace->glyph->advance.x);
         glyph->fAdvanceY = -SkFDot6ToFixed(fFace->glyph->advance.y);
         if (fRec.fFlags & kDevKernText_Flag) {
@@ -553,6 +561,16 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     SkDEBUGF(("Metrics(glyph:%d flags:0x%x) w:%d\n", glyph->getGlyphID(fBaseGlyphCount), fLoadGlyphFlags, glyph->fWidth));
 #endif
 }
+
+#if defined(SK_BUILD_SUBPIXEL)
+namespace skia_freetype_support {
+// extern functions from SkFontHost_FreeType_Subpixel
+extern void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source);
+extern void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bitmap& source);
+}
+
+using namespace skia_freetype_support;
+#endif
 
 void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
@@ -572,6 +590,9 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         return;
     }
 
+    const bool lcdRenderMode = fRec.fMaskFormat == SkMask::kHorizontalLCD_Format ||
+                               fRec.fMaskFormat == SkMask::kVerticalLCD_Format;
+
     switch ( fFace->glyph->format ) {
         case FT_GLYPH_FORMAT_OUTLINE: {
             FT_Outline* outline = &fFace->glyph->outline;
@@ -579,7 +600,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
             FT_Bitmap   target;
 
             int dx = 0, dy = 0;
-            if (kSubpixel_Hints == fRec.fHints) {
+            if (fRec.fSubpixelPositioning) {
                 dx = glyph.getSubXFixed() >> 10;
                 dy = glyph.getSubYFixed() >> 10;
                 // negate dy since freetype-y-goes-up and skia-y-goes-down
@@ -596,6 +617,23 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
             */
             FT_Outline_Translate(outline, dx - ((bbox.xMin + dx) & ~63),
                                           dy - ((bbox.yMin + dy) & ~63));
+
+#if defined(SK_BUILD_SUBPIXEL)
+            if (lcdRenderMode) {
+                // FT_Outline_Get_Bitmap cannot render LCD glyphs. In this case
+                // we have to call FT_Render_Glyph and memcpy the image out.
+                const bool isVertical = fRec.fMaskFormat == SkMask::kVerticalLCD_Format;
+                FT_Render_Mode mode = isVertical ? FT_RENDER_MODE_LCD_V : FT_RENDER_MODE_LCD;
+                FT_Render_Glyph(fFace->glyph, mode);
+
+                if (isVertical)
+                    CopyFreetypeBitmapToVerticalLCDMask(glyph, fFace->glyph->bitmap);
+                else
+                    CopyFreetypeBitmapToLCDMask(glyph, fFace->glyph->bitmap);
+
+                break;
+            }
+#endif
 
             target.width = glyph.fWidth;
             target.rows = glyph.fHeight;
@@ -652,6 +690,10 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                     dst += glyph.rowBytes();
                 }
             }
+
+            if (lcdRenderMode)
+                glyph.expandA8ToLCD();
+
         } break;
 
     default:
@@ -858,7 +900,7 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
 */
 SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name) {
     FT_Library  library;
-    if (FT_Init_FreeType(&library)) {
+    if (!InitFreetype()) {
         name->set(NULL);
         return SkTypeface::kNormal;
     }
@@ -905,4 +947,3 @@ SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name) {
     FT_Done_FreeType(library);
     return (SkTypeface::Style)style;
 }
-
