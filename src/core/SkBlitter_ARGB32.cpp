@@ -359,7 +359,6 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         uint32_t*       device = fDevice.getAddr32(clip.fLeft - lcdMode, clip.fTop - verticalLCDMode);
         unsigned        width = clip.width();
         unsigned        height = clip.height();
-        const uint32_t* alpha32;
 
         SkASSERT((int)height > 0);
         SkASSERT((int)width > 0);
