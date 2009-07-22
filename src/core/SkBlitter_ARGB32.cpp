@@ -24,6 +24,10 @@
 #if defined(SK_SUPPORT_LCDTEXT)
 namespace skia_blitter_support {
 // subpixel helper functions from SkBlitter_ARGB32_Subpixel.cpp
+uint32_t* adjustForSubpixelClip(const SkMask& mask,
+                                const SkIRect& clip, const SkBitmap& device,
+                                int* widthAdjustment, int* heightAdjustment,
+                                const uint32_t** alpha32);
 extern uint32_t BlendLCDPixelWithColor(const uint32_t alphaPixel, const uint32_t originalPixel,
                                        const uint32_t sourcePixel);
 extern uint32_t BlendLCDPixelWithOpaqueColor(const uint32_t alphaPixel, const uint32_t originalPixel,
@@ -219,22 +223,19 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
 #if defined(SK_SUPPORT_LCDTEXT)
     const bool      lcdMode = mask.fFormat == SkMask::kHorizontalLCD_Format;
     const bool      verticalLCDMode = mask.fFormat == SkMask::kVerticalLCD_Format;
-#else
-    const bool      lcdMode = false, verticalLCDMode = false;
 #endif
 
     // In LCD mode the masks have either an extra couple of rows or columns on the edges.
-    uint32_t*       device = fDevice.getAddr32(x - lcdMode, y - verticalLCDMode);
     uint32_t        srcColor = fPMColor;
 
 #if defined(SK_SUPPORT_LCDTEXT)
     if (lcdMode || verticalLCDMode) {
-        const uint32_t* alpha32 = mask.getAddrLCD(clip.fLeft, clip.fTop);
+        int widthAdjustment, heightAdjustment;
+        const uint32_t* alpha32;
+        uint32_t* device = adjustForSubpixelClip(mask, clip, fDevice, &widthAdjustment, &heightAdjustment, &alpha32);
 
-        if (lcdMode)
-            width += 2;  // we have extra columns on the left and right
-        else
-            height += 2;  // we have extra rows at the top and bottom
+        width += widthAdjustment;
+        height += heightAdjustment;
 
         unsigned devRB = fDevice.rowBytes() - (width << 2);
         unsigned alphaExtraRowWords = mask.rowWordsLCD() - width;
@@ -254,6 +255,7 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
     }
 #endif
 
+    uint32_t*      device = fDevice.getAddr32(x, y);
     const uint8_t* alpha = mask.getAddr(x, y);
     unsigned       maskRB = mask.fRowBytes - width;
     unsigned       devRB = fDevice.rowBytes() - (width << 2);
@@ -351,13 +353,9 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 #if defined(SK_SUPPORT_LCDTEXT)
         const bool      lcdMode = mask.fFormat == SkMask::kHorizontalLCD_Format;
         const bool      verticalLCDMode = mask.fFormat == SkMask::kVerticalLCD_Format;
-#else
-        const bool      lcdMode = false, verticalLCDMode = false;
 #endif
 
         // In LCD mode the masks have either an extra couple of rows or columns on the edges.
-        uint32_t*       device = fDevice.getAddr32(clip.fLeft - lcdMode,
-                                                   clip.fTop - verticalLCDMode);
         unsigned        width = clip.width();
         unsigned        height = clip.height();
 
@@ -366,11 +364,12 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
 #if defined(SK_SUPPORT_LCDTEXT)
         if (lcdMode || verticalLCDMode) {
-            const uint32_t* alpha32 = mask.getAddrLCD(clip.fLeft, clip.fTop);
-            if (lcdMode)
-                width += 2;  // we have extra columns on the left and right
-            else
-                height += 2;  // we have extra rows at the top and bottom
+            int widthAdjustment, heightAdjustment;
+            const uint32_t* alpha32;
+            uint32_t* device = adjustForSubpixelClip(mask, clip, fDevice, &widthAdjustment, &heightAdjustment, &alpha32);
+
+            width += widthAdjustment;
+            height += heightAdjustment;
 
             unsigned deviceRB = fDevice.rowBytes() - (width << 2);
             unsigned alphaExtraRowWords = mask.rowWordsLCD() - width;
@@ -390,8 +389,9 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         }
 #endif
 
-        unsigned maskRB = mask.fRowBytes - width;
-        unsigned deviceRB = fDevice.rowBytes() - (width << 2);
+        uint32_t*      device = fDevice.getAddr32(clip.fLeft, clip.fTop);
+        unsigned       maskRB = mask.fRowBytes - width;
+        unsigned       deviceRB = fDevice.rowBytes() - (width << 2);
         const uint8_t* alpha = mask.getAddr(clip.fLeft, clip.fTop);
         do {
             unsigned w = width;

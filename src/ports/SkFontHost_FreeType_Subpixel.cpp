@@ -100,7 +100,7 @@ void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bitmap& s
     //                     |-------- A single pixel in the output
 
     uint8_t* output = reinterpret_cast<uint8_t*>(dest.fImage);
-    const unsigned outputPitch = SkAlign4(source.rows);
+    const unsigned outputPitch = dest.rowBytes();
     const uint8_t* input = source.buffer;
 
     // First we calculate the A8 mask.
