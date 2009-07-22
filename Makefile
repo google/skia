@@ -20,6 +20,8 @@ else
 	DEFINES += -DSK_RELEASE
 endif
 
+DEFINES += -DSK_SUPPORT_LCDTEXT
+
 # start with the core (required)
 include src/core/core_files.mk
 SRC_LIST := $(addprefix src/core/, $(SOURCE))

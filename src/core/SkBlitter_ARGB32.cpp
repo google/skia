@@ -21,7 +21,7 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
 namespace skia_blitter_support {
 // subpixel helper functions from SkBlitter_ARGB32_Subpixel.cpp
 extern uint32_t BlendLCDPixelWithColor(const uint32_t alphaPixel, const uint32_t originalPixel,
@@ -216,7 +216,7 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
     int width = clip.width();
     int height = clip.height();
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
     const bool      lcdMode = mask.fFormat == SkMask::kHorizontalLCD_Format;
     const bool      verticalLCDMode = mask.fFormat == SkMask::kVerticalLCD_Format;
 #else
@@ -227,7 +227,7 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
     uint32_t*       device = fDevice.getAddr32(x - lcdMode, y - verticalLCDMode);
     uint32_t        srcColor = fPMColor;
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
     if (lcdMode || verticalLCDMode) {
         const uint32_t* alpha32 = mask.getAddrLCD(clip.fLeft, clip.fTop);
 
@@ -348,7 +348,7 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
         SkARGB32_BlitBW(fDevice, mask, clip, black);
     } else {
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
         const bool      lcdMode = mask.fFormat == SkMask::kHorizontalLCD_Format;
         const bool      verticalLCDMode = mask.fFormat == SkMask::kVerticalLCD_Format;
 #else
@@ -356,16 +356,15 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 #endif
 
         // In LCD mode the masks have either an extra couple of rows or columns on the edges.
-        uint32_t*       device = fDevice.getAddr32(clip.fLeft - lcdMode, clip.fTop - verticalLCDMode);
+        uint32_t*       device = fDevice.getAddr32(clip.fLeft - lcdMode,
+                                                   clip.fTop - verticalLCDMode);
         unsigned        width = clip.width();
         unsigned        height = clip.height();
 
         SkASSERT((int)height > 0);
         SkASSERT((int)width > 0);
-        SkASSERT((int)deviceRB >= 0);
-        SkASSERT((int)maskRB >= 0);
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
         if (lcdMode || verticalLCDMode) {
             const uint32_t* alpha32 = mask.getAddrLCD(clip.fLeft, clip.fTop);
             if (lcdMode)

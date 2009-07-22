@@ -1126,7 +1126,7 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint)
     uint32_t flags = paint.getFlags();
 
     if (flags & SkPaint::kLCDRenderText_Flag)
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
         return SkFontHost::GetSubpixelOrientation() == SkFontHost::kHorizontal_LCDOrientation ?
                    SkMask::kHorizontalLCD_Format : SkMask::kVerticalLCD_Format;
 #else
