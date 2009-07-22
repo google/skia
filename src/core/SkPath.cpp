@@ -986,8 +986,8 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
         // A special case: if both points are NaN, SkPoint::operation== returns
         // false, but the iterator expects that they are treated as the same.
         // (consider SkPoint is a 2-dimension float point).
-        if (SkScalarIsNaN(fLastPt.fX) && SkScalarIsNaN(fLastPt.fY) &&
-            SkScalarIsNaN(fMoveTo.fX) && SkScalarIsNaN(fMoveTo.fY)) {
+        if (SkScalarIsNaN(fLastPt.fX) || SkScalarIsNaN(fLastPt.fY) ||
+            SkScalarIsNaN(fMoveTo.fX) || SkScalarIsNaN(fMoveTo.fY)) {
             return kClose_Verb;
         }
 

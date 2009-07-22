@@ -479,10 +479,9 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
     SkEdge          headEdge, tailEdge, *last;
 
     SkASSERT(count <= maxCount);
-    if (count == 0) {
+    if (count < 2) {
         return;
     }
-    SkASSERT(count > 1);
 
     // this returns the first and last edge after they're sorted into a dlink list
     edge = sort_edges(list, count, &last);
