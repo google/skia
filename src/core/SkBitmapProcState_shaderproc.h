@@ -1,14 +1,5 @@
 #define SCALE_FILTER_NAME       MAKENAME(_filter_DX_shaderproc)
 
-#ifndef PREAMBLE
-    #define PREAMBLE(state)
-    #define PREAMBLE_PARAM_X
-    #define PREAMBLE_PARAM_Y
-    #define PREAMBLE_ARG_X
-    #define PREAMBLE_ARG_Y
-#endif
-
-
 static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
                               DSTTYPE* SK_RESTRICT colors, int count) {
     SkASSERT((s.fInvType & ~(SkMatrix::kTranslate_Mask |
@@ -17,8 +8,6 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fDoFilter);
     SkDEBUGCODE(CHECKSTATE(s);)
-
-    PREAMBLE(s);
 
     const unsigned maxX = s.fBitmap->width() - 1;
     const SkFixed oneX = s.fFilterOneX;
@@ -65,20 +54,15 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#undef MAKENAME
 #undef TILEX_PROCF
 #undef TILEY_PROCF
 #undef TILEX_LOW_BITS
 #undef TILEY_LOW_BITS
+#undef MAKENAME
+#undef SRCTYPE
 #undef DSTTYPE
-#ifdef CHECK_FOR_DECAL
-    #undef CHECK_FOR_DECAL
-#endif
+#undef CHECKSTATE
+#undef SRC_TO_FILTER
+#undef FILTER_TO_DST
 
 #undef SCALE_FILTER_NAME
-
-#undef PREAMBLE
-#undef PREAMBLE_PARAM_X
-#undef PREAMBLE_PARAM_Y
-#undef PREAMBLE_ARG_X
-#undef PREAMBLE_ARG_Y
