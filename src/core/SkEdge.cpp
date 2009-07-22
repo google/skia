@@ -419,8 +419,9 @@ int SkCubicEdge::setCubic(const SkPoint pts[4], const SkIRect* clip, int shift)
     if (clip)
     {
         do {
-            for (;!this->updateCubic();)
-                ;
+            if (!this->updateCubic()) {
+                return 0;
+            }
         } while (!this->intersectsClip(*clip));
         this->chopLineWithClip(*clip);
         return 1;
