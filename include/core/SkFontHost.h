@@ -131,6 +131,20 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /** Given a filled-out rec, the fonthost may decide to modify it to reflect
+        what the host is actually capable of fulfilling. For example, if the
+        rec is requesting a level of hinting that, for this host, maps some
+        other level (e.g. kFull -> kNormal), it should update the rec to reflect
+        what will actually be done. This is an optimization so that the font
+        cache does not contain different recs (i.e. keys) that in reality map to
+        the same output.
+     
+        A lazy (but valid) fonthost can do nothing in its FilterRec routine.
+     */
+    static void FilterRec(SkScalerContext::Rec* rec);
+
+    ///////////////////////////////////////////////////////////////////////////
+    
     /** Return the number of tables in the font
      */
     static int CountTables(SkFontID);

@@ -262,6 +262,14 @@ static void unref_ft_face(FT_Face face) {
 
 ///////////////////////////////////////////////////////////////////////////
 
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+    // collapse full->normaling hinting if we're not doing LCD
+    SkPaint::Hinting h = rec->getHinting();
+    if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
+        rec->setHinting(SkPaint::kNormal_Hinting);
+    }
+}
+
 SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         : SkScalerContext(desc) {
     SkAutoMutexAcquire  ac(gFTMutex);

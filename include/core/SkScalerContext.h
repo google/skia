@@ -152,8 +152,8 @@ public:
         kGammaForWhite_Flag = 0x08, // illegal to set both Gamma flags
         // together, these two flags resulting in a two bit value which matches
         // up with the SkPaint::Hinting enum.
-        kHintingBit1        = 0x10,
-        kHintingBit2        = 0x20,
+        kHintingBit1_Flag   = 0x10,
+        kHintingBit2_Flag   = 0x20,
     };
     struct Rec {
         uint32_t    fFontID;
@@ -174,8 +174,16 @@ public:
         }
 
         void setHinting(SkPaint::Hinting hinting) {
-            fFlags = (fFlags & ~(kHintingBit1 | kHintingBit2)) |
+            fFlags = (fFlags & ~(kHintingBit1_Flag | kHintingBit2_Flag)) |
                      (static_cast<int>(hinting) << 4);
+        }
+
+        SkMask::Format getFormat() const {
+            return static_cast<SkMask::Format>(fMaskFormat);
+        }
+
+        bool isLCD() const {
+            return SkMask::FormatIsLCD(this->getFormat());
         }
     };
 
