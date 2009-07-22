@@ -28,9 +28,51 @@
    resulting in a new pixel value.
 */
 
+#include "SkBitmap.h"
 #include "SkColorPriv.h"
+#include "SkMask.h"
+#include "SkRect.h"
 
 namespace skia_blitter_support {
+
+/** Given a clip region which describes the desired location of a glyph and a
+    bitmap to which an LCD glyph is to be blitted, return a pointer to the
+    SkBitmap's pixels and output width and height adjusts for the glyph as well
+    as a pointer into the glyph.
+
+    Recall that LCD glyphs have extra rows (vertical mode) or columns
+    (horizontal mode) at the edges as a result of low-pass filtering. If we
+    wanted to put a glyph on the hard-left edge of bitmap, we would have to know
+    to start one pixel into the glyph, as well as to only add 1 to the recorded
+    glyph width etc. This function encapsulates that behaviour.
+
+    @param mask    The glyph to be blitted.
+    @param clip    The clip region describing the desired location of the glyph.
+    @param device  The SkBitmap target for the blit.
+    @param widthAdjustment  (output) a number to add to the glyph's nominal width.
+    @param heightAdjustment (output) a number to add to the glyph's nominal width.
+    @param alpha32 (output) a pointer into the 32-bit subpixel alpha data for the glyph
+*/
+uint32_t* adjustForSubpixelClip(const SkMask& mask,
+                                const SkIRect& clip, const SkBitmap& device,
+                                int* widthAdjustment, int* heightAdjustment,
+                                const uint32_t** alpha32) {
+    const bool lcdMode = mask.fFormat == SkMask::kHorizontalLCD_Format;
+    const bool verticalLCDMode = mask.fFormat == SkMask::kVerticalLCD_Format;
+    const int  leftOffset = clip.fLeft > 0 ? lcdMode : 0;
+    const int  topOffset = clip.fTop > 0 ? verticalLCDMode : 0;
+    const int  rightOffset = lcdMode && clip.fRight < device.width();
+    const int  bottomOffset = verticalLCDMode && clip.fBottom < device.height();
+
+    uint32_t* device32 = device.getAddr32(clip.fLeft - leftOffset, clip.fTop - topOffset);
+    *alpha32 = mask.getAddrLCD(clip.fLeft + (lcdMode && !leftOffset),
+                               clip.fTop + (verticalLCDMode && !topOffset));
+
+    *widthAdjustment = leftOffset + rightOffset;
+    *heightAdjustment = topOffset + bottomOffset;
+
+    return device32;
+}
 
 uint32_t BlendLCDPixelWithColor(const uint32_t alphaPixel, const uint32_t originalPixel,
                                 const uint32_t sourcePixel) {
