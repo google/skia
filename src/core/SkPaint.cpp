@@ -1137,9 +1137,11 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint)
     return SkMask::kBW_Format;
 }
 
-void SkScalerContext::MakeRec(const SkPaint& paint, const SkMatrix* deviceMatrix, Rec* rec)
+void SkScalerContext::MakeRec(const SkPaint& paint,
+                              const SkMatrix* deviceMatrix, Rec* rec)
 {
-    SkASSERT(deviceMatrix == NULL || (deviceMatrix->getType() & SkMatrix::kPerspective_Mask) == 0);
+    SkASSERT(deviceMatrix == NULL ||
+             (deviceMatrix->getType() & SkMatrix::kPerspective_Mask) == 0);
 
     rec->fFontID = SkTypeface::UniqueID(paint.getTypeface());
     rec->fTextSize = paint.getTextSize();
@@ -1201,6 +1203,13 @@ void SkScalerContext::MakeRec(const SkPaint& paint, const SkMatrix* deviceMatrix
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
     rec->fFlags = SkToU8(flags);
     rec->setHinting(paint.getHinting());
+
+    /*  Allow the fonthost to modify our rec before we use it as a key into the
+        cache. This way if we're asking for something that they will ignore,
+        they can modify our rec up front, so we don't create duplicate cache
+        entries.
+     */
+    SkFontHost::FilterRec(rec);
 }
 
 #define MIN_SIZE_FOR_EFFECT_BUFFER  1024

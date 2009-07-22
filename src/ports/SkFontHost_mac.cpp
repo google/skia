@@ -106,6 +106,22 @@ private:
     static OSStatus Close(void *cb);
 };
 
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+    // we only support 2 levels of hinting
+    SkPaint::Hinting h = rec->getHinting();
+    if (SkPaint::kSlight_Hinting == h) {
+        h = SkPaint::kNo_Hinting;
+    } else if (SkPaint::kFull_Hinting == h) {
+        h = SkPaint::kNormal_Hinting;
+    }
+    rec->setHinting(h);
+
+    // we don't support LCD text
+    if (SkMask::FormatIsLCD((SkMask::Format)rec->fMaskFormat)) {
+        rec->fMaskFormat = SkMask::kA8_Format;
+    }
+}
+
 SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     : SkScalerContext(desc), fLayout(0), fStyle(0)
 {
