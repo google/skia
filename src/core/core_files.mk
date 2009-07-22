@@ -14,6 +14,7 @@ SOURCE := \
     SkBlitter_A1.cpp \
     SkBlitter_A8.cpp \
     SkBlitter_ARGB32.cpp \
+    SkBlitter_ARGB32_Subpixel.cpp \
     SkBlitter_RGB16.cpp \
     SkBlitter_Sprite.cpp \
     SkBuffer.cpp \
@@ -36,6 +37,7 @@ SOURCE := \
     SkFlattenable.cpp \
     SkFloat.cpp \
     SkFloatBits.cpp \
+    SkFontHost.cpp \
     SkGeometry.cpp \
     SkGlobals.cpp \
     SkGlyphCache.cpp \

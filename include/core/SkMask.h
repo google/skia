@@ -99,7 +99,7 @@ struct SkMask {
         for the given position.
     */
     const uint32_t* getAddrLCD(int x, int y) const {
-        SkASSERT(fFormat == kHorizontanLCD_Format || fFormat == kVerticalLCD_Format);
+        SkASSERT(fFormat == kHorizontalLCD_Format || fFormat == kVerticalLCD_Format);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);
 

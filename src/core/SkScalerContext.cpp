@@ -75,7 +75,7 @@ void SkGlyph::expandA8ToLCD() const {
     SkASSERT(fMaskFormat == SkMask::kHorizontalLCD_Format ||
              fMaskFormat == SkMask::kVerticalLCD_Format);
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
     uint8_t* input = reinterpret_cast<uint8_t*>(fImage);
     uint32_t* output = reinterpret_cast<uint32_t*>(input + SkAlign4(rowBytes() * fHeight));
 

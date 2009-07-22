@@ -112,6 +112,10 @@
  */
 //#define SkDebugf(...)  MyFunction(__VA_ARGS__)
 
+/*  To enable additional blitters (and fontscaler code) to support separate
+    alpha channels for R G B channels, define SK_SUPPORT_LCDTEXT
+ */
+#define SK_SUPPORT_LCDTEXT
 
 /*  If SK_DEBUG is defined, then you can optionally define SK_SUPPORT_UNITTEST
     which will run additional self-tests at startup. These can take a long time,

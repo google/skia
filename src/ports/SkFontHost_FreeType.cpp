@@ -34,7 +34,7 @@
 #include FT_SIZES_H
 #include FT_TRUETYPE_TABLES_H
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
 #include FT_LCD_FILTER_H
 #endif
 
@@ -82,7 +82,7 @@ InitFreetype() {
     if (err)
         return false;
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
     // Setup LCD filtering. This reduces colour fringes for LCD rendered
     // glyphs.
     err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
@@ -562,7 +562,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 #endif
 }
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
 namespace skia_freetype_support {
 // extern functions from SkFontHost_FreeType_Subpixel
 extern void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source);
@@ -618,7 +618,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
             FT_Outline_Translate(outline, dx - ((bbox.xMin + dx) & ~63),
                                           dy - ((bbox.yMin + dy) & ~63));
 
-#if defined(SK_BUILD_SUBPIXEL)
+#if defined(SK_SUPPORT_LCDTEXT)
             if (lcdRenderMode) {
                 // FT_Outline_Get_Bitmap cannot render LCD glyphs. In this case
                 // we have to call FT_Render_Glyph and memcpy the image out.
