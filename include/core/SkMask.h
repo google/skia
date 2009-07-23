@@ -110,7 +110,7 @@ struct SkMask {
     /** Return the number of 32-bit words in a row of the 32-bit plane of an
        LCD or VerticalLCD mask.
     */
-    const unsigned rowWordsLCD() const {
+    unsigned rowWordsLCD() const {
         SkASSERT(fFormat == kHorizontalLCD_Format || fFormat == kVerticalLCD_Format);
         if (fFormat == kHorizontalLCD_Format)
             return fBounds.width() + 2;
