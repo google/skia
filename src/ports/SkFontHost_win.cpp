@@ -634,4 +634,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return NULL;
 }
 
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+    // We don't control the hinting nor ClearType settings here
+    rec->setHinting(SkPaint::kNormal_Hinting);
+    if (SkMask::FormatIsLCD((SkMask::Format)rec->fMaskFormat)) {
+        rec->fMaskFormat = SkMask::kA8_Format;
+    }
+}
+
 #endif // WIN32
