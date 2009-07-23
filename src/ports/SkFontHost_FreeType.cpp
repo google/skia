@@ -274,11 +274,10 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         : SkScalerContext(desc) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
-    FT_Error    err;
-
     if (gFTCount == 0) {
-        const bool success = InitFreetype();
-        SkASSERT(success);
+        if (!InitFreetype()) {
+            sk_throw();
+        }
     }
     ++gFTCount;
 
