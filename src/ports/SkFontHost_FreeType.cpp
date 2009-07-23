@@ -907,7 +907,7 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
 */
 SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name) {
     FT_Library  library;
-    if (!InitFreetype()) {
+    if (FT_Init_FreeType(&library)) {
         name->set(NULL);
         return SkTypeface::kNormal;
     }
