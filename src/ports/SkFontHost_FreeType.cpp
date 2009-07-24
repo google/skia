@@ -263,11 +263,15 @@ static void unref_ft_face(FT_Face face) {
 ///////////////////////////////////////////////////////////////////////////
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
-    // collapse full->normaling hinting if we're not doing LCD
     SkPaint::Hinting h = rec->getHinting();
     if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
-        rec->setHinting(SkPaint::kNormal_Hinting);
+        // collapse full->normaling hinting if we're not doing LCD
+        h = SkPaint::kNormal_Hinting;
+    } else if (rec->fSubpixelPositioning && SkPaint::kNo_Hinting != h) {
+        // to do subpixel, we must have at most slight hinting
+        h = SkPaint::kSlight_Hinting;
     }
+    rec->setHinting(h);
 }
 
 SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
@@ -333,27 +337,31 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
 
     // compute the flags we send to Load_Glyph
     {
-        FT_Int32 hintingFlags = FT_LOAD_DEFAULT;
+        FT_Int32 loadFlags = FT_LOAD_DEFAULT;
 
         switch (fRec.getHinting()) {
         case SkPaint::kNo_Hinting:
-            hintingFlags = FT_LOAD_NO_HINTING;
+            loadFlags = FT_LOAD_NO_HINTING;
             break;
         case SkPaint::kSlight_Hinting:
-            hintingFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
+            loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
             break;
         case SkPaint::kNormal_Hinting:
-            hintingFlags |= FT_LOAD_TARGET_NORMAL;
+            loadFlags = FT_LOAD_TARGET_NORMAL;
             break;
         case SkPaint::kFull_Hinting:
+            loadFlags = FT_LOAD_TARGET_NORMAL;
             if (SkMask::kHorizontalLCD_Format == fRec.fMaskFormat)
-                hintingFlags = FT_LOAD_TARGET_LCD;
+                loadFlags = FT_LOAD_TARGET_LCD;
             else if (SkMask::kVerticalLCD_Format == fRec.fMaskFormat)
-                hintingFlags = FT_LOAD_TARGET_LCD_V;
+                loadFlags = FT_LOAD_TARGET_LCD_V;
+            break;
+        default:
+            SkDebugf("---------- UNKNOWN hinting %d\n", fRec.getHinting());
             break;
         }
 
-        fLoadGlyphFlags = hintingFlags;
+        fLoadGlyphFlags = loadFlags;
     }
 
     // now create the FT_Size
