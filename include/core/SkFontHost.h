@@ -138,13 +138,13 @@ public:
         what will actually be done. This is an optimization so that the font
         cache does not contain different recs (i.e. keys) that in reality map to
         the same output.
-     
+
         A lazy (but valid) fonthost can do nothing in its FilterRec routine.
      */
     static void FilterRec(SkScalerContext::Rec* rec);
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     /** Return the number of tables in the font
      */
     static int CountTables(SkFontID);
