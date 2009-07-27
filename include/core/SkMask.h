@@ -126,7 +126,7 @@ struct SkMask {
         kJustRenderImage_CreateMode,        //!< render into preallocate mask
         kComputeBoundsAndRenderImage_CreateMode  //!< compute bounds, alloc image and render into it
     };
-    
+
     static bool FormatIsLCD(Format fm) {
         return kHorizontalLCD_Format == fm || kVerticalLCD_Format == fm;
     }

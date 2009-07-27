@@ -155,6 +155,11 @@ public:
         kHintingBit1_Flag   = 0x10,
         kHintingBit2_Flag   = 0x20,
     };
+private:
+    enum {
+        kHintingMask = kHintingBit1_Flag | kHintingBit2_Flag
+    };
+public:
     struct Rec {
         uint32_t    fFontID;
         SkScalar    fTextSize, fPreScaleX, fPreSkewX;
@@ -170,12 +175,11 @@ public:
         void    getSingleMatrix(SkMatrix*) const;
 
         SkPaint::Hinting getHinting() const {
-            return static_cast<SkPaint::Hinting>((fFlags >> 4) & 3);
+            return static_cast<SkPaint::Hinting>((fFlags & kHintingMask) >> 4);
         }
 
         void setHinting(SkPaint::Hinting hinting) {
-            fFlags = (fFlags & ~(kHintingBit1_Flag | kHintingBit2_Flag)) |
-                     (static_cast<int>(hinting) << 4);
+            fFlags = (fFlags & ~kHintingMask) | (hinting << 4);
         }
 
         SkMask::Format getFormat() const {
