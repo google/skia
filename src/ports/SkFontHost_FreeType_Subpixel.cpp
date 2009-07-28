@@ -27,6 +27,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_CONFIG_OPTIONS_H
 
 #if 0
 // Also include the files by name for build tools which require this.
@@ -35,10 +36,16 @@
 
 namespace skia_freetype_support {
 
+#if defined(FT_CONFIG_OPTION_SUBPIXEL_RENDERING)
+static const int kFilterBorderWidth = 3;
+#else
+static const int kFilterBorderWidth = 0;
+#endif
+
 void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source)
 {
     // |source| has three alpha values per pixel and has an extra column at the
-    // left and right edges.
+    // left and right edges (if FT_CONFIG_OPTION_SUBPIXEL_RENDERING).
 
     //                    ----- <--- a single pixel in the output
     // source .oOo..      |.oO|o..
@@ -47,15 +54,15 @@ void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source)
     //                     .oO o..
 
     uint8_t* output = reinterpret_cast<uint8_t*>(dest.fImage);
-    const unsigned outputPitch = SkAlign4((source.width / 3) - 2);
+    const unsigned outputPitch = SkAlign4((source.width - 2 * kFilterBorderWidth) / 3);
     const uint8_t* input = source.buffer;
 
     // First we calculate the A8 mask.
     for (int y = 0; y < source.rows; ++y) {
         const uint8_t* inputRow = input;
         uint8_t* outputRow = output;
-        inputRow += 3;  // skip the extra column on the left
-        for (int x = 3; x < source.width - 3; x += 3) {
+        inputRow += kFilterBorderWidth;  // skip the extra column on the left
+        for (int x = kFilterBorderWidth; x < source.width - kFilterBorderWidth; x += 3) {
             const uint8_t averageAlpha = (static_cast<unsigned>(inputRow[0]) + inputRow[1] + inputRow[2] + 1) / 3;
             *outputRow++ = averageAlpha;
             inputRow += 3;
@@ -74,6 +81,8 @@ void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source)
 
     for (int y = 0; y < source.rows; ++y) {
         const uint8_t* inputRow = input;
+        if (!kFilterBorderWidth)
+          *output32++ = SkPackARGB32(0, 0, 0, 0);
         for (int x = 0; x < source.width; x += 3) {
             const uint8_t alphaRed = isBGR ? inputRow[2] : inputRow[0];
             const uint8_t alphaGreen = inputRow[1];
@@ -83,6 +92,8 @@ void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source)
 
             inputRow += 3;
         }
+        if (!kFilterBorderWidth)
+          *output32++ = SkPackARGB32(0, 0, 0, 0);
 
         input += source.pitch;
     }
@@ -91,7 +102,7 @@ void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source)
 void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bitmap& source)
 {
     // |source| has three times as many rows as normal, and an extra triple on the
-    // top and bottom.
+    // top and bottom (if FT_CONFIG_OPTION_SUBPIXEL_RENDERING).
 
     // source .oOo..      |.|oOo..
     //        .OOO.. -->  |.|OOO..
@@ -104,8 +115,8 @@ void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bitmap& s
     const uint8_t* input = source.buffer;
 
     // First we calculate the A8 mask.
-    input += 3 * source.pitch;   // skip the extra at the beginning
-    for (int y = 3; y < source.rows - 3; y += 3) {
+    input += kFilterBorderWidth * source.pitch;   // skip the extra at the beginning
+    for (int y = kFilterBorderWidth; y < source.rows - kFilterBorderWidth; y += 3) {
         const uint8_t* inputRow = input;
         uint8_t* outputRow = output;
         for (int x = 0; x < source.width; ++x) {
@@ -125,6 +136,11 @@ void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bitmap& s
     const int isBGR = SkFontHost::GetSubpixelOrder() == SkFontHost::kBGR_LCDOrder;
     input = source.buffer;
 
+    if (!kFilterBorderWidth) {
+        for (int x = 0; x < source.width; ++x)
+            *output32++ = SkPackARGB32(0, 0, 0, 0);
+    }
+
     for (int y = 0; y < source.rows; y += 3) {
         const uint8_t* inputRow = input;
         for (int x = 0; x < source.width; ++x) {
@@ -137,6 +153,11 @@ void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bitmap& s
         }
 
         input += source.pitch * 3;
+    }
+
+    if (!kFilterBorderWidth) {
+        for (int x = 0; x < source.width; ++x)
+            *output32++ = SkPackARGB32(0, 0, 0, 0);
     }
 }
 
