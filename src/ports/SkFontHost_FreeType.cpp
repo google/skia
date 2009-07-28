@@ -73,6 +73,8 @@ static SkMutex      gFTMutex;
 static int          gFTCount;
 static FT_Library   gFTLibrary;
 static SkFaceRec*   gFaceRecHead;
+static bool         gLCDSupportValid;  // true iff |gLCDSupport| has been set.
+static bool         gLCDSupport;  // true iff LCD is supported by the runtime.
 
 /////////////////////////////////////////////////////////////////////////
 
@@ -86,6 +88,8 @@ InitFreetype() {
     // Setup LCD filtering. This reduces colour fringes for LCD rendered
     // glyphs.
     err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
+    gLCDSupport = err == 0;
+    gLCDSupportValid = true;
 #endif
 
     return true;
@@ -263,6 +267,17 @@ static void unref_ft_face(FT_Face face) {
 ///////////////////////////////////////////////////////////////////////////
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+    if (!gLCDSupportValid) {
+      InitFreetype();
+      FT_Done_FreeType(gFTLibrary);
+    }
+
+    if (!gLCDSupport && rec->isLCD()) {
+      // If the runtime Freetype library doesn't support LCD mode, we disable
+      // it here.
+      rec->fMaskFormat = SkMask::kA8_Format;
+    }
+
     SkPaint::Hinting h = rec->getHinting();
     if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
         // collapse full->normaling hinting if we're not doing LCD
