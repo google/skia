@@ -110,10 +110,30 @@ static bool substituteTranspColor(SkBitmap* bm, SkPMColor match) {
     return reallyHasAlpha;
 }
 
-static inline bool isDirectModel(SkBitmap::Config config) {
-    return  config == SkBitmap::kARGB_8888_Config ||
-    config == SkBitmap::kARGB_4444_Config ||
-    config == SkBitmap::kRGB_565_Config;
+static bool canUpscalePaletteToConfig(SkBitmap::Config prefConfig,
+                                      bool srcHasAlpha) {
+    switch (prefConfig) {
+        case SkBitmap::kARGB_8888_Config:
+        case SkBitmap::kARGB_4444_Config:
+            return true;
+        case SkBitmap::kRGB_565_Config:
+            // only return true if the src is opaque (since 565 is opaque)
+            return !srcHasAlpha;
+        default:
+            return false;
+    }
+}
+
+// call only if color_type is PALETTE. Returns true if the ctable has alpha
+static bool hasTransparencyInPalette(png_structp png_ptr, png_infop info_ptr) {
+    png_bytep trans;
+    int num_trans;
+
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+        png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
+        return num_trans > 0;
+    }
+    return false;
 }
 
 bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
@@ -213,7 +233,12 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     }
     
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
-        config = SkBitmap::kIndex8_Config;  // defer sniffing for hasAlpha
+        config = SkBitmap::kIndex8_Config;
+        // now see if we can upscale to their requested config
+        bool paletteHasAlpha = hasTransparencyInPalette(png_ptr, info_ptr);
+        if (canUpscalePaletteToConfig(prefConfig, paletteHasAlpha)) {
+            config = prefConfig;
+        }
     } else {
         png_color_16p   transpColor = NULL;
         int             numTransp = 0;
@@ -286,6 +311,9 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     const int sampleSize = this->getSampleSize();
     SkScaledBitmapSampler sampler(origWidth, origHeight, sampleSize);
 
+    // we must always return the same config, independent of mode, so if we were
+    // going to respect prefConfig, it must have happened by now
+
     decodedBitmap->setConfig(config, sampler.scaledWidth(),
                              sampler.scaledHeight(), 0);
     if (SkImageDecoder::kDecodeBounds_Mode == mode) {
@@ -298,7 +326,6 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     // to |= PNG_COLOR_MASK_ALPHA, but all of its pixels are in fact opaque. We care, since we
     // draw lots faster if we can flag the bitmap has being opaque
     bool reallyHasAlpha = false;
-    bool upscaleFromPalette = false;
     SkColorTable* colorTable = NULL;
 
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
@@ -352,23 +379,13 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             *colorPtr = colorPtr[-1];
         }
         colorTable->unlockColors(true);
-
-        // see if we need to upscale to a direct-model
-        if (isDirectModel(prefConfig)) {
-            if (!reallyHasAlpha || SkBitmap::kRGB_565_Config != prefConfig) {
-                upscaleFromPalette = true;
-                config = prefConfig;
-                // need to re-call setConfig
-                decodedBitmap->setConfig(config, sampler.scaledWidth(),
-                                         sampler.scaledHeight(), 0);
-            }
-        }
     }
     
     SkAutoUnref aur(colorTable);
 
     if (!this->allocPixelRef(decodedBitmap,
-                             upscaleFromPalette ? NULL : colorTable)) {
+                             SkBitmap::kIndex8_Config == config ?
+                                colorTable : NULL)) {
         return false;
     }
     

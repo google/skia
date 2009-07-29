@@ -90,6 +90,7 @@ bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
 bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
                             SkBitmap::Config pref, Mode mode) {
     // pass a temporary bitmap, so that if we return false, we are assured of
@@ -101,17 +102,6 @@ bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
 
     if (!this->onDecode(stream, &tmp, pref, mode)) {
         return false;
-    }
-
-    if (tmp.config() != pref && tmp.canCopyTo(pref)) {
-        if (mode == kDecodeBounds_Mode) {
-            tmp.setConfig(pref, tmp.width(), tmp.height());
-        } else if (mode == kDecodePixels_Mode) {
-            SkBitmap tmp2;
-            if (tmp.copyTo(&tmp2, pref, this->getAllocator())) {
-                tmp.swap(tmp2);
-            }
-        }
     }
     bm->swap(tmp);
     return true;
