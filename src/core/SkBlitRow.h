@@ -33,7 +33,7 @@ public:
     static Proc Factory(unsigned flags, SkBitmap::Config);
 
 private:
-    /** These global arrays are indexed using the flags parameterr to Factory,
+    /** These global arrays are indexed using the flags parameter to Factory,
         and contain either NULL, or a platform-specific function-ptr to be used
         in place of the system default.
      */
