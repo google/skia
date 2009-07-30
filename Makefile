@@ -26,6 +26,10 @@ DEFINES += -DSK_SUPPORT_LCDTEXT
 include src/core/core_files.mk
 SRC_LIST := $(addprefix src/core/, $(SOURCE))
 
+# add the opts (optimizations)
+include src/opts/opts_files.mk
+SRC_LIST += $(addprefix src/opts/, $(SOURCE))
+
 # we usually need ports
 include src/ports/ports_files.mk
 SRC_LIST += $(addprefix src/ports/, $(SOURCE))
