@@ -215,27 +215,18 @@ static void S32A_D565_Blend_Dither(uint16_t* SK_RESTRICT dst,
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_T32CB16BLEND_ASM
-    extern "C" void scanline_t32cb16blend_arm(uint16_t*, uint32_t*, size_t);
-#endif
-
-static const SkBlitRow::Proc gProcs16[] = {
+static const SkBlitRow::Proc gDefault_565_Procs[] = {
     // no dither
     S32_D565_Opaque,
     S32_D565_Blend,
 
-#ifdef USE_T32CB16BLEND_ASM
-    (SkBlitRow::Proc)scanline_t32cb16blend_arm,
-#else
     S32A_D565_Opaque,
-#endif
-
     S32A_D565_Blend,
-    
+
     // dither
     S32_D565_Opaque_Dither,
     S32_D565_Blend_Dither,
-    
+
     S32A_D565_Opaque_Dither,
     S32A_D565_Blend_Dither
 };
@@ -243,16 +234,26 @@ static const SkBlitRow::Proc gProcs16[] = {
 extern SkBlitRow::Proc SkBlitRow_Factory_4444(unsigned flags);
     
 SkBlitRow::Proc SkBlitRow::Factory(unsigned flags, SkBitmap::Config config) {
-    SkASSERT(flags < SK_ARRAY_COUNT(gProcs16));
-    
+    SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_Procs));
+
+    SkBlitRow::Proc proc = NULL;
+
     switch (config) {
         case SkBitmap::kRGB_565_Config:
-            return gProcs16[flags];
+            proc = gPlatform_565_Procs[flags];
+            if (NULL == proc) {
+                proc = gDefault_565_Procs[flags];
+            }
+            break;
         case SkBitmap::kARGB_4444_Config:
-            return SkBlitRow_Factory_4444(flags);
+            proc = gPlatform_4444_Procs[flags];
+            if (NULL == proc) {
+                proc = SkBlitRow_Factory_4444(flags);
+            }
+            break;
         default:
             break;
     }
-    return NULL;
+    return proc;
 }
     
