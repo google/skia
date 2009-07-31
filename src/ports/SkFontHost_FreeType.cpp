@@ -89,8 +89,8 @@ InitFreetype() {
     // glyphs.
     err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
     gLCDSupport = err == 0;
-    gLCDSupportValid = true;
 #endif
+    gLCDSupportValid = true;
 
     return true;
 }
