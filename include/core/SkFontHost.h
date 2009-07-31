@@ -87,7 +87,7 @@ public:
         the caller is responsible for calling unref() when it is no longer used.
      */
     static SkTypeface* CreateTypefaceFromFile(const char path[]);
-    
+
     ///////////////////////////////////////////////////////////////////////////
     
     /** Returns true if the specified unique ID matches an existing font.
@@ -101,6 +101,35 @@ public:
         when it is finished reading the data.
     */
     static SkStream* OpenStream(SkFontID uniqueID);
+
+    /** Some fonts are stored in files. If that is true for the fontID, then
+        this returns the byte length of the full file path. If path is not null,
+        then the full path is copied into path (allocated by the caller), up to
+        length bytes. If index is not null, then it is set to the truetype
+        collection index for this font, or 0 if the font is not in a collection.
+
+        Note: GetFileName does not assume that path is a null-terminated string,
+        so when it succeeds, it only copies the bytes of the file name and
+        nothing else (i.e. it copies exactly the number of bytes returned by the
+        function. If the caller wants to treat path[] as a C string, it must be
+        sure that it is allocated at least 1 byte larger than the returned size,
+        and it must copy in the terminating 0.
+
+        If the fontID does not correspond to a file, then the function returns
+        0, and the path and index parameters are ignored.
+
+        @param fontID   The font whose file name is being queried
+        @param path     Either NULL, or storage for receiving up to length bytes
+                        of the font's file name. Allocated by the caller.
+        @param length   The maximum space allocated in path (by the caller).
+                        Ignored if path is NULL.
+        @param index    Either NULL, or receives the TTC index for this font.
+                        If the font is not a TTC, then will be set to 0.
+        @return The byte length of th font's file name, or 0 if the font is not
+                baked by a file.
+     */
+    static size_t GetFileName(SkFontID fontID, char path[], size_t length,
+                              int32_t* index);
 
     ///////////////////////////////////////////////////////////////////////////
 
