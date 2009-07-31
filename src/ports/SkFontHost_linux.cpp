@@ -539,6 +539,12 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     return stream;
 }
 
+size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
+                               int32_t* index) {
+    SkDebugf("SkFontHost::GetFileName unimplemented\n");
+    return 0;
+}
+
 void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream) {
     FamilyTypeface* tf = (FamilyTypeface*)SkFontHost::ResolveTypeface(fontID);
     if (NULL != tf) {

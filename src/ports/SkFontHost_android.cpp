@@ -267,6 +267,7 @@ public:
     
     virtual SkStream* openStream() = 0;
     virtual const char* getUniqueString() const = 0;
+    virtual const char* getFilePath() const = 0;
     
 private:
     bool    fIsSysFont;
@@ -297,6 +298,7 @@ public:
         return fStream;
     }
     virtual const char* getUniqueString() const { return NULL; }
+    virtual const char* getFilePath() const { return NULL; }
 
 private:
     SkStream* fStream;
@@ -340,6 +342,9 @@ public:
             str += 1;   // skip the '/'
         }
         return str;
+    }
+    virtual const char* getFilePath() const {
+        return fPath.c_str();
     }
 
 private:
@@ -590,6 +595,27 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
         stream = NULL;
     }
     return stream;
+}
+
+size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
+                               int32_t* index) {
+    SkAutoMutexAcquire  ac(gFamilyMutex);
+
+    FamilyTypeface* tf = (FamilyTypeface*)find_from_uniqueID(fontID);
+    const char* src = tf ? tf->getFilePath() : NULL;
+
+    if (src) {
+        size_t size = strlen(src);
+        if (path) {
+            memcpy(path, src, SkMin32(size, length));
+        }
+        if (index) {
+            *index = 0; // we don't have collections (yet)
+        }
+        return size;
+    } else {
+        return 0;
+    }
 }
 
 uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {

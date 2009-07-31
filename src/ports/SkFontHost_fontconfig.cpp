@@ -333,6 +333,27 @@ SkStream* SkFontHost::OpenStream(uint32_t id)
     return SkNEW_ARGS(SkFILEStream, (i->second.c_str()));
 }
 
+size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
+                               int32_t* index) {
+    SkAutoMutexAcquire ac(global_fc_map_lock);
+    const unsigned fileid = UniqueIdToFileId(id);
+    
+    std::map<unsigned, std::string>::const_iterator i =
+    global_fc_map_inverted.find(fileid);
+    if (i == global_fc_map_inverted.end()) {
+        return 0;
+    }
+
+    const std::string& str = i->second;
+    if (path) {
+        memcpy(path, str.c_str(), SkMin32(str.size(), length));
+    }
+    if (index) {    // TODO: check if we're in a TTC
+        *index = 0;
+    }
+    return str.size();
+}
+
 void SkFontHost::Serialize(const SkTypeface*, SkWStream*) {
     SkASSERT(!"SkFontHost::Serialize unimplemented");
 }
