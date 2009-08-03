@@ -506,6 +506,9 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
             fShaderProc16 = Repeat_S16_D16_filter_DX_shaderproc;
         }
     }
+
+    // see if our platform has any accelerated overrides
+    this->platformProcs();
     return true;
 }
 
