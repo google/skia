@@ -56,30 +56,33 @@ struct SkBitmapProcState {
     SampleProc32        fSampleProc32;      // chooseProcs
     SampleProc16        fSampleProc16;      // chooseProcs
 
-    SkMatrix            fUnitInvMatrix;     // chooseProcs
+    const SkBitmap*     fBitmap;            // chooseProcs - orig or mip
+    const SkMatrix*     fInvMatrix;         // chooseProcs
+    SkMatrix::MapXYProc fInvProc;           // chooseProcs
+
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
-    const SkBitmap*     fBitmap;            // chooseProcs - orig or mip
-    SkBitmap            fOrigBitmap;        // CONSTRUCTOR
-    SkBitmap            fMipBitmap;
     SkPMColor           fPaintPMColor;      // chooseProcs - A8 config
-    const SkMatrix*     fInvMatrix;         // chooseProcs
-    SkMatrix::MapXYProc fInvProc;           // chooseProcs
-    SkFixed             fInvSx, fInvSy;     // chooseProcs
+    SkFixed             fInvSx;             // chooseProcs
     SkFixed             fInvKy;             // chooseProcs
     uint16_t            fAlphaScale;        // chooseProcs
     uint8_t             fInvType;           // chooseProcs
     uint8_t             fTileModeX;         // CONSTRUCTOR
     uint8_t             fTileModeY;         // CONSTRUCTOR
     SkBool8             fDoFilter;          // chooseProcs
-    
-    bool chooseProcs(const SkMatrix& inv, const SkPaint&);
 
 private:
+    friend class SkBitmapProcShader;
+
+    SkMatrix            fUnitInvMatrix;     // chooseProcs
+    SkBitmap            fOrigBitmap;        // CONSTRUCTOR
+    SkBitmap            fMipBitmap;
+
     MatrixProc chooseMatrixProc();
+    bool chooseProcs(const SkMatrix& inv, const SkPaint&);
 };
 
 #endif
