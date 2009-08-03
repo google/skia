@@ -74,6 +74,21 @@ struct SkBitmapProcState {
     uint8_t             fTileModeY;         // CONSTRUCTOR
     SkBool8             fDoFilter;          // chooseProcs
 
+    /** Platforms implement this, and can optionally overwrite only the
+        following fields:
+
+        fShaderProc32
+        fShaderProc16
+        fMatrixProc
+        fSampleProc32
+        fSampleProc32
+
+        They will already have valid function pointers, so a platform that does
+        not have an accelerated version can just leave that field as is. A valid
+        implementation can do nothing (see SkBitmapProcState_opts_none.cpp)
+     */
+    void platformProcs();
+
 private:
     friend class SkBitmapProcShader;
 
