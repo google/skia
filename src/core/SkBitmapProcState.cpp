@@ -366,7 +366,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fInvProc        = m->getMapXYProc();
     fInvType        = m->getType();
     fInvSx          = SkScalarToFixed(m->getScaleX());
-    fInvSy          = SkScalarToFixed(m->getScaleY());
     fInvKy          = SkScalarToFixed(m->getSkewY());
 
     fAlphaScale = SkAlpha255To256(paint.getAlpha());
