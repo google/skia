@@ -92,8 +92,6 @@ out/libskia.a: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp benchmain.cpp BitmapBench.cpp
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
-BENCH_SRCS += src/effects/SkNWayCanvas.cpp
-
 # add any optional codecs for this app
 ifeq ($(SKIA_BUILD_FOR),mac)
     BENCH_SRCS += bench/TextBench.cpp

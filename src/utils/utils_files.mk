@@ -5,6 +5,7 @@ SOURCE := \
 	SkDumpCanvas.cpp \
 	SkInterpolator.cpp \
 	SkNinePatch.cpp \
+    SkNWayCanvas.cpp \
     SkParse.cpp \
     SkParseColor.cpp \
     SkParsePath.cpp \
