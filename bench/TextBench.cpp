@@ -80,7 +80,9 @@ class TextBench : public SkBenchmark {
     enum { N = 300 };
 public:
     TextBench(const char text[], int ps, bool linearText, bool posText) {
-        test_tables();
+        if (false) {
+            test_tables();
+        }
         
         fText.set(text);
 
