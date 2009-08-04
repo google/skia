@@ -9,6 +9,19 @@
 
 #include "SkBenchmark.h"
 
+#ifdef ANDROID
+static void log_error(const char msg[]) { SkDebugf("%s", msg); }
+static void log_progress(const char msg[]) { SkDebugf("%s", msg); }
+#else
+static void log_error(const char msg[]) { fprintf(stderr, "%s", msg); }
+static void log_progress(const char msg[]) { printf("%s", msg); }
+#endif
+
+static void log_error(const SkString& str) { log_error(str.c_str()); }
+static void log_progress(const SkString& str) { log_progress(str.c_str()); }
+
+///////////////////////////////////////////////////////////////////////////////
+
 static void erase(SkBitmap& bm) {
     if (bm.config() == SkBitmap::kA8_Config) {
         bm.eraseColor(0);
@@ -143,6 +156,14 @@ static void compare_pict_to_bitmap(SkPicture* pict, const SkBitmap& bm) {
     }
 }
 
+static bool parse_bool_arg(char * const* argv, char* const* stop, bool* var) {
+    if (argv < stop) {
+        *var = atoi(*argv) != 0;
+        return true;
+    }
+    return false;
+}
+
 static const struct {
     SkBitmap::Config    fConfig;
     const char*         fName;
@@ -168,6 +189,7 @@ int main (int argc, char * const argv[]) {
     int repeatDraw = 1;
     int forceAlpha = 0xFF;
     bool forceAA = true;
+    bool forceFilter = false;
     bool doScale = false;
     bool doRotate = false;
     bool doClip = false;
@@ -199,7 +221,7 @@ int main (int argc, char * const argv[]) {
                     repeatDraw = 1;
                 }
             } else {
-                fprintf(stderr, "missing arg for -repeat\n");
+                log_error("missing arg for -repeat\n");
                 return -1;
             }
         } else if (!strcmp(*argv, "-rotate")) {
@@ -209,19 +231,28 @@ int main (int argc, char * const argv[]) {
         } else if (!strcmp(*argv, "-clip")) {
             doClip = true;
         } else if (strcmp(*argv, "-forceAA") == 0) {
-            forceAA = true;
-        } else if (strcmp(*argv, "-forceBW") == 0) {
-            forceAA = false;
+            if (!parse_bool_arg(++argv, stop, &forceAA)) {
+                log_error("missing arg for -forceAA\n");
+                return -1;
+            }
+        } else if (strcmp(*argv, "-forceFilter") == 0) {
+            if (!parse_bool_arg(++argv, stop, &forceFilter)) {
+                log_error("missing arg for -forceFilter\n");
+                return -1;
+            }
         } else if (strcmp(*argv, "-forceBlend") == 0) {
-            forceAlpha = 0x80;
-        } else if (strcmp(*argv, "-forceOpaque") == 0) {
-            forceAlpha = 0xFF;
+            bool wantAlpha = false;
+            if (!parse_bool_arg(++argv, stop, &wantAlpha)) {
+                log_error("missing arg for -forceBlend\n");
+                return -1;
+            }
+            forceAlpha = wantAlpha ? 0x80 : 0xFF;
         } else if (strcmp(*argv, "-match") == 0) {
             argv++;
             if (argv < stop) {
                 matchStr = *argv;
             } else {
-                fprintf(stderr, "missing arg for -match\n");
+                log_error("missing arg for -match\n");
                 return -1;
             }
         } else if (strcmp(*argv, "-config") == 0) {
@@ -233,15 +264,19 @@ int main (int argc, char * const argv[]) {
                     configName = gConfigs[index].fName;
                     configCount = 1;
                 } else {
-                    fprintf(stderr, "unrecognized config %s\n", *argv);
+                    SkString str;
+                    str.printf("unrecognized config %s\n", *argv);
+                    log_error(str);
                     return -1;
                 }
             } else {
-                fprintf(stderr, "missing arg for -config\n");
+                log_error("missing arg for -config\n");
                 return -1;
             }
         } else {
-            fprintf(stderr, "unrecognized arg %s\n", *argv);
+            SkString str;
+            str.printf("unrecognized arg %s\n", *argv);
+            log_error(str);
             return -1;
         }
     }
@@ -256,13 +291,18 @@ int main (int argc, char * const argv[]) {
         
         bench->setForceAlpha(forceAlpha);
         bench->setForceAA(forceAA);
+        bench->setForceFilter(forceFilter);
 
         // only run benchmarks if their name contains matchStr
         if (matchStr && strstr(bench->getName(), matchStr) == NULL) {
             continue;
         }
 
-        printf("running bench %16s", bench->getName());
+        {
+            SkString str;
+            str.printf("running bench %16s", bench->getName());
+            log_progress(str);
+        }
 
         for (int configIndex = 0; configIndex < configCount; configIndex++) {
             if (configCount > 1) {
@@ -309,14 +349,16 @@ int main (int argc, char * const argv[]) {
                 }
             }
             if (repeatDraw > 1) {
-                printf("  %4s:%7.2f", configName,
-                       (SkTime::GetMSecs() - now) / (double)repeatDraw);
+                SkString str;
+                str.printf("  %4s:%7.2f", configName,
+                           (SkTime::GetMSecs() - now) / (double)repeatDraw);
+                log_progress(str);
             }
             if (outDir.size() > 0) {
                 saveFile(bench->getName(), configName, outDir.c_str(), bm);
             }
         }
-        printf("\n");
+        log_progress("\n");
     }
     
     return 0;
