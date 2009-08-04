@@ -118,6 +118,16 @@ static void performRotate(SkCanvas* canvas, int w, int h) {
     canvas->translate(-x, -y);
 }
 
+static void performScale(SkCanvas* canvas, int w, int h) {
+    const SkScalar x = SkIntToScalar(w) / 2;
+    const SkScalar y = SkIntToScalar(h) / 2;
+    
+    canvas->translate(x, y);
+    // just enough so we can't take the sprite case
+    canvas->scale(SK_Scalar1 * 99/100, SK_Scalar1 * 99/100);
+    canvas->translate(-x, -y);
+}
+
 static void compare_pict_to_bitmap(SkPicture* pict, const SkBitmap& bm) {
     SkBitmap bm2;
     
@@ -158,12 +168,16 @@ int main (int argc, char * const argv[]) {
     int repeatDraw = 1;
     int forceAlpha = 0xFF;
     bool forceAA = true;
+    bool doScale = false;
     bool doRotate = false;
     bool doClip = false;
     bool doPict = false;
+    const char* matchStr = NULL;
 
     SkString outDir;
-    SkBitmap::Config outConfig = SkBitmap::kARGB_8888_Config;
+    SkBitmap::Config outConfig = SkBitmap::kNo_Config;
+    const char* configName = "";
+    int configCount = SK_ARRAY_COUNT(gConfigs);
 
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -190,6 +204,8 @@ int main (int argc, char * const argv[]) {
             }
         } else if (!strcmp(*argv, "-rotate")) {
             doRotate = true;
+        } else if (!strcmp(*argv, "-scale")) {
+            doScale = true;
         } else if (!strcmp(*argv, "-clip")) {
             doClip = true;
         } else if (strcmp(*argv, "-forceAA") == 0) {
@@ -200,17 +216,36 @@ int main (int argc, char * const argv[]) {
             forceAlpha = 0x80;
         } else if (strcmp(*argv, "-forceOpaque") == 0) {
             forceAlpha = 0xFF;
-        } else {
-            int index = findConfig(*argv);
-            if (index >= 0) {
-                outConfig = gConfigs[index].fConfig;
+        } else if (strcmp(*argv, "-match") == 0) {
+            argv++;
+            if (argv < stop) {
+                matchStr = *argv;
+            } else {
+                fprintf(stderr, "missing arg for -match\n");
+                return -1;
             }
+        } else if (strcmp(*argv, "-config") == 0) {
+            argv++;
+            if (argv < stop) {
+                int index = findConfig(*argv);
+                if (index >= 0) {
+                    outConfig = gConfigs[index].fConfig;
+                    configName = gConfigs[index].fName;
+                    configCount = 1;
+                } else {
+                    fprintf(stderr, "unrecognized config %s\n", *argv);
+                    return -1;
+                }
+            } else {
+                fprintf(stderr, "missing arg for -config\n");
+                return -1;
+            }
+        } else {
+            fprintf(stderr, "unrecognized arg %s\n", *argv);
+            return -1;
         }
     }
-    
-    const char* configName = "";
-    int configCount = SK_ARRAY_COUNT(gConfigs);
-    
+
     Iter iter;
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
@@ -221,6 +256,11 @@ int main (int argc, char * const argv[]) {
         
         bench->setForceAlpha(forceAlpha);
         bench->setForceAA(forceAA);
+
+        // only run benchmarks if their name contains matchStr
+        if (matchStr && strstr(bench->getName(), matchStr) == NULL) {
+            continue;
+        }
 
         printf("running bench %16s", bench->getName());
 
@@ -239,6 +279,9 @@ int main (int argc, char * const argv[]) {
 
             if (doClip) {
                 performClip(&canvas, dim.fX, dim.fY);
+            }
+            if (doScale) {
+                performScale(&canvas, dim.fX, dim.fY);
             }
             if (doRotate) {
                 performRotate(&canvas, dim.fX, dim.fY);
