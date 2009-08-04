@@ -23,6 +23,7 @@ void SkBenchmark::draw(SkCanvas* canvas) {
 void SkBenchmark::setupPaint(SkPaint* paint) {
     paint->setAlpha(fForceAlpha);
     paint->setAntiAlias(fForceAA);
+    paint->setFilterBitmap(fForceFilter);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

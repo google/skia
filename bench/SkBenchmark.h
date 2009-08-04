@@ -23,7 +23,11 @@ public:
     void setForceAA(bool aa) {
         fForceAA = aa;
     }
-
+    
+    void setForceFilter(bool filter) {
+        fForceFilter = filter;
+    }
+    
 protected:
     void setupPaint(SkPaint* paint);
 
@@ -35,6 +39,7 @@ protected:
 private:
     int     fForceAlpha;
     bool    fForceAA;
+    bool    fForceFilter;
 };
 
 static inline SkIPoint SkMakeIPoint(int x, int y) {
