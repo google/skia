@@ -17,6 +17,8 @@
 
 #include <machine/cpu-features.h>
 #include "SkBlitRow.h"
+#include "SkColorPriv.h"
+#include "SkDither.h"
 
 #if defined(__ARM_HAVE_NEON) && !defined(SK_CPU_BENDIAN)
 static void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,

@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+#include <machine/cpu-features.h>
 #include "SkBitmapProcState.h"
+#include "SkColorPriv.h"
+#include "SkUtils.h"
 
 #if __ARM_ARCH__ >= 5 && !defined(SK_CPU_BENDIAN)
 void S16_D16_nofilter_DX_arm(const SkBitmapProcState& s,
@@ -84,7 +87,7 @@ void S16_D16_filter_DX_arm(const SkBitmapProcState& s,
 {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fDoFilter);
-    
+
     const char* SK_RESTRICT srcAddr = (const char*)s.fBitmap->getPixels();
     unsigned rb = s.fBitmap->rowBytes();
     unsigned subY;
@@ -92,7 +95,7 @@ void S16_D16_filter_DX_arm(const SkBitmapProcState& s,
     const uint16_t* SK_RESTRICT row1;
     unsigned int rowgap;
     const uint32_t c7ffe = 0x7ffe;
-    
+
     // setup row ptrs and update proc_table
     {
         uint32_t XY = *xy++;
@@ -102,10 +105,10 @@ void S16_D16_filter_DX_arm(const SkBitmapProcState& s,
         rowgap = (unsigned int)row1 - (unsigned int)row0;
         subY = y0 & 0xF;
     }
-    
+
     unsigned int count4 = ((count >> 2) << 4) | subY;
     count &= 3;
-    
+
     asm volatile (
                   "and            r4, %[count4], #0xF             \n\t"   // mask off subY
                   "vmov.u16       d2[0], r4                       \n\t"   // move subY to Neon
@@ -250,25 +253,24 @@ void S16_D16_filter_DX_arm(const SkBitmapProcState& s,
                   : "cc", "memory", "r4", "r5", "r6", "r7", "r8", "d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d16", "d17", "d18", "d19", "d20", "d21", "d22", "d23", "d24", "d25", "d26", "d27", "d28", "d29", "d30", "d31"
                   );
     
-    while(count != 0)
-    {
+    while (count != 0) {
         uint32_t XX = *xy++;    // x0:14 | subX:4 | x1:14
         unsigned x0 = XX >> 14;
         unsigned x1 = XX & 0x3FFF;
         unsigned subX = x0 & 0xF;
         x0 >>= 4;
-        
+
         uint32_t a00 = SkExpand_rgb_16(row0[x0]);
         uint32_t a01 = SkExpand_rgb_16(row0[x1]);
         uint32_t a10 = SkExpand_rgb_16(row1[x0]);
         uint32_t a11 = SkExpand_rgb_16(row1[x1]);
-        
+
         int xy = subX * subY >> 3;
         uint32_t c = a00 * (32 - 2*subY - 2*subX + xy) +
         a01 * (2*subX - xy) +
         a10 * (2*subY - xy) +
         a11 * xy;
-        
+
         *colors++ = SkCompact_rgb_16(c>>5);
         count--;
     }
@@ -357,7 +359,7 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
             src = srcAddr[*xx++]; *colors++ = table[src];
         }
     }
-    
+
     s.fBitmap->getColorTable()->unlock16BitCache(); 
 }
 
@@ -367,22 +369,22 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(s.fDoFilter == false);
-    
+
     const SkPMColor* SK_RESTRICT table = s.fBitmap->getColorTable()->lockColors();
     const uint8_t* SK_RESTRICT srcAddr = (const uint8_t*)s.fBitmap->getPixels();
-    
+
     // buffer is y32, x16, x16, x16, x16, x16
     // bump srcAddr to the proper row, since we're told Y never changes
     SkASSERT((unsigned)xy[0] < (unsigned)s.fBitmap->height());
     srcAddr = (const uint8_t*)((const char*)srcAddr + xy[0] * s.fBitmap->rowBytes());
-    
+
     if (1 == s.fBitmap->width()) {
         uint8_t src = srcAddr[0];
         SkPMColor dstValue = table[src];
         sk_memset32(colors, dstValue, count);
     } else {
         const uint16_t* xx = (const uint16_t*)(xy + 1);
-        
+
         asm volatile (
                       "subs       %[count], %[count], #8          \n\t"   // decrement count by 8, set flags
                       "blt        2f                              \n\t"   // if count < 0, branch to singles
@@ -431,7 +433,7 @@ void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
                       : "memory", "cc", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11"
                       );
     }
-    
+
     s.fBitmap->getColorTable()->unlockColors(false);
 }
 #endif //__ARM_ARCH__ >= 6 && !defined(SK_CPU_BENDIAN)
@@ -661,6 +663,9 @@ void SI8_alpha_D32_filter_DXDY_arm(const SkBitmapProcState& s,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*  If we replace a sampleproc, then we null-out the associated shaderproc,
+    otherwise the shader won't even look at the matrix/sampler
+ */
 void SkBitmapProcState::platformProcs() {
     bool doFilter = fDoFilter;
     bool isOpaque = 256 == fAlphaScale;
@@ -675,20 +680,26 @@ void SkBitmapProcState::platformProcs() {
 #if defined(__ARM_HAVE_NEON) && !defined(SK_CPU_BENDIAN)
             if (justDx && doFilter) {
                 fSampleProc16 = S16_D16_filter_DX_arm;
+                fShaderProc16 = NULL;
             }
 #endif
 #if __ARM_ARCH__ >= 5 && !defined(SK_CPU_BENDIAN)
             if (justDx && !doFilter) {
                 fSampleProc16 = S16_D16_nofilter_DX_arm;
+                fShaderProc16 = NULL;
             }
 #endif
             break;  // k565
         case SkBitmap::kIndex8_Config:
 #if __ARM_ARCH__ >= 6 && !defined(SK_CPU_BENDIAN)
             if (justDx && !doFilter) {
+#if 0   /* crashing on android device */
                 fSampleProc16 = SI8_D16_nofilter_DX_arm;
+                fShaderProc16 = NULL;
+#endif
                 if (isOpaque) {
                     fSampleProc32 = SI8_opaque_D32_nofilter_DX_arm;
+                    fShaderProc32 = NULL;
                 }
             }
 #endif
@@ -707,6 +718,7 @@ void SkBitmapProcState::platformProcs() {
                         fSampleProc32 = SI8_alpha_D32_filter_DXDY_arm;
                     }
                 }
+                fShaderProc32 = NULL;
             }
 #endif
             break;  // kIndex8
