@@ -376,6 +376,13 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
             break;
         }
 
+        if (fRec.fMaskFormat != SkMask::kBW_Format) {
+            // If the user requested anti-aliasing then we don't use bitmap
+            // strikes in the font. The consensus among our Japanese users is
+            // that this results in the best quality.
+            loadFlags |= FT_LOAD_NO_BITMAP;
+        }
+
         fLoadGlyphFlags = loadFlags;
     }
 
