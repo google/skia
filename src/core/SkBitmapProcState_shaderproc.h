@@ -41,12 +41,13 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
         unsigned x0 = TILEX_PROCF(fx, maxX);
         unsigned x1 = TILEX_PROCF((fx + oneX), maxX);
 
-        uint32_t c = FILTER_PROC(subX, subY,
-                                 SRC_TO_FILTER(row0[x0]),
-                                 SRC_TO_FILTER(row0[x1]),
-                                 SRC_TO_FILTER(row1[x0]),
-                                 SRC_TO_FILTER(row1[x1]));
-        *colors++ = FILTER_TO_DST(c);
+        FILTER_PROC(subX, subY,
+                    SRC_TO_FILTER(row0[x0]),
+                    SRC_TO_FILTER(row0[x1]),
+                    SRC_TO_FILTER(row1[x0]),
+                    SRC_TO_FILTER(row1[x1]),
+                    colors);
+        colors += 1;
 
         fx += dx;
     } while (--count != 0);

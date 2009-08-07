@@ -76,6 +76,7 @@ static void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
     SkASSERT((unsigned)xy[0] < (unsigned)s.fBitmap->height());
     srcAddr = (const SRCTYPE*)((const char*)srcAddr +
                                                 xy[0] * s.fBitmap->rowBytes());
+    xy += 1;
     
     SRCTYPE src;
     
@@ -85,20 +86,20 @@ static void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
         BITMAPPROC_MEMSET(colors, dstValue, count);
     } else {
         int i;
-        const uint16_t* SK_RESTRICT xx = (const uint16_t*)(xy + 1);
         for (i = (count >> 2); i > 0; --i) {
-            SkASSERT(*xx < (unsigned)s.fBitmap->width());
-            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+            uint32_t xx0 = *xy++;
+            uint32_t xx1 = *xy++;
+            SRCTYPE x0 = srcAddr[UNPACK_PRIMARY_SHORT(xx0)];
+            SRCTYPE x1 = srcAddr[UNPACK_SECONDARY_SHORT(xx0)];
+            SRCTYPE x2 = srcAddr[UNPACK_PRIMARY_SHORT(xx1)];
+            SRCTYPE x3 = srcAddr[UNPACK_SECONDARY_SHORT(xx1)];
             
-            SkASSERT(*xx < (unsigned)s.fBitmap->width());
-            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
-            
-            SkASSERT(*xx < (unsigned)s.fBitmap->width());
-            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
-            
-            SkASSERT(*xx < (unsigned)s.fBitmap->width());
-            src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
+            *colors++ = RETURNDST(x0);
+            *colors++ = RETURNDST(x1);
+            *colors++ = RETURNDST(x2);
+            *colors++ = RETURNDST(x3);
         }
+        const uint16_t* SK_RESTRICT xx = (const uint16_t*)(xy);
         for (i = (count & 3); i > 0; --i) {
             SkASSERT(*xx < (unsigned)s.fBitmap->width());
             src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
@@ -144,12 +145,13 @@ static void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
         unsigned subX = x0 & 0xF;        
         x0 >>= 4;
 
-        uint32_t c = FILTER_PROC(subX, subY,
-                                 SRC_TO_FILTER(row0[x0]),
-                                 SRC_TO_FILTER(row0[x1]),
-                                 SRC_TO_FILTER(row1[x0]),
-                                 SRC_TO_FILTER(row1[x1]));
-        *colors++ = FILTER_TO_DST(c);
+        FILTER_PROC(subX, subY,
+                    SRC_TO_FILTER(row0[x0]),
+                    SRC_TO_FILTER(row0[x1]),
+                    SRC_TO_FILTER(row1[x0]),
+                    SRC_TO_FILTER(row1[x1]),
+                    colors);
+        colors += 1;
 
     } while (--count != 0);
     
@@ -186,12 +188,13 @@ static void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
         const SRCTYPE* SK_RESTRICT row0 = (const SRCTYPE*)(srcAddr + y0 * rb);
         const SRCTYPE* SK_RESTRICT row1 = (const SRCTYPE*)(srcAddr + y1 * rb);
         
-        uint32_t c = FILTER_PROC(subX, subY,
-                                 SRC_TO_FILTER(row0[x0]),
-                                 SRC_TO_FILTER(row0[x1]),
-                                 SRC_TO_FILTER(row1[x0]),
-                                 SRC_TO_FILTER(row1[x1]));
-        *colors++ = FILTER_TO_DST(c);
+        FILTER_PROC(subX, subY,
+                    SRC_TO_FILTER(row0[x0]),
+                    SRC_TO_FILTER(row0[x1]),
+                    SRC_TO_FILTER(row1[x0]),
+                    SRC_TO_FILTER(row1[x1]),
+                    colors);
+        colors += 1;
     } while (--count != 0);
     
 #ifdef POSTAMBLE
