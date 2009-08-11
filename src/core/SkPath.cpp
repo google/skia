@@ -1233,11 +1233,16 @@ void SkPath::validate() const {
     if (!fBoundsIsDirty) {
         SkRect bounds;
         compute_pt_bounds(&bounds, fPts);
-        // can't call contains(), since it returns false if the rect is empty
-        SkASSERT(fBounds.fLeft <= bounds.fLeft);
-        SkASSERT(fBounds.fTop <= bounds.fTop);
-        SkASSERT(fBounds.fRight >= bounds.fRight);
-        SkASSERT(fBounds.fBottom >= bounds.fBottom);
+        if (fPts.count() <= 1) {
+            // if we're empty, fBounds may be empty but translated, so we can't
+            // necessarily compare to bounds directly
+            // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
+            // be [2, 2, 2, 2]
+            SkASSERT(bounds.isEmpty());
+            SkASSERT(fBounds.isEmpty());
+        } else {
+            fBounds.contains(bounds);
+        }
     }
 }
 
