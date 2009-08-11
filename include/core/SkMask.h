@@ -100,7 +100,6 @@ struct SkMask {
     */
     const uint32_t* getAddrLCD(int x, int y) const {
         SkASSERT(fFormat == kHorizontalLCD_Format || fFormat == kVerticalLCD_Format);
-        SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);
 
         return reinterpret_cast<const uint32_t*>(fImage + SkAlign4(fRowBytes * fBounds.height())) +
