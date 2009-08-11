@@ -7,61 +7,6 @@
 #include "SkString.h"
 #include "SkTemplates.h"
 
-static void dump_font(const char name[], SkFontID fontID) {
-    SkDebugf("Font \"%s\" %x\n", name, fontID);
-    int count = SkFontHost::CountTables(fontID);
-    SkAutoTArray<SkFontTableTag> storage(count);
-    SkFontTableTag* tags = storage.get();
-    SkFontHost::GetTableTags(fontID, tags);
-    for (int i = 0; i < count; i++) {
-        uint32_t tag = tags[i];
-        uint8_t data[4];
-        size_t size = SkFontHost::GetTableSize(fontID, tag);
-        size_t bytes = SkFontHost::GetTableData(fontID, tag,
-                                                0, sizeof(data), data);
-        SkDebugf("   tag=%c%c%c%c size=%d bytes=%d %x %x %x %x\n",
-                 uint8_t(tag>>24), uint8_t(tag>>16), uint8_t(tag>>8), uint8_t(tag),
-                 size, bytes, data[0], data[1], data[2], data[3]);
-    }
-    
-    SkSfntTable_head head;
-    if (SkSfntUtils::ReadTable_head(fontID, &head)) {
-        SkDebugf("--- head: version=%x magic=%x upem=%d style=%x\n", head.fVersion,
-                 head.fMagicNumber, head.fUnitsPerEm, head.fMacStyle);
-    } else {
-        SkDebugf("------- head wasn't read\n");
-    }
-
-    SkSfntTable_maxp maxp;
-    if (SkSfntUtils::ReadTable_maxp(fontID, &maxp)) {
-        SkDebugf("--- maxp: version=%x glyphs=%d points=%d ctrs=%d\n", maxp.fVersion,
-                 maxp.fNumGlyphs, maxp.fMaxPoints, maxp.fMaxContours);
-    } else {
-        SkDebugf("------- maxp wasn't read\n");
-    }
-}
-
-static void test_tables() {
-    static bool gOnce;
-    if (gOnce) {
-        return;
-    }
-    gOnce = true;
-    
-    static const char* gNames[] = {
-        "Arial", "Times", "Courier"
-    };
-    
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); i++) {
-        SkTypeface* tf = SkTypeface::CreateFromName(gNames[i], SkTypeface::kNormal);
-        if (tf) {
-            SkFontID fontID = tf->uniqueID();
-            dump_font(gNames[i], fontID);
-            tf->unref();
-        }
-    }
-}
-
 /*  Some considerations for performance:
         short -vs- long strings (measuring overhead)
         tiny -vs- large pointsize (measure blit -vs- overhead)
@@ -80,10 +25,6 @@ class TextBench : public SkBenchmark {
     enum { N = 300 };
 public:
     TextBench(const char text[], int ps, bool linearText, bool posText) {
-        if (false) {
-            test_tables();
-        }
-        
         fText.set(text);
 
         fPaint.setAntiAlias(true);
