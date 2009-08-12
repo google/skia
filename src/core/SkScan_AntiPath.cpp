@@ -319,11 +319,15 @@ void MaskSuperBlitter::blitH(int x, int y, int width)
 
     if (n < 0)
     {
+        SkASSERT(row >= fMask.fImage);
+        SkASSERT(row < fMask.fImage + kMAX_STORAGE + 1);
         add_aa_span(row, coverage_to_alpha(fe - fb));
     }
     else
     {
         fb = (1 << SHIFT) - fb;
+        SkASSERT(row >= fMask.fImage);
+        SkASSERT(row + n + 1 < fMask.fImage + kMAX_STORAGE + 1);
         add_aa_span(row,  coverage_to_alpha(fb), n, coverage_to_alpha(fe),
                     (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT));
     }
