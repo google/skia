@@ -46,6 +46,7 @@ struct SkBitmapProcState {
                                  uint16_t colors[]);
     
     typedef U16CPU (*FixedTileProc)(SkFixed);   // returns 0..0xFFFF
+    typedef U16CPU (*IntTileProc)(int value, int count);   // returns 0..count-1
 
     // If a shader proc is present, then the corresponding matrix/sample procs
     // are ignored
@@ -62,6 +63,7 @@ struct SkBitmapProcState {
 
     FixedTileProc       fTileProcX;         // chooseProcs
     FixedTileProc       fTileProcY;         // chooseProcs
+    IntTileProc         fIntTileProcY;      // chooseProcs
     SkFixed             fFilterOneX;
     SkFixed             fFilterOneY;
 
@@ -96,8 +98,32 @@ private:
     SkBitmap            fOrigBitmap;        // CONSTRUCTOR
     SkBitmap            fMipBitmap;
 
-    MatrixProc chooseMatrixProc();
+    MatrixProc chooseMatrixProc(bool trivial_matrix);
     bool chooseProcs(const SkMatrix& inv, const SkPaint&);
 };
+
+/*  Macros for packing and unpacking pairs of 16bit values in a 32bit uint.
+    Used to allow access to a stream of uint16_t either one at a time, or
+    2 at a time by unpacking a uint32_t
+ */
+#ifdef SK_CPU_BENDIAN
+    #define PACK_TWO_SHORTS(pri, sec) ((pri) << 16 | (sec))
+    #define UNPACK_PRIMARY_SHORT(packed)    ((uint32_t)(packed) >> 16)
+    #define UNPACK_SECONDARY_SHORT(packed)  ((packed) & 0xFFFF)
+#else
+    #define PACK_TWO_SHORTS(pri, sec) ((pri) | ((sec) << 16))
+    #define UNPACK_PRIMARY_SHORT(packed)    ((packed) & 0xFFFF)
+    #define UNPACK_SECONDARY_SHORT(packed)  ((uint32_t)(packed) >> 16)
+#endif
+
+#ifdef SK_DEBUG
+    static inline uint32_t pack_two_shorts(U16CPU pri, U16CPU sec) {
+        SkASSERT((uint16_t)pri == pri);
+        SkASSERT((uint16_t)sec == sec);
+        return PACK_TWO_SHORTS(pri, sec);
+    }
+#else
+    #define pack_two_shorts(pri, sec)   PACK_TWO_SHORTS(pri, sec)
+#endif
 
 #endif

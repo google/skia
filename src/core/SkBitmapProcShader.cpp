@@ -140,7 +140,7 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
         return;
     }
 
-    uint32_t buffer[BUF_MAX];
+    uint32_t buffer[BUF_MAX + 1];
     SkBitmapProcState::MatrixProc   mproc = state.fMatrixProc;
     SkBitmapProcState::SampleProc32 sproc = state.fSampleProc32;
     int max = fState.fDoFilter ? (BUF_MAX >> 1) : BUF_MAX;

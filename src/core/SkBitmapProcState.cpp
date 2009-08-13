@@ -5,14 +5,6 @@
 #include "SkPaint.h"
 #include "SkShader.h"   // for tilemodes
 
-#ifdef SK_CPU_BENDIAN
-    #define UNPACK_PRIMARY_SHORT(packed)    ((uint32_t)(packed) >> 16)
-    #define UNPACK_SECONDARY_SHORT(packed)  ((packed) & 0xFFFF)
-#else
-    #define UNPACK_PRIMARY_SHORT(packed)    ((packed) & 0xFFFF)
-    #define UNPACK_SECONDARY_SHORT(packed)  ((uint32_t)(packed) >> 16)
-#endif
-
 // returns expanded * 5bits
 static inline uint32_t Filter_565_Expanded(unsigned x, unsigned y,
                                            uint32_t a00, uint32_t a01,
@@ -334,20 +326,20 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     if (fOrigBitmap.width() == 0 || fOrigBitmap.height() == 0) {
         return false;
     }
-    const SkMatrix* m;
-    bool clamp_clamp;
 
-    if (SkShader::kClamp_TileMode == fTileModeX &&
-            SkShader::kClamp_TileMode == fTileModeY) {
+    const SkMatrix* m;
+    bool trivial_matrix = (inv.getType() & ~SkMatrix::kTranslate_Mask) == 0;
+    bool clamp_clamp = SkShader::kClamp_TileMode == fTileModeX &&
+                       SkShader::kClamp_TileMode == fTileModeY;
+
+    if (clamp_clamp || trivial_matrix) {
         m = &inv;
-        clamp_clamp = true;
     } else {
         fUnitInvMatrix = inv;
         fUnitInvMatrix.postIDiv(fOrigBitmap.width(), fOrigBitmap.height());
         m = &fUnitInvMatrix;
-        clamp_clamp = false;
     }
-    
+
     fBitmap = &fOrigBitmap;
     if (fOrigBitmap.hasMipMap()) {
         int shift = fOrigBitmap.extractMipLevel(&fMipBitmap,
@@ -390,7 +382,7 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     fSampleProc32 = NULL;
     fSampleProc16 = NULL;
 
-    fMatrixProc = this->chooseMatrixProc();
+    fMatrixProc = this->chooseMatrixProc(trivial_matrix);
     if (NULL == fMatrixProc) {
         return false;
     }
