@@ -33,13 +33,15 @@
 
 #define SK_DefaultFlags         0   //(kNativeHintsText_Flag)
 
-SkPaint::SkPaint()
-{
-    fTypeface   = NULL;
-    fTextSize   = SK_DefaultTextSize;
-    fTextScaleX = SK_Scalar1;
-    fTextSkewX  = 0;
+SkPaint::SkPaint() {
+    // since we may have padding, we zero everything so that our memcmp() call
+    // in operator== will work correctly.
+    // with this, we can skip 0 and null individual initializations
+    sk_bzero(this, sizeof(*this));
 
+#if 0   // not needed with the bzero call above
+    fTypeface   = NULL;
+    fTextSkewX  = 0;
     fPathEffect  = NULL;
     fShader      = NULL;
     fXfermode    = NULL;
@@ -47,9 +49,12 @@ SkPaint::SkPaint()
     fColorFilter = NULL;
     fRasterizer  = NULL;
     fLooper      = NULL;
-
-    fColor      = SK_ColorBLACK;
     fWidth      = 0;
+#endif
+
+    fTextSize   = SK_DefaultTextSize;
+    fTextScaleX = SK_Scalar1;
+    fColor      = SK_ColorBLACK;
     fMiterLimit = SK_DefaultMiterLimit;
     fFlags      = SK_DefaultFlags;
     fCapType    = kDefault_Cap;
