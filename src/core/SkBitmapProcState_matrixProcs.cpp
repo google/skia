@@ -202,7 +202,7 @@ static void fill_sequential(uint16_t xptr[], int start, int count) {
             pattern0 += 0x40004;
             *xxptr++ = pattern1;
             pattern1 += 0x40004;
-        } while (--qcount >= 0);
+        } while (--qcount != 0);
         xptr = reinterpret_cast<uint16_t*>(xxptr);
         count &= 3;
     }

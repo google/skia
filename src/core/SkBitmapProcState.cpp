@@ -510,3 +510,31 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+/*
+    The storage requirements for the different matrix procs are as follows,
+    where each X or Y is 2 bytes, and N is the number of pixels/elements:
+ 
+    scale/translate     nofilter      Y(4bytes) + N * X
+    affine/perspective  nofilter      N * (X Y)
+    scale/translate     filter        Y Y + N * (X X)
+    affine/perspective  filter        N * (Y Y X X)
+ */
+int SkBitmapProcState::maxCountForBufferSize(size_t bufferSize) const {
+    int32_t size = static_cast<int32_t>(bufferSize);
+    int perElemShift;
+
+    size &= ~3; // only care about 4-byte aligned chunks
+    if (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
+        size -= 4;   // the shared Y (or YY) coordinate
+        if (size < 0) {
+            size = 0;
+        }
+        perElemShift = fDoFilter ? 2 : 1;
+    } else {
+        perElemShift = fDoFilter ? 3 : 2;
+    }
+
+    return size >> perElemShift;
+}
+

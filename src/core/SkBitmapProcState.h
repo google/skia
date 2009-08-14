@@ -91,6 +91,16 @@ struct SkBitmapProcState {
      */
     void platformProcs();
 
+    /** Given the size of a buffer, to be used for calling the matrix and
+        sample procs, this return the maximum count that can be stored in the
+        buffer, taking into account that filtering and scale-vs-affine affect
+        this value.
+     
+        Only valid to call after chooseProcs (setContext) has been called. It is
+        safe to call this inside the shader's shadeSpan() method.
+     */
+    int maxCountForBufferSize(size_t bufferSize) const;
+
 private:
     friend class SkBitmapProcShader;
 
