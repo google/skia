@@ -296,8 +296,16 @@ protected:
         request, return true so the request will not continue to propogate to the parent.
     */
     virtual bool    handleInval(const SkRect&);
+    //! called once before all of the children are drawn (or clipped/translated)
     virtual SkCanvas* beforeChildren(SkCanvas* c) { return c; }
+    //! called once after all of the children are drawn (or clipped/translated)
     virtual void afterChildren(SkCanvas* orig) {}
+
+    //! called right before this child's onDraw is called
+    virtual void beforeChild(SkView* child, SkCanvas* canvas) {}
+    //! called right after this child's onDraw is called
+    virtual void afterChild(SkView* child, SkCanvas* canvas) {}
+
     /** Override this if you might handle the click
     */
     virtual Click*  onFindClickHandler(SkScalar x, SkScalar y);

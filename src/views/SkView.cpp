@@ -95,8 +95,14 @@ void SkView::draw(SkCanvas* canvas)
 		canvas->clipRect(r);
 		canvas->translate(fLoc.fX, fLoc.fY);
 
+        if (fParent) {
+            fParent->beforeChild(this, canvas);
+        }
 		this->onDraw(canvas);
-
+        if (fParent) {
+            fParent->afterChild(this, canvas);
+        }
+        
 		B2FIter	iter(this);
 		SkView*	child;
 

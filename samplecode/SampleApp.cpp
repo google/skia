@@ -134,7 +134,9 @@ protected:
     
     virtual SkCanvas* beforeChildren(SkCanvas*);
     virtual void afterChildren(SkCanvas*);
-
+    virtual void beforeChild(SkView* child, SkCanvas* canvas);
+    virtual void afterChild(SkView* child, SkCanvas* canvas);
+    
 	virtual bool onEvent(const SkEvent& evt);
 
 #if 0
@@ -164,6 +166,8 @@ private:
     bool fUseClip;
     bool fRepeatDrawing;
     bool fAnimating;
+    bool fRotate;
+    bool fScale;
     
     int fScrollTestX, fScrollTestY;
     
@@ -205,6 +209,8 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fUseClip = false;
     fRepeatDrawing = false;
     fAnimating = false;
+    fRotate = false;
+    fScale = false;
 
     fScrollTestX = fScrollTestY = 0;
 
@@ -344,6 +350,27 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     }
 }
 
+void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
+    if (fScale) {
+        SkScalar scale = SK_Scalar1 * 7 / 10;
+        SkScalar cx = this->width() / 2;
+        SkScalar cy = this->height() / 2;
+        canvas->translate(cx, cy);
+        canvas->scale(scale, scale);
+        canvas->translate(-cx, -cy);
+    }
+    if (fRotate) {
+        SkScalar cx = this->width() / 2;
+        SkScalar cy = this->height() / 2;
+        canvas->translate(cx, cy);
+        canvas->rotate(SkIntToScalar(30));
+        canvas->translate(-cx, -cy);
+    }
+}
+
+void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
+}
+
 static SkBitmap::Config gConfigCycle[] = {
     SkBitmap::kNo_Config,           // none -> none
     SkBitmap::kNo_Config,           // a1 -> none
@@ -443,6 +470,16 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
             return true;
         }
+        case 'r':
+            fRotate = !fRotate;
+            this->inval(NULL);
+            this->updateTitle();
+            return true;
+        case 's':
+            fScale = !fScale;
+            this->inval(NULL);
+            this->updateTitle();
+            return true;
         default:
             break;
     }
@@ -545,7 +582,13 @@ void SampleWindow::updateTitle() {
     if (fAnimating) {
         title.prepend("<A> ");
     }
-
+    if (fScale) {
+        title.prepend("<S> ");
+    }
+    if (fRotate) {
+        title.prepend("<R> ");
+    }
+    
     this->setTitle(title.c_str());
 }
 
