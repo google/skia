@@ -42,9 +42,9 @@
 		002886D20EFAEA260083E387 /* SkNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002886CA0EFAEA260083E387 /* SkNinePatch.cpp */; };
 		002886D30EFAEA260083E387 /* SkProxyCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002886CB0EFAEA260083E387 /* SkProxyCanvas.cpp */; };
 		002886D40EFAEA260083E387 /* SkUnitMappers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002886CC0EFAEA260083E387 /* SkUnitMappers.cpp */; };
+		005362261035F920001189E0 /* SkNWayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005362251035F920001189E0 /* SkNWayCanvas.cpp */; };
 		005E92230FEFC571008965B9 /* SkPorterDuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005E92220FEFC571008965B9 /* SkPorterDuff.cpp */; };
 		2762F61D0FCCC92C002BD8B4 /* SkGroupShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F61A0FCCC92C002BD8B4 /* SkGroupShape.cpp */; };
-		2762F61E0FCCC92C002BD8B4 /* SkNWayCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F61B0FCCC92C002BD8B4 /* SkNWayCanvas.cpp */; };
 		2762F61F0FCCC92C002BD8B4 /* SkRectShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F61C0FCCC92C002BD8B4 /* SkRectShape.cpp */; };
 /* End PBXBuildFile section */
 
@@ -84,9 +84,9 @@
 		002886CA0EFAEA260083E387 /* SkNinePatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkNinePatch.cpp; path = ../../src/utils/SkNinePatch.cpp; sourceTree = SOURCE_ROOT; };
 		002886CB0EFAEA260083E387 /* SkProxyCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkProxyCanvas.cpp; path = ../../src/utils/SkProxyCanvas.cpp; sourceTree = SOURCE_ROOT; };
 		002886CC0EFAEA260083E387 /* SkUnitMappers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkUnitMappers.cpp; path = ../../src/utils/SkUnitMappers.cpp; sourceTree = SOURCE_ROOT; };
+		005362251035F920001189E0 /* SkNWayCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkNWayCanvas.cpp; path = ../../src/utils/SkNWayCanvas.cpp; sourceTree = SOURCE_ROOT; };
 		005E92220FEFC571008965B9 /* SkPorterDuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkPorterDuff.cpp; path = ../../src/effects/SkPorterDuff.cpp; sourceTree = SOURCE_ROOT; };
 		2762F61A0FCCC92C002BD8B4 /* SkGroupShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGroupShape.cpp; path = ../../src/effects/SkGroupShape.cpp; sourceTree = SOURCE_ROOT; };
-		2762F61B0FCCC92C002BD8B4 /* SkNWayCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkNWayCanvas.cpp; path = ../../src/effects/SkNWayCanvas.cpp; sourceTree = SOURCE_ROOT; };
 		2762F61C0FCCC92C002BD8B4 /* SkRectShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRectShape.cpp; path = ../../src/effects/SkRectShape.cpp; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libeffects.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libeffects.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -105,6 +105,7 @@
 		002886D50EFAEA350083E387 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				005362251035F920001189E0 /* SkNWayCanvas.cpp */,
 				005E92220FEFC571008965B9 /* SkPorterDuff.cpp */,
 				000A996B0FD97113007E45BD /* SkParse.cpp */,
 				000A996C0FD97113007E45BD /* SkParseColor.cpp */,
@@ -136,7 +137,6 @@
 			isa = PBXGroup;
 			children = (
 				2762F61A0FCCC92C002BD8B4 /* SkGroupShape.cpp */,
-				2762F61B0FCCC92C002BD8B4 /* SkNWayCanvas.cpp */,
 				2762F61C0FCCC92C002BD8B4 /* SkRectShape.cpp */,
 				002886620EFAE7500083E387 /* Sk1DPathEffect.cpp */,
 				002886630EFAE7500083E387 /* Sk2DPathEffect.cpp */,
@@ -266,12 +266,12 @@
 				002886D30EFAEA260083E387 /* SkProxyCanvas.cpp in Sources */,
 				002886D40EFAEA260083E387 /* SkUnitMappers.cpp in Sources */,
 				2762F61D0FCCC92C002BD8B4 /* SkGroupShape.cpp in Sources */,
-				2762F61E0FCCC92C002BD8B4 /* SkNWayCanvas.cpp in Sources */,
 				2762F61F0FCCC92C002BD8B4 /* SkRectShape.cpp in Sources */,
 				000A996E0FD97113007E45BD /* SkParse.cpp in Sources */,
 				000A996F0FD97113007E45BD /* SkParseColor.cpp in Sources */,
 				000A99700FD97113007E45BD /* SkParsePath.cpp in Sources */,
 				005E92230FEFC571008965B9 /* SkPorterDuff.cpp in Sources */,
+				005362261035F920001189E0 /* SkNWayCanvas.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
