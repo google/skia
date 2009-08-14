@@ -110,7 +110,7 @@ public:
     {
         SkRandom    rand;
         int         steps = 20;
-        SkScalar    dist = SkIntToScalar(500);
+        SkScalar    dist = SkIntToScalar(400);
         SkScalar    x = SkIntToScalar(20);
         SkScalar    y = SkIntToScalar(50);
         
@@ -118,9 +118,22 @@ public:
         for (int i = 0; i < steps; i++)
         {
             x += dist/steps;
-            fPath.lineTo(x, y + SkIntToScalar(rand.nextS() % 25));
+            SkScalar tmpY = y + SkIntToScalar(rand.nextS() % 25);
+            if (i == steps/2) {
+                fPath.moveTo(x, tmpY);
+            } else {
+                fPath.lineTo(x, tmpY);
+            }
         }
 
+        {
+            SkRect  oval;
+            oval.set(SkIntToScalar(20), SkIntToScalar(30),
+                     SkIntToScalar(100), SkIntToScalar(60));
+            oval.offset(x, 0);
+            fPath.addRoundRect(oval, SkIntToScalar(8), SkIntToScalar(8));
+        }
+        
         fClickPt.set(SkIntToScalar(200), SkIntToScalar(200));
     }
 	
@@ -175,32 +188,6 @@ protected:
          //   return;
         }
         
-        if (false)
-        {
-            SkPath  path;
-            SkPoint pts[] = { SkIntToScalar(100), SkIntToScalar(100),
-                              SkIntToScalar(200), SkIntToScalar(100),
-                              SkIntToScalar(100), SkIntToScalar(200)
-                            };
-            SkPaint paint;
-            
-            pts[2] = fClickPt;
-
-            paint.setAntiAlias(true);
-            paint.setStyle(SkPaint::kStroke_Style);
-            paint.setStrokeWidth(SkIntToScalar(5));
-            
-            path.moveTo(pts[0]);
-            path.arcTo(pts[1], pts[2], SkIntToScalar(50));
-            canvas->drawPath(path, paint);
-            
-            paint.setStrokeWidth(0);
-            paint.setColor(SK_ColorRED);
-            canvas->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
-            canvas->drawLine(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY, paint);
-            return;
-        }
-        
         gPhase -= SK_Scalar1;
         this->inval(NULL);
         
@@ -212,7 +199,7 @@ protected:
         canvas->drawPath(fPath, paint);
         paint.setStrokeWidth(0);
         
-        paint.setColor(SK_ColorRED);
+        paint.setColor(SK_ColorWHITE);
         paint.setPathEffect(make_pe(1))->unref();
         canvas->drawPath(fPath, paint);
         
