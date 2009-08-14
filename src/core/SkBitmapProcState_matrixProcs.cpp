@@ -399,7 +399,7 @@ SkBitmapProcState::chooseMatrixProc(bool trivial_matrix) {
     if (fInvType & SkMatrix::kPerspective_Mask) {
         index += 4;
     } else if (fInvType & SkMatrix::kAffine_Mask) {
-        index += 4;
+        index += 2;
     }
     
     if (SkShader::kClamp_TileMode == fTileModeX &&
