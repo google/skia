@@ -240,8 +240,8 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc) : SkS
     }
 
     mat22.eM11 = SkScalarToFIXED(fRec.fPost2x2[0][0]);
-    mat22.eM12 = SkScalarToFIXED(fRec.fPost2x2[0][1]);
-    mat22.eM21 = SkScalarToFIXED(-fRec.fPost2x2[1][0]);
+    mat22.eM12 = SkScalarToFIXED(-fRec.fPost2x2[0][1]);
+    mat22.eM21 = SkScalarToFIXED(fRec.fPost2x2[1][0]);
     mat22.eM22 = SkScalarToFIXED(-fRec.fPost2x2[1][1]);
 
     ddc = ::CreateCompatibleDC(NULL);
