@@ -356,6 +356,10 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source,
             }
             break;
         case SkBitmap::kIndex8_Config:
+            if (paint.isDither()) {
+                // we don't support dither yet in these special cases
+                break;
+            }
             if (source.isOpaque()) {
                 if (255 == alpha) {
                     SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D16_SIndex8_Opaque,
