@@ -286,6 +286,13 @@ void MaskSuperBlitter::blitH(int x, int y, int width)
     SkASSERT(iy >= fMask.fBounds.fTop && iy < fMask.fBounds.fBottom);
     iy -= fMask.fBounds.fTop;   // make it relative to 0
 
+    // This should never happen, but it does.  Until the true cause is
+    // discovered, let's skip this span instead of crashing.
+    // See http://crbug.com/17569.
+    if (iy < 0) {
+        return;
+    }
+
 #ifdef SK_DEBUG
     {
         int ix = x >> SHIFT;
@@ -359,6 +366,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
     if (ir.isEmpty()) {
         return;
     }
+    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
 
     // use bit-or since we expect all to pass, so no need to go slower with
     // a short-circuiting logical-or
@@ -397,11 +405,14 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
         superClipRect = &superRect;
     }
 
+    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
+
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
     // if we're an inverse filltype
     if (!path.isInverseFillType() && MaskSuperBlitter::CanHandleRect(ir))
     {
         MaskSuperBlitter    superBlit(blitter, ir, clip);
+        SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
         sk_fill_path(path, superClipRect, &superBlit, ir.fBottom, SHIFT, clip);
     }
     else
