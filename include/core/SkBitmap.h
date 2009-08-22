@@ -508,6 +508,9 @@ public:
     */
     void    setFlags(unsigned flags);
 
+    bool isOpaque() const { return (fFlags & kColorsAreOpaque_Flag) != 0; }
+    void setIsOpaque(bool isOpaque);
+
     /** Returns the number of colors in the table.
     */
     int count() const { return fCount; }

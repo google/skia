@@ -10,7 +10,7 @@ static SkBitmap make_bitmap() {
 
     SkPMColor* c = ctable->lockColors();
     for (int i = 0; i < 256; i++) {
-        c[i] = SkPackARGB32(0xFF, 0, 0, i);
+        c[i] = SkPackARGB32(0xFF, i, 0, 0);
     }
     ctable->unlockColors(true);
     bm.setConfig(SkBitmap::kIndex8_Config, 256, 32);
@@ -51,12 +51,31 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
     
+    static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
+        SkAutoLockPixels alp(*bm);  // needed for ctable
+        bm->setIsOpaque(isOpaque);
+        SkColorTable* ctable = bm->getColorTable();
+        if (ctable) {
+            ctable->setIsOpaque(isOpaque);
+        }
+    }
+    
     static void draw2(SkCanvas* canvas, const SkBitmap& bm) {
         SkPaint paint;
-        
-        canvas->drawBitmap(bm, 0, 0, &paint);
+        SkBitmap bitmap(bm);
+
+        setBitmapOpaque(&bitmap, false);
+        paint.setDither(false);
+        canvas->drawBitmap(bitmap, 0, 0, &paint);
         paint.setDither(true);
-        canvas->drawBitmap(bm, 0, SkIntToScalar(bm.height() + 10), &paint);
+        canvas->drawBitmap(bitmap, 0, SkIntToScalar(bm.height() + 10), &paint);
+
+        setBitmapOpaque(&bitmap, true);
+        SkScalar x = SkIntToScalar(bm.width() + 10);
+        paint.setDither(false);
+        canvas->drawBitmap(bitmap, x, 0, &paint);
+        paint.setDither(true);
+        canvas->drawBitmap(bitmap, x, SkIntToScalar(bm.height() + 10), &paint);
     }
     
     virtual void onDraw(SkCanvas* canvas) {

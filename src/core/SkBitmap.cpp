@@ -793,6 +793,8 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         canvas.drawBitmap(*this, 0, 0, &paint);
     }
 
+    tmp.setIsOpaque(this->isOpaque());
+
     dst->swap(tmp);
     return true;
 }
