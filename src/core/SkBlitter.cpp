@@ -896,16 +896,8 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         ((SkPaint*)&paint)->setShader(shader)->unref();
     }
     
-    bool doDither = paint.isDither();
-
-    if (shader)
-    {
-        if (!shader->setContext(device, paint, matrix))
-            return SkNEW(SkNullBlitter);
-        
-        // disable dither if our shader is natively 16bit (no need to upsample)
-        if (shader->getFlags() & SkShader::kIntrinsicly16_Flag)
-            doDither = false;
+    if (shader && !shader->setContext(device, paint, matrix)) {
+        return SkNEW(SkNullBlitter);
     }
 
     switch (device.getConfig()) {
@@ -929,7 +921,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         {
             if (mode)
                 SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Xfermode_Blitter, storage, storageSize, (device, paint));
-            else if (SkShader::CanCallShadeSpan16(shader->getFlags()) && !doDither)
+            else if (shader->canCallShadeSpan16())
                 SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader16_Blitter, storage, storageSize, (device, paint));
             else
                 SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Blitter, storage, storageSize, (device, paint));

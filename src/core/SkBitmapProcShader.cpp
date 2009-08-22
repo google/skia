@@ -102,19 +102,19 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
     }
 
     // update fFlags
-    fFlags = 0;
+    uint32_t flags = 0;
     if (bitmapIsOpaque && (255 == this->getPaintAlpha())) {
-        fFlags |= kOpaqueAlpha_Flag;
+        flags |= kOpaqueAlpha_Flag;
     }
 
     switch (fState.fBitmap->config()) {
         case SkBitmap::kRGB_565_Config:
-            fFlags |= (kHasSpan16_Flag | kIntrinsicly16_Flag);
+            flags |= (kHasSpan16_Flag | kIntrinsicly16_Flag);
             break;
         case SkBitmap::kIndex8_Config:
         case SkBitmap::kARGB_8888_Config:
             if (bitmapIsOpaque) {
-                fFlags |= kHasSpan16_Flag;
+                flags |= kHasSpan16_Flag;
             }
             break;
         case SkBitmap::kA8_Config:
@@ -123,11 +123,19 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
             break;
     }
 
+    if (paint.isDither()) {
+        // gradients can auto-dither in their 16bit sampler, but we don't so
+        // we clear the flag here
+        flags &= ~kHasSpan16_Flag;
+    }
+
     // if we're only 1-pixel heigh, and we don't rotate, then we can claim this
     if (1 == fState.fBitmap->height() &&
             only_scale_and_translate(this->getTotalInverse())) {
-        fFlags |= kConstInY_Flag;
+        flags |= kConstInY_Flag;
     }
+
+    fFlags = flags;
     return true;
 }
 

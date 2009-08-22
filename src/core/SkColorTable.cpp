@@ -132,6 +132,14 @@ const uint16_t* SkColorTable::lock16BitCache()
     return f16BitCache;
 }
 
+void SkColorTable::setIsOpaque(bool isOpaque) {
+    if (isOpaque) {
+        fFlags |= kColorsAreOpaque_Flag;
+    } else {
+        fFlags &= ~kColorsAreOpaque_Flag;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkColorTable::SkColorTable(SkFlattenableReadBuffer& buffer) {
