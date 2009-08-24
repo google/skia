@@ -1142,6 +1142,16 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint)
     return SkMask::kBW_Format;
 }
 
+// if linear-text is on, then we force hinting to be off (since that's sort of
+// the point of linear-text.
+static SkPaint::Hinting computeHinting(const SkPaint& paint) {
+    SkPaint::Hinting h = paint.getHinting();
+    if (paint.isLinearText()) {
+        h = SkPaint::kNo_Hinting;
+    }
+    return h;
+}
+
 void SkScalerContext::MakeRec(const SkPaint& paint,
                               const SkMatrix* deviceMatrix, Rec* rec)
 {
@@ -1207,7 +1217,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->fSubpixelPositioning = paint.isSubpixelText();
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
     rec->fFlags = SkToU8(flags);
-    rec->setHinting(paint.getHinting());
+    rec->setHinting(computeHinting(paint));
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
