@@ -1044,7 +1044,7 @@ SkFixed SkBitmap::ComputeMipLevel(SkFixed sx, SkFixed sy) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void GetBitmapAlpha(const SkBitmap& src, uint8_t SK_RESTRICT alpha[],
+static bool GetBitmapAlpha(const SkBitmap& src, uint8_t SK_RESTRICT alpha[],
                            int alphaRowBytes) {
     SkASSERT(alpha != NULL);
     SkASSERT(alphaRowBytes >= src.width());
@@ -1054,6 +1054,16 @@ static void GetBitmapAlpha(const SkBitmap& src, uint8_t SK_RESTRICT alpha[],
     int              h = src.height();
     int              rb = src.rowBytes();
 
+    SkAutoLockPixels alp(src);
+    if (!src.readyToDraw()) {
+        // zero out the alpha buffer and return
+        while (--h >= 0) {
+            memset(alpha, 0, w);
+            alpha += alphaRowBytes;
+        }
+        return false;
+    }
+    
     if (SkBitmap::kA8_Config == config && !src.isOpaque()) {
         const uint8_t* s = src.getAddr8(0, 0);
         while (--h >= 0) {
@@ -1096,6 +1106,7 @@ static void GetBitmapAlpha(const SkBitmap& src, uint8_t SK_RESTRICT alpha[],
     } else {    // src is opaque, so just fill alpha[] with 0xFF
         memset(alpha, 0xFF, h * alphaRowBytes);
     }
+    return true;
 }
 
 #include "SkPaint.h"

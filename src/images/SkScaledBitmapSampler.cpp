@@ -192,7 +192,7 @@ static bool Sample_RGBA_D4444_D(void* SK_RESTRICT dstRow,
 
 // Index
 
-#define A32_MASK_IN_PLACE   (SK_A32_MASK << SK_A32_SHIFT)
+#define A32_MASK_IN_PLACE   (SkPMColor)(SK_A32_MASK << SK_A32_SHIFT)
 
 static bool Sample_Index_D8888(void* SK_RESTRICT dstRow,
                                const uint8_t* SK_RESTRICT src,
