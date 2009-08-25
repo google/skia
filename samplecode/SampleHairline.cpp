@@ -79,8 +79,8 @@ static bool check_bitmap_margin(const SkBitmap& bm, int margin) {
     return true;
 }
 
-#define WIDTH   80
-#define HEIGHT  60
+#define WIDTH   400
+#define HEIGHT  300
 #define MARGIN  4
 
 class HairlineView : public SkView {
@@ -131,7 +131,7 @@ protected:
         SkCanvas c2(bm2);
         SkPaint paint;
         paint.setAntiAlias(true);
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 400; i++) {
             SkPoint pts[2];
             generate_pts(pts, 2, WIDTH, HEIGHT);
             bm2.eraseColor(0);
@@ -141,6 +141,7 @@ protected:
                          pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY);
                 break;
             }
+            canvas->drawBitmap(bm2, SkIntToScalar(10), SkIntToScalar(10), NULL);
         }
         
         this->inval(NULL);
