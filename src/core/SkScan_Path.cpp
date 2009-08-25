@@ -383,7 +383,11 @@ extern "C" {
             valuea = edgea->fX;
             valueb = edgeb->fX;
         }
-        return valuea - valueb;
+
+        // this overflows if valuea >>> valueb or vice-versa
+        //     return valuea - valueb;
+        // do perform the slower but safe compares
+        return (valuea < valueb) ? -1 : (valuea > valueb);
     }
 }
 
