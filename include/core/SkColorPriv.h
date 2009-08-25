@@ -393,6 +393,21 @@ inline SkPMColor SkPixel16ToPixel32(U16CPU src)
     return SkPackARGB32(0xFF, r, g, b);
 }
 
+// similar to SkPixel16ToPixel32, but returns SkColor instead of SkPMColor
+static inline SkColor SkPixel16ToColor(U16CPU src) {
+    SkASSERT(src == SkToU16(src));
+    
+    unsigned    r = SkPacked16ToR32(src);
+    unsigned    g = SkPacked16ToG32(src);
+    unsigned    b = SkPacked16ToB32(src);
+    
+    SkASSERT((r >> (8 - SK_R16_BITS)) == SkGetPackedR16(src));
+    SkASSERT((g >> (8 - SK_G16_BITS)) == SkGetPackedG16(src));
+    SkASSERT((b >> (8 - SK_B16_BITS)) == SkGetPackedB16(src));
+    
+    return SkColorSetRGB(r, g, b);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef uint16_t SkPMColor16;

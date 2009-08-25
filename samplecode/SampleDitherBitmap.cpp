@@ -4,6 +4,22 @@
 #include "SkCanvas.h"
 #include "SkUtils.h"
 
+static void test_pathregion() {
+    SkPath path;
+    SkRegion region;
+    path.moveTo(25071800.f, -141823808.f); 
+    path.lineTo(25075500.f, -141824000.f);
+    path.lineTo(25075400.f, -141827712.f);
+    path.lineTo(25071810.f, -141827600.f);
+    path.close();
+
+    SkIRect bounds;
+    path.getBounds().round(&bounds);
+    SkRegion clip(bounds);
+    bool result = region.setPath(path, clip); // <-- !! DOWN !!
+    SkDebugf("----- result %d\n", result);
+}
+
 static SkBitmap make_bitmap() {
     SkBitmap bm;
     SkColorTable* ctable = new SkColorTable(256);
@@ -33,6 +49,7 @@ class DitherBitmapView : public SkView {
     SkBitmap    fBM32;
 public:
 	DitherBitmapView() {
+        test_pathregion();
         fBM8 = make_bitmap();
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
     }

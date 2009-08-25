@@ -207,14 +207,51 @@ void SkBitmapProcShader::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkUnPreMultiply.h"
+#include "SkColorShader.h"
+
+// returns true and set color if the bitmap can be drawn as a single color
+// (for efficiency)
+static bool canUseColorShader(const SkBitmap& bm, SkColor* color) {
+    if (1 != bm.width() || 1 != bm.height()) {
+        return false;
+    }
+
+    SkAutoLockPixels alp(bm);
+    if (!bm.readyToDraw()) {
+        return false;
+    }
+
+    switch (bm.config()) {
+        case SkBitmap::kARGB_8888_Config:
+            *color = SkUnPreMultiply::PMColorToColor(*bm.getAddr32(0, 0));
+            return true;
+        case SkBitmap::kRGB_565_Config:
+            *color = SkPixel16ToColor(*bm.getAddr16(0, 0));
+            return true;
+        case SkBitmap::kIndex8_Config:
+            *color = SkUnPreMultiply::PMColorToColor(bm.getIndex8Color(0, 0));
+            return true;
+        default: // just skip the other configs for now
+            break;
+    }
+    return false;
+}
+
 #include "SkTemplatesPriv.h"
 
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
                                        TileMode tmx, TileMode tmy,
                                        void* storage, size_t storageSize) {
     SkShader* shader;
-    SK_PLACEMENT_NEW_ARGS(shader, SkBitmapProcShader, storage,
-                          storageSize, (src, tmx, tmy));
+    SkColor color;
+    if (canUseColorShader(src, &color)) {
+        SK_PLACEMENT_NEW_ARGS(shader, SkColorShader, storage, storageSize,
+                              (color));
+    } else {
+        SK_PLACEMENT_NEW_ARGS(shader, SkBitmapProcShader, storage,
+                              storageSize, (src, tmx, tmy));
+    }
     return shader;
 }
 
