@@ -86,6 +86,17 @@ public:
         SkTSwap(fCount, other.fCount);
     }
 
+    /** Return a ptr to the array of data, to be freed with sk_free. This also
+        resets the SkTDArray to be empty.
+     */
+    T* detach() {
+        T* array = fArray;
+        fArray = NULL;
+        fReserve = fCount = 0;
+        SkDEBUGCODE(fData = NULL;)
+        return array;
+    }
+
     bool isEmpty() const { return fCount == 0; }
     int count() const { return fCount; }
     T*  begin() const { return fArray; }
