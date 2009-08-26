@@ -4,7 +4,7 @@
 // define this to use pre-compiled tables for gamma. This is slightly faster,
 // and doesn't create any RW global memory, but means we cannot change the
 // gamma at runtime.
-#define USE_PREDEFINED_GAMMA_TABLES
+//#define USE_PREDEFINED_GAMMA_TABLES
 
 #ifndef USE_PREDEFINED_GAMMA_TABLES
     // define this if you want to spew out the "C" code for the tables, given
@@ -14,21 +14,22 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkGraphics.h"
+
+// declared here, so we can link against it elsewhere
+void skia_set_text_gamma(float blackGamma, float whiteGamma);
+
 #ifdef USE_PREDEFINED_GAMMA_TABLES
 
 #include "sk_predefined_gamma.h"
 
+void skia_set_text_gamma(float blackGamma, float whiteGamma) {}
+
 #else   // use writable globals for gamma tables
-
-static bool gGammaIsBuilt;
-static uint8_t gBlackGamma[256], gWhiteGamma[256];
-
-#define SK_BLACK_GAMMA     (1.4f)
-#define SK_WHITE_GAMMA     (1/1.4f)
 
 static void build_power_table(uint8_t table[], float ee)
 {
-    //    printf("------ build_power_table %g\n", ee);
+    SkDebugf("------ build_power_table %g\n", ee);
     for (int i = 0; i < 256; i++)
     {
         float x = i / 255.f;
@@ -39,6 +40,21 @@ static void build_power_table(uint8_t table[], float ee)
         //   printf(" %d\n", xx);
         table[i] = SkToU8(xx);
     }
+}
+
+static bool gGammaIsBuilt;
+static uint8_t gBlackGamma[256], gWhiteGamma[256];
+
+static float gBlackGammaCoeff = 1.4f;
+static float gWhiteGammaCoeff = 1/1.4f;
+
+void skia_set_text_gamma(float blackGamma, float whiteGamma) {
+    gBlackGammaCoeff = blackGamma;
+    gWhiteGammaCoeff = whiteGamma;
+    gGammaIsBuilt = false;
+    SkGraphics::SetFontCacheUsed(0);
+    build_power_table(gBlackGamma, gBlackGammaCoeff);
+    build_power_table(gWhiteGamma, gWhiteGammaCoeff);
 }
 
 #ifdef DUMP_GAMMA_TABLES
@@ -72,13 +88,13 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2])
 #ifndef USE_PREDEFINED_GAMMA_TABLES
     if (!gGammaIsBuilt)
     {
-        build_power_table(gBlackGamma, SK_BLACK_GAMMA);
-        build_power_table(gWhiteGamma, SK_WHITE_GAMMA);
+        build_power_table(gBlackGamma, gBlackGammaCoeff);
+        build_power_table(gWhiteGamma, gWhiteGammaCoeff);
         gGammaIsBuilt = true;
 
 #ifdef DUMP_GAMMA_TABLES
-        dump_a_table("gBlackGamma", gBlackGamma, SK_BLACK_GAMMA);
-        dump_a_table("gWhiteGamma", gWhiteGamma, SK_WHITE_GAMMA);
+        dump_a_table("gBlackGamma", gBlackGamma, gBlackGammaCoeff);
+        dump_a_table("gWhiteGamma", gWhiteGamma, gWhiteGammaCoeff);
 #endif
     }
 #endif
