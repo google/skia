@@ -1,8 +1,34 @@
 #include "SampleCode.h"
 #include "SkColorPriv.h"
+#include "SkGradientShader.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "SkUtils.h"
+
+static void draw_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
+    canvas->drawRect(r, p);
+
+    SkPaint frame(p);
+    frame.setShader(NULL);
+    frame.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(r, frame);
+}
+
+static void draw_gradient(SkCanvas* canvas) {
+    SkRect r = { 0, 0, SkIntToScalar(256), SkIntToScalar(32) };
+    SkPoint pts[] = { r.fLeft, r.fTop, r.fRight, r.fTop };
+    SkColor colors[] = { 0xFF000000, 0xFFFF0000 };
+    SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+                                                 SkShader::kClamp_TileMode);
+
+    SkPaint p;
+    p.setShader(s)->unref();
+    draw_rect(canvas, r, p);
+
+    canvas->translate(0, SkIntToScalar(40));
+    p.setDither(true);
+    draw_rect(canvas, r, p);
+}
 
 static void test_pathregion() {
     SkPath path;
@@ -103,6 +129,9 @@ protected:
         draw2(canvas, fBM8);
         canvas->translate(0, SkIntToScalar(fBM8.height() *3));
         draw2(canvas, fBM32);
+
+        canvas->translate(0, SkIntToScalar(fBM8.height() *3));
+        draw_gradient(canvas);
     }
     
 private:

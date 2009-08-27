@@ -62,10 +62,10 @@ public:
 
     enum Flags {
         //!< set if all of the colors will be opaque
-        kOpaqueAlpha_Flag   = 0x01,
+        kOpaqueAlpha_Flag  = 0x01,
 
         //! set if this shader's shadeSpan16() method can be called
-        kHasSpan16_Flag     = 0x02,
+        kHasSpan16_Flag = 0x02,
 
         /** Set this bit if the shader's native data type is instrinsically 16
             bit, meaning that calling the 32bit shadeSpan() entry point will
@@ -76,9 +76,17 @@ public:
 
         /** set (after setContext) if the spans only vary in X (const in Y).
             e.g. an Nx1 bitmap that is being tiled in Y, or a linear-gradient
-            that varies from left-to-right
+            that varies from left-to-right. This flag specifies this for
+            shadeSpan().
          */
-        kConstInY_Flag = 0x08
+        kConstInY32_Flag = 0x08,
+        
+        /** same as kConstInY32_Flag, but is set if this is true for shadeSpan16
+            which may not always be the case, since shadeSpan16 may be
+            predithered, which would mean it was not const in Y, even though
+            the 32bit shadeSpan() would be const.
+         */
+        kConstInY16_Flag = 0x10
     };
 
     /** Called sometimes before drawing with this shader.
@@ -99,29 +107,28 @@ public:
         parameters, or false if not. If false is returned, nothing
         will be drawn.
     */
-    virtual bool    setContext( const SkBitmap& device,
-                                const SkPaint& paint,
-                                const SkMatrix& matrix);
+    virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
+                            const SkMatrix& matrix);
 
     /** Called for each span of the object being drawn. Your subclass
         should set the appropriate colors (with premultiplied alpha) that
         correspond to the specified device coordinates.
     */
-    virtual void    shadeSpan(int x, int y, SkPMColor[], int count) = 0;
-    /** Called only for 16bit devices when getFlags() returns kOpaqueAlphaFlag | kHasSpan16_Flag
+    virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
+    /** Called only for 16bit devices when getFlags() returns
+        kOpaqueAlphaFlag | kHasSpan16_Flag
     */
-    virtual void    shadeSpan16(int x, int y, uint16_t[], int count);
+    virtual void shadeSpan16(int x, int y, uint16_t[], int count);
     /** Similar to shadeSpan, but only returns the alpha-channel for a span.
         The default implementation calls shadeSpan() and then extracts the alpha
         values from the returned colors.
     */
-    virtual void    shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
+    virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
 
     /** Helper function that returns true if this shader's shadeSpan16() method can
         be called.
     */
-    bool canCallShadeSpan16()
-    {
+    bool canCallShadeSpan16() {
         return SkShader::CanCallShadeSpan16(this->getFlags());
     }
 

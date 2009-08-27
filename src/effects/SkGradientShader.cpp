@@ -20,18 +20,6 @@
 #include "SkUnitMapper.h"
 #include "SkUtils.h"
 
-/*
-    ToDo
-
-    - not sure we still need the full Rec struct, now that we're using a cache
-    - detect const-alpha (but not opaque) in getFlags()
-*/
-
-/* dither seems to look better, but not stuningly yet, and it slows us down a little
-    so its not on by default yet.
-*/
-#define TEST_GRADIENT_DITHER
-
 ///////////////////////////////////////////////////////////////////////////
 
 typedef SkFixed (*TileProc)(SkFixed);
@@ -503,12 +491,9 @@ static inline U16CPU dot6to16(unsigned x) {
 
 const uint16_t* Gradient_Shader::getCache16() {
     if (fCache16 == NULL) {
-        if (fCache16Storage == NULL) // set the storage and our working ptr
-#ifdef TEST_GRADIENT_DITHER
+        if (fCache16Storage == NULL) { // set the storage and our working ptr
             fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count * 2);
-#else
-            fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count);
-#endif
+        }
         fCache16 = fCache16Storage;
         if (fColorCount == 2) {
             build_16bit_cache(fCache16, fOrigColors[0], fOrigColors[1], kCache16Count);
@@ -527,20 +512,14 @@ const uint16_t* Gradient_Shader::getCache16() {
         }
 
         if (fMapper) {
-#ifdef TEST_GRADIENT_DITHER
             fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count * 2);
-#else
-            fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count);
-#endif
             uint16_t* linear = fCache16;         // just computed linear data
             uint16_t* mapped = fCache16Storage;  // storage for mapped data
             SkUnitMapper* map = fMapper;
             for (int i = 0; i < 64; i++) {
                 int index = map->mapUnit16(dot6to16(i)) >> 10;
                 mapped[i] = linear[index];
-#ifdef TEST_GRADIENT_DITHER
                 mapped[i + 64] = linear[index + 64];
-#endif
             }
             sk_free(fCache16);
             fCache16 = fCache16Storage;
@@ -655,7 +634,13 @@ bool Linear_Gradient::setContext(const SkBitmap& device, const SkPaint& paint,
 
     unsigned mask = SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask;
     if ((fDstToIndex.getType() & ~mask) == 0) {
-        fFlags |= SkShader::kConstInY_Flag;
+        fFlags |= SkShader::kConstInY32_Flag;
+        if ((fFlags & SkShader::kHasSpan16_Flag) && !paint.isDither()) {
+            // only claim this if we do have a 16bit mode (i.e. none of our
+            // colors have alpha), and if we are not dithering (which obviously
+            // is not const in Y).
+            fFlags |= SkShader::kConstInY16_Flag;
+        }
     }
     return true;
 }
@@ -779,11 +764,9 @@ bool Linear_Gradient::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
     return true;
 }
 
-#ifdef TEST_GRADIENT_DITHER
-static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other, int count)
-{
-    if (reinterpret_cast<uintptr_t>(dst) & 2)
-    {
+static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
+                            int count) {
+    if (reinterpret_cast<uintptr_t>(dst) & 2) {
         *dst++ = value;
         count -= 1;
         SkTSwap(value, other);
@@ -791,10 +774,10 @@ static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other, int 
 
     sk_memset32((uint32_t*)dst, (value << 16) | other, count >> 1);
     
-    if (count & 1)
+    if (count & 1) {
         dst[count - 1] = value;
+    }
 }
-#endif
 
 void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
 {
@@ -804,9 +787,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
     const uint16_t*     cache = this->getCache16();
-#ifdef TEST_GRADIENT_DITHER
     int                 toggle = ((x ^ y) & 1) << kCache16Bits;
-#endif
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
@@ -827,34 +808,22 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
             // we're a vertical gradient, so no change in a span
             unsigned fi = proc(fx) >> 10;
             SkASSERT(fi <= 63);
-#ifdef TEST_GRADIENT_DITHER
             dither_memset16(dstC, cache[toggle + fi], cache[(toggle ^ (1 << kCache16Bits)) + fi], count);
-#else
-            sk_memset16(dstC, cache[fi], count);
-#endif
         } else if (proc == clamp_tileproc) {
             do {
                 unsigned fi = SkClampMax(fx >> 10, 63);
                 SkASSERT(fi <= 63);
                 fx += dx;
-#ifdef TEST_GRADIENT_DITHER
                 *dstC++ = cache[toggle + fi];
                 toggle ^= (1 << kCache16Bits);
-#else
-                *dstC++ = cache[fi];
-#endif
             } while (--count != 0);
         } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_6bits(fx >> 10);
                 SkASSERT(fi <= 0x3F);
                 fx += dx;
-#ifdef TEST_GRADIENT_DITHER
                 *dstC++ = cache[toggle + fi];
                 toggle ^= (1 << kCache16Bits);
-#else
-                *dstC++ = cache[fi];
-#endif
             } while (--count != 0);
         } else {
             SkASSERT(proc == repeat_tileproc);
@@ -862,12 +831,8 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
                 unsigned fi = repeat_6bits(fx >> 10);
                 SkASSERT(fi <= 0x3F);
                 fx += dx;
-#ifdef TEST_GRADIENT_DITHER
                 *dstC++ = cache[toggle + fi];
                 toggle ^= (1 << kCache16Bits);
-#else
-                *dstC++ = cache[fi];
-#endif
             } while (--count != 0);
         }
     } else {
@@ -879,12 +844,8 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
             SkASSERT(fi <= 0xFFFF);
 
             int index = fi >> (16 - kCache16Bits);
-#ifdef TEST_GRADIENT_DITHER
             *dstC++ = cache[toggle + index];
             toggle ^= (1 << kCache16Bits);
-#else
-            *dstC++ = cache[index];
-#endif
 
             dstX += SK_Scalar1;
         } while (--count != 0);
@@ -1033,40 +994,33 @@ public:
             } while (--count != 0);
         }
     }
-    virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count)
-    {
+
+    virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) {
         SkASSERT(count > 0);
 
         SkPoint             srcPt;
         SkMatrix::MapXYProc dstProc = fDstToIndexProc;
         TileProc            proc = fTileProc;
         const uint16_t*     cache = this->getCache16();
-#ifdef TEST_GRADIENT_DITHER
         int                 toggle = ((x ^ y) & 1) << kCache16Bits;
-#endif
 
-        if (fDstToIndexClass != kPerspective_MatrixClass)
-        {
+        if (fDstToIndexClass != kPerspective_MatrixClass) {
             dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
             SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
             SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
 
-            if (fDstToIndexClass == kFixedStepInX_MatrixClass)
-            {
+            if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
                 SkFixed storage[2];
                 (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &storage[0], &storage[1]);
                 dx = storage[0];
                 dy = storage[1];
-            }
-            else
-            {
+            } else {
                 SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
                 dx = SkScalarToFixed(fDstToIndex.getScaleX());
                 dy = SkScalarToFixed(fDstToIndex.getSkewY());
             }
 
-            if (proc == clamp_tileproc)
-            {
+            if (proc == clamp_tileproc) {
                 const uint8_t* sqrt_table = gSqrt8Table;
 
                 /* knock these down so we can pin against +- 0x7FFF, which is an immediate load,
@@ -1079,8 +1033,7 @@ public:
                 dx >>= 1;
                 fy >>= 1;
                 dy >>= 1;
-                if (dy == 0)    // might perform this check for the other modes, but the win will be a smaller % of the total
-                {
+                if (dy == 0) {    // might perform this check for the other modes, but the win will be a smaller % of the total
                     fy = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
                     fy *= fy;
                     do {
@@ -1088,16 +1041,10 @@ public:
                         unsigned fi = (xx * xx + fy) >> (14 + 16 - kSQRT_TABLE_BITS);
                         fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
                         fx += dx;
-#ifdef TEST_GRADIENT_DITHER
                         *dstC++ = cache[toggle + (sqrt_table[fi] >> (8 - kCache16Bits))];
                         toggle ^= (1 << kCache16Bits);
-#else
-                        *dstC++ = cache[sqrt_table[fi] >> (8 - kCache16Bits)];
-#endif
                     } while (--count != 0);
-                }
-                else
-                {
+                } else {
                     do {
                         unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
                         unsigned fi = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
@@ -1105,33 +1052,21 @@ public:
                         fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
                         fx += dx;
                         fy += dy;
-#ifdef TEST_GRADIENT_DITHER
                         *dstC++ = cache[toggle + (sqrt_table[fi] >> (8 - kCache16Bits))];
                         toggle ^= (1 << kCache16Bits);
-#else
-                        *dstC++ = cache[sqrt_table[fi] >> (8 - kCache16Bits)];
-#endif
                     } while (--count != 0);
                 }
-            }
-            else if (proc == mirror_tileproc)
-            {
+            } else if (proc == mirror_tileproc) {
                 do {
                     SkFixed dist = SkFixedSqrt(SkFixedSquare(fx) + SkFixedSquare(fy));
                     unsigned fi = mirror_tileproc(dist);
                     SkASSERT(fi <= 0xFFFF);
                     fx += dx;
                     fy += dy;
-#ifdef TEST_GRADIENT_DITHER
                     *dstC++ = cache[toggle + (fi >> (16 - kCache16Bits))];
                     toggle ^= (1 << kCache16Bits);
-#else
-                    *dstC++ = cache[fi >> (16 - kCache16Bits)];
-#endif
                 } while (--count != 0);
-            }
-            else
-            {
+            } else {
                 SkASSERT(proc == repeat_tileproc);
                 do {
                     SkFixed dist = SkFixedSqrt(SkFixedSquare(fx) + SkFixedSquare(fy));
@@ -1139,17 +1074,11 @@ public:
                     SkASSERT(fi <= 0xFFFF);
                     fx += dx;
                     fy += dy;
-#ifdef TEST_GRADIENT_DITHER
                     *dstC++ = cache[toggle + (fi >> (16 - kCache16Bits))];
                     toggle ^= (1 << kCache16Bits);
-#else
-                    *dstC++ = cache[fi >> (16 - kCache16Bits)];
-#endif
                 } while (--count != 0);
             }
-        }
-        else    // perspective case
-        {
+        } else {    // perspective case
             SkScalar dstX = SkIntToScalar(x);
             SkScalar dstY = SkIntToScalar(y);
             do {
@@ -1158,12 +1087,8 @@ public:
                 SkASSERT(fi <= 0xFFFF);
 
                 int index = fi >> (16 - kCache16Bits);
-#ifdef TEST_GRADIENT_DITHER
                 *dstC++ = cache[toggle + index];
                 toggle ^= (1 << kCache16Bits);
-#else
-                *dstC++ = cache[index];
-#endif
 
                 dstX += SK_Scalar1;
             } while (--count != 0);
