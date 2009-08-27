@@ -528,7 +528,7 @@ void SkRGB16_Shader16_Blitter::blitRect(int x, int y, int width, int height) {
     int         alpha = shader->getSpan16Alpha();
 
     if (0xFF == alpha) {
-        if (fShaderFlags & SkShader::kConstInY_Flag) {
+        if (fShaderFlags & SkShader::kConstInY16_Flag) {
             // have the shader blit directly into the device the first time
             shader->shadeSpan16(x, y, dst, width);
             // and now just memcpy that line on the subsequent lines
@@ -549,7 +549,7 @@ void SkRGB16_Shader16_Blitter::blitRect(int x, int y, int width, int height) {
     } else {
         int scale = SkAlpha255To256(alpha);
         uint16_t* span16 = (uint16_t*)fBuffer;
-        if (fShaderFlags & SkShader::kConstInY_Flag) {
+        if (fShaderFlags & SkShader::kConstInY16_Flag) {
             shader->shadeSpan16(x, y, span16, width);
             do {
                 SkBlendRGB16(span16, dst, scale, width);
@@ -668,7 +668,7 @@ void SkRGB16_Shader_Blitter::blitRect(int x, int y, int width, int height) {
     uint16_t*       dst = fDevice.getAddr16(x, y);
     size_t          dstRB = fDevice.rowBytes();
 
-    if (fShaderFlags & SkShader::kConstInY_Flag) {
+    if (fShaderFlags & SkShader::kConstInY32_Flag) {
         shader->shadeSpan(x, y, buffer, width);
         do {
             proc(dst, buffer, width, 0xFF, x, y);

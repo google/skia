@@ -263,7 +263,7 @@ bool SkColorShader::setContext(const SkBitmap& device, const SkPaint& paint,
     }
     fPMColor = SkPackARGB32(a, r, g, b);
 
-    fFlags = kHasSpan16_Flag | kConstInY_Flag;
+    fFlags = kHasSpan16_Flag | kConstInY32_Flag;
     if (SkGetPackedA32(fPMColor) == 255) {
         fFlags |= kOpaqueAlpha_Flag;
     }

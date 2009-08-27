@@ -132,7 +132,10 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
     // if we're only 1-pixel heigh, and we don't rotate, then we can claim this
     if (1 == fState.fBitmap->height() &&
             only_scale_and_translate(this->getTotalInverse())) {
-        flags |= kConstInY_Flag;
+        flags |= kConstInY32_Flag;
+        if (flags & kHasSpan16_Flag) {
+            flags |= kConstInY16_Flag;
+        }
     }
 
     fFlags = flags;
