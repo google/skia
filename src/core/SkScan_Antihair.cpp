@@ -402,7 +402,7 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     
     fstart = proc(istart, istart + 1, fstart, slope, blitter, scaleStart);
     istart += 1;
-    int fullSpans = istop - istart - 1;
+    int fullSpans = istop - istart - (scaleStop > 0);
     if (fullSpans > 0) {
         fstart = proc(istart, istart + fullSpans, fstart, slope, blitter, 64);
     }
