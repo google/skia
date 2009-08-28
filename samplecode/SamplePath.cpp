@@ -14,14 +14,38 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 
+#include "SkGeometry.h"
+
+// http://code.google.com/p/skia/issues/detail?id=32
+static void test_cubic() {
+    SkPoint src[4] = {
+        { 556.25000, 523.03003 },
+        { 556.23999, 522.96002 },
+        { 556.21997, 522.89001 },
+        { 556.21997, 522.82001 }
+    };
+    SkPoint dst[11];
+    dst[10].set(42, -42);   // one past the end, that we don't clobber these
+    SkScalar tval[] = { 0.33333334f, 0.99999994f };
+
+    SkChopCubicAt(src, dst, tval, 2);
+
+#if 0
+    for (int i = 0; i < 11; i++) {
+        SkDebugf("--- %d [%g %g]\n", i, dst[i].fX, dst[i].fY);
+    }
+#endif
+}
+
 class PathView : public SkView {
 public:
     int fDStroke, fStroke, fMinStroke, fMaxStroke;
     SkPath fPath[6];
     bool fShowHairline;
     
-	PathView()
-    {
+	PathView() {
+        test_cubic();
+
         fShowHairline = false;
         
         fDStroke = 1;

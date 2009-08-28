@@ -505,6 +505,29 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t)
     interp_cubic_coords(&src[0].fY, &dst[0].fY, t);
 }
 
+/*  http://code.google.com/p/skia/issues/detail?id=32
+ 
+    This test code would fail when we didn't check the return result of
+    valid_unit_divide in SkChopCubicAt(... tValues[], int roots). The reason is
+    that after the first chop, the parameters to valid_unit_divide are equal
+    (thanks to finite float precision and rounding in the subtracts). Thus
+    even though the 2nd tValue looks < 1.0, after we renormalize it, we end
+    up with 1.0, hence the need to check and just return the last cubic as
+    a degenerate clump of 4 points in the sampe place.
+
+    static void test_cubic() {
+        SkPoint src[4] = {
+            { 556.25000, 523.03003 },
+            { 556.23999, 522.96002 },
+            { 556.21997, 522.89001 },
+            { 556.21997, 522.82001 }
+        };
+        SkPoint dst[10];
+        SkScalar tval[] = { 0.33333334f, 0.99999994f };
+        SkChopCubicAt(src, dst, tval, 2);
+    }
+ */
+
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar tValues[], int roots)
 {
 #ifdef SK_DEBUG
@@ -533,12 +556,18 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar tValues[]
                 if (i == roots - 1)
                     break;
 
-                SkDEBUGCODE(int valid =) valid_unit_divide(tValues[i+1] - tValues[i], SK_Scalar1 - tValues[i], &t);
-                SkASSERT(valid);
-
                 dst += 3;
+                // have src point to the remaining cubic (after the chop)
                 memcpy(tmp, dst, 4 * sizeof(SkPoint));
                 src = tmp;
+
+                // watch out in case the renormalized t isn't in range
+                if (!valid_unit_divide(tValues[i+1] - tValues[i],
+                                       SK_Scalar1 - tValues[i], &t)) {
+                    // if we can't, just create a degenerate cubic
+                    dst[4] = dst[5] = dst[6] = src[3];
+                    break;
+                }
             }
         }
     }
