@@ -24,6 +24,7 @@
 		00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */; };
 		00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */; };
 		000A99820FD97526007E45BD /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
+		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
@@ -71,6 +72,7 @@
 		00AF77B00FE2EA2D007F9650 /* SampleTestGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A729630FD93ED600D5051F /* SampleTestGL.cpp */; };
 		00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C640EFC22A8000FF73A /* SamplePath.cpp */; };
 		00AF9B18103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */; };
+		00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00BB289A104781D00057BF7E /* SampleForth.cpp */; };
 		00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 		00F53F480FFCFC4D003FA70A /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
 		00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
@@ -149,6 +151,7 @@
 		00003C9A0EFC233F000FF73A /* SkDOM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDOM.cpp; path = ../../src/xml/SkDOM.cpp; sourceTree = SOURCE_ROOT; };
 		00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser.cpp; path = ../../src/xml/SkXMLParser.cpp; sourceTree = SOURCE_ROOT; };
 		00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_empty.cpp; path = ../../src/ports/SkXMLParser_empty.cpp; sourceTree = SOURCE_ROOT; };
+		001B871D1042184D00C84ED4 /* Forth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Forth.cpp; path = ../../forth/Forth.cpp; sourceTree = SOURCE_ROOT; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		003145310FB9B48F00B10956 /* SampleShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShapes.cpp; path = ../../samplecode/SampleShapes.cpp; sourceTree = SOURCE_ROOT; };
@@ -199,6 +202,8 @@
 		00A7282E0FD43D3700D5051F /* SkMovie_gif.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie_gif.cpp; path = ../../src/images/SkMovie_gif.cpp; sourceTree = SOURCE_ROOT; };
 		00A729630FD93ED600D5051F /* SampleTestGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTestGL.cpp; path = ../../samplecode/SampleTestGL.cpp; sourceTree = SOURCE_ROOT; };
 		00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleDitherBitmap.cpp; path = ../../samplecode/SampleDitherBitmap.cpp; sourceTree = SOURCE_ROOT; };
+		00BB289A104781D00057BF7E /* SampleForth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleForth.cpp; path = ../../forth/SampleForth.cpp; sourceTree = SOURCE_ROOT; };
+		00BB289D1047826E0057BF7E /* Forth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Forth.h; path = ../../forth/Forth.h; sourceTree = SOURCE_ROOT; };
 		00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGradients.cpp; path = ../../samplecode/SampleGradients.cpp; sourceTree = SOURCE_ROOT; };
 		00D6B5CB0F72DC4300C466B9 /* SampleFuzz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFuzz.cpp; path = ../../samplecode/SampleFuzz.cpp; sourceTree = SOURCE_ROOT; };
 		00FF39130FC6ED2C00915187 /* SampleEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleEffects.cpp; path = ../../samplecode/SampleEffects.cpp; sourceTree = SOURCE_ROOT; };
@@ -280,6 +285,8 @@
 				0041CE260F00A12400695E8C /* SampleEncode.cpp */,
 				0041CE270F00A12400695E8C /* SampleFillType.cpp */,
 				00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */,
+				00BB289D1047826E0057BF7E /* Forth.h */,
+				00BB289A104781D00057BF7E /* SampleForth.cpp */,
 				0041CE280F00A12400695E8C /* SampleFilter.cpp */,
 				0041CE290F00A12400695E8C /* SampleFilter2.cpp */,
 				0041CE2A0F00A12400695E8C /* SampleFontCache.cpp */,
@@ -355,6 +362,7 @@
 		20286C29FDCF999611CA2CEA /* CICarbonSample */ = {
 			isa = PBXGroup;
 			children = (
+				001B871D1042184D00C84ED4 /* Forth.cpp */,
 				2762F66A0FCCCAA2002BD8B4 /* images */,
 				00003C6A0EFC22AD000FF73A /* views */,
 				00003C610EFC2287000FF73A /* samples */,
@@ -579,6 +587,8 @@
 				27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */,
 				00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */,
 				00AF9B18103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp in Sources */,
+				001B871E1042184D00C84ED4 /* Forth.cpp in Sources */,
+				00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
