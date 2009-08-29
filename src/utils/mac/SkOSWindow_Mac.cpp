@@ -327,17 +327,20 @@ pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRe
 			GlobalToLocal(&pt);
 
 			switch (wKind) {
-			case kEventMouseDown:
-				(void)win->handleClick(pt.h, pt.v, Click::kDown_State);
-				break;
-			case kEventMouseDragged:
-				(void)win->handleClick(pt.h, pt.v, Click::kMoved_State);
-				break;
-			case kEventMouseUp:
-				(void)win->handleClick(pt.h, pt.v, Click::kUp_State);
-				break;
-			default:
-				break;
+                case kEventMouseDown:
+                    (void)win->handleClick(pt.h, pt.v, Click::kDown_State);
+                    result = noErr;
+                    break;
+                case kEventMouseDragged:
+                    (void)win->handleClick(pt.h, pt.v, Click::kMoved_State);
+                    result = noErr;
+                    break;
+                case kEventMouseUp:
+                    (void)win->handleClick(pt.h, pt.v, Click::kUp_State);
+                    result = noErr;
+                    break;
+                default:
+                    break;
 			}
             break;
 		}
