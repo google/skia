@@ -165,7 +165,8 @@ public:
         fBM.eraseColor(0);
         fContext.init(fBM);
 
-        fEnv.parse(": view.onClick ( x y -- ) 10. drawCircle ;");
+        fEnv.parse(": mycolor ( x. y. -- x. y. ) rot rot f< IF #FFFF0000 ELSE #FF0000FF THEN setColor ;");
+        fEnv.parse(": view.onClick ( x. y. -- ) mycolor 10. drawCircle ;");
         fOnClickWord = fEnv.findWord("view.onClick");
 #if 0
         env.parse(
@@ -181,6 +182,9 @@ public:
                   "draw1 "
                   );
 #endif
+        ForthEnv env;
+        env.parse("3 5 = IF 42 . ELSE -42 . THEN 99 .");
+        env.run();
     }
     
 protected:

@@ -40,6 +40,8 @@ public:
     }
 
     int count() const { return fTotalCount; }
+    int depth() const { return fTotalCount; }
+    bool empty() const { return fTotalCount == 0; }
 
     T* push()
     {
