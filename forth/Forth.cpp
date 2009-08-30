@@ -1,7 +1,8 @@
 #include "Forth.h"
+#include "ForthParser.h"
 #include "SkTDArray.h"
-#include "SkTDict.h"
 #include "SkString.h"
+#include "SkTDStack.h"
 
 ForthEngine::ForthEngine(ForthOutput* output) : fOutput(output) {
     size_t size = 32 * sizeof(intptr_t);
@@ -21,8 +22,6 @@ void ForthEngine::sendOutput(const char text[]) {
         SkDebugf("%s", text);
     }
 }
-
-///////////////// ints
 
 void ForthEngine::push(intptr_t value) {
     if (fStackCurr > fStackBase) {
@@ -66,13 +65,19 @@ intptr_t ForthEngine::pop() {
 
 void ForthWord::call(ForthCallBlock* block) {
     ForthEngine engine(NULL);
+
+    // setup the initial stack with the callers input data
     if (block) {
         // walk the array backwards, so that the top of the stack is data[0]
         for (size_t i = 0; i < block->in_count; i++) {
             engine.push(block->in_data[i]);
         }
     }
+
+    // now invoke the word
     this->exec(&engine);
+
+    // now copy back the stack into the caller's output data
     if (block) {
         size_t n = engine.depth();
         block->out_depth = n;
@@ -84,220 +89,6 @@ void ForthWord::call(ForthCallBlock* block) {
         }
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-class drop_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        (void)fe->pop();
-    }
-};
-
-class clearStack_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->clearStack();
-    }
-};
-
-class dup_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->push(fe->top());
-    }
-};
-
-class swap_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        int32_t a = fe->pop();
-        int32_t b = fe->top();
-        fe->setTop(a);
-        fe->push(b);
-    }
-};
-
-///////////////// ints
-
-class add_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() + tmp);
-    }
-};
-
-class sub_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() - tmp);
-    }
-};
-
-class mul_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() * tmp);
-    }
-};
-
-class div_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() / tmp);
-    }
-};
-
-class dot_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        SkString str;
-        str.printf("%d ", fe->pop());
-        fe->sendOutput(str.c_str());
-    }
-};
-
-class abs_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        int32_t value = fe->top();
-        if (value < 0) {
-            fe->setTop(-value);
-        }
-    }
-};
-
-class min_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        int32_t value = fe->pop();
-        if (value < fe->top()) {
-            fe->setTop(value);
-        }
-    }
-};
-
-class max_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        int32_t value = fe->pop();
-        if (value > fe->top()) {
-            fe->setTop(value);
-        }
-    }
-};
-
-///////////////// floats
-
-class fadd_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        float tmp = fe->fpop();
-        fe->fsetTop(fe->ftop() + tmp);
-    }
-};
-
-class fsub_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        float tmp = fe->fpop();
-        fe->fsetTop(fe->ftop() - tmp);
-    }
-};
-
-class fmul_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        float tmp = fe->fpop();
-        fe->fsetTop(fe->ftop() * tmp);
-    }
-};
-
-class fdiv_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        float tmp = fe->fpop();
-        fe->fsetTop(fe->ftop() / tmp);
-    }
-};
-
-class fdot_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        SkString str;
-        str.printf("%g ", fe->fpop());
-        fe->sendOutput(str.c_str());
-    }
-};
-
-class fabs_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        float value = fe->ftop();
-        if (value < 0) {
-            fe->fsetTop(-value);
-        }
-    }
-};
-
-class fmin_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        float value = fe->fpop();
-        if (value < fe->ftop()) {
-            fe->fsetTop(value);
-        }
-    }
-};
-
-class fmax_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        float value = fe->fpop();
-        if (value > fe->ftop()) {
-            fe->fsetTop(value);
-        }
-    }
-};
-
-class floor_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->fsetTop(floorf(fe->ftop()));
-    }
-};
-
-class ceil_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->fsetTop(ceilf(fe->ftop()));
-    }
-};
-
-class round_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->fsetTop(floorf(fe->ftop() + 0.5f));
-    }
-};
-
-class f2i_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->setTop((int)fe->ftop());
-    }
-};
-
-class i2f_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->fsetTop((float)fe->top());
-    }
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -317,22 +108,40 @@ public:
 
 class FCode {
 public:
+    enum {
+        kCodeShift  = 2,
+        kCodeMask   = 7,
+        kCodeDataShift  = 5
+    };
+    static unsigned GetCode(intptr_t c) {
+        return ((uint32_t)c >> kCodeShift) & kCodeMask;
+    }
+    static unsigned GetCodeData(intptr_t c) {
+        return (uint32_t)c >> kCodeDataShift;
+    }
+
     enum Bits {
         kWord_Bits          = 0,    // must be zero for function address
         kDataClear2_Bits    = 1,
         kDataShift2_Bits    = 2,
         kCodeShift2_Bits    = 3
     };
+
     enum Code {
-        kPushInt_Code,
+        kPushInt_Code,  // for data that needs more than 30 bits
+        kIF_Code,
+        kELSE_Code,
         kDone_Code
     };
-
+    static unsigned MakeCode(Code code) {
+        return (code << kCodeShift) | kCodeShift2_Bits;
+    }
+    
     void appendInt(int32_t);
     void appendWord(ForthWord*);
-    void appendIF() {}
-    bool appendELSE() { return false; }
-    bool appendTHEN() { return false; }
+    void appendIF();
+    bool appendELSE();
+    bool appendTHEN();
     void done();
 
     intptr_t* detach() {
@@ -348,13 +157,14 @@ public:
 
 private:
     SkTDArray<intptr_t> fData;
+    SkTDStack<size_t>   fIfStack;
 };
 
 void FCode::appendInt(int32_t value) {
     if ((value & 3) == 0) {
         *fData.append() = value | kDataClear2_Bits;
-    } else if ((value >> 2 << 2) == value) {
-        *fData.append() = value | kDataShift2_Bits;
+    } else if ((value << 2 >> 2) == value) {
+        *fData.append() = (value << 2) | kDataShift2_Bits;
     } else {
         intptr_t* p = fData.append(2);
         *p++ = (kPushInt_Code << 2) | kCodeShift2_Bits;
@@ -365,6 +175,43 @@ void FCode::appendInt(int32_t value) {
 void FCode::appendWord(ForthWord* word) {
     SkASSERT((reinterpret_cast<intptr_t>(word) & 3) == 0);
     *fData.append() = reinterpret_cast<intptr_t>(word);
+}
+
+void FCode::appendIF() {
+    size_t ifIndex = fData.count();
+    fIfStack.push(ifIndex);
+    *fData.append() = MakeCode(kIF_Code);
+}
+
+bool FCode::appendELSE() {
+    if (fIfStack.empty()) {
+        return false;
+    }
+
+    size_t elseIndex = fData.count();
+    *fData.append() = MakeCode(kELSE_Code);
+
+    size_t ifIndex = fIfStack.top();
+    // record the offset in the data part of the if-code
+    fData[ifIndex] |= (elseIndex - ifIndex) << kCodeDataShift;
+
+    // now reuse this IfStack entry to track the else
+    fIfStack.top() = elseIndex;
+    return true;
+}
+
+bool FCode::appendTHEN() {
+    if (fIfStack.empty()) {
+        return false;
+    }
+
+    // this is either an IF or an ELSE
+    size_t index = fIfStack.top();
+    // record the offset in the data part of the code
+    fData[index] |= (fData.count() - index - 1) << kCodeDataShift;
+
+    fIfStack.pop();
+    return true;
 }
 
 void FCode::done() {
@@ -385,9 +232,19 @@ void FCode::Exec(const intptr_t* curr, ForthEngine* engine) {
                 engine->push(c >> 2);
                 break;
             case kCodeShift2_Bits:
-                switch ((uint32_t)c >> 2) {
+                switch (GetCode(c)) {
                     case kPushInt_Code:
                         engine->push(*curr++);
+                        break;
+                    case kIF_Code:
+                        if (!engine->pop()) {
+                            // takes us past the ELSE or THEN
+                            curr += GetCodeData(c);
+                        }
+                        break;
+                    case kELSE_Code:
+                        // takes us past the THEN
+                        curr += GetCodeData(c);
                         break;
                     case kDone_Code:
                         return;
@@ -415,61 +272,12 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ForthParser {
-public:
-    ForthParser() : fDict(4096) {
-        this->addStdWords();
-    }
+ForthParser::ForthParser() : fDict(4096) {
+    this->addStdWords();
+}
 
-    const char* parse(const char text[], FCode*);
-
-    void addWord(const char name[], ForthWord* word) {
-        this->add(name, strlen(name), word);
-    }
-
-    ForthWord* find(const char name[], size_t len) const {
-        ForthWord* word;
-        return fDict.find(name, len, &word) ? word : NULL;
-    }
-    
-private:
-    void add(const char name[], size_t len, ForthWord* word) {
-        (void)fDict.set(name, len, word);
-    }
-
-    void addStdWords() {
-        this->add("clr", 3, new clearStack_ForthWord);
-        this->add("drop", 4, new drop_ForthWord);
-        this->add("dup", 3, new dup_ForthWord);
-        this->add("swap", 4, new swap_ForthWord);
-        
-        this->add("+", 1, new add_ForthWord);
-        this->add("-", 1, new sub_ForthWord);
-        this->add("*", 1, new mul_ForthWord);
-        this->add("/", 1, new div_ForthWord);
-        this->add(".", 1, new dot_ForthWord);
-        this->add("abs", 3, new abs_ForthWord);
-        this->add("min", 3, new min_ForthWord);
-        this->add("max", 3, new max_ForthWord);
-        
-        this->add("f+", 2, new fadd_ForthWord);
-        this->add("f-", 2, new fsub_ForthWord);
-        this->add("f*", 2, new fmul_ForthWord);
-        this->add("f/", 2, new fdiv_ForthWord);
-        this->add("f.", 2, new fdot_ForthWord);
-        this->add("fabs", 4, new fabs_ForthWord);
-        this->add("fmin", 4, new fmin_ForthWord);
-        this->add("fmax", 4, new fmax_ForthWord);
-        this->add("fmax", 4, new fmax_ForthWord);
-        this->add("floor", 5, new floor_ForthWord);
-        this->add("ceil", 4, new ceil_ForthWord);
-        this->add("round", 5, new round_ForthWord);
-        this->add("f>i", 3, new f2i_ForthWord);
-        this->add("i>f", 3, new i2f_ForthWord);
-    }
-    
-    SkTDict<ForthWord*> fDict;
-};
+ForthParser::~ForthParser() {
+}
 
 static const char* parse_error(const char msg[]) {
     SkDebugf("-- parser error: %s\n", msg);
@@ -615,11 +423,11 @@ const char* ForthParser::parse(const char text[], FCode* code) {
             code->appendInt(num);
         } else if (2 == len && memcmp(token, "IF", 2) == 0) {
             code->appendIF();
-        } else if (2 == len && memcmp(token, "ELSE", 4) == 0) {
+        } else if (4 == len && memcmp(token, "ELSE", 4) == 0) {
             if (!code->appendELSE()) {
                 return parse_error("ELSE with no matching IF");
             }
-        } else if (2 == len && memcmp(token, "THEN", 4) == 0) {
+        } else if (4 == len && memcmp(token, "THEN", 4) == 0) {
             if (!code->appendTHEN()) {
                 return parse_error("THEN with no matching IF");
             }
