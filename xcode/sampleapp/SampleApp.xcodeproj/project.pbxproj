@@ -62,6 +62,7 @@
 		007A7CBF0F01658C00A2D6EE /* SampleTypeface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB00F01658C00A2D6EE /* SampleTypeface.cpp */; };
 		007A7CC00F01658C00A2D6EE /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB10F01658C00A2D6EE /* SampleVertices.cpp */; };
 		007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C785D0F3B4C230004B142 /* SamplePathClip.cpp */; };
+		00840B75104C69F5005B3EDC /* SampleExtractAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */; };
 		0088C1160FEC311C00CE52F5 /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */; };
 		008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008C4D970F77DAEE0056981C /* SampleHairline.cpp */; };
 		009490320FB0A5B90063C792 /* SampleLayerMask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009490310FB0A5B90063C792 /* SampleLayerMask.cpp */; };
@@ -195,6 +196,7 @@
 		007A7CB10F01658C00A2D6EE /* SampleVertices.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleVertices.cpp; path = ../../samplecode/SampleVertices.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleXfermodes.cpp; path = ../../samplecode/SampleXfermodes.cpp; sourceTree = SOURCE_ROOT; };
 		007C785D0F3B4C230004B142 /* SamplePathClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePathClip.cpp; path = ../../samplecode/SamplePathClip.cpp; sourceTree = SOURCE_ROOT; };
+		00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleExtractAlpha.cpp; path = ../../samplecode/SampleExtractAlpha.cpp; sourceTree = SOURCE_ROOT; };
 		008C4D970F77DAEE0056981C /* SampleHairline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleHairline.cpp; path = ../../samplecode/SampleHairline.cpp; sourceTree = SOURCE_ROOT; };
 		009490310FB0A5B90063C792 /* SampleLayerMask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleLayerMask.cpp; path = ../../samplecode/SampleLayerMask.cpp; sourceTree = SOURCE_ROOT; };
 		009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFontScalerTest.cpp; path = ../../samplecode/SampleFontScalerTest.cpp; sourceTree = SOURCE_ROOT; };
@@ -286,6 +288,7 @@
 				0041CE260F00A12400695E8C /* SampleEncode.cpp */,
 				0041CE270F00A12400695E8C /* SampleFillType.cpp */,
 				00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */,
+				00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */,
 				0041CE280F00A12400695E8C /* SampleFilter.cpp */,
 				0041CE290F00A12400695E8C /* SampleFilter2.cpp */,
 				0041CE2A0F00A12400695E8C /* SampleFontCache.cpp */,
@@ -591,6 +594,7 @@
 				001B871E1042184D00C84ED4 /* Forth.cpp in Sources */,
 				00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */,
 				00ED55F3104A10EB00F51FF8 /* StdWords.cpp in Sources */,
+				00840B75104C69F5005B3EDC /* SampleExtractAlpha.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
