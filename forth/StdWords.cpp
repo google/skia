@@ -2,106 +2,166 @@
 #include "ForthParser.h"
 #include "SkString.h"
 
-class drop_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        (void)fe->pop();
-    }
-};
+#define BEGIN_WORD(name)   \
+    class name##_ForthWord : public ForthWord { \
+    public:                                     \
+        virtual void exec(ForthEngine* fe)
 
-class clearStack_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->clearStack();
-    }
-};
+#define END_WORD };
 
-class dup_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->push(fe->top());
-    }
-};
+///////////////////////////////////////////////////////////////////////////////
 
-class swap_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        int32_t a = fe->pop();
-        int32_t b = fe->top();
-        fe->setTop(a);
-        fe->push(b);
-    }
-};
+BEGIN_WORD(drop) {
+    (void)fe->pop();
+} END_WORD
 
-class rot_ForthWord : public ForthWord {
-public:
-    virtual void exec(ForthEngine* fe) {
-        fe->push(fe->peek(1));
+BEGIN_WORD(over) {
+    fe->push(fe->peek(1));
+} END_WORD
+
+BEGIN_WORD(dup) {
+    fe->push(fe->top());
+} END_WORD
+
+BEGIN_WORD(swap) {
+    intptr_t a = fe->pop();
+    intptr_t b = fe->top();
+    fe->setTop(a);
+    fe->push(b);
+} END_WORD
+
+BEGIN_WORD(rot) {
+    intptr_t c = fe->pop();
+    intptr_t b = fe->pop();
+    intptr_t a = fe->pop();
+    fe->push(b);
+    fe->push(c);
+    fe->push(a);
+} END_WORD
+
+BEGIN_WORD(rrot) {
+    intptr_t c = fe->pop();
+    intptr_t b = fe->pop();
+    intptr_t a = fe->pop();
+    fe->push(c);
+    fe->push(a);
+    fe->push(b);
+} END_WORD
+
+BEGIN_WORD(swap2) {
+    intptr_t d = fe->pop();
+    intptr_t c = fe->pop();
+    intptr_t b = fe->pop();
+    intptr_t a = fe->pop();
+    fe->push(c);
+    fe->push(d);
+    fe->push(a);
+    fe->push(b);
+} END_WORD
+
+BEGIN_WORD(dup2) {
+    fe->push(fe->peek(1));
+    fe->push(fe->peek(1));
+} END_WORD
+
+BEGIN_WORD(over2) {
+    fe->push(fe->peek(3));
+    fe->push(fe->peek(3));
+} END_WORD
+
+BEGIN_WORD(drop2) {
+    (void)fe->pop();
+    (void)fe->pop();
+} END_WORD
+
+///////////////// logicals
+
+BEGIN_WORD(logical_and) {
+    fe->push(-(fe->pop() && fe->pop()));
+} END_WORD
+
+BEGIN_WORD(logical_or) {
+    fe->push(-(fe->pop() || fe->pop()));
+} END_WORD
+
+BEGIN_WORD(logical_not) {
+    fe->setTop(-(!fe->top()));
+} END_WORD
+
+BEGIN_WORD(if_dup) {
+    intptr_t tmp = fe->top();
+    if (tmp) {
+        fe->push(tmp);
     }
-};
+} END_WORD
 
 ///////////////// ints
 
-class add_ForthWord : public ForthWord {
-public:
+class add_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
         fe->setTop(fe->top() + tmp);
-    }
-};
+    }};
 
-class sub_ForthWord : public ForthWord {
-public:
+class sub_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
         fe->setTop(fe->top() - tmp);
-    }
-};
+    }};
 
-class mul_ForthWord : public ForthWord {
-public:
+class mul_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
         fe->setTop(fe->top() * tmp);
-    }
-};
+    }};
 
-class div_ForthWord : public ForthWord {
-public:
+class div_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
         fe->setTop(fe->top() / tmp);
-    }
-};
+    }};
 
-class dot_ForthWord : public ForthWord {
-public:
+class mod_ForthWord : public ForthWord { public:
+    virtual void exec(ForthEngine* fe) {
+        intptr_t tmp = fe->pop();
+        fe->setTop(fe->top() % tmp);
+    }};
+
+class divmod_ForthWord : public ForthWord { public:
+    virtual void exec(ForthEngine* fe) {
+        intptr_t denom = fe->pop();
+        intptr_t numer = fe->pop();
+        fe->push(numer % denom);
+        fe->push(numer / denom);
+    }};
+
+class dot_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         SkString str;
         str.printf("%d ", fe->pop());
         fe->sendOutput(str.c_str());
-    }
-};
+    }};
 
-class abs_ForthWord : public ForthWord {
-public:
+class abs_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         int32_t value = fe->top();
         if (value < 0) {
             fe->setTop(-value);
         }
-    }
-};
+    }};
 
-class min_ForthWord : public ForthWord {
-public:
+class negate_ForthWord : public ForthWord { public:
+    virtual void exec(ForthEngine* fe) {
+        fe->setTop(-fe->top());
+    }};
+
+class min_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         int32_t value = fe->pop();
         if (value < fe->top()) {
             fe->setTop(value);
         }
-    }
-};
+    }};
 
 class max_ForthWord : public ForthWord {
 public:
@@ -221,106 +281,143 @@ public:
     }
 };
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////// int compares
 
 class eq_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
-        fe->push(fe->pop() == fe->pop());
+        fe->push(-(fe->pop() == fe->pop()));
     }
 };
 
 class neq_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
-        fe->push(fe->pop() != fe->pop());
+        fe->push(-(fe->pop() != fe->pop()));
     }
 };
 
 class lt_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() < tmp);
+        fe->setTop(-(fe->top() < tmp));
     }
 };
 
 class le_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() <= tmp);
+        fe->setTop(-(fe->top() <= tmp));
     }
 };
 
 class gt_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() > tmp);
+        fe->setTop(-(fe->top() > tmp));
     }
 };
 
 class ge_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         intptr_t tmp = fe->pop();
-        fe->setTop(fe->top() >= tmp);
+        fe->setTop(-(fe->top() >= tmp));
     }
 };
 
+BEGIN_WORD(lt0) {
+    fe->setTop(fe->top() >> 31);
+} END_WORD
+
+BEGIN_WORD(ge0) {
+    fe->setTop(~(fe->top() >> 31));
+} END_WORD
+
+BEGIN_WORD(gt0) {
+    fe->setTop(-(fe->top() > 0));
+} END_WORD
+
+BEGIN_WORD(le0) {
+    fe->setTop(-(fe->top() <= 0));
+} END_WORD
+
+/////////////////////////////// float compares
+
+/*  negative zero is our nemesis, otherwise we could use = and <> from ints */
+
 class feq_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
-        fe->push(fe->fpop() == fe->fpop());
+        fe->push(-(fe->fpop() == fe->fpop()));
     }
 };
 
 class fneq_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
-        fe->push(fe->fpop() != fe->fpop());
+        fe->push(-(fe->fpop() != fe->fpop()));
     }
 };
 
 class flt_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         float tmp = fe->fpop();
-        fe->setTop(fe->ftop() < tmp);
+        fe->setTop(-(fe->ftop() < tmp));
     }
 };
 
 class fle_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         float tmp = fe->fpop();
-        fe->setTop(fe->ftop() <= tmp);
+        fe->setTop(-(fe->ftop() <= tmp));
     }
 };
 
 class fgt_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         float tmp = fe->fpop();
-        fe->setTop(fe->ftop() > tmp);
+        fe->setTop(-(fe->ftop() > tmp));
     }
 };
 
 class fge_ForthWord : public ForthWord { public:
     virtual void exec(ForthEngine* fe) {
         float tmp = fe->fpop();
-        fe->setTop(fe->ftop() >= tmp);
+        fe->setTop(-(fe->ftop() >= tmp));
     }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define ADD_LITERAL_WORD(sym, name) \
+    this->add(sym, sizeof(sym)-1, new name##_ForthWord)
+
 void ForthParser::addStdWords() {
-    this->add("clr", 3, new clearStack_ForthWord);
-    this->add("drop", 4, new drop_ForthWord);
-    this->add("dup", 3, new dup_ForthWord);
-    this->add("swap", 4, new swap_ForthWord);
-    this->add("rot", 3, new rot_ForthWord);
+    ADD_LITERAL_WORD("DROP", drop);
+    ADD_LITERAL_WORD("DUP", dup);
+    ADD_LITERAL_WORD("SWAP", swap);
+    ADD_LITERAL_WORD("OVER", over);
+    ADD_LITERAL_WORD("ROT", rot);
+    ADD_LITERAL_WORD("-ROT", rrot);
+    ADD_LITERAL_WORD("2SWAP", swap2);
+    ADD_LITERAL_WORD("2DUP", dup2);
+    ADD_LITERAL_WORD("2OVER", over2);
+    ADD_LITERAL_WORD("2DROP", drop2);
     
     this->add("+", 1, new add_ForthWord);
     this->add("-", 1, new sub_ForthWord);
     this->add("*", 1, new mul_ForthWord);
     this->add("/", 1, new div_ForthWord);
+    this->add("MOD", 1, new mod_ForthWord);
+    this->add("/MOD", 1, new divmod_ForthWord);
+
     this->add(".", 1, new dot_ForthWord);
-    this->add("abs", 3, new abs_ForthWord);
-    this->add("min", 3, new min_ForthWord);
-    this->add("max", 3, new max_ForthWord);
-    
+    this->add("ABS", 3, new abs_ForthWord);
+    this->add("NEGATE", 3, new negate_ForthWord);
+    this->add("MIN", 3, new min_ForthWord);
+    this->add("MAX", 3, new max_ForthWord);
+
+    ADD_LITERAL_WORD("AND", logical_and);
+    ADD_LITERAL_WORD("OR", logical_or);
+    ADD_LITERAL_WORD("0=", logical_not);
+    ADD_LITERAL_WORD("?DUP", if_dup);
+
     this->add("f+", 2, new fadd_ForthWord);
     this->add("f-", 2, new fsub_ForthWord);
     this->add("f*", 2, new fmul_ForthWord);
@@ -342,7 +439,11 @@ void ForthParser::addStdWords() {
     this->add("<=", 2, new le_ForthWord);
     this->add(">", 1, new gt_ForthWord);
     this->add(">=", 2, new ge_ForthWord);
-
+    ADD_LITERAL_WORD("0<", lt0);
+    ADD_LITERAL_WORD("0>", gt0);
+    ADD_LITERAL_WORD("0<=", le0);
+    ADD_LITERAL_WORD("0>=", ge0);
+    
     this->add("f=", 2, new feq_ForthWord);
     this->add("f<>", 3, new fneq_ForthWord);
     this->add("f<", 2, new flt_ForthWord);
