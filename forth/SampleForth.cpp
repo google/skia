@@ -150,6 +150,8 @@ static void load_words(ForthEnv* env, SkForthCtx* ctx) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void Forth_test_stdwords();
+
 class ForthView : public SkView {
     ForthEnv    fEnv;
     ForthWord*  fOnClickWord;
@@ -158,6 +160,8 @@ class ForthView : public SkView {
     SkForthCtx  fContext;
 public:
 	ForthView() {
+        Forth_test_stdwords();
+
         load_words(&fEnv, &fContext);
 
         fBM.setConfig(SkBitmap::kARGB_8888_Config, 640, 480);
@@ -165,7 +169,7 @@ public:
         fBM.eraseColor(0);
         fContext.init(fBM);
 
-        fEnv.parse(": mycolor ( x. y. -- x. y. ) rot rot f< IF #FFFF0000 ELSE #FF0000FF THEN setColor ;");
+        fEnv.parse(": mycolor ( x. y. -- x. y. ) OVER OVER f< IF #FFFF0000 ELSE #FF0000FF THEN setColor ;");
         fEnv.parse(": view.onClick ( x. y. -- ) mycolor 10. drawCircle ;");
         fOnClickWord = fEnv.findWord("view.onClick");
 #if 0
