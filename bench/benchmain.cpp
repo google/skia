@@ -49,21 +49,23 @@ static bool equal(const SkBitmap& bm1, const SkBitmap& bm2) {
 
 class Iter {
 public:
-    Iter() {
+    Iter(void* param) {
         fBench = BenchRegistry::Head();
+        fParam = param;
     }
     
     SkBenchmark* next() {
         if (fBench) {
             BenchRegistry::Factory f = fBench->factory();
             fBench = fBench->next();
-            return f(0);
+            return f(fParam);
         }
         return NULL;
     }
     
 private:
     const BenchRegistry* fBench;
+    void* fParam;
 };
 
 static void make_filename(const char name[], SkString* path) {
@@ -186,6 +188,7 @@ static int findConfig(const char config[]) {
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
 
+    SkTDict<const char*> defineDict(1024);
     int repeatDraw = 1;
     int forceAlpha = 0xFF;
     bool forceAA = true;
@@ -273,6 +276,14 @@ int main (int argc, char * const argv[]) {
                 log_error("missing arg for -config\n");
                 return -1;
             }
+        } else if (strncmp(*argv, "-D", 2) == 0) {
+            argv++;
+            if (strlen(*argv) > 2 && argv < stop) {
+                defineDict.set(argv[-1] + 2, *argv);
+            } else {
+                log_error("incomplete '-Dfoo bar' definition\n");
+                return -1;
+            }
         } else {
             SkString str;
             str.printf("unrecognized arg %s\n", *argv);
@@ -281,7 +292,7 @@ int main (int argc, char * const argv[]) {
         }
     }
 
-    Iter iter;
+    Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
         SkIPoint dim = bench->getSize();

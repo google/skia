@@ -81,7 +81,7 @@ class RepeatTileBench : public SkBenchmark {
     SkString    fName;
     enum { N = 20 };
 public:
-    RepeatTileBench(SkBitmap::Config c) {
+    RepeatTileBench(void* param, SkBitmap::Config c) : INHERITED(param) {
         const int w = 50;
         const int h = 50;
         SkBitmap bm;
@@ -127,10 +127,10 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact0(void*) { return new RepeatTileBench(SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact1(void*) { return new RepeatTileBench(SkBitmap::kRGB_565_Config); }
-static SkBenchmark* Fact2(void*) { return new RepeatTileBench(SkBitmap::kARGB_4444_Config); }
-static SkBenchmark* Fact3(void*) { return new RepeatTileBench(SkBitmap::kIndex8_Config); }
+static SkBenchmark* Fact0(void* p) { return new RepeatTileBench(p, SkBitmap::kARGB_8888_Config); }
+static SkBenchmark* Fact1(void* p) { return new RepeatTileBench(p, SkBitmap::kRGB_565_Config); }
+static SkBenchmark* Fact2(void* p) { return new RepeatTileBench(p, SkBitmap::kARGB_4444_Config); }
+static SkBenchmark* Fact3(void* p) { return new RepeatTileBench(p, SkBitmap::kIndex8_Config); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);

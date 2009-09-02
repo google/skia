@@ -96,7 +96,8 @@ class BitmapBench : public SkBenchmark {
     SkString    fName;
     enum { N = 300 };
 public:
-    BitmapBench(SkBitmap::Config c, int tx = -1, int ty = -1) : fTileX(tx), fTileY(ty) {
+    BitmapBench(void* param, SkBitmap::Config c, int tx = -1, int ty = -1)
+        : INHERITED(param), fTileX(tx), fTileY(ty) {
         const int w = 128;
         const int h = 128;
         SkBitmap bm;
@@ -153,10 +154,10 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact0(void*) { return new BitmapBench(SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact1(void*) { return new BitmapBench(SkBitmap::kRGB_565_Config); }
-static SkBenchmark* Fact2(void*) { return new BitmapBench(SkBitmap::kARGB_4444_Config); }
-static SkBenchmark* Fact3(void*) { return new BitmapBench(SkBitmap::kIndex8_Config); }
+static SkBenchmark* Fact0(void* p) { return new BitmapBench(p, SkBitmap::kARGB_8888_Config); }
+static SkBenchmark* Fact1(void* p) { return new BitmapBench(p, SkBitmap::kRGB_565_Config); }
+static SkBenchmark* Fact2(void* p) { return new BitmapBench(p, SkBitmap::kARGB_4444_Config); }
+static SkBenchmark* Fact3(void* p) { return new BitmapBench(p, SkBitmap::kIndex8_Config); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);

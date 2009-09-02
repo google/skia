@@ -15,7 +15,7 @@ public:
     SkRect  fRects[N];
     SkColor fColors[N];
 
-    RectBench(int shift) : fShift(shift) {
+    RectBench(void* param, int shift) : INHERITED(param), fShift(shift) {
         SkRandom rand;
         for (int i = 0; i < N; i++) {
             int x = rand.nextU() % W;
@@ -53,11 +53,13 @@ protected:
             this->drawThisRect(canvas, fRects[i], paint);
         }
     }
+private:
+    typedef SkBenchmark INHERITED;
 };
 
 class OvalBench : public RectBench {
 public:
-    OvalBench(int shift) : RectBench(shift) {}
+    OvalBench(void* param, int shift) : RectBench(param, shift) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawOval(r, p);
@@ -67,7 +69,7 @@ protected:
 
 class RRectBench : public RectBench {
 public:
-    RRectBench(int shift) : RectBench(shift) {}
+    RRectBench(void* param, int shift) : RectBench(param, shift) {}
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRoundRect(r, r.width() / 4, r.height() / 4, p);
@@ -80,8 +82,8 @@ public:
     SkCanvas::PointMode fMode;
     const char* fName;
 
-    PointsBench(SkCanvas::PointMode mode, const char* name) : 
-        RectBench(2), fMode(mode) {
+    PointsBench(void* param, SkCanvas::PointMode mode, const char* name) : 
+        RectBench(param, 2), fMode(mode) {
         fName = name;
     }
 
@@ -105,20 +107,20 @@ protected:
     virtual const char* onGetName() { return fName; }
 };
 
-static SkBenchmark* RectFactory1(void*) { return SkNEW_ARGS(RectBench, (1)); }
-static SkBenchmark* RectFactory2(void*) { return SkNEW_ARGS(RectBench, (3)); }
-static SkBenchmark* OvalFactory1(void*) { return SkNEW_ARGS(OvalBench, (1)); }
-static SkBenchmark* OvalFactory2(void*) { return SkNEW_ARGS(OvalBench, (3)); }
-static SkBenchmark* RRectFactory1(void*) { return SkNEW_ARGS(RRectBench, (1)); }
-static SkBenchmark* RRectFactory2(void*) { return SkNEW_ARGS(RRectBench, (3)); }
-static SkBenchmark* PointsFactory(void*) {
-    return SkNEW_ARGS(PointsBench, (SkCanvas::kPoints_PointMode, "points"));
+static SkBenchmark* RectFactory1(void* p) { return SkNEW_ARGS(RectBench, (p, 1)); }
+static SkBenchmark* RectFactory2(void* p) { return SkNEW_ARGS(RectBench, (p, 3)); }
+static SkBenchmark* OvalFactory1(void* p) { return SkNEW_ARGS(OvalBench, (p, 1)); }
+static SkBenchmark* OvalFactory2(void* p) { return SkNEW_ARGS(OvalBench, (p, 3)); }
+static SkBenchmark* RRectFactory1(void* p) { return SkNEW_ARGS(RRectBench, (p, 1)); }
+static SkBenchmark* RRectFactory2(void* p) { return SkNEW_ARGS(RRectBench, (p, 3)); }
+static SkBenchmark* PointsFactory(void* p) {
+    return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPoints_PointMode, "points"));
 }
-static SkBenchmark* LinesFactory(void*) {
-    return SkNEW_ARGS(PointsBench, (SkCanvas::kLines_PointMode, "lines"));
+static SkBenchmark* LinesFactory(void* p) {
+    return SkNEW_ARGS(PointsBench, (p, SkCanvas::kLines_PointMode, "lines"));
 }
-static SkBenchmark* PolygonFactory(void*) {
-    return SkNEW_ARGS(PointsBench, (SkCanvas::kPolygon_PointMode, "polygon"));
+static SkBenchmark* PolygonFactory(void* p) {
+    return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon"));
 }
 
 static BenchRegistry gRectReg1(RectFactory1);

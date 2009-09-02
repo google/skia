@@ -24,7 +24,8 @@ class TextBench : public SkBenchmark {
     SkString    fName;
     enum { N = 300 };
 public:
-    TextBench(const char text[], int ps, bool linearText, bool posText) {
+    TextBench(void* param, const char text[], int ps, bool linearText,
+              bool posText) : INHERITED(param) {
         fText.set(text);
 
         fPaint.setAntiAlias(true);
@@ -97,14 +98,14 @@ private:
 #define SMALL   9
 #define BIG     48
 
-static SkBenchmark* Fact0(void*) { return new TextBench(STR, SMALL, false, false); }
-static SkBenchmark* Fact1(void*) { return new TextBench(STR, SMALL, false, true); }
-static SkBenchmark* Fact2(void*) { return new TextBench(STR, SMALL, true, false); }
-static SkBenchmark* Fact3(void*) { return new TextBench(STR, SMALL, true, true); }
-static SkBenchmark* Fact4(void*) { return new TextBench(STR, BIG, false, false); }
-static SkBenchmark* Fact5(void*) { return new TextBench(STR, BIG, false, true); }
-static SkBenchmark* Fact6(void*) { return new TextBench(STR, BIG, true, false); }
-static SkBenchmark* Fact7(void*) { return new TextBench(STR, BIG, true, true); }
+static SkBenchmark* Fact0(void* p) { return new TextBench(p, STR, SMALL, false, false); }
+static SkBenchmark* Fact1(void* p) { return new TextBench(p, STR, SMALL, false, true); }
+static SkBenchmark* Fact2(void* p) { return new TextBench(p, STR, SMALL, true, false); }
+static SkBenchmark* Fact3(void* p) { return new TextBench(p, STR, SMALL, true, true); }
+static SkBenchmark* Fact4(void* p) { return new TextBench(p, STR, BIG, false, false); }
+static SkBenchmark* Fact5(void* p) { return new TextBench(p, STR, BIG, false, true); }
+static SkBenchmark* Fact6(void* p) { return new TextBench(p, STR, BIG, true, false); }
+static SkBenchmark* Fact7(void* p) { return new TextBench(p, STR, BIG, true, true); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
