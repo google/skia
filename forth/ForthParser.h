@@ -2,6 +2,7 @@
 #define ForthParser_DEFINED
 
 #include "SkTDict.h"
+//#include "SkString.h"
 
 class ForthWord;
 class FCode;
@@ -18,6 +19,8 @@ public:
     }
 
     void add(const char name[], size_t len, ForthWord* word) {
+    //    SkString str(name, len);
+    //    SkDebugf("add %s %p\n", str.c_str(), word);
         (void)fDict.set(name, len, word);
     }
 

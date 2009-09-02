@@ -77,11 +77,13 @@ BEGIN_WORD(drop2) {
 ///////////////// logicals
 
 BEGIN_WORD(logical_and) {
-    fe->push(-(fe->pop() && fe->pop()));
+    intptr_t tmp = fe->pop();
+    fe->setTop(-(tmp && fe->top()));
 } END_WORD
 
 BEGIN_WORD(logical_or) {
-    fe->push(-(fe->pop() || fe->pop()));
+    intptr_t tmp = fe->pop();
+    fe->setTop(-(tmp || fe->top()));
 } END_WORD
 
 BEGIN_WORD(logical_not) {
@@ -400,18 +402,18 @@ void ForthParser::addStdWords() {
     ADD_LITERAL_WORD("2OVER", over2);
     ADD_LITERAL_WORD("2DROP", drop2);
     
-    this->add("+", 1, new add_ForthWord);
-    this->add("-", 1, new sub_ForthWord);
-    this->add("*", 1, new mul_ForthWord);
-    this->add("/", 1, new div_ForthWord);
-    this->add("MOD", 1, new mod_ForthWord);
-    this->add("/MOD", 1, new divmod_ForthWord);
+    ADD_LITERAL_WORD("+", add);
+    ADD_LITERAL_WORD("-", sub);
+    ADD_LITERAL_WORD("*", mul);
+    ADD_LITERAL_WORD("/", div);
+    ADD_LITERAL_WORD("MOD", mod);
+    ADD_LITERAL_WORD("/MOD", divmod);
 
-    this->add(".", 1, new dot_ForthWord);
-    this->add("ABS", 3, new abs_ForthWord);
-    this->add("NEGATE", 3, new negate_ForthWord);
-    this->add("MIN", 3, new min_ForthWord);
-    this->add("MAX", 3, new max_ForthWord);
+    ADD_LITERAL_WORD(".", dot);
+    ADD_LITERAL_WORD("ABS", abs);
+    ADD_LITERAL_WORD("NEGATE", negate);
+    ADD_LITERAL_WORD("MIN", min);
+    ADD_LITERAL_WORD("MAX", max);
 
     ADD_LITERAL_WORD("AND", logical_and);
     ADD_LITERAL_WORD("OR", logical_or);
