@@ -150,7 +150,7 @@ static void load_words(ForthEnv* env, SkForthCtx* ctx) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Forth_test_stdwords();
+void Forth_test_stdwords(bool verbose);
 
 class ForthView : public SkView {
     ForthEnv    fEnv;
@@ -160,7 +160,7 @@ class ForthView : public SkView {
     SkForthCtx  fContext;
 public:
 	ForthView() {
-        Forth_test_stdwords();
+        Forth_test_stdwords(false);
 
         load_words(&fEnv, &fContext);
 
@@ -186,9 +186,6 @@ public:
                   "draw1 "
                   );
 #endif
-        ForthEnv env;
-        env.parse("3 5 = IF 42 . ELSE -42 . THEN 99 .");
-        env.run();
     }
     
 protected:

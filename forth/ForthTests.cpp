@@ -132,6 +132,198 @@ static void drop2_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
     FORTH_ASSERT(reporter, 2 == fe->peek(0));
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+static void iadd_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(35);
+    fe->push(99);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 134 == fe->top());
+    fe->push(-135);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, -1 == fe->top());
+}
+
+static void isub_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(35);
+    fe->push(99);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 35-99 == fe->top());
+}
+
+static void imul_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(15);
+    fe->push(-20);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, -300 == fe->top());
+    fe->push(0);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 0 == fe->top());
+}
+
+static void idiv_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(100);
+    fe->push(25);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 4 == fe->top());
+    fe->setTop(10);
+    fe->push(-3);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, -3 == fe->top());
+    fe->setTop(-1);
+    fe->push(-1);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 1 == fe->top());
+}
+
+static void imod_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(10);
+    fe->push(3);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 1 == fe->top());
+    fe->push(5);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 1 == fe->top());
+}
+
+static void idivmod_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(10);
+    fe->push(3);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 2 == fe->depth());
+    FORTH_ASSERT(reporter, 1 == fe->peek(1));
+    FORTH_ASSERT(reporter, 3 == fe->peek(0));
+}
+
+static void idot_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(1);
+    fe->push(2);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 1 == fe->top());
+}
+
+static void iabs_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(10);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 10 == fe->top());
+    fe->setTop(-10);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 10 == fe->top());
+}
+
+static void inegate_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(10);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, -10 == fe->top());
+    fe->setTop(-10);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 10 == fe->top());
+}
+
+static void imin_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(10);
+    fe->push(3);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 3 == fe->top());
+    fe->push(-10);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, -10 == fe->top());
+}
+
+static void imax_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(10);
+    fe->push(3);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 10 == fe->top());
+    fe->push(-10);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 10 == fe->top());
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static void logical_and_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    const static int data[] = {
+        0, 0, 0,
+        2, 0, 0,
+        0, -1, 0,
+        1, 5, -1
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(data)/3; i++) {
+        fe->push(data[i*3 + 0]);
+        fe->push(data[i*3 + 1]);
+        word->exec(fe);
+        FORTH_ASSERT(reporter, 1 == fe->depth());
+        FORTH_ASSERT(reporter, data[i*3 + 2] == fe->top());
+        fe->pop();
+    }
+}
+
+static void logical_or_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    const static int data[] = {
+        0, 0, 0,
+        2, 0, -1,
+        0, -1, -1,
+        1, 5, -1
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(data)/3; i++) {
+        fe->push(data[i*3 + 0]);
+        fe->push(data[i*3 + 1]);
+        word->exec(fe);
+        FORTH_ASSERT(reporter, 1 == fe->depth());
+        FORTH_ASSERT(reporter, data[i*3 + 2] == fe->top());
+        fe->pop();
+    }
+}
+
+static void logical_not_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    const static int data[] = {
+        0, -1,
+        5, 0,
+        -1, 0
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(data)/2; i++) {
+        fe->push(data[i*2 + 0]);
+        word->exec(fe);
+        FORTH_ASSERT(reporter, 1 == fe->depth());
+        FORTH_ASSERT(reporter, data[i*2 + 1] == fe->top());
+        fe->pop();
+    }
+}
+
+static void if_dup_test(ForthWord* word, ForthEngine* fe, Reporter* reporter) {
+    fe->push(10);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 2 == fe->depth());
+    FORTH_ASSERT(reporter, 10 == fe->peek(1));
+    FORTH_ASSERT(reporter, 10 == fe->peek(0));
+    fe->pop();
+    fe->pop();
+    fe->push(0);
+    word->exec(fe);
+    FORTH_ASSERT(reporter, 1 == fe->depth());
+    FORTH_ASSERT(reporter, 0 == fe->top());
+}
+
 static const struct {
     const char*         fName;
     ForthWordTestProc   fProc;
@@ -146,6 +338,24 @@ static const struct {
     { "2DUP",   dup2_test },
     { "2OVER",  over2_test },
     { "2DROP",  drop2_test },
+
+    { "+",      iadd_test },
+    { "-",      isub_test },
+    { "*",      imul_test },
+    { "/",      idiv_test },
+    { "MOD",    imod_test },
+    { "/MOD",   idivmod_test },
+
+//    { ".",      idot_test },
+    { "ABS",    iabs_test },
+    { "NEGATE", inegate_test },
+    { "MIN",    imin_test },
+    { "MAX",    imax_test },
+
+    { "AND",    logical_and_test },
+    { "OR",     logical_or_test },
+    { "0=",     logical_not_test },
+    { "?DUP",   if_dup_test },
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,8 +371,8 @@ void Reporter::reportFailure(const char msg[]) {
     fFailureCount += 1;
 }
 
-void Forth_test_stdwords();
-void Forth_test_stdwords() {
+void Forth_test_stdwords(bool verbose);
+void Forth_test_stdwords(bool verbose) {
     ForthEnv env;
     Reporter reporter;
 
@@ -175,6 +385,9 @@ void Forth_test_stdwords() {
             str.printf("--- can't find stdword %d", gRecs[i].fName);
             reporter.reportFailure(str.c_str());
         } else {
+            if (verbose) {
+                SkDebugf("--- testing %s %p\n", gRecs[i].fName, word);
+            }
             gRecs[i].fProc(word, &engine, &reporter);
         }
     }
