@@ -3,6 +3,7 @@
 
 #include "SkRefCnt.h"
 #include "SkPoint.h"
+#include "SkTDict.h"
 #include "SkTRegistry.h"
 
 class SkCanvas;
@@ -10,7 +11,7 @@ class SkPaint;
 
 class SkBenchmark : public SkRefCnt {
 public:
-    SkBenchmark();
+    SkBenchmark(void* defineDict);
 
     const char* getName();
     SkIPoint getSize();
@@ -27,7 +28,9 @@ public:
     void setForceFilter(bool filter) {
         fForceFilter = filter;
     }
-    
+
+    const char* findDefine(const char* key) const;
+
 protected:
     void setupPaint(SkPaint* paint);
 
@@ -37,6 +40,7 @@ protected:
     virtual SkIPoint onGetSize();
 
 private:
+    const SkTDict<const char*>* fDict;
     int     fForceAlpha;
     bool    fForceAA;
     bool    fForceFilter;

@@ -3,7 +3,8 @@
 
 template BenchRegistry* BenchRegistry::gHead;
 
-SkBenchmark::SkBenchmark() {
+SkBenchmark::SkBenchmark(void* defineDict) {
+    fDict = reinterpret_cast<const SkTDict<const char*>*>(defineDict);
     fForceAlpha = 0xFF;
     fForceAA = true;
 }
@@ -24,6 +25,16 @@ void SkBenchmark::setupPaint(SkPaint* paint) {
     paint->setAlpha(fForceAlpha);
     paint->setAntiAlias(fForceAA);
     paint->setFilterBitmap(fForceFilter);
+}
+
+const char* SkBenchmark::findDefine(const char* key) const {
+    if (fDict) {
+        const char* value;
+        if (fDict->find(key, &value)) {
+            return value;
+        }
+    }
+    return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
