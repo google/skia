@@ -67,19 +67,20 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         drawBG(canvas);
-        
-        const SkBitmap* srcBM[] = { &fBM8, &fBM32, &fBM4 };
-        
+
         SkPaint paint;
-        paint.setColor(SK_ColorRED);
-        for (int i = 0; i < 3; i++) {
-            canvas->drawBitmap(*srcBM[i], 0, 0, &paint);
-            SkBitmap tmp;
-            srcBM[i]->extractAlpha(&tmp);
-            canvas->drawBitmap(tmp, 0, SkIntToScalar(tmp.height() + 10), &paint);
-            
-            canvas->translate(SkIntToScalar(tmp.width() + 10), 0);
-        }
+        paint.setAntiAlias(true);
+        paint.setStyle(SkPaint::kStroke_Style);
+
+        SkMatrix matrix;
+        matrix.setScale(3.55f, 80.f);
+        canvas->setMatrix(matrix);
+        
+        paint.setStrokeWidth(0.0588f);
+        canvas->drawLine(10, 5, 30, 4.8f, paint);
+        
+        paint.setStrokeWidth(0.06f);
+        canvas->drawLine(20, 5, 40, 4.8f, paint);
     }
     
 private:

@@ -90,7 +90,7 @@ out/libskia.a: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 ##############################################################################
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp benchmain.cpp BitmapBench.cpp \
-			  RepeatTileBench.cpp
+			  RepeatTileBench.cpp DecodeBench.cpp
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
 # add any optional codecs for this app
