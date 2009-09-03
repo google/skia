@@ -760,6 +760,35 @@ private:
     SkScalar    fWidth;
 };
 
+static SkScalar fast_len(const SkVector& vec) {
+    SkScalar x = SkScalarAbs(vec.fX);
+    SkScalar y = SkScalarAbs(vec.fY);
+    if (x < y) {
+        SkTSwap(x, y);
+    }
+    return x + SkScalarHalf(y);
+}
+
+// our idea is to return true if there is no appreciable skew or non-square scale
+// for that we'll transform (0,1) and (1,0), and check that the resulting dot-prod
+// is nearly one
+static bool map_radius(const SkMatrix& matrix, SkScalar* value) {
+    if (matrix.getType() & SkMatrix::kPerspective_Mask) {
+        return false;
+    }
+    SkVector src[2], dst[2];
+    src[0].set(*value, 0);
+    src[1].set(0, *value);
+    matrix.mapVectors(dst, src, 2);
+    SkScalar len0 = fast_len(dst[0]);
+    SkScalar len1 = fast_len(dst[1]);
+    if (len0 < SK_Scalar1 && len1 < SK_Scalar1) {
+        *value = SkScalarAve(len0, len1);
+        return true;
+    }
+    return false;
+}
+
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable) const {
     SkDEBUGCODE(this->validate();)
@@ -806,22 +835,18 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
 
     SkAutoPaintRestoreColorStrokeWidth aprc(paint);
     
-    if (paint.getStyle() == SkPaint::kStroke_Style &&
-            paint.getXfermode() == NULL &&
-            (matrix->getType() & SkMatrix::kPerspective_Mask) == 0) {
+    // can we approximate a thin (but not hairline) stroke with an alpha-modulated
+    // hairline? Only if the matrix scales evenly in X and Y, and the device-width is
+    // less than a pixel
+    if (paint.getStyle() == SkPaint::kStroke_Style && paint.getXfermode() == NULL) {
         SkScalar width = paint.getStrokeWidth();
-        if (width > 0) {
-            width = matrix->mapRadius(paint.getStrokeWidth());
-            if (width < SK_Scalar1) {
-                int scale = (int)SkScalarMul(width, 256);
-                int alpha = paint.getAlpha() * scale >> 8;
-                
-                // pretend to be a hairline, with a modulated alpha
-                ((SkPaint*)&paint)->setAlpha(alpha);
-                ((SkPaint*)&paint)->setStrokeWidth(0);
-                
-//                SkDebugf("------ convert to hairline %d\n", scale);
-            }
+        if (width > 0 && map_radius(*matrix, &width)) {
+            int scale = (int)SkScalarMul(width, 256);
+            int alpha = paint.getAlpha() * scale >> 8;
+            
+            // pretend to be a hairline, with a modulated alpha
+            ((SkPaint*)&paint)->setAlpha(alpha);
+            ((SkPaint*)&paint)->setStrokeWidth(0);
         }
     }
     
