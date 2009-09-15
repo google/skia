@@ -23,6 +23,7 @@
 		00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9A0EFC233F000FF73A /* SkDOM.cpp */; };
 		00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */; };
 		00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */; };
+		0009E2201057E96800B0DE6F /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */; };
 		000A99820FD97526007E45BD /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
@@ -75,6 +76,7 @@
 		00AF9B18103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */; };
 		00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00BB289A104781D00057BF7E /* SampleForth.cpp */; };
 		00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
+		00EB4593104DBB18002B413E /* ForthTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EB4592104DBB18002B413E /* ForthTests.cpp */; };
 		00ED55F3104A10EB00F51FF8 /* StdWords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00ED55F2104A10EB00F51FF8 /* StdWords.cpp */; };
 		00F53F480FFCFC4D003FA70A /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
 		00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
@@ -153,6 +155,7 @@
 		00003C9A0EFC233F000FF73A /* SkDOM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDOM.cpp; path = ../../src/xml/SkDOM.cpp; sourceTree = SOURCE_ROOT; };
 		00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser.cpp; path = ../../src/xml/SkXMLParser.cpp; sourceTree = SOURCE_ROOT; };
 		00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_empty.cpp; path = ../../src/ports/SkXMLParser_empty.cpp; sourceTree = SOURCE_ROOT; };
+		0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleStrokePath.cpp; path = ../../samplecode/SampleStrokePath.cpp; sourceTree = SOURCE_ROOT; };
 		001B871D1042184D00C84ED4 /* Forth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Forth.cpp; path = ../../forth/Forth.cpp; sourceTree = SOURCE_ROOT; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -208,6 +211,7 @@
 		00BB289A104781D00057BF7E /* SampleForth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleForth.cpp; path = ../../forth/SampleForth.cpp; sourceTree = SOURCE_ROOT; };
 		00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGradients.cpp; path = ../../samplecode/SampleGradients.cpp; sourceTree = SOURCE_ROOT; };
 		00D6B5CB0F72DC4300C466B9 /* SampleFuzz.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFuzz.cpp; path = ../../samplecode/SampleFuzz.cpp; sourceTree = SOURCE_ROOT; };
+		00EB4592104DBB18002B413E /* ForthTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ForthTests.cpp; path = ../../forth/ForthTests.cpp; sourceTree = SOURCE_ROOT; };
 		00ED55F2104A10EB00F51FF8 /* StdWords.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StdWords.cpp; path = ../../forth/StdWords.cpp; sourceTree = SOURCE_ROOT; };
 		00FF39130FC6ED2C00915187 /* SampleEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleEffects.cpp; path = ../../samplecode/SampleEffects.cpp; sourceTree = SOURCE_ROOT; };
 		0156F80307C56A3000C6122B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -289,6 +293,7 @@
 				0041CE270F00A12400695E8C /* SampleFillType.cpp */,
 				00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */,
 				00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */,
+				0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */,
 				0041CE280F00A12400695E8C /* SampleFilter.cpp */,
 				0041CE290F00A12400695E8C /* SampleFilter2.cpp */,
 				0041CE2A0F00A12400695E8C /* SampleFontCache.cpp */,
@@ -366,6 +371,7 @@
 			children = (
 				001B871D1042184D00C84ED4 /* Forth.cpp */,
 				00ED55F2104A10EB00F51FF8 /* StdWords.cpp */,
+				00EB4592104DBB18002B413E /* ForthTests.cpp */,
 				00BB289A104781D00057BF7E /* SampleForth.cpp */,
 				2762F66A0FCCCAA2002BD8B4 /* images */,
 				00003C6A0EFC22AD000FF73A /* views */,
@@ -595,6 +601,8 @@
 				00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */,
 				00ED55F3104A10EB00F51FF8 /* StdWords.cpp in Sources */,
 				00840B75104C69F5005B3EDC /* SampleExtractAlpha.cpp in Sources */,
+				00EB4593104DBB18002B413E /* ForthTests.cpp in Sources */,
+				0009E2201057E96800B0DE6F /* SampleStrokePath.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
