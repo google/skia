@@ -256,11 +256,16 @@ public:
     /** Styles apply to rect, oval, path, and text.
         Bitmaps are always drawn in "fill", and lines are always drawn in
         "stroke".
+     
+        Note: strokeandfill implicitly draws the result with
+        SkPath::kWinding_FillType, so if the original path is even-odd, the
+        results may not appear the same as if it was drawn twice, filled and
+        then stroked.
     */
     enum Style {
-        kFill_Style,            //!< fill with the paint's color
-        kStroke_Style,          //!< stroke with the paint's color
-        kStrokeAndFill_Style,   //!< fill and stroke with the paint's color
+        kFill_Style,            //!< fill the geometry
+        kStroke_Style,          //!< stroke the geometry
+        kStrokeAndFill_Style,   //!< fill and stroke the geometry
 
         kStyleCount,
     };
