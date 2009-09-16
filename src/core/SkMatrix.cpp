@@ -660,10 +660,18 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*  Matrix inversion is very expensive, but also the place where keeping
+    precision may be most important (here and matrix concat). Hence to avoid
+    bitmap blitting artifacts when walking the inverse, we use doubles for
+    the intermediate math, even though we know that is more expensive.
+    The fixed counter part is us using Sk64 for temp calculations.
+ */
+
 #ifdef SK_SCALAR_IS_FLOAT
+    typedef double SkDetScalar;
     #define SkPerspMul(a, b)            SkScalarMul(a, b)
-    #define SkScalarMulShift(a, b, s)   SkScalarMul(a, b)
-    static float sk_inv_determinant(const float mat[9], int isPerspective,
+    #define SkScalarMulShift(a, b, s)   SkDoubleToFloat((a) * (b))
+    static double sk_inv_determinant(const float mat[9], int isPerspective,
                                     int* /* (only used in Fixed case) */) {
         double det;
 
@@ -680,9 +688,20 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
         if (SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
             return 0;
         }
-        return (float)(1.0 / det);
+        return 1.0 / det;
+    }
+    static inline float SkDoubleToFloat(double x) {
+        return static_cast<float>(x);
+    }
+    // we declar a,b,c,d to all be doubles, because we want to perform
+    // double-precision muls and subtract, even though the original values are
+    // from the matrix, which are floats.
+    static float inline mul_diff_scale(double a, double b, double c, double d,
+                                       double scale) {
+        return SkDoubleToFloat((a * b - c * d) * scale);
     }
 #else
+    typedef SkFixed SkDetScalar;
     #define SkPerspMul(a, b)            SkFractMul(a, b)
     #define SkScalarMulShift(a, b, s)   SkMulShift(a, b, s)
     static void set_muladdmul(Sk64* dst, int32_t a, int32_t b, int32_t c,
@@ -733,7 +752,7 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
 bool SkMatrix::invert(SkMatrix* inv) const {
     int         isPersp = has_perspective(*this);
     int         shift;
-    SkScalar    scale = sk_inv_determinant(fMat, isPersp, &shift);
+    SkDetScalar scale = sk_inv_determinant(fMat, isPersp, &shift);
 
     if (scale == 0) { // underflow
         return false;
@@ -808,17 +827,15 @@ bool SkMatrix::invert(SkMatrix* inv) const {
             inv->fMat[kMScaleY] = SkMulShift(fMat[kMScaleX], scale, fixedShift);
             inv->fMat[kMTransY] = SkMulShift(ty.getShiftRight(33 - clzNumer), scale, sk64shift);
 #else
-            inv->fMat[kMScaleX] = SkScalarMul(fMat[kMScaleY], scale);
-            inv->fMat[kMSkewX] = SkScalarMul(-fMat[kMSkewX], scale);
-            if (!fixmuladdmulshiftmul(fMat[kMSkewX], fMat[kMTransY], -fMat[kMScaleY], fMat[kMTransX], shift, scale, &inv->fMat[kMTransX])) {
-                return false;
-            }
+            inv->fMat[kMScaleX] = SkDoubleToFloat(fMat[kMScaleY] * scale);
+            inv->fMat[kMSkewX] = SkDoubleToFloat(-fMat[kMSkewX] * scale);
+            inv->fMat[kMTransX] = mul_diff_scale(fMat[kMSkewX], fMat[kMTransY],
+                                     fMat[kMScaleY], fMat[kMTransX], scale);
                 
-            inv->fMat[kMSkewY] = SkScalarMul(-fMat[kMSkewY], scale);
-            inv->fMat[kMScaleY] = SkScalarMul(fMat[kMScaleX], scale);
-            if (!fixmuladdmulshiftmul(fMat[kMSkewY], fMat[kMTransX], -fMat[kMScaleX], fMat[kMTransY], shift, scale, &inv->fMat[kMTransY])) {
-                return false;
-            }
+            inv->fMat[kMSkewY] = SkDoubleToFloat(-fMat[kMSkewY] * scale);
+            inv->fMat[kMScaleY] = SkDoubleToFloat(fMat[kMScaleX] * scale);
+            inv->fMat[kMTransY] = mul_diff_scale(fMat[kMSkewY], fMat[kMTransX],
+                                        fMat[kMScaleX], fMat[kMTransY], scale);
 #endif
             inv->fMat[kMPersp0] = 0;
             inv->fMat[kMPersp1] = 0;

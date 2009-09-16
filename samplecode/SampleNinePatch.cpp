@@ -12,6 +12,13 @@ public:
 
 	NinePatchView() {
         SkImageDecoder::DecodeFile("/skimages/folder_background.9.png", &fBM);
+        
+        // trim off the edge guide-lines
+        SkBitmap tmp;
+        SkIRect r;
+        r.set(1, 1, fBM.width() - 1, fBM.height() - 1);
+        fBM.extractSubset(&tmp, r);
+        fBM.swap(tmp);
     }
 
 protected:
@@ -26,6 +33,8 @@ protected:
     
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
+        
+        canvas->scale(1.5f, 1.5f);
         
         canvas->drawBitmap(fBM, 0, 0);
         
