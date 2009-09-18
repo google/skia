@@ -63,14 +63,33 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         drawBG(canvas);
+        
+        SkBlurMaskFilter::BlurStyle NONE = SkBlurMaskFilter::BlurStyle(-999);
+        static const struct {
+            SkBlurMaskFilter::BlurStyle fStyle;
+            int                         fCx, fCy;
+        } gRecs[] = {
+            { NONE,                                 0,  0 },
+            { SkBlurMaskFilter::kInner_BlurStyle,  -1,  0 },
+            { SkBlurMaskFilter::kNormal_BlurStyle,  0,  1 },
+            { SkBlurMaskFilter::kSolid_BlurStyle,   0, -1 },
+            { SkBlurMaskFilter::kOuter_BlurStyle,   1,  0 },
+        };
 
-        SkMaskFilter* mf = SkBlurMaskFilter::Create(20, SkBlurMaskFilter::kOuter_BlurStyle);
         SkPaint paint;
         paint.setAntiAlias(true);
-        
-        canvas->drawCircle(100, 100, 50, paint);
-        paint.setMaskFilter(mf)->unref();
-        canvas->drawCircle(200, 100, 50, paint);
+        paint.setColor(SK_ColorBLUE);
+
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
+            if (gRecs[i].fStyle != NONE) {
+                SkMaskFilter* mf = SkBlurMaskFilter::Create(20, gRecs[i].fStyle);
+                paint.setMaskFilter(mf)->unref();
+            } else {
+                paint.setMaskFilter(NULL);
+            }
+            canvas->drawCircle(200 + gRecs[i].fCx*100,
+                               200 + gRecs[i].fCy*100, 50, paint);
+        }
     }
     
 private:
