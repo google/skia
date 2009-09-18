@@ -5,6 +5,8 @@
 #include "SkRandom.h"
 #include "SkView.h"
 
+#include "SkBlurMaskFilter.h"
+
 static void scale_to_width(SkPath* path, SkScalar dstWidth) {
     const SkRect& bounds = path->getBounds();
     SkScalar scale = dstWidth / bounds.width();
@@ -83,6 +85,36 @@ protected:
 
         SkPaint paint;
         paint.setAntiAlias(true);
+        
+        if (true) {
+            canvas->drawColor(SK_ColorBLACK);
+
+            paint.setTextSize(24);
+            paint.setColor(SK_ColorWHITE);
+            canvas->translate(10, 30);
+
+            static const SkBlurMaskFilter::BlurStyle gStyle[] = {
+                SkBlurMaskFilter::kNormal_BlurStyle,
+                SkBlurMaskFilter::kInner_BlurStyle,
+                SkBlurMaskFilter::kOuter_BlurStyle,
+                SkBlurMaskFilter::kSolid_BlurStyle,
+            };
+            for (int x = 0; x < 5; x++) {
+                SkMaskFilter* mf;
+                SkScalar radius = 4;
+                for (int y = 0; y < 10; y++) {
+                    if (x) {
+                        mf = SkBlurMaskFilter::Create(radius, gStyle[x - 1]);
+                        paint.setMaskFilter(mf)->unref();
+                    }
+                    canvas->drawText("Title Bar", 9, x*100, y*30, paint);
+                    radius *= 0.75f;
+                }
+                
+            }
+            return;
+        }
+
         paint.setColor(SK_ColorBLUE);
 
 #if 1
