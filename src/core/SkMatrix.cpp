@@ -23,6 +23,10 @@
 
 #ifdef SK_SCALAR_IS_FLOAT
     #define kMatrix22Elem   SK_Scalar1
+
+    static inline float SkDoubleToFloat(double x) {
+        return static_cast<float>(x);
+    }
 #else
     #define kMatrix22Elem   SK_Fract1
 #endif
@@ -455,13 +459,7 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst,
 #ifdef SK_SCALAR_IS_FLOAT
     static inline int fixmuladdmul(float a, float b, float c, float d,
                                    float* result) {
-        *result = a * b + c * d;
-        return true;
-    }
-
-    static inline int fixmuladdmulshiftmul(float a, float b, float c, float d,
-                           int /*shift not used*/, float scale, float* result) {
-        *result = (a * b + c * d) * scale;
+        *result = SkDoubleToFloat((double)a * b + (double)c * d);
         return true;
     }
 
@@ -484,34 +482,6 @@ bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst,
         tmp1.add(tmp2);
         if (tmp1.isFixed()) {
             *result = tmp1.getFixed();
-            return true;
-        }
-        return false;
-    }
-
-    static inline bool fixmuladdmulshiftmul(SkFixed a, SkFixed b, SkFixed c,
-                        SkFixed d, int shift, SkFixed scale, SkFixed* result) {
-        Sk64    tmp1, tmp2;
-        tmp1.setMul(a, b);
-        tmp2.setMul(c, d);
-        tmp1.add(tmp2);
-
-        int32_t hi = SkAbs32(tmp1.fHi);
-        int afterShift = 16;
-        if (hi >> 15) {
-            int clz = 17 - SkCLZ(hi);
-            SkASSERT(clz > 0 && clz <= 16);
-            afterShift -= clz;
-            shift += clz;
-        }
-
-        tmp1.roundRight(shift + 16);
-        SkASSERT(tmp1.is32());
-
-        tmp1.setMul(tmp1.get32(), scale);
-        tmp1.roundRight(afterShift);
-        if (tmp1.is32()) {
-            *result = tmp1.get32();
             return true;
         }
         return false;
@@ -689,9 +659,6 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
             return 0;
         }
         return 1.0 / det;
-    }
-    static inline float SkDoubleToFloat(double x) {
-        return static_cast<float>(x);
     }
     // we declar a,b,c,d to all be doubles, because we want to perform
     // double-precision muls and subtract, even though the original values are
