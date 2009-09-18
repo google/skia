@@ -149,44 +149,48 @@ static void apply_kernel_interp(uint8_t dst[], int rx, int ry, const uint32_t sr
 
 #include "SkColorPriv.h"
 
-static void merge_src_with_blur(uint8_t dst[],
-                                const uint8_t src[], int sw, int sh,
-                                const uint8_t blur[], int blurRowBytes)
-{
-    while (--sh >= 0)
-    {
-        for (int x = sw - 1; x >= 0; --x)
-        {
+static void merge_src_with_blur(uint8_t dst[], int dstRB,
+                                const uint8_t src[], int srcRB,
+                                const uint8_t blur[], int blurRB,
+                                int sw, int sh) {
+    dstRB -= sw;
+    srcRB -= sw;
+    blurRB -= sw;
+    while (--sh >= 0) {
+        for (int x = sw - 1; x >= 0; --x) {
             *dst = SkToU8(SkAlphaMul(*blur, SkAlpha255To256(*src)));
             dst += 1;
             src += 1;
             blur += 1;
         }
-        blur += blurRowBytes - sw;
+        dst += dstRB;
+        src += srcRB;
+        blur += blurRB;
     }
 }
 
 static void clamp_with_orig(uint8_t dst[], int dstRowBytes,
-                            const uint8_t src[], int sw, int sh,
+                            const uint8_t src[], int srcRowBytes,
+                            int sw, int sh,
                             SkBlurMask::Style style)
 {
     int x;
-    while (--sh >= 0)
-    {
+    while (--sh >= 0) {
         switch (style) {
         case SkBlurMask::kSolid_Style:
-            for (x = sw - 1; x >= 0; --x)
-            {
-                *dst = SkToU8(*src + SkAlphaMul(*dst, SkAlpha255To256(255 - *src)));
+            for (x = sw - 1; x >= 0; --x) {
+                int s = *src;
+                int d = *dst;
+                *dst = SkToU8(s + d - SkMulDiv255Round(s, d));
                 dst += 1;
                 src += 1;
             }
             break;
         case SkBlurMask::kOuter_Style:
-            for (x = sw - 1; x >= 0; --x)
-            {
-                if (*src)
+            for (x = sw - 1; x >= 0; --x) {
+                if (*src) {
                     *dst = SkToU8(SkAlphaMul(*dst, SkAlpha255To256(255 - *src)));
+                }
                 dst += 1;
                 src += 1;
             }
@@ -196,6 +200,7 @@ static void clamp_with_orig(uint8_t dst[], int dstRowBytes,
             break;
         }
         dst += dstRowBytes - sw;
+        src += srcRowBytes - sw;
     }
 }
 
@@ -220,9 +225,9 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
     SkASSERT(rx >= 0);
     SkASSERT((unsigned)outer_weight <= 255);
-
-    if (rx == 0)
+    if (rx <= 0) {
         return false;
+    }
 
     int ry = rx;    // only do square blur for now
 
@@ -232,8 +237,7 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
 
-    if (src.fImage)
-    {
+    if (src.fImage) {
         size_t dstSize = dst->computeImageSize();
         if (0 == dstSize) {
             return false;   // too big to allocate, abort
@@ -261,42 +265,39 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
         dst->fImage = dp;
         // if need be, alloc the "real" dst (same size as src) and copy/merge
         // the blur into it (applying the src)
-        if (style == kInner_Style)
-        {
+        if (style == kInner_Style) {
+            // now we allocate the "real" dst, mirror the size of src
             size_t srcSize = src.computeImageSize();
             if (0 == srcSize) {
                 return false;   // too big to allocate, abort
             }
             dst->fImage = SkMask::AllocImage(srcSize);
-            merge_src_with_blur(dst->fImage, sp, sw, sh,
-                                dp + rx + ry*dst->fBounds.width(),
-                                dst->fBounds.width());
+            merge_src_with_blur(dst->fImage, src.fRowBytes,
+                                sp, src.fRowBytes,
+                                dp + rx + ry*dst->fRowBytes, dst->fRowBytes,
+                                sw, sh);
             SkMask::FreeImage(dp);
-        }
-        else if (style != kNormal_Style)
-        {
-            clamp_with_orig(dp + rx + ry*dst->fBounds.width(),
-                            dst->fBounds.width(),
-                            sp, sw, sh,
+        } else if (style != kNormal_Style) {
+            clamp_with_orig(dp + rx + ry*dst->fRowBytes, dst->fRowBytes,
+                            sp, src.fRowBytes, sw, sh,
                             style);
         }
         (void)autoCall.detach();
     }
 
-    if (style == kInner_Style)
-    {
+    if (style == kInner_Style) {
         dst->fBounds = src.fBounds; // restore trimmed bounds
-        dst->fRowBytes = dst->fBounds.width();
+        dst->fRowBytes = src.fRowBytes;
     }
 
 #if 0
-    if (gamma && dst->fImage)
-    {
+    if (gamma && dst->fImage) {
         uint8_t*    image = dst->fImage;
         uint8_t*    stop = image + dst->computeImageSize();
 
-        for (; image < stop; image += 1)
+        for (; image < stop; image += 1) {
             *image = gamma[*image];
+        }
     }
 #endif
     return true;
