@@ -6,6 +6,39 @@
 #include "SkView.h"
 
 #include "SkBlurMaskFilter.h"
+#include "SkBlurMask.h"
+
+static void test_blur() {
+    uint8_t cell[9];
+    memset(cell, 0xFF, sizeof(cell));
+    SkMask src;
+    src.fImage = cell;
+    src.fFormat = SkMask::kA8_Format;
+    SkMask dst;
+
+    for (int y = 1; y <= 3; y++) {
+        for (int x = 1; x <= 3; x++) {
+            src.fBounds.set(0, 0, x, y);
+            src.fRowBytes = src.fBounds.width();
+            
+            SkScalar radius = 1.f;
+
+            printf("src [%d %d %d %d] radius %g\n", src.fBounds.fLeft, src.fBounds.fTop,
+                   src.fBounds.fRight, src.fBounds.fBottom, radius);
+
+            SkBlurMask::Blur(&dst, src, radius, SkBlurMask::kNormal_Style);
+            uint8_t* dstPtr = dst.fImage;
+
+            for (int y = 0; y < dst.fBounds.height(); y++) {
+                for (int x = 0; x < dst.fBounds.width(); x++) {
+                    printf(" %02X", dstPtr[x]);
+                }
+                printf("\n");
+                dstPtr += dst.fRowBytes;
+            }
+        }
+    }
+}
 
 static void scale_to_width(SkPath* path, SkScalar dstWidth) {
     const SkRect& bounds = path->getBounds();
@@ -32,6 +65,7 @@ class StrokePathView : public SkView {
     SkPath      fPath;
 public:
 	StrokePathView() {
+        test_blur();
         fWidth = SkIntToScalar(120);
 
 #if 0
@@ -81,6 +115,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         drawBG(canvas);
+        //return;
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
         SkPaint paint;
