@@ -6,8 +6,9 @@
 #include "SkView.h"
 
 #include "SkBlurMaskFilter.h"
-#include "SkBlurMask.h"
 
+#if 0
+#include "SkBlurMask.h"
 static void test_blur() {
     uint8_t cell[9];
     memset(cell, 0xFF, sizeof(cell));
@@ -39,6 +40,7 @@ static void test_blur() {
         }
     }
 }
+#endif
 
 static void scale_to_width(SkPath* path, SkScalar dstWidth) {
     const SkRect& bounds = path->getBounds();
@@ -65,7 +67,7 @@ class StrokePathView : public SkView {
     SkPath      fPath;
 public:
 	StrokePathView() {
-        test_blur();
+//        test_blur();
         fWidth = SkIntToScalar(120);
 
 #if 0
