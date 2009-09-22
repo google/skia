@@ -81,10 +81,23 @@ static SkShader* MakeSweep(const SkPoint pts[2], const GradData& data,
                                          data.fPos, data.fCount, mapper);
 }
 
+static SkShader* Make2Radial(const SkPoint pts[2], const GradData& data,
+                           SkShader::TileMode tm, SkUnitMapper* mapper) {
+    SkPoint center0, center1;
+    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
+                SkScalarAve(pts[0].fY, pts[1].fY));
+    center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
+                SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
+    return SkGradientShader::CreateTwoPointRadial(
+                            center1, (pts[1].fX - pts[0].fX) / 7,
+                            center0, (pts[1].fX - pts[0].fX) / 2,
+                            data.fColors, data.fPos, data.fCount, tm, mapper);
+}
+
 typedef SkShader* (*GradMaker)(const SkPoint pts[2], const GradData& data,
                      SkShader::TileMode tm, SkUnitMapper* mapper);
 static const GradMaker gGradMakers[] = {
-    MakeLinear, MakeRadial, MakeSweep
+    MakeLinear, MakeRadial, MakeSweep, Make2Radial
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -121,7 +134,7 @@ protected:
         paint.setDither(true);
 
         canvas->save();
-        canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
+        canvas->translate(SkIntToScalar(20), SkIntToScalar(10));
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
@@ -137,7 +150,7 @@ protected:
         canvas->restore();
         
         canvas->translate(0, SkIntToScalar(370));
-        test_alphagradients(canvas);
+     //   test_alphagradients(canvas);
     }
     
 private:
