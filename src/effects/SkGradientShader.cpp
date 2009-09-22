@@ -1108,6 +1108,225 @@ private:
     typedef Gradient_Shader INHERITED;
 };
 
+/* Two-point radial gradients are specified by two circles, each with a center
+   point and radius.  The gradient can be considered to be a series of
+   concentric circles, with the color interpolated from the start circle
+   (at t=0) to the end circle (at t=1).
+
+   For each point (x, y) in the span, we want to find the
+   interpolated circle that intersects that point.  The center
+   of the desired circle (Cx, Cy) falls at some distance t
+   along the line segment between the start point (Sx, Sy) and
+   end point (Ex, Ey):
+  
+      Cx = (1 - t) * Sx + t * Ex        (0 <= t <= 1)
+      Cy = (1 - t) * Sy + t * Ey
+  
+   The radius of the desired circle (r) is also a linear interpolation t
+   between the start and end radii (Sr and Er):
+  
+      r = (1 - t) * Sr + t * Er
+  
+   But
+  
+      (x - Cx)^2 + (y - Cy)^2 = r^2
+  
+   so
+  
+     (x - ((1 - t) * Sx + t * Ex))^2
+   + (y - ((1 - t) * Sy + t * Ey))^2
+   = ((1 - t) * Sr + t * Er)^2
+  
+   Solving for t yields
+  
+     [(Sx - Ex)^2 + (Sy - Ey)^2 - (Er - Sr)^2)] * t^2
+   + [2 * (Sx - Ex)(x - Sx) + 2 * (Sy - Ey)(y - Sy) - 2 * (Er - Sr) * Sr] * t
+   + [(x - Sx)^2 + (y - Sy)^2 - Sr^2] = 0
+ 
+   To simplify, let Dx = Sx - Ex, Dy = Sy - Ey, Dr = Er - Sr, dx = x - Sx, dy = y - Sy
+
+     [Dx^2 + Dy^2 - Dr^2)] * t^2
+   + 2 * [Dx * dx + Dy * dy - Dr * Sr] * t
+   + [dx^2 + dy^2 - Sr^2] = 0
+   
+   A quadratic in t.  The two roots of the quadratic reflect the two 
+   possible circles on which the point may fall.  Solving for t yields
+   the gradient value to use.
+  
+   If a<0, the start circle is entirely contained in the
+   end circle, and one of the roots will be <0 or >1 (off the line
+   segment).  If a>0, the start circle falls at least partially
+   outside the end circle (or vice versa), and the gradient
+   defines a "tube" where a point may be on one circle (on the
+   inside of the tube) or the other (outside of the tube).  We choose
+   one arbitrarily.
+  
+   In order to keep the math to within the limits of fixed point,
+   we divide the entire quadratic by Dr^2, and replace
+   (x - Sx)/Dr with x' and (y - Sy)/Dr with y', giving
+  
+   [Dx^2 / Dr^2 + Dy^2 / Dr^2 - 1)] * t^2
+   + 2 * [x' * Dx / Dr + y' * Dy / Dr - Sr / Dr] * t
+   + [x'^2 + y'^2 - Sr^2/Dr^2] = 0
+  
+   (x' and y' are computed by appending the subtract and scale to the
+   fDstToIndex matrix in the constructor).
+
+   Since the 'A' component of the quadratic is independent of x' and y', it
+   is precomputed in the constructor.  Since the 'B' component is linear in
+   x' and y', if x and y are linear in the span, 'B' can be computed
+   incrementally with a simple delta (db below).  If it is not (e.g., 
+   a perspective projection), it must be computed in the loop.
+
+*/
+
+static inline SkFixed two_point_radial(SkFixed b, SkFixed fx, SkFixed fy, SkFixed sr2d2, SkFixed foura, SkFixed oneOverTwoA, bool posRoot) {
+    SkFixed c = SkFixedSquare(fx) + SkFixedSquare(fy) - sr2d2;
+    SkFixed discrim = SkFixedSquare(b) - SkFixedMul(foura, c);
+    if (discrim < 0) {
+        discrim = -discrim;
+    }
+    SkFixed rootDiscrim = SkFixedSqrt(discrim);
+    if (posRoot) {
+        return SkFixedMul(-b + rootDiscrim, oneOverTwoA);
+    } else {
+        return SkFixedMul(-b - rootDiscrim, oneOverTwoA);
+    }
+}
+
+class Two_Point_Radial_Gradient : public Gradient_Shader {
+public:
+    Two_Point_Radial_Gradient(const SkPoint& start, SkScalar startRadius,
+                              const SkPoint& end, SkScalar endRadius,
+                              const SkColor colors[], const SkScalar pos[],
+                              int colorCount, SkShader::TileMode mode,
+                              SkUnitMapper* mapper)
+        : Gradient_Shader(colors, pos, colorCount, mode, mapper)
+    {
+        fDiff = start - end;
+        fDiffRadius = endRadius - startRadius;
+        SkScalar inv = SkScalarInvert(fDiffRadius);
+        fDiff.fX = SkScalarMul(fDiff.fX, inv);
+        fDiff.fY = SkScalarMul(fDiff.fY, inv);
+        fStartRadius = SkScalarMul(startRadius, inv);
+        fSr2D2 = SkScalarSquare(fStartRadius);
+        fA = SkScalarSquare(fDiff.fX) + SkScalarSquare(fDiff.fY) - SK_Scalar1;
+        fOneOverTwoA = SkScalarInvert(fA * 2);
+
+        fPtsToUnit.setTranslate(-start.fX, -start.fY);
+        fPtsToUnit.postScale(inv, inv);
+    }
+    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count)
+    {
+        SkASSERT(count > 0);
+
+        // Zero difference between radii:  fill with transparent black.
+        if (fDiffRadius == 0) {
+          sk_bzero(dstC, count * sizeof(*dstC));
+          return;
+        }
+        SkMatrix::MapXYProc dstProc = fDstToIndexProc;
+        TileProc            proc = fTileProc;
+        const SkPMColor*    cache = this->getCache32();
+        SkFixed diffx = SkScalarToFixed(fDiff.fX);
+        SkFixed diffy = SkScalarToFixed(fDiff.fY);
+        SkFixed foura = SkScalarToFixed(SkScalarMul(fA, 4));
+        SkFixed startRadius = SkScalarToFixed(fStartRadius);
+        SkFixed sr2D2 = SkScalarToFixed(fSr2D2);
+        SkFixed oneOverTwoA = SkScalarToFixed(fOneOverTwoA);
+        bool posRoot = fDiffRadius < 0;
+        if (fDstToIndexClass != kPerspective_MatrixClass)
+        {
+            SkPoint srcPt;
+            dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+            SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
+            SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
+
+            if (fDstToIndexClass == kFixedStepInX_MatrixClass)
+            {
+                (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &dx, &dy);
+            }
+            else
+            {
+                SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
+                dx = SkScalarToFixed(fDstToIndex.getScaleX());
+                dy = SkScalarToFixed(fDstToIndex.getSkewY());
+            }
+            SkFixed b = (SkFixedMul(diffx, fx) +
+                         SkFixedMul(diffy, fy) - startRadius) << 1;
+            SkFixed db = (SkFixedMul(diffx, dx) +
+                          SkFixedMul(diffy, dy)) << 1;
+            if (proc == clamp_tileproc)
+            {
+                for (; count > 0; --count) {
+                    SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
+                    SkFixed index = SkClampMax(t, 0xFFFF);
+                    SkASSERT(index <= 0xFFFF);
+                    *dstC++ = cache[index >> (16 - kCache32Bits)];
+                    fx += dx;
+                    fy += dy;
+                    b += db;
+                }
+            }
+            else if (proc == mirror_tileproc)
+            {
+                for (; count > 0; --count) {
+                    SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
+                    SkFixed index = mirror_tileproc(t);
+                    SkASSERT(index <= 0xFFFF);
+                    *dstC++ = cache[index >> (16 - kCache32Bits)];
+                    fx += dx;
+                    fy += dy;
+                    b += db;
+                }
+            }
+            else
+            {
+                SkASSERT(proc == repeat_tileproc);
+                for (; count > 0; --count) {
+                    SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
+                    SkFixed index = repeat_tileproc(t);
+                    SkASSERT(index <= 0xFFFF);
+                    *dstC++ = cache[index >> (16 - kCache32Bits)];
+                    fx += dx;
+                    fy += dy;
+                    b += db;
+                }
+            }
+        }
+        else    // perspective case
+        {
+            for (; count > 0; --count) {
+                SkPoint             srcPt;
+                dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+                SkFixed fx = SkScalarToFixed(srcPt.fX);
+                SkFixed fy = SkScalarToFixed(srcPt.fY);
+                SkFixed b = (SkFixedMul(diffx, fx) +
+                             SkFixedMul(diffy, fy) - startRadius) << 1;
+                SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
+                SkFixed index = proc(t);
+                SkASSERT(index <= 0xFFFF);
+                *dstC++ = cache[index >> (16 - kCache32Bits)];
+                x += SK_Scalar1;
+            }
+        }
+    }
+
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
+        return SkNEW_ARGS(Two_Point_Radial_Gradient, (buffer));
+    }
+
+protected:
+    Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {};
+    virtual Factory getFactory() { return CreateProc; }
+    virtual void onCacheReset() {}
+
+private:
+    typedef Gradient_Shader INHERITED;
+    SkPoint fDiff;
+    SkScalar fStartRadius, fDiffRadius, fSr2D2, fA, fOneOverTwoA;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class Sweep_Gradient : public Gradient_Shader {
@@ -1503,6 +1722,25 @@ SkShader* SkGradientShader::CreateRadial(   const SkPoint& center, SkScalar radi
 
     return SkNEW_ARGS(Radial_Gradient,
                       (center, radius, colors, pos, colorCount, mode, mapper));
+}
+
+SkShader* SkGradientShader::CreateTwoPointRadial(const SkPoint& start,
+                                                 SkScalar startRadius,
+                                                 const SkPoint& end,
+                                                 SkScalar endRadius,
+                                                 const SkColor colors[],
+                                                 const SkScalar pos[],
+                                                 int colorCount,
+                                                 SkShader::TileMode mode,
+                                                 SkUnitMapper* mapper)
+{
+    if (startRadius < 0 || endRadius < 0 || NULL == colors || colorCount < 1) {
+        return NULL;
+    }
+    EXPAND_1_COLOR(colorCount);
+
+    return SkNEW_ARGS(Two_Point_Radial_Gradient,
+                      (start, startRadius, end, endRadius, colors, pos, colorCount, mode, mapper));
 }
 
 SkShader* SkGradientShader::CreateSweep(SkScalar cx, SkScalar cy,
