@@ -1296,9 +1296,11 @@ public:
         }
         else    // perspective case
         {
+            SkScalar dstX = SkIntToScalar(x);
+            SkScalar dstY = SkIntToScalar(y);
             for (; count > 0; --count) {
                 SkPoint             srcPt;
-                dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+                dstProc(fDstToIndex, dstX, dstY, &srcPt);
                 SkFixed fx = SkScalarToFixed(srcPt.fX);
                 SkFixed fy = SkScalarToFixed(srcPt.fY);
                 SkFixed b = (SkFixedMul(diffx, fx) +
@@ -1307,9 +1309,21 @@ public:
                 SkFixed index = proc(t);
                 SkASSERT(index <= 0xFFFF);
                 *dstC++ = cache[index >> (16 - kCache32Bits)];
-                x += SK_Scalar1;
+                dstX += SK_Scalar1;
             }
         }
+    }
+
+    virtual bool setContext(const SkBitmap& device,
+                            const SkPaint& paint,
+                            const SkMatrix& matrix) {
+        if (!this->INHERITED::setContext(device, paint, matrix)) {
+            return false;
+        }
+
+        // we don't have a span16 proc
+        fFlags &= ~kHasSpan16_Flag;
+        return true;
     }
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
