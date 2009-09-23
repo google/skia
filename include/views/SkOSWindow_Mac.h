@@ -30,8 +30,8 @@ public:
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
-    static OSStatus SkOSWindow::EventHandler(EventHandlerCallRef inHandler,
-                                             EventRef inEvent, void* userData);
+    static OSStatus EventHandler(EventHandlerCallRef inHandler,
+                                 EventRef inEvent, void* userData);
 
     void    doPaint(void* ctx);
 
