@@ -124,6 +124,8 @@ void SkComposeShader::shadeSpan(int x, int y, SkPMColor result[], int count)
 
     if (NULL == mode)   // implied SRC_OVER
     {
+        // TODO: when we have a good test-case, should use SkBlitRow::Proc32
+        // for these loops
         do {
             int n = count;
             if (n > TMP_COLOR_COUNT)

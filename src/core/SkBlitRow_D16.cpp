@@ -235,6 +235,8 @@ extern SkBlitRow::Proc SkBlitRow_Factory_4444(unsigned flags);
     
 SkBlitRow::Proc SkBlitRow::Factory(unsigned flags, SkBitmap::Config config) {
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_565_Procs));
+    // just so we don't crash
+    flags &= kFlags16_Mask;
 
     SkBlitRow::Proc proc = NULL;
 

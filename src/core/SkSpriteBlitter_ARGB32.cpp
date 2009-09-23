@@ -16,63 +16,57 @@
 */
 
 #include "SkSpriteBlitter.h"
+#include "SkBlitRow.h"
+#include "SkColorFilter.h"
+#include "SkColorPriv.h"
 #include "SkTemplates.h"
 #include "SkUtils.h"
-#include "SkColorPriv.h"
-
-#define D32_S32A_Opaque_Pixel(dst, sc) \
-do {                                                                  \
-    if (sc) {                                                         \
-        unsigned srcA = SkGetPackedA32(sc);                           \
-        uint32_t result = sc;                                         \
-        if (srcA != 0xFF) {                                           \
-            result += SkAlphaMulQ(*dst, SkAlpha255To256(255 - srcA)); \
-        }                                                             \
-        *dst = result;                                                \
-    }                                                                 \
-} while (0)
-
-#define SkSPRITE_CLASSNAME                  Sprite_D32_S32A_Opaque
-#define SkSPRITE_ARGS
-#define SkSPRITE_FIELDS
-#define SkSPRITE_INIT
-#define SkSPRITE_DST_TYPE                   uint32_t
-#define SkSPRITE_SRC_TYPE                   uint32_t
-#define SkSPRITE_DST_GETADDR                getAddr32
-#define SkSPRITE_SRC_GETADDR                getAddr32
-#define SkSPRITE_PREAMBLE(srcBM, x, y)
-#define SkSPRITE_BLIT_PIXEL(dst, src)       D32_S32A_Opaque_Pixel(dst, src)
-#define SkSPRITE_NEXT_ROW
-#define SkSPRITE_POSTAMBLE(srcBM)
-#include "SkSpriteBlitterTemplate.h"
+#include "SkXfermode.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class Sprite_D32_S32_Opaque : public SkSpriteBlitter {
+class Sprite_D32_S32 : public SkSpriteBlitter {
 public:
-    Sprite_D32_S32_Opaque(const SkBitmap& source) : SkSpriteBlitter(source) {}
+    Sprite_D32_S32(const SkBitmap& src, U8CPU alpha)  : INHERITED(src) {
+        SkASSERT(src.config() == SkBitmap::kARGB_8888_Config);
 
+        unsigned flags32 = 0;
+        if (255 != alpha) {
+            flags32 |= SkBlitRow::kGlobalAlpha_Flag32;
+        }
+        if (!src.isOpaque()) {
+            flags32 |= SkBlitRow::kSrcPixelAlpha_Flag32;
+        }
+
+        fProc32 = SkBlitRow::Factory32(flags32);
+        fAlpha = alpha;
+    }
+    
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
         SK_RESTRICT uint32_t* dst = fDevice->getAddr32(x, y);
         const SK_RESTRICT uint32_t* src = fSource->getAddr32(x - fLeft,
                                                              y - fTop);
-        unsigned dstRB = fDevice->rowBytes();
-        unsigned srcRB = fSource->rowBytes();
-        size_t size = width * sizeof(uint32_t);
+        size_t dstRB = fDevice->rowBytes();
+        size_t srcRB = fSource->rowBytes();
+        SkBlitRow::Proc32 proc = fProc32;
+        U8CPU             alpha = fAlpha;
 
         do {
-            memcpy(dst, src, size);
+            proc(dst, src, width, alpha);
             dst = (SK_RESTRICT uint32_t*)((char*)dst + dstRB);
             src = (const SK_RESTRICT uint32_t*)((const char*)src + srcRB);
         } while (--height != 0);
     }
+
+private:
+    SkBlitRow::Proc32   fProc32;
+    U8CPU               fAlpha;
+    
+    typedef SkSpriteBlitter INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "SkColorFilter.h"
-#include "SkXfermode.h"
 
 class Sprite_D32_XferFilter : public SkSpriteBlitter {
 public:
@@ -86,6 +80,17 @@ public:
         
         fBufferSize = 0;
         fBuffer = NULL;
+
+        unsigned flags32 = 0;
+        if (255 != paint.getAlpha()) {
+            flags32 |= SkBlitRow::kGlobalAlpha_Flag32;
+        }
+        if (!source.isOpaque()) {
+            flags32 |= SkBlitRow::kSrcPixelAlpha_Flag32;
+        }
+        
+        fProc32 = SkBlitRow::Factory32(flags32);
+        fAlpha = paint.getAlpha();
     }
     
     virtual ~Sprite_D32_XferFilter() {
@@ -107,11 +112,13 @@ public:
     }
 
 protected:
-    SkColorFilter*  fColorFilter;
-    SkXfermode*     fXfermode;
-    int             fBufferSize;
-    SkPMColor*      fBuffer;
-    
+    SkColorFilter*      fColorFilter;
+    SkXfermode*         fXfermode;
+    int                 fBufferSize;
+    SkPMColor*          fBuffer;
+    SkBlitRow::Proc32   fProc32;
+    U8CPU               fAlpha;
+
 private:
     typedef SkSpriteBlitter INHERITED;
 };
@@ -144,9 +151,7 @@ public:
             if (NULL != xfermode) {
                 xfermode->xfer32(dst, tmp, width, NULL);
             } else {
-                for (int i = 0; i < width; i++) {
-                    dst[i] = SkPMSrcOver(tmp[i], dst[i]);
-                }
+                fProc32(dst, tmp, width, fAlpha);
             }
 
             dst = (SK_RESTRICT uint32_t*)((char*)dst + dstRB);
@@ -192,9 +197,7 @@ public:
             if (NULL != xfermode) {
                 xfermode->xfer32(dst, buffer, width, NULL);
             } else {
-                for (int i = 0; i < width; i++) {
-                    dst[i] = SkPMSrcOver(buffer[i], dst[i]);
-                }
+                fProc32(dst, buffer, width, fAlpha);
             }
             
             dst = (SK_RESTRICT SkPMColor*)((char*)dst + dstRB);
@@ -273,16 +276,20 @@ public:
 SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
                                             const SkPaint& paint,
                                             void* storage, size_t storageSize) {
-    if (paint.getMaskFilter() != NULL || paint.getAlpha() != 0xFF) {
+    if (paint.getMaskFilter() != NULL) {
         return NULL;
     }
 
+    U8CPU       alpha = paint.getAlpha();
     SkXfermode* xfermode = paint.getXfermode();
     SkColorFilter* filter = paint.getColorFilter();
     SkSpriteBlitter* blitter = NULL;
 
     switch (source.getConfig()) {
         case SkBitmap::kARGB_4444_Config:
+            if (alpha != 0xFF) {
+                return NULL;    // we only have opaque sprites
+            }
             if (xfermode || filter) {
                 SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S4444_XferFilter,
                                       storage, storageSize, (source, paint));
@@ -296,14 +303,15 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
             break;
         case SkBitmap::kARGB_8888_Config:
             if (xfermode || filter) {
-                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S32A_XferFilter,
+                if (255 == alpha) {
+                    // this can handle xfermode or filter, but not alpha
+                    SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S32A_XferFilter,
                                       storage, storageSize, (source, paint));
-            } else if (source.isOpaque()) {
-                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S32_Opaque,
-                                      storage, storageSize, (source));
+                }
             } else {
-                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S32A_Opaque,
-                                      storage, storageSize, (source));
+                // this can handle alpha, but not xfermode or filter
+                SK_PLACEMENT_NEW_ARGS(blitter, Sprite_D32_S32,
+                              storage, storageSize, (source, alpha));
             }
             break;
         default:

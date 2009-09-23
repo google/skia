@@ -8,6 +8,7 @@ SOURCE := \
     SkBitmapSampler.cpp \
     SkBitmap_scroll.cpp \
     SkBlitRow_D16.cpp \
+    SkBlitRow_D32.cpp \
     SkBlitRow_D4444.cpp \
     SkBlitter.cpp \
     SkBlitter_4444.cpp \

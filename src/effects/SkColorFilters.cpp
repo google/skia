@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "SkBlitRow.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
 #include "SkUtils.h"
@@ -86,12 +87,7 @@ public:
     
     virtual void filterSpan(const SkPMColor shader[], int count,
                             SkPMColor result[]) {
-        SkPMColor   src = fPMColor;
-        unsigned    scale = SkAlpha255To256(255 - SkGetPackedA32(src));
-
-        for (int i = 0; i < count; i++) {
-            result[i] = src + SkAlphaMulQ(shader[i], scale);
-        }
+        SkBlitRow::Color32(result, shader, count, fPMColor);
     }
 
     virtual void filterSpan16(const uint16_t shader[], int count,

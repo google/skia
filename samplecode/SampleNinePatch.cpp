@@ -19,6 +19,9 @@ public:
         r.set(1, 1, fBM.width() - 1, fBM.height() - 1);
         fBM.extractSubset(&tmp, r);
         fBM.swap(tmp);
+        
+        fX = SkIntToScalar(fBM.width());
+        fY = 0;
     }
 
 protected:
@@ -33,7 +36,11 @@ protected:
     
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
-        
+    }
+    
+    virtual void onDraw(SkCanvas* canvas) {
+        this->drawBG(canvas);
+
         canvas->scale(1.5f, 1.5f);
         
         canvas->drawBitmap(fBM, 0, 0);
@@ -44,17 +51,19 @@ protected:
         
         margins.set(d, d, d, d);
         dst.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
-        dst.offset(SkIntToScalar(fBM.width()), 0);
-        dst.offset(SkIntToScalar(2), SkIntToScalar(2));
+        dst.offset(fX, fY);
         
         SkNinePatch::DrawNine(canvas, dst, fBM, margins);
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+        fX = x / 1.5f;
+        fY = y / 1.5f;
+        this->inval(NULL);
+        return this->INHERITED::onFindClickHandler(x, y);
     }
-    
 private:
+    SkScalar fX, fY;
     typedef SkView INHERITED;
 };
 
