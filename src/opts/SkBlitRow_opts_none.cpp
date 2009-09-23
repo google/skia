@@ -30,3 +30,10 @@ const SkBlitRow::Proc SkBlitRow::gPlatform_4444_Procs[] = {
     NULL,   // S32A_D4444_Blend_Dither
 };
 
+const SkBlitRow::Proc32 SkBlitRow::gPlatform_Procs32[] = {
+    NULL,   // S32_Opaque,
+    NULL,   // S32_Blend,
+    NULL,   // S32A_Opaque,
+    NULL,   // S32A_Blend,
+};
+

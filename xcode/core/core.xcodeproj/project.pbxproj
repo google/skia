@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00244E10106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244E0F106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp */; };
 		002884C80EFAB8B90083E387 /* SkMMapStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884C70EFAB8B90083E387 /* SkMMapStream.cpp */; };
 		002884D50EFAB8F80083E387 /* SkStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884D40EFAB8F80083E387 /* SkStream.cpp */; };
 		002B342810213340000F04C6 /* SkBlitRow_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002B342710213340000F04C6 /* SkBlitRow_opts_none.cpp */; };
@@ -132,6 +133,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		00244E0F106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBlitRow_D32.cpp; path = ../../src/core/SkBlitRow_D32.cpp; sourceTree = SOURCE_ROOT; };
 		002884C70EFAB8B90083E387 /* SkMMapStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMMapStream.cpp; path = ../../src/core/SkMMapStream.cpp; sourceTree = SOURCE_ROOT; };
 		002884D40EFAB8F80083E387 /* SkStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkStream.cpp; path = ../../src/core/SkStream.cpp; sourceTree = SOURCE_ROOT; };
 		002B342710213340000F04C6 /* SkBlitRow_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBlitRow_opts_none.cpp; path = ../../src/opts/SkBlitRow_opts_none.cpp; sourceTree = SOURCE_ROOT; };
@@ -298,6 +300,7 @@
 		08FB7795FE84155DC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				00244E0F106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp */,
 				00554E0C102733D300C9C8ED /* SkBitmapProcState_opts_none.cpp */,
 				002B342710213340000F04C6 /* SkBlitRow_opts_none.cpp */,
 				005DC79A10179AE000F00DFB /* SkFontHost.cpp */,
@@ -612,6 +615,7 @@
 				005DC79B10179AE000F00DFB /* SkFontHost.cpp in Sources */,
 				002B342810213340000F04C6 /* SkBlitRow_opts_none.cpp in Sources */,
 				00554E0D102733D300C9C8ED /* SkBitmapProcState_opts_none.cpp in Sources */,
+				00244E10106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

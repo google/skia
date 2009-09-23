@@ -141,8 +141,10 @@ public:
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
 
 private:
-    SkXfermode* fXfermode;
-    SkPMColor*  fBuffer;
+    SkXfermode*         fXfermode;
+    SkPMColor*          fBuffer;
+    SkBlitRow::Proc32   fProc32;
+    SkBlitRow::Proc32   fProc32Blend;
 
     // illegal
     SkARGB32_Shader_Blitter& operator=(const SkARGB32_Shader_Blitter&);

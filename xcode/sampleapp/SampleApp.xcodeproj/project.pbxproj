@@ -23,9 +23,14 @@
 		00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9A0EFC233F000FF73A /* SkDOM.cpp */; };
 		00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */; };
 		00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */; };
-		0009E2201057E96800B0DE6F /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */; };
 		000A99820FD97526007E45BD /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
+		00244D1B10642BBA00B8F4D8 /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */; };
+		00244D4A1069646100B8F4D8 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
+		00244D97106A539500B8F4D8 /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */; };
+		00244DBB106A61B700B8F4D8 /* SampleGM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244DBA106A61B700B8F4D8 /* SampleGM.cpp */; };
+		00244DCD106A630100B8F4D8 /* bitmapfilters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244DC7106A630100B8F4D8 /* bitmapfilters.cpp */; };
+		00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
@@ -43,7 +48,6 @@
 		0041CE420F00A12400695E8C /* SampleImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2C0F00A12400695E8C /* SampleImage.cpp */; };
 		0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2D0F00A12400695E8C /* SampleLayers.cpp */; };
 		0041CE450F00A12400695E8C /* SampleMeasure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2F0F00A12400695E8C /* SampleMeasure.cpp */; };
-		0041CE470F00A12400695E8C /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE310F00A12400695E8C /* SampleNinePatch.cpp */; };
 		0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE320F00A12400695E8C /* SampleOverflow.cpp */; };
 		0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
 		0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2794C04E0FE72903009AD112 /* SampleMipMap.cpp */; };
@@ -53,7 +57,6 @@
 		007A7CB30F01658C00A2D6EE /* SamplePicture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA40F01658C00A2D6EE /* SamplePicture.cpp */; };
 		007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */; };
 		007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */; };
-		007A7CB70F01658C00A2D6EE /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */; };
 		007A7CB80F01658C00A2D6EE /* SampleStrokeText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA90F01658C00A2D6EE /* SampleStrokeText.cpp */; };
 		007A7CBA0F01658C00A2D6EE /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAB0F01658C00A2D6EE /* SampleText.cpp */; };
 		007A7CBB0F01658C00A2D6EE /* SampleTextAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAC0F01658C00A2D6EE /* SampleTextAlpha.cpp */; };
@@ -64,9 +67,9 @@
 		007A7CC00F01658C00A2D6EE /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB10F01658C00A2D6EE /* SampleVertices.cpp */; };
 		007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C785D0F3B4C230004B142 /* SamplePathClip.cpp */; };
 		00840B75104C69F5005B3EDC /* SampleExtractAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */; };
-		0088C1160FEC311C00CE52F5 /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */; };
 		008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008C4D970F77DAEE0056981C /* SampleHairline.cpp */; };
 		009490320FB0A5B90063C792 /* SampleLayerMask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009490310FB0A5B90063C792 /* SampleLayerMask.cpp */; };
+		009887F1106142FC0020D19B /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE310F00A12400695E8C /* SampleNinePatch.cpp */; };
 		009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */; };
 		00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */; };
 		00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7282D0FD43D3700D5051F /* SkMovie.cpp */; };
@@ -78,7 +81,6 @@
 		00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 		00EB4593104DBB18002B413E /* ForthTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EB4592104DBB18002B413E /* ForthTests.cpp */; };
 		00ED55F3104A10EB00F51FF8 /* StdWords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00ED55F2104A10EB00F51FF8 /* StdWords.cpp */; };
-		00F53F480FFCFC4D003FA70A /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
 		00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
@@ -157,6 +159,13 @@
 		00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_empty.cpp; path = ../../src/ports/SkXMLParser_empty.cpp; sourceTree = SOURCE_ROOT; };
 		0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleStrokePath.cpp; path = ../../samplecode/SampleStrokePath.cpp; sourceTree = SOURCE_ROOT; };
 		001B871D1042184D00C84ED4 /* Forth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Forth.cpp; path = ../../forth/Forth.cpp; sourceTree = SOURCE_ROOT; };
+		00244DBA106A61B700B8F4D8 /* SampleGM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGM.cpp; path = ../../samplecode/SampleGM.cpp; sourceTree = SOURCE_ROOT; };
+		00244DC7106A630100B8F4D8 /* bitmapfilters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bitmapfilters.cpp; path = ../../gm/bitmapfilters.cpp; sourceTree = SOURCE_ROOT; };
+		00244DC8106A630100B8F4D8 /* filltypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = filltypes.cpp; path = ../../gm/filltypes.cpp; sourceTree = SOURCE_ROOT; };
+		00244DC9106A630100B8F4D8 /* gradients.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gradients.cpp; path = ../../gm/gradients.cpp; sourceTree = SOURCE_ROOT; };
+		00244DCA106A630100B8F4D8 /* shapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shapes.cpp; path = ../../gm/shapes.cpp; sourceTree = SOURCE_ROOT; };
+		00244DCB106A630100B8F4D8 /* tilemodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tilemodes.cpp; path = ../../gm/tilemodes.cpp; sourceTree = SOURCE_ROOT; };
+		00244DCC106A630100B8F4D8 /* xfermodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xfermodes.cpp; path = ../../gm/xfermodes.cpp; sourceTree = SOURCE_ROOT; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		003145310FB9B48F00B10956 /* SampleShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShapes.cpp; path = ../../samplecode/SampleShapes.cpp; sourceTree = SOURCE_ROOT; };
@@ -264,6 +273,7 @@
 				007A7CA40F01658C00A2D6EE /* SamplePicture.cpp */,
 				00D6B5CB0F72DC4300C466B9 /* SampleFuzz.cpp */,
 				00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */,
+				00244DBA106A61B700B8F4D8 /* SampleGM.cpp */,
 				009490310FB0A5B90063C792 /* SampleLayerMask.cpp */,
 				003145310FB9B48F00B10956 /* SampleShapes.cpp */,
 				009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */,
@@ -342,6 +352,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		00244DC5106A62E600B8F4D8 /* gm */ = {
+			isa = PBXGroup;
+			children = (
+				00244DC7106A630100B8F4D8 /* bitmapfilters.cpp */,
+				00244DC8106A630100B8F4D8 /* filltypes.cpp */,
+				00244DC9106A630100B8F4D8 /* gradients.cpp */,
+				00244DCA106A630100B8F4D8 /* shapes.cpp */,
+				00244DCB106A630100B8F4D8 /* tilemodes.cpp */,
+				00244DCC106A630100B8F4D8 /* xfermodes.cpp */,
+			);
+			name = gm;
+			sourceTree = "<group>";
+		};
 		0028844A0EFAA35C0083E387 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -369,6 +392,7 @@
 		20286C29FDCF999611CA2CEA /* CICarbonSample */ = {
 			isa = PBXGroup;
 			children = (
+				00244DC5106A62E600B8F4D8 /* gm */,
 				001B871D1042184D00C84ED4 /* Forth.cpp */,
 				00ED55F2104A10EB00F51FF8 /* StdWords.cpp */,
 				00EB4592104DBB18002B413E /* ForthTests.cpp */,
@@ -559,9 +583,7 @@
 				0041CE450F00A12400695E8C /* SampleMeasure.cpp in Sources */,
 				0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */,
 				0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */,
-				0041CE470F00A12400695E8C /* SampleNinePatch.cpp in Sources */,
 				007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */,
-				007A7CB70F01658C00A2D6EE /* SampleShaders.cpp in Sources */,
 				007A7CB80F01658C00A2D6EE /* SampleStrokeText.cpp in Sources */,
 				007A7CBA0F01658C00A2D6EE /* SampleText.cpp in Sources */,
 				007A7CBB0F01658C00A2D6EE /* SampleTextAlpha.cpp in Sources */,
@@ -587,12 +609,10 @@
 				000A99820FD97526007E45BD /* SampleArc.cpp in Sources */,
 				00AF77B00FE2EA2D007F9650 /* SampleTestGL.cpp in Sources */,
 				00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */,
-				0088C1160FEC311C00CE52F5 /* SampleXfermodes.cpp in Sources */,
 				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
 				005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */,
 				0057785F0FF17CCC00582CD9 /* SampleMipMap.cpp in Sources */,
 				005778B40FF5616F00582CD9 /* SampleShapes.cpp in Sources */,
-				00F53F480FFCFC4D003FA70A /* SampleGradients.cpp in Sources */,
 				27005D16100903C100E275B6 /* SampleLines.cpp in Sources */,
 				27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */,
 				00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */,
@@ -602,7 +622,13 @@
 				00ED55F3104A10EB00F51FF8 /* StdWords.cpp in Sources */,
 				00840B75104C69F5005B3EDC /* SampleExtractAlpha.cpp in Sources */,
 				00EB4593104DBB18002B413E /* ForthTests.cpp in Sources */,
-				0009E2201057E96800B0DE6F /* SampleStrokePath.cpp in Sources */,
+				009887F1106142FC0020D19B /* SampleNinePatch.cpp in Sources */,
+				00244D1B10642BBA00B8F4D8 /* SampleStrokePath.cpp in Sources */,
+				00244D4A1069646100B8F4D8 /* SampleGradients.cpp in Sources */,
+				00244D97106A539500B8F4D8 /* SampleXfermodes.cpp in Sources */,
+				00244DBB106A61B700B8F4D8 /* SampleGM.cpp in Sources */,
+				00244DCD106A630100B8F4D8 /* bitmapfilters.cpp in Sources */,
+				00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -699,7 +725,7 @@
 				);
 				GCC_THREADSAFE_STATICS = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/**";
+				USER_HEADER_SEARCH_PATHS = "../../include/** ../../gm";
 			};
 			name = Debug;
 		};
@@ -714,7 +740,7 @@
 				);
 				GCC_THREADSAFE_STATICS = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				USER_HEADER_SEARCH_PATHS = "../../include/**";
+				USER_HEADER_SEARCH_PATHS = "../../include/** ../../gm";
 			};
 			name = Release;
 		};
