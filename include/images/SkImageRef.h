@@ -43,6 +43,10 @@ public:
     */
     SkImageRef(SkStream*, SkBitmap::Config config, int sampleSize = 1);
     virtual ~SkImageRef();
+
+    /** this value is passed onto the decoder. Default is true
+     */
+    void setDitherImage(bool dither) { fDoDither = dither; }
     
     /** Return true if the image can be decoded. If so, and bitmap is non-null,
         call its setConfig() with the corresponding values, but explicitly will
@@ -89,6 +93,7 @@ private:
     SkStream*               fStream;
     SkBitmap::Config        fConfig;
     int                     fSampleSize;
+    bool                    fDoDither;
     bool                    fErrorInDecoding;
     
     friend class SkImageRefPool;
