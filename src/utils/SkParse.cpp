@@ -206,11 +206,20 @@ const char* SkParse::FindMSec(const char str[], SkMSec* value)
     return str;
 }
 
-const char* SkParse::FindScalar(const char str[], SkScalar* value)
-{
+const char* SkParse::FindScalar(const char str[], SkScalar* value) {
     SkASSERT(str);
     str = skip_ws(str);
-
+#ifdef SK_SCALAR_IS_FLOAT
+    char* stop;
+    float v = ::strtof(str, &stop);
+    if (str == stop) {
+        return NULL;
+    }
+    if (value) {
+        *value = v;
+    }
+    return stop;
+#else
     int sign = 0;
     if (*str == '-')
     {
@@ -251,6 +260,7 @@ const char* SkParse::FindScalar(const char str[], SkScalar* value)
         n = (n ^ sign) - sign;  // apply the sign
         *value = SkFixedToScalar(n);
     }
+#endif
     return str;
 }
 
