@@ -19,6 +19,7 @@ SkImageRef::SkImageRef(SkStream* stream, SkBitmap::Config config,
     fStream = stream;
     fConfig = config;
     fSampleSize = sampleSize;
+    fDoDither = true;
     fPrev = fNext = NULL;
     fFactory = NULL;
 
@@ -104,6 +105,7 @@ bool SkImageRef::prepareBitmap(SkImageDecoder::Mode mode) {
         SkAutoTDelete<SkImageDecoder> ad(codec);
 
         codec->setSampleSize(fSampleSize);
+        codec->setDitherImage(fDoDither);
         if (this->onDecode(codec, fStream, &fBitmap, fConfig, mode)) {
             return true;
         }
