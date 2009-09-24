@@ -181,8 +181,14 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
 #include "SkStream.h"
 
 static void write_scalar(SkWStream* stream, SkScalar value) {
+#ifdef SK_SCALAR_IS_FLOAT
+    char buffer[64];
+    int len = snprintf(buffer, sizeof(buffer), "%g", value);
+    char* stop = buffer + len;
+#else
     char    buffer[SkStrAppendScalar_MaxSize];
     char*   stop = SkStrAppendScalar(buffer, value);
+#endif
     stream->write(buffer, stop - buffer);
 }
 
@@ -191,10 +197,7 @@ static void append_scalars(SkWStream* stream, char verb, const SkScalar data[],
     stream->write(&verb, 1);
     write_scalar(stream, data[0]);
     for (int i = 1; i < count; i++) {
-        if (data[i] >= 0) {
-            // can skip the separater if data[i] is negative
-            stream->write(" ", 1);
-        }
+        stream->write(" ", 1);
         write_scalar(stream, data[i]);
     }
 }
