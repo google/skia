@@ -32,6 +32,9 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
     return NULL;
 }
 
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkFontHost::ValidFontID(uint32_t uniqueID) {
