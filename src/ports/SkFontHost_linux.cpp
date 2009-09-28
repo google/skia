@@ -125,18 +125,22 @@ static FamilyRec* find_family(const SkTypeface* member) {
     return NULL;
 }
 
-static bool valid_uniqueID(uint32_t uniqueID) {
+static SkTypeface* find_from_uniqueID(uint32_t uniqueID) {
     FamilyRec* curr = gFamilyHead;
     while (curr != NULL) {
         for (int i = 0; i < 4; i++) {
             SkTypeface* face = curr->fFaces[i];
             if (face != NULL && face->uniqueID() == uniqueID) {
-                return true;
+                return face;
             }
         }
         curr = curr->fNext;
     }
     return false;
+}
+
+static bool valid_uniqueID(uint32_t uniqueID) {
+    return find_from_uniqueID(uniqueID) != NULL;
 }
 
 /*  Remove reference to this face from its family. If the resulting family
@@ -374,16 +378,16 @@ static SkTypeface* gDefaultNormal;
 static void load_system_fonts() {
     // check if we've already be called
     if (NULL != gDefaultNormal) {
+        printf("---- default font %p\n", gDefaultNormal);
         return;
     }
-    
+
     SkOSFile::Iter    iter(SK_FONT_FILE_PREFIX, ".ttf");
     SkString          name;
 
     while (iter.next(&name, false)) {
         SkString filename;
         GetFullPathForSysFonts(&filename, name.c_str());
-//    while (filename.size() == 0) { filename.set("/usr/share/fonts/truetype/msttcorefonts/Arial.ttf");
 
         SkString realname;
         SkTypeface::Style style;
@@ -392,9 +396,9 @@ static void load_system_fonts() {
             SkDebugf("------ can't load <%s> as a font\n", filename.c_str());
             continue;
         }
-        
+
 //        SkDebugf("font: <%s> %d <%s>\n", realname.c_str(), style, filename.c_str());
-        
+  
         FamilyRec* family = find_familyrec(realname.c_str());
         // this constructor puts us into the global gFamilyHead llist
         FamilyTypeface* tf = SkNEW_ARGS(FileTypeface,
@@ -408,7 +412,7 @@ static void load_system_fonts() {
             add_name(realname.c_str(), tf->getFamily());
         }
     }
-    
+
     // do this after all fonts are loaded. This is our default font, and it
     // acts as a sentinel so we only execute load_system_fonts() once
     static const char* gDefaultNames[] = {
@@ -522,14 +526,14 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-SkTypeface* SkFontHost::ValidFontID(uint32_t fontID) {
+bool SkFontHost::ValidFontID(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
     
     return valid_uniqueID(fontID);
 }
 
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
-    FamilyTypeface* tf = (FamilyTypeface*)SkFontHost::ResolveTypeface(fontID);
+    FamilyTypeface* tf = (FamilyTypeface*)find_from_uniqueID(fontID);
     SkStream* stream = tf ? tf->openStream() : NULL;
     
     if (NULL == stream || stream->getLength() == 0) {
@@ -545,28 +549,8 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     return 0;
 }
 
-void SkFontHost::CloseStream(uint32_t fontID, SkStream* stream) {
-    FamilyTypeface* tf = (FamilyTypeface*)SkFontHost::ResolveTypeface(fontID);
-    if (NULL != tf) {
-        tf->closeStream(stream);
-    }
-}
-
-SkScalerContext* SkFontHost::CreateFallbackScalerContext(
-                                            const SkScalerContext::Rec& rec) {
-    load_system_fonts();
-    
-    SkAutoDescriptor    ad(sizeof(rec) + SkDescriptor::ComputeOverhead(1));
-    SkDescriptor*       desc = ad.getDesc();
-    
-    desc->init();
-    SkScalerContext::Rec* newRec =
-    (SkScalerContext::Rec*)desc->addEntry(kRec_SkDescriptorTag,
-                                          sizeof(rec), &rec);
-    newRec->fFontID = gFallBackTypeface->uniqueID();
-    desc->computeChecksum();
-    
-    return SkFontHost::CreateScalerContext(desc);
+uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -588,10 +572,10 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     SkFILEStream* stream = SkNEW_ARGS(SkFILEStream, (path));
 
     if (stream->isValid()) {
-        return CreateTypeface(stream);
+        face = CreateTypefaceFromStream(stream);
     }
     stream->unref();
-    return NULL;
+    return face;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

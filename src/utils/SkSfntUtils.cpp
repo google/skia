@@ -51,7 +51,7 @@ bool SkSfntUtils::ReadTable_head(SkFontID fontID, SkSfntTable_head* head) {
     head->fFontDirectionHint = parse_be16(p);
     head->fIndexToLocFormat = parse_be16(p);
     head->fGlyphDataFormat = parse_be16(p);
-    SkASSERT(p - storage == size);
+    SkASSERT(p - storage == (long)size);
     return true;
 }
 
@@ -81,7 +81,7 @@ bool SkSfntUtils::ReadTable_maxp(SkFontID fontID, SkSfntTable_maxp* maxp) {
     maxp->fMaxSizeOfInstructions = parse_be16(p);
     maxp->fMaxComponentElements = parse_be16(p);
     maxp->fMaxComponentDepth = parse_be16(p);
-    SkASSERT(p - storage == size);
+    SkASSERT(p - storage == (long)size);
     return true;
 }
 

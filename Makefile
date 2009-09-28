@@ -3,7 +3,7 @@
 # setup our defaults
 CC := gcc
 C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
-CFLAGS := -Wall # -O2 
+CFLAGS := -Wall -g # -O2 
 LINKER_OPTS := -lpthread
 DEFINES := -DSK_CAN_USE_FLOAT
 HIDE = @
@@ -59,10 +59,16 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
 	SRC_LIST += src/ports/SkFontHost_mac.cpp
 else
-	LINKER_OPTS += -lpng
+	LINKER_OPTS += -lpng -lfreetype
 	DEFINES += -DSK_BUILD_FOR_UNIX
 
-	SRC_LIST += src/ports/SkFontHost_none.cpp
+	# needed for freetype support
+	C_INCLUDES += -I/usr/include/freetype2
+	SRC_LIST += src/ports/SkFontHost_linux.cpp
+	SRC_LIST += src/ports/SkFontHost_gamma_none.cpp
+	SRC_LIST += src/ports/SkFontHost_FreeType.cpp
+	SRC_LIST += src/ports/SkFontHost_FreeType_Subpixel.cpp
+	SRC_LIST += src/utils/SkOSFile.cpp
     # these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
 	SRC_LIST += src/images/SkImageEncoder_Factory.cpp
