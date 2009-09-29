@@ -286,6 +286,8 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
     
     while ((count = iter.next()) != 0) {
         const SkFixed* SK_RESTRICT srcXY = iter.getXY();
+#if 0
+        // crashes in ApiDemos - Views - Animation - 3D Transition
 
         /* srcXY is a batch of 32 bit numbers X0,Y0,X1,Y1...
          * but we immediately discard the low 16 bits...
@@ -372,7 +374,7 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
             srcXY = (const SkFixed *) mysrc;
             xy = (uint32_t *) mydst;
         }
-
+#endif
         while (--count >= 0) {
             *xy++ = (TILEY_PROCF(srcXY[1], maxY) << 16) |
                      TILEX_PROCF(srcXY[0], maxX);
