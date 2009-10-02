@@ -882,9 +882,8 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         }
     }
 
-    if (NULL == shader && (NULL != mode || paint.getColorFilter() != NULL))
-    {
-        // xfermodes require shaders for our current set of blitters
+    if (NULL == shader && (NULL != mode || paint.getColorFilter() != NULL)) {
+        // xfermodes (and filters) require shaders for our current blitters
         shader = SkNEW(SkColorShader);
         ((SkPaint*)&paint)->setShader(shader)->unref();
     }
@@ -894,6 +893,8 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         SkASSERT(shader);
         shader = SkNEW_ARGS(SkFilterShader, (shader, paint.getColorFilter()));
         ((SkPaint*)&paint)->setShader(shader)->unref();
+        // blitters should ignore the presence/absence of a filter, since
+        // if there is one, the shader will take care of it.
     }
     
     if (shader && !shader->setContext(device, paint, matrix)) {
@@ -917,29 +918,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         break;
 
     case SkBitmap::kRGB_565_Config:
-        if (shader)
-        {
-            if (mode)
-                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Xfermode_Blitter, storage, storageSize, (device, paint));
-            else if (shader->canCallShadeSpan16())
-                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader16_Blitter, storage, storageSize, (device, paint));
-            else
-                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Blitter, storage, storageSize, (device, paint));
-        } else {
-            SkColor color = paint.getColor();
-            if (0 == SkColorGetA(color)) {
-                SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
-            } else if (SK_ColorBLACK == color) {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Black_Blitter, storage,
-                                      storageSize, (device, paint));
-            } else if (0xFF == SkColorGetA(color)) {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Opaque_Blitter, storage,
-                                      storageSize, (device, paint));
-            } else {
-                SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Blitter, storage,
-                                      storageSize, (device, paint));
-            }
-        }
+        blitter = SkBlitter_ChooseD565(device, paint, storage, storageSize);
         break;
 
     case SkBitmap::kARGB_8888_Config:

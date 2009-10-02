@@ -20,6 +20,7 @@
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkShader.h"
+#include "SkTemplatesPriv.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
@@ -47,6 +48,104 @@ void sk_dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+class SkRGB16_Blitter : public SkRasterBlitter {
+public:
+    SkRGB16_Blitter(const SkBitmap& device, const SkPaint& paint);
+    virtual void blitH(int x, int y, int width);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    virtual void blitV(int x, int y, int height, SkAlpha alpha);
+    virtual void blitRect(int x, int y, int width, int height);
+    virtual void blitMask(const SkMask&, const SkIRect&);
+    virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
+    
+protected:
+    SkPMColor   fSrcColor32;
+    unsigned    fScale;
+    uint16_t    fColor16;       // already scaled by fScale
+    uint16_t    fRawColor16;    // unscaled
+    uint16_t    fRawDither16;   // unscaled
+    SkBool8     fDoDither;
+    
+    // illegal
+    SkRGB16_Blitter& operator=(const SkRGB16_Blitter&);
+    
+    typedef SkRasterBlitter INHERITED;
+};
+
+class SkRGB16_Opaque_Blitter : public SkRGB16_Blitter {
+public:
+    SkRGB16_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint);
+    virtual void blitH(int x, int y, int width);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    virtual void blitRect(int x, int y, int width, int height);
+    virtual void blitMask(const SkMask&, const SkIRect&);
+    
+private:
+    typedef SkRGB16_Blitter INHERITED;
+};
+
+class SkRGB16_Black_Blitter : public SkRGB16_Opaque_Blitter {
+public:
+    SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint);
+    virtual void blitMask(const SkMask&, const SkIRect&);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    
+private:
+    typedef SkRGB16_Opaque_Blitter INHERITED;
+};
+
+class SkRGB16_Shader_Blitter : public SkShaderBlitter {
+public:
+    SkRGB16_Shader_Blitter(const SkBitmap& device, const SkPaint& paint);
+    virtual ~SkRGB16_Shader_Blitter();
+    virtual void blitH(int x, int y, int width);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    virtual void blitRect(int x, int y, int width, int height);
+    
+protected:
+    SkPMColor*      fBuffer;
+    SkBlitRow::Proc fOpaqueProc;
+    SkBlitRow::Proc fAlphaProc;
+    
+private:
+    // illegal
+    SkRGB16_Shader_Blitter& operator=(const SkRGB16_Shader_Blitter&);
+    
+    typedef SkShaderBlitter INHERITED;
+};
+
+// used only if the shader can perform shadSpan16
+class SkRGB16_Shader16_Blitter : public SkRGB16_Shader_Blitter {
+public:
+    SkRGB16_Shader16_Blitter(const SkBitmap& device, const SkPaint& paint);
+    virtual void blitH(int x, int y, int width);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    virtual void blitRect(int x, int y, int width, int height);
+    
+private:
+    typedef SkRGB16_Shader_Blitter INHERITED;
+};
+
+class SkRGB16_Shader_Xfermode_Blitter : public SkShaderBlitter {
+public:
+    SkRGB16_Shader_Xfermode_Blitter(const SkBitmap& device, const SkPaint& paint);
+    virtual ~SkRGB16_Shader_Xfermode_Blitter();
+    virtual void blitH(int x, int y, int width);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    
+private:
+    SkXfermode* fXfermode;
+    SkPMColor*  fBuffer;
+    uint8_t*    fAAExpand;
+    
+    // illegal
+    SkRGB16_Shader_Xfermode_Blitter& operator=(const SkRGB16_Shader_Xfermode_Blitter&);
+    
+    typedef SkShaderBlitter INHERITED;
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -832,39 +931,44 @@ void SkRGB16_Shader_Xfermode_Blitter::blitAntiH(int x, int y,
     } 
 }
 
-////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-#if 0
-static inline uint16_t aa_blendS32D16(SkPMColor src, U16CPU dst, int aa
-#ifdef DITHER_SHADER
-                                      , int dither
-#endif
-                                      )
-{
-    SkASSERT((unsigned)aa <= 255);
+SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device, const SkPaint& paint,
+                                void* storage, size_t storageSize) {
+    SkBlitter* blitter;
+    SkShader* shader = paint.getShader();
+    SkXfermode* mode = paint.getXfermode();
+
+    // we require a shader if there is an xfermode, handled by our caller
+    SkASSERT(NULL == mode || NULL != shader);
+
+    if (shader) {
+        if (mode) {
+            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Xfermode_Blitter,
+                                  storage, storageSize, (device, paint));
+        } else if (shader->canCallShadeSpan16()) {
+            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader16_Blitter,
+                                  storage, storageSize, (device, paint));
+        } else {
+            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Shader_Blitter,
+                                  storage, storageSize, (device, paint));
+        }
+    } else {
+        // no shader, no xfermode, (and we always ignore colorfilter)
+        SkColor color = paint.getColor();
+        if (0 == SkColorGetA(color)) {
+            SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+        } else if (SK_ColorBLACK == color) {
+            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Black_Blitter, storage,
+                                  storageSize, (device, paint));
+        } else if (0xFF == SkColorGetA(color)) {
+            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Opaque_Blitter, storage,
+                                  storageSize, (device, paint));
+        } else {
+            SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Blitter, storage,
+                                  storageSize, (device, paint));
+        }
+    }
     
-    int src_scale = SkAlpha255To256(aa);
-    int sa = SkGetPackedA32(src);
-    int dst_scale = SkAlpha255To256(255 - SkAlphaMul(sa, src_scale));
-    
-#ifdef DITHER_SHADER
-    int sr = SkGetPackedR32(src);
-    int sg = SkGetPackedG32(src);
-    int sb = SkGetPackedB32(src);
-    sr = SkDITHER_R32To16(sr, dither);
-    sg = SkDITHER_G32To16(sg, dither);
-    sb = SkDITHER_B32To16(sb, dither);
-#else
-    int sr = SkPacked32ToR16(src);
-    int sg = SkPacked32ToG16(src);
-    int sb = SkPacked32ToB16(src);
-#endif
-    
-    int dr = (sr * src_scale + SkGetPackedR16(dst) * dst_scale) >> 8;
-    int dg = (sg * src_scale + SkGetPackedG16(dst) * dst_scale) >> 8;
-    int db = (sb * src_scale + SkGetPackedB16(dst) * dst_scale) >> 8;
-    
-    return SkPackRGB16(dr, dg, db);
+    return blitter;
 }
-#endif
-
