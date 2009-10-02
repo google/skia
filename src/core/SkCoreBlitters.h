@@ -152,105 +152,7 @@ private:
     typedef SkShaderBlitter INHERITED;
 };
 
-////////////////////////////////////////////////////////////////
-
-class SkRGB16_Blitter : public SkRasterBlitter {
-public:
-    SkRGB16_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-    virtual void blitV(int x, int y, int height, SkAlpha alpha);
-    virtual void blitRect(int x, int y, int width, int height);
-    virtual void blitMask(const SkMask&, const SkIRect&);
-    virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
-
-protected:
-    SkPMColor   fSrcColor32;
-    unsigned    fScale;
-    uint16_t    fColor16;       // already scaled by fScale
-    uint16_t    fRawColor16;    // unscaled
-    uint16_t    fRawDither16;   // unscaled
-    SkBool8     fDoDither;
-
-    // illegal
-    SkRGB16_Blitter& operator=(const SkRGB16_Blitter&);
-
-    typedef SkRasterBlitter INHERITED;
-};
-
-class SkRGB16_Opaque_Blitter : public SkRGB16_Blitter {
-public:
-    SkRGB16_Opaque_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-    virtual void blitRect(int x, int y, int width, int height);
-    virtual void blitMask(const SkMask&, const SkIRect&);
-
-private:
-    typedef SkRGB16_Blitter INHERITED;
-};
-
-class SkRGB16_Black_Blitter : public SkRGB16_Opaque_Blitter {
-public:
-    SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitMask(const SkMask&, const SkIRect&);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-
-private:
-    typedef SkRGB16_Opaque_Blitter INHERITED;
-};
-
-class SkRGB16_Shader_Blitter : public SkShaderBlitter {
-public:
-    SkRGB16_Shader_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual ~SkRGB16_Shader_Blitter();
-    virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-    virtual void blitRect(int x, int y, int width, int height);
-
-protected:
-    SkPMColor*      fBuffer;
-    SkBlitRow::Proc fOpaqueProc;
-    SkBlitRow::Proc fAlphaProc;
-    
-private:
-    // illegal
-    SkRGB16_Shader_Blitter& operator=(const SkRGB16_Shader_Blitter&);
-
-    typedef SkShaderBlitter INHERITED;
-};
-
-// used only if the shader can perform shadSpan16
-class SkRGB16_Shader16_Blitter : public SkRGB16_Shader_Blitter {
-public:
-    SkRGB16_Shader16_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-    virtual void blitRect(int x, int y, int width, int height);
-    
-private:
-    typedef SkRGB16_Shader_Blitter INHERITED;
-};
-
-class SkRGB16_Shader_Xfermode_Blitter : public SkShaderBlitter {
-public:
-    SkRGB16_Shader_Xfermode_Blitter(const SkBitmap& device, const SkPaint& paint);
-    virtual ~SkRGB16_Shader_Xfermode_Blitter();
-    virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
-
-private:
-    SkXfermode* fXfermode;
-    SkPMColor*  fBuffer;
-    uint8_t*    fAAExpand;
-
-    // illegal
-    SkRGB16_Shader_Xfermode_Blitter& operator=(const SkRGB16_Shader_Xfermode_Blitter&);
-
-    typedef SkShaderBlitter INHERITED;
-};
-
-/////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 class SkA1_Blitter : public SkRasterBlitter {
 public:
@@ -266,10 +168,28 @@ private:
     typedef SkRasterBlitter INHERITED;
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+/*  These return the correct subclass of blitter for their device config.
+
+    Currently, they make the following assumptions about the state of the
+    paint:
+ 
+    1. If there is an xfermode, there will also be a shader
+    2. If there is a colorfilter, there will be a shader that itself handles
+       calling the filter, so the blitter can always ignore the colorfilter obj
+
+    These pre-conditions must be handled by the caller, in our case
+    SkBlitter::Choose(...)
+ */
 
 extern SkBlitter* SkBlitter_ChooseD4444(const SkBitmap& device,
                                         const SkPaint& paint,
                                         void* storage, size_t storageSize);
+
+extern SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device,
+                                       const SkPaint& paint,
+                                       void* storage, size_t storageSize);
 
 #endif
 

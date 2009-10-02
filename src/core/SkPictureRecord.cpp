@@ -45,13 +45,7 @@ int SkPictureRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
     fRestoreOffsetStack.push(0);
 
     validate();
-    /*  Don't actually call saveLayer, because that will try to allocate an
-        offscreen device (potentially very big) which we don't actually need
-        at this time (and may not be able to afford since during record our
-        clip starts out the size of the picture, which is often much larger
-        than the size of the actual device we'll use during playback).
-     */
-    return this->INHERITED::save(flags);
+    return this->INHERITED::saveLayer(bounds, paint, flags);
 }
 
 void SkPictureRecord::restore() {
