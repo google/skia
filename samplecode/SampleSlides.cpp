@@ -4,6 +4,8 @@
 #include "SkDevice.h"
 #include "SkPaint.h"
 
+#define BG_COLOR    0xFFDDDDDD
+
 typedef void (*SlideProc)(SkCanvas*);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -435,7 +437,6 @@ static void mesh_slide(SkCanvas* canvas) {
     paint.setDither(true);
     paint.setFilterBitmap(true);
     
-    canvas->drawColor(SK_ColorLTGRAY);
     for (int i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
         canvas->save();
         
@@ -465,13 +466,284 @@ static void mesh_slide(SkCanvas* canvas) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkGradientShader.h"
+#include "SkLayerRasterizer.h"
+#include "SkBlurMaskFilter.h"
+
+static void r0(SkLayerRasterizer* rast, SkPaint& p)
+{
+    p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
+                                             SkBlurMaskFilter::kNormal_BlurStyle))->unref();
+    rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
+    
+    p.setMaskFilter(NULL);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SK_Scalar1);
+    rast->addLayer(p);
+    
+    p.setAlpha(0x11);
+    p.setStyle(SkPaint::kFill_Style);
+    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+    rast->addLayer(p);
+}
+
+static void r1(SkLayerRasterizer* rast, SkPaint& p)
+{
+    rast->addLayer(p);
+    
+    p.setAlpha(0x40);
+    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SK_Scalar1*2);
+    rast->addLayer(p);
+}
+
+static void r2(SkLayerRasterizer* rast, SkPaint& p)
+{
+    p.setStyle(SkPaint::kStrokeAndFill_Style);
+    p.setStrokeWidth(SK_Scalar1*4);
+    rast->addLayer(p);
+    
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SK_Scalar1*3/2);
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    rast->addLayer(p);
+}
+
+static void r3(SkLayerRasterizer* rast, SkPaint& p)
+{
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SK_Scalar1*3);
+    rast->addLayer(p);
+    
+    p.setAlpha(0x20);
+    p.setStyle(SkPaint::kFill_Style);
+    p.setXfermodeMode(SkXfermode::kSrc_Mode);
+    rast->addLayer(p);
+}
+
+static void r4(SkLayerRasterizer* rast, SkPaint& p)
+{
+    p.setAlpha(0x60);
+    rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
+    
+    p.setAlpha(0xFF);
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    rast->addLayer(p, SK_Scalar1*3/2, SK_Scalar1*3/2);
+    
+    p.setXfermode(NULL);
+    rast->addLayer(p);
+}
+
+#include "SkDiscretePathEffect.h"
+
+static void r5(SkLayerRasterizer* rast, SkPaint& p)
+{
+    rast->addLayer(p);
+    
+    p.setPathEffect(new SkDiscretePathEffect(SK_Scalar1*4, SK_Scalar1*3))->unref();
+    p.setXfermodeMode(SkXfermode::kSrcOut_Mode);
+    rast->addLayer(p);
+}
+
+static void r6(SkLayerRasterizer* rast, SkPaint& p)
+{
+    rast->addLayer(p);
+    
+    p.setAntiAlias(false);
+    SkLayerRasterizer* rast2 = new SkLayerRasterizer;
+    r5(rast2, p);
+    p.setRasterizer(rast2)->unref();
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    rast->addLayer(p);
+}
+
+#include "Sk2DPathEffect.h"
+
+class Dot2DPathEffect : public Sk2DPathEffect {
+public:
+    Dot2DPathEffect(SkScalar radius, const SkMatrix& matrix)
+    : Sk2DPathEffect(matrix), fRadius(radius) {}
+    
+    virtual void flatten(SkFlattenableWriteBuffer& buffer)
+    {
+        this->INHERITED::flatten(buffer);
+        
+        buffer.writeScalar(fRadius);
+    }
+    virtual Factory getFactory() { return CreateProc; }
+    
+protected:
+	virtual void next(const SkPoint& loc, int u, int v, SkPath* dst)
+    {
+        dst->addCircle(loc.fX, loc.fY, fRadius);
+    }
+    
+    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
+    {
+        fRadius = buffer.readScalar();
+    }
+private:
+    SkScalar fRadius;
+    
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)
+    {
+        return new Dot2DPathEffect(buffer);
+    }
+    
+    typedef Sk2DPathEffect INHERITED;
+};
+
+static void r7(SkLayerRasterizer* rast, SkPaint& p)
+{
+    SkMatrix    lattice;
+    lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
+    lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
+    p.setPathEffect(new Dot2DPathEffect(SK_Scalar1*4, lattice))->unref();
+    rast->addLayer(p);
+}
+
+static void r8(SkLayerRasterizer* rast, SkPaint& p)
+{
+    rast->addLayer(p);
+    
+    SkMatrix    lattice;
+    lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
+    lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
+    p.setPathEffect(new Dot2DPathEffect(SK_Scalar1*2, lattice))->unref();
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    rast->addLayer(p);
+    
+    p.setPathEffect(NULL);
+    p.setXfermode(NULL);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SK_Scalar1);
+    rast->addLayer(p);
+}
+
+class Line2DPathEffect : public Sk2DPathEffect {
+public:
+    Line2DPathEffect(SkScalar width, const SkMatrix& matrix)
+    : Sk2DPathEffect(matrix), fWidth(width) {}
+    
+	virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width)
+    {
+        if (this->INHERITED::filterPath(dst, src, width))
+        {
+            *width = fWidth;
+            return true;
+        }
+        return false;
+    }
+    
+    virtual Factory getFactory() { return CreateProc; }
+    virtual void flatten(SkFlattenableWriteBuffer& buffer)
+    {
+        this->INHERITED::flatten(buffer);
+        buffer.writeScalar(fWidth);
+    }
+protected:
+	virtual void nextSpan(int u, int v, int ucount, SkPath* dst)
+    {
+        if (ucount > 1)
+        {
+            SkPoint	src[2], dstP[2];
+            
+            src[0].set(SkIntToScalar(u) + SK_ScalarHalf,
+                       SkIntToScalar(v) + SK_ScalarHalf);
+            src[1].set(SkIntToScalar(u+ucount) + SK_ScalarHalf,
+                       SkIntToScalar(v) + SK_ScalarHalf);
+            this->getMatrix().mapPoints(dstP, src, 2);
+            
+            dst->moveTo(dstP[0]);
+            dst->lineTo(dstP[1]);
+        }
+    }
+    
+    Line2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
+    {
+        fWidth = buffer.readScalar();
+    }
+    
+private:
+    SkScalar fWidth;
+    
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)
+    {
+        return new Line2DPathEffect(buffer);
+    }
+    
+    typedef Sk2DPathEffect INHERITED;
+};
+
+static void r9(SkLayerRasterizer* rast, SkPaint& p)
+{
+    rast->addLayer(p);
+    
+    SkMatrix    lattice;
+    lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
+    lattice.postRotate(SkIntToScalar(30), 0, 0);
+    p.setPathEffect(new Line2DPathEffect(SK_Scalar1*2, lattice))->unref();
+    p.setXfermodeMode(SkXfermode::kClear_Mode);
+    rast->addLayer(p);
+    
+    p.setPathEffect(NULL);
+    p.setXfermode(NULL);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(SK_Scalar1);
+    rast->addLayer(p);
+}
+
+typedef void (*raster_proc)(SkLayerRasterizer*, SkPaint&);
+
+static const raster_proc gRastProcs[] = {
+    r0, r1, r2, r3, r4, r5, r6, r7, r8, r9
+};
+
+static void apply_shader(SkPaint* paint, int index) {    
+    raster_proc proc = gRastProcs[index];
+    SkPaint p;
+    SkLayerRasterizer*  rast = new SkLayerRasterizer;
+    
+    p.setAntiAlias(true);
+    proc(rast, p);
+    paint->setRasterizer(rast)->unref();
+    paint->setColor(SK_ColorBLUE);
+}
+
+#include "SkTypeface.h"
+
+static void texteffect_slide(SkCanvas* canvas) {
+    const char* str = "Google";
+    size_t len = strlen(str);
+    SkScalar x = 20;
+    SkScalar y = 80;
+    SkPaint paint;
+    paint.setTypeface(SkTypeface::CreateFromName("Georgia", SkTypeface::kItalic));
+    paint.setTextSize(75);
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorBLUE);
+    for (int i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
+        apply_shader(&paint, i);
+        canvas->drawText(str, len, x, y, paint);
+        y += 80;
+        if (i == 4) {
+            x += 320;
+            y = 80;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 #include "SkImageEncoder.h"
 
 static const SlideProc gProc[] = {
     patheffect_slide,
     gradient_slide,
     textonpath_slide,
-    mesh_slide
+    mesh_slide,
+    texteffect_slide
 };
 
 class SlideView : public SkView {
@@ -488,7 +760,7 @@ public:
         canvas.scale(s, s);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gProc); i++) {
             canvas.save();
-            canvas.drawColor(SK_ColorWHITE);
+            canvas.drawColor(BG_COLOR);
             gProc[i](&canvas);
             canvas.restore();
             SkString str;
@@ -507,13 +779,8 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+        canvas->drawColor(BG_COLOR);
         gProc[fIndex](canvas);
     }
 
