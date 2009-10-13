@@ -16,7 +16,7 @@
 */
 
 #include "SkTextBox.h"
-#include "SkGlyphCache.h"
+#include "../src/core/SkGlyphCache.h"
 #include "SkUtils.h"
 #include "SkAutoKern.h"
 

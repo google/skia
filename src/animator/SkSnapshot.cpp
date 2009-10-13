@@ -20,6 +20,7 @@
 #include "SkSnapshot.h"
 #include "SkAnimateMaker.h"
 #include "SkCanvas.h"
+#include "SkImageEncoder.h"
 
 #if SK_USE_CONDENSED_INFO == 0
 
