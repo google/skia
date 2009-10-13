@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<screenplay xmlns="urn:screenplay">
+	<array id="colors" 
+		values="[yellow,blue,green,red,orange,cyan,magenta,lime,navy,olive]" />
+	<path id="path">
+		<moveTo x="20" y="20" />
+		<lineTo x="20" y="80" />
+		<quadTo id="quad" x1="80" y1="80" x2="80" y2="20" />
+		<close />
+	</path>
+
+	<event kind="onLoad">
+		<matrix id="initialMatrix" translate="[120,150]" />
+		<paint  id="pathPaint" antiAlias="true">
+			<color color="lightpink" />
+		</paint>
+		<apply  >
+			<paint />
+			<set begin="3" field="linearText" to="false" />
+		</apply>
+		<apply scope="path" >
+			<animate target="quad" field="x1" from="10" to="120" dur="1"/>
+			<animate target="quad" field="y1" from="10" to="120" dur="1"/>
+		</apply>
+		<apply id="apply" mode="immediate" steps="colors.length-1" >
+			<group id="newPath">
+				<matrix rotate="360/colors.length" />
+				<paint >
+					<color id="color" />
+				</paint>
+				<add use="path" />
+			</group>
+			<set target="color" field="color" to="colors[apply.step]" />
+			<set target="color" field="alpha" to=".5" />
+		</apply>
+		<post target="addCaptionFade" delay="1" />
+		<post target="addLineCaption" delay="1" />
+		<post target="scaleInitial" delay="2" />
+	</event>
+	
+	
+	<event kind="user" id="addCaptionFade" >
+		<apply>
+			<paint  > 
+				<color id="captionFade" alpha="0" />
+			</paint>
+			<animate target="captionFade" field="alpha" from="0" to="1" dur="1" />
+		</apply>
+	</event>
+	
+	<event kind="user" id="addLineCaption" >
+		<paint textSize="24" textAlign="center" > <!--  -->
+			<shader  />
+		</paint>
+		<text text="Paths" x="10" y="145" />
+	</event>
+
+	<event kind="user" id="scaleInitial" >
+		<apply scope="pathPaint" >
+			<set field="linearText" to="true" />
+		</apply>
+		<apply scope="initialMatrix" >
+			<animate field="scale" from="1" to=".5" dur="1"/>
+			<animate field="translateX" from="120" to="60" dur="1"/>
+			<animate field="translateY" from="150" to="180" dur="1"/>
+		</apply>
+	</event>
+	
+</screenplay>
