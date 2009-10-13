@@ -273,5 +273,5 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (underline != -1)
         paint->setUnderlineText(SkToBool(underline));
     if (xfermode != (SkXfermode::Mode) -1)
-        paint->setXfermode((SkXfermode::Mode) xfermode);
+        paint->setXfermodeMode((SkXfermode::Mode) xfermode);
 }
