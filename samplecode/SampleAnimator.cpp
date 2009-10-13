@@ -80,7 +80,7 @@ static SkView* MyFactory() {
     SkAnimatorView* av = new SkAnimatorView;
 //    av->decodeFile("/skimages/test.xml");
     av->setURIBase("/skia/trunk/animations/");
-    av->decodeFile("/skia/trunk/animations/movie#1.xml");
+    av->decodeFile("/skia/trunk/animations/paths#1.xml");
     return av;
 }
 

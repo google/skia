@@ -22,7 +22,6 @@
 		00003C950EFC2316000FF73A /* libeffects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00003C940EFC230E000FF73A /* libeffects.a */; };
 		00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9A0EFC233F000FF73A /* SkDOM.cpp */; };
 		00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */; };
-		00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */; };
 		000A99820FD97526007E45BD /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
 		00244D1B10642BBA00B8F4D8 /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */; };
@@ -31,6 +30,10 @@
 		00244DBB106A61B700B8F4D8 /* SampleGM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244DBA106A61B700B8F4D8 /* SampleGM.cpp */; };
 		00244DCD106A630100B8F4D8 /* bitmapfilters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244DC7106A630100B8F4D8 /* bitmapfilters.cpp */; };
 		00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */; };
+		00281C671083CF5100BCCB06 /* SkTextBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281C661083CF5100BCCB06 /* SkTextBox.cpp */; };
+		00281C751083CF7E00BCCB06 /* libAnimator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00281C711083CF6600BCCB06 /* libAnimator.a */; };
+		00281C781083CFA100BCCB06 /* SampleAnimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281C771083CFA100BCCB06 /* SampleAnimator.cpp */; };
+		00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
@@ -109,6 +112,20 @@
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = effects;
 		};
+		00281C701083CF6600BCCB06 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00281C691083CF6600BCCB06 /* Animator.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D /* libAnimator.a */;
+			remoteInfo = Animator;
+		};
+		00281C731083CF7900BCCB06 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00281C691083CF6600BCCB06 /* Animator.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D /* Animator */;
+			remoteInfo = Animator;
+		};
 		002884500EFAA35C0083E387 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 002884490EFAA35C0083E387 /* core.xcodeproj */;
@@ -166,6 +183,11 @@
 		00244DCA106A630100B8F4D8 /* shapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shapes.cpp; path = ../../gm/shapes.cpp; sourceTree = SOURCE_ROOT; };
 		00244DCB106A630100B8F4D8 /* tilemodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tilemodes.cpp; path = ../../gm/tilemodes.cpp; sourceTree = SOURCE_ROOT; };
 		00244DCC106A630100B8F4D8 /* xfermodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xfermodes.cpp; path = ../../gm/xfermodes.cpp; sourceTree = SOURCE_ROOT; };
+		00281C661083CF5100BCCB06 /* SkTextBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTextBox.cpp; path = ../../src/views/SkTextBox.cpp; sourceTree = SOURCE_ROOT; };
+		00281C691083CF6600BCCB06 /* Animator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Animator.xcodeproj; path = ../Animator/Animator.xcodeproj; sourceTree = SOURCE_ROOT; };
+		00281C771083CFA100BCCB06 /* SampleAnimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleAnimator.cpp; path = ../../samplecode/SampleAnimator.cpp; sourceTree = SOURCE_ROOT; };
+		00281CAA1083D2C800BCCB06 /* test.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = test.xml; path = /skimages/test.xml; sourceTree = "<absolute>"; };
+		00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_expat.cpp; path = ../../src/ports/SkXMLParser_expat.cpp; sourceTree = SOURCE_ROOT; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		003145310FB9B48F00B10956 /* SampleShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShapes.cpp; path = ../../samplecode/SampleShapes.cpp; sourceTree = SOURCE_ROOT; };
@@ -254,6 +276,7 @@
 				0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */,
 				002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */,
 				00003C950EFC2316000FF73A /* libeffects.a in Frameworks */,
+				00281C751083CF7E00BCCB06 /* libAnimator.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,6 +286,7 @@
 		00003C610EFC2287000FF73A /* samples */ = {
 			isa = PBXGroup;
 			children = (
+				00281C771083CFA100BCCB06 /* SampleAnimator.cpp */,
 				00A729630FD93ED600D5051F /* SampleTestGL.cpp */,
 				2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */,
 				2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */,
@@ -327,6 +351,7 @@
 		00003C6A0EFC22AD000FF73A /* views */ = {
 			isa = PBXGroup;
 			children = (
+				00281C661083CF5100BCCB06 /* SkTextBox.cpp */,
 				00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */,
 				00003C9A0EFC233F000FF73A /* SkDOM.cpp */,
 				00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */,
@@ -365,6 +390,22 @@
 			name = gm;
 			sourceTree = "<group>";
 		};
+		00281C6A1083CF6600BCCB06 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00281C711083CF6600BCCB06 /* libAnimator.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		00281C7B1083CFB700BCCB06 /* xml */ = {
+			isa = PBXGroup;
+			children = (
+				00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */,
+			);
+			name = xml;
+			sourceTree = "<group>";
+		};
 		0028844A0EFAA35C0083E387 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -392,6 +433,7 @@
 		20286C29FDCF999611CA2CEA /* CICarbonSample */ = {
 			isa = PBXGroup;
 			children = (
+				00281CAA1083D2C800BCCB06 /* test.xml */,
 				00244DC5106A62E600B8F4D8 /* gm */,
 				001B871D1042184D00C84ED4 /* Forth.cpp */,
 				00ED55F2104A10EB00F51FF8 /* StdWords.cpp */,
@@ -399,11 +441,13 @@
 				00BB289A104781D00057BF7E /* SampleForth.cpp */,
 				2762F66A0FCCCAA2002BD8B4 /* images */,
 				00003C6A0EFC22AD000FF73A /* views */,
+				00281C7B1083CFB700BCCB06 /* xml */,
 				00003C610EFC2287000FF73A /* samples */,
 				20286C2AFDCF999611CA2CEA /* Sources */,
 				20286C2CFDCF999611CA2CEA /* Resources */,
 				20286C32FDCF999611CA2CEA /* External Frameworks and Libraries */,
 				195DF8CFFE9D517E11CA2CBB /* Products */,
+				00281C691083CF6600BCCB06 /* Animator.xcodeproj */,
 				002884490EFAA35C0083E387 /* core.xcodeproj */,
 				002884B40EFAB69F0083E387 /* maccore.xcodeproj */,
 				00003C8C0EFC230E000FF73A /* effects.xcodeproj */,
@@ -473,6 +517,7 @@
 				002884550EFAA3770083E387 /* PBXTargetDependency */,
 				002884BF0EFAB6B00083E387 /* PBXTargetDependency */,
 				00003C980EFC2321000FF73A /* PBXTargetDependency */,
+				00281C741083CF7900BCCB06 /* PBXTargetDependency */,
 			);
 			name = CICarbonSample;
 			productInstallPath = "$(HOME)/Applications";
@@ -491,6 +536,10 @@
 			mainGroup = 20286C29FDCF999611CA2CEA /* CICarbonSample */;
 			projectDirPath = "";
 			projectReferences = (
+				{
+					ProductGroup = 00281C6A1083CF6600BCCB06 /* Products */;
+					ProjectRef = 00281C691083CF6600BCCB06 /* Animator.xcodeproj */;
+				},
 				{
 					ProductGroup = 0028844A0EFAA35C0083E387 /* Products */;
 					ProjectRef = 002884490EFAA35C0083E387 /* core.xcodeproj */;
@@ -517,6 +566,13 @@
 			fileType = archive.ar;
 			path = libeffects.a;
 			remoteRef = 00003C930EFC230E000FF73A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		00281C711083CF6600BCCB06 /* libAnimator.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libAnimator.a;
+			remoteRef = 00281C701083CF6600BCCB06 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		002884510EFAA35C0083E387 /* libcore.a */ = {
@@ -566,7 +622,6 @@
 				00003C820EFC22E1000FF73A /* SkOSWindow_Mac.cpp in Sources */,
 				00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */,
 				00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */,
-				00003CA40EFC235F000FF73A /* SkXMLParser_empty.cpp in Sources */,
 				0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */,
 				0041CDF30F009ED100695E8C /* SkImageRef.cpp in Sources */,
 				0041CDF60F009EED00695E8C /* SkImageRef_GlobalPool.cpp in Sources */,
@@ -629,6 +684,9 @@
 				00244DBB106A61B700B8F4D8 /* SampleGM.cpp in Sources */,
 				00244DCD106A630100B8F4D8 /* bitmapfilters.cpp in Sources */,
 				00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */,
+				00281C671083CF5100BCCB06 /* SkTextBox.cpp in Sources */,
+				00281C781083CFA100BCCB06 /* SampleAnimator.cpp in Sources */,
+				00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -639,6 +697,11 @@
 			isa = PBXTargetDependency;
 			name = effects;
 			targetProxy = 00003C970EFC2321000FF73A /* PBXContainerItemProxy */;
+		};
+		00281C741083CF7900BCCB06 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Animator;
+			targetProxy = 00281C731083CF7900BCCB06 /* PBXContainerItemProxy */;
 		};
 		002884550EFAA3770083E387 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -724,6 +787,16 @@
 					SK_DEBUG,
 				);
 				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					/usr/include,
+					/opt/local/include,
+				);
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					/usr/lib,
+					/opt/local/lib,
+				);
+				OTHER_LDFLAGS = "-lexpat";
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = "../../include/** ../../gm";
 			};
@@ -739,6 +812,16 @@
 					SK_RELEASE,
 				);
 				GCC_THREADSAFE_STATICS = NO;
+				HEADER_SEARCH_PATHS = (
+					/usr/include,
+					/opt/local/include,
+				);
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					/usr/lib,
+					/opt/local/lib,
+				);
+				OTHER_LDFLAGS = "-lexpat";
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = "../../include/** ../../gm";
 			};
