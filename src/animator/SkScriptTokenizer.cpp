@@ -219,7 +219,7 @@ int SkScriptEngine2::arithmeticOp(char ch, char nextChar, bool lastPush) {
             // !!! ignoring unary plus as implemented here has the side effect of
             // suppressing errors like +"hi"
             if (lastPush == false)    // unary plus, don't push an operator
-                goto returnAdv;
+                return advance;
             op = kAdd;
             break;
         case '-':
@@ -278,7 +278,7 @@ twoChar:
             break;
         case '(':
             *fOpStack.push() = (Op) kParen;
-            goto returnAdv;
+            return advance;
         case '&':
             SkASSERT(nextChar != '&');
             op = kBitAnd;
@@ -319,8 +319,8 @@ twoChar:
     fOpStack.push(op);
     if (reverseOperands)
         *fOpStack.push() = (Op) (kFlipOps | kArtificialOp);
-returnAdv:
-        return advance;
+
+    return advance;
 }
 
 bool SkScriptEngine2::convertParams(SkTDArray<SkScriptValue2>* params, 

@@ -156,6 +156,7 @@ private:
     }
 };
 
+void ValidateHeap();
 void ValidateHeap()
 {
     SkBlockHeader::Validate();
