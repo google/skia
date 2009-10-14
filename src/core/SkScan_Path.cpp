@@ -628,8 +628,8 @@ static int build_tri_edges(SkEdge edge[], const SkPoint pts[],
 }
 
 
-void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
-                      SkBlitter* blitter, const SkIRect& ir) {
+static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
+                             SkBlitter* blitter, const SkIRect& ir) {
     SkASSERT(pts && blitter);
     
     SkEdge edgeStorage[3];

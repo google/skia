@@ -157,7 +157,7 @@ static inline float fast_inc(float x) {
 }
 
 extern float dummy();
-int time_math() {
+static int time_math() {
     SkMSec now;
     int i;
     int sum = 0;
