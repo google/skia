@@ -72,6 +72,13 @@ static bool only_scale_and_translate(const SkMatrix& matrix) {
     return (matrix.getType() & ~mask) == 0;
 }
 
+// return true if the config can possibly have per-pixel alpha, ignoring the
+// current setting of isOpaque.
+static bool canSupportPerPixelAlpha(const SkBitmap& bm) {
+    // return true unless we're guaranteed to be opaque
+    return bm.config() != SkBitmap::kRGB_565_Config;
+}
+
 bool SkBitmapProcShader::setContext(const SkBitmap& device,
                                     const SkPaint& paint,
                                     const SkMatrix& matrix) {
@@ -91,13 +98,22 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
         return false;
     }
 
-    bool bitmapIsOpaque = fState.fBitmap->isOpaque();
+    const SkBitmap& bitmap = *fState.fBitmap;
+    bool bitmapIsOpaque = bitmap.isOpaque();
     
     // filtering doesn't guarantee that opaque stays opaque (finite precision)
     // so pretend we're not opaque if we're being asked to filter. If we had
     // more blit-procs, we could specialize on opaque src, and just OR in 0xFF
     // after the filter to be sure...
-    if (paint.isFilterBitmap()) {
+    /*
+        (some time later)
+        Adding check for canSupportPerPixelAlpha, since bitmaps that are 565
+        (for example) will *always* be opaque, even after filtering.
+
+        Would be really nice to never do this, if we could ensure that
+        filtering didn't introduct non-opaqueness accidentally.
+     */
+    if (paint.isFilterBitmap() && canSupportPerPixelAlpha(bitmap)) {
         bitmapIsOpaque = false;
     }
 
@@ -107,7 +123,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
         flags |= kOpaqueAlpha_Flag;
     }
 
-    switch (fState.fBitmap->config()) {
+    switch (bitmap.config()) {
         case SkBitmap::kRGB_565_Config:
             flags |= (kHasSpan16_Flag | kIntrinsicly16_Flag);
             break;
@@ -123,14 +139,14 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
             break;
     }
 
-    if (paint.isDither()) {
+    if (paint.isDither() && bitmap.config() != SkBitmap::kRGB_565_Config) {
         // gradients can auto-dither in their 16bit sampler, but we don't so
-        // we clear the flag here
+        // we clear the flag here.
         flags &= ~kHasSpan16_Flag;
     }
 
     // if we're only 1-pixel heigh, and we don't rotate, then we can claim this
-    if (1 == fState.fBitmap->height() &&
+    if (1 == bitmap.height() &&
             only_scale_and_translate(this->getTotalInverse())) {
         flags |= kConstInY32_Flag;
         if (flags & kHasSpan16_Flag) {
