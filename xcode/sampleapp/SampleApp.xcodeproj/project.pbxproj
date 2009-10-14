@@ -116,14 +116,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 00281C691083CF6600BCCB06 /* Animator.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D /* libAnimator.a */;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
 			remoteInfo = Animator;
 		};
 		00281C731083CF7900BCCB06 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00281C691083CF6600BCCB06 /* Animator.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D2AAC045055464E500DB518D /* Animator */;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = Animator;
 		};
 		002884500EFAA35C0083E387 /* PBXContainerItemProxy */ = {
@@ -797,7 +797,7 @@
 					/opt/local/lib,
 				);
 				OTHER_LDFLAGS = "-lexpat";
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = "";
 				USER_HEADER_SEARCH_PATHS = "../../include/** ../../gm";
 			};
 			name = Debug;

@@ -28,6 +28,6 @@ void SkDebugf(const char format[], ...) {
     va_start(args, format);
     vsnprintf(buffer, kBufferSize, format, args);
     va_end(args);
-    fprintf(stderr, buffer);
+    fprintf(stderr, "%s", buffer);
 }
 
