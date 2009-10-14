@@ -343,7 +343,7 @@
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = "";
 				USER_HEADER_SEARCH_PATHS = "../../include/**";
 				WARNING_CFLAGS = "";
 			};
