@@ -17,84 +17,72 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 
-#define SPECIFIC_IMAGE  "/skimages/main.gif"
+static SkBitmap make_bitmap() {
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
+    bm.allocPixels();
+    SkCanvas canvas(bm);
+    canvas.drawColor(SK_ColorRED);
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    const SkPoint pts[] = { 0, 0, 64, 64 };
+    const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
+    paint.setShader(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
+                                       SkShader::kClamp_TileMode))->unref();
+    canvas.drawCircle(32, 32, 32, paint);
+    return bm;
+}
 
 class BitmapRectView : public SkView {
 public:
     SkBitmap fBitmap;
-    int      fCurrX, fCurrY;
 
 	BitmapRectView() {
-        SkImageDecoder::DecodeFile(SPECIFIC_IMAGE, &fBitmap);
-        fCurrX = fCurrY = 0;
+        fBitmap = make_bitmap();
     }
     
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
-            SkString str("BitmapRect: ");
-            str.append(SPECIFIC_IMAGE);
-            SampleCode::TitleR(evt, str.c_str());
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "BitmapRect");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
+    void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorGRAY);
     }
     
-    virtual void onDraw(SkCanvas* canvas)
-    {
+    virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
         
-        canvas->drawBitmap(fBitmap, 0, 0, NULL);
-        
-        SkIRect subset;
-        const int SRC_WIDTH = 16;
-        const int SRC_HEIGHT = 16;
-        
-        subset.set(0, 0, SRC_WIDTH, SRC_HEIGHT);
-        subset.offset(fCurrX, fCurrY);
-        
-        SkDebugf("---- src x=%d y=%d\n", subset.fLeft, subset.fTop);
-        
-        SkRect  dst0, dst1;
-        SkScalar y = SkIntToScalar(fBitmap.height() + 16);
-        
-        dst0.set(SkIntToScalar(50), y,
-                 SkIntToScalar(50+SRC_WIDTH),
-                 y + SkIntToScalar(SRC_HEIGHT));
-        dst1 = dst0;
-        dst1.offset(SkIntToScalar(200), 0);
-        dst1.fRight = dst1.fLeft + 8 * dst0.width();
-        dst1.fBottom = dst1.fTop + 8 * dst0.height();
-        
-        canvas->drawBitmapRect(fBitmap, &subset, dst0, NULL);
-        canvas->drawBitmapRect(fBitmap, &subset, dst1, NULL);
-        
+        const SkIRect src[] = {
+            { 0, 0, 32, 32 },
+            { -8, -8, 80, 80 },
+            { 32, 32, 96, 96 },
+            { -32, -32, 32, 32, }
+        };
+
         SkPaint paint;
-        paint.setColor(0x88FF0000);
-        canvas->drawRect(dst0, paint);
-        paint.setColor(0x880000FF);
-        canvas->drawRect(dst1, paint);
-    }
-    
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
-        return new Click(this);
-    }
-    
-    virtual bool onClick(Click* click) 
-    {
-        fCurrX = click->fICurr.fX;
-        fCurrY = click->fICurr.fY;
-        this->inval(NULL);
-        return true;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(SK_ColorGREEN);
+
+        SkRect dstR = { 0, 200, 128, 380 };
+
+        canvas->translate(16, 40);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(src); i++) {
+            canvas->drawBitmap(fBitmap, 0, 0, &paint);
+            canvas->drawBitmapRect(fBitmap, &src[i], dstR, &paint);
+
+            SkRect srcR;
+            srcR.set(src[i]);
+            canvas->drawRect(srcR, paint);
+            canvas->drawRect(dstR, paint);
+            
+            canvas->translate(160, 0);
+        }
     }
     
 private:

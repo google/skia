@@ -1112,15 +1112,32 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
         bitmapPtr = &tmp;
     }
     
-    SkScalar width = SkIntToScalar(bitmapPtr->width());
-    SkScalar height = SkIntToScalar(bitmapPtr->height());    
     SkMatrix matrix;
-
+#if 0
+    SkScalar width = SkIntToScalar(bitmapPtr->width());
+    SkScalar height = SkIntToScalar(bitmapPtr->height());
     if (dst.width() == width && dst.height() == height) {
         matrix.setTranslate(dst.fLeft, dst.fTop);
-    } else {
+    } else
+#endif
+    {
         SkRect tmpSrc;
-        tmpSrc.set(0, 0, width, height);
+        if (src) {
+            tmpSrc.set(*src);
+            // if the extract process clipped off the top or left of the
+            // original, we adjust for that here to get the position right.
+            if (tmpSrc.fLeft > 0) {
+                tmpSrc.fRight -= tmpSrc.fLeft;
+                tmpSrc.fLeft = 0;
+            }
+            if (tmpSrc.fTop > 0) {
+                tmpSrc.fBottom -= tmpSrc.fTop;
+                tmpSrc.fTop = 0;
+            }
+        } else {
+            tmpSrc.set(0, 0, SkIntToScalar(bitmap.width()),
+                       SkIntToScalar(bitmap.height()));
+        }
         matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
     }
     this->internalDrawBitmap(*bitmapPtr, matrix, paint);
