@@ -60,7 +60,7 @@ protected:
         
         const SkIRect src[] = {
             { 0, 0, 32, 32 },
-            { -8, -8, 80, 80 },
+            { 0, 0, 80, 80 },
             { 32, 32, 96, 96 },
             { -32, -32, 32, 32, }
         };
@@ -73,11 +73,12 @@ protected:
 
         canvas->translate(16, 40);
         for (size_t i = 0; i < SK_ARRAY_COUNT(src); i++) {
+            SkRect srcR;
+            srcR.set(src[i]);
+            
             canvas->drawBitmap(fBitmap, 0, 0, &paint);
             canvas->drawBitmapRect(fBitmap, &src[i], dstR, &paint);
 
-            SkRect srcR;
-            srcR.set(src[i]);
             canvas->drawRect(srcR, paint);
             canvas->drawRect(dstR, paint);
             
