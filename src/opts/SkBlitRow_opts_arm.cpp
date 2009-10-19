@@ -714,7 +714,13 @@ const SkBlitRow::Proc SkBlitRow::gPlatform_565_Procs[] = {
     S32_D565_Opaque_PROC,
     S32_D565_Blend_PROC,
     S32A_D565_Opaque_PROC,
+#if 0
+    // when the src-pixel is 0 (transparent), we are still affecting the dst
+    // so we're skipping this optimization for now
     S32A_D565_Blend_PROC,
+#else
+    NULL,
+#endif
     
     // dither
     NULL,   // S32_D565_Opaque_Dither,
