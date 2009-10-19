@@ -24,7 +24,7 @@
 #include <arm_neon.h>
 #endif
 
-#if defined(__ARM_HAVE_NEON) && !defined(SK_CPU_BENDIAN)
+#if defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
 static void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                                   const SkPMColor* SK_RESTRICT src, int count,
                                   U8CPU alpha, int /*x*/, int /*y*/) {
@@ -104,9 +104,8 @@ static void S32A_D565_Opaque_neon(uint16_t* SK_RESTRICT dst,
                       "d16","d17","d18","d19","d20","d21","d22","d23","d24","d25","d26","d27","d28","d29",
                       "d30","d31"
                       );
-    }
-    else 
-    {   // handle count < 8
+    } else  {
+        // handle count < 8
         uint16_t* SK_RESTRICT keep_dst;
         
         asm volatile (
@@ -419,7 +418,7 @@ static void S32_D565_Blend_Dither_neon(uint16_t *dst, const SkPMColor *src,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(__ARM_HAVE_NEON) && !defined(SK_CPU_BENDIAN)
+#if defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
 
 static void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
                                   const SkPMColor* SK_RESTRICT src,
@@ -547,7 +546,7 @@ static void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
 /* Neon version of S32_Blend_BlitRow32()
  * portable version is in core/SkBlitRow_D32.cpp
  */
-#if defined(__ARM_HAVE_NEON) && !defined(SK_CPU_BENDIAN)
+#if defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
 static void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
                                 const SkPMColor* SK_RESTRICT src,
                                 int count, U8CPU alpha) {
@@ -630,7 +629,7 @@ static void S32_Blend_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if 0 && defined(__ARM_HAVE_NEON) && !defined(SK_CPU_BENDIAN)
+#if defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
 /* RBE: working on this 2009/10/8 */
 static void S32A_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
                                       const SkPMColor* SK_RESTRICT src,
