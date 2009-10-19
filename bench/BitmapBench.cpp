@@ -92,12 +92,14 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst) {
 class BitmapBench : public SkBenchmark {
     SkBitmap    fBitmap;
     SkPaint     fPaint;
+    bool        fIsOpaque;
     int         fTileX, fTileY; // -1 means don't use shader
     SkString    fName;
     enum { N = 300 };
 public:
-    BitmapBench(void* param, SkBitmap::Config c, int tx = -1, int ty = -1)
-        : INHERITED(param), fTileX(tx), fTileY(ty) {
+    BitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
+                int tx = -1, int ty = -1)
+        : INHERITED(param), fIsOpaque(isOpaque), fTileX(tx), fTileY(ty) {
         const int w = 128;
         const int h = 128;
         SkBitmap bm;
@@ -108,7 +110,7 @@ public:
             bm.setConfig(c, w, h);
         }
         bm.allocPixels();
-        bm.eraseColor(0);
+        bm.eraseColor(isOpaque ? SK_ColorBLACK : 0);
         
         drawIntoBitmap(bm);
 
@@ -117,6 +119,11 @@ public:
         } else {
             fBitmap = bm;
         }
+
+        if (fBitmap.getColorTable()) {
+            fBitmap.getColorTable()->setIsOpaque(isOpaque);
+        }
+        fBitmap.setIsOpaque(isOpaque);
     }
 
 protected:
@@ -128,7 +135,8 @@ protected:
                 fName.appendf("_%s", gTileName[fTileY]);
             }
         }
-        fName.appendf("_%s", gConfigName[fBitmap.config()]);
+        fName.appendf("_%s%s", gConfigName[fBitmap.config()],
+                      fIsOpaque ? "" : "_A");
         return fName.c_str();
     }
 
@@ -154,12 +162,18 @@ private:
     typedef SkBenchmark INHERITED;
 };
 
-static SkBenchmark* Fact0(void* p) { return new BitmapBench(p, SkBitmap::kARGB_8888_Config); }
-static SkBenchmark* Fact1(void* p) { return new BitmapBench(p, SkBitmap::kRGB_565_Config); }
-static SkBenchmark* Fact2(void* p) { return new BitmapBench(p, SkBitmap::kARGB_4444_Config); }
-static SkBenchmark* Fact3(void* p) { return new BitmapBench(p, SkBitmap::kIndex8_Config); }
+static SkBenchmark* Fact0(void* p) { return new BitmapBench(p, false, SkBitmap::kARGB_8888_Config); }
+static SkBenchmark* Fact1(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config); }
+static SkBenchmark* Fact2(void* p) { return new BitmapBench(p, true, SkBitmap::kRGB_565_Config); }
+static SkBenchmark* Fact3(void* p) { return new BitmapBench(p, false, SkBitmap::kARGB_4444_Config); }
+static SkBenchmark* Fact4(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_4444_Config); }
+static SkBenchmark* Fact5(void* p) { return new BitmapBench(p, false, SkBitmap::kIndex8_Config); }
+static SkBenchmark* Fact6(void* p) { return new BitmapBench(p, true, SkBitmap::kIndex8_Config); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
 static BenchRegistry gReg3(Fact3);
+static BenchRegistry gReg4(Fact4);
+static BenchRegistry gReg5(Fact5);
+static BenchRegistry gReg6(Fact6);
