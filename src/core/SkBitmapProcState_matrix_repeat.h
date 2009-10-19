@@ -34,11 +34,11 @@
 
 /* SkClampMax(val,max) -- bound to 0..max */
 
-#define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
+#define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale_neon)
 #define SCALE_FILTER_NAME       MAKENAME(_filter_scale)
-#define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine)
+#define AFFINE_NOFILTER_NAME    MAKENAME(_nofilter_affine_neon)
 #define AFFINE_FILTER_NAME      MAKENAME(_filter_affine)
-#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp)
+#define PERSP_NOFILTER_NAME     MAKENAME(_nofilter_persp_neon)
 #define PERSP_FILTER_NAME       MAKENAME(_filter_persp)
 
 #define PACK_FILTER_X_NAME  MAKENAME(_pack_filter_x)
@@ -373,15 +373,15 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
 		/* read array of x,y,x,y,x,y */
 	        /* vld2 does the de-interleaving for us */
 	        /* dependent on register assignments above */
-    	        asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
+		asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
 		    : "=w" (x), "=w" (y)
 		    : "r" (mysrc)
 		    );
 
 		/* offset == 256 bits == 32 bytes == 8 longs */
-    	        asm ("vld2.32	{q2-q3},[%2,#32]  /* x=%q0 y=%q1 */"
+		asm ("vld2.32	{q2-q3},[%2]  /* x=%q0 y=%q1 */"
 		    : "=w" (x2), "=w" (y2)
-		    : "r" (mysrc)
+		    : "r" (mysrc+8)
 		    );
 
          	/* TILEX_PROCF(fx, max) (((fx)&0xFFFF)*((max)+1)>> 16) */
@@ -405,7 +405,7 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
 		hi = vreinterpretq_s16_s32(y);
 		vst1q_s16(mydst, hi);
 
-		/* and get second 8 bytes out */
+		/* and push second 8 entries out */
 		y2 = vsriq_n_s32(y2, x2, 16);
 		hi2 = vreinterpretq_s16_s32(y2);
 		vst1q_s16(mydst+8, hi2);
