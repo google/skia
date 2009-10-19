@@ -29,6 +29,13 @@ extern "C" {
     #include "jerror.h"
 }
 
+#ifdef ANDROID
+#include <cutils/properties.h>
+
+// Key to lookup the size of memory buffer set in system property
+static const char KEY_MEM_CAP[] = "ro.media.dec.jpeg.memcap";
+#endif
+
 // this enables timing code to report milliseconds for an encode
 //#define TIME_ENCODE
 //#define TIME_DECODE
@@ -191,6 +198,22 @@ static boolean skmem_resync_to_restart(j_decompress_ptr cinfo, int desired) {
 
 static void skmem_term_source(j_decompress_ptr /*cinfo*/) {}
 
+#ifdef ANDROID
+/* Check if the memory cap property is set.
+   If so, use the memory size for jpeg decode.
+*/
+static void overwrite_mem_buffer_size(j_decompress_ptr cinfo) {
+    int len = 0;
+    char value[PROPERTY_VALUE_MAX];
+    int memCap;
+
+    len = property_get(KEY_MEM_CAP, value, "");
+    if (len > 0 && sscanf(value, "%d", &memCap) == 1) {
+        cinfo->mem->max_memory_to_use = memCap;
+    }
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_source_mgr::sk_source_mgr(SkStream* stream, SkImageDecoder* decoder) : fStream(stream) {
@@ -285,6 +308,10 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
 
     jpeg_create_decompress(&cinfo);
     autoClean.set(&cinfo);
+
+#ifdef ANDROID
+    overwrite_mem_buffer_size(&cinfo);
+#endif
 
     //jpeg_stdio_src(&cinfo, file);
     cinfo.src = &sk_stream;
