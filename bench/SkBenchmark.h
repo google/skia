@@ -9,6 +9,15 @@
 class SkCanvas;
 class SkPaint;
 
+class SkTriState {
+public:
+    enum State {
+        kDefault,
+        kTrue,
+        kFalse
+    };
+};
+
 class SkBenchmark : public SkRefCnt {
 public:
     SkBenchmark(void* defineDict);
@@ -28,6 +37,10 @@ public:
     void setForceFilter(bool filter) {
         fForceFilter = filter;
     }
+    
+    void setDither(SkTriState::State state) {
+        fDither = state;
+    }
 
     const char* findDefine(const char* key) const;
 
@@ -44,6 +57,7 @@ private:
     int     fForceAlpha;
     bool    fForceAA;
     bool    fForceFilter;
+    SkTriState::State  fDither;
 };
 
 static inline SkIPoint SkMakeIPoint(int x, int y) {

@@ -7,6 +7,7 @@ SkBenchmark::SkBenchmark(void* defineDict) {
     fDict = reinterpret_cast<const SkTDict<const char*>*>(defineDict);
     fForceAlpha = 0xFF;
     fForceAA = true;
+    fDither = SkTriState::kDefault;
 }
 
 const char* SkBenchmark::getName() {
@@ -25,6 +26,10 @@ void SkBenchmark::setupPaint(SkPaint* paint) {
     paint->setAlpha(fForceAlpha);
     paint->setAntiAlias(fForceAA);
     paint->setFilterBitmap(fForceFilter);
+
+    if (SkTriState::kDefault != fDither) {
+        paint->setDither(SkTriState::kTrue == fDither);
+    }
 }
 
 const char* SkBenchmark::findDefine(const char* key) const {

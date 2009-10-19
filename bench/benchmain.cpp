@@ -193,6 +193,7 @@ int main (int argc, char * const argv[]) {
     int forceAlpha = 0xFF;
     bool forceAA = true;
     bool forceFilter = false;
+    SkTriState::State forceDither = SkTriState::kDefault;
     bool doScale = false;
     bool doRotate = false;
     bool doClip = false;
@@ -243,6 +244,13 @@ int main (int argc, char * const argv[]) {
                 log_error("missing arg for -forceFilter\n");
                 return -1;
             }
+        } else if (strcmp(*argv, "-forceDither") == 0) {
+            bool tmp;
+            if (!parse_bool_arg(++argv, stop, &tmp)) {
+                log_error("missing arg for -forceDither\n");
+                return -1;
+            }
+            forceDither = tmp ? SkTriState::kTrue : SkTriState::kFalse;
         } else if (strcmp(*argv, "-forceBlend") == 0) {
             bool wantAlpha = false;
             if (!parse_bool_arg(++argv, stop, &wantAlpha)) {
@@ -303,6 +311,7 @@ int main (int argc, char * const argv[]) {
         bench->setForceAlpha(forceAlpha);
         bench->setForceAA(forceAA);
         bench->setForceFilter(forceFilter);
+        bench->setDither(forceDither);
 
         // only run benchmarks if their name contains matchStr
         if (matchStr && strstr(bench->getName(), matchStr) == NULL) {
