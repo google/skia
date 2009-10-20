@@ -24,6 +24,14 @@
 #include "SkUtils.h"
 #include "SkXfermode.h"
 
+#if defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
+    #define SK_USE_NEON
+    #include <arm_neon.h>
+#else
+    // if we don't have neon, then our black blitter is worth the extra code
+    #define USE_BLACK_BLITTER
+#endif
+
 void sk_dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
                         int count) {
     if (count > 0) {
@@ -89,6 +97,7 @@ private:
     typedef SkRGB16_Blitter INHERITED;
 };
 
+#ifdef USE_BLACK_BLITTER
 class SkRGB16_Black_Blitter : public SkRGB16_Opaque_Blitter {
 public:
     SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint);
@@ -98,6 +107,7 @@ public:
 private:
     typedef SkRGB16_Opaque_Blitter INHERITED;
 };
+#endif
 
 class SkRGB16_Shader_Blitter : public SkShaderBlitter {
 public:
@@ -150,7 +160,7 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-
+#ifdef USE_BLACK_BLITTER
 SkRGB16_Black_Blitter::SkRGB16_Black_Blitter(const SkBitmap& device, const SkPaint& paint)
     : INHERITED(device, paint) {
     SkASSERT(paint.getShader() == NULL);
@@ -254,6 +264,7 @@ void SkRGB16_Black_Blitter::blitAntiH(int x, int y,
         device += count;
     }
 }
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -376,6 +387,87 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
     unsigned    maskRB = mask.fRowBytes - width;
     uint32_t    expanded32 = fExpandedRaw16;
 
+#ifdef SK_USE_NEON
+#define	UNROLL	8
+    do {
+        int w = width;
+        if (w >= UNROLL) {
+            uint32x4_t color;		/* can use same one */
+            uint32x4_t dev_lo, dev_hi;
+            uint32x4_t t1, t2;
+            uint32x4_t wn1, wn2;
+            uint16x4_t odev_lo, odev_hi;
+            uint16x4_t alpha_lo, alpha_hi;
+            uint16x8_t  alpha_full;
+            
+            color = vdupq_n_u32(expanded32);
+            
+            do {
+                /* alpha is 8x8, widen and split to get pair of 16x4's */
+                alpha_full = vmovl_u8(vld1_u8(alpha));
+                alpha_full = vaddq_u16(alpha_full, vshrq_n_u16(alpha_full,7));
+                alpha_full = vshrq_n_u16(alpha_full, 3);
+                alpha_lo = vget_low_u16(alpha_full);
+                alpha_hi = vget_high_u16(alpha_full);
+                
+                dev_lo = vmovl_u16(vld1_u16(device));
+                dev_hi = vmovl_u16(vld1_u16(device+4));
+                
+                /* unpack in 32 bits */
+                dev_lo = vorrq_u32(
+                                   vandq_u32(dev_lo, vdupq_n_u32(0x0000F81F)),
+                                   vshlq_n_u32(vandq_u32(dev_lo, 
+                                                         vdupq_n_u32(0x000007E0)),
+                                               16)
+                                   );
+                dev_hi = vorrq_u32(
+                                   vandq_u32(dev_hi, vdupq_n_u32(0x0000F81F)),
+                                   vshlq_n_u32(vandq_u32(dev_hi, 
+                                                         vdupq_n_u32(0x000007E0)),
+                                               16)
+                                   );
+                
+                /* blend the two */
+                t1 = vmulq_u32(vsubq_u32(color, dev_lo), vmovl_u16(alpha_lo));
+                t1 = vshrq_n_u32(t1, 5);
+                dev_lo = vaddq_u32(dev_lo, t1);
+                
+                t1 = vmulq_u32(vsubq_u32(color, dev_hi), vmovl_u16(alpha_hi));
+                t1 = vshrq_n_u32(t1, 5);
+                dev_hi = vaddq_u32(dev_hi, t1);
+                
+                /* re-compact and store */
+                wn1 = vandq_u32(dev_lo, vdupq_n_u32(0x0000F81F)),
+                wn2 = vshrq_n_u32(dev_lo, 16);
+                wn2 = vandq_u32(wn2, vdupq_n_u32(0x000007E0));
+                odev_lo = vmovn_u32(vorrq_u32(wn1, wn2));
+                
+                wn1 = vandq_u32(dev_hi, vdupq_n_u32(0x0000F81F)),
+                wn2 = vshrq_n_u32(dev_hi, 16);
+                wn2 = vandq_u32(wn2, vdupq_n_u32(0x000007E0));
+                odev_hi = vmovn_u32(vorrq_u32(wn1, wn2));
+                
+                vst1_u16(device, odev_lo);
+                vst1_u16(device+4, odev_hi);
+                
+                device += UNROLL;
+                alpha += UNROLL;
+                w -= UNROLL;
+            } while (w >= UNROLL);
+        }
+        
+        /* residuals (which is everything if we have no neon) */
+        while (w > 0) {
+            *device = blend_compact(expanded32, SkExpand_rgb_16(*device),
+                                    SkAlpha255To256(*alpha++) >> 3);
+            device += 1;
+            --w;
+        }
+        device = (uint16_t*)((char*)device + deviceRB);
+        alpha += maskRB;
+    } while (--height != 0);
+#undef	UNROLL
+#else   // non-neon code
     do {
         int w = width;
         do {
@@ -386,6 +478,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
         device = (uint16_t*)((char*)device + deviceRB);
         alpha += maskRB;
     } while (--height != 0);
+#endif
 }
 
 void SkRGB16_Opaque_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
@@ -958,9 +1051,11 @@ SkBlitter* SkBlitter_ChooseD565(const SkBitmap& device, const SkPaint& paint,
         SkColor color = paint.getColor();
         if (0 == SkColorGetA(color)) {
             SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
+#ifdef USE_BLACK_BLITTER
         } else if (SK_ColorBLACK == color) {
             SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Black_Blitter, storage,
                                   storageSize, (device, paint));
+#endif
         } else if (0xFF == SkColorGetA(color)) {
             SK_PLACEMENT_NEW_ARGS(blitter, SkRGB16_Opaque_Blitter, storage,
                                   storageSize, (device, paint));
