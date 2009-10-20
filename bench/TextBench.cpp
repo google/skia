@@ -73,17 +73,21 @@ protected:
 
         const SkScalar x0 = SkIntToScalar(-10);
         const SkScalar y0 = SkIntToScalar(-10);
+        const SkColor colors[] = { SK_ColorBLACK, SK_ColorGRAY };
 
-        for (int i = 0; i < N; i++) {
-            SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
-            SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
-            if (fPos) {
-                canvas->save(SkCanvas::kMatrix_SaveFlag);
-                canvas->translate(x, y);
-                canvas->drawPosText(fText.c_str(), fText.size(), fPos, paint);
-                canvas->restore();
-            } else {
-                canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
+        for (size_t j = 0; j < SK_ARRAY_COUNT(colors); j++) {
+            paint.setColor(colors[j]);
+            for (int i = 0; i < N; i++) {
+                SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
+                SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
+                if (fPos) {
+                    canvas->save(SkCanvas::kMatrix_SaveFlag);
+                    canvas->translate(x, y);
+                    canvas->drawPosText(fText.c_str(), fText.size(), fPos, paint);
+                    canvas->restore();
+                } else {
+                    canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
+                }
             }
         }
     }
