@@ -1,0 +1,23 @@
+digraph G
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  Node1 [label="SkGroupShape",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node2 -> Node1 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node2 [label="SkShape",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_shape.html"];
+  Node3 -> Node2 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node3 [label="SkFlattenable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_flattenable.html"];
+  Node4 -> Node3 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node4 [label="SkRefCnt",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_ref_cnt.html"];
+  Node5 -> Node1 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fList",fontname="FreeSans"];
+  Node5 [label="SkTDArray\< Rec \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_t_d_array.html"];
+  Node6 -> Node5 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fArray",fontname="FreeSans"];
+  Node6 [label="SkGroupShape::Rec",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled"];
+  Node7 -> Node6 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fMatrixRef",fontname="FreeSans"];
+  Node7 [label="SkMatrixRef",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_matrix_ref.html"];
+  Node8 -> Node7 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node8 [label="SkTRefCnt\< SkMatrix \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_t_ref_cnt.html"];
+  Node9 -> Node8 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node9 [label="SkMatrix",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_matrix.html"];
+  Node2 -> Node6 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fShape",fontname="FreeSans"];
+}

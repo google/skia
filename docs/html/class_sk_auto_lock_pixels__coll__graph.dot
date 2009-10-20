@@ -1,0 +1,22 @@
+digraph G
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  Node1 [label="SkAutoLockPixels",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node2 -> Node1 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fBitmap",fontname="FreeSans"];
+  Node2 [label="SkBitmap",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_bitmap.html"];
+  Node3 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fColorTable",fontname="FreeSans"];
+  Node3 [label="SkColorTable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_color_table.html"];
+  Node4 -> Node3 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node4 [label="SkRefCnt",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_ref_cnt.html"];
+  Node5 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fPixelRef",fontname="FreeSans"];
+  Node5 [label="SkPixelRef",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_pixel_ref.html"];
+  Node4 -> Node5 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node3 -> Node5 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fColorTable",fontname="FreeSans"];
+  Node6 -> Node5 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fMutex",fontname="FreeSans"];
+  Node6 [label="SkMutex",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_mutex.html"];
+  Node7 -> Node5 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fURI",fontname="FreeSans"];
+  Node7 [label="SkString",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_string.html"];
+  Node8 -> Node7 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fRec\ngEmptyRec",fontname="FreeSans"];
+  Node8 [label="SkString::Rec",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled"];
+}

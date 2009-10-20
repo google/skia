@@ -1,0 +1,38 @@
+digraph G
+{
+  edge [fontname="FreeSans",fontsize="10",labelfontname="FreeSans",labelfontsize="10"];
+  node [fontname="FreeSans",fontsize="10",shape=record];
+  rankdir=LR;
+  Node1 [label="SkCanvas::LayerIter",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled" fontcolor="black"];
+  Node2 -> Node1 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fDefaultPaint",fontname="FreeSans"];
+  Node2 [label="SkPaint",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_paint.html"];
+  Node3 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fPathEffect",fontname="FreeSans"];
+  Node3 [label="SkPathEffect",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_path_effect.html"];
+  Node4 -> Node3 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node4 [label="SkFlattenable",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_flattenable.html"];
+  Node5 -> Node4 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node5 [label="SkRefCnt",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_ref_cnt.html"];
+  Node6 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fMaskFilter",fontname="FreeSans"];
+  Node6 [label="SkMaskFilter",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_mask_filter.html"];
+  Node4 -> Node6 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node7 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fColorFilter",fontname="FreeSans"];
+  Node7 [label="SkColorFilter",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_color_filter.html"];
+  Node4 -> Node7 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node8 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fShader",fontname="FreeSans"];
+  Node8 [label="SkShader",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_shader.html"];
+  Node4 -> Node8 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node9 -> Node8 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fTotalInverse\nfLocalMatrix",fontname="FreeSans"];
+  Node9 [label="SkMatrix",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_matrix.html"];
+  Node10 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fTypeface",fontname="FreeSans"];
+  Node10 [label="SkTypeface",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_typeface.html"];
+  Node5 -> Node10 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node11 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fXfermode",fontname="FreeSans"];
+  Node11 [label="SkXfermode",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_xfermode.html"];
+  Node4 -> Node11 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node12 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fLooper",fontname="FreeSans"];
+  Node12 [label="SkDrawLooper",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_draw_looper.html"];
+  Node4 -> Node12 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+  Node13 -> Node2 [dir=back,color="darkorchid3",fontsize="10",style="dashed",label="fRasterizer",fontname="FreeSans"];
+  Node13 [label="SkRasterizer",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$class_sk_rasterizer.html"];
+  Node4 -> Node13 [dir=back,color="midnightblue",fontsize="10",style="solid",fontname="FreeSans"];
+}
