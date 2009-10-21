@@ -8,6 +8,9 @@
 #include "SkUtils.h"
 #include "SkImageDecoder.h"
 
+
+///////////////////////////////////////////////////////////////////////////////
+
 class Mesh {
 public:
     Mesh();
@@ -17,6 +20,8 @@ public:
 
     void init(const SkRect& bounds, int rows, int cols,
               const SkRect& texture);
+
+    const SkRect& bounds() const { return fBounds; }
 
     int rows() const { return fRows; }
     int cols() const { return fCols; }
@@ -28,6 +33,7 @@ public:
     void drawWireframe(SkCanvas* canvas, const SkPaint& paint);
 
 private:
+    SkRect      fBounds;
     int         fRows, fCols;
     SkPoint*    fPts;
     SkPoint*    fTex;   // just points into fPts, not separately allocated
@@ -47,6 +53,7 @@ Mesh& Mesh::operator=(const Mesh& src) {
     delete[] fPts;
     delete[] fIndices;
 
+    fBounds = src.fBounds;
     fRows = src.fRows;
     fCols = src.fCols;
 
@@ -67,6 +74,7 @@ void Mesh::init(const SkRect& bounds, int rows, int cols,
                 const SkRect& texture) {
     SkASSERT(rows > 0 && cols > 0);
 
+    fBounds = bounds;
     fRows = rows;
     fCols = cols;
 
@@ -140,7 +148,7 @@ public:
         bounds = texture;
         
 //        fMesh.init(bounds, fBitmap.width() / 40, fBitmap.height() / 40, texture);
-        fMesh.init(bounds, 10, 10, texture);
+        fMesh.init(bounds, 30, 30, texture);
         fOrig = fMesh;
     }
 
@@ -154,21 +162,54 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
+    static SkPoint make_pt(SkScalar x, SkScalar y) {
+        SkPoint pt;
+        pt.set(x, y);
+        return pt;
+    }
+
+    static SkScalar mapx0(SkScalar min, SkScalar max, SkScalar x0, SkScalar x1,
+                         SkScalar x) {
+        if (x < x0) {
+            SkASSERT(x0 > min);
+            return x1 - SkScalarMulDiv(x1 - min, x0 - x, x0 - min);
+        } else {
+            SkASSERT(max > x0);
+            return x1 + SkScalarMulDiv(max - x1, x - x0, max - x0);
+        }
+    }
+    
+    static SkScalar mapx1(SkScalar min, SkScalar max, SkScalar x0, SkScalar x1,
+                         SkScalar x) {
+        SkScalar newx;
+        if (x < x0) {
+            SkASSERT(x0 > min);
+            newx = x1 - SkScalarMulDiv(x1 - min, x0 - x, x0 - min);
+        } else {
+            SkASSERT(max > x0);
+            newx = x1 + SkScalarMulDiv(max - x1, x - x0, max - x0);
+        }
+        return x + (newx - x) * 0.5f;
+    }
+    
+    static SkPoint mappt(const SkRect& r, const SkPoint& p0, const SkPoint& p1,
+                         const SkPoint& pt) {
+        return make_pt(mapx0(r.fLeft, r.fRight, p0.fX, p1.fX, pt.fX),
+                       mapx0(r.fTop, r.fBottom, p0.fY, p1.fY, pt.fY));
+    }
+    
     void warp(const SkPoint& p0, const SkPoint& p1) {
+        const SkRect& bounds = fOrig.bounds();
         int rows = fMesh.rows();
         int cols = fMesh.cols();
         
-        const SkVector delta = p1 - p0;
-        for (int y = 1; y < cols; y++) {
-            for (int x = 1; x < rows; x++) {
-                const SkPoint& orig = fOrig.pt(x, y);
-                SkScalar dist = SkPoint::Distance(p0, orig);
-                dist += SkIntToScalar(1);
-          //      dist = SkScalarSqrt(dist);
-                SkScalar dx = SkScalarDiv(delta.fX, dist);
-                SkScalar dy = SkScalarDiv(delta.fY, dist);
-                fMesh.pt(x, y).set(orig.fX + dx, orig.fY + dy);
-//                SkDebugf("[%g %g] -> [%d %d %g] <%g %g>\n", delta.fX, delta.fY, x, y, dist, dx, dy);
+        SkRect r = bounds;
+        r.inset(bounds.width() / 256, bounds.height() / 256);
+        if (r.contains(p0)) {
+            for (int y = 1; y < cols; y++) {
+                for (int x = 1; x < rows; x++) {
+                    fMesh.pt(x, y) = mappt(bounds, p0, p1, fOrig.pt(x, y));
+                }
             }
         }
     }
@@ -185,7 +226,7 @@ protected:
         
         paint.setShader(NULL);
         paint.setColor(SK_ColorRED);
-        fMesh.draw(canvas, paint);
+    //    fMesh.draw(canvas, paint);
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
