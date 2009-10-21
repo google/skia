@@ -69,7 +69,20 @@ bool SkAnimatorView::decodeStream(SkStream* stream) {
 void SkAnimatorView::onDraw(SkCanvas* canvas) {
     if (fAnimator) {
         canvas->drawColor(SK_ColorWHITE);
-        fAnimator->draw(canvas, SkTime::GetMSecs());
+        fAnimator->draw(canvas, 0);
+        
+        canvas->save();
+        canvas->translate(120, 30);
+        canvas->scale(0.5, 0.5);
+        fAnimator->draw(canvas, 0);
+        canvas->restore();
+        
+        canvas->save();
+        canvas->translate(190, 40);
+        canvas->scale(0.25, 0.25);
+        fAnimator->draw(canvas, 0);
+        canvas->restore();
+        
         this->inval(NULL);
     }
 }
@@ -80,7 +93,7 @@ static SkView* MyFactory() {
     SkAnimatorView* av = new SkAnimatorView;
 //    av->decodeFile("/skimages/test.xml");
     av->setURIBase("/skia/trunk/animations/");
-    av->decodeFile("/skia/trunk/animations/paths#1.xml");
+    av->decodeFile("/skia/trunk/animations/checkbox.xml");
     return av;
 }
 
