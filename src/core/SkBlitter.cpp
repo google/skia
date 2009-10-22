@@ -731,21 +731,33 @@ private:
 
 #include "SkCoreBlitters.h"
 
-class SkAutoRestoreShader {
+class SkAutoRestoreShaderXfer {
 public:
-    SkAutoRestoreShader(const SkPaint& p) : fPaint((SkPaint*)&p)
-    {
+    SkAutoRestoreShaderXfer(const SkPaint& p) : fPaint((SkPaint*)&p) {
         fShader = fPaint->getShader();
-        fShader->safeRef();
+        SkSafeRef(fShader);
+        fXfer = fPaint->getXfermode();
+        SkSafeRef(fXfer);
     }
-    ~SkAutoRestoreShader()
-    {
+    ~SkAutoRestoreShaderXfer() {
         fPaint->setShader(fShader);
-        fShader->safeUnref();
+        SkSafeUnref(fShader);
+        fPaint->setXfermode(fXfer);
+        SkSafeUnref(fXfer);
     }
+
+    SkShader* setShader(SkShader* shader) {
+        return fPaint->setShader(shader);
+    }
+
+    SkXfermode* setXfermode(SkXfermode* mode) {
+        return fPaint->setXfermode(mode);
+    }
+
 private:
     SkPaint*    fPaint;
     SkShader*   fShader;
+    SkXfermode* fXfer;
 };
 
 class SkAutoCallProc {
@@ -857,14 +869,14 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         return blitter;
     }
 
-    SkAutoRestoreShader restore(paint);
+    SkAutoRestoreShaderXfer restorePaint(paint);
     SkShader* shader = paint.getShader();
 
     Sk3DShader* shader3D = NULL;
     if (paint.getMaskFilter() != NULL && paint.getMaskFilter()->getFormat() == SkMask::k3D_Format)
     {
         shader3D = SkNEW_ARGS(Sk3DShader, (shader));
-        ((SkPaint*)&paint)->setShader(shader3D)->unref();
+        restorePaint.setShader(shader3D)->unref();
         shader = shader3D;
     }
 
@@ -873,6 +885,7 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         switch (interpret_xfermode(paint, mode, device.config())) {
             case kSrcOver_XferInterp:
                 mode = NULL;
+                restorePaint.setXfermode(NULL);
                 break;
             case kSkipDrawing_XferInterp:
                 SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
@@ -885,14 +898,14 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
     if (NULL == shader && (NULL != mode || paint.getColorFilter() != NULL)) {
         // xfermodes (and filters) require shaders for our current blitters
         shader = SkNEW(SkColorShader);
-        ((SkPaint*)&paint)->setShader(shader)->unref();
+        restorePaint.setShader(shader)->unref();
     }
     
     if (paint.getColorFilter() != NULL)
     {
         SkASSERT(shader);
         shader = SkNEW_ARGS(SkFilterShader, (shader, paint.getColorFilter()));
-        ((SkPaint*)&paint)->setShader(shader)->unref();
+        restorePaint.setShader(shader)->unref();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.
     }
