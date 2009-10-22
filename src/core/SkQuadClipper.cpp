@@ -49,7 +49,7 @@ void SkQuadClipper::setClip(const SkIRect& clip) {
 bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
     bool reverse;
 
-    // we need the data to be monotonically descending in Y
+    // we need the data to be monotonically increasing in Y
     if (srcPts[0].fY > srcPts[2].fY) {
         dst[0] = srcPts[2];
         dst[1] = srcPts[1];
@@ -71,19 +71,40 @@ bool SkQuadClipper::clipQuad(const SkPoint srcPts[3], SkPoint dst[3]) {
     SkPoint tmp[5]; // for SkChopQuadAt
     
     // are we partially above
-    if (dst[0].fY < ctop && chopMonoQuadAtY(dst, ctop, &t)) {
-        SkChopQuadAt(dst, tmp, t);
-        dst[0] = tmp[2];
-        dst[1] = tmp[3];
+    if (dst[0].fY < ctop) {
+        if (chopMonoQuadAtY(dst, ctop, &t)) {
+            // take the 2nd chopped quad
+            SkChopQuadAt(dst, tmp, t);
+            dst[0] = tmp[2];
+            dst[1] = tmp[3];
+        } else {
+            // if chopMonoQuadAtY failed, then we may have hit inexact numerics
+            // so we just clamp against the top
+            for (int i = 0; i < 3; i++) {
+                if (dst[i].fY < ctop) {
+                    dst[i].fY = ctop;
+                }
+            }
+        }
     }
     
     // are we partially below
-    if (dst[2].fY > cbot && chopMonoQuadAtY(dst, cbot, &t)) {
-        SkChopQuadAt(dst, tmp, t);
-        dst[1] = tmp[1];
-        dst[2] = tmp[2];
+    if (dst[2].fY > cbot) {
+        if (chopMonoQuadAtY(dst, cbot, &t)) {
+            SkChopQuadAt(dst, tmp, t);
+            dst[1] = tmp[1];
+            dst[2] = tmp[2];
+        } else {
+            // if chopMonoQuadAtY failed, then we may have hit inexact numerics
+            // so we just clamp against the bottom
+            for (int i = 0; i < 3; i++) {
+                if (dst[i].fY > cbot) {
+                    dst[i].fY = cbot;
+                }
+            }
+        }
     }
-    
+
     if (reverse) {
         SkTSwap<SkPoint>(dst[0], dst[2]);
     }
