@@ -95,8 +95,7 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
 	 * but some processing of the 'fx' information 
          * TILEX_PROCF(fx, max)    (((fx) & 0xFFFF) * ((max) + 1) >> 16)
 	 */
-	if (count >= 8)
-	{
+	if (count >= 8) {
 	    /* SkFixed is 16.16 fixed point */
 	    SkFixed dx2 = dx+dx;
 	    SkFixed dx4 = dx2+dx2;
@@ -224,8 +223,7 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
 	 * but some processing of the 'fx' information 
          * TILEX_PROCF(fx, max)    (((fx) & 0xFFFF) * ((max) + 1) >> 16)
 	 */
-	if (count >= 4)
-	{
+	if (count >= 4) {
 	    /* SkFixed is 16.16 fixed point */
 	    SkFixed dx4 = dx*4;
 	    SkFixed dy4 = dy*4;
@@ -257,11 +255,10 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
 	    ybase = vsetq_lane_s32(fy+dy+dy+dy, ybase, 3);
 
 	    /* store & bump */
-	    do
-	    {
+	    do {
 	        int32x4_t xout;
-		int32x4_t yout;
-		int16x8_t hi16;
+            int32x4_t yout;
+            int16x8_t hi16;
 
          	/* TILEX_PROCF(fx, max) (((fx)&0xFFFF)*((max)+1)>> 16) */
 		/* mask to low 16 [would like to use uzp tricks) */
@@ -303,11 +300,11 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
         ofx += odx; ofy += ody;
     }
     if (bad) {
-	SkDebugf("repeat-nofilter-affine fails\n");
-	SkDebugf("count %d myi %d\n", ocount, myi);
-	SkDebugf(" bfx %08x, bdx %08x, bfy %08x bdy %08x\n",
-			bfx, bdx, bfy, bdy);
-	SkDebugf("maxX %08x maxY %08x\n", maxX, maxY);
+        SkDebugf("repeat-nofilter-affine fails\n");
+        SkDebugf("count %d myi %d\n", ocount, myi);
+        SkDebugf(" bfx %08x, bdx %08x, bfy %08x bdy %08x\n",
+                bfx, bdx, bfy, bdy);
+        SkDebugf("maxX %08x maxY %08x\n", maxX, maxY);
     }
 #endif
 #endif
@@ -362,27 +359,36 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
 	    int32_t *mysrc = (int32_t *) srcXY;
 	    int16_t *mydst = (int16_t *) xy;
 	    do {
-	    	register int32x4_t x asm("q0");
-	    	register int32x4_t y asm("q1");
-	    	register int32x4_t x2 asm("q2");
-	    	register int32x4_t y2 asm("q3");
-
-		int16x8_t hi;
-		int16x8_t hi2;
+		int32x4_t x, y, x2, y2;
+		int16x8_t hi, hi2;
 
 		/* read array of x,y,x,y,x,y */
 	        /* vld2 does the de-interleaving for us */
-	        /* dependent on register assignments above */
-		asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
-		    : "=w" (x), "=w" (y)
-		    : "r" (mysrc)
-		    );
+		/* isolate reg-bound scopes; gcc will minimize register
+		 * motion if possible; this ensures that we don't lose
+		 * a register across a debugging call because it happens
+		 * to be bound into a call-clobbered register
+		 */
+		{
+		    register int32x4_t q0 asm("q0");
+		    register int32x4_t q1 asm("q1");
+		    asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
+		        : "=w" (q0), "=w" (q1)
+		        : "r" (mysrc)
+		        );
+		    x = q0; y = q1;
+		}
 
 		/* offset == 256 bits == 32 bytes == 8 longs */
-		asm ("vld2.32	{q2-q3},[%2]  /* x=%q0 y=%q1 */"
-		    : "=w" (x2), "=w" (y2)
-		    : "r" (mysrc+8)
-		    );
+		{
+		    register int32x4_t q2 asm("q2");
+		    register int32x4_t q3 asm("q3");
+		    asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
+		        : "=w" (q2), "=w" (q3)
+		        : "r" (mysrc+8)
+		        );
+		    x = q2; y = q3;
+		}
 
          	/* TILEX_PROCF(fx, max) (((fx)&0xFFFF)*((max)+1)>> 16) */
 		/* mask to low 16 [would like to use uzp tricks) */
@@ -405,7 +411,7 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
 		hi = vreinterpretq_s16_s32(y);
 		vst1q_s16(mydst, hi);
 
-		/* and push second 8 entries out */
+		/* and likewise for the second 8 entries */
 		y2 = vsriq_n_s32(y2, x2, 16);
 		hi2 = vreinterpretq_s16_s32(y2);
 		vst1q_s16(mydst+8, hi2);
