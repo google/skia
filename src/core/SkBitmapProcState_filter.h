@@ -19,6 +19,15 @@
 #endif
 #include "SkColorPriv.h"
 
+/*
+    Filter_32_opaque
+    
+    There is no hard-n-fast rule that the filtering must produce
+    exact results for the color components, but if the 4 incoming colors are
+    all opaque, then the output color must also be opaque. Subsequent parts of
+    the drawing pipeline may rely on this (e.g. which blitrow proc to use).
+ */
+
 #if defined(__ARM_HAVE_NEON) && !defined(SK_CPU_BENDIAN)
 static inline void Filter_32_opaque_neon(unsigned x, unsigned y, 
                                     SkPMColor a00, SkPMColor a01,
