@@ -72,13 +72,6 @@ static bool only_scale_and_translate(const SkMatrix& matrix) {
     return (matrix.getType() & ~mask) == 0;
 }
 
-// return true if the config can possibly have per-pixel alpha, ignoring the
-// current setting of isOpaque.
-static bool canSupportPerPixelAlpha(const SkBitmap& bm) {
-    // return true unless we're guaranteed to be opaque
-    return bm.config() != SkBitmap::kRGB_565_Config;
-}
-
 bool SkBitmapProcShader::setContext(const SkBitmap& device,
                                     const SkPaint& paint,
                                     const SkMatrix& matrix) {
@@ -101,22 +94,6 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
     const SkBitmap& bitmap = *fState.fBitmap;
     bool bitmapIsOpaque = bitmap.isOpaque();
     
-    // filtering doesn't guarantee that opaque stays opaque (finite precision)
-    // so pretend we're not opaque if we're being asked to filter. If we had
-    // more blit-procs, we could specialize on opaque src, and just OR in 0xFF
-    // after the filter to be sure...
-    /*
-        (some time later)
-        Adding check for canSupportPerPixelAlpha, since bitmaps that are 565
-        (for example) will *always* be opaque, even after filtering.
-
-        Would be really nice to never do this, if we could ensure that
-        filtering didn't introduct non-opaqueness accidentally.
-     */
-    if (paint.isFilterBitmap() && canSupportPerPixelAlpha(bitmap)) {
-        bitmapIsOpaque = false;
-    }
-
     // update fFlags
     uint32_t flags = 0;
     if (bitmapIsOpaque && (255 == this->getPaintAlpha())) {

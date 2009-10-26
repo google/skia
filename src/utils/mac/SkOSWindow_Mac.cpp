@@ -329,7 +329,7 @@ pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRe
 			switch (wKind) {
                 case kEventMouseDown:
                     if (win->handleClick(pt.h, pt.v, Click::kDown_State)) {
-                     //   result = noErr;
+                        result = noErr;
                     }
                     break;
                 case kEventMouseDragged:
