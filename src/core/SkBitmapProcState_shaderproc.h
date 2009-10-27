@@ -36,6 +36,10 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
         fx = SkScalarToFixed(pt.fX) - (oneX >> 1);
     }
 
+#ifdef PREAMBLE
+    PREAMBLE(s);
+#endif
+    
     do {
         unsigned subX = TILEX_LOW_BITS(fx, maxX);
         unsigned x0 = TILEX_PROCF(fx, maxX);
@@ -51,6 +55,10 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
 
         fx += dx;
     } while (--count != 0);
+
+#ifdef POSTAMBLE
+    POSTAMBLE(s);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -65,5 +73,7 @@ static void SCALE_FILTER_NAME(const SkBitmapProcState& s, int x, int y,
 #undef CHECKSTATE
 #undef SRC_TO_FILTER
 #undef FILTER_TO_DST
+#undef PREAMBLE
+#undef POSTAMBLE
 
 #undef SCALE_FILTER_NAME

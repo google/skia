@@ -289,6 +289,8 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
     } while (0)
 
 
+// clamp
+
 #define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
 #define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
 #define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
@@ -312,6 +314,23 @@ static inline U8CPU Filter_8(unsigned x, unsigned y,
 #define DSTTYPE                 uint16_t
 #define CHECKSTATE(state)       SkASSERT(state.fBitmap->config() == SkBitmap::kRGB_565_Config)
 #define SRC_TO_FILTER(src)      src
+#include "SkBitmapProcState_shaderproc.h"
+
+
+#define TILEX_PROCF(fx, max)    SkClampMax((fx) >> 16, max)
+#define TILEY_PROCF(fy, max)    SkClampMax((fy) >> 16, max)
+#define TILEX_LOW_BITS(fx, max) (((fx) >> 12) & 0xF)
+#define TILEY_LOW_BITS(fy, max) (((fy) >> 12) & 0xF)
+
+#undef FILTER_PROC
+#define FILTER_PROC(x, y, a, b, c, d, dst)   Filter_32_opaque(x, y, a, b, c, d, dst)
+#define MAKENAME(suffix)        Clamp_SI8_opaque_D32 ## suffix
+#define SRCTYPE                 uint8_t
+#define DSTTYPE                 uint32_t
+#define CHECKSTATE(state)       SkASSERT(state.fBitmap->config() == SkBitmap::kIndex8_Config)
+#define PREAMBLE(state)         const SkPMColor* SK_RESTRICT table = state.fBitmap->getColorTable()->lockColors()
+#define SRC_TO_FILTER(src)      table[src]
+#define POSTAMBLE(state)        state.fBitmap->getColorTable()->unlockColors(false)
 #include "SkBitmapProcState_shaderproc.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -503,6 +522,8 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
                    SkShader::kRepeat_TileMode == fTileModeY) {
             fShaderProc16 = Repeat_S16_D16_filter_DX_shaderproc;
         }
+    } else if (SI8_opaque_D32_filter_DX == fSampleProc32 && clamp_clamp) {
+        fShaderProc32 = Clamp_SI8_opaque_D32_filter_DX_shaderproc;
     }
 
     // see if our platform has any accelerated overrides
