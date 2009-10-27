@@ -862,6 +862,120 @@ static void S32A_D565_Opaque_Dither_neon (uint16_t * SK_RESTRICT dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if	defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
+/* 2009/10/27: RBE says "a work in progress"; debugging says ok;
+ * speedup untested, but ARM version is 26 insns/iteration and
+ * this NEON version is 21 insns/iteration-of-8 (2.62insns/element)
+ * which is 10x the native version; that's pure instruction counts,
+ * not accounting for any instruction or memory latencies.
+ */
+
+#undef	DEBUG_S32_OPAQUE_DITHER
+
+static void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
+                                     const SkPMColor* SK_RESTRICT src,
+                                     int count, U8CPU alpha, int x, int y) {
+    SkASSERT(255 == alpha);
+
+#define	UNROLL	8
+    if (count >= UNROLL) {
+	uint8x8_t d;
+	const uint8_t *dstart = &gDitherMatrix_Neon[(y&3)*12 + (x&3)];
+	d = vld1_u8(dstart);
+
+	while (count >= UNROLL) {
+	    uint8x8_t sr, sg, sb, sa;
+	    uint16x8_t dr, dg, db, da;
+	    uint16x8_t dst8;
+
+	    /* source is in ABGR ordering (R == lsb) */
+	    {
+		register uint8x8_t d0 asm("d0");
+		register uint8x8_t d1 asm("d1");
+		register uint8x8_t d2 asm("d2");
+		register uint8x8_t d3 asm("d3");
+
+		asm ("vld4.8	{d0-d3},[%4]  /* r=%P0 g=%P1 b=%P2 a=%P3 */"
+		    : "=w" (d0), "=w" (d1), "=w" (d2), "=w" (d3)
+		    : "r" (src)
+                    );
+		    sr = d0; sg = d1; sb = d2; sa = d3;
+	    }
+	    /* XXX: if we want to prefetch, hide it in the above asm()
+	     * using the gcc __builtin_prefetch(), the prefetch will
+	     * fall to the bottom of the loop -- it won't stick up
+	     * at the top of the loop, just after the vld4.
+	     */
+
+	    /* sr = sr - (sr>>5) + d */
+	    sr = vsub_u8(sr, vshr_n_u8(sr, 5));
+	    dr = vaddl_u8(sr, d);
+
+	    /* sb = sb - (sb>>5) + d */
+	    sb = vsub_u8(sb, vshr_n_u8(sb, 5));
+	    db = vaddl_u8(sb, d);
+
+	    /* sg = sg - (sg>>6) + d>>1; similar logic for overflows */
+	    sg = vsub_u8(sg, vshr_n_u8(sg, 6));
+	    dg = vaddl_u8(sg, vshr_n_u8(d,1));
+	    /* XXX: check that the "d>>1" here is hoisted */
+
+	    /* pack high bits of each into 565 format  (rgb, b is lsb) */
+	    dst8 = vshrq_n_u16(db, 3);
+	    dst8 = vsliq_n_u16(dst8, vshrq_n_u16(dg, 2), 5);
+	    dst8 = vsliq_n_u16(dst8, vshrq_n_u16(dr,3), 11);
+
+	    /* store it */
+	    vst1q_u16(dst, dst8);
+
+#if	defined(DEBUG_S32_OPAQUE_DITHER)
+	    /* always good to know if we generated good results */
+	    {
+		int i, myx = x, myy = y;
+		DITHER_565_SCAN(myy);
+		for (i=0;i<UNROLL;i++) {
+		    SkPMColor c = src[i];
+		    unsigned dither = DITHER_VALUE(myx);
+		    uint16_t val = SkDitherRGB32To565(c, dither);
+		    if (val != dst[i]) {
+			SkDebugf("RBE: src %08x dither %02x, want %04x got %04x dbas[i] %02x\n",
+			    c, dither, val, dst[i], dstart[i]);
+		    }
+		    DITHER_INC_X(myx);
+		}
+	    }
+#endif
+
+	    dst += UNROLL;
+	    src += UNROLL;
+	    count -= UNROLL;
+	    x += UNROLL;		/* probably superfluous */
+	}
+    }
+#undef	UNROLL
+
+    /* residuals */
+    if (count > 0) {
+        DITHER_565_SCAN(y);
+        do {
+            SkPMColor c = *src++;
+            SkPMColorAssert(c);
+            SkASSERT(SkGetPackedA32(c) == 255);
+
+            unsigned dither = DITHER_VALUE(x);
+            *dst++ = SkDitherRGB32To565(c, dither);
+            DITHER_INC_X(x);
+        } while (--count != 0);
+    }
+}
+
+#define	S32_D565_Opaque_Dither_PROC S32_D565_Opaque_Dither_neon
+#else
+#define	S32_D565_Opaque_Dither_PROC NULL
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
 const SkBlitRow::Proc SkBlitRow::gPlatform_565_Procs[] = {
     // no dither
     S32_D565_Opaque_PROC,
@@ -870,7 +984,7 @@ const SkBlitRow::Proc SkBlitRow::gPlatform_565_Procs[] = {
     S32A_D565_Blend_PROC,
     
     // dither
-    NULL,   // S32_D565_Opaque_Dither,
+    S32_D565_Opaque_Dither_PROC,
     S32_D565_Blend_Dither_PROC,
     S32A_D565_Opaque_Dither_PROC,
     NULL,   // S32A_D565_Blend_Dither
