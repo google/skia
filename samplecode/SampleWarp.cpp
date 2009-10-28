@@ -8,6 +8,8 @@
 #include "SkUtils.h"
 #include "SkImageDecoder.h"
 
+#include "SkMeshUtils.h"
+
 static SkPoint SkMakePoint(SkScalar x, SkScalar y) {
     SkPoint pt;
     pt.set(x, y);
@@ -20,18 +22,6 @@ static SkPoint SkPointInterp(const SkPoint& a, const SkPoint& b, SkScalar t) {
 }
 
 #include "SkBoundaryPatch.h"
-
-static void set_pts(SkPoint pts[], int R, int C, SkBoundaryPatch* patch) {
-    SkScalar invR = SkScalarInvert(SkIntToScalar(R - 1));
-    SkScalar invC = SkScalarInvert(SkIntToScalar(C - 1));
-
-    for (int y = 0; y < C; y++) {
-        SkScalar yy = y * invC;
-        for (int x = 0; x < R; x++) {
-            *pts++ = patch->evaluate(x * invR, yy);
-        }
-    }
-}
 
 static void set_cubic(SkPoint pts[4], SkScalar x0, SkScalar y0,
                       SkScalar x3, SkScalar y3, SkScalar scale = 1) {
@@ -53,82 +43,78 @@ static void set_cubic(SkPoint pts[4], SkScalar x0, SkScalar y0,
     pts[2] = tmp + tmp2;
 }
 
-static void draw_texture(SkCanvas* canvas, const SkPoint verts[], int R, int C,
-                         const SkBitmap& texture) {
-    int vertCount = R * C;
-    const int rows = R - 1;
-    const int cols = C - 1;
-    int idxCount = rows * cols * 6;
-
-    SkAutoTArray<SkPoint> texStorage(vertCount);
-    SkPoint* tex = texStorage.get();
-    SkAutoTArray<uint16_t> idxStorage(idxCount);
-    uint16_t* idx = idxStorage.get();
-
-
-    const SkScalar dtx = texture.width() / rows;
-    const SkScalar dty = texture.height() / cols;
-    int index = 0;
-    for (int y = 0; y <= cols; y++) {
-        for (int x = 0; x <= rows; x++) {
-            tex->set(x*dtx, y*dty);
-            tex += 1;
-            
-            if (y < cols && x < rows) {
-                *idx++ = index;
-                *idx++ = index + rows + 1;
-                *idx++ = index + 1;
-                
-                *idx++ = index + 1;
-                *idx++ = index + rows + 1;
-                *idx++ = index + rows + 2;
-                
-                index += 1;
-            }
-        }
-        index += 1;
-    }
-
-    SkPaint paint;
-    paint.setShader(SkShader::CreateBitmapShader(texture,
-                                                 SkShader::kClamp_TileMode,
-                                                 SkShader::kClamp_TileMode))->unref();
-
-    canvas->drawVertices(SkCanvas::kTriangles_VertexMode, vertCount, verts,
-                         texStorage.get(), NULL, NULL, idxStorage.get(),
-                         idxCount, paint);                         
-}
-
 static void test_patch(SkCanvas* canvas, const SkBitmap& bm, SkScalar scale) {
-    SkCubicBoundaryCurve L, T, R, B;
+    SkCubicBoundary cubic;    
+    set_cubic(cubic.fPts + 0, 0, 0, 100, 0, scale);
+    set_cubic(cubic.fPts + 3, 100, 0, 100, 100, scale);
+    set_cubic(cubic.fPts + 6, 100, 100,  0, 100, -scale);
+    set_cubic(cubic.fPts + 9, 0, 100, 0, 0, 0);
     
-    set_cubic(L.fPts, 0, 0, 0, 100, scale);
-    set_cubic(T.fPts, 0, 0, 100, 0, scale);
-    set_cubic(R.fPts, 100, 0, 100, 100, -scale);
-    set_cubic(B.fPts, 0, 100, 100, 100, 0);
-
     SkBoundaryPatch patch;
-    patch.setCurve(SkBoundaryPatch::kLeft, &L);
-    patch.setCurve(SkBoundaryPatch::kTop, &T);
-    patch.setCurve(SkBoundaryPatch::kRight, &R);
-    patch.setCurve(SkBoundaryPatch::kBottom, &B);
-
-    const int Rows = 25;
-    const int Cols = 25;
+    patch.setBoundary(&cubic);
+    
+    const int Rows = 16;
+    const int Cols = 16;
     SkPoint pts[Rows * Cols];
-    set_pts(pts, Rows, Cols, &patch);
+    patch.evalPatch(pts, Rows, Cols);
     
     SkPaint paint;
     paint.setAntiAlias(true);
+    paint.setFilterBitmap(true);
     paint.setStrokeWidth(1);
     paint.setStrokeCap(SkPaint::kRound_Cap);
-
+    
     canvas->translate(50, 50);
     canvas->scale(3, 3);
+    
+    SkMeshUtils::Draw(canvas, bm, Rows, Cols, pts, NULL, paint);
+}
 
-    draw_texture(canvas, pts, Rows, Cols, bm);
-//    canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(pts),
-//                       pts, paint);
+static void test_drag(SkCanvas* canvas, const SkBitmap& bm,
+                      const SkPoint& p0, const SkPoint& p1) {
+    SkCubicBoundary cubic;    
+    set_cubic(cubic.fPts + 0, 0, 0, 100, 0, 0);
+    set_cubic(cubic.fPts + 3, 100, 0, 100, 100, 0);
+    set_cubic(cubic.fPts + 6, 100, 100,  0, 100, 0);
+    set_cubic(cubic.fPts + 9, 0, 100, 0, 0, 0);
+    
+#if 0
+    cubic.fPts[1] += p1 - p0;
+    cubic.fPts[2] += p1 - p0;
+#else
+    SkScalar dx = p1.fX - p0.fX;
+    if (dx > 0) dx = 0;
+    SkScalar dy = p1.fY - p0.fY;
+    if (dy > 0) dy = 0;
+
+    cubic.fPts[1].fY += dy;
+    cubic.fPts[2].fY += dy;
+    cubic.fPts[10].fX += dx;
+    cubic.fPts[11].fX += dx;
+#endif
+
+    SkBoundaryPatch patch;
+    patch.setBoundary(&cubic);
+    
+    const int Rows = 16;
+    const int Cols = 16;
+    SkPoint pts[Rows * Cols];
+    patch.evalPatch(pts, Rows, Cols);
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setFilterBitmap(true);
+    paint.setStrokeWidth(1);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+    
+    canvas->translate(50, 50);
+    canvas->scale(3, 3);
+    
+    SkAutoCanvasRestore acr(canvas, true);
+
+    SkRect r = { 0, 0, 100, 100 };
+    canvas->clipRect(r);
+    SkMeshUtils::Draw(canvas, bm, Rows, Cols, pts, NULL, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -255,7 +241,7 @@ void Mesh::drawWireframe(SkCanvas* canvas, const SkPaint& paint) {
 ///////////////////////////////////////////////////////////////////////////////
 
 static SkScalar gScale = 0;
-static SkScalar gDScale = 0.01;
+static SkScalar gDScale = 0.02;
 
 class WarpView : public SkView {
     Mesh        fMesh, fOrig;
@@ -263,8 +249,8 @@ class WarpView : public SkView {
 public:
 	WarpView() {
         SkBitmap bm;
-   //     SkImageDecoder::DecodeFile("/skimages/beach.jpg", &bm);
-        SkImageDecoder::DecodeFile("/beach_shot.JPG", &bm);
+        SkImageDecoder::DecodeFile("/skimages/beach.jpg", &bm);
+   //     SkImageDecoder::DecodeFile("/beach_shot.JPG", &bm);
         fBitmap = bm;
         
         SkRect bounds, texture;
@@ -275,6 +261,9 @@ public:
 //        fMesh.init(bounds, fBitmap.width() / 40, fBitmap.height() / 40, texture);
         fMesh.init(bounds, 30, 30, texture);
         fOrig = fMesh;
+        
+        fP0.set(0, 0);
+        fP1 = fP0;
     }
 
 protected:
@@ -287,56 +276,9 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    static SkPoint make_pt(SkScalar x, SkScalar y) {
-        SkPoint pt;
-        pt.set(x, y);
-        return pt;
-    }
-
-    static SkScalar mapx0(SkScalar min, SkScalar max, SkScalar x0, SkScalar x1,
-                         SkScalar x) {
-        if (x < x0) {
-            SkASSERT(x0 > min);
-            return x1 - SkScalarMulDiv(x1 - min, x0 - x, x0 - min);
-        } else {
-            SkASSERT(max > x0);
-            return x1 + SkScalarMulDiv(max - x1, x - x0, max - x0);
-        }
-    }
-    
-    static SkScalar mapx1(SkScalar min, SkScalar max, SkScalar x0, SkScalar x1,
-                         SkScalar x) {
-        SkScalar newx;
-        if (x < x0) {
-            SkASSERT(x0 > min);
-            newx = x1 - SkScalarMulDiv(x1 - min, x0 - x, x0 - min);
-        } else {
-            SkASSERT(max > x0);
-            newx = x1 + SkScalarMulDiv(max - x1, x - x0, max - x0);
-        }
-        return x + (newx - x) * 0.5f;
-    }
-    
-    static SkPoint mappt(const SkRect& r, const SkPoint& p0, const SkPoint& p1,
-                         const SkPoint& pt) {
-        return make_pt(mapx0(r.fLeft, r.fRight, p0.fX, p1.fX, pt.fX),
-                       mapx0(r.fTop, r.fBottom, p0.fY, p1.fY, pt.fY));
-    }
-    
     void warp(const SkPoint& p0, const SkPoint& p1) {
-        const SkRect& bounds = fOrig.bounds();
-        int rows = fMesh.rows();
-        int cols = fMesh.cols();
-        
-        SkRect r = bounds;
-        r.inset(bounds.width() / 256, bounds.height() / 256);
-        if (r.contains(p0)) {
-            for (int y = 1; y < cols; y++) {
-                for (int x = 1; x < rows; x++) {
-                    fMesh.pt(x, y) = mappt(bounds, p0, p1, fOrig.pt(x, y));
-                }
-            }
-        }
+        fP0 = p0;
+        fP1 = p1;
     }
     
     virtual void onDraw(SkCanvas* canvas) {
@@ -352,7 +294,8 @@ protected:
         paint.setShader(NULL);
         paint.setColor(SK_ColorRED);
     //    fMesh.draw(canvas, paint);
-        
+
+#if 0
         test_patch(canvas, fBitmap, gScale);
         gScale += gDScale;
         if (gScale > 2) {
@@ -361,6 +304,9 @@ protected:
             gDScale = -gDScale;
         }
         this->inval(NULL);
+#else
+        test_drag(canvas, fBitmap, fP0, fP1);
+#endif
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
@@ -375,7 +321,7 @@ protected:
     
 private:
     SkIRect    fBase, fRect;
-    
+    SkPoint     fP0, fP1;
     typedef SkView INHERITED;
 };
 
