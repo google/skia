@@ -4,9 +4,17 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 
-class SkBoundaryCurve : public SkRefCnt {
+class SkBoundary : public SkRefCnt {
 public:
-    virtual SkPoint evaluate(SkScalar unitInterval) = 0;
+    // These must be 0, 1, 2, 3 for efficiency in the subclass implementations
+    enum Edge {
+        kTop    = 0,
+        kRight  = 1,
+        kBottom = 2,
+        kLeft   = 3
+    };
+    // Edge index goes clockwise around the boundary, beginning at the "top"
+    virtual SkPoint eval(Edge, SkScalar unitInterval) = 0;
 };
 
 class SkBoundaryPatch {
@@ -14,38 +22,33 @@ public:
     SkBoundaryPatch();
     ~SkBoundaryPatch();
 
-    enum Edge {
-        kLeft,
-        kTop,
-        kRight,
-        kBottom
-    };
-    
-    SkBoundaryCurve* getCurve(Edge e) const { return fCurve[e]; }
-    SkBoundaryCurve* setCurve(Edge e, SkBoundaryCurve*);
+    SkBoundary* getBoundary() const { return fBoundary; }
+    SkBoundary* setBoundary(SkBoundary*);
 
-    SkPoint evaluate(SkScalar unitU, SkScalar unitV);
+    SkPoint eval(SkScalar unitU, SkScalar unitV);
+    bool evalPatch(SkPoint verts[], int rows, int cols);
 
 private:
-    SkBoundaryCurve* fCurve[4];
+    SkBoundary* fBoundary;
 };
 
 ////////////////////////////////////////////////////////////////////////
 
-class SkLineBoundaryCurve : public SkBoundaryCurve {
-public:
-    SkPoint fPts[2];
-    
-    // override
-    virtual SkPoint evaluate(SkScalar);
-};
-
-class SkCubicBoundaryCurve : public SkBoundaryCurve {
+class SkLineBoundary : public SkBoundary {
 public:
     SkPoint fPts[4];
     
     // override
-    virtual SkPoint evaluate(SkScalar);
+    virtual SkPoint eval(Edge, SkScalar);
+};
+
+class SkCubicBoundary : public SkBoundary {
+public:
+    // the caller sets the first 12 entries. The 13th is used by the impl.
+    SkPoint fPts[13];
+    
+    // override
+    virtual SkPoint eval(Edge, SkScalar);
 };
 
 #endif

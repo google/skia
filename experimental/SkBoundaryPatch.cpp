@@ -1,20 +1,14 @@
 #include "SkBoundaryPatch.h"
 
-SkBoundaryPatch::SkBoundaryPatch() {
-    sk_bzero(fCurve, sizeof(fCurve));
-};
+SkBoundaryPatch::SkBoundaryPatch() : fBoundary(NULL) {}
 
 SkBoundaryPatch::~SkBoundaryPatch() {
-    for (int i = 0; i < 4; i++) {
-        SkSafeUnref(fCurve[i]);
-    }
+    SkSafeUnref(fBoundary);
 }
 
-SkBoundaryCurve* SkBoundaryPatch::setCurve(Edge e, SkBoundaryCurve* curve) {
-    SkASSERT((unsigned)e < 4);
-
-    SkRefCnt_SafeAssign(fCurve[e], curve);
-    return curve;
+SkBoundary* SkBoundaryPatch::setBoundary(SkBoundary* b) {
+    SkRefCnt_SafeAssign(fBoundary, b);
+    return b;
 }
 
 static SkPoint SkMakePoint(SkScalar x, SkScalar y) {
@@ -28,27 +22,52 @@ static SkPoint SkPointInterp(const SkPoint& a, const SkPoint& b, SkScalar t) {
                        SkScalarInterp(a.fY, b.fY, t));
 }
 
-SkPoint SkBoundaryPatch::evaluate(SkScalar unitU, SkScalar unitV) {
-    SkPoint u = SkPointInterp(fCurve[kLeft]->evaluate(unitV),
-                              fCurve[kRight]->evaluate(unitV), unitU);
-    SkPoint v = SkPointInterp(fCurve[kTop]->evaluate(unitU),
-                              fCurve[kBottom]->evaluate(unitU), unitV);
+SkPoint SkBoundaryPatch::eval(SkScalar unitU, SkScalar unitV) {
+    SkBoundary* b = fBoundary;
+    SkPoint u = SkPointInterp(b->eval(SkBoundary::kLeft, SK_Scalar1 - unitV),
+                              b->eval(SkBoundary::kRight, unitV),
+                              unitU);
+    SkPoint v = SkPointInterp(b->eval(SkBoundary::kTop, unitU),
+                              b->eval(SkBoundary::kBottom, SK_Scalar1 - unitU),
+                              unitV);
     return SkMakePoint(SkScalarAve(u.fX, v.fX),
                        SkScalarAve(u.fY, v.fY));
+}
+
+bool SkBoundaryPatch::evalPatch(SkPoint verts[], int rows, int cols) {
+    if (rows < 2 || cols < 2) {
+        return false;
+    }
+
+    const SkScalar invR = SkScalarInvert(SkIntToScalar(rows - 1));
+    const SkScalar invC = SkScalarInvert(SkIntToScalar(cols - 1));
+    
+    for (int y = 0; y < cols; y++) {
+        SkScalar yy = y * invC;
+        for (int x = 0; x < rows; x++) {
+            *verts++ = this->eval(x * invR, yy);
+        }
+    }
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////
 
 #include "SkGeometry.h"
 
-SkPoint SkLineBoundaryCurve::evaluate(SkScalar t) {
-    return SkPointInterp(fPts[0], fPts[1], t);
+SkPoint SkLineBoundary::eval(Edge e, SkScalar t) {
+    SkASSERT((unsigned)e < 4);
+    return SkPointInterp(fPts[e], fPts[(e + 1) & 3], t);
 }
 
-SkPoint SkCubicBoundaryCurve::evaluate(SkScalar t) {
+SkPoint SkCubicBoundary::eval(Edge e, SkScalar t) {
+    SkASSERT((unsigned)e < 4);
+
+    // ensure our 4th cubic wraps to the start of the first
+    fPts[12] = fPts[0];
+
     SkPoint loc;
-    SkEvalCubicAt(fPts, t, &loc, NULL, NULL);
+    SkEvalCubicAt(&fPts[e * 3], t, &loc, NULL, NULL);
     return loc;
 }
-
 

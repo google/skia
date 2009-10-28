@@ -5,6 +5,50 @@
 #include "SkAnimator.h"
 #include "SkStream.h"
 
+#include "SkColorPriv.h"
+static inline void Filter_32_opaque_portable(unsigned x, unsigned y,
+                                             SkPMColor a00, SkPMColor a01,
+                                             SkPMColor a10, SkPMColor a11,
+                                             SkPMColor* dstColor) {
+    SkASSERT((unsigned)x <= 0xF);
+    SkASSERT((unsigned)y <= 0xF);
+    
+    int xy = x * y;
+    uint32_t mask = gMask_00FF00FF; //0xFF00FF;
+    
+    int scale = 256 - 16*y - 16*x + xy;
+    uint32_t lo = (a00 & mask) * scale;
+    uint32_t hi = ((a00 >> 8) & mask) * scale;
+    
+    scale = 16*x - xy;
+    lo += (a01 & mask) * scale;
+    hi += ((a01 >> 8) & mask) * scale;
+    
+    scale = 16*y - xy;
+    lo += (a10 & mask) * scale;
+    hi += ((a10 >> 8) & mask) * scale;
+    
+    lo += (a11 & mask) * xy;
+    hi += ((a11 >> 8) & mask) * xy;
+    
+    *dstColor = ((lo >> 8) & mask) | (hi & ~mask);
+}
+
+static void test_filter() {
+    for (int r = 0; r <= 0xFF; r++) {
+        SkPMColor c = SkPackARGB32(0xFF, r, r, r);
+        for (int y = 0; y <= 0xF; y++) {
+            for (int x = 0; x <= 0xF; x++) {
+                SkPMColor dst;
+                Filter_32_opaque_portable(x, y, c, c, c, c, &dst);
+                SkASSERT(SkGetPackedA32(dst) == 255);
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class SkAnimatorView : public SkView {
 public:
     SkAnimatorView();
@@ -30,6 +74,7 @@ private:
 };
 
 SkAnimatorView::SkAnimatorView() : fAnimator(NULL) {
+    test_filter();
 }
 
 SkAnimatorView::~SkAnimatorView() {
