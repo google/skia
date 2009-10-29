@@ -8,6 +8,84 @@
 #include "SkUtils.h"
 #include "SkImageDecoder.h"
 
+#include "SkBlurMaskFilter.h"
+#include "SkTableMaskFilter.h"
+
+static void test_bigblur(SkCanvas* canvas) {
+    canvas->drawColor(SK_ColorBLACK);
+
+    SkBitmap orig, mask;
+    SkImageDecoder::DecodeFile("/skimages/app_icon.png", &orig);
+
+    SkMaskFilter* mf = SkBlurMaskFilter::Create(8, SkBlurMaskFilter::kNormal_BlurStyle);
+    SkPaint paint;
+    paint.setMaskFilter(mf)->unref();
+    SkIPoint offset;
+    orig.extractAlpha(&mask, &paint, &offset);
+
+    paint.setColor(0xFFBB8800);
+    paint.setColor(SK_ColorWHITE);
+
+    int i;
+    canvas->save();
+    float gamma = 0.8;
+    for (i = 0; i < 5; i++) {
+        paint.setMaskFilter(SkTableMaskFilter::CreateGamma(gamma))->unref();
+        canvas->drawBitmap(mask, 0, 0, &paint);
+        paint.setMaskFilter(NULL);
+        canvas->drawBitmap(orig, -offset.fX, -offset.fY, &paint);
+        gamma -= 0.1;
+        canvas->translate(120, 0);
+    }
+    canvas->restore();
+    canvas->translate(0, 160);
+
+    for (i = 0; i < 5; i++) {
+        paint.setMaskFilter(SkTableMaskFilter::CreateClip(i*30, 255 - 20))->unref();
+        canvas->drawBitmap(mask, 0, 0, &paint);
+        paint.setMaskFilter(NULL);
+        canvas->drawBitmap(orig, -offset.fX, -offset.fY, &paint);
+        canvas->translate(120, 0);
+    }
+
+#if 0
+    paint.setColor(0xFFFFFFFF);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    paint.setMaskFilter(NULL);
+    canvas->drawBitmap(orig, -offset.fX, -offset.fY, &paint);
+    
+    canvas->translate(120, 0);
+    
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(orig, -offset.fX, -offset.fY, &paint);
+    
+    canvas->translate(120, 0);
+    
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(orig, -offset.fX, -offset.fY, &paint);
+    
+    canvas->translate(120, 0);
+    
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(orig, -offset.fX, -offset.fY, &paint);
+    
+    canvas->translate(120, 0);
+    
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(mask, 0, 0, &paint);
+    canvas->drawBitmap(orig, -offset.fX, -offset.fY, &paint);
+#endif
+}
+
 #include "SkMeshUtils.h"
 
 static SkPoint SkMakePoint(SkScalar x, SkScalar y) {
@@ -240,9 +318,6 @@ void Mesh::drawWireframe(SkCanvas* canvas, const SkPaint& paint) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkScalar gScale = 0;
-static SkScalar gDScale = 0.02;
-
 class WarpView : public SkView {
     Mesh        fMesh, fOrig;
     SkBitmap    fBitmap;
@@ -282,7 +357,8 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorGRAY);
+        canvas->drawColor(SK_ColorLTGRAY);
+     //   test_bigblur(canvas); return;
         
         SkPaint paint;
         paint.setFilterBitmap(true);
@@ -295,18 +371,7 @@ protected:
         paint.setColor(SK_ColorRED);
     //    fMesh.draw(canvas, paint);
 
-#if 0
-        test_patch(canvas, fBitmap, gScale);
-        gScale += gDScale;
-        if (gScale > 2) {
-            gDScale = -gDScale;
-        } else if (gScale < -2) {
-            gDScale = -gDScale;
-        }
-        this->inval(NULL);
-#else
         test_drag(canvas, fBitmap, fP0, fP1);
-#endif
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
