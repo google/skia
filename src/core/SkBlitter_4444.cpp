@@ -82,9 +82,12 @@ SkARGB4444_Blitter::SkARGB4444_Blitter(const SkBitmap& device, const SkPaint& pa
         fRawColor16Other = fRawColor16;
     }
     
+#if 0 /// don't think this assertion is true, but need it be?
+
     // our dithered color will be the same or more opaque than the original
     // so use dithered to compute our scale
     SkASSERT(SkGetPackedA4444(fPMColor16Other) >= SkGetPackedA4444(fPMColor16));
+#endif
 
     fScale16 = SkAlpha15To16(SkGetPackedA4444(fPMColor16Other));
     if (16 == fScale16) {
