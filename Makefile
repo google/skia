@@ -81,6 +81,10 @@ out/%.o : %.cpp
 	$(HIDE)$(CC) $(C_INCLUDES) $(CFLAGS) $(DEFINES) -c $< -o $@
 	@echo "compiling $@"
     
+%.s : %.cpp
+	@mkdir -p $(dir $@)
+	$(CC) $(C_INCLUDES) $(CFLAGS) $(DEFINES) -S -c $< -o $@
+
 # now build out objects
 OBJ_LIST := $(SRC_LIST:.cpp=.o)
 OBJ_LIST := $(addprefix out/, $(OBJ_LIST))
@@ -145,6 +149,10 @@ skimage: $(SKIMAGE_OBJS) out/libskia.a
 
 include gm/gm_files.mk
 GM_SRCS := $(addprefix gm/, $(SOURCE))
+
+ifneq ($(SKIA_BUILD_FOR),mac)
+    GM_SRCS += src/images/SkImageDecoder_libpng.cpp
+endif
 
 GM_OBJS := $(GM_SRCS:.cpp=.o)
 GM_OBJS := $(addprefix out/, $(GM_OBJS))
