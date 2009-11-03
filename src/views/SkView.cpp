@@ -649,11 +649,23 @@ void SkView::postInflate(const SkTDict<SkView*>& dict)
 SkView* SkView::sendEventToParents(const SkEvent& evt)
 {
 	SkView* parent = fParent;
-
+    
 	while (parent)
 	{
 		if (parent->doEvent(evt))
 			return parent;
+		parent = parent->fParent;
+	}
+	return NULL;
+}
+
+SkView* SkView::sendQueryToParents(SkEvent* evt) {
+	SkView* parent = fParent;
+    
+	while (parent) {
+		if (parent->doQuery(evt)) {
+			return parent;
+        }
 		parent = parent->fParent;
 	}
 	return NULL;
