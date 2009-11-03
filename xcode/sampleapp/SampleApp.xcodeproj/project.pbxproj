@@ -22,7 +22,6 @@
 		00003C950EFC2316000FF73A /* libeffects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00003C940EFC230E000FF73A /* libeffects.a */; };
 		00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9A0EFC233F000FF73A /* SkDOM.cpp */; };
 		00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */; };
-		000A99820FD97526007E45BD /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
 		00244D1B10642BBA00B8F4D8 /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */; };
 		00244D4A1069646100B8F4D8 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
@@ -36,6 +35,7 @@
 		00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
+		00403926109F22A800F2B5C5 /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
 		0041CDF30F009ED100695E8C /* SkImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF20F009ED100695E8C /* SkImageRef.cpp */; };
 		0041CDF60F009EED00695E8C /* SkImageRef_GlobalPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF50F009EED00695E8C /* SkImageRef_GlobalPool.cpp */; };
@@ -47,7 +47,6 @@
 		0041CE3A0F00A12400695E8C /* SampleDrawLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE240F00A12400695E8C /* SampleDrawLooper.cpp */; };
 		0041CE3B0F00A12400695E8C /* SampleEmboss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE250F00A12400695E8C /* SampleEmboss.cpp */; };
 		0041CE3C0F00A12400695E8C /* SampleEncode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE260F00A12400695E8C /* SampleEncode.cpp */; };
-		0041CE400F00A12400695E8C /* SampleFontCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2A0F00A12400695E8C /* SampleFontCache.cpp */; };
 		0041CE420F00A12400695E8C /* SampleImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2C0F00A12400695E8C /* SampleImage.cpp */; };
 		0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2D0F00A12400695E8C /* SampleLayers.cpp */; };
 		0041CE450F00A12400695E8C /* SampleMeasure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2F0F00A12400695E8C /* SampleMeasure.cpp */; };
@@ -61,7 +60,6 @@
 		007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */; };
 		007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */; };
 		007A7CB80F01658C00A2D6EE /* SampleStrokeText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA90F01658C00A2D6EE /* SampleStrokeText.cpp */; };
-		007A7CBA0F01658C00A2D6EE /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAB0F01658C00A2D6EE /* SampleText.cpp */; };
 		007A7CBB0F01658C00A2D6EE /* SampleTextAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAC0F01658C00A2D6EE /* SampleTextAlpha.cpp */; };
 		007A7CBC0F01658C00A2D6EE /* SampleTextEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAD0F01658C00A2D6EE /* SampleTextEffects.cpp */; };
 		007A7CBD0F01658C00A2D6EE /* SampleTextOnPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAE0F01658C00A2D6EE /* SampleTextOnPath.cpp */; };
@@ -71,6 +69,7 @@
 		007C785E0F3B4C230004B142 /* SamplePathClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C785D0F3B4C230004B142 /* SamplePathClip.cpp */; };
 		00840B75104C69F5005B3EDC /* SampleExtractAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */; };
 		008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008C4D970F77DAEE0056981C /* SampleHairline.cpp */; };
+		009230D8109F111F00AD3F12 /* OverView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009230D7109F111F00AD3F12 /* OverView.cpp */; };
 		009490320FB0A5B90063C792 /* SampleLayerMask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009490310FB0A5B90063C792 /* SampleLayerMask.cpp */; };
 		009887F1106142FC0020D19B /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE310F00A12400695E8C /* SampleNinePatch.cpp */; };
 		009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */; };
@@ -91,7 +90,6 @@
 		27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE200F00A12400695E8C /* SampleCircle.cpp */; };
 		2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66B0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66C0FCCCABE002BD8B4 /* SkPageFlipper.cpp */; };
-		2762F67D0FCCCB01002BD8B4 /* SamplePageFlip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6770FCCCB01002BD8B4 /* SamplePageFlip.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
@@ -221,7 +219,6 @@
 		007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleRegion.cpp; path = ../../samplecode/SampleRegion.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShaders.cpp; path = ../../samplecode/SampleShaders.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CA90F01658C00A2D6EE /* SampleStrokeText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleStrokeText.cpp; path = ../../samplecode/SampleStrokeText.cpp; sourceTree = SOURCE_ROOT; };
-		007A7CAB0F01658C00A2D6EE /* SampleText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleText.cpp; path = ../../samplecode/SampleText.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CAC0F01658C00A2D6EE /* SampleTextAlpha.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTextAlpha.cpp; path = ../../samplecode/SampleTextAlpha.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CAD0F01658C00A2D6EE /* SampleTextEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTextEffects.cpp; path = ../../samplecode/SampleTextEffects.cpp; sourceTree = SOURCE_ROOT; };
 		007A7CAE0F01658C00A2D6EE /* SampleTextOnPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTextOnPath.cpp; path = ../../samplecode/SampleTextOnPath.cpp; sourceTree = SOURCE_ROOT; };
@@ -232,6 +229,7 @@
 		007C785D0F3B4C230004B142 /* SamplePathClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePathClip.cpp; path = ../../samplecode/SamplePathClip.cpp; sourceTree = SOURCE_ROOT; };
 		00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleExtractAlpha.cpp; path = ../../samplecode/SampleExtractAlpha.cpp; sourceTree = SOURCE_ROOT; };
 		008C4D970F77DAEE0056981C /* SampleHairline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleHairline.cpp; path = ../../samplecode/SampleHairline.cpp; sourceTree = SOURCE_ROOT; };
+		009230D7109F111F00AD3F12 /* OverView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OverView.cpp; path = ../../samplecode/OverView.cpp; sourceTree = SOURCE_ROOT; };
 		009490310FB0A5B90063C792 /* SampleLayerMask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleLayerMask.cpp; path = ../../samplecode/SampleLayerMask.cpp; sourceTree = SOURCE_ROOT; };
 		009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFontScalerTest.cpp; path = ../../samplecode/SampleFontScalerTest.cpp; sourceTree = SOURCE_ROOT; };
 		00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
@@ -305,7 +303,6 @@
 				007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */,
 				007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */,
 				007A7CA90F01658C00A2D6EE /* SampleStrokeText.cpp */,
-				007A7CAB0F01658C00A2D6EE /* SampleText.cpp */,
 				007A7CAC0F01658C00A2D6EE /* SampleTextAlpha.cpp */,
 				007A7CAD0F01658C00A2D6EE /* SampleTextEffects.cpp */,
 				007A7CAE0F01658C00A2D6EE /* SampleTextOnPath.cpp */,
@@ -341,6 +338,7 @@
 				0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */,
 				00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */,
 				00003C620EFC22A8000FF73A /* SampleApp.cpp */,
+				009230D7109F111F00AD3F12 /* OverView.cpp */,
 				00003C640EFC22A8000FF73A /* SamplePath.cpp */,
 				007C785D0F3B4C230004B142 /* SamplePathClip.cpp */,
 				00003C650EFC22A8000FF73A /* SamplePathEffects.cpp */,
@@ -632,7 +630,6 @@
 				0041CE390F00A12400695E8C /* SampleDither.cpp in Sources */,
 				0041CE3A0F00A12400695E8C /* SampleDrawLooper.cpp in Sources */,
 				0041CE3B0F00A12400695E8C /* SampleEmboss.cpp in Sources */,
-				0041CE400F00A12400695E8C /* SampleFontCache.cpp in Sources */,
 				0041CE420F00A12400695E8C /* SampleImage.cpp in Sources */,
 				0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */,
 				0041CE450F00A12400695E8C /* SampleMeasure.cpp in Sources */,
@@ -640,7 +637,6 @@
 				0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */,
 				007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */,
 				007A7CB80F01658C00A2D6EE /* SampleStrokeText.cpp in Sources */,
-				007A7CBA0F01658C00A2D6EE /* SampleText.cpp in Sources */,
 				007A7CBB0F01658C00A2D6EE /* SampleTextAlpha.cpp in Sources */,
 				007A7CBC0F01658C00A2D6EE /* SampleTextEffects.cpp in Sources */,
 				007A7CBD0F01658C00A2D6EE /* SampleTextOnPath.cpp in Sources */,
@@ -657,11 +653,9 @@
 				00FF39140FC6ED2C00915187 /* SampleEffects.cpp in Sources */,
 				2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */,
 				2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */,
-				2762F67D0FCCCB01002BD8B4 /* SamplePageFlip.cpp in Sources */,
 				00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */,
 				00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */,
 				00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */,
-				000A99820FD97526007E45BD /* SampleArc.cpp in Sources */,
 				00AF77B00FE2EA2D007F9650 /* SampleTestGL.cpp in Sources */,
 				00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */,
 				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
@@ -687,6 +681,8 @@
 				00281C671083CF5100BCCB06 /* SkTextBox.cpp in Sources */,
 				00281C781083CFA100BCCB06 /* SampleAnimator.cpp in Sources */,
 				00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */,
+				009230D8109F111F00AD3F12 /* OverView.cpp in Sources */,
+				00403926109F22A800F2B5C5 /* SampleArc.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

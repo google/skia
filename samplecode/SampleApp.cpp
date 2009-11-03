@@ -10,6 +10,8 @@
 
 #include "SampleCode.h"
 
+SkView* create_overview(int, const SkViewFactory*);
+
 //#define SK_SUPPORT_GL
 
 #ifdef SK_SUPPORT_GL
@@ -122,6 +124,7 @@ void SampleCode::PrefSizeR(SkEvent* evt, SkScalar width, SkScalar height) {
 //////////////////////////////////////////////////////////////////////////////
 
 class SampleWindow : public SkOSWindow {
+    SkTDArray<SkViewFactory> fSamples;
 public:
 	SampleWindow(void* hwnd);
 	virtual ~SampleWindow();
@@ -150,7 +153,7 @@ protected:
     virtual bool onHandleKeyUp(SkKey key);
 #endif
 private:
-    const SkViewRegister* fCurr;
+    int fCurrIndex;
     
     SkPicture* fPicture;
     SkGLCanvas* fGLCanvas;
@@ -218,8 +221,15 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 	this->setConfig(SkBitmap::kARGB_8888_Config);
 	this->setVisibleP(true);
 
-    fCurr = SkViewRegister::Head();
-    this->loadView(fCurr->factory()());
+    {
+        const SkViewRegister* reg = SkViewRegister::Head();
+        while (reg) {
+            *fSamples.append() = reg->factory();
+            reg = reg->next();
+        }
+    }
+    fCurrIndex = 0;
+    this->loadView(NULL);
 }
 
 SampleWindow::~SampleWindow() {
@@ -386,15 +396,9 @@ static SkBitmap::Config cycle_configs(SkBitmap::Config c) {
 }
 
 bool SampleWindow::nextSample() {
-    if (fCurr) {
-        fCurr = fCurr->next();
-        if (NULL == fCurr) {
-            fCurr = SkViewRegister::Head();
-        }
-        this->loadView(fCurr->factory()());
-        return true;
-    }
-    return false;
+    fCurrIndex = (fCurrIndex + 1) % fSamples.count();
+    this->loadView(fSamples[fCurrIndex]());
+    return true;
 }
 
 bool SampleWindow::onEvent(const SkEvent& evt) {
@@ -403,6 +407,11 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
             this->nextSample();
             this->postAnimatingEvent();
         }
+        return true;
+    }
+    if (evt.isType("set-curr-index")) {
+        fCurrIndex = evt.getFast32() % fSamples.count();
+        this->loadView(fSamples[fCurrIndex]());
         return true;
     }
     return this->INHERITED::onEvent(evt);
@@ -522,6 +531,9 @@ bool SampleWindow::onHandleKey(SkKey key) {
                 }
             }
             return true;
+        case kBack_SkKey:
+            this->loadView(NULL);
+            return true;
         default:
             break;
     }
@@ -533,6 +545,10 @@ void SampleWindow::loadView(SkView* view) {
     SkView* prev = iter.next();
     if (prev) {
         prev->detachFromParent();
+    }
+    
+    if (NULL == view) {
+        view = create_overview(fSamples.count(), fSamples.begin());
     }
     view->setVisibleP(true);
     this->attachChildToFront(view)->unref();

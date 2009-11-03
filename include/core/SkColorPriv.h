@@ -50,7 +50,7 @@ static inline unsigned SkAlpha255To256(U8CPU alpha) {
 //  The caller may want negative values, so keep all params signed (int)
 //  so we don't accidentally slip into unsigned math and lose the sign
 //  extension when we shift (in SkAlphaMul)
-inline int SkAlphaBlend(int src, int dst, int scale256) {
+static inline int SkAlphaBlend(int src, int dst, int scale256) {
     SkASSERT((unsigned)scale256 <= 256);
     return dst + SkAlphaMul(src - dst, scale256);
 }
@@ -200,7 +200,7 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
 #define SkB32Assert(b)  SkASSERT((unsigned)(b) <= SK_B32_MASK)
 
 #ifdef SK_DEBUG
-    inline void SkPMColorAssert(SkPMColor c) {
+    static inline void SkPMColorAssert(SkPMColor c) {
         unsigned a = SkGetPackedA32(c);
         unsigned r = SkGetPackedR32(c);
         unsigned g = SkGetPackedG32(c);
@@ -215,7 +215,7 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
     #define SkPMColorAssert(c)
 #endif
 
-inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
     SkASSERT(r <= a);
     SkASSERT(g <= a);
@@ -227,7 +227,7 @@ inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
 
 extern const uint32_t gMask_00FF00FF;
 
-inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
+static inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
     uint32_t mask = gMask_00FF00FF;
 //    uint32_t mask = 0xFF00FF;
 
@@ -236,11 +236,11 @@ inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
     return (rb & mask) | (ag & ~mask);
 }
 
-inline SkPMColor SkPMSrcOver(SkPMColor src, SkPMColor dst) {
+static inline SkPMColor SkPMSrcOver(SkPMColor src, SkPMColor dst) {
     return src + SkAlphaMulQ(dst, SkAlpha255To256(255 - SkGetPackedA32(src)));
 }
 
-inline SkPMColor SkBlendARGB32(SkPMColor src, SkPMColor dst, U8CPU aa) {
+static inline SkPMColor SkBlendARGB32(SkPMColor src, SkPMColor dst, U8CPU aa) {
     SkASSERT((unsigned)aa <= 255);
 
     unsigned src_scale = SkAlpha255To256(aa);
@@ -257,18 +257,15 @@ inline SkPMColor SkBlendARGB32(SkPMColor src, SkPMColor dst, U8CPU aa) {
 #define SkB32ToB16_MACRO(b)   ((unsigned)(b) >> (SK_B32_BITS - SK_B16_BITS))
 
 #ifdef SK_DEBUG
-    inline unsigned SkR32ToR16(unsigned r)
-    {
+    static inline unsigned SkR32ToR16(unsigned r) {
         SkR32Assert(r);
         return SkR32ToR16_MACRO(r);
     }
-    inline unsigned SkG32ToG16(unsigned g)
-    {
+    static inline unsigned SkG32ToG16(unsigned g) {
         SkG32Assert(g);
         return SkG32ToG16_MACRO(g);
     }
-    inline unsigned SkB32ToB16(unsigned b)
-    {
+    static inline unsigned SkB32ToB16(unsigned b) {
         SkB32Assert(b);
         return SkB32ToB16_MACRO(b);
     }
@@ -282,16 +279,14 @@ inline SkPMColor SkBlendARGB32(SkPMColor src, SkPMColor dst, U8CPU aa) {
 #define SkPacked32ToG16(c)  (((unsigned)(c) >> (SK_G32_SHIFT + SK_G32_BITS - SK_G16_BITS)) & SK_G16_MASK)
 #define SkPacked32ToB16(c)  (((unsigned)(c) >> (SK_B32_SHIFT + SK_B32_BITS - SK_B16_BITS)) & SK_B16_MASK)
 
-inline U16CPU SkPixel32ToPixel16(SkPMColor c)
-{
+static inline U16CPU SkPixel32ToPixel16(SkPMColor c) {
     unsigned r = ((c >> (SK_R32_SHIFT + (8 - SK_R16_BITS))) & SK_R16_MASK) << SK_R16_SHIFT;
     unsigned g = ((c >> (SK_G32_SHIFT + (8 - SK_G16_BITS))) & SK_G16_MASK) << SK_G16_SHIFT;
     unsigned b = ((c >> (SK_B32_SHIFT + (8 - SK_B16_BITS))) & SK_B16_MASK) << SK_B16_SHIFT;
     return r | g | b;
 }
 
-inline U16CPU SkPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b)
-{
+static inline U16CPU SkPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b) {
     return  (SkR32ToR16(r) << SK_R16_SHIFT) |
             (SkG32ToG16(g) << SK_G16_SHIFT) |
             (SkB32ToB16(b) << SK_B16_SHIFT);
@@ -304,8 +299,7 @@ inline U16CPU SkPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b)
 
 #define SkShouldDitherXY(x, y)  (((x) ^ (y)) & 1)
 
-inline uint16_t SkDitherPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b)
-{
+static inline uint16_t SkDitherPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b) {
     r = ((r << 1) - ((r >> (8 - SK_R16_BITS) << (8 - SK_R16_BITS)) | (r >> SK_R16_BITS))) >> (8 - SK_R16_BITS);
     g = ((g << 1) - ((g >> (8 - SK_G16_BITS) << (8 - SK_G16_BITS)) | (g >> SK_G16_BITS))) >> (8 - SK_G16_BITS);
     b = ((b << 1) - ((b >> (8 - SK_B16_BITS) << (8 - SK_B16_BITS)) | (b >> SK_B16_BITS))) >> (8 - SK_B16_BITS);
@@ -313,8 +307,7 @@ inline uint16_t SkDitherPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b)
     return SkPackRGB16(r, g, b);
 }
 
-inline uint16_t SkDitherPixel32ToPixel16(SkPMColor c)
-{
+static inline uint16_t SkDitherPixel32ToPixel16(SkPMColor c) {
     return SkDitherPack888ToRGB16(SkGetPackedR32(c), SkGetPackedG32(c), SkGetPackedB32(c));
 }
 
@@ -325,8 +318,7 @@ inline uint16_t SkDitherPixel32ToPixel16(SkPMColor c)
     to saturate properly (and not overflow). If we take the 8 bits as is, it is
     possible to overflow.
 */
-static inline uint32_t SkPMColorToExpanded16x5(SkPMColor c)
-{
+static inline uint32_t SkPMColorToExpanded16x5(SkPMColor c) {
     unsigned sr = SkPacked32ToR16(c);
     unsigned sg = SkPacked32ToG16(c);
     unsigned sb = SkPacked32ToB16(c);
@@ -361,16 +353,15 @@ static inline U16CPU SkSrcOver32To16(SkPMColor src, uint16_t dst) {
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Convert a 16bit pixel to a 32bit pixel
 
-inline unsigned SkR16ToR32(unsigned r)
-{
+static inline unsigned SkR16ToR32(unsigned r) {
     return (r << (8 - SK_R16_BITS)) | (r >> (2 * SK_R16_BITS - 8));
 }
-inline unsigned SkG16ToG32(unsigned g)
-{
+
+static inline unsigned SkG16ToG32(unsigned g) {
     return (g << (8 - SK_G16_BITS)) | (g >> (2 * SK_G16_BITS - 8));
 }
-inline unsigned SkB16ToB32(unsigned b)
-{
+
+static inline unsigned SkB16ToB32(unsigned b) {
     return (b << (8 - SK_B16_BITS)) | (b >> (2 * SK_B16_BITS - 8));
 }
 
@@ -378,8 +369,7 @@ inline unsigned SkB16ToB32(unsigned b)
 #define SkPacked16ToG32(c)      SkG16ToG32(SkGetPackedG16(c))
 #define SkPacked16ToB32(c)      SkB16ToB32(SkGetPackedB16(c))
 
-inline SkPMColor SkPixel16ToPixel32(U16CPU src)
-{
+static inline SkPMColor SkPixel16ToPixel32(U16CPU src) {
     SkASSERT(src == SkToU16(src));
 
     unsigned    r = SkPacked16ToR32(src);
@@ -423,8 +413,7 @@ typedef uint16_t SkPMColor16;
 #define SkG32To4444(g)  ((unsigned)(g) >> 4)
 #define SkB32To4444(b)  ((unsigned)(b) >> 4)
 
-static inline U8CPU SkReplicateNibble(unsigned nib)
-{
+static inline U8CPU SkReplicateNibble(unsigned nib) {
     SkASSERT(nib <= 0xF);
     return (nib << 4) | nib;
 }
@@ -445,8 +434,7 @@ static inline U8CPU SkReplicateNibble(unsigned nib)
 #define SkPacked4444ToB32(c)    SkReplicateNibble(SkGetPackedB4444(c))
 
 #ifdef SK_DEBUG
-static inline void SkPMColor16Assert(U16CPU c)
-{
+static inline void SkPMColor16Assert(U16CPU c) {
     unsigned a = SkGetPackedA4444(c);
     unsigned r = SkGetPackedR4444(c);
     unsigned g = SkGetPackedG4444(c);
@@ -461,15 +449,13 @@ static inline void SkPMColor16Assert(U16CPU c)
 #define SkPMColor16Assert(c)
 #endif
 
-static inline unsigned SkAlpha15To16(unsigned a)
-{
+static inline unsigned SkAlpha15To16(unsigned a) {
     SkASSERT(a <= 0xF);
     return a + (a >> 3);
 }
 
 #ifdef SK_DEBUG
-    static inline int SkAlphaMul4(int value, int scale)
-    {
+    static inline int SkAlphaMul4(int value, int scale) {
         SkASSERT((unsigned)scale <= 0x10);
         return value * scale >> 4;
     }
@@ -477,27 +463,23 @@ static inline unsigned SkAlpha15To16(unsigned a)
     #define SkAlphaMul4(value, scale)   ((value) * (scale) >> 4)
 #endif
 
-static inline unsigned SkR4444ToR565(unsigned r)
-{
+static inline unsigned SkR4444ToR565(unsigned r) {
     SkASSERT(r <= 0xF);
     return (r << (SK_R16_BITS - 4)) | (r >> (8 - SK_R16_BITS));
 }
 
-static inline unsigned SkG4444ToG565(unsigned g)
-{
+static inline unsigned SkG4444ToG565(unsigned g) {
     SkASSERT(g <= 0xF);
     return (g << (SK_G16_BITS - 4)) | (g >> (8 - SK_G16_BITS));
 }
 
-static inline unsigned SkB4444ToB565(unsigned b)
-{
+static inline unsigned SkB4444ToB565(unsigned b) {
     SkASSERT(b <= 0xF);
     return (b << (SK_B16_BITS - 4)) | (b >> (8 - SK_B16_BITS));
 }
 
 static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
-                                         unsigned g, unsigned b)
-{
+                                         unsigned g, unsigned b) {
     SkASSERT(a <= 0xF);
     SkASSERT(r <= a);
     SkASSERT(g <= a);
@@ -509,8 +491,7 @@ static inline SkPMColor16 SkPackARGB4444(unsigned a, unsigned r,
 
 extern const uint16_t gMask_0F0F;
 
-inline U16CPU SkAlphaMulQ4(U16CPU c, unsigned scale)
-{
+static inline U16CPU SkAlphaMulQ4(U16CPU c, unsigned scale) {
     SkASSERT(scale <= 16);
 
     const unsigned mask = 0xF0F;    //gMask_0F0F;
@@ -529,8 +510,7 @@ inline U16CPU SkAlphaMulQ4(U16CPU c, unsigned scale)
 /** Expand the SkPMColor16 color into a 32bit value that can be scaled all at
     once by a value up to 16. Used in conjunction with SkCompact_4444.
 */
-inline uint32_t SkExpand_4444(U16CPU c)
-{
+static inline uint32_t SkExpand_4444(U16CPU c) {
     SkASSERT(c == (uint16_t)c);
     
     const unsigned mask = 0xF0F;    //gMask_0F0F;
@@ -544,14 +524,12 @@ inline uint32_t SkExpand_4444(U16CPU c)
     would add 2 more instructions, slow us down. It is up to the caller to
     perform the cast if needed.
 */
-static inline U16CPU SkCompact_4444(uint32_t c)
-{
+static inline U16CPU SkCompact_4444(uint32_t c) {
     const unsigned mask = 0xF0F;    //gMask_0F0F;
     return (c & mask) | ((c >> 12) & ~mask);
 }
 
-static inline uint16_t SkSrcOver4444To16(SkPMColor16 s, uint16_t d)
-{
+static inline uint16_t SkSrcOver4444To16(SkPMColor16 s, uint16_t d) {
     unsigned sa = SkGetPackedA4444(s);
     unsigned sr = SkR4444ToR565(SkGetPackedR4444(s));
     unsigned sg = SkG4444ToG565(SkGetPackedG4444(s));
@@ -576,15 +554,13 @@ static inline uint16_t SkSrcOver4444To16(SkPMColor16 s, uint16_t d)
     return SkPackRGB16(sr + dr, sg + dg, sb + db);
 }
 
-static inline uint16_t SkBlend4444To16(SkPMColor16 src, uint16_t dst, int scale16)
-{
+static inline uint16_t SkBlend4444To16(SkPMColor16 src, uint16_t dst, int scale16) {
     SkASSERT((unsigned)scale16 <= 16);
     
     return SkSrcOver4444To16(SkAlphaMulQ4(src, scale16), dst);
 }
 
-static inline uint16_t SkBlend4444(SkPMColor16 src, SkPMColor16 dst, int scale16)
-{
+static inline uint16_t SkBlend4444(SkPMColor16 src, SkPMColor16 dst, int scale16) {
     SkASSERT((unsigned)scale16 <= 16);
     
     uint32_t src32 = SkExpand_4444(src) * scale16;
@@ -600,8 +576,7 @@ static inline uint16_t SkBlend4444(SkPMColor16 src, SkPMColor16 dst, int scale16
     return SkCompact_4444((src32 + dst32) >> 4);
 }
 
-static inline SkPMColor SkPixel4444ToPixel32(U16CPU c)
-{
+static inline SkPMColor SkPixel4444ToPixel32(U16CPU c) {
     uint32_t d = (SkGetPackedA4444(c) << SK_A32_SHIFT) |
                  (SkGetPackedR4444(c) << SK_R32_SHIFT) |
                  (SkGetPackedG4444(c) << SK_G32_SHIFT) |
@@ -609,8 +584,7 @@ static inline SkPMColor SkPixel4444ToPixel32(U16CPU c)
     return d | (d << 4);
 }
 
-static inline SkPMColor16 SkPixel32ToPixel4444(SkPMColor c)
-{
+static inline SkPMColor16 SkPixel32ToPixel4444(SkPMColor c) {
     return  (((c >> (SK_A32_SHIFT + 4)) & 0xF) << SK_A4444_SHIFT) |
     (((c >> (SK_R32_SHIFT + 4)) & 0xF) << SK_R4444_SHIFT) |
     (((c >> (SK_G32_SHIFT + 4)) & 0xF) << SK_G4444_SHIFT) |
@@ -619,8 +593,7 @@ static inline SkPMColor16 SkPixel32ToPixel4444(SkPMColor c)
 
 // cheap 2x2 dither
 static inline SkPMColor16 SkDitherARGB32To4444(U8CPU a, U8CPU r,
-                                               U8CPU g, U8CPU b)
-{
+                                               U8CPU g, U8CPU b) {
     a = ((a << 1) - ((a >> 4 << 4) | (a >> 4))) >> 4;
     r = ((r << 1) - ((r >> 4 << 4) | (r >> 4))) >> 4;
     g = ((g << 1) - ((g >> 4 << 4) | (g >> 4))) >> 4;
@@ -629,8 +602,7 @@ static inline SkPMColor16 SkDitherARGB32To4444(U8CPU a, U8CPU r,
     return SkPackARGB4444(a, r, g, b);
 }
 
-static inline SkPMColor16 SkDitherPixel32To4444(SkPMColor c)
-{
+static inline SkPMColor16 SkDitherPixel32To4444(SkPMColor c) {
     return SkDitherARGB32To4444(SkGetPackedA32(c), SkGetPackedR32(c),
                                 SkGetPackedG32(c), SkGetPackedB32(c));
 }
@@ -639,8 +611,7 @@ static inline SkPMColor16 SkDitherPixel32To4444(SkPMColor c)
     Transforms a normal ARGB_8888 into the same byte order as
     expanded ARGB_4444, but keeps each component 8bits
 */
-static inline uint32_t SkExpand_8888(SkPMColor c)
-{
+static inline uint32_t SkExpand_8888(SkPMColor c) {
     return  (((c >> SK_R32_SHIFT) & 0xFF) << 24) |
             (((c >> SK_G32_SHIFT) & 0xFF) <<  8) |
             (((c >> SK_B32_SHIFT) & 0xFF) << 16) |
@@ -650,8 +621,7 @@ static inline uint32_t SkExpand_8888(SkPMColor c)
 /*  Undo the operation of SkExpand_8888, turning the argument back into
     a SkPMColor.
 */
-static inline SkPMColor SkCompact_8888(uint32_t c)
-{
+static inline SkPMColor SkCompact_8888(uint32_t c) {
     return  (((c >> 24) & 0xFF) << SK_R32_SHIFT) |
             (((c >>  8) & 0xFF) << SK_G32_SHIFT) |
             (((c >> 16) & 0xFF) << SK_B32_SHIFT) |
@@ -662,8 +632,7 @@ static inline SkPMColor SkCompact_8888(uint32_t c)
     but this routine just keeps the high 4bits of each component in the low
     4bits of the result (just like a newly expanded PMColor16).
 */
-static inline uint32_t SkExpand32_4444(SkPMColor c)
-{
+static inline uint32_t SkExpand32_4444(SkPMColor c) {
     return  (((c >> (SK_R32_SHIFT + 4)) & 0xF) << 24) |
             (((c >> (SK_G32_SHIFT + 4)) & 0xF) <<  8) |
             (((c >> (SK_B32_SHIFT + 4)) & 0xF) << 16) |

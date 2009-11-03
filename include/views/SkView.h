@@ -155,8 +155,14 @@ public:
     /** Send the event to the view's parent, and its parent etc. until one of them
         returns true from its onEvent call. This view is returned. If no parent handles
         the event, null is returned.
-    */
+     */
     SkView*     sendEventToParents(const SkEvent&);
+    /** Send the query to the view's parent, and its parent etc. until one of them
+        returns true from its onQuery call. This view is returned. If no parent handles
+        the query, null is returned.
+     */
+    SkView* sendQueryToParents(SkEvent*);
+
     /** Depricated helper function. Just call event->post(sinkID, delay);
     */
     bool    postEvent(SkEvent* evt, SkEventSinkID sinkID, SkMSec delay) { return evt->post(sinkID, delay); }
