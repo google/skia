@@ -242,13 +242,13 @@ SkBlitRow::Proc SkBlitRow::Factory(unsigned flags, SkBitmap::Config config) {
 
     switch (config) {
         case SkBitmap::kRGB_565_Config:
-            proc = gPlatform_565_Procs[flags];
+            proc = PlatformProcs565(flags);
             if (NULL == proc) {
                 proc = gDefault_565_Procs[flags];
             }
             break;
         case SkBitmap::kARGB_4444_Config:
-            proc = gPlatform_4444_Procs[flags];
+            proc = PlatformProcs4444(flags);
             if (NULL == proc) {
                 proc = SkBlitRow_Factory_4444(flags);
             }

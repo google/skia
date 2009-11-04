@@ -976,7 +976,7 @@ static void S32_D565_Opaque_Dither_neon(uint16_t* SK_RESTRICT dst,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const SkBlitRow::Proc SkBlitRow::gPlatform_565_Procs[] = {
+static const SkBlitRow::Proc platform_565_procs[] = {
     // no dither
     S32_D565_Opaque_PROC,
     S32_D565_Blend_PROC,
@@ -990,7 +990,7 @@ const SkBlitRow::Proc SkBlitRow::gPlatform_565_Procs[] = {
     NULL,   // S32A_D565_Blend_Dither
 };
 
-const SkBlitRow::Proc SkBlitRow::gPlatform_4444_Procs[] = {
+static const SkBlitRow::Proc platform_4444_procs[] = {
     // no dither
     NULL,   // S32_D4444_Opaque,
     NULL,   // S32_D4444_Blend,
@@ -1004,10 +1004,21 @@ const SkBlitRow::Proc SkBlitRow::gPlatform_4444_Procs[] = {
     NULL,   // S32A_D4444_Blend_Dither
 };
 
-const SkBlitRow::Proc32 SkBlitRow::gPlatform_Procs32[] = {
+static const SkBlitRow::Proc32 platform_32_procs[] = {
     NULL,   // S32_Opaque,
     S32_Blend_BlitRow32_PROC,		// S32_Blend,
     S32A_Opaque_BlitRow32_PROC,		// S32A_Opaque,
     NULL,   // S32A_Blend,
 };
 
+const SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
+    return platform_4444_procs[flags];
+}
+
+const SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
+    return platform_565_procs[flags];
+}
+
+const SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
+    return platform_32_procs[flags];
+}
