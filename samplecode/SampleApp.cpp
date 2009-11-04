@@ -10,8 +10,6 @@
 
 #include "SampleCode.h"
 
-#define SHOW_OVERVIEW    false
-
 SkView* create_overview(int, const SkViewFactory*);
 
 //#define SK_SUPPORT_GL
@@ -231,11 +229,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
         }
     }
     fCurrIndex = 0;
-    if (SHOW_OVERVIEW) {
-        this->loadView(NULL);
-    } else {
-        this->loadView(fSamples[fCurrIndex]());
-    }
+    this->loadView(fSamples[fCurrIndex]());
 }
 
 SampleWindow::~SampleWindow() {
