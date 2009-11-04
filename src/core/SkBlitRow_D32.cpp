@@ -78,7 +78,7 @@ SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
     // just so we don't crash
     flags &= kFlags32_Mask;
     
-    SkBlitRow::Proc32 proc = gPlatform_Procs32[flags];
+    SkBlitRow::Proc32 proc = PlatformProcs32(flags);
     if (NULL == proc) {
         proc = gDefault_Procs32[flags];
     }

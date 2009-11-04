@@ -65,18 +65,21 @@ public:
         Color32(row, row, count, color);
     }
 
+    /** These static functions are called by the Factory and Factory32
+        functions, and should return either NULL, or a
+        platform-specific function-ptr to be used in place of the
+        system default.
+     */
+
+    static const Proc32 PlatformProcs32(unsigned flags);
+    static const Proc PlatformProcs565(unsigned flags);
+    static const Proc PlatformProcs4444(unsigned flags);
+
 private:
     enum {
         kFlags16_Mask = 7,
         kFlags32_Mask = 3
     };
-    /** These global arrays are indexed using the flags parameter to Factory,
-        and contain either NULL, or a platform-specific function-ptr to be used
-        in place of the system default.
-     */
-    static const Proc gPlatform_565_Procs[];
-    static const Proc gPlatform_4444_Procs[];
-    static const Proc32 gPlatform_Procs32[];
 };
 
 #endif
