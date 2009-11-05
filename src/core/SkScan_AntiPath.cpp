@@ -366,7 +366,6 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
     if (ir.isEmpty()) {
         return;
     }
-    SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
 
     // use bit-or since we expect all to pass, so no need to go slower with
     // a short-circuiting logical-or

@@ -446,11 +446,23 @@ static int worst_case_edge_count(const SkPath& path, size_t* storage)
 
 /* Much faster than worst_case_edge_count, but over estimates even more
 */
-static int cheap_worst_case_edge_count(const SkPath& path, size_t* storage)
-{
+static int cheap_worst_case_edge_count(const SkPath& path, size_t* storage) {
     int ptCount = path.getPoints(NULL, 0);
-    int edgeCount = ptCount;
-    *storage = edgeCount * sizeof(SkCubicEdge);
+    // worst case is curve, close, curve, close, as that is 
+    //     2 lines per pt, or             : pts * 2
+    //     2 quads + 1 line per 2 pts, or : pts * 3 / 2
+    //     3 cubics + 1 line per 3 pts    : pts * 4 / 3
+    int edgeCount = ptCount << 1;
+    // worst storage, due to relative size of different edge types, is
+    // quads * 3 / 2
+    size_t quadSize = (ptCount * 3 >> 1) * sizeof(SkQuadraticEdge);
+#if 0
+    size_t lineSize = (ptCount << 1) * sizeof(SkEdge);
+    size_t cubicSize = (ptCount * 3 / 4) * sizeof(SkCubicEdge);
+    SkASSERT(lineSize <= quadSize);
+    SkASSERT(cubicSize <= quadSize);
+#endif
+    *storage = quadSize;
     return edgeCount;
 }
 
