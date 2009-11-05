@@ -122,7 +122,7 @@ static void do_fuzz(SkCanvas* canvas) {
             case 1: mode = SkXfermode::kXor_Mode; break;
             case 2: mode = SkXfermode::kSrcOver_Mode; break;
           }
-          paint.setXfermode(mode);
+          paint.setXfermodeMode(mode);
       }
       break;
 
@@ -339,6 +339,7 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
+        SkIRect r = canvas->getTotalClip().getBounds();
         this->drawBG(canvas);
         do_fuzz(canvas);
         this->inval(NULL);
