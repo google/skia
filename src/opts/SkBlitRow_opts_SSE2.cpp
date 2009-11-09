@@ -37,10 +37,16 @@ static void getcpuid(int info_type, int info[4])
 #else
 static void getcpuid(int info_type, int info[4])
 {
-    asm("cpuid": "=a" (info[0]), "=b" (info[1]), "=c" (info[2]), "=d" (info[3])
-               : "a"(info_type)
-               :
-       );
+    // We save and restore ebx, so this code can be compatible with -fPIC
+    asm volatile (
+        "pushl %%ebx      \n\t"
+        "cpuid            \n\t"
+        "movl %%ebx, %1   \n\t"
+        "popl %%ebx       \n\t"
+        : "=a"(info[0]), "=r"(info[1]), "=c"(info[2]), "=d"(info[3])
+        : "a"(info_type)
+        :
+    );
 }
 #endif
 
