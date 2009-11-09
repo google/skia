@@ -174,7 +174,7 @@ void SkAvoidXfermode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
     unsigned    opG = SkColorGetG(fOpColor) >> (8 - SK_G16_BITS);
     unsigned    opB = SkColorGetB(fOpColor) >> (8 - SK_R16_BITS);
     uint32_t    mul = fDistMul;
-    uint32_t    sub = (fDistMul - (1 << 14)) << 8;
+    uint32_t    sub = (fDistMul - (1 << 14)) << SK_R16_BITS;
 
     int MAX, mask;
     
@@ -193,7 +193,6 @@ void SkAvoidXfermode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
         SkASSERT((unsigned)d <= 31);
         // convert from 0..31 to 0..32
         d += d >> 4;
-
         d = scale_dist_14(d, mul, sub);
         SkASSERT(d <= 32);
 
@@ -216,7 +215,7 @@ void SkAvoidXfermode::xfer4444(uint16_t dst[], const SkPMColor src[], int count,
     unsigned    opG = SkColorGetG(fOpColor) >> 4;
     unsigned    opB = SkColorGetB(fOpColor) >> 4;
     uint32_t    mul = fDistMul;
-    uint32_t    sub = (fDistMul - (1 << 14)) << 8;
+    uint32_t    sub = (fDistMul - (1 << 14)) << 4;
     
     int MAX, mask;
     
@@ -233,8 +232,8 @@ void SkAvoidXfermode::xfer4444(uint16_t dst[], const SkPMColor src[], int count,
         // now reverse d if we need to
         d = MAX + (d ^ mask) - mask;
         SkASSERT((unsigned)d <= 15);
-        d = SkAlpha255To256(d);
-        
+        // convert from 0..15 to 0..16
+        d += d >> 3;
         d = scale_dist_14(d, mul, sub);
         SkASSERT(d <= 16);
         
