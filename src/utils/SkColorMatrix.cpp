@@ -38,7 +38,7 @@ void SkColorMatrix::setSinCos(Axis axis, SkScalar sine, SkScalar cosine)
 
     static const uint8_t gRotateIndex[] = {
         6, 7, 11, 12,
-        0, 2, 15, 17,
+        0, 10, 2, 12,
         0, 1,  5,  6,
     };
     const uint8_t* index = gRotateIndex + axis * 4;
