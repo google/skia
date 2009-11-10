@@ -6,6 +6,8 @@
 #include "SkTemplates.h"
 #include "SkThread.h"
 
+//#define DUMP_IMAGEREF_LIFECYCLE
+
 // can't be static, as SkImageRef_Pool needs to see it
 SkMutex gImageRefMutex;
 
@@ -160,6 +162,8 @@ SkImageRef::SkImageRef(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer, &gImageRefMutex), fErrorInDecoding(false) {
     fConfig = (SkBitmap::Config)buffer.readU8();
     fSampleSize = buffer.readU8();
+    fDoDither = buffer.readBool();
+
     size_t length = buffer.readU32();
     fStream = SkNEW_ARGS(SkMemoryStream, (length));
     buffer.read((void*)fStream->getMemoryBase(), length);
@@ -173,6 +177,7 @@ void SkImageRef::flatten(SkFlattenableWriteBuffer& buffer) const {
 
     buffer.write8(fConfig);
     buffer.write8(fSampleSize);
+    buffer.writeBool(fDoDither);
     size_t length = fStream->getLength();
     buffer.write32(length);
     fStream->rewind();

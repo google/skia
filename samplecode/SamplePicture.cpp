@@ -21,6 +21,21 @@
 #include "SkStream.h"
 #include "SkXMLParser.h"
 
+#include "SkImageRef_GlobalPool.h"
+
+static SkBitmap load_bitmap() {
+    SkStream* stream = new SkFILEStream("/skimages/sesame_street_ensemble-hp.jpg");
+    SkAutoUnref aur(stream);
+    
+    SkBitmap bm;
+    if (SkImageDecoder::DecodeStream(stream, &bm, SkBitmap::kNo_Config,
+                                     SkImageDecoder::kDecodeBounds_Mode)) {
+        SkPixelRef* pr = new SkImageRef_GlobalPool(stream, bm.config(), 1);
+        bm.setPixelRef(pr)->unref();
+    }
+    return bm;
+}
+
 static void drawCircle(SkCanvas* canvas, int r, SkColor color) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -31,13 +46,20 @@ static void drawCircle(SkCanvas* canvas, int r, SkColor color) {
 }
 
 class PictureView : public SkView {
+    SkBitmap fBitmap;
 public:
 	PictureView() {
+        SkImageRef_GlobalPool::SetRAMBudget(16 * 1024);
+
+        fBitmap = load_bitmap();
+
         fPicture = new SkPicture;
         SkCanvas* canvas = fPicture->beginRecording(100, 100);
         SkPaint paint;
         paint.setAntiAlias(true);
         
+        canvas->drawBitmap(fBitmap, 0, 0, NULL);
+
         drawCircle(canvas, 50, SK_ColorBLACK);
         fSubPicture = new SkPicture;
         canvas->drawPicture(*fSubPicture);
@@ -75,7 +97,12 @@ protected:
     
     void drawSomething(SkCanvas* canvas) {
         SkPaint paint;
-        
+
+        canvas->save();
+        canvas->scale(0.5f, 0.5f);
+        canvas->drawBitmap(fBitmap, 0, 0, NULL);
+        canvas->restore();
+
         paint.setAntiAlias(true);
     
         paint.setColor(SK_ColorRED);
