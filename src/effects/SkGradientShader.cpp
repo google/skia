@@ -1330,8 +1330,28 @@ public:
         return SkNEW_ARGS(Two_Point_Radial_Gradient, (buffer));
     }
 
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
+        this->INHERITED::flatten(buffer);
+        buffer.writeScalar(fDiff.fX);
+        buffer.writeScalar(fDiff.fY);
+        buffer.writeScalar(fStartRadius);
+        buffer.writeScalar(fDiffRadius);
+        buffer.writeScalar(fSr2D2);
+        buffer.writeScalar(fA);
+        buffer.writeScalar(fOneOverTwoA);
+    }
+    
 protected:
-    Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {};
+    Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer)
+            : Gradient_Shader(buffer) {
+        fDiff.fX = buffer.readScalar();
+        fDiff.fY = buffer.readScalar();
+        fStartRadius = buffer.readScalar();
+        fDiffRadius = buffer.readScalar();
+        fSr2D2 = buffer.readScalar();
+        fA = buffer.readScalar();
+        fOneOverTwoA = buffer.readScalar();
+    };
     virtual Factory getFactory() { return CreateProc; }
     virtual void onCacheReset() {}
 
