@@ -317,15 +317,15 @@ static const SkBlitRow::Proc32 platform_32_procs[] = {
     S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
 };
 
-const SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
+SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
     return NULL;
 }
 
-const SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
+SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
     return NULL;
 }
 
-const SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
+SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
     static bool once;
     static bool hasSSE2;
     if (!once) {

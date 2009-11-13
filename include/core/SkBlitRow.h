@@ -71,9 +71,9 @@ public:
         system default.
      */
 
-    static const Proc32 PlatformProcs32(unsigned flags);
-    static const Proc PlatformProcs565(unsigned flags);
-    static const Proc PlatformProcs4444(unsigned flags);
+    static Proc32 PlatformProcs32(unsigned flags);
+    static Proc PlatformProcs565(unsigned flags);
+    static Proc PlatformProcs4444(unsigned flags);
 
 private:
     enum {

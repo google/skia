@@ -1011,14 +1011,14 @@ static const SkBlitRow::Proc32 platform_32_procs[] = {
     NULL,   // S32A_Blend,
 };
 
-const SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
+SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
     return platform_4444_procs[flags];
 }
 
-const SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
+SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
     return platform_565_procs[flags];
 }
 
-const SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
+SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
     return platform_32_procs[flags];
 }
