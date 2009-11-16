@@ -15,47 +15,17 @@
  ** limitations under the License.
  */
 
-#include "SkBlitRow.h"
+#include "SkBlitRow_opts_SSE2.h"
 #include "SkColorPriv.h"
-#include "SkDither.h"
 
 #include <emmintrin.h>
-
-#ifdef _MSC_VER
-static void getcpuid(int info_type, int info[4])
-{
-    __asm {
-        mov    eax, [info_type]
-        cpuid
-        mov    edi, [info]
-        mov    [edi], eax
-        mov    [edi+4], ebx
-        mov    [edi+8], ecx
-        mov    [edi+12], edx
-    }
-}
-#else
-static void getcpuid(int info_type, int info[4])
-{
-    // We save and restore ebx, so this code can be compatible with -fPIC
-    asm volatile (
-        "pushl %%ebx      \n\t"
-        "cpuid            \n\t"
-        "movl %%ebx, %1   \n\t"
-        "popl %%ebx       \n\t"
-        : "=a"(info[0]), "=r"(info[1]), "=c"(info[2]), "=d"(info[3])
-        : "a"(info_type)
-        :
-    );
-}
-#endif
 
 /* SSE2 version of S32_Blend_BlitRow32()
  * portable version is in core/SkBlitRow_D32.cpp
  */
-static void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
-                                     const SkPMColor* SK_RESTRICT src,
-                                     int count, U8CPU alpha) {
+void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
+                              const SkPMColor* SK_RESTRICT src,
+                              int count, U8CPU alpha) {
     SkASSERT(alpha <= 255);
     if (count <= 0) {
         return;
@@ -108,7 +78,7 @@ static void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
 
     src = reinterpret_cast<const SkPMColor*>(s);
     dst = reinterpret_cast<SkPMColor*>(d);
-   while (count > 0) {
+    while (count > 0) {
         *dst = SkAlphaMulQ(*src, src_scale) + SkAlphaMulQ(*dst, dst_scale);
         src++;
         dst++;
@@ -116,9 +86,9 @@ static void S32_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-static void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
-                                       const SkPMColor* SK_RESTRICT src,
-                                       int count, U8CPU alpha) {
+void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
+                                const SkPMColor* SK_RESTRICT src,
+                                int count, U8CPU alpha) {
     SkASSERT(alpha == 255);
     if (count <= 0) {
         return;
@@ -228,9 +198,9 @@ static void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-static void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
-                                      const SkPMColor* SK_RESTRICT src,
-                                      int count, U8CPU alpha) {
+void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
+                               const SkPMColor* SK_RESTRICT src,
+                               int count, U8CPU alpha) {
     SkASSERT(alpha <= 255);
     if (count <= 0) {
         return;
@@ -305,38 +275,5 @@ static void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
         src++;
         dst++;
         count--;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-static const SkBlitRow::Proc32 platform_32_procs[] = {
-    NULL,                               // S32_Opaque,
-    S32_Blend_BlitRow32_SSE2,           // S32_Blend,
-    S32A_Opaque_BlitRow32_SSE2,         // S32A_Opaque
-    S32A_Blend_BlitRow32_SSE2,          // S32A_Blend,
-};
-
-SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
-    return NULL;
-}
-
-SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
-    return NULL;
-}
-
-SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
-    static bool once;
-    static bool hasSSE2;
-    if (!once) {
-        int cpu_info[4] = { 0 };
-        getcpuid(1, cpu_info);
-        hasSSE2 = (cpu_info[3] & (1<<26)) != 0;
-        once = true;
-    }
-    if (hasSSE2) {
-        return platform_32_procs[flags];
-    } else {
-        return NULL;
     }
 }

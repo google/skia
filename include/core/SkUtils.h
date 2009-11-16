@@ -27,6 +27,8 @@
     @param count    The number of times value should be copied into the buffer.
 */
 void sk_memset16_portable(uint16_t dst[], uint16_t value, int count);
+typedef void (*SkMemset16Proc)(uint16_t dst[], uint16_t value, int count);
+SkMemset16Proc SkMemset16GetPlatformProc();
 
 /** Similar to memset(), but it assigns a 32bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -34,6 +36,8 @@ void sk_memset16_portable(uint16_t dst[], uint16_t value, int count);
     @param count    The number of times value should be copied into the buffer.
 */
 void sk_memset32_portable(uint32_t dst[], uint32_t value, int count);
+typedef void (*SkMemset32Proc)(uint32_t dst[], uint32_t value, int count);
+SkMemset32Proc SkMemset32GetPlatformProc();
 
 #ifdef ANDROID
     #include "cutils/memory.h"
@@ -43,13 +47,12 @@ void sk_memset32_portable(uint32_t dst[], uint32_t value, int count);
 #endif
 
 #ifndef sk_memset16
-    #define sk_memset16(dst, value, count)  sk_memset16_portable(dst, value, count)
+extern SkMemset16Proc sk_memset16;
 #endif
 
 #ifndef sk_memset32
-    #define sk_memset32(dst, value, count)  sk_memset32_portable(dst, value, count)
+extern SkMemset32Proc sk_memset32;
 #endif
-
 
 ///////////////////////////////////////////////////////////////////////////
 
