@@ -4,6 +4,7 @@
 CC := gcc
 C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
 CFLAGS := -Wall -g # -O2 
+CFLAGS_SSE2 = $(CFLAGS) -msse2
 LINKER_OPTS := -lpthread
 DEFINES := -DSK_CAN_USE_FLOAT
 HIDE = @
@@ -75,6 +76,11 @@ else
     # support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
 endif
+
+# For these files, and these files only, compile with -msse2.
+SSE2_OBJS := out/src/opts/SkBlitRow_opts_SSE2.o \
+             out/src/opts/SkUtils_opts_SSE2.o
+$(SSE2_OBJS) : CFLAGS := $(CFLAGS_SSE2)
 
 out/%.o : %.cpp
 	@mkdir -p $(dir $@)
