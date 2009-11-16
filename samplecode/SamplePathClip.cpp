@@ -119,9 +119,13 @@ protected:
               SkIntToScalar(250), SkIntToScalar(400));
         canvas->drawOval(oval, p);
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        fCenter.set(x, y);
+        return new Click(this);
+    }
+        
+    virtual bool onClick(Click* click) {
+        fCenter.set(click->fCurr.fX, click->fCurr.fY);
         this->inval(NULL);
         return NULL;
     }

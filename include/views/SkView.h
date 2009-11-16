@@ -314,7 +314,13 @@ protected:
 
     /** Override this if you might handle the click
     */
-    virtual Click*  onFindClickHandler(SkScalar x, SkScalar y);
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
+    /** Override this to decide if your children are targets for a click.
+        The default returns true, in which case your children views will be
+        candidates for onFindClickHandler. Returning false wil skip the children
+        and just call your onFindClickHandler.
+     */
+    virtual bool onSendClickToChildren(SkScalar x, SkScalar y);
     /** Override this to track clicks, returning true as long as you want to track
         the pen/mouse.
     */
