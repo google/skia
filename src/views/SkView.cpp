@@ -343,18 +343,23 @@ void SkView::Click::copyType(const char type[])
 
 SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y)
 {
-	if (x < 0 || y < 0 || x >= fWidth || y >= fHeight)
+	if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
 		return false;
+    }
 
-	F2BIter	iter(this);
-	SkView*	child;
+    if (this->onSendClickToChildren(x, y)) {
+        F2BIter	iter(this);
+        SkView*	child;
 
-	while ((child = iter.next()) != NULL)
-	{
-		Click* click = child->findClickHandler(x - child->fLoc.fX, y - child->fLoc.fY);
-		if (click)
-			return click;
-	}
+        while ((child = iter.next()) != NULL)
+        {
+            Click* click = child->findClickHandler(x - child->fLoc.fX,
+                                                   y - child->fLoc.fY);
+            if (click) {
+                return click;
+            }
+        }
+    }
 	return this->onFindClickHandler(x, y);
 }
 
@@ -417,38 +422,37 @@ void SkView::DoClickUp(Click* click, int x, int y)
 
 //////////////////////////////////////////////////////////////////////
 
-void SkView::invokeLayout()
-{
+void SkView::invokeLayout() {
 	SkView::Layout* layout = this->getLayout();
 
-	if (layout)
+	if (layout) {
 		layout->layoutChildren(this);
+    }
 }
 
-void SkView::onDraw(SkCanvas* canvas)
-{
+void SkView::onDraw(SkCanvas* canvas) {
 	Artist* artist = this->getArtist();
 
-	if (artist)
+	if (artist) {
 		artist->draw(this, canvas);
+    }
 }
 
-void SkView::onSizeChange()
-{
+void SkView::onSizeChange() {}
+
+bool SkView::onSendClickToChildren(SkScalar x, SkScalar y) {
+    return true;
 }
 
-SkView::Click* SkView::onFindClickHandler(SkScalar x, SkScalar y)
-{
+SkView::Click* SkView::onFindClickHandler(SkScalar x, SkScalar y) {
 	return NULL;
 }
 
-bool SkView::onClick(Click*)
-{
+bool SkView::onClick(Click*) {
 	return false;
 }
 
-bool SkView::handleInval(const SkRect& r)
-{
+bool SkView::handleInval(const SkRect& r) {
 	return false;
 }
 

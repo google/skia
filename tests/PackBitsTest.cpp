@@ -90,7 +90,7 @@ static void test_pack8(skiatest::Reporter* reporter) {
     }
 
     for (size_t size = 1; size <= 512; size += 1) {
-        for (int n = 200; n; n--) {
+        for (int n = 100; n; n--) {
             uint8_t src[600], src2[600];
             uint8_t dst[600];
             rand_fill(src, size);
@@ -104,7 +104,7 @@ static void test_pack8(skiatest::Reporter* reporter) {
             bool match = memcmp(src, src2, size * sizeof(uint8_t)) == 0;
             REPORTER_ASSERT(reporter, match);
 
-            for (int j = 0; j < 200; j++) {
+            for (int j = 0; j < 100; j++) {
                 size_t skip = gRand.nextU() % size;
                 size_t write = gRand.nextU() % size;
                 if (skip + write > size) {

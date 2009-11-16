@@ -369,43 +369,6 @@ static int build_edges(SkEdge edge[], const SkPath& path,
     return (int)(list - start);
 }
 
-extern "C" {
-    static int edge_compare(const void* a, const void* b)
-    {
-        const SkEdge* edgea = *(const SkEdge**)a;
-        const SkEdge* edgeb = *(const SkEdge**)b;
-
-        int valuea = edgea->fFirstY;
-        int valueb = edgeb->fFirstY;
-
-        if (valuea == valueb)
-        {
-            valuea = edgea->fX;
-            valueb = edgeb->fX;
-        }
-
-        // this overflows if valuea >>> valueb or vice-versa
-        //     return valuea - valueb;
-        // do perform the slower but safe compares
-        return (valuea < valueb) ? -1 : (valuea > valueb);
-    }
-}
-
-static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last)
-{
-    qsort(list, count, sizeof(SkEdge*), edge_compare);
-
-    // now make the edges linked in sorted order
-    for (int i = 1; i < count; i++)
-    {
-        list[i - 1]->fNext = list[i];
-        list[i]->fPrev = list[i - 1];
-    }
-
-    *last = list[count - 1];
-    return list[0];
-}
-
 #ifdef SK_DEBUG
 /* 'quick' computation of the max sized needed to allocated for
     our edgelist.
@@ -464,6 +427,41 @@ static int cheap_worst_case_edge_count(const SkPath& path, size_t* storage) {
 #endif
     *storage = quadSize;
     return edgeCount;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+extern "C" {
+    static int edge_compare(const void* a, const void* b) {
+        const SkEdge* edgea = *(const SkEdge**)a;
+        const SkEdge* edgeb = *(const SkEdge**)b;
+        
+        int valuea = edgea->fFirstY;
+        int valueb = edgeb->fFirstY;
+        
+        if (valuea == valueb) {
+            valuea = edgea->fX;
+            valueb = edgeb->fX;
+        }
+        
+        // this overflows if valuea >>> valueb or vice-versa
+        //     return valuea - valueb;
+        // do perform the slower but safe compares
+        return (valuea < valueb) ? -1 : (valuea > valueb);
+    }
+}
+
+static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
+    qsort(list, count, sizeof(SkEdge*), edge_compare);
+    
+    // now make the edges linked in sorted order
+    for (int i = 1; i < count; i++) {
+        list[i - 1]->fNext = list[i];
+        list[i]->fPrev = list[i - 1];
+    }
+    
+    *last = list[count - 1];
+    return list[0];
 }
 
 // clipRect may be null, even though we always have a clip. This indicates that

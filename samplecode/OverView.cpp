@@ -29,7 +29,11 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
+    virtual bool onSendClickToChildren(SkScalar x, SkScalar y) {
+        return false;
+    }
+
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y) {
         int ix = (int)(SkScalarDiv(x * N, W));
         int iy = (int)(SkScalarDiv(y * N, H));
         if (ix >= 0 && iy >= 0) {
@@ -87,5 +91,4 @@ SkCanvas* OverView::beforeChildren(SkCanvas* canvas) {
     canvas->scale(SK_Scalar1 / N, SK_Scalar1 / N);
     return canvas;
 }
-
 

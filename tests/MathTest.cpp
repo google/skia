@@ -235,7 +235,7 @@ static void TestMath(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, clamp == clamp2);
     }
 
-    for (i = 0; i < 100000; i++) {
+    for (i = 0; i < 10000; i++) {
         SkPoint p;
 
         p.setLength(rand.nextS(), rand.nextS(), SK_Scalar1);
@@ -256,7 +256,7 @@ static void TestMath(skiatest::Reporter* reporter) {
 #endif
 
 #ifdef SkLONGLONG
-    for (i = 0; i < 100000; i++) {
+    for (i = 0; i < 10000; i++) {
         SkFixed numer = rand.nextS();
         SkFixed denom = rand.nextS();
         SkFixed result = SkFixedDiv(numer, denom);
@@ -321,7 +321,7 @@ static void TestMath(skiatest::Reporter* reporter) {
 #endif
 
 #ifdef SK_CAN_USE_FLOAT
-    for (i = 0; i < 100000; i++) {
+    for (i = 0; i < 10000; i++) {
         SkFract x = rand.nextU() >> 1;
         double xx = (double)x / SK_Fract1;
         SkFract xr = SkFractSqrt(x);
@@ -351,7 +351,7 @@ static void TestMath(skiatest::Reporter* reporter) {
     }
 
     int maxDiff = 0;
-    for (i = 0; i < 10000; i++) {
+    for (i = 0; i < 1000; i++) {
         SkFixed rads = rand.nextS() >> 10;
         double frads = SkFixedToFloat(rads);
 
