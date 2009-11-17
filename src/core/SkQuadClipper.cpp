@@ -17,6 +17,22 @@
 #include "SkQuadClipper.h"
 #include "SkGeometry.h"
 
+static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
+    return bounds.fTop >= clip.fBottom || bounds.fBottom <= clip.fTop;
+}
+
+static inline void clamp_le(SkScalar& value, SkScalar max) {
+    if (value > max) {
+        value = max;
+    }
+}
+
+static inline void clamp_ge(SkScalar& value, SkScalar min) {
+    if (value < min) {
+        value = min;
+    }
+}
+
 static bool chopMonoQuadAt(SkScalar c0, SkScalar c1, SkScalar c2,
                            SkScalar target, SkScalar* t) {
     /* Solve F(t) = y where F(t) := [0](1-t)^2 + 2[1]t(1-t) + [2]t^2
@@ -132,6 +148,8 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
         if (chopMonoQuadAtY(pts, clip.fTop, &t)) {
             // take the 2nd chopped quad
             SkChopQuadAt(pts, tmp, t);
+            clamp_ge(tmp[2].fY, clip.fTop);
+            clamp_ge(tmp[3].fY, clip.fTop);
             pts[0] = tmp[2];
             pts[1] = tmp[3];
         } else {
@@ -149,6 +167,8 @@ static void chop_quad_in_Y(SkPoint pts[3], const SkRect& clip) {
     if (pts[2].fY > clip.fBottom) {
         if (chopMonoQuadAtY(pts, clip.fBottom, &t)) {
             SkChopQuadAt(pts, tmp, t);
+            clamp_le(tmp[1].fY, clip.fBottom);
+            clamp_le(tmp[2].fY, clip.fBottom);
             pts[1] = tmp[1];
             pts[2] = tmp[2];
         } else {
@@ -223,6 +243,8 @@ void SkQuadClipper2::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
         if (chopMonoQuadAtX(pts, clip.fLeft, &t)) {
             SkChopQuadAt(pts, tmp, t);
             this->appendVLine(clip.fLeft, tmp[0].fY, tmp[2].fY, reverse);
+            clamp_ge(tmp[2].fX, clip.fLeft);
+            clamp_ge(tmp[3].fX, clip.fLeft);
             pts[0] = tmp[2];
             pts[1] = tmp[3];
         } else {
@@ -236,6 +258,8 @@ void SkQuadClipper2::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
     if (pts[2].fX > clip.fRight) {
         if (chopMonoQuadAtX(pts, clip.fRight, &t)) {
             SkChopQuadAt(pts, tmp, t);
+            clamp_le(tmp[1].fX, clip.fRight);
+            clamp_le(tmp[2].fX, clip.fRight);
             this->appendQuad(tmp, reverse);
             this->appendVLine(clip.fRight, tmp[2].fY, tmp[4].fY, reverse);
         } else {
@@ -248,21 +272,14 @@ void SkQuadClipper2::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
     }
 }
 
-static bool quick_reject_quad(const SkPoint srcPts[3], const SkRect& clip) {
-    return (srcPts[0].fY <= clip.fTop &&
-            srcPts[1].fY <= clip.fTop &&
-            srcPts[2].fY <= clip.fTop)
-            ||
-           (srcPts[0].fY >= clip.fBottom &&
-            srcPts[1].fY >= clip.fBottom &&
-            srcPts[2].fY >= clip.fBottom);
-}
-
 bool SkQuadClipper2::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
 
-    if (!quick_reject_quad(srcPts, clip)) {
+    SkRect  bounds;
+    bounds.set(srcPts, 3);
+    
+    if (!quick_reject(bounds, clip)) {
         SkPoint monoY[5];
         int countY = SkChopQuadAtYExtrema(srcPts, monoY);
         for (int y = 0; y <= countY; y++) {
@@ -283,6 +300,38 @@ bool SkQuadClipper2::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
     return SkPath::kDone_Verb != fVerbs[0];
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkQuadClipper2::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
+    fCurrPoint = fPoints;
+    fCurrVerb = fVerbs;
+    
+    SkRect  bounds;
+    bounds.set(srcPts, 4);
+    
+    if (!quick_reject(bounds, clip)) {
+        SkPoint monoY[5];
+        int countY = SkChopQuadAtYExtrema(srcPts, monoY);
+        for (int y = 0; y <= countY; y++) {
+            SkPoint monoX[5];
+            int countX = SkChopQuadAtXExtrema(&monoY[y * 2], monoX);
+            SkASSERT(countY + countX <= 3);
+            for (int x = 0; x <= countX; x++) {
+                this->clipMonoQuad(&monoX[x * 2], clip);
+                SkASSERT(fCurrVerb - fVerbs < kMaxVerbs);
+                SkASSERT(fCurrPoint - fPoints <= kMaxPoints);
+            }
+        }
+    }
+    
+    *fCurrVerb = SkPath::kDone_Verb;
+    fCurrPoint = fPoints;
+    fCurrVerb = fVerbs;
+    return SkPath::kDone_Verb != fVerbs[0];
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkQuadClipper2::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
                                  bool reverse) {
     *fCurrVerb++ = SkPath::kLine_Verb;
@@ -297,7 +346,7 @@ void SkQuadClipper2::appendVLine(SkScalar x, SkScalar y0, SkScalar y1,
 
 void SkQuadClipper2::appendQuad(const SkPoint pts[3], bool reverse) {
     *fCurrVerb++ = SkPath::kQuad_Verb;
-
+    
     if (reverse) {
         fCurrPoint[0] = pts[2];
         fCurrPoint[2] = pts[0];
@@ -307,6 +356,19 @@ void SkQuadClipper2::appendQuad(const SkPoint pts[3], bool reverse) {
     }
     fCurrPoint[1] = pts[1];
     fCurrPoint += 3;
+}
+
+void SkQuadClipper2::appendCubic(const SkPoint pts[4], bool reverse) {
+    *fCurrVerb++ = SkPath::kCubic_Verb;
+    
+    if (reverse) {
+        for (int i = 0; i < 4; i++) {
+            fCurrPoint[i] = pts[3 - i];
+        }
+    } else {
+        memcpy(fCurrPoint, pts, 4 * sizeof(SkPoint));
+    }
+    fCurrPoint += 4;
 }
 
 SkPath::Verb SkQuadClipper2::next(SkPoint pts[]) {
@@ -321,6 +383,11 @@ SkPath::Verb SkQuadClipper2::next(SkPoint pts[]) {
         case SkPath::kQuad_Verb:
             memcpy(pts, fCurrPoint, 3 * sizeof(SkPoint));
             fCurrPoint += 3;
+            fCurrVerb += 1;
+            break;
+        case SkPath::kCubic_Verb:
+            memcpy(pts, fCurrPoint, 4 * sizeof(SkPoint));
+            fCurrPoint += 4;
             fCurrVerb += 1;
             break;
         case SkPath::kDone_Verb:

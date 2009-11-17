@@ -34,6 +34,23 @@ static void check_clipper(int count, const SkPoint pts[], const SkRect& clip) {
         SkASSERT(pts[i].fY >= clip.fTop);
         SkASSERT(pts[i].fY <= clip.fBottom);
     }
+
+    if (count > 1) {
+        // now check that we're monotonic in Y
+        if (pts[0].fY > pts[count - 1].fY) {
+            for (int i = 1; i < count; i++) {
+                SkASSERT(pts[i - 1].fY >= pts[i].fY);
+            }
+        } else if (pts[0].fY < pts[count - 1].fY) {
+            for (int i = 1; i < count; i++) {
+                SkASSERT(pts[i - 1].fY <= pts[i].fY);
+            }
+        } else {
+            for (int i = 1; i < count; i++) {
+                SkASSERT(pts[i - 1].fY == pts[i].fY);
+            }
+        }
+    }
 }
 
 static void line_clipper(const SkPoint src[], const SkRect& clip,
@@ -59,9 +76,11 @@ static void quad_clipper(const SkPoint src[], const SkRect& clip,
         while ((verb = clipper.next(pts)) != SkPath::kDone_Verb) {
             switch (verb) {
                 case SkPath::kLine_Verb:
+                    check_clipper(2, pts, clip);
                     canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p0);
                     break;
                 case SkPath::kQuad_Verb:
+                    check_clipper(3, pts, clip);
                     drawQuad(canvas, pts, p0);
                     break;
                 default:
@@ -84,6 +103,7 @@ enum {
 };
 
 class LineClipperView : public SkView {
+    int         fCounter;
     int         fProcIndex;
     SkRect      fClip;
     SkRandom    fRand;
@@ -94,16 +114,18 @@ class LineClipperView : public SkView {
             fPts[i].set(fRand.nextUScalar1() * 640,
                         fRand.nextUScalar1() * 480);
         }
+        fCounter += 1;
     }
 
 public:
 	LineClipperView() {
+        fProcIndex = 1;
+        fCounter = 0;
+
         int x = (640 - W)/2;
         int y = (480 - H)/2;
         fClip.set(x, y, x + W, y + H);
         this->randPts();
-        
-        fProcIndex = 1;
     }
     
 protected:
