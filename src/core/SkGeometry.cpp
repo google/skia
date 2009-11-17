@@ -260,22 +260,14 @@ static inline void flatten_double_quad_extrema(SkScalar coords[14])
     coords[2] = coords[6] = coords[4];
 }
 
-static inline void force_quad_monotonic_in_y(SkPoint pts[3])
-{
-    // zap pts[1].fY to the nearest value
-    SkScalar ab = SkScalarAbs(pts[0].fY - pts[1].fY);
-    SkScalar bc = SkScalarAbs(pts[1].fY - pts[2].fY);
-    pts[1].fY = ab < bc ? pts[0].fY : pts[2].fY;
-}
-
 /*  Returns 0 for 1 quad, and 1 for two quads, either way the answer is
-    stored in dst[]. Guarantees that the 1/2 quads will be monotonic.
-*/
+ stored in dst[]. Guarantees that the 1/2 quads will be monotonic.
+ */
 int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5])
 {
     SkASSERT(src);
     SkASSERT(dst);
-
+    
 #if 0
     static bool once = true;
     if (once)
@@ -288,11 +280,11 @@ int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5])
         SkDebugf("chop=%d, Y=[%x %x %x %x %x %x]\n", n, d[0].fY, d[1].fY, d[2].fY, d[3].fY, d[4].fY, d[5].fY);
     }
 #endif
-
+    
     SkScalar a = src[0].fY;
     SkScalar b = src[1].fY;
     SkScalar c = src[2].fY;
-
+    
     if (is_not_monotonic(a, b, c))
     {
         SkScalar    tValue;
@@ -309,6 +301,35 @@ int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5])
     dst[0].set(src[0].fX, a);
     dst[1].set(src[1].fX, b);
     dst[2].set(src[2].fX, c);
+    return 0;
+}
+
+/*  Returns 0 for 1 quad, and 1 for two quads, either way the answer is
+    stored in dst[]. Guarantees that the 1/2 quads will be monotonic.
+ */
+int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5])
+{
+    SkASSERT(src);
+    SkASSERT(dst);
+    
+    SkScalar a = src[0].fX;
+    SkScalar b = src[1].fX;
+    SkScalar c = src[2].fX;
+    
+    if (is_not_monotonic(a, b, c)) {
+        SkScalar tValue;
+        if (valid_unit_divide(a - b, a - b - b + c, &tValue)) {
+            SkChopQuadAt(src, dst, tValue);
+            flatten_double_quad_extrema(&dst[0].fX);
+            return 1;
+        }
+        // if we get here, we need to force dst to be monotonic, even though
+        // we couldn't compute a unit_divide value (probably underflow).
+        b = SkScalarAbs(a - b) < SkScalarAbs(b - c) ? a : c;
+    }
+    dst[0].set(a, src[0].fY);
+    dst[1].set(b, src[1].fY);
+    dst[2].set(c, src[2].fY);
     return 0;
 }
 
