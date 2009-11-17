@@ -13,21 +13,87 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkRandom.h"
+
 #include "SkLineClipper.h"
+#include "SkQuadClipper.h"
+
+static void drawQuad(SkCanvas* canvas, const SkPoint pts[3], const SkPaint& p) {
+    SkPath path;
+    path.moveTo(pts[0]);
+    path.quadTo(pts[1], pts[2]);
+    canvas->drawPath(path, p);
+}
+
+typedef void (*clipper_proc)(const SkPoint src[], const SkRect& clip,
+                            SkCanvas*, const SkPaint&, const SkPaint&);
+
+static void check_clipper(int count, const SkPoint pts[], const SkRect& clip) {
+    for (int i = 0; i < count; i++) {
+        SkASSERT(pts[i].fX >= clip.fLeft);
+        SkASSERT(pts[i].fX <= clip.fRight);
+        SkASSERT(pts[i].fY >= clip.fTop);
+        SkASSERT(pts[i].fY <= clip.fBottom);
+    }
+}
+
+static void line_clipper(const SkPoint src[], const SkRect& clip,
+                       SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, src, p1);
+
+    SkPoint dst[SkLineClipper::kMaxPoints];
+    int count = SkLineClipper::ClipLine(src, clip, dst);
+    for (int i = 0; i < count; i++) {
+        check_clipper(2, &dst[i], clip);
+        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, &dst[i], p0);
+    }
+}
+
+static void quad_clipper(const SkPoint src[], const SkRect& clip,
+                       SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
+    drawQuad(canvas, src, p1);
+
+    SkQuadClipper2 clipper;
+    if (clipper.clipQuad(src, clip)) {
+        SkPoint pts[3];
+        SkPath::Verb verb;
+        while ((verb = clipper.next(pts)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kLine_Verb:
+                    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p0);
+                    break;
+                case SkPath::kQuad_Verb:
+                    drawQuad(canvas, pts, p0);
+                    break;
+                default:
+                    SkASSERT(!"unexpected verb");
+            }
+        }
+    }
+}
+
+static const clipper_proc gProcs[] = {
+    line_clipper,
+    quad_clipper
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 enum {
-    W = 640/4,
-    H = 480/4
+    W = 640/3,
+    H = 480/3
 };
 
 class LineClipperView : public SkView {
+    int         fProcIndex;
     SkRect      fClip;
     SkRandom    fRand;
-    SkPoint     fPts[2];
+    SkPoint     fPts[4];
 
     void randPts() {
-        fPts[0].set(fRand.nextUScalar1() * 640, fRand.nextUScalar1() * 480);
-        fPts[1].set(fRand.nextUScalar1() * 640, fRand.nextUScalar1() * 480);
+        for (int i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
+            fPts[i].set(fRand.nextUScalar1() * 640,
+                        fRand.nextUScalar1() * 480);
+        }
     }
 
 public:
@@ -36,6 +102,8 @@ public:
         int y = (480 - H)/2;
         fClip.set(x, y, x + W, y + H);
         this->randPts();
+        
+        fProcIndex = 1;
     }
     
 protected:
@@ -60,22 +128,10 @@ protected:
         canvas->drawLine(-999, y, 999, y, paint);
     }
     
-    static void check_lineclipper(int count, const SkPoint pts[],
-                                  const SkRect& clip) {
-        if (count > 0) {
-            for (int i = 0; i <= count; i++) {
-                SkASSERT(pts[i].fX >= clip.fLeft);
-                SkASSERT(pts[i].fX <= clip.fRight);
-                SkASSERT(pts[i].fY >= clip.fTop);
-                SkASSERT(pts[i].fY <= clip.fBottom);
-            }
-        }
-    }
-    
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
-        SkPaint paint;
+        SkPaint paint, paint1;
         
         drawVLine(canvas, fClip.fLeft + SK_ScalarHalf, paint);
         drawVLine(canvas, fClip.fRight - SK_ScalarHalf, paint);
@@ -87,18 +143,14 @@ protected:
         
         paint.setAntiAlias(true);
         paint.setColor(SK_ColorBLUE);
-        paint.setStrokeWidth(SkIntToScalar(3));
+        paint.setStyle(SkPaint::kStroke_Style);
+      //  paint.setStrokeWidth(SkIntToScalar(3));
         paint.setStrokeCap(SkPaint::kRound_Cap);
-        SkPoint pts[SkLineClipper::kMaxPoints];
-        int count = SkLineClipper::ClipLine(fPts, fClip, pts);
-        check_lineclipper(count, pts, fClip);
-        for (int i = 0; i < count; i++) {
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, &pts[i], paint);
-        }
-
-        paint.setColor(SK_ColorRED);
-        paint.setStrokeWidth(0);
-        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, paint);
+        
+        paint1.setAntiAlias(true);
+        paint1.setColor(SK_ColorRED);
+        paint1.setStyle(SkPaint::kStroke_Style);
+        gProcs[fProcIndex](fPts, fClip, canvas, paint, paint1);
         
         if (true) {
             this->randPts();
@@ -107,7 +159,10 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        this->randPts();
+     //   fProcIndex = (fProcIndex + 1) % SK_ARRAY_COUNT(gProcs);
+        if (x < 50 && y < 50) {
+            this->randPts();
+        }
         this->inval(NULL);
         return NULL;
     }

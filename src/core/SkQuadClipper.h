@@ -17,8 +17,7 @@
 #ifndef SkQuadClipper_DEFINED
 #define SkQuadClipper_DEFINED
 
-#include "SkPoint.h"
-#include "SkRect.h"
+#include "SkPath.h"
 
 /** This class is initialized with a clip rectangle, and then can be fed quads,
     which must already be monotonic in Y.
@@ -31,11 +30,37 @@ public:
     SkQuadClipper();
     
     void setClip(const SkIRect& clip);
-
-    bool clipQuad(const SkPoint src[3], SkPoint dst[3]);
     
+    bool clipQuad(const SkPoint src[3], SkPoint dst[3]);
+
 private:
     SkRect      fClip;
+};
+
+/** Iterator that returns the clipped segements of a quad clipped to a rect.
+    The segments will be either lines or quads (based on SkPath::Verb), and
+    will all be monotonic in Y
+ */
+class SkQuadClipper2 {
+public:
+    bool clipQuad(const SkPoint pts[3], const SkRect& clip);
+
+    SkPath::Verb next(SkPoint pts[]);
+    
+private:
+    SkPoint*        fCurrPoint;
+    SkPath::Verb*   fCurrVerb;
+    
+    enum {
+        kMaxVerbs = 10,
+        kMaxPoints = 21
+    };
+    SkPoint         fPoints[kMaxPoints];
+    SkPath::Verb    fVerbs[kMaxVerbs];
+
+    void clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip);
+    void appendVLine(SkScalar x, SkScalar y0, SkScalar y1, bool reverse);
+    void appendQuad(const SkPoint pts[3], bool reverse);
 };
 
 #endif

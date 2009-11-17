@@ -59,9 +59,9 @@ int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValues[1]);
     Depending on what is returned, dst[] is treated as follows
     1   dst[0..2] is the original quad
     2   dst[0..2] and dst[2..4] are the two new quads
-    If dst == null, it is ignored and only the count is returned.
 */
 int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5]);
+int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5]);
 
 /** Given 3 points on a quadratic bezier, divide it into 2 quadratics
     if the point of maximum curvature exists on the quad segment.
