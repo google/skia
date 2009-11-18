@@ -24,6 +24,13 @@ static void drawQuad(SkCanvas* canvas, const SkPoint pts[3], const SkPaint& p) {
     canvas->drawPath(path, p);
 }
 
+static void drawCubic(SkCanvas* canvas, const SkPoint pts[4], const SkPaint& p) {
+    SkPath path;
+    path.moveTo(pts[0]);
+    path.cubicTo(pts[1], pts[2], pts[3]);
+    canvas->drawPath(path, p);
+}
+
 typedef void (*clipper_proc)(const SkPoint src[], const SkRect& clip,
                             SkCanvas*, const SkPaint&, const SkPaint&);
 
@@ -36,20 +43,7 @@ static void check_clipper(int count, const SkPoint pts[], const SkRect& clip) {
     }
 
     if (count > 1) {
-        // now check that we're monotonic in Y
-        if (pts[0].fY > pts[count - 1].fY) {
-            for (int i = 1; i < count; i++) {
-                SkASSERT(pts[i - 1].fY >= pts[i].fY);
-            }
-        } else if (pts[0].fY < pts[count - 1].fY) {
-            for (int i = 1; i < count; i++) {
-                SkASSERT(pts[i - 1].fY <= pts[i].fY);
-            }
-        } else {
-            for (int i = 1; i < count; i++) {
-                SkASSERT(pts[i - 1].fY == pts[i].fY);
-            }
-        }
+        sk_assert_monotonic_y(pts, count);
     }
 }
 
@@ -66,9 +60,9 @@ static void line_clipper(const SkPoint src[], const SkRect& clip,
 }
 
 static void quad_clipper(const SkPoint src[], const SkRect& clip,
-                       SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
+                         SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
     drawQuad(canvas, src, p1);
-
+    
     SkQuadClipper2 clipper;
     if (clipper.clipQuad(src, clip)) {
         SkPoint pts[3];
@@ -90,9 +84,35 @@ static void quad_clipper(const SkPoint src[], const SkRect& clip,
     }
 }
 
+static void cubic_clipper(const SkPoint src[], const SkRect& clip,
+                       SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
+    drawCubic(canvas, src, p1);
+    
+    SkQuadClipper2 clipper;
+    if (clipper.clipCubic(src, clip)) {
+        SkPoint pts[4];
+        SkPath::Verb verb;
+        while ((verb = clipper.next(pts)) != SkPath::kDone_Verb) {
+            switch (verb) {
+                case SkPath::kLine_Verb:
+                    check_clipper(2, pts, clip);
+                    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p0);
+                    break;
+                case SkPath::kCubic_Verb:
+                 //   check_clipper(4, pts, clip);
+                    drawCubic(canvas, pts, p0);
+                    break;
+                default:
+                    SkASSERT(!"unexpected verb");
+            }
+        }
+    }
+}
+
 static const clipper_proc gProcs[] = {
     line_clipper,
-    quad_clipper
+    quad_clipper,
+    cubic_clipper
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,7 +139,7 @@ class LineClipperView : public SkView {
 
 public:
 	LineClipperView() {
-        fProcIndex = 1;
+        fProcIndex = 2;
         fCounter = 0;
 
         int x = (640 - W)/2;

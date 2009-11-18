@@ -630,18 +630,34 @@ static void flatten_double_cubic_extrema(SkScalar coords[14])
     2   dst[0..3], dst[3..6], dst[6..9] are the three new cubics
     If dst == null, it is ignored and only the count is returned.
 */
-int SkChopCubicAtYExtrema(const SkPoint src[4], SkPoint dst[10])
-{
+int SkChopCubicAtYExtrema(const SkPoint src[4], SkPoint dst[10]) {
     SkScalar    tValues[2];
-    int         roots = SkFindCubicExtrema(src[0].fY, src[1].fY, src[2].fY, src[3].fY, tValues);
-
+    int         roots = SkFindCubicExtrema(src[0].fY, src[1].fY, src[2].fY,
+                                           src[3].fY, tValues);
+    
     SkChopCubicAt(src, dst, tValues, roots);
-    if (dst && roots > 0)
-    {
+    if (dst && roots > 0) {
         // we do some cleanup to ensure our Y extrema are flat
         flatten_double_cubic_extrema(&dst[0].fY);
-        if (roots == 2)
+        if (roots == 2) {
             flatten_double_cubic_extrema(&dst[3].fY);
+        }
+    }
+    return roots;
+}
+
+int SkChopCubicAtXExtrema(const SkPoint src[4], SkPoint dst[10]) {
+    SkScalar    tValues[2];
+    int         roots = SkFindCubicExtrema(src[0].fX, src[1].fX, src[2].fX,
+                                           src[3].fX, tValues);
+    
+    SkChopCubicAt(src, dst, tValues, roots);
+    if (dst && roots > 0) {
+        // we do some cleanup to ensure our Y extrema are flat
+        flatten_double_cubic_extrema(&dst[0].fX);
+        if (roots == 2) {
+            flatten_double_cubic_extrema(&dst[3].fX);
+        }
     }
     return roots;
 }
