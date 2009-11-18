@@ -34,6 +34,8 @@ SOURCE := \
     SkDither.cpp \
     SkDraw.cpp \
     SkEdge.cpp \
+    SkEdgeBuilder.cpp \
+    SkEdgeClipper.cpp \
     SkFilterProc.cpp \
     SkFlattenable.cpp \
     SkFloat.cpp \
@@ -43,6 +45,7 @@ SOURCE := \
     SkGlobals.cpp \
     SkGlyphCache.cpp \
     SkGraphics.cpp \
+    SkLineClipper.cpp \
     SkMMapStream.cpp \
     SkMask.cpp \
     SkMaskFilter.cpp \

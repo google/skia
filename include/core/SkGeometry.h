@@ -57,8 +57,8 @@ int SkFindQuadExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar tValues[1]);
 /** Given 3 points on a quadratic bezier, chop it into 1, 2 beziers such that
     the resulting beziers are monotonic in Y. This is called by the scan converter.
     Depending on what is returned, dst[] is treated as follows
-    1   dst[0..2] is the original quad
-    2   dst[0..2] and dst[2..4] are the two new quads
+    0   dst[0..2] is the original quad
+    1   dst[0..2] and dst[2..4] are the two new quads
 */
 int SkChopQuadAtYExtrema(const SkPoint src[3], SkPoint dst[5]);
 int SkChopQuadAtXExtrema(const SkPoint src[3], SkPoint dst[5]);
@@ -110,12 +110,13 @@ int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d, SkScalar 
 /** Given 4 points on a cubic bezier, chop it into 1, 2, 3 beziers such that
     the resulting beziers are monotonic in Y. This is called by the scan converter.
     Depending on what is returned, dst[] is treated as follows
-    1   dst[0..3] is the original cubic
-    2   dst[0..3] and dst[3..6] are the two new cubics
-    3   dst[0..3], dst[3..6], dst[6..9] are the three new cubics
+    0   dst[0..3] is the original cubic
+    1   dst[0..3] and dst[3..6] are the two new cubics
+    2   dst[0..3], dst[3..6], dst[6..9] are the three new cubics
     If dst == null, it is ignored and only the count is returned.
 */
 int SkChopCubicAtYExtrema(const SkPoint src[4], SkPoint dst[10]);
+int SkChopCubicAtXExtrema(const SkPoint src[4], SkPoint dst[10]);
 
 /** Given a cubic bezier, return 0, 1, or 2 t-values that represent the
     inflection points.

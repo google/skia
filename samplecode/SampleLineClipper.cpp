@@ -15,7 +15,7 @@
 #include "SkRandom.h"
 
 #include "SkLineClipper.h"
-#include "SkQuadClipper.h"
+#include "SkEdgeClipper.h"
 
 static void drawQuad(SkCanvas* canvas, const SkPoint pts[3], const SkPaint& p) {
     SkPath path;
@@ -63,7 +63,7 @@ static void quad_clipper(const SkPoint src[], const SkRect& clip,
                          SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
     drawQuad(canvas, src, p1);
     
-    SkQuadClipper2 clipper;
+    SkEdgeClipper clipper;
     if (clipper.clipQuad(src, clip)) {
         SkPoint pts[3];
         SkPath::Verb verb;
@@ -88,7 +88,7 @@ static void cubic_clipper(const SkPoint src[], const SkRect& clip,
                        SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
     drawCubic(canvas, src, p1);
     
-    SkQuadClipper2 clipper;
+    SkEdgeClipper clipper;
     if (clipper.clipCubic(src, clip)) {
         SkPoint pts[4];
         SkPath::Verb verb;
