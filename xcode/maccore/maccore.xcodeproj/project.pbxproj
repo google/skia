@@ -15,6 +15,7 @@
 		003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */; };
 		00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00488AF30F86532E00C08A57 /* SkDebug_stdio.cpp */; };
 		007A7BEF0F01427100A2D6EE /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7BEE0F01427100A2D6EE /* SkFontHost_mac.cpp */; };
+		007C8DC910B4694D008CDB57 /* SkUtils_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C8DC810B4694D008CDB57 /* SkUtils_opts_none.cpp */; };
 		27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */; };
 		27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2C0F11408100F233EA /* SkImageDecoder.cpp */; };
 /* End PBXBuildFile section */
@@ -27,6 +28,7 @@
 		002884E00EFABFFC0083E387 /* SkGlobals_global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGlobals_global.cpp; path = ../../src/ports/SkGlobals_global.cpp; sourceTree = SOURCE_ROOT; };
 		00488AF30F86532E00C08A57 /* SkDebug_stdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDebug_stdio.cpp; path = ../../src/ports/SkDebug_stdio.cpp; sourceTree = SOURCE_ROOT; };
 		007A7BEE0F01427100A2D6EE /* SkFontHost_mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_mac.cpp; path = ../../src/ports/SkFontHost_mac.cpp; sourceTree = SOURCE_ROOT; };
+		007C8DC810B4694D008CDB57 /* SkUtils_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkUtils_opts_none.cpp; path = ../../src/opts/SkUtils_opts_none.cpp; sourceTree = SOURCE_ROOT; };
 		27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkCreateCGImageRef.cpp; path = ../../src/utils/mac/SkCreateCGImageRef.cpp; sourceTree = SOURCE_ROOT; };
 		27739F2C0F11408100F233EA /* SkImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageDecoder.cpp; path = ../../src/images/SkImageDecoder.cpp; sourceTree = SOURCE_ROOT; };
 		27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageDecoder_CG.cpp; path = ../../src/ports/SkImageDecoder_CG.cpp; sourceTree = SOURCE_ROOT; };
@@ -58,6 +60,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				007C8DC810B4694D008CDB57 /* SkUtils_opts_none.cpp */,
 				00488AF30F86532E00C08A57 /* SkDebug_stdio.cpp */,
 				002884E00EFABFFC0083E387 /* SkGlobals_global.cpp */,
 				002884A20EFAB5DE0083E387 /* SkOSFile_stdio.cpp */,
@@ -156,6 +159,7 @@
 				001EA8910F13F2CE00900BA9 /* SkImageEncoder.cpp in Sources */,
 				00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */,
 				003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */,
+				007C8DC910B4694D008CDB57 /* SkUtils_opts_none.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
