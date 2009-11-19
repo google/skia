@@ -186,7 +186,7 @@ void SkEdgeClipper::clipMonoQuad(const SkPoint srcPts[3], const SkRect& clip) {
         } else {
             // if chopMonoQuadAtY failed, then we may have hit inexact numerics
             // so we just clamp against the right
-            this->appendVLine(clip.fRight, pts[0].fY, pts[3].fY, reverse);
+            this->appendVLine(clip.fRight, pts[0].fY, pts[2].fY, reverse);
         }
     } else {    // wholly inside the clip
         this->appendQuad(pts, reverse);
