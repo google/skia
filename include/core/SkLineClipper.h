@@ -23,6 +23,17 @@ public:
      */
     static int ClipLine(const SkPoint pts[2], const SkRect& clip,
                         SkPoint lines[kMaxPoints]);
+
+    /*  Intersect the line segment against the rect. If there is a non-empty
+        resulting segment, return true and set dst[] to that segment. If not,
+        return false and ignore dst[].
+     
+        ClipLine is specialized for scan-conversion, as it adds vertical
+        segments on the sides to show where the line extended beyond the
+        left or right sides. IntersectLine does not.
+     */
+    static bool IntersectLine(const SkPoint src[2], const SkRect& clip,
+                              SkPoint dst[2]);
 };
 
 #endif
