@@ -15,7 +15,10 @@
  ** limitations under the License.
  */
 
-#include <machine/cpu-features.h>
+#ifdef ANDROID
+    #include <machine/cpu-features.h>
+#endif
+
 #include "SkBlitRow.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"

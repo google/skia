@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-#include <machine/cpu-features.h>
+#ifdef ANDROID
+    #include <machine/cpu-features.h>
+#endif
+
 #include "SkBitmapProcState.h"
 #include "SkColorPriv.h"
 #include "SkUtils.h"

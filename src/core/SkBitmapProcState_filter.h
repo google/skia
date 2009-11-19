@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-#ifdef __arm__
+#ifdef ANDROID
     #include <machine/cpu-features.h>
 #endif
+
 #include "SkColorPriv.h"
 
 /*
