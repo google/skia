@@ -22,6 +22,68 @@ static SkScalar sect_with_vertical(const SkPoint src[2], SkScalar X) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
+                                  SkPoint dst[2]) {
+    SkRect bounds;
+    
+    bounds.set(src, 2);
+    if (bounds.fLeft >= clip.fRight || clip.fLeft >= bounds.fRight ||
+        bounds.fTop >= clip.fBottom || clip.fTop >= bounds.fBottom) {
+        return false;
+    }
+    if (clip.contains(bounds)) {
+        if (src != dst) {
+            memcpy(dst, src, 2 * sizeof(SkPoint));
+        }
+        return true;
+    }
+
+    int index0, index1;
+    
+    if (src[0].fY < src[1].fY) {
+        index0 = 0;
+        index1 = 1;
+    } else {
+        index0 = 1;
+        index1 = 0;
+    }
+
+    SkPoint tmp[2];
+    memcpy(tmp, src, sizeof(tmp));
+
+    // now compute Y intersections
+    if (tmp[index0].fY < clip.fTop) {
+        tmp[index0].set(sect_with_horizontal(src, clip.fTop), clip.fTop);
+    }
+    if (tmp[index1].fY > clip.fBottom) {
+        tmp[index1].set(sect_with_horizontal(src, clip.fBottom), clip.fBottom);
+    }
+    
+    if (tmp[0].fX < tmp[1].fX) {
+        index0 = 0;
+        index1 = 1;
+    } else {
+        index0 = 1;
+        index1 = 0;
+    }
+
+    // check for quick-reject in X again, now that we may have been chopped
+    if (tmp[index1].fX <= clip.fLeft || tmp[index0].fX >= clip.fRight) {
+        return false;
+    }
+
+    if (tmp[index0].fX < clip.fLeft) {
+        tmp[index0].set(clip.fLeft, sect_with_vertical(src, clip.fLeft));
+    }
+    if (tmp[index1].fX > clip.fRight) {
+        tmp[index1].set(clip.fRight, sect_with_vertical(src, clip.fRight));
+    }
+    memcpy(dst, tmp, sizeof(tmp));
+    return true;
+}
+
 int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
                             SkPoint lines[]) {
     int index0, index1;

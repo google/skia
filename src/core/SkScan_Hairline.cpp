@@ -19,6 +19,7 @@
 #include "SkBlitter.h"
 #include "SkRegion.h"
 #include "SkFDot6.h"
+#include "SkLineClipper.h"
 
 static void horiline(int x, int stopx, SkFixed fy, SkFixed dy, SkBlitter* blitter)
 {
@@ -43,38 +44,47 @@ static void vertline(int y, int stopy, SkFixed fx, SkFixed dx, SkBlitter* blitte
 void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* clip, SkBlitter* blitter)
 {
     SkBlitterClipper    clipper;
+    SkRect  r;
+    SkIRect clipR, ptsR;
+    SkPoint pts[2] = { pt0, pt1 };
 
-    SkFDot6 x0 = SkScalarToFDot6(pt0.fX);
-    SkFDot6 y0 = SkScalarToFDot6(pt0.fY);
-    SkFDot6 x1 = SkScalarToFDot6(pt1.fX);
-    SkFDot6 y1 = SkScalarToFDot6(pt1.fY);
-
-    if (clip)
-    {
-        SkRect      r;
-        SkIRect     ir;
-        SkPoint     pts[2];
-
-        pts[0] = pt0;
-        pts[1] = pt1;
-        r.set(pts, 2);
-        r.roundOut(&ir);
-        
-        // if we're given a horizontal or vertical line
-        // this rect could be empty (in area), in which case
-        // clip->quickReject() will always return true.
-        // hence we bloat the rect to avoid that case
-        if (ir.width() == 0)
-            ir.fRight += 1;
-        if (ir.height() == 0)
-            ir.fBottom += 1;
-
-        if (clip->quickReject(ir))
+    if (clip) {
+        // Perform a clip in scalar space, so we catch huge values which might
+        // be missed after we convert to SkFDot6 (overflow)
+        r.set(clip->getBounds());
+        if (!SkLineClipper::IntersectLine(pts, r, pts)) {
             return;
-        if (clip->quickContains(ir))
+        }
+    }
+
+    SkFDot6 x0 = SkScalarToFDot6(pts[0].fX);
+    SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
+    SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
+    SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
+    
+    if (clip) {
+        // now perform clipping again, as the rounding to dot6 can wiggle us
+        // our rects are really dot6 rects, but since we've already used
+        // lineclipper, we know they will fit in 32bits (26.6)
+        const SkIRect& bounds = clip->getBounds();
+
+        clipR.set(SkIntToFDot6(bounds.fLeft), SkIntToFDot6(bounds.fTop),
+                  SkIntToFDot6(bounds.fRight), SkIntToFDot6(bounds.fBottom));
+        ptsR.set(x0, y0, x1, y1);
+        ptsR.sort();
+
+        // outset the right and bottom, to account for how hairlines are
+        // actually drawn, which may hit the pixel to the right or below of
+        // the coordinate
+        ptsR.fRight += SK_FDot61;
+        ptsR.fBottom += SK_FDot61;
+
+        if (!SkIRect::Intersects(ptsR, clipR)) {
+            return;
+        }
+        if (clip->isRect() && clipR.contains(ptsR)) {
             clip = NULL;
-        else
-        {
+        } else {
             blitter = clipper.apply(blitter, clip);
         }
     }
@@ -120,6 +130,7 @@ void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* cl
 
 // we don't just draw 4 lines, 'cause that can leave a gap in the bottom-right
 // and double-hit the top-left.
+// TODO: handle huge coordinates on rect (before calling SkScalarToFixed)
 void SkScan::HairRect(const SkRect& rect, const SkRegion* clip, SkBlitter* blitter)
 {
     SkBlitterClipper    clipper;

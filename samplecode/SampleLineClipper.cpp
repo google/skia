@@ -17,6 +17,18 @@
 #include "SkLineClipper.h"
 #include "SkEdgeClipper.h"
 
+#define AUTO_ANIMATE    true
+
+static int test0(SkPoint pts[], SkRect* clip) {
+    pts[0].set(200000, 140);
+    pts[1].set(-740000, 483);
+    pts[2].set(1.00000102e-06f, 9.10000017e-05f);
+    clip->set(0, 0, 640, 480);
+    return 2;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static void drawQuad(SkCanvas* canvas, const SkPoint pts[3], const SkPaint& p) {
     SkPath path;
     path.moveTo(pts[0]);
@@ -47,10 +59,21 @@ static void check_clipper(int count, const SkPoint pts[], const SkRect& clip) {
     }
 }
 
-static void line_clipper(const SkPoint src[], const SkRect& clip,
-                       SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
+static void line_intersector(const SkPoint src[], const SkRect& clip,
+                         SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
     canvas->drawPoints(SkCanvas::kLines_PointMode, 2, src, p1);
+    
+    SkPoint dst[2];
+    if (SkLineClipper::IntersectLine(src, clip, dst)) {
+        check_clipper(2, dst, clip);
+        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, dst, p0);
+    }
+}
 
+static void line_clipper(const SkPoint src[], const SkRect& clip,
+                         SkCanvas* canvas, const SkPaint& p0, const SkPaint& p1) {
+    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, src, p1);
+    
     SkPoint dst[SkLineClipper::kMaxPoints];
     int count = SkLineClipper::ClipLine(src, clip, dst);
     for (int i = 0; i < count; i++) {
@@ -110,6 +133,7 @@ static void cubic_clipper(const SkPoint src[], const SkRect& clip,
 }
 
 static const clipper_proc gProcs[] = {
+    line_intersector,
     line_clipper,
     quad_clipper,
     cubic_clipper
@@ -139,7 +163,7 @@ class LineClipperView : public SkView {
 
 public:
 	LineClipperView() {
-        fProcIndex = 2;
+        fProcIndex = 0;
         fCounter = 0;
 
         int x = (640 - W)/2;
@@ -172,6 +196,8 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
+        
+     //   fProcIndex = test0(fPts, &fClip);
 
         SkPaint paint, paint1;
         
@@ -194,7 +220,7 @@ protected:
         paint1.setStyle(SkPaint::kStroke_Style);
         gProcs[fProcIndex](fPts, fClip, canvas, paint, paint1);
         
-        if (true) {
+        if (AUTO_ANIMATE) {
             this->randPts();
             this->inval(NULL);
         }

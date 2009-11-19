@@ -18,6 +18,7 @@
 #include "SkScan.h"
 #include "SkBlitter.h"
 #include "SkColorPriv.h"
+#include "SkLineClipper.h"
 #include "SkRegion.h"
 #include "SkFDot6.h"
 
@@ -423,33 +424,41 @@ void SkScan::AntiHairLine(const SkPoint& pt0, const SkPoint& pt1,
     build_gamma_table();
 #endif
 
-    SkFDot6 x0 = SkScalarToFDot6(pt0.fX);
-    SkFDot6 y0 = SkScalarToFDot6(pt0.fY);
-    SkFDot6 x1 = SkScalarToFDot6(pt1.fX);
-    SkFDot6 y1 = SkScalarToFDot6(pt1.fY);
+    SkPoint pts[2] = { pt0, pt1 };
 
-    if (clip)
-    {
-        SkFDot6     left = SkMin32(x0, x1);
-        SkFDot6     top = SkMin32(y0, y1);
-        SkFDot6     right = SkMax32(x0, x1);
-        SkFDot6     bottom = SkMax32(y0, y1);
-        SkIRect     ir;
+    if (clip) {
+        SkRect clipBounds;
+        clipBounds.set(clip->getBounds());
+        if (!SkLineClipper::IntersectLine(pts, clipBounds, pts)) {
+            return;
+        }
+    }
+        
+    SkFDot6 x0 = SkScalarToFDot6(pts[0].fX);
+    SkFDot6 y0 = SkScalarToFDot6(pts[0].fY);
+    SkFDot6 x1 = SkScalarToFDot6(pts[1].fX);
+    SkFDot6 y1 = SkScalarToFDot6(pts[1].fY);
+
+    if (clip) {
+        SkFDot6 left = SkMin32(x0, x1);
+        SkFDot6 top = SkMin32(y0, y1);
+        SkFDot6 right = SkMax32(x0, x1);
+        SkFDot6 bottom = SkMax32(y0, y1);
+        SkIRect ir;
 
         ir.set( SkFDot6Floor(left) - 1,
                 SkFDot6Floor(top) - 1,
                 SkFDot6Ceil(right) + 1,
                 SkFDot6Ceil(bottom) + 1);
 
-        if (clip->quickReject(ir))
+        if (clip->quickReject(ir)) {
             return;
-        if (!clip->quickContains(ir))
-        {
+        }
+        if (!clip->quickContains(ir)) {
             SkRegion::Cliperator iter(*clip, ir);
             const SkIRect*       r = &iter.rect();
 
-            while (!iter.done())
-            {
+            while (!iter.done()) {
                 do_anti_hairline(x0, y0, x1, y1, r, blitter);
                 iter.next();
             }
@@ -462,19 +471,6 @@ void SkScan::AntiHairLine(const SkPoint& pt0, const SkPoint& pt1,
 
 void SkScan::AntiHairRect(const SkRect& rect, const SkRegion* clip, SkBlitter* blitter)
 {
-    if (clip)
-    {
-        SkIRect ir;
-        SkRect  r = rect;
-
-        r.inset(-SK_Scalar1/2, -SK_Scalar1/2);
-        r.roundOut(&ir);
-        if (clip->quickReject(ir))
-            return;
-        if (clip->quickContains(ir))
-            clip = NULL;
-    }
-
     SkPoint p0, p1;
 
     p0.set(rect.fLeft, rect.fTop);
@@ -631,41 +627,32 @@ static void antifillrect(const SkRect& r, SkBlitter* blitter) {
     those to our version of antifillrect, which converts it into an XRect and
     then calls the blit.
 */
-void SkScan::AntiFillRect(const SkRect& r, const SkRegion* clip,
+void SkScan::AntiFillRect(const SkRect& origR, const SkRegion* clip,
                           SkBlitter* blitter) {
     if (clip) {
+        SkRect newR;
+        newR.set(clip->getBounds());
+        if (!newR.intersect(origR)) {
+            return;
+        }
+
         SkIRect outerBounds;
-        r.roundOut(&outerBounds);
+        newR.roundOut(&outerBounds);
         
         if (clip->isRect()) {
-            const SkIRect& clipBounds = clip->getBounds();
-            
-            if (clipBounds.contains(outerBounds)) {
-                antifillrect(r, blitter);
-            } else {
-                SkRect tmpR;
-                // this keeps our original edges fractional
-                tmpR.set(clipBounds);
-                if (tmpR.intersect(r)) {
-                    antifillrect(tmpR, blitter);
-                }
-            }
+            antifillrect(newR, blitter);
         } else {
             SkRegion::Cliperator clipper(*clip, outerBounds);
-            const SkIRect&       rr = clipper.rect();
-            
             while (!clipper.done()) {
-                SkRect  tmpR;
-                // this keeps our original edges fractional
-                tmpR.set(rr);
-                if (tmpR.intersect(r)) {
-                    antifillrect(tmpR, blitter);
+                newR.set(clipper.rect());
+                if (newR.intersect(origR)) {
+                    antifillrect(newR, blitter);
                 }
                 clipper.next();
             }
         }
     } else {
-        antifillrect(r, blitter);
+        antifillrect(origR, blitter);
     }
 }
 
