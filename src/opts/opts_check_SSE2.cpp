@@ -24,7 +24,7 @@
    instruction on Pentium3 on the code below).  Only files named *_SSE2.cpp
    in this directory should be compiled with -msse2. */
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(_WIN64)
 /* All x86_64 machines have SSE2, so don't even bother checking. */
 static inline bool hasSSE2() {
     return true;
