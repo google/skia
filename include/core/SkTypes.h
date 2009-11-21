@@ -149,6 +149,19 @@ typedef uint8_t     SkBool8;
 #define SK_MinU32   0
 #define SK_NaN32    0x80000000
 
+/** Returns true if the value can be represented with signed 16bits
+ */
+static bool SkIsS16(long x) {
+    return (int16_t)x == x;
+}
+
+/** Returns true if the value can be represented with unsigned 16bits
+ */
+static bool SkIsU16(long x) {
+    return (uint16_t)x == x;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 #ifndef SK_OFFSETOF
     #define SK_OFFSETOF(type, field)    ((char*)&(((type*)1)->field) - (char*)1)
 #endif
@@ -186,7 +199,6 @@ typedef uint32_t SkMSec;
 */
 #define SkMSec_LE(a, b)     ((int32_t)(a) - (int32_t)(b) <= 0)
 
-
 /****************************************************************************
     The rest of these only build with C++
 */
@@ -194,20 +206,17 @@ typedef uint32_t SkMSec;
 
 /** Faster than SkToBool for integral conditions. Returns 0 or 1
 */
-inline int Sk32ToBool(uint32_t n)
-{
+static inline int Sk32ToBool(uint32_t n) {
     return (n | (0-n)) >> 31;
 }
 
-template <typename T> inline void SkTSwap(T& a, T& b)
-{
+template <typename T> inline void SkTSwap(T& a, T& b) {
     T c(a);
     a = b;
     b = c;
 }
 
-inline int32_t SkAbs32(int32_t value)
-{
+static inline int32_t SkAbs32(int32_t value) {
 #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     if (value < 0)
         value = -value;
@@ -218,27 +227,23 @@ inline int32_t SkAbs32(int32_t value)
 #endif
 }
 
-inline int32_t SkMax32(int32_t a, int32_t b)
-{
+static inline int32_t SkMax32(int32_t a, int32_t b) {
     if (a < b)
         a = b;
     return a;
 }
 
-inline int32_t SkMin32(int32_t a, int32_t b)
-{
+static inline int32_t SkMin32(int32_t a, int32_t b) {
     if (a > b)
         a = b;
     return a;
 }
 
-inline int32_t SkSign32(int32_t a)
-{
+static inline int32_t SkSign32(int32_t a) {
     return (a >> 31) | ((unsigned) -a >> 31);
 }
 
-inline int32_t SkFastMin32(int32_t value, int32_t max)
-{
+static inline int32_t SkFastMin32(int32_t value, int32_t max) {
 #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     if (value > max)
         value = max;
@@ -253,8 +258,7 @@ inline int32_t SkFastMin32(int32_t value, int32_t max)
 
 /** Returns signed 32 bit value pinned between min and max, inclusively
 */
-inline int32_t SkPin32(int32_t value, int32_t min, int32_t max)
-{
+static inline int32_t SkPin32(int32_t value, int32_t min, int32_t max) {
 #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     if (value < min)
         value = min;
@@ -269,14 +273,14 @@ inline int32_t SkPin32(int32_t value, int32_t min, int32_t max)
     return value;
 }
 
-inline uint32_t SkSetClearShift(uint32_t bits, bool cond, unsigned shift)
-{
+static inline uint32_t SkSetClearShift(uint32_t bits, bool cond,
+                                       unsigned shift) {
     SkASSERT((int)cond == 0 || (int)cond == 1);
     return (bits & ~(1 << shift)) | ((int)cond << shift);
 }
 
-inline uint32_t SkSetClearMask(uint32_t bits, bool cond, uint32_t mask)
-{
+static inline uint32_t SkSetClearMask(uint32_t bits, bool cond,
+                                      uint32_t mask) {
     return cond ? bits | mask : bits & ~mask;
 }
 

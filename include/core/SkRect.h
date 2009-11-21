@@ -49,6 +49,11 @@ struct SkIRect {
         return memcmp(&a, &b, sizeof(a));
     }
 
+    bool is16Bit() const {
+        return  SkIsS16(fLeft) && SkIsS16(fTop) &&
+                SkIsS16(fRight) && SkIsS16(fBottom);
+    }
+
     /** Set the rectangle to (0,0,0,0)
     */
     void setEmpty() { memset(this, 0, sizeof(*this)); }
