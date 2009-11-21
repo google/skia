@@ -151,13 +151,13 @@ typedef uint8_t     SkBool8;
 
 /** Returns true if the value can be represented with signed 16bits
  */
-static bool SkIsS16(long x) {
+static inline bool SkIsS16(long x) {
     return (int16_t)x == x;
 }
 
 /** Returns true if the value can be represented with unsigned 16bits
  */
-static bool SkIsU16(long x) {
+static inline bool SkIsU16(long x) {
     return (uint16_t)x == x;
 }
 
