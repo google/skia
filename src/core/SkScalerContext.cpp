@@ -312,18 +312,16 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
                 glyph->fWidth   = SkToU16(mask.fBounds.width());
                 glyph->fHeight  = SkToU16(mask.fBounds.height());
             } else {
-                // draw nothing 'cause we failed
-                glyph->fLeft    = 0;
-                glyph->fTop     = 0;
-                glyph->fWidth   = 0;
-                glyph->fHeight  = 0;
-                return;
+                goto ERROR;
             }
         } else {
             // just use devPath
             SkIRect ir;
             devPath.getBounds().roundOut(&ir);
             
+            if (ir.isEmpty() || !ir.is16Bit()) {
+                goto ERROR;
+            }
             glyph->fLeft    = ir.fLeft;
             glyph->fTop     = ir.fTop;
             glyph->fWidth   = SkToU16(ir.width());
@@ -350,6 +348,14 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             glyph->fMaskFormat = dst.fFormat;
         }
     }
+    return;
+    
+ERROR:
+    // draw nothing 'cause we failed
+    glyph->fLeft    = 0;
+    glyph->fTop     = 0;
+    glyph->fWidth   = 0;
+    glyph->fHeight  = 0;
 }
 
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
