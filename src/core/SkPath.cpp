@@ -1222,30 +1222,6 @@ void SkPath::unflatten(SkFlattenableReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
-
-void SkPath::validate() const {
-    SkASSERT(this != NULL);
-    SkASSERT((fFillType & ~3) == 0);
-    fPts.validate();
-    fVerbs.validate();
-
-    if (!fBoundsIsDirty) {
-        SkRect bounds;
-        compute_pt_bounds(&bounds, fPts);
-        if (fPts.count() <= 1) {
-            // if we're empty, fBounds may be empty but translated, so we can't
-            // necessarily compare to bounds directly
-            // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
-            // be [2, 2, 2, 2]
-            SkASSERT(bounds.isEmpty());
-            SkASSERT(fBounds.isEmpty());
-        } else {
-            fBounds.contains(bounds);
-        }
-    }
-}
-
 void SkPath::dump(bool forceClose, const char title[]) const {
     Iter    iter(*this, forceClose);
     SkPoint pts[4];
@@ -1306,4 +1282,31 @@ void SkPath::dump(bool forceClose, const char title[]) const {
     SkDebugf("path: done %s\n", title ? title : "");
 }
 
+void SkPath::dump() const {
+    this->dump(false);
+}
+
+#ifdef SK_DEBUG
+void SkPath::validate() const {
+    SkASSERT(this != NULL);
+    SkASSERT((fFillType & ~3) == 0);
+    fPts.validate();
+    fVerbs.validate();
+    
+    if (!fBoundsIsDirty) {
+        SkRect bounds;
+        compute_pt_bounds(&bounds, fPts);
+        if (fPts.count() <= 1) {
+            // if we're empty, fBounds may be empty but translated, so we can't
+            // necessarily compare to bounds directly
+            // try path.addOval(2, 2, 2, 2) which is empty, but the bounds will
+            // be [2, 2, 2, 2]
+            SkASSERT(bounds.isEmpty());
+            SkASSERT(fBounds.isEmpty());
+        } else {
+            fBounds.contains(bounds);
+        }
+    }
+}
 #endif
+

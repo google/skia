@@ -96,7 +96,8 @@ public:
     void        offset(SkScalar dx, SkScalar dy);
 
     /** Call this to have the view draw into the specified canvas. */
-    void        draw(SkCanvas* canvas);
+    virtual void draw(SkCanvas* canvas);
+
     /** Call this to invalidate part of all of a view, requesting that the view's
         draw method be called. The rectangle parameter specifies the part of the view
         that should be redrawn. If it is null, it specifies the entire view bounds.
