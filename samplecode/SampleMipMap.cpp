@@ -38,7 +38,6 @@ public:
         fBitmap = createBitmap(N);
         
         fWidth = N;
-        fDW = -1;
     }
     
 protected:
@@ -97,15 +96,13 @@ protected:
         SkBitmap bitmap(fBitmap);
         bitmap.buildMipMap();
         drawN2(canvas, bitmap);
-        
-        fWidth += fDW;
-        if (fDW > 0 && fWidth > N) {
-            fDW = -fDW;
-            fWidth = N;
-        } else if (fDW < 0 && fWidth < 8) {
-            fDW = -fDW;
-            fWidth = 8;
+
+        SkScalar time = SampleCode::GetAnimScalar(SkIntToScalar(1)/4,
+                                                  SkIntToScalar(2));
+        if (time >= SK_Scalar1) {
+            time = SkIntToScalar(2) - time;
         }
+        fWidth = 8 + SkScalarRound(N * time);
 
         SkRect dst;
         dst.set(0, 0, SkIntToScalar(fWidth), SkIntToScalar(fWidth));
@@ -140,7 +137,7 @@ protected:
     }
     
 private:
-    int fWidth, fDW;
+    int fWidth;
 
     typedef SkView INHERITED;
 };

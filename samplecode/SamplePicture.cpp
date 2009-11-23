@@ -148,9 +148,10 @@ protected:
         
         // test that we can re-record a subpicture, and see the results
         
+        SkRandom rand(SampleCode::GetAnimTime());
         canvas->translate(SkIntToScalar(10), SkIntToScalar(250));
         drawCircle(fSubPicture->beginRecording(50, 50), 25,
-                   fRand.nextU() | 0xFF000000);
+                   rand.nextU() | 0xFF000000);
         canvas->drawPicture(*fPicture);
         delayInval(500);
     }
@@ -172,7 +173,6 @@ private:
 
     SkPicture*  fPicture;
     SkPicture*  fSubPicture;
-    SkRandom    fRand;
 
     typedef SkView INHERITED;
 };

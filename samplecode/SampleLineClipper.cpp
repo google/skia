@@ -147,6 +147,7 @@ enum {
 };
 
 class LineClipperView : public SkView {
+    SkMSec      fNow;
     int         fCounter;
     int         fProcIndex;
     SkRect      fClip;
@@ -196,7 +197,14 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
+        SkMSec now = SampleCode::GetAnimTime();
+        if (fNow != now) {
+            fNow = now;
+            this->randPts();
+            this->inval(NULL);
+        }
+
      //   fProcIndex = test0(fPts, &fClip);
 
         SkPaint paint, paint1;
@@ -219,11 +227,6 @@ protected:
         paint1.setColor(SK_ColorRED);
         paint1.setStyle(SkPaint::kStroke_Style);
         gProcs[fProcIndex](fPts, fClip, canvas, paint, paint1);
-        
-        if (AUTO_ANIMATE) {
-            this->randPts();
-            this->inval(NULL);
-        }
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {

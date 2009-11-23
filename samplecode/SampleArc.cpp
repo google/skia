@@ -127,6 +127,9 @@ protected:
     virtual void onDraw(SkCanvas* canvas)
     {
         this->drawBG(canvas);
+        
+        fSweep = SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
+                                           SkIntToScalar(360));
 
         SkRect  r;
         SkPaint paint;
@@ -166,10 +169,6 @@ protected:
         paint.setStrokeWidth(0);
         paint.setColor(SK_ColorBLUE);
         canvas->drawArc(r, 0, fSweep, false, paint);
-        
-        fSweep += SK_Scalar1/4;
-        if (fSweep > SkIntToScalar(360))
-            fSweep = 0;
         
         drawArcs(canvas);
         this->inval(NULL);
