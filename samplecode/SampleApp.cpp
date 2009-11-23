@@ -6,6 +6,7 @@
 #include "SkPaint.h"
 #include "SkPicture.h"
 #include "SkStream.h"
+#include "SkTime.h"
 #include "SkWindow.h"
 
 #include "SampleCode.h"
@@ -119,6 +120,18 @@ void SampleCode::PrefSizeR(SkEvent* evt, SkScalar width, SkScalar height) {
     size[0] = width;
     size[1] = height;
     evt->setScalars(gPrefSizeEvtName, 2, size);
+}
+
+static SkMSec gAnimTime;
+SkMSec SampleCode::GetAnimTime() { return gAnimTime; }
+
+SkScalar SampleCode::GetAnimScalar(SkScalar speed, SkScalar period) {
+    SkScalar seconds = SkFloatToScalar(gAnimTime / 1000.0f);
+    SkScalar value = SkScalarMul(speed, seconds);
+    if (period) {
+        value = SkScalarMod(value, period);
+    }
+    return value;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -241,10 +254,13 @@ SampleWindow::~SampleWindow() {
     delete fGLCanvas;
 }
 
-#define XCLIP_N  4
-#define YCLIP_N  1
+#define XCLIP_N  8
+#define YCLIP_N  8
 
 void SampleWindow::draw(SkCanvas* canvas) {
+    // update the animation time
+    gAnimTime = SkTime::GetMSecs();
+
     if (fNClip) {
      //   this->INHERITED::draw(canvas);
      //   SkBitmap orig = capture_bitmap(canvas);

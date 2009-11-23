@@ -10,6 +10,9 @@ public:
     
     static bool PrefSizeQ(const SkEvent&);
     static void PrefSizeR(SkEvent*, SkScalar width, SkScalar height);
+    
+    static SkMSec GetAnimTime();
+    static SkScalar GetAnimScalar(SkScalar speedPerSec, SkScalar period = 0);
 };
 
 //////////////////////////////////////////////////////////////////////////////
