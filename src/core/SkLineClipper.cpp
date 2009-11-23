@@ -124,21 +124,26 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
     SkPoint resultStorage[kMaxPoints];
     SkPoint* result;    // points to our results, either tmp or resultStorage
     int lineCount = 1;
+    bool reverse;
 
     if (pts[0].fX < pts[1].fX) {
         index0 = 0;
         index1 = 1;
+        reverse = false;
     } else {
         index0 = 1;
         index1 = 0;
+        reverse = true;
     }
-    
+
     if (tmp[index1].fX <= clip.fLeft) {  // wholly to the left
         tmp[0].fX = tmp[1].fX = clip.fLeft;
         result = tmp;
+        reverse = false;
     } else if (tmp[index0].fX >= clip.fRight) {    // wholly to the right
         tmp[0].fX = tmp[1].fX = clip.fRight;
         result = tmp;
+        reverse = false;
     } else {
         result = resultStorage;
         SkPoint* r = result;
@@ -164,7 +169,7 @@ int SkLineClipper::ClipLine(const SkPoint pts[], const SkRect& clip,
     }
 
     // Now copy the results into the caller's lines[] parameter
-    if (0 == index1) {
+    if (reverse) {
         // copy the pts in reverse order to maintain winding order
         for (int i = 0; i <= lineCount; i++) {
             lines[lineCount - i] = result[i];

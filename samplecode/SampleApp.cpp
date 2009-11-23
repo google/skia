@@ -129,6 +129,8 @@ public:
 	SampleWindow(void* hwnd);
 	virtual ~SampleWindow();
 
+    virtual void draw(SkCanvas* canvas);
+
 protected:
     virtual void onDraw(SkCanvas* canvas);
 	virtual bool onHandleKey(SkKey key);
@@ -167,6 +169,7 @@ private:
     CanvasType fCanvasType;
 
     bool fUseClip;
+    bool fNClip;
     bool fRepeatDrawing;
     bool fAnimating;
     bool fRotate;
@@ -210,6 +213,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 
     fCanvasType = kRaster_CanvasType;
     fUseClip = false;
+    fNClip = false;
     fRepeatDrawing = false;
     fAnimating = false;
     fRotate = false;
@@ -235,6 +239,33 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 SampleWindow::~SampleWindow() {
     delete fPicture;
     delete fGLCanvas;
+}
+
+#define XCLIP_N  4
+#define YCLIP_N  1
+
+void SampleWindow::draw(SkCanvas* canvas) {
+    if (fNClip) {
+     //   this->INHERITED::draw(canvas);
+     //   SkBitmap orig = capture_bitmap(canvas);
+
+        const SkScalar w = this->width();
+        const SkScalar h = this->height();
+        const SkScalar cw = w / XCLIP_N;
+        const SkScalar ch = h / YCLIP_N;
+        for (int y = 0; y < YCLIP_N; y++) {
+            for (int x = 0; x < XCLIP_N; x++) {
+                SkAutoCanvasRestore acr(canvas, true);
+                SkRect r = {
+                    x * cw, y * ch, (x + 1) * cw, (y + 1) * ch
+                };
+                canvas->clipRect(r);
+                this->INHERITED::draw(canvas);
+            }
+        }
+    } else {
+        this->INHERITED::draw(canvas);
+    }
 }
 
 void SampleWindow::onDraw(SkCanvas* canvas) {
@@ -511,7 +542,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             this->inval(NULL);
             return true;
         case kUp_SkKey:
-            fUseClip = !fUseClip;
+            fNClip = !fNClip;
             this->updateTitle();
             this->inval(NULL);
             return true;
@@ -604,7 +635,9 @@ void SampleWindow::updateTitle() {
     if (fRotate) {
         title.prepend("<R> ");
     }
-    
+    if (fNClip) {
+        title.prepend("<C> ");
+    }
     this->setTitle(title.c_str());
 }
 

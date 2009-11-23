@@ -547,11 +547,8 @@ public:
         Verb autoClose(SkPoint pts[2]);
     };
 
-#ifdef SK_DEBUG
-  /** @cond UNIT_TEST */
     void dump(bool forceClose, const char title[] = NULL) const;
-  /** @endcond */
-#endif
+    void dump() const;
 
     void flatten(SkFlattenableWriteBuffer&) const;
     void unflatten(SkFlattenableReadBuffer&);
