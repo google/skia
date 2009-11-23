@@ -254,6 +254,31 @@ SampleWindow::~SampleWindow() {
     delete fGLCanvas;
 }
 
+static SkBitmap capture_bitmap(SkCanvas* canvas) {
+    SkBitmap bm;
+    const SkBitmap& src = canvas->getDevice()->accessBitmap(false);
+    src.copyTo(&bm, src.config());
+    return bm;
+}
+
+static bool bitmap_diff(SkCanvas* canvas, const SkBitmap& orig,
+                        SkBitmap* diff) {
+    const SkBitmap& src = canvas->getDevice()->accessBitmap(false);
+    
+    SkAutoLockPixels alp0(src);
+    SkAutoLockPixels alp1(orig);
+    for (int y = 0; y < src.height(); y++) {
+        const void* srcP = src.getAddr(0, y);
+        const void* origP = orig.getAddr(0, y);
+        size_t bytes = src.width() * src.bytesPerPixel();
+        if (memcmp(srcP, origP, bytes)) {
+            SkDebugf("---------- difference on line %d\n", y);
+            return true;
+        }
+    }
+    return false;
+}
+
 #define XCLIP_N  8
 #define YCLIP_N  8
 
@@ -262,22 +287,34 @@ void SampleWindow::draw(SkCanvas* canvas) {
     gAnimTime = SkTime::GetMSecs();
 
     if (fNClip) {
-     //   this->INHERITED::draw(canvas);
-     //   SkBitmap orig = capture_bitmap(canvas);
+        this->INHERITED::draw(canvas);
+        SkBitmap orig = capture_bitmap(canvas);
 
         const SkScalar w = this->width();
         const SkScalar h = this->height();
         const SkScalar cw = w / XCLIP_N;
         const SkScalar ch = h / YCLIP_N;
         for (int y = 0; y < YCLIP_N; y++) {
+            SkRect r;
+            r.fTop = y * ch;
+            r.fBottom = (y + 1) * ch;
+            if (y == YCLIP_N - 1) {
+                r.fBottom = h;
+            }
             for (int x = 0; x < XCLIP_N; x++) {
                 SkAutoCanvasRestore acr(canvas, true);
-                SkRect r = {
-                    x * cw, y * ch, (x + 1) * cw, (y + 1) * ch
-                };
+                r.fLeft = x * cw;
+                r.fRight = (x + 1) * cw;
+                if (x == XCLIP_N - 1) {
+                    r.fRight = w;
+                }
                 canvas->clipRect(r);
                 this->INHERITED::draw(canvas);
             }
+        }
+        
+        SkBitmap diff;
+        if (bitmap_diff(canvas, orig, &diff)) {
         }
     } else {
         this->INHERITED::draw(canvas);

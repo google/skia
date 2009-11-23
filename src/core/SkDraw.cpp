@@ -694,6 +694,10 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     {
         SkIRect ir;
         devRect.roundOut(&ir);
+        if (paint.getStyle() != SkPaint::kFill_Style) {
+            // extra space for hairlines
+            ir.inset(-1, -1);
+        }
         if (fClip->quickReject(ir))
             return;
     }
