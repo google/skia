@@ -312,7 +312,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
                 glyph->fWidth   = SkToU16(mask.fBounds.width());
                 glyph->fHeight  = SkToU16(mask.fBounds.height());
             } else {
-                goto ERROR;
+                goto SK_ERROR;
             }
         } else {
             // just use devPath
@@ -320,7 +320,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             devPath.getBounds().roundOut(&ir);
             
             if (ir.isEmpty() || !ir.is16Bit()) {
-                goto ERROR;
+                goto SK_ERROR;
             }
             glyph->fLeft    = ir.fLeft;
             glyph->fTop     = ir.fTop;
@@ -350,7 +350,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
     }
     return;
     
-ERROR:
+SK_ERROR:
     // draw nothing 'cause we failed
     glyph->fLeft    = 0;
     glyph->fTop     = 0;
