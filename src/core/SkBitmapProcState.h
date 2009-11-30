@@ -136,4 +136,9 @@ private:
     #define pack_two_shorts(pri, sec)   PACK_TWO_SHORTS(pri, sec)
 #endif
 
+// These functions are generated via macros, but are exposed here so that
+// platformProcs may test for them by name.
+void S32_opaque_D32_filter_DX(const SkBitmapProcState& s, const uint32_t xy[],
+                              int count, SkPMColor colors[]);
+
 #endif

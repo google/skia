@@ -16,9 +16,9 @@
     #error "unsupported DSTSIZE"
 #endif
 
-static void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
-                                     const uint32_t* SK_RESTRICT xy,
-                                     int count, DSTTYPE* SK_RESTRICT colors) {
+void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
+                              const uint32_t* SK_RESTRICT xy,
+                              int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fDoFilter == false);
     SkDEBUGCODE(CHECKSTATE(s);)
@@ -58,9 +58,9 @@ static void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
 #endif
 }
 
-static void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
-                                   const uint32_t* SK_RESTRICT xy,
-                                   int count, DSTTYPE* SK_RESTRICT colors) {
+void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
+                            const uint32_t* SK_RESTRICT xy,
+                            int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask));
     SkASSERT(s.fDoFilter == false);
@@ -113,9 +113,9 @@ static void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
-                                 const uint32_t* SK_RESTRICT xy,
-                                  int count, DSTTYPE* SK_RESTRICT colors) {
+void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
+                          const uint32_t* SK_RESTRICT xy,
+                           int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fDoFilter);
     SkDEBUGCODE(CHECKSTATE(s);)
@@ -159,9 +159,9 @@ static void MAKENAME(_filter_DX)(const SkBitmapProcState& s,
     POSTAMBLE(s);
 #endif
 }
-static void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
-                                   const uint32_t* SK_RESTRICT xy,
-                                   int count, DSTTYPE* SK_RESTRICT colors) {
+void MAKENAME(_filter_DXDY)(const SkBitmapProcState& s,
+                            const uint32_t* SK_RESTRICT xy,
+                            int count, DSTTYPE* SK_RESTRICT colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fDoFilter);
     SkDEBUGCODE(CHECKSTATE(s);)
