@@ -181,12 +181,14 @@ static int cycle_hairproc_index(int index) {
 }
 
 class HairlineView : public SkView {
+    SkMSec fNow;
     int fProcIndex;
     bool fDoAA;
 public:
 	HairlineView() {
         fProcIndex = 0;
         fDoAA = true;
+        fNow = 0;
     }
     
 protected:
@@ -218,7 +220,9 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
         
-        if (true) {
+        gRand.setSeed(fNow);
+        
+        if (false) {
             test_chromium_9005();
         }
         
@@ -242,15 +246,19 @@ protected:
         bm2.eraseColor(0);
         gProcs[fProcIndex].fProc(&c2, paint, bm);
         canvas->drawBitmap(bm2, SkIntToScalar(10), SkIntToScalar(10), NULL);
-        
-        fCounter += 1;
-        fDoAA = !fDoAA;
-        if (fCounter > 50) {
-            fProcIndex = cycle_hairproc_index(fProcIndex);
-            // todo: signal that we want to rebuild our TITLE
-            fCounter = 0;
+
+        SkMSec now = SampleCode::GetAnimTime();
+        if (fNow != now) {
+            fNow = now;
+            fCounter += 1;
+            fDoAA = !fDoAA;
+            if (fCounter > 50) {
+                fProcIndex = cycle_hairproc_index(fProcIndex);
+                // todo: signal that we want to rebuild our TITLE
+                fCounter = 0;
+            }
+            this->inval(NULL);
         }
-        this->inval(NULL);
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {

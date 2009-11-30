@@ -429,6 +429,17 @@ void SkScan::AntiHairLine(const SkPoint& pt0, const SkPoint& pt1,
     if (clip) {
         SkRect clipBounds;
         clipBounds.set(clip->getBounds());
+        /*  We perform integral clipping later on, but we do a scalar clip first
+            to ensure that our coordinates are expressible in fixed/integers.
+
+            antialiased hairlines can draw up to 1/2 of a pixel outside of
+            their bounds, so we need to outset the clip before calling the
+            clipper. To make the numerics safer, we outset by a whole pixel,
+            since the 1/2 pixel boundary is important to the antihair blitter,
+            we don't want to risk numerical fate by chopping on that edge.
+         */
+        clipBounds.inset(-SK_Scalar1, -SK_Scalar1);
+
         if (!SkLineClipper::IntersectLine(pts, clipBounds, pts)) {
             return;
         }

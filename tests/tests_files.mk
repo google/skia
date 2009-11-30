@@ -1,4 +1,5 @@
 SOURCE := \
+	ClipperTest.cpp \
 	GeometryTest.cpp \
     MathTest.cpp \
     MatrixTest.cpp \

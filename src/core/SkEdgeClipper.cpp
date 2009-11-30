@@ -235,23 +235,31 @@ static bool chopMonoCubicAt(SkScalar c0, SkScalar c1, SkScalar c2, SkScalar c3,
  //   SkASSERT(c0 <= c1 && c1 <= c2 && c2 <= c3);
     SkASSERT(c0 < target && target < c3);
 
-    SkScalar D = c0;
+    SkScalar D = c0 - target;
     SkScalar A = c3 + 3*(c1 - c2) - c0;
     SkScalar B = 3*(c2 - c1 - c1 + c0);
     SkScalar C = 3*(c1 - c0);
 
+    const SkScalar TOLERANCE = SK_Scalar1 / 4096;
     SkScalar minT = 0;
     SkScalar maxT = SK_Scalar1;
-    for (int i = 0; i < 8; i++) {
-        SkScalar mid = SkScalarAve(minT, maxT);
-        SkScalar coord = eval_cubic_coeff(A, B, C, D, mid);
-        if (coord < target) {
+    SkScalar mid;
+    int i;
+    for (i = 0; i < 16; i++) {
+        mid = SkScalarAve(minT, maxT);
+        SkScalar delta = eval_cubic_coeff(A, B, C, D, mid);
+        if (delta < 0) {
             minT = mid;
+            delta = -delta;
         } else {
             maxT = mid;
         }
+        if (delta < TOLERANCE) {
+            break;
+        }
     }
-    *t = SkScalarAve(minT, maxT);
+    *t = mid;
+//    SkDebugf("-- evalCubicAt %d delta %g\n", i, eval_cubic_coeff(A, B, C, D, *t));
     return true;
 }
 
