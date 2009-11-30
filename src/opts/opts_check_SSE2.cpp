@@ -15,6 +15,7 @@
  ** limitations under the License.
  */
 
+#include "SkBitmapProcState_opts_SSE2.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkUtils_opts_SSE2.h"
 #include "SkUtils.h"
@@ -63,6 +64,14 @@ static inline bool hasSSE2() {
     return (cpu_info[3] & (1<<26)) != 0;
 }
 #endif
+
+void SkBitmapProcState::platformProcs() {
+    if (hasSSE2()) {
+        if (fSampleProc32 == S32_opaque_D32_filter_DX) {
+            fSampleProc32 = S32_opaque_D32_filter_DX_SSE2;
+        }
+    }
+}
 
 static SkBlitRow::Proc32 platform_32_procs[] = {
     NULL,                               // S32_Opaque,
