@@ -24,20 +24,36 @@ static SkScalar sect_with_vertical(const SkPoint src[2], SkScalar X) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static inline bool nestedLT(SkScalar a, SkScalar b, SkScalar dim) {
+    return a <= b && (a < b || dim > 0);
+}
+
+// returns true if outer contains inner, even if inner is empty.
+// note: outer.contains(inner) always returns false if inner is empty.
+static inline bool containsNoEmptyCheck(const SkRect& outer,
+                                        const SkRect& inner) {
+    return  outer.fLeft <= inner.fLeft && outer.fTop <= inner.fTop &&
+            outer.fRight >= inner.fRight && outer.fBottom >= inner.fBottom;
+}
+
 bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
                                   SkPoint dst[2]) {
     SkRect bounds;
     
     bounds.set(src, 2);
-    if (bounds.fLeft >= clip.fRight || clip.fLeft >= bounds.fRight ||
-        bounds.fTop >= clip.fBottom || clip.fTop >= bounds.fBottom) {
-        return false;
-    }
-    if (clip.contains(bounds)) {
+    if (containsNoEmptyCheck(clip, bounds)) {
         if (src != dst) {
             memcpy(dst, src, 2 * sizeof(SkPoint));
         }
         return true;
+    }
+    // check for no overlap, and only permit coincident edges if the line
+    // and the edge are colinear
+    if (nestedLT(bounds.fRight, clip.fLeft, bounds.width()) ||
+        nestedLT(clip.fRight, bounds.fLeft, bounds.width()) ||
+        nestedLT(bounds.fBottom, clip.fTop, bounds.height()) ||
+        nestedLT(clip.fBottom, bounds.fTop, bounds.height())) {
+        return false;
     }
 
     int index0, index1;
@@ -70,7 +86,9 @@ bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
     }
 
     // check for quick-reject in X again, now that we may have been chopped
-    if (tmp[index1].fX <= clip.fLeft || tmp[index0].fX >= clip.fRight) {
+    if ((tmp[index1].fX <= clip.fLeft || tmp[index0].fX >= clip.fRight) &&
+        tmp[index0].fX < tmp[index1].fX) {
+        // only reject if we have a non-zero width
         return false;
     }
 
@@ -80,6 +98,10 @@ bool SkLineClipper::IntersectLine(const SkPoint src[2], const SkRect& clip,
     if (tmp[index1].fX > clip.fRight) {
         tmp[index1].set(clip.fRight, sect_with_vertical(src, clip.fRight));
     }
+#ifdef SK_DEBUG
+    bounds.set(tmp, 2);
+    SkASSERT(containsNoEmptyCheck(clip, bounds));
+#endif
     memcpy(dst, tmp, sizeof(tmp));
     return true;
 }
