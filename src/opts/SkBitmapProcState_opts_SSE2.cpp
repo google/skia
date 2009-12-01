@@ -24,8 +24,8 @@ void S32_opaque_D32_filter_DX_SSE2(const SkBitmapProcState& s,
                                    int count, uint32_t* colors) {
     SkASSERT(count > 0 && colors != NULL);
     SkASSERT(s.fDoFilter);
-    SkASSERT(state.fBitmap->config() == SkBitmap::kARGB_8888_Config);
-    SkASSERT(state.fAlphaScale == 256);
+    SkASSERT(s.fBitmap->config() == SkBitmap::kARGB_8888_Config);
+    SkASSERT(s.fAlphaScale == 256);
 
     const char* srcAddr = static_cast<const char*>(s.fBitmap->getPixels());
     unsigned rb = s.fBitmap->rowBytes();
