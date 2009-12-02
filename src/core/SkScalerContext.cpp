@@ -319,7 +319,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             SkIRect ir;
             devPath.getBounds().roundOut(&ir);
             
-            if (ir.isEmpty() || !ir.is16Bit()) {
+            if (!ir.is16Bit()) {
                 goto SK_ERROR;
             }
             glyph->fLeft    = ir.fLeft;
