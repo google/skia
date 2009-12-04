@@ -1239,6 +1239,10 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
     ITER_END
 }
 
+void SkCanvas::drawData(const void* data, size_t length) {
+    // do nothing. Subclasses may do something with the data
+}
+
 //////////////////////////////////////////////////////////////////////////////
 // These methods are NOT virtual, and therefore must call back into virtual
 // methods, rather than actually drawing themselves.

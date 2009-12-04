@@ -1,11 +1,11 @@
 #include "SampleCode.h"
+#include "SkDumpCanvas.h"
 #include "SkView.h"
 #include "SkCanvas.h"
 #include "Sk64.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
-#include "SkKernel33MaskFilter.h"
 #include "SkPath.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
@@ -103,15 +103,21 @@ protected:
         canvas->drawBitmap(fBitmap, 0, 0, NULL);
         canvas->restore();
 
+        const char beforeStr[] = "before circle";
+        const char afterStr[] = "after circle";
+
         paint.setAntiAlias(true);
     
         paint.setColor(SK_ColorRED);
+        canvas->drawData(beforeStr, sizeof(beforeStr));
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
                            SkIntToScalar(40), paint);
+        canvas->drawData(afterStr, sizeof(afterStr));
         paint.setColor(SK_ColorBLACK);
         paint.setTextSize(SkIntToScalar(40));
         canvas->drawText("Picture", 7, SkIntToScalar(50), SkIntToScalar(62),
                          paint);
+        
     }
 
     virtual void onDraw(SkCanvas* canvas) {
@@ -145,6 +151,12 @@ protected:
         canvas->translate(-SkIntToScalar(100), 0);
         canvas->drawPicture(*pict);
         canvas->restore();
+
+        if (false) {
+            SkDebugfDumper dumper;
+            SkDumpCanvas dumpCanvas(&dumper);
+            dumpCanvas.drawPicture(*pict);
+        }
         
         // test that we can re-record a subpicture, and see the results
         

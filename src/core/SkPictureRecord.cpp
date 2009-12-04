@@ -410,6 +410,12 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
     }
 }
 
+void SkPictureRecord::drawData(const void* data, size_t length) {
+    addDraw(DRAW_DATA);
+    addInt(length);
+    fWriter.writePad(data, length);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
     
 void SkPictureRecord::reset() {

@@ -379,6 +379,12 @@ void SkDumpCanvas::drawVertices(VertexMode vmode, int vertexCount,
                SkScalarToFloat(vertices[0].fY));
 }
 
+void SkDumpCanvas::drawData(const void* data, size_t length) {
+//    this->dump(kDrawData_Verb, NULL, "drawData(%d)", length);
+    this->dump(kDrawData_Verb, NULL, "drawData(%d) %.*s", length,
+               SkMin32(length, 64), data);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
