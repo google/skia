@@ -151,6 +151,10 @@ void SkProxyCanvas::drawVertices(VertexMode vmode, int vertexCount,
                                      xmode, indices, indexCount, paint);
 }
 
+void SkProxyCanvas::drawData(const void* data, size_t length) {
+    fProxy->drawData(data, length);
+}
+
 SkBounder* SkProxyCanvas::setBounder(SkBounder* bounder) {
     return fProxy->setBounder(bounder);
 }

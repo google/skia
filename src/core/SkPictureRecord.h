@@ -56,6 +56,7 @@ public:
                           const SkColor colors[], SkXfermode*,
                           const uint16_t indices[], int indexCount,
                               const SkPaint&);
+    virtual void drawData(const void*, size_t);
 
     void addFontMetricsTopBottom(const SkPaint& paint, SkScalar baselineY);
     

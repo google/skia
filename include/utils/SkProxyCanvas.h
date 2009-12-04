@@ -75,7 +75,8 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint);
-    
+    virtual void drawData(const void* data, size_t length);
+
     virtual SkBounder* setBounder(SkBounder* bounder);
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter);
 

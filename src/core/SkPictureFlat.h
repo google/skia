@@ -18,6 +18,7 @@ enum DrawType {
     DRAW_BITMAP,
     DRAW_BITMAP_MATRIX,
     DRAW_BITMAP_RECT,
+    DRAW_DATA,
     DRAW_PAINT,
     DRAW_PATH,
     DRAW_PICTURE,

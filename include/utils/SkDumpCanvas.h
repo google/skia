@@ -34,7 +34,8 @@ public:
         kDrawText_Verb,
         kDrawPicture_Verb,
         kDrawShape_Verb,
-        kDrawVertices_Verb
+        kDrawVertices_Verb,
+        kDrawData_Verb
     };
     
     /** Subclasses of this are installed on the DumpCanvas, and then called for
@@ -102,6 +103,7 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint);
+    virtual void drawData(const void*, size_t);
 
 private:
     Dumper* fDumper;
