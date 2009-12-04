@@ -5,7 +5,7 @@
 #include "SkRect.h"
 #include "SkTDArray.h"
 
-class SkEdge;
+struct SkEdge;
 class SkEdgeClipper;
 class SkPath;
 
