@@ -24,7 +24,7 @@
 #include "SkRegion.h"
 #include "SkTemplates.h"
 
-//#define USE_NEW_BUILDER
+#define USE_NEW_BUILDER
 
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
