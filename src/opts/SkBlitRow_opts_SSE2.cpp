@@ -125,8 +125,7 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
             __m128i dst_pixel = _mm_load_si128(d);
 
             __m128i dst_rb = _mm_and_si128(rb_mask, dst_pixel);
-            __m128i dst_ag = _mm_andnot_si128(rb_mask, dst_pixel);
-            dst_ag = _mm_srli_epi16(dst_ag, 8);
+            __m128i dst_ag = _mm_srli_epi16(dst_pixel, 8);
             // Shift alphas down to lower 8 bits of each quad.
             __m128i alpha = _mm_srli_epi32(src_pixel, 24);
 
@@ -174,13 +173,16 @@ void S32A_Opaque_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
             __m128i dst_pixel = _mm_load_si128(d);
 
             __m128i dst_rb = _mm_and_si128(rb_mask, dst_pixel);
-            __m128i dst_ag = _mm_andnot_si128(rb_mask, dst_pixel);
-            dst_ag = _mm_srli_epi16(dst_ag, 8);
-            // Shift alphas down to lower 8 bits of each quad.
-            __m128i alpha = _mm_srli_epi32(src_pixel, 24);
+            __m128i dst_ag = _mm_srli_epi16(dst_pixel, 8);
 
-            // Copy alpha to upper 3rd byte of each quad
-            alpha = _mm_or_si128(alpha, _mm_slli_epi32(alpha, 16));
+            // (a0, g0, a1, g1, a2, g2, a3, g3)  (low byte of each word)
+            __m128i alpha = _mm_srli_epi16(src_pixel, 8);
+
+            // (a0, a0, a1, a1, a2, g2, a3, g3)
+            alpha = _mm_shufflehi_epi16(alpha, 0xF5);
+
+            // (a0, a0, a1, a1, a2, a2, a3, a3)
+            alpha = _mm_shufflelo_epi16(alpha, 0xF5);
 
             // Subtract alphas from 256, to get 1..256
             alpha = _mm_sub_epi16(c_256, alpha);

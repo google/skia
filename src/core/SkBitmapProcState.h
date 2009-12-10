@@ -140,5 +140,7 @@ private:
 // platformProcs may test for them by name.
 void S32_opaque_D32_filter_DX(const SkBitmapProcState& s, const uint32_t xy[],
                               int count, SkPMColor colors[]);
+void S32_alpha_D32_filter_DX(const SkBitmapProcState& s, const uint32_t xy[],
+                             int count, SkPMColor colors[]);
 
 #endif

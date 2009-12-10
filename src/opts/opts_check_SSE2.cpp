@@ -69,6 +69,8 @@ void SkBitmapProcState::platformProcs() {
     if (hasSSE2()) {
         if (fSampleProc32 == S32_opaque_D32_filter_DX) {
             fSampleProc32 = S32_opaque_D32_filter_DX_SSE2;
+        } else if (fSampleProc32 == S32_alpha_D32_filter_DX) {
+            fSampleProc32 = S32_alpha_D32_filter_DX_SSE2;
         }
     }
 }
