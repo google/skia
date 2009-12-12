@@ -391,6 +391,7 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fBounder = NULL;
     fLocalBoundsCompareTypeDirty = true;
     fLastDeviceToGainFocus = NULL;
+    fDeviceCMDirty = false;
 
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec(NULL, 0);
