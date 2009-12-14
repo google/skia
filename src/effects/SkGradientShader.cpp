@@ -107,8 +107,11 @@ protected:
     Rec*        fRecs;
 
     enum {
-        kCache16Bits    = 6,    // seems like enough for visual accuracy
+        kCache16Bits    = 8,    // seems like enough for visual accuracy
         kCache16Count   = 1 << kCache16Bits,
+        kCache16Mask    = kCache16Count - 1,
+        kCache16Shift   = 16 - kCache16Bits,
+
         kCache32Bits    = 8,    // pretty much should always be 8
         kCache32Count   = 1 << kCache32Bits
     };
@@ -134,6 +137,8 @@ private:
     uint16_t*   fCache16Storage;    // storage for fCache16, allocated on demand
     SkPMColor*  fCache32Storage;    // storage for fCache32, allocated on demand
     unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
+
+    static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
 
     typedef SkShader INHERITED;
 };
@@ -415,8 +420,8 @@ static inline uint32_t dot8_blend_packed32(uint32_t s0, uint32_t s1,
     build a 16bit table as long as the original colors are opaque, even if the
     paint specifies a non-opaque alpha.
 */
-static void build_16bit_cache(uint16_t cache[], SkColor c0, SkColor c1,
-                              int count) {
+void Gradient_Shader::Build16bitCache(uint16_t cache[], SkColor c0, SkColor c1,
+                                      int count) {
     SkASSERT(count > 1);
     SkASSERT(SkColorGetA(c0) == 0xFF);
     SkASSERT(SkColorGetA(c1) == 0xFF);
@@ -438,7 +443,7 @@ static void build_16bit_cache(uint16_t cache[], SkColor c0, SkColor c1,
         unsigned gg = g >> 16;
         unsigned bb = b >> 16;
         cache[0] = SkPackRGB16(SkR32ToR16(rr), SkG32ToG16(gg), SkB32ToB16(bb));
-        cache[64] = SkDitherPack888ToRGB16(rr, gg, bb);
+        cache[kCache16Count] = SkDitherPack888ToRGB16(rr, gg, bb);
         cache += 1;
         r += dr;
         g += dg;
@@ -496,16 +501,16 @@ const uint16_t* Gradient_Shader::getCache16() {
         }
         fCache16 = fCache16Storage;
         if (fColorCount == 2) {
-            build_16bit_cache(fCache16, fOrigColors[0], fOrigColors[1], kCache16Count);
+            Build16bitCache(fCache16, fOrigColors[0], fOrigColors[1], kCache16Count);
         } else {
             Rec* rec = fRecs;
             int prevIndex = 0;
             for (int i = 1; i < fColorCount; i++) {
-                int nextIndex = SkFixedToFFFF(rec[i].fPos) >> (16 - kCache16Bits);
+                int nextIndex = SkFixedToFFFF(rec[i].fPos) >> kCache16Shift;
                 SkASSERT(nextIndex < kCache16Count);
 
                 if (nextIndex > prevIndex)
-                    build_16bit_cache(fCache16 + prevIndex, fOrigColors[i-1], fOrigColors[i], nextIndex - prevIndex + 1);
+                    Build16bitCache(fCache16 + prevIndex, fOrigColors[i-1], fOrigColors[i], nextIndex - prevIndex + 1);
                 prevIndex = nextIndex;
             }
             SkASSERT(prevIndex == kCache16Count - 1);
@@ -806,21 +811,21 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
 
         if (SkFixedNearlyZero(dx)) {
             // we're a vertical gradient, so no change in a span
-            unsigned fi = proc(fx) >> 10;
-            SkASSERT(fi <= 63);
+            unsigned fi = proc(fx) >> kCache16Shift;
+            SkASSERT(fi <= kCache16Mask);
             dither_memset16(dstC, cache[toggle + fi], cache[(toggle ^ (1 << kCache16Bits)) + fi], count);
         } else if (proc == clamp_tileproc) {
             do {
-                unsigned fi = SkClampMax(fx >> 10, 63);
-                SkASSERT(fi <= 63);
+                unsigned fi = SkClampMax(fx >> kCache16Shift, kCache16Mask);
+                SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
                 toggle ^= (1 << kCache16Bits);
             } while (--count != 0);
         } else if (proc == mirror_tileproc) {
             do {
-                unsigned fi = mirror_6bits(fx >> 10);
-                SkASSERT(fi <= 0x3F);
+                unsigned fi = mirror_6bits(fx >> kCache16Shift);
+                SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
                 toggle ^= (1 << kCache16Bits);
@@ -828,8 +833,8 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
         } else {
             SkASSERT(proc == repeat_tileproc);
             do {
-                unsigned fi = repeat_6bits(fx >> 10);
-                SkASSERT(fi <= 0x3F);
+                unsigned fi = repeat_6bits(fx >> kCache16Shift);
+                SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
                 toggle ^= (1 << kCache16Bits);
@@ -843,7 +848,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
             unsigned fi = proc(SkScalarToFixed(srcPt.fX));
             SkASSERT(fi <= 0xFFFF);
 
-            int index = fi >> (16 - kCache16Bits);
+            int index = fi >> kCache16Shift;
             *dstC++ = cache[toggle + index];
             toggle ^= (1 << kCache16Bits);
 
