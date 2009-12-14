@@ -45,18 +45,18 @@ static const TileProc gTileProcs[] = {
 
 //////////////////////////////////////////////////////////////////////////////
 
-static inline int repeat_6bits(int x) {
-    return x & 63;
+static inline int repeat_bits(int x, const int bits) {
+    return x & ((1 << bits) - 1);
 }
 
-static inline int mirror_6bits(int x) {
+static inline int mirror_bits(int x, const int bits) {
 #ifdef SK_CPU_HAS_CONDITIONAL_INSTR
-    if (x & 64)
+    if (x & (1 << bits))
         x = ~x;
-    return x & 63;
+    return x & ((1 << bits) - 1);
 #else
-    int s = x << 25 >> 31;
-    return (x ^ s) & 63;
+    int s = x << (31 - bits) >> 31;
+    return (x ^ s) & ((1 << bits) - 1);
 #endif
 }
 
@@ -489,9 +489,16 @@ static inline int SkFixedToFFFF(SkFixed x) {
     return x - (x >> 16);
 }
 
-static inline U16CPU dot6to16(unsigned x) {
-    SkASSERT(x < 64);
-    return (x << 10) | (x << 4) | (x >> 2);
+static inline U16CPU bitsTo16(unsigned x, const unsigned bits) {
+    SkASSERT(x < (1 << bits));
+    if (6 == bits) {
+        return (x << 10) | (x << 4) | (x >> 2);
+    }
+    if (8 == bits) {
+        return (x << 8) | x;
+    }
+    sk_throw();
+    return 0;
 }
 
 const uint16_t* Gradient_Shader::getCache16() {
@@ -521,10 +528,10 @@ const uint16_t* Gradient_Shader::getCache16() {
             uint16_t* linear = fCache16;         // just computed linear data
             uint16_t* mapped = fCache16Storage;  // storage for mapped data
             SkUnitMapper* map = fMapper;
-            for (int i = 0; i < 64; i++) {
-                int index = map->mapUnit16(dot6to16(i)) >> 10;
+            for (int i = 0; i < kCache16Count; i++) {
+                int index = map->mapUnit16(bitsTo16(i, kCache16Bits)) >> kCache16Shift;
                 mapped[i] = linear[index];
-                mapped[i + 64] = linear[index + 64];
+                mapped[i + kCache16Count] = linear[index + kCache16Count];
             }
             sk_free(fCache16);
             fCache16 = fCache16Storage;
@@ -824,7 +831,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
             } while (--count != 0);
         } else if (proc == mirror_tileproc) {
             do {
-                unsigned fi = mirror_6bits(fx >> kCache16Shift);
+                unsigned fi = mirror_bits(fx >> kCache16Shift, kCache16Bits);
                 SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
@@ -833,7 +840,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
         } else {
             SkASSERT(proc == repeat_tileproc);
             do {
-                unsigned fi = repeat_6bits(fx >> kCache16Shift);
+                unsigned fi = repeat_bits(fx >> kCache16Shift, kCache16Bits);
                 SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
