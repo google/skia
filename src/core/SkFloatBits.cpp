@@ -147,11 +147,6 @@ int32_t SkFloatBits_toIntCeil(int32_t packed) {
 
 #ifdef SK_CAN_USE_FLOAT
 
-float SkFloatBits_intToFloatNative(int x);
-float SkFloatBits_intToFloatNative(int x) {
-    return x;
-}
-
 float SkIntToFloatCast(int32_t value) {
     if (0 == value) {
         return 0;

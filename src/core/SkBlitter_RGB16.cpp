@@ -292,8 +292,8 @@ void SkRGB16_Opaque_Blitter::blitH(int x, int y, int width) SK_RESTRICT {
 }
 
 // return 1 or 0 from a bool
-static int Bool2Int(bool value) {
-    return !!value;
+static inline int Bool2Int(int value) {
+	return !!value;
 }
 
 void SkRGB16_Opaque_Blitter::blitAntiH(int x, int y,
