@@ -64,7 +64,7 @@ private:
     // returns true if we should proceed
     void init(SkPath* path) {
         fPath = path;
-        fDirty = path->fBoundsIsDirty;
+        fDirty = SkToBool(path->fBoundsIsDirty);
         fEmpty = path->isEmpty();
         // Cannot use fRect for our bounds unless we know it is sorted
         fRect.sort();

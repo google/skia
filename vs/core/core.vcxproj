@@ -1,0 +1,302 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{836B49AB-E26B-4ED9-8487-F2D297238FAF}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>core</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <MinimalRebuild>true</MinimalRebuild>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\include\core ; ..\..\include\config</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\include\core ..\..\include\config</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\core\Sk64.cpp" />
+    <ClCompile Include="..\..\src\core\SkAlphaRuns.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmap.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapProcShader.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapProcState.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapProcState_matrixProcs.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapSampler.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmap_scroll.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitRow_D16.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitRow_D32.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitRow_D4444.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_4444.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_A1.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_A8.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_ARGB32.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_ARGB32_Subpixel.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_RGB16.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_Sprite.cpp" />
+    <ClCompile Include="..\..\src\core\SkBuffer.cpp" />
+    <ClCompile Include="..\..\src\core\SkCanvas.cpp" />
+    <ClCompile Include="..\..\src\core\SkChunkAlloc.cpp" />
+    <ClCompile Include="..\..\src\core\SkColor.cpp" />
+    <ClCompile Include="..\..\src\core\SkColorFilter.cpp" />
+    <ClCompile Include="..\..\src\core\SkColorTable.cpp" />
+    <ClCompile Include="..\..\src\core\SkComposeShader.cpp" />
+    <ClCompile Include="..\..\src\core\SkConcaveToTriangles.cpp" />
+    <ClCompile Include="..\..\src\core\SkCordic.cpp" />
+    <ClCompile Include="..\..\src\core\SkCubicClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkDebug.cpp" />
+    <ClCompile Include="..\..\src\core\SkDeque.cpp" />
+    <ClCompile Include="..\..\src\core\SkDevice.cpp" />
+    <ClCompile Include="..\..\src\core\SkDither.cpp" />
+    <ClCompile Include="..\..\src\core\SkDraw.cpp" />
+    <ClCompile Include="..\..\src\core\SkEdge.cpp" />
+    <ClCompile Include="..\..\src\core\SkEdgeBuilder.cpp" />
+    <ClCompile Include="..\..\src\core\SkEdgeClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkFilterProc.cpp" />
+    <ClCompile Include="..\..\src\core\SkFlattenable.cpp" />
+    <ClCompile Include="..\..\src\core\SkFloat.cpp" />
+    <ClCompile Include="..\..\src\core\SkFloatBits.cpp" />
+    <ClCompile Include="..\..\src\core\SkFontHost.cpp" />
+    <ClCompile Include="..\..\src\core\SkGeometry.cpp" />
+    <ClCompile Include="..\..\src\core\SkGlobals.cpp" />
+    <ClCompile Include="..\..\src\core\SkGlyphCache.cpp" />
+    <ClCompile Include="..\..\src\core\SkGraphics.cpp" />
+    <ClCompile Include="..\..\src\core\SkLineClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkMask.cpp" />
+    <ClCompile Include="..\..\src\core\SkMaskFilter.cpp" />
+    <ClCompile Include="..\..\src\core\SkMath.cpp" />
+    <ClCompile Include="..\..\src\core\SkMatrix.cpp" />
+    <ClCompile Include="..\..\src\core\SkMemory_stdlib.cpp" />
+    <ClCompile Include="..\..\src\core\SkPackBits.cpp" />
+    <ClCompile Include="..\..\src\core\SkPaint.cpp" />
+    <ClCompile Include="..\..\src\core\SkPath.cpp" />
+    <ClCompile Include="..\..\src\core\SkPathEffect.cpp" />
+    <ClCompile Include="..\..\src\core\SkPathHeap.cpp" />
+    <ClCompile Include="..\..\src\core\SkPathMeasure.cpp" />
+    <ClCompile Include="..\..\src\core\SkPicture.cpp" />
+    <ClCompile Include="..\..\src\core\SkPictureFlat.cpp" />
+    <ClCompile Include="..\..\src\core\SkPicturePlayback.cpp" />
+    <ClCompile Include="..\..\src\core\SkPictureRecord.cpp" />
+    <ClCompile Include="..\..\src\core\SkPixelRef.cpp" />
+    <ClCompile Include="..\..\src\core\SkPoint.cpp" />
+    <ClCompile Include="..\..\src\core\SkProcSpriteBlitter.cpp" />
+    <ClCompile Include="..\..\src\core\SkPtrRecorder.cpp" />
+    <ClCompile Include="..\..\src\core\SkQuadClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkRasterizer.cpp" />
+    <ClCompile Include="..\..\src\core\SkRect.cpp" />
+    <ClCompile Include="..\..\src\core\SkRefCnt.cpp" />
+    <ClCompile Include="..\..\src\core\SkRegion.cpp" />
+    <ClCompile Include="..\..\src\core\SkRegion_path.cpp" />
+    <ClCompile Include="..\..\src\core\SkScalerContext.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_Antihair.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_AntiPath.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_Hairline.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_Path.cpp" />
+    <ClCompile Include="..\..\src\core\SkShader.cpp" />
+    <ClCompile Include="..\..\src\core\SkShape.cpp" />
+    <ClCompile Include="..\..\src\core\SkSpriteBlitter_ARGB32.cpp" />
+    <ClCompile Include="..\..\src\core\SkSpriteBlitter_RGB16.cpp" />
+    <ClCompile Include="..\..\src\core\SkStream.cpp" />
+    <ClCompile Include="..\..\src\core\SkString.cpp" />
+    <ClCompile Include="..\..\src\core\SkStroke.cpp" />
+    <ClCompile Include="..\..\src\core\SkStrokerPriv.cpp" />
+    <ClCompile Include="..\..\src\core\SkTSearch.cpp" />
+    <ClCompile Include="..\..\src\core\SkTypeface.cpp" />
+    <ClCompile Include="..\..\src\core\SkUnPreMultiply.cpp" />
+    <ClCompile Include="..\..\src\core\SkUtils.cpp" />
+    <ClCompile Include="..\..\src\core\SkWriter32.cpp" />
+    <ClCompile Include="..\..\src\core\SkXfermode.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\core\Sk64.h" />
+    <ClInclude Include="..\..\include\core\SkAutoKern.h" />
+    <ClInclude Include="..\..\include\core\SkBitmap.h" />
+    <ClInclude Include="..\..\include\core\SkBlitRow.h" />
+    <ClInclude Include="..\..\include\core\SkBlitter.h" />
+    <ClInclude Include="..\..\include\core\SkBounder.h" />
+    <ClInclude Include="..\..\include\core\SkBuffer.h" />
+    <ClInclude Include="..\..\include\core\SkCanvas.h" />
+    <ClInclude Include="..\..\include\core\SkChunkAlloc.h" />
+    <ClInclude Include="..\..\include\core\SkColor.h" />
+    <ClInclude Include="..\..\include\core\SkColorFilter.h" />
+    <ClInclude Include="..\..\include\core\SkColorPriv.h" />
+    <ClInclude Include="..\..\include\core\SkColorShader.h" />
+    <ClInclude Include="..\..\include\core\SkComposeShader.h" />
+    <ClInclude Include="..\..\include\core\SkDeque.h" />
+    <ClInclude Include="..\..\include\core\SkDescriptor.h" />
+    <ClInclude Include="..\..\include\core\SkDevice.h" />
+    <ClInclude Include="..\..\include\core\SkDither.h" />
+    <ClInclude Include="..\..\include\core\SkDraw.h" />
+    <ClInclude Include="..\..\include\core\SkDrawFilter.h" />
+    <ClInclude Include="..\..\include\core\SkDrawing.h" />
+    <ClInclude Include="..\..\include\core\SkDrawLooper.h" />
+    <ClInclude Include="..\..\include\core\SkEdgeClipper.h" />
+    <ClInclude Include="..\..\include\core\SkEndian.h" />
+    <ClInclude Include="..\..\include\core\SkFDot6.h" />
+    <ClInclude Include="..\..\include\core\SkFixed.h" />
+    <ClInclude Include="..\..\include\core\SkFlattenable.h" />
+    <ClInclude Include="..\..\include\core\SkFloatBits.h" />
+    <ClInclude Include="..\..\include\core\SkFloatingPoint.h" />
+    <ClInclude Include="..\..\include\core\SkFontHost.h" />
+    <ClInclude Include="..\..\include\core\SkGeometry.h" />
+    <ClInclude Include="..\..\include\core\SkGlobals.h" />
+    <ClInclude Include="..\..\include\core\SkGraphics.h" />
+    <ClInclude Include="..\..\include\core\SkLineClipper.h" />
+    <ClInclude Include="..\..\include\core\SkMallocPixelRef.h" />
+    <ClInclude Include="..\..\include\core\SkMask.h" />
+    <ClInclude Include="..\..\include\core\SkMaskFilter.h" />
+    <ClInclude Include="..\..\include\core\SkMath.h" />
+    <ClInclude Include="..\..\include\core\SkMatrix.h" />
+    <ClInclude Include="..\..\include\core\SkMMapStream.h" />
+    <ClInclude Include="..\..\include\core\SkOSFile.h" />
+    <ClInclude Include="..\..\include\core\SkPackBits.h" />
+    <ClInclude Include="..\..\include\core\SkPaint.h" />
+    <ClInclude Include="..\..\include\core\SkPath.h" />
+    <ClInclude Include="..\..\include\core\SkPathEffect.h" />
+    <ClInclude Include="..\..\include\core\SkPathMeasure.h" />
+    <ClInclude Include="..\..\include\core\SkPerspIter.h" />
+    <ClInclude Include="..\..\include\core\SkPicture.h" />
+    <ClInclude Include="..\..\include\core\SkPixelRef.h" />
+    <ClInclude Include="..\..\include\core\SkPoint.h" />
+    <ClInclude Include="..\..\include\core\SkPostConfig.h" />
+    <ClInclude Include="..\..\include\core\SkPreConfig.h" />
+    <ClInclude Include="..\..\include\core\SkPtrRecorder.h" />
+    <ClInclude Include="..\..\include\core\SkRandom.h" />
+    <ClInclude Include="..\..\include\core\SkRasterizer.h" />
+    <ClInclude Include="..\..\include\core\SkReader32.h" />
+    <ClInclude Include="..\..\include\core\SkRect.h" />
+    <ClInclude Include="..\..\include\core\SkRefCnt.h" />
+    <ClInclude Include="..\..\include\core\SkRegion.h" />
+    <ClInclude Include="..\..\include\core\SkScalar.h" />
+    <ClInclude Include="..\..\include\core\SkScalarCompare.h" />
+    <ClInclude Include="..\..\include\core\SkScalerContext.h" />
+    <ClInclude Include="..\..\include\core\SkScan.h" />
+    <ClInclude Include="..\..\include\core\SkShader.h" />
+    <ClInclude Include="..\..\include\core\SkShape.h" />
+    <ClInclude Include="..\..\include\core\SkSize.h" />
+    <ClInclude Include="..\..\include\core\SkStream.h" />
+    <ClInclude Include="..\..\include\core\SkString.h" />
+    <ClInclude Include="..\..\include\core\SkStroke.h" />
+    <ClInclude Include="..\..\include\core\SkTDArray.h" />
+    <ClInclude Include="..\..\include\core\SkTDict.h" />
+    <ClInclude Include="..\..\include\core\SkTDStack.h" />
+    <ClInclude Include="..\..\include\core\SkTemplates.h" />
+    <ClInclude Include="..\..\include\core\SkThread.h" />
+    <ClInclude Include="..\..\include\core\SkThread_platform.h" />
+    <ClInclude Include="..\..\include\core\SkTime.h" />
+    <ClInclude Include="..\..\include\core\SkTRegistry.h" />
+    <ClInclude Include="..\..\include\core\SkTSearch.h" />
+    <ClInclude Include="..\..\include\core\SkTypeface.h" />
+    <ClInclude Include="..\..\include\core\SkTypes.h" />
+    <ClInclude Include="..\..\include\core\SkUnitMapper.h" />
+    <ClInclude Include="..\..\include\core\SkUnPreMultiply.h" />
+    <ClInclude Include="..\..\include\core\SkUtils.h" />
+    <ClInclude Include="..\..\include\core\SkWriter32.h" />
+    <ClInclude Include="..\..\include\core\SkXfermode.h" />
+    <ClInclude Include="..\..\src\core\SkAntiRun.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcShader.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_filter.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_matrix.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_matrix_clamp.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_matrix_repeat.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_sample.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_shaderproc.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapSampler.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapSamplerTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapShader16BilerpTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapShaderTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkBlitBWMaskTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkConcaveToTriangles.h" />
+    <ClInclude Include="..\..\src\core\SkCordic.h" />
+    <ClInclude Include="..\..\src\core\SkCoreBlitters.h" />
+    <ClInclude Include="..\..\src\core\SkCubicClipper.h" />
+    <ClInclude Include="..\..\src\core\SkDrawProcs.h" />
+    <ClInclude Include="..\..\src\core\SkEdge.h" />
+    <ClInclude Include="..\..\src\core\SkEdgeBuilder.h" />
+    <ClInclude Include="..\..\src\core\SkFilterProc.h" />
+    <ClInclude Include="..\..\src\core\SkFloat.h" />
+    <ClInclude Include="..\..\src\core\SkFP.h" />
+    <ClInclude Include="..\..\src\core\SkGlyphCache.h" />
+    <ClInclude Include="..\..\src\core\SkPathHeap.h" />
+    <ClInclude Include="..\..\src\core\SkPictureFlat.h" />
+    <ClInclude Include="..\..\src\core\SkPicturePlayback.h" />
+    <ClInclude Include="..\..\src\core\SkPictureRecord.h" />
+    <ClInclude Include="..\..\src\core\SkQuadClipper.h" />
+    <ClInclude Include="..\..\src\core\SkRegionPriv.h" />
+    <ClInclude Include="..\..\src\core\SkScanPriv.h" />
+    <ClInclude Include="..\..\src\core\SkSinTable.h" />
+    <ClInclude Include="..\..\src\core\SkSpriteBlitter.h" />
+    <ClInclude Include="..\..\src\core\SkSpriteBlitterTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkStrokerPriv.h" />
+    <ClInclude Include="..\..\src\core\SkTemplatesPriv.h" />
+    <ClInclude Include="..\..\src\core\SkTSort.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

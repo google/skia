@@ -287,7 +287,7 @@ int SkQuadraticEdge::updateQuadratic()
     fQy         = newy;
     fQDx        = dx;
     fQDy        = dy;
-    fCurveCount = SkToS16(count);
+    fCurveCount = SkToS8(count);
     return success;
 }
 
@@ -465,7 +465,7 @@ int SkCubicEdge::updateCubic()
 
     fCx         = newx;
     fCy         = newy;
-    fCurveCount = SkToS16(count);
+    fCurveCount = SkToS8(count);
     return success;
 }
 
