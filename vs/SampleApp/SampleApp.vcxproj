@@ -43,7 +43,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <MinimalRebuild>true</MinimalRebuild>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -51,6 +51,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -81,13 +82,207 @@
     <None Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\core\SkAntiRun.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcShader.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_filter.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_matrix.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_matrix_clamp.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_matrix_repeat.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_sample.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapProcState_shaderproc.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapSampler.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapSamplerTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapShader16BilerpTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkBitmapShaderTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkBlitBWMaskTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkConcaveToTriangles.h" />
+    <ClInclude Include="..\..\src\core\SkCordic.h" />
+    <ClInclude Include="..\..\src\core\SkCoreBlitters.h" />
+    <ClInclude Include="..\..\src\core\SkCubicClipper.h" />
+    <ClInclude Include="..\..\src\core\SkDrawProcs.h" />
+    <ClInclude Include="..\..\src\core\SkEdge.h" />
+    <ClInclude Include="..\..\src\core\SkEdgeBuilder.h" />
+    <ClInclude Include="..\..\src\core\SkFilterProc.h" />
+    <ClInclude Include="..\..\src\core\SkFloat.h" />
+    <ClInclude Include="..\..\src\core\SkFP.h" />
+    <ClInclude Include="..\..\src\core\SkGlyphCache.h" />
+    <ClInclude Include="..\..\src\core\SkPathHeap.h" />
+    <ClInclude Include="..\..\src\core\SkPictureFlat.h" />
+    <ClInclude Include="..\..\src\core\SkPicturePlayback.h" />
+    <ClInclude Include="..\..\src\core\SkPictureRecord.h" />
+    <ClInclude Include="..\..\src\core\SkQuadClipper.h" />
+    <ClInclude Include="..\..\src\core\SkRegionPriv.h" />
+    <ClInclude Include="..\..\src\core\SkScanPriv.h" />
+    <ClInclude Include="..\..\src\core\SkSinTable.h" />
+    <ClInclude Include="..\..\src\core\SkSpriteBlitter.h" />
+    <ClInclude Include="..\..\src\core\SkSpriteBlitterTemplate.h" />
+    <ClInclude Include="..\..\src\core\SkStrokerPriv.h" />
+    <ClInclude Include="..\..\src\core\SkTemplatesPriv.h" />
+    <ClInclude Include="..\..\src\core\SkTSort.h" />
+    <ClInclude Include="..\..\src\effects\SkBlurMask.h" />
+    <ClInclude Include="..\..\src\effects\SkEmbossMask.h" />
+    <ClInclude Include="..\..\src\effects\SkEmbossMask_Table.h" />
+    <ClInclude Include="..\..\src\effects\SkRadialGradient_Table.h" />
+    <ClInclude Include="..\..\src\views\SkTagList.h" />
+    <ClInclude Include="..\..\src\views\SkViewPriv.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SampleApp.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SampleApp.cpp" />
+    <ClCompile Include="..\..\samplecode\OverView.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleApp.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleArc.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleShapes.cpp" />
+    <ClCompile Include="..\..\src\core\Sk64.cpp" />
+    <ClCompile Include="..\..\src\core\SkAlphaRuns.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmap.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapProcShader.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapProcState.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapProcState_matrixProcs.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmapSampler.cpp" />
+    <ClCompile Include="..\..\src\core\SkBitmap_scroll.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitRow_D16.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitRow_D32.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitRow_D4444.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_4444.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_A1.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_A8.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_ARGB32.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_ARGB32_Subpixel.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_RGB16.cpp" />
+    <ClCompile Include="..\..\src\core\SkBlitter_Sprite.cpp" />
+    <ClCompile Include="..\..\src\core\SkBuffer.cpp" />
+    <ClCompile Include="..\..\src\core\SkCanvas.cpp" />
+    <ClCompile Include="..\..\src\core\SkChunkAlloc.cpp" />
+    <ClCompile Include="..\..\src\core\SkColor.cpp" />
+    <ClCompile Include="..\..\src\core\SkColorFilter.cpp" />
+    <ClCompile Include="..\..\src\core\SkColorTable.cpp" />
+    <ClCompile Include="..\..\src\core\SkComposeShader.cpp" />
+    <ClCompile Include="..\..\src\core\SkConcaveToTriangles.cpp" />
+    <ClCompile Include="..\..\src\core\SkCordic.cpp" />
+    <ClCompile Include="..\..\src\core\SkCubicClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkDebug.cpp" />
+    <ClCompile Include="..\..\src\core\SkDeque.cpp" />
+    <ClCompile Include="..\..\src\core\SkDevice.cpp" />
+    <ClCompile Include="..\..\src\core\SkDither.cpp" />
+    <ClCompile Include="..\..\src\core\SkDraw.cpp" />
+    <ClCompile Include="..\..\src\core\SkEdge.cpp" />
+    <ClCompile Include="..\..\src\core\SkEdgeBuilder.cpp" />
+    <ClCompile Include="..\..\src\core\SkEdgeClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkFilterProc.cpp" />
+    <ClCompile Include="..\..\src\core\SkFlattenable.cpp" />
+    <ClCompile Include="..\..\src\core\SkFloat.cpp" />
+    <ClCompile Include="..\..\src\core\SkFloatBits.cpp" />
+    <ClCompile Include="..\..\src\core\SkFontHost.cpp" />
+    <ClCompile Include="..\..\src\core\SkGeometry.cpp" />
+    <ClCompile Include="..\..\src\core\SkGlobals.cpp" />
+    <ClCompile Include="..\..\src\core\SkGlyphCache.cpp" />
+    <ClCompile Include="..\..\src\core\SkGraphics.cpp" />
+    <ClCompile Include="..\..\src\core\SkLineClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkMask.cpp" />
+    <ClCompile Include="..\..\src\core\SkMaskFilter.cpp" />
+    <ClCompile Include="..\..\src\core\SkMath.cpp" />
+    <ClCompile Include="..\..\src\core\SkMatrix.cpp" />
+    <ClCompile Include="..\..\src\core\SkMemory_stdlib.cpp" />
+    <ClCompile Include="..\..\src\core\SkPackBits.cpp" />
+    <ClCompile Include="..\..\src\core\SkPaint.cpp" />
+    <ClCompile Include="..\..\src\core\SkPath.cpp" />
+    <ClCompile Include="..\..\src\core\SkPathEffect.cpp" />
+    <ClCompile Include="..\..\src\core\SkPathHeap.cpp" />
+    <ClCompile Include="..\..\src\core\SkPathMeasure.cpp" />
+    <ClCompile Include="..\..\src\core\SkPicture.cpp" />
+    <ClCompile Include="..\..\src\core\SkPictureFlat.cpp" />
+    <ClCompile Include="..\..\src\core\SkPicturePlayback.cpp" />
+    <ClCompile Include="..\..\src\core\SkPictureRecord.cpp" />
+    <ClCompile Include="..\..\src\core\SkPixelRef.cpp" />
+    <ClCompile Include="..\..\src\core\SkPoint.cpp" />
+    <ClCompile Include="..\..\src\core\SkProcSpriteBlitter.cpp" />
+    <ClCompile Include="..\..\src\core\SkPtrRecorder.cpp" />
+    <ClCompile Include="..\..\src\core\SkQuadClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkRasterizer.cpp" />
+    <ClCompile Include="..\..\src\core\SkRect.cpp" />
+    <ClCompile Include="..\..\src\core\SkRefCnt.cpp" />
+    <ClCompile Include="..\..\src\core\SkRegion.cpp" />
+    <ClCompile Include="..\..\src\core\SkRegion_path.cpp" />
+    <ClCompile Include="..\..\src\core\SkScalerContext.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_Antihair.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_AntiPath.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_Hairline.cpp" />
+    <ClCompile Include="..\..\src\core\SkScan_Path.cpp" />
+    <ClCompile Include="..\..\src\core\SkShader.cpp" />
+    <ClCompile Include="..\..\src\core\SkShape.cpp" />
+    <ClCompile Include="..\..\src\core\SkSpriteBlitter_ARGB32.cpp" />
+    <ClCompile Include="..\..\src\core\SkSpriteBlitter_RGB16.cpp" />
+    <ClCompile Include="..\..\src\core\SkStream.cpp" />
+    <ClCompile Include="..\..\src\core\SkString.cpp" />
+    <ClCompile Include="..\..\src\core\SkStroke.cpp" />
+    <ClCompile Include="..\..\src\core\SkStrokerPriv.cpp" />
+    <ClCompile Include="..\..\src\core\SkTSearch.cpp" />
+    <ClCompile Include="..\..\src\core\SkTypeface.cpp" />
+    <ClCompile Include="..\..\src\core\SkUnPreMultiply.cpp" />
+    <ClCompile Include="..\..\src\core\SkUtils.cpp" />
+    <ClCompile Include="..\..\src\core\SkWriter32.cpp" />
+    <ClCompile Include="..\..\src\core\SkXfermode.cpp" />
+    <ClCompile Include="..\..\src\effects\Sk1DPathEffect.cpp" />
+    <ClCompile Include="..\..\src\effects\Sk2DPathEffect.cpp" />
+    <ClCompile Include="..\..\src\effects\SkAvoidXfermode.cpp" />
+    <ClCompile Include="..\..\src\effects\SkBlurDrawLooper.cpp" />
+    <ClCompile Include="..\..\src\effects\SkBlurMask.cpp" />
+    <ClCompile Include="..\..\src\effects\SkBlurMaskFilter.cpp" />
+    <ClCompile Include="..\..\src\effects\SkColorFilters.cpp" />
+    <ClCompile Include="..\..\src\effects\SkColorMatrixFilter.cpp" />
+    <ClCompile Include="..\..\src\effects\SkCornerPathEffect.cpp" />
+    <ClCompile Include="..\..\src\effects\SkDashPathEffect.cpp" />
+    <ClCompile Include="..\..\src\effects\SkDiscretePathEffect.cpp" />
+    <ClCompile Include="..\..\src\effects\SkEmbossMask.cpp" />
+    <ClCompile Include="..\..\src\effects\SkEmbossMaskFilter.cpp" />
+    <ClCompile Include="..\..\src\effects\SkGradientShader.cpp" />
+    <ClCompile Include="..\..\src\effects\SkGroupShape.cpp" />
+    <ClCompile Include="..\..\src\effects\SkKernel33MaskFilter.cpp" />
+    <ClCompile Include="..\..\src\effects\SkLayerDrawLooper.cpp" />
+    <ClCompile Include="..\..\src\effects\SkLayerRasterizer.cpp" />
+    <ClCompile Include="..\..\src\effects\SkPaintFlagsDrawFilter.cpp" />
+    <ClCompile Include="..\..\src\effects\SkPixelXorXfermode.cpp" />
+    <ClCompile Include="..\..\src\effects\SkPorterDuff.cpp" />
+    <ClCompile Include="..\..\src\effects\SkRectShape.cpp" />
+    <ClCompile Include="..\..\src\effects\SkTableMaskFilter.cpp" />
+    <ClCompile Include="..\..\src\effects\SkTransparentShader.cpp" />
+    <ClCompile Include="..\..\src\images\SkImageDecoder.cpp" />
+    <ClCompile Include="..\..\src\images\SkImageDecoder_Factory.cpp" />
+    <ClCompile Include="..\..\src\images\SkImageEncoder.cpp" />
+    <ClCompile Include="..\..\src\images\SkImageEncoder_Factory.cpp" />
+    <ClCompile Include="..\..\src\opts\opts_check_SSE2.cpp" />
+    <ClCompile Include="..\..\src\opts\SkBitmapProcState_opts_SSE2.cpp" />
+    <ClCompile Include="..\..\src\opts\SkBlitRow_opts_SSE2.cpp" />
+    <ClCompile Include="..\..\src\opts\SkUtils_opts_SSE2.cpp" />
+    <ClCompile Include="..\..\src\ports\SkDebug_stdio.cpp" />
+    <ClCompile Include="..\..\src\ports\SkFontHost_win.cpp" />
+    <ClCompile Include="..\..\src\ports\SkGlobals_global.cpp" />
+    <ClCompile Include="..\..\src\ports\SkOSFile_stdio.cpp" />
+    <ClCompile Include="..\..\src\ports\SkThread_win.cpp" />
+    <ClCompile Include="..\..\src\ports\SkTime_win.cpp" />
+    <ClCompile Include="..\..\src\ports\SkXMLParser_empty.cpp" />
+    <ClCompile Include="..\..\src\utils\SkDumpCanvas.cpp" />
+    <ClCompile Include="..\..\src\utils\SkParse.cpp" />
+    <ClCompile Include="..\..\src\utils\SkParsePath.cpp" />
+    <ClCompile Include="..\..\src\utils\win\SkOSWindow_Win.cpp" />
+    <ClCompile Include="..\..\src\views\SkEvent.cpp" />
+    <ClCompile Include="..\..\src\views\SkEventSink.cpp" />
+    <ClCompile Include="..\..\src\views\SkMetaData.cpp" />
+    <ClCompile Include="..\..\src\views\SkOSMenu.cpp" />
+    <ClCompile Include="..\..\src\views\SkTagList.cpp" />
+    <ClCompile Include="..\..\src\views\SkView.cpp" />
+    <ClCompile Include="..\..\src\views\SkViewInflate.cpp" />
+    <ClCompile Include="..\..\src\views\SkViewPriv.cpp" />
+    <ClCompile Include="..\..\src\views\SkWindow.cpp" />
+    <ClCompile Include="..\..\src\xml\SkDOM.cpp" />
+    <ClCompile Include="..\..\src\xml\SkXMLParser.cpp" />
+    <ClCompile Include="skia_win.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
