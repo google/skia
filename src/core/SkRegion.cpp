@@ -361,7 +361,7 @@ static SkRegion::RunType* find_scanline(const SkRegion::RunType runs[], int y)
     return NULL;
 }
 
-bool SkRegion::contains(int x, int y) const
+bool SkRegion::contains(int32_t x, int32_t y) const
 {
     if (!fBounds.contains(x, y))
         return false;
@@ -1337,5 +1337,3 @@ bool SkRegion::debugSetRuns(const RunType runs[], int count) {
 }
 
 #endif
-
-
