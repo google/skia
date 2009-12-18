@@ -159,24 +159,24 @@ const SkFilter32Proc* SkGetFilter32ProcTable()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static unsigned bilerptr00(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr00(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     return *a00;
 }
-static unsigned bilerptr01(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr01(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;   
     uint32_t lo = (3 * LO_PAIR(c00) + LO_PAIR(c01)) >> 2;
     uint32_t hi = (3 * HI_PAIR(c00) + HI_PAIR(c01)) >> 2;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr02(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr02(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;   
     uint32_t lo = (LO_PAIR(c00) + LO_PAIR(c01)) >> 1;
     uint32_t hi = (HI_PAIR(c00) + HI_PAIR(c01)) >> 1;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr03(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr03(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t lo = (LO_PAIR(c00) + 3 * LO_PAIR(c01)) >> 2;
@@ -184,14 +184,14 @@ static unsigned bilerptr03(const uint32_t* a00, const uint32_t* a01, const uint3
     return COMBINE(lo, hi);
 }
 
-static unsigned bilerptr10(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr10(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c10 = *a10;
     uint32_t lo = (3 * LO_PAIR(c00) + LO_PAIR(c10)) >> 2;
     uint32_t hi = (3 * HI_PAIR(c00) + HI_PAIR(c10)) >> 2;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr11(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr11(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -200,7 +200,7 @@ static unsigned bilerptr11(const uint32_t* a00, const uint32_t* a01, const uint3
     uint32_t hi = (9 * HI_PAIR(c00) + 3 * (HI_PAIR(c01) + HI_PAIR(c10)) + HI_PAIR(c11)) >> 4;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr12(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr12(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -209,7 +209,7 @@ static unsigned bilerptr12(const uint32_t* a00, const uint32_t* a01, const uint3
     uint32_t hi = (3 * (HI_PAIR(c00) + HI_PAIR(c01)) + HI_PAIR(c10) + HI_PAIR(c11)) >> 3;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr13(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr13(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -219,14 +219,14 @@ static unsigned bilerptr13(const uint32_t* a00, const uint32_t* a01, const uint3
     return COMBINE(lo, hi);
 }
 
-static unsigned bilerptr20(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr20(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c10 = *a10;
     uint32_t lo = (LO_PAIR(c00) + LO_PAIR(c10)) >> 1;
     uint32_t hi = (HI_PAIR(c00) + HI_PAIR(c10)) >> 1;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr21(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr21(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -235,7 +235,7 @@ static unsigned bilerptr21(const uint32_t* a00, const uint32_t* a01, const uint3
     uint32_t hi = (3 * (HI_PAIR(c00) + HI_PAIR(c10)) + HI_PAIR(c01) + HI_PAIR(c11)) >> 3;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr22(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr22(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -244,7 +244,7 @@ static unsigned bilerptr22(const uint32_t* a00, const uint32_t* a01, const uint3
     uint32_t hi = (HI_PAIR(c00) + HI_PAIR(c01) + HI_PAIR(c10) + HI_PAIR(c11)) >> 2;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr23(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr23(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -254,14 +254,14 @@ static unsigned bilerptr23(const uint32_t* a00, const uint32_t* a01, const uint3
     return COMBINE(lo, hi);
 }
 
-static unsigned bilerptr30(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr30(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c10 = *a10;
     uint32_t lo = (LO_PAIR(c00) + 3 * LO_PAIR(c10)) >> 2;
     uint32_t hi = (HI_PAIR(c00) + 3 * HI_PAIR(c10)) >> 2;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr31(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr31(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -270,7 +270,7 @@ static unsigned bilerptr31(const uint32_t* a00, const uint32_t* a01, const uint3
     uint32_t hi = (9 * HI_PAIR(c10) + 3 * (HI_PAIR(c00) + HI_PAIR(c11)) + HI_PAIR(c01)) >> 4;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr32(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr32(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -279,7 +279,7 @@ static unsigned bilerptr32(const uint32_t* a00, const uint32_t* a01, const uint3
     uint32_t hi = (3 * (HI_PAIR(c10) + HI_PAIR(c11)) + HI_PAIR(c00) + HI_PAIR(c01)) >> 3;
     return COMBINE(lo, hi);
 }
-static unsigned bilerptr33(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
+static uint32_t bilerptr33(const uint32_t* a00, const uint32_t* a01, const uint32_t* a10, const uint32_t* a11) {
     uint32_t c00 = *a00;
     uint32_t c01 = *a01;
     uint32_t c10 = *a10;
@@ -300,4 +300,3 @@ const SkFilterPtrProc* SkGetBilinearFilterPtrProcTable()
 {
     return gBilerpPtrProcs;
 }
-
