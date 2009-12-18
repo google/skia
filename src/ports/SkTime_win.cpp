@@ -42,5 +42,5 @@ SkMSec SkTime::GetMSecs()
     li.LowPart  = ft.dwLowDateTime;
     li.HighPart = ft.dwHighDateTime;
     __int64 t  = li.QuadPart;       /* In 100-nanosecond intervals */
-    return t / 10000;               /* In milliseconds */
+    return (SkMSec)(t / 10000);               /* In milliseconds */
 }

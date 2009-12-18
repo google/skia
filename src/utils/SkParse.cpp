@@ -211,7 +211,7 @@ const char* SkParse::FindScalar(const char str[], SkScalar* value) {
     str = skip_ws(str);
 #ifdef SK_SCALAR_IS_FLOAT
     char* stop;
-    float v = ::strtof(str, &stop);
+    float v = (float)strtod(str, &stop);
     if (str == stop) {
         return NULL;
     }

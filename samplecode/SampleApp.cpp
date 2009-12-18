@@ -11,7 +11,7 @@
 
 #include "SampleCode.h"
 
-SkView* create_overview(int, const SkViewFactory*);
+extern SkView* create_overview(int, const SkViewFactory[]);
 
 //#define SK_SUPPORT_GL
 
@@ -503,7 +503,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
 
 static void cleanup_for_filename(SkString* name) {
     char* str = name->writable_str();
-    for (int i = 0; i < name->size(); i++) {
+    for (size_t i = 0; i < name->size(); i++) {
         switch (str[i]) {
             case ':': str[i] = '-'; break;
             case '/': str[i] = '-'; break;
@@ -741,7 +741,9 @@ void get_preferred_size(int* x, int* y, int* width, int* height) {
 
 void application_init() {
 //    setenv("ANDROID_ROOT", "../../../data", 0);
+#ifdef SK_BUILD_FOR_MAC
     setenv("ANDROID_ROOT", "/android/device/data", 0);
+#endif
 	SkGraphics::Init();
 	SkEvent::Init();
 }

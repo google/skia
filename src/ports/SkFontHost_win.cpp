@@ -173,7 +173,8 @@ static const LOGFONT* get_default_font() {
     ncm.cbSize = sizeof(NONCLIENTMETRICS);
     SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
 
-    memcpy(&gDefaultFont, &(ncm.lfMessageFont), sizeof(LOGFONT));
+//  lfMessageFont is garbage on my XP, so skip for now
+//  memcpy(&gDefaultFont, &(ncm.lfMessageFont), sizeof(LOGFONT));
 
     return &gDefaultFont;
 }
@@ -248,8 +249,8 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc) : SkS
     SetBkMode(ddc, TRANSPARENT);
 
     // Perform the dpi adjustment.
-    LONG lfHeight = -(fRec.fTextSize * GetDeviceCaps(ddc, LOGPIXELSY) / 72);
-    lf.lfHeight = lfHeight;
+    SkScalar height = -(fRec.fTextSize * GetDeviceCaps(ddc, LOGPIXELSY) / 72);
+    lf.lfHeight = SkScalarRound(height);
     font = CreateFontIndirect(&lf);
     savefont = (HFONT)SelectObject(ddc, font);
 }

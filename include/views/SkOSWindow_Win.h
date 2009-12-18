@@ -29,8 +29,8 @@ public:
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
-    static bool WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-    static bool SkOSWindow::QuitOnDeactivate(HWND hWnd);
+    bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    static bool QuitOnDeactivate(HWND hWnd);
 
     enum {
         SK_WM_SkEvent = WM_APP + 1000,

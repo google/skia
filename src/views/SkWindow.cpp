@@ -95,7 +95,7 @@ bool SkWindow::handleInval(const SkRect& r)
 	r.round(&ir);
 	fDirtyRgn.op(ir, SkRegion::kUnion_Op);
 
-#ifdef SK_BUILD_FOR_WIN32
+#ifdef SK_BUILD_FOR_WIN32xxxx
 	if (!fWaitingOnInval)
 	{
 		fWaitingOnInval = true;

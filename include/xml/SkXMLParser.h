@@ -92,6 +92,7 @@ private:
     void reportError(void* parser);
 };
 
+#if 0
 class SkXMLPullParser {
 public:
             SkXMLPullParser();
@@ -157,5 +158,6 @@ private:
     struct Impl;
     Impl*   fImpl;
 };
+#endif
 
 #endif

@@ -490,7 +490,7 @@ static inline int SkFixedToFFFF(SkFixed x) {
 }
 
 static inline U16CPU bitsTo16(unsigned x, const unsigned bits) {
-    SkASSERT(x < (1 << bits));
+    SkASSERT(x < (1U << bits));
     if (6 == bits) {
         return (x << 10) | (x << 4) | (x >> 2);
     }
