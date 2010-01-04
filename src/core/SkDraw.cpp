@@ -1366,7 +1366,7 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
             }
 		}
 		
-		if (state.fBounder->doIRect(cr)) {
+		if (state.fBounder->doIRect(cr, glyph.getGlyphID())) {
 			mask.fRowBytes = glyph.rowBytes();
 			mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
 			mask.fImage = (uint8_t*)aa;
@@ -2242,6 +2242,11 @@ void SkDraw::validate() const {
 bool SkBounder::doIRect(const SkIRect& r) {
     SkIRect    rr;
     return rr.intersect(fClip->getBounds(), r) && this->onIRect(rr);
+}
+
+bool SkBounder::doIRect(const SkIRect& r, uint16_t glyphID) {
+    SkIRect    rr;
+    return rr.intersect(fClip->getBounds(), r) && this->onIRect(rr, glyphID);
 }
 
 bool SkBounder::doHairline(const SkPoint& pt0, const SkPoint& pt1,

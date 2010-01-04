@@ -38,7 +38,7 @@ public:
        Returns the result from onIRect.
     */
     bool doIRect(const SkIRect&);
-
+    bool doIRect(const SkIRect& , uint16_t glyphID);
 protected:
     /** Override in your subclass. This is called with the device bounds of an
         object (text, geometry, image) just before it is drawn. If your method
@@ -46,7 +46,16 @@ protected:
         returns true, drawing continues. The bounds your method receives have already
         been transformed in to device coordinates, and clipped to the current clip.
     */
-    virtual bool onIRect(const SkIRect&) = 0;
+    virtual bool onIRect(const SkIRect&) {
+        return false;
+    }
+
+    /** Optionally, override in your subclass to receive the glyph ID when
+        text drawing supplies the device bounds of the object.
+    */
+    virtual bool onIRect(const SkIRect& r, uint16_t glyphID) {
+        return onIRect(r);
+    }
 
     /** Called after each shape has been drawn. The default implementation does
         nothing, but your override could use this notification to signal itself
