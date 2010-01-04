@@ -154,6 +154,7 @@ public:
         // up with the SkPaint::Hinting enum.
         kHintingBit1_Flag   = 0x10,
         kHintingBit2_Flag   = 0x20,
+        kEmbeddedBitmapText_Flag = 0x40,
     };
 private:
     enum {
@@ -166,10 +167,13 @@ public:
         SkScalar    fPost2x2[2][2];
         SkScalar    fFrameWidth, fMiterLimit;
         bool        fSubpixelPositioning;
-        bool        fUseEmbeddedBitmapText;
         uint8_t     fMaskFormat;
         uint8_t     fStrokeJoin;
         uint8_t     fFlags;
+        // Warning: when adding members note that the size of this structure
+        // must be a multiple of 4. SkDescriptor requires that its arguments be
+        // multiples of four and this structure is put in an SkDescriptor in
+        // SkPaint::MakeRec.
 
         void    getMatrixFrom2x2(SkMatrix*) const;
         void    getLocalMatrix(SkMatrix*) const;
