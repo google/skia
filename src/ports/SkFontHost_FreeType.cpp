@@ -376,10 +376,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
             break;
         }
 
-        if (fRec.fMaskFormat != SkMask::kBW_Format) {
-            // If the user requested anti-aliasing then we don't use bitmap
-            // strikes in the font. The consensus among our Japanese users is
-            // that this results in the best quality.
+        if (!fRec.fUseEmbeddedBitmapText) {
             loadFlags |= FT_LOAD_NO_BITMAP;
         }
 
@@ -708,7 +705,9 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                     dst += dstRowBytes;
                 }
             } else if (fFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_MONO &&
-                       glyph.fMaskFormat == SkMask::kA8_Format) {
+                       (glyph.fMaskFormat == SkMask::kA8_Format ||
+                        glyph.fMaskFormat == SkMask::kHorizontalLCD_Format ||
+                        glyph.fMaskFormat == SkMask::kVerticalLCD_Format)) {
                 for (int y = 0; y < fFace->glyph->bitmap.rows; ++y) {
                     uint8_t byte = 0;
                     int bits = 0;

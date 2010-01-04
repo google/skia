@@ -166,6 +166,7 @@ public:
         SkScalar    fPost2x2[2][2];
         SkScalar    fFrameWidth, fMiterLimit;
         bool        fSubpixelPositioning;
+        bool        fUseEmbeddedBitmapText;
         uint8_t     fMaskFormat;
         uint8_t     fStrokeJoin;
         uint8_t     fFlags;
