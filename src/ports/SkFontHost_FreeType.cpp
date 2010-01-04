@@ -376,9 +376,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
             break;
         }
 
-        if (!fRec.fUseEmbeddedBitmapText) {
+        if (fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag == 0)
             loadFlags |= FT_LOAD_NO_BITMAP;
-        }
 
         fLoadGlyphFlags = loadFlags;
     }

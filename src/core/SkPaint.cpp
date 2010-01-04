@@ -1223,7 +1223,8 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
     rec->fFlags = SkToU8(flags);
     rec->setHinting(computeHinting(paint));
-    rec->fUseEmbeddedBitmapText = paint.isEmbeddedBitmapText();
+    if (paint.isEmbeddedBitmapText())
+        rec->fFlags |= SkScalerContext::kEmbeddedBitmapText_Flag;
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
