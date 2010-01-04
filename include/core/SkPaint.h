@@ -109,10 +109,11 @@ public:
         kSubpixelText_Flag    = 0x80,   //!< mask to enable subpixel text positioning
         kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
         kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
+        kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0x3FF
+        kAllFlags = 0x7FF
     };
 
     /** Return the paint's flags. Use the Flag enum to test flag values.
@@ -189,6 +190,17 @@ public:
                               false to clear it.
     */
     void setLCDRenderText(bool subpixelRender);
+
+    bool isEmbeddedBitmapText() const
+    {
+        return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
+    }
+
+    /** Helper for setFlags(), setting or clearing the kEmbeddedBitmapText_Flag bit
+        @param useEmbeddedBitmapText true to set the kEmbeddedBitmapText bit in the paint's flags,
+                                     false to clear it.
+    */
+    void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
 
     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
         @return true if the underlineText bit is set in the paint's flags.
@@ -795,7 +807,7 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    unsigned        fFlags : 10;
+    unsigned        fFlags : 11;
     unsigned        fTextAlign : 2;
     unsigned        fCapType : 2;
     unsigned        fJoinType : 2;
