@@ -108,7 +108,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                 ct = init_ctable();
             }
             src.allocPixels(ct);
-            ct->safeRef();
+            SkSafeUnref(ct);
 
             init_src(src);
             bool success = src.copyTo(&dst, gPairs[j].fConfig);
