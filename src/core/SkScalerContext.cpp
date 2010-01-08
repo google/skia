@@ -264,6 +264,21 @@ uint16_t SkScalerContext::charToGlyphID(SkUnichar uni) {
     return SkToU16(glyphID);
 }
 
+SkUnichar SkScalerContext::glyphIDToChar(uint16_t glyphID) {
+    SkScalerContext* ctx = this;
+    unsigned rangeEnd = 0;
+    do {
+        unsigned rangeStart = rangeEnd;
+
+        rangeEnd += ctx->getGlyphCount();
+        if (rangeStart <= glyphID && glyphID < rangeEnd) {
+            return ctx->generateGlyphToChar(glyphID - rangeStart);
+        }
+        ctx = ctx->getNextContext();
+    } while (NULL != ctx);
+    return 0;
+}
+
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
     // mark us as just having a valid advance
     glyph->fMaskFormat = MASK_FORMAT_JUST_ADVANCE;
@@ -506,6 +521,10 @@ void SkScalerContext::getPath(const SkGlyph& glyph, SkPath* path)
 void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my)
 {
     this->generateFontMetrics(mx, my);
+}
+
+SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////

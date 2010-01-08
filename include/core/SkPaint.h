@@ -708,6 +708,13 @@ public:
     int textToGlyphs(const void* text, size_t byteLength,
                      uint16_t glyphs[]) const;
 
+    /** Convert the glyph array into Unichars. Unconvertable glyphs are mapped
+        to zero. Note: this does not look at the text-encoding setting in the
+        paint, only at the typeface.
+    */
+    void glyphsToUnichars(const uint16_t glyphs[], int count,
+                          SkUnichar text[]) const;
+
     /** Return the number of drawable units in the specified text buffer.
         This looks at the current TextEncoding field of the paint. If you also
         want to have the text converted into glyph IDs, call textToGlyphs
