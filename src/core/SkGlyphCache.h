@@ -72,6 +72,11 @@ public:
     */
     uint16_t unicharToGlyph(SkUnichar);
     
+    /** Map the glyph to its Unicode equivalent. Unmappable glyphs map to
+        a character code of zero.
+    */
+    SkUnichar glyphToUnichar(uint16_t);
+
     /** Return the image associated with the glyph. If it has not been generated
         this will trigger that.
     */

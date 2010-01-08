@@ -115,6 +115,7 @@ protected:
     virtual void generatePath(const SkGlyph& glyph, SkPath* path);
     virtual void generateFontMetrics(SkPaint::FontMetrics* mx,
                                      SkPaint::FontMetrics* my);
+    virtual SkUnichar generateGlyphToChar(uint16_t glyph);
 
 private:
     SkFaceRec*  fFaceRec;
@@ -468,6 +469,21 @@ unsigned SkScalerContext_FreeType::generateGlyphCount() const {
 
 uint16_t SkScalerContext_FreeType::generateCharToGlyph(SkUnichar uni) {
     return SkToU16(FT_Get_Char_Index( fFace, uni ));
+}
+
+SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
+    // iterate through each cmap entry, looking for matching glyph indices
+    FT_UInt glyphIndex;
+    SkUnichar charCode = FT_Get_First_Char( fFace, &glyphIndex );
+
+    while (glyphIndex != 0) {
+        if (glyphIndex == glyph) {
+            return charCode;
+        }
+        charCode = FT_Get_Next_Char( fFace, charCode, &glyphIndex );
+    }
+
+    return 0;
 }
 
 static FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {

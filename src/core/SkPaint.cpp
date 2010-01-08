@@ -381,6 +381,23 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
     return gptr - glyphs;
 }
 
+void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count,
+                               SkUnichar textData[]) const {
+    if (count <= 0) {
+        return;
+    }
+
+    SkASSERT(glyphs != NULL);
+    SkASSERT(textData != NULL);
+
+    SkAutoGlyphCache autoCache(*this, NULL);
+    SkGlyphCache*    cache = autoCache.getCache();
+
+    for (int index = 0; index < count; index++) {
+        textData[index] = cache->glyphToUnichar(glyphs[index]);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache, const char** text)

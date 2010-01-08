@@ -128,6 +128,10 @@ uint16_t SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
     }
 }
 
+SkUnichar SkGlyphCache::glyphToUnichar(uint16_t glyphID) {
+    return fScalerContext->glyphIDToChar(glyphID);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
