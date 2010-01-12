@@ -543,7 +543,6 @@ static const char scriptTestSetup[]  =
 	"</event>"
 "</screenplay>";
 
-#if !defined(SK_BUILD_FOR_BREW)
 static const SkScriptNAnswer scriptTests[]  = {
 	{	"alpha+alpha", SkType_String, 0, 0, "abcabc" },
 	{	"0 ? Math.sin(0) : 1", SkType_Int, 1 },
@@ -572,12 +571,11 @@ static const SkScriptNAnswer scriptTests[]  = {
 	{	"0 ? alpha.value.slice(1,2) : 1", SkType_Int, 1 },
 	{ "idy", SkType_Int, 3 }
 };
-#endif
 
 #define SkScriptNAnswer_testCount	SK_ARRAY_COUNT(scriptTests)
 
 void SkAnimatorScript2::UnitTest() {
-#if !defined(SK_BUILD_FOR_BREW) && defined(SK_SUPPORT_UNITTEST)
+#if defined(SK_SUPPORT_UNITTEST)
 	SkAnimator animator;
 	SkASSERT(animator.decodeMemory(scriptTestSetup, sizeof(scriptTestSetup)-1));
 	SkEvent evt;

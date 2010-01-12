@@ -187,11 +187,6 @@ bool SkWStream::writeStream(SkStream* stream, size_t length) {
 
 SkFILEStream::SkFILEStream(const char file[]) : fName(file)
 {
-#ifdef SK_BUILD_FOR_BREW
-    if (SkStrEndsWith(fName.c_str(), ".xml"))
-        fName.writable_str()[fName.size()-3] = 'b';
-#endif
-
     fFILE = file ? sk_fopen(fName.c_str(), kRead_SkFILE_Flag) : NULL;
 }
 
@@ -204,11 +199,6 @@ SkFILEStream::~SkFILEStream()
 void SkFILEStream::setPath(const char path[])
 {
     fName.set(path);
-#ifdef SK_BUILD_FOR_BREW
-    if (SkStrEndsWith(fName.c_str(), ".xml"))
-        fName.writable_str()[fName.size()-3] = 'b';
-#endif
-
     if (fFILE)
     {
         sk_fclose(fFILE);

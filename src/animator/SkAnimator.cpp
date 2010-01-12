@@ -42,24 +42,13 @@
     #define _static static
 #endif
 
-#if !defined SK_BUILD_FOR_BREW || defined SK_DEBUG
-    _static const char gMathPrimerText[] = 
-    "<screenplay>"
-        "<Math id=\"Math\"/>"
-        "<Number id=\"Number\"/>"
-    "</screenplay>";
-#endif
+_static const char gMathPrimerText[] = 
+"<screenplay>"
+    "<Math id=\"Math\"/>"
+    "<Number id=\"Number\"/>"
+"</screenplay>";
 
-#if defined SK_BUILD_FOR_BREW || defined SK_DEBUG
-    _static const char gMathPrimerBinary[] = 
-    "\x0Ascreenplay\x04Mathbid\x04Math@@";  // !!! now out of date -- does not include Number
-#endif
-
-#if defined SK_BUILD_FOR_BREW
-    #define gMathPrimer gMathPrimerBinary
-#else
-    #define gMathPrimer gMathPrimerText
-#endif
+#define gMathPrimer gMathPrimerText
 
 SkAnimator::SkAnimator() : fMaker(NULL) {
     initialize();

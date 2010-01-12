@@ -17,8 +17,6 @@
 
 #include "SkOSFile.h"
 
-#ifndef SK_BUILD_FOR_BREW
-
 #include <stdio.h>
 #include <errno.h>
 
@@ -101,6 +99,4 @@ void sk_fclose(SkFILE* f)
     SkASSERT(f);
     ::fclose((FILE*)f);
 }
-
-#endif
 
