@@ -20,10 +20,6 @@
 
 #if defined SK_BUILD_CONDENSED
     #define SK_USE_CONDENSED_INFO 0
-#elif defined  SK_BUILD_FOR_BREW
-    #define SK_USE_CONDENSED_INFO 1 /* required by BREW to handle its lack of writable globals */
-#else
-    #define SK_USE_CONDENSED_INFO 0 /* optional, but usually 1 unless Cary is testing something */
 #endif
 
 #include "SkDisplayType.h"

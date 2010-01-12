@@ -77,7 +77,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if (defined(__arm__) && !defined(__thumb__)) || defined(SK_BUILD_FOR_BREW) || defined(SK_BUILD_FOR_WINCE) || (defined(SK_BUILD_FOR_SYMBIAN) && !defined(__MARM_THUMB__))
+#if (defined(__arm__) && !defined(__thumb__)) || defined(SK_BUILD_FOR_WINCE) || (defined(SK_BUILD_FOR_SYMBIAN) && !defined(__MARM_THUMB__))
     /* e.g. the ARM instructions have conditional execution, making tiny branches cheap */
     #define SK_CPU_HAS_CONDITIONAL_INSTR
 #endif

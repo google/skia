@@ -1670,7 +1670,6 @@ bool SkScriptEngine::ValueToString(SkScriptValue value, SkString* string) {
 #define testTrue(expression) { #expression, SkType_Int, 1, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
 #define testFalse(expression) { #expression, SkType_Int, 0, DEF_SCALAR_ANSWER, DEF_STRING_ANSWER }
 
-#if !defined(SK_BUILD_FOR_BREW)
 static const SkScriptNAnswer scriptTests[]  = {
     testInt(1>1/2),
     testInt((6+7)*8),
@@ -1884,12 +1883,10 @@ static const SkScriptNAnswer scriptTests[]  = {
     , { "123.5", SkType_Float, 0, SkIntToScalar(123) + SK_Scalar1/2, DEF_STRING_ANSWER }
 #endif
 };
-#endif // build for brew
 
 #define SkScriptNAnswer_testCount   SK_ARRAY_COUNT(scriptTests)
 
 void SkScriptEngine::UnitTest() {
-#if !defined(SK_BUILD_FOR_BREW)
     for (unsigned index = 0; index < SkScriptNAnswer_testCount; index++) {
         SkScriptEngine engine(SkScriptEngine::ToOpType(scriptTests[index].fType));
         SkScriptValue value;
@@ -1912,7 +1909,6 @@ void SkScriptEngine::UnitTest() {
                 SkASSERT(0);
         }
     }
-#endif
 }
 #endif
 

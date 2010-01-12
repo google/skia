@@ -1274,7 +1274,6 @@ bool SkScriptEngine2::ValueToString(const SkScriptValue2& value, SkString* strin
 #define testTrue(expression) { #expression, SkOperand2::kS32, 1 }
 #define testFalse(expression) { #expression, SkOperand2::kS32, 0 }
 
-#if !defined(SK_BUILD_FOR_BREW)
 static const SkScriptNAnswer2 scriptTests[]  = {
     testInt(1||0&&3),
 #ifdef SK_CAN_USE_FLOAT
@@ -1473,12 +1472,11 @@ static const SkScriptNAnswer2 scriptTests[]  = {
     , {    "123.5", SkOperand2::kScalar, 0, SkIntToScalar(123) + SK_Scalar1/2 }
 #endif
 };
-#endif // build for brew
 
 #define SkScriptNAnswer_testCount    SK_ARRAY_COUNT(scriptTests)
 
 void SkScriptEngine2::UnitTest() {
-#if !defined(SK_BUILD_FOR_BREW) && defined(SK_SUPPORT_UNITTEST)
+#if defined(SK_SUPPORT_UNITTEST)
     ValidateDecompileTable();
     for (int index = 0; index < SkScriptNAnswer_testCount; index++) {
         SkScriptEngine2 engine(scriptTests[index].fType);
