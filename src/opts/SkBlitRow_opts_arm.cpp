@@ -837,7 +837,11 @@ static void S32A_D565_Opaque_Dither_neon (uint16_t * SK_RESTRICT dst,
             if (c) {
                 unsigned a = SkGetPackedA32(c);
                 
-                int d = SkAlphaMul(DITHER_VALUE(x), SkAlpha255To256(a));
+                // dither and alpha are just temporary variables to work-around
+                // an ICE in debug.
+                unsigned dither = DITHER_VALUE(x);
+                unsigned alpha = SkAlpha255To256(a);
+                int d = SkAlphaMul(dither, alpha);
                 
                 unsigned sr = SkGetPackedR32(c);
                 unsigned sg = SkGetPackedG32(c);

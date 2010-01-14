@@ -842,9 +842,13 @@ static void PERSP_FILTER_NAME(const SkBitmapProcState& s,
                 wide_i = vshlq_n_s32 (wide_i, 14);
 
                 /* SkClampMax(((f + one)) >> 16, max) */
-                wide_fy1 = vaddq_s32 (wide_y, vdupq_n_s32(oneY));
-                wide_fy1 = vmaxq_s32 (vshrq_n_s32 (wide_fy1, 16), vdupq_n_s32 (0));
-                wide_fy1 = vminq_s32 (wide_fy1, vdupq_n_s32 (maxY));
+
+                /* wide_fy1_1 and wide_fy1_2 are just temporary variables to
+                 * work-around an ICE in debug */
+                int32x4_t wide_fy1_1 = vaddq_s32 (wide_y, vdupq_n_s32(oneY));
+                int32x4_t wide_fy1_2 = vmaxq_s32 (vshrq_n_s32 (wide_fy1_1, 16),
+                                                  vdupq_n_s32 (0));
+                wide_fy1 = vminq_s32 (wide_fy1_2, vdupq_n_s32 (maxY));
 
                 /* final combination */
                 wide_y = vorrq_s32 (wide_i, wide_fy1);
