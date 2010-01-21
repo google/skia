@@ -16,6 +16,7 @@
 
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkJpegUtility.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 #include "SkScaledBitmapSampler.h"
@@ -78,21 +79,6 @@ private:
     SkMSec      fNow;
 };
 
-/* our source struct for directing jpeg to our stream object
-*/
-struct sk_source_mgr : jpeg_source_mgr {
-    sk_source_mgr(SkStream* stream, SkImageDecoder* decoder);
-
-    SkStream*   fStream;
-    const void* fMemoryBase;
-    size_t      fMemoryBaseSize;
-    SkImageDecoder* fDecoder;
-    enum {
-        kBufferSize = 1024
-    };
-    char    fBuffer[kBufferSize];
-};
-
 /* Automatically clean up after throwing an exception */
 class JPEGAutoClean {
 public:
@@ -108,95 +94,6 @@ public:
 private:
     jpeg_decompress_struct* cinfo_ptr;
 };
-
-static void sk_init_source(j_decompress_ptr cinfo) {
-    sk_source_mgr*  src = (sk_source_mgr*)cinfo->src;
-    src->next_input_byte = (const JOCTET*)src->fBuffer;
-    src->bytes_in_buffer = 0;
-}
-
-static boolean sk_fill_input_buffer(j_decompress_ptr cinfo) {
-    sk_source_mgr* src = (sk_source_mgr*)cinfo->src;
-    if (src->fDecoder != NULL && src->fDecoder->shouldCancelDecode()) {
-        return FALSE;
-    }
-    size_t bytes = src->fStream->read(src->fBuffer, sk_source_mgr::kBufferSize);
-    // note that JPEG is happy with less than the full read,
-    // as long as the result is non-zero
-    if (bytes == 0) {
-        return FALSE;
-    }
-
-    src->next_input_byte = (const JOCTET*)src->fBuffer;
-    src->bytes_in_buffer = bytes;
-    return TRUE;
-}
-
-static void sk_skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
-    SkASSERT(num_bytes > 0);
-
-    sk_source_mgr*  src = (sk_source_mgr*)cinfo->src;
-
-    long bytesToSkip = num_bytes - src->bytes_in_buffer;
-
-    // check if the skip amount exceeds the current buffer
-    if (bytesToSkip > 0) {
-        size_t bytes = src->fStream->skip(bytesToSkip);
-        if (bytes != (size_t)bytesToSkip) {
-//            SkDebugf("xxxxxxxxxxxxxx failure to skip request %d actual %d\n", bytesToSkip, bytes);
-            cinfo->err->error_exit((j_common_ptr)cinfo);
-        }
-        src->next_input_byte = (const JOCTET*)src->fBuffer;
-        src->bytes_in_buffer = 0;
-    } else {
-        src->next_input_byte += num_bytes;
-        src->bytes_in_buffer -= num_bytes;
-    }
-}
-
-static boolean sk_resync_to_restart(j_decompress_ptr cinfo, int desired) {
-    sk_source_mgr*  src = (sk_source_mgr*)cinfo->src;
-
-    // what is the desired param for???
-
-    if (!src->fStream->rewind()) {
-        SkDebugf("xxxxxxxxxxxxxx failure to rewind\n");
-        cinfo->err->error_exit((j_common_ptr)cinfo);
-        return FALSE;
-    }
-    src->next_input_byte = (const JOCTET*)src->fBuffer;
-    src->bytes_in_buffer = 0;
-    return TRUE;
-}
-
-static void sk_term_source(j_decompress_ptr /*cinfo*/) {}
-
-///////////////////////////////////////////////////////////////////////////////
-
-static void skmem_init_source(j_decompress_ptr cinfo) {
-    sk_source_mgr*  src = (sk_source_mgr*)cinfo->src;
-    src->next_input_byte = (const JOCTET*)src->fMemoryBase;
-    src->bytes_in_buffer = src->fMemoryBaseSize;
-}
-
-static boolean skmem_fill_input_buffer(j_decompress_ptr cinfo) {
-    SkDebugf("xxxxxxxxxxxxxx skmem_fill_input_buffer called\n");
-    return FALSE;
-}
-
-static void skmem_skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
-    sk_source_mgr*  src = (sk_source_mgr*)cinfo->src;
-//    SkDebugf("xxxxxxxxxxxxxx skmem_skip_input_data called %d\n", num_bytes);
-    src->next_input_byte = (const JOCTET*)((const char*)src->next_input_byte + num_bytes);
-    src->bytes_in_buffer -= num_bytes;
-}
-
-static boolean skmem_resync_to_restart(j_decompress_ptr cinfo, int desired) {
-    SkDebugf("xxxxxxxxxxxxxx skmem_resync_to_restart called\n");
-    return TRUE;
-}
-
-static void skmem_term_source(j_decompress_ptr /*cinfo*/) {}
 
 #ifdef ANDROID
 /* Check if the memory cap property is set.
@@ -214,49 +111,6 @@ static void overwrite_mem_buffer_size(j_decompress_ptr cinfo) {
 }
 #endif
 
-///////////////////////////////////////////////////////////////////////////////
-
-sk_source_mgr::sk_source_mgr(SkStream* stream, SkImageDecoder* decoder) : fStream(stream) {
-    fDecoder = decoder;
-    const void* baseAddr = stream->getMemoryBase();
-    if (baseAddr && false) {
-        fMemoryBase = baseAddr;
-        fMemoryBaseSize = stream->getLength();
-        
-        init_source = skmem_init_source;
-        fill_input_buffer = skmem_fill_input_buffer;
-        skip_input_data = skmem_skip_input_data;
-        resync_to_restart = skmem_resync_to_restart;
-        term_source = skmem_term_source;
-    } else {
-        fMemoryBase = NULL;
-        fMemoryBaseSize = 0;
-
-        init_source = sk_init_source;
-        fill_input_buffer = sk_fill_input_buffer;
-        skip_input_data = sk_skip_input_data;
-        resync_to_restart = sk_resync_to_restart;
-        term_source = sk_term_source;
-    }
-//    SkDebugf("**************** use memorybase %p %d\n", fMemoryBase, fMemoryBaseSize);
-}
-
-#include <setjmp.h>
-
-struct sk_error_mgr : jpeg_error_mgr {
-    jmp_buf fJmpBuf;
-};
-
-static void sk_error_exit(j_common_ptr cinfo) {
-    sk_error_mgr* error = (sk_error_mgr*)cinfo->err;
-
-    (*error->output_message) (cinfo);
-
-    /* Let the memory manager delete any temp files before we die */
-    jpeg_destroy(cinfo);
-
-    longjmp(error->fJmpBuf, -1);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -294,11 +148,11 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
     JPEGAutoClean autoClean;
 
     jpeg_decompress_struct  cinfo;
-    sk_error_mgr            sk_err;
-    sk_source_mgr           sk_stream(stream, this);
+    skjpeg_error_mgr        sk_err;
+    skjpeg_source_mgr       sk_stream(stream, this);
 
     cinfo.err = jpeg_std_error(&sk_err);
-    sk_err.error_exit = sk_error_exit;
+    sk_err.error_exit = skjpeg_error_exit;
 
     // All objects need to be instantiated before this setjmp call so that
     // they will be cleaned up properly if an error occurs.
@@ -681,58 +535,6 @@ static WriteScanline ChooseWriter(const SkBitmap& bm) {
     }
 }
 
-struct sk_destination_mgr : jpeg_destination_mgr {
-    sk_destination_mgr(SkWStream* stream);
-
-    SkWStream*  fStream;
-
-    enum {
-        kBufferSize = 1024
-    };
-    uint8_t fBuffer[kBufferSize];
-};
-
-static void sk_init_destination(j_compress_ptr cinfo) {
-    sk_destination_mgr* dest = (sk_destination_mgr*)cinfo->dest;
-
-    dest->next_output_byte = dest->fBuffer;
-    dest->free_in_buffer = sk_destination_mgr::kBufferSize;
-}
-
-static boolean sk_empty_output_buffer(j_compress_ptr cinfo) {
-    sk_destination_mgr* dest = (sk_destination_mgr*)cinfo->dest;
-
-//  if (!dest->fStream->write(dest->fBuffer, sk_destination_mgr::kBufferSize - dest->free_in_buffer))
-    if (!dest->fStream->write(dest->fBuffer, sk_destination_mgr::kBufferSize)) {
-        ERREXIT(cinfo, JERR_FILE_WRITE);
-        return false;
-    }
-
-    dest->next_output_byte = dest->fBuffer;
-    dest->free_in_buffer = sk_destination_mgr::kBufferSize;
-    return TRUE;
-}
-
-static void sk_term_destination (j_compress_ptr cinfo) {
-    sk_destination_mgr* dest = (sk_destination_mgr*)cinfo->dest;
-
-    size_t size = sk_destination_mgr::kBufferSize - dest->free_in_buffer;
-    if (size > 0) {
-        if (!dest->fStream->write(dest->fBuffer, size)) {
-            ERREXIT(cinfo, JERR_FILE_WRITE);
-            return;
-        }
-    }
-    dest->fStream->flush();
-}
-
-sk_destination_mgr::sk_destination_mgr(SkWStream* stream)
-        : fStream(stream) {
-    this->init_destination = sk_init_destination;
-    this->empty_output_buffer = sk_empty_output_buffer;
-    this->term_destination = sk_term_destination;
-}
-
 class SkJPEGImageEncoder : public SkImageEncoder {
 protected:
     virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality) {
@@ -751,15 +553,15 @@ protected:
         }
 
         jpeg_compress_struct    cinfo;
-        sk_error_mgr            sk_err;
-        sk_destination_mgr      sk_wstream(stream);
+        skjpeg_error_mgr        sk_err;
+        skjpeg_destination_mgr  sk_wstream(stream);
 
         // allocate these before set call setjmp
         SkAutoMalloc    oneRow;
         SkAutoLockColors ctLocker;
 
         cinfo.err = jpeg_std_error(&sk_err);
-        sk_err.error_exit = sk_error_exit;
+        sk_err.error_exit = skjpeg_error_exit;
         if (setjmp(sk_err.fJmpBuf)) {
             return false;
         }
@@ -830,4 +632,3 @@ static SkImageEncoder* EFactory(SkImageEncoder::Type t) {
 
 static SkTRegistry<SkImageDecoder*, SkStream*> gDReg(DFactory);
 static SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> gEReg(EFactory);
-
