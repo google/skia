@@ -41,18 +41,18 @@ static boolean sk_fill_input_buffer(j_decompress_ptr cinfo) {
 }
 
 static void sk_skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
-    SkASSERT(num_bytes > 0);
-
     skjpeg_source_mgr*  src = (skjpeg_source_mgr*)cinfo->src;
 
-    long bytesToSkip = num_bytes - src->bytes_in_buffer;
-
-    // check if the skip amount exceeds the current buffer
-    if (bytesToSkip > 0) {
-        size_t bytes = src->fStream->skip(bytesToSkip);
-        if (bytes != (size_t)bytesToSkip) {
-//            SkDebugf("xxxxxxxxxxxxxx failure to skip request %d actual %d\n", bytesToSkip, bytes);
-            cinfo->err->error_exit((j_common_ptr)cinfo);
+    if (num_bytes > src->bytes_in_buffer) {
+        long bytesToSkip = num_bytes - src->bytes_in_buffer;
+        while (bytesToSkip > 0) {
+            long bytes = (long)src->fStream->skip(bytesToSkip);
+            if (bytes <= 0 || bytes > bytesToSkip) {
+//              SkDebugf("xxxxxxxxxxxxxx failure to skip request %d returned %d\n", bytesToSkip, bytes);
+                cinfo->err->error_exit((j_common_ptr)cinfo);
+                return;
+            }
+            bytesToSkip -= bytes;
         }
         src->next_input_byte = (const JOCTET*)src->fBuffer;
         src->bytes_in_buffer = 0;
