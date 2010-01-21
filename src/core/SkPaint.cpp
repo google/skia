@@ -1152,16 +1152,17 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint)
 {
     uint32_t flags = paint.getFlags();
 
-    if (flags & SkPaint::kLCDRenderText_Flag)
+    // Antialiasing being disabled trumps all other settings.
+    if (!(flags & SkPaint::kAntiAlias_Flag))
+        return SkMask::kBW_Format;
+
 #if defined(SK_SUPPORT_LCDTEXT)
+    if (flags & SkPaint::kLCDRenderText_Flag)
         return SkFontHost::GetSubpixelOrientation() == SkFontHost::kHorizontal_LCDOrientation ?
                    SkMask::kHorizontalLCD_Format : SkMask::kVerticalLCD_Format;
-#else
-        return SkMask::kA8_Format;
 #endif
-    if (flags & SkPaint::kAntiAlias_Flag)
-        return SkMask::kA8_Format;
-    return SkMask::kBW_Format;
+
+    return SkMask::kA8_Format;
 }
 
 // if linear-text is on, then we force hinting to be off (since that's sort of
