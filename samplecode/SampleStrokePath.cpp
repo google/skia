@@ -7,6 +7,32 @@
 
 #include "SkBlurMaskFilter.h"
 
+static void test_huge_stroke(SkCanvas* canvas) {
+    SkRect srcR = { 0, 0, 72000, 54000 };
+    SkRect dstR = { 0, 0, 640, 480 };
+    
+    SkPath path;
+    path.moveTo(17600, 8000);
+    path.lineTo(52800, 8000);
+    path.lineTo(52800, 41600);
+    path.lineTo(17600, 41600);
+    path.close();
+    
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStrokeWidth(8000);
+    paint.setStrokeMiter(10);
+    paint.setStrokeCap(SkPaint::kButt_Cap);
+    paint.setStrokeJoin(SkPaint::kRound_Join);
+    paint.setStyle(SkPaint::kStroke_Style);
+
+    SkMatrix matrix;
+    matrix.setRectToRect(srcR, dstR, SkMatrix::kCenter_ScaleToFit);
+    canvas->concat(matrix);
+
+    canvas->drawPath(path, paint);
+}
+
 #if 0
 #include "SkBlurMask.h"
 static void test_blur() {
@@ -118,6 +144,7 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         drawBG(canvas);
         //return;
+        test_huge_stroke(canvas); return;
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
         SkPaint paint;

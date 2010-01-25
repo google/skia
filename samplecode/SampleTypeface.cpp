@@ -66,7 +66,12 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(30));
-        
+
+        if (false) {
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(SkIntToScalar(1));
+        }
+
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
         
