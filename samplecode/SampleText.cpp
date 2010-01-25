@@ -708,7 +708,7 @@ protected:
 
   //      canvas->drawText(style, strlen(style), SkIntToScalar(20), SkIntToScalar(20), paint);
 
-//        paint.setTypeface(SkTypeface::Create(NULL, SkTypeface::kItalic))->unref();
+        SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromFile("/skimages/samplefont.ttf")));
         paint.setAntiAlias(true);
         paint.setFlags(paint.getFlags() | gHints[index].fFlags);
         
