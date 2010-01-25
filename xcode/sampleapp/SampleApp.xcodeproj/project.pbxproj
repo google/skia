@@ -856,10 +856,7 @@
 					/usr/lib,
 					/opt/local/lib,
 				);
-				OTHER_LDFLAGS = (
-					"-lexpat",
-					"-lfreetype",
-				);
+				OTHER_LDFLAGS = "-lexpat";
 				SDKROOT = "";
 				USER_HEADER_SEARCH_PATHS = "../../src/core ../../include/** ../../gm";
 			};
@@ -884,10 +881,7 @@
 					/usr/lib,
 					/opt/local/lib,
 				);
-				OTHER_LDFLAGS = (
-					"-lexpat",
-					"-lfreetype",
-				);
+				OTHER_LDFLAGS = "-lexpat";
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = "../../src/core ../../include/** ../../gm";
 			};
