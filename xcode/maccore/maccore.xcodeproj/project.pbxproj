@@ -14,13 +14,16 @@
 		002884E10EFABFFC0083E387 /* SkGlobals_global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884E00EFABFFC0083E387 /* SkGlobals_global.cpp */; };
 		003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */; };
 		00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00488AF30F86532E00C08A57 /* SkDebug_stdio.cpp */; };
-		007A7BEF0F01427100A2D6EE /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7BEE0F01427100A2D6EE /* SkFontHost_mac.cpp */; };
+		0049ACCF10F66A1400A5AECA /* SkFontHost_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7BEE0F01427100A2D6EE /* SkFontHost_mac.cpp */; };
 		007C8DC910B4694D008CDB57 /* SkUtils_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C8DC810B4694D008CDB57 /* SkUtils_opts_none.cpp */; };
 		27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */; };
 		27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2C0F11408100F233EA /* SkImageDecoder.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		000630CB10F4EA2C00BC2C23 /* SkFontHost_FreeType.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_FreeType.cpp; path = ../../src/ports/SkFontHost_FreeType.cpp; sourceTree = SOURCE_ROOT; };
+		000630DF10F4EEF200BC2C23 /* SkFontHost_simple.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_simple.cpp; path = ../../src/ports/SkFontHost_simple.cpp; sourceTree = SOURCE_ROOT; };
+		000630EC10F4F04C00BC2C23 /* SkFontHost_gamma_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFontHost_gamma_none.cpp; path = ../../src/ports/SkFontHost_gamma_none.cpp; sourceTree = SOURCE_ROOT; };
 		001EA8900F13F2CE00900BA9 /* SkImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageEncoder.cpp; path = ../../src/images/SkImageEncoder.cpp; sourceTree = SOURCE_ROOT; };
 		002884A20EFAB5DE0083E387 /* SkOSFile_stdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOSFile_stdio.cpp; path = ../../src/ports/SkOSFile_stdio.cpp; sourceTree = SOURCE_ROOT; };
 		002884A30EFAB5DE0083E387 /* SkThread_pthread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkThread_pthread.cpp; path = ../../src/ports/SkThread_pthread.cpp; sourceTree = SOURCE_ROOT; };
@@ -46,9 +49,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		000630D010F4EA5200BC2C23 /* freetype */ = {
+			isa = PBXGroup;
+			children = (
+				000630EC10F4F04C00BC2C23 /* SkFontHost_gamma_none.cpp */,
+				000630CB10F4EA2C00BC2C23 /* SkFontHost_FreeType.cpp */,
+				000630DF10F4EEF200BC2C23 /* SkFontHost_simple.cpp */,
+			);
+			name = freetype;
+			sourceTree = "<group>";
+		};
 		08FB7794FE84155DC02AAC07 /* maccore */ = {
 			isa = PBXGroup;
 			children = (
+				000630D010F4EA5200BC2C23 /* freetype */,
 				27739F280F11405800F233EA /* Images */,
 				08FB7795FE84155DC02AAC07 /* Source */,
 				C6A0FF2B0290797F04C91782 /* Documentation */,
@@ -153,13 +167,13 @@
 				002884A60EFAB5DE0083E387 /* SkThread_pthread.cpp in Sources */,
 				002884A70EFAB5DE0083E387 /* SkTime_Unix.cpp in Sources */,
 				002884E10EFABFFC0083E387 /* SkGlobals_global.cpp in Sources */,
-				007A7BEF0F01427100A2D6EE /* SkFontHost_mac.cpp in Sources */,
 				27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */,
 				27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */,
 				001EA8910F13F2CE00900BA9 /* SkImageEncoder.cpp in Sources */,
 				00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */,
 				003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */,
 				007C8DC910B4694D008CDB57 /* SkUtils_opts_none.cpp in Sources */,
+				0049ACCF10F66A1400A5AECA /* SkFontHost_mac.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,6 +216,7 @@
 				GCC_THREADSAFE_STATICS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "/opt/local/include/**";
 				PREBINDING = NO;
 				SDKROOT = "";
 				USER_HEADER_SEARCH_PATHS = "../../include//**";
@@ -224,6 +239,7 @@
 				GCC_THREADSAFE_STATICS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "/opt/local/include/**";
 				PREBINDING = NO;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				USER_HEADER_SEARCH_PATHS = "../../include//**";
