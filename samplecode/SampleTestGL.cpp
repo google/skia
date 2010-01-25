@@ -202,9 +202,11 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         drawBG(canvas);
-        
-        test_glshader(canvas);
-        return;
+
+        if (canvas->getViewport(NULL)) {
+            test_glshader(canvas);
+            return;
+        }
         
         SkRect r;
         r.set(0, 0, 100, 100);
