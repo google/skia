@@ -27,11 +27,9 @@ void skia_set_text_gamma(float blackGamma, float whiteGamma) {}
 
 #else   // use writable globals for gamma tables
 
-static void build_power_table(uint8_t table[], float ee)
-{
-    SkDebugf("------ build_power_table %g\n", ee);
-    for (int i = 0; i < 256; i++)
-    {
+static void build_power_table(uint8_t table[], float ee) {
+//    SkDebugf("------ build_power_table %g\n", ee);
+    for (int i = 0; i < 256; i++) {
         float x = i / 255.f;
         //   printf(" %d %g", i, x);
         x = powf(x, ee);
@@ -83,11 +81,9 @@ static void dump_a_table(const char name[], const uint8_t table[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkFontHost::GetGammaTables(const uint8_t* tables[2])
-{
+void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
 #ifndef USE_PREDEFINED_GAMMA_TABLES
-    if (!gGammaIsBuilt)
-    {
+    if (!gGammaIsBuilt) {
         build_power_table(gBlackGamma, gBlackGammaCoeff);
         build_power_table(gWhiteGamma, gWhiteGammaCoeff);
         gGammaIsBuilt = true;
@@ -108,23 +104,19 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2])
 // If the luminance is >= this value, then apply the white gamma table
 #define WHITE_GAMMA_THRESHOLD   0xC0
 
-int SkFontHost::ComputeGammaFlag(const SkPaint& paint)
-{
-    if (paint.getShader() == NULL)
-    {
+int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
+    if (paint.getShader() == NULL) {
         SkColor c = paint.getColor();
         int r = SkColorGetR(c);
         int g = SkColorGetG(c);
         int b = SkColorGetB(c);
         int luminance = (r * 2 + g * 5 + b) >> 3;
         
-        if (luminance <= BLACK_GAMMA_THRESHOLD)
-        {
+        if (luminance <= BLACK_GAMMA_THRESHOLD) {
         //    printf("------ black gamma for [%d %d %d]\n", r, g, b);
             return SkScalerContext::kGammaForBlack_Flag;
         }
-        if (luminance >= WHITE_GAMMA_THRESHOLD)
-        {
+        if (luminance >= WHITE_GAMMA_THRESHOLD) {
         //    printf("------ white gamma for [%d %d %d]\n", r, g, b);
             return SkScalerContext::kGammaForWhite_Flag;
         }
