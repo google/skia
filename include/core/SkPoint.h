@@ -26,6 +26,12 @@
 */
 struct SkIPoint {
     int32_t fX, fY;
+    
+    static SkIPoint Make(int32_t x, int32_t y) {
+        SkIPoint pt;
+        pt.set(x, y);
+        return pt;
+    }
 
     /** Set the x and y values of the point. */
     void set(int32_t x, int32_t y) { fX = x; fY = y; }
@@ -122,6 +128,12 @@ struct SkIPoint {
 struct SkPoint {
     SkScalar    fX, fY;
 
+    static SkPoint Make(SkScalar x, SkScalar y) {
+        SkPoint pt;
+        pt.set(x, y);
+        return pt;
+    }
+    
     /** Set the point's X and Y coordinates */
     void set(SkScalar x, SkScalar y) { fX = x; fY = y; }
     
@@ -262,7 +274,12 @@ struct SkPoint {
     /** Returns the euclidian distance from (0,0) to (x,y)
     */
     static SkScalar Length(SkScalar x, SkScalar y);
-    
+
+    /** Normalize pt, returning its previous length. If the prev length is too
+        small (degenerate), return 0 and leave pt unchanged.
+     */
+    static SkScalar Normalize(SkPoint* pt);
+
     /** Returns the euclidian distance between a and b
     */
     static SkScalar Distance(const SkPoint& a, const SkPoint& b) {
