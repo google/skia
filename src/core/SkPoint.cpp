@@ -79,6 +79,17 @@ SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
     return sk_float_sqrt(dx * dx + dy * dy);
 }
 
+SkScalar SkPoint::Normalize(SkPoint* pt) {
+    float mag = SkPoint::Length(pt->fX, pt->fY);
+    if (mag > kNearlyZero) {
+        float scale = 1 / mag;
+        pt->fX *= scale;
+        pt->fY *= scale;
+        return mag;
+    }
+    return 0;
+}
+
 bool SkPoint::setLength(float x, float y, float length) {
     float mag = sk_float_sqrt(x * x + y * y);
     if (mag > kNearlyZero) {
