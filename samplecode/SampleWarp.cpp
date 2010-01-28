@@ -11,6 +11,8 @@
 #include "SkBlurMaskFilter.h"
 #include "SkTableMaskFilter.h"
 
+#define kNearlyZero     (SK_Scalar1 / 8092)
+
 static void test_bigblur(SkCanvas* canvas) {
     canvas->drawColor(SK_ColorBLACK);
 
@@ -321,10 +323,11 @@ void Mesh::drawWireframe(SkCanvas* canvas, const SkPaint& paint) {
 class WarpView : public SkView {
     Mesh        fMesh, fOrig;
     SkBitmap    fBitmap;
+    SkMatrix    fMatrix, fInverse;
 public:
 	WarpView() {
         SkBitmap bm;
-        SkImageDecoder::DecodeFile("/skimages/beach.jpg", &bm);
+        SkImageDecoder::DecodeFile("/skimages/logo.gif", &bm);
    //     SkImageDecoder::DecodeFile("/beach_shot.JPG", &bm);
         fBitmap = bm;
         
@@ -334,11 +337,14 @@ public:
         bounds = texture;
         
 //        fMesh.init(bounds, fBitmap.width() / 40, fBitmap.height() / 40, texture);
-        fMesh.init(bounds, 30, 30, texture);
+        fMesh.init(bounds, fBitmap.width()/16, fBitmap.height()/16, texture);
         fOrig = fMesh;
         
         fP0.set(0, 0);
         fP1 = fP0;
+
+        fMatrix.setScale(2, 2);
+        fMatrix.invert(&fInverse);
     }
 
 protected:
@@ -351,7 +357,66 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
+    static SkPoint apply_warp(const SkVector& drag, SkScalar dragLength,
+                              const SkPoint& dragStart, const SkPoint& dragCurr,
+                              const SkPoint& orig) {
+        SkVector delta = orig - dragCurr;
+        SkScalar length = SkPoint::Normalize(&delta);
+        if (length <= kNearlyZero) {
+            return orig;
+        }
+        
+        const SkScalar period = 20;
+        const SkScalar mag = dragLength / 3;
+        
+        SkScalar d = length / (period);
+        d = mag * SkScalarSin(d) / d;
+        SkScalar dx = delta.fX * d;
+        SkScalar dy = delta.fY * d;
+        SkScalar px = orig.fX + dx;
+        SkScalar py = orig.fY + dy;
+        return SkPoint::Make(px, py);
+    }
+    
+    static SkPoint apply_warp2(const SkVector& drag, SkScalar dragLength,
+                              const SkPoint& dragStart, const SkPoint& dragCurr,
+                              const SkPoint& orig) {
+        SkVector delta = orig - dragCurr;
+        SkScalar length = SkPoint::Normalize(&delta);
+        if (length <= kNearlyZero) {
+            return orig;
+        }
+        
+        const SkScalar period = 20;
+        const SkScalar mag = dragLength / 3;
+        
+        SkScalar d = length / (period);
+        if (d > SK_ScalarPI) {
+            d = SK_ScalarPI;
+        }
+
+        d = -mag * SkScalarSin(d);
+        
+        SkScalar dx = delta.fX * d;
+        SkScalar dy = delta.fY * d;
+        SkScalar px = orig.fX + dx;
+        SkScalar py = orig.fY + dy;
+        return SkPoint::Make(px, py);
+    }
+    
+    typedef SkPoint (*WarpProc)(const SkVector& drag, SkScalar dragLength,
+                             const SkPoint& dragStart, const SkPoint& dragCurr,
+                             const SkPoint& orig);
+
     void warp(const SkPoint& p0, const SkPoint& p1) {
+        WarpProc proc = apply_warp2;
+        SkPoint delta = p1 - p0;
+        SkScalar length = SkPoint::Normalize(&delta);
+        for (int y = 0; y < fMesh.rows(); y++) {
+            for (int x = 0; x < fMesh.cols(); x++) {
+                fMesh.pt(x, y) = proc(delta, length, p0, p1, fOrig.pt(x, y));
+            }
+        }
         fP0 = p0;
         fP1 = p1;
     }
@@ -360,18 +425,20 @@ protected:
         canvas->drawColor(SK_ColorLTGRAY);
      //   test_bigblur(canvas); return;
         
+        canvas->concat(fMatrix);
+
         SkPaint paint;
         paint.setFilterBitmap(true);
         paint.setShader(SkShader::CreateBitmapShader(fBitmap,
                                                      SkShader::kClamp_TileMode,
                                                      SkShader::kClamp_TileMode))->unref();
-     //   fMesh.draw(canvas, paint);
+        fMesh.draw(canvas, paint); //return;
         
         paint.setShader(NULL);
         paint.setColor(SK_ColorRED);
-    //    fMesh.draw(canvas, paint);
+        fMesh.draw(canvas, paint);
 
-        test_drag(canvas, fBitmap, fP0, fP1);
+    //    test_drag(canvas, fBitmap, fP0, fP1);
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
@@ -379,7 +446,9 @@ protected:
     }
     
     virtual bool onClick(Click* click) {
-        this->warp(click->fOrig, click->fCurr);
+        SkPoint pts[2] = { click->fOrig, click->fCurr };
+        fInverse.mapPoints(pts, 2);
+        this->warp(pts[0], pts[1]);
         this->inval(NULL);
         return true;
     }
