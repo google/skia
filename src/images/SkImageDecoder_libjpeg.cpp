@@ -114,6 +114,25 @@ static void overwrite_mem_buffer_size(j_decompress_ptr cinfo) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/*  If we need to better match the request, we might examine the image and
+     output dimensions, and determine if the downsampling jpeg provided is
+     not sufficient. If so, we can recompute a modified sampleSize value to
+     make up the difference.
+
+     To skip this additional scaling, just set sampleSize = 1; below.
+ */
+static int recompute_sampleSize(int sampleSize,
+                                const jpeg_decompress_struct& cinfo) {
+    return sampleSize * cinfo.output_width / cinfo.image_width;
+}
+
+static bool valid_output_dimensions(const jpeg_decompress_struct& cinfo) {
+    /* These are initialized to 0, so if they have non-zero values, we assume
+       they are "valid" (i.e. have been computed by libjpeg)
+     */
+    return cinfo.output_width != 0 && cinfo.output_height != 0;
+}
+
 static bool skip_src_rows(jpeg_decompress_struct* cinfo, void* buffer,
                           int count) {
     for (int i = 0; i < count; i++) {
@@ -235,18 +254,27 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
         jpeg_start_decompress(), and then read output_width and output_height.
     */
     if (!jpeg_start_decompress(&cinfo)) {
-        return return_false(cinfo, *bm, "start_decompress");
+        /*  If we failed here, we may still have enough information to return
+            to the caller if they just wanted (subsampled bounds). If sampleSize
+            was 1, then we would have already returned. Thus we just check if
+            we're in kDecodeBounds_Mode, and that we have valid output sizes.
+
+            One reason to fail here is that we have insufficient stream data
+            to complete the setup. However, output dimensions seem to get
+            computed very early, which is why this special check can pay off.
+         */
+        if (SkImageDecoder::kDecodeBounds_Mode == mode &&
+                valid_output_dimensions(cinfo)) {
+            SkScaledBitmapSampler smpl(cinfo.output_width, cinfo.output_height,
+                                       recompute_sampleSize(sampleSize, cinfo));
+            bm->setConfig(config, smpl.scaledWidth(), smpl.scaledHeight());
+            bm->setIsOpaque(true);
+            return true;
+        } else {
+            return return_false(cinfo, *bm, "start_decompress");
+        }
     }
-
-    /*  If we need to better match the request, we might examine the image and
-        output dimensions, and determine if the downsampling jpeg provided is
-        not sufficient. If so, we can recompute a modified sampleSize value to
-        make up the difference.
-
-        To skip this additional scaling, just set sampleSize = 1; below.
-    */
-    sampleSize = sampleSize * cinfo.output_width / cinfo.image_width;
-
+    sampleSize = recompute_sampleSize(sampleSize, cinfo);
 
     // should we allow the Chooser (if present) to pick a config for us???
     if (!this->chooseFromOneChoice(config, cinfo.output_width,
