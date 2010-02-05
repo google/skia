@@ -390,6 +390,7 @@ private:
 SkDevice* SkCanvas::init(SkDevice* device) {
     fBounder = NULL;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
     fLastDeviceToGainFocus = NULL;
     fDeviceCMDirty = false;
 
@@ -687,6 +688,7 @@ void SkCanvas::internalRestore() {
 
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
 
 	// reserve our layer (if any)
     DeviceCM* layer = fMCRec->fLayer;   // may be null
@@ -770,36 +772,42 @@ void SkCanvas::drawDevice(SkDevice* device, int x, int y,
 bool SkCanvas::translate(SkScalar dx, SkScalar dy) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preTranslate(dx, dy);
 }
 
 bool SkCanvas::scale(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preScale(sx, sy);
 }
 
 bool SkCanvas::rotate(SkScalar degrees) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preRotate(degrees);
 }
 
 bool SkCanvas::skew(SkScalar sx, SkScalar sy) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preSkew(sx, sy);
 }
 
 bool SkCanvas::concat(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
     return fMCRec->fMatrix->preConcat(matrix);
 }
 
 void SkCanvas::setMatrix(const SkMatrix& matrix) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
     *fMCRec->fMatrix = matrix;
 }
 
@@ -817,6 +825,7 @@ void SkCanvas::resetMatrix() {
 bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
 
     if (fMCRec->fMatrix->rectStaysRect()) {
         // for these simpler matrices, we can stay a rect ever after applying
@@ -844,6 +853,7 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
 bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
 
     SkPath devPath;
     path.transform(*fMCRec->fMatrix, &devPath);
@@ -868,20 +878,23 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
 bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
     fDeviceCMDirty = true;
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeDirtyBW = true;
 
     return fMCRec->fRegion->op(rgn, op);
 }
 
-void SkCanvas::computeLocalClipBoundsCompareType() const {
+void SkCanvas::computeLocalClipBoundsCompareType(EdgeType et) const {
     SkRect r;
-    
-    if (!this->getClipBounds(&r, kAA_EdgeType)) {
-        fLocalBoundsCompareType.setEmpty();
+    SkRectCompareType& rCompare = et == kAA_EdgeType ? fLocalBoundsCompareType :
+            fLocalBoundsCompareTypeBW;
+
+    if (!this->getClipBounds(&r, et)) {
+        rCompare.setEmpty();
     } else {
-        fLocalBoundsCompareType.set(SkScalarToCompareType(r.fLeft),
-                                    SkScalarToCompareType(r.fTop),
-                                    SkScalarToCompareType(r.fRight),
-                                    SkScalarToCompareType(r.fBottom));
+        rCompare.set(SkScalarToCompareType(r.fLeft),
+                     SkScalarToCompareType(r.fTop),
+                     SkScalarToCompareType(r.fRight),
+                     SkScalarToCompareType(r.fBottom));
     }
 }
 
@@ -889,7 +902,7 @@ void SkCanvas::computeLocalClipBoundsCompareType() const {
     getLocalClipBoundsCompareType(), which always returns a value assuming
     antialiasing (worst case)
  */
-bool SkCanvas::quickReject(const SkRect& rect, EdgeType) const {
+bool SkCanvas::quickReject(const SkRect& rect, EdgeType et) const {
     if (fMCRec->fRegion->isEmpty()) {
         return true;
     }
@@ -901,7 +914,7 @@ bool SkCanvas::quickReject(const SkRect& rect, EdgeType) const {
         dst.roundOut(&idst);
         return !SkIRect::Intersects(idst, fMCRec->fRegion->getBounds());
     } else {
-        const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType();
+        const SkRectCompareType& clipR = this->getLocalClipBoundsCompareType(et);
 
         // for speed, do the most likely reject compares first
         SkScalarCompareType userT = SkScalarToCompareType(rect.fTop);
