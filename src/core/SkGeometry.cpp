@@ -19,6 +19,35 @@
 #include "Sk64.h"
 #include "SkMatrix.h"
 
+bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2]) {
+    // Determine quick discards.
+    // Consider query line going exactly through point 0 to not
+    // intersect, for symmetry with SkXRayCrossesMonotonicCubic.
+    if (pt.fY == pts[0].fY)
+        return false;
+    if (pt.fY < pts[0].fY && pt.fY < pts[1].fY)
+        return false;
+    if (pt.fY > pts[0].fY && pt.fY > pts[1].fY)
+        return false;
+    if (pt.fX > pts[0].fX && pt.fX > pts[1].fX)
+        return false;
+    // Determine degenerate cases
+    if (SkScalarNearlyZero(pts[0].fY - pts[1].fY))
+        return false;
+    if (SkScalarNearlyZero(pts[0].fX - pts[1].fX))
+        // We've already determined the query point lies within the
+        // vertical range of the line segment.
+        return pt.fX <= pts[0].fX;
+    // Full line segment evaluation
+    SkScalar delta_y = pts[1].fY - pts[0].fY;
+    SkScalar delta_x = pts[1].fX - pts[0].fX;
+    SkScalar slope = SkScalarDiv(delta_y, delta_x);
+    SkScalar b = pts[0].fY - SkScalarMul(slope, pts[0].fX);
+    // Solve for x coordinate at y = pt.fY
+    SkScalar x = SkScalarDiv(pt.fY - b, slope);
+    return pt.fX <= x;
+}
+
 /** If defined, this makes eval_quad and eval_cubic do more setup (sometimes
     involving integer multiplies by 2 or 3, but fewer calls to SkScalarMul.
     May also introduce overflow of fixed when we compute our setup.
@@ -389,6 +418,20 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5])
         SkChopQuadAt(src, dst, t);
         return 2;
     }
+}
+
+void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4])
+{
+    SkScalar two = SkIntToScalar(2);
+    SkScalar one_third = SkScalarDiv(SK_Scalar1, SkIntToScalar(3));
+    dst[0].set(src[0].fX, src[0].fY);
+    dst[1].set(
+        SkScalarMul(SkScalarMulAdd(src[1].fX, two, src[0].fX), one_third),
+        SkScalarMul(SkScalarMulAdd(src[1].fY, two, src[0].fY), one_third));
+    dst[2].set(
+        SkScalarMul(SkScalarMulAdd(src[1].fX, two, src[2].fX), one_third),
+        SkScalarMul(SkScalarMulAdd(src[1].fY, two, src[2].fY), one_third));
+    dst[3].set(src[2].fX, src[2].fY);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -937,6 +980,93 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13], SkScalar tV
             SkChopCubicAt(src, dst, tValues, count);
     }
     return count + 1;
+}
+
+bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4]) {
+    // Find the minimum and maximum y of the extrema, which are the
+    // first and last points since this cubic is monotonic
+    SkScalar min_y = SkMinScalar(cubic[0].fY, cubic[3].fY);
+    SkScalar max_y = SkMaxScalar(cubic[0].fY, cubic[3].fY);
+
+    if (pt.fY == cubic[0].fY
+        || pt.fY < min_y
+        || pt.fY > max_y) {
+        // The query line definitely does not cross the curve
+        return false;
+    }
+
+    SkScalar min_x =
+        SkMinScalar(
+            SkMinScalar(
+                SkMinScalar(cubic[0].fX, cubic[1].fX),
+                cubic[2].fX),
+            cubic[3].fX);
+    if (pt.fX < min_x) {
+        // The query line definitely crosses the curve
+        return true;
+    }
+
+    SkScalar max_x =
+        SkMaxScalar(
+            SkMaxScalar(
+                SkMaxScalar(cubic[0].fX, cubic[1].fX),
+                cubic[2].fX),
+            cubic[3].fX);
+    if (pt.fX > max_x) {
+        // The query line definitely does not cross the curve
+        return false;
+    }
+
+    // Do a binary search to find the parameter value which makes y as
+    // close as possible to the query point. See whether the query
+    // line's origin is to the left of the associated x coordinate.
+
+    // kMaxIter is chosen as the number of mantissa bits for a float,
+    // since there's no way we are going to get more precision by
+    // iterating more times than that.
+    const int kMaxIter = 23;
+    SkPoint eval;
+    int iter = 0;
+    SkScalar upper_t;
+    SkScalar lower_t;
+    // Need to invert direction of t parameter if cubic goes up
+    // instead of down
+    if (cubic[3].fY > cubic[0].fY) {
+        upper_t = SK_Scalar1;
+        lower_t = SkFloatToScalar(0);
+    } else {
+        upper_t = SkFloatToScalar(0);
+        lower_t = SK_Scalar1;
+    }
+    do {
+        SkScalar t = SkScalarAve(upper_t, lower_t);
+        SkEvalCubicAt(cubic, t, &eval, NULL, NULL);
+        if (pt.fY > eval.fY) {
+            lower_t = t;
+        } else {
+            upper_t = t;
+        }
+    } while (++iter < kMaxIter
+             && !SkScalarNearlyZero(eval.fY - pt.fY));
+    if (pt.fX <= eval.fX) {
+        return true;
+    }
+    return false;
+}
+
+int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4]) {
+    int num_crossings = 0;
+    SkPoint monotonic_cubics[10];
+    int num_monotonic_cubics = SkChopCubicAtYExtrema(cubic, monotonic_cubics);
+    if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[0]))
+        ++num_crossings;
+    if (num_monotonic_cubics > 0)
+        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[3]))
+            ++num_crossings;
+    if (num_monotonic_cubics > 1)
+        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[6]))
+            ++num_crossings;
+    return num_crossings;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
