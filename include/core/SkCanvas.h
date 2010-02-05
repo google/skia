@@ -772,14 +772,31 @@ private:
     mutable SkRectCompareType fLocalBoundsCompareType;
     mutable bool              fLocalBoundsCompareTypeDirty;
 
+    mutable SkRectCompareType fLocalBoundsCompareTypeBW;
+    mutable bool              fLocalBoundsCompareTypeDirtyBW;
+
+    /* Get the local clip bounds with an anti-aliased edge.
+     */
     const SkRectCompareType& getLocalClipBoundsCompareType() const {
-        if (fLocalBoundsCompareTypeDirty) {
-            this->computeLocalClipBoundsCompareType();
-            fLocalBoundsCompareTypeDirty = false;
-        }
-        return fLocalBoundsCompareType;
+        return getLocalClipBoundsCompareType(kAA_EdgeType);
     }
-    void computeLocalClipBoundsCompareType() const;
+
+    const SkRectCompareType& getLocalClipBoundsCompareType(EdgeType et) const {
+        if (et == kAA_EdgeType) {
+            if (fLocalBoundsCompareTypeDirty) {
+                this->computeLocalClipBoundsCompareType(et);
+                fLocalBoundsCompareTypeDirty = false;
+            }
+            return fLocalBoundsCompareType;
+        } else {
+            if (fLocalBoundsCompareTypeDirtyBW) {
+                this->computeLocalClipBoundsCompareType(et);
+                fLocalBoundsCompareTypeDirtyBW = false;
+            }
+            return fLocalBoundsCompareTypeBW;
+        }
+    }
+    void computeLocalClipBoundsCompareType(EdgeType et) const;
 };
 
 /** Stack helper class to automatically call restoreToCount() on the canvas
