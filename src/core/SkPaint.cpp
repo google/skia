@@ -1252,8 +1252,13 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     SkPaint::Style  style = paint.getStyle();
     SkScalar        strokeWidth = paint.getStrokeWidth();
     
+    unsigned flags = SkFontHost::ComputeGammaFlag(paint);
+
     if (paint.isFakeBoldText())
     {
+#ifdef SK_USE_FREETYPE_EMBOLDEN
+        flags |= SkScalerContext::kEmbolden_Flag;
+#else
         SkScalar fakeBoldScale = interpolate(paint.getTextSize(), pointSizes, multipliers, 2);
         SkScalar extra = SkScalarMul(paint.getTextSize(), fakeBoldScale);
         
@@ -1264,9 +1269,8 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         }
         else
             strokeWidth += extra;
+#endif
     }
-
-    unsigned flags = SkFontHost::ComputeGammaFlag(paint);
 
     if (paint.isDevKernText())
         flags |= SkScalerContext::kDevKernText_Flag;

@@ -155,6 +155,7 @@ public:
         kHintingBit1_Flag   = 0x10,
         kHintingBit2_Flag   = 0x20,
         kEmbeddedBitmapText_Flag = 0x40,
+        kEmbolden_Flag      = 0x80,
     };
 private:
     enum {

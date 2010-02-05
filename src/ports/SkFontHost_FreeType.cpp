@@ -126,6 +126,7 @@ private:
     uint32_t    fLoadGlyphFlags;
 
     FT_Error setupSize();
+    void emboldenOutline(FT_Outline* outline);
 };
 
 ///////////////////////////////////////////////////////////////////////////
@@ -463,6 +464,13 @@ FT_Error SkScalerContext_FreeType::setupSize() {
     return err;
 }
 
+void SkScalerContext_FreeType::emboldenOutline(FT_Outline* outline) {
+    FT_Pos strength;
+    strength = FT_MulFix(fFace->units_per_EM, fFace->size->metrics.y_scale)
+               / 24;
+    FT_Outline_Embolden(outline, strength);
+}
+
 unsigned SkScalerContext_FreeType::generateGlyphCount() const {
     return fFace->num_glyphs;
 }
@@ -558,6 +566,9 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
       case FT_GLYPH_FORMAT_OUTLINE:
         FT_BBox bbox;
 
+        if (fRec.fFlags & kEmbolden_Flag) {
+            emboldenOutline(&fFace->glyph->outline);
+        }
         FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
 
         if (fRec.fSubpixelPositioning) {
@@ -647,6 +658,10 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
             FT_Outline* outline = &fFace->glyph->outline;
             FT_BBox     bbox;
             FT_Bitmap   target;
+
+            if (fRec.fFlags & kEmbolden_Flag) {
+                emboldenOutline(outline);
+            }
 
             int dx = 0, dy = 0;
             if (fRec.fSubpixelPositioning) {
@@ -820,6 +835,10 @@ void SkScalerContext_FreeType::generatePath(const SkGlyph& glyph,
         return;
     }
 
+    if (fRec.fFlags & kEmbolden_Flag) {
+        emboldenOutline(&fFace->glyph->outline);
+    }
+
     FT_Outline_Funcs    funcs;
 
     funcs.move_to   = move_proc;
@@ -898,6 +917,9 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* mx,
         if (x_glyph) {
             FT_BBox bbox;
             FT_Load_Glyph(fFace, x_glyph, fLoadGlyphFlags);
+            if (fRec.fFlags & kEmbolden_Flag) {
+                emboldenOutline(&fFace->glyph->outline);
+            }
             FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
             x_height = SkIntToScalar(bbox.yMax) / 64;
         } else {
