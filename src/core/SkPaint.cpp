@@ -381,6 +381,56 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
     return gptr - glyphs;
 }
 
+bool SkPaint::containsText(const void* textData, size_t byteLength) const {
+    if (0 == byteLength) {
+        return true;
+    }
+    
+    SkASSERT(textData != NULL);
+    
+    // handle this encoding before the setup for the glyphcache
+    if (this->getTextEncoding() == kGlyphID_TextEncoding) {
+        const uint16_t* glyphID = static_cast<const uint16_t*>(textData);
+        size_t count = byteLength >> 1;
+        for (size_t i = 0; i < count; i++) {
+            if (0 == glyphID[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    SkAutoGlyphCache autoCache(*this, NULL);
+    SkGlyphCache*    cache = autoCache.getCache();
+
+    switch (this->getTextEncoding()) {
+        case SkPaint::kUTF8_TextEncoding: {
+            const char* text = static_cast<const char*>(textData);
+            const char* stop = text + byteLength;
+            while (text < stop) {
+                if (0 == cache->unicharToGlyph(SkUTF8_NextUnichar(&text))) {
+                    return false;
+                }
+            }
+            break;
+        }
+        case SkPaint::kUTF16_TextEncoding: {
+            const uint16_t* text = static_cast<const uint16_t*>(textData);
+            const uint16_t* stop = text + (byteLength >> 1);
+            while (text < stop) {
+                if (0 == cache->unicharToGlyph(SkUTF16_NextUnichar(&text))) {
+                    return false;
+                }
+            }
+            break;
+        }
+        default:
+            SkASSERT(!"unknown text encoding");
+            return false;
+    }
+    return true;
+}
+
 void SkPaint::glyphsToUnichars(const uint16_t glyphs[], int count,
                                SkUnichar textData[]) const {
     if (count <= 0) {

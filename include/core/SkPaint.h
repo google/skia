@@ -708,6 +708,15 @@ public:
     int textToGlyphs(const void* text, size_t byteLength,
                      uint16_t glyphs[]) const;
 
+    /** Return true if all of the specified text has a corresponding non-zero
+        glyph ID. If any of the code-points in the text are not supported in
+        the typeface (i.e. the glyph ID would be zero), then return false.
+
+        If the text encoding for the paint is kGlyph_TextEncoding, then this
+        returns true if all of the specified glyph IDs are non-zero.
+     */
+    bool containsText(const void* text, size_t byteLength) const;
+
     /** Convert the glyph array into Unichars. Unconvertable glyphs are mapped
         to zero. Note: this does not look at the text-encoding setting in the
         paint, only at the typeface.
