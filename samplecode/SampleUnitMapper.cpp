@@ -6,9 +6,39 @@
 #include "SkUnitMappers.h"
 #include "SkCubicInterval.h"
 
+#include "SkWidgetViews.h"
+
+static SkStaticTextView* make_textview(SkView* parent,
+                                       const SkRect& bounds,
+                                       const SkPaint& paint) {
+    SkStaticTextView* view = new SkStaticTextView;
+    view->setMode(SkStaticTextView::kFixedSize_Mode);
+    view->setPaint(paint);
+    view->setVisibleP(true);
+    view->setSize(bounds.width(), bounds.height());
+    view->setLoc(bounds.fLeft, bounds.fTop);
+    parent->attachChildToFront(view)->unref();
+    return view;
+}
+
+static void set_scalar(SkStaticTextView* view, SkScalar value) {
+    SkString str;
+    str.appendScalar(value);
+    view->setText(str);
+}
+
 class UnitMapperView : public SkView {
     SkPoint fPts[4];
     SkMatrix fMatrix;
+    SkStaticTextView* fViews[4];
+
+    void setViews() {
+        set_scalar(fViews[0], fPts[1].fX);
+        set_scalar(fViews[1], fPts[1].fY);
+        set_scalar(fViews[2], fPts[2].fX);
+        set_scalar(fViews[3], fPts[2].fY);
+    }
+
 public:
     UnitMapperView() {
         fPts[0].set(0, 0);
@@ -18,6 +48,19 @@ public:
 
         fMatrix.setScale(SK_Scalar1 * 200, -SK_Scalar1 * 200);
         fMatrix.postTranslate(SkIntToScalar(100), SkIntToScalar(300));
+
+        SkRect r = {
+            SkIntToScalar(350), SkIntToScalar(100),
+            SkIntToScalar(500), SkIntToScalar(130)
+        };
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setTextSize(SkIntToScalar(25));
+        for (int i = 0; i < 4; i++) {
+            fViews[i] = make_textview(this, r, paint);
+            r.offset(0, r.height());
+        }
+        this->setViews();
     }
     
 protected:
@@ -80,26 +123,27 @@ protected:
         return pt;
     }
 
-    SkPoint* hittest(SkScalar x, SkScalar y) {
+    int hittest(SkScalar x, SkScalar y) {
         SkPoint target = { x, y };
         SkPoint pts[2] = { fPts[1], fPts[2] };
         fMatrix.mapPoints(pts, 2);
         for (int i = 0; i < 2; i++) {
             if (SkPoint::Distance(pts[i], target) < SkIntToScalar(4)) {
-                return &fPts[i + 1];
+                return i + 1;
             }
         }
-        return NULL;
+        return -1;
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        fDragPt = hittest(x, y);
-        return fDragPt ? new Click(this) : NULL;
+        fDragIndex = hittest(x, y);
+        return fDragIndex >= 0 ? new Click(this) : NULL;
     }
     
     virtual bool onClick(Click* click) {
-        if (fDragPt) {
-            *fDragPt = invertPt(click->fCurr.fX, click->fCurr.fY);
+        if (fDragIndex >= 0) {
+            fPts[fDragIndex] = invertPt(click->fCurr.fX, click->fCurr.fY);
+            this->setViews();
             this->inval(NULL);
             return true;
         }
@@ -107,7 +151,7 @@ protected:
     }
     
 private:
-    SkPoint* fDragPt;
+    int fDragIndex;
 
     typedef SkView INHERITED;
 };

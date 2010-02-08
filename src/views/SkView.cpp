@@ -98,7 +98,11 @@ void SkView::draw(SkCanvas* canvas)
         if (fParent) {
             fParent->beforeChild(this, canvas);
         }
+
+        int sc = canvas->save();
 		this->onDraw(canvas);
+        canvas->restoreToCount(sc);
+
         if (fParent) {
             fParent->afterChild(this, canvas);
         }
