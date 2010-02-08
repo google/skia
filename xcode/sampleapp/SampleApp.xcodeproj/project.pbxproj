@@ -34,6 +34,8 @@
 		0001FB9A110E362F00C1D647 /* SkTextureCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0001FB93110E362F00C1D647 /* SkTextureCache.cpp */; };
 		000630AD10F4E8F000BC2C23 /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000630AC10F4E8EF00BC2C23 /* SampleText.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
+		0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0021F3A11120B29C0062682F /* SkStaticTextView.cpp */; };
+		0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00995E1510A079D80054AD6D /* SampleUnitMapper.cpp */; };
 		00244D1B10642BBA00B8F4D8 /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */; };
 		00244D97106A539500B8F4D8 /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */; };
 		00244DBB106A61B700B8F4D8 /* SampleGM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244DBA106A61B700B8F4D8 /* SampleGM.cpp */; };
@@ -44,6 +46,7 @@
 		00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
+		003EE652111239D5001AB759 /* SampleWarp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003EE651111239D5001AB759 /* SampleWarp.cpp */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
 		0041CDF30F009ED100695E8C /* SkImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF20F009ED100695E8C /* SkImageRef.cpp */; };
 		0041CDF60F009EED00695E8C /* SkImageRef_GlobalPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF50F009EED00695E8C /* SkImageRef_GlobalPool.cpp */; };
@@ -95,7 +98,6 @@
 		00EB4593104DBB18002B413E /* ForthTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EB4592104DBB18002B413E /* ForthTests.cpp */; };
 		00ED55F3104A10EB00F51FF8 /* StdWords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00ED55F2104A10EB00F51FF8 /* StdWords.cpp */; };
 		00F0441010B447160049C54C /* SamplePathClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C785D0F3B4C230004B142 /* SamplePathClip.cpp */; };
-		00F0442210B44AFB0049C54C /* SampleUnitMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00995E1510A079D80054AD6D /* SampleUnitMapper.cpp */; };
 		00F0444C10B4569B0049C54C /* SampleLineClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F042D410B1CE990049C54C /* SampleLineClipper.cpp */; };
 		00F45DDC10CE94CE00ABEA26 /* SampleTypeface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB00F01658C00A2D6EE /* SampleTypeface.cpp */; };
 		0156F80407C56A3000C6122B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156F80307C56A3000C6122B /* Foundation.framework */; };
@@ -198,6 +200,7 @@
 		000630AC10F4E8EF00BC2C23 /* SampleText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleText.cpp; path = ../../samplecode/SampleText.cpp; sourceTree = SOURCE_ROOT; };
 		0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleStrokePath.cpp; path = ../../samplecode/SampleStrokePath.cpp; sourceTree = SOURCE_ROOT; };
 		001B871D1042184D00C84ED4 /* Forth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Forth.cpp; path = ../../forth/Forth.cpp; sourceTree = SOURCE_ROOT; };
+		0021F3A11120B29C0062682F /* SkStaticTextView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkStaticTextView.cpp; path = ../../src/views/SkStaticTextView.cpp; sourceTree = SOURCE_ROOT; };
 		00244DBA106A61B700B8F4D8 /* SampleGM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGM.cpp; path = ../../samplecode/SampleGM.cpp; sourceTree = SOURCE_ROOT; };
 		00244DC7106A630100B8F4D8 /* bitmapfilters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bitmapfilters.cpp; path = ../../gm/bitmapfilters.cpp; sourceTree = SOURCE_ROOT; };
 		00244DC8106A630100B8F4D8 /* filltypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = filltypes.cpp; path = ../../gm/filltypes.cpp; sourceTree = SOURCE_ROOT; };
@@ -213,6 +216,7 @@
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		003145310FB9B48F00B10956 /* SampleShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShapes.cpp; path = ../../samplecode/SampleShapes.cpp; sourceTree = SOURCE_ROOT; };
+		003EE651111239D5001AB759 /* SampleWarp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleWarp.cpp; path = ../../samplecode/SampleWarp.cpp; sourceTree = SOURCE_ROOT; };
 		0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleImageDir.cpp; path = ../../samplecode/SampleImageDir.cpp; sourceTree = SOURCE_ROOT; };
 		0041CDF20F009ED100695E8C /* SkImageRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageRef.cpp; path = ../../src/images/SkImageRef.cpp; sourceTree = SOURCE_ROOT; };
 		0041CDF50F009EED00695E8C /* SkImageRef_GlobalPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkImageRef_GlobalPool.cpp; path = ../../src/images/SkImageRef_GlobalPool.cpp; sourceTree = SOURCE_ROOT; };
@@ -314,6 +318,7 @@
 		00003C610EFC2287000FF73A /* samples */ = {
 			isa = PBXGroup;
 			children = (
+				003EE651111239D5001AB759 /* SampleWarp.cpp */,
 				000630AC10F4E8EF00BC2C23 /* SampleText.cpp */,
 				00281C771083CFA100BCCB06 /* SampleAnimator.cpp */,
 				0086CBF010A8661F00C8BF27 /* SampleAvoid.cpp */,
@@ -397,6 +402,7 @@
 				00003C710EFC22CE000FF73A /* SkView.cpp */,
 				00003C720EFC22CE000FF73A /* SkViewPriv.cpp */,
 				00003C730EFC22CE000FF73A /* SkWindow.cpp */,
+				0021F3A11120B29C0062682F /* SkStaticTextView.cpp */,
 			);
 			name = views;
 			sourceTree = "<group>";
@@ -729,7 +735,6 @@
 				0086CBF110A8661F00C8BF27 /* SampleAvoid.cpp in Sources */,
 				0086CC1C10A9B6A600C8BF27 /* SamplePicture.cpp in Sources */,
 				00F0441010B447160049C54C /* SamplePathClip.cpp in Sources */,
-				00F0442210B44AFB0049C54C /* SampleUnitMapper.cpp in Sources */,
 				00F0444C10B4569B0049C54C /* SampleLineClipper.cpp in Sources */,
 				00575A1810BB02CF00A43B94 /* SampleEffects.cpp in Sources */,
 				00575A3B10BB05FE00A43B94 /* SampleArc.cpp in Sources */,
@@ -747,6 +752,9 @@
 				0001FB98110E362F00C1D647 /* SkGLState.cpp in Sources */,
 				0001FB99110E362F00C1D647 /* SkGLTextCache.cpp in Sources */,
 				0001FB9A110E362F00C1D647 /* SkTextureCache.cpp in Sources */,
+				003EE652111239D5001AB759 /* SampleWarp.cpp in Sources */,
+				0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */,
+				0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
