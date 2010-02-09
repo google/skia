@@ -123,6 +123,18 @@ public:
     */
     bool isRect(SkRect* rect) const;
 
+    /** Return the number of points in the path
+     */
+    int countPoints() const {
+        return this->getPoints(NULL, 0);
+    }
+
+    /** Return the point at the specified index. If the index is out of range
+         (i.e. is not 0 <= index < countPoints()) then the returned coordinates
+         will be (0,0)
+     */
+    SkPoint getPoint(int index) const;
+
     /** Returns the number of points in the path. Up to max points are copied.
      
         @param points If not null, receives up to max points
