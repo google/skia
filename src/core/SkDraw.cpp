@@ -1042,12 +1042,21 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
         return;
     }
 
-    // do I need to call the bounder first??? 
     if (clipped_out(matrix, *fClip, bitmap.width(), bitmap.height())) {
         return;
     }
 
-    // only lock the pixels if we passed the clip test
+    if (fBounder && just_translate(matrix, bitmap)) {
+        SkIRect ir;
+        int32_t ix = SkScalarRound(matrix.getTranslateX());
+        int32_t iy = SkScalarRound(matrix.getTranslateY());
+        ir.set(ix, iy, ix + bitmap.width(), iy + bitmap.height());
+        if (!fBounder->doIRect(ir)) {
+            return;
+        }
+    }
+
+    // only lock the pixels if we passed the clip and bounder tests
     SkAutoLockPixels alp(bitmap);
     // after the lock, check if we are valid
     if (!bitmap.readyToDraw()) {
@@ -1066,10 +1075,6 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
 
             SkIRect    ir;
             ir.set(ix, iy, ix + bitmap.width(), iy + bitmap.height());
-            
-            if (fBounder && !fBounder->doIRect(ir)) {
-                return;
-            }
 
             SkRegion::Cliperator iter(*fClip, ir);
             const SkIRect&       cr = iter.rect();
