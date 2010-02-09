@@ -31,6 +31,12 @@ static inline float sk_float_pow(float base, float exp) {
                                   static_cast<double>(exp)));
 }
 
+static inline float sk_float_copysign(float x, float y) {
+    int32_t xbits = SkFloat2Bits(x);
+    int32_t ybits = SkFloat2Bits(y);
+    return SkBits2Float((xbits & 0x7FFFFFFF) | (ybits & 0x80000000));
+}
+
 #ifdef SK_BUILD_FOR_WINCE
     #define sk_float_sqrt(x)        (float)::sqrt(x)
     #define sk_float_sin(x)         (float)::sin(x)

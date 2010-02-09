@@ -64,6 +64,11 @@ static inline int32_t SkApplySign(int32_t n, int32_t sign) {
     return (n ^ sign) - sign;
 }
 
+/** Return x with the sign of y */
+static inline int32_t SkCopySign32(int32_t x, int32_t y) {
+    return SkApplySign(x, SkExtractSign(x ^ y));
+}
+
 /** Returns (value < 0 ? 0 : value) efficiently (i.e. no compares or branches)
 */
 static inline int SkClampPos(int value) {
