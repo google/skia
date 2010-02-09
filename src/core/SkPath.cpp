@@ -184,6 +184,13 @@ int SkPath::getPoints(SkPoint copy[], int max) const {
     return count;
 }
 
+SkPoint SkPath::getPoint(int index) const {
+    if ((unsigned)index < (unsigned)fPts.count()) {
+        return fPts[index];
+    }
+    return SkPoint::Make(0, 0);
+}
+
 void SkPath::getLastPt(SkPoint* lastPt) const {
     SkDEBUGCODE(this->validate();)
 
