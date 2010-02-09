@@ -587,7 +587,29 @@ static int build_arc_points(const SkRect& oval, SkScalar startAngle,
     start.fY = SkScalarSinCos(SkDegreesToRadians(startAngle), &start.fX);
     stop.fY = SkScalarSinCos(SkDegreesToRadians(startAngle + sweepAngle),
                              &stop.fX);
-        
+
+    /*  If the sweep angle is nearly (but less than) 360, then due to precision
+        loss in radians-conversion and/or sin/cos, we may end up with coincident
+        vectors, which will fool SkBuildQuadArc into doing nothing (bad) instead
+        of drawing a nearly complete circle (good).
+             e.g. canvas.drawArc(0, 359.99, ...)
+             -vs- canvas.drawArc(0, 359.9, ...)
+        We try to detect this edge case, and tweak the stop vector
+     */
+    if (start == stop) {
+        SkScalar sw = SkScalarAbs(sweepAngle);
+        if (sw < SkIntToScalar(360) && sw > SkIntToScalar(359)) {
+            SkScalar stopRad = SkDegreesToRadians(startAngle + sweepAngle);
+            // make a guess at a tiny angle (in radians) to tweak by
+            SkScalar deltaRad = SkScalarCopySign(SK_Scalar1/512, sweepAngle);
+            // not sure how much will be enough, so we use a loop
+            do {
+                stopRad -= deltaRad;
+                stop.fY = SkScalarSinCos(stopRad, &stop.fX);
+            } while (start == stop);
+        }
+    }
+
     SkMatrix    matrix;
     
     matrix.setScale(SkScalarHalf(oval.width()), SkScalarHalf(oval.height()));

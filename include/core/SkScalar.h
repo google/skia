@@ -91,6 +91,9 @@
     /** Returns the absolute value of the specified SkScalar
     */
     #define SkScalarAbs(x)          sk_float_abs(x)
+    /** Return x with the sign of y
+     */
+    #define SkScalarCopySign(x, y)  sk_float_copysign(x, y)
     /** Returns the value pinned between 0 and max inclusive
     */
     inline SkScalar SkScalarClampMax(SkScalar x, SkScalar max) {
@@ -189,6 +192,7 @@
     #define SkScalarCeil(x)         SkFixedCeil(x)
     #define SkScalarFloor(x)        SkFixedFloor(x)
     #define SkScalarAbs(x)          SkFixedAbs(x)
+    #define SkScalarCopySign(x, y)  SkCopySign32(x, y)
     #define SkScalarClampMax(x, max) SkClampMax(x, max)
     #define SkScalarPin(x, min, max) SkPin32(x, min, max)
     #define SkScalarSquare(x)       SkFixedSquare(x)
