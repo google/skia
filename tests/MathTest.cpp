@@ -170,6 +170,46 @@ static void test_muldiv255(skiatest::Reporter* reporter) {
 #endif
 }
 
+static void test_copysign(skiatest::Reporter* reporter) {
+    static const int32_t gTriples[] = {
+        // x, y, expected result
+        0, 0, 0,
+        0, 1, 0,
+        0, -1, 0,
+        1, 0, 1,
+        1, 1, 1,
+        1, -1, -1,
+        -1, 0, 1,
+        -1, 1, 1,
+        -1, -1, -1,
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gTriples); i += 3) {
+        REPORTER_ASSERT(reporter,
+                        SkCopySign32(gTriples[i], gTriples[i+1]) == gTriples[i+2]);
+#ifdef SK_CAN_USE_FLOAT
+        float x = (float)gTriples[i];
+        float y = (float)gTriples[i+1];
+        float expected = (float)gTriples[i+2];
+        REPORTER_ASSERT(reporter, sk_float_copysign(x, y) == expected);
+#endif
+    }
+
+    SkRandom rand;
+    for (int j = 0; j < 1000; j++) {
+        int ix = rand.nextS();
+        REPORTER_ASSERT(reporter, SkCopySign32(ix, ix) == ix);
+        REPORTER_ASSERT(reporter, SkCopySign32(ix, -ix) == -ix);
+        REPORTER_ASSERT(reporter, SkCopySign32(-ix, ix) == ix);
+        REPORTER_ASSERT(reporter, SkCopySign32(-ix, -ix) == -ix);
+
+        SkScalar sx = rand.nextSScalar1();
+        REPORTER_ASSERT(reporter, SkScalarCopySign(sx, sx) == sx);
+        REPORTER_ASSERT(reporter, SkScalarCopySign(sx, -sx) == -sx);
+        REPORTER_ASSERT(reporter, SkScalarCopySign(-sx, sx) == sx);
+        REPORTER_ASSERT(reporter, SkScalarCopySign(-sx, -sx) == -sx);
+    }
+}
+
 static void TestMath(skiatest::Reporter* reporter) {
     int         i;
     int32_t     x;
@@ -196,6 +236,7 @@ static void TestMath(skiatest::Reporter* reporter) {
 #endif
 
     test_muldiv255(reporter);
+    test_copysign(reporter);
 
     {
         SkScalar x = SK_ScalarNaN;
