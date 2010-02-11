@@ -115,11 +115,12 @@ public:
         kARGB_ClipLayer_SaveFlag    = 0x1F
     };
 
-    /** This call saves the current matrix and clip information, and pushes a
+    /** This call saves the current matrix, clip, and drawFilter, and pushes a
         copy onto a private stack. Subsequent calls to translate, scale,
-        rotate, skew, concat or clipRect, clipPath all operate on this copy.
-        When the balancing call to restore() is made, this copy is deleted and
-        the previous matrix/clip state is restored.
+        rotate, skew, concat or clipRect, clipPath, and setDrawFilter all
+        operate on this copy.
+        When the balancing call to restore() is made, the previous matrix, clip,
+        and drawFilter are restored.
         @return The value to pass to restoreToCount() to balance this save()
     */
     virtual int save(SaveFlags flags = kMatrixClip_SaveFlag);
@@ -127,10 +128,7 @@ public:
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
         the balancing call to restore() is made is that offscreen transfered to
-        the canvas (or the previous layer). Subsequent calls to translate,
-        scale, rotate, skew, concat or clipRect, clipPath all operate on this
-        copy. When the balancing call to restore() is made, this copy is deleted
-        and the previous matrix/clip state is restored.
+        the canvas (or the previous layer).
         @param bounds (may be null) the maximum size the offscreen bitmap needs
                       to be (in local coordinates)
         @param paint (may be null) This is copied, and is applied to the
@@ -144,10 +142,7 @@ public:
     /** This behaves the same as save(), but in addition it allocates an
         offscreen bitmap. All drawing calls are directed there, and only when
         the balancing call to restore() is made is that offscreen transfered to
-        the canvas (or the previous layer). Subsequent calls to translate,
-        scale, rotate, skew, concat or clipRect, clipPath all operate on this
-        copy. When the balancing call to restore() is made, this copy is deleted
-        and the previous matrix/clip state is restored.
+        the canvas (or the previous layer).
         @param bounds (may be null) the maximum size the offscreen bitmap needs
                       to be (in local coordinates)
         @param alpha  This is applied to the offscreen when restore() is called.
@@ -158,8 +153,9 @@ public:
                        SaveFlags flags = kARGB_ClipLayer_SaveFlag);
 
     /** This call balances a previous call to save(), and is used to remove all
-        modifications to the matrix/clip state since the last save call. It is
-        an error to call restore() more times than save() was called.
+        modifications to the matrix/clip/drawFilter state since the last save
+        call.
+        It is an error to call restore() more times than save() was called.
     */
     virtual void restore();
 
@@ -653,8 +649,7 @@ public:
     virtual SkBounder* setBounder(SkBounder* bounder);
  
     /** Get the current filter object. The filter's reference count is not
-        affected. The filter is part of the state this is affected by
-        save/restore.
+        affected. The filter is saved/restored, just like the matrix and clip.
         @return the canvas' filter (or NULL).
     */
     SkDrawFilter* getDrawFilter() const;
@@ -662,8 +657,8 @@ public:
     /** Set the new filter (or NULL). Pass NULL to clear any existing filter.
         As a convenience, the parameter is returned. If an existing filter
         exists, its refcnt is decrement. If the new filter is not null, its
-        refcnt is incremented. The filter is part of the state this is affected
-        by save/restore.
+        refcnt is incremented. The filter is saved/restored, just like the
+        matrix and clip.
         @param filter the new filter (or NULL)
         @return the new filter
     */
