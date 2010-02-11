@@ -70,8 +70,14 @@ typedef SkTSize<int32_t> SkISize;
 #include "SkScalar.h"
 
 struct SkSize : public SkTSize<SkScalar> {
-    SkSize(const SkTSize<SkScalar& src) : fWidth(src.fWidth), fHeight(src.fHeight) {}
-
+    static SkSize Make(SkScalar w, SkScalar h) {
+        SkSize s;
+        s.fWidth = w;
+        s.fHeight = h;
+        return s;
+    }
+    
+    
     SkSize& operator=(const SkISize& src) {
         this->set(SkIntToScalar(src.fWidth), SkIntToScalar(src.fHeight));
         return *this;
