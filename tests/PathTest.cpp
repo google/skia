@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "SkPath.h"
+#include "SkSize.h"
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
                                 const SkRect& bounds) {
@@ -17,6 +18,16 @@ static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
 }
 
 static void TestPath(skiatest::Reporter* reporter) {
+    {
+        SkSize size;
+        size.fWidth = 3.4f;
+        size.width();
+        size = SkSize::Make(3,4);
+        SkISize isize = SkISize::Make(3,4);
+    }
+
+    SkTSize<SkScalar>::Make(3,4);
+
     SkPath  p, p2;
     SkRect  bounds, bounds2;
 

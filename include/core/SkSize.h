@@ -7,6 +7,13 @@ template <typename T> struct SkTSize {
     T fWidth;
     T fHeight;
 
+    static SkTSize Make(T w, T h) {
+        SkTSize s;
+        s.fWidth = w;
+        s.fHeight = h;
+        return s;
+    }
+
     void set(T w, T h) {
         fWidth = w;
         fHeight = h;
@@ -58,11 +65,13 @@ static inline bool operator!=(const SkTSize<T>& a, const SkTSize<T>& b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct SkISize : public SkTSize<int32_t> {};
+typedef SkTSize<int32_t> SkISize;
 
 #include "SkScalar.h"
 
 struct SkSize : public SkTSize<SkScalar> {
+    SkSize(const SkTSize<SkScalar& src) : fWidth(src.fWidth), fHeight(src.fHeight) {}
+
     SkSize& operator=(const SkISize& src) {
         this->set(SkIntToScalar(src.fWidth), SkIntToScalar(src.fHeight));
         return *this;
