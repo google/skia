@@ -4,6 +4,7 @@ SOURCE := \
 	SkCullPoints.cpp \
 	SkDumpCanvas.cpp \
 	SkInterpolator.cpp \
+    SkLayer.cpp \
 	SkNinePatch.cpp \
     SkNWayCanvas.cpp \
     SkParse.cpp \
