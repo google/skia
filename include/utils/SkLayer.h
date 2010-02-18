@@ -20,6 +20,7 @@
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
 #include "SkColor.h"
+#include "SkMatrix.h"
 #include "SkPoint.h"
 #include "SkRect.h"
 #include "SkSize.h"
@@ -60,16 +61,36 @@ public:
     SkLayer(const SkLayer&);
     virtual ~SkLayer();
 
-    // setters
-
-    void setSize(SkScalar w, SkScalar h) { m_size.set(w, h); }
-    void setOpacity(SkScalar opacity) { m_opacity = opacity; }
+    // deprecated
     void setTranslation(SkScalar x, SkScalar y) { m_translation.set(x, y); }
     void setRotation(SkScalar a) { m_angleTransform = a; m_doRotation = true; }
     void setScale(SkScalar x, SkScalar y) { m_scale.set(x, y); }
+    SkPoint position() const { return m_position; }
+    SkPoint translation() const { return m_translation; }
+    SkSize  size() const { return m_size; }
+    SkRect  bounds() const {
+        SkRect rect;
+        rect.set(m_position.fX, m_position.fY,
+                 m_position.fX + m_size.width(),
+                 m_position.fY + m_size.height());
+        rect.offset(m_translation.fX, m_translation.fY);
+        return rect;
+    }
+    
+    const SkSize& getSize() const { return m_size; }
+    void setSize(SkScalar w, SkScalar h) { m_size.set(w, h); }
+
+    SkScalar getOpacity() const { return m_opacity; }
+    void setOpacity(SkScalar opacity) { m_opacity = opacity; }
+
+    const SkPoint& getPosition() const { return m_position; }
     void setPosition(SkScalar x, SkScalar y) { m_position.set(x, y); }
+
+    const SkPoint& getAnchorPoint() const { return m_anchorPoint; }
     void setAnchorPoint(SkScalar x, SkScalar y) { m_anchorPoint.set(x, y); }
+
     virtual void setBackgroundColor(SkColor color) { m_backgroundColor = color; m_backgroundColorSet = true; }
+
     void setFixedPosition(SkLength left, SkLength top, SkLength right, SkLength bottom) {
       m_fixedLeft = left;
       m_fixedTop = top;
@@ -78,19 +99,11 @@ public:
       m_isFixed = true;
     }
 
-    // getters
+    const SkMatrix& getMatrix() const { return fMatrix; }
+    void setMatrix(const SkMatrix&);
 
-    SkPoint position() const { return m_position; }
-    SkPoint translation() const { return m_translation; }
-    SkSize  size() const { return m_size; }
-    SkRect  bounds() const {
-      SkRect rect;
-      rect.set(m_position.fX, m_position.fY,
-               m_position.fX + m_size.width(),
-               m_position.fY + m_size.height());
-      rect.offset(m_translation.fX, m_translation.fY);
-      return rect;
-    }
+    const SkMatrix& getChildrenMatrix() const { return fChildrenMatrix; }
+    void setChildrenMatrix(const SkMatrix&);
 
     // children
 
@@ -101,7 +114,15 @@ public:
 
     // paint method
 
-    virtual void paintOn(SkPoint offset, SkSize size, SkScalar scale, SkCanvas*) = 0;
+    virtual void draw(SkCanvas*, SkScalar opacity, const SkRect* viewPort);
+
+protected:
+    virtual void onSetupCanvas(SkCanvas*, SkScalar opacity, const SkRect*);
+    virtual void onDraw(SkCanvas*, SkScalar opacity, const SkRect* viewPort);
+
+private:
+    SkMatrix    fMatrix;
+    SkMatrix    fChildrenMatrix;
 
 public:
 

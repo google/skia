@@ -1,4 +1,5 @@
 #include "SkLayer.h"
+#include "SkCanvas.h"
 
 SkLayer::SkLayer() {
     m_doRotation = false;
@@ -15,6 +16,9 @@ SkLayer::SkLayer() {
     m_scale.set(1, 1);
 
     m_backgroundColor = 0;
+
+    fMatrix.reset();
+    fChildrenMatrix.reset();
 }
 
 SkLayer::SkLayer(const SkLayer& src) {
@@ -36,6 +40,9 @@ SkLayer::SkLayer(const SkLayer& src) {
     m_fixedBottom = src.m_fixedBottom;
 
     m_backgroundColor = src.m_backgroundColor;
+
+    fMatrix = src.fMatrix;
+    fChildrenMatrix = src.fChildrenMatrix;
 }
 
 SkLayer::~SkLayer() {
@@ -64,4 +71,56 @@ void SkLayer::removeChildren() {
     m_children.reset();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+void SkLayer::setMatrix(const SkMatrix& matrix) {
+    fMatrix = matrix;
+}
+
+void SkLayer::setChildrenMatrix(const SkMatrix& matrix) {
+    fChildrenMatrix = matrix;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkLayer::onSetupCanvas(SkCanvas* canvas, SkScalar, const SkRect*) {
+    SkScalar tx = m_position.fX;
+    SkScalar ty = m_position.fY;
+    canvas->translate(tx, ty);
+
+    // now apply our matrix about the anchorPoint
+    tx = SkScalarMul(m_anchorPoint.fX, m_size.width());
+    ty = SkScalarMul(m_anchorPoint.fY, m_size.height());
+    canvas->translate(tx, ty);
+    canvas->concat(this->getMatrix());
+    canvas->translate(-tx, -ty);
+}
+
+void SkLayer::onDraw(SkCanvas*, SkScalar opacity, const SkRect* viewport) {}
+
+void SkLayer::draw(SkCanvas* canvas, SkScalar opacity, const SkRect* viewport) {
+#if 0
+    SkDebugf("--- drawlayer %p anchor [%g %g] scale [%g %g]\n", this, m_anchorPoint.fX, m_anchorPoint.fY,
+             m_scale.fX, m_scale.fY);
+#endif
+
+    opacity = SkScalarMul(opacity, this->getOpacity());
+    if (opacity <= 0 || this->getSize().isEmpty()) {
+        return;
+    }
+
+    SkAutoCanvasRestore acr(canvas, false);
+    canvas->save(SkCanvas::kMatrix_SaveFlag);
+
+    this->onSetupCanvas(canvas, opacity, viewport);
+    this->onDraw(canvas, opacity, viewport);
+
+    int count = this->countChildren();
+    if (count > 0) {
+        canvas->concat(this->getChildrenMatrix());
+        for (int i = 0; i < count; i++) {
+            this->getChild(i)->draw(canvas, opacity, viewport);
+        }
+    }
+}
 
