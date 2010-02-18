@@ -38,13 +38,13 @@ public:
      
         Avoid: In this mode, drawing is allowed only on destination pixels that
                are different from the op-color.
-               Tolerance near 0: avoid anything close to the op-color
-               Tolerance near 255: avoid only colors very close to the op-color
+               Tolerance near 0: avoid any colors even remotely similar to the op-color
+               Tolerance near 255: avoid only colors nearly identical to the op-color
      
         Target: In this mode, drawing only occurs on destination pixels that
                 are similar to the op-color
-                Tolerance near 0: draw on colors that are very close to op-color
-                Tolerance near 255: draw on colors that  to the op-color
+                Tolerance near 0: draw only on colors that are nearly identical to the op-color
+                Tolerance near 255: draw on any colors even remotely similar to the op-color
      */
     SkAvoidXfermode(SkColor opColor, U8CPU tolerance, Mode mode);
 
