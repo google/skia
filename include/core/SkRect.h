@@ -40,12 +40,11 @@ struct SkIRect {
     */
     int height() const { return fBottom - fTop; }
 
-    friend int operator==(const SkIRect& a, const SkIRect& b)
-    {
+    friend int operator==(const SkIRect& a, const SkIRect& b) {
         return !memcmp(&a, &b, sizeof(a));
     }
-    friend int operator!=(const SkIRect& a, const SkIRect& b)
-    {
+
+    friend int operator!=(const SkIRect& a, const SkIRect& b) {
         return memcmp(&a, &b, sizeof(a));
     }
 
@@ -58,8 +57,7 @@ struct SkIRect {
     */
     void setEmpty() { memset(this, 0, sizeof(*this)); }
 
-    void set(int32_t left, int32_t top, int32_t right, int32_t bottom)
-    {
+    void set(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         fLeft   = left;
         fTop    = top;
         fRight  = right;
@@ -69,32 +67,34 @@ struct SkIRect {
     /** Offset set the rectangle by adding dx to its left and right,
         and adding dy to its top and bottom.
     */
-    void offset(int32_t dx, int32_t dy)
-    {
+    void offset(int32_t dx, int32_t dy) {
         fLeft   += dx;
         fTop    += dy;
         fRight  += dx;
         fBottom += dy;
     }
 
+    void offset(const SkIPoint& delta) {
+        this->offset(delta.fX, delta.fY);
+    }
+
     /** Inset the rectangle by (dx,dy). If dx is positive, then the sides are moved inwards,
         making the rectangle narrower. If dx is negative, then the sides are moved outwards,
         making the rectangle wider. The same hods true for dy and the top and bottom.
     */
-    void inset(int32_t dx, int32_t dy)
-    {
+    void inset(int32_t dx, int32_t dy) {
         fLeft   += dx;
         fTop    += dy;
         fRight  -= dx;
         fBottom -= dy;
     }
+
     /** Returns true if (x,y) is inside the rectangle and the rectangle is not
         empty. The left and top are considered to be inside, while the right
         and bottom are not. Thus for the rectangle (0, 0, 5, 10), the
         points (0,0) and (0,9) are inside, while (-1,0) and (5,9) are not.
     */
-    bool contains(int32_t x, int32_t y) const
-    {
+    bool contains(int32_t x, int32_t y) const {
         return  (unsigned)(x - fLeft) < (unsigned)(fRight - fLeft) &&
                 (unsigned)(y - fTop) < (unsigned)(fBottom - fTop);
     }
@@ -102,8 +102,7 @@ struct SkIRect {
     /** Returns true if the 4 specified sides of a rectangle are inside or equal to this rectangle.
         If either rectangle is empty, contains() returns false.
     */
-    bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const
-    {
+    bool contains(int32_t left, int32_t top, int32_t right, int32_t bottom) const {
         return  left < right && top < bottom && !this->isEmpty() && // check for empties
                 fLeft <= left && fTop <= top &&
                 fRight >= right && fBottom >= bottom;
@@ -111,8 +110,7 @@ struct SkIRect {
 
     /** Returns true if the specified rectangle r is inside or equal to this rectangle.
     */
-    bool contains(const SkIRect& r) const
-    {
+    bool contains(const SkIRect& r) const {
         return  !r.isEmpty() && !this->isEmpty() &&     // check for empties
                 fLeft <= r.fLeft && fTop <= r.fTop &&
                 fRight >= r.fRight && fBottom >= r.fBottom;
@@ -125,8 +123,7 @@ struct SkIRect {
 		specified rectangles are non-empty.
     */
     bool containsNoEmptyCheck(int32_t left, int32_t top,
-							  int32_t right, int32_t bottom) const
-    {
+							  int32_t right, int32_t bottom) const {
 		SkASSERT(fLeft < fRight && fTop < fBottom);
         SkASSERT(left < right && top < bottom);
 
@@ -138,8 +135,7 @@ struct SkIRect {
         intersection, otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(const SkIRect& r)
-    {
+    bool intersect(const SkIRect& r) {
         SkASSERT(&r);
         return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
@@ -148,14 +144,12 @@ struct SkIRect {
         that intersection, otherwise return false and do not change this
         rectangle. If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(const SkIRect& a, const SkIRect& b)
-    {
+    bool intersect(const SkIRect& a, const SkIRect& b) {
         SkASSERT(&a && &b);
         
         if (!a.isEmpty() && !b.isEmpty() &&
-            a.fLeft < b.fRight && b.fLeft < a.fRight &&
-            a.fTop < b.fBottom && b.fTop < a.fBottom)
-        {
+                a.fLeft < b.fRight && b.fLeft < a.fRight &&
+                a.fTop < b.fBottom && b.fTop < a.fBottom) {
             fLeft   = SkMax32(a.fLeft,   b.fLeft);
             fTop    = SkMax32(a.fTop,    b.fTop);
             fRight  = SkMin32(a.fRight,  b.fRight);
@@ -171,14 +165,12 @@ struct SkIRect {
         If either is, then the return result is undefined. In the debug build,
         we assert that both rectangles are non-empty.
     */
-    bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b)
-    {
+    bool intersectNoEmptyCheck(const SkIRect& a, const SkIRect& b) {
         SkASSERT(&a && &b);
         SkASSERT(!a.isEmpty() && !b.isEmpty());
         
         if (a.fLeft < b.fRight && b.fLeft < a.fRight &&
-            a.fTop < b.fBottom && b.fTop < a.fBottom)
-        {
+                a.fTop < b.fBottom && b.fTop < a.fBottom) {
             fLeft   = SkMax32(a.fLeft,   b.fLeft);
             fTop    = SkMax32(a.fTop,    b.fTop);
             fRight  = SkMin32(a.fRight,  b.fRight);
@@ -193,11 +185,9 @@ struct SkIRect {
         otherwise return false and do not change this rectangle.
         If either rectangle is empty, do nothing and return false.
     */
-    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom)
-    {
+    bool intersect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         if (left < right && top < bottom && !this->isEmpty() &&
-            fLeft < right && left < fRight && fTop < bottom && top < fBottom)
-        {
+                fLeft < right && left < fRight && fTop < bottom && top < fBottom) {
             if (fLeft < left) fLeft = left;
             if (fTop < top) fTop = top;
             if (fRight > right) fRight = right;
@@ -209,8 +199,7 @@ struct SkIRect {
     
     /** Returns true if a and b are not empty, and they intersect
     */
-    static bool Intersects(const SkIRect& a, const SkIRect& b)
-    {
+    static bool Intersects(const SkIRect& a, const SkIRect& b) {
         return  !a.isEmpty() && !b.isEmpty() &&              // check for empties
                 a.fLeft < b.fRight && b.fLeft < a.fRight &&
                 a.fTop < b.fBottom && b.fTop < a.fBottom;
@@ -226,8 +215,7 @@ struct SkIRect {
         If this rectangle is empty, just set it to the specified rectangle. If the specified
         rectangle is empty, do nothing.
     */
-    void join(const SkIRect& r)
-    {
+    void join(const SkIRect& r) {
         this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
 
@@ -252,12 +240,11 @@ struct SkRect {
     SkScalar    centerX() const { return SkScalarHalf(fLeft + fRight); }
     SkScalar    centerY() const { return SkScalarHalf(fTop + fBottom); }
 
-    friend int operator==(const SkRect& a, const SkRect& b)
-    {
+    friend int operator==(const SkRect& a, const SkRect& b) {
         return !memcmp(&a, &b, sizeof(a));
     }
-    friend int operator!=(const SkRect& a, const SkRect& b)
-    {
+
+    friend int operator!=(const SkRect& a, const SkRect& b) {
         return memcmp(&a, &b, sizeof(a));
     }
 
@@ -269,16 +256,14 @@ struct SkRect {
     */
     void setEmpty() { memset(this, 0, sizeof(*this)); }
 
-    void set(const SkIRect& src)
-    {
+    void set(const SkIRect& src) {
         fLeft   = SkIntToScalar(src.fLeft);
         fTop    = SkIntToScalar(src.fTop);
         fRight  = SkIntToScalar(src.fRight);
         fBottom = SkIntToScalar(src.fBottom);
     }
 
-    void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
-    {
+    void set(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
         fLeft   = left;
         fTop    = top;
         fRight  = right;
@@ -304,20 +289,22 @@ struct SkRect {
     /** Offset set the rectangle by adding dx to its left and right,
         and adding dy to its top and bottom.
     */
-    void offset(SkScalar dx, SkScalar dy)
-    {
+    void offset(SkScalar dx, SkScalar dy) {
         fLeft   += dx;
         fTop    += dy;
         fRight  += dx;
         fBottom += dy;
     }   
 
+    void offset(const SkPoint& delta) {
+        this->offset(delta.fX, delta.fY);
+    }
+
     /** Inset the rectangle by (dx,dy). If dx is positive, then the sides are moved inwards,
         making the rectangle narrower. If dx is negative, then the sides are moved outwards,
         making the rectangle wider. The same hods true for dy and the top and bottom.
     */
-    void inset(SkScalar dx, SkScalar dy)
-    {
+    void inset(SkScalar dx, SkScalar dy)  {
         fLeft   += dx;
         fTop    += dy;
         fRight  -= dx;
@@ -340,8 +327,7 @@ struct SkRect {
     /** Return true if this rectangle is not empty, and the specified sides of
         a rectangle are not empty, and they intersect.
     */
-    bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const
-    {
+    bool intersects(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) const {
         return // first check that both are not empty
                left < right && top < bottom &&
                fLeft < fRight && fTop < fBottom &&
@@ -352,8 +338,7 @@ struct SkRect {
     
     /** Return true if rectangles a and b are not empty and intersect.
         */
-    static bool Intersects(const SkRect& a, const SkRect& b)
-    {
+    static bool Intersects(const SkRect& a, const SkRect& b) {
         return  !a.isEmpty() && !b.isEmpty() &&             // check for empties
         a.fLeft < b.fRight && b.fLeft < a.fRight &&
         a.fTop < b.fBottom && b.fTop < a.fBottom;
@@ -369,8 +354,7 @@ struct SkRect {
         If this rectangle is empty, just set it to the specified rectangle. If the specified
         rectangle is empty, do nothing.
     */
-    void join(const SkRect& r)
-    {
+    void join(const SkRect& r) {
         this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
     }
     
@@ -380,8 +364,7 @@ struct SkRect {
         while (-1,0) and (5,9) are not.
         If this rectangle is empty, return false.
     */
-    bool contains(const SkPoint& p) const
-    {
+    bool contains(const SkPoint& p) const {
         return  !this->isEmpty() &&
                 fLeft <= p.fX && p.fX < fRight &&
                 fTop <= p.fY && p.fY < fBottom;
@@ -393,8 +376,7 @@ struct SkRect {
         while (-1,0) and (5,9) are not.
         If this rectangle is empty, return false.
     */
-    bool contains(SkScalar x, SkScalar y) const
-    {
+    bool contains(SkScalar x, SkScalar y) const {
         return  !this->isEmpty() &&
                 fLeft <= x && x < fRight &&
                 fTop <= y && y < fBottom;
@@ -403,8 +385,7 @@ struct SkRect {
     /** Return true if this rectangle contains r.
         If either rectangle is empty, return false.
     */
-    bool contains(const SkRect& r) const
-    {
+    bool contains(const SkRect& r) const {
         return  !r.isEmpty() && !this->isEmpty() &&     // check for empties
                 fLeft <= r.fLeft && fTop <= r.fTop &&
                 fRight >= r.fRight && fBottom >= r.fBottom;
@@ -413,8 +394,7 @@ struct SkRect {
     /** Set the dst integer rectangle by rounding this rectangle's coordinates
         to their nearest integer values.
     */
-    void round(SkIRect* dst) const
-    {
+    void round(SkIRect* dst) const {
         SkASSERT(dst);
         dst->set(SkScalarRound(fLeft), SkScalarRound(fTop), SkScalarRound(fRight), SkScalarRound(fBottom));
     }
@@ -422,8 +402,7 @@ struct SkRect {
     /** Set the dst integer rectangle by rounding "out" this rectangle, choosing the floor of top and left,
         and the ceiling of right and bototm.
     */
-    void roundOut(SkIRect* dst) const
-    {
+    void roundOut(SkIRect* dst) const {
         SkASSERT(dst);
         dst->set(SkScalarFloor(fLeft), SkScalarFloor(fTop), SkScalarCeil(fRight), SkScalarCeil(fBottom));
     }
