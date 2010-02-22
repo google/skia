@@ -1,5 +1,6 @@
 #include "SkBenchmark.h"
 #include "SkPaint.h"
+#include "SkParse.h"
 
 template BenchRegistry* BenchRegistry::gHead;
 
@@ -42,8 +43,26 @@ const char* SkBenchmark::findDefine(const char* key) const {
     return NULL;
 }
 
+bool SkBenchmark::findDefine32(const char* key, int32_t* value) const {
+    const char* valueStr = this->findDefine(key);
+    if (valueStr) {
+        SkParse::FindS32(valueStr, value);
+        return true;
+    }
+    return false;
+}
+
+bool SkBenchmark::findDefineScalar(const char* key, SkScalar* value) const {
+    const char* valueStr = this->findDefine(key);
+    if (valueStr) {
+        SkParse::FindScalar(valueStr, value);
+        return true;
+    }
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkIPoint SkBenchmark::onGetSize() {
-    return SkMakeIPoint(640, 480);
+    return SkIPoint::Make(640, 480);
 }

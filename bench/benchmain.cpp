@@ -284,9 +284,9 @@ int main (int argc, char * const argv[]) {
                 log_error("missing arg for -config\n");
                 return -1;
             }
-        } else if (strncmp(*argv, "-D", 2) == 0) {
+        } else if (strlen(*argv) > 2 && strncmp(*argv, "-D", 2) == 0) {
             argv++;
-            if (strlen(*argv) > 2 && argv < stop) {
+            if (argv < stop) {
                 defineDict.set(argv[-1] + 2, *argv);
             } else {
                 log_error("incomplete '-Dfoo bar' definition\n");
@@ -320,7 +320,8 @@ int main (int argc, char * const argv[]) {
 
         {
             SkString str;
-            str.printf("running bench %16s", bench->getName());
+            str.printf("running bench [%d %d] %16s", dim.fX, dim.fY,
+                       bench->getName());
             log_progress(str);
         }
 
