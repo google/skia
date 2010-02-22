@@ -3,6 +3,7 @@ AM_LDFLAGS = -lpng -lpthread
 
 bin_PROGRAMS = Bench
 Bench_SOURCES = RectBench.cpp \
+                FPSBench.cpp \
                 SkBenchmark.cpp \
                 BenchTool/main.cpp \
                 $(top_builddir)/src/images/SkImageDecoder.cpp \

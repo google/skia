@@ -43,6 +43,8 @@ public:
     }
 
     const char* findDefine(const char* key) const;
+    bool findDefine32(const char* key, int32_t* value) const;
+    bool findDefineScalar(const char* key, SkScalar* value) const;
 
 protected:
     void setupPaint(SkPaint* paint);
@@ -59,12 +61,6 @@ private:
     bool    fForceFilter;
     SkTriState::State  fDither;
 };
-
-static inline SkIPoint SkMakeIPoint(int x, int y) {
-    SkIPoint p;
-    p.set(x, y);
-    return p;
-}
 
 typedef SkTRegistry<SkBenchmark*, void*> BenchRegistry;
 
