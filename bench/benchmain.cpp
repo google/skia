@@ -172,8 +172,10 @@ static const struct {
 } gConfigs[] = {
     { SkBitmap::kARGB_8888_Config,  "8888" },
     { SkBitmap::kRGB_565_Config,    "565",  },
+#if 0
     { SkBitmap::kARGB_4444_Config,  "4444", },
     { SkBitmap::kA8_Config,         "A8",   }
+#endif
 };
 
 static int findConfig(const char config[]) {
@@ -370,9 +372,10 @@ int main (int argc, char * const argv[]) {
                 }
             }
             if (repeatDraw > 1) {
+                double duration = SkTime::GetMSecs() - now;
                 SkString str;
-                str.printf("  %4s:%7.2f", configName,
-                           (SkTime::GetMSecs() - now) / (double)repeatDraw);
+                str.printf("  %4s: msecs = %7.2f, fps = %7.2f", configName,
+                           duration / repeatDraw, repeatDraw * 1000.0 / duration);
                 log_progress(str);
             }
             if (outDir.size() > 0) {
