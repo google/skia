@@ -127,11 +127,12 @@ typedef void (*PrePostProc)(SkBlitter* blitter, int y, bool isStartOfScanline);
 #define PREPOST_END     false
 
 static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
-                       SkBlitter* blitter, int stop_y, PrePostProc proc)
+                       SkBlitter* blitter, int start_y, int stop_y,
+                       PrePostProc proc)
 {
     validate_sort(prevHead->fNext);
 
-    int curr_y = prevHead->fNext->fFirstY;
+    int curr_y = start_y;
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     int windingMask = (fillType & 1) ? 1 : -1;
 
@@ -476,7 +477,7 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
 // clipRect (if no null) has already been shifted up
 //
 void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitter,
-                  int stop_y, int shiftEdgesUp, const SkRegion& clipRgn)
+                  int start_y, int stop_y, int shiftEdgesUp, const SkRegion& clipRgn)
 {
     SkASSERT(&path && blitter);
 
@@ -527,7 +528,11 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
 
     // now edge is the head of the sorted linklist
 
+    start_y <<= shiftEdgesUp;
     stop_y <<= shiftEdgesUp;
+    if (clipRect && start_y < clipRect->fTop) {
+        start_y = clipRect->fTop;
+    }
     if (clipRect && stop_y > clipRect->fBottom) {
         stop_y = clipRect->fBottom;
     }
@@ -541,7 +546,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
         proc = PrePostInverseBlitterProc;
     }
 
-    walk_edges(&headEdge, path.getFillType(), blitter, stop_y, proc);
+    walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc);
 }
 
 void sk_blit_above_and_below(SkBlitter* blitter, const SkIRect& ir,
@@ -625,7 +630,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& clip,
         if (path.isInverseFillType()) {
             sk_blit_above_and_below(blitter, ir, clip);
         }
-        sk_fill_path(path, clipper.getClipRect(), blitter, ir.fBottom, 0, clip);
+        sk_fill_path(path, clipper.getClipRect(), blitter, ir.fTop, ir.fBottom, 0, clip);
     } else {
         // what does it mean to not have a blitter if path.isInverseFillType???
     }
@@ -685,7 +690,11 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
     if (clipRect && stop_y > clipRect->fBottom) {
         stop_y = clipRect->fBottom;
     }
-    walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, stop_y, NULL);
+    int start_y = ir.fTop;
+    if (clipRect && start_y < clipRect->fTop) {
+        start_y = clipRect->fTop;
+    }
+    walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, NULL);
 }
 
 void SkScan::FillTriangle(const SkPoint pts[], const SkRegion* clip,

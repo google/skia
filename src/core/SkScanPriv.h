@@ -37,7 +37,7 @@ private:
 
 // clipRect == null means path is entirely inside the clip
 void sk_fill_path(const SkPath& path, const SkIRect* clipRect,
-                  SkBlitter* blitter, int stop_y, int shiftEdgesUp,
+                  SkBlitter* blitter, int start_y, int stop_y, int shiftEdgesUp,
                   const SkRegion& clipRgn);
 
 // blit the rects above and below avoid, clipped to clp
