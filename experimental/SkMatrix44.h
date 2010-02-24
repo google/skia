@@ -42,6 +42,13 @@ static const SkMScalar SK_MScalar1 = 1;
 
 struct SkVector4 {
 	SkScalar fData[4];
+
+    void set(SkScalar x, SkScalar y, SkScalar z, SkScalar w = SK_Scalar1) {
+        fData[0] = x;
+        fData[1] = y;
+        fData[2] = z;
+        fData[3] = w;
+    }
 };
 
 class SkMatrix44 {

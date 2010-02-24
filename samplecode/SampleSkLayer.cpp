@@ -29,6 +29,19 @@ static void test_inv(const char label[], const SkMatrix44& mat) {
     SkDebugf("\n");
 }
 
+static void test_map(SkScalar x0, SkScalar y0, SkScalar z0,
+                     const SkMatrix44& mat,
+                     SkScalar x1, SkScalar y1, SkScalar z1) {
+    SkVector4 src, dst;
+    src.set(x0, y0, z0);
+    dst = mat * src;
+    SkDebugf("map: src: %g %g %g dst: %g %g %g (%g) expected: %g %g %g match: %d\n",
+             x0, y0, z0,
+             dst.fData[0], dst.fData[1], dst.fData[2], dst.fData[3],
+             x1, y1, z1,
+             dst.fData[0] == x1 && dst.fData[1] == y1 && dst.fData[2] == z1);
+}
+                     
 static void test44() {
     SkMatrix44 m0, m1, m2;
 
@@ -50,6 +63,21 @@ static void test44() {
     m0.setScale(2, 4, 6);
     m0.postScale(SkDoubleToMScalar(0.5));
     test_inv("scale/postscale to 1,2,3", m0);
+
+    m0.reset();
+    test_map(1, 0, 0, m0, 1, 0, 0);
+    test_map(0, 1, 0, m0, 0, 1, 0);
+    test_map(0, 0, 1, m0, 0, 0, 1);
+    m0.setScale(2, 3, 4);
+    test_map(1, 0, 0, m0, 2, 0, 0);
+    test_map(0, 1, 0, m0, 0, 3, 0);
+    test_map(0, 0, 1, m0, 0, 0, 4);
+    m0.setTranslate(2, 3, 4);
+    test_map(0, 0, 0, m0, 2, 3, 4);
+    m0.preScale(5, 6, 7);
+    test_map(1, 0, 0, m0, 7, 3, 4);
+    test_map(0, 1, 0, m0, 2, 9, 4);
+    test_map(0, 0, 1, m0, 2, 3, 11);
 }
     
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,7 +170,7 @@ public:
             fRootLayer->setMatrix(matrix);
         }
 
-        dump_layers(fRootLayer);
+//        dump_layers(fRootLayer);
     }
     
     virtual ~SkLayerView() {
