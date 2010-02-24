@@ -14,13 +14,21 @@ SkMatrix44::SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const SkMatrix44 gIdentity44;
+
+bool SkMatrix44::isIdentity() const {
+    return *this == gIdentity44;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkMatrix44::setIdentity() {
 	sk_bzero(fMat, sizeof(fMat));
 	fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = SK_MScalar1;
 }
 
 void SkMatrix44::setTranslate(SkMScalar tx, SkMScalar ty, SkMScalar tz) {
-	sk_bzero(fMat, sizeof(fMat));
+	this->setIdentity();
 	fMat[3][0] = tx;
 	fMat[3][1] = ty;
 	fMat[3][2] = tz;
@@ -71,7 +79,7 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
 		for (int j = 0; j < 4; j++) {
 			double value = 0;
 			for (int k = 0; k < 4; k++) {
-				value += (double)a.fMat[k][j] * b.fMat[i][k];
+				value += SkMScalarToDouble(a.fMat[k][i]) * b.fMat[j][k];
 			}
 			result[j][i] = SkDoubleToMScalar(value);
 		}
@@ -198,11 +206,17 @@ void SkMatrix44::map(const SkScalar src[4], SkScalar dst[4]) const {
 
 void SkMatrix44::dump() const {
     SkDebugf("[%g %g %g %g][%g %g %g %g][%g %g %g %g][%g %g %g %g]\n",
+#if 0
              fMat[0][0], fMat[0][1], fMat[0][2], fMat[0][3],
              fMat[1][0], fMat[1][1], fMat[1][2], fMat[1][3],
              fMat[2][0], fMat[2][1], fMat[2][2], fMat[2][3],
              fMat[3][0], fMat[3][1], fMat[3][2], fMat[3][3]);
+#else
+            fMat[0][0], fMat[1][0], fMat[2][0], fMat[3][0],
+            fMat[0][1], fMat[1][1], fMat[2][1], fMat[3][1],
+            fMat[0][2], fMat[1][2], fMat[2][2], fMat[3][2],
+            fMat[0][3], fMat[1][3], fMat[2][3], fMat[3][3]);
+#endif
 }
-
 
 

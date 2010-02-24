@@ -4,6 +4,54 @@
 #include "SkView.h"
 #include "SkLayer.h"
 
+#include "SkMatrix44.h"
+static void test_inv(const char label[], const SkMatrix44& mat) {
+    SkDebugf("%s\n", label);
+    mat.dump();
+
+    SkMatrix44 inv;
+    if (mat.invert(&inv)) {
+        inv.dump();
+    } else {
+        SkDebugf("--- invert failed\n");
+    }
+
+    SkMatrix44 a, b;
+    a.setConcat(mat, inv);
+    b.setConcat(inv, mat);
+    SkDebugf("concat mat with inverse pre=%d post=%d\n", a.isIdentity(), b.isIdentity());
+    if (!a.isIdentity()) {
+        a.dump();
+    }
+    if (!b.isIdentity()) {
+        b.dump();
+    }
+    SkDebugf("\n");
+}
+
+static void test44() {
+    SkMatrix44 m0, m1, m2;
+
+    test_inv("identity", m0);
+    m0.setTranslate(2,3,4);
+    test_inv("translate", m0);
+    m0.setScale(2,3,4);
+    test_inv("scale", m0);
+    m0.postTranslate(5, 6, 7);
+    test_inv("postTranslate", m0);
+    m0.setScale(2,3,4);
+    m1.setTranslate(5, 6, 7);
+    m0.setConcat(m0, m1);
+    test_inv("postTranslate2", m0);
+    m0.setScale(2,3,4);
+    m0.preTranslate(5, 6, 7);
+    test_inv("preTranslate", m0);
+    
+    m0.setScale(2, 4, 6);
+    m0.postScale(SkDoubleToMScalar(0.5));
+    test_inv("scale/postscale to 1,2,3", m0);
+}
+    
 ///////////////////////////////////////////////////////////////////////////////
 
 class TestLayer : public SkLayer {
@@ -32,6 +80,7 @@ private:
 
 public:
 	SkLayerView() {
+        test44();
         static const int W = 600;
         static const int H = 440;
         static const struct {
