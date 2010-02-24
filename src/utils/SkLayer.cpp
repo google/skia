@@ -1,11 +1,13 @@
 #include "SkLayer.h"
 #include "SkCanvas.h"
 
+//#define DEBUG_LAYER_BOUNDS
+
 SkLayer::SkLayer() {
-    m_opacity = 1;
+    m_opacity = SK_Scalar1;
     m_size.set(0, 0);
     m_position.set(0, 0);
-    m_anchorPoint.set(0.5, 0.5);
+    m_anchorPoint.set(SK_ScalarHalf, SK_ScalarHalf);
 
     fMatrix.reset();
     fChildrenMatrix.reset();
@@ -101,6 +103,20 @@ void SkLayer::draw(SkCanvas* canvas, SkScalar opacity) {
     }
 
     this->onDraw(canvas, opacity);
+
+#ifdef DEBUG_LAYER_BOUNDS
+    {
+        SkRect r = SkRect::MakeSize(this->getSize());
+        SkPaint p;
+        p.setAntiAlias(true);
+        p.setStyle(SkPaint::kStroke_Style);
+        p.setStrokeWidth(SkIntToScalar(2));
+        p.setColor(0xFFFF44DD);
+        canvas->drawRect(r, p);
+        canvas->drawLine(r.fLeft, r.fTop, r.fRight, r.fBottom, p);
+        canvas->drawLine(r.fLeft, r.fBottom, r.fRight, r.fTop, p);
+    }
+#endif
 
     int count = this->countChildren();
     if (count > 0) {

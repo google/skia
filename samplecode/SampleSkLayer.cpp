@@ -32,8 +32,8 @@ private:
 
 public:
 	SkLayerView() {
-        static const int W = 640;
-        static const int H = 480;
+        static const int W = 600;
+        static const int H = 440;
         static const struct {
             int fWidth;
             int fHeight;
@@ -47,7 +47,7 @@ public:
             { 120, 80, SK_ColorMAGENTA, W - 120, H - 80 },
         };
 
-        fRootLayer = new SkLayer;
+        fRootLayer = new TestLayer(0xFFDDDDDD);
         fRootLayer->setSize(W, H);
         for (size_t i = 0; i < SK_ARRAY_COUNT(gData); i++) {
             SkLayer* child = new TestLayer(gData[i].fColor);
@@ -55,6 +55,18 @@ public:
             child->setPosition(gData[i].fPosX, gData[i].fPosY);
             fRootLayer->addChild(child)->unref();
         }
+        
+        SkLayer* child = new TestLayer(0xFFDD8844);
+        child->setSize(120, 80);
+        child->setPosition(fRootLayer->getWidth()/2 - child->getWidth()/2,
+                           fRootLayer->getHeight()/2 - child->getHeight()/2);
+        child->setAnchorPoint(SK_ScalarHalf, SK_ScalarHalf);
+        {
+            SkMatrix m;
+            m.setRotate(SkIntToScalar(30));
+            child->setMatrix(m);
+        }
+        fRootLayer->addChild(child)->unref();
     }
     
     virtual ~SkLayerView() {
@@ -72,8 +84,9 @@ protected:
     }
     
     void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
+        canvas->drawColor(SK_ColorWHITE);
 
+        canvas->translate(20, 20);
         fRootLayer->draw(canvas);
     }
     
