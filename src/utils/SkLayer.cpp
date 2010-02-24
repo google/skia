@@ -1,9 +1,17 @@
 #include "SkLayer.h"
 #include "SkCanvas.h"
 
-//#define DEBUG_LAYER_BOUNDS
+//#define DEBUG_DRAW_LAYER_BOUNDS
+//#define DEBUG_TRACK_NEW_DELETE
+
+#ifdef DEBUG_TRACK_NEW_DELETE
+    static int gLayerAllocCount;
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 
 SkLayer::SkLayer() {
+    fParent = NULL;
     m_opacity = SK_Scalar1;
     m_size.set(0, 0);
     m_position.set(0, 0);
@@ -11,9 +19,15 @@ SkLayer::SkLayer() {
 
     fMatrix.reset();
     fChildrenMatrix.reset();
+
+#ifdef DEBUG_TRACK_NEW_DELETE
+    gLayerAllocCount += 1;
+    SkDebugf("SkLayer new:    %d\n", gLayerAllocCount);
+#endif
 }
 
 SkLayer::SkLayer(const SkLayer& src) {
+    fParent = NULL;
     m_opacity = src.m_opacity;
     m_size = src.m_size;
     m_position = src.m_position;
@@ -21,11 +35,33 @@ SkLayer::SkLayer(const SkLayer& src) {
 
     fMatrix = src.fMatrix;
     fChildrenMatrix = src.fChildrenMatrix;
+
+#ifdef DEBUG_TRACK_NEW_DELETE
+    gLayerAllocCount += 1;
+    SkDebugf("SkLayer copy:   %d\n", gLayerAllocCount);
+#endif
 }
 
 SkLayer::~SkLayer() {
     this->removeChildren();
+
+#ifdef DEBUG_TRACK_NEW_DELETE
+    gLayerAllocCount -= 1;
+    SkDebugf("SkLayer delete: %d\n", gLayerAllocCount);
+#endif
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkLayer::setMatrix(const SkMatrix& matrix) {
+    fMatrix = matrix;
+}
+
+void SkLayer::setChildrenMatrix(const SkMatrix& matrix) {
+    fChildrenMatrix = matrix;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 int SkLayer::countChildren() const {
     return m_children.count();
@@ -40,8 +76,26 @@ SkLayer* SkLayer::getChild(int index) const {
 
 SkLayer* SkLayer::addChild(SkLayer* child) {
     child->ref();
+    if (child->fParent) {
+        child->fParent->removeChild(child);
+    }
+    SkASSERT(child->fParent == NULL);
+    child->fParent = this;
+
     *m_children.append() = child;
     return child;
+}
+
+bool SkLayer::removeChild(SkLayer* child) {
+    int index = m_children.find(child);
+    if (index >= 0) {
+        SkASSERT(child->fParent == this);
+        child->fParent = NULL;
+        child->unref();
+        m_children.remove(index);
+        return true;
+    }
+    return false;
 }
 
 void SkLayer::removeChildren() {
@@ -49,14 +103,38 @@ void SkLayer::removeChildren() {
     m_children.reset();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-void SkLayer::setMatrix(const SkMatrix& matrix) {
-    fMatrix = matrix;
+SkLayer* SkLayer::getRootLayer() const {
+    const SkLayer* root = this;
+    while (root->fParent != NULL) {
+        root = root->fParent;
+    }
+    return const_cast<SkLayer*>(root);
 }
 
-void SkLayer::setChildrenMatrix(const SkMatrix& matrix) {
-    fChildrenMatrix = matrix;
+///////////////////////////////////////////////////////////////////////////////
+
+void SkLayer::getLocalTransform(SkMatrix* matrix) const {
+    matrix->setTranslate(m_position.fX, m_position.fY);
+    
+    SkScalar tx = SkScalarMul(m_anchorPoint.fX, m_size.width());
+    SkScalar ty = SkScalarMul(m_anchorPoint.fY, m_size.height());
+    matrix->preTranslate(tx, ty);
+    matrix->preConcat(this->getMatrix());
+    matrix->preTranslate(-tx, -ty);
+}
+
+void SkLayer::localToGlobal(SkMatrix* matrix) const {
+    this->getLocalTransform(matrix);
+
+    const SkLayer* layer = this;
+    while (layer->fParent != NULL) {
+        layer = layer->fParent;
+
+        SkMatrix tmp;
+        layer->getLocalTransform(&tmp);
+        tmp.preConcat(layer->getChildrenMatrix());
+        matrix->postConcat(tmp);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,15 +166,12 @@ void SkLayer::draw(SkCanvas* canvas, SkScalar opacity) {
 
     SkAutoCanvasRestore acr(canvas, true);
 
-    // update the matrix
+    // apply our local transform
     {
-        SkScalar tx = m_position.fX;
-        SkScalar ty = m_position.fY;
-        canvas->translate(tx, ty);
+        canvas->translate(m_position.fX, m_position.fY);
         
-        // now apply our matrix about the anchorPoint
-        tx = SkScalarMul(m_anchorPoint.fX, m_size.width());
-        ty = SkScalarMul(m_anchorPoint.fY, m_size.height());
+        SkScalar tx = SkScalarMul(m_anchorPoint.fX, m_size.width());
+        SkScalar ty = SkScalarMul(m_anchorPoint.fY, m_size.height());
         canvas->translate(tx, ty);
         canvas->concat(this->getMatrix());
         canvas->translate(-tx, -ty);
@@ -104,7 +179,7 @@ void SkLayer::draw(SkCanvas* canvas, SkScalar opacity) {
 
     this->onDraw(canvas, opacity);
 
-#ifdef DEBUG_LAYER_BOUNDS
+#ifdef DEBUG_DRAW_LAYER_BOUNDS
     {
         SkRect r = SkRect::MakeSize(this->getSize());
         SkPaint p;

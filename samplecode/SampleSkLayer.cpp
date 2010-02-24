@@ -54,6 +54,24 @@ static void test44() {
     
 ///////////////////////////////////////////////////////////////////////////////
 
+static void dump_layers(const SkLayer* layer, int tab = 0) {
+    SkMatrix matrix;
+    SkString matrixStr;
+
+    layer->getLocalTransform(&matrix);
+    matrix.toDumpString(&matrixStr);
+
+    for (int j = 0; j < tab; j++) {
+        SkDebugf(" ");
+    }
+    SkDebugf("layer=%p parent=%p size=[%g %g] transform=%s\n",
+             layer, layer->getParent(), layer->getWidth(), layer->getHeight(),
+             matrixStr.c_str());
+    for (int i = 0; i < layer->countChildren(); i++) {
+        dump_layers(layer->getChild(i), tab + 4);
+    }
+}
+
 class TestLayer : public SkLayer {
 public:
     TestLayer(SkColor c) : fColor(c) {}
@@ -77,7 +95,7 @@ private:
 class SkLayerView : public SkView {
 private:
     SkLayer* fRootLayer;
-
+    SkLayer* fLastChild;
 public:
 	SkLayerView() {
         test44();
@@ -115,7 +133,16 @@ public:
             m.setRotate(SkIntToScalar(30));
             child->setMatrix(m);
         }
+        fLastChild = child;
         fRootLayer->addChild(child)->unref();
+        
+        if (false) {
+            SkMatrix matrix;
+            matrix.setScale(0.5, 0.5);
+            fRootLayer->setMatrix(matrix);
+        }
+
+        dump_layers(fRootLayer);
     }
     
     virtual ~SkLayerView() {
@@ -132,16 +159,24 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
+    virtual void onDraw(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
-
+        
         canvas->translate(20, 20);
         fRootLayer->draw(canvas);
+        
+        // visual test of getLocalTransform
+        if (true) {
+            SkMatrix matrix;
+            fLastChild->localToGlobal(&matrix);
+            SkPaint paint;
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(5);
+            paint.setColor(0x88FF0000);
+            canvas->concat(matrix);
+            canvas->drawRect(SkRect::MakeSize(fLastChild->getSize()), paint);
+        }
     }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-}
     
 private:
     typedef SkView INHERITED;
