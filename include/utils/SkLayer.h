@@ -53,10 +53,53 @@ public:
 
     // children
 
+    /** Return the number of layers in our child list.
+     */
     int countChildren() const;
+
+    /** Return the child at the specified index (starting at 0). This does not
+        affect the reference count of the child.
+     */
     SkLayer* getChild(int index) const;
+
+    /** Add this layer to our child list at the end (top-most), and ref() it.
+        If it was already in another hierarchy, remove it from that list.
+        Return the new child.
+     */
     SkLayer* addChild(SkLayer* child);
+
+    /** Remove this layer from our child list, and unref() it and return true.
+        If it is not in our child list, do nothing and return false.
+     */
+    bool removeChild(SkLayer* child);
+
+    /** Remove, and unref(), all of the layers in our child list.
+     */
     void removeChildren();
+
+    /** Return our parent layer, or NULL if we have none.
+     */
+    SkLayer* getParent() const { return fParent; }
+
+    /** Return the root layer in this hiearchy. If this layer is the root
+        (i.e. has no parent), then this returns itself.
+     */
+    SkLayer* getRootLayer() const;
+
+    // coordinate system transformations
+
+    /** Return, in matrix, the matix transfomations that are applied locally
+        when this layer draws (i.e. its position and matrix/anchorPoint).
+        This does not include the childrenMatrix, since that is only applied
+        after this layer draws (but before its children draw).
+     */
+    void getLocalTransform(SkMatrix* matrix) const;
+
+    /** Return, in matrix, the concatenation of transforms that are applied
+        from this layer's root parent to the layer itself.
+        This is the matrix that is applied to the layer during drawing.
+     */
+    void localToGlobal(SkMatrix* matrix) const;
 
     // paint method
 
@@ -69,6 +112,7 @@ protected:
     virtual void onDraw(SkCanvas*, SkScalar opacity);
 
 private:
+    SkLayer*    fParent;
     SkScalar    m_opacity;
     SkSize      m_size;
     SkPoint     m_position;
