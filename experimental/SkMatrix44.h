@@ -3,11 +3,42 @@
 
 #include "SkScalar.h"
 
-typedef float SkMScalar;
+// uncomment this to use doubles for matrix44
+#define SK_MSCALAR_IS_DOUBLE
+
+#ifdef SK_MSCALAR_IS_DOUBLE
+    typedef double SkMScalar;
+    static inline double SkFloatToMScalar(float x) {
+        return static_cast<double>(x);
+    }
+    static inline float SkMScalarToFloat(double x) {
+        return static_cast<float>(x);
+    }
+    static inline double SkDoubleToMScalar(double x) {
+        return x;
+    }
+    static inline double SkMScalarToDouble(double x) {
+        return x;
+    }
+#else
+    typedef float SkMScalar;
+    static inline float SkFloatToMScalar(float x) {
+        return x;
+    }
+    static inline float SkMScalarToFloat(float x) {
+        return x;
+    }
+    static inline float SkDoubleToMScalar(double x) {
+        return static_cast<float>(x);
+    }
+    static inline double SkMScalarToDouble(float x) {
+        return static_cast<double>(x);
+    }
+#endif
+
 static const SkMScalar SK_MScalar1 = 1;
-static inline SkMScalar SkDoubleToMScalar(double x) {
-    return static_cast<float>(x);
-}
+
+///////////////////////////////////////////////////////////////////////////////
 
 struct SkVector4 {
 	SkScalar fData[4];
@@ -19,7 +50,16 @@ public:
 	SkMatrix44(const SkMatrix44&);
 	SkMatrix44(const SkMatrix44& a, const SkMatrix44& b);
 
+    bool operator==(const SkMatrix44& other) const {
+        return !memcmp(this, &other, sizeof(*this));
+    }
+    bool operator!=(const SkMatrix44& other) const {
+        return !!memcmp(this, &other, sizeof(*this));
+    }
+    
+    bool isIdentity() const;
 	void setIdentity();
+    void reset() { this->setIdentity(); }
 
 	void setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
 	void preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
