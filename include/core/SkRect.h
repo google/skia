@@ -18,6 +18,7 @@
 #define SkRect_DEFINED
 
 #include "SkPoint.h"
+#include "SkSize.h"
 
 /** \struct SkIRect
 
@@ -232,6 +233,24 @@ struct SkIRect {
 struct SkRect {
     SkScalar    fLeft, fTop, fRight, fBottom;
 
+    static SkRect MakeSize(const SkSize& size) {
+        SkRect r;
+        r.set(0, 0, size.width(), size.height());
+        return r;
+    }
+
+    static SkRect MakeLTRB(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
+        SkRect rect;
+        rect.set(l, t, r, b);
+        return rect;
+    }
+
+    static SkRect MakeXYWH(SkScalar x, SkScalar y, SkScalar w, SkScalar h) {
+        SkRect r;
+        r.set(x, y, x + w, y + h);
+        return r;
+    }
+    
     /** Return true if the rectangle's width or height are <= 0
     */
     bool        isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
