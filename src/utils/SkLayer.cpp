@@ -115,7 +115,7 @@ SkLayer* SkLayer::getRootLayer() const {
 
 void SkLayer::getLocalTransform(SkMatrix* matrix) const {
     matrix->setTranslate(m_position.fX, m_position.fY);
-    
+
     SkScalar tx = SkScalarMul(m_anchorPoint.fX, m_size.width());
     SkScalar ty = SkScalarMul(m_anchorPoint.fY, m_size.height());
     matrix->preTranslate(tx, ty);
@@ -156,11 +156,8 @@ void SkLayer::draw(SkCanvas* canvas, SkScalar opacity) {
 #endif
 
     opacity = SkScalarMul(opacity, this->getOpacity());
-    if (opacity <= 0 || this->getSize().isEmpty()) {
-#if 0
-        SkDebugf("---- abort drawing %p opacity %g size [%g %g]\n",
-                 this, opacity, m_size.width(), m_size.height());
-#endif
+    if (opacity <= 0) {
+//        SkDebugf("---- abort drawing %p opacity %g\n", this, opacity);
         return;
     }
 
