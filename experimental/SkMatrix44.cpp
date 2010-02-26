@@ -24,15 +24,27 @@ bool SkMatrix44::isIdentity() const {
 
 void SkMatrix44::setIdentity() {
 	sk_bzero(fMat, sizeof(fMat));
-	fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = SK_MScalar1;
+	fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = 1;
 }
+
+void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
+                        SkMScalar m10, SkMScalar m11, SkMScalar m12,
+                        SkMScalar m20, SkMScalar m21, SkMScalar m22) {
+	sk_bzero(fMat, sizeof(fMat));
+	fMat[0][0] = m00; fMat[0][1] = m01; fMat[0][2] = m02; fMat[0][3] = 0;
+	fMat[1][0] = m10; fMat[1][1] = m11; fMat[1][2] = m12; fMat[1][3] = 0;
+	fMat[2][0] = m20; fMat[2][1] = m21; fMat[2][2] = m22; fMat[2][3] = 0;
+    fMat[3][0] = 0;   fMat[3][1] = 0;   fMat[3][2] = 0;   fMat[3][3] = 1;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setTranslate(SkMScalar tx, SkMScalar ty, SkMScalar tz) {
 	this->setIdentity();
 	fMat[3][0] = tx;
 	fMat[3][1] = ty;
 	fMat[3][2] = tz;
-	fMat[3][3] = SK_MScalar1;
+	fMat[3][3] = 1;
 }
 
 void SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
@@ -54,7 +66,7 @@ void SkMatrix44::setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
 	fMat[0][0] = sx;
     fMat[1][1] = sy;
     fMat[2][2] = sz;
-    fMat[3][3] = SK_MScalar1;
+    fMat[3][3] = 1;
 }
 
 void SkMatrix44::preScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
@@ -69,6 +81,44 @@ void SkMatrix44::postScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
         fMat[i][1] *= sy;
         fMat[i][2] *= sz;
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkMatrix44::setRotateAbout(SkMScalar x, SkMScalar y, SkMScalar z,
+                                SkMScalar radians) {
+    double len2 = x * x + y * y + z * z;
+    if (len2 != 1) {
+        if (len2 == 0) {
+            this->setIdentity();
+            return;
+        }
+        double scale = 1 / sqrt(len2);
+        x *= scale;
+        y *= scale;
+        z *= scale;
+    }
+    this->setRotateAboutUnit(x, y, z, radians);
+}
+
+void SkMatrix44::setRotateAboutUnit(SkMScalar x, SkMScalar y, SkMScalar z,
+                                    SkMScalar radians) {
+    double c = cos(radians);
+    double s = sin(radians);
+    double C = 1 - c;
+    double xs = x * s;
+    double ys = y * s;
+    double zs = z * s;
+    double xC = x * C;
+    double yC = y * C;
+    double zC = z * C;
+    double xyC = x * yC;
+    double yzC = y * zC;
+    double zxC = z * xC;
+
+    this->set3x3(x * xC + c,    xyC - zs,       zxC + ys,
+                 xyC + zs,      y * yC + c,     yzC - xs,
+                 zxC - ys,      yzC + xs,       z * zC + c);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
