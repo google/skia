@@ -20,6 +20,7 @@
     static inline double SkMScalarToDouble(double x) {
         return x;
     }
+    static const SkMScalar SK_MScalarPI = 3.141592653589793;
 #else
     typedef float SkMScalar;
     static inline float SkFloatToMScalar(float x) {
@@ -34,6 +35,7 @@
     static inline double SkMScalarToDouble(float x) {
         return static_cast<double>(x);
     }
+    static const SkMScalar SK_MScalarPI = 3.14159265f;
 #endif
 
 static const SkMScalar SK_MScalar1 = 1;
@@ -68,6 +70,10 @@ public:
 	void setIdentity();
     void reset() { this->setIdentity(); }
 
+    void set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
+                SkMScalar m10, SkMScalar m11, SkMScalar m12,
+                SkMScalar m20, SkMScalar m21, SkMScalar m22);
+
 	void setTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
 	void preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
 	void postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz);
@@ -85,7 +91,23 @@ public:
     void postScale(SkMScalar scale) {
         this->postScale(scale, scale, scale);
     }
-    
+
+    void setRotateDegreesAbout(SkMScalar x, SkMScalar y, SkMScalar z,
+                        SkMScalar degrees) {
+        this->setRotateAbout(x, y, z, degrees * SK_MScalarPI / 180);
+    }
+
+    /** Rotate about the vector [x,y,z]. If that vector is not unit-length,
+        it will be automatically resized.
+     */
+    void setRotateAbout(SkMScalar x, SkMScalar y, SkMScalar z,
+                        SkMScalar radians);
+    /** Rotate about the vector [x,y,z]. Does not check the length of the
+        vector, assuming it is unit-length.
+     */
+    void setRotateAboutUnit(SkMScalar x, SkMScalar y, SkMScalar z,
+                            SkMScalar radians);
+
 	void setConcat(const SkMatrix44& a, const SkMatrix44& b);
 	void preConcat(const SkMatrix44& m) {
         this->setConcat(*this, m);
