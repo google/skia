@@ -269,4 +269,42 @@ void SkMatrix44::dump() const {
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static void initFromMatrix(SkMScalar dst[4][4], const SkMatrix& src) {
+	sk_bzero(dst, 16 * sizeof(SkMScalar));
+    dst[0][0] = src[SkMatrix::kMScaleX];
+    dst[1][0] = src[SkMatrix::kMSkewX];
+    dst[3][0] = src[SkMatrix::kMTransX];
+    dst[0][1] = src[SkMatrix::kMSkewY];
+    dst[1][1] = src[SkMatrix::kMScaleY];
+    dst[3][1] = src[SkMatrix::kMTransY];
+    dst[2][2] = dst[3][3] = 1;
+}
+
+SkMatrix44::SkMatrix44(const SkMatrix& src) {
+    initFromMatrix(fMat, src);
+}
+
+SkMatrix44& SkMatrix44::operator=(const SkMatrix& src) {
+    initFromMatrix(fMat, src);
+    return *this;
+}
+
+SkMatrix44::operator SkMatrix() const {
+    SkMatrix dst;
+    dst.reset();    // setup our perspective correctly for identity
+
+    dst[SkMatrix::kMScaleX]  = SkMScalarToFloat(fMat[0][0]);
+    dst[SkMatrix::kMSkewX]  = SkMScalarToFloat(fMat[1][0]);
+    dst[SkMatrix::kMTransX] = SkMScalarToFloat(fMat[3][0]);
+
+    dst[SkMatrix::kMSkewY]  = SkMScalarToFloat(fMat[0][1]);
+    dst[SkMatrix::kMScaleY] = SkMScalarToFloat(fMat[1][1]);
+    dst[SkMatrix::kMTransY] = SkMScalarToFloat(fMat[3][1]);
+
+    return dst;
+}
+
+
 

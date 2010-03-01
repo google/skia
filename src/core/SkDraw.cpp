@@ -1370,8 +1370,12 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
 				return;
             }
 		}
-		
-		if (state.fBounder->doIRect(cr, glyph.getGlyphID())) {
+
+        // we need to pass the origin, which we approximate with our
+        // (unadjusted) left,top coordinates (the caller called fixedfloor)
+		if (state.fBounder->doIRectGlyph(cr,
+                                         left - glyph.fLeft,
+                                         top - glyph.fTop, glyph)) {
 			mask.fRowBytes = glyph.rowBytes();
 			mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
 			mask.fImage = (uint8_t*)aa;
@@ -2249,9 +2253,20 @@ bool SkBounder::doIRect(const SkIRect& r) {
     return rr.intersect(fClip->getBounds(), r) && this->onIRect(rr);
 }
 
-bool SkBounder::doIRect(const SkIRect& r, uint16_t glyphID) {
+// TODO: change the prototype to take fixed, and update the callers
+bool SkBounder::doIRectGlyph(const SkIRect& r, int x, int y,
+                             const SkGlyph& glyph) {
     SkIRect    rr;
-    return rr.intersect(fClip->getBounds(), r) && this->onIRect(rr, glyphID);
+    if (!rr.intersect(fClip->getBounds(), r)) {
+        return false;
+    }
+    GlyphRec rec;
+    rec.fLSB.set(SkIntToFixed(x), SkIntToFixed(y));
+    rec.fRSB.set(rec.fLSB.fX + glyph.fAdvanceX,
+                 rec.fLSB.fY + glyph.fAdvanceY);
+    rec.fGlyphID = glyph.getGlyphID();
+    rec.fFlags = 0;
+    return this->onIRectGlyph(rr, rec);
 }
 
 bool SkBounder::doHairline(const SkPoint& pt0, const SkPoint& pt1,
