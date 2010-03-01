@@ -19,7 +19,9 @@
 
 #include "SkTypes.h"
 #include "SkRefCnt.h"
+#include "SkPoint.h"
 
+struct SkGlyph;
 struct SkIRect;
 struct SkPoint;
 struct SkRect;
@@ -38,7 +40,8 @@ public:
        Returns the result from onIRect.
     */
     bool doIRect(const SkIRect&);
-    bool doIRect(const SkIRect& , uint16_t glyphID);
+    bool doIRectGlyph(const SkIRect& , int x, int y, const SkGlyph&);
+
 protected:
     /** Override in your subclass. This is called with the device bounds of an
         object (text, geometry, image) just before it is drawn. If your method
@@ -50,10 +53,21 @@ protected:
         return false;
     }
 
+    /** Passed to onIRectGlyph with the information about the current glyph.
+        LSB and RSB are fixed-point (16.16) coordinates of the start and end
+        of the glyph's advance
+     */
+    struct GlyphRec {
+        SkIPoint    fLSB;   //!< fixed-point left-side-bearing of the glyph
+        SkIPoint    fRSB;   //!< fixed-point right-side-bearing of the glyph
+        uint16_t    fGlyphID;
+        uint16_t    fFlags; //!< currently set to 0
+    };
+
     /** Optionally, override in your subclass to receive the glyph ID when
         text drawing supplies the device bounds of the object.
     */
-    virtual bool onIRect(const SkIRect& r, uint16_t glyphID) {
+    virtual bool onIRectGlyph(const SkIRect& r, const GlyphRec&) {
         return onIRect(r);
     }
 

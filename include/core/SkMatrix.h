@@ -102,6 +102,12 @@ public:
     SkScalar getPerspX() const { return fMat[kMPersp0]; }
     SkScalar getPerspY() const { return fMat[kMPersp1]; }
 
+    SkScalar& operator[](int index) {
+        SkASSERT((unsigned)index < 9);
+        this->setTypeMask(kUnknown_Mask);
+        return fMat[index];
+    }
+
     void set(int index, SkScalar value) {
         SkASSERT((unsigned)index < 9);
         fMat[index] = value;

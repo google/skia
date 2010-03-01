@@ -1,6 +1,7 @@
 #ifndef SkMatrix44_DEFINED
 #define SkMatrix44_DEFINED
 
+#include "SkMatrix.h"
 #include "SkScalar.h"
 
 // uncomment this to use doubles for matrix44
@@ -89,13 +90,22 @@ public:
 	SkMatrix44(const SkMatrix44&);
 	SkMatrix44(const SkMatrix44& a, const SkMatrix44& b);
 
+    SkMatrix44& operator=(const SkMatrix44& src) {
+        memcpy(this, &src, sizeof(*this));
+        return *this;
+    }
+
     bool operator==(const SkMatrix44& other) const {
         return !memcmp(this, &other, sizeof(*this));
     }
     bool operator!=(const SkMatrix44& other) const {
         return !!memcmp(this, &other, sizeof(*this));
     }
-    
+
+    SkMatrix44(const SkMatrix&);
+    SkMatrix44& operator=(const SkMatrix& src);
+    operator SkMatrix() const;
+
     bool isIdentity() const;
 	void setIdentity();
     void reset() { this->setIdentity(); }
