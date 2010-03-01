@@ -45,6 +45,36 @@ static const SkMScalar SK_MScalar1 = 1;
 struct SkVector4 {
 	SkScalar fData[4];
 
+    SkVector4() {
+        this->set(0, 0, 0, 1);
+    }
+    SkVector4(const SkVector4& src) {
+        memcpy(fData, src.fData, sizeof(fData));
+    }
+    SkVector4(SkScalar x, SkScalar y, SkScalar z, SkScalar w = SK_Scalar1) {
+        fData[0] = x;
+        fData[1] = y;
+        fData[2] = z;
+        fData[3] = w;
+    }
+
+    SkVector4& operator=(const SkVector4& src) {
+        memcpy(fData, src.fData, sizeof(fData));
+        return *this;
+    }
+
+    bool operator==(const SkVector4& v) {
+        return fData[0] == v.fData[0] && fData[1] == v.fData[1] &&
+               fData[2] == v.fData[2] && fData[3] == v.fData[3];
+    }
+    bool operator!=(const SkVector4& v) {
+        return !(*this == v);
+    }
+    bool equals(SkScalar x, SkScalar y, SkScalar z, SkScalar w = SK_Scalar1) {
+        return fData[0] == x && fData[1] == y &&
+               fData[2] == z && fData[3] == w;
+    }
+    
     void set(SkScalar x, SkScalar y, SkScalar z, SkScalar w = SK_Scalar1) {
         fData[0] = x;
         fData[1] = y;
