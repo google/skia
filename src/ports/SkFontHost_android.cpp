@@ -418,6 +418,9 @@ static const FontInitRec gSystemFonts[] = {
         These are appended to gFallbackFonts[] as they are seen, so we list
         them in the order we want them to be accessed by NextLogicalFont().
      */
+    { "DroidSansArabic.ttf",        gFBNames    },
+    { "DroidSansHebrew.ttf",        gFBNames    },
+    { "DroidSansThai.ttf",          gFBNames    },
     { "DroidSansJapanese.ttf",      gFBNames    },
     { "DroidSansFallback.ttf",      gFBNames    }
 };
