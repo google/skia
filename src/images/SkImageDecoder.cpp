@@ -37,7 +37,8 @@ void SkImageDecoder::SetDeviceConfig(SkBitmap::Config config)
 
 SkImageDecoder::SkImageDecoder()
     : fPeeker(NULL), fChooser(NULL), fAllocator(NULL), fSampleSize(1),
-      fDitherImage(true) {
+      fDefaultPref(SkBitmap::kNo_Config), fDitherImage(true),
+      fUsePrefTable(false) {
 }
 
 SkImageDecoder::~SkImageDecoder() {
@@ -91,6 +92,46 @@ bool SkImageDecoder::allocPixelRef(SkBitmap* bitmap,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkImageDecoder::setPrefConfigTable(const SkBitmap::Config pref[6]) {
+    if (NULL == pref) {
+        fUsePrefTable = false;
+    } else {
+        fUsePrefTable = true;
+        memcpy(fPrefTable, pref, sizeof(fPrefTable));
+    }
+}
+
+SkBitmap::Config SkImageDecoder::getPrefConfig(SrcDepth srcDepth,
+                                               bool srcHasAlpha) const {
+    SkBitmap::Config config;
+
+    if (fUsePrefTable) {
+        int index = 0;
+        switch (srcDepth) {
+            case kIndex_SrcDepth:
+                index = 0;
+                break;
+            case k16Bit_SrcDepth:
+                index = 2;
+                break;
+            case k32Bit_SrcDepth:
+                index = 4;
+                break;
+        }
+        if (srcHasAlpha) {
+            index += 1;
+        }
+        config = fPrefTable[index];
+    } else {
+        config = fDefaultPref;
+    }
+
+    if (SkBitmap::kNo_Config == config) {
+        config = SkImageDecoder::GetDeviceConfig();
+    }
+    return config;
+}
+
 bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
                             SkBitmap::Config pref, Mode mode) {
     // pass a temporary bitmap, so that if we return false, we are assured of
@@ -99,8 +140,10 @@ bool SkImageDecoder::decode(SkStream* stream, SkBitmap* bm,
 
     // we reset this to false before calling onDecode
     fShouldCancelDecode = false;
+    // assign this, for use by getPrefConfig(), in case fUsePrefTable is false
+    fDefaultPref = pref;
 
-    if (!this->onDecode(stream, &tmp, pref, mode)) {
+    if (!this->onDecode(stream, &tmp, mode)) {
         return false;
     }
     bm->swap(tmp);

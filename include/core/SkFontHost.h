@@ -254,7 +254,7 @@ public:
 
         Note, if you change this after startup, you'll need to flush the glyph
         cache because it'll have the wrong type of masks cached.
-     
+
         kNONE_LCDOrder means that the subpixel elements are not spatially
         separated in any usable fashion.
      */
@@ -263,7 +263,7 @@ public:
         kBGR_LCDOrder = 1,
         kNONE_LCDOrder = 2,
     };
-    
+
     static void SetSubpixelOrder(LCDOrder order);
     static LCDOrder GetSubpixelOrder();
 };

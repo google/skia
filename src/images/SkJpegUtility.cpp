@@ -43,7 +43,7 @@ static boolean sk_fill_input_buffer(j_decompress_ptr cinfo) {
 static void sk_skip_input_data(j_decompress_ptr cinfo, long num_bytes) {
     skjpeg_source_mgr*  src = (skjpeg_source_mgr*)cinfo->src;
 
-    if (num_bytes > src->bytes_in_buffer) {
+    if (num_bytes > (long)src->bytes_in_buffer) {
         long bytesToSkip = num_bytes - src->bytes_in_buffer;
         while (bytesToSkip > 0) {
             long bytes = (long)src->fStream->skip(bytesToSkip);

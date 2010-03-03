@@ -37,8 +37,7 @@ public:
     }
     
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
 #ifndef png_jmpbuf
@@ -110,9 +109,9 @@ static bool substituteTranspColor(SkBitmap* bm, SkPMColor match) {
     return reallyHasAlpha;
 }
 
-static bool canUpscalePaletteToConfig(SkBitmap::Config prefConfig,
+static bool canUpscalePaletteToConfig(SkBitmap::Config dstConfig,
                                       bool srcHasAlpha) {
-    switch (prefConfig) {
+    switch (dstConfig) {
         case SkBitmap::kARGB_8888_Config:
         case SkBitmap::kARGB_4444_Config:
             return true;
@@ -137,7 +136,7 @@ static bool hasTransparencyInPalette(png_structp png_ptr, png_infop info_ptr) {
 }
 
 bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
-                                 SkBitmap::Config prefConfig, Mode mode) {
+                                 Mode mode) {
 //    SkAutoTrace    apr("SkPNGImageDecoder::onDecode");
 
     /* Create and initialize the png_struct with the desired error handler
@@ -233,11 +232,11 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     }
     
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
-        config = SkBitmap::kIndex8_Config;
-        // now see if we can upscale to their requested config
         bool paletteHasAlpha = hasTransparencyInPalette(png_ptr, info_ptr);
-        if (canUpscalePaletteToConfig(prefConfig, paletteHasAlpha)) {
-            config = prefConfig;
+        config = this->getPrefConfig(kIndex_SrcDepth, paletteHasAlpha);
+        // now see if we can upscale to their requested config
+        if (!canUpscalePaletteToConfig(config, paletteHasAlpha)) {
+            config = SkBitmap::kIndex8_Config;
         }
     } else {
         png_color_16p   transpColor = NULL;
@@ -278,14 +277,16 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
                 PNG_COLOR_TYPE_RGB_ALPHA == color_type ||
                 PNG_COLOR_TYPE_GRAY_ALPHA == color_type) {
             hasAlpha = true;
-            config = SkBitmap::kARGB_8888_Config;
-        } else {    // we get to choose the config
-            config = prefConfig;
-            if (config == SkBitmap::kNo_Config) {
-                config = SkImageDecoder::GetDeviceConfig();
+        }
+        config = this->getPrefConfig(k32Bit_SrcDepth, hasAlpha);
+        // now match the request against our capabilities
+        if (hasAlpha) {
+            if (config != SkBitmap::kARGB_4444_Config) {
+                config = SkBitmap::kARGB_8888_Config;
             }
+        } else {
             if (config != SkBitmap::kRGB_565_Config &&
-                    config != SkBitmap::kARGB_4444_Config) {
+                config != SkBitmap::kARGB_4444_Config) {
                 config = SkBitmap::kARGB_8888_Config;
             }
         }
@@ -310,9 +311,6 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     
     const int sampleSize = this->getSampleSize();
     SkScaledBitmapSampler sampler(origWidth, origHeight, sampleSize);
-
-    // we must always return the same config, independent of mode, so if we were
-    // going to respect prefConfig, it must have happened by now
 
     decodedBitmap->setConfig(config, sampler.scaledWidth(),
                              sampler.scaledHeight(), 0);

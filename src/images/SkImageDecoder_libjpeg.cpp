@@ -55,8 +55,7 @@ public:
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -157,8 +156,7 @@ static bool return_false(const jpeg_decompress_struct& cinfo,
     return false;   // must always return false
 }
 
-bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
-                                  SkBitmap::Config prefConfig, Mode mode) {
+bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 #ifdef TIME_DECODE
     AutoTimeMillis atm("JPEG Decode");
 #endif
@@ -215,11 +213,7 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
     /* default format is RGB */
     cinfo.out_color_space = JCS_RGB;
 
-    SkBitmap::Config config = prefConfig;
-    // if no user preference, see what the device recommends
-    if (config == SkBitmap::kNo_Config)
-        config = SkImageDecoder::GetDeviceConfig();
-
+    SkBitmap::Config config = this->getPrefConfig(k32Bit_SrcDepth, false);
     // only these make sense for jpegs
     if (config != SkBitmap::kARGB_8888_Config &&
         config != SkBitmap::kARGB_4444_Config &&

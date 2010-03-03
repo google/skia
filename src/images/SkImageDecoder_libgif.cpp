@@ -31,8 +31,7 @@ public:
     }
     
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode);
 };
 
 static const uint8_t gStartingIterlaceYValue[] = {
@@ -154,8 +153,7 @@ static bool error_return(GifFileType* gif, const SkBitmap& bm,
     return false;
 }
 
-bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm,
-                                 SkBitmap::Config prefConfig, Mode mode) {   
+bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
     GifFileType* gif = DGifOpen(sk_stream, DecodeCallBackProc);
     if (NULL == gif) {
         return error_return(gif, *bm, "DGifOpen");

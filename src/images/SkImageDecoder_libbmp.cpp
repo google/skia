@@ -31,8 +31,7 @@ public:
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode);
 };
 
 static SkImageDecoder* Factory(SkStream* stream) {
@@ -81,8 +80,7 @@ private:
     bool fJustBounds;
 };
 
-bool SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
-                                 SkBitmap::Config prefConfig, Mode mode) {
+bool SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 
     size_t length = stream->getLength();
     SkAutoMalloc storage(length);
@@ -110,12 +108,12 @@ bool SkBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
     
     int width = callback.width();
     int height = callback.height();
-    SkBitmap::Config config = SkBitmap::kARGB_8888_Config;
-    
+    SkBitmap::Config config = this->getPrefConfig(k32Bit_SrcDepth, false);
+
     // only accept prefConfig if it makes sense for us
-    if (SkBitmap::kARGB_4444_Config == prefConfig ||
-            SkBitmap::kRGB_565_Config == config) {
-        config = prefConfig;
+    if (SkBitmap::kARGB_4444_Config != config &&
+            SkBitmap::kRGB_565_Config != config) {
+        config = SkBitmap::kARGB_8888_Config;
     }
 
     SkScaledBitmapSampler sampler(width, height, getSampleSize());
