@@ -89,6 +89,33 @@ public:
     Chooser* getChooser() const { return fChooser; }
     Chooser* setChooser(Chooser*);
 
+    /** This optional table describes the caller's preferred config based on
+        information about the src data. For this table, the src attributes are
+        described in terms of depth (index (8), 16, 32/24) and if there is
+        per-pixel alpha. These inputs combine to create an index into the
+        pref[] table, which contains the caller's preferred config for that
+        input, or kNo_Config if there is no preference.
+
+        To specify no preferrence, call setPrefConfigTable(NULL), which is
+        the default.
+
+        Note, it is still at the discretion of the codec as to what output
+        config is actually returned, as it may not be able to support the
+        caller's preference.
+
+        Here is how the index into the table is computed from the src:
+            depth [8, 16, 32/24] -> 0, 2, 4
+            alpha [no, yes] -> 0, 1
+        The two index values are OR'd together.
+            src: 8-index, no-alpha  -> 0
+            src: 8-index, yes-alpha -> 1
+            src: 16bit,   no-alpha  -> 2    // e.g. 565
+            src: 16bit,   yes-alpha -> 3    // e.g. 1555
+            src: 32/24,   no-alpha  -> 4
+            src: 32/24,   yes-alpha -> 5
+     */
+    void setPrefConfigTable(const SkBitmap::Config pref[6]);
+
     SkBitmap::Allocator* getAllocator() const { return fAllocator; }
     SkBitmap::Allocator* setAllocator(SkBitmap::Allocator*);
 
@@ -145,6 +172,9 @@ public:
         note: document use of Allocator, Peeker and Chooser
     */
     bool decode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref, Mode);
+    bool decode(SkStream* stream, SkBitmap* bitmap, Mode mode) {
+        return this->decode(stream, bitmap, SkBitmap::kNo_Config, mode);
+    }
 
     /** Given a stream, this will try to find an appropriate decoder object.
         If none is found, the method returns NULL.
@@ -232,8 +262,7 @@ public:
 
 protected:
     // must be overridden in subclasses. This guy is called by decode(...)
-    virtual bool onDecode(SkStream*, SkBitmap* bitmap, SkBitmap::Config pref,
-                          Mode) = 0;
+    virtual bool onDecode(SkStream*, SkBitmap* bitmap, Mode) = 0;
 
     /** Can be queried from within onDecode, to see if the user (possibly in
         a different thread) has requested the decode to cancel. If this returns
@@ -260,12 +289,30 @@ protected:
     */
     bool allocPixelRef(SkBitmap*, SkColorTable*) const;
 
+    enum SrcDepth {
+        kIndex_SrcDepth,
+        k16Bit_SrcDepth,
+        k32Bit_SrcDepth
+    };
+    /** The subclass, inside onDecode(), calls this to determine the config of
+        the returned bitmap. SrcDepth and hasAlpha reflect the raw data of the
+        src image. This routine returns the caller's preference given
+        srcDepth and hasAlpha, or kNo_Config if there is no preference.
+
+        Note: this also takes into account GetDeviceConfig(), so the subclass
+        need not call that.
+     */
+    SkBitmap::Config getPrefConfig(SrcDepth, bool hasAlpha) const;
+
 private:
     Peeker*                 fPeeker;
     Chooser*                fChooser;
     SkBitmap::Allocator*    fAllocator;
     int                     fSampleSize;
+    SkBitmap::Config        fDefaultPref;   // use if fUsePrefTable is false
+    SkBitmap::Config        fPrefTable[6];  // use if fUsePrefTable is true
     bool                    fDitherImage;
+    bool                    fUsePrefTable;
     mutable bool            fShouldCancelDecode;
 
     // illegal

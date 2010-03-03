@@ -29,8 +29,7 @@ public:
     }
 
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -79,8 +78,7 @@ static int calculateRowBytesFor8888(int w, int bitCount)
     return 0;
 }
 
-bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm,
-                                 SkBitmap::Config pref, Mode mode)
+bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
 {
     size_t length = stream->read(NULL, 0);
     SkAutoMalloc autoMal(length);

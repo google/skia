@@ -29,8 +29,7 @@ public:
     }
     
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
 static bool read_byte(SkStream* stream, uint8_t* data)
@@ -107,7 +106,7 @@ static void expand_bits_to_bytes(uint8_t dst[], const uint8_t src[], int bits)
 #define SkAlign8(x)     (((x) + 7) & ~7)
 
 bool SkWBMPImageDecoder::onDecode(SkStream* stream, SkBitmap* decodedBitmap,
-                                  SkBitmap::Config prefConfig, Mode mode)
+                                  Mode mode)
 {
     wbmp_head   head;
     

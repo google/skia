@@ -42,14 +42,12 @@ static CGImageSourceRef SkStreamToCGImageSource(SkStream* stream) {
 
 class SkImageDecoder_CG : public SkImageDecoder {
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm,
-                          SkBitmap::Config pref, Mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
 #define BITMAP_INFO (kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast)
 
-bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm,
-                                 SkBitmap::Config pref, Mode mode) {
+bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     CGImageSourceRef imageSrc = SkStreamToCGImageSource(stream);
 
     if (NULL == imageSrc) {
