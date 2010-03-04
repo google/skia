@@ -99,14 +99,11 @@ private:
    If so, use the memory size for jpeg decode.
 */
 static void overwrite_mem_buffer_size(j_decompress_ptr cinfo) {
-    int len = 0;
-    char value[PROPERTY_VALUE_MAX];
-    int memCap;
-
-    len = property_get(KEY_MEM_CAP, value, "");
-    if (len > 0 && sscanf(value, "%d", &memCap) == 1) {
-        cinfo->mem->max_memory_to_use = memCap;
-    }
+#ifdef ANDROID_LARGE_MEMORY_DEVICE
+    cinfo->mem->max_memory_to_use = 30 * 1024 * 1024;
+#else
+    cinfo->mem->max_memory_to_use = 5 * 1024 * 1024;
+#endif
 }
 #endif
 
