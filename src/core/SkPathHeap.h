@@ -15,7 +15,10 @@ public:
             SkPathHeap(SkFlattenableReadBuffer&);
     virtual ~SkPathHeap();
 
-    // called during picture-record
+    /** Copy the path into the heap, and return the new total number of paths.
+        Thus, the returned value will be index+1, where index is the index of
+        this newly added (copied) path.
+     */
     int append(const SkPath&);
     
     // called during picture-playback
