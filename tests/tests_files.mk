@@ -1,4 +1,5 @@
 SOURCE := \
+	BlitRowTest.cpp \
 	ClipperTest.cpp \
 	GeometryTest.cpp \
     MathTest.cpp \
