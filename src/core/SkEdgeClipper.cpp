@@ -280,7 +280,11 @@ static void chop_cubic_in_Y(SkPoint pts[4], const SkRect& clip) {
     if (pts[0].fY < clip.fTop) {
         if (chopMonoCubicAtY(pts, clip.fTop, &t)) {
             SkChopCubicAt(pts, tmp, t);
-            clamp_ge(tmp[3].fY, clip.fTop);
+            // given the imprecision of computing t, we just slam our Y coord
+            // to the top of the clip. This also saves us in the bad case where
+            // the t was soooo bad that the entire segment could have been
+            // below fBottom
+            tmp[3].fY = clip.fTop;
             clamp_ge(tmp[4].fY, clip.fTop);
             clamp_ge(tmp[5].fY, clip.fTop);
             pts[0] = tmp[3];
@@ -324,10 +328,10 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
     if (pts[3].fY <= clip.fTop || pts[0].fY >= clip.fBottom) {
         return;
     }
-    
+
     // Now chop so that pts is contained within clip in Y
     chop_cubic_in_Y(pts, clip);
-    
+
     if (pts[0].fX > pts[3].fX) {
         SkTSwap<SkPoint>(pts[0], pts[3]);
         SkTSwap<SkPoint>(pts[1], pts[2]);

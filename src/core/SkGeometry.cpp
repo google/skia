@@ -100,6 +100,9 @@ static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio)
         return 0;
 
     SkScalar r = SkScalarDiv(numer, denom);
+    if (SkScalarIsNaN(r)) {
+        return 0;
+    }
     SkASSERT(r >= 0 && r < SK_Scalar1);
     if (r == 0) // catch underflow if numer <<<< denom
         return 0;
@@ -124,8 +127,9 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2])
 
 #ifdef SK_SCALAR_IS_FLOAT
     float R = B*B - 4*A*C;
-    if (R < 0)  // complex roots
+    if (R < 0 || SkScalarIsNaN(R)) {  // complex roots
         return 0;
+    }
     R = sk_float_sqrt(R);
 #else
     Sk64    RR, tmp;
