@@ -116,7 +116,10 @@ static void TestBlitRow(skiatest::Reporter* reporter) {
         { 0xFFFFFFFF,   0,          SkPackARGB32(0xFF, 0xFF, 0xFF, 0xFF), 0xFFFF, 0xFF },
         { 0xFFFFFFFF,   0xFFFFFFFF, SkPackARGB32(0xFF, 0xFF, 0xFF, 0xFF), 0xFFFF, 0xFF },
     };
-    
+
+    SkPaint paint;
+    paint.setDither(true);
+
     SkBitmap srcBM;
     srcBM.setConfig(SkBitmap::kARGB_8888_Config, W, 1);
     srcBM.allocPixels();
@@ -131,10 +134,21 @@ static void TestBlitRow(skiatest::Reporter* reporter) {
             srcBM.eraseColor(gSrcRec[j].fSrc);
             dstBM.eraseColor(gSrcRec[j].fDst);
 
-            canvas.drawBitmap(srcBM, 0, 0, NULL);
-            if (!check_color(dstBM, gSrcRec[j].fResult32, gSrcRec[j].fResult16,
-                             gSrcRec[j].fResult8, reporter)) {
-                SkDebugf("--- src index %d\n", j);
+            for (int k = 0; k < 4; k++) {
+                bool dither = (k & 1) != 0;
+                bool blend = (k & 2) != 0;
+                if (gSrcRec[j].fSrc != 0 && blend) {
+                    // can't make a numerical promise about blending anything
+                    // but 0
+                    continue;
+                }
+                paint.setDither(dither);
+                paint.setAlpha(blend ? 0x80 : 0xFF);
+                canvas.drawBitmap(srcBM, 0, 0, &paint);
+                if (!check_color(dstBM, gSrcRec[j].fResult32, gSrcRec[j].fResult16,
+                                 gSrcRec[j].fResult8, reporter)) {
+                    SkDebugf("--- src index %d dither %d blend %d\n", j, dither, blend);
+                }
             }
         }
     }
