@@ -20,4 +20,4 @@ SOURCE := \
     PathMeasureTest.cpp \
     TriangulationTest.cpp \
     TestSize.cpp \
-    testmain.cpp
+    skia_test.cpp
