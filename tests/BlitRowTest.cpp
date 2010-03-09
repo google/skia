@@ -100,7 +100,7 @@ static void TestBlitRow(skiatest::Reporter* reporter) {
     static const SkBitmap::Config gDstConfig[] = {
         SkBitmap::kARGB_8888_Config,
         SkBitmap::kRGB_565_Config,
-        SkBitmap::kARGB_4444_Config,
+//        SkBitmap::kARGB_4444_Config,
 //        SkBitmap::kA8_Config,
     };
 
@@ -140,7 +140,7 @@ static void TestBlitRow(skiatest::Reporter* reporter) {
                 if (gSrcRec[j].fSrc != 0 && blend) {
                     // can't make a numerical promise about blending anything
                     // but 0
-                    continue;
+                 //   continue;
                 }
                 paint.setDither(dither);
                 paint.setAlpha(blend ? 0x80 : 0xFF);
