@@ -263,11 +263,11 @@ bool SkColorShader::setContext(const SkBitmap& device, const SkPaint& paint,
     fPMColor = SkPackARGB32(a, r, g, b);
 
     fFlags = kConstInY32_Flag;
-    if (paint.isDither() == false) {
-        fFlags |= kHasSpan16_Flag;
-    }
-    if (SkGetPackedA32(fPMColor) == 255) {
+    if (255 == a) {
         fFlags |= kOpaqueAlpha_Flag;
+        if (paint.isDither() == false) {
+            fFlags |= kHasSpan16_Flag;
+        }
     }
 
     return true;
