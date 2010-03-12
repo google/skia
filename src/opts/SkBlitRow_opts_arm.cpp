@@ -984,7 +984,7 @@ static const SkBlitRow::Proc platform_565_procs[] = {
     // dither
     S32_D565_Opaque_Dither_PROC,
     S32_D565_Blend_Dither_PROC,
-    S32A_D565_Opaque_Dither_PROC,
+    NULL,   // S32A_D565_Opaque_Dither_neon gives diff results in residual case
     NULL,   // S32A_D565_Blend_Dither
 };
 
