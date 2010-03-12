@@ -116,6 +116,10 @@ static SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst, unsigned scale)
     return SkPackARGB32(a, r, g, b);
 }
 
+static inline unsigned Accurate255To256(unsigned x) {
+    return x + (x >> 7);
+}
+
 void SkAvoidXfermode::xfer32(SkPMColor dst[], const SkPMColor src[], int count,
                              const SkAlpha aa[])
 {
@@ -140,14 +144,14 @@ void SkAvoidXfermode::xfer32(SkPMColor dst[], const SkPMColor src[], int count,
         // now reverse d if we need to
         d = MAX + (d ^ mask) - mask;
         SkASSERT((unsigned)d <= 255);
-        d = SkAlpha255To256(d);
+        d = Accurate255To256(d);
         
         d = scale_dist_14(d, mul, sub);
         SkASSERT(d <= 256);
         
         if (d > 0) {
             if (NULL != aa) {
-                d = SkAlphaMul(d, SkAlpha255To256(*aa++));
+                d = SkAlphaMul(d, Accurate255To256(*aa++));
                 if (0 == d) {
                     continue;
                 }
@@ -198,7 +202,7 @@ void SkAvoidXfermode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
 
         if (d > 0) {
             if (NULL != aa) {
-                d = SkAlphaMul(d, SkAlpha255To256(*aa++));
+                d = SkAlphaMul(d, Accurate255To256(*aa++));
                 if (0 == d) {
                     continue;
                 }
@@ -239,7 +243,7 @@ void SkAvoidXfermode::xfer4444(uint16_t dst[], const SkPMColor src[], int count,
         
         if (d > 0) {
             if (NULL != aa) {
-                d = SkAlphaMul(d, SkAlpha255To256(*aa++));
+                d = SkAlphaMul(d, Accurate255To256(*aa++));
                 if (0 == d) {
                     continue;
                 }
