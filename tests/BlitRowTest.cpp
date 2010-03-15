@@ -2,6 +2,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkGradientShader.h"
 #include "SkRect.h"
 
 static inline const char* boolStr(bool value) {
@@ -94,7 +95,8 @@ static bool check_color(const SkBitmap& bm, SkPMColor expect32,
     return true;
 }
 
-static void TestBlitRow(skiatest::Reporter* reporter) {
+// Make sure our blits always map src==0 to a noop, and src==FF to full opaque
+static void test_00_FF(skiatest::Reporter* reporter) {
     static const int W = 256;
 
     static const SkBitmap::Config gDstConfig[] = {
@@ -118,12 +120,11 @@ static void TestBlitRow(skiatest::Reporter* reporter) {
     };
 
     SkPaint paint;
-    paint.setDither(true);
 
     SkBitmap srcBM;
     srcBM.setConfig(SkBitmap::kARGB_8888_Config, W, 1);
     srcBM.allocPixels();
-    
+
     for (size_t i = 0; i < SK_ARRAY_COUNT(gDstConfig); i++) {
         SkBitmap dstBM;
         dstBM.setConfig(gDstConfig[i], W, 1);
@@ -152,6 +153,115 @@ static void TestBlitRow(skiatest::Reporter* reporter) {
             }
         }
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct Mesh {
+    SkPoint     fPts[4];
+    uint16_t    fIndices[6];
+
+    Mesh(const SkBitmap& bm, SkPaint* paint) {
+        const SkScalar w = SkIntToScalar(bm.width());
+        const SkScalar h = SkIntToScalar(bm.height());
+        fPts[0].set(0, 0);
+        fPts[1].set(w, 0);
+        fPts[2].set(w, h);
+        fPts[3].set(0, h);
+        SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
+                                                   SkShader::kClamp_TileMode);
+        paint->setShader(s)->unref();
+        
+    }
+
+    void draw(SkCanvas* canvas, SkPaint* paint) {
+        canvas->drawVertices(SkCanvas::kTriangleFan_VertexMode, 4, fPts, fPts,
+                             NULL, NULL, NULL, 0, *paint);
+    }
+};
+
+#include "SkImageEncoder.h"
+static void save_bm(const SkBitmap& bm, const char name[]) {
+    SkImageEncoder::EncodeFile(name, bm, SkImageEncoder::kPNG_Type, 100);
+}
+
+static bool gOnce;
+
+// Make sure our blits are invariant with the width of the blit (i.e. that
+// special case for 8 at a time have the same results as narrower blits)
+static void test_diagonal(skiatest::Reporter* reporter) {
+    static const int W = 64;
+    static const int H = W;
+    
+    static const SkBitmap::Config gDstConfig[] = {
+        SkBitmap::kARGB_8888_Config,
+        SkBitmap::kRGB_565_Config,
+        //        SkBitmap::kARGB_4444_Config,
+        //        SkBitmap::kA8_Config,
+    };
+
+    static const SkColor gDstBG[] = { 0, 0xFFFFFFFF };
+
+    SkPaint paint;
+    
+    SkBitmap srcBM;
+    srcBM.setConfig(SkBitmap::kARGB_8888_Config, W, H);
+    srcBM.allocPixels();
+    SkRect srcR = { 0, 0, srcBM.width(), srcBM.height() };
+
+    // cons up a mesh to draw the bitmap with
+    Mesh mesh(srcBM, &paint);
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gDstConfig); i++) {
+        SkBitmap dstBM0, dstBM1;
+        dstBM0.setConfig(gDstConfig[i], W, H);
+        dstBM1.setConfig(gDstConfig[i], W, H);
+        dstBM0.allocPixels();
+        dstBM1.allocPixels();
+        
+        SkCanvas canvas0(dstBM0);
+        SkCanvas canvas1(dstBM1);
+        SkColor bgColor;
+
+        for (size_t j = 0; j < SK_ARRAY_COUNT(gDstBG); j++) {
+            bgColor = gDstBG[j];
+
+            for (int c = 0; c <= 0xFF; c++) {
+                srcBM.eraseARGB(0xFF, c, c, c);
+                
+                for (int k = 0; k < 4; k++) {
+                    bool dither = (k & 1) != 0;
+                    uint8_t alpha = (k & 2) ? 0x80 : 0xFF;
+                    paint.setDither(dither);
+                    paint.setAlpha(alpha);
+
+                    dstBM0.eraseColor(bgColor);
+                    dstBM1.eraseColor(bgColor);
+
+                    canvas0.drawRect(srcR, paint);
+                    mesh.draw(&canvas1, &paint);
+
+                    if (!gOnce && false) {
+                        save_bm(dstBM0, "drawBitmap.png");
+                        save_bm(dstBM1, "drawMesh.png");
+                        gOnce = true;
+                    }
+
+                    if (memcmp(dstBM0.getPixels(), dstBM1.getPixels(), dstBM0.getSize())) {
+                        SkString str;
+                        str.printf("Diagonal config=%s bg=0x%x dither=%d alpha=0x%x src=0x%x",
+                                   gConfigName[gDstConfig[i]], bgColor, dither, alpha, c);
+                        reporter->reportFailed(str);
+                    }
+                }
+            }
+        }
+    }
+}
+
+static void TestBlitRow(skiatest::Reporter* reporter) {
+    test_00_FF(reporter);
+    test_diagonal(reporter);
 }
 
 #include "TestClassDef.h"
