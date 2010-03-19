@@ -711,9 +711,24 @@ static void set_bounds(const SkGlyph& g, SkRect* bounds)
                 SkIntToScalar(g.fTop + g.fHeight));
 }
 
-static void join_bounds(const SkGlyph& g, SkRect* bounds, SkFixed dx)
+// 64bits wide, with a 16bit bias. Useful when accumulating lots of 16.16 so
+// we don't overflow along the way
+typedef int64_t Sk48Dot16;
+
+#ifdef SK_SCALAR_IS_FLOAT
+    static inline float Sk48Dot16ToScalar(Sk48Dot16 x) {
+        return x * 1.5258789e-5f;   // x * (1 / 65536.0f)
+    }
+#else
+    static inline SkFixed Sk48Dot16ToScalar(Sk48Dot16 x) {
+        // just return the low 32bits
+        return static_cast<SkFixed>(x);
+    }
+#endif
+
+static void join_bounds(const SkGlyph& g, SkRect* bounds, Sk48Dot16 dx)
 {
-    SkScalar sx = SkFixedToScalar(dx);
+    SkScalar sx = Sk48Dot16ToScalar(dx);
     bounds->join(SkIntToScalar(g.fLeft) + sx,
                  SkIntToScalar(g.fTop),
                  SkIntToScalar(g.fLeft + g.fWidth) + sx,
@@ -740,7 +755,10 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     int         n = 1;
     const char* stop = (const char*)text + byteLength;
     const SkGlyph* g = &glyphCacheProc(cache, &text);
-    SkFixed x = g->fAdvanceX;
+    // our accumulated fixed-point advances might overflow 16.16, so we use
+    // a 48.16 (64bit) accumulator, and then convert that to scalar at the
+    // very end.
+    Sk48Dot16 x = g->fAdvanceX;
 
     SkAutoKern  autokern;
 
@@ -788,7 +806,7 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     SkASSERT(text == stop);
 
     *count = n;
-    return SkFixedToScalar(x);
+    return Sk48Dot16ToScalar(x);
 }
 
 SkScalar SkPaint::measureText(const void* textData, size_t length,
@@ -898,8 +916,9 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     SkMeasureCacheProc glyphCacheProc = this->getMeasureCacheProc(tbd, false);
     const char*      stop;
     SkTextBufferPred pred = chooseTextBufferPred(tbd, &text, length, &stop);
-    SkFixed          max = SkScalarToFixed(maxWidth);
-    SkFixed          width = 0;
+    // use 64bits for our accumulator, to avoid overflowing 16.16
+    Sk48Dot16        max = SkScalarToFixed(maxWidth);
+    Sk48Dot16        width = 0;
 
     SkAutoKern  autokern;
 
@@ -938,7 +957,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
     if (measuredWidth)
     {
         
-        SkScalar scalarWidth = SkFixedToScalar(width);
+        SkScalar scalarWidth = Sk48Dot16ToScalar(width);
         if (scale)
             scalarWidth = SkScalarMul(scalarWidth, scale);
         *measuredWidth = scalarWidth;
