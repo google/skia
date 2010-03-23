@@ -19,6 +19,7 @@ SkLayer::SkLayer() {
 
     fMatrix.reset();
     fChildrenMatrix.reset();
+    fFlags = 0;
 
 #ifdef DEBUG_TRACK_NEW_DELETE
     gLayerAllocCount += 1;
@@ -35,6 +36,7 @@ SkLayer::SkLayer(const SkLayer& src) {
 
     fMatrix = src.fMatrix;
     fChildrenMatrix = src.fChildrenMatrix;
+    fFlags = src.fFlags;
 
 #ifdef DEBUG_TRACK_NEW_DELETE
     gLayerAllocCount += 1;
@@ -53,6 +55,18 @@ SkLayer::~SkLayer() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkLayer::isInheritFromRootTransform() const {
+    return (fFlags & kInheritFromRootTransform_Flag) != 0;
+}
+
+void SkLayer::setInheritFromRootTransform(bool doInherit) {
+    if (doInherit) {
+        fFlags |= kInheritFromRootTransform_Flag;
+    } else {
+        fFlags &= ~kInheritFromRootTransform_Flag;
+    }
+}
+
 void SkLayer::setMatrix(const SkMatrix& matrix) {
     fMatrix = matrix;
 }
@@ -69,16 +83,16 @@ int SkLayer::countChildren() const {
 
 SkLayer* SkLayer::getChild(int index) const {
     if ((unsigned)index < (unsigned)m_children.count()) {
+        SkASSERT(m_children[index]->fParent == this);
         return m_children[index];
     }
     return NULL;
 }
 
 SkLayer* SkLayer::addChild(SkLayer* child) {
+    SkASSERT(this != child);
     child->ref();
-    if (child->fParent) {
-        child->fParent->removeChild(child);
-    }
+    child->detachFromParent();
     SkASSERT(child->fParent == NULL);
     child->fParent = this;
 
@@ -86,20 +100,24 @@ SkLayer* SkLayer::addChild(SkLayer* child) {
     return child;
 }
 
-bool SkLayer::removeChild(SkLayer* child) {
-    int index = m_children.find(child);
-    if (index >= 0) {
-        SkASSERT(child->fParent == this);
-        child->fParent = NULL;
-        child->unref();
-        m_children.remove(index);
-        return true;
+void SkLayer::detachFromParent() {
+    if (fParent) {
+        int index = fParent->m_children.find(this);
+        SkASSERT(index >= 0);
+        fParent->m_children.remove(index);
+        fParent = NULL;
+        this->unref();  // this call might delete us
     }
-    return false;
 }
 
 void SkLayer::removeChildren() {
-    m_children.unrefAll();
+    int count = m_children.count();
+    for (int i = 0; i < count; i++) {
+        SkLayer* child = m_children[i];
+        SkASSERT(child->fParent == this);
+        child->fParent = NULL;  // in case it has more than one owner
+        child->unref();
+    }
     m_children.reset();
 }
 
@@ -125,6 +143,11 @@ void SkLayer::getLocalTransform(SkMatrix* matrix) const {
 
 void SkLayer::localToGlobal(SkMatrix* matrix) const {
     this->getLocalTransform(matrix);
+
+    if (this->isInheritFromRootTransform()) {
+        matrix->postConcat(this->getRootLayer()->getMatrix());
+        return;
+    }
 
     const SkLayer* layer = this;
     while (layer->fParent != NULL) {
@@ -165,13 +188,13 @@ void SkLayer::draw(SkCanvas* canvas, SkScalar opacity) {
 
     // apply our local transform
     {
-        canvas->translate(m_position.fX, m_position.fY);
-        
-        SkScalar tx = SkScalarMul(m_anchorPoint.fX, m_size.width());
-        SkScalar ty = SkScalarMul(m_anchorPoint.fY, m_size.height());
-        canvas->translate(tx, ty);
-        canvas->concat(this->getMatrix());
-        canvas->translate(-tx, -ty);
+        SkMatrix tmp;
+        this->getLocalTransform(&tmp);
+        if (this->isInheritFromRootTransform()) {
+            // should we also apply the root's childrenMatrix?
+            canvas->setMatrix(getRootLayer()->getMatrix());
+        }
+        canvas->concat(tmp);
     }
 
     this->onDraw(canvas, opacity);
