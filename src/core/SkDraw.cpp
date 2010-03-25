@@ -706,7 +706,10 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     SkBlitter*          blitter = blitterStorage.get();
     const SkRegion*     clip = fClip;
 
-    if (paint.getStyle() == SkPaint::kFill_Style) {
+    // we want to "fill" if we are kFill or kStrokeAndFill, since in the latter
+    // case we are also hairline (if we've gotten to here), which devolves to
+    // effectively just kFill
+    if (paint.getStyle() != SkPaint::kStroke_Style) {
         if (paint.isAntiAlias()) {
             SkScan::AntiFillRect(devRect, clip, blitter);
         } else {
