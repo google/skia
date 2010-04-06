@@ -590,7 +590,13 @@ static inline SkPMColor16 SkPixel32ToPixel4444(SkPMColor c) {
 // cheap 2x2 dither
 static inline SkPMColor16 SkDitherARGB32To4444(U8CPU a, U8CPU r,
                                                U8CPU g, U8CPU b) {
-    a = ((a << 1) - ((a >> 4 << 4) | (a >> 4))) >> 4;
+    // to ensure that we stay a legal premultiplied color, we take the max()
+    // of the truncated and dithered alpha values. If we didn't, cases like
+    // SkDitherARGB32To4444(0x31, 0x2E, ...) would generate SkPackARGB4444(2, 3, ...)
+    // which is not legal premultiplied, since a < color
+    unsigned dithered_a = ((a << 1) - ((a >> 4 << 4) | (a >> 4))) >> 4;
+    a = SkMax32(a >> 4, dithered_a);
+    // these we just dither in place
     r = ((r << 1) - ((r >> 4 << 4) | (r >> 4))) >> 4;
     g = ((g << 1) - ((g >> 4 << 4) | (g >> 4))) >> 4;
     b = ((b << 1) - ((b >> 4 << 4) | (b >> 4))) >> 4;
