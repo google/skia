@@ -1,0 +1,37 @@
+diff --git a/contrib/harfbuzz-unicode.c b/contrib/harfbuzz-unicode.c
+index 51dd4ea..cb7a85b 100644
+--- a/contrib/harfbuzz-unicode.c
++++ b/contrib/harfbuzz-unicode.c
+@@ -171,7 +171,10 @@ hb_utf16_script_run_prev(unsigned *num_code_points, HB_ScriptItem *output,
+         current_script = script;
+         continue;
+       } else if (script == HB_Script_Inherited) {
+-        current_script = script;
++        // Just assume that whatever follows this combining character is within
++        // the same script.  This is incorrect if you had language1 + combining
++        // char + language 2, but that is rare and this code is suspicious
++        // anyway.
+         continue;
+       } else {
+         *iter = prev_iter;
+diff --git a/src/harfbuzz-shaper.cpp b/src/harfbuzz-shaper.cpp
+index f3ec8e1..2b0dfde 100644
+--- a/src/harfbuzz-shaper.cpp
++++ b/src/harfbuzz-shaper.cpp
+@@ -433,7 +433,7 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
+ 
+     // ### zeroWidth and justification are missing here!!!!!
+ 
+-    assert(item->num_glyphs <= length);
++    assert(length <= item->num_glyphs);
+ 
+ //     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", item->num_glyphs);
+     HB_GlyphAttributes *attributes = item->attributes;
+@@ -451,7 +451,6 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
+         }
+         ++glyph_pos;
+     }
+-    assert(glyph_pos == item->num_glyphs);
+ 
+     // first char in a run is never (treated as) a mark
+     int cStart = 0;
