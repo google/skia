@@ -1,0 +1,9 @@
+Harfbuzz requires several functions to be defined in order to work with the
+platform's Unicode tables etc.
+
+If you are building on top of Qt4 you should look at the code in the tests/
+directory for examples of how to hook up Qt4 functions to Harfbuzz.
+
+Otherwise, this directory contains examples of using downloaded Unicode tables
+and/or glib to host Harfbuzz. You should read the README file in tables/ for how
+to build the header files for some of the Unicode tables.
