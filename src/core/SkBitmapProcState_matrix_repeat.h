@@ -111,12 +111,7 @@ static void SCALE_NOFILTER_NAME(const SkBitmapProcState& s,
 	    fx2 = fx1+dx;
 	    fx3 = fx2+dx;
 
-#if 1
-	    /* avoid the 'lbase unitialized' warning */
 	    lbase = vdupq_n_s32(fx);
-#else
-	    lbase = vsetq_lane_s32(fx, lbase, 0);
-#endif
 	    lbase = vsetq_lane_s32(fx1, lbase, 1);
 	    lbase = vsetq_lane_s32(fx2, lbase, 2);
 	    lbase = vsetq_lane_s32(fx3, lbase, 3);
@@ -234,22 +229,12 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
 	    int16_t *dst16 = (int16_t *)xy;
 
 	    /* synthesize 4x for both X and Y */
-#if 1
-	    /* avoid the xbase unitialized warning */
 	    xbase = vdupq_n_s32(fx);
-#else
-	    xbase = vsetq_lane_s32(fx, xbase, 0);
-#endif
 	    xbase = vsetq_lane_s32(fx+dx, xbase, 1);
 	    xbase = vsetq_lane_s32(fx+dx+dx, xbase, 2);
 	    xbase = vsetq_lane_s32(fx+dx+dx+dx, xbase, 3);
 
-#if 1
-	    /* avoid the xbase unitialized warning */
 	    ybase = vdupq_n_s32(fy);
-#else
-	    ybase = vsetq_lane_s32(fy, ybase, 0);
-#endif
 	    ybase = vsetq_lane_s32(fy+dy, ybase, 1);
 	    ybase = vsetq_lane_s32(fy+dy+dy, ybase, 2);
 	    ybase = vsetq_lane_s32(fy+dy+dy+dy, ybase, 3);
@@ -285,6 +270,7 @@ static void AFFINE_NOFILTER_NAME(const SkBitmapProcState& s,
 	    } while (count >= 4);
 	    xy = (uint32_t *) dst16;
 	}
+
 #if 0
     /* diagnostics... see whether we agree with the NEON code */
     int bad = 0;
@@ -383,11 +369,11 @@ static void PERSP_NOFILTER_NAME(const SkBitmapProcState& s,
 		{
 		    register int32x4_t q2 asm("q2");
 		    register int32x4_t q3 asm("q3");
-		    asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
+		    asm ("vld2.32	{q2-q3},[%2]  /* x=%q0 y=%q1 */"
 		        : "=w" (q2), "=w" (q3)
 		        : "r" (mysrc+8)
 		        );
-		    x = q2; y = q3;
+		    x2 = q2; y2 = q3;
 		}
 
          	/* TILEX_PROCF(fx, max) (((fx)&0xFFFF)*((max)+1)>> 16) */

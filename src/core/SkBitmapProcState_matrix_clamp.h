@@ -779,22 +779,20 @@ static void PERSP_FILTER_NAME(const SkBitmapProcState& s,
             int32x4_t wide_x, wide_y;
 
             while (count >= 4) {
-            	/* need side-by-side regs for vld2/vst2 tricks */
-            	register int32x4_t wide_first asm ("q0");
-            	register int32x4_t wide_second asm ("q1");
-
                 /* RBE: it's good, but:
                  * -- we spill a constant that could be easily regnerated
                  *    [perhaps tweak gcc's NEON constant costs?]
                  */
 
                 /* load src:  x-y-x-y-x-y-x-y */
-                asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
-                : "=w" (wide_first), "=w" (wide_second)
-                : "r" (srcXY));
-		/* immediately get into vars gcc can move around if needed */
-                wide_x = wide_first;
-                wide_y = wide_second;
+		{
+		    register int32x4_t q0 asm ("q0");
+		    register int32x4_t q1 asm ("q1");
+                    asm ("vld2.32	{q0-q1},[%2]  /* x=%q0 y=%q1 */"
+                         : "=w" (q0), "=w" (q1)
+                         : "r" (srcXY));
+		    wide_x = q0; wide_y = q1;
+		}
 
                 /* do the X side, then the Y side, then interleave them */
 
@@ -861,13 +859,14 @@ static void PERSP_FILTER_NAME(const SkBitmapProcState& s,
                 count -= 4;
 
                 /* store interleaved as y-x-y-x-y-x-y-x (NB != read order) */
-                /* wide_x/wide_y are fixed regs, in wrong order; swap 'em */
-                wide_first = wide_y;
-                wide_second = wide_x;
-
-                asm ("vst2.32	{q6-q7},[%2]  /* y=%q0 x=%q1 */"
-                    :
-                    : "w" (wide_first), "w" (wide_second), "r" (xy));
+		{
+		    register int32x4_t q0 asm ("q0") = wide_y;
+		    register int32x4_t q1 asm ("q1") = wide_x;
+			
+                    asm ("vst2.32	{q0-q1},[%2]  /* y=%q0 x=%q1 */"
+                        :
+                        : "w" (q0), "w" (q1), "r" (xy));
+		}
 
                 /* on to the next iteration */
                 /* count, srcXY are handled above */
