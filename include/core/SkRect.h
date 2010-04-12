@@ -233,6 +233,18 @@ struct SkIRect {
 struct SkRect {
     SkScalar    fLeft, fTop, fRight, fBottom;
 
+    static SkRect MakeEmpty() {
+        SkRect r;
+        r.setEmpty();
+        return r;
+    }
+
+    static SkRect MakeWH(SkScalar w, SkScalar h) {
+        SkRect r;
+        r.set(0, 0, w, h);
+        return r;
+    }
+
     static SkRect MakeSize(const SkSize& size) {
         SkRect r;
         r.set(0, 0, size.width(), size.height());
@@ -250,7 +262,7 @@ struct SkRect {
         r.set(x, y, x + w, y + h);
         return r;
     }
-    
+
     /** Return true if the rectangle's width or height are <= 0
     */
     bool        isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
