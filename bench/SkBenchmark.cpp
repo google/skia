@@ -9,6 +9,7 @@ SkBenchmark::SkBenchmark(void* defineDict) {
     fForceAlpha = 0xFF;
     fForceAA = true;
     fDither = SkTriState::kDefault;
+    fHasStrokeWidth = false;
 }
 
 const char* SkBenchmark::getName() {
