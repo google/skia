@@ -153,6 +153,19 @@ skimage: $(SKIMAGE_OBJS) out/libskia.a
 
 ##############################################################################
 
+SKHELLO_SRCS := skhello.cpp
+
+SKHELLO_SRCS := $(addprefix tools/, $(SKHELLO_SRCS))
+
+SKHELLO_OBJS := $(SKHELLO_SRCS:.cpp=.o)
+SKHELLO_OBJS := $(addprefix out/, $(SKHELLO_OBJS))
+
+skhello: $(SKHELLO_OBJS) out/libskia.a
+	@echo "linking shkello..."
+	$(HIDE)g++ $(SKHELLO_OBJS) out/libskia.a -o out/tools/skhello $(LINKER_OPTS)
+
+##############################################################################
+
 include gm/gm_files.mk
 GM_SRCS := $(addprefix gm/, $(SOURCE))
 
@@ -170,7 +183,7 @@ gm: $(GM_OBJS) out/libskia.a
 ##############################################################################
 
 .PHONY: all
-all: $ bench gm skimage tests
+all: $ bench gm skimage tests skhello
 
 .PHONY: clean
 clean:
@@ -183,6 +196,7 @@ help:
 	@echo "    bench: out/bench/bench"
 	@echo "    gm: out/gm/gm"
 	@echo "    skimage: out/tools/skimage"
+	@echo "    skhello: out/tools/skhello"
 	@echo "    tests: out/tests/tests"
 	@echo "    clean: removes entire out/ directory"
 	@echo "    help: this text"
