@@ -283,10 +283,11 @@ public:
     StreamTypeface(Style style, bool sysFont, FamilyRec* family,
                    SkStream* stream)
     : INHERITED(style, sysFont, family) {
+        stream->ref();
         fStream = stream;
     }
     virtual ~StreamTypeface() {
-        SkDELETE(fStream);
+        fStream->unref();
     }
     
     // overrides
@@ -536,8 +537,8 @@ SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     FamilyTypeface* tf = (FamilyTypeface*)find_from_uniqueID(fontID);
     SkStream* stream = tf ? tf->openStream() : NULL;
     
-    if (NULL == stream || stream->getLength() == 0) {
-        delete stream;
+    if (stream && stream->getLength() == 0) {
+        stream->unref();
         stream = NULL;
     }
     return stream;
