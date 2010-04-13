@@ -1,4 +1,5 @@
 #include "Test.h"
+#include "SkFloatingPoint.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
 

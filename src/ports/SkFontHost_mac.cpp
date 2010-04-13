@@ -18,6 +18,7 @@
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
 #include "SkEndian.h"
+#include "SkFloatingPoint.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
 
