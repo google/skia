@@ -30,6 +30,12 @@
 /** \file SkTypes.h
 */
 
+/** See SkGraphics::GetVersion() to retrieve these at runtime
+ */
+#define SKIA_VERSION_MAJOR  1
+#define SKIA_VERSION_MINOR  0
+#define SKIA_VERSION_PATCH  0
+
 /*
     memory wrappers to be implemented by the porting layer (platform)
 */

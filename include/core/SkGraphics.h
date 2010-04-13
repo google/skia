@@ -33,7 +33,12 @@ public:
         Returns true if some amount was purged from the font cache.
     */
     static bool SetFontCacheUsed(size_t usageInBytes);
-    
+
+    /** Return the version numbers for the library. If the parameter is not
+        null, it is set to the version number.
+     */
+    static void GetVersion(int32_t* major, int32_t* minor, int32_t* patch);
+
 private:
     /** This is automatically called by SkGraphics::Init(), and must be
         implemented by the host OS. This allows the host OS to register a callback
