@@ -351,7 +351,7 @@ static void editPixelBit24(const int pixelNo, const unsigned char* buf,
     int alphaBit = (alphaByte & m) >> shift;
     //alphaBit == 1 => alpha = 0
     int alpha = (alphaBit-1) & 0xFF;
-    *address = SkPackARGB32(alpha, red & alpha, green & alpha, blue & alpha);    
+    *address = SkPreMultiplyARGB(alpha, red, green, blue);    
 }
 
 static void editPixelBit32(const int pixelNo, const unsigned char* buf, 
@@ -364,7 +364,7 @@ static void editPixelBit32(const int pixelNo, const unsigned char* buf,
     int red = readByte(buf, xorOffset + 4*pixelNo + 2);
     int alphaBit = (alphaByte & m) >> shift;
     int alpha = readByte(buf, xorOffset + 4*pixelNo + 3) & ((alphaBit-1)&0xFF);
-    *address = SkPackARGB32(alpha, red & alpha, green & alpha, blue & alpha);
+    *address = SkPreMultiplyARGB(alpha, red, green, blue);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
