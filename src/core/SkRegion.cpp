@@ -783,7 +783,13 @@ static int operate( const SkRegion::RunType a_runs[],
                     SkRegion::RunType dst[],
                     SkRegion::Op op)
 {
-    const SkRegion::RunType sentinel = SkRegion::kRunTypeSentinel;
+    const SkRegion::RunType gSentinel[] = {
+        SkRegion::kRunTypeSentinel,
+        // just need a 2nd value, since spanRec.init() reads 2 values, even
+        // though if the first value is the sentinel, it ignores the 2nd value.
+        // w/o the 2nd value here, we might read uninitialized memory.
+        0,
+    };
 
     int a_top = *a_runs++;
     int a_bot = *a_runs++;
@@ -803,8 +809,8 @@ static int operate( const SkRegion::RunType a_runs[],
     while (a_bot < SkRegion::kRunTypeSentinel || b_bot < SkRegion::kRunTypeSentinel)
     {
         int         top, bot SK_INIT_TO_AVOID_WARNING;
-        const SkRegion::RunType*    run0 = &sentinel;
-        const SkRegion::RunType*    run1 = &sentinel;
+        const SkRegion::RunType*    run0 = gSentinel;
+        const SkRegion::RunType*    run1 = gSentinel;
         bool        a_flush = false;
         bool        b_flush = false;
         int         inside;
@@ -854,7 +860,7 @@ static int operate( const SkRegion::RunType a_runs[],
         }
         
         if (top > prevBot)
-            oper.addSpan(top, &sentinel, &sentinel);
+            oper.addSpan(top, gSentinel, gSentinel);
 
 //      if ((unsigned)(inside - oper.fMin) <= (unsigned)(oper.fMax - oper.fMin))
         {
