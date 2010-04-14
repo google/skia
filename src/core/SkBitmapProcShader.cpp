@@ -137,6 +137,15 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 
 #define BUF_MAX     128
 
+#define TEST_BUFFER_OVERRITEx
+
+#ifdef TEST_BUFFER_OVERRITE
+    #define TEST_BUFFER_EXTRA   32
+    #define TEST_PATTERN    0x88888888
+#else
+    #define TEST_BUFFER_EXTRA   0
+#endif
+
 void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     const SkBitmapProcState& state = fState;
     if (state.fShaderProc32) {
@@ -144,10 +153,10 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
         return;
     }
 
-    uint32_t buffer[BUF_MAX];
+    uint32_t buffer[BUF_MAX + TEST_BUFFER_EXTRA];
     SkBitmapProcState::MatrixProc   mproc = state.fMatrixProc;
     SkBitmapProcState::SampleProc32 sproc = state.fSampleProc32;
-    int max = fState.maxCountForBufferSize(sizeof(buffer));
+    int max = fState.maxCountForBufferSize(sizeof(buffer[0]) * BUF_MAX);
 
     SkASSERT(state.fBitmap->getPixels());
     SkASSERT(state.fBitmap->pixelRef() == NULL ||
@@ -158,12 +167,24 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
         if (n > max) {
             n = max;
         }
+        SkASSERT(n > 0 && n < BUF_MAX*2);
+#ifdef TEST_BUFFER_OVERRITE
+        for (int i = 0; i < TEST_BUFFER_EXTRA; i++) {
+            buffer[BUF_MAX + i] = TEST_PATTERN;
+        }
+#endif
         mproc(state, buffer, n, x, y);
+#ifdef TEST_BUFFER_OVERRITE
+        for (int j = 0; j < TEST_BUFFER_EXTRA; j++) {
+            SkASSERT(buffer[BUF_MAX + j] == TEST_PATTERN);
+        }
+#endif
         sproc(state, buffer, n, dstC);
         
         if ((count -= n) == 0) {
             break;
         }
+        SkASSERT(count > 0);
         x += n;
         dstC += n;
     }

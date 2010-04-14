@@ -91,10 +91,11 @@ struct SkBitmapProcState {
      */
     void platformProcs();
 
-    /** Given the size of a buffer, to be used for calling the matrix and
-        sample procs, this return the maximum count that can be stored in the
-        buffer, taking into account that filtering and scale-vs-affine affect
-        this value.
+    /** Given the byte size of the index buffer to be passed to the matrix proc,
+        return the maximum number of resulting pixels that can be computed
+        (i.e. the number of SkPMColor values to be written by the sample proc).
+        This routine takes into account that filtering and scale-vs-affine
+        affect the amount of buffer space needed.
      
         Only valid to call after chooseProcs (setContext) has been called. It is
         safe to call this inside the shader's shadeSpan() method.
