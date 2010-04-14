@@ -543,7 +543,6 @@ bool SkBitmapProcState::chooseProcs(const SkMatrix& inv, const SkPaint& paint) {
  */
 int SkBitmapProcState::maxCountForBufferSize(size_t bufferSize) const {
     int32_t size = static_cast<int32_t>(bufferSize);
-    int perElemShift;
 
     size &= ~3; // only care about 4-byte aligned chunks
     if (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
@@ -551,11 +550,15 @@ int SkBitmapProcState::maxCountForBufferSize(size_t bufferSize) const {
         if (size < 0) {
             size = 0;
         }
-        perElemShift = fDoFilter ? 2 : 1;
+        size >>= 1;
     } else {
-        perElemShift = fDoFilter ? 3 : 2;
+        size >>= 2;
     }
 
-    return size >> perElemShift;
+    if (fDoFilter) {
+        size >>= 1;
+    }
+
+    return size;
 }
 
