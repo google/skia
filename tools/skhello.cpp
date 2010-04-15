@@ -57,9 +57,11 @@ int main (int argc, char * const argv[]) {
                     SkIntToScalar(w)/2, SkIntToScalar(h)*2/3,
                     paint);
 
-    SkImageEncoder::EncodeFile(path.c_str(), bitmap,
+    bool success = SkImageEncoder::EncodeFile(path.c_str(), bitmap,
                                SkImageEncoder::kPNG_Type, 100);
-
-    return 0;
+    if (!success) {
+        SkDebugf("--- failed to write %s\n", path.c_str());
+    }
+    return !success;
 }
 
