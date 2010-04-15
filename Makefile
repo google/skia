@@ -61,7 +61,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 	SRC_LIST += src/ports/SkFontHost_mac.cpp
 else
 	LINKER_OPTS += -lpng -lfreetype
-	DEFINES += -DSK_BUILD_FOR_UNIX
+	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG
 
 	# needed for freetype support
 	C_INCLUDES += -I/usr/include/freetype2
