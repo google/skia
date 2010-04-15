@@ -401,6 +401,12 @@ static void load_system_fonts() {
 //        SkDebugf("font: <%s> %d <%s>\n", realname.c_str(), style, filename.c_str());
   
         FamilyRec* family = find_familyrec(realname.c_str());
+        if (family && family->fFaces[style]) {
+//            SkDebugf("---- skipping duplicate typeface %s style %d\n",
+//                     realname.c_str(), style);
+            continue;
+        }
+
         // this constructor puts us into the global gFamilyHead llist
         FamilyTypeface* tf = SkNEW_ARGS(FileTypeface,
                                         (style,
@@ -523,7 +529,8 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     if (NULL == tf) {
         tf = find_best_face(gDefaultFamily, style);
     }
-    
+   
+    SkSafeRef(tf); 
     return tf;
 }
 
