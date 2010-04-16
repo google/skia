@@ -266,7 +266,6 @@ public:
     FamilyRec* getFamily() const { return fFamilyRec; }
     // openStream returns a SkStream that has been ref-ed
     virtual SkStream* openStream() = 0;
-    virtual void closeStream(SkStream*) = 0;
     virtual const char* getUniqueString() const = 0;
     
 private:
@@ -288,7 +287,6 @@ public:
     
     // overrides
     virtual SkStream* openStream() { return NULL; }
-    virtual void closeStream(SkStream*) {}
     virtual const char* getUniqueString() const { return NULL; }
     
 private:
@@ -314,7 +312,6 @@ public:
       fStream->ref();
       return fStream;
     }
-    virtual void closeStream(SkStream*) {}
     virtual const char* getUniqueString() const { return NULL; }
     
 private:
@@ -348,10 +345,7 @@ public:
         }
         return stream;
     }
-    virtual void closeStream(SkStream* stream)
-    {
-        SkDELETE(stream);
-    }
+
     virtual const char* getUniqueString() const {
         const char* str = strrchr(fPath.c_str(), '/');
         if (str) {
