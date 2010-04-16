@@ -147,8 +147,10 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
     }
 }
 
-template <typename T>
-class SkRefPtr {
+/** Wrapper class for SkRefCnt pointers. This manages ref/unref of a pointer to
+    a SkRefCnt (or subclass) object.
+ */
+template <typename T> class SkRefPtr {
 public:
     SkRefPtr() : fObj(NULL) {}
     SkRefPtr(T* obj) : fObj(obj) { SkSafeRef(fObj); }
