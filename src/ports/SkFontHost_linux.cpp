@@ -278,6 +278,23 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/* This subclass is just a place holder for when we have no fonts available.
+    It exists so that our globals (e.g. gFamilyHead) that expect *something*
+    will not be null.
+ */
+class EmptyTypeface : public FamilyTypeface {
+public:
+    EmptyTypeface() : INHERITED(SkTypeface::kNormal, true, NULL) {}
+    
+    // overrides
+    virtual SkStream* openStream() { return NULL; }
+    virtual void closeStream(SkStream*) {}
+    virtual const char* getUniqueString() const { return NULL; }
+    
+private:
+    typedef FamilyTypeface INHERITED;
+};
+
 class StreamTypeface : public FamilyTypeface {
 public:
     StreamTypeface(Style style, bool sysFont, FamilyRec* family,
@@ -383,8 +400,9 @@ static void load_system_fonts() {
         return;
     }
 
-    SkOSFile::Iter    iter(SK_FONT_FILE_PREFIX, ".ttf");
-    SkString          name;
+    SkOSFile::Iter  iter(SK_FONT_FILE_PREFIX, ".ttf");
+    SkString        name;
+    int             count = 0;
 
     while (iter.next(&name, false)) {
         SkString filename;
@@ -418,6 +436,11 @@ static void load_system_fonts() {
         if (NULL == family) {
             add_name(realname.c_str(), tf->getFamily());
         }
+        count += 1;
+    }
+
+    if (0 == count) {
+        SkNEW(EmptyTypeface);
     }
 
     // do this after all fonts are loaded. This is our default font, and it
