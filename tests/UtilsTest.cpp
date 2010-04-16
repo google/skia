@@ -1,8 +1,49 @@
 #include "Test.h"
 #include "SkRandom.h"
+#include "SkRefCnt.h"
 #include "SkTSearch.h"
 #include "SkTSort.h"
 #include "SkUtils.h"
+
+class RefClass : public SkRefCnt {
+public:
+    RefClass(int n) : fN(n) {}
+    int get() const { return fN; }
+
+private:
+    int fN;
+};
+
+static void test_refptr(skiatest::Reporter* reporter) {
+    RefClass* r0 = new RefClass(0);
+
+    SkRefPtr<RefClass> rc0;
+    REPORTER_ASSERT(reporter, rc0.get() == NULL);
+    REPORTER_ASSERT(reporter, !rc0);
+
+    SkRefPtr<RefClass> rc1;
+    REPORTER_ASSERT(reporter, rc0 == rc1);
+    REPORTER_ASSERT(reporter, rc0 != r0);
+
+    rc0 = r0;
+    REPORTER_ASSERT(reporter, rc0);
+    REPORTER_ASSERT(reporter, rc0 != rc1);
+    REPORTER_ASSERT(reporter, rc0 == r0);
+
+    rc1 = rc0;
+    REPORTER_ASSERT(reporter, rc1);
+    REPORTER_ASSERT(reporter, rc0 == rc1);
+    REPORTER_ASSERT(reporter, rc0 == r0);
+
+    rc0 = NULL;
+    REPORTER_ASSERT(reporter, rc0.get() == NULL);
+    REPORTER_ASSERT(reporter, !rc0);
+    REPORTER_ASSERT(reporter, rc0 != rc1);
+
+    r0->unref();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 #define kSEARCH_COUNT   91
 
@@ -103,6 +144,7 @@ static void TestUTF(skiatest::Reporter* reporter) {
 
     test_utf16(reporter);
     test_search(reporter);
+    test_refptr(reporter);
 }
 
 #include "TestClassDef.h"

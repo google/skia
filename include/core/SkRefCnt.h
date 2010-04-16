@@ -147,5 +147,49 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
     }
 }
 
+template <typename T>
+class SkRefPtr {
+public:
+    SkRefPtr() : fObj(NULL) {}
+    SkRefPtr(T* obj) : fObj(obj) { SkSafeRef(fObj); }
+    SkRefPtr(const SkRefPtr& o) : fObj(o.fObj) { SkSafeRef(fObj); }
+    ~SkRefPtr() { SkSafeUnref(fObj); }
+
+    SkRefPtr& operator=(const SkRefPtr& rp) {
+        SkRefCnt_SafeAssign(fObj, rp.fObj);
+        return *this;
+    }
+    SkRefPtr& operator=(T* obj) {
+        SkRefCnt_SafeAssign(fObj, obj);
+        return *this;
+    }
+
+    bool operator==(const SkRefPtr& rp) const { return fObj == rp.fObj; }
+    bool operator==(const T* obj) const { return fObj == obj; }
+    bool operator!=(const SkRefPtr& rp) const { return fObj != rp.fObj; }
+    bool operator!=(const T* obj) const { return fObj != obj; }
+
+    T* get() const { return fObj; }
+    T& operator*() const { return *fObj; }
+    T* operator->() const { return fObj; }
+    bool operator!() const { return !fObj; }
+
+    typedef T* SkRefPtr::*unspecified_bool_type;
+    operator unspecified_bool_type() const { return fObj ? &SkRefPtr::fObj : NULL; }
+
+private:
+    T* fObj;
+};
+
+template <typename T>
+inline bool operator==(T* obj, const SkRefPtr<T>& rp) {
+    return obj == rp.get();
+}
+
+template <typename T>
+inline bool operator!=(T* obj, const SkRefPtr<T>& rp) {
+    return obj != rp.get();
+}
+
 #endif
 
