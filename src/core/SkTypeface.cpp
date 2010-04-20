@@ -12,8 +12,9 @@ uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
     static uint32_t gDefaultFontID;
     
     if (0 == gDefaultFontID) {
-        SkTypeface* defaultFace = SkFontHost::CreateTypeface(NULL, NULL,
-                                                    SkTypeface::kNormal);
+        SkTypeface* defaultFace =
+                SkFontHost::CreateTypeface(NULL, NULL, NULL, 0,
+                                           SkTypeface::kNormal);
         SkASSERT(defaultFace);
         gDefaultFontID = defaultFace->uniqueID();
         defaultFace->unref();
@@ -28,11 +29,16 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypeface* SkTypeface::CreateFromName(const char name[], Style style) {
-    return SkFontHost::CreateTypeface(NULL, name, style);
+    return SkFontHost::CreateTypeface(NULL, name, NULL, 0, style);
+}
+
+SkTypeface* SkTypeface::CreateForChars(const void* data, size_t bytelength,
+                                       Style s) {
+    return SkFontHost::CreateTypeface(NULL, NULL, data, bytelength, s);
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
-    return SkFontHost::CreateTypeface(family, NULL, s);
+    return SkFontHost::CreateTypeface(family, NULL, NULL, NULL, s);
 }
 
 SkTypeface* SkTypeface::CreateFromStream(SkStream* stream) {
