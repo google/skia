@@ -241,6 +241,7 @@ static uint32_t ptr2uint32(const void* p)
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
+                                       const void* data, size_t bytelength,
                                        SkTypeface::Style style)
 {
     const FontFamilyRec* family;

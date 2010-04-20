@@ -492,7 +492,9 @@ uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
 }
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                            const char familyName[], SkTypeface::Style style) {
+                            const char familyName[],
+                            const void* data, size_t bytelength,
+                            SkTypeface::Style style) {
     // todo: we don't know how to respect style bits
     if (NULL == familyName && NULL != familyFace) {
         familyFace->ref();

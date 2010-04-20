@@ -17,6 +17,7 @@
 
 SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                      const char famillyName[],
+                                     const void* data, size_t bytelength,
                                      SkTypeface::Style style) {
     SkASSERT(!"SkFontHost::FindTypeface unimplemented");
     return NULL;

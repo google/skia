@@ -59,14 +59,16 @@ typedef uint32_t SkFontTableTag;
 class SkFontHost {
 public:
     /** Return a new, closest matching typeface given either an existing family
-        (specified by a typeface in that family) or by a familyName, and a
-        requested style.
-        1) If familyFace is null, use famillyName.
-        2) If famillyName is null, use familyFace.
-        3) If both are null, return the default font that best matches style
+        (specified by a typeface in that family) or by a familyName and a
+        requested style, or by a set of Unicode codepoitns to cover in a given
+        style.
+        1) If familyFace is null, use familyName.
+        2) If familyName is null, use data (UTF-16 to cover).
+        3) If all are null, return the default font that best matches style
      */
     static SkTypeface* CreateTypeface(const SkTypeface* familyFace,
-                                      const char famillyName[],
+                                      const char familyName[],
+                                      const void* data, size_t bytelength,
                                       SkTypeface::Style style);
 
     /** Return a new typeface given the data buffer. If the data does not
