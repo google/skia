@@ -327,6 +327,7 @@ class WarpView : public SkView {
 public:
 	WarpView() {
         SkBitmap bm;
+//        SkImageDecoder::DecodeFile("/skimages/marker.png", &bm);
         SkImageDecoder::DecodeFile("/skimages/logo.gif", &bm);
    //     SkImageDecoder::DecodeFile("/beach_shot.JPG", &bm);
         fBitmap = bm;
@@ -387,7 +388,7 @@ protected:
             return orig;
         }
         
-        const SkScalar period = 20;
+        const SkScalar period = 10 + dragLength/4;
         const SkScalar mag = dragLength / 3;
         
         SkScalar d = length / (period);

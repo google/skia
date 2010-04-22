@@ -11,7 +11,7 @@ public:
     SkBitmap fBM;
 
 	NinePatchView() {
-        SkImageDecoder::DecodeFile("/skimages/folder_background.9.png", &fBM);
+        SkImageDecoder::DecodeFile("/skimages/btn_default_normal_disable.9.png", &fBM);
         
         // trim off the edge guide-lines
         SkBitmap tmp;
@@ -35,13 +35,44 @@ protected:
     }
     
     void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
+        SkPaint p;
+        p.setDither(true);
+        p.setColor(0xFF909090);
+        canvas->drawPaint(p);
     }
-    
+
+    static void test_rects(SkCanvas* canvas, const SkBitmap& bm, const SkPaint* paint) {
+        static const SkIRect src[] = {
+            { 0, 0, 18, 34 },
+            { 18, 0, 19, 34 },
+            { 19, 0, 36, 34 },
+            { 0, 34, 18, 35 },
+            { 18, 34, 19, 35 },
+            { 19, 34, 36, 35 },
+            { 0, 35, 18, 72 },
+            { 18, 35, 19, 72 },
+            { 19, 35, 36, 72 },
+        };
+        static const SkRect dst[] = {
+            { 0, 0, 18, 34 },
+            { 18, 0, 283, 34 },
+            { 283, 0, 300, 34 },
+            { 0, 34, 18, 163 },
+            { 18, 34, 283, 163 },
+            { 283, 34, 300, 163 },
+            { 0, 163, 18, 200 },
+            { 18, 163, 283, 200 },
+            { 283, 163, 300, 200 },
+        };
+        for (size_t i = 0; i < SK_ARRAY_COUNT(src); i++) {
+            canvas->drawBitmapRect(bm, &src[i], dst[i], paint);
+        }
+    }
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
-        canvas->scale(1.5f, 1.5f);
+      //  canvas->scale(1.5f, 1.5f);
         
         canvas->drawBitmap(fBM, 0, 0);
         
@@ -50,15 +81,28 @@ protected:
         int d = 25;
         
         margins.set(d, d, d, d);
+        margins.fLeft   = fBM.width()/2 - 1;
+        margins.fTop    = fBM.height()/2 - 1;
+        margins.fRight  = fBM.width() - margins.fLeft - 1;
+        margins.fBottom = fBM.height() - margins.fTop - 1;
+
+   //     canvas->translate(fX/5, fY/5);
+        canvas->translate(0, 76);
+
         dst.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
-        dst.offset(fX, fY);
         
-        SkNinePatch::DrawNine(canvas, dst, fBM, margins);
+        SkPaint paint;
+        paint.setAntiAlias(false);
+        paint.setDither(true);
+        paint.setFilterBitmap(false);
+    //    SkNinePatch::DrawNine(canvas, dst, fBM, margins, &paint);
+        test_rects(canvas, fBM, &paint);
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         fX = x / 1.5f;
         fY = y / 1.5f;
+        fX = x; fY = y;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
