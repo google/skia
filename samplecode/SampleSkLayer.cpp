@@ -41,7 +41,20 @@ static void test_map(SkScalar x0, SkScalar y0, SkScalar z0,
              x1, y1, z1,
              dst.fData[0] == x1 && dst.fData[1] == y1 && dst.fData[2] == z1);
 }
-                     
+
+static void test_33(const SkMatrix44& mat,
+                    SkScalar x0, SkScalar x1, SkScalar x2,
+                    SkScalar y0, SkScalar y1, SkScalar y2) {
+    SkMatrix dst = mat;
+    if (dst[0] != x0 || dst[1] != x1 || dst[2] != x2 ||
+        dst[3] != y0 || dst[4] != y1 || dst[5] != y2) {
+        SkString str;
+        dst.toDumpString(&str);
+        SkDebugf("3x3: expected 3x3 [%g %g %g] [%g %g %g] bug got %s\n",
+                 x0, x1, x2, y0, y1, y2, str.c_str());
+    }
+}
+
 static void test44() {
     SkMatrix44 m0, m1, m2;
 
@@ -78,6 +91,15 @@ static void test44() {
     test_map(1, 0, 0, m0, 7, 3, 4);
     test_map(0, 1, 0, m0, 2, 9, 4);
     test_map(0, 0, 1, m0, 2, 3, 11);
+
+    SkMScalar deg = 45;
+    m0.setRotateDegreesAbout(0, 0, 1, deg);
+    test_map(1, 0, 0, m0, 0.707106769, -0.707106769, 0);
+
+    m0.reset();
+    test_33(m0, 1, 0, 0, 0, 1, 0);
+    m0.setTranslate(3, 4, 5);
+    test_33(m0, 1, 0, 3, 0, 1, 4);
 }
     
 ///////////////////////////////////////////////////////////////////////////////

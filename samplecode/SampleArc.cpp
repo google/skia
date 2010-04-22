@@ -130,6 +130,7 @@ protected:
         
         fSweep = SampleCode::GetAnimScalar(SkIntToScalar(360)/24,
                                            SkIntToScalar(360));
+//        fSweep = SkFloatToScalar(359.99f);
 
         SkRect  r;
         SkPaint paint;

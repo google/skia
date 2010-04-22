@@ -89,17 +89,14 @@ public:
         gDone = false;
         for (int i = 0; i < N; i++)
         {
-            int             status;
-            pthread_attr_t  attr;
+            int status;
             
-            status = pthread_attr_init(&attr);
-            SkASSERT(0 == status);
-            status = pthread_create(&fMThreads[i], &attr,  measure_proc, NULL);
+            status = pthread_create(&fMThreads[i], NULL,  measure_proc, NULL);
             SkASSERT(0 == status);
 
             fBitmaps[i].setConfig(SkBitmap::kRGB_565_Config, 320, 240);
             fBitmaps[i].allocPixels();
-            status = pthread_create(&fDThreads[i], &attr,  draw_proc, &fBitmaps[i]);
+            status = pthread_create(&fDThreads[i], NULL,  draw_proc, &fBitmaps[i]);
             SkASSERT(0 == status);
         }
     }

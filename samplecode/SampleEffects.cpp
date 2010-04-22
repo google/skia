@@ -8,6 +8,23 @@
 #include "SkDiscretePathEffect.h"
 #include "SkGradientShader.h"
 
+#include "SkEdgeClipper.h"
+
+static void test_edgeclipper() {
+    SkPoint pts[] = {
+        { -8.38822452e+21, -7.69721471e+19 },
+        { 1.57645875e+23, 1.44634003e+21 },
+        { 1.61519691e+23, 1.48208059e+21 },
+        { 3.13963584e+23, 2.88057438e+21 }
+    };
+    SkRect clip = { 0, 0, 300, 200 };
+    
+    SkEdgeClipper clipper;
+    clipper.clipCubic(pts, clip);
+}
+
+///////////
+
 //#define COLOR 0xFFFF8844
 #define COLOR 0xFF888888
 
@@ -74,6 +91,11 @@ public:
             fPaint[i].setColor(COLOR);
             gPaintProcs[i](&fPaint[i]);
         }
+
+        test_edgeclipper();
+        SkColorMatrix cm;
+        cm.setRotate(SkColorMatrix::kG_Axis, 180);
+        cm.setIdentity();
     }
     
 protected:
