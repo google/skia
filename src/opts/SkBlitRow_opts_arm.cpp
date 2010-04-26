@@ -770,7 +770,7 @@ static void S32A_D565_Opaque_Dither_neon (uint16_t * SK_RESTRICT dst,
 
 	    /* calculate 'd', which will be 0..7 */
 	    /* dbase[] is 0..7; alpha is 0..256; 16 bits suffice */
-#if 1
+#if ANDROID
 	    /* SkAlpha255To256() semantic a+1 vs a+a>>7 */
 	    alpha8 = vaddw_u8(vmovl_u8(sa), vdup_n_u8(1));
 #else
