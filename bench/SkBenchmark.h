@@ -42,19 +42,6 @@ public:
         fDither = state;
     }
 
-    void setStrokeWidth(SkScalar width) {
-      strokeWidth = width;
-      fHasStrokeWidth = true;
-    }
-
-    SkScalar getStrokeWidth() {
-      return strokeWidth;
-    }
-
-    bool hasStrokeWidth() {
-      return fHasStrokeWidth;
-    }
-
     const char* findDefine(const char* key) const;
     bool findDefine32(const char* key, int32_t* value) const;
     bool findDefineScalar(const char* key, SkScalar* value) const;
@@ -73,10 +60,9 @@ private:
     bool    fForceAA;
     bool    fForceFilter;
     SkTriState::State  fDither;
-    bool    fHasStrokeWidth;
-    SkScalar strokeWidth;
 };
 
 typedef SkTRegistry<SkBenchmark*, void*> BenchRegistry;
 
 #endif
+
