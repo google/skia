@@ -89,20 +89,14 @@ public:
 
 protected:
     virtual void onDraw(SkCanvas* canvas) {
-        SkScalar gSizes[] = {
+        static const SkScalar gSizes[] = {
             SkIntToScalar(7), 0
         };
-        size_t sizes = SK_ARRAY_COUNT(gSizes);
-
-        if (this->hasStrokeWidth()) {
-            gSizes[0] = this->getStrokeWidth();
-            sizes = 1;
-        }
 
         SkPaint paint;
         paint.setStrokeCap(SkPaint::kRound_Cap);
-
-        for (size_t i = 0; i < sizes; i++) {
+        
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gSizes); i++) {
             paint.setStrokeWidth(gSizes[i]);
             this->setupPaint(&paint);
             canvas->drawPoints(fMode, N * 2,
@@ -138,3 +132,4 @@ static BenchRegistry gRRectReg2(RRectFactory2);
 static BenchRegistry gPointsReg(PointsFactory);
 static BenchRegistry gLinesReg(LinesFactory);
 static BenchRegistry gPolygonReg(PolygonFactory);
+
