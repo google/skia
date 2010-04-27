@@ -201,6 +201,8 @@ int main (int argc, char * const argv[]) {
     bool doClip = false;
     bool doPict = false;
     const char* matchStr = NULL;
+    bool hasStrokeWidth = false;
+    float strokeWidth;
 
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
@@ -260,6 +262,19 @@ int main (int argc, char * const argv[]) {
                 return -1;
             }
             forceAlpha = wantAlpha ? 0x80 : 0xFF;
+        } else if (strcmp(*argv, "-strokeWidth") == 0) {
+            argv++;
+            if (argv < stop) {
+                const char *strokeWidthStr = *argv;
+                if (sscanf(strokeWidthStr, "%f", &strokeWidth) != 1) {
+                  log_error("bad arg for -strokeWidth\n");
+                  return -1;
+                }
+                hasStrokeWidth = true;
+            } else {
+                log_error("missing arg for -strokeWidth\n");
+                return -1;
+            }
         } else if (strcmp(*argv, "-match") == 0) {
             argv++;
             if (argv < stop) {
@@ -314,6 +329,9 @@ int main (int argc, char * const argv[]) {
         bench->setForceAA(forceAA);
         bench->setForceFilter(forceFilter);
         bench->setDither(forceDither);
+        if (hasStrokeWidth) {
+            bench->setStrokeWidth(strokeWidth);
+        }
 
         // only run benchmarks if their name contains matchStr
         if (matchStr && strstr(bench->getName(), matchStr) == NULL) {
