@@ -789,7 +789,7 @@ static bool map_radius(const SkMatrix& matrix, SkScalar* value) {
     matrix.mapVectors(dst, src, 2);
     SkScalar len0 = fast_len(dst[0]);
     SkScalar len1 = fast_len(dst[1]);
-    if (len0 < SK_Scalar1 && len1 < SK_Scalar1) {
+    if (len0 <= SK_Scalar1 && len1 <= SK_Scalar1) {
         *value = SkScalarAve(len0, len1);
         return true;
     }
