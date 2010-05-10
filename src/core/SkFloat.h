@@ -96,8 +96,6 @@ public:
 private:
     int32_t fPacked;
 
-    SkFloat(int32_t packed) : fPacked(fPacked) {}
-
 public:
     static int GetShift(int32_t packed, int shift);
     static int32_t SetShift(int value, int shift);
