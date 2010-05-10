@@ -356,26 +356,33 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
     {
         FT_Int32 loadFlags = FT_LOAD_DEFAULT;
 
-        switch (fRec.getHinting()) {
-        case SkPaint::kNo_Hinting:
-            loadFlags = FT_LOAD_NO_HINTING;
-            break;
-        case SkPaint::kSlight_Hinting:
-            loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
-            break;
-        case SkPaint::kNormal_Hinting:
-            loadFlags = FT_LOAD_TARGET_NORMAL;
-            break;
-        case SkPaint::kFull_Hinting:
-            loadFlags = FT_LOAD_TARGET_NORMAL;
-            if (SkMask::kHorizontalLCD_Format == fRec.fMaskFormat)
-                loadFlags = FT_LOAD_TARGET_LCD;
-            else if (SkMask::kVerticalLCD_Format == fRec.fMaskFormat)
-                loadFlags = FT_LOAD_TARGET_LCD_V;
-            break;
-        default:
-            SkDebugf("---------- UNKNOWN hinting %d\n", fRec.getHinting());
-            break;
+        if (SkMask::kBW_Format == fRec.fMaskFormat) {
+            // See http://code.google.com/p/chromium/issues/detail?id=43252#c24
+            loadFlags = FT_LOAD_TARGET_MONO;
+            if (fRec.getHinting() == SkPaint::kNo_Hinting)
+                loadFlags = FT_LOAD_NO_HINTING;
+        } else {
+            switch (fRec.getHinting()) {
+            case SkPaint::kNo_Hinting:
+                loadFlags = FT_LOAD_NO_HINTING;
+                break;
+            case SkPaint::kSlight_Hinting:
+                loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
+                break;
+            case SkPaint::kNormal_Hinting:
+                loadFlags = FT_LOAD_TARGET_NORMAL;
+                break;
+            case SkPaint::kFull_Hinting:
+                loadFlags = FT_LOAD_TARGET_NORMAL;
+                if (SkMask::kHorizontalLCD_Format == fRec.fMaskFormat)
+                    loadFlags = FT_LOAD_TARGET_LCD;
+                else if (SkMask::kVerticalLCD_Format == fRec.fMaskFormat)
+                    loadFlags = FT_LOAD_TARGET_LCD_V;
+                break;
+            default:
+                SkDebugf("---------- UNKNOWN hinting %d\n", fRec.getHinting());
+                break;
+            }
         }
 
         if ((fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag) == 0)
