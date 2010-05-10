@@ -22,7 +22,7 @@
 
 typedef SkTRegistry<SkImageDecoder*, SkStream*> DecodeReg;
 
-template DecodeReg* DecodeReg::gHead;
+template<> DecodeReg* DecodeReg::gHead;
 
 #ifdef SK_ENABLE_LIBPNG
     extern SkImageDecoder* sk_libpng_dfactory(SkStream*);
