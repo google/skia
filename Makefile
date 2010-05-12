@@ -2,6 +2,7 @@
 
 # setup our defaults
 CC := gcc
+GPP := g++
 C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
 CFLAGS := -Wall -g # -O2 
 CFLAGS_SSE2 = $(CFLAGS) -msse2
@@ -52,6 +53,12 @@ JUST_COMPILE_LIST := src/ports/SkFontHost_tables.cpp
 
 # conditional files based on our platform
 ifeq ($(SKIA_BUILD_FOR),mac)
+	# make it work with 10.4 for our font port
+	GPP := g++-4.0
+	SDK := /Developer/SDKs/MacOSX10.4u.sdk
+	SDK_OPTS := -isysroot $(SDK) -mmacosx-version-min=10.4
+	CC := gcc-4.0 $(SDK_OPTS)
+
 	LINKER_OPTS += -framework Carbon
 	DEFINES += -DSK_BUILD_FOR_MAC
 
@@ -122,7 +129,7 @@ BENCH_OBJS := $(addprefix out/, $(BENCH_OBJS))
 
 bench: $(BENCH_OBJS) out/libskia.a
 	@echo "linking bench..."
-	$(HIDE)g++ $(BENCH_OBJS) out/libskia.a -o out/bench/bench $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(BENCH_OBJS) out/libskia.a -o out/bench/bench $(LINKER_OPTS)
 	
 ##############################################################################
 
@@ -137,7 +144,7 @@ TESTS_OBJS := $(addprefix out/, $(TESTS_OBJS))
 
 tests: $(TESTS_OBJS) out/libskia.a
 	@echo "linking tests..."
-	$(HIDE)g++ $(TESTS_OBJS) out/libskia.a -o out/tests/tests $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(TESTS_OBJS) out/libskia.a -o out/tests/tests $(LINKER_OPTS)
 	
 ##############################################################################
 
@@ -150,7 +157,7 @@ SKIMAGE_OBJS := $(addprefix out/, $(SKIMAGE_OBJS))
 
 skimage: $(SKIMAGE_OBJS) out/libskia.a
 	@echo "linking skimage..."
-	$(HIDE)g++ $(SKIMAGE_OBJS) out/libskia.a -o out/tools/skimage $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(SKIMAGE_OBJS) out/libskia.a -o out/tools/skimage $(LINKER_OPTS)
 
 ##############################################################################
 
@@ -163,7 +170,7 @@ SKHELLO_OBJS := $(addprefix out/, $(SKHELLO_OBJS))
 
 skhello: $(SKHELLO_OBJS) out/libskia.a
 	@echo "linking shkello..."
-	$(HIDE)g++ $(SKHELLO_OBJS) out/libskia.a -o out/tools/skhello $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(SKHELLO_OBJS) out/libskia.a -o out/tools/skhello $(LINKER_OPTS)
 
 ##############################################################################
 
@@ -179,7 +186,7 @@ GM_OBJS := $(addprefix out/, $(GM_OBJS))
 
 gm: $(GM_OBJS) out/libskia.a
 	@echo "linking gm..."
-	$(HIDE)g++ $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
 
 ##############################################################################
 
