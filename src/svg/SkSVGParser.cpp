@@ -43,7 +43,9 @@
 
 static int gGeneratedMatrixID = 0;
 
-SkSVGParser::SkSVGParser() : fHead(&fEmptyPaint), fIDs(256),
+SkSVGParser::SkSVGParser(SkXMLParserError* errHandler) : 
+	SkXMLParser(errHandler),
+	fHead(&fEmptyPaint), fIDs(256),
         fXMLWriter(&fStream), fCurrElement(NULL), fInSVG(false), fSuppressPaint(false) {
     fLastTransform.reset();
     fEmptyPaint.f_fill.set("black");
@@ -157,7 +159,7 @@ bool SkSVGParser::onAddAttributeLen(const char name[], const char value[], size_
     if (fCurrElement == NULL)    // this signals we should ignore attributes for this element
         return true;
     if (fCurrElement->fIsDef == false && fCurrElement->fIsNotDef == false)
-        return true; // also an ignored element
+        return false; // also an ignored element
     size_t nameLen = strlen(name);
     int attrIndex = findAttribute(fCurrElement, name, nameLen, false);
     if (attrIndex == -1) {
@@ -201,9 +203,11 @@ bool SkSVGParser::onStartElementLen(const char name[], size_t len) {
     if (nextColon && nextColon - name < len)
         return false;
     SkSVGTypes type = GetType(name, len);
-    SkASSERT(type >= 0);
-    if (type < 0)
-        return true;
+//    SkASSERT(type >= 0);
+    if (type < 0) {
+		type = SkSVGType_G;
+//        return true;
+	}
     SkSVGElement* parent = fParents.count() > 0 ? fParents.top() : NULL;
     SkSVGElement* element = CreateElement(type, parent);
     bool result = false;
