@@ -4,48 +4,7 @@
 
 #include "SkAnimator.h"
 #include "SkStream.h"
-
-#include "SkColorPriv.h"
-static inline void Filter_32_opaque_portable(unsigned x, unsigned y,
-                                             SkPMColor a00, SkPMColor a01,
-                                             SkPMColor a10, SkPMColor a11,
-                                             SkPMColor* dstColor) {
-    SkASSERT((unsigned)x <= 0xF);
-    SkASSERT((unsigned)y <= 0xF);
-    
-    int xy = x * y;
-    uint32_t mask = gMask_00FF00FF; //0xFF00FF;
-    
-    int scale = 256 - 16*y - 16*x + xy;
-    uint32_t lo = (a00 & mask) * scale;
-    uint32_t hi = ((a00 >> 8) & mask) * scale;
-    
-    scale = 16*x - xy;
-    lo += (a01 & mask) * scale;
-    hi += ((a01 >> 8) & mask) * scale;
-    
-    scale = 16*y - xy;
-    lo += (a10 & mask) * scale;
-    hi += ((a10 >> 8) & mask) * scale;
-    
-    lo += (a11 & mask) * xy;
-    hi += ((a11 >> 8) & mask) * xy;
-    
-    *dstColor = ((lo >> 8) & mask) | (hi & ~mask);
-}
-
-static void test_filter() {
-    for (int r = 0; r <= 0xFF; r++) {
-        SkPMColor c = SkPackARGB32(0xFF, r, r, r);
-        for (int y = 0; y <= 0xF; y++) {
-            for (int x = 0; x <= 0xF; x++) {
-                SkPMColor dst;
-                Filter_32_opaque_portable(x, y, c, c, c, c, &dst);
-                SkASSERT(SkGetPackedA32(dst) == 255);
-            }
-        }
-    }
-}
+#include "SkDOM.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -73,9 +32,7 @@ private:
     typedef SkView INHERITED;
 };
 
-SkAnimatorView::SkAnimatorView() : fAnimator(NULL) {
-    test_filter();
-}
+SkAnimatorView::SkAnimatorView() : fAnimator(NULL) {}
 
 SkAnimatorView::~SkAnimatorView() {
     delete fAnimator;
@@ -97,15 +54,65 @@ bool SkAnimatorView::decodeMemory(const void* buffer, size_t size) {
     return this->decodeStream(is);
 }
 
+static const SkDOMNode* find_nodeID(const SkDOM& dom,
+						const SkDOMNode* node, const char name[]) {
+	if (NULL == node) {
+		node = dom.getRootNode();
+	}
+	do {
+		const char* idval = dom.findAttr(node, "id");
+		if (idval && !strcmp(idval, name)) {
+			return node;
+		}
+		const SkDOMNode* child = dom.getFirstChild(node);
+		if (child) {
+			const SkDOMNode* found = find_nodeID(dom, child, name);
+			if (found) {
+				return found;
+			}
+		}
+	} while ((node = dom.getNextSibling(node)) != NULL);
+	return NULL;
+}
+
 bool SkAnimatorView::decodeStream(SkStream* stream) {
     delete fAnimator;
     fAnimator = new SkAnimator;
     fAnimator->setURIBase(fBaseURI.c_str());
+#if 0
     if (!fAnimator->decodeStream(stream)) {
         delete fAnimator;
         fAnimator = NULL;
         return false;
     }
+#else
+	size_t len = stream->getLength();
+	char* text = (char*)sk_malloc_throw(len);
+	stream->read(text, len);
+	SkDOM dom;
+	const SkDOM::Node* root = dom.build(text, len);
+	if (NULL == root) {
+		return false;
+	}
+	if (!fAnimator->decodeDOM(dom, root)) {
+		delete fAnimator;
+		fAnimator = NULL;
+		return false;
+	}
+	for (int i = 0; i <= 10; i++) {
+		SkString name("glyph");
+		name.appendS32(i);
+		const SkDOM::Node* node = find_nodeID(dom, NULL, name.c_str());
+		SkASSERT(node);
+		SkRect r;
+		dom.findScalar(node, "left", &r.fLeft);
+		dom.findScalar(node, "top", &r.fTop);
+		dom.findScalar(node, "width", &r.fRight); r.fRight += r.fLeft;
+		dom.findScalar(node, "height", &r.fBottom); r.fBottom += r.fTop;
+		SkDebugf("--- %s [%g %g %g %g]\n", name.c_str(),
+				 r.fLeft, r.fTop, r.fRight, r.fBottom);
+	}
+#endif
     return true;
 }
 
@@ -115,7 +122,7 @@ void SkAnimatorView::onDraw(SkCanvas* canvas) {
     if (fAnimator) {
         canvas->drawColor(SK_ColorWHITE);
         fAnimator->draw(canvas, 0);
-        
+#if 0
         canvas->save();
         canvas->translate(120, 30);
         canvas->scale(0.5, 0.5);
@@ -129,6 +136,7 @@ void SkAnimatorView::onDraw(SkCanvas* canvas) {
         canvas->restore();
         
         this->inval(NULL);
+#endif
     }
 }
 
@@ -137,8 +145,13 @@ void SkAnimatorView::onDraw(SkCanvas* canvas) {
 static SkView* MyFactory() {
     SkAnimatorView* av = new SkAnimatorView;
 //    av->decodeFile("/skimages/test.xml");
+#if 0
     av->setURIBase("/skia/trunk/animations/");
     av->decodeFile("/skia/trunk/animations/checkbox.xml");
+#else
+	av->setURIBase("/");
+	av->decodeFile("/testanim.txt");
+#endif
     return av;
 }
 
