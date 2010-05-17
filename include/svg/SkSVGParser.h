@@ -32,7 +32,7 @@ class SkSVGElement;
 
 class SkSVGParser : public SkXMLParser {
 public:
-    SkSVGParser();
+    SkSVGParser(SkXMLParserError* err = NULL);
     virtual ~SkSVGParser();
     void _addAttribute(const char* attrName, const char* attrValue) {
         fXMLWriter.addAttribute(attrName, attrValue); }

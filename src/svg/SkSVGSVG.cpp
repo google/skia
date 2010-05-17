@@ -27,9 +27,11 @@ const SkSVGAttribute SkSVGSVG::gAttributes[] = {
     SVG_ATTRIBUTE(width),
     SVG_ATTRIBUTE(version),
     SVG_ATTRIBUTE(viewBox),
+    SVG_ATTRIBUTE(x),
     SVG_LITERAL_ATTRIBUTE(xml:space, f_xml_space),
     SVG_ATTRIBUTE(xmlns),
-    SVG_LITERAL_ATTRIBUTE(xmlns:xlink, f_xml_xlink)
+    SVG_LITERAL_ATTRIBUTE(xmlns:xlink, f_xml_xlink),
+    SVG_ATTRIBUTE(y),
 };
 
 DEFINE_SVG_INFO(SVG)

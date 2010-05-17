@@ -33,7 +33,7 @@ SkSVGRect::SkSVGRect() {
 }
 
 void SkSVGRect::translate(SkSVGParser& parser, bool defState) {
-    parser._startElement("rectangle");
+    parser._startElement("rect");
     INHERITED::translate(parser, defState);
     SVG_ADD_ATTRIBUTE_ALIAS(left, x);
     SVG_ADD_ATTRIBUTE_ALIAS(top, y);
