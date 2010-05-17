@@ -376,17 +376,17 @@ protected:
         canvas->save();
 //        canvas->scale(SK_Scalar1*2, SK_Scalar1*2, 0, 0);
 
-        SkScalar    x = SkIntToScalar(20);
-        SkScalar    y = SkIntToScalar(40);
         SkPaint     paint;
         
         paint.setAntiAlias(true);
-        paint.setTextSize(SkIntToScalar(48));
+        paint.setTextSize(SkIntToScalar(56));
         paint.setTypeface(SkTypeface::CreateFromName("sans-serif",
                                                      SkTypeface::kBold));
 
-        SkString str("GOOGLE ");
-        str.appendUnichar(0x5700);
+        SkScalar    x = SkIntToScalar(20);
+        SkScalar    y = paint.getTextSize();
+
+        SkString str("TextEffects");
 
         paint.setTypeface(fFace);
         
@@ -429,7 +429,7 @@ protected:
             canvas->drawRectCoords(0, 0, SkIntToScalar(120), SkIntToScalar(150), paint);
         }
         
-        if (1)
+        if (0)
         {
             SkAvoidXfermode   mode(SK_ColorWHITE, 0xFF,
                                     SkAvoidXfermode::kTargetColor_Mode);
