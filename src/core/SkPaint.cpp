@@ -717,7 +717,7 @@ typedef int64_t Sk48Dot16;
 
 #ifdef SK_SCALAR_IS_FLOAT
     static inline float Sk48Dot16ToScalar(Sk48Dot16 x) {
-        return x * 1.5258789e-5f;   // x * (1 / 65536.0f)
+        return (float) (x * 1.5258789e-5);   // x * (1 / 65536.0f)
     }
 #else
     static inline SkFixed Sk48Dot16ToScalar(Sk48Dot16 x) {
