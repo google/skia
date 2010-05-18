@@ -38,7 +38,7 @@ SkTypeface* SkTypeface::CreateForChars(const void* data, size_t bytelength,
 }
 
 SkTypeface* SkTypeface::CreateFromTypeface(const SkTypeface* family, Style s) {
-    return SkFontHost::CreateTypeface(family, NULL, NULL, NULL, s);
+    return SkFontHost::CreateTypeface(family, NULL, NULL, 0, s);
 }
 
 SkTypeface* SkTypeface::CreateFromStream(SkStream* stream) {

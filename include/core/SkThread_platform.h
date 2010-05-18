@@ -61,7 +61,7 @@ public:
 private:
     bool fIsGlobal;
     enum {
-        kStorageIntCount = 12
+        kStorageIntCount = 64
     };
     uint32_t    fStorage[kStorageIntCount];
 };
