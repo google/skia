@@ -62,10 +62,18 @@ public:
 
     void    draw(SkCanvas*, const char text[], size_t len, const SkPaint&);
 
+    void    setText(const char text[], size_t len, const SkPaint&);
+    void    draw(SkCanvas*);
+    int     countLines() const;
+    SkScalar getTextHeight() const;
+
 private:
     SkRect      fBox;
     SkScalar    fSpacingMul, fSpacingAdd;
     uint8_t     fMode, fSpacingAlign;
+    const char* fText;
+    size_t      fLen;
+    const SkPaint* fPaint;
 };
 
 class SkTextLineBreaker {
