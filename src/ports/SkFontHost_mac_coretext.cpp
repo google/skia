@@ -19,7 +19,7 @@
 #include "SkDescriptor.h"
 #include "SkString.h"
 #include "SkPaint.h"
-
+#include "SkFloatingPoint.h"
 
 
 
@@ -718,30 +718,6 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2])
 {
     tables[0] = NULL;   // black gamma (e.g. exp=1.4)
     tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
-}
-
-///////////////////////////////////////////////////////////////////////////
-
-void SkFontHost::SetSubpixelOrientation(SkFontHost::LCDOrientation orientation)
-{
-    SkASSERT(!"SkFontHost::SetSubpixelOrientation unimplemented");
-}
-
-SkFontHost::LCDOrientation SkFontHost::GetSubpixelOrientation(void)
-{
-    SkASSERT(!"SkFontHost::GetSubpixelOrientation unimplemented");
-    return kHorizontal_LCDOrientation;
-}
-
-void SkFontHost::SetSubpixelOrder(SkFontHost::LCDOrder order)
-{
-    SkASSERT(!"SkFontHost::SetSubpixelOrder unimplemented");
-}
-
-SkFontHost::LCDOrder SkFontHost::GetSubpixelOrder(void)
-{
-    SkASSERT(!"SkFontHost::GetSubpixelOrder unimplemented");
-    return kRGB_LCDOrder;
 }
 
 ///////////////////////////////////////////////////////////////////////////
