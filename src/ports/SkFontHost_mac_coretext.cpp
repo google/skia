@@ -14,6 +14,7 @@
  ** limitations under the License.
 */
 #include <vector>
+#include <Carbon/Carbon.h>
 
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
