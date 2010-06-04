@@ -34,6 +34,8 @@
 #include FT_SIZES_H
 #include FT_TRUETYPE_TABLES_H
 #include FT_BITMAP_H
+// In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
+#include FT_SYNTHESIS_H
 
 #if defined(SK_SUPPORT_LCDTEXT)
 #include FT_LCD_FILTER_H
@@ -52,6 +54,7 @@
 #include <freetype/ftadvanc.h>
 #include <freetype/ftlcdfil.h>
 #include <freetype/ftbitmap.h>
+#include <freetype/ftsynth.h>
 #endif
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
