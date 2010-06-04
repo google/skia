@@ -33,6 +33,7 @@
 #include FT_OUTLINE_H
 #include FT_SIZES_H
 #include FT_TRUETYPE_TABLES_H
+#include FT_BITMAP_H
 
 #if defined(SK_SUPPORT_LCDTEXT)
 #include FT_LCD_FILTER_H
@@ -50,6 +51,7 @@
 #include <freetype/tttables.h>
 #include <freetype/ftadvanc.h>
 #include <freetype/ftlcdfil.h>
+#include <freetype/ftbitmap.h>
 #endif
 
 //#define ENABLE_GLYPH_SPEW     // for tracing calls
@@ -77,6 +79,10 @@ static bool         gLCDSupportValid;  // true iff |gLCDSupport| has been set.
 static bool         gLCDSupport;  // true iff LCD is supported by the runtime.
 
 /////////////////////////////////////////////////////////////////////////
+
+// See http://freetype.sourceforge.net/freetype2/docs/reference/ft2-bitmap_handling.html#FT_Bitmap_Embolden
+// This value was chosen by eyeballing the result in Firefox and trying to match it.
+static const FT_Pos kBitmapEmboldenStrength = 1 << 6;
 
 static bool
 InitFreetype() {
@@ -600,6 +606,10 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         break;
 
       case FT_GLYPH_FORMAT_BITMAP:
+        if (fRec.fFlags & kEmbolden_Flag) {
+            FT_GlyphSlot_Own_Bitmap(fFace->glyph);
+            FT_Bitmap_Embolden(gFTLibrary, &fFace->glyph->bitmap, kBitmapEmboldenStrength, 0);
+        }
         glyph->fWidth   = SkToU16(fFace->glyph->bitmap.width);
         glyph->fHeight  = SkToU16(fFace->glyph->bitmap.rows);
         glyph->fTop     = -SkToS16(fFace->glyph->bitmap_top);
@@ -719,6 +729,10 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         } break;
 
         case FT_GLYPH_FORMAT_BITMAP: {
+            if (fRec.fFlags & kEmbolden_Flag) {
+                FT_GlyphSlot_Own_Bitmap(fFace->glyph);
+                FT_Bitmap_Embolden(gFTLibrary, &fFace->glyph->bitmap, kBitmapEmboldenStrength, 0);
+            }
             SkASSERT_CONTINUE(glyph.fWidth == fFace->glyph->bitmap.width);
             SkASSERT_CONTINUE(glyph.fHeight == fFace->glyph->bitmap.rows);
             SkASSERT_CONTINUE(glyph.fTop == -fFace->glyph->bitmap_top);
