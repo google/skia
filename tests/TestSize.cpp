@@ -53,7 +53,7 @@ static void TestSize(skiatest::Reporter* reporter) {
     SkISize ia;
     ia.set(ix, iy);
     a.set(x, y);
-    REPORTER_ASSERT(reporter, a.round() == ia);
+    REPORTER_ASSERT(reporter, a.toRound() == ia);
 };
 
 #include "TestClassDef.h"
