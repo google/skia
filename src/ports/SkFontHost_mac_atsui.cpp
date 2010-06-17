@@ -246,7 +246,7 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
         return;
     }
 
-    if (!fRec.fSubpixelPositioning) {
+    if ((fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) == 0) {
         glyph->fAdvanceX = SkFloatToFixed(screenMetrics.deviceAdvance.x);
         glyph->fAdvanceY = -SkFloatToFixed(screenMetrics.deviceAdvance.y);
     } else {

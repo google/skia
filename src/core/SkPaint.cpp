@@ -160,6 +160,11 @@ void SkPaint::setEmbeddedBitmapText(bool doEmbeddedBitmapText)
     this->setFlags(SkSetClearMask(fFlags, doEmbeddedBitmapText, kEmbeddedBitmapText_Flag));
 }
 
+void SkPaint::setAutohinted(bool useAutohinter)
+{
+    this->setFlags(SkSetClearMask(fFlags, useAutohinter, kAutoHinting_Flag));
+}
+
 void SkPaint::setLinearText(bool doLinearText)
 {
     this->setFlags(SkSetClearMask(fFlags, doLinearText, kLinearText_Flag));
@@ -1311,12 +1316,15 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->fStrokeJoin = 0;
     }
 
-    rec->fSubpixelPositioning = paint.isSubpixelText();
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
     rec->fFlags = SkToU8(flags);
     rec->setHinting(computeHinting(paint));
     if (paint.isEmbeddedBitmapText())
         rec->fFlags |= SkScalerContext::kEmbeddedBitmapText_Flag;
+    if (paint.isSubpixelText())
+        rec->fFlags |= SkScalerContext::kSubpixelPositioning_Flag;
+    if (paint.isAutohinted())
+        rec->fFlags |= SkScalerContext::kAutohinting_Flag;
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
