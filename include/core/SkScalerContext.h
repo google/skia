@@ -156,6 +156,8 @@ public:
         kHintingBit2_Flag   = 0x20,
         kEmbeddedBitmapText_Flag = 0x40,
         kEmbolden_Flag      = 0x80,
+        kSubpixelPositioning_Flag = 0x100,
+        kAutohinting_Flag   = 0x200,
     };
 private:
     enum {
@@ -167,10 +169,9 @@ public:
         SkScalar    fTextSize, fPreScaleX, fPreSkewX;
         SkScalar    fPost2x2[2][2];
         SkScalar    fFrameWidth, fMiterLimit;
-        bool        fSubpixelPositioning;
         uint8_t     fMaskFormat;
         uint8_t     fStrokeJoin;
-        uint8_t     fFlags;
+        uint16_t    fFlags;
         // Warning: when adding members note that the size of this structure
         // must be a multiple of 4. SkDescriptor requires that its arguments be
         // multiples of four and this structure is put in an SkDescriptor in

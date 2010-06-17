@@ -110,10 +110,11 @@ public:
         kDevKernText_Flag     = 0x100,  //!< mask to enable device kerning text
         kLCDRenderText_Flag   = 0x200,  //!< mask to enable subpixel glyph renderering
         kEmbeddedBitmapText_Flag = 0x400, //!< mask to enable embedded bitmap strikes
+        kAutoHinting_Flag     = 0x800,  //!< mask to force Freetype's autohinter
         // when adding extra flags, note that the fFlags member is specified
         // with a bit-width and you'll have to expand it.
 
-        kAllFlags = 0x7FF
+        kAllFlags = 0xFFF
     };
 
     /** Return the paint's flags. Use the Flag enum to test flag values.
@@ -201,6 +202,18 @@ public:
                                      false to clear it.
     */
     void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
+
+    bool isAutohinted() const
+    {
+        return SkToBool(this->getFlags() & kAutoHinting_Flag);
+    }
+
+    /** Helper for setFlags(), setting or clearing the kAutoHinting_Flag bit
+        @param useAutohinter true to set the kEmbeddedBitmapText bit in the
+                                  paint's flags,
+                             false to clear it.
+    */
+    void setAutohinted(bool useAutohinter);
 
     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
         @return true if the underlineText bit is set in the paint's flags.
@@ -823,7 +836,7 @@ private:
     SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
-    unsigned        fFlags : 11;
+    unsigned        fFlags : 12;
     unsigned        fTextAlign : 2;
     unsigned        fCapType : 2;
     unsigned        fJoinType : 2;

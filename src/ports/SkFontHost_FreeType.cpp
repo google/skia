@@ -293,7 +293,8 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
         // collapse full->normal hinting if we're not doing LCD
         h = SkPaint::kNormal_Hinting;
-    } else if (rec->fSubpixelPositioning && SkPaint::kNo_Hinting != h) {
+    } else if ((rec->fFlags & SkScalerContext::kSubpixelPositioning_Flag) &&
+               SkPaint::kNo_Hinting != h) {
         // to do subpixel, we must have at most slight hinting
         h = SkPaint::kSlight_Hinting;
     }
@@ -379,9 +380,16 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
                 loadFlags = FT_LOAD_TARGET_LIGHT;  // This implies FORCE_AUTOHINT
                 break;
             case SkPaint::kNormal_Hinting:
-                loadFlags = FT_LOAD_TARGET_NORMAL;
+                if (fRec.fFlags & SkScalerContext::kAutohinting_Flag)
+                    loadFlags = FT_LOAD_FORCE_AUTOHINT;
+                else
+                    loadFlags = FT_LOAD_NO_AUTOHINT;
                 break;
             case SkPaint::kFull_Hinting:
+                if (fRec.fFlags & SkScalerContext::kAutohinting_Flag) {
+                    loadFlags = FT_LOAD_FORCE_AUTOHINT;
+                    break;
+                }
                 loadFlags = FT_LOAD_TARGET_NORMAL;
                 if (SkMask::kHorizontalLCD_Format == fRec.fMaskFormat)
                     loadFlags = FT_LOAD_TARGET_LCD;
@@ -587,7 +595,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         }
         FT_Outline_Get_CBox(&fFace->glyph->outline, &bbox);
 
-        if (fRec.fSubpixelPositioning) {
+        if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
             int dx = glyph->getSubXFixed() >> 10;
             int dy = glyph->getSubYFixed() >> 10;
             // negate dy since freetype-y-goes-up and skia-y-goes-down
@@ -624,7 +632,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         goto ERROR;
     }
 
-    if (!fRec.fSubpixelPositioning) {
+    if ((fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) == 0) {
         glyph->fAdvanceX = SkFDot6ToFixed(fFace->glyph->advance.x);
         glyph->fAdvanceY = -SkFDot6ToFixed(fFace->glyph->advance.y);
         if (fRec.fFlags & kDevKernText_Flag) {
@@ -684,7 +692,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
             }
 
             int dx = 0, dy = 0;
-            if (fRec.fSubpixelPositioning) {
+            if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
                 dx = glyph.getSubXFixed() >> 10;
                 dy = glyph.getSubYFixed() >> 10;
                 // negate dy since freetype-y-goes-up and skia-y-goes-down
