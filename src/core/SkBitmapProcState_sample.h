@@ -58,14 +58,6 @@ void MAKENAME(_nofilter_DXDY)(const SkBitmapProcState& s,
 #endif
 }
 
-#ifdef SkBitmapProcState_TEMPLATE_USE_NEON
-extern "C" void S32_Opaque_D32_nofilter_DX_gather_neon(
-    SkPMColor* SK_RESTRICT colors,
-    const SkPMColor* SK_RESTRICT srcAddr,
-    int count,
-    const uint32_t* SK_RESTRICT xy);
-#endif
-
 void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
                             const uint32_t* SK_RESTRICT xy,
                             int count, DSTTYPE* SK_RESTRICT colors) {
@@ -93,9 +85,6 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
         DSTTYPE dstValue = RETURNDST(src);
         BITMAPPROC_MEMSET(colors, dstValue, count);
     } else {
-#ifdef SkBitmapProcState_TEMPLATE_USE_NEON
-       S32_Opaque_D32_nofilter_DX_gather_neon(colors, srcAddr, count, xy);
-#else
         int i;
         for (i = (count >> 2); i > 0; --i) {
             uint32_t xx0 = *xy++;
@@ -115,7 +104,6 @@ void MAKENAME(_nofilter_DX)(const SkBitmapProcState& s,
             SkASSERT(*xx < (unsigned)s.fBitmap->width());
             src = srcAddr[*xx++]; *colors++ = RETURNDST(src);
         }
-#endif // !SkBitmapProcState_TEMPLATE_USE_NEON
     }
     
 #ifdef POSTAMBLE
