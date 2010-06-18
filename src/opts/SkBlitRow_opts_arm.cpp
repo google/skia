@@ -431,9 +431,6 @@ static void S32_D565_Blend_Dither_neon(uint16_t *dst, const SkPMColor *src,
 ///////////////////////////////////////////////////////////////////////////////
 
 #if defined(__ARM_HAVE_NEON) && defined(SK_CPU_LENDIAN)
-extern "C" void S32A_Opaque_BlitRow32_neon2(SkPMColor* SK_RESTRICT dst,
-                                            const SkPMColor* SK_RESTRICT src,
-                                            int count, U8CPU alpha);
 
 static void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
                                   const SkPMColor* SK_RESTRICT src,
@@ -557,7 +554,7 @@ static void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
     }
 }
 
-#define	S32A_Opaque_BlitRow32_PROC	S32A_Opaque_BlitRow32_neon2
+#define	S32A_Opaque_BlitRow32_PROC	S32A_Opaque_BlitRow32_neon
 #else
 #define	S32A_Opaque_BlitRow32_PROC	NULL
 #endif
