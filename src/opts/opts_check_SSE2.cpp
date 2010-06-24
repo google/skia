@@ -53,7 +53,6 @@ static inline void getcpuid(int info_type, int info[4]) {
         "popl %%ebx       \n\t"
         : "=a"(info[0]), "=r"(info[1]), "=c"(info[2]), "=d"(info[3])
         : "a"(info_type)
-        :
     );
 }
 #endif
