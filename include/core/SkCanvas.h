@@ -129,8 +129,10 @@ public:
         offscreen bitmap. All drawing calls are directed there, and only when
         the balancing call to restore() is made is that offscreen transfered to
         the canvas (or the previous layer).
-        @param bounds (may be null) the maximum size the offscreen bitmap needs
-                      to be (in local coordinates)
+        @param bounds (may be null) This rect, if non-null, is used as a hint to
+                      limit the size of the offscreen, and thus drawing may be
+                      clipped to it, though that clipping is not guaranteed to
+                      happen. If exact clipping is desired, use clipRect().
         @param paint (may be null) This is copied, and is applied to the
                      offscreen when restore() is called
         @param flags  LayerFlags
