@@ -19,12 +19,19 @@
 #include "Sk64.h"
 #include "SkMatrix.h"
 
-bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2]) {
+bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2], bool* ambiguous) {
+    if (ambiguous) {
+        *ambiguous = false;
+    }
     // Determine quick discards.
     // Consider query line going exactly through point 0 to not
     // intersect, for symmetry with SkXRayCrossesMonotonicCubic.
-    if (pt.fY == pts[0].fY)
+    if (pt.fY == pts[0].fY) {
+        if (ambiguous) {
+            *ambiguous = true;
+        }
         return false;
+    }
     if (pt.fY < pts[0].fY && pt.fY < pts[1].fY)
         return false;
     if (pt.fY > pts[0].fY && pt.fY > pts[1].fY)
@@ -34,10 +41,27 @@ bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2]) {
     // Determine degenerate cases
     if (SkScalarNearlyZero(pts[0].fY - pts[1].fY))
         return false;
-    if (SkScalarNearlyZero(pts[0].fX - pts[1].fX))
+    if (SkScalarNearlyZero(pts[0].fX - pts[1].fX)) {
         // We've already determined the query point lies within the
         // vertical range of the line segment.
-        return pt.fX <= pts[0].fX;
+        if (pt.fX <= pts[0].fX) {
+            if (ambiguous) {
+                *ambiguous = (pt.fY == pts[1].fY);
+            }
+            return true;
+        }
+        return false;
+    }
+    // Ambiguity check
+    if (pt.fY == pts[1].fY) {
+        if (pt.fX <= pts[1].fX) {
+            if (ambiguous) {
+                *ambiguous = true;
+            }
+            return true;
+        }
+        return false;
+    }
     // Full line segment evaluation
     SkScalar delta_y = pts[1].fY - pts[0].fY;
     SkScalar delta_x = pts[1].fX - pts[0].fX;
@@ -986,7 +1010,11 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13], SkScalar tV
     return count + 1;
 }
 
-bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4]) {
+bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4], bool* ambiguous) {
+    if (ambiguous) {
+        *ambiguous = false;
+    }
+
     // Find the minimum and maximum y of the extrema, which are the
     // first and last points since this cubic is monotonic
     SkScalar min_y = SkMinScalar(cubic[0].fY, cubic[3].fY);
@@ -996,8 +1024,13 @@ bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4]) {
         || pt.fY < min_y
         || pt.fY > max_y) {
         // The query line definitely does not cross the curve
+        if (ambiguous) {
+            *ambiguous = (pt.fY == cubic[0].fY);
+        }
         return false;
     }
+
+    bool pt_at_extremum = (pt.fY == cubic[3].fY);
 
     SkScalar min_x =
         SkMinScalar(
@@ -1007,6 +1040,9 @@ bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4]) {
             cubic[3].fX);
     if (pt.fX < min_x) {
         // The query line definitely crosses the curve
+        if (ambiguous) {
+            *ambiguous = pt_at_extremum;
+        }
         return true;
     }
 
@@ -1053,23 +1089,39 @@ bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4]) {
     } while (++iter < kMaxIter
              && !SkScalarNearlyZero(eval.fY - pt.fY));
     if (pt.fX <= eval.fX) {
+        if (ambiguous) {
+            *ambiguous = pt_at_extremum;
+        }
         return true;
     }
     return false;
 }
 
-int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4]) {
+int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4], bool* ambiguous) {
     int num_crossings = 0;
     SkPoint monotonic_cubics[10];
     int num_monotonic_cubics = SkChopCubicAtYExtrema(cubic, monotonic_cubics);
-    if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[0]))
+    if (ambiguous) {
+        *ambiguous = false;
+    }
+    bool locally_ambiguous;
+    if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[0], &locally_ambiguous))
         ++num_crossings;
+    if (ambiguous) {
+        *ambiguous |= locally_ambiguous;
+    }
     if (num_monotonic_cubics > 0)
-        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[3]))
+        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[3], &locally_ambiguous))
             ++num_crossings;
+    if (ambiguous) {
+        *ambiguous |= locally_ambiguous;
+    }
     if (num_monotonic_cubics > 1)
-        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[6]))
+        if (SkXRayCrossesMonotonicCubic(pt, &monotonic_cubics[6], &locally_ambiguous))
             ++num_crossings;
+    if (ambiguous) {
+        *ambiguous |= locally_ambiguous;
+    }
     return num_crossings;
 }
 
