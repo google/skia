@@ -27,6 +27,36 @@
 struct SkIRect {
     int32_t fLeft, fTop, fRight, fBottom;
 
+    static SkIRect MakeEmpty() {
+        SkIRect r;
+        r.setEmpty();
+        return r;
+    }
+    
+    static SkIRect MakeWH(int32_t w, int32_t h) {
+        SkIRect r;
+        r.set(0, 0, w, h);
+        return r;
+    }
+    
+    static SkIRect MakeSize(const SkISize& size) {
+        SkIRect r;
+        r.set(0, 0, size.width(), size.height());
+        return r;
+    }
+    
+    static SkIRect MakeLTRB(int32_t l, int32_t t, int32_t r, int32_t b) {
+        SkIRect rect;
+        rect.set(l, t, r, b);
+        return rect;
+    }
+    
+    static SkIRect MakeXYWH(int32_t x, int32_t y, int32_t w, int32_t h) {
+        SkIRect r;
+        r.set(x, y, x + w, y + h);
+        return r;
+    }
+    
     /** Return true if the rectangle's width or height are <= 0
     */
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
