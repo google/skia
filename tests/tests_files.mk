@@ -12,6 +12,7 @@ SOURCE := \
     PaintTest.cpp \
     ParsePathTest.cpp \
     PathTest.cpp \
+    RegionTest.cpp \
     ClipCubicTest.cpp \
     SrcOverTest.cpp \
     StreamTest.cpp \
