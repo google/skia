@@ -653,9 +653,10 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
             det =   (double)mat[SkMatrix::kMScaleX] * mat[SkMatrix::kMScaleY] - (double)mat[SkMatrix::kMSkewX] * mat[SkMatrix::kMSkewY];
         }
 
-        // Since the determinant is on the order of the square of the matrix members,
-        // compare to the square of the default nearly-zero constant
-        if (SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
+        // Since the determinant is on the order of the cube of the matrix members,
+        // compare to the cube of the default nearly-zero constant (although an
+        // estimate of the condition number would be better if it wasn't so expensive).
+        if (SkScalarNearlyZero((float)det, SK_ScalarNearlyZero * SK_ScalarNearlyZero * SK_ScalarNearlyZero)) {
             return 0;
         }
         return 1.0 / det;
