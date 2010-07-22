@@ -28,13 +28,12 @@
 //============================================================================
 //      Constants
 //----------------------------------------------------------------------------
-static const SkFontID kSkInvalidFontID                              = 0;
+static const SkFontID kSkInvalidFontID          = 0;
 
-static const size_t FONT_CACHE_MEMORY_BUDGET                        = 1024 * 1024;
-static const char  *FONT_DEFAULT_NAME                               = "Lucida Sans";
+static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
+static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
 
-
-
+static const float FONT_CANONICAL_POINTSIZE = 1.0f;
 
 
 //============================================================================
@@ -255,7 +254,8 @@ CTFontRef SkNativeFontCache::CreateNativeFont(const SkString &theName, SkTypefac
 
     // Create the font
     //
-    // Fonts are scaled using the Sk matrix, so we always request a font of size 1.
+    // Fonts are scaled using the Sk matrix, so we always request a font
+    // at a canonical size FONT_CANONICAL_POINTSIZE
     if (cfFontName != NULL && cfFontTraits != NULL && cfAttributes != NULL && cfTraits != NULL)
         {
         CFDictionaryAddValue(cfTraits, kCTFontSymbolicTrait, cfFontTraits);
@@ -265,7 +265,7 @@ CTFontRef SkNativeFontCache::CreateNativeFont(const SkString &theName, SkTypefac
 
         ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
         if (ctFontDesc != NULL)
-            ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 1.0, NULL);
+            ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, FONT_CANONICAL_POINTSIZE, NULL);
 
         }
 
@@ -353,12 +353,13 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 
     // Initialise ourselves
     mColorSpace = CGColorSpaceCreateDeviceGray();
-    mTransform  = CGAffineTransformMake(SkScalarToFloat(skMatrix[SkMatrix::kMScaleX]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMSkewX]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMSkewY]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMScaleY]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransX]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransY]));
+    const float inv = 1.0f / FONT_CANONICAL_POINTSIZE;
+    mTransform  = CGAffineTransformMake(SkScalarToFloat(skMatrix[SkMatrix::kMScaleX]) * inv,
+                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewY]) * inv,
+                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewX]) * inv,
+                                        SkScalarToFloat(skMatrix[SkMatrix::kMScaleY]) * inv,
+                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransX]) * inv,
+                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransY]) * inv);
 
     mFont       = CTFontCreateCopyWithAttributes(ctFont, 0.0, &mTransform, NULL);
     mGlyphCount = (uint16_t) numGlyphs;
@@ -422,7 +423,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     // to transform the bounding box ourselves.
     //
     // The bounds are also expanded by 1 pixel, to give CG room for anti-aliasing.
-    theBounds = CGRectApplyAffineTransform(theBounds, mTransform);
     theBounds = CGRectInset(theBounds, -1, -1);
 
 
@@ -442,7 +442,6 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     CGGlyph             cgGlyph;
     CGFontRef           cgFont;
 
-
     // Get the state we need
     sk_bzero(glyph.fImage, glyph.fHeight * glyph.rowBytes());
 
@@ -451,53 +450,37 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
     cgContext = CGBitmapContextCreate(  glyph.fImage, glyph.fWidth, glyph.fHeight, 8,
                                         glyph.rowBytes(), mColorSpace, kCGImageAlphaNone);
 
-
     // Draw the glyph
-    if (cgFont != NULL && cgContext != NULL)
-        {
+    if (cgFont != NULL && cgContext != NULL) {
         CGContextSetGrayFillColor(  cgContext, 1.0, 1.0);
         CGContextSetTextDrawingMode(cgContext, kCGTextFill);
         CGContextSetFont(           cgContext, cgFont);
-        CGContextSetFontSize(       cgContext, 1.0);
+        CGContextSetFontSize(       cgContext, FONT_CANONICAL_POINTSIZE);
         CGContextSetTextMatrix(     cgContext, mTransform);
         CGContextShowGlyphsAtPoint( cgContext, -glyph.fLeft, glyph.fTop + glyph.fHeight, &cgGlyph, 1);
-        }
-
+    }
 
     // Clean up
     CFSafeRelease(cgFont);
     CFSafeRelease(cgContext);
 }
 
-void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path)
-{   CGGlyph     cgGlyph;
-    CGPathRef   cgPath;
+void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
+    CGGlyph   cgGlyph = (CGGlyph)glyph.getGlyphID(fBaseGlyphCount);
+    CGPathRef cgPath  = CTFontCreatePathForGlyph(mFont, cgGlyph, NULL);
 
-
-    // Get the state we need
-    cgGlyph = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
-    cgPath  = CTFontCreatePathForGlyph(mFont, cgGlyph, NULL);
-
-
-    // Get the path
     path->reset();
-
-    if (cgPath != NULL)
+    if (cgPath != NULL) {
         CGPathApply(cgPath, path, SkScalerContext_Mac::CTPathElement);
-
-    CFSafeRelease(cgPath);
+        CFRelease(cgPath);
+    }
 }
 
-void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my)
-{   SkPaint::FontMetrics        theMetrics;
-    CGRect                      theBounds;
+void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx,
+                                              SkPaint::FontMetrics* my) {
+    CGRect theBounds = CTFontGetBoundingBox(mFont);
 
-
-    // Get the state we need
-    theBounds = CTFontGetBoundingBox(mFont);
-
-
-    // Get the metrics
+    SkPaint::FontMetrics        theMetrics;
     theMetrics.fTop          = -CGRectGetMaxY(theBounds);
     theMetrics.fAscent       = -CTFontGetAscent(mFont);
     theMetrics.fDescent      =  CTFontGetDescent(mFont);
@@ -508,8 +491,7 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint:
     theMetrics.fXMax         =  CGRectGetMaxX(theBounds);
     theMetrics.fXHeight      =  CTFontGetXHeight(mFont);
 
-
-    // Return the metrics
+#if 0
     SkASSERT(theMetrics.fTop          <= 0.0);
     SkASSERT(theMetrics.fAscent       <= 0.0);
     SkASSERT(theMetrics.fDescent      >= 0.0);
@@ -519,12 +501,14 @@ void SkScalerContext_Mac::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint:
     SkASSERT(theMetrics.fXMin         <= 0.0);
     SkASSERT(theMetrics.fXMax         >  0.0);
     SkASSERT(theMetrics.fXHeight      >= 0.0);
+#endif
 
-    if (mx != NULL)
+    if (mx != NULL) {
         *mx = theMetrics;
-    
-    if (my != NULL)
+    }
+    if (my != NULL) {
         *my = theMetrics;
+    }
 }
 
 void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element)
@@ -585,6 +569,7 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
 
     // Clone an existing typeface
+    // TODO: only clone if style matches the familyFace's style...
     if (familyName == NULL && familyFace != NULL)
         {
         familyFace->ref();
@@ -592,6 +577,9 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         }
 
 
+    if (fontName.isEmpty()) {
+        fontName.set(FONT_DEFAULT_NAME);
+    }
     // Get the native font
     fontInfo = fontTable->GetFontInfo(fontName, style);
     if (fontInfo.fontID == kSkInvalidFontID)
@@ -605,14 +593,14 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
 {
-    SkASSERT(!"SkFontHost::CreateTypefaceFromStream unimplemented");
-    return(NULL);
+//    SkASSERT(!"SkFontHost::CreateTypefaceFromStream unimplemented");
+    return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
 {
-    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
-    return(NULL);
+//    SkASSERT(!"SkFontHost::CreateTypefaceFromFile unimplemented");
+    return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
 }
 
 ///////////////////////////////////////////////////////////////////////////
