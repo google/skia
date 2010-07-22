@@ -488,6 +488,7 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas)
     {
+        inval(NULL);
         if (false)
         {
             canvas->translate(SkIntToScalar(480), 0);
@@ -754,7 +755,7 @@ protected:
                 }
             }
             if (gHints[index].fFlushCache) {
-                SkGraphics::SetFontCacheUsed(0);
+//                SkGraphics::SetFontCacheUsed(0);
             }
         }
         

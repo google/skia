@@ -13,7 +13,7 @@
 
 extern SkView* create_overview(int, const SkViewFactory[]);
 
-//#define SK_SUPPORT_GL
+#define SK_SUPPORT_GL
 
 #ifdef SK_SUPPORT_GL
 #include <AGL/agl.h>

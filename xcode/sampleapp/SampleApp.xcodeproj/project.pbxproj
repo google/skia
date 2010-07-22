@@ -32,7 +32,6 @@
 		0001FB98110E362F00C1D647 /* SkGLState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0001FB91110E362F00C1D647 /* SkGLState.cpp */; };
 		0001FB99110E362F00C1D647 /* SkGLTextCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0001FB92110E362F00C1D647 /* SkGLTextCache.cpp */; };
 		0001FB9A110E362F00C1D647 /* SkTextureCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0001FB93110E362F00C1D647 /* SkTextureCache.cpp */; };
-		000630AD10F4E8F000BC2C23 /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000630AC10F4E8EF00BC2C23 /* SampleText.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
 		0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0021F3A11120B29C0062682F /* SkStaticTextView.cpp */; };
 		0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00995E1510A079D80054AD6D /* SampleUnitMapper.cpp */; };
@@ -42,11 +41,9 @@
 		00244DCD106A630100B8F4D8 /* bitmapfilters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244DC7106A630100B8F4D8 /* bitmapfilters.cpp */; };
 		00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */; };
 		00281C751083CF7E00BCCB06 /* libAnimator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00281C711083CF6600BCCB06 /* libAnimator.a */; };
-		00281C781083CFA100BCCB06 /* SampleAnimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281C771083CFA100BCCB06 /* SampleAnimator.cpp */; };
 		00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */; };
 		0028847B0EFAB46A0083E387 /* libcore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884510EFAA35C0083E387 /* libcore.a */; };
 		002884BD0EFAB6A30083E387 /* libmaccore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 002884BC0EFAB69F0083E387 /* libmaccore.a */; };
-		003EE652111239D5001AB759 /* SampleWarp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003EE651111239D5001AB759 /* SampleWarp.cpp */; };
 		0041CDDB0F00975E00695E8C /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDDA0F00975E00695E8C /* SampleImageDir.cpp */; };
 		0041CDF30F009ED100695E8C /* SkImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF20F009ED100695E8C /* SkImageRef.cpp */; };
 		0041CDF60F009EED00695E8C /* SkImageRef_GlobalPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CDF50F009EED00695E8C /* SkImageRef_GlobalPool.cpp */; };
@@ -66,7 +63,6 @@
 		00575A1810BB02CF00A43B94 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
 		00575A3B10BB05FE00A43B94 /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		00575A9510BB2FF600A43B94 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2794C04E0FE72903009AD112 /* SampleMipMap.cpp */; };
-		005778B40FF5616F00582CD9 /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003145310FB9B48F00B10956 /* SampleShapes.cpp */; };
 		005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE290F00A12400695E8C /* SampleFilter2.cpp */; };
 		005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE280F00A12400695E8C /* SampleFilter.cpp */; };
 		0061BC9310D6787A0079EBE5 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
@@ -75,10 +71,7 @@
 		007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */; };
 		007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */; };
 		007A7CB80F01658C00A2D6EE /* SampleStrokeText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA90F01658C00A2D6EE /* SampleStrokeText.cpp */; };
-		007A7CBB0F01658C00A2D6EE /* SampleTextAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAC0F01658C00A2D6EE /* SampleTextAlpha.cpp */; };
-		007A7CBC0F01658C00A2D6EE /* SampleTextEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAD0F01658C00A2D6EE /* SampleTextEffects.cpp */; };
 		007A7CBD0F01658C00A2D6EE /* SampleTextOnPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAE0F01658C00A2D6EE /* SampleTextOnPath.cpp */; };
-		007A7CC00F01658C00A2D6EE /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB10F01658C00A2D6EE /* SampleVertices.cpp */; };
 		00840B75104C69F5005B3EDC /* SampleExtractAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00840B74104C69F5005B3EDC /* SampleExtractAlpha.cpp */; };
 		0086CBF110A8661F00C8BF27 /* SampleAvoid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0086CBF010A8661F00C8BF27 /* SampleAvoid.cpp */; };
 		0086CC1C10A9B6A600C8BF27 /* SamplePicture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA40F01658C00A2D6EE /* SamplePicture.cpp */; };
@@ -104,8 +97,43 @@
 		01FC44D507BD3BB800D228F4 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01FC44D407BD3BB800D228F4 /* Quartz.framework */; };
 		27005D16100903C100E275B6 /* SampleLines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2E0F00A12400695E8C /* SampleLines.cpp */; };
 		27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE200F00A12400695E8C /* SampleCircle.cpp */; };
+		27433F1E11A1874A0045AD84 /* SampleSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB9B119B32670017B155 /* SampleSVG.cpp */; };
+		27433F3311A18EA60045AD84 /* SampleTextEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAD0F01658C00A2D6EE /* SampleTextEffects.cpp */; };
+		27433F4911A1D24E0045AD84 /* SampleMessages.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27433F4811A1D24E0045AD84 /* SampleMessages.cpp */; };
+		275E801611AAC2FF0051C03A /* SampleShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 003145310FB9B48F00B10956 /* SampleShapes.cpp */; };
+		275E802311AAC3330051C03A /* SampleVertices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB10F01658C00A2D6EE /* SampleVertices.cpp */; };
 		2762F66D0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66B0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp */; };
 		2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F66C0FCCCABE002BD8B4 /* SkPageFlipper.cpp */; };
+		27CAAB65119B303E0017B155 /* SkSVGCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB30119B303E0017B155 /* SkSVGCircle.cpp */; };
+		27CAAB66119B303E0017B155 /* SkSVGClipPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB32119B303E0017B155 /* SkSVGClipPath.cpp */; };
+		27CAAB67119B303E0017B155 /* SkSVGDefs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB34119B303E0017B155 /* SkSVGDefs.cpp */; };
+		27CAAB68119B303E0017B155 /* SkSVGElements.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB36119B303E0017B155 /* SkSVGElements.cpp */; };
+		27CAAB69119B303E0017B155 /* SkSVGEllipse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB38119B303E0017B155 /* SkSVGEllipse.cpp */; };
+		27CAAB6A119B303E0017B155 /* SkSVGFeColorMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB3A119B303E0017B155 /* SkSVGFeColorMatrix.cpp */; };
+		27CAAB6B119B303E0017B155 /* SkSVGFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB3C119B303E0017B155 /* SkSVGFilter.cpp */; };
+		27CAAB6C119B303E0017B155 /* SkSVGG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB3E119B303E0017B155 /* SkSVGG.cpp */; };
+		27CAAB6D119B303E0017B155 /* SkSVGGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB40119B303E0017B155 /* SkSVGGradient.cpp */; };
+		27CAAB6E119B303E0017B155 /* SkSVGGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB42119B303E0017B155 /* SkSVGGroup.cpp */; };
+		27CAAB6F119B303E0017B155 /* SkSVGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB44119B303E0017B155 /* SkSVGImage.cpp */; };
+		27CAAB70119B303E0017B155 /* SkSVGLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB46119B303E0017B155 /* SkSVGLine.cpp */; };
+		27CAAB71119B303E0017B155 /* SkSVGLinearGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB48119B303E0017B155 /* SkSVGLinearGradient.cpp */; };
+		27CAAB72119B303E0017B155 /* SkSVGMask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB4A119B303E0017B155 /* SkSVGMask.cpp */; };
+		27CAAB73119B303E0017B155 /* SkSVGMetadata.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB4C119B303E0017B155 /* SkSVGMetadata.cpp */; };
+		27CAAB74119B303E0017B155 /* SkSVGPaintState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB4E119B303E0017B155 /* SkSVGPaintState.cpp */; };
+		27CAAB75119B303E0017B155 /* SkSVGParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB4F119B303E0017B155 /* SkSVGParser.cpp */; };
+		27CAAB76119B303E0017B155 /* SkSVGPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB50119B303E0017B155 /* SkSVGPath.cpp */; };
+		27CAAB77119B303E0017B155 /* SkSVGPolygon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB52119B303E0017B155 /* SkSVGPolygon.cpp */; };
+		27CAAB78119B303E0017B155 /* SkSVGPolyline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB54119B303E0017B155 /* SkSVGPolyline.cpp */; };
+		27CAAB79119B303E0017B155 /* SkSVGRadialGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB56119B303E0017B155 /* SkSVGRadialGradient.cpp */; };
+		27CAAB7A119B303E0017B155 /* SkSVGRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB58119B303E0017B155 /* SkSVGRect.cpp */; };
+		27CAAB7B119B303E0017B155 /* SkSVGStop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB5A119B303E0017B155 /* SkSVGStop.cpp */; };
+		27CAAB7C119B303E0017B155 /* SkSVGSVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB5C119B303E0017B155 /* SkSVGSVG.cpp */; };
+		27CAAB7D119B303E0017B155 /* SkSVGSymbol.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB5E119B303E0017B155 /* SkSVGSymbol.cpp */; };
+		27CAAB7E119B303E0017B155 /* SkSVGText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB60119B303E0017B155 /* SkSVGText.cpp */; };
+		27CAAB7F119B303E0017B155 /* SkSVGUse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB62119B303E0017B155 /* SkSVGUse.cpp */; };
+		27CAAB96119B321A0017B155 /* SkXMLWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB95119B321A0017B155 /* SkXMLWriter.cpp */; };
+		27D0F3C311BD2012001B8EBE /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000630AC10F4E8EF00BC2C23 /* SampleText.cpp */; };
+		27EC817811982E1300481B56 /* SampleTextAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAC0F01658C00A2D6EE /* SampleTextAlpha.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
@@ -211,7 +239,6 @@
 		00281C661083CF5100BCCB06 /* SkTextBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTextBox.cpp; path = ../../src/views/SkTextBox.cpp; sourceTree = SOURCE_ROOT; };
 		00281C691083CF6600BCCB06 /* Animator.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Animator.xcodeproj; path = ../Animator/Animator.xcodeproj; sourceTree = SOURCE_ROOT; };
 		00281C771083CFA100BCCB06 /* SampleAnimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleAnimator.cpp; path = ../../samplecode/SampleAnimator.cpp; sourceTree = SOURCE_ROOT; };
-		00281CAA1083D2C800BCCB06 /* test.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = test.xml; path = /skimages/test.xml; sourceTree = "<absolute>"; };
 		00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLParser_expat.cpp; path = ../../src/ports/SkXMLParser_expat.cpp; sourceTree = SOURCE_ROOT; };
 		002884490EFAA35C0083E387 /* core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = core.xcodeproj; path = ../core/core.xcodeproj; sourceTree = SOURCE_ROOT; };
 		002884B40EFAB69F0083E387 /* maccore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = maccore.xcodeproj; path = ../maccore/maccore.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -280,6 +307,7 @@
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1870340FFE93FCAF11CA0CD7 /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/main.nib; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		27433F4811A1D24E0045AD84 /* SampleMessages.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleMessages.cpp; path = ../../tetrark/SampleMessages.cpp; sourceTree = SOURCE_ROOT; };
 		2762F66B0FCCCABE002BD8B4 /* SkFlipPixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFlipPixelRef.cpp; path = ../../src/images/SkFlipPixelRef.cpp; sourceTree = SOURCE_ROOT; };
 		2762F66C0FCCCABE002BD8B4 /* SkPageFlipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkPageFlipper.cpp; path = ../../src/images/SkPageFlipper.cpp; sourceTree = SOURCE_ROOT; };
 		2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleAll.cpp; path = ../../samplecode/SampleAll.cpp; sourceTree = SOURCE_ROOT; };
@@ -288,6 +316,63 @@
 		2762F6780FCCCB01002BD8B4 /* SamplePolyToPoly.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePolyToPoly.cpp; path = ../../samplecode/SamplePolyToPoly.cpp; sourceTree = SOURCE_ROOT; };
 		2762F6790FCCCB01002BD8B4 /* SampleTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTests.cpp; path = ../../samplecode/SampleTests.cpp; sourceTree = SOURCE_ROOT; };
 		2794C04E0FE72903009AD112 /* SampleMipMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleMipMap.cpp; path = ../../samplecode/SampleMipMap.cpp; sourceTree = SOURCE_ROOT; };
+		27A34E8B119892DD00860515 /* SampleTextBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTextBox.cpp; path = ../../samplecode/SampleTextBox.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB2F119B303E0017B155 /* SkSVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVG.cpp; path = ../../src/svg/SkSVG.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB30119B303E0017B155 /* SkSVGCircle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGCircle.cpp; path = ../../src/svg/SkSVGCircle.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB31119B303E0017B155 /* SkSVGCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGCircle.h; path = ../../src/svg/SkSVGCircle.h; sourceTree = SOURCE_ROOT; };
+		27CAAB32119B303E0017B155 /* SkSVGClipPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGClipPath.cpp; path = ../../src/svg/SkSVGClipPath.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB33119B303E0017B155 /* SkSVGClipPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGClipPath.h; path = ../../src/svg/SkSVGClipPath.h; sourceTree = SOURCE_ROOT; };
+		27CAAB34119B303E0017B155 /* SkSVGDefs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGDefs.cpp; path = ../../src/svg/SkSVGDefs.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB35119B303E0017B155 /* SkSVGDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGDefs.h; path = ../../src/svg/SkSVGDefs.h; sourceTree = SOURCE_ROOT; };
+		27CAAB36119B303E0017B155 /* SkSVGElements.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGElements.cpp; path = ../../src/svg/SkSVGElements.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB37119B303E0017B155 /* SkSVGElements.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGElements.h; path = ../../src/svg/SkSVGElements.h; sourceTree = SOURCE_ROOT; };
+		27CAAB38119B303E0017B155 /* SkSVGEllipse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGEllipse.cpp; path = ../../src/svg/SkSVGEllipse.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB39119B303E0017B155 /* SkSVGEllipse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGEllipse.h; path = ../../src/svg/SkSVGEllipse.h; sourceTree = SOURCE_ROOT; };
+		27CAAB3A119B303E0017B155 /* SkSVGFeColorMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGFeColorMatrix.cpp; path = ../../src/svg/SkSVGFeColorMatrix.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB3B119B303E0017B155 /* SkSVGFeColorMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGFeColorMatrix.h; path = ../../src/svg/SkSVGFeColorMatrix.h; sourceTree = SOURCE_ROOT; };
+		27CAAB3C119B303E0017B155 /* SkSVGFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGFilter.cpp; path = ../../src/svg/SkSVGFilter.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB3D119B303E0017B155 /* SkSVGFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGFilter.h; path = ../../src/svg/SkSVGFilter.h; sourceTree = SOURCE_ROOT; };
+		27CAAB3E119B303E0017B155 /* SkSVGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGG.cpp; path = ../../src/svg/SkSVGG.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB3F119B303E0017B155 /* SkSVGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGG.h; path = ../../src/svg/SkSVGG.h; sourceTree = SOURCE_ROOT; };
+		27CAAB40119B303E0017B155 /* SkSVGGradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGGradient.cpp; path = ../../src/svg/SkSVGGradient.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB41119B303E0017B155 /* SkSVGGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGGradient.h; path = ../../src/svg/SkSVGGradient.h; sourceTree = SOURCE_ROOT; };
+		27CAAB42119B303E0017B155 /* SkSVGGroup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGGroup.cpp; path = ../../src/svg/SkSVGGroup.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB43119B303E0017B155 /* SkSVGGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGGroup.h; path = ../../src/svg/SkSVGGroup.h; sourceTree = SOURCE_ROOT; };
+		27CAAB44119B303E0017B155 /* SkSVGImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGImage.cpp; path = ../../src/svg/SkSVGImage.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB45119B303E0017B155 /* SkSVGImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGImage.h; path = ../../src/svg/SkSVGImage.h; sourceTree = SOURCE_ROOT; };
+		27CAAB46119B303E0017B155 /* SkSVGLine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGLine.cpp; path = ../../src/svg/SkSVGLine.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB47119B303E0017B155 /* SkSVGLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGLine.h; path = ../../src/svg/SkSVGLine.h; sourceTree = SOURCE_ROOT; };
+		27CAAB48119B303E0017B155 /* SkSVGLinearGradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGLinearGradient.cpp; path = ../../src/svg/SkSVGLinearGradient.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB49119B303E0017B155 /* SkSVGLinearGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGLinearGradient.h; path = ../../src/svg/SkSVGLinearGradient.h; sourceTree = SOURCE_ROOT; };
+		27CAAB4A119B303E0017B155 /* SkSVGMask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGMask.cpp; path = ../../src/svg/SkSVGMask.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB4B119B303E0017B155 /* SkSVGMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGMask.h; path = ../../src/svg/SkSVGMask.h; sourceTree = SOURCE_ROOT; };
+		27CAAB4C119B303E0017B155 /* SkSVGMetadata.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGMetadata.cpp; path = ../../src/svg/SkSVGMetadata.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB4D119B303E0017B155 /* SkSVGMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGMetadata.h; path = ../../src/svg/SkSVGMetadata.h; sourceTree = SOURCE_ROOT; };
+		27CAAB4E119B303E0017B155 /* SkSVGPaintState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGPaintState.cpp; path = ../../src/svg/SkSVGPaintState.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB4F119B303E0017B155 /* SkSVGParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGParser.cpp; path = ../../src/svg/SkSVGParser.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB50119B303E0017B155 /* SkSVGPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGPath.cpp; path = ../../src/svg/SkSVGPath.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB51119B303E0017B155 /* SkSVGPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGPath.h; path = ../../src/svg/SkSVGPath.h; sourceTree = SOURCE_ROOT; };
+		27CAAB52119B303E0017B155 /* SkSVGPolygon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGPolygon.cpp; path = ../../src/svg/SkSVGPolygon.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB53119B303E0017B155 /* SkSVGPolygon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGPolygon.h; path = ../../src/svg/SkSVGPolygon.h; sourceTree = SOURCE_ROOT; };
+		27CAAB54119B303E0017B155 /* SkSVGPolyline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGPolyline.cpp; path = ../../src/svg/SkSVGPolyline.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB55119B303E0017B155 /* SkSVGPolyline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGPolyline.h; path = ../../src/svg/SkSVGPolyline.h; sourceTree = SOURCE_ROOT; };
+		27CAAB56119B303E0017B155 /* SkSVGRadialGradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGRadialGradient.cpp; path = ../../src/svg/SkSVGRadialGradient.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB57119B303E0017B155 /* SkSVGRadialGradient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGRadialGradient.h; path = ../../src/svg/SkSVGRadialGradient.h; sourceTree = SOURCE_ROOT; };
+		27CAAB58119B303E0017B155 /* SkSVGRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGRect.cpp; path = ../../src/svg/SkSVGRect.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB59119B303E0017B155 /* SkSVGRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGRect.h; path = ../../src/svg/SkSVGRect.h; sourceTree = SOURCE_ROOT; };
+		27CAAB5A119B303E0017B155 /* SkSVGStop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGStop.cpp; path = ../../src/svg/SkSVGStop.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB5B119B303E0017B155 /* SkSVGStop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGStop.h; path = ../../src/svg/SkSVGStop.h; sourceTree = SOURCE_ROOT; };
+		27CAAB5C119B303E0017B155 /* SkSVGSVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGSVG.cpp; path = ../../src/svg/SkSVGSVG.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB5D119B303E0017B155 /* SkSVGSVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGSVG.h; path = ../../src/svg/SkSVGSVG.h; sourceTree = SOURCE_ROOT; };
+		27CAAB5E119B303E0017B155 /* SkSVGSymbol.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGSymbol.cpp; path = ../../src/svg/SkSVGSymbol.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB5F119B303E0017B155 /* SkSVGSymbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGSymbol.h; path = ../../src/svg/SkSVGSymbol.h; sourceTree = SOURCE_ROOT; };
+		27CAAB60119B303E0017B155 /* SkSVGText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGText.cpp; path = ../../src/svg/SkSVGText.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB61119B303E0017B155 /* SkSVGText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGText.h; path = ../../src/svg/SkSVGText.h; sourceTree = SOURCE_ROOT; };
+		27CAAB62119B303E0017B155 /* SkSVGUse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSVGUse.cpp; path = ../../src/svg/SkSVGUse.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB63119B303E0017B155 /* SkSVGUse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSVGUse.h; path = ../../src/svg/SkSVGUse.h; sourceTree = SOURCE_ROOT; };
+		27CAAB95119B321A0017B155 /* SkXMLWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXMLWriter.cpp; path = ../../src/xml/SkXMLWriter.cpp; sourceTree = SOURCE_ROOT; };
+		27CAAB9B119B32670017B155 /* SampleSVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleSVG.cpp; path = ../../samplecode/SampleSVG.cpp; sourceTree = SOURCE_ROOT; };
+		27CAB350119C9C4C0017B155 /* colorfont.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = colorfont.xml; path = /colorfont.xml; sourceTree = "<absolute>"; };
 		32DBCF6D0370B57F00C91783 /* CICarbonSample_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CICarbonSample_Prefix.pch; sourceTree = "<group>"; };
 		4A9504C8FFE6A3BC11CA0CBA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		4A9504CAFFE6A41611CA0CBA /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
@@ -319,8 +404,11 @@
 			isa = PBXGroup;
 			children = (
 				003EE651111239D5001AB759 /* SampleWarp.cpp */,
+				27A34E8B119892DD00860515 /* SampleTextBox.cpp */,
 				000630AC10F4E8EF00BC2C23 /* SampleText.cpp */,
 				00281C771083CFA100BCCB06 /* SampleAnimator.cpp */,
+				27CAB350119C9C4C0017B155 /* colorfont.xml */,
+				27CAAB9B119B32670017B155 /* SampleSVG.cpp */,
 				0086CBF010A8661F00C8BF27 /* SampleAvoid.cpp */,
 				00A729630FD93ED600D5051F /* SampleTestGL.cpp */,
 				2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */,
@@ -485,14 +573,15 @@
 		20286C29FDCF999611CA2CEA /* CICarbonSample */ = {
 			isa = PBXGroup;
 			children = (
+				27CAAB2E119B30240017B155 /* SVG */,
 				0001FB8C110E360A00C1D647 /* opengl */,
-				00281CAA1083D2C800BCCB06 /* test.xml */,
 				00244DC5106A62E600B8F4D8 /* gm */,
 				001B871D1042184D00C84ED4 /* Forth.cpp */,
 				00ED55F2104A10EB00F51FF8 /* StdWords.cpp */,
 				00EB4592104DBB18002B413E /* ForthTests.cpp */,
 				00BB289A104781D00057BF7E /* SampleForth.cpp */,
 				00003C620EFC22A8000FF73A /* SampleApp.cpp */,
+				27433F4811A1D24E0045AD84 /* SampleMessages.cpp */,
 				2762F66A0FCCCAA2002BD8B4 /* images */,
 				00003C6A0EFC22AD000FF73A /* views */,
 				00281C7B1083CFB700BCCB06 /* xml */,
@@ -554,6 +643,67 @@
 				0041CDF20F009ED100695E8C /* SkImageRef.cpp */,
 			);
 			name = images;
+			sourceTree = "<group>";
+		};
+		27CAAB2E119B30240017B155 /* SVG */ = {
+			isa = PBXGroup;
+			children = (
+				27CAAB95119B321A0017B155 /* SkXMLWriter.cpp */,
+				27CAAB2F119B303E0017B155 /* SkSVG.cpp */,
+				27CAAB30119B303E0017B155 /* SkSVGCircle.cpp */,
+				27CAAB31119B303E0017B155 /* SkSVGCircle.h */,
+				27CAAB32119B303E0017B155 /* SkSVGClipPath.cpp */,
+				27CAAB33119B303E0017B155 /* SkSVGClipPath.h */,
+				27CAAB34119B303E0017B155 /* SkSVGDefs.cpp */,
+				27CAAB35119B303E0017B155 /* SkSVGDefs.h */,
+				27CAAB36119B303E0017B155 /* SkSVGElements.cpp */,
+				27CAAB37119B303E0017B155 /* SkSVGElements.h */,
+				27CAAB38119B303E0017B155 /* SkSVGEllipse.cpp */,
+				27CAAB39119B303E0017B155 /* SkSVGEllipse.h */,
+				27CAAB3A119B303E0017B155 /* SkSVGFeColorMatrix.cpp */,
+				27CAAB3B119B303E0017B155 /* SkSVGFeColorMatrix.h */,
+				27CAAB3C119B303E0017B155 /* SkSVGFilter.cpp */,
+				27CAAB3D119B303E0017B155 /* SkSVGFilter.h */,
+				27CAAB3E119B303E0017B155 /* SkSVGG.cpp */,
+				27CAAB3F119B303E0017B155 /* SkSVGG.h */,
+				27CAAB40119B303E0017B155 /* SkSVGGradient.cpp */,
+				27CAAB41119B303E0017B155 /* SkSVGGradient.h */,
+				27CAAB42119B303E0017B155 /* SkSVGGroup.cpp */,
+				27CAAB43119B303E0017B155 /* SkSVGGroup.h */,
+				27CAAB44119B303E0017B155 /* SkSVGImage.cpp */,
+				27CAAB45119B303E0017B155 /* SkSVGImage.h */,
+				27CAAB46119B303E0017B155 /* SkSVGLine.cpp */,
+				27CAAB47119B303E0017B155 /* SkSVGLine.h */,
+				27CAAB48119B303E0017B155 /* SkSVGLinearGradient.cpp */,
+				27CAAB49119B303E0017B155 /* SkSVGLinearGradient.h */,
+				27CAAB4A119B303E0017B155 /* SkSVGMask.cpp */,
+				27CAAB4B119B303E0017B155 /* SkSVGMask.h */,
+				27CAAB4C119B303E0017B155 /* SkSVGMetadata.cpp */,
+				27CAAB4D119B303E0017B155 /* SkSVGMetadata.h */,
+				27CAAB4E119B303E0017B155 /* SkSVGPaintState.cpp */,
+				27CAAB4F119B303E0017B155 /* SkSVGParser.cpp */,
+				27CAAB50119B303E0017B155 /* SkSVGPath.cpp */,
+				27CAAB51119B303E0017B155 /* SkSVGPath.h */,
+				27CAAB52119B303E0017B155 /* SkSVGPolygon.cpp */,
+				27CAAB53119B303E0017B155 /* SkSVGPolygon.h */,
+				27CAAB54119B303E0017B155 /* SkSVGPolyline.cpp */,
+				27CAAB55119B303E0017B155 /* SkSVGPolyline.h */,
+				27CAAB56119B303E0017B155 /* SkSVGRadialGradient.cpp */,
+				27CAAB57119B303E0017B155 /* SkSVGRadialGradient.h */,
+				27CAAB58119B303E0017B155 /* SkSVGRect.cpp */,
+				27CAAB59119B303E0017B155 /* SkSVGRect.h */,
+				27CAAB5A119B303E0017B155 /* SkSVGStop.cpp */,
+				27CAAB5B119B303E0017B155 /* SkSVGStop.h */,
+				27CAAB5C119B303E0017B155 /* SkSVGSVG.cpp */,
+				27CAAB5D119B303E0017B155 /* SkSVGSVG.h */,
+				27CAAB5E119B303E0017B155 /* SkSVGSymbol.cpp */,
+				27CAAB5F119B303E0017B155 /* SkSVGSymbol.h */,
+				27CAAB60119B303E0017B155 /* SkSVGText.cpp */,
+				27CAAB61119B303E0017B155 /* SkSVGText.h */,
+				27CAAB62119B303E0017B155 /* SkSVGUse.cpp */,
+				27CAAB63119B303E0017B155 /* SkSVGUse.h */,
+			);
+			name = SVG;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -695,10 +845,7 @@
 				0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */,
 				007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */,
 				007A7CB80F01658C00A2D6EE /* SampleStrokeText.cpp in Sources */,
-				007A7CBB0F01658C00A2D6EE /* SampleTextAlpha.cpp in Sources */,
-				007A7CBC0F01658C00A2D6EE /* SampleTextEffects.cpp in Sources */,
 				007A7CBD0F01658C00A2D6EE /* SampleTextOnPath.cpp in Sources */,
-				007A7CC00F01658C00A2D6EE /* SampleVertices.cpp in Sources */,
 				0041CE3C0F00A12400695E8C /* SampleEncode.cpp in Sources */,
 				009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */,
 				008C4D980F77DAEE0056981C /* SampleHairline.cpp in Sources */,
@@ -712,7 +859,6 @@
 				00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */,
 				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
 				005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */,
-				005778B40FF5616F00582CD9 /* SampleShapes.cpp in Sources */,
 				27005D16100903C100E275B6 /* SampleLines.cpp in Sources */,
 				27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */,
 				00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */,
@@ -728,7 +874,6 @@
 				00244DBB106A61B700B8F4D8 /* SampleGM.cpp in Sources */,
 				00244DCD106A630100B8F4D8 /* bitmapfilters.cpp in Sources */,
 				00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */,
-				00281C781083CFA100BCCB06 /* SampleAnimator.cpp in Sources */,
 				00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */,
 				009230D8109F111F00AD3F12 /* OverView.cpp in Sources */,
 				00995E0E10A078E30054AD6D /* SkCubicInterval.cpp in Sources */,
@@ -743,7 +888,6 @@
 				0061BC9310D6787A0079EBE5 /* SampleGradients.cpp in Sources */,
 				0061BCC910D696730079EBE5 /* SampleTiling.cpp in Sources */,
 				0061BCD910D951AA0079EBE5 /* SkTextBox.cpp in Sources */,
-				000630AD10F4E8F000BC2C23 /* SampleText.cpp in Sources */,
 				0001FB78110E33CC00C1D647 /* SampleTestGL.cpp in Sources */,
 				0001FB94110E362F00C1D647 /* SkGL.cpp in Sources */,
 				0001FB95110E362F00C1D647 /* SkGLCanvas.cpp in Sources */,
@@ -752,9 +896,43 @@
 				0001FB98110E362F00C1D647 /* SkGLState.cpp in Sources */,
 				0001FB99110E362F00C1D647 /* SkGLTextCache.cpp in Sources */,
 				0001FB9A110E362F00C1D647 /* SkTextureCache.cpp in Sources */,
-				003EE652111239D5001AB759 /* SampleWarp.cpp in Sources */,
 				0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */,
 				0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */,
+				27EC817811982E1300481B56 /* SampleTextAlpha.cpp in Sources */,
+				27CAAB65119B303E0017B155 /* SkSVGCircle.cpp in Sources */,
+				27CAAB66119B303E0017B155 /* SkSVGClipPath.cpp in Sources */,
+				27CAAB67119B303E0017B155 /* SkSVGDefs.cpp in Sources */,
+				27CAAB68119B303E0017B155 /* SkSVGElements.cpp in Sources */,
+				27CAAB69119B303E0017B155 /* SkSVGEllipse.cpp in Sources */,
+				27CAAB6A119B303E0017B155 /* SkSVGFeColorMatrix.cpp in Sources */,
+				27CAAB6B119B303E0017B155 /* SkSVGFilter.cpp in Sources */,
+				27CAAB6C119B303E0017B155 /* SkSVGG.cpp in Sources */,
+				27CAAB6D119B303E0017B155 /* SkSVGGradient.cpp in Sources */,
+				27CAAB6E119B303E0017B155 /* SkSVGGroup.cpp in Sources */,
+				27CAAB6F119B303E0017B155 /* SkSVGImage.cpp in Sources */,
+				27CAAB70119B303E0017B155 /* SkSVGLine.cpp in Sources */,
+				27CAAB71119B303E0017B155 /* SkSVGLinearGradient.cpp in Sources */,
+				27CAAB72119B303E0017B155 /* SkSVGMask.cpp in Sources */,
+				27CAAB73119B303E0017B155 /* SkSVGMetadata.cpp in Sources */,
+				27CAAB74119B303E0017B155 /* SkSVGPaintState.cpp in Sources */,
+				27CAAB75119B303E0017B155 /* SkSVGParser.cpp in Sources */,
+				27CAAB76119B303E0017B155 /* SkSVGPath.cpp in Sources */,
+				27CAAB77119B303E0017B155 /* SkSVGPolygon.cpp in Sources */,
+				27CAAB78119B303E0017B155 /* SkSVGPolyline.cpp in Sources */,
+				27CAAB79119B303E0017B155 /* SkSVGRadialGradient.cpp in Sources */,
+				27CAAB7A119B303E0017B155 /* SkSVGRect.cpp in Sources */,
+				27CAAB7B119B303E0017B155 /* SkSVGStop.cpp in Sources */,
+				27CAAB7C119B303E0017B155 /* SkSVGSVG.cpp in Sources */,
+				27CAAB7D119B303E0017B155 /* SkSVGSymbol.cpp in Sources */,
+				27CAAB7E119B303E0017B155 /* SkSVGText.cpp in Sources */,
+				27CAAB7F119B303E0017B155 /* SkSVGUse.cpp in Sources */,
+				27CAAB96119B321A0017B155 /* SkXMLWriter.cpp in Sources */,
+				27433F1E11A1874A0045AD84 /* SampleSVG.cpp in Sources */,
+				27433F3311A18EA60045AD84 /* SampleTextEffects.cpp in Sources */,
+				27433F4911A1D24E0045AD84 /* SampleMessages.cpp in Sources */,
+				275E801611AAC2FF0051C03A /* SampleShapes.cpp in Sources */,
+				275E802311AAC3330051C03A /* SampleVertices.cpp in Sources */,
+				27D0F3C311BD2012001B8EBE /* SampleText.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -850,6 +1028,7 @@
 			buildSettings = {
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_ENABLE_SYMBOL_SEPARATION = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					SK_BUILD_FOR_MAC,
 					SK_DEBUG,
@@ -865,6 +1044,7 @@
 					/opt/local/lib,
 				);
 				OTHER_LDFLAGS = "-lexpat";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				SDKROOT = "";
 				USER_HEADER_SEARCH_PATHS = "../../src/core ../../include/** ../../gm";
 			};
@@ -890,7 +1070,7 @@
 					/opt/local/lib,
 				);
 				OTHER_LDFLAGS = "-lexpat";
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = "";
 				USER_HEADER_SEARCH_PATHS = "../../src/core ../../include/** ../../gm";
 			};
 			name = Release;
