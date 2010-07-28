@@ -172,9 +172,8 @@ static bool issuffixfor(const SkString& suffix, const char str[])
 {
     size_t  suffixLen = suffix.size();
     size_t  strLen = strlen(str);
-    
+
     return  strLen >= suffixLen &&
-            suffixLen == 0 ||
             memcmp(suffix.c_str(), str + strLen - suffixLen, suffixLen) == 0;
 }
 
