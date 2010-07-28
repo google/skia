@@ -36,12 +36,29 @@ typedef uint32_t SkColor;
 
 /** Return a SkColor value from 8 bit component values
 */
-static inline SkColor SkColorSetARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
+static inline SkColor SkColorSetARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b)
 {
     SkASSERT(a <= 255 && r <= 255 && g <= 255 && b <= 255);
 
     return (a << 24) | (r << 16) | (g << 8) | (b << 0);
 }
+
+#define SkColorSetARGBMacro(a, r, g, b) \
+    static_cast<SkColor>( \
+        (static_cast<U8CPU>(a) << 24) | \
+        (static_cast<U8CPU>(r) << 16) | \
+        (static_cast<U8CPU>(g) << 8) | \
+        (static_cast<U8CPU>(b) << 0))
+
+/** gcc will generate static initializers for code of this form:
+ * static const SkColor kMyColor = SkColorSetARGB(0xFF, 0x01, 0x02, 0x03)
+ * if SkColorSetARGB() is a static inline, but not if it's a macro.
+ */
+#if defined(NDEBUG)
+#define SkColorSetARGB(a, r, g, b) SkColorSetARGBMacro(a, r, g, b)
+#else
+#define SkColorSetARGB(a, r, g, b) SkColorSetARGBInline(a, r, g, b)
+#endif
 
 /** Return a SkColor value from 8 bit component values, with an implied value
     of 0xFF for alpha (fully opaque)
