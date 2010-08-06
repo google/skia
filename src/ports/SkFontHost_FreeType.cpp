@@ -236,7 +236,10 @@ static SkFaceRec* ref_ft_face(uint32_t fontID) {
         args.stream = &rec->fFTStream;
     }
 
-    FT_Error err = FT_Open_Face(gFTLibrary, &args, 0, &rec->fFace);
+    int face_index;
+    int length = SkFontHost::GetFileName(fontID, NULL, 0, &face_index);
+    FT_Error err = FT_Open_Face(gFTLibrary, &args, length ? face_index : 0,
+                                &rec->fFace);
 
     if (err) {    // bad filename, try the default font
         fprintf(stderr, "ERROR: unable to open font '%x'\n", fontID);
