@@ -555,8 +555,105 @@ static void S32A_Opaque_BlitRow32_neon(SkPMColor* SK_RESTRICT dst,
 }
 
 #define	S32A_Opaque_BlitRow32_PROC	S32A_Opaque_BlitRow32_neon
+
 #else
-#define	S32A_Opaque_BlitRow32_PROC	NULL
+
+#ifdef TEST_SRC_ALPHA
+#error The ARM asm version of S32A_Opaque_BlitRow32 does not support TEST_SRC_ALPHA
+#endif
+
+static void S32A_Opaque_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
+                                  const SkPMColor* SK_RESTRICT src,
+                                  int count, U8CPU alpha) {
+
+    SkASSERT(255 == alpha);
+
+    /* Does not support the TEST_SRC_ALPHA case */
+    asm volatile (
+                  "cmp    %[count], #0               \n\t" /* comparing count with 0 */
+                  "beq    3f                         \n\t" /* if zero exit */
+
+                  "mov    ip, #0xff                  \n\t" /* load the 0xff mask in ip */
+                  "orr    ip, ip, ip, lsl #16        \n\t" /* convert it to 0xff00ff in ip */
+
+                  "cmp    %[count], #2               \n\t" /* compare count with 2 */
+                  "blt    2f                         \n\t" /* if less than 2 -> single loop */
+
+                  /* Double Loop */
+                  "1:                                \n\t" /* <double loop> */
+                  "ldm    %[src]!, {r5,r6}           \n\t" /* load the src(s) at r5-r6 */
+                  "ldm    %[dst], {r7,r8}            \n\t" /* loading dst(s) into r7-r8 */
+                  "lsr    r4, r5, #24                \n\t" /* extracting the alpha from source and storing it to r4 */
+
+                  /* ----------- */
+                  "and    r9, ip, r7                 \n\t" /* r9 = br masked by ip */
+                  "rsb    r4, r4, #256               \n\t" /* subtracting the alpha from 256 -> r4=scale */
+                  "and    r10, ip, r7, lsr #8        \n\t" /* r10 = ag masked by ip */
+
+                  "mul    r9, r9, r4                 \n\t" /* br = br * scale */
+                  "mul    r10, r10, r4               \n\t" /* ag = ag * scale */
+                  "and    r9, ip, r9, lsr #8         \n\t" /* lsr br by 8 and mask it */
+
+                  "and    r10, r10, ip, lsl #8       \n\t" /* mask ag with reverse mask */
+                  "lsr    r4, r6, #24                \n\t" /* extracting the alpha from source and storing it to r4 */
+                  "orr    r7, r9, r10                \n\t" /* br | ag*/
+
+                  "add    r7, r5, r7                 \n\t" /* dst = src + calc dest(r7) */
+                  "rsb    r4, r4, #256               \n\t" /* subtracting the alpha from 255 -> r4=scale */
+
+                  /* ----------- */
+                  "and    r9, ip, r8                 \n\t" /* r9 = br masked by ip */
+
+                  "and    r10, ip, r8, lsr #8        \n\t" /* r10 = ag masked by ip */
+                  "mul    r9, r9, r4                 \n\t" /* br = br * scale */
+                  "sub    %[count], %[count], #2     \n\t"
+                  "mul    r10, r10, r4               \n\t" /* ag = ag * scale */
+
+                  "and    r9, ip, r9, lsr #8         \n\t" /* lsr br by 8 and mask it */
+                  "and    r10, r10, ip, lsl #8       \n\t" /* mask ag with reverse mask */
+                  "cmp    %[count], #1               \n\t" /* comparing count with 1 */
+                  "orr    r8, r9, r10                \n\t" /* br | ag */
+
+                  "add    r8, r6, r8                 \n\t" /* dst = src + calc dest(r8) */
+
+                  /* ----------------- */
+                  "stm    %[dst]!, {r7,r8}           \n\t" /* *dst = r7, increment dst by two (each times 4) */
+                  /* ----------------- */
+
+                  "bgt    1b                         \n\t" /* if greater than 1 -> reloop */
+                  "blt    3f                         \n\t" /* if less than 1 -> exit */
+
+                  /* Single Loop */
+                  "2:                                \n\t" /* <single loop> */
+                  "ldr    r5, [%[src]], #4           \n\t" /* load the src pointer into r5 r5=src */
+                  "ldr    r7, [%[dst]]               \n\t" /* loading dst into r7 */
+                  "lsr    r4, r5, #24                \n\t" /* extracting the alpha from source and storing it to r4 */
+
+                  /* ----------- */
+                  "and    r9, ip, r7                 \n\t" /* r9 = br masked by ip */
+                  "rsb    r4, r4, #256               \n\t" /* subtracting the alpha from 256 -> r4=scale */
+
+                  "and    r10, ip, r7, lsr #8        \n\t" /* r10 = ag masked by ip */
+                  "mul    r9, r9, r4                 \n\t" /* br = br * scale */
+                  "mul    r10, r10, r4               \n\t" /* ag = ag * scale */
+                  "and    r9, ip, r9, lsr #8         \n\t" /* lsr br by 8 and mask it */
+
+                  "and    r10, r10, ip, lsl #8       \n\t" /* mask ag */
+                  "orr    r7, r9, r10                \n\t" /* br | ag */
+
+                  "add    r7, r5, r7                 \n\t" /* *dst = src + calc dest(r7) */
+
+                  /* ----------------- */
+                  "str    r7, [%[dst]], #4           \n\t" /* *dst = r7, increment dst by one (times 4) */
+                  /* ----------------- */
+
+                  "3:                                \n\t" /* <exit> */
+                  : [dst] "+r" (dst), [src] "+r" (src), [count] "+r" (count)
+                  :
+                  : "cc", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "ip", "memory"
+                  );
+}
+#define	S32A_Opaque_BlitRow32_PROC	S32A_Opaque_BlitRow32_arm
 #endif
 
 /* Neon version of S32_Blend_BlitRow32()
