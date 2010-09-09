@@ -131,6 +131,7 @@
 		00F043FC10B445F50049C54C /* SkEdgeBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043F910B445F50049C54C /* SkEdgeBuilder.cpp */; };
 		00F043FD10B445F50049C54C /* SkEdgeClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043FA10B445F50049C54C /* SkEdgeClipper.cpp */; };
 		00F043FE10B445F50049C54C /* SkLineClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043FB10B445F50049C54C /* SkLineClipper.cpp */; };
+		27CE2BE912393D1D00CF4BB7 /* SkMallocPixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CE2BE812393D1D00CF4BB7 /* SkMallocPixelRef.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -258,6 +259,7 @@
 		00F043F910B445F50049C54C /* SkEdgeBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEdgeBuilder.cpp; path = ../../src/core/SkEdgeBuilder.cpp; sourceTree = SOURCE_ROOT; };
 		00F043FA10B445F50049C54C /* SkEdgeClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEdgeClipper.cpp; path = ../../src/core/SkEdgeClipper.cpp; sourceTree = SOURCE_ROOT; };
 		00F043FB10B445F50049C54C /* SkLineClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkLineClipper.cpp; path = ../../src/core/SkLineClipper.cpp; sourceTree = SOURCE_ROOT; };
+		27CE2BE812393D1D00CF4BB7 /* SkMallocPixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMallocPixelRef.cpp; path = ../../src/core/SkMallocPixelRef.cpp; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libcore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libcore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -302,6 +304,7 @@
 		08FB7795FE84155DC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				27CE2BE812393D1D00CF4BB7 /* SkMallocPixelRef.cpp */,
 				00F043F910B445F50049C54C /* SkEdgeBuilder.cpp */,
 				00F043FA10B445F50049C54C /* SkEdgeClipper.cpp */,
 				00F043FB10B445F50049C54C /* SkLineClipper.cpp */,
@@ -620,6 +623,7 @@
 				00F043FC10B445F50049C54C /* SkEdgeBuilder.cpp in Sources */,
 				00F043FD10B445F50049C54C /* SkEdgeClipper.cpp in Sources */,
 				00F043FE10B445F50049C54C /* SkLineClipper.cpp in Sources */,
+				27CE2BE912393D1D00CF4BB7 /* SkMallocPixelRef.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
