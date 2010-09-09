@@ -30,6 +30,9 @@ class SkRegion;
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
 
+// This is an opaque class, not interpreted by skia
+class SkGpuTexture;
+
 /** \class SkBitmap
 
     The SkBitmap class specifies a raster bitmap. A bitmap has an integer width
@@ -261,6 +264,10 @@ public:
                ((this->config() != kIndex8_Config && this->config() != kRLE_Index8_Config) ||
                        fColorTable != NULL);
     }
+
+    /** Returns the pixelRef's texture, or NULL
+     */
+    SkGpuTexture* getTexture() const;
 
     /** Return the bitmap's colortable (if any). Does not affect the colortable's
         reference count.
