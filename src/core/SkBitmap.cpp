@@ -371,6 +371,10 @@ void SkBitmap::notifyPixelsChanged() const {
     }
 }
 
+SkGpuTexture* SkBitmap::getTexture() const {
+    return fPixelRef ? fPixelRef->getTexture() : NULL;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkMallocPixelRef::SkMallocPixelRef(void* storage, size_t size,

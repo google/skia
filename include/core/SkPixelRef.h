@@ -25,6 +25,9 @@ class SkMutex;
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
 
+// this is an opaque class, not interpreted by skia
+class SkGpuTexture;
+
 /** \class SkPixelRef
 
     This class is the smart container for pixel memory, and is used with
@@ -104,6 +107,10 @@ public:
     /** Assign a URI string to this pixelref.
     */
     void setURI(const SkString& uri) { fURI = uri; }
+
+    /** Are we really wrapping a texture instead of a bitmap?
+     */
+    virtual SkGpuTexture* getTexture() { return NULL; }
 
     // serialization
 
