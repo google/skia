@@ -47,6 +47,7 @@ SOURCE := \
     SkGraphics.cpp \
     SkLineClipper.cpp \
     SkMMapStream.cpp \
+    SkMallocPixelRef.cpp \
     SkMask.cpp \
     SkMaskFilter.cpp \
     SkMath.cpp \
