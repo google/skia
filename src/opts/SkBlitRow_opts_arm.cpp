@@ -656,6 +656,141 @@ static void S32A_Opaque_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
 #define	S32A_Opaque_BlitRow32_PROC	S32A_Opaque_BlitRow32_arm
 #endif
 
+/*
+ * ARM asm version of S32A_Blend_BlitRow32
+ */
+static void S32A_Blend_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
+                                 const SkPMColor* SK_RESTRICT src,
+                                 int count, U8CPU alpha) {
+    SkASSERT(255 == alpha);
+
+    asm volatile (
+                  "cmp    %[count], #0               \n\t" /* comparing count with 0 */
+                  "beq    3f                         \n\t" /* if zero exit */
+
+                  "mov    r12, #0xff                 \n\t" /* load the 0xff mask in r12 */
+                  "orr    r12, r12, r12, lsl #16     \n\t" /* convert it to 0xff00ff in r12 */
+
+                  /* src1,2_scale */
+                  "add    %[alpha], %[alpha], #1     \n\t" /* loading %[alpha]=src_scale=alpha+1 */
+
+                  "cmp    %[count], #2               \n\t" /* comparing count with 2 */
+                  "blt    2f                         \n\t" /* if less than 2 -> single loop */
+
+                  /* Double Loop */
+                  "1:                                \n\t" /* <double loop> */
+                  "ldm    %[src]!, {r5, r6}          \n\t" /* loading src pointers into r5 and r6 */
+                  "ldm    %[dst], {r7, r8}           \n\t" /* loading dst pointers into r7 and r8 */
+
+                  /* dst1_scale and dst2_scale*/
+                  "lsr    r9, r5, #24                \n\t" /* src >> 24 */
+                  "lsr    r10, r6, #24               \n\t" /* src >> 24 */
+                  "smulbb r9, r9, %[alpha]           \n\t" /* r9 = SkMulS16 r9 with src_scale */
+                  "smulbb r10, r10, %[alpha]         \n\t" /* r10 = SkMulS16 r10 with src_scale */
+                  "lsr    r9, r9, #8                 \n\t" /* r9 >> 8 */
+                  "lsr    r10, r10, #8               \n\t" /* r10 >> 8 */
+                  "rsb    r9, r9, #256               \n\t" /* dst1_scale = r9 = 255 - r9 + 1 */
+                  "rsb    r10, r10, #256             \n\t" /* dst2_scale = r10 = 255 - r10 + 1 */
+
+                  /* ---------------------- */
+
+                  /* src1, src1_scale */
+                  "and    r11, r12, r5, lsr #8       \n\t" /* ag = r11 = r5 masked by r12 lsr by #8 */
+                  "and    r4, r12, r5                \n\t" /* rb = r4 = r5 masked by r12 */
+                  "mul    r11, r11, %[alpha]         \n\t" /* ag = r11 times src_scale */
+                  "mul    r4, r4, %[alpha]           \n\t" /* rb = r4 times src_scale */
+                  "and    r11, r11, r12, lsl #8      \n\t" /* ag masked by reverse mask (r12) */
+                  "and    r4, r12, r4, lsr #8        \n\t" /* rb masked by mask (r12) */
+                  "orr    r5, r11, r4                \n\t" /* r5 = (src1, src_scale) */
+
+                  /* dst1, dst1_scale */
+                  "and    r11, r12, r7, lsr #8       \n\t" /* ag = r11 = r7 masked by r12 lsr by #8 */
+                  "and    r4, r12, r7                \n\t" /* rb = r4 = r7 masked by r12 */
+                  "mul    r11, r11, r9               \n\t" /* ag = r11 times dst_scale (r9) */
+                  "mul    r4, r4, r9                 \n\t" /* rb = r4 times dst_scale (r9) */
+                  "and    r11, r11, r12, lsl #8      \n\t" /* ag masked by reverse mask (r12) */
+                  "and    r4, r12, r4, lsr #8        \n\t" /* rb masked by mask (r12) */
+                  "orr    r9, r11, r4                \n\t" /* r9 = (dst1, dst_scale) */
+
+                  /* ---------------------- */
+                  "add    r9, r5, r9                 \n\t" /* *dst = src plus dst both scaled */
+                  /* ---------------------- */
+
+                  /* ====================== */
+
+                  /* src2, src2_scale */
+                  "and    r11, r12, r6, lsr #8       \n\t" /* ag = r11 = r6 masked by r12 lsr by #8 */
+                  "and    r4, r12, r6                \n\t" /* rb = r4 = r6 masked by r12 */
+                  "mul    r11, r11, %[alpha]         \n\t" /* ag = r11 times src_scale */
+                  "mul    r4, r4, %[alpha]           \n\t" /* rb = r4 times src_scale */
+                  "and    r11, r11, r12, lsl #8      \n\t" /* ag masked by reverse mask (r12) */
+                  "and    r4, r12, r4, lsr #8        \n\t" /* rb masked by mask (r12) */
+                  "orr    r6, r11, r4                \n\t" /* r6 = (src2, src_scale) */
+
+                  /* dst2, dst2_scale */
+                  "and    r11, r12, r8, lsr #8       \n\t" /* ag = r11 = r8 masked by r12 lsr by #8 */
+                  "and    r4, r12, r8                \n\t" /* rb = r4 = r8 masked by r12 */
+                  "mul    r11, r11, r10              \n\t" /* ag = r11 times dst_scale (r10) */
+                  "mul    r4, r4, r10                \n\t" /* rb = r4 times dst_scale (r6) */
+                  "and    r11, r11, r12, lsl #8      \n\t" /* ag masked by reverse mask (r12) */
+                  "and    r4, r12, r4, lsr #8        \n\t" /* rb masked by mask (r12) */
+                  "orr    r10, r11, r4               \n\t" /* r10 = (dst2, dst_scale) */
+
+                  "sub    %[count], %[count], #2     \n\t" /* decrease count by 2 */
+                  /* ---------------------- */
+                  "add    r10, r6, r10               \n\t" /* *dst = src plus dst both scaled */
+                  /* ---------------------- */
+                  "cmp    %[count], #1               \n\t" /* compare count with 1 */
+                  /* ----------------- */
+                  "stm    %[dst]!, {r9, r10}         \n\t" /* copy r9 and r10 to r7 and r8 respectively */
+                  /* ----------------- */
+
+                  "bgt    1b                         \n\t" /* if %[count] greater than 1 reloop */
+                  "blt    3f                         \n\t" /* if %[count] less than 1 exit */
+                                                           /* else get into the single loop */
+                  /* Single Loop */
+                  "2:                                \n\t" /* <single loop> */
+                  "ldr    r5, [%[src]], #4           \n\t" /* loading src pointer into r5: r5=src */
+                  "ldr    r7, [%[dst]]               \n\t" /* loading dst pointer into r7: r7=dst */
+
+                  "lsr    r6, r5, #24                \n\t" /* src >> 24 */
+                  "and    r8, r12, r5, lsr #8        \n\t" /* ag = r8 = r5 masked by r12 lsr by #8 */
+                  "smulbb r6, r6, %[alpha]           \n\t" /* r6 = SkMulS16 with src_scale */
+                  "and    r9, r12, r5                \n\t" /* rb = r9 = r5 masked by r12 */
+                  "lsr    r6, r6, #8                 \n\t" /* r6 >> 8 */
+                  "mul    r8, r8, %[alpha]           \n\t" /* ag = r8 times scale */
+                  "rsb    r6, r6, #256               \n\t" /* r6 = 255 - r6 + 1 */
+
+                  /* src, src_scale */
+                  "mul    r9, r9, %[alpha]           \n\t" /* rb = r9 times scale */
+                  "and    r8, r8, r12, lsl #8        \n\t" /* ag masked by reverse mask (r12) */
+                  "and    r9, r12, r9, lsr #8        \n\t" /* rb masked by mask (r12) */
+                  "orr    r10, r8, r9                \n\t" /* r10 = (scr, src_scale) */
+
+                  /* dst, dst_scale */
+                  "and    r8, r12, r7, lsr #8        \n\t" /* ag = r8 = r7 masked by r12 lsr by #8 */
+                  "and    r9, r12, r7                \n\t" /* rb = r9 = r7 masked by r12 */
+                  "mul    r8, r8, r6                 \n\t" /* ag = r8 times scale (r6) */
+                  "mul    r9, r9, r6                 \n\t" /* rb = r9 times scale (r6) */
+                  "and    r8, r8, r12, lsl #8        \n\t" /* ag masked by reverse mask (r12) */
+                  "and    r9, r12, r9, lsr #8        \n\t" /* rb masked by mask (r12) */
+                  "orr    r7, r8, r9                 \n\t" /* r7 = (dst, dst_scale) */
+
+                  "add    r10, r7, r10               \n\t" /* *dst = src plus dst both scaled */
+
+                  /* ----------------- */
+                  "str    r10, [%[dst]], #4          \n\t" /* *dst = r10, postincrement dst by one (times 4) */
+                  /* ----------------- */
+
+                  "3:                                \n\t" /* <exit> */
+                  : [dst] "+r" (dst), [src] "+r" (src), [count] "+r" (count), [alpha] "+r" (alpha)
+                  :
+                  : "cc", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "memory"
+                  );
+
+}
+#define	S32A_Blend_BlitRow32_PROC	S32A_Blend_BlitRow32_arm
+
 /* Neon version of S32_Blend_BlitRow32()
  * portable version is in src/core/SkBlitRow_D32.cpp
  */
@@ -1165,7 +1300,7 @@ static const SkBlitRow::Proc32 platform_32_procs[] = {
     NULL,   // S32_Opaque,
     S32_Blend_BlitRow32_PROC,		// S32_Blend,
     S32A_Opaque_BlitRow32_PROC,		// S32A_Opaque,
-    NULL,   // S32A_Blend,
+    S32A_Blend_BlitRow32_PROC		// S32A_Blend
 };
 
 SkBlitRow::Proc SkBlitRow::PlatformProcs4444(unsigned flags) {
