@@ -82,7 +82,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 
     fState.fOrigBitmap = fRawBitmap;
     fState.fOrigBitmap.lockPixels();
-    if (fState.fOrigBitmap.getPixels() == NULL) {
+    if (!fState.fOrigBitmap.readyToDraw()) {
         fState.fOrigBitmap.unlockPixels();
         return false;
     }
