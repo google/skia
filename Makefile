@@ -48,6 +48,13 @@ SRC_LIST += $(addprefix src/images/, $(SOURCE))
 include src/utils/utils_files.mk
 SRC_LIST += $(addprefix src/utils/, $(SOURCE))
 
+# pdf backend files
+ifeq ($(SKIA_PDF_SUPPORT),true)
+	C_INCLUDES += -Iinclude/pdf
+	include src/pdf/pdf_files.mk
+	SRC_LIST += $(addprefix src/pdf/, $(SOURCE))
+endif
+
 # extra files we want to build to prevent bit-rot, but not link
 JUST_COMPILE_LIST := src/ports/SkFontHost_tables.cpp
 
@@ -137,6 +144,9 @@ bench: $(BENCH_OBJS) out/libskia.a
 C_INCLUDES += -Isrc/core
 
 include tests/tests_files.mk
+ifeq ($(SKIA_PDF_SUPPORT),true)
+  SOURCE += PDFPrimitivesTest.cpp
+endif
 TESTS_SRCS := $(addprefix tests/, $(SOURCE))
 
 TESTS_OBJS := $(TESTS_SRCS:.cpp=.o)
@@ -212,4 +222,5 @@ help:
 	@echo "    SKIA_DEBUG=true for debug build"
 	@echo "    SKIA_SCALAR=fixed for fixed-point build"
 	@echo "    SKIA_BUILD_FOR=mac for mac build (e.g. CG for image decoding)"
+	@echo "    SKIA_PDF_SUPPORT=true to enable the pdf generation backend"
 	@echo ""
