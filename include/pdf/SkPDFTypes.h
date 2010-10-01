@@ -35,8 +35,8 @@ class SkPDFObject : public SkRefCnt {
 public:
     /** Create a PDF object.
      */
-    SkPDFObject() {}
-    virtual ~SkPDFObject() {}
+    SkPDFObject();
+    virtual ~SkPDFObject();
 
     /** Subclasses must implement this method to print the object to the
      *  PDF file.
@@ -76,8 +76,8 @@ public:
     /** Create a reference to an existing SkPDFObject.
      *  @param obj The object to reference.
      */
-    explicit SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {}
-    virtual ~SkPDFObjRef() {}
+    explicit SkPDFObjRef(SkPDFObject* obj);
+    virtual ~SkPDFObjRef();
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -97,8 +97,8 @@ public:
     /** Create a PDF integer (usually for indirect reference purposes).
      *  @param value An integer value between 2^31 - 1 and -2^31.
      */
-    SkPDFInt(int32_t value) : fValue(value) {}
-    virtual ~SkPDFInt() {}
+    explicit SkPDFInt(int32_t value);
+    virtual ~SkPDFInt();
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -117,8 +117,8 @@ public:
     /** Create a PDF real number.
      *  @param value A real value.
      */
-    SkPDFScalar(SkScalar value) : fValue(value) {}
-    virtual ~SkPDFScalar() {}
+    explicit SkPDFScalar(SkScalar value);
+    virtual ~SkPDFScalar();
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -137,9 +137,9 @@ public:
     /** Create a PDF string. Maximum length (in bytes) is 65,535.
      *  @param value A string value.
      */
-    SkPDFString(const char value[]);
-    SkPDFString(const SkString& value);
-    virtual ~SkPDFString() {}
+    explicit SkPDFString(const char value[]);
+    explicit SkPDFString(const SkString& value);
+    virtual ~SkPDFString();
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -147,7 +147,7 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
-    static const int kMaxLen = 65535;
+    static const uint32_t kMaxLen = 65535;
 
     const SkString fValue;
 
@@ -163,9 +163,9 @@ public:
     /** Create a PDF name object. Maximum length is 127 bytes.
      *  @param value The name.
      */
-    SkPDFName(const char name[]);
-    SkPDFName(const SkString& name);
-    virtual ~SkPDFName() {}
+    explicit SkPDFName(const char name[]);
+    explicit SkPDFName(const SkString& name);
+    virtual ~SkPDFName();
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -173,11 +173,11 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
-    static const int kMaxLen = 127;
+    static const uint32_t kMaxLen = 127;
 
     const SkString fValue;
 
-    SkString formatName(const SkString& input);
+    static SkString formatName(const SkString& input);
 };
 
 /** \class SkPDFArray
@@ -188,7 +188,7 @@ class SkPDFArray : public SkPDFObject {
 public:
     /** Create a PDF array. Maximum length is 8191.
      */
-    SkPDFArray() {}
+    SkPDFArray();
     virtual ~SkPDFArray();
 
     // The SkPDFObject interface.
@@ -234,7 +234,7 @@ class SkPDFDict : public SkPDFObject {
 public:
     /** Create a PDF dictionary. Maximum number of entries is 4095.
      */
-    SkPDFDict() {}
+    SkPDFDict();
     virtual ~SkPDFDict();
 
     // The SkPDFObject interface.

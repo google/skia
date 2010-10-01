@@ -23,19 +23,15 @@
 
 /** \class SkPDFCatalog
 
-    The PDF catalog object manages object numbers and when emitted to the
-    PDF stream, indexes all the objects in the file by offset.
+    The PDF catalog manages object numbers and file offsets.  It is used
+    to create the PDF cross reference table.
 */
 class SkPDFCatalog {
 public:
     /** Create a PDF catalog.
      */
-    SkPDFCatalog()
-        : fNextObjNum(1),
-          fStartedAssigningObjNums(false),
-          fAssigningFirstPageObjNums(false) {
-    }
-    virtual ~SkPDFCatalog() {}
+    SkPDFCatalog();
+    ~SkPDFCatalog();
 
     /** Add the passed object to the catalog.
      *  @param obj        The object to add.
