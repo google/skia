@@ -18,6 +18,9 @@
 #include "SkPDFTypes.h"
 #include "SkStream.h"
 
+SkPDFObject::SkPDFObject() {}
+SkPDFObject::~SkPDFObject() {}
+
 size_t SkPDFObject::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     SkDynamicMemoryWStream buffer;
     emitObject(&buffer, catalog, indirect);
@@ -30,6 +33,9 @@ void SkPDFObject::emitIndirectObject(SkWStream* stream, SkPDFCatalog* catalog) {
     emitObject(stream, catalog, false);
     stream->writeText("\nendobj\n");
 }
+
+SkPDFObjRef::SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {}
+SkPDFObjRef::~SkPDFObjRef() {}
 
 size_t SkPDFObject::getIndirectOutputSize(SkPDFCatalog* catalog) {
     return catalog->getObjectNumberSize(this) + strlen(" obj\n") +
@@ -48,12 +54,18 @@ size_t SkPDFObjRef::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     return catalog->getObjectNumberSize(fObj.get()) + strlen(" R");
 }
 
+SkPDFInt::SkPDFInt(int32_t value) : fValue(value) {}
+SkPDFInt::~SkPDFInt() {}
+
 void SkPDFInt::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                           bool indirect) {
     if (indirect)
         return emitIndirectObject(stream, catalog);
     stream->writeDecAsText(fValue);
 }
+
+SkPDFScalar::SkPDFScalar(SkScalar value) : fValue(value) {}
+SkPDFScalar::~SkPDFScalar() {}
 
 void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                              bool indirect) {
@@ -69,6 +81,8 @@ SkPDFString::SkPDFString(const char value[])
 SkPDFString::SkPDFString(const SkString& value)
     : fValue(formatString(value)) {
 }
+
+SkPDFString::~SkPDFString() {}
 
 void SkPDFString::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                              bool indirect) {
@@ -90,7 +104,7 @@ SkString SkPDFString::formatString(const SkString& input) {
     // a 7-bit clean string should require little escaping.
     bool sevenBitClean = true;
     for (size_t i = 0; i < input.size(); i++) {
-        if (input[i] > 0x7F || input[i] < ' ') {
+        if (input[i] & 0x80 || input[i] < ' ') {
             sevenBitClean = false;
             break;
         }
@@ -117,6 +131,7 @@ SkString SkPDFString::formatString(const SkString& input) {
 
 SkPDFName::SkPDFName(const char name[]) : fValue(formatName(SkString(name))) {}
 SkPDFName::SkPDFName(const SkString& name) : fValue(formatName(name)) {}
+SkPDFName::~SkPDFName() {}
 
 void SkPDFName::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                            bool indirect) {
@@ -129,12 +144,13 @@ size_t SkPDFName::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     return fValue.size();
 }
 
+// static
 SkString SkPDFName::formatName(const SkString& input) {
     SkASSERT(input.size() <= kMaxLen);
 
     SkString result("/");
     for (size_t i = 0; i < input.size(); i++) {
-        if (input[i] > 0x7F || input[i] < '!' || input[i] == '#') {
+        if (input[i] & 0x80 || input[i] < '!' || input[i] == '#') {
             result.append("#");
             result.appendHex(input[i], 2);
         } else {
@@ -145,6 +161,7 @@ SkString SkPDFName::formatName(const SkString& input) {
     return result;
 }
 
+SkPDFArray::SkPDFArray() {}
 SkPDFArray::~SkPDFArray() {
     fValue.safeUnrefAll();
 }
@@ -193,6 +210,7 @@ void SkPDFArray::append(SkPDFObject* value) {
     fValue.push(value);
 }
 
+SkPDFDict::SkPDFDict() {}
 SkPDFDict::~SkPDFDict() {
     for (int i = 0; i < fValue.count(); i++) {
         SkSafeUnref(fValue[i].key);

@@ -18,6 +18,14 @@
 #include "SkPDFTypes.h"
 #include "SkStream.h"
 
+SkPDFCatalog::SkPDFCatalog()
+    : fNextObjNum(1),
+      fStartedAssigningObjNums(false),
+      fAssigningFirstPageObjNums(false) {
+}
+
+SkPDFCatalog::~SkPDFCatalog() {}
+
 void SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
     SkASSERT(findObjectIndex(obj) == -1);
     SkASSERT(!fStartedAssigningObjNums);
