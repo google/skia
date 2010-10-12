@@ -48,6 +48,22 @@ static void TestString(skiatest::Reporter* reporter) {
     a.set("ab");
     a.set("abc");
     a.set("abcd");
+
+    a.set("");
+    a.appendS64(72036854775808LL, 0);
+    REPORTER_ASSERT(reporter, a.equals("72036854775808"));
+
+    a.set("");
+    a.appendS64(-1844674407370LL, 0);
+    REPORTER_ASSERT(reporter, a.equals("-1844674407370"));
+
+    a.set("");
+    a.appendS64(73709551616LL, 15);
+    REPORTER_ASSERT(reporter, a.equals("000073709551616"));
+
+    a.set("");
+    a.appendS64(-429496729612LL, 15);
+    REPORTER_ASSERT(reporter, a.equals("-000429496729612"));
 }
 
 #include "TestClassDef.h"

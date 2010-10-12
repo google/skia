@@ -123,6 +123,13 @@ bool SkWStream::writeDecAsText(int32_t dec)
     return this->write(tmp.c_str(), tmp.size());
 }
 
+bool SkWStream::writeBigDecAsText(int64_t dec, int minDigits)
+{
+    SkString    tmp;
+    tmp.appendS64(dec, minDigits);
+    return this->write(tmp.c_str(), tmp.size());
+}
+
 bool SkWStream::writeHexAsText(uint32_t hex, int digits)
 {
     SkString    tmp;
@@ -725,4 +732,3 @@ bool SkDebugWStream::write(const void* buffer, size_t size)
 #endif
     return true;
 }
-

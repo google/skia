@@ -147,7 +147,7 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
-    static const uint32_t kMaxLen = 65535;
+    static const size_t kMaxLen = 65535;
 
     const SkString fValue;
 
@@ -173,7 +173,7 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
 private:
-    static const uint32_t kMaxLen = 127;
+    static const size_t kMaxLen = 127;
 
     const SkString fValue;
 
@@ -235,6 +235,12 @@ public:
     /** Create a PDF dictionary. Maximum number of entries is 4095.
      */
     SkPDFDict();
+
+    /** Create a PDF dictionary with a Type entry.
+     *  @param type   The value of the Type entry.
+     */
+    explicit SkPDFDict(const char type[]);
+
     virtual ~SkPDFDict();
 
     // The SkPDFObject interface.
@@ -251,6 +257,17 @@ public:
      *  @param value The value for this dictionary entry.
      */
     void insert(SkPDFName* key, SkPDFObject* value);
+
+    /** Add the value to the dictionary with the given key.  The method will
+     *  create the SkPDFName object.
+     *  @param key   The text of the key for this dictionary entry.
+     *  @param value The value for this dictionary entry.
+     */
+    void insert(const char key[], SkPDFObject* value);
+
+    /** Remove all entries from the dictionary.
+     */
+    void clear();
 
 private:
     static const int kMaxLen = 4095;
