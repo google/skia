@@ -175,12 +175,12 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     SkRefPtr<SkPDFStream> stream = new SkPDFStream(streamData.get());
     stream->unref();  // SkRefPtr and new both took a reference.
     CheckObjectOutput(reporter, stream.get(),
-                      "<</Length 12\n>> stream\nTest\nFoo\tBarendstream\n",
+                      "<</Length 12\n>> stream\nTest\nFoo\tBarendstream",
                       true);
     stream->insert(n1.get(), int42.get());
     CheckObjectOutput(reporter, stream.get(),
                       "<</Length 12\n/n1 42\n>> stream\nTest\nFoo\tBar"
-                      "endstream\n",
+                      "endstream",
                       true);
 
     TestCatalog(reporter);

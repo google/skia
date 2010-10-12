@@ -211,11 +211,15 @@ void SkPDFArray::append(SkPDFObject* value) {
 }
 
 SkPDFDict::SkPDFDict() {}
+
+SkPDFDict::SkPDFDict(const char type[]) {
+    SkRefPtr<SkPDFName> typeName = new SkPDFName(type);
+    typeName->unref();  // SkRefPtr and new both took a reference.
+    insert("Type", typeName.get());
+}
+
 SkPDFDict::~SkPDFDict() {
-    for (int i = 0; i < fValue.count(); i++) {
-        SkSafeUnref(fValue[i].key);
-        SkSafeUnref(fValue[i].value);
-    }
+    clear();
 }
 
 void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -251,4 +255,18 @@ void SkPDFDict::insert(SkPDFName* key, SkPDFObject* value) {
     SkSafeRef(newEntry->key);
     newEntry->value = value;
     SkSafeRef(newEntry->value);
+}
+
+void SkPDFDict::insert(const char key[], SkPDFObject* value) {
+    SkRefPtr<SkPDFName> keyName = new SkPDFName(key);
+    keyName->unref();  // SkRefPtr and new both took a reference.
+    insert(keyName.get(), value);
+}
+
+void SkPDFDict::clear() {
+    for (int i = 0; i < fValue.count(); i++) {
+        fValue[i].key->safeUnref();
+        fValue[i].value->safeUnref();
+    }
+    fValue.reset();
 }

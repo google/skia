@@ -28,6 +28,8 @@ int SkStrStartsWithOneOf(const char string[], const char prefixes[]);
 
 #define SkStrAppendS32_MaxSize  11
 char*   SkStrAppendS32(char buffer[], int32_t);
+#define SkStrAppendS64_MaxSize  20
+char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
 #define SkStrAppendScalar_MaxSize  11
 char*   SkStrAppendScalar(char buffer[], SkScalar);
 
@@ -93,6 +95,7 @@ public:
     void    insert(size_t offset, const char text[], size_t len);
     void    insertUnichar(size_t offset, SkUnichar);
     void    insertS32(size_t offset, int32_t value);
+    void    insertS64(size_t offset, int64_t value, int minDigits = 0);
     void    insertHex(size_t offset, uint32_t value, int minDigits = 0);
     void    insertScalar(size_t offset, SkScalar);
 
@@ -101,6 +104,7 @@ public:
     void    append(const char text[], size_t len) { this->insert((size_t)-1, text, len); }
     void    appendUnichar(SkUnichar uni) { this->insertUnichar((size_t)-1, uni); }
     void    appendS32(int32_t value) { this->insertS32((size_t)-1, value); }
+    void    appendS64(int64_t value, int minDigits = 0) { this->insertS64((size_t)-1, value, minDigits); }
     void    appendHex(uint32_t value, int minDigits = 0) { this->insertHex((size_t)-1, value, minDigits); }
     void    appendScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
 
@@ -109,6 +113,7 @@ public:
     void    prepend(const char text[], size_t len) { this->insert(0, text, len); }
     void    prependUnichar(SkUnichar uni) { this->insertUnichar(0, uni); }
     void    prependS32(int32_t value) { this->insertS32(0, value); }
+    void    prependS64(int32_t value, int minDigits = 0) { this->insertS64(0, value, minDigits); }
     void    prependHex(uint32_t value, int minDigits = 0) { this->insertHex(0, value, minDigits); }
     void    prependScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
 
@@ -165,4 +170,3 @@ private:
 };
 
 #endif
-

@@ -44,10 +44,16 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
     /** Add the value to the stream dictionary with the given key.
-     *  @param index The index into the array to set.
-     *  @param value The value to add to the array.
+     *  @param key   The key for this dictionary entry.
+     *  @param value The value for this dictionary entry.
      */
     void insert(SkPDFName* key, SkPDFObject* value);
+
+    /** Add the value to the stream dictionary with the given key.
+     *  @param key   The text of the key for this dictionary entry.
+     *  @param value The value for this dictionary entry.
+     */
+    void insert(const char key[], SkPDFObject* value);
 
 private:
     SkPDFDict fDict;

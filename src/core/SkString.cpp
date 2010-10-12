@@ -79,6 +79,39 @@ char* SkStrAppendS32(char string[], int32_t dec)
     return string;
 }
 
+char* SkStrAppendS64(char string[], int64_t dec, int minDigits)
+{
+    SkDEBUGCODE(char* start = string;)
+
+    char    buffer[SkStrAppendS64_MaxSize];
+    char*   p = buffer + sizeof(buffer);
+    bool    neg = false;
+
+    if (dec < 0) {
+        neg = true;
+        dec = -dec;
+    }
+    do {
+        *--p = SkToU8('0' + dec % 10);
+        dec /= 10;
+        minDigits--;
+    } while (dec != 0);
+    while (minDigits > 0) {
+        *--p = '0';
+        minDigits--;
+    }
+    if (neg)
+        *--p = '-';
+
+    SkASSERT(p >= buffer);
+    size_t cp_len = buffer + sizeof(buffer) - p;
+    memcpy(string, p, cp_len);
+    string += cp_len;
+
+    SkASSERT(string - start <= SkStrAppendS64_MaxSize);
+    return string;
+}
+
 char* SkStrAppendScalar(char string[], SkScalar value)
 {
     SkDEBUGCODE(char* start = string;)
@@ -440,6 +473,13 @@ void SkString::insertS32(size_t offset, int32_t dec)
     this->insert(offset, buffer, stop - buffer);
 }
 
+void SkString::insertS64(size_t offset, int64_t dec, int minDigits)
+{
+    char    buffer[SkStrAppendS64_MaxSize];
+    char*   stop = SkStrAppendS64(buffer, dec, minDigits);
+    this->insert(offset, buffer, stop - buffer);
+}
+
 void SkString::insertHex(size_t offset, uint32_t hex, int minDigits)
 {
     minDigits = SkPin32(minDigits, 0, 8);
@@ -580,4 +620,3 @@ SkAutoUCS2::~SkAutoUCS2()
 {
     delete[] fUCS2;
 }
-

@@ -19,11 +19,9 @@
 #include "SkStream.h"
 
 SkPDFStream::SkPDFStream(SkStream* stream) : fData(stream) {
-    SkRefPtr<SkPDFName> lenKey = new SkPDFName("Length");
-    lenKey->unref();  // SkRefPtr and new both took a reference.
     SkRefPtr<SkPDFInt> lenValue = new SkPDFInt(fData->read(NULL, 0));
     lenValue->unref();  // SkRefPtr and new both took a reference.
-    fDict.insert(lenKey.get(), lenValue.get());
+    fDict.insert("Length", lenValue.get());
 }
 
 SkPDFStream::~SkPDFStream() {
@@ -37,7 +35,7 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     fDict.emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
     stream->write(fData->getMemoryBase(), fData->read(NULL, 0));
-    stream->writeText("endstream\n");
+    stream->writeText("endstream");
 }
 
 size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
@@ -45,9 +43,13 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
         return getIndirectOutputSize(catalog);
 
     return fDict.getOutputSize(catalog, false) +
-        strlen(" stream\nendstream\n") + fData->read(NULL, 0);
+        strlen(" stream\nendstream") + fData->read(NULL, 0);
 }
 
 void SkPDFStream::insert(SkPDFName* key, SkPDFObject* value) {
+    fDict.insert(key, value);
+}
+
+void SkPDFStream::insert(const char key[], SkPDFObject* value) {
     fDict.insert(key, value);
 }
