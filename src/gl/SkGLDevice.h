@@ -5,12 +5,29 @@
 #include "SkGL.h"
 #include "SkRegion.h"
 
+#ifdef SK_BUILD_FOR_MAC
+    #include <OpenGL/gl.h>
+#elif defined(ANDROID)
+    #include <GLES/gl.h>
+#endif
+
+class SkGLDeviceFactory : public SkDeviceFactory {
+public:
+    virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
+                                bool isOpaque, bool isForLayer);
+    virtual uint32_t getDeviceCapabilities() { return kGL_Capability; }
+};
+
 struct SkGLDrawProcs;
 
 class SkGLDevice : public SkDevice {
 public:
     SkGLDevice(const SkBitmap& bitmap, bool offscreen);
     virtual ~SkGLDevice();
+
+    virtual SkDeviceFactory* getDeviceFactory() {
+        return SkNEW(SkGLDeviceFactory);
+    }
 
     // used to identify GLTextCache data in the glyphcache
     static void GlyphCacheAuxProc(void* data);    
@@ -62,6 +79,27 @@ public:
                               const SkPaint& paint);
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&);
+
+    // settings for the global texture cache
+
+    static size_t GetTextureCacheMaxCount();
+    static void SetTextureCacheMaxCount(size_t count);
+
+    static size_t GetTextureCacheMaxSize();
+    static void SetTextureCacheMaxSize(size_t size);
+
+    /** Call glDeleteTextures for all textures (including those for text)
+        This should be called while the gl-context is still valid. Its purpose
+        is to free up gl resources. Note that if a bitmap or text is drawn after
+        this call, new caches will be created.
+    */
+    static void DeleteAllTextures();
+
+    /** Forget all textures without calling delete (including those for text).
+        This should be called if the gl-context has changed, and the texture
+        IDs that have been cached are no longer valid.
+    */
+    static void AbandonAllTextures();
 
 protected:
     /** Return the current glmatrix, from a previous call to setMatrixClip */
