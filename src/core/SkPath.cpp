@@ -675,6 +675,14 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     {
         SkPoint start;
         this->getLastPt(&start);
+        // Handle degenerate cases by adding a line to the first point and
+        // bailing out.
+        if ((x1 == start.fX && y1 == start.fY) ||
+            (x1 == x2 && y1 == y2) ||
+            radius == 0) {
+            this->lineTo(x1, y1);
+            return;
+        }
         before.setNormalize(x1 - start.fX, y1 - start.fY);
         after.setNormalize(x2 - x1, y2 - y1);
     }
@@ -683,6 +691,7 @@ void SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     SkScalar sinh = SkPoint::CrossProduct(before, after);
 
     if (SkScalarNearlyZero(sinh)) {   // angle is too tight
+        this->lineTo(x1, y1);
         return;
     }
     
