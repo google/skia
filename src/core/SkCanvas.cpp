@@ -404,8 +404,21 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     return this->setDevice(device);
 }
 
+SkCanvas::SkCanvas(SkDeviceFactory* factory)
+        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)),
+          fDeviceFactory(factory) {
+    inc_canvas();
+
+    SkSafeRef(factory);
+    if (!factory)
+        fDeviceFactory = SkNEW(SkRasterDeviceFactory);
+
+    this->init(NULL);
+}
+
 SkCanvas::SkCanvas(SkDevice* device)
-        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
+        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)),
+          fDeviceFactory(device->getDeviceFactory()) {
     inc_canvas();
 
     this->init(device);
@@ -415,7 +428,9 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
 
-    this->init(SkNEW_ARGS(SkDevice, (bitmap)))->unref();
+    SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
+    fDeviceFactory = device->getDeviceFactory();
+    this->init(device)->unref();
 }
 
 SkCanvas::~SkCanvas() {
@@ -423,7 +438,8 @@ SkCanvas::~SkCanvas() {
     this->restoreToCount(1);    // restore everything but the last
     this->internalRestore();    // restore the last, since we're going away
 
-    fBounder->safeUnref();
+    SkSafeUnref(fBounder);
+    SkSafeUnref(fDeviceFactory);
     
     dec_canvas();
 }
@@ -521,11 +537,21 @@ SkDevice* SkCanvas::setBitmapDevice(const SkBitmap& bitmap) {
 //////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::getViewport(SkIPoint* size) const {
-    return false;
+    if ((fDeviceFactory->getDeviceCapabilities()
+            & SkDeviceFactory::kGL_Capability) == 0)
+        return false;
+    if (size)
+        size->set(getDevice()->width(), getDevice()->height());
+    return true;
 }
 
 bool SkCanvas::setViewport(int width, int height) {
-    return false;
+    if ((fDeviceFactory->getDeviceCapabilities()
+            & SkDeviceFactory::kGL_Capability) == 0)
+        return false;
+    this->setDevice(createDevice(SkBitmap::kARGB_8888_Config, width, height,
+                                 false, false))->unref();
+    return true;
 }
 
 void SkCanvas::updateDeviceCMCache() {
@@ -1004,18 +1030,9 @@ const SkRegion& SkCanvas::getTotalClip() const {
 
 SkDevice* SkCanvas::createDevice(SkBitmap::Config config, int width,
                                  int height, bool isOpaque, bool isForLayer) {
-    SkBitmap bitmap;
-    
-    bitmap.setConfig(config, width, height);
-    bitmap.setIsOpaque(isOpaque);
 
-    // should this happen in the device subclass?
-    bitmap.allocPixels();   
-    if (!bitmap.isOpaque()) {
-        bitmap.eraseARGB(0, 0, 0, 0);
-    }
-
-    return SkNEW_ARGS(SkDevice, (bitmap));
+    return fDeviceFactory->newDevice(config, width, height, isOpaque,
+                                     isForLayer);
 }
 
 //////////////////////////////////////////////////////////////////////////////

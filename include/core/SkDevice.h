@@ -22,25 +22,51 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 
+class SkDevice;
 class SkDraw;
 struct SkIRect;
 class SkMatrix;
 class SkRegion;
 
+/** \class SkDeviceFactory
+
+    Devices that extend SkDevice should also provide a SkDeviceFactory class
+    to pass into SkCanvas.  Doing so will eliminate the need to extend
+    SkCanvas as well.
+*/
+class SkDeviceFactory : public SkRefCnt {
+public:
+    virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
+                                bool isOpaque, bool isForLayer) = 0;
+
+    enum Capabilities {
+        kGL_Capability    = 0x1,  //!< mask to indicate this device supports GL
+        kAll_Capabilities = 0x1
+    };
+    virtual uint32_t getDeviceCapabilities() = 0;
+};
+
+class SkRasterDeviceFactory : public SkDeviceFactory {
+public:
+    virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
+                                bool isOpaque, bool isForLayer);
+    virtual uint32_t getDeviceCapabilities() { return 0; }
+};
+
 class SkDevice : public SkRefCnt {
 public:
     SkDevice();
-    /** Construct a new device, extracting the width/height/config/isOpaque values from
-        the bitmap. If transferPixelOwnership is true, and the bitmap claims to own its
-        own pixels (getOwnsPixels() == true), then transfer this responsibility to the
-        device, and call setOwnsPixels(false) on the bitmap.
-        
-        Subclasses may override the destructor, which is virtual, even though this class
-        doesn't have one. SkRefCnt does.
-    
+    /** Construct a new device, extracting the width/height/config/isOpaque
+        values from the bitmap.  Subclasses may override the destructor, which
+        is virtual, even though this class doesn't have one. SkRefCnt does.
+
         @param bitmap   A copy of this bitmap is made and stored in the device
     */
     SkDevice(const SkBitmap& bitmap);
+
+    virtual SkDeviceFactory* getDeviceFactory() {
+        return SkNEW(SkRasterDeviceFactory);
+    }
 
     /** Return the width of the device (in pixels).
     */
