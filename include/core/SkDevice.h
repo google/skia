@@ -34,7 +34,7 @@ class SkRegion;
     to pass into SkCanvas.  Doing so will eliminate the need to extend
     SkCanvas as well.
 */
-class SkDeviceFactory : public SkRefCnt {
+class SkDeviceFactory {
 public:
     virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
                                 bool isOpaque, bool isForLayer) = 0;

@@ -409,7 +409,6 @@ SkCanvas::SkCanvas(SkDeviceFactory* factory)
           fDeviceFactory(factory) {
     inc_canvas();
 
-    SkSafeRef(factory);
     if (!factory)
         fDeviceFactory = SkNEW(SkRasterDeviceFactory);
 
@@ -439,8 +438,8 @@ SkCanvas::~SkCanvas() {
     this->internalRestore();    // restore the last, since we're going away
 
     SkSafeUnref(fBounder);
-    SkSafeUnref(fDeviceFactory);
-    
+    SkDELETE(fDeviceFactory);
+
     dec_canvas();
 }
 
