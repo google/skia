@@ -54,8 +54,8 @@ class SkCanvas : public SkRefCnt {
 public:
     /** Construct a canvas with the given device factory.
         @param factory  Specify the factory for generating additional devices.
-                        The factory may be null, in which case SkDeviceFactory
-                        will be used.
+                        The factory may be null, in which case
+                        SkRasterDeviceFactory will be used.
     */
     explicit SkCanvas(SkDeviceFactory* factory = NULL);
 
