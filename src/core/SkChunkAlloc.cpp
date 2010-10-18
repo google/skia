@@ -85,7 +85,9 @@ SkChunkAlloc::Block* SkChunkAlloc::newBlock(size_t bytes, AllocFailType ftype) {
         return block;
     }
 
-    size_t  size = SkMax32((int32_t)bytes, (int32_t)fMinSize);
+    size_t size = bytes;
+    if (size < fMinSize)
+        size = fMinSize;
 
     block = (Block*)sk_malloc_flags(sizeof(Block) + size,
                         ftype == kThrow_AllocFailType ? SK_MALLOC_THROW : 0);
