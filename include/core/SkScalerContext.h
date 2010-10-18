@@ -31,6 +31,8 @@ class SkRasterizer;
 // needs to be != to any valid SkMask::Format
 #define MASK_FORMAT_JUST_ADVANCE    (0xFF)
 
+#define kMaxGlyphWidth (1<<13)
+
 struct SkGlyph {
     void*       fImage;
     SkPath*     fPath;

@@ -306,7 +306,7 @@ SkGlyph* SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
 }
 
 const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
-    if (glyph.fWidth) {
+    if (glyph.fWidth > 0 && glyph.fWidth < kMaxGlyphWidth) {
         if (glyph.fImage == NULL) {
             size_t  size = glyph.computeImageSize();
             const_cast<SkGlyph&>(glyph).fImage = fImageAlloc.alloc(size,
