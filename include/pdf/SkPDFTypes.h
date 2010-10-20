@@ -108,6 +108,27 @@ private:
     int32_t fValue;
 };
 
+/** \class SkPDFBool
+
+    An boolean value in a PDF.
+*/
+class SkPDFBool : public SkPDFObject {
+public:
+    /** Create a PDF boolean.
+     *  @param value true or false.
+     */
+    explicit SkPDFBool(bool value);
+    virtual ~SkPDFBool();
+
+    // The SkPDFObject interface.
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
+                            bool indirect);
+    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
+
+private:
+    bool fValue;
+};
+
 /** \class SkPDFScalar
 
     A real number object in a PDF.

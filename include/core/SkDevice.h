@@ -70,10 +70,10 @@ public:
 
     /** Return the width of the device (in pixels).
     */
-    int width() const { return fBitmap.width(); }
+    virtual int width() const { return fBitmap.width(); }
     /** Return the height of the device (in pixels).
     */
-    int height() const { return fBitmap.height(); }
+    virtual int height() const { return fBitmap.height(); }
     /** Return the bitmap config of the device's pixels
     */
     SkBitmap::Config config() const { return fBitmap.getConfig(); }
