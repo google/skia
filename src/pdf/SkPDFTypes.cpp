@@ -64,6 +64,26 @@ void SkPDFInt::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     stream->writeDecAsText(fValue);
 }
 
+SkPDFBool::SkPDFBool(bool value) : fValue(value) {}
+SkPDFBool::~SkPDFBool() {}
+
+void SkPDFBool::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
+                          bool indirect) {
+    SkASSERT(!indirect);
+    if (fValue) {
+        stream->writeText("true");
+    } else {
+        stream->writeText("false");
+    }
+}
+
+size_t SkPDFBool::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
+    SkASSERT(!indirect);
+    if (fValue)
+        return strlen("true");
+    return strlen("false");
+}
+
 SkPDFScalar::SkPDFScalar(SkScalar value) : fValue(value) {}
 SkPDFScalar::~SkPDFScalar() {}
 

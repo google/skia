@@ -35,7 +35,7 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     fDict.emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
     stream->write(fData->getMemoryBase(), fData->read(NULL, 0));
-    stream->writeText("endstream");
+    stream->writeText("\nendstream");
 }
 
 size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
@@ -43,7 +43,7 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
         return getIndirectOutputSize(catalog);
 
     return fDict.getOutputSize(catalog, false) +
-        strlen(" stream\nendstream") + fData->read(NULL, 0);
+        strlen(" stream\n\nendstream") + fData->read(NULL, 0);
 }
 
 void SkPDFStream::insert(SkPDFName* key, SkPDFObject* value) {
