@@ -31,6 +31,7 @@ namespace {
 SkMemoryStream* extractImageData(const SkBitmap& bitmap) {
     SkMemoryStream* result;
 
+    bitmap.lockPixels();
     switch (bitmap.getConfig()) {
         case SkBitmap::kIndex8_Config:
             result = new SkMemoryStream(bitmap.getPixels(), bitmap.getSize(),
@@ -110,6 +111,7 @@ SkMemoryStream* extractImageData(const SkBitmap& bitmap) {
         default:
             SkASSERT(false);
     }
+    bitmap.unlockPixels();
     return result;
 }
 
