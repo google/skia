@@ -88,7 +88,7 @@ public:
     SkDrawProcs*    fProcs;         // optional
 
 #ifdef SK_DEBUG
-    void    validate() const;
+    void    validate(int width, int height) const;
 #endif
 };
 
