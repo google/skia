@@ -44,7 +44,7 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
         insert("Contents", contentRef.get());
     }
     catalog->addObject(fContentStream.get(), firstPage);
-    fDevice->getResouces(resourceObjects);
+    fDevice->getResources(resourceObjects);
 }
 
 off_t SkPDFPage::getPageSize(SkPDFCatalog* catalog, off_t fileOffset) {

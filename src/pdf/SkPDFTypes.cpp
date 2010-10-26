@@ -27,6 +27,8 @@ size_t SkPDFObject::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     return buffer.getOffset();
 }
 
+void SkPDFObject::getResources(SkTDArray<SkPDFObject*>* resourceList) {}
+
 void SkPDFObject::emitIndirectObject(SkWStream* stream, SkPDFCatalog* catalog) {
     catalog->emitObjectNumber(stream, this);
     stream->writeText(" obj\n");

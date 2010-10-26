@@ -19,22 +19,22 @@
 #include "SkPDFPage.h"
 #include "SkStream.h"
 
-// Add the resouces, starting at firstIndex to the catalog, removing any dupes.
+// Add the resources, starting at firstIndex to the catalog, removing any dupes.
 // A hash table would be really nice here.
-void addResoucesToCatalog(int firstIndex, bool firstPage,
-                          SkTDArray<SkPDFObject*>* resouceList,
+void addResourcesToCatalog(int firstIndex, bool firstPage,
+                          SkTDArray<SkPDFObject*>* resourceList,
                           SkPDFCatalog* catalog) {
-    for (int i = firstIndex; i < resouceList->count(); i++) {
-        int index = resouceList->find((*resouceList)[i]);
+    for (int i = firstIndex; i < resourceList->count(); i++) {
+        int index = resourceList->find((*resourceList)[i]);
         if (index != i) {
-            // The resouce lists themselves should already be unique, so the
-            // first page resouces shouldn't have any dups (assuming the first
-            // page resouces are handled first).
+            // The resource lists themselves should already be unique, so the
+            // first page resources shouldn't have any dups (assuming the first
+            // page resources are handled first).
             SkASSERT(!firstPage);
-            (*resouceList)[i]->unref();
-            resouceList->removeShuffle(i);
+            (*resourceList)[i]->unref();
+            resourceList->removeShuffle(i);
         } else {
-            catalog->addObject((*resouceList)[i], firstPage);
+            catalog->addObject((*resourceList)[i], firstPage);
         }
     }
 }
@@ -72,11 +72,11 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         for (int i = 0; i < fPages.count(); i++) {
             int resourceCount = fPageResources.count();
             fPages[i]->finalizePage(&fCatalog, first_page, &fPageResources);
-            addResoucesToCatalog(resourceCount, first_page, &fPageResources,
+            addResourcesToCatalog(resourceCount, first_page, &fPageResources,
                                  &fCatalog);
             if (i == 0) {
                 first_page = false;
-                fSecondPageFirstResouceIndex = fPageResources.count();
+                fSecondPageFirstResourceIndex = fPageResources.count();
             }
         }
 
@@ -85,7 +85,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fileOffset += fCatalog.setFileOffset(fDocCatalog.get(), fileOffset);
         fileOffset += fCatalog.setFileOffset(fPages[0], fileOffset);
         fileOffset += fPages[0]->getPageSize(&fCatalog, fileOffset);
-        for (int i = 0; i < fSecondPageFirstResouceIndex; i++)
+        for (int i = 0; i < fSecondPageFirstResourceIndex; i++)
             fileOffset += fCatalog.setFileOffset(fPageResources[i], fileOffset);
         if (fPages.count() > 1) {
             // TODO(vandebo) For linearized format, save the start of the
@@ -98,7 +98,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         for (int i = 1; i < fPages.count(); i++)
             fileOffset += fPages[i]->getPageSize(&fCatalog, fileOffset);
 
-        for (int i = fSecondPageFirstResouceIndex;
+        for (int i = fSecondPageFirstResourceIndex;
                  i < fPageResources.count();
                  i++)
             fileOffset += fCatalog.setFileOffset(fPageResources[i], fileOffset);
@@ -110,7 +110,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     fDocCatalog->emitObject(stream, &fCatalog, true);
     fPages[0]->emitObject(stream, &fCatalog, true);
     fPages[0]->emitPage(stream, &fCatalog);
-    for (int i = 0; i < fSecondPageFirstResouceIndex; i++)
+    for (int i = 0; i < fSecondPageFirstResourceIndex; i++)
         fPageResources[i]->emitObject(stream, &fCatalog, true);
     // TODO(vandebo) support linearized format
     //if (fPages.size() > 1) {
@@ -124,7 +124,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     for (int i = 1; i < fPages.count(); i++)
         fPages[i]->emitPage(stream, &fCatalog);
 
-    for (int i = fSecondPageFirstResouceIndex; i < fPageResources.count(); i++)
+    for (int i = fSecondPageFirstResourceIndex; i < fPageResources.count(); i++)
         fPageResources[i]->emitObject(stream, &fCatalog, true);
 
     int64_t objCount = fCatalog.emitXrefTable(stream, fPages.count() > 1);

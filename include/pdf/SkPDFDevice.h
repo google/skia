@@ -20,6 +20,8 @@
 #include "SkRefCnt.h"
 #include "SkDevice.h"
 #include "SkString.h"
+#include "SkPaint.h"
+#include "SkPath.h"
 
 class SkPDFArray;
 class SkPDFDevice;
@@ -101,14 +103,14 @@ public:
      */
     const SkRefPtr<SkPDFDict>& getResourceDict();
 
-    /** Get the list of resouces (PDF objects) used on this page
-     *  @param resouceList A list to append the resouces to.
+    /** Get the list of resources (PDF objects) used on this page.
+     *  @param resourceList A list to append the resources to.
      */
-    void getResouces(SkTDArray<SkPDFObject*>* resouceList);
+    void getResources(SkTDArray<SkPDFObject*>* resourceList) const;
 
     /** Returns the media box for this device.
      */
-    SkRefPtr<SkPDFArray> getMediaBox();
+    SkRefPtr<SkPDFArray> getMediaBox() const;
 
     /** Returns a string with the page contents.
      *  @param flipOrigin  Flip the origin between top and bottom.
@@ -144,6 +146,7 @@ private:
     void appendRectangle(SkScalar x, SkScalar y, SkScalar w, SkScalar h);
     void closePath();
     void strokePath();
+    void paintPath(SkPaint::Style style, SkPath::FillType fill);
     void internalDrawBitmap(const SkMatrix& matrix, const SkBitmap& bitmap,
                             const SkPaint& paint);
 

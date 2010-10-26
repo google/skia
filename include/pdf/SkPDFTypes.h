@@ -55,6 +55,15 @@ public:
      */
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
+    /** If this object explicitly depends on other objects, add them to the
+     *  end of the list.  This only applies to higher level object, where
+     *  the depenency is explicit and introduced by the class.  i.e. an
+     *  SkPDFImage added to an SkPDFDevice, but not an SkPDFObjRef added to
+     *  an SkPDFArray.
+     *  @param resourceList  The list to append dependant resources to.
+     */
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
+
     /** Helper function to output an indirect object.
      *  @param catalog The object catalog to use.
      *  @param stream  The writable output stream to send the output to.
