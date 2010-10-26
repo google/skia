@@ -717,6 +717,24 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
     }
 #endif
 
+bool SkMatrix::pdfTransform(SkScalar transform[6]) const {
+    SkMatrix identity;
+    const SkMatrix* use = this;
+    bool ret = true;
+    if (has_perspective(*this)) {
+        identity.reset();
+        use = &identity;
+        ret = false;
+    }
+    transform[0] = use->fMat[kMScaleX];
+    transform[1] = use->fMat[kMSkewY];
+    transform[2] = use->fMat[kMSkewX];
+    transform[3] = use->fMat[kMScaleY];
+    transform[4] = use->fMat[kMTransX];
+    transform[5] = use->fMat[kMTransY];
+    return true;
+}
+
 bool SkMatrix::invert(SkMatrix* inv) const {
     int         isPersp = has_perspective(*this);
     int         shift;

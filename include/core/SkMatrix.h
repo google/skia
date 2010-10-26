@@ -292,6 +292,13 @@ public:
     */
     bool invert(SkMatrix* inverse) const;
 
+    /** Fills the passed array with the tranform values in the right order
+        for PDFs.  If the matrix is a perspective transform, returns false
+        and fills the array with an identity transform.
+        @param transform  The array to fill in.
+    */
+    bool pdfTransform(SkScalar transform[6]) const;
+
     /** Apply this matrix to the array of points specified by src, and write
         the transformed points into the array of points specified by dst.
         dst[] = M * src[]

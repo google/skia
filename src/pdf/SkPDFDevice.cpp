@@ -76,13 +76,6 @@ SkPDFDevice::SkPDFDevice(int width, int height)
       fHeight(height),
       fCurrentColor(0),
       fCurrentTextScaleX(SK_Scalar1) {
-    // Scale and translate to move the origin from the lower left to the upper
-    // left.
-    fCurTransform.setTranslate(0, height);
-    fCurTransform.preScale(1, -1);
-    fActiveTransform.reset();
-    applyTransform(fCurTransform);
-
     fContent.append("q\n");
     fCurTransform.reset();
     fActiveTransform.reset();
@@ -314,8 +307,13 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() {
     return mediaBox;
 }
 
-SkString SkPDFDevice::content() {
-    SkString result = fContent;
+SkString SkPDFDevice::content(bool flipOrigin) const {
+    SkString result;
+    // Scale and translate to move the origin from the lower left to the
+    // upper left.
+    if (flipOrigin)
+        result.printf("1 0 0 -1 0 %d cm\n", fHeight);
+    result.append(fContent);
     result.append("Q");
     return result;
 }
@@ -475,19 +473,12 @@ void SkPDFDevice::removeTempTransform() {
 void SkPDFDevice::applyTransform(const SkMatrix& m) {
     if (m == fActiveTransform)
         return;
-    SkASSERT((m.getType() & SkMatrix::kPerspective_Mask) == 0);
-
-    fContent.appendScalar(m[SkMatrix::kMScaleX]);
-    fContent.append(" ");
-    fContent.appendScalar(m[SkMatrix::kMSkewY]);
-    fContent.append(" ");
-    fContent.appendScalar(m[SkMatrix::kMSkewX]);
-    fContent.append(" ");
-    fContent.appendScalar(m[SkMatrix::kMScaleY]);
-    fContent.append(" ");
-    fContent.appendScalar(m[SkMatrix::kMTransX]);
-    fContent.append(" ");
-    fContent.appendScalar(m[SkMatrix::kMTransY]);
-    fContent.append(" cm\n");
+    SkScalar transform[6];
+    SkAssertResult(m.pdfTransform(transform));
+    for (size_t i = 0; i < SK_ARRAY_COUNT(transform); i++) {
+        fContent.appendScalar(transform[i]);
+        fContent.append(" ");
+    }
+    fContent.append("cm\n");
     fActiveTransform = m;
 }

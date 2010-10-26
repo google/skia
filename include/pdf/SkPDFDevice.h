@@ -110,8 +110,9 @@ public:
     SkRefPtr<SkPDFArray> getMediaBox();
 
     /** Returns a string with the page contents.
+     *  @param flipOrigin  Flip the origin between top and bottom.
      */
-    SkString content();
+    SkString content(bool flipOrigin) const;
 
 private:
     int fWidth;
