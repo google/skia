@@ -275,7 +275,7 @@ static void CallBitmapXferProc(const SkBitmap& bitmap, const SkIRect& rect,
 }
 
 void SkDraw::drawPaint(const SkPaint& paint) const {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
 
     if (fClip->isEmpty()) {
         return;
@@ -562,7 +562,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
     }
 
     SkASSERT(pts != NULL);
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
     
      // nothing to draw
     if (fClip->isEmpty() ||
@@ -656,7 +656,7 @@ static inline SkPoint* as_rightbottom(SkRect* r) {
 }
 
 void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
 
     // nothing to draw
     if (fClip->isEmpty() ||
@@ -798,7 +798,7 @@ static bool map_radius(const SkMatrix& matrix, SkScalar* value) {
 
 void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable) const {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
 
     // nothing to draw
     if (fClip->isEmpty() ||
@@ -1023,7 +1023,7 @@ static bool clipped_out(const SkMatrix& matrix, const SkRegion& clip,
 
 void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
                         const SkPaint& paint) const {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
 
     // nothing to draw
     if (fClip->isEmpty() ||
@@ -1115,7 +1115,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
 
 void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
                         const SkPaint& paint) const {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
     
     // nothing to draw
     if (fClip->isEmpty() ||
@@ -1206,7 +1206,7 @@ static void measure_text(SkGlyphCache* cache, SkDrawCacheProc glyphCacheProc,
 void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
                               SkScalar x, SkScalar y,
                               const SkPaint& paint) const {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
 
     SkTextToPathIter iter(text, byteLength, paint, true, true);
 
@@ -1438,7 +1438,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
                       SkScalar x, SkScalar y, const SkPaint& paint) const {
     SkASSERT(byteLength == 0 || text != NULL);
 
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
 
     // nothing to draw
     if (text == NULL || byteLength == 0 ||
@@ -1639,7 +1639,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     SkASSERT(byteLength == 0 || text != NULL);
     SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
 
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(this->validate(fBitmap->width(), fBitmap->height());)
 
     // nothing to draw
     if (text == NULL || byteLength == 0 ||
@@ -2235,7 +2235,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
 
 #ifdef SK_DEBUG
 
-void SkDraw::validate() const {
+void SkDraw::validate(int width, int height) const {
     SkASSERT(fBitmap != NULL);
     SkASSERT(fMatrix != NULL);
     SkASSERT(fClip != NULL);
@@ -2243,7 +2243,7 @@ void SkDraw::validate() const {
     const SkIRect&  cr = fClip->getBounds();
     SkIRect         br;
 
-    br.set(0, 0, fBitmap->width(), fBitmap->height());
+    br.set(0, 0, width, height);
     SkASSERT(cr.isEmpty() || br.contains(cr));
 }
 

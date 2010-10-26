@@ -240,7 +240,7 @@ public:
             fLayerX = rec->fX;
             fLayerY = rec->fY;
             fPaint  = rec->fPaint;
-            SkDEBUGCODE(this->validate();)
+            SkDEBUGCODE(this->validate(fDevice->width(), fDevice->height());)
 
             fCurrLayer = rec->fNext;
             if (fBounder) {
