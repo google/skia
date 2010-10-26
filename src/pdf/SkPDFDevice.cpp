@@ -150,7 +150,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
 void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
                            const SkPaint& paint) {
     if (paint.getPathEffect()) {
-        // Draw a path instead.
+        // Create a path for the rectangle and apply the path effect to it.
         SkPath path;
         path.addRect(r);
         paint.getFillPath(path, &path);
@@ -168,9 +168,59 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
     paintPath(paint.getStyle(), SkPath::kWinding_FillType);
 }
 
-void SkPDFDevice::drawPath(const SkDraw&, const SkPath& path,
+void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
                            const SkPaint& paint) {
-    SkASSERT(false);
+    if (paint.getPathEffect()) {
+        // Apply the path effect to path and draw it that way.
+        SkPath no_effect_path;
+        paint.getFillPath(path, &no_effect_path);
+
+        SkPaint no_effect_paint(paint);
+        SkSafeUnref(no_effect_paint.setPathEffect(NULL));
+        drawPath(d, no_effect_path, no_effect_paint);
+        return;
+    }
+    updateGSFromPaint(paint, NULL);
+
+    SkPoint args[4];
+    SkPath::Iter iter(path, false);
+    for (SkPath::Verb verb = iter.next(args);
+         verb != SkPath::kDone_Verb;
+         verb = iter.next(args)) {
+        // args gets all the points, even the implicit first point.
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                moveTo(args[0].fX, args[0].fY);
+                break;
+            case SkPath::kLine_Verb:
+                appendLine(args[1].fX, args[1].fY);
+                break;
+            case SkPath::kQuad_Verb: {
+                // Convert quad to cubic (degree elevation). http://goo.gl/vS4i
+                const SkScalar three = SkIntToScalar(3);
+                args[1].scale(SkIntToScalar(2));
+                SkScalar ctl1X = SkScalarDiv(args[0].fX + args[1].fX, three);
+                SkScalar ctl1Y = SkScalarDiv(args[0].fY + args[1].fY, three);
+                SkScalar ctl2X = SkScalarDiv(args[2].fX + args[1].fX, three);
+                SkScalar ctl2Y = SkScalarDiv(args[2].fY + args[1].fY, three);
+                appendCubic(ctl1X, ctl1Y, ctl2X, ctl2Y, args[2].fX, args[2].fY);
+                break;
+            }
+            case SkPath::kCubic_Verb:
+                appendCubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
+                            args[3].fX, args[3].fY);
+                break;
+            case SkPath::kClose_Verb:
+                closePath();
+                break;
+            case SkPath::kDone_Verb:
+                break;
+            default:
+                SkASSERT(false);
+                break;
+        }
+    }
+    paintPath(paint.getStyle(), path.getFillType());
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
