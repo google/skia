@@ -18,12 +18,21 @@
 
 #include "SkColor.h"
 #include "SkPaint.h"
+#include "SkPath.h"
 #include "SkPDFImage.h"
 #include "SkPDFGraphicState.h"
 #include "SkPDFTypes.h"
 #include "SkPDFStream.h"
 #include "SkRect.h"
 #include "SkString.h"
+
+#define NOT_IMPLEMENTED(condition, assert)                         \
+    do {                                                           \
+        if (condition) {                                           \
+            fprintf(stderr, "NOT_IMPLEMENTED: " #condition "\n");  \
+            SkASSERT(!assert);                                     \
+        }                                                          \
+    } while(0)
 
 // Utility functions
 
@@ -33,31 +42,15 @@ SkString toPDFColor(SkColor color) {
     SkASSERT(SkColorGetA(color) == 0xFF);  // We handle alpha elsewhere.
     SkScalar colorMax = SkIntToScalar(0xFF);
     SkString result;
-    result.appendScalar(SkIntToScalar(SkColorGetR(color))/colorMax);
+    result.appendScalar(SkScalarDiv(SkIntToScalar(SkColorGetR(color)),
+                                    colorMax));
     result.append(" ");
-    result.appendScalar(SkIntToScalar(SkColorGetG(color))/colorMax);
+    result.appendScalar(SkScalarDiv(SkIntToScalar(SkColorGetG(color)),
+                                    colorMax));
     result.append(" ");
-    result.appendScalar(SkIntToScalar(SkColorGetB(color))/colorMax);
+    result.appendScalar(SkScalarDiv(SkIntToScalar(SkColorGetB(color)),
+                                    colorMax));
     result.append(" ");
-    return result;
-}
-
-SkString StyleAndFillToPaintOperator(SkPaint::Style style,
-                                     SkPath::FillType fillType) {
-    SkString result;
-    if (style == SkPaint::kFill_Style)
-        result.append("f");
-    else if (style == SkPaint::kStrokeAndFill_Style)
-        result.append("B");
-    else if (style == SkPaint::kStroke_Style)
-        return SkString("S\n");
-
-    // Not supported yet.
-    SkASSERT(fillType != SkPath::kInverseEvenOdd_FillType);
-    SkASSERT(fillType != SkPath::kInverseWinding_FillType);
-    if (fillType == SkPath::kEvenOdd_FillType)
-        result.append("*");
-    result.append("\n");
     return result;
 }
 
@@ -172,8 +165,7 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
     SkScalar bottom = r.fBottom < r.fTop ? r.fBottom : r.fTop;
     appendRectangle(r.fLeft, bottom, r.width(), r.height());
-    fContent.append(StyleAndFillToPaintOperator(paint.getStyle(),
-                                                SkPath::kWinding_FillType));
+    paintPath(paint.getStyle(), SkPath::kWinding_FillType);
 }
 
 void SkPDFDevice::drawPath(const SkDraw&, const SkPath& path,
@@ -208,19 +200,19 @@ void SkPDFDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
 
 void SkPDFDevice::drawText(const SkDraw&, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
-    SkASSERT(false);
+    NOT_IMPLEMENTED("drawText", true);
 }
 
 void SkPDFDevice::drawPosText(const SkDraw&, const void* text, size_t len,
                               const SkScalar pos[], SkScalar constY,
                               int scalarsPerPos, const SkPaint& paint) {
-    SkASSERT(false);
+    NOT_IMPLEMENTED("drawPosText", false);
 }
 
 void SkPDFDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len,
                                  const SkPath& path, const SkMatrix* matrix,
                                  const SkPaint& paint) {
-    SkASSERT(false);
+    NOT_IMPLEMENTED("drawTextOnPath", true);
 }
 
 void SkPDFDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,
@@ -228,7 +220,7 @@ void SkPDFDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,
                                const SkPoint texs[], const SkColor colors[],
                                SkXfermode* xmode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
-    SkASSERT(false);
+    NOT_IMPLEMENTED("drawVerticies", true);
 }
 
 void SkPDFDevice::drawDevice(const SkDraw&, SkDevice*, int x, int y,
@@ -276,21 +268,23 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
     return fResourceDict;
 }
 
-void SkPDFDevice::getResouces(SkTDArray<SkPDFObject*>* resouceList) {
-    resouceList->setReserve(resouceList->count() +
-                            fGraphicStateResources.count() +
-                            fXObjectResources.count());
+void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
+    resourceList->setReserve(resourceList->count() +
+                             fGraphicStateResources.count() +
+                             fXObjectResources.count());
     for (int i = 0; i < fGraphicStateResources.count(); i++) {
-        resouceList->push(fGraphicStateResources[i]);
+        resourceList->push(fGraphicStateResources[i]);
         fGraphicStateResources[i]->ref();
+        fGraphicStateResources[i]->getResources(resourceList);
     }
     for (int i = 0; i < fXObjectResources.count(); i++) {
-        resouceList->push(fXObjectResources[i]);
+        resourceList->push(fXObjectResources[i]);
         fXObjectResources[i]->ref();
+        fXObjectResources[i]->getResources(resourceList);
     }
 }
 
-SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() {
+SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     SkRefPtr<SkPDFInt> zero = new SkPDFInt(0);
     zero->unref();  // SkRefPtr and new both took a reference.
     SkRefPtr<SkPDFInt> width = new SkPDFInt(fWidth);
@@ -321,12 +315,7 @@ SkString SkPDFDevice::content(bool flipOrigin) const {
 // Private
 
 // TODO(vandebo) handle these cases.
-#define PAINTCHECK(x,y) do {                             \
-                          if(newPaint.x() y) {           \
-                              printf("!!" #x #y "\n");   \
-                              SkASSERT(false);           \
-                          }                              \
-                        } while(0)
+#define PAINTCHECK(x,y) NOT_IMPLEMENTED(newPaint.x() y, false)
 
 void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint,
                                     SkString* textStateUpdate) {
@@ -430,9 +419,26 @@ void SkPDFDevice::closePath() {
     fContent.append("h\n");
 }
 
+void SkPDFDevice::paintPath(SkPaint::Style style, SkPath::FillType fill) {
+    if (style == SkPaint::kFill_Style)
+        fContent.append("f");
+    else if (style == SkPaint::kStrokeAndFill_Style)
+        fContent.append("B");
+    else if (style == SkPaint::kStroke_Style)
+        fContent.append("S");
+
+    if (style != SkPaint::kStroke_Style) {
+        // Not supported yet.
+        NOT_IMPLEMENTED(fill == SkPath::kInverseEvenOdd_FillType, false);
+        NOT_IMPLEMENTED(fill == SkPath::kInverseWinding_FillType, false);
+        if (fill == SkPath::kEvenOdd_FillType)
+            fContent.append("*");
+    }
+    fContent.append("\n");
+}
+
 void SkPDFDevice::strokePath() {
-    fContent.append(StyleAndFillToPaintOperator(SkPaint::kStroke_Style,
-                                                SkPath::kWinding_FillType));
+    paintPath(SkPaint::kStroke_Style, SkPath::kWinding_FillType);
 }
 
 void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,

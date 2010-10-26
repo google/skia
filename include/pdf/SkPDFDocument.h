@@ -57,7 +57,7 @@ private:
     SkTDArray<SkPDFDict*> fPageTree;
     SkRefPtr<SkPDFDict> fDocCatalog;
     SkTDArray<SkPDFObject*> fPageResources;
-    int fSecondPageFirstResouceIndex;
+    int fSecondPageFirstResourceIndex;
 
     SkRefPtr<SkPDFDict> fTrailerDict;
 
