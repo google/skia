@@ -15,7 +15,6 @@ class SkGLDeviceFactory : public SkDeviceFactory {
 public:
     virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
                                 bool isOpaque, bool isForLayer);
-    virtual uint32_t getDeviceCapabilities() { return kGL_Capability; }
 };
 
 struct SkGLDrawProcs;
@@ -28,6 +27,8 @@ public:
     virtual SkDeviceFactory* getDeviceFactory() {
         return SkNEW(SkGLDeviceFactory);
     }
+
+    virtual uint32_t getDeviceCapabilities() { return kGL_Capability; }
 
     // used to identify GLTextCache data in the glyphcache
     static void GlyphCacheAuxProc(void* data);    

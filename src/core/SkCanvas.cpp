@@ -536,8 +536,7 @@ SkDevice* SkCanvas::setBitmapDevice(const SkBitmap& bitmap) {
 //////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::getViewport(SkIPoint* size) const {
-    if ((fDeviceFactory->getDeviceCapabilities()
-            & SkDeviceFactory::kGL_Capability) == 0)
+    if ((getDevice()->getDeviceCapabilities() & SkDevice::kGL_Capability) == 0)
         return false;
     if (size)
         size->set(getDevice()->width(), getDevice()->height());
@@ -545,8 +544,7 @@ bool SkCanvas::getViewport(SkIPoint* size) const {
 }
 
 bool SkCanvas::setViewport(int width, int height) {
-    if ((fDeviceFactory->getDeviceCapabilities()
-            & SkDeviceFactory::kGL_Capability) == 0)
+    if ((getDevice()->getDeviceCapabilities() & SkDevice::kGL_Capability) == 0)
         return false;
     this->setDevice(createDevice(SkBitmap::kARGB_8888_Config, width, height,
                                  false, false))->unref();
