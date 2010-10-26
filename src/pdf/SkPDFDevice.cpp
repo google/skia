@@ -21,6 +21,7 @@
 #include "SkPath.h"
 #include "SkPDFImage.h"
 #include "SkPDFGraphicState.h"
+#include "SkPDFFormXObject.h"
 #include "SkPDFTypes.h"
 #include "SkPDFStream.h"
 #include "SkRect.h"
@@ -273,9 +274,25 @@ void SkPDFDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,
     NOT_IMPLEMENTED("drawVerticies", true);
 }
 
-void SkPDFDevice::drawDevice(const SkDraw&, SkDevice*, int x, int y,
-                             const SkPaint&) {
-    SkASSERT(false);
+void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
+                             const SkPaint& paint) {
+    if ((device->getDeviceCapabilities() & kVector_Capability) == 0) {
+        // If we somehow get a raster device, do what our parent would do.
+        SkDevice::drawDevice(d, device, x, y, paint);
+        return;
+    }
+
+    // Assume that a vector capable device means that it's a PDF Device.
+    // TODO(vandebo) handle the paint (alpha and compositing mode).
+    SkMatrix matrix;
+    matrix.setTranslate(x, y);
+    SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
+
+    SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice, matrix);
+    fXObjectResources.push(xobject);  // Transfer reference.
+    fContent.append("/X");
+    fContent.appendS32(fXObjectResources.count() - 1);
+    fContent.append(" Do\n");
 }
 
 const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
