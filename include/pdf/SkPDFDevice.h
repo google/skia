@@ -31,7 +31,6 @@ class SkPDFStream;
 class SkPDFDeviceFactory : public SkDeviceFactory {
     virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
                                 bool isOpaque, bool isForLayer);
-    virtual uint32_t getDeviceCapabilities() { return 0; }
 };
 
 /** \class SkPDFDevice
@@ -51,6 +50,8 @@ public:
     virtual SkDeviceFactory* getDeviceFactory() {
         return SkNEW(SkPDFDeviceFactory);
     }
+
+    virtual uint32_t getDeviceCapabilities() { return kVector_Capability; }
 
     virtual int width() const { return fWidth; };
 

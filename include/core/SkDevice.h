@@ -38,19 +38,12 @@ class SkDeviceFactory {
 public:
     virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
                                 bool isOpaque, bool isForLayer) = 0;
-
-    enum Capabilities {
-        kGL_Capability    = 0x1,  //!< mask to indicate this device supports GL
-        kAll_Capabilities = 0x1
-    };
-    virtual uint32_t getDeviceCapabilities() = 0;
 };
 
 class SkRasterDeviceFactory : public SkDeviceFactory {
 public:
     virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
                                 bool isOpaque, bool isForLayer);
-    virtual uint32_t getDeviceCapabilities() { return 0; }
 };
 
 class SkDevice : public SkRefCnt {
@@ -67,6 +60,13 @@ public:
     virtual SkDeviceFactory* getDeviceFactory() {
         return SkNEW(SkRasterDeviceFactory);
     }
+
+    enum Capabilities {
+        kGL_Capability     = 0x1,  //!< mask indicating GL support
+        kVector_Capability = 0x2,  //!< mask indicating a vector representation
+        kAll_Capabilities  = 0x3
+    };
+    virtual uint32_t getDeviceCapabilities() { return 0; }
 
     /** Return the width of the device (in pixels).
     */
