@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,19 +122,31 @@ private:
     int fHeight;
     SkRefPtr<SkPDFDict> fResourceDict;
 
-    SkRefPtr<SkPDFGraphicState> fCurrentGraphicState;
-    SkColor fCurrentColor;
-    SkScalar fCurrentTextScaleX;
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
 
+    // In PDF, transforms and clips can only be undone by popping the graphic
+    // state to before the transform or clip was applied.  Because it can be
+    // a lot of work to reapply a clip and because this class has to apply
+    // different transforms to accomplish various operations, the clip is
+    // always applied before a transform and always at a different graphic
+    // state-stack level than a transform.  This strategy results in the
+    // following possible states for the graphic state stack:
+    // empty:  (identity transform and clip to page)
+    // one entry: a transform
+    // one entry: a clip
+    // two entries: a clip and then a transform
+    struct GraphicStackEntry {
+        SkColor fColor;
+        SkScalar fTextScaleX;
+        SkRefPtr<SkPDFGraphicState> fGraphicState;
+        SkRegion fClip;
+        SkMatrix fTransform;
+    };
+    struct GraphicStackEntry fGraphicStack[3];
+    int fGraphicStackIndex;
+
     SkString fContent;
-
-    // The last requested transforms from SkCanvas (setMatrixClip)
-    SkMatrix fCurTransform;
-
-    // The transform currently in effect in the PDF content stream.
-    SkMatrix fActiveTransform;
 
     void updateGSFromPaint(const SkPaint& newPaint, SkString* textStaetUpdate);
 
@@ -144,17 +156,16 @@ private:
                      SkScalar ctl2X, SkScalar ctl2Y,
                      SkScalar dstX, SkScalar dstY);
     void appendRectangle(SkScalar x, SkScalar y, SkScalar w, SkScalar h);
+    void emitPath(const SkPath& path);
     void closePath();
-    void strokePath();
     void paintPath(SkPaint::Style style, SkPath::FillType fill);
+    void strokePath();
+    void pushGS();
+    void popGS();
     void internalDrawBitmap(const SkMatrix& matrix, const SkBitmap& bitmap,
                             const SkPaint& paint);
 
-    void setTransform(const SkMatrix& matrix);
-    void setNoTransform();
-    void applyTempTransform(const SkMatrix& matrix);
-    void removeTempTransform();
-    void applyTransform(const SkMatrix& matrix);
+    SkMatrix setTransform(const SkMatrix& matrix);
 };
 
 #endif

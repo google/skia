@@ -68,11 +68,11 @@ SkDevice* SkPDFDeviceFactory::newDevice(SkBitmap::Config config,
 SkPDFDevice::SkPDFDevice(int width, int height)
     : fWidth(width),
       fHeight(height),
-      fCurrentColor(0),
-      fCurrentTextScaleX(SK_Scalar1) {
-    fContent.append("q\n");
-    fCurTransform.reset();
-    fActiveTransform.reset();
+      fGraphicStackIndex(0) {
+    fGraphicStack[0].fColor = SK_ColorBLACK;
+    fGraphicStack[0].fTextScaleX = SK_Scalar1;
+    fGraphicStack[0].fClip.setRect(0,0, width, height);
+    fGraphicStack[0].fTransform.reset();
 }
 
 SkPDFDevice::~SkPDFDevice() {
@@ -82,13 +82,34 @@ SkPDFDevice::~SkPDFDevice() {
 
 void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
                                 const SkRegion& region) {
-    // TODO(vandebo) handle clipping
+    // See the comment in the header file above GraphicStackEntry.
+    if (region != fGraphicStack[fGraphicStackIndex].fClip) {
+        while (fGraphicStackIndex > 0)
+            popGS();
+        pushGS();
+
+        SkPath clipPath;
+        if (!region.getBoundaryPath(&clipPath))
+            clipPath.moveTo(SkIntToScalar(-1), SkIntToScalar(-1));
+        emitPath(clipPath);
+
+        SkPath::FillType clipFill = clipPath.getFillType();
+        NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType, false);
+        NOT_IMPLEMENTED(clipFill == SkPath::kInverseWinding_FillType, false);
+        if (clipFill == SkPath::kEvenOdd_FillType)
+            fContent.append("W* n ");
+        else
+            fContent.append("W n ");
+
+        fGraphicStack[fGraphicStackIndex].fClip = region;
+    }
     setTransform(matrix);
-    fCurTransform = matrix;
 }
 
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
-    setNoTransform();
+    SkMatrix identityTransform;
+    identityTransform.reset();
+    SkMatrix curTransform = setTransform(identityTransform);
 
     SkPaint newPaint = paint;
     newPaint.setStyle(SkPaint::kFill_Style);
@@ -96,7 +117,7 @@ void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
 
     SkRect all = SkRect::MakeWH(width() + 1, height() + 1);
     drawRect(d, all, newPaint);
-    setTransform(fCurTransform);
+    setTransform(curTransform);
 }
 
 void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
@@ -156,9 +177,9 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
         path.addRect(r);
         paint.getFillPath(path, &path);
 
-        SkPaint no_effect_paint(paint);
-        SkSafeUnref(no_effect_paint.setPathEffect(NULL));
-        drawPath(d, path, no_effect_paint);
+        SkPaint noEffectPaint(paint);
+        SkSafeUnref(noEffectPaint.setPathEffect(NULL));
+        drawPath(d, path, noEffectPaint);
         return;
     }
     updateGSFromPaint(paint, NULL);
@@ -173,80 +194,32 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
                            const SkPaint& paint) {
     if (paint.getPathEffect()) {
         // Apply the path effect to path and draw it that way.
-        SkPath no_effect_path;
-        paint.getFillPath(path, &no_effect_path);
+        SkPath noEffectPath;
+        paint.getFillPath(path, &noEffectPath);
 
-        SkPaint no_effect_paint(paint);
-        SkSafeUnref(no_effect_paint.setPathEffect(NULL));
-        drawPath(d, no_effect_path, no_effect_paint);
+        SkPaint noEffectPaint(paint);
+        SkSafeUnref(noEffectPaint.setPathEffect(NULL));
+        drawPath(d, noEffectPath, noEffectPaint);
         return;
     }
     updateGSFromPaint(paint, NULL);
 
-    SkPoint args[4];
-    SkPath::Iter iter(path, false);
-    for (SkPath::Verb verb = iter.next(args);
-         verb != SkPath::kDone_Verb;
-         verb = iter.next(args)) {
-        // args gets all the points, even the implicit first point.
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                moveTo(args[0].fX, args[0].fY);
-                break;
-            case SkPath::kLine_Verb:
-                appendLine(args[1].fX, args[1].fY);
-                break;
-            case SkPath::kQuad_Verb: {
-                // Convert quad to cubic (degree elevation). http://goo.gl/vS4i
-                const SkScalar three = SkIntToScalar(3);
-                args[1].scale(SkIntToScalar(2));
-                SkScalar ctl1X = SkScalarDiv(args[0].fX + args[1].fX, three);
-                SkScalar ctl1Y = SkScalarDiv(args[0].fY + args[1].fY, three);
-                SkScalar ctl2X = SkScalarDiv(args[2].fX + args[1].fX, three);
-                SkScalar ctl2Y = SkScalarDiv(args[2].fY + args[1].fY, three);
-                appendCubic(ctl1X, ctl1Y, ctl2X, ctl2Y, args[2].fX, args[2].fY);
-                break;
-            }
-            case SkPath::kCubic_Verb:
-                appendCubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
-                            args[3].fX, args[3].fY);
-                break;
-            case SkPath::kClose_Verb:
-                closePath();
-                break;
-            case SkPath::kDone_Verb:
-                break;
-            default:
-                SkASSERT(false);
-                break;
-        }
-    }
+    emitPath(path);
     paintPath(paint.getStyle(), path.getFillType());
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                              const SkMatrix& matrix, const SkPaint& paint) {
-    SkMatrix scaled;
-    // Adjust for origin flip.
-    scaled.setScale(1, -1);
-    scaled.postTranslate(0, 1);
-    scaled.postConcat(fCurTransform);
-    // Scale the image up from 1x1 to WxH.
-    scaled.postScale(bitmap.width(), bitmap.height());
-    scaled.postConcat(matrix);
-    internalDrawBitmap(scaled, bitmap, paint);
+    SkMatrix transform = matrix;
+    transform.postConcat(fGraphicStack[fGraphicStackIndex].fTransform);
+    internalDrawBitmap(transform, bitmap, paint);
 }
 
 void SkPDFDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
                              int x, int y, const SkPaint& paint) {
-    SkMatrix scaled;
-    // Adjust for origin flip.
-    scaled.setScale(1, -1);
-    scaled.postTranslate(0, 1);
-    // Scale the image up from 1x1 to WxH.
-    scaled.postScale(bitmap.width(), -bitmap.height());
-    scaled.postTranslate(x, y);
-    internalDrawBitmap(scaled, bitmap, paint);
+    SkMatrix matrix;
+    matrix.setTranslate(x, y);
+    internalDrawBitmap(matrix, bitmap, paint);
 }
 
 void SkPDFDevice::drawText(const SkDraw&, const void* text, size_t len,
@@ -375,7 +348,8 @@ SkString SkPDFDevice::content(bool flipOrigin) const {
     if (flipOrigin)
         result.printf("1 0 0 -1 0 %d cm\n", fHeight);
     result.append(fContent);
-    result.append("Q");
+    for (int i = 0; i < fGraphicStackIndex; i++)
+        result.append("Q\n");
     return result;
 }
 
@@ -401,7 +375,8 @@ void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint,
     newGraphicState->unref();  // getGraphicState and SkRefPtr both took a ref.
     // newGraphicState has been canonicalized so we can directly compare
     // pointers.
-    if (fCurrentGraphicState.get() != newGraphicState.get()) {
+    if (fGraphicStack[fGraphicStackIndex].fGraphicState.get() !=
+            newGraphicState.get()) {
         int resourceIndex = fGraphicStateResources.find(newGraphicState.get());
         if (resourceIndex < 0) {
             resourceIndex = fGraphicStateResources.count();
@@ -411,27 +386,28 @@ void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint,
         fContent.append("/G");
         fContent.appendS32(resourceIndex);
         fContent.append(" gs\n");
-        fCurrentGraphicState = newGraphicState;
+        fGraphicStack[fGraphicStackIndex].fGraphicState = newGraphicState;
     }
 
     SkColor newColor = newPaint.getColor();
     newColor = SkColorSetA(newColor, 0xFF);
-    if (fCurrentColor != newColor) {
+    if (fGraphicStack[fGraphicStackIndex].fColor != newColor) {
         SkString colorString = toPDFColor(newColor);
         fContent.append(colorString);
         fContent.append("RG ");
         fContent.append(colorString);
         fContent.append("rg\n");
-        fCurrentColor = newColor;
+        fGraphicStack[fGraphicStackIndex].fColor = newColor;
     }
 
     if (textStateUpdate != NULL &&
-            fCurrentTextScaleX != newPaint.getTextScaleX()) {
+            fGraphicStack[fGraphicStackIndex].fTextScaleX !=
+            newPaint.getTextScaleX()) {
         SkScalar scale = newPaint.getTextScaleX();
         SkScalar pdfScale = scale * 100;
         textStateUpdate->appendScalar(pdfScale);
         textStateUpdate->append(" Tz\n");
-        fCurrentTextScaleX = scale;
+        fGraphicStack[fGraphicStackIndex].fTextScaleX = scale;
     }
 }
 
@@ -482,6 +458,47 @@ void SkPDFDevice::appendRectangle(SkScalar x, SkScalar y,
     fContent.append(" re\n");
 }
 
+void SkPDFDevice::emitPath(const SkPath& path) {
+    SkPoint args[4];
+    SkPath::Iter iter(path, false);
+    for (SkPath::Verb verb = iter.next(args);
+         verb != SkPath::kDone_Verb;
+         verb = iter.next(args)) {
+        // args gets all the points, even the implicit first point.
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                moveTo(args[0].fX, args[0].fY);
+                break;
+            case SkPath::kLine_Verb:
+                appendLine(args[1].fX, args[1].fY);
+                break;
+            case SkPath::kQuad_Verb: {
+                // Convert quad to cubic (degree elevation). http://goo.gl/vS4i
+                const SkScalar three = SkIntToScalar(3);
+                args[1].scale(SkIntToScalar(2));
+                SkScalar ctl1X = SkScalarDiv(args[0].fX + args[1].fX, three);
+                SkScalar ctl1Y = SkScalarDiv(args[0].fY + args[1].fY, three);
+                SkScalar ctl2X = SkScalarDiv(args[2].fX + args[1].fX, three);
+                SkScalar ctl2Y = SkScalarDiv(args[2].fY + args[1].fY, three);
+                appendCubic(ctl1X, ctl1Y, ctl2X, ctl2Y, args[2].fX, args[2].fY);
+                break;
+            }
+            case SkPath::kCubic_Verb:
+                appendCubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
+                            args[3].fX, args[3].fY);
+                break;
+            case SkPath::kClose_Verb:
+                closePath();
+                break;
+            case SkPath::kDone_Verb:
+                break;
+            default:
+                SkASSERT(false);
+                break;
+        }
+    }
+}
+
 void SkPDFDevice::closePath() {
     fContent.append("h\n");
 }
@@ -508,44 +525,59 @@ void SkPDFDevice::strokePath() {
     paintPath(SkPaint::kStroke_Style, SkPath::kWinding_FillType);
 }
 
+void SkPDFDevice::pushGS() {
+    SkASSERT(fGraphicStackIndex < 2);
+    fContent.append("q\n");
+    fGraphicStackIndex++;
+    fGraphicStack[fGraphicStackIndex] = fGraphicStack[fGraphicStackIndex - 1];
+}
+
+void SkPDFDevice::popGS() {
+    SkASSERT(fGraphicStackIndex > 0);
+    fContent.append("Q\n");
+    fGraphicStackIndex--;
+}
+
 void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
                                      const SkBitmap& bitmap,
                                      const SkPaint& paint) {
-    setTransform(matrix);
+    SkMatrix scaled;
+    // Adjust for origin flip.
+    scaled.setScale(1, -1);
+    scaled.postTranslate(0, 1);
+    // Scale the image up from 1x1 to WxH.
+    scaled.postScale(bitmap.width(), bitmap.height());
+    scaled.postConcat(matrix);
+    SkMatrix curTransform = setTransform(scaled);
+
     SkPDFImage* image = new SkPDFImage(bitmap, paint);
     fXObjectResources.push(image);  // Transfer reference.
     fContent.append("/X");
     fContent.appendS32(fXObjectResources.count() - 1);
     fContent.append(" Do\n");
-    setTransform(fCurTransform);
+    setTransform(curTransform);
 }
 
-void SkPDFDevice::setTransform(const SkMatrix& m) {
-    setNoTransform();
-    applyTransform(m);
-}
+SkMatrix SkPDFDevice::setTransform(const SkMatrix& m) {
+    SkMatrix old = fGraphicStack[fGraphicStackIndex].fTransform;
+    if (old == m)
+        return old;
 
-void SkPDFDevice::setNoTransform() {
-    if (fActiveTransform.getType() == SkMatrix::kIdentity_Mask)
-        return;
-    fContent.append("Q q ");  // Restore the default transform and save it.
-    fCurrentGraphicState = NULL;
-    fActiveTransform.reset();
-}
+    if (old.getType() != SkMatrix::kIdentity_Mask) {
+        SkASSERT(fGraphicStackIndex > 0);
+        SkASSERT(fGraphicStack[fGraphicStackIndex - 1].fTransform.getType() ==
+                 SkMatrix::kIdentity_Mask);
+        SkASSERT(fGraphicStack[fGraphicStackIndex].fClip ==
+                 fGraphicStack[fGraphicStackIndex - 1].fClip);
+        popGS();
+    }
+    if (m.getType() == SkMatrix::kIdentity_Mask)
+        return old;
 
-void SkPDFDevice::applyTempTransform(const SkMatrix& m) {
-    fContent.append("q ");
-    applyTransform(m);
-}
+    if (fGraphicStackIndex == 0 || fGraphicStack[fGraphicStackIndex].fClip !=
+            fGraphicStack[fGraphicStackIndex - 1].fClip)
+        pushGS();
 
-void SkPDFDevice::removeTempTransform() {
-    fContent.append("Q\n");
-    fActiveTransform = fCurTransform;
-}
-
-void SkPDFDevice::applyTransform(const SkMatrix& m) {
-    if (m == fActiveTransform)
-        return;
     SkScalar transform[6];
     SkAssertResult(m.pdfTransform(transform));
     for (size_t i = 0; i < SK_ARRAY_COUNT(transform); i++) {
@@ -553,5 +585,7 @@ void SkPDFDevice::applyTransform(const SkMatrix& m) {
         fContent.append(" ");
     }
     fContent.append("cm\n");
-    fActiveTransform = m;
+    fGraphicStack[fGraphicStackIndex].fTransform = m;
+
+    return old;
 }
