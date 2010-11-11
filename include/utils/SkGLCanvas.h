@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 The Android Open Source Project
+ * Copyright (C) 2010 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,36 +18,22 @@
 #define SkGLCanvas_DEFINED
 
 #include "SkCanvas.h"
-#include "SkGLDevice.h"
 
 // Deprecated.  You should now use SkGLDevice and SkGLDeviceFactory with
 // SkCanvas.
 class SkGLCanvas : public SkCanvas {
 public:
-    SkGLCanvas() : SkCanvas(SkNEW(SkGLDeviceFactory)) {}
+    SkGLCanvas();
 
-    static size_t GetTextureCacheMaxCount() {
-        return SkGLDevice::GetTextureCacheMaxCount();
-    }
-    static void SetTextureCacheMaxCount(size_t count) {
-        SkGLDevice::SetTextureCacheMaxCount(count);
-    }
+    static size_t GetTextureCacheMaxCount();
+    static void SetTextureCacheMaxCount(size_t count);
 
-    static size_t GetTextureCacheMaxSize() {
-        return SkGLDevice::GetTextureCacheMaxSize();
-    }
-    static void SetTextureCacheMaxSize(size_t size) {
-        SkGLDevice::SetTextureCacheMaxSize(size);
-    }
+    static size_t GetTextureCacheMaxSize();
+    static void SetTextureCacheMaxSize(size_t size);
 
-    static void DeleteAllTextures() {
-        SkGLDevice::DeleteAllTextures();
-    }
+    static void DeleteAllTextures();
 
-    static void AbandonAllTextures() {
-        SkGLDevice::AbandonAllTextures();
-    }
+    static void AbandonAllTextures();
 };
 
 #endif
-
