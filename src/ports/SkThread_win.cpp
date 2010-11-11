@@ -18,17 +18,6 @@
 #include <windows.h>
 #include "SkThread.h"
 
-namespace {
-
-template <bool>
-struct CompileAssert {
-};
-
-}  // namespace
-
-#define COMPILE_ASSERT(expr, msg) \
-  typedef CompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1]
-
 int32_t sk_atomic_inc(int32_t* addr)
 {
     // InterlockedIncrement returns the new value, we want to return the old.
@@ -42,8 +31,8 @@ int32_t sk_atomic_dec(int32_t* addr)
 
 SkMutex::SkMutex(bool /* isGlobal */)
 {
-    COMPILE_ASSERT(sizeof(fStorage) > sizeof(CRITICAL_SECTION),
-                   NotEnoughSizeForCriticalSection);
+    SK_COMPILE_ASSERT(sizeof(fStorage) > sizeof(CRITICAL_SECTION),
+                      NotEnoughSizeForCriticalSection);
     InitializeCriticalSection(reinterpret_cast<CRITICAL_SECTION*>(&fStorage));
 }
 

@@ -17,15 +17,20 @@
 #include "SkPDFDevice.h"
 
 #include "SkColor.h"
+#include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPDFImage.h"
 #include "SkPDFGraphicState.h"
+#include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFTypes.h"
 #include "SkPDFStream.h"
 #include "SkRect.h"
 #include "SkString.h"
+#include "SkTextFormatParams.h"
+#include "SkTypeface.h"
+#include "SkTypes.h"
 
 #define NOT_IMPLEMENTED(condition, assert)                         \
     do {                                                           \
@@ -55,6 +60,60 @@ SkString toPDFColor(SkColor color) {
     return result;
 }
 
+SkPaint calculateTextPaint(const SkPaint& paint) {
+    SkPaint result = paint;
+    if (result.isFakeBoldText()) {
+        SkScalar fakeBoldScale = SkScalarInterpFunc(result.getTextSize(),
+                                                    kStdFakeBoldInterpKeys,
+                                                    kStdFakeBoldInterpValues,
+                                                    kStdFakeBoldInterpLength);
+        SkScalar width = SkScalarMul(result.getTextSize(), fakeBoldScale);
+        if (result.getStyle() == SkPaint::kFill_Style)
+            result.setStyle(SkPaint::kStrokeAndFill_Style);
+        else
+            width += result.getStrokeWidth();
+        result.setStrokeWidth(width);
+    }
+    return result;
+}
+
+// Stolen from measure_text in SkDraw.cpp and then tweaked.
+void alignText(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
+               const uint16_t* glyphs, size_t len, SkScalar* x, SkScalar* y,
+               SkScalar* width) {
+    if (paint.getTextAlign() == SkPaint::kLeft_Align && width == NULL)
+        return;
+
+    SkMatrix ident;
+    ident.reset();
+    SkAutoGlyphCache autoCache(paint, &ident);
+    SkGlyphCache* cache = autoCache.getCache();
+
+    const char* start = (char*)glyphs;
+    const char* stop = (char*)(glyphs + len);
+    SkFixed xAdv = 0, yAdv = 0;
+
+    // TODO(vandebo) This probably needs to take kerning into account.
+    while (start < stop) {
+        const SkGlyph& glyph = glyphCacheProc(cache, &start, 0, 0);
+        xAdv += glyph.fAdvanceX;
+        yAdv += glyph.fAdvanceY;
+    };
+    if (width)
+        *width = SkFixedToScalar(xAdv);
+    if (paint.getTextAlign() == SkPaint::kLeft_Align)
+        return;
+
+    SkScalar xAdj = SkFixedToScalar(xAdv);
+    SkScalar yAdj = SkFixedToScalar(yAdv);
+    if (paint.getTextAlign() == SkPaint::kCenter_Align) {
+        xAdj = SkScalarHalf(xAdj);
+        yAdj = SkScalarHalf(yAdj);
+    }
+    *x = *x - xAdj;
+    *y = *y - yAdj;
+}
+
 }  // namespace
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +129,9 @@ SkPDFDevice::SkPDFDevice(int width, int height)
       fHeight(height),
       fGraphicStackIndex(0) {
     fGraphicStack[0].fColor = SK_ColorBLACK;
+    fGraphicStack[0].fTextSize = SK_ScalarNaN;  // This has no default value.
     fGraphicStack[0].fTextScaleX = SK_Scalar1;
+    fGraphicStack[0].fTextFill = SkPaint::kFill_Style;
     fGraphicStack[0].fClip.setRect(0,0, width, height);
     fGraphicStack[0].fTransform.reset();
 }
@@ -78,6 +139,7 @@ SkPDFDevice::SkPDFDevice(int width, int height)
 SkPDFDevice::~SkPDFDevice() {
     fGraphicStateResources.unrefAll();
     fXObjectResources.unrefAll();
+    fFontResources.unrefAll();
 }
 
 void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
@@ -113,7 +175,7 @@ void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
 
     SkPaint newPaint = paint;
     newPaint.setStyle(SkPaint::kFill_Style);
-    updateGSFromPaint(newPaint, NULL);
+    updateGSFromPaint(newPaint, false);
 
     SkRect all = SkRect::MakeWH(width() + 1, height() + 1);
     drawRect(d, all, newPaint);
@@ -128,14 +190,14 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
 
     switch (mode) {
         case SkCanvas::kPolygon_PointMode:
-            updateGSFromPaint(paint, NULL);
+            updateGSFromPaint(paint, false);
             moveTo(points[0].fX, points[0].fY);
             for (size_t i = 1; i < count; i++)
                 appendLine(points[i].fX, points[i].fY);
             strokePath();
             break;
         case SkCanvas::kLines_PointMode:
-            updateGSFromPaint(paint, NULL);
+            updateGSFromPaint(paint, false);
             for (size_t i = 0; i < count/2; i++) {
                 moveTo(points[i * 2].fX, points[i * 2].fY);
                 appendLine(points[i * 2 + 1].fX, points[i * 2 + 1].fY);
@@ -144,7 +206,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
             break;
         case SkCanvas::kPoints_PointMode:
             if (paint.getStrokeCap() == SkPaint::kRound_Cap) {
-                updateGSFromPaint(paint, NULL);
+                updateGSFromPaint(paint, false);
                 for (size_t i = 0; i < count; i++) {
                     moveTo(points[i].fX, points[i].fY);
                     strokePath();
@@ -182,7 +244,7 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
         drawPath(d, path, noEffectPaint);
         return;
     }
-    updateGSFromPaint(paint, NULL);
+    updateGSFromPaint(paint, false);
 
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
     SkScalar bottom = r.fBottom < r.fTop ? r.fBottom : r.fTop;
@@ -202,7 +264,7 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
         drawPath(d, noEffectPath, noEffectPaint);
         return;
     }
-    updateGSFromPaint(paint, NULL);
+    updateGSFromPaint(paint, false);
 
     emitPath(path);
     paintPath(paint.getStyle(), path.getFillType());
@@ -222,15 +284,77 @@ void SkPDFDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
     internalDrawBitmap(matrix, bitmap, paint);
 }
 
-void SkPDFDevice::drawText(const SkDraw&, const void* text, size_t len,
+void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
-    NOT_IMPLEMENTED("drawText", true);
+    SkPaint textPaint = calculateTextPaint(paint);
+    updateGSFromPaint(textPaint, true);
+    SkPDFFont* font = fGraphicStack[fGraphicStackIndex].fFont.get();
+
+    uint16_t glyphs[len];
+    size_t glyphsLength;
+    glyphsLength = font->textToPDFGlyphs(text, len, textPaint, glyphs, len);
+    textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    SkScalar width;
+    SkScalar* widthPtr = NULL;
+    if (textPaint.isUnderlineText() || textPaint.isStrikeThruText())
+        widthPtr = &width;
+
+    SkDrawCacheProc glyphCacheProc = textPaint.getDrawCacheProc();
+    alignText(glyphCacheProc, textPaint, glyphs, glyphsLength, &x, &y,
+              widthPtr);
+    fContent.append("BT\n");
+    setTextTransform(x, y, textPaint.getTextSkewX());
+    fContent.append(SkPDFString::formatString(glyphs, glyphsLength,
+                                              font->multiByteGlyphs()));
+    fContent.append(" Tj\nET\n");
+
+    // Draw underline and/or strikethrough if the paint has them.
+    // drawPosText() and drawTextOnPath() don't draw underline or strikethrough
+    // because the raster versions don't.  Use paint instead of textPaint
+    // because we may have changed strokeWidth to do fakeBold text.
+    if (paint.isUnderlineText() || paint.isStrikeThruText()) {
+        SkScalar textSize = paint.getTextSize();
+        SkScalar height = SkScalarMul(textSize, kStdUnderline_Thickness);
+
+        if (paint.isUnderlineText()) {
+            SkScalar top = SkScalarMulAdd(textSize, kStdUnderline_Offset, y);
+            SkRect r = SkRect::MakeXYWH(x, top - height, width, height);
+            drawRect(d, r, paint);
+        }
+        if (paint.isStrikeThruText()) {
+            SkScalar top = SkScalarMulAdd(textSize, kStdStrikeThru_Offset, y);
+            SkRect r = SkRect::MakeXYWH(x, top - height, width, height);
+            drawRect(d, r, paint);
+        }
+    }
 }
 
 void SkPDFDevice::drawPosText(const SkDraw&, const void* text, size_t len,
                               const SkScalar pos[], SkScalar constY,
                               int scalarsPerPos, const SkPaint& paint) {
-    NOT_IMPLEMENTED("drawPosText", false);
+    SkASSERT(1 == scalarsPerPos || 2 == scalarsPerPos);
+    SkPaint textPaint = calculateTextPaint(paint);
+    updateGSFromPaint(textPaint, true);
+    SkPDFFont* font = fGraphicStack[fGraphicStackIndex].fFont.get();
+
+    uint16_t glyphs[len];
+    size_t glyphsLength;
+    glyphsLength = font->textToPDFGlyphs(text, len, textPaint, glyphs, len);
+    textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+    SkDrawCacheProc glyphCacheProc = textPaint.getDrawCacheProc();
+    fContent.append("BT\n");
+    for (size_t i = 0; i < glyphsLength; i++) {
+        SkScalar x = pos[i * scalarsPerPos];
+        SkScalar y = scalarsPerPos == 1 ? constY : pos[i * scalarsPerPos + 1];
+        alignText(glyphCacheProc, textPaint, glyphs + i, 1, &x, &y, NULL);
+        setTextTransform(x, y, textPaint.getTextSkewX());
+        fContent.append(SkPDFString::formatString(glyphs + i, 1,
+                                                  font->multiByteGlyphs()));
+        fContent.append(" Tj\n");
+    }
+    fContent.append("ET\n");
 }
 
 void SkPDFDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len,
@@ -304,6 +428,35 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
             }
             fResourceDict->insert("XObject", xObjects.get());
         }
+
+        if (fFontResources.count()) {
+            SkRefPtr<SkPDFDict> fonts = new SkPDFDict();
+            fonts->unref();  // SkRefPtr and new both took a reference.
+            for (int i = 0; i < fFontResources.count(); i++) {
+                SkString nameString("F");
+                nameString.appendS32(i);
+                SkRefPtr<SkPDFName> name = new SkPDFName(nameString);
+                name->unref();  // SkRefPtr and new both took a reference.
+                SkRefPtr<SkPDFObjRef> fontRef =
+                    new SkPDFObjRef(fFontResources[i]);
+                fontRef->unref();  // SkRefPtr and new both took a reference.
+                fonts->insert(name.get(), fontRef.get());
+            }
+            fResourceDict->insert("Font", fonts.get());
+        }
+
+        // For compatibility, add all proc sets (only used for output to PS
+        // devices).
+        const char procs[][7] = {"PDF", "Text", "ImageB", "ImageC", "ImageI"};
+        SkRefPtr<SkPDFArray> procSets = new SkPDFArray();
+        procSets->unref();  // SkRefPtr and new both took a reference.
+        procSets->reserve(SK_ARRAY_COUNT(procs));
+        for (size_t i = 0; i < SK_ARRAY_COUNT(procs); i++) {
+            SkRefPtr<SkPDFName> entry = new SkPDFName(procs[i]);
+            entry->unref();  // SkRefPtr and new both took a reference.
+            procSets->append(entry.get());
+        }
+        fResourceDict->insert("ProcSet", procSets.get());
     }
     return fResourceDict;
 }
@@ -311,7 +464,8 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
 void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
     resourceList->setReserve(resourceList->count() +
                              fGraphicStateResources.count() +
-                             fXObjectResources.count());
+                             fXObjectResources.count() +
+                             fFontResources.count());
     for (int i = 0; i < fGraphicStateResources.count(); i++) {
         resourceList->push(fGraphicStateResources[i]);
         fGraphicStateResources[i]->ref();
@@ -321,6 +475,11 @@ void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
         resourceList->push(fXObjectResources[i]);
         fXObjectResources[i]->ref();
         fXObjectResources[i]->getResources(resourceList);
+    }
+    for (int i = 0; i < fFontResources.count(); i++) {
+        resourceList->push(fFontResources[i]);
+        fFontResources[i]->ref();
+        fFontResources[i]->getResources(resourceList);
     }
 }
 
@@ -358,17 +517,12 @@ SkString SkPDFDevice::content(bool flipOrigin) const {
 // TODO(vandebo) handle these cases.
 #define PAINTCHECK(x,y) NOT_IMPLEMENTED(newPaint.x() y, false)
 
-void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint,
-                                    SkString* textStateUpdate) {
+void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint, bool forText) {
     PAINTCHECK(getXfermode, != NULL);
     PAINTCHECK(getPathEffect, != NULL);
     PAINTCHECK(getMaskFilter, != NULL);
     PAINTCHECK(getShader, != NULL);
     PAINTCHECK(getColorFilter, != NULL);
-    PAINTCHECK(isFakeBoldText, == true);
-    PAINTCHECK(isUnderlineText, == true);
-    PAINTCHECK(isStrikeThruText, == true);
-    PAINTCHECK(getTextSkewX, != 0);
 
     SkRefPtr<SkPDFGraphicState> newGraphicState =
         SkPDFGraphicState::getGraphicStateForPaint(newPaint);
@@ -400,15 +554,56 @@ void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint,
         fGraphicStack[fGraphicStackIndex].fColor = newColor;
     }
 
-    if (textStateUpdate != NULL &&
-            fGraphicStack[fGraphicStackIndex].fTextScaleX !=
-            newPaint.getTextScaleX()) {
-        SkScalar scale = newPaint.getTextScaleX();
-        SkScalar pdfScale = scale * 100;
-        textStateUpdate->appendScalar(pdfScale);
-        textStateUpdate->append(" Tz\n");
-        fGraphicStack[fGraphicStackIndex].fTextScaleX = scale;
+    if (forText) {
+        uint32_t fontID = SkTypeface::UniqueID(newPaint.getTypeface());
+        if (fGraphicStack[fGraphicStackIndex].fTextSize !=
+                newPaint.getTextSize() ||
+                fGraphicStack[fGraphicStackIndex].fFont.get() == NULL ||
+                fGraphicStack[fGraphicStackIndex].fFont->fontID() != fontID) {
+            int fontIndex = getFontResourceIndex(fontID);
+            fContent.append("/F");
+            fContent.appendS32(fontIndex);
+            fContent.append(" ");
+            fContent.appendScalar(newPaint.getTextSize());
+            fContent.append(" Tf\n");
+            fGraphicStack[fGraphicStackIndex].fTextSize =
+                newPaint.getTextSize();
+            fGraphicStack[fGraphicStackIndex].fFont = fFontResources[fontIndex];
+        }
+
+        if (fGraphicStack[fGraphicStackIndex].fTextScaleX !=
+                newPaint.getTextScaleX()) {
+            SkScalar scale = newPaint.getTextScaleX();
+            SkScalar pdfScale = SkScalarMul(scale, SkIntToScalar(100));
+            fContent.appendScalar(pdfScale);
+            fContent.append(" Tz\n");
+            fGraphicStack[fGraphicStackIndex].fTextScaleX = scale;
+        }
+
+        if (fGraphicStack[fGraphicStackIndex].fTextFill !=
+                newPaint.getStyle()) {
+            SK_COMPILE_ASSERT(SkPaint::kFill_Style == 0, enum_must_match_value);
+            SK_COMPILE_ASSERT(SkPaint::kStroke_Style == 1,
+                              enum_must_match_value);
+            SK_COMPILE_ASSERT(SkPaint::kStrokeAndFill_Style == 2,
+                              enum_must_match_value);
+            fContent.appendS32(newPaint.getStyle());
+            fContent.append(" Tr\n");
+            fGraphicStack[fGraphicStackIndex].fTextFill = newPaint.getStyle();
+        }
     }
+}
+
+int SkPDFDevice::getFontResourceIndex(uint32_t fontID) {
+    SkRefPtr<SkPDFFont> newFont = SkPDFFont::getFontResouceByID(fontID);
+    newFont->unref();  // getFontResourceByID and SkRefPtr both took a ref.
+    int resourceIndex = fFontResources.find(newFont.get());
+    if (resourceIndex < 0) {
+        resourceIndex = fFontResources.count();
+        fFontResources.push(newFont.get());
+        newFont->ref();
+    }
+    return resourceIndex;
 }
 
 void SkPDFDevice::moveTo(SkScalar x, SkScalar y) {
@@ -536,6 +731,18 @@ void SkPDFDevice::popGS() {
     SkASSERT(fGraphicStackIndex > 0);
     fContent.append("Q\n");
     fGraphicStackIndex--;
+}
+
+void SkPDFDevice::setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX) {
+    // Flip the text about the x-axis to account for origin swap and include
+    // the passed parameters.
+    fContent.append("1 0 ");
+    fContent.appendScalar(0 - textSkewX);
+    fContent.append(" -1 ");
+    fContent.appendScalar(x);
+    fContent.append(" ");
+    fContent.appendScalar(y);
+    fContent.append(" Tm\n");
 }
 
 void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,

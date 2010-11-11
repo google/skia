@@ -26,6 +26,7 @@
 class SkPDFArray;
 class SkPDFDevice;
 class SkPDFDict;
+class SkPDFFont;
 class SkPDFGraphicState;
 class SkPDFObject;
 class SkPDFStream;
@@ -124,6 +125,7 @@ private:
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
+    SkTDArray<SkPDFFont*> fFontResources;
 
     // In PDF, transforms and clips can only be undone by popping the graphic
     // state to before the transform or clip was applied.  Because it can be
@@ -138,7 +140,10 @@ private:
     // two entries: a clip and then a transform
     struct GraphicStackEntry {
         SkColor fColor;
+        SkScalar fTextSize;
         SkScalar fTextScaleX;
+        SkPaint::Style fTextFill;
+        SkRefPtr<SkPDFFont> fFont;
         SkRefPtr<SkPDFGraphicState> fGraphicState;
         SkRegion fClip;
         SkMatrix fTransform;
@@ -148,7 +153,8 @@ private:
 
     SkString fContent;
 
-    void updateGSFromPaint(const SkPaint& newPaint, SkString* textStaetUpdate);
+    void updateGSFromPaint(const SkPaint& newPaint, bool forText);
+    int getFontResourceIndex(uint32_t fontID);
 
     void moveTo(SkScalar x, SkScalar y);
     void appendLine(SkScalar x, SkScalar y);
@@ -162,6 +168,7 @@ private:
     void strokePath();
     void pushGS();
     void popGS();
+    void setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX);
     void internalDrawBitmap(const SkMatrix& matrix, const SkBitmap& bitmap,
                             const SkPaint& paint);
 

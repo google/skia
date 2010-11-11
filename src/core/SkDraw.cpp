@@ -29,6 +29,7 @@
 #include "SkShader.h"
 #include "SkStroke.h"
 #include "SkTemplatesPriv.h"
+#include "SkTextFormatParams.h"
 #include "SkUtils.h"
 
 #include "SkAutoKern.h"
@@ -1223,10 +1224,6 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
         prevXPos = xpos;
     }
 }
-
-#define kStdStrikeThru_Offset       (-SK_Scalar1 * 6 / 21)
-#define kStdUnderline_Offset        (SK_Scalar1 / 9)
-#define kStdUnderline_Thickness     (SK_Scalar1 / 18)
 
 static void draw_paint_rect(const SkDraw* draw, const SkPaint& paint,
                             const SkRect& r, SkScalar textSize) {

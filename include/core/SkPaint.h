@@ -863,9 +863,10 @@ private:
     enum {
         kCanonicalTextSizeForPaths = 64
     };
+    friend class SkAutoGlyphCache;
     friend class SkCanvas;
     friend class SkDraw;
-    friend class SkAutoGlyphCache;
+    friend class SkPDFDevice;
     friend class SkTextToPathIter;
 };
 
