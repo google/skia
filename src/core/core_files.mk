@@ -72,6 +72,7 @@ SOURCE := \
     SkRefCnt.cpp \
     SkRegion.cpp \
     SkRegion_path.cpp \
+    SkScalar.cpp \
     SkScalerContext.cpp \
     SkScan.cpp \
     SkScan_AntiPath.cpp \

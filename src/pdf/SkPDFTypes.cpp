@@ -97,11 +97,15 @@ void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 }
 
 SkPDFString::SkPDFString(const char value[])
-    : fValue(formatString(SkString(value))) {
+    : fValue(formatString(value, sizeof(value))) {
 }
 
 SkPDFString::SkPDFString(const SkString& value)
-    : fValue(formatString(value)) {
+    : fValue(formatString(value.c_str(), value.size())) {
+}
+
+SkPDFString::SkPDFString(const uint16_t* value, size_t len, bool wideChars)
+    : fValue(formatString(value, len, wideChars)) {
 }
 
 SkPDFString::~SkPDFString() {}
@@ -119,14 +123,40 @@ size_t SkPDFString::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     return fValue.size();
 }
 
-SkString SkPDFString::formatString(const SkString& input) {
-    SkASSERT(input.size() <= kMaxLen);
+// static
+SkString SkPDFString::formatString(const char* input, size_t len) {
+    return doFormatString(input, len, false, false);
+}
+
+SkString SkPDFString::formatString(const uint16_t* input, size_t len,
+                                   bool wideChars) {
+    return doFormatString(input, len, true, wideChars);
+}
+
+// static
+SkString SkPDFString::doFormatString(const void* input, size_t len,
+                                     bool wideInput, bool wideOutput) {
+    SkASSERT(len <= kMaxLen);
+    const uint16_t* win = (const uint16_t*) input;
+    const char* cin = (const char*) input;
+
+    if (wideOutput) {
+        SkASSERT(wideInput);
+        SkString result;
+        result.append("<");
+        for (size_t i = 0; i < len; i++)
+            result.appendHex(win[i], 4);
+        result.append(">");
+        return result;
+    }
 
     // 7-bit clean is a heuristic to decide what string format to use;
     // a 7-bit clean string should require little escaping.
     bool sevenBitClean = true;
-    for (size_t i = 0; i < input.size(); i++) {
-        if (input[i] & 0x80 || input[i] < ' ') {
+    for (size_t i = 0; i < len; i++) {
+        SkASSERT(!wideInput || !(win[i] & ~0xFF));
+        char val = wideInput ? win[i] : cin[i];
+        if (val & 0x80 || val < ' ') {
             sevenBitClean = false;
             break;
         }
@@ -135,16 +165,21 @@ SkString SkPDFString::formatString(const SkString& input) {
     SkString result;
     if (sevenBitClean) {
         result.append("(");
-        for (size_t i = 0; i < input.size(); i++) {
-            if (input[i] == '\\' || input[i] == '(' || input[i] == ')')
+        for (size_t i = 0; i < len; i++) {
+            SkASSERT(!wideInput || !(win[i] & ~0xFF));
+            char val = wideInput ? win[i] : cin[i];
+            if (val == '\\' || val == '(' || val == ')')
                 result.append("\\");
-            result.append(input.c_str() + i, 1);
+            result.append(&val, 1);
         }
         result.append(")");
     } else {
         result.append("<");
-        for (size_t i = 0; i < input.size(); i++)
-            result.appendHex(input[i], 2);
+        for (size_t i = 0; i < len; i++) {
+            SkASSERT(!wideInput || !(win[i] & ~0xFF));
+            char val = wideInput ? win[i] : cin[i];
+            result.appendHex(val, 2);
+        }
         result.append(">");
     }
 

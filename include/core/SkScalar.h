@@ -253,5 +253,18 @@ static inline SkScalar SkScalarInterp(SkScalar A, SkScalar B, SkScalar t) {
     return A + SkScalarMul(B - A, t);
 }
 
+/** Interpolate along the function described by (keys[length], values[length])
+    for the passed searchKey.  SearchKeys outside the range keys[0]-keys[Length]
+    clamp to the min or max value.  This function was inspired by a desire
+    to change the multiplier for thickness in fakeBold; therefore it assumes
+    the number of pairs (length) will be small, and a linear search is used.
+    Repeated keys are allowed for discontinuous functions (so long as keys is
+    monotonically increasing), and if key is the value of a repeated scalar in
+    keys, the first one will be used.  However, that may change if a binary
+    search is used.
+*/
+SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
+                            const SkScalar values[], int length);
+
 #endif
 

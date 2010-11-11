@@ -16,7 +16,6 @@
 
 #include "SkPDFGraphicState.h"
 #include "SkStream.h"
-#include "SkTypeface.h"
 
 SkPDFGraphicState::~SkPDFGraphicState() {
     SkAutoMutexAcquire lock(canonicalPaintsMutex());
@@ -107,24 +106,6 @@ void SkPDFGraphicState::populateDict() {
         strokeJoin->unref();  // SkRefPtr and new both took a reference.
         insert("LJ", strokeJoin.get());
 
-        /* TODO(vandebo) Font.
-        if (fPaint.getTypeFace() != NULL) {
-            SkRefPtr<SkPDFTypeFace> typeFace =
-                SkPDFTypeFace::getFontForTypeFace(fPaint.getTypeFace);
-            SkRefPtr<SkPDFObjRef> typeFaceRef = new SkPDFObjRef(typeFace.get());
-            fontRef->unref();  // SkRefPtr and new both took a reference.
-            SkRefPtr<SkPDFScalar> fontSize =
-                new SkPDFScalar(fPaint.getTetSize());
-            fontSize->unref();  // SkRefPtr and new both took a reference.
-            SkRefPtr<SkPDFArray> font = new SkPDFArray();
-            font->unref();  // SkRefPtr and new both took a reference.
-            font->reserve(2);
-            font->append(typeFaceRef.get());
-            font->append(fontSize.get());
-            insert("LJ", font.get());
-        }
-        */
-
         SkRefPtr<SkPDFScalar> strokeWidth =
             new SkPDFScalar(fPaint.getStrokeWidth());
         strokeWidth->unref();  // SkRefPtr and new both took a reference.
@@ -150,14 +131,9 @@ bool SkPDFGraphicState::GSCanonicalEntry::operator==(
     const SkPaint* b = gs.fPaint;
     SkASSERT(a != NULL);
     SkASSERT(b != NULL);
-    SkTypeface* aFace = a->getTypeface();
-    SkTypeface* bFace = b->getTypeface();
     return SkColorGetA(a->getColor()) == SkColorGetA(b->getColor()) &&
            a->getStrokeCap() == b->getStrokeCap() &&
            a->getStrokeJoin() == b->getStrokeJoin() &&
-           a->getTextSize() == b->getTextSize() &&
            a->getStrokeWidth() == b->getStrokeWidth() &&
-           a->getStrokeMiter() == b->getStrokeMiter() &&
-           (aFace == NULL) == (bFace == NULL) &&
-           (aFace == NULL || aFace->uniqueID() == bFace->uniqueID());
+           a->getStrokeMiter() == b->getStrokeMiter();
 }

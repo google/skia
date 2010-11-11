@@ -103,6 +103,17 @@ static inline void sk_bzero(void* buffer, size_t size) {
     #define SkAssertResult(cond)        cond
 #endif
 
+namespace {
+
+template <bool>
+struct SkCompileAssert {
+};
+
+}  // namespace
+
+#define SK_COMPILE_ASSERT(expr, msg) \
+    typedef SkCompileAssert<(bool(expr))> msg[bool(expr) ? 1 : -1]
+
 ///////////////////////////////////////////////////////////////////////
 
 /** Fast type for signed 8 bits. Use for parameter passing and local variables, not for storage

@@ -23,8 +23,10 @@
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
 #include "SkShader.h"
+#include "SkScalar.h"
 #include "SkScalerContext.h"
 #include "SkStroke.h"
+#include "SkTextFormatParams.h"
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 #include "SkAutoKern.h"
@@ -1180,49 +1182,6 @@ static void add_flattenable(SkDescriptor* desc, uint32_t tag,
     buffer->flatten(desc->addEntry(tag, buffer->size(), NULL));
 }
 
-/*
- *  interpolates to find the right value for key, in the function represented by the 'length' number of pairs: (keys[i], values[i])
-    inspired by a desire to change the multiplier for thickness in fakebold
-    therefore, i assumed number of pairs (length) will be small, so a linear search is sufficient
-    repeated keys are allowed for discontinuous functions (so long as keys is monotonically increasing), and if 
-        key is the value of a repeated scalar in keys, the first one will be used 
-    - this may change if a binary search is used
-    - also, this ensures that there is no divide by zero (an assert also checks for that)
-*/
-static SkScalar interpolate(SkScalar key, const SkScalar keys[], const SkScalar values[], int length)
-{
-
-    SkASSERT(length > 0);
-    SkASSERT(keys != NULL);    
-    SkASSERT(values != NULL);
-#ifdef SK_DEBUG
-    for (int i = 1; i < length; i++)
-        SkASSERT(keys[i] >= keys[i-1]);
-#endif
-    int right = 0;
-    while (right < length && key > keys[right])
-        right++;
-    //could use sentinal values to eliminate conditionals
-    //i assume i am not in control of input values, so i want to make it simple
-    if (length == right)
-        return values[length-1];
-    if (0 == right)
-        return values[0];
-    //otherwise, we interpolate between right-1 and right
-    SkScalar rVal = values[right];
-    SkScalar lVal = values[right-1];
-    SkScalar rightKey = keys[right];
-    SkScalar leftKey = keys[right-1];
-    SkASSERT(rightKey != leftKey);
-    //fractional amount which we will multiply by the difference in the left value and right value
-    SkScalar fract = SkScalarDiv(key-leftKey,rightKey-leftKey);
-    return lVal + SkScalarMul(fract, rVal-lVal);
-}
-
-//used for interpolating in fakeBold
-static const SkScalar pointSizes[] = { SkIntToScalar(9), SkIntToScalar(36) };
-static const SkScalar multipliers[] = { SK_Scalar1/24, SK_Scalar1/32 };
-
 static SkMask::Format computeMaskFormat(const SkPaint& paint)
 {
     uint32_t flags = paint.getFlags();
@@ -1284,7 +1243,10 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 #ifdef SK_USE_FREETYPE_EMBOLDEN
         flags |= SkScalerContext::kEmbolden_Flag;
 #else
-        SkScalar fakeBoldScale = interpolate(paint.getTextSize(), pointSizes, multipliers, 2);
+        SkScalar fakeBoldScale = SkScalarInterpFunc(paint.getTextSize(),
+                                                    kStdFakeBoldInterpKeys,
+                                                    kStdFakeBoldInterpValues,
+                                                    kStdFakeBoldInterpLength);
         SkScalar extra = SkScalarMul(paint.getTextSize(), fakeBoldScale);
         
         if (style == SkPaint::kFill_Style)
