@@ -2,6 +2,8 @@
 #include "SkDraw.h"
 #include "SkRect.h"
 
+SkDeviceFactory::~SkDeviceFactory() {}
+
 SkDevice::SkDevice() {}
 
 SkDevice::SkDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {}
