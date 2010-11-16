@@ -225,6 +225,30 @@ size_t SkBitmap::ComputeSize(Config c, int width, int height) {
     return isPos32Bits(size) ? size.get32() : 0;
 }
 
+Sk64 SkBitmap::ComputeSafeSize64(Config config,
+                                 uint32_t width,
+                                 uint32_t height,
+                                 uint32_t rowBytes) {
+    Sk64 safeSize;
+    safeSize.setZero();
+    if (height > 0) {
+        safeSize.set(ComputeRowBytes(config, width));
+        Sk64 sizeAllButLastRow;
+        sizeAllButLastRow.setMul(height - 1, rowBytes);
+        safeSize.add(sizeAllButLastRow);
+    }
+    SkASSERT(!safeSize.isNeg());
+    return safeSize;
+}
+
+size_t SkBitmap::ComputeSafeSize(Config config,
+                                 uint32_t width,
+                                 uint32_t height,
+                                 uint32_t rowBytes) {
+    Sk64 safeSize = ComputeSafeSize64(config, width, height, rowBytes);
+    return (safeSize.is32() ? safeSize.get32() : 0);
+}
+
 void SkBitmap::setConfig(Config c, int width, int height, int rowBytes) {
     this->freePixels();
 
@@ -395,6 +419,100 @@ bool SkBitmap::HeapAllocator::allocPixelRef(SkBitmap* dst,
     dst->setPixelRef(new SkMallocPixelRef(addr, size.get32(), ctable))->unref();
     // since we're already allocated, we lockPixels right away
     dst->lockPixels();
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+size_t SkBitmap::getSafeSize() const {
+    // This is intended to be a size_t version of ComputeSafeSize64(), just
+    // faster. The computation is meant to be identical.
+    return (fHeight ? ((fHeight - 1) * fRowBytes) +
+            ComputeRowBytes(getConfig(), fWidth): 0);
+}
+
+Sk64 SkBitmap::getSafeSize64() const {
+    return ComputeSafeSize64(getConfig(), fWidth, fHeight, fRowBytes);
+}
+
+bool SkBitmap::copyPixelsTo(void* const dst, size_t dstSize, int dstRowBytes)
+     const {
+
+    if (dstRowBytes == -1)
+        dstRowBytes = fRowBytes;
+    SkASSERT(dstRowBytes >= 0);
+
+    if (getConfig() == kRLE_Index8_Config ||
+        dstRowBytes < ComputeRowBytes(getConfig(), fWidth) ||
+        dst == NULL || (getPixels() == NULL && pixelRef() == NULL))
+        return false;
+
+    if (static_cast<uint32_t>(dstRowBytes) == fRowBytes) {
+        size_t safeSize = getSafeSize();
+        if (safeSize > dstSize || safeSize == 0)
+            return false;
+        else {
+            SkAutoLockPixels lock(*this);
+            // This implementation will write bytes beyond the end of each row,
+            // excluding the last row, if the bitmap's stride is greater than
+            // strictly required by the current config.
+            memcpy(dst, getPixels(), safeSize);
+
+            return true;
+        }
+    } else {
+        // If destination has different stride than us, then copy line by line.
+        if (ComputeSafeSize(getConfig(), fWidth, fHeight, dstRowBytes) >
+            dstSize)
+            return false;
+        else {
+            // Just copy what we need on each line.
+            uint32_t rowBytes = ComputeRowBytes(getConfig(), fWidth);
+            SkAutoLockPixels lock(*this);
+            const uint8_t* srcP = reinterpret_cast<const uint8_t*>(getPixels());
+            uint8_t* dstP = reinterpret_cast<uint8_t*>(dst);
+            for (uint32_t row = 0; row < fHeight;
+                 row++, srcP += fRowBytes, dstP += dstRowBytes) {
+                memcpy(dstP, srcP, rowBytes);
+            }
+
+            return true;
+        }
+    }
+}
+
+bool SkBitmap::copyPixelsFrom(const void* const src, size_t srcSize,
+                              int srcRowBytes) {
+
+    if (srcRowBytes == -1)
+        srcRowBytes = fRowBytes;
+    SkASSERT(srcRowBytes >= 0);
+
+    size_t safeSize = getSafeSize();
+    uint32_t rowBytes = ComputeRowBytes(getConfig(), fWidth);
+    if (getConfig() == kRLE_Index8_Config || src == NULL ||
+        static_cast<uint32_t>(srcRowBytes) < rowBytes ||
+        safeSize == 0 ||
+        srcSize < ComputeSafeSize(getConfig(), fWidth, fHeight, srcRowBytes)) {
+        return false;
+    }
+
+    SkAutoLockPixels lock(*this);
+    if (static_cast<uint32_t>(srcRowBytes) == fRowBytes) {
+        // This implementation will write bytes beyond the end of each row,
+        // excluding the last row, if the bitmap's stride is greater than
+        // strictly required by the current config.
+        memcpy(getPixels(), src, safeSize);
+    } else {
+        // Just copy the bytes we need on each line.
+        const uint8_t* srcP = reinterpret_cast<const uint8_t*>(src);
+        uint8_t* dstP = reinterpret_cast<uint8_t*>(getPixels());
+        for (uint32_t row = 0; row < fHeight;
+             row++, srcP += srcRowBytes, dstP += fRowBytes) {
+            memcpy(dstP, srcP, rowBytes);
+        }
+    }
+
     return true;
 }
 
