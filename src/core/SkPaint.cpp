@@ -276,11 +276,11 @@ void SkPaint::setTextAlign(Align align)
 
 void SkPaint::setTextSize(SkScalar ts)
 {
-    if (ts > 0)
+    if (ts >= 0)
         fTextSize = ts;
 #ifdef SK_DEBUG
     else
-        SkDebugf("SkPaint::setTextSize() called with non-positive value\n");
+        SkDebugf("SkPaint::setTextSize() called with negative value\n");
 #endif
 }
 
