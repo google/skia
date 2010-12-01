@@ -14,12 +14,25 @@
  * limitations under the License.
  */
 
+#include "SkFlate.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFStream.h"
 #include "SkStream.h"
 
-SkPDFStream::SkPDFStream(SkStream* stream) : fData(stream) {
-    SkRefPtr<SkPDFInt> lenValue = new SkPDFInt(fData->read(NULL, 0));
+SkPDFStream::SkPDFStream(SkStream* stream) {
+    if (SkFlate::HaveFlate()) {
+        SkAssertResult(SkFlate::Deflate(stream, &fCompressedData));
+        fLength = fCompressedData.getOffset();
+
+        SkRefPtr<SkPDFName> flateFilter = new SkPDFName("FlateDecode");
+        flateFilter->unref();  // SkRefPtr and new both took a reference.
+        fDict.insert("Filter", flateFilter.get());
+    } else {
+        fPlainData = stream;
+        fLength = fPlainData->getLength();
+    }
+
+    SkRefPtr<SkPDFInt> lenValue = new SkPDFInt(fLength);
     lenValue->unref();  // SkRefPtr and new both took a reference.
     fDict.insert("Length", lenValue.get());
 }
@@ -34,7 +47,10 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 
     fDict.emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
-    stream->write(fData->getMemoryBase(), fData->read(NULL, 0));
+    if (fPlainData.get())
+        stream->write(fPlainData->getMemoryBase(), fLength);
+    else
+        stream->write(fCompressedData.getStream(), fLength);
     stream->writeText("\nendstream");
 }
 
@@ -43,7 +59,7 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
         return getIndirectOutputSize(catalog);
 
     return fDict.getOutputSize(catalog, false) +
-        strlen(" stream\n\nendstream") + fData->read(NULL, 0);
+        strlen(" stream\n\nendstream") + fLength;
 }
 
 void SkPDFStream::insert(SkPDFName* key, SkPDFObject* value) {

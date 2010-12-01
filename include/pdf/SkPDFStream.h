@@ -19,9 +19,9 @@
 
 #include "SkPDFTypes.h"
 #include "SkRefCnt.h"
+#include "SkStream.h"
 #include "SkTemplates.h"
 
-class SkStream;
 class SkPDFCatalog;
 
 /** \class SkPDFStream
@@ -57,7 +57,10 @@ public:
 
 private:
     SkPDFDict fDict;
-    SkRefPtr<SkStream> fData;
+    size_t fLength;
+    // Only one of the two streams will be valid.
+    SkRefPtr<SkStream> fPlainData;
+    SkDynamicMemoryWStream fCompressedData;
 };
 
 #endif

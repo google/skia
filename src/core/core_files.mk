@@ -37,6 +37,7 @@ SOURCE := \
     SkEdgeBuilder.cpp \
     SkEdgeClipper.cpp \
     SkFilterProc.cpp \
+    SkFlate.cpp \
     SkFlattenable.cpp \
     SkFloat.cpp \
     SkFloatBits.cpp \

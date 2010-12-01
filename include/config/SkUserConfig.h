@@ -117,6 +117,12 @@
  */
 //#define SK_SUPPORT_LCDTEXT
 
+/*  If zlib is available and you want to support the flate compression
+    algorithm (used in PDF generation), define SK_ZLIB_INCLUDE to be the
+    include path.
+ */
+//#define SK_ZLIB_INCLUDE <zlib.h>
+
 /*  If SK_DEBUG is defined, then you can optionally define SK_SUPPORT_UNITTEST
     which will run additional self-tests at startup. These can take a long time,
     so this flag is optional.
