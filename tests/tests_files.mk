@@ -1,24 +1,25 @@
 SOURCE := \
-	BlitRowTest.cpp \
-	ClipperTest.cpp \
-	GeometryTest.cpp \
+    BitmapCopyTest.cpp \
+    BlitRowTest.cpp \
+    ClipCubicTest.cpp \
+    ClipperTest.cpp \
+    FlateTest.cpp \
+    GeometryTest.cpp \
     MathTest.cpp \
     MatrixTest.cpp \
     PackBitsTest.cpp \
-    Sk64Test.cpp \
-    StringTest.cpp \
-    Test.cpp \
-    UtilsTest.cpp \
     PaintTest.cpp \
     ParsePathTest.cpp \
+    PathMeasureTest.cpp \
     PathTest.cpp \
     RegionTest.cpp \
-    ClipCubicTest.cpp \
+    Sk64Test.cpp \
+    skia_test.cpp \
+    SortTest.cpp \
     SrcOverTest.cpp \
     StreamTest.cpp \
-    SortTest.cpp \
-    BitmapCopyTest.cpp \
-    PathMeasureTest.cpp \
-    TriangulationTest.cpp \
+    StringTest.cpp \
+    Test.cpp \
     TestSize.cpp \
-    skia_test.cpp
+    TriangulationTest.cpp \
+    UtilsTest.cpp

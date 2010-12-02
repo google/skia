@@ -56,7 +56,7 @@ bool doFlate(bool compress, const size_t kBufferSize, SkStream* src,
 
     uint8_t* input = (uint8_t*)src->getMemoryBase();
     size_t inputLength = src->getLength();
-    if (input == NULL || inputLength < 0) {
+    if (input == NULL || inputLength == 0) {
         input = NULL;
         flateData.next_in = inputBuffer;
         flateData.avail_in = 0;
@@ -75,6 +75,8 @@ bool doFlate(bool compress, const size_t kBufferSize, SkStream* src,
             flateData.next_out = outputBuffer;
             flateData.avail_out = kBufferSize;
         }
+        if (rc != Z_OK)
+            break;
         if (flateData.avail_in == 0) {
             if (input != NULL)
                 break;
@@ -88,15 +90,13 @@ bool doFlate(bool compress, const size_t kBufferSize, SkStream* src,
             rc = deflate(&flateData, Z_NO_FLUSH);
         else
             rc = inflate(&flateData, Z_NO_FLUSH);
-        if (rc != Z_OK)
-            break;
     }
     while (rc == Z_OK) {
         if (compress)
             rc = deflate(&flateData, Z_FINISH);
         else
             rc = inflate(&flateData, Z_FINISH);
-        if (flateData.avail_out > 0) {
+        if (flateData.avail_out < kBufferSize) {
             if (!dst->write(outputBuffer, kBufferSize - flateData.avail_out))
                 return false;
             flateData.next_out = outputBuffer;
