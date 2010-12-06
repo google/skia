@@ -82,6 +82,7 @@ public:
     void flush();
 
     virtual void blitH(int x, int y, int width);
+    virtual void blitRect(int x, int y, int width, int height);
 
 private:
     SkAlphaRuns fRuns;
@@ -187,6 +188,15 @@ void SuperBlitter::blitH(int x, int y, int width)
     fRuns.assertValid(y & MASK, (1 << (8 - SHIFT)));
     fCurrX = x + width;
 #endif
+}
+
+void SuperBlitter::blitRect(int x, int y, int width, int height)
+{
+    for (int i = 0; i < height; ++i) {
+        blitH(x, y + i, width);
+    }
+
+    flush();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

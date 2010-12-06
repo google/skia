@@ -508,6 +508,14 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
 #endif
 
     if (count < 2) {
+        if (path.isInverseFillType()) {
+            const SkIRect& clipRect = clipRgn.getBounds();
+            blitter->blitRect(clipRect.fLeft << shiftEdgesUp,
+                              clipRect.fTop << shiftEdgesUp,
+                              clipRect.width() << shiftEdgesUp,
+                              clipRect.height() << shiftEdgesUp);
+        }
+
         return;
     }
 
