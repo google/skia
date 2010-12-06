@@ -5,12 +5,20 @@
 #include "SkMaskFilter.h"
 
 SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
-                                   SkColor color)
-    : fDx(dx), fDy(dy), fBlurColor(color)
+                                   SkColor color, uint32_t flags)
+    : fDx(dx), fDy(dy), fBlurColor(color), fBlurFlags(flags)
 {
+    SkASSERT(flags <= kAll_BlurFlag);
     if (radius > 0)
+    {
+        uint32_t blurFlags = flags & kIgnoreTransform_BlurFlag ? 
+            SkBlurMaskFilter::kIgnoreTransform_BlurFlag : 
+            SkBlurMaskFilter::kNone_BlurFlag;
+
         fBlur = SkBlurMaskFilter::Create(radius,
-                                         SkBlurMaskFilter::kNormal_BlurStyle);
+                                         SkBlurMaskFilter::kNormal_BlurStyle, 
+                                         blurFlags);
+    }
     else
         fBlur = NULL;
 }
@@ -21,6 +29,7 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkFlattenableReadBuffer& buffer)
     fDy = buffer.readScalar();
     fBlurColor = buffer.readU32();
     fBlur = static_cast<SkMaskFilter*>(buffer.readFlattenable());
+    fBlurFlags = buffer.readU32() & kAll_BlurFlag;
 }
 
 SkBlurDrawLooper::~SkBlurDrawLooper()
@@ -34,6 +43,7 @@ void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer)
     buffer.writeScalar(fDy);
     buffer.write32(fBlurColor);
     buffer.writeFlattenable(fBlur);
+    buffer.write32(fBlurFlags);
 }
 
 void SkBlurDrawLooper::init(SkCanvas* canvas, SkPaint* paint)
@@ -58,7 +68,16 @@ bool SkBlurDrawLooper::next()
         fPaint->setColor(fBlurColor);
         fPaint->setMaskFilter(fBlur);
         fCanvas->save(SkCanvas::kMatrix_SaveFlag);
-        fCanvas->translate(fDx, fDy);
+        if (fBlurFlags & kIgnoreTransform_BlurFlag)
+        {
+            SkMatrix transform(fCanvas->getTotalMatrix());
+            transform.postTranslate(fDx, fDy);
+            fCanvas->setMatrix(transform);
+        }
+        else
+        {
+            fCanvas->translate(fDx, fDy);
+        }
         fState = kAfterEdge;
         return true;
     case kAfterEdge:

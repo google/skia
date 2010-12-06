@@ -29,7 +29,19 @@ class SkMaskFilter;
 */
 class SkBlurDrawLooper : public SkDrawLooper {
 public:
-    SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color);
+    enum BlurFlags {
+        kNone_BlurFlag = 0x00,
+        /** 
+            The blur layer's dx/dy/radius aren't affected by the canvas 
+            transform.
+        */
+        kIgnoreTransform_BlurFlag = 0x01,
+        /** mask for all blur flags */
+        kAll_BlurFlag = 0x01
+    };
+
+    SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color, 
+                     uint32_t flags = kNone_BlurFlag);
     virtual ~SkBlurDrawLooper();
 
     // overrides from SkDrawLooper
@@ -40,6 +52,7 @@ public:
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(SkBlurDrawLooper, (buffer));
     }
+
 
 protected:
     SkBlurDrawLooper(SkFlattenableReadBuffer&);
@@ -55,6 +68,7 @@ private:
     SkColor         fBlurColor;
     SkColor         fSavedColor;    // remember the original
     int             fSaveCount;
+    uint32_t        fBlurFlags;  
 
     enum State {
         kBeforeEdge,

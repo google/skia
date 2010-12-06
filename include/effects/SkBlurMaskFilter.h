@@ -32,12 +32,22 @@ public:
         kBlurStyleCount
     };
 
+    enum BlurFlags {
+        kNone_BlurFlag = 0x00,
+        /** The blur layer's radius is not affected by transforms */
+        kIgnoreTransform_BlurFlag = 0x01,
+        /** mask for all blur flags */
+        kAll_BlurFlag = 0x01
+    };
+
     /** Create a blur maskfilter.
         @param radius   The radius to extend the blur from the original mask. Must be > 0.
         @param style    The BlurStyle to use
+        @param flags    Flags to use - defaults to none
         @return The new blur maskfilter
     */
-    static SkMaskFilter* Create(SkScalar radius, BlurStyle style);
+    static SkMaskFilter* Create(SkScalar radius, BlurStyle style, 
+                                uint32_t flags = kNone_BlurFlag);
 
     /** Create an emboss maskfilter
         @param direction    array of 3 scalars [x, y, z] specifying the direction of the light source
