@@ -213,6 +213,16 @@ static inline U8CPU SkMulDiv255Round(U8CPU a, U8CPU b) {
     return (prod + (prod >> 8)) >> 8;
 }
 
+/** Return (a*b)/255, taking the ceiling of any fractional bits. Only valid if
+    both a and b are 0..255. The expected result equals (a * b + 254) / 255.
+ */
+static inline U8CPU SkMulDiv255Ceiling(U8CPU a, U8CPU b) {
+    SkASSERT((uint8_t)a == a);
+    SkASSERT((uint8_t)b == b);
+    unsigned prod = SkMulS16(a, b) + 255;
+    return (prod + (prod >> 8)) >> 8;
+}
+
 /** Return a*b/((1 << shift) - 1), rounding any fractional bits.
     Only valid if a and b are unsigned and <= 32767 and shift is > 0 and <= 8
 */
