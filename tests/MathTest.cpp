@@ -171,6 +171,19 @@ static void test_muldiv255(skiatest::Reporter* reporter) {
 #endif
 }
 
+static void test_muldiv255ceiling(skiatest::Reporter* reporter) {
+    for (int c = 0; c <= 255; c++) {
+        for (int a = 0; a <= 255; a++) {
+            int product = (c * a + 255);
+            int expected_ceiling = (product + (product >> 8)) >> 8;
+            int webkit_ceiling = (c * a + 254) / 255;
+            REPORTER_ASSERT(reporter, expected_ceiling == webkit_ceiling);
+            int skia_ceiling = SkMulDiv255Ceiling(c, a);
+            REPORTER_ASSERT(reporter, skia_ceiling == webkit_ceiling);
+        }
+    }
+}
+
 static void test_copysign(skiatest::Reporter* reporter) {
     static const int32_t gTriples[] = {
         // x, y, expected result
@@ -237,6 +250,7 @@ static void TestMath(skiatest::Reporter* reporter) {
 #endif
 
     test_muldiv255(reporter);
+    test_muldiv255ceiling(reporter);
     test_copysign(reporter);
 
     {
