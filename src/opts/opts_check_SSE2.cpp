@@ -89,6 +89,14 @@ SkBlitRow::Proc SkBlitRow::PlatformProcs565(unsigned flags) {
     return NULL;
 }
 
+SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
+    if (hasSSE2()) {
+        return Color32_SSE2;
+    } else {
+        return NULL;
+    }
+}
+
 SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
     if (hasSSE2()) {
         return platform_32_procs[flags];

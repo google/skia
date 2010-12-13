@@ -17,6 +17,7 @@
 
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkColorPriv.h"
+#include "SkUtils.h"
 
 #include <emmintrin.h>
 
@@ -308,5 +309,84 @@ void S32A_Blend_BlitRow32_SSE2(SkPMColor* SK_RESTRICT dst,
         src++;
         dst++;
         count--;
+    }
+}
+
+/* SSE2 version of Color32()
+ * portable version is in core/SkBlitRow_D32.cpp
+ */
+void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
+                  SkPMColor color) {
+
+    if (count <= 0) {
+        return;
+    }
+
+    if (0 == color) {
+        if (src != dst) {
+            memcpy(dst, src, count * sizeof(SkPMColor));
+        }
+    }
+
+    unsigned colorA = SkGetPackedA32(color);
+    if (255 == colorA) {
+        sk_memset32(dst, color, count);
+    } else {
+        unsigned scale = 256 - SkAlpha255To256(colorA);
+
+        if (count >= 4) {
+            SkASSERT(((size_t)dst & 0x03) == 0);
+            while (((size_t)dst & 0x0F) != 0) {
+                *dst = color + SkAlphaMulQ(*src, scale);
+                src++;
+                dst++;
+                count--;
+            }
+
+            const __m128i *s = reinterpret_cast<const __m128i*>(src);
+            __m128i *d = reinterpret_cast<__m128i*>(dst);
+            __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
+            __m128i src_scale_wide = _mm_set1_epi16(scale);
+            __m128i color_wide = _mm_set1_epi32(color);
+            while (count >= 4) {
+                // Load 4 pixels each of src and dest.
+                __m128i src_pixel = _mm_loadu_si128(s);
+
+                // Get red and blue pixels into lower byte of each word.
+                __m128i src_rb = _mm_and_si128(rb_mask, src_pixel);
+    
+                // Get alpha and green into lower byte of each word.
+                __m128i src_ag = _mm_srli_epi16(src_pixel, 8);
+
+                // Multiply by scale.
+                src_rb = _mm_mullo_epi16(src_rb, src_scale_wide);
+                src_ag = _mm_mullo_epi16(src_ag, src_scale_wide);
+
+                // Divide by 256.
+                src_rb = _mm_srli_epi16(src_rb, 8);
+                src_ag = _mm_andnot_si128(rb_mask, src_ag);
+
+                // Combine back into RGBA.
+                src_pixel = _mm_or_si128(src_rb, src_ag);
+
+                // Add color to result.
+                __m128i result = _mm_add_epi8(color_wide, src_pixel);
+
+                // Store result.
+                _mm_store_si128(d, result);
+                s++;
+                d++;
+                count -= 4;
+            }
+            src = reinterpret_cast<const SkPMColor*>(s);
+            dst = reinterpret_cast<SkPMColor*>(d);
+         }
+
+        while (count > 0) {
+            *dst = color + SkAlphaMulQ(*src, scale);
+            src += 1;
+            dst += 1;
+            count--;
+        } 
     }
 }

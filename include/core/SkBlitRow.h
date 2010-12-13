@@ -29,6 +29,12 @@ public:
                          const SkPMColor* SK_RESTRICT src,
                          int count, U8CPU alpha, int x, int y);
 
+   /** Function pointer that blends a single color with a row of 32-bit colors 
+       onto a 32-bit destination
+   */
+   typedef void (*ColorProc)(SkPMColor* dst, const SkPMColor* src, int count,
+                             SkPMColor color);
+
     //! Public entry-point to return a blit function ptr
     static Proc Factory(unsigned flags, SkBitmap::Config);
 
@@ -48,6 +54,9 @@ public:
     typedef void (*Proc32)(uint32_t* SK_RESTRICT dst,
                          const SkPMColor* SK_RESTRICT src,
                          int count, U8CPU alpha);
+
+    static void Color32_BlitRow32(SkPMColor dst[], const SkPMColor src[], 
+                                  int count, SkPMColor color);
 
     static Proc32 Factory32(unsigned flags32);
     
@@ -74,6 +83,7 @@ public:
     static Proc32 PlatformProcs32(unsigned flags);
     static Proc PlatformProcs565(unsigned flags);
     static Proc PlatformProcs4444(unsigned flags);
+    static ColorProc PlatformColorProc();
 
 private:
     enum {
