@@ -142,7 +142,13 @@ int main (int argc, char * const argv[]) {
     
     Iter iter;
     GM* gm;
-	
+
+    if (readPath) {
+        fprintf(stderr, "reading from %s\n", readPath);
+    } else if (writePath) {
+        fprintf(stderr, "writing to %s\n", writePath);
+    }
+
     while ((gm = iter.next()) != NULL) {
 		SkISize size = gm->getISize();
         SkDebugf("creating... %s [%d %d]\n", gm->shortName(),
