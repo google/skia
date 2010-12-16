@@ -55,24 +55,16 @@ public:
                          const SkPMColor* SK_RESTRICT src,
                          int count, U8CPU alpha);
 
-    static void Color32_BlitRow32(SkPMColor dst[], const SkPMColor src[], 
-                                  int count, SkPMColor color);
-
     static Proc32 Factory32(unsigned flags32);
     
     /** Blend a single color onto a row of S32 pixels, writing the result
         into a row of D32 pixels. src and dst may be the same memory, but
         if they are not, they may not overlap.
      */
-    static void Color32(SkPMColor dst[], const SkPMColor src[], int count,
-                         SkPMColor color);
+    static void Color32(SkPMColor dst[], const SkPMColor src[], 
+                        int count, SkPMColor color);
 
-    /** Blend a single color onto a row of 32bit pixels, writing the result
-        into the same row.
-     */
-    static void Color32(SkPMColor row[], int count, SkPMColor color) {
-        Color32(row, row, count, color);
-    }
+    static ColorProc ColorProcFactory();
 
     /** These static functions are called by the Factory and Factory32
         functions, and should return either NULL, or a

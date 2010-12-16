@@ -51,6 +51,7 @@ SkARGB32_Blitter::SkARGB32_Blitter(const SkBitmap& device, const SkPaint& paint)
     fSrcB = SkAlphaMul(SkColorGetB(color), scale);
 
     fPMColor = SkPackARGB32(fSrcA, fSrcR, fSrcG, fSrcB);
+    fColor32Proc = SkBlitRow::ColorProcFactory();
 }
 
 const SkBitmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
@@ -69,7 +70,8 @@ const SkBitmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
 void SkARGB32_Blitter::blitH(int x, int y, int width) {
     SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
 
-    SkBlitRow::Color32(fDevice.getAddr32(x, y), width, fPMColor);
+    uint32_t*   device = fDevice.getAddr32(x, y);
+    fColor32Proc(device, device, width, fPMColor);
 }
 
 void SkARGB32_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
@@ -94,7 +96,7 @@ void SkARGB32_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                 sk_memset32(device, color, count);
             } else {
                 uint32_t sc = SkAlphaMulQ(color, SkAlpha255To256(aa));
-                SkBlitRow::Color32(device, count, sc);
+                fColor32Proc(device, device, count, sc);
             }
         }
         runs += count;
@@ -286,7 +288,7 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
     size_t      rowBytes = fDevice.rowBytes();
 
     while (--height >= 0) {
-        SkBlitRow::Color32(device, width, color);
+        fColor32Proc(device, device, width, color);
         device = (uint32_t*)((char*)device + rowBytes);
     }
 }

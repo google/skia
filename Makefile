@@ -94,6 +94,7 @@ endif
 
 # For these files, and these files only, compile with -msse2.
 SSE2_OBJS := out/src/opts/SkBlitRow_opts_SSE2.o \
+             out/src/opts/SkBitmapProcState_opts_SSE2.o \
              out/src/opts/SkUtils_opts_SSE2.o
 $(SSE2_OBJS) : CFLAGS := $(CFLAGS_SSE2)
 

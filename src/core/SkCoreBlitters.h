@@ -101,7 +101,8 @@ public:
     virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
 
 protected:
-    SkColor fPMColor;
+    SkColor                fPMColor;
+    SkBlitRow::ColorProc   fColor32Proc;
 
 private:
     unsigned fSrcA, fSrcR, fSrcG, fSrcB;
