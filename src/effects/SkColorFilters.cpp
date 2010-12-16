@@ -75,7 +75,8 @@ private:
 
 class SkSrcOver_XfermodeColorFilter : public Sk_XfermodeColorFilter {
 public:
-    SkSrcOver_XfermodeColorFilter(SkColor color) : INHERITED(color) {}
+    SkSrcOver_XfermodeColorFilter(SkColor color)
+        : INHERITED(color), fColor32Proc(SkBlitRow::ColorProcFactory()) {}
 
     virtual uint32_t getFlags() {
         if (SkGetPackedA32(fPMColor) == 0xFF) {
@@ -87,7 +88,7 @@ public:
     
     virtual void filterSpan(const SkPMColor shader[], int count,
                             SkPMColor result[]) {
-        SkBlitRow::Color32(result, shader, count, fPMColor);
+        fColor32Proc(result, shader, count, fPMColor);
     }
 
     virtual void filterSpan16(const uint16_t shader[], int count,
@@ -100,7 +101,7 @@ protected:
     virtual Factory getFactory() { return CreateProc;  }
     
     SkSrcOver_XfermodeColorFilter(SkFlattenableReadBuffer& buffer)
-        : INHERITED(buffer) {}
+        : INHERITED(buffer), fColor32Proc(SkBlitRow::ColorProcFactory()) {}
     
 private:
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
@@ -108,6 +109,7 @@ private:
     }
     
     typedef Sk_XfermodeColorFilter INHERITED;
+    SkBlitRow::ColorProc fColor32Proc;
 };
 
 //////////////////////////////////////////////////////////////////////////////
