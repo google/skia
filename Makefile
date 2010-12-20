@@ -6,7 +6,7 @@ GPP := g++
 C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
 CFLAGS := -Wall -O2 
 CFLAGS_SSE2 = $(CFLAGS) -msse2
-LINKER_OPTS := -lpthread
+LINKER_OPTS := -lpthread -lz
 DEFINES := -DSK_CAN_USE_FLOAT
 HIDE = @
 
@@ -23,6 +23,10 @@ else
 endif
 
 DEFINES += -DSK_SUPPORT_LCDTEXT
+
+ifeq ($(SKIA_PDF_SUPPORT),true)
+	DEFINES += -DSK_SUPPORT_PDF
+endif
 
 # start with the core (required)
 include src/core/core_files.mk
@@ -199,6 +203,17 @@ GM_OBJS := $(addprefix out/, $(GM_OBJS))
 gm: $(GM_OBJS) out/libskia.a
 	@echo "linking gm..."
 	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
+
+SAMPLEPDF_SRCS := samplepdf.cpp
+
+SAMPLEPDF_SRCS := $(addprefix tools/, $(SAMPLEPDF_SRCS))
+
+SAMPLEPDF_OBJS := $(SAMPLEPDF_SRCS:.cpp=.o)
+SAMPLEPDF_OBJS := $(addprefix out/, $(SAMPLEPDF_OBJS))
+
+samplepdf: $(SAMPLEPDF_OBJS) out/libskia.a
+	@echo "linking samplepdf..."
+	$(HIDE)$(GPP) $(SAMPLEPDF_OBJS) out/libskia.a -o out/tools/samplepdf $(LINKER_OPTS)
 
 ##############################################################################
 

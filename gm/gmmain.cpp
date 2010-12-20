@@ -3,6 +3,13 @@
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkStream.h"
+#include "SkRefCnt.h"
+
+#ifdef SK_SUPPORT_PDF
+	#include "SkPDFDevice.h"
+	#include "SkPDFDocument.h"
+#endif
 
 using namespace skiagm;
 
@@ -44,12 +51,12 @@ static SkString make_name(const char shortName[], const char configName[]) {
     return name;
 }
 
-static SkString make_filename(const char path[], const SkString& name) {
+static SkString make_filename(const char path[], const SkString& name, const char suffix[]) {
     SkString filename(path);
     if (filename.size() && filename[filename.size() - 1] != '/') {
         filename.append("/");
     }
-    filename.appendf("%s.png", name.c_str());
+    filename.appendf("%s.%s", name.c_str(), suffix);
     return filename;
 }
 
@@ -109,6 +116,29 @@ static void compare(const SkBitmap& target, const SkBitmap& base,
     }
 }
 
+static void write_pdf(GM* gm, const char writePath[]) {
+#ifdef SK_SUPPORT_PDF
+	SkISize size = gm->getISize();
+	SkPDFDevice* dev = new SkPDFDevice(size.width(), size.height());
+	SkAutoUnref aur(dev);
+
+	{
+		SkCanvas c(dev);
+		gm->draw(&c);
+	}
+
+	SkDynamicMemoryWStream output;
+	SkPDFDocument doc;
+	doc.appendPage(dev);
+	doc.emitPDF(&output);
+
+	SkString shortName(gm->shortName());
+	SkString path = make_filename(writePath, shortName, "pdf");
+	SkFILEWStream stream(path.c_str());
+	stream.write(output.getStream(), output.getOffset());
+#endif
+}
+
 static const struct {
 	SkBitmap::Config	fConfig;
 	bool				fUsePicture;
@@ -162,17 +192,18 @@ int main (int argc, char * const argv[]) {
 			SkCanvas canvas(bitmap);
 
 			gm->draw(&canvas);
-            
+
             SkString name = make_name(gm->shortName(), gRec[i].fName);
 
             if (writePath) {
-                SkString path = make_filename(writePath, name);
+                SkString path = make_filename(writePath, name, "png");
                 bool success = write_bitmap(path, bitmap);
                 if (!success) {
                     fprintf(stderr, "FAILED to write %s\n", path.c_str());
                 }
+				write_pdf(gm, writePath);
             } else if (readPath) {
-                SkString path = make_filename(readPath, name);
+                SkString path = make_filename(readPath, name, "png");
                 SkBitmap orig;
                 bool success = SkImageDecoder::DecodeFile(path.c_str(), &orig,
                                     SkBitmap::kARGB_8888_Config,

@@ -131,10 +131,10 @@ static inline SkBitmap makeABitmap(int width, int height) {
 }
 
 SkPDFDevice::SkPDFDevice(int width, int height)
-    : fWidth(width),
+    : SkDevice(NULL, makeABitmap(width, height), false),
+	  fWidth(width),
       fHeight(height),
-      fGraphicStackIndex(0),
-      SkDevice(NULL, makeABitmap(width, height), false) {
+      fGraphicStackIndex(0) {
     fGraphicStack[0].fColor = SK_ColorBLACK;
     fGraphicStack[0].fTextSize = SK_ScalarNaN;  // This has no default value.
     fGraphicStack[0].fTextScaleX = SK_Scalar1;
