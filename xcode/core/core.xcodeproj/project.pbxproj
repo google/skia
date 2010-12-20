@@ -128,6 +128,7 @@
 		005F26960EF955D400582A90 /* SkComposeShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F26950EF955D400582A90 /* SkComposeShader.cpp */; };
 		007C786A0F3B4D5F0004B142 /* SkQuadClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */; };
 		0096586E0FC7205100C3AE15 /* SkShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0096586D0FC7205100C3AE15 /* SkShape.cpp */; };
+		00B5785F12BFDC2A00393BE9 /* SkFlate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */; };
 		00F043FC10B445F50049C54C /* SkEdgeBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043F910B445F50049C54C /* SkEdgeBuilder.cpp */; };
 		00F043FD10B445F50049C54C /* SkEdgeClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043FA10B445F50049C54C /* SkEdgeClipper.cpp */; };
 		00F043FE10B445F50049C54C /* SkLineClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043FB10B445F50049C54C /* SkLineClipper.cpp */; };
@@ -258,6 +259,7 @@
 		005F26950EF955D400582A90 /* SkComposeShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkComposeShader.cpp; path = ../../src/core/SkComposeShader.cpp; sourceTree = SOURCE_ROOT; };
 		007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkQuadClipper.cpp; path = ../../src/core/SkQuadClipper.cpp; sourceTree = SOURCE_ROOT; };
 		0096586D0FC7205100C3AE15 /* SkShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkShape.cpp; path = ../../src/core/SkShape.cpp; sourceTree = SOURCE_ROOT; };
+		00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFlate.cpp; path = ../../src/core/SkFlate.cpp; sourceTree = SOURCE_ROOT; };
 		00F043F910B445F50049C54C /* SkEdgeBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEdgeBuilder.cpp; path = ../../src/core/SkEdgeBuilder.cpp; sourceTree = SOURCE_ROOT; };
 		00F043FA10B445F50049C54C /* SkEdgeClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEdgeClipper.cpp; path = ../../src/core/SkEdgeClipper.cpp; sourceTree = SOURCE_ROOT; };
 		00F043FB10B445F50049C54C /* SkLineClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkLineClipper.cpp; path = ../../src/core/SkLineClipper.cpp; sourceTree = SOURCE_ROOT; };
@@ -308,6 +310,7 @@
 		08FB7795FE84155DC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */,
 				277670F312B840CA006811C2 /* SkRegion_rects.cpp */,
 				277670F412B840CA006811C2 /* SkScalar.cpp */,
 				27CE2BE812393D1D00CF4BB7 /* SkMallocPixelRef.cpp */,
@@ -639,6 +642,7 @@
 				27CE2BE912393D1D00CF4BB7 /* SkMallocPixelRef.cpp in Sources */,
 				277670F512B840CA006811C2 /* SkRegion_rects.cpp in Sources */,
 				277670F612B840CA006811C2 /* SkScalar.cpp in Sources */,
+				00B5785F12BFDC2A00393BE9 /* SkFlate.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
