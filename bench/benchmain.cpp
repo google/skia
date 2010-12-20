@@ -368,6 +368,11 @@ int main (int argc, char * const argv[]) {
                 performRotate(&canvas, dim.fX, dim.fY);
             }
 
+            if (repeatDraw > 1) {
+                SkAutoCanvasRestore acr(&canvas, true);
+                bench->draw(&canvas);
+            }
+
             SkMSec now = SkTime::GetMSecs();
             for (int i = 0; i < repeatDraw; i++) {
                 SkCanvas* c = &canvas;
