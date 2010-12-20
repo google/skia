@@ -1477,8 +1477,7 @@ void SkCanvas::drawShape(SkShape* shape) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkCanvas::LayerIter::LayerIter(SkCanvas* canvas, bool skipEmptyClips) {
-    // need COMPILE_TIME_ASSERT
-    SkASSERT(sizeof(fStorage) >= sizeof(SkDrawIter));
+    SK_COMPILE_ASSERT(sizeof(fStorage) >= sizeof(SkDrawIter), fStorage_too_small);
 
     SkASSERT(canvas);
 
