@@ -103,6 +103,8 @@ private:
 #define BIG     48
 
 static SkBenchmark* Fact0(void* p) { return new TextBench(p, STR, SMALL, false, false); }
+static BenchRegistry gReg0(Fact0);
+
 static SkBenchmark* Fact1(void* p) { return new TextBench(p, STR, SMALL, false, true); }
 static SkBenchmark* Fact2(void* p) { return new TextBench(p, STR, SMALL, true, false); }
 static SkBenchmark* Fact3(void* p) { return new TextBench(p, STR, SMALL, true, true); }
@@ -111,7 +113,6 @@ static SkBenchmark* Fact5(void* p) { return new TextBench(p, STR, BIG, false, tr
 static SkBenchmark* Fact6(void* p) { return new TextBench(p, STR, BIG, true, false); }
 static SkBenchmark* Fact7(void* p) { return new TextBench(p, STR, BIG, true, true); }
 
-static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
 static BenchRegistry gReg2(Fact2);
 static BenchRegistry gReg3(Fact3);
@@ -119,3 +120,4 @@ static BenchRegistry gReg4(Fact4);
 static BenchRegistry gReg5(Fact5);
 static BenchRegistry gReg6(Fact6);
 static BenchRegistry gReg7(Fact7);
+
