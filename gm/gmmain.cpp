@@ -81,8 +81,34 @@ static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
                                       SkImageEncoder::kPNG_Type, 100);
 }
 
-static void compare(const SkBitmap& target, const SkBitmap& base,
-                    const SkString& name) {
+static inline SkPMColor compute_diff_pmcolor(SkPMColor c0, SkPMColor c1) {
+	int dr = SkGetPackedR32(c0) - SkGetPackedR32(c1);
+	int dg = SkGetPackedG32(c0) - SkGetPackedG32(c1);
+	int db = SkGetPackedB32(c0) - SkGetPackedB32(c1);
+	return SkPackARGB32(0xFF, SkAbs32(dr), SkAbs32(dg), SkAbs32(db));
+}
+
+static void compute_diff(const SkBitmap& target, const SkBitmap& base,
+						 SkBitmap* diff) {
+	SkAutoLockPixels alp(*diff);
+
+    const int w = target.width();
+    const int h = target.height();
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            SkPMColor c0 = *base.getAddr32(x, y);
+            SkPMColor c1 = *target.getAddr32(x, y);
+			SkPMColor d = 0;
+			if (c0 != c1) {
+				d = compute_diff_pmcolor(c0, c1);
+			}
+			*diff->getAddr32(x, y) = d;
+		}
+	}
+}
+
+static bool compare(const SkBitmap& target, const SkBitmap& base,
+                    const SkString& name, SkBitmap* diff) {
     SkBitmap copy;
     const SkBitmap* bm = &target;
     if (target.config() != SkBitmap::kARGB_8888_Config) {
@@ -97,7 +123,7 @@ static void compare(const SkBitmap& target, const SkBitmap& base,
     if (w != base.width() || h != base.height()) {
         SkDebugf("---- dimensions mismatch for %s base [%d %d] current [%d %d]\n",
                  name.c_str(), base.width(), base.height(), w, h);
-        return;
+        return false;
     }
 
     SkAutoLockPixels bmLock(*bm);
@@ -110,10 +136,19 @@ static void compare(const SkBitmap& target, const SkBitmap& base,
             if (c0 != c1) {
                 SkDebugf("----- pixel mismatch for %s at [%d %d] base 0x%08X current 0x%08X\n",
                          name.c_str(), x, y, c0, c1);
-                return;
+
+				if (diff) {
+					diff->setConfig(SkBitmap::kARGB_8888_Config, w, h);
+					diff->allocPixels();
+					compute_diff(*bm, base, diff);
+				}
+                return false;
             }
         }
     }
+
+	// they're equal
+	return true;
 }
 
 static void write_pdf(GM* gm, const char writePath[]) {
@@ -154,6 +189,7 @@ int main (int argc, char * const argv[]) {
     
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* readPath = NULL;    // if non-null, were we read from to compare
+	const char* diffPath = NULL;	// if non-null, where we write our diffs (from compare)
 
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -167,8 +203,13 @@ int main (int argc, char * const argv[]) {
             if (argv < stop && **argv) {
                 readPath = *argv;
             }
-        }
-    }
+        } else if (strcmp(*argv, "-d") == 0) {
+			argv++;
+            if (argv < stop && **argv) {
+                diffPath = *argv;
+            }
+		}
+	}
     
     Iter iter;
     GM* gm;
@@ -181,7 +222,7 @@ int main (int argc, char * const argv[]) {
 
     while ((gm = iter.next()) != NULL) {
 		SkISize size = gm->getISize();
-        SkDebugf("creating... %s [%d %d]\n", gm->shortName(),
+        SkDebugf("drawing... %s [%d %d]\n", gm->shortName(),
                  size.width(), size.height());
 
 		SkBitmap bitmap;
@@ -209,7 +250,13 @@ int main (int argc, char * const argv[]) {
                                     SkBitmap::kARGB_8888_Config,
                                     SkImageDecoder::kDecodePixels_Mode, NULL);
                 if (success) {
-                    compare(bitmap, orig, name);
+					SkBitmap diffBitmap;
+                    success = compare(bitmap, orig, name, diffPath ? &diffBitmap : NULL);
+					if (!success && diffPath) {
+						SkString diffName = make_filename(diffPath, name, ".diff.png");
+						fprintf(stderr, "Writing %s\n", diffName.c_str());
+						write_bitmap(diffName, diffBitmap);
+					}
                 } else {
                     fprintf(stderr, "FAILED to read %s\n", path.c_str());
                 }
