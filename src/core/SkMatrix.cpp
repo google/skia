@@ -1595,8 +1595,10 @@ uint32_t SkMatrix::flatten(void* buffer) const {
 }
 
 uint32_t SkMatrix::unflatten(const void* buffer) {
-    memcpy(fMat, buffer, 9 * sizeof(SkScalar));
-    this->setTypeMask(kUnknown_Mask);
+    if (buffer) {
+        memcpy(fMat, buffer, 9 * sizeof(SkScalar));
+        this->setTypeMask(kUnknown_Mask);
+    }
     return 9 * sizeof(SkScalar);
 }
 

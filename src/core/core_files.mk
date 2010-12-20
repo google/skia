@@ -72,6 +72,7 @@ SOURCE := \
     SkRect.cpp \
     SkRefCnt.cpp \
     SkRegion.cpp \
+    SkRegion_rects.cpp \
     SkRegion_path.cpp \
     SkScalar.cpp \
     SkScalerContext.cpp \

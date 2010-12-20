@@ -22,12 +22,23 @@
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void* hwnd);
+    virtual ~SkOSWindow();
 
     void*   getHWND() const { return fHWND; }
     void    setSize(int width, int height);
     void    updateSize();
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
+    
+    bool attachGL(const SkBitmap* offscreen);
+    void detachGL();
+    void presentGL();
+
+    bool attachD3D9();
+    void detachD3D9();
+    void presentD3D9();
+
+    void* d3d9Device() { return fD3D9Device; }
 
     bool wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static bool QuitOnDeactivate(HWND hWnd);
@@ -45,14 +56,23 @@ protected:
     // overrides from SkView
     virtual void onAddMenu(const SkOSMenu*);
 
+    virtual void onSetTitle(const char title[]);
+
 private:
-    void*   fHWND;
+    void*               fHWND;
+    
+    void                doPaint(void* ctx);
 
-    void    doPaint(void* ctx);
+    void*               fHGLRC;
 
-    HMENU   fMBar;
+    bool                fGLAttached;
 
-    typedef SkWindow INHERITED;
+    void*               fD3D9Device;
+    bool                fD3D9Attached;
+
+    HMENU               fMBar;
+
+    typedef SkWindow INHERITED; 
 };
 
 #endif

@@ -25,13 +25,15 @@
 class SkMallocPixelRef : public SkPixelRef {
 public:
     /** Allocate the specified buffer for pixels. The memory is freed when the
-        last owner of this pixelref is gone.
+        last owner of this pixelref is gone. If addr is NULL, sk_malloc_throw()
+        is called to allocate it.
      */
     SkMallocPixelRef(void* addr, size_t size, SkColorTable* ctable);
     virtual ~SkMallocPixelRef();
     
     //! Return the allocation size for the pixels
     size_t getSize() const { return fSize; }
+    void* getAddr() const { return fStorage; }
 
     // overrides from SkPixelRef
     virtual void flatten(SkFlattenableWriteBuffer&) const;
@@ -56,5 +58,6 @@ private:
 
     typedef SkPixelRef INHERITED;
 };
+
 
 #endif

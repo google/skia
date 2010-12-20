@@ -96,22 +96,7 @@ SkGlyphCache::~SkGlyphCache() {
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
-class AutoCheckForNull {
-public:
-    AutoCheckForNull(const SkTDArray<SkGlyph*>& array) : fArray(array) {
-        for (int i = 0; i < array.count(); i++)
-            SkASSERT(array[i]);
-    }
-    ~AutoCheckForNull() {
-        const SkTDArray<SkGlyph*>& array = fArray;
-        for (int i = 0; i < array.count(); i++) {
-            SkASSERT(array[i]);
-        }
-    }
-private:
-    const SkTDArray<SkGlyph*>& fArray;
-};
-#define VALIDATE()  AutoCheckForNull acfn(fGlyphArray)
+#define VALIDATE()  AutoValidate av(this)
 #else
 #define VALIDATE()
 #endif
@@ -288,9 +273,7 @@ SkGlyph* SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
 
     glyph = (SkGlyph*)fGlyphAlloc.alloc(sizeof(SkGlyph),
                                         SkChunkAlloc::kThrow_AllocFailType);
-    glyph->fID = id;
-    glyph->fImage = NULL;
-    glyph->fPath = NULL;
+    glyph->init(id);
     *fGlyphArray.insert(hi) = glyph;
     
     if (kJustAdvance_MetricsType == mtype) {
@@ -519,6 +502,9 @@ SkGlyphCache* SkGlyphCache::VisitCache(const SkDescriptor* desc,
     cache = SkNEW_ARGS(SkGlyphCache, (desc));
 
 FOUND_IT:
+
+    AutoValidate av(cache);
+
     if (proc(cache, context)) {   // stay detached
         if (insideMutex) {
             SkASSERT(globals.fTotalMemoryUsed >= cache->fMemoryUsed);
@@ -549,6 +535,7 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
     SkAutoMutexAcquire    ac(globals.fMutex);
 
     globals.validate();
+    cache->validate();
 
     // if we have a fixed budget for our cache, do a purge here
     {
@@ -664,3 +651,19 @@ size_t SkGlyphCache::InternalFreeCache(SkGlyphCache_Globals* globals,
     return bytesFreed;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+#ifdef SK_DEBUG
+
+void SkGlyphCache::validate() const {
+    int count = fGlyphArray.count();
+    for (int i = 0; i < count; i++) {
+        const SkGlyph* glyph = fGlyphArray[i];
+        SkASSERT(glyph);
+        SkASSERT(fGlyphAlloc.contains(glyph));
+        if (glyph->fImage) {
+            SkASSERT(fImageAlloc.contains(glyph->fImage));
+        }
+    }
+}
+
+#endif

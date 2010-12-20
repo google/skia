@@ -22,7 +22,7 @@
 static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;
     
-    SkImageDecoder::DecodeFile("/skimages/logo.gif", &bm);
+    SkImageDecoder::DecodeFile("/skimages/logo.png", &bm);
     size->set(bm.width(), bm.height());
     return SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
                                         SkShader::kClamp_TileMode);

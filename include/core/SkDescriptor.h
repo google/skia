@@ -120,13 +120,14 @@ public:
         return true;
     }
 
+    uint32_t getChecksum() const { return fChecksum; }
+
     struct Entry {
         uint32_t fTag;
         uint32_t fLen;
     };
 
 #ifdef SK_DEBUG
-    uint32_t getChecksum() const { return fChecksum; }
     uint32_t getCount() const { return fCount; }
 #endif
 

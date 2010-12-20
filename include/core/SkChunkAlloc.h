@@ -55,7 +55,14 @@ public:
     size_t unalloc(void* ptr);
     
     size_t totalCapacity() const { return fTotalCapacity; }
-    
+
+    /**
+     *  Returns true if the specified address is within one of the chunks, and
+     *  has at least 1-byte following the address (i.e. if addr points to the
+     *  end of a chunk, then contains() will return false).
+     */
+    bool contains(const void* addr) const;
+
 private:
     struct Block;
     Block*  fBlock;

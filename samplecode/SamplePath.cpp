@@ -1,3 +1,4 @@
+
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -44,7 +45,12 @@ static void test_cubic2() {
     SkParsePath::FromSVGString(str, &path);
     
     {
+#ifdef SK_BUILD_FOR_WIN
+        // windows doesn't have strtof
+        float x = (float)strtod("9.94099e+07", NULL);
+#else
         float x = strtof("9.94099e+07", NULL);
+#endif
         int ix = (int)x;
         int fx = (int)(x * 65536);
         int ffx = SkScalarToFixed(x);

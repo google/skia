@@ -38,6 +38,7 @@ public:
         kFocusable_Shift,
         kFlexH_Shift,
         kFlexV_Shift,
+        kNoClip_Shift,
 
         kFlagShiftCount
     };
@@ -47,6 +48,7 @@ public:
         kFocusable_Mask = 1 << kFocusable_Shift,    //!< set if the view can receive focus
         kFlexH_Mask     = 1 << kFlexH_Shift,        //!< set if the view's width is stretchable
         kFlexV_Mask     = 1 << kFlexV_Shift,        //!< set if the view's height is stretchable
+        kNoClip_Mask    = 1 << kNoClip_Shift,        //!< set if the view is not clipped to its bounds
 
         kAllFlagMasks   = (uint32_t)(0 - 1) >> (32 - kFlagShiftCount)
     };
@@ -66,10 +68,12 @@ public:
     int         isVisible() const { return fFlags & kVisible_Mask; }
     int         isEnabled() const { return fFlags & kEnabled_Mask; }
     int         isFocusable() const { return fFlags & kFocusable_Mask; }
+    int         isClipToBounds() const { return !(fFlags & kNoClip_Mask); }
     /** Helper to set/clear the view's kVisible_Mask flag */
     void        setVisibleP(bool);
     void        setEnabledP(bool);
     void        setFocusableP(bool);
+    void        setClipToBounds(bool);
 
     /** Return the view's width */
     SkScalar    width() const { return fWidth; }
@@ -302,7 +306,7 @@ protected:
         Tyically this is only overridden by the by the "window". If your subclass does handle the
         request, return true so the request will not continue to propogate to the parent.
     */
-    virtual bool    handleInval(const SkRect&);
+    virtual bool    handleInval(const SkRect*);
     //! called once before all of the children are drawn (or clipped/translated)
     virtual SkCanvas* beforeChildren(SkCanvas* c) { return c; }
     //! called once after all of the children are drawn (or clipped/translated)

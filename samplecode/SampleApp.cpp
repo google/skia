@@ -1,6 +1,7 @@
+#include <OpenGL/gl.h>
+
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkGLCanvas.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
@@ -11,19 +12,33 @@
 
 #include "SampleCode.h"
 
+#ifdef SUPPORT_GPU
+    #include "SkGpuCanvas.h"
+    #include "GrContext.h"
+
+    #ifdef SK_SUPPORT_GL
+        #include "GrGLConfig.h"
+    #elif defined(SK_SUPPORT_D3D9)
+        #include <d3d9.h>
+    #endif
+#else
+    typedef SkCanvas SkGpuCanvas;
+    class GrContext;
+#endif
+
+//#define DEFAULT_TO_GPU
+
 extern SkView* create_overview(int, const SkViewFactory[]);
 
 #define SK_SUPPORT_GL
-
-#ifdef SK_SUPPORT_GL
-#include <AGL/agl.h>
-#include <OpenGL/gl.h>
-#endif
+//#define SK_SUPPORT_D3D9
 
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
 
-#define USE_OFFSCREEN
+#if !defined(SK_BUILD_FOR_WIN32)
+//#define USE_OFFSCREEN
+#endif
 
 SkViewRegister* SkViewRegister::gHead;
 SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
@@ -37,69 +52,65 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
     gHead = this;
 }
 
-#ifdef SK_SUPPORT_GL
-static AGLContext   gAGLContext;
-
-static void init_gl(WindowRef wref) {
-    GLint major, minor;
-    
-    aglGetVersion(&major, &minor);
-    SkDebugf("---- agl version %d %d\n", major, minor);
-    
-    const GLint pixelAttrs[] = {
-        AGL_RGBA,
-        AGL_DEPTH_SIZE, 32,
-        AGL_OFFSCREEN,
-        AGL_NONE
-    };
-    
-    AGLPixelFormat format = aglCreatePixelFormat(pixelAttrs);
-    SkDebugf("----- agl format %p\n", format);
-    gAGLContext = aglCreateContext(format, NULL);
-    SkDebugf("----- agl context %p\n", gAGLContext);
-    aglDestroyPixelFormat(format);
-
-    aglEnable(gAGLContext, GL_BLEND);
-    aglEnable(gAGLContext, GL_LINE_SMOOTH);
-    aglEnable(gAGLContext, GL_POINT_SMOOTH);
-    aglEnable(gAGLContext, GL_POLYGON_SMOOTH);
-    
-    aglSetCurrentContext(gAGLContext);
-}
-
-static void setup_offscreen_gl(const SkBitmap& offscreen, WindowRef wref) {
-    GLboolean success = true;
-
-#ifdef USE_OFFSCREEN
-    success = aglSetOffScreen(gAGLContext,
-                                        offscreen.width(),
-                                        offscreen.height(),
-                                        offscreen.rowBytes(),
-                                        offscreen.getPixels());
-#else
-    success = aglSetWindowRef(gAGLContext, wref);
+#if defined(SK_SUPPORT_GL) && defined(SK_SUPPORT_D3D9)
+    #error "choose either GL or D3D9"
 #endif
 
-    GLenum err = aglGetError();
-    if (err) {
-        SkDebugf("---- setoffscreen %d %d %s [%d %d]\n", success, err,
-                 aglErrorString(err), offscreen.width(), offscreen.height());
+#if defined(SK_SUPPORT_GL)
+    #define SK_USE_SHADERS
+#endif
+
+static GrContext* get_global_grctx(SkOSWindow* oswin) {
+#ifdef SUPPORT_GPU
+    // should be pthread-local at least
+    static GrContext* ctx;
+    if (NULL == ctx) {
+#if defined(SK_SUPPORT_GL)
+    #if defined(SK_USE_SHADERS)
+        ctx = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
+    #else
+        ctx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
+    #endif
+#elif defined(SK_SUPPORT_D3D9)
+        if (oswin->d3d9Device()) {
+            ctx = GrContext::Create(GrGpu::kDirect3D9_Engine, 
+                                    (IDirect3DDevice9*) oswin->d3d9Device());
+        }
+#endif
     }
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
-    glEnable(GL_TEXTURE_2D);
-
-    glClearColor(0, 0, 0, 0);
-    glClear(GL_COLOR_BUFFER_BIT);
-}
+    return ctx;
+#else
+    return NULL;
 #endif
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
+static const char gCharEvtName[] = "SampleCode_Char_Event";
+static const char gKeyEvtName[] = "SampleCode_Key_Event";
 static const char gTitleEvtName[] = "SampleCode_Title_Event";
 static const char gPrefSizeEvtName[] = "SampleCode_PrefSize_Event";
+static const char gFastTextEvtName[] = "SampleCode_FastText_Event";
+
+bool SampleCode::CharQ(const SkEvent& evt, SkUnichar* outUni) {
+    if (evt.isType(gCharEvtName, sizeof(gCharEvtName) - 1)) {
+        if (outUni) {
+            *outUni = evt.getFast32();
+        }
+        return true;
+    }
+    return false;
+}
+
+bool SampleCode::KeyQ(const SkEvent& evt, SkKey* outKey) {
+    if (evt.isType(gKeyEvtName, sizeof(gKeyEvtName) - 1)) {
+        if (outKey) {
+            *outKey = (SkKey)evt.getFast32();
+        }
+        return true;
+    }
+    return false;
+}
 
 bool SampleCode::TitleQ(const SkEvent& evt) {
     return evt.isType(gTitleEvtName, sizeof(gTitleEvtName) - 1);
@@ -122,19 +133,39 @@ void SampleCode::PrefSizeR(SkEvent* evt, SkScalar width, SkScalar height) {
     evt->setScalars(gPrefSizeEvtName, 2, size);
 }
 
+bool SampleCode::FastTextQ(const SkEvent& evt) {
+    return evt.isType(gFastTextEvtName, sizeof(gFastTextEvtName) - 1);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static SkMSec gAnimTime;
+static SkMSec gAnimTimePrev;
+
 SkMSec SampleCode::GetAnimTime() { return gAnimTime; }
+SkMSec SampleCode::GetAnimTimeDelta() { return gAnimTime - gAnimTimePrev; }
+SkScalar SampleCode::GetAnimSecondsDelta() {
+    return SkDoubleToScalar(GetAnimTimeDelta() / 1000.0);
+}
 
 SkScalar SampleCode::GetAnimScalar(SkScalar speed, SkScalar period) {
-    SkScalar seconds = SkFloatToScalar(gAnimTime / 1000.0f);
-    SkScalar value = SkScalarMul(speed, seconds);
+    // since gAnimTime can be up to 32 bits, we can't convert it to a float
+    // or we'll lose the low bits. Hence we use doubles for the intermediate
+    // calculations
+    double seconds = (double)gAnimTime / 1000.0;
+    double value = SkScalarToDouble(speed) * seconds;
     if (period) {
-        value = SkScalarMod(value, period);
+        value = ::fmod(value, SkScalarToDouble(period));
     }
-    return value;
+    return SkDoubleToScalar(value);
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+static SkView* curr_view(SkWindow* wind) {
+    SkView::F2BIter iter(wind);
+    return iter.next();
+}
 
 class SampleWindow : public SkOSWindow {
     SkTDArray<SkViewFactory> fSamples;
@@ -156,6 +187,7 @@ protected:
     virtual void afterChild(SkView* child, SkCanvas* canvas);
     
 	virtual bool onEvent(const SkEvent& evt);
+    virtual bool onQuery(SkEvent* evt);
 
 #if 0
 	virtual bool handleChar(SkUnichar uni);
@@ -171,13 +203,13 @@ private:
     int fCurrIndex;
     
     SkPicture* fPicture;
-    SkGLCanvas* fGLCanvas;
+    SkGpuCanvas* fGpuCanvas;
     SkPath fClipPath;
     
     enum CanvasType {
         kRaster_CanvasType,
         kPicture_CanvasType,
-        kOpenGL_CanvasType
+        kGPU_CanvasType
     };
     CanvasType fCanvasType;
 
@@ -187,6 +219,7 @@ private:
     bool fAnimating;
     bool fRotate;
     bool fScale;
+    bool fRequestGrabImage;
     
     int fScrollTestX, fScrollTestY;
     
@@ -210,33 +243,35 @@ private:
 SampleWindow::CanvasType SampleWindow::cycle_canvastype(CanvasType ct) {
     static const CanvasType gCT[] = {
         kPicture_CanvasType,
-        kOpenGL_CanvasType,
+        kGPU_CanvasType,
         kRaster_CanvasType
     };
     return gCT[ct];
 }
 
 SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
-#ifdef SK_SUPPORT_GL
-    init_gl((WindowRef)hwnd);
-#endif
-
     fPicture = NULL;
-    fGLCanvas = NULL;
+    fGpuCanvas = NULL;
 
+#ifdef DEFAULT_TO_GPU
+    fCanvasType = kGPU_CanvasType;
+#else
     fCanvasType = kRaster_CanvasType;
+#endif
     fUseClip = false;
     fNClip = false;
     fRepeatDrawing = false;
     fAnimating = false;
     fRotate = false;
     fScale = false;
+    fRequestGrabImage = false;
 
     fScrollTestX = fScrollTestY = 0;
 
 //	this->setConfig(SkBitmap::kRGB_565_Config);
 	this->setConfig(SkBitmap::kARGB_8888_Config);
 	this->setVisibleP(true);
+    this->setClipToBounds(false);
 
     {
         const SkViewRegister* reg = SkViewRegister::Head();
@@ -251,7 +286,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 
 SampleWindow::~SampleWindow() {
     delete fPicture;
-    delete fGLCanvas;
+    delete fGpuCanvas;
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
@@ -284,6 +319,7 @@ static bool bitmap_diff(SkCanvas* canvas, const SkBitmap& orig,
 
 void SampleWindow::draw(SkCanvas* canvas) {
     // update the animation time
+    gAnimTimePrev = gAnimTime;
     gAnimTime = SkTime::GetMSecs();
 
     if (fNClip) {
@@ -346,11 +382,17 @@ static void reverseRedAndBlue(const SkBitmap& bm) {
 }
 
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
+    SkIPoint viewport;
+    bool alreadyGPU = canvas->getViewport(&viewport);
+    
+    if (kGPU_CanvasType != fCanvasType) {
 #ifdef SK_SUPPORT_GL
-#ifndef USE_OFFSCREEN
-    aglSetWindowRef(gAGLContext, NULL);
-#endif
-#endif
+        detachGL();
+#elif defined(SK_SUPPORT_D3D9)
+        detachD3D9();
+#endif   
+    }
+    
     switch (fCanvasType) {
         case kRaster_CanvasType:
             canvas = this->INHERITED::beforeChildren(canvas);
@@ -359,20 +401,35 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
             fPicture = new SkPicture;
             canvas = fPicture->beginRecording(9999, 9999);
             break;
-#ifdef SK_SUPPORT_GL
-        case kOpenGL_CanvasType: {
-            //SkGLCanvas::DeleteAllTextures();  // just for testing
-            SkDevice* device = canvas->getDevice();
-            const SkBitmap& bitmap = device->accessBitmap(true);
-            // first clear the raster bitmap, so we don't see any leftover bits
-            bitmap.eraseColor(0);
-            // now setup our glcanvas
-            setup_offscreen_gl(bitmap, (WindowRef)this->getHWND());
-            fGLCanvas = new SkGLCanvas;
-            fGLCanvas->setViewport(bitmap.width(), bitmap.height());
-            canvas = fGLCanvas;
+#ifdef SUPPORT_GPU
+        case kGPU_CanvasType:
+            if (!alreadyGPU) {
+                SkDevice* device = canvas->getDevice();
+                const SkBitmap& bitmap = device->accessBitmap(true);            
+#ifdef SK_SUPPORT_GL                
+    #ifdef USE_OFFSCREEN
+                // first clear the raster bitmap, so we don't see any leftover bits
+                bitmap.eraseColor(0);
+                // now setup our glcanvas
+                attachGL(&bitmap);
+    #else
+                attachGL(NULL);
+    #endif
+                glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+#elif defined(SK_SUPPORT_D3D9)
+                // now setup our canvas
+                attachD3D9();           
+#endif
+                SkBitmap viewport;
+                viewport.setConfig(SkBitmap::kARGB_8888_Config, bitmap.width(), bitmap.height());
+                fGpuCanvas = new SkGpuCanvas(get_global_grctx(this));
+                fGpuCanvas->setBitmapDevice(viewport);
+                canvas = fGpuCanvas;
+                
+            } else {
+                canvas = this->INHERITED::beforeChildren(canvas);
+            }
             break;
-        }
 #endif
     }
 
@@ -395,6 +452,22 @@ static void paint_rgn(const SkBitmap& bm, const SkIRect& r,
 }
 
 void SampleWindow::afterChildren(SkCanvas* orig) {
+    if (fRequestGrabImage) {
+        fRequestGrabImage = false;
+        
+        SkCanvas* canvas = fGpuCanvas ? fGpuCanvas : orig;
+        SkDevice* device = canvas->getDevice();
+        SkBitmap bitmap;
+        SkIRect bounds = { 0, 0, this->width(), this->height() };
+        if (device->readPixels(bounds, &bitmap)) {
+            static int gSampleGrabCounter;
+            SkString name;
+            name.printf("sample_grab_%d", gSampleGrabCounter++);
+            SkImageEncoder::EncodeFile(name.c_str(), bitmap,
+                                       SkImageEncoder::kPNG_Type, 100);
+        }
+    }
+
     switch (fCanvasType) {
         case kRaster_CanvasType:
             break;
@@ -419,19 +492,27 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             fPicture = NULL;
             break;
 #ifdef SK_SUPPORT_GL
-        case kOpenGL_CanvasType:
-            glFlush();
-            delete fGLCanvas;
-            fGLCanvas = NULL;
+        case kGPU_CanvasType:
+            delete fGpuCanvas;
+            fGpuCanvas = NULL;
+            presentGL();
 #ifdef USE_OFFSCREEN
             reverseRedAndBlue(orig->getDevice()->accessBitmap(true));
 #endif
             break;
+#elif defined(SK_SUPPORT_D3D9)
+        case kGPU_CanvasType: {
+            delete fGpuCanvas;
+            fGpuCanvas = NULL;
+            presentD3D9();
+            break;
+        }
 #endif
+
     }
     
 //    if ((fScrollTestX | fScrollTestY) != 0)
-    {
+    if (false) {
         const SkBitmap& bm = orig->getDevice()->accessBitmap(true);
         int dx = fScrollTestX * 7;
         int dy = fScrollTestY * 7;
@@ -501,6 +582,27 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     return this->INHERITED::onEvent(evt);
 }
 
+bool SampleWindow::onQuery(SkEvent* query) {
+    if (query->isType("get-slide-count")) {
+        query->setFast32(fSamples.count());
+        return true;
+    }
+    if (query->isType("get-slide-title")) {
+        SkView* view = fSamples[query->getFast32()]();
+        SkEvent evt(gTitleEvtName);
+        if (view->doQuery(&evt)) {
+            query->setString("title", evt.findString(gTitleEvtName));
+        }
+        SkSafeUnref(view);
+        return true;
+    }
+    if (query->isType("use-fast-text")) {
+        SkEvent evt(gFastTextEvtName);
+        return curr_view(this)->doQuery(&evt);
+    }
+    return this->INHERITED::onQuery(query);
+}
+
 static void cleanup_for_filename(SkString* name) {
     char* str = name->writable_str();
     for (size_t i = 0; i < name->size(); i++) {
@@ -514,6 +616,17 @@ static void cleanup_for_filename(SkString* name) {
 }
 
 bool SampleWindow::onHandleChar(SkUnichar uni) {
+    {
+        SkView* view = curr_view(this);
+        if (view) {
+            SkEvent evt(gCharEvtName);
+            evt.setFast32(uni);
+            if (view->doQuery(&evt)) {
+                return true;
+            }
+        }
+    }
+    
     int dx = 0xFF;
     int dy = 0xFF;
 
@@ -573,6 +686,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             this->updateTitle();
             return true;
+        case 'd':
+            SkGraphics::SetFontCacheUsed(0);
+            return true;
+        case 'g':
+            fRequestGrabImage = true;
+            this->inval(NULL);
+            break;
         default:
             break;
     }
@@ -583,6 +703,17 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
 #include "SkDumpCanvas.h"
 
 bool SampleWindow::onHandleKey(SkKey key) {
+    {
+        SkView* view = curr_view(this);
+        if (view) {
+            SkEvent evt(gKeyEvtName);
+            evt.setFast32(key);
+            if (view->doQuery(&evt)) {
+                return true;
+            }
+        }
+    }
+
     switch (key) {
         case kRight_SkKey:
             if (this->nextSample()) {
@@ -604,7 +735,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             this->updateTitle();
             return true;
         case kOK_SkKey:
-            if (true) {
+            if (false) {
                 SkDebugfDumper dumper;
                 SkDumpCanvas dc(&dumper);
                 this->draw(&dc);
@@ -635,6 +766,7 @@ void SampleWindow::loadView(SkView* view) {
         view = create_overview(fSamples.count(), fSamples.begin());
     }
     view->setVisibleP(true);
+    view->setClipToBounds(false);
     this->attachChildToFront(view)->unref();
     view->setSize(this->width(), this->height());
 
@@ -728,7 +860,108 @@ void SampleWindow::onSizeChange() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+template <typename T> void SkTBSort(T array[], int count) {
+    for (int i = 1; i < count - 1; i++) {
+        bool didSwap = false;
+        for (int j = count - 1; j > i; --j) {
+            if (array[j] < array[j-1]) {
+                T tmp(array[j-1]);
+                array[j-1] = array[j];
+                array[j] = tmp;
+                didSwap = true;
+            }
+        }
+        if (!didSwap) {
+            break;
+        }
+    }
+    
+    for (int k = 0; k < count - 1; k++) {
+        SkASSERT(!(array[k+1] < array[k]));
+    }
+}
+
+#include "SkRandom.h"
+
+static void rand_rect(SkIRect* rect, SkRandom& rand) {
+    int bits = 8;
+    int shift = 32 - bits;
+    rect->set(rand.nextU() >> shift, rand.nextU() >> shift,
+              rand.nextU() >> shift, rand.nextU() >> shift);
+    rect->sort();
+}
+
+static void dumpRect(const SkIRect& r) {
+    SkDebugf(" { %d, %d, %d, %d },\n",
+             r.fLeft, r.fTop,
+             r.fRight, r.fBottom);
+}
+
+static void test_rects(const SkIRect rect[], int count) {
+    SkRegion rgn0, rgn1;
+
+    for (int i = 0; i < count; i++) {
+        rgn0.op(rect[i], SkRegion::kUnion_Op);
+     //   dumpRect(rect[i]);
+    }
+    rgn1.setRects(rect, count);
+
+    if (rgn0 != rgn1) {
+        SkDebugf("\n");
+        for (int i = 0; i < count; i++) {
+            dumpRect(rect[i]);
+        }
+        SkDebugf("\n");
+    }
+}
+
+static void test() {
+    size_t i;
+
+    const SkIRect r0[] = {
+        { 0, 0, 1, 1 },
+        { 2, 2, 3, 3 },
+    };
+    const SkIRect r1[] = {
+        { 0, 0, 1, 3 },
+        { 1, 1, 2, 2 },
+        { 2, 0, 3, 3 },
+    };
+    const SkIRect r2[] = {
+        { 0, 0, 1, 2 },
+        { 2, 1, 3, 3 },
+        { 4, 0, 5, 1 },
+        { 6, 0, 7, 4 },
+    };
+
+    static const struct {
+        const SkIRect* fRects;
+        int            fCount;
+    } gRecs[] = {
+        { r0, SK_ARRAY_COUNT(r0) },
+        { r1, SK_ARRAY_COUNT(r1) },
+        { r2, SK_ARRAY_COUNT(r2) },
+    };
+
+    for (i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
+        test_rects(gRecs[i].fRects, gRecs[i].fCount);
+    }
+    
+    SkRandom rand;
+    for (i = 0; i < 10000; i++) {
+        SkRegion rgn0, rgn1;
+
+        const int N = 8;
+        SkIRect rect[N];
+        for (int j = 0; j < N; j++) {
+            rand_rect(&rect[j], rand);
+        }
+        test_rects(rect, N);
+    }
+}
+
 SkOSWindow* create_sk_window(void* hwnd) {
+//    test();
 	return new SampleWindow(hwnd);
 }
 

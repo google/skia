@@ -31,7 +31,7 @@ static SkBitmap createBitmap(int n) {
 class MipMapView : public SkView {
     SkBitmap fBitmap;
     enum {
-        N = 90
+        N = 64
     };
 public:
     MipMapView() {
@@ -44,7 +44,7 @@ protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "MapMaps");
+            SampleCode::TitleR(evt, "MipMaps");
             return true;
         }
         return this->INHERITED::onQuery(evt);

@@ -35,6 +35,7 @@ public:
     const char* findString(const char name[]) const;
     bool    findPtr(const char name[], void** value = NULL) const;
     bool    findBool(const char name[], bool* value = NULL) const;
+    const void* findData(const char name[], size_t* byteCount = NULL) const;
 
     bool    hasS32(const char name[], int32_t value) const
     {
@@ -62,6 +63,11 @@ public:
         bool    v;
         return this->findBool(name, &v) && v == value;
     }
+    bool hasData(const char name[], const void* data, size_t byteCount) const {
+        size_t len;
+        const void* ptr = this->findData(name, &len);
+        return NULL != ptr && len == byteCount && !memcmp(ptr, data, len);
+    }
 
     void    setS32(const char name[], int32_t value);
     void    setScalar(const char name[], SkScalar value);
@@ -69,12 +75,15 @@ public:
     void    setString(const char name[], const char value[]);
     void    setPtr(const char name[], void* value);
     void    setBool(const char name[], bool value);
+    // the data is copied from the input pointer.
+    void    setData(const char name[], const void* data, size_t byteCount);
 
     bool    removeS32(const char name[]);
     bool    removeScalar(const char name[]);
     bool    removeString(const char name[]);
     bool    removePtr(const char name[]);
     bool    removeBool(const char name[]);
+    bool    removeData(const char name[]);
 
     SkDEBUGCODE(static void UnitTest();)
 
@@ -84,6 +93,7 @@ public:
         kString_Type,
         kPtr_Type,
         kBool_Type,
+        kData_Type,
 
         kTypeCount
     };

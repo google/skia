@@ -13,15 +13,6 @@
 #include "SkColorPriv.h"
 #include "SkPixelXorXfermode.h"
 
-static void test_grow(SkPath* path)
-{
-    for (int i = 0; i < 100000; i++)
-    {
-        path->lineTo(i, i);
-        path->lineTo(i, i*2);
-    }
-}
-
 #define CORNER_RADIUS   12
 static SkScalar gPhase;
 
@@ -29,8 +20,7 @@ static const int gXY[] = {
     4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
 };
 
-static SkPathEffect* make_pe(int flags)
-{
+static SkPathEffect* make_pe(int flags) {
     if (flags == 1)
         return new SkCornerPathEffect(SkIntToScalar(CORNER_RADIUS));
 
@@ -54,8 +44,7 @@ static SkPathEffect* make_pe(int flags)
     return pe;
 }
 
-static SkPathEffect* make_warp_pe()
-{
+static SkPathEffect* make_warp_pe() {
     SkPath  path;
     path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
     for (unsigned i = 2; i < SK_ARRAY_COUNT(gXY); i += 2)
@@ -79,8 +68,7 @@ static SkPathEffect* make_warp_pe()
 
 class testrast : public SkLayerRasterizer {
 public:
-    testrast()
-    {
+    testrast() {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -106,8 +94,7 @@ class PathEffectView : public SkView {
     SkPath  fPath;
     SkPoint fClickPt;
 public:
-	PathEffectView()
-    {
+	PathEffectView() {
         SkRandom    rand;
         int         steps = 20;
         SkScalar    dist = SkIntToScalar(400);
@@ -115,8 +102,7 @@ public:
         SkScalar    y = SkIntToScalar(50);
         
         fPath.moveTo(x, y);
-        for (int i = 0; i < steps; i++)
-        {
+        for (int i = 0; i < steps; i++) {
             x += dist/steps;
             SkScalar tmpY = y + SkIntToScalar(rand.nextS() % 25);
             if (i == steps/2) {
@@ -139,39 +125,22 @@ public:
 	
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-            if (SampleCode::TitleQ(*evt))
-            {
-                SampleCode::TitleR(evt, "PathEffects");
-                return true;
-            }
-            return this->INHERITED::onQuery(evt);
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
+            SampleCode::TitleR(evt, "PathEffects");
+            return true;
+        }
+        return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
+    void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
-
-#if 0
-        SkPath path;
-        test_grow(&path);
-        SkPaint p;
-        
-        p.setAntiAlias(true);
-        p.setStyle(SkPaint::kStroke_Style);
-        p.setStrokeWidth(SK_Scalar1);
-        canvas->drawPath(path, p);
-        path.close();
-#endif
     }
     
-    virtual void onDraw(SkCanvas* canvas)
-    {
+    virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
         
-        if (true)
-        {
+        if (false) {
             canvas->drawColor(SK_ColorWHITE);
             
             SkPixelXorXfermode  mode(SK_ColorWHITE);
@@ -188,11 +157,12 @@ protected:
          //   return;
         }
         
-        gPhase -= SK_Scalar1;
+        gPhase -= SampleCode::GetAnimSecondsDelta() * 40;
         this->inval(NULL);
         
         SkPaint paint;
         
+#if 0
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(5));
@@ -202,6 +172,7 @@ protected:
         paint.setColor(SK_ColorWHITE);
         paint.setPathEffect(make_pe(1))->unref();
         canvas->drawPath(fPath, paint);
+#endif
         
         canvas->translate(0, SkIntToScalar(50));
         
@@ -221,40 +192,6 @@ protected:
         paint.setPathEffect(make_warp_pe())->unref();
         paint.setRasterizer(new testrast)->unref();
         canvas->drawPath(fPath, paint);
-        
-        {
-            SkRect  oval;
-            
-            oval.set(SkIntToScalar(50), SkIntToScalar(100),
-                     SkIntToScalar(150), SkIntToScalar(150));
-            canvas->drawRoundRect(oval, SkIntToScalar(8), SkIntToScalar(8), paint);
-        }
-        
-        {
-            SkRect  bounds;
-            SkPaint paint;
-            
-            paint.setAntiAlias(true);
-            paint.setAlpha(0x80);
-            paint.setColorFilter(
-                SkColorFilter::CreateModeFilter(
-                    SkColorSetARGB(0x44, 0, 0xFF, 0), SkXfermode::kSrcATop_Mode))->unref();
-            
-            bounds.set(SkIntToScalar(10), SkIntToScalar(10), SkIntToScalar(150), SkIntToScalar(70));
-            canvas->saveLayer(&bounds, &paint,
-                              (SkCanvas::SaveFlags)(SkCanvas::kHasAlphaLayer_SaveFlag | SkCanvas::kFullColorLayer_SaveFlag));
-            
-            paint.setColorFilter(NULL);
-            paint.setColor(SK_ColorRED);
-            canvas->drawOval(bounds, paint);
-
-            paint.setColor(SK_ColorBLUE);
-            paint.setAlpha(0x80);
-            bounds.inset(SkIntToScalar(10), SkIntToScalar(10));
-            canvas->drawOval(bounds, paint);
-            
-            canvas->restore();
-        }
     }
     
 private:

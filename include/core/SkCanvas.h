@@ -98,12 +98,18 @@ public:
     */
     SkDevice* setDevice(SkDevice* device);
 
-    /** Deprecated - Specify a bitmap for the canvas to draw into. This is a
-        helper method for setDevice(), and it creates a device for the bitmap by
-        calling createDevice(). The structure of the bitmap is copied into the
-        device.
-    */
-    virtual SkDevice* setBitmapDevice(const SkBitmap& bitmap);
+    /** May be overridden by subclasses. This returns a compatible device
+        for this canvas, with the specified config/width/height. If the device
+        is raster, the pixels will be allocated automatically.
+     */
+    virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
+                                   bool isOpaque, bool forLayer = false);
+
+    /**
+     *  Create a new raster device and make it current. This also returns
+     *  the new device.
+     */
+    SkDevice* setBitmapDevice(const SkBitmap& bitmap, bool forLayer = false);
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -692,16 +698,7 @@ public:
     */
     const SkRegion& getTotalClip() const;
 
-    /** May be overridden by subclasses. This returns a compatible device
-        for this canvas, with the specified config/width/height. If isOpaque
-        is true, then the underlying bitmap is optimized to assume that every
-        pixel will be drawn to, and thus it does not need to clear the alpha
-        channel ahead of time (assuming the specified config supports per-pixel
-        alpha.) If isOpaque is false, then the bitmap should clear its alpha
-        channel.
-    */
-    virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
-                                   bool isOpaque, bool isForLayer);
+    void setExternalMatrix(const SkMatrix* = NULL);
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -737,7 +734,7 @@ public:
         // in our constructor to ensure that fStorage is large enough
         // (though needs to be a compile-time-assert!). We use intptr_t to work
         // safely with 32 and 64 bit machines (to ensure the storage is enough)
-        intptr_t          fStorage[12];
+        intptr_t          fStorage[32];
         class SkDrawIter* fImpl;    // this points at fStorage
         SkPaint           fDefaultPaint;
         bool              fDone;
@@ -745,8 +742,8 @@ public:
 
 protected:
     // all of the drawBitmap variants call this guy
-    virtual void commonDrawBitmap(const SkBitmap&, const SkMatrix& m,
-                                  const SkPaint& paint);
+    virtual void commonDrawBitmap(const SkBitmap&, const SkIRect*,
+                                  const SkMatrix&, const SkPaint& paint);
     
 private:
     class MCRec;
@@ -761,7 +758,7 @@ private:
     SkDevice*   fLastDeviceToGainFocus;
     SkDeviceFactory* fDeviceFactory;
 
-    void prepareForDeviceDraw(SkDevice*);
+    void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&);
     
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();
@@ -769,7 +766,7 @@ private:
     friend class SkDrawIter;    // needs setupDrawForLayerDevice()
 
     SkDevice* init(SkDevice*);
-    void internalDrawBitmap(const SkBitmap&, const SkMatrix& m,
+    void internalDrawBitmap(const SkBitmap&, const SkIRect*, const SkMatrix& m,
                                   const SkPaint* paint);
     void drawDevice(SkDevice*, int x, int y, const SkPaint*);
     // shared by save() and saveLayer()
@@ -807,6 +804,9 @@ private:
         }
     }
     void computeLocalClipBoundsCompareType(EdgeType et) const;
+
+    SkMatrix    fExternalMatrix, fExternalInverse;
+    bool        fUseExternalMatrix;
 };
 
 /** Stack helper class to automatically call restoreToCount() on the canvas

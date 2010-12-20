@@ -33,7 +33,12 @@ public:
     static OSStatus EventHandler(EventHandlerCallRef inHandler,
                                  EventRef inEvent, void* userData);
 
-    void    doPaint(void* ctx);
+    void   doPaint(void* ctx);
+
+
+    bool attachGL(const SkBitmap* offscreen);
+    void detachGL();
+    void presentGL();
 
 protected:
     // overrides from SkEventSink
@@ -43,10 +48,12 @@ protected:
     // overrides from SkView
     virtual void onAddMenu(const SkOSMenu*);
     virtual void onSetTitle(const char[]);
+    
 
 private:
     void*   fHWND;
     void*   fHVIEW;
+    void*   fAGLCtx;
 
     typedef SkWindow INHERITED;
 };

@@ -161,7 +161,7 @@ protected:
             SkPaint p;
             canvas->saveLayer(&r, &p);
             canvas->drawColor(0xFFFF0000);
-            p.setAlpha(1);  // or 0
+            p.setAlpha(0);  // or 0
             p.setXfermodeMode(SkXfermode::kSrc_Mode);
             canvas->drawOval(r, p);
             canvas->restore();

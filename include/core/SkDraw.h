@@ -33,12 +33,12 @@ struct SkDrawProcs;
 
 class SkDraw {
 public:
-    SkDraw() : fDevice(NULL), fBounder(NULL), fProcs(NULL) {}
+    SkDraw();
     SkDraw(const SkDraw& src);
 
     void    drawPaint(const SkPaint&) const;
     void    drawPoints(SkCanvas::PointMode, size_t count, const SkPoint[],
-                       const SkPaint&) const;
+                       const SkPaint&, bool forceUseDevice = false) const;
     void    drawRect(const SkRect&, const SkPaint&) const;
     /*  To save on mallocs, we allow a flag that tells us that srcPath is
         mutable, so that we don't have to make copies of it as we transform it.
@@ -83,12 +83,18 @@ public:
     const SkBitmap* fBitmap;        // required
     const SkMatrix* fMatrix;        // required
     const SkRegion* fClip;          // required
+
     SkDevice*       fDevice;        // optional
     SkBounder*      fBounder;       // optional
     SkDrawProcs*    fProcs;         // optional
 
+    const SkMatrix* fMVMatrix;      // optional
+    const SkMatrix* fExtMatrix;     // optional
+
 #ifdef SK_DEBUG
-    void    validate(int width, int height) const;
+    void validate() const;
+#else
+    void validate() const {}
 #endif
 };
 

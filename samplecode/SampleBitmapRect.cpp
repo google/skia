@@ -75,12 +75,12 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(src); i++) {
             SkRect srcR;
             srcR.set(src[i]);
-            
+
             canvas->drawBitmap(fBitmap, 0, 0, &paint);
             canvas->drawBitmapRect(fBitmap, &src[i], dstR, &paint);
 
-            canvas->drawRect(srcR, paint);
             canvas->drawRect(dstR, paint);
+            canvas->drawRect(srcR, paint);
             
             canvas->translate(160, 0);
         }

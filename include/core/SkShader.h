@@ -145,12 +145,56 @@ public:
     virtual void beginSession();
     virtual void endSession();
     
+    /**
+     Gives method bitmap should be read to implement a shader.
+     Also determines number and interpretation of "extra" parameters returned
+     by asABitmap
+     */
+    enum BitmapType {
+        kNone_BitmapType,   //<! Shader is not represented as a bitmap
+        kDefault_BitmapType,//<! Access bitmap using local coords transformed 
+                            //   by matrix. No extras
+        kRadial_BitmapType, //<! Access bitmap by transforming local coordinates 
+                            //   by the matrix and taking the distance of result 
+                            //   from  (0,0) as bitmap column. Bitmap is 1 pixel 
+                            //   tall. No extras
+        kSweep_BitmapType,  //<! Access bitmap by transforming local coordinates 
+                            //   by the matrix and taking the angle of result
+                            //   to (0,0) as bitmap x coord, where angle = 0 is
+                            //   bitmap left edge of bitmap = 2pi is the 
+                            //   right edge. Bitmap is 1 pixel tall. No extras
+        kTwoPointRadial_BitmapType
+                            //<! Matrix transforms to space where (0,0) is 
+                            //   the center of the starting circle.  The second
+                            //   circle will be centered (x, 0) where x  may be 
+                            //   0. The post-matrix space is normalized such 
+                            //   that 1 is the second radius - first radius.
+                            //   Three extra parameters are returned:
+                            //      0: x-offset of second circle center 
+                            //         to first.
+                            //      1: radius of first circle in post-matrix 
+                            //         space
+                            //      2: the second radius minus the first radius
+                            //         in pre-transformed space.        
+        
+    };
     /** Optional methods for shaders that can pretend to be a bitmap/texture
-        to play along with opengl. Default just returns false and ignores
-        the out parameters.
+        to play along with opengl. Default just returns kNone_BitmapType and 
+        ignores the out parameters.
+
+        @param outTexture if non-NULL will be the bitmap representing the shader
+                          after return.
+        @param outMatrix  if non-NULL will be the matrix to apply to vertices
+                          to access the bitmap after return.
+        @param xy         if non-NULL will be the tile modes that should be
+                          used to access the bitmap after return.
+        @param twoPointRadialParams Two extra return values needed for two point
+                                    radial bitmaps. The first is the x-offset of
+                                    the second point and the second is the radius
+                                    about the first point.
     */
-    virtual bool asABitmap(SkBitmap* outTexture, SkMatrix* outMatrix,
-                           TileMode xy[2]);
+    virtual BitmapType asABitmap(SkBitmap* outTexture, SkMatrix* outMatrix,
+                                 TileMode xy[2], SkScalar* twoPointRadialParams);
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

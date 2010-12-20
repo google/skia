@@ -263,7 +263,8 @@ public:
         bool done() { return fDone; }
         void next();
         const SkIRect& rect() const { return fRect; }
-
+        // may return null
+        const SkRegion* rgn() const { return fRgn; }
     private:
         const SkRegion* fRgn;
         const RunType*  fRuns;

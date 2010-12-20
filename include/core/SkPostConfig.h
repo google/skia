@@ -107,8 +107,16 @@
     #endif
 
     #ifndef SK_DEBUGBREAK
-        #define SK_DEBUGBREAK(cond)     do { if (!(cond)) DebugBreak(); } while (false)
+        #define SK_DEBUGBREAK(cond)     do { if (!(cond)) __debugbreak(); } while (false)
     #endif
+
+    #ifndef SK_A32_SHIFT
+        #define SK_A32_SHIFT 24
+        #define SK_R32_SHIFT 16
+        #define SK_G32_SHIFT 8
+        #define SK_B32_SHIFT 0
+    #endif
+
 #elif defined(SK_BUILD_FOR_MAC)
     #ifndef SK_DEBUGBREAK
         #define SK_DEBUGBREAK(cond)     do { if (!(cond)) SK_CRASH(); } while (false)

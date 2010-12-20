@@ -2,16 +2,24 @@
 #define SampleCode_DEFINED
 
 #include "SkEvent.h"
+#include "SkKey.h"
 
 class SampleCode {
 public:
+    static bool KeyQ(const SkEvent&, SkKey* outKey);
+    static bool CharQ(const SkEvent&, SkUnichar* outUni);
+
     static bool TitleQ(const SkEvent&);
     static void TitleR(SkEvent*, const char title[]);
     
     static bool PrefSizeQ(const SkEvent&);
     static void PrefSizeR(SkEvent*, SkScalar width, SkScalar height);
-    
+
+    static bool FastTextQ(const SkEvent&);
+
     static SkMSec GetAnimTime();
+    static SkMSec GetAnimTimeDelta();
+    static SkScalar GetAnimSecondsDelta();
     static SkScalar GetAnimScalar(SkScalar speedPerSec, SkScalar period = 0);
 };
 

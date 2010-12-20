@@ -5,6 +5,8 @@
 #include "SkStream.h"
 #include "SkView.h"
 
+#define DO_AA   false
+
 #include "SkRectShape.h"
 #include "SkGroupShape.h"
 
@@ -21,6 +23,7 @@ static SkShape* make_shape0(bool red) {
     if (red) {
         s->paint().setColor(SK_ColorRED);
     }
+    s->paint().setAntiAlias(DO_AA);
     return s;
 }
 
@@ -28,6 +31,7 @@ static SkShape* make_shape1() {
     SkRectShape* s = new SkRectShape;
     s->setOval(make_rect(10, 10, 90, 90));
     s->paint().setColor(SK_ColorBLUE);
+    s->paint().setAntiAlias(DO_AA);
     return s;
 }
 
@@ -36,6 +40,7 @@ static SkShape* make_shape2() {
     s->setRRect(make_rect(10, 10, 90, 90),
                 SkIntToScalar(20), SkIntToScalar(20));
     s->paint().setColor(SK_ColorGREEN);
+    s->paint().setAntiAlias(DO_AA);
     return s;
 }
 
@@ -83,7 +88,7 @@ protected:
     }
     
     void drawpicture(SkCanvas* canvas, SkPicture& pict) {
-#if 1
+#if 0
         SkDynamicMemoryWStream ostream;
         pict.serialize(&ostream);
 
@@ -99,12 +104,20 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
         
-        SkScalar angle = SampleCode::GetAnimScalar(SkIntToScalar(360)/2,
+        SkScalar angle = SampleCode::GetAnimScalar(SkIntToScalar(180),
                                                    SkIntToScalar(360));
 
         SkMatrix saveM = *fMatrixRefs[3];
         SkScalar c = SkIntToScalar(50);
         fMatrixRefs[3]->preRotate(angle, c, c);
+        
+        const SkScalar dx = 350;
+        const SkScalar dy = 500;
+        const int N = 1;
+        for (int v = -N; v <= N; v++) {
+            for (int h = -N; h <= N; h++) {
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->translate(h * dx, v * dy);
         
         SkMatrix matrix;
      
@@ -121,17 +134,20 @@ protected:
 #if 0
         canvas->drawShape(gs);
 #else
-        SkPicture pict;
-        SkCanvas* cv = pict.beginRecording(1000, 1000);
+        SkPicture* pict = new SkPicture;
+        SkCanvas* cv = pict->beginRecording(1000, 1000);
         cv->scale(SK_ScalarHalf, SK_ScalarHalf);
         cv->drawShape(gs);
         cv->translate(SkIntToScalar(680), SkIntToScalar(480));
         cv->scale(-SK_Scalar1, SK_Scalar1);
         cv->drawShape(gs);
-        pict.endRecording();
+        pict->endRecording();
         
-        drawpicture(canvas, pict);
+        drawpicture(canvas, *pict);
+        pict->unref();
 #endif
+
+        }}
 
         *fMatrixRefs[3] = saveM;
         this->inval(NULL);

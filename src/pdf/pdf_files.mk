@@ -8,4 +8,4 @@ SOURCE := \
     SkPDFImage.cpp \
     SkPDFPage.cpp \
     SkPDFStream.cpp \
-    SkPDFTypes.cpp \
+    SkPDFTypes.cpp

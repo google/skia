@@ -6,13 +6,6 @@
 
 using namespace skiagm;
 
-GM::GM() {}
-GM::~GM() {}
-
-void GM::draw(SkCanvas* canvas) {
-	this->onDraw(canvas);
-}
-
 // need to explicitly declare this, or we get some weird infinite loop llist
 template GMRegistry* GMRegistry::gHead;
 
@@ -81,4 +74,16 @@ private:
 
 static SkView* MyFactory() { return new GMView; }
 static SkViewRegister reg(MyFactory);
+
+///////////////////////////////////////////////////////////////////////////////
+
+using namespace skiagm;
+
+GM::GM() {}
+GM::~GM() {}
+
+void GM::draw(SkCanvas* canvas) {
+	this->onDraw(canvas);
+}
+
 

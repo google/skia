@@ -8,6 +8,7 @@
 #include "SkUtils.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
+#include "SkPicture.h"
 #include "SkTypeface.h"
 
 // effects
@@ -55,6 +56,7 @@ static const int gWidth = 32;
 static const int gHeight = 32;
 
 class TilingView : public SkView {
+    SkPicture           fTextPicture;
     SkBlurDrawLooper    fLooper;
 public:
 	TilingView()
@@ -97,19 +99,26 @@ protected:
         SkScalar y = SkIntToScalar(24);
         SkScalar x = SkIntToScalar(10);
 
-        for (int kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
-            for (int ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
-                SkPaint p;
-                SkString str;
-                p.setAntiAlias(true);
-                p.setDither(true);
-                p.setLooper(&fLooper);
-                str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
+        SkCanvas* textCanvas = NULL;
+        if (fTextPicture.width() == 0) {
+            textCanvas = fTextPicture.beginRecording(1000, 1000);
+        }
 
-                p.setTextAlign(SkPaint::kCenter_Align);
-                canvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
-                
-                x += r.width() * 4 / 3;
+        if (textCanvas) {
+            for (int kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
+                for (int ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
+                    SkPaint p;
+                    SkString str;
+                    p.setAntiAlias(true);
+                    p.setDither(true);
+                    p.setLooper(&fLooper);
+                    str.printf("[%s,%s]", gModeNames[kx], gModeNames[ky]);
+
+                    p.setTextAlign(SkPaint::kCenter_Align);
+                    textCanvas->drawText(str.c_str(), str.size(), x + r.width()/2, y, p);
+                    
+                    x += r.width() * 4 / 3;
+                }
             }
         }
         
@@ -132,22 +141,20 @@ protected:
                         x += r.width() * 4 / 3;
                     }
                 }
-                {
+                if (textCanvas) {
                     SkPaint p;
                     SkString str;
                     p.setAntiAlias(true);
                     p.setLooper(&fLooper);
                     str.printf("%s, %s", gConfigNames[i], gFilterNames[j]);
-                    canvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
+                    textCanvas->drawText(str.c_str(), str.size(), x, y + r.height() * 2 / 3, p);
                 }
 
                 y += r.height() * 4 / 3;
             }
         }
-        
-    #ifdef SK_RELEASE
-        this->inval(NULL);
-    #endif
+
+        canvas->drawPicture(fTextPicture);
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {

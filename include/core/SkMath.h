@@ -161,6 +161,13 @@ static inline int SkNextLog2(uint32_t value) {
     return 32 - SkCLZ(value - 1);
 }
 
+/** Returns true if value is a power of 2. Does not explicitly check for
+    value <= 0.
+ */
+static inline bool SkIsPow2(int value) {
+    return (value & (value - 1)) == 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /** SkMulS16(a, b) multiplies a * b, but requires that a and b are both int16_t.

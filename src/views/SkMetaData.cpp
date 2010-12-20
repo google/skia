@@ -89,6 +89,10 @@ void SkMetaData::setBool(const char name[], bool value)
     (void)this->set(name, &value, sizeof(bool), kBool_Type, 1);
 }
 
+void SkMetaData::setData(const char name[], const void* data, size_t byteCount) {
+    (void)this->set(name, data, sizeof(char), kData_Type, byteCount);
+}
+
 void* SkMetaData::set(const char name[], const void* data, size_t dataSize, Type type, int count)
 {
     SkASSERT(name);
@@ -128,6 +132,9 @@ void* SkMetaData::set(const char name[], const void* data, size_t dataSize, Type
         break;
     case kBool_Type:
         rec->fData.fBool = *(const bool*)rec->data();
+        break;
+    case kData_Type:
+        rec->fData.fPtr = rec->data();
         break;
     default:
         SkASSERT(!"bad type");
@@ -213,6 +220,18 @@ bool SkMetaData::findBool(const char name[], bool* value) const
     return false;
 }
 
+const void* SkMetaData::findData(const char name[], size_t* length) const {
+    const Rec* rec = this->find(name, kData_Type);
+    if (rec) {
+        SkASSERT(rec->fDataLen == sizeof(char));
+        if (length) {
+            *length = rec->fDataCount;
+        }
+        return rec->data();
+    }
+    return NULL;
+}
+
 const SkMetaData::Rec* SkMetaData::find(const char name[], Type type) const
 {
     const Rec* rec = fRec;
@@ -270,6 +289,10 @@ bool SkMetaData::removePtr(const char name[])
 bool SkMetaData::removeBool(const char name[])
 {
     return this->remove(name, kBool_Type);
+}
+
+bool SkMetaData::removeData(const char name[]) {
+    return this->remove(name, kData_Type);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

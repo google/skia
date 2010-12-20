@@ -26,22 +26,19 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
             *bitsPerComponent = 8;
 #if defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 0, 8, 16) \
  || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(0, 24, 16, 8)
-            *info = kCGBitmapByteOrder32Big |
-                    kCGImageAlphaPremultipliedLast;
+            *info = kCGBitmapByteOrder32Big;
 #elif defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0) \
    || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0)
             // Matches the CGBitmapInfo that Apple recommends for best
             // performance, used by google chrome.
-            *info = kCGBitmapByteOrder32Host |
-                    kCGImageAlphaPremultipliedFirst;
+            *info = kCGBitmapByteOrder32Little;
 #else
 // ...add more formats as required...
 #warning Cannot convert SkBitmap to CGImageRef with these shiftmasks. \
             This will probably not work.
             // Legacy behavior. Perhaps turn this into an error at some
             // point.
-            *info = kCGBitmapByteOrder32Big |
-                    kCGImageAlphaPremultipliedLast;
+            *info = kCGBitmapByteOrder32Big;
 #endif
             break;
 #if 0
@@ -57,6 +54,10 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
             break;
         default:
             return NULL;
+    }
+
+    if (!bm.isOpaque()) {
+        *info |= kCGImageAlphaPremultipliedLast;
     }
 
     SkBitmap* copy;
@@ -93,7 +94,7 @@ CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     CGDataProviderRef dataRef = CGDataProviderCreateWithData(bitmap, bitmap->getPixels(), s,
 															 SkBitmap_ReleaseInfo);
 
-    CGColorSpaceRef space = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
     CGImageRef ref = CGImageCreate(w, h, bitsPerComponent,
                                    bitmap->bytesPerPixel() * 8,
                                    bitmap->rowBytes(), space, info, dataRef,
@@ -102,5 +103,24 @@ CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     CGDataProviderRelease(dataRef);
     return ref;
 }
+
+void SkCGDrawBitmap(CGContextRef cg, const SkBitmap& bm, float x, float y) {
+    CGImageRef img = SkCreateCGImageRef(bm);
+
+    if (img) {
+        CGRect r = CGRectMake(0, 0, bm.width(), bm.height());
+        
+        CGContextSaveGState(cg);
+        CGContextTranslateCTM(cg, x, r.size.height + y);
+        CGContextScaleCTM(cg, 1, -1);
+        
+        CGContextDrawImage(cg, r, img);
+        
+        CGContextRestoreGState(cg);
+        
+        CGImageRelease(img);
+    }
+}
+
 
 

@@ -49,6 +49,10 @@ void SkView::setFocusableP(bool pred)
 	this->setFlags(SkSetClearShift(fFlags, pred, kFocusable_Shift));
 }
 
+void SkView::setClipToBounds(bool pred) {
+    this->setFlags(SkSetClearShift(fFlags, !pred, kNoClip_Shift));
+}
+
 void SkView::setSize(SkScalar width, SkScalar height)
 {
 	width = SkMaxScalar(0, width);
@@ -87,12 +91,16 @@ void SkView::draw(SkCanvas* canvas)
 	{
 		SkRect	r;
 		r.set(fLoc.fX, fLoc.fY, fLoc.fX + fWidth, fLoc.fY + fHeight);
-		if (canvas->quickReject(r, SkCanvas::kBW_EdgeType))
-			return;
+		if (this->isClipToBounds() &&
+            canvas->quickReject(r, SkCanvas::kBW_EdgeType)) {
+                return;
+        }
 
 		SkAutoCanvasRestore	as(canvas, true);
 
-		canvas->clipRect(r);
+        if (this->isClipToBounds()) {
+            canvas->clipRect(r);
+        }
 		canvas->translate(fLoc.fX, fLoc.fY);
 
         if (fParent) {
@@ -119,37 +127,36 @@ void SkView::draw(SkCanvas* canvas)
 	}
 }
 
-void SkView::inval(SkRect* rect)
-{
-	if (!this->isVisible())
-		return;
-
-	SkRect	bounds;
-
-	this->getLocalBounds(&bounds);
-	if (rect && !bounds.intersect(*rect))
-		return;
-
-	rect = &bounds;
+void SkView::inval(SkRect* rect) {
 	SkView*	view = this;
+    SkRect storage;
 
-	for (;;)
-	{
-		if (view->handleInval(bounds))
-			break;
+	for (;;) {
+        if (!view->isVisible()) {
+            return;
+        }
+        if (view->isClipToBounds()) {
+            SkRect bounds;
+            view->getLocalBounds(&bounds);
+            if (rect && !bounds.intersect(*rect)) {
+                return;
+            }
+            storage = bounds;
+            rect = &storage;
+        }
+        if (view->handleInval(rect)) {
+            return;
+        }
 
-		SkRect	parentR;
 		SkView* parent = view->fParent;
+        if (parent == NULL) {
+            return;
+        }
 
-		if (parent == NULL || !parent->isVisible())
-			break;
-
-		bounds.offset(view->fLoc.fX, view->fLoc.fY);
-		parent->getLocalBounds(&parentR);
-		if (!bounds.intersect(parentR))
-			return;
-
-		view = parent;
+        if (rect) {
+            rect->offset(view->fLoc.fX, view->fLoc.fY);
+        }
+        view = parent;
 	}
 }
 
@@ -456,7 +463,7 @@ bool SkView::onClick(Click*) {
 	return false;
 }
 
-bool SkView::handleInval(const SkRect& r) {
+bool SkView::handleInval(const SkRect*) {
 	return false;
 }
 

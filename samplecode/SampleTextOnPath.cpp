@@ -16,7 +16,7 @@
 #include "SkTypeface.h"
 #include "SkAvoidXfermode.h"
 
-#define REPEAT_COUNT    1
+#define REPEAT_COUNT    0
 
 static const char gText[] = "Hamburgefons";
 
@@ -48,13 +48,13 @@ static void test_measure(const SkPaint& paint) {
     for (int i = 0; i < 100; i++) {
         rand_text(text, rand, 256);
         paint.getTextWidths(text, count, widths, NULL);
-        SkScalar tw0 = sum_widths(widths, count);
+        SkDEBUGCODE(SkScalar tw0 = sum_widths(widths, count);)
         paint.getTextWidths(text, count, widths, rects);
-        SkScalar tw1 = sum_widths(widths, count);
+        SkDEBUGCODE(SkScalar tw1 = sum_widths(widths, count);)
         SkASSERT(tw0 == tw1);
 
-        SkScalar w0 = paint.measureText(text, count, NULL);
-        SkScalar w1 = paint.measureText(text, count, &bounds);
+        SkDEBUGCODE(SkScalar w0 = paint.measureText(text, count, NULL);)
+        SkDEBUGCODE(SkScalar w1 = paint.measureText(text, count, &bounds);)
         SkASSERT(w0 == w1);
         SkASSERT(w0 == tw0);
         
@@ -175,12 +175,12 @@ static void test_textpathmatrix(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawPath(path, paint);
+ //   canvas->drawPath(path, paint);
     paint.setStyle(SkPaint::kFill_Style);
     paint.setTextSize(SkIntToScalar(48));
     paint.setTextAlign(SkPaint::kRight_Align);
     
-    const char* text = "Android";
+    const char* text = "Reflection";
     size_t      len = strlen(text);
     SkScalar    pathLen = getpathlen(path);
 
@@ -211,7 +211,8 @@ public:
         r.set(SkIntToScalar(100), SkIntToScalar(100),
               SkIntToScalar(300), SkIntToScalar(300));
         fPath.addOval(r);
-        
+        fPath.offset(SkIntToScalar(200), 0);
+
         fHOffset = SkIntToScalar(50);
     }
 
@@ -278,12 +279,10 @@ protected:
         
         paint.setColor(SK_ColorGREEN);
         paint.setStyle(SkPaint::kStroke_Style);
-        canvas->drawPath(fPath, paint);
+//        canvas->drawPath(fPath, paint);
         
-        canvas->translate(SkIntToScalar(200), 0);
+        canvas->translate(0, SkIntToScalar(100));
         test_textpathmatrix(canvas);
-
-        test_bitmap_blur(canvas);
         
         if (REPEAT_COUNT > 1)
             this->inval(NULL);

@@ -29,14 +29,16 @@ public:
     /** Create a ColorShader that will inherit its color from the Paint
         at draw time.
     */
-    SkColorShader() : fFlags(0), fInheritColor(true) {}
+    SkColorShader();
 
     /** Create a ColorShader that ignores the color in the paint, and uses the
         specified color. Note: like all shaders, at draw time the paint's alpha
         will be respected, and is applied to the specified color.
     */
-    SkColorShader(SkColor c) : fColor(c), fFlags(0), fInheritColor(false) {}
-    
+    SkColorShader(SkColor c);
+
+    virtual ~SkColorShader();
+
     virtual uint32_t getFlags() { return fFlags; }
     virtual uint8_t getSpan16Alpha() const;
     virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
@@ -45,6 +47,10 @@ public:
     virtual void shadeSpan16(int x, int y, uint16_t span[], int count);
     virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
 
+    virtual BitmapType asABitmap(SkBitmap* outTexture, 
+                                 SkMatrix* outMatrix,
+                                 TileMode xy[2], 
+                                 SkScalar* twoPointRadialParams);
 protected:
     SkColorShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer& );
@@ -58,6 +64,9 @@ private:
     uint32_t    fFlags;         // cached after setContext()
     uint16_t    fColor16;       // cached after setContext()
     SkBool8     fInheritColor;
+
+    // deferred allocation, used for asABitmap()
+    SkPixelRef* fAsABitmapPixelRef;
 
     typedef SkShader INHERITED;
 };

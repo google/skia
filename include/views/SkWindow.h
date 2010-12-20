@@ -19,6 +19,7 @@
 
 #include "SkView.h"
 #include "SkBitmap.h"
+#include "SkMatrix.h"
 #include "SkRegion.h"
 #include "SkEvent.h"
 #include "SkKey.h"
@@ -28,6 +29,8 @@
     #define SHOW_FPS
 #endif
 //#define USE_GX_SCREEN
+
+class SkCanvas;
 
 class SkOSMenu;
 
@@ -44,7 +47,13 @@ public:
     void    eraseRGB(U8CPU r, U8CPU g, U8CPU b);
 
     bool    isDirty() const { return !fDirtyRgn.isEmpty(); }
-    bool    update(SkIRect* updateArea);
+    bool    update(SkIRect* updateArea, SkCanvas* = NULL);
+    // does not call through to onHandleInval(), but does force the fDirtyRgn
+    // to be wide open. Call before update() to ensure we redraw everything.
+    void    forceInvalAll();
+    // return the bounds of the dirty/inval rgn, or [0,0,0,0] if none
+    const SkIRect& getDirtyBounds() const { return fDirtyRgn.getBounds(); }
+
     bool    handleClick(int x, int y, Click::State);
     bool    handleChar(SkUnichar);
     bool    handleKey(SkKey);
@@ -55,6 +64,11 @@ public:
     
     const char* getTitle() const { return fTitle.c_str(); }
     void    setTitle(const char title[]);
+
+    const SkMatrix& getMatrix() const { return fMatrix; }
+    void    setMatrix(const SkMatrix&);
+    void    preConcat(const SkMatrix&);
+    void    postConcat(const SkMatrix&);
 
 protected:
     virtual bool onEvent(const SkEvent&);
@@ -68,7 +82,7 @@ protected:
     virtual void onSetTitle(const char title[]) {}
 
     // overrides from SkView
-    virtual bool handleInval(const SkRect&);
+    virtual bool handleInval(const SkRect*);
     virtual bool onGetFocusView(SkView** focus) const;
     virtual bool onSetFocusView(SkView* focus);
 
@@ -84,6 +98,7 @@ private:
     bool    fWaitingOnInval;
     
     SkString    fTitle;
+    SkMatrix    fMatrix;
 
     typedef SkView INHERITED;
 };
@@ -100,6 +115,8 @@ private:
   #include "SkOSWindow_Unix.h"
 #elif defined(SK_BUILD_FOR_SDL)
     #include "SkOSWindow_SDL.h"
+#elif defined(SK_BUILD_FOR_IOS)
+    #include "SkOSWindow_iOS.h"
 #endif
 
 #endif

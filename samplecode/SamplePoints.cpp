@@ -85,7 +85,7 @@ protected:
         p3.setColor(SK_ColorWHITE);
         
      //   fAA = !fAA;
-        fAA = true;
+        fAA = false;
         p0.setAntiAlias(fAA);
         p1.setAntiAlias(fAA);
         p2.setAntiAlias(fAA);

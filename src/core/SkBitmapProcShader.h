@@ -32,7 +32,8 @@ public:
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
     virtual void beginSession();
     virtual void endSession();
-    virtual bool asABitmap(SkBitmap*, SkMatrix*, TileMode*);
+    virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, TileMode*, 
+                                 SkScalar* twoPointRadialParams);
 
     static bool CanDo(const SkBitmap&, TileMode tx, TileMode ty);
 
