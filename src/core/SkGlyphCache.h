@@ -91,7 +91,9 @@ public:
     const SkPaint::FontMetrics& getFontMetricsY() const {
         return fFontMetricsY;
     }
-    
+
+    const SkDescriptor& getDescriptor() const { return *fDesc; }
+
     /*  AuxProc/Data allow a client to associate data with this cache entry.
         Multiple clients can use this, as their data is keyed with a function
         pointer. In addition to serving as a key, the function pointer is called
@@ -154,6 +156,31 @@ public:
     */
     static bool SetCacheUsed(size_t bytesUsed);
 
+#ifdef SK_DEBUG
+    void validate() const;
+#else
+    void validate() const {}
+#endif
+
+    class AutoValidate : SkNoncopyable {
+    public:
+        AutoValidate(const SkGlyphCache* cache) : fCache(cache) {
+            if (fCache) {
+                fCache->validate();
+            }
+        }
+        ~AutoValidate() {
+            if (fCache) {
+                fCache->validate();
+            }
+        }
+        void forget() {
+            fCache = NULL;
+        }
+    private:
+        const SkGlyphCache* fCache;
+    };
+        
 private:
     SkGlyphCache(const SkDescriptor*);
     ~SkGlyphCache();

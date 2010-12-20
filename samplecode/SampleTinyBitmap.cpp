@@ -48,6 +48,10 @@ protected:
     }
     
     void drawBG(SkCanvas* canvas) {
+        SkIPoint size;
+        if (canvas->getViewport(&size)) {
+            SkDebugf("");
+        }
         canvas->drawColor(0xFFDDDDDD);
     }
     

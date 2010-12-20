@@ -1209,6 +1209,11 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
     return h;
 }
 
+static SkScalar sk_relax(SkScalar x) {
+    int n = sk_float_round2int(x * 1024);
+    return n / 1024.0f;
+}
+
 void SkScalerContext::MakeRec(const SkPaint& paint,
                               const SkMatrix* deviceMatrix, Rec* rec)
 {
@@ -1222,10 +1227,10 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     if (deviceMatrix)
     {
-        rec->fPost2x2[0][0] = deviceMatrix->getScaleX();
-        rec->fPost2x2[0][1] = deviceMatrix->getSkewX();
-        rec->fPost2x2[1][0] = deviceMatrix->getSkewY();
-        rec->fPost2x2[1][1] = deviceMatrix->getScaleY();
+        rec->fPost2x2[0][0] = sk_relax(deviceMatrix->getScaleX());
+        rec->fPost2x2[0][1] = sk_relax(deviceMatrix->getSkewX());
+        rec->fPost2x2[1][0] = sk_relax(deviceMatrix->getSkewY());
+        rec->fPost2x2[1][1] = sk_relax(deviceMatrix->getScaleY());
     }
     else
     {

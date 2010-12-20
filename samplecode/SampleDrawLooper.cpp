@@ -6,8 +6,6 @@
 #include "SkLayerDrawLooper.h"
 #include "SkBlurMaskFilter.h"
 
-#include <pthread.h>
-
 #define WIDTH   200
 #define HEIGHT  200
 

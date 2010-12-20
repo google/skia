@@ -37,26 +37,30 @@ class SkRegion;
 class SkDeviceFactory {
 public:
     virtual ~SkDeviceFactory();
-    virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
-                                bool isOpaque, bool isForLayer) = 0;
+    virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
+                                int height, bool isOpaque, bool isLayer) = 0;
 };
 
 class SkRasterDeviceFactory : public SkDeviceFactory {
 public:
-    virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
-                                bool isOpaque, bool isForLayer);
+    virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
+                                int height, bool isOpaque, bool isLayer);
 };
 
 class SkDevice : public SkRefCnt {
 public:
-    SkDevice();
-    /** Construct a new device, extracting the width/height/config/isOpaque
-        values from the bitmap.  Subclasses may override the destructor, which
-        is virtual, even though this class doesn't have one. SkRefCnt does.
-
+    SkDevice(SkCanvas*);
+    /** Construct a new device, extracting the width/height/config/isOpaque values from
+        the bitmap. If transferPixelOwnership is true, and the bitmap claims to own its
+        own pixels (getOwnsPixels() == true), then transfer this responsibility to the
+        device, and call setOwnsPixels(false) on the bitmap.
+        
+        Subclasses may override the destructor, which is virtual, even though this class
+        doesn't have one. SkRefCnt does.
+    
         @param bitmap   A copy of this bitmap is made and stored in the device
     */
-    SkDevice(const SkBitmap& bitmap);
+    SkDevice(SkCanvas*, const SkBitmap& bitmap, bool forOffscreen);
 
     virtual SkDeviceFactory* getDeviceFactory() {
         return SkNEW(SkRasterDeviceFactory);
@@ -112,6 +116,11 @@ public:
     virtual void lockPixels();
     virtual void unlockPixels();
 
+    /** Return the device's associated texture, or NULL. If returned, it may be
+        drawn into another device
+     */
+    virtual SkGpuTexture* accessTexture() { return NULL; }
+
     /** Called with the correct matrix and clip before this device is drawn
         to using those settings. If your subclass overrides this, be sure to
         call through to the base class as well.
@@ -121,7 +130,24 @@ public:
     /** Called when this device gains focus (i.e becomes the current device
         for drawing).
     */
-    virtual void gainFocus(SkCanvas*) {}
+    virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&) {}
+    
+    /** Causes any deferred drawing to the device to be completed.
+     */
+    virtual void flush() {}
+
+    /**
+     *  Copy the pixels from the device into bitmap. Returns true on success.
+     *  If false is returned, then the bitmap parameter is left unchanged.
+     */
+    virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
+
+    /**
+     *  Similar to draw sprite, this method will copy the pixels in bitmap onto
+     *  the device, with the top/left corner specified by (x, y). The pixel
+     *  values in the device are completely replaced: there is no blending.
+     */
+    virtual void writePixels(const SkBitmap& bitmap, int x, int y);
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -134,8 +160,11 @@ public:
     virtual void drawRect(const SkDraw&, const SkRect& r,
                           const SkPaint& paint);
     virtual void drawPath(const SkDraw&, const SkPath& path,
-                          const SkPaint& paint);
+                          const SkPaint& paint,
+                          const SkMatrix* prePathMatrix = NULL,
+                          bool pathIsMutable = false);
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
+                            const SkIRect* srcRectOrNull,
                             const SkMatrix& matrix, const SkPaint& paint);
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint);
@@ -162,7 +191,15 @@ protected:
     */
     virtual void onAccessBitmap(SkBitmap*);
 
+    SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
+    // just for subclasses, to assign a custom pixelref
+    SkPixelRef* setPixelRef(SkPixelRef* pr, size_t offset) {
+        fBitmap.setPixelRef(pr, offset);
+        return pr;
+    }
+
 private:
+    SkCanvas* fCanvas;
     SkBitmap fBitmap;
 };
 

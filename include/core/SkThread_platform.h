@@ -17,7 +17,7 @@
 #ifndef SkThread_platform_DEFINED
 #define SkThread_platform_DEFINED
 
-#ifdef ANDROID
+#if defined(ANDROID) && !defined(SK_BUILD_FOR_ANDROID_NDK)
 
 #include <utils/threads.h>
 #include <utils/Atomic.h>

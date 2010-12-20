@@ -4,9 +4,20 @@
 
 SkDeviceFactory::~SkDeviceFactory() {}
 
-SkDevice::SkDevice() {}
+SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas) {}
 
-SkDevice::SkDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {}
+SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
+        : fCanvas(canvas), fBitmap(bitmap) {
+    // auto-allocate if we're for offscreen drawing
+    if (isForLayer) {
+        if (NULL == fBitmap.getPixels() && NULL == fBitmap.pixelRef()) {
+            fBitmap.allocPixels();   
+            if (!fBitmap.isOpaque()) {
+                fBitmap.eraseColor(0);
+            }
+        }
+    }
+}
 
 void SkDevice::lockPixels() {
     fBitmap.lockPixels();
@@ -47,6 +58,39 @@ void SkDevice::setMatrixClip(const SkMatrix&, const SkRegion&) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkDevice::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
+    const SkBitmap& src = this->accessBitmap(false);
+
+    SkIRect bounds;
+    bounds.set(0, 0, src.width(), src.height());
+    if (!bounds.intersect(srcRect)) {
+        return false;
+    }
+
+    SkBitmap subset;
+    if (!src.extractSubset(&subset, bounds)) {
+        return false;
+    }
+
+    SkBitmap tmp;
+    if (!subset.copyTo(&tmp, SkBitmap::kARGB_8888_Config)) {
+        return false;
+    }
+
+    tmp.swap(*bitmap);
+    return true;
+}
+
+void SkDevice::writePixels(const SkBitmap& bitmap, int x, int y) {
+    SkPaint paint;
+    paint.setXfermodeMode(SkXfermode::kSrc_Mode);
+
+    SkCanvas canvas(this);
+    canvas.drawSprite(bitmap, x, y, &paint);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
     draw.drawPaint(paint);
 }
@@ -62,13 +106,24 @@ void SkDevice::drawRect(const SkDraw& draw, const SkRect& r,
 }
 
 void SkDevice::drawPath(const SkDraw& draw, const SkPath& path,
-                            const SkPaint& paint) {
-    draw.drawPath(path, paint);
+                        const SkPaint& paint, const SkMatrix* prePathMatrix,
+                        bool pathIsMutable) {
+    draw.drawPath(path, paint, prePathMatrix, pathIsMutable);
 }
 
 void SkDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
-                              const SkMatrix& matrix, const SkPaint& paint) {
-    draw.drawBitmap(bitmap, matrix, paint);
+                          const SkIRect* srcRect,
+                          const SkMatrix& matrix, const SkPaint& paint) {
+    SkBitmap        tmp;    // storage if we need a subset of bitmap
+    const SkBitmap* bitmapPtr = &bitmap;
+    
+    if (srcRect) {
+        if (!bitmap.extractSubset(&tmp, *srcRect)) {
+            return;     // extraction failed
+        }
+        bitmapPtr = &tmp;
+    }
+    draw.drawBitmap(*bitmapPtr, matrix, paint);
 }
 
 void SkDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
@@ -109,16 +164,15 @@ void SkDevice::drawDevice(const SkDraw& draw, SkDevice* device,
     draw.drawSprite(device->accessBitmap(false), x, y, paint);
 }
 
-SkDevice* SkRasterDeviceFactory::newDevice(SkBitmap::Config config, int width,
+///////////////////////////////////////////////////////////////////////////////
+
+SkDevice* SkRasterDeviceFactory::newDevice(SkCanvas* canvas,
+                                           SkBitmap::Config config, int width,
                                            int height, bool isOpaque,
                                            bool isForLayer) {
     SkBitmap bitmap;
     bitmap.setConfig(config, width, height);
     bitmap.setIsOpaque(isOpaque);
 
-    bitmap.allocPixels();
-    if (!bitmap.isOpaque())
-        bitmap.eraseARGB(0, 0, 0, 0);
-
-    return SkNEW_ARGS(SkDevice, (bitmap));
+    return SkNEW_ARGS(SkDevice, (canvas, bitmap, isForLayer));
 }

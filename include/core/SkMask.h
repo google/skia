@@ -44,8 +44,9 @@ struct SkMask {
            edges. kVerticalLCD_Format has an extra row at the top and bottom.
         */
 
-        kHorizontalLCD_Format, //!< 4 bytes/pixel: a/r/g/b
-        kVerticalLCD_Format, //!< 4 bytes/pixel: a/r/g/b
+        kHorizontalLCD_Format,  //!< 4 bytes/pixel: a/r/g/b
+        kVerticalLCD_Format,    //!< 4 bytes/pixel: a/r/g/b
+        kARGB32_Format,         //!< SkPMColor
     };
 
     enum {

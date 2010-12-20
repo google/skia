@@ -17,9 +17,17 @@
 #ifndef SkPreConfig_DEFINED
 #define SkPreConfig_DEFINED
 
+#ifdef WEBKIT_VERSION_MIN_REQUIRED
+    #include "config.h"
+#endif
+
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_BUILD_FOR_PALM) && !defined(SK_BUILD_FOR_WINCE) && !defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_SYMBIAN) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_SDL)
+#if !defined(SK_BUILD_FOR_ANDROID_NDK) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_PALM) && !defined(SK_BUILD_FOR_WINCE) && !defined(SK_BUILD_FOR_WIN32) && !defined(SK_BUILD_FOR_SYMBIAN) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC) && !defined(SK_BUILD_FOR_SDL)
+
+    #ifdef __APPLE__
+        #include "TargetConditionals.h"
+    #endif
 
     #if defined(PALMOS_SDK_VERSION)
         #define SK_BUILD_FOR_PALM
@@ -31,6 +39,12 @@
         #define SK_BUILD_FOR_WIN32
     #elif defined(linux)
         #define SK_BUILD_FOR_UNIX
+    #elif TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+        #define SK_BUILD_FOR_IOS
+    #elif defined(ANDROID_NDK)
+        #define SK_BUILD_FOR_ANDROID_NDK
+    #elif defined(ANROID)
+        #define SK_BUILD_FOR_ANDROID
     #else
         #define SK_BUILD_FOR_MAC
     #endif

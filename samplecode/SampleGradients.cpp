@@ -130,7 +130,6 @@ protected:
         SkShader::TileMode tm = SkShader::kClamp_TileMode;
         SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
         SkPaint paint;
-        paint.setAntiAlias(true);
         paint.setDither(true);
 
         canvas->save();
@@ -138,10 +137,10 @@ protected:
         for (size_t i = 0; i < SK_ARRAY_COUNT(gGradData); i++) {
             canvas->save();
             for (size_t j = 0; j < SK_ARRAY_COUNT(gGradMakers); j++) {
-                SkShader* shader = gGradMakers[j](pts, gGradData[i], tm, NULL);
-                paint.setShader(shader);
+                SkShader* shader;
+                shader = gGradMakers[j](pts, gGradData[i], tm, NULL);
+                paint.setShader(shader)->unref();
                 canvas->drawRect(r, paint);
-                shader->unref();
                 canvas->translate(0, SkIntToScalar(120));
             }
             canvas->restore();
@@ -151,6 +150,7 @@ protected:
         
         canvas->translate(0, SkIntToScalar(370));
      //   test_alphagradients(canvas);
+        this->inval(NULL);
     }
     
 private:

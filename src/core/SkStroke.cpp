@@ -633,6 +633,10 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 
     if (fDoFill) {
         dst->addPath(src);
+    } else {
+        if (src.countPoints() == 2) {
+            dst->setIsConvex(true);
+        }
     }
 }
 

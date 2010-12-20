@@ -22,10 +22,7 @@ public:
     // overrides from SkCanvas
 
     virtual bool getViewport(SkIPoint* size) const;
-    virtual bool setViewport(int x, int y);
     
-    virtual SkDevice* setBitmapDevice(const SkBitmap& bitmap);
-
     virtual int save(SaveFlags flags = kMatrixClip_SaveFlag);
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags flags = kARGB_ClipLayer_SaveFlag);

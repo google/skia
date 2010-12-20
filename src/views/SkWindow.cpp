@@ -1,5 +1,6 @@
 #include "SkWindow.h"
 #include "SkCanvas.h"
+#include "SkDevice.h"
 #include "SkOSMenu.h"
 #include "SkSystemEventTypes.h"
 #include "SkTime.h"
@@ -48,6 +49,8 @@ SkWindow::SkWindow() : fFocusView(NULL)
 #else
 	fConfig = SkBitmap::kARGB_8888_Config;
 #endif
+
+    fMatrix.reset();
 }
 
 SkWindow::~SkWindow()
@@ -55,6 +58,25 @@ SkWindow::~SkWindow()
 	delete fClick;
 
 	fMenus.deleteAll();
+}
+
+void SkWindow::setMatrix(const SkMatrix& matrix) {
+    if (fMatrix != matrix) {
+        fMatrix = matrix;
+        this->inval(NULL);
+    }
+}
+
+void SkWindow::preConcat(const SkMatrix& matrix) {
+    SkMatrix m;
+    m.setConcat(fMatrix, matrix);
+    this->setMatrix(m);
+}
+
+void SkWindow::postConcat(const SkMatrix& matrix) {
+    SkMatrix m;
+    m.setConcat(matrix, fMatrix);
+    this->setMatrix(m);
 }
 
 void SkWindow::setConfig(SkBitmap::Config config)
@@ -72,6 +94,7 @@ void SkWindow::resize(int width, int height, SkBitmap::Config config)
 		fConfig = config;
 		fBitmap.setConfig(config, width, height);
 		fBitmap.allocPixels();
+        fBitmap.setIsOpaque(true);
 
 		this->setSize(SkIntToScalar(width), SkIntToScalar(height));
 		this->inval(NULL);
@@ -88,23 +111,29 @@ void SkWindow::eraseRGB(U8CPU r, U8CPU g, U8CPU b)
 	fBitmap.eraseRGB(r, g, b);
 }
 
-bool SkWindow::handleInval(const SkRect& r)
+bool SkWindow::handleInval(const SkRect* localR)
 {
 	SkIRect	ir;
 
-	r.round(&ir);
+    if (localR) {
+        SkRect devR;
+        SkMatrix inverse;
+        if (!fMatrix.invert(&inverse)) {
+            return false;
+        }
+        fMatrix.mapRect(&devR, *localR);
+        devR.round(&ir);
+    } else {
+        ir.set(0, 0, this->width(), this->height());
+    }
 	fDirtyRgn.op(ir, SkRegion::kUnion_Op);
 
-#ifdef SK_BUILD_FOR_WIN32xxxx
-	if (!fWaitingOnInval)
-	{
-		fWaitingOnInval = true;
-		(new SkEvent(SK_EventDelayInval))->post(this->getSinkID(), 10);
-	}
-#else
 	this->onHandleInval(ir);
-#endif
 	return true;
+}
+
+void SkWindow::forceInvalAll() {
+    fDirtyRgn.setRect(0, 0, this->width(), this->height());
 }
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)
@@ -117,7 +146,7 @@ bool SkWindow::handleInval(const SkRect& r)
 extern bool gEnableControlledThrow;
 #endif
 
-bool SkWindow::update(SkIRect* updateArea)
+bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
 {
 	if (!fDirtyRgn.isEmpty())
 	{
@@ -134,11 +163,23 @@ bool SkWindow::update(SkIRect* updateArea)
 		bm.setPixels(buffer);
 #endif
 
-		SkCanvas	canvas(bm);
+		SkCanvas	rasterCanvas;
+        SkDevice*   device;
 
-		canvas.clipRegion(fDirtyRgn);
+        if (NULL == canvas) {
+            canvas = &rasterCanvas;
+            device = new SkDevice(canvas, bm, false);
+            canvas->setDevice(device)->unref();
+        } else {
+            canvas->setBitmapDevice(bm);
+        }
+
+		canvas->clipRegion(fDirtyRgn);
 		if (updateArea)
 			*updateArea = fDirtyRgn.getBounds();
+
+        SkAutoCanvasRestore acr(canvas, true);
+        canvas->concat(fMatrix);
 
 		// empty this now, so we can correctly record any inval calls that
 		// might be made during the draw call.
@@ -146,25 +187,25 @@ bool SkWindow::update(SkIRect* updateArea)
 
 #ifdef TEST_BOUNDER
 		test_bounder	b(bm);
-		canvas.setBounder(&b);
+		canvas->setBounder(&b);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
 		gEnableControlledThrow = true;
 #endif
 #ifdef SK_BUILD_FOR_WIN32
-		try {
-			this->draw(&canvas);
-		}
-		catch (...) {
-		}
+		//try {
+			this->draw(canvas);
+		//}
+		//catch (...) {
+		//}
 #else
-		this->draw(&canvas);
+		this->draw(canvas);
 #endif
 #ifdef SK_SIMULATE_FAILED_MALLOC
 		gEnableControlledThrow = false;
 #endif
 #ifdef TEST_BOUNDER
-		canvas.setBounder(NULL);
+		canvas->setBounder(NULL);
 #endif
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)

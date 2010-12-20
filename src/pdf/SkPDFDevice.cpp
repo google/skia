@@ -118,16 +118,23 @@ void alignText(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkDevice* SkPDFDeviceFactory::newDevice(SkBitmap::Config config,
-                                        int width, int height,
-                                        bool isOpaque, bool isForLayer) {
+SkDevice* SkPDFDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
+                                        int width, int height, bool isOpaque,
+                                        bool /*isForLayer*/) {
     return SkNEW_ARGS(SkPDFDevice, (width, height));
+}
+
+static inline SkBitmap makeABitmap(int width, int height) {
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kNo_Config, width, height);
+    return bitmap;
 }
 
 SkPDFDevice::SkPDFDevice(int width, int height)
     : fWidth(width),
       fHeight(height),
-      fGraphicStackIndex(0) {
+      fGraphicStackIndex(0),
+      SkDevice(NULL, makeABitmap(width, height), false) {
     fGraphicStack[0].fColor = SK_ColorBLACK;
     fGraphicStack[0].fTextSize = SK_ScalarNaN;  // This has no default value.
     fGraphicStack[0].fTextScaleX = SK_Scalar1;
@@ -271,7 +278,10 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
+                             const SkIRect* srcRect,
                              const SkMatrix& matrix, const SkPaint& paint) {
+    // TODO: respect srcRect if present
+
     SkMatrix transform = matrix;
     transform.postConcat(fGraphicStack[fGraphicStackIndex].fTransform);
     internalDrawBitmap(transform, bitmap, paint);

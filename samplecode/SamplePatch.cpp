@@ -35,7 +35,7 @@ static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;
     
 //    SkImageDecoder::DecodeFile("/skimages/progressivejpg.jpg", &bm);
-    SkImageDecoder::DecodeFile("/skimages/beach.jpg", &bm);
+    SkImageDecoder::DecodeFile("/skimages/logo.png", &bm);
     size->set(bm.width(), bm.height());
     return SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
                                         SkShader::kClamp_TileMode);
@@ -279,77 +279,6 @@ protected:
         SkPaint paint;
         paint.setDither(true);
         paint.setFilterBitmap(true);
-
-        if (false) {
-            SkPath p;
-            p.moveTo(0, 0);
-            p.lineTo(SkIntToScalar(30000), SkIntToScalar(30000));
-            paint.setStyle(SkPaint::kStroke_Style);
-            paint.setStrokeWidth(SkIntToScalar(4));
-            paint.setAntiAlias(true);
-            canvas->scale(SkIntToScalar(3), SkIntToScalar(3));
-            canvas->drawPath(p, paint);
-            return;
-        }
-        
-        if (false) {
-            for (int dy = -1; dy <= 2; dy++) {
-                canvas->save();
-                if (dy == 2) {
-                    canvas->translate(0, SK_Scalar1/2);
-                } else {
-                    canvas->translate(0, SkIntToScalar(dy)/100);
-                }
-            
-                SkBitmap bm;
-                bm.setConfig(SkBitmap::kARGB_8888_Config, 20, 20);
-                bm.allocPixels();
-                SkCanvas c(bm);
-                SkRect r = { 0, 0, 20*SK_Scalar1, SK_Scalar1 };
-                for (int y = 0; y < 20; y++) {
-                    SkPaint p;
-                    p.setARGB(0xFF, y*5&0xFF, y*13&0xFF, y*29&0xFF);
-                    c.drawRect(r, p);
-                    r.offset(0, SK_Scalar1);
-                }
-                SkIRect src;
-                SkRect  dst;
-                
-                static const int srcPts[] = {
-                 //   2, 0, 15, 2,
-                    2, 2, 15, 16,
-                    17, 2, 2, 16,
-                    19, 2, 1, 16,
-                //    2, 18, 15, 2
-                };
-                static const double dstPts[] = {
-                //    7, 262 15, 24.5,
-                    7, 286.5, 15, 16,
-                    22, 286.5, 5, 16,
-                    27, 286.5, 1, 16,
-                 //   7, 302.5, 15, 24.5
-                };
-                
-                SkPaint p;
-//                p.setFilterBitmap(true);
-                const int* s = srcPts;
-                const double* d = dstPts;
-                for (int i = 0; i < 3; i++) {
-                    src.set(s[0], s[1], s[0]+s[2], s[1]+s[3]);
-                    dst.set(SkDoubleToScalar(d[0]),
-                            SkDoubleToScalar(d[1]),
-                            SkDoubleToScalar(d[0]+d[2]),
-                            SkDoubleToScalar(d[1]+d[3]));
-                    canvas->drawBitmapRect(bm, &src, dst, &p);
-                    canvas->translate(SkDoubleToScalar(1), 0);
-                    s += 4;
-                    d += 4;
-                }
-                canvas->restore();
-                canvas->translate(SkIntToScalar(32), 0);
-            }
-            return;
-        }
         
         canvas->translate(SkIntToScalar(20), 0);
 
@@ -370,8 +299,7 @@ protected:
         paint.setShader(NULL);
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(5));
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(fPts),
-                           fPts, paint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, SK_ARRAY_COUNT(fPts), fPts, paint);
         
         canvas->translate(0, SkIntToScalar(300));
         

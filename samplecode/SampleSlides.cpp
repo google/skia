@@ -330,7 +330,8 @@ static SkShader* make_shader1(const SkIPoint& size) {
                                           SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode, NULL);
 }
 
-struct Rec {
+class Rec {
+public:
     SkCanvas::VertexMode    fMode;
     int                     fCount;
     SkPoint*                fVerts;
@@ -426,12 +427,13 @@ static void mesh_slide(SkCanvas* canvas) {
     
     SkShader* fShader0 = make_shader0(&size);
     SkShader* fShader1 = make_shader1(size);
-    
+
+    SkAutoUnref aur0(fShader0);
+    SkAutoUnref aur1(fShader1);
+
     make_strip(&fRecs[0], size.fX, size.fY);
     make_fan(&fRecs[1], size.fX, size.fY);
     make_tris(&fRecs[2]);
-
-
 
     SkPaint paint;
     paint.setDither(true);

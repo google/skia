@@ -344,7 +344,9 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         }
     }
 
-    glyph->fMaskFormat = fRec.fMaskFormat;
+	if (SkMask::kARGB32_Format != glyph->fMaskFormat) {
+		glyph->fMaskFormat = fRec.fMaskFormat;
+	}
 
     if (fMaskFilter) {
         SkMask      src, dst;
@@ -668,9 +670,14 @@ protected:
     }
 };
 
+extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
+
 SkScalerContext* SkScalerContext::Create(const SkDescriptor* desc)
 {
-    SkScalerContext* c = SkFontHost::CreateScalerContext(desc);
+	SkScalerContext* c = NULL;  //SkCreateColorScalerContext(desc);
+	if (NULL == c) {
+		c = SkFontHost::CreateScalerContext(desc);
+	}
     if (NULL == c) {
         c = SkNEW_ARGS(SkScalerContext_Empty, (desc));
     }

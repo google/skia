@@ -8,6 +8,11 @@
 #include "SkUtils.h"
 #include "SkImageDecoder.h"
 
+#ifdef SK_BUILD_FOR_WIN
+// windows doesn't have roundf
+inline float roundf(float x) { return (x-floor(x))>0.5 ? ceil(x) : floor(x); }
+#endif
+
 #ifdef SK_DEBUG
 static void make_rgn(SkRegion* rgn, int left, int top, int right, int bottom,
                      size_t count, int32_t runs[]) {
@@ -232,13 +237,7 @@ protected:
         canvas->drawPaint(paint);
     }
 
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        if (true) {
-            SkRect r = { 0, 0, 1 << 30, 1 << 30 };
-            bool open = canvas->clipRect(r);
-            SkDebugf("---- giant clip is %d\n", open);
-        }
+    virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
         
         if (false) {

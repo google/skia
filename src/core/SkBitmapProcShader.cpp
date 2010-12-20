@@ -44,8 +44,10 @@ void SkBitmapProcShader::endSession() {
     this->INHERITED::endSession();
 }
 
-bool SkBitmapProcShader::asABitmap(SkBitmap* texture, SkMatrix* texM,
-                                   TileMode xy[]) {
+SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture, 
+                                                   SkMatrix* texM, 
+                                                   TileMode xy[],
+                                                   SkScalar* twoPointRadialParams) {
     if (texture) {
         *texture = fRawBitmap;
     }
@@ -56,7 +58,7 @@ bool SkBitmapProcShader::asABitmap(SkBitmap* texture, SkMatrix* texM,
         xy[0] = (TileMode)fState.fTileModeX;
         xy[1] = (TileMode)fState.fTileModeY;
     }
-    return true;
+    return kDefault_BitmapType;
 }
 
 void SkBitmapProcShader::flatten(SkFlattenableWriteBuffer& buffer) {
@@ -82,7 +84,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 
     fState.fOrigBitmap = fRawBitmap;
     fState.fOrigBitmap.lockPixels();
-    if (!fState.fOrigBitmap.readyToDraw()) {
+    if (!fState.fOrigBitmap.getTexture() && !fState.fOrigBitmap.readyToDraw()) {
         fState.fOrigBitmap.unlockPixels();
         return false;
     }

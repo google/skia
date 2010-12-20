@@ -19,9 +19,9 @@ static void test_circlebounds(SkCanvas* canvas) {
 
 class CircleView : public SkView {
 public:
-    static const SkScalar ANIM_DX = SK_Scalar1 / 67;
-    static const SkScalar ANIM_DY = SK_Scalar1 / 29;
-    static const SkScalar ANIM_RAD = SK_Scalar1 / 19;
+    static const SkScalar ANIM_DX;
+    static const SkScalar ANIM_DY;
+    static const SkScalar ANIM_RAD;
     SkScalar fDX, fDY, fRAD;
 
     CircleView() {
@@ -97,7 +97,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -127,16 +127,16 @@ protected:
             canvas->translate(dx, 0);
             canvas->translate(SK_ScalarHalf, SK_ScalarHalf);
             drawSix(canvas, dx, dy);
-        }
         
-        fDX += ANIM_DX;
-        fDY += ANIM_DY;
-        fRAD += ANIM_RAD;
-        fN += 1;
-        if (fN > 40) {
-            fN = 3;
+            fDX += ANIM_DX;
+            fDY += ANIM_DY;
+            fRAD += ANIM_RAD;
+            fN += 1;
+            if (fN > 40) {
+                fN = 3;
+            }
+            this->inval(NULL);
         }
-        this->inval(NULL);
     }
     
 private:
@@ -144,9 +144,9 @@ private:
     typedef SkView INHERITED;
 };
 
-const SkScalar CircleView::ANIM_DX;
-const SkScalar CircleView::ANIM_DY;
-const SkScalar CircleView::ANIM_RAD;
+const SkScalar CircleView::ANIM_DX(SK_Scalar1 / 67);
+const SkScalar CircleView::ANIM_DY(SK_Scalar1 / 29);
+const SkScalar CircleView::ANIM_RAD(SK_Scalar1 / 19);
 
 //////////////////////////////////////////////////////////////////////////////
 

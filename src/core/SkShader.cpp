@@ -17,6 +17,7 @@
 
 #include "SkShader.h"
 #include "SkPaint.h"
+#include "SkMallocPixelRef.h"
 
 SkShader::SkShader() : fLocalMatrix(NULL) {
     SkDEBUGCODE(fInSession = false;)
@@ -195,8 +196,9 @@ SkShader::MatrixClass SkShader::ComputeMatrixClass(const SkMatrix& mat) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool SkShader::asABitmap(SkBitmap*, SkMatrix*, TileMode*) {
-    return false;
+SkShader::BitmapType SkShader::asABitmap(SkBitmap*, SkMatrix*, 
+                                         TileMode*, SkScalar*) {
+    return kNone_BitmapType;
 }
 
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
@@ -209,9 +211,28 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
 #include "SkColorShader.h"
 #include "SkUtils.h"
 
+SkColorShader::SkColorShader() {
+    fFlags = 0;
+    fInheritColor = true;
+    fAsABitmapPixelRef = NULL;
+}
+
+SkColorShader::SkColorShader(SkColor c) {
+    fFlags = 0;
+    fColor = c;
+    fInheritColor = false;
+    fAsABitmapPixelRef = NULL;
+}
+
+SkColorShader::~SkColorShader() {
+    SkSafeUnref(fAsABitmapPixelRef);
+}
+
 SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
     fFlags = 0; // computed in setContext
-    fInheritColor = b.readU8(); 
+    fAsABitmapPixelRef = NULL;
+
+    fInheritColor = b.readU8();
     if (fInheritColor) {
         return;
     }
@@ -283,5 +304,30 @@ void SkColorShader::shadeSpan16(int x, int y, uint16_t span[], int count) {
 
 void SkColorShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
     memset(alpha, SkGetPackedA32(fPMColor), count);
+}
+
+// if we had a asAColor method, that would be more efficient...
+SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
+                                              TileMode modes[], 
+                                              SkScalar* twoPointRadialParams) {
+    // we cache the pixelref, since its generateID is used in the texture cache
+    if (NULL == fAsABitmapPixelRef) {
+        SkPMColor* storage = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor));
+        *storage = fPMColor;
+        fAsABitmapPixelRef = new SkMallocPixelRef(storage, sizeof(SkPMColor),
+                                                  NULL);
+    }
+        
+    if (bitmap) {
+        bitmap->setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
+        bitmap->setPixelRef(fAsABitmapPixelRef);
+    }
+    if (matrix) {
+        matrix->reset();
+    }
+    if (modes) {
+        modes[0] = modes[1] = SkShader::kRepeat_TileMode;
+    }
+    return kDefault_BitmapType;
 }
 

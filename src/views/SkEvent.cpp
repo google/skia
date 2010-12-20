@@ -536,6 +536,21 @@ void SkEvent::ServiceQueueTimer()
     SkEvent::SignalQueueTimer(time);
 }
 
+int SkEvent::CountEventsOnQueue() {
+    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    globals.fEventMutex.acquire();
+    
+    int count = 0;
+    const SkEvent* evt = globals.fEventQHead;
+    while (evt) {
+        count += 1;
+        evt = evt->fNextEvent;
+    }
+    globals.fEventMutex.release();
+
+    return count;
+}
+
 ////////////////////////////////////////////////////////////////
 
 void SkEvent::Init()

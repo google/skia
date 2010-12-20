@@ -37,7 +37,7 @@ static inline SkPMColor rgb2gray(SkPMColor c)
     unsigned g = SkGetPackedG32(c);
     unsigned b = SkGetPackedB32(c);
     
-    unsigned x = r * 5 + g * 7 + b * 4 >> 4;
+    unsigned x = (r * 5 + g * 7 + b * 4) >> 4;
     
     return SkPackARGB32(0, x, x, x) | (c & (SK_A32_MASK << SK_A32_SHIFT));
 }
@@ -346,7 +346,7 @@ static void apply_shader(SkPaint* paint, int index)
 static void test_math()
 {
     float x;
-    const float PI = 3.141593;
+    const float PI = 3.141593f;
     
     for (x = 0; x < 1; x += 0.05f)
         printf("atan(%g) = %g\n", x, atanf(x) * 180/PI);

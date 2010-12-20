@@ -2,6 +2,8 @@
 
 #if defined(SK_BUILD_FOR_MAC) && !defined(SK_USE_WXWIDGETS)
 
+#include <AGL/agl.h>
+
 #include <Carbon/Carbon.h>
 #include "SkCGUtils.h"
 
@@ -82,7 +84,7 @@ static void set_axisposition(HIAxisPosition* pos, HIViewRef parent, HIPositionKi
     pos->offset = 0;
 }
 
-SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd)
+SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd), fAGLCtx(NULL)
 {
 	OSStatus    result;
     WindowRef   wr = (WindowRef)hWnd;
@@ -448,6 +450,80 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 //		SkDebugf("installtimetask of %d returned %d\n", delay, err);
 		PrimeTimeTask((QElem*)gTMTaskPtr, delay);
 	}
+}
+
+AGLContext create_gl(WindowRef wref, bool offscreen)
+{
+    GLint major, minor;
+    AGLContext ctx;
+    
+    aglGetVersion(&major, &minor);
+    SkDebugf("---- agl version %d %d\n", major, minor);
+    
+    const GLint pixelAttrs[] = {
+        AGL_RGBA,
+        AGL_STENCIL_SIZE, 8,
+        AGL_SAMPLE_BUFFERS_ARB, 1,
+		AGL_MULTISAMPLE,
+		AGL_SAMPLES_ARB, 2,        
+		(offscreen ? AGL_OFFSCREEN : AGL_ACCELERATED),
+        (offscreen ? AGL_NONE : AGL_DOUBLEBUFFER),
+        AGL_NONE
+    };
+    AGLPixelFormat format = aglChoosePixelFormat(NULL, 0, pixelAttrs);
+    //AGLPixelFormat format = aglCreatePixelFormat(pixelAttrs);
+    SkDebugf("----- agl format %p\n", format);
+    ctx = aglCreateContext(format, NULL);
+    SkDebugf("----- agl context %p\n", ctx);
+    aglDestroyPixelFormat(format);
+
+    static const GLint interval = 1;
+    aglSetInteger(ctx, AGL_SWAP_INTERVAL, &interval);
+    aglSetCurrentContext(ctx);
+    return ctx;
+}
+
+bool SkOSWindow::attachGL(const SkBitmap* offscreen)
+{
+    if (NULL == fAGLCtx) {
+        fAGLCtx = create_gl((WindowRef)fHWND, NULL != offscreen);
+        if (NULL == fAGLCtx) {
+            return false;
+        }
+    }
+
+    GLboolean success = true;
+
+    if (offscreen) {
+        success = aglSetOffScreen((AGLContext)fAGLCtx,
+                                    offscreen->width(),
+                                    offscreen->height(),
+                                    offscreen->rowBytes(),
+                                    offscreen->getPixels());
+    } else {
+        success = aglSetWindowRef((AGLContext)fAGLCtx, (WindowRef)fHWND);
+    }
+
+    GLenum err = aglGetError();
+    if (err) {
+        SkDebugf("---- setoffscreen %d %d %s [%d %d]\n", success, err,
+                 aglErrorString(err), offscreen->width(), offscreen->height());
+    }
+    
+    if (success) {
+        glClearColor(0, 0, 0, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+    return success;
+}
+
+void SkOSWindow::detachGL() {
+    aglSetWindowRef((AGLContext)fAGLCtx, NULL);
+}
+
+void SkOSWindow::presentGL() {
+    aglSwapBuffers((AGLContext)fAGLCtx);
+    glFlush();
 }
 
 #endif

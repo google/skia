@@ -21,8 +21,6 @@
 #include "SkMetaData.h"
 #include "SkString.h"
 
-//class SkOSWindow;
-
 /** Unique 32bit id used to identify an instance of SkEventSink. When events are
     posted, they are posted to a specific sinkID. When it is time to dispatch the
     event, the sinkID is used to find the specific SkEventSink object. If it is found,
@@ -100,6 +98,9 @@ public:
     */
     bool    findPtr(const char name[], void** value) const { return fMeta.findPtr(name, value); }
     bool    findBool(const char name[], bool* value) const { return fMeta.findBool(name, value); }
+    const void* findData(const char name[], size_t* byteCount = NULL) const {
+        return fMeta.findData(name, byteCount);
+    }
 
     /** Returns true if ethe event contains the named 32bit field, and if it equals the specified value */
     bool    hasS32(const char name[], int32_t value) const { return fMeta.hasS32(name, value); }
@@ -110,6 +111,9 @@ public:
     /** Returns true if ethe event contains the named pointer field, and if it equals the specified value */
     bool    hasPtr(const char name[], void* value) const { return fMeta.hasPtr(name, value); }
     bool    hasBool(const char name[], bool value) const { return fMeta.hasBool(name, value); }
+    bool hasData(const char name[], const void* data, size_t byteCount) const {
+        return fMeta.hasData(name, data, byteCount);
+    }
 
     /** Add/replace the named 32bit field to the event. In XML use the subelement <data name=... s32=... /> */
     void    setS32(const char name[], int32_t value) { fMeta.setS32(name, value); }
@@ -124,6 +128,9 @@ public:
     /** Add/replace the named pointer field to the event. There is no XML equivalent for this call */
     void    setPtr(const char name[], void* value) { fMeta.setPtr(name, value); }
     void    setBool(const char name[], bool value) { fMeta.setBool(name, value); }
+    void setData(const char name[], const void* data, size_t byteCount) {
+        fMeta.setData(name, data, byteCount);
+    }
 
     /** Return the underlying metadata object */
     SkMetaData&         getMetaData() { return fMeta; }
@@ -196,6 +203,12 @@ public:
         It may also call SignalQueueTimer() and SignalNonEmptyQueue().
     */
     static void     ServiceQueueTimer();
+
+    /** Return the number of queued events. note that this value may be obsolete
+        upon return, since another thread may have called ProcessEvent() or
+        Post() after the count was made.
+     */
+    static int CountEventsOnQueue();
 
     ////////////////////////////////////////////////////
     /** Porting layer must implement these functions **/

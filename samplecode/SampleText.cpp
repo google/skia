@@ -225,7 +225,7 @@ static const struct {
 #ifdef SK_DEBUG
     #define REPEAT_COUNT    1
 #else
-    #define REPEAT_COUNT    5000
+    #define REPEAT_COUNT    5
 #endif
 
 static int count_char_points(const SkPaint& paint, char c)

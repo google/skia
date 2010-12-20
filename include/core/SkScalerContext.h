@@ -44,11 +44,23 @@ struct SkGlyph {
 
     uint8_t     fMaskFormat;
     int8_t      fRsbDelta, fLsbDelta;  // used by auto-kerning
-    
+
+    void init(uint32_t id) {
+        fID             = id;
+        fImage          = NULL;
+        fPath           = NULL;
+#ifdef SK_GPU_AWARE_GLYPHCACHE
+        fGLCacheOffset  = SKGLYPH_GLCACHEOFFSET_INVALID;
+        fGLStrikePtr    = NULL;
+#endif
+    }
+
     unsigned rowBytes() const {
         unsigned rb = fWidth;
         if (SkMask::kBW_Format == fMaskFormat) {
             rb = (rb + 7) >> 3;
+		} else if (SkMask::kARGB32_Format == fMaskFormat) {
+			rb <<= 2;
         } else {
             rb = SkAlign4(rb);
         }

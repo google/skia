@@ -82,11 +82,11 @@ protected:
         r.set(x, y, x + SkIntToScalar(100), y + SkIntToScalar(100));
         
         SkPaint paint;
-        paint.setAntiAlias(true);
+     //   paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkScalarHalf(SkIntToScalar(3)));
         paint.setColor(0xFFFF8800);
-        paint.setColor(0xFFFFFFFF);
+     //   paint.setColor(0xFFFFFFFF);
         canvas->drawRect(r, paint);
     }
     

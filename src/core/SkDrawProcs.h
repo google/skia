@@ -13,7 +13,9 @@ struct SkDraw1Glyph {
 	SkGlyphCache*	fCache;
 	SkIRect			fClipBounds;
 	
-	typedef void (*Proc)(const SkDraw1Glyph&, const SkGlyph&, int x, int y);
+    // The fixed x,y have been pre-rounded (i.e. 1/2 has already been added),
+    // so the impls need just trunc down to an int
+	typedef void (*Proc)(const SkDraw1Glyph&, SkFixed x, SkFixed y, const SkGlyph&);
 	
 	Proc init(const SkDraw* draw, SkBlitter* blitter, SkGlyphCache* cache);
 };

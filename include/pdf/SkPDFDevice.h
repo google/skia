@@ -32,7 +32,7 @@ class SkPDFObject;
 class SkPDFStream;
 
 class SkPDFDeviceFactory : public SkDeviceFactory {
-    virtual SkDevice* newDevice(SkBitmap::Config config, int width, int height,
+    virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width, int height,
                                 bool isOpaque, bool isForLayer);
 };
 
@@ -66,6 +66,10 @@ public:
     */
     virtual void setMatrixClip(const SkMatrix&, const SkRegion&);
 
+    virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
+        return false;
+    }
+
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
@@ -79,6 +83,7 @@ public:
     virtual void drawPath(const SkDraw&, const SkPath& path,
                           const SkPaint& paint);
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
+                            const SkIRect* srcRectOrNull,
                             const SkMatrix& matrix, const SkPaint& paint);
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap, int x, int y,
                             const SkPaint& paint);
