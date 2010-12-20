@@ -29,7 +29,7 @@
 namespace {
 
 SkMemoryStream* extractImageData(const SkBitmap& bitmap) {
-    SkMemoryStream* result;
+    SkMemoryStream* result = NULL;
 
     bitmap.lockPixels();
     switch (bitmap.getConfig()) {
