@@ -4,7 +4,7 @@
 CC := gcc
 GPP := g++
 C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
-CFLAGS := -Wall -g # -O2 
+CFLAGS := -Wall -O2 
 CFLAGS_SSE2 = $(CFLAGS) -msse2
 LINKER_OPTS := -lpthread
 DEFINES := -DSK_CAN_USE_FLOAT
@@ -61,10 +61,10 @@ JUST_COMPILE_LIST := src/ports/SkFontHost_tables.cpp
 # conditional files based on our platform
 ifeq ($(SKIA_BUILD_FOR),mac)
 	# make it work with 10.4 for our font port
-	GPP := g++-4.0
-	SDK := /Developer/SDKs/MacOSX10.4u.sdk
-	SDK_OPTS := -isysroot $(SDK) -mmacosx-version-min=10.4
-	CC := gcc-4.0 $(SDK_OPTS)
+#	GPP := g++-4.0
+#	SDK := /Developer/SDKs/MacOSX10.4u.sdk
+#	SDK_OPTS := -isysroot $(SDK) -mmacosx-version-min=10.4
+#	CC := gcc-4.0 $(SDK_OPTS)
 
 	LINKER_OPTS += -framework Carbon
 	DEFINES += -DSK_BUILD_FOR_MAC
@@ -72,7 +72,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 	C_INCLUDES += -Iinclude/utils/mac
 	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
 	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
-	SRC_LIST += src/ports/SkFontHost_mac.cpp
+	SRC_LIST += src/ports/SkFontHost_mac_coretext.cpp
 else
 	LINKER_OPTS += -lpng -lfreetype
 	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG
@@ -123,6 +123,7 @@ out/libskia.a: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp benchmain.cpp BitmapBench.cpp \
 			  RepeatTileBench.cpp DecodeBench.cpp FPSBench.cpp
+
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
 # add any optional codecs for this app
