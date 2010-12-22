@@ -222,7 +222,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
     // always skip a full 256 number of entries, even if we memcpy'd fewer
     dst += SK_GL_SIZE_OF_PALETTE;
-    memcpy(dst, bitmap.getPixels(), bitmap.getSize());
+    memcpy(dst, bitmap.getPixels(), bitmap.getSafeSize()); // Just copy what we need.
 }
 #endif
 
