@@ -137,6 +137,9 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         if (fStrike->getGlyphAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
         }
+        // must do this to flush inorder buffering before we purge
+        fContext->flushText();
+
         // try to purge
         fContext->getFontCache()->purgeExceptFor(fStrike);
         if (fStrike->getGlyphAtlas(glyph, scaler)) {
