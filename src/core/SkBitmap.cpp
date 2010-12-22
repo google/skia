@@ -840,7 +840,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     */
     if (this->config() == dstConfig) {
         if (tmp.getSize() == this->getSize()) {
-            memcpy(tmp.getPixels(), this->getPixels(), this->getSize());
+            memcpy(tmp.getPixels(), this->getPixels(), this->getSafeSize());
         } else {
             const char* srcP = reinterpret_cast<const char*>(this->getPixels());
             char* dstP = reinterpret_cast<char*>(tmp.getPixels());
@@ -1362,10 +1362,11 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
             }
             if (this->allocPixels(ctable)) {
                 this->lockPixels();
-                buffer.read(this->getPixels(), size);
+                buffer.read(this->getPixels(), this->getSafeSize()); // Just read what we need.
+                buffer.skip(size - this->getSafeSize()); // Keep aligned for subsequent reads.
                 this->unlockPixels();
             } else {
-                buffer.skip(size);
+                buffer.skip(size); // Still skip the full-sized buffer though.
             }
             SkSafeUnref(ctable);
             break;
