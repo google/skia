@@ -22,5 +22,4 @@ SOURCE := \
     StringTest.cpp \
     Test.cpp \
     TestSize.cpp \
-    TriangulationTest.cpp \
     UtilsTest.cpp
