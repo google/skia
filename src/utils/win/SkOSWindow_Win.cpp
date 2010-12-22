@@ -872,7 +872,7 @@ void SkOSWindow::doPaint(void* ctx) {
 	// 
 	// Do the SetDIBitsToDevice. 
 	// 
-    SkASSERT(bitmap.width() * bitmap.bytesPerPixel() == bitmap.rowBytes());
+	SkASSERT(bitmap.width() * bitmap.bytesPerPixel() == bitmap.rowBytes());
 	bitmap.lockPixels();
 	int iRet = SetDIBitsToDevice(hdc,
 		0, 0,
