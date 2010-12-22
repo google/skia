@@ -97,7 +97,7 @@ struct GrGpuGLShaders2::StageDesc {
         kIdentityMatrix_OptFlagBit = 0x2,
     };
     int fOptFlags : 8;
-    bool fEnabled;
+    bool fEnabled : 8;
     enum Modulation {
         kColor_Modulation,
         kAlpha_Modulation,
