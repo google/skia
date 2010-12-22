@@ -25,6 +25,12 @@
 		0001FB78110E33CC00C1D647 /* SampleTestGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A729630FD93ED600D5051F /* SampleTestGL.cpp */; };
 		0001FB87110E35E500C1D647 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0001FB86110E35E500C1D647 /* AGL.framework */; };
 		0001FB8A110E35FA00C1D647 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0001FB89110E35FA00C1D647 /* OpenGL.framework */; };
+		00115EC912C11783008296FE /* libgpu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00115EC812C11771008296FE /* libgpu.a */; };
+		00115ED312C117BD008296FE /* SkGpuCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ECD12C117BD008296FE /* SkGpuCanvas.cpp */; };
+		00115ED412C117BD008296FE /* SkGpuDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ECE12C117BD008296FE /* SkGpuDevice.cpp */; };
+		00115ED512C117BD008296FE /* SkGr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ED012C117BD008296FE /* SkGr.cpp */; };
+		00115ED612C117BD008296FE /* SkGrFontScaler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ED112C117BD008296FE /* SkGrFontScaler.cpp */; };
+		00115ED712C117BD008296FE /* SkGrTexturePixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ED212C117BD008296FE /* SkGrTexturePixelRef.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
 		0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0021F3A11120B29C0062682F /* SkStaticTextView.cpp */; };
 		0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00995E1510A079D80054AD6D /* SampleUnitMapper.cpp */; };
@@ -161,6 +167,20 @@
 			remoteGlobalIDString = D2AAC045055464E500DB518D;
 			remoteInfo = effects;
 		};
+		00115EC712C11771008296FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00115EC012C11771008296FE /* gpu.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC046055464E500DB518D;
+			remoteInfo = gpu;
+		};
+		00115EEA12C11927008296FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 00115EC012C11771008296FE /* gpu.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D2AAC045055464E500DB518D;
+			remoteInfo = gpu;
+		};
 		00281C701083CF6600BCCB06 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 00281C691083CF6600BCCB06 /* Animator.xcodeproj */;
@@ -227,6 +247,13 @@
 		0001FB89110E35FA00C1D647 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		000630AC10F4E8EF00BC2C23 /* SampleText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleText.cpp; path = ../../samplecode/SampleText.cpp; sourceTree = SOURCE_ROOT; };
 		0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleStrokePath.cpp; path = ../../samplecode/SampleStrokePath.cpp; sourceTree = SOURCE_ROOT; };
+		00115EC012C11771008296FE /* gpu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gpu.xcodeproj; path = ../gpu/gpu.xcodeproj; sourceTree = SOURCE_ROOT; };
+		00115ECD12C117BD008296FE /* SkGpuCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGpuCanvas.cpp; path = ../../gpu/src/skia/SkGpuCanvas.cpp; sourceTree = SOURCE_ROOT; };
+		00115ECE12C117BD008296FE /* SkGpuDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGpuDevice.cpp; path = ../../gpu/src/skia/SkGpuDevice.cpp; sourceTree = SOURCE_ROOT; };
+		00115ECF12C117BD008296FE /* SkGpuDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkGpuDevice.h; path = ../../gpu/src/skia/SkGpuDevice.h; sourceTree = SOURCE_ROOT; };
+		00115ED012C117BD008296FE /* SkGr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGr.cpp; path = ../../gpu/src/skia/SkGr.cpp; sourceTree = SOURCE_ROOT; };
+		00115ED112C117BD008296FE /* SkGrFontScaler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGrFontScaler.cpp; path = ../../gpu/src/skia/SkGrFontScaler.cpp; sourceTree = SOURCE_ROOT; };
+		00115ED212C117BD008296FE /* SkGrTexturePixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGrTexturePixelRef.cpp; path = ../../gpu/src/skia/SkGrTexturePixelRef.cpp; sourceTree = SOURCE_ROOT; };
 		001B871D1042184D00C84ED4 /* Forth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Forth.cpp; path = ../../forth/Forth.cpp; sourceTree = SOURCE_ROOT; };
 		0021F3A11120B29C0062682F /* SkStaticTextView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkStaticTextView.cpp; path = ../../src/views/SkStaticTextView.cpp; sourceTree = SOURCE_ROOT; };
 		00281C661083CF5100BCCB06 /* SkTextBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTextBox.cpp; path = ../../src/views/SkTextBox.cpp; sourceTree = SOURCE_ROOT; };
@@ -402,6 +429,7 @@
 				00281C751083CF7E00BCCB06 /* libAnimator.a in Frameworks */,
 				0001FB87110E35E500C1D647 /* AGL.framework in Frameworks */,
 				0001FB8A110E35FA00C1D647 /* OpenGL.framework in Frameworks */,
+				00115EC912C11783008296FE /* libgpu.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,6 +538,27 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		00115EC112C11771008296FE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				00115EC812C11771008296FE /* libgpu.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		00115ECC12C117A3008296FE /* GPU */ = {
+			isa = PBXGroup;
+			children = (
+				00115ECD12C117BD008296FE /* SkGpuCanvas.cpp */,
+				00115ECE12C117BD008296FE /* SkGpuDevice.cpp */,
+				00115ECF12C117BD008296FE /* SkGpuDevice.h */,
+				00115ED012C117BD008296FE /* SkGr.cpp */,
+				00115ED112C117BD008296FE /* SkGrFontScaler.cpp */,
+				00115ED212C117BD008296FE /* SkGrTexturePixelRef.cpp */,
+			);
+			name = GPU;
+			sourceTree = "<group>";
+		};
 		00281C6A1083CF6600BCCB06 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -553,6 +602,7 @@
 		20286C29FDCF999611CA2CEA /* CICarbonSample */ = {
 			isa = PBXGroup;
 			children = (
+				00115ECC12C117A3008296FE /* GPU */,
 				27C4624412BFB2AA00DBB1F6 /* GM */,
 				27E79E2A12BC13AD00BC0E57 /* PDF */,
 				27CAAB2E119B30240017B155 /* SVG */,
@@ -573,6 +623,7 @@
 				002884490EFAA35C0083E387 /* core.xcodeproj */,
 				002884B40EFAB69F0083E387 /* maccore.xcodeproj */,
 				00003C8C0EFC230E000FF73A /* effects.xcodeproj */,
+				00115EC012C11771008296FE /* gpu.xcodeproj */,
 				0053528A0F8C4DFF00EE34B6 /* SkFontHost_tables.cpp */,
 			);
 			name = CICarbonSample;
@@ -733,6 +784,7 @@
 				002884BF0EFAB6B00083E387 /* PBXTargetDependency */,
 				00003C980EFC2321000FF73A /* PBXTargetDependency */,
 				00281C741083CF7900BCCB06 /* PBXTargetDependency */,
+				00115EEB12C11927008296FE /* PBXTargetDependency */,
 			);
 			name = CICarbonSample;
 			productInstallPath = "$(HOME)/Applications";
@@ -771,6 +823,10 @@
 					ProjectRef = 00003C8C0EFC230E000FF73A /* effects.xcodeproj */;
 				},
 				{
+					ProductGroup = 00115EC112C11771008296FE /* Products */;
+					ProjectRef = 00115EC012C11771008296FE /* gpu.xcodeproj */;
+				},
+				{
 					ProductGroup = 002884B50EFAB69F0083E387 /* Products */;
 					ProjectRef = 002884B40EFAB69F0083E387 /* maccore.xcodeproj */;
 				},
@@ -788,6 +844,13 @@
 			fileType = archive.ar;
 			path = libeffects.a;
 			remoteRef = 00003C930EFC230E000FF73A /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		00115EC812C11771008296FE /* libgpu.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libgpu.a;
+			remoteRef = 00115EC712C11771008296FE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		00281C711083CF6600BCCB06 /* libAnimator.a */ = {
@@ -956,6 +1019,11 @@
 				27C4624F12BFB2C700DBB1F6 /* tilemodes.cpp in Sources */,
 				27C4625012BFB2C700DBB1F6 /* xfermodes.cpp in Sources */,
 				27C4625512BFB2F300DBB1F6 /* SampleGM.cpp in Sources */,
+				00115ED312C117BD008296FE /* SkGpuCanvas.cpp in Sources */,
+				00115ED412C117BD008296FE /* SkGpuDevice.cpp in Sources */,
+				00115ED512C117BD008296FE /* SkGr.cpp in Sources */,
+				00115ED612C117BD008296FE /* SkGrFontScaler.cpp in Sources */,
+				00115ED712C117BD008296FE /* SkGrTexturePixelRef.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -966,6 +1034,11 @@
 			isa = PBXTargetDependency;
 			name = effects;
 			targetProxy = 00003C970EFC2321000FF73A /* PBXContainerItemProxy */;
+		};
+		00115EEB12C11927008296FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = gpu;
+			targetProxy = 00115EEA12C11927008296FE /* PBXContainerItemProxy */;
 		};
 		00281C741083CF7900BCCB06 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1069,7 +1142,7 @@
 				OTHER_LDFLAGS = "-lexpat";
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				SDKROOT = "";
-				USER_HEADER_SEARCH_PATHS = "../../src/core ../../include/** ../../gm";
+				USER_HEADER_SEARCH_PATHS = "../../gpu/include ../../src/core ../../include/** ../../gm";
 			};
 			name = Debug;
 		};
@@ -1094,7 +1167,7 @@
 				);
 				OTHER_LDFLAGS = "-lexpat";
 				SDKROOT = "";
-				USER_HEADER_SEARCH_PATHS = "../../src/core ../../include/** ../../gm";
+				USER_HEADER_SEARCH_PATHS = "../../gpu/include ../../src/core ../../include/** ../../gm";
 			};
 			name = Release;
 		};
