@@ -1,7 +1,6 @@
-#include <OpenGL/gl.h>
-
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkGpuCanvas.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
@@ -11,20 +10,7 @@
 #include "SkWindow.h"
 
 #include "SampleCode.h"
-
-#ifdef SUPPORT_GPU
-    #include "SkGpuCanvas.h"
-    #include "GrContext.h"
-
-    #ifdef SK_SUPPORT_GL
-        #include "GrGLConfig.h"
-    #elif defined(SK_SUPPORT_D3D9)
-        #include <d3d9.h>
-    #endif
-#else
-    typedef SkCanvas SkGpuCanvas;
-    class GrContext;
-#endif
+#include "GrContext.h"
 
 //#define DEFAULT_TO_GPU
 
@@ -38,6 +24,12 @@ extern SkView* create_overview(int, const SkViewFactory[]);
 
 #if !defined(SK_BUILD_FOR_WIN32)
 //#define USE_OFFSCREEN
+#endif
+
+#ifdef SK_SUPPORT_GL
+    #include "GrGLConfig.h"
+#elif defined(SK_SUPPORT_D3D9)
+    #include <d3d9.h>
 #endif
 
 SkViewRegister* SkViewRegister::gHead;
@@ -61,7 +53,6 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
 #endif
 
 static GrContext* get_global_grctx(SkOSWindow* oswin) {
-#ifdef SUPPORT_GPU
     // should be pthread-local at least
     static GrContext* ctx;
     if (NULL == ctx) {
@@ -79,9 +70,6 @@ static GrContext* get_global_grctx(SkOSWindow* oswin) {
 #endif
     }
     return ctx;
-#else
-    return NULL;
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -401,8 +389,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
             fPicture = new SkPicture;
             canvas = fPicture->beginRecording(9999, 9999);
             break;
-#ifdef SUPPORT_GPU
-        case kGPU_CanvasType:
+        case kGPU_CanvasType: {
             if (!alreadyGPU) {
                 SkDevice* device = canvas->getDevice();
                 const SkBitmap& bitmap = device->accessBitmap(true);            
@@ -420,17 +407,18 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                 // now setup our canvas
                 attachD3D9();           
 #endif
-                SkBitmap viewport;
-                viewport.setConfig(SkBitmap::kARGB_8888_Config, bitmap.width(), bitmap.height());
                 fGpuCanvas = new SkGpuCanvas(get_global_grctx(this));
-                fGpuCanvas->setBitmapDevice(viewport);
+				device = fGpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
+												  bitmap.width(), bitmap.height(),
+												  false, false);
+                fGpuCanvas->setDevice(device)->unref();
                 canvas = fGpuCanvas;
                 
             } else {
                 canvas = this->INHERITED::beforeChildren(canvas);
             }
             break;
-#endif
+        }
     }
 
     if (fUseClip) {
