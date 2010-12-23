@@ -1721,9 +1721,9 @@ void get_gl_proc(const char procName[], glProc *address) {
     *address = eglGetProcAddress(procName);
     GrAssert(NULL != *address);
 #elif GR_LINUX_BUILD
-    GR_STATIC_ASSERT(!"Add environment-dependent implementation here");
+//    GR_STATIC_ASSERT(!"Add environment-dependent implementation here");
     //*address = glXGetProcAddressARB(procName);
-    //*address = eglGetProcAddress(procName);
+    *address = NULL;//eglGetProcAddress(procName);
 #elif GR_QNX_BUILD
     *address = eglGetProcAddress(procName);
     GrAssert(NULL != *address);

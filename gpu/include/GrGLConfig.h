@@ -50,10 +50,12 @@
     #ifndef GL_GLEXT_PROTOTYPES
         #define GL_GLEXT_PROTOTYPES
     #endif
-    #define GR_INCLUDE_GLES1        <GLES/gl.h>
-    #define GR_INCLUDE_GLES1ext     <GLES/glext.h>
-    #define GR_INCLUDE_GLES2        <GLES2/gl2.h>
-    #define GR_INCLUDE_GLES2ext     <GLES2/gl2ext.h>
+    #define GR_INCLUDE_GLDESKTOP    <GL/gl.h>
+    #define GR_INCLUDE_GLDESKTOPext <GL/glext.h>
+//    #define GR_INCLUDE_GLES1        <GLES/gl.h>
+//    #define GR_INCLUDE_GLES1ext     <GLES/glext.h>
+//    #define GR_INCLUDE_GLES2        <GLES2/gl2.h>
+//    #define GR_INCLUDE_GLES2ext     <GLES2/gl2ext.h>
     #define GR_GL_FUNC
 #elif GR_QNX_BUILD
     #ifndef GL_GLEXT_PROTOTYPES

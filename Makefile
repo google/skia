@@ -81,7 +81,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 #	CC := gcc-4.0 $(SDK_OPTS)
 
 	C_INCLUDES += -I/opt/local/include
-	LINKER_OPTS += -L/opt/local/lib -framework Carbon  -lpng12
+	LINKER_OPTS += -L/opt/local/lib -framework Carbon -lpng12 -framework OpenGL -framework AGL
 	DEFINES += -DSK_BUILD_FOR_MAC -DSK_ENABLE_LIBPNG
 
 	C_INCLUDES += -Iinclude/utils/mac
@@ -97,8 +97,8 @@ ifeq ($(SKIA_BUILD_FOR),mac)
     # support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
 else
-	LINKER_OPTS += -lpng -lfreetype
-	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG
+	LINKER_OPTS += -lpng -lfreetype -lGL
+	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG -DGR_LINUX_BUILD=1
 
 	# needed for freetype support
 	C_INCLUDES += -I/usr/include/freetype2
@@ -107,6 +107,7 @@ else
 	SRC_LIST += src/ports/SkFontHost_FreeType.cpp
 	SRC_LIST += src/ports/SkFontHost_FreeType_Subpixel.cpp
 	SRC_LIST += src/utils/SkOSFile.cpp
+	SRC_LIST += src/utils/SkEGLContext_none.cpp
     # these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
 	SRC_LIST += src/images/SkImageEncoder_Factory.cpp
@@ -221,7 +222,7 @@ GM_OBJS := $(addprefix out/, $(GM_OBJS))
 
 gm: $(GM_OBJS) out/libskia.a
 	@echo "linking gm..."
-	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm -framework OpenGL -framework AGL $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
 
 SAMPLEPDF_SRCS := samplepdf.cpp
 
