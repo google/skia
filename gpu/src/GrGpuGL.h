@@ -98,9 +98,6 @@ protected:
     // line width
     void flushGLStateCommon(PrimitiveType type);
 
-    // pushes the filtering and tiling modes to GL
-    void setSamplerStateImm(const GrSamplerState& samplerState);
-
     // set when this class changes the rendertarget.
     // Subclass should notice at flush time, take appropriate action,
     // and set false.

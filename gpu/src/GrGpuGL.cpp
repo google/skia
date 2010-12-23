@@ -426,7 +426,7 @@ void GrGpuGL::resetContextHelper() {
 #if GR_GL_DESKTOP
     GR_GL(Disable(GL_LINE_SMOOTH));
     GR_GL(Disable(GL_POINT_SMOOTH));
-	GR_GL(Disable(GL_MULTISAMPLE));
+    GR_GL(Disable(GL_MULTISAMPLE));
 #endif
 
     // we only ever use lines in hairline mode
@@ -533,6 +533,13 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
 #if GR_COLLECT_STATS
     ++fStats.fTextureCreateCnt;
 #endif
+    
+    static const GrGLTexture::TexParams DEFAULT_PARAMS = {
+        GL_NEAREST,
+        GL_CLAMP_TO_EDGE,
+        GL_CLAMP_TO_EDGE
+    };
+    
     GrGLTexture::GLTextureDesc glDesc;
     GLenum internalFormat;
 
@@ -607,6 +614,18 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
     }
 
     GR_GL(BindTexture(GL_TEXTURE_2D, glDesc.fTextureID));
+    GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                        GL_TEXTURE_MAG_FILTER, 
+                        DEFAULT_PARAMS.fFilter));
+    GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                        GL_TEXTURE_MIN_FILTER, 
+                        DEFAULT_PARAMS.fFilter));
+    GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                        GL_TEXTURE_WRAP_S,
+                        DEFAULT_PARAMS.fWrapS));
+    GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                        GL_TEXTURE_WRAP_T, 
+                        DEFAULT_PARAMS.fWrapT));
 #if GR_COLLECT_STATS
     ++fStats.fTextureChngCnt;
 #endif
@@ -898,7 +917,7 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
     GrPrintf("--- new texture [%d] size=(%d %d) bpp=%d\n",
              tex->fTextureID, width, height, tex->fUploadByteCount);
 #endif
-    GrGLTexture* tex = new GrGLTexture(glDesc, rtIDs, this);
+    GrGLTexture* tex = new GrGLTexture(glDesc, rtIDs, DEFAULT_PARAMS, this);
 
     if (0 != rtIDs.fTexFBOID) {
         GrRenderTarget* rt = tex->asRenderTarget();
@@ -1012,18 +1031,6 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
             fHWBounds.fScissorEnabled = false;
         }
     }
-}
-
-void GrGpuGL::setSamplerStateImm(const GrSamplerState& state) {
-
-    GLenum filter = state.isFilter() ? GL_LINEAR : GL_NEAREST;
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                        GrGLTexture::gWrapMode2GLWrap[state.getWrapX()]));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                        GrGLTexture::gWrapMode2GLWrap[state.getWrapY()]));
-
 }
 
 void GrGpuGL::eraseColor(GrColor color) {
@@ -1433,27 +1440,33 @@ void GrGpuGL::flushGLStateCommon(PrimitiveType type) {
                 //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
                 fHWDrawState.fTexture = nextTexture;
             }
-            const GrSamplerState& lastSampler = nextTexture->samplerState();
-            if (lastSampler.isFilter() != fCurrDrawState.fSamplerState.isFilter()) {
-                GLenum filter = fCurrDrawState.fSamplerState.isFilter() ?
-                                                                    GL_LINEAR :
-                                                                    GL_NEAREST;
-                GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                                    filter));
-                GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                                    filter));
+            const GrGLTexture::TexParams& oldTexParams = nextTexture->getTexParams();
+            GrGLTexture::TexParams newTexParams;
+            newTexParams.fFilter = fCurrDrawState.fSamplerState.isFilter() ? 
+                                                                GL_LINEAR :
+                                                                GL_NEAREST;
+            newTexParams.fWrapS = GrGLTexture::gWrapMode2GLWrap[fCurrDrawState.fSamplerState.getWrapX()];
+            newTexParams.fWrapT = GrGLTexture::gWrapMode2GLWrap[fCurrDrawState.fSamplerState.getWrapY()];
+
+            if (newTexParams.fFilter != oldTexParams.fFilter) {
+                GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                                    GL_TEXTURE_MAG_FILTER, 
+                                    newTexParams.fFilter));
+                GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                                    GL_TEXTURE_MIN_FILTER, 
+                                    newTexParams.fFilter));
             }
-            if (lastSampler.getWrapX() != fCurrDrawState.fSamplerState.getWrapX()) {
-                GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                                    GrGLTexture::gWrapMode2GLWrap[
-                                             fCurrDrawState.fSamplerState.getWrapX()]));
+            if (newTexParams.fWrapS != oldTexParams.fWrapS) {
+                GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                                    GL_TEXTURE_WRAP_S,
+                                    newTexParams.fWrapS));
             }
-            if (lastSampler.getWrapY() != fCurrDrawState.fSamplerState.getWrapY()) {
-                GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                                    GrGLTexture::gWrapMode2GLWrap[
-                                             fCurrDrawState.fSamplerState.getWrapY()]));
+            if (newTexParams.fWrapT != oldTexParams.fWrapT) {
+                GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                                    GL_TEXTURE_WRAP_T, 
+                                    newTexParams.fWrapT));
             }
-            nextTexture->setSamplerState(fCurrDrawState.fSamplerState);
+            nextTexture->setTexParams(newTexParams);
         } else {
             GrAssert(!"Rendering with texture vert flag set but no texture");
             if (NULL != fHWDrawState.fTexture) {
