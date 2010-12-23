@@ -75,12 +75,14 @@ const GLenum GrGLTexture::gWrapMode2GLWrap[] = {
 
 GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
                          const GLRenderTargetIDs& rtIDs,
+                         const TexParams& initialTexParams,
                          GrGpuGL* gl) :
         INHERITED(textureDesc.fContentWidth, 
                   textureDesc.fContentHeight, 
                   textureDesc.fAllocWidth, 
                   textureDesc.fAllocHeight,
                   textureDesc.fFormat),
+        fTexParams(initialTexParams),
         fTextureID(textureDesc.fTextureID),
         fUploadFormat(textureDesc.fUploadFormat),
         fUploadByteCount(textureDesc.fUploadByteCount),
@@ -101,15 +103,6 @@ GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
                      (int32_t)textureDesc.fContentHeight;
         fRenderTarget = new GrGLRenderTarget(rtIDs, vp, this, gl);
     }
-
-    fSamplerState.setClampNoFilter();
-    
-    GR_GL(BindTexture(GL_TEXTURE_2D, fTextureID));
-    gl->notifyTextureBind(this);
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 }
 
 GrGLTexture::~GrGLTexture() {
@@ -124,7 +117,7 @@ GrGLTexture::~GrGLTexture() {
 void GrGLTexture::abandon() {
     fTextureID = 0;
     if (NULL != fRenderTarget) {
-    	fRenderTarget->abandon();
+        fRenderTarget->abandon();
     }
 }
 

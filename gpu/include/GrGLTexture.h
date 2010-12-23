@@ -93,13 +93,19 @@ public:
         kBottomUp_Orientation,
         kTopDown_Orientation,
     };
+    
+    struct TexParams {
+        GLenum fFilter;
+        GLenum fWrapS;
+        GLenum fWrapT;
+    };
 
 protected:
     struct GLTextureDesc {
         uint32_t    fContentWidth;
         uint32_t    fContentHeight;
         uint32_t    fAllocWidth;
-        uint32_t 	fAllocHeight;
+        uint32_t    fAllocHeight;
         PixelConfig fFormat;
         GLuint      fTextureID;
         GLenum      fUploadFormat;
@@ -110,6 +116,7 @@ protected:
     typedef GrGLRenderTarget::GLRenderTargetIDs GLRenderTargetIDs;
     GrGLTexture(const GLTextureDesc& textureDesc,
                 const GLRenderTargetIDs& rtIDs,
+                const TexParams& initialTexParams,
                 GrGpuGL* gl);
 
 public:
@@ -127,9 +134,8 @@ public:
                                    const void* srcData);
     virtual intptr_t getTextureHandle();
 
-    const GrSamplerState& samplerState() const { return fSamplerState; }
-    void setSamplerState(const GrSamplerState& state) 
-                                                    { fSamplerState = state; }
+    const TexParams& getTexParams() const { return fTexParams; }
+    void setTexParams(const TexParams& texParams) { fTexParams = texParams; }
     GLuint textureID() const { return fTextureID; }
 
     GLenum uploadFormat() const { return fUploadFormat; }
@@ -147,7 +153,7 @@ public:
     Orientation orientation() const { return fOrientation; }
 
 private:
-    GrSamplerState      fSamplerState;
+    TexParams           fTexParams;
     GLuint              fTextureID;
     GLenum              fUploadFormat;
     GLenum              fUploadByteCount;
