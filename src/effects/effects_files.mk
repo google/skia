@@ -1,6 +1,7 @@
 SOURCE := \
 	Sk1DPathEffect.cpp \
 	Sk2DPathEffect.cpp \
+    SkBitmapCache.cpp \
 	SkTransparentShader.cpp \
 	SkAvoidXfermode.cpp \
 	SkBlurDrawLooper.cpp \
