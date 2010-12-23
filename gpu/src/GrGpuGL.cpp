@@ -629,6 +629,7 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
 #if GR_COLLECT_STATS
     ++fStats.fTextureChngCnt;
 #endif
+    fHWDrawState.fTexture = NULL;
 
     GR_GL(PixelStorei(GL_UNPACK_ALIGNMENT, glDesc.fUploadByteCount));
     if (GrTexture::kIndex_8_PixelConfig == desc.fFormat &&
@@ -770,8 +771,7 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
 #if GR_COLLECT_STATS
         ++fStats.fTextureChngCnt;
 #endif
-
-        fHWDrawState.fTexture = NULL;
+        GrAssert(NULL == fHWDrawState.fTexture);
 
         err = ~GL_NO_ERROR;
         for (int i = 0; i < attempts; ++i) {
@@ -1440,6 +1440,7 @@ void GrGpuGL::flushGLStateCommon(PrimitiveType type) {
                 //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
                 fHWDrawState.fTexture = nextTexture;
             }
+
             const GrGLTexture::TexParams& oldTexParams = nextTexture->getTexParams();
             GrGLTexture::TexParams newTexParams;
             newTexParams.fFilter = fCurrDrawState.fSamplerState.isFilter() ? 

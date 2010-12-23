@@ -54,7 +54,6 @@
 		00115E8312C116CA008296FE /* GrGLVertexBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E4712C116CA008296FE /* GrGLVertexBuffer.h */; };
 		00115E8412C116CA008296FE /* GrGlyph.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E4812C116CA008296FE /* GrGlyph.h */; };
 		00115E8512C116CA008296FE /* GrGpu.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E4912C116CA008296FE /* GrGpu.h */; };
-		00115E8612C116CA008296FE /* GrGpuD3D9.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E4A12C116CA008296FE /* GrGpuD3D9.h */; };
 		00115E8712C116CA008296FE /* GrGpuVertex.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E4B12C116CA008296FE /* GrGpuVertex.h */; };
 		00115E8812C116CA008296FE /* GrIndexBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E4C12C116CA008296FE /* GrIndexBuffer.h */; };
 		00115E8912C116CA008296FE /* GrInOrderDrawBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E4D12C116CA008296FE /* GrInOrderDrawBuffer.h */; };
@@ -142,7 +141,6 @@
 		00115E4712C116CA008296FE /* GrGLVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLVertexBuffer.h; path = ../../gpu/include/GrGLVertexBuffer.h; sourceTree = SOURCE_ROOT; };
 		00115E4812C116CA008296FE /* GrGlyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGlyph.h; path = ../../gpu/include/GrGlyph.h; sourceTree = SOURCE_ROOT; };
 		00115E4912C116CA008296FE /* GrGpu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGpu.h; path = ../../gpu/include/GrGpu.h; sourceTree = SOURCE_ROOT; };
-		00115E4A12C116CA008296FE /* GrGpuD3D9.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGpuD3D9.h; path = ../../gpu/include/GrGpuD3D9.h; sourceTree = SOURCE_ROOT; };
 		00115E4B12C116CA008296FE /* GrGpuVertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGpuVertex.h; path = ../../gpu/include/GrGpuVertex.h; sourceTree = SOURCE_ROOT; };
 		00115E4C12C116CA008296FE /* GrIndexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrIndexBuffer.h; path = ../../gpu/include/GrIndexBuffer.h; sourceTree = SOURCE_ROOT; };
 		00115E4D12C116CA008296FE /* GrInOrderDrawBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrInOrderDrawBuffer.h; path = ../../gpu/include/GrInOrderDrawBuffer.h; sourceTree = SOURCE_ROOT; };
@@ -214,7 +212,6 @@
 				00115E4712C116CA008296FE /* GrGLVertexBuffer.h */,
 				00115E4812C116CA008296FE /* GrGlyph.h */,
 				00115E4912C116CA008296FE /* GrGpu.h */,
-				00115E4A12C116CA008296FE /* GrGpuD3D9.h */,
 				00115E4B12C116CA008296FE /* GrGpuVertex.h */,
 				00115E4C12C116CA008296FE /* GrIndexBuffer.h */,
 				00115E4D12C116CA008296FE /* GrInOrderDrawBuffer.h */,
@@ -348,7 +345,6 @@
 				00115E8312C116CA008296FE /* GrGLVertexBuffer.h in Headers */,
 				00115E8412C116CA008296FE /* GrGlyph.h in Headers */,
 				00115E8512C116CA008296FE /* GrGpu.h in Headers */,
-				00115E8612C116CA008296FE /* GrGpuD3D9.h in Headers */,
 				00115E8712C116CA008296FE /* GrGpuVertex.h in Headers */,
 				00115E8812C116CA008296FE /* GrIndexBuffer.h in Headers */,
 				00115E8912C116CA008296FE /* GrInOrderDrawBuffer.h in Headers */,
