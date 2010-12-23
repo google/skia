@@ -49,6 +49,10 @@ GrContext* GrContext::Create(GrGpu::Engine engine,
     return ctx;
 }
 
+GrContext* GrContext::CreateGLShaderContext() {
+    return GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
+}
+
 GrContext::~GrContext() {
     fGpu->unref();
     delete fTextureCache;

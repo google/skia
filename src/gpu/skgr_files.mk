@@ -3,5 +3,6 @@ SOURCE := \
     SkGpuDevice.cpp \
     SkGr.cpp \
     SkGrTexturePixelRef.cpp \
-    SkGrFontScaler.cpp
+    SkGrFontScaler.cpp \
+    GrPrintf_skia.cpp
 

@@ -6,6 +6,11 @@
 #include "SkStream.h"
 #include "SkRefCnt.h"
 
+#include "GrContext.h"
+#include "SkGpuCanvas.h"
+#include "SkEGLContext.h"
+#include "SkDevice.h"
+
 #ifdef SK_SUPPORT_PDF
 	#include "SkPDFDevice.h"
 	#include "SkPDFDocument.h"
@@ -210,7 +215,12 @@ int main (int argc, char * const argv[]) {
             }
 		}
 	}
-    
+
+    // setup a GL context for drawing offscreen
+    SkEGLContext eglContext;
+    eglContext.init(1024, 1024);
+    GrContext* context = GrContext::CreateGLShaderContext();
+
     Iter iter;
     GM* gm;
 
@@ -233,7 +243,12 @@ int main (int argc, char * const argv[]) {
 			SkCanvas canvas(bitmap);
 
 			gm->draw(&canvas);
-
+            {
+                SkGpuCanvas gc(context);
+                gc.setDevice(gc.createDevice(bitmap.config(), bitmap.width(), bitmap.height(),
+                                             bitmap.isOpaque(), false))->unref(); 
+                gm->draw(&gc);
+            }
             SkString name = make_name(gm->shortName(), gRec[i].fName);
 
             if (writePath) {

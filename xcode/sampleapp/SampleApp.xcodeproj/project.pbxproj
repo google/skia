@@ -26,11 +26,7 @@
 		0001FB87110E35E500C1D647 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0001FB86110E35E500C1D647 /* AGL.framework */; };
 		0001FB8A110E35FA00C1D647 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0001FB89110E35FA00C1D647 /* OpenGL.framework */; };
 		00115EC912C11783008296FE /* libgpu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00115EC812C11771008296FE /* libgpu.a */; };
-		00115ED312C117BD008296FE /* SkGpuCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ECD12C117BD008296FE /* SkGpuCanvas.cpp */; };
-		00115ED412C117BD008296FE /* SkGpuDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ECE12C117BD008296FE /* SkGpuDevice.cpp */; };
-		00115ED512C117BD008296FE /* SkGr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ED012C117BD008296FE /* SkGr.cpp */; };
-		00115ED612C117BD008296FE /* SkGrFontScaler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ED112C117BD008296FE /* SkGrFontScaler.cpp */; };
-		00115ED712C117BD008296FE /* SkGrTexturePixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115ED212C117BD008296FE /* SkGrTexturePixelRef.cpp */; };
+		0011612F12C2AAC6008296FE /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000630AC10F4E8EF00BC2C23 /* SampleText.cpp */; };
 		001B871E1042184D00C84ED4 /* Forth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 001B871D1042184D00C84ED4 /* Forth.cpp */; };
 		0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0021F3A11120B29C0062682F /* SkStaticTextView.cpp */; };
 		0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00995E1510A079D80054AD6D /* SampleUnitMapper.cpp */; };
@@ -78,6 +74,12 @@
 		009887F1106142FC0020D19B /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE310F00A12400695E8C /* SampleNinePatch.cpp */; };
 		00995E0E10A078E30054AD6D /* SkCubicInterval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00995E0D10A078E30054AD6D /* SkCubicInterval.cpp */; };
 		009CC9190F65918A002185BE /* SampleFontScalerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */; };
+		009F9C0912C39A9C00C7FD4A /* GrPrintf_skia.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0312C39A9C00C7FD4A /* GrPrintf_skia.cpp */; };
+		009F9C0A12C39A9C00C7FD4A /* SkGpuCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0412C39A9C00C7FD4A /* SkGpuCanvas.cpp */; };
+		009F9C0B12C39A9C00C7FD4A /* SkGpuDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0512C39A9C00C7FD4A /* SkGpuDevice.cpp */; };
+		009F9C0C12C39A9C00C7FD4A /* SkGr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0612C39A9C00C7FD4A /* SkGr.cpp */; };
+		009F9C0D12C39A9C00C7FD4A /* SkGrFontScaler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0712C39A9C00C7FD4A /* SkGrFontScaler.cpp */; };
+		009F9C0E12C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0812C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp */; };
 		00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */; };
 		00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7282D0FD43D3700D5051F /* SkMovie.cpp */; };
 		00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */; };
@@ -135,7 +137,6 @@
 		27CAAB7E119B303E0017B155 /* SkSVGText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB60119B303E0017B155 /* SkSVGText.cpp */; };
 		27CAAB7F119B303E0017B155 /* SkSVGUse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB62119B303E0017B155 /* SkSVGUse.cpp */; };
 		27CAAB96119B321A0017B155 /* SkXMLWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB95119B321A0017B155 /* SkXMLWriter.cpp */; };
-		27D0F3C311BD2012001B8EBE /* SampleText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 000630AC10F4E8EF00BC2C23 /* SampleText.cpp */; };
 		27E79E3512BC13C700BC0E57 /* SkPDFCatalog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27E79E2B12BC13C700BC0E57 /* SkPDFCatalog.cpp */; };
 		27E79E3612BC13C700BC0E57 /* SkPDFDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27E79E2C12BC13C700BC0E57 /* SkPDFDevice.cpp */; };
 		27E79E3712BC13C700BC0E57 /* SkPDFDocument.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27E79E2D12BC13C700BC0E57 /* SkPDFDocument.cpp */; };
@@ -248,12 +249,6 @@
 		000630AC10F4E8EF00BC2C23 /* SampleText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleText.cpp; path = ../../samplecode/SampleText.cpp; sourceTree = SOURCE_ROOT; };
 		0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleStrokePath.cpp; path = ../../samplecode/SampleStrokePath.cpp; sourceTree = SOURCE_ROOT; };
 		00115EC012C11771008296FE /* gpu.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gpu.xcodeproj; path = ../gpu/gpu.xcodeproj; sourceTree = SOURCE_ROOT; };
-		00115ECD12C117BD008296FE /* SkGpuCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGpuCanvas.cpp; path = ../../gpu/src/skia/SkGpuCanvas.cpp; sourceTree = SOURCE_ROOT; };
-		00115ECE12C117BD008296FE /* SkGpuDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGpuDevice.cpp; path = ../../gpu/src/skia/SkGpuDevice.cpp; sourceTree = SOURCE_ROOT; };
-		00115ECF12C117BD008296FE /* SkGpuDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkGpuDevice.h; path = ../../gpu/src/skia/SkGpuDevice.h; sourceTree = SOURCE_ROOT; };
-		00115ED012C117BD008296FE /* SkGr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGr.cpp; path = ../../gpu/src/skia/SkGr.cpp; sourceTree = SOURCE_ROOT; };
-		00115ED112C117BD008296FE /* SkGrFontScaler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGrFontScaler.cpp; path = ../../gpu/src/skia/SkGrFontScaler.cpp; sourceTree = SOURCE_ROOT; };
-		00115ED212C117BD008296FE /* SkGrTexturePixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGrTexturePixelRef.cpp; path = ../../gpu/src/skia/SkGrTexturePixelRef.cpp; sourceTree = SOURCE_ROOT; };
 		001B871D1042184D00C84ED4 /* Forth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Forth.cpp; path = ../../forth/Forth.cpp; sourceTree = SOURCE_ROOT; };
 		0021F3A11120B29C0062682F /* SkStaticTextView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkStaticTextView.cpp; path = ../../src/views/SkStaticTextView.cpp; sourceTree = SOURCE_ROOT; };
 		00281C661083CF5100BCCB06 /* SkTextBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTextBox.cpp; path = ../../src/views/SkTextBox.cpp; sourceTree = SOURCE_ROOT; };
@@ -310,6 +305,12 @@
 		00995E0D10A078E30054AD6D /* SkCubicInterval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkCubicInterval.cpp; path = ../../src/utils/SkCubicInterval.cpp; sourceTree = SOURCE_ROOT; };
 		00995E1510A079D80054AD6D /* SampleUnitMapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleUnitMapper.cpp; path = ../../samplecode/SampleUnitMapper.cpp; sourceTree = SOURCE_ROOT; };
 		009CC9180F65918A002185BE /* SampleFontScalerTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleFontScalerTest.cpp; path = ../../samplecode/SampleFontScalerTest.cpp; sourceTree = SOURCE_ROOT; };
+		009F9C0312C39A9C00C7FD4A /* GrPrintf_skia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrPrintf_skia.cpp; path = ../../src/gpu/GrPrintf_skia.cpp; sourceTree = SOURCE_ROOT; };
+		009F9C0412C39A9C00C7FD4A /* SkGpuCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGpuCanvas.cpp; path = ../../src/gpu/SkGpuCanvas.cpp; sourceTree = SOURCE_ROOT; };
+		009F9C0512C39A9C00C7FD4A /* SkGpuDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGpuDevice.cpp; path = ../../src/gpu/SkGpuDevice.cpp; sourceTree = SOURCE_ROOT; };
+		009F9C0612C39A9C00C7FD4A /* SkGr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGr.cpp; path = ../../src/gpu/SkGr.cpp; sourceTree = SOURCE_ROOT; };
+		009F9C0712C39A9C00C7FD4A /* SkGrFontScaler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGrFontScaler.cpp; path = ../../src/gpu/SkGrFontScaler.cpp; sourceTree = SOURCE_ROOT; };
+		009F9C0812C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkGrTexturePixelRef.cpp; path = ../../src/gpu/SkGrTexturePixelRef.cpp; sourceTree = SOURCE_ROOT; };
 		00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
 		00A7282D0FD43D3700D5051F /* SkMovie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie.cpp; path = ../../src/images/SkMovie.cpp; sourceTree = SOURCE_ROOT; };
 		00A7282E0FD43D3700D5051F /* SkMovie_gif.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie_gif.cpp; path = ../../src/images/SkMovie_gif.cpp; sourceTree = SOURCE_ROOT; };
@@ -549,12 +550,12 @@
 		00115ECC12C117A3008296FE /* GPU */ = {
 			isa = PBXGroup;
 			children = (
-				00115ECD12C117BD008296FE /* SkGpuCanvas.cpp */,
-				00115ECE12C117BD008296FE /* SkGpuDevice.cpp */,
-				00115ECF12C117BD008296FE /* SkGpuDevice.h */,
-				00115ED012C117BD008296FE /* SkGr.cpp */,
-				00115ED112C117BD008296FE /* SkGrFontScaler.cpp */,
-				00115ED212C117BD008296FE /* SkGrTexturePixelRef.cpp */,
+				009F9C0312C39A9C00C7FD4A /* GrPrintf_skia.cpp */,
+				009F9C0412C39A9C00C7FD4A /* SkGpuCanvas.cpp */,
+				009F9C0512C39A9C00C7FD4A /* SkGpuDevice.cpp */,
+				009F9C0612C39A9C00C7FD4A /* SkGr.cpp */,
+				009F9C0712C39A9C00C7FD4A /* SkGrFontScaler.cpp */,
+				009F9C0812C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp */,
 			);
 			name = GPU;
 			sourceTree = "<group>";
@@ -1001,7 +1002,6 @@
 				27433F3311A18EA60045AD84 /* SampleTextEffects.cpp in Sources */,
 				275E801611AAC2FF0051C03A /* SampleShapes.cpp in Sources */,
 				275E802311AAC3330051C03A /* SampleVertices.cpp in Sources */,
-				27D0F3C311BD2012001B8EBE /* SampleText.cpp in Sources */,
 				27E79E3512BC13C700BC0E57 /* SkPDFCatalog.cpp in Sources */,
 				27E79E3612BC13C700BC0E57 /* SkPDFDevice.cpp in Sources */,
 				27E79E3712BC13C700BC0E57 /* SkPDFDocument.cpp in Sources */,
@@ -1019,11 +1019,13 @@
 				27C4624F12BFB2C700DBB1F6 /* tilemodes.cpp in Sources */,
 				27C4625012BFB2C700DBB1F6 /* xfermodes.cpp in Sources */,
 				27C4625512BFB2F300DBB1F6 /* SampleGM.cpp in Sources */,
-				00115ED312C117BD008296FE /* SkGpuCanvas.cpp in Sources */,
-				00115ED412C117BD008296FE /* SkGpuDevice.cpp in Sources */,
-				00115ED512C117BD008296FE /* SkGr.cpp in Sources */,
-				00115ED612C117BD008296FE /* SkGrFontScaler.cpp in Sources */,
-				00115ED712C117BD008296FE /* SkGrTexturePixelRef.cpp in Sources */,
+				0011612F12C2AAC6008296FE /* SampleText.cpp in Sources */,
+				009F9C0912C39A9C00C7FD4A /* GrPrintf_skia.cpp in Sources */,
+				009F9C0A12C39A9C00C7FD4A /* SkGpuCanvas.cpp in Sources */,
+				009F9C0B12C39A9C00C7FD4A /* SkGpuDevice.cpp in Sources */,
+				009F9C0C12C39A9C00C7FD4A /* SkGr.cpp in Sources */,
+				009F9C0D12C39A9C00C7FD4A /* SkGrFontScaler.cpp in Sources */,
+				009F9C0E12C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
