@@ -111,6 +111,20 @@ public:
      */
     SkDevice* setBitmapDevice(const SkBitmap& bitmap, bool forLayer = false);
 
+    /**
+     *  Copy the pixels from the device into bitmap. Returns true on success.
+     *  If false is returned, then the bitmap parameter is left unchanged.
+     */
+    bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
+    bool readPixels(SkBitmap* bitmap);
+
+    /**
+     *  Similar to draw sprite, this method will copy the pixels in bitmap onto
+     *  the device, with the top/left corner specified by (x, y). The pixel
+     *  values in the device are completely replaced: there is no blending.
+     */
+    void writePixels(const SkBitmap& bitmap, int x, int y);
+    
     ///////////////////////////////////////////////////////////////////////////
 
     enum SaveFlags {
