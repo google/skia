@@ -42,6 +42,12 @@
  */
 //#define GR_DUMP_TEXTURE_UPLOAD    1
 
+/*
+ * To log all GL calls define this. Can be turned on and off at runtime by
+ * gPrintGL global variable. 
+ */
+//#define GR_GL_LOG_CALLS 1
+ 
 ////////////////////////////////////////////////////////////////////////////////
 // Decide Ganesh types
 
