@@ -181,12 +181,13 @@ static void write_pdf(GM* gm, const char writePath[]) {
 
 static const struct {
 	SkBitmap::Config	fConfig;
-	bool				fUsePicture;
+	bool				fUseGPU;
 	const char*			fName;
 } gRec[] = {
 	{ SkBitmap::kARGB_8888_Config,	false,	"8888" },
 	{ SkBitmap::kARGB_4444_Config,	false,	"4444" },
 	{ SkBitmap::kRGB_565_Config,	false,	"565" },
+	{ SkBitmap::kARGB_8888_Config,  true,	"gpu" },
 };
 
 int main (int argc, char * const argv[]) {
@@ -242,12 +243,14 @@ int main (int argc, char * const argv[]) {
 			bitmap.eraseColor(0);
 			SkCanvas canvas(bitmap);
 
-			gm->draw(&canvas);
-            {
+            if (gRec[i].fUseGPU) {
                 SkGpuCanvas gc(context);
                 gc.setDevice(gc.createDevice(bitmap.config(), bitmap.width(), bitmap.height(),
                                              bitmap.isOpaque(), false))->unref(); 
                 gm->draw(&gc);
+                gc.readPixels(&bitmap); // overwrite our previous allocation
+            } else {
+                gm->draw(&canvas);
             }
             SkString name = make_name(gm->shortName(), gRec[i].fName);
 

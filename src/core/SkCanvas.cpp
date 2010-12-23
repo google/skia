@@ -549,6 +549,31 @@ SkDevice* SkCanvas::setBitmapDevice(const SkBitmap& bitmap, bool forLayer) {
     return device;
 }
 
+bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
+    SkDevice* device = this->getDevice();
+    if (!device) {
+        return false;
+    }
+    return device->readPixels(srcRect, bitmap);
+}
+
+bool SkCanvas::readPixels(SkBitmap* bitmap) {
+    SkDevice* device = this->getDevice();
+    if (!device) {
+        return false;
+    }
+    SkIRect bounds;
+    bounds.set(0, 0, device->width(), device->height());
+    return this->readPixels(bounds, bitmap);
+}
+
+void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
+    SkDevice* device = this->getDevice();
+    if (device) {
+        device->writePixels(bitmap, x, y);
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 bool SkCanvas::getViewport(SkIPoint* size) const {
