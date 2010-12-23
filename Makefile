@@ -3,7 +3,8 @@
 # setup our defaults
 CC := gcc
 GPP := g++
-C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/utils
+C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/gpu -Iinclude/utils -Igpu/include
+
 CFLAGS := -Wall -O2 
 CFLAGS_SSE2 = $(CFLAGS) -msse2
 LINKER_OPTS := -lpthread -lz
@@ -53,6 +54,14 @@ SRC_LIST += $(addprefix src/images/, $(SOURCE))
 include src/utils/utils_files.mk
 SRC_LIST += $(addprefix src/utils/, $(SOURCE))
 
+# GPU files
+include gpu/src/gr_files.mk
+SRC_LIST += $(addprefix gpu/src/, $(SOURCE))
+
+# GPU support files
+include src/gpu/skgr_files.mk
+SRC_LIST += $(addprefix src/gpu/, $(SOURCE))
+
 # pdf backend files
 ifeq ($(SKIA_PDF_SUPPORT),true)
 	C_INCLUDES += -Iinclude/pdf
@@ -77,6 +86,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 	C_INCLUDES += -Iinclude/utils/mac
 	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
 	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
+	SRC_LIST += src/utils/mac/SkEGLContext_mac.cpp
 	SRC_LIST += src/ports/SkFontHost_mac_coretext.cpp
 else
 	LINKER_OPTS += -lpng -lfreetype
@@ -203,7 +213,7 @@ GM_OBJS := $(addprefix out/, $(GM_OBJS))
 
 gm: $(GM_OBJS) out/libskia.a
 	@echo "linking gm..."
-	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm -framework OpenGL -framework AGL $(LINKER_OPTS)
 
 SAMPLEPDF_SRCS := samplepdf.cpp
 
