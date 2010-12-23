@@ -34,27 +34,23 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
 static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
 
 class XfermodesGM : public GM {
-    SkBitmap    fBitmap;
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
 
-    void draw_mode(SkCanvas* canvas, SkXfermode* mode, int alpha) {
+    void draw_mode(SkCanvas* canvas, SkXfermode* mode, int alpha,
+                   SkScalar x, SkScalar y) {
         SkPaint p;
         
-        canvas->drawBitmap(fSrcB, 0, 0, &p);        
+        canvas->drawBitmap(fSrcB, x, y, &p);        
         p.setAlpha(alpha);
         p.setXfermode(mode);
-        canvas->drawBitmap(fDstB, 0, 0, &p);
+        canvas->drawBitmap(fDstB, x, y, &p);
     }
     
 public:
-	XfermodesGM() {
-        const int W = 64;
-        const int H = 64;
-        
-        fBitmap.setConfig(SkBitmap::kARGB_8888_Config, W, H);
-        fBitmap.allocPixels();
-        
+    const static int W = 64;
+    const static int H = 64;
+	XfermodesGM() {        
         fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
         fBG.setPixels(gBG);
         fBG.setIsOpaque(true);
@@ -68,29 +64,20 @@ protected:
     }
 
 	virtual SkISize onISize() {
-        return make_isize(790, 480);
+        return make_isize(790, 640);
     }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
-        return;
-        SkShader* s = SkShader::CreateBitmapShader(fBG,
-                                                   SkShader::kRepeat_TileMode,
-                                                   SkShader::kRepeat_TileMode);
-        SkPaint p;
-        SkMatrix m;
-        
-        p.setShader(s)->unref();
-        m.setScale(SkIntToScalar(8), SkIntToScalar(8));
-        s->setLocalMatrix(m);
-        canvas->drawPaint(p);
     }
     
     virtual void onDraw(SkCanvas* canvas) {
+        canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
+        
         this->drawBG(canvas);
         
         const struct {
-            SkXfermode::Mode    fMode;
+            SkXfermode::Mode  fMode;
             const char*         fLabel;
         } gModes[] = {
             { SkXfermode::kClear_Mode,    "Clear"     },
@@ -120,11 +107,8 @@ protected:
             { SkXfermode::kExclusion_Mode,    "Exclusion"     },
         };
         
-        canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
-        
-        SkCanvas c(fBitmap);
-        const SkScalar w = SkIntToScalar(fBitmap.width());
-        const SkScalar h = SkIntToScalar(fBitmap.height());
+        const SkScalar w = SkIntToScalar(W);
+        const SkScalar h = SkIntToScalar(H);
         SkShader* s = SkShader::CreateBitmapShader(fBG,
                                                    SkShader::kRepeat_TileMode,
                                                    SkShader::kRepeat_TileMode);
@@ -135,7 +119,7 @@ protected:
         SkPaint labelP;
         labelP.setAntiAlias(true);
         labelP.setTextAlign(SkPaint::kCenter_Align);
-
+        
         const int W = 5;
         
         SkScalar x0 = 0;
@@ -143,27 +127,29 @@ protected:
             SkScalar x = x0, y = 0;
             for (size_t i = 0; i < SK_ARRAY_COUNT(gModes); i++) {
                 SkXfermode* mode = SkXfermode::Create(gModes[i].fMode);
-                
-                fBitmap.eraseColor(0);
-                draw_mode(&c, mode, twice ? 0x88 : 0xFF);
-                SkSafeUnref(mode);
-                
-                SkPaint p;
+                SkAutoUnref aur(mode);
                 SkRect r;
                 r.set(x, y, x+w, y+h);
-                r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
-                p.setStyle(SkPaint::kStroke_Style);
-                canvas->drawRect(r, p);
+                
+                SkPaint p;
                 p.setStyle(SkPaint::kFill_Style);
                 p.setShader(s);
-                r.inset(SK_ScalarHalf, SK_ScalarHalf);
                 canvas->drawRect(r, p);
                 
-                canvas->drawBitmap(fBitmap, x, y, NULL);
+                canvas->saveLayer(&r, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
+                //       canvas->save();
+                draw_mode(canvas, mode, twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
+                canvas->restore();
                 
+                r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
+                p.setStyle(SkPaint::kStroke_Style);
+                p.setShader(NULL);
+                canvas->drawRect(r, p);
+                
+#if 1
                 canvas->drawText(gModes[i].fLabel, strlen(gModes[i].fLabel),
                                  x + w/2, y - labelP.getTextSize()/2, labelP);
-                
+#endif
                 x += w + SkIntToScalar(10);
                 if ((i % W) == W - 1) {
                     x = x0;
