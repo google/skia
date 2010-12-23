@@ -17,8 +17,11 @@
 
 #include "SkGradientShader.h"
 #include "SkColorPriv.h"
+#include "SkMallocPixelRef.h"
 #include "SkUnitMapper.h"
 #include "SkUtils.h"
+#include "SkTemplates.h"
+#include "SkBitmapCache.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -119,8 +122,9 @@ protected:
     const uint16_t*     getCache16();
     const SkPMColor*    getCache32();
 
-    // called when we kill our cached colors (to be rebuilt later on demand)
-    virtual void onCacheReset()  = 0;
+    SkMallocPixelRef* fCache32PixelRef;
+
+    void commonAsABitmap(SkBitmap*);
 
 private:
     enum {
@@ -135,7 +139,6 @@ private:
     SkPMColor*  fCache32;   // working ptr. If this is NULL, we need to recompute the cache values
 
     uint16_t*   fCache16Storage;    // storage for fCache16, allocated on demand
-    SkPMColor*  fCache32Storage;    // storage for fCache32, allocated on demand
     unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
 
     static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
@@ -168,7 +171,8 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[],
     fTileProc = gTileProcs[mode];
     
     fCache16 = fCache16Storage = NULL;
-    fCache32 = fCache32Storage = NULL;
+    fCache32 = NULL;
+    fCache32PixelRef = NULL;
 
     /*  Note: we let the caller skip the first and/or last position.
         i.e. pos[0] = 0.3, pos[1] = 0.7
@@ -276,7 +280,8 @@ Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
     fMapper = static_cast<SkUnitMapper*>(buffer.readFlattenable());
 
     fCache16 = fCache16Storage = NULL;
-    fCache32 = fCache32Storage = NULL;
+    fCache32 = NULL;
+    fCache32PixelRef = NULL;
 
     int colorCount = fColorCount = buffer.readU32();
     if (colorCount > kColorStorageCount) {
@@ -306,9 +311,7 @@ Gradient_Shader::~Gradient_Shader() {
     if (fCache16Storage) {
         sk_free(fCache16Storage);
     }
-    if (fCache32Storage) {
-        sk_free(fCache32Storage);
-    }
+    SkSafeUnref(fCache32PixelRef);
     if (fOrigColors != fStorage) {
         sk_free(fOrigColors);
     }
@@ -377,7 +380,9 @@ bool Gradient_Shader::setContext(const SkBitmap& device,
         fCache32 = NULL;                // inval the cache
         fCacheAlpha = paintAlpha;       // record the new alpha
         // inform our subclasses
-        this->onCacheReset();
+        if (fCache32PixelRef) {
+            fCache32PixelRef->notifyPixelsChanged();
+        }
     }
     return true;
 }
@@ -542,10 +547,12 @@ const uint16_t* Gradient_Shader::getCache16() {
 
 const SkPMColor* Gradient_Shader::getCache32() {
     if (fCache32 == NULL) {
-        if (fCache32Storage == NULL) // set the storage and our working ptr
-            fCache32Storage = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor) * kCache32Count);
-
-        fCache32 = fCache32Storage;
+        if (NULL == fCache32PixelRef) {
+            fCache32PixelRef = SkNEW_ARGS(SkMallocPixelRef, (NULL,
+                                                             sizeof(SkPMColor) * kCache32Count,
+                                                             NULL));
+        }
+        fCache32 = (SkPMColor*)fCache32PixelRef->getAddr();
         if (fColorCount == 2) {
             build_32bit_cache(fCache32, fOrigColors[0], fOrigColors[1],
                               kCache32Count, fCacheAlpha);
@@ -566,18 +573,82 @@ const SkPMColor* Gradient_Shader::getCache32() {
         }
 
         if (fMapper) {
-            fCache32Storage = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor) * kCache32Count);
+            SkMallocPixelRef* newPR = SkNEW_ARGS(SkMallocPixelRef,
+                                                 (NULL,
+                                                  sizeof(SkPMColor) * kCache32Count,
+                                                  NULL));
             SkPMColor* linear = fCache32;           // just computed linear data
-            SkPMColor* mapped = fCache32Storage;    // storage for mapped data
+            SkPMColor* mapped = (SkPMColor*)newPR->getAddr();    // storage for mapped data
             SkUnitMapper* map = fMapper;
             for (int i = 0; i < 256; i++) {
                 mapped[i] = linear[map->mapUnit16((i << 8) | i) >> 8];
             }
-            sk_free(fCache32);
-            fCache32 = fCache32Storage;
+            fCache32PixelRef->unref();
+            fCache32PixelRef = newPR;
+            fCache32 = (SkPMColor*)newPR->getAddr();
         }
     }
     return fCache32;
+}
+
+/*
+ *  Because our caller might rebuild the same (logically the same) gradient
+ *  over and over, we'd like to return exactly the same "bitmap" if possible,
+ *  allowing the client to utilize a cache of our bitmap (e.g. with a GPU).
+ *  To do that, we maintain a private cache of built-bitmaps, based on our
+ *  colors and positions. Note: we don't try to flatten the fMapper, so if one
+ *  is present, we skip the cache for now.
+ */
+void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) {
+    // don't have a way to put the mapper into our cache-key yet
+    if (fMapper) {
+        // force our cahce32pixelref to be built
+        (void)this->getCache32();
+        bitmap->setConfig(SkBitmap::kARGB_8888_Config, kCache32Count, 1);
+        bitmap->setPixelRef(fCache32PixelRef);
+        return;
+    }
+
+    // build our key: [numColors + colors[] + {positions[]} ]
+    int count = 1 + fColorCount;
+    if (fColorCount > 2) {
+        count += fColorCount - 1;    // fRecs[].fPos
+    }
+
+    SkAutoSTMalloc<16, int32_t> storage(count);
+    int32_t* buffer = storage.get();
+
+    *buffer++ = fColorCount;
+    memcpy(buffer, fOrigColors, fColorCount * sizeof(SkColor));
+    buffer += fColorCount;
+    if (fColorCount > 2) {
+        for (int i = 1; i < fColorCount; i++) {
+            *buffer++ = fRecs[i].fPos;
+        }
+    }
+    SkASSERT(buffer - storage.get() == count);
+
+    ///////////////////////////////////
+
+    static SkMutex gMutex;
+    static SkBitmapCache* gCache;
+    // each cache cost 1K of RAM, since each bitmap will be 1x256 at 32bpp
+    static const int MAX_NUM_CACHED_GRADIENT_BITMAPS = 32;
+    SkAutoMutexAcquire ama(gMutex);
+    
+    if (NULL == gCache) {
+        gCache = new SkBitmapCache(MAX_NUM_CACHED_GRADIENT_BITMAPS);
+    }
+    size_t size = count * sizeof(int32_t);
+
+    if (!gCache->find(storage.get(), size, bitmap)) {
+        // force our cahce32pixelref to be built
+        (void)this->getCache32();
+        bitmap->setConfig(SkBitmap::kARGB_8888_Config, kCache32Count, 1);
+        bitmap->setPixelRef(fCache32PixelRef);
+
+        gCache->add(storage.get(), size, *bitmap);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -602,39 +673,24 @@ public:
                     SkShader::TileMode mode, SkUnitMapper* mapper)
         : Gradient_Shader(colors, pos, colorCount, mode, mapper)
     {
-        fCachedBitmap = NULL;
         pts_to_unit_matrix(pts, &fPtsToUnit);
-    }
-    virtual ~Linear_Gradient() {
-        if (fCachedBitmap) {
-            SkDELETE(fCachedBitmap);
-        }
     }
 
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&);
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
-    virtual bool asABitmap(SkBitmap*, SkMatrix*, TileMode*);
-    virtual void onCacheReset() {
-        if (fCachedBitmap) {
-            SkDELETE(fCachedBitmap);
-            fCachedBitmap = NULL;
-        }
-    }
+    virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, 
+                                 TileMode*, SkScalar* twoPointRadialParams);
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
         return SkNEW_ARGS(Linear_Gradient, (buffer));
     }
 
 protected:
-    Linear_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {
-        fCachedBitmap = NULL;
-    }
+    Linear_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {}
     virtual Factory getFactory() { return CreateProc; }
 
 private:
-    SkBitmap* fCachedBitmap;    // allocated on demand
-
     typedef Gradient_Shader INHERITED;
 };
 
@@ -674,10 +730,9 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
     const SkPMColor*    cache = this->getCache32();
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
-        dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+        dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                             SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
         SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-        // preround fx by half the amount we throw away
-        fx += 1 << 7;
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed dxStorage[1];
@@ -752,18 +807,12 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
     }
 }
 
-bool Linear_Gradient::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
-                                TileMode xy[]) {
-    // we cache our "bitmap", so it's generationID will be const on subsequent
-    // calls to asABitmap
-    if (NULL == fCachedBitmap) {
-        fCachedBitmap = SkNEW(SkBitmap);
-        fCachedBitmap->setConfig(SkBitmap::kARGB_8888_Config, kCache32Count, 1);
-        fCachedBitmap->setPixels((void*)this->getCache32(), NULL);
-    }
-
+SkShader::BitmapType Linear_Gradient::asABitmap(SkBitmap* bitmap, 
+                                                SkMatrix* matrix,
+                                                TileMode xy[],
+                                                SkScalar* twoPointRadialParams) {
     if (bitmap) {
-        *bitmap = *fCachedBitmap;
+        this->commonAsABitmap(bitmap);
     }
     if (matrix) {
         matrix->setScale(SkIntToScalar(kCache32Count), SK_Scalar1);
@@ -773,7 +822,7 @@ bool Linear_Gradient::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
         xy[0] = fTileMode;
         xy[1] = kClamp_TileMode;
     }
-    return true;
+    return kDefault_BitmapType;
 }
 
 static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
@@ -802,10 +851,9 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
     int                 toggle = ((x ^ y) & 1) << kCache16Bits;
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
-        dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+        dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                             SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
         SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-        // preround fx by half the amount we throw away
-        fx += 1 << 7;
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed dxStorage[1];
@@ -934,7 +982,8 @@ public:
 
         if (fDstToIndexClass != kPerspective_MatrixClass)
         {
-            dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+            dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
             SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
             SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
 
@@ -1017,7 +1066,8 @@ public:
         int                 toggle = ((x ^ y) & 1) << kCache16Bits;
 
         if (fDstToIndexClass != kPerspective_MatrixClass) {
-            dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+            dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
             SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
             SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
 
@@ -1107,6 +1157,24 @@ public:
         }
     }
 
+    virtual BitmapType asABitmap(SkBitmap* bitmap, 
+                                 SkMatrix* matrix, 
+                                 TileMode* xy,
+                                 SkScalar* twoPointRadialParams) {
+        if (bitmap) {
+            this->commonAsABitmap(bitmap);
+        }
+        if (matrix) {
+            matrix->setScale(SkIntToScalar(kCache32Count), SkIntToScalar(kCache32Count));
+            matrix->preConcat(fPtsToUnit);
+        }
+        if (xy) {
+            xy[0] = fTileMode;
+            xy[1] = kClamp_TileMode;
+        }
+        return kRadial_BitmapType;
+    }
+    
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
         return SkNEW_ARGS(Radial_Gradient, (buffer));
     }
@@ -1114,7 +1182,6 @@ public:
 protected:
     Radial_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {};
     virtual Factory getFactory() { return CreateProc; }
-    virtual void onCacheReset() {}
 
 private:
     typedef Gradient_Shader INHERITED;
@@ -1228,6 +1295,37 @@ public:
         fPtsToUnit.setTranslate(-start.fX, -start.fY);
         fPtsToUnit.postScale(inv, inv);
     }
+    
+    virtual BitmapType asABitmap(SkBitmap* bitmap, 
+                                 SkMatrix* matrix, 
+                                 TileMode* xy,
+                                 SkScalar* twoPointRadialParams) {
+        if (bitmap) {
+            this->commonAsABitmap(bitmap);
+        }
+        SkScalar diffL = 0; // just to avoid gcc warning
+        if (matrix || twoPointRadialParams) {
+            diffL = SkScalarSqrt(SkScalarSquare(fDiff.fX) + 
+                                 SkScalarSquare(fDiff.fY));
+        }
+        if (matrix) {
+            SkScalar invDiffL = SkScalarInvert(diffL);
+            matrix->setSinCos(-SkScalarMul(invDiffL, fDiff.fY), 
+                              SkScalarMul(invDiffL, fDiff.fX));
+            matrix->preConcat(fPtsToUnit);
+        }
+        if (xy) {
+            xy[0] = fTileMode;
+            xy[1] = kClamp_TileMode;
+        }
+        if (NULL != twoPointRadialParams) {
+            twoPointRadialParams[0] = diffL;
+            twoPointRadialParams[1] = fStartRadius;
+            twoPointRadialParams[2] = fDiffRadius;
+        }
+        return kTwoPointRadial_BitmapType;
+    }
+    
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count)
     {
         SkASSERT(count > 0);
@@ -1250,7 +1348,8 @@ public:
         if (fDstToIndexClass != kPerspective_MatrixClass)
         {
             SkPoint srcPt;
-            dstProc(fDstToIndex, SkIntToScalar(x), SkIntToScalar(y), &srcPt);
+            dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
             SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
             SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
 
@@ -1365,7 +1464,6 @@ protected:
         fOneOverTwoA = buffer.readScalar();
     };
     virtual Factory getFactory() { return CreateProc; }
-    virtual void onCacheReset() {}
 
 private:
     typedef Gradient_Shader INHERITED;
@@ -1386,6 +1484,23 @@ public:
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
     
+    virtual BitmapType asABitmap(SkBitmap* bitmap, 
+                                 SkMatrix* matrix, 
+                                 TileMode* xy,
+                                 SkScalar* twoPointRadialParams) {
+        if (bitmap) {
+            this->commonAsABitmap(bitmap);
+        }
+        if (matrix) {
+            *matrix = fPtsToUnit;
+        }
+        if (xy) {
+            xy[0] = fTileMode;
+            xy[1] = kClamp_TileMode;
+        }
+        return kSweep_BitmapType;
+    }
+
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Sweep_Gradient, (buffer));
     }
@@ -1393,7 +1508,6 @@ public:
 protected:
     Sweep_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {}
     virtual Factory getFactory() { return CreateProc; }
-    virtual void onCacheReset() {}
 
 private:
     typedef Gradient_Shader INHERITED;
