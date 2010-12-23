@@ -108,13 +108,17 @@ bool fbo_test(GrGLExts exts, int w, int h) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static bool gPrintStartupSpew;
+
 GrGpuGL::GrGpuGL() {
-    GrPrintf("------------------------- create GrGpuGL %p --------------\n",
-             this);
-    GrPrintf("------ VENDOR %s\n", glGetString(GL_VENDOR));
-    GrPrintf("------ RENDERER %s\n", glGetString(GL_RENDERER));
-    GrPrintf("------ VERSION %s\n", glGetString(GL_VERSION));
-    GrPrintf("------ EXTENSIONS\n %s \n", glGetString(GL_EXTENSIONS));
+    if (gPrintStartupSpew) {
+        GrPrintf("------------------------- create GrGpuGL %p --------------\n",
+                 this);
+        GrPrintf("------ VENDOR %s\n", glGetString(GL_VENDOR));
+        GrPrintf("------ RENDERER %s\n", glGetString(GL_RENDERER));
+        GrPrintf("------ VERSION %s\n", glGetString(GL_VERSION));
+        GrPrintf("------ EXTENSIONS\n %s \n", glGetString(GL_EXTENSIONS));
+    }
 
     GrGLClearErr();
 
@@ -160,7 +164,10 @@ GrGpuGL::GrGpuGL() {
             break;
         }
     }
-    GrPrintf("Palette8 support: %s\n", (f8bitPaletteSupport ? "YES" : "NO"));
+
+    if (gPrintStartupSpew) {
+        GrPrintf("Palette8 support: %s\n", (f8bitPaletteSupport ? "YES" : "NO"));
+    }
 
     GR_STATIC_ASSERT(0 == kNone_AALevel);
     GR_STATIC_ASSERT(1 == kLow_AALevel);
@@ -171,11 +178,15 @@ GrGpuGL::GrGpuGL() {
     fMSFBOType = kNone_MSFBO;
     if (has_gl_extension("GL_IMG_multisampled_render_to_texture")) {
         fMSFBOType = kIMG_MSFBO;
-        GrPrintf("MSAA Support: IMG ES EXT.\n");
+        if (gPrintStartupSpew) {
+            GrPrintf("MSAA Support: IMG ES EXT.\n");
+        }
     }
     else if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
         fMSFBOType = kApple_MSFBO;
-        GrPrintf("MSAA Support: APPLE ES EXT.\n");
+        if (gPrintStartupSpew) {
+            GrPrintf("MSAA Support: APPLE ES EXT.\n");
+        }
     }
 #if GR_GL_DESKTOP
     else if ((major >= 3) ||
@@ -183,11 +194,15 @@ GrGpuGL::GrGpuGL() {
              (has_gl_extension("GL_EXT_framebuffer_multisample") &&
               has_gl_extension("GL_EXT_framebuffer_blit"))) {
         fMSFBOType = kDesktop_MSFBO;
-        GrPrintf("MSAA Support: DESKTOP\n");
+         if (gPrintStartupSpew) {
+             GrPrintf("MSAA Support: DESKTOP\n");
+         }
     }
 #endif
     else {
-        GrPrintf("MSAA Support: NONE\n");
+        if (gPrintStartupSpew) {
+            GrPrintf("MSAA Support: NONE\n");
+        }
     }
 
     if (kNone_MSFBO != fMSFBOType) {
@@ -206,7 +221,9 @@ GrGpuGL::GrGpuGL() {
                                                              maxSamples));
             fAASamples[kHigh_AALevel] = maxSamples;
         }
-        GrPrintf("\tMax Samples: %d\n", maxSamples);
+        if (gPrintStartupSpew) {
+            GrPrintf("\tMax Samples: %d\n", maxSamples);
+        }
     }
 
 #if GR_GL_DESKTOP
@@ -215,7 +232,9 @@ GrGpuGL::GrGpuGL() {
 #else
     fHasStencilWrap = (major >= 2) || has_gl_extension("GL_OES_stencil_wrap");
 #endif
-    GrPrintf("Stencil Wrap: %s\n", (fHasStencilWrap ? "YES" : "NO"));
+    if (gPrintStartupSpew) {
+        GrPrintf("Stencil Wrap: %s\n", (fHasStencilWrap ? "YES" : "NO"));
+    }
 
 #if GR_GL_DESKTOP
     // we could also look for GL_ATI_separate_stencil extension or
@@ -227,7 +246,9 @@ GrGpuGL::GrGpuGL() {
     // an ES1 extension.
     fSingleStencilPassForWinding = (major >= 2);
 #endif
-    GrPrintf("Single Stencil Pass For Winding: %s\n", (fSingleStencilPassForWinding ? "YES" : "NO"));
+    if (gPrintStartupSpew) {
+        GrPrintf("Single Stencil Pass For Winding: %s\n", (fSingleStencilPassForWinding ? "YES" : "NO"));
+    }
 
 
 #if GR_GL_DESKTOP
@@ -235,7 +256,9 @@ GrGpuGL::GrGpuGL() {
 #else
     fRGBA8Renderbuffer = has_gl_extension("GL_OES_rgb8_rgba8");
 #endif
-    GrPrintf("RGBA Renderbuffer: %s\n", (fRGBA8Renderbuffer ? "YES" : "NO"));
+    if (gPrintStartupSpew) {
+        GrPrintf("RGBA Renderbuffer: %s\n", (fRGBA8Renderbuffer ? "YES" : "NO"));
+    }
 
 
 #if GR_GL_DESKTOP
@@ -244,7 +267,9 @@ GrGpuGL::GrGpuGL() {
 #else
     fBufferLockSupport = has_gl_extension("GL_OES_mapbuffer");
 #endif
-    GrPrintf("Map Buffer: %s\n", (fBufferLockSupport ? "YES" : "NO"));
+    if (gPrintStartupSpew) {
+        GrPrintf("Map Buffer: %s\n", (fBufferLockSupport ? "YES" : "NO"));
+    }
 
 #if GR_GL_DESKTOP
     fNPOTTextureSupport =
@@ -276,33 +301,42 @@ GrGpuGL::GrGpuGL() {
         bool npotFBOSuccess = fbo_test(fExts, 200, 200);
         if (!npotFBOSuccess) {
             fNPOTTextureSupport = kNonRendertarget_NPOTTextureType;
-            GrPrintf("NPOT Renderbuffer Test: FAILED\n");
+            if (gPrintStartupSpew) {
+                GrPrintf("NPOT Renderbuffer Test: FAILED\n");
+            }
         } else {
-            GrPrintf("NPOT Renderbuffer Test: PASSED\n");
+            if (gPrintStartupSpew) {
+                GrPrintf("NPOT Renderbuffer Test: PASSED\n");
+            }
         }
     }
-    switch (fNPOTTextureSupport) {
-    case kNone_NPOTTextureType:
-        GrPrintf("NPOT Support: NONE\n");
-        break;
-    case kNoRepeat_NPOTTextureType:
-        GrPrintf("NPOT Support: NO REPEAT\n");
-        break;
-    case kNonRendertarget_NPOTTextureType:
-        GrPrintf("NPOT Support: NO FBOTEX\n");
-        break;
-    case kFull_NPOTTextureType:
-        GrPrintf("NPOT Support: FULL\n");
-        break;
+
+    if (gPrintStartupSpew) {
+        switch (fNPOTTextureSupport) {
+        case kNone_NPOTTextureType:
+            GrPrintf("NPOT Support: NONE\n");
+            break;
+        case kNoRepeat_NPOTTextureType:
+            GrPrintf("NPOT Support: NO REPEAT\n");
+            break;
+        case kNonRendertarget_NPOTTextureType:
+            GrPrintf("NPOT Support: NO FBOTEX\n");
+            break;
+        case kFull_NPOTTextureType:
+            GrPrintf("NPOT Support: FULL\n");
+            break;
+        }
     }
 
     // sanity check to make sure we can at least create an FBO from a POT texture
     if (fNPOTTextureSupport < kFull_NPOTTextureType) {
         bool npotFBOSuccess = fbo_test(fExts, 128, 128);
-        if (!npotFBOSuccess) {
-            GrPrintf("FBO Sanity Test: FAILED\n");
-        } else {
-            GrPrintf("FBO Sanity Test: PASSED\n");
+        if (gPrintStartupSpew) {
+            if (!npotFBOSuccess) {
+                GrPrintf("FBO Sanity Test: FAILED\n");
+            } else {
+                GrPrintf("FBO Sanity Test: PASSED\n");
+            }
         }
     }
 
@@ -314,33 +348,45 @@ GrGpuGL::GrGpuGL() {
     GLint maxRenderSize;
     glGetIntegerv(GR_MAX_RENDERBUFFER_SIZE, &maxRenderSize);
 
-    GrPrintf("Small height FBO texture experiments\n");
+    if (gPrintStartupSpew) {
+        GrPrintf("Small height FBO texture experiments\n");
+    }
     for (GLuint i = 1; i <= 256;
          (kFull_NPOTTextureType != fNPOTTextureSupport) ? i *= 2 : ++i) {
         GLuint w = maxRenderSize;
         GLuint h = i;
         if (fbo_test(fExts, w, h)) {
-            GrPrintf("\t[%d, %d]: PASSED\n", w, h);
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
+            }
             fMinRenderTargetHeight = i;
             break;
         } else {
-            GrPrintf("\t[%d, %d]: FAILED\n", w, h);
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
+            }
         }
     }
     GrAssert(GR_INVAL_GLINT != fMinRenderTargetHeight);
 
-    GrPrintf("Small width FBO texture experiments\n");
+    if (gPrintStartupSpew) {
+        GrPrintf("Small width FBO texture experiments\n");
+    }
     fMinRenderTargetWidth = GR_MAX_GLUINT;
     for (GLuint i = 1; i <= 256;
          (kFull_NPOTTextureType != fNPOTTextureSupport) ? i *= 2 : ++i) {
         GLuint w = i;
         GLuint h = maxRenderSize;
         if (fbo_test(fExts, w, h)) {
-            GrPrintf("\t[%d, %d]: PASSED\n", w, h);
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
+            }
             fMinRenderTargetWidth = i;
             break;
         } else {
-            GrPrintf("\t[%d, %d]: FAILED\n", w, h);
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
+            }
         }
     }
     GrAssert(GR_INVAL_GLINT != fMinRenderTargetWidth);

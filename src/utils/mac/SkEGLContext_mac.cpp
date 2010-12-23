@@ -15,7 +15,7 @@ bool SkEGLContext::init(int width, int height) {
 	AGLContext ctx;
 
 	aglGetVersion(&major, &minor);
-	SkDebugf("---- agl version %d %d\n", major, minor);
+//	SkDebugf("---- agl version %d %d\n", major, minor);
 
 	const GLint pixelAttrs[] = {
 		AGL_RGBA,
@@ -30,12 +30,11 @@ bool SkEGLContext::init(int width, int height) {
 	};
 	AGLPixelFormat format = aglChoosePixelFormat(NULL, 0, pixelAttrs);
 	//AGLPixelFormat format = aglCreatePixelFormat(pixelAttrs);
-	SkDebugf("----- agl format %p\n", format);
+//	SkDebugf("----- agl format %p\n", format);
 	ctx = aglCreateContext(format, NULL);
-	SkDebugf("----- agl context %p\n", ctx);
+//	SkDebugf("----- agl context %p\n", ctx);
 	aglDestroyPixelFormat(format);
 
-	SkDebugf("---- sizeof aglcontext %d\n", sizeof(AGLContext));
 /*
 	static const GLint interval = 1;
 	aglSetInteger(ctx, AGL_SWAP_INTERVAL, &interval);
