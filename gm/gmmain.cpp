@@ -218,9 +218,11 @@ int main (int argc, char * const argv[]) {
 	}
 
     // setup a GL context for drawing offscreen
+    GrContext* context = NULL;
     SkEGLContext eglContext;
-    eglContext.init(1024, 1024);
-    GrContext* context = GrContext::CreateGLShaderContext();
+    if (eglContext.init(1024, 1024)) {
+        context = GrContext::CreateGLShaderContext();
+    }
 
     Iter iter;
     GM* gm;
@@ -244,6 +246,9 @@ int main (int argc, char * const argv[]) {
 			SkCanvas canvas(bitmap);
 
             if (gRec[i].fUseGPU) {
+                if (NULL == context) {
+                    continue;
+                }
                 SkGpuCanvas gc(context);
                 gc.setDevice(gc.createDevice(bitmap.config(), bitmap.width(), bitmap.height(),
                                              bitmap.isOpaque(), false))->unref(); 
