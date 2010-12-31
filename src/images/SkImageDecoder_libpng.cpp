@@ -50,7 +50,7 @@ protected:
 struct PNGAutoClean {
     PNGAutoClean(png_structp p, png_infop i): png_ptr(p), info_ptr(i) {}
     ~PNGAutoClean() {
-        png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
     }
 private:
     png_structp png_ptr;
@@ -83,7 +83,7 @@ static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
 static void skip_src_rows(png_structp png_ptr, uint8_t storage[], int count) {
     for (int i = 0; i < count; i++) {
         uint8_t* tmp = storage;
-        png_read_rows(png_ptr, &tmp, png_bytepp_NULL, 1);
+        png_read_rows(png_ptr, &tmp, NULL, 1);
     }
 }
 
@@ -154,7 +154,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     /* Allocate/initialize the memory for image information. */
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == NULL) {
-        png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
         return false;
     }
 
@@ -188,7 +188,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     png_uint_32 origWidth, origHeight;
     int bit_depth, color_type, interlace_type;
     png_get_IHDR(png_ptr, info_ptr, &origWidth, &origHeight, &bit_depth, &color_type,
-        &interlace_type, int_p_NULL, int_p_NULL);
+        &interlace_type, NULL, NULL);
 
     /* tell libpng to strip 16 bit/color files down to 8 bits/color */
     if (bit_depth == 16) {
@@ -418,7 +418,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         for (int i = 0; i < number_passes; i++) {
             for (png_uint_32 y = 0; y < origHeight; y++) {
                 uint8_t* bmRow = decodedBitmap->getAddr8(0, y);
-                png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
+                png_read_rows(png_ptr, &bmRow, NULL, 1);
             }
         }
     } else {
@@ -453,7 +453,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
                 uint8_t* row = base;
                 for (png_uint_32 y = 0; y < origHeight; y++) {
                     uint8_t* bmRow = row;
-                    png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
+                    png_read_rows(png_ptr, &bmRow, NULL, 1);
                     row += rb;
                 }
             }
@@ -470,7 +470,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
 
             for (int y = 0; y < height; y++) {
                 uint8_t* tmp = srcRow;
-                png_read_rows(png_ptr, &tmp, png_bytepp_NULL, 1);
+                png_read_rows(png_ptr, &tmp, NULL, 1);
                 reallyHasAlpha |= sampler.next(srcRow);
                 if (y < height - 1) {
                     skip_src_rows(png_ptr, srcRow, sampler.srcDY() - 1);
@@ -779,7 +779,7 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
 
     info_ptr = png_create_info_struct(png_ptr);
     if (NULL == info_ptr) {
-        png_destroy_write_struct(&png_ptr,  png_infopp_NULL);
+        png_destroy_write_struct(&png_ptr,  NULL);
         return false;
     }
 
@@ -791,7 +791,7 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
         return false;
     }
 
-    png_set_write_fn(png_ptr, (void*)stream, sk_write_fn, png_flush_ptr_NULL);
+    png_set_write_fn(png_ptr, (void*)stream, sk_write_fn, NULL);
 
     /* Set the image information here.  Width and height are up to 2^31,
     * bit_depth is one of 1, 2, 4, 8, or 16, but valid values also depend on
