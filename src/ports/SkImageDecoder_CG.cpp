@@ -19,6 +19,7 @@
 #include "SkMovie.h"
 #include "SkStream.h"
 #include "SkTemplates.h"
+#include "SkCGUtils.h"
 
 static void malloc_release_proc(void* info, const void* data, size_t size) {
     sk_free(info);
@@ -139,8 +140,6 @@ protected:
 private:
     Type fType;
 };
-
-extern CGImageRef SkCreateCGImageRef(const SkBitmap&);
 
 /*  Encode bitmaps via CGImageDestination. We setup a DataConsumer which writes
     to our SkWStream. Since we don't reference/own the SkWStream, our consumer

@@ -21,7 +21,7 @@ CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
  *  Create an imageref from the specified bitmap using the colorspace
  *  kCGColorSpaceGenericRGB
  */
-CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
+static CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     return SkCreateCGImageRefWithColorspace(bm, NULL);
 }
 
