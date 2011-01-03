@@ -2,8 +2,6 @@
 #include "SkBitmap.h"
 #include "SkColorPriv.h"
 
-extern CGImageRef SkCreateCGImageRef(const SkBitmap&);
-
 static void SkBitmap_ReleaseInfo(void* info, const void* pixelData, size_t size) {
     SkBitmap* bitmap = reinterpret_cast<SkBitmap*>(info);
     delete bitmap;
@@ -74,9 +72,10 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
 
 #undef HAS_ARGB_SHIFTS
 
-CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
-    size_t bitsPerComponent;
-    CGBitmapInfo info;
+CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
+                                            CGColorSpaceRef colorSpace) {
+    size_t bitsPerComponent SK_INIT_TO_AVOID_WARNING;
+    CGBitmapInfo info       SK_INIT_TO_AVOID_WARNING;
 
     SkBitmap* bitmap = prepareForImageRef(bm, &bitsPerComponent, &info);
     if (NULL == bitmap) {
@@ -94,12 +93,20 @@ CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     CGDataProviderRef dataRef = CGDataProviderCreateWithData(bitmap, bitmap->getPixels(), s,
 															 SkBitmap_ReleaseInfo);
 
-    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+    bool releaseColorSpace = false;
+    if (NULL == colorSpace) {
+        colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        releaseColorSpace = true;
+    }
+
     CGImageRef ref = CGImageCreate(w, h, bitsPerComponent,
                                    bitmap->bytesPerPixel() * 8,
-                                   bitmap->rowBytes(), space, info, dataRef,
+                                   bitmap->rowBytes(), colorSpace, info, dataRef,
                                    NULL, false, kCGRenderingIntentDefault);
-    CGColorSpaceRelease(space);
+
+    if (releaseColorSpace) {
+        CGColorSpaceRelease(colorSpace);
+    }
     CGDataProviderRelease(dataRef);
     return ref;
 }

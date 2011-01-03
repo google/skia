@@ -86,7 +86,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 
 	C_INCLUDES += -Iinclude/utils/mac
 #	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
-#	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
+	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
 	SRC_LIST += src/utils/mac/SkEGLContext_mac.cpp
 	SRC_LIST += src/ports/SkFontHost_mac_coretext.cpp
 
