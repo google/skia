@@ -403,7 +403,7 @@ static void load_system_fonts() {
         GetFullPathForSysFonts(&filename, name.c_str());
 
         SkString realname;
-        SkTypeface::Style style;
+        SkTypeface::Style style = SkTypeface::kNormal; // avoid uninitialized warning
         
         if (!get_name_and_style(filename.c_str(), &realname, &style)) {
             SkDebugf("------ can't load <%s> as a font\n", filename.c_str());
