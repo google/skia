@@ -22,7 +22,6 @@
 		00003C950EFC2316000FF73A /* libeffects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00003C940EFC230E000FF73A /* libeffects.a */; };
 		00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9A0EFC233F000FF73A /* SkDOM.cpp */; };
 		00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */; };
-		0001FB78110E33CC00C1D647 /* SampleTestGL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A729630FD93ED600D5051F /* SampleTestGL.cpp */; };
 		0001FB87110E35E500C1D647 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0001FB86110E35E500C1D647 /* AGL.framework */; };
 		0001FB8A110E35FA00C1D647 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0001FB89110E35FA00C1D647 /* OpenGL.framework */; };
 		00115EC912C11783008296FE /* libgpu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00115EC812C11771008296FE /* libgpu.a */; };
@@ -57,9 +56,7 @@
 		00575A3B10BB05FE00A43B94 /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		00575A9510BB2FF600A43B94 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2794C04E0FE72903009AD112 /* SampleMipMap.cpp */; };
 		005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE290F00A12400695E8C /* SampleFilter2.cpp */; };
-		005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE280F00A12400695E8C /* SampleFilter.cpp */; };
 		0061BC9310D6787A0079EBE5 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */; };
-		0061BCC910D696730079EBE5 /* SampleTiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAF0F01658C00A2D6EE /* SampleTiling.cpp */; };
 		0061BCD910D951AA0079EBE5 /* SkTextBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281C661083CF5100BCCB06 /* SkTextBox.cpp */; };
 		007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */; };
 		007A7CB60F01658C00A2D6EE /* SampleRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */; };
@@ -80,6 +77,9 @@
 		009F9C0C12C39A9C00C7FD4A /* SkGr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0612C39A9C00C7FD4A /* SkGr.cpp */; };
 		009F9C0D12C39A9C00C7FD4A /* SkGrFontScaler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0712C39A9C00C7FD4A /* SkGrFontScaler.cpp */; };
 		009F9C0E12C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 009F9C0812C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp */; };
+		009F9D0612C3E89F00C7FD4A /* SampleTiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CAF0F01658C00A2D6EE /* SampleTiling.cpp */; };
+		009F9D0A12C3E8AF00C7FD4A /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE280F00A12400695E8C /* SampleFilter.cpp */; };
+		009F9D1A12C3EB2600C7FD4A /* SampleGM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C4625412BFB2F300DBB1F6 /* SampleGM.cpp */; };
 		00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */; };
 		00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7282D0FD43D3700D5051F /* SkMovie.cpp */; };
 		00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */; };
@@ -108,7 +108,6 @@
 		27C4624E12BFB2C700DBB1F6 /* shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C4624812BFB2C700DBB1F6 /* shapes.cpp */; };
 		27C4624F12BFB2C700DBB1F6 /* tilemodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C4624912BFB2C700DBB1F6 /* tilemodes.cpp */; };
 		27C4625012BFB2C700DBB1F6 /* xfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C4624A12BFB2C700DBB1F6 /* xfermodes.cpp */; };
-		27C4625512BFB2F300DBB1F6 /* SampleGM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C4625412BFB2F300DBB1F6 /* SampleGM.cpp */; };
 		27CAAB65119B303E0017B155 /* SkSVGCircle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB30119B303E0017B155 /* SkSVGCircle.cpp */; };
 		27CAAB66119B303E0017B155 /* SkSVGClipPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB32119B303E0017B155 /* SkSVGClipPath.cpp */; };
 		27CAAB67119B303E0017B155 /* SkSVGDefs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27CAAB34119B303E0017B155 /* SkSVGDefs.cpp */; };
@@ -314,7 +313,6 @@
 		00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleArc.cpp; path = ../../samplecode/SampleArc.cpp; sourceTree = SOURCE_ROOT; };
 		00A7282D0FD43D3700D5051F /* SkMovie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie.cpp; path = ../../src/images/SkMovie.cpp; sourceTree = SOURCE_ROOT; };
 		00A7282E0FD43D3700D5051F /* SkMovie_gif.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMovie_gif.cpp; path = ../../src/images/SkMovie_gif.cpp; sourceTree = SOURCE_ROOT; };
-		00A729630FD93ED600D5051F /* SampleTestGL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleTestGL.cpp; path = ../../samplecode/SampleTestGL.cpp; sourceTree = SOURCE_ROOT; };
 		00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleDitherBitmap.cpp; path = ../../samplecode/SampleDitherBitmap.cpp; sourceTree = SOURCE_ROOT; };
 		00BB289A104781D00057BF7E /* SampleForth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleForth.cpp; path = ../../forth/SampleForth.cpp; sourceTree = SOURCE_ROOT; };
 		00C55DA00F8552DC000CAC09 /* SampleGradients.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleGradients.cpp; path = ../../samplecode/SampleGradients.cpp; sourceTree = SOURCE_ROOT; };
@@ -447,7 +445,6 @@
 				00281C771083CFA100BCCB06 /* SampleAnimator.cpp */,
 				27CAAB9B119B32670017B155 /* SampleSVG.cpp */,
 				0086CBF010A8661F00C8BF27 /* SampleAvoid.cpp */,
-				00A729630FD93ED600D5051F /* SampleTestGL.cpp */,
 				2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */,
 				2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */,
 				2762F6770FCCCB01002BD8B4 /* SamplePageFlip.cpp */,
@@ -938,7 +935,6 @@
 				00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */,
 				00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */,
 				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
-				005E92E00FF08512008965B9 /* SampleFilter.cpp in Sources */,
 				27005D16100903C100E275B6 /* SampleLines.cpp in Sources */,
 				27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */,
 				00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */,
@@ -964,9 +960,7 @@
 				00575A9510BB2FF600A43B94 /* SampleMipMap.cpp in Sources */,
 				00F45DDC10CE94CE00ABEA26 /* SampleTypeface.cpp in Sources */,
 				0061BC9310D6787A0079EBE5 /* SampleGradients.cpp in Sources */,
-				0061BCC910D696730079EBE5 /* SampleTiling.cpp in Sources */,
 				0061BCD910D951AA0079EBE5 /* SkTextBox.cpp in Sources */,
-				0001FB78110E33CC00C1D647 /* SampleTestGL.cpp in Sources */,
 				0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */,
 				0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */,
 				27EC817811982E1300481B56 /* SampleTextAlpha.cpp in Sources */,
@@ -1018,7 +1012,6 @@
 				27C4624E12BFB2C700DBB1F6 /* shapes.cpp in Sources */,
 				27C4624F12BFB2C700DBB1F6 /* tilemodes.cpp in Sources */,
 				27C4625012BFB2C700DBB1F6 /* xfermodes.cpp in Sources */,
-				27C4625512BFB2F300DBB1F6 /* SampleGM.cpp in Sources */,
 				0011612F12C2AAC6008296FE /* SampleText.cpp in Sources */,
 				009F9C0912C39A9C00C7FD4A /* GrPrintf_skia.cpp in Sources */,
 				009F9C0A12C39A9C00C7FD4A /* SkGpuCanvas.cpp in Sources */,
@@ -1026,6 +1019,9 @@
 				009F9C0C12C39A9C00C7FD4A /* SkGr.cpp in Sources */,
 				009F9C0D12C39A9C00C7FD4A /* SkGrFontScaler.cpp in Sources */,
 				009F9C0E12C39A9C00C7FD4A /* SkGrTexturePixelRef.cpp in Sources */,
+				009F9D0612C3E89F00C7FD4A /* SampleTiling.cpp in Sources */,
+				009F9D0A12C3E8AF00C7FD4A /* SampleFilter.cpp in Sources */,
+				009F9D1A12C3EB2600C7FD4A /* SampleGM.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

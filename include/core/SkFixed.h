@@ -17,7 +17,7 @@
 #ifndef SkFixed_DEFINED
 #define SkFixed_DEFINED
 
-#include "SkTypes.h"
+#include "SkMath.h"
 
 /** \file SkFixed.h
 
