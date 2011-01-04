@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -51,7 +51,7 @@ struct FamilyRec;
 struct NameFamilyPair {
     const char* fName;      // we own this
     FamilyRec*  fFamily;    // we don't own this, we just reference it
-    
+
     void construct(const char name[], FamilyRec* family) {
         fName = strdup(name);
         fFamily = family;   // we don't own this, so just record the referene
@@ -74,7 +74,7 @@ static SkTDArray<NameFamilyPair> gNameList;
 struct FamilyRec {
     FamilyRec*  fNext;
     SkTypeface* fFaces[4];
-    
+
     FamilyRec()
     {
         fNext = gFamilyHead;
@@ -147,7 +147,7 @@ static FamilyRec* remove_from_family(const SkTypeface* face) {
     FamilyRec* family = find_family(face);
     SkASSERT(family->fFaces[face->style()] == face);
     family->fFaces[face->style()] = NULL;
-    
+
     for (int i = 0; i < 4; i++) {
         if (family->fFaces[i] != NULL) {    // family is non-empty
             return NULL;
@@ -181,7 +181,7 @@ static void detach_and_delete_family(FamilyRec* family) {
 static SkTypeface* find_typeface(const char name[], SkTypeface::Style style) {
     NameFamilyPair* list = gNameList.begin();
     int             count = gNameList.count();
-    
+
     int index = SkStrLCSearch(&list[0].fName, count, name, sizeof(list[0]));
 
     if (index >= 0) {
@@ -202,7 +202,7 @@ static void add_name(const char name[], FamilyRec* family) {
 
     NameFamilyPair* list = gNameList.begin();
     int             count = gNameList.count();
-    
+
     int index = SkStrLCSearch(&list[0].fName, count, name, sizeof(list[0]));
 
     if (index < 0) {
@@ -220,7 +220,7 @@ static void remove_from_names(FamilyRec* emptyFamily)
 #endif
 
     SkTDArray<NameFamilyPair>& list = gNameList;
-    
+
     // must go backwards when removing
     for (int i = list.count() - 1; i >= 0; --i) {
         NameFamilyPair* pair = &list[i];
@@ -238,9 +238,9 @@ public:
     FamilyTypeface(Style style, bool sysFont, SkTypeface* familyMember)
     : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1) {
         fIsSysFont = sysFont;
-        
+
         SkAutoMutexAcquire  ac(gFamilyMutex);
-        
+
         FamilyRec* rec = NULL;
         if (familyMember) {
             rec = find_family(familyMember);
@@ -250,10 +250,10 @@ public:
         }
         rec->fFaces[style] = this;
     }
-    
+
     virtual ~FamilyTypeface() {
         SkAutoMutexAcquire  ac(gFamilyMutex);
-        
+
         // remove us from our family. If the family is now empty, we return
         // that and then remove that family from the name list
         FamilyRec* family = remove_from_family(this);
@@ -262,16 +262,16 @@ public:
             detach_and_delete_family(family);
         }
     }
-    
+
     bool isSysFont() const { return fIsSysFont; }
-    
+
     virtual SkStream* openStream() = 0;
     virtual const char* getUniqueString() const = 0;
     virtual const char* getFilePath() const = 0;
-    
+
 private:
     bool    fIsSysFont;
-    
+
     typedef SkTypeface INHERITED;
 };
 
@@ -289,12 +289,14 @@ public:
     virtual ~StreamTypeface() {
         fStream->unref();
     }
-    
+
     // overrides
     virtual SkStream* openStream() {
         // we just ref our existing stream, since the caller will call unref()
         // when they are through
         fStream->ref();
+        // must rewind each time, since the caller assumes a "new" stream
+        fStream->rewind();
         return fStream;
     }
     virtual const char* getUniqueString() const { return NULL; }
@@ -302,7 +304,7 @@ public:
 
 private:
     SkStream* fStream;
-    
+
     typedef FamilyTypeface INHERITED;
 };
 
@@ -312,14 +314,14 @@ public:
                  const char path[])
     : INHERITED(style, sysFont, familyMember) {
         SkString fullpath;
-        
+
         if (sysFont) {
             GetFullPathForSysFonts(&fullpath, path);
             path = fullpath.c_str();
         }
         fPath.set(path);
     }
-    
+
     // overrides
     virtual SkStream* openStream() {
         SkStream* stream = SkNEW_ARGS(SkMMAPStream, (fPath.c_str()));
@@ -349,7 +351,7 @@ public:
 
 private:
     SkString fPath;
-    
+
     typedef FamilyTypeface INHERITED;
 };
 
@@ -448,7 +450,7 @@ static void load_system_fonts() {
     if (NULL != gDefaultNormal) {
         return;
     }
-    
+
     const FontInitRec* rec = gSystemFonts;
     SkTypeface* firstInFamily = NULL;
     int fallbackCount = 0;
@@ -458,7 +460,7 @@ static void load_system_fonts() {
         if (rec[i].fNames != NULL) {
             firstInFamily = NULL;
         }
-        
+
         SkString name;
         SkTypeface::Style style;
 
@@ -534,7 +536,7 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
         SkString str;
         str.resize(len);
         stream->read(str.writable_str(), len);
-        
+
         const FontInitRec* rec = gSystemFonts;
         for (size_t i = 0; i < SK_ARRAY_COUNT(gSystemFonts); i++) {
             if (strcmp(rec[i].fFileName, str.c_str()) == 0) {
@@ -560,10 +562,10 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     load_system_fonts();
 
     SkAutoMutexAcquire  ac(gFamilyMutex);
-    
+
     // clip to legal style bits
     style = (SkTypeface::Style)(style & SkTypeface::kBoldItalic);
-    
+
     SkTypeface* tf = NULL;
 
     if (NULL != familyFace) {
@@ -584,13 +586,13 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
 bool SkFontHost::ValidFontID(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
-    
+
     return find_from_uniqueID(fontID) != NULL;
 }
 
 SkStream* SkFontHost::OpenStream(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
-    
+
     FamilyTypeface* tf = (FamilyTypeface*)find_from_uniqueID(fontID);
     SkStream* stream = tf ? tf->openStream() : NULL;
 
@@ -645,7 +647,7 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     if (NULL == stream || stream->getLength() <= 0) {
         return NULL;
     }
-    
+
     SkString name;
     SkTypeface::Style style = find_name_and_style(stream, &name);
 
