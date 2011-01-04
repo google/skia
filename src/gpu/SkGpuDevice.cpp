@@ -514,10 +514,10 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 #else
     GrPoint* v;
     fContext->reserveAndLockGeometry(layout, count, 0, (void**)&v, NULL);
-    for (int i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         v[i].set(SkScalarToGrScalar(pts[i].fX), SkScalarToGrScalar(pts[i].fY));
     }
-    fContext->drawNonIndexed(gPointMode2PrimtiveType[mode], layout, 0, count);
+    fContext->drawNonIndexed(gPointMode2PrimtiveType[mode], 0, count);
     fContext->releaseReservedGeometry();
 #endif
 

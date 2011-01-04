@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -334,7 +334,7 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
     if (byteLength == 0) {
         return 0;
     }
-    
+
     SkASSERT(textData != NULL);
 
     if (NULL == glyphs) {
@@ -351,16 +351,16 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
         }
         return 0;
     }
-    
+
     // if we get here, we have a valid glyphs[] array, so time to fill it in
-    
+
     // handle this encoding before the setup for the glyphcache
     if (this->getTextEncoding() == kGlyphID_TextEncoding) {
         // we want to ignore the low bit of byteLength
         memcpy(glyphs, textData, byteLength >> 1 << 1);
         return byteLength >> 1;
     }
-    
+
     SkAutoGlyphCache autoCache(*this, NULL);
     SkGlyphCache*    cache = autoCache.getCache();
 
@@ -392,9 +392,9 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
     if (0 == byteLength) {
         return true;
     }
-    
+
     SkASSERT(textData != NULL);
-    
+
     // handle this encoding before the setup for the glyphcache
     if (this->getTextEncoding() == kGlyphID_TextEncoding) {
         const uint16_t* glyphID = static_cast<const uint16_t*>(textData);
@@ -406,7 +406,7 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
         }
         return true;
     }
-    
+
     SkAutoGlyphCache autoCache(*this, NULL);
     SkGlyphCache*    cache = autoCache.getCache();
 
@@ -461,7 +461,7 @@ static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache, const char** 
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF8_NextUnichar(text));
 }
 
@@ -469,7 +469,7 @@ static const SkGlyph& sk_getMetrics_utf8_prev(SkGlyphCache* cache, const char** 
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF8_PrevUnichar(text));
 }
 
@@ -477,7 +477,7 @@ static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF16_NextUnichar((const uint16_t**)text));
 }
 
@@ -485,7 +485,7 @@ static const SkGlyph& sk_getMetrics_utf16_prev(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF16_PrevUnichar((const uint16_t**)text));
 }
 
@@ -493,7 +493,7 @@ static const SkGlyph& sk_getMetrics_glyph_next(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const uint16_t* ptr = *(const uint16_t**)text;
     unsigned glyphID = *ptr;
     ptr += 1;
@@ -505,7 +505,7 @@ static const SkGlyph& sk_getMetrics_glyph_prev(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const uint16_t* ptr = *(const uint16_t**)text;
     ptr -= 1;
     unsigned glyphID = *ptr;
@@ -519,7 +519,7 @@ static const SkGlyph& sk_getAdvance_utf8_next(SkGlyphCache* cache, const char** 
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharAdvance(SkUTF8_NextUnichar(text));
 }
 
@@ -527,7 +527,7 @@ static const SkGlyph& sk_getAdvance_utf8_prev(SkGlyphCache* cache, const char** 
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharAdvance(SkUTF8_PrevUnichar(text));
 }
 
@@ -535,7 +535,7 @@ static const SkGlyph& sk_getAdvance_utf16_next(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharAdvance(SkUTF16_NextUnichar((const uint16_t**)text));
 }
 
@@ -543,7 +543,7 @@ static const SkGlyph& sk_getAdvance_utf16_prev(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharAdvance(SkUTF16_PrevUnichar((const uint16_t**)text));
 }
 
@@ -551,7 +551,7 @@ static const SkGlyph& sk_getAdvance_glyph_next(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const uint16_t* ptr = *(const uint16_t**)text;
     unsigned glyphID = *ptr;
     ptr += 1;
@@ -563,7 +563,7 @@ static const SkGlyph& sk_getAdvance_glyph_prev(SkGlyphCache* cache, const char**
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const uint16_t* ptr = *(const uint16_t**)text;
     ptr -= 1;
     unsigned glyphID = *ptr;
@@ -578,20 +578,20 @@ SkMeasureCacheProc SkPaint::getMeasureCacheProc(TextBufferDirection tbd,
         sk_getMetrics_utf8_next,
         sk_getMetrics_utf16_next,
         sk_getMetrics_glyph_next,
-        
+
         sk_getMetrics_utf8_prev,
         sk_getMetrics_utf16_prev,
         sk_getMetrics_glyph_prev,
-        
+
         sk_getAdvance_utf8_next,
         sk_getAdvance_utf16_next,
         sk_getAdvance_glyph_next,
-        
+
         sk_getAdvance_utf8_prev,
         sk_getAdvance_utf16_prev,
         sk_getAdvance_glyph_prev
     };
-    
+
     unsigned index = this->getTextEncoding();
 
     if (kBackward_TextBufferDirection == tbd)
@@ -610,7 +610,7 @@ static const SkGlyph& sk_getMetrics_utf8_00(SkGlyphCache* cache,
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF8_NextUnichar(text));
 }
 
@@ -619,7 +619,7 @@ static const SkGlyph& sk_getMetrics_utf8_xy(SkGlyphCache* cache,
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF8_NextUnichar(text), x, y);
 }
 
@@ -628,7 +628,7 @@ static const SkGlyph& sk_getMetrics_utf16_00(SkGlyphCache* cache, const char** t
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF16_NextUnichar((const uint16_t**)text));
 }
 
@@ -637,7 +637,7 @@ static const SkGlyph& sk_getMetrics_utf16_xy(SkGlyphCache* cache,
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     return cache->getUnicharMetrics(SkUTF16_NextUnichar((const uint16_t**)text),
                                     x, y);
 }
@@ -647,7 +647,7 @@ static const SkGlyph& sk_getMetrics_glyph_00(SkGlyphCache* cache, const char** t
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const uint16_t* ptr = *(const uint16_t**)text;
     unsigned glyphID = *ptr;
     ptr += 1;
@@ -660,7 +660,7 @@ static const SkGlyph& sk_getMetrics_glyph_xy(SkGlyphCache* cache,
 {
     SkASSERT(cache != NULL);
     SkASSERT(text != NULL);
-    
+
     const uint16_t* ptr = *(const uint16_t**)text;
     unsigned glyphID = *ptr;
     ptr += 1;
@@ -674,16 +674,16 @@ SkDrawCacheProc SkPaint::getDrawCacheProc() const
         sk_getMetrics_utf8_00,
         sk_getMetrics_utf16_00,
         sk_getMetrics_glyph_00,
-        
+
         sk_getMetrics_utf8_xy,
         sk_getMetrics_utf16_xy,
         sk_getMetrics_glyph_xy
     };
-    
+
     unsigned index = this->getTextEncoding();
     if (fFlags & kSubpixelText_Flag)
         index += 3;
-    
+
     SkASSERT(index < SK_ARRAY_COUNT(gDrawCacheProcs));
     return gDrawCacheProcs[index];
 }
@@ -703,7 +703,7 @@ public:
         fPaint->setStyle(fStyle);
         fPaint->setTextSize(fTextSize);
     }
-    
+
 private:
     SkPaint*        fPaint;
     SkScalar        fTextSize;
@@ -831,7 +831,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length,
         // this gets restored by restore
         ((SkPaint*)this)->setTextSize(SkIntToScalar(kCanonicalTextSizeForPaths));
     }
-    
+
     SkMatrix    zoomMatrix, *zoomPtr = NULL;
     if (zoom)
     {
@@ -843,7 +843,7 @@ SkScalar SkPaint::measureText(const void* textData, size_t length,
     SkGlyphCache*       cache = autoCache.getCache();
 
     SkScalar width = 0;
-    
+
     if (length > 0)
     {
         int tempCount;
@@ -917,7 +917,7 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
         // this gets restored by restore
         ((SkPaint*)this)->setTextSize(SkIntToScalar(kCanonicalTextSizeForPaths));
     }
-    
+
     SkAutoGlyphCache    autoCache(*this, NULL);
     SkGlyphCache*       cache = autoCache.getCache();
 
@@ -961,16 +961,16 @@ size_t SkPaint::breakText(const void* textD, size_t length, SkScalar maxWidth,
             }
         }
     }
-    
+
     if (measuredWidth)
     {
-        
+
         SkScalar scalarWidth = Sk48Dot16ToScalar(width);
         if (scale)
             scalarWidth = SkScalarMul(scalarWidth, scale);
         *measuredWidth = scalarWidth;
     }
-    
+
     // return the number of bytes measured
     return (kForward_TextBufferDirection == tbd) ?
                 text - stop + length : stop - text + length;
@@ -1000,7 +1000,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const
         // this gets restored by restore
         ((SkPaint*)this)->setTextSize(SkIntToScalar(kCanonicalTextSizeForPaths));
     }
-    
+
     SkMatrix    zoomMatrix, *zoomPtr = NULL;
     if (zoom)
     {
@@ -1016,7 +1016,7 @@ SkScalar SkPaint::getFontMetrics(FontMetrics* metrics, SkScalar zoom) const
     FontMetrics storage;
     if (NULL == metrics)
         metrics = &storage;
-    
+
     this->descriptorProc(zoomPtr, FontMetricsDescProc, metrics);
 
     if (scale)
@@ -1209,9 +1209,19 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
     return h;
 }
 
+/*
+ *  Return the scalar with only limited fractional precision. Used to consolidate matrices
+ *  that vary only slightly when we create our key into the font cache, since the font scaler
+ *  typically returns the same looking resuts for tiny changes in the matrix.
+ */
 static SkScalar sk_relax(SkScalar x) {
+#ifdef SK_SCALAR_IS_FLOAT
     int n = sk_float_round2int(x * 1024);
     return n / 1024.0f;
+#else
+    // round to the nearest 10 fractional bits
+    return (x + (1 << 5)) & ~(1024 - 1);
+#endif
 }
 
 void SkScalerContext::MakeRec(const SkPaint& paint,
@@ -1237,10 +1247,10 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->fPost2x2[0][0] = rec->fPost2x2[1][1] = SK_Scalar1;
         rec->fPost2x2[0][1] = rec->fPost2x2[1][0] = 0;
     }
-    
+
     SkPaint::Style  style = paint.getStyle();
     SkScalar        strokeWidth = paint.getStrokeWidth();
-    
+
     unsigned flags = SkFontHost::ComputeGammaFlag(paint);
 
     if (paint.isFakeBoldText())
@@ -1253,7 +1263,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
         SkScalar extra = SkScalarMul(paint.getTextSize(), fakeBoldScale);
-        
+
         if (style == SkPaint::kFill_Style)
         {
             style = SkPaint::kStrokeAndFill_Style;
@@ -1266,7 +1276,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     if (paint.isDevKernText())
         flags |= SkScalerContext::kDevKernText_Flag;
-    
+
     if (style != SkPaint::kFill_Style && strokeWidth > 0)
     {
         rec->fFrameWidth = strokeWidth;
@@ -1440,7 +1450,7 @@ void SkPaint::flatten(SkFlattenableWriteBuffer& buffer) const {
         asint(this->getLooper())) {
         flatFlags |= kHasEffects_FlatFlag;
     }
-    
+
     SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
     uint32_t* ptr = buffer.reserve(kPODPaintSize);
 
@@ -1474,13 +1484,13 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
     SkASSERT(SkAlign4(kPODPaintSize) == kPODPaintSize);
     const void* podData = buffer.skip(kPODPaintSize);
     const uint32_t* pod = reinterpret_cast<const uint32_t*>(podData);
-    
+
     // the order we read must match the order we wrote in flatten()
     this->setTextSize(read_scalar(pod));
     this->setTextScaleX(read_scalar(pod));
     this->setTextSkewX(read_scalar(pod));
     this->setStrokeWidth(read_scalar(pod));
-    this->setStrokeMiter(read_scalar(pod));    
+    this->setStrokeMiter(read_scalar(pod));
     this->setColor(*pod++);
 
     uint32_t tmp = *pod++;
@@ -1565,7 +1575,7 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const
     const SkPath*   path = &src;
 
     SkScalar width = this->getStrokeWidth();
-    
+
     switch (this->getStyle()) {
     case SkPaint::kFill_Style:
         width = -1; // mark it as no-stroke
@@ -1588,7 +1598,7 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const
 
         if (this->getPathEffect()->filterPath(&effectPath, src, &width))
             path = &effectPath;
-        
+
         // restore the width if we earlier had to lie, and if we're still set to no-stroke
         // note: if we're now stroke (width >= 0), then the pathEffect asked for that change
         // and we want to respect that (i.e. don't overwrite their setting for width)
@@ -1599,7 +1609,7 @@ bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const
                 width = -1;
         }
     }
-    
+
     if (width > 0 && !path->isEmpty())
     {
         SkStroke stroker(*this, width);
@@ -1669,7 +1679,7 @@ SkTextToPathIter::SkTextToPathIter( const char text[], size_t length,
     }
     else
         fScale = SK_Scalar1;
-    
+
     if (!applyStrokeAndPathEffects)
     {
         fPaint.setStyle(SkPaint::kFill_Style);
