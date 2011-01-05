@@ -126,7 +126,21 @@ static inline int16_t GrToS16(intptr_t x) {
 
 #endif
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Use to cast a pointer to a different type, and maintaining strict-aliasing
+ */
+template <typename Dst> Dst GrTCast(const void* ptr) {
+    union {
+        const void* src;
+        Dst dst;
+    } data;
+    data.src = ptr;
+    return data.dst;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 /**
  * Type used to describe format of vertices in arrays

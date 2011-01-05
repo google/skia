@@ -711,7 +711,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
 
     GrPoint* vertex;
     if (!fContext->reserveAndLockGeometry(layout, 4,
-                                          0, (void**)&vertex, NULL)) {
+                                          0, GrTCast<void**>(&vertex), NULL)) {
         return;
     }
 
@@ -750,7 +750,8 @@ static void gl_drawSprite(GrContext* ctx,
 
     GrPoint* vertex;
     GrVertexLayout layout = GrGpu::kSeparateTexCoord_VertexLayoutBit;
-    if (!ctx->reserveAndLockGeometry(layout, 4, 0, (void**)&vertex, NULL)) {
+    if (!ctx->reserveAndLockGeometry(layout, 4, 0,
+                                     GrTCast<void**>(&vertex), NULL)) {
         return;
     }
 

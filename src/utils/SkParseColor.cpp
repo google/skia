@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -21,7 +21,7 @@
 #include "SkString.h"
 
     // compress names 6 chars per long (packed 5 bits/char )
-        // note: little advantage to splitting chars across longs, since 3 longs at 2 unused bits each 
+        // note: little advantage to splitting chars across longs, since 3 longs at 2 unused bits each
         // allow for one additional split char (vs. the 18 unsplit chars in the three longs)
     // use extra two bits to represent:
         // 00 : final 6 (or fewer) chars (if 'a' is 0x01, zero could have special meaning)
@@ -185,6 +185,7 @@ static const struct SkNameRGB {
 
 int colorNamesSize = sizeof(colorNames) / sizeof(colorNames[0]);
 
+#ifdef SK_SUPPORT_UNITTEST
 static void CreateTable() {
     SkString comment;
     size_t originalSize = 0;
@@ -226,6 +227,7 @@ static void CreateTable() {
     SkDebugf("// original = %d : replacement = %d\n", originalSize, replacement);
     SkASSERT(0); // always stop after creating table
 }
+#endif
 
 #endif
 
@@ -401,7 +403,7 @@ const char* SkParse::FindNamedColor(const char* name, size_t len, SkColor* color
         }
         ch = *namePtr | 0x20;
         last = ch < 'a' || ch > 'z';
-        if (last) 
+        if (last)
             sixMatch &= ~1;
         len -= 6;
         *sixMatchPtr++ = sixMatch;
@@ -493,7 +495,7 @@ const char* SkParse::FindColor(const char* value, SkColor* colorPtr) {
 //      if (end == NULL)
 //          return NULL;
         // !!! range check for errors?
-//      *colorPtr = SkColorSetARGB(SkScalarRound(array[0]), SkScalarRound(array[1]), 
+//      *colorPtr = SkColorSetARGB(SkScalarRound(array[0]), SkScalarRound(array[1]),
 //          SkScalarRound(array[2]), SkScalarRound(array[3]));
 //      return end;
     } else
@@ -518,9 +520,9 @@ void SkParse::TestColor() {
         char bad[24];
         size_t len = strlen(nameRGB.name);
         memcpy(bad, nameRGB.name, len);
-        bad[len - 1] -= 1; 
+        bad[len - 1] -= 1;
         SkASSERT(FindColor(bad, &result) == false);
-        bad[len - 1] += 2; 
+        bad[len - 1] += 2;
         SkASSERT(FindColor(bad, &result) == false);
     }
     result = SK_ColorBLACK;

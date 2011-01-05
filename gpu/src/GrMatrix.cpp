@@ -47,7 +47,7 @@ const GrMatrix::MapProc GrMatrix::gMapProcs[] = {
     &GrMatrix::mapPerspective,
     &GrMatrix::mapPerspective,
     &GrMatrix::mapPerspective,
-    
+
 // Scales are zero (every other is invalid because kScale_TypeBit must be set if
 // kZeroScale_TypeBit is set)
     &GrMatrix::mapInvalid,
@@ -58,7 +58,7 @@ const GrMatrix::MapProc GrMatrix::gMapProcs[] = {
     &GrMatrix::mapSwappedScale,
     &GrMatrix::mapInvalid,
     &GrMatrix::mapSwappedScaleAndTranslate,
-    
+
     // no optimizations for perspective matrices
     &GrMatrix::mapInvalid,
     &GrMatrix::mapZero,
@@ -71,29 +71,19 @@ const GrMatrix::MapProc GrMatrix::gMapProcs[] = {
 };
 
 const GrMatrix& GrMatrix::I() {
-    struct FakeMatrix {
-        int fTypeMask;
-        GrScalar fM[9];
-    };
-
-#if 0
-    GR_STATIC_ASSERT(offsetof(FakeMatrix, fTypeMask) == offsetof(GrMatrix, fTypeMask));
-    GR_STATIC_ASSERT(offsetof(FakeMatrix, fM) == offsetof(GrMatrix, fM));
-#endif
-
-    GR_STATIC_ASSERT(sizeof(FakeMatrix) == sizeof(GrMatrix));
-    static const FakeMatrix I = {0,
-                                 {GR_Scalar1, 0,          0,
-                                  0,          GR_Scalar1, 0,
-                                  0,          0,          gRESCALE}};
-    return *(const GrMatrix*)&I;
+    static GrMatrix* gIdent;
+    if (NULL == gIdent) {
+        gIdent = new GrMatrix;
+        gIdent->setIdentity();
+    }
+    return *gIdent;
 }
 
 void GrMatrix::setIdentity() {
     fM[0] = GR_Scalar1; fM[1] = 0;          fM[2] = 0;
     fM[3] = 0;          fM[4] = GR_Scalar1; fM[5] = 0;
     fM[6] = 0;          fM[7] = 0;          fM[8] = gRESCALE;
-    fTypeMask = 0; 
+    fTypeMask = 0;
 }
 
 void GrMatrix::setTranslate(GrScalar dx, GrScalar dy) {
@@ -127,7 +117,7 @@ void GrMatrix::setConcat(const GrMatrix& a, const GrMatrix& b) {
         }
         return;
     }
-    
+
     if (b.isIdentity()) {
         GrAssert(!a.isIdentity());
         if (this != &a) {
@@ -138,10 +128,10 @@ void GrMatrix::setConcat(const GrMatrix& a, const GrMatrix& b) {
         }
         return;
     }
-    
+
     // a and/or b could be this
     GrMatrix tmp;
-    
+
     // could do more optimizations based on type bits. Hopefully this call is
     // low frequency.
     // TODO: make this work for fixed point
@@ -149,14 +139,14 @@ void GrMatrix::setConcat(const GrMatrix& a, const GrMatrix& b) {
         tmp.fM[0] = a.fM[0] * b.fM[0] + a.fM[1] * b.fM[3];
         tmp.fM[1] = a.fM[0] * b.fM[1] + a.fM[1] * b.fM[4];
         tmp.fM[2] = a.fM[0] * b.fM[2] + a.fM[1] * b.fM[5] + a.fM[2] * gRESCALE;
-        
+
         tmp.fM[3] = a.fM[3] * b.fM[0] + a.fM[4] * b.fM[3];
         tmp.fM[4] = a.fM[3] * b.fM[1] + a.fM[4] * b.fM[4];
         tmp.fM[5] = a.fM[3] * b.fM[2] + a.fM[4] * b.fM[5] + a.fM[5] * gRESCALE;
-   
+
         tmp.fM[6] = 0;
         tmp.fM[7] = 0;
-        tmp.fM[8] = gRESCALE * gRESCALE; 
+        tmp.fM[8] = gRESCALE * gRESCALE;
     } else {
         tmp.fM[0] = a.fM[0] * b.fM[0] + a.fM[1] * b.fM[3] + a.fM[2] * b.fM[6];
         tmp.fM[1] = a.fM[0] * b.fM[1] + a.fM[1] * b.fM[4] + a.fM[2] * b.fM[7];
@@ -184,17 +174,17 @@ void GrMatrix::postConcat(const GrMatrix& m) {
 
 double GrMatrix::determinant() const {
     if (fTypeMask & kPerspective_TypeBit) {
-        return  fM[0]*((double)fM[4]*fM[8] - (double)fM[5]*fM[7]) + 
-                fM[1]*((double)fM[5]*fM[6] - (double)fM[3]*fM[8]) + 
+        return  fM[0]*((double)fM[4]*fM[8] - (double)fM[5]*fM[7]) +
+                fM[1]*((double)fM[5]*fM[6] - (double)fM[3]*fM[8]) +
                 fM[2]*((double)fM[3]*fM[7] - (double)fM[4]*fM[6]);
     } else {
-        return (double)fM[0]*fM[4]*gRESCALE - 
+        return (double)fM[0]*fM[4]*gRESCALE -
                (double)fM[1]*fM[3]*gRESCALE;
     }
 }
 
 bool GrMatrix::invert(GrMatrix* inverted) const {
-    
+
     if (isIdentity()) {
         if (inverted != this) {
             inverted->setIdentity();
@@ -202,10 +192,10 @@ bool GrMatrix::invert(GrMatrix* inverted) const {
         return true;
     }
     static const double MIN_DETERMINANT_SQUARED = 1.e-16;
-    
+
     // could do more optimizations based on type bits. Hopefully this call is
     // low frequency.
-    
+
     double det = determinant();
 
     // check if we can't be inverted
@@ -216,9 +206,9 @@ bool GrMatrix::invert(GrMatrix* inverted) const {
     }
 
     double t[9];
-    
+
     if (fTypeMask & kPerspective_TypeBit) {
-        t[0] = ((double)fM[4]*fM[8] - (double)fM[5]*fM[7]); 
+        t[0] = ((double)fM[4]*fM[8] - (double)fM[5]*fM[7]);
         t[1] = ((double)fM[2]*fM[7] - (double)fM[1]*fM[8]);
         t[2] = ((double)fM[1]*fM[5] - (double)fM[2]*fM[4]);
         t[3] = ((double)fM[5]*fM[6] - (double)fM[3]*fM[8]);
@@ -232,7 +222,7 @@ bool GrMatrix::invert(GrMatrix* inverted) const {
             inverted->fM[i] = (GrScalar)(t[i] * det);
         }
     } else {
-        t[0] =  (double)fM[4]*gRESCALE; 
+        t[0] =  (double)fM[4]*gRESCALE;
         t[1] = -(double)fM[1]*gRESCALE;
         t[2] =  (double)fM[1]*fM[5] - (double)fM[2]*fM[4];
         t[3] = -(double)fM[3]*gRESCALE;
@@ -270,7 +260,7 @@ bool GrMatrix::hasPerspective() const {
 }
 
 bool GrMatrix::isIdentity() const {
-    GrAssert((0 == fTypeMask) == 
+    GrAssert((0 == fTypeMask) ==
              (GR_Scalar1 == fM[kScaleX] && 0          == fM[kSkewX]  && 0          == fM[kTransX] &&
               0          == fM[kSkewY]  && GR_Scalar1 == fM[kScaleY] && 0          == fM[kTransY] &&
               0          == fM[kPersp0] && 0          == fM[kPersp1] && gRESCALE == fM[kPersp2]));
@@ -285,17 +275,17 @@ GrScalar GrMatrix::getMaxStretch() const {
     }
 
     GrScalar stretch;
-    
+
     if (isIdentity()) {
         stretch = GR_Scalar1;
     } else if (!(fTypeMask & kSkew_TypeBit)) {
         stretch = GrMax(GrScalarAbs(fM[kScaleX]), GrScalarAbs(fM[kScaleY]));
-    } else if (fTypeMask & kZeroScale_TypeBit) {        
+    } else if (fTypeMask & kZeroScale_TypeBit) {
         stretch = GrMax(GrScalarAbs(fM[kSkewX]), GrScalarAbs(fM[kSkewY]));
-    } else {            
+    } else {
         // ignore the translation part of the matrix, just look at 2x2 portion.
         // compute singular values, take largest abs value.
-        // [a b; b c] = A^T*A 
+        // [a b; b c] = A^T*A
         GrScalar a = GrMul(fM[kScaleX], fM[kScaleX]) + GrMul(fM[kSkewY],  fM[kSkewY]);
         GrScalar b = GrMul(fM[kScaleX], fM[kSkewX]) +  GrMul(fM[kScaleY], fM[kSkewY]);
         GrScalar c = GrMul(fM[kSkewX],  fM[kSkewX]) +  GrMul(fM[kScaleY], fM[kScaleY]);
@@ -315,11 +305,11 @@ GrScalar GrMatrix::getMaxStretch() const {
             GrScalar x = sqrtf(GrMul(aminusc,aminusc) + GrMul(4,(bSqd))) / 2;
             largerRoot = apluscdiv2 + x;
         }
-        
+
         stretch = sqrtf(largerRoot);
     }
 #if GR_DEBUG && 0
-    // test a bunch of vectors. None should be scaled by more than stretch 
+    // test a bunch of vectors. None should be scaled by more than stretch
     // (modulo some error) and we should find a vector that is scaled by almost
     // stretch.
     GrPoint pt;
@@ -329,7 +319,7 @@ GrScalar GrMatrix::getMaxStretch() const {
         GrScalar y = sqrtf(1 - (x*x));
         pt.fX = fM[kScaleX]*x + fM[kSkewX]*y;
         pt.fY = fM[kSkewY]*x + fM[kScaleY]*y;
-        GrScalar d = pt.distanceToOrigin(); 
+        GrScalar d = pt.distanceToOrigin();
         GrAssert(d <= (1.0001 * stretch));
         max = GrMax(max, pt.distanceToOrigin());
     }
@@ -374,7 +364,7 @@ void GrMatrix::setTypeMask()
     }
     if (0 != fM[kTransX] || 0 != fM[kTransY]) {
         fTypeMask |= kTranslate_TypeBit;
-    }    
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -460,7 +450,7 @@ void GrMatrix::mapNonPerspective(GrPoint* dst, const GrPoint* src, uint32_t coun
     if (src != dst) {
         for (uint32_t i = 0; i < count; ++i) {
             dst[i].fX = GrMul(fM[kScaleX], src[i].fX) + GrMul(fM[kSkewX], src[i].fY) + fM[kTransX];
-            dst[i].fY = GrMul(fM[kSkewY], src[i].fX) + GrMul(fM[kScaleY], src[i].fY) + fM[kTransY];           
+            dst[i].fY = GrMul(fM[kSkewY], src[i].fX) + GrMul(fM[kScaleY], src[i].fY) + fM[kTransY];
         }
     } else {
         for (uint32_t i = 0; i < count; ++i) {
@@ -482,7 +472,7 @@ void GrMatrix::mapPerspective(GrPoint* dst, const GrPoint* src, uint32_t count) 
             w = 1 / w;
         }
         dst[i].fX = GrMul(x, w);
-        dst[i].fY = GrMul(y, w);            
+        dst[i].fY = GrMul(y, w);
     }
 }
 
@@ -497,7 +487,7 @@ void GrMatrix::mapZero(GrPoint* dst, const GrPoint* src, uint32_t count) const {
 void GrMatrix::mapSetToTranslate(GrPoint* dst, const GrPoint* src, uint32_t count) const {
     for (uint32_t i = 0; i < count; ++i) {
         dst[i].fX = fM[kTransX];
-        dst[i].fY = fM[kTransY];           
+        dst[i].fY = fM[kTransY];
     }
 }
 
@@ -548,7 +538,7 @@ enum MatrixType {
     kTranslateY_MatrixType,
     kSwapScaleXY_MatrixType,
     kPersp_MatrixType,
-    
+
     kMatrixTypeCount
 };
 
@@ -559,59 +549,59 @@ static void create_matrix(GrMatrix* matrix, GrRandom& rand) {
             float angle = rand.nextF() * 2 *3.14159265358979323846f;
             GrScalar cosa = GrFloatToScalar(cosf(angle));
             GrScalar sina = GrFloatToScalar(sinf(angle));
-            matrix->setAll(cosa,      -sina,           0, 
-                           sina,       cosa,           0, 
+            matrix->setAll(cosa,      -sina,           0,
+                           sina,       cosa,           0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kScaleX_MatrixType: {
             GrScalar scale = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(scale,      0,              0, 
-                           0,          GR_Scalar1,     0, 
+            matrix->setAll(scale,      0,              0,
+                           0,          GR_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kScaleY_MatrixType: {
             GrScalar scale = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(GR_Scalar1, 0,              0, 
-                           0,          scale,          0, 
+            matrix->setAll(GR_Scalar1, 0,              0,
+                           0,          scale,          0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kSkewX_MatrixType: {
             GrScalar skew = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(GR_Scalar1, skew,           0, 
-                           0,          GR_Scalar1,     0, 
+            matrix->setAll(GR_Scalar1, skew,           0,
+                           0,          GR_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
-        } break;            
+        } break;
         case kSkewY_MatrixType: {
             GrScalar skew = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(GR_Scalar1, 0,              0, 
-                           skew,       GR_Scalar1,     0, 
+            matrix->setAll(GR_Scalar1, 0,              0,
+                           skew,       GR_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kTranslateX_MatrixType: {
             GrScalar trans = GrFloatToScalar(rand.nextF(-10, 10));
-            matrix->setAll(GR_Scalar1, 0,              trans, 
-                           0,          GR_Scalar1,     0, 
+            matrix->setAll(GR_Scalar1, 0,              trans,
+                           0,          GR_Scalar1,     0,
                            0,          0,              GrMatrix::I()[8]);
-        } break;            
+        } break;
         case kTranslateY_MatrixType: {
             GrScalar trans = GrFloatToScalar(rand.nextF(-10, 10));
-            matrix->setAll(GR_Scalar1, 0,              0, 
-                           0,          GR_Scalar1,     trans, 
+            matrix->setAll(GR_Scalar1, 0,              0,
+                           0,          GR_Scalar1,     trans,
                            0,          0,              GrMatrix::I()[8]);
-        } break; 
+        } break;
         case kSwapScaleXY_MatrixType: {
             GrScalar xy = GrFloatToScalar(rand.nextF(-2, 2));
             GrScalar yx = GrFloatToScalar(rand.nextF(-2, 2));
-            matrix->setAll(0,          xy,             0, 
-                           yx,         0,              0, 
+            matrix->setAll(0,          xy,             0,
+                           yx,         0,              0,
                            0,          0,              GrMatrix::I()[8]);
         } break;
         case kPersp_MatrixType: {
             GrScalar p0 = GrFloatToScalar(rand.nextF(-2, 2));
             GrScalar p1 = GrFloatToScalar(rand.nextF(-2, 2));
             GrScalar p2 = GrFloatToScalar(rand.nextF(-0.5f, 0.75f));
-            matrix->setAll(GR_Scalar1, 0,              0, 
-                           0,          GR_Scalar1,     0, 
+            matrix->setAll(GR_Scalar1, 0,              0,
+                           0,          GR_Scalar1,     0,
                            p0,         p1,             GrMul(p2,GrMatrix::I()[8]));
         } break;
         default:
@@ -624,7 +614,7 @@ static void create_matrix(GrMatrix* matrix, GrRandom& rand) {
 void GrMatrix::UnitTest() {
     GrRandom rand;
 
-    // Create a bunch of matrices and test point mapping, max stretch calc, 
+    // Create a bunch of matrices and test point mapping, max stretch calc,
     // inversion and multiply-by-inverse.
 #if GR_DEBUG
     for (int i = 0; i < 10000; ++i) {
@@ -638,14 +628,14 @@ void GrMatrix::UnitTest() {
         } else if (1 == i) {
             num = 0;
             a.setAll(0, GR_Scalar1, 0,
-                     GR_Scalar1, 0, 0, 
+                     GR_Scalar1, 0, 0,
                      0, 0, I()[8]);
         }
         for (int j = 0; j < num; ++j) {
             create_matrix(&b, rand);
             a.preConcat(b);
         }
-        
+
         GrScalar maxStretch = a.getMaxStretch();
         if (maxStretch > 0) {
             maxStretch = GrMul(GR_Scalar1 + GR_Scalar1 / 100, maxStretch);
@@ -655,7 +645,7 @@ void GrMatrix::UnitTest() {
         for (int j = 0; j < 9; ++j) {
             int mask, origMask = a.fTypeMask;
             GrScalar old = a[j];
-            
+
             a.set(j, GR_Scalar1);
             mask = a.fTypeMask;
             a.setTypeMask();
@@ -670,16 +660,16 @@ void GrMatrix::UnitTest() {
             mask = a.fTypeMask;
             a.setTypeMask();
             GrAssert(mask == a.fTypeMask);
-            
-            a.set(j, old);            
+
+            a.set(j, old);
             GrAssert(a.fTypeMask == origMask);
         }
-                     
+
         for (int j = 0; j < 100; ++j) {
             GrPoint pt;
             pt.fX = GrFloatToScalar(rand.nextF(-10, 10));
-            pt.fY = GrFloatToScalar(rand.nextF(-10, 10));            
-            
+            pt.fY = GrFloatToScalar(rand.nextF(-10, 10));
+
             GrPoint t0, t1, t2;
             t0 = a.mapPoint(pt);             // map to a new point
             t1 = pt;
@@ -763,5 +753,6 @@ void GrRect::setBounds(const GrPoint pts[], int count) {
         this->setLTRB(L, T, R, B);
     }
 }
+
 
 

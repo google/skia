@@ -211,7 +211,7 @@ HAS_ATLAS:
         }
         bool success = fDrawTarget->reserveAndLockGeometry(VLAYOUT,
                                                            fMaxVertices, 0,
-                                                           (void**)&fVertices,
+                                                   GrTCast<void**>(&fVertices),
                                                            NULL);
         GrAlwaysAssert(success);
     }

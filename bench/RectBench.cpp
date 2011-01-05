@@ -31,14 +31,14 @@ public:
             fColors[i] = rand.nextU() | 0xFF808080;
         }
     }
-    
+
     SkString fName;
     const char* computeName(const char root[]) {
         fName.set(root);
         fName.appendS32(fShift);
         return fName.c_str();
     }
-        
+
 protected:
     virtual void drawThisRect(SkCanvas* c, const SkRect& r, const SkPaint& p) {
         c->drawRect(r, p);
@@ -82,7 +82,7 @@ public:
     SkCanvas::PointMode fMode;
     const char* fName;
 
-    PointsBench(void* param, SkCanvas::PointMode mode, const char* name) : 
+    PointsBench(void* param, SkCanvas::PointMode mode, const char* name) :
         RectBench(param, 2), fMode(mode) {
         fName = name;
     }
@@ -105,8 +105,7 @@ protected:
         for (size_t i = 0; i < sizes; i++) {
             paint.setStrokeWidth(gSizes[i]);
             this->setupPaint(&paint);
-            canvas->drawPoints(fMode, N * 2,
-                               reinterpret_cast<const SkPoint*>(fRects), paint);
+            canvas->drawPoints(fMode, N * 2, SkTCast<SkPoint*>(fRects), paint);
             paint.setColor(fColors[i]);
         }
     }

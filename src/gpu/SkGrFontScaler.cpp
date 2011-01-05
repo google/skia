@@ -23,12 +23,12 @@ class SkGrDescKey : public GrKey {
 public:
     explicit SkGrDescKey(const SkDescriptor& desc);
     virtual ~SkGrDescKey();
-    
+
 protected:
     // overrides
     virtual bool lt(const GrKey& rh) const;
     virtual bool eq(const GrKey& rh) const;
-    
+
 private:
     SkDescriptor* fDesc;
     enum {
@@ -42,7 +42,7 @@ private:
 SkGrDescKey::SkGrDescKey(const SkDescriptor& desc) : GrKey(desc.getChecksum()) {
     size_t size = desc.getLength();
     if (size <= sizeof(fStorage)) {
-        fDesc = (SkDescriptor*)fStorage;
+        fDesc = GrTCast<SkDescriptor*>(fStorage);
     } else {
         fDesc = SkDescriptor::Alloc(size);
     }
@@ -50,7 +50,7 @@ SkGrDescKey::SkGrDescKey(const SkDescriptor& desc) : GrKey(desc.getChecksum()) {
 }
 
 SkGrDescKey::~SkGrDescKey() {
-    if (fDesc != (SkDescriptor*)fStorage) {
+    if (fDesc != GrTCast<SkDescriptor*>(fStorage)) {
         SkDescriptor::Free(fDesc);
     }
 }
@@ -97,7 +97,7 @@ bool SkGrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed,
                                               GrGlyph::UnpackFixedY(packed));
     bounds->setXYWH(glyph.fLeft, glyph.fTop, glyph.fWidth, glyph.fHeight);
     return true;
-    
+
 }
 
 bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
@@ -127,7 +127,7 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
 }
 
 bool SkGrFontScaler::getGlyphPath(uint16_t glyphID, GrPath* path) {
-    
+
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(glyphID);
     const SkPath* skPath = fStrike->findPath(glyph);
     if (skPath) {
