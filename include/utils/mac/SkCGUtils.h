@@ -13,13 +13,14 @@ class SkBitmap;
 
 /**
  *  Create an imageref from the specified bitmap using the specified colorspace.
+ *  If space is NULL, then CGColorSpaceCreateDeviceRGB() is used.
  */
 CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
                                             CGColorSpaceRef space);
 
 /**
- *  Create an imageref from the specified bitmap using the colorspace
- *  kCGColorSpaceGenericRGB
+ *  Create an imageref from the specified bitmap using the colorspace returned
+ *  by CGColorSpaceCreateDeviceRGB()
  */
 static inline CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
     return SkCreateCGImageRefWithColorspace(bm, NULL);
@@ -28,7 +29,8 @@ static inline CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
 /**
  *  Draw the bitmap into the specified CG context. The bitmap will be converted
  *  to a CGImage using the generic RGB colorspace. (x,y) specifies the position
- *  of the top-left corner of the bitmap.
+ *  of the top-left corner of the bitmap. The bitmap is converted using the
+ *  colorspace returned by CGColorSpaceCreateDeviceRGB()
  */
 void SkCGDrawBitmap(CGContextRef, const SkBitmap&, float x, float y);
 
