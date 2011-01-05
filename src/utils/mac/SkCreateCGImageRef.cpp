@@ -24,19 +24,19 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
             *bitsPerComponent = 8;
 #if defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 0, 8, 16) \
  || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(0, 24, 16, 8)
-            *info = kCGBitmapByteOrder32Big;
+            *info = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
 #elif defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0) \
    || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0)
             // Matches the CGBitmapInfo that Apple recommends for best
             // performance, used by google chrome.
-            *info = kCGBitmapByteOrder32Little;
+            *info = kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst;
 #else
 // ...add more formats as required...
 #warning Cannot convert SkBitmap to CGImageRef with these shiftmasks. \
             This will probably not work.
             // Legacy behavior. Perhaps turn this into an error at some
             // point.
-            *info = kCGBitmapByteOrder32Big;
+            *info = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
 #endif
             break;
 #if 0
@@ -52,10 +52,6 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
             break;
         default:
             return NULL;
-    }
-
-    if (!bm.isOpaque()) {
-        *info |= kCGImageAlphaPremultipliedLast;
     }
 
     SkBitmap* copy;
@@ -116,15 +112,15 @@ void SkCGDrawBitmap(CGContextRef cg, const SkBitmap& bm, float x, float y) {
 
     if (img) {
         CGRect r = CGRectMake(0, 0, bm.width(), bm.height());
-        
+
         CGContextSaveGState(cg);
         CGContextTranslateCTM(cg, x, r.size.height + y);
         CGContextScaleCTM(cg, 1, -1);
-        
+
         CGContextDrawImage(cg, r, img);
-        
+
         CGContextRestoreGState(cg);
-        
+
         CGImageRelease(img);
     }
 }
