@@ -45,58 +45,58 @@ SkOSWindow::~SkOSWindow() {
 }
 
 static SkKey winToskKey(WPARAM vk) {
-	static const struct {
-		WPARAM	fVK;
-		SkKey	fKey;
-	} gPair[] = {
-		{ VK_BACK,	kBack_SkKey },
-		{ VK_CLEAR,	kBack_SkKey },
-		{ VK_RETURN, kOK_SkKey },
-		{ VK_UP,	 kUp_SkKey },
-		{ VK_DOWN,	 kDown_SkKey },
-		{ VK_LEFT,	 kLeft_SkKey },
-		{ VK_RIGHT,	 kRight_SkKey }
-	};
-	for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
-		if (gPair[i].fVK == vk) {
-			return gPair[i].fKey;
-		}
-	}
-	return kNONE_SkKey;
+    static const struct {
+        WPARAM    fVK;
+        SkKey    fKey;
+    } gPair[] = {
+        { VK_BACK,    kBack_SkKey },
+        { VK_CLEAR,    kBack_SkKey },
+        { VK_RETURN, kOK_SkKey },
+        { VK_UP,     kUp_SkKey },
+        { VK_DOWN,     kDown_SkKey },
+        { VK_LEFT,     kLeft_SkKey },
+        { VK_RIGHT,     kRight_SkKey }
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPair); i++) {
+        if (gPair[i].fVK == vk) {
+            return gPair[i].fKey;
+        }
+    }
+    return kNONE_SkKey;
 }
 
 bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	switch (message) {
-		case WM_KEYDOWN: {
-			SkKey key = winToskKey(wParam);
-			if (kNONE_SkKey != key) {
-				this->handleKey(key);
-				return true;
-			}
-		} break;
-		case WM_KEYUP: {
-			SkKey key = winToskKey(wParam);
-			if (kNONE_SkKey != key) {
-				this->handleKeyUp(key);
-				return true;
-			}
-		} break;
-		case WM_UNICHAR:
-			this->handleChar(wParam);
+    switch (message) {
+        case WM_KEYDOWN: {
+            SkKey key = winToskKey(wParam);
+            if (kNONE_SkKey != key) {
+                this->handleKey(key);
+                return true;
+            }
+        } break;
+        case WM_KEYUP: {
+            SkKey key = winToskKey(wParam);
+            if (kNONE_SkKey != key) {
+                this->handleKeyUp(key);
+                return true;
+            }
+        } break;
+        case WM_UNICHAR:
+            this->handleChar(wParam);
             return true; 
         case WM_CHAR: {
             this->handleChar(SkUTF8_ToUnichar((char*)&wParam));
             return true;
         } break;
-		case WM_SIZE:
-			this->resize(lParam & 0xFFFF, lParam >> 16);
-			break;
-		case WM_PAINT: {
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);
-			this->doPaint(hdc);
-			EndPaint(hWnd, &ps);
-			return true;
+        case WM_SIZE:
+            this->resize(lParam & 0xFFFF, lParam >> 16);
+            break;
+        case WM_PAINT: {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+            this->doPaint(hdc);
+            EndPaint(hWnd, &ps);
+            return true;
             } break;
 
         case WM_TIMER: {
@@ -124,60 +124,60 @@ bool SkOSWindow::wndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 post_skwinevent();
             }
             return true;
-	}
-	return false;
+    }
+    return false;
 }
 
 void SkOSWindow::doPaint(void* ctx) {
-	this->update(NULL);
+    this->update(NULL);
 
     if (!fGLAttached && !fD3D9Attached)
     {
-	    HDC hdc = (HDC)ctx;
+        HDC hdc = (HDC)ctx;
         const SkBitmap& bitmap = this->getBitmap();
 
-	    BITMAPINFO bmi;
-	    memset(&bmi, 0, sizeof(bmi));
-	    bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-	    bmi.bmiHeader.biWidth       = bitmap.width();
-	    bmi.bmiHeader.biHeight      = -bitmap.height(); // top-down image 
-	    bmi.bmiHeader.biPlanes      = 1;
-	    bmi.bmiHeader.biBitCount    = 32;
-	    bmi.bmiHeader.biCompression = BI_RGB;
-	    bmi.bmiHeader.biSizeImage   = 0;
+        BITMAPINFO bmi;
+        memset(&bmi, 0, sizeof(bmi));
+        bmi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+        bmi.bmiHeader.biWidth       = bitmap.width();
+        bmi.bmiHeader.biHeight      = -bitmap.height(); // top-down image 
+        bmi.bmiHeader.biPlanes      = 1;
+        bmi.bmiHeader.biBitCount    = 32;
+        bmi.bmiHeader.biCompression = BI_RGB;
+        bmi.bmiHeader.biSizeImage   = 0;
 
-	    // 
-	    // Do the SetDIBitsToDevice. 
-	    // 
+        // 
+        // Do the SetDIBitsToDevice. 
+        // 
         SkASSERT(bitmap.width() * bitmap.bytesPerPixel() == bitmap.rowBytes());
-	    bitmap.lockPixels();
-	    int iRet = SetDIBitsToDevice(hdc,
-		    0, 0,
-		    bitmap.width(), bitmap.height(),
-		    0, 0,
-		    0, bitmap.height(),
-		    bitmap.getPixels(),
-		    &bmi,
-		    DIB_RGB_COLORS);
-	    bitmap.unlockPixels();
+        bitmap.lockPixels();
+        int iRet = SetDIBitsToDevice(hdc,
+            0, 0,
+            bitmap.width(), bitmap.height(),
+            0, 0,
+            0, bitmap.height(),
+            bitmap.getPixels(),
+            &bmi,
+            DIB_RGB_COLORS);
+        bitmap.unlockPixels();
     }
 }
 
 #if 0
 void SkOSWindow::updateSize()
 {
-	RECT	r;
-	GetWindowRect((HWND)this->getHWND(), &r);
-	this->resize(r.right - r.left, r.bottom - r.top);
+    RECT    r;
+    GetWindowRect((HWND)this->getHWND(), &r);
+    this->resize(r.right - r.left, r.bottom - r.top);
 }
 #endif
 
 void SkOSWindow::onHandleInval(const SkIRect& r) {
-	RECT* rect = new RECT;
-	rect->left    = r.fLeft;
-	rect->top     = r.fTop;
-	rect->right   = r.fRight;
-	rect->bottom  = r.fBottom;
+    RECT* rect = new RECT;
+    rect->left    = r.fLeft;
+    rect->top     = r.fTop;
+    rect->right   = r.fRight;
+    rect->bottom  = r.fBottom;
     SetTimer((HWND)fHWND, (UINT_PTR)rect, INVALIDATE_DELAY_MS, NULL);
 }
 
@@ -190,13 +190,13 @@ void SkOSWindow::onSetTitle(const char title[]){
 }
 
 enum {
-	SK_MacReturnKey		= 36,
-	SK_MacDeleteKey		= 51,
-	SK_MacEndKey		= 119,
-	SK_MacLeftKey		= 123,
-	SK_MacRightKey		= 124,
-	SK_MacDownKey		= 125,
-	SK_MacUpKey			= 126,
+    SK_MacReturnKey     = 36,
+    SK_MacDeleteKey     = 51,
+    SK_MacEndKey        = 119,
+    SK_MacLeftKey       = 123,
+    SK_MacRightKey      = 124,
+    SK_MacDownKey       = 125,
+    SK_MacUpKey         = 126,
     
     SK_Mac0Key          = 0x52,
     SK_Mac1Key          = 0x53,
@@ -209,20 +209,20 @@ enum {
     SK_Mac8Key          = 0x5b,
     SK_Mac9Key          = 0x5c
 };
-	
+    
 static SkKey raw2key(uint32_t raw)
 {
-	static const struct {
-		uint32_t  fRaw;
-		SkKey   fKey;
-	} gKeys[] = {
-		{ SK_MacUpKey,		kUp_SkKey		},
-		{ SK_MacDownKey,	kDown_SkKey		},
-		{ SK_MacLeftKey,	kLeft_SkKey		},
-		{ SK_MacRightKey,   kRight_SkKey	},
-		{ SK_MacReturnKey,  kOK_SkKey		},
-		{ SK_MacDeleteKey,  kBack_SkKey		},
-		{ SK_MacEndKey,		kEnd_SkKey		},
+    static const struct {
+        uint32_t  fRaw;
+        SkKey   fKey;
+    } gKeys[] = {
+        { SK_MacUpKey,      kUp_SkKey       },
+        { SK_MacDownKey,    kDown_SkKey     },
+        { SK_MacLeftKey,    kLeft_SkKey     },
+        { SK_MacRightKey,   kRight_SkKey    },
+        { SK_MacReturnKey,  kOK_SkKey       },
+        { SK_MacDeleteKey,  kBack_SkKey     },
+        { SK_MacEndKey,     kEnd_SkKey      },
         { SK_Mac0Key,       k0_SkKey        },
         { SK_Mac1Key,       k1_SkKey        },
         { SK_Mac2Key,       k2_SkKey        },
@@ -233,95 +233,95 @@ static SkKey raw2key(uint32_t raw)
         { SK_Mac7Key,       k7_SkKey        },
         { SK_Mac8Key,       k8_SkKey        },
         { SK_Mac9Key,       k9_SkKey        }
-	};
-	
-	for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
-		if (gKeys[i].fRaw == raw)
-			return gKeys[i].fKey;
-	return kNONE_SkKey;
+    };
+    
+    for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
+        if (gKeys[i].fRaw == raw)
+            return gKeys[i].fKey;
+    return kNONE_SkKey;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 void SkEvent::SignalNonEmptyQueue()
 {
-	post_skwinevent();
-	//SkDebugf("signal nonempty\n");
+    post_skwinevent();
+    //SkDebugf("signal nonempty\n");
 }
 
 static UINT_PTR gTimer;
 
 VOID CALLBACK sk_timer_proc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-	SkEvent::ServiceQueueTimer();
-	//SkDebugf("timer task fired\n");
+    SkEvent::ServiceQueueTimer();
+    //SkDebugf("timer task fired\n");
 }
 
 void SkEvent::SignalQueueTimer(SkMSec delay)
 {
-	if (gTimer)
-	{
+    if (gTimer)
+    {
         KillTimer(NULL, gTimer);
-	    gTimer = NULL;
+        gTimer = NULL;
     }
-	if (delay)
-	{     
+    if (delay)
+    {     
         gTimer = SetTimer(NULL, 0, delay, sk_timer_proc);
         //SkDebugf("SetTimer of %d returned %d\n", delay, gTimer);
-	}
+    }
 }
 
 static HWND create_dummy()
 {
-	HMODULE module = GetModuleHandle(NULL);
-	HWND dummy;
-	RECT windowRect;
-	windowRect.left = 0;
-	windowRect.right = 8;
-	windowRect.top = 0;
-	windowRect.bottom = 8;
+    HMODULE module = GetModuleHandle(NULL);
+    HWND dummy;
+    RECT windowRect;
+    windowRect.left = 0;
+    windowRect.right = 8;
+    windowRect.top = 0;
+    windowRect.bottom = 8;
 
-	WNDCLASS wc;
+    WNDCLASS wc;
 
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = (WNDPROC) DefWindowProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = module;
-	wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = NULL;
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = L"DummyWindow";
+    wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    wc.lpfnWndProc = (WNDPROC) DefWindowProc;
+    wc.cbClsExtra = 0;
+    wc.cbWndExtra = 0;
+    wc.hInstance = module;
+    wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground = NULL;
+    wc.lpszMenuName = NULL;
+    wc.lpszClassName = L"DummyWindow";
 
-	if(!RegisterClass(&wc))
-	{
-		return 0;
-	}
+    if(!RegisterClass(&wc))
+    {
+        return 0;
+    }
 
-	DWORD style, exStyle;
-	exStyle = WS_EX_CLIENTEDGE;
-	style = WS_SYSMENU;
+    DWORD style, exStyle;
+    exStyle = WS_EX_CLIENTEDGE;
+    style = WS_SYSMENU;
 
-	AdjustWindowRectEx(&windowRect, style, false, exStyle);
+    AdjustWindowRectEx(&windowRect, style, false, exStyle);
 
-	if(!(dummy = CreateWindowEx(exStyle,
-		L"DummyWindow",
-		L"Dummy Window",
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | style,
-		0, 0,
-		windowRect.right-windowRect.left,
-		windowRect.bottom-windowRect.top,
-		NULL, NULL,
-		module,
-		NULL)))
-	{
-		UnregisterClass(L"Dummy Window", module);
-		return NULL;
-	}
-	ShowWindow(dummy, SW_HIDE);
+    if(!(dummy = CreateWindowEx(exStyle,
+        L"DummyWindow",
+        L"Dummy Window",
+        WS_CLIPSIBLINGS | WS_CLIPCHILDREN | style,
+        0, 0,
+        windowRect.right-windowRect.left,
+        windowRect.bottom-windowRect.top,
+        NULL, NULL,
+        module,
+        NULL)))
+    {
+        UnregisterClass(L"Dummy Window", module);
+        return NULL;
+    }
+    ShowWindow(dummy, SW_HIDE);
 
-	return dummy;
+    return dummy;
 }
 
 void kill_dummy(HWND dummy) {

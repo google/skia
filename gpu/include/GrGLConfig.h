@@ -190,9 +190,14 @@
     #error "unknown GR_TEXT_SCALAR type"
 #endif
 
-// Pick a pixel config for 32bit bitmaps. Our default is GL_RGBA
-#ifndef SK_GL_32BPP_COLOR_FORMAT    
-    #define SK_GL_32BPP_COLOR_FORMAT    GL_RGBA    
+// Pick a pixel config for 32bit bitmaps. Our default is GL_RGBA (expect on
+// Windows where we match GDI's order).
+#ifndef GR_GL_32BPP_COLOR_FORMAT
+    #if GR_WIN32_BUILD
+        #define GR_GL_32BPP_COLOR_FORMAT    GL_BGRA
+    #else 
+        #define GR_GL_32BPP_COLOR_FORMAT    GL_RGBA
+    #endif
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
