@@ -37,9 +37,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>d:\libraries\glew\include;$(IncludePath)</IncludePath>
+    <LibraryPath>d:\libraries\glew\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>d:\libraries\glew\include;$(IncludePath)</IncludePath>
+    <LibraryPath>d:\libraries\glew\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -51,29 +55,32 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\gpu\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\gpu\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>glew32.lib;opengl32.lib;d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -82,6 +89,73 @@
     <None Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\gpu\include\FlingState.h" />
+    <ClInclude Include="..\..\gpu\include\GrAllocator.h" />
+    <ClInclude Include="..\..\gpu\include\GrAllocPool.h" />
+    <ClInclude Include="..\..\gpu\include\GrAPI.h" />
+    <ClInclude Include="..\..\gpu\include\GrAtlas.h" />
+    <ClInclude Include="..\..\gpu\include\GrClip.h" />
+    <ClInclude Include="..\..\gpu\include\GrClipIterator.h" />
+    <ClInclude Include="..\..\gpu\include\GrColor.h" />
+    <ClInclude Include="..\..\gpu\include\GrConfig.h" />
+    <ClInclude Include="..\..\gpu\include\GrContext.h" />
+    <ClInclude Include="..\..\gpu\include\GrDrawTarget.h" />
+    <ClInclude Include="..\..\gpu\include\GrFontScaler.h" />
+    <ClInclude Include="..\..\gpu\include\GrGLConfig.h" />
+    <ClInclude Include="..\..\gpu\include\GrGLIndexBuffer.h" />
+    <ClInclude Include="..\..\gpu\include\GrGLTexture.h" />
+    <ClInclude Include="..\..\gpu\include\GrGLVertexBuffer.h" />
+    <ClInclude Include="..\..\gpu\include\GrGlyph.h" />
+    <ClInclude Include="..\..\gpu\include\GrGpu.h" />
+    <ClInclude Include="..\..\gpu\include\GrGpuVertex.h" />
+    <ClInclude Include="..\..\gpu\include\GrIndexBuffer.h" />
+    <ClInclude Include="..\..\gpu\include\GrInOrderDrawBuffer.h" />
+    <ClInclude Include="..\..\gpu\include\GrInstanceCounter.h" />
+    <ClInclude Include="..\..\gpu\include\GrIPoint.h" />
+    <ClInclude Include="..\..\gpu\include\GrKey.h" />
+    <ClInclude Include="..\..\gpu\include\GrMatrix.h" />
+    <ClInclude Include="..\..\gpu\include\GrMemory.h" />
+    <ClInclude Include="..\..\gpu\include\GrMesh.h" />
+    <ClInclude Include="..\..\gpu\include\GrNoncopyable.h" />
+    <ClInclude Include="..\..\gpu\include\GrPath.h" />
+    <ClInclude Include="..\..\gpu\include\GrPathIter.h" />
+    <ClInclude Include="..\..\gpu\include\GrPathSink.h" />
+    <ClInclude Include="..\..\gpu\include\GrPlotMgr.h" />
+    <ClInclude Include="..\..\gpu\include\GrPoint.h" />
+    <ClInclude Include="..\..\gpu\include\GrRandom.h" />
+    <ClInclude Include="..\..\gpu\include\GrRect.h" />
+    <ClInclude Include="..\..\gpu\include\GrRectanizer.h" />
+    <ClInclude Include="..\..\gpu\include\GrRefCnt.h" />
+    <ClInclude Include="..\..\gpu\include\GrSamplerState.h" />
+    <ClInclude Include="..\..\gpu\include\GrScalar.h" />
+    <ClInclude Include="..\..\gpu\include\GrStopwatch.h" />
+    <ClInclude Include="..\..\gpu\include\GrStringBuilder.h" />
+    <ClInclude Include="..\..\gpu\include\GrTArray.h" />
+    <ClInclude Include="..\..\gpu\include\GrTBSearch.h" />
+    <ClInclude Include="..\..\gpu\include\GrTDArray.h" />
+    <ClInclude Include="..\..\gpu\include\GrTextContext.h" />
+    <ClInclude Include="..\..\gpu\include\GrTextStrike.h" />
+    <ClInclude Include="..\..\gpu\include\GrTexture.h" />
+    <ClInclude Include="..\..\gpu\include\GrTextureCache.h" />
+    <ClInclude Include="..\..\gpu\include\GrTHashCache.h" />
+    <ClInclude Include="..\..\gpu\include\GrTLList.h" />
+    <ClInclude Include="..\..\gpu\include\GrTouchGesture.h" />
+    <ClInclude Include="..\..\gpu\include\GrTypes.h" />
+    <ClInclude Include="..\..\gpu\include\GrUserConfig.h" />
+    <ClInclude Include="..\..\gpu\include\GrVertexBuffer.h" />
+    <ClInclude Include="..\..\gpu\include\GrVertexBufferAllocPool.h" />
+    <ClInclude Include="..\..\gpu\include\SkUIView.h" />
+    <ClInclude Include="..\..\gpu\src\GrGpuGL.h" />
+    <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
+    <ClInclude Include="..\..\gpu\src\GrGpuGLShaders.h" />
+    <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h" />
+    <ClInclude Include="..\..\gpu\src\GrQuadIndexTable.h" />
+    <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h" />
+    <ClInclude Include="..\..\include\gpu\SkGpuCanvas.h" />
+    <ClInclude Include="..\..\include\gpu\SkGpuDevice.h" />
+    <ClInclude Include="..\..\include\gpu\SkGr.h" />
+    <ClInclude Include="..\..\include\gpu\SkGrTexturePixelRef.h" />
+    <ClInclude Include="..\..\samplecode\SampleCode.h" />
     <ClInclude Include="..\..\src\core\SkAntiRun.h" />
     <ClInclude Include="..\..\src\core\SkBitmapProcShader.h" />
     <ClInclude Include="..\..\src\core\SkBitmapProcState.h" />
@@ -132,10 +206,88 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\experimental\SkSetPoly3To3.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrAllocPool.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrAtlas.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrClip.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrContext.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrDrawTarget.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGLIndexBuffer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGLTexture.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGLVertexBuffer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpu.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpuFactory.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpuGL.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpuGLFixed.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpuGLShaders.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpuGLShaders2.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrInOrderDrawBuffer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrMatrix.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrMemory.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrPath.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrPrintf_printf.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrRectanizer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrTextContext.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrTextStrike.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrTextureCache.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrVertexBufferAllocPool.cpp" />
+    <ClCompile Include="..\..\gpu\src\gr_unittests.cpp" />
     <ClCompile Include="..\..\samplecode\OverView.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleAll.cpp" />
     <ClCompile Include="..\..\samplecode\SampleApp.cpp" />
     <ClCompile Include="..\..\samplecode\SampleArc.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleAvoid.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleBitmapRect.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleBlur.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleCamera.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleCircle.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleCull.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDecode.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDither.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDitherBitmap.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDrawLooper.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleEffects.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleEmboss.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleExtractAlpha.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleFillType.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleFilter.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleFilter2.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleFontScalerTest.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleFuzz.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleGradients.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleHairline.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleLayerMask.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleLayers.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleLCD.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleLineClipper.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleLines.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleMeasure.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleMipMap.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleNinePatch.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleOverflow.cpp" />
+    <ClCompile Include="..\..\samplecode\SamplePatch.cpp" />
+    <ClCompile Include="..\..\samplecode\SamplePath.cpp" />
+    <ClCompile Include="..\..\samplecode\SamplePathClip.cpp" />
+    <ClCompile Include="..\..\samplecode\SamplePathEffects.cpp" />
+    <ClCompile Include="..\..\samplecode\SamplePoints.cpp" />
+    <ClCompile Include="..\..\samplecode\SamplePolyToPoly.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleRegion.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleRepeatTile.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleShaders.cpp" />
     <ClCompile Include="..\..\samplecode\SampleShapes.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleSlides.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleStrokePath.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleStrokeText.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleText.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleTextAlpha.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleTextBox.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleTextEffects.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleTextOnPath.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleTiling.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleTinyBitmap.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleTypeface.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleVertices.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleXfermodes.cpp" />
     <ClCompile Include="..\..\src\core\Sk64.cpp" />
     <ClCompile Include="..\..\src\core\SkAlphaRuns.cpp" />
     <ClCompile Include="..\..\src\core\SkBitmap.cpp" />
@@ -183,6 +335,7 @@
     <ClCompile Include="..\..\src\core\SkGlyphCache.cpp" />
     <ClCompile Include="..\..\src\core\SkGraphics.cpp" />
     <ClCompile Include="..\..\src\core\SkLineClipper.cpp" />
+    <ClCompile Include="..\..\src\core\SkMallocPixelRef.cpp" />
     <ClCompile Include="..\..\src\core\SkMask.cpp" />
     <ClCompile Include="..\..\src\core\SkMaskFilter.cpp" />
     <ClCompile Include="..\..\src\core\SkMath.cpp" />
@@ -208,6 +361,7 @@
     <ClCompile Include="..\..\src\core\SkRefCnt.cpp" />
     <ClCompile Include="..\..\src\core\SkRegion.cpp" />
     <ClCompile Include="..\..\src\core\SkRegion_path.cpp" />
+    <ClCompile Include="..\..\src\core\SkScalar.cpp" />
     <ClCompile Include="..\..\src\core\SkScalerContext.cpp" />
     <ClCompile Include="..\..\src\core\SkScan.cpp" />
     <ClCompile Include="..\..\src\core\SkScan_Antihair.cpp" />
@@ -231,6 +385,7 @@
     <ClCompile Include="..\..\src\effects\Sk1DPathEffect.cpp" />
     <ClCompile Include="..\..\src\effects\Sk2DPathEffect.cpp" />
     <ClCompile Include="..\..\src\effects\SkAvoidXfermode.cpp" />
+    <ClCompile Include="..\..\src\effects\SkBitmapCache.cpp" />
     <ClCompile Include="..\..\src\effects\SkBlurDrawLooper.cpp" />
     <ClCompile Include="..\..\src\effects\SkBlurMask.cpp" />
     <ClCompile Include="..\..\src\effects\SkBlurMaskFilter.cpp" />
@@ -252,6 +407,11 @@
     <ClCompile Include="..\..\src\effects\SkRectShape.cpp" />
     <ClCompile Include="..\..\src\effects\SkTableMaskFilter.cpp" />
     <ClCompile Include="..\..\src\effects\SkTransparentShader.cpp" />
+    <ClCompile Include="..\..\src\gpu\SkGpuCanvas.cpp" />
+    <ClCompile Include="..\..\src\gpu\SkGpuDevice.cpp" />
+    <ClCompile Include="..\..\src\gpu\SkGr.cpp" />
+    <ClCompile Include="..\..\src\gpu\SkGrFontScaler.cpp" />
+    <ClCompile Include="..\..\src\gpu\SkGrTexturePixelRef.cpp" />
     <ClCompile Include="..\..\src\images\SkImageDecoder.cpp" />
     <ClCompile Include="..\..\src\images\SkImageDecoder_Factory.cpp" />
     <ClCompile Include="..\..\src\images\SkImageEncoder.cpp" />
@@ -267,15 +427,20 @@
     <ClCompile Include="..\..\src\ports\SkThread_win.cpp" />
     <ClCompile Include="..\..\src\ports\SkTime_win.cpp" />
     <ClCompile Include="..\..\src\ports\SkXMLParser_empty.cpp" />
+    <ClCompile Include="..\..\src\utils\SkCamera.cpp" />
+    <ClCompile Include="..\..\src\utils\SkColorMatrix.cpp" />
+    <ClCompile Include="..\..\src\utils\SkCullPoints.cpp" />
     <ClCompile Include="..\..\src\utils\SkDumpCanvas.cpp" />
     <ClCompile Include="..\..\src\utils\SkParse.cpp" />
     <ClCompile Include="..\..\src\utils\SkParsePath.cpp" />
+    <ClCompile Include="..\..\src\utils\SkUnitMappers.cpp" />
     <ClCompile Include="..\..\src\utils\win\SkOSWindow_Win.cpp" />
     <ClCompile Include="..\..\src\views\SkEvent.cpp" />
     <ClCompile Include="..\..\src\views\SkEventSink.cpp" />
     <ClCompile Include="..\..\src\views\SkMetaData.cpp" />
     <ClCompile Include="..\..\src\views\SkOSMenu.cpp" />
     <ClCompile Include="..\..\src\views\SkTagList.cpp" />
+    <ClCompile Include="..\..\src\views\SkTextBox.cpp" />
     <ClCompile Include="..\..\src\views\SkView.cpp" />
     <ClCompile Include="..\..\src\views\SkViewInflate.cpp" />
     <ClCompile Include="..\..\src\views\SkViewPriv.cpp" />

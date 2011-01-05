@@ -96,12 +96,15 @@ struct GrGpuGLShaders2::StageDesc {
         kNoPerspective_OptFlagBit  = 0x1,
         kIdentityMatrix_OptFlagBit = 0x2,
     };
-    int fOptFlags : 8;
-    bool fEnabled : 8;
+    unsigned fOptFlags : 8;
+
+    unsigned fEnabled : 8;
+    
     enum Modulation {
         kColor_Modulation,
         kAlpha_Modulation,
     } fModulation : 8;
+    
     enum CoordMapping {
         kIdentity_CoordMapping,
         kRadialGradient_CoordMapping,
@@ -113,13 +116,16 @@ struct GrGpuGLShaders2::StageDesc {
 // must be tightly packed
 struct GrGpuGLShaders2::ProgramDesc {
     GrVertexLayout fVertexLayout;
+    GR_STATIC_ASSERT(2 == sizeof(GrVertexLayout)); // pack with next field
+
     enum {
         kNotPoints_OptFlagBit = 0x1,
         kVertexColorAllOnes_OptFlagBit = 0x2,
     };
     // we're assuming optflags and layout pack into 32 bits
-    GR_STATIC_ASSERT(2 == sizeof(GrVertexLayout));
-    int fOptFlags : 16;
+    // VS 2010 seems to require short rather than just unsigned
+    // for this to pack
+    unsigned short fOptFlags : 16;
 
     StageDesc fStages[NUM_STAGES];
 
@@ -389,9 +395,9 @@ void GrGpuGLShaders2::ProgramUnitTest() {
             x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
             pdesc.fStages[s].fOptFlags = STAGE_OPTS[x];
             x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_MODULATES));
-            pdesc.fStages[s].fModulation = STAGE_MODULATES[x];
+            pdesc.fStages[s].fModulation = (StageDesc::Modulation) STAGE_MODULATES[x];
             x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_COORD_MAPPINGS));
-            pdesc.fStages[s].fCoordMapping = STAGE_COORD_MAPPINGS[x];
+            pdesc.fStages[s].fCoordMapping = (StageDesc::CoordMapping) STAGE_COORD_MAPPINGS[x];
         }
         Program program;
         GenProgram(pdesc, &program);
@@ -948,8 +954,8 @@ void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) 
     for (int i = 1; i < NUM_STAGES; ++i) {
         desc->fStages[i].fEnabled       = false;
         desc->fStages[i].fOptFlags      = 0;
-        desc->fStages[i].fCoordMapping  = 0;
-        desc->fStages[i].fModulation    = 0;
+        desc->fStages[i].fCoordMapping  = (StageDesc::CoordMapping)0;
+        desc->fStages[i].fModulation    = (StageDesc::Modulation)0;
     }
 
     if (primType != kPoints_PrimitiveType) {
@@ -997,7 +1003,7 @@ void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) 
             stage.fModulation = StageDesc::kColor_Modulation;
             break;
         case GrSamplerState::kSweep_SampleMode:
-            stage.fCoordMapping = StageDesc::StageDesc::kSweepGradient_CoordMapping;
+            stage.fCoordMapping = StageDesc::kSweepGradient_CoordMapping;
             stage.fModulation = StageDesc::kColor_Modulation;
             break;
         default:
@@ -1006,8 +1012,8 @@ void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) 
         }
     } else {
         stage.fOptFlags     = 0;
-        stage.fCoordMapping = 0;
-        stage.fModulation   = 0;
+        stage.fCoordMapping = (StageDesc::CoordMapping)0;
+        stage.fModulation   = (StageDesc::Modulation)0;
     }
 }
 

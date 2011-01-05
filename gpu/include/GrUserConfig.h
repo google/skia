@@ -31,10 +31,11 @@
 //#define GR_FORCE_GLCHECKERR   1
 
 /*
- *  The default 32bit pixel config for texture upload is GL_RGBA. If your
- *  bitmaps map to a different GL enum, specify that with this define.
+ *  The default 32bit pixel config for texture upload is GL_RGBA on all
+ *  platforms except on Windows where it is GL_BGRA. If your bitmaps map to a
+ *  different GL enum, specify that with this define.
  */
-//#define SK_GL_32BPP_COLOR_FORMAT  GL_RGBA
+//#define GR_GL_32BPP_COLOR_FORMAT  GL_RGBA
 
 /*
  *  To diagnose texture cache performance, define this to 1 if you want to see

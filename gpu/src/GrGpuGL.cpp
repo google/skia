@@ -17,6 +17,14 @@
 #include "GrGpuGL.h"
 #include "GrMemory.h"
 #include <stdio.h>
+#if GR_WIN32_BUILD
+    // need to get wglGetProcAddress
+    #undef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN 1
+    #include <windows.h>
+    #undef WIN32_LEAN_AND_MEAN
+#endif
+
 
 static const GLuint GR_MAX_GLUINT = ~0;
 static const GLint  GR_INVAL_GLINT = ~0;
@@ -94,7 +102,9 @@ bool fbo_test(GrGLExts exts, int w, int h) {
     GLuint testRTTex;
     GR_GL(GenTextures(1, &testRTTex));
     GR_GL(BindTexture(GL_TEXTURE_2D, testRTTex));
-
+    // some implementations require texture to be mip-map complete before
+    // FBO with level 0 bound as color attachment will be framebuffer complete.
+    GR_GL(TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
     GR_GL(TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
     GR_GL(BindTexture(GL_TEXTURE_2D, 0));
@@ -290,6 +300,18 @@ GrGpuGL::GrGpuGL() {
     // Experiments to determine limitations that can't be queried. TODO: Make
     // these a preprocess that generate some compile time constants.
 
+    // sanity check to make sure we can at least create an FBO from a POT texture
+    if (fNPOTTextureSupport < kFull_NPOTTextureType) {
+        bool npotFBOSuccess = fbo_test(fExts, 128, 128);
+        if (gPrintStartupSpew) {
+            if (!npotFBOSuccess) {
+                GrPrintf("FBO Sanity Test: FAILED\n");
+            } else {
+                GrPrintf("FBO Sanity Test: PASSED\n");
+            }
+        }
+    }
+    
     /* Experimentation has found that some GLs that support NPOT textures
        do not support FBOs with a NPOT texture. They report "unsupported" FBO
        status. I don't know how to explicitly query for this. Do an
@@ -325,18 +347,6 @@ GrGpuGL::GrGpuGL() {
         case kFull_NPOTTextureType:
             GrPrintf("NPOT Support: FULL\n");
             break;
-        }
-    }
-
-    // sanity check to make sure we can at least create an FBO from a POT texture
-    if (fNPOTTextureSupport < kFull_NPOTTextureType) {
-        bool npotFBOSuccess = fbo_test(fExts, 128, 128);
-        if (gPrintStartupSpew) {
-            if (!npotFBOSuccess) {
-                GrPrintf("FBO Sanity Test: FAILED\n");
-            } else {
-                GrPrintf("FBO Sanity Test: PASSED\n");
-            }
         }
     }
 
@@ -1628,7 +1638,7 @@ bool GrGpuGL::canBeTexture(GrTexture::PixelConfig config,
     switch (config) {
         case GrTexture::kRGBA_8888_PixelConfig:
         case GrTexture::kRGBX_8888_PixelConfig: // todo: can we tell it our X?
-            *format = SK_GL_32BPP_COLOR_FORMAT;
+            *format = GR_GL_32BPP_COLOR_FORMAT;
             *internalFormat = GL_RGBA;
             *type = GL_UNSIGNED_BYTE;
             break;
@@ -1714,7 +1724,7 @@ typedef void (*glProc)(void);
 
 void get_gl_proc(const char procName[], glProc *address) {
 #if GR_WIN32_BUILD
-    *address = wglGetProcAddress(procName);
+    *address = (glProc)wglGetProcAddress(procName);
     GrAssert(NULL != *address);
 #elif GR_MAC_BUILD || GR_IOS_BUILD
     GrAssert(!"Extensions don't need to be initialized!");

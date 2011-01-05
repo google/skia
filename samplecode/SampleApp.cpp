@@ -17,7 +17,6 @@
 extern SkView* create_overview(int, const SkViewFactory[]);
 
 #define SK_SUPPORT_GL
-//#define SK_SUPPORT_D3D9
 
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
@@ -28,8 +27,6 @@ extern SkView* create_overview(int, const SkViewFactory[]);
 
 #ifdef SK_SUPPORT_GL
     #include "GrGLConfig.h"
-#elif defined(SK_SUPPORT_D3D9)
-    #include <d3d9.h>
 #endif
 
 SkViewRegister* SkViewRegister::gHead;
@@ -43,10 +40,6 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
     fChain = gHead;
     gHead = this;
 }
-
-#if defined(SK_SUPPORT_GL) && defined(SK_SUPPORT_D3D9)
-    #error "choose either GL or D3D9"
-#endif
 
 #if defined(SK_SUPPORT_GL)
     #define SK_USE_SHADERS
@@ -62,11 +55,6 @@ static GrContext* get_global_grctx(SkOSWindow* oswin) {
     #else
         ctx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
     #endif
-#elif defined(SK_SUPPORT_D3D9)
-        if (oswin->d3d9Device()) {
-            ctx = GrContext::Create(GrGpu::kDirect3D9_Engine, 
-                                    (IDirect3DDevice9*) oswin->d3d9Device());
-        }
 #endif
     }
     return ctx;
@@ -158,14 +146,14 @@ static SkView* curr_view(SkWindow* wind) {
 class SampleWindow : public SkOSWindow {
     SkTDArray<SkViewFactory> fSamples;
 public:
-	SampleWindow(void* hwnd);
-	virtual ~SampleWindow();
+    SampleWindow(void* hwnd);
+    virtual ~SampleWindow();
 
     virtual void draw(SkCanvas* canvas);
 
 protected:
     virtual void onDraw(SkCanvas* canvas);
-	virtual bool onHandleKey(SkKey key);
+    virtual bool onHandleKey(SkKey key);
     virtual bool onHandleChar(SkUnichar);
     virtual void onSizeChange();
     
@@ -174,17 +162,17 @@ protected:
     virtual void beforeChild(SkView* child, SkCanvas* canvas);
     virtual void afterChild(SkView* child, SkCanvas* canvas);
     
-	virtual bool onEvent(const SkEvent& evt);
+    virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
 
 #if 0
-	virtual bool handleChar(SkUnichar uni);
-	virtual bool handleEvent(const SkEvent& evt);
-	virtual bool handleKey(SkKey key);
-	virtual bool handleKeyUp(SkKey key);
+    virtual bool handleChar(SkUnichar uni);
+    virtual bool handleEvent(const SkEvent& evt);
+    virtual bool handleKey(SkKey key);
+    virtual bool handleKeyUp(SkKey key);
     
-	virtual bool onClick(Click* click);
-	virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
+    virtual bool onClick(Click* click);
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
     virtual bool onHandleKeyUp(SkKey key);
 #endif
 private:
@@ -256,9 +244,9 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 
     fScrollTestX = fScrollTestY = 0;
 
-//	this->setConfig(SkBitmap::kRGB_565_Config);
-	this->setConfig(SkBitmap::kARGB_8888_Config);
-	this->setVisibleP(true);
+//    this->setConfig(SkBitmap::kRGB_565_Config);
+    this->setConfig(SkBitmap::kARGB_8888_Config);
+    this->setVisibleP(true);
     this->setClipToBounds(false);
 
     {
@@ -376,8 +364,6 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     if (kGPU_CanvasType != fCanvasType) {
 #ifdef SK_SUPPORT_GL
         detachGL();
-#elif defined(SK_SUPPORT_D3D9)
-        detachD3D9();
 #endif   
     }
     
@@ -403,14 +389,11 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                 attachGL(NULL);
     #endif
                 glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-#elif defined(SK_SUPPORT_D3D9)
-                // now setup our canvas
-                attachD3D9();           
 #endif
                 fGpuCanvas = new SkGpuCanvas(get_global_grctx(this));
-				device = fGpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
-												  bitmap.width(), bitmap.height(),
-												  false, false);
+                device = fGpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
+                                                  bitmap.width(), bitmap.height(),
+                                                  false, false);
                 fGpuCanvas->setDevice(device)->unref();
                 canvas = fGpuCanvas;
                 
@@ -484,19 +467,11 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             delete fGpuCanvas;
             fGpuCanvas = NULL;
             presentGL();
-#ifdef USE_OFFSCREEN
+    #ifdef USE_OFFSCREEN
             reverseRedAndBlue(orig->getDevice()->accessBitmap(true));
-#endif
+    #endif
             break;
-#elif defined(SK_SUPPORT_D3D9)
-        case kGPU_CanvasType: {
-            delete fGpuCanvas;
-            fGpuCanvas = NULL;
-            presentD3D9();
-            break;
-        }
 #endif
-
     }
     
 //    if ((fScrollTestX | fScrollTestY) != 0)
@@ -950,7 +925,7 @@ static void test() {
 
 SkOSWindow* create_sk_window(void* hwnd) {
 //    test();
-	return new SampleWindow(hwnd);
+    return new SampleWindow(hwnd);
 }
 
 void get_preferred_size(int* x, int* y, int* width, int* height) {
@@ -965,11 +940,11 @@ void application_init() {
 #ifdef SK_BUILD_FOR_MAC
     setenv("ANDROID_ROOT", "/android/device/data", 0);
 #endif
-	SkGraphics::Init();
-	SkEvent::Init();
+    SkGraphics::Init();
+    SkEvent::Init();
 }
 
 void application_term() {
-	SkEvent::Term();
-	SkGraphics::Term();
+    SkEvent::Term();
+    SkGraphics::Term();
 }
