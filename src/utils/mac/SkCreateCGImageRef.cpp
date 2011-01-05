@@ -91,7 +91,7 @@ CGImageRef SkCreateCGImageRefWithColorspace(const SkBitmap& bm,
 
     bool releaseColorSpace = false;
     if (NULL == colorSpace) {
-        colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        colorSpace = CGColorSpaceCreateDeviceRGB();
         releaseColorSpace = true;
     }
 
