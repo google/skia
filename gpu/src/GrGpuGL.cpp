@@ -533,13 +533,13 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
 #if GR_COLLECT_STATS
     ++fStats.fTextureCreateCnt;
 #endif
-    
+
     static const GrGLTexture::TexParams DEFAULT_PARAMS = {
         GL_NEAREST,
         GL_CLAMP_TO_EDGE,
         GL_CLAMP_TO_EDGE
     };
-    
+
     GrGLTexture::GLTextureDesc glDesc;
     GLenum internalFormat;
 
@@ -614,17 +614,17 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
     }
 
     GR_GL(BindTexture(GL_TEXTURE_2D, glDesc.fTextureID));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, 
-                        GL_TEXTURE_MAG_FILTER, 
+    GR_GL(TexParameteri(GL_TEXTURE_2D,
+                        GL_TEXTURE_MAG_FILTER,
                         DEFAULT_PARAMS.fFilter));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, 
-                        GL_TEXTURE_MIN_FILTER, 
+    GR_GL(TexParameteri(GL_TEXTURE_2D,
+                        GL_TEXTURE_MIN_FILTER,
                         DEFAULT_PARAMS.fFilter));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, 
+    GR_GL(TexParameteri(GL_TEXTURE_2D,
                         GL_TEXTURE_WRAP_S,
                         DEFAULT_PARAMS.fWrapS));
-    GR_GL(TexParameteri(GL_TEXTURE_2D, 
-                        GL_TEXTURE_WRAP_T, 
+    GR_GL(TexParameteri(GL_TEXTURE_2D,
+                        GL_TEXTURE_WRAP_T,
                         DEFAULT_PARAMS.fWrapT));
 #if GR_COLLECT_STATS
     ++fStats.fTextureChngCnt;
@@ -1443,28 +1443,28 @@ void GrGpuGL::flushGLStateCommon(PrimitiveType type) {
 
             const GrGLTexture::TexParams& oldTexParams = nextTexture->getTexParams();
             GrGLTexture::TexParams newTexParams;
-            newTexParams.fFilter = fCurrDrawState.fSamplerState.isFilter() ? 
+            newTexParams.fFilter = fCurrDrawState.fSamplerState.isFilter() ?
                                                                 GL_LINEAR :
                                                                 GL_NEAREST;
             newTexParams.fWrapS = GrGLTexture::gWrapMode2GLWrap[fCurrDrawState.fSamplerState.getWrapX()];
             newTexParams.fWrapT = GrGLTexture::gWrapMode2GLWrap[fCurrDrawState.fSamplerState.getWrapY()];
 
             if (newTexParams.fFilter != oldTexParams.fFilter) {
-                GR_GL(TexParameteri(GL_TEXTURE_2D, 
-                                    GL_TEXTURE_MAG_FILTER, 
+                GR_GL(TexParameteri(GL_TEXTURE_2D,
+                                    GL_TEXTURE_MAG_FILTER,
                                     newTexParams.fFilter));
-                GR_GL(TexParameteri(GL_TEXTURE_2D, 
-                                    GL_TEXTURE_MIN_FILTER, 
+                GR_GL(TexParameteri(GL_TEXTURE_2D,
+                                    GL_TEXTURE_MIN_FILTER,
                                     newTexParams.fFilter));
             }
             if (newTexParams.fWrapS != oldTexParams.fWrapS) {
-                GR_GL(TexParameteri(GL_TEXTURE_2D, 
+                GR_GL(TexParameteri(GL_TEXTURE_2D,
                                     GL_TEXTURE_WRAP_S,
                                     newTexParams.fWrapS));
             }
             if (newTexParams.fWrapT != oldTexParams.fWrapT) {
-                GR_GL(TexParameteri(GL_TEXTURE_2D, 
-                                    GL_TEXTURE_WRAP_T, 
+                GR_GL(TexParameteri(GL_TEXTURE_2D,
+                                    GL_TEXTURE_WRAP_T,
                                     newTexParams.fWrapT));
             }
             nextTexture->setTexParams(newTexParams);
@@ -1594,7 +1594,7 @@ void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     // b) we set more state than just FBO based on the RT
     // So trash the HW state to force an RT flush next time
     if (fCurrDrawState.fRenderTarget == renderTarget) {
-        fCurrDrawState.fRenderTarget = (GrRenderTarget*)&fDefaultRenderTarget;
+        fCurrDrawState.fRenderTarget = fDefaultRenderTarget;
     }
     if (fHWDrawState.fRenderTarget == renderTarget) {
         fHWDrawState.fRenderTarget = NULL;

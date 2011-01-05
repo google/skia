@@ -269,7 +269,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                            boolStr(success));
                 reporter->reportFailed(str);
             }
-            
+
             bool canSucceed = src.canCopyTo(gPairs[j].fConfig);
             if (success != canSucceed) {
                 SkString str;
@@ -310,7 +310,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                         REPORTER_ASSERT(reporter, copy.width() == 1);
                         REPORTER_ASSERT(reporter, copy.height() == 1);
                         REPORTER_ASSERT(reporter, copy.rowBytes() <= 4);
-                        
+
                         SkAutoLockPixels alp0(subset);
                         SkAutoLockPixels alp1(copy);
                         // they should both have, or both not-have, a colortable
@@ -464,7 +464,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                     for (size_t x = 0; x < subW; ++x)
                         for (size_t y = 0; y < subH; ++y)
                         {
-                            size_t index = y * subW + x;
+                            int index = y * subW + x;
                             SkASSERT(index < coords.length);
                             coords[index]->fX = x;
                             coords[index]->fY = y;

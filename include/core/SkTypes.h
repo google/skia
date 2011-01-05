@@ -301,6 +301,20 @@ static inline uint32_t SkSetClearMask(uint32_t bits, bool cond,
     return cond ? bits | mask : bits & ~mask;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Use to cast a pointer to a different type, and maintaining strict-aliasing
+ */
+template <typename Dst> Dst SkTCast(const void* ptr) {
+    union {
+        const void* src;
+        Dst dst;
+    } data;
+    data.src = ptr;
+    return data.dst;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 /** \class SkNoncopyable
@@ -311,7 +325,7 @@ be copied. It hides its copy-constructor and its assignment-operator.
 class SkNoncopyable {
 public:
     SkNoncopyable() {}
-    
+
 private:
     SkNoncopyable(const SkNoncopyable&);
     SkNoncopyable& operator=(const SkNoncopyable&);
@@ -322,7 +336,7 @@ public:
     SkAutoFree() : fPtr(NULL) {}
     explicit SkAutoFree(void* ptr) : fPtr(ptr) {}
     ~SkAutoFree() { sk_free(fPtr); }
-    
+
     /** Return the currently allocate buffer, or null
     */
     void* get() const { return fPtr; }
@@ -336,7 +350,7 @@ public:
         fPtr = ptr;
         return prev;
     }
-    
+
     /** Transfer ownership of the current ptr to the caller, setting the
         internal reference to null. Note the caller is reponsible for calling
         sk_free on the returned address.

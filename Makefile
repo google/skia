@@ -5,7 +5,7 @@ CC := gcc
 GPP := g++
 C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/gpu -Iinclude/utils -Igpu/include
 
-CFLAGS := -Wall -O2 
+CFLAGS := -Wall -O2 -fstrict-aliasing
 CFLAGS_SSE2 = $(CFLAGS) -msse2
 LINKER_OPTS := -lpthread -lz
 DEFINES := -DSK_CAN_USE_FLOAT
@@ -126,7 +126,7 @@ out/%.o : %.cpp
 	@mkdir -p $(dir $@)
 	$(HIDE)$(CC) $(C_INCLUDES) $(CFLAGS) $(DEFINES) -c $< -o $@
 	@echo "compiling $@"
-    
+
 %.s : %.cpp
 	@mkdir -p $(dir $@)
 	$(CC) $(C_INCLUDES) $(CFLAGS) $(DEFINES) -S -c $< -o $@
@@ -163,7 +163,7 @@ BENCH_OBJS := $(addprefix out/, $(BENCH_OBJS))
 bench: $(BENCH_OBJS) out/libskia.a
 	@echo "linking bench..."
 	$(HIDE)$(GPP) $(BENCH_OBJS) out/libskia.a -o out/bench/bench $(LINKER_OPTS)
-	
+
 ##############################################################################
 
 # we let tests cheat and see private headers, so we can unittest modules
@@ -181,7 +181,7 @@ TESTS_OBJS := $(addprefix out/, $(TESTS_OBJS))
 tests: $(TESTS_OBJS) out/libskia.a
 	@echo "linking tests..."
 	$(HIDE)$(GPP) $(TESTS_OBJS) out/libskia.a -o out/tests/tests $(LINKER_OPTS)
-	
+
 ##############################################################################
 
 SKIMAGE_SRCS := skimage_main.cpp
