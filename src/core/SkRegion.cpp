@@ -35,27 +35,6 @@ static SkRegion::RunType* skip_scanline(const SkRegion::RunType runs[])
     return (SkRegion::RunType*)(runs + 1);  // return past the X-sentinel
 }
 
-static SkRegion::RunType* find_y(const SkRegion::RunType runs[], int y)
-{
-    int top = *runs++;
-    if (top <= y)
-    {
-        for (;;)
-        {
-            int bot = *runs++;
-            if (bot > y)
-            {
-                if (bot == SkRegion::kRunTypeSentinel || *runs == SkRegion::kRunTypeSentinel)
-                    break;
-                return (SkRegion::RunType*)runs;
-            }
-            top = bot;
-            runs = skip_scanline(runs);
-        }
-    }
-    return NULL;
-}
-
 // returns true if runs are just a rect
 bool SkRegion::ComputeRunBounds(const SkRegion::RunType runs[], int count, SkIRect* bounds)
 {
@@ -1264,40 +1243,57 @@ void SkRegion::Cliperator::next() {
     }
 }
 
-//////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-SkRegion::Spanerator::Spanerator(const SkRegion& rgn, int y, int left, int right)
-{
+static SkRegion::RunType* find_y(const SkRegion::RunType runs[], int y) {
+    int top = *runs++;
+    if (top <= y) {
+        for (;;) {
+            int bot = *runs++;
+            if (bot > y) {
+                if (bot == SkRegion::kRunTypeSentinel ||
+                    *runs == SkRegion::kRunTypeSentinel) {
+                    break;
+				}
+                return (SkRegion::RunType*)runs;
+            }
+            runs = skip_scanline(runs);
+        }
+    }
+    return NULL;
+}
+
+SkRegion::Spanerator::Spanerator(const SkRegion& rgn, int y, int left,
+                                 int right) {
     SkDEBUGCODE(rgn.validate();)
 
     const SkIRect& r = rgn.getBounds();
 
     fDone = true;
-    if (!rgn.isEmpty() && y >= r.fTop && y < r.fBottom && right > r.fLeft && left < r.fRight)
-    {
-        if (rgn.isRect())
-        {
-            if (left < r.fLeft)
+    if (!rgn.isEmpty() && y >= r.fTop && y < r.fBottom &&
+            right > r.fLeft && left < r.fRight) {
+        if (rgn.isRect()) {
+            if (left < r.fLeft) {
                 left = r.fLeft;
-            if (right > r.fRight)
+            }
+            if (right > r.fRight) {
                 right = r.fRight;
-
+            }
             fLeft = left;
             fRight = right;
             fRuns = NULL;    // means we're a rect, not a rgn
             fDone = false;
-        }
-        else
-        {
-            const SkRegion::RunType* runs = find_y(rgn.fRunHead->readonly_runs(), y);
-            if (runs)
-            {
-                for (;;)
-                {
-                    if (runs[0] >= right)   // runs[0..1] is to the right of the span, so we're done
+        } else {
+            const SkRegion::RunType* runs = find_y(
+                                              rgn.fRunHead->readonly_runs(), y);
+            if (runs) {
+                for (;;) {
+                    // runs[0..1] is to the right of the span, so we're done
+                    if (runs[0] >= right) {
                         break;
-                    if (runs[1] <= left)    // runs[0..1] is to the left of the span, so continue
-                    {
+                    }
+                    // runs[0..1] is to the left of the span, so continue
+                    if (runs[1] <= left) {
                         runs += 2;
                         continue;
                     }
@@ -1313,32 +1309,37 @@ SkRegion::Spanerator::Spanerator(const SkRegion& rgn, int y, int left, int right
     }
 }
 
-bool SkRegion::Spanerator::next(int* left, int* right)
-{
-    if (fDone) return false;
+bool SkRegion::Spanerator::next(int* left, int* right) {
+    if (fDone) {
+        return false;
+    }
 
-    if (fRuns == NULL)   // we're a rect
-    {
+    if (fRuns == NULL) {   // we're a rect
         fDone = true;   // ok, now we're done
-        if (left) *left = fLeft;
-        if (right) *right = fRight;
+        if (left) {
+            *left = fLeft;
+        }
+        if (right) {
+            *right = fRight;
+        }
         return true;    // this interval is legal
     }
 
     const SkRegion::RunType* runs = fRuns;
 
-    if (runs[0] >= fRight)
-    {
+    if (runs[0] >= fRight) {
         fDone = true;
         return false;
     }
 
     SkASSERT(runs[1] > fLeft);
 
-    if (left)
+    if (left) {
         *left = SkMax32(fLeft, runs[0]);
-    if (right)
+    }
+    if (right) {
         *right = SkMin32(fRight, runs[1]);
+    }
     fRuns = runs + 2;
     return true;
 }
