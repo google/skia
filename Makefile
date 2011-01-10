@@ -5,7 +5,7 @@ CC := gcc
 GPP := g++
 C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/gpu -Iinclude/utils -Igpu/include
 
-CFLAGS := -Wall -O2 -fstrict-aliasing
+CFLAGS := -Wall -fstrict-aliasing
 CFLAGS_SSE2 = $(CFLAGS) -msse2
 LINKER_OPTS := -lpthread -lz
 DEFINES := -DSK_CAN_USE_FLOAT
@@ -19,7 +19,9 @@ endif
 
 ifeq ($(SKIA_DEBUG),true)
  	DEFINES += -DSK_DEBUG -DSK_SUPPORT_UNIT -DGR_DEBUG=1
+	CFLAGS := -g
 else
+	CFLAGS := -O2
 	DEFINES += -DSK_RELEASE -DGR_DEBUG=0
 endif
 
