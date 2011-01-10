@@ -62,10 +62,14 @@ static void test_isOpaque(skiatest::Reporter* reporter, const SkBitmap& src,
     }
 }
 
-static void init_src(const SkBitmap& bitmap) {
+static void init_src(const SkBitmap& bitmap, const SkColorTable* ct) {
     SkAutoLockPixels lock(bitmap);
     if (bitmap.getPixels()) {
-        memset(bitmap.getPixels(), 4, bitmap.getSize());
+        if (ct) {
+            sk_bzero(bitmap.getPixels(), bitmap.getSize());
+        } else {
+            bitmap.eraseColor(SK_ColorWHITE);
+        }
     }
 }
 
@@ -259,7 +263,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
             src.allocPixels(ct);
             SkSafeUnref(ct);
 
-            init_src(src);
+            init_src(src, ct);
             bool success = src.copyTo(&dst, gPairs[j].fConfig);
             bool expected = gPairs[i].fValid[j] != '0';
             if (success != expected) {
