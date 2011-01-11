@@ -39,7 +39,15 @@ typedef int32_t             SkFixed;
 
 #ifdef SK_CAN_USE_FLOAT
     #define SkFixedToFloat(x)   ((x) * 1.5258789e-5f)
+#if 1
     #define SkFloatToFixed(x)   ((SkFixed)((x) * SK_Fixed1))
+#else
+    // pins over/under flows to max/min int32 (slower than just a cast)
+    static inline SkFixed SkFloatToFixed(float x) {
+        int64_t n = x * SK_Fixed1;
+        return (SkFixed)n;
+    }
+#endif
 
     #define SkFixedToDouble(x)  ((x) * 1.5258789e-5)
     #define SkDoubleToFixed(x)  ((SkFixed)((x) * SK_Fixed1))

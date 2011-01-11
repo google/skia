@@ -112,6 +112,18 @@ public:
     SkDevice* setBitmapDevice(const SkBitmap& bitmap, bool forLayer = false);
 
     /**
+     *  Return the current device factory, or NULL.
+     */
+    SkDeviceFactory* getDeviceFactory() const { return fDeviceFactory; }
+
+    /**
+     *  Replace any existing factory with the specified factory.
+     */
+    SkDeviceFactory* setDeviceFactory(SkDeviceFactory*);
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
      *  Copy the pixels from the device into bitmap. Returns true on success.
      *  If false is returned, then the bitmap parameter is left unchanged.
      */
@@ -124,7 +136,7 @@ public:
      *  values in the device are completely replaced: there is no blending.
      */
     void writePixels(const SkBitmap& bitmap, int x, int y);
-    
+
     ///////////////////////////////////////////////////////////////////////////
 
     enum SaveFlags {
@@ -237,12 +249,12 @@ public:
         @return true if the operation succeeded (e.g. did not overflow)
     */
     virtual bool concat(const SkMatrix& matrix);
-    
+
     /** Replace the current matrix with a copy of the specified matrix.
         @param matrix The matrix that will be copied into the current matrix.
     */
     virtual void setMatrix(const SkMatrix& matrix);
-    
+
     /** Helper for setMatrix(identity). Sets the current matrix to identity.
     */
     void resetMatrix();
@@ -406,7 +418,7 @@ public:
         details.
     */
     void drawPoint(SkScalar x, SkScalar y, const SkPaint& paint);
-    
+
     /** Draws a single pixel in the specified color.
         @param x        The X coordinate of which pixel to draw
         @param y        The Y coordiante of which pixel to draw
@@ -444,7 +456,7 @@ public:
         r.set(rect);    // promotes the ints to scalars
         this->drawRect(r, paint);
     }
-    
+
     /** Draw the specified rectangle using the specified paint. The rectangle
         will be filled or framed based on the Style in the paint.
         @param left     The left side of the rectangle to be drawn
@@ -532,7 +544,7 @@ public:
 
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                   const SkPaint* paint = NULL);
-    
+
     /** Draw the specified bitmap, with its top/left corner at (x,y),
         NOT transformed by the current matrix. Note: if the paint
         contains a maskfilter that generates a mask which extends beyond the
@@ -559,7 +571,7 @@ public:
                           SkScalar y, const SkPaint& paint);
 
     /** Draw the text, with each character/glyph origin specified by the pos[]
-        array. The origin is interpreted by the Align setting in the paint. 
+        array. The origin is interpreted by the Align setting in the paint.
         @param text The text to be drawn
         @param byteLength   The number of bytes to read from the text parameter
         @param pos      Array of positions, used to position each character
@@ -567,10 +579,10 @@ public:
         */
     virtual void drawPosText(const void* text, size_t byteLength,
                              const SkPoint pos[], const SkPaint& paint);
-    
+
     /** Draw the text, with each character/glyph origin specified by the x
         coordinate taken from the xpos[] array, and the y from the constY param.
-        The origin is interpreted by the Align setting in the paint. 
+        The origin is interpreted by the Align setting in the paint.
         @param text The text to be drawn
         @param byteLength   The number of bytes to read from the text parameter
         @param xpos     Array of x-positions, used to position each character
@@ -580,7 +592,7 @@ public:
     virtual void drawPosTextH(const void* text, size_t byteLength,
                               const SkScalar xpos[], SkScalar constY,
                               const SkPaint& paint);
-    
+
     /** Draw the text, with origin at (x,y), using the specified paint, along
         the specified path. The paint's Align setting determins where along the
         path to start the text.
@@ -621,7 +633,7 @@ public:
                        canvas.
     */
     virtual void drawPicture(SkPicture& picture);
-    
+
     /** Draws the specified shape
      */
     virtual void drawShape(SkShape*);
@@ -631,7 +643,7 @@ public:
         kTriangleStrip_VertexMode,
         kTriangleFan_VertexMode
     };
-    
+
     /** Draw the array of vertices, interpreted as triangles (based on mode).
         @param vmode How to interpret the array of vertices
         @param vertexCount The number of points in the vertices array (and
@@ -648,7 +660,7 @@ public:
         @param indices If not null, array of indices to reference into the
                     vertex (texs, colors) array.
         @param indexCount number of entries in the indices array (if not null)
-        @param paint Specifies the shader/texture if present. 
+        @param paint Specifies the shader/texture if present.
     */
     virtual void drawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
@@ -665,7 +677,7 @@ public:
     virtual void drawData(const void* data, size_t length);
 
     //////////////////////////////////////////////////////////////////////////
-    
+
     /** Get the current bounder object.
         The bounder's reference count is unchaged.
         @return the canva's bounder (or NULL).
@@ -681,13 +693,13 @@ public:
         @return the set bounder object
     */
     virtual SkBounder* setBounder(SkBounder* bounder);
- 
+
     /** Get the current filter object. The filter's reference count is not
         affected. The filter is saved/restored, just like the matrix and clip.
         @return the canvas' filter (or NULL).
     */
     SkDrawFilter* getDrawFilter() const;
-    
+
     /** Set the new filter (or NULL). Pass NULL to clear any existing filter.
         As a convenience, the parameter is returned. If an existing filter
         exists, its refcnt is decrement. If the new filter is not null, its
@@ -727,12 +739,12 @@ public:
         /** Initialize iterator with canvas, and set values for 1st device */
         LayerIter(SkCanvas*, bool skipEmptyClips);
         ~LayerIter();
-        
+
         /** Return true if the iterator is done */
         bool done() const { return fDone; }
         /** Cycle to the next device */
         void next();
-        
+
         // These reflect the current device in the iterator
 
         SkDevice*       device() const;
@@ -741,7 +753,7 @@ public:
         const SkPaint&  paint() const;
         int             x() const;
         int             y() const;
-        
+
     private:
         // used to embed the SkDrawIter object directly in our instance, w/o
         // having to expose that class def to the public. There is an assert
@@ -758,7 +770,7 @@ protected:
     // all of the drawBitmap variants call this guy
     virtual void commonDrawBitmap(const SkBitmap&, const SkIRect*,
                                   const SkMatrix&, const SkPaint& paint);
-    
+
 private:
     class MCRec;
 
@@ -773,7 +785,7 @@ private:
     SkDeviceFactory* fDeviceFactory;
 
     void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&);
-    
+
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();
 
@@ -786,7 +798,7 @@ private:
     // shared by save() and saveLayer()
     int internalSave(SaveFlags flags);
     void internalRestore();
-    
+
     /*  These maintain a cache of the clip bounds in local coordinates,
         (converted to 2s-compliment if floats are slow).
      */
