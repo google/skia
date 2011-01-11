@@ -18,8 +18,8 @@
 #include "GrContext.h"
 #include "GrTextContext.h"
 
-#include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
+#include "SkGpuDeviceFactory.h"
 #include "SkGrTexturePixelRef.h"
 
 #include "SkDrawProcs.h"
@@ -109,13 +109,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice::SkGpuDevice(SkGpuCanvas* canvas, const SkBitmap& bitmap, bool isLayer)
-        : SkDevice(canvas, bitmap, false) {
+SkGpuDevice::SkGpuDevice(GrContext* context, const SkBitmap& bitmap, bool isLayer)
+        : SkDevice(NULL, bitmap, false) {
 
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
 
-    fContext = canvas->context();
+    // should I ref() this, and then unref in destructor? <mrr>
+    fContext = context;
 
     fCache = NULL;
     fTexture = NULL;
@@ -1046,4 +1047,22 @@ void SkGpuDevice::unlockCachedTexture(TexCache* cache) {
     this->context()->unlockTexture((GrTextureEntry*)cache);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context) : fContext(context) {
+    context->ref();
+}
+
+SkGpuDeviceFactory::~SkGpuDeviceFactory() {
+    fContext->unref();
+}
+
+SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
+                                        int width, int height,
+                                        bool isOpaque, bool isLayer) {
+    SkBitmap bm;
+    bm.setConfig(config, width, height);
+    bm.setIsOpaque(isOpaque);
+    return new SkGpuDevice(fContext, bm, isLayer);
+}
 

@@ -29,17 +29,12 @@ class GrContext;
 class SkGpuCanvas : public SkCanvas {
 public:
     /**
-     *  The GrContext object is reference counted. When passed to our 
-     *  constructor, its reference count is incremented. In our destructor, the 
+     *  The GrContext object is reference counted. When passed to our
+     *  constructor, its reference count is incremented. In our destructor, the
      *  GrGpu's reference count will be decremented.
      */
     explicit SkGpuCanvas(GrContext*);
     virtual ~SkGpuCanvas();
-
-    /**
-     *  Return our GrContext instance
-     */
-    GrContext* context() const { return fContext; }
 
     /**
      *  Override from SkCanvas. Returns true, and if not-null, sets size to
@@ -47,20 +42,13 @@ public:
      */
     virtual bool getViewport(SkIPoint* size) const;
 
-    /**
-     *  Override from SkCanvas. Returns a new device of the correct subclass,
-     *  as determined by the GrGpu passed to our constructor.
-     */
-    virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
-                                   bool isOpaque, bool isLayer);
-
 #if 0
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags flags = kARGB_ClipLayer_SaveFlag) {
         return this->save(flags);
     }
 #endif
-    
+
 private:
     GrContext* fContext;
 
