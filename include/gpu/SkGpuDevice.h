@@ -23,7 +23,6 @@
 #include "SkRegion.h"
 
 struct SkDrawProcs;
-class SkGpuCanvas;
 struct GrSkDrawProcs;
 class GrTextContext;
 
@@ -33,9 +32,9 @@ class GrTextContext;
  */
 class SkGpuDevice : public SkDevice {
 public:
-    SkGpuDevice(SkGpuCanvas*, const SkBitmap& bitmap, bool isLayer);
+    SkGpuDevice(GrContext*, const SkBitmap& bitmap, bool isLayer);
     virtual ~SkGpuDevice();
- 
+
     GrContext* context() const { return fContext; }
 
     /**
@@ -46,7 +45,7 @@ public:
      *  is returned.
      */
     intptr_t getLayerTextureHandle() const;
-    
+
     /**
      * Attaches the device to a rendering surface. This device will then render
      * to the surface.
@@ -70,7 +69,7 @@ public:
 
     virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
     virtual void writePixels(const SkBitmap& bitmap, int x, int y);
-    
+
     virtual void setMatrixClip(const SkMatrix& matrix, const SkRegion& clip);
 
     virtual void drawPaint(const SkDraw&, const SkPaint& paint);
@@ -101,10 +100,10 @@ public:
                               const SkPaint& paint);
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&);
-    
+
     virtual void flush() { fContext->flush(false); }
-    
-    /** 
+
+    /**
      * Make's this device's rendertarget current in the underlying 3D API.
      * Also implicitly flushes.
      */
@@ -145,14 +144,14 @@ private:
     GrRenderTarget* fRenderTarget;
     bool            fNeedClear;
     bool            fNeedPrepareRenderTarget;
-    
+
     SkDrawProcs* initDrawForText(const SkPaint&, GrTextContext*);
     bool bindDeviceAsTexture(SkPoint* max);
 
     void prepareRenderTarget(const SkDraw&);
     void internalDrawBitmap(const SkDraw&, const SkBitmap&,
                             const SkIRect&, const SkMatrix&, const SkPaint&);
-        
+
     class AutoPaintShader {
     public:
         AutoPaintShader();

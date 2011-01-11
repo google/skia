@@ -19,10 +19,15 @@
 
 #include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
+#include "SkGpuDeviceFactory.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuCanvas::SkGpuCanvas(GrContext* context) {
+static SkDeviceFactory* make_df(GrContext* context) {
+    return SkNEW_ARGS(SkGpuDeviceFactory, (context));
+}
+
+SkGpuCanvas::SkGpuCanvas(GrContext* context) : SkCanvas(make_df(context)) {
     SkASSERT(context);
     fContext = context;
     fContext->ref();
@@ -48,13 +53,4 @@ bool SkGpuCanvas::getViewport(SkIPoint* size) const {
     }
     return true;
 }
-
-SkDevice* SkGpuCanvas::createDevice(SkBitmap::Config config, int width, int height,
-                                    bool isOpaque, bool isLayer) {
-    SkBitmap bm;
-    bm.setConfig(config, width, height);
-    bm.setIsOpaque(isOpaque);
-    return new SkGpuDevice(this, bm, isLayer);
-}
-
 
