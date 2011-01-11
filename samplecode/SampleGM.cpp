@@ -15,6 +15,10 @@ public:
         fReg = GMRegistry::Head();
     }
 	
+    void reset() {
+        fReg = GMRegistry::Head();
+    }
+        
     GM* next() {
         if (fReg) {
             GMRegistry::Factory fact = fReg->factory();
@@ -46,6 +50,7 @@ class GMView : public SkView {
 public:
 	GMView() {
         fGM = fIter.next();
+        this->postNextGM();
     }
     
 protected:
@@ -58,6 +63,20 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
+    virtual bool onEvent(const SkEvent& evt) {
+        if (evt.isType("next-gm")) {
+            delete fGM;
+            if (!(fGM = fIter.next())) {
+                fIter.reset();
+                fGM = fIter.next();
+            }
+            this->inval(NULL);
+            this->postNextGM();
+            return true;
+        }
+        return this->INHERITED::onEvent(evt);
+    }
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
     }
@@ -67,6 +86,10 @@ protected:
     }
     
 private:
+    void postNextGM() {
+        (new SkEvent("next-gm"))->post(this->getSinkID(), 1500);
+    }
+
     typedef SkView INHERITED;
 };
 
