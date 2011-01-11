@@ -560,6 +560,7 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
 SkDeviceFactory* SkCanvas::setDeviceFactory(SkDeviceFactory* factory) {
     SkDELETE(fDeviceFactory);
     fDeviceFactory = factory;
+    return factory;
 }
 
 //////////////////////////////////////////////////////////////////////////////
