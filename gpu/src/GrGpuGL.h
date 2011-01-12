@@ -180,6 +180,16 @@ void gl_version(int* major, int* minor);
     #define SK_GL_HAS_COLOR4UB
 #endif
 
+/*
+ *  Some drivers want the var-int arg to be zero-initialized on input.
+ */
+#define GR_GL_INIT_ZERO     0
+#define GR_GL_GetIntegerv(e, p)     \
+    do {                            \
+        *(p) = GR_GL_INIT_ZERO;     \
+        GR_GL(GetIntegerv(e, p));   \
+    } while (0)
+
 #endif
 
 

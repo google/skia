@@ -79,7 +79,7 @@ static const char* gvshad[] = {
 
      // 2: kText_Program
     "attribute vec2 aPosition;\n"
-    "attribute vec2 aTexture;\n"    
+    "attribute vec2 aTexture;\n"
     "varying vec2 vTexture;\n"
     DECL_MATRIX(viewM)
 #if ATTRIBUTE_TEXT_COLOR
@@ -133,8 +133,8 @@ static const char* gvshad[] = {
     "}\n",
 
     // 6: kTwoPointRadialTextureVertCoords_Program
-    "uniform " GR_PRECISION " float uParams[6];\n" 
-        // 0 is t^2 term of quadratic 
+    "uniform " GR_PRECISION " float uParams[6];\n"
+        // 0 is t^2 term of quadratic
         // 1 is one-half the inverse of above
         // 2 is x offset of the second circle (post tex-matrix)
         // 3 is the radius of the first circle (post tex-matrix)
@@ -156,7 +156,7 @@ static const char* gvshad[] = {
     "}\n",
 
     // 6: kTwoPointRadialTextureVertCoords_Program
-    "uniform " GR_PRECISION " float uParams[6];\n" 
+    "uniform " GR_PRECISION " float uParams[6];\n"
     DECL_MATRIX(viewM)
     DECL_MATRIX(texM)
     "attribute vec2 aPosition;\n"
@@ -197,7 +197,7 @@ static const char* gfshad[] = {
 #else
     "   gl_FragColor = vColor * texture2DProj(sTexture, vTexture);\n"
 #endif
-    
+
     "}\n",
 
     // 2: kText_Program
@@ -251,14 +251,14 @@ static const char* gfshad[] = {
     "                 0.5);\n"
     "   gl_FragColor = vColor * texture2D(sTexture, t);\n"
     "}\n",
-    
+
     // 7: kTwoPointRadialTextureVertCoords_Program, kTwoPointRadialTextureTexCoords_Program
     GR_SHADER_PRECISION
     "varying vec4 vColor;\n"
     "varying float vB;\n"             // t coeffecient of quadratic.
     "varying vec2 t;\n"               // coordinates in canonical radial gradient space
     "uniform sampler2D sTexture;\n"
-    "uniform float uParams[6];\n" 
+    "uniform float uParams[6];\n"
     "void main() {\n"
         "float c = t.x*t.x + t.y*t.y - uParams[4];\n"
         "float ac4 = uParams[0] * c * 4.0;\n"
@@ -276,16 +276,16 @@ static const struct {
     bool fHasTexMatrix;
     bool fHasTexCoords;
     bool fTwoPointRadial;
-    GrGpuGLShaders::ColorType fColorType;    
+    GrGpuGLShaders::ColorType fColorType;
 } gProgramLoadData[] = {
     // kTextureVertCoords_Program
-    {0, 0, true,  false, false, GrGpuGLShaders::kAttrib_ColorType }, 
+    {0, 0, true,  false, false, GrGpuGLShaders::kAttrib_ColorType },
     // kTextureVertCoordsProj_Program
-    {0, 1, true,  false, false, GrGpuGLShaders::kAttrib_ColorType }, 
+    {0, 1, true,  false, false, GrGpuGLShaders::kAttrib_ColorType },
     // kTextureTexCoords_Program
-    {1, 0, true,  true,  false, GrGpuGLShaders::kAttrib_ColorType }, 
+    {1, 0, true,  true,  false, GrGpuGLShaders::kAttrib_ColorType },
     // kTextureTexCoordsProj_Program
-    {1, 1, true,  true,  false, GrGpuGLShaders::kAttrib_ColorType }, 
+    {1, 1, true,  true,  false, GrGpuGLShaders::kAttrib_ColorType },
     // kTextureVertCoordsNoColor_Program
     {4, 4, true,  false, false, GrGpuGLShaders::kNone_ColorType },
     // kTextureTexCoordsNoColor_Program
@@ -297,11 +297,11 @@ static const struct {
     {2, 2, false, true,  false, GrGpuGLShaders::kUniform_ColorType },
 #endif
     // kRadialTextureVertCoords_Program
-    {0, 5, true,  false, false, GrGpuGLShaders::kAttrib_ColorType }, 
+    {0, 5, true,  false, false, GrGpuGLShaders::kAttrib_ColorType },
     // kRadialTextureTexCoords_Program
     {1, 5, true,  true,  false, GrGpuGLShaders::kAttrib_ColorType },
     // kSweepTextureVertCoords_Program
-    {0, 6, true,  false, false, GrGpuGLShaders::kAttrib_ColorType }, 
+    {0, 6, true,  false, false, GrGpuGLShaders::kAttrib_ColorType },
     // kSweepTextureTexCoords_Program
     {1, 6, true,  true,  false, GrGpuGLShaders::kAttrib_ColorType },
     // kTwoPointRadialTextureVertCoords_Program
@@ -326,16 +326,17 @@ GLuint GrGpuGLShaders::loadShader(GLenum type, const char* src) {
         return 0;
     }
 
-    GLint compiled;
     GR_GL(ShaderSource(shader, 1, &src, NULL));
     GR_GL(CompileShader(shader));
+
+    GLint compiled = GR_GL_INIT_ZERO;
     GR_GL(GetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
 
     if (!compiled) {
-        GLint infoLen;
+        GLint infoLen = GR_GL_INIT_ZERO;
         GR_GL(GetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen));
         GrAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
-        if (infoLen > 0) {            
+        if (infoLen > 0) {
             GR_GL(GetShaderInfoLog(shader, infoLen+1, NULL, (char*)log.get()));
             GrPrintf((char*)log.get());
         }
@@ -357,22 +358,22 @@ bool GrGpuGLShaders::createProgram(GLuint vshader, GLuint fshader,
     program->fFShaderID = fshader;
 
     GrAssert(0 != program->fProgramID);
-    
+
     GR_GL(AttachShader(program->fProgramID, vshader));
     GR_GL(AttachShader(program->fProgramID, fshader));
 
-    GR_GL(BindAttribLocation(program->fProgramID, 
-                             GR_GL_POS_ATTR_LOCATION, 
+    GR_GL(BindAttribLocation(program->fProgramID,
+                             GR_GL_POS_ATTR_LOCATION,
                              "aPosition"));
     if (hasTexCoords) {
-        GR_GL(BindAttribLocation(program->fProgramID, 
-                                 GR_GL_TEX_ATTR_LOCATION, 
+        GR_GL(BindAttribLocation(program->fProgramID,
+                                 GR_GL_TEX_ATTR_LOCATION,
                                  "aTexture"));
     }
 #if ATTRIBUTE_MATRIX
     if (hasTexMatrix) {
-        GR_GL(BindAttribLocation(program->fProgramID, 
-                                 GR_GL_TEXMAT_ATTR_LOCATION, 
+        GR_GL(BindAttribLocation(program->fProgramID,
+                                 GR_GL_TEXMAT_ATTR_LOCATION,
                                  "texM"));
         // set to something arbitrary to signal to flush that program
         // uses the texture matrix.
@@ -380,28 +381,28 @@ bool GrGpuGLShaders::createProgram(GLuint vshader, GLuint fshader,
     }
 #endif
     if (colorType == kAttrib_ColorType) {
-        GR_GL(BindAttribLocation(program->fProgramID, 
-                                 GR_GL_COL_ATTR_LOCATION, 
+        GR_GL(BindAttribLocation(program->fProgramID,
+                                 GR_GL_COL_ATTR_LOCATION,
                                  "aColor"));
     }
 #if ATTRIBUTE_MATRIX
     GR_GL(BindAttribLocation(program->fProgramID,
-                             GR_GL_MAT_ATTR_LOCATION, 
+                             GR_GL_MAT_ATTR_LOCATION,
                              "viewM"));
 #endif
 
     GR_GL(LinkProgram(program->fProgramID));
 
-    GLint linked;
+    GLint linked = GR_GL_INIT_ZERO;
     GR_GL(GetProgramiv(program->fProgramID, GL_LINK_STATUS, &linked));
     if (!linked) {
-        GLint infoLen;
+        GLint infoLen = GR_GL_INIT_ZERO;
         GR_GL(GetProgramiv(program->fProgramID, GL_INFO_LOG_LENGTH, &infoLen));
         GrAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
-        if (infoLen > 0) {            
+        if (infoLen > 0) {
             GR_GL(GetProgramInfoLog(program->fProgramID,
-                                    infoLen+1, 
-                                    NULL, 
+                                    infoLen+1,
+                                    NULL,
                                     (char*)log.get()));
             GrPrintf((char*)log.get());
         }
@@ -415,18 +416,18 @@ bool GrGpuGLShaders::createProgram(GLuint vshader, GLuint fshader,
 #if !ATTRIBUTE_MATRIX
     program->fMatrixLocation =
         GR_GL(GetUniformLocation(program->fProgramID, "viewM"));
-    program->fTexMatrixLocation = 
+    program->fTexMatrixLocation =
         GR_GL(GetUniformLocation(program->fProgramID, "texM"));
 #endif
-    program->fColorLocation = 
+    program->fColorLocation =
         GR_GL(GetUniformLocation(program->fProgramID, "uColor"));
-    program->fTwoPointParamsLocation = 
+    program->fTwoPointParamsLocation =
         GR_GL(GetUniformLocation(program->fProgramID, "uParams"));
-    
-    GLint samplerLocation = 
+
+    GLint samplerLocation =
                 GR_GL(GetUniformLocation(program->fProgramID, "sTexture"));
 
-#if !ATTRIBUTE_MATRIX   
+#if !ATTRIBUTE_MATRIX
     if (-1 == program->fMatrixLocation)    {
         GrAssert(!"Cannot find matrix uniform in program");
         GR_GL(DeleteProgram(program->fProgramID));
@@ -456,16 +457,16 @@ bool GrGpuGLShaders::createProgram(GLuint vshader, GLuint fshader,
     }
 #endif
 
-    if (-1 == program->fColorLocation && 
+    if (-1 == program->fColorLocation &&
         (kUniform_ColorType == colorType)) {
         GR_GL(DeleteProgram(program->fProgramID));
         program->fProgramID = 0;
         return false;
-    } else if (-1 != program->fColorLocation && 
+    } else if (-1 != program->fColorLocation &&
         (kUniform_ColorType != colorType)) {
         GrAssert(!"Unexpectedly found color uniform");
     }
-    
+
     if (twoPointRadial) {
         if (-1 == program->fTwoPointParamsLocation) {
             GrAssert(!"Didn't find expected uniform for 2pt radial gradient");
@@ -476,19 +477,19 @@ bool GrGpuGLShaders::createProgram(GLuint vshader, GLuint fshader,
     } else {
         GrAssert(-1 == program->fTwoPointParamsLocation);
     }
-    
+
     GR_GL(UseProgram(program->fProgramID));
     if (-1 != samplerLocation) {
         GR_GL(Uniform1i(samplerLocation, 0));
     }
-    
+
     return true;
 }
 
 GrGpuGLShaders::GrGpuGLShaders() {
-    
+
     resetContextHelper();
-    
+
     GLuint vshadIDs[GR_ARRAY_COUNT(gvshad)];
     for (size_t s = 0; s < GR_ARRAY_COUNT(gvshad); ++s) {
         vshadIDs[s] = loadShader(GL_VERTEX_SHADER, gvshad[s]);
@@ -502,7 +503,7 @@ GrGpuGLShaders::GrGpuGLShaders() {
     GR_STATIC_ASSERT(kProgramCount == GR_ARRAY_COUNT(gProgramLoadData));
     for (int p = 0; p < kProgramCount; ++p) {
         GR_DEBUGCODE(bool result = )
-        createProgram(vshadIDs[gProgramLoadData[p].fVShaderIdx], 
+        createProgram(vshadIDs[gProgramLoadData[p].fVShaderIdx],
                       fshadIDs[gProgramLoadData[p].fFShaderIdx],
                       gProgramLoadData[p].fHasTexMatrix,
                       gProgramLoadData[p].fHasTexCoords,
@@ -510,14 +511,14 @@ GrGpuGLShaders::GrGpuGLShaders() {
                       gProgramLoadData[p].fTwoPointRadial,
                       &fPrograms[p]);
         GR_DEBUGASSERT(result);
-        
+
         for (int m = 0; m < kMatrixModeCount; ++m) {
-            fPrograms[p].fMatrixModeCache[m].setScale(GR_ScalarMax, 
+            fPrograms[p].fMatrixModeCache[m].setScale(GR_ScalarMax,
                                                       GR_ScalarMax); // illegal
         };
         fPrograms[p].fColor = GrColor_ILLEGAL;
         fPrograms[p].fTextureOrientation = (GrGLTexture::Orientation)-1; // illegal
-        
+
         // these aren't strictly invalid, just really unlikely.
         fPrograms[p].fRadial2CenterX1 = GR_ScalarMin;
         fPrograms[p].fRadial2Radius0  = GR_ScalarMin;
@@ -526,7 +527,7 @@ GrGpuGLShaders::GrGpuGLShaders() {
 }
 
 GrGpuGLShaders::~GrGpuGLShaders() {
-    // shaders get deleted once for each program that uses them, do we care? 
+    // shaders get deleted once for each program that uses them, do we care?
     // probably not
     for (int i = 0; i < kProgramCount; ++i) {
         GR_GL(DeleteProgram(fPrograms[i].fProgramID));
@@ -559,8 +560,8 @@ void GrGpuGLShaders::flushMatrix(GLint location) {
         0,-GrIntToScalar(2) / fCurrDrawState.fRenderTarget->height(), GR_Scalar1,
         0, 0, GrMatrix::I()[8]);
     m.setConcat(m, fCurrDrawState.fMatrixModeCache[kModelView_MatrixMode]);
-    
-    // ES doesn't allow you to pass true to the transpose param, 
+
+    // ES doesn't allow you to pass true to the transpose param,
     // so do our own transpose
     GrScalar mt[]  = {
         m[GrMatrix::kScaleX],
@@ -577,12 +578,12 @@ void GrGpuGLShaders::flushMatrix(GLint location) {
     glVertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+0, mt+0);
     glVertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+1, mt+3);
     glVertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+2, mt+6);
-#else 
+#else
     GR_GL(UniformMatrix3fv(location,1,false,mt));
 #endif
 }
 
-void GrGpuGLShaders::flushTexMatrix(GLint location, 
+void GrGpuGLShaders::flushTexMatrix(GLint location,
                                     GrGLTexture::Orientation orientation) {
     GrMatrix* m;
     GrMatrix temp;
@@ -616,9 +617,9 @@ void GrGpuGLShaders::flushTexMatrix(GLint location,
     glVertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+0, mt+0);
     glVertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+1, mt+3);
     glVertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+2, mt+6);
-#else 
+#else
     GR_GL(UniformMatrix3fv(location,1,false,mt));
-#endif 
+#endif
 }
 
 void GrGpuGLShaders::flushTwoPointRadial(GLint paramsLocation,
@@ -675,10 +676,10 @@ void GrGpuGLShaders::flushProgram(PrimitiveType type) {
             }
             break;
         case GrSamplerState::kAlphaMod_SampleMode:
-            GrAssert(((GrGLTexture*)fCurrDrawState.fTexture)->orientation() == 
+            GrAssert(((GrGLTexture*)fCurrDrawState.fTexture)->orientation() ==
                      GrGLTexture::kTopDown_Orientation);
             (((GrGLTexture*)fCurrDrawState.fTexture)->uploadFormat() == GL_ALPHA);
-            
+
             nextProgram = kText_Program;
             break;
         case GrSamplerState::kNormal_SampleMode: {
@@ -688,10 +689,10 @@ void GrGpuGLShaders::flushProgram(PrimitiveType type) {
             bool persp = fCurrDrawState.fMatrixModeCache[kTexture_MatrixMode].hasPerspective();
 
             if (fGeometrySrc.fVertexLayout & kPositionAsTexCoord_VertexLayoutBit) {
-                nextProgram = persp ? kTextureVertCoordsProj_Program : 
+                nextProgram = persp ? kTextureVertCoordsProj_Program :
                                       kTextureVertCoords_Program;
             } else {
-                nextProgram = persp ? kTextureTexCoordsProj_Program : 
+                nextProgram = persp ? kTextureTexCoordsProj_Program :
                                       kTextureTexCoords_Program;
             }
             // check for case when frag shader can skip the color modulation
@@ -727,7 +728,7 @@ HAVE_NEXT_PROGRAM:
 }
 
 bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
-    
+
     flushGLStateCommon(type);
 
     if (fRenderTargetChanged) {
@@ -740,18 +741,18 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
         // we assume all shader matrices may be wrong after viewport changes
         for (int p = 0; p < kProgramCount; ++p) {
             // set to illegal matrix
-            fPrograms[p].fMatrixModeCache[kModelView_MatrixMode].setScale(GR_ScalarMax, 
-                                                                          GR_ScalarMax); 
+            fPrograms[p].fMatrixModeCache[kModelView_MatrixMode].setScale(GR_ScalarMax,
+                                                                          GR_ScalarMax);
         }
 #endif
         fRenderTargetChanged = false;
     }
-    
+
     flushProgram(type);
 
     if (fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit) {
         // invalidate the immediate mode color
-        fHWDrawState.fColor = GrColor_ILLEGAL;    
+        fHWDrawState.fColor = GrColor_ILLEGAL;
     } else {
         // if we don't have per-vert colors either set the color attr
         // or color uniform (depending on which program).
@@ -767,7 +768,7 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
                 GR_GL(Uniform4fv(fPrograms[fHWProgram].fColorLocation, 1, c));
                 fPrograms[fHWProgram].fColor = fCurrDrawState.fColor;
             }
-        } else if (kAttrib_ColorType == fPrograms[fHWProgram].fColorType && 
+        } else if (kAttrib_ColorType == fPrograms[fHWProgram].fColorType &&
                    fHWDrawState.fColor != fCurrDrawState.fColor) {
             // OpenGL ES only supports the float varities of glVertexAttrib
             float c[] = {
@@ -783,17 +784,17 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
 
 #if ATTRIBUTE_MATRIX
     GrMatrix* currentMats = fHWDrawState.fMatrixModeCache;
-    GrGLTexture::Orientation& orientation = fTextureOrientation; 
+    GrGLTexture::Orientation& orientation = fTextureOrientation;
 #else
     GrMatrix* currentMats = fPrograms[fHWProgram].fMatrixModeCache;
-    GrGLTexture::Orientation& orientation = 
+    GrGLTexture::Orientation& orientation =
                                     fPrograms[fHWProgram].fTextureOrientation;
 #endif
 
     if (currentMats[kModelView_MatrixMode] !=
           fCurrDrawState.fMatrixModeCache[kModelView_MatrixMode]) {
         flushMatrix(fPrograms[fHWProgram].fMatrixLocation);
-        currentMats[kModelView_MatrixMode] = 
+        currentMats[kModelView_MatrixMode] =
             fCurrDrawState.fMatrixModeCache[kModelView_MatrixMode];
     }
 
@@ -805,7 +806,7 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
              orientation != texture->orientation())) {
             flushTexMatrix(fPrograms[fHWProgram].fTexMatrixLocation,
                            texture->orientation());
-            currentMats[kTexture_MatrixMode] = 
+            currentMats[kTexture_MatrixMode] =
                         fCurrDrawState.fMatrixModeCache[kTexture_MatrixMode];
             orientation = texture->orientation();
         }
@@ -816,14 +817,14 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
         (fPrograms[fHWProgram].fRadial2CenterX1 != sampler.getRadial2CenterX1() ||
          fPrograms[fHWProgram].fRadial2Radius0  != sampler.getRadial2Radius0()  ||
          fPrograms[fHWProgram].fRadial2PosRoot  != sampler.isRadial2PosRoot())) {
-            
+
         flushTwoPointRadial(fPrograms[fHWProgram].fTwoPointParamsLocation,
                             sampler);
         fPrograms[fHWProgram].fRadial2CenterX1 = sampler.getRadial2CenterX1();
         fPrograms[fHWProgram].fRadial2Radius0 = sampler.getRadial2Radius0();
         fPrograms[fHWProgram].fRadial2PosRoot = sampler.isRadial2PosRoot();
     }
-    
+
     return true;
 }
 
@@ -833,45 +834,45 @@ void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
                                    uint32_t indexCount) {
 
     int newColorOffset, newTexCoordOffset;
-    
+
     GLsizei newStride = VertexSizeAndOffsets(fGeometrySrc.fVertexLayout,
-                                             &newTexCoordOffset, 
+                                             &newTexCoordOffset,
                                              &newColorOffset);
     int oldColorOffset, oldTexCoordOffset;
     GLsizei oldStride = VertexSizeAndOffsets(fHWGeometryState.fVertexLayout,
-                                             &oldTexCoordOffset, 
+                                             &oldTexCoordOffset,
                                              &oldColorOffset);
-    
+
     const GLvoid* posPtr = (GLvoid*)(newStride * startVertex);
-    
+
     if (kBuffer_GeometrySrcType == fGeometrySrc.fVertexSrc) {
         GrAssert(NULL != fGeometrySrc.fVertexBuffer);
         GrAssert(!fGeometrySrc.fVertexBuffer->isLocked());
         if (fHWGeometryState.fVertexBuffer != fGeometrySrc.fVertexBuffer) {
-            GrGLVertexBuffer* buf = 
+            GrGLVertexBuffer* buf =
             (GrGLVertexBuffer*)fGeometrySrc.fVertexBuffer;
             GR_GL(BindBuffer(GL_ARRAY_BUFFER, buf->bufferID()));
             fHWGeometryState.fVertexBuffer = fGeometrySrc.fVertexBuffer;
         }
-    } else { 
+    } else {
         if (kArray_GeometrySrcType == fGeometrySrc.fVertexSrc) {
-            posPtr = (void*)((intptr_t)fGeometrySrc.fVertexArray + 
+            posPtr = (void*)((intptr_t)fGeometrySrc.fVertexArray +
                              (intptr_t)posPtr);
         } else {
             GrAssert(kReserved_GeometrySrcType == fGeometrySrc.fVertexSrc);
-            posPtr = (void*)((intptr_t)fVertices.get() + (intptr_t)posPtr);            
+            posPtr = (void*)((intptr_t)fVertices.get() + (intptr_t)posPtr);
         }
         if (NULL != fHWGeometryState.fVertexBuffer) {
             GR_GL(BindBuffer(GL_ARRAY_BUFFER, 0));
             fHWGeometryState.fVertexBuffer = NULL;
         }
     }
-    
+
     if (kBuffer_GeometrySrcType == fGeometrySrc.fIndexSrc) {
         GrAssert(NULL != fGeometrySrc.fIndexBuffer);
         GrAssert(!fGeometrySrc.fIndexBuffer->isLocked());
         if (fHWGeometryState.fIndexBuffer != fGeometrySrc.fIndexBuffer) {
-            GrGLIndexBuffer* buf = 
+            GrGLIndexBuffer* buf =
             (GrGLIndexBuffer*)fGeometrySrc.fIndexBuffer;
             GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf->bufferID()));
             fHWGeometryState.fIndexBuffer = fGeometrySrc.fIndexBuffer;
@@ -880,7 +881,7 @@ void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
         GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         fHWGeometryState.fIndexBuffer = NULL;
     }
-    
+
     GLenum scalarType;
     bool texCoordNorm;
     if (fGeometrySrc.fVertexLayout & kTextFormat_VertexLayoutBit) {
@@ -890,21 +891,21 @@ void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
         scalarType = GrGLType;
         texCoordNorm = false;
     }
-    
+
     bool baseChange = posPtr != fHWGeometryState.fPositionPtr;
     bool scalarChange = (GrGLTextType != GrGLType) &&
-                        (kTextFormat_VertexLayoutBit & 
-                         (fHWGeometryState.fVertexLayout ^ 
+                        (kTextFormat_VertexLayoutBit &
+                         (fHWGeometryState.fVertexLayout ^
                           fGeometrySrc.fVertexLayout));
     bool strideChange = newStride != oldStride;
     bool posChange = baseChange || scalarChange || strideChange;
-    
+
     if (posChange) {
         GR_GL(VertexAttribPointer(GR_GL_POS_ATTR_LOCATION, 2, scalarType,
                                   false, newStride, posPtr));
         fHWGeometryState.fPositionPtr = posPtr;
     }
-    
+
     if (newTexCoordOffset > 0) {
         GLvoid* texCoordPtr = (int8_t*)posPtr + newTexCoordOffset;
         if (oldTexCoordOffset <= 0) {
@@ -917,21 +918,21 @@ void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
     } else if (oldTexCoordOffset > 0) {
         GR_GL(DisableVertexAttribArray(GR_GL_TEX_ATTR_LOCATION));
     }
-    
+
     if (newColorOffset > 0) {
         GLvoid* colorPtr = (int8_t*)posPtr + newColorOffset;
         if (oldColorOffset <= 0) {
             GR_GL(EnableVertexAttribArray(GR_GL_COL_ATTR_LOCATION));
         }
         if (posChange || newColorOffset != oldColorOffset) {
-            GR_GL(VertexAttribPointer(GR_GL_COL_ATTR_LOCATION, 4, 
+            GR_GL(VertexAttribPointer(GR_GL_COL_ATTR_LOCATION, 4,
                                       GL_UNSIGNED_BYTE,
                                       true, newStride, colorPtr));
         }
     } else if (oldColorOffset > 0) {
         GR_GL(DisableVertexAttribArray(GR_GL_COL_ATTR_LOCATION));
     }
-    
+
     fHWGeometryState.fVertexLayout = fGeometrySrc.fVertexLayout;
 }
 #endif
