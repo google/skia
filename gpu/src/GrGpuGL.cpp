@@ -137,12 +137,12 @@ GrGpuGL::GrGpuGL() {
     resetContextHelper();
 
     GrGLRenderTarget::GLRenderTargetIDs defaultRTIDs;
-    GR_GL(GetIntegerv(GR_FRAMEBUFFER_BINDING, (GLint*)&defaultRTIDs.fRTFBOID));
+    GR_GL_GetIntegerv(GR_FRAMEBUFFER_BINDING, (GLint*)&defaultRTIDs.fRTFBOID);
     defaultRTIDs.fTexFBOID = defaultRTIDs.fRTFBOID;
     defaultRTIDs.fMSColorRenderbufferID = 0;
     defaultRTIDs.fStencilRenderbufferID = 0;
     GLint vp[4];
-    GR_GL(GetIntegerv(GL_VIEWPORT, vp));
+    GR_GL_GetIntegerv(GL_VIEWPORT, vp);
     fHWBounds.fViewportRect.setLTRB(vp[0],
                                     vp[1] + vp[3],
                                     vp[0] + vp[2],
@@ -165,9 +165,9 @@ GrGpuGL::GrGpuGL() {
     gl_version(&major, &minor);
 
     GLint numFormats;
-    GR_GL(GetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats));
+    GR_GL_GetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
     GrAutoSTMalloc<10, GLint> formats(numFormats);
-    GR_GL(GetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats));
+    GR_GL_GetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
     for (int i = 0; i < numFormats; ++i) {
         if (formats[i] == GR_PALETTE8_RGBA8) {
             f8bitPaletteSupport = true;
@@ -220,7 +220,7 @@ GrGpuGL::GrGpuGL() {
         GLenum maxSampleGetter = (kIMG_MSFBO == fMSFBOType) ?
                                                             GR_MAX_SAMPLES_IMG :
                                                             GR_MAX_SAMPLES;
-        GR_GL(GetIntegerv(maxSampleGetter, &maxSamples));
+        GR_GL_GetIntegerv(maxSampleGetter, &maxSamples);
         if (maxSamples > 1 ) {
             fAASamples[kNone_AALevel] = 0;
             fAASamples[kLow_AALevel] = GrMax(2,
@@ -311,7 +311,7 @@ GrGpuGL::GrGpuGL() {
             }
         }
     }
-    
+
     /* Experimentation has found that some GLs that support NPOT textures
        do not support FBOs with a NPOT texture. They report "unsupported" FBO
        status. I don't know how to explicitly query for this. Do an
@@ -356,7 +356,7 @@ GrGpuGL::GrGpuGL() {
      */
     fMinRenderTargetHeight = GR_INVAL_GLINT;
     GLint maxRenderSize;
-    glGetIntegerv(GR_MAX_RENDERBUFFER_SIZE, &maxRenderSize);
+    GR_GL_GetIntegerv(GR_MAX_RENDERBUFFER_SIZE, &maxRenderSize);
 
     if (gPrintStartupSpew) {
         GrPrintf("Small height FBO texture experiments\n");
@@ -1072,7 +1072,7 @@ void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
 
 void GrGpuGL::eraseStencilClip() {
     GLint stencilBitCount;
-    GR_GL(GetIntegerv(GL_STENCIL_BITS, &stencilBitCount));
+    GR_GL_GetIntegerv(GL_STENCIL_BITS, &stencilBitCount);
     GrAssert(stencilBitCount > 0);
     GLint clipStencilMask  = (1 << (stencilBitCount - 1));
     eraseStencil(0, clipStencilMask);
@@ -1243,7 +1243,7 @@ void GrGpuGL::flushStencil() {
         GLint stencilBitCount;
         GLint clipStencilMask;
         GLint pathStencilMask;
-        GR_GL(GetIntegerv(GL_STENCIL_BITS, &stencilBitCount));
+        GR_GL_GetIntegerv(GL_STENCIL_BITS, &stencilBitCount);
         GrAssert(stencilBitCount > 0 ||
                  kNone_StencilPass == fCurrDrawState.fStencilPass);
         clipStencilMask  = (1 << (stencilBitCount - 1));
@@ -1513,7 +1513,7 @@ void GrGpuGL::flushGLStateCommon(PrimitiveType type) {
         // calling on non-MSAA target caused a crash in one environment,
         // though I don't think it should.
         if (!fAASamples[kHigh_AALevel]) {
-            GR_GL(GetIntegerv(GL_SAMPLE_BUFFERS, &msaa));
+            GR_GL_GetIntegerv(GL_SAMPLE_BUFFERS, &msaa);
         }
         if (fCurrDrawState.fFlagBits & kAntialias_StateBit) {
             if (msaa) {
