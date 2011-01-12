@@ -316,7 +316,7 @@ bool GrInOrderDrawBuffer::grabState() {
     if (fStates.empty()) {
         newState = true;
     } else {
-        const DrawState& old = accessSavedDrawState(fStates.back());
+        const DrState& old = accessSavedDrawState(fStates.back());
         newState = old != fCurrDrawState;
     }
     if (newState) {

@@ -112,7 +112,7 @@ bool GrGpu::canDisableBlend() const {
 
 static const int MAX_QUADS = 512; // max possible: (1 << 14) - 1;
 
-GR_STATIC_ASSERT(4 * MAX_QUADS <= UINT16_MAX);
+GR_STATIC_ASSERT(4 * MAX_QUADS <= 65535);
 
 static inline void fillIndices(uint16_t* indices, int quadCount) {
     for (int i = 0; i < quadCount; ++i) {
