@@ -53,40 +53,40 @@ public:
         fGroup.appendShape(make_shape1(), m)->unref();
         m.postTranslate(0, SkIntToScalar(120));
         fGroup.appendShape(make_shape2(), m)->unref();
-        
+
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrixRefs); i++) {
             SkSafeRef(fMatrixRefs[i] = fGroup.getShapeMatrixRef(i));
         }
     }
-    
+
     virtual ~ShapesGM() {
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrixRefs); i++) {
             SkSafeUnref(fMatrixRefs[i]);
         }
     }
-    
+
 protected:
     virtual SkString onShortName() {
         return SkString("shapes");
     }
-    
+
 	virtual SkISize onISize() {
         return make_isize(380, 480);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         SkMatrix saveM = *fMatrixRefs[3];
         SkScalar c = SkIntToScalar(50);
         fMatrixRefs[3]->preRotate(SkIntToScalar(30), c, c);
-        
+
         SkMatrix matrix;
-     
+
         SkGroupShape* gs = new SkGroupShape;
         SkAutoUnref aur(gs);
         gs->appendShape(&fGroup);
@@ -96,24 +96,25 @@ protected:
         matrix.setTranslate(SkIntToScalar(240), 0);
         matrix.preScale(SK_Scalar1*2, SK_Scalar1*2);
         gs->appendShape(&fGroup, matrix);
-        
-#if 0        
+
+#if 0
         canvas->drawShape(gs);
 #else
-        SkPicture pict;
-        SkCanvas* cv = pict.beginRecording(1000, 1000);
+        SkPicture* pict = new SkPicture;
+        SkCanvas* cv = pict->beginRecording(1000, 1000);
         cv->scale(SK_ScalarHalf, SK_ScalarHalf);
         cv->drawShape(gs);
         cv->translate(SkIntToScalar(680), SkIntToScalar(480));
         cv->scale(-SK_Scalar1, SK_Scalar1);
         cv->drawShape(gs);
-        pict.endRecording();
-        canvas->drawPicture(pict);
+        pict->endRecording();
+        canvas->drawPicture(*pict);
+        pict->unref();
 #endif
 
         *fMatrixRefs[3] = saveM;
 }
-    
+
 private:
     typedef GM INHERITED;
 };
