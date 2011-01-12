@@ -131,7 +131,7 @@ protected:
         kMatrixModeCount
     };
 
-    struct DrawState {
+    struct DrState {
         uint32_t                fFlagBits;
         BlendCoeff          	fSrcBlend;
         BlendCoeff          	fDstBlend;
@@ -143,10 +143,10 @@ protected:
         StencilPass             fStencilPass;
         bool                    fReverseFill;
         GrMatrix                fMatrixModeCache[kMatrixModeCount];
-        bool operator ==(const DrawState& s) const {
-            return 0 == memcmp(this, &s, sizeof(DrawState));
+        bool operator ==(const DrState& s) const {
+            return 0 == memcmp(this, &s, sizeof(DrState));
         }
-        bool operator !=(const DrawState& s) const { return !(*this == s); }
+        bool operator !=(const DrState& s) const { return !(*this == s); }
     };
 
 public:
@@ -346,7 +346,7 @@ public:
      */
     struct SavedDrawState {
     private:
-        DrawState fState;
+        DrState fState;
         friend class GrDrawTarget;
     };
 
@@ -664,9 +664,9 @@ protected:
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
     // SavedDrawState but need to peek at the state values.
-    static DrawState& accessSavedDrawState(SavedDrawState& sds)
+    static DrState& accessSavedDrawState(SavedDrawState& sds)
                                                         { return sds.fState; }
-    static const DrawState& accessSavedDrawState(const SavedDrawState& sds)
+    static const DrState& accessSavedDrawState(const SavedDrawState& sds)
                                                         { return sds.fState; }
 
     // implemented by subclass
@@ -706,7 +706,7 @@ protected:
 
     GrClip fClip;
 
-    DrawState fCurrDrawState;
+    DrState fCurrDrawState;
 
     // set texture or modelview matrix
     void loadMatrix(const GrMatrix&, MatrixMode);

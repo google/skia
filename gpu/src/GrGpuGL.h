@@ -70,8 +70,8 @@ protected:
         const GrIndexBuffer*    fIndexBuffer;
     } fHWGeometryState;
 
-    DrawState   fHWDrawState;
-    bool        fHWStencilClip;
+    DrState   fHWDrawState;
+    bool      fHWStencilClip;
 
     virtual void drawIndexedHelper(PrimitiveType type,
                                    uint32_t startVertex,
