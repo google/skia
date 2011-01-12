@@ -93,7 +93,8 @@ void* GrVertexBufferAllocPool::alloc(GrVertexLayout layout,
         GrAssert(fBlocks.back().fVertexBuffer->isLocked());
         BufferBlock& back = fBlocks.back();
         uint32_t usedBytes = back.fVertexBuffer->size() - back.fBytesFree;
-        uint32_t pad = GrUIAlignUpPad(usedBytes, layout);
+        uint32_t pad = GrUIAlignUpPad(usedBytes, 
+                                      GrDrawTarget::VertexSize(layout));
         if ((bytes + pad) <= back.fBytesFree) {
             usedBytes += pad;
             *startVertex = usedBytes / vSize;
