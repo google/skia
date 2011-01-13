@@ -40,15 +40,15 @@ private:
     void resetContextHelper();
 
     // when the texture is GL_RGBA we set the GL_COMBINE texture
-    // environment rgb operand 0 to be GL_COLOR to modulate each incoming frag's
-    // RGB by the texture's RGB. When the texture is GL_ALPHA we set
-    // the operand to GL_ALPHA so that the incoming frag's RGB is modulated
-    // by the texture's alpha.
+    // environment rgb operand 0 to be GL_COLOR to modulate each incoming
+    // R,G, & B by the texture's R, G, & B. When the texture is alpha-only we 
+    // set the operand to GL_ALPHA so that the incoming frag's R, G, &B are all 
+    // modulated by the texture's A.
     enum TextureEnvRGBOperands {
         kAlpha_TextureEnvRGBOperand,
         kColor_TextureEnvRGBOperand,
     };
-    TextureEnvRGBOperands fHWRGBOperand0;
+    TextureEnvRGBOperands fHWRGBOperand0[kNumStages];
 
     void flushProjectionMatrix();
 

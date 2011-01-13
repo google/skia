@@ -24,7 +24,6 @@ class GrSamplerState {
 public:
     enum SampleMode {
         kNormal_SampleMode,     //!< sample color directly
-        kAlphaMod_SampleMode,   //!< modulate with alpha only
         kRadial_SampleMode,     //!< treat as radial gradient
         kRadial2_SampleMode,    //!< treat as 2-point radial gradient
         kSweep_SampleMode,      //!< treat as sweep gradient

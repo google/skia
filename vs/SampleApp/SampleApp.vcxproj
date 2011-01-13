@@ -225,7 +225,6 @@
     <ClCompile Include="..\..\gpu\src\GrMatrix.cpp" />
     <ClCompile Include="..\..\gpu\src\GrMemory.cpp" />
     <ClCompile Include="..\..\gpu\src\GrPath.cpp" />
-    <ClCompile Include="..\..\gpu\src\GrPrintf_printf.cpp" />
     <ClCompile Include="..\..\gpu\src\GrRectanizer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextStrike.cpp" />
@@ -407,6 +406,7 @@
     <ClCompile Include="..\..\src\effects\SkRectShape.cpp" />
     <ClCompile Include="..\..\src\effects\SkTableMaskFilter.cpp" />
     <ClCompile Include="..\..\src\effects\SkTransparentShader.cpp" />
+    <ClCompile Include="..\..\src\gpu\GrPrintf_skia.cpp" />
     <ClCompile Include="..\..\src\gpu\SkGpuCanvas.cpp" />
     <ClCompile Include="..\..\src\gpu\SkGpuDevice.cpp" />
     <ClCompile Include="..\..\src\gpu\SkGr.cpp" />

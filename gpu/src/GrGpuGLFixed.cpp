@@ -72,25 +72,27 @@ void GrGpuGLFixed::resetContext() {
 void GrGpuGLFixed::resetContextHelper() {
     GR_GL(Disable(GL_TEXTURE_2D));
 
-    GR_GL(EnableClientState(GL_VERTEX_ARRAY));    
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB,   GL_MODULATE));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB,      GL_TEXTURE0));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB,      GL_PRIMARY_COLOR));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB,  GL_SRC_COLOR));
+    for (int s = 0; s < kNumStages; ++s) {
+        setTextureUnit(s);
+        GR_GL(EnableClientState(GL_VERTEX_ARRAY));    
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB,   GL_MODULATE));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC0_RGB,      GL_TEXTURE0+s));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC1_RGB,      GL_PREVIOUS));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB,  GL_SRC_COLOR));
 
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE0));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_PRIMARY_COLOR));
-    GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA));
-    
-    // this changes between GL_SRC_COLR and GL_SRC_ALPHA depending upon
-    // whether we have a (premultiplied) RGBA texture or just an ALPHA texture
-    //glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB,  GL_SRC_COLOR);
-    fHWRGBOperand0 = (TextureEnvRGBOperands) -1;    
-
-    GR_GL(ClientActiveTexture(GL_TEXTURE0));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_MODULATE));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC0_ALPHA, GL_TEXTURE0+s));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_SRC1_ALPHA, GL_PREVIOUS));
+        GR_GL(TexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA, GL_SRC_ALPHA));
+        
+        // color oprand0 changes between GL_SRC_COLR and GL_SRC_ALPHA depending 
+        // upon whether we have a (premultiplied) RGBA texture or just an ALPHA 
+        // texture, e.g.:
+        //glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB,  GL_SRC_COLOR);
+        fHWRGBOperand0[s] = (TextureEnvRGBOperands) -1;    
+    }
 
     fHWGeometryState.fVertexLayout = 0;
     fHWGeometryState.fPositionPtr  = (void*) ~0;
@@ -127,11 +129,15 @@ void GrGpuGLFixed::flushProjectionMatrix() {
 
 bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
     
-    bool usingTexture = VertexHasTexCoords(fGeometrySrc.fVertexLayout);
+    bool usingTextures[kNumStages];
+    
+    for (int s = 0; s < kNumStages; ++s) {
+        usingTextures[s] = VertexUsesStage(s, fGeometrySrc.fVertexLayout);
 
-    if (usingTexture && fCurrDrawState.fSamplerState.isGradient()) {
-        unimpl("Fixed pipe doesn't support radial/sweep gradients");
-        return false;
+        if (usingTextures[s] && fCurrDrawState.fSamplerStates[s].isGradient()) {
+            unimpl("Fixed pipe doesn't support radial/sweep gradients");
+            return false;
+        }
     }
     
     flushGLStateCommon(type);
@@ -140,24 +146,25 @@ bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
         flushProjectionMatrix();
         fRenderTargetChanged = false;
     }
-
-    bool wasUsingTexture = VertexHasTexCoords(fHWGeometryState.fVertexLayout);
-    if (usingTexture != wasUsingTexture) {
-        if (usingTexture) {
-            GR_GL(Enable(GL_TEXTURE_2D));
-        } else {
-            GR_GL(Disable(GL_TEXTURE_2D));
+    
+    for (int s = 0; s < kNumStages; ++s) {
+        bool wasUsingTexture = VertexUsesStage(s, fHWGeometryState.fVertexLayout);
+        if (usingTextures[s] != wasUsingTexture) {
+            setTextureUnit(s);
+            if (usingTextures[s]) {
+                GR_GL(Enable(GL_TEXTURE_2D));
+            } else {
+                GR_GL(Disable(GL_TEXTURE_2D));
+            }
         }
     }
-    
+        
     uint32_t vertColor = (fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit);
     uint32_t prevVertColor = (fHWGeometryState.fVertexLayout & 
                               kColor_VertexLayoutBit);
     
     if (vertColor != prevVertColor) {
         if (vertColor) {
-            GrAssert(fCurrDrawState.fSamplerState.getSampleMode() != 
-                     GrSamplerState::kAlphaMod_SampleMode);
             GR_GL(ShadeModel(GL_SMOOTH));
             // invalidate the immediate mode color
             fHWDrawState.fColor = GrColor_ILLEGAL;
@@ -181,57 +188,61 @@ bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
     }
 
     // set texture environment, decide whether we are modulating by RGB or A.
-    if (usingTexture) {
-        GrGLTexture* texture = (GrGLTexture*)fCurrDrawState.fTexture;
-        if (NULL != texture) {
-            TextureEnvRGBOperands nextRGBOperand0 = 
-                (texture->uploadFormat() == GL_ALPHA) ? 
-                    kAlpha_TextureEnvRGBOperand : 
-                    kColor_TextureEnvRGBOperand;
-            if (fHWRGBOperand0 != nextRGBOperand0) {
-                GR_GL(TexEnvi(GL_TEXTURE_ENV, 
-                              GL_OPERAND0_RGB,
-                              (nextRGBOperand0==kAlpha_TextureEnvRGBOperand) ? 
-                                GL_SRC_ALPHA : 
-                                GL_SRC_COLOR));
-                fHWRGBOperand0 = nextRGBOperand0;
-            }
-            
-            if (fHWTextureOrientation != texture->orientation() ||
-                fHWDrawState.fMatrixModeCache[kTexture_MatrixMode] != 
-                fCurrDrawState.fMatrixModeCache[kTexture_MatrixMode]) {
-                GrGpuMatrix glm;
-                if (GrGLTexture::kBottomUp_Orientation == texture->orientation()) {
-                    GrMatrix m(
-                        GR_Scalar1, 0, 0,
-                        0, -GR_Scalar1, GR_Scalar1,
-                        0, 0, GrMatrix::I()[8]
-                    );
-                    m.preConcat(fCurrDrawState.fMatrixModeCache[kTexture_MatrixMode]);
-                    glm.set(m);
-                } else {
-                    glm.set(fCurrDrawState.fMatrixModeCache[kTexture_MatrixMode]);
+    for (int s = 0; s < kNumStages; ++s) {
+        if (usingTextures[s]) {
+            GrGLTexture* texture = (GrGLTexture*)fCurrDrawState.fTextures[s];
+            if (NULL != texture) {
+                TextureEnvRGBOperands nextRGBOperand0 = 
+                    (texture->config() == GrTexture::kAlpha_8_PixelConfig) ? 
+                        kAlpha_TextureEnvRGBOperand : 
+                        kColor_TextureEnvRGBOperand;
+                if (fHWRGBOperand0[s] != nextRGBOperand0) {
+                    setTextureUnit(s);
+                    GR_GL(TexEnvi(GL_TEXTURE_ENV, 
+                                  GL_OPERAND0_RGB,
+                                  (nextRGBOperand0==kAlpha_TextureEnvRGBOperand) ? 
+                                    GL_SRC_ALPHA : 
+                                    GL_SRC_COLOR));
+                    fHWRGBOperand0[s] = nextRGBOperand0;
                 }
-                GR_GL(MatrixMode(gMatrixMode2Enum[kTexture_MatrixMode]));
-                GR_GL(LoadMatrixf(glm.fMat));
-                fHWDrawState.fMatrixModeCache[kTexture_MatrixMode] = 
-                    fCurrDrawState.fMatrixModeCache[kTexture_MatrixMode];
-                fHWTextureOrientation = texture->orientation();
+                
+                if (fHWTextureOrientation != texture->orientation() ||
+                    fHWDrawState.fTextureMatrices[s] != 
+                    fCurrDrawState.fTextureMatrices[s]) {
+                    GrGpuMatrix glm;
+                    if (GrGLTexture::kBottomUp_Orientation == 
+                        texture->orientation()) {
+                        GrMatrix m(
+                            GR_Scalar1, 0, 0,
+                            0, -GR_Scalar1, GR_Scalar1,
+                            0, 0, GrMatrix::I()[8]
+                        );
+                        m.preConcat(fCurrDrawState.fTextureMatrices[s]);
+                        glm.set(m);
+                    } else {
+                        glm.set(fCurrDrawState.fTextureMatrices[s]);
+                    }
+                    setTextureUnit(s);
+                    GR_GL(MatrixMode(GL_TEXTURE));
+                    GR_GL(LoadMatrixf(glm.fMat));
+                    fHWDrawState.fTextureMatrices[s] = 
+                                            fCurrDrawState.fTextureMatrices[s];
+                    fHWTextureOrientation = texture->orientation();
+                }
+            } else {
+                GrAssert(!"Rendering with texture vert flag set but no bound texture");
+                return false;
             }
-        } else {
-            GrAssert(!"Rendering with texture vert flag set but no bound texture");
-            return false;
         }
     }
 
-    if (fHWDrawState.fMatrixModeCache[kModelView_MatrixMode] != 
-        fCurrDrawState.fMatrixModeCache[kModelView_MatrixMode]) {
+    if (fHWDrawState.fViewMatrix != fCurrDrawState.fViewMatrix) {
         GrGpuMatrix glm;
-        glm.set(fCurrDrawState.fMatrixModeCache[kModelView_MatrixMode]);
-        GR_GL(MatrixMode(gMatrixMode2Enum[kModelView_MatrixMode]));
+        glm.set(fCurrDrawState.fViewMatrix);
+        GR_GL(MatrixMode(GL_MODELVIEW));
         GR_GL(LoadMatrixf(glm.fMat));
-        fHWDrawState.fMatrixModeCache[kModelView_MatrixMode] = 
-            fCurrDrawState.fMatrixModeCache[kModelView_MatrixMode];
+        fHWDrawState.fViewMatrix = 
+        fCurrDrawState.fViewMatrix;
     }
     return true;
 }
@@ -241,15 +252,17 @@ void GrGpuGLFixed::setupGeometry(uint32_t startVertex,
                                  uint32_t vertexCount,
                                  uint32_t indexCount) {
     
-    int newColorOffset, newTexCoordOffset;
+    int newColorOffset;
+    int newTexCoordOffsets[kNumStages];
     
-    GLsizei newStride = VertexSizeAndOffsets(fGeometrySrc.fVertexLayout,
-                                             &newTexCoordOffset, 
-                                             &newColorOffset);
-    int oldColorOffset, oldTexCoordOffset;
-    GLsizei oldStride = VertexSizeAndOffsets(fHWGeometryState.fVertexLayout,
-                                             &oldTexCoordOffset, 
-                                             &oldColorOffset);
+    GLsizei newStride = VertexSizeAndOffsetsByStage(fGeometrySrc.fVertexLayout,
+                                                    newTexCoordOffsets, 
+                                                    &newColorOffset);
+    int oldColorOffset;
+    int oldTexCoordOffsets[kNumStages];
+    GLsizei oldStride = VertexSizeAndOffsetsByStage(fHWGeometryState.fVertexLayout,
+                                                    oldTexCoordOffsets, 
+                                                    &oldColorOffset);
     
     const GLvoid* posPtr = (GLvoid*)(newStride * startVertex);
     
@@ -258,7 +271,7 @@ void GrGpuGLFixed::setupGeometry(uint32_t startVertex,
         GrAssert(!fGeometrySrc.fVertexBuffer->isLocked());
         if (fHWGeometryState.fVertexBuffer != fGeometrySrc.fVertexBuffer) {
             GrGLVertexBuffer* buf = 
-            (GrGLVertexBuffer*)fGeometrySrc.fVertexBuffer;
+                            (GrGLVertexBuffer*)fGeometrySrc.fVertexBuffer;
             GR_GL(BindBuffer(GL_ARRAY_BUFFER, buf->bufferID()));
             fHWGeometryState.fVertexBuffer = fGeometrySrc.fVertexBuffer;
         }
@@ -310,17 +323,23 @@ void GrGpuGLFixed::setupGeometry(uint32_t startVertex,
         fHWGeometryState.fPositionPtr = posPtr;
     }
     
-    // need to enable array if tex coord offset is 0 (using positions as coords)
-    if (newTexCoordOffset >= 0) {
-        GLvoid* texCoordPtr = (int8_t*)posPtr + newTexCoordOffset;
-        if (oldTexCoordOffset < 0) {
-            GR_GL(EnableClientState(GL_TEXTURE_COORD_ARRAY));
+    for (int s = 0; s < kNumStages; ++s) {
+        // need to enable array if tex coord offset is 0 
+        // (using positions as coords)
+        if (newTexCoordOffsets[s] >= 0) {
+            GLvoid* texCoordPtr = (int8_t*)posPtr + newTexCoordOffsets[s];
+            if (oldTexCoordOffsets[s] < 0) {
+                GR_GL(ClientActiveTexture(GL_TEXTURE0+s));
+                GR_GL(EnableClientState(GL_TEXTURE_COORD_ARRAY));
+            }
+            if (posChange || newTexCoordOffsets[s] != oldTexCoordOffsets[s]) {
+                GR_GL(ClientActiveTexture(GL_TEXTURE0+s));
+                GR_GL(TexCoordPointer(2, scalarType, newStride, texCoordPtr));
+            }
+        } else if (oldTexCoordOffsets[s] >= 0) {
+            GR_GL(ClientActiveTexture(GL_TEXTURE0+s));
+            GR_GL(DisableClientState(GL_TEXTURE_COORD_ARRAY));
         }
-        if (posChange || newTexCoordOffset != oldTexCoordOffset) {
-            GR_GL(TexCoordPointer(2, scalarType, newStride, texCoordPtr));
-        }
-    } else if (oldTexCoordOffset >= 0) {
-        GR_GL(DisableClientState(GL_TEXTURE_COORD_ARRAY));
     }
     
     if (newColorOffset > 0) {

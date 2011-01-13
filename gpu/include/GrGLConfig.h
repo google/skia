@@ -90,6 +90,8 @@
     #endif
 #endif
 
+#define GR_SUPPORT_GLES (GR_SUPPORT_GLES1 || GR_SUPPORT_GLES2)
+
 #ifndef GR_SUPPORT_GLDESKTOP
     #if defined(GR_INCLUDE_GLDESKTOP)
         #define GR_SUPPORT_GLDESKTOP    1
@@ -154,20 +156,6 @@
 
 //
 // End including GL headers
-
-#if GL_VERSION_1_1
-    #define GR_GL_DESKTOP   1
-    #define GR_GL_ES        0
-#else
-    #ifndef GL_ES_VERSION_2_0
-        GR_STATIC_ASSERT(GL_VERSION_ES_CM_1_0 || 
-                         GL_VERSION_ES_CL_1_0 || 
-                         GL_VERSION_ES_CM_1_1 ||
-                         GL_VERSION_ES_CL_1_1);
-    #endif
-    #define GR_GL_DESKTOP   0
-    #define GR_GL_ES        1
-#endif
 
 #if GR_SCALAR_IS_FIXED
     #define GrGLType   GL_FIXED

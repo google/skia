@@ -156,9 +156,11 @@ void GrInOrderDrawBuffer::reset() {
     GrAssert(!fReservedGeometry.fLocked);
     uint32_t numStates = fStates.count();
     for (uint32_t i = 0; i < numStates; ++i) {
-        GrTexture* tex = accessSavedDrawState(fStates[i]).fTexture;
-        if (NULL != tex) {
-            tex->unref();
+        for (int s = 0; s < kNumStages; ++s) {
+            GrTexture* tex = accessSavedDrawState(fStates[i]).fTextures[s];
+            if (NULL != tex) {
+                tex->unref();
+            }
         }
     }
     fDraws.reset();
@@ -320,8 +322,10 @@ bool GrInOrderDrawBuffer::grabState() {
         newState = old != fCurrDrawState;
     }
     if (newState) {
-        if (NULL != fCurrDrawState.fTexture) {
-            fCurrDrawState.fTexture->ref();
+        for (int s = 0; s < kNumStages; ++s) {
+            if (NULL != fCurrDrawState.fTextures[s]) {
+                fCurrDrawState.fTextures[s]->ref();
+            }
         }
         saveCurrentDrawState(&fStates.push_back());
     }

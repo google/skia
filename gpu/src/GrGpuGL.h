@@ -87,6 +87,8 @@ protected:
 
     void eraseStencil(uint32_t value, uint32_t mask);
     virtual void eraseStencilClip();
+    
+    void setTextureUnit(int unitIdx);
 
     // flushes state that is common to fixed and programmable GL
     // dither
@@ -109,9 +111,9 @@ protected:
     // last scissor / viewport scissor state seen by the GL.
     BoundsState fHWBounds;
 
-private:
     GrGLExts fExts;
 
+private:
     GrGLRenderTarget* fDefaultRenderTarget;
 
     void resetContextHelper();
@@ -122,10 +124,11 @@ private:
     void notifyVertexBufferDelete(const GrGLVertexBuffer* buffer);
     void notifyIndexBufferBind(const GrGLIndexBuffer* buffer);
     void notifyIndexBufferDelete(const GrGLIndexBuffer* buffer);
-    void notifyTextureBind(GrGLTexture* texture);
     void notifyTextureDelete(GrGLTexture* texture);
     void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
     void notifyTextureRemoveRenderTarget(GrGLTexture* texture);
+    
+    void setSpareTextureUnit();
 
     void flushRenderTarget();
     void flushStencil();
@@ -157,7 +160,9 @@ private:
 
     // ES requires an extension to support RGBA8 in RenderBufferStorage
     bool fRGBA8Renderbuffer;
-
+    
+    int fActiveTextureUnitIdx;
+    
     typedef GrGpu INHERITED;
 };
 
@@ -168,7 +173,7 @@ void gl_version(int* major, int* minor);
  *  GrGL_RestoreResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
  *  this wrapper, since GL_UNPACK_ROW_LENGTH is not available on all GL versions
  */
-#if GR_GL_DESKTOP
+#if GR_SUPPORT_GLDESKTOP
     static inline void GrGL_RestoreResetRowLength() {
         GR_GL(PixelStorei(GL_UNPACK_ROW_LENGTH, 0));
     }

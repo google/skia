@@ -129,9 +129,9 @@ public:
     void setDefaultRenderTargetSize(uint32_t width, uint32_t height);
     GrRenderTarget* defaultRenderTarget() { return fGpu->defaultRenderTarget(); }
 
-    void setTexture(GrTexture* texture);
-    void setSamplerState(const GrSamplerState&);
-    void setTextureMatrix(const GrMatrix& m);
+    void setTexture(int stage, GrTexture* texture);
+    void setSamplerState(int stage, const GrSamplerState&);
+    void setTextureMatrix(int stage, const GrMatrix& m);
 
     void setAntiAlias(bool);
     void setDither(bool);

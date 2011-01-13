@@ -92,20 +92,32 @@ bool GrGpu::canDisableBlend() const {
     }
 
     // If the src coef will always be 1...
-    bool fullSrc = kSA_BlendCoeff == fCurrDrawState.fSrcBlend ||
-                   kOne_BlendCoeff == fCurrDrawState.fSrcBlend;
+    if (kSA_BlendCoeff != fCurrDrawState.fSrcBlend &&
+        kOne_BlendCoeff != fCurrDrawState.fSrcBlend) {
+        return false;
+    }
 
     // ...and the dst coef is always 0...
-    bool noDst = kISA_BlendCoeff == fCurrDrawState.fDstBlend ||
-                 kZero_BlendCoeff == fCurrDrawState.fDstBlend;
+    if (kISA_BlendCoeff != fCurrDrawState.fDstBlend &&
+        kZero_BlendCoeff != fCurrDrawState.fDstBlend) {
+        return false;
+    }
 
     // ...and there isn't a texture with an alpha channel...
-    bool noTexAlpha = !VertexHasTexCoords(fGeometrySrc.fVertexLayout)  ||
-        fCurrDrawState.fTexture->config() == GrTexture::kRGB_565_PixelConfig ||
-        fCurrDrawState.fTexture->config() == GrTexture::kRGBX_8888_PixelConfig;
+    for (int s = 0; s < kNumStages; ++s) {
+        if (VertexUsesStage(s, fGeometrySrc.fVertexLayout)) {
+            GrAssert(NULL != fCurrDrawState.fTextures[s]);
+            GrTexture::PixelConfig config = fCurrDrawState.fTextures[s]->config();
+            
+            if (GrTexture::kRGB_565_PixelConfig != config &&
+                GrTexture::kRGBX_8888_PixelConfig != config) {
+                return false;
+            }
+        }
+    }
 
     // ...then we disable blend.
-    return fullSrc && noDst && noTexAlpha;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

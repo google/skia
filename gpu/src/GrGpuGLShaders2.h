@@ -37,17 +37,17 @@ protected:
                                uint32_t indexCount);
 
 private:
-    static const int NUM_STAGES;
 
     void resetContextHelper();
 
     // sets the texture matrix uniform for currently bound program
-    void flushTextureMatrix();
+    void flushTextureMatrix(int stage);
+   
     // sets the MVP matrix uniform for currently bound program
     void flushViewMatrix();
 
     // flushes the parameters to two point radial gradient
-    void flushRadial2();
+    void flushRadial2(int stage);
 
     // called at flush time to setup the appropriate program
     void flushProgram(PrimitiveType type);

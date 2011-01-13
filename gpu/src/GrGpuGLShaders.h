@@ -134,7 +134,8 @@ private:
 
         // these reflect the current values of uniforms
         // (GL uniform values travel with program)
-        GrMatrix                    fMatrixModeCache[kMatrixModeCount];
+        GrMatrix                    fViewMatrix;
+        GrMatrix                    fTextureMatrices[kNumStages];
         GrColor                     fColor;
         GrGLTexture::Orientation    fTextureOrientation;
         GrScalar                    fRadial2CenterX1;
