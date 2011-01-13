@@ -98,12 +98,12 @@ struct GrGpuGLShaders2::StageDesc {
     unsigned fOptFlags : 8;
 
     unsigned fEnabled : 8;
-    
+
     enum Modulation {
         kColor_Modulation,
         kAlpha_Modulation,
     } fModulation : 8;
-    
+
     enum CoordMapping {
         kIdentity_CoordMapping,
         kRadialGradient_CoordMapping,
@@ -379,7 +379,7 @@ void GrGpuGLShaders2::ProgramUnitTest() {
     // So using nextU() % array_count might never take some values.
     GrRandom random;
     for (int t = 0; t < NUM_TESTS; ++t) {
-        
+
         pdesc.fVertexLayout = 0;
         for (int s = 0; s < kNumStages; ++s) {
             // enable the stage?
@@ -737,7 +737,7 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
             ++numActiveStages;
         }
     }
-    
+
     GrTokenString inColor = "vColor";
 
     // if we have active stages string them together, feeding the output color
@@ -863,8 +863,8 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
     GR_GL(BindAttribLocation(progID, POS_ATTR_LOCATION, POS_ATTR_NAME));
     for (int t = 0; t < kMaxTexCoords; ++t) {
         if (texCoordAttrs[t].length()) {
-            GR_GL(BindAttribLocation(progID, 
-                                     TEX_ATTR_LOCATION(t), 
+            GR_GL(BindAttribLocation(progID,
+                                     TEX_ATTR_LOCATION(t),
                                      texCoordAttrs[t].cstr()));
         }
     }
@@ -982,7 +982,7 @@ void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) 
     desc->fVertexLayout = fGeometrySrc.fVertexLayout;
     for (int s = 0; s < kNumStages; ++s) {
         StageDesc& stage = desc->fStages[s];
-        
+
         stage.fEnabled = VertexUsesStage(s, fGeometrySrc.fVertexLayout);
 
         if (primType != kPoints_PrimitiveType) {
@@ -1141,9 +1141,9 @@ void GrGpuGLShaders2::flushViewMatrix() {
         m[GrMatrix::kPersp2]
     };
 #if ATTRIBUTE_MATRIX
-    glVertexAttrib4fv(VIEWMAT_ATTR_LOCATION+0, mt+0);
-    glVertexAttrib4fv(VIEWMAT_ATTR_LOCATION+1, mt+3);
-    glVertexAttrib4fv(VIEWMAT_ATTR_LOCATION+2, mt+6);
+    GR_GL(VertexAttrib4fv(VIEWMAT_ATTR_LOCATION+0, mt+0));
+    GR_GL(VertexAttrib4fv(VIEWMAT_ATTR_LOCATION+1, mt+3));
+    GR_GL(VertexAttrib4fv(VIEWMAT_ATTR_LOCATION+2, mt+6));
 #else
     GR_GL(UniformMatrix3fv(fProgram->fUniLocations.fViewMatrixUni,1,false,mt));
 #endif
@@ -1184,9 +1184,9 @@ void GrGpuGLShaders2::flushTextureMatrix(int stage) {
         (*m)[GrMatrix::kPersp2]
     };
 #if ATTRIBUTE_MATRIX
-    glVertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+0, mt+0);
-    glVertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+1, mt+3);
-    glVertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+2, mt+6);
+    GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+0, mt+0));
+    GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+1, mt+3));
+    GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+2, mt+6));
 #else
     GR_GL(UniformMatrix3fv(fProgram->fUniLocations.fStages[stage].fTextureMatrixUni,
                            1,
@@ -1212,8 +1212,8 @@ void GrGpuGLShaders2::flushRadial2(int stage) {
         GrScalarToFloat(GrMul(radius0, radius0)),
         sampler.isRadial2PosRoot() ? 1.f : -1.f
     };
-    GR_GL(Uniform1fv(fProgram->fUniLocations.fStages[stage].fRadial2Uni, 
-                     6, 
+    GR_GL(Uniform1fv(fProgram->fUniLocations.fStages[stage].fRadial2Uni,
+                     6,
                      unis));
 }
 
@@ -1281,7 +1281,7 @@ bool GrGpuGLShaders2::flushGraphicsState(PrimitiveType type) {
         currViewMatrix = fCurrDrawState.fViewMatrix;
     }
 
-    for (int s = 0; s < kNumStages; ++s) { 
+    for (int s = 0; s < kNumStages; ++s) {
         GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
         if (NULL != texture) {
             if (-1 != fProgram->fUniLocations.fStages[s].fTextureMatrixUni &&

@@ -514,7 +514,7 @@ GrGpuGLShaders::GrGpuGLShaders() {
 
         fPrograms[p].fViewMatrix.setScale(GR_ScalarMax, GR_ScalarMax);
         for (int s = 0; s < kNumStages; ++s) {
-            fPrograms[p].fTextureMatrices[s].setScale(GR_ScalarMax, 
+            fPrograms[p].fTextureMatrices[s].setScale(GR_ScalarMax,
                                                       GR_ScalarMax); // illegal
         };
         fPrograms[p].fColor = GrColor_ILLEGAL;
@@ -576,9 +576,9 @@ void GrGpuGLShaders::flushMatrix(GLint location) {
         m[GrMatrix::kPersp2]
     };
 #if ATTRIBUTE_MATRIX
-    glVertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+0, mt+0);
-    glVertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+1, mt+3);
-    glVertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+2, mt+6);
+    GR_GL(VertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+0, mt+0));
+    GR_GL(VertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+1, mt+3));
+    GR_GL(VertexAttrib4fv(GR_GL_MAT_ATTR_LOCATION+2, mt+6));
 #else
     GR_GL(UniformMatrix3fv(location,1,false,mt));
 #endif
@@ -615,9 +615,9 @@ void GrGpuGLShaders::flushTexMatrix(GLint location,
         (*m)[GrMatrix::kPersp2]
     };
 #if ATTRIBUTE_MATRIX
-    glVertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+0, mt+0);
-    glVertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+1, mt+3);
-    glVertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+2, mt+6);
+    GR_GL(VertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+0, mt+0));
+    GR_GL(VertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+1, mt+3));
+    GR_GL(VertexAttrib4fv(GR_GL_TEXMAT_ATTR_LOCATION+2, mt+6));
 #else
     GR_GL(UniformMatrix3fv(location,1,false,mt));
 #endif
@@ -646,7 +646,7 @@ void GrGpuGLShaders::flushProgram(PrimitiveType type) {
     Programs nextProgram = kNoTexture_Program;
 
     GrTexture* texture = fCurrDrawState.fTextures[0];
-    bool posAsTex = 
+    bool posAsTex =
             StagePosAsTexCoordVertexLayoutBit(0) & fGeometrySrc.fVertexLayout;
 
     if (!VertexUsesStage(0, fGeometrySrc.fVertexLayout)) {
@@ -685,17 +685,17 @@ void GrGpuGLShaders::flushProgram(PrimitiveType type) {
             break;
         case GrSamplerState::kNormal_SampleMode:
             if (GrTexture::kAlpha_8_PixelConfig == texture->config()) {
-                GrAssert(((GrGLTexture*)texture)->orientation() == 
+                GrAssert(((GrGLTexture*)texture)->orientation() ==
                          GrGLTexture::kTopDown_Orientation);
                 GrAssert(!posAsTex);
                 nextProgram = kText_Program;
             } else {
                 bool persp = fCurrDrawState.fTextureMatrices[0].hasPerspective();
                 if (posAsTex) {
-                    nextProgram = persp ? kTextureVertCoordsProj_Program : 
+                    nextProgram = persp ? kTextureVertCoordsProj_Program :
                                           kTextureVertCoords_Program;
                 } else {
-                    nextProgram = persp ? kTextureTexCoordsProj_Program : 
+                    nextProgram = persp ? kTextureTexCoordsProj_Program :
                                           kTextureTexCoords_Program;
                 }
                 // check for case when frag shader can skip the color modulation
@@ -735,7 +735,7 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
 
    for (int s = 1; s < kNumStages; ++s) {
         if (VertexUsesStage(s, fGeometrySrc.fVertexLayout)) {
-            unimpl("the hard-coded shaders used by this " 
+            unimpl("the hard-coded shaders used by this "
                    "class only support 1 stage");
             return false;
         }
@@ -752,7 +752,7 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
         // we assume all shader matrices may be wrong after viewport changes
         for (int p = 0; p < kProgramCount; ++p) {
             // set to illegal matrix
-            fPrograms[p].fViewMatrix.setScale(GR_ScalarMax, GR_ScalarMax); 
+            fPrograms[p].fViewMatrix.setScale(GR_ScalarMax, GR_ScalarMax);
         }
 #endif
         fRenderTargetChanged = false;
@@ -798,7 +798,7 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
     GrGLTexture::Orientation& orientation = fTextureOrientation;
 #else
     GrMatrix& currentViewMatrix = fPrograms[fHWProgram].fViewMatrix;
-    GrMatrix& currentTexMatrix = fPrograms[fHWProgram].fTextureMatrices[0];   
+    GrMatrix& currentTexMatrix = fPrograms[fHWProgram].fTextureMatrices[0];
     GrGLTexture::Orientation& orientation =
                                     fPrograms[fHWProgram].fTextureOrientation;
 #endif
@@ -846,12 +846,12 @@ void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
     int newTexCoordOffsets[kNumStages];
 
     GLsizei newStride = VertexSizeAndOffsetsByStage(fGeometrySrc.fVertexLayout,
-                                                    newTexCoordOffsets, 
+                                                    newTexCoordOffsets,
                                                     &newColorOffset);
     int oldColorOffset;
     int oldTexCoordOffsets[kNumStages];
     GLsizei oldStride = VertexSizeAndOffsetsByStage(fHWGeometryState.fVertexLayout,
-                                                    oldTexCoordOffsets, 
+                                                    oldTexCoordOffsets,
                                                     &oldColorOffset);
 
     const GLvoid* posPtr = (GLvoid*)(newStride * startVertex);
