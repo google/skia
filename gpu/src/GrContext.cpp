@@ -138,9 +138,9 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
         if (NULL != texture) {
             GrGpu::AutoStateRestore asr(fGpu);
             fGpu->setRenderTarget(texture->asRenderTarget());
-            fGpu->setTexture(clampEntry->texture());
+            fGpu->setTexture(0, clampEntry->texture());
             fGpu->setStencilPass(GrGpu::kNone_StencilPass);
-            fGpu->setTextureMatrix(GrMatrix::I());
+            fGpu->setTextureMatrix(0, GrMatrix::I());
             fGpu->setViewMatrix(GrMatrix::I());
             fGpu->setAlpha(0xff);
             fGpu->setBlendFunc(GrGpu::kOne_BlendCoeff, GrGpu::kZero_BlendCoeff);
@@ -150,10 +150,10 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             GrSamplerState stretchSampler(GrSamplerState::kClamp_WrapMode,
                                           GrSamplerState::kClamp_WrapMode,
                                           sampler.isFilter());
-            fGpu->setSamplerState(stretchSampler);
+            fGpu->setSamplerState(0, stretchSampler);
 
             static const GrVertexLayout layout =
-                                GrDrawTarget::kSeparateTexCoord_VertexLayoutBit;
+                                GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
             GrDrawTarget::AutoReleaseGeometry arg(fGpu, layout, 4, 0);
 
             if (arg.succeeded()) {
@@ -303,7 +303,7 @@ static void setStrokeRectStrip(GrPoint verts[10], const GrRect& rect,
 
 void GrContext::drawRect(const GrRect& rect, bool useTexture, GrScalar width) {
     GrVertexLayout layout = useTexture ?
-                            GrDrawTarget::kPositionAsTexCoord_VertexLayoutBit :
+                            GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
                             0;
 
     static const int worstCaseVertCount = 10;
@@ -582,7 +582,7 @@ void GrContext::drawPath(GrPathIter* path, PathFills fill,
                                         tol);
     GrVertexLayout layout = 0;
     if (useTexture) {
-        layout = GrDrawTarget::kPositionAsTexCoord_VertexLayoutBit;
+        layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
     }
     // add 4 to hold the bounding rect
     GrDrawTarget::AutoReleaseGeometry arg(fGpu, layout, maxPts + 4, 0);
@@ -808,14 +808,14 @@ void GrContext::writePixels(int left, int top, int width, int height,
     fGpu->setViewMatrix(matrix);
     matrix.setScale(GR_Scalar1 / texture->allocWidth(),
                     GR_Scalar1 / texture->allocHeight());
-    fGpu->setTextureMatrix(matrix);
+    fGpu->setTextureMatrix(0, matrix);
 
     fGpu->disableState(GrDrawTarget::kClip_StateBit);
     fGpu->setAlpha(0xFF);
     fGpu->setBlendFunc(GrDrawTarget::kOne_BlendCoeff,
                        GrDrawTarget::kZero_BlendCoeff);
-    fGpu->setTexture(texture);
-    fGpu->setSamplerState(GrSamplerState::ClampNoFilter());
+    fGpu->setTexture(0, texture);
+    fGpu->setSamplerState(0, GrSamplerState::ClampNoFilter());
 
     this->fillRect(GrRect(0, 0, GrIntToScalar(width), GrIntToScalar(height)),
                    true);
@@ -841,8 +841,8 @@ GrIndexBuffer* GrContext::createIndexBuffer(uint32_t size, bool dynamic) {
     return fGpu->createIndexBuffer(size, dynamic);
 }
 
-void GrContext::setTexture(GrTexture* texture) {
-    fGpu->setTexture(texture);
+void GrContext::setTexture(int stage, GrTexture* texture) {
+    fGpu->setTexture(stage, texture);
 }
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
@@ -858,12 +858,12 @@ void GrContext::setDefaultRenderTargetSize(uint32_t width, uint32_t height) {
     fGpu->setDefaultRenderTargetSize(width, height);
 }
 
-void GrContext::setSamplerState(const GrSamplerState& samplerState) {
-    fGpu->setSamplerState(samplerState);
+void GrContext::setSamplerState(int stage, const GrSamplerState& samplerState) {
+    fGpu->setSamplerState(stage, samplerState);
 }
 
-void GrContext::setTextureMatrix(const GrMatrix& m) {
-    fGpu->setTextureMatrix(m);
+void GrContext::setTextureMatrix(int stage, const GrMatrix& m) {
+    fGpu->setTextureMatrix(stage, m);
 }
 
 void GrContext::getViewMatrix(GrMatrix* m) const {

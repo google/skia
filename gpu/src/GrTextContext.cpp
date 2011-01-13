@@ -23,7 +23,9 @@
 #include "GrTextStrike_impl.h"
 #include "GrFontScaler.h"
 
-static const GrVertexLayout VLAYOUT = GrDrawTarget::kTextFormat_VertexLayoutBit;
+static const GrVertexLayout VLAYOUT = 
+                                GrDrawTarget::kTextFormat_VertexLayoutBit |
+                                GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
 
 void GrTextContext::flushGlyphs() {
     if (fCurrVertex > 0) {
@@ -33,15 +35,14 @@ void GrTextContext::flushGlyphs() {
 
         GrSamplerState sampler(GrSamplerState::kRepeat_WrapMode,
                                GrSamplerState::kRepeat_WrapMode,
-                               GrSamplerState::kAlphaMod_SampleMode,
                                !fExtMatrix.isIdentity());
-        fDrawTarget->setSamplerState(sampler);
+        fDrawTarget->setSamplerState(0, sampler);
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         int nIndices = fCurrVertex + (fCurrVertex >> 1);
         GrAssert(fCurrTexture);
-        fDrawTarget->setTexture(fCurrTexture);
-        fDrawTarget->setTextureMatrix(GrMatrix::I());
+        fDrawTarget->setTexture(0, fCurrTexture);
+        fDrawTarget->setTextureMatrix(0, GrMatrix::I());
         fDrawTarget->setIndexSourceToBuffer(fContext->quadIndexBuffer());
 
         fDrawTarget->drawIndexed(GrDrawTarget::kTriangles_PrimitiveType,

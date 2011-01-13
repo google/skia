@@ -82,7 +82,7 @@ GrTexture* SkGpuDevice::SkAutoCachedTexture::set(SkGpuDevice* device,
     if (texture) {
         // return the native texture
         fTex = NULL;
-        device->context()->setTexture(texture);
+        device->context()->setTexture(0, texture);
     } else {
         // look it up in our cache
         fTex = device->lockCachedTexture(bitmap, sampler, &texture, false);
@@ -333,7 +333,7 @@ void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
 
 bool SkGpuDevice::bindDeviceAsTexture(SkPoint* max) {
     if (NULL != fTexture) {
-        fContext->setTexture(fTexture);
+        fContext->setTexture(0, fTexture);
         if (NULL != max) {
             max->set(SkFixedToScalar((width() << 16) /
                                      fTexture->allocWidth()),
@@ -431,7 +431,7 @@ void SkGpuDevice::AutoPaintShader::init(SkGpuDevice* device,
     }
 
     // the lock has already called setTexture for us
-    ctx->setSamplerState(samplerState);
+    ctx->setSamplerState(0, samplerState);
 
     // since our texture coords will be in local space, we wack the texture
     // matrix to map them back into 0...1 before we load it
@@ -456,7 +456,7 @@ void SkGpuDevice::AutoPaintShader::init(SkGpuDevice* device,
     }
     GrMatrix grmat;
     SkGr::SkMatrix2GrMatrix(matrix, &grmat);
-    ctx->setTextureMatrix(grmat);
+    ctx->setTextureMatrix(0, grmat);
 
     // since we're going to use a shader/texture, we don't want the color,
     // just its alpha
@@ -507,7 +507,7 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
     }
 
     GrVertexLayout layout = shader.useTex() ?
-                            GrDrawTarget::kPositionAsTexCoord_VertexLayoutBit :
+                            GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
                             0;
 #if SK_SCALAR_IS_GR_SCALAR
     fContext->setVertexSourceToArray(pts, layout);
@@ -700,7 +700,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
 
     GrSamplerState sampler(paint.isFilterBitmap()); // defaults to clamp
     // the lock has already called setTexture for us
-    fContext->setSamplerState(sampler);
+    fContext->setSamplerState(0, sampler);
 
     GrTexture* texture;
     SkAutoCachedTexture act(this, bitmap, sampler, &texture);
@@ -708,7 +708,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
         return;
     }
 
-    GrVertexLayout layout = GrDrawTarget::kSeparateTexCoord_VertexLayoutBit;
+    GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0, 0);
 
     GrPoint* vertex;
     if (!fContext->reserveAndLockGeometry(layout, 4,
@@ -734,7 +734,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                                       texture->allocHeight());
     vertex[1].setRectFan(left, top, right, bottom, 2*sizeof(GrPoint));
 
-    fContext->setTextureMatrix(GrMatrix::I());
+    fContext->setTextureMatrix(0, GrMatrix::I());
     // now draw the mesh
     sk_gr_set_paint(fContext, paint, true);
     fContext->drawNonIndexed(GrGpu::kTriangleFan_PrimitiveType, 0, 4);
@@ -746,11 +746,11 @@ static void gl_drawSprite(GrContext* ctx,
                           const SkPaint& paint) {
     GrAutoViewMatrix avm(ctx, GrMatrix::I());
 
-    ctx->setSamplerState(GrSamplerState::ClampNoFilter());
-    ctx->setTextureMatrix(GrMatrix::I());
+    ctx->setSamplerState(0, GrSamplerState::ClampNoFilter());
+    ctx->setTextureMatrix(0, GrMatrix::I());
 
     GrPoint* vertex;
-    GrVertexLayout layout = GrGpu::kSeparateTexCoord_VertexLayoutBit;
+    GrVertexLayout layout = GrGpu::StageTexCoordVertexLayoutBit(0, 0);
     if (!ctx->reserveAndLockGeometry(layout, 4, 0,
                                      GrTCast<void**>(&vertex), NULL)) {
         return;
@@ -837,7 +837,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     bool releaseVerts = false;
     GrVertexLayout layout = 0;
     if (useTexture) {
-        layout |= GrDrawTarget::kSeparateTexCoord_VertexLayoutBit;
+        layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(0, 0);
     }
     if (NULL != colors) {
         layout |= GrDrawTarget::kColor_VertexLayoutBit;
@@ -855,16 +855,17 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                               &verts, NULL)) {
             return;
         }
-        int texOffset, colorOffset;
-        uint32_t stride = GrDrawTarget::VertexSizeAndOffsets(layout,
-                                                             &texOffset,
-                                                             &colorOffset);
+        int texOffsets[GrDrawTarget::kNumStages];
+        int colorOffset;
+        uint32_t stride = GrDrawTarget::VertexSizeAndOffsetsByStage(layout,
+                                                                    texOffsets,
+                                                                    &colorOffset);
         for (int i = 0; i < vertexCount; ++i) {
             GrPoint* p = (GrPoint*)((intptr_t)verts + i * stride);
             p->set(SkScalarToGrScalar(vertices[i].fX),
                    SkScalarToGrScalar(vertices[i].fY));
-            if (texOffset > 0) {
-                GrPoint* t = (GrPoint*)((intptr_t)p + texOffset);
+            if (texOffsets[0] > 0) {
+                GrPoint* t = (GrPoint*)((intptr_t)p + texOffsets[0]);
                 t->set(SkScalarToGrScalar(texs[i].fX),
                        SkScalarToGrScalar(texs[i].fY));
             }
@@ -1030,7 +1031,7 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
 
     if (NULL != entry) {
         newTexture = entry->texture();
-        ctx->setTexture(newTexture);
+        ctx->setTexture(0, newTexture);
         if (texture) {
             *texture = newTexture;
         }

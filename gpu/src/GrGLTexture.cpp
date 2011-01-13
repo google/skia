@@ -144,6 +144,9 @@ void GrGLTexture::uploadTextureData(uint32_t x,
                                     uint32_t width,
                                     uint32_t height,
                                     const void* srcData) {
+    
+    fGpuGL->setSpareTextureUnit();
+
     // glCompressedTexSubImage2D doesn't support any formats
     // (at least without extensions)
     GrAssert(fUploadFormat != GR_PALETTE8_RGBA8);
@@ -152,7 +155,6 @@ void GrGLTexture::uploadTextureData(uint32_t x,
     // then we have to modify this code to flip the srcData
     GrAssert(kTopDown_Orientation == fOrientation);
     GR_GL(BindTexture(GL_TEXTURE_2D, fTextureID));
-    fGpuGL->notifyTextureBind(this);
     GR_GL(PixelStorei(GL_UNPACK_ALIGNMENT, fUploadByteCount));
     GR_GL(TexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, 
                         fUploadFormat, fUploadType, srcData));
