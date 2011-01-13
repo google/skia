@@ -818,8 +818,11 @@ void SkCanvas::restoreToCount(int count) {
 
 // can't draw it if its empty, or its too big for a fixed-point width or height
 static bool reject_bitmap(const SkBitmap& bitmap) {
-    return  bitmap.width() <= 0 || bitmap.height() <= 0 ||
-            bitmap.width() > 32767 || bitmap.height() > 32767;
+    return  bitmap.width() <= 0 || bitmap.height() <= 0
+#ifndef SK_ALLOW_OVER_32K_BITMAPS
+            || bitmap.width() > 32767 || bitmap.height() > 32767
+#endif
+            ;
 }
 
 void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect,
