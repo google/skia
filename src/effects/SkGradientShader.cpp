@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -22,6 +22,8 @@
 #include "SkUtils.h"
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
+
+#define USE_DITHER_32BIT_GRADIENT
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -142,6 +144,8 @@ private:
     unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
 
     static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
+    static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
+                                U8CPU alpha);
 
     typedef SkShader INHERITED;
 };
@@ -169,7 +173,7 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[],
     SkASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gTileProcs));
     fTileMode = mode;
     fTileProc = gTileProcs[mode];
-    
+
     fCache16 = fCache16Storage = NULL;
     fCache32 = NULL;
     fCache32PixelRef = NULL;
@@ -456,8 +460,26 @@ void Gradient_Shader::Build16bitCache(uint16_t cache[], SkColor c0, SkColor c1,
     } while (--count != 0);
 }
 
-static void build_32bit_cache(SkPMColor cache[], SkColor c0, SkColor c1,
-                              int count, U8CPU paintAlpha) {
+/*
+ *  2x2 dither a fixed-point color component (8.16) down to 8, matching the
+ *  semantics of how we 2x2 dither 32->16
+ */
+static inline U8CPU dither_fixed_to_8(SkFixed n) {
+    n >>= 8;
+    return ((n << 1) - ((n >> 8 << 8) | (n >> 8))) >> 8;
+}
+
+/*
+ *  For dithering with premultiply, we want to ceiling the alpha component,
+ *  to ensure that it is always >= any color component.
+ */
+static inline U8CPU dither_ceil_fixed_to_8(SkFixed n) {
+    n >>= 8;
+    return ((n << 1) - (n | (n >> 8))) >> 8;
+}
+
+void Gradient_Shader::Build32bitCache(SkPMColor cache[], SkColor c0, SkColor c1,
+                                      int count, U8CPU paintAlpha) {
     SkASSERT(count > 1);
 
     // need to apply paintAlpha to our two endpoints
@@ -481,7 +503,12 @@ static void build_32bit_cache(SkPMColor cache[], SkColor c0, SkColor c1,
     b = SkIntToFixed(b) + 0x8000;
 
     do {
-        *cache++ = SkPreMultiplyARGB(a >> 16, r >> 16, g >> 16, b >> 16);
+        cache[0] = SkPreMultiplyARGB(a >> 16, r >> 16, g >> 16, b >> 16);
+        cache[kCache32Count] = SkPreMultiplyARGB(dither_ceil_fixed_to_8(a),
+                                                 dither_fixed_to_8(r),
+                                                 dither_fixed_to_8(g),
+                                                 dither_fixed_to_8(b));
+        cache += 1;
         a += da;
         r += dr;
         g += dg;
@@ -508,8 +535,12 @@ static inline U16CPU bitsTo16(unsigned x, const unsigned bits) {
 
 const uint16_t* Gradient_Shader::getCache16() {
     if (fCache16 == NULL) {
+        // double the count for dither entries
+        const int entryCount = kCache16Count * 2;
+        const size_t allocSize = sizeof(uint16_t) * entryCount;
+
         if (fCache16Storage == NULL) { // set the storage and our working ptr
-            fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count * 2);
+            fCache16Storage = (uint16_t*)sk_malloc_throw(allocSize);
         }
         fCache16 = fCache16Storage;
         if (fColorCount == 2) {
@@ -529,7 +560,7 @@ const uint16_t* Gradient_Shader::getCache16() {
         }
 
         if (fMapper) {
-            fCache16Storage = (uint16_t*)sk_malloc_throw(sizeof(uint16_t) * kCache16Count * 2);
+            fCache16Storage = (uint16_t*)sk_malloc_throw(allocSize);
             uint16_t* linear = fCache16;         // just computed linear data
             uint16_t* mapped = fCache16Storage;  // storage for mapped data
             SkUnitMapper* map = fMapper;
@@ -547,15 +578,18 @@ const uint16_t* Gradient_Shader::getCache16() {
 
 const SkPMColor* Gradient_Shader::getCache32() {
     if (fCache32 == NULL) {
+        // double the count for dither entries
+        const int entryCount = kCache32Count * 2;
+        const size_t allocSize = sizeof(SkPMColor) * entryCount;
+
         if (NULL == fCache32PixelRef) {
-            fCache32PixelRef = SkNEW_ARGS(SkMallocPixelRef, (NULL,
-                                                             sizeof(SkPMColor) * kCache32Count,
-                                                             NULL));
+            fCache32PixelRef = SkNEW_ARGS(SkMallocPixelRef,
+                                          (NULL, allocSize, NULL));
         }
         fCache32 = (SkPMColor*)fCache32PixelRef->getAddr();
         if (fColorCount == 2) {
-            build_32bit_cache(fCache32, fOrigColors[0], fOrigColors[1],
-                              kCache32Count, fCacheAlpha);
+            Build32bitCache(fCache32, fOrigColors[0], fOrigColors[1],
+                            kCache32Count, fCacheAlpha);
         } else {
             Rec* rec = fRecs;
             int prevIndex = 0;
@@ -564,9 +598,9 @@ const SkPMColor* Gradient_Shader::getCache32() {
                 SkASSERT(nextIndex < kCache32Count);
 
                 if (nextIndex > prevIndex)
-                    build_32bit_cache(fCache32 + prevIndex, fOrigColors[i-1],
-                                      fOrigColors[i],
-                                      nextIndex - prevIndex + 1, fCacheAlpha);
+                    Build32bitCache(fCache32 + prevIndex, fOrigColors[i-1],
+                                    fOrigColors[i],
+                                    nextIndex - prevIndex + 1, fCacheAlpha);
                 prevIndex = nextIndex;
             }
             SkASSERT(prevIndex == kCache32Count - 1);
@@ -574,14 +608,14 @@ const SkPMColor* Gradient_Shader::getCache32() {
 
         if (fMapper) {
             SkMallocPixelRef* newPR = SkNEW_ARGS(SkMallocPixelRef,
-                                                 (NULL,
-                                                  sizeof(SkPMColor) * kCache32Count,
-                                                  NULL));
+                                                 (NULL, allocSize, NULL));
             SkPMColor* linear = fCache32;           // just computed linear data
             SkPMColor* mapped = (SkPMColor*)newPR->getAddr();    // storage for mapped data
             SkUnitMapper* map = fMapper;
-            for (int i = 0; i < 256; i++) {
-                mapped[i] = linear[map->mapUnit16((i << 8) | i) >> 8];
+            for (int i = 0; i < kCache32Count; i++) {
+                int index = map->mapUnit16((i << 8) | i) >> 8;
+                mapped[i] = linear[index];
+                mapped[i + kCache32Count] = linear[index + kCache32Count];
             }
             fCache32PixelRef->unref();
             fCache32PixelRef = newPR;
@@ -635,7 +669,7 @@ void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) {
     // each cache cost 1K of RAM, since each bitmap will be 1x256 at 32bpp
     static const int MAX_NUM_CACHED_GRADIENT_BITMAPS = 32;
     SkAutoMutexAcquire ama(gMutex);
-    
+
     if (NULL == gCache) {
         gCache = new SkBitmapCache(MAX_NUM_CACHED_GRADIENT_BITMAPS);
     }
@@ -679,10 +713,10 @@ public:
     virtual bool setContext(const SkBitmap&, const SkPaint&, const SkMatrix&);
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
-    virtual BitmapType asABitmap(SkBitmap*, SkMatrix*, 
+    virtual BitmapType asABitmap(SkBitmap*, SkMatrix*,
                                  TileMode*, SkScalar* twoPointRadialParams);
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Linear_Gradient, (buffer));
     }
 
@@ -728,6 +762,13 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
     const SkPMColor*    cache = this->getCache32();
+#ifdef USE_DITHER_32BIT_GRADIENT
+    int                 toggle = ((x ^ y) & 1) << kCache32Bits;
+    const int           TOGGLE_MASK = (1 << kCache32Bits);
+#else
+    int toggle = 0;
+    const int TOGGLE_MASK = 0;
+#endif
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
@@ -747,43 +788,23 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
             // we're a vertical gradient, so no change in a span
             unsigned fi = proc(fx);
             SkASSERT(fi <= 0xFFFF);
+            // TODO: dither version
             sk_memset32(dstC, cache[fi >> (16 - kCache32Bits)], count);
         } else if (proc == clamp_tileproc) {
-#if 0
-            if (no_need_for_clamp(fx, dx, count))
-            {
-                unsigned fi;
-                while ((count -= 4) >= 0)
-                {
-                    fi = fx >> 8; SkASSERT(fi <= 0xFF); fx += dx; *dstC++ = cache[fi];
-                    fi = fx >> 8; SkASSERT(fi <= 0xFF); fx += dx; *dstC++ = cache[fi];
-                    fi = fx >> 8; SkASSERT(fi <= 0xFF); fx += dx; *dstC++ = cache[fi];
-                    fi = fx >> 8; SkASSERT(fi <= 0xFF); fx += dx; *dstC++ = cache[fi];
-                }
-                SkASSERT(count <= -1 && count >= -4);
-                count += 4;
-                while (--count >= 0)
-                {
-                    fi = fx >> 8;
-                    SkASSERT(fi <= 0xFF);
-                    fx += dx;
-                    *dstC++ = cache[fi];
-                }
-            }
-            else
-#endif
-                do {
-                    unsigned fi = SkClampMax(fx >> 8, 0xFF);
-                    SkASSERT(fi <= 0xFF);
-                    fx += dx;
-                    *dstC++ = cache[fi];
-                } while (--count != 0);
+            do {
+                unsigned fi = SkClampMax(fx >> 8, 0xFF);
+                SkASSERT(fi <= 0xFF);
+                fx += dx;
+                *dstC++ = cache[toggle + fi];
+                toggle ^= TOGGLE_MASK;
+            } while (--count != 0);
         } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_8bits(fx >> 8);
                 SkASSERT(fi <= 0xFF);
                 fx += dx;
-                *dstC++ = cache[fi];
+                *dstC++ = cache[toggle + fi];
+                toggle ^= TOGGLE_MASK;
             } while (--count != 0);
         } else {
             SkASSERT(proc == repeat_tileproc);
@@ -791,7 +812,8 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
                 unsigned fi = repeat_8bits(fx >> 8);
                 SkASSERT(fi <= 0xFF);
                 fx += dx;
-                *dstC++ = cache[fi];
+                *dstC++ = cache[toggle + fi];
+                toggle ^= TOGGLE_MASK;
             } while (--count != 0);
         }
     } else {
@@ -801,13 +823,14 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
             dstProc(fDstToIndex, dstX, dstY, &srcPt);
             unsigned fi = proc(SkScalarToFixed(srcPt.fX));
             SkASSERT(fi <= 0xFFFF);
-            *dstC++ = cache[fi >> (16 - kCache32Bits)];
+            *dstC++ = cache[toggle + (fi >> (16 - kCache32Bits))];
+            toggle ^= TOGGLE_MASK;
             dstX += SK_Scalar1;
         } while (--count != 0);
     }
 }
 
-SkShader::BitmapType Linear_Gradient::asABitmap(SkBitmap* bitmap, 
+SkShader::BitmapType Linear_Gradient::asABitmap(SkBitmap* bitmap,
                                                 SkMatrix* matrix,
                                                 TileMode xy[],
                                                 SkScalar* twoPointRadialParams) {
@@ -834,7 +857,7 @@ static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
     }
 
     sk_memset32((uint32_t*)dst, (value << 16) | other, count >> 1);
-    
+
     if (count & 1) {
         dst[count - 1] = value;
     }
@@ -1157,8 +1180,8 @@ public:
         }
     }
 
-    virtual BitmapType asABitmap(SkBitmap* bitmap, 
-                                 SkMatrix* matrix, 
+    virtual BitmapType asABitmap(SkBitmap* bitmap,
+                                 SkMatrix* matrix,
                                  TileMode* xy,
                                  SkScalar* twoPointRadialParams) {
         if (bitmap) {
@@ -1174,8 +1197,8 @@ public:
         }
         return kRadial_BitmapType;
     }
-    
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
+
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Radial_Gradient, (buffer));
     }
 
@@ -1197,41 +1220,41 @@ private:
    of the desired circle (Cx, Cy) falls at some distance t
    along the line segment between the start point (Sx, Sy) and
    end point (Ex, Ey):
-  
+
       Cx = (1 - t) * Sx + t * Ex        (0 <= t <= 1)
       Cy = (1 - t) * Sy + t * Ey
-  
+
    The radius of the desired circle (r) is also a linear interpolation t
    between the start and end radii (Sr and Er):
-  
+
       r = (1 - t) * Sr + t * Er
-  
+
    But
-  
+
       (x - Cx)^2 + (y - Cy)^2 = r^2
-  
+
    so
-  
+
      (x - ((1 - t) * Sx + t * Ex))^2
    + (y - ((1 - t) * Sy + t * Ey))^2
    = ((1 - t) * Sr + t * Er)^2
-  
+
    Solving for t yields
-  
+
      [(Sx - Ex)^2 + (Sy - Ey)^2 - (Er - Sr)^2)] * t^2
    + [2 * (Sx - Ex)(x - Sx) + 2 * (Sy - Ey)(y - Sy) - 2 * (Er - Sr) * Sr] * t
    + [(x - Sx)^2 + (y - Sy)^2 - Sr^2] = 0
- 
+
    To simplify, let Dx = Sx - Ex, Dy = Sy - Ey, Dr = Er - Sr, dx = x - Sx, dy = y - Sy
 
      [Dx^2 + Dy^2 - Dr^2)] * t^2
    + 2 * [Dx * dx + Dy * dy - Dr * Sr] * t
    + [dx^2 + dy^2 - Sr^2] = 0
-   
-   A quadratic in t.  The two roots of the quadratic reflect the two 
+
+   A quadratic in t.  The two roots of the quadratic reflect the two
    possible circles on which the point may fall.  Solving for t yields
    the gradient value to use.
-  
+
    If a<0, the start circle is entirely contained in the
    end circle, and one of the roots will be <0 or >1 (off the line
    segment).  If a>0, the start circle falls at least partially
@@ -1239,22 +1262,22 @@ private:
    defines a "tube" where a point may be on one circle (on the
    inside of the tube) or the other (outside of the tube).  We choose
    one arbitrarily.
-  
+
    In order to keep the math to within the limits of fixed point,
    we divide the entire quadratic by Dr^2, and replace
    (x - Sx)/Dr with x' and (y - Sy)/Dr with y', giving
-  
+
    [Dx^2 / Dr^2 + Dy^2 / Dr^2 - 1)] * t^2
    + 2 * [x' * Dx / Dr + y' * Dy / Dr - Sr / Dr] * t
    + [x'^2 + y'^2 - Sr^2/Dr^2] = 0
-  
+
    (x' and y' are computed by appending the subtract and scale to the
    fDstToIndex matrix in the constructor).
 
    Since the 'A' component of the quadratic is independent of x' and y', it
    is precomputed in the constructor.  Since the 'B' component is linear in
    x' and y', if x and y are linear in the span, 'B' can be computed
-   incrementally with a simple delta (db below).  If it is not (e.g., 
+   incrementally with a simple delta (db below).  If it is not (e.g.,
    a perspective projection), it must be computed in the loop.
 
 */
@@ -1295,9 +1318,9 @@ public:
         fPtsToUnit.setTranslate(-start.fX, -start.fY);
         fPtsToUnit.postScale(inv, inv);
     }
-    
-    virtual BitmapType asABitmap(SkBitmap* bitmap, 
-                                 SkMatrix* matrix, 
+
+    virtual BitmapType asABitmap(SkBitmap* bitmap,
+                                 SkMatrix* matrix,
                                  TileMode* xy,
                                  SkScalar* twoPointRadialParams) {
         if (bitmap) {
@@ -1305,12 +1328,12 @@ public:
         }
         SkScalar diffL = 0; // just to avoid gcc warning
         if (matrix || twoPointRadialParams) {
-            diffL = SkScalarSqrt(SkScalarSquare(fDiff.fX) + 
+            diffL = SkScalarSqrt(SkScalarSquare(fDiff.fX) +
                                  SkScalarSquare(fDiff.fY));
         }
         if (matrix) {
             SkScalar invDiffL = SkScalarInvert(diffL);
-            matrix->setSinCos(-SkScalarMul(invDiffL, fDiff.fY), 
+            matrix->setSinCos(-SkScalarMul(invDiffL, fDiff.fY),
                               SkScalarMul(invDiffL, fDiff.fX));
             matrix->preConcat(fPtsToUnit);
         }
@@ -1325,7 +1348,7 @@ public:
         }
         return kTwoPointRadial_BitmapType;
     }
-    
+
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count)
     {
         SkASSERT(count > 0);
@@ -1437,7 +1460,7 @@ public:
         return true;
     }
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Two_Point_Radial_Gradient, (buffer));
     }
 
@@ -1451,7 +1474,7 @@ public:
         buffer.writeScalar(fA);
         buffer.writeScalar(fOneOverTwoA);
     }
-    
+
 protected:
     Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer)
             : Gradient_Shader(buffer) {
@@ -1483,9 +1506,9 @@ public:
     }
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
-    
-    virtual BitmapType asABitmap(SkBitmap* bitmap, 
-                                 SkMatrix* matrix, 
+
+    virtual BitmapType asABitmap(SkBitmap* bitmap,
+                                 SkMatrix* matrix,
                                  TileMode* xy,
                                  SkScalar* twoPointRadialParams) {
         if (bitmap) {
@@ -1527,7 +1550,7 @@ static const uint8_t* build_sweep_table()
     {
         const int N = 65;
         const double DENOM = N - 1;
-        
+
         for (int i = 0; i < N; i++)
         {
             double arg = i / DENOM;
@@ -1562,12 +1585,12 @@ static unsigned div_64(int numer, int denom)
     SkASSERT(numer <= denom);
     SkASSERT(numer > 0);
     SkASSERT(denom > 0);
-        
+
     int nbits = SkCLZ(numer);
     int dbits = SkCLZ(denom);
     int bits = 6 - nbits + dbits;
     SkASSERT(bits <= 6);
-    
+
     if (bits < 0)   // detect underflow
         return 0;
 
@@ -1581,7 +1604,7 @@ static unsigned div_64(int numer, int denom)
         result = 1;
     else
         numer += denom;
-    
+
     // Now fall into our switch statement if there are more bits to compute
     if (bits > 0)
     {
@@ -1659,7 +1682,7 @@ static unsigned atan_0_90(SkFixed y, SkFixed x)
     }
 
     result = div_64(y, x);
-    
+
 #ifdef SK_DEBUG
     {
         unsigned result2 = SkDivBits(y, x, 6);
@@ -1694,7 +1717,7 @@ static unsigned SkATan2_255(SkFixed y, SkFixed x)
     }
     if (y == 0)
         return x < 0 ? 128 : 0;
-    
+
     /*  Find the right quadrant for x,y
         Since atan_0_90 only handles the first quadrant, we rotate x,y
         appropriately before calling it, and then add the right amount
@@ -1703,7 +1726,7 @@ static unsigned SkATan2_255(SkFixed y, SkFixed x)
         quadrant 1 : add 64 (90 degrees)    | x < 0 && y > 0
         quadrant 2 : add 128 (180 degrees)  | x < 0 && y < 0
         quadrant 3 : add 192 (270 degrees)  | x > 0 && y < 0
-        
+
         map x<0 to (1 << 6)
         map y<0 to (3 << 6)
         add = map_x ^ map_y
@@ -1724,7 +1747,7 @@ static unsigned SkATan2_255(SkFixed y, SkFixed x)
     else
         SkASSERT(!"bad value for add");
 #endif
-    
+
     /*  This ^ trick makes x, y positive, and the swap<> handles quadrants
         where we need to rotate x,y by 90 or -90
     */
@@ -1744,14 +1767,14 @@ void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
     const SkMatrix&     matrix = fDstToIndex;
     const SkPMColor*    cache = this->getCache32();
     SkPoint             srcPt;
-    
+
     if (fDstToIndexClass != kPerspective_MatrixClass)
     {
         proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
                      SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
         SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
         SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
-        
+
         if (fDstToIndexClass == kFixedStepInX_MatrixClass)
         {
             SkFixed storage[2];
@@ -1766,7 +1789,7 @@ void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
             dx = SkScalarToFixed(matrix.getScaleX());
             dy = SkScalarToFixed(matrix.getSkewY());
         }
-        
+
         for (; count > 0; --count)
         {
             *dstC++ = cache[SkATan2_255(fy, fx)];
@@ -1780,7 +1803,7 @@ void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
         {
             proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
                  SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-            
+
             int index = SkATan2_255(SkScalarToFixed(srcPt.fY),
                                     SkScalarToFixed(srcPt.fX));
             *dstC++ = cache[index];
@@ -1802,7 +1825,7 @@ void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
                      SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
         SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
         SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
-        
+
         if (fDstToIndexClass == kFixedStepInX_MatrixClass)
         {
             SkFixed storage[2];
@@ -1817,7 +1840,7 @@ void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
             dx = SkScalarToFixed(matrix.getScaleX());
             dy = SkScalarToFixed(matrix.getSkewY());
         }
-        
+
         for (; count > 0; --count)
         {
             int index = SkATan2_255(fy, fx) >> (8 - kCache16Bits);
@@ -1833,7 +1856,7 @@ void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count)
         {
             proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
                          SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-            
+
             int index = SkATan2_255(SkScalarToFixed(srcPt.fY),
                                     SkScalarToFixed(srcPt.fX));
             index >>= (8 - kCache16Bits);
