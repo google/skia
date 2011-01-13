@@ -29,7 +29,8 @@ class SkPathEffect;
 class SkRasterizer;
 
 // needs to be != to any valid SkMask::Format
-#define MASK_FORMAT_JUST_ADVANCE    (0xFF)
+#define MASK_FORMAT_UNKNOWN         (0xFF)
+#define MASK_FORMAT_JUST_ADVANCE    MASK_FORMAT_UNKNOWN
 
 #define kMaxGlyphWidth (1<<13)
 
@@ -49,6 +50,7 @@ struct SkGlyph {
         fID             = id;
         fImage          = NULL;
         fPath           = NULL;
+        fMaskFormat     = MASK_FORMAT_UNKNOWN;
 #ifdef SK_GPU_AWARE_GLYPHCACHE
         fGLCacheOffset  = SKGLYPH_GLCACHEOFFSET_INVALID;
         fGLStrikePtr    = NULL;
@@ -66,15 +68,15 @@ struct SkGlyph {
         }
         return rb;
     }
-    
+
     bool isJustAdvance() const {
         return MASK_FORMAT_JUST_ADVANCE == fMaskFormat;
     }
-    
+
     bool isFullMetrics() const {
         return MASK_FORMAT_JUST_ADVANCE != fMaskFormat;
     }
-    
+
     uint16_t getGlyphID() const {
         return ID2Code(fID);
     }
@@ -84,27 +86,27 @@ struct SkGlyph {
         SkASSERT(code >= baseGlyphCount);
         return code - baseGlyphCount;
     }
-    
+
     unsigned getSubX() const {
         return ID2SubX(fID);
     }
-    
+
     SkFixed getSubXFixed() const {
         return SubToFixed(ID2SubX(fID));
     }
-    
+
     SkFixed getSubYFixed() const {
         return SubToFixed(ID2SubY(fID));
     }
-    
+
     size_t computeImageSize() const;
-    
+
     /** Call this to set all of the metrics fields to 0 (e.g. if the scaler
         encounters an error measuring a glyph). Note: this does not alter the
         fImage, fPath, fID, fMaskFormat fields.
      */
     void zeroMetrics();
-    
+
     enum {
         kSubBits = 2,
         kSubMask = ((1 << kSubBits) - 1),
@@ -118,28 +120,28 @@ struct SkGlyph {
     static unsigned ID2Code(uint32_t id) {
         return id & kCodeMask;
     }
-    
+
     static unsigned ID2SubX(uint32_t id) {
         return id >> (kSubShift + kSubShiftX);
     }
-    
+
     static unsigned ID2SubY(uint32_t id) {
         return (id >> (kSubShift + kSubShiftY)) & kSubMask;
     }
-    
+
     static unsigned FixedToSub(SkFixed n) {
         return (n >> (16 - kSubBits)) & kSubMask;
     }
-    
+
     static SkFixed SubToFixed(unsigned sub) {
         SkASSERT(sub <= kSubMask);
         return sub << (16 - kSubBits);
     }
-    
+
     static uint32_t MakeID(unsigned code) {
         return code;
     }
-    
+
     static uint32_t MakeID(unsigned code, SkFixed x, SkFixed y) {
         SkASSERT(code <= kCodeMask);
         x = FixedToSub(x);
@@ -148,7 +150,7 @@ struct SkGlyph {
                (y << (kSubShift + kSubShiftY)) |
                code;
     }
-    
+
     void toMask(SkMask* mask) const;
 
     /** Given a glyph which is has a mask format of LCD or VerticalLCD, take
