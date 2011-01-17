@@ -23,7 +23,9 @@
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
 
-#define USE_DITHER_32BIT_GRADIENT
+#ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
+    #define USE_DITHER_32BIT_GRADIENT
+#endif
 
 ///////////////////////////////////////////////////////////////////////////
 
