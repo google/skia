@@ -37,6 +37,7 @@ include src/core/core_files.mk
 SRC_LIST := $(addprefix src/core/, $(SOURCE))
 
 # add the opts (optimizations)
+#include src/opts/opts_sse2_files.mk
 include src/opts/opts_files.mk
 SRC_LIST += $(addprefix src/opts/, $(SOURCE))
 
