@@ -1233,7 +1233,9 @@ void GrGpuGLShaders2::flushProgram(PrimitiveType type) {
 
 bool GrGpuGLShaders2::flushGraphicsState(PrimitiveType type) {
 
-    flushGLStateCommon(type);
+    if (!flushGLStateCommon(type)) {
+        return false;
+    }
 
     if (fRenderTargetChanged) {
         // our coords are in pixel space and the GL matrices map to NDC

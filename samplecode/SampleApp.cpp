@@ -36,7 +36,7 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
         gHead = NULL;
         gOnce = true;
     }
-    
+
     fChain = gHead;
     gHead = this;
 }
@@ -44,21 +44,6 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
 #if defined(SK_SUPPORT_GL)
     #define SK_USE_SHADERS
 #endif
-
-static GrContext* get_global_grctx(SkOSWindow* oswin) {
-    // should be pthread-local at least
-    static GrContext* ctx;
-    if (NULL == ctx) {
-#if defined(SK_SUPPORT_GL)
-    #if defined(SK_USE_SHADERS)
-        ctx = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
-    #else
-        ctx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
-    #endif
-#endif
-    }
-    return ctx;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -156,12 +141,12 @@ protected:
     virtual bool onHandleKey(SkKey key);
     virtual bool onHandleChar(SkUnichar);
     virtual void onSizeChange();
-    
+
     virtual SkCanvas* beforeChildren(SkCanvas*);
     virtual void afterChildren(SkCanvas*);
     virtual void beforeChild(SkView* child, SkCanvas* canvas);
     virtual void afterChild(SkView* child, SkCanvas* canvas);
-    
+
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
 
@@ -170,18 +155,21 @@ protected:
     virtual bool handleEvent(const SkEvent& evt);
     virtual bool handleKey(SkKey key);
     virtual bool handleKeyUp(SkKey key);
-    
+
     virtual bool onClick(Click* click);
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
     virtual bool onHandleKeyUp(SkKey key);
 #endif
+
 private:
     int fCurrIndex;
-    
+
     SkPicture* fPicture;
     SkGpuCanvas* fGpuCanvas;
+    GrContext* fGrContext;
+    GrRenderTarget* fGrRenderTarget;
     SkPath fClipPath;
-    
+
     enum CanvasType {
         kRaster_CanvasType,
         kPicture_CanvasType,
@@ -196,9 +184,11 @@ private:
     bool fRotate;
     bool fScale;
     bool fRequestGrabImage;
-    
+
     int fScrollTestX, fScrollTestY;
-    
+
+    bool make3DReady();
+
     void loadView(SkView*);
     void updateTitle();
     bool nextSample();
@@ -209,12 +199,47 @@ private:
             evt->post(this->getSinkID(), ANIMATING_DELAY);
         }
     }
-    
-    
+
+
     static CanvasType cycle_canvastype(CanvasType);
 
     typedef SkOSWindow INHERITED;
 };
+
+bool SampleWindow::make3DReady() {
+
+#if defined(SK_SUPPORT_GL)
+    #if defined(USE_OFFSCREEN)
+        // first clear the raster bitmap, so we don't see any leftover bits
+        bitmap.eraseColor(0);
+        // now setup our glcanvas
+        attachGL(&bitmap);
+    #else
+        attachGL(NULL);
+    #endif
+
+    if (NULL == fGrContext) {
+        SkASSERT(NULL == fGrRenderTarget);
+    #if defined(SK_USE_SHADERS)
+        fGrContext = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
+    #else
+        fGrContext = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
+    #endif
+        if (NULL != fGrContext) {
+            fGrRenderTarget = fGrContext->createRenderTargetFrom3DApiState();
+        }
+    }
+
+    if (NULL != fGrContext) {
+        SkASSERT(NULL != fGrRenderTarget);
+        return true;
+    } else {
+        detachGL();
+    }
+#endif
+    SkDebugf("Failed to setup 3D");
+    return false;
+}
 
 SampleWindow::CanvasType SampleWindow::cycle_canvastype(CanvasType ct) {
     static const CanvasType gCT[] = {
@@ -228,6 +253,9 @@ SampleWindow::CanvasType SampleWindow::cycle_canvastype(CanvasType ct) {
 SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fPicture = NULL;
     fGpuCanvas = NULL;
+
+    fGrContext = NULL;
+    fGrRenderTarget = NULL;
 
 #ifdef DEFAULT_TO_GPU
     fCanvasType = kGPU_CanvasType;
@@ -263,6 +291,12 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 SampleWindow::~SampleWindow() {
     delete fPicture;
     delete fGpuCanvas;
+    if (NULL != fGrRenderTarget) {
+        fGrRenderTarget->unref();
+    }
+    if (NULL != fGrContext) {
+        fGrContext->unref();
+    }
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
@@ -275,7 +309,7 @@ static SkBitmap capture_bitmap(SkCanvas* canvas) {
 static bool bitmap_diff(SkCanvas* canvas, const SkBitmap& orig,
                         SkBitmap* diff) {
     const SkBitmap& src = canvas->getDevice()->accessBitmap(false);
-    
+
     SkAutoLockPixels alp0(src);
     SkAutoLockPixels alp1(orig);
     for (int y = 0; y < src.height(); y++) {
@@ -324,7 +358,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
                 this->INHERITED::draw(canvas);
             }
         }
-        
+
         SkBitmap diff;
         if (bitmap_diff(canvas, orig, &diff)) {
         }
@@ -360,13 +394,13 @@ static void reverseRedAndBlue(const SkBitmap& bm) {
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     SkIPoint viewport;
     bool alreadyGPU = canvas->getViewport(&viewport);
-    
+
     if (kGPU_CanvasType != fCanvasType) {
 #ifdef SK_SUPPORT_GL
         detachGL();
-#endif   
+#endif
     }
-    
+
     switch (fCanvasType) {
         case kRaster_CanvasType:
             canvas = this->INHERITED::beforeChildren(canvas);
@@ -376,27 +410,17 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
             canvas = fPicture->beginRecording(9999, 9999);
             break;
         case kGPU_CanvasType: {
-            if (!alreadyGPU) {
+            if (!alreadyGPU && make3DReady()) {
                 SkDevice* device = canvas->getDevice();
-                const SkBitmap& bitmap = device->accessBitmap(true);            
-#ifdef SK_SUPPORT_GL                
-    #ifdef USE_OFFSCREEN
-                // first clear the raster bitmap, so we don't see any leftover bits
-                bitmap.eraseColor(0);
-                // now setup our glcanvas
-                attachGL(&bitmap);
-    #else
-                attachGL(NULL);
-    #endif
-                glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-#endif
-                fGpuCanvas = new SkGpuCanvas(get_global_grctx(this));
+                const SkBitmap& bitmap = device->accessBitmap(true);
+
+                fGpuCanvas = new SkGpuCanvas(fGrContext, fGrRenderTarget);
                 device = fGpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
                                                   bitmap.width(), bitmap.height(),
                                                   false, false);
                 fGpuCanvas->setDevice(device)->unref();
                 canvas = fGpuCanvas;
-                
+
             } else {
                 canvas = this->INHERITED::beforeChildren(canvas);
             }
@@ -425,7 +449,7 @@ static void paint_rgn(const SkBitmap& bm, const SkIRect& r,
 void SampleWindow::afterChildren(SkCanvas* orig) {
     if (fRequestGrabImage) {
         fRequestGrabImage = false;
-        
+
         SkCanvas* canvas = fGpuCanvas ? fGpuCanvas : orig;
         SkDevice* device = canvas->getDevice();
         SkBitmap bitmap;
@@ -452,7 +476,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
                 SkDynamicMemoryWStream ostream;
                 fPicture->serialize(&ostream);
                 fPicture->unref();
-                
+
                 SkMemoryStream istream(ostream.getStream(), ostream.getOffset());
                 SkPicture pict(&istream);
                 orig->drawPicture(pict);
@@ -473,7 +497,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             break;
 #endif
     }
-    
+
 //    if ((fScrollTestX | fScrollTestY) != 0)
     if (false) {
         const SkBitmap& bm = orig->getDevice()->accessBitmap(true);
@@ -481,7 +505,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         int dy = fScrollTestY * 7;
         SkIRect r;
         SkRegion inval;
-        
+
         r.set(50, 50, 50+100, 50+100);
         bm.scrollRect(&r, dx, dy, &inval);
         paint_rgn(bm, r, inval);
@@ -589,7 +613,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
         }
     }
-    
+
     int dx = 0xFF;
     int dy = 0xFF;
 
@@ -603,11 +627,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case '9': dx =  1; dy = -1; break;
         case '3': dx =  1; dy =  1; break;
         case '1': dx = -1; dy =  1; break;
-            
+
         default:
             break;
     }
-    
+
     if (0xFF != dx && 0xFF != dy) {
         if ((dx | dy) == 0) {
             fScrollTestX = fScrollTestY = 0;
@@ -618,7 +642,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         this->inval(NULL);
         return true;
     }
-    
+
     switch (uni) {
         case 'a':
             fAnimating = !fAnimating;
@@ -659,7 +683,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         default:
             break;
     }
-    
+
     return this->INHERITED::onHandleChar(uni);
 }
 
@@ -724,7 +748,7 @@ void SampleWindow::loadView(SkView* view) {
     if (prev) {
         prev->detachFromParent();
     }
-    
+
     if (NULL == view) {
         view = create_overview(fSamples.count(), fSamples.begin());
     }
@@ -768,12 +792,12 @@ void SampleWindow::updateTitle() {
     if (title.size() == 0) {
         title.set("<unknown>");
     }
-    
+
     title.prepend(gCanvasTypePrefix[fCanvasType]);
 
     title.prepend(" ");
     title.prepend(configToString(this->getBitmap().config()));
-    
+
     if (fAnimating) {
         title.prepend("<A> ");
     }
@@ -795,12 +819,12 @@ void SampleWindow::onSizeChange() {
     SkView::F2BIter iter(this);
     SkView* view = iter.next();
     view->setSize(this->width(), this->height());
-    
+
     // rebuild our clippath
     {
         const SkScalar W = this->width();
         const SkScalar H = this->height();
-        
+
         fClipPath.reset();
 #if 0
         for (SkScalar y = SK_Scalar1; y < H; y += SkIntToScalar(32)) {
@@ -817,7 +841,7 @@ void SampleWindow::onSizeChange() {
         fClipPath.addRect(r, SkPath::kCW_Direction);
 #endif
     }
-    
+
     this->updateTitle();    // to refresh our config
 }
 
@@ -838,7 +862,7 @@ template <typename T> void SkTBSort(T array[], int count) {
             break;
         }
     }
-    
+
     for (int k = 0; k < count - 1; k++) {
         SkASSERT(!(array[k+1] < array[k]));
     }
@@ -909,7 +933,7 @@ static void test() {
     for (i = 0; i < SK_ARRAY_COUNT(gRecs); i++) {
         test_rects(gRecs[i].fRects, gRecs[i].fCount);
     }
-    
+
     SkRandom rand;
     for (i = 0; i < 10000; i++) {
         SkRegion rgn0, rgn1;

@@ -41,7 +41,7 @@ public:
      *  Helper to create a opengl-shader based context
      */
     static GrContext* CreateGLShaderContext();
-    
+
     virtual ~GrContext();
 
     /**
@@ -115,6 +115,19 @@ public:
                                                int width, int height);
 
     /**
+     * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
+     * viewport state from the underlying 3D API and wraps it in a
+     * GrRenderTarget. The GrRenderTarget will not attempt to delete/destroy the
+     * underlying object in its destructor and it is up to caller to guarantee
+     * that it remains valid while the GrRenderTarget is used.
+     *
+     * @return the newly created GrRenderTarget
+     */
+    GrRenderTarget* createRenderTargetFrom3DApiState() {
+        return fGpu->createRenderTargetFrom3DApiState();
+    }
+
+    /**
      *  Returns true if the specified use of an indexed texture is supported.
      */
     bool supportsIndex8PixelConfig(const GrSamplerState&, int width, int height);
@@ -126,8 +139,6 @@ public:
     const GrClip& getClip() const { return fGpu->getClip(); }
 
     void setRenderTarget(GrRenderTarget* target);
-    void setDefaultRenderTargetSize(uint32_t width, uint32_t height);
-    GrRenderTarget* defaultRenderTarget() { return fGpu->defaultRenderTarget(); }
 
     void setTexture(int stage, GrTexture* texture);
     void setSamplerState(int stage, const GrSamplerState&);

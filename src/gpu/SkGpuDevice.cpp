@@ -109,8 +109,14 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice::SkGpuDevice(GrContext* context, const SkBitmap& bitmap, bool isLayer)
-        : SkDevice(NULL, bitmap, false) {
+GrRenderTarget* SkGpuDevice::Current3DApiRenderTarget() {
+    return (GrRenderTarget*) -1;
+}
+
+SkGpuDevice::SkGpuDevice(GrContext* context,
+                         const SkBitmap& bitmap,
+                         GrRenderTarget* renderTargetOrNull)
+        : SkDevice(NULL, bitmap, (NULL == renderTargetOrNull)) {
 
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
@@ -123,7 +129,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, const SkBitmap& bitmap, bool isLaye
     fRenderTarget = NULL;
     fNeedClear = false;
 
-    if (isLayer) {
+    if (NULL == renderTargetOrNull) {
         SkBitmap::Config c = bitmap.config();
         if (c != SkBitmap::kRGB_565_Config) {
             c = SkBitmap::kARGB_8888_Config;
@@ -164,16 +170,13 @@ SkGpuDevice::SkGpuDevice(GrContext* context, const SkBitmap& bitmap, bool isLaye
         } else {
             GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
                      this->width(), this->height());
+            GrAssert(false);
         }
-    }
-
-    if (NULL == fRenderTarget) {
-        GrAssert(NULL == fCache);
-        GrAssert(NULL == fTexture);
-
-        fRenderTarget = fContext->currentRenderTarget();
+    } else if (Current3DApiRenderTarget() == renderTargetOrNull) {
+        fRenderTarget = fContext->createRenderTargetFrom3DApiState();
+    } else {
+        fRenderTarget = renderTargetOrNull;
         fRenderTarget->ref();
-        fContext->setDefaultRenderTargetSize(this->width(), this->height());
     }
 }
 
@@ -194,26 +197,6 @@ SkGpuDevice::~SkGpuDevice() {
     } else if (NULL != fRenderTarget) {
         fRenderTarget->unref();
     }
-}
-
-void SkGpuDevice::bindDeviceToTargetHandle(intptr_t handle) {
-    if (fCache) {
-        GrAssert(NULL != fTexture);
-        GrAssert(fRenderTarget == fTexture->asRenderTarget());
-        // IMPORTANT: reattach the rendertarget/tex back to the cache.
-        fContext->reattachAndUnlockCachedTexture((GrTextureEntry*)fCache);
-    } else if (NULL != fTexture) {
-        GrAssert(!CACHE_LAYER_TEXTURES);
-        fTexture->unref();
-    } else if (NULL != fRenderTarget) {
-        fRenderTarget->unref();
-    }
-
-    fCache  = NULL;
-    fTexture = NULL;
-    fRenderTarget = fContext->createPlatformRenderTarget(handle,
-                                                         this->width(),
-                                                         this->height());
 }
 
 intptr_t SkGpuDevice::getLayerTextureHandle() const {
@@ -1050,12 +1033,29 @@ void SkGpuDevice::unlockCachedTexture(TexCache* cache) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context) : fContext(context) {
+SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context,
+                                       GrRenderTarget* rootRenderTarget)
+        : fContext(context) {
+
+    GrAssert(NULL != context);
+    GrAssert(NULL != rootRenderTarget);
+
+    // check this now rather than passing this value to SkGpuDevice cons.
+    // we want the rt that is bound *now* in the 3D API, not the one
+    // at the time of newDevice.
+    if (SkGpuDevice::Current3DApiRenderTarget() == rootRenderTarget) {
+        fRootRenderTarget = context->createRenderTargetFrom3DApiState();
+    } else {
+        fRootRenderTarget = rootRenderTarget;
+        rootRenderTarget->ref();
+    }
     context->ref();
+
 }
 
 SkGpuDeviceFactory::~SkGpuDeviceFactory() {
     fContext->unref();
+    fRootRenderTarget->unref();
 }
 
 SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
@@ -1064,6 +1064,6 @@ SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
     SkBitmap bm;
     bm.setConfig(config, width, height);
     bm.setIsOpaque(isOpaque);
-    return new SkGpuDevice(fContext, bm, isLayer);
+    return new SkGpuDevice(fContext, bm, isLayer ?  NULL : fRootRenderTarget);
 }
 

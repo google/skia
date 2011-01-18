@@ -152,24 +152,7 @@ GrGpuGL::GrGpuGL() {
 
     resetContextHelper();
 
-    GrGLRenderTarget::GLRenderTargetIDs defaultRTIDs;
-    GR_GL_GetIntegerv(GR_FRAMEBUFFER_BINDING, (GLint*)&defaultRTIDs.fRTFBOID);
-    defaultRTIDs.fTexFBOID = defaultRTIDs.fRTFBOID;
-    defaultRTIDs.fMSColorRenderbufferID = 0;
-    defaultRTIDs.fStencilRenderbufferID = 0;
-    GLint vp[4];
-    GR_GL_GetIntegerv(GL_VIEWPORT, vp);
-    fHWBounds.fViewportRect.setLTRB(vp[0],
-                                    vp[1] + vp[3],
-                                    vp[0] + vp[2],
-                                    vp[1]);
-    defaultRTIDs.fOwnIDs = false;
-
-    fDefaultRenderTarget = new GrGLRenderTarget(defaultRTIDs,
-                                                fHWBounds.fViewportRect,
-                                                NULL,
-                                                this);
-    fHWDrawState.fRenderTarget = fDefaultRenderTarget;
+    fHWDrawState.fRenderTarget = NULL;
     fRenderTargetChanged = true;
 
     GLint maxTextureUnits;
@@ -445,17 +428,13 @@ GrGpuGL::GrGpuGL() {
     fMinRenderTargetWidth = GrMax<GLuint>(fMinRenderTargetWidth, 16);
     fMinRenderTargetHeight = GrMax<GLuint>(fMinRenderTargetHeight, 16);
 #endif
-    // bind back to original FBO
-    GR_GLEXT(fExts, BindFramebuffer(GR_FRAMEBUFFER, defaultRTIDs.fRTFBOID));
+
 #if GR_COLLECT_STATS
     ++fStats.fRenderTargetChngCnt;
 #endif
-    eraseStencil(0, ~0);
 }
 
 GrGpuGL::~GrGpuGL() {
-    fDefaultRenderTarget->abandon();
-    fDefaultRenderTarget->unref();
 }
 
 void GrGpuGL::resetContextHelper() {
@@ -501,6 +480,7 @@ void GrGpuGL::resetContextHelper() {
     fHWBounds.fScissorRect.setLTRB(0,0,0,0);
     fHWBounds.fScissorEnabled = false;
     GR_GL(Disable(GL_SCISSOR_TEST));
+    fHWBounds.fViewportRect.setLTRB(-1,-1,-1,-1);
 
     // disabling the stencil test also disables
     // stencil buffer writes
@@ -544,6 +524,30 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
     GrGLRenderTarget* rt = new GrGLRenderTarget(rtIDs, viewport, NULL, this);
 
     return rt;
+}
+
+GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiState() {
+    
+    GrGLRenderTarget::GLRenderTargetIDs rtIDs;
+    
+    GR_GL_GetIntegerv(GR_FRAMEBUFFER_BINDING, (GLint*)&rtIDs.fRTFBOID);
+    rtIDs.fTexFBOID = rtIDs.fRTFBOID;
+    rtIDs.fMSColorRenderbufferID = 0;
+    rtIDs.fStencilRenderbufferID = 0;
+    
+    GLint vp[4];
+    GR_GL_GetIntegerv(GL_VIEWPORT, vp);
+    GrIRect viewportRect;
+    viewportRect.setLTRB(vp[0],
+                         vp[1] + vp[3],
+                         vp[0] + vp[2],
+                         vp[1]);
+    rtIDs.fOwnIDs = false;
+
+    return new GrGLRenderTarget(rtIDs,
+                                viewportRect,
+                                NULL,
+                                this);
 }
 
 // defines stencil formats from more to less preferred
@@ -979,10 +983,6 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
     return tex;
 }
 
-GrRenderTarget* GrGpuGL::defaultRenderTarget() {
-    return fDefaultRenderTarget;
-}
-
 GrVertexBuffer* GrGpuGL::createVertexBuffer(uint32_t size, bool dynamic) {
     GLuint id;
     GR_GL(GenBuffers(1, &id));
@@ -1027,16 +1027,6 @@ GrIndexBuffer* GrGpuGL::createIndexBuffer(uint32_t size, bool dynamic) {
         return indexBuffer;
     }
     return NULL;
-}
-
-void GrGpuGL::setDefaultRenderTargetSize(uint32_t width, uint32_t height) {
-    GrIRect viewport(0, height, width, 0);
-    if (viewport != fDefaultRenderTarget->viewport()) {
-        fDefaultRenderTarget->setViewport(viewport);
-        if (fHWDrawState.fRenderTarget == fDefaultRenderTarget) {
-            fHWDrawState.fRenderTarget = NULL;
-        }
-    }
 }
 
 void GrGpuGL::flushScissor(const GrIRect* rect) {
@@ -1153,6 +1143,9 @@ bool GrGpuGL::readPixels(int left, int top, int width, int height,
 }
 
 void GrGpuGL::flushRenderTarget() {
+
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
+
     if (fHWDrawState.fRenderTarget != fCurrDrawState.fRenderTarget) {
         GrGLRenderTarget* rt = (GrGLRenderTarget*)fCurrDrawState.fRenderTarget;
         GR_GLEXT(fExts, BindFramebuffer(GR_FRAMEBUFFER, rt->renderFBOID()));
@@ -1459,7 +1452,11 @@ void GrGpuGL::flushStencil() {
     }
 }
 
-void GrGpuGL::flushGLStateCommon(PrimitiveType type) {
+bool GrGpuGL::flushGLStateCommon(PrimitiveType type) {
+
+    // GrGpu::setupClipAndFlushState should have already checked this
+    // and bailed if not true.
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
     for (int s = 0; s < kNumStages; ++s) {
         bool usingTexture = VertexUsesStage(s, fGeometrySrc.fVertexLayout);
@@ -1521,15 +1518,7 @@ void GrGpuGL::flushGLStateCommon(PrimitiveType type) {
                 nextTexture->setTexParams(newTexParams);
             } else {
                 GrAssert(!"Rendering with texture vert flag set but no texture");
-                if (NULL != fHWDrawState.fTextures[s]) {
-                    setTextureUnit(s);
-                    GR_GL(BindTexture(GL_TEXTURE_2D, 0));
-                    //            GrPrintf("---- bindtexture 0\n");
-                #if GR_COLLECT_STATS
-                    ++fStats.fTextureChngCnt;
-                #endif
-                    fHWDrawState.fTextures[s] = NULL;
-                }
+                return false;
             }
         }
     }
@@ -1607,6 +1596,7 @@ void GrGpuGL::flushGLStateCommon(PrimitiveType type) {
     flushStencil();
 
     fHWDrawState.fFlagBits = fCurrDrawState.fFlagBits;
+    return true;
 }
 
 void GrGpuGL::notifyVertexBufferBind(const GrGLVertexBuffer* buffer) {
@@ -1645,7 +1635,7 @@ void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     // b) we set more state than just FBO based on the RT
     // So trash the HW state to force an RT flush next time
     if (fCurrDrawState.fRenderTarget == renderTarget) {
-        fCurrDrawState.fRenderTarget = fDefaultRenderTarget;
+        fCurrDrawState.fRenderTarget = NULL;
     }
     if (fHWDrawState.fRenderTarget == renderTarget) {
         fHWDrawState.fRenderTarget = NULL;

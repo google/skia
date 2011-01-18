@@ -26,8 +26,14 @@ public:
     /**
      *  The constructor will ref() the context, passing it to each device
      *  that it creates. It will be unref()'d in the destructor
+     *  Non-layered devices created by the factory will draw to the
+     *  rootRenderTarget. rootRenderTarget is ref-counted by the factory.
+     *  SkGpuDevice::Current3DApiRenderTarget() can be passed as a special
+     *  value that will cause the factory to create a render target object
+     *  that reflects the state of the underlying 3D API at the time of
+     *  construction.
      */
-    SkGpuDeviceFactory(GrContext*);
+    SkGpuDeviceFactory(GrContext*, GrRenderTarget* rootRenderTarget);
 
     virtual ~SkGpuDeviceFactory();
 
@@ -36,6 +42,7 @@ public:
 
 private:
     GrContext* fContext;
+    GrRenderTarget* fRootRenderTarget;
 };
 
 #endif

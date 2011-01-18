@@ -197,6 +197,17 @@ public:
                                                 int width, int height) = 0;
 
     /**
+     * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
+     * viewport state from the underlying 3D API and wraps it in a
+     * GrRenderTarget. The GrRenderTarget will not attempt to delete/destroy the
+     * underlying object in its destructor and it is up to caller to guarantee
+     * that it remains valid while the GrRenderTarget is used.
+     *
+     * @return the newly created GrRenderTarget
+     */
+    virtual GrRenderTarget* createRenderTargetFrom3DApiState() = 0;
+
+    /**
      * Creates a vertex buffer.
      *
      * @param size    size in bytes of the vertex buffer
@@ -219,21 +230,6 @@ public:
      * @return The index buffer if successful, otherwise NULL.
      */
     virtual GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic) = 0;
-
-    /**
-     * Gets the default render target. This is the render target set in the
-     * 3D API at the time the GrGpu was created.
-     */
-    virtual GrRenderTarget* defaultRenderTarget() = 0;
-
-    /**
-     * At construction time the GrGpu infers the render target and viewport from
-     * the state of the underlying 3D API. However, a platform-specific resize
-     * event may occur.
-     * @param width     new width of the default rendertarget
-     * @param height    new height of the default rendertarget
-     */
-    virtual void setDefaultRenderTargetSize(uint32_t width, uint32_t height) = 0;
 
     /**
      * Erase the entire render target, ignoring any clips/scissors.

@@ -42,9 +42,7 @@ public:
                                                  intptr_t platformRenderTarget,
                                                  int width, int height);
 
-    virtual GrRenderTarget* defaultRenderTarget();
-
-    virtual void setDefaultRenderTargetSize(uint32_t width, uint32_t height);
+    virtual GrRenderTarget* createRenderTargetFrom3DApiState();
 
     virtual void eraseColor(GrColor color);
 
@@ -98,7 +96,7 @@ protected:
     // sampler state (filtering, tiling)
     // FBO binding
     // line width
-    void flushGLStateCommon(PrimitiveType type);
+    bool flushGLStateCommon(PrimitiveType type);
 
     // set when this class changes the rendertarget.
     // Subclass should notice at flush time, take appropriate action,
@@ -114,8 +112,6 @@ protected:
     GrGLExts fExts;
 
 private:
-    GrGLRenderTarget* fDefaultRenderTarget;
-
     void resetContextHelper();
 
     // notify callbacks to update state tracking when related
