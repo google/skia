@@ -8,6 +8,7 @@
 
 #include "GrContext.h"
 #include "SkGpuCanvas.h"
+#include "SkGpuDevice.h"
 #include "SkEGLContext.h"
 #include "SkDevice.h"
 
@@ -26,7 +27,7 @@ public:
     Iter() {
         fReg = GMRegistry::Head();
     }
-	
+
     GM* next() {
         if (fReg) {
             GMRegistry::Factory fact = fReg->factory();
@@ -35,7 +36,7 @@ public:
         }
         return NULL;
     }
-	
+
     static int Count() {
         const GMRegistry* reg = GMRegistry::Head();
         int count = 0;
@@ -45,7 +46,7 @@ public:
         }
         return count;
     }
-	
+
 private:
     const GMRegistry* fReg;
 };
@@ -192,7 +193,7 @@ static const struct {
 
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
-    
+
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* readPath = NULL;    // if non-null, were we read from to compare
 	const char* diffPath = NULL;	// if non-null, where we write our diffs (from compare)
@@ -249,9 +250,9 @@ int main (int argc, char * const argv[]) {
                 if (NULL == context) {
                     continue;
                 }
-                SkGpuCanvas gc(context);
+                SkGpuCanvas gc(context, SkGpuDevice::Current3DApiRenderTarget());
                 gc.setDevice(gc.createDevice(bitmap.config(), bitmap.width(), bitmap.height(),
-                                             bitmap.isOpaque(), false))->unref(); 
+                                             bitmap.isOpaque(), false))->unref();
                 gm->draw(&gc);
                 gc.readPixels(&bitmap); // overwrite our previous allocation
             } else {
