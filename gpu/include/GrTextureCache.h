@@ -67,7 +67,7 @@ public:
 
     friend bool operator==(const GrTextureKey& a, const GrTextureKey& b) {
         GR_DEBUGASSERT(-1 != a.fHashIndex && -1 != b.fHashIndex);
-        return a.fP0 == b.fP0 && a.fP1 == b.fP1 && a.fP2 == b.fP2 && 
+        return a.fP0 == b.fP0 && a.fP1 == b.fP1 && a.fP2 == b.fP2 &&
                a.fPrivateBits == b.fPrivateBits;
     }
 
@@ -82,16 +82,16 @@ public:
         RET_IF_LT_OR_GT(a.fP2, b.fP2);
         return a.fPrivateBits < b.fPrivateBits;
     }
-    
+
 private:
-    void finalize(uint32_t privateBits) { 
+    void finalize(uint32_t privateBits) {
         fPrivateBits = privateBits;
         this->computeHashIndex();
     }
-    
+
     uint16_t width() const { return fP2 & 0xffff; }
     uint16_t height() const { return (fP2 >> 16); }
-    
+
     static uint32_t rol(uint32_t x) {
         return (x >> 24) | (x << 8);
     }
@@ -101,7 +101,7 @@ private:
     static uint32_t rohalf(uint32_t x) {
         return (x >> 16) | (x << 16);
     }
-    
+
     void computeHashIndex() {
         uint32_t hash = fP0 ^ rol(fP1) ^ ror(fP2) ^ rohalf(fPrivateBits);
         // this way to mix and reduce hash to its index may have to change
@@ -118,7 +118,7 @@ private:
 
     // this is computed from the fP... fields
     int         fHashIndex;
-    
+
     friend class GrContext;
 };
 
@@ -194,6 +194,27 @@ public:
     ~GrTextureCache();  // uses kFreeTexture_DeleteMode
 
     /**
+     *  Return the current texture cache limits.
+     *
+     *  @param maxTextures If non-null, returns maximum number of textures that
+     *                     can be held in the cache.
+     *  @param maxTextureBytes If non-null, returns maximum number of bytes of
+     *                         texture memory that can be held in the cache.
+     */
+    void getLimits(int* maxTextures, size_t* maxTextureBytes) const;
+
+    /**
+     *  Specify the texture cache limits. If the current cache exceeds either
+     *  of these, it will be purged (LRU) to keep the cache within these limits.
+     *
+     *  @param maxTextures The maximum number of textures that can be held in
+     *                     the cache.
+     *  @param maxTextureBytes The maximum number of bytes of texture memory
+     *                         that can be held in the cache.
+     */
+    void setLimits(int maxTextures, size_t maxTextureBytes);
+
+    /**
      *  Search for an entry with the same Key. If found, "lock" it and return it.
      *  If not found, return null.
      */
@@ -207,18 +228,18 @@ public:
      *  it when we are purged or deleted.
      */
     GrTextureEntry* createAndLock(const GrTextureKey&, GrTexture*);
-    
+
     /**
-     * Detach removes an entry from the cache. This prevents the entry from 
-     * being found by a subsequent findAndLock() until it is reattached. The 
+     * Detach removes an entry from the cache. This prevents the entry from
+     * being found by a subsequent findAndLock() until it is reattached. The
      * entry still counts against the cache's budget and should be reattached
      * when exclusive access is no longer needed.
      */
     void detach(GrTextureEntry*);
-    
+
     /**
-     * Reattaches a texture to the cache and unlocks it. Allows it to be found 
-     * by a subsequent findAndLock or be purged (provided its lock count is 
+     * Reattaches a texture to the cache and unlocks it. Allows it to be found
+     * by a subsequent findAndLock or be purged (provided its lock count is
      * now 0.)
      */
     void reattachAndUnlock(GrTextureEntry*);
@@ -254,8 +275,8 @@ private:
     GrTextureEntry* fTail;
 
     // our budget, used in purgeAsNeeded()
-    const int fMaxCount;
-    const size_t fMaxBytes;
+    int fMaxCount;
+    size_t fMaxBytes;
 
     // our current stats, related to our budget
     int fEntryCount;
