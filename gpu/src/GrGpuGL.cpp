@@ -299,6 +299,11 @@ GrGpuGL::GrGpuGL() {
         GrPrintf("RGBA Renderbuffer: %s\n", (fRGBA8Renderbuffer ? "YES" : "NO"));
     }
 
+#if GR_SUPPORT_GLES
+    if (GR_GL_32BPP_COLOR_FORMAT == GR_BGRA) {
+        GrAssert(has_gl_extension("GL_EXT_texture_format_BGRA8888"));
+    }
+#endif
 
 #if GR_SUPPORT_GLDESKTOP
     fBufferLockSupport = true; // we require VBO support and the desktop VBO
@@ -1675,7 +1680,13 @@ bool GrGpuGL::canBeTexture(GrTexture::PixelConfig config,
         case GrTexture::kRGBA_8888_PixelConfig:
         case GrTexture::kRGBX_8888_PixelConfig: // todo: can we tell it our X?
             *format = GR_GL_32BPP_COLOR_FORMAT;
+#if GR_SUPPORT_GLES
+            // according to GL_EXT_texture_format_BGRA8888 the *internal*
+            // format for a BGRA is BGRA not RGBA (as on desktop)
+            *internalFormat = GR_GL_32BPP_COLOR_FORMAT;
+#else
             *internalFormat = GL_RGBA;
+#endif
             *type = GL_UNSIGNED_BYTE;
             break;
         case GrTexture::kRGB_565_PixelConfig:

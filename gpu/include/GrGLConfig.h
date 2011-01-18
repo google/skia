@@ -182,8 +182,8 @@
 // Windows where we match GDI's order).
 #ifndef GR_GL_32BPP_COLOR_FORMAT
     #if GR_WIN32_BUILD
-        #define GR_GL_32BPP_COLOR_FORMAT    GL_BGRA
-    #else 
+        #define GR_GL_32BPP_COLOR_FORMAT    GR_BGRA //use GR prefix because this
+    #else                                           //may be an extension.
         #define GR_GL_32BPP_COLOR_FORMAT    GL_RGBA
     #endif
 #endif
@@ -246,6 +246,10 @@ struct GrGLExts {
     GLboolean (GR_GL_FUNC *UnmapBuffer)(GLenum target);
 };
 }
+
+// BGRA format
+
+#define GR_BGRA                     0x80E1
 
 // FBO
 #define GR_FRAMEBUFFER              0x8D40
