@@ -856,10 +856,6 @@ GrRenderTarget* GrContext::currentRenderTarget() const {
     return fGpu->currentRenderTarget();
 }
 
-void GrContext::setDefaultRenderTargetSize(uint32_t width, uint32_t height) {
-    fGpu->setDefaultRenderTargetSize(width, height);
-}
-
 void GrContext::setSamplerState(int stage, const GrSamplerState& samplerState) {
     fGpu->setSamplerState(stage, samplerState);
 }

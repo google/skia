@@ -32,7 +32,22 @@ class GrTextContext;
  */
 class SkGpuDevice : public SkDevice {
 public:
-    SkGpuDevice(GrContext*, const SkBitmap& bitmap, bool isLayer);
+    /**
+     * The SkGpuDevice will render to the GrRenderTarget, or if the paremeter is
+     * null it will create its own render target and manage that target's
+     * lifetime.
+     */
+    SkGpuDevice(GrContext*,
+                const SkBitmap& bitmap,
+                GrRenderTarget* renderTargetOrNull);
+
+    /**
+     * Magic value that can be passed to constructor. Causes
+     * the device to infer rendertarget from underlying 3D API (e.g. GL or D3D).
+     * This isn't a valid pointer, don't attempt to dereference.
+     */
+    static GrRenderTarget* Current3DApiRenderTarget();
+
     virtual ~SkGpuDevice();
 
     GrContext* context() const { return fContext; }
@@ -45,14 +60,6 @@ public:
      *  is returned.
      */
     intptr_t getLayerTextureHandle() const;
-
-    /**
-     * Attaches the device to a rendering surface. This device will then render
-     * to the surface.
-     * For example, in OpenGL, the device will interpret handle as an FBO ID
-     * and drawing to the device would direct GL to the FBO.
-     */
-    void bindDeviceToTargetHandle(intptr_t handle);
 
     // call to set the clip to the specified rect
     void scissor(const SkIRect&);

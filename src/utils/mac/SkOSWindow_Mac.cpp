@@ -512,6 +512,7 @@ bool SkOSWindow::attachGL(const SkBitmap* offscreen)
     
     if (success) {
         glClearColor(0, 0, 0, 0);
+        glClearStencil(0);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
     return success;

@@ -140,7 +140,9 @@ bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
         }
     }
     
-    flushGLStateCommon(type);
+    if (!flushGLStateCommon(type)) {
+        return false;
+    }
 
     if (fRenderTargetChanged) {    
         flushProjectionMatrix();

@@ -178,6 +178,14 @@ void GrGpu::clipWillChange(const GrClip& clip) {
 bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
     const GrIRect* r = NULL;
 
+    // we check this early because we need a valid
+    // render target to setup stencil clipping
+    // before even going into flushGraphicsState
+    if (NULL == fCurrDrawState.fRenderTarget) {
+        GrAssert(!"No render target bound.");
+        return false;
+    }
+
     if (fCurrDrawState.fFlagBits & kClip_StateBit) {
         fClipState.fClipInStencil = fClip.countRects() > 1;
 
