@@ -251,18 +251,19 @@ struct GrGLExts {
 
 #define GR_BGRA                     0x80E1
 
-// FBO
+// FBO / stencil formats
 #define GR_FRAMEBUFFER              0x8D40
 #define GR_FRAMEBUFFER_COMPLETE     0x8CD5
 #define GR_COLOR_ATTACHMENT0        0x8CE0
 #define GR_FRAMEBUFFER_BINDING      0x8CA6          
 #define GR_RENDERBUFFER             0x8D41
 #define GR_STENCIL_ATTACHMENT       0x8D20
+#define GR_STENCIL_INDEX4           0x8D47
 #define GR_STENCIL_INDEX8           0x8D48
 #define GR_STENCIL_INDEX16          0x8D49
+#define GR_DEPTH24_STENCIL8         0x88F0
 #define GR_MAX_RENDERBUFFER_SIZE    0x84E8
 #define GR_DEPTH_STENCIL_ATTACHMENT 0x821A
-#define GR_UNSIGNED_INT_24_8        0x84FA
 #define GR_DEPTH_STENCIL            0x84F9
 #define GR_RGBA8                    0x8058
 #define GR_RGB565                   0x8D62

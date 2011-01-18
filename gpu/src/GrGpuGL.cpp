@@ -524,33 +524,6 @@ void GrGpuGL::resetContext() {
     resetContextHelper();
 }
 
-
-// defines stencil formats from more to less preferred
-#if GR_SUPPORT_GLES
-    GLenum GR_GL_STENCIL_FORMAT_ARRAY[] = {
-        GR_STENCIL_INDEX8,
-    };
-#else
-    GLenum GR_GL_STENCIL_FORMAT_ARRAY[] = {
-        GR_STENCIL_INDEX8,
-        GR_STENCIL_INDEX16,
-        GR_UNSIGNED_INT_24_8,
-        GR_DEPTH_STENCIL,
-    };
-#endif
-
-// good to set a break-point here to know when createTexture fails
-static GrTexture* return_null_texture() {
-//    GrAssert(!"null texture");
-    return NULL;
-}
-
-#if GR_DEBUG
-static size_t as_size_t(int x) {
-    return x;
-}
-#endif
-
 GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
                                                 int width, int height) {
@@ -572,6 +545,35 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
 
     return rt;
 }
+
+// defines stencil formats from more to less preferred
+GLenum GR_GL_STENCIL_FORMAT_ARRAY[] = {
+    GR_STENCIL_INDEX8,
+
+#if GR_SUPPORT_GLDESKTOP
+    GR_STENCIL_INDEX16,
+#endif
+
+    GR_DEPTH24_STENCIL8,
+    GR_STENCIL_INDEX4,
+
+#if GR_SUPPORT_GLDESKTOP
+    GL_STENCIL_INDEX,
+    GR_DEPTH_STENCIL,
+#endif
+};
+
+// good to set a break-point here to know when createTexture fails
+static GrTexture* return_null_texture() {
+//    GrAssert(!"null texture");
+    return NULL;
+}
+
+#if GR_DEBUG
+static size_t as_size_t(int x) {
+    return x;
+}
+#endif
 
 GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
                                   const void* srcData, size_t rowBytes) {
