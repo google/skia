@@ -30,7 +30,9 @@ static const size_t MAX_TEXTURE_CACHE_BYTES = 8 * 1024 * 1024;
 
 #if DEFER_TEXT_RENDERING
     static const uint32_t POOL_VB_SIZE = 2048 *
-            GrDrawTarget::VertexSize(GrDrawTarget::kTextFormat_VertexLayoutBit);
+            GrDrawTarget::VertexSize(
+                GrDrawTarget::kTextFormat_VertexLayoutBit |
+                GrDrawTarget::StageTexCoordVertexLayoutBit(0,0));
     static const uint32_t NUM_POOL_VBS = 8;
 #else
     static const uint32_t POOL_VB_SIZE = 0;
