@@ -33,7 +33,9 @@
 /*
  *  The default 32bit pixel config for texture upload is GL_RGBA on all
  *  platforms except on Windows where it is GL_BGRA. If your bitmaps map to a
- *  different GL enum, specify that with this define.
+ *  different GL enum, specify that with this define. For portability use
+ *  GR_BGRA rather than GL_BGRA for platforms where this format is an
+ *  extension.
  */
 //#define GR_GL_32BPP_COLOR_FORMAT  GL_RGBA
 
