@@ -1777,7 +1777,9 @@ void GrGLCheckErr(const char* location, const char* call) {
 typedef void (*glProc)(void);
 
 void get_gl_proc(const char procName[], glProc *address) {
-#if GR_WIN32_BUILD
+#if GR_CHROME_BUILD
+    GrAssert(!"should not get called");
+#elif GR_WIN32_BUILD
     *address = (glProc)wglGetProcAddress(procName);
     GrAssert(NULL != *address);
 #elif GR_MAC_BUILD || GR_IOS_BUILD
@@ -1945,4 +1947,5 @@ extern void GrGLInitExtensions(GrGLExts* exts) {
 }
 
 bool gPrintGL = true;
+
 

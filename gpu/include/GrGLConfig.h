@@ -20,7 +20,11 @@
 
 #include "GrTypes.h"
 
-#if GR_WIN32_BUILD
+#if GR_CHROME_BUILD // temporary build-flag, orthogonal to mac/win/linux
+    #define GR_INCLUDE_GLES2        <GLES2/gl2.h>
+    #define GR_INCLUDE_GLES2ext     <GLES2/gl2ext.h>
+    #define GR_GL_FUNC
+#elif GR_WIN32_BUILD
     // glew has to be included before gl
     #define GR_INCLUDE_GLDESKTOP    <GL/glew.h>
     #define GR_INCLUDE_GLDESKTOPext <GL/gl.h>
@@ -174,7 +178,7 @@
 #elif GR_TEXT_SCALAR_IS_FIXED
     #define GrGLTextType                    GL_FIXED
     #define GR_GL_TEXT_TEXTURE_NORMALIZED   0
-#else 
+#else
     #error "unknown GR_TEXT_SCALAR type"
 #endif
 
@@ -191,7 +195,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // setup for opengl ES/desktop extensions
 // we make a struct of function pointers so that each GL context
-// can have it's own struct. (Some environments may have different proc 
+// can have it's own struct. (Some environments may have different proc
 // addresses for different contexts).
 
 extern "C" {
@@ -200,45 +204,45 @@ struct GrGLExts {
     GLvoid (GR_GL_FUNC *GenFramebuffers)(GLsizei n, GLuint *framebuffers);
     GLvoid (GR_GL_FUNC *BindFramebuffer)(GLenum target, GLuint framebuffer);
     GLvoid (GR_GL_FUNC *FramebufferTexture2D)(GLenum target, GLenum attachment,
-                                              GLenum textarget, GLuint texture, 
+                                              GLenum textarget, GLuint texture,
                                               GLint level);
     GLenum (GR_GL_FUNC *CheckFramebufferStatus)(GLenum target);
-    GLvoid (GR_GL_FUNC *DeleteFramebuffers)(GLsizei n, const 
+    GLvoid (GR_GL_FUNC *DeleteFramebuffers)(GLsizei n, const
                                             GLuint *framebuffers);
-    GLvoid (GR_GL_FUNC *RenderbufferStorage)(GLenum target, 
+    GLvoid (GR_GL_FUNC *RenderbufferStorage)(GLenum target,
                                              GLenum internalformat,
                                              GLsizei width, GLsizei height);
     GLvoid (GR_GL_FUNC *GenRenderbuffers)(GLsizei n, GLuint *renderbuffers);
-    GLvoid (GR_GL_FUNC *DeleteRenderbuffers)(GLsizei n, 
+    GLvoid (GR_GL_FUNC *DeleteRenderbuffers)(GLsizei n,
                                              const GLuint *renderbuffers);
-    GLvoid (GR_GL_FUNC *FramebufferRenderbuffer)(GLenum target, 
+    GLvoid (GR_GL_FUNC *FramebufferRenderbuffer)(GLenum target,
                                                  GLenum attachment,
-                                                 GLenum renderbuffertarget, 
+                                                 GLenum renderbuffertarget,
                                                  GLuint renderbuffer);
     GLvoid (GR_GL_FUNC *BindRenderbuffer)(GLenum target, GLuint renderbuffer);
 
 // Multisampling
     // same prototype for ARB_FBO, EXT_FBO, GL 3.0, & Apple ES extension
-    GLvoid (GR_GL_FUNC *RenderbufferStorageMultisample)(GLenum target, 
+    GLvoid (GR_GL_FUNC *RenderbufferStorageMultisample)(GLenum target,
                                                         GLsizei samples,
                                                         GLenum internalformat,
-                                                        GLsizei width, 
+                                                        GLsizei width,
                                                         GLsizei height);
     // desktop: ext_fbo_blit, arb_fbo, gl 3.0
-    GLvoid (GR_GL_FUNC *BlitFramebuffer)(GLint srcX0, GLint srcY0, 
+    GLvoid (GR_GL_FUNC *BlitFramebuffer)(GLint srcX0, GLint srcY0,
                                          GLint srcX1, GLint srcY1,
-                                         GLint dstX0, GLint dstY0, 
+                                         GLint dstX0, GLint dstY0,
                                          GLint dstX1, GLint dstY1,
                                          GLbitfield mask, GLenum filter);
     // apple's es extension
     GLvoid (GR_GL_FUNC *ResolveMultisampleFramebuffer)();
 
     // IMG'e es extension
-    GLvoid (GR_GL_FUNC *FramebufferTexture2DMultisample)(GLenum target, 
+    GLvoid (GR_GL_FUNC *FramebufferTexture2DMultisample)(GLenum target,
                                                          GLenum attachment,
-                                                         GLenum textarget, 
-                                                         GLuint texture, 
-                                                         GLint level, 
+                                                         GLenum textarget,
+                                                         GLuint texture,
+                                                         GLint level,
                                                          GLsizei samples);
 
 // Buffer mapping (extension in ES).
@@ -255,7 +259,7 @@ struct GrGLExts {
 #define GR_FRAMEBUFFER              0x8D40
 #define GR_FRAMEBUFFER_COMPLETE     0x8CD5
 #define GR_COLOR_ATTACHMENT0        0x8CE0
-#define GR_FRAMEBUFFER_BINDING      0x8CA6          
+#define GR_FRAMEBUFFER_BINDING      0x8CA6
 #define GR_RENDERBUFFER             0x8D41
 #define GR_STENCIL_ATTACHMENT       0x8D20
 #define GR_STENCIL_INDEX4           0x8D47
@@ -286,11 +290,11 @@ struct GrGLExts {
 
 extern void GrGLInitExtensions(GrGLExts* exts);
 ////////////////////////////////////////////////////////////////////////////////
-          
+
 extern void GrGLCheckErr(const char* location, const char* call);
 
 static inline void GrGLClearErr() {
-    while (GL_NO_ERROR != glGetError()) {} 
+    while (GL_NO_ERROR != glGetError()) {}
 }
 
 // GR_FORCE_GLCHECKERR can be defined by GrUserConfig.h
