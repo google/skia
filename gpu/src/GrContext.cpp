@@ -232,6 +232,17 @@ GrTexture* GrContext::createUncachedTexture(const GrGpu::TextureDesc& desc,
     return fGpu->createTexture(desc, srcData, rowBytes);
 }
 
+void GrContext::getTextureCacheLimits(int* maxTextures,
+                                      size_t* maxTextureBytes) const {
+    fTextureCache->getLimits(maxTextures, maxTextureBytes);
+}
+
+void GrContext::setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
+    fTextureCache->setLimits(maxTextures, maxTextureBytes);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 GrRenderTarget* GrContext::createPlatformRenderTarget(intptr_t platformRenderTarget,
                                                       int width, int height) {
     return fGpu->createPlatformRenderTarget(platformRenderTarget,

@@ -41,7 +41,7 @@ void GrTextureEntry::validate() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrTextureCache::GrTextureCache(int maxCount, size_t maxBytes) : 
+GrTextureCache::GrTextureCache(int maxCount, size_t maxBytes) :
         fMaxCount(maxCount),
         fMaxBytes(maxBytes) {
     fEntryCount          = 0;
@@ -54,11 +54,31 @@ GrTextureCache::GrTextureCache(int maxCount, size_t maxBytes) :
 
 GrTextureCache::~GrTextureCache() {
     GrAutoTextureCacheValidate atcv(this);
-    
+
     this->deleteAll(kFreeTexture_DeleteMode);
 }
 
-void GrTextureCache::internalDetach(GrTextureEntry* entry, 
+void GrTextureCache::getLimits(int* maxTextures, size_t* maxTextureBytes) const{
+    if (maxTextures) {
+        *maxTextures = fMaxCount;
+    }
+    if (maxTextureBytes) {
+        *maxTextureBytes = fMaxBytes;
+    }
+}
+
+void GrTextureCache::setLimits(int maxTextures, size_t maxTextureBytes) {
+    bool smaller = (maxTextures < fMaxCount) || (maxTextureBytes < fMaxBytes);
+
+    fMaxCount = maxTextures;
+    fMaxBytes = maxTextureBytes;
+
+    if (smaller) {
+        this->purgeAsNeeded();
+    }
+}
+
+void GrTextureCache::internalDetach(GrTextureEntry* entry,
                                     bool clientDetach) {
     GrTextureEntry* prev = entry->fPrev;
     GrTextureEntry* next = entry->fNext;
@@ -84,7 +104,7 @@ void GrTextureCache::internalDetach(GrTextureEntry* entry,
     }
 }
 
-void GrTextureCache::attachToHead(GrTextureEntry* entry, 
+void GrTextureCache::attachToHead(GrTextureEntry* entry,
                                   bool clientReattach) {
     entry->fPrev = NULL;
     entry->fNext = fHead;
@@ -114,7 +134,7 @@ public:
     Key(const GrTextureKey& key) : fKey(key) {}
 
     uint32_t getHash() const { return fKey.hashIndex(); }
-    
+
     static bool LT(const T& entry, const Key& key) {
         return entry.key() < key.fKey;
     }
@@ -180,7 +200,7 @@ void GrTextureCache::reattachAndUnlock(GrTextureEntry* entry) {
 
 void GrTextureCache::unlock(GrTextureEntry* entry) {
     GrAutoTextureCacheValidate atcv(this);
-    
+
     GrAssert(entry);
     GrAssert(entry->isLocked());
     GrAssert(fCache.find(entry->key()));
@@ -191,7 +211,7 @@ void GrTextureCache::unlock(GrTextureEntry* entry) {
 
 void GrTextureCache::purgeAsNeeded() {
     GrAutoTextureCacheValidate atcv(this);
-    
+
     GrTextureEntry* entry = fTail;
     while (entry) {
         if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
@@ -202,7 +222,7 @@ void GrTextureCache::purgeAsNeeded() {
         if (!entry->isLocked()) {
             // remove from our cache
             fCache.remove(entry->fKey, entry);
-            
+
             // remove from our llist
             this->internalDetach(entry, false);
 
@@ -220,7 +240,7 @@ void GrTextureCache::purgeAsNeeded() {
 void GrTextureCache::deleteAll(DeleteMode mode) {
     GrAssert(!fClientDetachedCount);
     GrAssert(!fClientDetachedBytes);
-    
+
     GrTextureEntry* entry = fHead;
     while (entry) {
         GrAssert(!entry->isLocked());
@@ -257,7 +277,7 @@ static int countMatches(const GrTextureEntry* head, const GrTextureEntry* target
 void GrTextureCache::validate() const {
     GrAssert(!fHead == !fTail);
     GrAssert(!fEntryCount == !fEntryBytes);
-    GrAssert(!fClientDetachedBytes == !fClientDetachedBytes); 
+    GrAssert(!fClientDetachedBytes == !fClientDetachedBytes);
     GrAssert(fClientDetachedBytes <= fEntryBytes);
     GrAssert(fClientDetachedCount <= fEntryCount);
     GrAssert((fEntryCount - fClientDetachedCount) == fCache.count());
@@ -265,7 +285,7 @@ void GrTextureCache::validate() const {
     GrAssert(fEntryCount >= 0);
     GrAssert(fClientDetachedCount >= 0);
     GrAssert(fClientDetachedBytes >= 0);
-    
+
     fCache.validate();
 
     GrTextureEntry* entry = fHead;

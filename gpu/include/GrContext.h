@@ -287,6 +287,29 @@ public:
         GrRenderTarget* fPrevTarget;
     };
 
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     *  Return the current texture cache limits.
+     *
+     *  @param maxTextures If non-null, returns maximum number of textures that
+     *                     can be held in the cache.
+     *  @param maxTextureBytes If non-null, returns maximum number of bytes of
+     *                         texture memory that can be held in the cache.
+     */
+    void getTextureCacheLimits(int* maxTextures, size_t* maxTextureBytes) const;
+
+    /**
+     *  Specify the texture cache limits. If the current cache exceeds either
+     *  of these, it will be purged (LRU) to keep the cache within these limits.
+     *
+     *  @param maxTextures The maximum number of textures that can be held in
+     *                     the cache.
+     *  @param maxTextureBytes The maximum number of bytes of texture memory
+     *                         that can be held in the cache.
+     */
+    void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes);
+
     /* -------------------------------------------------------
      */
 
