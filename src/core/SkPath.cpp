@@ -488,6 +488,11 @@ static void add_corner_arc(SkPath* path, const SkRect& rect,
 
 void SkPath::addRoundRect(const SkRect& rect, const SkScalar rad[],
                           Direction dir) {
+    // abort before we invoke SkAutoPathBoundsUpdate()
+    if (rect.isEmpty()) {
+        return;
+    }
+
     SkAutoPathBoundsUpdate apbu(this, rect);
 
     if (kCW_Direction == dir) {
