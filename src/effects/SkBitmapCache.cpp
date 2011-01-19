@@ -105,11 +105,11 @@ bool SkBitmapCache::find(const void* buffer, size_t size, SkBitmap* bm) const {
 
 void SkBitmapCache::add(const void* buffer, size_t len, const SkBitmap& bm) {
     AutoValidate av(this);
-    
+
     if (fEntryCount == fMaxEntries) {
-        if (fTail) {
-            delete this->detach(fTail);
-        }
+        SkASSERT(fTail);
+        delete this->detach(fTail);
+        fEntryCount -= 1;
     }
 
     Entry* entry = new Entry(buffer, len, bm);
@@ -123,7 +123,7 @@ void SkBitmapCache::add(const void* buffer, size_t len, const SkBitmap& bm) {
 
 void SkBitmapCache::validate() const {
     SkASSERT(fEntryCount >= 0 && fEntryCount <= fMaxEntries);
-    
+
     if (fEntryCount > 0) {
         SkASSERT(NULL == fHead->fPrev);
         SkASSERT(NULL == fTail->fNext);
@@ -141,7 +141,7 @@ void SkBitmapCache::validate() const {
             entry = entry->fNext;
         }
         SkASSERT(count == fEntryCount);
-        
+
         entry = fTail;
         while (entry) {
             count -= 1;
@@ -151,7 +151,7 @@ void SkBitmapCache::validate() const {
     } else {
         SkASSERT(NULL == fHead);
         SkASSERT(NULL == fTail);
-    }            
+    }
 }
 
 #endif
