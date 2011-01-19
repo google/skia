@@ -167,8 +167,10 @@
 
 #define GR_SUPPORT_GLES ((GR_SUPPORT_GLES1) || (GR_SUPPORT_GLES2))
 
-#if !(GR_SUPPORT_GLES) != !(GR_SUPPORT_DESKTOP)
-    #error "Either desktop of ES GL must be supported but not both"
+#if !GR_SUPPORT_GLES && !GR_SUPPORT_GLDESKTOP
+    #error "Either desktop or ES GL must be supported"
+#elif GR_SUPPORT_GLES && GR_SUPPORT_GLDESKTOP
+    #error "Cannot support both desktop and ES GL"
 #endif
 
 #if !defined(GR_GL_FUNC)

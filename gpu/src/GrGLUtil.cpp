@@ -101,9 +101,9 @@ extern void GrGLInitExtensions(GrGLExts* exts) {
 
     GLint major, minor;
     gl_version(&major, &minor);
-#if GR_SUPPORT_GLDESKTOP
 
     bool fboFound = false;
+#if GR_SUPPORT_GLDESKTOP
     #if GL_VERSION_3_0
     if (!fboFound && major >= 3) { // all of ARB_fbo is in 3.x
         exts->GenFramebuffers                   = glGenFramebuffers;
@@ -174,7 +174,6 @@ extern void GrGLInitExtensions(GrGLExts* exts) {
     exts->MapBuffer     = glMapBuffer;
     exts->UnmapBuffer   = glUnmapBuffer;
 #else // !GR_SUPPORT_GLDESKTOP
-    bool foundFBO = false;
     #if GR_SUPPORT_GLES2
     if (!fboFound && major >= 2) {// ES 2.0 supports FBO
         exts->GenFramebuffers                   = glGenFramebuffers;
@@ -190,7 +189,7 @@ extern void GrGLInitExtensions(GrGLExts* exts) {
         fboFound = true;
     }
     #endif
-    #if !GL_OES_framebuffer_object
+    #if GL_OES_framebuffer_object
     if (!fboFound && has_gl_extension("GL_OES_framebuffer_object")) {
         GET_SUFFIX_PROC(exts, GenFramebuffers, OES);
         GET_SUFFIX_PROC(exts, BindFramebuffer, OES);
