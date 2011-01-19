@@ -91,6 +91,7 @@
 		00115EA912C116CA008296FE /* GrUserConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6D12C116CA008296FE /* GrUserConfig.h */; };
 		00115EAA12C116CA008296FE /* GrVertexBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6E12C116CA008296FE /* GrVertexBuffer.h */; };
 		00115EAB12C116CA008296FE /* GrVertexBufferAllocPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6F12C116CA008296FE /* GrVertexBufferAllocPool.h */; };
+		D58CAF9A12E7212100CB9277 /* GrGLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -179,6 +180,7 @@
 		00115E6E12C116CA008296FE /* GrVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrVertexBuffer.h; path = ../../gpu/include/GrVertexBuffer.h; sourceTree = SOURCE_ROOT; };
 		00115E6F12C116CA008296FE /* GrVertexBufferAllocPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrVertexBufferAllocPool.h; path = ../../gpu/include/GrVertexBufferAllocPool.h; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libgpu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgpu.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLUtil.cpp; path = ../../gpu/src/GrGLUtil.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -297,6 +299,7 @@
 				00115DF812C1167A008296FE /* GrTextStrike.cpp */,
 				00115DF912C1167A008296FE /* GrTextureCache.cpp */,
 				00115DFB12C1167A008296FE /* GrVertexBufferAllocPool.cpp */,
+				D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */,
 			);
 			name = Source;
 			sourceTree = "<group>";
@@ -459,6 +462,7 @@
 				00115E2812C1167A008296FE /* GrTextStrike.cpp in Sources */,
 				00115E2912C1167A008296FE /* GrTextureCache.cpp in Sources */,
 				00115E2B12C1167A008296FE /* GrVertexBufferAllocPool.cpp in Sources */,
+				D58CAF9A12E7212100CB9277 /* GrGLUtil.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

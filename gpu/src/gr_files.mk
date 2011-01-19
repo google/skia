@@ -11,6 +11,7 @@ SOURCE := \
     GrGpuGLShaders.cpp \
     GrGpuGLFixed.cpp \
     GrGpuFactory.cpp \
+	GrGLUtil.cpp \
     GrGpuGL.cpp \
     GrInOrderDrawBuffer.cpp \
     GrMatrix.cpp \
@@ -20,4 +21,4 @@ SOURCE := \
     GrTextureCache.cpp \
     GrTextContext.cpp \
     GrTextStrike.cpp \
-    GrVertexBufferAllocPool.cpp
+    GrVertexBufferAllocPool.cpp 

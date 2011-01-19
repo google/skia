@@ -214,6 +214,7 @@
     <ClCompile Include="..\..\gpu\src\GrDrawTarget.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLIndexBuffer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLTexture.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGLUtil.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLVertexBuffer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGpu.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGpuFactory.cpp" />
