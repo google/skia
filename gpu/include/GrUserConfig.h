@@ -1,3 +1,19 @@
+/*
+    Copyright 2010 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ */
+
 #ifndef GrUserConfig_DEFINED
 #define GrUserConfig_DEFINED
 
@@ -11,22 +27,6 @@
     #define GR_RELEASE  0
     #define GR_DEBUG    1
 #endif
-
-/*
-    Copyright 2010 Google Inc.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
- */
 
 //#define GR_FORCE_GLCHECKERR   1
 
@@ -47,11 +47,22 @@
 
 /*
  * To log all GL calls define this. Can be turned on and off at runtime by
- * gPrintGL global variable. 
+ * gPrintGL global variable.
  */
 //#define GR_GL_LOG_CALLS 1
- 
-////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+/*
+ *  temporary flags (may go away soon)
+ */
+
+// specific changes for current Chrome build
+//#define GR_CHROME_BUILD     1
+
+// disable 2-point-radial gradient shader programs
+//#define GR_SKIP_2POINTRADIAL_PROGRAMS
+
+///////////////////////////////////////////////////////////////////////////////
 // Decide Ganesh types
 
 #define GR_SCALAR_IS_FIXED          0
