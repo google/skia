@@ -446,7 +446,7 @@ bool GrGpuGLShaders::createProgram(GLuint vshader, GLuint fshader,
     } else if (-1 != samplerLocation && !hasTexture) {
         GrAssert(!"unexpectedly found texture sampler");
     }
-#if !ATTRIBUTE_MATRIX
+#if !ATTRIBUTE_MATRIX && !defined(GR_SKIP_2POINTRADIAL_PROGRAMS)
     if (-1 == program->fTexMatrixLocation && hasTexMatrix) {
         GrAssert(!"Expected to find texture matrix");
         GR_GL(DeleteProgram(program->fProgramID));
@@ -502,6 +502,9 @@ GrGpuGLShaders::GrGpuGLShaders() {
 
     GR_STATIC_ASSERT(kProgramCount == GR_ARRAY_COUNT(gProgramLoadData));
     for (int p = 0; p < kProgramCount; ++p) {
+#ifdef GR_SKIP_2POINTRADIAL_PROGRAMS
+        if (11 == p || 12 == p) continue;
+#endif
         GR_DEBUGCODE(bool result = )
         createProgram(vshadIDs[gProgramLoadData[p].fVShaderIdx],
                       fshadIDs[gProgramLoadData[p].fFShaderIdx],
