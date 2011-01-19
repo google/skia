@@ -650,7 +650,7 @@ void GrGpuGLShaders::flushProgram(PrimitiveType type) {
 
     GrTexture* texture = fCurrDrawState.fTextures[0];
     bool posAsTex =
-            StagePosAsTexCoordVertexLayoutBit(0) & fGeometrySrc.fVertexLayout;
+          !!(StagePosAsTexCoordVertexLayoutBit(0) & fGeometrySrc.fVertexLayout);
 
     if (!VertexUsesStage(0, fGeometrySrc.fVertexLayout)) {
         goto HAVE_NEXT_PROGRAM;

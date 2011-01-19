@@ -56,9 +56,6 @@
  *  temporary flags (may go away soon)
  */
 
-// specific changes for current Chrome build
-//#define GR_CHROME_BUILD     1
-
 // disable 2-point-radial gradient shader programs
 //#define GR_SKIP_2POINTRADIAL_PROGRAMS
 

@@ -16,7 +16,6 @@
 
 #include "GrGpuGL.h"
 #include "GrMemory.h"
-#include <stdio.h>
 #if GR_WIN32_BUILD
     // need to get wglGetProcAddress
     #undef WIN32_LEAN_AND_MEAN
@@ -48,56 +47,12 @@ static const GLenum gXfermodeCoeff2Blend[] = {
     GL_ONE_MINUS_DST_ALPHA,
 };
 
-bool has_gl_extension(const char* ext) {
-    const char* glstr = (const char*) glGetString(GL_EXTENSIONS);
 
-    int extLength = strlen(ext);
 
-    while (true) {
-        int n = strcspn(glstr, " ");
-        if (n == extLength && 0 == strncmp(ext, glstr, n)) {
-            return true;
-        }
-        if (0 == glstr[n]) {
-            return false;
-        }
-        glstr += n+1;
-    }
-}
-
-void gl_version(int* major, int* minor) {
-    const char* v = (const char*) glGetString(GL_VERSION);
-    if (NULL == v) {
-        GrAssert(0);
-        *major = 0;
-        *minor = 0;
-        return;
-    }
-#if GR_SUPPORT_GLDESKTOP
-    int n = sscanf(v, "%d.%d", major, minor);
-    if (n != 2) {
-        GrAssert(0);
-        *major = 0;
-        *minor = 0;
-        return;
-    }
-#else
-    char profile[2];
-    int n = sscanf(v, "OpenGL ES-%c%c %d.%d", profile, profile+1, major, minor);
-    bool ok = 4 == n;
-    if (!ok) {
-        int n = sscanf(v, "OpenGL ES %d.%d", major, minor);
-        ok = 2 == n;
-    }
-    if (!ok) {
-        GrAssert(0);
-        *major = 0;
-        *minor = 0;
-        return;
-    }
-#endif
-}
 ///////////////////////////////////////////////////////////////////////////////
+
+static bool gPrintStartupSpew;
+
 
 bool fbo_test(GrGLExts exts, int w, int h) {
 
@@ -131,10 +86,6 @@ bool fbo_test(GrGLExts exts, int w, int h) {
 
     return status == GR_FRAMEBUFFER_COMPLETE;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-static bool gPrintStartupSpew;
 
 GrGpuGL::GrGpuGL() {
     if (gPrintStartupSpew) {
@@ -527,14 +478,14 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
 }
 
 GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiState() {
-    
+
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
-    
+
     GR_GL_GetIntegerv(GR_FRAMEBUFFER_BINDING, (GLint*)&rtIDs.fRTFBOID);
     rtIDs.fTexFBOID = rtIDs.fRTFBOID;
     rtIDs.fMSColorRenderbufferID = 0;
     rtIDs.fStencilRenderbufferID = 0;
-    
+
     GLint vp[4];
     GR_GL_GetIntegerv(GL_VIEWPORT, vp);
     GrIRect viewportRect;
@@ -1755,197 +1706,3 @@ bool GrGpuGL::fboInternalFormat(GrTexture::PixelConfig config, GLenum* format) {
             return false;
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-void GrGLCheckErr(const char* location, const char* call) {
-    uint32_t err =  glGetError();
-    if (GL_NO_ERROR != err) {
-        GrPrintf("---- glGetError %x", err);
-        if (NULL != location) {
-            GrPrintf(" at\n\t%s", location);
-        }
-        if (NULL != call) {
-            GrPrintf("\n\t\t%s", call);
-        }
-        GrPrintf("\n");
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-typedef void (*glProc)(void);
-
-void get_gl_proc(const char procName[], glProc *address) {
-#if GR_CHROME_BUILD
-    GrAssert(!"should not get called");
-#elif GR_WIN32_BUILD
-    *address = (glProc)wglGetProcAddress(procName);
-    GrAssert(NULL != *address);
-#elif GR_MAC_BUILD || GR_IOS_BUILD
-    GrAssert(!"Extensions don't need to be initialized!");
-#elif GR_ANDROID_BUILD
-    *address = eglGetProcAddress(procName);
-    GrAssert(NULL != *address);
-#elif GR_LINUX_BUILD
-//    GR_STATIC_ASSERT(!"Add environment-dependent implementation here");
-    //*address = glXGetProcAddressARB(procName);
-    *address = NULL;//eglGetProcAddress(procName);
-#elif GR_QNX_BUILD
-    *address = eglGetProcAddress(procName);
-    GrAssert(NULL != *address);
-#else
-    // hopefully we're on a system with EGL
-    *address = eglGetProcAddress(procName);
-    GrAssert(NULL != *address);
-#endif
-}
-
-#define GET_PROC(EXT_STRUCT, PROC_NAME, EXT_TAG) \
-    get_gl_proc("gl" #PROC_NAME #EXT_TAG, (glProc*)&EXT_STRUCT-> PROC_NAME);
-
-extern void GrGLInitExtensions(GrGLExts* exts) {
-    exts->GenFramebuffers                   = NULL;
-    exts->BindFramebuffer                   = NULL;
-    exts->FramebufferTexture2D              = NULL;
-    exts->CheckFramebufferStatus            = NULL;
-    exts->DeleteFramebuffers                = NULL;
-    exts->RenderbufferStorage               = NULL;
-    exts->GenRenderbuffers                  = NULL;
-    exts->DeleteRenderbuffers               = NULL;
-    exts->FramebufferRenderbuffer           = NULL;
-    exts->BindRenderbuffer                  = NULL;
-    exts->RenderbufferStorageMultisample    = NULL;
-    exts->BlitFramebuffer                   = NULL;
-    exts->ResolveMultisampleFramebuffer     = NULL;
-    exts->FramebufferTexture2DMultisample   = NULL;
-    exts->MapBuffer                         = NULL;
-    exts->UnmapBuffer                       = NULL;
-
-#if GR_MAC_BUILD
-    exts->GenFramebuffers                   = glGenFramebuffers;
-    exts->BindFramebuffer                   = glBindFramebuffer;
-    exts->FramebufferTexture2D              = glFramebufferTexture2D;
-    exts->CheckFramebufferStatus            = glCheckFramebufferStatus;
-    exts->DeleteFramebuffers                = glDeleteFramebuffers;
-    exts->RenderbufferStorage               = glRenderbufferStorage;
-    exts->GenRenderbuffers                  = glGenRenderbuffers;
-    exts->DeleteRenderbuffers               = glDeleteRenderbuffers;
-    exts->FramebufferRenderbuffer           = glFramebufferRenderbuffer;
-    exts->BindRenderbuffer                  = glBindRenderbuffer;
-    exts->RenderbufferStorageMultisample    = glRenderbufferStorageMultisample;
-    exts->BlitFramebuffer                   = glBlitFramebuffer;
-    exts->MapBuffer                         = glMapBuffer;
-    exts->UnmapBuffer                       = glUnmapBuffer;
-#elif GR_IOS_BUILD
-    exts->GenFramebuffers                   = glGenFramebuffers;
-    exts->BindFramebuffer                   = glBindFramebuffer;
-    exts->FramebufferTexture2D              = glFramebufferTexture2D;
-    exts->CheckFramebufferStatus            = glCheckFramebufferStatus;
-    exts->DeleteFramebuffers                = glDeleteFramebuffers;
-    exts->RenderbufferStorage               = glRenderbufferStorage;
-    exts->GenRenderbuffers                  = glGenRenderbuffers;
-    exts->DeleteRenderbuffers               = glDeleteRenderbuffers;
-    exts->FramebufferRenderbuffer           = glFramebufferRenderbuffer;
-    exts->BindRenderbuffer                  = glBindRenderbuffer;
-    exts->RenderbufferStorageMultisample    = glRenderbufferStorageMultisampleAPPLE;
-    exts->ResolveMultisampleFramebuffer     = glResolveMultisampleFramebufferAPPLE;
-    exts->MapBuffer                         = glMapBufferOES;
-    exts->UnmapBuffer                       = glUnmapBufferOES;
-#else
-    GLint major, minor;
-    gl_version(&major, &minor);
-    #if GR_SUPPORT_GLDESKTOP
-    if (major >= 3) {// FBO, FBOMS, and FBOBLIT part of 3.0
-        exts->GenFramebuffers                   = glGenFramebuffers;
-        exts->BindFramebuffer                   = glBindFramebuffer;
-        exts->FramebufferTexture2D              = glFramebufferTexture2D;
-        exts->CheckFramebufferStatus            = glCheckFramebufferStatus;
-        exts->DeleteFramebuffers                = glDeleteFramebuffers;
-        exts->RenderbufferStorage               = glRenderbufferStorage;
-        exts->GenRenderbuffers                  = glGenRenderbuffers;
-        exts->DeleteRenderbuffers               = glDeleteRenderbuffers;
-        exts->FramebufferRenderbuffer           = glFramebufferRenderbuffer;
-        exts->BindRenderbuffer                  = glBindRenderbuffer;
-        exts->RenderbufferStorageMultisample    = glRenderbufferStorageMultisample;
-        exts->BlitFramebuffer                   = glBlitFramebuffer;
-    } else if (has_gl_extension("GL_ARB_framebuffer_object")) {
-        GET_PROC(exts, GenFramebuffers, ARB);
-        GET_PROC(exts, BindFramebuffer, ARB);
-        GET_PROC(exts, FramebufferTexture2D, ARB);
-        GET_PROC(exts, CheckFramebufferStatus, ARB);
-        GET_PROC(exts, DeleteFramebuffers, ARB);
-        GET_PROC(exts, RenderbufferStorage, ARB);
-        GET_PROC(exts, GenRenderbuffers, ARB);
-        GET_PROC(exts, DeleteRenderbuffers, ARB);
-        GET_PROC(exts, FramebufferRenderbuffer, ARB);
-        GET_PROC(exts, BindRenderbuffer, ARB);
-        GET_PROC(exts, RenderbufferStorageMultisample, ARB);
-        GET_PROC(exts, BlitFramebuffer, ARB);
-    } else {
-        // we require some form of FBO
-        GrAssert(has_gl_extension("GL_EXT_framebuffer_object"));
-        GET_PROC(exts, GenFramebuffers, EXT);
-        GET_PROC(exts, BindFramebuffer, EXT);
-        GET_PROC(exts, FramebufferTexture2D, EXT);
-        GET_PROC(exts, CheckFramebufferStatus, EXT);
-        GET_PROC(exts, DeleteFramebuffers, EXT);
-        GET_PROC(exts, RenderbufferStorage, EXT);
-        GET_PROC(exts, GenRenderbuffers, EXT);
-        GET_PROC(exts, DeleteRenderbuffers, EXT);
-        GET_PROC(exts, FramebufferRenderbuffer, EXT);
-        GET_PROC(exts, BindRenderbuffer, EXT);
-        if (has_gl_extension("GL_EXT_framebuffer_multisample")) {
-            GET_PROC(exts, RenderbufferStorageMultisample, EXT);
-        }
-        if (has_gl_extension("GL_EXT_framebuffer_blit")) {
-            GET_PROC(exts, BlitFramebuffer, EXT);
-        }
-    }
-    // we assume we have at least GL 1.5 or higher (VBOs introduced in 1.5)
-    exts->MapBuffer     = glMapBuffer;
-    exts->UnmapBuffer   = glUnmapBuffer;
-    #else // !GR_SUPPORT_GLDESKTOP
-    if (major >= 2) {// ES 2.0 supports FBO
-        exts->GenFramebuffers                   = glGenFramebuffers;
-        exts->BindFramebuffer                   = glBindFramebuffer;
-        exts->FramebufferTexture2D              = glFramebufferTexture2D;
-        exts->CheckFramebufferStatus            = glCheckFramebufferStatus;
-        exts->DeleteFramebuffers                = glDeleteFramebuffers;
-        exts->RenderbufferStorage               = glRenderbufferStorage;
-        exts->GenRenderbuffers                  = glGenRenderbuffers;
-        exts->DeleteRenderbuffers               = glDeleteRenderbuffers;
-        exts->FramebufferRenderbuffer           = glFramebufferRenderbuffer;
-        exts->BindRenderbuffer                  = glBindRenderbuffer;
-    } else {
-        // we require some form of FBO
-        GrAssert(has_gl_extension("GL_OES_framebuffer_object"));
-
-        GET_PROC(exts, GenFramebuffers, OES);
-        GET_PROC(exts, BindFramebuffer, OES);
-        GET_PROC(exts, FramebufferTexture2D, OES);
-        GET_PROC(exts, CheckFramebufferStatus, OES);
-        GET_PROC(exts, DeleteFramebuffers, OES);
-        GET_PROC(exts, RenderbufferStorage, OES);
-        GET_PROC(exts, GenRenderbuffers, OES);
-        GET_PROC(exts, DeleteRenderbuffers, OES);
-        GET_PROC(exts, FramebufferRenderbuffer, OES);
-        GET_PROC(exts, BindRenderbuffer, OES);
-    }
-    if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
-        GET_PROC(exts, ResolveMultisampleFramebuffer, APPLE);
-    }
-    if (has_gl_extension("GL_IMG_multisampled_render_to_texture")) {
-        GET_PROC(exts, FramebufferTexture2DMultisample, IMG);
-    }
-    if (has_gl_extension("GL_OES_mapbuffer")) {
-        GET_PROC(exts, MapBuffer, OES);
-        GET_PROC(exts, UnmapBuffer, OES);
-    }
-    #endif // !GR_SUPPORT_GLDESKTOP
-#endif // BUILD
-}
-
-bool gPrintGL = true;
-
-
