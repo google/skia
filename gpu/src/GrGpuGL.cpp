@@ -58,8 +58,8 @@ bool fbo_test(GrGLExts exts, int w, int h) {
 
     GLint savedFBO;
     GLint savedTexUnit;
-    GR_GL(GetIntegerv(GL_ACTIVE_TEXTURE, &savedTexUnit));
-    GR_GL(GetIntegerv(GR_FRAMEBUFFER_BINDING, &savedFBO));
+    GR_GL_GetIntegerv(GL_ACTIVE_TEXTURE, &savedTexUnit);
+    GR_GL_GetIntegerv(GR_FRAMEBUFFER_BINDING, &savedFBO);
 
     GR_GL(ActiveTexture(GL_TEXTURE0 + SPARE_TEX_UNIT));
 
@@ -111,11 +111,11 @@ GrGpuGL::GrGpuGL() {
     // we only use textures in the fragment stage currently.
     // checks are > to make sure we have a spare unit.
 #if GR_SUPPORT_GLDESKTOP || GR_SUPPORT_GLES2
-    GR_GL(GetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits));
+    GR_GL_GetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
     GrAssert(maxTextureUnits > kNumStages);
 #endif
 #if GR_SUPPORT_GLDESKTOP || GR_SUPPORT_GLES1
-    GR_GL(GetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits));
+    GR_GL_GetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
     GrAssert(maxTextureUnits > kNumStages);
 #endif
 
