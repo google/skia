@@ -90,21 +90,21 @@ void GrMatrix::setTranslate(GrScalar dx, GrScalar dy) {
     fM[0] = GR_Scalar1; fM[1] = 0;          fM[2] = dx;
     fM[3] = 0;          fM[4] = GR_Scalar1; fM[5] = dy;
     fM[6] = 0;          fM[7] = 0;          fM[8] = gRESCALE;
-    fTypeMask = kTranslate_TypeBit;
+    fTypeMask = (0 != dx || 0 != dy) ? kTranslate_TypeBit : 0;
 }
 
 void GrMatrix::setScale(GrScalar sx, GrScalar sy) {
     fM[0] = sx; fM[1] = 0;  fM[2] = 0;
     fM[3] = 0;  fM[4] = sy; fM[5] = 0;
     fM[6] = 0;  fM[7] = 0;  fM[8] = gRESCALE;
-    fTypeMask = kScale_TypeBit;
+    fTypeMask = (GR_Scalar1 != sx || GR_Scalar1 != sy) ? kScale_TypeBit : 0;
 }
 
 void GrMatrix::setSkew(GrScalar skx, GrScalar sky) {
     fM[0] = GR_Scalar1; fM[1] = skx;        fM[2] = 0;
     fM[3] = sky;        fM[4] = GR_Scalar1; fM[5] = 0;
     fM[6] = 0;          fM[7] = 0;          fM[8] = gRESCALE;
-    fTypeMask = kSkew_TypeBit;
+    fTypeMask = (0 != skx || 0 != sky) ? kSkew_TypeBit : 0;
 }
 
 void GrMatrix::setConcat(const GrMatrix& a, const GrMatrix& b) {
