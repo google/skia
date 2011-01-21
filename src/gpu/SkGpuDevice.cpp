@@ -353,7 +353,7 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
     SkXfermode* mode = skPaint.getXfermode();
     if (mode) {
         if (!mode->asCoeff(&sm, &dm)) {
-            SkDebugf("Unsupported xfer mode.\n");
+            SkDEBUGCODE(SkDebugf("Unsupported xfer mode.\n");)
 #if 0
             return false;
 #endif
@@ -835,7 +835,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                   SkFixedToScalar((srcRect.fBottom << 16)/ texture->allocHeight()));
 
     SkRect dstRect;
-    dstRect.set(SkIntToScalar(0),SkIntToScalar(0), 
+    dstRect.set(SkIntToScalar(0),SkIntToScalar(0),
                 SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
 
     SkRectFanSource texSrc(paintRect);
@@ -905,13 +905,13 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
     grPaint.fTextureMatrix.setIdentity();
 
     fContext->drawRectToRect(grPaint,
-                             GrRect(GrIntToScalar(x), 
-                                    GrIntToScalar(y), 
-                                    GrIntToScalar(x + w), 
+                             GrRect(GrIntToScalar(x),
+                                    GrIntToScalar(y),
+                                    GrIntToScalar(x + w),
                                     GrIntToScalar(y + h)),
-                             GrRect(0, 
-                                    0, 
-                                    GrIntToScalar(max.fX), 
+                             GrRect(0,
+                                    0,
+                                    GrIntToScalar(max.fX),
                                     GrIntToScalar(max.fY)));
 }
 
@@ -940,8 +940,8 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
             return;
         }
     } else {
-        if (!this->skPaint2GrPaintShader(paint, &act, 
-                                         *draw.fMatrix, 
+        if (!this->skPaint2GrPaintShader(paint, &act,
+                                         *draw.fMatrix,
                                          &grPaint)) {
             return;
         }
