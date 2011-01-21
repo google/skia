@@ -23,7 +23,7 @@
 #include "GrTextStrike_impl.h"
 #include "GrFontScaler.h"
 
-static const GrVertexLayout VLAYOUT = 
+static const GrVertexLayout VLAYOUT =
                                 GrDrawTarget::kTextFormat_VertexLayoutBit |
                                 GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
 
@@ -57,7 +57,9 @@ void GrTextContext::flushGlyphs() {
     }
 }
 
-GrTextContext::GrTextContext(GrContext* context, const GrMatrix* extMatrix) {
+GrTextContext::GrTextContext(GrContext* context,
+                             const GrPaint& paint,
+                             const GrMatrix* extMatrix) : fPaint(paint) {
     fContext = context;
     fStrike = NULL;
 
@@ -80,17 +82,17 @@ GrTextContext::GrTextContext(GrContext* context, const GrMatrix* extMatrix) {
         }
     }
 
-    fContext->getViewMatrix(&fOrigViewMatrix);
-    fContext->setViewMatrix(fExtMatrix);
+    fOrigViewMatrix = fContext->getMatrix();
+    fContext->setMatrix(fExtMatrix);
 
     fVertices = NULL;
     fMaxVertices = 0;
-    fDrawTarget = fContext->getTextTarget();
+    fDrawTarget = fContext->getTextTarget(fPaint);
 }
 
 GrTextContext::~GrTextContext() {
     this->flushGlyphs();
-    fContext->setViewMatrix(fOrigViewMatrix);
+    fContext->setMatrix(fOrigViewMatrix);
 }
 
 void GrTextContext::flush() {
@@ -161,12 +163,11 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
             glyph->fPath = path;
         }
         GrPath::Iter iter(*glyph->fPath);
-        bool useTexture = false;
         GrPoint translate;
         translate.set(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
                       GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
-        fContext->drawPath(&iter, GrContext::kWinding_PathFill,
-                              useTexture, &translate);
+        fContext->drawPath(fPaint, &iter, GrContext::kWinding_PathFill,
+                           &translate);
         return;
     }
 
@@ -196,7 +197,7 @@ HAS_ATLAS:
         if (flush) {
             this->flushGlyphs();
             fContext->flushText();
-            fDrawTarget = fContext->getTextTarget();
+            fDrawTarget = fContext->getTextTarget(fPaint);
             fMaxVertices = kDefaultRequestedVerts;
             // ignore return, no point in flushing again.
             fDrawTarget->geometryHints(VLAYOUT,

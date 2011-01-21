@@ -22,7 +22,7 @@
 // one stage
 template <int N>
 static int stage_mask_recur(int stage) {
-    return GrDrawTarget::StageTexCoordVertexLayoutBit(stage, N) | 
+    return GrDrawTarget::StageTexCoordVertexLayoutBit(stage, N) |
            stage_mask_recur<N+1>(stage);
 }
 template<> // linux build doesn't like static on specializations
@@ -35,7 +35,7 @@ static int stage_tex_coord_mask(int stage) {
 
 // mask of all bits relevant to one stage
 static int stage_mask(int stage) {
-    return stage_tex_coord_mask(stage) | 
+    return stage_tex_coord_mask(stage) |
            GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(stage);
 }
 
@@ -43,7 +43,7 @@ static int stage_mask(int stage) {
 // texture coordinate index
 template <int N>
 static int tex_coord_mask_recur(int texCoordIdx) {
-    return GrDrawTarget::StageTexCoordVertexLayoutBit(N, texCoordIdx) | 
+    return GrDrawTarget::StageTexCoordVertexLayoutBit(N, texCoordIdx) |
            tex_coord_mask_recur<N+1>(texCoordIdx);
 }
 template<> // linux build doesn't like static on specializations
@@ -67,8 +67,8 @@ bool check_layout(GrVertexLayout layout) {
 
 size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));
-    
-    size_t vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ? 
+
+    size_t vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
                         sizeof(GrGpuTextVertex) :
                         sizeof(GrPoint);
 
@@ -91,8 +91,8 @@ int GrDrawTarget::VertexStageCoordOffset(int stage, GrVertexLayout vertexLayout)
     }
     int tcIdx = VertexTexCoordsForStage(stage, vertexLayout);
     if (tcIdx >= 0) {
-        
-        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ? 
+
+        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
                                     sizeof(GrGpuTextVertex) :
                                     sizeof(GrPoint);
         int offset = vecSize; // position
@@ -110,9 +110,9 @@ int GrDrawTarget::VertexStageCoordOffset(int stage, GrVertexLayout vertexLayout)
 
 int  GrDrawTarget::VertexColorOffset(GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));
-    
+
     if (vertexLayout & kColor_VertexLayoutBit) {
-        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ? 
+        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
                                     sizeof(GrGpuTextVertex) :
                                     sizeof(GrPoint);
         int offset = vecSize; // position
@@ -131,15 +131,15 @@ int GrDrawTarget::VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
                                              int texCoordOffsetsByIdx[kMaxTexCoords],
                                              int* colorOffset) {
     GrAssert(check_layout(vertexLayout));
-    
+
     GrAssert(NULL != texCoordOffsetsByIdx);
     GrAssert(NULL != colorOffset);
 
-    int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ? 
+    int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
                                                     sizeof(GrGpuTextVertex) :
                                                     sizeof(GrPoint);
     int size = vecSize; // position
-    
+
     for (int t = 0; t < kMaxTexCoords; ++t) {
         if (tex_coord_idx_mask(t) & vertexLayout) {
             texCoordOffsetsByIdx[t] = size;
@@ -164,10 +164,10 @@ int GrDrawTarget::VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
 
     GrAssert(NULL != texCoordOffsetsByStage);
     GrAssert(NULL != colorOffset);
-    
+
     int texCoordOffsetsByIdx[kMaxTexCoords];
-    int size = VertexSizeAndOffsetsByIdx(vertexLayout, 
-                                         texCoordOffsetsByIdx, 
+    int size = VertexSizeAndOffsetsByIdx(vertexLayout,
+                                         texCoordOffsetsByIdx,
                                          colorOffset);
     for (int s = 0; s < kNumStages; ++s) {
         int tcIdx;
@@ -179,7 +179,7 @@ int GrDrawTarget::VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
             texCoordOffsetsByStage[s] = -1;
         }
     }
-    return size;    
+    return size;
 }
 
 bool GrDrawTarget::VertexUsesStage(int stage, GrVertexLayout vertexLayout) {
@@ -188,9 +188,9 @@ bool GrDrawTarget::VertexUsesStage(int stage, GrVertexLayout vertexLayout) {
     return !!(stage_mask(stage) & vertexLayout);
 }
 
-bool GrDrawTarget::VertexUsesTexCoordIdx(int coordIndex, 
+bool GrDrawTarget::VertexUsesTexCoordIdx(int coordIndex,
                                          GrVertexLayout vertexLayout) {
-    GrAssert(coordIndex < kMaxTexCoords);     
+    GrAssert(coordIndex < kMaxTexCoords);
     GrAssert(check_layout(vertexLayout));
     return !!(tex_coord_idx_mask(coordIndex) & vertexLayout);
 }
@@ -222,7 +222,7 @@ void GrDrawTarget::VertexLayoutUnitTest() {
             for (int t = 0; t < kMaxTexCoords; ++t) {
                 stageMask |= StageTexCoordVertexLayoutBit(s,t);
             }
-            GrAssert(1 == kMaxTexCoords || !check_layout(stageMask));            
+            GrAssert(1 == kMaxTexCoords || !check_layout(stageMask));
             GrAssert(stage_tex_coord_mask(s) == stageMask);
             stageMask |= StagePosAsTexCoordVertexLayoutBit(s);
             GrAssert(stage_mask(s) == stageMask);
@@ -242,7 +242,7 @@ void GrDrawTarget::VertexLayoutUnitTest() {
                     GrAssert(-1 == VertexStageCoordOffset(s2, tcMask));
                     GrAssert(!VertexUsesStage(s2, tcMask));
                     GrAssert(-1 == VertexTexCoordsForStage(s2, tcMask));
-                    
+
                     GrVertexLayout posAsTex = tcMask | StagePosAsTexCoordVertexLayoutBit(s2);
                     GrAssert(0 == VertexStageCoordOffset(s2, posAsTex));
                     GrAssert(VertexUsesStage(s2, posAsTex));
@@ -255,7 +255,7 @@ void GrDrawTarget::VertexLayoutUnitTest() {
             }
             GrAssert(tex_coord_idx_mask(t) == tcMask);
             GrAssert(check_layout(tcMask));
-            
+
             int stageOffsets[kNumStages];
             int colorOffset;
             int size;
@@ -300,7 +300,12 @@ void GrDrawTarget::setTexture(int stage, GrTexture* tex) {
     fCurrDrawState.fTextures[stage] = tex;
 }
 
-GrTexture* GrDrawTarget::currentTexture(int stage) const {
+const GrTexture* GrDrawTarget::getTexture(int stage) const {
+    GrAssert(stage >= 0 && stage < kNumStages);
+    return fCurrDrawState.fTextures[stage];
+}
+
+GrTexture* GrDrawTarget::getTexture(int stage) {
     GrAssert(stage >= 0 && stage < kNumStages);
     return fCurrDrawState.fTextures[stage];
 }
@@ -309,7 +314,11 @@ void GrDrawTarget::setRenderTarget(GrRenderTarget* target) {
     fCurrDrawState.fRenderTarget = target;
 }
 
-GrRenderTarget* GrDrawTarget::currentRenderTarget() const {
+const GrRenderTarget* GrDrawTarget::getRenderTarget() const {
+    return fCurrDrawState.fRenderTarget;
+}
+
+GrRenderTarget* GrDrawTarget::getRenderTarget() {
     return fCurrDrawState.fRenderTarget;
 }
 
@@ -321,13 +330,12 @@ void GrDrawTarget::concatViewMatrix(const GrMatrix& matrix) {
     fCurrDrawState.fViewMatrix.preConcat(matrix);
 }
 
-// Can't this just return a const&
-void GrDrawTarget::getViewMatrix(GrMatrix* matrix) const {
-    *matrix = fCurrDrawState.fViewMatrix;
+const GrMatrix& GrDrawTarget::getViewMatrix() const {
+    return fCurrDrawState.fViewMatrix;
 }
 
 bool GrDrawTarget::getViewInverse(GrMatrix* matrix) const {
-    // Mike:  Can we cache this somewhere? 
+    // Mike:  Can we cache this somewhere?
     // Brian: Sure, do we use it often?
 
     GrMatrix inverse;
@@ -364,10 +372,6 @@ void GrDrawTarget::enableState(uint32_t bits) {
 
 void GrDrawTarget::disableState(uint32_t bits) {
     fCurrDrawState.fFlagBits &= ~(bits);
-}
-
-void GrDrawTarget::setPointSize(float size) {
-    fCurrDrawState.fPointSize = size;
 }
 
 void GrDrawTarget::setBlendFunc(BlendCoeff srcCoef,

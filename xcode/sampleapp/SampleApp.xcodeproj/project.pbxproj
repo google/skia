@@ -51,7 +51,6 @@
 		0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2D0F00A12400695E8C /* SampleLayers.cpp */; };
 		0041CE450F00A12400695E8C /* SampleMeasure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE2F0F00A12400695E8C /* SampleMeasure.cpp */; };
 		0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE320F00A12400695E8C /* SampleOverflow.cpp */; };
-		0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
 		00575A1810BB02CF00A43B94 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00FF39130FC6ED2C00915187 /* SampleEffects.cpp */; };
 		00575A3B10BB05FE00A43B94 /* SampleArc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A41E4A0EFC312F00C9CBEB /* SampleArc.cpp */; };
 		00575A9510BB2FF600A43B94 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2794C04E0FE72903009AD112 /* SampleMipMap.cpp */; };
@@ -86,7 +85,6 @@
 		00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C640EFC22A8000FF73A /* SamplePath.cpp */; };
 		00AF9B18103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */; };
 		00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00BB289A104781D00057BF7E /* SampleForth.cpp */; };
-		00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 		00EB4593104DBB18002B413E /* ForthTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00EB4592104DBB18002B413E /* ForthTests.cpp */; };
 		00ED55F3104A10EB00F51FF8 /* StdWords.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00ED55F2104A10EB00F51FF8 /* StdWords.cpp */; };
 		00F0441010B447160049C54C /* SamplePathClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C785D0F3B4C230004B142 /* SamplePathClip.cpp */; };
@@ -150,6 +148,8 @@
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
+		D5A682D712E9CE8500CDDDC6 /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
+		D5F4A21F12E9D75300DE986A /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -919,7 +919,6 @@
 				0041CE430F00A12400695E8C /* SampleLayers.cpp in Sources */,
 				0041CE450F00A12400695E8C /* SampleMeasure.cpp in Sources */,
 				0041CE480F00A12400695E8C /* SampleOverflow.cpp in Sources */,
-				0041CE4A0F00A12400695E8C /* SamplePatch.cpp in Sources */,
 				007A7CB40F01658C00A2D6EE /* SamplePoints.cpp in Sources */,
 				007A7CB80F01658C00A2D6EE /* SampleStrokeText.cpp in Sources */,
 				007A7CBD0F01658C00A2D6EE /* SampleTextOnPath.cpp in Sources */,
@@ -937,7 +936,6 @@
 				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
 				27005D16100903C100E275B6 /* SampleLines.cpp in Sources */,
 				27005D5F10095B2B00E275B6 /* SampleCircle.cpp in Sources */,
-				00C1B809103857A400FA5948 /* SampleFillType.cpp in Sources */,
 				00AF9B18103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp in Sources */,
 				001B871E1042184D00C84ED4 /* Forth.cpp in Sources */,
 				00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */,
@@ -1022,6 +1020,8 @@
 				009F9D0612C3E89F00C7FD4A /* SampleTiling.cpp in Sources */,
 				009F9D0A12C3E8AF00C7FD4A /* SampleFilter.cpp in Sources */,
 				009F9D1A12C3EB2600C7FD4A /* SampleGM.cpp in Sources */,
+				D5A682D712E9CE8500CDDDC6 /* SamplePatch.cpp in Sources */,
+				D5F4A21F12E9D75300DE986A /* SampleFillType.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

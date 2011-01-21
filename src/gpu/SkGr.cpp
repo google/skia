@@ -19,18 +19,18 @@
 
 /*  Fill out buffer with the compressed format Ganesh expects from a colortable
  based bitmap. [palette (colortable) + indices].
- 
- At the moment Ganesh only supports 8bit version. If Ganesh allowed we others 
+
+ At the moment Ganesh only supports 8bit version. If Ganesh allowed we others
  we could detect that the colortable.count is <= 16, and then repack the
  indices as nibbles to save RAM, but it would take more time (i.e. a lot
  slower than memcpy), so skipping that for now.
- 
+
  Ganesh wants a full 256 palette entry, even though Skia's ctable is only as big
  as the colortable.count says it is.
  */
 static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     SkASSERT(SkBitmap::kIndex8_Config == bitmap.config());
-  
+
     SkAutoLockPixels apl(bitmap);
     if (!bitmap.readyToDraw()) {
         SkASSERT(!"bitmap not ready to draw!");
@@ -39,10 +39,10 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
     SkColorTable* ctable = bitmap.getColorTable();
     char* dst = (char*)buffer;
-    
+
     memcpy(dst, ctable->lockColors(), ctable->count() * sizeof(SkPMColor));
     ctable->unlockColors(false);
-    
+
     // always skip a full 256 number of entries, even if we memcpy'd fewer
     dst += GrGpu::kColorTableSize;
 
@@ -63,7 +63,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx, 
+GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
                                             GrTextureKey* key,
                                             const GrSamplerState& sampler,
                                             const SkBitmap& origBitmap) {
@@ -75,7 +75,7 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
     SkBitmap tmpBitmap;
 
     const SkBitmap* bitmap = &origBitmap;
-    
+
     GrGpu::TextureDesc desc = {
         0,
         GrGpu::kNone_AALevel,
@@ -83,16 +83,16 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
         bitmap->height(),
         SkGr::Bitmap2PixelConfig(*bitmap)
     };
-    
+
     if (SkBitmap::kIndex8_Config == bitmap->config()) {
         // build_compressed_data doesn't do npot->pot expansion
         // and paletted textures can't be sub-updated
         if (ctx->supportsIndex8PixelConfig(sampler,
                                            bitmap->width(), bitmap->height())) {
-            size_t imagesize = bitmap->width() * bitmap->height() + 
+            size_t imagesize = bitmap->width() * bitmap->height() +
                                 GrGpu::kColorTableSize;
             SkAutoMalloc storage(imagesize);
-        
+
             build_compressed_data(storage.get(), origBitmap);
 
             // our compressed data will be trimmed, so pass width() for its
@@ -105,7 +105,7 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
             // now bitmap points to our temp, which has been promoted to 32bits
             bitmap = &tmpBitmap;
         }
-    } 
+    }
 
     desc.fFormat = SkGr::Bitmap2PixelConfig(*bitmap);
     return ctx->createAndLockTexture(key, sampler, desc, bitmap->getPixels(),
@@ -113,28 +113,7 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-  
-void sk_gr_set_paint(GrContext* ctx, const SkPaint& paint, bool justAlpha) {
-    ctx->setDither(paint.isDither());
-    ctx->setAntiAlias(paint.isAntiAlias());
 
-    if (justAlpha) {
-        ctx->setAlpha(paint.getAlpha());
-    } else {
-        ctx->setColor(SkGr::SkColor2GrColor(paint.getColor()));
-    }
-    
-    SkXfermode::Coeff sm = SkXfermode::kOne_Coeff;
-    SkXfermode::Coeff dm = SkXfermode::kISA_Coeff;
-    
-    SkXfermode* mode = paint.getXfermode();
-    if (mode) {
-        mode->asCoeff(&sm, &dm);
-    }   
-    ctx->setBlendFunc(sk_blend_to_grblend(sm), sk_blend_to_grblend(dm));
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 SkGrPathIter::Command SkGrPathIter::next(GrPoint pts[]) {
     GrAssert(NULL != pts);
@@ -160,7 +139,7 @@ void SkGrPathIter::rewind() {
 }
 
 GrPathIter::ConvexHint SkGrPathIter::hint() const {
-    return fPath.isConvex() ? GrPathIter::kConvex_ConvexHint : 
+    return fPath.isConvex() ? GrPathIter::kConvex_ConvexHint :
                               GrPathIter::kNone_ConvexHint;
 }
 

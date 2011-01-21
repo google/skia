@@ -34,26 +34,26 @@ class GrIndexBuffer;
 class GrDrawTarget : public GrRefCnt {
 public:
     /**
-     * Number of texture stages. Each stage takes as input a color and 
-     * 2D texture coordinates. The color input to the first enabled stage is the 
-     * per-vertex color or the constant color (setColor/setAlpha) if there are no
-     * per-vertex colors. For subsequent stages the input color is the output  
+     * Number of texture stages. Each stage takes as input a color and
+     * 2D texture coordinates. The color input to the first enabled stage is the
+     * per-vertex color or the constant color (setColor/setAlpha) if there are
+     * no per-vertex colors. For subsequent stages the input color is the output
      * color from the previous enabled stage. The output color of each stage is
-     * the input color modulated with the result of a texture lookup. Texture 
+     * the input color modulated with the result of a texture lookup. Texture
      * lookups are specified by a texture (setTexture), a texture matrix
-     * (setTextureMatrix), and a sampler (setSamplerState). Texture coordinates 
+     * (setTextureMatrix), and a sampler (setSamplerState). Texture coordinates
      * for each stage come from the vertices based on a GrVertexLayout bitfield.
      * The output fragment color is the output color of the last enabled stage.
-     * The presence or absence of texture coordinates for each stage in the 
+     * The presence or absence of texture coordinates for each stage in the
      * vertex layout indicates whether a stage is enabled or not.
      */
-    
+
     // Currently there is just one stage but this will be changed soon.
     enum {
         kNumStages = 1,
         kMaxTexCoords = kNumStages
     };
-    
+
     /**
      * Geometric primitives used for drawing.
      */
@@ -154,7 +154,6 @@ protected:
         GrSamplerState        	fSamplerStates[kNumStages];
         GrRenderTarget*     	fRenderTarget;
         GrColor             	fColor;
-        float               	fPointSize;
         StencilPass             fStencilPass;
         bool                    fReverseFill;
         GrMatrix                fViewMatrix;
@@ -202,14 +201,13 @@ public:
      *            texture has been set, NULL was most recently passed to
      *            setTexture, or the last setTexture was destroyed.
      */
-    GrTexture* currentTexture(int stage) const;
+    const GrTexture* getTexture(int stage) const;
+    GrTexture* getTexture(int stage);
 
     /**
      * Sets the rendertarget used at the next drawing call
      *
-     * @param target  The render target to set. Must be a valid rendertarget.
-     *                That is it is a value that was returned by
-     *                currentRenderTarget() or GrTexture::asRenderTarget().
+     * @param target  The render target to set.
      */
     void setRenderTarget(GrRenderTarget* target);
 
@@ -218,7 +216,8 @@ public:
      *
      * @return    The currently set render target.
      */
-    GrRenderTarget* currentRenderTarget() const;
+    const GrRenderTarget* getRenderTarget() const;
+    GrRenderTarget* getRenderTarget();
 
     /**
      * Sets the sampler state for the next draw.
@@ -318,13 +317,6 @@ public:
     }
 
     /**
-     * Sets the size of points used the next time points are drawn.
-     *
-     * @param the point size
-     */
-    void setPointSize(float size);
-
-    /**
      * Sets the blending function coeffecients.
      *
      * The blend function will be:
@@ -341,9 +333,9 @@ public:
 
     /**
      * Retrieves the current view matrix
-     * @param matrix will be the current view matrix after return.
+     * return the current view matrix.
      */
-    void getViewMatrix(GrMatrix* matrix) const;
+    const GrMatrix& getViewMatrix() const;
 
     /**
      *  Retrieves the inverse of the current view matrix.
@@ -396,7 +388,7 @@ public:
     /**
      * The format of vertices is represented as a bitfield of flags.
      * Flags that indicate the layout of vertex data. Vertices always contain
-     * positions and may also contain up to kMaxTexCoords sets of 2D texture 
+     * positions and may also contain up to kMaxTexCoords sets of 2D texture
      * coordinates and per-vertex colors. Each stage can use any of the texture
      * coordinates as its input texture coordinates or it may use the positions.
      *
@@ -404,18 +396,18 @@ public:
      * disabled.
      *
      * Only one type of texture coord can be specified per stage. For
-     * example StageTexCoordVertexLayoutBit(0, 2) and 
+     * example StageTexCoordVertexLayoutBit(0, 2) and
      * StagePosAsTexCoordVertexLayoutBit(0) cannot both be specified.
      *
-     * The order in memory is always (position, texture coord 0, ..., color) 
+     * The order in memory is always (position, texture coord 0, ..., color)
      * with any unused fields omitted. Note that this means that if only texture
-     * coordinates 1 is referenced then there is no texture coordinates 0 and 
+     * coordinates 1 is referenced then there is no texture coordinates 0 and
      * the order would be (position, texture coordinate 1[, color]).
      */
-    
+
     /**
      * Generates a bit indicating that a texture stage uses texture coordinates
-     * 
+     *
      * @param stage       the stage that will use texture coordinates.
      * @param texCoordIdx the index of the texture coordinates to use
      *
@@ -433,31 +425,31 @@ public:
      * Generates a bit indicating that a texture stage uses the position
      * as its texture coordinate.
      *
-     * @param stage       the stage that will use position as texture 
+     * @param stage       the stage that will use position as texture
      *                    coordinates.
      *
      * @return the bit to add to a GrVertexLayout bitfield.
      */
     static int StagePosAsTexCoordVertexLayoutBit(int stage) {
         GrAssert(stage < kNumStages);
-        return (1 << (TEX_COORD_BIT_CNT + stage)); 
+        return (1 << (TEX_COORD_BIT_CNT + stage));
     }
 private:
     static const int STAGE_BIT_CNT = TEX_COORD_BIT_CNT + kNumStages;
-    
+
 public:
-    
+
     /**
      * Additional Bits that can be specified in GrVertexLayout.
      */
     enum VertexLayoutBits {
-        
+
         kColor_VertexLayoutBit              = 1 << (STAGE_BIT_CNT + 0),
                                                 //<! vertices have colors
         kTextFormat_VertexLayoutBit         = 1 << (STAGE_BIT_CNT + 1),
                                                 //<! use text vertices. (Pos
                                                 //   and tex coords may be
-                                                //   a different type for 
+                                                //   a different type for
                                                 //   text [GrGpuTextVertex vs
                                                 //   GrPoint].)
         // for below assert
@@ -634,10 +626,31 @@ public:
                                                        &fVertices,
                                                        &fIndices);
         }
+
+        AutoReleaseGeometry() {
+            fSuccess = false;
+        }
+
         ~AutoReleaseGeometry() {
             if (fSuccess) {
                 fTarget->releaseReservedGeometry();
             }
+        }
+
+        bool set(GrDrawTarget*  target,
+                 GrVertexLayout vertexLayout,
+                 uint32_t       vertexCount,
+                 uint32_t       indexCount) {
+            if (fSuccess) {
+                fTarget->releaseReservedGeometry();
+            }
+            fTarget = target;
+            fSuccess = fTarget->reserveAndLockGeometry(vertexLayout,
+                                                       vertexCount,
+                                                       indexCount,
+                                                       &fVertices,
+                                                       &fIndices);
+            return fSuccess;
         }
 
         bool succeeded() const { return fSuccess; }
@@ -674,13 +687,13 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
     // Helpers for picking apart vertex layouts
-    
+
     /**
      * Helper function to compute the size of a vertex from a vertex layout
      * @return size of a single vertex.
      */
     static size_t VertexSize(GrVertexLayout vertexLayout);
-    
+
     /**
      * Helper function for determining the index of texture coordinates that
      * is input for a texture stage. Note that a stage may instead use positions
@@ -698,7 +711,7 @@ public:
     /**
      * Helper function to compute the offset of texture coordinates in a vertex
      * @return offset of texture coordinates in vertex layout or -1 if the
-     *         layout has no texture coordinates. Will be 0 if positions are 
+     *         layout has no texture coordinates. Will be 0 if positions are
      *         used as texture coordinates for the stage.
      */
     static int VertexStageCoordOffset(int stage, GrVertexLayout vertexLayout);
@@ -711,18 +724,18 @@ public:
     static int VertexColorOffset(GrVertexLayout vertexLayout);
 
     /**
-     * Helper function to determine if vertex layout contains explicit texture 
+     * Helper function to determine if vertex layout contains explicit texture
      * coordinates of some index.
      *
      * @param coordIndex    the tex coord index to query
      * @param vertexLayout  layout to query
      *
-     * @return true if vertex specifies texture coordinates for the index, 
+     * @return true if vertex specifies texture coordinates for the index,
      *              false otherwise.
      */
-    static bool VertexUsesTexCoordIdx(int coordIndex, 
+    static bool VertexUsesTexCoordIdx(int coordIndex,
                                       GrVertexLayout vertexLayout);
-    
+
     /**
      * Helper function to determine if vertex layout contains either explicit or
      * implicit texture coordinates for a stage.
@@ -730,15 +743,15 @@ public:
      * @param stage         the stage to query
      * @param vertexLayout  layout to query
      *
-     * @return true if vertex specifies texture coordinates for the stage, 
+     * @return true if vertex specifies texture coordinates for the stage,
      *              false otherwise.
      */
     static bool VertexUsesStage(int stage, GrVertexLayout vertexLayout);
 
     /**
-     * Helper function to compute the size of each vertex and the offsets of 
-     * texture coordinates and color. Determines tex coord offsets by tex coord 
-     * index rather than by stage. (Each stage can be mapped to any t.c. index 
+     * Helper function to compute the size of each vertex and the offsets of
+     * texture coordinates and color. Determines tex coord offsets by tex coord
+     * index rather than by stage. (Each stage can be mapped to any t.c. index
      * by StageTexCoordVertexLayoutBit.)
      *
      * @param vertexLayout          the layout to query
@@ -750,12 +763,12 @@ public:
     static int VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
                                          int texCoordOffsetsByIdx[kMaxTexCoords],
                                          int *colorOffset);
-    
+
     /**
-     * Helper function to compute the size of each vertex and the offsets of 
-     * texture coordinates and color. Determines tex coord offsets by stage 
-     * rather than by index. (Each stage can be mapped to any t.c. index 
-     * by StageTexCoordVertexLayoutBit.) If a stage uses positions for 
+     * Helper function to compute the size of each vertex and the offsets of
+     * texture coordinates and color. Determines tex coord offsets by stage
+     * rather than by index. (Each stage can be mapped to any t.c. index
+     * by StageTexCoordVertexLayoutBit.) If a stage uses positions for
      * tex coords then that stage's offset will be 0 (positions are always at 0).
      *
      * @param vertexLayout              the layout to query
@@ -768,7 +781,7 @@ public:
                                            int texCoordOffsetsByStage[kNumStages],
                                            int *colorOffset);
 protected:
-    
+
     // Helpers for GrDrawTarget subclasses that won't have private access to
     // SavedDrawState but need to peek at the state values.
     static DrState& accessSavedDrawState(SavedDrawState& sds)

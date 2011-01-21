@@ -138,17 +138,17 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
         GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
 
         if (NULL != texture) {
-            GrGpu::AutoStateRestore asr(fGpu);
+            GrDrawTarget::AutoStateRestore asr(fGpu);
             fGpu->setRenderTarget(texture->asRenderTarget());
             fGpu->setTexture(0, clampEntry->texture());
-            fGpu->setStencilPass(GrGpu::kNone_StencilPass);
+            fGpu->setStencilPass(GrDrawTarget::kNone_StencilPass);
             fGpu->setTextureMatrix(0, GrMatrix::I());
             fGpu->setViewMatrix(GrMatrix::I());
             fGpu->setAlpha(0xff);
-            fGpu->setBlendFunc(GrGpu::kOne_BlendCoeff, GrGpu::kZero_BlendCoeff);
-            fGpu->disableState(GrGpu::kDither_StateBit |
-                               GrGpu::kClip_StateBit   |
-                               GrGpu::kAntialias_StateBit);
+            fGpu->setBlendFunc(GrDrawTarget::kOne_BlendCoeff, GrDrawTarget::kZero_BlendCoeff);
+            fGpu->disableState(GrDrawTarget::kDither_StateBit |
+                               GrDrawTarget::kClip_StateBit   |
+                               GrDrawTarget::kAntialias_StateBit);
             GrSamplerState stretchSampler(GrSamplerState::kClamp_WrapMode,
                                           GrSamplerState::kClamp_WrapMode,
                                           sampler.isFilter());
@@ -171,7 +171,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                                               clampTexture->contentHeight() /
                                               clampTexture->allocHeight());
                 verts[1].setRectFan(0, 0, tw, th, 2*sizeof(GrPoint));
-                fGpu->drawNonIndexed(GrGpu::kTriangleFan_PrimitiveType,
+                fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType,
                                      0, 4);
                 entry = fTextureCache->createAndLock(*key, texture);
             }
@@ -275,11 +275,24 @@ bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void GrContext::setClip(const GrClip& clip) {
+    fGpu->setClip(clip);
+    fGpu->enableState(GrDrawTarget::kClip_StateBit);
+}
+
+void GrContext::setClip(const GrIRect& rect) {
+    GrClip clip;
+    clip.setRect(rect);
+    fGpu->setClip(clip);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void GrContext::eraseColor(GrColor color) {
     fGpu->eraseColor(color);
 }
 
-void GrContext::drawFull(bool useTexture) {
+void GrContext::drawPaint(const GrPaint& paint) {
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
     GrRect r(fGpu->getClip().getBounds());
@@ -289,8 +302,7 @@ void GrContext::drawFull(bool useTexture) {
     } else {
         GrPrintf("---- fGpu->getViewInverse failed\n");
     }
-
-    this->fillRect(r, useTexture);
+    this->drawRect(paint, r);
 }
 
 /*  create a triangle strip that strokes the specified triangle. There are 8
@@ -314,8 +326,11 @@ static void setStrokeRectStrip(GrPoint verts[10], const GrRect& rect,
     verts[9] = verts[1];
 }
 
-void GrContext::drawRect(const GrRect& rect, bool useTexture, GrScalar width) {
-    GrVertexLayout layout = useTexture ?
+void GrContext::drawRect(const GrPaint& paint,
+                         const GrRect& rect,
+                         GrScalar width) {
+
+    GrVertexLayout layout = (NULL != paint.getTexture()) ?
                             GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
                             0;
 
@@ -325,21 +340,21 @@ void GrContext::drawRect(const GrRect& rect, bool useTexture, GrScalar width) {
         return;
     }
 
-    this->flushText();
+    this->prepareToDraw(paint);
 
     int vertCount;
-    GrGpu::PrimitiveType primType;
+    GrDrawTarget::PrimitiveType primType;
     GrPoint* vertex = geo.positions();
 
     if (width >= 0) {
         if (width > 0) {
             vertCount = 10;
-            primType = GrGpu::kTriangleStrip_PrimitiveType;
+            primType = GrDrawTarget::kTriangleStrip_PrimitiveType;
             setStrokeRectStrip(vertex, rect, width);
         } else {
             // hairline
             vertCount = 5;
-            primType = GrGpu::kLineStrip_PrimitiveType;
+            primType = GrDrawTarget::kLineStrip_PrimitiveType;
             vertex[0].set(rect.fLeft, rect.fTop);
             vertex[1].set(rect.fRight, rect.fTop);
             vertex[2].set(rect.fRight, rect.fBottom);
@@ -348,12 +363,110 @@ void GrContext::drawRect(const GrRect& rect, bool useTexture, GrScalar width) {
         }
     } else {
         vertCount = 4;
-        primType = GrGpu::kTriangleFan_PrimitiveType;
+        primType = GrDrawTarget::kTriangleFan_PrimitiveType;
         vertex->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
     }
 
     fGpu->drawNonIndexed(primType, 0, vertCount);
 }
+
+void GrContext::drawRectToRect(const GrPaint& paint,
+                               const GrRect& dstRect,
+                               const GrRect& srcRect) {
+
+    if (NULL == paint.getTexture()) {
+        drawRect(paint, dstRect);
+        return;
+    }
+
+    GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
+    static const int VCOUNT = 4;
+
+    GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, VCOUNT, 0);
+    if (!geo.succeeded()) {
+        return;
+    }
+
+    this->prepareToDraw(paint);
+
+    GrPoint* vertex = (GrPoint*) geo.vertices();
+
+    vertex[0].setRectFan(dstRect.fLeft, dstRect.fTop,
+                         dstRect.fRight, dstRect.fBottom,
+                         2 * sizeof(GrPoint));
+    vertex[1].setRectFan(srcRect.fLeft, srcRect.fTop,
+                         srcRect.fRight, srcRect.fBottom,
+                         2 * sizeof(GrPoint));
+
+    fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, VCOUNT);
+}
+
+void GrContext::drawVertices(const GrPaint& paint,
+                             GrDrawTarget::PrimitiveType primitiveType,
+                             int vertexCount,
+                             const GrPoint positions[],
+                             const GrPoint texCoords[],
+                             const GrColor colors[],
+                             const uint16_t indices[],
+                             int indexCount) {
+    GrVertexLayout layout = 0;
+    bool interLeave = false;
+
+    GrDrawTarget::AutoReleaseGeometry geo;
+
+    this->prepareToDraw(paint);
+
+    if (NULL != paint.getTexture()) {
+        if (NULL == texCoords) {
+            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
+        } else {
+            layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
+            interLeave = true;
+        }
+    }
+
+    if (NULL != colors) {
+        layout |= GrDrawTarget::kColor_VertexLayoutBit;
+    }
+
+    static const GrVertexLayout interleaveMask =
+        (GrDrawTarget::StageTexCoordVertexLayoutBit(0,0) |
+         GrDrawTarget::kColor_VertexLayoutBit);
+    if (interleaveMask & layout) {
+        if (!geo.set(fGpu, layout, vertexCount, 0)) {
+            GrPrintf("Failed to get space for vertices!");
+            return;
+        }
+        int texOffsets[GrDrawTarget::kMaxTexCoords];
+        int colorOffset;
+        int vsize = GrDrawTarget::VertexSizeAndOffsetsByIdx(layout,
+                                                            texOffsets,
+                                                            &colorOffset);
+        void* curVertex = geo.vertices();
+
+        for (int i = 0; i < vertexCount; ++i) {
+            *((GrPoint*)curVertex) = positions[i];
+
+            if (texOffsets[0] > 0) {
+                *(GrPoint*)((intptr_t)curVertex + texOffsets[0]) = texCoords[i];
+            }
+            if (colorOffset > 0) {
+                *(GrColor*)((intptr_t)curVertex + colorOffset) = colors[i];
+            }
+            curVertex = (void*)((intptr_t)curVertex + vsize);
+        }
+    } else {
+        fGpu->setVertexSourceToArray(positions, layout);
+    }
+
+    if (NULL != indices) {
+        fGpu->setIndexSourceToArray(indices);
+        fGpu->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+    } else {
+        fGpu->drawNonIndexed(primitiveType, 0, vertexCount);
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -533,7 +646,6 @@ static int worst_case_point_count(GrPathIter* path,
 
 static inline bool single_pass_path(const GrPathIter& path,
                                     GrContext::PathFills fill,
-                                    bool useTex,
                                     const GrGpu& gpu) {
 #if STENCIL_OFF
     return true;
@@ -554,16 +666,18 @@ static inline bool single_pass_path(const GrPathIter& path,
 #endif
 }
 
-void GrContext::drawPath(GrPathIter* path, PathFills fill,
-                         bool useTexture, const GrPoint* translate) {
+void GrContext::drawPath(const GrPaint& paint,
+                         GrPathIter* path,
+                         PathFills fill,
+                         const GrPoint* translate) {
 
-    flushText();
 
-    GrGpu::AutoStateRestore asr(fGpu);
+    this->prepareToDraw(paint);
+
+    GrDrawTarget::AutoStateRestore asr(fGpu);
 
 #if NEW_EVAL
-    GrMatrix viewM;
-    fGpu->getViewMatrix(&viewM);
+    GrMatrix viewM = fGpu->getViewMatrix();
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
     GrScalar stretch = viewM.getMaxStretch();
@@ -594,7 +708,8 @@ void GrContext::drawPath(GrPathIter* path, PathFills fill,
 #endif
                                         tol);
     GrVertexLayout layout = 0;
-    if (useTexture) {
+
+    if (NULL != paint.getTexture()) {
         layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
     }
     // add 4 to hold the bounding rect
@@ -609,20 +724,20 @@ void GrContext::drawPath(GrPathIter* path, PathFills fill,
     path->rewind();
 
     // TODO: use primitve restart if available rather than multiple draws
-    GrGpu::PrimitiveType  type;
+    GrDrawTarget::PrimitiveType  type;
     int                   passCount = 0;
-    GrGpu::StencilPass    passes[3];
+    GrDrawTarget::StencilPass    passes[3];
     bool                  reverse = false;
 
     if (kHairLine_PathFill == fill) {
-        type = GrGpu::kLineStrip_PrimitiveType;
+        type = GrDrawTarget::kLineStrip_PrimitiveType;
         passCount = 1;
-        passes[0] = GrGpu::kNone_StencilPass;
+        passes[0] = GrDrawTarget::kNone_StencilPass;
     } else {
-        type = GrGpu::kTriangleFan_PrimitiveType;
-        if (single_pass_path(*path, fill, useTexture, *fGpu)) {
+        type = GrDrawTarget::kTriangleFan_PrimitiveType;
+        if (single_pass_path(*path, fill, *fGpu)) {
             passCount = 1;
-            passes[0] = GrGpu::kNone_StencilPass;
+            passes[0] = GrDrawTarget::kNone_StencilPass;
         } else {
             switch (fill) {
                 case kInverseEvenOdd_PathFill:
@@ -630,21 +745,21 @@ void GrContext::drawPath(GrPathIter* path, PathFills fill,
                     // fallthrough
                 case kEvenOdd_PathFill:
                     passCount = 2;
-                    passes[0] = GrGpu::kEvenOddStencil_StencilPass;
-                    passes[1] = GrGpu::kEvenOddColor_StencilPass;
+                    passes[0] = GrDrawTarget::kEvenOddStencil_StencilPass;
+                    passes[1] = GrDrawTarget::kEvenOddColor_StencilPass;
                     break;
 
                 case kInverseWinding_PathFill:
                     reverse = true;
                     // fallthrough
                 case kWinding_PathFill:
-                    passes[0] = GrGpu::kWindingStencil1_StencilPass;
+                    passes[0] = GrDrawTarget::kWindingStencil1_StencilPass;
                     if (fGpu->supportsSingleStencilPassWinding()) {
-                        passes[1] = GrGpu::kWindingColor_StencilPass;
+                        passes[1] = GrDrawTarget::kWindingColor_StencilPass;
                         passCount = 2;
                     } else {
-                        passes[1] = GrGpu::kWindingStencil2_StencilPass;
-                        passes[2] = GrGpu::kWindingColor_StencilPass;
+                        passes[1] = GrDrawTarget::kWindingStencil2_StencilPass;
+                        passes[2] = GrDrawTarget::kWindingColor_StencilPass;
                         passCount = 3;
                     }
                     break;
@@ -752,11 +867,15 @@ FINISHED:
     if (useBounds) {
         GrRect bounds;
         if (reverse) {
-            GrAssert(NULL != fGpu->currentRenderTarget());
+            GrAssert(NULL != fGpu->getRenderTarget());
             // draw over the whole world.
             bounds.setLTRB(0, 0,
-                           GrIntToScalar(fGpu->currentRenderTarget()->width()),
-                           GrIntToScalar(fGpu->currentRenderTarget()->height()));
+                           GrIntToScalar(fGpu->getRenderTarget()->width()),
+                           GrIntToScalar(fGpu->getRenderTarget()->height()));
+            GrMatrix vmi;
+            if (fGpu->getViewInverse(&vmi)) {
+                vmi.mapRect(&bounds);
+            }
         } else {
             bounds.setBounds((GrPoint*)base, vert - base);
         }
@@ -766,10 +885,11 @@ FINISHED:
 
     for (int p = 0; p < passCount; ++p) {
         fGpu->setStencilPass(passes[p]);
-        if (useBounds && (GrGpu::kEvenOddColor_StencilPass == passes[p] ||
-                          GrGpu::kWindingColor_StencilPass == passes[p])) {
-            fGpu->drawNonIndexed(GrGpu::kTriangleFan_PrimitiveType,
+        if (useBounds && (GrDrawTarget::kEvenOddColor_StencilPass == passes[p] ||
+                          GrDrawTarget::kWindingColor_StencilPass == passes[p])) {
+            fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType,
                                  maxPts, 4);
+
         } else {
             int baseVertex = 0;
             for (int sp = 0; sp < subpathCnt; ++sp) {
@@ -781,6 +901,8 @@ FINISHED:
         }
     }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::flush(bool flushRenderTarget) {
     flushText();
@@ -803,6 +925,10 @@ bool GrContext::readPixels(int left, int top, int width, int height,
 void GrContext::writePixels(int left, int top, int width, int height,
                             GrTexture::PixelConfig config, const void* buffer,
                             size_t stride) {
+
+    // TODO: when underlying api has a direct way to do this we should use it
+    // (e.g. glDrawPixels on desktop GL).
+
     const GrGpu::TextureDesc desc = {
         0, GrGpu::kNone_AALevel, width, height, config
     };
@@ -830,32 +956,47 @@ void GrContext::writePixels(int left, int top, int width, int height,
     fGpu->setTexture(0, texture);
     fGpu->setSamplerState(0, GrSamplerState::ClampNoFilter());
 
-    this->fillRect(GrRect(0, 0, GrIntToScalar(width), GrIntToScalar(height)),
-                   true);
+    GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
+    static const int VCOUNT = 4;
+
+    GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, VCOUNT, 0);
+    if (!geo.succeeded()) {
+        return;
+    }
+    ((GrPoint*)geo.vertices())->setIRectFan(0, 0, width, height);
+    fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, VCOUNT);
+}
+////////////////////////////////////////////////////////////////////////////////
+
+void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
+    target->setTexture(0, paint.getTexture());
+    target->setTextureMatrix(0, paint.fTextureMatrix);
+    target->setSamplerState(0, paint.fSampler);
+    target->setColor(paint.fColor);
+
+    if (paint.fDither) {
+        target->enableState(GrDrawTarget::kDither_StateBit);
+    } else {
+        target->disableState(GrDrawTarget::kDither_StateBit);
+    }
+    if (paint.fAntiAlias) {
+        target->enableState(GrDrawTarget::kAntialias_StateBit);
+    } else {
+        target->disableState(GrDrawTarget::kAntialias_StateBit);
+    }
+    target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
+}
+
+void GrContext::prepareToDraw(const GrPaint& paint) {
+
+    flushText();
+    SetPaint(paint, fGpu);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-/* -------------------------------------------------------
- * Mimicking the GrGpu interface for now
- * TODO: define appropriate higher-level API for context
- */
-
 void GrContext::resetContext() {
     fGpu->resetContext();
-}
-
-GrVertexBuffer* GrContext::createVertexBuffer(uint32_t size, bool dynamic) {
-    return fGpu->createVertexBuffer(size, dynamic);
-}
-
-GrIndexBuffer* GrContext::createIndexBuffer(uint32_t size, bool dynamic) {
-    return fGpu->createIndexBuffer(size, dynamic);
-}
-
-void GrContext::setTexture(int stage, GrTexture* texture) {
-    fGpu->setTexture(stage, texture);
 }
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
@@ -863,93 +1004,24 @@ void GrContext::setRenderTarget(GrRenderTarget* target) {
     fGpu->setRenderTarget(target);
 }
 
-GrRenderTarget* GrContext::currentRenderTarget() const {
-    return fGpu->currentRenderTarget();
+GrRenderTarget* GrContext::getRenderTarget() {
+    return fGpu->getRenderTarget();
 }
 
-void GrContext::setSamplerState(int stage, const GrSamplerState& samplerState) {
-    fGpu->setSamplerState(stage, samplerState);
+const GrRenderTarget* GrContext::getRenderTarget() const {
+    return fGpu->getRenderTarget();
 }
 
-void GrContext::setTextureMatrix(int stage, const GrMatrix& m) {
-    fGpu->setTextureMatrix(stage, m);
+const GrMatrix& GrContext::getMatrix() const {
+    return fGpu->getViewMatrix();
 }
 
-void GrContext::getViewMatrix(GrMatrix* m) const {
-    fGpu->getViewMatrix(m);
-}
-
-void GrContext::setViewMatrix(const GrMatrix& m) {
+void GrContext::setMatrix(const GrMatrix& m) {
     fGpu->setViewMatrix(m);
 }
 
-bool GrContext::reserveAndLockGeometry(GrVertexLayout    vertexLayout,
-                                       uint32_t          vertexCount,
-                                       uint32_t          indexCount,
-                                       void**            vertices,
-                                       void**            indices) {
-    return fGpu->reserveAndLockGeometry(vertexLayout,
-                                        vertexCount,
-                                        indexCount,
-                                        vertices,
-                                        indices);
-}
-
-void GrContext::drawIndexed(GrGpu::PrimitiveType type,
-                            uint32_t startVertex,
-                            uint32_t startIndex,
-                            uint32_t vertexCount,
-                            uint32_t indexCount) {
-    flushText();
-    fGpu->drawIndexed(type,
-                      startVertex,
-                      startIndex,
-                      vertexCount,
-                      indexCount);
-}
-
-void GrContext::drawNonIndexed(GrGpu::PrimitiveType type,
-                               uint32_t startVertex,
-                               uint32_t vertexCount) {
-    flushText();
-    fGpu->drawNonIndexed(type,
-                         startVertex,
-                         vertexCount);
-}
-
-void GrContext::setVertexSourceToArray(const void* array,
-                                       GrVertexLayout vertexLayout) {
-    fGpu->setVertexSourceToArray(array, vertexLayout);
-}
-
-void GrContext::setIndexSourceToArray(const void* array) {
-    fGpu->setIndexSourceToArray(array);
-}
-
-void GrContext::setVertexSourceToBuffer(GrVertexBuffer* buffer,
-                                       GrVertexLayout vertexLayout) {
-    fGpu->setVertexSourceToBuffer(buffer, vertexLayout);
-}
-
-void GrContext::setIndexSourceToBuffer(GrIndexBuffer* buffer) {
-    fGpu->setIndexSourceToBuffer(buffer);
-}
-
-void GrContext::releaseReservedGeometry() {
-    fGpu->releaseReservedGeometry();
-}
-
-void GrContext::setClip(const GrClip& clip) {
-    fGpu->setClip(clip);
-    fGpu->enableState(GrDrawTarget::kClip_StateBit);
-}
-
-void GrContext::setAlpha(uint8_t alpha) {
-    fGpu->setAlpha(alpha);
-}
-
-void GrContext::setColor(GrColor color) {
-    fGpu->setColor(color);
+void GrContext::concatMatrix(const GrMatrix& m) const {
+    fGpu->concatViewMatrix(m);
 }
 
 static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
@@ -960,34 +1032,6 @@ static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {
         bits &= ~mask;
     }
     return bits;
-}
-
-void GrContext::setAntiAlias(bool aa) {
-    if (aa) {
-        fGpu->enableState(GrGpu::kAntialias_StateBit);
-    } else {
-        fGpu->disableState(GrGpu::kAntialias_StateBit);
-    }
-}
-
-void GrContext::setDither(bool dither) {
-    // hack for now, since iPad dither is hella-slow
-    dither = false;
-
-    if (dither) {
-        fGpu->enableState(GrGpu::kDither_StateBit);
-    } else {
-        fGpu->disableState(GrGpu::kDither_StateBit);
-    }
-}
-
-void GrContext::setPointSize(float size) {
-    fGpu->setPointSize(size);
-}
-
-void GrContext::setBlendFunc(GrGpu::BlendCoeff srcCoef,
-                             GrGpu::BlendCoeff dstCoef) {
-    fGpu->setBlendFunc(srcCoef, dstCoef);
 }
 
 void GrContext::resetStats() {
@@ -1031,13 +1075,16 @@ bool GrContext::finalizeTextureKey(GrTextureKey* key,
     return 0 != bits;
 }
 
-GrDrawTarget* GrContext::getTextTarget() {
+GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
+    GrDrawTarget* target;
 #if DEFER_TEXT_RENDERING
     fTextDrawBuffer.initializeDrawStateAndClip(*fGpu);
-    return &fTextDrawBuffer;
+    target = &fTextDrawBuffer;
 #else
-    return fGpu;
+    target = fGpu;
 #endif
+    SetPaint(paint, target);
+    return target;
 }
 
 const GrIndexBuffer* GrContext::quadIndexBuffer() const {
@@ -1047,7 +1094,6 @@ const GrIndexBuffer* GrContext::quadIndexBuffer() const {
 int GrContext::maxQuadsInIndexBuffer() const {
     return fGpu->maxQuadsInIndexBuffer();
 }
-
 
 
 
