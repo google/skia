@@ -167,7 +167,6 @@ private:
     SkPicture* fPicture;
     SkGpuCanvas* fGpuCanvas;
     GrContext* fGrContext;
-    GrRenderTarget* fGrRenderTarget;
     SkPath fClipPath;
 
     enum CanvasType {
@@ -219,19 +218,14 @@ bool SampleWindow::make3DReady() {
     #endif
 
     if (NULL == fGrContext) {
-        SkASSERT(NULL == fGrRenderTarget);
     #if defined(SK_USE_SHADERS)
         fGrContext = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
     #else
         fGrContext = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
     #endif
-        if (NULL != fGrContext) {
-            fGrRenderTarget = fGrContext->createRenderTargetFrom3DApiState();
-        }
     }
 
     if (NULL != fGrContext) {
-        SkASSERT(NULL != fGrRenderTarget);
         return true;
     } else {
         detachGL();
@@ -255,7 +249,6 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fGpuCanvas = NULL;
 
     fGrContext = NULL;
-    fGrRenderTarget = NULL;
 
 #ifdef DEFAULT_TO_GPU
     fCanvasType = kGPU_CanvasType;
@@ -291,9 +284,6 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 SampleWindow::~SampleWindow() {
     delete fPicture;
     delete fGpuCanvas;
-    if (NULL != fGrRenderTarget) {
-        fGrRenderTarget->unref();
-    }
     if (NULL != fGrContext) {
         fGrContext->unref();
     }
@@ -414,7 +404,11 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                 SkDevice* device = canvas->getDevice();
                 const SkBitmap& bitmap = device->accessBitmap(true);
 
-                fGpuCanvas = new SkGpuCanvas(fGrContext, fGrRenderTarget);
+                GrRenderTarget* renderTarget;
+                renderTarget = fGrContext->createRenderTargetFrom3DApiState();
+                fGpuCanvas = new SkGpuCanvas(fGrContext, renderTarget);
+                renderTarget->unref();
+
                 device = fGpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
                                                   bitmap.width(), bitmap.height(),
                                                   false, false);

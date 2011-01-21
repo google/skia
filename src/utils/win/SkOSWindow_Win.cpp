@@ -438,6 +438,7 @@ bool SkOSWindow::attachGL(const SkBitmap* offscreen) {
         }
     }
     if (wglMakeCurrent(GetDC((HWND)fHWND), (HGLRC)fHGLRC)) {
+        glViewport(0, 0, this->width(), this->height());
         glClearColor(0, 0, 0, 0);
         glClearStencil(0);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

@@ -85,7 +85,7 @@ protected:
 
     void eraseStencil(uint32_t value, uint32_t mask);
     virtual void eraseStencilClip();
-    
+
     void setTextureUnit(int unitIdx);
 
     // flushes state that is common to fixed and programmable GL
@@ -123,7 +123,7 @@ private:
     void notifyTextureDelete(GrGLTexture* texture);
     void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
     void notifyTextureRemoveRenderTarget(GrGLTexture* texture);
-    
+
     void setSpareTextureUnit();
 
     void flushRenderTarget();
@@ -156,9 +156,9 @@ private:
 
     // ES requires an extension to support RGBA8 in RenderBufferStorage
     bool fRGBA8Renderbuffer;
-    
+
     int fActiveTextureUnitIdx;
-    
+
     typedef GrGpu INHERITED;
 };
 

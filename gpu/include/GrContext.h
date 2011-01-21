@@ -19,15 +19,13 @@
 
 #include "GrClip.h"
 #include "GrGpu.h"
-#include "GrSamplerState.h"
 #include "GrTextureCache.h"
 #include "GrInOrderDrawBuffer.h"
 #include "GrVertexBufferAllocPool.h"
+#include "GrPaint.h"
 
 class GrFontCache;
 class GrPathIter;
-
-//TODO: move GrGpu enums/nested types here
 
 class GrContext : public GrRefCnt {
 public:
@@ -51,6 +49,9 @@ public:
      * be called frequently for good performance.
      */
     void resetContext();
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Textures
 
     /**
      *  Abandons all textures. Call this if you have lost the associated GPU
@@ -108,6 +109,35 @@ public:
                                      size_t rowBytes);
 
     /**
+     *  Returns true if the specified use of an indexed texture is supported.
+     */
+    bool supportsIndex8PixelConfig(const GrSamplerState&, int width, int height);
+
+    /**
+     *  Return the current texture cache limits.
+     *
+     *  @param maxTextures If non-null, returns maximum number of textures that
+     *                     can be held in the cache.
+     *  @param maxTextureBytes If non-null, returns maximum number of bytes of
+     *                         texture memory that can be held in the cache.
+     */
+    void getTextureCacheLimits(int* maxTextures, size_t* maxTextureBytes) const;
+
+    /**
+     *  Specify the texture cache limits. If the current cache exceeds either
+     *  of these, it will be purged (LRU) to keep the cache within these limits.
+     *
+     *  @param maxTextures The maximum number of textures that can be held in
+     *                     the cache.
+     *  @param maxTextureBytes The maximum number of bytes of texture memory
+     *                         that can be held in the cache.
+     */
+    void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Render targets
+
+    /**
      * Wraps an externally-created rendertarget in a GrRenderTarget.
      * e.g. in GL platforamRenderTarget is an FBO id.
      */
@@ -128,52 +158,91 @@ public:
     }
 
     /**
-     *  Returns true if the specified use of an indexed texture is supported.
+     * Sets the render target.
+     * @param target    the render target to set. (should not be NULL.)
      */
-    bool supportsIndex8PixelConfig(const GrSamplerState&, int width, int height);
-
-    ///////////////////////////////////////////////////////////////////////////
-
-    GrRenderTarget* currentRenderTarget() const;
-    void getViewMatrix(GrMatrix* m) const;
-    const GrClip& getClip() const { return fGpu->getClip(); }
-
     void setRenderTarget(GrRenderTarget* target);
 
-    void setTexture(int stage, GrTexture* texture);
-    void setSamplerState(int stage, const GrSamplerState&);
-    void setTextureMatrix(int stage, const GrMatrix& m);
+    /**
+     * Gets the current render target.
+     * @return the currently bound render target. Should never be NULL.
+     */
+    const GrRenderTarget* getRenderTarget() const;
+    GrRenderTarget* getRenderTarget();
 
-    void setAntiAlias(bool);
-    void setDither(bool);
-    void setAlpha(uint8_t alpha);
-    void setColor(GrColor color);
-    void setPointSize(float size);
-    void setBlendFunc(GrGpu::BlendCoeff srcCoef, GrGpu::BlendCoeff dstCoef);
-    void setViewMatrix(const GrMatrix& m);
-    void setClip(const GrClip&);
+    ///////////////////////////////////////////////////////////////////////////
+    // Matrix state
 
     /**
-     *  Erase the entire render target, ignoring any clips/scissors.
+     * Gets the current transformation matrix.
+     * @return the current matrix.
+     */
+    const GrMatrix& getMatrix() const;
+
+    /**
+     * Sets the transformation matrix.
+     * @param m the matrix to set.
+     */
+    void setMatrix(const GrMatrix& m);
+
+    /**
+     * Concats the current matrix. The passed matrix is applied before the
+     * current matrix.
+     * @param m the matrix to concat.
+     */
+    void concatMatrix(const GrMatrix& m) const;
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Clip state
+    /**
+     * Gets the current clip.
+     * @return the current clip.
+     */
+    const GrClip& getClip() const { return fGpu->getClip(); }
+
+    /**
+     * Sets the clip.
+     * @param clip  the clip to set.
+     */
+    void setClip(const GrClip& clip);
+
+    /**
+     * Convenience method for setting the clip to a rect.
+     * @param rect  the rect to set as the new clip.
+     */
+    void setClip(const GrIRect& rect);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Draws
+
+    /**
+     *  Erase the entire render target, ignoring any clips
      */
     void eraseColor(GrColor color);
 
     /**
-     *  Draw everywhere (respecting the clip) with the current color.
+     *  Draw everywhere (respecting the clip) with the paint.
      */
-    void drawFull(bool useTexture);
+    void drawPaint(const GrPaint& paint);
 
     /**
-     *  Draw the rect, respecting the current texture if useTexture is true.
-     *  If strokeWidth < 0, then the rect is filled, else the rect is stroked
-     *  based on strokeWidth. If strokeWidth == 0, then the stroke is always
-     *  a single pixel thick.
+     *  Draw the rect using a paint.
+     *  If strokeWidth < 0, then the rect is filled, else the rect is mitered
+     *  stroked based on strokeWidth. If strokeWidth == 0, then the stroke is
+     *  always a single pixel thick.
+     *  The rects coords are used to access the paint (through texture matrix)
      */
-    void drawRect(const GrRect&, bool useTexture, GrScalar strokeWidth);
+    void drawRect(const GrPaint& paint, const GrRect&, GrScalar strokeWidth = -1);
 
-    void fillRect(const GrRect& rect, bool useTexture) {
-        this->drawRect(rect, useTexture, -1);
-    }
+    /**
+     * Maps a rect of paint coordinates onto the a rect of destination
+     * coordinates. The srcRect is transformed by the paint's matrix and the
+     * dstRect is transformed by the context's matrix.
+     */
+    void drawRectToRect(const GrPaint& paint,
+                        const GrRect& dstRect,
+                        const GrRect& srcRect);
 
     /**
      * Path filling rules
@@ -191,16 +260,100 @@ public:
     /**
      * Tessellates and draws a path.
      *
+     * @param paint         describes how to color pixels.
      * @param path          the path to draw
-     * @param paint         the paint to set before drawing
-     * @param useTexture    if true the path vertices will also be used as
-     *                      texture coorindates referencing last texture passed
-     *                      to setTexture.
+     * @param fill          the path filling rule to use.
+     * @param translate     optional additional translation applied to the
+     *                      path.
      */
-    void drawPath(GrPathIter* path,
+    void drawPath(const GrPaint& paint,
+                  GrPathIter* path,
                   PathFills fill,
-                  bool useTexture,
                   const GrPoint* translate = NULL);
+    /**
+     * Draws vertices with a paint.
+     *
+     * @param   paint           describes how to color pixels.
+     * @param   primitiveType   primitives type to draw.
+     * @param   vertexCount     number of vertices.
+     * @param   positions       array of vertex positions, required.
+     * @param   texCoords       optional array of texture coordinates used
+     *                          to access the paint.
+     * @param   colors          optional array of per-vertex colors, supercedes
+     *                          the paint's color field.
+     * @param   indices         optional array of indices. If NULL vertices
+     *                          are drawn non-indexed.
+     * @param   indexCount      if indices is non-null then this is the
+     *                          number of indices.
+     */
+    void drawVertices(const GrPaint& paint,
+                      GrDrawTarget::PrimitiveType primitiveType,
+                      int vertexCount,
+                      const GrPoint positions[],
+                      const GrPoint texs[],
+                      const GrColor colors[],
+                      const uint16_t indices[],
+                      int indexCount);
+
+    /**
+     * Similar to drawVertices but caller provides objects that convert to Gr
+     * types. The count of vertices is given by posSrc.
+     *
+     * @param   paint           describes how to color pixels.
+     * @param   primitiveType   primitives type to draw.
+     * @param   posSrc          Source of vertex positions. Must implement
+     *                              int count() const;
+     *                              void writeValue(int i, GrPoint* point) const;
+     *                          count returns the total number of vertices and
+     *                          writeValue writes a vertex position to point.
+     * @param   texSrc          optional, pass NULL to not use explicit tex
+     *                          coords. If present provides tex coords with
+     *                          method:
+     *                              void writeValue(int i, GrPoint* point) const;
+     * @param   texSrc          optional, pass NULL to not use per-vertex colors
+     *                          If present provides colors with method:
+     *                              void writeValue(int i, GrColor* point) const;
+     * @param   indices         optional, pass NULL for non-indexed drawing. If
+     *                          present supplies indices for indexed drawing
+     *                          with following methods:
+     *                              int count() const;
+     *                              void writeValue(int i, uint16_t* point) const;
+     *                          count returns the number of indices and
+     *                          writeValue supplies each index.
+     */
+    template <typename POS_SRC,
+              typename TEX_SRC,
+              typename COL_SRC,
+              typename IDX_SRC>
+    void drawCustomVertices(const GrPaint& paint,
+                            GrDrawTarget::PrimitiveType primitiveType,
+                            const POS_SRC& posSrc,
+                            const TEX_SRC* texCoordSrc,
+                            const COL_SRC* colorSrc,
+                            const IDX_SRC* idxSrc);
+    /**
+     * To avoid the problem of having to create a typename for NULL parameters,
+     * these reduced versions of drawCustomVertices are provided.
+     */
+    template <typename POS_SRC>
+    void drawCustomVertices(const GrPaint& paint,
+                            GrDrawTarget::PrimitiveType primitiveType,
+                            const POS_SRC& posSrc);
+    template <typename POS_SRC, typename TEX_SRC>
+    void drawCustomVertices(const GrPaint& paint,
+                            GrDrawTarget::PrimitiveType primitiveType,
+                            const POS_SRC& posSrc,
+                            const TEX_SRC* texCoordSrc);
+    template <typename POS_SRC, typename TEX_SRC, typename COL_SRC>
+    void drawCustomVertices(const GrPaint& paint,
+                            GrDrawTarget::PrimitiveType primitiveType,
+                            const POS_SRC& posSrc,
+                            const TEX_SRC* texCoordSrc,
+                            const COL_SRC* colorSrc);
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Misc.
 
     /**
      * Call to ensure all drawing to the context has been issued to the
@@ -227,39 +380,9 @@ public:
     void writePixels(int left, int top, int width, int height,
                      GrTexture::PixelConfig, const void* buffer, size_t stride);
 
-    /* -------------------------------------------------------
-     * Mimicking the GrGpu interface for now
-     * TODO: define appropriate higher-level API for context
-     */
 
-    GrVertexBuffer* createVertexBuffer(uint32_t size, bool dynamic);
-
-    GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
-
-    bool reserveAndLockGeometry(GrVertexLayout    vertexLayout,
-                                uint32_t          vertexCount,
-                                uint32_t          indexCount,
-                                void**            vertices,
-                                void**            indices);
-
-    void drawIndexed(GrGpu::PrimitiveType type,
-                     uint32_t startVertex,
-                     uint32_t startIndex,
-                     uint32_t vertexCount,
-                     uint32_t indexCount);
-
-    void drawNonIndexed(GrGpu::PrimitiveType type,
-                        uint32_t startVertex,
-                        uint32_t vertexCount);
-
-    void setVertexSourceToArray(const void* array,
-                                GrVertexLayout vertexLayout);
-    void setIndexSourceToArray(const void* array);
-    void setVertexSourceToBuffer(GrVertexBuffer* buffer,
-                                GrVertexLayout vertexLayout);
-    void setIndexSourceToBuffer(GrIndexBuffer* buffer);
-
-    void releaseReservedGeometry();
+    ///////////////////////////////////////////////////////////////////////////
+    // Statistics
 
     void resetStats();
 
@@ -267,11 +390,14 @@ public:
 
     void printStats() const;
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Helpers
+
     class AutoRenderTarget : ::GrNoncopyable {
     public:
         AutoRenderTarget(GrContext* context, GrRenderTarget* target) {
             fContext = NULL;
-            fPrevTarget = context->currentRenderTarget();
+            fPrevTarget = context->getRenderTarget();
             if (fPrevTarget != target) {
                 context->setRenderTarget(target);
                 fContext = context;
@@ -287,36 +413,12 @@ public:
         GrRenderTarget* fPrevTarget;
     };
 
+
     ///////////////////////////////////////////////////////////////////////////
-
-    /**
-     *  Return the current texture cache limits.
-     *
-     *  @param maxTextures If non-null, returns maximum number of textures that
-     *                     can be held in the cache.
-     *  @param maxTextureBytes If non-null, returns maximum number of bytes of
-     *                         texture memory that can be held in the cache.
-     */
-    void getTextureCacheLimits(int* maxTextures, size_t* maxTextureBytes) const;
-
-    /**
-     *  Specify the texture cache limits. If the current cache exceeds either
-     *  of these, it will be purged (LRU) to keep the cache within these limits.
-     *
-     *  @param maxTextures The maximum number of textures that can be held in
-     *                     the cache.
-     *  @param maxTextureBytes The maximum number of bytes of texture memory
-     *                         that can be held in the cache.
-     */
-    void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes);
-
-    /* -------------------------------------------------------
-     */
-
-    // Intended only to be used within Ganesh:
+    // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
     GrFontCache* getFontCache() { return fFontCache; }
-    GrDrawTarget* getTextTarget();
+    GrDrawTarget* getTextTarget(const GrPaint& paint);
     void flushText();
 
     const GrIndexBuffer* quadIndexBuffer() const;
@@ -331,7 +433,11 @@ private:
     GrInOrderDrawBuffer     fTextDrawBuffer;
 
     GrContext(GrGpu* gpu);
+
+    static void SetPaint(const GrPaint& paint, GrDrawTarget* target);
+
     bool finalizeTextureKey(GrTextureKey*, const GrSamplerState&) const;
+    void prepareToDraw(const GrPaint& paint);
 
     void drawClipIntoStencil();
 };
@@ -339,17 +445,17 @@ private:
 /**
  *  Save/restore the view-matrix in the context.
  */
-class GrAutoViewMatrix : GrNoncopyable {
+class GrAutoMatrix : GrNoncopyable {
 public:
-    GrAutoViewMatrix(GrContext* ctx) : fContext(ctx) {
-        ctx->getViewMatrix(&fMatrix);
+    GrAutoMatrix(GrContext* ctx) : fContext(ctx) {
+        fMatrix = ctx->getMatrix();
     }
-    GrAutoViewMatrix(GrContext* ctx, const GrMatrix& matrix) : fContext(ctx) {
-        ctx->getViewMatrix(&fMatrix);
-        ctx->setViewMatrix(matrix);
+    GrAutoMatrix(GrContext* ctx, const GrMatrix& matrix) : fContext(ctx) {
+        fMatrix = ctx->getMatrix();
+        ctx->setMatrix(matrix);
     }
-    ~GrAutoViewMatrix() {
-        fContext->setViewMatrix(fMatrix);
+    ~GrAutoMatrix() {
+        fContext->setMatrix(fMatrix);
     }
 
 private:
@@ -359,3 +465,4 @@ private:
 
 #endif
 
+#include "GrContext_impl.h"

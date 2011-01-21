@@ -46,27 +46,27 @@ public:
         this->setClampNoFilter();
     }
 
-    GrSamplerState(bool filter) {
+    explicit GrSamplerState(bool filter) {
         fWrapX = kClamp_WrapMode;
         fWrapY = kClamp_WrapMode;
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
     }
-    
+
     GrSamplerState(WrapMode wx, WrapMode wy, bool filter) {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
     }
-    
+
     GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, bool filter) {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = sample;
         fFilter = filter;
     }
-    
+
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
     SampleMode getSampleMode() const { return fSampleMode; }
@@ -95,8 +95,8 @@ public:
     bool     isRadial2PosRoot() const { return fRadial2PosRoot; }
 
     /**
-     * Sets the parameters for kRadial2_SampleMode. The texture 
-     * matrix must be set so that the first point is at (0,0) and the second 
+     * Sets the parameters for kRadial2_SampleMode. The texture
+     * matrix must be set so that the first point is at (0,0) and the second
      * point lies on the x-axis. The second radius minus the first is 1 unit.
      * The additional parameters to define the gradient are specified by this
      * function.

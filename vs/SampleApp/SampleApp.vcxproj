@@ -74,6 +74,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\gpu\include</AdditionalIncludeDirectories>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -99,6 +100,7 @@
     <ClInclude Include="..\..\gpu\include\GrColor.h" />
     <ClInclude Include="..\..\gpu\include\GrConfig.h" />
     <ClInclude Include="..\..\gpu\include\GrContext.h" />
+    <ClInclude Include="..\..\gpu\include\GrContext_impl.h" />
     <ClInclude Include="..\..\gpu\include\GrDrawTarget.h" />
     <ClInclude Include="..\..\gpu\include\GrFontScaler.h" />
     <ClInclude Include="..\..\gpu\include\GrGLConfig.h" />
@@ -117,6 +119,7 @@
     <ClInclude Include="..\..\gpu\include\GrMemory.h" />
     <ClInclude Include="..\..\gpu\include\GrMesh.h" />
     <ClInclude Include="..\..\gpu\include\GrNoncopyable.h" />
+    <ClInclude Include="..\..\gpu\include\GrPaint.h" />
     <ClInclude Include="..\..\gpu\include\GrPath.h" />
     <ClInclude Include="..\..\gpu\include\GrPathIter.h" />
     <ClInclude Include="..\..\gpu\include\GrPathSink.h" />

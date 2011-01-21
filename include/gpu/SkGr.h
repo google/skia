@@ -55,7 +55,7 @@
     #endif
     #define SkScalarToGrScalar(x)       SkScalarToFloat(x)
 
-#else 
+#else
     #error "Ganesh scalar type not defined"
 #endif
 
@@ -72,7 +72,7 @@
 GR_STATIC_ASSERT((int)GrSamplerState::kClamp_WrapMode == (int)SkShader::kClamp_TileMode);
 GR_STATIC_ASSERT((int)GrSamplerState::kRepeat_WrapMode ==(
                  int)SkShader::kRepeat_TileMode);
-GR_STATIC_ASSERT((int)GrSamplerState::kMirror_WrapMode == 
+GR_STATIC_ASSERT((int)GrSamplerState::kMirror_WrapMode ==
                  (int)SkShader::kMirror_TileMode);
 
 #define sk_tile_mode_to_grwrap(X) ((GrSamplerState::WrapMode)(X))
@@ -117,13 +117,13 @@ public:
         memcpy(dst, &src, sizeof(*dst));
         return *dst;
     }
-    
+
     static inline GrIRect& SetIRect(GrIRect* dst, const SkIRect& src) {
         GR_STATIC_ASSERT(sizeof(*dst) == sizeof(src));
         memcpy(dst, &src, sizeof(*dst));
         return *dst;
     }
-    
+
     /**
      *  Convert the SkBitmap::Config to the corresponding PixelConfig, or
      *  kUnknown_PixelConfig if the conversion cannot be done.
@@ -146,7 +146,7 @@ public:
                   SkScalarToGrScalar(m[7]),
                   SkScalarToGrScalar(m[8]));
     }
-    
+
     static GrColor SkColor2GrColor(SkColor c) {
         SkPMColor pm = SkPreMultiplyColor(c);
         unsigned r = SkGetPackedR32(pm);
@@ -176,7 +176,7 @@ public:
     virtual void rewind();
     virtual ConvexHint hint() const;
 private:
-    
+
 #if !SK_SCALAR_IS_GR_SCALAR
     SkPoint             fPoints[4];
 #endif
@@ -190,9 +190,9 @@ public:
         fIter.reset(clip);
         this->invalidateBoundsCache();
     }
-    
+
     // overrides
-    
+
     virtual bool isDone() { return fIter.done(); }
     virtual void getRect(GrIRect* rect) {
         SkGr::SetIRect(rect, fIter.rect());
@@ -228,11 +228,10 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // Helper functions
 
-GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx, 
+GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
                                             GrTextureKey* key,
                                             const GrSamplerState& sampler,
                                             const SkBitmap& bitmap);
 
-void sk_gr_set_paint(GrContext* ctx, const SkPaint& paint, bool justAlpha = false);
 
 #endif

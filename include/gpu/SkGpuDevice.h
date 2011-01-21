@@ -143,6 +143,7 @@ protected:
 
 private:
     GrContext*      fContext;
+
     GrSkDrawProcs*  fDrawProcs;
 
     // state for our offscreen render-target
@@ -152,28 +153,27 @@ private:
     bool            fNeedClear;
     bool            fNeedPrepareRenderTarget;
 
-    SkDrawProcs* initDrawForText(const SkPaint&, GrTextContext*);
-    bool bindDeviceAsTexture(SkPoint* max);
+    // doesn't set the texture/sampler/matrix state
+    // caller needs to null out GrPaint's texture if
+    // non-textured drawing is desired.
+    bool skPaint2GrPaintNoShader(const SkPaint& skPaint,
+                                 bool justAlpha,
+                                 GrPaint* grPaint);
+
+    // uses the SkShader to setup paint, act used to
+    // hold lock on cached texture and free it when
+    // destroyed.
+    bool skPaint2GrPaintShader(const SkPaint& skPaint,
+                               SkAutoCachedTexture* act,
+                               const SkMatrix& ctm,
+                               GrPaint* grPaint);
+
+    SkDrawProcs* initDrawForText(GrTextContext*);
+    bool bindDeviceAsTexture(GrPaint* paint, SkPoint* max);
 
     void prepareRenderTarget(const SkDraw&);
     void internalDrawBitmap(const SkDraw&, const SkBitmap&,
-                            const SkIRect&, const SkMatrix&, const SkPaint&);
-
-    class AutoPaintShader {
-    public:
-        AutoPaintShader();
-        AutoPaintShader(SkGpuDevice*, const SkPaint& paint, const SkMatrix&);
-
-        void init(SkGpuDevice*, const SkPaint& paint, const SkMatrix&);
-
-        bool failed() const { return !fSuccess; }
-        bool useTex() const { return fTexture != 0; }
-    private:
-        GrTexture*              fTexture;
-        SkAutoCachedTexture     fCachedTexture;
-        bool                    fSuccess;
-    };
-    friend class AutoPaintShader;
+                            const SkIRect&, const SkMatrix&, GrPaint* grPaint);
 
     typedef SkDevice INHERITED;
 };

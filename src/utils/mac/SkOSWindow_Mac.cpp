@@ -37,26 +37,26 @@ static OSStatus MyDrawEventHandler(EventHandlerCallRef myHandler,
                                    EventRef event, void *userData) {
 	// NOTE: GState is save/restored by the HIView system doing the callback,
     // so the draw handler doesn't need to do it
-    
+
 	OSStatus status = noErr;
 	CGContextRef context;
 	HIRect		bounds;
-    
+
 	// Get the CGContextRef
-	status = GetEventParameter (event, kEventParamCGContextRef, 
-                                typeCGContextRef, NULL, 
+	status = GetEventParameter (event, kEventParamCGContextRef,
+                                typeCGContextRef, NULL,
                                 sizeof (CGContextRef),
                                 NULL,
                                 &context);
-    
+
 	if (status != noErr) {
 		SkDebugf("Got error %d getting the context!\n", status);
 		return status;
-	}		
-    
+	}
+
 	// Get the bounding rectangle
 	HIViewGetBounds ((HIViewRef) userData, &bounds);
-	
+
     gCurrOSWin->doPaint(context);
 	return status;
 }
@@ -88,13 +88,13 @@ SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd), fAGLCtx(NULL)
 {
 	OSStatus    result;
     WindowRef   wr = (WindowRef)hWnd;
-    
+
     HIViewRef imageView, parent;
     HIViewRef rootView = HIViewGetRoot(wr);
     HIViewFindByID(rootView, kHIViewWindowContentID, &parent);
     result = HIImageViewCreate(NULL, &imageView);
 	SkASSERT(result == noErr);
-    
+
     result = HIViewAddSubview(parent, imageView);
 	SkASSERT(result == noErr);
 
@@ -138,7 +138,7 @@ SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd), fAGLCtx(NULL)
 	result = InstallEventHandler(GetWindowEventTarget(wr), handlerUPP,
 						count, gTypes, this, nil);
 	SkASSERT(result == noErr);
-    
+
 	gCurrOSWin = this;
 	gCurrEventQ = GetCurrentEventQueue();
 	gEventTarget = GetWindowEventTarget(wr);
@@ -168,7 +168,7 @@ void SkOSWindow::doPaint(void* ctx)
         CGContextScaleCTM(cg, 1, -1);
 
         CGContextDrawImage(cg, r, img);
-        
+
         CGContextRestoreGState(cg);
 
         CGImageRelease(img);
@@ -179,15 +179,15 @@ void SkOSWindow::doPaint(void* ctx)
 void SkOSWindow::updateSize()
 {
 	Rect	r;
-	
+
 	GetWindowBounds((WindowRef)fHWND, kWindowContentRgn, &r);
 	this->resize(r.right - r.left, r.bottom - r.top);
-    
+
 #if 0
     HIRect    frame;
     HIViewRef imageView = (HIViewRef)getHVIEW();
     HIViewRef parent = HIViewGetSuperview(imageView);
-  
+
     HIViewGetBounds(imageView, &frame);
     SkDebugf("------ %d bounds %g %g %g %g\n", r.right - r.left,
              frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
@@ -245,7 +245,7 @@ enum {
 	SK_MacRightKey		= 124,
 	SK_MacDownKey		= 125,
 	SK_MacUpKey			= 126,
-    
+
     SK_Mac0Key          = 0x52,
     SK_Mac1Key          = 0x53,
     SK_Mac2Key          = 0x54,
@@ -257,7 +257,7 @@ enum {
     SK_Mac8Key          = 0x5b,
     SK_Mac9Key          = 0x5c
 };
-	
+
 static SkKey raw2key(UInt32 raw)
 {
 	static const struct {
@@ -282,7 +282,7 @@ static SkKey raw2key(UInt32 raw)
         { SK_Mac8Key,       k8_SkKey        },
         { SK_Mac9Key,       k9_SkKey        }
 	};
-	
+
 	for (unsigned i = 0; i < SK_ARRAY_COUNT(gKeys); i++)
 		if (gKeys[i].fRaw == raw)
 			return gKeys[i].fKey;
@@ -294,18 +294,18 @@ static void post_skmacevent()
 	EventRef	ref;
 	OSStatus	status = CreateEvent(nil, SK_MacEventClass, SK_MacEventKind, 0, 0, &ref);
 	SkASSERT(status == noErr);
-	
+
 #if 0
 	status = SetEventParameter(ref, SK_MacEventParamName, SK_MacEventParamName, sizeof(evt), &evt);
 	SkASSERT(status == noErr);
 	status = SetEventParameter(ref, SK_MacEventSinkIDParamName, SK_MacEventSinkIDParamName, sizeof(sinkID), &sinkID);
 	SkASSERT(status == noErr);
 #endif
-	
+
 	EventTargetRef target = gEventTarget;
 	SetEventParameter(ref, kEventParamPostTarget, typeEventTargetRef, sizeof(target), &target);
 	SkASSERT(status == noErr);
-	
+
 	status = PostEventToQueue(gCurrEventQ, ref, kEventPriorityStandard);
 	SkASSERT(status == noErr);
 
@@ -456,16 +456,16 @@ AGLContext create_gl(WindowRef wref, bool offscreen)
 {
     GLint major, minor;
     AGLContext ctx;
-    
+
     aglGetVersion(&major, &minor);
     SkDebugf("---- agl version %d %d\n", major, minor);
-    
+
     const GLint pixelAttrs[] = {
         AGL_RGBA,
         AGL_STENCIL_SIZE, 8,
         AGL_SAMPLE_BUFFERS_ARB, 1,
 		AGL_MULTISAMPLE,
-		AGL_SAMPLES_ARB, 2,        
+		AGL_SAMPLES_ARB, 2,
 		(offscreen ? AGL_OFFSCREEN : AGL_ACCELERATED),
         (offscreen ? AGL_NONE : AGL_DOUBLEBUFFER),
         AGL_NONE
@@ -494,14 +494,20 @@ bool SkOSWindow::attachGL(const SkBitmap* offscreen)
 
     GLboolean success = true;
 
+    int width, height;
+
     if (offscreen) {
         success = aglSetOffScreen((AGLContext)fAGLCtx,
                                     offscreen->width(),
                                     offscreen->height(),
                                     offscreen->rowBytes(),
                                     offscreen->getPixels());
+        width = offscreen->width();
+        height = offscreen->height();
     } else {
         success = aglSetWindowRef((AGLContext)fAGLCtx, (WindowRef)fHWND);
+        width = this->width();
+        height = this->height();
     }
 
     GLenum err = aglGetError();
@@ -509,8 +515,9 @@ bool SkOSWindow::attachGL(const SkBitmap* offscreen)
         SkDebugf("---- setoffscreen %d %d %s [%d %d]\n", success, err,
                  aglErrorString(err), offscreen->width(), offscreen->height());
     }
-    
+
     if (success) {
+        glViewport(0, 0, width, height);
         glClearColor(0, 0, 0, 0);
         glClearStencil(0);
         glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

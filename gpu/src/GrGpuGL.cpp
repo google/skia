@@ -415,7 +415,6 @@ void GrGpuGL::resetContextHelper() {
     fHWDrawState.fSrcBlend = (BlendCoeff)-1;
     fHWDrawState.fDstBlend = (BlendCoeff)-1;
     fHWDrawState.fColor = GrColor_ILLEGAL;
-    fHWDrawState.fPointSize = -1;
 
     fHWDrawState.fViewMatrix.setScale(GR_ScalarMax, GR_ScalarMax); // illegal
 
@@ -500,6 +499,8 @@ GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiState() {
                                 NULL,
                                 this);
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 // defines stencil formats from more to less preferred
 GLenum GR_GL_STENCIL_FORMAT_ARRAY[] = {
@@ -852,7 +853,7 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
                 // bind the stencil to rt fbo if present, othewise the tex fbo
                 GR_GLEXT(fExts, FramebufferRenderbuffer(GR_FRAMEBUFFER,
                                                  GR_STENCIL_ATTACHMENT,
-                                                GR_RENDERBUFFER,
+                                                 GR_RENDERBUFFER,
                                                  rtIDs.fStencilRenderbufferID));
             }
             status = GR_GLEXT(fExts, CheckFramebufferStatus(GR_FRAMEBUFFER));

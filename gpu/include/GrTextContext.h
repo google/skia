@@ -27,7 +27,9 @@ class GrFontScaler;
 
 class GrTextContext {
 public:
-    GrTextContext(GrContext*, const GrMatrix* extMatrix = NULL);
+    GrTextContext(GrContext*,
+                  const GrPaint& paint,
+                  const GrMatrix* extMatrix = NULL);
     ~GrTextContext();
 
     void drawPackedGlyph(GrGlyph::PackedID, GrFixed left, GrFixed top,
@@ -36,6 +38,7 @@ public:
     void flush();   // optional; automatically called by destructor
 
 private:
+    const GrPaint&  fPaint;
     GrContext*      fContext;
     GrDrawTarget*   fDrawTarget;
 
@@ -53,7 +56,7 @@ private:
     };
 
     GrGpuTextVertex* fVertices;
-    
+
     int32_t     fMaxVertices;
     GrTexture*  fCurrTexture;
     int         fCurrVertex;
