@@ -9,6 +9,7 @@ SOURCE := \
     GrGLVertexBuffer.cpp \
     GrGpu.cpp \
     GrGpuGLShaders.cpp \
+    GrGpuGLShaders2.cpp \
     GrGpuGLFixed.cpp \
     GrGpuFactory.cpp \
 	GrGLUtil.cpp \
@@ -21,4 +22,4 @@ SOURCE := \
     GrTextureCache.cpp \
     GrTextContext.cpp \
     GrTextStrike.cpp \
-    GrVertexBufferAllocPool.cpp 
+    GrVertexBufferAllocPool.cpp
