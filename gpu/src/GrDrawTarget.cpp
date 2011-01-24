@@ -472,9 +472,14 @@ void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
 
 GrDrawTarget::AutoStateRestore::AutoStateRestore(GrDrawTarget* target) {
     fDrawTarget = target;
-    fDrawTarget->saveCurrentDrawState(&fDrawState);
+    if (NULL != fDrawTarget) {
+        fDrawTarget->saveCurrentDrawState(&fDrawState);
+    }
 }
 
 GrDrawTarget::AutoStateRestore::~AutoStateRestore() {
-    fDrawTarget->restoreDrawState(fDrawState);
+    if (NULL != fDrawTarget) {
+        fDrawTarget->restoreDrawState(fDrawState);
+    }
 }
+

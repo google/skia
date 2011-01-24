@@ -236,13 +236,17 @@ static uint32_t ror(uint32_t x) {
     return (x >> 8) | (x << 24);
 }
 
+static uint32_t rol(uint32_t x) {
+    return (x << 8) | (x >> 24);
+}
+
 GrGpuGLShaders2::ProgramCache::HashKey::HashKey(const ProgramDesc& desc) {
     fDesc = desc;
     // if you change the size of the desc, need to update the hash function
-    GR_STATIC_ASSERT(8 == sizeof(ProgramDesc));
+    GR_STATIC_ASSERT(12 == sizeof(ProgramDesc));
 
     uint32_t* d = (uint32_t*) &fDesc;
-    fHash = d[0] ^ ror(d[1]);
+    fHash = d[0] ^ ror(d[1]) ^ rol(d[2]);
 }
 
 bool GrGpuGLShaders2::ProgramCache::HashKey::EQ(const Entry& entry,
@@ -266,7 +270,6 @@ bool GrGpuGLShaders2::ProgramCache::HashKey::operator <(const HashKey& key) cons
 uint32_t GrGpuGLShaders2::ProgramCache::HashKey::getHash() const {
     return fHash;
 }
-
 
 struct GrGpuGLShaders2::ShaderCodeSegments {
     GrSStringBuilder<256> fVSUnis;

@@ -74,7 +74,9 @@ void GrGpu::resetContext() {
 }
 
 void GrGpu::unimpl(const char msg[]) {
-//    GrPrintf("--- GrGpu unimplemented(\"%s\")\n", msg);
+#if GR_DEBUG
+    GrPrintf("--- GrGpu unimplemented(\"%s\")\n", msg);
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,7 +110,7 @@ bool GrGpu::canDisableBlend() const {
         if (VertexUsesStage(s, fGeometrySrc.fVertexLayout)) {
             GrAssert(NULL != fCurrDrawState.fTextures[s]);
             GrTexture::PixelConfig config = fCurrDrawState.fTextures[s]->config();
-            
+
             if (GrTexture::kRGB_565_PixelConfig != config &&
                 GrTexture::kRGBX_8888_PixelConfig != config) {
                 return false;

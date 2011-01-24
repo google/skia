@@ -1019,9 +1019,13 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
 }
 
 void GrGpuGL::eraseColor(GrColor color) {
+    if (NULL == fCurrDrawState.fRenderTarget) {
+        return;
+    }
     flushRenderTarget();
     if (fHWBounds.fScissorEnabled) {
         GR_GL(Disable(GL_SCISSOR_TEST));
+        fHWBounds.fScissorEnabled = false;
     }
     GR_GL(ColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE));
     GR_GL(ClearColor(GrColorUnpackR(color)/255.f,
@@ -1029,19 +1033,21 @@ void GrGpuGL::eraseColor(GrColor color) {
                      GrColorUnpackB(color)/255.f,
                      GrColorUnpackA(color)/255.f));
     GR_GL(Clear(GL_COLOR_BUFFER_BIT));
-    fHWBounds.fScissorEnabled = false;
     fWriteMaskChanged = true;
 }
 
 void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
+    if (NULL == fCurrDrawState.fRenderTarget) {
+        return;
+    }
     flushRenderTarget();
     if (fHWBounds.fScissorEnabled) {
         GR_GL(Disable(GL_SCISSOR_TEST));
+        fHWBounds.fScissorEnabled = false;
     }
     GR_GL(StencilMask(mask));
     GR_GL(ClearStencil(value));
     GR_GL(Clear(GL_STENCIL_BUFFER_BIT));
-    fHWBounds.fScissorEnabled = false;
     fWriteMaskChanged = true;
 }
 

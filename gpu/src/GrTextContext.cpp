@@ -23,9 +23,11 @@
 #include "GrTextStrike_impl.h"
 #include "GrFontScaler.h"
 
-static const GrVertexLayout VLAYOUT =
-                                GrDrawTarget::kTextFormat_VertexLayoutBit |
-                                GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
+static const int TEXT_STAGE = 1;
+
+static const GrVertexLayout BASE_VLAYOUT =
+                    GrDrawTarget::kTextFormat_VertexLayoutBit |
+                    GrDrawTarget::StageTexCoordVertexLayoutBit(TEXT_STAGE,0);
 
 void GrTextContext::flushGlyphs() {
     if (fCurrVertex > 0) {
@@ -36,18 +38,17 @@ void GrTextContext::flushGlyphs() {
         GrSamplerState sampler(GrSamplerState::kRepeat_WrapMode,
                                GrSamplerState::kRepeat_WrapMode,
                                !fExtMatrix.isIdentity());
-        fDrawTarget->setSamplerState(0, sampler);
+        fDrawTarget->setSamplerState(TEXT_STAGE, sampler);
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         int nIndices = fCurrVertex + (fCurrVertex >> 1);
         GrAssert(fCurrTexture);
-        fDrawTarget->setTexture(0, fCurrTexture);
-        fDrawTarget->setTextureMatrix(0, GrMatrix::I());
+        fDrawTarget->setTexture(TEXT_STAGE, fCurrTexture);
+        fDrawTarget->setTextureMatrix(TEXT_STAGE, GrMatrix::I());
         fDrawTarget->setIndexSourceToBuffer(fContext->quadIndexBuffer());
 
         fDrawTarget->drawIndexed(GrDrawTarget::kTriangles_PrimitiveType,
                                  0, 0, fCurrVertex, nIndices);
-
         fDrawTarget->releaseReservedGeometry();
         fVertices = NULL;
         fMaxVertices = 0;
@@ -82,8 +83,19 @@ GrTextContext::GrTextContext(GrContext* context,
         }
     }
 
+    // save the context's original matrix off and restore in destructor
+    // this must be done before getTextTarget.
     fOrigViewMatrix = fContext->getMatrix();
     fContext->setMatrix(fExtMatrix);
+
+    fVertexLayout = BASE_VLAYOUT;
+    if (NULL != paint.getTexture()) {
+        fVertexLayout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
+        GrMatrix inverseViewMatrix;
+        if (fOrigViewMatrix.invert(&inverseViewMatrix)) {
+            fPaint.fTextureMatrix.preConcat(inverseViewMatrix);
+        }
+    }
 
     fVertices = NULL;
     fMaxVertices = 0;
@@ -191,7 +203,7 @@ HAS_ATLAS:
         // If we need to reserve vertices allow the draw target to suggest
         // a number of verts to reserve and whether to perform a flush.
         fMaxVertices = kMinRequestedVerts;
-        bool flush = fDrawTarget->geometryHints(VLAYOUT,
+        bool flush = fDrawTarget->geometryHints(fVertexLayout,
                                                &fMaxVertices,
                                                NULL);
         if (flush) {
@@ -200,7 +212,7 @@ HAS_ATLAS:
             fDrawTarget = fContext->getTextTarget(fPaint);
             fMaxVertices = kDefaultRequestedVerts;
             // ignore return, no point in flushing again.
-            fDrawTarget->geometryHints(VLAYOUT,
+            fDrawTarget->geometryHints(fVertexLayout,
                                        &fMaxVertices,
                                        NULL);
         }
@@ -211,7 +223,7 @@ HAS_ATLAS:
             // don't exceed the limit of the index buffer
             fMaxVertices = (fContext->maxQuadsInIndexBuffer() * 4);
         }
-        bool success = fDrawTarget->reserveAndLockGeometry(VLAYOUT,
+        bool success = fDrawTarget->reserveAndLockGeometry(fVertexLayout,
                                                            fMaxVertices, 0,
                                                    GrTCast<void**>(&fVertices),
                                                            NULL);
