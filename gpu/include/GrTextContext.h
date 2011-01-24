@@ -38,7 +38,8 @@ public:
     void flush();   // optional; automatically called by destructor
 
 private:
-    const GrPaint&  fPaint;
+    GrPaint         fPaint;
+    GrVertexLayout  fVertexLayout;
     GrContext*      fContext;
     GrDrawTarget*   fDrawTarget;
 

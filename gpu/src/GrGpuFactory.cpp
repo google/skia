@@ -24,7 +24,7 @@
 
 #include "GrGLConfig.h"
 
-#define GR_USE_GLSHADERS2 0
+#define GR_USE_GLSHADERS2 1
 
 #if GR_SUPPORT_GLES1 || GR_SUPPORT_GLDESKTOP
     #include "GrGpuGLFixed.h"

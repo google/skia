@@ -50,7 +50,7 @@ public:
 
     // Currently there is just one stage but this will be changed soon.
     enum {
-        kNumStages = 1,
+        kNumStages = 2,
         kMaxTexCoords = kNumStages
     };
 
