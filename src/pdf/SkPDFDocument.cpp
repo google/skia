@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,9 @@ void addResourcesToCatalog(int firstIndex, bool firstPage,
     for (int i = firstIndex; i < resourceList->count(); i++) {
         int index = resourceList->find((*resourceList)[i]);
         if (index != i) {
-            // The resource lists themselves should already be unique, so the
-            // first page resources shouldn't have any dups (assuming the first
-            // page resources are handled first).
-            SkASSERT(!firstPage);
             (*resourceList)[i]->unref();
             resourceList->removeShuffle(i);
+            i--;
         } else {
             catalog->addObject((*resourceList)[i], firstPage);
         }
@@ -68,6 +65,23 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         SkRefPtr<SkPDFObjRef> pageTreeRootRef = new SkPDFObjRef(pageTreeRoot);
         pageTreeRootRef->unref();  // SkRefPtr and new both took a reference.
         fDocCatalog->insert("Pages", pageTreeRootRef.get());
+
+        /* TODO(vandebo) output intent
+        SkRefPtr<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
+        outputIntent->unref();  // SkRefPtr and new both took a reference.
+        SkRefPtr<SkPDFName> intentSubtype = new SkPDFName("GTS_PDFA1");
+        intentSubtype->unref();  // SkRefPtr and new both took a reference.
+        outputIntent->insert("S", intentSubtype.get());
+        SkRefPtr<SkPDFString> intentIdentifier = new SkPDFString("sRGB");
+        intentIdentifier->unref();  // SkRefPtr and new both took a reference.
+        outputIntent->insert("OutputConditionIdentifier",
+                             intentIdentifier.get());
+        SkRefPtr<SkPDFArray> intentArray = new SkPDFArray;
+        intentArray->unref();  // SkRefPtr and new both took a reference.
+        intentArray->append(outputIntent.get());
+        fDocCatalog->insert("OutputIntent", intentArray.get());
+        */
+
         bool first_page = true;
         for (int i = 0; i < fPages.count(); i++) {
             int resourceCount = fPageResources.count();

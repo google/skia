@@ -20,6 +20,7 @@
 #include "SkRefCnt.h"
 
 class SkStream;
+class SkPDFTypefaceInfo;
 class SkWStream;
 
 /** \class SkTypeface
@@ -129,6 +130,11 @@ public:
         calling unref() when they are done with it.
      */
     static SkTypeface* Deserialize(SkStream*);
+
+    /** Retrieve information about the typeface needed for inclusion in a
+        PDF output device.
+     */
+    SkPDFTypefaceInfo* getPDFTypefaceInfo() const;
 
 protected:
     /** uniqueID must be unique (please!) and non-zero

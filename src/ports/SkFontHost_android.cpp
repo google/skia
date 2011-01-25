@@ -584,6 +584,12 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
+// static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkASSERT(!"SkFontHost::GetPDFTypefaceInfo unimplemented");
+    return NULL;
+}
+
 bool SkFontHost::ValidFontID(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
 

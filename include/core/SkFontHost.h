@@ -176,6 +176,11 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /** Retrieve information about the typeface needed for inclusion in a
+        PDF output device. Returns NULL if it is unable to find the font.
+     */
+    static SkPDFTypefaceInfo* GetPDFTypefaceInfo(SkFontID);
+
     /** Return the number of tables in the font
      */
     static int CountTables(SkFontID);

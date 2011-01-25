@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ void SkPDFGraphicState::populateDict() {
         SkRefPtr<SkPDFScalar> strokeMiterLimit = new SkPDFScalar(
             fPaint.getStrokeMiter());
         strokeMiterLimit->unref();  // SkRefPtr and new both took a reference.
-        insert("ML", strokeWidth.get());
+        insert("ML", strokeMiterLimit.get());
 
         // Turn on automatic stroke adjustment.
         SkRefPtr<SkPDFBool> trueVal = new SkPDFBool(true);

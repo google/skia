@@ -463,6 +463,12 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     return NULL;
 }
 
+// static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkASSERT(!"SkFontHost::GetPDFTypefaceInfo unimplemented");
+    return NULL;
+}
+
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 
     //Should not be used on Windows, keep linker happy

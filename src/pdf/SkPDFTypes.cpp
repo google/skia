@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 }
 
 SkPDFString::SkPDFString(const char value[])
-    : fValue(formatString(value, sizeof(value))) {
+    : fValue(formatString(value, strlen(value))) {
 }
 
 SkPDFString::SkPDFString(const SkString& value)
@@ -156,7 +156,7 @@ SkString SkPDFString::doFormatString(const void* input, size_t len,
     for (size_t i = 0; i < len; i++) {
         SkASSERT(!wideInput || !(win[i] & ~0xFF));
         char val = wideInput ? win[i] : cin[i];
-        if (val & 0x80 || val < ' ') {
+        if (val > '~' || val < ' ') {
             sevenBitClean = false;
             break;
         }
@@ -177,7 +177,7 @@ SkString SkPDFString::doFormatString(const void* input, size_t len,
         result.append("<");
         for (size_t i = 0; i < len; i++) {
             SkASSERT(!wideInput || !(win[i] & ~0xFF));
-            char val = wideInput ? win[i] : cin[i];
+            unsigned char val = wideInput ? win[i] : cin[i];
             result.appendHex(val, 2);
         }
         result.append(">");

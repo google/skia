@@ -59,6 +59,7 @@ private:
     T* fObj;
 };
 
+// See also SkTScopedPtr.
 template <typename T> class SkAutoTDelete : SkNoncopyable {
 public:
     SkAutoTDelete(T* obj) : fObj(obj) {}

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,13 +143,14 @@ private:
     // one entry: a transform
     // one entry: a clip
     // two entries: a clip and then a transform
+    // Pointers are owned by the respective Resources list.
     struct GraphicStackEntry {
         SkColor fColor;
         SkScalar fTextSize;
         SkScalar fTextScaleX;
         SkPaint::Style fTextFill;
-        SkRefPtr<SkPDFFont> fFont;
-        SkRefPtr<SkPDFGraphicState> fGraphicState;
+        SkPDFFont* fFont;
+        SkPDFGraphicState* fGraphicState;
         SkRegion fClip;
         SkMatrix fTransform;
     };
@@ -159,7 +160,8 @@ private:
     SkString fContent;
 
     void updateGSFromPaint(const SkPaint& newPaint, bool forText);
-    int getFontResourceIndex(uint32_t fontID);
+    void updateFont(const SkPaint& paint, uint16_t glyphID);
+    int getFontResourceIndex(uint32_t fontID, uint16_t glyphID);
 
     void moveTo(SkScalar x, SkScalar y);
     void appendLine(SkScalar x, SkScalar y);
