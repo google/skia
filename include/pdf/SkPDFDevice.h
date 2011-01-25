@@ -81,7 +81,8 @@ public:
                             const SkPaint& paint);
     virtual void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint);
     virtual void drawPath(const SkDraw&, const SkPath& path,
-                          const SkPaint& paint);
+                          const SkPaint& paint, const SkMatrix* prePathMatrix,
+                          bool pathIsMutable);
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                             const SkIRect* srcRectOrNull,
                             const SkMatrix& matrix, const SkPaint& paint);

@@ -252,7 +252,7 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
 
         SkPaint noEffectPaint(paint);
         SkSafeUnref(noEffectPaint.setPathEffect(NULL));
-        drawPath(d, path, noEffectPaint);
+        drawPath(d, path, noEffectPaint, NULL, true);
         return;
     }
     updateGSFromPaint(paint, false);
@@ -264,7 +264,10 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
 }
 
 void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
-                           const SkPaint& paint) {
+                           const SkPaint& paint, const SkMatrix* prePathMatrix,
+                           bool pathIsMutable) {
+    NOT_IMPLEMENTED("drawPath with prePathMatrix", (prePathMatrix != NULL));
+
     if (paint.getPathEffect()) {
         // Apply the path effect to path and draw it that way.
         SkPath noEffectPath;
@@ -272,7 +275,7 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
 
         SkPaint noEffectPaint(paint);
         SkSafeUnref(noEffectPaint.setPathEffect(NULL));
-        drawPath(d, noEffectPath, noEffectPaint);
+        drawPath(d, noEffectPath, noEffectPaint, NULL, true);
         return;
     }
     updateGSFromPaint(paint, false);
