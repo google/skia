@@ -148,6 +148,8 @@
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
+		D55BEE6712EF44B90055D6FD /* shadertext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D55BEE6612EF44B90055D6FD /* shadertext.cpp */; };
+		D5962B3A12EDFC7600B478DF /* SampleShaderText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5962B3812EDFC7600B478DF /* SampleShaderText.cpp */; };
 		D5A682D712E9CE8500CDDDC6 /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
 		D5F4A21F12E9D75300DE986A /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 /* End PBXBuildFile section */
@@ -412,6 +414,8 @@
 		4A9504CAFFE6A41611CA0CBA /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		8D0C4E960486CD37000505A6 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D0C4E970486CD37000505A6 /* CICarbonSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CICarbonSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D55BEE6612EF44B90055D6FD /* shadertext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shadertext.cpp; path = ../../gm/shadertext.cpp; sourceTree = SOURCE_ROOT; };
+		D5962B3812EDFC7600B478DF /* SampleShaderText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShaderText.cpp; path = ../../samplecode/SampleShaderText.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -460,6 +464,7 @@
 				007A7CA50F01658C00A2D6EE /* SamplePoints.cpp */,
 				007A7CA70F01658C00A2D6EE /* SampleRegion.cpp */,
 				007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */,
+				D5962B3812EDFC7600B478DF /* SampleShaderText.cpp */,
 				007A7CA90F01658C00A2D6EE /* SampleStrokeText.cpp */,
 				007A7CAC0F01658C00A2D6EE /* SampleTextAlpha.cpp */,
 				007A7CAD0F01658C00A2D6EE /* SampleTextEffects.cpp */,
@@ -679,6 +684,7 @@
 				27C4624512BFB2C700DBB1F6 /* bitmapfilters.cpp */,
 				27C4624612BFB2C700DBB1F6 /* filltypes.cpp */,
 				27C4624712BFB2C700DBB1F6 /* gradients.cpp */,
+				D55BEE6612EF44B90055D6FD /* shadertext.cpp */,
 				27C4624812BFB2C700DBB1F6 /* shapes.cpp */,
 				27C4624912BFB2C700DBB1F6 /* tilemodes.cpp */,
 				27C4624A12BFB2C700DBB1F6 /* xfermodes.cpp */,
@@ -1022,6 +1028,8 @@
 				009F9D1A12C3EB2600C7FD4A /* SampleGM.cpp in Sources */,
 				D5A682D712E9CE8500CDDDC6 /* SamplePatch.cpp in Sources */,
 				D5F4A21F12E9D75300DE986A /* SampleFillType.cpp in Sources */,
+				D5962B3A12EDFC7600B478DF /* SampleShaderText.cpp in Sources */,
+				D55BEE6712EF44B90055D6FD /* shadertext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
