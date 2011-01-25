@@ -78,6 +78,8 @@ private:
     }
 
     friend class Iter;
+
+    typedef GrPathSink INHERITED;
 };
 
 #endif

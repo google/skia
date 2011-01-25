@@ -2,7 +2,7 @@
 
 GrPath::GrPath() {}
 
-GrPath::GrPath(const GrPath& src) {
+GrPath::GrPath(const GrPath& src) : INHERITED() {
 }
 
 GrPath::GrPath(GrPathIter& iter) {

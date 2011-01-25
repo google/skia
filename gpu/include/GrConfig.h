@@ -68,7 +68,7 @@
         #undef GR_IOS_BUILD
         #define GR_IOS_BUILD        1
 //      #error "IOS"
-    #elif ANDROID_NDK || defined(ANDROID)
+    #elif (defined(ANDROID_NDK) && ANDROID_NDK) || defined(ANDROID)
         #undef GR_ANDROID_BUILD
         #define GR_ANDROID_BUILD    1
 //      #error "ANDROID"
@@ -87,13 +87,26 @@
     #endif    
 #endif
 
-#if !defined(GR_DEBUG) && !defined(GR_RELEASE)
-    #ifdef NDEBUG
-        #define GR_DEBUG    0
+// we need both GR_DEBUG and GR_RELEASE to be defined as 0 or 1
+//
+#ifndef GR_DEBUG
+    #ifdef GR_RELEASE
+        #define GR_DEBUG !GR_RELEASE
     #else
-        #define GR_DEBUG    1
+        #ifdef NDEBUG
+            #define GR_DEBUG    0
+        #else
+            #define GR_DEBUG    1
+        #endif
     #endif
+#endif
+
+#ifndef GR_RELEASE
     #define GR_RELEASE  !GR_DEBUG
+#endif
+
+#if GR_DEBUG == GR_RELEASE
+    #error "GR_DEBUG and GR_RELEASE must not be the same
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,7 +172,7 @@ extern void GrPrintf(const char format[], ...);
  *  particular compiler.
  *  To insert compiler warnings use "#pragma message GR_WARN(<string>)"
  */
-#if _MSC_VER
+#if defined(_MSC_VER) && _MSC_VER
     #define GR_WARN(MSG) (GR_FILE_AND_LINE_STR "WARNING: " MSG)
 #else//__GNUC__ - may need other defines for different compilers
     #define GR_WARN(MSG) ("WARNING: " MSG)
@@ -239,7 +252,7 @@ extern void GrPrintf(const char format[], ...);
 // VS 2010 and GCC compiled with c++0x or gnu++0x support the new 
 // static_assert.
 #if !defined(GR_STATIC_ASSERT)
-    #if (_MSC_VER >= 1600) || __GXX_EXPERIMENTAL_CXX0X__
+    #if (defined(_MSC_VER) && _MSC_VER >= 1600) || (defined(__GXX_EXPERIMENTAL_CXX0X__) && __GXX_EXPERIMENTAL_CXX0X__)
         #define GR_STATIC_ASSERT(CONDITION) static_assert(CONDITION, "bug")
     #else
         template <bool> class GR_STATIC_ASSERT_FAILURE;
