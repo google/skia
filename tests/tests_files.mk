@@ -13,6 +13,7 @@ SOURCE := \
     ParsePathTest.cpp \
     PathMeasureTest.cpp \
     PathTest.cpp \
+    RefDictTest.cpp \
     RegionTest.cpp \
     Sk64Test.cpp \
     skia_test.cpp \

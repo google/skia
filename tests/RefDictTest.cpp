@@ -1,0 +1,52 @@
+#include "Test.h"
+#include "SkRefDict.h"
+
+class TestRC : public SkRefCnt {
+};
+
+static void TestRefDict(skiatest::Reporter* reporter) {
+    TestRC    data0, data1;
+    SkRefDict dict;
+
+    REPORTER_ASSERT(reporter, NULL == dict.find(NULL));
+    REPORTER_ASSERT(reporter, NULL == dict.find("foo"));
+    REPORTER_ASSERT(reporter, NULL == dict.find("bar"));
+
+    dict.set("foo", &data0);
+    REPORTER_ASSERT(reporter, &data0 == dict.find("foo"));
+    REPORTER_ASSERT(reporter, 2 == data0.getRefCnt());
+
+    dict.set("foo", &data0);
+    REPORTER_ASSERT(reporter, &data0 == dict.find("foo"));
+    REPORTER_ASSERT(reporter, 2 == data0.getRefCnt());
+
+    dict.set("foo", &data1);
+    REPORTER_ASSERT(reporter, &data1 == dict.find("foo"));
+    REPORTER_ASSERT(reporter, 1 == data0.getRefCnt());
+    REPORTER_ASSERT(reporter, 2 == data1.getRefCnt());
+
+    dict.set("foo", NULL);
+    REPORTER_ASSERT(reporter, NULL == dict.find("foo"));
+    REPORTER_ASSERT(reporter, 1 == data0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == data1.getRefCnt());
+
+    dict.set("foo", &data0);
+    dict.set("bar", &data1);
+    REPORTER_ASSERT(reporter, &data0 == dict.find("foo"));
+    REPORTER_ASSERT(reporter, &data1 == dict.find("bar"));
+    REPORTER_ASSERT(reporter, 2 == data0.getRefCnt());
+    REPORTER_ASSERT(reporter, 2 == data1.getRefCnt());
+
+    dict.set("foo", &data1);
+    REPORTER_ASSERT(reporter, &data1 == dict.find("foo"));
+    REPORTER_ASSERT(reporter, &data1 == dict.find("bar"));
+    REPORTER_ASSERT(reporter, 1 == data0.getRefCnt());
+    REPORTER_ASSERT(reporter, 3 == data1.getRefCnt());
+
+    dict.removeAll();
+    REPORTER_ASSERT(reporter, NULL == dict.find("foo"));
+    REPORTER_ASSERT(reporter, NULL == dict.find("bar"));
+}
+
+#include "TestClassDef.h"
+DEFINE_TESTCLASS("RefDict", RefDictTestClass, TestRefDict)
