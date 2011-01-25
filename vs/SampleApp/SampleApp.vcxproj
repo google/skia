@@ -277,6 +277,7 @@
     <ClCompile Include="..\..\samplecode\SampleRegion.cpp" />
     <ClCompile Include="..\..\samplecode\SampleRepeatTile.cpp" />
     <ClCompile Include="..\..\samplecode\SampleShaders.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleShaderText.cpp" />
     <ClCompile Include="..\..\samplecode\SampleShapes.cpp" />
     <ClCompile Include="..\..\samplecode\SampleSlides.cpp" />
     <ClCompile Include="..\..\samplecode\SampleStrokePath.cpp" />
