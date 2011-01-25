@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2011 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 // A memory stream that reports zero size with the standard call, like
 // an unseekable file stream would.
-class SkSimulatedFileStream : public SkMemoryStream {
+class SkZeroSizeMemStream : public SkMemoryStream {
 public:
     virtual size_t read(void* buffer, size_t size) {
         if (buffer == NULL && size == 0)
@@ -55,7 +55,7 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
     // Check that the input data wasn't changed.
     size_t inputSize = testStream->getLength();
     if (inputSize == 0)
-        inputSize = testStream->read(NULL, SkSimulatedFileStream::kGetSizeKey);
+        inputSize = testStream->read(NULL, SkZeroSizeMemStream::kGetSizeKey);
     REPORTER_ASSERT(reporter, testData.getLength() == inputSize);
     REPORTER_ASSERT(reporter, memcmp(testData.getMemoryBase(),
                                      testStream->getMemoryBase(),
@@ -75,7 +75,7 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
     // Check that the input data wasn't changed.
     inputSize = testStream->getLength();
     if (inputSize == 0)
-        inputSize = testStream->read(NULL, SkSimulatedFileStream::kGetSizeKey);
+        inputSize = testStream->read(NULL, SkZeroSizeMemStream::kGetSizeKey);
     REPORTER_ASSERT(reporter, compressed.getOffset() == inputSize);
     REPORTER_ASSERT(reporter, memcmp(testStream->getMemoryBase(),
                                      compressed.getStream(),
@@ -97,7 +97,7 @@ static void TestFlateCompression(skiatest::Reporter* reporter) {
     TestFlate(reporter, &memStream, 512);
     TestFlate(reporter, &memStream, 10240);
 
-    SkSimulatedFileStream fileStream;
+    SkZeroSizeMemStream fileStream;
     TestFlate(reporter, &fileStream, 512);
     TestFlate(reporter, &fileStream, 10240);
 #endif

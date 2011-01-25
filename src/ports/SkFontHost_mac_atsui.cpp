@@ -479,6 +479,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return NULL;
 }
 
+// static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkASSERT(!"SkFontHost::GetPDFTypefaceInfo unimplemented");
+    return NULL;
+}
+
 SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return new SkScalerContext_Mac(desc);
 }

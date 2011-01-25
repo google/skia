@@ -15,27 +15,30 @@
 ** limitations under the License.
 */
 
-#include "SkColorPriv.h"
-#include "SkScalerContext.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorPriv.h"
 #include "SkDescriptor.h"
 #include "SkFDot6.h"
 #include "SkFontHost.h"
 #include "SkMask.h"
+#include "SkPDFTypefaceInfo.h"
+#include "SkScalerContext.h"
 #include "SkStream.h"
 #include "SkString.h"
-#include "SkThread.h"
 #include "SkTemplates.h"
+#include "SkThread.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
 #include FT_SIZES_H
 #include FT_TRUETYPE_TABLES_H
+#include FT_TYPE1_TABLES_H
 #include FT_BITMAP_H
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
 #include FT_SYNTHESIS_H
+#include FT_XFREE86_H
 
 #if defined(SK_SUPPORT_LCDTEXT)
 #include FT_LCD_FILTER_H
@@ -302,6 +305,285 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         h = SkPaint::kSlight_Hinting;
     }
     rec->setHinting(h);
+}
+
+static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
+    const FT_UInt glyph_id = FT_Get_Char_Index(face, letter);
+    if (!glyph_id)
+        return false;
+    FT_Load_Glyph(face, glyph_id, FT_LOAD_NO_SCALE);
+    FT_Outline_Get_CBox(&face->glyph->outline, bbox);
+    return true;
+}
+
+int getWidthAdvance(FT_Face face, int gId, int scaleDivisor) {
+    FT_Fixed unscaledAdvance = 0;
+    SkAssertResult(FT_Get_Advance(face, gId, FT_LOAD_NO_SCALE,
+                   &unscaledAdvance) == 0);
+    return unscaledAdvance * 1000 / scaleDivisor;
+}
+
+template <typename Data>
+void resetRange(SkPDFTypefaceInfo::AdvanceMetric<Data>* range, int startId) {
+    range->fStartId = startId;
+    range->fAdvance.setCount(0);
+}
+
+template <typename Data>
+SkPDFTypefaceInfo::AdvanceMetric<Data>* appendRange(
+        SkTScopedPtr<SkPDFTypefaceInfo::AdvanceMetric<Data> >* nextSlot,
+        int startId) {
+    nextSlot->reset(new SkPDFTypefaceInfo::AdvanceMetric<Data>);
+    resetRange(nextSlot->get(), startId);
+    return nextSlot->get();
+}
+
+template <typename Data>
+void finishRange(
+        SkPDFTypefaceInfo::AdvanceMetric<Data>* range,
+        int endId,
+        typename SkPDFTypefaceInfo::AdvanceMetric<Data>::MetricType type) {
+    range->fEndId = endId;
+    range->fType = type;
+    int newLength;
+    if (type == SkPDFTypefaceInfo::AdvanceMetric<Data>::kRange)
+        newLength = endId - range->fStartId + 1;
+    else
+        newLength = 1;
+    SkASSERT(range->fAdvance.count() >= newLength);
+    range->fAdvance.setCount(newLength);
+}
+
+template <typename Data>
+SkPDFTypefaceInfo::AdvanceMetric<Data>* getAdvanceData(
+        FT_Face face,
+        int scaleDivisor,
+        Data (*getAdvance)(FT_Face face, int gId, int scaleDivisor)) {
+    // Assuming that an ASCII representation of a width or a glyph id is,
+    // on average, 3 characters long gives the following cut offs for
+    // using different range types:
+    // When currently in a range
+    //  - Removing 4 0's is a win
+    //  - Removing 5 repeats is a win
+    // When not currently in a range
+    //  - Removing 1 0 is a win
+    //  - Removing 3 repeats is a win
+
+    SkTScopedPtr<SkPDFTypefaceInfo::AdvanceMetric<Data> > result;
+    SkPDFTypefaceInfo::AdvanceMetric<Data>* curRange;
+    curRange = appendRange(&result, 0);
+    int lastAdvance = INT_MIN;
+    int repeats = 0;
+    for (FT_UInt gId = 0; gId < face->num_glyphs; gId++) {
+        int advance = getAdvance(face, gId, scaleDivisor);
+        if (advance == lastAdvance) {
+            repeats++;
+        } else if (curRange->fAdvance.count() == repeats + 1) {
+            if (lastAdvance == 0 && repeats >= 0) {
+                resetRange(curRange, gId);
+            } else if (repeats >= 2) {
+                finishRange(curRange, gId - 1,
+                            SkPDFTypefaceInfo::WidthRange::kRun);
+                curRange = appendRange(&curRange->fNext, gId);
+            }
+            repeats = 0;
+        } else {
+            if (lastAdvance == 0 && repeats >= 3) {
+                finishRange(curRange, gId - repeats - 2,
+                            SkPDFTypefaceInfo::WidthRange::kRange);
+                curRange = appendRange(&curRange->fNext, gId);
+            } else if (repeats >= 4) {
+                finishRange(curRange, gId - repeats - 2,
+                            SkPDFTypefaceInfo::WidthRange::kRange);
+                curRange = appendRange(&curRange->fNext, gId - repeats - 1);
+                curRange->fAdvance.append(1, &lastAdvance);
+                finishRange(curRange, gId - 1,
+                            SkPDFTypefaceInfo::WidthRange::kRun);
+                curRange = appendRange(&curRange->fNext, gId);
+            }
+            repeats = 0;
+        }
+        curRange->fAdvance.append(1, &advance);
+        lastAdvance = advance;
+    }
+    finishRange(curRange, face->num_glyphs - 1,
+                SkPDFTypefaceInfo::WidthRange::kRange);
+    return result.release();
+}
+
+// static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkAutoMutexAcquire ac(gFTMutex);
+    FT_Library libInit = NULL;
+    if (gFTCount == 0) {
+        if (!InitFreetype())
+            sk_throw();
+        libInit = gFTLibrary;
+    }
+    SkAutoTCallIProc<struct FT_LibraryRec_, FT_Done_FreeType> ftLib(libInit);
+    SkFaceRec* rec = ref_ft_face(fontID);
+    if (NULL == rec)
+        return NULL;
+    FT_Face face = rec->fFace;
+
+    SkPDFTypefaceInfo* info = new SkPDFTypefaceInfo;
+    info->fMultiMaster = false;
+    bool cid = false;
+    int scaleDivisor = 1000;
+    const char* fontType = FT_Get_X11_Font_Format(face);
+    if (FT_Get_FSType_Flags(face) & (FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING |
+                                     FT_FSTYPE_BITMAP_EMBEDDING_ONLY)) {
+        info->fType = SkPDFTypefaceInfo::kNotEmbeddable_Font;
+    } else if (FT_HAS_MULTIPLE_MASTERS(face)) {
+        // PDF requires that embedded MM fonts be reduced to a simple font.
+        info->fType = SkPDFTypefaceInfo::kOther_Font;
+    } else if (strcmp(fontType, "Type 1") == 0) {
+        info->fType = SkPDFTypefaceInfo::kType1_Font;
+    } else if (strcmp(fontType, "CID Type 1") == 0) {
+        info->fType = SkPDFTypefaceInfo::kType1CID_Font;
+        cid = true;
+    } else if (strcmp(fontType, "CFF") == 0) {
+        info->fType = SkPDFTypefaceInfo::kCFF_Font;
+    } else if (strcmp(fontType, "TrueType") == 0) {
+        info->fType = SkPDFTypefaceInfo::kTrueType_Font;
+        cid = true;
+        TT_Header* ttHeader;
+        if ((ttHeader = (TT_Header*)FT_Get_Sfnt_Table(face,
+                                                      ft_sfnt_head)) != NULL) {
+            scaleDivisor = ttHeader->Units_Per_EM;
+        }
+    }
+    info->fFontName.set(FT_Get_Postscript_Name(face));
+    SkASSERT(FT_IS_CID_KEYED(face) ==
+             (info->fType == SkPDFTypefaceInfo::kType1CID_Font));
+
+    if (info->fType == SkPDFTypefaceInfo::kOther_Font ||
+            info->fType == SkPDFTypefaceInfo::kNotEmbeddable_Font ||
+            !FT_IS_SCALABLE(face)) {
+        unref_ft_face(face);
+        return info;
+    }
+
+    info->fLastGlyphID = face->num_glyphs - 1;
+
+    SkASSERT(!FT_HAS_VERTICAL(face));
+
+    if (FT_IS_FIXED_WIDTH(face)) {
+        appendRange(&info->fGlyphWidths, 0);
+        int advance = face->max_advance_width * 1000 / scaleDivisor;
+        info->fGlyphWidths->fAdvance.append(1, &advance);
+        finishRange(info->fGlyphWidths.get(), 0,
+                    SkPDFTypefaceInfo::WidthRange::kDefault);
+    } else if(!cid) {
+        appendRange(&info->fGlyphWidths, 0);
+        // So as to not blow out the stack, get advances in batches.
+        for (int gIDStart = 0; gIDStart < face->num_glyphs; gIDStart += 128) {
+            FT_Fixed advances[128];
+            int advanceCount = 128;
+            if (gIDStart + advanceCount > face->num_glyphs)
+                advanceCount = face->num_glyphs - gIDStart + 1;
+            FT_Get_Advances(face, gIDStart, advanceCount, FT_LOAD_NO_SCALE,
+                            advances);
+            for (int i = 0; i < advanceCount; i++) {
+                int advance = advances[gIDStart + i];
+                info->fGlyphWidths->fAdvance.append(1, &advance);
+            }
+        }
+        finishRange(info->fGlyphWidths.get(), face->num_glyphs - 1,
+                    SkPDFTypefaceInfo::WidthRange::kRange);
+    } else {
+        // For CID keyed fonts, an identity pdf-cmap is used, so we iterate and
+        // report on glyph ids, not character ids (tt-cmap indices).
+        info->fGlyphWidths.reset(getAdvanceData(face, scaleDivisor,
+                                                &getWidthAdvance));
+    }
+
+    if (info->fType == SkPDFTypefaceInfo::kType1_Font) {
+        // Postscript fonts may contain more than 255 glyphs, so we end up
+        // using multiple font descriptions with a glyph ordering.  Record
+        // the name of each glyph.
+        info->fGlyphNames.reset(new SkAutoTArray<SkString>(face->num_glyphs));
+        for (FT_UInt gID = 0; gID < face->num_glyphs; gID++) {
+            char glyphName[128];  // Postscript limit for names is 127 bytes.
+            FT_Get_Glyph_Name(face, gID, glyphName, 128);
+            info->fGlyphNames->get()[gID].set(glyphName);
+        }
+    }
+
+    info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin * 1000 / scaleDivisor,
+                                    face->bbox.yMax * 1000 / scaleDivisor,
+                                    face->bbox.xMax * 1000 / scaleDivisor,
+                                    face->bbox.yMin * 1000 / scaleDivisor);
+    info->fStyle = 0;
+    if (FT_IS_FIXED_WIDTH(face))
+        info->fStyle |= SkPDFTypefaceInfo::kFixedPitch_Style;
+    if (face->style_flags & FT_STYLE_FLAG_ITALIC)
+        info->fStyle |= SkPDFTypefaceInfo::kItalic_Style;
+    // We should set either Symbolic or Nonsymbolic; Nonsymbolic if the font's
+    // character set is a subset of 'Adobe standard Latin.'
+    info->fStyle |= SkPDFTypefaceInfo::kSymbolic_Style;
+
+    TT_PCLT* pclt_info;
+    TT_OS2* os2_table;
+    if ((pclt_info = (TT_PCLT*)FT_Get_Sfnt_Table(face, ft_sfnt_pclt)) != NULL) {
+        info->fCapHeight = pclt_info->CapHeight;
+        uint8_t serif_style = pclt_info->SerifStyle & 0x3F;
+        if (serif_style >= 2 && serif_style <= 6)
+            info->fStyle |= SkPDFTypefaceInfo::kSerif_Style;
+        else if (serif_style >= 9 && serif_style <= 12)
+            info->fStyle |= SkPDFTypefaceInfo::kScript_Style;
+    } else if ((os2_table =
+                (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != NULL) {
+        info->fCapHeight = os2_table->sCapHeight;
+    } else {
+        // Figure out a good guess for CapHeight: average the height of M and X.
+        FT_BBox m_bbox, x_bbox;
+        bool got_m, got_x;
+        got_m = GetLetterCBox(face, 'M', &m_bbox);
+        got_x = GetLetterCBox(face, 'X', &x_bbox);
+        if (got_m && got_x) {
+            info->fCapHeight = (m_bbox.yMax - m_bbox.yMin + x_bbox.yMax -
+                    x_bbox.yMin) / 2;
+        } else if (got_m && !got_x) {
+            info->fCapHeight = m_bbox.yMax - m_bbox.yMin;
+        } else if (!got_m && got_x) {
+            info->fCapHeight = x_bbox.yMax - x_bbox.yMin;
+        }
+    }
+    info->fCapHeight = info->fCapHeight * 1000 / scaleDivisor;
+
+    // Figure out a good guess for StemV - Min width of i, I, !, 1.
+    // This probably isn't very good with an italic font.
+    int min_width = INT_MAX;
+    char stem_chars[] = {'i', 'I', '!', '1'};
+    for (size_t i = 0; i < SK_ARRAY_COUNT(stem_chars); i++) {
+        FT_BBox bbox;
+        if (GetLetterCBox(face, stem_chars[i], &bbox)) {
+            int width = bbox.xMax - bbox.xMin;
+            if (width > 0 && width < min_width) {
+                min_width = width;
+                info->fStemV = min_width * 1000 / scaleDivisor;
+            }
+        }
+    }
+
+    PS_FontInfoRec ps_info;
+    TT_Postscript* tt_info;
+    if (FT_Get_PS_Font_Info(face, &ps_info) == 0) {
+        info->fItalicAngle = ps_info.italic_angle;
+    } else if ((tt_info =
+                (TT_Postscript*)FT_Get_Sfnt_Table(face,
+                                                  ft_sfnt_post)) != NULL) {
+        info->fItalicAngle = SkFixedToScalar(tt_info->italicAngle);
+    } else {
+        info->fItalicAngle = 0;
+    }
+
+    info->fAscent = face->ascender * 1000 / scaleDivisor;
+    info->fDescent = face->descender * 1000 / scaleDivisor;
+
+    unref_ft_face(face);
+    return info;
 }
 
 SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)

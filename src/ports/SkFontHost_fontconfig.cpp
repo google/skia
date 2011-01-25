@@ -301,6 +301,12 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 // static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkASSERT(!"SkFontHost::GetPDFTypefaceInfo unimplemented");
+    return NULL;
+}
+
+// static
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
 {
     SkASSERT(!"SkFontHost::CreateTypefaceFromStream unimplemented");

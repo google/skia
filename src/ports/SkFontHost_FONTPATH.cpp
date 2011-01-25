@@ -269,6 +269,12 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return SkNEW_ARGS(FontFaceRec_Typeface, (face));
 }
 
+// static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    sk_throw();  // not implemented
+    return NULL;
+}
+
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     sk_throw();  // not implemented
     return NULL;

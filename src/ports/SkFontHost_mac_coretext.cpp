@@ -603,6 +603,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
     return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
 }
 
+// static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkASSERT(!"SkFontHost::GetPDFTypefaceInfo unimplemented");
+    return NULL;
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 bool SkFontHost::ValidFontID(SkFontID uniqueID)

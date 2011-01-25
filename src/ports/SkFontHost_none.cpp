@@ -33,6 +33,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(char const*) {
     return NULL;
 }
 
+// static
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkASSERT(!"SkFontHost::GetPDFTypefaceInfo unimplemented");
+    return NULL;
+}
+
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 }
 
