@@ -116,25 +116,40 @@ struct SkCompileAssert {
 
 ///////////////////////////////////////////////////////////////////////
 
-/** Fast type for signed 8 bits. Use for parameter passing and local variables, not for storage
-*/
-typedef int         S8CPU;
-/** Fast type for unsigned 8 bits. Use for parameter passing and local variables, not for storage
-*/
-typedef int         S16CPU;
-/** Fast type for signed 16 bits. Use for parameter passing and local variables, not for storage
-*/
-typedef unsigned    U8CPU;
-/** Fast type for unsigned 16 bits. Use for parameter passing and local variables, not for storage
-*/
-typedef unsigned    U16CPU;
+/**
+ *  Fast type for signed 8 bits. Use for parameter passing and local variables,
+ *  not for storage.
+ */
+typedef int S8CPU;
 
-/** Meant to be faster than bool (doesn't promise to be 0 or 1, just 0 or non-zero
-*/
-typedef int         SkBool;
-/** Meant to be a small version of bool, for storage purposes. Will be 0 or 1
-*/
-typedef uint8_t     SkBool8;
+/**
+ *  Fast type for unsigned 8 bits. Use for parameter passing and local
+ *  variables, not for storage
+ */
+typedef unsigned U8CPU;
+
+/**
+ *  Fast type for signed 16 bits. Use for parameter passing and local variables,
+ *  not for storage
+ */
+typedef int S16CPU;
+
+/**
+ *  Fast type for unsigned 16 bits. Use for parameter passing and local
+ *  variables, not for storage
+ */
+typedef unsigned U16CPU;
+
+/**
+ *  Meant to be faster than bool (doesn't promise to be 0 or 1,
+ *  just 0 or non-zero
+ */
+typedef int SkBool;
+
+/**
+ *  Meant to be a small version of bool, for storage purposes. Will be 0 or 1
+ */
+typedef uint8_t SkBool8;
 
 #ifdef SK_DEBUG
     int8_t      SkToS8(long);
