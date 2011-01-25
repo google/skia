@@ -177,10 +177,6 @@ void gl_version(int* major, int* minor);
     #define GrGL_RestoreResetRowLength()
 #endif
 
-#if SK_TextGLType != GL_FIXED
-    #define SK_GL_HAS_COLOR4UB
-#endif
-
 /*
  *  Some drivers want the var-int arg to be zero-initialized on input.
  */

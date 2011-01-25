@@ -128,6 +128,8 @@ private:
     uint32_t    fFlags;
 
     SkTDArray<SkLayer*> m_children;
+
+    typedef SkRefCnt INHERITED;
 };
 
 #endif

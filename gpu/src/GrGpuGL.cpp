@@ -1166,12 +1166,6 @@ void GrGpuGL::drawNonIndexedHelper(PrimitiveType type,
     GR_GL(DrawArrays(gPrimitiveType2GLMode[type], 0, vertexCount));
 }
 
-#if !defined(SK_GL_HAS_COLOR4UB)
-static inline GrFixed byte2fixed(unsigned value) {
-    return (value + (value >> 7)) << 8;
-}
-#endif
-
 void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
     GrGLRenderTarget* rt = (GrGLRenderTarget*) texture->asRenderTarget();
 

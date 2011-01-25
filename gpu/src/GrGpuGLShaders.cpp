@@ -192,11 +192,7 @@ static const char* gfshad[] = {
     "void main() {\n"
     // On Brian's PC laptop with Intel Gfx texture2DProj seems to be broken
     // but it works everywhere else tested.
-#if GR_GLSL_2DPROJ_BROKEN
-    "   gl_FragColor = vColor * texture2D(sTexture, vTexture.xy / vTexture.z);\n"
-#else
     "   gl_FragColor = vColor * texture2DProj(sTexture, vTexture);\n"
-#endif
 
     "}\n",
 

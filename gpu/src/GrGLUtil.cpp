@@ -104,7 +104,7 @@ extern void GrGLInitExtensions(GrGLExts* exts) {
 
     bool fboFound = false;
 #if GR_SUPPORT_GLDESKTOP
-    #if GL_VERSION_3_0
+    #if defined(GL_VERSION_3_0) && GL_VERSION_3_0
     if (!fboFound && major >= 3) { // all of ARB_fbo is in 3.x
         exts->GenFramebuffers                   = glGenFramebuffers;
         exts->BindFramebuffer                   = glBindFramebuffer;
