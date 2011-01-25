@@ -71,6 +71,7 @@ SOURCE := \
     SkRasterizer.cpp \
     SkRect.cpp \
     SkRefCnt.cpp \
+    SkRefDict.cpp \
     SkRegion.cpp \
     SkRegion_rects.cpp \
     SkRegion_path.cpp \
