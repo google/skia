@@ -5,4 +5,5 @@ SOURCE := \
 	shapes.cpp \
 	tilemodes.cpp \
 	xfermodes.cpp \
+	shadertext.cpp \
 	gmmain.cpp
