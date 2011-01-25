@@ -14,6 +14,8 @@
 #define GR_GL_FUNC
 
 #define GR_GL_PROC_ADDRESS(X)       &X
-//#define GR_GL_PROC_ADDRESS_HEADER
+
+// chrome always assumes BGRA
+#define GR_GL_32BPP_COLOR_FORMAT    GR_BGRA
 
 #endif
