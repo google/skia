@@ -124,6 +124,7 @@
 		005F25E60EF94F7900582A90 /* SkWriter32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F256D0EF94F7900582A90 /* SkWriter32.cpp */; };
 		005F25E70EF94F7900582A90 /* SkXfermode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F256E0EF94F7900582A90 /* SkXfermode.cpp */; };
 		005F26960EF955D400582A90 /* SkComposeShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F26950EF955D400582A90 /* SkComposeShader.cpp */; };
+		006EB61412EF97E100686979 /* SkRefDict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 006EB61312EF97E100686979 /* SkRefDict.cpp */; };
 		007C786A0F3B4D5F0004B142 /* SkQuadClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */; };
 		008AE3D612E4A3D6002516FE /* opts_check_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008AE3D112E4A3D6002516FE /* opts_check_SSE2.cpp */; };
 		008AE3D712E4A3D6002516FE /* SkBitmapProcState_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008AE3D212E4A3D6002516FE /* SkBitmapProcState_opts_SSE2.cpp */; };
@@ -259,6 +260,7 @@
 		005F256D0EF94F7900582A90 /* SkWriter32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkWriter32.cpp; path = ../../src/core/SkWriter32.cpp; sourceTree = SOURCE_ROOT; };
 		005F256E0EF94F7900582A90 /* SkXfermode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkXfermode.cpp; path = ../../src/core/SkXfermode.cpp; sourceTree = SOURCE_ROOT; };
 		005F26950EF955D400582A90 /* SkComposeShader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkComposeShader.cpp; path = ../../src/core/SkComposeShader.cpp; sourceTree = SOURCE_ROOT; };
+		006EB61312EF97E100686979 /* SkRefDict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRefDict.cpp; path = ../../src/core/SkRefDict.cpp; sourceTree = SOURCE_ROOT; };
 		007C78690F3B4D5F0004B142 /* SkQuadClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkQuadClipper.cpp; path = ../../src/core/SkQuadClipper.cpp; sourceTree = SOURCE_ROOT; };
 		008AE3D112E4A3D6002516FE /* opts_check_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = opts_check_SSE2.cpp; path = ../../src/opts/opts_check_SSE2.cpp; sourceTree = SOURCE_ROOT; };
 		008AE3D212E4A3D6002516FE /* SkBitmapProcState_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBitmapProcState_opts_SSE2.cpp; path = ../../src/opts/SkBitmapProcState_opts_SSE2.cpp; sourceTree = SOURCE_ROOT; };
@@ -340,6 +342,7 @@
 		08FB7795FE84155DC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				006EB61312EF97E100686979 /* SkRefDict.cpp */,
 				00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */,
 				277670F312B840CA006811C2 /* SkRegion_rects.cpp */,
 				277670F412B840CA006811C2 /* SkScalar.cpp */,
@@ -673,6 +676,7 @@
 				008AE3D712E4A3D6002516FE /* SkBitmapProcState_opts_SSE2.cpp in Sources */,
 				008AE3D812E4A3D6002516FE /* SkBlitRow_opts_SSE2.cpp in Sources */,
 				008AE3DA12E4A3D6002516FE /* SkUtils_opts_SSE2.cpp in Sources */,
+				006EB61412EF97E100686979 /* SkRefDict.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

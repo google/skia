@@ -46,6 +46,20 @@ static void TestRefDict(skiatest::Reporter* reporter) {
     dict.removeAll();
     REPORTER_ASSERT(reporter, NULL == dict.find("foo"));
     REPORTER_ASSERT(reporter, NULL == dict.find("bar"));
+    REPORTER_ASSERT(reporter, 1 == data0.getRefCnt());
+    REPORTER_ASSERT(reporter, 1 == data1.getRefCnt());
+
+    {
+        SkRefDict d;
+        REPORTER_ASSERT(reporter, NULL == d.find("foo"));
+        REPORTER_ASSERT(reporter, 1 == data0.getRefCnt());
+        d.set("foo", &data0);
+        REPORTER_ASSERT(reporter, &data0 == d.find("foo"));
+        REPORTER_ASSERT(reporter, 2 == data0.getRefCnt());
+        // let d go out of scope still with a ref on data0
+    }
+    // be sure d's destructor lowered data0's owner count back to 1
+    REPORTER_ASSERT(reporter, 1 == data0.getRefCnt());
 }
 
 #include "TestClassDef.h"

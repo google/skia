@@ -21,6 +21,7 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkRefDict.h"
 
 class SkDevice;
 class SkDraw;
@@ -184,6 +185,10 @@ public:
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&);
 
+    ///////////////////////////////////////////////////////////////////////////
+
+    SkRefDict& getRefDict() { return fRefDict; }
+
 protected:
     /** Update as needed the pixel value in the bitmap, so that the caller can access
         the pixels directly. Note: only the pixels field should be altered. The config/width/height/rowbytes
@@ -199,8 +204,9 @@ protected:
     }
 
 private:
-    SkCanvas* fCanvas;
-    SkBitmap fBitmap;
+    SkCanvas*   fCanvas;
+    SkBitmap    fBitmap;
+    SkRefDict   fRefDict;
 };
 
 #endif
