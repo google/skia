@@ -14,10 +14,10 @@
 		002884E10EFABFFC0083E387 /* SkGlobals_global.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884E00EFABFFC0083E387 /* SkGlobals_global.cpp */; };
 		003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2E0F11409100F233EA /* SkImageDecoder_CG.cpp */; };
 		00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00488AF30F86532E00C08A57 /* SkDebug_stdio.cpp */; };
+		005B11BF12EFDC2D00A08864 /* SkFontHost_mac_coretext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27D0F41C11BD227D001B8EBE /* SkFontHost_mac_coretext.cpp */; };
 		007C8DC910B4694D008CDB57 /* SkUtils_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007C8DC810B4694D008CDB57 /* SkUtils_opts_none.cpp */; };
 		27739F2B0F11407000F233EA /* SkCreateCGImageRef.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2A0F11407000F233EA /* SkCreateCGImageRef.cpp */; };
 		27739F2D0F11408100F233EA /* SkImageDecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27739F2C0F11408100F233EA /* SkImageDecoder.cpp */; };
-		27D0F42F11BD234C001B8EBE /* SkFontHost_mac_atsui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27D0F41B11BD227D001B8EBE /* SkFontHost_mac_atsui.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -150,7 +150,14 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB91EF08733DB70010E9CD /* Build configuration list for PBXProject "maccore" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* maccore */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -175,7 +182,7 @@
 				00488AF40F86532E00C08A57 /* SkDebug_stdio.cpp in Sources */,
 				003144D50FB8491400B10956 /* SkImageDecoder_CG.cpp in Sources */,
 				007C8DC910B4694D008CDB57 /* SkUtils_opts_none.cpp in Sources */,
-				27D0F42F11BD234C001B8EBE /* SkFontHost_mac_atsui.cpp in Sources */,
+				005B11BF12EFDC2D00A08864 /* SkFontHost_mac_coretext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

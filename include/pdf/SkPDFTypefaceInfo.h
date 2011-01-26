@@ -73,7 +73,6 @@ public:
         int fOriginXDisp;  // Horizontal displacement of the secondary origin.
         int fOriginYDisp;  // Vertical displacement of the secondary origin.
     };
-    typedef struct VerticalMetric VerticalMetric;
     typedef AdvanceMetric<int> WidthRange;
     typedef AdvanceMetric<VerticalMetric> VerticalAdvanceRange;
 
