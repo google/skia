@@ -283,30 +283,7 @@ static void unref_ft_face(FT_Face face) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
-    if (!gLCDSupportValid) {
-      InitFreetype();
-      FT_Done_FreeType(gFTLibrary);
-    }
-
-    if (!gLCDSupport && rec->isLCD()) {
-      // If the runtime Freetype library doesn't support LCD mode, we disable
-      // it here.
-      rec->fMaskFormat = SkMask::kA8_Format;
-    }
-
-    SkPaint::Hinting h = rec->getHinting();
-    if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
-        // collapse full->normal hinting if we're not doing LCD
-        h = SkPaint::kNormal_Hinting;
-    } else if ((rec->fFlags & SkScalerContext::kSubpixelPositioning_Flag) &&
-               SkPaint::kNo_Hinting != h) {
-        // to do subpixel, we must have at most slight hinting
-        h = SkPaint::kSlight_Hinting;
-    }
-    rec->setHinting(h);
-}
-
+#ifdef SK_SUPPORT_PDF
 static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
     const FT_UInt glyph_id = FT_Get_Char_Index(face, letter);
     if (!glyph_id)
@@ -584,6 +561,38 @@ SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
 
     unref_ft_face(face);
     return info;
+}
+#else
+SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+    SkDebugf("--- GetPDFTypefaceInfo unimplemented\n");
+    return NULL;
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////
+
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+    if (!gLCDSupportValid) {
+        InitFreetype();
+        FT_Done_FreeType(gFTLibrary);
+    }
+    
+    if (!gLCDSupport && rec->isLCD()) {
+        // If the runtime Freetype library doesn't support LCD mode, we disable
+        // it here.
+        rec->fMaskFormat = SkMask::kA8_Format;
+    }
+    
+    SkPaint::Hinting h = rec->getHinting();
+    if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
+        // collapse full->normal hinting if we're not doing LCD
+        h = SkPaint::kNormal_Hinting;
+    } else if ((rec->fFlags & SkScalerContext::kSubpixelPositioning_Flag) &&
+               SkPaint::kNo_Hinting != h) {
+        // to do subpixel, we must have at most slight hinting
+        h = SkPaint::kSlight_Hinting;
+    }
+    rec->setHinting(h);
 }
 
 SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
