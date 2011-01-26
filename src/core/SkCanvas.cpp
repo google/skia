@@ -1101,12 +1101,6 @@ void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
         fExternalMatrix = *matrix;
         matrix->invert(&fExternalInverse);
     }
-
-    static bool gUseExt;
-    if (gUseExt != fUseExternalMatrix && false) {
-        gUseExt = fUseExternalMatrix;
-        printf("---- fUseExternalMatrix = %d\n", fUseExternalMatrix);
-    }
 }
 
 SkDevice* SkCanvas::createDevice(SkBitmap::Config config, int width, int height,
