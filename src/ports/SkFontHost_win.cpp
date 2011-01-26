@@ -476,6 +476,11 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     return CreateTypeface_(get_default_font());
 }
 
+SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
+    SkASSERT(!"SkFontHost::OpenStream unimplemented");
+    return NULL;
+}
+
 SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return SkNEW_ARGS(SkScalerContext_Windows, (desc));
 }

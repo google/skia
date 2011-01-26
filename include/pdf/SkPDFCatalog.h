@@ -17,6 +17,8 @@
 #ifndef SkPDFCatalog_DEFINED
 #define SkPDFCatalog_DEFINED
 
+#include <sys/types.h>
+
 #include "SkPDFTypes.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
