@@ -106,7 +106,7 @@
 #endif
 
 #if GR_DEBUG == GR_RELEASE
-    #error "GR_DEBUG and GR_RELEASE must not be the same
+    #error "GR_DEBUG and GR_RELEASE must not be the same"
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
