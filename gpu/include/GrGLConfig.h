@@ -147,10 +147,11 @@
         #ifndef GL_GLEXT_PROTOTYPES		
 	        #define GL_GLEXT_PROTOTYPES		
         #endif
-        #define GR_SUPPORT_GLDESKTOP        1
+        #define GL_EXT_framebuffer_blit     0
         #include <GL/gl.h>
         #include <GL/glext.h>
         #define GR_GL_PROC_ADDRESS(X)       &X
+        #define GR_SUPPORT_GLDESKTOP        1
     #else
         #error "unsupported GR_???_BUILD"
     #endif
