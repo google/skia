@@ -245,7 +245,7 @@ GrGpuGLShaders2::ProgramCache::HashKey::HashKey(const ProgramDesc& desc) {
     // if you change the size of the desc, need to update the hash function
     GR_STATIC_ASSERT(12 == sizeof(ProgramDesc));
 
-    uint32_t* d = (uint32_t*) &fDesc;
+    uint32_t* d = GrTCast<uint32_t*>(&fDesc);
     fHash = d[0] ^ ror(d[1]) ^ rol(d[2]);
 }
 
@@ -298,25 +298,25 @@ static inline void tex_attr_name(int coordIdx, GrStringBuilder* s) {
 
 static inline const char* float_vector_type(int count) {
     static const char* FLOAT_VECS[] = {"ERROR", "float", "vec2", "vec3", "vec4"};
-    GrAssert(count >= 1 && count < GR_ARRAY_COUNT(FLOAT_VECS));
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(FLOAT_VECS));
     return FLOAT_VECS[count];
 }
 
 static inline const char* vector_homog_coord(int count) {
     static const char* HOMOGS[] = {"ERROR", "", ".y", ".z", ".w"};
-    GrAssert(count >= 1 && count < GR_ARRAY_COUNT(HOMOGS));
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(HOMOGS));
     return HOMOGS[count];
 }
 
 static inline const char* vector_nonhomog_coords(int count) {
     static const char* NONHOMOGS[] = {"ERROR", "", ".x", ".xy", ".xyz"};
-    GrAssert(count >= 1 && count < GR_ARRAY_COUNT(NONHOMOGS));
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(NONHOMOGS));
     return NONHOMOGS[count];
 }
 
 static inline const char* vector_all_coords(int count) {
     static const char* ALL[] = {"ERROR", "", ".xy", ".xyz", ".xyzw"};
-    GrAssert(count >= 1 && count < GR_ARRAY_COUNT(ALL));
+    GrAssert(count >= 1 && count < (int)GR_ARRAY_COUNT(ALL));
     return ALL[count];
 }
 
