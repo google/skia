@@ -144,11 +144,13 @@
         #define GR_GL_PROC_ADDRESS(X)       eglGetProcAddress(#X)
         #define GR_GL_PROC_ADDRESS_HEADER   <EGL/egl.h>
     #elif GR_LINUX_BUILD
+        #ifndef GL_GLEXT_PROTOTYPES		
+	        #define GL_GLEXT_PROTOTYPES		
+        #endif
         #define GR_SUPPORT_GLDESKTOP        1
         #include <GL/gl.h>
         #include <GL/glext.h>
-        #define GR_GL_PROC_ADDRESS(X)       eglGetProcAddress(#X)
-        #define GR_GL_PROC_ADDRESS_HEADER   <EGL/egl.h>
+        #define GR_GL_PROC_ADDRESS(X)       &X
     #else
         #error "unsupported GR_???_BUILD"
     #endif
