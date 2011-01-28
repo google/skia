@@ -380,6 +380,8 @@ GrGpuGL::GrGpuGL() {
     fMinRenderTargetHeight = GrMax<GLuint>(fMinRenderTargetHeight, 16);
 #endif
 
+    GR_GL_GetIntegerv(GL_MAX_TEXTURE_SIZE, &fMaxTextureDimension);
+
 #if GR_COLLECT_STATS
     ++fStats.fRenderTargetChngCnt;
 #endif

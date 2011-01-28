@@ -134,6 +134,11 @@ public:
      */
     void setTextureCacheLimits(int maxTextures, size_t maxTextureBytes);
 
+    /**
+     *  Return the max width or height of a texture supported by the current gpu
+     */
+    int getMaxTextureDimension();
+
     ///////////////////////////////////////////////////////////////////////////
     // Render targets
 

@@ -287,6 +287,8 @@ public:
      */
     NPOTTextureTypes npotTextureSupport() const { return fNPOTTextureSupport; }
 
+    int maxTextureDimension() const { return fMaxTextureDimension; }
+
     // GrDrawTarget overrides
     virtual void drawIndexed(PrimitiveType type,
                              uint32_t startVertex,
@@ -381,6 +383,7 @@ protected:
     // set by subclass
     int fMinRenderTargetWidth;
     int fMinRenderTargetHeight;
+    int fMaxTextureDimension;
 
     // overridden by API specific GrGpu-derived class to perform the draw call.
     virtual void drawIndexedHelper(PrimitiveType type,
