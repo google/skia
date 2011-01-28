@@ -241,6 +241,10 @@ void GrContext::setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
     fTextureCache->setLimits(maxTextures, maxTextureBytes);
 }
 
+int GrContext::getMaxTextureDimension() {
+    return fGpu->maxTextureDimension();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 GrRenderTarget* GrContext::createPlatformRenderTarget(intptr_t platformRenderTarget,

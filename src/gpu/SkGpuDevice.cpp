@@ -709,13 +709,6 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& path,
     fContext->drawPath(grPaint, &iter, fill);
 }
 
-/*
- *  This value must not exceed the GPU's texture dimension limit, but it can
- *  be smaller, if that helps avoid very large single textures hurting the
- *  cache.
- */
-#define MAX_TEXTURE_DIM     512
-
 void SkGpuDevice::drawBitmap(const SkDraw& draw,
                              const SkBitmap& bitmap,
                              const SkIRect* srcRectPtr,
@@ -736,8 +729,9 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     }
     grPaint.fSampler.setFilter(paint.isFilterBitmap());
 
-    if (bitmap.getTexture() || (bitmap.width() <= MAX_TEXTURE_DIM &&
-                                bitmap.height() <= MAX_TEXTURE_DIM)) {
+    const int maxTextureDim = fContext->getMaxTextureDimension();
+    if (bitmap.getTexture() || (bitmap.width() <= maxTextureDim &&
+                                bitmap.height() <= maxTextureDim)) {
         // take the fast case
         this->internalDrawBitmap(draw, bitmap, srcRect, m, &grPaint);
         return;
@@ -762,13 +756,13 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
         clipRect.offset(DX, DY);
     }
 
-    int nx = bitmap.width() / MAX_TEXTURE_DIM;
-    int ny = bitmap.height() / MAX_TEXTURE_DIM;
+    int nx = bitmap.width() / maxTextureDim;
+    int ny = bitmap.height() / maxTextureDim;
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
             SkIRect tileR;
-            tileR.set(x * MAX_TEXTURE_DIM, y * MAX_TEXTURE_DIM,
-                      (x + 1) * MAX_TEXTURE_DIM, (y + 1) * MAX_TEXTURE_DIM);
+            tileR.set(x * maxTextureDim, y * maxTextureDim,
+                      (x + 1) * maxTextureDim, (y + 1) * maxTextureDim);
             if (!SkIRect::Intersects(tileR, clipRect)) {
                 continue;
             }
@@ -807,8 +801,8 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                                      const SkIRect& srcRect,
                                      const SkMatrix& m,
                                      GrPaint* grPaint) {
-    SkASSERT(bitmap.width() <= MAX_TEXTURE_DIM &&
-             bitmap.height() <= MAX_TEXTURE_DIM);
+    SkASSERT(bitmap.width() <= fContext->getMaxTextureDimension() &&
+             bitmap.height() <= fContext->getMaxTextureDimension());
 
     SkAutoLockPixels alp(bitmap);
     if (!bitmap.getTexture() && !bitmap.readyToDraw()) {
