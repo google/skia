@@ -18,18 +18,18 @@
 #define SkUserConfig_DEFINED
 
 /*  SkTypes.h, the root of the public header files, does the following trick:
- 
+
     #include "SkPreConfig.h"
     #include "SkUserConfig.h"
     #include "SkPostConfig.h"
- 
+
     SkPreConfig.h runs first, and it is responsible for initializing certain
     skia defines.
- 
+
     SkPostConfig.h runs last, and its job is to just check that the final
     defines are consistent (i.e. that we don't have mutually conflicting
     defines).
- 
+
     SkUserConfig.h (this file) runs in the middle. It gets to change or augment
     the list of flags initially set in preconfig, and then postconfig checks
     that everything still makes sense.
@@ -71,7 +71,7 @@
     parameter checking, but sometimes it can be quite intrusive (e.g. check that
     each 32bit pixel is in premultiplied form). This code can be very useful
     during development, but will slow things down in a shipping product.
- 
+
     By default, these mutually exclusive flags are defined in SkPreConfig.h,
     based on the presence or absence of NDEBUG, but that decision can be changed
     here.
@@ -122,6 +122,11 @@
     include path.
  */
 //#define SK_ZLIB_INCLUDE <zlib.h>
+
+/*  Define this to remove dimension checks on bitmaps. Not all blits will be
+    correct yet, so this is mostly for debugging the implementation.
+ */
+//#define SK_ALLOW_OVER_32K_BITMAPS
 
 /*  If SK_DEBUG is defined, then you can optionally define SK_SUPPORT_UNITTEST
     which will run additional self-tests at startup. These can take a long time,
