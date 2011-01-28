@@ -51,6 +51,8 @@
 #define BOGUS_MATRIX_UNI_LOCATION 1000
 #endif
 
+#define GR_UINT32_MAX   static_cast<uint32_t>(-1)
+
 struct GrGpuGLShaders2::StageUniLocations {
     GLint fTextureMatrixUni;
     GLint fSamplerUni;
@@ -218,7 +220,7 @@ public:
         }
 
         entry->fLRUStamp = fCurrLRUStamp;
-        if (UINT32_MAX == fCurrLRUStamp) {
+        if (GR_UINT32_MAX == fCurrLRUStamp) {
             // wrap around! just trash our LRU, one time hit.
             for (int i = 0; i < fCount; ++i) {
                 fEntries[i].fLRUStamp = 0;
