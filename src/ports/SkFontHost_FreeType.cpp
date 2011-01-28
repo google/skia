@@ -283,7 +283,45 @@ static void unref_ft_face(FT_Face face) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_SUPPORT_PDF
+// Work around for old versions of freetype.
+static FT_Error getAdvances(FT_Face face, FT_UInt start, FT_UInt count,
+                           FT_Int32 loadFlags, FT_Fixed* advances) {
+#ifdef FT_ADVANCES_H
+    return FT_Get_Advances(face, start, count, loadFlags, advances);
+#else
+    if (!face || start >= face->num_glyphs ||
+            start + count > face->num_glyphs || loadFlags != FT_LOAD_NO_SCALE) {
+        return 6;  // "Invalid argument."
+    }
+    if (count == 0)
+        return 0;
+
+    for (int i = 0; i < count; i++) {
+        FT_Error err = FT_Load_Glyph(face, start + i, FT_LOAD_NO_SCALE);
+        if (err)
+            return err;
+        advances[i] = face->glyph->advance.x;
+    }
+
+    return 0;
+#endif
+}
+
+static bool canEmbed(FT_Face face) {
+#ifdef FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING
+    FT_UShort fsType = FT_Get_FSType_Flags(face);
+    return (fsType & (FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING |
+                      FT_FSTYPE_BITMAP_EMBEDDING_ONLY)) == 0;
+#else
+    // No embedding is 0x2 and bitmap embedding only is 0x200.
+    TT_OS2* os2_table;
+    if ((os2_table = (TT_OS2*)FT_Get_Sfnt_Table(face, ft_sfnt_os2)) != NULL) {
+        return (os2_table->fsType & 0x202) == 0;
+    }
+    return false;  // We tried, fail safe.
+#endif
+}
+
 static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
     const FT_UInt glyph_id = FT_Get_Char_Index(face, letter);
     if (!glyph_id)
@@ -293,21 +331,22 @@ static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
     return true;
 }
 
-int getWidthAdvance(FT_Face face, int gId, int scaleDivisor) {
+static int getWidthAdvance(FT_Face face, int gId, int scaleDivisor) {
     FT_Fixed unscaledAdvance = 0;
-    SkAssertResult(FT_Get_Advance(face, gId, FT_LOAD_NO_SCALE,
-                   &unscaledAdvance) == 0);
+    SkAssertResult(getAdvances(face, gId, 1, FT_LOAD_NO_SCALE,
+                               &unscaledAdvance) == 0);
     return unscaledAdvance * 1000 / scaleDivisor;
 }
 
 template <typename Data>
-void resetRange(SkPDFTypefaceInfo::AdvanceMetric<Data>* range, int startId) {
+static void resetRange(SkPDFTypefaceInfo::AdvanceMetric<Data>* range,
+                       int startId) {
     range->fStartId = startId;
     range->fAdvance.setCount(0);
 }
 
 template <typename Data>
-SkPDFTypefaceInfo::AdvanceMetric<Data>* appendRange(
+static SkPDFTypefaceInfo::AdvanceMetric<Data>* appendRange(
         SkTScopedPtr<SkPDFTypefaceInfo::AdvanceMetric<Data> >* nextSlot,
         int startId) {
     nextSlot->reset(new SkPDFTypefaceInfo::AdvanceMetric<Data>);
@@ -316,7 +355,7 @@ SkPDFTypefaceInfo::AdvanceMetric<Data>* appendRange(
 }
 
 template <typename Data>
-void finishRange(
+static void finishRange(
         SkPDFTypefaceInfo::AdvanceMetric<Data>* range,
         int endId,
         typename SkPDFTypefaceInfo::AdvanceMetric<Data>::MetricType type) {
@@ -332,7 +371,7 @@ void finishRange(
 }
 
 template <typename Data>
-SkPDFTypefaceInfo::AdvanceMetric<Data>* getAdvanceData(
+static SkPDFTypefaceInfo::AdvanceMetric<Data>* getAdvanceData(
         FT_Face face,
         int scaleDivisor,
         Data (*getAdvance)(FT_Face face, int gId, int scaleDivisor)) {
@@ -408,8 +447,7 @@ SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
     bool cid = false;
     int scaleDivisor = 1000;
     const char* fontType = FT_Get_X11_Font_Format(face);
-    if (FT_Get_FSType_Flags(face) & (FT_FSTYPE_RESTRICTED_LICENSE_EMBEDDING |
-                                     FT_FSTYPE_BITMAP_EMBEDDING_ONLY)) {
+    if (!canEmbed(face)) {
         info->fType = SkPDFTypefaceInfo::kNotEmbeddable_Font;
     } else if (FT_HAS_MULTIPLE_MASTERS(face)) {
         // PDF requires that embedded MM fonts be reduced to a simple font.
@@ -431,8 +469,10 @@ SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
         }
     }
     info->fFontName.set(FT_Get_Postscript_Name(face));
+#ifdef FT_IS_CID_KEYED
     SkASSERT(FT_IS_CID_KEYED(face) ==
              (info->fType == SkPDFTypefaceInfo::kType1CID_Font));
+#endif
 
     if (info->fType == SkPDFTypefaceInfo::kOther_Font ||
             info->fType == SkPDFTypefaceInfo::kNotEmbeddable_Font ||
@@ -459,8 +499,8 @@ SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
             int advanceCount = 128;
             if (gIDStart + advanceCount > face->num_glyphs)
                 advanceCount = face->num_glyphs - gIDStart + 1;
-            FT_Get_Advances(face, gIDStart, advanceCount, FT_LOAD_NO_SCALE,
-                            advances);
+            getAdvances(face, gIDStart, advanceCount, FT_LOAD_NO_SCALE,
+                        advances);
             for (int i = 0; i < advanceCount; i++) {
                 int advance = advances[gIDStart + i];
                 info->fGlyphWidths->fAdvance.append(1, &advance);
@@ -562,13 +602,6 @@ SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
     unref_ft_face(face);
     return info;
 }
-#else
-SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
-    SkDebugf("--- GetPDFTypefaceInfo unimplemented\n");
-    return NULL;
-}
-#endif
-
 ///////////////////////////////////////////////////////////////////////////
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
