@@ -46,12 +46,22 @@ public:
 
     enum Config {
         kNo_Config,         //!< bitmap has not been configured
-        kA1_Config,         //!< 1-bit per pixel, (0 is transparent, 1 is opaque)
+        /**
+         *  1-bit per pixel, (0 is transparent, 1 is opaque)
+         *  Valid as a destination (target of a canvas), but not valid as a src.
+         *  i.e. you can draw into a 1-bit bitmap, but you cannot draw from one.
+         */
+        kA1_Config,
         kA8_Config,         //!< 8-bits per pixel, with only alpha specified (0 is transparent, 0xFF is opaque)
         kIndex8_Config,     //!< 8-bits per pixel, using SkColorTable to specify the colors
         kRGB_565_Config,    //!< 16-bits per pixel, (see SkColorPriv.h for packing)
         kARGB_4444_Config,  //!< 16-bits per pixel, (see SkColorPriv.h for packing)
         kARGB_8888_Config,  //!< 32-bits per pixel, (see SkColorPriv.h for packing)
+        /**
+         *  Custom compressed format, not supported on all platforms.
+         *  Cannot be used as a destination (target of a canvas).
+         *  i.e. you may be able to draw from one, but you cannot draw into one.
+         */
         kRLE_Index8_Config,
 
         kConfigCount
