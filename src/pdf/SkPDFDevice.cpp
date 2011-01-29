@@ -266,7 +266,7 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
 void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
-    NOT_IMPLEMENTED("drawPath with prePathMatrix", (prePathMatrix != NULL));
+    NOT_IMPLEMENTED(prePathMatrix != NULL, true);
 
     if (paint.getPathEffect()) {
         // Apply the path effect to path and draw it that way.
@@ -287,18 +287,16 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
 void SkPDFDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
                              const SkIRect* srcRect,
                              const SkMatrix& matrix, const SkPaint& paint) {
-    // TODO: respect srcRect if present
-
     SkMatrix transform = matrix;
     transform.postConcat(fGraphicStack[fGraphicStackIndex].fTransform);
-    internalDrawBitmap(transform, bitmap, paint);
+    internalDrawBitmap(transform, bitmap, srcRect, paint);
 }
 
 void SkPDFDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
                              int x, int y, const SkPaint& paint) {
     SkMatrix matrix;
     matrix.setTranslate(x, y);
-    internalDrawBitmap(matrix, bitmap, paint);
+    internalDrawBitmap(matrix, bitmap, NULL, paint);
 }
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
@@ -813,17 +811,22 @@ void SkPDFDevice::setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX) {
 
 void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
                                      const SkBitmap& bitmap,
+                                     const SkIRect* srcRect,
                                      const SkPaint& paint) {
+    SkIRect subset = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+    if (srcRect && !subset.intersect(*srcRect))
+        return;
+
     SkMatrix scaled;
     // Adjust for origin flip.
     scaled.setScale(1, -1);
     scaled.postTranslate(0, 1);
     // Scale the image up from 1x1 to WxH.
-    scaled.postScale(bitmap.width(), bitmap.height());
+    scaled.postScale(subset.width(), subset.height());
     scaled.postConcat(matrix);
     SkMatrix curTransform = setTransform(scaled);
 
-    SkPDFImage* image = new SkPDFImage(bitmap, paint);
+    SkPDFImage* image = new SkPDFImage(bitmap, subset, paint);
     fXObjectResources.push(image);  // Transfer reference.
     fContent.append("/X");
     fContent.appendS32(fXObjectResources.count() - 1);

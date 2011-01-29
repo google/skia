@@ -22,6 +22,7 @@
 #include "SkRefCnt.h"
 
 class SkBitmap;
+class SkIRect;
 class SkPaint;
 class SkPDFCatalog;
 
@@ -40,7 +41,8 @@ public:
      *  @param bitmap  The image to use.
      *  @param paint   Used to calculate alpha, masks, etc.
      */
-    SkPDFImage(const SkBitmap& bitmap, const SkPaint& paint);
+    SkPDFImage(const SkBitmap& bitmap, const SkIRect& srcRect,
+               const SkPaint& paint);
     virtual ~SkPDFImage();
 
     // The SkPDFObject interface.

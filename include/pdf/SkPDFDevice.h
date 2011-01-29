@@ -178,7 +178,7 @@ private:
     void popGS();
     void setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX);
     void internalDrawBitmap(const SkMatrix& matrix, const SkBitmap& bitmap,
-                            const SkPaint& paint);
+                            const SkIRect* srcRect, const SkPaint& paint);
 
     SkMatrix setTransform(const SkMatrix& matrix);
 };

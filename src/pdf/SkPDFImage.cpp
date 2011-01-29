@@ -22,87 +22,91 @@
 #include "SkPaint.h"
 #include "SkPackBits.h"
 #include "SkPDFCatalog.h"
+#include "SkRect.h"
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkUnPreMultiply.h"
 
 namespace {
 
-SkMemoryStream* extractImageData(const SkBitmap& bitmap) {
+SkMemoryStream* extractImageData(const SkBitmap& bitmap,
+                                 const SkIRect& srcRect) {
     SkMemoryStream* result = NULL;
 
     bitmap.lockPixels();
     switch (bitmap.getConfig()) {
-        case SkBitmap::kIndex8_Config:
-            result = new SkMemoryStream(bitmap.getPixels(), bitmap.getSize(),
-                                        true);
+        case SkBitmap::kIndex8_Config: {
+            const int rowBytes = srcRect.width();
+            result = new SkMemoryStream(rowBytes * srcRect.height());
+            uint8_t* dst = (uint8_t*)result->getMemoryBase();
+            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
+                memcpy(dst, bitmap.getAddr8(srcRect.fLeft, y), rowBytes);
+                dst += rowBytes;
+            }
             break;
+        }
         case SkBitmap::kRLE_Index8_Config: {
-            result = new SkMemoryStream(bitmap.getSize());
+            const int rowBytes = srcRect.width();
+            result = new SkMemoryStream(rowBytes * srcRect.height());
+            uint8_t* dst = (uint8_t*)result->getMemoryBase();
             const SkBitmap::RLEPixels* rle =
                 (const SkBitmap::RLEPixels*)bitmap.getPixels();
-            uint8_t* dst = (uint8_t*)result->getMemoryBase();
-            const int width = bitmap.width();
-            for (int y = 0; y < bitmap.height(); y++) {
-                SkPackBits::Unpack8(rle->packedAtY(y), width, dst);
-                dst += width;
+            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
+                SkPackBits::Unpack8(dst, srcRect.fLeft, rowBytes,
+                                    rle->packedAtY(y));
+                dst += rowBytes;
             }
             break;
         }
         case SkBitmap::kARGB_4444_Config: {
-            const int width = bitmap.width();
-            const int rowBytes = (width * 3 + 1) / 2;
-            result = new SkMemoryStream(rowBytes * bitmap.height());
+            const int rowBytes = (srcRect.width() * 3 + 1) / 2;
+            result = new SkMemoryStream(rowBytes * srcRect.height());
             uint8_t* dst = (uint8_t*)result->getMemoryBase();
-            for (int y = 0; y < bitmap.height(); y++) {
+            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint16_t* src = bitmap.getAddr16(0, y);
-                for (int x = 0; x < width; x += 2) {
-                    dst[0] = (SkGetPackedR4444(src[0]) << 4) |
-                        SkGetPackedG4444(src[0]);
-                    dst[1] = (SkGetPackedB4444(src[0]) << 4) |
-                        SkGetPackedR4444(src[1]);
-                    dst[2] = (SkGetPackedG4444(src[1]) << 4) |
-                        SkGetPackedB4444(src[1]);
-                    src += 2;
+                int x;
+                for (x = srcRect.fLeft; x + 1 < srcRect.fRight; x += 2) {
+                    dst[0] = (SkGetPackedR4444(src[x]) << 4) |
+                        SkGetPackedG4444(src[x]);
+                    dst[1] = (SkGetPackedB4444(src[x]) << 4) |
+                        SkGetPackedR4444(src[x + 1]);
+                    dst[2] = (SkGetPackedG4444(src[x + 1]) << 4) |
+                        SkGetPackedB4444(src[x + 1]);
                     dst += 3;
                 }
-                if (width & 1) {
-                    dst[0] = (SkGetPackedR4444(src[0]) << 4) |
-                        SkGetPackedG4444(src[0]);
-                    dst[1] = (SkGetPackedB4444(src[0]) << 4);
+                if (srcRect.width() & 1) {
+                    dst[0] = (SkGetPackedR4444(src[x]) << 4) |
+                        SkGetPackedG4444(src[x]);
+                    dst[1] = (SkGetPackedB4444(src[x]) << 4);
                 }
             }
             break;
         }
         case SkBitmap::kRGB_565_Config: {
-            const int width = bitmap.width();
-            const int rowBytes = width * 3;
-            result = new SkMemoryStream(rowBytes * bitmap.height());
+            const int rowBytes = srcRect.width() * 3;
+            result = new SkMemoryStream(rowBytes * srcRect.height());
             uint8_t* dst = (uint8_t*)result->getMemoryBase();
-            for (int y = 0; y < bitmap.height(); y++) {
+            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint16_t* src = bitmap.getAddr16(0, y);
-                for (int x = 0; x < width; x++) {
-                    dst[0] = SkGetPackedR16(src[0]);
-                    dst[1] = SkGetPackedG16(src[0]);
-                    dst[2] = SkGetPackedB16(src[0]);
-                    src++;
+                for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
+                    dst[0] = SkGetPackedR16(src[x]);
+                    dst[1] = SkGetPackedG16(src[x]);
+                    dst[2] = SkGetPackedB16(src[x]);
                     dst += 3;
                 }
             }
             break;
         }
         case SkBitmap::kARGB_8888_Config: {
-            const int width = bitmap.width();
-            const int rowBytes = width * 3;
-            result = new SkMemoryStream(rowBytes * bitmap.height());
+            const int rowBytes = srcRect.width() * 3;
+            result = new SkMemoryStream(rowBytes * srcRect.height());
             uint8_t* dst = (uint8_t*)result->getMemoryBase();
-            for (int y = 0; y < bitmap.height(); y++) {
+            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint32_t* src = bitmap.getAddr32(0, y);
-                for (int x = 0; x < width; x++) {
-                    dst[0] = SkGetPackedR32(src[0]);
-                    dst[1] = SkGetPackedG32(src[0]);
-                    dst[2] = SkGetPackedB32(src[0]);
-                    src++;
+                for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
+                    dst[0] = SkGetPackedR32(src[x]);
+                    dst[1] = SkGetPackedG32(src[x]);
+                    dst[2] = SkGetPackedB32(src[x]);
                     dst += 3;
                 }
             }
@@ -149,7 +153,8 @@ SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
 
 };  // namespace
 
-SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkPaint& paint) {
+SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkIRect& srcRect,
+                       const SkPaint& paint) {
     SkBitmap::Config config = bitmap.getConfig();
 
     // TODO(vandebo) Handle alpha and alpha only images correctly.
@@ -159,7 +164,7 @@ SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkPaint& paint) {
              config == SkBitmap::kIndex8_Config ||
              config == SkBitmap::kRLE_Index8_Config);
 
-    SkMemoryStream* image_data = extractImageData(bitmap);
+    SkMemoryStream* image_data = extractImageData(bitmap, srcRect);
     SkAutoUnref image_data_unref(image_data);
     fStream = new SkPDFStream(image_data);
     fStream->unref();  // SkRefPtr and new both took a reference.
@@ -172,11 +177,11 @@ SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkPaint& paint) {
     subTypeValue->unref();  // SkRefPtr and new both took a reference.
     insert("Subtype", subTypeValue.get());
 
-    SkRefPtr<SkPDFInt> widthValue = new SkPDFInt(bitmap.width());
+    SkRefPtr<SkPDFInt> widthValue = new SkPDFInt(srcRect.width());
     widthValue->unref();  // SkRefPtr and new both took a reference.
     insert("Width", widthValue.get());
 
-    SkRefPtr<SkPDFInt> heightValue = new SkPDFInt(bitmap.height());
+    SkRefPtr<SkPDFInt> heightValue = new SkPDFInt(srcRect.height());
     heightValue->unref();  // SkRefPtr and new both took a reference.
     insert("Height", heightValue.get());
 
