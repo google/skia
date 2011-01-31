@@ -898,10 +898,10 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
 
     GR_GL(LinkProgram(progID));
 
-    GLint linked;
+    GLint linked = GR_GL_INIT_ZERO;
     GR_GL(GetProgramiv(progID, GL_LINK_STATUS, &linked));
     if (!linked) {
-        GLint infoLen;
+        GLint infoLen = GR_GL_INIT_ZERO;
         GR_GL(GetProgramiv(progID, GL_INFO_LOG_LENGTH, &infoLen));
         GrAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
         if (infoLen > 0) {
@@ -1054,13 +1054,13 @@ GLuint GrGpuGLShaders2::CompileShader(GLenum type,
         return 0;
     }
 
-    GLint compiled;
+    GLint compiled = GR_GL_INIT_ZERO;
     GR_GL(ShaderSource(shader, stringCnt, strings, stringLengths));
     GR_GL(CompileShader(shader));
     GR_GL(GetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
 
     if (!compiled) {
-        GLint infoLen;
+        GLint infoLen = GR_GL_INIT_ZERO;
         GR_GL(GetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen));
         GrAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
         if (infoLen > 0) {
