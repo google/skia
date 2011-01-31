@@ -702,6 +702,7 @@ void SkPDFDevice::appendCubic(SkScalar ctl1X, SkScalar ctl1Y,
     fContent.appendScalar(dstX);
     fContent.append(" ");
     fContent.appendScalar(dstY);
+    fContent.append(" ");
     fContent.append(cmd);
 }
 
@@ -817,6 +818,10 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
     if (srcRect && !subset.intersect(*srcRect))
         return;
 
+    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset, paint);
+    if (!image)
+        return;
+
     SkMatrix scaled;
     // Adjust for origin flip.
     scaled.setScale(1, -1);
@@ -826,7 +831,6 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
     scaled.postConcat(matrix);
     SkMatrix curTransform = setTransform(scaled);
 
-    SkPDFImage* image = new SkPDFImage(bitmap, subset, paint);
     fXObjectResources.push(image);  // Transfer reference.
     fContent.append("/X");
     fContent.appendS32(fXObjectResources.count() - 1);

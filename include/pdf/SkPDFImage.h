@@ -36,19 +36,45 @@ class SkPDFCatalog;
 // and settings used from the paint to canonicalize image objects.
 class SkPDFImage : public SkPDFObject {
 public:
-    /** Create a PDF image XObject. Entries for the image properties are
-     *  automatically added to the stream dictionary.
-     *  @param bitmap  The image to use.
-     *  @param paint   Used to calculate alpha, masks, etc.
+    /** Create a new Image XObject to represent the passed bitmap.
+     *  @param bitmap   The image to encode.
+     *  @param srcRect  The rectangle to cut out of bitmap.
+     *  @param paint    Used to calculate alpha, masks, etc.
+     *  @return  The image XObject or NUll if there is nothing to draw for
+     *           the given parameters.
      */
-    SkPDFImage(const SkBitmap& bitmap, const SkIRect& srcRect,
-               const SkPaint& paint);
+    static SkPDFImage* CreateImage(const SkBitmap& bitmap,
+                                   const SkIRect& srcRect,
+                                   const SkPaint& paint);
+
     virtual ~SkPDFImage();
+
+    /** Add a Soft Mask (alpha or shape channel) to the image.
+     *  @param mask A gray scale image representing the mask.
+     */
+    void addSMask(SkPDFImage* mask);
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                             bool indirect);
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
+    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
+
+private:
+    SkRefPtr<SkPDFStream> fStream;
+    SkTDArray<SkPDFObject*> fResources;
+
+    /** Create a PDF image XObject. Entries for the image properties are
+     *  automatically added to the stream dictionary.
+     *  @param imageData  The final raw bits representing the image.
+     *  @param bitmap     The image parameters to use (Config, etc).
+     *  @param srcRect    The clipping applied to bitmap before generating
+     *                    imageData.
+     *  @param alpha      Is this the alpha channel of the bitmap.
+     *  @param paint      Used to calculate alpha, masks, etc.
+     */
+    SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
+               const SkIRect& srcRect, bool alpha, const SkPaint& paint);
 
     /** Add the value to the stream dictionary with the given key.
      *  @param key   The key for this dictionary entry.
@@ -61,9 +87,6 @@ public:
      *  @param value The value for this dictionary entry.
      */
     void insert(const char key[], SkPDFObject* value);
-
-private:
-    SkRefPtr<SkPDFStream> fStream;
 };
 
 #endif

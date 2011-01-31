@@ -29,16 +29,19 @@
 
 namespace {
 
-SkMemoryStream* extractImageData(const SkBitmap& bitmap,
-                                 const SkIRect& srcRect) {
-    SkMemoryStream* result = NULL;
+void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
+                      SkStream** imageData, SkStream** alphaData) {
+    SkMemoryStream* image = NULL;
+    SkMemoryStream* alpha = NULL;
+    bool hasAlpha = false;
+    bool isTransparent = false;
 
     bitmap.lockPixels();
     switch (bitmap.getConfig()) {
         case SkBitmap::kIndex8_Config: {
             const int rowBytes = srcRect.width();
-            result = new SkMemoryStream(rowBytes * srcRect.height());
-            uint8_t* dst = (uint8_t*)result->getMemoryBase();
+            image = new SkMemoryStream(rowBytes * srcRect.height());
+            uint8_t* dst = (uint8_t*)image->getMemoryBase();
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 memcpy(dst, bitmap.getAddr8(srcRect.fLeft, y), rowBytes);
                 dst += rowBytes;
@@ -47,8 +50,8 @@ SkMemoryStream* extractImageData(const SkBitmap& bitmap,
         }
         case SkBitmap::kRLE_Index8_Config: {
             const int rowBytes = srcRect.width();
-            result = new SkMemoryStream(rowBytes * srcRect.height());
-            uint8_t* dst = (uint8_t*)result->getMemoryBase();
+            image = new SkMemoryStream(rowBytes * srcRect.height());
+            uint8_t* dst = (uint8_t*)image->getMemoryBase();
             const SkBitmap::RLEPixels* rle =
                 (const SkBitmap::RLEPixels*)bitmap.getPixels();
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
@@ -59,9 +62,13 @@ SkMemoryStream* extractImageData(const SkBitmap& bitmap,
             break;
         }
         case SkBitmap::kARGB_4444_Config: {
+            isTransparent = true;
             const int rowBytes = (srcRect.width() * 3 + 1) / 2;
-            result = new SkMemoryStream(rowBytes * srcRect.height());
-            uint8_t* dst = (uint8_t*)result->getMemoryBase();
+            const int alphaRowBytes = (srcRect.width() + 1) / 2;
+            image = new SkMemoryStream(rowBytes * srcRect.height());
+            alpha = new SkMemoryStream(alphaRowBytes * srcRect.height());
+            uint8_t* dst = (uint8_t*)image->getMemoryBase();
+            uint8_t* alphaDst = (uint8_t*)alpha->getMemoryBase();
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint16_t* src = bitmap.getAddr16(0, y);
                 int x;
@@ -73,19 +80,31 @@ SkMemoryStream* extractImageData(const SkBitmap& bitmap,
                     dst[2] = (SkGetPackedG4444(src[x + 1]) << 4) |
                         SkGetPackedB4444(src[x + 1]);
                     dst += 3;
+                    alphaDst[0] = (SkGetPackedA4444(src[x]) << 4) |
+                        SkGetPackedA4444(src[x + 1]);
+                    if (alphaDst[0] != 0xFF)
+                        hasAlpha = true;
+                    if (alphaDst[0])
+                        isTransparent = false;
+                    alphaDst++;
                 }
                 if (srcRect.width() & 1) {
                     dst[0] = (SkGetPackedR4444(src[x]) << 4) |
                         SkGetPackedG4444(src[x]);
                     dst[1] = (SkGetPackedB4444(src[x]) << 4);
+                    alphaDst[0] = (SkGetPackedA4444(src[x]) << 4);
+                    if (alphaDst[0] != 0xF0)
+                        hasAlpha = true;
+                    if (alphaDst[0] & 0xF0)
+                        isTransparent = false;
                 }
             }
             break;
         }
         case SkBitmap::kRGB_565_Config: {
             const int rowBytes = srcRect.width() * 3;
-            result = new SkMemoryStream(rowBytes * srcRect.height());
-            uint8_t* dst = (uint8_t*)result->getMemoryBase();
+            image = new SkMemoryStream(rowBytes * srcRect.height());
+            uint8_t* dst = (uint8_t*)image->getMemoryBase();
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint16_t* src = bitmap.getAddr16(0, y);
                 for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
@@ -98,9 +117,12 @@ SkMemoryStream* extractImageData(const SkBitmap& bitmap,
             break;
         }
         case SkBitmap::kARGB_8888_Config: {
+            isTransparent = true;
             const int rowBytes = srcRect.width() * 3;
-            result = new SkMemoryStream(rowBytes * srcRect.height());
-            uint8_t* dst = (uint8_t*)result->getMemoryBase();
+            image = new SkMemoryStream(rowBytes * srcRect.height());
+            alpha = new SkMemoryStream(srcRect.width() * srcRect.height());
+            uint8_t* dst = (uint8_t*)image->getMemoryBase();
+            uint8_t* alphaDst = (uint8_t*)alpha->getMemoryBase();
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint32_t* src = bitmap.getAddr32(0, y);
                 for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
@@ -108,6 +130,71 @@ SkMemoryStream* extractImageData(const SkBitmap& bitmap,
                     dst[1] = SkGetPackedG32(src[x]);
                     dst[2] = SkGetPackedB32(src[x]);
                     dst += 3;
+                    alphaDst[0] = SkGetPackedA32(src[x]);
+                    if (alphaDst[0] != 0xFF)
+                        hasAlpha = true;
+                    if (alphaDst[0])
+                        isTransparent = false;
+                    alphaDst++;
+                }
+            }
+            break;
+        }
+        case SkBitmap::kA1_Config: {
+            isTransparent = true;
+            image = new SkMemoryStream(1);
+            ((uint8_t*)image->getMemoryBase())[0] = 0;
+
+            const int alphaRowBytes = (srcRect.width() + 7) / 8;
+            alpha = new SkMemoryStream(alphaRowBytes * srcRect.height());
+            uint8_t* alphaDst = (uint8_t*)alpha->getMemoryBase();
+            int offset1 = srcRect.fLeft % 8;
+            int offset2 = 8 - offset1;
+            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
+                uint8_t* src = bitmap.getAddr1(0, y);
+                // This may read up to one byte after src, but the potentially 
+                // invalid bits are never used for computation.
+                for (int x = srcRect.fLeft; x < srcRect.fRight; x += 8)  {
+                    if (offset1) {
+                        alphaDst[0] = src[x / 8] << offset1 |
+                            src[x / 8 + 1] >> offset2;
+                    } else {
+                        alphaDst[0] = src[x / 8];
+                    }
+                    if (x + 7 < srcRect.fRight && alphaDst[0] != 0xFF)
+                        hasAlpha = true;
+                    if (x + 7 < srcRect.fRight && alphaDst[0])
+                        isTransparent = false;
+                    alphaDst++;
+                }
+                // Calculate the mask of bits we're interested in within the
+                // last byte of alphaDst.
+                // width mod 8  == 1 -> 0x80 ... width mod 8 == 7 -> 0xFE
+                uint8_t mask = ~((1 << (8 - (srcRect.width() % 8))) - 1);
+                if (srcRect.width() % 8 && (alphaDst[-1] & mask) != mask)
+                    hasAlpha = true;
+                if (srcRect.width() % 8 && (alphaDst[-1] & mask))
+                    isTransparent = false;
+            }
+            break;
+        }
+        case SkBitmap::kA8_Config: {
+            isTransparent = true;
+            image = new SkMemoryStream(1);
+            ((uint8_t*)image->getMemoryBase())[0] = 0;
+
+            const int alphaRowBytes = srcRect.width();
+            alpha = new SkMemoryStream(alphaRowBytes * srcRect.height());
+            uint8_t* alphaDst = (uint8_t*)alpha->getMemoryBase();
+            for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
+                uint8_t* src = bitmap.getAddr8(0, y);
+                for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
+                    alphaDst[0] = src[x];
+                    if (alphaDst[0] != 0xFF)
+                        hasAlpha = true;
+                    if (alphaDst[0])
+                        isTransparent = false;
+                    alphaDst++;
                 }
             }
             break;
@@ -116,7 +203,18 @@ SkMemoryStream* extractImageData(const SkBitmap& bitmap,
             SkASSERT(false);
     }
     bitmap.unlockPixels();
-    return result;
+
+    if (isTransparent) {
+        SkSafeUnref(image);
+    } else {
+        *imageData = image;
+    }
+
+    if (isTransparent || !hasAlpha) {
+        SkSafeUnref(alpha);
+    } else {
+        *alphaData = alpha;
+    }
 }
 
 SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
@@ -153,20 +251,78 @@ SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
 
 };  // namespace
 
-SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkIRect& srcRect,
+// static
+SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
+                                    const SkIRect& srcRect,
+                                    const SkPaint& paint) {
+    if (bitmap.getConfig() == SkBitmap::kNo_Config)
+        return NULL;
+
+    SkStream* imageData = NULL;
+    SkStream* alphaData = NULL;
+    extractImageData(bitmap, srcRect, &imageData, &alphaData);
+    SkAutoUnref unrefImageData(imageData);
+    SkAutoUnref unrefAlphaData(alphaData);
+    if (!imageData) {
+        SkASSERT(!alphaData);
+        return NULL;
+    }
+
+    SkPDFImage* image =
+        new SkPDFImage(imageData, bitmap, srcRect, false, paint);
+
+    if (alphaData != NULL) {
+        SkRefPtr<SkPDFImage> alphaImage =
+            new SkPDFImage(alphaData, bitmap, srcRect, true, paint);
+        alphaImage->unref();  // SkRefPtr and new both took a reference.
+        image->addSMask(alphaImage.get());
+    }
+    return image;
+}
+
+SkPDFImage::~SkPDFImage() {
+    fResources.unrefAll();
+}
+
+void SkPDFImage::addSMask(SkPDFImage* mask) {
+    fResources.push(mask);
+    mask->ref();
+
+    SkRefPtr<SkPDFObjRef> maskRef = new SkPDFObjRef(mask);
+    maskRef->unref();  // SkRefPtr and new both took a reference.
+    insert("SMask", maskRef.get());
+}
+
+void SkPDFImage::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
+                             bool indirect) {
+    if (indirect)
+        return emitIndirectObject(stream, catalog);
+
+    fStream->emitObject(stream, catalog, indirect);
+}
+
+size_t SkPDFImage::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
+    if (indirect)
+        return getIndirectOutputSize(catalog);
+
+    return fStream->getOutputSize(catalog, indirect);
+}
+
+void SkPDFImage::getResources(SkTDArray<SkPDFObject*>* resourceList) {
+    if (fResources.count()) {
+        resourceList->setReserve(resourceList->count() + fResources.count());
+        for (int i = 0; i < fResources.count(); i++) {
+            resourceList->push(fResources[i]);
+            fResources[i]->ref();
+            fResources[i]->getResources(resourceList);
+        }
+    }
+}
+
+SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
+                       const SkIRect& srcRect, bool doingAlpha,
                        const SkPaint& paint) {
-    SkBitmap::Config config = bitmap.getConfig();
-
-    // TODO(vandebo) Handle alpha and alpha only images correctly.
-    SkASSERT(config == SkBitmap::kRGB_565_Config ||
-             config == SkBitmap::kARGB_4444_Config ||
-             config == SkBitmap::kARGB_8888_Config ||
-             config == SkBitmap::kIndex8_Config ||
-             config == SkBitmap::kRLE_Index8_Config);
-
-    SkMemoryStream* image_data = extractImageData(bitmap, srcRect);
-    SkAutoUnref image_data_unref(image_data);
-    fStream = new SkPDFStream(image_data);
+    fStream = new SkPDFStream(imageData);
     fStream->unref();  // SkRefPtr and new both took a reference.
 
     SkRefPtr<SkPDFName> typeValue = new SkPDFName("XObject");
@@ -177,17 +333,31 @@ SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkIRect& srcRect,
     subTypeValue->unref();  // SkRefPtr and new both took a reference.
     insert("Subtype", subTypeValue.get());
 
-    SkRefPtr<SkPDFInt> widthValue = new SkPDFInt(srcRect.width());
+    SkBitmap::Config config = bitmap.getConfig();
+    bool alphaOnly = (config == SkBitmap::kA1_Config ||
+                      config == SkBitmap::kA8_Config);
+
+    SkRefPtr<SkPDFInt> widthValue;
+    SkRefPtr<SkPDFInt> heightValue;
+    if (!doingAlpha && alphaOnly) {
+        // For alpha only images, we stretch a single pixel of black for
+        // the color/shape part.
+        widthValue = new SkPDFInt(1);
+        heightValue = widthValue.get();
+    } else {
+        widthValue = new SkPDFInt(srcRect.width());
+        heightValue = new SkPDFInt(srcRect.height());
+        heightValue->unref();  // SkRefPtr and new both took a reference.
+    }
     widthValue->unref();  // SkRefPtr and new both took a reference.
     insert("Width", widthValue.get());
-
-    SkRefPtr<SkPDFInt> heightValue = new SkPDFInt(srcRect.height());
-    heightValue->unref();  // SkRefPtr and new both took a reference.
     insert("Height", heightValue.get());
 
     // if (!image mask) {
     SkRefPtr<SkPDFObject> colorSpaceValue;
-    if (config == SkBitmap::kIndex8_Config ||
+    if (doingAlpha || alphaOnly) {
+        colorSpaceValue = new SkPDFName("DeviceGray");
+    } else if (config == SkBitmap::kIndex8_Config ||
         config == SkBitmap::kRLE_Index8_Config) {
         colorSpaceValue = makeIndexedColorSpace(bitmap.getColorTable());
     } else {
@@ -197,14 +367,11 @@ SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkIRect& srcRect,
     insert("ColorSpace", colorSpaceValue.get());
     // }
 
-    int bitsPerComp = bitmap.bytesPerPixel() * 2;
-    if (bitsPerComp == 0) {
-        SkASSERT(config == SkBitmap::kA1_Config);
+    int bitsPerComp = 8;
+    if (config == SkBitmap::kARGB_4444_Config)
+        bitsPerComp = 4;
+    else if (doingAlpha && config == SkBitmap::kA1_Config)
         bitsPerComp = 1;
-    } else if (bitsPerComp == 2 ||
-               (bitsPerComp == 4 && config == SkBitmap::kRGB_565_Config)) {
-        bitsPerComp = 8;
-    }
     SkRefPtr<SkPDFInt> bitsPerCompValue = new SkPDFInt(bitsPerComp);
     bitsPerCompValue->unref();  // SkRefPtr and new both took a reference.
     insert("BitsPerComponent", bitsPerCompValue.get());
@@ -227,23 +394,6 @@ SkPDFImage::SkPDFImage(const SkBitmap& bitmap, const SkIRect& srcRect,
         decodeValue->append(scale5Val.get());
         insert("Decode", decodeValue.get());
     }
-}
-
-SkPDFImage::~SkPDFImage() {}
-
-void SkPDFImage::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                             bool indirect) {
-    if (indirect)
-        return emitIndirectObject(stream, catalog);
-
-    fStream->emitObject(stream, catalog, indirect);
-}
-
-size_t SkPDFImage::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect)
-        return getIndirectOutputSize(catalog);
-
-    return fStream->getOutputSize(catalog, indirect);
 }
 
 void SkPDFImage::insert(SkPDFName* key, SkPDFObject* value) {

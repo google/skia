@@ -83,9 +83,8 @@ void SkPDFGraphicState::populateDict() {
         typeName->unref();  // SkRefPtr and new both took a reference.
         insert("Type", typeName.get());
 
-        SkScalar maxAlpha = SkIntToScalar(0xFF);
         SkRefPtr<SkPDFScalar> alpha =
-            new SkPDFScalar(SkColorGetA(fPaint.getColor())/maxAlpha);
+            new SkPDFScalar(fPaint.getAlpha() * SkScalarInvert(0xFF));
         alpha->unref();  // SkRefPtr and new both took a reference.
         insert("CA", alpha.get());
         insert("ca", alpha.get());
