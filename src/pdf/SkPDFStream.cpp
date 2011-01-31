@@ -20,14 +20,18 @@
 #include "SkStream.h"
 
 SkPDFStream::SkPDFStream(SkStream* stream) {
-    if (SkFlate::HaveFlate()) {
+    if (SkFlate::HaveFlate())
         SkAssertResult(SkFlate::Deflate(stream, &fCompressedData));
+
+    if (SkFlate::HaveFlate() &&
+            fCompressedData.getOffset() < stream->getLength()) {
         fLength = fCompressedData.getOffset();
 
         SkRefPtr<SkPDFName> flateFilter = new SkPDFName("FlateDecode");
         flateFilter->unref();  // SkRefPtr and new both took a reference.
         fDict.insert("Filter", flateFilter.get());
     } else {
+        fCompressedData.reset();
         fPlainData = stream;
         fLength = fPlainData->getLength();
     }
