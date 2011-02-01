@@ -62,20 +62,14 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         SkPDFDict* pageTreeRoot;
         SkPDFPage::generatePageTree(fPages, &fCatalog, &fPageTree,
                                     &pageTreeRoot);
-        SkRefPtr<SkPDFObjRef> pageTreeRootRef = new SkPDFObjRef(pageTreeRoot);
-        pageTreeRootRef->unref();  // SkRefPtr and new both took a reference.
-        fDocCatalog->insert("Pages", pageTreeRootRef.get());
+        fDocCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 
         /* TODO(vandebo) output intent
         SkRefPtr<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
         outputIntent->unref();  // SkRefPtr and new both took a reference.
-        SkRefPtr<SkPDFName> intentSubtype = new SkPDFName("GTS_PDFA1");
-        intentSubtype->unref();  // SkRefPtr and new both took a reference.
-        outputIntent->insert("S", intentSubtype.get());
-        SkRefPtr<SkPDFString> intentIdentifier = new SkPDFString("sRGB");
-        intentIdentifier->unref();  // SkRefPtr and new both took a reference.
+        outputIntent->insert("S", new SkPDFName("GTS_PDFA1"))->unref();
         outputIntent->insert("OutputConditionIdentifier",
-                             intentIdentifier.get());
+                             new SkPDFString("sRGB"))->unref();
         SkRefPtr<SkPDFArray> intentArray = new SkPDFArray;
         intentArray->unref();  // SkRefPtr and new both took a reference.
         intentArray->append(outputIntent.get());
@@ -179,17 +173,11 @@ void SkPDFDocument::emitFooter(SkWStream* stream, int64_t objCount) {
         fTrailerDict = new SkPDFDict();
         fTrailerDict->unref();  // SkRefPtr and new both took a reference.
 
-        SkPDFInt* objCountInt = new SkPDFInt(objCount);
-        fTrailerDict->insert("Size", objCountInt);
-        objCountInt->unref();  // insert took a ref and we're done with it.
-
         // TODO(vandebo) Linearized format will take a Prev entry too.
-
-        SkPDFObjRef* docCatalogRef = new SkPDFObjRef(fDocCatalog.get());
-        fTrailerDict->insert("Root", docCatalogRef);
-        docCatalogRef->unref();  // insert took a ref and we're done with it.
-
         // TODO(vandebo) PDF/A requires an ID entry.
+        fTrailerDict->insert("Size", new SkPDFInt(objCount))->unref();
+        fTrailerDict->insert("Root",
+                             new SkPDFObjRef(fDocCatalog.get()))->unref();
     }
 
     stream->writeText("trailer\n");

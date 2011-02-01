@@ -79,9 +79,7 @@ SkPDFGraphicState::SkPDFGraphicState(const SkPaint& paint)
 void SkPDFGraphicState::populateDict() {
     if (!fPopulated) {
         fPopulated = true;
-        SkRefPtr<SkPDFName> typeName = new SkPDFName("ExtGState");
-        typeName->unref();  // SkRefPtr and new both took a reference.
-        insert("Type", typeName.get());
+        insert("Type", new SkPDFName("ExtGState"))->unref();
 
         SkRefPtr<SkPDFScalar> alpha =
             new SkPDFScalar(fPaint.getAlpha() * SkScalarInvert(0xFF));
@@ -89,36 +87,23 @@ void SkPDFGraphicState::populateDict() {
         insert("CA", alpha.get());
         insert("ca", alpha.get());
 
-        SkASSERT(SkPaint::kButt_Cap == 0);
-        SkASSERT(SkPaint::kRound_Cap == 1);
-        SkASSERT(SkPaint::kSquare_Cap == 2);
+        SK_COMPILE_ASSERT(SkPaint::kButt_Cap == 0, paint_cap_mismatch);
+        SK_COMPILE_ASSERT(SkPaint::kRound_Cap == 1, paint_cap_mismatch);
+        SK_COMPILE_ASSERT(SkPaint::kSquare_Cap == 2, paint_cap_mismatch);
+        SK_COMPILE_ASSERT(SkPaint::kCapCount == 3, paint_cap_mismatch);
         SkASSERT(fPaint.getStrokeCap() >= 0 && fPaint.getStrokeCap() <= 2);
-        SkRefPtr<SkPDFInt> strokeCap = new SkPDFInt(fPaint.getStrokeCap());
-        strokeCap->unref();  // SkRefPtr and new both took a reference.
-        insert("LC", strokeCap.get());
+        insert("LC", new SkPDFInt(fPaint.getStrokeCap()))->unref();
 
-        SkASSERT(SkPaint::kMiter_Join == 0);
-        SkASSERT(SkPaint::kRound_Join == 1);
-        SkASSERT(SkPaint::kBevel_Join == 2);
+        SK_COMPILE_ASSERT(SkPaint::kMiter_Join == 0, paint_join_mismatch);
+        SK_COMPILE_ASSERT(SkPaint::kRound_Join == 1, paint_join_mismatch);
+        SK_COMPILE_ASSERT(SkPaint::kBevel_Join == 2, paint_join_mismatch);
+        SK_COMPILE_ASSERT(SkPaint::kJoinCount == 3, paint_join_mismatch);
         SkASSERT(fPaint.getStrokeJoin() >= 0 && fPaint.getStrokeJoin() <= 2);
-        SkRefPtr<SkPDFInt> strokeJoin = new SkPDFInt(fPaint.getStrokeJoin());
-        strokeJoin->unref();  // SkRefPtr and new both took a reference.
-        insert("LJ", strokeJoin.get());
+        insert("LJ", new SkPDFInt(fPaint.getStrokeJoin()))->unref();
 
-        SkRefPtr<SkPDFScalar> strokeWidth =
-            new SkPDFScalar(fPaint.getStrokeWidth());
-        strokeWidth->unref();  // SkRefPtr and new both took a reference.
-        insert("LW", strokeWidth.get());
-
-        SkRefPtr<SkPDFScalar> strokeMiterLimit = new SkPDFScalar(
-            fPaint.getStrokeMiter());
-        strokeMiterLimit->unref();  // SkRefPtr and new both took a reference.
-        insert("ML", strokeMiterLimit.get());
-
-        // Turn on automatic stroke adjustment.
-        SkRefPtr<SkPDFBool> trueVal = new SkPDFBool(true);
-        trueVal->unref();  // SkRefPtr and new both took a reference.
-        insert("SA", trueVal.get());
+        insert("LW", new SkPDFScalar(fPaint.getStrokeWidth()))->unref();
+        insert("ML", new SkPDFScalar(fPaint.getStrokeMiter()))->unref();
+        insert("SA", new SkPDFBool(true))->unref();  // Auto stroke adjustment.
     }
 }
 

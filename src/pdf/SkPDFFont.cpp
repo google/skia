@@ -221,23 +221,23 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
     return NULL;
 }
 
-void appendWidth(const int& width, SkPDFArray* array) {
-    SkRefPtr<SkPDFInt> widthInt = new SkPDFInt(width);
-    widthInt->unref();  // SkRefPtr and new both took a reference.
-    array->append(widthInt.get());
+SkPDFArray* appendWidth(const int& width, SkPDFArray* array) {
+    array->append(new SkPDFInt(width))->unref();
+    return array;
 }
 
-void appendVerticalAdvance(const SkPDFTypefaceInfo::VerticalMetric& advance,
-                           SkPDFArray* array) {
+SkPDFArray* appendVerticalAdvance(
+        const SkPDFTypefaceInfo::VerticalMetric& advance, SkPDFArray* array) {
     appendWidth(advance.fVerticalAdvance, array);
     appendWidth(advance.fOriginXDisp, array);
     appendWidth(advance.fOriginYDisp, array);
+    return array;
 }
 
 template <typename Data>
 SkPDFArray* composeAdvanceData(
         SkPDFTypefaceInfo::AdvanceMetric<Data>* advanceInfo,
-        void (*appendAdvance)(const Data& advance, SkPDFArray* array),
+        SkPDFArray* (*appendAdvance)(const Data& advance, SkPDFArray* array),
         Data* defaultAdvance) {
     SkPDFArray* result = new SkPDFArray();
     for (; advanceInfo != NULL; advanceInfo = advanceInfo->fNext.get()) {
@@ -252,24 +252,14 @@ SkPDFArray* composeAdvanceData(
                 advanceArray->unref();  // SkRefPtr and new both took a ref.
                 for (int j = 0; j < advanceInfo->fAdvance.count(); j++)
                     appendAdvance(advanceInfo->fAdvance[j], advanceArray.get());
-                SkRefPtr<SkPDFInt> rangeStart =
-                    new SkPDFInt(advanceInfo->fStartId);
-                rangeStart->unref();  // SkRefPtr and new both took a reference.
-                result->append(rangeStart.get());
+                result->append(new SkPDFInt(advanceInfo->fStartId))->unref();
                 result->append(advanceArray.get());
                 break;
             }
             case SkPDFTypefaceInfo::WidthRange::kRun: {
                 SkASSERT(advanceInfo->fAdvance.count() == 1);
-                SkRefPtr<SkPDFInt> rangeStart =
-                    new SkPDFInt(advanceInfo->fStartId);
-                rangeStart->unref();  // SkRefPtr and new both took a reference.
-                result->append(rangeStart.get());
-
-                SkRefPtr<SkPDFInt> rangeEnd = new SkPDFInt(advanceInfo->fEndId);
-                rangeEnd->unref();  // SkRefPtr and new both took a reference.
-                result->append(rangeEnd.get());
-
+                result->append(new SkPDFInt(advanceInfo->fStartId))->unref();
+                result->append(new SkPDFInt(advanceInfo->fEndId))->unref();
                 appendAdvance(advanceInfo->fAdvance[0], result);
                 break;
             }
@@ -460,66 +450,39 @@ SkPDFFont::SkPDFFont(class SkPDFTypefaceInfo* fontInfo, uint32_t fontID,
 }
 
 void SkPDFFont::populateType0Font() {
+    // TODO(vandebo) add a ToUnicode mapping.
     fMultiByteGlyphs = true;
 
-    SkRefPtr<SkPDFName> subType = new SkPDFName("Type0");
-    subType->unref();  // SkRefPtr and new both took a reference.
-    insert("Subtype", subType.get());
-
-    SkRefPtr<SkPDFName> baseFont = new SkPDFName(fFontInfo.get()->fFontName);
-    baseFont->unref();  // SkRefPtr and new both took a reference.
-    insert("BaseFont", baseFont.get());
-
-    SkRefPtr<SkPDFName> encoding = new SkPDFName("Identity-H");
-    encoding->unref();  // SkRefPtr and new both took a reference.
-    insert("Encoding", encoding.get());
-
-    // TODO(vandebo) add a ToUnicode mapping.
-
-    SkRefPtr<SkPDFFont> cidFont = new SkPDFFont(fFontInfo.get(),
-                                                fFontID, 1, true, NULL);
-    fResources.push(cidFont.get());  // 2 refs: SkRefPtr, new. Pass one.
+    insert("Subtype", new SkPDFName("Type0"))->unref();
+    insert("BaseFont", new SkPDFName(fFontInfo.get()->fFontName))->unref();
+    insert("Encoding",  new SkPDFName("Identity-H"))->unref();
 
     SkRefPtr<SkPDFArray> descendantFonts = new SkPDFArray();
     descendantFonts->unref();  // SkRefPtr and new took a reference.
-    SkRefPtr<SkPDFObjRef> cidFontRef = new SkPDFObjRef(cidFont.get());
-    cidFontRef->unref();  // SkRefPtr and new both took a reference.
-    descendantFonts->append(cidFontRef.get());
+
+    // Pass ref new created to fResources.
+    fResources.push(new SkPDFFont(fFontInfo.get(), fFontID, 1, true, NULL));
+    descendantFonts->append(new SkPDFObjRef(fResources.top()))->unref();
     insert("DescendantFonts", descendantFonts.get());
 }
 
 void SkPDFFont::populateCIDFont() {
     fMultiByteGlyphs = true;
 
-    SkRefPtr<SkPDFName> subType;
+    insert("BaseFont", new SkPDFName(fFontInfo.get()->fFontName))->unref();
+
     if (fFontInfo.get()->fType == SkPDFTypefaceInfo::kType1CID_Font)
-        subType = new SkPDFName("CIDFontType0");
+        insert("Subtype", new SkPDFName("CIDFontType0"))->unref();
     else if (fFontInfo.get()->fType == SkPDFTypefaceInfo::kTrueType_Font)
-        subType = new SkPDFName("CIDFontType2");
+        insert("Subtype", new SkPDFName("CIDFontType2"))->unref();
     else
         SkASSERT(false);
-    subType->unref();  // SkRefPtr and new both took a reference.
-    insert("Subtype", subType.get());
-
-    SkRefPtr<SkPDFName> baseFont = new SkPDFName(fFontInfo.get()->fFontName);
-    baseFont->unref();  // SkRefPtr and new both took a reference.
-    insert("BaseFont", baseFont.get());
 
     SkRefPtr<SkPDFDict> sysInfo = new SkPDFDict;
     sysInfo->unref();  // SkRefPtr and new both took a reference.
-
-    SkRefPtr<SkPDFString> adobeString = new SkPDFString("Adobe");
-    adobeString->unref();  // SkRefPtr and new both took a reference.
-    sysInfo->insert("Registry", adobeString.get());
-
-    SkRefPtr<SkPDFString> identityString = new SkPDFString("Identity");
-    identityString->unref();  // SkRefPtr and new both took a reference.
-    sysInfo->insert("Ordering", identityString.get());
-
-    SkRefPtr<SkPDFInt> supplement = new SkPDFInt(0);
-    supplement->unref();  // SkRefPtr and new both took a reference.
-    sysInfo->insert("Supplement", supplement.get());
-
+    sysInfo->insert("Registry", new SkPDFString("Adobe"))->unref();
+    sysInfo->insert("Ordering", new SkPDFString("Identity"))->unref();
+    sysInfo->insert("Supplement", new SkPDFInt(0))->unref();
     insert("CIDSystemInfo", sysInfo.get());
 
     addFontDescriptor(0);
@@ -533,11 +496,7 @@ void SkPDFFont::populateCIDFont() {
         if (widths->size())
             insert("W", widths.get());
         if (defaultWidth != 0) {
-            SkRefPtr<SkPDFInt> defaultWidthInt =
-                new SkPDFInt(defaultWidth);
-            // SkRefPtr and compose both took a reference.
-            defaultWidthInt->unref();
-            insert("DW", defaultWidthInt.get());
+            insert("DW", new SkPDFInt(defaultWidth))->unref();
         }
     }
     if (fFontInfo.get()->fVerticalMetrics.get()) {
@@ -554,12 +513,8 @@ void SkPDFFont::populateCIDFont() {
         if (defaultAdvance.fVerticalAdvance ||
                 defaultAdvance.fOriginXDisp ||
                 defaultAdvance.fOriginYDisp) {
-            SkRefPtr<SkPDFArray> defaultAdvanceArray = new SkPDFArray;
-            // SkRefPtr and compose both took a reference.
-            defaultAdvanceArray->unref();
-            appendVerticalAdvance(defaultAdvance,
-                                  defaultAdvanceArray.get());
-            insert("DW2", defaultAdvanceArray.get());
+            insert("DW2", appendVerticalAdvance(defaultAdvance,
+                                                new SkPDFArray))->unref();
         }
     }
 }
@@ -594,13 +549,8 @@ bool SkPDFFont::populateType1Font(uint16_t firstGlyphID, uint16_t lastGlyphID) {
     fFirstGlyphID = firstGlyphID;
     fLastGlyphID = lastGlyphID;
 
-    SkRefPtr<SkPDFName> subType = new SkPDFName("Type1");
-    subType->unref();  // SkRefPtr and new both took a reference.
-    insert("Subtype", subType.get());
-
-    SkRefPtr<SkPDFName> baseFont = new SkPDFName(fFontInfo.get()->fFontName);
-    baseFont->unref();  // SkRefPtr and new both took a reference.
-    insert("BaseFont", baseFont.get());
+    insert("Subtype", new SkPDFName("Type1"))->unref();
+    insert("BaseFont", new SkPDFName(fFontInfo.get()->fFontName))->unref();
 
     SkRefPtr<SkPDFArray> widthArray = new SkPDFArray();
     widthArray->unref();  // SkRefPtr and new both took a ref.
@@ -623,15 +573,9 @@ bool SkPDFFont::populateType1Font(uint16_t firstGlyphID, uint16_t lastGlyphID) {
         appendWidth(defaultWidth, widthArray.get());
     }
     insert("Widths", widthArray.get());
-
-    SkRefPtr<SkPDFInt> firstCharInt = new SkPDFInt(firstChar);
-    firstCharInt->unref();  // SkRefPtr and new both took a reference.
-    insert("FirstChar", firstCharInt.get());
-
-    SkRefPtr<SkPDFInt> lastChar =
-        new SkPDFInt(firstChar + widthArray->size() - 1);
-    lastChar->unref();  // SkRefPtr and new both took a reference.
-    insert("LastChar", lastChar.get());
+    insert("FirstChar", new SkPDFInt(firstChar))->unref();
+    insert("LastChar",
+           new SkPDFInt(firstChar + widthArray->size() - 1))->unref();
 
     SkRefPtr<SkPDFDict> encoding = new SkPDFDict("Encoding");
     encoding->unref();  // SkRefPtr and new both took a reference.
@@ -642,14 +586,10 @@ bool SkPDFFont::populateType1Font(uint16_t firstGlyphID, uint16_t lastGlyphID) {
     encoding->insert("Differences", encDiffs.get());
 
     encDiffs->reserve(fLastGlyphID - fFirstGlyphID + 2);
-    SkRefPtr<SkPDFInt> startID = new SkPDFInt(1);
-    startID->unref();  // SkRefPtr and new both took a reference.
-    encDiffs->append(startID.get());
+    encDiffs->append(new SkPDFInt(1))->unref();
     for (int gID = fFirstGlyphID; gID <= fLastGlyphID; gID++) {
-        SkRefPtr<SkPDFName> glyphName =
-            new SkPDFName(fFontInfo.get()->fGlyphNames->get()[gID]);
-        glyphName->unref();  // SkRefPtr and new both took a reference.
-        encDiffs->append(glyphName.get());
+        encDiffs->append(
+            new SkPDFName(fFontInfo.get()->fGlyphNames->get()[gID]))->unref();
     }
 
     if (fFontInfo.get()->fLastGlyphID <= 255)
@@ -666,9 +606,7 @@ bool SkPDFFont::addFontDescriptor(int defaultWidth) {
     if (fDescriptor.get() != NULL) {
         fResources.push(fDescriptor.get());
         fDescriptor->ref();
-        SkRefPtr<SkPDFObjRef> descRef = new SkPDFObjRef(fDescriptor.get());
-        descRef->unref();  // SkRefPtr and new both took a reference.
-        insert("FontDescriptor", descRef.get());
+        insert("FontDescriptor", new SkPDFObjRef(fDescriptor.get()))->unref();
         return true;
     }
 
@@ -688,20 +626,11 @@ bool SkPDFFont::addFontDescriptor(int defaultWidth) {
             SkRefPtr<SkPDFStream> fontStream = new SkPDFStream(fontData);
             // SkRefPtr and new both ref()'d fontStream, pass one.
             fResources.push(fontStream.get());
-
-            SkRefPtr<SkPDFInt> headerLen = new SkPDFInt(header);
-            headerLen->unref();  // SkRefPtr and new both took a reference.
-            fontStream->insert("Length1", headerLen.get());
-            SkRefPtr<SkPDFInt> dataLen = new SkPDFInt(data);
-            dataLen->unref();  // SkRefPtr and new both took a reference.
-            fontStream->insert("Length2", dataLen.get());
-            SkRefPtr<SkPDFInt> trailerLen = new SkPDFInt(trailer);
-            trailerLen->unref();  // SkRefPtr and new both took a reference.
-            fontStream->insert("Length3", trailerLen.get());
-
-            SkRefPtr<SkPDFObjRef> streamRef = new SkPDFObjRef(fontStream.get());
-            streamRef->unref();  // SkRefPtr and new both took a reference.
-            fDescriptor->insert("FontFile", streamRef.get());
+            fontStream->insert("Length1", new SkPDFInt(header))->unref();
+            fontStream->insert("Length2", new SkPDFInt(data))->unref();
+            fontStream->insert("Length3", new SkPDFInt(trailer))->unref();
+            fDescriptor->insert("FontFile",
+                                new SkPDFObjRef(fontStream.get()))->unref();
             break;
         }
         case SkPDFTypefaceInfo::kTrueType_Font: {
@@ -711,13 +640,10 @@ bool SkPDFFont::addFontDescriptor(int defaultWidth) {
             // SkRefPtr and new both ref()'d fontStream, pass one.
             fResources.push(fontStream.get());
 
-            SkRefPtr<SkPDFInt> length = new SkPDFInt(fontData->getLength());
-            length->unref();  // SkRefPtr and new both took a reference.
-            fontStream->insert("Length1", length.get());
-
-            SkRefPtr<SkPDFObjRef> streamRef = new SkPDFObjRef(fontStream.get());
-            streamRef->unref();  // SkRefPtr and new both took a reference.
-            fDescriptor->insert("FontFile2", streamRef.get());
+            fontStream->insert("Length1",
+                               new SkPDFInt(fontData->getLength()))->unref();
+            fDescriptor->insert("FontFile2",
+                                new SkPDFObjRef(fontStream.get()))->unref();
             break;
         }
         case SkPDFTypefaceInfo::kCFF_Font:
@@ -728,17 +654,14 @@ bool SkPDFFont::addFontDescriptor(int defaultWidth) {
             // SkRefPtr and new both ref()'d fontStream, pass one.
             fResources.push(fontStream.get());
 
-            SkRefPtr<SkPDFName> subtype;
-            if (fFontInfo.get()->fType == SkPDFTypefaceInfo::kCFF_Font)
-                subtype = new SkPDFName("Type1C");
-            else
-                subtype = new SkPDFName("CIDFontType0c");
-            subtype->unref();  // SkRefPtr and new both took a reference.
-            fontStream->insert("Subtype", subtype.get());
-
-            SkRefPtr<SkPDFObjRef> streamRef = new SkPDFObjRef(fontStream.get());
-            streamRef->unref();  // SkRefPtr and new both took a reference.
-            fDescriptor->insert("FontFile3", streamRef.get());
+            if (fFontInfo.get()->fType == SkPDFTypefaceInfo::kCFF_Font) {
+                fontStream->insert("Subtype", new SkPDFName("Type1C"))->unref();
+            } else {
+                fontStream->insert("Subtype",
+                        new SkPDFName("CIDFontType0c"))->unref();
+            }
+            fDescriptor->insert("FontFile3",
+                                new SkPDFObjRef(fontStream.get()))->unref();
             break;
         }
         default:
@@ -747,63 +670,36 @@ bool SkPDFFont::addFontDescriptor(int defaultWidth) {
 
     fResources.push(fDescriptor.get());
     fDescriptor->ref();
-    SkRefPtr<SkPDFObjRef> descRef = new SkPDFObjRef(fDescriptor.get());
-    descRef->unref();  // SkRefPtr and new both took a reference.
-    insert("FontDescriptor", descRef.get());
+    insert("FontDescriptor", new SkPDFObjRef(fDescriptor.get()))->unref();
 
-    SkRefPtr<SkPDFName> fontName =
-        new SkPDFName(fFontInfo.get()->fFontName);
-    fontName->unref();  // SkRefPtr and new both took a reference.
-    fDescriptor->insert("FontName", fontName.get());
-
-    SkRefPtr<SkPDFInt> flags = new SkPDFInt(fFontInfo.get()->fStyle);
-    flags->unref();  // SkRefPtr and new both took a reference.
-    fDescriptor->insert("Flags", flags.get());
+    fDescriptor->insert("FontName",
+                        new SkPDFName(fFontInfo.get()->fFontName))->unref();
+    fDescriptor->insert("Flags",
+                        new SkPDFInt(fFontInfo.get()->fStyle))->unref();
+    fDescriptor->insert("Ascent",
+                        new SkPDFScalar(fFontInfo.get()->fAscent))->unref();
+    fDescriptor->insert("Descent",
+                        new SkPDFScalar(fFontInfo.get()->fDescent))->unref();
+    fDescriptor->insert("CapHeight",
+                        new SkPDFScalar(fFontInfo.get()->fCapHeight))->unref();
+    fDescriptor->insert("StemV",
+                        new SkPDFScalar(fFontInfo.get()->fStemV))->unref();
+    fDescriptor->insert("ItalicAngle",
+                        new SkPDFInt(fFontInfo.get()->fItalicAngle))->unref();
 
     SkIRect glyphBBox = fFontInfo.get()->fBBox;
     SkRefPtr<SkPDFArray> bbox = new SkPDFArray;
     bbox->unref();  // SkRefPtr and new both took a reference.
     bbox->reserve(4);
-    SkRefPtr<SkPDFInt> bboxXMin = new SkPDFInt(glyphBBox.fLeft);
-    bboxXMin->unref();  // SkRefPtr and new both took a reference.
-    bbox->append(bboxXMin.get());
-    SkRefPtr<SkPDFInt> bboxYMin = new SkPDFInt(glyphBBox.fBottom);
-    bboxYMin->unref();  // SkRefPtr and new both took a reference.
-    bbox->append(bboxYMin.get());
-    SkRefPtr<SkPDFInt> bboxXMax = new SkPDFInt(glyphBBox.fRight);
-    bboxXMax->unref();  // SkRefPtr and new both took a reference.
-    bbox->append(bboxXMax.get());
-    SkRefPtr<SkPDFInt> bboxYMax = new SkPDFInt(glyphBBox.fTop);
-    bboxYMax->unref();  // SkRefPtr and new both took a reference.
-    bbox->append(bboxYMax.get());
+    bbox->append(new SkPDFInt(glyphBBox.fLeft))->unref();
+    bbox->append(new SkPDFInt(glyphBBox.fBottom))->unref();
+    bbox->append(new SkPDFInt(glyphBBox.fRight))->unref();
+    bbox->append(new SkPDFInt(glyphBBox.fTop))->unref();
     fDescriptor->insert("FontBBox", bbox.get());
 
-    SkRefPtr<SkPDFInt> italicAngle =
-        new SkPDFInt(fFontInfo.get()->fItalicAngle);
-    italicAngle->unref();  // SkRefPtr and new both took a reference.
-    fDescriptor->insert("ItalicAngle", italicAngle.get());
-
-    SkRefPtr<SkPDFScalar> ascent = new SkPDFScalar(fFontInfo.get()->fAscent);
-    ascent->unref();  // SkRefPtr and new both took a reference.
-    fDescriptor->insert("Ascent", ascent.get());
-
-    SkRefPtr<SkPDFScalar> descent = new SkPDFScalar(fFontInfo.get()->fDescent);
-    descent->unref();  // SkRefPtr and new both took a reference.
-    fDescriptor->insert("Descent", descent.get());
-
-    SkRefPtr<SkPDFScalar> capHeight =
-        new SkPDFScalar(fFontInfo.get()->fCapHeight);
-    capHeight->unref();  // SkRefPtr and new both took a reference.
-    fDescriptor->insert("CapHeight", capHeight.get());
-
-    SkRefPtr<SkPDFScalar> stemV = new SkPDFScalar(fFontInfo.get()->fStemV);
-    stemV->unref();  // SkRefPtr and new both took a reference.
-    fDescriptor->insert("StemV", stemV.get());
-
     if (defaultWidth > 0) {
-        SkRefPtr<SkPDFInt> defaultWidthInt = new SkPDFInt(defaultWidth);
-        defaultWidthInt->unref();  // SkRefPtr and new both took a reference.
-        fDescriptor->insert("MissingWidth", defaultWidthInt.get());
+        fDescriptor->insert("MissingWidth",
+                            new SkPDFInt(defaultWidth))->unref();
     }
     return true;
 }

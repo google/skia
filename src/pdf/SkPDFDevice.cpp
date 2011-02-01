@@ -465,12 +465,9 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
             for (int i = 0; i < fGraphicStateResources.count(); i++) {
                 SkString nameString("G");
                 nameString.appendS32(i);
-                SkRefPtr<SkPDFName> name = new SkPDFName(nameString);
-                name->unref();  // SkRefPtr and new both took a reference.
-                SkRefPtr<SkPDFObjRef> gsRef =
-                    new SkPDFObjRef(fGraphicStateResources[i]);
-                gsRef->unref();  // SkRefPtr and new both took a reference.
-                extGState->insert(name.get(), gsRef.get());
+                extGState->insert(
+                        nameString.c_str(),
+                        new SkPDFObjRef(fGraphicStateResources[i]))->unref();
             }
             fResourceDict->insert("ExtGState", extGState.get());
         }
@@ -481,12 +478,9 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
             for (int i = 0; i < fXObjectResources.count(); i++) {
                 SkString nameString("X");
                 nameString.appendS32(i);
-                SkRefPtr<SkPDFName> name = new SkPDFName(nameString);
-                name->unref();  // SkRefPtr and new both took a reference.
-                SkRefPtr<SkPDFObjRef> xObjRef =
-                    new SkPDFObjRef(fXObjectResources[i]);
-                xObjRef->unref();  // SkRefPtr and new both took a reference.
-                xObjects->insert(name.get(), xObjRef.get());
+                xObjects->insert(
+                        nameString.c_str(),
+                        new SkPDFObjRef(fXObjectResources[i]))->unref();
             }
             fResourceDict->insert("XObject", xObjects.get());
         }
@@ -497,12 +491,8 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
             for (int i = 0; i < fFontResources.count(); i++) {
                 SkString nameString("F");
                 nameString.appendS32(i);
-                SkRefPtr<SkPDFName> name = new SkPDFName(nameString);
-                name->unref();  // SkRefPtr and new both took a reference.
-                SkRefPtr<SkPDFObjRef> fontRef =
-                    new SkPDFObjRef(fFontResources[i]);
-                fontRef->unref();  // SkRefPtr and new both took a reference.
-                fonts->insert(name.get(), fontRef.get());
+                fonts->insert(nameString.c_str(),
+                              new SkPDFObjRef(fFontResources[i]))->unref();
             }
             fResourceDict->insert("Font", fonts.get());
         }
@@ -513,11 +503,8 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
         SkRefPtr<SkPDFArray> procSets = new SkPDFArray();
         procSets->unref();  // SkRefPtr and new both took a reference.
         procSets->reserve(SK_ARRAY_COUNT(procs));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(procs); i++) {
-            SkRefPtr<SkPDFName> entry = new SkPDFName(procs[i]);
-            entry->unref();  // SkRefPtr and new both took a reference.
-            procSets->append(entry.get());
-        }
+        for (size_t i = 0; i < SK_ARRAY_COUNT(procs); i++)
+            procSets->append(new SkPDFName(procs[i]))->unref();
         fResourceDict->insert("ProcSet", procSets.get());
     }
     return fResourceDict;
@@ -548,17 +535,14 @@ void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
 SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     SkRefPtr<SkPDFInt> zero = new SkPDFInt(0);
     zero->unref();  // SkRefPtr and new both took a reference.
-    SkRefPtr<SkPDFInt> width = new SkPDFInt(fWidth);
-    width->unref();  // SkRefPtr and new both took a reference.
-    SkRefPtr<SkPDFInt> height = new SkPDFInt(fHeight);
-    height->unref();  // SkRefPtr and new both took a reference.
+
     SkRefPtr<SkPDFArray> mediaBox = new SkPDFArray();
     mediaBox->unref();  // SkRefPtr and new both took a reference.
     mediaBox->reserve(4);
     mediaBox->append(zero.get());
     mediaBox->append(zero.get());
-    mediaBox->append(width.get());
-    mediaBox->append(height.get());
+    mediaBox->append(new SkPDFInt(fWidth))->unref();
+    mediaBox->append(new SkPDFInt(fHeight))->unref();
     return mediaBox;
 }
 

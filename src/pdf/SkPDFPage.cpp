@@ -38,10 +38,7 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
         contentStream->unref();  // SkRefPtr and new both took a reference.
         fContentStream = new SkPDFStream(contentStream.get());
         fContentStream->unref();  // SkRefPtr and new both took a reference.
-        SkRefPtr<SkPDFObjRef> contentRef =
-            new SkPDFObjRef(fContentStream.get());
-        contentRef->unref();  // SkRefPtr and new both took a reference.
-        insert("Contents", contentRef.get());
+        insert("Contents", new SkPDFObjRef(fContentStream.get()))->unref();
     }
     catalog->addObject(fContentStream.get(), firstPage);
     fDevice->getResources(resourceObjects);
@@ -102,9 +99,7 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
             int count = 0;
             for (; i < curNodes.count() && count < kNodeSize; i++, count++) {
                 curNodes[i]->insert(parentName.get(), newNodeRef.get());
-                SkRefPtr<SkPDFObjRef> nodeRef = new SkPDFObjRef(curNodes[i]);
-                nodeRef->unref();  // SkRefPtr and new both took a reference.
-                kids->append(nodeRef.get());
+                kids->append(new SkPDFObjRef(curNodes[i]))->unref();
 
                 // TODO(vandebo) put the objects in strict access order.
                 // Probably doesn't matter because they are so small.
@@ -117,9 +112,7 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
             }
 
             newNode->insert(kidsName.get(), kids.get());
-            SkRefPtr<SkPDFInt> countVal = new SkPDFInt(count);
-            countVal->unref();  // SkRefPtr and new both took a reference.
-            newNode->insert(countName.get(), countVal.get());
+            newNode->insert(countName.get(), new SkPDFInt(count))->unref();
             nextRoundNodes.push(newNode);  // Transfer reference.
         }
 
