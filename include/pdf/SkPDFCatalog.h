@@ -35,11 +35,12 @@ public:
     SkPDFCatalog();
     ~SkPDFCatalog();
 
-    /** Add the passed object to the catalog.
+    /** Add the passed object to the catalog.  Refs obj.
      *  @param obj         The object to add.
      *  @param onFirstPage Is the object on the first page.
+     *  @return The obj argument is returned.
      */
-    void addObject(SkPDFObject* obj, bool onFirstPage);
+    SkPDFObject* addObject(SkPDFObject* obj, bool onFirstPage);
 
     /** Inform the catalog of the object's position in the final stream.
      *  The object should already have been added to the catalog.  Returns

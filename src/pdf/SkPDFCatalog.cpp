@@ -27,7 +27,7 @@ SkPDFCatalog::SkPDFCatalog()
 
 SkPDFCatalog::~SkPDFCatalog() {}
 
-void SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
+SkPDFObject* SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
     SkASSERT(findObjectIndex(obj) == -1);
     SkASSERT(fNextFirstPageObjNum == 0);
     if (onFirstPage)
@@ -35,6 +35,7 @@ void SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
 
     struct Rec newEntry(obj, onFirstPage);
     fCatalog.append(1, &newEntry);
+    return obj;
 }
 
 size_t SkPDFCatalog::setFileOffset(SkPDFObject* obj, size_t offset) {

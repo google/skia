@@ -52,17 +52,19 @@ public:
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
     virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
-    /** Add the value to the stream dictionary with the given key.
+    /** Add the value to the stream dictionary with the given key.  Refs value.
      *  @param key   The key for this dictionary entry.
      *  @param value The value for this dictionary entry.
+     *  @return The value argument is returned.
      */
-    void insert(SkPDFName* key, SkPDFObject* value);
+    SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
 
-    /** Add the value to the stream dictionary with the given key.
+    /** Add the value to the stream dictionary with the given key.  Refs value.
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
+     *  @return The value argument is returned.
      */
-    void insert(const char key[], SkPDFObject* value);
+    SkPDFObject* insert(const char key[], SkPDFObject* value);
 
 private:
     SkString fContent;

@@ -49,10 +49,11 @@ public:
 
     virtual ~SkPDFImage();
 
-    /** Add a Soft Mask (alpha or shape channel) to the image.
+    /** Add a Soft Mask (alpha or shape channel) to the image.  Refs mask.
      *  @param mask A gray scale image representing the mask.
+     *  @return The mask argument is returned.
      */
-    void addSMask(SkPDFImage* mask);
+    SkPDFImage* addSMask(SkPDFImage* mask);
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -76,17 +77,19 @@ private:
     SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
                const SkIRect& srcRect, bool alpha, const SkPaint& paint);
 
-    /** Add the value to the stream dictionary with the given key.
+    /** Add the value to the stream dictionary with the given key.  Refs value.
      *  @param key   The key for this dictionary entry.
      *  @param value The value for this dictionary entry.
+     *  @return The value argument is returned.
      */
-    void insert(SkPDFName* key, SkPDFObject* value);
+    SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
 
-    /** Add the value to the stream dictionary with the given key.
+    /** Add the value to the stream dictionary with the given key.  Refs value.
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
+     *  @return The value argument is returned.
      */
-    void insert(const char key[], SkPDFObject* value);
+    SkPDFObject* insert(const char key[], SkPDFObject* value);
 };
 
 #endif

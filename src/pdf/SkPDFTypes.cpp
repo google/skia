@@ -254,25 +254,25 @@ void SkPDFArray::reserve(int length) {
     fValue.setReserve(length);
 }
 
-void SkPDFArray::setAt(int offset, SkPDFObject* value) {
+SkPDFObject* SkPDFArray::setAt(int offset, SkPDFObject* value) {
     SkASSERT(offset < fValue.count());
     SkSafeUnref(fValue[offset]);
     fValue[offset] = value;
     SkSafeRef(fValue[offset]);
+    return value;
 }
 
-void SkPDFArray::append(SkPDFObject* value) {
+SkPDFObject* SkPDFArray::append(SkPDFObject* value) {
     SkASSERT(fValue.count() < kMaxLen);
     SkSafeRef(value);
     fValue.push(value);
+    return value;
 }
 
 SkPDFDict::SkPDFDict() {}
 
 SkPDFDict::SkPDFDict(const char type[]) {
-    SkRefPtr<SkPDFName> typeName = new SkPDFName(type);
-    typeName->unref();  // SkRefPtr and new both took a reference.
-    insert("Type", typeName.get());
+    insert("Type", new SkPDFName(type))->unref();
 }
 
 SkPDFDict::~SkPDFDict() {
@@ -306,18 +306,19 @@ size_t SkPDFDict::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     return result;
 }
 
-void SkPDFDict::insert(SkPDFName* key, SkPDFObject* value) {
+SkPDFObject* SkPDFDict::insert(SkPDFName* key, SkPDFObject* value) {
     struct Rec* newEntry = fValue.append();
     newEntry->key = key;
     SkSafeRef(newEntry->key);
     newEntry->value = value;
     SkSafeRef(newEntry->value);
+    return value;
 }
 
-void SkPDFDict::insert(const char key[], SkPDFObject* value) {
+SkPDFObject* SkPDFDict::insert(const char key[], SkPDFObject* value) {
     SkRefPtr<SkPDFName> keyName = new SkPDFName(key);
     keyName->unref();  // SkRefPtr and new both took a reference.
-    insert(keyName.get(), value);
+    return insert(keyName.get(), value);
 }
 
 void SkPDFDict::clear() {

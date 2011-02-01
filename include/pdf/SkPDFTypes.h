@@ -253,16 +253,18 @@ public:
      */
     SkPDFObject* getAt(int index) { return fValue[index]; }
 
-    /** Set the object at the given offset in the array.
+    /** Set the object at the given offset in the array. Ref's value.
      *  @param index The index into the array to set.
      *  @param value The value to add to the array.
+     *  @return The value argument is returned.
      */
-    void setAt(int index, SkPDFObject* value);
+    SkPDFObject* setAt(int index, SkPDFObject* value);
 
-    /** Append the object to the end of the array.
+    /** Append the object to the end of the array and increments its ref count.
      *  @param value The value to add to the array.
+     *  @return The value argument is returned.
      */
-    void append(SkPDFObject* value);
+    SkPDFObject* append(SkPDFObject* value);
 
 private:
     static const int kMaxLen = 8191;
@@ -295,18 +297,20 @@ public:
      */
     int size() { return fValue.count(); }
 
-    /** Add the value to the dictionary with the given key.
+    /** Add the value to the dictionary with the given key.  Refs value.
      *  @param key   The key for this dictionary entry.
      *  @param value The value for this dictionary entry.
+     *  @return The value argument is returned.
      */
-    void insert(SkPDFName* key, SkPDFObject* value);
+    SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
 
-    /** Add the value to the dictionary with the given key.  The method will
-     *  create the SkPDFName object.
+    /** Add the value to the dictionary with the given key.  Refs value.  The
+     *  method will create the SkPDFName object.
      *  @param key   The text of the key for this dictionary entry.
      *  @param value The value for this dictionary entry.
+     *  @return The value argument is returned.
      */
-    void insert(const char key[], SkPDFObject* value);
+    SkPDFObject* insert(const char key[], SkPDFObject* value);
 
     /** Remove all entries from the dictionary.
      */

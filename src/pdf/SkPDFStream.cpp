@@ -26,19 +26,13 @@ SkPDFStream::SkPDFStream(SkStream* stream) {
     if (SkFlate::HaveFlate() &&
             fCompressedData.getOffset() < stream->getLength()) {
         fLength = fCompressedData.getOffset();
-
-        SkRefPtr<SkPDFName> flateFilter = new SkPDFName("FlateDecode");
-        flateFilter->unref();  // SkRefPtr and new both took a reference.
-        fDict.insert("Filter", flateFilter.get());
+        fDict.insert("Filter", new SkPDFName("FlateDecode"))->unref();
     } else {
         fCompressedData.reset();
         fPlainData = stream;
         fLength = fPlainData->getLength();
     }
-
-    SkRefPtr<SkPDFInt> lenValue = new SkPDFInt(fLength);
-    lenValue->unref();  // SkRefPtr and new both took a reference.
-    fDict.insert("Length", lenValue.get());
+    fDict.insert("Length", new SkPDFInt(fLength))->unref();
 }
 
 SkPDFStream::~SkPDFStream() {
@@ -66,10 +60,10 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
         strlen(" stream\n\nendstream") + fLength;
 }
 
-void SkPDFStream::insert(SkPDFName* key, SkPDFObject* value) {
-    fDict.insert(key, value);
+SkPDFObject* SkPDFStream::insert(SkPDFName* key, SkPDFObject* value) {
+    return fDict.insert(key, value);
 }
 
-void SkPDFStream::insert(const char key[], SkPDFObject* value) {
-    fDict.insert(key, value);
+SkPDFObject* SkPDFStream::insert(const char key[], SkPDFObject* value) {
+    return fDict.insert(key, value);
 }

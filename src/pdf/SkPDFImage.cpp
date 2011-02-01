@@ -220,17 +220,9 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
 SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
     SkPDFArray* result = new SkPDFArray();
     result->reserve(4);
-    SkRefPtr<SkPDFName> indexedName = new SkPDFName("Indexed");
-    indexedName->unref();  // SkRefPtr and new both took a reference.
-    result->append(indexedName.get());
-
-    SkRefPtr<SkPDFName> rgbName = new SkPDFName("DeviceRGB");
-    rgbName->unref();  // SkRefPtr and new both took a reference.
-    result->append(rgbName.get());
-
-    SkRefPtr<SkPDFInt> countValue = new SkPDFInt(table->count() - 1);
-    countValue->unref();  // SkRefPtr and new both took a reference.
-    result->append(countValue.get());
+    result->append(new SkPDFName("Indexed"))->unref();
+    result->append(new SkPDFName("DeviceRGB"))->unref();;
+    result->append(new SkPDFInt(table->count() - 1))->unref();
 
     // Potentially, this could be represented in fewer bytes with a stream.
     // Max size as a string is 1.5k.
@@ -243,9 +235,7 @@ SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
         buf[2] = SkGetPackedB32(color);
         index.append(buf, 3);
     }
-    SkRefPtr<SkPDFString> indexValue = new SkPDFString(index);
-    indexValue->unref();  // SkRefPtr and new both took a reference.
-    result->append(indexValue.get());
+    result->append(new SkPDFString(index))->unref();
     return result;
 }
 
@@ -272,10 +262,8 @@ SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
         new SkPDFImage(imageData, bitmap, srcRect, false, paint);
 
     if (alphaData != NULL) {
-        SkRefPtr<SkPDFImage> alphaImage =
-            new SkPDFImage(alphaData, bitmap, srcRect, true, paint);
-        alphaImage->unref();  // SkRefPtr and new both took a reference.
-        image->addSMask(alphaImage.get());
+        image->addSMask(new SkPDFImage(alphaData, bitmap, srcRect, true,
+                                       paint))->unref();
     }
     return image;
 }
@@ -284,13 +272,11 @@ SkPDFImage::~SkPDFImage() {
     fResources.unrefAll();
 }
 
-void SkPDFImage::addSMask(SkPDFImage* mask) {
+SkPDFImage* SkPDFImage::addSMask(SkPDFImage* mask) {
     fResources.push(mask);
     mask->ref();
-
-    SkRefPtr<SkPDFObjRef> maskRef = new SkPDFObjRef(mask);
-    maskRef->unref();  // SkRefPtr and new both took a reference.
-    insert("SMask", maskRef.get());
+    insert("SMask", new SkPDFObjRef(mask))->unref();
+    return mask;
 }
 
 void SkPDFImage::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -325,46 +311,35 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
     fStream = new SkPDFStream(imageData);
     fStream->unref();  // SkRefPtr and new both took a reference.
 
-    SkRefPtr<SkPDFName> typeValue = new SkPDFName("XObject");
-    typeValue->unref();  // SkRefPtr and new both took a reference.
-    insert("Type", typeValue.get());
-
-    SkRefPtr<SkPDFName> subTypeValue = new SkPDFName("Image");
-    subTypeValue->unref();  // SkRefPtr and new both took a reference.
-    insert("Subtype", subTypeValue.get());
-
     SkBitmap::Config config = bitmap.getConfig();
     bool alphaOnly = (config == SkBitmap::kA1_Config ||
                       config == SkBitmap::kA8_Config);
 
-    SkRefPtr<SkPDFInt> widthValue;
-    SkRefPtr<SkPDFInt> heightValue;
+    insert("Type", new SkPDFName("XObject"))->unref();
+    insert("Subtype", new SkPDFName("Image"))->unref();
+
     if (!doingAlpha && alphaOnly) {
         // For alpha only images, we stretch a single pixel of black for
         // the color/shape part.
-        widthValue = new SkPDFInt(1);
-        heightValue = widthValue.get();
+        SkRefPtr<SkPDFInt> one = new SkPDFInt(1);
+        one->unref();  // SkRefPtr and new both took a reference.
+        insert("Width", one.get());
+        insert("Height", one.get());
     } else {
-        widthValue = new SkPDFInt(srcRect.width());
-        heightValue = new SkPDFInt(srcRect.height());
-        heightValue->unref();  // SkRefPtr and new both took a reference.
+        insert("Width", new SkPDFInt(srcRect.width()))->unref();
+        insert("Height", new SkPDFInt(srcRect.height()))->unref();
     }
-    widthValue->unref();  // SkRefPtr and new both took a reference.
-    insert("Width", widthValue.get());
-    insert("Height", heightValue.get());
 
     // if (!image mask) {
-    SkRefPtr<SkPDFObject> colorSpaceValue;
     if (doingAlpha || alphaOnly) {
-        colorSpaceValue = new SkPDFName("DeviceGray");
+        insert("ColorSpace", new SkPDFName("DeviceGray"))->unref();
     } else if (config == SkBitmap::kIndex8_Config ||
         config == SkBitmap::kRLE_Index8_Config) {
-        colorSpaceValue = makeIndexedColorSpace(bitmap.getColorTable());
+        insert("ColorSpace",
+               makeIndexedColorSpace(bitmap.getColorTable()))->unref();
     } else {
-        colorSpaceValue = new SkPDFName("DeviceRGB");
+        insert("ColorSpace", new SkPDFName("DeviceRGB"))->unref();
     }
-    colorSpaceValue->unref();  // SkRefPtr and new both took a reference.
-    insert("ColorSpace", colorSpaceValue.get());
     // }
 
     int bitsPerComp = 8;
@@ -372,9 +347,7 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
         bitsPerComp = 4;
     else if (doingAlpha && config == SkBitmap::kA1_Config)
         bitsPerComp = 1;
-    SkRefPtr<SkPDFInt> bitsPerCompValue = new SkPDFInt(bitsPerComp);
-    bitsPerCompValue->unref();  // SkRefPtr and new both took a reference.
-    insert("BitsPerComponent", bitsPerCompValue.get());
+    insert("BitsPerComponent", new SkPDFInt(bitsPerComp))->unref();
 
     if (config == SkBitmap::kRGB_565_Config) {
         SkRefPtr<SkPDFInt> zeroVal = new SkPDFInt(0);
@@ -396,10 +369,10 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
     }
 }
 
-void SkPDFImage::insert(SkPDFName* key, SkPDFObject* value) {
-    fStream->insert(key, value);
+SkPDFObject* SkPDFImage::insert(SkPDFName* key, SkPDFObject* value) {
+    return fStream->insert(key, value);
 }
 
-void SkPDFImage::insert(const char key[], SkPDFObject* value) {
-    fStream->insert(key, value);
+SkPDFObject* SkPDFImage::insert(const char key[], SkPDFObject* value) {
+    return fStream->insert(key, value);
 }

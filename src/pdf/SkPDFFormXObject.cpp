@@ -31,14 +31,8 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device, const SkMatrix& matrix)
     fStream = new SkPDFStream(stream_data);
     fStream->unref();  // SkRefPtr and new both took a reference.
 
-    SkRefPtr<SkPDFName> typeValue = new SkPDFName("XObject");
-    typeValue->unref();  // SkRefPtr and new both took a reference.
-    insert("Type", typeValue.get());
-
-    SkRefPtr<SkPDFName> subTypeValue = new SkPDFName("Form");
-    subTypeValue->unref();  // SkRefPtr and new both took a reference.
-    insert("Subtype", subTypeValue.get());
-
+    insert("Type", new SkPDFName("XObject"))->unref();
+    insert("Subtype", new SkPDFName("Form"))->unref();
     insert("BBox", device->getMediaBox().get());
     insert("Resources", device->getResourceDict().get());
 
@@ -48,11 +42,8 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device, const SkMatrix& matrix)
         transformArray->reserve(6);
         SkScalar transform[6];
         SkAssertResult(matrix.pdfTransform(transform));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(transform); i++) {
-            SkRefPtr<SkPDFScalar> val = new SkPDFScalar(transform[i]);
-            val->unref();  // SkRefPtr and new both took a reference.
-            transformArray->append(val.get());
-        }
+        for (size_t i = 0; i < SK_ARRAY_COUNT(transform); i++)
+            transformArray->append(new SkPDFScalar(transform[i]))->unref();
         insert("Matrix", transformArray.get());
     }
 }
@@ -78,10 +69,10 @@ void SkPDFFormXObject::getResources(SkTDArray<SkPDFObject*>* resourceList) {
     fDevice->getResources(resourceList);
 }
 
-void SkPDFFormXObject::insert(SkPDFName* key, SkPDFObject* value) {
-    fStream->insert(key, value);
+SkPDFObject* SkPDFFormXObject::insert(SkPDFName* key, SkPDFObject* value) {
+    return fStream->insert(key, value);
 }
 
-void SkPDFFormXObject::insert(const char key[], SkPDFObject* value) {
-    fStream->insert(key, value);
+SkPDFObject* SkPDFFormXObject::insert(const char key[], SkPDFObject* value) {
+    return fStream->insert(key, value);
 }
