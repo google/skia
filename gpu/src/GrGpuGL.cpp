@@ -250,18 +250,20 @@ GrGpuGL::GrGpuGL() {
     }
 
 #if GR_SUPPORT_GLDESKTOP
-    fNPOTTextureSupport =
-        (major >= 2 || has_gl_extension("GL_ARB_texture_non_power_of_two")) ?
-            kFull_NPOTTextureType :
-            kNone_NPOTTextureType;
-#else
-    if (has_gl_extension("GL_OES_texture_npot")) {
-        fNPOTTextureSupport = kFull_NPOTTextureType;
-    } else if (major >= 2 ||
-               has_gl_extension("GL_APPLE_texture_2D_limited_npot")) {
-        fNPOTTextureSupport = kNoRepeat_NPOTTextureType;
+    if (major >= 2 || has_gl_extension("GL_ARB_texture_non_power_of_two")) {
+        fNPOTTextureTileSupport = true;
+        fNPOTTextureSupport = true;
     } else {
-        fNPOTTextureSupport = kNone_NPOTTextureType;
+        fNPOTTextureTileSupport = false;
+        fNPOTTextureSupport = false;
+    }
+#else
+    if (major >= 2) {
+        fNPOTTextureSupport = true;
+        fNPOTTextureTileSupport = has_gl_extension("GL_OES_texture_npot");
+    } else {
+        fNPOTTextureSupport = has_gl_extension("GL_APPLE_texture_2D_limited_npot");
+        fNPOTTextureTileSupport = false;
     }
 #endif
     ////////////////////////////////////////////////////////////////////////////
@@ -269,16 +271,16 @@ GrGpuGL::GrGpuGL() {
     // these a preprocess that generate some compile time constants.
 
     // sanity check to make sure we can at least create an FBO from a POT texture
-    if (fNPOTTextureSupport < kFull_NPOTTextureType) {
-        bool npotFBOSuccess = fbo_test(fExts, 128, 128);
-        if (gPrintStartupSpew) {
-            if (!npotFBOSuccess) {
-                GrPrintf("FBO Sanity Test: FAILED\n");
-            } else {
-                GrPrintf("FBO Sanity Test: PASSED\n");
-            }
+    
+    bool simpleFBOSuccess = fbo_test(fExts, 128, 128);
+    if (gPrintStartupSpew) {
+        if (!simpleFBOSuccess) {
+            GrPrintf("FBO Sanity Test: FAILED\n");
+        } else {
+            GrPrintf("FBO Sanity Test: PASSED\n");
         }
     }
+    GrAssert(simpleFBOSuccess);
 
     /* Experimentation has found that some GLs that support NPOT textures
        do not support FBOs with a NPOT texture. They report "unsupported" FBO
@@ -287,34 +289,26 @@ GrGpuGL::GrGpuGL() {
        texture. Presumably, the implementation bloats the renderbuffer
        internally to the next POT.
      */
-    if (fNPOTTextureSupport == kFull_NPOTTextureType) {
-        bool npotFBOSuccess = fbo_test(fExts, 200, 200);
-        if (!npotFBOSuccess) {
-            fNPOTTextureSupport = kNonRendertarget_NPOTTextureType;
-            if (gPrintStartupSpew) {
-                GrPrintf("NPOT Renderbuffer Test: FAILED\n");
+    bool fNPOTRenderTargetSupport = false;
+    if (fNPOTTextureSupport) {
+        fNPOTRenderTargetSupport = fbo_test(fExts, 200, 200);
+    }
+    
+    if (gPrintStartupSpew) {
+        if (fNPOTTextureSupport) {
+            GrPrintf("NPOT textures supported\n");
+            if (fNPOTTextureTileSupport) {
+                GrPrintf("NPOT texture tiling supported\n");
+            } else {
+                GrPrintf("NPOT texture tiling NOT supported\n");
+            }
+            if (fNPOTRenderTargetSupport) {
+                GrPrintf("NPOT render targets supported\n");
+            } else {
+                GrPrintf("NPOT render targets NOT supported\n");
             }
         } else {
-            if (gPrintStartupSpew) {
-                GrPrintf("NPOT Renderbuffer Test: PASSED\n");
-            }
-        }
-    }
-
-    if (gPrintStartupSpew) {
-        switch (fNPOTTextureSupport) {
-        case kNone_NPOTTextureType:
-            GrPrintf("NPOT Support: NONE\n");
-            break;
-        case kNoRepeat_NPOTTextureType:
-            GrPrintf("NPOT Support: NO REPEAT\n");
-            break;
-        case kNonRendertarget_NPOTTextureType:
-            GrPrintf("NPOT Support: NO FBOTEX\n");
-            break;
-        case kFull_NPOTTextureType:
-            GrPrintf("NPOT Support: FULL\n");
-            break;
+            GrPrintf("NPOT textures NOT supported\n");
         }
     }
 
@@ -329,8 +323,8 @@ GrGpuGL::GrGpuGL() {
     if (gPrintStartupSpew) {
         GrPrintf("Small height FBO texture experiments\n");
     }
-    for (GLuint i = 1; i <= 256;
-         (kFull_NPOTTextureType != fNPOTTextureSupport) ? i *= 2 : ++i) {
+
+    for (GLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? ++i : i *= 2) {
         GLuint w = maxRenderSize;
         GLuint h = i;
         if (fbo_test(fExts, w, h)) {
@@ -351,8 +345,7 @@ GrGpuGL::GrGpuGL() {
         GrPrintf("Small width FBO texture experiments\n");
     }
     fMinRenderTargetWidth = GR_MAX_GLUINT;
-    for (GLuint i = 1; i <= 256;
-         (kFull_NPOTTextureType != fNPOTTextureSupport) ? i *= 2 : ++i) {
+    for (GLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? i *= 2 : ++i) {
         GLuint w = i;
         GLuint h = maxRenderSize;
         if (fbo_test(fExts, w, h)) {
@@ -369,22 +362,7 @@ GrGpuGL::GrGpuGL() {
     }
     GrAssert(GR_INVAL_GLINT != fMinRenderTargetWidth);
 
-#if GR_IOS_BUILD
-    /*
-        The iPad seems to fail, at least sometimes, if the height is < 16,
-        so we pin the values here for now. A better fix might be to
-        conditionalize this based on known that its an iPad (or some other
-        check).
-     */
-    fMinRenderTargetWidth = GrMax<GLuint>(fMinRenderTargetWidth, 16);
-    fMinRenderTargetHeight = GrMax<GLuint>(fMinRenderTargetHeight, 16);
-#endif
-
     GR_GL_GetIntegerv(GL_MAX_TEXTURE_SIZE, &fMaxTextureDimension);
-
-#if GR_COLLECT_STATS
-    ++fStats.fRenderTargetChngCnt;
-#endif
 }
 
 GrGpuGL::~GrGpuGL() {
@@ -607,18 +585,19 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
     }
 #endif
 
-    if (fNPOTTextureSupport < kNonRendertarget_NPOTTextureType ||
-        (fNPOTTextureSupport == kNonRendertarget_NPOTTextureType &&
-         renderTarget)) {
-        glDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
-        glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
-    }
-
     if (renderTarget) {
+        if (!this->npotRenderTargetSupport()) {
+            glDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
+            glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
+        }
+
         glDesc.fAllocWidth = GrMax<int>(fMinRenderTargetWidth,
                                         glDesc.fAllocWidth);
         glDesc.fAllocHeight = GrMax<int>(fMinRenderTargetHeight,
                                          glDesc.fAllocHeight);
+    } else if (!this->npotTextureSupport()) {
+        glDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
+        glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
     }
 
     GR_GL(BindTexture(GL_TEXTURE_2D, glDesc.fTextureID));

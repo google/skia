@@ -260,22 +260,21 @@ bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
         return false;
     }
 
-    bool needsRepeat = sampler.getWrapX() != GrSamplerState::kClamp_WrapMode ||
-                       sampler.getWrapY() != GrSamplerState::kClamp_WrapMode;
+
     bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
-    switch (fGpu->npotTextureSupport()) {
-        case GrGpu::kNone_NPOTTextureType:
-            return isPow2;
-        case GrGpu::kNoRepeat_NPOTTextureType:
-            return isPow2 || !needsRepeat;
-        case GrGpu::kNonRendertarget_NPOTTextureType:
-        case GrGpu::kFull_NPOTTextureType:
-            return true;
+    if (!isPow2) {
+        if (!fGpu->npotTextureSupport()) {
+            return false;
+        }
+
+        bool tiled = sampler.getWrapX() != GrSamplerState::kClamp_WrapMode ||
+                     sampler.getWrapY() != GrSamplerState::kClamp_WrapMode;
+        if (tiled && !fGpu->npotTextureTileSupport()) {
+            return false;
+        }
     }
-    // should never get here
-    GrAssert(!"Bad enum from fGpu->npotTextureSupport");
-    return false;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1141,10 +1140,15 @@ bool GrContext::finalizeTextureKey(GrTextureKey* key,
     uint32_t bits = 0;
     uint16_t width = key->width();
     uint16_t height = key->height();
-    if (fGpu->npotTextureSupport() < GrGpu::kNonRendertarget_NPOTTextureType) {
-        if ((sampler.getWrapX() != GrSamplerState::kClamp_WrapMode ||
-             sampler.getWrapY() != GrSamplerState::kClamp_WrapMode) &&
-            (!GrIsPow2(width) || !GrIsPow2(height))) {
+    
+
+    if (!fGpu->npotTextureTileSupport()) {
+        bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
+
+        bool tiled = (sampler.getWrapX() != GrSamplerState::kClamp_WrapMode) ||
+                     (sampler.getWrapY() != GrSamplerState::kClamp_WrapMode);
+
+        if (tiled && !isPow2) {
             bits |= 1;
             bits |= sampler.isFilter() ? 2 : 0;
         }

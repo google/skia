@@ -405,7 +405,7 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         return false;
     }
     grPaint->fSampler.setSampleMode(sampleMode);
-
+    grPaint->fSampler.setFilter(skPaint.isFilterBitmap());
     grPaint->fSampler.setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
     grPaint->fSampler.setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
 

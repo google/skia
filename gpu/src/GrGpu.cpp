@@ -57,7 +57,6 @@ bool GrTexture::PixelConfigIsOpaque(PixelConfig config) {
 extern void gr_run_unittests();
 
 GrGpu::GrGpu() : f8bitPaletteSupport(false),
-                 fNPOTTextureSupport(kNone_NPOTTextureType),
                  fQuadIndexBuffer(NULL),
                  fUnitSquareVertexBuffer(NULL) {
 #if GR_DEBUG

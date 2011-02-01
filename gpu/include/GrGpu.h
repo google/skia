@@ -55,28 +55,6 @@ public:
     static GrGpu* Create(Engine, Platform3DContext context3D);
 
     /**
-     * Describes levels of support for non-power-of-two textures.
-     */
-    enum NPOTTextureTypes {
-        /**
-         *  no support for NPOT textures
-         */
-        kNone_NPOTTextureType,
-        /**
-         *  only clamp is supported for textures
-         */
-        kNoRepeat_NPOTTextureType,
-        /**
-         *  no texture restrictions at all, but rendertargets must be POW2
-         */
-        kNonRendertarget_NPOTTextureType,
-        /**
-         * no POW2 restrictions at all
-         */
-        kFull_NPOTTextureType
-    };
-
-    /**
      * Used to control the level of antialiasing available for a rendertarget.
      * Anti-alias quality levels depend on the underlying API/GPU capabilities.
      */
@@ -173,7 +151,10 @@ public:
     void unimpl(const char[]);
 
     /**
-     * Creates a texture object
+     * Creates a texture object. If desc width or height is not a power of
+     * two but underlying API requires a power of two texture then srcData
+     * will be embedded in a power of two texture. The extra width and height
+     * is filled as though srcData were rendered clamped into the texture.
      *
      * @param desc        describes the texture to be created.
      * @param srcData     texel data to load texture. Begins with full-size
@@ -278,14 +259,25 @@ public:
     int minRenderTargetHeight() const  { return fMinRenderTargetHeight; }
 
     /**
-     * Retrieves the level of NPOT texture support. Regardless of support level
-     * NPOT textures can always be created, but internally they may be imbedded
-     * in a POT texture. An exception is paletted textures which must be
-     * specified as a POT when npotTextureSupport() is not Full.
+     * Returns true if NPOT textures can be created
      *
-     * @return    the level of NPOT texture support.
+     * @return    true if NPOT textures can be created
      */
-    NPOTTextureTypes npotTextureSupport() const { return fNPOTTextureSupport; }
+    bool npotTextureSupport() const { return fNPOTTextureSupport; }
+
+    /**
+     * Returns true if NPOT textures can be repeat/mirror tiled.
+     *
+     * @return    true if NPOT textures can be tiled
+     */
+    bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
+
+    /**
+     * Returns true if a NPOT texture can be a rendertarget
+     *
+     * @return    the true if NPOT texture/rendertarget can be created.
+     */
+    bool npotRenderTargetSupport() const { return fNPOTRenderTargetSupport; } 
 
     int maxTextureDimension() const { return fMaxTextureDimension; }
 
@@ -374,8 +366,10 @@ protected:
     // defaults to false, subclass can set true to support palleted textures
     bool f8bitPaletteSupport;
 
-    // defaults to false, subclass can set higher support level
-    NPOTTextureTypes fNPOTTextureSupport;
+    // set by subclass
+    bool fNPOTTextureSupport;
+    bool fNPOTTextureTileSupport;
+    bool fNPOTRenderTargetSupport;
 
     // True if only one stencil pass is required to implement the winding path
     // fill rule. Subclass responsible for setting this value.
