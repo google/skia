@@ -512,7 +512,10 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if 0 // not currently being used so don't compile,
+
 // can be used for positions or texture coordinates
+
 class SkRectFanSource {
 public:
     SkRectFanSource(const SkRect& rect) : fRect(rect) {}
@@ -574,6 +577,8 @@ private:
     const SkRect&   fRect;
     const SkMatrix& fMatrix;
 };
+
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -821,23 +826,16 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
 
     grPaint->setTexture(texture);
     grPaint->fTextureMatrix.setIdentity();
+    GrRect dstRect(0, 0, GrIntToScalar(srcRect.width()), GrIntToScalar(srcRect.height()));
+    GrRect paintRect(GrIntToScalar(srcRect.fLeft)   / texture->allocWidth(),
+                     GrIntToScalar(srcRect.fTop)    / texture->allocHeight(),
+                     GrIntToScalar(srcRect.fRight)  / texture->allocWidth(),
+                     GrIntToScalar(srcRect.fBottom) / texture->allocHeight());
 
-    SkRect paintRect;
-    paintRect.set(SkFixedToScalar((srcRect.fLeft << 16)  / texture->allocWidth()),
-                  SkFixedToScalar((srcRect.fTop << 16)   / texture->allocHeight()),
-                  SkFixedToScalar((srcRect.fRight << 16) / texture->allocWidth()),
-                  SkFixedToScalar((srcRect.fBottom << 16)/ texture->allocHeight()));
+    GrMatrix grMat;
+    SkGr::SkMatrix2GrMatrix(m, &grMat);
 
-    SkRect dstRect;
-    dstRect.set(SkIntToScalar(0),SkIntToScalar(0),
-                SkIntToScalar(srcRect.width()), SkIntToScalar(srcRect.height()));
-
-    SkRectFanSource texSrc(paintRect);
-    fContext->drawCustomVertices(*grPaint,
-                                 GrDrawTarget::kTriangleFan_PrimitiveType,
-                                 SkMatRectFanSource(dstRect, m),
-                                 &texSrc);
-
+    fContext->drawRectToRect(*grPaint, dstRect, paintRect, &grMat);
 }
 
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,

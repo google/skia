@@ -233,21 +233,40 @@ public:
 
     /**
      *  Draw the rect using a paint.
-     *  If strokeWidth < 0, then the rect is filled, else the rect is mitered
-     *  stroked based on strokeWidth. If strokeWidth == 0, then the stroke is
-     *  always a single pixel thick.
+     *  @param paint        describes how to color pixels.
+     *  @param strokeWidth  If strokeWidth < 0, then the rect is filled, else
+     *                      the rect is mitered stroked based on strokeWidth. If
+     *                      strokeWidth == 0, then the stroke is always a single 
+     *                      pixel thick.
+     *  @param matrix       Optional matrix applied to the rect. Applied before 
+     *                      context's matrix or the paint's matrix.
      *  The rects coords are used to access the paint (through texture matrix)
      */
-    void drawRect(const GrPaint& paint, const GrRect&, GrScalar strokeWidth = -1);
+    void drawRect(const GrPaint& paint, 
+                  const GrRect&, 
+                  GrScalar strokeWidth = -1,
+                  const GrMatrix* matrix = NULL);
 
     /**
      * Maps a rect of paint coordinates onto the a rect of destination
-     * coordinates. The srcRect is transformed by the paint's matrix and the
-     * dstRect is transformed by the context's matrix.
+     * coordinates. Each rect can optionally be transformed. The srcRect
+     * is stretched over the dstRect. The dstRect is transformed by the 
+     * context's matrix and the srcRect is transformed by the paint's matrix.
+     * Additional optional matrices can be provided by parameters.
+     *
+     * @param paint     describes how to color pixels.
+     * @param dstRect   the destination rect to draw.
+     * @param srcRect   rect of paint coordinates to be mapped onto dstRect
+     * @param dstMatrix Optional matrix to transform dstRect. Applied before
+     *                  context's matrix.
+     * @param srcMatrix Optional matrix to transform srcRect Applied before
+     *                  paint's matrix.
      */
     void drawRectToRect(const GrPaint& paint,
                         const GrRect& dstRect,
-                        const GrRect& srcRect);
+                        const GrRect& srcRect,
+                        const GrMatrix* dstMatrix = NULL,
+                        const GrMatrix* srcMatrix = NULL);
 
     /**
      * Path filling rules

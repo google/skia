@@ -21,6 +21,7 @@
 #include "GrTextureCache.h"
 #include "GrClipIterator.h"
 #include "GrIndexBuffer.h"
+#include "GrVertexBuffer.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +58,8 @@ extern void gr_run_unittests();
 
 GrGpu::GrGpu() : f8bitPaletteSupport(false),
                  fNPOTTextureSupport(kNone_NPOTTextureType),
-                 fQuadIndexBuffer(NULL) {
+                 fQuadIndexBuffer(NULL),
+                 fUnitSquareVertexBuffer(NULL) {
 #if GR_DEBUG
 //    gr_run_unittests();
 #endif
@@ -65,9 +67,8 @@ GrGpu::GrGpu() : f8bitPaletteSupport(false),
 }
 
 GrGpu::~GrGpu() {
-    if (NULL != fQuadIndexBuffer) {
-        fQuadIndexBuffer->unref();
-    }
+    GrSafeUnref(fQuadIndexBuffer);
+    GrSafeUnref(fUnitSquareVertexBuffer);
 }
 
 void GrGpu::resetContext() {
@@ -155,7 +156,7 @@ const GrIndexBuffer* GrGpu::quadIndexBuffer() const {
                 if (!fQuadIndexBuffer->updateData(indices, SIZE)) {
                     fQuadIndexBuffer->unref();
                     fQuadIndexBuffer = NULL;
-                    GrAssert(!"Can't get indices into buffer!");
+                    GrCrash("Can't get indices into buffer!");
                 }
                 GrFree(indices);
             }
@@ -163,6 +164,31 @@ const GrIndexBuffer* GrGpu::quadIndexBuffer() const {
     }
 
     return fQuadIndexBuffer;
+}
+
+const GrVertexBuffer* GrGpu::unitSquareVertexBuffer() const {
+    if (NULL == fUnitSquareVertexBuffer) {
+
+        static const GrPoint DATA[] = {
+            GrPoint(0,         0),
+            GrPoint(GR_Scalar1,0),
+            GrPoint(GR_Scalar1,GR_Scalar1),
+            GrPoint(0,         GR_Scalar1)
+        };
+        static const size_t SIZE = sizeof(DATA);
+
+        GrGpu* me = const_cast<GrGpu*>(this);
+        fUnitSquareVertexBuffer = me->createVertexBuffer(SIZE, false);
+        if (NULL != fUnitSquareVertexBuffer) {
+            if (!fUnitSquareVertexBuffer->updateData(DATA, SIZE)) {
+                fUnitSquareVertexBuffer->unref();
+                fUnitSquareVertexBuffer = NULL;
+                GrCrash("Can't get vertices into buffer!");
+            }
+        }
+    }
+
+    return fUnitSquareVertexBuffer;
 }
 
 int GrGpu::maxQuadsInIndexBuffer() const {

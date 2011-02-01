@@ -55,7 +55,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\gpu\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -73,7 +73,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\gpu\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
@@ -245,7 +245,6 @@
     <ClCompile Include="..\..\samplecode\SampleCamera.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCircle.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCull.cpp" />
-    <ClCompile Include="..\..\samplecode\SampleDecode.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDither.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDitherBitmap.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDrawLooper.cpp" />
@@ -330,6 +329,7 @@
     <ClCompile Include="..\..\src\core\SkEdgeBuilder.cpp" />
     <ClCompile Include="..\..\src\core\SkEdgeClipper.cpp" />
     <ClCompile Include="..\..\src\core\SkFilterProc.cpp" />
+    <ClCompile Include="..\..\src\core\SkFlate.cpp" />
     <ClCompile Include="..\..\src\core\SkFlattenable.cpp" />
     <ClCompile Include="..\..\src\core\SkFloat.cpp" />
     <ClCompile Include="..\..\src\core\SkFloatBits.cpp" />
@@ -363,6 +363,7 @@
     <ClCompile Include="..\..\src\core\SkRasterizer.cpp" />
     <ClCompile Include="..\..\src\core\SkRect.cpp" />
     <ClCompile Include="..\..\src\core\SkRefCnt.cpp" />
+    <ClCompile Include="..\..\src\core\SkRefDict.cpp" />
     <ClCompile Include="..\..\src\core\SkRegion.cpp" />
     <ClCompile Include="..\..\src\core\SkRegion_path.cpp" />
     <ClCompile Include="..\..\src\core\SkScalar.cpp" />
@@ -425,6 +426,16 @@
     <ClCompile Include="..\..\src\opts\SkBitmapProcState_opts_SSE2.cpp" />
     <ClCompile Include="..\..\src\opts\SkBlitRow_opts_SSE2.cpp" />
     <ClCompile Include="..\..\src\opts\SkUtils_opts_SSE2.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFCatalog.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFDevice.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFDocument.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFFont.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFFormXObject.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFGraphicState.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFImage.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFPage.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFStream.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFTypes.cpp" />
     <ClCompile Include="..\..\src\ports\SkDebug_stdio.cpp" />
     <ClCompile Include="..\..\src\ports\SkFontHost_win.cpp" />
     <ClCompile Include="..\..\src\ports\SkGlobals_global.cpp" />

@@ -358,6 +358,16 @@ void GrDrawTarget::setTextureMatrix(int stage, const GrMatrix& m) {
     fCurrDrawState.fTextureMatrices[stage] = m;
 }
 
+void GrDrawTarget::concatTextureMatrix(int stage, const GrMatrix& m) {
+    GrAssert(stage >= 0 && stage < kNumStages);
+    fCurrDrawState.fTextureMatrices[stage].preConcat(m);
+}
+
+const GrMatrix& GrDrawTarget::getTextureMatrix(int stage) const {
+    GrAssert(stage >= 0 && stage < kNumStages);
+    return fCurrDrawState.fTextureMatrices[stage];
+}
+
 void GrDrawTarget::setStencilPass(StencilPass pass) {
     fCurrDrawState.fStencilPass = pass;
 }

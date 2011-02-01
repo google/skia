@@ -24,6 +24,7 @@
 #include "GrIndexBuffer.h"
 
 #define DEFER_TEXT_RENDERING 1
+#define USE_STATIC_RECT_VB   0
 
 static const size_t MAX_TEXTURE_CACHE_COUNT = 128;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 8 * 1024 * 1024;
@@ -332,25 +333,31 @@ static void setStrokeRectStrip(GrPoint verts[10], const GrRect& rect,
 
 void GrContext::drawRect(const GrPaint& paint,
                          const GrRect& rect,
-                         GrScalar width) {
+                         GrScalar width,
+                         const GrMatrix* matrix) {
 
-    GrVertexLayout layout = (NULL != paint.getTexture()) ?
+    bool textured = NULL != paint.getTexture();
+    GrVertexLayout layout = (textured) ?
                             GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
                             0;
 
-    static const int worstCaseVertCount = 10;
-    GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, worstCaseVertCount, 0);
-    if (!geo.succeeded()) {
-        return;
-    }
-
     this->prepareToDraw(paint);
 
-    int vertCount;
-    GrDrawTarget::PrimitiveType primType;
-    GrPoint* vertex = geo.positions();
-
     if (width >= 0) {
+        // TODO: consider making static vertex buffers for these cases.
+        // Hairline could be done by just adding closing vertex to 
+        // unitSquareVertexBuffer()
+        static const int worstCaseVertCount = 10;
+        GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, worstCaseVertCount, 0);
+
+        if (!geo.succeeded()) {
+            return;
+        }
+
+        GrDrawTarget::PrimitiveType primType;
+        int vertCount;
+        GrPoint* vertex = geo.positions();
+
         if (width > 0) {
             vertCount = 10;
             primType = GrDrawTarget::kTriangleStrip_PrimitiveType;
@@ -365,44 +372,111 @@ void GrContext::drawRect(const GrPaint& paint,
             vertex[3].set(rect.fLeft, rect.fBottom);
             vertex[4].set(rect.fLeft, rect.fTop);
         }
-    } else {
-        vertCount = 4;
-        primType = GrDrawTarget::kTriangleFan_PrimitiveType;
-        vertex->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
-    }
 
-    fGpu->drawNonIndexed(primType, 0, vertCount);
+        GrDrawTarget::AutoViewMatrixRestore avmr;
+        if (NULL != matrix) {
+            avmr.set(fGpu);
+            fGpu->concatViewMatrix(*matrix);
+            fGpu->concatTextureMatrix(0, *matrix);
+        }
+
+        fGpu->drawNonIndexed(primType, 0, vertCount);
+    } else {
+        #if USE_STATIC_RECT_VB
+            fGpu->setVertexSourceToBuffer(fGpu->unitSquareVertexBuffer(), layout);
+            GrDrawTarget::AutoViewMatrixRestore avmr(fGpu);
+            GrMatrix m;
+            m.setAll(rect.width(), 0,             rect.fLeft,
+                     0,            rect.height(), rect.fTop,
+                     0,            0,             GrMatrix::I()[8]);
+            
+            if (NULL != matrix) {
+                m.postConcat(*matrix);
+            }
+
+            fGpu->concatViewMatrix(m);
+        
+            if (textured) {
+                fGpu->concatTextureMatrix(0, m);
+            }
+        #else
+            GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, 4, 0);
+            GrPoint* vertex = geo.positions();
+            vertex->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+
+            GrDrawTarget::AutoViewMatrixRestore avmr;
+            if (NULL != matrix) {
+                avmr.set(fGpu);
+                fGpu->concatViewMatrix(*matrix);
+                fGpu->concatTextureMatrix(0, *matrix);
+            }
+        #endif
+
+        fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
+    }
 }
 
 void GrContext::drawRectToRect(const GrPaint& paint,
                                const GrRect& dstRect,
-                               const GrRect& srcRect) {
+                               const GrRect& srcRect,
+                               const GrMatrix* dstMatrix,
+                               const GrMatrix* srcMatrix) {
 
     if (NULL == paint.getTexture()) {
-        drawRect(paint, dstRect);
-        return;
-    }
-
-    GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
-    static const int VCOUNT = 4;
-
-    GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, VCOUNT, 0);
-    if (!geo.succeeded()) {
+        drawRect(paint, dstRect, -1, dstMatrix);
         return;
     }
 
     this->prepareToDraw(paint);
 
-    GrPoint* vertex = (GrPoint*) geo.vertices();
+#if USE_STATIC_RECT_VB
+    GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
+    GrDrawTarget::AutoViewMatrixRestore avmr(fGpu);
 
-    vertex[0].setRectFan(dstRect.fLeft, dstRect.fTop,
-                         dstRect.fRight, dstRect.fBottom,
-                         2 * sizeof(GrPoint));
-    vertex[1].setRectFan(srcRect.fLeft, srcRect.fTop,
-                         srcRect.fRight, srcRect.fBottom,
-                         2 * sizeof(GrPoint));
+    GrMatrix m;
 
-    fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, VCOUNT);
+    m.setAll(dstRect.width(), 0,                dstRect.fLeft,
+             0,               dstRect.height(), dstRect.fTop,
+             0,               0,                GrMatrix::I()[8]);
+    if (NULL != dstMatrix) {
+        m.postConcat(*dstMatrix);
+    }
+    fGpu->concatViewMatrix(m);
+
+    m.setAll(srcRect.width(), 0,                srcRect.fLeft,
+             0,               srcRect.height(), srcRect.fTop,
+             0,               0,                GrMatrix::I()[8]);
+    if (NULL != srcMatrix) {
+        m.postConcat(*srcMatrix);
+    }
+    fGpu->concatTextureMatrix(0, m);
+
+    fGpu->setVertexSourceToBuffer(fGpu->unitSquareVertexBuffer(), layout);
+#else
+    GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
+
+    GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, 4, 0);
+    GrPoint* pos = geo.positions();
+    GrPoint* tex = pos + 1;
+    static const size_t stride = 2 * sizeof(GrPoint);
+    pos[0].setRectFan(dstRect.fLeft, dstRect.fTop, 
+                      dstRect.fRight, dstRect.fBottom,
+                      stride);
+    tex[0].setRectFan(srcRect.fLeft, srcRect.fTop, 
+                      srcRect.fRight, srcRect.fBottom,
+                      stride);
+
+    GrDrawTarget::AutoViewMatrixRestore avmr;
+    if (NULL != dstMatrix) {
+        avmr.set(fGpu);
+        fGpu->concatViewMatrix(*dstMatrix);
+    }
+    if (NULL != srcMatrix) {
+        fGpu->concatTextureMatrix(0, *srcMatrix);
+    }
+
+#endif
+    fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
 }
 
 void GrContext::drawVertices(const GrPaint& paint,

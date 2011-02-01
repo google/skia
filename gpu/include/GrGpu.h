@@ -321,6 +321,11 @@ public:
     int maxQuadsInIndexBuffer() const;
 
     /**
+     * Returns a vertex buffer with four position-only vertices [(0,0), (1,0), (1,1), (0,1)]
+     */
+    const GrVertexBuffer* unitSquareVertexBuffer() const;
+
+    /**
      * Ensures that the current render target is actually set in the
      * underlying 3D API. Used when client wants to use 3D API to directly
      * render to the RT.
@@ -425,6 +430,9 @@ protected:
 private:
     mutable GrIndexBuffer* fQuadIndexBuffer; // mutable so it can be
                                              // created on-demand
+
+    mutable GrVertexBuffer* fUnitSquareVertexBuffer; // mutable so it can be
+                                                     // created on-demand
 
     static const int MAX_VERTEX_SIZE = GR_CT_MAX(2*sizeof(GrPoint) + sizeof(GrColor),
                                                  2*sizeof(GrGpuTextVertex));

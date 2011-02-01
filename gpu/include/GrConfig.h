@@ -234,6 +234,12 @@ extern void GrPrintf(const char format[], ...);
 #define GrAlwaysAssert(COND) GR_ALWAYSASSERT(COND)
 
 /**
+ * Crash from unrecoverable condition, optionally with a message.
+ */
+inline void GrCrash() { GrAlwaysAssert(false); }
+inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
+
+/**
  *  GR_DEBUGCODE compiles the code X in debug builds only 
  */
 #if !defined(GR_DEBUGCODE)
