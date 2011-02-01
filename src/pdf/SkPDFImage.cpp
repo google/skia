@@ -228,8 +228,8 @@ SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
     rgbName->unref();  // SkRefPtr and new both took a reference.
     result->append(rgbName.get());
 
-    rgbName->unref();  // SkRefPtr and new both took a reference.
     SkRefPtr<SkPDFInt> countValue = new SkPDFInt(table->count() - 1);
+    countValue->unref();  // SkRefPtr and new both took a reference.
     result->append(countValue.get());
 
     // Potentially, this could be represented in fewer bytes with a stream.
