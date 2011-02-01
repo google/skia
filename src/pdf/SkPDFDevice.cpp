@@ -36,7 +36,7 @@
     do {                                                           \
         if (condition) {                                           \
             fprintf(stderr, "NOT_IMPLEMENTED: " #condition "\n");  \
-            SkASSERT(!assert);                                     \
+            SkDEBUGCODE(SkASSERT(!assert);)                        \
         }                                                          \
     } while(0)
 
