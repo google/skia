@@ -238,12 +238,31 @@ public:
      * requirements. The texture matrix is applied both when the texture
      * coordinates are explicit and when vertex positions are used as texture
      * coordinates. In the latter case the texture matrix is applied to the
-     * pre-modelview position values.
+     * pre-view-matrix position values.
      *
      * @param stage the stage for which to set a matrix.
      * @param m     the matrix used to transform the texture coordinates.
      */
     void setTextureMatrix(int stage, const GrMatrix& m);
+
+    /**
+     *  Multiplies the current texture matrix for a stage by a matrix
+     *
+     *  After this call T' = T*m where T is the old tex matrix,
+     *  m is the parameter to this function, and T' is the new tex matrix.
+     *  (We consider positions to be column vectors so tex cood vector t is
+     *  transformed by matrix X as t' = X*t.)
+     *
+     *  @param m the matrix used to modify the texture matrix matrix.
+     */
+    void concatTextureMatrix(int stage, const GrMatrix& m);
+
+    /**
+     * Retrieves the current texture matrix for a stage
+     * @param stage     index of stage
+     * @return the stage's current texture matrix.
+     */
+    const GrMatrix& getTextureMatrix(int stage) const;
 
     /**
      * Sets the matrix applied to veretx positions.
@@ -264,9 +283,26 @@ public:
      *  (We consider positions to be column vectors so position vector p is
      *  transformed by matrix X as p' = X*p.)
      *
-     *  @param m the matrix used to modify the modelview matrix.
+     *  @param m the matrix used to modify the view matrix.
      */
     void concatViewMatrix(const GrMatrix& m);
+
+    /**
+     * Retrieves the current view matrix
+     * @return the current view matrix.
+     */
+    const GrMatrix& getViewMatrix() const;
+
+    /**
+     *  Retrieves the inverse of the current view matrix.
+     *
+     *  If the current view matrix is invertible, return true, and if matrix
+     *  is non-null, copy the inverse into it. If the current view matrix is
+     *  non-invertible, return false and ignore the matrix parameter.
+     *
+     * @param matrix if not null, will receive a copy of the current inverse.
+     */
+    bool getViewInverse(GrMatrix* matrix) const;
 
     /**
      *  Sets color for next draw to a premultiplied-alpha color.
@@ -330,23 +366,6 @@ public:
      * @param dstCoef coeffecient applied to the dst color.
      */
     void setBlendFunc(BlendCoeff srcCoef, BlendCoeff dstCoef);
-
-    /**
-     * Retrieves the current view matrix
-     * return the current view matrix.
-     */
-    const GrMatrix& getViewMatrix() const;
-
-    /**
-     *  Retrieves the inverse of the current view matrix.
-     *
-     *  If the current view matrix is invertible, return true, and if matrix
-     *  is non-null, copy the inverse into it. If the current view matrix is
-     *  non-invertible, return false and ignore the matrix parameter.
-     *
-     * @param matrix if not null, will receive a copy of the current inverse.
-     */
-    bool getViewInverse(GrMatrix* matrix) const;
 
     /**
      * Used to save and restore the GrGpu's drawing state
@@ -609,6 +628,39 @@ public:
     private:
         GrDrawTarget*       fDrawTarget;
         SavedDrawState      fDrawState;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    
+    class AutoViewMatrixRestore : ::GrNoncopyable {
+    public:
+        AutoViewMatrixRestore() {
+            fDrawTarget = NULL;
+        }
+
+        AutoViewMatrixRestore(GrDrawTarget* target) 
+            : fDrawTarget(target), fMatrix(fDrawTarget->getViewMatrix()) {
+            GrAssert(NULL != target);
+        }
+
+        void set(GrDrawTarget* target) {
+            GrAssert(NULL != target);
+            if (NULL != fDrawTarget) {
+                fDrawTarget->setViewMatrix(fMatrix);
+            }
+            fDrawTarget = target;
+            fMatrix = target->getViewMatrix();
+        }
+
+        ~AutoViewMatrixRestore() {
+            if (NULL != fDrawTarget) {
+                fDrawTarget->setViewMatrix(fMatrix);
+            }
+        }
+
+    private:
+        GrDrawTarget*       fDrawTarget;
+        GrMatrix            fMatrix;
     };
 
     ///////////////////////////////////////////////////////////////////////////
