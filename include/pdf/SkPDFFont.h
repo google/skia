@@ -22,7 +22,7 @@
 #include "SkThread.h"
 
 class SkPaint;
-class SkPDFTypefaceInfo;
+class SkAdvancedTypefaceMetrics;
 
 /** \class SkPDFFont
     A PDF Object class representing a font.  The font may have resources
@@ -88,7 +88,7 @@ private:
     uint16_t fLastGlyphID;
     // The font info is only kept around after construction for large
     // Type1 (non CID) fonts that need multiple "fonts" to access all glyphs.
-    SkRefPtr<SkPDFTypefaceInfo> fFontInfo;
+    SkRefPtr<SkAdvancedTypefaceMetrics> fFontInfo;
     SkTDArray<SkPDFObject*> fResources;
     SkRefPtr<SkPDFDict> fDescriptor;
 
@@ -120,14 +120,14 @@ private:
      *                        for this font, pass it in here, otherwise pass
      *                        NULL.
      */
-    SkPDFFont(class SkPDFTypefaceInfo* fontInfo, uint32_t fontID,
+    SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo, uint32_t fontID,
               uint16_t glyphID, bool descendantFont, SkPDFDict* fontDescriptor);
 
     void populateType0Font();
     void populateCIDFont();
     bool populateType1Font(uint16_t firstGlyphID, uint16_t lastGlyphID);
     void populateType3Font();
-    bool addFontDescriptor(int defaultWidth);
+    bool addFontDescriptor(int16_t defaultWidth);
 
     static bool find(uint32_t fontID, uint16_t glyphID, int* index);
 };

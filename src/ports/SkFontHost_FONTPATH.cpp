@@ -270,7 +270,8 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 // static
-SkPDFTypefaceInfo* SkFontHost::GetPDFTypefaceInfo(uint32_t fontID) {
+SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
+        uint32_t fontID, bool perGlyphInfo) {
     sk_throw();  // not implemented
     return NULL;
 }
