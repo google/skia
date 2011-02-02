@@ -59,6 +59,12 @@
  */
 //#define GR_STATIC_RECT_VB 1
 
+/*
+ * This causes more aggressive shader optimization. May hurt performance if
+ * switching shaders is expensive.
+ */
+//#define GR_AGGRESSIVE_SHADER_OPTS 1
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  *  temporary flags (may go away soon)

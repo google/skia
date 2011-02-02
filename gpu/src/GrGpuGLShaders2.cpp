@@ -27,8 +27,6 @@
 
 #define ATTRIBUTE_MATRIX        0
 
-#define SKIP_COLOR_MODULATE_OPT 0
-
 #define PRINT_SHADERS           0
 
 #define SKIP_CACHE_CHECK    true
@@ -985,22 +983,22 @@ void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) 
 
     // Must initialize all fields or cache will have false negatives!
     desc->fVertexLayout = fGeometrySrc.fVertexLayout;
+    
+    desc->fOptFlags = 0;
+    if (kPoints_PrimitiveType != primType) {
+        desc->fOptFlags |= ProgramDesc::kNotPoints_OptFlagBit;
+    }
+#if GR_AGGRESSIVE_SHADER_OPTS
+    if (!(desc->fVertexLayout & kColor_VertexLayoutBit) &&
+        (0xffffffff == fCurrDrawState.fColor)) {
+        desc->fOptFlags |= ProgramDesc::kVertexColorAllOnes_OptFlagBit;
+    }
+#endif
+
     for (int s = 0; s < kNumStages; ++s) {
         StageDesc& stage = desc->fStages[s];
 
         stage.fEnabled = VertexUsesStage(s, fGeometrySrc.fVertexLayout);
-
-        if (primType != kPoints_PrimitiveType) {
-            desc->fOptFlags = ProgramDesc::kNotPoints_OptFlagBit;
-        } else {
-            desc->fOptFlags = 0;
-        }
-    #if SKIP_COLOR_MODULATE_OPT
-        if (!(desc->fVertexLayout & kColor_VertexLayoutBit) &&
-            (0xffffffff == fCurrDrawState.fColor)) {
-            desc->fOptFlags |= ProgramDesc::kVertexColorAllOnes_OptFlagBit;
-        }
-    #endif
 
         if (stage.fEnabled) {
             GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
