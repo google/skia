@@ -24,7 +24,6 @@
 #include "GrIndexBuffer.h"
 
 #define DEFER_TEXT_RENDERING 1
-#define USE_STATIC_RECT_VB   0
 
 static const size_t MAX_TEXTURE_CACHE_COUNT = 128;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 8 * 1024 * 1024;
@@ -381,7 +380,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
         fGpu->drawNonIndexed(primType, 0, vertCount);
     } else {
-        #if USE_STATIC_RECT_VB
+        #if GR_STATIC_RECT_VB
             fGpu->setVertexSourceToBuffer(fGpu->unitSquareVertexBuffer(), layout);
             GrDrawTarget::AutoViewMatrixRestore avmr(fGpu);
             GrMatrix m;
@@ -428,7 +427,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 
     this->prepareToDraw(paint);
 
-#if USE_STATIC_RECT_VB
+#if GR_STATIC_RECT_VB
     GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
     GrDrawTarget::AutoViewMatrixRestore avmr(fGpu);
 
