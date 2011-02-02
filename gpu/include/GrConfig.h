@@ -305,8 +305,23 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_GL_LOG_CALLS 0 
 #endif
 
+/**
+ *  GR_STATIC_RECT_VB controls whether rects are drawn by issuing a vertex
+ *  for each corner or using a static vb that is positioned by modifying the
+ *  view / texture matrix.
+ */
 #if !defined(GR_STATIC_RECT_VB)
     #define GR_STATIC_RECT_VB 0
+#endif
+
+/**
+ *  GR_AGGRESSIVE_SHADER_OPTS controls how aggressively shaders are optimized
+ *  for special cases. On systems where program changes are expensive this
+ *  may not be advantageous. Consecutive draws may no longer use the same 
+ *  program.
+ */
+#if !defined(GR_AGGRESSIVE_SHADER_OPTS)
+    #define GR_AGGRESSIVE_SHADER_OPTS 0
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
