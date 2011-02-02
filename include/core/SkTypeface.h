@@ -20,7 +20,7 @@
 #include "SkRefCnt.h"
 
 class SkStream;
-class SkPDFTypefaceInfo;
+class SkAdvancedTypefaceMetrics;
 class SkWStream;
 
 /** \class SkTypeface
@@ -131,10 +131,13 @@ public:
      */
     static SkTypeface* Deserialize(SkStream*);
 
-    /** Retrieve information about the typeface needed for inclusion in a
-        PDF output device.
+    /** Retrieve detailed typeface metrics.  Used by the PDF backend.
+        @param perGlyphInfo Indicate if the glyph specific information (advances
+                            and names) should be populated.
+        @return The returned object has already been referenced.
      */
-    SkPDFTypefaceInfo* getPDFTypefaceInfo() const;
+    SkAdvancedTypefaceMetrics* getAdvancedTypefaceMetrics(
+            bool perGlyphInfo) const;
 
 protected:
     /** uniqueID must be unique (please!) and non-zero

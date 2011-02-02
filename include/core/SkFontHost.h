@@ -176,10 +176,15 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    /** Retrieve information about the typeface needed for inclusion in a
-        PDF output device. Returns NULL if it is unable to find the font.
+    /** Retrieve detailed typeface metrics.  Used by the PDF backend.
+        @param perGlyphInfo Indicate if the glyph specific information.
+        @param perGlyphInfo Indicate if the glyph specific information (advances
+                            and names) should be populated.
+        @return The returned object has already been referenced.  NULL is
+                returned if the font is not found.
      */
-    static SkPDFTypefaceInfo* GetPDFTypefaceInfo(SkFontID);
+    static SkAdvancedTypefaceMetrics* GetAdvancedTypefaceMetrics(
+            SkFontID fontID, bool perGlyphInfo);
 
     /** Return the number of tables in the font
      */

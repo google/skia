@@ -75,6 +75,7 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
     return SkFontHost::Deserialize(stream);
 }
 
-SkPDFTypefaceInfo* SkTypeface::getPDFTypefaceInfo() const {
-    return SkFontHost::GetPDFTypefaceInfo(fUniqueID);
+SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
+        bool perGlyphInfo) const {
+    return SkFontHost::GetAdvancedTypefaceMetrics(fUniqueID, perGlyphInfo);
 }
