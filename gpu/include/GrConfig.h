@@ -305,6 +305,10 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_GL_LOG_CALLS 0 
 #endif
 
+#if !defined(GR_STATIC_RECT_VB)
+    #define GR_STATIC_RECT_VB 0
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 // tail section:
 //
