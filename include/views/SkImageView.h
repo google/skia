@@ -22,7 +22,7 @@
 
 class SkAnimator;
 class SkBitmap;
-struct SkMatrix;
+class SkMatrix;
 
 class SkImageView : public SkView {
 public:
