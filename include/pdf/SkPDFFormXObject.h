@@ -41,9 +41,8 @@ public:
     /** Create a PDF form XObject. Entries for the dictionary entries are
      *  automatically added.
      *  @param device      The set of graphical elements on this form.
-     *  @param matrix      The mapping from user space to form space.
      */
-    SkPDFFormXObject(SkPDFDevice* device, const SkMatrix& matrix);
+    explicit SkPDFFormXObject(SkPDFDevice* device);
     virtual ~SkPDFFormXObject();
 
     // The SkPDFObject interface.
