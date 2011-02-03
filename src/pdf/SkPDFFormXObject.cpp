@@ -22,7 +22,7 @@
 #include "SkStream.h"
 #include "SkTypes.h"
 
-SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device, const SkMatrix& matrix)
+SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device)
         : fContent(device->content(false)),
           fDevice(device) {
     SkMemoryStream* stream_data = new SkMemoryStream(fContent.c_str(),
@@ -35,17 +35,6 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device, const SkMatrix& matrix)
     insert("Subtype", new SkPDFName("Form"))->unref();
     insert("BBox", device->getMediaBox().get());
     insert("Resources", device->getResourceDict().get());
-
-    if (!matrix.isIdentity()) {
-        SkRefPtr<SkPDFArray> transformArray = new SkPDFArray();
-        transformArray->unref();  // SkRefPtr and new both took a reference.
-        transformArray->reserve(6);
-        SkScalar transform[6];
-        SkAssertResult(matrix.pdfTransform(transform));
-        for (size_t i = 0; i < SK_ARRAY_COUNT(transform); i++)
-            transformArray->append(new SkPDFScalar(transform[i]))->unref();
-        insert("Matrix", transformArray.get());
-    }
 }
 
 SkPDFFormXObject::~SkPDFFormXObject() {}

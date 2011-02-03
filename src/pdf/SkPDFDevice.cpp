@@ -440,18 +440,21 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
         SkDevice::drawDevice(d, device, x, y, paint);
         return;
     }
-
     // Assume that a vector capable device means that it's a PDF Device.
     // TODO(vandebo) handle the paint (alpha and compositing mode).
-    SkMatrix matrix;
-    matrix.setTranslate(x, y);
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
 
-    SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice, matrix);
+    SkMatrix matrix;
+    matrix.setTranslate(x, y);
+    SkMatrix curTransform = setTransform(matrix);
+
+    SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice);
     fXObjectResources.push(xobject);  // Transfer reference.
     fContent.append("/X");
     fContent.appendS32(fXObjectResources.count() - 1);
     fContent.append(" Do\n");
+
+    setTransform(curTransform);
 }
 
 const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
