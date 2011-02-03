@@ -157,38 +157,29 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
 	return true;
 }
 
-static void write_pdf(GM* gm, const char writePath[]) {
-#ifdef SK_SUPPORT_PDF
-	SkISize size = gm->getISize();
-	SkPDFDevice* dev = new SkPDFDevice(size.width(), size.height());
-	SkAutoUnref aur(dev);
-
-	{
-		SkCanvas c(dev);
-		gm->draw(&c);
-	}
-
-	SkDynamicMemoryWStream output;
-	SkPDFDocument doc;
-	doc.appendPage(dev);
-	doc.emitPDF(&output);
-
-	SkString shortName(gm->shortName());
-	SkString path = make_filename(writePath, shortName, "pdf");
-	SkFILEWStream stream(path.c_str());
-	stream.write(output.getStream(), output.getOffset());
-#endif
+static bool write_pdf(const SkString& path, const SkDynamicMemoryWStream& pdf) {
+    SkFILEWStream stream(path.c_str());
+    return stream.write(pdf.getStream(), pdf.getOffset());
 }
+
+enum Backend {
+  kRaster_Backend,
+  kGPU_Backend,
+  kPDF_Backend,
+};
 
 static const struct {
 	SkBitmap::Config	fConfig;
-	bool				fUseGPU;
+    Backend             fBackend;
 	const char*			fName;
 } gRec[] = {
-	{ SkBitmap::kARGB_8888_Config,	false,	"8888" },
-	{ SkBitmap::kARGB_4444_Config,	false,	"4444" },
-	{ SkBitmap::kRGB_565_Config,	false,	"565" },
-	{ SkBitmap::kARGB_8888_Config,  true,	"gpu" },
+    { SkBitmap::kARGB_8888_Config, kRaster_Backend, "8888" },
+    { SkBitmap::kARGB_4444_Config, kRaster_Backend, "4444" },
+    { SkBitmap::kRGB_565_Config,   kRaster_Backend, "565" },
+    { SkBitmap::kARGB_8888_Config, kGPU_Backend,    "gpu" },
+#ifdef SK_SUPPORT_PDF
+    { SkBitmap::kARGB_8888_Config, kPDF_Backend,    "pdf" },
+#endif
 };
 
 int main (int argc, char * const argv[]) {
@@ -240,34 +231,63 @@ int main (int argc, char * const argv[]) {
                  size.width(), size.height());
 
 		SkBitmap bitmap;
+        SkDynamicMemoryWStream pdf;
 		for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
-			bitmap.setConfig(gRec[i].fConfig, size.width(), size.height());
-			bitmap.allocPixels();
-			bitmap.eraseColor(0);
-			SkCanvas canvas(bitmap);
+            if (gRec[i].fBackend == kRaster_Backend ||
+                    gRec[i].fBackend == kGPU_Backend) {
+                bitmap.setConfig(gRec[i].fConfig, size.width(), size.height());
+                bitmap.allocPixels();
+                bitmap.eraseColor(0);
+                SkCanvas canvas(bitmap);
 
-            if (gRec[i].fUseGPU) {
-                if (NULL == context) {
-                    continue;
+                if (gRec[i].fBackend == kRaster_Backend) {
+                    gm->draw(&canvas);
+                } else {  // GPU
+                    if (NULL == context) {
+                        continue;
+                    }
+                    SkGpuCanvas gc(context,
+                                   SkGpuDevice::Current3DApiRenderTarget());
+                    gc.setDevice(gc.createDevice(bitmap.config(),
+                                                 bitmap.width(),
+                                                 bitmap.height(),
+                                                 bitmap.isOpaque(),
+                                                 false))->unref();
+                    gm->draw(&gc);
+                    gc.readPixels(&bitmap); // overwrite our previous allocation
                 }
-                SkGpuCanvas gc(context, SkGpuDevice::Current3DApiRenderTarget());
-                gc.setDevice(gc.createDevice(bitmap.config(), bitmap.width(), bitmap.height(),
-                                             bitmap.isOpaque(), false))->unref();
-                gm->draw(&gc);
-                gc.readPixels(&bitmap); // overwrite our previous allocation
-            } else {
-                gm->draw(&canvas);
+            }
+            // TODO: Figure out a way to compare PDFs.
+            if (gRec[i].fBackend == kPDF_Backend && writePath) {
+#ifdef SK_SUPPORT_PDF
+                SkISize size = gm->getISize();
+                SkPDFDevice* dev = new SkPDFDevice(size.width(), size.height());
+                SkAutoUnref aur(dev);
+
+                SkCanvas c(dev);
+                gm->draw(&c);
+
+                SkPDFDocument doc;
+                doc.appendPage(dev);
+                doc.emitPDF(&pdf);
+#endif
             }
             SkString name = make_name(gm->shortName(), gRec[i].fName);
 
             if (writePath) {
-                SkString path = make_filename(writePath, name, "png");
-                bool success = write_bitmap(path, bitmap);
-                if (!success) {
-                    fprintf(stderr, "FAILED to write %s\n", path.c_str());
+                SkString path;
+                bool success;
+                if (gRec[i].fBackend != kPDF_Backend) {
+                    path = make_filename(writePath, name, "png");
+                    success = write_bitmap(path, bitmap);
+                } else {
+                    path = make_filename(writePath, name, "pdf");
+                    success = write_pdf(path, pdf);
                 }
-				write_pdf(gm, writePath);
-            } else if (readPath) {
+                if (!success)
+                    fprintf(stderr, "FAILED to write %s\n", path.c_str());
+            // TODO: Figure out a way to compare PDFs.
+            } else if (readPath && gRec[i].fBackend != kPDF_Backend) {
                 SkString path = make_filename(readPath, name, "png");
                 SkBitmap orig;
                 bool success = SkImageDecoder::DecodeFile(path.c_str(), &orig,
