@@ -449,9 +449,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 
     bool cid = false;
     const char* fontType = FT_Get_X11_Font_Format(face);
-    if (!canEmbed(face)) {
-        info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
-    } else if (strcmp(fontType, "Type 1") == 0) {
+    if (strcmp(fontType, "Type 1") == 0) {
         info->fType = SkAdvancedTypefaceMetrics::kType1_Font;
     } else if (strcmp(fontType, "CID Type 1") == 0) {
         info->fType = SkAdvancedTypefaceMetrics::kType1CID_Font;
@@ -466,12 +464,6 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
                                                       ft_sfnt_head)) != NULL) {
             info->fEmSize = ttHeader->Units_Per_EM;
         }
-    }
-
-    if (info->fType == SkAdvancedTypefaceMetrics::kOther_Font ||
-            info->fType == SkAdvancedTypefaceMetrics::kNotEmbeddable_Font ||
-            !FT_IS_SCALABLE(face)) {
-        perGlyphInfo = false;
     }
 
     SkASSERT(!FT_HAS_VERTICAL(face));
@@ -550,7 +542,8 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
                                     face->bbox.xMax, face->bbox.yMin);
 
-    if (perGlyphInfo) {
+    if (perGlyphInfo && canEmbed(face) && FT_IS_SCALABLE(face) &&
+            info->fType != SkAdvancedTypefaceMetrics::kOther_Font) {
         if (FT_IS_FIXED_WIDTH(face)) {
             appendRange(&info->fGlyphWidths, 0);
             int16_t advance = face->max_advance_width;
@@ -591,6 +584,9 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
             }
         }
     }
+
+    if (!canEmbed(face))
+        info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
 
     unref_ft_face(face);
     return info;
