@@ -15,6 +15,7 @@
  */
 
 #include "GrGLConfig.h"
+#include "GrTypes.h"
 #include <stdio.h>
 
 bool has_gl_extension(const char* ext) {
@@ -74,11 +75,11 @@ void gl_version(int* major, int* minor) {
 typedef void (*glProc)(void);
 
 #define GET_PROC(EXT_STRUCT, PROC_NAME) \
-    *((glProc*) &(EXT_STRUCT-> PROC_NAME)) = (glProc) GR_GL_PROC_ADDRESS((gl ## PROC_NAME)); \
+    *(GrTCast<glProc*>(&(EXT_STRUCT-> PROC_NAME))) = (glProc)GR_GL_PROC_ADDRESS((gl ## PROC_NAME)); \
     GrAssert(NULL != EXT_STRUCT-> PROC_NAME)
 
 #define GET_SUFFIX_PROC(EXT_STRUCT, PROC_NAME, SUFFIX) \
-    *((glProc*) &(EXT_STRUCT-> PROC_NAME)) = (glProc) GR_GL_PROC_ADDRESS((gl ## PROC_NAME ## SUFFIX)); \
+    *(GrTCast<glProc*>(&(EXT_STRUCT-> PROC_NAME))) = (glProc)GR_GL_PROC_ADDRESS((gl ## PROC_NAME ## SUFFIX)); \
     GrAssert(NULL != EXT_STRUCT-> PROC_NAME)
 
 extern void GrGLInitExtensions(GrGLExts* exts) {

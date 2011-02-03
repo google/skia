@@ -465,8 +465,8 @@ public:
         dstPosition->fY = SkScalarToGrScalar(fPoints[i].fY);
     }
 private:
-    int             fCount;
     const SkPoint*  fPoints;
+    int             fCount;
 };
 
 class SkTexCoordSource {
@@ -506,8 +506,8 @@ public:
     }
 
 private:
-    int             fCount;
     const uint16_t* fIndices;
+    int             fCount;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

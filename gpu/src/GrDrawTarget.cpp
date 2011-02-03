@@ -243,13 +243,17 @@ void GrDrawTarget::VertexLayoutUnitTest() {
                     GrAssert(!VertexUsesStage(s2, tcMask));
                     GrAssert(-1 == VertexTexCoordsForStage(s2, tcMask));
 
+                #if GR_DEBUG
                     GrVertexLayout posAsTex = tcMask | StagePosAsTexCoordVertexLayoutBit(s2);
+                #endif
                     GrAssert(0 == VertexStageCoordOffset(s2, posAsTex));
                     GrAssert(VertexUsesStage(s2, posAsTex));
                     GrAssert(2*sizeof(GrPoint) == VertexSize(posAsTex));
                     GrAssert(-1 == VertexTexCoordsForStage(s2, posAsTex));
                 }
+            #if GR_DEBUG
                 GrVertexLayout withColor = tcMask | kColor_VertexLayoutBit;
+            #endif
                 GrAssert(2*sizeof(GrPoint) == VertexColorOffset(withColor));
                 GrAssert(2*sizeof(GrPoint) + sizeof(GrColor) == VertexSize(withColor));
             }
