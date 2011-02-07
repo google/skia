@@ -58,7 +58,10 @@ bool SkEGLContext::init(int width, int height) {
     glBindRenderbuffer(GL_RENDERBUFFER, dsID);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dsID);
-    
+    glViewport(0, 0, width, height);
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     return GL_FRAMEBUFFER_COMPLETE == status;
 }

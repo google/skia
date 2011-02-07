@@ -271,7 +271,7 @@ GrGpuGL::GrGpuGL() {
     // these a preprocess that generate some compile time constants.
 
     // sanity check to make sure we can at least create an FBO from a POT texture
-    
+
     bool simpleFBOSuccess = fbo_test(fExts, 128, 128);
     if (gPrintStartupSpew) {
         if (!simpleFBOSuccess) {
@@ -293,7 +293,7 @@ GrGpuGL::GrGpuGL() {
     if (fNPOTTextureSupport) {
         fNPOTRenderTargetSupport = fbo_test(fExts, 200, 200);
     }
-    
+
     if (gPrintStartupSpew) {
         if (fNPOTTextureSupport) {
             GrPrintf("NPOT textures supported\n");
@@ -1053,7 +1053,11 @@ bool GrGpuGL::readPixels(int left, int top, int width, int height,
         return false;
     }
 
-    GrAssert(NULL != fCurrDrawState.fRenderTarget);
+    if (NULL == fCurrDrawState.fRenderTarget) {
+        return false;
+    }
+    flushRenderTarget();
+
     const GrIRect& vp = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->viewport();
 
     // Brian says that viewport rects are already upside down (grrrrr)
