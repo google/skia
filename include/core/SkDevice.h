@@ -55,10 +55,10 @@ public:
         the bitmap. If transferPixelOwnership is true, and the bitmap claims to own its
         own pixels (getOwnsPixels() == true), then transfer this responsibility to the
         device, and call setOwnsPixels(false) on the bitmap.
-        
+
         Subclasses may override the destructor, which is virtual, even though this class
         doesn't have one. SkRefCnt does.
-    
+
         @param bitmap   A copy of this bitmap is made and stored in the device
     */
     SkDevice(SkCanvas*, const SkBitmap& bitmap, bool forOffscreen);
@@ -87,11 +87,11 @@ public:
         implicitly opaque.
     */
     bool isOpaque() const { return fBitmap.isOpaque(); }
-    
+
     /** Return the bounds of the device
     */
     void getBounds(SkIRect* bounds) const;
-    
+
     /** Return true if the specified rectangle intersects the bounds of the
         device. If sect is not NULL and there is an intersection, sect returns
         the intersection.
@@ -132,7 +132,7 @@ public:
         for drawing).
     */
     virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&) {}
-    
+
     /** Causes any deferred drawing to the device to be completed.
      */
     virtual void flush() {}
@@ -140,6 +140,8 @@ public:
     /**
      *  Copy the pixels from the device into bitmap. Returns true on success.
      *  If false is returned, then the bitmap parameter is left unchanged.
+     *  The bitmap parameter is treated as output-only, and will be completely
+     *  overwritten (if the method returns true).
      */
     virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
 

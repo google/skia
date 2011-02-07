@@ -126,6 +126,8 @@ public:
     /**
      *  Copy the pixels from the device into bitmap. Returns true on success.
      *  If false is returned, then the bitmap parameter is left unchanged.
+     *  The bitmap parameter is treated as output-only, and will be completely
+     *  overwritten (if the method returns true).
      */
     bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
     bool readPixels(SkBitmap* bitmap);
