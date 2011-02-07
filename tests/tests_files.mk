@@ -23,4 +23,5 @@ SOURCE := \
     StringTest.cpp \
     Test.cpp \
     TestSize.cpp \
-    UtilsTest.cpp
+    UtilsTest.cpp \
+    InfRectTest.cpp
