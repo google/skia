@@ -62,24 +62,6 @@ public:
             SkDELETE(this);
         }
     }
-    
-    /** Helper version of ref(), that first checks to see if this is not null.
-        If this is null, then do nothing.
-    */
-    void safeRef() const {
-        if (this) {
-            this->ref();
-        }
-    }
-
-    /** Helper version of unref(), that first checks to see if this is not null.
-        If this is null, then do nothing.
-    */
-    void safeUnref() const {
-        if (this) {
-            this->unref();
-        }
-    }
 
 private:
     mutable int32_t fRefCnt;

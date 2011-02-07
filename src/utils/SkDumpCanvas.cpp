@@ -1,5 +1,5 @@
 #include "SkDumpCanvas.h"
-#include "SkPicture.h"  
+#include "SkPicture.h"
 #include "SkPixelRef.h"
 #include "SkString.h"
 #include <stdarg.h>
@@ -105,7 +105,7 @@ static const char* toString(SkBitmap::Config config) {
 static void toString(const SkBitmap& bm, SkString* str) {
     str->printf("bitmap:[%d %d] %s", bm.width(), bm.height(),
                 toString(bm.config()));
-    
+
     SkPixelRef* pr = bm.pixelRef();
     if (NULL == pr) {
         // show null or the explicit pixel address (rare)
@@ -140,7 +140,7 @@ static void toString(const void* text, size_t len, SkPaint::TextEncoding enc,
 ///////////////////////////////////////////////////////////////////////////////
 
 SkDumpCanvas::SkDumpCanvas(Dumper* dumper) : fNestLevel(0) {
-    dumper->safeRef();
+    SkSafeRef(dumper);
     fDumper = dumper;
 
     static const int WIDE_OPEN = 16384;
@@ -151,7 +151,7 @@ SkDumpCanvas::SkDumpCanvas(Dumper* dumper) : fNestLevel(0) {
 }
 
 SkDumpCanvas::~SkDumpCanvas() {
-    fDumper->safeUnref();
+    SkSafeUnref(fDumper);
 }
 
 void SkDumpCanvas::dump(Verb verb, const SkPaint* paint,
@@ -163,7 +163,7 @@ void SkDumpCanvas::dump(Verb verb, const SkPaint* paint,
     va_start(args, format);
     vsnprintf(buffer, BUFFER_SIZE, format, args);
     va_end(args);
-    
+
     if (fDumper) {
         fDumper->dump(this, verb, buffer, paint);
     }
@@ -420,7 +420,7 @@ void SkFormatDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
         tab.append("\t");
     }
     msg.printf("%s%s", tab.c_str(), str);
-    
+
     if (p) {
         msg.appendf(" color:0x%08X flags:%X", p->getColor(), p->getFlags());
         appendFlattenable(&msg, p->getShader(), "shader");
@@ -429,13 +429,13 @@ void SkFormatDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
         appendFlattenable(&msg, p->getMaskFilter(), "maskFilter");
         appendFlattenable(&msg, p->getPathEffect(), "pathEffect");
         appendFlattenable(&msg, p->getColorFilter(), "filter");
-        
+
         if (SkDumpCanvas::kDrawText_Verb == verb) {
             msg.appendf(" textSize:%g", SkScalarToFloat(p->getTextSize()));
             appendPtr(&msg, p->getTypeface(), "typeface");
         }
     }
-    
+
     fProc(msg.c_str(), fRefcon);
 }
 

@@ -323,8 +323,8 @@ SkPDFObject* SkPDFDict::insert(const char key[], SkPDFObject* value) {
 
 void SkPDFDict::clear() {
     for (int i = 0; i < fValue.count(); i++) {
-        fValue[i].key->safeUnref();
-        fValue[i].value->safeUnref();
+        SkSafeUnref(fValue[i].key);
+        SkSafeUnref(fValue[i].value);
     }
     fValue.reset();
 }

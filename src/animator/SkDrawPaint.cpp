@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -77,11 +77,11 @@ DEFINE_GET_MEMBER(SkDrawPaint);
 SkDrawPaint::SkDrawPaint() : antiAlias(-1), color(NULL), fakeBold(-1), filterBitmap(-1),
     linearText(-1), maskFilter((SkDrawMaskFilter*) -1), pathEffect((SkDrawPathEffect*) -1),
     shader((SkDrawShader*) -1), strikeThru(-1), stroke(-1),
-    strokeCap((SkPaint::Cap) -1), strokeJoin((SkPaint::Join) -1), strokeMiter(SK_ScalarNaN), 
+    strokeCap((SkPaint::Cap) -1), strokeJoin((SkPaint::Join) -1), strokeMiter(SK_ScalarNaN),
     strokeWidth(SK_ScalarNaN), style((SkPaint::Style) -1),
-    textAlign((SkPaint::Align) -1), textScaleX(SK_ScalarNaN), textSize(SK_ScalarNaN), 
+    textAlign((SkPaint::Align) -1), textScaleX(SK_ScalarNaN), textSize(SK_ScalarNaN),
     textSkewX(SK_ScalarNaN), typeface((SkDrawTypeface*) -1),
-    underline(-1), xfermode((SkXfermode::Mode) -1), fOwnsColor(false), fOwnsMaskFilter(false), 
+    underline(-1), xfermode((SkXfermode::Mode) -1), fOwnsColor(false), fOwnsMaskFilter(false),
     fOwnsPathEffect(false), fOwnsShader(false), fOwnsTypeface(false) {
 }
 
@@ -102,7 +102,7 @@ bool SkDrawPaint::add(SkAnimateMaker& maker, SkDisplayable* child) {
     SkASSERT(child && child->isPaintPart());
     SkPaintPart* part = (SkPaintPart*) child;
     if (part->add())
-        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToPaint); 
+        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToPaint);
     return true;
 }
 
@@ -154,8 +154,8 @@ void SkDrawPaint::dump(SkAnimateMaker* maker) {
     dumpChildren(maker, closedYet);
 }
 #endif
-    
-void SkDrawPaint::executeFunction(SkDisplayable* target, int index, 
+
+void SkDrawPaint::executeFunction(SkDisplayable* target, int index,
         SkTDArray<SkScriptValue>& parameters, SkDisplayTypes type,
         SkScriptValue* scriptValue) {
         if (scriptValue == NULL)
@@ -169,9 +169,9 @@ void SkDrawPaint::executeFunction(SkDisplayable* target, int index,
             setupPaint(&paint);
             scriptValue->fType = SkType_Float;
             SkASSERT(parameters[0].fType == SkType_String);
-            scriptValue->fOperand.fScalar = paint.measureText(parameters[0].fOperand.fString->c_str(), 
-                parameters[0].fOperand.fString->size()); 
-//          SkDebugf("measureText: %s = %g\n", parameters[0].fOperand.fString->c_str(), 
+            scriptValue->fOperand.fScalar = paint.measureText(parameters[0].fOperand.fString->c_str(),
+                parameters[0].fOperand.fString->size());
+//          SkDebugf("measureText: %s = %g\n", parameters[0].fOperand.fString->c_str(),
 //              scriptValue->fOperand.fScalar / 65536.0f);
             } break;
         default:
@@ -195,7 +195,7 @@ bool SkDrawPaint::getProperty(int index, SkScriptValue* value) const {
         case SK_PROPERTY(descent):
             value->fOperand.fScalar = metrics.fDescent;
             break;
-        // should consider returning fLeading as well (or roll it into ascent/descent somehow 
+        // should consider returning fLeading as well (or roll it into ascent/descent somehow
         default:
             SkASSERT(0);
             return false;
@@ -217,7 +217,7 @@ bool SkDrawPaint::resolveIDs(SkAnimateMaker& maker, SkDisplayable* origDisp, SkA
         return true;
     if (fOwnsTypeface && maker.resolveID(typeface, original->typeface) == false)
         return true;
-    return false; // succeeded 
+    return false; // succeeded
 }
 
 void SkDrawPaint::setupPaint(SkPaint* paint) const {
@@ -239,15 +239,15 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (maskFilter == NULL)
         paint->setMaskFilter(NULL);
     else if (maskFilter != (SkDrawMaskFilter*) -1)
-        paint->setMaskFilter(maskFilter->getMaskFilter())->safeUnref();
+        SkSafeUnref(paint->setMaskFilter(maskFilter->getMaskFilter()));
     if (pathEffect == NULL)
         paint->setPathEffect(NULL);
     else if (pathEffect != (SkDrawPathEffect*) -1)
-        paint->setPathEffect(pathEffect->getPathEffect())->safeUnref();
+        SkSafeUnref(paint->setPathEffect(pathEffect->getPathEffect()));
     if (shader == NULL)
         paint->setShader(NULL);
     else if (shader != (SkDrawShader*) -1)
-        paint->setShader(shader->getShader())->safeUnref();
+        SkSafeUnref(paint->setShader(shader->getShader()));
     if (strikeThru != -1)
         paint->setStrikeThruText(SkToBool(strikeThru));
     if (strokeCap != (SkPaint::Cap) -1)
@@ -269,7 +269,7 @@ void SkDrawPaint::setupPaint(SkPaint* paint) const {
     if (typeface == NULL)
         paint->setTypeface(NULL);
     else if (typeface != (SkDrawTypeface*) -1)
-        paint->setTypeface(typeface->getTypeface())->safeUnref();
+        SkSafeUnref(paint->setTypeface(typeface->getTypeface()));
     if (underline != -1)
         paint->setUnderlineText(SkToBool(underline));
     if (xfermode != (SkXfermode::Mode) -1)

@@ -70,10 +70,10 @@ public:
                                                    gFaces[i].fStyle);
         }
     }
-    
+
     virtual ~TypefaceView() {
         for (int i = 0; i < gFaceCount; i++) {
-            fFaces[i]->safeUnref();
+            SkSafeUnref(fFaces[i]);
         }
     }
 
@@ -86,11 +86,11 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
@@ -105,17 +105,17 @@ protected:
 
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
-        
+
         SkScalar x = SkIntToScalar(10);
         SkScalar dy = paint.getFontMetrics(NULL);
         SkScalar y = dy;
-        
+
         for (int i = 0; i < gFaceCount; i++) {
             paint.setTypeface(fFaces[i]);
             canvas->drawText(text, textLen, x, y, paint);
             y += dy;
         }
-        
+
         SkRect r;
         if (false) {
         r.set(10, 10, 100, 100);
@@ -132,7 +132,7 @@ protected:
         paint.setStyle(SkPaint::kFill_Style);
         canvas->drawRect(r, paint);
         }
-        
+
         if (false) {
             SkScalar rad = 90;
             SkScalar angle = 210;
@@ -142,12 +142,12 @@ protected:
             SkPath path;
             path.arcTo(r, angle, -(angle + 90), true);
             path.close();
-            
+
             paint.setColor(SK_ColorRED);
             canvas->drawRect(path.getBounds(), paint);
             paint.setColor(SK_ColorBLUE);
             canvas->drawPath(path, paint);
-            
+
             paint.setColor(SK_ColorGREEN);
             SkPoint pts[100];
             int count = path.getPoints(pts, 100);
@@ -155,7 +155,7 @@ protected:
             canvas->drawPoints(SkCanvas::kPoints_PointMode, count, pts, paint);
         }
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

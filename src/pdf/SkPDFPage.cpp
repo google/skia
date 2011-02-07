@@ -73,7 +73,7 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
     SkTDArray<SkPDFDict*> curNodes;
     curNodes.setReserve(pages.count());
     for (int i = 0; i < pages.count(); i++) {
-        pages[i]->safeRef();
+        SkSafeRef(pages[i]);
         curNodes.push(pages[i]);
     }
 
@@ -107,7 +107,7 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
                     pageTree->push(curNodes[i]); // Transfer reference.
                     catalog->addObject(curNodes[i], false);
                 } else {
-                    curNodes[i]->safeUnref();
+                    SkSafeUnref(curNodes[i]);
                 }
             }
 

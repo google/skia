@@ -63,7 +63,7 @@ public:
     {
         int c = srcRows[1][1];
         float f = c / 255.f;
-        
+
         if (c >= 0)
         {
             f = sqrtf(f);
@@ -96,7 +96,7 @@ static void test_typefaceCache()
     SkTypeface* t1 = SkTypeface::CreateFromName(NULL, SkTypeface::kNormal);
     SkTypeface* t2 = SkTypeface::CreateFromName("arial", SkTypeface::kNormal);
     SkTypeface* t3 = SkTypeface::CreateFromName("helvetica", SkTypeface::kItalic);
-    
+
     SkASSERT(t0 == t1);
     SkASSERT(t0 == t2);
     SkASSERT(t0 == t3);
@@ -109,7 +109,7 @@ static void test_breakText()
     const char* text = "sdfkljAKLDFJKEWkldfjlk#$%&sdfs.dsj";
     size_t length = strlen(text);
     SkScalar width = paint.measureText(text, length);
-    
+
     SkScalar mm = 0;
     SkScalar nn = 0;
     for (SkScalar w = 0; w <= width; w += SK_Scalar1)
@@ -117,10 +117,10 @@ static void test_breakText()
         SkScalar m;
         size_t n = paint.breakText(text, length, w, &m,
                                     SkPaint::kBackward_TextBufferDirection);
-        
+
         SkASSERT(n <= length);
         SkASSERT(m <= width);
-    
+
         if (n == 0)
             SkASSERT(m == 0);
         else
@@ -152,7 +152,7 @@ public:
     virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count, const SkAlpha aa[]);
 
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
-    
+
     // overrides for SkFlattenable
     virtual Factory getFactory() { return Create; }
     virtual void flatten(SkFlattenableWriteBuffer& b)
@@ -160,7 +160,7 @@ public:
     //    this->INHERITED::flatten(b);  How can we know if this is legal????
         b.write32(SkScalarToFixed(fExp));
     }
-    
+
 private:
     SkScalar fExp;          // user's value
     uint8_t fTable[256];    // cache
@@ -175,7 +175,7 @@ private:
     {
         return SkNEW_ARGS(SkPowerMode, (b));
     }
-    
+
     typedef SkXfermode INHERITED;
 };
 
@@ -183,7 +183,7 @@ void SkPowerMode::init(SkScalar e)
 {
     fExp = e;
     float ee = SkScalarToFloat(e);
-    
+
     printf("------ %g\n", ee);
     for (int i = 0; i < 256; i++)
     {
@@ -231,7 +231,7 @@ static const struct {
 static int count_char_points(const SkPaint& paint, char c)
 {
     SkPath  path;
-    
+
     paint.getTextPath(&c, 1, 0, 0, &path);
     return path.getPoints(NULL, 0);
 }
@@ -264,7 +264,7 @@ static void make_badrgn(SkRegion* rgn, int insetAmount)
 {
     SkRect16    r, bounds;
     int         i;
-    
+
     rgn->setEmpty();
     bounds.setEmpty();
 
@@ -281,7 +281,7 @@ static void make_badrgn(SkRegion* rgn, int insetAmount)
 
     for (i = 0; i < SK_ARRAY_COUNT(badrects); i++)
     {
-        r.set(badrects[i].x, badrects[i].y, badrects[i].x + badrects[i].width, badrects[i].y + badrects[i].height);        
+        r.set(badrects[i].x, badrects[i].y, badrects[i].x + badrects[i].width, badrects[i].y + badrects[i].height);
         SkASSERT(rgn->contains(r));
     }
 }
@@ -291,7 +291,7 @@ static void draw_rgn(const SkRegion& rgn, SkCanvas* canvas, const SkPaint& paint
 {
     SkRect    r;
     SkRegion::Iterator  iter(rgn);
-    
+
     for (; !iter.done(); iter.next())
     {
         r.set(iter.rect());
@@ -304,11 +304,11 @@ static void test_break(SkCanvas* canvas, const char text[], size_t length,
                         SkScalar clickX)
 {
     SkPaint linePaint;
-    
+
     linePaint.setAntiAlias(true);
-    
+
     SkScalar measured;
-    
+
     if (paint.breakText(text, length, clickX - x, &measured, SkPaint::kForward_TextBufferDirection))
     {
         linePaint.setColor(SK_ColorRED);
@@ -331,20 +331,20 @@ static void test_poly()
         SkIntToScalar(5), SkIntToScalar(3),
         SkIntToScalar(2), SkIntToScalar(3)
     };
-    
+
     static const SkPoint src[] = {
         SkIntToScalar(0), SkIntToScalar(0),
         SkIntToScalar(1), SkIntToScalar(0),
         SkIntToScalar(1), SkIntToScalar(1),
         SkIntToScalar(0), SkIntToScalar(1)
     };
-    
+
     SkMatrix matrix;
-    
+
     if (matrix.setPolyToPoly(src, dst, 4))
     {
         SkPoint pt = { SK_Scalar1/2, SK_Scalar1/2 };
-        matrix.mapPoints(&pt, 1);        
+        matrix.mapPoints(&pt, 1);
         printf("---- x = %g y = %g\n", SkScalarToFloat(pt.fX), SkScalarToFloat(pt.fY));
     }
     else
@@ -424,25 +424,25 @@ public:
 
             printf("--- ave reduction = %g%%\n", 100. * (gOld - gNew) / gOld);
         }
-        
+
         if (true)
         {
             SkPoint pts[] = { SkIntToScalar(20), 0, SkIntToScalar(256+20), 0 };
             SkColor colors[] = { SkColorSetARGB(0, 255, 255, 255), SkColorSetARGB(255, 255, 255, 255) };
             fGradient = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
         }
-        
+
         fClickX = 0;
 
-        test_breakText();        
+        test_breakText();
         test_typefaceCache();
 //        test_poly();
     }
-    
+
     virtual ~TextSpeedView()
     {
         fGradient->unref();
-        fMF->safeUnref();
+        SkSafeUnref(fMF);
     }
 
 protected:
@@ -456,36 +456,36 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas)
     {
 //        canvas->drawColor(0xFFDDDDDD);
         canvas->drawColor(SK_ColorWHITE);
    //     canvas->drawColor(SK_ColorBLACK);
     }
-    
+
     static void make_textstrip(SkBitmap* bm)
     {
         bm->setConfig(SkBitmap::kRGB_565_Config, 200, 18);
         bm->allocPixels();
         bm->eraseColor(SK_ColorWHITE);
-        
+
         SkCanvas    canvas(*bm);
         SkPaint     paint;
         const char* s = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit";
-        
+
         paint.setFlags(paint.getFlags() | SkPaint::kAntiAlias_Flag
                                         | SkPaint::kDevKernText_Flag);
         paint.setTextSize(SkIntToScalar(14));
         canvas.drawText(s, strlen(s), SkIntToScalar(8), SkIntToScalar(14), paint);
     }
-    
+
     static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand)
     {
         for (size_t i = 0; i < n; i++)
             pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas)
     {
         inval(NULL);
@@ -494,22 +494,22 @@ protected:
             canvas->translate(SkIntToScalar(480), 0);
             canvas->rotate(SkIntToScalar(90));
         }
-        
+
         this->drawBG(canvas);
-        
+
         if (false)
         {
             SkPaint p;
-            
+
             p.setAntiAlias(true);
             p.setSubpixelText(true);
          //   p.setLinearText(true);
-            
+
             SkScalar size = SkIntToScalar(6);
             SkMSec   dur = 0;
             const int LOOP = 16;
             const int TIMES = 10;
-            
+
             for (int times = 0; times < TIMES; times++)
             {
                 SkMSec now = SkTime::GetMSecs();
@@ -522,12 +522,12 @@ protected:
                 dur += SkTime::GetMSecs() - now;
                 SkGraphics::SetFontCacheUsed(0);
             }
-            
+
             printf("----- duration = %g\n", dur * 1.0 / TIMES);
             this->inval(NULL);
             return;
         }
-        
+
         if (false)
         {
             SkPaint p;
@@ -552,7 +552,7 @@ protected:
                 }
             }
         }
-        
+
         if (false)
         {
             SkPaint p;
@@ -569,11 +569,11 @@ protected:
 #endif
             return;
         }
-        
+
         if (false)
         {
             SkBitmap    bm;
-            
+
             make_textstrip(&bm);
             canvas->translate(0, SkIntToScalar(50));
             for (int i = 0; i < 10; i++)
@@ -582,16 +582,16 @@ protected:
                 SkPowerMode mode(SkFloatToScalar(1 / gamma));
                 SkPaint     p;
                 p.setXfermode(&mode);
-                
+
                 canvas->drawBitmap(bm, 0, SkIntToScalar(i) * bm.height(), &p);
             }
             return;
         }
-        
+
         if (false)
         {
             SkPaint paint;
-            
+
             paint.setAntiAlias(true);
             paint.setDevKernText(true);
             SkMSec now = SkTime::GetMSecs();
@@ -609,9 +609,9 @@ protected:
             SkRegion    rgn;
             SkPath      path;
             SkPaint     paint;
-            
+
         //    make_badrgn(&rgn, -2);
-            
+
             if (false)
             {
                 paint.setColor(SK_ColorBLUE);
@@ -619,7 +619,7 @@ protected:
             }
             paint.setColor(SK_ColorRED);
             draw_rgn(rgn, canvas, paint);
-            
+
             rgn.getBoundaryPath(&path);
             paint.setARGB(0x80, 0, 0, 0xFF);
             canvas->drawPath(path, paint);
@@ -630,13 +630,13 @@ protected:
         {
             SkRect r = { SkIntToScalar(50), SkIntToScalar(50), SkIntToScalar(300), SkIntToScalar(300) };
             SkPaint p;
-            
+
             p.setStyle(SkPaint::kStroke_Style);
             p.setAlpha(0x80);
             p.setStrokeWidth(SkIntToScalar(20));
             canvas->drawRect(r, p);
         }
-        
+
         if (false)
         {
             SkPaint p;
@@ -648,7 +648,7 @@ protected:
             canvas->drawRect(r, p);
             return;
         }
-        
+
         if (false)
         {
             Sk64    aa, bb;
@@ -661,19 +661,19 @@ protected:
             b = a >> 16;
 
 //            SkFixed c = aa.addGetFixed(bb);
-            
+
             printf("%d %d\n", (int)a, a >> 32);
-            
+
             SkBitmap    bm;
             SkPaint     paint;
             SkScalar    scale = SkFloatToScalar(0.5625f);
             SkScalar    x = SkIntToScalar(100);
             SkScalar    y = SkIntToScalar(100);
-            
+
             //paint.setFilterType(SkPaint::kBilinear_FilterType);
-            
+
             SkImageDecoder::DecodeFile("/app_web_browser.png", &bm);
-            
+
            // canvas->drawBitmap(bm, x, y, paint);
             x += SkIntToScalar(100);
             canvas->save();
@@ -691,7 +691,7 @@ protected:
             canvas->restore();
             return;
         }
-        
+
         SkAutoCanvasRestore restore(canvas, false);
         {
             SkRect r;
@@ -704,7 +704,7 @@ protected:
         int         index = fHints % SK_ARRAY_COUNT(gHints);
         index = 1;
 //        const char* style = gHints[index].fName;
-        
+
 //        canvas->translate(0, SkIntToScalar(50));
 
   //      canvas->drawText(style, strlen(style), SkIntToScalar(20), SkIntToScalar(20), paint);
@@ -712,20 +712,20 @@ protected:
         SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromFile("/skimages/samplefont.ttf")));
         paint.setAntiAlias(true);
         paint.setFlags(paint.getFlags() | gHints[index].fFlags);
-        
+
         SkMSec now = 0;
         if (REPEAT_COUNT > 1)
             now = SkTime::GetMSecs();
 
         SkRect clip;
         clip.set(SkIntToScalar(25), SkIntToScalar(34), SkIntToScalar(88), SkIntToScalar(155));
-        
+
         if (0) {
             canvas->clipRect(clip);
         }
 
         if (0) {
-            SkPath clipPath;        
+            SkPath clipPath;
             clipPath.addOval(clip);
             canvas->clipPath(clipPath);
         }
@@ -736,7 +736,7 @@ protected:
 #ifdef TEST_CLICKX
         {
             SkPaint p;
-            
+
             p.setColor(SK_ColorGREEN);
             p.setAntiAlias(true);
             canvas->drawLine(fClickX, 0, fClickX, SkIntToScalar(1000), p);
@@ -758,26 +758,26 @@ protected:
 //                SkGraphics::SetFontCacheUsed(0);
             }
         }
-        
+
         if (REPEAT_COUNT > 1)
         {
             printf("--------- FPS = %g\n", REPEAT_COUNT * 1000. / (SkTime::GetMSecs() - now));
             this->inval(NULL);
         }
     }
-    
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
+
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y)
     {
         fClickX = x;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
-    virtual bool onClick(Click* click) 
+
+    virtual bool onClick(Click* click)
     {
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     int fHints;
     SkScalar fClickX;

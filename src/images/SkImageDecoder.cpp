@@ -42,9 +42,9 @@ SkImageDecoder::SkImageDecoder()
 }
 
 SkImageDecoder::~SkImageDecoder() {
-    fPeeker->safeUnref();
-    fChooser->safeUnref();
-    fAllocator->safeUnref();
+    SkSafeUnref(fPeeker);
+    SkSafeUnref(fChooser);
+    SkSafeUnref(fAllocator);
 }
 
 SkImageDecoder::Format SkImageDecoder::getFormat() const {

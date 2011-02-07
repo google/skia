@@ -36,7 +36,7 @@ static SkShader* make_bitmapfade(const SkBitmap& bm)
     shaderA->unref();
     shaderB->unref();
     mode->unref();
-    
+
     return shader;
 }
 
@@ -51,19 +51,19 @@ public:
 
         SkPoint pts[2];
         SkColor colors[2];
-        
+
         pts[0].set(0, 0);
         pts[1].set(SkIntToScalar(100), 0);
         colors[0] = SK_ColorRED;
         colors[1] = SK_ColorBLUE;
         SkShader* shaderA = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
-        
+
         pts[0].set(0, 0);
         pts[1].set(0, SkIntToScalar(100));
         colors[0] = SK_ColorBLACK;
         colors[1] = SkColorSetARGB(0x80, 0, 0, 0);
         SkShader* shaderB = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
-        
+
         SkXfermode* mode = SkXfermode::Create(SkXfermode::kDstIn_Mode);
 
         fShader = new SkComposeShader(shaderA, shaderB, mode);
@@ -73,9 +73,9 @@ public:
     }
     virtual ~ShaderView()
     {
-        fShader->safeUnref();
+        SkSafeUnref(fShader);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -85,21 +85,21 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas)
     {
 //        canvas->drawColor(0xFFDDDDDD);
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas)
     {
         this->drawBG(canvas);
-        
+
         canvas->drawBitmap(fBitmap, 0, 0);
-        
+
         canvas->translate(SkIntToScalar(20), SkIntToScalar(120));
-        
+
         SkPaint paint;
         SkRect  r;
 
@@ -120,22 +120,22 @@ protected:
         canvas->drawRect(r, paint);
         paint.setShader(make_bitmapfade(fBitmap))->unref();
         canvas->drawRect(r, paint);
-        
+
         paint.setShader(new SkTransparentShader)->unref();
         canvas->drawRect(r, paint);
     }
-    
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
+
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y)
     {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
-    virtual bool onClick(Click* click) 
+
+    virtual bool onClick(Click* click)
     {
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

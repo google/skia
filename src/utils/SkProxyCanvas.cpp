@@ -1,13 +1,13 @@
 #include "SkProxyCanvas.h"
 
 SkProxyCanvas::SkProxyCanvas(SkCanvas* proxy) : fProxy(proxy) {
-    fProxy->safeRef();
+    SkSafeRef(fProxy);
 }
 
 SkProxyCanvas::~SkProxyCanvas() {
-    fProxy->safeUnref();
+    SkSafeUnref(fProxy);
 }
-    
+
 void SkProxyCanvas::setProxy(SkCanvas* proxy) {
     SkRefCnt_SafeAssign(fProxy, proxy);
 }

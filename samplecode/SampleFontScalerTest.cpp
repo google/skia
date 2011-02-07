@@ -39,10 +39,10 @@ public:
                                                    gFaces[i].fStyle);
         }
     }
-    
+
     virtual ~FontScalerTestView() {
         for (int i = 0; i < gFaceCount; i++) {
-            fFaces[i]->safeUnref();
+            SkSafeUnref(fFaces[i]);
         }
     }
 
@@ -55,14 +55,14 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         SkPaint paint;
 
         // test handling of obscene cubic values (currently broken)
@@ -72,19 +72,19 @@ protected:
             pts[1].set(-7.18397061e+15, -1.53091184e+13);
             pts[2].set(-1.30077315e+16, -2.77196141e+13);
             pts[3].set(-1.30077315e+16, -2.77196162e+13);
-            
+
             SkPath path;
             path.moveTo(pts[0]);
             path.cubicTo(pts[1], pts[2], pts[3]);
             canvas->drawPath(path, paint);
         }
-        
+
         canvas->translate(200, 20);
         canvas->rotate(30);
 
         paint.setAntiAlias(true);
-        paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal))->safeUnref();
-        
+        SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal)));
+
 //        const char* text = "abcdefghijklmnopqrstuvwxyz";
         const char* text = "HnHnHnHnHnHnHnHnH";
         size_t textLen = strlen(text);
@@ -99,7 +99,7 @@ protected:
             r.set(0, 0, x, y*20);
             canvas->drawRect(r, p);
         }
-        
+
         int index = 0;
         for (int ps = 9; ps <= 24; ps++) {
             textLen = strlen(text);
@@ -109,7 +109,7 @@ protected:
             index += 1;
         }
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

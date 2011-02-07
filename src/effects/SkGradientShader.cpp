@@ -169,7 +169,7 @@ Gradient_Shader::Gradient_Shader(const SkColor colors[], const SkScalar pos[],
     fCacheAlpha = 256;  // init to a value that paint.getAlpha() can't return
 
     fMapper = mapper;
-    mapper->safeRef();
+    SkSafeRef(mapper);
 
     SkASSERT((unsigned)mode < SkShader::kTileModeCount);
     SkASSERT(SkShader::kTileModeCount == SK_ARRAY_COUNT(gTileProcs));
@@ -321,7 +321,7 @@ Gradient_Shader::~Gradient_Shader() {
     if (fOrigColors != fStorage) {
         sk_free(fOrigColors);
     }
-    fMapper->safeUnref();
+    SkSafeUnref(fMapper);
 }
 
 void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer) {

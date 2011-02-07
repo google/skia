@@ -42,7 +42,7 @@ void Reporter::endTest(Test* test) {
 Test::Test() : fReporter(NULL) {}
 
 Test::~Test() {
-    fReporter->safeUnref();
+    SkSafeUnref(fReporter);
 }
 
 void Test::setReporter(Reporter* r) {

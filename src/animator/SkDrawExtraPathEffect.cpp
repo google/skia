@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -70,7 +70,7 @@ class SkDrawComposePathEffect : public SkDrawPathEffect {
     virtual ~SkDrawComposePathEffect();
     virtual bool add(SkAnimateMaker& , SkDisplayable* );
     virtual SkPathEffect* getPathEffect();
-    virtual bool isPaint() const; 
+    virtual bool isPaint() const;
 private:
     SkDrawPathEffect* effect1;
     SkDrawPathEffect* effect2;
@@ -127,7 +127,7 @@ protected:
         m.reset();
         if (fDraw->addMatrix) {
             SkDrawMatrix* matrix;
-            if (fDraw->addMatrix->getType() == SkType_Matrix) 
+            if (fDraw->addMatrix->getType() == SkType_Matrix)
                 matrix = (SkDrawMatrix*) fDraw->addMatrix;
             else {
                 SkApply* apply = (SkApply*) fDraw->addMatrix;
@@ -185,12 +185,12 @@ const SkMemberInfo SkDrawShapePathEffect::fInfo[] = {
 
 DEFINE_GET_MEMBER(SkDrawShapePathEffect);
 
-SkDrawShapePathEffect::SkDrawShapePathEffect() : 
+SkDrawShapePathEffect::SkDrawShapePathEffect() :
     addPath(NULL), addMatrix(NULL), path(NULL), fPathEffect(NULL) {
 }
 
 SkDrawShapePathEffect::~SkDrawShapePathEffect() {
-    fPathEffect->safeUnref();
+    SkSafeUnref(fPathEffect);
 }
 
 bool SkDrawShapePathEffect::add(SkAnimateMaker& , SkDisplayable* child) {
@@ -234,7 +234,7 @@ void SkDrawShape1DPathEffect::onEndElement(SkAnimateMaker& maker) {
 
 class SkShape2DPathEffect : public Sk2DPathEffect {
 public:
-    SkShape2DPathEffect(SkDrawShape2DPathEffect* draw, SkAnimateMaker* maker, 
+    SkShape2DPathEffect(SkDrawShape2DPathEffect* draw, SkAnimateMaker* maker,
         const SkMatrix& matrix) : Sk2DPathEffect(matrix), fDraw(draw), fMaker(maker) {
     }
 
@@ -265,7 +265,7 @@ protected:
             goto clearCallBack;
         if (fDraw->matrix) {
             SkDrawMatrix* matrix;
-            if (fDraw->matrix->getType() == SkType_Matrix) 
+            if (fDraw->matrix->getType() == SkType_Matrix)
                 matrix = (SkDrawMatrix*) fDraw->matrix;
             else {
                 SkApply* apply = (SkApply*) fDraw->matrix;
@@ -301,7 +301,7 @@ private:
         }
         return true;
     }
-    
+
     SkPoint fLoc;
     SkRect fUVBounds;
     int32_t fU;
@@ -418,13 +418,13 @@ const char kDrawCornerPathEffectName[]  = "pathEffect:corner";
 
 class SkExtraPathEffects : public SkExtras {
 public:
-    SkExtraPathEffects(SkAnimator* animator) : 
+    SkExtraPathEffects(SkAnimator* animator) :
             skDrawShape1DPathEffectType(SkType_Unknown),
             skDrawShape2DPathEffectType(SkType_Unknown),
             skDrawComposePathEffectType(SkType_Unknown),
             skDrawCornerPathEffectType(SkType_Unknown) {
     }
-    
+
     virtual SkDisplayable* createInstance(SkDisplayTypes type) {
         SkDisplayable* result = NULL;
         if (skDrawShape1DPathEffectType == type)
@@ -439,8 +439,8 @@ public:
     }
 
     virtual bool definesType(SkDisplayTypes type) {
-        return type == skDrawShape1DPathEffectType || 
-            type == skDrawShape2DPathEffectType || 
+        return type == skDrawShape1DPathEffectType ||
+            type == skDrawShape2DPathEffectType ||
             type == skDrawComposePathEffectType ||
             type == skDrawCornerPathEffectType;
     }

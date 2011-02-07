@@ -14,7 +14,7 @@ SkPicturePlayback::SkPicturePlayback() {
 
 SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
 #ifdef SK_DEBUG_SIZE
-    size_t overallBytes, bitmapBytes, matricesBytes, 
+    size_t overallBytes, bitmapBytes, matricesBytes,
     paintBytes, pathBytes, pictureBytes, regionBytes;
     int bitmaps = record.bitmaps(&bitmapBytes);
     int matrices = record.matrices(&matricesBytes);
@@ -42,7 +42,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
         SkDebugf("rects size %zd (rects:%d) ", record.fRectBytes, record.fRectWrites);
     if (record.fTextWrites != 0)
         SkDebugf("text size %zd (text strings:%d) ", record.fTextBytes, record.fTextWrites);
-    
+
     SkDebugf("\n");
 #endif
 #ifdef SK_DEBUG_DUMP
@@ -55,27 +55,27 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     init();
     if (writer.size() == 0)
         return;
-    
+
     {
         size_t size = writer.size();
         void* buffer = sk_malloc_throw(size);
         writer.flatten(buffer);
         fReader.setMemory(buffer, size);    // fReader owns buffer now
     }
-    
+
     // copy over the refcnt dictionary to our reader
     //
     fRCPlayback.reset(&record.fRCRecorder);
     fRCPlayback.setupBuffer(fReader);
-    
+
     fTFPlayback.reset(&record.fTFRecorder);
     fTFPlayback.setupBuffer(fReader);
-    
+
     const SkTDArray<const SkFlatBitmap* >& bitmaps = record.getBitmaps();
     fBitmapCount = bitmaps.count();
     if (fBitmapCount > 0) {
         fBitmaps = SkNEW_ARRAY(SkBitmap, fBitmapCount);
-        for (const SkFlatBitmap** flatBitmapPtr = bitmaps.begin(); 
+        for (const SkFlatBitmap** flatBitmapPtr = bitmaps.begin();
              flatBitmapPtr != bitmaps.end(); flatBitmapPtr++) {
             const SkFlatBitmap* flatBitmap = *flatBitmapPtr;
             int index = flatBitmap->index() - 1;
@@ -87,7 +87,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     fMatrixCount = matrices.count();
     if (fMatrixCount > 0) {
         fMatrices = SkNEW_ARRAY(SkMatrix, fMatrixCount);
-        for (const SkFlatMatrix** matrixPtr = matrices.begin(); 
+        for (const SkFlatMatrix** matrixPtr = matrices.begin();
              matrixPtr != matrices.end(); matrixPtr++) {
             const SkFlatMatrix* flatMatrix = *matrixPtr;
             flatMatrix->unflatten(&fMatrices[flatMatrix->index() - 1]);
@@ -98,7 +98,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     fPaintCount = paints.count();
     if (fPaintCount > 0) {
         fPaints = SkNEW_ARRAY(SkPaint, fPaintCount);
-        for (const SkFlatPaint** flatPaintPtr = paints.begin(); 
+        for (const SkFlatPaint** flatPaintPtr = paints.begin();
              flatPaintPtr != paints.end(); flatPaintPtr++) {
             const SkFlatPaint* flatPaint = *flatPaintPtr;
             int index = flatPaint->index() - 1;
@@ -108,7 +108,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
     }
 
     fPathHeap = record.fPathHeap;
-    fPathHeap->safeRef();
+    SkSafeRef(fPathHeap);
 
     const SkTDArray<SkPicture* >& pictures = record.getPictureRefs();
     fPictureCount = pictures.count();
@@ -119,7 +119,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
             fPictureRefs[i]->ref();
         }
     }
-    
+
     const SkTDArray<SkShape* >& shapes = record.getShapes();
     fShapeCount = shapes.count();
     if (fShapeCount > 0) {
@@ -130,18 +130,18 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
             fShapes[i] = s;
         }
     }
-    
+
     const SkTDArray<const SkFlatRegion* >& regions = record.getRegions();
     fRegionCount = regions.count();
     if (fRegionCount > 0) {
         fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
-        for (const SkFlatRegion** flatRegionPtr = regions.begin(); 
+        for (const SkFlatRegion** flatRegionPtr = regions.begin();
              flatRegionPtr != regions.end(); flatRegionPtr++) {
             const SkFlatRegion* flatRegion = *flatRegionPtr;
             flatRegion->unflatten(&fRegions[flatRegion->index() - 1]);
         }
     }
-    
+
 #ifdef SK_DEBUG_SIZE
     int overall = fPlayback->size(&overallBytes);
     bitmaps = fPlayback->bitmaps(&bitmapBytes);
@@ -194,7 +194,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
     }
 
     fPathHeap = src.fPathHeap;
-    fPathHeap->safeRef();
+    SkSafeRef(fPathHeap);
 
     fPictureCount = src.fPictureCount;
     fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
@@ -202,7 +202,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
         fPictureRefs[i] = src.fPictureRefs[i];
         fPictureRefs[i]->ref();
     }
-    
+
     fShapeCount = src.fShapeCount;
     fShapes = SkNEW_ARRAY(SkShape*, fShapeCount);
     for (int i = 0; i < fShapeCount; i++) {
@@ -210,7 +210,7 @@ SkPicturePlayback::SkPicturePlayback(const SkPicturePlayback& src) {
         SkSafeRef(s);
         fShapes[i] = s;
     }
-    
+
     fRegionCount = src.fRegionCount;
     fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
@@ -226,9 +226,9 @@ void SkPicturePlayback::init() {
     fPictureRefs = NULL;
     fShapes = NULL;
     fRegions = NULL;
-    fBitmapCount = fMatrixCount = fPaintCount = fPictureCount = 
+    fBitmapCount = fMatrixCount = fPaintCount = fPictureCount =
     fRegionCount = fShapeCount = 0;
-    
+
     fFactoryPlayback = NULL;
 }
 
@@ -239,19 +239,19 @@ SkPicturePlayback::~SkPicturePlayback() {
     SkDELETE_ARRAY(fMatrices);
     SkDELETE_ARRAY(fPaints);
     SkDELETE_ARRAY(fRegions);
-    
-    fPathHeap->safeUnref();
-    
+
+    SkSafeUnref(fPathHeap);
+
     for (int i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->unref();
     }
     SkDELETE_ARRAY(fPictureRefs);
-    
+
     for (int i = 0; i < fShapeCount; i++) {
         SkSafeUnref(fShapes[i]);
     }
     SkDELETE_ARRAY(fShapes);
-    
+
     SkDELETE(fFactoryPlayback);
 }
 
@@ -299,13 +299,13 @@ static void writeTagSize(SkWStream* stream, uint32_t tag,
 
 static void writeFactories(SkWStream* stream, const SkFactoryRecorder& rec) {
     int count = rec.count();
-    
+
     writeTagSize(stream, PICT_FACTORY_TAG, count);
-    
+
     SkAutoSTMalloc<16, SkFlattenable::Factory> storage(count);
     SkFlattenable::Factory* array = (SkFlattenable::Factory*)storage.get();
     rec.get(array);
-    
+
     for (int i = 0; i < count; i++) {
         const char* name = SkFlattenable::FactoryToName(array[i]);
 //        SkDebugf("---- write factories [%d] %p <%s>\n", i, array[i], name);
@@ -321,13 +321,13 @@ static void writeFactories(SkWStream* stream, const SkFactoryRecorder& rec) {
 
 static void writeTypefaces(SkWStream* stream, const SkRefCntRecorder& rec) {
     int count = rec.count();
-    
+
     writeTagSize(stream, PICT_TYPEFACE_TAG, count);
-    
+
     SkAutoSTMalloc<16, SkTypeface*> storage(count);
     SkTypeface** array = (SkTypeface**)storage.get();
     rec.get((SkRefCnt**)array);
-    
+
     for (int i = 0; i < count; i++) {
         array[i]->serialize(stream);
     }
@@ -336,7 +336,7 @@ static void writeTypefaces(SkWStream* stream, const SkRefCntRecorder& rec) {
 void SkPicturePlayback::serialize(SkWStream* stream) const {
     writeTagSize(stream, PICT_READER_TAG, fReader.size());
     stream->write(fReader.base(), fReader.size());
-    
+
     SkRefCntRecorder  typefaceRecorder;
     SkFactoryRecorder factRecorder;
 
@@ -347,7 +347,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
     buffer.setFactoryRecorder(&factRecorder);
 
     int i;
-    
+
     writeTagSize(buffer, PICT_BITMAP_TAG, fBitmapCount);
     for (i = 0; i < fBitmapCount; i++) {
         fBitmaps[i].flatten(buffer);
@@ -360,7 +360,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
     for (i = 0; i < fPaintCount; i++) {
         fPaints[i].flatten(buffer);
     }
-    
+
     {
         int count = fPathHeap ? fPathHeap->count() : 0;
         writeTagSize(buffer, PICT_PATH_TAG, count);
@@ -368,7 +368,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
             fPathHeap->flatten(buffer);
         }
     }
-    
+
     writeTagSize(buffer, PICT_REGION_TAG, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
         uint32_t size = fRegions[i].flatten(NULL);
@@ -377,7 +377,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
         fRegions[i].flatten(storage.get());
         buffer.writePad(storage.get(), size);
     }
-    
+
     writeTagSize(buffer, PICT_SHAPE_TAG, fShapeCount);
     for (i = 0; i < fShapeCount; i++) {
         buffer.writeFlattenable(fShapes[i]);
@@ -392,7 +392,7 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
     for (i = 0; i < fPictureCount; i++) {
         fPictureRefs[i]->serialize(stream);
     }
-    
+
     writeTagSize(stream, PICT_ARRAYS_TAG, buffer.size());
     buffer.writeToStream(stream);
 }
@@ -419,14 +419,14 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     this->init();
 
     int i;
-    
+
     {
         size_t size = readTagSize(stream, PICT_READER_TAG);
         void* storage = sk_malloc_throw(size);
         stream->read(storage, size);
         fReader.setMemory(storage, size);
     }
-    
+
     int factoryCount = readTagSize(stream, PICT_FACTORY_TAG);
     fFactoryPlayback = SkNEW_ARGS(SkFactoryPlayback, (factoryCount));
     for (i = 0; i < factoryCount; i++) {
@@ -437,19 +437,19 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
 //        SkDebugf("--- factory playback [%d] <%s>\n", i, str.c_str());
         fFactoryPlayback->base()[i] = SkFlattenable::NameToFactory(str.c_str());
     }
-    
+
     int typefaceCount = readTagSize(stream, PICT_TYPEFACE_TAG);
     fTFPlayback.setCount(typefaceCount);
     for (i = 0; i < typefaceCount; i++) {
         fTFPlayback.set(i, SkTypeface::Deserialize(stream))->unref();
-    }    
+    }
 
     fPictureCount = readTagSize(stream, PICT_PICTURE_TAG);
     fPictureRefs = SkNEW_ARRAY(SkPicture*, fPictureCount);
     for (i = 0; i < fPictureCount; i++) {
         fPictureRefs[i] = SkNEW_ARGS(SkPicture, (stream));
     }
-    
+
     /*
         Now read the arrays chunk, and parse using a read buffer
     */
@@ -470,20 +470,20 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     fMatrixCount = readTagSize(buffer, PICT_MATRIX_TAG);
     fMatrices = SkNEW_ARRAY(SkMatrix, fMatrixCount);
     buffer.read(fMatrices, fMatrixCount * sizeof(SkMatrix));
-    
+
     fPaintCount = readTagSize(buffer, PICT_PAINT_TAG);
     fPaints = SkNEW_ARRAY(SkPaint, fPaintCount);
     for (i = 0; i < fPaintCount; i++) {
         fPaints[i].unflatten(buffer);
     }
-    
+
     {
         int count = readTagSize(buffer, PICT_PATH_TAG);
         if (count > 0) {
             fPathHeap = SkNEW_ARGS(SkPathHeap, (buffer));
         }
     }
-    
+
     fRegionCount = readTagSize(buffer, PICT_REGION_TAG);
     fRegions = SkNEW_ARRAY(SkRegion, fRegionCount);
     for (i = 0; i < fRegionCount; i++) {
@@ -506,12 +506,12 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
 struct SkipClipRec {
     int     fCount;
     size_t  fSize;
-    
+
     SkipClipRec() {
         fCount = 0;
         fSize = 0;
     }
-    
+
     void recordSkip(size_t bytes) {
         fCount += 1;
         fSize += bytes;
@@ -523,7 +523,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
 #endif
-    
+
 #ifdef SPEW_CLIP_SKIPPING
     SkipClipRec skipRect, skipRegion, skipPath;
 #endif
@@ -537,7 +537,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPath& path = getPath();
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
-                // HACK (false) until I can handle op==kReplace 
+                // HACK (false) until I can handle op==kReplace
                 if (!canvas.clipPath(path, op)) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipPath.recordSkip(offsetToRestore - fReader.offset());
@@ -642,7 +642,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             } break;
             case DRAW_RECT: {
                 const SkPaint& paint = *getPaint();
-                canvas.drawRect(*fReader.skipRect(), paint); 
+                canvas.drawRect(*fReader.skipRect(), paint);
             } break;
             case DRAW_SHAPE: {
                 SkShape* shape = getShape();
@@ -652,10 +652,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             } break;
             case DRAW_SPRITE: {
                 const SkPaint* paint = getPaint();
-                const SkBitmap& bitmap = getBitmap(); 
+                const SkBitmap& bitmap = getBitmap();
                 int left = getInt();
                 int top = getInt();
-                canvas.drawSprite(bitmap, left, top, paint); 
+                canvas.drawSprite(bitmap, left, top, paint);
             } break;
             case DRAW_TEXT: {
                 const SkPaint& paint = *getPaint();
@@ -683,7 +683,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 getText(&text);
                 const SkPath& path = getPath();
                 const SkMatrix* matrix = getMatrix();
-                canvas.drawTextOnPath(text.text(), text.length(), path, 
+                canvas.drawTextOnPath(text.text(), text.length(), path,
                                       matrix, paint);
             } break;
             case DRAW_VERTICES: {
@@ -749,7 +749,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 SkASSERT(0);
         }
     }
-    
+
 #ifdef SPEW_CLIP_SKIPPING
     {
         size_t size =  skipRect.fSize + skipPath.fSize + skipRegion.fSize;
@@ -768,7 +768,7 @@ void SkPicturePlayback::abort() {
 ///////////////////////////////////////////////////////////////////////////////
 
 #if 0
-uint32_t SkPicturePlayback::flatten(void* storage) const {    
+uint32_t SkPicturePlayback::flatten(void* storage) const {
     SkWBuffer buffer(storage);
     buffer.write32(fBitmapCount);
     int index;
@@ -849,7 +849,7 @@ void SkPicturePlayback::unflatten(const void* storage) {
         const void* local = buffer.skip(size);
         fPaths[index].unflatten(local);
     }
-    
+
 #if 0
     fPictureCount = buffer.readU32();
     fPictures = new SkPicture[fPictureCount];
@@ -859,7 +859,7 @@ void SkPicturePlayback::unflatten(const void* storage) {
         fPictures[index].unflatten(local);
     }
 #endif
-    
+
     fRegionCount = buffer.readU32();
     fRegions = new SkRegion[fRegionCount];
     for (index = 0; index < fRegionCount; index++) {
@@ -876,14 +876,14 @@ void SkPicturePlayback::unflatten(const void* storage) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG_SIZE
-int SkPicturePlayback::size(size_t* sizePtr) { 
+int SkPicturePlayback::size(size_t* sizePtr) {
     int objects = bitmaps(sizePtr);
     objects += paints(sizePtr);
     objects += paths(sizePtr);
     objects += pictures(sizePtr);
     objects += regions(sizePtr);
     *sizePtr = fReader.size();
-    return objects; 
+    return objects;
 }
 
 int SkPicturePlayback::bitmaps(size_t* size) {
@@ -1110,7 +1110,7 @@ int SkPicturePlayback::dumpInt(char* bufferPtr, char* buffer, char* name) {
 int SkPicturePlayback::dumpRect(char* bufferPtr, char* buffer, char* name) {
     const SkRect* rect = fReader.skipRect();
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
-        "%s:{l:%g t:%g r:%g b:%g}, ", name, SkScalarToFloat(rect.fLeft), 
+        "%s:{l:%g t:%g r:%g b:%g}, ", name, SkScalarToFloat(rect.fLeft),
         SkScalarToFloat(rect.fTop),
         SkScalarToFloat(rect.fRight), SkScalarToFloat(rect.fBottom));
 }
@@ -1119,7 +1119,7 @@ int SkPicturePlayback::dumpPoint(char* bufferPtr, char* buffer, char* name) {
     SkPoint pt;
     getPoint(&pt);
     return snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
-        "%s:{x:%g y:%g}, ", name, SkScalarToFloat(pt.fX), 
+        "%s:{x:%g y:%g}, ", name, SkScalarToFloat(pt.fX),
         SkScalarToFloat(pt.fY));
 }
 
@@ -1131,7 +1131,7 @@ void SkPicturePlayback::dumpPointArray(char** bufferPtrPtr, char* buffer, int co
         "count:%d {", count);
     for (int index = 0; index < count; index++)
         bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
-        "{x:%g y:%g}, ", SkScalarToFloat(pts[index].fX), 
+        "{x:%g y:%g}, ", SkScalarToFloat(pts[index].fX),
         SkScalarToFloat(pts[index].fY));
     bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - buffer),
         "} ");
@@ -1341,10 +1341,10 @@ void SkPicturePlayback::dump() const {
         dumpBitmap(bitmap);
     }
     if (fBitmapCount > 0)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "Bitmaps bitmaps = {");
     for (index = 0; index < fBitmapCount; index++)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "bitmap%p, ", &fBitmaps[index]);
     if (fBitmapCount > 0)
         SkDebugf("%s0};\n", pBuffer);
@@ -1357,10 +1357,10 @@ void SkPicturePlayback::dump() const {
     }
     bufferPtr = pBuffer;
     if (fMatrixCount > 0)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "Matrices matrices = {");
     for (index = 0; index < fMatrixCount; index++)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "matrix%p, ", &fMatrices[index]);
     if (fMatrixCount > 0)
         SkDebugf("%s0};\n", pBuffer);
@@ -1373,10 +1373,10 @@ void SkPicturePlayback::dump() const {
     }
     bufferPtr = pBuffer;
     if (fPaintCount > 0)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "Paints paints = {");
     for (index = 0; index < fPaintCount; index++)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "paint%p, ", &fPaints[index]);
     if (fPaintCount > 0)
         SkDebugf("%s0};\n", pBuffer);
@@ -1387,10 +1387,10 @@ void SkPicturePlayback::dump() const {
     }
     bufferPtr = pBuffer;
     if (fPathCount > 0)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "Paths paths = {");
     for (index = 0; index < fPathCount; index++)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "path%p, ", &fPaths[index]);
     if (fPathCount > 0)
         SkDebugf("%s0};\n", pBuffer);
@@ -1400,10 +1400,10 @@ void SkPicturePlayback::dump() const {
     }
     bufferPtr = pBuffer;
     if (fPictureCount > 0)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "Pictures pictures = {");
     for (index = 0; index < fPictureCount; index++)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "picture%p, ", fPictureRefs[index]);
     if (fPictureCount > 0)
         SkDebugf("%s0};\n", pBuffer);
@@ -1414,10 +1414,10 @@ void SkPicturePlayback::dump() const {
     }
     bufferPtr = pBuffer;
     if (fRegionCount > 0)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "Regions regions = {");
     for (index = 0; index < fRegionCount; index++)
-        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer), 
+        bufferPtr += snprintf(bufferPtr, DUMP_BUFFER_SIZE - (bufferPtr - pBuffer),
             "region%p, ", &fRegions[index]);
     if (fRegionCount > 0)
         SkDebugf("%s0};\n", pBuffer);

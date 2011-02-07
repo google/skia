@@ -76,6 +76,7 @@ public:
         fBlitter = SkBlitter::Choose(device, matrix, paint,
                                      fStorage, sizeof(fStorage));
     }
+
     ~SkAutoBlitterChoose();
 
     SkBlitter*  operator->() { return fBlitter; }
@@ -99,16 +100,17 @@ public:
     SkAutoBitmapShaderInstall(const SkBitmap& src, const SkPaint* paint)
             : fPaint((SkPaint*)paint) {
         fPrevShader = paint->getShader();
-        fPrevShader->safeRef();
+        SkSafeRef(fPrevShader);
         fPaint->setShader(SkShader::CreateBitmapShader( src,
                            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode,
                            fStorage, sizeof(fStorage)));
     }
+
     ~SkAutoBitmapShaderInstall() {
         SkShader* shader = fPaint->getShader();
 
         fPaint->setShader(fPrevShader);
-        fPrevShader->safeUnref();
+        SkSafeUnref(fPrevShader);
 
         if ((void*)shader == (void*)fStorage) {
             shader->~SkShader();
@@ -116,6 +118,7 @@ public:
             SkDELETE(shader);
         }
     }
+
 private:
     SkPaint*    fPaint;
     SkShader*   fPrevShader;
@@ -129,9 +132,11 @@ public:
         fStyle = paint.getStyle();  // record the old
         fPaint.setStyle(style);     // change it to the specified style
     }
+
     ~SkAutoPaintStyleRestore() {
         fPaint.setStyle(fStyle);    // restore the old
     }
+
 private:
     SkPaint&        fPaint;
     SkPaint::Style  fStyle;

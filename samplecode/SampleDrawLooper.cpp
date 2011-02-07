@@ -27,9 +27,9 @@ public:
             { SK_ColorBLUE, SkPaint::kFill_Style, 0, 0, 0 },
             { 0x88000000, SkPaint::kFill_Style, 0, SkIntToScalar(10), 3 }
         };
-        
+
         fLooper = new SkLayerDrawLooper;
-        
+
         for (int i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
             SkPaint* paint = fLooper->addLayer(gParams[i].fOffset,
                                                gParams[i].fOffset);
@@ -45,11 +45,11 @@ public:
             }
         }
     }
-    
+
     virtual ~LooperView() {
-        fLooper->safeUnref();
+        SkSafeUnref(fLooper);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -59,18 +59,18 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
 //        canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         SkPaint  paint;
         paint.setLooper(fLooper);
-        
+
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
                            SkIntToScalar(30), paint);
 
@@ -80,16 +80,16 @@ protected:
         canvas->drawText("Looper", 6, SkIntToScalar(230), SkIntToScalar(100),
                          paint);
     }
-    
+
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
+
     virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

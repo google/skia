@@ -11,9 +11,9 @@ public:
 	AnimGifView() {
         fMovie = SkMovie::DecodeFile("/skimages/dollarblk.gif");
     }
-    
+
     virtual ~AnimGifView() {
-        fMovie->safeUnref();
+        SkSafeUnref(fMovie);
     }
 
 protected:
@@ -25,14 +25,14 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(0xFFDDDDDD);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         if (fMovie) {
             if (fMovie->duration()) {
                 fMovie->setTime(SkTime::GetMSecs() % fMovie->duration());
@@ -44,7 +44,7 @@ protected:
             this->inval(NULL);
         }
     }
-    
+
 private:
     SkRect      fClip;
     SkIPoint*   fPoints;
