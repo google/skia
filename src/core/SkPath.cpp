@@ -96,7 +96,7 @@ static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 ////////////////////////////////////////////////////////////////////////////
 
 SkPath::SkPath() : fBoundsIsDirty(true), fFillType(kWinding_FillType) {
-    fIsConvex = false;
+    fIsConvex = false;  // really should be kUnknown
 }
 
 SkPath::SkPath(const SkPath& src) {
@@ -149,6 +149,7 @@ void SkPath::reset() {
     fPts.reset();
     fVerbs.reset();
     fBoundsIsDirty = true;
+    fIsConvex = false;  // really should be kUnknown
 }
 
 void SkPath::rewind() {
@@ -157,6 +158,7 @@ void SkPath::rewind() {
     fPts.rewind();
     fVerbs.rewind();
     fBoundsIsDirty = true;
+    fIsConvex = false;  // really should be kUnknown
 }
 
 bool SkPath::isEmpty() const {

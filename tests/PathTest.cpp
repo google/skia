@@ -6,7 +6,7 @@ static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
                                 const SkRect& bounds) {
     REPORTER_ASSERT(reporter, p.isConvex());
     REPORTER_ASSERT(reporter, p.getBounds() == bounds);
-    
+
     SkPath p2(p);
     REPORTER_ASSERT(reporter, p2.isConvex());
     REPORTER_ASSERT(reporter, p2.getBounds() == bounds);
@@ -45,12 +45,12 @@ static void TestPath(skiatest::Reporter* reporter) {
     p.setIsConvex(false);
     p.addRoundRect(bounds, SK_Scalar1, SK_Scalar1);
     check_convex_bounds(reporter, p, bounds);
-    
+
     p.reset();
     p.setIsConvex(false);
     p.addOval(bounds);
     check_convex_bounds(reporter, p, bounds);
-    
+
     p.reset();
     p.setIsConvex(false);
     p.addRect(bounds);
@@ -88,6 +88,18 @@ static void TestPath(skiatest::Reporter* reporter) {
     p.moveTo(SK_Scalar1, 0);
     p.getLastPt(&pt);
     REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1);
+
+    // check that reset and rewind clear the convex hint back to false
+    p.setIsConvex(false);
+    REPORTER_ASSERT(reporter, !p.isConvex());
+    p.setIsConvex(true);
+    REPORTER_ASSERT(reporter, p.isConvex());
+    p.reset();
+    REPORTER_ASSERT(reporter, !p.isConvex());
+    p.setIsConvex(true);
+    REPORTER_ASSERT(reporter, p.isConvex());
+    p.rewind();
+    REPORTER_ASSERT(reporter, !p.isConvex());
 }
 
 #include "TestClassDef.h"
