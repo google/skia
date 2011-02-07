@@ -15,10 +15,10 @@ void SkFlattenable::flatten(SkFlattenableWriteBuffer&)
 SkFlattenableReadBuffer::SkFlattenableReadBuffer() {
     fRCArray = NULL;
     fRCCount = 0;
-    
+
     fTFArray = NULL;
     fTFCount = 0;
-    
+
     fFactoryArray = NULL;
     fFactoryCount = 0;
 }
@@ -27,10 +27,10 @@ SkFlattenableReadBuffer::SkFlattenableReadBuffer(const void* data) :
         INHERITED(data, 1024 * 1024) {
     fRCArray = NULL;
     fRCCount = 0;
-    
+
     fTFArray = NULL;
     fTFCount = 0;
-    
+
     fFactoryArray = NULL;
     fFactoryCount = 0;
 }
@@ -39,10 +39,10 @@ SkFlattenableReadBuffer::SkFlattenableReadBuffer(const void* data, size_t size)
         : INHERITED(data, size) {
     fRCArray = NULL;
     fRCCount = 0;
-    
+
     fTFArray = NULL;
     fTFCount = 0;
-    
+
     fFactoryArray = NULL;
     fFactoryCount = 0;
 }
@@ -72,7 +72,7 @@ SkRefCnt* SkFlattenableReadBuffer::readRefCnt() {
 
 SkFlattenable* SkFlattenableReadBuffer::readFlattenable() {
     SkFlattenable::Factory factory = NULL;
-    
+
     if (fFactoryCount > 0) {
         uint32_t index = this->readU32();
         if (index > 0) {
@@ -123,9 +123,9 @@ SkFlattenableWriteBuffer::SkFlattenableWriteBuffer(size_t minSize) :
 }
 
 SkFlattenableWriteBuffer::~SkFlattenableWriteBuffer() {
-    fRCRecorder->safeUnref();
-    fTFRecorder->safeUnref();
-    fFactoryRecorder->safeUnref();
+    SkSafeUnref(fRCRecorder);
+    SkSafeUnref(fTFRecorder);
+    SkSafeUnref(fFactoryRecorder);
 }
 
 SkRefCntRecorder* SkFlattenableWriteBuffer::setRefCntRecorder(
@@ -173,7 +173,7 @@ void SkFlattenableWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
     } else {
         this->writeFunctionPtr((void*)factory);
     }
-    
+
     if (factory) {
         // make room for the size of the flatttened object
         (void)this->reserve(sizeof(uint32_t));
@@ -223,15 +223,15 @@ static Pair gPairs[MAX_PAIR_COUNT];
 void SkFlattenable::Register(const char name[], Factory factory) {
     SkASSERT(name);
     SkASSERT(factory);
-    
+
     static bool gOnce;
     if (!gOnce) {
         gCount = 0;
         gOnce = true;
     }
-    
+
     SkASSERT(gCount < MAX_PAIR_COUNT);
-    
+
     gPairs[gCount].fName = name;
     gPairs[gCount].fFactory = factory;
     gCount += 1;

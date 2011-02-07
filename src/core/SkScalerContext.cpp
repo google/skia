@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -173,9 +173,9 @@ SkScalerContext::SkScalerContext(const SkDescriptor* desc)
 SkScalerContext::~SkScalerContext() {
     SkDELETE(fNextContext);
 
-    fPathEffect->safeUnref();
-    fMaskFilter->safeUnref();
-    fRasterizer->safeUnref();
+    SkSafeUnref(fPathEffect);
+    SkSafeUnref(fMaskFilter);
+    SkSafeUnref(fRasterizer);
 }
 
 static SkScalerContext* allocNextContext(const SkScalerContext::Rec& rec) {
@@ -309,7 +309,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         glyph->fMaskFormat = 0;
         return;
     }
-    
+
     if (fRec.fFrameWidth > 0 || fPathEffect != NULL || fRasterizer != NULL) {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
@@ -333,7 +333,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
             // just use devPath
             SkIRect ir;
             devPath.getBounds().roundOut(&ir);
-            
+
             if (ir.isEmpty() || !ir.is16Bit()) {
                 goto SK_ERROR;
             }
@@ -366,7 +366,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         }
     }
     return;
-    
+
 SK_ERROR:
     // draw nothing 'cause we failed
     glyph->fLeft    = 0;
@@ -410,11 +410,11 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
         if (fRasterizer) {
             SkMask  mask;
-            
+
             glyph->toMask(&mask);
             mask.fFormat = SkMask::kA8_Format;
             sk_bzero(glyph->fImage, mask.computeImageSize());
-            
+
             if (!fRasterizer->rasterize(fillPath, fillToDevMatrix, NULL,
                                         fMaskFilter, &mask,
                                         SkMask::kJustRenderImage_CreateMode)) {
@@ -472,7 +472,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             int height = SkFastMin32(origGlyph.fHeight, dstM.fBounds.height());
             int dstRB = origGlyph.rowBytes();
             int srcRB = dstM.fRowBytes;
-            
+
             const uint8_t* src = (const uint8_t*)dstM.fImage;
             uint8_t* dst = (uint8_t*)origGlyph.fImage;
 
@@ -492,7 +492,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             SkMask::FreeImage(dstM.fImage);
         }
     }
-    
+
     // check to see if we should filter the alpha channel
 
     if (NULL == fMaskFilter &&
@@ -504,7 +504,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         {
             uint8_t* dst = (uint8_t*)origGlyph.fImage;
             unsigned rowBytes = origGlyph.rowBytes();
-            
+
             for (int y = origGlyph.fHeight - 1; y >= 0; --y)
             {
                 for (int x = origGlyph.fWidth - 1; x >= 0; --x)
@@ -536,7 +536,7 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath, Sk
     SkPath  path;
 
     this->getGlyphContext(glyph)->generatePath(glyph, &path);
-    
+
     if (fRec.fFrameWidth > 0 || fPathEffect != NULL)
     {
         // need the path in user-space, with only the point-size applied
@@ -573,14 +573,14 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath, Sk
             stroker.strokePath(localPath, &outline);
             localPath.swap(outline);
         }
-        
+
         // now return stuff to the caller
         if (fillToDevMatrix)
             *fillToDevMatrix = matrix;
-        
+
         if (devPath)
             localPath.transform(matrix, devPath);
-        
+
         if (fillPath)
             fillPath->swap(localPath);
     }
@@ -588,7 +588,7 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath, Sk
     {
         if (fillToDevMatrix)
             fillToDevMatrix->reset();
-        
+
         if (devPath)
         {
             if (fillPath == NULL)
@@ -596,11 +596,11 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath, Sk
             else
                 *devPath = path;
         }
-        
+
         if (fillPath)
             fillPath->swap(path);
     }
-    
+
     if (devPath)
         devPath->updateBoundsCache();
     if (fillPath)

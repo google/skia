@@ -11,12 +11,12 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
     SkASSERT(flags <= kAll_BlurFlag);
     if (radius > 0)
     {
-        uint32_t blurFlags = flags & kIgnoreTransform_BlurFlag ? 
-            SkBlurMaskFilter::kIgnoreTransform_BlurFlag : 
+        uint32_t blurFlags = flags & kIgnoreTransform_BlurFlag ?
+            SkBlurMaskFilter::kIgnoreTransform_BlurFlag :
             SkBlurMaskFilter::kNone_BlurFlag;
 
         fBlur = SkBlurMaskFilter::Create(radius,
-                                         SkBlurMaskFilter::kNormal_BlurStyle, 
+                                         SkBlurMaskFilter::kNormal_BlurStyle,
                                          blurFlags);
     }
     else
@@ -34,7 +34,7 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkFlattenableReadBuffer& buffer)
 
 SkBlurDrawLooper::~SkBlurDrawLooper()
 {
-    fBlur->safeUnref();
+    SkSafeUnref(fBlur);
 }
 
 void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer)

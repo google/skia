@@ -116,7 +116,7 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
         */
         if (NULL == fPixelRef) {
             // leave fPixels as it is
-            fColorTable->safeRef(); // ref the user's ctable if present
+            SkSafeRef(fColorTable); // ref the user's ctable if present
         } else {    // we have a pixelref, so pixels/ctable reflect it
             // ignore the values from the memcpy
             fPixels = NULL;
@@ -311,7 +311,7 @@ SkPixelRef* SkBitmap::setPixelRef(SkPixelRef* pr, size_t offset) {
             this->freePixels();
             SkASSERT(NULL == fPixelRef);
 
-            pr->safeRef();
+            SkSafeRef(pr);
             fPixelRef = pr;
         }
         fPixelRefOffset = offset;
@@ -1135,7 +1135,7 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t SK_RESTRICT alpha[],
         }
         return false;
     }
-    
+
     if (SkBitmap::kA8_Config == config && !src.isOpaque()) {
         const uint8_t* s = src.getAddr8(0, 0);
         while (--h >= 0) {
@@ -1351,7 +1351,7 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
             size_t offset = buffer.readU32();
             SkPixelRef::Factory fact = deserialize_factory(buffer);
             SkPixelRef* pr = fact(buffer);
-            this->setPixelRef(pr, offset)->safeUnref();
+            SkSafeUnref(this->setPixelRef(pr, offset));
             break;
         }
         case SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE:

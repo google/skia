@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -41,7 +41,7 @@ public:
         fProc32 = SkBlitRow::Factory32(flags32);
         fAlpha = alpha;
     }
-    
+
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
         SK_RESTRICT uint32_t* dst = fDevice->getAddr32(x, y);
@@ -62,7 +62,7 @@ public:
 private:
     SkBlitRow::Proc32   fProc32;
     U8CPU               fAlpha;
-    
+
     typedef SkSpriteBlitter INHERITED;
 };
 
@@ -73,11 +73,11 @@ public:
     Sprite_D32_XferFilter(const SkBitmap& source, const SkPaint& paint)
         : SkSpriteBlitter(source) {
         fColorFilter = paint.getColorFilter();
-        fColorFilter->safeRef();
-        
+        SkSafeRef(fColorFilter);
+
         fXfermode = paint.getXfermode();
-        fXfermode->safeRef();
-        
+        SkSafeRef(fXfermode);
+
         fBufferSize = 0;
         fBuffer = NULL;
 
@@ -88,21 +88,21 @@ public:
         if (!source.isOpaque()) {
             flags32 |= SkBlitRow::kSrcPixelAlpha_Flag32;
         }
-        
+
         fProc32 = SkBlitRow::Factory32(flags32);
         fAlpha = paint.getAlpha();
     }
-    
+
     virtual ~Sprite_D32_XferFilter() {
         delete[] fBuffer;
-        fXfermode->safeUnref();
-        fColorFilter->safeUnref();
+        SkSafeUnref(fXfermode);
+        SkSafeUnref(fColorFilter);
     }
-    
+
     virtual void setup(const SkBitmap& device, int left, int top,
                        const SkPaint& paint) {
         this->INHERITED::setup(device, left, top, paint);
-        
+
         int width = device.width();
         if (width > fBufferSize) {
             fBufferSize = width;
@@ -142,12 +142,12 @@ public:
 
         do {
             const SkPMColor* tmp = src;
-            
+
             if (NULL != colorFilter) {
                 colorFilter->filterSpan(src, width, fBuffer);
                 tmp = fBuffer;
             }
-            
+
             if (NULL != xfermode) {
                 xfermode->xfer32(dst, tmp, width, NULL);
             } else {
@@ -158,7 +158,7 @@ public:
             src = (const SK_RESTRICT uint32_t*)((const char*)src + srcRB);
         } while (--height != 0);
     }
-    
+
 private:
     typedef Sprite_D32_XferFilter INHERITED;
 };
@@ -166,7 +166,7 @@ private:
 static void fillbuffer(SK_RESTRICT SkPMColor dst[],
                        const SK_RESTRICT SkPMColor16 src[], int count) {
     SkASSERT(count > 0);
-    
+
     do {
         *dst++ = SkPixel4444ToPixel32(*src++);
     } while (--count != 0);
@@ -176,7 +176,7 @@ class Sprite_D32_S4444_XferFilter : public Sprite_D32_XferFilter {
 public:
     Sprite_D32_S4444_XferFilter(const SkBitmap& source, const SkPaint& paint)
         : Sprite_D32_XferFilter(source, paint) {}
-    
+
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
         SK_RESTRICT SkPMColor* dst = fDevice->getAddr32(x, y);
@@ -190,7 +190,7 @@ public:
 
         do {
             fillbuffer(buffer, src, width);
-            
+
             if (NULL != colorFilter) {
                 colorFilter->filterSpan(buffer, width, buffer);
             }
@@ -199,12 +199,12 @@ public:
             } else {
                 fProc32(dst, buffer, width, fAlpha);
             }
-            
+
             dst = (SK_RESTRICT SkPMColor*)((char*)dst + dstRB);
             src = (const SK_RESTRICT SkPMColor16*)((const char*)src + srcRB);
         } while (--height != 0);
     }
-    
+
 private:
     typedef Sprite_D32_XferFilter INHERITED;
 };
@@ -223,7 +223,7 @@ static void src_row(SK_RESTRICT SkPMColor dst[],
 class Sprite_D32_S4444_Opaque : public SkSpriteBlitter {
 public:
     Sprite_D32_S4444_Opaque(const SkBitmap& source) : SkSpriteBlitter(source) {}
-    
+
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
         SK_RESTRICT SkPMColor* dst = fDevice->getAddr32(x, y);
@@ -231,7 +231,7 @@ public:
                                                                 y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
-        
+
         do {
             src_row(dst, src, width);
             dst = (SK_RESTRICT SkPMColor*)((char*)dst + dstRB);
@@ -252,7 +252,7 @@ static void srcover_row(SK_RESTRICT SkPMColor dst[],
 class Sprite_D32_S4444 : public SkSpriteBlitter {
 public:
     Sprite_D32_S4444(const SkBitmap& source) : SkSpriteBlitter(source) {}
-    
+
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
         SK_RESTRICT SkPMColor* dst = fDevice->getAddr32(x, y);
@@ -260,7 +260,7 @@ public:
                                                                 y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
-        
+
         do {
             srcover_row(dst, src, width);
             dst = (SK_RESTRICT SkPMColor*)((char*)dst + dstRB);

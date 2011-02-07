@@ -10,7 +10,7 @@ SkMallocPixelRef::SkMallocPixelRef(void* storage, size_t size,
     fStorage = storage;
     fSize = size;
     fCTable = ctable;
-    ctable->safeRef();
+    SkSafeRef(ctable);
 }
 
 SkMallocPixelRef::~SkMallocPixelRef() {
@@ -40,7 +40,8 @@ void SkMallocPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
     }
 }
 
-SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer) : INHERITED(buffer, NULL) {
+SkMallocPixelRef::SkMallocPixelRef(SkFlattenableReadBuffer& buffer)
+        : INHERITED(buffer, NULL) {
     fSize = buffer.readU32();
     fStorage = sk_malloc_throw(fSize);
     buffer.read(fStorage, fSize);

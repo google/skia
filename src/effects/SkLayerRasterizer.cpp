@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -59,7 +59,7 @@ static bool compute_bounds(const SkDeque& layers, const SkPath& path, const SkMa
     SkLayerRasterizer_Rec*  rec;
 
     bounds->set(SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32);
-    
+
     while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != NULL)
     {
         const SkPaint&  paint = rec->fPaint;
@@ -117,13 +117,13 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     }
 
     if (SkMask::kJustComputeBounds_CreateMode != mode)
-    {    
+    {
         SkBitmap device;
         SkDraw   draw;
         SkMatrix translatedMatrix;  // this translates us to our local pixels
         SkMatrix drawMatrix;        // this translates the path by each layer's offset
         SkRegion rectClip;
-        
+
         rectClip.setRect(0, 0, mask->fBounds.width(), mask->fBounds.height());
 
         translatedMatrix = matrix;
@@ -138,7 +138,7 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
         draw.fClip      = &rectClip;
         // we set the matrixproc in the loop, as the matrix changes each time (potentially)
         draw.fBounder   = NULL;
-        
+
         SkDeque::Iter           iter(fLayers);
         SkLayerRasterizer_Rec*  rec;
 
@@ -158,7 +158,7 @@ static void paint_read(SkPaint* paint, SkFlattenableReadBuffer& buffer)
     paint->setAntiAlias(buffer.readBool());
     paint->setStyle((SkPaint::Style)buffer.readU8());
     paint->setAlpha(buffer.readU8());
-    
+
     if (paint->getStyle() != SkPaint::kFill_Style)
     {
         paint->setStrokeWidth(buffer.readScalar());
@@ -167,10 +167,10 @@ static void paint_read(SkPaint* paint, SkFlattenableReadBuffer& buffer)
         paint->setStrokeJoin((SkPaint::Join)buffer.readU8());
     }
 
-    paint->setMaskFilter((SkMaskFilter*)buffer.readFlattenable())->safeUnref();
-    paint->setPathEffect((SkPathEffect*)buffer.readFlattenable())->safeUnref();
-    paint->setRasterizer((SkRasterizer*)buffer.readFlattenable())->safeUnref();
-    paint->setXfermode((SkXfermode*)buffer.readFlattenable())->safeUnref();
+    SkSafeUnref(paint->setMaskFilter((SkMaskFilter*)buffer.readFlattenable()));
+    SkSafeUnref(paint->setPathEffect((SkPathEffect*)buffer.readFlattenable()));
+    SkSafeUnref(paint->setRasterizer((SkRasterizer*)buffer.readFlattenable()));
+    SkSafeUnref(paint->setXfermode((SkXfermode*)buffer.readFlattenable()));
 }
 
 static void paint_write(const SkPaint& paint, SkFlattenableWriteBuffer& buffer)
@@ -178,7 +178,7 @@ static void paint_write(const SkPaint& paint, SkFlattenableWriteBuffer& buffer)
     buffer.writeBool(paint.isAntiAlias());
     buffer.write8(paint.getStyle());
     buffer.write8(paint.getAlpha());
-    
+
     if (paint.getStyle() != SkPaint::kFill_Style)
     {
         buffer.writeScalar(paint.getStrokeWidth());
@@ -186,7 +186,7 @@ static void paint_write(const SkPaint& paint, SkFlattenableWriteBuffer& buffer)
         buffer.write8(paint.getStrokeCap());
         buffer.write8(paint.getStrokeJoin());
     }
-    
+
     buffer.writeFlattenable(paint.getMaskFilter());
     buffer.writeFlattenable(paint.getPathEffect());
     buffer.writeFlattenable(paint.getRasterizer());
@@ -197,11 +197,11 @@ SkLayerRasterizer::SkLayerRasterizer(SkFlattenableReadBuffer& buffer)
     : SkRasterizer(buffer), fLayers(sizeof(SkLayerRasterizer_Rec))
 {
     int count = buffer.readS32();
-    
+
     for (int i = 0; i < count; i++)
     {
         SkLayerRasterizer_Rec* rec = (SkLayerRasterizer_Rec*)fLayers.push_back();
-    
+
 #if 0
         new (&rec->fPaint) SkPaint(buffer);
 #else

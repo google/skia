@@ -197,7 +197,7 @@ public:
             }
 
             fFilter = prev->fFilter;
-            fFilter->safeRef();
+            SkSafeRef(fFilter);
 
             fTopLayer = prev->fTopLayer;
         } else {   // no prev
@@ -214,7 +214,7 @@ public:
         inc_rec();
     }
     ~MCRec() {
-        fFilter->safeUnref();
+        SkSafeUnref(fFilter);
         SkDELETE(fLayer);
         dec_rec();
     }

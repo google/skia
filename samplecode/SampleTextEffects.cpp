@@ -16,9 +16,9 @@ static inline SkPMColor rgb2gray(SkPMColor c)
     unsigned r = SkGetPackedR32(c);
     unsigned g = SkGetPackedG32(c);
     unsigned b = SkGetPackedB32(c);
-    
+
     unsigned x = r * 5 + g * 7 + b * 4 >> 4;
-    
+
     return SkPackARGB32(0, x, x, x) | (c & (SK_A32_MASK << SK_A32_SHIFT));
 }
 
@@ -44,7 +44,7 @@ public:
         for (int i = 0; i < count; i++)
             result[i] = src[i] & mask;
     }
-    
+
 private:
     SkPMColor   fMask;
 };
@@ -82,7 +82,7 @@ static void r1(SkLayerRasterizer* rast, SkPaint& p)
     p.setStrokeWidth(SK_Scalar1*2);
     rast->addLayer(p);
 }
-    
+
 static void r2(SkLayerRasterizer* rast, SkPaint& p)
 {
     p.setStyle(SkPaint::kStrokeAndFill_Style);
@@ -134,7 +134,7 @@ static void r5(SkLayerRasterizer* rast, SkPaint& p)
 static void r6(SkLayerRasterizer* rast, SkPaint& p)
 {
     rast->addLayer(p);
-    
+
     p.setAntiAlias(false);
     SkLayerRasterizer* rast2 = new SkLayerRasterizer;
     r5(rast2, p);
@@ -153,7 +153,7 @@ public:
     virtual void flatten(SkFlattenableWriteBuffer& buffer)
     {
         this->INHERITED::flatten(buffer);
-        
+
         buffer.writeScalar(fRadius);
     }
     virtual Factory getFactory() { return CreateProc; }
@@ -163,7 +163,7 @@ protected:
     {
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
-    
+
     Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
     {
         fRadius = buffer.readScalar();
@@ -191,7 +191,7 @@ static void r7(SkLayerRasterizer* rast, SkPaint& p)
 static void r8(SkLayerRasterizer* rast, SkPaint& p)
 {
     rast->addLayer(p);
-    
+
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
@@ -220,7 +220,7 @@ public:
         }
         return false;
     }
-    
+
     virtual Factory getFactory() { return CreateProc; }
     virtual void flatten(SkFlattenableWriteBuffer& buffer)
     {
@@ -239,17 +239,17 @@ protected:
             src[1].set(SkIntToScalar(u+ucount) + SK_ScalarHalf,
                        SkIntToScalar(v) + SK_ScalarHalf);
             this->getMatrix().mapPoints(dstP, src, 2);
-            
+
             dst->moveTo(dstP[0]);
             dst->lineTo(dstP[1]);
         }
     }
-    
+
     Line2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
     {
         fWidth = buffer.readScalar();
     }
-    
+
 private:
     SkScalar fWidth;
 
@@ -264,7 +264,7 @@ private:
 static void r9(SkLayerRasterizer* rast, SkPaint& p)
 {
     rast->addLayer(p);
-    
+
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1, SK_Scalar1*6, 0, 0);
     lattice.postRotate(SkIntToScalar(30), 0, 0);
@@ -302,7 +302,7 @@ static unsigned color_dist16(uint16_t a, uint16_t b)
     unsigned dr = SkAbs32(SkPacked16ToR32(a) - SkPacked16ToR32(b));
     unsigned dg = SkAbs32(SkPacked16ToG32(a) - SkPacked16ToG32(b));
     unsigned db = SkAbs32(SkPacked16ToB32(a) - SkPacked16ToB32(b));
-    
+
     return SkMax32(dr, SkMax32(dg, db));
 }
 
@@ -317,7 +317,7 @@ static unsigned scale_dist(unsigned dist, unsigned scale)
 }
 
 static void apply_shader(SkPaint* paint, int index)
-{    
+{
     raster_proc proc = gRastProcs[index];
     if (proc)
     {
@@ -331,7 +331,7 @@ static void apply_shader(SkPaint* paint, int index)
 
 #if 0
     SkScalar dir[] = { SK_Scalar1, SK_Scalar1, SK_Scalar1 };
-    paint->setMaskFilter(SkBlurMaskFilter::CreateEmboss(dir, SK_Scalar1/4, SkIntToScalar(4), SkIntToScalar(3)))->unref();    
+    paint->setMaskFilter(SkBlurMaskFilter::CreateEmboss(dir, SK_Scalar1/4, SkIntToScalar(4), SkIntToScalar(3)))->unref();
 #endif
     paint->setColor(SK_ColorBLUE);
 }
@@ -345,10 +345,10 @@ public:
     {
         fFace = SkTypeface::CreateFromFile("/Users/reed/Downloads/p052024l.pfb");
     }
-    
+
     virtual ~TextEffectView()
     {
-        fFace->safeUnref();
+        SkSafeUnref(fFace);
     }
 
 protected:
@@ -362,22 +362,22 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas)
     {
 //        canvas->drawColor(0xFFDDDDDD);
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas)
     {
         this->drawBG(canvas);
-        
+
         canvas->save();
 //        canvas->scale(SK_Scalar1*2, SK_Scalar1*2, 0, 0);
 
         SkPaint     paint;
-        
+
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(56));
         paint.setTypeface(SkTypeface::CreateFromName("sans-serif",
@@ -389,11 +389,11 @@ protected:
         SkString str("TextEffects");
 
         paint.setTypeface(fFace);
-        
+
         for (int i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++)
         {
             apply_shader(&paint, i);
-            
+
           //  paint.setMaskFilter(NULL);
           //  paint.setColor(SK_ColorBLACK);
 
@@ -403,7 +403,7 @@ protected:
                                     gLightingColors[index].fMul,
                                     gLightingColors[index].fAdd))->unref();
 #endif
-            
+
             canvas->drawText(str.c_str(), str.size(), x, y, paint);
 
             if (0)
@@ -417,7 +417,7 @@ protected:
         }
 
         canvas->restore();
-        
+
         if (0)
         {
             SkPoint pts[] = { 0, 0, 0, SkIntToScalar(150) };
@@ -428,7 +428,7 @@ protected:
             paint.setShader(s);
             canvas->drawRectCoords(0, 0, SkIntToScalar(120), SkIntToScalar(150), paint);
         }
-        
+
         if (0)
         {
             SkAvoidXfermode   mode(SK_ColorWHITE, 0xFF,
@@ -442,20 +442,20 @@ protected:
             canvas->drawOval(r, paint);
         }
     }
-    
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
+
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y)
     {
         gRastIndex = (gRastIndex + 1) % SK_ARRAY_COUNT(gRastProcs);
         this->inval(NULL);
 
         return this->INHERITED::onFindClickHandler(x, y);
     }
-    
-    virtual bool onClick(Click* click) 
+
+    virtual bool onClick(Click* click)
     {
         return this->INHERITED::onClick(click);
     }
-    
+
 private:
     typedef SkView INHERITED;
 };

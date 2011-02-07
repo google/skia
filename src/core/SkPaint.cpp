@@ -71,49 +71,49 @@ SkPaint::SkPaint(const SkPaint& src)
 {
     memcpy(this, &src, sizeof(src));
 
-    fTypeface->safeRef();
-    fPathEffect->safeRef();
-    fShader->safeRef();
-    fXfermode->safeRef();
-    fMaskFilter->safeRef();
-    fColorFilter->safeRef();
-    fRasterizer->safeRef();
-    fLooper->safeRef();
+    SkSafeRef(fTypeface);
+    SkSafeRef(fPathEffect);
+    SkSafeRef(fShader);
+    SkSafeRef(fXfermode);
+    SkSafeRef(fMaskFilter);
+    SkSafeRef(fColorFilter);
+    SkSafeRef(fRasterizer);
+    SkSafeRef(fLooper);
 }
 
 SkPaint::~SkPaint()
 {
-    fTypeface->safeUnref();
-    fPathEffect->safeUnref();
-    fShader->safeUnref();
-    fXfermode->safeUnref();
-    fMaskFilter->safeUnref();
-    fColorFilter->safeUnref();
-    fRasterizer->safeUnref();
-    fLooper->safeUnref();
+    SkSafeUnref(fTypeface);
+    SkSafeUnref(fPathEffect);
+    SkSafeUnref(fShader);
+    SkSafeUnref(fXfermode);
+    SkSafeUnref(fMaskFilter);
+    SkSafeUnref(fColorFilter);
+    SkSafeUnref(fRasterizer);
+    SkSafeUnref(fLooper);
 }
 
 SkPaint& SkPaint::operator=(const SkPaint& src)
 {
     SkASSERT(&src);
 
-    src.fTypeface->safeRef();
-    src.fPathEffect->safeRef();
-    src.fShader->safeRef();
-    src.fXfermode->safeRef();
-    src.fMaskFilter->safeRef();
-    src.fColorFilter->safeRef();
-    src.fRasterizer->safeRef();
-    src.fLooper->safeRef();
+    SkSafeRef(src.fTypeface);
+    SkSafeRef(src.fPathEffect);
+    SkSafeRef(src.fShader);
+    SkSafeRef(src.fXfermode);
+    SkSafeRef(src.fMaskFilter);
+    SkSafeRef(src.fColorFilter);
+    SkSafeRef(src.fRasterizer);
+    SkSafeRef(src.fLooper);
 
-    fTypeface->safeUnref();
-    fPathEffect->safeUnref();
-    fShader->safeUnref();
-    fXfermode->safeUnref();
-    fMaskFilter->safeUnref();
-    fColorFilter->safeUnref();
-    fRasterizer->safeUnref();
-    fLooper->safeUnref();
+    SkSafeUnref(fTypeface);
+    SkSafeUnref(fPathEffect);
+    SkSafeUnref(fShader);
+    SkSafeUnref(fXfermode);
+    SkSafeUnref(fMaskFilter);
+    SkSafeUnref(fColorFilter);
+    SkSafeUnref(fRasterizer);
+    SkSafeUnref(fLooper);
 
     memcpy(this, &src, sizeof(src));
 
@@ -1511,13 +1511,13 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
     }
 
     if (flatFlags & kHasEffects_FlatFlag) {
-        this->setPathEffect((SkPathEffect*) buffer.readFlattenable())->safeUnref();
-        this->setShader((SkShader*) buffer.readFlattenable())->safeUnref();
-        this->setXfermode((SkXfermode*) buffer.readFlattenable())->safeUnref();
-        this->setMaskFilter((SkMaskFilter*) buffer.readFlattenable())->safeUnref();
-        this->setColorFilter((SkColorFilter*) buffer.readFlattenable())->safeUnref();
-        this->setRasterizer((SkRasterizer*) buffer.readFlattenable())->safeUnref();
-        this->setLooper((SkDrawLooper*) buffer.readFlattenable())->safeUnref();
+        SkSafeUnref(this->setPathEffect((SkPathEffect*) buffer.readFlattenable()));
+        SkSafeUnref(this->setShader((SkShader*) buffer.readFlattenable()));
+        SkSafeUnref(this->setXfermode((SkXfermode*) buffer.readFlattenable()));
+        SkSafeUnref(this->setMaskFilter((SkMaskFilter*) buffer.readFlattenable()));
+        SkSafeUnref(this->setColorFilter((SkColorFilter*) buffer.readFlattenable()));
+        SkSafeUnref(this->setRasterizer((SkRasterizer*) buffer.readFlattenable()));
+        SkSafeUnref(this->setLooper((SkDrawLooper*) buffer.readFlattenable()));
     } else {
         this->setPathEffect(NULL);
         this->setShader(NULL);
@@ -1531,20 +1531,17 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkShader* SkPaint::setShader(SkShader* shader)
-{
+SkShader* SkPaint::setShader(SkShader* shader) {
     SkRefCnt_SafeAssign(fShader, shader);
     return shader;
 }
 
-SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter)
-{
+SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter) {
     SkRefCnt_SafeAssign(fColorFilter, filter);
     return filter;
 }
 
-SkXfermode* SkPaint::setXfermode(SkXfermode* mode)
-{
+SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
     SkRefCnt_SafeAssign(fXfermode, mode);
     return mode;
 }
@@ -1555,19 +1552,17 @@ SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     return fXfermode;
 }
 
-SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect)
-{
+SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect) {
     SkRefCnt_SafeAssign(fPathEffect, effect);
     return effect;
 }
 
-SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter)
-{
+SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
     SkRefCnt_SafeAssign(fMaskFilter, filter);
     return filter;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 bool SkPaint::getFillPath(const SkPath& src, SkPath* dst) const
 {
