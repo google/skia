@@ -296,6 +296,7 @@ struct SkRect {
     /** Return true if the rectangle's width or height are <= 0
     */
     bool        isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
+    bool        hasValidCoordinates() const;
     SkScalar    width() const { return fRight - fLeft; }
     SkScalar    height() const { return fBottom - fTop; }
     SkScalar    centerX() const { return SkScalarHalf(fLeft + fRight); }

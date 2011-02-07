@@ -15,6 +15,7 @@
  */
 
 #include "SkRect.h"
+#include <limits>
 
 void SkIRect::join(int32_t left, int32_t top, int32_t right, int32_t bottom)
 {
@@ -43,6 +44,19 @@ void SkIRect::sort()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+template <typename NumType> static inline bool isValidRange(const NumType& x)
+{
+    static const NumType max = std::numeric_limits<NumType>::max();
+    return x >= -max && x <= max;
+}
+
+
+bool SkRect::hasValidCoordinates() const
+{
+    return isValidRange<SkScalar>(fLeft) && isValidRange<SkScalar>(fRight) &&
+           isValidRange<SkScalar>(fTop) && isValidRange<SkScalar>(fBottom);
+}
 
 void SkRect::sort()
 {

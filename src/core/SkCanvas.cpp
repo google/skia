@@ -991,6 +991,10 @@ void SkCanvas::computeLocalClipBoundsCompareType(EdgeType et) const {
     antialiasing (worst case)
  */
 bool SkCanvas::quickReject(const SkRect& rect, EdgeType et) const {
+
+    if (!rect.hasValidCoordinates())
+        return true;
+
     if (fMCRec->fRegion->isEmpty()) {
         return true;
     }
