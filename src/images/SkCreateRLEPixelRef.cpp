@@ -22,12 +22,12 @@ RLEPixelRef::RLEPixelRef(SkBitmap::RLEPixels* rlep, SkColorTable* ctable)
         : SkPixelRef(NULL) {
     fRLEPixels = rlep;  // we now own this ptr
     fCTable = ctable;
-    ctable->safeRef();
+    SkSafeRef(ctable);
 }
 
 RLEPixelRef::~RLEPixelRef() {
     SkDELETE(fRLEPixels);
-    fCTable->safeUnref();
+    SkSafeUnref(fCTable);
 }
 
 void* RLEPixelRef::onLockPixels(SkColorTable** ct) {
