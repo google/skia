@@ -274,17 +274,19 @@ static int countMatches(const GrTextureEntry* head, const GrTextureEntry* target
     return count;
 }
 
+#if GR_DEBUG
+static bool both_zero_or_nonzero(int count, size_t bytes) {
+    return (count == 0 && bytes == 0) || (count > 0 && bytes > 0);
+}
+#endif
+
 void GrTextureCache::validate() const {
     GrAssert(!fHead == !fTail);
-    GrAssert(!fEntryCount == !fEntryBytes);
-    GrAssert(!fClientDetachedBytes == !fClientDetachedBytes);
+    GrAssert(both_zero_or_nonzero(fEntryCount, fEntryBytes));
+    GrAssert(both_zero_or_nonzero(fClientDetachedCount, fClientDetachedBytes));
     GrAssert(fClientDetachedBytes <= fEntryBytes);
     GrAssert(fClientDetachedCount <= fEntryCount);
     GrAssert((fEntryCount - fClientDetachedCount) == fCache.count());
-    GrAssert(fEntryBytes >= 0);
-    GrAssert(fEntryCount >= 0);
-    GrAssert(fClientDetachedCount >= 0);
-    GrAssert(fClientDetachedBytes >= 0);
 
     fCache.validate();
 
