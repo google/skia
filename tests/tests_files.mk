@@ -6,6 +6,7 @@ SOURCE := \
     FillPathTest.cpp \
     FlateTest.cpp \
     GeometryTest.cpp \
+    InfRectTest.cpp \
     MathTest.cpp \
     MatrixTest.cpp \
     PackBitsTest.cpp \
@@ -24,4 +25,4 @@ SOURCE := \
     Test.cpp \
     TestSize.cpp \
     UtilsTest.cpp \
-    InfRectTest.cpp
+    XfermodeTest.cpp

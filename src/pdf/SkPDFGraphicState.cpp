@@ -16,6 +16,44 @@
 
 #include "SkPDFGraphicState.h"
 #include "SkStream.h"
+#include "SkTypes.h"
+
+namespace {
+
+const char* blendModeFromXfermode(SkXfermode::Mode mode) {
+    switch (mode) {
+        case SkXfermode::kSrcOver_Mode:    return "Normal";
+        case SkXfermode::kMultiply_Mode:   return "Multiply";
+        case SkXfermode::kScreen_Mode:     return "Screen";
+        case SkXfermode::kOverlay_Mode:    return "Overlay";
+        case SkXfermode::kDarken_Mode:     return "Darken";
+        case SkXfermode::kLighten_Mode:    return "Lighten";
+        case SkXfermode::kColorDodge_Mode: return "ColorDodge";
+        case SkXfermode::kColorBurn_Mode:  return "ColorBurn";
+        case SkXfermode::kHardLight_Mode:  return "HardLight";
+        case SkXfermode::kSoftLight_Mode:  return "SoftLight";
+        case SkXfermode::kDifference_Mode: return "Difference";
+        case SkXfermode::kExclusion_Mode:  return "Exclusion";
+
+        // TODO(vandebo) Figure out if we can support more of these modes.
+        case SkXfermode::kClear_Mode:
+        case SkXfermode::kSrc_Mode:
+        case SkXfermode::kDst_Mode:
+        case SkXfermode::kDstOver_Mode:
+        case SkXfermode::kSrcIn_Mode:
+        case SkXfermode::kDstIn_Mode:
+        case SkXfermode::kSrcOut_Mode:
+        case SkXfermode::kDstOut_Mode:
+        case SkXfermode::kSrcATop_Mode:
+        case SkXfermode::kDstATop_Mode:
+        case SkXfermode::kXor_Mode:
+        case SkXfermode::kPlus_Mode:
+            return NULL;
+    }
+    return NULL;
+}
+
+}
 
 SkPDFGraphicState::~SkPDFGraphicState() {
     SkAutoMutexAcquire lock(canonicalPaintsMutex());
@@ -30,6 +68,7 @@ void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     SkPDFDict::emitObject(stream, catalog, indirect);
 }
 
+// static
 size_t SkPDFGraphicState::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     populateDict();
     return SkPDFDict::getOutputSize(catalog, indirect);
@@ -104,6 +143,18 @@ void SkPDFGraphicState::populateDict() {
         insert("LW", new SkPDFScalar(fPaint.getStrokeWidth()))->unref();
         insert("ML", new SkPDFScalar(fPaint.getStrokeMiter()))->unref();
         insert("SA", new SkPDFBool(true))->unref();  // Auto stroke adjustment.
+
+        SkXfermode::Mode xfermode = SkXfermode::kSrcOver_Mode;
+        // If asMode fails return false, default to kSrcOver_Mode.
+        if (fPaint.getXfermode())
+            fPaint.getXfermode()->asMode(&xfermode);
+        // If we don't support the mode, just use kSrcOver_Mode.
+        if (xfermode < 0 || xfermode > SkXfermode::kLastMode ||
+                blendModeFromXfermode(xfermode) == NULL) {
+            fprintf(stderr, "NOT_IMPLEMENTED: xfermode = %d\n", xfermode);
+            xfermode = SkXfermode::kSrcOver_Mode;
+        }
+        insert("BM", new SkPDFName(blendModeFromXfermode(xfermode)))->unref();
     }
 }
 
@@ -115,9 +166,29 @@ bool SkPDFGraphicState::GSCanonicalEntry::operator==(
     const SkPaint* b = gs.fPaint;
     SkASSERT(a != NULL);
     SkASSERT(b != NULL);
-    return SkColorGetA(a->getColor()) == SkColorGetA(b->getColor()) &&
-           a->getStrokeCap() == b->getStrokeCap() &&
-           a->getStrokeJoin() == b->getStrokeJoin() &&
-           a->getStrokeWidth() == b->getStrokeWidth() &&
-           a->getStrokeMiter() == b->getStrokeMiter();
+
+    if (SkColorGetA(a->getColor()) != SkColorGetA(b->getColor()) ||
+           a->getStrokeCap() != b->getStrokeCap() ||
+           a->getStrokeJoin() != b->getStrokeJoin() ||
+           a->getStrokeWidth() != b->getStrokeWidth() ||
+           a->getStrokeMiter() != b->getStrokeMiter()) {
+        return false;
+    }
+
+    SkXfermode* aXfermode = a->getXfermode();
+    SkXfermode::Mode aXfermodeName = SkXfermode::kSrcOver_Mode;
+    bool aXfermodeKnown = true;
+    if (aXfermode)
+        aXfermodeKnown = aXfermode->asMode(&aXfermodeName);
+    SkXfermode* bXfermode = b->getXfermode();
+    SkXfermode::Mode bXfermodeName = SkXfermode::kSrcOver_Mode;
+    bool bXfermodeKnown = true;
+    if (bXfermode)
+        bXfermodeKnown = bXfermode->asMode(&bXfermodeName);
+
+    if (aXfermodeKnown != bXfermodeKnown)
+        return false;
+    if (!aXfermodeKnown)
+       return aXfermode == bXfermode;
+    return aXfermodeName == bXfermodeName;
 }

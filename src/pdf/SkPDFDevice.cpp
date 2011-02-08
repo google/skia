@@ -132,7 +132,7 @@ static inline SkBitmap makeABitmap(int width, int height) {
 
 SkPDFDevice::SkPDFDevice(int width, int height)
     : SkDevice(NULL, makeABitmap(width, height), false),
-	  fWidth(width),
+      fWidth(width),
       fHeight(height),
       fGraphicStackIndex(0) {
     fGraphicStack[0].fColor = SK_ColorBLACK;
@@ -441,19 +441,18 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
         return;
     }
     // Assume that a vector capable device means that it's a PDF Device.
-    // TODO(vandebo) handle the paint (alpha and compositing mode).
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
 
     SkMatrix matrix;
     matrix.setTranslate(x, y);
     SkMatrix curTransform = setTransform(matrix);
+    updateGSFromPaint(paint, false);
 
     SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice);
     fXObjectResources.push(xobject);  // Transfer reference.
     fContent.append("/X");
     fContent.appendS32(fXObjectResources.count() - 1);
     fContent.append(" Do\n");
-
     setTransform(curTransform);
 }
 
@@ -567,8 +566,8 @@ SkString SkPDFDevice::content(bool flipOrigin) const {
 #define PAINTCHECK(x,y) NOT_IMPLEMENTED(newPaint.x() y, false)
 
 void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint, bool forText) {
-    PAINTCHECK(getXfermode, != NULL);
-    PAINTCHECK(getPathEffect, != NULL);
+    SkASSERT(newPaint.getPathEffect() == NULL);
+
     PAINTCHECK(getMaskFilter, != NULL);
     PAINTCHECK(getShader, != NULL);
     PAINTCHECK(getColorFilter, != NULL);
@@ -817,6 +816,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
     scaled.postScale(subset.width(), subset.height());
     scaled.postConcat(matrix);
     SkMatrix curTransform = setTransform(scaled);
+    updateGSFromPaint(paint, false);
 
     fXObjectResources.push(image);  // Transfer reference.
     fContent.append("/X");
