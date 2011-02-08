@@ -66,9 +66,8 @@ public:
     SkPDFObject* insert(const char key[], SkPDFObject* value);
 
 private:
-    SkString fContent;
-    SkRefPtr<SkPDFDevice> fDevice;
     SkRefPtr<SkPDFStream> fStream;
+    SkTDArray<SkPDFObject*> fResources;
 };
 
 #endif

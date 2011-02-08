@@ -22,11 +22,15 @@
 #include "SkStream.h"
 #include "SkTypes.h"
 
-SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device)
-        : fContent(device->content(false)),
-          fDevice(device) {
-    SkMemoryStream* stream_data = new SkMemoryStream(fContent.c_str(),
-                                                     fContent.size());
+SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
+    // We don't want to keep around device because we'd have two copies
+    // of content, so reference or copy everything we need (content and
+    // resources).
+    device->getResources(&fResources);
+
+    SkString content = device->content(false);
+    SkMemoryStream* stream_data = new SkMemoryStream(content.c_str(),
+                                                     content.size());
     SkAutoUnref stream_data_unref(stream_data);
     fStream = new SkPDFStream(stream_data);
     fStream->unref();  // SkRefPtr and new both took a reference.
@@ -37,7 +41,9 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device)
     insert("Resources", device->getResourceDict().get());
 }
 
-SkPDFFormXObject::~SkPDFFormXObject() {}
+SkPDFFormXObject::~SkPDFFormXObject() {
+    fResources.unrefAll();
+}
 
 void SkPDFFormXObject::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                              bool indirect) {
@@ -55,7 +61,11 @@ size_t SkPDFFormXObject::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 }
 
 void SkPDFFormXObject::getResources(SkTDArray<SkPDFObject*>* resourceList) {
-    fDevice->getResources(resourceList);
+    resourceList->setReserve(resourceList->count() + fResources.count());
+    for (int i = 0; i < fResources.count(); i++) {
+        resourceList->push(fResources[i]);
+        fResources[i]->ref();
+    }
 }
 
 SkPDFObject* SkPDFFormXObject::insert(SkPDFName* key, SkPDFObject* value) {
