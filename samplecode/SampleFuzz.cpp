@@ -150,7 +150,7 @@ static void do_fuzz(SkCanvas* canvas) {
 
     case 7: 
       if (quick == true) break;
-          paint.setMaskFilter(SkBlurMaskFilter::Create(make_number(), SkBlurMaskFilter::kNormal_BlurStyle))->safeUnref();
+          SkSafeUnref(paint.setMaskFilter(SkBlurMaskFilter::Create(make_number(), SkBlurMaskFilter::kNormal_BlurStyle)));
       break;
 
     case 8: 
