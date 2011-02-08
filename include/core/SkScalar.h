@@ -60,6 +60,12 @@
     /** SkScalarIsNaN(n) returns true if argument is not a number
     */
     static inline bool SkScalarIsNaN(float x) { return x != x; }
+    /** Returns true if x is not NaN and not infinite */
+    static inline bool SkScalarIsFinite(float x) {
+        uint32_t bits = SkFloat2Bits(x);    // need unsigned for our shifts
+        int exponent = bits << 1 >> 24;
+        return exponent != 0xFF;
+    }
     /** SkIntToScalar(n) returns its integer argument as an SkScalar
     */
     #define SkIntToScalar(n)        ((float)(n))
@@ -177,6 +183,8 @@
     #define SK_ScalarMin            SK_FixedMin
     #define SK_ScalarNaN            SK_FixedNaN
     #define SkScalarIsNaN(x)        ((x) == SK_FixedNaN)
+    #define SkScalarIsFinite(x)     ((x) != SK_FixedNaN)
+
     #define SkIntToScalar(n)        SkIntToFixed(n)
     #define SkFixedToScalar(x)      (x)
     #define SkScalarToFixed(x)      (x)
