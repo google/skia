@@ -15,7 +15,6 @@
  */
 
 #include "SkRect.h"
-#include <limits>
 
 void SkIRect::join(int32_t left, int32_t top, int32_t right, int32_t bottom)
 {
@@ -45,17 +44,11 @@ void SkIRect::sort()
 
 /////////////////////////////////////////////////////////////////////////////
 
-template <typename NumType> static inline bool isValidRange(const NumType& x)
-{
-    static const NumType max = std::numeric_limits<NumType>::max();
-    return x >= -max && x <= max;
-}
-
-
-bool SkRect::hasValidCoordinates() const
-{
-    return isValidRange<SkScalar>(fLeft) && isValidRange<SkScalar>(fRight) &&
-           isValidRange<SkScalar>(fTop) && isValidRange<SkScalar>(fBottom);
+bool SkRect::hasValidCoordinates() const {
+    return  SkScalarIsFinite(fLeft) &&
+            SkScalarIsFinite(fTop) &&
+            SkScalarIsFinite(fRight) &&
+            SkScalarIsFinite(fBottom);
 }
 
 void SkRect::sort()
@@ -85,14 +78,14 @@ void SkRect::set(const SkPoint pts[], int count)
     } else {
 #ifdef SK_SCALAR_SLOW_COMPARES
         int32_t    l, t, r, b;
-        
+
         l = r = SkScalarAs2sCompliment(pts[0].fX);
         t = b = SkScalarAs2sCompliment(pts[0].fY);
-        
+
         for (int i = 1; i < count; i++) {
             int32_t x = SkScalarAs2sCompliment(pts[i].fX);
             int32_t y = SkScalarAs2sCompliment(pts[i].fY);
-            
+
             if (x < l) l = x; else if (x > r) r = x;
             if (y < t) t = y; else if (y > b) b = y;
         }
@@ -143,7 +136,7 @@ void SkRect::join(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom)
     // do nothing if the params are empty
     if (left >= right || top >= bottom)
         return;
-    
+
     // if we are empty, just assign
     if (fLeft >= fRight || fTop >= fBottom)
         this->set(left, top, right, bottom);

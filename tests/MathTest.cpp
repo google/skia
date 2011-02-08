@@ -146,6 +146,40 @@ static void unittest_fastfloat(skiatest::Reporter* reporter) {
     }
 }
 
+static float make_zero() {
+    return sk_float_sin(0);
+}
+
+static void unittest_isfinite(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
+    float nan = ::asin(2);
+    float inf = 1.0 / make_zero();
+    float big = 3.40282e+038;
+
+    REPORTER_ASSERT(reporter,  SkScalarIsNaN(nan));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(inf));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(big));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(-big));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(0));
+
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(nan));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(inf));
+    REPORTER_ASSERT(reporter,  SkScalarIsFinite(big));
+    REPORTER_ASSERT(reporter,  SkScalarIsFinite(-big));
+    REPORTER_ASSERT(reporter,  SkScalarIsFinite(0));
+#else
+    REPORTER_ASSERT(reporter,  SkScalarIsNaN(0x80000000));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(0x7FFFFFFF));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(0x80000001));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(0));
+
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(0x80000000));
+    REPORTER_ASSERT(reporter,  SkScalarIsFinite(0x7FFFFFFF));
+    REPORTER_ASSERT(reporter,  SkScalarIsFinite(0x80000001));
+    REPORTER_ASSERT(reporter,  SkScalarIsFinite(0));
+#endif
+}
+
 #endif
 
 static void test_muldiv255(skiatest::Reporter* reporter) {
@@ -309,6 +343,7 @@ static void TestMath(skiatest::Reporter* reporter) {
 
 #ifdef SK_CAN_USE_FLOAT
     unittest_fastfloat(reporter);
+    unittest_isfinite(reporter);
 #endif
 
 #ifdef SkLONGLONG
