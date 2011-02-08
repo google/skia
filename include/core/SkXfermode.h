@@ -115,6 +115,13 @@ public:
         kLastMode = kExclusion_Mode
     };
 
+    /** If the xfermode is one of the modes in the Mode enum, then asMode()
+        returns true and sets (if not null) mode accordingly.
+        This is a better version of IsMode(), which is only able to report
+        about modes that are expressible as coefficients.
+     */
+    virtual bool asMode(Mode* mode);
+
     /** Return an SkXfermode object for the specified mode.
      */
     static SkXfermode* Create(Mode mode);
@@ -182,6 +189,7 @@ public:
     // overrides from SkFlattenable
     virtual Factory getFactory() { return CreateProc; }
     virtual void    flatten(SkFlattenableWriteBuffer&);
+    virtual bool asMode(SkXfermode::Mode* mode);
 
 protected:
     SkProcXfermode(SkFlattenableReadBuffer&);
