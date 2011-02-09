@@ -7,10 +7,10 @@
 static void PrintCurve(const char *name, const SkPoint crv[4]) {
     printf("%s: %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g, %.10g\n",
             name,
-            crv[0].fX, crv[0].fY,
-            crv[1].fX, crv[1].fY,
-            crv[2].fX, crv[2].fY,
-            crv[3].fX, crv[3].fY);
+            (float)crv[0].fX, (float)crv[0].fY,
+            (float)crv[1].fX, (float)crv[1].fY,
+            (float)crv[2].fX, (float)crv[2].fY,
+            (float)crv[3].fX, (float)crv[3].fY);
 
 }
 
@@ -46,17 +46,17 @@ static SkPoint* SetCurve(float x0, float y0,
 
 static void TestCubicClipping(skiatest::Reporter* reporter) {
     static SkPoint crv[4] = {
-        { SkFloatToScalar(0), SkFloatToScalar(0)  },
-        { SkFloatToScalar(2), SkFloatToScalar(3)  },
-        { SkFloatToScalar(1), SkFloatToScalar(10) },
-        { SkFloatToScalar(4), SkFloatToScalar(12) }
+        { SkIntToScalar(0), SkIntToScalar(0)  },
+        { SkIntToScalar(2), SkIntToScalar(3)  },
+        { SkIntToScalar(1), SkIntToScalar(10) },
+        { SkIntToScalar(4), SkIntToScalar(12) }
     };
 
     SkCubicClipper clipper;
     SkPoint clipped[4], shouldbe[4];
     SkIRect clipRect;
     bool success;
-    const float tol = 1e-4;
+    const float tol = SkFloatToScalar(1e-4);
 
     // Test no clip, with plenty of room.
     clipRect.set(-2, -2, 6, 14);

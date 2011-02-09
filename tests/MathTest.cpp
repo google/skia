@@ -146,9 +146,11 @@ static void unittest_fastfloat(skiatest::Reporter* reporter) {
     }
 }
 
+#ifdef SK_SCALAR_IS_FLOAT
 static float make_zero() {
     return sk_float_sin(0);
 }
+#endif
 
 static void unittest_isfinite(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
@@ -156,28 +158,24 @@ static void unittest_isfinite(skiatest::Reporter* reporter) {
     float inf = 1.0 / make_zero();
     float big = 3.40282e+038;
 
-    REPORTER_ASSERT(reporter,  SkScalarIsNaN(nan));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(inf));
+    REPORTER_ASSERT(reporter, !SkScalarIsNaN(-inf));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(inf));
+    REPORTER_ASSERT(reporter, !SkScalarIsFinite(-inf));
+#else
+    SkFixed nan = SK_FixedNaN;
+    SkFixed big = SK_FixedMax;
+#endif
+
+    REPORTER_ASSERT(reporter,  SkScalarIsNaN(nan));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(big));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(-big));
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(0));
-
+    
     REPORTER_ASSERT(reporter, !SkScalarIsFinite(nan));
-    REPORTER_ASSERT(reporter, !SkScalarIsFinite(inf));
     REPORTER_ASSERT(reporter,  SkScalarIsFinite(big));
     REPORTER_ASSERT(reporter,  SkScalarIsFinite(-big));
     REPORTER_ASSERT(reporter,  SkScalarIsFinite(0));
-#else
-    REPORTER_ASSERT(reporter,  SkScalarIsNaN(0x80000000));
-    REPORTER_ASSERT(reporter, !SkScalarIsNaN(0x7FFFFFFF));
-    REPORTER_ASSERT(reporter, !SkScalarIsNaN(0x80000001));
-    REPORTER_ASSERT(reporter, !SkScalarIsNaN(0));
-
-    REPORTER_ASSERT(reporter, !SkScalarIsFinite(0x80000000));
-    REPORTER_ASSERT(reporter,  SkScalarIsFinite(0x7FFFFFFF));
-    REPORTER_ASSERT(reporter,  SkScalarIsFinite(0x80000001));
-    REPORTER_ASSERT(reporter,  SkScalarIsFinite(0));
-#endif
 }
 
 #endif
