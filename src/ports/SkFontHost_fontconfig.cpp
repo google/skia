@@ -301,13 +301,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 }
 
 // static
-SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID, bool perGlyphInfo) {
-    SkASSERT(!"SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
-    return NULL;
-}
-
-// static
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
 {
     SkASSERT(!"SkFontHost::CreateTypefaceFromStream unimplemented");
