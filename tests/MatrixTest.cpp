@@ -5,7 +5,7 @@ static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
 #ifdef SK_SCALAR_IS_FLOAT
     const float tolerance = 0.000005f;
 #else
-    const int32_t tolerance = 3;
+    const int32_t tolerance = 8;
 #endif
 
     return SkScalarAbs(a - b) <= tolerance;
@@ -14,7 +14,7 @@ static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
 static bool nearly_equal(const SkMatrix& a, const SkMatrix& b) {
     for (int i = 0; i < 9; i++) {
         if (!nearly_equal_scalar(a[i], b[i])) {
-            printf("not equal %g %g\n", a[i], b[i]);
+            printf("not equal %g %g\n", (float)a[i], (float)b[i]);
             return false;
         }
     }
