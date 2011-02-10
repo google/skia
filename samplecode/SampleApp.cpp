@@ -667,6 +667,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             this->updateTitle();
             return true;
+        case 'c':
+            fUseClip = !fUseClip;
+            this->inval(NULL);
+            this->updateTitle();
+            return true;
         case 'd':
             SkGraphics::SetFontCacheUsed(0);
             return true;
