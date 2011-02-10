@@ -220,13 +220,11 @@ unsigned SkScalerContext_Windows::generateGlyphCount() const {
 }
 
 uint16_t SkScalerContext_Windows::generateCharToGlyph(SkUnichar uni) {
-
-    //uint16_t index = 0;
-    //GetGlyphIndicesW(ddc, &(uint16_t&)uni, 1, &index, 0);
-    //return index;
-
-    // let's just use the uni as index on Windows
-    return SkToU16(uni);
+    uint16_t index = 0;
+    // TODO(ctguil): Support values larger than 16bits.
+    WCHAR c = SkToU16(uni);
+    GetGlyphIndicesW(ddc, &c, 1, &index, 0);
+    return index;
 }
 
 void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
@@ -243,11 +241,9 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     glyph->fRsbDelta = 0;
     glyph->fLsbDelta = 0;
 
-    UINT glyphIndexFlag = 0; //glyph->fIsCodePoint ? 0 : GGO_GLYPH_INDEX;
-    //    UINT glyphIndexFlag = GGO_GLYPH_INDEX;
     // Note: need to use GGO_GRAY8_BITMAP instead of GGO_METRICS because GGO_METRICS returns a smaller
     // BlackBlox; we need the bigger one in case we need the image.  fAdvance is the same.
-    uint32_t ret = GetGlyphOutlineW(ddc, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | glyphIndexFlag, &gm, 0, NULL, &mat22);
+    uint32_t ret = GetGlyphOutlineW(ddc, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &mat22);
 
     if (GDI_ERROR != ret) {
         if (ret == 0) {
@@ -321,13 +317,11 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 #endif
 
     uint32_t bytecount = 0;
-    UINT glyphIndexFlag = 0; //glyph.fIsCodePoint ? 0 : GGO_GLYPH_INDEX;
-    //    UINT glyphIndexFlag = GGO_GLYPH_INDEX;
-    uint32_t total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_GRAY8_BITMAP | glyphIndexFlag, &gm, 0, NULL, &mat22);
+    uint32_t total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &mat22);
     if (GDI_ERROR != total_size && total_size > 0) {
         uint8_t *pBuff = new uint8_t[total_size];
         if (NULL != pBuff) {
-            total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_GRAY8_BITMAP | glyphIndexFlag, &gm, total_size, pBuff, &mat22);
+            total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, total_size, pBuff, &mat22);
 
             SkASSERT(total_size != GDI_ERROR);
 
@@ -382,8 +376,7 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
 #endif
 
     GLYPHMETRICS gm;
-    UINT glyphIndexFlag = 0; //glyph.fIsCodePoint ? 0 : GGO_GLYPH_INDEX;
-    uint32_t total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_NATIVE | glyphIndexFlag, &gm, BUFFERSIZE, glyphbuf, &mat22);
+    uint32_t total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &mat22);
 
     if (GDI_ERROR != total_size) {
 
