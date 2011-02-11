@@ -466,7 +466,6 @@ void GrGpuGL::putClientVertexDataInBuffer(const void* vertexData, size_t vertexD
             GrSafeUnref(fClientArrayVB);
             fClientArrayVB = (GrGLVertexBuffer*)createVertexBuffer(currMinVBSize, true);
             fOversizeVBDrawCnt = 0;
-                GrPrintf("Realloc VB 0%08x\n", currMinVBSize);
         }
         fClientArrayVB->updateData(vertexData, vertexDataSize);
         if (currMinVBSize == MIN_VB_SIZE && fClientArrayVB->size() > MIN_VB_SIZE) {
