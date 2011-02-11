@@ -16,6 +16,7 @@
 
 
 #include "GrContext.h"
+#include "GrTypes.h"
 #include "GrTextureCache.h"
 #include "GrTextStrike.h"
 #include "GrMemory.h"
@@ -343,7 +344,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
     if (width >= 0) {
         // TODO: consider making static vertex buffers for these cases.
-        // Hairline could be done by just adding closing vertex to 
+        // Hairline could be done by just adding closing vertex to
         // unitSquareVertexBuffer()
         static const int worstCaseVertCount = 10;
         GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, worstCaseVertCount, 0);
@@ -387,13 +388,13 @@ void GrContext::drawRect(const GrPaint& paint,
             m.setAll(rect.width(), 0,             rect.fLeft,
                      0,            rect.height(), rect.fTop,
                      0,            0,             GrMatrix::I()[8]);
-            
+
             if (NULL != matrix) {
                 m.postConcat(*matrix);
             }
 
             fGpu->concatViewMatrix(m);
-        
+
             if (textured) {
                 fGpu->concatTextureMatrix(0, m);
             }
@@ -457,10 +458,10 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     GrPoint* pos = geo.positions();
     GrPoint* tex = pos + 1;
     static const size_t stride = 2 * sizeof(GrPoint);
-    pos[0].setRectFan(dstRect.fLeft, dstRect.fTop, 
+    pos[0].setRectFan(dstRect.fLeft, dstRect.fTop,
                       dstRect.fRight, dstRect.fBottom,
                       stride);
-    tex[0].setRectFan(srcRect.fLeft, srcRect.fTop, 
+    tex[0].setRectFan(srcRect.fLeft, srcRect.fTop,
                       srcRect.fRight, srcRect.fBottom,
                       stride);
 
@@ -546,13 +547,10 @@ void GrContext::drawVertices(const GrPaint& paint,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define NEW_EVAL        1   // Use adaptive path tesselation
 #define STENCIL_OFF     0   // Always disable stencil (even when needed)
-#define CPU_TRANSFORM   0   // Transform path verts on CPU
-
-#if NEW_EVAL
-
 #define EVAL_TOL GR_Scalar1
+
+static const uint32_t MAX_POINTS_PER_CURVE = 1 << 10;
 
 static uint32_t quadratic_point_count(const GrPoint points[], GrScalar tol) {
     GrScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
@@ -565,7 +563,7 @@ static uint32_t quadratic_point_count(const GrPoint points[], GrScalar tol) {
         // points.
         // 2^(log4(x)) = sqrt(x);
         d = ceilf(sqrtf(d/tol));
-        return GrNextPow2((uint32_t)d);
+        return GrMin(GrNextPow2((uint32_t)d), MAX_POINTS_PER_CURVE);
     }
 }
 
@@ -602,7 +600,7 @@ static uint32_t cubic_point_count(const GrPoint points[], GrScalar tol) {
         return 1;
     } else {
         d = ceilf(sqrtf(d/tol));
-        return GrNextPow2((uint32_t)d);
+        return GrMin(GrNextPow2((uint32_t)d), MAX_POINTS_PER_CURVE);
     }
 }
 
@@ -636,45 +634,8 @@ static uint32_t generate_cubic_points(const GrPoint& p0,
     return a + b;
 }
 
-#else // !NEW_EVAL
-
-static GrScalar gr_eval_quad(const GrScalar coord[], GrScalar t) {
-    GrScalar A = coord[0] - 2 * coord[2] + coord[4];
-    GrScalar B = 2 * (coord[2] - coord[0]);
-    GrScalar C = coord[0];
-
-    return GrMul(GrMul(A, t) + B, t) + C;
-}
-
-static void gr_eval_quad_at(const GrPoint src[3], GrScalar t, GrPoint* pt) {
-    GrAssert(src);
-    GrAssert(pt);
-    GrAssert(t >= 0 && t <= GR_Scalar1);
-    pt->set(gr_eval_quad(&src[0].fX, t), gr_eval_quad(&src[0].fY, t));
-}
-
-static GrScalar gr_eval_cubic(const GrScalar coord[], GrScalar t) {
-    GrScalar A = coord[6] - coord[0] + 3 * (coord[2] - coord[4]);
-    GrScalar B = 3 * (coord[0] - 2 * coord[2] + coord[4]);
-    GrScalar C = 3 * (coord[2] - coord[0]);
-    GrScalar D = coord[0];
-
-    return GrMul(GrMul(GrMul(A, t) + B, t) + C, t) + D;
-}
-
-static void gr_eval_cubic_at(const GrPoint src[4], GrScalar t, GrPoint* pt) {
-    GrAssert(src);
-    GrAssert(pt);
-    GrAssert(t >= 0 && t <= GR_Scalar1);
-
-    pt->set(gr_eval_cubic(&src[0].fX, t), gr_eval_cubic(&src[0].fY, t));
-}
-
-#endif // !NEW_EVAL
-
 static int worst_case_point_count(GrPathIter* path,
                                   int* subpaths,
-                                  const GrMatrix& matrix,
                                   GrScalar tol) {
     int pointCount = 0;
     *subpaths = 1;
@@ -691,20 +652,10 @@ static int worst_case_point_count(GrPathIter* path,
                 pointCount += 1;
                 break;
             case GrPathIter::kQuadratic_Command:
-#if NEW_EVAL
-                matrix.mapPoints(pts, pts, 3);
                 pointCount += quadratic_point_count(pts, tol);
-#else
-                pointCount += 9;
-#endif
                 break;
             case GrPathIter::kCubic_Command:
-#if NEW_EVAL
-                matrix.mapPoints(pts, pts, 4);
                 pointCount += cubic_point_count(pts, tol);
-#else
-                pointCount += 17;
-#endif
                 break;
             case GrPathIter::kMove_Command:
                 pointCount += 1;
@@ -752,7 +703,6 @@ void GrContext::drawPath(const GrPaint& paint,
 
     GrDrawTarget::AutoStateRestore asr(fGpu);
 
-#if NEW_EVAL
     GrMatrix viewM = fGpu->getViewMatrix();
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
@@ -766,22 +716,12 @@ void GrContext::drawPath(const GrPaint& paint,
         // TODO: fixed point divide
         GrScalar sinv = 1 / stretch;
         tol = GrMul(tol, sinv);
-        viewM = GrMatrix::I();
     }
     GrScalar tolSqd = GrMul(tol, tol);
-#else
-    // pass to worst_case... but won't be used.
-    static const GrScalar tol = -1;
-#endif
 
     int subpathCnt;
     int maxPts = worst_case_point_count(path,
                                         &subpathCnt,
-#if CPU_TRANSFORM
-                                        cpuMatrix,
-#else
-                                        GrMatrix::I(),
-#endif
                                         tol);
     GrVertexLayout layout = 0;
 
@@ -800,10 +740,10 @@ void GrContext::drawPath(const GrPaint& paint,
     path->rewind();
 
     // TODO: use primitve restart if available rather than multiple draws
-    GrDrawTarget::PrimitiveType  type;
-    int                   passCount = 0;
-    GrDrawTarget::StencilPass    passes[3];
-    bool                  reverse = false;
+    GrDrawTarget::PrimitiveType type;
+    int                         passCount = 0;
+    GrDrawTarget::StencilPass   passes[3];
+    bool                        reverse = false;
 
     if (kHairLine_PathFill == fill) {
         type = GrDrawTarget::kLineStrip_PrimitiveType;
@@ -846,11 +786,6 @@ void GrContext::drawPath(const GrPaint& paint,
         }
     }
     fGpu->setReverseFill(reverse);
-#if CPU_TRANSFORM
-    GrMatrix cpuMatrix;
-    fGpu->getViewMatrix(&cpuMatrix);
-    fGpu->setViewMatrix(GrMatrix::I());
-#endif
 
     GrPoint pts[4];
 
@@ -859,10 +794,6 @@ void GrContext::drawPath(const GrPaint& paint,
 
     for (;;) {
         GrPathIter::Command cmd = path->next(pts);
-#if CPU_TRANSFORM
-        int numPts = GrPathIter::NumCommandPoints(cmd);
-        cpuMatrix.mapPoints(pts, pts, numPts);
-#endif
         switch (cmd) {
             case GrPathIter::kMove_Command:
                 if (!first) {
@@ -878,42 +809,15 @@ void GrContext::drawPath(const GrPaint& paint,
                 vert++;
                 break;
             case GrPathIter::kQuadratic_Command: {
-#if NEW_EVAL
-
                 generate_quadratic_points(pts[0], pts[1], pts[2],
                                           tolSqd, &vert,
                                           quadratic_point_count(pts, tol));
-#else
-                const int n = 8;
-                const GrScalar dt = GR_Scalar1 / n;
-                GrScalar t = dt;
-                for (int i = 1; i < n; i++) {
-                    gr_eval_quad_at(pts, t, (GrPoint*)vert);
-                    t += dt;
-                    vert++;
-                }
-                vert->set(pts[2].fX, pts[2].fY);
-                vert++;
-#endif
                 break;
             }
             case GrPathIter::kCubic_Command: {
-#if NEW_EVAL
                 generate_cubic_points(pts[0], pts[1], pts[2], pts[3],
-                                      tolSqd, &vert,
+                                      tolSqd, &vert, 
                                       cubic_point_count(pts, tol));
-#else
-                const int n = 16;
-                const GrScalar dt = GR_Scalar1 / n;
-                GrScalar t = dt;
-                for (int i = 1; i < n; i++) {
-                    gr_eval_cubic_at(pts, t, (GrPoint*)vert);
-                    t += dt;
-                    vert++;
-                }
-                vert->set(pts[3].fX, pts[3].fY);
-                vert++;
-#endif
                 break;
             }
             case GrPathIter::kClose_Command:
@@ -1139,7 +1043,7 @@ bool GrContext::finalizeTextureKey(GrTextureKey* key,
     uint32_t bits = 0;
     uint16_t width = key->width();
     uint16_t height = key->height();
-    
+
 
     if (!fGpu->npotTextureTileSupport()) {
         bool isPow2 = GrIsPow2(width) && GrIsPow2(height);

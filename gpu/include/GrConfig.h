@@ -299,13 +299,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 #endif
 
 /**
- *  GR_GL_LOG_CALLS controls whether each GL call is logged.
- */
-#if !defined(GR_GL_LOG_CALLS)
-    #define GR_GL_LOG_CALLS 0 
-#endif
-
-/**
  *  GR_STATIC_RECT_VB controls whether rects are drawn by issuing a vertex
  *  for each corner or using a static vb that is positioned by modifying the
  *  view / texture matrix.
