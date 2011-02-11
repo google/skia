@@ -66,6 +66,7 @@ protected:
         GrVertexLayout          fVertexLayout;
         const GrVertexBuffer*   fVertexBuffer;
         const GrIndexBuffer*    fIndexBuffer;
+        bool                    fArrayPtrsDirty;
     } fHWGeometryState;
 
     DrState   fHWDrawState;
@@ -87,6 +88,12 @@ protected:
     virtual void eraseStencilClip();
 
     void setTextureUnit(int unitIdx);
+
+    // binds appropriate vertex and index buffers and returns either the ptr
+    // to client memory or offset into a VB of the first vertex
+    const GLvoid* setBuffersAndGetVertexStart(int vertexStride, int startVertex,
+                                              int startIndex, int vertexCount,
+                                              int indexCount);
 
     // flushes state that is common to fixed and programmable GL
     // dither
@@ -110,6 +117,13 @@ protected:
     BoundsState fHWBounds;
 
     GrGLExts fExts;
+
+#if GR_GL_NO_CLIENT_SIDE_ARRAYS
+    void putClientVertexDataInBuffer(const void* vertexData, 
+                                     size_t vertexDataSize);
+    void putClientIndexDataInBuffer(const void* indexData, 
+                                    size_t indexDataSize);
+#endif
 
 private:
     void resetContextHelper();
@@ -160,6 +174,13 @@ private:
     int fActiveTextureUnitIdx;
 
     typedef GrGpu INHERITED;
+
+#if GR_GL_NO_CLIENT_SIDE_ARRAYS
+    GrGLVertexBuffer* fClientArrayVB;
+    GrGLIndexBuffer*  fClientArrayIB;
+    int               fOversizeVBDrawCnt;
+    int               fOversizeIBDrawCnt;
+#endif
 };
 
 bool has_gl_extension(const char* ext);

@@ -1094,7 +1094,7 @@ GrGpuGLShaders2::GrGpuGLShaders2() {
     fProgram = NULL;
     fProgramCache = new ProgramCache();
 
-#if GR_DEBUG
+#if 0
     ProgramUnitTest();
 #endif
 }
@@ -1332,43 +1332,9 @@ void GrGpuGLShaders2::setupGeometry(uint32_t startVertex,
                                                   oldTexCoordOffsets,
                                                   &oldColorOffset);
 
-    const GLvoid* posPtr = (GLvoid*)(newStride * startVertex);
-
-    if (kBuffer_GeometrySrcType == fGeometrySrc.fVertexSrc) {
-        GrAssert(NULL != fGeometrySrc.fVertexBuffer);
-        GrAssert(!fGeometrySrc.fVertexBuffer->isLocked());
-        if (fHWGeometryState.fVertexBuffer != fGeometrySrc.fVertexBuffer) {
-            GrGLVertexBuffer* buf =
-                                (GrGLVertexBuffer*)fGeometrySrc.fVertexBuffer;
-            GR_GL(BindBuffer(GL_ARRAY_BUFFER, buf->bufferID()));
-            fHWGeometryState.fVertexBuffer = fGeometrySrc.fVertexBuffer;
-        }
-    } else {
-        if (kArray_GeometrySrcType == fGeometrySrc.fVertexSrc) {
-            posPtr = (void*)((intptr_t)fGeometrySrc.fVertexArray +
-                             (intptr_t)posPtr);
-        } else {
-            GrAssert(kReserved_GeometrySrcType == fGeometrySrc.fVertexSrc);
-            posPtr = (void*)((intptr_t)fVertices.get() + (intptr_t)posPtr);
-        }
-        if (NULL != fHWGeometryState.fVertexBuffer) {
-            GR_GL(BindBuffer(GL_ARRAY_BUFFER, 0));
-            fHWGeometryState.fVertexBuffer = NULL;
-        }
-    }
-
-    if (kBuffer_GeometrySrcType == fGeometrySrc.fIndexSrc) {
-        GrAssert(NULL != fGeometrySrc.fIndexBuffer);
-        GrAssert(!fGeometrySrc.fIndexBuffer->isLocked());
-        if (fHWGeometryState.fIndexBuffer != fGeometrySrc.fIndexBuffer) {
-            GrGLIndexBuffer* buf = (GrGLIndexBuffer*)fGeometrySrc.fIndexBuffer;
-            GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf->bufferID()));
-            fHWGeometryState.fIndexBuffer = fGeometrySrc.fIndexBuffer;
-        }
-    } else if (NULL != fHWGeometryState.fIndexBuffer) {
-        GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-        fHWGeometryState.fIndexBuffer = NULL;
-    }
+    const GLvoid* posPtr = setBuffersAndGetVertexStart(newStride, startVertex, 
+                                                       startIndex, vertexCount,
+                                                       indexCount);
 
     GLenum scalarType;
     bool texCoordNorm;
@@ -1388,7 +1354,7 @@ void GrGpuGLShaders2::setupGeometry(uint32_t startVertex,
     bool strideChange = newStride != oldStride;
     bool posChange = baseChange || scalarChange || strideChange;
 
-    if (posChange) {
+    if (fHWGeometryState.fArrayPtrsDirty || posChange) {
         GR_GL(VertexAttribPointer(POS_ATTR_LOCATION, 2, scalarType,
                                   false, newStride, posPtr));
         fHWGeometryState.fPositionPtr = posPtr;
@@ -1399,8 +1365,10 @@ void GrGpuGLShaders2::setupGeometry(uint32_t startVertex,
             GLvoid* texCoordPtr = (int8_t*)posPtr + newTexCoordOffsets[t];
             if (oldTexCoordOffsets[t] <= 0) {
                 GR_GL(EnableVertexAttribArray(TEX_ATTR_LOCATION(t)));
-            }
-            if (posChange || newTexCoordOffsets[t] != oldTexCoordOffsets[t]) {
+                GR_GL(VertexAttribPointer(TEX_ATTR_LOCATION(t), 2, scalarType,
+                                          texCoordNorm, newStride, texCoordPtr));
+            } else if (fHWGeometryState.fArrayPtrsDirty || posChange || 
+                newTexCoordOffsets[t] != oldTexCoordOffsets[t]) {
                 GR_GL(VertexAttribPointer(TEX_ATTR_LOCATION(t), 2, scalarType,
                                           texCoordNorm, newStride, texCoordPtr));
             }
@@ -1413,8 +1381,11 @@ void GrGpuGLShaders2::setupGeometry(uint32_t startVertex,
         GLvoid* colorPtr = (int8_t*)posPtr + newColorOffset;
         if (oldColorOffset <= 0) {
             GR_GL(EnableVertexAttribArray(COL_ATTR_LOCATION));
-        }
-        if (posChange || newColorOffset != oldColorOffset) {
+            GR_GL(VertexAttribPointer(COL_ATTR_LOCATION, 4,
+                                      GL_UNSIGNED_BYTE,
+                                      true, newStride, colorPtr));
+        } else if (fHWGeometryState.fArrayPtrsDirty || posChange || 
+            newColorOffset != oldColorOffset) {
             GR_GL(VertexAttribPointer(COL_ATTR_LOCATION, 4,
                                       GL_UNSIGNED_BYTE,
                                       true, newStride, colorPtr));
@@ -1426,4 +1397,5 @@ void GrGpuGLShaders2::setupGeometry(uint32_t startVertex,
     fHWGeometryState.fVertexLayout = fGeometrySrc.fVertexLayout;
 }
 #endif
+
 

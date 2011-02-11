@@ -68,6 +68,19 @@
  *      3. Optionally define GR_GL_FUNC.
  *      4. Define GR_GL_PROC_ADDRESS.
  *      5. Optionally define GR_GL_PROC_ADDRESS_HEADER
+ *
+ *
+ * The following are optional defines that can be enabled as command line macros
+ * defines, in a IDE project, in a GrUserConfig.h file, or in a GL custom setup
+ * file (if one is in use). They don't require GR_GL_CUSTOM_SETUP or
+ * GR_GL_CUSTOM_SETUP_HEADER to be enabled:
+ *
+ * GR_GL_NO_CLIENT_SIDE_ARRAYS can be defined to 1 to disable the use of client
+ * side vertex and index arrays.
+ *
+ * GR_GL_LOG_CALLS if 1 GrPrintf every GL call (for debugging purposes) when the
+ * global gPrintGL is true (it is initially true).
+
  */
 
 #if GR_GL_CUSTOM_SETUP
@@ -98,6 +111,9 @@
     #include GR_GL_CUSTOM_SETUP_HEADER
 
 #else
+    #undef GR_GL_FUNC
+    #undef GR_GL_PROC_ADDRESS
+    #undef GR_GL_PROC_ADDRESS_HEADER
 
     #if GR_WIN32_BUILD
         #define GR_SUPPORT_GLDESKTOP        1
@@ -144,8 +160,8 @@
         #define GR_GL_PROC_ADDRESS(X)       eglGetProcAddress(#X)
         #define GR_GL_PROC_ADDRESS_HEADER   <EGL/egl.h>
     #elif GR_LINUX_BUILD
-        #ifndef GL_GLEXT_PROTOTYPES		
-	        #define GL_GLEXT_PROTOTYPES		
+        #ifndef GL_GLEXT_PROTOTYPES
+            #define GL_GLEXT_PROTOTYPES
         #endif
         #define GL_EXT_framebuffer_blit     0
         #include <GL/gl.h>
@@ -182,6 +198,14 @@
 
 #if !defined(GR_GL_PROC_ADDRESS)
     #error "Must define GR_GL_PROC_ADDRESS"
+#endif
+
+#if !defined(GR_GL_LOG_CALLS)
+    #define GR_GL_LOG_CALLS 0
+#endif
+
+#if !defined(GR_GL_NO_CLIENT_SIDE_ARRAYS)
+    #define GR_GL_NO_CLIENT_SIDE_ARRAYS 1
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
