@@ -205,7 +205,7 @@
 #endif
 
 #if !defined(GR_GL_NO_CLIENT_SIDE_ARRAYS)
-    #define GR_GL_NO_CLIENT_SIDE_ARRAYS 1
+    #define GR_GL_NO_CLIENT_SIDE_ARRAYS 0
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
