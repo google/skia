@@ -16,9 +16,9 @@ static inline SkPMColor rgb2gray(SkPMColor c)
     unsigned r = SkGetPackedR32(c);
     unsigned g = SkGetPackedG32(c);
     unsigned b = SkGetPackedB32(c);
-    
+
     unsigned x = r * 5 + g * 7 + b * 4 >> 4;
-    
+
     return SkPackARGB32(0, x, x, x) | (c & (SK_A32_MASK << SK_A32_SHIFT));
 }
 
@@ -44,7 +44,7 @@ public:
         for (int i = 0; i < count; i++)
             result[i] = src[i] & mask;
     }
-    
+
 private:
     SkPMColor   fMask;
 };
@@ -66,7 +66,7 @@ public:
     virtual void flatten(SkFlattenableWriteBuffer& buffer)
     {
         this->INHERITED::flatten(buffer);
-        
+
         buffer.writeScalar(fRadius);
     }
     virtual Factory getFactory() { return CreateProc; }
@@ -86,7 +86,7 @@ protected:
         }
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
-    
+
     Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
     {
         fRadius = buffer.readScalar();
@@ -147,7 +147,7 @@ typedef void (*raster_proc)(SkLayerRasterizer*, SkPaint&);
 #include "SkXfermode.h"
 
 static void apply_shader(SkPaint* paint, float scale)
-{    
+{
     SkPaint p;
     SkLayerRasterizer*  rast = new SkLayerRasterizer;
 
@@ -169,10 +169,10 @@ public:
         fInterp = 0;
         fDx = SK_Scalar1/64;
     }
-    
+
     virtual ~ClockFaceView()
     {
-        fFace->safeUnref();
+        SkSafeUnref(fFace);
     }
 
 protected:
@@ -186,22 +186,22 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas)
     {
 //        canvas->drawColor(0xFFDDDDDD);
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     static void drawdots(SkCanvas* canvas, const SkPaint& orig) {
         SkTDArray<SkPoint> pts;
         SkPathEffect* pe = makepe(0, &pts);
-        
+
         SkScalar width = -1;
         SkPath path, dstPath;
         orig.getTextPath("9", 1, 0, 0, &path);
         pe->filterPath(&dstPath, path, &width);
-        
+
         SkPaint p;
         p.setAntiAlias(true);
         p.setStrokeWidth(10);
@@ -209,14 +209,14 @@ protected:
         canvas->drawPoints(SkCanvas::kPoints_PointMode, pts.count(), pts.begin(),
                            p);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-        
+
         SkScalar    x = SkIntToScalar(20);
         SkScalar    y = SkIntToScalar(300);
         SkPaint     paint;
-        
+
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(240));
         paint.setTypeface(SkTypeface::CreateFromName("sans-serif",
@@ -225,7 +225,7 @@ protected:
         SkString str("9");
 
         paint.setTypeface(fFace);
-        
+
         apply_shader(&paint, fInterp);
         canvas->drawText(str.c_str(), str.size(), x, y, paint);
 
