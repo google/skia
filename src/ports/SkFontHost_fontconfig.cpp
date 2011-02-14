@@ -337,8 +337,8 @@ SkStream* SkFontHost::OpenStream(uint32_t id)
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
                                int32_t* index) {
     SkAutoMutexAcquire ac(global_fc_map_lock);
-    const unsigned fileid = UniqueIdToFileId(id);
-    
+    const unsigned fileid = UniqueIdToFileId(fontID);
+
     std::map<unsigned, std::string>::const_iterator i =
     global_fc_map_inverted.find(fileid);
     if (i == global_fc_map_inverted.end()) {
