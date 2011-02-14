@@ -377,7 +377,7 @@ void GrContext::drawRect(const GrPaint& paint,
         fGpu->drawNonIndexed(primType, 0, vertCount);
     } else {
         #if GR_STATIC_RECT_VB
-            fGpu->setVertexSourceToBuffer(fGpu->unitSquareVertexBuffer(), layout);
+            fGpu->setVertexSourceToBuffer(layout, fGpu->unitSquareVertexBuffer());
             GrDrawTarget::AutoViewMatrixRestore avmr(fGpu);
             GrMatrix m;
             m.setAll(rect.width(), 0,             rect.fLeft,
@@ -445,7 +445,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     }
     fGpu->concatTextureMatrix(0, m);
 
-    fGpu->setVertexSourceToBuffer(fGpu->unitSquareVertexBuffer(), layout);
+    fGpu->setVertexSourceToBuffer(layout, fGpu->unitSquareVertexBuffer());
 #else
     GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
 
