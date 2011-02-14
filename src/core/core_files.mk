@@ -1,5 +1,6 @@
 SOURCE := \
     Sk64.cpp \
+    SkAdvancedTypefaceMetrics.cpp \
     SkAlphaRuns.cpp \
     SkBitmap.cpp \
     SkBitmapProcShader.cpp \
