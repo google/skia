@@ -19,6 +19,8 @@
 
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
+#include "SkAdvancedTypefaceMetrics.h"
+#include "SkStream.h"
 #include "SkThread.h"
 
 #ifdef WIN32
@@ -27,6 +29,8 @@
 
 // client3d has to undefine this for now
 #define CAN_USE_LOGFONT_NAME
+
+using namespace skia_advanced_typeface_metrics_utils;
 
 static SkMutex gFTMutex;
 
@@ -456,11 +460,133 @@ SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     return NULL;
 }
 
+static bool getWidthAdvance(HDC hdc, int gId, int16_t* advance) {
+    // Initialize the MAT2 structure to the identify transformation matrix.
+    static const MAT2 mat2 = {SkScalarToFIXED(1), SkScalarToFIXED(0),
+                        SkScalarToFIXED(0), SkScalarToFIXED(1)};
+    int flags = GGO_METRICS | GGO_GLYPH_INDEX;
+    GLYPHMETRICS gm;
+    if (GDI_ERROR == GetGlyphOutline(hdc, gId, flags, &gm, 0, NULL, &mat2)) {
+        return false;
+    }
+    SkASSERT(advance);
+    *advance = gm.gmCellIncX;
+    return true;
+}
+
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID, bool perGlyphInfo) {
-    SkASSERT(!"SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
-    return NULL;
+    SkAutoMutexAcquire ac(gFTMutex);
+    LogFontTypeface* rec = LogFontTypeface::FindById(fontID);
+    LOGFONT lf = rec->logFont();
+    SkAdvancedTypefaceMetrics* info = NULL;
+
+    HDC hdc = CreateCompatibleDC(NULL);
+    HFONT font = CreateFontIndirect(&lf);
+    HFONT savefont = (HFONT)SelectObject(hdc, font);
+    HFONT designFont = NULL;
+
+    // To request design units, create a logical font whose height is specified
+    // as unitsPerEm.
+    OUTLINETEXTMETRIC otm;
+    if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm) ||
+        !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
+        goto Error;
+    }
+    lf.lfHeight = -SkToS32(otm.otmEMSquare);
+    designFont = CreateFontIndirect(&lf);
+    SelectObject(hdc, designFont);
+    if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
+        goto Error;
+    }
+
+    info = new SkAdvancedTypefaceMetrics;
+#ifdef UNICODE
+    // Get the buffer size needed first.
+    size_t str_len = WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1, NULL,
+                                         0, NULL, NULL);
+    // Allocate a buffer (str_len already has terminating null accounted for).
+    char *familyName = new char[str_len];
+    // Now actually convert the string.
+    WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1, familyName, str_len,
+                          NULL, NULL);
+    info->fFontName.set(familyName);
+    delete [] familyName;
+#else
+    info->fFontName.set(lf.lfFaceName);
+#endif
+
+    if (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE) {
+        info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+    } else {
+        info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
+    }
+    info->fEmSize = otm.otmEMSquare;
+    info->fMultiMaster = false;
+
+    info->fStyle = 0;
+    // If this bit is clear the font is a fixed pitch font.
+    if (!(otm.otmTextMetrics.tmPitchAndFamily & TMPF_FIXED_PITCH)) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+    }
+    if (otm.otmTextMetrics.tmItalic) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
+    }
+    // Setting symbolic style by default for now.
+    info->fStyle |= SkAdvancedTypefaceMetrics::kSymbolic_Style;
+    if (otm.otmTextMetrics.tmPitchAndFamily & FF_ROMAN) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+    } else if (otm.otmTextMetrics.tmPitchAndFamily & FF_SCRIPT) {
+            info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
+    }
+
+    // The main italic angle of the font, in tenths of a degree counterclockwise
+    // from vertical.
+    info->fItalicAngle = otm.otmItalicAngle / 10;
+    info->fAscent = SkToS16(otm.otmTextMetrics.tmAscent);
+    info->fDescent = SkToS16(-otm.otmTextMetrics.tmDescent);
+    // TODO(ctguil): Use alternate cap height calculation.
+    // MSDN says otmsCapEmHeight is not support but it is returning a value on
+    // my Win7 box.
+    info->fCapHeight = otm.otmsCapEmHeight;
+    info->fBBox =
+        SkIRect::MakeLTRB(otm.otmrcFontBox.left, otm.otmrcFontBox.top,
+                          otm.otmrcFontBox.right, otm.otmrcFontBox.bottom);
+
+    // Figure out a good guess for StemV - Min width of i, I, !, 1.
+    // This probably isn't very good with an italic font.
+    int16_t min_width = SHRT_MAX;
+    info->fStemV = 0;
+    char stem_chars[] = {'i', 'I', '!', '1'};
+    for (size_t i = 0; i < SK_ARRAY_COUNT(stem_chars); i++) {
+        ABC abcWidths;
+        if (GetCharABCWidths(hdc, stem_chars[i], stem_chars[i], &abcWidths)) {
+            int16_t width = abcWidths.abcB;
+            if (width > 0 && width < min_width) {
+                min_width = width;
+                info->fStemV = min_width;
+            }
+        }
+    }
+
+    // If bit 1 is set, the font may not be embedded in a document.
+    // If bit 1 is clear, the font can be embedded.
+    // If bit 2 is set, the embedding is read-only.
+    if (otm.otmfsType & 0x1) {
+        info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
+    } else if (perGlyphInfo) {
+        info->fGlyphWidths.reset(
+            getAdvanceData(hdc, SHRT_MAX, &getWidthAdvance));
+    }
+
+Error:
+    SelectObject(hdc, savefont);
+    DeleteObject(designFont);
+    DeleteObject(font);
+    DeleteDC(hdc);
+
+    return info;
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
@@ -471,8 +597,25 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
-    SkASSERT(!"SkFontHost::OpenStream unimplemented");
-    return NULL;
+    SkAutoMutexAcquire ac(gFTMutex);
+    LogFontTypeface* rec = LogFontTypeface::FindById(uniqueID);
+
+    HDC hdc = ::CreateCompatibleDC(NULL);
+    HFONT font = CreateFontIndirect(&rec->logFont());
+    HFONT savefont = (HFONT)SelectObject(hdc, font);
+
+    size_t bufferSize = GetFontData(hdc, 0, 0, NULL, 0);
+    SkMemoryStream* stream = new SkMemoryStream(bufferSize);
+    if (!GetFontData(hdc, 0, 0, (void*)stream->getMemoryBase(), bufferSize)) {
+        delete stream;
+        stream = NULL;
+    }
+
+    SelectObject(hdc, savefont);
+    DeleteObject(font);
+    DeleteDC(hdc);
+
+    return stream;
 }
 
 SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {

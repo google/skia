@@ -293,6 +293,7 @@
     <ClCompile Include="..\..\samplecode\SampleVertices.cpp" />
     <ClCompile Include="..\..\samplecode\SampleXfermodes.cpp" />
     <ClCompile Include="..\..\src\core\Sk64.cpp" />
+    <ClCompile Include="..\..\src\core\SkAdvancedTypefaceMetrics.cpp" />
     <ClCompile Include="..\..\src\core\SkAlphaRuns.cpp" />
     <ClCompile Include="..\..\src\core\SkBitmap.cpp" />
     <ClCompile Include="..\..\src\core\SkBitmapProcShader.cpp" />

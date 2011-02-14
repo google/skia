@@ -73,6 +73,8 @@
     #define SkASSERT_CONTINUE(pred)
 #endif
 
+using namespace skia_advanced_typeface_metrics_utils;
+
 //////////////////////////////////////////////////////////////////////////
 
 struct SkFaceRec;
@@ -331,98 +333,14 @@ static bool GetLetterCBox(FT_Face face, char letter, FT_BBox* bbox) {
     return true;
 }
 
-static int16_t getWidthAdvance(FT_Face face, int gId) {
+static bool getWidthAdvance(FT_Face face, int gId, int16_t* data) {
     FT_Fixed advance = 0;
-    SkAssertResult(getAdvances(face, gId, 1, FT_LOAD_NO_SCALE, &advance) == 0);
-    return advance;
-}
-
-template <typename Data>
-static void resetRange(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
-                       int startId) {
-    range->fStartId = startId;
-    range->fAdvance.setCount(0);
-}
-
-template <typename Data>
-static SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* appendRange(
-        SkTScopedPtr<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
-        int startId) {
-    nextSlot->reset(new SkAdvancedTypefaceMetrics::AdvanceMetric<Data>);
-    resetRange(nextSlot->get(), startId);
-    return nextSlot->get();
-}
-
-template <typename Data>
-static void finishRange(
-        SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
-        int endId,
-        typename SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::MetricType
-                type) {
-    range->fEndId = endId;
-    range->fType = type;
-    int newLength;
-    if (type == SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::kRange)
-        newLength = endId - range->fStartId + 1;
-    else
-        newLength = 1;
-    SkASSERT(range->fAdvance.count() >= newLength);
-    range->fAdvance.setCount(newLength);
-}
-
-template <typename Data>
-static SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
-        FT_Face face, Data (*getAdvance)(FT_Face face, int gId)) {
-    // Assuming that an ASCII representation of a width or a glyph id is,
-    // on average, 3 characters long gives the following cut offs for
-    // using different range types:
-    // When currently in a range
-    //  - Removing 4 0's is a win
-    //  - Removing 5 repeats is a win
-    // When not currently in a range
-    //  - Removing 1 0 is a win
-    //  - Removing 3 repeats is a win
-
-    SkTScopedPtr<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> > result;
-    SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* curRange;
-    curRange = appendRange(&result, 0);
-    Data lastAdvance = SHRT_MIN;
-    int repeats = 0;
-    for (int gId = 0; gId < face->num_glyphs; gId++) {
-        Data advance = getAdvance(face, gId);
-        if (advance == lastAdvance) {
-            repeats++;
-        } else if (curRange->fAdvance.count() == repeats + 1) {
-            if (lastAdvance == 0 && repeats >= 0) {
-                resetRange(curRange, gId);
-            } else if (repeats >= 2) {
-                finishRange(curRange, gId - 1,
-                            SkAdvancedTypefaceMetrics::WidthRange::kRun);
-                curRange = appendRange(&curRange->fNext, gId);
-            }
-            repeats = 0;
-        } else {
-            if (lastAdvance == 0 && repeats >= 3) {
-                finishRange(curRange, gId - repeats - 2,
-                            SkAdvancedTypefaceMetrics::WidthRange::kRange);
-                curRange = appendRange(&curRange->fNext, gId);
-            } else if (repeats >= 4) {
-                finishRange(curRange, gId - repeats - 2,
-                            SkAdvancedTypefaceMetrics::WidthRange::kRange);
-                curRange = appendRange(&curRange->fNext, gId - repeats - 1);
-                curRange->fAdvance.append(1, &lastAdvance);
-                finishRange(curRange, gId - 1,
-                            SkAdvancedTypefaceMetrics::WidthRange::kRun);
-                curRange = appendRange(&curRange->fNext, gId);
-            }
-            repeats = 0;
-        }
-        curRange->fAdvance.append(1, &advance);
-        lastAdvance = advance;
+    if (getAdvances(face, gId, 1, FT_LOAD_NO_SCALE, &advance)) {
+        return false;
     }
-    finishRange(curRange, face->num_glyphs - 1,
-                SkAdvancedTypefaceMetrics::WidthRange::kRange);
-    return result.release();
+    SkASSERT(data);
+    *data = advance;
+    return true;
 }
 
 // static
@@ -499,6 +417,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     // Figure out a good guess for StemV - Min width of i, I, !, 1.
     // This probably isn't very good with an italic font.
     int16_t min_width = SHRT_MAX;
+    info->fStemV = 0;
     char stem_chars[] = {'i', 'I', '!', '1'};
     for (size_t i = 0; i < SK_ARRAY_COUNT(stem_chars); i++) {
         FT_BBox bbox;
@@ -550,7 +469,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
             info->fGlyphWidths->fAdvance.append(1, &advance);
             finishRange(info->fGlyphWidths.get(), 0,
                         SkAdvancedTypefaceMetrics::WidthRange::kDefault);
-        } else if(!cid) {
+        } else if (!cid) {
             appendRange(&info->fGlyphWidths, 0);
             // So as to not blow out the stack, get advances in batches.
             for (int gID = 0; gID < face->num_glyphs; gID += 128) {
@@ -568,7 +487,8 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
             finishRange(info->fGlyphWidths.get(), face->num_glyphs - 1,
                         SkAdvancedTypefaceMetrics::WidthRange::kRange);
         } else {
-            info->fGlyphWidths.reset(getAdvanceData(face, &getWidthAdvance));
+            info->fGlyphWidths.reset(
+                getAdvanceData(face, face->num_glyphs, &getWidthAdvance));
         }
 
         if (info->fType == SkAdvancedTypefaceMetrics::kType1_Font) {

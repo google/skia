@@ -107,4 +107,30 @@ public:
     SkTScopedPtr<SkAutoTArray<SkString> > fGlyphNames;
 };
 
+namespace skia_advanced_typeface_metrics_utils {
+
+template <typename Data>
+void resetRange(SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
+                       int startId);
+
+template <typename Data>
+SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* appendRange(
+        SkTScopedPtr<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> >* nextSlot,
+        int startId);
+
+template <typename Data>
+void finishRange(
+        SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* range,
+        int endId,
+        typename SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::MetricType
+                type);
+
+template <typename Data, typename FontHandle>
+SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
+        FontHandle fontHandle,
+        int num_glyphs,
+        bool (*getAdvance)(FontHandle fontHandle, int gId, Data* data));
+
+} // namespace skia_advanced_typeface_metrics_utils
+
 #endif
