@@ -24,30 +24,43 @@
 #include "GrClip.h"
 
 class GrVertexBufferAllocPool;
+class GrIndexBufferAllocPool;
 
-// TODO: don't save clip per draw
+/**
+ * GrInOrderDrawBuffer is an implementation of GrDrawTarget that queues up
+ * draws for eventual playback into a GrGpu. In theory one draw buffer could
+ * playback into another. When index or vertex buffers are used as geometry
+ * sources it is the callers the draw buffer only holds references to the
+ * buffers. It is the callers responsibility to ensure that the data is still
+ * valid when the draw buffer is played back into a GrGpu. Similarly, it is the
+ * caller's responsibility to ensure that all referenced textures, buffers,
+ * and rendertargets are associated in the GrGpu object that the buffer is
+ * played back into. The buffer requires VB and IB pools to store geometry.
+ */
+
 class GrInOrderDrawBuffer : public GrDrawTarget {
 public:
 
-    GrInOrderDrawBuffer(GrVertexBufferAllocPool* pool = NULL);
+    GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
+                        GrIndexBufferAllocPool* indexPool);
 
     virtual ~GrInOrderDrawBuffer();
 
     void initializeDrawStateAndClip(const GrDrawTarget& target);
 
-    virtual void drawIndexed(PrimitiveType type,
-                             uint32_t startVertex,
-                             uint32_t startIndex,
-                             uint32_t vertexCount,
-                             uint32_t indexCount);
+    virtual void drawIndexed(PrimitiveType primitiveType,
+                             int startVertex,
+                             int startIndex,
+                             int vertexCount,
+                             int indexCount);
 
-    virtual void drawNonIndexed(PrimitiveType type,
-                                uint32_t startVertex,
-                                uint32_t vertexCount);
+    virtual void drawNonIndexed(PrimitiveType primitiveType,
+                                int startVertex,
+                                int vertexCount);
 
     virtual bool geometryHints(GrVertexLayout vertexLayout,
-                               int32_t*       vertexCount,
-                               int32_t*       indexCount) const;
+                               int* vertexCount,
+                               int* indexCount) const;
 
     void reset();
 
@@ -56,24 +69,16 @@ public:
 private:
 
     struct Draw {
-        PrimitiveType   fType;
-        uint32_t        fStartVertex;
-        uint32_t        fStartIndex;
-        uint32_t        fVertexCount;
-        uint32_t        fIndexCount;
-        bool            fStateChange;
-        GrVertexLayout  fVertexLayout;
-        bool            fUseVertexBuffer;
-        bool            fClipChanged;
-        union {
-            const GrVertexBuffer*   fVertexBuffer;
-            const void*             fVertexArray;
-        };
-        bool            fUseIndexBuffer;
-        union {
-            const GrIndexBuffer*    fIndexBuffer;
-            const void*             fIndexArray;
-        };
+        PrimitiveType           fPrimitiveType;
+        int                     fStartVertex;
+        int                     fStartIndex;
+        int                     fVertexCount;
+        int                     fIndexCount;
+        bool                    fStateChanged;
+        bool                    fClipChanged;
+        GrVertexLayout          fVertexLayout;
+        const GrVertexBuffer*   fVertexBuffer;
+        const GrIndexBuffer*    fIndexBuffer;
     };
 
     virtual bool acquireGeometryHelper(GrVertexLayout vertexLayout,
@@ -82,33 +87,36 @@ private:
     virtual void releaseGeometryHelper();
     virtual void clipWillChange(const GrClip& clip);
 
+    virtual void setVertexSourceToArrayHelper(const void* vertexArray,
+                                              int vertexCount);
+
+    virtual void setIndexSourceToArrayHelper(const void* indexArray,
+                                             int indexCount);
+
 
     bool grabState();
     bool grabClip();
 
     GrTAllocator<Draw>              fDraws;
-    // HACK: We hold refs on textures in saved state but not RTs, VBs, and IBs.
-    // a) RTs aren't ref counted (yet)
-    // b) we are only using this class for text which doesn't use VBs or IBs
-    // This should be fixed by either refcounting them all or having some
-    // notification occur if a cache is purging an object we have a ptr to.
+    // HACK: We currently do not hold refs on RTs in the saved draw states.
+    // The reason is that in the GL implementation when a GrTexture is destroyed
+    // that has an associated RT the RT is destroyed regardless of its ref count.
+    // We need a third object that holds the shared GL ids and persists until
+    // both reach ref count 0. (skia issue 122)
     GrTAllocator<SavedDrawState>    fStates;
 
     GrTAllocator<GrClip>            fClips;
     bool                            fClipChanged;
 
-    // vertices are either queued in cpu arrays or some vertex buffer pool
-    // that knows about a specific GrGpu object.
-    GrAllocPool                     fCPUVertices;
-    GrVertexBufferAllocPool*        fBufferVertices;
-    GrAllocPool                     fIndices;
-    void*                           fCurrReservedVertices;
-    void*                       	fCurrReservedIndices;
-    // valid if we're queueing vertices in fBufferVertices
-    GrVertexBuffer*                 fCurrVertexBuffer;
-    uint32_t                        fCurrStartVertex;
+    GrVertexBufferAllocPool&        fVertexPool;
+    const GrVertexBuffer*           fCurrPoolVertexBuffer;
+    int                             fCurrPoolStartVertex;
 
-    // caller may conservatively over allocate vertices / indices.
+    GrIndexBufferAllocPool&         fIndexPool;
+    const GrIndexBuffer*            fCurrPoolIndexBuffer;
+    int                             fCurrPoolStartIndex;
+
+    // caller may conservatively over reserve vertices / indices.
     // we release unused space back to allocator if possible
     size_t                          fReservedVertexBytes;
     size_t                          fReservedIndexBytes;

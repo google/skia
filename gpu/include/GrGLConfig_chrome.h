@@ -18,6 +18,4 @@
 // chrome always assumes BGRA
 #define GR_GL_32BPP_COLOR_FORMAT    GR_BGRA
 
-#define GR_GL_NO_CLIENT_SIDE_ARRAYS 1
-
 #endif

@@ -72,7 +72,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GR_RELEASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
@@ -103,6 +103,7 @@
     <ClInclude Include="..\..\gpu\include\GrContext_impl.h" />
     <ClInclude Include="..\..\gpu\include\GrDrawTarget.h" />
     <ClInclude Include="..\..\gpu\include\GrFontScaler.h" />
+    <ClInclude Include="..\..\gpu\include\GrGeometryBuffer.h" />
     <ClInclude Include="..\..\gpu\include\GrGLConfig.h" />
     <ClInclude Include="..\..\gpu\include\GrGLIndexBuffer.h" />
     <ClInclude Include="..\..\gpu\include\GrGLTexture.h" />
@@ -146,8 +147,8 @@
     <ClInclude Include="..\..\gpu\include\GrTypes.h" />
     <ClInclude Include="..\..\gpu\include\GrUserConfig.h" />
     <ClInclude Include="..\..\gpu\include\GrVertexBuffer.h" />
-    <ClInclude Include="..\..\gpu\include\GrVertexBufferAllocPool.h" />
     <ClInclude Include="..\..\gpu\include\SkUIView.h" />
+    <ClInclude Include="..\..\gpu\src\GrBufferAllocPool.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGL.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="..\..\experimental\SkSetPoly3To3.cpp" />
     <ClCompile Include="..\..\gpu\src\GrAllocPool.cpp" />
     <ClCompile Include="..\..\gpu\src\GrAtlas.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrBufferAllocPool.cpp" />
     <ClCompile Include="..\..\gpu\src\GrClip.cpp" />
     <ClCompile Include="..\..\gpu\src\GrContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrDrawTarget.cpp" />
@@ -233,7 +235,6 @@
     <ClCompile Include="..\..\gpu\src\GrTextContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextStrike.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextureCache.cpp" />
-    <ClCompile Include="..\..\gpu\src\GrVertexBufferAllocPool.cpp" />
     <ClCompile Include="..\..\gpu\src\gr_unittests.cpp" />
     <ClCompile Include="..\..\samplecode\OverView.cpp" />
     <ClCompile Include="..\..\samplecode\SampleAll.cpp" />

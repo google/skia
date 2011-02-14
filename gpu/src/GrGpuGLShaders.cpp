@@ -546,7 +546,7 @@ void GrGpuGLShaders::resetContextHelper() {
     fTextureOrientation = (GrGLTexture::Orientation)-1; // illegal
 
     fHWGeometryState.fVertexLayout = 0;
-    fHWGeometryState.fPositionPtr  = (void*) ~0;
+    fHWGeometryState.fVertexOffset = ~0;
     GR_GL(DisableVertexAttribArray(GR_GL_COL_ATTR_LOCATION));
     GR_GL(DisableVertexAttribArray(GR_GL_TEX_ATTR_LOCATION));
     GR_GL(EnableVertexAttribArray(GR_GL_POS_ATTR_LOCATION));
@@ -838,10 +838,10 @@ bool GrGpuGLShaders::flushGraphicsState(PrimitiveType type) {
     return true;
 }
 
-void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
-                                   uint32_t startIndex,
-                                   uint32_t vertexCount,
-                                   uint32_t indexCount) {
+void GrGpuGLShaders::setupGeometry(int* startVertex,
+                                   int* startIndex,
+                                   int vertexCount,
+                                   int indexCount) {
 
     int newColorOffset;
     int newTexCoordOffsets[kNumStages];
@@ -854,10 +854,11 @@ void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
     GLsizei oldStride = VertexSizeAndOffsetsByStage(fHWGeometryState.fVertexLayout,
                                                     oldTexCoordOffsets,
                                                     &oldColorOffset);
+    bool indexed = NULL == startIndex;
 
-    const GLvoid* posPtr = setBuffersAndGetVertexStart(newStride, startVertex,
-                                                       startIndex, vertexCount,
-                                                       indexCount);
+    int extraVertexOffset;
+    int extraIndexOffset;
+    setBuffers(indexed, &extraVertexOffset, &extraIndexOffset);
 
     GLenum scalarType;
     bool texCoordNorm;
@@ -869,49 +870,58 @@ void GrGpuGLShaders::setupGeometry(uint32_t startVertex,
         texCoordNorm = false;
     }
 
-    bool baseChange = posPtr != fHWGeometryState.fPositionPtr;
-    bool scalarChange = (GrGLTextType != GrGLType) &&
-                        (kTextFormat_VertexLayoutBit &
-                         (fHWGeometryState.fVertexLayout ^
-                          fGeometrySrc.fVertexLayout));
-    bool strideChange = newStride != oldStride;
-    bool posChange = baseChange || scalarChange || strideChange;
+    size_t vertexOffset = (*startVertex + extraVertexOffset) * newStride;
+    *startVertex = 0;
+    if (indexed) {
+        *startIndex += extraIndexOffset;
+    }
 
-    if (fHWGeometryState.fArrayPtrsDirty || posChange) {
+    // all the Pointers must be set if any of these are true
+    bool allOffsetsChange =  fHWGeometryState.fArrayPtrsDirty ||
+                             vertexOffset != fHWGeometryState.fVertexOffset ||
+                             newStride != oldStride;
+
+    // position and tex coord offsets change if above conditions are true
+    // or the type/normalization changed based on text vs nontext type coords.
+    bool posAndTexChange = allOffsetsChange ||
+                           (((GrGLTextType != GrGLType) || GR_GL_TEXT_TEXTURE_NORMALIZED) &&
+                                (kTextFormat_VertexLayoutBit &
+                                  (fHWGeometryState.fVertexLayout ^
+                                   fGeometrySrc.fVertexLayout)));
+
+    if (posAndTexChange) {
         GR_GL(VertexAttribPointer(GR_GL_POS_ATTR_LOCATION, 2, scalarType,
-                                  false, newStride, posPtr));
-        fHWGeometryState.fPositionPtr = posPtr;
+                                  false, newStride, (GLvoid*)vertexOffset));
+        fHWGeometryState.fVertexOffset = vertexOffset;
     }
 
     // this class only supports one stage.
     if (newTexCoordOffsets[0] > 0) {
-        GLvoid* texCoordPtr = (int8_t*)posPtr + newTexCoordOffsets[0];
+        GLvoid* texCoordOffset = (GLvoid*)(vertexOffset + newTexCoordOffsets[0]);
         if (oldTexCoordOffsets[0] <= 0) {
             GR_GL(EnableVertexAttribArray(GR_GL_TEX_ATTR_LOCATION));
             GR_GL(VertexAttribPointer(GR_GL_TEX_ATTR_LOCATION, 2, scalarType,
-                                      texCoordNorm, newStride, texCoordPtr));
-        } else if (fHWGeometryState.fArrayPtrsDirty || posChange ||
-            newTexCoordOffsets[0] != oldTexCoordOffsets[0]) {
+                                      texCoordNorm, newStride, texCoordOffset));
+        } else if (posAndTexChange ||
+                   newTexCoordOffsets[0] != oldTexCoordOffsets[0]) {
             GR_GL(VertexAttribPointer(GR_GL_TEX_ATTR_LOCATION, 2, scalarType,
-                                      texCoordNorm, newStride, texCoordPtr));
+                                      texCoordNorm, newStride, texCoordOffset));
         }
     } else if (oldTexCoordOffsets[0] > 0) {
         GR_GL(DisableVertexAttribArray(GR_GL_TEX_ATTR_LOCATION));
     }
 
     if (newColorOffset > 0) {
-        GLvoid* colorPtr = (int8_t*)posPtr + newColorOffset;
+        GLvoid* colorOffset = (GLvoid*)(vertexOffset + newColorOffset);
         if (oldColorOffset <= 0) {
             GR_GL(EnableVertexAttribArray(GR_GL_COL_ATTR_LOCATION));
             GR_GL(VertexAttribPointer(GR_GL_COL_ATTR_LOCATION, 4,
                                       GL_UNSIGNED_BYTE,
-                                      true, newStride, colorPtr));
-        }
-        if (fHWGeometryState.fArrayPtrsDirty || posChange ||
-            newColorOffset != oldColorOffset) {
+                                      true, newStride, colorOffset));
+        } else if (allOffsetsChange || newColorOffset != oldColorOffset) {
             GR_GL(VertexAttribPointer(GR_GL_COL_ATTR_LOCATION, 4,
                                       GL_UNSIGNED_BYTE,
-                                      true, newStride, colorPtr));
+                                      true, newStride, colorOffset));
         }
     } else if (oldColorOffset > 0) {
         GR_GL(DisableVertexAttribArray(GR_GL_COL_ATTR_LOCATION));

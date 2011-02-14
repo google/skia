@@ -14,7 +14,6 @@
     limitations under the License.
  */
 
-
 #include "GrContext.h"
 #include "GrTypes.h"
 #include "GrTextureCache.h"
@@ -23,23 +22,16 @@
 #include "GrPathIter.h"
 #include "GrClipIterator.h"
 #include "GrIndexBuffer.h"
+#include "GrInOrderDrawBuffer.h"
+#include "GrBufferAllocPool.h"
 
 #define DEFER_TEXT_RENDERING 1
 
 static const size_t MAX_TEXTURE_CACHE_COUNT = 128;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 8 * 1024 * 1024;
 
-#if DEFER_TEXT_RENDERING
-    static const uint32_t POOL_VB_SIZE = 2048 *
-            GrDrawTarget::VertexSize(
-                GrDrawTarget::kTextFormat_VertexLayoutBit |
-                GrDrawTarget::StageTexCoordVertexLayoutBit(0,0));
-    static const uint32_t NUM_POOL_VBS = 8;
-#else
-    static const uint32_t POOL_VB_SIZE = 0;
-    static const uint32_t NUM_POOL_VBS = 0;
-
-#endif
+static const uint32_t TEXT_POOL_VB_SIZE = 1 << 18; // enough to draw 4K untextured glyphs
+static const uint32_t NUM_TEXT_POOL_VBS = 4;
 
 GrContext* GrContext::Create(GrGpu::Engine engine,
                              GrGpu::Platform3DContext context3D) {
@@ -60,6 +52,9 @@ GrContext::~GrContext() {
     fGpu->unref();
     delete fTextureCache;
     delete fFontCache;
+    delete fTextDrawBuffer;
+    delete fTextVBAllocPool;
+    delete fTextIBAllocPool;
 }
 
 void GrContext::abandonAllTextures() {
@@ -487,7 +482,7 @@ void GrContext::drawVertices(const GrPaint& paint,
                              const uint16_t indices[],
                              int indexCount) {
     GrVertexLayout layout = 0;
-    bool interLeave = false;
+    int vertexSize = sizeof(GrPoint);
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
@@ -498,18 +493,16 @@ void GrContext::drawVertices(const GrPaint& paint,
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
         } else {
             layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
-            interLeave = true;
+            vertexSize += sizeof(GrPoint);
         }
     }
 
     if (NULL != colors) {
         layout |= GrDrawTarget::kColor_VertexLayoutBit;
+        vertexSize += sizeof(GrColor);
     }
 
-    static const GrVertexLayout interleaveMask =
-        (GrDrawTarget::StageTexCoordVertexLayoutBit(0,0) |
-         GrDrawTarget::kColor_VertexLayoutBit);
-    if (interleaveMask & layout) {
+    if (sizeof(GrPoint) != vertexSize) {
         if (!geo.set(fGpu, layout, vertexCount, 0)) {
             GrPrintf("Failed to get space for vertices!");
             return;
@@ -533,11 +526,11 @@ void GrContext::drawVertices(const GrPaint& paint,
             curVertex = (void*)((intptr_t)curVertex + vsize);
         }
     } else {
-        fGpu->setVertexSourceToArray(positions, layout);
+        fGpu->setVertexSourceToArray(layout, positions, vertexCount);
     }
 
     if (NULL != indices) {
-        fGpu->setIndexSourceToArray(indices);
+        fGpu->setIndexSourceToArray(indices, indexCount);
         fGpu->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
     } else {
         fGpu->drawNonIndexed(primitiveType, 0, vertexCount);
@@ -816,7 +809,7 @@ void GrContext::drawPath(const GrPaint& paint,
             }
             case GrPathIter::kCubic_Command: {
                 generate_cubic_points(pts[0], pts[1], pts[2], pts[3],
-                                      tolSqd, &vert, 
+                                      tolSqd, &vert,
                                       cubic_point_count(pts, tol));
                 break;
             }
@@ -892,8 +885,10 @@ void GrContext::flush(bool flushRenderTarget) {
 }
 
 void GrContext::flushText() {
-    fTextDrawBuffer.playback(fGpu);
-    fTextDrawBuffer.reset();
+    if (NULL != fTextDrawBuffer) {
+        fTextDrawBuffer->playback(fGpu);
+        fTextDrawBuffer->reset();
+    }
 }
 
 bool GrContext::readPixels(int left, int top, int width, int height,
@@ -1026,16 +1021,28 @@ void GrContext::printStats() const {
     fGpu->printStats();
 }
 
-GrContext::GrContext(GrGpu* gpu) :
-        fVBAllocPool(gpu,
-                     gpu->supportsBufferLocking() ? POOL_VB_SIZE : 0,
-                     gpu->supportsBufferLocking() ? NUM_POOL_VBS : 0),
-        fTextDrawBuffer(gpu->supportsBufferLocking() ? &fVBAllocPool : NULL) {
+GrContext::GrContext(GrGpu* gpu) {
     fGpu = gpu;
     fGpu->ref();
     fTextureCache = new GrTextureCache(MAX_TEXTURE_CACHE_COUNT,
                                        MAX_TEXTURE_CACHE_BYTES);
     fFontCache = new GrFontCache(fGpu);
+
+#if DEFER_TEXT_RENDERING
+    fTextVBAllocPool = new GrVertexBufferAllocPool(gpu,
+                                                   false,
+                                                   TEXT_POOL_VB_SIZE,
+                                                   NUM_TEXT_POOL_VBS);
+    fTextIBAllocPool = new GrIndexBufferAllocPool(gpu, false, 0, 0);
+
+    fTextDrawBuffer = new GrInOrderDrawBuffer(fTextVBAllocPool,
+                                              fTextIBAllocPool);
+#else
+    fTextDrawBuffer = NULL;
+    fTextVBAllocPool = NULL;
+    fTextIBAllocPool = NULL;
+#endif
+
 }
 
 bool GrContext::finalizeTextureKey(GrTextureKey* key,
@@ -1063,8 +1070,8 @@ bool GrContext::finalizeTextureKey(GrTextureKey* key,
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
     GrDrawTarget* target;
 #if DEFER_TEXT_RENDERING
-    fTextDrawBuffer.initializeDrawStateAndClip(*fGpu);
-    target = &fTextDrawBuffer;
+    fTextDrawBuffer->initializeDrawStateAndClip(*fGpu);
+    target = fTextDrawBuffer;
 #else
     target = fGpu;
 #endif

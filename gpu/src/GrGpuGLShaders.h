@@ -25,7 +25,7 @@ class GrGpuGLShaders : public GrGpuGL {
 public:
              GrGpuGLShaders();
     virtual ~GrGpuGLShaders();
-    
+
     virtual void resetContext();
 
     // type of colors used by a program
@@ -37,27 +37,27 @@ public:
 protected:
     // overrides from GrGpu
     virtual bool flushGraphicsState(PrimitiveType type);
-    virtual void setupGeometry(uint32_t startVertex,
-                               uint32_t startIndex,
-                               uint32_t vertexCount,
-                               uint32_t indexCount);
-    
+    virtual void setupGeometry(int* startVertex,
+                               int* startIndex,
+                               int vertexCount,
+                               int indexCount);
+
 private:
     void resetContextHelper();
-    
+
     // sets the texture matrix uniform for currently bound program
-    void flushTexMatrix(GLint location, 
+    void flushTexMatrix(GLint location,
                         GrGLTexture::Orientation orientation);
     // sets the MVP matrix uniform for currently bound program
     void flushMatrix(GLint location);
-    
+
     void flushTwoPointRadial(GLint paramsLocation, const GrSamplerState&);
-    
+
     // reads shader from array and compiles it with GL, returns shader ID or 0 if failed
     GLuint loadShader(GLenum type, const char* src);
-    
+
     struct ProgramData;
-    // creates a GL program with two shaders attached. 
+    // creates a GL program with two shaders attached.
     // Gets the relevant uniform locations.
     // Sets the texture sampler if present to texture 0
     // Binds the program
@@ -74,17 +74,17 @@ private:
     void flushProgram(PrimitiveType type);
 
     enum Programs {
-        // use vertex coordinates         
+        // use vertex coordinates
         kTextureVertCoords_Program = 0,
         kTextureVertCoordsProj_Program,
-        
+
         // use separate tex coords
         kTextureTexCoords_Program,
         kTextureTexCoordsProj_Program,
 
         // constant color texture, no proj
         // verts as a tex coords
-        kTextureVertCoordsNoColor_Program,        
+        kTextureVertCoordsNoColor_Program,
 
         // constant color texture, no proj
         // separate tex coords
@@ -99,12 +99,12 @@ private:
 
         // programs for sweep texture lookup
         kSweepTextureVertCoords_Program,
-        kSweepTextureTexCoords_Program, 
-        
+        kSweepTextureTexCoords_Program,
+
         // programs for two-point radial lookup
         kTwoPointRadialTextureVertCoords_Program,
         kTwoPointRadialTextureTexCoords_Program,
-        
+
         // color only drawing
         kNoTexture_Program,
 
@@ -113,23 +113,23 @@ private:
 
     // Records per-program information
     // we can specify the attribute locations so that they are constant
-    // across our shaders. But the driver determines the uniform locations 
+    // across our shaders. But the driver determines the uniform locations
     // at link time. We don't need to remember the sampler uniform location
     // because we will bind a texture slot to it and never change it
-    // Uniforms are program-local so we can't rely on fHWState to hold the 
+    // Uniforms are program-local so we can't rely on fHWState to hold the
     // previous uniform state after a program change.
     struct ProgramData {
         // IDs
         GLuint    fVShaderID;
         GLuint    fFShaderID;
         GLuint    fProgramID;
-        
+
         // shader uniform locations (-1 if shader doesn't use them)
         GLint     fMatrixLocation;
         GLint     fTexMatrixLocation;
         GLint     fColorLocation;
         GLint     fTwoPointParamsLocation;
-        
+
         ColorType fColorType;
 
         // these reflect the current values of uniforms
@@ -142,10 +142,10 @@ private:
         GrScalar                    fRadial2Radius0;
         bool                        fRadial2PosRoot;
     };
-    
+
     ProgramData fPrograms[kProgramCount];
     Programs    fHWProgram;
-    
+
     GrGLTexture::Orientation  fTextureOrientation;
 
     typedef GrGpuGL INHERITED;

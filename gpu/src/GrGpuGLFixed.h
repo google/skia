@@ -25,24 +25,24 @@ class GrGpuGLFixed : public GrGpuGL {
 public:
              GrGpuGLFixed();
     virtual ~GrGpuGLFixed();
-    
+
     virtual void resetContext();
 
 protected:
     // overrides from GrGpu
     virtual bool flushGraphicsState(PrimitiveType type);
-    virtual void setupGeometry(uint32_t startVertex,
-                               uint32_t startIndex,
-                               uint32_t vertexCount,
-                               uint32_t indexCount);
+    virtual void setupGeometry(int* startVertex,
+                               int* startIndex,
+                               int vertexCount,
+                               int indexCount);
 
 private:
     void resetContextHelper();
 
     // when the texture is GL_RGBA we set the GL_COMBINE texture
     // environment rgb operand 0 to be GL_COLOR to modulate each incoming
-    // R,G, & B by the texture's R, G, & B. When the texture is alpha-only we 
-    // set the operand to GL_ALPHA so that the incoming frag's R, G, &B are all 
+    // R,G, & B by the texture's R, G, & B. When the texture is alpha-only we
+    // set the operand to GL_ALPHA so that the incoming frag's R, G, &B are all
     // modulated by the texture's A.
     enum TextureEnvRGBOperands {
         kAlpha_TextureEnvRGBOperand,

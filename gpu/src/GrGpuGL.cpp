@@ -87,13 +87,6 @@ bool fbo_test(GrGLExts exts, int w, int h) {
 
 GrGpuGL::GrGpuGL() {
 
-#if GR_GL_NO_CLIENT_SIDE_ARRAYS
-    fClientArrayVB = NULL;
-    fClientArrayIB = NULL;
-    fOversizeVBDrawCnt = 0;
-    fOversizeIBDrawCnt = 0;
-#endif
-
     if (gPrintStartupSpew) {
         GrPrintf("------------------------- create GrGpuGL %p --------------\n",
                  this);
@@ -229,7 +222,6 @@ GrGpuGL::GrGpuGL() {
         GrPrintf("Single Stencil Pass For Winding: %s\n", (fSingleStencilPassForWinding ? "YES" : "NO"));
     }
 
-
 #if GR_SUPPORT_GLDESKTOP
     fRGBA8Renderbuffer = true;
 #else
@@ -251,6 +243,7 @@ GrGpuGL::GrGpuGL() {
 #else
     fBufferLockSupport = has_gl_extension("GL_OES_mapbuffer");
 #endif
+
     if (gPrintStartupSpew) {
         GrPrintf("Map Buffer: %s\n", (fBufferLockSupport ? "YES" : "NO"));
     }
@@ -372,10 +365,6 @@ GrGpuGL::GrGpuGL() {
 }
 
 GrGpuGL::~GrGpuGL() {
-#if GR_GL_NO_CLIENT_SIDE_ARRAYS
-    GrSafeUnref(fClientArrayVB);
-    GrSafeUnref(fClientArrayIB);
-#endif
 }
 
 void GrGpuGL::resetContextHelper() {
@@ -430,6 +419,8 @@ void GrGpuGL::resetContextHelper() {
     fHWDrawState.fReverseFill = false;
     fHWDrawState.fStencilPass = kNone_StencilPass;
     fHWStencilClip = false;
+    fClipState.fClipIsDirty = true;
+    fClipState.fStencilClipTarget = NULL;
 
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
@@ -444,63 +435,6 @@ void GrGpuGL::resetContext() {
     INHERITED::resetContext();
     resetContextHelper();
 }
-
-#if GR_GL_NO_CLIENT_SIDE_ARRAYS
-void GrGpuGL::putClientVertexDataInBuffer(const void* vertexData, size_t vertexDataSize) {
-    static const size_t MIN_VB_SIZE = 1 << 11;
-    static const int MAX_OVERSIZE_VB_DRAWS = 100;
-
-    if (NULL != vertexData) {
-        size_t currMinVBSize = GrMax(MIN_VB_SIZE, vertexDataSize);
-        // if we don't have a VB, its too small, or too big, create a new one
-        if (NULL == fClientArrayVB ||
-            fClientArrayVB->size() < currMinVBSize  ||
-            (fOversizeVBDrawCnt >= MAX_OVERSIZE_VB_DRAWS &&
-             currMinVBSize == MIN_VB_SIZE &&
-             fClientArrayVB->size() > MIN_VB_SIZE)) {
-
-            if (fHWGeometryState.fVertexBuffer == fClientArrayVB) {
-                fHWGeometryState.fVertexBuffer = NULL;
-                fHWGeometryState.fArrayPtrsDirty = true;
-            }
-            GrSafeUnref(fClientArrayVB);
-            fClientArrayVB = (GrGLVertexBuffer*)createVertexBuffer(currMinVBSize, true);
-            fOversizeVBDrawCnt = 0;
-        }
-        fClientArrayVB->updateData(vertexData, vertexDataSize);
-        if (currMinVBSize == MIN_VB_SIZE && fClientArrayVB->size() > MIN_VB_SIZE) {
-            ++fOversizeVBDrawCnt;
-        }
-    }
-}
-
-void GrGpuGL::putClientIndexDataInBuffer(const void* indexData, size_t indexDataSize) {
-    static const size_t MIN_IB_SIZE = 1 << 8;
-    static const int MAX_OVERSIZE_IB_DRAWS = 100;
-
-    if (NULL != indexData) {
-        size_t currMinIBSize = GrMax(MIN_IB_SIZE, indexDataSize);
-        // if we don't have a IB, its too small, or too big, create a new one
-        if (NULL == fClientArrayIB ||
-            fClientArrayIB->size() < currMinIBSize  ||
-            (fOversizeIBDrawCnt >= MAX_OVERSIZE_IB_DRAWS &&
-             currMinIBSize == MIN_IB_SIZE &&
-             fClientArrayIB->size() > MIN_IB_SIZE)) {
-
-            if (fHWGeometryState.fIndexBuffer == fClientArrayIB) {
-                fHWGeometryState.fIndexBuffer = NULL;
-            }
-            GrSafeUnref(fClientArrayIB);
-            fClientArrayIB = (GrGLIndexBuffer*)createIndexBuffer(currMinIBSize, true);
-            fOversizeIBDrawCnt = 0;
-        }
-        fClientArrayIB->updateData(indexData, indexDataSize);
-        if (currMinIBSize == MIN_IB_SIZE && fClientArrayIB->size() > MIN_IB_SIZE) {
-            ++fOversizeIBDrawCnt;
-        }
-    }
-}
-#endif
 
 GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
@@ -1202,19 +1136,12 @@ void GrGpuGL::drawIndexedHelper(PrimitiveType type,
 
     GLvoid* indices = (GLvoid*)(sizeof(uint16_t) * startIndex);
 
-#if GR_GL_NO_CLIENT_SIDE_ARRAYS
-    if (kBuffer_GeometrySrcType != fGeometrySrc.fIndexSrc) {
-        // we accounted for the startIndex when shoving data into a vb
-        indices = NULL;
-    }
-#else
-    if (kReserved_GeometrySrcType == fGeometrySrc.fIndexSrc) {
-        indices = (GLvoid*)((intptr_t)indices + (intptr_t)fIndices.get());
-    } else if (kArray_GeometrySrcType == fGeometrySrc.fIndexSrc) {
-        indices = (GLvoid*)((intptr_t)indices +
-                            (intptr_t)fGeometrySrc.fIndexArray);
-    }
-#endif
+    GrAssert(NULL != fHWGeometryState.fIndexBuffer);
+    GrAssert(NULL != fHWGeometryState.fVertexBuffer);
+
+    // our setupGeometry better have adjusted this to zero since
+    // DrawElements always draws from the begining of the arrays for idx 0.
+    GrAssert(0 == startVertex);
 
     GR_GL(DrawElements(gPrimitiveType2GLMode[type], indexCount,
                        GL_UNSIGNED_SHORT, indices));
@@ -1225,6 +1152,15 @@ void GrGpuGL::drawNonIndexedHelper(PrimitiveType type,
                                    uint32_t vertexCount) {
     GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
 
+    GrAssert(NULL != fHWGeometryState.fVertexBuffer);
+
+    // our setupGeometry better have adjusted this to zero.
+    // DrawElements doesn't take an offset so we always adjus the startVertex.
+    GrAssert(0 == startVertex);
+
+    // pass 0 for parameter first. We have to adjust gl*Pointer() to
+    // account for startVertex in the DrawElements case. So we always
+    // rely on setupGeometry to have accounted for startVertex.
     GR_GL(DrawArrays(gPrimitiveType2GLMode[type], 0, vertexCount));
 }
 
@@ -1330,6 +1266,7 @@ void GrGpuGL::flushStencil() {
                 if (!fCurrDrawState.fReverseFill) {
                     funcRef |= pathStencilMask;
                 }
+
                 GR_GL(StencilFunc(GL_EQUAL, funcRef, funcMask));
                 GR_GL(StencilMask(pathStencilMask));
                 GR_GL(StencilOp(GL_ZERO, GL_ZERO, GL_ZERO));
@@ -1425,6 +1362,7 @@ void GrGpuGL::flushStencil() {
                 GLint  funcRef   = 0;
                 GLuint funcMask  = pathStencilMask;
                 GLenum funcFunc;
+
                 if (stencilClip) {
                     funcRef  |= clipStencilMask;
                     funcMask |= clipStencilMask;
@@ -1774,84 +1712,62 @@ bool GrGpuGL::fboInternalFormat(GrTexture::PixelConfig config, GLenum* format) {
     }
 }
 
+void GrGpuGL::setBuffers(bool indexed,
+                         int* extraVertexOffset,
+                         int* extraIndexOffset) {
 
-const GLvoid* GrGpuGL::setBuffersAndGetVertexStart(int vertexStride, int startVertex,
-                                                   int startIndex, int vertexCount,
-                                                   int indexCount) {
-    const GLvoid* posPtr = (GLvoid*)(vertexStride * startVertex);
+    GrAssert(NULL != extraVertexOffset);
 
-    if (kBuffer_GeometrySrcType == fGeometrySrc.fVertexSrc) {
-        GrAssert(NULL != fGeometrySrc.fVertexBuffer);
-        GrAssert(!fGeometrySrc.fVertexBuffer->isLocked());
-        if (fHWGeometryState.fVertexBuffer != fGeometrySrc.fVertexBuffer) {
-            GrGLVertexBuffer* buf =
-                            (GrGLVertexBuffer*)fGeometrySrc.fVertexBuffer;
-            GR_GL(BindBuffer(GL_ARRAY_BUFFER, buf->bufferID()));
-            fHWGeometryState.fArrayPtrsDirty = true;
-            fHWGeometryState.fVertexBuffer = fGeometrySrc.fVertexBuffer;
-        }
-    } else {
-        if (kArray_GeometrySrcType == fGeometrySrc.fVertexSrc) {
-            posPtr = (void*)((intptr_t)fGeometrySrc.fVertexArray +
-                             (intptr_t)posPtr);
-        } else {
-            GrAssert(kReserved_GeometrySrcType == fGeometrySrc.fVertexSrc);
-            posPtr = (void*)((intptr_t)fVertices.get() + (intptr_t)posPtr);
-        }
-    #if GR_GL_NO_CLIENT_SIDE_ARRAYS
-        putClientVertexDataInBuffer(posPtr, vertexCount * vertexStride);
-        posPtr = NULL;
-        if (fHWGeometryState.fVertexBuffer != fClientArrayVB) {
-            GR_GL(BindBuffer(GL_ARRAY_BUFFER, fClientArrayVB->bufferID()));
-            fHWGeometryState.fArrayPtrsDirty = true;
-            fHWGeometryState.fVertexBuffer = fClientArrayVB;
-        }
-    #else
-        if (NULL != fHWGeometryState.fVertexBuffer) {
-            GR_GL(BindBuffer(GL_ARRAY_BUFFER, 0));
-            fHWGeometryState.fArrayPtrsDirty = true;
-            fHWGeometryState.fVertexBuffer = NULL;
-        }
-    #endif
+    GrGLVertexBuffer* vbuf;
+    switch (fGeometrySrc.fVertexSrc) {
+    case kBuffer_GeometrySrcType:
+        *extraVertexOffset = 0;
+        vbuf = (GrGLVertexBuffer*) fGeometrySrc.fVertexBuffer;
+        break;
+    case kArray_GeometrySrcType:
+    case kReserved_GeometrySrcType:
+        finalizeReservedVertices();
+        *extraVertexOffset = fCurrPoolStartVertex;
+        vbuf = (GrGLVertexBuffer*) fCurrPoolVertexBuffer;
+        break;
+    default:
+        vbuf = NULL; // suppress warning
+        GrCrash("Unknown geometry src type!");
     }
 
-    if (0 != indexCount) {
-
-        if (kBuffer_GeometrySrcType == fGeometrySrc.fIndexSrc) {
-            GrAssert(NULL != fGeometrySrc.fIndexBuffer);
-            GrAssert(!fGeometrySrc.fIndexBuffer->isLocked());
-            if (fHWGeometryState.fIndexBuffer != fGeometrySrc.fIndexBuffer) {
-                GrGLIndexBuffer* buf =
-                (GrGLIndexBuffer*)fGeometrySrc.fIndexBuffer;
-                GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, buf->bufferID()));
-                fHWGeometryState.fIndexBuffer = fGeometrySrc.fIndexBuffer;
-            }
-        }
-        #if GR_GL_NO_CLIENT_SIDE_ARRAYS
-        else {
-            const uint16_t* indices;
-            if (kArray_GeometrySrcType == fGeometrySrc.fIndexSrc) {
-                indices = reinterpret_cast<const uint16_t*>(fGeometrySrc.fIndexArray);
-            } else {
-                GrAssert(kReserved_GeometrySrcType == fGeometrySrc.fIndexSrc);
-                indices = reinterpret_cast<const uint16_t*>(fIndices.get());
-            }
-            // we shove just the referenced part of the index data into the begining
-            // of the buffer and drawIndexedHelper ignores startIndex.
-            putClientIndexDataInBuffer(indices + startIndex, indexCount  * sizeof(uint16_t));
-            if (fHWGeometryState.fIndexBuffer != fClientArrayIB) {
-                GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, fClientArrayIB->bufferID()));
-                fHWGeometryState.fIndexBuffer = fClientArrayIB;
-            }
-        }
-        #else
-        else if (NULL != fHWGeometryState.fIndexBuffer) {
-            // we rely on drawIndexedHelper to pass to client side
-            // ptr to DrawElements
-            GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-            fHWGeometryState.fIndexBuffer = NULL;
-        }
-        #endif
+    GrAssert(NULL != vbuf);
+    GrAssert(!vbuf->isLocked());
+    if (fHWGeometryState.fVertexBuffer != vbuf) {
+        GR_GL(BindBuffer(GL_ARRAY_BUFFER, vbuf->bufferID()));
+        fHWGeometryState.fArrayPtrsDirty = true;
+        fHWGeometryState.fVertexBuffer = vbuf;
     }
-    return posPtr;
+
+    if (indexed) {
+        GrAssert(NULL != extraIndexOffset);
+
+        GrGLIndexBuffer* ibuf;
+        switch (fGeometrySrc.fIndexSrc) {
+        case kBuffer_GeometrySrcType:
+            *extraIndexOffset = 0;
+            ibuf = (GrGLIndexBuffer*)fGeometrySrc.fIndexBuffer;
+            break;
+        case kArray_GeometrySrcType:
+        case kReserved_GeometrySrcType:
+            finalizeReservedIndices();
+            *extraIndexOffset = fCurrPoolStartIndex;
+            ibuf = (GrGLIndexBuffer*) fCurrPoolIndexBuffer;
+            break;
+        default:
+            ibuf = NULL; // suppress warning
+            GrCrash("Unknown geometry src type!");
+        }
+
+        GrAssert(NULL != ibuf);
+        GrAssert(!ibuf->isLocked());
+        if (fHWGeometryState.fIndexBuffer != ibuf) {
+            GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibuf->bufferID()));
+            fHWGeometryState.fIndexBuffer = ibuf;
+        }
+    }
 }

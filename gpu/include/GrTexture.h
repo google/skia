@@ -25,10 +25,9 @@ class GrTexture;
 /**
  * GrRenderTarget represents a 2D buffer of pixels that can be rendered to.
  * A context's render target is set by setRenderTarget(). Render targets are
- * created by a createTexture with the kRenderTarget_TextureFlag flag. 
- * Additionally, the rendering destination set in the underlying 3D API at the
- * time of GrContext's creation can be retrieved by calling 
- * currentRenderTarget() after creation before any calles to setRenderTarget().
+ * created by a createTexture with the kRenderTarget_TextureFlag flag.
+ * Additionally, GrContext provides methods for creating GrRenderTargets
+ * that wrap externally created render targets.
  */
 class GrRenderTarget : public GrRefCnt {
 public:
@@ -40,7 +39,7 @@ public:
      * @return the height of the rendertarget
      */
     virtual uint32_t height() const = 0;
-    
+
     /**
      * @return the texture associated with the rendertarget, may be NULL.
      */
@@ -70,10 +69,10 @@ protected:
               uint32_t contentHeight,
               uint32_t allocWidth,
               uint32_t allocHeight,
-              PixelConfig config) : 
-                fAllocWidth(allocWidth), 
+              PixelConfig config) :
+                fAllocWidth(allocWidth),
                 fAllocHeight(allocHeight),
-                fContentWidth(contentWidth), 
+                fContentWidth(contentWidth),
                 fContentHeight(contentHeight),
                 fConfig(config) {
                     // only make sense if alloc size is pow2
@@ -82,18 +81,18 @@ protected:
                 }
 public:
     virtual ~GrTexture();
-    
+
     /**
      * Retrieves the width of the content area of the texture. Reflects the
      * width passed to GrGpu::createTexture().
-     * 
+     *
      * @return the width in texels
      */
     uint32_t contentWidth() const { return fContentWidth; }
     /**
      * Retrieves the height of the content area of the texture. Reflects the
      * height passed to GrGpu::createTexture().
-     * 
+     *
      * @return the height in texels
      */
     uint32_t contentHeight() const { return fContentHeight; }
@@ -120,7 +119,7 @@ public:
     GrFixed normalizeFixedY(GrFixed y) const { GrAssert(GrIsPow2(fAllocHeight));
                                                return y >> fShiftFixedY; }
 
-    /** 
+    /**
      * Retrieves the pixel config specified when the texture was created.
      */
     PixelConfig config() const { return fConfig; }
@@ -149,7 +148,7 @@ public:
                                    const void* srcData) = 0;
     /**
      * Indicates that GPU context in which this texture was created is destroyed
-     * and that Ganesh should not attempt to free the texture with the 
+     * and that Ganesh should not attempt to free the texture with the
      * underlying API.
      */
     virtual void abandon() = 0;
@@ -157,7 +156,7 @@ public:
     /**
      * Queries whether the texture was created as a render target.
      *
-     * Use asRenderTarget() to use the texture as a render target if this 
+     * Use asRenderTarget() to use the texture as a render target if this
      * returns true.
      *
      * @return true if the texture was created as a render target.
@@ -194,8 +193,8 @@ public:
 #else
     void validate() const {}
 #endif
-    
-private:    
+
+private:
     uint32_t fAllocWidth;
     uint32_t fAllocHeight;
     uint32_t fContentWidth;

@@ -22,7 +22,10 @@
 
 class GrAutoMalloc : GrNoncopyable {
 public:
-    GrAutoMalloc(size_t bytes) : fPtr(GrMalloc(bytes)) {}
+    GrAutoMalloc() : fPtr(NULL), fAllocatedBytes(0){
+    }
+
+    GrAutoMalloc(size_t bytes) : fPtr(GrMalloc(bytes)), fAllocatedBytes(bytes) {}
     ~GrAutoMalloc() { GrFree(fPtr); }
 
     /**
@@ -31,6 +34,8 @@ public:
      */
     void* get() const { return fPtr; }
 
+    size_t size() const { return fAllocatedBytes; }
+
     /**
      *  transfer ownership of the memory to the caller. It must be freed with
      *  a call to GrFree()
@@ -38,19 +43,44 @@ public:
     void* detach() {
         void* ptr = fPtr;
         fPtr = NULL;    // we no longer own the block
+        fAllocatedBytes = 0;
         return ptr;
     }
-    
+
+    /**
+     *  Reallocates to a new size. May or may not call malloc. The contents
+     *  are not preserved. If growOnly is true it will never reduce the
+     *  allocated size.
+     */
+    void* realloc(size_t newSize, bool growOnly = false) {
+        bool alloc;
+        if (growOnly) {
+            alloc = newSize > fAllocatedBytes;
+        } else {
+            alloc = newSize != fAllocatedBytes;
+        }
+        if (alloc) {
+            GrFree(fPtr);
+            fPtr = newSize ? GrMalloc(newSize) : NULL;
+            fAllocatedBytes = newSize;
+        }
+        GrAssert(fAllocatedBytes >= newSize);
+        GR_DEBUGCODE(memset(fPtr, 0xEF, fAllocatedBytes));
+        return fPtr;
+    }
+
     /**
      *  free the block now. get() will now return NULL
      */
     void free() {
         GrFree(fPtr);
         fPtr = NULL;
+        fAllocatedBytes = 0;
     }
 
 private:
     void* fPtr;
+    size_t fAllocatedBytes;
 };
 
 /**
@@ -86,10 +116,10 @@ public:
      *  detached.
      */
     void* get() const { return fPtr; }
-    
+
     /**
-     *  Reallocates to a new size. May or may not call malloc. The contents 
-     *  are not preserved. If growOnly is true it will never reduce the 
+     *  Reallocates to a new size. May or may not call malloc. The contents
+     *  are not preserved. If growOnly is true it will never reduce the
      *  allocated size.
      */
     void* realloc(size_t newSize, bool growOnly = false) {
@@ -101,7 +131,7 @@ public:
                 GrFree(fPtr);
                 fPtr = fStorage;
                 fAllocatedBytes = SIZE;
-            }            
+            }
         } else if ((newSize > fAllocatedBytes) ||
                    (!growOnly && newSize < (fAllocatedBytes >> 1))) {
             if (NULL != fPtr && fPtr != (void*)fStorage) {
@@ -115,7 +145,7 @@ public:
         GR_DEBUGCODE(memset(fPtr, 0xEF, fAllocatedBytes));
         return fPtr;
     }
-   
+
     /**
      *  free the block now. get() will now return NULL
      */
@@ -126,7 +156,7 @@ public:
         fAllocatedBytes = 0;
         fPtr = NULL;
     }
-    
+
 private:
     void*    fPtr;
     uint32_t fAllocatedBytes;

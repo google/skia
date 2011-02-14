@@ -47,8 +47,6 @@ public:
      * The presence or absence of texture coordinates for each stage in the
      * vertex layout indicates whether a stage is enabled or not.
      */
-
-    // Currently there is just one stage but this will be changed soon.
     enum {
         kNumStages = 2,
         kMaxTexCoords = kNumStages
@@ -479,6 +477,36 @@ public:
     GR_STATIC_ASSERT(kHighVertexLayoutBit < (1 << 8*sizeof(GrVertexLayout)));
 
     /**
+     * There are three paths for specifying geometry (vertices and optionally
+     * indices) to the draw target. When indexed drawing the indices and vertices
+     * can be each use a different path.
+     *
+     * 1. Provide a cpu array (set*SourceToArray). This is useful when the
+     *    caller's client has already provided vertex data in a format
+     *    the time compatible with a GrVertexLayout. The array must contain the
+     *    data at set*SourceToArray is called. The source stays in effect for
+     *    drawIndexed & drawNonIndexed calls until set*SourceToArray is called
+     *    again or one of the other two paths is chosen.
+     *
+     * 2. Reserve and Lock. This is most useful when the caller has data it must
+     *    transform before drawing and will not likely render it again. The
+     *    caller requests that the draw target make room for some amount of
+     *    vertex and/or index data. The target provides ptrs to hold the data
+     *    data. The caller can write the data into the pts up until the first
+     *    drawIndexed or drawNonIndexed call. At this point the data is frozen
+     *    and the ptrs are no longer guaranteed to be valid. All subsequent
+     *    drawIndexed & drawNonIndexed calls will use this data until
+     *    releaseReserved geometry is called. This must be called before another
+     *    source is set.
+     *
+     * 3. Vertex and Index Buffers. This is most useful for geometry that will
+     *    be rendered multiple times. SetVertexSourceToBuffer &
+     *    SetIndexSourceToBuffer are used to set the buffer and subsequent
+     *    drawIndexed and drawNonIndexed calls use this source until another
+     *    source is set.
+     */
+
+    /**
      * Reserves space for vertices and/or indices. Draw target will use
      * reserved vertices / indices at next draw.
      *
@@ -491,14 +519,19 @@ public:
      *          to be filled by caller. The next indexed draw will read from
      *          these indices.
      *
-     * If a client does not already have a vertex buffer or cpu arrays then this
-     * is the preferred way to allocate vertex/index array. It allows the
-     * subclass of GrDrawTarget to decide whether to put data in buffers, to
-     * group vertex data that uses the same state (e.g. for deferred rendering),
-     * etc.
+     * If a client does not already have a vertex buffer then this is the
+     * preferred way to allocate vertex/index array. It allows the subclass of
+     * GrDrawTarget to decide whether to put data in buffers, to group vertex
+     * data that uses the same state (e.g. for deferred rendering), etc.
      *
-     * This must be matched with a releaseReservedGeometry call after all
-     * draws that reference the reserved geometry data have been called.
+     * Following the first draw after reserveAndLockGeometry the ptrs returned
+     * by releaseReservedGeometry are no longer valid and the geometry data
+     * cannot be further modified. The contents that were put in the reserved
+     * space can be drawn by multiple draws, however.
+     *
+     * reserveAndLockGeometry must be matched with a releaseReservedGeometry
+     * call after all draws that reference the reserved geometry data have
+     * been called.
      *
      * AutoGeometryRelease can be used to automatically call the release.
      *
@@ -541,8 +574,8 @@ public:
      * @return  true if target should be flushed based on the input values.
      */
     virtual bool geometryHints(GrVertexLayout vertexLayout,
-                               int32_t*       vertexCount,
-                               int32_t*       indexCount) const;
+                               int* vertexCount,
+                               int* indexCount) const;
 
     /**
      * Releases reserved vertex/index data from reserveAndLockGeometry().
@@ -550,21 +583,25 @@ public:
     void releaseReservedGeometry();
 
     /**
-     * Sets source of vertex data for the next draw. Data does not have to be
-     * in the array until drawIndexed or drawNonIndexed.
+     * Sets source of vertex data for the next draw. Array must contain
+     * the vertex data when this is called.
      *
      * @param array         cpu array containing vertex data.
-     * @param vertexLayout  layout of the vertex data in the array.
+     * @param size          size of the vertex data.
+     * @param vertexCount   the number of vertices in the array.
      */
-    void setVertexSourceToArray(const void* array, GrVertexLayout vertexLayout);
+    void setVertexSourceToArray(GrVertexLayout vertexLayout,
+                                const void* vertexArray,
+                                int vertexCount);
 
     /**
-     * Sets source of index data for the next indexed draw. Data does not have
-     * to be in the array until drawIndexed or drawNonIndexed.
+     * Sets source of index data for the next indexed draw. Array must contain
+     * the indices when this is called.
      *
-     * @param array cpu array containing index data.
+     * @param array         cpu array containing index data.
+     * @param indexCount    the number of indices in the array.
      */
-    void setIndexSourceToArray(const void* array);
+    void setIndexSourceToArray(const void* indexArray, int indexCount);
 
     /**
      * Sets source of vertex data for the next draw. Data does not have to be
@@ -574,8 +611,8 @@ public:
      *                      unlocked before draw call.
      * @param vertexLayout  layout of the vertex data in the buffer.
      */
-    void setVertexSourceToBuffer(const GrVertexBuffer* buffer,
-                                 GrVertexLayout vertexLayout);
+    void setVertexSourceToBuffer(GrVertexLayout vertexLayout,
+                                 const GrVertexBuffer* buffer);
 
     /**
      * Sets source of index data for the next indexed draw. Data does not have
@@ -600,10 +637,10 @@ public:
      *                     specified primitive.
      */
     virtual void drawIndexed(PrimitiveType type,
-                             uint32_t startVertex,
-                             uint32_t startIndex,
-                             uint32_t vertexCount,
-                             uint32_t indexCount) = 0;
+                             int startVertex,
+                             int startIndex,
+                             int vertexCount,
+                             int indexCount) = 0;
 
     /**
      * Draws non-indexed geometry using the current state and current vertex
@@ -615,8 +652,8 @@ public:
      * @param vertexCount  one greater than the max index.
      */
     virtual void drawNonIndexed(PrimitiveType type,
-                                uint32_t startVertex,
-                                uint32_t vertexCount)  = 0;
+                                int startVertex,
+                                int vertexCount)  = 0;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -631,14 +668,14 @@ public:
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    
+
     class AutoViewMatrixRestore : ::GrNoncopyable {
     public:
         AutoViewMatrixRestore() {
             fDrawTarget = NULL;
         }
 
-        AutoViewMatrixRestore(GrDrawTarget* target) 
+        AutoViewMatrixRestore(GrDrawTarget* target)
             : fDrawTarget(target), fMatrix(fDrawTarget->getViewMatrix()) {
             GrAssert(NULL != target);
         }
@@ -850,10 +887,16 @@ protected:
 
     virtual void clipWillChange(const GrClip& clip) = 0;
 
+    virtual void setVertexSourceToArrayHelper(const void* vertexArray,
+                                              int vertexCount) = 0;
+
+    virtual void setIndexSourceToArrayHelper(const void* indexArray,
+                                             int indexCount) = 0;
+
     enum GeometrySrcType {
-        kArray_GeometrySrcType,
-        kReserved_GeometrySrcType,
-        kBuffer_GeometrySrcType
+        kReserved_GeometrySrcType,  // src was set using reserveAndLockGeometry
+        kArray_GeometrySrcType,     // src was set using set*SourceToArray
+        kBuffer_GeometrySrcType     // src was set using set*SourceToBuffer
     };
 
     struct {
@@ -863,25 +906,21 @@ protected:
     } fReservedGeometry;
 
     struct GeometrySrc {
-        GeometrySrcType             fVertexSrc;
-        union {
-            const GrVertexBuffer*   fVertexBuffer;
-            const void*             fVertexArray;
-        };
-        GeometrySrcType             fIndexSrc;
-        union {
-            const GrIndexBuffer*    fIndexBuffer;
-            const void*             fIndexArray;
-        };
-        GrVertexLayout              fVertexLayout;
+        GeometrySrcType         fVertexSrc;
+        const GrVertexBuffer*   fVertexBuffer; // valid if src type is buffer
+        GeometrySrcType         fIndexSrc;
+        const GrIndexBuffer*    fIndexBuffer; // valid if src type is buffer
+        GrVertexLayout          fVertexLayout;
     } fGeometrySrc;
 
     GrClip fClip;
 
     DrState fCurrDrawState;
 
-    // not meant for outside usage. Could cause problems if calls between
-    // the save and restore mess with reserved geometry state.
+    // Not meant for external use. Only setVertexSourceToBuffer and
+    // setIndexSourceToBuffer will work since GrDrawTarget subclasses don't
+    // support nested reserveAndLockGeometry (and cpu arrays internally use the
+    // same path).
     class AutoGeometrySrcRestore {
     public:
         AutoGeometrySrcRestore(GrDrawTarget* target) {

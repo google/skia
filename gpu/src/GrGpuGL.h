@@ -61,8 +61,7 @@ public:
 
 protected:
     struct {
-        const void*
-        fPositionPtr;
+        size_t                  fVertexOffset;
         GrVertexLayout          fVertexLayout;
         const GrVertexBuffer*   fVertexBuffer;
         const GrIndexBuffer*    fIndexBuffer;
@@ -72,28 +71,27 @@ protected:
     DrState   fHWDrawState;
     bool      fHWStencilClip;
 
+    // GrGpu overrides
     virtual void drawIndexedHelper(PrimitiveType type,
                                    uint32_t startVertex,
                                    uint32_t startIndex,
                                    uint32_t vertexCount,
                                    uint32_t indexCount);
-
     virtual void drawNonIndexedHelper(PrimitiveType type,
                                       uint32_t vertexCount,
                                       uint32_t numVertices);
-
     virtual void flushScissor(const GrIRect* rect);
-
     void eraseStencil(uint32_t value, uint32_t mask);
     virtual void eraseStencilClip();
 
+    // binds texture unit in GL
     void setTextureUnit(int unitIdx);
 
-    // binds appropriate vertex and index buffers and returns either the ptr
-    // to client memory or offset into a VB of the first vertex
-    const GLvoid* setBuffersAndGetVertexStart(int vertexStride, int startVertex,
-                                              int startIndex, int vertexCount,
-                                              int indexCount);
+    // binds appropriate vertex and index buffers, also returns any extra
+    // extra verts or indices to offset by.
+    void setBuffers(bool indexed,
+                    int* extraVertexOffset,
+                    int* extraIndexOffset);
 
     // flushes state that is common to fixed and programmable GL
     // dither
@@ -117,13 +115,6 @@ protected:
     BoundsState fHWBounds;
 
     GrGLExts fExts;
-
-#if GR_GL_NO_CLIENT_SIDE_ARRAYS
-    void putClientVertexDataInBuffer(const void* vertexData, 
-                                     size_t vertexDataSize);
-    void putClientIndexDataInBuffer(const void* indexData, 
-                                    size_t indexDataSize);
-#endif
 
 private:
     void resetContextHelper();
@@ -174,13 +165,6 @@ private:
     int fActiveTextureUnitIdx;
 
     typedef GrGpu INHERITED;
-
-#if GR_GL_NO_CLIENT_SIDE_ARRAYS
-    GrGLVertexBuffer* fClientArrayVB;
-    GrGLIndexBuffer*  fClientArrayIB;
-    int               fOversizeVBDrawCnt;
-    int               fOversizeIBDrawCnt;
-#endif
 };
 
 bool has_gl_extension(const char* ext);

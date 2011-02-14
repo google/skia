@@ -45,28 +45,40 @@ template <typename T> const T& GrMax(const T& a, const T& b) {
 /**
  *  divide, rounding up
  */
-inline uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
+static inline uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
+    return (x + (y-1)) / y;
+}
+static inline size_t GrSizeDivRoundUp(size_t x, uint32_t y) {
     return (x + (y-1)) / y;
 }
 
 /**
  *  align up
  */
-inline uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
+static inline uint32_t GrUIAlignUp(uint32_t x, uint32_t alignment) {
     return GrUIDivRoundUp(x, alignment) * alignment;
+}
+static inline uint32_t GrSizeAlignUp(size_t x, uint32_t alignment) {
+    return GrSizeDivRoundUp(x, alignment) * alignment;
 }
 
 /**
  * amount of pad needed to align up
  */
-inline uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
+static inline uint32_t GrUIAlignUpPad(uint32_t x, uint32_t alignment) {
+    return (alignment - x % alignment) % alignment;
+}
+static inline size_t GrSizeAlignUpPad(size_t x, uint32_t alignment) {
     return (alignment - x % alignment) % alignment;
 }
 
 /**
  *  align down
  */
-inline uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
+static inline uint32_t GrUIAlignDown(uint32_t x, uint32_t alignment) {
+    return (x / alignment) * alignment;
+}
+static inline uint32_t GrSizeAlignDown(size_t x, uint32_t alignment) {
     return (x / alignment) * alignment;
 }
 
