@@ -22,4 +22,4 @@ SOURCE := \
     GrTextureCache.cpp \
     GrTextContext.cpp \
     GrTextStrike.cpp \
-    GrVertexBufferAllocPool.cpp
+    GrBufferAllocPool.cpp

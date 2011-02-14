@@ -31,10 +31,10 @@ public:
 protected:
     // overrides from GrGpu
     virtual bool flushGraphicsState(PrimitiveType type);
-    virtual void setupGeometry(uint32_t startVertex,
-                               uint32_t startIndex,
-                               uint32_t vertexCount,
-                               uint32_t indexCount);
+    virtual void setupGeometry(int* startVertex,
+                               int* startIndex,
+                               int vertexCount,
+                               int indexCount);
 
 private:
 
@@ -42,7 +42,7 @@ private:
 
     // sets the texture matrix uniform for currently bound program
     void flushTextureMatrix(int stage);
-   
+
     // sets the MVP matrix uniform for currently bound program
     void flushViewMatrix();
 

@@ -95,7 +95,7 @@ void GrGpuGLFixed::resetContextHelper() {
     }
 
     fHWGeometryState.fVertexLayout = 0;
-    fHWGeometryState.fPositionPtr  = (void*) ~0;
+    fHWGeometryState.fVertexOffset  = ~0;
     GR_GL(EnableClientState(GL_VERTEX_ARRAY));
     GR_GL(DisableClientState(GL_TEXTURE_COORD_ARRAY));
     GR_GL(ShadeModel(GL_FLAT));
@@ -246,10 +246,10 @@ bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
     return true;
 }
 
-void GrGpuGLFixed::setupGeometry(uint32_t startVertex,
-                                 uint32_t startIndex,
-                                 uint32_t vertexCount,
-                                 uint32_t indexCount) {
+void GrGpuGLFixed::setupGeometry(int* startVertex,
+                                 int* startIndex,
+                                 int vertexCount,
+                                 int indexCount) {
 
     int newColorOffset;
     int newTexCoordOffsets[kNumStages];
@@ -263,9 +263,11 @@ void GrGpuGLFixed::setupGeometry(uint32_t startVertex,
                                                     oldTexCoordOffsets,
                                                     &oldColorOffset);
 
-    const GLvoid* posPtr = setBuffersAndGetVertexStart(newStride, startVertex,
-                                                       startIndex, vertexCount,
-                                                       indexCount);
+    bool indexed = NULL == startIndex;
+
+    int extraVertexOffset;
+    int extraIndexOffset;
+    setBuffers(indexed, &extraVertexOffset, &extraIndexOffset);
 
     GLenum scalarType;
     if (fGeometrySrc.fVertexLayout & kTextFormat_VertexLayoutBit) {
@@ -274,32 +276,43 @@ void GrGpuGLFixed::setupGeometry(uint32_t startVertex,
         scalarType = GrGLType;
     }
 
-    bool baseChange = posPtr != fHWGeometryState.fPositionPtr;
-    bool scalarChange =
-        (GrGLTextType != GrGLType) &&
-        (kTextFormat_VertexLayoutBit &
-         (fHWGeometryState.fVertexLayout ^ fGeometrySrc.fVertexLayout));
-    bool strideChange = newStride != oldStride;
-    bool posChange = baseChange || scalarChange || strideChange;
+    size_t vertexOffset = (*startVertex + extraVertexOffset) * newStride;
+    *startVertex = 0;
+    if (indexed) {
+        *startIndex += extraIndexOffset;
+    }
 
-    if (posChange || fHWGeometryState.fArrayPtrsDirty) {
-        GR_GL(VertexPointer(2, scalarType, newStride, posPtr));
-        fHWGeometryState.fPositionPtr = posPtr;
+    // all the Pointers must be set if any of these are true
+    bool allOffsetsChange =  fHWGeometryState.fArrayPtrsDirty ||
+                             vertexOffset != fHWGeometryState.fVertexOffset ||
+                             newStride != oldStride;
+
+    // position and tex coord offsets change if above conditions are true
+    // or the type changed based on text vs nontext type coords.
+    bool posAndTexChange = allOffsetsChange ||
+                           ((GrGLTextType != GrGLType) &&
+                                (kTextFormat_VertexLayoutBit &
+                                  (fHWGeometryState.fVertexLayout ^
+                                   fGeometrySrc.fVertexLayout)));
+
+    if (posAndTexChange) {
+        GR_GL(VertexPointer(2, scalarType, newStride, (GLvoid*)vertexOffset));
+        fHWGeometryState.fVertexOffset = vertexOffset;
     }
 
     for (int s = 0; s < kNumStages; ++s) {
         // need to enable array if tex coord offset is 0
         // (using positions as coords)
         if (newTexCoordOffsets[s] >= 0) {
-            GLvoid* texCoordPtr = (int8_t*)posPtr + newTexCoordOffsets[s];
+            GLvoid* texCoordOffset = (GLvoid*)(vertexOffset + newTexCoordOffsets[s]);
             if (oldTexCoordOffsets[s] < 0) {
                 GR_GL(ClientActiveTexture(GL_TEXTURE0+s));
                 GR_GL(EnableClientState(GL_TEXTURE_COORD_ARRAY));
-                GR_GL(TexCoordPointer(2, scalarType, newStride, texCoordPtr));
-            } else if (fHWGeometryState.fArrayPtrsDirty || posChange ||
+                GR_GL(TexCoordPointer(2, scalarType, newStride, texCoordOffset));
+            } else if (posAndTexChange ||
                        newTexCoordOffsets[s] != oldTexCoordOffsets[s]) {
                 GR_GL(ClientActiveTexture(GL_TEXTURE0+s));
-                GR_GL(TexCoordPointer(2, scalarType, newStride, texCoordPtr));
+                GR_GL(TexCoordPointer(2, scalarType, newStride, texCoordOffset));
             }
         } else if (oldTexCoordOffsets[s] >= 0) {
             GR_GL(ClientActiveTexture(GL_TEXTURE0+s));
@@ -308,13 +321,12 @@ void GrGpuGLFixed::setupGeometry(uint32_t startVertex,
     }
 
     if (newColorOffset > 0) {
-        GLvoid* colorPtr = (int8_t*)posPtr + newColorOffset;
+        GLvoid* colorOffset = (GLvoid*)(vertexOffset + newColorOffset);
         if (oldColorOffset <= 0) {
             GR_GL(EnableClientState(GL_COLOR_ARRAY));
-            GR_GL(ColorPointer(4, GL_UNSIGNED_BYTE, newStride, colorPtr));
-        } else if (fHWGeometryState.fArrayPtrsDirty || posChange ||
-                   newColorOffset != oldColorOffset) {
-            GR_GL(ColorPointer(4, GL_UNSIGNED_BYTE, newStride, colorPtr));
+            GR_GL(ColorPointer(4, GL_UNSIGNED_BYTE, newStride, colorOffset));
+        } else if (allOffsetsChange || newColorOffset != oldColorOffset) {
+            GR_GL(ColorPointer(4, GL_UNSIGNED_BYTE, newStride, colorOffset));
         }
     } else if (oldColorOffset > 0) {
         GR_GL(DisableClientState(GL_COLOR_ARRAY));

@@ -14,7 +14,6 @@
     limitations under the License.
  */
 
-
 #include "GrGpu.h"
 #include "GrMemory.h"
 #include "GrTextStrike.h"
@@ -22,6 +21,10 @@
 #include "GrClipIterator.h"
 #include "GrIndexBuffer.h"
 #include "GrVertexBuffer.h"
+#include "GrBufferAllocPool.h"
+
+// probably makes no sense for this to be less than a page
+static size_t VERTEX_POOL_VB_SIZE = 1 << 12;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +60,12 @@ bool GrTexture::PixelConfigIsOpaque(PixelConfig config) {
 extern void gr_run_unittests();
 
 GrGpu::GrGpu() : f8bitPaletteSupport(false),
+                 fCurrPoolVertexBuffer(NULL),
+                 fCurrPoolStartVertex(0),
+                 fCurrPoolIndexBuffer(NULL),
+                 fCurrPoolStartIndex(0),
+                 fVertexPool(NULL),
+                 fIndexPool(NULL),
                  fQuadIndexBuffer(NULL),
                  fUnitSquareVertexBuffer(NULL) {
 #if GR_DEBUG
@@ -68,6 +77,8 @@ GrGpu::GrGpu() : f8bitPaletteSupport(false),
 GrGpu::~GrGpu() {
     GrSafeUnref(fQuadIndexBuffer);
     GrSafeUnref(fUnitSquareVertexBuffer);
+    delete fVertexPool;
+    delete fIndexPool;
 }
 
 void GrGpu::resetContext() {
@@ -124,11 +135,11 @@ bool GrGpu::canDisableBlend() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const int MAX_QUADS = 512; // max possible: (1 << 14) - 1;
+static const int MAX_QUADS = 1 << 12; // max possible: (1 << 14) - 1;
 
 GR_STATIC_ASSERT(4 * MAX_QUADS <= 65535);
 
-static inline void fillIndices(uint16_t* indices, int quadCount) {
+static inline void fill_indices(uint16_t* indices, int quadCount) {
     for (int i = 0; i < quadCount; ++i) {
         indices[6 * i + 0] = 4 * i + 0;
         indices[6 * i + 1] = 4 * i + 1;
@@ -147,11 +158,11 @@ const GrIndexBuffer* GrGpu::quadIndexBuffer() const {
         if (NULL != fQuadIndexBuffer) {
             uint16_t* indices = (uint16_t*)fQuadIndexBuffer->lock();
             if (NULL != indices) {
-                fillIndices(indices, MAX_QUADS);
+                fill_indices(indices, MAX_QUADS);
                 fQuadIndexBuffer->unlock();
             } else {
                 indices = (uint16_t*)GrMalloc(SIZE);
-                fillIndices(indices, MAX_QUADS);
+                fill_indices(indices, MAX_QUADS);
                 if (!fQuadIndexBuffer->updateData(indices, SIZE)) {
                     fQuadIndexBuffer->unref();
                     fQuadIndexBuffer = NULL;
@@ -222,41 +233,53 @@ bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
 
             AutoStateRestore asr(this);
             AutoGeometrySrcRestore agsr(this);
-            this->disableState(kClip_StateBit);
-            eraseStencilClip();
+
+            // We have to use setVertexSourceToBuffer (and index) in order
+            // to ensure we correctly restore the client's geom sources.
+            // We tack the clip verts onto the vertex pool but we don't
+            // use the various helper functions because of their side effects.
 
             int rectTotal = fClip.countRects();
-            static const int PtsPerRect = 4;
-            // this may be called while geometry is already reserved by the
-            // client. So we use our own vertex array where we avoid malloc
-            // if we have 4 or fewer rects.
-            GrAutoSTMalloc<PtsPerRect * 4, GrPoint> vertices(PtsPerRect *
-                                                             rectTotal);
-            this->setVertexSourceToArray(vertices.get(), 0);
+            if (NULL == fVertexPool) {
+                fVertexPool = new GrVertexBufferAllocPool(this,
+                                                          true,
+                                                          VERTEX_POOL_VB_SIZE,
+                                                          1);
+            }
+            const GrVertexBuffer* vertexBuffer;
+            int vStart;
+            GrPoint* rectVertices =
+                reinterpret_cast<GrPoint*>(fVertexPool->makeSpace(0,
+                                                                  rectTotal * 4,
+                                                                  &vertexBuffer,
+                                                                  &vStart));
+            for (int r = 0; r < rectTotal; ++r) {
+                const GrIRect& rect = fClip.getRects()[r];
+                rectVertices[4 * r].setIRectFan(rect.fLeft, rect.fTop,
+                                                rect.fRight, rect.fBottom);
+            }
+            fVertexPool->unlock();
+            this->setVertexSourceToBuffer(0, vertexBuffer);
+            this->setIndexSourceToBuffer(quadIndexBuffer());
+            this->setViewMatrix(GrMatrix::I());
+            // don't clip the clip or recurse!
+            this->disableState(kClip_StateBit);
+            this->eraseStencilClip();
+            this->setStencilPass((GrDrawTarget::StencilPass)kSetClip_StencilPass);
             int currRect = 0;
             while (currRect < rectTotal) {
                 int rectCount = GrMin(this->maxQuadsInIndexBuffer(),
                                       rectTotal - currRect);
-
-                GrPoint* verts = (GrPoint*)vertices +
-                                 (currRect * PtsPerRect);
-
-                for (int i = 0; i < rectCount; i++) {
-                    GrRect r(fClip.getRects()[i + currRect]);
-                    verts = r.setRectFan(verts);
-                }
-                this->setIndexSourceToBuffer(quadIndexBuffer());
-
-                this->setViewMatrix(GrMatrix::I());
-                this->setStencilPass((GrDrawTarget::StencilPass)kSetClip_StencilPass);
-                this->drawIndexed(GrGpu::kTriangles_PrimitiveType,
-                                  currRect * PtsPerRect, 0,
-                                  rectCount * PtsPerRect, rectCount * 6);
-
+                this->drawIndexed(kTriangles_PrimitiveType,
+                                  vStart + currRect * 4,
+                                  0,
+                                  rectCount*4,
+                                  rectCount*6);
                 currRect += rectCount;
             }
             fClipState.fStencilClipTarget = fCurrDrawState.fRenderTarget;
         }
+
         fClipState.fClipIsDirty = false;
         if (!fClipState.fClipInStencil) {
             r = &fClip.getBounds();
@@ -274,10 +297,10 @@ bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrGpu::drawIndexed(PrimitiveType type,
-                        uint32_t startVertex,
-                        uint32_t startIndex,
-                        uint32_t vertexCount,
-                        uint32_t indexCount) {
+                        int startVertex,
+                        int startIndex,
+                        int vertexCount,
+                        int indexCount) {
     GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fVertexSrc ||
              fReservedGeometry.fLocked);
     GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fIndexSrc ||
@@ -293,15 +316,17 @@ void GrGpu::drawIndexed(PrimitiveType type,
     fStats.fDrawCnt   += 1;
 #endif
 
-    setupGeometry(startVertex, startIndex, vertexCount, indexCount);
+    int sVertex = startVertex;
+    int sIndex = startIndex;
+    setupGeometry(&sVertex, &sIndex, vertexCount, indexCount);
 
-    drawIndexedHelper(type, startVertex, startIndex,
+    drawIndexedHelper(type, sVertex, sIndex,
                       vertexCount, indexCount);
 }
 
 void GrGpu::drawNonIndexed(PrimitiveType type,
-                           uint32_t startVertex,
-                           uint32_t vertexCount) {
+                           int startVertex,
+                           int vertexCount) {
     GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fVertexSrc ||
              fReservedGeometry.fLocked);
 
@@ -313,37 +338,103 @@ void GrGpu::drawNonIndexed(PrimitiveType type,
     fStats.fDrawCnt   += 1;
 #endif
 
-    setupGeometry(startVertex, 0, vertexCount, 0);
+    int sVertex = startVertex;
+    setupGeometry(&sVertex, NULL, vertexCount, 0);
 
-    drawNonIndexedHelper(type, startVertex, vertexCount);
+    drawNonIndexedHelper(type, sVertex, vertexCount);
+}
+
+void GrGpu::finalizeReservedVertices() {
+    GrAssert(NULL != fVertexPool);
+    fVertexPool->unlock();
+}
+
+void GrGpu::finalizeReservedIndices() {
+    GrAssert(NULL != fIndexPool);
+    fIndexPool->unlock();
+}
+
+void GrGpu::prepareVertexPool() {
+    if (NULL == fVertexPool) {
+        fVertexPool = new GrVertexBufferAllocPool(this, true, VERTEX_POOL_VB_SIZE, 1);
+    } else {
+        fVertexPool->reset();
+    }
+}
+
+void GrGpu::prepareIndexPool() {
+    if (NULL == fVertexPool) {
+        fIndexPool = new GrIndexBufferAllocPool(this, true, 0, 1);
+    } else {
+        fIndexPool->reset();
+    }
 }
 
 bool GrGpu::acquireGeometryHelper(GrVertexLayout vertexLayout,
                                   void**         vertices,
                                   void**         indices) {
-    GrAssert((fReservedGeometry.fVertexCount == 0) ||
-             (NULL != vertices));
-    if (NULL != vertices) {
-        *vertices = fVertices.realloc(VertexSize(vertexLayout) *
-                                      fReservedGeometry.fVertexCount);
-        if (!*vertices && fReservedGeometry.fVertexCount) {
+    GrAssert(!fReservedGeometry.fLocked);
+    size_t reservedVertexSpace = 0;
+
+    if (fReservedGeometry.fVertexCount) {
+        GrAssert(NULL != vertices);
+
+        prepareVertexPool();
+
+        *vertices = fVertexPool->makeSpace(vertexLayout,
+                                           fReservedGeometry.fVertexCount,
+                                           &fCurrPoolVertexBuffer,
+                                           &fCurrPoolStartVertex);
+        if (NULL == *vertices) {
             return false;
         }
+        reservedVertexSpace = VertexSize(vertexLayout) *
+                              fReservedGeometry.fVertexCount;
     }
-    GrAssert((fReservedGeometry.fIndexCount == 0) ||
-             (NULL != indices));
-    if (NULL != indices) {
-        *indices =  fIndices.realloc(sizeof(uint16_t) *
-                                     fReservedGeometry.fIndexCount);
-        if (!*indices && fReservedGeometry.fIndexCount) {
+    if (fReservedGeometry.fIndexCount) {
+        GrAssert(NULL != indices);
+
+        prepareIndexPool();
+
+        *indices = fIndexPool->makeSpace(fReservedGeometry.fIndexCount,
+                                         &fCurrPoolIndexBuffer,
+                                         &fCurrPoolStartIndex);
+        if (NULL == *indices) {
+            fVertexPool->putBack(reservedVertexSpace);
+            fCurrPoolVertexBuffer = NULL;
             return false;
         }
     }
     return true;
 }
 
-void GrGpu::releaseGeometryHelper() {
-    return;
+void GrGpu::releaseGeometryHelper() {}
+
+void GrGpu::setVertexSourceToArrayHelper(const void* vertexArray, int vertexCount) {
+    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fVertexCount);
+    prepareVertexPool();
+#if GR_DEBUG
+    bool success =
+#endif
+    fVertexPool->appendVertices(fGeometrySrc.fVertexLayout,
+                                vertexCount,
+                                vertexArray,
+                                &fCurrPoolVertexBuffer,
+                                &fCurrPoolStartVertex);
+    GR_DEBUGASSERT(success);
+}
+
+void GrGpu::setIndexSourceToArrayHelper(const void* indexArray, int indexCount) {
+    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fIndexCount);
+    prepareIndexPool();
+#if GR_DEBUG
+    bool success =
+#endif
+    fIndexPool->appendIndices(indexCount,
+                              indexArray,
+                              &fCurrPoolIndexBuffer,
+                              &fCurrPoolStartIndex);
+    GR_DEBUGASSERT(success);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

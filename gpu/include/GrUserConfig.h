@@ -65,6 +65,13 @@
  */
 //#define GR_AGGRESSIVE_SHADER_OPTS 1
 
+/*
+ * This gives a threshold in bytes of when to lock a GrGeometryBuffer vs using
+ * updateData or updateSubData. (Note the depending on the underlying 3D API
+ * the update functions may always be implemented using a lock)
+ */
+//#define GR_GEOM_BUFFER_LOCK_THRESHOLD (1<<15)
+
 ///////////////////////////////////////////////////////////////////////////////
 /*
  *  temporary flags (may go away soon)

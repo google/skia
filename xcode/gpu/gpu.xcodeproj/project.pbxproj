@@ -36,7 +36,6 @@
 		00115E2712C1167A008296FE /* GrTextStrike_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115DF712C1167A008296FE /* GrTextStrike_impl.h */; };
 		00115E2812C1167A008296FE /* GrTextStrike.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DF812C1167A008296FE /* GrTextStrike.cpp */; };
 		00115E2912C1167A008296FE /* GrTextureCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DF912C1167A008296FE /* GrTextureCache.cpp */; };
-		00115E2B12C1167A008296FE /* GrVertexBufferAllocPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DFB12C1167A008296FE /* GrVertexBufferAllocPool.cpp */; };
 		00115E7512C116CA008296FE /* GrAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3912C116CA008296FE /* GrAllocator.h */; };
 		00115E7612C116CA008296FE /* GrAllocPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3A12C116CA008296FE /* GrAllocPool.h */; };
 		00115E7712C116CA008296FE /* GrAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3B12C116CA008296FE /* GrAPI.h */; };
@@ -90,10 +89,12 @@
 		00115EA812C116CA008296FE /* GrTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6C12C116CA008296FE /* GrTypes.h */; };
 		00115EA912C116CA008296FE /* GrUserConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6D12C116CA008296FE /* GrUserConfig.h */; };
 		00115EAA12C116CA008296FE /* GrVertexBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6E12C116CA008296FE /* GrVertexBuffer.h */; };
-		00115EAB12C116CA008296FE /* GrVertexBufferAllocPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6F12C116CA008296FE /* GrVertexBufferAllocPool.h */; };
 		D539049B12EA01E30025F3D6 /* GrContext_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = D539049A12EA01E30025F3D6 /* GrContext_impl.h */; };
 		D53904A112EA026E0025F3D6 /* GrPaint.h in Headers */ = {isa = PBXBuildFile; fileRef = D53904A012EA026E0025F3D6 /* GrPaint.h */; };
 		D58CAF9A12E7212100CB9277 /* GrGLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */; };
+		D5FAF20C130726C6001550A4 /* GrGeometryBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = D5FAF20B130726C6001550A4 /* GrGeometryBuffer.h */; };
+		D5FAF22313072C27001550A4 /* GrBufferAllocPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5FAF22113072C27001550A4 /* GrBufferAllocPool.cpp */; };
+		D5FAF22413072C27001550A4 /* GrBufferAllocPool.h in Headers */ = {isa = PBXBuildFile; fileRef = D5FAF22213072C27001550A4 /* GrBufferAllocPool.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -126,7 +127,6 @@
 		00115DF712C1167A008296FE /* GrTextStrike_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrTextStrike_impl.h; path = ../../gpu/src/GrTextStrike_impl.h; sourceTree = SOURCE_ROOT; };
 		00115DF812C1167A008296FE /* GrTextStrike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrTextStrike.cpp; path = ../../gpu/src/GrTextStrike.cpp; sourceTree = SOURCE_ROOT; };
 		00115DF912C1167A008296FE /* GrTextureCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrTextureCache.cpp; path = ../../gpu/src/GrTextureCache.cpp; sourceTree = SOURCE_ROOT; };
-		00115DFB12C1167A008296FE /* GrVertexBufferAllocPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrVertexBufferAllocPool.cpp; path = ../../gpu/src/GrVertexBufferAllocPool.cpp; sourceTree = SOURCE_ROOT; };
 		00115E3912C116CA008296FE /* GrAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrAllocator.h; path = ../../gpu/include/GrAllocator.h; sourceTree = SOURCE_ROOT; };
 		00115E3A12C116CA008296FE /* GrAllocPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrAllocPool.h; path = ../../gpu/include/GrAllocPool.h; sourceTree = SOURCE_ROOT; };
 		00115E3B12C116CA008296FE /* GrAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrAPI.h; path = ../../gpu/include/GrAPI.h; sourceTree = SOURCE_ROOT; };
@@ -180,11 +180,13 @@
 		00115E6C12C116CA008296FE /* GrTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrTypes.h; path = ../../gpu/include/GrTypes.h; sourceTree = SOURCE_ROOT; };
 		00115E6D12C116CA008296FE /* GrUserConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrUserConfig.h; path = ../../gpu/include/GrUserConfig.h; sourceTree = SOURCE_ROOT; };
 		00115E6E12C116CA008296FE /* GrVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrVertexBuffer.h; path = ../../gpu/include/GrVertexBuffer.h; sourceTree = SOURCE_ROOT; };
-		00115E6F12C116CA008296FE /* GrVertexBufferAllocPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrVertexBufferAllocPool.h; path = ../../gpu/include/GrVertexBufferAllocPool.h; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libgpu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgpu.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D539049A12EA01E30025F3D6 /* GrContext_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrContext_impl.h; path = ../../gpu/include/GrContext_impl.h; sourceTree = SOURCE_ROOT; };
 		D53904A012EA026E0025F3D6 /* GrPaint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrPaint.h; path = ../../gpu/include/GrPaint.h; sourceTree = SOURCE_ROOT; };
 		D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLUtil.cpp; path = ../../gpu/src/GrGLUtil.cpp; sourceTree = SOURCE_ROOT; };
+		D5FAF20B130726C6001550A4 /* GrGeometryBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGeometryBuffer.h; path = ../../gpu/include/GrGeometryBuffer.h; sourceTree = SOURCE_ROOT; };
+		D5FAF22113072C27001550A4 /* GrBufferAllocPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrBufferAllocPool.cpp; path = ../../gpu/src/GrBufferAllocPool.cpp; sourceTree = SOURCE_ROOT; };
+		D5FAF22213072C27001550A4 /* GrBufferAllocPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrBufferAllocPool.h; path = ../../gpu/src/GrBufferAllocPool.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -212,6 +214,7 @@
 				00115E4112C116CA008296FE /* GrContext.h */,
 				00115E4212C116CA008296FE /* GrDrawTarget.h */,
 				00115E4312C116CA008296FE /* GrFontScaler.h */,
+				D5FAF20B130726C6001550A4 /* GrGeometryBuffer.h */,
 				00115E4412C116CA008296FE /* GrGLConfig.h */,
 				00115E4512C116CA008296FE /* GrGLIndexBuffer.h */,
 				00115E4612C116CA008296FE /* GrGLTexture.h */,
@@ -254,7 +257,6 @@
 				00115E6C12C116CA008296FE /* GrTypes.h */,
 				00115E6D12C116CA008296FE /* GrUserConfig.h */,
 				00115E6E12C116CA008296FE /* GrVertexBuffer.h */,
-				00115E6F12C116CA008296FE /* GrVertexBufferAllocPool.h */,
 				D53904A012EA026E0025F3D6 /* GrPaint.h */,
 			);
 			name = include;
@@ -278,6 +280,8 @@
 				00115DD812C1167A008296FE /* gr_unittests.cpp */,
 				00115DD912C1167A008296FE /* GrAllocPool.cpp */,
 				00115DDA12C1167A008296FE /* GrAtlas.cpp */,
+				D5FAF22213072C27001550A4 /* GrBufferAllocPool.h */,
+				D5FAF22113072C27001550A4 /* GrBufferAllocPool.cpp */,
 				00115DDB12C1167A008296FE /* GrClip.cpp */,
 				00115DDC12C1167A008296FE /* GrContext.cpp */,
 				00115DDE12C1167A008296FE /* GrDrawTarget.cpp */,
@@ -304,7 +308,6 @@
 				00115DF712C1167A008296FE /* GrTextStrike_impl.h */,
 				00115DF812C1167A008296FE /* GrTextStrike.cpp */,
 				00115DF912C1167A008296FE /* GrTextureCache.cpp */,
-				00115DFB12C1167A008296FE /* GrVertexBufferAllocPool.cpp */,
 				D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */,
 			);
 			name = Source;
@@ -390,9 +393,10 @@
 				00115EA812C116CA008296FE /* GrTypes.h in Headers */,
 				00115EA912C116CA008296FE /* GrUserConfig.h in Headers */,
 				00115EAA12C116CA008296FE /* GrVertexBuffer.h in Headers */,
-				00115EAB12C116CA008296FE /* GrVertexBufferAllocPool.h in Headers */,
 				D539049B12EA01E30025F3D6 /* GrContext_impl.h in Headers */,
 				D53904A112EA026E0025F3D6 /* GrPaint.h in Headers */,
+				D5FAF20C130726C6001550A4 /* GrGeometryBuffer.h in Headers */,
+				D5FAF22413072C27001550A4 /* GrBufferAllocPool.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -433,7 +437,7 @@
 			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* gpu */;
 			projectDirPath = "";
-			projectRoot = "";
+			projectRoot = "<Project File Directory>";
 			targets = (
 				D2AAC045055464E500DB518D /* gpu */,
 			);
@@ -469,8 +473,8 @@
 				00115E2612C1167A008296FE /* GrTextContext.cpp in Sources */,
 				00115E2812C1167A008296FE /* GrTextStrike.cpp in Sources */,
 				00115E2912C1167A008296FE /* GrTextureCache.cpp in Sources */,
-				00115E2B12C1167A008296FE /* GrVertexBufferAllocPool.cpp in Sources */,
 				D58CAF9A12E7212100CB9277 /* GrGLUtil.cpp in Sources */,
+				D5FAF22313072C27001550A4 /* GrBufferAllocPool.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,6 +525,7 @@
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "GR_RELEASE=1";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;

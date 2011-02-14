@@ -18,16 +18,12 @@
 #include "GrGLIndexBuffer.h"
 #include "GrGpuGL.h"
 
-GrGLIndexBuffer::GrGLIndexBuffer(GLuint id, GrGpuGL* gl, uint32_t sizeInBytes,
-                                   bool dynamic) : 
+GrGLIndexBuffer::GrGLIndexBuffer(GLuint id, GrGpuGL* gl, size_t sizeInBytes,
+                                   bool dynamic) :
                                 INHERITED(sizeInBytes, dynamic),
                                 fGL(gl),
                                 fBufferID(id),
                                 fLockPtr(NULL) {
-}
-
-GLuint GrGLIndexBuffer::bufferID() const {
-    return fBufferID;
 }
 
 GrGLIndexBuffer::~GrGLIndexBuffer() {
@@ -38,8 +34,17 @@ GrGLIndexBuffer::~GrGLIndexBuffer() {
     }
 }
 
+void GrGLIndexBuffer::bind() const {
+    GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, fBufferID));
+    fGL->notifyIndexBufferBind(this);
+}
+
+GLuint GrGLIndexBuffer::bufferID() const {
+    return fBufferID;
+}
+
 void GrGLIndexBuffer::abandon() {
-    fBufferID = 0; 
+    fBufferID = 0;
     fGL = NULL;
     fLockPtr = NULL;
 }
@@ -48,12 +53,9 @@ void* GrGLIndexBuffer::lock() {
     GrAssert(fBufferID);
     GrAssert(!isLocked());
     if (fGL->supportsBufferLocking()) {
-        GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, fBufferID));
-        fGL->notifyIndexBufferBind(this);
-        // call bufferData with null ptr to allow driver to perform renaming
-        // If this call is removed revisit updateData to be sure it doesn't
-        // leave buffer undersized (as it currently does).
-        GR_GL(BufferData(GL_ELEMENT_ARRAY_BUFFER, size(), NULL, 
+        bind();
+        // Let driver know it can discard the old data
+        GR_GL(BufferData(GL_ELEMENT_ARRAY_BUFFER, size(), NULL,
                          dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
         fLockPtr = GR_GLEXT(fGL->extensions(),
                             MapBuffer(GL_ELEMENT_ARRAY_BUFFER, GR_WRITE_ONLY));
@@ -63,27 +65,27 @@ void* GrGLIndexBuffer::lock() {
     return NULL;
 }
 
+void* GrGLIndexBuffer::lockPtr() const {
+    return fLockPtr;
+}
+
 void GrGLIndexBuffer::unlock() {
     GrAssert(fBufferID);
     GrAssert(isLocked());
+    GrAssert(fGL->supportsBufferLocking());
 
-    if (fGL->supportsBufferLocking()) {
-        GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, fBufferID));
-        fGL->notifyIndexBufferBind(this);
-        GR_GLEXT(fGL->extensions(),
-                 UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
-        fLockPtr = NULL;
-    }
+    bind();
+    GR_GLEXT(fGL->extensions(), UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
+    fLockPtr = NULL;
 }
 
 bool GrGLIndexBuffer::isLocked() const {
     GrAssert(fBufferID);
 #if GR_DEBUG
     if (fGL->supportsBufferLocking()) {
+        bind();
         GLint mapped;
-        GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, fBufferID));
-        fGL->notifyIndexBufferBind(this);
-        GR_GL(GetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, 
+        GR_GL(GetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER,
                                    GR_BUFFER_MAPPED, &mapped));
         GrAssert(!!mapped == !!fLockPtr);
     }
@@ -91,16 +93,33 @@ bool GrGLIndexBuffer::isLocked() const {
     return NULL != fLockPtr;
 }
 
-bool GrGLIndexBuffer::updateData(const void* src, uint32_t srcSizeInBytes) {
+bool GrGLIndexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     GrAssert(fBufferID);
     GrAssert(!isLocked());
     if (srcSizeInBytes > size()) {
         return false;
     }
-    GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, fBufferID));
-    fGL->notifyIndexBufferBind(this);
-    GR_GL(BufferData(GL_ELEMENT_ARRAY_BUFFER, srcSizeInBytes, src, 
-                     dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
+    bind();
+    GLenum usage = dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+    if (size() == srcSizeInBytes) {
+        GR_GL(BufferData(GL_ELEMENT_ARRAY_BUFFER, srcSizeInBytes, src, usage));
+    } else {
+        GR_GL(BufferData(GL_ELEMENT_ARRAY_BUFFER, size(), NULL, usage));
+        GR_GL(BufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, srcSizeInBytes, src));
+    }
+    return true;
+}
+
+bool GrGLIndexBuffer::updateSubData(const void* src,
+                                    size_t srcSizeInBytes,
+                                    size_t offset) {
+    GrAssert(fBufferID);
+    GrAssert(!isLocked());
+    if (srcSizeInBytes + offset > size()) {
+        return false;
+    }
+    bind();
+    GR_GL(BufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, srcSizeInBytes, src));
     return true;
 }
 

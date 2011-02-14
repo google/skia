@@ -458,20 +458,22 @@ void GrDrawTarget::releaseReservedGeometry() {
     fReservedGeometry.fLocked = false;
 }
 
-void GrDrawTarget::setVertexSourceToArray(const void* array,
-                                          GrVertexLayout vertexLayout) {
-    fGeometrySrc.fVertexSrc    = kArray_GeometrySrcType;
-    fGeometrySrc.fVertexArray  = array;
+void GrDrawTarget::setVertexSourceToArray(GrVertexLayout vertexLayout,
+                                          const void* vertexArray,
+                                          int vertexCount) {
+    fGeometrySrc.fVertexSrc = kArray_GeometrySrcType;
     fGeometrySrc.fVertexLayout = vertexLayout;
+    setVertexSourceToArrayHelper(vertexArray, vertexCount);
 }
 
-void GrDrawTarget::setIndexSourceToArray(const void* array) {
-    fGeometrySrc.fIndexSrc   = kArray_GeometrySrcType;
-    fGeometrySrc.fIndexArray = array;
+void GrDrawTarget::setIndexSourceToArray(const void* indexArray,
+                                         int indexCount) {
+    fGeometrySrc.fIndexSrc = kArray_GeometrySrcType;
+    setIndexSourceToArrayHelper(indexArray, indexCount);
 }
 
-void GrDrawTarget::setVertexSourceToBuffer(const GrVertexBuffer* buffer,
-                                           GrVertexLayout vertexLayout) {
+void GrDrawTarget::setVertexSourceToBuffer(GrVertexLayout vertexLayout,
+                                           const GrVertexBuffer* buffer) {
     fGeometrySrc.fVertexSrc    = kBuffer_GeometrySrcType;
     fGeometrySrc.fVertexBuffer = buffer;
     fGeometrySrc.fVertexLayout = vertexLayout;

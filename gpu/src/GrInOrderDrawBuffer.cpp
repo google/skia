@@ -17,25 +17,27 @@
 
 #include "GrInOrderDrawBuffer.h"
 #include "GrTexture.h"
-#include "GrVertexBufferAllocPool.h"
+#include "GrBufferAllocPool.h"
 #include "GrGpu.h"
 
-GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* pool) :
+GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
+                                         GrIndexBufferAllocPool* indexPool) :
         fDraws(DRAWS_BLOCK_SIZE, fDrawsStorage),
         fStates(STATES_BLOCK_SIZE, fStatesStorage),
         fClips(CLIPS_BLOCK_SIZE, fClipsStorage),
         fClipChanged(true),
-        fCPUVertices((NULL == pool) ? 0 : VERTEX_BLOCK_SIZE),
-        fBufferVertices(pool),
-        fIndices(INDEX_BLOCK_SIZE),
-        fCurrReservedVertices(NULL),
-        fCurrReservedIndices(NULL),
-        fCurrVertexBuffer(NULL),
+        fVertexPool(*vertexPool),
+        fCurrPoolVertexBuffer(NULL),
+        fCurrPoolStartVertex(0),
+        fIndexPool(*indexPool),
+        fCurrPoolIndexBuffer(NULL),
+        fCurrPoolStartIndex(0),
         fReservedVertexBytes(0),
         fReservedIndexBytes(0),
         fUsedReservedVertexBytes(0),
         fUsedReservedIndexBytes(0) {
-    GrAssert(NULL == pool || pool->getGpu()->supportsBufferLocking());
+    GrAssert(NULL != vertexPool);
+    GrAssert(NULL != indexPool);
 }
 
 GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
@@ -47,108 +49,95 @@ void GrInOrderDrawBuffer::initializeDrawStateAndClip(const GrDrawTarget& target)
     this->setClip(target.getClip());
 }
 
-void GrInOrderDrawBuffer::drawIndexed(PrimitiveType type,
-                                      uint32_t startVertex,
-                                      uint32_t startIndex,
-                                      uint32_t vertexCount,
-                                      uint32_t indexCount) {
+void GrInOrderDrawBuffer::drawIndexed(PrimitiveType primitiveType,
+                                      int startVertex,
+                                      int startIndex,
+                                      int vertexCount,
+                                      int indexCount) {
 
     if (!vertexCount || !indexCount) {
         return;
     }
 
     Draw& draw = fDraws.push_back();
-    draw.fType          = type;
+    draw.fPrimitiveType = primitiveType;
     draw.fStartVertex   = startVertex;
     draw.fStartIndex    = startIndex;
     draw.fVertexCount   = vertexCount;
     draw.fIndexCount    = indexCount;
     draw.fClipChanged   = grabClip();
-    draw.fStateChange   = grabState();
+    draw.fStateChanged  = grabState();
 
     draw.fVertexLayout = fGeometrySrc.fVertexLayout;
     switch (fGeometrySrc.fVertexSrc) {
-    case kArray_GeometrySrcType:
-        draw.fUseVertexBuffer = false;
-        draw.fVertexArray = fGeometrySrc.fVertexArray;
-        break;
-    case kReserved_GeometrySrcType: {
-        draw.fUseVertexBuffer = NULL != fBufferVertices;
-        if (draw.fUseVertexBuffer) {
-            draw.fVertexBuffer = fCurrVertexBuffer;
-            draw.fStartVertex += fCurrStartVertex;
-        } else {
-            draw.fVertexArray = fCurrReservedVertices;
-        }
-        size_t vertexBytes = (vertexCount + startVertex) *
-                             VertexSize(fGeometrySrc.fVertexLayout);
-        fUsedReservedVertexBytes = GrMax(fUsedReservedVertexBytes,
-                                         vertexBytes);
-        } break;
     case kBuffer_GeometrySrcType:
-        draw.fUseVertexBuffer = true;
         draw.fVertexBuffer = fGeometrySrc.fVertexBuffer;
         break;
+    case kReserved_GeometrySrcType: {
+        size_t vertexBytes = (vertexCount + startVertex) *
+        VertexSize(fGeometrySrc.fVertexLayout);
+        fUsedReservedVertexBytes = GrMax(fUsedReservedVertexBytes,
+                                         vertexBytes);
+    } // fallthrough
+    case kArray_GeometrySrcType:
+        draw.fVertexBuffer = fCurrPoolVertexBuffer;
+        draw.fStartVertex += fCurrPoolStartVertex;
+        break;
+    default:
+        GrCrash("unknown geom src type");
     }
 
     switch (fGeometrySrc.fIndexSrc) {
-    case kArray_GeometrySrcType:
-        draw.fUseIndexBuffer = false;
-        draw.fIndexArray = fGeometrySrc.fIndexArray;
-        break;
-    case kReserved_GeometrySrcType: {
-        draw.fUseIndexBuffer = false;
-        draw.fIndexArray = fCurrReservedIndices;
-        size_t indexBytes = (indexCount + startIndex) * sizeof(uint16_t);
-        fUsedReservedIndexBytes = GrMax(fUsedReservedIndexBytes, indexBytes);
-        } break;
     case kBuffer_GeometrySrcType:
-        draw.fUseIndexBuffer = true;
         draw.fIndexBuffer = fGeometrySrc.fIndexBuffer;
         break;
+    case kReserved_GeometrySrcType: {
+        size_t indexBytes = (indexCount + startIndex) * sizeof(uint16_t);
+        fUsedReservedIndexBytes = GrMax(fUsedReservedIndexBytes, indexBytes);
+    } // fallthrough
+    case kArray_GeometrySrcType:
+        draw.fIndexBuffer = fCurrPoolIndexBuffer;
+        draw.fStartIndex += fCurrPoolStartVertex;
+        break;
+    default:
+        GrCrash("unknown geom src type");
     }
 }
 
-void GrInOrderDrawBuffer::drawNonIndexed(PrimitiveType type,
-                                         uint32_t startVertex,
-                                         uint32_t vertexCount) {
+void GrInOrderDrawBuffer::drawNonIndexed(PrimitiveType primitiveType,
+                                         int startVertex,
+                                         int vertexCount) {
     if (!vertexCount) {
         return;
     }
 
     Draw& draw = fDraws.push_back();
-    draw.fType          = type;
+    draw.fPrimitiveType = primitiveType;
     draw.fStartVertex   = startVertex;
     draw.fStartIndex    = 0;
     draw.fVertexCount   = vertexCount;
     draw.fIndexCount    = 0;
 
     draw.fClipChanged   = grabClip();
-    draw.fStateChange   = grabState();
+    draw.fStateChanged  = grabState();
 
     draw.fVertexLayout = fGeometrySrc.fVertexLayout;
     switch (fGeometrySrc.fVertexSrc) {
-    case kArray_GeometrySrcType:
-        draw.fUseVertexBuffer = false;
-        draw.fVertexArray = fGeometrySrc.fVertexArray;
-        break;
-    case kReserved_GeometrySrcType: {
-        draw.fUseVertexBuffer = NULL != fBufferVertices;
-        if (draw.fUseVertexBuffer) {
-            draw.fVertexBuffer = fCurrVertexBuffer;
-            draw.fStartVertex += fCurrStartVertex;
-        } else {
-            draw.fVertexArray = fCurrReservedVertices;
-        }
-        size_t vertexBytes = (vertexCount + startVertex) *
-                             VertexSize(fGeometrySrc.fVertexLayout);
-        fUsedReservedVertexBytes = GrMax(fUsedReservedVertexBytes,
-                                         vertexBytes);
-        } break;
     case kBuffer_GeometrySrcType:
-        draw.fUseVertexBuffer = true;
         draw.fVertexBuffer = fGeometrySrc.fVertexBuffer;
         break;
+    case kReserved_GeometrySrcType: {
+        size_t vertexBytes = (vertexCount + startVertex) *
+        VertexSize(fGeometrySrc.fVertexLayout);
+        fUsedReservedVertexBytes = GrMax(fUsedReservedVertexBytes,
+                                         vertexBytes);
+    } // fallthrough
+    case kArray_GeometrySrcType:
+        draw.fVertexBuffer = fCurrPoolVertexBuffer;
+        draw.fStartVertex += fCurrPoolStartVertex;
+        break;
+    default:
+        GrCrash("unknown geom src type");
     }
 }
 
@@ -165,12 +154,10 @@ void GrInOrderDrawBuffer::reset() {
     }
     fDraws.reset();
     fStates.reset();
-    if (NULL == fBufferVertices) {
-        fCPUVertices.reset();
-    } else {
-        fBufferVertices->reset();
-    }
-    fIndices.reset();
+
+    fVertexPool.reset();
+    fIndexPool.reset();
+
     fClips.reset();
 }
 
@@ -183,9 +170,8 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
         return;
     }
 
-    if (NULL != fBufferVertices) {
-        fBufferVertices->unlock();
-    }
+    fVertexPool.unlock();
+    fIndexPool.unlock();
 
     GrDrawTarget::AutoStateRestore asr(target);
     GrDrawTarget::AutoClipRestore acr(target);
@@ -198,7 +184,7 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
 
     for (uint32_t i = 0; i < numDraws; ++i) {
         const Draw& draw = fDraws[i];
-        if (draw.fStateChange) {
+        if (draw.fStateChanged) {
             ++currState;
             target->restoreDrawState(fStates[currState]);
         }
@@ -206,52 +192,58 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
             ++currClip;
             target->setClip(fClips[currClip]);
         }
-        if (draw.fUseVertexBuffer) {
-            target->setVertexSourceToBuffer(draw.fVertexBuffer, draw.fVertexLayout);
-        } else {
-            target->setVertexSourceToArray(draw.fVertexArray, draw.fVertexLayout);
-        }
+        uint32_t vertexReserveCount = 0;
+        uint32_t indexReserveCount = 0;
+
+        target->setVertexSourceToBuffer(draw.fVertexLayout, draw.fVertexBuffer);
+
         if (draw.fIndexCount) {
-            if (draw.fUseIndexBuffer) {
-                target->setIndexSourceToBuffer(draw.fIndexBuffer);
-            } else {
-                target->setIndexSourceToArray(draw.fIndexArray);
-            }
-            target->drawIndexed(draw.fType,
+            target->setIndexSourceToBuffer(draw.fIndexBuffer);
+        }
+
+        if (draw.fIndexCount) {
+            target->drawIndexed(draw.fPrimitiveType,
                                 draw.fStartVertex,
                                 draw.fStartIndex,
                                 draw.fVertexCount,
                                 draw.fIndexCount);
         } else {
-            target->drawNonIndexed(draw.fType,
+            target->drawNonIndexed(draw.fPrimitiveType,
                                    draw.fStartVertex,
                                    draw.fVertexCount);
+        }
+        if (vertexReserveCount || indexReserveCount) {
+            target->releaseReservedGeometry();
         }
     }
 }
 
 bool GrInOrderDrawBuffer::geometryHints(GrVertexLayout vertexLayout,
-                                        int32_t* vertexCount,
-                                        int32_t* indexCount) const {
+                                        int* vertexCount,
+                                        int* indexCount) const {
+    // we will recommend a flush if the data could fit in a single
+    // preallocated buffer but none are left and it can't fit
+    // in the current buffer (which may not be prealloced).
     bool flush = false;
     if (NULL != indexCount) {
-        *indexCount  = -1;
+        int32_t currIndices = fIndexPool.currentBufferIndices();
+        if (*indexCount > currIndices &&
+            (!fIndexPool.preallocatedBuffersRemaining() &&
+             *indexCount <= fIndexPool.preallocatedBufferIndices())) {
+
+            flush = true;
+        }
+        *indexCount = currIndices;
     }
     if (NULL != vertexCount) {
-        if (NULL != fBufferVertices) {
-            // we will recommend a flush if the verts could fit in a single
-            // preallocated vertex buffer but none are left and it can't fit
-            // in the current VB (which may not be prealloced).
-            if (*vertexCount > fBufferVertices->currentBufferVertices(vertexLayout) &&
-                (!fBufferVertices->preallocatedBuffersRemaining() &&
-                 *vertexCount <= fBufferVertices->preallocatedBufferVertices(vertexLayout))) {
+        int32_t currVertices = fVertexPool.currentBufferVertices(vertexLayout);
+        if (*vertexCount > currVertices &&
+            (!fVertexPool.preallocatedBuffersRemaining() &&
+             *vertexCount <= fVertexPool.preallocatedBufferVertices(vertexLayout))) {
 
-                flush = true;
-            }
-            *vertexCount = fBufferVertices->currentBufferVertices(vertexLayout);
-        } else {
-            *vertexCount = -1;
+            flush = true;
         }
+        *vertexCount = currVertices;
     }
     return flush;
 }
@@ -259,31 +251,34 @@ bool GrInOrderDrawBuffer::geometryHints(GrVertexLayout vertexLayout,
 bool GrInOrderDrawBuffer::acquireGeometryHelper(GrVertexLayout vertexLayout,
                                                 void**         vertices,
                                                 void**         indices) {
+    GrAssert(!fReservedGeometry.fLocked);
     if (fReservedGeometry.fVertexCount) {
+        GrAssert(NULL != vertices);
+        GrAssert(0 == fReservedVertexBytes);
+        GrAssert(0 == fUsedReservedVertexBytes);
+
         fReservedVertexBytes = VertexSize(vertexLayout) *
                                fReservedGeometry.fVertexCount;
-        if (NULL == fBufferVertices) {
-            fCurrReservedVertices = fCPUVertices.alloc(fReservedVertexBytes);
-        } else {
-            fCurrReservedVertices = fBufferVertices->alloc(vertexLayout,
-                                                           fReservedGeometry.fVertexCount,
-                                                           &fCurrVertexBuffer,
-                                                           &fCurrStartVertex);
-        }
-        if (NULL != vertices) {
-            *vertices = fCurrReservedVertices;
-        }
-        if (NULL == fCurrReservedVertices) {
+        *vertices = fVertexPool.makeSpace(vertexLayout,
+                                          fReservedGeometry.fVertexCount,
+                                          &fCurrPoolVertexBuffer,
+                                          &fCurrPoolStartVertex);
+        if (NULL == *vertices) {
             return false;
         }
     }
     if (fReservedGeometry.fIndexCount) {
-        fReservedIndexBytes = sizeof(uint16_t) * fReservedGeometry.fIndexCount;
-        fCurrReservedIndices = fIndices.alloc(fReservedIndexBytes);
-        if (NULL != indices) {
-            *indices = fCurrReservedIndices;
-        }
-        if (NULL == fCurrReservedIndices) {
+        GrAssert(NULL != indices);
+        GrAssert(0 == fReservedIndexBytes);
+        GrAssert(0 == fUsedReservedIndexBytes);
+
+        *indices = fIndexPool.makeSpace(fReservedGeometry.fIndexCount,
+                                        &fCurrPoolIndexBuffer,
+                                        &fCurrPoolStartIndex);
+        if (NULL == *indices) {
+            fVertexPool.putBack(fReservedVertexBytes);
+            fReservedVertexBytes = 0;
+            fCurrPoolVertexBuffer = NULL;
             return false;
         }
     }
@@ -295,22 +290,45 @@ void GrInOrderDrawBuffer::releaseGeometryHelper() {
     GrAssert(fUsedReservedIndexBytes <= fReservedIndexBytes);
 
     size_t vertexSlack = fReservedVertexBytes - fUsedReservedVertexBytes;
-    if (NULL == fBufferVertices) {
-        fCPUVertices.release(vertexSlack);
-    } else {
-        fBufferVertices->release(vertexSlack);
-        GR_DEBUGCODE(fCurrVertexBuffer = NULL);
-        GR_DEBUGCODE(fCurrStartVertex  = 0);
-    }
+    fVertexPool.putBack(vertexSlack);
 
-    fIndices.release(fReservedIndexBytes - fUsedReservedIndexBytes);
+    size_t indexSlack = fReservedIndexBytes - fUsedReservedIndexBytes;
+    fIndexPool.putBack(indexSlack);
 
-    fCurrReservedVertices = NULL;
-    fCurrReservedIndices  = NULL;
     fReservedVertexBytes = 0;
     fReservedIndexBytes  = 0;
     fUsedReservedVertexBytes = 0;
     fUsedReservedIndexBytes  = 0;
+    fCurrPoolVertexBuffer = 0;
+    fCurrPoolStartVertex = 0;
+
+}
+
+void GrInOrderDrawBuffer::setVertexSourceToArrayHelper(const void* vertexArray,
+                                                       int vertexCount) {
+    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fVertexCount);
+#if GR_DEBUG
+    bool success =
+#endif
+    fVertexPool.appendVertices(fGeometrySrc.fVertexLayout,
+                               vertexCount,
+                               vertexArray,
+                               &fCurrPoolVertexBuffer,
+                               &fCurrPoolStartVertex);
+    GR_DEBUGASSERT(success);
+}
+
+void GrInOrderDrawBuffer::setIndexSourceToArrayHelper(const void* indexArray,
+                                                      int indexCount) {
+    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fIndexCount);
+#if GR_DEBUG
+    bool success =
+#endif
+    fIndexPool.appendIndices(indexCount,
+                             indexArray,
+                             &fCurrPoolIndexBuffer,
+                             &fCurrPoolStartIndex);
+    GR_DEBUGASSERT(success);
 }
 
 bool GrInOrderDrawBuffer::grabState() {

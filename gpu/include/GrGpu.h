@@ -25,6 +25,8 @@
 #include "GrTexture.h"
 #include "GrMemory.h"
 
+class GrVertexBufferAllocPool;
+class GrIndexBufferAllocPool;
 
 class GrGpu : public GrDrawTarget {
 
@@ -277,20 +279,20 @@ public:
      *
      * @return    the true if NPOT texture/rendertarget can be created.
      */
-    bool npotRenderTargetSupport() const { return fNPOTRenderTargetSupport; } 
+    bool npotRenderTargetSupport() const { return fNPOTRenderTargetSupport; }
 
     int maxTextureDimension() const { return fMaxTextureDimension; }
 
     // GrDrawTarget overrides
     virtual void drawIndexed(PrimitiveType type,
-                             uint32_t startVertex,
-                             uint32_t startIndex,
-                             uint32_t vertexCount,
-                             uint32_t indexCount);
+                             int startVertex,
+                             int startIndex,
+                             int vertexCount,
+                             int indexCount);
 
     virtual void drawNonIndexed(PrimitiveType type,
-                                uint32_t startVertex,
-                                uint32_t vertexCount);
+                                int startVertex,
+                                int vertexCount);
 
     /**
      * Determines if blend is effectively disabled.
@@ -341,7 +343,7 @@ protected:
                                         /* rendering a hard clip to the stencil
                                            buffer. Subsequent draws with other
                                            StencilPass values will be clipped
-                                           if kStencilClip_StateBit is set. */
+                                           if kClip_StateBit is set. */
         kGpuCount_StencilPass
     };
 
@@ -384,6 +386,29 @@ protected:
     int fMinRenderTargetHeight;
     int fMaxTextureDimension;
 
+    Stats           fStats;
+
+    const GrVertexBuffer*           fCurrPoolVertexBuffer;
+    int                             fCurrPoolStartVertex;
+
+    const GrIndexBuffer*            fCurrPoolIndexBuffer;
+    int                             fCurrPoolStartIndex;
+
+    // GrDrawTarget overrides
+    virtual bool acquireGeometryHelper(GrVertexLayout vertexLayout,
+                                       void**         vertices,
+                                       void**         indices);
+    virtual void releaseGeometryHelper();
+
+    virtual void setVertexSourceToArrayHelper(const void* vertexArray,
+                                              int vertexCount);
+
+    virtual void setIndexSourceToArrayHelper(const void* indexArray,
+                                             int indexCount);
+    // Helpers for setting up geometry state
+    void finalizeReservedVertices();
+    void finalizeReservedIndices();
+
     // overridden by API specific GrGpu-derived class to perform the draw call.
     virtual void drawIndexedHelper(PrimitiveType type,
                                    uint32_t startVertex,
@@ -396,11 +421,12 @@ protected:
                                       uint32_t numVertices) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
-    // indexed geometry.
-    virtual void setupGeometry(uint32_t startVertex,
-                               uint32_t startIndex,
-                               uint32_t vertexCount,
-                               uint32_t indexCount) = 0;
+    // indexed geometry. The subclass may adjust the startVertex and/or
+    // startIndex since it may have already accounted for these in the setup.
+    virtual void setupGeometry(int* startVertex,
+                               int* startIndex,
+                               int vertexCount,
+                               int indexCount) = 0;
 
 
     // The GrGpu typically records the clients requested state and then flushes
@@ -415,33 +441,21 @@ protected:
     // GrGpu subclass removes the clip from the stencil buffer
     virtual void eraseStencilClip() = 0;
 
-    // GrDrawTarget overrides
-    virtual bool acquireGeometryHelper(GrVertexLayout vertexLayout,
-                                       void**         vertices,
-                                       void**         indices);
-    virtual void releaseGeometryHelper();
-
 private:
-    mutable GrIndexBuffer* fQuadIndexBuffer; // mutable so it can be
-                                             // created on-demand
 
-    mutable GrVertexBuffer* fUnitSquareVertexBuffer; // mutable so it can be
-                                                     // created on-demand
+    void prepareVertexPool();
+    void prepareIndexPool();
 
-    static const int MAX_VERTEX_SIZE = GR_CT_MAX(2*sizeof(GrPoint) + sizeof(GrColor),
-                                                 2*sizeof(GrGpuTextVertex));
-    static const int VERTEX_STORAGE = 16 * MAX_VERTEX_SIZE;
-    static const int INDEX_STORAGE = 32 * sizeof(uint16_t);
+    GrVertexBufferAllocPool*    fVertexPool;
 
-protected:
-    GrAutoSMalloc<VERTEX_STORAGE> fVertices;
-    GrAutoSMalloc<INDEX_STORAGE>  fIndices;
+    GrIndexBufferAllocPool*     fIndexPool;
 
-    Stats           fStats;
+    mutable GrIndexBuffer*      fQuadIndexBuffer; // mutable so it can be
+                                                  // created on-demand
 
-private:
-    typedef GrRefCnt INHERITED;
+    mutable GrVertexBuffer*     fUnitSquareVertexBuffer; // mutable so it can be
+                                                         // created on-demand
+    typedef GrDrawTarget INHERITED;
 };
 
 #endif
-

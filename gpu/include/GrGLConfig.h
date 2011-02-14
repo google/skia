@@ -69,18 +69,15 @@
  *      4. Define GR_GL_PROC_ADDRESS.
  *      5. Optionally define GR_GL_PROC_ADDRESS_HEADER
  *
+ *------------------------------------------------------------------------------
  *
  * The following are optional defines that can be enabled as command line macros
  * defines, in a IDE project, in a GrUserConfig.h file, or in a GL custom setup
  * file (if one is in use). They don't require GR_GL_CUSTOM_SETUP or
  * GR_GL_CUSTOM_SETUP_HEADER to be enabled:
  *
- * GR_GL_NO_CLIENT_SIDE_ARRAYS can be defined to 1 to disable the use of client
- * side vertex and index arrays.
- *
  * GR_GL_LOG_CALLS if 1 GrPrintf every GL call (for debugging purposes) when the
  * global gPrintGL is true (it is initially true).
-
  */
 
 #if GR_GL_CUSTOM_SETUP
@@ -202,10 +199,6 @@
 
 #if !defined(GR_GL_LOG_CALLS)
     #define GR_GL_LOG_CALLS 0
-#endif
-
-#if !defined(GR_GL_NO_CLIENT_SIDE_ARRAYS)
-    #define GR_GL_NO_CLIENT_SIDE_ARRAYS 0
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -374,4 +367,3 @@ static inline void GrDebugGLCheckErr(const char* location, const char* call) {
 #endif
 
 #endif
-

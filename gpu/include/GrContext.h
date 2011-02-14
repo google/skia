@@ -20,12 +20,13 @@
 #include "GrClip.h"
 #include "GrGpu.h"
 #include "GrTextureCache.h"
-#include "GrInOrderDrawBuffer.h"
-#include "GrVertexBufferAllocPool.h"
 #include "GrPaint.h"
 
 class GrFontCache;
 class GrPathIter;
+class GrVertexBufferAllocPool;
+class GrIndexBufferAllocPool;
+class GrInOrderDrawBuffer;
 
 class GrContext : public GrRefCnt {
 public:
@@ -236,21 +237,21 @@ public:
      *  @param paint        describes how to color pixels.
      *  @param strokeWidth  If strokeWidth < 0, then the rect is filled, else
      *                      the rect is mitered stroked based on strokeWidth. If
-     *                      strokeWidth == 0, then the stroke is always a single 
+     *                      strokeWidth == 0, then the stroke is always a single
      *                      pixel thick.
-     *  @param matrix       Optional matrix applied to the rect. Applied before 
+     *  @param matrix       Optional matrix applied to the rect. Applied before
      *                      context's matrix or the paint's matrix.
      *  The rects coords are used to access the paint (through texture matrix)
      */
-    void drawRect(const GrPaint& paint, 
-                  const GrRect&, 
+    void drawRect(const GrPaint& paint,
+                  const GrRect&,
                   GrScalar strokeWidth = -1,
                   const GrMatrix* matrix = NULL);
 
     /**
      * Maps a rect of paint coordinates onto the a rect of destination
      * coordinates. Each rect can optionally be transformed. The srcRect
-     * is stretched over the dstRect. The dstRect is transformed by the 
+     * is stretched over the dstRect. The dstRect is transformed by the
      * context's matrix and the srcRect is transformed by the paint's matrix.
      * Additional optional matrices can be provided by parameters.
      *
@@ -453,8 +454,9 @@ private:
     GrTextureCache* fTextureCache;
     GrFontCache*    fFontCache;
 
-    GrVertexBufferAllocPool fVBAllocPool;
-    GrInOrderDrawBuffer     fTextDrawBuffer;
+    GrVertexBufferAllocPool*    fTextVBAllocPool;
+    GrIndexBufferAllocPool*     fTextIBAllocPool;
+    GrInOrderDrawBuffer*        fTextDrawBuffer;
 
     GrContext(GrGpu* gpu);
 

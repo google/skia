@@ -84,7 +84,7 @@
         #undef GR_LINUX_BUILD
         #define GR_LINUX_BUILD      1
 //      #error "LINUX"
-    #endif    
+    #endif
 #endif
 
 // we need both GR_DEBUG and GR_RELEASE to be defined as 0 or 1
@@ -121,10 +121,10 @@
 #include <stdint.h>
 
 /*
- *  The "user config" file can be empty, and everything should work. It is 
+ *  The "user config" file can be empty, and everything should work. It is
  *  meant to store a given platform/client's overrides of our guess-work.
  *
- *  A alternate user config file can be specified by defining 
+ *  A alternate user config file can be specified by defining
  *  GR_USER_CONFIG_FILE. It should be defined relative to GrConfig.h
  *
  *  e.g. it can specify GR_DEBUG/GR_RELEASE as it please, change the BUILD
@@ -132,7 +132,7 @@
  */
 #if !defined(GR_USER_CONFIG_FILE)
     #include "GrUserConfig.h"
-#else 
+#else
     #include GR_USER_CONFIG_FILE
 #endif
 
@@ -155,7 +155,7 @@ extern void GrPrintf(const char format[], ...);
 #define GR_STRING_IMPL(X) #X
 
 /**
- *  GR_CONCAT concatenates X and Y  where each is expanded before 
+ *  GR_CONCAT concatenates X and Y  where each is expanded before
  *  contanenation if either contains macros.
  */
 #define GR_CONCAT(X,Y) GR_CONCAT_IMPL(X,Y)
@@ -167,8 +167,8 @@ extern void GrPrintf(const char format[], ...);
 #define GR_FILE_AND_LINE_STR __FILE__ "(" GR_STRING(__LINE__) ") : "
 
 /**
- *  Compilers have different ways of issuing warnings. This macro 
- *  attempts to abstract them, but may need to be specialized for your 
+ *  Compilers have different ways of issuing warnings. This macro
+ *  attempts to abstract them, but may need to be specialized for your
  *  particular compiler.
  *  To insert compiler warnings use "#pragma message GR_WARN(<string>)"
  */
@@ -184,9 +184,9 @@ extern void GrPrintf(const char format[], ...);
 #if !defined(GR_ALWAYSBREAK)
     #if     GR_WIN32_BUILD
         #define GR_ALWAYSBREAK __debugbreak()
-    #else 
+    #else
         // TODO: do other platforms really not have continuable breakpoints?
-        // sign extend for 64bit architectures to be sure this is 
+        // sign extend for 64bit architectures to be sure this is
         // in the high address range
         #define GR_ALWAYSBREAK *((int*)(int64_t)(int32_t)0xbeefcafe) = 0;
     #endif
@@ -240,7 +240,7 @@ inline void GrCrash() { GrAlwaysAssert(false); }
 inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 
 /**
- *  GR_DEBUGCODE compiles the code X in debug builds only 
+ *  GR_DEBUGCODE compiles the code X in debug builds only
  */
 #if !defined(GR_DEBUGCODE)
     #if GR_DEBUG
@@ -255,7 +255,7 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
  *  it may print the message in the compiler log. Obviously, the condition must
  *  be evaluatable at compile time.
  */
-// VS 2010 and GCC compiled with c++0x or gnu++0x support the new 
+// VS 2010 and GCC compiled with c++0x or gnu++0x support the new
 // static_assert.
 #if !defined(GR_STATIC_ASSERT)
     #if (defined(_MSC_VER) && _MSC_VER >= 1600) || (defined(__GXX_EXPERIMENTAL_CXX0X__) && __GXX_EXPERIMENTAL_CXX0X__)
@@ -278,7 +278,7 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 
 #if !defined(GR_TEXT_SCALAR_TYPE_IS_USHORT)
     #define GR_TEXT_SCALAR_TYPE_IS_USHORT  0
-#endif    
+#endif
 #if !defined(GR_TEXT_SCALAR_TYPE_IS_FLOAT)
     #define GR_TEXT_SCALAR_TYPE_IS_FLOAT   0
 #endif
@@ -310,11 +310,21 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 /**
  *  GR_AGGRESSIVE_SHADER_OPTS controls how aggressively shaders are optimized
  *  for special cases. On systems where program changes are expensive this
- *  may not be advantageous. Consecutive draws may no longer use the same 
+ *  may not be advantageous. Consecutive draws may no longer use the same
  *  program.
  */
 #if !defined(GR_AGGRESSIVE_SHADER_OPTS)
     #define GR_AGGRESSIVE_SHADER_OPTS 0
+#endif
+
+/**
+ * GR_GEOM_BUFFER_LOCK_THRESHOLD gives a threshold (in bytes) for when Gr should
+ * lock a GrGeometryBuffer to update its contents. It will use Lock() if the
+ * size of the udpated region is greater than the threshold. Otherwise it will
+ * use updateData() or updateSubData().
+ */
+#if !defined(GR_GEOM_BUFFER_LOCK_THRESHOLD)
+    #define GR_GEOM_BUFFER_LOCK_THRESHOLD (1 << 15)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

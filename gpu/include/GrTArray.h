@@ -21,8 +21,6 @@
 #include <new>
 #include "GrTypes.h"
 
-// TODO: convert from uint32_t to int.
-
 // DATA_TYPE indicates that T has a trivial cons, destructor
 // and can be shallow-copied
 template <typename T, bool DATA_TYPE = false> class GrTArray {
@@ -35,15 +33,18 @@ public:
         fPreAllocMemArray = NULL;
     }
 
-    GrTArray(uint32_t reserveCount) {
+    explicit GrTArray(int reserveCount) {
+        GrAssert(reserveCount >= 0);
         fCount = 0;
-        fReserveCount = GrMax(reserveCount, (uint32_t)MIN_ALLOC_COUNT);
+        fReserveCount = reserveCount > MIN_ALLOC_COUNT ? reserveCount :
+                                                         MIN_ALLOC_COUNT;
         fAllocCount = fReserveCount;
         fMemArray = GrMalloc(sizeof(T) * fReserveCount);
         fPreAllocMemArray = NULL;
     }
 
-    GrTArray(void* preAllocStorage, uint32_t preAllocCount) {
+    GrTArray(void* preAllocStorage, int preAllocCount) {
+        GrAssert(preAllocCount >= 0);
         // we allow NULL,0 args and revert to the default cons. behavior
         // this makes it possible for a owner-object to use same constructor
         // to get either prealloc or nonprealloc behavior based using same line
@@ -57,7 +58,7 @@ public:
         fPreAllocMemArray   = preAllocStorage;
     }
 
-    GrTArray(const GrTArray& array) {
+    explicit GrTArray(const GrTArray& array) {
         fCount              = array.count();
         fReserveCount       = MIN_ALLOC_COUNT;
         fAllocCount         = GrMax(fReserveCount, fCount);
@@ -66,13 +67,14 @@ public:
         if (DATA_TYPE) {
             memcpy(fMemArray, array.fMemArray, sizeof(T) * fCount);
         } else {
-            for (uint32_t i = 0; i < fCount; ++i) {
+            for (int i = 0; i < fCount; ++i) {
                 new (fItemArray + i) T(array[i]);
             }
         }
     }
 
-    GrTArray(const T* array, uint32_t count) {
+    GrTArray(const T* array, int count) {
+        GrAssert(count >= 0);
         fCount              = count;
         fReserveCount       = MIN_ALLOC_COUNT;
         fAllocCount         = GrMax(fReserveCount, fCount);
@@ -81,14 +83,16 @@ public:
         if (DATA_TYPE) {
             memcpy(fMemArray, array, sizeof(T) * fCount);
         } else {
-            for (uint32_t i = 0; i < fCount; ++i) {
+            for (int i = 0; i < fCount; ++i) {
                 new (fItemArray + i) T(array[i]);
             }
         }
     }
 
     GrTArray(const GrTArray& array,
-             void* preAllocStorage, uint32_t preAllocCount) {
+             void* preAllocStorage, int preAllocCount) {
+
+        GrAssert(preAllocCount >= 0);
 
         // for same reason as non-copying cons we allow NULL, 0 for prealloc
         GrAssert((NULL == preAllocStorage) == !preAllocCount);
@@ -109,14 +113,17 @@ public:
         if (DATA_TYPE) {
             memcpy(fMemArray, array.fMemArray, sizeof(T) * fCount);
         } else {
-            for (uint32_t i = 0; i < fCount; ++i) {
+            for (int i = 0; i < fCount; ++i) {
                 new (fItemArray + i) T(array[i]);
             }
         }
     }
 
-    GrTArray(const T* array, uint32_t count,
-             void* preAllocStorage, uint32_t preAllocCount) {
+    GrTArray(const T* array, int count,
+             void* preAllocStorage, int preAllocCount) {
+
+        GrAssert(count >= 0);
+        GrAssert(preAllocCount >= 0);
 
         // for same reason as non-copying cons we allow NULL, 0 for prealloc
         GrAssert((NULL == preAllocStorage) == !preAllocCount);
@@ -137,14 +144,14 @@ public:
         if (DATA_TYPE) {
             memcpy(fMemArray, array, sizeof(T) * fCount);
         } else {
-            for (uint32_t i = 0; i < fCount; ++i) {
+            for (int i = 0; i < fCount; ++i) {
                 new (fItemArray + i) T(array[i]);
             }
         }
     }
 
     GrTArray& operator =(const GrTArray& array) {
-        for (uint32_t i = 0; i < fCount; ++i) {
+        for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
         fCount = 0;
@@ -153,7 +160,7 @@ public:
         if (DATA_TYPE) {
             memcpy(fMemArray, array.fMemArray, sizeof(T) * fCount);
         } else {
-            for (uint32_t i = 0; i < fCount; ++i) {
+            for (int i = 0; i < fCount; ++i) {
                 new (fItemArray + i) T(array[i]);
             }
         }
@@ -161,7 +168,7 @@ public:
     }
 
     ~GrTArray() {
-        for (uint32_t i = 0; i < fCount; ++i) {
+        for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
         if (fMemArray != fPreAllocMemArray) {
@@ -169,7 +176,7 @@ public:
         }
     }
 
-    uint32_t count() const { return fCount; }
+    int count() const { return fCount; }
 
     bool empty() const { return !fCount; }
 
@@ -180,32 +187,36 @@ public:
         return fItemArray[fCount-1];
     }
 
-    void push_back_n(uint32_t n) {
+    void push_back_n(int n) {
+        GrAssert(n >= 0);
         checkRealloc(n);
-        for (uint32_t i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             new (fItemArray + fCount + i) T;
         }
         fCount += n;
     }
 
     void pop_back() {
-        GrAssert(0 != fCount);
+        GrAssert(fCount > 0);
         --fCount;
         fItemArray[fCount].~T();
         checkRealloc(0);
     }
 
-    void pop_back_n(uint32_t n) {
+    void pop_back_n(int n) {
+        GrAssert(n >= 0);
         GrAssert(fCount >= n);
         fCount -= n;
-        for (uint32_t i = 0; i < n; ++i) {
+        for (int i = 0; i < n; ++i) {
             fItemArray[i].~T();
         }
         checkRealloc(0);
     }
 
     // pushes or pops from the back to resize
-    void resize_back(uint32_t newCount) {
+    void resize_back(int newCount) {
+        GrAssert(newCount >= 0);
+
         if (newCount > fCount) {
             push_back_n(newCount - fCount);
         } else if (newCount < fCount) {
@@ -213,42 +224,50 @@ public:
         }
     }
 
-    T& operator[] (uint32_t i) {
+    T& operator[] (int i) {
         GrAssert(i < fCount);
+        GrAssert(i >= 0);
         return fItemArray[i];
     }
 
-    const T& operator[] (uint32_t i) const {
+    const T& operator[] (int i) const {
         GrAssert(i < fCount);
+        GrAssert(i >= 0);
         return fItemArray[i];
     }
 
-    T& front() { GrAssert(fCount); return fItemArray[0];}
+    T& front() { GrAssert(fCount > 0); return fItemArray[0];}
 
-    const T& front() const { GrAssert(fCount); return fItemArray[0];}
+    const T& front() const { GrAssert(fCount > 0); return fItemArray[0];}
 
     T& back() { GrAssert(fCount); return fItemArray[fCount - 1];}
 
-    const T& back() const { GrAssert(fCount); return fItemArray[fCount - 1];}
+    const T& back() const { GrAssert(fCount > 0); return fItemArray[fCount - 1];}
 
-    T& fromBack(uint32_t i) {
+    T& fromBack(int i) {
+        GrAssert(i >= 0);
         GrAssert(i < fCount);
         return fItemArray[fCount - i - 1];
     }
 
-    const T& fromBack(uint32_t i) const {
+    const T& fromBack(int i) const {
+        GrAssert(i >= 0);
         GrAssert(i < fCount);
         return fItemArray[fCount - i - 1];
     }
 
 private:
-    static const uint32_t MIN_ALLOC_COUNT = 8;
 
-    inline void checkRealloc(int32_t delta) {
-        GrAssert(-delta <= (int32_t)fCount);
+    static const int MIN_ALLOC_COUNT = 8;
 
-        uint32_t newCount = fCount + delta;
-        uint32_t fNewAllocCount = fAllocCount;
+    inline void checkRealloc(int delta) {
+        GrAssert(fCount >= 0);
+        GrAssert(fAllocCount >= 0);
+
+        GrAssert(-delta <= fCount);
+
+        int newCount = fCount + delta;
+        int fNewAllocCount = fAllocCount;
 
         if (newCount > fAllocCount) {
             fNewAllocCount = GrMax(newCount + ((newCount + 1) >> 1),
@@ -271,7 +290,7 @@ private:
             if (DATA_TYPE) {
                 memcpy(fNewMemArray, fMemArray, fCount * sizeof(T));
             } else {
-                for (uint32_t i = 0; i < fCount; ++i) {
+                for (int i = 0; i < fCount; ++i) {
                     new (fNewMemArray + sizeof(T) * i) T(fItemArray[i]);
                     fItemArray[i].~T();
                 }
@@ -284,9 +303,9 @@ private:
         }
     }
 
-    uint32_t fReserveCount;
-    uint32_t fCount;
-    uint32_t fAllocCount;
+    int fReserveCount;
+    int fCount;
+    int fAllocCount;
     void*    fPreAllocMemArray;
     union {
         T*       fItemArray;
