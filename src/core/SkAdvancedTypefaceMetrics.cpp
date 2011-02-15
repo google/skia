@@ -121,12 +121,12 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
 
 // Make AdvanceMetric template functions available for linking with typename
 // WidthRange and VerticalAdvanceRange.
-#ifdef SK_BUILD_FOR_WIN
+#if defined(SK_BUILD_FOR_WIN)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         HDC hdc,
         int num_glyphs,
         bool (*getAdvance)(HDC hdc, int gId, int16_t* data));
-#elif SK_BUILD_FOR_UNIX
+#elif defined(SK_BUILD_FOR_UNIX)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         FT_Face face,
         int num_glyphs,
