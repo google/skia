@@ -30,7 +30,7 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
-    this->prepareToDraw(paint);
+    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
     if (NULL != paint.getTexture()) {
         if (NULL != texCoordSrc) {
@@ -47,7 +47,7 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
     int vertexCount = posSrc.count();
     int indexCount = (NULL != idxSrc) ? idxSrc->count() : 0;
 
-    if (!geo.set(fGpu, layout, vertexCount, indexCount)) {
+    if (!geo.set(target, layout, vertexCount, indexCount)) {
         GrPrintf("Failed to get space for vertices!");
         return;
     }
@@ -77,9 +77,9 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
     }
 
     if (NULL == idxSrc) {
-        fGpu->drawNonIndexed(primitiveType, 0, vertexCount);
+        target->drawNonIndexed(primitiveType, 0, vertexCount);
     } else {
-        fGpu->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+        target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
     }
 }
 

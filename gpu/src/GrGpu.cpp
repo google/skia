@@ -92,49 +92,6 @@ void GrGpu::unimpl(const char msg[]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::canDisableBlend() const {
-    if ((kOne_BlendCoeff == fCurrDrawState.fSrcBlend) &&
-        (kZero_BlendCoeff == fCurrDrawState.fDstBlend)) {
-            return true;
-    }
-
-    // If we have vertex color without alpha then we can't force blend off
-    if ((fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit) ||
-         0xff != GrColorUnpackA(fCurrDrawState.fColor)) {
-        return false;
-    }
-
-    // If the src coef will always be 1...
-    if (kSA_BlendCoeff != fCurrDrawState.fSrcBlend &&
-        kOne_BlendCoeff != fCurrDrawState.fSrcBlend) {
-        return false;
-    }
-
-    // ...and the dst coef is always 0...
-    if (kISA_BlendCoeff != fCurrDrawState.fDstBlend &&
-        kZero_BlendCoeff != fCurrDrawState.fDstBlend) {
-        return false;
-    }
-
-    // ...and there isn't a texture with an alpha channel...
-    for (int s = 0; s < kNumStages; ++s) {
-        if (VertexUsesStage(s, fGeometrySrc.fVertexLayout)) {
-            GrAssert(NULL != fCurrDrawState.fTextures[s]);
-            GrTexture::PixelConfig config = fCurrDrawState.fTextures[s]->config();
-
-            if (GrTexture::kRGB_565_PixelConfig != config &&
-                GrTexture::kRGBX_8888_PixelConfig != config) {
-                return false;
-            }
-        }
-    }
-
-    // ...then we disable blend.
-    return true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 static const int MAX_QUADS = 1 << 12; // max possible: (1 << 14) - 1;
 
 GR_STATIC_ASSERT(4 * MAX_QUADS <= 65535);
@@ -150,7 +107,7 @@ static inline void fill_indices(uint16_t* indices, int quadCount) {
     }
 }
 
-const GrIndexBuffer* GrGpu::quadIndexBuffer() const {
+const GrIndexBuffer* GrGpu::getQuadIndexBuffer() const {
     if (NULL == fQuadIndexBuffer) {
         static const int SIZE = sizeof(uint16_t) * 6 * MAX_QUADS;
         GrGpu* me = const_cast<GrGpu*>(this);
@@ -176,7 +133,7 @@ const GrIndexBuffer* GrGpu::quadIndexBuffer() const {
     return fQuadIndexBuffer;
 }
 
-const GrVertexBuffer* GrGpu::unitSquareVertexBuffer() const {
+const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
     if (NULL == fUnitSquareVertexBuffer) {
 
         static const GrPoint DATA[] = {
@@ -201,14 +158,10 @@ const GrVertexBuffer* GrGpu::unitSquareVertexBuffer() const {
     return fUnitSquareVertexBuffer;
 }
 
-int GrGpu::maxQuadsInIndexBuffer() const {
-    return (NULL == this->quadIndexBuffer()) ? 0 : MAX_QUADS;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::clipWillChange(const GrClip& clip) {
-    if (clip != fClip) {
+void GrGpu::clipWillBeSet(const GrClip& newClip) {
+    if (newClip != fClip) {
         fClipState.fClipIsDirty = true;
     }
 }
@@ -260,7 +213,7 @@ bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
             }
             fVertexPool->unlock();
             this->setVertexSourceToBuffer(0, vertexBuffer);
-            this->setIndexSourceToBuffer(quadIndexBuffer());
+            this->setIndexSourceToBuffer(getQuadIndexBuffer());
             this->setViewMatrix(GrMatrix::I());
             // don't clip the clip or recurse!
             this->disableState(kClip_StateBit);
@@ -268,7 +221,7 @@ bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
             this->setStencilPass((GrDrawTarget::StencilPass)kSetClip_StencilPass);
             int currRect = 0;
             while (currRect < rectTotal) {
-                int rectCount = GrMin(this->maxQuadsInIndexBuffer(),
+                int rectCount = GrMin(MAX_QUADS,
                                       rectTotal - currRect);
                 this->drawIndexed(kTriangles_PrimitiveType,
                                   vStart + currRect * 4,

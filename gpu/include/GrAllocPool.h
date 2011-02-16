@@ -33,7 +33,7 @@ public:
     /**
      *  Returns a block of memory bytes size big. This address must not be
      *  passed to realloc/free/delete or any other function that assumes the
-     *  address was allocated by malloc or new (becuase it hasn't).
+     *  address was allocated by malloc or new (because it hasn't).
      */
     void* alloc(size_t bytes);
     

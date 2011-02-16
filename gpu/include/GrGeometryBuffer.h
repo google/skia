@@ -31,7 +31,7 @@ public:
      *
      * @return the size of the buffer in bytes
      */
-    size_t size() { return fSizeInBytes; }
+    size_t size() const { return fSizeInBytes; }
     
     /**
      *Retrieves whether the buffer was created with the dynamic flag
@@ -107,9 +107,9 @@ protected:
         fDynamic(dynamic) {}
 
 private:
-    size_t fSizeInBytes;
+    size_t   fSizeInBytes;
     bool     fDynamic;
-    
+
     typedef GrRefCnt INHERITED;
 };
 

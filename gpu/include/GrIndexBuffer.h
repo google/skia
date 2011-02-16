@@ -21,6 +21,13 @@
 #include "GrGeometryBuffer.h"
 
 class GrIndexBuffer : public GrGeometryBuffer {
+public:
+        /**
+         * Retrieves the maximum number of quads that could be rendered
+         * from the index buffer (using kTriangles_PrimitiveType).
+         * @return the maximum number of quads using full size of index buffer.
+         */
+        int maxQuads() const { return size() / (sizeof(uint16_t) * 6); }
 protected:
     GrIndexBuffer(size_t sizeInBytes, bool dynamic) :
         INHERITED(sizeInBytes, dynamic) {}
