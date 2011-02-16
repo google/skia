@@ -674,8 +674,6 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 #include "SkMaskFilter.h"
 #include "SkBounder.h"
 
-#ifdef HANDLE_MASKFILTER
-// modified from SkMaskFilter::filterPath()
 static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
                                SkMaskFilter* filter, const SkMatrix& matrix,
                                const SkRegion& clip, SkBounder* bounder,
@@ -705,7 +703,7 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and grpaint settings
 
-    GrAutoMatrix avm(fContext, GrMatrix::I());
+    GrAutoMatrix avm(context, GrMatrix::I());
 
     const GrGpu::TextureDesc desc = {
         0,
@@ -721,9 +719,10 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
         return false;
     }
 
-    grp->setMask(texture)->unref();
-    grp->fMaskSampler.setClampNoFilter();
-    grp->fMaskMatrix.setIdentity();
+    grp->setTexture(texture);
+    texture->unref();
+    grp->fSampler.setClampNoFilter();
+    grp->fTextureMatrix.setIdentity();
 
     SkPoint max;
     max.set(SkFixedToScalar((texture->contentWidth() << 16) /
@@ -731,16 +730,16 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
             SkFixedToScalar((texture->contentHeight() << 16) /
                             texture->allocHeight()));
 
-    fContext->drawRectToRect(*grp,
-                             GrRect(GrIntToScalar(left), GrIntToScalar(top),
-                                    GrIntToScalar(left + bitmap.width()),
-                                    GrIntToScalar(top + bitmap.height())),
-                             GrRect(0, 0, max.fX, max.fY));
+    GrRect r;
+    r.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
+              GrIntToScalar(dstM.fBounds.fTop),
+              GrIntToScalar(dstM.fBounds.fRight),
+              GrIntToScalar(dstM.fBounds.fBottom));
+    context->drawRectToRect(*grp, r, GrRect(0, 0, max.fX, max.fY));
     return true;
 }
-#endif
 
-void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& path,
+void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
     CHECK_SHOULD_DRAW(draw);
@@ -751,31 +750,59 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& path,
         return;
     }
 
-    const SkPath* pathPtr = &path;
-    SkPath  tmpPath;
+    // BEGIN lift from SkDraw::drawPath()
+
+    SkPath*         pathPtr = const_cast<SkPath*>(&origSrcPath);
+    bool            doFill = true;
+    SkPath          tmpPath;
+    SkMatrix        tmpMatrix;
+    const SkMatrix* matrix = draw.fMatrix;
 
     if (prePathMatrix) {
-        if (pathIsMutable) {
-            const_cast<SkPath*>(pathPtr)->transform(*prePathMatrix);
+        if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style ||
+            paint.getRasterizer()) {
+            SkPath* result = pathPtr;
+
+            if (!pathIsMutable) {
+                result = &tmpPath;
+                pathIsMutable = true;
+            }
+            pathPtr->transform(*prePathMatrix, result);
+            pathPtr = result;
         } else {
-            path.transform(*prePathMatrix, &tmpPath);
-            pathPtr = &tmpPath;
+            if (!tmpMatrix.setConcat(*matrix, *prePathMatrix)) {
+                // overflow
+                return;
+            }
+            matrix = &tmpMatrix;
         }
     }
+    // at this point we're done with prePathMatrix
+    SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-#ifdef HANDLE_MASKFILTER
+    if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
+        doFill = paint.getFillPath(*pathPtr, &tmpPath);
+        pathPtr = &tmpPath;
+    }
+
+    // END lift from SkDraw::drawPath()
+
     if (paint.getMaskFilter()) {
-        drawWithMaskFilter(fContext, *pathPtr, paint.getMaskFilter(),
+        // avoid possibly allocating a new path in transform if we can
+        SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
+
+        // transform the path into device space
+        pathPtr->transform(*matrix, devPathPtr);
+
+        drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                            *draw.fMatrix, *draw.fClip, draw.fBounder, &grPaint);
         return;
     }
-#endif
 
-    SkPath               fillPath;
     GrContext::PathFills fill = GrContext::kHairLine_PathFill;
 
-    if (paint.getFillPath(*pathPtr, &fillPath)) {
-        switch (fillPath.getFillType()) {
+    if (doFill) {
+        switch (pathPtr->getFillType()) {
             case SkPath::kWinding_FillType:
                 fill = GrContext::kWinding_PathFill;
                 break;
@@ -794,7 +821,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& path,
         }
     }
 
-    SkGrPathIter iter(fillPath);
+    SkGrPathIter iter(*pathPtr);
     fContext->drawPath(grPaint, &iter, fill);
 }
 
