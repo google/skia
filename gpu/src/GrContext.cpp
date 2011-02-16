@@ -27,11 +27,18 @@
 
 #define DEFER_TEXT_RENDERING 1
 
+#define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
+
 static const size_t MAX_TEXTURE_CACHE_COUNT = 128;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 8 * 1024 * 1024;
 
-static const uint32_t TEXT_POOL_VB_SIZE = 1 << 18; // enough to draw 4K untextured glyphs
-static const uint32_t NUM_TEXT_POOL_VBS = 4;
+static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 18;
+static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
+
+// We are currently only batching Text and drawRectToRect, both
+// of which use the quad index buffer.
+static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 0;
+static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 0;
 
 GrContext* GrContext::Create(GrGpu::Engine engine,
                              GrGpu::Platform3DContext context3D) {
@@ -52,9 +59,9 @@ GrContext::~GrContext() {
     fGpu->unref();
     delete fTextureCache;
     delete fFontCache;
-    delete fTextDrawBuffer;
-    delete fTextVBAllocPool;
-    delete fTextIBAllocPool;
+    delete fDrawBuffer;
+    delete fDrawBufferVBAllocPool;
+    delete fDrawBufferVBAllocPool;
 }
 
 void GrContext::abandonAllTextures() {
@@ -331,18 +338,18 @@ void GrContext::drawRect(const GrPaint& paint,
                          const GrMatrix* matrix) {
 
     bool textured = NULL != paint.getTexture();
-    GrVertexLayout layout = (textured) ?
-                            GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
-                            0;
 
-    this->prepareToDraw(paint);
+    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
     if (width >= 0) {
         // TODO: consider making static vertex buffers for these cases.
         // Hairline could be done by just adding closing vertex to
         // unitSquareVertexBuffer()
+        GrVertexLayout layout = (textured) ?
+                                 GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
+                                 0;
         static const int worstCaseVertCount = 10;
-        GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, worstCaseVertCount, 0);
+        GrDrawTarget::AutoReleaseGeometry geo(target, layout, worstCaseVertCount, 0);
 
         if (!geo.succeeded()) {
             return;
@@ -369,16 +376,20 @@ void GrContext::drawRect(const GrPaint& paint,
 
         GrDrawTarget::AutoViewMatrixRestore avmr;
         if (NULL != matrix) {
-            avmr.set(fGpu);
-            fGpu->concatViewMatrix(*matrix);
-            fGpu->concatTextureMatrix(0, *matrix);
+            avmr.set(target);
+            target->concatViewMatrix(*matrix);
+            target->concatTextureMatrix(0, *matrix);
         }
 
-        fGpu->drawNonIndexed(primType, 0, vertCount);
+        target->drawNonIndexed(primType, 0, vertCount);
     } else {
         #if GR_STATIC_RECT_VB
-            fGpu->setVertexSourceToBuffer(layout, fGpu->unitSquareVertexBuffer());
-            GrDrawTarget::AutoViewMatrixRestore avmr(fGpu);
+            GrVertexLayout layout = (textured) ?
+                            GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
+                            0;
+            target->setVertexSourceToBuffer(layout, 
+                                            fGpu->getUnitSquareVertexBuffer());
+            GrDrawTarget::AutoViewMatrixRestore avmr(target);
             GrMatrix m;
             m.setAll(rect.width(), 0,             rect.fLeft,
                      0,            rect.height(), rect.fTop,
@@ -388,25 +399,15 @@ void GrContext::drawRect(const GrPaint& paint,
                 m.postConcat(*matrix);
             }
 
-            fGpu->concatViewMatrix(m);
+            target->concatViewMatrix(m);
 
             if (textured) {
-                fGpu->concatTextureMatrix(0, m);
+                target->concatTextureMatrix(0, m);
             }
+            target->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
         #else
-            GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, 4, 0);
-            GrPoint* vertex = geo.positions();
-            vertex->setRectFan(rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
-
-            GrDrawTarget::AutoViewMatrixRestore avmr;
-            if (NULL != matrix) {
-                avmr.set(fGpu);
-                fGpu->concatViewMatrix(*matrix);
-                fGpu->concatTextureMatrix(0, *matrix);
-            }
+            target->drawSimpleRect(rect, matrix, textured ? 1 : 0);
         #endif
-
-        fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
     }
 }
 
@@ -420,12 +421,14 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         drawRect(paint, dstRect, -1, dstMatrix);
         return;
     }
-
-    this->prepareToDraw(paint);
+    
+    GR_STATIC_ASSERT(!BATCH_RECT_TO_RECT || !GR_STATIC_RECT_VB);
 
 #if GR_STATIC_RECT_VB
+    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+
     GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
-    GrDrawTarget::AutoViewMatrixRestore avmr(fGpu);
+    GrDrawTarget::AutoViewMatrixRestore avmr(target);
 
     GrMatrix m;
 
@@ -435,7 +438,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     if (NULL != dstMatrix) {
         m.postConcat(*dstMatrix);
     }
-    fGpu->concatViewMatrix(m);
+    target->concatViewMatrix(m);
 
     m.setAll(srcRect.width(), 0,                srcRect.fLeft,
              0,               srcRect.height(), srcRect.fTop,
@@ -443,34 +446,26 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     if (NULL != srcMatrix) {
         m.postConcat(*srcMatrix);
     }
-    fGpu->concatTextureMatrix(0, m);
+    target->concatTextureMatrix(0, m);
 
-    fGpu->setVertexSourceToBuffer(layout, fGpu->unitSquareVertexBuffer());
+    target->setVertexSourceToBuffer(layout, fGpu->getUnitSquareVertexBuffer());
+    target->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
 #else
-    GrVertexLayout layout = GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
 
-    GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, 4, 0);
-    GrPoint* pos = geo.positions();
-    GrPoint* tex = pos + 1;
-    static const size_t stride = 2 * sizeof(GrPoint);
-    pos[0].setRectFan(dstRect.fLeft, dstRect.fTop,
-                      dstRect.fRight, dstRect.fBottom,
-                      stride);
-    tex[0].setRectFan(srcRect.fLeft, srcRect.fTop,
-                      srcRect.fRight, srcRect.fBottom,
-                      stride);
-
-    GrDrawTarget::AutoViewMatrixRestore avmr;
-    if (NULL != dstMatrix) {
-        avmr.set(fGpu);
-        fGpu->concatViewMatrix(*dstMatrix);
-    }
-    if (NULL != srcMatrix) {
-        fGpu->concatTextureMatrix(0, *srcMatrix);
-    }
-
+    GrDrawTarget* target;
+#if BATCH_RECT_TO_RECT 
+    target = this->prepareToDraw(paint, kBuffered_DrawCategory);
+#else 
+    target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
-    fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
+
+    const GrRect* srcRects[GrDrawTarget::kNumStages] = {NULL};
+    const GrMatrix* srcMatrices[GrDrawTarget::kNumStages] = {NULL};
+    srcRects[0] = &srcRect;
+    srcMatrices[0] = srcMatrix;
+
+    target->drawRect(dstRect, dstMatrix, 1, srcRects, srcMatrices);
+#endif
 }
 
 void GrContext::drawVertices(const GrPaint& paint,
@@ -486,7 +481,7 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
-    this->prepareToDraw(paint);
+    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
     if (NULL != paint.getTexture()) {
         if (NULL == texCoords) {
@@ -503,7 +498,7 @@ void GrContext::drawVertices(const GrPaint& paint,
     }
 
     if (sizeof(GrPoint) != vertexSize) {
-        if (!geo.set(fGpu, layout, vertexCount, 0)) {
+        if (!geo.set(target, layout, vertexCount, 0)) {
             GrPrintf("Failed to get space for vertices!");
             return;
         }
@@ -526,14 +521,14 @@ void GrContext::drawVertices(const GrPaint& paint,
             curVertex = (void*)((intptr_t)curVertex + vsize);
         }
     } else {
-        fGpu->setVertexSourceToArray(layout, positions, vertexCount);
+        target->setVertexSourceToArray(layout, positions, vertexCount);
     }
 
     if (NULL != indices) {
-        fGpu->setIndexSourceToArray(indices, indexCount);
-        fGpu->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+        target->setIndexSourceToArray(indices, indexCount);
+        target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
     } else {
-        fGpu->drawNonIndexed(primitiveType, 0, vertexCount);
+        target->drawNonIndexed(primitiveType, 0, vertexCount);
     }
 }
 
@@ -666,7 +661,7 @@ static int worst_case_point_count(GrPathIter* path,
 
 static inline bool single_pass_path(const GrPathIter& path,
                                     GrContext::PathFills fill,
-                                    const GrGpu& gpu) {
+                                    const GrDrawTarget& target) {
 #if STENCIL_OFF
     return true;
 #else
@@ -679,7 +674,7 @@ static inline bool single_pass_path(const GrPathIter& path,
         return hint == GrPathIter::kConvex_ConvexHint ||
                hint == GrPathIter::kNonOverlappingConvexPieces_ConvexHint ||
                (hint == GrPathIter::kSameWindingConvexPieces_ConvexHint &&
-                gpu.canDisableBlend() && !gpu.isDitherState());
+                target.canDisableBlend() && !target.isDitherState());
 
     }
     return false;
@@ -692,11 +687,11 @@ void GrContext::drawPath(const GrPaint& paint,
                          const GrPoint* translate) {
 
 
-    this->prepareToDraw(paint);
+    GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
-    GrDrawTarget::AutoStateRestore asr(fGpu);
+    GrDrawTarget::AutoStateRestore asr(target);
 
-    GrMatrix viewM = fGpu->getViewMatrix();
+    GrMatrix viewM = target->getViewMatrix();
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
     GrScalar stretch = viewM.getMaxStretch();
@@ -722,7 +717,7 @@ void GrContext::drawPath(const GrPaint& paint,
         layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
     }
     // add 4 to hold the bounding rect
-    GrDrawTarget::AutoReleaseGeometry arg(fGpu, layout, maxPts + 4, 0);
+    GrDrawTarget::AutoReleaseGeometry arg(target, layout, maxPts + 4, 0);
 
     GrPoint* base = (GrPoint*) arg.vertices();
     GrPoint* vert = base;
@@ -744,7 +739,7 @@ void GrContext::drawPath(const GrPaint& paint,
         passes[0] = GrDrawTarget::kNone_StencilPass;
     } else {
         type = GrDrawTarget::kTriangleFan_PrimitiveType;
-        if (single_pass_path(*path, fill, *fGpu)) {
+        if (single_pass_path(*path, fill, *target)) {
             passCount = 1;
             passes[0] = GrDrawTarget::kNone_StencilPass;
         } else {
@@ -778,7 +773,7 @@ void GrContext::drawPath(const GrPaint& paint,
             }
         }
     }
-    fGpu->setReverseFill(reverse);
+    target->setReverseFill(reverse);
 
     GrPoint pts[4];
 
@@ -840,13 +835,13 @@ FINISHED:
     if (useBounds) {
         GrRect bounds;
         if (reverse) {
-            GrAssert(NULL != fGpu->getRenderTarget());
+            GrAssert(NULL != target->getRenderTarget());
             // draw over the whole world.
             bounds.setLTRB(0, 0,
-                           GrIntToScalar(fGpu->getRenderTarget()->width()),
-                           GrIntToScalar(fGpu->getRenderTarget()->height()));
+                           GrIntToScalar(target->getRenderTarget()->width()),
+                           GrIntToScalar(target->getRenderTarget()->height()));
             GrMatrix vmi;
-            if (fGpu->getViewInverse(&vmi)) {
+            if (target->getViewInverse(&vmi)) {
                 vmi.mapRect(&bounds);
             }
         } else {
@@ -857,16 +852,16 @@ FINISHED:
     }
 
     for (int p = 0; p < passCount; ++p) {
-        fGpu->setStencilPass(passes[p]);
+        target->setStencilPass(passes[p]);
         if (useBounds && (GrDrawTarget::kEvenOddColor_StencilPass == passes[p] ||
                           GrDrawTarget::kWindingColor_StencilPass == passes[p])) {
-            fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType,
+            target->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType,
                                  maxPts, 4);
 
         } else {
             int baseVertex = 0;
             for (int sp = 0; sp < subpathCnt; ++sp) {
-                fGpu->drawNonIndexed(type,
+                target->drawNonIndexed(type,
                                      baseVertex,
                                      subpathVertCount[sp]);
                 baseVertex += subpathVertCount[sp];
@@ -878,17 +873,23 @@ FINISHED:
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::flush(bool flushRenderTarget) {
-    flushText();
+    flushDrawBuffer();
     if (flushRenderTarget) {
         fGpu->forceRenderTargetFlush();
     }
 }
 
 void GrContext::flushText() {
-    if (NULL != fTextDrawBuffer) {
-        fTextDrawBuffer->playback(fGpu);
-        fTextDrawBuffer->reset();
+    if (kText_DrawCategory == fLastDrawCategory) {
+        flushDrawBuffer();
     }
+}
+
+void GrContext::flushDrawBuffer() {
+#if BATCH_RECT_TO_RECT || DEFER_TEXT_RENDERING
+    fDrawBuffer->playback(fGpu);
+    fDrawBuffer->reset();
+#endif
 }
 
 bool GrContext::readPixels(int left, int top, int width, int height,
@@ -962,10 +963,32 @@ void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
     target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
 }
 
-void GrContext::prepareToDraw(const GrPaint& paint) {
-
-    flushText();
+GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint, 
+                                       DrawCategory category) {
+    if (category != fLastDrawCategory) {
+        flushDrawBuffer();
+        fLastDrawCategory = category;
+    }
     SetPaint(paint, fGpu);
+    GrDrawTarget* target = fGpu;
+    switch (category) {
+    case kText_DrawCategory:
+#if DEFER_TEXT_RENDERING
+        target = fDrawBuffer;
+        fDrawBuffer->initializeDrawStateAndClip(*fGpu);
+#else
+        target = fGpu;
+#endif
+        break;
+    case kUnbuffered_DrawCategory:
+        target = fGpu;
+        break;
+    case kBuffered_DrawCategory:
+        target = fDrawBuffer;
+        fDrawBuffer->initializeDrawStateAndClip(*fGpu);
+        break;
+    }
+    return target;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -975,7 +998,7 @@ void GrContext::resetContext() {
 }
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
-    flushText();
+    flush(false);
     fGpu->setRenderTarget(target);
 }
 
@@ -1028,19 +1051,28 @@ GrContext::GrContext(GrGpu* gpu) {
                                        MAX_TEXTURE_CACHE_BYTES);
     fFontCache = new GrFontCache(fGpu);
 
-#if DEFER_TEXT_RENDERING
-    fTextVBAllocPool = new GrVertexBufferAllocPool(gpu,
-                                                   false,
-                                                   TEXT_POOL_VB_SIZE,
-                                                   NUM_TEXT_POOL_VBS);
-    fTextIBAllocPool = new GrIndexBufferAllocPool(gpu, false, 0, 0);
+    fLastDrawCategory = kUnbuffered_DrawCategory;
 
-    fTextDrawBuffer = new GrInOrderDrawBuffer(fTextVBAllocPool,
-                                              fTextIBAllocPool);
+#if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT
+    fDrawBufferVBAllocPool = 
+        new GrVertexBufferAllocPool(gpu, false,
+                                    DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
+                                    DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS);
+    fDrawBufferIBAllocPool = 
+        new GrIndexBufferAllocPool(gpu, false,
+                                   DRAW_BUFFER_IBPOOL_BUFFER_SIZE, 
+                                   DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS);
+
+    fDrawBuffer = new GrInOrderDrawBuffer(fDrawBufferVBAllocPool,
+                                          fDrawBufferIBAllocPool);
 #else
-    fTextDrawBuffer = NULL;
-    fTextVBAllocPool = NULL;
-    fTextIBAllocPool = NULL;
+    fDrawBuffer = NULL;
+    fDrawBufferVBAllocPool = NULL;
+    fDrawBufferIBAllocPool = NULL;
+#endif
+
+#if BATCH_RECT_TO_RECT
+    fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
 #endif
 
 }
@@ -1070,22 +1102,14 @@ bool GrContext::finalizeTextureKey(GrTextureKey* key,
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
     GrDrawTarget* target;
 #if DEFER_TEXT_RENDERING
-    fTextDrawBuffer->initializeDrawStateAndClip(*fGpu);
-    target = fTextDrawBuffer;
+    target = prepareToDraw(paint, kText_DrawCategory);
 #else
-    target = fGpu;
+    target = prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
     SetPaint(paint, target);
     return target;
 }
 
-const GrIndexBuffer* GrContext::quadIndexBuffer() const {
-    return fGpu->quadIndexBuffer();
+const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
+    return fGpu->getQuadIndexBuffer();
 }
-
-int GrContext::maxQuadsInIndexBuffer() const {
-    return fGpu->maxQuadsInIndexBuffer();
-}
-
-
-

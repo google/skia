@@ -15,13 +15,14 @@
  */
 
 
-#include "GrAtlas.h"
-#include "GrClipIterator.h"
-#include "GrContext.h"
 #include "GrTextContext.h"
+#include "GrAtlas.h"
+#include "GrContext.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
 #include "GrFontScaler.h"
+#include "GrIndexBuffer.h"
+#include "GrGpuVertex.h"
 
 static const int TEXT_STAGE = 1;
 
@@ -45,7 +46,7 @@ void GrTextContext::flushGlyphs() {
         GrAssert(fCurrTexture);
         fDrawTarget->setTexture(TEXT_STAGE, fCurrTexture);
         fDrawTarget->setTextureMatrix(TEXT_STAGE, GrMatrix::I());
-        fDrawTarget->setIndexSourceToBuffer(fContext->quadIndexBuffer());
+        fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
 
         fDrawTarget->drawIndexed(GrDrawTarget::kTriangles_PrimitiveType,
                                  0, 0, fCurrVertex, nIndices);
@@ -217,11 +218,12 @@ HAS_ATLAS:
                                        NULL);
         }
 
+        int maxQuadVertices = 4 * fContext->getQuadIndexBuffer()->size() / (6 * sizeof(uint16_t));
         if (fMaxVertices < kMinRequestedVerts) {
             fMaxVertices = kDefaultRequestedVerts;
-        } else if (fMaxVertices > (fContext->maxQuadsInIndexBuffer() * 4)) {
+        } else if (fMaxVertices > maxQuadVertices) {
             // don't exceed the limit of the index buffer
-            fMaxVertices = (fContext->maxQuadsInIndexBuffer() * 4);
+            fMaxVertices = maxQuadVertices;
         }
         bool success = fDrawTarget->reserveAndLockGeometry(fVertexLayout,
                                                            fMaxVertices, 0,

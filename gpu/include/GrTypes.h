@@ -141,14 +141,14 @@ static inline int16_t GrToS16(intptr_t x) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Use to cast a pointer to a different type, and maintaining strict-aliasing
+ *  Use to cast a ptr to a different type, and maintain strict-aliasing
  */
-template <typename Dst> Dst GrTCast(const void* ptr) {
+template <typename Dst, typename Src> Dst GrTCast(Src src) {
     union {
-        const void* src;
+        Src src;
         Dst dst;
     } data;
-    data.src = ptr;
+    data.src = src;
     return data.dst;
 }
 

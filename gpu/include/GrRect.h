@@ -131,7 +131,7 @@ struct GrRect {
      *  Initialize a rectangle to a point.
      *  @param pt the point used to initialize the rectanglee.
      */
-    GrRect(GrPoint pt) {
+    explicit GrRect(const GrPoint& pt) {
         setToPoint(pt);
     }
 
@@ -186,6 +186,11 @@ struct GrRect {
      */
     bool isInverted() const {
         return (fLeft > fRight) || (fTop > fBottom);
+    }
+
+    bool contains(const GrPoint& point) const {
+        return point.fX >= fLeft && point.fX < fRight &&
+               point.fY >= fTop && point.fY < fBottom;
     }
     
     /**

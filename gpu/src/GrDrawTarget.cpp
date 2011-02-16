@@ -17,6 +17,7 @@
 
 #include "GrDrawTarget.h"
 #include "GrGpuVertex.h"
+#include "GrTexture.h"
 
 // recursive helper for creating mask with all the tex coord bits set for
 // one stage
@@ -291,7 +292,7 @@ GrDrawTarget::GrDrawTarget() {
 }
 
 void GrDrawTarget::setClip(const GrClip& clip) {
-    clipWillChange(clip);
+    clipWillBeSet(clip);
     fClip = clip;
 }
 
@@ -484,7 +485,127 @@ void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
     fGeometrySrc.fIndexBuffer  = buffer;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+bool GrDrawTarget::canDisableBlend() const {
+    if ((kOne_BlendCoeff == fCurrDrawState.fSrcBlend) &&
+        (kZero_BlendCoeff == fCurrDrawState.fDstBlend)) {
+            return true;
+    }
+
+    // If we have vertex color without alpha then we can't force blend off
+    if ((fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit) ||
+         0xff != GrColorUnpackA(fCurrDrawState.fColor)) {
+        return false;
+    }
+
+    // If the src coef will always be 1...
+    if (kSA_BlendCoeff != fCurrDrawState.fSrcBlend &&
+        kOne_BlendCoeff != fCurrDrawState.fSrcBlend) {
+        return false;
+    }
+
+    // ...and the dst coef is always 0...
+    if (kISA_BlendCoeff != fCurrDrawState.fDstBlend &&
+        kZero_BlendCoeff != fCurrDrawState.fDstBlend) {
+        return false;
+    }
+
+    // ...and there isn't a texture with an alpha channel...
+    for (int s = 0; s < kNumStages; ++s) {
+        if (VertexUsesStage(s, fGeometrySrc.fVertexLayout)) {
+            GrAssert(NULL != fCurrDrawState.fTextures[s]);
+            GrTexture::PixelConfig config = fCurrDrawState.fTextures[s]->config();
+
+            if (GrTexture::kRGB_565_PixelConfig != config &&
+                GrTexture::kRGBX_8888_PixelConfig != config) {
+                return false;
+            }
+        }
+    }
+
+    // ...then we disable blend.
+    return true;
+}
+///////////////////////////////////////////////////////////////////////////////
+void GrDrawTarget::drawRect(const GrRect& rect, 
+                            const GrMatrix* matrix,
+                            int stageEnableMask,
+                            const GrRect* srcRects[],
+                            const GrMatrix* srcMatrices[]) {
+    GR_STATIC_ASSERT(8*sizeof(int) >= kNumStages);
+
+    GrVertexLayout layout = GetRectVertexLayout(stageEnableMask, srcRects);
+
+    AutoReleaseGeometry geo(this, layout, 4, 0);
+
+    SetRectVertices(rect, matrix, srcRects, 
+                    srcMatrices, layout, geo.vertices());
+
+    drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
+}
+
+GrVertexLayout GrDrawTarget::GetRectVertexLayout(int stageEnableMask, 
+                                                 const GrRect* srcRects[]) {
+    GrVertexLayout layout = 0;
+
+    for (int i = 0; i < kNumStages; ++i) {
+        int numTC = 0;
+        if (stageEnableMask & (1 << i)) {
+            if (NULL != srcRects && NULL != srcRects[i]) {
+                layout |= StageTexCoordVertexLayoutBit(i, numTC);
+                ++numTC;
+            } else {
+                layout |= StagePosAsTexCoordVertexLayoutBit(i);
+            }
+        }
+    }
+    return layout;
+}
+void GrDrawTarget::SetRectVertices(const GrRect& rect,
+                                   const GrMatrix* matrix, 
+                                   const GrRect* srcRects[], 
+                                   const GrMatrix* srcMatrices[],
+                                   GrVertexLayout layout, 
+                                   void* vertices) {
+#if GR_DEBUG
+    // check that the layout and srcRects agree
+    for (int i = 0; i < kNumStages; ++i) {
+        if (VertexTexCoordsForStage(i, layout) >= 0) {
+            GR_DEBUGASSERT(NULL != srcRects && NULL != srcRects[i]);
+        } else {
+            GR_DEBUGASSERT(NULL == srcRects || NULL == srcRects[i]);
+        }
+    }
+#endif
+
+    int stageOffsets[kNumStages];
+    int colorOffset;
+    int vsize = VertexSizeAndOffsetsByStage(layout, stageOffsets, &colorOffset);
+    GrAssert(-1 == colorOffset);
+
+    GrTCast<GrPoint*>(vertices)->setRectFan(rect.fLeft, rect.fTop, 
+                                            rect.fRight, rect.fBottom,
+                                            vsize);
+    if (NULL != matrix) {
+        matrix->mapPointsWithStride(GrTCast<GrPoint*>(vertices), vsize, 4);
+    }
+
+    for (int i = 0; i < kNumStages; ++i) {
+        if (stageOffsets[i] > 0) {
+            GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(vertices) + 
+                                                stageOffsets[i]);
+            coords->setRectFan(srcRects[i]->fLeft, srcRects[i]->fTop,
+                               srcRects[i]->fRight, srcRects[i]->fBottom, 
+                               vsize);
+            if (NULL != srcMatrices && NULL != srcMatrices[i]) {
+                srcMatrices[i]->mapPointsWithStride(coords, vsize, 4);
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 GrDrawTarget::AutoStateRestore::AutoStateRestore(GrDrawTarget* target) {
     fDrawTarget = target;

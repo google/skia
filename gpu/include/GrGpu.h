@@ -21,9 +21,7 @@
 #include "GrRect.h"
 #include "GrRefCnt.h"
 #include "GrDrawTarget.h"
-#include "GrGpuVertex.h"
 #include "GrTexture.h"
-#include "GrMemory.h"
 
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
@@ -295,29 +293,20 @@ public:
                                 int vertexCount);
 
     /**
-     * Determines if blend is effectively disabled.
-     *
-     * @return true if blend can be disabled without changing the rendering
-     *  result given the current state including the vertex layout specified
-     *  with the vertex source.
-     */
-    bool canDisableBlend() const;
-
-    /**
      * Returns an index buffer that can be used to render quads.
-     * Indices are 0, 1, 2, 0, 2, 3, etc.
+     * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
+     * The max number of quads can be queried using GrIndexBuffer::maxQuads().
      * Draw with kTriangles_PrimitiveType
+     * @ return the quad index buffer
      */
-    const GrIndexBuffer* quadIndexBuffer() const;
-    /**
-     * Gets the number of quads that can be rendered using quadIndexBuffer.
-     */
-    int maxQuadsInIndexBuffer() const;
+    const GrIndexBuffer* getQuadIndexBuffer() const;
 
     /**
-     * Returns a vertex buffer with four position-only vertices [(0,0), (1,0), (1,1), (0,1)]
+     * Returns a vertex buffer with four position-only vertices [(0,0), (1,0), 
+     * (1,1), (0,1)].
+     * @ return unit square vertex buffer
      */
-    const GrVertexBuffer* unitSquareVertexBuffer() const;
+    const GrVertexBuffer* getUnitSquareVertexBuffer() const;
 
     /**
      * Ensures that the current render target is actually set in the
@@ -356,7 +345,10 @@ protected:
         GrRenderTarget* fStencilClipTarget;
     } fClipState;
 
-    virtual void clipWillChange(const GrClip& clip);
+    // GrDrawTarget override
+    virtual void clipWillBeSet(const GrClip& newClip);
+
+    // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(PrimitiveType type);
 
     struct BoundsState {

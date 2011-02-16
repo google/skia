@@ -18,7 +18,6 @@
 #ifndef GrDrawTarget_DEFINED
 #define GrDrawTarget_DEFINED
 
-#include "GrScalar.h"
 #include "GrMatrix.h"
 #include "GrColor.h"
 #include "GrRefCnt.h"
@@ -347,7 +346,11 @@ public:
     void disableState(uint32_t stateBits);
 
     bool isDitherState() const {
-        return fCurrDrawState.fFlagBits & kDither_StateBit;
+        return 0 != (fCurrDrawState.fFlagBits & kDither_StateBit);
+    }
+
+    bool isClipState() const {
+        return 0 != (fCurrDrawState.fFlagBits & kClip_StateBit);
     }
 
     /**
@@ -435,6 +438,16 @@ public:
         GrAssert(texCoordIdx < kMaxTexCoords);
         return 1 << (stage + (texCoordIdx * kNumStages));
     }
+
+    /**
+     * Determines if blend is effectively disabled.
+     *
+     * @return true if blend can be disabled without changing the rendering
+     *  result given the current state including the vertex layout specified
+     *  with the vertex source.
+     */
+    bool canDisableBlend() const;
+
 private:
     static const int TEX_COORD_BIT_CNT = kNumStages*kMaxTexCoords;
 public:
@@ -655,6 +668,45 @@ public:
                                 int startVertex,
                                 int vertexCount)  = 0;
 
+    /**
+     * Helper function for drawing rects. This does not use the current index
+     * and vertex sources. After returning, the vertex and index sources may
+     * have changed. They should be reestablished before the next drawIndexed
+     * or drawNonIndexed. This cannot be called between reserving and releasing
+     * geometry. The GrDrawTarget subclass may be able to perform additional
+     * optimizations if drawRect is used rather than drawIndexed or 
+     * drawNonIndexed.
+     * @param rect      the rect to draw
+     * @param matrix    optional matrix applied to rect (before viewMatrix)
+     * @param stageEnableMask   bitmask indicating which stages are enabled.
+     *                          Bit i indicates whether stage i is enabled.
+     * @param srcRects  specifies rects for stages enabled by stageEnableMask.
+     *                  if stageEnableMask bit i is 1, srcRects is not NULL,
+     *                  and srcRects[i] is not NULL, then srcRects[i] will be
+     *                  used as coordinates for stage i. Otherwise, if stage i
+     *                  is enabled then rect is used as the coordinates.
+     * @param srcMatrices   optional matrices applied to srcRects. If
+     *                      srcRect[i] is non-NULL and srcMatrices[i] is
+     *                      non-NULL then srcRect[i] will be transformed by
+     *                      srcMatrix[i]. srcMatrices can be NULL when no
+     *                      srcMatrices are desired.
+     */
+    virtual void drawRect(const GrRect& rect, 
+                          const GrMatrix* matrix,
+                          int stageEnableMask,
+                          const GrRect* srcRects[],
+                          const GrMatrix* srcMatrices[]);
+
+    /**
+     * Helper for drawRect when the caller doesn't need separate src rects or 
+     * matrices.
+     */
+    void drawSimpleRect(const GrRect& rect, 
+                        const GrMatrix* matrix, 
+                        int stageEnableMask) {
+         drawRect(rect, matrix, stageEnableMask, NULL, NULL);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
 
     class AutoStateRestore : ::GrNoncopyable {
@@ -869,6 +921,65 @@ public:
     static int VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
                                            int texCoordOffsetsByStage[kNumStages],
                                            int *colorOffset);
+
+    /**
+     * Accessing positions, texture coords, or colors, of a vertex within an
+     * array is a hassle involving casts and simple math. These helpers exist
+     * to keep GrDrawTarget clients' code a bit nicer looking.
+     */
+
+    /**
+     * Gets a pointer to a GrPoint of a vertex's position or texture
+     * coordinate.
+     * @param vertices      the vetex array
+     * @param vertexIndex   the index of the vertex in the array
+     * @param vertexSize    the size of each vertex in the array
+     * @param offset        the offset in bytes of the vertex component.
+     *                      Defaults to zero (corresponding to vertex position)
+     * @return pointer to the vertex component as a GrPoint
+     */
+    static GrPoint* GetVertexPoint(void* vertices, 
+                                   int vertexIndex,
+                                   int vertexSize,
+                                   int offset = 0) {
+        intptr_t start = GrTCast<intptr_t>(vertices);
+        return GrTCast<GrPoint*>(start + offset + 
+                                 vertexIndex * vertexSize);
+    }
+    static const GrPoint* GetVertexPoint(const void* vertices,
+                                         int vertexIndex,
+                                         int vertexSize, 
+                                         int offset = 0) {
+        intptr_t start = GrTCast<intptr_t>(vertices);
+        return GrTCast<const GrPoint*>(start + offset + 
+                                       vertexIndex * vertexSize);
+    }
+
+    /**
+     * Gets a pointer to a GrColor inside a vertex within a vertex array.
+     * @param vertices      the vetex array
+     * @param vertexIndex   the index of the vertex in the array
+     * @param vertexSize    the size of each vertex in the array
+     * @param offset        the offset in bytes of the vertex color
+     * @return pointer to the vertex component as a GrColor
+     */
+    static GrColor* GetVertexColor(void* vertices, 
+                                   int vertexIndex,
+                                   int vertexSize,
+                                   int offset) {
+        intptr_t start = GrTCast<intptr_t>(vertices);
+        return GrTCast<GrColor*>(start + offset + 
+                                 vertexIndex * vertexSize);
+    }
+    static const GrColor* GetVertexColor(const void* vertices,
+                                         int vertexIndex,
+                                         int vertexSize, 
+                                         int offset) {
+        const intptr_t start = GrTCast<intptr_t>(vertices);
+        return GrTCast<const GrColor*>(start + offset + 
+                                       vertexIndex * vertexSize);
+    }
+
 protected:
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
@@ -885,13 +996,26 @@ protected:
 
     virtual void releaseGeometryHelper() = 0;
 
-    virtual void clipWillChange(const GrClip& clip) = 0;
+    // subclass overrides to be notified when clip is set.
+    virtual void clipWillBeSet(const GrClip& clip) = 0;
 
     virtual void setVertexSourceToArrayHelper(const void* vertexArray,
                                               int vertexCount) = 0;
 
     virtual void setIndexSourceToArrayHelper(const void* indexArray,
                                              int indexCount) = 0;
+
+    // Helpers for drawRect, protected so subclasses that override drawRect
+    // can use them.
+    static GrVertexLayout GetRectVertexLayout(int stageEnableMask, 
+                                              const GrRect* srcRects[]);
+
+    static void SetRectVertices(const GrRect& rect,
+                                const GrMatrix* matrix, 
+                                const GrRect* srcRects[], 
+                                const GrMatrix* srcMatrices[],
+                                GrVertexLayout layout, 
+                                void* vertices);
 
     enum GeometrySrcType {
         kReserved_GeometrySrcType,  // src was set using reserveAndLockGeometry

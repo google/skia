@@ -41,30 +41,64 @@ class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer : public GrDrawTarget {
 public:
 
+    /**
+     * Creates a GrInOrderDrawBuffer
+     *
+     * @param vertexPool pool where vertices for queued draws will be saved when
+     *                   the vertex source is either reserved or array.
+     * @param indexPool  pool where indices for queued draws will be saved when
+     *                   the index source is either reserved or array.
+     */
     GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
                         GrIndexBufferAllocPool* indexPool);
 
     virtual ~GrInOrderDrawBuffer();
 
+    /**
+     * Copies the draw state and clip from target to this draw buffer.
+     *
+     * @param target    the target whose clip and state should be copied.
+     */
     void initializeDrawStateAndClip(const GrDrawTarget& target);
 
+    /**
+     * Provides the buffer with an index buffer that can be used for quad rendering.
+     * The buffer may be able to batch consecutive drawRects if this is provided.
+     * @param indexBuffer   index buffer with quad indices.
+     */
+    void setQuadIndexBuffer(const GrIndexBuffer* indexBuffer);
+
+    /**
+     * Empties the draw buffer of any queued up draws.
+     */
+    void reset();
+
+    /**
+     * plays the queued up draws to another target. Does not empty this buffer so
+     * that it can be played back multiple times.
+     * @param target    the target to receive the playback
+     */
+    void playback(GrDrawTarget* target);
+    
+    // overrides from GrDrawTarget
     virtual void drawIndexed(PrimitiveType primitiveType,
                              int startVertex,
                              int startIndex,
                              int vertexCount,
                              int indexCount);
-
     virtual void drawNonIndexed(PrimitiveType primitiveType,
                                 int startVertex,
                                 int vertexCount);
 
+    virtual void drawRect(const GrRect& rect, 
+                          const GrMatrix* matrix = NULL,
+                          int stageEnableMask = 0,
+                          const GrRect* srcRects[] = NULL,
+                          const GrMatrix* srcMatrices[] = NULL);
+
     virtual bool geometryHints(GrVertexLayout vertexLayout,
                                int* vertexCount,
                                int* indexCount) const;
-
-    void reset();
-
-    void playback(GrDrawTarget* target);
 
 private:
 
@@ -85,7 +119,7 @@ private:
                                        void**         vertices,
                                        void**         indices);
     virtual void releaseGeometryHelper();
-    virtual void clipWillChange(const GrClip& clip);
+    virtual void clipWillBeSet(const GrClip& newClip);
 
     virtual void setVertexSourceToArrayHelper(const void* vertexArray,
                                               int vertexCount);
@@ -93,9 +127,11 @@ private:
     virtual void setIndexSourceToArrayHelper(const void* indexArray,
                                              int indexCount);
 
+    bool needsNewState() const;
+    bool needsNewClip() const;
 
-    bool grabState();
-    bool grabClip();
+    void pushState();
+    void pushClip();
 
     GrTAllocator<Draw>              fDraws;
     // HACK: We currently do not hold refs on RTs in the saved draw states.
@@ -106,7 +142,12 @@ private:
     GrTAllocator<SavedDrawState>    fStates;
 
     GrTAllocator<GrClip>            fClips;
-    bool                            fClipChanged;
+    bool                            fClipSet;
+
+    GrVertexLayout                  fLastRectVertexLayout;
+    const GrIndexBuffer*            fQuadIndexBuffer;
+    int                             fMaxQuads;
+    int                             fCurrQuad;
 
     GrVertexBufferAllocPool&        fVertexPool;
     const GrVertexBuffer*           fCurrPoolVertexBuffer;
@@ -134,6 +175,7 @@ private:
                                                    STATES_BLOCK_SIZE];
     int8_t                          fClipsStorage[sizeof(GrClip) *
                                                   CLIPS_BLOCK_SIZE];
+    typedef GrDrawTarget INHERITED;
 };
 
 #endif

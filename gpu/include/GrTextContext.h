@@ -19,8 +19,10 @@
 #define GrTextContext_DEFINED
 
 #include "GrGlyph.h"
-#include "GrGpuVertex.h"
+#include "GrPaint.h"
 
+struct GrGpuTextVertex;
+class GrMatrix;
 class GrContext;
 class GrTextStrike;
 class GrFontScaler;

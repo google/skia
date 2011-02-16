@@ -445,25 +445,33 @@ public:
     GrFontCache* getFontCache() { return fFontCache; }
     GrDrawTarget* getTextTarget(const GrPaint& paint);
     void flushText();
-
-    const GrIndexBuffer* quadIndexBuffer() const;
-    int maxQuadsInIndexBuffer() const;
+    const GrIndexBuffer* getQuadIndexBuffer() const;
 
 private:
+    // used to keep track of when we need to flush the draw buffer
+    enum DrawCategory {
+        kBuffered_DrawCategory,      // last draw was inserted in draw buffer
+        kUnbuffered_DrawCategory,    // last draw was not inserted in the draw buffer
+        kText_DrawCategory           // text context was last to draw
+    };
+    DrawCategory fLastDrawCategory;
+
     GrGpu*          fGpu;
     GrTextureCache* fTextureCache;
     GrFontCache*    fFontCache;
 
-    GrVertexBufferAllocPool*    fTextVBAllocPool;
-    GrIndexBufferAllocPool*     fTextIBAllocPool;
-    GrInOrderDrawBuffer*        fTextDrawBuffer;
+    GrVertexBufferAllocPool*    fDrawBufferVBAllocPool;
+    GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;
+    GrInOrderDrawBuffer*        fDrawBuffer;
 
     GrContext(GrGpu* gpu);
+    void flushDrawBuffer();
 
     static void SetPaint(const GrPaint& paint, GrDrawTarget* target);
 
     bool finalizeTextureKey(GrTextureKey*, const GrSamplerState&) const;
-    void prepareToDraw(const GrPaint& paint);
+    
+    GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
     void drawClipIntoStencil();
 };
