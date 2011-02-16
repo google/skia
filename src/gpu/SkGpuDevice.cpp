@@ -647,9 +647,16 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 
     /*
         We have special code for hairline strokes, miter-strokes, and fills.
-        Anything else we just call our path code. (i.e. non-miter thick stroke)
+        Anything else we just call our path code.
      */
-    if (doStroke && width > 0 && paint.getStrokeJoin() != SkPaint::kMiter_Join) {
+    bool usePath = doStroke && width > 0 &&
+                    paint.getStrokeJoin() != SkPaint::kMiter_Join;
+    // another reason we might need to call drawPath...
+    if (paint.getMaskFilter()) {
+        usePath = true;
+    }
+
+    if (usePath) {
         SkPath path;
         path.addRect(rect);
         this->drawPath(draw, path, paint, NULL, true);
@@ -663,6 +670,75 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     }
     fContext->drawRect(grPaint, Sk2Gr(rect), doStroke ? width : -1);
 }
+
+#include "SkMaskFilter.h"
+#include "SkBounder.h"
+
+#ifdef HANDLE_MASKFILTER
+// modified from SkMaskFilter::filterPath()
+static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
+                               SkMaskFilter* filter, const SkMatrix& matrix,
+                               const SkRegion& clip, SkBounder* bounder,
+                               GrPaint* grp) {
+    SkMask  srcM, dstM;
+
+    if (!SkDraw::DrawToMask(path, &clip.getBounds(), filter, &matrix, &srcM,
+                            SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
+        return false;
+    }
+
+    SkAutoMaskImage autoSrc(&srcM, false);
+
+    if (!filter->filterMask(&dstM, srcM, matrix, NULL)) {
+        return false;
+    }
+    // this will free-up dstM when we're done (allocated in filterMask())
+    SkAutoMaskImage autoDst(&dstM, false);
+
+    if (clip.quickReject(dstM.fBounds)) {
+        return false;
+    }
+    if (bounder && !bounder->doIRect(dstM.fBounds)) {
+        return false;
+    }
+
+    // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
+    // the current clip (and identity matrix) and grpaint settings
+
+    GrAutoMatrix avm(fContext, GrMatrix::I());
+
+    const GrGpu::TextureDesc desc = {
+        0,
+        GrGpu::kNone_AALevel,
+        dstM.fBounds.width(),
+        dstM.fBounds.height(),
+        GrTexture::kAlpha_8_PixelConfig
+    };
+
+    GrTexture* texture = context->createUncachedTexture(desc, dstM.fImage,
+                                                        dstM.fRowBytes);
+    if (NULL == texture) {
+        return false;
+    }
+
+    grp->setMask(texture)->unref();
+    grp->fMaskSampler.setClampNoFilter();
+    grp->fMaskMatrix.setIdentity();
+
+    SkPoint max;
+    max.set(SkFixedToScalar((texture->contentWidth() << 16) /
+                            texture->allocWidth()),
+            SkFixedToScalar((texture->contentHeight() << 16) /
+                            texture->allocHeight()));
+
+    fContext->drawRectToRect(*grp,
+                             GrRect(GrIntToScalar(left), GrIntToScalar(top),
+                                    GrIntToScalar(left + bitmap.width()),
+                                    GrIntToScalar(top + bitmap.height())),
+                             GrRect(0, 0, max.fX, max.fY));
+    return true;
+}
+#endif
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& path,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
@@ -686,6 +762,14 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& path,
             pathPtr = &tmpPath;
         }
     }
+
+#ifdef HANDLE_MASKFILTER
+    if (paint.getMaskFilter()) {
+        drawWithMaskFilter(fContext, *pathPtr, paint.getMaskFilter(),
+                           *draw.fMatrix, *draw.fClip, draw.fBounder, &grPaint);
+        return;
+    }
+#endif
 
     SkPath               fillPath;
     GrContext::PathFills fill = GrContext::kHairLine_PathFill;
