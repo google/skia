@@ -1,5 +1,6 @@
 SOURCE := \
 	bitmapfilters.cpp \
+	blurs.cpp \
 	filltypes.cpp \
 	gradients.cpp \
 	shapes.cpp \
