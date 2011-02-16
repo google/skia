@@ -755,27 +755,18 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     SkPath*         pathPtr = const_cast<SkPath*>(&origSrcPath);
     bool            doFill = true;
     SkPath          tmpPath;
-    SkMatrix        tmpMatrix;
-    const SkMatrix* matrix = draw.fMatrix;
 
     if (prePathMatrix) {
-        if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style ||
-            paint.getRasterizer()) {
-            SkPath* result = pathPtr;
+        SkPath* result = pathPtr;
 
-            if (!pathIsMutable) {
-                result = &tmpPath;
-                pathIsMutable = true;
-            }
-            pathPtr->transform(*prePathMatrix, result);
-            pathPtr = result;
-        } else {
-            if (!tmpMatrix.setConcat(*matrix, *prePathMatrix)) {
-                // overflow
-                return;
-            }
-            matrix = &tmpMatrix;
+        if (!pathIsMutable) {
+            result = &tmpPath;
+            pathIsMutable = true;
         }
+        // should I push prePathMatrix on our MV stack temporarily, instead
+        // of applying it here? See SkDraw.cpp
+        pathPtr->transform(*prePathMatrix, result);
+        pathPtr = result;
     }
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
@@ -792,7 +783,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
 
         // transform the path into device space
-        pathPtr->transform(*matrix, devPathPtr);
+        pathPtr->transform(*draw.fMatrix, devPathPtr);
 
         drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                            *draw.fMatrix, *draw.fClip, draw.fBounder, &grPaint);
