@@ -71,13 +71,26 @@
  *
  *------------------------------------------------------------------------------
  *
- * The following are optional defines that can be enabled as command line macros
- * defines, in a IDE project, in a GrUserConfig.h file, or in a GL custom setup
+ * The following are optional defines that can be enabled at the compiler
+ * command line, in a IDE project, in a GrUserConfig.h file, or in a GL custom
  * file (if one is in use). They don't require GR_GL_CUSTOM_SETUP or
- * GR_GL_CUSTOM_SETUP_HEADER to be enabled:
+ * setup GR_GL_CUSTOM_SETUP_HEADER to be enabled:
  *
- * GR_GL_LOG_CALLS if 1 GrPrintf every GL call (for debugging purposes) when the
- * global gPrintGL is true (it is initially true).
+ * GR_GL_LOG_CALLS: if 1 Gr can print every GL call using GrPrintf. Defaults to
+ * 0. Logging can be enabled and disabled at runtime using a debugger via to 
+ * global gLogCallsGL. The initial value of gLogCallsGL is controlled by
+ * GR_GL_LOG_CALLS_START.
+ *
+ * GR_GL_LOG_CALLS_START: controls the initial value of gLogCallsGL when
+ * GR_GL_LOG_CALLS is 1. Defaults to 0.
+ *
+ * GR_GL_CHECK_ERROR: if enabled Gr can do a glGetError() after every GL call.
+ * Defaults to 1 if GR_DEBUG is set, otherwise 0. When GR_GL_CHECK_ERROR is 1 
+ * this can be toggled in a debugger using the gCheckErrorGL global. The initial
+ * value of gCheckErrorGL is controlled by by GR_GL_CHECK_ERROR_START.
+ *
+ * GR_GL_CHECK_ERROR_START: controls the initial value of gCheckErrorGL
+ * when GR_GL_CHECK_ERROR is 1.  Defaults to 1.
  */
 
 #if GR_GL_CUSTOM_SETUP
@@ -198,7 +211,19 @@
 #endif
 
 #if !defined(GR_GL_LOG_CALLS)
-    #define GR_GL_LOG_CALLS 0
+    #define GR_GL_LOG_CALLS             0
+#endif
+
+#if !defined(GR_GL_LOG_CALLS_START)
+    #define GR_GL_LOG_CALLS_START       0
+#endif
+
+#if !defined(GR_GL_CHECK_ERROR) 
+    #define GR_GL_CHECK_ERROR           GR_DEBUG
+#endif
+
+#if !defined(GR_GL_CHECK_ERROR_START)
+    #define GR_GL_CHECK_ERROR_START     1
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -340,30 +365,23 @@ static inline void GrGLClearErr() {
     while (GL_NO_ERROR != glGetError()) {}
 }
 
-// GR_FORCE_GLCHECKERR can be defined by GrUserConfig.h
-#if defined(GR_FORCE_GLCHECKERR)
-    #define GR_LOCAL_CALL_CHECKERR GR_FORCE_GLCHECKERR
+#if GR_GL_CHECK_ERROR
+    extern bool gCheckErrorGL;
+    #define GR_GL_CHECK_ERROR_IMPL(X) if (gCheckErrorGL) GrGLCheckErr(GR_FILE_AND_LINE_STR, #X)
 #else
-    #define GR_LOCAL_CALL_CHECKERR GR_DEBUG
+    #define GR_GL_CHECK_ERROR_IMPL(X)
 #endif
-static inline void GrDebugGLCheckErr(const char* location, const char* call) {
-#if GR_LOCAL_CALL_CHECKERR
-    GrGLCheckErr(location, call);
-#endif
-}
-#undef GR_LOCAL_CALL_CHECKERR
 
 #if GR_GL_LOG_CALLS
-    extern bool gPrintGL;
-    #define GR_GL(X)                 gl ## X; GrDebugGLCheckErr(GR_FILE_AND_LINE_STR, #X); if (gPrintGL) GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
-    #define GR_GL_NO_ERR(X)          GrGLClearErr(); gl ## X; if (gPrintGL) GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
-    #define GR_GLEXT(exts, X)        exts. X; GrDebugGLCheckErr(GR_FILE_AND_LINE_STR, #X); if (gPrintGL) GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
-    #define GR_GLEXT_NO_ERR(exts, X) GrGLClearErr(); exts. X; if (gPrintGL) GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
+    extern bool gLogCallsGL;
+    #define GR_GL_LOG_CALLS_IMPL(X) if (gLogCallsGL) GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
 #else
-    #define GR_GL(X)                 gl ## X; GrDebugGLCheckErr(GR_FILE_AND_LINE_STR, #X)
-    #define GR_GL_NO_ERR(X)          GrGLClearErr(); gl ## X
-    #define GR_GLEXT(exts, X)        exts. X; GrDebugGLCheckErr(GR_FILE_AND_LINE_STR, #X)
-    #define GR_GLEXT_NO_ERR(exts, X) GrGLClearErr(); exts. X
+    #define GR_GL_LOG_CALLS_IMPL(X)
 #endif
+
+#define GR_GL(X)                 gl ## X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
+#define GR_GL_NO_ERR(X)          GrGLClearErr(); gl ## X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
+#define GR_GLEXT(exts, X)        exts. X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
+#define GR_GLEXT_NO_ERR(exts, X) GrGLClearErr(); exts. X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
 
 #endif
