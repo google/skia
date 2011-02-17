@@ -1,37 +1,19 @@
-#include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "Sk64.h"
-#include "SkGradientShader.h"
-#include "SkGraphics.h"
-#include "SkImageDecoder.h"
-#include "SkKernel33MaskFilter.h"
-#include "SkPath.h"
+#include "gm.h"
 #include "SkRandom.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkUtils.h"
-#include "SkColorPriv.h"
-#include "SkColorFilter.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
-#include "SkXfermode.h"
 
-#include "SkStream.h"
-#include "SkXMLParser.h"
+namespace skiagm {
 
-class PointsView : public SkView {
+class PointsGM : public GM {
 public:
-	PointsView() {}
+	PointsGM() {}
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Points");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+    virtual SkString onShortName() {
+        return SkString("points");
+    }
+
+	virtual SkISize onISize() {
+        return make_isize(640, 490);
     }
 
     void drawBG(SkCanvas* canvas) {
@@ -73,12 +55,13 @@ protected:
     }
 
 private:
-
-    typedef SkView INHERITED;
+    typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PointsView; }
-static SkViewRegister reg(MyFactory);
+static GM* MyFactory(void*) { return new PointsGM; }
+static GMRegistry reg(MyFactory);
+
+}
 
