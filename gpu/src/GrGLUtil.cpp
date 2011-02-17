@@ -250,7 +250,6 @@ void GrGLCheckErr(const char* location, const char* call) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool gPrintGL = true;
+bool gLogCallsGL = !!(GR_GL_LOG_CALLS_START);
 
-
-
+bool gCheckErrorGL = !!(GR_GL_CHECK_ERROR_START);
