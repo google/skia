@@ -524,6 +524,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     }
     info->fEmSize = otm.otmEMSquare;
     info->fMultiMaster = false;
+    info->fLastGlyphID = 0;
 
     info->fStyle = 0;
     // If this bit is clear the font is a fixed pitch font.
@@ -578,6 +579,15 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     } else if (perGlyphInfo) {
         info->fGlyphWidths.reset(
             getAdvanceData(hdc, SHRT_MAX, &getWidthAdvance));
+
+        // Obtain the last glyph index.
+        SkAdvancedTypefaceMetrics::WidthRange* last = info->fGlyphWidths.get();
+        if (last) {
+            while (last->fNext.get()) {
+                last = last->fNext.get();
+            }
+            info->fLastGlyphID = last->fEndId;
+        }
     }
 
 Error:
