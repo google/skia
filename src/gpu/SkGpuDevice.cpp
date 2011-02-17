@@ -314,15 +314,9 @@ void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
     }
 }
 
-bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint, SkPoint* max) {
+bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
     if (NULL != fTexture) {
         paint->setTexture(fTexture);
-        if (NULL != max) {
-            max->set(SkFixedToScalar((width() << 16) /
-                                     fTexture->allocWidth()),
-                     SkFixedToScalar((height() << 16) /
-                                     fTexture->allocHeight()));
-        }
         return true;
     }
     return false;
@@ -408,7 +402,6 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
     grPaint->fSampler.setFilter(skPaint.isFilterBitmap());
     grPaint->fSampler.setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
     grPaint->fSampler.setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
-
     if (GrSamplerState::kRadial2_SampleMode == sampleMode) {
         grPaint->fSampler.setRadial2Params(twoPointParams[0],
                                            twoPointParams[1],
@@ -432,20 +425,16 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         }
     }
     if (SkShader::kDefault_BitmapType == bmptype) {
-        GrScalar sx = (GR_Scalar1 * texture->contentWidth()) /
-                      (bitmap.width() * texture->allocWidth());
-        GrScalar sy = (GR_Scalar1 * texture->contentHeight()) /
-                      (bitmap.height() * texture->allocHeight());
+        GrScalar sx = GrFixedToScalar(GR_Fixed1 / bitmap.width());
+        GrScalar sy = GrFixedToScalar(GR_Fixed1 / bitmap.height());
         matrix.postScale(sx, sy);
-
     } else if (SkShader::kRadial_BitmapType == bmptype) {
-        GrScalar s = (GR_Scalar1 * texture->contentWidth()) /
-                     (bitmap.width() * texture->allocWidth());
+        GrScalar s = GrFixedToScalar(GR_Fixed1 / bitmap.width());
         matrix.postScale(s, s);
     }
-
-    GrMatrix grmat;
-    SkGr::SkMatrix2GrMatrix(matrix, &grPaint->fTextureMatrix);
+    GrMatrix grMat;
+    SkGr::SkMatrix2GrMatrix(matrix, &grMat);
+    grPaint->fSampler.setMatrix(grMat);
 
     return true;
 }
@@ -722,20 +711,15 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     grp->setTexture(texture);
     texture->unref();
     grp->fSampler.setClampNoFilter();
-    grp->fTextureMatrix.setIdentity();
 
-    SkPoint max;
-    max.set(SkFixedToScalar((texture->contentWidth() << 16) /
-                            texture->allocWidth()),
-            SkFixedToScalar((texture->contentHeight() << 16) /
-                            texture->allocHeight()));
-
-    GrRect r;
-    r.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
+    GrRect d;
+    d.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
               GrIntToScalar(dstM.fBounds.fTop),
               GrIntToScalar(dstM.fBounds.fRight),
               GrIntToScalar(dstM.fBounds.fBottom));
-    context->drawRectToRect(*grp, r, GrRect(0, 0, max.fX, max.fY));
+    GrRect s;
+    s.setLTRB(0, 0, GR_Scalar1, GR_Scalar1);
+    context->drawRectToRect(*grp, d, s);
     return true;
 }
 
@@ -919,6 +903,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     grPaint->fSampler.setWrapX(GrSamplerState::kClamp_WrapMode);
     grPaint->fSampler.setWrapY(GrSamplerState::kClamp_WrapMode);
     grPaint->fSampler.setSampleMode(GrSamplerState::kNormal_SampleMode);
+    grPaint->fSampler.setMatrix(GrMatrix::I());
 
     GrTexture* texture;
     SkAutoCachedTexture act(this, bitmap, grPaint->fSampler, &texture);
@@ -927,12 +912,13 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     }
 
     grPaint->setTexture(texture);
-    grPaint->fTextureMatrix.setIdentity();
+    
     GrRect dstRect(0, 0, GrIntToScalar(srcRect.width()), GrIntToScalar(srcRect.height()));
-    GrRect paintRect(GrIntToScalar(srcRect.fLeft)   / texture->allocWidth(),
-                     GrIntToScalar(srcRect.fTop)    / texture->allocHeight(),
-                     GrIntToScalar(srcRect.fRight)  / texture->allocWidth(),
-                     GrIntToScalar(srcRect.fBottom) / texture->allocHeight());
+    GrRect paintRect;
+    paintRect.setLTRB(GrFixedToScalar((srcRect.fLeft << 16)   / bitmap.width()),
+                      GrFixedToScalar((srcRect.fTop << 16)    / bitmap.height()),
+                      GrFixedToScalar((srcRect.fRight << 16)  / bitmap.width()),
+                      GrFixedToScalar((srcRect.fBottom << 16) / bitmap.height()));
 
     GrMatrix grMat;
     SkGr::SkMatrix2GrMatrix(m, &grMat);
@@ -960,29 +946,21 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     grPaint.fSampler.setClampNoFilter();
     SkAutoCachedTexture act(this, bitmap, grPaint.fSampler, &texture);
 
-    grPaint.fTextureMatrix.setIdentity();
     grPaint.setTexture(texture);
-
-    SkPoint max;
-    max.set(SkFixedToScalar((texture->contentWidth() << 16) /
-                             texture->allocWidth()),
-            SkFixedToScalar((texture->contentHeight() << 16) /
-                            texture->allocHeight()));
 
     fContext->drawRectToRect(grPaint,
                              GrRect(GrIntToScalar(left), GrIntToScalar(top),
                                     GrIntToScalar(left + bitmap.width()),
                                     GrIntToScalar(top + bitmap.height())),
-                             GrRect(0, 0, max.fX, max.fY));
+                             GrRect(0, 0, GR_Scalar1, GR_Scalar1));
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
                             int x, int y, const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
 
-    SkPoint max;
     GrPaint grPaint;
-    if (!((SkGpuDevice*)dev)->bindDeviceAsTexture(&grPaint, &max) ||
+    if (!((SkGpuDevice*)dev)->bindDeviceAsTexture(&grPaint) ||
         !this->skPaint2GrPaintNoShader(paint, true, &grPaint)) {
         return;
     }
@@ -996,17 +974,13 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
     GrAutoMatrix avm(fContext, GrMatrix::I());
 
     grPaint.fSampler.setClampNoFilter();
-    grPaint.fTextureMatrix.setIdentity();
 
     fContext->drawRectToRect(grPaint,
                              GrRect(GrIntToScalar(x),
                                     GrIntToScalar(y),
                                     GrIntToScalar(x + w),
                                     GrIntToScalar(y + h)),
-                             GrRect(0,
-                                    0,
-                                    GrIntToScalar(max.fX),
-                                    GrIntToScalar(max.fY)));
+                             GrRect(0, 0, GR_Scalar1, GR_Scalar1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

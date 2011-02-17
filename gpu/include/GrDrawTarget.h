@@ -39,12 +39,12 @@ public:
      * no per-vertex colors. For subsequent stages the input color is the output
      * color from the previous enabled stage. The output color of each stage is
      * the input color modulated with the result of a texture lookup. Texture
-     * lookups are specified by a texture (setTexture), a texture matrix
-     * (setTextureMatrix), and a sampler (setSamplerState). Texture coordinates
-     * for each stage come from the vertices based on a GrVertexLayout bitfield.
-     * The output fragment color is the output color of the last enabled stage.
-     * The presence or absence of texture coordinates for each stage in the
-     * vertex layout indicates whether a stage is enabled or not.
+     * lookups are specified by a texture a sampler (setSamplerState). Texture
+     * coordinates for each stage come from the vertices based on a
+     * GrVertexLayout bitfield. The output fragment color is the output color of
+     * the last enabled stage. The presence or absence of texture coordinates
+     * for each stage in the vertex layout indicates whether a stage is enabled
+     * or not.
      */
     enum {
         kNumStages = 2,
@@ -145,16 +145,15 @@ protected:
 
     struct DrState {
         uint32_t                fFlagBits;
-        BlendCoeff          	fSrcBlend;
-        BlendCoeff          	fDstBlend;
-        GrTexture*          	fTextures[kNumStages];
-        GrSamplerState        	fSamplerStates[kNumStages];
-        GrRenderTarget*     	fRenderTarget;
-        GrColor             	fColor;
+        BlendCoeff              fSrcBlend;
+        BlendCoeff              fDstBlend;
+        GrTexture*              fTextures[kNumStages];
+        GrSamplerState          fSamplerStates[kNumStages];
+        GrRenderTarget*         fRenderTarget;
+        GrColor                 fColor;
         StencilPass             fStencilPass;
         bool                    fReverseFill;
         GrMatrix                fViewMatrix;
-        GrMatrix                fTextureMatrices[kNumStages];
         bool operator ==(const DrState& s) const {
             return 0 == memcmp(this, &s, sizeof(DrState));
         }
@@ -217,49 +216,46 @@ public:
     GrRenderTarget* getRenderTarget();
 
     /**
-     * Sets the sampler state for the next draw.
+     * Sets the sampler state for a stage used in subsequent draws.
      *
-     * The sampler state determines the address wrap modes and
-     * filtering
+     * The sampler state determines how texture coordinates are 
+     * intepretted and used to sample the texture.
      *
+     * @param stage           the stage of the sampler to set
      * @param samplerState    Specifies the sampler state.
      */
     void setSamplerState(int stage, const GrSamplerState& samplerState);
 
     /**
-     * Sets the matrix applied to texture coordinates for a stage.
+     * Concats the matrix of a stage's sampler.
      *
-     * The post-matrix texture coordinates in the square [0,1]^2 cover the
-     * entire area of the texture. This means the full POT width when a NPOT
-     * texture is embedded in a POT width texture to meet the 3D API
-     * requirements. The texture matrix is applied both when the texture
-     * coordinates are explicit and when vertex positions are used as texture
-     * coordinates. In the latter case the texture matrix is applied to the
-     * pre-view-matrix position values.
-     *
-     * @param stage the stage for which to set a matrix.
-     * @param m     the matrix used to transform the texture coordinates.
+     * @param stage   the stage of the sampler to set
+     * @param matrix  the matrix to concat
      */
-    void setTextureMatrix(int stage, const GrMatrix& m);
+    void preConcatSamplerMatrix(int stage, const GrMatrix& matrix)  {
+        GrAssert(stage >= 0 && stage < kNumStages);
+        fCurrDrawState.fSamplerStates[stage].preConcatMatrix(matrix);
+    }
 
     /**
-     *  Multiplies the current texture matrix for a stage by a matrix
+     * Gets the matrix of a stage's sampler
      *
-     *  After this call T' = T*m where T is the old tex matrix,
-     *  m is the parameter to this function, and T' is the new tex matrix.
-     *  (We consider positions to be column vectors so tex cood vector t is
-     *  transformed by matrix X as t' = X*t.)
-     *
-     *  @param m the matrix used to modify the texture matrix matrix.
+     * @param stage     the stage to of sampler to get
+     * @return the sampler state's matrix
      */
-    void concatTextureMatrix(int stage, const GrMatrix& m);
+    const GrMatrix& getSamplerMatrix(int stage) const {
+        return fCurrDrawState.fSamplerStates[stage].getMatrix();
+    }
 
     /**
-     * Retrieves the current texture matrix for a stage
-     * @param stage     index of stage
-     * @return the stage's current texture matrix.
+     * Sets the matrix of a stage's sampler
+     *
+     * @param stage     the stage of sampler set
+     * @param matrix    the matrix to set
      */
-    const GrMatrix& getTextureMatrix(int stage) const;
+    const void setSamplerMatrix(int stage, const GrMatrix& matrix) {
+        fCurrDrawState.fSamplerStates[stage].setMatrix(matrix);
+    }
 
     /**
      * Sets the matrix applied to veretx positions.
@@ -282,7 +278,7 @@ public:
      *
      *  @param m the matrix used to modify the view matrix.
      */
-    void concatViewMatrix(const GrMatrix& m);
+    void preConcatViewMatrix(const GrMatrix& m);
 
     /**
      * Retrieves the current view matrix

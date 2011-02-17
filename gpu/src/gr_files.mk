@@ -8,11 +8,10 @@ SOURCE := \
     GrGLTexture.cpp \
     GrGLVertexBuffer.cpp \
     GrGpu.cpp \
-    GrGpuGLShaders.cpp \
     GrGpuGLShaders2.cpp \
     GrGpuGLFixed.cpp \
     GrGpuFactory.cpp \
-	GrGLUtil.cpp \
+    GrGLUtil.cpp \
     GrGpuGL.cpp \
     GrInOrderDrawBuffer.cpp \
     GrMatrix.cpp \

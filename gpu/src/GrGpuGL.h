@@ -71,6 +71,26 @@ protected:
     DrState   fHWDrawState;
     bool      fHWStencilClip;
 
+    // As flush of GL state proceeds it updates fHDrawState
+    // to reflect the new state. Later parts of the state flush
+    // may perform cascaded changes but cannot refer to fHWDrawState.
+    // These code paths can refer to the dirty flags. Subclass should
+    // call resetDirtyFlags after its flush is complete
+    struct {
+        bool fRenderTargetChanged : 1;
+        bool fWriteMaskChanged : 1;
+        int  fTextureChangedMask;
+    } fDirtyFlags;
+    GR_STATIC_ASSERT(8 * sizeof(int) >= kNumStages);
+
+    // clears the dirty flags
+    void resetDirtyFlags();
+
+    // last scissor / viewport scissor state seen by the GL.
+    BoundsState fHWBounds;
+
+    GrGLExts fExts;
+
     // GrGpu overrides
     virtual void drawIndexedHelper(PrimitiveType type,
                                    uint32_t startVertex,
@@ -103,18 +123,16 @@ protected:
     // line width
     bool flushGLStateCommon(PrimitiveType type);
 
-    // set when this class changes the rendertarget.
-    // Subclass should notice at flush time, take appropriate action,
-    // and set false.
-    bool fRenderTargetChanged;
+    // adjusts texture matrix to account for orientation, size, and npotness
+    static void AdjustTextureMatrix(const GrGLTexture* texture,
+                                    GrSamplerState::SampleMode mode,
+                                    GrMatrix* matrix);
 
-    // set by eraseColor or eraseStencil. Picked up in in flushStencil.
-    bool fWriteMaskChanged;
-
-    // last scissor / viewport scissor state seen by the GL.
-    BoundsState fHWBounds;
-
-    GrGLExts fExts;
+    // subclass may try to take advantage of identity tex matrices.
+    // This helper determines if matrix will be identity after all
+    // adjustments are applied.
+    static bool TextureMatrixIsIdentity(const GrGLTexture* texture,
+                                        const GrSamplerState& sampler);
 
 private:
     void resetContextHelper();

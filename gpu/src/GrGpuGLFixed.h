@@ -39,6 +39,14 @@ protected:
 private:
     void resetContextHelper();
 
+    // Helpers to make code more readable
+    const GrMatrix& getHWSamplerMatrix(int stage) const {
+        return fHWDrawState.fSamplerStates[stage].getMatrix();
+    }
+    const void recordHWSamplerMatrix(int stage, const GrMatrix& matrix) {
+        fHWDrawState.fSamplerStates[stage].setMatrix(matrix);
+    }
+
     // when the texture is GL_RGBA we set the GL_COMBINE texture
     // environment rgb operand 0 to be GL_COLOR to modulate each incoming
     // R,G, & B by the texture's R, G, & B. When the texture is alpha-only we
@@ -59,8 +67,6 @@ private:
     // On GL we have to build the base vertex offset into the
     // glVertexPointer/glTexCoordPointer/etc
     int fBaseVertex;
-
-    GrGLTexture::Orientation fHWTextureOrientation;
 
     typedef GrGpuGL INHERITED;
 };

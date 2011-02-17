@@ -129,7 +129,6 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                 return NULL;
             }
         }
-        GrTexture* clampTexture = clampEntry->texture();
         GrGpu::TextureDesc rtDesc = desc;
         rtDesc.fFlags |= GrGpu::kRenderTarget_TextureFlag |
                          GrGpu::kNoPathRendering_TextureFlag;
@@ -145,7 +144,6 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             fGpu->setRenderTarget(texture->asRenderTarget());
             fGpu->setTexture(0, clampEntry->texture());
             fGpu->setStencilPass(GrDrawTarget::kNone_StencilPass);
-            fGpu->setTextureMatrix(0, GrMatrix::I());
             fGpu->setViewMatrix(GrMatrix::I());
             fGpu->setAlpha(0xff);
             fGpu->setBlendFunc(GrDrawTarget::kOne_BlendCoeff, GrDrawTarget::kZero_BlendCoeff);
@@ -164,16 +162,10 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             if (arg.succeeded()) {
                 GrPoint* verts = (GrPoint*) arg.vertices();
                 verts[0].setIRectFan(0, 0,
-                                     texture->contentWidth(),
-                                     texture->contentHeight(),
+                                     texture->width(),
+                                     texture->height(),
                                      2*sizeof(GrPoint));
-                GrScalar tw = GrFixedToScalar(GR_Fixed1 *
-                                              clampTexture->contentWidth() /
-                                              clampTexture->allocWidth());
-                GrScalar th = GrFixedToScalar(GR_Fixed1 *
-                                              clampTexture->contentHeight() /
-                                              clampTexture->allocHeight());
-                verts[1].setRectFan(0, 0, tw, th, 2*sizeof(GrPoint));
+                verts[1].setIRectFan(0, 0, 1, 1, 2*sizeof(GrPoint));
                 fGpu->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType,
                                      0, 4);
                 entry = fTextureCache->createAndLock(*key, texture);
@@ -377,8 +369,8 @@ void GrContext::drawRect(const GrPaint& paint,
         GrDrawTarget::AutoViewMatrixRestore avmr;
         if (NULL != matrix) {
             avmr.set(target);
-            target->concatViewMatrix(*matrix);
-            target->concatTextureMatrix(0, *matrix);
+            target->preConcatViewMatrix(*matrix);
+            target->preConcatSamplerMatrix(0, *matrix);
         }
 
         target->drawNonIndexed(primType, 0, vertCount);
@@ -399,10 +391,10 @@ void GrContext::drawRect(const GrPaint& paint,
                 m.postConcat(*matrix);
             }
 
-            target->concatViewMatrix(m);
+            target->preConcatViewMatrix(m);
 
             if (textured) {
-                target->concatTextureMatrix(0, m);
+                target->preConcatSamplerMatrix(0, m);
             }
             target->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
         #else
@@ -438,7 +430,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     if (NULL != dstMatrix) {
         m.postConcat(*dstMatrix);
     }
-    target->concatViewMatrix(m);
+    target->preConcatViewMatrix(m);
 
     m.setAll(srcRect.width(), 0,                srcRect.fLeft,
              0,               srcRect.height(), srcRect.fTop,
@@ -446,7 +438,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     if (NULL != srcMatrix) {
         m.postConcat(*srcMatrix);
     }
-    target->concatTextureMatrix(0, m);
+    target->preConcatSamplerMatrix(0, m);
 
     target->setVertexSourceToBuffer(layout, fGpu->getUnitSquareVertexBuffer());
     target->drawNonIndexed(GrDrawTarget::kTriangleFan_PrimitiveType, 0, 4);
@@ -921,16 +913,18 @@ void GrContext::writePixels(int left, int top, int width, int height,
     GrMatrix matrix;
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
     fGpu->setViewMatrix(matrix);
-    matrix.setScale(GR_Scalar1 / texture->allocWidth(),
-                    GR_Scalar1 / texture->allocHeight());
-    fGpu->setTextureMatrix(0, matrix);
 
     fGpu->disableState(GrDrawTarget::kClip_StateBit);
     fGpu->setAlpha(0xFF);
     fGpu->setBlendFunc(GrDrawTarget::kOne_BlendCoeff,
                        GrDrawTarget::kZero_BlendCoeff);
     fGpu->setTexture(0, texture);
-    fGpu->setSamplerState(0, GrSamplerState::ClampNoFilter());
+
+    GrSamplerState sampler;
+    sampler.setClampNoFilter();
+    matrix.setScale(GR_Scalar1 / width, GR_Scalar1 / height);
+    sampler.setMatrix(matrix);
+    fGpu->setSamplerState(0, sampler);
 
     GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
     static const int VCOUNT = 4;
@@ -946,7 +940,6 @@ void GrContext::writePixels(int left, int top, int width, int height,
 
 void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
     target->setTexture(0, paint.getTexture());
-    target->setTextureMatrix(0, paint.fTextureMatrix);
     target->setSamplerState(0, paint.fSampler);
     target->setColor(paint.fColor);
 
@@ -1019,7 +1012,7 @@ void GrContext::setMatrix(const GrMatrix& m) {
 }
 
 void GrContext::concatMatrix(const GrMatrix& m) const {
-    fGpu->concatViewMatrix(m);
+    fGpu->preConcatViewMatrix(m);
 }
 
 static inline intptr_t setOrClear(intptr_t bits, int shift, intptr_t pred) {

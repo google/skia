@@ -40,6 +40,10 @@ private:
 
     void resetContextHelper();
 
+    // Helpers to make code more readable
+    const GrMatrix& getHWSamplerMatrix(int stage);
+    void recordHWSamplerMatrix(int stage, const GrMatrix& matrix);
+
     // sets the texture matrix uniform for currently bound program
     void flushTextureMatrix(int stage);
 
@@ -88,8 +92,6 @@ private:
     static void DeleteProgram(Program* program);
 
     void ProgramUnitTest();
-
-    GrGLTexture::Orientation  fTextureOrientation;
 
     ProgramCache*   fProgramCache;
     Program*        fProgram;

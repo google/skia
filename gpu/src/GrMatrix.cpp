@@ -70,15 +70,6 @@ const GrMatrix::MapProc GrMatrix::gMapProcs[] = {
     &GrMatrix::mapPerspective,
 };
 
-const GrMatrix& GrMatrix::I() {
-    static GrMatrix* gIdent;
-    if (NULL == gIdent) {
-        gIdent = new GrMatrix;
-        gIdent->setIdentity();
-    }
-    return *gIdent;
-}
-
 void GrMatrix::setIdentity() {
     fM[0] = GR_Scalar1; fM[1] = 0;          fM[2] = 0;
     fM[3] = 0;          fM[4] = GR_Scalar1; fM[5] = 0;
@@ -161,7 +152,7 @@ void GrMatrix::setConcat(const GrMatrix& a, const GrMatrix& b) {
         tmp.fM[8] = a.fM[6] * b.fM[2] + a.fM[7] * b.fM[5] + a.fM[8] * b.fM[8];
     }
     *this = tmp;
-    setTypeMask();
+    this->computeTypeMask();
 }
 
 void GrMatrix::preConcat(const GrMatrix& m) {
@@ -239,7 +230,7 @@ bool GrMatrix::invert(GrMatrix* inverted) const {
         inverted->fM[7] = 0;
         inverted->fM[8] = (GrScalar)(t[8] * det);
     }
-    inverted->setTypeMask();
+    inverted->computeTypeMask();
     return true;
 }
 
@@ -345,26 +336,6 @@ bool GrMatrix::operator == (const GrMatrix& m) const {
 
 bool GrMatrix::operator != (const GrMatrix& m) const {
     return !(*this == m);
-}
-
-void GrMatrix::setTypeMask()
-{
-    fTypeMask = 0;
-    if (0 != fM[kPersp0] || 0 != fM[kPersp1] || gRESCALE != fM[kPersp2]) {
-        fTypeMask |= kPerspective_TypeBit;
-    }
-    if (GR_Scalar1 != fM[kScaleX] || GR_Scalar1 != fM[kScaleY]) {
-        fTypeMask |= kScale_TypeBit;
-        if (0 == fM[kScaleX] && 0 == fM[kScaleY]) {
-            fTypeMask |= kZeroScale_TypeBit;
-        }
-    }
-    if (0 != fM[kSkewX] || 0 != fM[kSkewY]) {
-        fTypeMask |= kSkew_TypeBit;
-    }
-    if (0 != fM[kTransX] || 0 != fM[kTransY]) {
-        fTypeMask |= kTranslate_TypeBit;
-    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -648,17 +619,17 @@ void GrMatrix::UnitTest() {
 
             a.set(j, GR_Scalar1);
             mask = a.fTypeMask;
-            a.setTypeMask();
+            a.computeTypeMask();
             GrAssert(mask == a.fTypeMask);
 
             a.set(j, 0);
             mask = a.fTypeMask;
-            a.setTypeMask();
+            a.computeTypeMask();
             GrAssert(mask == a.fTypeMask);
 
             a.set(j, 10 * GR_Scalar1);
             mask = a.fTypeMask;
-            a.setTypeMask();
+            a.computeTypeMask();
             GrAssert(mask == a.fTypeMask);
 
             a.set(j, old);

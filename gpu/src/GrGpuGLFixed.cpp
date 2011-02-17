@@ -25,7 +25,7 @@
 #define SKIP_CACHE_CHECK    true
 
 struct GrGpuMatrix {
-    GrScalar    fMat[16];
+    GLfloat    fMat[16];
 
     void reset() {
         Gr_bzero(fMat, sizeof(fMat));
@@ -34,19 +34,19 @@ struct GrGpuMatrix {
 
     void set(const GrMatrix& m) {
         Gr_bzero(fMat, sizeof(fMat));
-        fMat[0]  = m[GrMatrix::kScaleX];
-        fMat[4]  = m[GrMatrix::kSkewX];
-        fMat[12] = m[GrMatrix::kTransX];
+        fMat[0]  = GrScalarToFloat(m[GrMatrix::kScaleX]);
+        fMat[4]  = GrScalarToFloat(m[GrMatrix::kSkewX]);
+        fMat[12] = GrScalarToFloat(m[GrMatrix::kTransX]);
 
-        fMat[1]  = m[GrMatrix::kSkewY];
-        fMat[5]  = m[GrMatrix::kScaleY];
-        fMat[13] = m[GrMatrix::kTransY];
+        fMat[1]  = GrScalarToFloat(m[GrMatrix::kSkewY]);
+        fMat[5]  = GrScalarToFloat(m[GrMatrix::kScaleY]);
+        fMat[13] = GrScalarToFloat(m[GrMatrix::kTransY]);
 
-        fMat[3]  = m[GrMatrix::kPersp0];
-        fMat[7]  = m[GrMatrix::kPersp1];
-        fMat[15] = m[GrMatrix::kPersp2];
+        fMat[3]  = GrScalarToFloat(m[GrMatrix::kPersp0]);
+        fMat[7]  = GrScalarToFloat(m[GrMatrix::kPersp1]);
+        fMat[15] = GrScalarToFloat(m[GrMatrix::kPersp2]);
 
-        fMat[10] = GR_Scalar1;    // z-scale
+        fMat[10] = 1.f;    // z-scale
     }
 };
 
@@ -106,7 +106,6 @@ void GrGpuGLFixed::resetContextHelper() {
     GrGLClearErr();
     fTextVerts = false;
 
-    fHWTextureOrientation = (GrGLTexture::Orientation)-1; // illegal
     fBaseVertex = 0xffffffff;
 }
 
@@ -146,9 +145,8 @@ bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
         return false;
     }
 
-    if (fRenderTargetChanged) {
+    if (fDirtyFlags.fRenderTargetChanged) {
         flushProjectionMatrix();
-        fRenderTargetChanged = false;
     }
 
     for (int s = 0; s < kNumStages; ++s) {
@@ -205,28 +203,20 @@ bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
                     fHWRGBOperand0[s] = nextRGBOperand0;
                 }
 
-                if (fHWTextureOrientation != texture->orientation() ||
-                    fHWDrawState.fTextureMatrices[s] !=
-                    fCurrDrawState.fTextureMatrices[s]) {
+                if (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
+                    (fHWDrawState.fSamplerStates[s].getMatrix() != 
+                     getSamplerMatrix(s))) {
+
+                    GrMatrix texMat = getSamplerMatrix(s);
+                    AdjustTextureMatrix(texture, 
+                                        GrSamplerState::kNormal_SampleMode,
+                                        &texMat);
                     GrGpuMatrix glm;
-                    if (GrGLTexture::kBottomUp_Orientation ==
-                        texture->orientation()) {
-                        GrMatrix m(
-                            GR_Scalar1, 0, 0,
-                            0, -GR_Scalar1, GR_Scalar1,
-                            0, 0, GrMatrix::I()[8]
-                        );
-                        m.preConcat(fCurrDrawState.fTextureMatrices[s]);
-                        glm.set(m);
-                    } else {
-                        glm.set(fCurrDrawState.fTextureMatrices[s]);
-                    }
+                    glm.set(texMat);
                     setTextureUnit(s);
                     GR_GL(MatrixMode(GL_TEXTURE));
                     GR_GL(LoadMatrixf(glm.fMat));
-                    fHWDrawState.fTextureMatrices[s] =
-                                            fCurrDrawState.fTextureMatrices[s];
-                    fHWTextureOrientation = texture->orientation();
+                    recordHWSamplerMatrix(s, getSamplerMatrix(s));
                 }
             } else {
                 GrAssert(!"Rendering with texture vert flag set but no bound texture");
@@ -243,6 +233,7 @@ bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
         fHWDrawState.fViewMatrix =
         fCurrDrawState.fViewMatrix;
     }
+    resetDirtyFlags();
     return true;
 }
 
@@ -263,7 +254,7 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
                                                     oldTexCoordOffsets,
                                                     &oldColorOffset);
 
-    bool indexed = NULL == startIndex;
+    bool indexed = NULL != startIndex;
 
     int extraVertexOffset;
     int extraIndexOffset;

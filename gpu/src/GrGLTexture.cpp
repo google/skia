@@ -76,20 +76,25 @@ const GLenum GrGLTexture::gWrapMode2GLWrap[] = {
 GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
                          const GLRenderTargetIDs& rtIDs,
                          const TexParams& initialTexParams,
-                         GrGpuGL* gl) :
-        INHERITED(textureDesc.fContentWidth, 
-                  textureDesc.fContentHeight, 
-                  textureDesc.fAllocWidth, 
-                  textureDesc.fAllocHeight,
-                  textureDesc.fFormat),
-        fTexParams(initialTexParams),
-        fTextureID(textureDesc.fTextureID),
-        fUploadFormat(textureDesc.fUploadFormat),
-        fUploadByteCount(textureDesc.fUploadByteCount),
-        fUploadType(textureDesc.fUploadType),
-        fOrientation(textureDesc.fOrientation),
-        fRenderTarget(NULL),
-        fGpuGL(gl) {
+                         GrGpuGL* gl)
+        : INHERITED(textureDesc.fContentWidth, 
+                    textureDesc.fContentHeight, 
+                    textureDesc.fFormat) {
+
+    fTexParams          = initialTexParams;
+    fTextureID          = textureDesc.fTextureID;
+    fUploadFormat       = textureDesc.fUploadFormat;
+    fUploadByteCount    = textureDesc.fUploadByteCount;
+    fUploadType         = textureDesc.fUploadType;
+    fOrientation        = textureDesc.fOrientation;
+    fAllocWidth         = textureDesc.fAllocWidth;
+    fAllocHeight        = textureDesc.fAllocHeight;
+    fScaleX             = GrIntToScalar(textureDesc.fContentWidth) /
+                            textureDesc.fAllocWidth;
+    fScaleY             = GrIntToScalar(textureDesc.fContentHeight) /
+                            textureDesc.fAllocHeight;
+    fRenderTarget       = NULL;
+    fGpuGL              = gl;
 
     GrAssert(0 != textureDesc.fTextureID);
 
@@ -135,7 +140,7 @@ void GrGLTexture::removeRenderTarget() {
         // must do this notify before the delete
         fGpuGL->notifyTextureRemoveRenderTarget(this);
         delete fRenderTarget;
-        fRenderTarget = NULL;        
+        fRenderTarget = NULL;
     }
 }
 

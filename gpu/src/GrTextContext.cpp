@@ -45,7 +45,6 @@ void GrTextContext::flushGlyphs() {
         int nIndices = fCurrVertex + (fCurrVertex >> 1);
         GrAssert(fCurrTexture);
         fDrawTarget->setTexture(TEXT_STAGE, fCurrTexture);
-        fDrawTarget->setTextureMatrix(TEXT_STAGE, GrMatrix::I());
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
 
         fDrawTarget->drawIndexed(GrDrawTarget::kTriangles_PrimitiveType,
@@ -94,7 +93,7 @@ GrTextContext::GrTextContext(GrContext* context,
         fVertexLayout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
         GrMatrix inverseViewMatrix;
         if (fOrigViewMatrix.invert(&inverseViewMatrix)) {
-            fPaint.fTextureMatrix.preConcat(inverseViewMatrix);
+            fPaint.fSampler.preConcatMatrix(inverseViewMatrix);
         }
     }
 

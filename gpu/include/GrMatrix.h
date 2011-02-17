@@ -27,8 +27,19 @@ struct GrRect;
  */
 class GrMatrix {
 public:
-    static const GrMatrix& I();
-    static const GrScalar gRESCALE;
+    static const GrMatrix& I() {
+        static const GrMatrix I = GrMatrix(GR_Scalar1, 0, 0,
+                                           0, GR_Scalar1, 0,
+                                           0, 0, gRESCALE);
+        return I;
+    };
+    static const GrMatrix& InvalidMatrix() {
+        static const GrMatrix INV = 
+            GrMatrix(GR_ScalarMax, GR_ScalarMax, GR_ScalarMax,
+                     GR_ScalarMax, GR_ScalarMax, GR_ScalarMax,
+                     GR_ScalarMax, GR_ScalarMax, GR_ScalarMax);
+        return INV;
+    }
     /** 
      * Handy index constants
      */
@@ -55,7 +66,7 @@ public:
      * Create a matrix from an array of values
      * @param values    row-major array of matrix components
      */
-    explicit GrMatrix(GrScalar* values) {
+    explicit GrMatrix(const GrScalar values[]) {
         setToArray(values);
     }
     
@@ -98,11 +109,11 @@ public:
      * Set a matrix from an array of values
      * @param values    row-major array of matrix components
      */
-    void setToArray(GrScalar* values) {
+    void setToArray(const GrScalar values[]) {
         for (int i = 0; i < 9; ++i) {
             fM[i] = values[i];
         }
-        setTypeMask();
+        this->computeTypeMask();
     }
     
     /**
@@ -136,7 +147,7 @@ public:
         fM[kPersp1] = persp1;
         fM[kPersp2] = persp2;
         
-        setTypeMask();
+        this->computeTypeMask();
     }
     
     /**
@@ -293,8 +304,27 @@ public:
     static void UnitTest();
 
 private:
-    
-    void setTypeMask();
+    static const GrScalar gRESCALE;
+
+    void computeTypeMask() {
+        fTypeMask = 0;
+        if (0 != fM[kPersp0] || 0 != fM[kPersp1] || gRESCALE != fM[kPersp2]) {
+            fTypeMask |= kPerspective_TypeBit;
+        }
+        if (GR_Scalar1 != fM[kScaleX] || GR_Scalar1 != fM[kScaleY]) {
+            fTypeMask |= kScale_TypeBit;
+            if (0 == fM[kScaleX] && 0 == fM[kScaleY]) {
+                fTypeMask |= kZeroScale_TypeBit;
+            }
+        }
+        if (0 != fM[kSkewX] || 0 != fM[kSkewY]) {
+            fTypeMask |= kSkew_TypeBit;
+        }
+        if (0 != fM[kTransX] || 0 != fM[kTransY]) {
+            fTypeMask |= kTranslate_TypeBit;
+        }
+    }
+
     
     double determinant() const;
     

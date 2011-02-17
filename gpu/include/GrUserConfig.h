@@ -77,9 +77,6 @@
  *  temporary flags (may go away soon)
  */
 
-// disable 2-point-radial gradient shader programs
-//#define GR_SKIP_2POINTRADIAL_PROGRAMS
-
 ///////////////////////////////////////////////////////////////////////////////
 // Decide Ganesh types
 

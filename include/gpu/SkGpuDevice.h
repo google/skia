@@ -169,7 +169,7 @@ private:
                                GrPaint* grPaint);
 
     SkDrawProcs* initDrawForText(GrTextContext*);
-    bool bindDeviceAsTexture(GrPaint* paint, SkPoint* max);
+    bool bindDeviceAsTexture(GrPaint* paint);
 
     void prepareRenderTarget(const SkDraw&);
     void internalDrawBitmap(const SkDraw&, const SkBitmap&,

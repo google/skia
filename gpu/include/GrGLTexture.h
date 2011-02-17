@@ -142,6 +142,30 @@ public:
     GLenum uploadByteCount() const { return fUploadByteCount; }
     GLenum uploadType() const { return fUploadType; }
 
+    /**
+     * Retrieves the texture width actually allocated in texels.
+     *
+     * @return the width in texels
+     */
+    int allocWidth() const { return fAllocWidth; }
+
+    /**
+     * Retrieves the texture height actually allocated in texels.
+     *
+     * @return the height in texels
+     */
+    int allocHeight() const { return fAllocHeight; }
+
+    /**
+     * @return width() / allocWidth()
+     */
+    GrScalar contentScaleX() const { return fScaleX; }
+
+    /**
+     * @return height() / allocHeight()
+     */
+    GrScalar contentScaleY() const { return fScaleY; }
+
     // Ganesh assumes texture coordinates have their origin
     // in the top-left corner of the image. OpenGL, however,
     // has the origin in the lower-left corner. For content that
@@ -158,10 +182,15 @@ private:
     GLenum              fUploadFormat;
     GLenum              fUploadByteCount;
     GLenum              fUploadType;
+    int                 fAllocWidth;
+    int                 fAllocHeight;
+    // precomputed content / alloc ratios
+    GrScalar            fScaleX;
+    GrScalar            fScaleY;
     Orientation         fOrientation;
-    GrGLRenderTarget*   fRenderTarget;    
+    GrGLRenderTarget*   fRenderTarget;
     GrGpuGL*            fGpuGL;
-    
+
     static const GLenum gWrapMode2GLWrap[];
 
     friend class GrGpuGL;
