@@ -36,7 +36,6 @@ public:
 
     GrColor                     fColor;
 
-    GrMatrix                    fTextureMatrix;
     GrSamplerState              fSampler;
 
     void setTexture(GrTexture* texture) {
@@ -60,7 +59,6 @@ public:
 
         fColor = paint.fColor;
 
-        fTextureMatrix = paint.fTextureMatrix;
         fSampler = paint.fSampler;
         fTexture = paint.fTexture;
         GrSafeRef(fTexture);
@@ -97,7 +95,6 @@ private:
 
     void resetTexture() {
         setTexture(NULL);
-        fTextureMatrix = GrMatrix::I();
         fSampler.setClampNoFilter();
     }
 

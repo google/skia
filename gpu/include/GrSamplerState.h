@@ -19,9 +19,32 @@
 #define GrSamplerState_DEFINED
 
 #include "GrTypes.h"
+#include "GrMatrix.h"
 
 class GrSamplerState {
 public:
+    /**
+     * The intepretation of the texture matrix depends on the sample mode. The
+     * texture matrix is applied both when the texture coordinates are explicit
+     * and  when vertex positions are used as texture  coordinates. In the latter
+     * case the texture matrix is applied to the pre-view-matrix position 
+     * values.
+     *
+     * kNormal_SampleMode
+     *  The post-matrix texture coordinates are in normalize space with (0,0) at
+     *  the top-left and (1,1) at the bottom right.
+     * kRadial_SampleMode
+     *  The matrix specifies the radial gradient parameters.
+     *  (0,0) in the post-matrix space is center of the radial gradient.
+     * kRadial2_SampleMode
+     *   Matrix transforms to space where first circle is centered at the
+     *   origin. The second circle will be centered (x, 0) where x may be 
+     *   0 and is provided by setRadial2Params. The post-matrix space is 
+     *   normalized such that 1 is the second radius - first radius.
+     * kSweepSampleMode
+     *  The angle from the origin of texture coordinates in post-matrix space
+     *  determines the gradient value.
+     */
     enum SampleMode {
         kNormal_SampleMode,     //!< sample color directly
         kRadial_SampleMode,     //!< treat as radial gradient
@@ -40,7 +63,8 @@ public:
     };
 
     /**
-     *  Default sampler state is set to kClamp and no-filter
+     * Default sampler state is set to clamp, use normal sampling mode, be
+     * unfiltered, and use identity matrix.
      */
     GrSamplerState() {
         this->setClampNoFilter();
@@ -51,6 +75,7 @@ public:
         fWrapY = kClamp_WrapMode;
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
+        fMatrix.setIdentity();
     }
 
     GrSamplerState(WrapMode wx, WrapMode wy, bool filter) {
@@ -58,18 +83,29 @@ public:
         fWrapY = wy;
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
+        fMatrix.setIdentity();
     }
 
-    GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, bool filter) {
+    GrSamplerState(WrapMode wx, WrapMode wy, const GrMatrix& matrix, bool filter) {
+        fWrapX = wx;
+        fWrapY = wy;
+        fSampleMode = kNormal_SampleMode;
+        fFilter = filter;
+        fMatrix = matrix;
+    }
+
+    GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, const GrMatrix& matrix, bool filter) {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = sample;
+        fMatrix = matrix;
         fFilter = filter;
     }
 
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
     SampleMode getSampleMode() const { return fSampleMode; }
+    const GrMatrix& getMatrix() const { return fMatrix; }
     bool isFilter() const { return fFilter; }
 
     bool isGradient() const {
@@ -81,6 +117,30 @@ public:
     void setWrapX(WrapMode mode) { fWrapX = mode; }
     void setWrapY(WrapMode mode) { fWrapY = mode; }
     void setSampleMode(SampleMode mode) { fSampleMode = mode; }
+    
+    /**
+     * Sets the sampler's matrix. See SampleMode for explanation of
+     * relationship between the matrix and sample mode.
+     * @param matrix the matrix to set
+     */
+    void setMatrix(const GrMatrix& matrix) { fMatrix = matrix; }
+    
+    /**
+     *  Multiplies the current sampler matrix  a matrix
+     *
+     *  After this call M' = M*m where M is the old matrix, m is the parameter
+     *  to this function, and M' is the new matrix. (We consider points to
+     *  be column vectors so tex cood vector t is transformed by matrix X as 
+     *  t' = X*t.)
+     *
+     *  @param matrix   the matrix used to modify the matrix.
+     */
+    void preConcatMatrix(const GrMatrix& matrix) { fMatrix.preConcat(matrix); }
+
+    /**
+     * Enables or disables filtering.
+     * @param filter    indicates whether filtering is applied.
+     */
     void setFilter(bool filter) { fFilter = filter; }
 
     void setClampNoFilter() {
@@ -88,6 +148,7 @@ public:
         fWrapY = kClamp_WrapMode;
         fSampleMode = kNormal_SampleMode;
         fFilter = false;
+        fMatrix.setIdentity();
     }
 
     GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
@@ -116,6 +177,7 @@ private:
     WrapMode    fWrapY;
     SampleMode  fSampleMode;
     bool        fFilter;
+    GrMatrix    fMatrix;
 
     // these are undefined unless fSampleMode == kRadial2_SampleMode
     GrScalar    fRadial2CenterX1;

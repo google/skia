@@ -65,58 +65,39 @@ public:
     static bool PixelConfigIsOpaque(PixelConfig);
 
 protected:
-    GrTexture(uint32_t contentWidth,
-              uint32_t contentHeight,
-              uint32_t allocWidth,
-              uint32_t allocHeight,
+    GrTexture(int width,
+              int height,
               PixelConfig config) :
-                fAllocWidth(allocWidth),
-                fAllocHeight(allocHeight),
-                fContentWidth(contentWidth),
-                fContentHeight(contentHeight),
+                fWidth(width),
+                fHeight(height),
                 fConfig(config) {
                     // only make sense if alloc size is pow2
-                    fShiftFixedX = 31 - Gr_clz(allocWidth);
-                    fShiftFixedY = 31 - Gr_clz(allocHeight);
+                    fShiftFixedX = 31 - Gr_clz(fWidth);
+                    fShiftFixedY = 31 - Gr_clz(fHeight);
                 }
 public:
     virtual ~GrTexture();
 
     /**
-     * Retrieves the width of the content area of the texture. Reflects the
-     * width passed to GrGpu::createTexture().
+     * Retrieves the width of the texture.
      *
      * @return the width in texels
      */
-    uint32_t contentWidth() const { return fContentWidth; }
+    int width() const { return fWidth; }
     /**
-     * Retrieves the height of the content area of the texture. Reflects the
-     * height passed to GrGpu::createTexture().
+     * Retrieves the height of the texture.
      *
      * @return the height in texels
      */
-    uint32_t contentHeight() const { return fContentHeight; }
-
-    /**
-     * Retrieves the texture width actually allocated in texels.
-     *
-     * @return the width in texels
-     */
-    uint32_t allocWidth() const { return fAllocWidth; }
-    /**
-     * Retrieves the texture height actually allocated in texels.
-     *
-     * @return the height in texels
-     */
-    uint32_t allocHeight() const { return fAllocHeight; }
+    int height() const { return fHeight; }
 
     /**
      * Convert from texels to normalized texture coords for POT textures
      * only.
      */
-    GrFixed normalizeFixedX(GrFixed x) const { GrAssert(GrIsPow2(fAllocWidth));
+    GrFixed normalizeFixedX(GrFixed x) const { GrAssert(GrIsPow2(fWidth));
                                                return x >> fShiftFixedX; }
-    GrFixed normalizeFixedY(GrFixed y) const { GrAssert(GrIsPow2(fAllocHeight));
+    GrFixed normalizeFixedY(GrFixed y) const { GrAssert(GrIsPow2(fHeight));
                                                return y >> fShiftFixedY; }
 
     /**
@@ -125,10 +106,10 @@ public:
     PixelConfig config() const { return fConfig; }
 
     /**
-     *  The number of bytes used by the texture
+     *  Approximate number of bytes used by the texture
      */
     size_t sizeInBytes() const {
-        return fAllocWidth * fAllocHeight * BytesPerPixel(fConfig);
+        return fWidth * fHeight * BytesPerPixel(fConfig);
     }
 
     /**
@@ -195,10 +176,8 @@ public:
 #endif
 
 private:
-    uint32_t fAllocWidth;
-    uint32_t fAllocHeight;
-    uint32_t fContentWidth;
-    uint32_t fContentHeight;
+    int fWidth;
+    int fHeight;
     // these two shift a fixed-point value into normalized coordinates
     // for this texture if the texture is power of two sized.
     int      fShiftFixedX;

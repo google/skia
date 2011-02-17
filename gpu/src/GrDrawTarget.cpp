@@ -331,7 +331,7 @@ void GrDrawTarget::setViewMatrix(const GrMatrix& m) {
     fCurrDrawState.fViewMatrix = m;
 }
 
-void GrDrawTarget::concatViewMatrix(const GrMatrix& matrix) {
+void GrDrawTarget::preConcatViewMatrix(const GrMatrix& matrix) {
     fCurrDrawState.fViewMatrix.preConcat(matrix);
 }
 
@@ -356,21 +356,6 @@ bool GrDrawTarget::getViewInverse(GrMatrix* matrix) const {
 void GrDrawTarget::setSamplerState(int stage, const GrSamplerState& state) {
     GrAssert(stage >= 0 && stage < kNumStages);
     fCurrDrawState.fSamplerStates[stage] = state;
-}
-
-void GrDrawTarget::setTextureMatrix(int stage, const GrMatrix& m) {
-    GrAssert(stage >= 0 && stage < kNumStages);
-    fCurrDrawState.fTextureMatrices[stage] = m;
-}
-
-void GrDrawTarget::concatTextureMatrix(int stage, const GrMatrix& m) {
-    GrAssert(stage >= 0 && stage < kNumStages);
-    fCurrDrawState.fTextureMatrices[stage].preConcat(m);
-}
-
-const GrMatrix& GrDrawTarget::getTextureMatrix(int stage) const {
-    GrAssert(stage >= 0 && stage < kNumStages);
-    return fCurrDrawState.fTextureMatrices[stage];
 }
 
 void GrDrawTarget::setStencilPass(StencilPass pass) {

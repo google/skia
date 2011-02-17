@@ -49,6 +49,58 @@ static const GLenum gXfermodeCoeff2Blend[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture, 
+                                  GrSamplerState::SampleMode mode, 
+                                  GrMatrix* matrix) {
+    GrAssert(NULL != texture);
+    GrAssert(NULL != matrix);
+    if (GR_Scalar1 != texture->contentScaleX() ||
+        GR_Scalar1 != texture->contentScaleY()) {
+        if (GrSamplerState::kRadial_SampleMode == mode) {
+            GrMatrix scale;
+            scale.setScale(texture->contentScaleX(), texture->contentScaleX());
+            matrix->postConcat(scale);
+        } else if (GrSamplerState::kNormal_SampleMode == mode) {
+            GrMatrix scale;
+            scale.setScale(texture->contentScaleX(), texture->contentScaleY());
+            matrix->postConcat(scale);
+        } else {
+            GrPrintf("We haven't handled NPOT adjustment for other sample modes!");
+        }
+    }
+    GrGLTexture::Orientation orientation = texture->orientation();
+    if (GrGLTexture::kBottomUp_Orientation == orientation) {
+        GrMatrix invY;
+        invY.setAll(GR_Scalar1, 0,           0,
+                    0,          -GR_Scalar1, GR_Scalar1,
+                    0,          0,           GrMatrix::I()[8]);
+        matrix->postConcat(invY);
+    } else {
+        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
+    }
+}
+
+bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture, 
+                                      const GrSamplerState& sampler) {
+    GrAssert(NULL != texture);
+    if (!sampler.getMatrix().isIdentity()) {
+        return false;
+    }
+    if (GR_Scalar1 != texture->contentScaleX() ||
+        GR_Scalar1 != texture->contentScaleY()) {
+        return false;
+    }
+    GrGLTexture::Orientation orientation = texture->orientation();
+    if (GrGLTexture::kBottomUp_Orientation == orientation) {
+        return false;
+    } else {
+        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
+    }
+    return true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static bool gPrintStartupSpew;
 
 
@@ -102,8 +154,7 @@ GrGpuGL::GrGpuGL() {
 
     resetContextHelper();
 
-    fHWDrawState.fRenderTarget = NULL;
-    fRenderTargetChanged = true;
+    resetDirtyFlags();
 
     GLint maxTextureUnits;
     // check FS and fixed-function texture unit limits
@@ -265,6 +316,7 @@ GrGpuGL::GrGpuGL() {
         fNPOTTextureTileSupport = false;
     }
 #endif
+
     ////////////////////////////////////////////////////////////////////////////
     // Experiments to determine limitations that can't be queried. TODO: Make
     // these a preprocess that generate some compile time constants.
@@ -395,14 +447,15 @@ void GrGpuGL::resetContextHelper() {
     fHWDrawState.fDstBlend = (BlendCoeff)-1;
     fHWDrawState.fColor = GrColor_ILLEGAL;
 
-    fHWDrawState.fViewMatrix.setScale(GR_ScalarMax, GR_ScalarMax); // illegal
+    fHWDrawState.fViewMatrix = GrMatrix::InvalidMatrix();
 
     for (int s = 0; s < kNumStages; ++s) {
         fHWDrawState.fTextures[s] = NULL;
         fHWDrawState.fSamplerStates[s].setRadial2Params(-GR_ScalarMax,
                                                         -GR_ScalarMax,
                                                         true);
-        fHWDrawState.fTextureMatrices[s].setScale(GR_ScalarMax, GR_ScalarMax);
+        
+        fHWDrawState.fSamplerStates[s].setMatrix(GrMatrix::InvalidMatrix());
     }
 
     GR_GL(Scissor(0,0,0,0));
@@ -1017,7 +1070,7 @@ void GrGpuGL::eraseColor(GrColor color) {
                      GrColorUnpackB(color)/255.f,
                      GrColorUnpackA(color)/255.f));
     GR_GL(Clear(GL_COLOR_BUFFER_BIT));
-    fWriteMaskChanged = true;
+    fDirtyFlags.fWriteMaskChanged = true;
 }
 
 void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
@@ -1032,7 +1085,7 @@ void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
     GR_GL(StencilMask(mask));
     GR_GL(ClearStencil(value));
     GR_GL(Clear(GL_STENCIL_BUFFER_BIT));
-    fWriteMaskChanged = true;
+    fDirtyFlags.fWriteMaskChanged = true;
 }
 
 void GrGpuGL::eraseStencilClip() {
@@ -1107,7 +1160,7 @@ void GrGpuGL::flushRenderTarget() {
     #endif
         fHWDrawState.fRenderTarget = fCurrDrawState.fRenderTarget;
         const GrIRect& vp = rt->viewport();
-        fRenderTargetChanged = true;
+        fDirtyFlags.fRenderTargetChanged = true;
         if (fHWBounds.fViewportRect != vp) {
             GR_GL(Viewport(vp.fLeft,
                            vp.fBottom,
@@ -1181,10 +1234,10 @@ void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
         fHWDrawState.fRenderTarget = NULL;
 
         GLint left = 0;
-        GLint right = texture->contentWidth();
+        GLint right = texture->width();
         // we will have rendered to the top of the FBO.
         GLint top = texture->allocHeight();
-        GLint bottom = texture->allocHeight() - texture->contentHeight();
+        GLint bottom = texture->allocHeight() - texture->height();
         if (kApple_MSFBO == fMSFBOType) {
             GR_GL(Enable(GL_SCISSOR_TEST));
             GR_GL(Scissor(left, bottom, right-left, top-bottom));
@@ -1208,7 +1261,7 @@ void GrGpuGL::flushStencil() {
     bool stencilClip = fClipState.fClipInStencil &&
                        (kClip_StateBit & fCurrDrawState.fFlagBits);
     bool stencilChange =
-        fWriteMaskChanged                                         ||
+        fDirtyFlags.fWriteMaskChanged                             ||
         fHWStencilClip != stencilClip                             ||
         fHWDrawState.fStencilPass != fCurrDrawState.fStencilPass  ||
         (kNone_StencilPass != fCurrDrawState.fStencilPass &&
@@ -1399,7 +1452,6 @@ void GrGpuGL::flushStencil() {
         }
         fHWDrawState.fStencilPass = fCurrDrawState.fStencilPass;
         fHWDrawState.fReverseFill = fCurrDrawState.fReverseFill;
-        fWriteMaskChanged = false;
         fHWStencilClip = stencilClip;
     }
 }
@@ -1468,6 +1520,10 @@ bool GrGpuGL::flushGLStateCommon(PrimitiveType type) {
                                         newTexParams.fWrapT));
                 }
                 nextTexture->setTexParams(newTexParams);
+
+                // The texture matrix has to compensate for texture width/height
+                // and NPOT-embedded-in-POT
+                fDirtyFlags.fTextureChangedMask |= (1 << s);
             } else {
                 GrAssert(!"Rendering with texture vert flag set but no texture");
                 return false;
@@ -1489,7 +1545,7 @@ bool GrGpuGL::flushGLStateCommon(PrimitiveType type) {
 #if GR_SUPPORT_GLDESKTOP
     // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
     // smooth lines.
-    if (fRenderTargetChanged ||
+    if (fDirtyFlags.fRenderTargetChanged ||
         (fCurrDrawState.fFlagBits & kAntialias_StateBit) !=
         (fHWDrawState.fFlagBits & kAntialias_StateBit)) {
         GLint msaa = 0;
@@ -1710,6 +1766,10 @@ bool GrGpuGL::fboInternalFormat(GrTexture::PixelConfig config, GLenum* format) {
         default:
             return false;
     }
+}
+
+void GrGpuGL::resetDirtyFlags() {
+    Gr_bzero(&fDirtyFlags, sizeof(fDirtyFlags));
 }
 
 void GrGpuGL::setBuffers(bool indexed,

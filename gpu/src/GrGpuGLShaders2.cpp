@@ -81,8 +81,7 @@ struct  GrGpuGLShaders2::Program {
     // these reflect the current values of uniforms
     // (GL uniform values travel with program)
     GrMatrix                    fViewMatrix;
-    GrMatrix                    fTextureMatrix[kNumStages];
-    GrGLTexture::Orientation    fTextureOrientation[kNumStages];
+    GrMatrix                    fTextureMatrices[kNumStages];
     GrScalar                    fRadial2CenterX1[kNumStages];
     GrScalar                    fRadial2Radius0[kNumStages];
     bool                        fRadial2PosRoot[kNumStages];
@@ -189,8 +188,7 @@ public:
     void invalidateViewMatrices() {
         for (int i = 0; i < fCount; ++i) {
             // set to illegal matrix
-            fEntries[i].fProgram.fViewMatrix.setScale(GR_ScalarMax,
-                                                      GR_ScalarMax);
+            fEntries[i].fProgram.fViewMatrix = GrMatrix::InvalidMatrix();
         }
     }
 
@@ -684,7 +682,7 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
                        desc.fOptFlags);
 
 #if ATTRIBUTE_MATRIX
-    segments.fVSAttrs = "attribute mat3 " VIEW_MATRIX_NAME ";\n"
+    segments.fVSAttrs = "attribute mat3 " VIEW_MATRIX_NAME ";\n";
 #else
     segments.fVSUnis  = "uniform mat3 " VIEW_MATRIX_NAME ";\n";
     segments.fVSAttrs = "";
@@ -883,9 +881,11 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
 
     for (int s = 0; s < kNumStages; ++s) {
         if (desc.fStages[s].fEnabled) {
+            GrStringBuilder matName;
+            tex_matrix_name(s, &matName);
             GR_GL(BindAttribLocation(progID,
                                      TEXMAT_ATTR_LOCATION(s),
-                                     tex_matrix_name(i).cstr()));
+                                     matName.cstr()));
             program->fUniLocations.fStages[s].fTextureMatrixUni =
                                                     BOGUS_MATRIX_UNI_LOCATION;
         }
@@ -972,11 +972,11 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
         if (-1 != program->fUniLocations.fStages[s].fSamplerUni) {
             GR_GL(Uniform1i(program->fUniLocations.fStages[s].fSamplerUni, s));
         }
-        program->fTextureMatrix[s].setScale(GR_ScalarMax, GR_ScalarMax);
+        program->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
         program->fRadial2CenterX1[s] = GR_ScalarMax;
         program->fRadial2Radius0[s] = -GR_ScalarMax;
     }
-    program->fViewMatrix.setScale(GR_ScalarMax, GR_ScalarMax);
+    program->fViewMatrix = GrMatrix::InvalidMatrix();
 }
 
 void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) {
@@ -1005,10 +1005,9 @@ void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) 
             GrAssert(NULL != texture);
             // we matrix to invert when orientation is TopDown, so make sure
             // we aren't in that case before flagging as identity.
-            if (fCurrDrawState.fTextureMatrices[s].isIdentity() &&
-                GrGLTexture::kTopDown_Orientation == texture->orientation()) {
+            if (TextureMatrixIsIdentity(texture, fCurrDrawState.fSamplerStates[s])) {
                 stage.fOptFlags = StageDesc::kIdentityMatrix_OptFlagBit;
-            } else if (!fCurrDrawState.fTextureMatrices[s].hasPerspective()) {
+            } else if (!getSamplerMatrix(s).hasPerspective()) {
                 stage.fOptFlags = StageDesc::kNoPerspective_OptFlagBit;
             } else {
                 stage.fOptFlags = 0;
@@ -1103,14 +1102,28 @@ GrGpuGLShaders2::~GrGpuGLShaders2() {
     delete fProgramCache;
 }
 
+const GrMatrix& GrGpuGLShaders2::getHWSamplerMatrix(int stage) {
+#if ATTRIBUTE_MATRIX
+    return fHWDrawState.fSamplerStates[stage].getMatrix();
+#else
+    return fProgram->fTextureMatrices[stage];
+#endif
+}
+
+void GrGpuGLShaders2::recordHWSamplerMatrix(int stage, const GrMatrix& matrix){
+#if ATTRIBUTE_MATRIX
+    fHWDrawState.fSamplerStates[stage].setMatrix(matrix);
+#else
+    fProgram->fTextureMatrices[stage] = matrix;
+#endif
+}
+
 void GrGpuGLShaders2::resetContext() {
     INHERITED::resetContext();
     resetContextHelper();
 }
 
 void GrGpuGLShaders2::resetContextHelper() {
-    fTextureOrientation = (GrGLTexture::Orientation)-1; // illegal
-
     fHWGeometryState.fVertexLayout = 0;
     fHWGeometryState.fVertexOffset  = ~0;
     GR_GL(DisableVertexAttribArray(COL_ATTR_LOCATION));
@@ -1153,38 +1166,27 @@ void GrGpuGLShaders2::flushViewMatrix() {
 }
 
 void GrGpuGLShaders2::flushTextureMatrix(int stage) {
-
     GrAssert(NULL != fCurrDrawState.fTextures[stage]);
-    GrGLTexture::Orientation orientation =
-         ((GrGLTexture*)fCurrDrawState.fTextures[stage])->orientation();
 
-    GrMatrix* m;
-    GrMatrix temp;
-    if (GrGLTexture::kBottomUp_Orientation == orientation) {
-        temp.setAll(
-            GR_Scalar1, 0, 0,
-            0, -GR_Scalar1, GR_Scalar1,
-            0, 0, GrMatrix::I()[8]
-        );
-        temp.preConcat(fCurrDrawState.fTextureMatrices[stage]);
-        m = &temp;
-    } else {
-        GrAssert(GrGLTexture::kTopDown_Orientation == orientation);
-        m = &fCurrDrawState.fTextureMatrices[stage];
-    }
+    GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[stage];
+
+    GrMatrix m = getSamplerMatrix(stage);
+    GrSamplerState::SampleMode mode = 
+        fCurrDrawState.fSamplerStates[0].getSampleMode();
+    AdjustTextureMatrix(texture, mode, &m);
 
     // ES doesn't allow you to pass true to the transpose param,
     // so do our own transpose
     GrScalar mt[]  = {
-        (*m)[GrMatrix::kScaleX],
-        (*m)[GrMatrix::kSkewY],
-        (*m)[GrMatrix::kPersp0],
-        (*m)[GrMatrix::kSkewX],
-        (*m)[GrMatrix::kScaleY],
-        (*m)[GrMatrix::kPersp1],
-        (*m)[GrMatrix::kTransX],
-        (*m)[GrMatrix::kTransY],
-        (*m)[GrMatrix::kPersp2]
+        m[GrMatrix::kScaleX],
+        m[GrMatrix::kSkewY],
+        m[GrMatrix::kPersp0],
+        m[GrMatrix::kSkewX],
+        m[GrMatrix::kScaleY],
+        m[GrMatrix::kPersp1],
+        m[GrMatrix::kTransX],
+        m[GrMatrix::kTransY],
+        m[GrMatrix::kPersp2]
     };
 #if ATTRIBUTE_MATRIX
     GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+0, mt+0));
@@ -1192,9 +1194,7 @@ void GrGpuGLShaders2::flushTextureMatrix(int stage) {
     GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+2, mt+6));
 #else
     GR_GL(UniformMatrix3fv(fProgram->fUniLocations.fStages[stage].fTextureMatrixUni,
-                           1,
-                           false,
-                           mt));
+                           1, false, mt));
 #endif
 }
 
@@ -1240,16 +1240,15 @@ bool GrGpuGLShaders2::flushGraphicsState(PrimitiveType type) {
         return false;
     }
 
-    if (fRenderTargetChanged) {
+    if (fDirtyFlags.fRenderTargetChanged) {
         // our coords are in pixel space and the GL matrices map to NDC
         // so if the viewport changed, our matrix is now wrong.
 #if ATTRIBUTE_MATRIX
-        fHWDrawState.fViewMatrix.setScale(GR_ScalarMax, GR_ScalarMax);
+        fHWDrawState.fViewMatrix = GrMatrix::InvalidMatrix();
 #else
         // we assume all shader matrices may be wrong after viewport changes
         fProgramCache->invalidateViewMatrices();
 #endif
-        fRenderTargetChanged = false;
     }
 
     flushProgram(type);
@@ -1273,12 +1272,8 @@ bool GrGpuGLShaders2::flushGraphicsState(PrimitiveType type) {
 
 #if ATTRIBUTE_MATRIX
     GrMatrix& currViewMatrix = fHWDrawState.fViewMatrix;
-    GrMatrix& currTextureMatrix = fHWDrawState.fMatrixModeCache[kTexture_MatrixMode];
-    GrGLTexture::Orientation& orientation = fTextureOrientation;
 #else
     GrMatrix& currViewMatrix = fProgram->fViewMatrix;
-    GrMatrix& currTextureMatrix = fProgram->fTextureMatrix[0];
-    GrGLTexture::Orientation& orientation =  fProgram->fTextureOrientation[0];
 #endif
 
     if (currViewMatrix != fCurrDrawState.fViewMatrix) {
@@ -1290,11 +1285,10 @@ bool GrGpuGLShaders2::flushGraphicsState(PrimitiveType type) {
         GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
         if (NULL != texture) {
             if (-1 != fProgram->fUniLocations.fStages[s].fTextureMatrixUni &&
-                (currTextureMatrix != fCurrDrawState.fTextureMatrices[s] ||
-                 orientation != texture->orientation())) {
+                (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
+                getHWSamplerMatrix(s) != getSamplerMatrix(s))) {
                 flushTextureMatrix(s);
-                currTextureMatrix = fCurrDrawState.fTextureMatrices[s];
-                orientation = texture->orientation();
+                recordHWSamplerMatrix(s, getSamplerMatrix(s));
             }
         }
 
@@ -1311,7 +1305,7 @@ bool GrGpuGLShaders2::flushGraphicsState(PrimitiveType type) {
             fProgram->fRadial2PosRoot[s]  = sampler.isRadial2PosRoot();
         }
     }
-
+    resetDirtyFlags();
     return true;
 }
 

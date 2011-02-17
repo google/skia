@@ -228,8 +228,8 @@ void GrTextureCache::purgeAsNeeded() {
 
 #if GR_DUMP_TEXTURE_UPLOAD
             GrPrintf("--- ~texture from cache %p [%d %d]\n", entry->texture(),
-                     entry->texture()->contentWidth(),
-                     entry->texture()->contentHeight());
+                     entry->texture()->width(),
+                     entry->texture()->height());
 #endif
             delete entry;
         }
