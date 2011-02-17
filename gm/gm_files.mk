@@ -3,6 +3,7 @@ SOURCE := \
 	blurs.cpp \
 	filltypes.cpp \
 	gradients.cpp \
+    poly2poly.cpp \
 	shapes.cpp \
 	tilemodes.cpp \
 	xfermodes.cpp \
