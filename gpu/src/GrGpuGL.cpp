@@ -536,7 +536,7 @@ GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiState() {
 static const GLuint UNKNOWN_BITS = ~0;
 
 // defines stencil formats from more to less preferred
-struct {
+static const struct {
     GLenum  fEnum;
     GLuint  fBits;
 } gStencilFormats[] = {
