@@ -24,7 +24,8 @@
 #include "GrBufferAllocPool.h"
 
 // probably makes no sense for this to be less than a page
-static size_t VERTEX_POOL_VB_SIZE = 1 << 12;
+static const size_t VERTEX_POOL_VB_SIZE = 1 << 12;
+static const int VERTEX_POOL_VB_COUNT = 1;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -197,7 +198,11 @@ bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
                 fVertexPool = new GrVertexBufferAllocPool(this,
                                                           true,
                                                           VERTEX_POOL_VB_SIZE,
-                                                          1);
+                                                          VERTEX_POOL_VB_COUNT);
+            } else if (kBuffer_GeometrySrcType == fGeometrySrc.fVertexSrc) {
+                // we can't reset if vertex source is array or reserved
+                // because then the client data is in the pool!
+                fVertexPool->reset();
             }
             const GrVertexBuffer* vertexBuffer;
             int vStart;
@@ -309,7 +314,9 @@ void GrGpu::finalizeReservedIndices() {
 
 void GrGpu::prepareVertexPool() {
     if (NULL == fVertexPool) {
-        fVertexPool = new GrVertexBufferAllocPool(this, true, VERTEX_POOL_VB_SIZE, 1);
+        fVertexPool = new GrVertexBufferAllocPool(this, true, 
+                                                  VERTEX_POOL_VB_SIZE, 
+                                                  VERTEX_POOL_VB_COUNT);
     } else {
         fVertexPool->reset();
     }
