@@ -51,10 +51,6 @@ struct SkGlyph {
         fImage          = NULL;
         fPath           = NULL;
         fMaskFormat     = MASK_FORMAT_UNKNOWN;
-#ifdef SK_GPU_AWARE_GLYPHCACHE
-        fGLCacheOffset  = SKGLYPH_GLCACHEOFFSET_INVALID;
-        fGLStrikePtr    = NULL;
-#endif
     }
 
     unsigned rowBytes() const {
