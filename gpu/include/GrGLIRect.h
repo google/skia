@@ -14,7 +14,7 @@ struct GrGLIRect {
     GLsizei fHeight;
 
     void pushToGLViewport() const {
-        GR_GL(Viewport(fLeft, fBottom, fWidth, fHeight)); 
+        GR_GL(Viewport(fLeft, fBottom, fWidth, fHeight));
     }
 
     void pushToGLScissor() const {
@@ -22,7 +22,7 @@ struct GrGLIRect {
     }
 
     void setFromGLViewport() {
-        GR_STATIC_ASSERT(sizeof(*this) == 4*sizeof(GLint));
+        GR_STATIC_ASSERT(sizeof(GrGLIRect) == 4*sizeof(GLint));
         GR_GL_GetIntegerv(GL_VIEWPORT, (GLint*) this);
     }
 
