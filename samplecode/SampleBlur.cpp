@@ -115,7 +115,7 @@ protected:
                 canvas->drawText("Hamburgefons Style", 18, x, y, paint);
             }
             canvas->restore();
-//            flags = SkBlurMaskFilter::kHighQuality_BlurFlag;
+            flags = SkBlurMaskFilter::kHighQuality_BlurFlag;
             canvas->translate(350, 0);
         }
     }
