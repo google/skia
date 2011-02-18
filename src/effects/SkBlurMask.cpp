@@ -246,13 +246,20 @@ void SkMask_FreeImage(uint8_t* image)
 }
 
 bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
-                      SkScalar radius, Style style)
+                      SkScalar radius, Style style, Quality quality)
 {
     if (src.fFormat != SkMask::kA8_Format)
         return false;
 
-    int rx = SkScalarCeil(radius);
-    int outer_weight = 255 - SkScalarRound((SkIntToScalar(rx) - radius) * 255);
+    // Force high quality off for small radii (performance)
+    if (radius < SkIntToScalar(3)) quality = kLow_Quality;
+
+    // highQuality: use three box blur passes as a cheap way to approximate a Gaussian blur
+    int passCount = (quality == kHigh_Quality) ? 3 : 1;
+    SkScalar passRadius = SkScalarDiv(radius, SkScalarSqrt(SkIntToScalar(passCount)));
+
+    int rx = SkScalarCeil(passRadius);
+    int outer_weight = 255 - SkScalarRound((SkIntToScalar(rx) - passRadius) * 255);
 
     SkASSERT(rx >= 0);
     SkASSERT((unsigned)outer_weight <= 255);
@@ -262,8 +269,10 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
     int ry = rx;    // only do square blur for now
 
-    dst->fBounds.set(src.fBounds.fLeft - rx, src.fBounds.fTop - ry,
-                        src.fBounds.fRight + rx, src.fBounds.fBottom + ry);
+    int padx = passCount * rx;
+    int pady = passCount * ry;
+    dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
+        src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
     dst->fRowBytes = dst->fBounds.width();
     dst->fFormat = SkMask::kA8_Format;
     dst->fImage = NULL;
@@ -283,15 +292,38 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
         // build the blurry destination
         {
-            SkAutoTMalloc<uint32_t> storage((sw + 1) * (sh + 1));
+            SkAutoTMalloc<uint32_t> storage((sw + 2 * (passCount - 1) * rx + 1) * (sh + 2 * (passCount - 1) * ry + 1));
             uint32_t*               sumBuffer = storage.get();
 
+            //pass1: sp is source, dp is destination
             build_sum_buffer(sumBuffer, sw, sh, sp, src.fRowBytes);
             dump_sum_buffer(sumBuffer, sw, sh);
             if (outer_weight == 255)
                 apply_kernel(dp, rx, ry, sumBuffer, sw, sh);
             else
                 apply_kernel_interp(dp, rx, ry, sumBuffer, sw, sh, outer_weight);
+
+            if (quality == kHigh_Quality)
+            {
+                //pass2: dp is source, tmpBuffer is destination
+                int tmp_sw = sw + 2 * rx;
+                int tmp_sh = sh + 2 * ry;
+                SkAutoTMalloc<uint8_t>  tmpBuffer(dstSize);
+                build_sum_buffer(sumBuffer, tmp_sw, tmp_sh, dp, tmp_sw);
+                if (outer_weight == 255)
+                    apply_kernel(tmpBuffer.get(), rx, ry, sumBuffer, tmp_sw, tmp_sh);
+                else
+                    apply_kernel_interp(tmpBuffer.get(), rx, ry, sumBuffer, tmp_sw, tmp_sh, outer_weight);
+
+                //pass3: tmpBuffer is source, dp is destination
+                tmp_sw += 2 * rx;
+                tmp_sh += 2 * ry;
+                build_sum_buffer(sumBuffer, tmp_sw, tmp_sh, tmpBuffer.get(), tmp_sw);
+                if (outer_weight == 255)
+                    apply_kernel(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh);
+                else
+                    apply_kernel_interp(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh, outer_weight);
+            }
         }
 
         dst->fImage = dp;
@@ -306,11 +338,11 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             dst->fImage = SkMask::AllocImage(srcSize);
             merge_src_with_blur(dst->fImage, src.fRowBytes,
                                 sp, src.fRowBytes,
-                                dp + rx + ry*dst->fRowBytes, dst->fRowBytes,
+                                dp + passCount * (rx + ry * dst->fRowBytes), dst->fRowBytes,
                                 sw, sh);
             SkMask::FreeImage(dp);
         } else if (style != kNormal_Style) {
-            clamp_with_orig(dp + rx + ry*dst->fRowBytes, dst->fRowBytes,
+            clamp_with_orig(dp + passCount * (rx + ry * dst->fRowBytes), dst->fRowBytes,
                             sp, src.fRowBytes, sw, sh,
                             style);
         }

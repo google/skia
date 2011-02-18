@@ -31,7 +31,12 @@ public:
         kStyleCount
     };
 
-    static bool Blur(SkMask* dst, const SkMask& src, SkScalar radius, Style);
+    enum Quality {
+        kLow_Quality,   //!< box blur
+        kHigh_Quality   //!< three pass box blur (similar to gaussian)
+    };
+
+    static bool Blur(SkMask* dst, const SkMask& src, SkScalar radius, Style, Quality quality);
 };
 
 #endif

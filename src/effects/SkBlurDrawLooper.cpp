@@ -3,6 +3,7 @@
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkMaskFilter.h"
+#include "SkColorFilter.h"
 
 SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
                                    SkColor color, uint32_t flags)
@@ -15,12 +16,28 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
             SkBlurMaskFilter::kIgnoreTransform_BlurFlag :
             SkBlurMaskFilter::kNone_BlurFlag;
 
+        blurFlags |= flags & kHighQuality_BlurFlag ?
+            SkBlurMaskFilter::kHighQuality_BlurFlag : 
+            SkBlurMaskFilter::kNone_BlurFlag;
+
         fBlur = SkBlurMaskFilter::Create(radius,
-                                         SkBlurMaskFilter::kNormal_BlurStyle,
+                                         SkBlurMaskFilter::kNormal_BlurStyle,  
                                          blurFlags);
     }
     else
+    {
         fBlur = NULL;
+    }
+
+    if (flags & kOverrideColor_BlurFlag)
+    {
+        //The SrcIn xfer mode will multiply 'color' by the incoming alpha
+        fColorFilter = SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcIn_Mode);
+    }
+    else
+    {
+        fColorFilter = NULL;
+    }
 }
 
 SkBlurDrawLooper::SkBlurDrawLooper(SkFlattenableReadBuffer& buffer)
@@ -29,12 +46,14 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkFlattenableReadBuffer& buffer)
     fDy = buffer.readScalar();
     fBlurColor = buffer.readU32();
     fBlur = static_cast<SkMaskFilter*>(buffer.readFlattenable());
+    fColorFilter = static_cast<SkColorFilter*>(buffer.readFlattenable());
     fBlurFlags = buffer.readU32() & kAll_BlurFlag;
 }
 
 SkBlurDrawLooper::~SkBlurDrawLooper()
 {
     SkSafeUnref(fBlur);
+    SkSafeUnref(fColorFilter);
 }
 
 void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer)
@@ -43,6 +62,7 @@ void SkBlurDrawLooper::flatten(SkFlattenableWriteBuffer& buffer)
     buffer.writeScalar(fDy);
     buffer.write32(fBlurColor);
     buffer.writeFlattenable(fBlur);
+    buffer.writeFlattenable(fColorFilter);
     buffer.write32(fBlurFlags);
 }
 
@@ -67,6 +87,7 @@ bool SkBlurDrawLooper::next()
         fSavedColor = fPaint->getColor();
         fPaint->setColor(fBlurColor);
         fPaint->setMaskFilter(fBlur);
+        fPaint->setColorFilter(fColorFilter);
         fCanvas->save(SkCanvas::kMatrix_SaveFlag);
         if (fBlurFlags & kIgnoreTransform_BlurFlag)
         {
@@ -83,6 +104,7 @@ bool SkBlurDrawLooper::next()
     case kAfterEdge:
         fPaint->setColor(fSavedColor);
         fPaint->setMaskFilter(NULL);
+        fPaint->setColorFilter(NULL);
         fCanvas->restore(); // to remove the translate we did earlier
         fState = kDone;
         return true;
@@ -98,6 +120,7 @@ void SkBlurDrawLooper::restore()
     {
         fPaint->setColor(fSavedColor);
         fPaint->setMaskFilter(NULL);
+        fPaint->setColorFilter(NULL);
         fCanvas->restore(); // to remove the translate we did earlier
         fState = kDone;
     }

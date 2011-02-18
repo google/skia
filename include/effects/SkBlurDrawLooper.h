@@ -21,6 +21,7 @@
 #include "SkColor.h"
 
 class SkMaskFilter;
+class SkColorFilter;
 
 /** \class SkBlurDrawLooper
     This class draws a shadow of the object (possibly offset), and then draws
@@ -35,9 +36,11 @@ public:
             The blur layer's dx/dy/radius aren't affected by the canvas 
             transform.
         */
-        kIgnoreTransform_BlurFlag = 0x01,
+        kIgnoreTransform_BlurFlag   = 0x01,
+        kOverrideColor_BlurFlag     = 0x02,
+        kHighQuality_BlurFlag       = 0x04,
         /** mask for all blur flags */
-        kAll_BlurFlag = 0x01
+        kAll_BlurFlag = 0x07
     };
 
     SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy, SkColor color, 
@@ -64,6 +67,7 @@ private:
     SkCanvas*       fCanvas;
     SkPaint*        fPaint;
     SkMaskFilter*   fBlur;
+    SkColorFilter*  fColorFilter;
     SkScalar        fDx, fDy;
     SkColor         fBlurColor;
     SkColor         fSavedColor;    // remember the original

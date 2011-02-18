@@ -73,7 +73,7 @@ bool SkEmbossMaskFilter::filterMask(SkMask* dst, const SkMask& src, const SkMatr
 {
     SkScalar radius = matrix.mapRadius(fBlurRadius);
 
-    if (!SkBlurMask::Blur(dst, src, radius, SkBlurMask::kInner_Style))
+    if (!SkBlurMask::Blur(dst, src, radius, SkBlurMask::kInner_Style, SkBlurMask::kLow_Quality))
         return false;
 
     dst->fFormat = SkMask::k3D_Format;
