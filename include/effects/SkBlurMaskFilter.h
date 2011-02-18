@@ -35,9 +35,11 @@ public:
     enum BlurFlags {
         kNone_BlurFlag = 0x00,
         /** The blur layer's radius is not affected by transforms */
-        kIgnoreTransform_BlurFlag = 0x01,
+        kIgnoreTransform_BlurFlag   = 0x01,
+        /** Use a smother, higher qulity blur algorithm */
+        kHighQuality_BlurFlag       = 0x02,
         /** mask for all blur flags */
-        kAll_BlurFlag = 0x01
+        kAll_BlurFlag = 0x03
     };
 
     /** Create a blur maskfilter.

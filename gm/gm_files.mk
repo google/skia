@@ -5,6 +5,7 @@ SOURCE := \
 	gradients.cpp \
 	points.cpp \
 	poly2poly.cpp \
+	shadows.cpp \
 	shapes.cpp \
 	tilemodes.cpp \
 	xfermodes.cpp \

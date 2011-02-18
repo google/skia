@@ -96,8 +96,10 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const SkMa
     // a request like 10,000)
     static const SkScalar MAX_RADIUS = SkIntToScalar(128);
     radius = SkMinScalar(radius, MAX_RADIUS);
+    SkBlurMask::Quality blurQuality = (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ? 
+        SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
 
-    if (SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle))
+    if (SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle, blurQuality))
     {
         if (margin) {
             // we need to integralize radius for our margin, so take the ceil
