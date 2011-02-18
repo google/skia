@@ -383,7 +383,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     SkGlyph         tmpGlyph;
 
     if (fMaskFilter) {   // restore the prefilter bounds
-        tmpGlyph.fID = origGlyph.fID;
+        tmpGlyph.init(origGlyph.fID);
 
         // need the original bounds, sans our maskfilter
         SkMaskFilter* mf = fMaskFilter;
