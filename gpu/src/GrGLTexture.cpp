@@ -18,20 +18,20 @@
 #include "GrGLTexture.h"
 #include "GrGpuGL.h"
 
-GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids, 
-                                   const GrIRect& viewport,
+GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids,
+                                   GLuint stencilBits,
+                                   const GrGLIRect& viewport,
                                    GrGLTexture* texture,
                                    GrGpuGL* gl) : INHERITED(texture) {
     fGL                     = gl;
     fRTFBOID                = ids.fRTFBOID;
     fTexFBOID               = ids.fTexFBOID;
     fStencilRenderbufferID  = ids.fStencilRenderbufferID;
+    fStencilBits            = stencilBits;
     fMSColorRenderbufferID  = ids.fMSColorRenderbufferID;
     fNeedsResolve           = false;
     fViewport               = viewport;
     fOwnIDs                 = ids.fOwnIDs;
-    // viewport should be GL's viewport with top >= bottom
-    GrAssert(viewport.height() <= 0);
 }
 
 GrGLRenderTarget::~GrGLRenderTarget() {
@@ -99,14 +99,15 @@ GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
     GrAssert(0 != textureDesc.fTextureID);
 
     if (rtIDs.fTexFBOID) {
-        GrIRect vp;
+        // we render to the top left
+        GrGLIRect vp;
         vp.fLeft   = 0;
-        vp.fRight  = (int32_t) textureDesc.fContentWidth;
-        // viewport for GL is top > bottom 
-        vp.fTop    = (int32_t) textureDesc.fAllocHeight;
-        vp.fBottom = (int32_t) textureDesc.fAllocHeight - 
-                     (int32_t)textureDesc.fContentHeight;
-        fRenderTarget = new GrGLRenderTarget(rtIDs, vp, this, gl);
+        vp.fWidth  = textureDesc.fContentWidth;
+        vp.fHeight = textureDesc.fContentHeight;
+        vp.fBottom = textureDesc.fAllocHeight - textureDesc.fContentHeight;
+
+        fRenderTarget = new GrGLRenderTarget(rtIDs, textureDesc.fStencilBits, 
+                                             vp, this, gl);
     }
 }
 

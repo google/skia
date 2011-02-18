@@ -28,8 +28,6 @@
     #define GR_DEBUG    1
 #endif
 
-//#define GR_FORCE_GLCHECKERR   1
-
 /*
  *  The default 32bit pixel config for texture upload is GL_RGBA on all
  *  platforms except on Windows where it is GL_BGRA. If your bitmaps map to a

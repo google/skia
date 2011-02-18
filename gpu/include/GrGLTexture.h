@@ -18,36 +18,14 @@
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
-#include "GrGLConfig.h"
-#include "GrGpu.h"
 #include "GrTexture.h"
-#include "GrRect.h"
+#include "GrScalar.h"
+#include "GrGLIRect.h"
 
 class GrGpuGL;
 class GrGLTexture;
 
 class GrGLRenderTarget : public GrRenderTarget {
-protected:
-    
-    struct GLRenderTargetIDs {
-        GLuint      fRTFBOID;
-        GLuint      fTexFBOID;
-        GLuint      fStencilRenderbufferID;
-        GLuint      fMSColorRenderbufferID;
-        bool        fOwnIDs;
-    };
-    
-    GrGLRenderTarget(const GLRenderTargetIDs& ids, 
-                     const GrIRect& fViewport,
-                     GrGLTexture* texture,
-                     GrGpuGL* gl);
-    
-    void setViewport(const GrIRect& rect) { GrAssert(rect.height() <= 0); 
-                                            fViewport = rect;}
-    
-    virtual uint32_t width() const { return fViewport.width(); }
-    virtual uint32_t height() const { return -fViewport.height(); }
-    
 public:
     virtual ~GrGLRenderTarget();
     
@@ -58,8 +36,31 @@ public:
     GLuint renderFBOID() const { return fRTFBOID; }
     GLuint textureFBOID() const { return fTexFBOID; }
 
-    const GrIRect& viewport() const { return fViewport; }
+    GLuint getStencilBits() const { return fStencilBits; }
+
+    const GrGLIRect& viewport() const { return fViewport; }
     void   abandon();
+
+protected:
+
+    struct GLRenderTargetIDs {
+        GLuint      fRTFBOID;
+        GLuint      fTexFBOID;
+        GLuint      fStencilRenderbufferID;
+        GLuint      fMSColorRenderbufferID;
+        bool        fOwnIDs;
+    };
+    
+    GrGLRenderTarget(const GLRenderTargetIDs& ids,
+                     GLuint stencilBits,
+                     const GrGLIRect& fViewport,
+                     GrGLTexture* texture,
+                     GrGpuGL* gl);
+    
+    void setViewport(const GrGLIRect& rect) { fViewport = rect; }
+    
+    virtual int width() const { return fViewport.fWidth; }
+    virtual int height() const { return fViewport.fHeight; }
 
 private:
     GrGpuGL*    fGL;
@@ -67,6 +68,7 @@ private:
     GLuint      fTexFBOID;    
     GLuint      fStencilRenderbufferID;
     GLuint      fMSColorRenderbufferID;
+    GLuint      fStencilBits;
    
     // Should this object delete IDs when it is destroyed or does someone
     // else own them.
@@ -79,7 +81,7 @@ private:
     // when we switch to this rendertarget we want to set the viewport to 
     // only render to to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left) 
-    GrIRect fViewport;
+    GrGLIRect fViewport;
     
     friend class GrGpuGL;
     friend class GrGLTexture;
@@ -111,6 +113,7 @@ protected:
         GLenum      fUploadFormat;
         GLenum      fUploadByteCount;
         GLenum      fUploadType;
+        GLuint      fStencilBits;
         Orientation fOrientation;
     };
     typedef GrGLRenderTarget::GLRenderTargetIDs GLRenderTargetIDs;

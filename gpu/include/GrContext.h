@@ -145,9 +145,16 @@ public:
 
     /**
      * Wraps an externally-created rendertarget in a GrRenderTarget.
-     * e.g. in GL platforamRenderTarget is an FBO id.
+     * @param platformRenderTarget  3D API-specific render target identifier
+     *                              e.g. in GL platforamRenderTarget is an FBO 
+     *                              id.
+     * @param stencilBits           the number of stencil bits that the render
+     *                              target has.
+     * @param width                 width of the render target.
+     * @param height                height of the render target.
      */
     GrRenderTarget* createPlatformRenderTarget(intptr_t platformRenderTarget,
+                                               int stencilBits,
                                                int width, int height);
 
     /**

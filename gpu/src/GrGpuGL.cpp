@@ -458,11 +458,10 @@ void GrGpuGL::resetContextHelper() {
         fHWDrawState.fSamplerStates[s].setMatrix(GrMatrix::InvalidMatrix());
     }
 
-    GR_GL(Scissor(0,0,0,0));
-    fHWBounds.fScissorRect.setLTRB(0,0,0,0);
+    fHWBounds.fScissorRect.invalidate();
     fHWBounds.fScissorEnabled = false;
     GR_GL(Disable(GL_SCISSOR_TEST));
-    fHWBounds.fViewportRect.setLTRB(-1,-1,-1,-1);
+    fHWBounds.fViewportRect.invalidate();
 
     // disabling the stencil test also disables
     // stencil buffer writes
@@ -491,24 +490,26 @@ void GrGpuGL::resetContext() {
 
 GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
-                                                int width, int height) {
+                                                int stencilBits,
+                                                int width, 
+                                                int height) {
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
     rtIDs.fStencilRenderbufferID = 0;
     rtIDs.fMSColorRenderbufferID = 0;
     rtIDs.fTexFBOID              = 0;
     rtIDs.fOwnIDs                = false;
-
-    GrIRect viewport;
+    GrGLIRect viewport;
 
     // viewport is in GL coords (top >= bottom)
-    viewport.setLTRB(0, height, width, 0);
+    viewport.fLeft      = 0;
+    viewport.fBottom    = 0;
+    viewport.fWidth     = width;
+    viewport.fHeight    = height;
 
     rtIDs.fRTFBOID  = (GLuint)platformRenderTarget;
     rtIDs.fTexFBOID = (GLuint)platformRenderTarget;
 
-    GrGLRenderTarget* rt = new GrGLRenderTarget(rtIDs, viewport, NULL, this);
-
-    return rt;
+    return new GrGLRenderTarget(rtIDs, stencilBits, viewport, NULL, this);
 }
 
 GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiState() {
@@ -520,37 +521,37 @@ GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiState() {
     rtIDs.fMSColorRenderbufferID = 0;
     rtIDs.fStencilRenderbufferID = 0;
 
-    GLint vp[4];
-    GR_GL_GetIntegerv(GL_VIEWPORT, vp);
-    GrIRect viewportRect;
-    viewportRect.setLTRB(vp[0],
-                         vp[1] + vp[3],
-                         vp[0] + vp[2],
-                         vp[1]);
+    GrGLIRect viewport;
+    viewport.setFromGLViewport();
+    GLuint stencilBits;
+    GR_GL_GetIntegerv(GL_STENCIL_BITS, (GLint*)&stencilBits);
+
     rtIDs.fOwnIDs = false;
 
-    return new GrGLRenderTarget(rtIDs,
-                                viewportRect,
-                                NULL,
-                                this);
+    return new GrGLRenderTarget(rtIDs, stencilBits, viewport, NULL, this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const GLuint UNKNOWN_BITS = ~0;
+
 // defines stencil formats from more to less preferred
-GLenum GR_GL_STENCIL_FORMAT_ARRAY[] = {
-    GR_STENCIL_INDEX8,
+struct {
+    GLenum  fEnum;
+    GLuint  fBits;
+} gStencilFormats[] = {
+    {GR_STENCIL_INDEX8,     8},
 
 #if GR_SUPPORT_GLDESKTOP
-    GR_STENCIL_INDEX16,
+    {GR_STENCIL_INDEX16,    16},
 #endif
 
-    GR_DEPTH24_STENCIL8,
-    GR_STENCIL_INDEX4,
+    {GR_DEPTH24_STENCIL8,   8},
+    {GR_STENCIL_INDEX4,     4},
 
 #if GR_SUPPORT_GLDESKTOP
-    GL_STENCIL_INDEX,
-    GR_DEPTH_STENCIL,
+    {GL_STENCIL_INDEX,      UNKNOWN_BITS},
+    {GR_DEPTH_STENCIL,      UNKNOWN_BITS}
 #endif
 };
 
@@ -588,6 +589,7 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
     glDesc.fContentHeight = desc.fHeight;
     glDesc.fAllocWidth    = desc.fWidth;
     glDesc.fAllocHeight   = desc.fHeight;
+    glDesc.fStencilBits   = 0;
     glDesc.fFormat        = desc.fFormat;
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_TextureFlag);
@@ -800,7 +802,7 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
         if (!(kNoPathRendering_TextureFlag & desc.fFlags)) {
             GR_GLEXT(fExts, GenRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
             GrAssert(0 != rtIDs.fStencilRenderbufferID);
-            attempts = GR_ARRAY_COUNT(GR_GL_STENCIL_FORMAT_ARRAY);
+            attempts = GR_ARRAY_COUNT(gStencilFormats);
         }
 
         // someone suggested that some systems might require
@@ -817,13 +819,13 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
                     GR_GLEXT_NO_ERR(fExts, RenderbufferStorageMultisample(
                                                 GR_RENDERBUFFER,
                                                 samples,
-                                                GR_GL_STENCIL_FORMAT_ARRAY[i],
+                                                gStencilFormats[i].fEnum,
                                                 glDesc.fAllocWidth,
                                                 glDesc.fAllocHeight));
                 } else {
                     GR_GLEXT_NO_ERR(fExts, RenderbufferStorage(
                                                 GR_RENDERBUFFER,
-                                                GR_GL_STENCIL_FORMAT_ARRAY[i],
+                                                gStencilFormats[i].fEnum,
                                                 glDesc.fAllocWidth,
                                                 glDesc.fAllocHeight));
                 }
@@ -927,6 +929,13 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
             }
             // we're successful!
             failed = false;
+            if (rtIDs.fStencilRenderbufferID) {
+                if (UNKNOWN_BITS == gStencilFormats[i].fBits) {
+                    GR_GL_GetIntegerv(GL_STENCIL_BITS, (GLint*)&glDesc.fStencilBits);
+                } else {
+                    glDesc.fStencilBits = gStencilFormats[i].fBits;
+                }
+            }
             break;
         }
         if (failed) {
@@ -1020,29 +1029,23 @@ GrIndexBuffer* GrGpuGL::createIndexBuffer(uint32_t size, bool dynamic) {
 
 void GrGpuGL::flushScissor(const GrIRect* rect) {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
-    const GrIRect& vp =
+    const GrGLIRect& vp =
             ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->viewport();
 
-    if (NULL != rect &&
-        rect->contains(vp)) {
-        rect = NULL;
+    GrGLIRect scissor;
+    if (NULL != rect) {
+        scissor.setRelativeTo(vp, rect->fLeft, rect->fTop, 
+                              rect->width(), rect->height());
+        if (scissor.contains(vp)) {
+            rect = NULL;
+        }
     }
 
     if (NULL != rect) {
-        GrIRect scissor;
-        // viewport is already in GL coords
-        // create a scissor in GL coords (top > bottom)
-        scissor.setLTRB(vp.fLeft + rect->fLeft,
-                        vp.fTop  - rect->fTop,
-                        vp.fLeft + rect->fRight,
-                        vp.fTop  - rect->fBottom);
-
         if (fHWBounds.fScissorRect != scissor) {
-            GR_GL(Scissor(scissor.fLeft, scissor.fBottom,
-                          scissor.width(), -scissor.height()));
+            scissor.pushToGLScissor();
             fHWBounds.fScissorRect = scissor;
         }
-
         if (!fHWBounds.fScissorEnabled) {
             GR_GL(Enable(GL_SCISSOR_TEST));
             fHWBounds.fScissorEnabled = true;
@@ -1088,9 +1091,9 @@ void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
     fDirtyFlags.fWriteMaskChanged = true;
 }
 
-void GrGpuGL::eraseStencilClip() {
-    GLint stencilBitCount;
-    GR_GL_GetIntegerv(GL_STENCIL_BITS, &stencilBitCount);
+void GrGpuGL::eraseStencilClip() {    
+    GrAssert(NULL != fCurrDrawState.fRenderTarget);
+    GLint stencilBitCount = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getStencilBits();
     GrAssert(stencilBitCount > 0);
     GLint clipStencilMask  = (1 << (stencilBitCount - 1));
     eraseStencil(0, clipStencilMask);
@@ -1114,10 +1117,13 @@ bool GrGpuGL::readPixels(int left, int top, int width, int height,
     }
     flushRenderTarget();
 
-    const GrIRect& vp = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->viewport();
-
-    // Brian says that viewport rects are already upside down (grrrrr)
-    GR_GL(ReadPixels(left, -vp.height() - top - height, width, height,
+    const GrGLIRect& glvp = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->viewport();
+    
+    // the read rect is viewport-relative
+    GrGLIRect readRect;
+    readRect.setRelativeTo(glvp, left, top, width, height);
+    GR_GL(ReadPixels(readRect.fLeft, readRect.fBottom,
+                     readRect.fWidth, readRect.fHeight, 
                      format, type, buffer));
 
     // now reverse the order of the rows, since GL's are bottom-to-top, but our
@@ -1158,14 +1164,11 @@ void GrGpuGL::flushRenderTarget() {
             GrPrintf("-- glCheckFramebufferStatus %x\n", status);
         }
     #endif
-        fHWDrawState.fRenderTarget = fCurrDrawState.fRenderTarget;
-        const GrIRect& vp = rt->viewport();
         fDirtyFlags.fRenderTargetChanged = true;
-        if (fHWBounds.fViewportRect != vp) {
-            GR_GL(Viewport(vp.fLeft,
-                           vp.fBottom,
-                           vp.width(),
-                           -vp.height()));
+        fHWDrawState.fRenderTarget = fCurrDrawState.fRenderTarget;
+        const GrGLIRect& vp = rt->viewport();
+        if (true || fHWBounds.fViewportRect != vp) {
+            vp.pushToGLViewport();
             fHWBounds.fViewportRect = vp;
         }
     }
@@ -1242,7 +1245,7 @@ void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
             GR_GL(Enable(GL_SCISSOR_TEST));
             GR_GL(Scissor(left, bottom, right-left, top-bottom));
             GR_GLEXT(fExts, ResolveMultisampleFramebuffer());
-            fHWBounds.fScissorRect.setEmpty();
+            fHWBounds.fScissorRect.invalidate();
             fHWBounds.fScissorEnabled = true;
         } else {
             GR_GLEXT(fExts, BlitFramebuffer(left, bottom, right, top,
@@ -1269,10 +1272,9 @@ void GrGpuGL::flushStencil() {
          fHWDrawState.fReverseFill != fCurrDrawState.fReverseFill);
 
     if (stencilChange) {
-        GLint stencilBitCount;
         GLint clipStencilMask;
         GLint pathStencilMask;
-        GR_GL_GetIntegerv(GL_STENCIL_BITS, &stencilBitCount);
+        GLint stencilBitCount = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getStencilBits();
         GrAssert(stencilBitCount > 0 ||
                  kNone_StencilPass == fCurrDrawState.fStencilPass);
         clipStencilMask  = (1 << (stencilBitCount - 1));

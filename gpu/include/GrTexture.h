@@ -34,11 +34,11 @@ public:
     /**
      * @return the width of the rendertarget
      */
-    virtual uint32_t width() const = 0;
+    virtual int width() const = 0;
     /**
      * @return the height of the rendertarget
      */
-    virtual uint32_t height() const = 0;
+    virtual int height() const = 0;
 
     /**
      * @return the texture associated with the rendertarget, may be NULL.

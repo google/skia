@@ -20,6 +20,7 @@
 
 #include "GrGpu.h"
 #include "GrGLConfig.h"
+#include "GrGLIRect.h"
 #include "GrGLTexture.h"
 
 #include "GrGLVertexBuffer.h"
@@ -40,6 +41,7 @@ public:
 
     virtual GrRenderTarget* createPlatformRenderTarget(
                                                  intptr_t platformRenderTarget,
+                                                 int stencilBits,
                                                  int width, int height);
 
     virtual GrRenderTarget* createRenderTargetFrom3DApiState();
@@ -87,7 +89,11 @@ protected:
     void resetDirtyFlags();
 
     // last scissor / viewport scissor state seen by the GL.
-    BoundsState fHWBounds;
+    struct {
+        bool        fScissorEnabled;
+        GrGLIRect   fScissorRect;
+        GrGLIRect   fViewportRect;
+    } fHWBounds;
 
     GrGLExts fExts;
 
@@ -185,31 +191,4 @@ private:
     typedef GrGpu INHERITED;
 };
 
-bool has_gl_extension(const char* ext);
-void gl_version(int* major, int* minor);
-
-/**
- *  GrGL_RestoreResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
- *  this wrapper, since GL_UNPACK_ROW_LENGTH is not available on all GL versions
- */
-#if GR_SUPPORT_GLDESKTOP
-    static inline void GrGL_RestoreResetRowLength() {
-        GR_GL(PixelStorei(GL_UNPACK_ROW_LENGTH, 0));
-    }
-#else
-    #define GrGL_RestoreResetRowLength()
 #endif
-
-/*
- *  Some drivers want the var-int arg to be zero-initialized on input.
- */
-#define GR_GL_INIT_ZERO     0
-#define GR_GL_GetIntegerv(e, p)     \
-    do {                            \
-        *(p) = GR_GL_INIT_ZERO;     \
-        GR_GL(GetIntegerv(e, p));   \
-    } while (0)
-
-#endif
-
-
