@@ -384,4 +384,40 @@ static inline void GrGLClearErr() {
 #define GR_GLEXT(exts, X)        exts. X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
 #define GR_GLEXT_NO_ERR(exts, X) GrGLClearErr(); exts. X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
 
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Helpers for glGetString()
+ */
+bool has_gl_extension(const char* ext);
+void gl_version(int* major, int* minor);
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  GrGL_RestoreResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
+ *  this wrapper, since GL_UNPACK_ROW_LENGTH is not available on all GL versions
+ */
+#if GR_SUPPORT_GLDESKTOP
+    static inline void GrGL_RestoreResetRowLength() {
+        GR_GL(PixelStorei(GL_UNPACK_ROW_LENGTH, 0));
+    }
+#else
+    #define GrGL_RestoreResetRowLength()
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Some drivers want the var-int arg to be zero-initialized on input.
+ */
+#define GR_GL_INIT_ZERO     0
+#define GR_GL_GetIntegerv(e, p)     \
+    do {                            \
+        *(p) = GR_GL_INIT_ZERO;     \
+        GR_GL(GetIntegerv(e, p));   \
+    } while (0)
+
+////////////////////////////////////////////////////////////////////////////////
+
 #endif

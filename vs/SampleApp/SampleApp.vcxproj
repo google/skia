@@ -149,6 +149,7 @@
     <ClInclude Include="..\..\gpu\include\GrVertexBuffer.h" />
     <ClInclude Include="..\..\gpu\include\SkUIView.h" />
     <ClInclude Include="..\..\gpu\src\GrBufferAllocPool.h" />
+    <ClInclude Include="..\..\gpu\src\GrGLIRect.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGL.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h" />

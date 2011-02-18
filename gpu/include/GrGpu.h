@@ -170,11 +170,13 @@ public:
      * @param platformRenderTarget  handle to the the render target in the
      *                              underlying 3D API. Interpretation depends on
      *                              GrGpu subclass in use.
+     * @param stencilBits           number of stencil bits the target has
      * @param width                 width of the render target
      * @param height                height of the render target
      */
     virtual GrRenderTarget* createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
+                                                int stencilBits,
                                                 int width, int height) = 0;
 
     /**
@@ -350,12 +352,6 @@ protected:
 
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(PrimitiveType type);
-
-    struct BoundsState {
-        bool    fScissorEnabled;
-        GrIRect fScissorRect;
-        GrIRect fViewportRect;
-    };
 
     // defaults to false, subclass can set true to support palleted textures
     bool f8bitPaletteSupport;
