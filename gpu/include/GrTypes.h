@@ -160,6 +160,47 @@ template <typename Dst, typename Src> Dst GrTCast(Src src) {
  */
 typedef uint16_t GrVertexLayout;
 
+/**
+ * Path filling rules
+ */
+enum GrPathFill {
+    kWinding_PathFill,
+    kEvenOdd_PathFill,
+    kInverseWinding_PathFill,
+    kInverseEvenOdd_PathFill,
+    kHairLine_PathFill,
+
+    kPathFillCount
+};
+
+/**
+* Geometric primitives used for drawing.
+*/
+enum GrPrimitiveType {
+    kTriangles_PrimitiveType,
+    kTriangleStrip_PrimitiveType,
+    kTriangleFan_PrimitiveType,
+    kPoints_PrimitiveType,
+    kLines_PrimitiveType,
+    kLineStrip_PrimitiveType
+};
+
+/**
+ * Coeffecients for alpha-blending.
+ */
+enum GrBlendCoeff {
+    kZero_BlendCoeff,    //<! 0
+    kOne_BlendCoeff,     //<! 1
+    kSC_BlendCoeff,      //<! src color
+    kISC_BlendCoeff,     //<! one minus src color
+    kDC_BlendCoeff,      //<! dst color
+    kIDC_BlendCoeff,     //<! one minus dst color
+    kSA_BlendCoeff,      //<! src alpha
+    kISA_BlendCoeff,     //<! one minus src alpha
+    kDA_BlendCoeff,      //<! dst alpha
+    kIDA_BlendCoeff,     //<! one minus dst alpha
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // this is included only to make it easy to use this debugging facility

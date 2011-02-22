@@ -30,7 +30,7 @@ public:
 
 protected:
     // overrides from GrGpu
-    virtual bool flushGraphicsState(PrimitiveType type);
+    virtual bool flushGraphicsState(GrPrimitiveType type);
     virtual void setupGeometry(int* startVertex,
                                int* startIndex,
                                int vertexCount,

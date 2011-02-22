@@ -128,7 +128,7 @@ void GrGpuGLFixed::flushProjectionMatrix() {
     GR_GL(LoadMatrixf(mat));
 }
 
-bool GrGpuGLFixed::flushGraphicsState(PrimitiveType type) {
+bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
 
     bool usingTextures[kNumStages];
 

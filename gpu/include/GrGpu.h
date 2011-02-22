@@ -284,13 +284,13 @@ public:
     int maxTextureDimension() const { return fMaxTextureDimension; }
 
     // GrDrawTarget overrides
-    virtual void drawIndexed(PrimitiveType type,
+    virtual void drawIndexed(GrPrimitiveType type,
                              int startVertex,
                              int startIndex,
                              int vertexCount,
                              int indexCount);
 
-    virtual void drawNonIndexed(PrimitiveType type,
+    virtual void drawNonIndexed(GrPrimitiveType type,
                                 int startVertex,
                                 int vertexCount);
 
@@ -351,7 +351,7 @@ protected:
     virtual void clipWillBeSet(const GrClip& newClip);
 
     // prepares clip flushes gpu state before a draw
-    bool setupClipAndFlushState(PrimitiveType type);
+    bool setupClipAndFlushState(GrPrimitiveType type);
 
     // defaults to false, subclass can set true to support palleted textures
     bool f8bitPaletteSupport;
@@ -398,13 +398,13 @@ protected:
     void finalizeReservedIndices();
 
     // overridden by API specific GrGpu-derived class to perform the draw call.
-    virtual void drawIndexedHelper(PrimitiveType type,
+    virtual void drawIndexedHelper(GrPrimitiveType type,
                                    uint32_t startVertex,
                                    uint32_t startIndex,
                                    uint32_t vertexCount,
                                    uint32_t indexCount) = 0;
 
-    virtual void drawNonIndexedHelper(PrimitiveType type,
+    virtual void drawNonIndexedHelper(GrPrimitiveType type,
                                       uint32_t vertexCount,
                                       uint32_t numVertices) = 0;
 
@@ -421,7 +421,7 @@ protected:
     // deltas from previous state at draw time. This function does the
     // API-specific flush of the state
     // returns false if current state is unsupported.
-    virtual bool flushGraphicsState(PrimitiveType type) = 0;
+    virtual bool flushGraphicsState(GrPrimitiveType type) = 0;
 
     // Sets the scissor rect, or disables if rect is NULL.
     virtual void flushScissor(const GrIRect* rect) = 0;

@@ -979,7 +979,7 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
     program->fViewMatrix = GrMatrix::InvalidMatrix();
 }
 
-void GrGpuGLShaders2::getProgramDesc(PrimitiveType primType, ProgramDesc* desc) {
+void GrGpuGLShaders2::getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc) {
 
     // Must initialize all fields or cache will have false negatives!
     desc->fVertexLayout = fGeometrySrc.fVertexLayout;
@@ -1220,7 +1220,7 @@ void GrGpuGLShaders2::flushRadial2(int stage) {
                      unis));
 }
 
-void GrGpuGLShaders2::flushProgram(PrimitiveType type) {
+void GrGpuGLShaders2::flushProgram(GrPrimitiveType type) {
     ProgramDesc desc;
     getProgramDesc(type, &desc);
     fProgram = fProgramCache->getProgram(desc);
@@ -1234,7 +1234,7 @@ void GrGpuGLShaders2::flushProgram(PrimitiveType type) {
     }
 }
 
-bool GrGpuGLShaders2::flushGraphicsState(PrimitiveType type) {
+bool GrGpuGLShaders2::flushGraphicsState(GrPrimitiveType type) {
 
     if (!flushGLStateCommon(type)) {
         return false;

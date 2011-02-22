@@ -20,7 +20,7 @@
 template <typename POS_SRC, typename TEX_SRC,
           typename COL_SRC, typename IDX_SRC>
 inline void GrContext::drawCustomVertices(const GrPaint& paint,
-                                          GrDrawTarget::PrimitiveType primitiveType,
+                                          GrPrimitiveType primitiveType,
                                           const POS_SRC& posSrc,
                                           const TEX_SRC* texCoordSrc,
                                           const COL_SRC* colorSrc,
@@ -101,7 +101,7 @@ public:
 
 template <typename POS_SRC>
 inline void GrContext::drawCustomVertices(const GrPaint& paint,
-                                          GrDrawTarget::PrimitiveType primitiveType,
+                                          GrPrimitiveType primitiveType,
                                           const POS_SRC& posSrc) {
     this->drawCustomVertices<POS_SRC,
                              GrNullTexCoordSource,
@@ -112,7 +112,7 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
 
 template <typename POS_SRC, typename TEX_SRC>
 inline void GrContext::drawCustomVertices(const GrPaint& paint,
-                                          GrDrawTarget::PrimitiveType primitiveType,
+                                          GrPrimitiveType primitiveType,
                                           const POS_SRC& posSrc,
                                           const TEX_SRC* texCoordSrc) {
     this->drawCustomVertices<POS_SRC, TEX_SRC,
@@ -123,7 +123,7 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
 
 template <typename POS_SRC, typename TEX_SRC, typename COL_SRC>
 inline void GrContext::drawCustomVertices(const GrPaint& paint,
-                                          GrDrawTarget::PrimitiveType primitiveType,
+                                          GrPrimitiveType primitiveType,
                                           const POS_SRC& posSrc,
                                           const TEX_SRC* texCoordSrc,
                                           const COL_SRC* colorSrc) {

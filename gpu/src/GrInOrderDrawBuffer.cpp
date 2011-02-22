@@ -74,7 +74,7 @@ void GrInOrderDrawBuffer::setQuadIndexBuffer(const GrIndexBuffer* indexBuffer) {
 
 void GrInOrderDrawBuffer::drawRect(const GrRect& rect, 
                                    const GrMatrix* matrix,
-                                   int stageEnableMask,
+                                   StageBitfield stageEnableBitfield,
                                    const GrRect* srcRects[],
                                    const GrMatrix* srcMatrices[]) {
     
@@ -87,7 +87,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     if (fMaxQuads) {
         
         bool appendToPreviousDraw = false;
-        GrVertexLayout layout = GetRectVertexLayout(stageEnableMask, srcRects);
+        GrVertexLayout layout = GetRectVertexLayout(stageEnableBitfield, srcRects);
         AutoReleaseGeometry geo(this, layout, 4, 0);
         AutoViewMatrixRestore avmr(this);
         GrMatrix combinedMatrix = this->getViewMatrix();
@@ -167,13 +167,12 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         if (disabledClip) {
             this->enableState(kClip_StateBit);
         }
-this->enableState(kClip_StateBit);
     } else {
-        INHERITED::drawRect(rect, matrix, stageEnableMask, srcRects, srcMatrices);
+        INHERITED::drawRect(rect, matrix, stageEnableBitfield, srcRects, srcMatrices);
     }
 }
 
-void GrInOrderDrawBuffer::drawIndexed(PrimitiveType primitiveType,
+void GrInOrderDrawBuffer::drawIndexed(GrPrimitiveType primitiveType,
                                       int startVertex,
                                       int startIndex,
                                       int vertexCount,
@@ -239,7 +238,7 @@ void GrInOrderDrawBuffer::drawIndexed(PrimitiveType primitiveType,
     draw.fIndexBuffer->ref();
 }
 
-void GrInOrderDrawBuffer::drawNonIndexed(PrimitiveType primitiveType,
+void GrInOrderDrawBuffer::drawNonIndexed(GrPrimitiveType primitiveType,
                                          int startVertex,
                                          int vertexCount) {
     if (!vertexCount) {

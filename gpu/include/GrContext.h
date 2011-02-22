@@ -27,6 +27,7 @@ class GrPathIter;
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
+class GrPathRenderer;
 
 class GrContext : public GrRefCnt {
 public:
@@ -277,19 +278,6 @@ public:
                         const GrMatrix* srcMatrix = NULL);
 
     /**
-     * Path filling rules
-     */
-    enum PathFills {
-        kWinding_PathFill,
-        kEvenOdd_PathFill,
-        kInverseWinding_PathFill,
-        kInverseEvenOdd_PathFill,
-        kHairLine_PathFill,
-
-        kPathFillCount
-    };
-
-    /**
      * Tessellates and draws a path.
      *
      * @param paint         describes how to color pixels.
@@ -300,7 +288,7 @@ public:
      */
     void drawPath(const GrPaint& paint,
                   GrPathIter* path,
-                  PathFills fill,
+                  GrPathFill fill,
                   const GrPoint* translate = NULL);
     /**
      * Draws vertices with a paint.
@@ -319,7 +307,7 @@ public:
      *                          number of indices.
      */
     void drawVertices(const GrPaint& paint,
-                      GrDrawTarget::PrimitiveType primitiveType,
+                      GrPrimitiveType primitiveType,
                       int vertexCount,
                       const GrPoint positions[],
                       const GrPoint texs[],
@@ -358,7 +346,7 @@ public:
               typename COL_SRC,
               typename IDX_SRC>
     void drawCustomVertices(const GrPaint& paint,
-                            GrDrawTarget::PrimitiveType primitiveType,
+                            GrPrimitiveType primitiveType,
                             const POS_SRC& posSrc,
                             const TEX_SRC* texCoordSrc,
                             const COL_SRC* colorSrc,
@@ -369,16 +357,16 @@ public:
      */
     template <typename POS_SRC>
     void drawCustomVertices(const GrPaint& paint,
-                            GrDrawTarget::PrimitiveType primitiveType,
+                            GrPrimitiveType primitiveType,
                             const POS_SRC& posSrc);
     template <typename POS_SRC, typename TEX_SRC>
     void drawCustomVertices(const GrPaint& paint,
-                            GrDrawTarget::PrimitiveType primitiveType,
+                            GrPrimitiveType primitiveType,
                             const POS_SRC& posSrc,
                             const TEX_SRC* texCoordSrc);
     template <typename POS_SRC, typename TEX_SRC, typename COL_SRC>
     void drawCustomVertices(const GrPaint& paint,
-                            GrDrawTarget::PrimitiveType primitiveType,
+                            GrPrimitiveType primitiveType,
                             const POS_SRC& posSrc,
                             const TEX_SRC* texCoordSrc,
                             const COL_SRC* colorSrc);
@@ -466,6 +454,7 @@ private:
     GrGpu*          fGpu;
     GrTextureCache* fTextureCache;
     GrFontCache*    fFontCache;
+    GrPathRenderer* fPathRenderer;
 
     GrVertexBufferAllocPool*    fDrawBufferVBAllocPool;
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;

@@ -443,8 +443,8 @@ void GrGpuGL::resetContextHelper() {
     fHWDrawState.fFlagBits = 0;
 
     // illegal values
-    fHWDrawState.fSrcBlend = (BlendCoeff)-1;
-    fHWDrawState.fDstBlend = (BlendCoeff)-1;
+    fHWDrawState.fSrcBlend = (GrBlendCoeff)-1;
+    fHWDrawState.fDstBlend = (GrBlendCoeff)-1;
     fHWDrawState.fColor = GrColor_ILLEGAL;
 
     fHWDrawState.fViewMatrix = GrMatrix::InvalidMatrix();
@@ -1183,7 +1183,7 @@ GLenum gPrimitiveType2GLMode[] = {
     GL_LINE_STRIP
 };
 
-void GrGpuGL::drawIndexedHelper(PrimitiveType type,
+void GrGpuGL::drawIndexedHelper(GrPrimitiveType type,
                                 uint32_t startVertex,
                                 uint32_t startIndex,
                                 uint32_t vertexCount,
@@ -1203,7 +1203,7 @@ void GrGpuGL::drawIndexedHelper(PrimitiveType type,
                        GL_UNSIGNED_SHORT, indices));
 }
 
-void GrGpuGL::drawNonIndexedHelper(PrimitiveType type,
+void GrGpuGL::drawNonIndexedHelper(GrPrimitiveType type,
                                    uint32_t startVertex,
                                    uint32_t vertexCount) {
     GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
@@ -1458,7 +1458,7 @@ void GrGpuGL::flushStencil() {
     }
 }
 
-bool GrGpuGL::flushGLStateCommon(PrimitiveType type) {
+bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     // GrGpu::setupClipAndFlushState should have already checked this
     // and bailed if not true.

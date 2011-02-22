@@ -26,6 +26,7 @@ class GrMatrix;
 class GrContext;
 class GrTextStrike;
 class GrFontScaler;
+class GrDrawTarget;
 
 class GrTextContext {
 public:

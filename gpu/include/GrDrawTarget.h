@@ -52,16 +52,10 @@ public:
     };
 
     /**
-     * Geometric primitives used for drawing.
+     *  Bitfield used to indicate which stages are in use.
      */
-    enum PrimitiveType {
-        kTriangles_PrimitiveType,
-        kTriangleStrip_PrimitiveType,
-        kTriangleFan_PrimitiveType,
-        kPoints_PrimitiveType,
-        kLines_PrimitiveType,
-        kLineStrip_PrimitiveType
-    };
+    typedef int StageBitfield;
+    GR_STATIC_ASSERT(sizeof(StageBitfield)*8 >= kNumStages);
 
     /**
      *  Flags that affect rendering. Controlled using enable/disableState(). All
@@ -78,22 +72,6 @@ public:
         kClip_StateBit            = 0x4,//<! Controls whether drawing is clipped
                                         //   against the region specified by
                                         //   setClip.
-    };
-
-    /**
-     * Coeffecients for alpha-blending.
-     */
-    enum BlendCoeff {
-        kZero_BlendCoeff,    //<! 0
-        kOne_BlendCoeff,     //<! 1
-        kSC_BlendCoeff,      //<! src color
-        kISC_BlendCoeff,     //<! one minus src color
-        kDC_BlendCoeff,      //<! dst color
-        kIDC_BlendCoeff,     //<! one minus dst color
-        kSA_BlendCoeff,      //<! src alpha
-        kISA_BlendCoeff,     //<! one minus src alpha
-        kDA_BlendCoeff,      //<! dst alpha
-        kIDA_BlendCoeff,     //<! one minus dst alpha
     };
 
     /**
@@ -145,8 +123,8 @@ protected:
 
     struct DrState {
         uint32_t                fFlagBits;
-        BlendCoeff              fSrcBlend;
-        BlendCoeff              fDstBlend;
+        GrBlendCoeff            fSrcBlend;
+        GrBlendCoeff            fDstBlend;
         GrTexture*              fTextures[kNumStages];
         GrSamplerState          fSamplerStates[kNumStages];
         GrRenderTarget*         fRenderTarget;
@@ -362,7 +340,7 @@ public:
      * @param srcCoef coeffecient applied to the src color.
      * @param dstCoef coeffecient applied to the dst color.
      */
-    void setBlendFunc(BlendCoeff srcCoef, BlendCoeff dstCoef);
+    void setBlendFunc(GrBlendCoeff srcCoef, GrBlendCoeff dstCoef);
 
     /**
      * Used to save and restore the GrGpu's drawing state
@@ -645,7 +623,7 @@ public:
      *                     is effectively trimmed to the last completely
      *                     specified primitive.
      */
-    virtual void drawIndexed(PrimitiveType type,
+    virtual void drawIndexed(GrPrimitiveType type,
                              int startVertex,
                              int startIndex,
                              int vertexCount,
@@ -660,7 +638,7 @@ public:
      *                     to index 0
      * @param vertexCount  one greater than the max index.
      */
-    virtual void drawNonIndexed(PrimitiveType type,
+    virtual void drawNonIndexed(GrPrimitiveType type,
                                 int startVertex,
                                 int vertexCount)  = 0;
 
@@ -674,8 +652,8 @@ public:
      * drawNonIndexed.
      * @param rect      the rect to draw
      * @param matrix    optional matrix applied to rect (before viewMatrix)
-     * @param stageEnableMask   bitmask indicating which stages are enabled.
-     *                          Bit i indicates whether stage i is enabled.
+     * @param stageEnableBitfield bitmask indicating which stages are enabled.
+     *                            Bit i indicates whether stage i is enabled.
      * @param srcRects  specifies rects for stages enabled by stageEnableMask.
      *                  if stageEnableMask bit i is 1, srcRects is not NULL,
      *                  and srcRects[i] is not NULL, then srcRects[i] will be
@@ -689,7 +667,7 @@ public:
      */
     virtual void drawRect(const GrRect& rect, 
                           const GrMatrix* matrix,
-                          int stageEnableMask,
+                          StageBitfield stageEnableBitfield,
                           const GrRect* srcRects[],
                           const GrMatrix* srcMatrices[]);
 
@@ -699,8 +677,8 @@ public:
      */
     void drawSimpleRect(const GrRect& rect, 
                         const GrMatrix* matrix, 
-                        int stageEnableMask) {
-         drawRect(rect, matrix, stageEnableMask, NULL, NULL);
+                        StageBitfield stageEnableBitfield) {
+         drawRect(rect, matrix, stageEnableBitfield, NULL, NULL);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1003,7 +981,7 @@ protected:
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.
-    static GrVertexLayout GetRectVertexLayout(int stageEnableMask, 
+    static GrVertexLayout GetRectVertexLayout(StageBitfield stageEnableBitfield,
                                               const GrRect* srcRects[]);
 
     static void SetRectVertices(const GrRect& rect,

@@ -23,6 +23,7 @@
 #include "GrFontScaler.h"
 #include "GrIndexBuffer.h"
 #include "GrGpuVertex.h"
+#include "GrDrawTarget.h"
 
 static const int TEXT_STAGE = 1;
 
@@ -47,7 +48,7 @@ void GrTextContext::flushGlyphs() {
         fDrawTarget->setTexture(TEXT_STAGE, fCurrTexture);
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
 
-        fDrawTarget->drawIndexed(GrDrawTarget::kTriangles_PrimitiveType,
+        fDrawTarget->drawIndexed(kTriangles_PrimitiveType,
                                  0, 0, fCurrVertex, nIndices);
         fDrawTarget->releaseReservedGeometry();
         fVertices = NULL;
@@ -178,7 +179,7 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         GrPoint translate;
         translate.set(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
                       GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
-        fContext->drawPath(fPaint, &iter, GrContext::kWinding_PathFill,
+        fContext->drawPath(fPaint, &iter, kWinding_PathFill,
                            &translate);
         return;
     }

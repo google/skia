@@ -21,4 +21,5 @@ SOURCE := \
     GrTextureCache.cpp \
     GrTextContext.cpp \
     GrTextStrike.cpp \
-    GrBufferAllocPool.cpp
+    GrBufferAllocPool.cpp\
+    GrPathRenderer.cpp
