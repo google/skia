@@ -2,6 +2,7 @@ SOURCE := \
     BitmapCopyTest.cpp \
     BlitRowTest.cpp \
     ClipCubicTest.cpp \
+    ClipStackTest.cpp \
     ClipperTest.cpp \
     DequeTest.cpp \
     FillPathTest.cpp \
