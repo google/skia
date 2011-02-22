@@ -20,6 +20,7 @@
 #include "SkTypes.h"
 #include "SkBitmap.h"
 #include "SkDeque.h"
+#include "SkClipStack.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
 #include "SkPath.h"
@@ -776,6 +777,7 @@ protected:
 private:
     class MCRec;
 
+    SkClipStack fClipStack;
     SkDeque     fMCStack;
     // points to top of stack
     MCRec*      fMCRec;
@@ -835,6 +837,23 @@ private:
 
     SkMatrix    fExternalMatrix, fExternalInverse;
     bool        fUseExternalMatrix;
+
+    class AutoValidateClip : ::SkNoncopyable {
+    public:
+        explicit AutoValidateClip(SkCanvas* canvas) : fCanvas(canvas) {
+            fCanvas->validateClip();
+        }
+        ~AutoValidateClip() { fCanvas->validateClip(); }
+
+    private:
+        const SkCanvas* fCanvas;
+    };
+
+#ifdef SK_DEBUG
+    void validateClip() const;
+#else
+    void validateClip() const {}
+#endif
 };
 
 /** Stack helper class to automatically call restoreToCount() on the canvas
