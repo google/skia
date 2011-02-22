@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0009B176131441CD00C52F70 /* SkClipStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009B175131441CD00C52F70 /* SkClipStack.cpp */; };
 		00244E10106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00244E0F106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp */; };
 		002884C80EFAB8B90083E387 /* SkMMapStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884C70EFAB8B90083E387 /* SkMMapStream.cpp */; };
 		002884D50EFAB8F80083E387 /* SkStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 002884D40EFAB8F80083E387 /* SkStream.cpp */; };
@@ -141,6 +142,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0009B175131441CD00C52F70 /* SkClipStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkClipStack.cpp; path = ../../src/core/SkClipStack.cpp; sourceTree = SOURCE_ROOT; };
 		00244E0F106A6DEA00B8F4D8 /* SkBlitRow_D32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBlitRow_D32.cpp; path = ../../src/core/SkBlitRow_D32.cpp; sourceTree = SOURCE_ROOT; };
 		002884C70EFAB8B90083E387 /* SkMMapStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMMapStream.cpp; path = ../../src/core/SkMMapStream.cpp; sourceTree = SOURCE_ROOT; };
 		002884D40EFAB8F80083E387 /* SkStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkStream.cpp; path = ../../src/core/SkStream.cpp; sourceTree = SOURCE_ROOT; };
@@ -342,6 +344,7 @@
 		08FB7795FE84155DC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				0009B175131441CD00C52F70 /* SkClipStack.cpp */,
 				006EB61312EF97E100686979 /* SkRefDict.cpp */,
 				00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */,
 				277670F312B840CA006811C2 /* SkRegion_rects.cpp */,
@@ -677,6 +680,7 @@
 				008AE3D812E4A3D6002516FE /* SkBlitRow_opts_SSE2.cpp in Sources */,
 				008AE3DA12E4A3D6002516FE /* SkUtils_opts_SSE2.cpp in Sources */,
 				006EB61412EF97E100686979 /* SkRefDict.cpp in Sources */,
+				0009B176131441CD00C52F70 /* SkClipStack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

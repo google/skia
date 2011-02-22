@@ -22,6 +22,7 @@ SOURCE := \
     SkBuffer.cpp \
     SkCanvas.cpp \
     SkChunkAlloc.cpp \
+    SkClipStack.cpp \
     SkColor.cpp \
     SkColorFilter.cpp \
     SkColorTable.cpp \
