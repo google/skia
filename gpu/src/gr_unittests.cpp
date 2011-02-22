@@ -19,6 +19,7 @@
 #include "GrTDArray.h"
 #include "GrTBSearch.h"
 #include "GrMatrix.h"
+#include "GrRedBlackTree.h"
 
 static void dump(const GrTDArray<int>& array) {
 #if 0
@@ -31,7 +32,7 @@ static void dump(const GrTDArray<int>& array) {
 
 static void test_tdarray() {
     GrTDArray<int> array;
-    
+
     *array.append() = 0; dump(array);
     *array.append() = 2; dump(array);
     *array.append() = 4; dump(array);
@@ -138,6 +139,7 @@ void gr_run_unittests() {
     test_bsearch();
     test_clip();
     GrMatrix::UnitTest();
+    GrRedBlackTree<int>::UnitTest();
 }
 
 
