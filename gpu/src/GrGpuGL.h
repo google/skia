@@ -98,12 +98,12 @@ protected:
     GrGLExts fExts;
 
     // GrGpu overrides
-    virtual void drawIndexedHelper(PrimitiveType type,
+    virtual void drawIndexedHelper(GrPrimitiveType type,
                                    uint32_t startVertex,
                                    uint32_t startIndex,
                                    uint32_t vertexCount,
                                    uint32_t indexCount);
-    virtual void drawNonIndexedHelper(PrimitiveType type,
+    virtual void drawNonIndexedHelper(GrPrimitiveType type,
                                       uint32_t vertexCount,
                                       uint32_t numVertices);
     virtual void flushScissor(const GrIRect* rect);
@@ -127,7 +127,7 @@ protected:
     // sampler state (filtering, tiling)
     // FBO binding
     // line width
-    bool flushGLStateCommon(PrimitiveType type);
+    bool flushGLStateCommon(GrPrimitiveType type);
 
     // adjusts texture matrix to account for orientation, size, and npotness
     static void AdjustTextureMatrix(const GrGLTexture* texture,

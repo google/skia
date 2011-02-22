@@ -30,7 +30,7 @@ public:
 
 protected:
     // overrides from GrGpu
-    virtual bool flushGraphicsState(PrimitiveType type);
+    virtual bool flushGraphicsState(GrPrimitiveType type);
     virtual void setupGeometry(int* startVertex,
                                int* startIndex,
                                int vertexCount,
@@ -54,7 +54,7 @@ private:
     void flushRadial2(int stage);
 
     // called at flush time to setup the appropriate program
-    void flushProgram(PrimitiveType type);
+    void flushProgram(GrPrimitiveType type);
 
     struct Program;
 
@@ -69,7 +69,7 @@ private:
     class ProgramCache;
 
     // gets a description of needed shader
-    void getProgramDesc(PrimitiveType primType, ProgramDesc* desc);
+    void getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc);
 
     // generates and compiles a program from a description and vertex layout
     // will change GL's bound program

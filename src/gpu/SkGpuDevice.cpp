@@ -584,10 +584,10 @@ void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
 }
 
 // must be in SkCanvas::PointMode order
-static const GrDrawTarget::PrimitiveType gPointMode2PrimtiveType[] = {
-    GrDrawTarget::kPoints_PrimitiveType,
-    GrDrawTarget::kLines_PrimitiveType,
-    GrDrawTarget::kLineStrip_PrimitiveType
+static const GrPrimitiveType gPointMode2PrimtiveType[] = {
+    kPoints_PrimitiveType,
+    kLines_PrimitiveType,
+    kLineStrip_PrimitiveType
 };
 
 void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
@@ -774,21 +774,21 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         return;
     }
 
-    GrContext::PathFills fill = GrContext::kHairLine_PathFill;
+    GrPathFill fill = kHairLine_PathFill;
 
     if (doFill) {
         switch (pathPtr->getFillType()) {
             case SkPath::kWinding_FillType:
-                fill = GrContext::kWinding_PathFill;
+                fill = kWinding_PathFill;
                 break;
             case SkPath::kEvenOdd_FillType:
-                fill = GrContext::kEvenOdd_PathFill;
+                fill = kEvenOdd_PathFill;
                 break;
             case SkPath::kInverseWinding_FillType:
-                fill = GrContext::kInverseWinding_PathFill;
+                fill = kInverseWinding_PathFill;
                 break;
             case SkPath::kInverseEvenOdd_FillType:
-                fill = GrContext::kInverseEvenOdd_PathFill;
+                fill = kInverseEvenOdd_PathFill;
                 break;
             default:
                 SkDebugf("Unsupported path fill type\n");
@@ -986,10 +986,10 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
 ///////////////////////////////////////////////////////////////////////////////
 
 // must be in SkCanvas::VertexMode order
-static const GrDrawTarget::PrimitiveType gVertexMode2PrimitiveType[] = {
-    GrDrawTarget::kTriangles_PrimitiveType,
-    GrDrawTarget::kTriangleStrip_PrimitiveType,
-    GrDrawTarget::kTriangleFan_PrimitiveType,
+static const GrPrimitiveType gVertexMode2PrimitiveType[] = {
+    kTriangles_PrimitiveType,
+    kTriangleStrip_PrimitiveType,
+    kTriangleFan_PrimitiveType,
 };
 
 void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,

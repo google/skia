@@ -18,8 +18,8 @@
 #define GrPaint_DEFINED
 
 #include "GrTexture.h"
+#include "GrColor.h"
 #include "GrSamplerState.h"
-#include "GrDrawTarget.h"
 
 /**
  * The paint describes how pixels are colored when the context draws to
@@ -29,8 +29,8 @@ class GrPaint {
 public:
 
     // All the paint fields are public except texture (it's ref-counted)
-    GrDrawTarget::BlendCoeff    fSrcBlendCoeff;
-    GrDrawTarget::BlendCoeff    fDstBlendCoeff;
+    GrBlendCoeff                fSrcBlendCoeff;
+    GrBlendCoeff                fDstBlendCoeff;
     bool                        fAntiAlias;
     bool                        fDither;
 
@@ -80,8 +80,8 @@ private:
     GrTexture*      fTexture;
 
     void resetBlend() {
-        fSrcBlendCoeff = GrDrawTarget::kOne_BlendCoeff;
-        fDstBlendCoeff = GrDrawTarget::kZero_BlendCoeff;
+        fSrcBlendCoeff = kOne_BlendCoeff;
+        fDstBlendCoeff = kZero_BlendCoeff;
     }
 
     void resetOptions() {

@@ -81,12 +81,12 @@ public:
     void playback(GrDrawTarget* target);
     
     // overrides from GrDrawTarget
-    virtual void drawIndexed(PrimitiveType primitiveType,
+    virtual void drawIndexed(GrPrimitiveType primitiveType,
                              int startVertex,
                              int startIndex,
                              int vertexCount,
                              int indexCount);
-    virtual void drawNonIndexed(PrimitiveType primitiveType,
+    virtual void drawNonIndexed(GrPrimitiveType primitiveType,
                                 int startVertex,
                                 int vertexCount);
 
@@ -103,7 +103,7 @@ public:
 private:
 
     struct Draw {
-        PrimitiveType           fPrimitiveType;
+        GrPrimitiveType         fPrimitiveType;
         int                     fStartVertex;
         int                     fStartIndex;
         int                     fVertexCount;

@@ -92,6 +92,8 @@
 		D53904A112EA026E0025F3D6 /* GrPaint.h in Headers */ = {isa = PBXBuildFile; fileRef = D53904A012EA026E0025F3D6 /* GrPaint.h */; };
 		D58CAF9A12E7212100CB9277 /* GrGLUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */; };
 		D5ED886F1313F92C00B98D64 /* GrRedBlackTree.h in Headers */ = {isa = PBXBuildFile; fileRef = D5ED886E1313F92C00B98D64 /* GrRedBlackTree.h */; };
+		D5ED88EB13144FD600B98D64 /* GrPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5ED88E913144FD600B98D64 /* GrPathRenderer.cpp */; };
+		D5ED88EC13144FD600B98D64 /* GrPathRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = D5ED88EA13144FD600B98D64 /* GrPathRenderer.h */; };
 		D5FAF20C130726C6001550A4 /* GrGeometryBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = D5FAF20B130726C6001550A4 /* GrGeometryBuffer.h */; };
 		D5FAF22313072C27001550A4 /* GrBufferAllocPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5FAF22113072C27001550A4 /* GrBufferAllocPool.cpp */; };
 		D5FAF22413072C27001550A4 /* GrBufferAllocPool.h in Headers */ = {isa = PBXBuildFile; fileRef = D5FAF22213072C27001550A4 /* GrBufferAllocPool.h */; };
@@ -184,6 +186,8 @@
 		D53904A012EA026E0025F3D6 /* GrPaint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrPaint.h; path = ../../gpu/include/GrPaint.h; sourceTree = SOURCE_ROOT; };
 		D58CAF9812E7212100CB9277 /* GrGLUtil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLUtil.cpp; path = ../../gpu/src/GrGLUtil.cpp; sourceTree = SOURCE_ROOT; };
 		D5ED886E1313F92C00B98D64 /* GrRedBlackTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrRedBlackTree.h; path = ../../gpu/src/GrRedBlackTree.h; sourceTree = SOURCE_ROOT; };
+		D5ED88E913144FD600B98D64 /* GrPathRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrPathRenderer.cpp; path = ../../gpu/src/GrPathRenderer.cpp; sourceTree = SOURCE_ROOT; };
+		D5ED88EA13144FD600B98D64 /* GrPathRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrPathRenderer.h; path = ../../gpu/src/GrPathRenderer.h; sourceTree = SOURCE_ROOT; };
 		D5FAF20B130726C6001550A4 /* GrGeometryBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGeometryBuffer.h; path = ../../gpu/include/GrGeometryBuffer.h; sourceTree = SOURCE_ROOT; };
 		D5FAF22113072C27001550A4 /* GrBufferAllocPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrBufferAllocPool.cpp; path = ../../gpu/src/GrBufferAllocPool.cpp; sourceTree = SOURCE_ROOT; };
 		D5FAF22213072C27001550A4 /* GrBufferAllocPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrBufferAllocPool.h; path = ../../gpu/src/GrBufferAllocPool.h; sourceTree = SOURCE_ROOT; };
@@ -277,6 +281,8 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				D5ED88E913144FD600B98D64 /* GrPathRenderer.cpp */,
+				D5ED88EA13144FD600B98D64 /* GrPathRenderer.h */,
 				D5ED886E1313F92C00B98D64 /* GrRedBlackTree.h */,
 				D539049A12EA01E30025F3D6 /* GrContext_impl.h */,
 				00115DD812C1167A008296FE /* gr_unittests.cpp */,
@@ -398,6 +404,7 @@
 				D5FAF22413072C27001550A4 /* GrBufferAllocPool.h in Headers */,
 				00216E5E130F0B03009A2160 /* GrGLIRect.h in Headers */,
 				D5ED886F1313F92C00B98D64 /* GrRedBlackTree.h in Headers */,
+				D5ED88EC13144FD600B98D64 /* GrPathRenderer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -475,6 +482,7 @@
 				00115E2912C1167A008296FE /* GrTextureCache.cpp in Sources */,
 				D58CAF9A12E7212100CB9277 /* GrGLUtil.cpp in Sources */,
 				D5FAF22313072C27001550A4 /* GrBufferAllocPool.cpp in Sources */,
+				D5ED88EB13144FD600B98D64 /* GrPathRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

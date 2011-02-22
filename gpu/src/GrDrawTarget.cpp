@@ -374,8 +374,8 @@ void GrDrawTarget::disableState(uint32_t bits) {
     fCurrDrawState.fFlagBits &= ~(bits);
 }
 
-void GrDrawTarget::setBlendFunc(BlendCoeff srcCoef,
-                                BlendCoeff dstCoef) {
+void GrDrawTarget::setBlendFunc(GrBlendCoeff srcCoef,
+                                GrBlendCoeff dstCoef) {
     fCurrDrawState.fSrcBlend = srcCoef;
     fCurrDrawState.fDstBlend = dstCoef;
 }
@@ -515,12 +515,10 @@ bool GrDrawTarget::canDisableBlend() const {
 ///////////////////////////////////////////////////////////////////////////////
 void GrDrawTarget::drawRect(const GrRect& rect, 
                             const GrMatrix* matrix,
-                            int stageEnableMask,
+                            StageBitfield stageEnableBitfield,
                             const GrRect* srcRects[],
                             const GrMatrix* srcMatrices[]) {
-    GR_STATIC_ASSERT(8*sizeof(int) >= kNumStages);
-
-    GrVertexLayout layout = GetRectVertexLayout(stageEnableMask, srcRects);
+    GrVertexLayout layout = GetRectVertexLayout(stageEnableBitfield, srcRects);
 
     AutoReleaseGeometry geo(this, layout, 4, 0);
 
@@ -530,13 +528,13 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
 }
 
-GrVertexLayout GrDrawTarget::GetRectVertexLayout(int stageEnableMask, 
+GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageBitfield stageEnableBitfield, 
                                                  const GrRect* srcRects[]) {
     GrVertexLayout layout = 0;
 
     for (int i = 0; i < kNumStages; ++i) {
         int numTC = 0;
-        if (stageEnableMask & (1 << i)) {
+        if (stageEnableBitfield & (1 << i)) {
             if (NULL != srcRects && NULL != srcRects[i]) {
                 layout |= StageTexCoordVertexLayoutBit(i, numTC);
                 ++numTC;

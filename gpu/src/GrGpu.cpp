@@ -167,7 +167,7 @@ void GrGpu::clipWillBeSet(const GrClip& newClip) {
     }
 }
 
-bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
+bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
     const GrIRect* r = NULL;
 
     // we check this early because we need a valid
@@ -254,7 +254,7 @@ bool GrGpu::setupClipAndFlushState(PrimitiveType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::drawIndexed(PrimitiveType type,
+void GrGpu::drawIndexed(GrPrimitiveType type,
                         int startVertex,
                         int startIndex,
                         int vertexCount,
@@ -282,7 +282,7 @@ void GrGpu::drawIndexed(PrimitiveType type,
                       vertexCount, indexCount);
 }
 
-void GrGpu::drawNonIndexed(PrimitiveType type,
+void GrGpu::drawNonIndexed(GrPrimitiveType type,
                            int startVertex,
                            int vertexCount) {
     GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fVertexSrc ||
