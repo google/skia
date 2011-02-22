@@ -11,7 +11,7 @@ SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
     // auto-allocate if we're for offscreen drawing
     if (isForLayer) {
         if (NULL == fBitmap.getPixels() && NULL == fBitmap.pixelRef()) {
-            fBitmap.allocPixels();   
+            fBitmap.allocPixels();
             if (!fBitmap.isOpaque()) {
                 fBitmap.eraseColor(0);
             }
@@ -43,7 +43,7 @@ void SkDevice::getBounds(SkIRect* bounds) const {
 
 bool SkDevice::intersects(const SkIRect& r, SkIRect* sect) const {
     SkIRect bounds;
-    
+
     this->getBounds(&bounds);
     return sect ? sect->intersect(r, bounds) : SkIRect::Intersects(r, bounds);
 }
@@ -54,7 +54,8 @@ void SkDevice::eraseColor(SkColor eraseColor) {
 
 void SkDevice::onAccessBitmap(SkBitmap* bitmap) {}
 
-void SkDevice::setMatrixClip(const SkMatrix&, const SkRegion&) {}
+void SkDevice::setMatrixClip(const SkMatrix&, const SkRegion&,
+                             const SkClipStack&) {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -116,7 +117,7 @@ void SkDevice::drawBitmap(const SkDraw& draw, const SkBitmap& bitmap,
                           const SkMatrix& matrix, const SkPaint& paint) {
     SkBitmap        tmp;    // storage if we need a subset of bitmap
     const SkBitmap* bitmapPtr = &bitmap;
-    
+
     if (srcRect) {
         if (!bitmap.extractSubset(&tmp, *srcRect)) {
             return;     // extraction failed

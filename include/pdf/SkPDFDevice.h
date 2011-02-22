@@ -64,7 +64,8 @@ public:
         to using those settings. If your subclass overrides this, be sure to
         call through to the base class as well.
     */
-    virtual void setMatrixClip(const SkMatrix&, const SkRegion&);
+    virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
+                               const SkClipStack&);
 
     virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
         return false;

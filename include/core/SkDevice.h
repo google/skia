@@ -23,6 +23,7 @@
 #include "SkColor.h"
 #include "SkRefDict.h"
 
+class SkClipStack;
 class SkDevice;
 class SkDraw;
 struct SkIRect;
@@ -122,11 +123,20 @@ public:
      */
     virtual SkGpuTexture* accessTexture() { return NULL; }
 
-    /** Called with the correct matrix and clip before this device is drawn
-        to using those settings. If your subclass overrides this, be sure to
-        call through to the base class as well.
+    /**
+     *  Called with the correct matrix and clip before this device is drawn
+     *  to using those settings. If your subclass overrides this, be sure to
+     *  call through to the base class as well.
+     *
+     *  The clipstack is another view of the clip. It records the actual
+     *  geometry that went into building the region. It is present for devices
+     *  that want to parse it, but is not required: the region is a complete
+     *  picture of the current clip. (i.e. if you regionize all of the geometry
+     *  in the clipstack, you will arrive at an equivalent region to the one
+     *  passed in).
     */
-    virtual void setMatrixClip(const SkMatrix&, const SkRegion&);
+    virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
+                               const SkClipStack&);
 
     /** Called when this device gains focus (i.e becomes the current device
         for drawing).

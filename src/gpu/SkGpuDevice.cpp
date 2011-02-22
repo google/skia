@@ -294,8 +294,9 @@ void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
     }
 }
 
-void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip) {
-    this->INHERITED::setMatrixClip(matrix, clip);
+void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
+                                const SkClipStack& clipStack) {
+    this->INHERITED::setMatrixClip(matrix, clip, clipStack);
 
     convert_matrixclip(fContext, matrix, clip);
 }
@@ -912,7 +913,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     }
 
     grPaint->setTexture(texture);
-    
+
     GrRect dstRect(0, 0, GrIntToScalar(srcRect.width()), GrIntToScalar(srcRect.height()));
     GrRect paintRect;
     paintRect.setLTRB(GrFixedToScalar((srcRect.fLeft << 16)   / bitmap.width()),
