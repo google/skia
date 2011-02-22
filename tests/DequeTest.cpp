@@ -39,6 +39,8 @@ static void TestDeque(skiatest::Reporter* reporter) {
     SkDeque deq(sizeof(int));
     int i;
 
+    // test pushing on the front
+
     assert_count(reporter, deq, 0);
     for (i = 1; i <= 10; i++) {
         *(int*)deq.push_front() = i;
@@ -56,6 +58,38 @@ static void TestDeque(skiatest::Reporter* reporter) {
         deq.pop_front();
     }
     assert_count(reporter, deq, 0);
+
+    // now test pushing on the back
+
+    for (i = 10; i >= 1; --i) {
+        *(int*)deq.push_back() = i;
+    }
+    assert_count(reporter, deq, 10);
+    assert_f2biter(reporter, deq, 10, 1);
+
+    for (i = 0; i < 5; i++) {
+        deq.pop_back();
+    }
+    assert_count(reporter, deq, 5);
+    assert_f2biter(reporter, deq, 10, 6);
+
+    for (i = 0; i < 5; i++) {
+        deq.pop_back();
+    }
+    assert_count(reporter, deq, 0);
+
+    // now tests pushing/poping on both ends
+
+    *(int*)deq.push_front() = 5;
+    *(int*)deq.push_back() = 4;
+    *(int*)deq.push_front() = 6;
+    *(int*)deq.push_back() = 3;
+    *(int*)deq.push_front() = 7;
+    *(int*)deq.push_back() = 2;
+    *(int*)deq.push_front() = 8;
+    *(int*)deq.push_back() = 1;
+    assert_count(reporter, deq, 8);
+    assert_f2biter(reporter, deq, 8, 1);
 }
 
 #include "TestClassDef.h"
