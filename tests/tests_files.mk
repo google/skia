@@ -3,6 +3,7 @@ SOURCE := \
     BlitRowTest.cpp \
     ClipCubicTest.cpp \
     ClipperTest.cpp \
+    DequeTest.cpp \
     FillPathTest.cpp \
     FlateTest.cpp \
     GeometryTest.cpp \

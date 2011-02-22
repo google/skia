@@ -477,16 +477,16 @@ SkDrawFilter* SkCanvas::setDrawFilter(SkDrawFilter* filter) {
 
 SkDevice* SkCanvas::getDevice() const {
     // return root device
-    SkDeque::Iter   iter(fMCStack);
-    MCRec*          rec = (MCRec*)iter.next();
+    SkDeque::F2BIter iter(fMCStack);
+    MCRec*           rec = (MCRec*)iter.next();
     SkASSERT(rec && rec->fLayer);
     return rec->fLayer->fDevice;
 }
 
 SkDevice* SkCanvas::setDevice(SkDevice* device) {
     // return root device
-    SkDeque::Iter   iter(fMCStack);
-    MCRec*          rec = (MCRec*)iter.next();
+    SkDeque::F2BIter iter(fMCStack);
+    MCRec*           rec = (MCRec*)iter.next();
     SkASSERT(rec && rec->fLayer);
     SkDevice*       rootDevice = rec->fLayer->fDevice;
 
