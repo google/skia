@@ -1321,7 +1321,14 @@ void SkBitmap::flatten(SkFlattenableWriteBuffer& buffer) const {
         } else {
             buffer.write8(SERIALIZE_PIXELTYPE_RAW_NO_CTABLE);
         }
-        buffer.writePad(fPixels, this->getSize());
+        buffer.writePad(fPixels, this->getSafeSize());
+        // There is no writeZeroPad() fcn, so write individual bytes.
+        if (this->getSize() > this->getSafeSize()) {
+            size_t deltaSize = this->getSize() - this->getSafeSize();
+            // Need aligned pointer to write into due to internal implementa-
+            // tion of SkWriter32.
+            memset(buffer.reserve(SkAlign4(deltaSize)), 0, deltaSize);
+        }
     } else {
         buffer.write8(SERIALIZE_PIXELTYPE_NONE);
     }
@@ -1338,7 +1345,6 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
     this->setConfig((Config)config, width, height, rowBytes);
     this->setIsOpaque(buffer.readBool());
 
-    size_t size = this->getSize();
     int reftype = buffer.readU8();
     switch (reftype) {
         case SERIALIZE_PIXELTYPE_REF_PTR: {
@@ -1360,10 +1366,13 @@ void SkBitmap::unflatten(SkFlattenableReadBuffer& buffer) {
             if (SERIALIZE_PIXELTYPE_RAW_WITH_CTABLE == reftype) {
                 ctable = SkNEW_ARGS(SkColorTable, (buffer));
             }
+            size_t size = this->getSize();
             if (this->allocPixels(ctable)) {
                 this->lockPixels();
-                buffer.read(this->getPixels(), this->getSafeSize()); // Just read what we need.
-                buffer.skip(size - this->getSafeSize()); // Keep aligned for subsequent reads.
+                // Just read what we need.
+                buffer.read(this->getPixels(), this->getSafeSize());
+                // Keep aligned for subsequent reads.
+                buffer.skip(size - this->getSafeSize());
                 this->unlockPixels();
             } else {
                 buffer.skip(size); // Still skip the full-sized buffer though.
