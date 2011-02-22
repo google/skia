@@ -4,7 +4,7 @@
 #include "SkDeque.h"
 #include "SkRegion.h"
 
-class SkRect;
+struct SkRect;
 class SkPath;
 
 class SkClipStack {
