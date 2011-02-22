@@ -358,7 +358,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
     Node* gp = NULL;
     Node* p = NULL;
     Node* n = fRoot;
-    Child pc;
+    Child pc = kLeft_Child; // suppress uninit warning
     Child gpc;
 
     bool first = true;
