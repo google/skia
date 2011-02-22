@@ -149,6 +149,12 @@ void SkOSWindow::doPaint(void* ctx) {
         // 
         // Do the SetDIBitsToDevice. 
         // 
+        // TODO(wjmaclean):
+        //       Fix this call to handle SkBitmaps that have rowBytes != width,
+        //       i.e. may have padding at the end of lines. The SkASSERT below
+        //       may be ignored by builds, and the only obviously safe option
+        //       seems to be to copy the bitmap to a temporary (contiguous)
+        //       buffer before passing to SetDIBitsToDevice().
         SkASSERT(bitmap.width() * bitmap.bytesPerPixel() == bitmap.rowBytes());
         bitmap.lockPixels();
         int iRet = SetDIBitsToDevice(hdc,
