@@ -152,7 +152,8 @@ SkPDFDevice::~SkPDFDevice() {
 }
 
 void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
-                                const SkRegion& region) {
+                                const SkRegion& region,
+                                const SkClipStack&) {
     // See the comment in the header file above GraphicStackEntry.
     if (region != fGraphicStack[fGraphicStackIndex].fClip) {
         while (fGraphicStackIndex > 0)
