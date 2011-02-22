@@ -42,7 +42,7 @@ public:
 
     void* push_front();
     void* push_back();
-    
+
     void pop_front();
     void pop_back();
 
@@ -50,9 +50,9 @@ private:
     struct Head;
 
 public:
-    class Iter {
+    class F2BIter {
     public:
-        Iter(const SkDeque& d);
+        F2BIter(const SkDeque& d);
         void* next();
 
     private:
@@ -67,7 +67,7 @@ private:
     size_t  fElemSize;
     void*   fInitialStorage;
     int     fCount;
-    
+
     friend class Iter;
 };
 

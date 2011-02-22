@@ -37,7 +37,7 @@ SkLayerRasterizer::SkLayerRasterizer() : fLayers(sizeof(SkLayerRasterizer_Rec))
 
 SkLayerRasterizer::~SkLayerRasterizer()
 {
-    SkDeque::Iter           iter(fLayers);
+    SkDeque::F2BIter        iter(fLayers);
     SkLayerRasterizer_Rec*  rec;
 
     while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != NULL)
@@ -55,7 +55,7 @@ void SkLayerRasterizer::addLayer(const SkPaint& paint, SkScalar dx, SkScalar dy)
 static bool compute_bounds(const SkDeque& layers, const SkPath& path, const SkMatrix& matrix,
                            const SkIRect* clipBounds, SkIRect* bounds)
 {
-    SkDeque::Iter           iter(layers);
+    SkDeque::F2BIter        iter(layers);
     SkLayerRasterizer_Rec*  rec;
 
     bounds->set(SK_MaxS32, SK_MaxS32, SK_MinS32, SK_MinS32);
@@ -139,7 +139,7 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
         // we set the matrixproc in the loop, as the matrix changes each time (potentially)
         draw.fBounder   = NULL;
 
-        SkDeque::Iter           iter(fLayers);
+        SkDeque::F2BIter        iter(fLayers);
         SkLayerRasterizer_Rec*  rec;
 
         while ((rec = (SkLayerRasterizer_Rec*)iter.next()) != NULL) {
@@ -219,7 +219,7 @@ void SkLayerRasterizer::flatten(SkFlattenableWriteBuffer& buffer)
 
     buffer.write32(fLayers.count());
 
-    SkDeque::Iter                   iter(fLayers);
+    SkDeque::F2BIter                iter(fLayers);
     const SkLayerRasterizer_Rec*    rec;
 
     while ((rec = (const SkLayerRasterizer_Rec*)iter.next()) != NULL)
