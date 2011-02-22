@@ -153,6 +153,7 @@
     <ClInclude Include="..\..\gpu\src\GrGpuGL.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h" />
+    <ClInclude Include="..\..\gpu\src\GrPathRenderer.h" />
     <ClInclude Include="..\..\gpu\src\GrQuadIndexTable.h" />
     <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h" />
     <ClInclude Include="..\..\include\gpu\SkGpuCanvas.h" />
@@ -230,6 +231,7 @@
     <ClCompile Include="..\..\gpu\src\GrMatrix.cpp" />
     <ClCompile Include="..\..\gpu\src\GrMemory.cpp" />
     <ClCompile Include="..\..\gpu\src\GrPath.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrPathRenderer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrRectanizer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextStrike.cpp" />
@@ -314,6 +316,7 @@
     <ClCompile Include="..\..\src\core\SkBuffer.cpp" />
     <ClCompile Include="..\..\src\core\SkCanvas.cpp" />
     <ClCompile Include="..\..\src\core\SkChunkAlloc.cpp" />
+    <ClCompile Include="..\..\src\core\SkClipStack.cpp" />
     <ClCompile Include="..\..\src\core\SkColor.cpp" />
     <ClCompile Include="..\..\src\core\SkColorFilter.cpp" />
     <ClCompile Include="..\..\src\core\SkColorTable.cpp" />
