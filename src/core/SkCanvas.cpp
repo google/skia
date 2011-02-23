@@ -1016,7 +1016,7 @@ void SkCanvas::validateClip() const {
             clip->fRect->round(&ir);
             clipRgn.op(ir, clip->fOp);
         } else {
-            break;
+            clipRgn.setEmpty();
         }
     }
 
