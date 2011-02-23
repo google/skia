@@ -177,6 +177,11 @@ public:
     */
     virtual void setMemory(const void* data, size_t length,
                            bool copyData = false);
+    /** Replace any memory buffer with the specified buffer. The caller
+        must have allocated data with sk_malloc or sk_realloc, since it
+        will be freed with sk_free.
+    */
+    void setMemoryOwned(const void* data, size_t length);
     void skipToAlign4();
     virtual bool rewind();
     virtual size_t read(void* buffer, size_t size);

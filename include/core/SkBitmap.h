@@ -462,10 +462,15 @@ public:
     int extractMipLevel(SkBitmap* dst, SkFixed sx, SkFixed sy);
 
     void extractAlpha(SkBitmap* dst) const {
-        this->extractAlpha(dst, NULL, NULL);
+        this->extractAlpha(dst, NULL, NULL, NULL);
     }
 
     void extractAlpha(SkBitmap* dst, const SkPaint* paint,
+                      SkIPoint* offset) const {
+        this->extractAlpha(dst, paint, NULL, offset);
+    }
+
+    void extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
                       SkIPoint* offset) const;
 
     void flatten(SkFlattenableWriteBuffer&) const;

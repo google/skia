@@ -93,6 +93,18 @@ static bool Sample_RGBx_D565(void* SK_RESTRICT dstRow,
     return false;
 }
 
+static bool Sample_D565_D565(void* SK_RESTRICT dstRow,
+                             const uint8_t* SK_RESTRICT src,
+                             int width, int deltaSrc, int, const SkPMColor[]) {
+    uint16_t* SK_RESTRICT dst = (uint16_t*)dstRow;
+    uint16_t* SK_RESTRICT castedSrc = (uint16_t*) src;
+    for (int x = 0; x < width; x++) {
+        dst[x] = castedSrc[0];
+        castedSrc += deltaSrc >> 1;
+    }
+    return false;
+}
+
 static bool Sample_RGBx_D565_D(void* SK_RESTRICT dstRow,
                                const uint8_t* SK_RESTRICT src,
                            int width, int deltaSrc, int y, const SkPMColor[]) {
@@ -335,21 +347,25 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
         Sample_RGBx_D8888,  Sample_RGBx_D8888,
         Sample_RGBA_D8888,  Sample_RGBA_D8888,
         Sample_Index_D8888, Sample_Index_D8888,
+        NULL,               NULL,
         // 565 (no alpha distinction)
         Sample_Gray_D565,   Sample_Gray_D565_D,
         Sample_RGBx_D565,   Sample_RGBx_D565_D,
         Sample_RGBx_D565,   Sample_RGBx_D565_D,
         Sample_Index_D565,  Sample_Index_D565_D,
+        Sample_D565_D565,   Sample_D565_D565,
         // 4444
         Sample_Gray_D4444,  Sample_Gray_D4444_D,
         Sample_RGBx_D4444,  Sample_RGBx_D4444_D,
         Sample_RGBA_D4444,  Sample_RGBA_D4444_D,
         Sample_Index_D4444, Sample_Index_D4444_D,
+        NULL,               NULL,
         // Index8
         NULL,               NULL,
         NULL,               NULL,
         NULL,               NULL,
         Sample_Index_DI,    Sample_Index_DI,
+        NULL,               NULL,
     };
 
     fCTable = ctable;
@@ -379,6 +395,10 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
             fSrcPixelSize = 1;
             index += 6;
             break;
+        case SkScaledBitmapSampler::kRGB_565:
+            fSrcPixelSize = 2;
+            index += 8;
+            break;
         default:
             return false;
     }
@@ -388,13 +408,13 @@ bool SkScaledBitmapSampler::begin(SkBitmap* dst, SrcConfig sc, bool dither,
             index += 0;
             break;
         case SkBitmap::kRGB_565_Config:
-            index += 8;
+            index += 10;
             break;
         case SkBitmap::kARGB_4444_Config:
-            index += 16;
+            index += 20;
             break;
         case SkBitmap::kIndex8_Config:
-            index += 24;
+            index += 30;
             break;
         default:
             return false;

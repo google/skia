@@ -21,7 +21,8 @@ public:
         kIndex, // 1 byte per pixel
         kRGB,   // 3 bytes per pixel
         kRGBX,  // 4 byes per pixel (ignore 4th)
-        kRGBA   // 4 bytes per pixel
+        kRGBA,  // 4 bytes per pixel
+        kRGB_565 // 2 bytes per pixel
     };
 
     // Given a dst bitmap (with pixels already allocated) and a src-config,

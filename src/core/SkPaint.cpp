@@ -1233,10 +1233,14 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
 void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
                              void (*proc)(const SkDescriptor*, void*),
-                             void* context) const {
+                             void* context, bool ignoreGamma) const {
     SkScalerContext::Rec    rec;
 
     SkScalerContext::MakeRec(*this, deviceMatrix, &rec);
+    if (ignoreGamma) {
+        rec.fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
+                SkScalerContext::kGammaForWhite_Flag);
+    }
 
     size_t          descSize = sizeof(rec);
     int             entryCount = 1;
@@ -1645,4 +1649,3 @@ const SkPath* SkTextToPathIter::next(SkScalar* xpos) {
     }
     return NULL;
 }
-

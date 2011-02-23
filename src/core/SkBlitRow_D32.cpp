@@ -2,6 +2,8 @@
 #include "SkColorPriv.h"
 #include "SkUtils.h"
 
+#define UNROLL
+
 static void S32_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src,
                                  int count, U8CPU alpha) {
@@ -16,11 +18,28 @@ static void S32_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
     if (count > 0) {
         unsigned src_scale = SkAlpha255To256(alpha);
         unsigned dst_scale = 256 - src_scale;
+
+#ifdef UNROLL
+        if (count & 1) {
+            *dst = SkAlphaMulQ(*(src++), src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            dst += 1;
+            count -= 1;
+        }
+
+        const SkPMColor* SK_RESTRICT srcEnd = src + count;
+        while (src != srcEnd) {
+            *dst = SkAlphaMulQ(*(src++), src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            dst += 1;
+            *dst = SkAlphaMulQ(*(src++), src_scale) + SkAlphaMulQ(*dst, dst_scale);
+            dst += 1;
+        }
+#else
         do {
             *dst = SkAlphaMulQ(*src, src_scale) + SkAlphaMulQ(*dst, dst_scale);
             src += 1;
             dst += 1;
         } while (--count > 0);
+#endif
     }
 }
 
@@ -31,6 +50,21 @@ static void S32A_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
                                   int count, U8CPU alpha) {
     SkASSERT(255 == alpha);
     if (count > 0) {
+#ifdef UNROLL
+        if (count & 1) {
+            *dst = SkPMSrcOver(*(src++), *dst);
+            dst += 1;
+            count -= 1;
+        }
+
+        const SkPMColor* SK_RESTRICT srcEnd = src + count;
+        while (src != srcEnd) {
+            *dst = SkPMSrcOver(*(src++), *dst);
+            dst += 1;
+            *dst = SkPMSrcOver(*(src++), *dst);
+            dst += 1;
+        }
+#else
         do {
 #ifdef TEST_SRC_ALPHA
             SkPMColor sc = *src;
@@ -48,6 +82,7 @@ static void S32A_Opaque_BlitRow32(SkPMColor* SK_RESTRICT dst,
             src += 1;
             dst += 1;
         } while (--count > 0);
+#endif
     }
 }
 
@@ -56,11 +91,27 @@ static void S32A_Blend_BlitRow32(SkPMColor* SK_RESTRICT dst,
                                  int count, U8CPU alpha) {
     SkASSERT(alpha <= 255);
     if (count > 0) {
+#ifdef UNROLL
+        if (count & 1) {
+            *dst = SkBlendARGB32(*(src++), *dst, alpha);
+            dst += 1;
+            count -= 1;
+        }
+
+        const SkPMColor* SK_RESTRICT srcEnd = src + count;
+        while (src != srcEnd) {
+            *dst = SkBlendARGB32(*(src++), *dst, alpha);
+            dst += 1;
+            *dst = SkBlendARGB32(*(src++), *dst, alpha);
+            dst += 1;
+        }
+#else
         do {
             *dst = SkBlendARGB32(*src, *dst, alpha);
             src += 1;
             dst += 1;
         } while (--count > 0);
+#endif
     }
 }
 

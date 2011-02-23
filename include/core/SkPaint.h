@@ -855,7 +855,7 @@ private:
 
     void descriptorProc(const SkMatrix* deviceMatrix,
                         void (*proc)(const SkDescriptor*, void*),
-                        void* context) const;
+                        void* context, bool ignoreGamma = false) const;
 
     const SkRect& computeStrokeFastBounds(const SkRect& orig,
                                           SkRect* storage) const;

@@ -272,6 +272,18 @@ SkMemoryStream::~SkMemoryStream()
         sk_free((void*)fSrc);
 }
 
+void SkMemoryStream::setMemoryOwned(const void* src, size_t size)
+{
+    if (fWeOwnTheData)
+        sk_free((void*)fSrc);
+
+    fSize = size;
+    fOffset = 0;
+    fWeOwnTheData = true;
+
+    fSrc = src;
+}
+
 void SkMemoryStream::setMemory(const void* src, size_t size, bool copyData)
 {
     if (fWeOwnTheData)

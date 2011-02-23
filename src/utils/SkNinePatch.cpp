@@ -235,15 +235,27 @@ static void drawNineViaRects(SkCanvas* canvas, const SkRect& dst,
     const int32_t srcY[4] = {
         0, margins.fTop, bitmap.height() - margins.fBottom, bitmap.height()
     };
-    const SkScalar dstX[4] = {
+    SkScalar dstX[4] = {
         dst.fLeft, dst.fLeft + SkIntToScalar(margins.fLeft),
         dst.fRight - SkIntToScalar(margins.fRight), dst.fRight
     };
-    const SkScalar dstY[4] = {
+    SkScalar dstY[4] = {
         dst.fTop, dst.fTop + SkIntToScalar(margins.fTop),
         dst.fBottom - SkIntToScalar(margins.fBottom), dst.fBottom
     };
-    
+
+    if (dstX[1] > dstX[2]) {
+        dstX[1] = dstX[0] + (dstX[3] - dstX[0]) * SkIntToScalar(margins.fLeft) /
+            (SkIntToScalar(margins.fLeft) + SkIntToScalar(margins.fRight));
+        dstX[2] = dstX[1];
+    }
+
+    if (dstY[1] > dstY[2]) {
+        dstY[1] = dstY[0] + (dstY[3] - dstY[0]) * SkIntToScalar(margins.fTop) /
+            (SkIntToScalar(margins.fTop) + SkIntToScalar(margins.fBottom));
+        dstY[2] = dstY[1];
+    }
+
     SkIRect s;
     SkRect  d;
     for (int y = 0; y < 3; y++) {
@@ -278,6 +290,17 @@ void SkNinePatch::DrawNine(SkCanvas* canvas, const SkRect& bounds,
         xDivs[1] = bitmap.width() - margins.fRight;
         yDivs[0] = margins.fTop;
         yDivs[1] = bitmap.height() - margins.fBottom;
+
+        if (xDivs[0] > xDivs[1]) {
+            xDivs[0] = bitmap.width() * margins.fLeft /
+                (margins.fLeft + margins.fRight);
+            xDivs[1] = xDivs[0];
+        }
+        if (yDivs[0] > yDivs[1]) {
+            yDivs[0] = bitmap.height() * margins.fTop /
+                (margins.fTop + margins.fBottom);
+            yDivs[1] = yDivs[0];
+        }
         
         SkNinePatch::DrawMesh(canvas, bounds, bitmap,
                               xDivs, 2, yDivs, 2, paint);

@@ -15,6 +15,13 @@ public:
     SkImageRef_ashmem(SkStream*, SkBitmap::Config, int sampleSize = 1);
     virtual ~SkImageRef_ashmem();
     
+    // overrides
+    virtual void flatten(SkFlattenableWriteBuffer&) const;
+    virtual Factory getFactory() const {
+        return Create;
+    }
+    static SkPixelRef* Create(SkFlattenableReadBuffer&);
+
 protected:
     virtual bool onDecode(SkImageDecoder* codec, SkStream* stream,
                           SkBitmap* bitmap, SkBitmap::Config config,
@@ -24,6 +31,7 @@ protected:
     virtual void onUnlockPixels();
     
 private:
+    SkImageRef_ashmem(SkFlattenableReadBuffer&);
     void closeFD();
 
     SkColorTable* fCT;

@@ -117,6 +117,11 @@ static const ColorMapObject* find_colormap(const GifFileType* gif) {
     if (NULL == cmap) {
         cmap = gif->SColorMap;
     }
+
+    if (NULL == cmap) {
+        // no colormap found
+        return NULL;
+    }
     // some sanity checks
     if (cmap && ((unsigned)cmap->ColorCount > 256 ||
                  cmap->ColorCount != (1 << cmap->BitsPerPixel))) {

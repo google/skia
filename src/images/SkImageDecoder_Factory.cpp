@@ -71,4 +71,3 @@ SkMovie* SkMovie::DecodeStream(SkStream* stream) {
     }
     return NULL;
 }
-
