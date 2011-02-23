@@ -57,6 +57,16 @@ bool SkImageRef::getInfo(SkBitmap* bitmap) {
     return true;
 }
 
+bool SkImageRef::isOpaque(SkBitmap* bitmap) {
+    if (bitmap && bitmap->pixelRef() == this) {
+        bitmap->lockPixels();
+        bitmap->setIsOpaque(fBitmap.isOpaque());
+        bitmap->unlockPixels();
+        return true;
+    }
+    return false;
+}
+
 SkImageDecoderFactory* SkImageRef::setDecoderFactory(
                                                 SkImageDecoderFactory* fact) {
     SkRefCnt_SafeAssign(fFactory, fact);

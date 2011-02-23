@@ -223,13 +223,9 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     if (config == SkBitmap::kARGB_8888_Config) {
         cinfo.out_color_space = JCS_RGBA_8888;
     } else if (config == SkBitmap::kRGB_565_Config) {
-        if (sampleSize == 1) {
-            // SkScaledBitmapSampler can't handle RGB_565 yet,
-            // so don't even try.
-            cinfo.out_color_space = JCS_RGB_565;
-            if (this->getDitherImage()) {
-                cinfo.dither_mode = JDITHER_ORDERED;
-            }
+        cinfo.out_color_space = JCS_RGB_565;
+        if (this->getDitherImage()) {
+            cinfo.dither_mode = JDITHER_ORDERED;
         }
     }
 #endif
@@ -319,8 +315,8 @@ bool SkJPEGImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
 #ifdef ANDROID_RGB
     } else if (JCS_RGBA_8888 == cinfo.out_color_space) {
         sc = SkScaledBitmapSampler::kRGBX;
-    //} else if (JCS_RGB_565 == cinfo.out_color_space) {
-    //    sc = SkScaledBitmapSampler::kRGB_565;
+    } else if (JCS_RGB_565 == cinfo.out_color_space) {
+        sc = SkScaledBitmapSampler::kRGB_565;
 #endif
     } else if (1 == cinfo.out_color_components &&
                JCS_GRAYSCALE == cinfo.out_color_space) {

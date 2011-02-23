@@ -119,6 +119,18 @@ public:
     virtual Factory getFactory() const { return NULL; }
     virtual void flatten(SkFlattenableWriteBuffer&) const;
 
+    /** Acquire a "global" ref on this object.
+    * The default implementation just calls ref(), but subclasses can override
+    * this method to implement additional behavior.
+    */
+    virtual void globalRef(void* data=NULL);
+
+    /** Release a "global" ref on this object.
+    * The default implementation just calls unref(), but subclasses can override
+    * this method to implement additional behavior.
+    */
+    virtual void globalUnref();
+
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
     static void Register(const char name[], Factory);

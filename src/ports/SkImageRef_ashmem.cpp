@@ -1,5 +1,6 @@
 #include "SkImageRef_ashmem.h"
 #include "SkImageDecoder.h"
+#include "SkFlattenable.h"
 #include "SkThread.h"
 
 #include <sys/mman.h>
@@ -36,7 +37,7 @@ SkImageRef_ashmem::SkImageRef_ashmem(SkStream* stream,
 }
 
 SkImageRef_ashmem::~SkImageRef_ashmem() {
-    fCT->safeUnref();
+    SkSafeUnref(fCT);
     this->closeFD();
 }
 
@@ -201,3 +202,36 @@ void SkImageRef_ashmem::onUnlockPixels() {
     fBitmap.setPixels(NULL, NULL);
 }
 
+void SkImageRef_ashmem::flatten(SkFlattenableWriteBuffer& buffer) const {
+    this->INHERITED::flatten(buffer);
+    const char* uri = getURI();
+    if (uri) {
+        size_t len = strlen(uri);
+        buffer.write32(len);
+        buffer.writePad(uri, len);
+    } else {
+        buffer.write32(0);
+    }
+}
+
+SkImageRef_ashmem::SkImageRef_ashmem(SkFlattenableReadBuffer& buffer)
+        : INHERITED(buffer) {
+    fRec.fFD = -1;
+    fRec.fAddr = NULL;
+    fRec.fSize = 0;
+    fRec.fPinned = false;
+    fCT = NULL;
+    size_t length = buffer.readU32();
+    if (length) {
+        char* buf = (char*) malloc(length);
+        buffer.read(buf, length);
+        setURI(buf, length);
+    }
+}
+
+SkPixelRef* SkImageRef_ashmem::Create(SkFlattenableReadBuffer& buffer) {
+    return SkNEW_ARGS(SkImageRef_ashmem, (buffer));
+}
+
+static SkPixelRef::Registrar reg("SkImageRef_ashmem",
+                                 SkImageRef_ashmem::Create);
