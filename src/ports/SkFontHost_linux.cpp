@@ -32,7 +32,8 @@
     #define SK_FONT_FILE_PREFIX      "/usr/share/fonts/truetype/msttcorefonts/"
 #endif
 
-SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name);
+SkTypeface::Style find_name_and_attributes(SkStream* stream, SkString* name,
+                                           bool* isFixedWidth);
 
 static void GetFullPathForSysFonts(SkString* full, const char name[])
 {
@@ -237,8 +238,8 @@ static void remove_from_names(FamilyRec* emptyFamily) {
 
 class FamilyTypeface : public SkTypeface {
 public:
-    FamilyTypeface(Style style, bool sysFont, FamilyRec* family)
-    : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1) {
+    FamilyTypeface(Style style, bool sysFont, FamilyRec* family, bool isFixedWidth)
+    : SkTypeface(style, sk_atomic_inc(&gUniqueFontID) + 1, isFixedWidth) {
         fIsSysFont = sysFont;
         
         SkAutoMutexAcquire  ac(gFamilyMutex);
@@ -283,7 +284,7 @@ private:
  */
 class EmptyTypeface : public FamilyTypeface {
 public:
-    EmptyTypeface() : INHERITED(SkTypeface::kNormal, true, NULL) {}
+    EmptyTypeface() : INHERITED(SkTypeface::kNormal, true, NULL, false) {}
     
     // overrides
     virtual SkStream* openStream() { return NULL; }
@@ -296,8 +297,8 @@ private:
 class StreamTypeface : public FamilyTypeface {
 public:
     StreamTypeface(Style style, bool sysFont, FamilyRec* family,
-                   SkStream* stream)
-    : INHERITED(style, sysFont, family) {
+                   SkStream* stream, bool isFixedWidth)
+    : INHERITED(style, sysFont, family, isFixedWidth) {
         stream->ref();
         fStream = stream;
     }
@@ -323,8 +324,8 @@ private:
 class FileTypeface : public FamilyTypeface {
 public:
     FileTypeface(Style style, bool sysFont, FamilyRec* family,
-                 const char path[])
-        : INHERITED(style, sysFont, family) {
+                 const char path[], bool isFixedWidth)
+        : INHERITED(style, sysFont, family, isFixedWidth) {
         fPath.set(path);
     }
     
@@ -364,16 +365,16 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool get_name_and_style(const char path[], SkString* name,
-                               SkTypeface::Style* style) {    
+                               SkTypeface::Style* style, bool* isFixedWidth) {    
     SkMMAPStream stream(path);
     if (stream.getLength() > 0) {
-        *style = find_name_and_style(&stream, name);
+        *style = find_name_and_attributes(&stream, name, isFixedWidth);
         return true;
     }
     else {
         SkFILEStream stream(path);
         if (stream.getLength() > 0) {
-            *style = find_name_and_style(&stream, name);
+            *style = find_name_and_attributes(&stream, name, isFixedWidth);
             return true;
         }
     }
@@ -402,10 +403,11 @@ static void load_system_fonts() {
         SkString filename;
         GetFullPathForSysFonts(&filename, name.c_str());
 
+        bool isFixedWidth;
         SkString realname;
         SkTypeface::Style style = SkTypeface::kNormal; // avoid uninitialized warning
         
-        if (!get_name_and_style(filename.c_str(), &realname, &style)) {
+        if (!get_name_and_style(filename.c_str(), &realname, &style, &isFixedWidth)) {
             SkDebugf("------ can't load <%s> as a font\n", filename.c_str());
             continue;
         }
@@ -424,7 +426,8 @@ static void load_system_fonts() {
                                         (style,
                                          true,  // system-font (cannot delete)
                                          family, // what family to join
-                                         filename.c_str()) // filename
+                                         filename.c_str(),
+                                         isFixedWidth) // filename
                                         );
 
         if (NULL == family) {
@@ -586,11 +589,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
         SkDELETE(stream);
         return NULL;
     }
-    
+
+    bool isFixedWidth;
     SkString name;
-    SkTypeface::Style style = find_name_and_style(stream, &name);
+    SkTypeface::Style style = find_name_and_attributes(stream, &name, &isFixedWidth);
     
-    return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream));
+    return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedWidth));
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
