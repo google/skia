@@ -22,10 +22,12 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkStream.h"
 #include "SkThread.h"
+#include "SkUtils.h"
 
 #ifdef WIN32
 #include "windows.h"
 #include "tchar.h"
+#include "Usp10.h"
 
 // client3d has to undefine this for now
 #define CAN_USE_LOGFONT_NAME
@@ -179,14 +181,16 @@ protected:
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY);
     //virtual SkDeviceContext getDC() {return ddc;}
 private:
-    LOGFONT     lf;
-    MAT2        mat22;
-    HDC         ddc;
-    HFONT       savefont;
-    HFONT       font;
+    LOGFONT      lf;
+    MAT2         mat22;
+    HDC          ddc;
+    HFONT        savefont;
+    HFONT        font;
+    SCRIPT_CACHE sc;
 };
 
-SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc) : SkScalerContext(desc), ddc(0), font(0), savefont(0) {
+SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
+        : SkScalerContext(desc), ddc(0), font(0), savefont(0), sc(0) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     lf = LogFontTypeface::FindById(fRec.fFontID)->logFont();
@@ -216,6 +220,9 @@ SkScalerContext_Windows::~SkScalerContext_Windows() {
     if (font) {
         ::DeleteObject(font);
     }
+    if (sc) {
+        ::ScriptFreeCache(&sc);
+    }
 }
 
 unsigned SkScalerContext_Windows::generateGlyphCount() const {
@@ -225,9 +232,26 @@ unsigned SkScalerContext_Windows::generateGlyphCount() const {
 
 uint16_t SkScalerContext_Windows::generateCharToGlyph(SkUnichar uni) {
     uint16_t index = 0;
-    // TODO(ctguil): Support values larger than 16bits.
-    WCHAR c = SkToU16(uni);
-    GetGlyphIndicesW(ddc, &c, 1, &index, 0);
+    WCHAR c[2];
+    // TODO(ctguil): Support characters that generate more than one glyph.
+    if (SkUTF16_FromUnichar(uni, (uint16_t*)c) == 1) {
+        // Type1 fonts fail with uniscribe API. Use GetGlyphIndices for plane 0.
+        SkAssertResult(GetGlyphIndicesW(ddc, c, 1, &index, 0));
+    } else {
+        // Use uniscribe to detemine glyph index for non-BMP characters.
+        // Need to add extra item to SCRIPT_ITEM to work around a bug in older
+        // windows versions. https://bugzilla.mozilla.org/show_bug.cgi?id=366643
+        SCRIPT_ITEM si[2 + 1];
+        int items;
+        SkAssertResult(
+            SUCCEEDED(ScriptItemize(c, 2, 2, NULL, NULL, si, &items)));
+
+        WORD log[2];
+        SCRIPT_VISATTR vsa;
+        int glyphs;
+        SkAssertResult(SUCCEEDED(ScriptShape(
+            ddc, &sc, c, 2, 1, &si[0].a, &index, log, &vsa, &glyphs)));
+    }
     return index;
 }
 
