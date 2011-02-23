@@ -919,30 +919,6 @@ void SkCanvas::resetMatrix() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
-void SkCanvas::validateClip() const {
-    const SkRegion& rgn = this->getTotalClip();
-    const SkDevice* device = this->getDevice();
-    SkIRect ir;
-    ir.set(0, 0, device->width(), device->height());
-    SkRegion clipRgn(ir);
-
-    SkClipStack::B2FIter                iter(fClipStack);
-    const SkClipStack::B2FIter::Clip*   clip;
-    while ((clip = iter.next()) != NULL) {
-        if (clip->fPath) {
-            clipRgn.setPath(*clip->fPath, clipRgn);
-        } else if (clip->fRect) {
-            clip->fRect->round(&ir);
-            clipRgn.op(ir, clip->fOp);
-        } else {
-            break;
-        }
-    }
-    SkASSERT(rgn == clipRgn);
-}
-#endif
-
 bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
     AutoValidateClip avc(this);
 
@@ -974,6 +950,25 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
     }
 }
 
+static bool clipPathHelper(const SkCanvas* canvas, SkRegion* currRgn,
+                           const SkPath& devPath, SkRegion::Op op) {
+    if (SkRegion::kIntersect_Op == op) {
+        return currRgn->setPath(devPath, *currRgn);
+    } else {
+        SkRegion base;
+        const SkBitmap& bm = canvas->getDevice()->accessBitmap(false);
+        base.setRect(0, 0, bm.width(), bm.height());
+
+        if (SkRegion::kReplace_Op == op) {
+            return currRgn->setPath(devPath, base);
+        } else {
+            SkRegion rgn;
+            rgn.setPath(devPath, base);
+            return currRgn->op(rgn, op);
+        }
+    }
+}
+
 bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
     AutoValidateClip avc(this);
 
@@ -987,21 +982,7 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
     // if we called path.swap() we could avoid a deep copy of this path
     fClipStack.clipDevPath(devPath, op);
 
-    if (SkRegion::kIntersect_Op == op) {
-        return fMCRec->fRegion->setPath(devPath, *fMCRec->fRegion);
-    } else {
-        SkRegion base;
-        const SkBitmap& bm = this->getDevice()->accessBitmap(false);
-        base.setRect(0, 0, bm.width(), bm.height());
-
-        if (SkRegion::kReplace_Op == op) {
-            return fMCRec->fRegion->setPath(devPath, base);
-        } else {
-            SkRegion rgn;
-            rgn.setPath(devPath, base);
-            return fMCRec->fRegion->op(rgn, op);
-        }
-    }
+    return clipPathHelper(this, fMCRec->fRegion, devPath, op);
 }
 
 bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
@@ -1017,6 +998,33 @@ bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
 
     return fMCRec->fRegion->op(rgn, op);
 }
+
+#ifdef SK_DEBUG
+void SkCanvas::validateClip() const {
+    // construct clipRgn from the clipstack
+    const SkDevice* device = this->getDevice();
+    SkIRect ir;
+    ir.set(0, 0, device->width(), device->height());
+    SkRegion clipRgn(ir);
+
+    SkClipStack::B2FIter                iter(fClipStack);
+    const SkClipStack::B2FIter::Clip*   clip;
+    while ((clip = iter.next()) != NULL) {
+        if (clip->fPath) {
+            clipPathHelper(this, &clipRgn, *clip->fPath, clip->fOp);
+        } else if (clip->fRect) {
+            clip->fRect->round(&ir);
+            clipRgn.op(ir, clip->fOp);
+        } else {
+            break;
+        }
+    }
+
+    // now compare against the current rgn
+    const SkRegion& rgn = this->getTotalClip();
+    SkASSERT(rgn == clipRgn);
+}
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
