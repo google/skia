@@ -727,6 +727,12 @@ public:
     */
     const SkRegion& getTotalClip() const;
 
+    /**
+     *  Return the current clipstack. This mirrors the result in getTotalClip()
+     *  but is represented as a stack of geometric clips + region-ops.
+     */
+    const SkClipStack& getTotalClipStack() const;
+
     void setExternalMatrix(const SkMatrix* = NULL);
 
     ///////////////////////////////////////////////////////////////////////////

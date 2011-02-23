@@ -26,6 +26,7 @@
 #include "SkAutoKern.h"
 
 class SkBounder;
+class SkClipStack;
 class SkDevice;
 class SkPath;
 class SkRegion;
@@ -59,7 +60,7 @@ public:
                          const SkColor colors[], SkXfermode* xmode,
                          const uint16_t indices[], int ptCount,
                          const SkPaint& paint) const;
-        
+
     void drawPath(const SkPath& src, const SkPaint& paint) const {
         this->drawPath(src, paint, NULL, false);
     }
@@ -84,6 +85,7 @@ public:
     const SkMatrix* fMatrix;        // required
     const SkRegion* fClip;          // required
 
+    const SkClipStack* fClipStack;  // optional
     SkDevice*       fDevice;        // optional
     SkBounder*      fBounder;       // optional
     SkDrawProcs*    fProcs;         // optional
