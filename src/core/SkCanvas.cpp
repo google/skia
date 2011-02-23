@@ -230,6 +230,7 @@ public:
         fCanvas = canvas;
         canvas->updateDeviceCMCache();
 
+        fClipStack = &canvas->getTotalClipStack();
         fBounder = canvas->getBounder();
         fCurrLayer = canvas->fMCRec->fTopLayer;
         fSkipEmptyClips = skipEmptyClips;
@@ -1147,6 +1148,10 @@ const SkMatrix& SkCanvas::getTotalMatrix() const {
 
 const SkRegion& SkCanvas::getTotalClip() const {
     return *fMCRec->fRegion;
+}
+
+const SkClipStack& SkCanvas::getTotalClipStack() const {
+    return fClipStack;
 }
 
 void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
