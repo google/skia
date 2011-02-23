@@ -56,7 +56,7 @@ public:
     /** Returns true if getStyle() has the kItalic bit set.
     */
     bool isItalic() const { return (fStyle & kItalic) != 0; }
-    
+
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
      */
@@ -72,11 +72,11 @@ public:
         handling either being null (treating null as the default font)
      */
     static bool Equal(const SkTypeface* facea, const SkTypeface* faceb);
-    
+
     /** Return a new reference to the typeface that most closely matches the
         requested familyName and style. Pass null as the familyName to return
         the default font for the requested style. Will never return null
-        
+
         @param familyName  May be NULL. The name of the font family.
         @param style       The style (normal, bold, italic) of the typeface.
         @return reference to the closest-matching typeface. Call must call
@@ -100,7 +100,7 @@ public:
         requested typeface and specified Style. Use this call if you want to
         pick a new style from the same family of the existing typeface.
         If family is NULL, this selects from the default font's family.
-        
+
         @param family  May be NULL. The name of the existing type face.
         @param s       The style (normal, bold, italic) of the type face.
         @return reference to the closest-matching typeface. Call must call
@@ -112,7 +112,7 @@ public:
         not a valid font file, returns null.
     */
     static SkTypeface* CreateFromFile(const char path[]);
-    
+
     /** Return a new typeface given a stream. If the stream is
         not a valid font file, returns null. Ownership of the stream is
         transferred, so the caller must not reference it again.
@@ -123,7 +123,7 @@ public:
         typeface referencing the same font when Deserialize is called.
      */
     void serialize(SkWStream*) const;
-    
+
     /** Given the data previously written by serialize(), return a new instance
         to a typeface referring to the same font. If that font is not available,
         return null. If an instance is returned, the caller is responsible for
@@ -142,13 +142,14 @@ public:
 protected:
     /** uniqueID must be unique (please!) and non-zero
     */
-    SkTypeface(Style style, uint32_t uniqueID)
-        : fUniqueID(uniqueID), fStyle(style) {}
+    SkTypeface(Style style, uint32_t uniqueID, bool isFixedWidth = false)
+        : fUniqueID(uniqueID), fStyle(style), fIsFixedWidth(isFixedWidth) {}
 
 private:
     uint32_t    fUniqueID;
     Style       fStyle;
-    
+    bool        fIsFixedWidth;
+
     typedef SkRefCnt INHERITED;
 };
 

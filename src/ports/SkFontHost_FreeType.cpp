@@ -518,13 +518,13 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         InitFreetype();
         FT_Done_FreeType(gFTLibrary);
     }
-    
+
     if (!gLCDSupport && rec->isLCD()) {
         // If the runtime Freetype library doesn't support LCD mode, we disable
         // it here.
         rec->fMaskFormat = SkMask::kA8_Format;
     }
-    
+
     SkPaint::Hinting h = rec->getHinting();
     if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
         // collapse full->normal hinting if we're not doing LCD
@@ -1244,7 +1244,8 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
 /*  Export this so that other parts of our FonttHost port can make use of our
     ability to extract the name+style from a stream, using FreeType's api.
 */
-SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name) {
+SkTypeface::Style find_name_and_attributes(SkStream* stream, SkString* name,
+                                           bool* isFixedWidth) {
     FT_Library  library;
     if (FT_Init_FreeType(&library)) {
         name->set(NULL);
@@ -1287,6 +1288,9 @@ SkTypeface::Style find_name_and_style(SkStream* stream, SkString* name) {
     }
     if (face->style_flags & FT_STYLE_FLAG_ITALIC) {
         style |= SkTypeface::kItalic;
+    }
+    if (isFixedWidth) {
+        *isFixedWidth = FT_IS_FIXED_WIDTH(face);
     }
 
     FT_Done_Face(face);
