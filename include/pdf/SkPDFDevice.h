@@ -42,12 +42,24 @@ class SkPDFDeviceFactory : public SkDeviceFactory {
 */
 class SkPDFDevice : public SkDevice {
 public:
+    /** Skia generally uses the top left as the origin and PDFs natively use
+        the bottom left.  We can move the origin to the top left in the PDF
+        with a transform, but we have to be careful to apply the transform
+        only once.
+     */
+    enum OriginTransform {
+        kFlip_OriginTransform,
+        kNoFlip_OriginTransform,
+    };
+
     /** Create a PDF drawing context with the given width and height.
      *  72 points/in means letter paper is 612x792.
      *  @param width  Page width in points.
      *  @param height Page height in points.
+     *  @param flipOrigin Flip the origin from lower left to upper left.
      */
-    SkPDFDevice(int width, int height);
+    SkPDFDevice(int width, int height,
+                OriginTransform flipOrigin = kFlip_OriginTransform);
     virtual ~SkPDFDevice();
 
     virtual SkDeviceFactory* getDeviceFactory() {
@@ -121,13 +133,13 @@ public:
     SkRefPtr<SkPDFArray> getMediaBox() const;
 
     /** Returns a string with the page contents.
-     *  @param flipOrigin  Flip the origin between top and bottom.
      */
-    SkString content(bool flipOrigin) const;
+    SkString content() const;
 
 private:
     int fWidth;
     int fHeight;
+    OriginTransform fFlipOrigin;
     SkRefPtr<SkPDFDict> fResourceDict;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
