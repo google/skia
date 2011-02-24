@@ -1248,7 +1248,7 @@ SkTypeface::Style find_name_and_attributes(SkStream* stream, SkString* name,
                                            bool* isFixedWidth) {
     FT_Library  library;
     if (FT_Init_FreeType(&library)) {
-        name->set(NULL);
+        name->reset();
         return SkTypeface::kNormal;
     }
 
@@ -1276,7 +1276,7 @@ SkTypeface::Style find_name_and_attributes(SkStream* stream, SkString* name,
     FT_Face face;
     if (FT_Open_Face(library, &args, 0, &face)) {
         FT_Done_FreeType(library);
-        name->set(NULL);
+        name->reset();
         return SkTypeface::kNormal;
     }
 

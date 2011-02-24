@@ -201,9 +201,9 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     }
     /* Expand grayscale images to the full 8 bits from 1, 2, or 4 bits/pixel */
     if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
-      //        png_set_gray_1_2_4_to_8(png_ptr);
+        png_set_gray_1_2_4_to_8(png_ptr);
     }
-    
+
     /* Make a grayscale image into RGB. */
     if (color_type == PNG_COLOR_TYPE_GRAY ||
         color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
