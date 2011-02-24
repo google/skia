@@ -39,7 +39,7 @@ class SkGpuTexture;
 class SkPixelRef : public SkRefCnt {
 public:
     explicit SkPixelRef(SkMutex* mutex = NULL);
-    
+
     /** Return the pixel memory returned from lockPixels, or null if the
         lockCount is 0.
     */
@@ -63,13 +63,13 @@ public:
         memory (if the subclass implements caching/deferred-decoding.)
     */
     void unlockPixels();
-    
+
     /** Returns a non-zero, unique value corresponding to the pixels in this
         pixelref. Each time the pixels are changed (and notifyPixelsChanged is
         called), a different generation ID will be returned.
     */
     uint32_t getGenerationID() const;
-    
+
     /** Call this if you have changed the contents of the pixels. This will in-
         turn cause a different generation ID value to be returned from
         getGenerationID().
@@ -80,7 +80,7 @@ public:
         contents of its pixels will not change for the lifetime of the pixelref.
     */
     bool isImmutable() const { return fIsImmutable; }
-    
+
     /** Marks this pixelref is immutable, meaning that the contents of its
         pixels will not change for the lifetime of the pixelref. This state can
         be set on a pixelref, but it cannot be cleared once it is set.
@@ -97,13 +97,13 @@ public:
     void setURI(const char uri[]) {
         fURI.set(uri);
     }
-    
+
     /** Copy a URI string to this pixelref
      */
     void setURI(const char uri[], size_t len) {
         fURI.set(uri, len);
     }
-    
+
     /** Assign a URI string to this pixelref.
     */
     void setURI(const SkString& uri) { fURI = uri; }
@@ -119,22 +119,26 @@ public:
     virtual Factory getFactory() const { return NULL; }
     virtual void flatten(SkFlattenableWriteBuffer&) const;
 
-    /** Acquire a "global" ref on this object.
-    * The default implementation just calls ref(), but subclasses can override
-    * this method to implement additional behavior.
-    */
+#ifdef ANDROID
+    /**
+     *  Acquire a "global" ref on this object.
+     *  The default implementation just calls ref(), but subclasses can override
+     *  this method to implement additional behavior.
+     */
     virtual void globalRef(void* data=NULL);
 
-    /** Release a "global" ref on this object.
-    * The default implementation just calls unref(), but subclasses can override
-    * this method to implement additional behavior.
-    */
+    /**
+     *  Release a "global" ref on this object.
+     *  The default implementation just calls unref(), but subclasses can override
+     *  this method to implement additional behavior.
+     */
     virtual void globalUnref();
+#endif
 
     static Factory NameToFactory(const char name[]);
     static const char* FactoryToName(Factory);
     static void Register(const char name[], Factory);
-    
+
     class Registrar {
     public:
         Registrar(const char name[], Factory factory) {
@@ -165,9 +169,9 @@ private:
     void*           fPixels;
     SkColorTable*   fColorTable;    // we do not track ownership, subclass does
     int             fLockCount;
-    
+
     mutable uint32_t fGenerationID;
-    
+
     SkString    fURI;
 
     // can go from false to true, but never from true to false
