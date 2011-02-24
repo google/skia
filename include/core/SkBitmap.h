@@ -401,6 +401,13 @@ public:
     */
     void* getAddr(int x, int y) const;
 
+    /** Return the SkColor of the specified pixel.  In most cases this will
+        require un-premultiplying the color.  Alpha only configs (A1 and A8)
+        return black with the appropriate alpha set.  The value is undefined
+        for kNone_Config or if x or y are out of bounds.
+    */
+    SkColor getColor(int x, int y) const;
+
     /** Returns the address of the pixel specified by x,y for 32bit pixels.
     */
     inline uint32_t* getAddr32(int x, int y) const;

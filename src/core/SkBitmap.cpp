@@ -22,6 +22,7 @@
 #include "SkMask.h"
 #include "SkPixelRef.h"
 #include "SkThread.h"
+#include "SkUnPreMultiply.h"
 #include "SkUtils.h"
 #include "SkPackBits.h"
 #include <new>
@@ -596,6 +597,57 @@ void* SkBitmap::getAddr(int x, int y) const {
         }
     }
     return base;
+}
+
+SkColor SkBitmap::getColor(int x, int y) const {
+    SkASSERT((unsigned)x < (unsigned)this->width());
+    SkASSERT((unsigned)y < (unsigned)this->height());
+
+    switch (this->config()) {
+        case SkBitmap::kA1_Config: {
+            uint8_t* addr = getAddr1(x, y);
+            uint8_t mask = 1 << (7  - (x % 8));
+            if (addr[0] & mask) {
+                return SK_ColorBLACK;
+            } else {
+                return 0;
+            }
+        }
+        case SkBitmap::kA8_Config: {
+            uint8_t* addr = getAddr8(x, y);
+            return SkColorSetA(0, addr[0]);
+        }
+        case SkBitmap::kIndex8_Config: {
+            SkPMColor c = getIndex8Color(x, y);
+            return SkUnPreMultiply::PMColorToColor(c);
+        }
+        case SkBitmap::kRGB_565_Config: {
+            uint16_t* addr = getAddr16(x, y);
+            return SkPixel16ToColor(addr[0]);
+        }
+        case SkBitmap::kARGB_4444_Config: {
+            uint16_t* addr = getAddr16(x, y);
+            SkPMColor c = SkPixel4444ToPixel32(addr[0]);
+            return SkUnPreMultiply::PMColorToColor(c);
+        }
+        case SkBitmap::kARGB_8888_Config: {
+            uint32_t* addr = getAddr32(x, y);
+            return SkUnPreMultiply::PMColorToColor(addr[0]);
+        }
+        case kRLE_Index8_Config: {
+            uint8_t dst;
+            const SkBitmap::RLEPixels* rle =
+                (const SkBitmap::RLEPixels*) getPixels();
+            SkPackBits::Unpack8(&dst, x, 1, rle->packedAtY(y));
+            return SkUnPreMultiply::PMColorToColor((*fColorTable)[dst]);
+        }
+        case kNo_Config:
+        case kConfigCount:
+            SkASSERT(false);
+            return 0;
+    }
+    SkASSERT(false);  // Not reached.
+    return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
