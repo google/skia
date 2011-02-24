@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,7 @@ class SkPDFCatalog;
 
     A stream object in a PDF.
 */
-// TODO(vandebo) This should handle filters as well.
-class SkPDFStream : public SkPDFObject {
+class SkPDFStream : public SkPDFDict {
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary.
@@ -43,26 +42,13 @@ public:
                             bool indirect);
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
-    /** Add the value to the stream dictionary with the given key.  Refs value.
-     *  @param key   The key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
-    SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
-
-    /** Add the value to the stream dictionary with the given key.  Refs value.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
-    SkPDFObject* insert(const char key[], SkPDFObject* value);
-
 private:
-    SkPDFDict fDict;
     size_t fLength;
     // Only one of the two streams will be valid.
     SkRefPtr<SkStream> fPlainData;
     SkDynamicMemoryWStream fCompressedData;
+
+    typedef SkPDFDict INHERITED;
 };
 
 #endif

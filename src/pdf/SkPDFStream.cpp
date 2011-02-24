@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 The Android Open Source Project
+ * Copyright (C) 2010 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,13 @@ SkPDFStream::SkPDFStream(SkStream* stream) {
     if (SkFlate::HaveFlate() &&
             fCompressedData.getOffset() < stream->getLength()) {
         fLength = fCompressedData.getOffset();
-        fDict.insert("Filter", new SkPDFName("FlateDecode"))->unref();
+        insert("Filter", new SkPDFName("FlateDecode"))->unref();
     } else {
         fCompressedData.reset();
         fPlainData = stream;
         fLength = fPlainData->getLength();
     }
-    fDict.insert("Length", new SkPDFInt(fLength))->unref();
+    insert("Length", new SkPDFInt(fLength))->unref();
 }
 
 SkPDFStream::~SkPDFStream() {
@@ -43,7 +43,7 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     if (indirect)
         return emitIndirectObject(stream, catalog);
 
-    fDict.emitObject(stream, catalog, false);
+    this->INHERITED::emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
     if (fPlainData.get())
         stream->write(fPlainData->getMemoryBase(), fLength);
@@ -56,14 +56,6 @@ size_t SkPDFStream::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     if (indirect)
         return getIndirectOutputSize(catalog);
 
-    return fDict.getOutputSize(catalog, false) +
+    return this->INHERITED::getOutputSize(catalog, false) +
         strlen(" stream\n\nendstream") + fLength;
-}
-
-SkPDFObject* SkPDFStream::insert(SkPDFName* key, SkPDFObject* value) {
-    return fDict.insert(key, value);
-}
-
-SkPDFObject* SkPDFStream::insert(const char key[], SkPDFObject* value) {
-    return fDict.insert(key, value);
 }
