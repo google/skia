@@ -1023,7 +1023,9 @@ void SkCanvas::validateClip() const {
 
     // now compare against the current rgn
     const SkRegion& rgn = this->getTotalClip();
+#if 0   // disable for now (reed)
     SkASSERT(rgn == clipRgn);
+#endif
 }
 #endif
 
