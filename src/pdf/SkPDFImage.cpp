@@ -92,11 +92,13 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                     dst[0] = (SkGetPackedR4444(src[x]) << 4) |
                         SkGetPackedG4444(src[x]);
                     dst[1] = (SkGetPackedB4444(src[x]) << 4);
+                    dst += 2;
                     alphaDst[0] = (SkGetPackedA4444(src[x]) << 4);
                     if (alphaDst[0] != 0xF0)
                         hasAlpha = true;
                     if (alphaDst[0] & 0xF0)
                         isTransparent = false;
+                    alphaDst++;
                 }
             }
             break;
