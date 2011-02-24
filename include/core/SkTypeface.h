@@ -57,6 +57,10 @@ public:
     */
     bool isItalic() const { return (fStyle & kItalic) != 0; }
 
+    /** Returns true if the typeface is fixed-width
+     */
+    bool isFixedWidth() const { return fIsFixedWidth; }
+
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
      */
