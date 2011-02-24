@@ -90,7 +90,6 @@ private:
     // Multiple pages may reference the content.
     SkRefPtr<SkPDFDevice> fDevice;
 
-    SkString fContent;
     // Once the content is finalized, put it into a stream for output.
     SkRefPtr<SkPDFStream> fContentStream;
 };
