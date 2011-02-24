@@ -132,9 +132,10 @@ public:
      */
     SkRefPtr<SkPDFArray> getMediaBox() const;
 
-    /** Returns a string with the page contents.
+    /** Returns a SkStream with the page contents.  The caller is responsible
+        for a reference to the returned value.
      */
-    SkString content() const;
+    SkStream* content() const;
 
 private:
     int fWidth;

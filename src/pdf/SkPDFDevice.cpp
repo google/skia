@@ -558,10 +558,16 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     return mediaBox;
 }
 
-SkString SkPDFDevice::content() const {
-    SkString result = fContent;
-    for (int i = 0; i < fGraphicStackIndex; i++)
-        result.append("Q\n");
+SkStream* SkPDFDevice::content() const {
+    size_t offset = fContent.size();
+    char* data = (char*)sk_malloc_throw(offset + fGraphicStackIndex * 2);
+    memcpy(data, fContent.c_str(), offset);
+    for (int i = 0; i < fGraphicStackIndex; i++) {
+        data[offset++] = 'Q';
+        data[offset++] = '\n';
+    }
+    SkMemoryStream* result = new SkMemoryStream;
+    result->setMemoryOwned(data, offset);
     return result;
 }
 

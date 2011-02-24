@@ -28,11 +28,9 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // resources).
     device->getResources(&fResources);
 
-    SkString content = device->content();
-    SkMemoryStream* stream_data = new SkMemoryStream(content.c_str(),
-                                                     content.size());
-    SkAutoUnref stream_data_unref(stream_data);
-    fStream = new SkPDFStream(stream_data);
+    SkRefPtr<SkStream> content = device->content();
+    content->unref();  // SkRefPtr and content() both took a reference.
+    fStream = new SkPDFStream(content.get());
     fStream->unref();  // SkRefPtr and new both took a reference.
 
     insert("Type", new SkPDFName("XObject"))->unref();
