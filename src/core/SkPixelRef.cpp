@@ -35,7 +35,7 @@ void SkPixelRef::flatten(SkFlattenableWriteBuffer& buffer) const {
 
 void SkPixelRef::lockPixels() {
     SkAutoMutexAcquire  ac(*fMutex);
-    
+
     if (1 == ++fLockCount) {
         fPixels = this->onLockPixels(&fColorTable);
     }
@@ -43,7 +43,7 @@ void SkPixelRef::lockPixels() {
 
 void SkPixelRef::unlockPixels() {
     SkAutoMutexAcquire  ac(*fMutex);
-    
+
     SkASSERT(fLockCount > 0);
     if (0 == --fLockCount) {
         this->onUnlockPixels();
@@ -94,15 +94,15 @@ static Pair gPairs[MAX_PAIR_COUNT];
 void SkPixelRef::Register(const char name[], Factory factory) {
     SkASSERT(name);
     SkASSERT(factory);
-    
+
     static bool gOnce;
     if (!gOnce) {
         gCount = 0;
         gOnce = true;
     }
-    
+
     SkASSERT(gCount < MAX_PAIR_COUNT);
-    
+
     gPairs[gCount].fName = name;
     gPairs[gCount].fFactory = factory;
     gCount += 1;
@@ -128,6 +128,9 @@ const char* SkPixelRef::FactoryToName(Factory fact) {
     return NULL;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef ANDROID
 void SkPixelRef::globalRef(void* data) {
     this->ref();
 }
@@ -135,3 +138,4 @@ void SkPixelRef::globalRef(void* data) {
 void SkPixelRef::globalUnref() {
     this->unref();
 }
+#endif
