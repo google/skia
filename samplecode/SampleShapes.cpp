@@ -5,7 +5,7 @@
 #include "SkStream.h"
 #include "SkView.h"
 
-#define DO_AA   false
+#define DO_AA   true
 
 #include "SkRectShape.h"
 #include "SkGroupShape.h"

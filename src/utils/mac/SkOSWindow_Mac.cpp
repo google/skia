@@ -465,7 +465,7 @@ AGLContext create_gl(WindowRef wref, bool offscreen)
         AGL_STENCIL_SIZE, 8,
         AGL_SAMPLE_BUFFERS_ARB, 1,
 		AGL_MULTISAMPLE,
-		AGL_SAMPLES_ARB, 2,
+		AGL_SAMPLES_ARB, 8,
 		(offscreen ? AGL_OFFSCREEN : AGL_ACCELERATED),
         (offscreen ? AGL_NONE : AGL_DOUBLEBUFFER),
         AGL_NONE
