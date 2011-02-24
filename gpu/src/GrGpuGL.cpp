@@ -1554,7 +1554,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
         // only perform query if we know MSAA is supported.
         // calling on non-MSAA target caused a crash in one environment,
         // though I don't think it should.
-        if (!fAASamples[kHigh_AALevel]) {
+        if (fAASamples[kHigh_AALevel]) {
             GR_GL_GetIntegerv(GL_SAMPLE_BUFFERS, &msaa);
         }
         if (fCurrDrawState.fFlagBits & kAntialias_StateBit) {
