@@ -426,6 +426,8 @@ static const FontInitRec gSystemFonts[] = {
     { "DroidSansArabic.ttf",        gFBNames    },
     { "DroidSansHebrew.ttf",        gFBNames    },
     { "DroidSansThai.ttf",          gFBNames    },
+    { "MTLmr3m.ttf",                gFBNames    }, // Motoya Japanese Font
+    { "MTLc3m.ttf",                 gFBNames    }, // Motoya Japanese Font
     { "DroidSansJapanese.ttf",      gFBNames    },
     { "DroidSansFallback.ttf",      gFBNames    }
 };
@@ -590,13 +592,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     return tf;
 }
 
-// static
-SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID, bool perGlyphInfo) {
-    SkASSERT(!"SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
-    return NULL;
-}
-
 bool SkFontHost::ValidFontID(uint32_t fontID) {
     SkAutoMutexAcquire  ac(gFamilyMutex);
 
@@ -665,7 +660,11 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
     SkString name;
     SkTypeface::Style style = find_name_and_attributes(stream, &name, &isFixedWidth);
 
-    return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedWidth));
+    if (!name.isEmpty()) {
+        return SkNEW_ARGS(StreamTypeface, (style, false, NULL, stream, isFixedWidth));
+    } else {
+        return NULL;
+    }
 }
 
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
