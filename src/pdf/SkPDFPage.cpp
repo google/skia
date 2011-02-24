@@ -32,7 +32,7 @@ void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
         insert("Resources", fDevice->getResourceDict().get());
         insert("MediaBox", fDevice->getMediaBox().get());
 
-        fContent = fDevice->content(true);
+        fContent = fDevice->content();
         SkRefPtr<SkMemoryStream> contentStream = new SkMemoryStream(
                 fContent.c_str(), fContent.size());
         contentStream->unref();  // SkRefPtr and new both took a reference.

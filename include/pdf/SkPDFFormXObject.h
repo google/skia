@@ -28,7 +28,7 @@ class SkPDFCatalog;
 
 /** \class SkPDFFormXObject
 
-    A form XObject; a self containted description of graphics objects.  A form
+    A form XObject; a self contained description of graphics objects.  A form
     XObject is basically a page object with slightly different syntax, that
     can be drawn onto a page.
 */

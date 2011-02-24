@@ -28,7 +28,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // resources).
     device->getResources(&fResources);
 
-    SkString content = device->content(false);
+    SkString content = device->content();
     SkMemoryStream* stream_data = new SkMemoryStream(content.c_str(),
                                                      content.size());
     SkAutoUnref stream_data_unref(stream_data);

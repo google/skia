@@ -120,8 +120,12 @@ void alignText(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
 
 SkDevice* SkPDFDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
                                         int width, int height, bool isOpaque,
-                                        bool /*isForLayer*/) {
-    return SkNEW_ARGS(SkPDFDevice, (width, height));
+                                        bool isForLayer) {
+    SkPDFDevice::OriginTransform flip = SkPDFDevice::kFlip_OriginTransform;
+    if (isForLayer) {
+        flip = SkPDFDevice::kNoFlip_OriginTransform;
+    }
+    return SkNEW_ARGS(SkPDFDevice, (width, height, flip));
 }
 
 static inline SkBitmap makeABitmap(int width, int height) {
@@ -130,10 +134,11 @@ static inline SkBitmap makeABitmap(int width, int height) {
     return bitmap;
 }
 
-SkPDFDevice::SkPDFDevice(int width, int height)
+SkPDFDevice::SkPDFDevice(int width, int height, OriginTransform flipOrigin)
     : SkDevice(NULL, makeABitmap(width, height), false),
       fWidth(width),
       fHeight(height),
+      fFlipOrigin(flipOrigin),
       fGraphicStackIndex(0) {
     fGraphicStack[0].fColor = SK_ColorBLACK;
     fGraphicStack[0].fTextSize = SK_ScalarNaN;  // This has no default value.
@@ -143,6 +148,10 @@ SkPDFDevice::SkPDFDevice(int width, int height)
     fGraphicStack[0].fGraphicState = NULL;
     fGraphicStack[0].fClip.setRect(0,0, width, height);
     fGraphicStack[0].fTransform.reset();
+
+    if (flipOrigin == kFlip_OriginTransform) {
+        fContent.printf("1 0 0 -1 0 %d cm\n", fHeight);
+    }
 }
 
 SkPDFDevice::~SkPDFDevice() {
@@ -549,13 +558,8 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     return mediaBox;
 }
 
-SkString SkPDFDevice::content(bool flipOrigin) const {
-    SkString result;
-    // Scale and translate to move the origin from the lower left to the
-    // upper left.
-    if (flipOrigin)
-        result.printf("1 0 0 -1 0 %d cm\n", fHeight);
-    result.append(fContent);
+SkString SkPDFDevice::content() const {
+    SkString result = fContent;
     for (int i = 0; i < fGraphicStackIndex; i++)
         result.append("Q\n");
     return result;
