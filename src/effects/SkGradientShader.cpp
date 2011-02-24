@@ -129,6 +129,7 @@ protected:
     SkMallocPixelRef* fCache32PixelRef;
 
     void commonAsABitmap(SkBitmap*);
+    void commonAsAGradient(GradientInfo*) const;
 
 private:
     enum {
@@ -687,6 +688,28 @@ void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) {
     }
 }
 
+void Gradient_Shader::commonAsAGradient(GradientInfo* info) const {
+    if (info) {
+        if (info->fColorCount >= fColorCount) {
+            if (info->fColors) {
+                memcpy(info->fColors, fOrigColors,
+                       fColorCount * sizeof(SkColor));
+            }
+            if (info->fColorOffsets) {
+                if (fColorCount == 2) {
+                    info->fColorOffsets[0] = 0;
+                    info->fColorOffsets[1] = SK_Scalar1;
+                } else if (fColorCount > 2) {
+                    for (int i = 0; i < fColorCount; i++)
+                        info->fColorOffsets[i] = SkFixedToScalar(fRecs[i].fPos);
+                }
+            }
+        }
+        info->fColorCount = fColorCount;
+        info->fTileMode = fTileMode;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////
 
 static void pts_to_unit_matrix(const SkPoint pts[2], SkMatrix* matrix) {
@@ -707,7 +730,9 @@ public:
     Linear_Gradient(const SkPoint pts[2],
                     const SkColor colors[], const SkScalar pos[], int colorCount,
                     SkShader::TileMode mode, SkUnitMapper* mapper)
-        : Gradient_Shader(colors, pos, colorCount, mode, mapper)
+        : Gradient_Shader(colors, pos, colorCount, mode, mapper),
+          fStart(pts[0]),
+          fEnd(pts[1])
     {
         pts_to_unit_matrix(pts, &fPtsToUnit);
     }
@@ -717,17 +742,32 @@ public:
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*,
                                  TileMode*, SkScalar* twoPointRadialParams);
+    virtual GradientType asAGradient(GradientInfo* info) const;
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Linear_Gradient, (buffer));
     }
 
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
+        this->INHERITED::flatten(buffer);
+        buffer.writeScalar(fStart.fX);
+        buffer.writeScalar(fStart.fY);
+        buffer.writeScalar(fEnd.fX);
+        buffer.writeScalar(fEnd.fY);
+    }
+
 protected:
-    Linear_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {}
+    Linear_Gradient(SkFlattenableReadBuffer& buffer)
+        : Gradient_Shader(buffer),
+          fStart(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
+          fEnd(SkPoint::Make(buffer.readScalar(), buffer.readScalar())) {
+    }
     virtual Factory getFactory() { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;
+    const SkPoint fStart;
+    const SkPoint fEnd;
 };
 
 bool Linear_Gradient::setContext(const SkBitmap& device, const SkPaint& paint,
@@ -848,6 +888,15 @@ SkShader::BitmapType Linear_Gradient::asABitmap(SkBitmap* bitmap,
         xy[1] = kClamp_TileMode;
     }
     return kDefault_BitmapType;
+}
+
+SkShader::GradientType Linear_Gradient::asAGradient(GradientInfo* info) const {
+    if (info) {
+        commonAsAGradient(info);
+        info->fPoint[0] = fStart;
+        info->fPoint[1] = fEnd;
+    }
+    return kLinear_GradientType;
 }
 
 static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
@@ -989,7 +1038,9 @@ public:
     Radial_Gradient(const SkPoint& center, SkScalar radius,
                     const SkColor colors[], const SkScalar pos[], int colorCount,
                     SkShader::TileMode mode, SkUnitMapper* mapper)
-        : Gradient_Shader(colors, pos, colorCount, mode, mapper)
+        : Gradient_Shader(colors, pos, colorCount, mode, mapper),
+          fCenter(center),
+          fRadius(radius)
     {
         // make sure our table is insync with our current #define for kSQRT_TABLE_SIZE
         SkASSERT(sizeof(gSqrt8Table) == kSQRT_TABLE_SIZE);
@@ -1199,17 +1250,38 @@ public:
         }
         return kRadial_BitmapType;
     }
+    virtual GradientType asAGradient(GradientInfo* info) const {
+        if (info) {
+            commonAsAGradient(info);
+            info->fPoint[0] = fCenter;
+            info->fRadius[0] = fRadius;
+        }
+        return kRadial_GradientType;
+    }
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Radial_Gradient, (buffer));
     }
 
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
+        this->INHERITED::flatten(buffer);
+        buffer.writeScalar(fCenter.fX);
+        buffer.writeScalar(fCenter.fY);
+        buffer.writeScalar(fRadius);
+    }
+
 protected:
-    Radial_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {};
+    Radial_Gradient(SkFlattenableReadBuffer& buffer)
+        : Gradient_Shader(buffer),
+          fCenter(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
+          fRadius(buffer.readScalar()) {
+    }
     virtual Factory getFactory() { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;
+    const SkPoint fCenter;
+    const SkScalar fRadius;
 };
 
 /* Two-point radial gradients are specified by two circles, each with a center
@@ -1305,20 +1377,12 @@ public:
                               const SkColor colors[], const SkScalar pos[],
                               int colorCount, SkShader::TileMode mode,
                               SkUnitMapper* mapper)
-        : Gradient_Shader(colors, pos, colorCount, mode, mapper)
-    {
-        fDiff = start - end;
-        fDiffRadius = endRadius - startRadius;
-        SkScalar inv = SkScalarInvert(fDiffRadius);
-        fDiff.fX = SkScalarMul(fDiff.fX, inv);
-        fDiff.fY = SkScalarMul(fDiff.fY, inv);
-        fStartRadius = SkScalarMul(startRadius, inv);
-        fSr2D2 = SkScalarSquare(fStartRadius);
-        fA = SkScalarSquare(fDiff.fX) + SkScalarSquare(fDiff.fY) - SK_Scalar1;
-        fOneOverTwoA = SkScalarInvert(fA * 2);
-
-        fPtsToUnit.setTranslate(-start.fX, -start.fY);
-        fPtsToUnit.postScale(inv, inv);
+            : Gradient_Shader(colors, pos, colorCount, mode, mapper),
+              fCenter1(start),
+              fCenter2(end),
+              fRadius1(startRadius),
+              fRadius2(endRadius) {
+        init();
     }
 
     virtual BitmapType asABitmap(SkBitmap* bitmap,
@@ -1349,6 +1413,17 @@ public:
             twoPointRadialParams[2] = fDiffRadius;
         }
         return kTwoPointRadial_BitmapType;
+    }
+
+    virtual GradientType asAGradient(GradientInfo* info) const {
+        if (info) {
+            commonAsAGradient(info);
+            info->fPoint[0] = fCenter1;
+            info->fPoint[1] = fCenter2;
+            info->fRadius[0] = fRadius1;
+            info->fRadius[1] = fRadius2;
+        }
+        return kRadial2_GradientType;
     }
 
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count)
@@ -1468,32 +1543,48 @@ public:
 
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
-        buffer.writeScalar(fDiff.fX);
-        buffer.writeScalar(fDiff.fY);
-        buffer.writeScalar(fStartRadius);
-        buffer.writeScalar(fDiffRadius);
-        buffer.writeScalar(fSr2D2);
-        buffer.writeScalar(fA);
-        buffer.writeScalar(fOneOverTwoA);
+        buffer.writeScalar(fCenter1.fX);
+        buffer.writeScalar(fCenter1.fY);
+        buffer.writeScalar(fCenter2.fX);
+        buffer.writeScalar(fCenter2.fY);
+        buffer.writeScalar(fRadius1);
+        buffer.writeScalar(fRadius2);
     }
 
 protected:
     Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer)
-            : Gradient_Shader(buffer) {
-        fDiff.fX = buffer.readScalar();
-        fDiff.fY = buffer.readScalar();
-        fStartRadius = buffer.readScalar();
-        fDiffRadius = buffer.readScalar();
-        fSr2D2 = buffer.readScalar();
-        fA = buffer.readScalar();
-        fOneOverTwoA = buffer.readScalar();
+            : Gradient_Shader(buffer),
+              fCenter1(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
+              fCenter2(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
+              fRadius1(buffer.readScalar()),
+              fRadius2(buffer.readScalar()) {
+        init();
     };
     virtual Factory getFactory() { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;
+    const SkPoint fCenter1;
+    const SkPoint fCenter2;
+    const SkScalar fRadius1;
+    const SkScalar fRadius2;
     SkPoint fDiff;
     SkScalar fStartRadius, fDiffRadius, fSr2D2, fA, fOneOverTwoA;
+
+    void init() {
+        fDiff = fCenter1 - fCenter2;
+        fDiffRadius = fRadius2 - fRadius1;
+        SkScalar inv = SkScalarInvert(fDiffRadius);
+        fDiff.fX = SkScalarMul(fDiff.fX, inv);
+        fDiff.fY = SkScalarMul(fDiff.fY, inv);
+        fStartRadius = SkScalarMul(fRadius1, inv);
+        fSr2D2 = SkScalarSquare(fStartRadius);
+        fA = SkScalarSquare(fDiff.fX) + SkScalarSquare(fDiff.fY) - SK_Scalar1;
+        fOneOverTwoA = SkScalarInvert(fA * 2);
+
+        fPtsToUnit.setTranslate(-fCenter1.fX, -fCenter1.fY);
+        fPtsToUnit.postScale(inv, inv);
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1502,7 +1593,8 @@ class Sweep_Gradient : public Gradient_Shader {
 public:
     Sweep_Gradient(SkScalar cx, SkScalar cy, const SkColor colors[],
                    const SkScalar pos[], int count, SkUnitMapper* mapper)
-    : Gradient_Shader(colors, pos, count, SkShader::kClamp_TileMode, mapper)
+    : Gradient_Shader(colors, pos, count, SkShader::kClamp_TileMode, mapper),
+      fCenter(SkPoint::Make(cx, cy))
     {
         fPtsToUnit.setTranslate(-cx, -cy);
     }
@@ -1526,16 +1618,35 @@ public:
         return kSweep_BitmapType;
     }
 
+    virtual GradientType asAGradient(GradientInfo* info) const {
+        if (info) {
+            commonAsAGradient(info);
+            info->fPoint[0] = fCenter;
+        }
+        return kSweep_GradientType;
+    }
+
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(Sweep_Gradient, (buffer));
     }
 
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
+        this->INHERITED::flatten(buffer);
+        buffer.writeScalar(fCenter.fX);
+        buffer.writeScalar(fCenter.fY);
+    }
+
 protected:
-    Sweep_Gradient(SkFlattenableReadBuffer& buffer) : Gradient_Shader(buffer) {}
+    Sweep_Gradient(SkFlattenableReadBuffer& buffer)
+        : Gradient_Shader(buffer),
+          fCenter(SkPoint::Make(buffer.readScalar(), buffer.readScalar())) {
+    }
+
     virtual Factory getFactory() { return CreateProc; }
 
 private:
     typedef Gradient_Shader INHERITED;
+    const SkPoint fCenter;
 };
 
 #ifdef COMPUTE_SWEEP_TABLE

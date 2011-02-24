@@ -51,6 +51,9 @@ public:
                                  SkMatrix* outMatrix,
                                  TileMode xy[2], 
                                  SkScalar* twoPointRadialParams);
+
+    virtual GradientType asAGradient(GradientInfo* info) const;
+
 protected:
     SkColorShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer& );
