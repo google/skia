@@ -15,6 +15,7 @@
 ** limitations under the License.
 */
 
+#include "SkScalar.h"
 #include "SkShader.h"
 #include "SkPaint.h"
 #include "SkMallocPixelRef.h"
@@ -196,9 +197,13 @@ SkShader::MatrixClass SkShader::ComputeMatrixClass(const SkMatrix& mat) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-SkShader::BitmapType SkShader::asABitmap(SkBitmap*, SkMatrix*, 
+SkShader::BitmapType SkShader::asABitmap(SkBitmap*, SkMatrix*,
                                          TileMode*, SkScalar*) {
     return kNone_BitmapType;
+}
+
+SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
+    return kNone_GradientType;
 }
 
 SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
@@ -258,20 +263,18 @@ bool SkColorShader::setContext(const SkBitmap& device, const SkPaint& paint,
         return false;
     }
 
-    SkColor c;
     unsigned a;
-    
+
     if (fInheritColor) {
-        c = paint.getColor();
-        a = SkColorGetA(c);
+        fColor = paint.getColor();
+        a = SkColorGetA(fColor);
     } else {
-        c = fColor;
-        a = SkAlphaMul(SkColorGetA(c), SkAlpha255To256(paint.getAlpha()));
+        a = SkAlphaMul(SkColorGetA(fColor), SkAlpha255To256(paint.getAlpha()));
     }
 
-    unsigned r = SkColorGetR(c);
-    unsigned g = SkColorGetG(c);
-    unsigned b = SkColorGetB(c);
+    unsigned r = SkColorGetR(fColor);
+    unsigned g = SkColorGetG(fColor);
+    unsigned b = SkColorGetB(fColor);
 
     // we want this before we apply any alpha
     fColor16 = SkPack888ToRGB16(r, g, b);
@@ -331,3 +334,13 @@ SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix
     return kDefault_BitmapType;
 }
 
+SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
+    if (info) {
+        if (info->fColors && info->fColorCount >= 1) {
+            info->fColors[0] = fColor;
+        }
+        info->fColorCount = 1;
+        info->fTileMode = SkShader::kRepeat_TileMode;
+    }
+    return kColor_GradientType;
+}

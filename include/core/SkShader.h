@@ -163,7 +163,7 @@ public:
                             //   to (0,0) as bitmap x coord, where angle = 0 is
                             //   bitmap left edge of bitmap = 2pi is the 
                             //   right edge. Bitmap is 1 pixel tall. No extras
-        kTwoPointRadial_BitmapType
+        kTwoPointRadial_BitmapType,
                             //<! Matrix transforms to space where (0,0) is 
                             //   the center of the starting circle.  The second
                             //   circle will be centered (x, 0) where x  may be 
@@ -176,7 +176,8 @@ public:
                             //         space
                             //      2: the second radius minus the first radius
                             //         in pre-transformed space.        
-        
+
+       kLast_BitmapType = kTwoPointRadial_BitmapType
     };
     /** Optional methods for shaders that can pretend to be a bitmap/texture
         to play along with opengl. Default just returns kNone_BitmapType and 
@@ -195,6 +196,59 @@ public:
     */
     virtual BitmapType asABitmap(SkBitmap* outTexture, SkMatrix* outMatrix,
                                  TileMode xy[2], SkScalar* twoPointRadialParams);
+
+    /**
+     *  If the shader subclass can be represented as a gradient, asAGradient
+     *  returns the matching GradientType enum (or kNone_GradientType if it
+     *  cannot). Also, if info is not null, asAGradient populates info with
+     *  the relevant (see below) parameters for the gradient.  fColorCount
+     *  is both an input and output parameter.  On input, it indicates how
+     *  many entries in fColors and fColorOffsets can be used, if they are
+     *  non-NULL.  After asAGradient has run, fColorCount indicates how
+     *  many color-offset pairs there are in the gradient.  If there is
+     *  insufficient space to store all of the color-offset pairs, fColors
+     *  and fColorOffsets will not be altered.  fColorOffsets specifies
+     *  where on the range of 0 to 1 to transition to the given color.
+     *  The meaning of fPoint and fRadius is dependant on the type of gradient.
+     *
+     *  None:
+     *      info is ignored.
+     *  Color:
+     *      fColorOffsets[0] is meaningless.
+     *  Linear:
+     *      fPoint[0] and fPoint[1] are the end-points of the gradient
+     *  Radial:
+     *      fPoint[0] and fRadius[0] are the center and radius
+     *  Radial2:
+     *      fPoint[0] and fRadius[0] are the center and radius of the 1st circle
+     *      fPoint[1] and fRadius[1] are the center and radius of the 2nd circle
+     *  Sweep:
+     *      fPoint[0] is the center of the sweep.
+     */
+
+    enum GradientType {
+        kNone_GradientType,
+        kColor_GradientType,
+        kLinear_GradientType,
+        kRadial_GradientType,
+        kRadial2_GradientType,
+        kSweep_GradientType,
+        kLast_GradientType = kSweep_GradientType
+    };
+
+    struct GradientInfo {
+        int         fColorCount;    //!< In-out parameter, specifies passed size
+                                    //   of fColors/fColorOffsets on input, and
+                                    //   actual number of colors/offsets on
+                                    //   output.
+        SkColor*    fColors;        //!< The colors in the gradient.
+        SkScalar*   fColorOffsets;  //!< The unit offset for color transitions.
+        SkPoint     fPoint[2];      //!< Type specific, see above.
+        SkScalar    fRadius[2];     //!< Type specific, see above.
+        TileMode    fTileMode;      //!< The tile mode used.
+    };
+
+    virtual GradientType asAGradient(GradientInfo* info) const;
 
     //////////////////////////////////////////////////////////////////////////
     //  Factory methods for stock shaders

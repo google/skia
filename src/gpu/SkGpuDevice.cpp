@@ -325,7 +325,13 @@ bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// must be in SkShader::BitmapTypeOrder
+SK_COMPILE_ASSERT(SkShader::kNone_BitmapType == 0, shader_type_mismatch);
+SK_COMPILE_ASSERT(SkShader::kDefault_BitmapType == 1, shader_type_mismatch);
+SK_COMPILE_ASSERT(SkShader::kRadial_BitmapType == 2, shader_type_mismatch);
+SK_COMPILE_ASSERT(SkShader::kSweep_BitmapType == 3, shader_type_mismatch);
+SK_COMPILE_ASSERT(SkShader::kTwoPointRadial_BitmapType == 4,
+                  shader_type_mismatch);
+SK_COMPILE_ASSERT(SkShader::kLast_BitmapType == 4, shader_type_mismatch);
 
 static const GrSamplerState::SampleMode sk_bmp_type_to_sample_mode[] = {
     (GrSamplerState::SampleMode) -1,                    // kNone_BitmapType
