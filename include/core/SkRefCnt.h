@@ -67,36 +67,35 @@ private:
     mutable int32_t fRefCnt;
 };
 
-/** \class SkAutoUnref
-
-    SkAutoUnref is a stack-helper class that will automatically call unref() on
-    the object it points to when the SkAutoUnref object goes out of scope.
-    If obj is null, do nothing.
-*/
-class SkAutoUnref : SkNoncopyable {
+/**
+ *  Utility class that simply unref's its argument in the destructor.
+ */
+template <typename T> class SkAutoTUnref : SkNoncopyable {
 public:
-    SkAutoUnref(SkRefCnt* obj) : fObj(obj) {}
-    ~SkAutoUnref();
+    SkAutoTUnref(T* obj) : fObj(obj) {}
+    ~SkAutoTUnref() { SkSafeUnref(fObj); }
 
-    SkRefCnt*   get() const { return fObj; }
+    T* get() const { return fObj; }
 
-    /** If the hosted object is null, do nothing and return false, else call
-        ref() on it and return true
-    */
-    bool        ref();
-
-    /** If the hosted object is null, do nothing and return false, else call
-        unref() on it, set its reference to null, and return true
-    */
-    bool        unref();
-
-    /** If the hosted object is null, do nothing and return NULL, else call
-        unref() on it, set its reference to null, and return the object
-    */
-    SkRefCnt*   detach();
+    /**
+     *  Return the hosted object (which may be null), transferring ownership.
+     *  The reference count is not modified, and the internal ptr is set to NULL
+     *  so unref() will not be called in our destructor. A subsequent call to
+     *  detach() will do nothing and return null.
+     */
+    T* detach() {
+        T* obj = fObj;
+        fObj = NULL;
+        return obj;
+    }
 
 private:
-    SkRefCnt*   fObj;
+    T*  fObj;
+};
+
+class SkAutoUnref : public SkAutoTUnref<SkRefCnt> {
+public:
+    SkAutoUnref(SkRefCnt* obj) : SkAutoTUnref<SkRefCnt>(obj) {}
 };
 
 ///////////////////////////////////////////////////////////////////////////////
