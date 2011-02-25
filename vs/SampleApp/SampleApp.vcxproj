@@ -366,7 +366,6 @@
     <ClCompile Include="..\..\src\core\SkQuadClipper.cpp" />
     <ClCompile Include="..\..\src\core\SkRasterizer.cpp" />
     <ClCompile Include="..\..\src\core\SkRect.cpp" />
-    <ClCompile Include="..\..\src\core\SkRefCnt.cpp" />
     <ClCompile Include="..\..\src\core\SkRefDict.cpp" />
     <ClCompile Include="..\..\src\core\SkRegion.cpp" />
     <ClCompile Include="..\..\src\core\SkRegion_path.cpp" />
