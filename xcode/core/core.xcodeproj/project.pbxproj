@@ -95,7 +95,6 @@
 		005F25C70EF94F7900582A90 /* SkPtrRecorder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F254E0EF94F7900582A90 /* SkPtrRecorder.cpp */; };
 		005F25C80EF94F7900582A90 /* SkRasterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F254F0EF94F7900582A90 /* SkRasterizer.cpp */; };
 		005F25C90EF94F7900582A90 /* SkRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25500EF94F7900582A90 /* SkRect.cpp */; };
-		005F25CA0EF94F7900582A90 /* SkRefCnt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25510EF94F7900582A90 /* SkRefCnt.cpp */; };
 		005F25CB0EF94F7900582A90 /* SkRegion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25520EF94F7900582A90 /* SkRegion.cpp */; };
 		005F25CC0EF94F7900582A90 /* SkRegion_path.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005F25530EF94F7900582A90 /* SkRegion_path.cpp */; };
 		005F25CD0EF94F7900582A90 /* SkRegionPriv.h in Headers */ = {isa = PBXBuildFile; fileRef = 005F25540EF94F7900582A90 /* SkRegionPriv.h */; };
@@ -232,7 +231,6 @@
 		005F254E0EF94F7900582A90 /* SkPtrRecorder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkPtrRecorder.cpp; path = ../../src/core/SkPtrRecorder.cpp; sourceTree = SOURCE_ROOT; };
 		005F254F0EF94F7900582A90 /* SkRasterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRasterizer.cpp; path = ../../src/core/SkRasterizer.cpp; sourceTree = SOURCE_ROOT; };
 		005F25500EF94F7900582A90 /* SkRect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRect.cpp; path = ../../src/core/SkRect.cpp; sourceTree = SOURCE_ROOT; };
-		005F25510EF94F7900582A90 /* SkRefCnt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRefCnt.cpp; path = ../../src/core/SkRefCnt.cpp; sourceTree = SOURCE_ROOT; };
 		005F25520EF94F7900582A90 /* SkRegion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRegion.cpp; path = ../../src/core/SkRegion.cpp; sourceTree = SOURCE_ROOT; };
 		005F25530EF94F7900582A90 /* SkRegion_path.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkRegion_path.cpp; path = ../../src/core/SkRegion_path.cpp; sourceTree = SOURCE_ROOT; };
 		005F25540EF94F7900582A90 /* SkRegionPriv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkRegionPriv.h; path = ../../src/core/SkRegionPriv.h; sourceTree = SOURCE_ROOT; };
@@ -442,7 +440,6 @@
 				005F254E0EF94F7900582A90 /* SkPtrRecorder.cpp */,
 				005F254F0EF94F7900582A90 /* SkRasterizer.cpp */,
 				005F25500EF94F7900582A90 /* SkRect.cpp */,
-				005F25510EF94F7900582A90 /* SkRefCnt.cpp */,
 				005F25520EF94F7900582A90 /* SkRegion.cpp */,
 				005F25530EF94F7900582A90 /* SkRegion_path.cpp */,
 				005F25540EF94F7900582A90 /* SkRegionPriv.h */,
@@ -639,7 +636,6 @@
 				005F25C70EF94F7900582A90 /* SkPtrRecorder.cpp in Sources */,
 				005F25C80EF94F7900582A90 /* SkRasterizer.cpp in Sources */,
 				005F25C90EF94F7900582A90 /* SkRect.cpp in Sources */,
-				005F25CA0EF94F7900582A90 /* SkRefCnt.cpp in Sources */,
 				005F25CB0EF94F7900582A90 /* SkRegion.cpp in Sources */,
 				005F25CC0EF94F7900582A90 /* SkRegion_path.cpp in Sources */,
 				005F25CE0EF94F7900582A90 /* SkScalerContext.cpp in Sources */,
