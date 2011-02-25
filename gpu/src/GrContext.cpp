@@ -62,7 +62,7 @@ GrContext::~GrContext() {
     delete fFontCache;
     delete fDrawBuffer;
     delete fDrawBufferVBAllocPool;
-    delete fDrawBufferVBAllocPool;
+    delete fDrawBufferIBAllocPool;
     delete fPathRenderer;
 }
 
@@ -383,7 +383,7 @@ void GrContext::drawRect(const GrPaint& paint,
             GrVertexLayout layout = (textured) ?
                             GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
                             0;
-            target->setVertexSourceToBuffer(layout, 
+            target->setVertexSourceToBuffer(layout,
                                             fGpu->getUnitSquareVertexBuffer());
             GrDrawTarget::AutoViewMatrixRestore avmr(target);
             GrMatrix m;
@@ -417,7 +417,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
         drawRect(paint, dstRect, -1, dstMatrix);
         return;
     }
-    
+
     GR_STATIC_ASSERT(!BATCH_RECT_TO_RECT || !GR_STATIC_RECT_VB);
 
 #if GR_STATIC_RECT_VB
@@ -449,9 +449,9 @@ void GrContext::drawRectToRect(const GrPaint& paint,
 #else
 
     GrDrawTarget* target;
-#if BATCH_RECT_TO_RECT 
+#if BATCH_RECT_TO_RECT
     target = this->prepareToDraw(paint, kBuffered_DrawCategory);
-#else 
+#else
     target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
 
@@ -640,7 +640,7 @@ void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
     target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
 }
 
-GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint, 
+GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
                                        DrawCategory category) {
     if (category != fLastDrawCategory) {
         flushDrawBuffer();
@@ -731,13 +731,13 @@ GrContext::GrContext(GrGpu* gpu) {
     fLastDrawCategory = kUnbuffered_DrawCategory;
 
 #if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT
-    fDrawBufferVBAllocPool = 
+    fDrawBufferVBAllocPool =
         new GrVertexBufferAllocPool(gpu, false,
                                     DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
                                     DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS);
-    fDrawBufferIBAllocPool = 
+    fDrawBufferIBAllocPool =
         new GrIndexBufferAllocPool(gpu, false,
-                                   DRAW_BUFFER_IBPOOL_BUFFER_SIZE, 
+                                   DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
                                    DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS);
 
     fDrawBuffer = new GrInOrderDrawBuffer(fDrawBufferVBAllocPool,
