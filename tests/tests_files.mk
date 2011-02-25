@@ -1,5 +1,6 @@
 SOURCE := \
     BitmapCopyTest.cpp \
+    BitmapGetColorTest.cpp \
     BlitRowTest.cpp \
     ClipCubicTest.cpp \
     ClipStackTest.cpp \
