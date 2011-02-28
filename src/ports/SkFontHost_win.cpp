@@ -29,6 +29,15 @@
 #include "tchar.h"
 #include "Usp10.h"
 
+// Export this for callers that already have a LOGFONT created
+/**
+ *  Return a new typeface that best fits the specified LOGFONT. The typeface
+ *  should be treated as "new" in that the caller is now an owner (since
+ *  typeface is reference counted), though the actual typeface may be part of
+ *  an internal cache, so that subsequent requests may return the same ptr.
+ */
+extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& lf);
+
 // client3d has to undefine this for now
 #define CAN_USE_LOGFONT_NAME
 
@@ -72,7 +81,7 @@ private:
 
 public:
 
-    LogFontTypeface(Style style, const LOGFONT& logFont) : 
+    LogFontTypeface(Style style, const LOGFONT& logFont) :
       SkTypeface(style, sk_atomic_inc(&gCurrId)+1), // 0 id is reserved so add 1
       fLogFont(logFont)
     {
@@ -80,7 +89,7 @@ public:
         fNext = gHead;
         gHead = this;
     }
-    
+
     const LOGFONT& logFont() const { return fLogFont; }
 
     virtual ~LogFontTypeface() {
@@ -108,7 +117,7 @@ public:
         }
         return curr;
     }
-   
+
     static LogFontTypeface* FindByLogFont(const LOGFONT& lf)
     {
         LogFontTypeface* curr = gHead;
@@ -145,10 +154,10 @@ static const LOGFONT& get_default_font() {
     return gDefaultFont;
 }
 
-static SkTypeface* CreateTypeface_(const LOGFONT& lf) {
-       
+SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& lf) {
+
     LogFontTypeface* ptypeface = LogFontTypeface::FindByLogFont(lf);
-    
+
     if (NULL == ptypeface) {
         SkTypeface::Style style = GetFontStyle(lf);
         ptypeface = new LogFontTypeface(style, lf);
@@ -626,8 +635,8 @@ Error:
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 
     //Should not be used on Windows, keep linker happy
-    SkASSERT(false);    
-    return CreateTypeface_(get_default_font());
+    SkASSERT(false);
+    return SkCreateTypefaceFromLOGFONT(get_default_font());
 }
 
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
@@ -689,12 +698,12 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         // hack until we figure out if SkTypeface should cache this itself
         if (style == SkTypeface::kNormal) {
             if (NULL == gDefaultTypeface) {
-                gDefaultTypeface = CreateTypeface_(lf);
+                gDefaultTypeface = SkCreateTypefaceFromLOGFONT(lf);
             }
             tf = gDefaultTypeface;
             tf->ref();
         } else {
-            tf = CreateTypeface_(lf);
+            tf = SkCreateTypefaceFromLOGFONT(lf);
         }
     } else {
 #ifdef CAN_USE_LOGFONT_NAME
@@ -738,12 +747,12 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         // use the style desired
         lf.lfWeight = (style & SkTypeface::kBold) != 0 ? FW_BOLD : FW_NORMAL ;
         lf.lfItalic = ((style & SkTypeface::kItalic) != 0);
-        tf = CreateTypeface_(lf);
+        tf = SkCreateTypefaceFromLOGFONT(lf);
 #endif
     }
 
-    if (NULL == tf) {        
-        tf = CreateTypeface_(get_default_font());
+    if (NULL == tf) {
+        tf = SkCreateTypefaceFromLOGFONT(get_default_font());
     }
     return tf;
 }
