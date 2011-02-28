@@ -49,21 +49,15 @@ public:
      */
     bool multiByteGlyphs();
 
-    /** Convert the input glyph IDs into the font encoding.  If the font has
-     *  more glyphs than can be encoded (like a type 1 font with more than
-     *  255 glyphs) this method only converts up to the first out of range
+    /** Convert (in place) the input glyph IDs into the font encoding.  If the
+     *  font has more glyphs than can be encoded (like a type 1 font with more
+     *  than 255 glyphs) this method only converts up to the first out of range
      *  glyph ID.
      *  @param glyphIDs       The input text as glyph IDs.
      *  @param numGlyphs      The number of input glyphs.
-     *  @param encodedValues  The method writes its result to this parameter.
-     *                        multiByteGlyphs() reveals the output format.
-     *  @param encodedLength  The size of encodedValues (in bytes), which is
-     *                        overwritten with how much of encodedValues is
-     *                        used.
      *  @return               Returns the number of glyphs consumed.
      */
-    size_t glyphsToPDFFontEncoding(const uint16_t* glyphIDs, size_t numGlyphs,
-                                   void* encodedValues, size_t* encodedLength);
+    size_t glyphsToPDFFontEncoding(uint16_t* glyphIDs, size_t numGlyphs);
 
     /** Get the font resource for the passed font ID and glyphID. The
      *  reference count of the object is incremented and it is the caller's

@@ -329,30 +329,21 @@ bool SkPDFFont::multiByteGlyphs() {
     return fMultiByteGlyphs;
 }
 
-size_t SkPDFFont::glyphsToPDFFontEncoding(const uint16_t* glyphIDs,
-                                          size_t numGlyphs, void* encodedValues,
-                                          size_t* encodedLength) {
-    if (numGlyphs * 2 > *encodedLength)
-        numGlyphs = *encodedLength / 2;
-
-    // A font with multibyte glyphs will support all glyph IDs in a single font,
-    // shortcut if we can.
+size_t SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs,
+                                          size_t numGlyphs) {
+    // A font with multibyte glyphs will support all glyph IDs in a single font.
     if (fMultiByteGlyphs) {
-        *encodedLength = numGlyphs * 2;
-        memcpy(encodedValues, glyphIDs, *encodedLength);
-    } else {
-        char* output = (char*) encodedValues;
-        for (size_t i = 0; i < numGlyphs; i++) {
-            if (glyphIDs[i] == 0) {
-                output[i] = 0;
-                continue;
-            }
-            if (glyphIDs[i] < fFirstGlyphID || glyphIDs[i] > fLastGlyphID) {
-                numGlyphs = i;
-                break;
-            }
-            output[i] = glyphIDs[i] - fFirstGlyphID + 1;
+        return numGlyphs;
+    }
+
+    for (size_t i = 0; i < numGlyphs; i++) {
+        if (glyphIDs[i] == 0) {
+            continue;
         }
+        if (glyphIDs[i] < fFirstGlyphID || glyphIDs[i] > fLastGlyphID) {
+            return i;
+        }
+        glyphIDs[i] -= (fFirstGlyphID - 1);
     }
 
     return numGlyphs;
