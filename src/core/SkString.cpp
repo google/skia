@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -19,6 +19,28 @@
 #include "SkFixed.h"
 #include "SkUtils.h"
 #include <stdarg.h>
+#include <stdio.h>
+
+// number of bytes (on the stack) to receive the printf result
+static const size_t kBufferSize = 256;
+
+#ifdef SK_BUILD_FOR_WIN
+    #define VSNPRINTF   _vsnprintf
+    #define SNPRINTF    _snprintf
+#else
+    #define VSNPRINTF   vsnprintf
+    #define SNPRINTF    snprintf
+#endif
+
+#define ARGS_TO_BUFFER(format, buffer, size)        \
+    do {                                            \
+        va_list args;                               \
+        va_start(args, format);                     \
+        VSNPRINTF(buffer, size, format, args);      \
+        va_end(args);                               \
+    } while (0)
+
+///////////////////////////////////////////////////////////////////////////////
 
 bool SkStrStartsWith(const char string[], const char prefix[])
 {
@@ -116,6 +138,9 @@ char* SkStrAppendScalar(char string[], SkScalar value)
 {
     SkDEBUGCODE(char* start = string;)
 
+#ifdef SK_SCALAR_IS_FLOAT
+    return string + SNPRINTF(string, SkStrAppendScalar_MaxSize, "%g", value);
+#else
     SkFixed x = SkScalarToFixed(value);
 
     if (x < 0)
@@ -151,7 +176,8 @@ char* SkStrAppendScalar(char string[], SkScalar value)
             x %= powerOfTen;
         } while (x != 0);
     }
-    
+#endif
+
     SkASSERT(string - start <= SkStrAppendScalar_MaxSize);
     return string;
 }
@@ -483,7 +509,7 @@ void SkString::insertS64(size_t offset, int64_t dec, int minDigits)
 void SkString::insertHex(size_t offset, uint32_t hex, int minDigits)
 {
     minDigits = SkPin32(minDigits, 0, 8);
-    
+
     static const char gHex[] = "0123456789ABCDEF";
 
     char    buffer[8];
@@ -508,27 +534,6 @@ void SkString::insertScalar(size_t offset, SkScalar value)
     this->insert(offset, buffer, stop - buffer);
 }
 
-///////////////////////////////////////////////////////////////////////////
-
-#include <stdio.h>
-
-// number of bytes (on the stack) to receive the printf result
-static const size_t kBufferSize = 256;
-
-#ifdef SK_BUILD_FOR_WIN
-    #define VSNPRINTF   _vsnprintf
-#else
-    #define VSNPRINTF   vsnprintf
-#endif
-
-#define ARGS_TO_BUFFER(format, buffer, size)        \
-    do {                                            \
-        va_list args;                               \
-        va_start(args, format);                     \
-        VSNPRINTF(buffer, size, format, args);      \
-        va_end(args);                               \
-    } while (0)
-
 void SkString::printf(const char format[], ...) {
     char    buffer[kBufferSize];
     ARGS_TO_BUFFER(format, buffer, kBufferSize);
@@ -539,20 +544,20 @@ void SkString::printf(const char format[], ...) {
 void SkString::appendf(const char format[], ...) {
     char    buffer[kBufferSize];
     ARGS_TO_BUFFER(format, buffer, kBufferSize);
-    
+
     this->append(buffer, strlen(buffer));
 }
 
 void SkString::prependf(const char format[], ...) {
     char    buffer[kBufferSize];
     ARGS_TO_BUFFER(format, buffer, kBufferSize);
-    
+
     this->prepend(buffer, strlen(buffer));
 }
 
 #undef VSNPRINTF
 
-///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 void SkString::remove(size_t offset, size_t length)
 {

@@ -64,6 +64,21 @@ static void TestString(skiatest::Reporter* reporter) {
     a.set("");
     a.appendS64(-429496729612LL, 15);
     REPORTER_ASSERT(reporter, a.equals("-000429496729612"));
+
+    static const struct {
+        SkScalar    fValue;
+        const char* fString;
+    } gRec[] = {
+        { 0,            "0" },
+        { SK_Scalar1,   "1" },
+        { -SK_Scalar1,  "-1" },
+        { SK_Scalar1/2, "0.5" },
+    };
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+        a.reset();
+        a.appendScalar(gRec[i].fValue);
+        REPORTER_ASSERT(reporter, a.equals(gRec[i].fString));
+    }
 }
 
 #include "TestClassDef.h"
