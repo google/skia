@@ -314,24 +314,21 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     SkPaint textPaint = calculateTextPaint(paint);
     updateGSFromPaint(textPaint, true);
 
-    // Make sure we have a glyph id encoding.
-    SkAutoFree glyphStorage;
-    uint16_t* glyphIDs;
-    size_t numGlyphs;
+    // We want the text in glyph id encoding and a writable buffer, so we end
+    // up making a copy either way.
+    size_t numGlyphs = paint.textToGlyphs(text, len, NULL);
+    uint16_t* glyphIDs =
+        (uint16_t*)sk_malloc_flags(numGlyphs * 2,
+                                   SK_MALLOC_TEMP | SK_MALLOC_THROW);
+    SkAutoFree autoFreeGlyphIDs(glyphIDs);
     if (paint.getTextEncoding() != SkPaint::kGlyphID_TextEncoding) {
-        numGlyphs = paint.textToGlyphs(text, len, NULL);
-        glyphIDs = (uint16_t*)sk_malloc_flags(numGlyphs * 2,
-                                              SK_MALLOC_TEMP | SK_MALLOC_THROW);
-        glyphStorage.set(glyphIDs);
         paint.textToGlyphs(text, len, glyphIDs);
         textPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
     } else {
         SkASSERT((len & 1) == 0);
-        numGlyphs = len / 2;
-        glyphIDs = (uint16_t*)text;
+        SkASSERT(len / 2 == numGlyphs);
+        memcpy(glyphIDs, text, len);
     }
-    SkAutoFree encodedStorage(
-            sk_malloc_flags(numGlyphs * 2, SK_MALLOC_TEMP | SK_MALLOC_THROW));
 
     SkScalar width;
     SkScalar* widthPtr = NULL;
@@ -346,16 +343,13 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     while (numGlyphs > consumedGlyphCount) {
         updateFont(textPaint, glyphIDs[consumedGlyphCount]);
         SkPDFFont* font = fGraphicStack[fGraphicStackIndex].fFont;
-        size_t encodedLength = numGlyphs * 2;
-        consumedGlyphCount += font->glyphsToPDFFontEncoding(
-                glyphIDs + consumedGlyphCount, numGlyphs - consumedGlyphCount,
-                encodedStorage.get(), &encodedLength);
-        if (font->multiByteGlyphs())
-            encodedLength /= 2;
-        fContent.append(
-                SkPDFString::formatString((const uint16_t*)encodedStorage.get(),
-                                          encodedLength,
-                                          font->multiByteGlyphs()));
+        size_t availableGlyphs =
+            font->glyphsToPDFFontEncoding(glyphIDs + consumedGlyphCount,
+                                          numGlyphs - consumedGlyphCount);
+        fContent.append(SkPDFString::formatString(glyphIDs + consumedGlyphCount,
+                                                  availableGlyphs,
+                                                  font->multiByteGlyphs()));
+        consumedGlyphCount += availableGlyphs;
         fContent.append(" Tj\n");
     }
     fContent.append("ET\n");
@@ -410,10 +404,8 @@ void SkPDFDevice::drawPosText(const SkDraw&, const void* text, size_t len,
     updateFont(textPaint, glyphIDs[0]);
     for (size_t i = 0; i < numGlyphs; i++) {
         SkPDFFont* font = fGraphicStack[fGraphicStackIndex].fFont;
-        uint16_t encodedValue;
-        size_t encodedLength = 2;
-        if (font->glyphsToPDFFontEncoding(glyphIDs + i, 1, &encodedValue,
-                                          &encodedLength) == 0) {
+        uint16_t encodedValue = glyphIDs[i];
+        if (font->glyphsToPDFFontEncoding(&encodedValue, 1) != 1) {
             updateFont(textPaint, glyphIDs[i]);
             i--;
             continue;
