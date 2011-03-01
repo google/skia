@@ -51,6 +51,18 @@ static uint8_t glyphbuf[BUFFERSIZE];
 // Give 1MB font cache budget
 #define FONT_CACHE_MEMORY_BUDGET    (1024 * 1024)
 
+/**
+ *	Since LOGFONT wants its textsize as an int, and we support fractional sizes,
+ *  and since we have a cache of LOGFONTs for our tyepfaces, we always set the
+ *  lfHeight to a canonical size, and then we use the 2x2 matrix to achieve the
+ *  actual requested size.
+ */
+static const int gCanonicalTextSize = 64;
+
+static void make_canonical(LOGFONT* lf) {
+	lf->lfHeight = -gCanonicalTextSize;
+}
+
 static inline FIXED SkFixedToFIXED(SkFixed x) {
     return *(FIXED*)(&x);
 }
@@ -85,6 +97,8 @@ public:
       SkTypeface(style, sk_atomic_inc(&gCurrId)+1), // 0 id is reserved so add 1
       fLogFont(logFont)
     {
+		make_canonical(&fLogFont);
+
         SkAutoMutexAcquire am(gMutex);
         fNext = gHead;
         gHead = this;
@@ -120,8 +134,11 @@ public:
 
     static LogFontTypeface* FindByLogFont(const LOGFONT& lf)
     {
+		LOGFONT canonical = lf;
+		make_canonical(&canonical);
+
         LogFontTypeface* curr = gHead;
-        while (curr && memcmp(&curr->fLogFont, &lf, sizeof(LOGFONT))) {
+        while (curr && memcmp(&curr->fLogFont, &canonical, sizeof(LOGFONT))) {
             curr = curr->fNext;
         }
         return curr;
@@ -155,15 +172,14 @@ static const LOGFONT& get_default_font() {
 }
 
 SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& lf) {
-
     LogFontTypeface* ptypeface = LogFontTypeface::FindByLogFont(lf);
 
     if (NULL == ptypeface) {
         SkTypeface::Style style = GetFontStyle(lf);
         ptypeface = new LogFontTypeface(style, lf);
     } else {
-        ptypeface->ref();
-    }
+	    ptypeface->ref();
+	}
     return ptypeface;
 }
 
@@ -186,51 +202,48 @@ protected:
     virtual void generateMetrics(SkGlyph* glyph);
     virtual void generateImage(const SkGlyph& glyph);
     virtual void generatePath(const SkGlyph& glyph, SkPath* path);
-    virtual void generateLineHeight(SkPoint* ascent, SkPoint* descent);
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY);
     //virtual SkDeviceContext getDC() {return ddc;}
 private:
-    LOGFONT      lf;
-    MAT2         mat22;
-    HDC          ddc;
-    HFONT        savefont;
-    HFONT        font;
-    SCRIPT_CACHE sc;
+	SkScalar	 fScale;	// to get from canonical size to real size
+    MAT2         fMat22;
+    HDC          fDDC;
+    HFONT        fSavefont;
+    HFONT        fFont;
+    SCRIPT_CACHE fSC;
 };
 
 SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
-        : SkScalerContext(desc), ddc(0), font(0), savefont(0), sc(0) {
+        : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
-    lf = LogFontTypeface::FindById(fRec.fFontID)->logFont();
+	fScale = fRec.fTextSize / gCanonicalTextSize;
+    fMat22.eM11 = SkScalarToFIXED(SkScalarMul(fScale, fRec.fPost2x2[0][0]));
+    fMat22.eM12 = SkScalarToFIXED(SkScalarMul(fScale, -fRec.fPost2x2[0][1]));
+    fMat22.eM21 = SkScalarToFIXED(SkScalarMul(fScale, fRec.fPost2x2[1][0]));
+    fMat22.eM22 = SkScalarToFIXED(SkScalarMul(fScale, -fRec.fPost2x2[1][1]));
 
-    mat22.eM11 = SkScalarToFIXED(fRec.fPost2x2[0][0]);
-    mat22.eM12 = SkScalarToFIXED(-fRec.fPost2x2[0][1]);
-    mat22.eM21 = SkScalarToFIXED(fRec.fPost2x2[1][0]);
-    mat22.eM22 = SkScalarToFIXED(-fRec.fPost2x2[1][1]);
-
-    ddc = ::CreateCompatibleDC(NULL);
-    SetBkMode(ddc, TRANSPARENT);
+    fDDC = ::CreateCompatibleDC(NULL);
+    SetBkMode(fDDC, TRANSPARENT);
 
     // Scaling by the DPI is inconsistent with how Skia draws elsewhere
     //SkScalar height = -(fRec.fTextSize * GetDeviceCaps(ddc, LOGPIXELSY) / 72);
-    SkScalar height = -fRec.fTextSize;
-    lf.lfHeight = SkScalarRound(height);
-    font = CreateFontIndirect(&lf);
-    savefont = (HFONT)SelectObject(ddc, font);
+    LOGFONT lf = LogFontTypeface::FindById(fRec.fFontID)->logFont();
+    lf.lfHeight = -gCanonicalTextSize;
+    fFont = CreateFontIndirect(&lf);
+    fSavefont = (HFONT)SelectObject(fDDC, fFont);
 }
 
 SkScalerContext_Windows::~SkScalerContext_Windows() {
-    if (ddc) {
-        ::SelectObject(ddc, savefont);
-        ::DeleteDC(ddc);
-        ddc = NULL;
+    if (fDDC) {
+        ::SelectObject(fDDC, fSavefont);
+        ::DeleteDC(fDDC);
     }
-    if (font) {
-        ::DeleteObject(font);
+    if (fFont) {
+        ::DeleteObject(fFont);
     }
-    if (sc) {
-        ::ScriptFreeCache(&sc);
+    if (fSC) {
+        ::ScriptFreeCache(&fSC);
     }
 }
 
@@ -245,7 +258,7 @@ uint16_t SkScalerContext_Windows::generateCharToGlyph(SkUnichar uni) {
     // TODO(ctguil): Support characters that generate more than one glyph.
     if (SkUTF16_FromUnichar(uni, (uint16_t*)c) == 1) {
         // Type1 fonts fail with uniscribe API. Use GetGlyphIndices for plane 0.
-        SkAssertResult(GetGlyphIndicesW(ddc, c, 1, &index, 0));
+        SkAssertResult(GetGlyphIndicesW(fDDC, c, 1, &index, 0));
     } else {
         // Use uniscribe to detemine glyph index for non-BMP characters.
         // Need to add extra item to SCRIPT_ITEM to work around a bug in older
@@ -259,7 +272,7 @@ uint16_t SkScalerContext_Windows::generateCharToGlyph(SkUnichar uni) {
         SCRIPT_VISATTR vsa;
         int glyphs;
         SkAssertResult(SUCCEEDED(ScriptShape(
-            ddc, &sc, c, 2, 1, &si[0].a, &index, log, &vsa, &glyphs)));
+            fDDC, &fSC, c, 2, 1, &si[0].a, &index, log, &vsa, &glyphs)));
     }
     return index;
 }
@@ -270,7 +283,7 @@ void SkScalerContext_Windows::generateAdvance(SkGlyph* glyph) {
 
 void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
 
-    SkASSERT(ddc);
+    SkASSERT(fDDC);
 
     GLYPHMETRICS gm;
     memset(&gm, 0, sizeof(gm));
@@ -280,7 +293,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
 
     // Note: need to use GGO_GRAY8_BITMAP instead of GGO_METRICS because GGO_METRICS returns a smaller
     // BlackBlox; we need the bigger one in case we need the image.  fAdvance is the same.
-    uint32_t ret = GetGlyphOutlineW(ddc, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &mat22);
+    uint32_t ret = GetGlyphOutlineW(fDDC, glyph->getGlyphID(0), GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
 
     if (GDI_ERROR != ret) {
         if (ret == 0) {
@@ -310,31 +323,31 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
     if (!(mx || my))
       return;
 
-    SkASSERT(ddc);
+    SkASSERT(fDDC);
 
     OUTLINETEXTMETRIC otm;
 
-    uint32_t ret = GetOutlineTextMetrics(ddc, sizeof(otm), &otm);
+    uint32_t ret = GetOutlineTextMetrics(fDDC, sizeof(otm), &otm);
     if (sizeof(otm) != ret) {
       return;
     }
 
     if (mx) {
-      mx->fTop = -SkIntToScalar(otm.otmTextMetrics.tmAscent);  // Actually a long.
-      mx->fAscent = -SkIntToScalar(otm.otmAscent);
-      mx->fDescent = -SkIntToScalar(otm.otmDescent);
-      mx->fBottom = SkIntToScalar(otm.otmTextMetrics.tmDescent);  // Long
-      mx->fLeading = SkIntToScalar(otm.otmTextMetrics.tmInternalLeading
-          + otm.otmTextMetrics.tmExternalLeading);  // Long
+        mx->fTop = -fScale * otm.otmTextMetrics.tmAscent;
+		mx->fAscent = -fScale * otm.otmAscent;
+		mx->fDescent = -fScale * otm.otmDescent;
+		mx->fBottom = fScale * otm.otmTextMetrics.tmDescent;
+		mx->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
+								 + otm.otmTextMetrics.tmExternalLeading);
     }
 
     if (my) {
-      my->fTop = -SkIntToScalar(otm.otmTextMetrics.tmAscent);  // Actually a long.
-      my->fAscent = -SkIntToScalar(otm.otmAscent);
-      my->fDescent = -SkIntToScalar(otm.otmDescent);
-      my->fBottom = SkIntToScalar(otm.otmTextMetrics.tmDescent);  // Long
-      my->fLeading = SkIntToScalar(otm.otmTextMetrics.tmInternalLeading
-          + otm.otmTextMetrics.tmExternalLeading);  // Long
+		my->fTop = -fScale * otm.otmTextMetrics.tmAscent;
+		my->fAscent = -fScale * otm.otmAscent;
+		my->fDescent = -fScale * otm.otmDescent;
+		my->fBottom = fScale * otm.otmTextMetrics.tmDescent;
+		my->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
+								 + otm.otmTextMetrics.tmExternalLeading);
     }
 }
 
@@ -342,7 +355,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     SkAutoMutexAcquire  ac(gFTMutex);
 
-    SkASSERT(ddc);
+    SkASSERT(fDDC);
 
     GLYPHMETRICS gm;
     memset(&gm, 0, sizeof(gm));
@@ -354,11 +367,11 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 #endif
 
     uint32_t bytecount = 0;
-    uint32_t total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &mat22);
+    uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
     if (GDI_ERROR != total_size && total_size > 0) {
         uint8_t *pBuff = new uint8_t[total_size];
         if (NULL != pBuff) {
-            total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, total_size, pBuff, &mat22);
+            total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, total_size, pBuff, &fMat22);
 
             SkASSERT(total_size != GDI_ERROR);
 
@@ -402,7 +415,7 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     SkASSERT(&glyph && path);
-    SkASSERT(ddc);
+    SkASSERT(fDDC);
 
     path->reset();
 
@@ -413,7 +426,7 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
 #endif
 
     GLYPHMETRICS gm;
-    uint32_t total_size = GetGlyphOutlineW(ddc, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &mat22);
+    uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_NATIVE | GGO_GLYPH_INDEX, &gm, BUFFERSIZE, glyphbuf, &fMat22);
 
     if (GDI_ERROR != total_size) {
 
@@ -462,26 +475,6 @@ void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
     //char buf[1024];
     //sprintf(buf, "generatePath: count:%d\n", count);
     //OutputDebugString(buf);
-}
-
-
-// Note:  not sure this is the correct implementation
-void SkScalerContext_Windows::generateLineHeight(SkPoint* ascent, SkPoint* descent) {
-
-    SkASSERT(ddc);
-
-    OUTLINETEXTMETRIC otm;
-
-    uint32_t ret = GetOutlineTextMetrics(ddc, sizeof(otm), &otm);
-
-    if (sizeof(otm) == ret) {
-        if (ascent)
-            ascent->iset(0, otm.otmAscent);
-        if (descent)
-            descent->iset(0, otm.otmDescent);
-    }
-
-    return;
 }
 
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
