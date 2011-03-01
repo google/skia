@@ -20,6 +20,8 @@
 #include "SkStream.h"
 #include "SkKey.h"
 
+extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
+
 static const char gText[] = 
 	"When in the Course of human events it becomes necessary for one people "
 	"to dissolve the political bands which have connected them with another "
@@ -31,7 +33,16 @@ static const char gText[] =
 class TextBoxView : public SkView {
 public:    
 	TextBoxView() {
-		fTextSize = SkIntToScalar(32);
+		LOGFONT lf;
+		sk_bzero(&lf, sizeof(lf));
+		lf.lfHeight = 9;
+		SkTypeface* tf0 = SkCreateTypefaceFromLOGFONT(lf);
+		lf.lfHeight = 12;
+		SkTypeface* tf1 = SkCreateTypefaceFromLOGFONT(lf);
+		// we assert that different sizes should not affect which face we get
+		SkASSERT(tf0 == tf1);
+		tf0->unref();
+		tf1->unref();
 	}
     
 protected:
@@ -61,36 +72,16 @@ protected:
 
 		SkPaint paint;
 		paint.setAntiAlias(true);
-		paint.setTextSize(fTextSize);
+		tbox.setText(gText, strlen(gText), paint);
 
-		tbox.draw(canvas, gText, strlen(gText), paint);
-    }
-    
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        return new Click(this);
-    }
-    
-	virtual bool onClick(Click* click) {
-		const SkScalar delta = SkIntToScalar(3);
-		if (click->fState == Click::kUp_State) {
-			if (click->fCurr.fY < this->height()/2) {
-				fTextSize += delta;
-				this->inval(NULL);
-				return true;
-			} else {
-				if (fTextSize > delta) {
-					fTextSize -= delta;
-					this->inval(NULL);
-					return true;
-				}
-			}
+		for (int i = 9; i < 24; i += 2) {
+			paint.setTextSize(SkIntToScalar(i));
+			tbox.draw(canvas);
+			canvas->translate(0, tbox.getTextHeight() + paint.getFontSpacing());
 		}
-		return this->INHERITED::onClick(click);
     }
     
 private:
-    SkScalar fTextSize;
-
     typedef SkView INHERITED;
 };
 
