@@ -139,7 +139,13 @@ char* SkStrAppendScalar(char string[], SkScalar value)
     SkDEBUGCODE(char* start = string;)
 
 #ifdef SK_SCALAR_IS_FLOAT
-    return string + SNPRINTF(string, SkStrAppendScalar_MaxSize, "%g", value);
+    // since floats have at most 8 significant digits, we limit our %g to that.
+    static const char gFormat[] = "%.8g";
+    // make it 1 larger for the terminating 0
+    char buffer[SkStrAppendScalar_MaxSize + 1];
+    int len = SNPRINTF(buffer, sizeof(buffer), gFormat, value);
+    memcpy(string, buffer, len);
+    return string + len;
 #else
     SkFixed x = SkScalarToFixed(value);
 
