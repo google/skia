@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -37,7 +37,7 @@
     static void RecordHashCollisionIf(bool pred) {
         if (pred) {
             gHashCollision += 1;
-            
+
             uint32_t total = gHashSuccess + gHashCollision;
             SkDebugf("Font Cache Hash success rate: %d%%\n",
                      100 * gHashSuccess / total);
@@ -68,9 +68,9 @@ SkGlyphCache::SkGlyphCache(const SkDescriptor* desc)
     memset(fGlyphHash, 0, sizeof(fGlyphHash));
     // init with 0xFF so that the charCode field will be -1, which is invalid
     memset(fCharToGlyphHash, 0xFF, sizeof(fCharToGlyphHash));
-    
+
     fMemoryUsed = sizeof(*this) + kMinGlphAlloc + kMinImageAlloc;
-    
+
     fGlyphArray.setReserve(METRICS_RESERVE_COUNT);
 
     fMetricsCount = 0;
@@ -105,7 +105,7 @@ uint16_t SkGlyphCache::unicharToGlyph(SkUnichar charCode) {
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode);
     const CharGlyphRec& rec = fCharToGlyphHash[ID2HashIndex(id)];
-    
+
     if (rec.fID == id) {
         return rec.fGlyph->getGlyphID();
     } else {
@@ -123,7 +123,7 @@ const SkGlyph& SkGlyphCache::getUnicharAdvance(SkUnichar charCode) {
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode);
     CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
-    
+
     if (rec->fID != id) {
         // this ID is based on the UniChar
         rec->fID = id;
@@ -153,7 +153,7 @@ const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode) {
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode);
     CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
-    
+
     if (rec->fID != id) {
         RecordHashCollisionIf(rec->fGlyph != NULL);
         // this ID is based on the UniChar
@@ -176,7 +176,7 @@ const SkGlyph& SkGlyphCache::getUnicharMetrics(SkUnichar charCode,
     VALIDATE();
     uint32_t id = SkGlyph::MakeID(charCode, x, y);
     CharGlyphRec* rec = &fCharToGlyphHash[ID2HashIndex(id)];
-    
+
     if (rec->fID != id) {
         RecordHashCollisionIf(rec->fGlyph != NULL);
         // this ID is based on the UniChar
@@ -199,7 +199,7 @@ const SkGlyph& SkGlyphCache::getGlyphIDMetrics(uint16_t glyphID) {
     uint32_t id = SkGlyph::MakeID(glyphID);
     unsigned index = ID2HashIndex(id);
     SkGlyph* glyph = fGlyphHash[index];
-    
+
     if (NULL == glyph || glyph->fID != id) {
         RecordHashCollisionIf(glyph != NULL);
         glyph = this->lookupMetrics(glyphID, kFull_MetricsType);
@@ -275,7 +275,7 @@ SkGlyph* SkGlyphCache::lookupMetrics(uint32_t id, MetricsType mtype) {
                                         SkChunkAlloc::kThrow_AllocFailType);
     glyph->init(id);
     *fGlyphArray.insert(hi) = glyph;
-    
+
     if (kJustAdvance_MetricsType == mtype) {
         fScalerContext->getAdvance(glyph);
         fAdvanceCount += 1;
@@ -294,8 +294,11 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
             size_t  size = glyph.computeImageSize();
             const_cast<SkGlyph&>(glyph).fImage = fImageAlloc.alloc(size,
                                         SkChunkAlloc::kReturnNil_AllocFailType);
-            fScalerContext->getImage(glyph);
-            fMemoryUsed += size;
+            // check that alloc() actually succeeded
+            if (glyph.fImage) {
+                fScalerContext->getImage(glyph);
+                fMemoryUsed += size;
+            }
         }
     }
     return glyph.fImage;
@@ -391,7 +394,7 @@ void SkGlyphCache::invokeAndRemoveAuxProcs() {
     #define HASH_BITCOUNT   6
     #define HASH_COUNT      (1 << HASH_BITCOUNT)
     #define HASH_MASK       (HASH_COUNT - 1)
-    
+
     static unsigned desc_to_hashindex(const SkDescriptor* desc)
     {
         SkASSERT(HASH_MASK < 256);  // since our munging reduces to 8 bits
@@ -446,9 +449,9 @@ void SkGlyphCache::VisitAllCaches(bool (*proc)(SkGlyphCache*, void*),
     SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
     SkAutoMutexAcquire    ac(globals.fMutex);
     SkGlyphCache*         cache;
-    
+
     globals.validate();
-    
+
     for (cache = globals.fHead; cache != NULL; cache = cache->fNext) {
         if (proc(cache, context)) {
             break;
@@ -560,7 +563,7 @@ void SkGlyphCache::AttachCache(SkGlyphCache* cache) {
 size_t SkGlyphCache::GetCacheUsed() {
     SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
     SkAutoMutexAcquire  ac(globals.fMutex);
-    
+
     return SkGlyphCache::ComputeMemoryUsed(globals.fHead);
 }
 
@@ -570,7 +573,7 @@ bool SkGlyphCache::SetCacheUsed(size_t bytesUsed) {
     if (curr > bytesUsed) {
         SkGlyphCache_Globals& globals = FIND_GC_GLOBALS();
         SkAutoMutexAcquire  ac(globals.fMutex);
-    
+
         return InternalFreeCache(&globals, curr - bytesUsed) > 0;
     }
     return false;
@@ -589,7 +592,7 @@ SkGlyphCache* SkGlyphCache::FindTail(SkGlyphCache* cache) {
 
 size_t SkGlyphCache::ComputeMemoryUsed(const SkGlyphCache* head) {
     size_t size = 0;
-    
+
     while (head != NULL) {
         size += head->fMemoryUsed;
         head = head->fNext;
