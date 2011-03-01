@@ -184,7 +184,7 @@ static void write_scalar(SkWStream* stream, SkScalar value) {
 #ifdef SK_SCALAR_IS_FLOAT
     char buffer[64];
 #ifdef SK_BUILD_FOR_WIN32
-	int len = sprintf(buffer, "%g", value);
+	int len = _snprintf(buffer, sizeof(buffer), "%g", value);
 #else
     int len = snprintf(buffer, sizeof(buffer), "%g", value);
 #endif
