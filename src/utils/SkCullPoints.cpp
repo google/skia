@@ -27,7 +27,7 @@ static bool cross_product_is_neg(const SkIPoint& v, int dx, int dy) {
     tmp0.setMul(v.fX, dy);
     tmp1.setMul(dx, v.fY);
     tmp0.sub(tmp1);
-    return tmp0.isNeg();
+    return tmp0.isNeg() != 0;
 #endif
 }
 
