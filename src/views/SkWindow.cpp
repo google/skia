@@ -124,7 +124,9 @@ bool SkWindow::handleInval(const SkRect* localR)
         fMatrix.mapRect(&devR, *localR);
         devR.round(&ir);
     } else {
-        ir.set(0, 0, this->width(), this->height());
+        ir.set(0, 0,
+			   SkScalarRound(this->width()),
+			   SkScalarRound(this->height()));
     }
 	fDirtyRgn.op(ir, SkRegion::kUnion_Op);
 
