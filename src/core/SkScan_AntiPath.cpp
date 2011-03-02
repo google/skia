@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -56,12 +56,12 @@ protected:
 BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
                                    const SkRegion& clip) {
     fRealBlitter = realBlitter;
-    
+
     // take the union of the ir bounds and clip, since we may be called with an
     // inverse filltype
     const int left = SkMin32(ir.fLeft, clip.getBounds().fLeft);
     const int right = SkMax32(ir.fRight, clip.getBounds().fRight);
-    
+
     fLeft = left;
     fSuperLeft = left << SHIFT;
     fWidth = right - left;
@@ -153,7 +153,7 @@ void SuperBlitter::blitH(int x, int y, int width)
 //  int maxValue = (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT);
 
 #if 0
-    SkAntiRun<SHIFT>    arun;   
+    SkAntiRun<SHIFT>    arun;
     arun.set(x, x + width);
     fRuns.add(x >> SHIFT, arun.getStartAlpha(), arun.getMiddleCount(), arun.getStopAlpha(), maxValue);
 #else
@@ -215,11 +215,11 @@ public:
     {
         int width = bounds.width();
         int rb = SkAlign4(width);
-        
+
         return (width <= MaskSuperBlitter::kMAX_WIDTH) &&
         (rb * bounds.height() <= MaskSuperBlitter::kMAX_STORAGE);
     }
-    
+
 private:
     enum {
         kMAX_WIDTH = 32,    // so we don't try to do very wide things, where the RLE blitter would be faster
@@ -242,10 +242,10 @@ MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     fMask.fBounds   = ir;
     fMask.fRowBytes = ir.width();
     fMask.fFormat   = SkMask::kA8_Format;
-    
+
     fClipRect = ir;
     fClipRect.intersect(clip.getBounds());
-    
+
     // For valgrind, write 1 extra byte at the end so we don't read
     // uninitialized memory. See comment in add_aa_span and fStorage[].
     memset(fStorage, 0, fMask.fBounds.height() * fMask.fRowBytes + 1);
@@ -292,7 +292,7 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount, U8CPU
 void MaskSuperBlitter::blitH(int x, int y, int width)
 {
     int iy = (y >> SHIFT);
-    
+
     SkASSERT(iy >= fMask.fBounds.fTop && iy < fMask.fBounds.fBottom);
     iy -= fMask.fBounds.fTop;   // make it relative to 0
 
@@ -309,7 +309,7 @@ void MaskSuperBlitter::blitH(int x, int y, int width)
         SkASSERT(ix >= fMask.fBounds.fLeft && ix < fMask.fBounds.fRight);
     }
 #endif
-    
+
     x -= (fMask.fBounds.fLeft << SHIFT);
 
     // hack, until I figure out why my cubics (I think) go beyond the bounds
@@ -397,12 +397,12 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
         }
         return;
     }
-    
+
     // now use the (possibly wrapped) blitter
     blitter = clipper.getBlitter();
 
     if (path.isInverseFillType()) {
-        sk_blit_above_and_below(blitter, ir, clip);
+        sk_blit_above(blitter, ir, clip);
     }
 
     SkIRect superRect, *superClipRect = NULL;
@@ -428,5 +428,9 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
     {
         SuperBlitter    superBlit(blitter, ir, clip);
         sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, clip);
+    }
+
+    if (path.isInverseFillType()) {
+        sk_blit_below(blitter, ir, clip);
     }
 }
