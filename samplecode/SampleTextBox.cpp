@@ -20,9 +20,11 @@
 #include "SkStream.h"
 #include "SkKey.h"
 
+#ifdef SK_BUILD_FOR_WIN
 extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
+#endif
 
-static const char gText[] = 
+static const char gText[] =
 	"When in the Course of human events it becomes necessary for one people "
 	"to dissolve the political bands which have connected them with another "
 	"and to assume among the powers of the earth, the separate and equal "
@@ -31,8 +33,9 @@ static const char gText[] =
 	"declare the causes which impel them to the separation.";
 
 class TextBoxView : public SkView {
-public:    
+public:
 	TextBoxView() {
+#ifdef SK_BUILD_FOR_WIN
 		LOGFONT lf;
 		sk_bzero(&lf, sizeof(lf));
 		lf.lfHeight = 9;
@@ -43,8 +46,9 @@ public:
 		SkASSERT(tf0 == tf1);
 		tf0->unref();
 		tf1->unref();
+#endif
 	}
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt)  {
@@ -55,11 +59,11 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
 
@@ -80,7 +84,7 @@ protected:
 			canvas->translate(0, tbox.getTextHeight() + paint.getFontSpacing());
 		}
     }
-    
+
 private:
     typedef SkView INHERITED;
 };
