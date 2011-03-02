@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -75,7 +75,7 @@ static void backward_insert_edge_based_on_x(SkEdge* edge SkDECLAREPARAM(int, cur
     for (;;)
     {
         SkEdge* prev = edge->fPrev;
-        
+
         // add 1 to curr_y since we may have added new edges (built from curves)
         // that start on the next scanline
         SkASSERT(prev && prev->fFirstY <= curr_y + 1);
@@ -145,11 +145,11 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
         SkFixed prevX = prevHead->fX;
 
         validate_edges_for_y(currE, curr_y);
-        
+
         if (proc) {
             proc(blitter, curr_y, PREPOST_START);    // pre-proc
         }
-        
+
         while (currE->fFirstY <= curr_y)
         {
             SkASSERT(currE->fLastY >= curr_y);
@@ -181,7 +181,7 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
                     if (((SkCubicEdge*)currE)->updateCubic())
                     {
                         SkASSERT(currE->fFirstY == curr_y + 1);
-                        
+
                         newX = currE->fX;
                         goto NEXT_X;
                     }
@@ -210,7 +210,7 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
             currE = next;
             SkASSERT(currE);
         }
-        
+
         if (proc) {
             proc(blitter, curr_y, PREPOST_END);    // post-proc
         }
@@ -257,7 +257,7 @@ public:
         }
         fPrevX = x + width;
     }
-    
+
     // we do not expect to get called with these entrypoints
     virtual void blitAntiH(int, int, const SkAlpha[], const int16_t runs[]) {
         SkASSERT(!"blitAntiH unexpected");
@@ -275,7 +275,7 @@ public:
         SkASSERT(!"justAnOpaqueColor unexpected");
         return NULL;
     }
-    
+
 private:
     SkBlitter*  fBlitter;
     int         fFirstX, fLastX, fPrevX;
@@ -313,7 +313,7 @@ static int build_edges(SkEdge edge[], const SkPath& path,
     SkPath::Iter    iter(path, true);
     SkPoint         pts[4];
     SkPath::Verb    verb;
-    
+
     SkQuadClipper qclipper;
     if (clipRect) {
         SkIRect r;
@@ -355,7 +355,7 @@ static int build_edges(SkEdge edge[], const SkPath& path,
             case SkPath::kCubic_Verb: {
                 SkPoint tmp[10];
                 SkPoint* p = tmp;
-                int     count = SkChopCubicAtYExtrema(pts, tmp);                
+                int     count = SkChopCubicAtYExtrema(pts, tmp);
                 SkASSERT(count >= 0 && count <= 2);
 
                 do {
@@ -417,7 +417,7 @@ static int worst_case_edge_count(const SkPath& path, size_t* storage)
 */
 static int cheap_worst_case_edge_count(const SkPath& path, size_t* storage) {
     int ptCount = path.getPoints(NULL, 0);
-    // worst case is curve, close, curve, close, as that is 
+    // worst case is curve, close, curve, close, as that is
     //     2 lines per pt, or             : pts * 2
     //     2 quads + 1 line per 2 pts, or : pts * 3 / 2
     //     3 cubics + 1 line per 3 pts    : pts * 4 / 3
@@ -442,15 +442,15 @@ extern "C" {
     static int edge_compare(const void* a, const void* b) {
         const SkEdge* edgea = *(const SkEdge**)a;
         const SkEdge* edgeb = *(const SkEdge**)b;
-        
+
         int valuea = edgea->fFirstY;
         int valueb = edgeb->fFirstY;
-        
+
         if (valuea == valueb) {
             valuea = edgea->fX;
             valueb = edgeb->fX;
         }
-        
+
         // this overflows if valuea >>> valueb or vice-versa
         //     return valuea - valueb;
         // do perform the slower but safe compares
@@ -460,13 +460,13 @@ extern "C" {
 
 static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
     qsort(list, count, sizeof(SkEdge*), edge_compare);
-    
+
     // now make the edges linked in sorted order
     for (int i = 1; i < count; i++) {
         list[i - 1]->fNext = list[i];
         list[i]->fPrev = list[i - 1];
     }
-    
+
     *last = list[count - 1];
     return list[0];
 }
@@ -483,7 +483,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
 
 #ifdef USE_NEW_BUILDER
     SkEdgeBuilder   builder;
-    
+
     int count = builder.build(path, clipRect, shiftEdgesUp);
     SkEdge**    list = builder.edgeList();
 #else
@@ -494,7 +494,7 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
     {
         size_t  size2;
         int     maxCount2 = worst_case_edge_count(path, &size2);
-        
+
         SkASSERT(maxCount >= maxCount2 && size >= size2);
     }
 #endif
@@ -557,20 +557,25 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
     walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc);
 }
 
-void sk_blit_above_and_below(SkBlitter* blitter, const SkIRect& ir,
-                             const SkRegion& clip) {
+void sk_blit_above(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) {
     const SkIRect& cr = clip.getBounds();
     SkIRect tmp;
-    
+
     tmp.fLeft = cr.fLeft;
     tmp.fRight = cr.fRight;
-
     tmp.fTop = cr.fTop;
     tmp.fBottom = ir.fTop;
     if (!tmp.isEmpty()) {
         blitter->blitRectRegion(tmp, clip);
     }
+}
 
+void sk_blit_below(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) {
+    const SkIRect& cr = clip.getBounds();
+    SkIRect tmp;
+
+    tmp.fLeft = cr.fLeft;
+    tmp.fRight = cr.fRight;
     tmp.fTop = ir.fBottom;
     tmp.fBottom = cr.fBottom;
     if (!tmp.isEmpty()) {
@@ -635,10 +640,15 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& clip,
 
     blitter = clipper.getBlitter();
     if (blitter) {
+        // we have to keep our calls to blitter in sorted order, so we
+        // must blit the above section first, then the middle, then the bottom.
         if (path.isInverseFillType()) {
-            sk_blit_above_and_below(blitter, ir, clip);
+            sk_blit_above(blitter, ir, clip);
         }
         sk_fill_path(path, clipper.getClipRect(), blitter, ir.fTop, ir.fBottom, 0, clip);
+        if (path.isInverseFillType()) {
+            sk_blit_below(blitter, ir, clip);
+        }
     } else {
         // what does it mean to not have a blitter if path.isInverseFillType???
     }
@@ -649,7 +659,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& clip,
 static int build_tri_edges(SkEdge edge[], const SkPoint pts[],
                            const SkIRect* clipRect, SkEdge* list[]) {
     SkEdge** start = list;
-    
+
     if (edge->setLine(pts[0], pts[1], clipRect, 0)) {
         *list++ = edge;
         edge = (SkEdge*)((char*)edge + sizeof(SkEdge));
@@ -668,7 +678,7 @@ static int build_tri_edges(SkEdge edge[], const SkPoint pts[],
 static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
                              SkBlitter* blitter, const SkIRect& ir) {
     SkASSERT(pts && blitter);
-    
+
     SkEdge edgeStorage[3];
     SkEdge* list[3];
 
@@ -681,18 +691,18 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
 
     // this returns the first and last edge after they're sorted into a dlink list
     SkEdge* edge = sort_edges(list, count, &last);
-    
+
     headEdge.fPrev = NULL;
     headEdge.fNext = edge;
     headEdge.fFirstY = kEDGE_HEAD_Y;
     headEdge.fX = SK_MinS32;
     edge->fPrev = &headEdge;
-    
+
     tailEdge.fPrev = last;
     tailEdge.fNext = NULL;
     tailEdge.fFirstY = kEDGE_TAIL_Y;
     last->fNext = &tailEdge;
-    
+
     // now edge is the head of the sorted linklist
     int stop_y = ir.fBottom;
     if (clipRect && stop_y > clipRect->fBottom) {
@@ -710,7 +720,7 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRegion* clip,
     if (clip && clip->isEmpty()) {
         return;
     }
-    
+
     SkRect  r;
     SkIRect ir;
     r.set(pts, 3);
@@ -718,9 +728,9 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRegion* clip,
     if (ir.isEmpty()) {
         return;
     }
-    
+
     SkScanClipper   clipper(blitter, clip, ir);
-    
+
     blitter = clipper.getBlitter();
     if (NULL != blitter) {
         sk_fill_triangle(pts, clipper.getClipRect(), blitter, ir);

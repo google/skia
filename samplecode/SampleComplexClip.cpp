@@ -25,14 +25,14 @@ static const struct {
     { SkPaint::kStrokeAndFill_Style,    SkPaint::kMiter_Join,   10 },
 };
 
-#define TEST_INVERSE 0
+#define TEST_INVERSE 1
 
 class ComplexClipView : public SkView {
     SkScalar    fWidth;
 public:
 	ComplexClipView() {
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -42,11 +42,11 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
+
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SkColorSetRGB(0xA0,0xDD,0xA0));
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;
         path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));
@@ -116,8 +116,8 @@ protected:
         canvas->scale(3 * SK_Scalar1 / 4, 3 * SK_Scalar1 / 4);
         canvas->save();
 
-        int invALimit = TEST_INVERSE ? 1 : 2;
-        for (int invA = 0; invALimit < 2; ++invA) {
+        int invALimit = TEST_INVERSE ? 2 : 1;
+        for (int invA = 0; invA < invALimit; ++invA) {
             for (int op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
                 int idx = invA * SK_ARRAY_COUNT(gOps) + op;
                 if (!(idx % 3)) {
