@@ -18,54 +18,60 @@
 #ifndef GrClipIterator_DEFINED
 #define GrClipIterator_DEFINED
 
+#include "GrPath.h"
 #include "GrRect.h"
 
+/**
+ * A clip is a list of paths and/or rects with set operations to combine them.
+ */
 class GrClipIterator {
 public:
-    GrClipIterator() : fNeedBounds(true) {}
     virtual ~GrClipIterator() {}
 
     /**
      *  Returns true if there are no more rects to process
      */
-    virtual bool isDone() = 0;
+    virtual bool isDone() const = 0;
 
     /**
-     *  Rewind the iterate to replay the set of rects again
+     *  Rewind the iterator to replay the set of clip elements again
      */
     virtual void rewind() = 0;
 
     /**
-     *  Return the current rect. It is an error to call this when done() is true
+     * Get the type of the current clip element
      */
-    virtual void getRect(GrIRect*) = 0;
+    virtual GrClipType getType() const = 0;
 
     /**
-     *  Call to move to the next rect in the set
+     * Return the current path. It is an error to call this when isDone() is
+     * true or when getType() is kRect_Type.
+     */
+    virtual GrPathIter* getPathIter() = 0;
+
+    /**
+     * Return the fill rule for the path. It is an error to call this when
+     * isDone() is true or when getType is kRect_Type.
+     */
+    virtual GrPathFill getPathFill() const = 0;
+
+    /**
+    * Return the current rect. It is an error to call this when isDone is true
+    * or when getType() is kPath_Type.
+    */
+    virtual void getRect(GrRect* rect) const = 0;
+
+    /**
+     * Gets the operation used to apply the current item to previously iterated
+     * items. Iterators should not produce a Replace op.
+     */
+    virtual GrSetOp getOp() const = 0;
+
+    /**
+     *  Call to move to the next rect in the set, previous path iter can be made
+     *  invalid.
      */
     virtual void next() = 0;
-
-    /**
-     *  Set bounds to be the bounds of the clip.
-     */
-    virtual void computeBounds(GrIRect* bounds) = 0;
-
-    /**
-     *  Subclass should call this whenever their underlying bounds has changed.
-     */
-    void invalidateBoundsCache() { fNeedBounds = true; }
-
-    const GrIRect& getBounds() {
-        if (fNeedBounds) {
-            this->computeBounds(&fBounds);
-            fNeedBounds = false;
-        }
-        return fBounds;
-    }
-
-private:
-    GrIRect fBounds;
-    bool    fNeedBounds;
 };
 
 /**

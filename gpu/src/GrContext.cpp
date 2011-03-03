@@ -145,7 +145,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             GrDrawTarget::AutoStateRestore asr(fGpu);
             fGpu->setRenderTarget(texture->asRenderTarget());
             fGpu->setTexture(0, clampEntry->texture());
-            fGpu->setStencilPass(GrDrawTarget::kNone_StencilPass);
+            fGpu->disableStencil();
             fGpu->setViewMatrix(GrMatrix::I());
             fGpu->setAlpha(0xff);
             fGpu->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
@@ -284,7 +284,7 @@ void GrContext::setClip(const GrClip& clip) {
 
 void GrContext::setClip(const GrIRect& rect) {
     GrClip clip;
-    clip.setRect(rect);
+    clip.setFromIRect(rect);
     fGpu->setClip(clip);
 }
 
@@ -297,7 +297,10 @@ void GrContext::eraseColor(GrColor color) {
 void GrContext::drawPaint(const GrPaint& paint) {
     // set rect to be big enough to fill the space, but not super-huge, so we
     // don't overflow fixed-point implementations
-    GrRect r(fGpu->getClip().getBounds());
+    GrRect r;
+    r.setLTRB(0, 0,
+              GrIntToScalar(getRenderTarget()->width()),
+              GrIntToScalar(getRenderTarget()->height()));
     GrMatrix inverse;
     if (fGpu->getViewInverse(&inverse)) {
         inverse.mapRect(&r);
@@ -546,6 +549,15 @@ void GrContext::drawPath(const GrPaint& paint,
     fPathRenderer->drawPath(target, enabledStages, path, fill, translate);
 }
 
+void GrContext::drawPath(const GrPaint& paint,
+                         const GrPath& path,
+                         GrPathFill fill,
+                         const GrPoint* translate) {
+    GrPath::Iter iter(path);
+    this->drawPath(paint, &iter, fill, translate);
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::flush(bool flushRenderTarget) {
@@ -751,7 +763,8 @@ GrContext::GrContext(GrGpu* gpu) {
 #if BATCH_RECT_TO_RECT
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
 #endif
-    fPathRenderer = new GrDefaultPathRenderer(fGpu->supportsSingleStencilPassWinding());
+    fPathRenderer = new GrDefaultPathRenderer(fGpu->supportsTwoSidedStencil(),
+                                              fGpu->supportsStencilWrapOps());
 }
 
 bool GrContext::finalizeTextureKey(GrTextureKey* key,

@@ -201,6 +201,26 @@ enum GrBlendCoeff {
     kIDA_BlendCoeff,     //<! one minus dst alpha
 };
 
+/**
+ * Set Operations used to construct clips.
+ */
+enum GrSetOp {
+    kReplace_SetOp,
+    kIntersect_SetOp,
+    kUnion_SetOp,
+    kXor_SetOp,
+    kDifference_SetOp,
+    kReverseDifference_SetOp,
+};
+
+/**
+ * Clips are composed from these objects.
+ */
+enum GrClipType {
+    kRect_ClipType,
+    kPath_ClipType
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // this is included only to make it easy to use this debugging facility

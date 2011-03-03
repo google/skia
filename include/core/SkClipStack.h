@@ -29,6 +29,11 @@ public:
 
     class B2FIter {
     public:
+        /**
+         * Creates an uninitialized iterator. Must be reset()
+         */
+        B2FIter();
+
         B2FIter(const SkClipStack& stack);
 
         struct Clip {
@@ -47,6 +52,11 @@ public:
          *  fRect==NULL  fPath==NULL    empty clip
          */
         const Clip* next();
+
+        /**
+         * Restarts the iterator on a clip stack.
+         */
+        void reset(const SkClipStack& stack);
 
     private:
         Clip             fClip;

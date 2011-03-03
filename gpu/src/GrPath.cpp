@@ -3,6 +3,8 @@
 GrPath::GrPath() {}
 
 GrPath::GrPath(const GrPath& src) : INHERITED() {
+    GrPath::Iter iter(src);
+    this->resetFromIter(&iter);
 }
 
 GrPath::GrPath(GrPathIter& iter) {
@@ -10,6 +12,26 @@ GrPath::GrPath(GrPathIter& iter) {
 }
 
 GrPath::~GrPath() {
+}
+
+bool GrPath::operator ==(const GrPath& path) const {
+    if (fVerbs.count() != path.fVerbs.count() ||
+        fPts.count() != path.fPts.count()) {
+        return false;
+    }
+
+    for (int v = 0; v < fVerbs.count(); ++v) {
+        if (fVerbs[v] != path.fVerbs[v]) {
+            return false;
+        }
+    }
+
+    for (int p = 0; p < fPts.count(); ++p) {
+        if (fPts[p] != path.fPts[p]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void GrPath::ensureMoveTo() {
@@ -90,6 +112,7 @@ void GrPath::resetFromIter(GrPathIter* iter) {
                 break;
         }
     }
+    fConvexHint = iter->convexHint();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -157,7 +180,7 @@ GrPathIter::Command GrPath::Iter::next(GrPoint points[]) {
     return (GrPathIter::Command)cmd;
 }
 
-GrPathIter::ConvexHint GrPath::Iter::hint() const {
+GrPathIter::ConvexHint GrPath::Iter::convexHint() const {
     return fPath.getConvexHint();
 }
 

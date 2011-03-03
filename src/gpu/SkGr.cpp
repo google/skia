@@ -135,22 +135,80 @@ SkGrPathIter::Command SkGrPathIter::next() {
 }
 
 void SkGrPathIter::rewind() {
-    fIter.setPath(fPath, false);
+    fIter.setPath(*fPath, false);
 }
 
 GrPathIter::ConvexHint SkGrPathIter::hint() const {
-    return fPath.isConvex() ? GrPathIter::kConvex_ConvexHint :
-                              GrPathIter::kNone_ConvexHint;
+    return fPath->isConvex() ? GrPathIter::kConvex_ConvexHint :
+                               GrPathIter::kNone_ConvexHint;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGrClipIterator::computeBounds(GrIRect* bounds) {
-    const SkRegion* rgn = fIter.rgn();
-    if (rgn) {
-        SkGr::SetIRect(bounds, rgn->getBounds());
+void SkGrClipIterator::reset(const SkClipStack& clipStack) {
+    fClipStack = &clipStack;
+    fIter.reset(clipStack);
+    // Gr has no notion of replace, skip to the
+    // last replace in the clip stack.
+    int lastReplace = 0;
+    int curr = 0;
+    while (NULL != (fCurr = fIter.next())) {
+        if (SkRegion::kReplace_Op == fCurr->fOp) {
+            lastReplace = curr;
+        }
+        ++curr;
+    }
+    fIter.reset(clipStack);
+    for (int i = 0; i < lastReplace+1; ++i) {
+        fCurr = fIter.next();
+    }
+}
+
+GrClipType SkGrClipIterator::getType() const {
+    GrAssert(!this->isDone());
+    if (NULL != fCurr->fRect) {
+        return kRect_ClipType;
     } else {
-        bounds->setEmpty();
+        GrAssert(NULL != fCurr->fPath);
+        return kPath_ClipType;
+    }
+}
+
+GrSetOp SkGrClipIterator::getOp() const {
+    // we skipped to the last "replace" op
+    // when this iter was reset.
+    // GrClip doesn't allow replace, so treat it as
+    // intersect.
+    GrSetOp skToGrOps[] = {
+        kDifference_SetOp,         // kDifference_Op
+        kIntersect_SetOp,          // kIntersect_Op
+        kUnion_SetOp,              // kUnion_Op
+        kXor_SetOp,                // kXOR_Op
+        kReverseDifference_SetOp,  // kReverseDifference_Op
+        kIntersect_SetOp           // kReplace_op
+    };
+    GR_STATIC_ASSERT(0 == SkRegion::kDifference_Op);
+    GR_STATIC_ASSERT(1 == SkRegion::kIntersect_Op);
+    GR_STATIC_ASSERT(2 == SkRegion::kUnion_Op);
+    GR_STATIC_ASSERT(3 == SkRegion::kXOR_Op);
+    GR_STATIC_ASSERT(4 == SkRegion::kReverseDifference_Op);
+    GR_STATIC_ASSERT(5 == SkRegion::kReplace_Op);
+    return skToGrOps[fCurr->fOp];
+}
+
+GrPathFill SkGrClipIterator::getPathFill() const {
+    switch (fCurr->fPath->getFillType()) {
+        case SkPath::kWinding_FillType:
+            return kWinding_PathFill;
+        case SkPath::kEvenOdd_FillType:
+            return  kEvenOdd_PathFill;
+        case SkPath::kInverseWinding_FillType:
+            return kInverseWinding_PathFill;
+        case SkPath::kInverseEvenOdd_FillType:
+            return kInverseEvenOdd_PathFill;
+        default:
+            GrCrash("Unsupported path fill in clip.");
+            return kWinding_PathFill; // suppress warning
     }
 }
 

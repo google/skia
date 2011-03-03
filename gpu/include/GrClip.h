@@ -20,96 +20,116 @@
 
 #include "GrClipIterator.h"
 #include "GrRect.h"
-#include "GrTDArray.h"
+#include "GrPath.h"
+#include "GrTArray.h"
+
 
 class GrClip {
 public:
     GrClip();
     GrClip(const GrClip& src);
-    GrClip(GrClipIterator* iter);
+    GrClip(GrClipIterator* iter, const GrRect* bounds = NULL);
+    GrClip(const GrIRect& rect);
+    GrClip(const GrRect& rect);
+
     ~GrClip();
 
     GrClip& operator=(const GrClip& src);
 
-    bool isEmpty() const { return fBounds.isEmpty(); }
-    bool isComplex() const { return fList.count() > 0; }
-    bool isRect() const {
-        return !this->isEmpty() && !this->isComplex();
+    bool hasBounds() const { return fBoundsValid; }
+
+    const GrRect& getBounds() const { return fBounds; }
+
+    int getElementCount() const { return fList.count(); }
+
+    GrClipType getElementType(int i) const { return fList[i].fType; }
+
+    const GrPath& getPath(int i) const {
+        GrAssert(kPath_ClipType == fList[i].fType);
+        return fList[i].fPath;
     }
-    
-    const GrIRect& getBounds() const { return fBounds; }
+
+    GrPathFill getPathFill(int i) const {
+        GrAssert(kPath_ClipType == fList[i].fType);
+        return fList[i].fPathFill;
+    }
+
+    const GrRect& getRect(int i) const {
+        GrAssert(kRect_ClipType == fList[i].fType);
+        return fList[i].fRect;
+    }
+
+    const GrSetOp getOp(int i) const { return fList[i].fOp; }
+
+    bool isRect() const {
+        if (1 == fList.count() && kRect_ClipType == fList[0].fType) {
+            GrAssert(fBoundsValid);
+            GrAssert(fBounds == fList[0].fRect);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    bool isEmpty() const { return 0 == fList.count(); }
 
     /**
-     *  Resets this clip to be empty (fBounds is empty, and fList is empty)
+     *  Resets this clip to be empty
      */
     void setEmpty();
-
-    /**
-     *  Resets this clip to have fBounds == rect, and fList is empty.
-     */
-    void setRect(const GrIRect& rect);
-
-    /**
-     *  Append a rect to an existing clip. The call must ensure that rect does
-     *  not overlap with any previous rect in this clip (either from setRect
-     *  or addRect). fBounds is automatically updated to reflect the union of
-     *  all rects that have been added.
-     */
-    void addRect(const GrIRect&);
-
-    void setFromIterator(GrClipIterator* iter);
+    void setFromIterator(GrClipIterator* iter, const GrRect* bounds = NULL);
+    void setFromRect(const GrRect& rect);
+    void setFromIRect(const GrIRect& rect);
 
     friend bool operator==(const GrClip& a, const GrClip& b) {
-        return a.fBounds == b.fBounds && a.fList == b.fList;
+        if (a.fList.count() != b.fList.count()) {
+            return false;
+        }
+        int count = a.fList.count();
+        for (int i = 0; i < count; ++i) {
+            if (a.fList[i] != b.fList[i]) {
+                return false;
+            }
+        }
+        return true;
     }
     friend bool operator!=(const GrClip& a, const GrClip& b) {
         return !(a == b);
     }
 
-    /**
-     *  Return the number of rects in this clip: 0 for empty, 1 for a rect,
-     *  or N for a complex clip.
-     */
-    int countRects() const {
-        return this->isEmpty() ? 0 : GrMax<int>(1, fList.count());
-    }
-
-    /**
-     *  Return an array of rects for this clip. Use countRects() to know the
-     *  number of entries.
-     */
-    const GrIRect* getRects() const {
-        return fList.count() > 0 ? fList.begin() : &fBounds;
-    }
-
-#if GR_DEBUG
-    void validate() const;
-#else
-    void validate() const {}
-#endif
-
 private:
-    GrTDArray<GrIRect>  fList;
-    GrIRect             fBounds;
-};
+    struct Element {
+        GrClipType  fType;
+        GrRect      fRect;
+        GrPath      fPath;
+        GrPathFill  fPathFill;
+        GrSetOp     fOp;
+        bool operator ==(const Element& e) const {
+            if (e.fType != fType || e.fOp != fOp) {
+                return false;
+            }
+            switch (fType) {
+                case kRect_ClipType:
+                    return fRect == e.fRect;
+                    break;
+                case kPath_ClipType:
+                    return fPath == e.fPath;
+                default:
+                    GrCrash("Unknown clip element type.");
+                    return false; // suppress warning
+            }
+        }
+        bool operator !=(const Element& e) const { return !(*this == e); }
+    };
 
-class GrClipIter : public GrClipIterator {
-public:
-    GrClipIter(const GrClip& clip) : fClip(&clip), fIndex(0) {}
-    GrClipIter() : fClip(NULL), fIndex(0) {}
-    
-    void reset(const GrClip& clip);
-    
-    virtual bool isDone();
-    virtual void rewind();
-    virtual void getRect(GrIRect* r);
-    virtual void next();
-    virtual void computeBounds(GrIRect* r);
-    
-private:
-    const GrClip*   fClip;
-    int             fIndex;
-};
+    GrRect              fBounds;
+    bool                fBoundsValid;
 
+    enum {
+        kPreAllocElements = 4,
+    };
+    uint8_t             fListMemory[sizeof(Element) * kPreAllocElements];
+    GrTArray<Element>   fList;
+};
 #endif
 

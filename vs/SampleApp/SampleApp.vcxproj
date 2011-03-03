@@ -133,6 +133,7 @@
     <ClInclude Include="..\..\gpu\include\GrRefCnt.h" />
     <ClInclude Include="..\..\gpu\include\GrSamplerState.h" />
     <ClInclude Include="..\..\gpu\include\GrScalar.h" />
+    <ClInclude Include="..\..\gpu\include\GrStencil.h" />
     <ClInclude Include="..\..\gpu\include\GrStopwatch.h" />
     <ClInclude Include="..\..\gpu\include\GrStringBuilder.h" />
     <ClInclude Include="..\..\gpu\include\GrTArray.h" />
@@ -233,6 +234,7 @@
     <ClCompile Include="..\..\gpu\src\GrPath.cpp" />
     <ClCompile Include="..\..\gpu\src\GrPathRenderer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrRectanizer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrStencil.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextStrike.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextureCache.cpp" />
@@ -246,6 +248,7 @@
     <ClCompile Include="..\..\samplecode\SampleBlur.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCamera.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCircle.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleComplexClip.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCull.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDither.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDitherBitmap.cpp" />

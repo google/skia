@@ -264,7 +264,7 @@ public:
             }
             // fCurrLayer may be NULL now
 
-            fCanvas->prepareForDeviceDraw(fDevice, *fMatrix, *fClip);
+            fCanvas->prepareForDeviceDraw(fDevice, *fMatrix, *fClip, *fClipStack);
             return true;
         }
         return false;
@@ -632,10 +632,11 @@ void SkCanvas::updateDeviceCMCache() {
 }
 
 void SkCanvas::prepareForDeviceDraw(SkDevice* device, const SkMatrix& matrix,
-                                    const SkRegion& clip) {
+                                    const SkRegion& clip,
+                                    const SkClipStack& clipStack) {
     SkASSERT(device);
     if (fLastDeviceToGainFocus != device) {
-        device->gainFocus(this, matrix, clip);
+        device->gainFocus(this, matrix, clip, clipStack);
         fLastDeviceToGainFocus = device;
     }
 }

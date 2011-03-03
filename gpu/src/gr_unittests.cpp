@@ -73,71 +73,9 @@ static void test_bsearch() {
     }
 }
 
-static void dump(const GrClip& clip, const char message[]) {
-    GrPrintf("--- dump clip %s\n", message);
-    GrClipIter iter(clip);
-    while (!iter.isDone()) {
-        GrIRect r;
-        iter.getRect(&r);
-        GrPrintf("--- [%d %d %d %d]\n", r.fLeft, r.fTop, r.fRight, r.fBottom);
-        iter.next();
-    }
-}
-
-static void test_clip() {
-    GrClip  clip;
-    GrAssert(clip.isEmpty());
-    GrAssert(!clip.isRect());
-    GrAssert(!clip.isComplex());
-    GrAssert(clip.getBounds().equalsLTRB(0, 0, 0, 0));
-    GrAssert(0 == clip.countRects());
-
-    clip.setRect(GrIRect(10, 10, 10, 10));
-    GrAssert(clip.isEmpty());
-    GrAssert(!clip.isRect());
-    GrAssert(!clip.isComplex());
-    GrAssert(clip.getBounds().equalsLTRB(0, 0, 0, 0));
-    GrAssert(0 == clip.countRects());
-    dump(clip, "empty");
-
-    clip.setRect(GrIRect(10, 10, 20, 20));
-    GrAssert(!clip.isEmpty());
-    GrAssert(clip.isRect());
-    GrAssert(!clip.isComplex());
-    GrAssert(clip.getBounds().equalsLTRB(10, 10, 20, 20));
-    GrAssert(1 == clip.countRects());
-    GrAssert(clip.getRects()[0] == clip.getBounds());
-    dump(clip, "rect");
-
-    clip.addRect(GrIRect(20, 20, 25, 25));
-    GrAssert(!clip.isEmpty());
-    GrAssert(!clip.isRect());
-    GrAssert(clip.isComplex());
-    GrAssert(clip.getBounds().equalsLTRB(10, 10, 25, 25));
-    GrAssert(2 == clip.countRects());
-    dump(clip, "complex");
-
-    GrClip c1(clip);
-    GrAssert(c1 == clip);
-    GrClip c2;
-    GrAssert(c2 != c1);
-    c2 = clip;
-    GrAssert(c2 == clip);
-
-    clip.setEmpty();
-    GrAssert(clip.isEmpty());
-    GrAssert(!clip.isRect());
-    GrAssert(!clip.isComplex());
-    GrAssert(clip.getBounds().equalsLTRB(0, 0, 0, 0));
-
-    GrAssert(c1 != clip);
-    GrAssert(c2 != clip);
-}
-
 void gr_run_unittests() {
     test_tdarray();
     test_bsearch();
-    test_clip();
     GrMatrix::UnitTest();
     GrRedBlackTree<int>::UnitTest();
 }

@@ -19,6 +19,7 @@
 #define GrTexture_DEFINED
 
 #include "GrRefCnt.h"
+#include "GrClip.h"
 
 class GrTexture;
 
@@ -34,11 +35,16 @@ public:
     /**
      * @return the width of the rendertarget
      */
-    virtual int width() const = 0;
+    int width() const { return fWidth; }
     /**
      * @return the height of the rendertarget
      */
-    virtual int height() const = 0;
+    int height() const { return fHeight; }
+
+    /**
+     * @return the number of stencil bits in the rendertarget
+     */
+    int stencilBits() const { return fStencilBits; }
 
     /**
      * @return the texture associated with the rendertarget, may be NULL.
@@ -46,8 +52,28 @@ public:
     GrTexture* asTexture() {return fTexture;}
 
 protected:
-    GrRenderTarget(GrTexture* texture) : fTexture(texture) {}
+    GrRenderTarget(GrTexture* texture,
+                   int width,
+                   int height,
+                   int stencilBits)
+        : fTexture(texture),
+          fWidth(width),
+          fHeight(height),
+          fStencilBits(stencilBits) {}
+
+
     GrTexture* fTexture;
+    int        fWidth;
+    int        fHeight;
+    int        fStencilBits;
+
+private:
+    // GrGpu keeps a cached clip in the render target to avoid redundantly
+    // rendering the clip into the same stencil buffer.
+    friend class GrGpu;
+    GrClip     fLastStencilClip;
+
+    typedef GrRefCnt INHERITED;
 };
 
 class GrTexture : public GrRefCnt {
