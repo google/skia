@@ -134,21 +134,23 @@ char* SkStrAppendS64(char string[], int64_t dec, int minDigits)
     return string;
 }
 
-char* SkStrAppendScalar(char string[], SkScalar value)
+#ifdef SK_CAN_USE_FLOAT
+char* SkStrAppendFloat(char string[], float value)
 {
-    SkDEBUGCODE(char* start = string;)
-
-#ifdef SK_SCALAR_IS_FLOAT
     // since floats have at most 8 significant digits, we limit our %g to that.
     static const char gFormat[] = "%.8g";
     // make it 1 larger for the terminating 0
     char buffer[SkStrAppendScalar_MaxSize + 1];
     int len = SNPRINTF(buffer, sizeof(buffer), gFormat, value);
     memcpy(string, buffer, len);
+    SkASSERT(len <= SkStrAppendScalar_MaxSize);
     return string + len;
-#else
-    SkFixed x = SkScalarToFixed(value);
+}
+#endif
 
+char* SkStrAppendFixed(char string[], SkFixed x)
+{
+    SkDEBUGCODE(char* start = string;)
     if (x < 0)
     {
         *string++ = '-';
@@ -182,7 +184,6 @@ char* SkStrAppendScalar(char string[], SkScalar value)
             x %= powerOfTen;
         } while (x != 0);
     }
-#endif
 
     SkASSERT(string - start <= SkStrAppendScalar_MaxSize);
     return string;

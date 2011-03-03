@@ -44,7 +44,16 @@ char*   SkStrAppendS64(char buffer[], int64_t, int minDigits);
  *  Thus if the caller wants to add a 0 at the end, buffer must be at least
  *  SkStrAppendScalar_MaxSize + 1 bytes large.
  */
-char* SkStrAppendScalar(char buffer[], SkScalar);
+#ifdef SK_SCALAR_IS_FLOAT
+    #define SkStrAppendScalar SkStrAppendFloat
+#else
+    #define SkStrAppendScalar SkStrAppendFixed
+#endif
+
+#ifdef SK_CAN_USE_FLOAT
+char* SkStrAppendFloat(char buffer[], float);
+#endif
+char* SkStrAppendFixed(char buffer[], SkFixed);
 
 /** \class SkString
 
