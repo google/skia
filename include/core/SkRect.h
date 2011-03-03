@@ -95,6 +95,13 @@ struct SkIRect {
         fBottom = bottom;
     }
 
+    void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height) {
+        fLeft = x;
+        fTop = y;
+        fRight = x + width;
+        fBottom = y + height;
+    }
+    
     /** Offset set the rectangle by adding dx to its left and right,
         and adding dy to its top and bottom.
     */
@@ -347,6 +354,13 @@ struct SkRect {
         to the empty rectangle (0,0,0,0)
     */
     void set(const SkPoint pts[], int count);
+
+    void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height) {
+        fLeft = x;
+        fTop = y;
+        fRight = x + width;
+        fBottom = y + height;
+    }
 
     /** Offset set the rectangle by adding dx to its left and right,
         and adding dy to its top and bottom.
