@@ -954,10 +954,23 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
 
 static bool clipPathHelper(const SkCanvas* canvas, SkRegion* currRgn,
                            const SkPath& devPath, SkRegion::Op op) {
+    // base is used to limit the size (and therefore memory allocation) of the
+    // region that results from scan converting devPath.
+    SkRegion base;
+
     if (SkRegion::kIntersect_Op == op) {
-        return currRgn->setPath(devPath, *currRgn);
+        // since we are intersect, we can do better (tighter) with currRgn's
+        // bounds, than just using the device. However, if currRgn is complex,
+        // our region blitter may hork, so we do that case in two steps.
+        if (currRgn->isRect()) {
+            return currRgn->setPath(devPath, *currRgn);
+        } else {
+            base.setRect(currRgn->getBounds());
+            SkRegion rgn;
+            rgn.setPath(devPath, base);
+            return currRgn->op(rgn, op);
+        }
     } else {
-        SkRegion base;
         const SkBitmap& bm = canvas->getDevice()->accessBitmap(false);
         base.setRect(0, 0, bm.width(), bm.height());
 
