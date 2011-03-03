@@ -531,7 +531,6 @@ void SkOSWindow::detachGL() {
 
 void SkOSWindow::presentGL() {
     aglSwapBuffers((AGLContext)fAGLCtx);
-    glFlush();
 }
 
 #endif

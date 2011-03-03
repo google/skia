@@ -176,6 +176,8 @@ public:
         }
     }
 
+    void reset() { this->pop_back_n(fCount); }
+
     int count() const { return fCount; }
 
     bool empty() const { return !fCount; }

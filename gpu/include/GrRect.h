@@ -22,7 +22,7 @@
 
 struct GrIRect {
     int32_t fLeft, fTop, fRight, fBottom;
-    
+
     GrIRect() {}
     GrIRect(int32_t left, int32_t top, int32_t right, int32_t bottom) {
         fLeft = left;
@@ -47,23 +47,22 @@ struct GrIRect {
         fRight = x + w;
         fBottom = y + h;
     }
-    
+
     void setLTRB(int32_t l, int32_t t, int32_t r, int32_t b) {
         fLeft = l;
         fTop = t;
         fRight = r;
         fBottom = b;
     }
-    
+
     /**
      *  Make the largest representable rectangle
-
      */
     void setLargest() {
         fLeft = fTop = GR_Int32Min;
         fRight = fBottom = GR_Int32Max;
     }
-    
+
     bool quickReject(int l, int t, int r, int b) const {
         return l >= fRight || fLeft >= r || t >= fBottom || fTop >= b;
     }
@@ -75,10 +74,28 @@ struct GrIRect {
         if (fBottom < r.fBottom) fBottom = r.fBottom;
     }
 
+    /**
+     * Sets this rect to the intersection with a clip rect. If there is no
+     * intersection then this rect will be made empty.
+     */
+    void intersectWith(const GrIRect& clipRect) {
+        if (fRight < clipRect.fLeft ||
+            fLeft > clipRect.fRight ||
+            fBottom < clipRect.fTop ||
+            fTop > clipRect.fBottom) {
+            this->setEmpty();
+        } else {
+            fLeft = GrMax(fLeft, clipRect.fLeft);
+            fRight = GrMin(fRight, clipRect.fRight);
+            fTop = GrMax(fTop, clipRect.fTop);
+            fBottom = GrMin(fBottom, clipRect.fBottom);
+        }
+    }
+
     friend bool operator==(const GrIRect& a, const GrIRect& b) {
         return 0 == memcmp(&a, &b, sizeof(a));
     }
-    
+
     friend bool operator!=(const GrIRect& a, const GrIRect& b) {
         return 0 != memcmp(&a, &b, sizeof(a));
     }
@@ -91,7 +108,7 @@ struct GrIRect {
         return fLeft == x && fTop == y &&
                this->width() == w && this->height() == h;
     }
-    
+
     bool contains(const GrIRect& r) const {
         return fLeft   <= r.fLeft &&
                fRight  >= r.fRight &&
@@ -102,12 +119,12 @@ struct GrIRect {
 
 struct GrIRect16 {
     int16_t fLeft, fTop, fRight, fBottom;
-    
+
     int width() const { return fRight - fLeft; }
     int height() const { return fBottom - fTop; }
     int area() const { return this->width() * this->height(); }
     bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-    
+
     void set(const GrIRect& r) {
         fLeft   = GrToS16(r.fLeft);
         fTop    = GrToS16(r.fTop);
@@ -116,12 +133,12 @@ struct GrIRect16 {
     }
 };
 
-/** 
+/**
  *  2D Rect struct
  */
 struct GrRect {
     GrScalar fLeft, fTop, fRight, fBottom;
-    
+
     /**
      *  Uninitialized rectangle.
      */
@@ -158,7 +175,7 @@ struct GrRect {
     GrScalar top() const { return fTop; }
     GrScalar right() const { return fRight; }
     GrScalar bottom() const { return fBottom; }
-    
+
     GrScalar diagonalLengthSqd() const {
         GrScalar w = width();
         GrScalar h = height();
@@ -169,18 +186,18 @@ struct GrRect {
         // TODO: fixed point sqrt
         return GrFloatToScalar(sqrtf(GrScalarToFloat(diagonalLengthSqd())));
     }
-    
+
     /**
      *  Returns true if the width or height is <= 0
      */
     bool isEmpty() const {
         return fLeft >= fRight || fTop >= fBottom;
     }
-    
+
     void setEmpty() {
         fLeft = fTop = fRight = fBottom = 0;
     }
-    
+
     /**
      *  returns true if the rectangle is inverted either in x or y
      */
@@ -192,7 +209,7 @@ struct GrRect {
         return point.fX >= fLeft && point.fX < fRight &&
                point.fY >= fTop && point.fY < fBottom;
     }
-    
+
     /**
      *  Initialize a rectangle to a point.
      *  @param pt the point used to initialize the rectangle.
@@ -226,16 +243,16 @@ struct GrRect {
 
     /**
      *  Make the largest representable rectangle
-     *  Set the rect to fLeft = fTop = GR_ScalarMin and 
+     *  Set the rect to fLeft = fTop = GR_ScalarMin and
      *  fRight = fBottom = GR_ScalarMax.
      */
     void setLargest() {
         fLeft = fTop = GR_ScalarMin;
         fRight = fBottom = GR_ScalarMax;
     }
-    
+
     /**
-     Set the rect to fLeft = fTop = GR_ScalarMax and 
+     Set the rect to fLeft = fTop = GR_ScalarMax and
      fRight = fBottom = GR_ScalarMin.
      Useful for initializing a bounding rectangle.
      */
@@ -243,24 +260,24 @@ struct GrRect {
         fLeft = fTop = GR_ScalarMax;
         fRight = fBottom = GR_ScalarMin;
     }
-    
-    void setLTRB(GrScalar left, 
-                 GrScalar top, 
-                 GrScalar right, 
+
+    void setLTRB(GrScalar left,
+                 GrScalar top,
+                 GrScalar right,
                  GrScalar bottom) {
         fLeft = left;
         fTop = top;
         fRight = right;
         fBottom = bottom;
     }
-    
+
     void setXYWH(GrScalar x, GrScalar y, GrScalar width, GrScalar height) {
         fLeft = x;
         fTop = y;
         fRight = x + width;
         fBottom = y + height;
     }
-    
+
     /**
      Expand the edges of the rectangle to include a point.
      Useful for constructing a bounding rectangle.
@@ -269,9 +286,40 @@ struct GrRect {
     void growToInclude(const GrPoint& pt) {
         fLeft  = GrMin(pt.fX, fLeft);
         fRight = GrMax(pt.fX, fRight);
-        
+
         fTop    = GrMin(pt.fY, fTop);
         fBottom = GrMax(pt.fY, fBottom);
+    }
+
+    /**
+     * Grows a rect to include another rect.
+     * @param rect the rect to include
+     */
+    void growToInclude(const GrRect& rect) {
+        GrAssert(!rect.isEmpty());
+        fLeft  = GrMin(rect.fLeft, fLeft);
+        fRight = GrMax(rect.fRight, fRight);
+
+        fTop    = GrMin(rect.fTop, fTop);
+        fBottom = GrMax(rect.fBottom, fBottom);
+    }
+
+    /**
+     * Sets this rect to the intersection with a clip rect. If there is no
+     * intersection then this rect will be made empty.
+     */
+    void intersectWith(const GrRect& clipRect) {
+        if (fRight < clipRect.fLeft ||
+            fLeft > clipRect.fRight ||
+            fBottom < clipRect.fTop ||
+            fTop > clipRect.fBottom) {
+            this->setEmpty();
+        } else {
+            fLeft = GrMax(fLeft, clipRect.fLeft);
+            fRight = GrMin(fRight, clipRect.fRight);
+            fTop = GrMax(fTop, clipRect.fTop);
+            fBottom = GrMin(fBottom, clipRect.fBottom);
+        }
     }
 
     /**
@@ -282,6 +330,13 @@ struct GrRect {
     GrPoint* setRectFan(GrPoint pts[4]) const {
         pts->setRectFan(fLeft, fTop, fRight, fBottom);
         return pts + 4;
+    }
+
+    bool operator ==(const GrRect& r) const {
+        return fLeft == r.fLeft     &&
+               fTop == r.fTop       &&
+               fRight == r.fRight   &&
+               fBottom == r.fBottom;
     }
 };
 

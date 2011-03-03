@@ -444,10 +444,6 @@ bool SkOSWindow::attachGL(const SkBitmap* offscreen) {
         }
     }
     if (wglMakeCurrent(GetDC((HWND)fHWND), (HGLRC)fHGLRC)) {
-        glViewport(0, 0, this->width(), this->height());
-        glClearColor(0, 0, 0, 0);
-        glClearStencil(0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         fGLAttached = true;
         return true;
     }
@@ -462,9 +458,6 @@ void SkOSWindow::detachGL() {
 void SkOSWindow::presentGL() {
     glFlush();
     SwapBuffers(GetDC((HWND)fHWND));
-    glClearColor(0,0,0,0);
-    glClearStencil(0);
-    glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 }
 
 IDirect3DDevice9* create_d3d9_device(HWND hwnd) {

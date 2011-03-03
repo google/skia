@@ -22,4 +22,5 @@ SOURCE := \
     GrTextContext.cpp \
     GrTextStrike.cpp \
     GrBufferAllocPool.cpp\
-    GrPathRenderer.cpp
+    GrPathRenderer.cpp \
+    GrStencil.cpp

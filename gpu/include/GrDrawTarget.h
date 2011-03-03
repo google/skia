@@ -23,9 +23,10 @@
 #include "GrRefCnt.h"
 #include "GrSamplerState.h"
 #include "GrClip.h"
+#include "GrTexture.h"
+#include "GrStencil.h"
 
 class GrTexture;
-class GrRenderTarget;
 class GrClipIterator;
 class GrVertexBuffer;
 class GrIndexBuffer;
@@ -72,56 +73,63 @@ public:
         kClip_StateBit            = 0x4,//<! Controls whether drawing is clipped
                                         //   against the region specified by
                                         //   setClip.
+        kNoColorWrites_StateBit   = 0x8,//<! If set it disables writing colors.
+                                        //   Useful while performing stencil ops.
+
+        // subclass may use additional bits internally
+        kDummyStateBit,
+        kLastPublicStateBit = kDummyStateBit-1
+    };
+
+    enum DrawFace {
+        kBoth_DrawFace,
+        kCCW_DrawFace,
+        kCW_DrawFace,
     };
 
     /**
-     * StencilPass
-     *
-     * Sets the stencil state for subsequent draw calls. Used to fill paths.
-     *
-     * Winding requires two passes when the GPU/API doesn't support separate
-     * stencil.
-     *
-     * The color pass for path fill is used to zero out stencil bits used for
-     * path filling. Every pixel covere by a winding/EO stencil pass must get
-     * covered by the color pass in order to leave stencil buffer in the correct
-     * state for the next path draw.
-     *
-     * NOTE: Stencil-based Winding fill has alias-to-zero problems. (e.g. A
-     * winding count of 128,256,512,etc with a 8 bit stencil buffer
-     * will be unfilled)
+     * The DrawTarget may reserve some of the high bits of the stencil. The draw
+     * target will automatically trim reference and mask values so that the
+     * client doesn't overwrite these bits.
+     * The number of bits available is relative to the currently set render
+      *target.
+     * @return the number of bits usable by the draw target client.
      */
-    enum StencilPass {
-        kNone_StencilPass,            //<! Not drawing a path or clip.
-        kEvenOddStencil_StencilPass,  //<! records in/out in stencil buffer
-                                      //   using the Even/Odd fill rule.
-        kEvenOddColor_StencilPass,    //<! writes colors to color target in
-                                      //   pixels marked inside the fill by
-                                      //   kEOFillStencil_StencilPass. Clears
-                                      //   stencil in pixels covered by
-                                      //   geometry.
-        kWindingStencil1_StencilPass, //<! records in/out in stencil buffer
-                                      //   using the Winding fill rule.
-        kWindingStencil2_StencilPass, //<! records in/out in stencil buffer
-                                      //   using the Winding fill rule.
-                                      //   Run when single-stencil-pass winding
-                                      //   not supported (i.e. no separate
-                                      //   stencil support)
-        kWindingColor_StencilPass,    //<! writes colors to color target in
-                                      //   pixels marked inside the fill by
-                                      //   kWindFillStencil_StencilPass. Clears
-                                      //   stencil in pixels covered by
-                                      //   geometry.
-        kDrawTargetCount_StencilPass  //<! Subclass may extend this enum to use
-                                      //   the stencil for other purposes (e.g.
-                                      //   to do stencil-based clipping)
-                                      //   This value is provided as basis for
-                                      //   defining these extended enum values.
-    };
+    int getUsableStencilBits() const {
+        int bits = fCurrDrawState.fRenderTarget->stencilBits();
+        if (bits) {
+            return bits - 1;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Sets the stencil settings to use for the next draw.
+     * @param settings  the stencil settings to use.
+     */
+    void setStencil(const GrStencilSettings& settings) {
+        fCurrDrawState.fStencilSettings = settings;
+    }
+
+    /**
+     * Shortcut to disable stencil testing and ops.
+     */
+    void disableStencil() {
+        fCurrDrawState.fStencilSettings.setDisabled();
+    }
 
 protected:
 
     struct DrState {
+        DrState() {
+            // make sure any pad is zero for memcmp
+            // all DrState members should default to something
+            // valid by the memset
+            memset(this, 0, sizeof(DrState));
+            GrAssert((intptr_t)(void*)NULL == 0LL);
+            GrAssert(fStencilSettings.isDisabled());
+        }
         uint32_t                fFlagBits;
         GrBlendCoeff            fSrcBlend;
         GrBlendCoeff            fDstBlend;
@@ -129,8 +137,9 @@ protected:
         GrSamplerState          fSamplerStates[kNumStages];
         GrRenderTarget*         fRenderTarget;
         GrColor                 fColor;
-        StencilPass             fStencilPass;
-        bool                    fReverseFill;
+        DrawFace                fDrawFace;
+
+        GrStencilSettings       fStencilSettings;
         GrMatrix                fViewMatrix;
         bool operator ==(const DrState& s) const {
             return 0 == memcmp(this, &s, sizeof(DrState));
@@ -196,7 +205,7 @@ public:
     /**
      * Sets the sampler state for a stage used in subsequent draws.
      *
-     * The sampler state determines how texture coordinates are 
+     * The sampler state determines how texture coordinates are
      * intepretted and used to sample the texture.
      *
      * @param stage           the stage of the sampler to set
@@ -291,19 +300,17 @@ public:
     void setAlpha(uint8_t alpha);
 
     /**
-     * Sets pass for path rendering
-     *
-     * @param pass of path rendering
+     * Controls whether clockwise, counterclockwise, or both faces are drawn.
+     * @param face  the face(s) to draw.
      */
-    void setStencilPass(StencilPass pass);
+    void setDrawFace(DrawFace face) { fCurrDrawState.fDrawFace = face; }
 
     /**
-     * Reveses the in/out decision of the fill rule for path rendering.
-     * Only affects kEOFillColor_StencilPass and kWindingFillColor_StencilPass
-     *
-     * @param reverse true to reverse, false otherwise
+     * Gets whether the target is drawing clockwise, counterclockwise,
+     * or both faces.
+     * @return the current draw face(s).
      */
-    void setReverseFill(bool reverse);
+    DrawFace getDrawFace() const { return fCurrDrawState.fDrawFace; }
 
     /**
      * Enable render state settings.
@@ -325,6 +332,10 @@ public:
 
     bool isClipState() const {
         return 0 != (fCurrDrawState.fFlagBits & kClip_StateBit);
+    }
+
+    bool isColorWriteDisabled() const {
+        return 0 != (fCurrDrawState.fFlagBits & kNoColorWrites_StateBit);
     }
 
     /**
@@ -457,8 +468,8 @@ public:
                                                 //   text [GrGpuTextVertex vs
                                                 //   GrPoint].)
         // for below assert
-        kDummy,
-        kHighVertexLayoutBit = kDummy - 1
+        kDummyVertexLayoutBit,
+        kHighVertexLayoutBit = kDummyVertexLayoutBit - 1
     };
     // make sure we haven't exceeded the number of bits in GrVertexLayout.
     GR_STATIC_ASSERT(kHighVertexLayoutBit < (1 << 8*sizeof(GrVertexLayout)));
@@ -648,7 +659,7 @@ public:
      * have changed. They should be reestablished before the next drawIndexed
      * or drawNonIndexed. This cannot be called between reserving and releasing
      * geometry. The GrDrawTarget subclass may be able to perform additional
-     * optimizations if drawRect is used rather than drawIndexed or 
+     * optimizations if drawRect is used rather than drawIndexed or
      * drawNonIndexed.
      * @param rect      the rect to draw
      * @param matrix    optional matrix applied to rect (before viewMatrix)
@@ -665,18 +676,18 @@ public:
      *                      srcMatrix[i]. srcMatrices can be NULL when no
      *                      srcMatrices are desired.
      */
-    virtual void drawRect(const GrRect& rect, 
+    virtual void drawRect(const GrRect& rect,
                           const GrMatrix* matrix,
                           StageBitfield stageEnableBitfield,
                           const GrRect* srcRects[],
                           const GrMatrix* srcMatrices[]);
 
     /**
-     * Helper for drawRect when the caller doesn't need separate src rects or 
+     * Helper for drawRect when the caller doesn't need separate src rects or
      * matrices.
      */
-    void drawSimpleRect(const GrRect& rect, 
-                        const GrMatrix* matrix, 
+    void drawSimpleRect(const GrRect& rect,
+                        const GrMatrix* matrix,
                         StageBitfield stageEnableBitfield) {
          drawRect(rect, matrix, stageEnableBitfield, NULL, NULL);
     }
@@ -912,20 +923,20 @@ public:
      *                      Defaults to zero (corresponding to vertex position)
      * @return pointer to the vertex component as a GrPoint
      */
-    static GrPoint* GetVertexPoint(void* vertices, 
+    static GrPoint* GetVertexPoint(void* vertices,
                                    int vertexIndex,
                                    int vertexSize,
                                    int offset = 0) {
         intptr_t start = GrTCast<intptr_t>(vertices);
-        return GrTCast<GrPoint*>(start + offset + 
+        return GrTCast<GrPoint*>(start + offset +
                                  vertexIndex * vertexSize);
     }
     static const GrPoint* GetVertexPoint(const void* vertices,
                                          int vertexIndex,
-                                         int vertexSize, 
+                                         int vertexSize,
                                          int offset = 0) {
         intptr_t start = GrTCast<intptr_t>(vertices);
-        return GrTCast<const GrPoint*>(start + offset + 
+        return GrTCast<const GrPoint*>(start + offset +
                                        vertexIndex * vertexSize);
     }
 
@@ -937,20 +948,20 @@ public:
      * @param offset        the offset in bytes of the vertex color
      * @return pointer to the vertex component as a GrColor
      */
-    static GrColor* GetVertexColor(void* vertices, 
+    static GrColor* GetVertexColor(void* vertices,
                                    int vertexIndex,
                                    int vertexSize,
                                    int offset) {
         intptr_t start = GrTCast<intptr_t>(vertices);
-        return GrTCast<GrColor*>(start + offset + 
+        return GrTCast<GrColor*>(start + offset +
                                  vertexIndex * vertexSize);
     }
     static const GrColor* GetVertexColor(const void* vertices,
                                          int vertexIndex,
-                                         int vertexSize, 
+                                         int vertexSize,
                                          int offset) {
         const intptr_t start = GrTCast<intptr_t>(vertices);
-        return GrTCast<const GrColor*>(start + offset + 
+        return GrTCast<const GrColor*>(start + offset +
                                        vertexIndex * vertexSize);
     }
 
@@ -985,10 +996,10 @@ protected:
                                               const GrRect* srcRects[]);
 
     static void SetRectVertices(const GrRect& rect,
-                                const GrMatrix* matrix, 
-                                const GrRect* srcRects[], 
+                                const GrMatrix* matrix,
+                                const GrRect* srcRects[],
                                 const GrMatrix* srcMatrices[],
-                                GrVertexLayout layout, 
+                                GrVertexLayout layout,
                                 void* vertices);
 
     enum GeometrySrcType {
@@ -997,7 +1008,7 @@ protected:
         kBuffer_GeometrySrcType     // src was set using set*SourceToBuffer
     };
 
-    struct {
+    struct ReservedGeometry {
         bool            fLocked;
         uint32_t        fVertexCount;
         uint32_t        fIndexCount;

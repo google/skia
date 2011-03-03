@@ -30,7 +30,7 @@ struct GrPoint;
 class GrPathIter {
 public:
     /**
-     Returned by next(). Indicates the next piece of the path. 
+     Returned by next(). Indicates the next piece of the path.
      */
     enum Command {
         kMove_Command,      //!< next() returns 1 pt
@@ -44,35 +44,35 @@ public:
                             //   Adds a cubic segment
         kClose_Command,     //!< next() returns 0 pts
         kEnd_Command        //!< next() returns 0 pts
-                            //   Implictly closes the last 
+                            //   Implictly closes the last
                             //   point
     };
-    
+
     enum ConvexHint {
-        kNone_ConvexHint,                         //<! No hint about convexity 
+        kNone_ConvexHint,                         //<! No hint about convexity
                                                   //   of the path
         kConvex_ConvexHint,                       //<! Path is one convex piece
-        kNonOverlappingConvexPieces_ConvexHint,   //<! Multiple convex pieces, 
+        kNonOverlappingConvexPieces_ConvexHint,   //<! Multiple convex pieces,
                                                   //   pieces are known to be
                                                   //   disjoint
-        kSameWindingConvexPieces_ConvexHint,      //<! Multiple convex pieces, 
+        kSameWindingConvexPieces_ConvexHint,      //<! Multiple convex pieces,
                                                   //   may or may not intersect,
-                                                  //   either all wind cw or all 
+                                                  //   either all wind cw or all
                                                   //   wind ccw.
-        kConcave_ConvexHint                       //<! Path is known to be 
+        kConcave_ConvexHint                       //<! Path is known to be
                                                   //   concave
     };
-    
+
     static int NumCommandPoints(Command cmd) {
         static const int numPoints[] = {
             1, 2, 3, 4, 0, 0
         };
         return numPoints[cmd];
     }
-    
+
     virtual ~GrPathIter() {};
 
-    /** 
+    /**
      Iterates through the path. Should not be called after
      kEnd_Command has been returned once. This version retrieves the
      points for the command.
@@ -85,14 +85,14 @@ public:
     /**
      * If the host API has knowledge of the convexity of the path
      * it can be communicated by this hint. Ganesh can make these
-     * determinations itself. So it is not necessary to compute 
+     * determinations itself. So it is not necessary to compute
      * convexity status if it isn't already determined.
      *
      * @return a hint about the convexity of the path.
-     */     
-    virtual ConvexHint hint() const { return kNone_ConvexHint; }
+     */
+    virtual ConvexHint convexHint() const { return kNone_ConvexHint; }
 
-     /** 
+     /**
      Iterates through the path. Should not be called after
      kEnd_Command has been returned once. This version does not retrieve the
      points for the command.

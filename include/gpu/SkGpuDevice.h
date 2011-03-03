@@ -68,7 +68,8 @@ public:
      *  Override from SkGpuDevice, so we can set our FBO to be the render target
      *  The canvas parameter must be a SkGpuCanvas
      */
-    virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&);
+    virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
+                           const SkClipStack& clipStack);
 
     virtual SkGpuTexture* accessTexture() { return (SkGpuTexture*)fTexture; }
 

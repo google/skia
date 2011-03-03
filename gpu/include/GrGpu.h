@@ -25,6 +25,7 @@
 
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
+class GrPathRenderer;
 
 class GrGpu : public GrDrawTarget {
 
@@ -229,15 +230,21 @@ public:
     bool supports8BitPalette() const { return f8bitPaletteSupport; }
 
     /**
-     * If single stencil pass winding is supported then one stencil pass
-     * (kWindingStencil1_PathPass) is required to do winding rule path filling
-     * (or inverse winding rule). Otherwise, two passes are required
-     * (kWindingStencil1_PathPass followed by kWindingStencil2_PathPass).
-     *
+     * returns true if two sided stenciling is supported. If false then only
+     * the front face values of the GrStencilSettings
      * @return    true if only a single stencil pass is needed.
      */
-    bool supportsSingleStencilPassWinding() const
-                                        { return fSingleStencilPassForWinding; }
+    bool supportsTwoSidedStencil() const
+                                        { return fTwoSidedStencilSupport; }
+
+    /**
+     * returns true if stencil wrap is supported. If false then
+     * kIncWrap_StencilOp and kDecWrap_StencilOp are treated as
+     * kIncClamp_StencilOp and kDecClamp_StencilOp, respectively.
+     * @return    true if stencil wrap ops are supported.
+     */
+    bool supportsStencilWrapOps() const
+                                        { return fStencilWrapOpsSupport; }
 
     /**
      * Checks whether locking vertex and index buffers is supported.
@@ -304,7 +311,7 @@ public:
     const GrIndexBuffer* getQuadIndexBuffer() const;
 
     /**
-     * Returns a vertex buffer with four position-only vertices [(0,0), (1,0), 
+     * Returns a vertex buffer with four position-only vertices [(0,0), (1,0),
      * (1,1), (0,1)].
      * @ return unit square vertex buffer
      */
@@ -326,16 +333,12 @@ public:
     void printStats() const;
 
 protected:
-    /**
-     * Extensions to GrDrawTarget::StencilPass to implement stencil clipping
-     */
-    enum GpuStencilPass {
-        kSetClip_StencilPass = kDrawTargetCount_StencilPass,
-                                        /* rendering a hard clip to the stencil
-                                           buffer. Subsequent draws with other
-                                           StencilPass values will be clipped
-                                           if kClip_StateBit is set. */
-        kGpuCount_StencilPass
+    enum PrivateStateBits {
+        kFirstBit = (kLastPublicStateBit << 1),
+
+        kModifyStencilClip_StateBit = kFirstBit, // allows draws to modify
+                                                 // stencil bits used for
+                                                 // clipping.
     };
 
     /**
@@ -344,7 +347,6 @@ protected:
     struct ClipState {
         bool            fClipInStencil;
         bool            fClipIsDirty;
-        GrRenderTarget* fStencilClipTarget;
     } fClipState;
 
     // GrDrawTarget override
@@ -353,6 +355,21 @@ protected:
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(GrPrimitiveType type);
 
+    // Functions used to map clip-respecting stencil tests into normal
+    // stencil funcs supported by GPUs.
+    static GrStencilFunc ConvertStencilFunc(bool stencilInClip, 
+                                            GrStencilFunc func);
+    static void ConvertStencilFuncAndMask(GrStencilFunc func,
+                                          bool clipInStencil,
+                                          unsigned int clipBit,
+                                          unsigned int userBits,
+                                          unsigned int* ref,
+                                          unsigned int* mask);
+
+    // stencil settings to clip drawing when stencil clipping is in effect
+    // and the client isn't using the stencil test.
+    static const GrStencilSettings gClipStencilSettings;
+
     // defaults to false, subclass can set true to support palleted textures
     bool f8bitPaletteSupport;
 
@@ -360,10 +377,8 @@ protected:
     bool fNPOTTextureSupport;
     bool fNPOTTextureTileSupport;
     bool fNPOTRenderTargetSupport;
-
-    // True if only one stencil pass is required to implement the winding path
-    // fill rule. Subclass responsible for setting this value.
-    bool fSingleStencilPassForWinding;
+    bool fTwoSidedStencilSupport;
+    bool fStencilWrapOpsSupport;
 
     // set by subclass to true if index and vertex buffers can be locked, false
     // otherwise.
@@ -427,12 +442,14 @@ protected:
     virtual void flushScissor(const GrIRect* rect) = 0;
 
     // GrGpu subclass removes the clip from the stencil buffer
-    virtual void eraseStencilClip() = 0;
+    virtual void eraseStencilClip(const GrIRect& rect) = 0;
 
 private:
-
+    // readies the pools to provide vertex/index data.
     void prepareVertexPool();
     void prepareIndexPool();
+
+    GrPathRenderer* getPathRenderer();
 
     GrVertexBufferAllocPool*    fVertexPool;
 
@@ -443,6 +460,61 @@ private:
 
     mutable GrVertexBuffer*     fUnitSquareVertexBuffer; // mutable so it can be
                                                          // created on-demand
+
+    GrPathRenderer*             fPathRenderer;
+
+    // when in an internal draw these indicate whether the pools are in use
+    // by one of the outer draws. If false then it is safe to reset the
+    // pool.
+    bool                        fVertexPoolInUse;
+    bool                        fIndexPoolInUse;
+
+    // used to save and restore state when the GrGpu needs
+    // to make its geometry pools available internally
+    class AutoInternalDrawGeomRestore {
+    public:
+        AutoInternalDrawGeomRestore(GrGpu* gpu) : fAgsr(gpu) {
+            fGpu = gpu;
+
+            fVertexPoolWasInUse = gpu->fVertexPoolInUse;
+            fIndexPoolWasInUse  = gpu->fIndexPoolInUse;
+
+            gpu->fVertexPoolInUse = fVertexPoolWasInUse ||
+                                   (kBuffer_GeometrySrcType !=
+                                    gpu->fGeometrySrc.fVertexSrc);
+            gpu->fIndexPoolInUse  = fIndexPoolWasInUse ||
+                                   (kBuffer_GeometrySrcType !=
+                                    gpu->fGeometrySrc.fIndexSrc);;
+
+            fSavedPoolVertexBuffer = gpu->fCurrPoolVertexBuffer;
+            fSavedPoolStartVertex  = gpu->fCurrPoolStartVertex;
+            fSavedPoolIndexBuffer  = gpu->fCurrPoolIndexBuffer;
+            fSavedPoolStartIndex   = gpu->fCurrPoolStartIndex;
+
+            fSavedReservedGeometry = gpu->fReservedGeometry;
+            gpu->fReservedGeometry.fLocked = false;
+        }
+        ~AutoInternalDrawGeomRestore() {
+            fGpu->fCurrPoolVertexBuffer = fSavedPoolVertexBuffer;
+            fGpu->fCurrPoolStartVertex  = fSavedPoolStartVertex;
+            fGpu->fCurrPoolIndexBuffer  = fSavedPoolIndexBuffer;
+            fGpu->fCurrPoolStartIndex   = fSavedPoolStartIndex;
+            fGpu->fVertexPoolInUse = fVertexPoolWasInUse;
+            fGpu->fIndexPoolInUse  = fIndexPoolWasInUse;
+            fGpu->fReservedGeometry = fSavedReservedGeometry;
+        }
+    private:
+        AutoGeometrySrcRestore  fAgsr;
+        GrGpu*                  fGpu;
+        const GrVertexBuffer*   fSavedPoolVertexBuffer;
+        int                     fSavedPoolStartVertex;
+        const GrIndexBuffer*    fSavedPoolIndexBuffer;
+        int                     fSavedPoolStartIndex;
+        bool                    fVertexPoolWasInUse;
+        bool                    fIndexPoolWasInUse;
+        ReservedGeometry        fSavedReservedGeometry;
+    };
+
     typedef GrDrawTarget INHERITED;
 };
 

@@ -278,16 +278,23 @@ public:
                         const GrMatrix* srcMatrix = NULL);
 
     /**
-     * Tessellates and draws a path.
+     * Draws a path.
      *
      * @param paint         describes how to color pixels.
-     * @param path          the path to draw
+     * @param pathIter      the path to draw
      * @param fill          the path filling rule to use.
      * @param translate     optional additional translation applied to the
      *                      path.
      */
     void drawPath(const GrPaint& paint,
-                  GrPathIter* path,
+                  GrPathIter* pathIter,
+                  GrPathFill fill,
+                  const GrPoint* translate = NULL);
+    /**
+     * Helper version of drawPath that takes a GrPath
+     */
+    void drawPath(const GrPaint& paint,
+                  const GrPath& path,
                   GrPathFill fill,
                   const GrPoint* translate = NULL);
     /**

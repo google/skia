@@ -17,18 +17,30 @@
 
 #include "GrClip.h"
 
-GrClip::GrClip() {
+GrClip::GrClip()
+    : fList(fListMemory, kPreAllocElements) {
     fBounds.setEmpty();
-    this->validate();
+    fBoundsValid = true;
 }
 
-GrClip::GrClip(const GrClip& src) {
+GrClip::GrClip(const GrClip& src)
+    : fList(fListMemory, kPreAllocElements) {
     *this = src;
 }
 
-GrClip::GrClip(GrClipIterator* iter) {
-    fBounds.setEmpty();
-    this->setFromIterator(iter);
+GrClip::GrClip(const GrIRect& rect)
+    : fList(fListMemory, kPreAllocElements) {
+    this->setFromIRect(rect);
+}
+
+GrClip::GrClip(const GrRect& rect)
+    : fList(fListMemory, kPreAllocElements) {
+    this->setFromRect(rect);
+}
+
+GrClip::GrClip(GrClipIterator* iter, const GrRect* bounds)
+    : fList(fListMemory, kPreAllocElements) {
+    this->setFromIterator(iter, bounds);
 }
 
 GrClip::~GrClip() {}
@@ -36,101 +48,100 @@ GrClip::~GrClip() {}
 GrClip& GrClip::operator=(const GrClip& src) {
     fList = src.fList;
     fBounds = src.fBounds;
-    this->validate();
+    fBoundsValid = src.fBoundsValid;
     return *this;
 }
 
 void GrClip::setEmpty() {
     fList.reset();
     fBounds.setEmpty();
-    this->validate();
+    fBoundsValid = true;
 }
 
-void GrClip::setRect(const GrIRect& r) {
+void GrClip::setFromRect(const GrRect& r) {
+    fList.reset();
+    if (r.isEmpty()) {
+        // use a canonical empty rect for == testing.
+        setEmpty();
+    } else {
+        fList.push_back();
+        fList.back().fRect = r;
+        fList.back().fType = kRect_ClipType;
+        fBounds = r;
+        fBoundsValid = true;
+    }
+}
+
+void GrClip::setFromIRect(const GrIRect& r) {
+    fList.reset();
+    if (r.isEmpty()) {
+        // use a canonical empty rect for == testing.
+        setEmpty();
+    } else {
+        fList.push_back();
+        fList.back().fRect.set(r);
+        fList.back().fType = kRect_ClipType;
+        fBounds.set(r);
+        fBoundsValid = true;
+    }
+}
+
+void GrClip::setFromIterator(GrClipIterator* iter, const GrRect* bounds) {
     fList.reset();
 
-    // we need a canonical "empty" rect, so that our operator== will behave
-    // correctly with two empty clips.
-    if (r.isEmpty()) {
-        fBounds.setEmpty();
-    } else {
-        fBounds = r;
-    }
-    this->validate();
-}
+    int rectCount = 0;
 
-void GrClip::addRect(const GrIRect& r) {
-    if (!r.isEmpty()) {
-        this->validate();
-        if (this->isEmpty()) {
-            GrAssert(fList.count() == 0);
-            fBounds = r;
-        } else {
-            if (this->isRect()) {
-                *fList.append() = fBounds;
-            }
-            *fList.append() = r;
-            fBounds.unionWith(r);
-        }
-        this->validate();
-    }
-}
+    // compute bounds for common case of series of intersecting rects.
+    bool isectRectValid = true;
 
-void GrClip::setFromIterator(GrClipIterator* iter) {
-    this->setEmpty();
     if (iter) {
         for (iter->rewind(); !iter->isDone(); iter->next()) {
-            GrIRect r;
-            iter->getRect(&r);
-            this->addRect(r);
-        }
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-void GrClipIter::reset(const GrClip& clip) { fClip = &clip; fIndex = 0; }
-
-bool GrClipIter::isDone() { 
-    return (NULL == fClip) || (fIndex >= fClip->countRects()); 
-}
-
-void GrClipIter::rewind() { fIndex = 0; }
-void GrClipIter::getRect(GrIRect* r) { *r = fClip->getRects()[fIndex]; }
-void GrClipIter::next() { fIndex += 1; }
-void GrClipIter::computeBounds(GrIRect* r) { 
-    if (NULL == fClip) {
-        r->setEmpty();
-    } else {
-        *r = fClip->getBounds();
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-#if GR_DEBUG
-
-void GrClip::validate() const {
-    if (fBounds.isEmpty()) {
-        GrAssert(0 == fBounds.fLeft);
-        GrAssert(0 == fBounds.fTop);
-        GrAssert(0 == fBounds.fRight);
-        GrAssert(0 == fBounds.fBottom);
-        GrAssert(0 == fList.count());
-    } else {
-        int count = fList.count();
-        if (count > 0) {
-            GrAssert(count > 1);
-            GrAssert(!fList[0].isEmpty());
-            GrIRect bounds = fList[0];
-            for (int i = 1; i < count; i++) {
-                GrAssert(!fList[i].isEmpty());
-                bounds.unionWith(fList[i]);
+            Element& e = fList.push_back();
+            e.fType = iter->getType();
+            e.fOp = iter->getOp();
+            // iterators should not emit replace
+            GrAssert(kReplace_SetOp != e.fOp);
+            switch (e.fType) {
+                case kRect_ClipType:
+                    iter->getRect(&e.fRect);
+                    ++rectCount;
+                    if (isectRectValid) {
+                        if (1 == rectCount || kIntersect_SetOp == e.fOp) {
+                            GrAssert(fList.count() <= 2);
+                            if (fList.count() > 1) {
+                                GrAssert(2 == rectCount);
+                                rectCount = 1;
+                                fList.pop_back();
+                                GrAssert(kRect_ClipType == fList.back().fType);
+                                fList.back().fRect.intersectWith(e.fRect);
+                            }
+                        } else {
+                            isectRectValid = false;
+                        }
+                    }
+                    break;
+                case kPath_ClipType:
+                    e.fPath.resetFromIter(iter->getPathIter());
+                    e.fPathFill = iter->getPathFill();
+                    isectRectValid = false;
+                    break;
+                default:
+                    GrCrash("Unknown clip element type.");
             }
-            GrAssert(fBounds == bounds);
         }
     }
+    fBoundsValid = false;
+    if (NULL == bounds) {
+        if (isectRectValid) {
+            fBoundsValid = true;
+            if (rectCount > 0) {
+                fBounds = fList[0].fRect;
+            } else {
+                fBounds.setEmpty();
+            }
+        }
+    } else {
+        fBounds = *bounds;
+        fBoundsValid = true;
+    }
 }
-
-#endif
-

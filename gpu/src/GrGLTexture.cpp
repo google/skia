@@ -22,12 +22,14 @@ GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids,
                                    GLuint stencilBits,
                                    const GrGLIRect& viewport,
                                    GrGLTexture* texture,
-                                   GrGpuGL* gl) : INHERITED(texture) {
+                                   GrGpuGL* gl) : INHERITED(texture,
+                                                            viewport.fWidth,
+                                                            viewport.fHeight,
+                                                            stencilBits) {
     fGL                     = gl;
     fRTFBOID                = ids.fRTFBOID;
     fTexFBOID               = ids.fTexFBOID;
     fStencilRenderbufferID  = ids.fStencilRenderbufferID;
-    fStencilBits            = stencilBits;
     fMSColorRenderbufferID  = ids.fMSColorRenderbufferID;
     fNeedsResolve           = false;
     fViewport               = viewport;

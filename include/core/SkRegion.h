@@ -260,7 +260,7 @@ public:
         bool rewind();
         // reset the iterator, using the new region
         void reset(const SkRegion&);
-        bool done() { return fDone; }
+        bool done() const { return fDone; }
         void next();
         const SkIRect& rect() const { return fRect; }
         // may return null

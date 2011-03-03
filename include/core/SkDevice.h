@@ -141,7 +141,8 @@ public:
     /** Called when this device gains focus (i.e becomes the current device
         for drawing).
     */
-    virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&) {}
+    virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
+                           const SkClipStack&) {}
 
     /** Causes any deferred drawing to the device to be completed.
      */

@@ -52,8 +52,15 @@ private:
 public:
     class F2BIter {
     public:
+        /**
+         * Creates an uninitialized iterator. Must be reset()
+         */
+        F2BIter();
+
         F2BIter(const SkDeque& d);
         void* next();
+
+        void reset(const SkDeque& d);
 
     private:
         SkDeque::Head*  fHead;

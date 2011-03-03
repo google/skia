@@ -358,14 +358,6 @@ void GrDrawTarget::setSamplerState(int stage, const GrSamplerState& state) {
     fCurrDrawState.fSamplerStates[stage] = state;
 }
 
-void GrDrawTarget::setStencilPass(StencilPass pass) {
-    fCurrDrawState.fStencilPass = pass;
-}
-
-void GrDrawTarget::setReverseFill(bool reverse) {
-    fCurrDrawState.fReverseFill = reverse;
-}
-
 void GrDrawTarget::enableState(uint32_t bits) {
     fCurrDrawState.fFlagBits |= bits;
 }

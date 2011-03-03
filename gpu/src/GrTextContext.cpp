@@ -67,21 +67,25 @@ GrTextContext::GrTextContext(GrContext* context,
 
     fCurrTexture = NULL;
     fCurrVertex = 0;
-    fClipRect = context->getClip().getBounds();
 
     if (NULL != extMatrix) {
         fExtMatrix = *extMatrix;
     } else {
         fExtMatrix = GrMatrix::I();
     }
-    if (!fExtMatrix.isIdentity()) {
-        GrMatrix inverse;
-        GrRect r;
-        r.set(fClipRect);
-        if (fExtMatrix.invert(&inverse)) {
-            inverse.mapRect(&r);
-            r.roundOut(&fClipRect);
+    if (context->getClip().hasBounds()) {
+        if (!fExtMatrix.isIdentity()) {
+            GrMatrix inverse;
+            GrRect r = context->getClip().getBounds();
+            if (fExtMatrix.invert(&inverse)) {
+                inverse.mapRect(&r);
+                r.roundOut(&fClipRect);
+            }
+        } else {
+            context->getClip().getBounds().roundOut(&fClipRect);
         }
+    } else {
+        fClipRect.setLargest();
     }
 
     // save the context's original matrix off and restore in destructor

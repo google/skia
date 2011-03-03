@@ -35,6 +35,8 @@ public:
 
     void resetFromIter(GrPathIter*);
 
+    bool operator ==(const GrPath& path) const;
+    bool operator !=(const GrPath& path) const { return !(*this == path); }
     // overrides from GrPathSink
 
     virtual void moveTo(GrScalar x, GrScalar y);
@@ -50,7 +52,7 @@ public:
 
         // overrides from GrPathIter
         virtual Command next(GrPoint points[]);
-        virtual ConvexHint hint() const;
+        virtual ConvexHint convexHint() const;
         virtual Command next();
         virtual void rewind();
     private:

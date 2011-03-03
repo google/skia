@@ -67,17 +67,17 @@ void GrInOrderDrawBuffer::setQuadIndexBuffer(const GrIndexBuffer* indexBuffer) {
         fCurrQuad = 0;
         fMaxQuads = (NULL == indexBuffer) ? 0 : indexBuffer->maxQuads();
     } else {
-        GrAssert((NULL == indexBuffer && 0 == fMaxQuads) || 
+        GrAssert((NULL == indexBuffer && 0 == fMaxQuads) ||
                  (indexBuffer->maxQuads() == fMaxQuads));
     }
 }
 
-void GrInOrderDrawBuffer::drawRect(const GrRect& rect, 
+void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                                    const GrMatrix* matrix,
                                    StageBitfield stageEnableBitfield,
                                    const GrRect* srcRects[],
                                    const GrMatrix* srcMatrices[]) {
-    
+
     GrAssert(!(NULL == fQuadIndexBuffer && fCurrQuad));
     GrAssert(!(fDraws.empty() && fCurrQuad));
     GrAssert(!(0 != fMaxQuads && NULL == fQuadIndexBuffer));
@@ -85,7 +85,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     // if we have a quad IB then either append to the previous run of
     // rects or start a new run
     if (fMaxQuads) {
-        
+
         bool appendToPreviousDraw = false;
         GrVertexLayout layout = GetRectVertexLayout(stageEnableBitfield, srcRects);
         AutoReleaseGeometry geo(this, layout, 4, 0);
@@ -103,10 +103,14 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         // the rect.
         bool disabledClip = false;
         if (this->isClipState() && fClip.isRect()) {
-            GrRect clipRect = GrRect(*fClip.getRects());
+
+            // single rect clip should have bounds
+            GrAssert(fClip.hasBounds());
+
+            GrRect clipRect = GrRect(fClip.getBounds());
             // If the clip rect touches the edge of the viewport, extended it
             // out (close) to infinity to avoid bogus intersections.
-            // We might consider a more exact clip to viewport if this 
+            // We might consider a more exact clip to viewport if this
             // conservative test fails.
             const GrRenderTarget* target = this->getRenderTarget();
             if (0 >= clipRect.fLeft) {
@@ -135,11 +139,11 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
                 disabledClip = true;
             }
         }
-        if (!needsNewClip() && !needsNewState() && fCurrQuad > 0 && 
+        if (!needsNewClip() && !needsNewState() && fCurrQuad > 0 &&
             fCurrQuad < fMaxQuads && layout == fLastRectVertexLayout) {
 
             int vsize = VertexSize(layout);
-        
+
             Draw& lastDraw = fDraws.back();
 
             GrAssert(lastDraw.fIndexBuffer == fQuadIndexBuffer);
@@ -500,7 +504,7 @@ void GrInOrderDrawBuffer::pushState() {
     }
     this->saveCurrentDrawState(&fStates.push_back());
  }
- 
+
 bool GrInOrderDrawBuffer::needsNewClip() const {
    if (fCurrDrawState.fFlagBits & kClip_StateBit) {
        if (fClips.empty() || (fClipSet && fClips.back() != fClip)) {
@@ -509,12 +513,12 @@ bool GrInOrderDrawBuffer::needsNewClip() const {
     }
     return false;
 }
- 
+
 void GrInOrderDrawBuffer::pushClip() {
     fClips.push_back() = fClip;
     fClipSet = false;
 }
- 
+
 void GrInOrderDrawBuffer::clipWillBeSet(const GrClip& newClip)  {
     fClipSet = true;
 }

@@ -225,12 +225,12 @@ void SkDeque::pop_back() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDeque::F2BIter::F2BIter(const SkDeque& d) : fElemSize(d.fElemSize) {
-    fHead = d.fFront;
-    while (fHead != NULL && fHead->fBegin == NULL) {
-        fHead = fHead->fNext;
-    }
-    fPos = fHead ? fHead->fBegin : NULL;
+SkDeque::F2BIter::F2BIter() {
+    fPos = NULL;
+}
+
+SkDeque::F2BIter::F2BIter(const SkDeque& d) {
+    this->reset(d);
 }
 
 void* SkDeque::F2BIter::next() {
@@ -250,3 +250,11 @@ void* SkDeque::F2BIter::next() {
     return pos;
 }
 
+void SkDeque::F2BIter::reset(const SkDeque& d) {
+    fElemSize = d.fElemSize;
+    fHead = d.fFront;
+    while (fHead != NULL && fHead->fBegin == NULL) {
+        fHead = fHead->fNext;
+    }
+    fPos = fHead ? fHead->fBegin : NULL;
+}

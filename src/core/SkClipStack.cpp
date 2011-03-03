@@ -116,7 +116,11 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkClipStack::B2FIter::B2FIter(const SkClipStack& stack) : fIter(stack.fDeque) {
+SkClipStack::B2FIter::B2FIter() {
+}
+
+SkClipStack::B2FIter::B2FIter(const SkClipStack& stack) {
+    this->reset(stack);
 }
 
 const SkClipStack::B2FIter::Clip* SkClipStack::B2FIter::next() {
@@ -141,4 +145,8 @@ const SkClipStack::B2FIter::Clip* SkClipStack::B2FIter::next() {
     }
     fClip.fOp = rec->fOp;
     return &fClip;
+}
+
+void SkClipStack::B2FIter::reset(const SkClipStack& stack) {
+    fIter.reset(stack.fDeque);
 }

@@ -794,7 +794,8 @@ private:
     SkDevice*   fLastDeviceToGainFocus;
     SkDeviceFactory* fDeviceFactory;
 
-    void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&);
+    void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&,
+                              const SkClipStack& clipStack);
 
     bool fDeviceCMDirty;            // cleared by updateDeviceCMCache()
     void updateDeviceCMCache();

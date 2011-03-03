@@ -20,7 +20,7 @@
 
 #include <stddef.h>
 
-// tetrark headers
+// Gr headers
 #include "GrConfig.h"
 #include "GrContext.h"
 #include "GrFontScaler.h"
@@ -33,6 +33,7 @@
 #include "SkPoint.h"
 #include "SkRegion.h"
 #include "SkShader.h"
+#include "SkClipStack.h"
 
 #if (GR_DEBUG && defined(SK_RELEASE)) || (GR_RELEASE && defined(SK_DEBUG))
 //    #error "inconsistent GR_DEBUG and SK_DEBUG"
@@ -170,39 +171,99 @@ public:
 
 class SkGrPathIter : public GrPathIter {
 public:
-    SkGrPathIter(const SkPath& path) : fIter(path, false), fPath(path) {}
+    SkGrPathIter() { fPath = NULL; }
+    SkGrPathIter(const SkPath& path) { reset(path); }
     virtual Command next(GrPoint pts[]);
     virtual Command next();
     virtual void rewind();
     virtual ConvexHint hint() const;
+
+    void reset(const SkPath& path) {
+        fPath = &path;
+        fIter.setPath(path, false);
+    }
 private:
 
 #if !SK_SCALAR_IS_GR_SCALAR
     SkPoint             fPoints[4];
 #endif
     SkPath::Iter        fIter;
-    const SkPath&       fPath;
+    const SkPath*       fPath;
 };
 
 class SkGrClipIterator : public GrClipIterator {
 public:
-    void reset(const SkRegion& clip) {
-        fIter.reset(clip);
-        this->invalidateBoundsCache();
+    SkGrClipIterator() { fClipStack = NULL;  fCurr = NULL; }
+    SkGrClipIterator(const SkClipStack& clipStack) { this->reset(clipStack); }
+
+    void reset(const SkClipStack& clipStack);
+
+    // overrides
+    virtual bool isDone() const { return NULL == fCurr; }
+    virtual void next() { fCurr = fIter.next(); }
+    virtual void rewind() { this->reset(*fClipStack); }
+    virtual GrClipType getType() const;
+
+    virtual GrSetOp getOp() const;
+
+    virtual void getRect(GrRect* rect) const {
+        *rect = Sk2Gr(*fCurr->fRect);
+    }
+
+    virtual GrPathIter* getPathIter() {
+        fPathIter.reset(*fCurr->fPath);
+        return &fPathIter;
+    }
+
+    virtual GrPathFill getPathFill() const;
+
+private:
+    const SkClipStack*                  fClipStack;
+    SkClipStack::B2FIter                fIter;
+    SkGrPathIter                        fPathIter;
+    // SkClipStack's auto advances on each get
+    // so we store the current pos here.
+    const SkClipStack::B2FIter::Clip*   fCurr;
+};
+
+class SkGrRegionIterator : public GrClipIterator {
+public:
+    SkGrRegionIterator() {}
+    SkGrRegionIterator(const SkRegion& region) { this->reset(region); }
+
+    void reset(const SkRegion& region) { 
+        fRegion = &region;
+        fIter.reset(region);
     }
 
     // overrides
-
-    virtual bool isDone() { return fIter.done(); }
-    virtual void getRect(GrIRect* rect) {
-        SkGr::SetIRect(rect, fIter.rect());
-    }
+    virtual bool isDone() const { return fIter.done(); }
     virtual void next() { fIter.next(); }
-    virtual void rewind() { fIter.rewind(); }
-    virtual void computeBounds(GrIRect* bounds);
+    virtual void rewind() { this->reset(*fRegion); }
+    virtual GrClipType getType() const { return kRect_ClipType; }
 
+    virtual GrSetOp getOp() const { return kUnion_SetOp; }
+
+    virtual void getRect(GrRect* rect) const {
+        const SkIRect& r = fIter.rect();
+        rect->fLeft   = GrIntToScalar(r.fLeft);
+        rect->fTop    = GrIntToScalar(r.fTop);
+        rect->fRight  = GrIntToScalar(r.fRight);
+        rect->fBottom = GrIntToScalar(r.fBottom);
+    }
+
+    virtual GrPathIter* getPathIter() {
+        SkASSERT(0);
+        return NULL;
+    }
+
+    virtual GrPathFill getPathFill() const {
+        SkASSERT(0);
+        return kWinding_PathFill;
+    }
 private:
-    SkRegion::Iterator fIter;
+    const SkRegion*     fRegion;
+    SkRegion::Iterator  fIter;
 };
 
 class SkGlyphCache;

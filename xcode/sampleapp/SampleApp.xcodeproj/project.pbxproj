@@ -30,7 +30,6 @@
 		0021F3A21120B29C0062682F /* SkStaticTextView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0021F3A11120B29C0062682F /* SkStaticTextView.cpp */; };
 		0021F3D31120B61F0062682F /* SampleUnitMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00995E1510A079D80054AD6D /* SampleUnitMapper.cpp */; };
 		00244D1B10642BBA00B8F4D8 /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0009E21F1057E96800B0DE6F /* SampleStrokePath.cpp */; };
-		00244D97106A539500B8F4D8 /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */; };
 		00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CA80F01658C00A2D6EE /* SampleShaders.cpp */; };
 		00281C751083CF7E00BCCB06 /* libAnimator.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00281C711083CF6600BCCB06 /* libAnimator.a */; };
 		00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00281D061084ED1200BCCB06 /* SkXMLParser_expat.cpp */; };
@@ -81,7 +80,6 @@
 		009F9D1A12C3EB2600C7FD4A /* SampleGM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27C4625412BFB2F300DBB1F6 /* SampleGM.cpp */; };
 		00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6760FCCCB01002BD8B4 /* SampleMovie.cpp */; };
 		00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00A7282D0FD43D3700D5051F /* SkMovie.cpp */; };
-		00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */; };
 		00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C640EFC22A8000FF73A /* SamplePath.cpp */; };
 		00AF9B18103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00AF9B17103CD5EB00CBBCB3 /* SampleDitherBitmap.cpp */; };
 		00BB289B104781D00057BF7E /* SampleForth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00BB289A104781D00057BF7E /* SampleForth.cpp */; };
@@ -148,10 +146,13 @@
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E8E0486CD37000505A6 /* main.nib in Resources */ = {isa = PBXBuildFile; fileRef = 02345980000FD03B11CA0E72 /* main.nib */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
+		D5558AEF131EBA1E00C71009 /* SampleComplexClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5558AEE131EBA1E00C71009 /* SampleComplexClip.cpp */; };
+		D5558B29131EBC9C00C71009 /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
 		D55BEE6712EF44B90055D6FD /* shadertext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D55BEE6612EF44B90055D6FD /* shadertext.cpp */; };
 		D5962B3A12EDFC7600B478DF /* SampleShaderText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5962B3812EDFC7600B478DF /* SampleShaderText.cpp */; };
 		D5A682D712E9CE8500CDDDC6 /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE340F00A12400695E8C /* SamplePatch.cpp */; };
-		D5F4A21F12E9D75300DE986A /* SampleFillType.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0041CE270F00A12400695E8C /* SampleFillType.cpp */; };
+		D5BF1C5A131D449500C4B94B /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2762F6740FCCCB01002BD8B4 /* SampleAll.cpp */; };
+		D5BF1CFD131D500A00C4B94B /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 007A7CB20F01658C00A2D6EE /* SampleXfermodes.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -414,6 +415,7 @@
 		4A9504CAFFE6A41611CA0CBA /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		8D0C4E960486CD37000505A6 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8D0C4E970486CD37000505A6 /* CICarbonSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CICarbonSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5558AEE131EBA1E00C71009 /* SampleComplexClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleComplexClip.cpp; path = ../../samplecode/SampleComplexClip.cpp; sourceTree = SOURCE_ROOT; };
 		D55BEE6612EF44B90055D6FD /* shadertext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shadertext.cpp; path = ../../gm/shadertext.cpp; sourceTree = SOURCE_ROOT; };
 		D5962B3812EDFC7600B478DF /* SampleShaderText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleShaderText.cpp; path = ../../samplecode/SampleShaderText.cpp; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -442,6 +444,7 @@
 		00003C610EFC2287000FF73A /* samples */ = {
 			isa = PBXGroup;
 			children = (
+				D5558AEE131EBA1E00C71009 /* SampleComplexClip.cpp */,
 				27C4625412BFB2F300DBB1F6 /* SampleGM.cpp */,
 				003EE651111239D5001AB759 /* SampleWarp.cpp */,
 				27A34E8B119892DD00860515 /* SampleTextBox.cpp */,
@@ -937,7 +940,6 @@
 				2762F66E0FCCCABE002BD8B4 /* SkPageFlipper.cpp in Sources */,
 				00A728270FD43D0400D5051F /* SampleMovie.cpp in Sources */,
 				00A7282F0FD43D3700D5051F /* SkMovie.cpp in Sources */,
-				00A7295D0FD8397600D5051F /* SampleAll.cpp in Sources */,
 				00AF787E0FE94433007F9650 /* SamplePath.cpp in Sources */,
 				005E92DC0FF08507008965B9 /* SampleFilter2.cpp in Sources */,
 				27005D16100903C100E275B6 /* SampleLines.cpp in Sources */,
@@ -950,7 +952,6 @@
 				00EB4593104DBB18002B413E /* ForthTests.cpp in Sources */,
 				009887F1106142FC0020D19B /* SampleNinePatch.cpp in Sources */,
 				00244D1B10642BBA00B8F4D8 /* SampleStrokePath.cpp in Sources */,
-				00244D97106A539500B8F4D8 /* SampleXfermodes.cpp in Sources */,
 				00244DE2106A681600B8F4D8 /* SampleShaders.cpp in Sources */,
 				00281D071084ED1200BCCB06 /* SkXMLParser_expat.cpp in Sources */,
 				009230D8109F111F00AD3F12 /* OverView.cpp in Sources */,
@@ -1027,9 +1028,12 @@
 				009F9D0A12C3E8AF00C7FD4A /* SampleFilter.cpp in Sources */,
 				009F9D1A12C3EB2600C7FD4A /* SampleGM.cpp in Sources */,
 				D5A682D712E9CE8500CDDDC6 /* SamplePatch.cpp in Sources */,
-				D5F4A21F12E9D75300DE986A /* SampleFillType.cpp in Sources */,
 				D5962B3A12EDFC7600B478DF /* SampleShaderText.cpp in Sources */,
 				D55BEE6712EF44B90055D6FD /* shadertext.cpp in Sources */,
+				D5BF1C5A131D449500C4B94B /* SampleAll.cpp in Sources */,
+				D5BF1CFD131D500A00C4B94B /* SampleXfermodes.cpp in Sources */,
+				D5558AEF131EBA1E00C71009 /* SampleComplexClip.cpp in Sources */,
+				D5558B29131EBC9C00C71009 /* SampleFillType.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

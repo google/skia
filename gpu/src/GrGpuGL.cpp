@@ -49,8 +49,8 @@ static const GLenum gXfermodeCoeff2Blend[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture, 
-                                  GrSamplerState::SampleMode mode, 
+void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
+                                  GrSamplerState::SampleMode mode,
                                   GrMatrix* matrix) {
     GrAssert(NULL != texture);
     GrAssert(NULL != matrix);
@@ -80,7 +80,7 @@ void GrGpuGL::AdjustTextureMatrix(const GrGLTexture* texture,
     }
 }
 
-bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture, 
+bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
                                       const GrSamplerState& sampler) {
     GrAssert(NULL != texture);
     if (!sampler.getMatrix().isIdentity()) {
@@ -104,7 +104,7 @@ bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
 static bool gPrintStartupSpew;
 
 
-bool fbo_test(GrGLExts exts, int w, int h) {
+static bool fbo_test(GrGLExts exts, int w, int h) {
 
     GLint savedFBO;
     GLint savedTexUnit;
@@ -168,8 +168,6 @@ GrGpuGL::GrGpuGL() {
     GR_GL_GetIntegerv(GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
     GrAssert(maxTextureUnits > kNumStages);
 #endif
-
-    fCurrDrawState = fHWDrawState;
 
     ////////////////////////////////////////////////////////////////////////////
     // Check for supported features.
@@ -263,14 +261,24 @@ GrGpuGL::GrGpuGL() {
     // we could also look for GL_ATI_separate_stencil extension or
     // GL_EXT_stencil_two_side but they use different function signatures
     // than GL2.0+ (and than each other).
-    fSingleStencilPassForWinding = (major >= 2);
+    fTwoSidedStencilSupport = (major >= 2);
+    // supported on GL 1.4 and higher or by extension
+    fStencilWrapOpsSupport = (major > 1) ||
+                             (1 == major) && (minor >= 4) ||
+                              has_gl_extension("GL_EXT_stencil_wrap");
 #else
     // ES 2 has two sided stencil but 1.1 doesn't. There doesn't seem to be
     // an ES1 extension.
-    fSingleStencilPassForWinding = (major >= 2);
+    fTwoSidedStencilSupport = (major >= 2);
+    // stencil wrap support is in ES2, ES1 requires extension.
+    fStencilWrapOpsSupport = (major > 1) ||
+                              has_gl_extension("GL_OES_stencil_wrap");
+
 #endif
     if (gPrintStartupSpew) {
-        GrPrintf("Single Stencil Pass For Winding: %s\n", (fSingleStencilPassForWinding ? "YES" : "NO"));
+        GrPrintf("Stencil Caps: TwoSide: %s, Wrap: %s\n",
+                (fTwoSidedStencilSupport ? "YES" : "NO"),
+                (fStencilWrapOpsSupport ? "YES" : "NO"));
     }
 
 #if GR_SUPPORT_GLDESKTOP
@@ -424,8 +432,9 @@ void GrGpuGL::resetContextHelper() {
     fHWBlendDisabled = false;
     GR_GL(Enable(GL_BLEND));
 
-    // this is always disabled
     GR_GL(Disable(GL_CULL_FACE));
+    GR_GL(FrontFace(GL_CCW));
+    fHWDrawState.fDrawFace = kBoth_DrawFace;
 
     GR_GL(Disable(GL_DITHER));
 #if GR_SUPPORT_GLDESKTOP
@@ -434,13 +443,14 @@ void GrGpuGL::resetContextHelper() {
     GR_GL(Disable(GL_MULTISAMPLE));
 #endif
 
+    GR_GL(ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
+    fHWDrawState.fFlagBits = 0;
+
     // we only ever use lines in hairline mode
     GR_GL(LineWidth(1));
 
     // invalid
     fActiveTextureUnitIdx = -1;
-
-    fHWDrawState.fFlagBits = 0;
 
     // illegal values
     fHWDrawState.fSrcBlend = (GrBlendCoeff)-1;
@@ -454,7 +464,7 @@ void GrGpuGL::resetContextHelper() {
         fHWDrawState.fSamplerStates[s].setRadial2Params(-GR_ScalarMax,
                                                         -GR_ScalarMax,
                                                         true);
-        
+
         fHWDrawState.fSamplerStates[s].setMatrix(GrMatrix::InvalidMatrix());
     }
 
@@ -463,16 +473,9 @@ void GrGpuGL::resetContextHelper() {
     GR_GL(Disable(GL_SCISSOR_TEST));
     fHWBounds.fViewportRect.invalidate();
 
-    // disabling the stencil test also disables
-    // stencil buffer writes
-    GR_GL(Disable(GL_STENCIL_TEST));
-    GR_GL(StencilMask(0xffffffff));
-    GR_GL(ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-    fHWDrawState.fReverseFill = false;
-    fHWDrawState.fStencilPass = kNone_StencilPass;
+    fHWDrawState.fStencilSettings.invalidate();
     fHWStencilClip = false;
     fClipState.fClipIsDirty = true;
-    fClipState.fStencilClipTarget = NULL;
 
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
@@ -480,6 +483,7 @@ void GrGpuGL::resetContextHelper() {
     GR_GL(BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     fHWGeometryState.fArrayPtrsDirty = true;
 
+    GR_GL(ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
     fHWDrawState.fRenderTarget = NULL;
 }
 
@@ -491,7 +495,7 @@ void GrGpuGL::resetContext() {
 GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
-                                                int width, 
+                                                int width,
                                                 int height) {
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
     rtIDs.fStencilRenderbufferID = 0;
@@ -1030,11 +1034,11 @@ GrIndexBuffer* GrGpuGL::createIndexBuffer(uint32_t size, bool dynamic) {
 void GrGpuGL::flushScissor(const GrIRect* rect) {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
     const GrGLIRect& vp =
-            ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->viewport();
+            ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getViewport();
 
     GrGLIRect scissor;
     if (NULL != rect) {
-        scissor.setRelativeTo(vp, rect->fLeft, rect->fTop, 
+        scissor.setRelativeTo(vp, rect->fLeft, rect->fTop,
                               rect->width(), rect->height());
         if (scissor.contains(vp)) {
             rect = NULL;
@@ -1068,12 +1072,12 @@ void GrGpuGL::eraseColor(GrColor color) {
         fHWBounds.fScissorEnabled = false;
     }
     GR_GL(ColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE));
+    fHWDrawState.fFlagBits &= ~kNoColorWrites_StateBit;
     GR_GL(ClearColor(GrColorUnpackR(color)/255.f,
                      GrColorUnpackG(color)/255.f,
                      GrColorUnpackB(color)/255.f,
                      GrColorUnpackA(color)/255.f));
     GR_GL(Clear(GL_COLOR_BUFFER_BIT));
-    fDirtyFlags.fWriteMaskChanged = true;
 }
 
 void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
@@ -1088,15 +1092,21 @@ void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
     GR_GL(StencilMask(mask));
     GR_GL(ClearStencil(value));
     GR_GL(Clear(GL_STENCIL_BUFFER_BIT));
-    fDirtyFlags.fWriteMaskChanged = true;
+    fHWDrawState.fStencilSettings.invalidate();
 }
 
-void GrGpuGL::eraseStencilClip() {    
+void GrGpuGL::eraseStencilClip(const GrIRect& rect) {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
-    GLint stencilBitCount = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getStencilBits();
+    GLint stencilBitCount = fCurrDrawState.fRenderTarget->stencilBits();
     GrAssert(stencilBitCount > 0);
     GLint clipStencilMask  = (1 << (stencilBitCount - 1));
-    eraseStencil(0, clipStencilMask);
+
+    flushRenderTarget();
+    flushScissor(&rect);
+    GR_GL(StencilMask(clipStencilMask));
+    GR_GL(ClearStencil(0));
+    GR_GL(Clear(GL_STENCIL_BUFFER_BIT));
+    fHWDrawState.fStencilSettings.invalidate();
 }
 
 void GrGpuGL::forceRenderTargetFlush() {
@@ -1117,13 +1127,13 @@ bool GrGpuGL::readPixels(int left, int top, int width, int height,
     }
     flushRenderTarget();
 
-    const GrGLIRect& glvp = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->viewport();
-    
+    const GrGLIRect& glvp = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getViewport();
+
     // the read rect is viewport-relative
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height);
     GR_GL(ReadPixels(readRect.fLeft, readRect.fBottom,
-                     readRect.fWidth, readRect.fHeight, 
+                     readRect.fWidth, readRect.fHeight,
                      format, type, buffer));
 
     // now reverse the order of the rows, since GL's are bottom-to-top, but our
@@ -1166,7 +1176,7 @@ void GrGpuGL::flushRenderTarget() {
     #endif
         fDirtyFlags.fRenderTargetChanged = true;
         fHWDrawState.fRenderTarget = fCurrDrawState.fRenderTarget;
-        const GrGLIRect& vp = rt->viewport();
+        const GrGLIRect& vp = rt->getViewport();
         if (true || fHWBounds.fViewportRect != vp) {
             vp.pushToGLViewport();
             fHWBounds.fViewportRect = vp;
@@ -1182,6 +1192,27 @@ GLenum gPrimitiveType2GLMode[] = {
     GL_LINES,
     GL_LINE_STRIP
 };
+
+#define SWAP_PER_DRAW 0
+
+#if SWAP_PER_DRAW 
+    #if GR_MAC_BUILD
+        #include <AGL/agl.h>
+    #elif GR_WIN32_BUILD
+        void SwapBuf() {
+            DWORD procID = GetCurrentProcessId();
+            HWND hwnd = GetTopWindow(GetDesktopWindow());
+            while(hwnd) {
+                DWORD wndProcID = 0;
+                GetWindowThreadProcessId(hwnd, &wndProcID);
+                if(wndProcID == procID) {
+                    SwapBuffers(GetDC(hwnd));
+                }
+                hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
+            }
+         }
+    #endif
+#endif
 
 void GrGpuGL::drawIndexedHelper(GrPrimitiveType type,
                                 uint32_t startVertex,
@@ -1201,6 +1232,18 @@ void GrGpuGL::drawIndexedHelper(GrPrimitiveType type,
 
     GR_GL(DrawElements(gPrimitiveType2GLMode[type], indexCount,
                        GL_UNSIGNED_SHORT, indices));
+#if SWAP_PER_DRAW
+    glFlush();
+    #if GR_MAC_BUILD
+        aglSwapBuffers(aglGetCurrentContext());
+        int set_a_break_pt_here = 9;
+        aglSwapBuffers(aglGetCurrentContext());
+    #elif GR_WIN32_BUILD
+        SwapBuf();
+        int set_a_break_pt_here = 9;
+        SwapBuf();
+    #endif
+#endif
 }
 
 void GrGpuGL::drawNonIndexedHelper(GrPrimitiveType type,
@@ -1218,6 +1261,18 @@ void GrGpuGL::drawNonIndexedHelper(GrPrimitiveType type,
     // account for startVertex in the DrawElements case. So we always
     // rely on setupGeometry to have accounted for startVertex.
     GR_GL(DrawArrays(gPrimitiveType2GLMode[type], 0, vertexCount));
+#if SWAP_PER_DRAW
+    glFlush();
+    #if GR_MAC_BUILD
+        aglSwapBuffers(aglGetCurrentContext());
+        int set_a_break_pt_here = 9;
+        aglSwapBuffers(aglGetCurrentContext());
+    #elif GR_WIN32_BUILD
+        SwapBuf();
+        int set_a_break_pt_here = 9;
+        SwapBuf();
+    #endif
+#endif
 }
 
 void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
@@ -1257,203 +1312,162 @@ void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
     }
 }
 
+static const GLenum grToGLStencilFunc[] = {
+    GL_ALWAYS,           // kAlways_StencilFunc
+    GL_NEVER,            // kNever_StencilFunc
+    GL_GREATER,          // kGreater_StencilFunc
+    GL_GEQUAL,           // kGEqual_StencilFunc
+    GL_LESS,             // kLess_StencilFunc
+    GL_LEQUAL,           // kLEqual_StencilFunc,
+    GL_EQUAL,            // kEqual_StencilFunc,
+    GL_NOTEQUAL,         // kNotEqual_StencilFunc,
+};
+GR_STATIC_ASSERT(GR_ARRAY_COUNT(grToGLStencilFunc) == kBasicStencilFuncCount);
+GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
+GR_STATIC_ASSERT(1 == kNever_StencilFunc);
+GR_STATIC_ASSERT(2 == kGreater_StencilFunc);
+GR_STATIC_ASSERT(3 == kGEqual_StencilFunc);
+GR_STATIC_ASSERT(4 == kLess_StencilFunc);
+GR_STATIC_ASSERT(5 == kLEqual_StencilFunc);
+GR_STATIC_ASSERT(6 == kEqual_StencilFunc);
+GR_STATIC_ASSERT(7 == kNotEqual_StencilFunc);
+
+static const GLenum grToGLStencilOp[] = {
+    GL_KEEP,        // kKeep_StencilOp
+    GL_REPLACE,     // kReplace_StencilOp
+    GL_INCR_WRAP,   // kIncWrap_StencilOp
+    GL_INCR,        // kIncClamp_StencilOp
+    GL_DECR_WRAP,   // kDecWrap_StencilOp
+    GL_DECR,        // kDecClamp_StencilOp
+    GL_ZERO,        // kZero_StencilOp
+    GL_INVERT,      // kInvert_StencilOp
+};
+GR_STATIC_ASSERT(GR_ARRAY_COUNT(grToGLStencilOp) == kStencilOpCount);
+GR_STATIC_ASSERT(0 == kKeep_StencilOp);
+GR_STATIC_ASSERT(1 == kReplace_StencilOp);
+GR_STATIC_ASSERT(2 == kIncWrap_StencilOp);
+GR_STATIC_ASSERT(3 == kIncClamp_StencilOp);
+GR_STATIC_ASSERT(4 == kDecWrap_StencilOp);
+GR_STATIC_ASSERT(5 == kDecClamp_StencilOp);
+GR_STATIC_ASSERT(6 == kZero_StencilOp);
+GR_STATIC_ASSERT(7 == kInvert_StencilOp);
+
 void GrGpuGL::flushStencil() {
+    const GrStencilSettings* settings = &fCurrDrawState.fStencilSettings;
 
     // use stencil for clipping if clipping is enabled and the clip
     // has been written into the stencil.
     bool stencilClip = fClipState.fClipInStencil &&
                        (kClip_StateBit & fCurrDrawState.fFlagBits);
-    bool stencilChange =
-        fDirtyFlags.fWriteMaskChanged                             ||
-        fHWStencilClip != stencilClip                             ||
-        fHWDrawState.fStencilPass != fCurrDrawState.fStencilPass  ||
-        (kNone_StencilPass != fCurrDrawState.fStencilPass &&
-         (StencilPass)kSetClip_StencilPass != fCurrDrawState.fStencilPass &&
-         fHWDrawState.fReverseFill != fCurrDrawState.fReverseFill);
+    bool stencilChange = fHWStencilClip != stencilClip  ||
+                         fHWDrawState.fStencilSettings != *settings ||
+                         ((fHWDrawState.fFlagBits & kModifyStencilClip_StateBit) !=
+                          (fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit));
 
     if (stencilChange) {
-        GLint clipStencilMask;
-        GLint pathStencilMask;
-        GLint stencilBitCount = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getStencilBits();
-        GrAssert(stencilBitCount > 0 ||
-                 kNone_StencilPass == fCurrDrawState.fStencilPass);
-        clipStencilMask  = (1 << (stencilBitCount - 1));
-        pathStencilMask = clipStencilMask - 1;
-        switch (fCurrDrawState.fStencilPass) {
-            case kNone_StencilPass:
-                if (stencilClip) {
-                    GR_GL(Enable(GL_STENCIL_TEST));
-                    GR_GL(StencilFunc(GL_EQUAL,
-                                      clipStencilMask,
-                                      clipStencilMask));
-                    GR_GL(StencilOp(GL_KEEP, GL_KEEP, GL_KEEP));
-                } else {
-                    GR_GL(Disable(GL_STENCIL_TEST));
-                }
-                GR_GL(ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-                if (!fSingleStencilPassForWinding) {
-                    GR_GL(Disable(GL_CULL_FACE));
-                }
-                break;
-            case kEvenOddStencil_StencilPass:
-                GR_GL(Enable(GL_STENCIL_TEST));
-                if (stencilClip) {
-                    GR_GL(StencilFunc(GL_EQUAL, clipStencilMask, clipStencilMask));
-                } else {
-                    GR_GL(StencilFunc(GL_ALWAYS, 0x0, 0x0));
-                }
-                GR_GL(StencilMask(pathStencilMask));
-                GR_GL(ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-                GR_GL(StencilOp(GL_KEEP, GL_INVERT, GL_INVERT));
-                GR_GL(ColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
-                if (!fSingleStencilPassForWinding) {
-                    GR_GL(Disable(GL_CULL_FACE));
-                }
-                break;
-            case kEvenOddColor_StencilPass: {
-                GR_GL(Enable(GL_STENCIL_TEST));
-                GLint  funcRef  = 0;
-                GLuint funcMask = pathStencilMask;
-                if (stencilClip) {
-                    funcRef  |= clipStencilMask;
-                    funcMask |= clipStencilMask;
-                }
-                if (!fCurrDrawState.fReverseFill) {
-                    funcRef |= pathStencilMask;
-                }
 
-                GR_GL(StencilFunc(GL_EQUAL, funcRef, funcMask));
-                GR_GL(StencilMask(pathStencilMask));
-                GR_GL(StencilOp(GL_ZERO, GL_ZERO, GL_ZERO));
-                GR_GL(ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-                if (!fSingleStencilPassForWinding) {
-                    GR_GL(Disable(GL_CULL_FACE));
-                }
-                } break;
-            case kWindingStencil1_StencilPass:
-                GR_GL(Enable(GL_STENCIL_TEST));
-                if (fHasStencilWrap) {
-                    if (stencilClip) {
-                        GR_GL(StencilFunc(GL_EQUAL,
-                                          clipStencilMask,
-                                          clipStencilMask));
-                    } else {
-                        GR_GL(StencilFunc(GL_ALWAYS, 0x0, 0x0));
-                    }
-                    if (fSingleStencilPassForWinding) {
-                        GR_GL(StencilOpSeparate(GL_FRONT, GL_KEEP,
-                                                GL_INCR_WRAP, GL_INCR_WRAP));
-                        GR_GL(StencilOpSeparate(GL_BACK,  GL_KEEP,
-                                                GL_DECR_WRAP, GL_DECR_WRAP));
-                    } else {
-                        GR_GL(StencilOp(GL_KEEP, GL_INCR_WRAP, GL_INCR_WRAP));
-                        GR_GL(Enable(GL_CULL_FACE));
-                        GR_GL(CullFace(GL_BACK));
-                    }
-                } else {
-                    // If we don't have wrap then we use the Func to detect
-                    // values that would wrap (0 on decr and mask on incr). We
-                    // make the func fail on these values and use the sfail op
-                    // to effectively wrap by inverting.
-                    // This applies whether we are doing a two-pass (front faces
-                    // followed by back faces) or a single pass (separate func/op)
+        // we can't simultaneously perform stencil-clipping and modify the stencil clip
+        GrAssert(!stencilClip || !(fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit));
 
-                    // Note that in the case where we are also using stencil to
-                    // clip this means we will write into the path bits in clipped
-                    // out pixels. We still apply the clip bit in the color pass
-                    // stencil func so we don't draw color outside the clip.
-                    // We also will clear the stencil bits in clipped pixels by
-                    // using zero in the sfail op with write mask set to the
-                    // path mask.
-                    GR_GL(Enable(GL_STENCIL_TEST));
-                    if (fSingleStencilPassForWinding) {
-                        GR_GL(StencilFuncSeparate(GL_FRONT,
-                                                  GL_NOTEQUAL,
-                                                  pathStencilMask,
-                                                  pathStencilMask));
-                        GR_GL(StencilFuncSeparate(GL_BACK,
-                                                  GL_NOTEQUAL,
-                                                  0x0,
-                                                  pathStencilMask));
-                        GR_GL(StencilOpSeparate(GL_FRONT, GL_INVERT,
-                                                GL_INCR, GL_INCR));
-                        GR_GL(StencilOpSeparate(GL_BACK,  GL_INVERT,
-                                                GL_DECR, GL_DECR));
-                    } else {
-                        GR_GL(StencilFunc(GL_NOTEQUAL,
-                                          pathStencilMask,
-                                          pathStencilMask));
-                        GR_GL(StencilOp(GL_INVERT, GL_INCR, GL_INCR));
-                        GR_GL(Enable(GL_CULL_FACE));
-                        GR_GL(CullFace(GL_BACK));
-                    }
-                }
-                GR_GL(StencilMask(pathStencilMask));
-                GR_GL(ColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
-                break;
-            case kWindingStencil2_StencilPass:
-                GrAssert(!fSingleStencilPassForWinding);
-                GR_GL(Enable(GL_STENCIL_TEST));
-                if (fHasStencilWrap) {
-                    if (stencilClip) {
-                        GR_GL(StencilFunc(GL_EQUAL,
-                                          clipStencilMask,
-                                          clipStencilMask));
-                    } else {
-                        GR_GL(StencilFunc(GL_ALWAYS, 0x0, 0x0));
-                    }
-                    GR_GL(StencilOp(GL_DECR_WRAP, GL_DECR_WRAP, GL_DECR_WRAP));
-                } else {
-                    GR_GL(StencilFunc(GL_NOTEQUAL, 0x0, pathStencilMask));
-                    GR_GL(StencilOp(GL_INVERT, GL_DECR, GL_DECR));
-                }
-                GR_GL(StencilMask(pathStencilMask));
-                GR_GL(Enable(GL_CULL_FACE));
-                GR_GL(CullFace(GL_FRONT));
-                GR_GL(ColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
-                break;
-            case kWindingColor_StencilPass: {
-                GR_GL(Enable(GL_STENCIL_TEST));
-                GLint  funcRef   = 0;
-                GLuint funcMask  = pathStencilMask;
-                GLenum funcFunc;
-
-                if (stencilClip) {
-                    funcRef  |= clipStencilMask;
-                    funcMask |= clipStencilMask;
-                }
-                if (fCurrDrawState.fReverseFill) {
-                    funcFunc = GL_EQUAL;
-                } else {
-                    funcFunc = GL_LESS;
-                }
-                GR_GL(StencilFunc(funcFunc, funcRef, funcMask));
-                GR_GL(StencilMask(pathStencilMask));
-                // must zero in sfail because winding w/o wrap will write
-                // path stencil bits in clipped out pixels
-                GR_GL(StencilOp(GL_ZERO, GL_ZERO, GL_ZERO));
-                GR_GL(ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-                if (!fSingleStencilPassForWinding) {
-                    GR_GL(Disable(GL_CULL_FACE));
-                }
-                } break;
-            case kSetClip_StencilPass:
-                GR_GL(Enable(GL_STENCIL_TEST));
-                GR_GL(StencilFunc(GL_ALWAYS, clipStencilMask, clipStencilMask));
-                GR_GL(StencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE));
-                GR_GL(StencilMask(clipStencilMask));
-                GR_GL(ColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE));
-                if (!fSingleStencilPassForWinding) {
-                    GR_GL(Disable(GL_CULL_FACE));
-                }
-                break;
-            default:
-                GrAssert(!"Unexpected stencil pass.");
-                break;
-
+        if (settings->isDisabled()) {
+            if (stencilClip) {
+                settings = &gClipStencilSettings;
+            }
         }
-        fHWDrawState.fStencilPass = fCurrDrawState.fStencilPass;
-        fHWDrawState.fReverseFill = fCurrDrawState.fReverseFill;
+
+        if (settings->isDisabled()) {
+            GR_GL(Disable(GL_STENCIL_TEST));
+        } else {
+            GR_GL(Enable(GL_STENCIL_TEST));
+    #if GR_DEBUG
+            if (!fStencilWrapOpsSupport) {
+                GrAssert(settings->fFrontPassOp != kIncWrap_StencilOp);
+                GrAssert(settings->fFrontPassOp != kDecWrap_StencilOp);
+                GrAssert(settings->fFrontFailOp != kIncWrap_StencilOp);
+                GrAssert(settings->fBackFailOp != kDecWrap_StencilOp);
+                GrAssert(settings->fBackPassOp != kIncWrap_StencilOp);
+                GrAssert(settings->fBackPassOp != kDecWrap_StencilOp);
+                GrAssert(settings->fBackFailOp != kIncWrap_StencilOp);
+                GrAssert(settings->fFrontFailOp != kDecWrap_StencilOp);
+            }
+    #endif
+            int stencilBits = fCurrDrawState.fRenderTarget->stencilBits();
+            GrAssert(stencilBits ||
+                     (GrStencilSettings::gDisabled ==
+                      fCurrDrawState.fStencilSettings));
+            GLuint clipStencilMask = 1 << (stencilBits - 1);
+            GLuint userStencilMask = clipStencilMask - 1;
+
+            unsigned int frontRef  = settings->fFrontFuncRef;
+            unsigned int frontMask = settings->fFrontFuncMask;
+            unsigned int frontWriteMask = settings->fFrontWriteMask;
+            GLenum frontFunc;
+
+            if (fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit) {
+
+                GrAssert(settings->fFrontFunc < kBasicStencilFuncCount);
+                frontFunc = grToGLStencilFunc[settings->fFrontFunc];
+            } else {
+                frontFunc = grToGLStencilFunc[ConvertStencilFunc(stencilClip, settings->fFrontFunc)];
+
+                ConvertStencilFuncAndMask(settings->fFrontFunc,
+                                          stencilClip,
+                                          clipStencilMask,
+                                          userStencilMask,
+                                          &frontRef,
+                                          &frontMask);
+                frontWriteMask &= userStencilMask;
+            }
+            GrAssert(settings->fFrontFailOp >= 0 &&
+                     settings->fFrontFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrAssert(settings->fFrontPassOp >= 0 &&
+                     settings->fFrontPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrAssert(settings->fBackFailOp >= 0 &&
+                     settings->fBackFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            GrAssert(settings->fBackPassOp >= 0 &&
+                     settings->fBackPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+            if (fTwoSidedStencilSupport) {
+                GLenum backFunc;
+
+                unsigned int backRef  = settings->fBackFuncRef;
+                unsigned int backMask = settings->fBackFuncMask;
+                unsigned int backWriteMask = settings->fBackWriteMask;
+
+
+                if (fCurrDrawState.fFlagBits & kModifyStencilClip_StateBit) {
+                    GrAssert(settings->fBackFunc < kBasicStencilFuncCount);
+                    backFunc = grToGLStencilFunc[settings->fBackFunc];
+                } else {
+                    backFunc = grToGLStencilFunc[ConvertStencilFunc(stencilClip, settings->fBackFunc)];
+                    ConvertStencilFuncAndMask(settings->fBackFunc,
+                                              stencilClip,
+                                              clipStencilMask,
+                                              userStencilMask,
+                                              &backRef,
+                                              &backMask);
+                    backWriteMask &= userStencilMask;
+                }
+
+                GR_GL(StencilFuncSeparate(GL_FRONT, frontFunc, frontRef, frontMask));
+                GR_GL(StencilMaskSeparate(GL_FRONT, frontWriteMask));
+                GR_GL(StencilFuncSeparate(GL_BACK, backFunc, backRef, backMask));
+                GR_GL(StencilMaskSeparate(GL_BACK, backWriteMask));
+                GR_GL(StencilOpSeparate(GL_FRONT, grToGLStencilOp[settings->fFrontFailOp],
+                                                  grToGLStencilOp[settings->fFrontPassOp],
+                                                  grToGLStencilOp[settings->fFrontPassOp]));
+
+                GR_GL(StencilOpSeparate(GL_BACK,  grToGLStencilOp[settings->fBackFailOp],
+                                                  grToGLStencilOp[settings->fBackPassOp],
+                                                  grToGLStencilOp[settings->fBackPassOp]));
+            } else {
+                GR_GL(StencilFunc(frontFunc, frontRef, frontMask));
+                GR_GL(StencilMask(frontWriteMask));
+                GR_GL(StencilOp(grToGLStencilOp[settings->fFrontFailOp],
+                                grToGLStencilOp[settings->fFrontPassOp],
+                                grToGLStencilOp[settings->fFrontPassOp]));
+            }
+        }
+        fHWDrawState.fStencilSettings = fCurrDrawState.fStencilSettings;
         fHWStencilClip = stencilClip;
     }
 }
@@ -1544,6 +1558,17 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
         }
     }
 
+    if ((fCurrDrawState.fFlagBits & kNoColorWrites_StateBit) !=
+        (fHWDrawState.fFlagBits & kNoColorWrites_StateBit)) {
+        GLenum mask;
+        if (fCurrDrawState.fFlagBits & kNoColorWrites_StateBit) {
+            mask = GL_FALSE;
+        } else {
+            mask = GL_TRUE;
+        }
+        GR_GL(ColorMask(mask, mask, mask, mask));
+    }
+
 #if GR_SUPPORT_GLDESKTOP
     // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
     // smooth lines.
@@ -1592,6 +1617,25 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
         }
     }
 
+    if (fHWDrawState.fDrawFace != fCurrDrawState.fDrawFace) {
+        switch (fCurrDrawState.fDrawFace) {
+            case kCCW_DrawFace:
+                glEnable(GL_CULL_FACE);
+                GR_GL(CullFace(GL_BACK));
+                break;
+            case kCW_DrawFace:
+                GR_GL(Enable(GL_CULL_FACE));
+                GR_GL(CullFace(GL_FRONT));
+                break;
+            case kBoth_DrawFace:
+                GR_GL(Disable(GL_CULL_FACE));
+                break;
+            default:
+                GrCrash("Unknown draw face.");
+        }
+        fHWDrawState.fDrawFace = fCurrDrawState.fDrawFace;
+    }
+
 #if GR_DEBUG
     // check for circular rendering
     for (int s = 0; s < kNumStages; ++s) {
@@ -1605,6 +1649,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     flushStencil();
 
+    // flushStencil may look at the private state bits, so keep it before this.
     fHWDrawState.fFlagBits = fCurrDrawState.fFlagBits;
     return true;
 }
@@ -1653,9 +1698,6 @@ void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     }
     if (fHWDrawState.fRenderTarget == renderTarget) {
         fHWDrawState.fRenderTarget = NULL;
-    }
-    if (fClipState.fStencilClipTarget == renderTarget) {
-        fClipState.fStencilClipTarget = NULL;
     }
 }
 

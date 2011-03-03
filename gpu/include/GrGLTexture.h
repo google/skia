@@ -36,9 +36,6 @@ public:
     GLuint renderFBOID() const { return fRTFBOID; }
     GLuint textureFBOID() const { return fTexFBOID; }
 
-    GLuint getStencilBits() const { return fStencilBits; }
-
-    const GrGLIRect& viewport() const { return fViewport; }
     void   abandon();
 
 protected:
@@ -58,17 +55,13 @@ protected:
                      GrGpuGL* gl);
     
     void setViewport(const GrGLIRect& rect) { fViewport = rect; }
-    
-    virtual int width() const { return fViewport.fWidth; }
-    virtual int height() const { return fViewport.fHeight; }
-
+    const GrGLIRect& getViewport() const { return fViewport; }
 private:
     GrGpuGL*    fGL;
     GLuint      fRTFBOID;
     GLuint      fTexFBOID;    
     GLuint      fStencilRenderbufferID;
     GLuint      fMSColorRenderbufferID;
-    GLuint      fStencilBits;
    
     // Should this object delete IDs when it is destroyed or does someone
     // else own them.

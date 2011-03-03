@@ -80,7 +80,6 @@ protected:
     // call resetDirtyFlags after its flush is complete
     struct {
         bool fRenderTargetChanged : 1;
-        bool fWriteMaskChanged : 1;
         int  fTextureChangedMask;
     } fDirtyFlags;
     GR_STATIC_ASSERT(8 * sizeof(int) >= kNumStages);
@@ -108,7 +107,7 @@ protected:
                                       uint32_t numVertices);
     virtual void flushScissor(const GrIRect* rect);
     void eraseStencil(uint32_t value, uint32_t mask);
-    virtual void eraseStencilClip();
+    virtual void eraseStencilClip(const GrIRect& rect);
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
