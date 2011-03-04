@@ -48,14 +48,14 @@ SkString toPDFColor(SkColor color) {
     SkASSERT(SkColorGetA(color) == 0xFF);  // We handle alpha elsewhere.
     SkScalar colorMax = SkIntToScalar(0xFF);
     SkString result;
-    result.appendScalar(SkScalarDiv(SkIntToScalar(SkColorGetR(color)),
-                                    colorMax));
+    SkPDFScalar::Append(
+            SkScalarDiv(SkIntToScalar(SkColorGetR(color)), colorMax), &result);
     result.append(" ");
-    result.appendScalar(SkScalarDiv(SkIntToScalar(SkColorGetG(color)),
-                                    colorMax));
+    SkPDFScalar::Append(
+            SkScalarDiv(SkIntToScalar(SkColorGetG(color)), colorMax), &result);
     result.append(" ");
-    result.appendScalar(SkScalarDiv(SkIntToScalar(SkColorGetB(color)),
-                                    colorMax));
+    SkPDFScalar::Append(
+            SkScalarDiv(SkIntToScalar(SkColorGetB(color)), colorMax), &result);
     result.append(" ");
     return result;
 }
@@ -610,7 +610,7 @@ void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint, bool forText) {
                 newPaint.getTextScaleX()) {
             SkScalar scale = newPaint.getTextScaleX();
             SkScalar pdfScale = SkScalarMul(scale, SkIntToScalar(100));
-            fContent.appendScalar(pdfScale);
+            SkPDFScalar::Append(pdfScale, &fContent);
             fContent.append(" Tz\n");
             fGraphicStack[fGraphicStackIndex].fTextScaleX = scale;
         }
@@ -639,7 +639,7 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID) {
         fContent.append("/F");
         fContent.appendS32(fontIndex);
         fContent.append(" ");
-        fContent.appendScalar(paint.getTextSize());
+        SkPDFScalar::Append(paint.getTextSize(), &fContent);
         fContent.append(" Tf\n");
         fGraphicStack[fGraphicStackIndex].fTextSize = paint.getTextSize();
         fGraphicStack[fGraphicStackIndex].fFont = fFontResources[fontIndex];
@@ -660,16 +660,16 @@ int SkPDFDevice::getFontResourceIndex(uint32_t fontID, uint16_t glyphID) {
 }
 
 void SkPDFDevice::moveTo(SkScalar x, SkScalar y) {
-    fContent.appendScalar(x);
+    SkPDFScalar::Append(x, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(y);
+    SkPDFScalar::Append(y, &fContent);
     fContent.append(" m\n");
 }
 
 void SkPDFDevice::appendLine(SkScalar x, SkScalar y) {
-    fContent.appendScalar(x);
+    SkPDFScalar::Append(x, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(y);
+    SkPDFScalar::Append(y, &fContent);
     fContent.append(" l\n");
 }
 
@@ -677,33 +677,33 @@ void SkPDFDevice::appendCubic(SkScalar ctl1X, SkScalar ctl1Y,
                               SkScalar ctl2X, SkScalar ctl2Y,
                               SkScalar dstX, SkScalar dstY) {
     SkString cmd("y\n");
-    fContent.appendScalar(ctl1X);
+    SkPDFScalar::Append(ctl1X, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(ctl1Y);
+    SkPDFScalar::Append(ctl1Y, &fContent);
     fContent.append(" ");
     if (ctl2X != dstX || ctl2Y != dstY) {
         cmd.set("c\n");
-        fContent.appendScalar(ctl2X);
+        SkPDFScalar::Append(ctl2X, &fContent);
         fContent.append(" ");
-        fContent.appendScalar(ctl2Y);
+        SkPDFScalar::Append(ctl2Y, &fContent);
         fContent.append(" ");
     }
-    fContent.appendScalar(dstX);
+    SkPDFScalar::Append(dstX, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(dstY);
+    SkPDFScalar::Append(dstY, &fContent);
     fContent.append(" ");
     fContent.append(cmd);
 }
 
 void SkPDFDevice::appendRectangle(SkScalar x, SkScalar y,
                                   SkScalar w, SkScalar h) {
-    fContent.appendScalar(x);
+    SkPDFScalar::Append(x, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(y);
+    SkPDFScalar::Append(y, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(w);
+    SkPDFScalar::Append(w, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(h);
+    SkPDFScalar::Append(h, &fContent);
     fContent.append(" re\n");
 }
 
@@ -791,11 +791,11 @@ void SkPDFDevice::setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX) {
     // Flip the text about the x-axis to account for origin swap and include
     // the passed parameters.
     fContent.append("1 0 ");
-    fContent.appendScalar(0 - textSkewX);
+    SkPDFScalar::Append(0 - textSkewX, &fContent);
     fContent.append(" -1 ");
-    fContent.appendScalar(x);
+    SkPDFScalar::Append(x, &fContent);
     fContent.append(" ");
-    fContent.appendScalar(y);
+    SkPDFScalar::Append(y, &fContent);
     fContent.append(" Tm\n");
 }
 
@@ -851,7 +851,7 @@ SkMatrix SkPDFDevice::setTransform(const SkMatrix& m) {
     SkScalar transform[6];
     SkAssertResult(m.pdfTransform(transform));
     for (size_t i = 0; i < SK_ARRAY_COUNT(transform); i++) {
-        fContent.appendScalar(transform[i]);
+        SkPDFScalar::Append(transform[i], &fContent);
         fContent.append(" ");
     }
     fContent.append("cm\n");

@@ -151,6 +151,8 @@ public:
     explicit SkPDFScalar(SkScalar value);
     virtual ~SkPDFScalar();
 
+    static void Append(SkScalar value, SkString* string);
+
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                             bool indirect);

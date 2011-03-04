@@ -123,6 +123,11 @@
  */
 //#define SK_ZLIB_INCLUDE <zlib.h>
 
+/*  Define this to allow PDF scalars above 32k.  The PDF/A spec doesn't allow
+    them, but modern PDF interpreters should handle them just fine.
+ */
+//#define SK_ALLOW_LARGE_PDF_SCALARS
+
 /*  Define this to remove dimension checks on bitmaps. Not all blits will be
     correct yet, so this is mostly for debugging the implementation.
  */
