@@ -87,7 +87,7 @@ public:
     virtual ~SkScalerContext_Mac();
 
 protected:
-    virtual unsigned generateGlyphCount() const;
+    virtual unsigned generateGlyphCount();
     virtual uint16_t generateCharToGlyph(SkUnichar uni);
     virtual void generateAdvance(SkGlyph* glyph);
     virtual void generateMetrics(SkGlyph* glyph);
@@ -184,7 +184,7 @@ SkScalerContext_Mac::~SkScalerContext_Mac() {
 
 // man, we need to consider caching this, since it is just dependent on
 // fFontID, and not on any of the other settings like matrix or flags
-unsigned SkScalerContext_Mac::generateGlyphCount() const {
+unsigned SkScalerContext_Mac::generateGlyphCount() {
     // The 'maxp' table stores the number of glyphs a offset 4, in 2 bytes
     uint16_t numGlyphs;
     if (SkFontHost::GetTableData(fRec.fFontID,

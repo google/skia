@@ -17,6 +17,7 @@
 #include "SkString.h"
 //#include "SkStream.h"
 
+#include "SkEndian.h"
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
 #include "SkAdvancedTypefaceMetrics.h"
@@ -61,6 +62,32 @@ static inline FIXED SkFixedToFIXED(SkFixed x) {
 
 static inline FIXED SkScalarToFIXED(SkScalar x) {
     return SkFixedToFIXED(SkScalarToFixed(x));
+}
+
+static unsigned calculateGlyphCount(HDC hdc) {
+    // The 'maxp' table stores the number of glyphs at offset 4, in 2 bytes.
+    const DWORD maxpTag = *(DWORD*) "maxp";
+    uint16_t glyphs;
+    if (GetFontData(hdc, maxpTag, 4, &glyphs, sizeof(glyphs)) != GDI_ERROR) {
+        return SkEndian_SwapBE16(glyphs);
+    }
+    
+    // Binary search for glyph count.
+    static const MAT2 mat2 = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
+    int32_t max = SK_MaxU16 + 1;
+    int32_t min = 0;
+    GLYPHMETRICS gm;
+    while (min < max) {
+        int32_t mid = min + ((max - min) / 2);
+        if (GetGlyphOutlineW(hdc, mid, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0,
+                             NULL, &mat2) == GDI_ERROR) {
+            max = mid;
+        } else {
+            min = mid + 1;
+        }
+    }
+    SkASSERT(min == max);
+    return min;
 }
 
 static SkTypeface::Style GetFontStyle(const LOGFONT& lf) {
@@ -188,7 +215,7 @@ public:
     virtual ~SkScalerContext_Windows();
 
 protected:
-    virtual unsigned generateGlyphCount() const;
+    virtual unsigned generateGlyphCount();
     virtual uint16_t generateCharToGlyph(SkUnichar uni);
     virtual void generateAdvance(SkGlyph* glyph);
     virtual void generateMetrics(SkGlyph* glyph);
@@ -203,10 +230,12 @@ private:
     HFONT        fSavefont;
     HFONT        fFont;
     SCRIPT_CACHE fSC;
+    int          fGlyphCount;
 };
 
 SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
-        : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0) {
+        : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
+        , fGlyphCount(-1) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
 	fScale = fRec.fTextSize / gCanonicalTextSize;
@@ -239,9 +268,11 @@ SkScalerContext_Windows::~SkScalerContext_Windows() {
     }
 }
 
-unsigned SkScalerContext_Windows::generateGlyphCount() const {
-    return 0xFFFF;
-    //    return fFace->num_glyphs;
+unsigned SkScalerContext_Windows::generateGlyphCount() {
+    if (fGlyphCount < 0) {
+        fGlyphCount = calculateGlyphCount(fDDC);
+    }
+    return fGlyphCount;
 }
 
 uint16_t SkScalerContext_Windows::generateCharToGlyph(SkUnichar uni) {

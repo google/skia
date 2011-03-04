@@ -230,7 +230,7 @@ public:
     */
     SkUnichar glyphIDToChar(uint16_t glyphID);
 
-    unsigned    getGlyphCount() const { return this->generateGlyphCount(); }
+    unsigned    getGlyphCount() { return this->generateGlyphCount(); }
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
     void        getImage(const SkGlyph&);
@@ -245,7 +245,7 @@ protected:
     Rec         fRec;
     unsigned    fBaseGlyphCount;
 
-    virtual unsigned generateGlyphCount() const = 0;
+    virtual unsigned generateGlyphCount() = 0;
     virtual uint16_t generateCharToGlyph(SkUnichar) = 0;
     virtual void generateAdvance(SkGlyph*) = 0;
     virtual void generateMetrics(SkGlyph*) = 0;
