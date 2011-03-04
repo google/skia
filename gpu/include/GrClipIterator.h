@@ -68,8 +68,8 @@ public:
     virtual GrSetOp getOp() const = 0;
 
     /**
-     *  Call to move to the next rect in the set, previous path iter can be made
-     *  invalid.
+     *  Call to move to the next element in the list, previous path iter can be
+     *  made invalid.
      */
     virtual void next() = 0;
 };

@@ -15,11 +15,12 @@
  */
 
 
-#include "GrClip.h"
+#include "GrDrawTarget.h"
 #include "GrTDArray.h"
 #include "GrTBSearch.h"
 #include "GrMatrix.h"
 #include "GrRedBlackTree.h"
+#include "GrPath.h"
 
 static void dump(const GrTDArray<int>& array) {
 #if 0
@@ -78,6 +79,8 @@ void gr_run_unittests() {
     test_bsearch();
     GrMatrix::UnitTest();
     GrRedBlackTree<int>::UnitTest();
+    GrPath::ConvexUnitTest();
+    GrDrawTarget::VertexLayoutUnitTest();
 }
 
 

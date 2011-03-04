@@ -243,84 +243,63 @@ static const GrStencilSettings gDiffClip = {
     0x00000000,          0x00000000     // set clip bit
 };
 
-static const GrPathFill gNonInvertedFills[] = {
-    kWinding_PathFill, // kWinding_PathFill
-    kEvenOdd_PathFill, // kEvenOdd_PathFill
-    kWinding_PathFill, // kInverseWinding_PathFill
-    kEvenOdd_PathFill, // kInverseEvenOdd_PathFill
-    kWinding_PathFill, // kHairLine_PathFill
-};
-
-static const bool gIsFillInverted[] = {
-    false, // kWinding_PathFill
-    false, // kEvenOdd_PathFill
-    true,  // kInverseWinding_PathFill
-    true,  // kInverseEvenOdd_PathFill
-    false, // kHairLine_PathFill
-};
-GR_STATIC_ASSERT(0 == kWinding_PathFill);
-GR_STATIC_ASSERT(1 == kEvenOdd_PathFill);
-GR_STATIC_ASSERT(2 == kInverseWinding_PathFill);
-GR_STATIC_ASSERT(3 == kInverseEvenOdd_PathFill);
-GR_STATIC_ASSERT(4 == kHairLine_PathFill);
-GR_STATIC_ASSERT(5 == kPathFillCount);
-
 bool GrStencilSettings::GetClipPasses(GrSetOp op, 
                                       bool canBeDirect,
                                       unsigned int stencilClipMask,
-                                      GrPathFill* fill,
+                                      bool invertedFill,
                                       int* numPasses,
                                       GrStencilSettings settings[kMaxStencilClipPasses]) {
     if (canBeDirect) {
-        if (!gIsFillInverted[*fill]) {
-            *numPasses = 0;
-            switch (op) {
-                case kReplace_SetOp:
-                    *numPasses = 1;
-                    settings[0] = gReplaceClip;
-                    break;
-                case kUnion_SetOp:
-                    *numPasses = 1;
-                    settings[0] = gUnionClip;
-                    break;
-                case kXor_SetOp:
-                    *numPasses = 1;
-                    settings[0] = gXorClip;
-                    break;
-                case kDifference_SetOp:
-                    *numPasses = 1;
-                    settings[0] = gDiffClip;
-                    break;
-                default: // suppress warning
-                    break;
-            }
-            if (1 == *numPasses) {
-                settings[0].fFrontFuncRef |= stencilClipMask;
-                settings[0].fFrontWriteMask |= stencilClipMask;
-                settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
-                settings[0].fBackWriteMask = settings[0].fFrontWriteMask;
-                return true;
-            }
+        *numPasses = 0;
+        switch (op) {
+            case kReplace_SetOp:
+                *numPasses = 1;
+                settings[0] = gReplaceClip;
+                break;
+            case kUnion_SetOp:
+                *numPasses = 1;
+                settings[0] = gUnionClip;
+                break;
+            case kXor_SetOp:
+                *numPasses = 1;
+                settings[0] = gXorClip;
+                break;
+            case kDifference_SetOp:
+                *numPasses = 1;
+                settings[0] = gDiffClip;
+                break;
+            default: // suppress warning
+                break;
+        }
+        if (1 == *numPasses) {
+            settings[0].fFrontFuncRef |= stencilClipMask;
+            settings[0].fFrontWriteMask |= stencilClipMask;
+            settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
+            settings[0].fBackWriteMask = settings[0].fFrontWriteMask;
+            return true;
         }
     }
     switch (op) {
+        // if we make the path renderer go to stencil we always give it a
+        // non-inverted fill and we use the stencil rules on the client->clipbit
+        // pass to select either the zeros or nonzeros.
         case kReplace_SetOp:
             *numPasses= 1;
-            settings[0] = gIsFillInverted[*fill] ? gInvUserToClipReplace : gUserToClipReplace;
+            settings[0] = invertedFill ? gInvUserToClipReplace : gUserToClipReplace;
             settings[0].fFrontFuncMask &= ~stencilClipMask;
             settings[0].fFrontFuncRef |= stencilClipMask;
             settings[0].fBackFuncMask = settings[0].fFrontFuncMask;
             settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
-
+            break;
         case kIntersect_SetOp:
             *numPasses = 1;
-            settings[0] = gIsFillInverted[*fill] ? gInvUserToClipIsect : gUserToClipIsect;
+            settings[0] = invertedFill ? gInvUserToClipIsect : gUserToClipIsect;
             settings[0].fFrontFuncRef = stencilClipMask;
             settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
             break;
         case kUnion_SetOp:
             *numPasses = 2;
-            if (gIsFillInverted[*fill]) {
+            if (invertedFill) {
                 settings[0] = gInvUserToClipUnionPass0;
                 settings[0].fFrontFuncRef |= stencilClipMask;
                 settings[0].fBackFuncRef = settings[0].fFrontFuncMask;
@@ -345,7 +324,7 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
             break;
         case kXor_SetOp:
             *numPasses = 2;
-            if (gIsFillInverted[*fill]) {
+            if (invertedFill) {
                 settings[0] = gInvUserToClipXorPass0;
                 settings[0].fFrontFuncMask &= ~stencilClipMask;
                 settings[0].fBackFuncMask = settings[0].fFrontFuncMask;
@@ -365,12 +344,12 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
             break;
         case kDifference_SetOp:
             *numPasses = 1;
-            settings[0] = gIsFillInverted[*fill] ? gInvUserToClipDiff : gUserToClipDiff;
+            settings[0] = invertedFill ? gInvUserToClipDiff : gUserToClipDiff;
             settings[0].fFrontFuncRef |= stencilClipMask;
             settings[0].fBackFuncRef = settings[0].fFrontFuncRef;
             break;
         case kReverseDifference_SetOp:
-            if (gIsFillInverted[*fill]) {
+            if (invertedFill) {
                 *numPasses = 1;
                 settings[0] = gInvUserToClipRDiff;
                 settings[0].fFrontWriteMask |= stencilClipMask;
@@ -393,6 +372,5 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
         default:
             GrCrash("Unknown set op");
     }
-    *fill = gNonInvertedFills[*fill];
     return false;
 }

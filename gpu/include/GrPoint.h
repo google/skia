@@ -161,7 +161,47 @@ public:
         fX = b.fX - a.fX;
         fY = b.fY - a.fY;
     }
-      
+    
+    /**
+     * Make this vector be orthogonal to vec. Looking down vec the
+     * new vector will point left.
+     */
+    void setOrthogLeft(const GrVec& vec) {
+        // vec could be this
+        GrVec v = vec;
+        fX = -v.fY;
+        fY = v.fX;
+    }
+
+    /**
+     * Make this vector be orthogonal to vec. Looking down vec the
+     * new vector will point right.
+     */
+    void setOrthogRight(const GrVec& vec) {
+        // vec could be this
+        GrVec v = vec;
+        fX = v.fY;
+        fY = -v.fX;
+    }
+
+    /**
+     * set orthogonal to vec from a to b. Will be facing left relative to a,b
+     * vec
+     */
+    void setOrthogLeftToVecBetween(const GrPoint& a, const GrPoint& b) {
+        fX = a.fY - b.fY;
+        fY = b.fX - a.fX;
+    }
+
+    /**
+     * set orthogonal to vec from a to b. Will be facing right relative to a,b
+     * vec.
+     */
+    void setOrthogRightToVecBetween(const GrPoint& a, const GrPoint& b) {
+        fX = b.fY - a.fY;
+        fY = a.fX - b.fX;
+    }
+
     /**
      * length of the vector squared.
      */
@@ -200,6 +240,13 @@ public:
         return GrMul(vec.fX, fX) + GrMul(vec.fY, fY);
     }
    
+    /**
+     * Dot product of this vec with vector from (0,0) to a pt.
+     */
+    GrScalar dotWithVecToPt(const GrPoint& pt) const {
+        return GrMul(pt.fX, fX) + GrMul(pt.fY, fY);
+    }
+
     /**
      * z-value of this cross vec.
      */

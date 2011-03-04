@@ -115,7 +115,7 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
 ////////////////////////////////////////////////////////////////////////////////
 
 
-SkGrPathIter::Command SkGrPathIter::next(GrPoint pts[]) {
+GrPathCmd SkGrPathIter::next(GrPoint pts[]) {
     GrAssert(NULL != pts);
 #if SK_SCALAR_IS_GR_SCALAR
     return sk_path_verb_to_gr_path_command(fIter.next((SkPoint*)pts));
@@ -130,7 +130,7 @@ SkGrPathIter::Command SkGrPathIter::next(GrPoint pts[]) {
 #endif
 }
 
-SkGrPathIter::Command SkGrPathIter::next() {
+GrPathCmd SkGrPathIter::next() {
     return sk_path_verb_to_gr_path_command(fIter.next(NULL));
 }
 
@@ -138,9 +138,9 @@ void SkGrPathIter::rewind() {
     fIter.setPath(*fPath, false);
 }
 
-GrPathIter::ConvexHint SkGrPathIter::hint() const {
-    return fPath->isConvex() ? GrPathIter::kConvex_ConvexHint :
-                               GrPathIter::kNone_ConvexHint;
+GrConvexHint SkGrPathIter::hint() const {
+    return fPath->isConvex() ? kConvex_ConvexHint :
+                               kNone_ConvexHint;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

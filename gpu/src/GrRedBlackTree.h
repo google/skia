@@ -355,6 +355,8 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
     x->fChildren[kRight_Child] = NULL;
     x->fItem = t;
 
+    Node* returnNode = x;
+
     Node* gp = NULL;
     Node* p = NULL;
     Node* n = fRoot;
@@ -371,7 +373,6 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
         gp = p;
         p = n;
         n = p->fChildren[pc];
-
     }
     if (last) {
         fLast = x;
@@ -385,7 +386,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
         x->fColor = kBlack_Color;
         x->fParent = NULL;
         GrAssert(1 == fCount);
-        return Iter(x, this);
+        return Iter(returnNode, this);
     }
     p->fChildren[pc] = x;
     x->fColor = kRed_Color;
@@ -404,7 +405,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
         // if x's parent is black then we didn't violate any of the
         // red/black properties when we added x as red.
         if (kBlack_Color == p->fColor) {
-            return Iter(x, this);
+            return Iter(returnNode, this);
         }
         // gp must be valid because if p was the root then it is black
         GrAssert(NULL != gp);
@@ -428,7 +429,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
                 GrAssert(fRoot == x);
                 x->fColor = kBlack_Color;
                 validate();
-                return Iter(x, this);
+                return Iter(returnNode, this);
             }
             gp = p->fParent;
             pc = (p->fChildren[kLeft_Child] == x) ? kLeft_Child :
@@ -481,7 +482,7 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::insert(const T& t) {
         rotateLeft(gp);
     }
     validate();
-    return Iter(x, this);
+    return Iter(returnNode, this);
 }
 
 
@@ -656,6 +657,7 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
         Color xcolor = x->fColor;
         p->fChildren[pc] = NULL;
         delete x;
+        x = NULL;
         // when x is red it can be with an implicit black leaf without
         // violating any of the red-black tree properties.
         if (kRed_Color == xcolor) {
@@ -716,9 +718,9 @@ void GrRedBlackTree<T,C>::deleteAtNode(Node* x) {
             }
             // x and s are now both black.
             GrAssert(kBlack_Color == s->fColor);
-            GrAssert(kBlack_Color == x->fColor);
+            GrAssert(NULL == x || kBlack_Color == x->fColor);
             GrAssert(p == s->fParent);
-            GrAssert(p == x->fParent);
+            GrAssert(NULL == x || p == x->fParent);
 
             // when x is deleted its subtree will have reduced black-height.
             slRed = (NULL != sl && kRed_Color == sl->fColor);

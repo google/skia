@@ -161,19 +161,6 @@ template <typename Dst, typename Src> Dst GrTCast(Src src) {
 typedef uint16_t GrVertexLayout;
 
 /**
- * Path filling rules
- */
-enum GrPathFill {
-    kWinding_PathFill,
-    kEvenOdd_PathFill,
-    kInverseWinding_PathFill,
-    kInverseEvenOdd_PathFill,
-    kHairLine_PathFill,
-
-    kPathFillCount
-};
-
-/**
 * Geometric primitives used for drawing.
 */
 enum GrPrimitiveType {
@@ -219,6 +206,104 @@ enum GrSetOp {
 enum GrClipType {
     kRect_ClipType,
     kPath_ClipType
+};
+
+/**
+ * Commands used to describe a path. Each command
+ * is accompanied by some number of points.
+ */
+enum GrPathCmd {
+    kMove_PathCmd,      //!< Starts a new subpath at
+                        //   at the returned point
+                        // 1 point
+    kLine_PathCmd,      //!< Adds a line segment
+                        // 2 points
+    kQuadratic_PathCmd, //!< Adds a quadratic segment
+                        // 3 points
+    kCubic_PathCmd,     //!< Adds a cubic segment
+                        // 4 points
+    kClose_PathCmd,     //!< Closes the current subpath
+                        //   by connecting a line to the
+                        //   starting point.
+                        // 0 points
+    kEnd_PathCmd        //!< Indicates the end of the last subpath
+                        //   when iterating
+                        // 0 points.
+};
+
+/**
+ * Gets the number of points associated with a path command.
+ */
+static int inline NumPathCmdPoints(GrPathCmd cmd) {
+    static const int gNumPoints[] = {
+        1, 2, 3, 4, 0, 0
+    };
+    return gNumPoints[cmd];
+}
+
+/**
+ * Path filling rules
+ */
+enum GrPathFill {
+    kWinding_PathFill,
+    kEvenOdd_PathFill,
+    kInverseWinding_PathFill,
+    kInverseEvenOdd_PathFill,
+    kHairLine_PathFill,
+
+    kPathFillCount
+};
+
+static inline GrPathFill NonInvertedFill(GrPathFill fill) {
+    static const GrPathFill gNonInvertedFills[] = {
+        kWinding_PathFill, // kWinding_PathFill
+        kEvenOdd_PathFill, // kEvenOdd_PathFill
+        kWinding_PathFill, // kInverseWinding_PathFill
+        kEvenOdd_PathFill, // kInverseEvenOdd_PathFill
+        kHairLine_PathFill,// kHairLine_PathFill
+    };
+    GR_STATIC_ASSERT(0 == kWinding_PathFill);
+    GR_STATIC_ASSERT(1 == kEvenOdd_PathFill);
+    GR_STATIC_ASSERT(2 == kInverseWinding_PathFill);
+    GR_STATIC_ASSERT(3 == kInverseEvenOdd_PathFill);
+    GR_STATIC_ASSERT(4 == kHairLine_PathFill);
+    GR_STATIC_ASSERT(5 == kPathFillCount);
+    return gNonInvertedFills[fill];
+}
+
+static inline bool IsFillInverted(GrPathFill fill) {
+    static const bool gIsFillInverted[] = {
+        false, // kWinding_PathFill
+        false, // kEvenOdd_PathFill
+        true,  // kInverseWinding_PathFill
+        true,  // kInverseEvenOdd_PathFill
+        false, // kHairLine_PathFill
+    };
+    GR_STATIC_ASSERT(0 == kWinding_PathFill);
+    GR_STATIC_ASSERT(1 == kEvenOdd_PathFill);
+    GR_STATIC_ASSERT(2 == kInverseWinding_PathFill);
+    GR_STATIC_ASSERT(3 == kInverseEvenOdd_PathFill);
+    GR_STATIC_ASSERT(4 == kHairLine_PathFill);
+    GR_STATIC_ASSERT(5 == kPathFillCount);
+    return gIsFillInverted[fill];
+}
+
+/**
+ * Hints provided about a path's convexity (or lack thereof).
+ */
+enum GrConvexHint {
+    kNone_ConvexHint,                         //<! No hint about convexity
+                                              //   of the path
+    kConvex_ConvexHint,                       //<! Path is one convex piece
+    kNonOverlappingConvexPieces_ConvexHint,   //<! Multiple convex pieces,
+                                              //   pieces are known to be
+                                              //   disjoint
+    kSameWindingConvexPieces_ConvexHint,      //<! Multiple convex pieces,
+                                              //   may or may not intersect,
+                                              //   either all wind cw or all
+                                              //   wind ccw.
+    kConcave_ConvexHint                       //<! Path is known to be
+                                              //   concave
 };
 
 ///////////////////////////////////////////////////////////////////////////////

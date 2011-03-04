@@ -1257,7 +1257,10 @@ bool GrGpuGLShaders2::flushGraphicsState(GrPrimitiveType type) {
         // invalidate the immediate mode color
         fHWDrawState.fColor = GrColor_ILLEGAL;
     } else {
-        if (fHWDrawState.fColor != fCurrDrawState.fColor) {
+        if (fHWDrawState.fColor != fCurrDrawState.fColor &&
+            (!GR_AGGRESSIVE_SHADER_OPTS || 0xffffffff != fCurrDrawState.fColor)) {
+            // avoid pushing the color attrib if the shader will optimize it out
+
             // OpenGL ES only supports the float varities of glVertexAttrib
             float c[] = {
                 GrColorUnpackR(fCurrDrawState.fColor) / 255.f,

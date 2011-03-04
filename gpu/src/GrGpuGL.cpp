@@ -432,6 +432,10 @@ void GrGpuGL::resetContextHelper() {
     fHWBlendDisabled = false;
     GR_GL(Enable(GL_BLEND));
 
+    // we don't use the zb at all
+    GR_GL(Disable(GL_DEPTH_TEST));
+    GR_GL(DepthMask(GL_FALSE));
+
     GR_GL(Disable(GL_CULL_FACE));
     GR_GL(FrontFace(GL_CCW));
     fHWDrawState.fDrawFace = kBoth_DrawFace;
@@ -1097,10 +1101,18 @@ void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
 
 void GrGpuGL::eraseStencilClip(const GrIRect& rect) {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
+#if 0
     GLint stencilBitCount = fCurrDrawState.fRenderTarget->stencilBits();
     GrAssert(stencilBitCount > 0);
     GLint clipStencilMask  = (1 << (stencilBitCount - 1));
-
+#else
+    // we could just clear the clip bit but when we go through
+    // angle a partial stencil mask will cause clears to be
+    // turned into draws. Our contract on GrDrawTarget says that
+    // changing the clip between stencil passes may or may not
+    // zero the client's clip bits. So we just clear the whole thing.
+    static const GLint clipStencilMask  = ~0;
+#endif
     flushRenderTarget();
     flushScissor(&rect);
     GR_GL(StencilMask(clipStencilMask));

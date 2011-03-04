@@ -60,29 +60,41 @@ public:
      * For complex clips Gr uses the stencil buffer. The path renderer must be
      * able to render paths into the stencil buffer. However, the path renderer
      * itself may require the stencil buffer to resolve the path fill rule. This
-     * function queries whether the path render requires its own stencil
+     * function queries whether the path render needs its own stencil
      * pass. If this returns false then drawPath() should not modify the
-     * the target's stencil settings.
+     * the target's stencil settings but use those already set on target.
+     *
+     * @param target target that the path will be rendered to
+     * @param path   the path that will be drawn
+     * @param fill   the fill rule that will be used
      *
      * @return false if this path renderer can generate interior-only fragments
      *         without changing the stencil settings on the target. If it
      *         returns true the drawPathToStencil will be used when rendering
      *         clips.
      */
-    virtual bool requiresStencilPass(GrPathIter*) const { return false; }
+    virtual bool requiresStencilPass(const GrDrawTarget* target,
+                                     GrPathIter* path, 
+                                     GrPathFill fill) const { return false; }
     
-    bool requiresStencilPass(const GrPath& path) const { 
+    bool requiresStencilPass(const GrDrawTarget* target,
+                             const GrPath& path, 
+                             GrPathFill fill) const { 
         GrPath::Iter iter(path);
-        return requiresStencilPass(&iter);
+        return requiresStencilPass(target, &iter, fill);
     }
 
     /**
-     * Draws a path to the stencil buffer. Assume the writable bits are zero
-     * prior and write a nonzero value in interior samples. The default
-     * implementation assumes the path filling algorithm doesn't require a
-     * separate stencil pass and so just calls drawPath.
+     * Draws a path to the stencil buffer. Assume the writable stencil bits 
+     * are already initialized to zero. Fill will always be either
+     * kWinding_PathFill or kEvenOdd_PathFill.
      *
-     * Fill will never be an inverse fill rule.
+     * Only called if requiresStencilPass returns true for the same combo of
+     * target, path, and fill (or inverse of the fill).
+     *
+     * The default implementation assumes the path filling algorithm doesn't
+     * require a separate stencil pass and so crashes.
+     *
      *
      * @param target                the target to draw into.
      * @param path                  the path to draw.
@@ -94,10 +106,7 @@ public:
                                    GrPathIter* path,
                                    GrPathFill fill,
                                    const GrPoint* translate) {
-        GrAssert(kInverseEvenOdd_PathFill != fill);
-        GrAssert(kInverseWinding_PathFill != fill);
-
-        this->drawPath(target, 0, path, fill, translate);
+        GrCrash("Unexpected call to drawPathToStencil.");
     }
 
     void drawPathToStencil(GrDrawTarget* target,
@@ -119,7 +128,9 @@ public:
                           GrPathIter* path,
                           GrPathFill fill,
                           const GrPoint* translate);
-    virtual bool requiresStencilPass(GrPath&) const { return true; }
+    virtual bool requiresStencilPass(const GrDrawTarget* target,
+                                     GrPathIter* path, 
+                                     GrPathFill fill) const;
     virtual void drawPathToStencil(GrDrawTarget* target,
                                    GrPathIter* path,
                                    GrPathFill fill,
