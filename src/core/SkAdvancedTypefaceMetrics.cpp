@@ -80,10 +80,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
     int repeats = 0;
     for (int gId = 0; gId < num_glyphs; gId++) {
         Data advance;
-        if (!getAdvance(fontHandle, gId, &advance)) {
-            num_glyphs = (gId > 0) ? gId - 1 : 0;
-            break;
-        }
+        SkAssertResult(getAdvance(fontHandle, gId, &advance));
         if (advance == lastAdvance) {
             repeats++;
         } else if (curRange->fAdvance.count() == repeats + 1) {
