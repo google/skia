@@ -55,7 +55,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include;..\..\include\ports</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -73,7 +73,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GR_RELEASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include;..\..\include\ports</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
