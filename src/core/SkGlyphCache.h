@@ -77,6 +77,10 @@ public:
     */
     SkUnichar glyphToUnichar(uint16_t);
 
+    /** Returns the number of glyphs for this strike.
+    */
+    unsigned getGlyphCount();
+
     /** Return the image associated with the glyph. If it has not been generated
         this will trigger that.
     */

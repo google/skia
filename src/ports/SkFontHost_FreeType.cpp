@@ -121,7 +121,7 @@ public:
     }
 
 protected:
-    virtual unsigned generateGlyphCount() const;
+    virtual unsigned generateGlyphCount();
     virtual uint16_t generateCharToGlyph(SkUnichar uni);
     virtual void generateAdvance(SkGlyph* glyph);
     virtual void generateMetrics(SkGlyph* glyph);
@@ -731,7 +731,7 @@ void SkScalerContext_FreeType::emboldenOutline(FT_Outline* outline) {
     FT_Outline_Embolden(outline, strength);
 }
 
-unsigned SkScalerContext_FreeType::generateGlyphCount() const {
+unsigned SkScalerContext_FreeType::generateGlyphCount() {
     return fFace->num_glyphs;
 }
 

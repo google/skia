@@ -314,7 +314,7 @@ public:
 
 
 protected:
-    unsigned                            generateGlyphCount(void) const;
+    unsigned                            generateGlyphCount(void);
     uint16_t                            generateCharToGlyph(SkUnichar uni);
     void                                generateAdvance(SkGlyph* glyph);
     void                                generateMetrics(SkGlyph* glyph);
@@ -373,7 +373,7 @@ SkScalerContext_Mac::~SkScalerContext_Mac(void)
     CFSafeRelease(mFont);
 }
 
-unsigned SkScalerContext_Mac::generateGlyphCount(void) const
+unsigned SkScalerContext_Mac::generateGlyphCount(void)
 {
     return(mGlyphCount);
 }

@@ -22,7 +22,7 @@ public:
     virtual ~SkScalerContext_Ascender();
 
 protected:
-    virtual unsigned generateGlyphCount() const;
+    virtual unsigned generateGlyphCount();
     virtual uint16_t generateCharToGlyph(SkUnichar uni);
     virtual void generateMetrics(SkGlyph* glyph);
     virtual void generateImage(const SkGlyph& glyph);
@@ -102,7 +102,7 @@ SkScalerContext_Ascender::~SkScalerContext_Ascender()
     sk_free(fHandle);
 }
 
-unsigned SkScalerContext_Ascender::generateGlyphCount() const
+unsigned SkScalerContext_Ascender::generateGlyphCount()
 {
     return 1000;
 }

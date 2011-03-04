@@ -645,7 +645,7 @@ public:
     SkScalerContext_Empty(const SkDescriptor* desc) : SkScalerContext(desc) {}
 
 protected:
-    virtual unsigned generateGlyphCount() const {
+    virtual unsigned generateGlyphCount() {
         return 0;
     }
     virtual uint16_t generateCharToGlyph(SkUnichar uni) {
