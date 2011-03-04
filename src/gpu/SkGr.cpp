@@ -138,7 +138,7 @@ void SkGrPathIter::rewind() {
     fIter.setPath(*fPath, false);
 }
 
-GrConvexHint SkGrPathIter::hint() const {
+GrConvexHint SkGrPathIter::convexHint() const {
     return fPath->isConvex() ? kConvex_ConvexHint :
                                kNone_ConvexHint;
 }

@@ -152,24 +152,24 @@ void GrPath::resetFromIter(GrPathIter* iter) {
     fConvexHint = iter->convexHint();
 
     // first point of the subpath
-    GrPoint firstPt;
+    GrPoint firstPt(0,0);
     // first edge of the subpath
-    GrVec firstVec;
+    GrVec firstVec(0,0);
     // vec of most recently processed edge, that wasn't degenerate
-    GrVec previousVec;
+    GrVec previousVec(0,0);
     // most recently processed point
-    GrPoint previousPt;
+    GrPoint previousPt(0,0);
 
     // sign indicates whether we're bending left or right
-    GrScalar turnDir;
+    GrScalar turnDir = 0;
     // number of times the direction has flipped in x or y
 
     // we track which direction we are moving in x/y and the
     // number of times it changes.
-    int xDir;
-    int yDir;
-    int flipX;
-    int flipY;
+    int xDir = 0;
+    int yDir = 0;
+    int flipX = 0;
+    int flipY = 0;
 
     // counts number of sub path pts that didn't add a degenerate edge.
     int subPathPts = 0;

@@ -50,7 +50,7 @@ public:
      *
      * @return a hint about the convexity of the path.
      */
-    virtual GrConvexHint convexHint() const { return kNone_ConvexHint; }
+    virtual GrConvexHint convexHint() const = 0;
 
      /**
       * Iterates through the path. Should not be called after
