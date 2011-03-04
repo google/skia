@@ -240,22 +240,22 @@ static int worst_case_point_count(GrPathIter* path,
 
     bool first = true;
 
-    GrPathIter::Command cmd;
+    GrPathCmd cmd;
 
     GrPoint pts[4];
-    while ((cmd = path->next(pts)) != GrPathIter::kEnd_Command) {
+    while ((cmd = path->next(pts)) != kEnd_PathCmd) {
 
         switch (cmd) {
-            case GrPathIter::kLine_Command:
+            case kLine_PathCmd:
                 pointCount += 1;
                 break;
-            case GrPathIter::kQuadratic_Command:
+            case kQuadratic_PathCmd:
                 pointCount += quadratic_point_count(pts, tol);
                 break;
-            case GrPathIter::kCubic_Command:
+            case kCubic_PathCmd:
                 pointCount += cubic_point_count(pts, tol);
                 break;
-            case GrPathIter::kMove_Command:
+            case kMove_PathCmd:
                 pointCount += 1;
                 if (!first) {
                     ++(*subpaths);
@@ -269,26 +269,32 @@ static int worst_case_point_count(GrPathIter* path,
     return pointCount;
 }
 
-static inline bool single_pass_path(const GrPathIter& path,
-                                    GrPathFill fill,
-                                    const GrDrawTarget& target) {
+static inline bool single_pass_path(const GrDrawTarget& target,
+                                    const GrPathIter& path,
+                                    GrPathFill fill) {
 #if STENCIL_OFF
     return true;
 #else
     if (kEvenOdd_PathFill == fill) {
-        GrPathIter::ConvexHint hint = path.convexHint();
-        return hint == GrPathIter::kConvex_ConvexHint ||
-               hint == GrPathIter::kNonOverlappingConvexPieces_ConvexHint;
+        GrConvexHint hint = path.convexHint();
+        return hint == kConvex_ConvexHint ||
+               hint == kNonOverlappingConvexPieces_ConvexHint;
     } else if (kWinding_PathFill == fill) {
-        GrPathIter::ConvexHint hint = path.convexHint();
-        return hint == GrPathIter::kConvex_ConvexHint ||
-               hint == GrPathIter::kNonOverlappingConvexPieces_ConvexHint ||
-               (hint == GrPathIter::kSameWindingConvexPieces_ConvexHint &&
+        GrConvexHint hint = path.convexHint();
+        return hint == kConvex_ConvexHint ||
+               hint == kNonOverlappingConvexPieces_ConvexHint ||
+               (hint == kSameWindingConvexPieces_ConvexHint &&
                 target.canDisableBlend() && !target.isDitherState());
 
     }
     return false;
 #endif
+}
+
+bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
+                                                GrPathIter* path, 
+                                                GrPathFill fill) const {
+    return single_pass_path(*target, *path, fill);
 }
 
 void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
@@ -358,18 +364,18 @@ void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
         } else {
-            passes[0] = &GrStencilSettings::gDisabled;
+            passes[0] = NULL;
         }
         lastPassIsBounds = false;
         drawFace[0] = GrDrawTarget::kBoth_DrawFace;
     } else {
         type = kTriangleFan_PrimitiveType;
-        if (single_pass_path(*path, fill, *target)) {
+        if (single_pass_path(*target, *path, fill)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
             } else {
-                passes[0] = &GrStencilSettings::gDisabled;
+                passes[0] = NULL;
             }
             drawFace[0] = GrDrawTarget::kBoth_DrawFace;
             lastPassIsBounds = false;
@@ -446,9 +452,9 @@ void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
     int subpath = 0;
 
     for (;;) {
-        GrPathIter::Command cmd = path->next(pts);
+        GrPathCmd cmd = path->next(pts);
         switch (cmd) {
-            case GrPathIter::kMove_Command:
+            case kMove_PathCmd:
                 if (!first) {
                     subpathVertCount[subpath] = vert-subpathBase;
                     subpathBase = vert;
@@ -457,25 +463,25 @@ void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
                 *vert = pts[0];
                 vert++;
                 break;
-            case GrPathIter::kLine_Command:
+            case kLine_PathCmd:
                 *vert = pts[1];
                 vert++;
                 break;
-            case GrPathIter::kQuadratic_Command: {
+            case kQuadratic_PathCmd: {
                 generate_quadratic_points(pts[0], pts[1], pts[2],
                                           tolSqd, &vert,
                                           quadratic_point_count(pts, tol));
                 break;
             }
-            case GrPathIter::kCubic_Command: {
+            case kCubic_PathCmd: {
                 generate_cubic_points(pts[0], pts[1], pts[2], pts[3],
                                       tolSqd, &vert,
                                       cubic_point_count(pts, tol));
                 break;
             }
-            case GrPathIter::kClose_Command:
+            case kClose_PathCmd:
                 break;
-            case GrPathIter::kEnd_Command:
+            case kEnd_PathCmd:
                 subpathVertCount[subpath] = vert-subpathBase;
                 ++subpath; // this could be only in debug
                 goto FINISHED;
@@ -519,7 +525,9 @@ FINISHED:
 
     for (int p = 0; p < passCount; ++p) {
         target->setDrawFace(drawFace[p]);
-        target->setStencil(*passes[p]);
+        if (NULL != passes[p]) {
+            target->setStencil(*passes[p]);
+        }
 
         if (lastPassIsBounds && (p == passCount-1)) {
             if (!colorWritesWereDisabled) {

@@ -106,6 +106,9 @@ public:
 
     /**
      * Sets the stencil settings to use for the next draw.
+     * Changing the clip has the side-effect of possibly zeroing
+     * out the client settable stencil bits. So multipass algorithms
+     * using stencil should not change the clip between passes.
      * @param settings  the stencil settings to use.
      */
     void setStencil(const GrStencilSettings& settings) {
@@ -155,6 +158,8 @@ public:
     /**
      * Sets the current clip to the region specified by clip. All draws will be
      * clipped against this clip if kClip_StateBit is enabled.
+     *
+     * Setting the clip may (or may not) zero out the client's stencil bits.
      *
      * @param description of the clipping region
      */
@@ -965,6 +970,8 @@ public:
                                        vertexIndex * vertexSize);
     }
 
+    static void VertexLayoutUnitTest();
+
 protected:
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
@@ -1047,9 +1054,6 @@ protected:
         AutoGeometrySrcRestore(const AutoGeometrySrcRestore&);
         AutoGeometrySrcRestore& operator =(AutoGeometrySrcRestore&);
     };
-
-private:
-    void VertexLayoutUnitTest();
 };
 
 #endif

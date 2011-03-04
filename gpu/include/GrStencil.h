@@ -190,8 +190,7 @@ private:
      *                          existing clip
      * @param stencilClipMask   mask with just the stencil bit used for clipping
      *                          enabled.
-     * @param fill              in: the fill rule of the element to draw.
-     *                          out: the fill rule that should be used to draw
+     * @param invertedFill      is this path inverted
      * @param numPasses         out: the number of passes needed to add the 
      *                               element to the clip.
      * @param settings          out: the stencil settings to use for each pass
@@ -203,7 +202,7 @@ private:
     static bool GetClipPasses(GrSetOp op, 
                               bool canBeDirect,
                               unsigned int stencilClipMask,
-                              GrPathFill* fill,
+                              bool invertedFill,
                               int* numPasses,
                               GrStencilSettings settings[kMaxStencilClipPasses]);
 };

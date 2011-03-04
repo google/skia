@@ -30,8 +30,8 @@ public:
     explicit GrPath(GrPathIter&);
     virtual ~GrPath();
 
-    GrPathIter::ConvexHint getConvexHint() const { return fConvexHint; }
-    void setConvexHint(GrPathIter::ConvexHint hint) { fConvexHint = hint; }
+    GrConvexHint getConvexHint() const { return fConvexHint; }
+    void setConvexHint(GrConvexHint hint) { fConvexHint = hint; }
 
     void resetFromIter(GrPathIter*);
 
@@ -48,35 +48,44 @@ public:
 
     class Iter : public GrPathIter {
     public:
+        /**
+         * Creates an uninitialized iterator
+         */
+        Iter();
+
         Iter(const GrPath& path);
 
         // overrides from GrPathIter
-        virtual Command next(GrPoint points[]);
-        virtual ConvexHint convexHint() const;
-        virtual Command next();
+        virtual GrPathCmd next(GrPoint points[]);
+        virtual GrConvexHint convexHint() const;
+        virtual GrPathCmd next();
         virtual void rewind();
+
+        /**
+         * Sets iterator to begining of path
+         */
+        void reset(const GrPath& path);
     private:
-        const GrPath& fPath;
+        const GrPath* fPath;
         GrPoint       fLastPt;
-        int           fVerbIndex;
+        int           fCmdIndex;
         int           fPtIndex;
     };
 
-private:
-    enum Verb {
-        kMove, kLine, kQuad, kCubic, kClose
-    };
+    static void ConvexUnitTest();
 
-    GrTDArray<uint8_t>      fVerbs;
+private:
+
+    GrTDArray<GrPathCmd>    fCmds;
     GrTDArray<GrPoint>      fPts;
-    GrPathIter::ConvexHint  fConvexHint;
+    GrConvexHint  fConvexHint;
 
     // this ensures we have a moveTo at the start of each contour
     inline void ensureMoveTo();
 
-    bool wasLastVerb(Verb verb) const {
-        int count = fVerbs.count();
-        return count > 0 && verb == fVerbs[count - 1];
+    bool wasLastVerb(GrPathCmd cmd) const {
+        int count = fCmds.count();
+        return count > 0 && cmd == fCmds[count - 1];
     }
 
     friend class Iter;

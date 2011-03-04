@@ -205,10 +205,24 @@ struct GrRect {
         return (fLeft > fRight) || (fTop > fBottom);
     }
 
+    /**
+     * Does this rect contain a point.
+     */
     bool contains(const GrPoint& point) const {
         return point.fX >= fLeft && point.fX < fRight &&
                point.fY >= fTop && point.fY < fBottom;
     }
+
+    /**
+     * Does this rect fully contain another rect.
+     */
+    bool contains(const GrRect& r) const {
+        return fLeft   <= r.fLeft &&
+               fRight  >= r.fRight &&
+               fTop    <= r.fTop &&
+               fBottom >= r.fBottom;
+    }
+
 
     /**
      *  Initialize a rectangle to a point.

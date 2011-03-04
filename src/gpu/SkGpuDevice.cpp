@@ -289,7 +289,7 @@ static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                    GrIntToScalar(skBounds.fTop),
                    GrIntToScalar(skBounds.fRight),
                    GrIntToScalar(skBounds.fBottom));
-    GrClip grc(&iter, NULL);
+    GrClip grc(&iter, &bounds);
     context->setClip(grc);
 }
 
