@@ -442,6 +442,7 @@
     <ClCompile Include="..\..\src\pdf\SkPDFPage.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFStream.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFTypes.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFUtils.cpp" />
     <ClCompile Include="..\..\src\ports\SkDebug_stdio.cpp" />
     <ClCompile Include="..\..\src\ports\SkFontHost_win.cpp" />
     <ClCompile Include="..\..\src\ports\SkGlobals_global.cpp" />

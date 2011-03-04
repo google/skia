@@ -22,9 +22,9 @@
 #include "SkRefCnt.h"
 
 class SkBitmap;
-class SkIRect;
 class SkPaint;
 class SkPDFCatalog;
+struct SkIRect;
 
 /** \class SkPDFImage
 

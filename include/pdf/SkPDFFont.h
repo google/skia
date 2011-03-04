@@ -17,12 +17,12 @@
 #ifndef SkPDFFont_DEFINED
 #define SkPDFFont_DEFINED
 
+#include "SkAdvancedTypefaceMetrics.h"
 #include "SkPDFTypes.h"
 #include "SkTDArray.h"
 #include "SkThread.h"
 
 class SkPaint;
-class SkAdvancedTypefaceMetrics;
 
 /** \class SkPDFFont
     A PDF Object class representing a font.  The font may have resources
@@ -37,9 +37,10 @@ public:
 
     virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
-    /* Returns the font ID represented by this class.
+    /** Returns the typeface represented by this class. Returns NULL for the
+     *  default typeface.
      */
-    uint32_t fontID();
+    SkTypeface* typeface();
 
     /** Return true if this font has an encoding for the passed glyph id.
      */
@@ -59,18 +60,18 @@ public:
      */
     size_t glyphsToPDFFontEncoding(uint16_t* glyphIDs, size_t numGlyphs);
 
-    /** Get the font resource for the passed font ID and glyphID. The
+    /** Get the font resource for the passed typeface and glyphID. The
      *  reference count of the object is incremented and it is the caller's
      *  responsibility to unreference it when done.  This is needed to
      *  accommodate the weak reference pattern used when the returned object
      *  is new and has no other references.
-     *  @param fontID  The fontId to find.
-     *  @param glyphID Specify which section of a large font is of interest.
+     *  @param typeface  The typeface to find.
+     *  @param glyphID   Specify which section of a large font is of interest.
      */
-    static SkPDFFont* getFontResource(uint32_t fontID, uint16_t glyphID);
+    static SkPDFFont* getFontResource(SkTypeface* typeface, uint16_t glyphID);
 
 private:
-    uint32_t fFontID;
+    SkRefPtr<SkTypeface> fTypeface;
 #ifdef SK_DEBUG
     bool fDescendant;
 #endif
@@ -103,7 +104,7 @@ private:
 
     /** Construct a new font dictionary and support objects.
      *  @param fontInfo       Information about the to create.
-     *  @param fontID         The font ID of the font.
+     *  @param typeface       The typeface for the font.
      *  @param glyphID        The glyph ID the caller is interested in. This
      *                        is important only for Type1 fonts, which have
      *                        more than 255 glyphs.
@@ -114,14 +115,23 @@ private:
      *                        for this font, pass it in here, otherwise pass
      *                        NULL.
      */
-    SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo, uint32_t fontID,
+    SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo, SkTypeface* typeface,
               uint16_t glyphID, bool descendantFont, SkPDFDict* fontDescriptor);
 
     void populateType0Font();
     void populateCIDFont();
-    bool populateType1Font(uint16_t firstGlyphID, uint16_t lastGlyphID);
+    bool populateType1Font();
+
+    /** Populate the PDF font dictionary as Type3 font which includes glyph
+     *  descriptions with instructions for painting the glyphs. This function
+     *  doesn't use any fields from SkAdvancedTypefaceMetrics (fFontInfo). Font
+     *  information including glyph paths are queried from the platform
+     *  dependent SkGlyphCache.
+    */
     void populateType3Font();
     bool addFontDescriptor(int16_t defaultWidth);
+    void addWidthInfoFromRange(int16_t defaultWidth,
+        const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry);
 
     static bool find(uint32_t fontID, uint16_t glyphID, int* index);
 };
