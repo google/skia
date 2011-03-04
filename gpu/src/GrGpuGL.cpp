@@ -264,7 +264,7 @@ GrGpuGL::GrGpuGL() {
     fTwoSidedStencilSupport = (major >= 2);
     // supported on GL 1.4 and higher or by extension
     fStencilWrapOpsSupport = (major > 1) ||
-                             (1 == major) && (minor >= 4) ||
+                             ((1 == major) && (minor >= 4)) ||
                               has_gl_extension("GL_EXT_stencil_wrap");
 #else
     // ES 2 has two sided stencil but 1.1 doesn't. There doesn't seem to be
