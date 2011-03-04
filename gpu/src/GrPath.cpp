@@ -84,12 +84,27 @@ void GrPath::close() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void GrPath::offset(GrScalar tx, GrScalar ty) {
+    if (!tx && !ty) {
+        return; // nothing to do
+    }
+
+    GrPoint* iter = fPts.begin();
+    GrPoint* stop = fPts.end();
+    while (iter < stop) {
+        iter->offset(tx, ty);
+        ++iter;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static bool check_two_vecs(const GrVec& prevVec,
                            const GrVec& currVec,
                            GrScalar turnDir,
                            int* xDir,
                            int* yDir,
-                           int* flipX, 
+                           int* flipX,
                            int* flipY) {
     if (currVec.fX * *xDir < 0) {
         ++*flipX;
@@ -214,9 +229,9 @@ void GrPath::resetFromIter(GrPathIter* iter) {
                 vec.setBetween(previousPt, pts[consumed]);
                 if (vec.fX || vec.fY) {
                     if (subPathPts >= 2) {
-                        if (0 == turnDir) { 
+                        if (0 == turnDir) {
                             firstVec = previousVec;
-                            init_from_two_vecs(firstVec, vec, 
+                            init_from_two_vecs(firstVec, vec,
                                                &turnDir, &xDir, &yDir);
                             // here we aren't checking whether the x/y dirs
                             // change between the first and second edge. It
@@ -236,14 +251,14 @@ void GrPath::resetFromIter(GrPathIter* iter) {
                 }
                 ++consumed;
             }
-            if (subPathPts > 2 && (kClose_PathCmd == cmd || 
+            if (subPathPts > 2 && (kClose_PathCmd == cmd ||
                         (!subPathClosed && kEnd_PathCmd == cmd ))) {
                 // if an additional vector is needed to close the loop check
                 // that it validates against the previous vector.
                 GrVec vec;
                 vec.setBetween(previousPt, firstPt);
                 if (vec.fX || vec.fY) {
-                    if (!check_two_vecs(previousVec, vec, turnDir, 
+                    if (!check_two_vecs(previousVec, vec, turnDir,
                                         &xDir, &yDir, &flipX, &flipY)) {
                         fConvexHint = kConcave_ConvexHint;
                         break;
@@ -251,7 +266,7 @@ void GrPath::resetFromIter(GrPathIter* iter) {
                     previousVec = vec;
                 }
                 // check that closing vector validates against the first vector.
-                if (!check_two_vecs(previousVec, firstVec, turnDir, 
+                if (!check_two_vecs(previousVec, firstVec, turnDir,
                                     &xDir, &yDir, &flipX, &flipY)) {
                     fConvexHint = kConcave_ConvexHint;
                     break;
@@ -309,7 +324,7 @@ void GrPath::ConvexUnitTest() {
     testIter.reset(triRight);
     testPath.resetFromIter(&testIter);
     GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
-    
+
     GrPath square;
     square.moveTo(0, 0);
     square.lineTo(1, 0);
@@ -335,7 +350,7 @@ void GrPath::ConvexUnitTest() {
     square.lineTo(0, 1);
     square.lineTo(0, 1);
     square.close();
-    
+
     testIter.reset(redundantSquare);
     testPath.resetFromIter(&testIter);
     GrAssert(kConvex_ConvexHint == testPath.getConvexHint());
@@ -354,7 +369,7 @@ void GrPath::ConvexUnitTest() {
     bowTie.lineTo(0, 1);
     bowTie.lineTo(0, 1);
     bowTie.close();
-    
+
     testIter.reset(bowTie);
     testPath.resetFromIter(&testIter);
     GrAssert(kConcave_ConvexHint == testPath.getConvexHint());

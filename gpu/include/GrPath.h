@@ -46,6 +46,12 @@ public:
                          GrScalar x2, GrScalar y2);
     virtual void close();
 
+    /**
+     *  Offset the path by (tx, ty), adding tx to the horizontal position
+     *  and adds ty to the vertical position of every point.
+     */
+    void offset(GrScalar tx, GrScalar ty);
+
     class Iter : public GrPathIter {
     public:
         /**

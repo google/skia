@@ -38,9 +38,10 @@ GrClip::GrClip(const GrRect& rect)
     this->setFromRect(rect);
 }
 
-GrClip::GrClip(GrClipIterator* iter, const GrRect* bounds)
+GrClip::GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
+               const GrRect* bounds)
     : fList(fListMemory, kPreAllocElements) {
-    this->setFromIterator(iter, bounds);
+    this->setFromIterator(iter, tx, ty, bounds);
 }
 
 GrClip::~GrClip() {}
@@ -86,7 +87,8 @@ void GrClip::setFromIRect(const GrIRect& r) {
     }
 }
 
-void GrClip::setFromIterator(GrClipIterator* iter, const GrRect* bounds) {
+void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
+                             const GrRect* bounds) {
     fList.reset();
 
     int rectCount = 0;
@@ -104,6 +106,9 @@ void GrClip::setFromIterator(GrClipIterator* iter, const GrRect* bounds) {
             switch (e.fType) {
                 case kRect_ClipType:
                     iter->getRect(&e.fRect);
+                    if (tx || ty) {
+                        e.fRect.offset(tx, ty);
+                    }
                     ++rectCount;
                     if (isectRectValid) {
                         if (1 == rectCount || kIntersect_SetOp == e.fOp) {
@@ -122,6 +127,9 @@ void GrClip::setFromIterator(GrClipIterator* iter, const GrRect* bounds) {
                     break;
                 case kPath_ClipType:
                     e.fPath.resetFromIter(iter->getPathIter());
+                    if (tx || ty) {
+                        e.fPath.offset(tx, ty);
+                    }
                     e.fPathFill = iter->getPathFill();
                     isectRectValid = false;
                     break;

@@ -223,6 +223,14 @@ struct GrRect {
                fBottom >= r.fBottom;
     }
 
+    /**
+     *  Offset the rectangle by (tx, ty), adding tx to the horizontal position
+     *  and adds ty to the vertical position.
+     */
+    void offset(GrScalar tx, GrScalar ty) {
+        fLeft  += tx;   fTop    += ty;
+        fRight += tx;   fBottom += ty;
+    }
 
     /**
      *  Initialize a rectangle to a point.

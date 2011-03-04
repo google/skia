@@ -26,12 +26,27 @@
 */
 struct SkIPoint {
     int32_t fX, fY;
-    
+
     static SkIPoint Make(int32_t x, int32_t y) {
         SkIPoint pt;
         pt.set(x, y);
         return pt;
     }
+
+    int32_t x() const { return fX; }
+    int32_t y() const { return fY; }
+    void setX(int32_t x) { fX = x; }
+    void setY(int32_t y) { fY = y; }
+
+    /**
+     *  Returns true iff fX and fY are both zero.
+     */
+    bool isZero() const { return (fX | fY) == 0; }
+
+    /**
+     *  Set both fX and fY to zero. Same as set(0, 0)
+     */
+    void setZero() { fX = fY = 0; }
 
     /** Set the x and y values of the point. */
     void set(int32_t x, int32_t y) { fX = x; fY = y; }
@@ -55,11 +70,11 @@ struct SkIPoint {
         the point
     */
     void rotateCCW() { this->rotateCCW(this); }
-    
+
     /** Negate the X and Y coordinates of the point.
     */
     void negate() { fX = -fX; fY = -fY; }
-    
+
     /** Return a new point whose X and Y coordinates are the negative of the
         original point's
     */
@@ -75,7 +90,7 @@ struct SkIPoint {
         fX += v.fX;
         fY += v.fY;
     }
-    
+
     /** Subtract v's coordinates from this point's */
     void operator-=(const SkIPoint& v) {
         fX -= v.fX;
@@ -90,7 +105,7 @@ struct SkIPoint {
     friend bool operator==(const SkIPoint& a, const SkIPoint& b) {
         return a.fX == b.fX && a.fY == b.fY;
     }
-    
+
     friend bool operator!=(const SkIPoint& a, const SkIPoint& b) {
         return a.fX != b.fX || a.fY != b.fY;
     }
@@ -111,7 +126,7 @@ struct SkIPoint {
         v.set(a.fX + b.fX, a.fY + b.fY);
         return v;
     }
-    
+
     /** Returns the dot product of a and b, treating them as 2D vectors
     */
     static int32_t DotProduct(const SkIPoint& a, const SkIPoint& b) {
@@ -133,10 +148,10 @@ struct SkPoint {
         pt.set(x, y);
         return pt;
     }
-    
+
     /** Set the point's X and Y coordinates */
     void set(SkScalar x, SkScalar y) { fX = x; fY = y; }
-    
+
     /** Set the point's X and Y coordinates by automatically promoting (x,y) to
         SkScalar values.
     */
@@ -144,7 +159,7 @@ struct SkPoint {
         fX = SkIntToScalar(x);
         fY = SkIntToScalar(y);
     }
-    
+
     /** Set the point's X and Y coordinates by automatically promoting p's
         coordinates to SkScalar values.
     */
@@ -163,19 +178,19 @@ struct SkPoint {
         return true.
     */
     bool normalize();
-    
+
     /** Set the point (vector) to be unit-length in the same direction as the
         x,y params. If the vector (x,y) has a degenerate length (i.e. nearly 0)
         then return false and do nothing, otherwise return true.
     */
     bool setNormalize(SkScalar x, SkScalar y);
-    
+
     /** Scale the point (vector) to have the specified length, and return that
         length. If the original length is degenerately small (nearly zero),
         do nothing and return false, otherwise return true.
     */
     bool setLength(SkScalar length);
-    
+
     /** Set the point (vector) to have the specified length in the same
      direction as (x,y). If the vector (x,y) has a degenerate length
      (i.e. nearly 0) then return false and do nothing, otherwise return true.
@@ -186,7 +201,7 @@ struct SkPoint {
         It is legal for dst == this.
     */
     void scale(SkScalar scale, SkPoint* dst) const;
-    
+
     /** Scale the point's coordinates by scale, writing the answer back into
         the point.
     */
@@ -196,29 +211,29 @@ struct SkPoint {
         It is legal for dst == this.
     */
     void rotateCW(SkPoint* dst) const;
-    
+
     /** Rotate the point clockwise by 90 degrees, writing the answer back into
         the point.
     */
     void rotateCW() { this->rotateCW(this); }
-    
+
     /** Rotate the point counter-clockwise by 90 degrees, writing the answer
         into dst. It is legal for dst == this.
     */
     void rotateCCW(SkPoint* dst) const;
-    
+
     /** Rotate the point counter-clockwise by 90 degrees, writing the answer
         back into the point.
     */
     void rotateCCW() { this->rotateCCW(this); }
-    
+
     /** Negate the point's coordinates
     */
     void negate() {
         fX = -fX;
         fY = -fY;
     }
-    
+
     /** Returns a new point whose coordinates are the negative of the point's
     */
     SkPoint operator-() const {
@@ -234,7 +249,7 @@ struct SkPoint {
         fX += v.fX;
         fY += v.fY;
     }
-    
+
     /** Subtract v's coordinates from the point's
     */
     void operator-=(const SkPoint& v) {
@@ -249,7 +264,7 @@ struct SkPoint {
     friend bool operator==(const SkPoint& a, const SkPoint& b) {
         return a.fX == b.fX && a.fY == b.fY;
     }
-    
+
     friend bool operator!=(const SkPoint& a, const SkPoint& b) {
         return a.fX != b.fX || a.fY != b.fY;
     }
