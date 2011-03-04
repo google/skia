@@ -439,11 +439,16 @@ bool SkOSWindow::attachGL(const SkBitmap* offscreen) {
     }
     if (NULL == fHGLRC) {
         fHGLRC = create_gl((HWND)fHWND);
+        glClearStencil(0);
+        glClearColor(0, 0, 0, 0);
+        glStencilMask(0xffffffff);
+        glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         if (NULL == fHGLRC) {
             return false;
         }
     }
     if (wglMakeCurrent(GetDC((HWND)fHWND), (HGLRC)fHGLRC)) {
+        glViewport(0, 0, this->width(), this->height());
         fGLAttached = true;
         return true;
     }

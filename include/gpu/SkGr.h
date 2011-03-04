@@ -176,7 +176,7 @@ public:
     virtual GrPathCmd next(GrPoint pts[]);
     virtual GrPathCmd next();
     virtual void rewind();
-    virtual GrConvexHint hint() const;
+    virtual GrConvexHint convexHint() const;
 
     void reset(const SkPath& path) {
         fPath = &path;
