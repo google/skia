@@ -22,21 +22,13 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkStream.h"
 #include "SkThread.h"
+#include "SkTypeface_win.h"
 #include "SkUtils.h"
 
 #ifdef WIN32
 #include "windows.h"
 #include "tchar.h"
 #include "Usp10.h"
-
-// Export this for callers that already have a LOGFONT created
-/**
- *  Return a new typeface that best fits the specified LOGFONT. The typeface
- *  should be treated as "new" in that the caller is now an owner (since
- *  typeface is reference counted), though the actual typeface may be part of
- *  an internal cache, so that subsequent requests may return the same ptr.
- */
-extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& lf);
 
 // client3d has to undefine this for now
 #define CAN_USE_LOGFONT_NAME
