@@ -18,6 +18,12 @@
 #include "SkPDFTypes.h"
 #include "SkStream.h"
 
+#ifdef SK_BUILD_FOR_WIN
+    #define SNPRINTF    _snprintf
+#else
+    #define SNPRINTF    snprintf
+#endif
+
 SkPDFObject::SkPDFObject() {}
 SkPDFObject::~SkPDFObject() {}
 
@@ -93,7 +99,64 @@ void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                              bool indirect) {
     if (indirect)
         return emitIndirectObject(stream, catalog);
-    stream->writeScalarAsText(fValue);
+
+    SkString tmp;
+    Append(fValue, &tmp);
+    stream->write(tmp.c_str(), tmp.size());
+}
+
+// static
+void SkPDFScalar::Append(SkScalar value, SkString* string) {
+    // The range of reals in PDF/A is the same as SkFixed: +/- 32,767 and
+    // +/- 1/65,536 (though integers can range from 2^31 - 1 to -2^31).
+    // When using floats that are outside the whole value range, we can use
+    // integers instead.
+
+#if defined(SK_SCALAR_IS_FIXED)
+    string->appendScalar(value);
+    return;
+#endif  // SK_SCALAR_IS_FIXED
+
+#if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
+    if (value > 32767 || value < -32767) {
+        string->appendS32(SkScalarRound(value));
+        return;
+    }
+
+    char buffer[SkStrAppendScalar_MaxSize];
+    char* end = SkStrAppendFixed(buffer, SkScalarToFixed(value));
+    string->append(buffer, end - buffer);
+    return;
+#endif  // !SK_ALLOW_LARGE_PDF_SCALARS
+
+#if defined(SK_SCALAR_IS_FLOAT) && defined(SK_ALLOW_LARGE_PDF_SCALARS)
+    // Floats have 24bits of significance, so anything outside that range is
+    // no more precise than an int. (Plus PDF doesn't support scientific
+    // notation, so this clamps to SK_Max/MinS32).
+    if (value > (1 << 24) || value < -(1 << 24)) {
+        string->appendS32(value);
+        return;
+    }
+    // Continue to enforce the PDF limits for small floats.
+    if (value < 1.0f/65536 && value > -1.0f/65536) {
+        string->appendS32(0);
+        return;
+    }
+    // SkStrAppendFloat might still use scientific notation, so use snprintf
+    // directly..
+    static const int kFloat_MaxSize = 19;
+    char buffer[kFloat_MaxSize];
+    int len = SNPRINTF(buffer, kFloat_MaxSize, "%#.8f", value);
+    // %f always prints trailing 0s, so strip them.
+    for (; buffer[len - 1] == '0' && len > 0; len--) {
+        buffer[len - 1] = '\0';
+    }
+    if (buffer[len - 1] == '.') {
+        buffer[len - 1] = '\0';
+    }
+    string->append(buffer);
+    return;
+#endif  // SK_SCALAR_IS_FLOAT && SK_ALLOW_LARGE_PDF_SCALARS
 }
 
 SkPDFString::SkPDFString(const char value[])
