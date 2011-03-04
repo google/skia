@@ -4,10 +4,13 @@
 
 SkDeviceFactory::~SkDeviceFactory() {}
 
-SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas) {}
+SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas) {
+    fOrigin.setZero();
+}
 
 SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
         : fCanvas(canvas), fBitmap(bitmap) {
+    fOrigin.setZero();
     // auto-allocate if we're for offscreen drawing
     if (isForLayer) {
         if (NULL == fBitmap.getPixels() && NULL == fBitmap.pixelRef()) {

@@ -267,29 +267,24 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define USE_CLIP_STACK 0
-
 static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                                const SkClipStack& clipStack,
-                               const SkRegion& clipRegion) {
+                               const SkRegion& clipRegion,
+                               const SkIPoint& origin) {
     GrMatrix grmat;
     SkGr::SkMatrix2GrMatrix(matrix, &grmat);
     context->setMatrix(grmat);
 
-#if USE_CLIP_STACK
     SkGrClipIterator iter;
     iter.reset(clipStack);
-#else
-    SkGrRegionIterator iter;
-    iter.reset(clipRegion);
-#endif
     const SkIRect& skBounds = clipRegion.getBounds();
     GrRect bounds;
     bounds.setLTRB(GrIntToScalar(skBounds.fLeft),
                    GrIntToScalar(skBounds.fTop),
                    GrIntToScalar(skBounds.fRight),
                    GrIntToScalar(skBounds.fBottom));
-    GrClip grc(&iter, &bounds);
+    GrClip grc(&iter, GrIntToScalar(-origin.x()), GrIntToScalar(-origin.y()),
+               &bounds);
     context->setClip(grc);
 }
 
@@ -302,7 +297,7 @@ void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
         fContext->setRenderTarget(fRenderTarget);
         SkASSERT(draw.fClipStack);
         convert_matrixclip(fContext, *draw.fMatrix,
-                           *draw.fClipStack, *draw.fClip);
+                           *draw.fClipStack, *draw.fClip, this->getOrigin());
         fNeedPrepareRenderTarget = false;
     }
 }
@@ -311,7 +306,7 @@ void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
                                 const SkClipStack& clipStack) {
     this->INHERITED::setMatrixClip(matrix, clip, clipStack);
 
-    convert_matrixclip(fContext, matrix, clipStack, clip);
+    convert_matrixclip(fContext, matrix, clipStack, clip, this->getOrigin());
 }
 
 void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
@@ -321,7 +316,7 @@ void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
 
     this->INHERITED::gainFocus(canvas, matrix, clip, clipStack);
 
-    convert_matrixclip(fContext, matrix, clipStack, clip);
+    convert_matrixclip(fContext, matrix, clipStack, clip, this->getOrigin());
 
     if (fNeedClear) {
         fContext->eraseColor(0x0);

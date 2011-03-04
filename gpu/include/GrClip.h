@@ -28,7 +28,11 @@ class GrClip {
 public:
     GrClip();
     GrClip(const GrClip& src);
-    GrClip(GrClipIterator* iter, const GrRect* bounds = NULL);
+    /**
+     *  If specified, the bounds parameter already takes (tx,ty) into account.
+     */
+    GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
+           const GrRect* bounds = NULL);
     GrClip(const GrIRect& rect);
     GrClip(const GrRect& rect);
 
@@ -77,7 +81,12 @@ public:
      *  Resets this clip to be empty
      */
     void setEmpty();
-    void setFromIterator(GrClipIterator* iter, const GrRect* bounds = NULL);
+
+    /**
+     *  If specified, the bounds parameter already takes (tx,ty) into account.
+     */
+    void setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
+                         const GrRect* bounds = NULL);
     void setFromRect(const GrRect& rect);
     void setFromIRect(const GrIRect& rect);
 

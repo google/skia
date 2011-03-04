@@ -81,6 +81,13 @@ public:
     /** Return the height of the device (in pixels).
     */
     virtual int height() const { return fBitmap.height(); }
+
+    /**
+     *  Return the device's origin: its offset in device coordinates from
+     *  the default origin in its canvas' matrix/clip
+     */
+    const SkIPoint& getOrigin() const { return fOrigin; }
+
     /** Return the bitmap config of the device's pixels
     */
     SkBitmap::Config config() const { return fBitmap.getConfig(); }
@@ -217,9 +224,14 @@ protected:
     }
 
 private:
+    friend class SkCanvas;
+    // just called by SkCanvas when built as a layer
+    void setOrigin(int x, int y) { fOrigin.set(x, y); }
+
     SkCanvas*   fCanvas;
     SkBitmap    fBitmap;
     SkRefDict   fRefDict;
+    SkIPoint    fOrigin;
 };
 
 #endif
