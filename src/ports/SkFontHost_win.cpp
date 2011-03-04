@@ -549,6 +549,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
         goto Error;
     }
+    const unsigned glyphCount = calculateGlyphCount(hdc);
 
     info = new SkAdvancedTypefaceMetrics;
 #ifdef UNICODE
@@ -573,7 +574,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     }
     info->fEmSize = otm.otmEMSquare;
     info->fMultiMaster = false;
-    info->fLastGlyphID = 0;
+    info->fLastGlyphID = SkToU16(glyphCount - 1);
 
     info->fStyle = 0;
     // If this bit is clear the font is a fixed pitch font.
@@ -627,16 +628,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
     } else if (perGlyphInfo) {
         info->fGlyphWidths.reset(
-            getAdvanceData(hdc, SHRT_MAX, &getWidthAdvance));
-
-        // Obtain the last glyph index.
-        SkAdvancedTypefaceMetrics::WidthRange* last = info->fGlyphWidths.get();
-        if (last) {
-            while (last->fNext.get()) {
-                last = last->fNext.get();
-            }
-            info->fLastGlyphID = last->fEndId;
-        }
+            getAdvanceData(hdc, glyphCount, &getWidthAdvance));
     }
 
 Error:
