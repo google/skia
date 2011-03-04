@@ -176,18 +176,8 @@ private:
 
     void updateGSFromPaint(const SkPaint& newPaint, bool forText);
     void updateFont(const SkPaint& paint, uint16_t glyphID);
-    int getFontResourceIndex(uint32_t fontID, uint16_t glyphID);
+    int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
-    void moveTo(SkScalar x, SkScalar y);
-    void appendLine(SkScalar x, SkScalar y);
-    void appendCubic(SkScalar ctl1X, SkScalar ctl1Y,
-                     SkScalar ctl2X, SkScalar ctl2Y,
-                     SkScalar dstX, SkScalar dstY);
-    void appendRectangle(SkScalar x, SkScalar y, SkScalar w, SkScalar h);
-    void emitPath(const SkPath& path);
-    void closePath();
-    void paintPath(SkPaint::Style style, SkPath::FillType fill);
-    void strokePath();
     void pushGS();
     void popGS();
     void setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX);

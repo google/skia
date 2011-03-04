@@ -552,6 +552,10 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     const unsigned glyphCount = calculateGlyphCount(hdc);
 
     info = new SkAdvancedTypefaceMetrics;
+    info->fEmSize = otm.otmEMSquare;
+    info->fMultiMaster = false;
+    info->fLastGlyphID = SkToU16(glyphCount - 1);
+    info->fStyle = 0;
 #ifdef UNICODE
     // Get the buffer size needed first.
     size_t str_len = WideCharToMultiByte(CP_UTF8, 0, lf.lfFaceName, -1, NULL,
@@ -571,12 +575,15 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
     } else {
         info->fType = SkAdvancedTypefaceMetrics::kOther_Font;
+        info->fItalicAngle = 0;
+        info->fAscent = 0;
+        info->fDescent = 0;
+        info->fStemV = 0;
+        info->fCapHeight = 0;
+        info->fBBox = SkIRect::MakeEmpty();
+        return info;
     }
-    info->fEmSize = otm.otmEMSquare;
-    info->fMultiMaster = false;
-    info->fLastGlyphID = SkToU16(glyphCount - 1);
-
-    info->fStyle = 0;
+    
     // If this bit is clear the font is a fixed pitch font.
     if (!(otm.otmTextMetrics.tmPitchAndFamily & TMPF_FIXED_PITCH)) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;

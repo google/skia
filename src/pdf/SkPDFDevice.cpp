@@ -26,19 +26,12 @@
 #include "SkPDFFormXObject.h"
 #include "SkPDFTypes.h"
 #include "SkPDFStream.h"
+#include "SkPDFUtils.h"
 #include "SkRect.h"
 #include "SkString.h"
 #include "SkTextFormatParams.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
-
-#define NOT_IMPLEMENTED(condition, assert)                         \
-    do {                                                           \
-        if (condition) {                                           \
-            fprintf(stderr, "NOT_IMPLEMENTED: " #condition "\n");  \
-            SkDEBUGCODE(SkASSERT(!assert);)                        \
-        }                                                          \
-    } while(0)
 
 // Utility functions
 
@@ -171,7 +164,7 @@ void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
 
         SkPath clipPath;
         if (region.getBoundaryPath(&clipPath)) {
-            emitPath(clipPath);
+            SkPDFUtils::EmitPath(clipPath, &fContent);
 
             SkPath::FillType clipFill = clipPath.getFillType();
             NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType,
@@ -212,25 +205,28 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
     switch (mode) {
         case SkCanvas::kPolygon_PointMode:
             updateGSFromPaint(paint, false);
-            moveTo(points[0].fX, points[0].fY);
-            for (size_t i = 1; i < count; i++)
-                appendLine(points[i].fX, points[i].fY);
-            strokePath();
+            SkPDFUtils::MoveTo(points[0].fX, points[0].fY, &fContent);
+            for (size_t i = 1; i < count; i++) {
+                SkPDFUtils::AppendLine(points[i].fX, points[i].fY, &fContent);
+            }
+            SkPDFUtils::StrokePath(&fContent);
             break;
         case SkCanvas::kLines_PointMode:
             updateGSFromPaint(paint, false);
             for (size_t i = 0; i < count/2; i++) {
-                moveTo(points[i * 2].fX, points[i * 2].fY);
-                appendLine(points[i * 2 + 1].fX, points[i * 2 + 1].fY);
-                strokePath();
+                SkPDFUtils::MoveTo(points[i * 2].fX, points[i * 2].fY,
+                                   &fContent);
+                SkPDFUtils::AppendLine(points[i * 2 + 1].fX,
+                                       points[i * 2 + 1].fY, &fContent);
+                SkPDFUtils::StrokePath(&fContent);
             }
             break;
         case SkCanvas::kPoints_PointMode:
             if (paint.getStrokeCap() == SkPaint::kRound_Cap) {
                 updateGSFromPaint(paint, false);
                 for (size_t i = 0; i < count; i++) {
-                    moveTo(points[i].fX, points[i].fY);
-                    strokePath();
+                    SkPDFUtils::MoveTo(points[i].fX, points[i].fY, &fContent);
+                    SkPDFUtils::StrokePath(&fContent);
                 }
             } else {
                 // PDF won't draw a single point with square/butt caps because
@@ -269,8 +265,10 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
 
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
     SkScalar bottom = r.fBottom < r.fTop ? r.fBottom : r.fTop;
-    appendRectangle(r.fLeft, bottom, r.width(), r.height());
-    paintPath(paint.getStyle(), SkPath::kWinding_FillType);
+    SkPDFUtils::AppendRectangle(r.fLeft, bottom, r.width(), r.height(),
+                                &fContent);
+    SkPDFUtils::PaintPath(paint.getStyle(), SkPath::kWinding_FillType,
+                          &fContent);
 }
 
 void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
@@ -290,8 +288,8 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
     }
     updateGSFromPaint(paint, false);
 
-    emitPath(path);
-    paintPath(paint.getStyle(), path.getFillType());
+    SkPDFUtils::EmitPath(path, &fContent);
+    SkPDFUtils::PaintPath(paint.getStyle(), path.getFillType(), &fContent);
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
@@ -630,25 +628,23 @@ void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint, bool forText) {
 }
 
 void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID) {
-    uint32_t fontID = SkTypeface::UniqueID(paint.getTypeface());
+    SkTypeface* typeface = paint.getTypeface();
     if (fGraphicStack[fGraphicStackIndex].fTextSize != paint.getTextSize() ||
             fGraphicStack[fGraphicStackIndex].fFont == NULL ||
-            fGraphicStack[fGraphicStackIndex].fFont->fontID() != fontID ||
+            fGraphicStack[fGraphicStackIndex].fFont->typeface() != typeface ||
             !fGraphicStack[fGraphicStackIndex].fFont->hasGlyph(glyphID)) {
-        int fontIndex = getFontResourceIndex(fontID, glyphID);
+        int fontIndex = getFontResourceIndex(typeface, glyphID);
         fContent.append("/F");
         fContent.appendS32(fontIndex);
         fContent.append(" ");
         SkPDFScalar::Append(paint.getTextSize(), &fContent);
-        fContent.append(" Tf\n");
         fGraphicStack[fGraphicStackIndex].fTextSize = paint.getTextSize();
         fGraphicStack[fGraphicStackIndex].fFont = fFontResources[fontIndex];
     }
 }
 
-
-int SkPDFDevice::getFontResourceIndex(uint32_t fontID, uint16_t glyphID) {
-    SkRefPtr<SkPDFFont> newFont = SkPDFFont::getFontResource(fontID, glyphID);
+int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
+    SkRefPtr<SkPDFFont> newFont = SkPDFFont::getFontResource(typeface, glyphID);
     newFont->unref();  // getFontResource and SkRefPtr both took a ref.
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {
@@ -657,121 +653,6 @@ int SkPDFDevice::getFontResourceIndex(uint32_t fontID, uint16_t glyphID) {
         newFont->ref();
     }
     return resourceIndex;
-}
-
-void SkPDFDevice::moveTo(SkScalar x, SkScalar y) {
-    SkPDFScalar::Append(x, &fContent);
-    fContent.append(" ");
-    SkPDFScalar::Append(y, &fContent);
-    fContent.append(" m\n");
-}
-
-void SkPDFDevice::appendLine(SkScalar x, SkScalar y) {
-    SkPDFScalar::Append(x, &fContent);
-    fContent.append(" ");
-    SkPDFScalar::Append(y, &fContent);
-    fContent.append(" l\n");
-}
-
-void SkPDFDevice::appendCubic(SkScalar ctl1X, SkScalar ctl1Y,
-                              SkScalar ctl2X, SkScalar ctl2Y,
-                              SkScalar dstX, SkScalar dstY) {
-    SkString cmd("y\n");
-    SkPDFScalar::Append(ctl1X, &fContent);
-    fContent.append(" ");
-    SkPDFScalar::Append(ctl1Y, &fContent);
-    fContent.append(" ");
-    if (ctl2X != dstX || ctl2Y != dstY) {
-        cmd.set("c\n");
-        SkPDFScalar::Append(ctl2X, &fContent);
-        fContent.append(" ");
-        SkPDFScalar::Append(ctl2Y, &fContent);
-        fContent.append(" ");
-    }
-    SkPDFScalar::Append(dstX, &fContent);
-    fContent.append(" ");
-    SkPDFScalar::Append(dstY, &fContent);
-    fContent.append(" ");
-    fContent.append(cmd);
-}
-
-void SkPDFDevice::appendRectangle(SkScalar x, SkScalar y,
-                                  SkScalar w, SkScalar h) {
-    SkPDFScalar::Append(x, &fContent);
-    fContent.append(" ");
-    SkPDFScalar::Append(y, &fContent);
-    fContent.append(" ");
-    SkPDFScalar::Append(w, &fContent);
-    fContent.append(" ");
-    SkPDFScalar::Append(h, &fContent);
-    fContent.append(" re\n");
-}
-
-void SkPDFDevice::emitPath(const SkPath& path) {
-    SkPoint args[4];
-    SkPath::Iter iter(path, false);
-    for (SkPath::Verb verb = iter.next(args);
-         verb != SkPath::kDone_Verb;
-         verb = iter.next(args)) {
-        // args gets all the points, even the implicit first point.
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                moveTo(args[0].fX, args[0].fY);
-                break;
-            case SkPath::kLine_Verb:
-                appendLine(args[1].fX, args[1].fY);
-                break;
-            case SkPath::kQuad_Verb: {
-                // Convert quad to cubic (degree elevation). http://goo.gl/vS4i
-                const SkScalar three = SkIntToScalar(3);
-                args[1].scale(SkIntToScalar(2));
-                SkScalar ctl1X = SkScalarDiv(args[0].fX + args[1].fX, three);
-                SkScalar ctl1Y = SkScalarDiv(args[0].fY + args[1].fY, three);
-                SkScalar ctl2X = SkScalarDiv(args[2].fX + args[1].fX, three);
-                SkScalar ctl2Y = SkScalarDiv(args[2].fY + args[1].fY, three);
-                appendCubic(ctl1X, ctl1Y, ctl2X, ctl2Y, args[2].fX, args[2].fY);
-                break;
-            }
-            case SkPath::kCubic_Verb:
-                appendCubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
-                            args[3].fX, args[3].fY);
-                break;
-            case SkPath::kClose_Verb:
-                closePath();
-                break;
-            case SkPath::kDone_Verb:
-                break;
-            default:
-                SkASSERT(false);
-                break;
-        }
-    }
-}
-
-void SkPDFDevice::closePath() {
-    fContent.append("h\n");
-}
-
-void SkPDFDevice::paintPath(SkPaint::Style style, SkPath::FillType fill) {
-    if (style == SkPaint::kFill_Style)
-        fContent.append("f");
-    else if (style == SkPaint::kStrokeAndFill_Style)
-        fContent.append("B");
-    else if (style == SkPaint::kStroke_Style)
-        fContent.append("S");
-
-    if (style != SkPaint::kStroke_Style) {
-        // Not supported yet.
-        NOT_IMPLEMENTED(fill == SkPath::kInverseEvenOdd_FillType, false);
-        NOT_IMPLEMENTED(fill == SkPath::kInverseWinding_FillType, false);
-        if (fill == SkPath::kEvenOdd_FillType)
-            fContent.append("*");
-    }
-    fContent.append("\n");
-}
-
-void SkPDFDevice::strokePath() {
-    paintPath(SkPaint::kStroke_Style, SkPath::kWinding_FillType);
 }
 
 void SkPDFDevice::pushGS() {
