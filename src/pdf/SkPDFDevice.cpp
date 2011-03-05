@@ -638,6 +638,7 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID) {
         fContent.appendS32(fontIndex);
         fContent.append(" ");
         SkPDFScalar::Append(paint.getTextSize(), &fContent);
+        fContent.append(" Tf\n");
         fGraphicStack[fGraphicStackIndex].fTextSize = paint.getTextSize();
         fGraphicStack[fGraphicStackIndex].fFont = fFontResources[fontIndex];
     }
