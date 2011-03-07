@@ -173,12 +173,12 @@ void GrPath::resetFromIter(GrPathIter* iter) {
 
     // counts number of sub path pts that didn't add a degenerate edge.
     int subPathPts = 0;
+    bool subPathClosed = false;
 
     int numSubPaths = 0;
     iter->rewind();
     GrPathCmd cmd;
     GrPoint pts[4];
-    bool subPathClosed;
     do {
         cmd = iter->next(pts);
         // If the convexity test is ever updated to handle multiple subpaths
