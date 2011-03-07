@@ -2,16 +2,16 @@
 **
 ** Copyright 2006, The Android Open Source Project
 **
-** Licensed under the Apache License, Version 2.0 (the "License"); 
-** you may not use this file except in compliance with the License. 
-** You may obtain a copy of the License at 
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
 **
-**     http://www.apache.org/licenses/LICENSE-2.0 
+**     http://www.apache.org/licenses/LICENSE-2.0
 **
-** Unless required by applicable law or agreed to in writing, software 
-** distributed under the License is distributed on an "AS IS" BASIS, 
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-** See the License for the specific language governing permissions and 
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
 ** limitations under the License.
 */
 
@@ -120,7 +120,7 @@ void SkShader::shadeSpan16(int x, int y, uint16_t span16[], int count) {
 }
 
 #define kTempColorQuadCount 6   // balance between speed (larger) and saving stack-space
-#define kTempColorCount     (kTempColorQuadCount << 2)  
+#define kTempColorCount     (kTempColorQuadCount << 2)
 
 #ifdef SK_CPU_BENDIAN
     #define SkU32BitShiftToByteOffset(shift)    (3 - ((shift) >> 3))
@@ -198,7 +198,7 @@ SkShader::MatrixClass SkShader::ComputeMatrixClass(const SkMatrix& mat) {
 //////////////////////////////////////////////////////////////////////////////
 
 SkShader::BitmapType SkShader::asABitmap(SkBitmap*, SkMatrix*,
-                                         TileMode*, SkScalar*) {
+                                         TileMode*, SkScalar*) const {
     return kNone_BitmapType;
 }
 
@@ -311,7 +311,7 @@ void SkColorShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
 
 // if we had a asAColor method, that would be more efficient...
 SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
-                                              TileMode modes[], 
+                                              TileMode modes[],
                                               SkScalar* twoPointRadialParams) {
     // we cache the pixelref, since its generateID is used in the texture cache
     if (NULL == fAsABitmapPixelRef) {
@@ -320,7 +320,7 @@ SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix
         fAsABitmapPixelRef = new SkMallocPixelRef(storage, sizeof(SkPMColor),
                                                   NULL);
     }
-        
+
     if (bitmap) {
         bitmap->setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
         bitmap->setPixelRef(fAsABitmapPixelRef);
