@@ -191,7 +191,8 @@ void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
     newPaint.setStyle(SkPaint::kFill_Style);
     updateGSFromPaint(newPaint, false);
 
-    SkRect all = SkRect::MakeWH(width() + 1, height() + 1);
+    SkRect all = SkRect::MakeWH(SkIntToScalar(this->width()),
+                                SkIntToScalar(this->height()));
     drawRect(d, all, newPaint);
     setTransform(curTransform);
 }
@@ -303,7 +304,7 @@ void SkPDFDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
 void SkPDFDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
                              int x, int y, const SkPaint& paint) {
     SkMatrix matrix;
-    matrix.setTranslate(x, y);
+    matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
     internalDrawBitmap(matrix, bitmap, NULL, paint);
 }
 
@@ -444,7 +445,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
 
     SkMatrix matrix;
-    matrix.setTranslate(x, y);
+    matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
     SkMatrix curTransform = setTransform(matrix);
     updateGSFromPaint(paint, false);
 
@@ -698,7 +699,8 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
     scaled.setScale(1, -1);
     scaled.postTranslate(0, 1);
     // Scale the image up from 1x1 to WxH.
-    scaled.postScale(subset.width(), subset.height());
+    scaled.postScale(SkIntToScalar(subset.width()),
+                     SkIntToScalar(subset.height()));
     scaled.postConcat(matrix);
     SkMatrix curTransform = setTransform(scaled);
     updateGSFromPaint(paint, false);
