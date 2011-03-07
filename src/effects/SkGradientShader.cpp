@@ -123,12 +123,10 @@ protected:
         kCache32Count   = 1 << kCache32Bits
     };
     virtual void flatten(SkFlattenableWriteBuffer& );
-    const uint16_t*     getCache16();
-    const SkPMColor*    getCache32();
+    const uint16_t*     getCache16() const;
+    const SkPMColor*    getCache32() const;
 
-    SkMallocPixelRef* fCache32PixelRef;
-
-    void commonAsABitmap(SkBitmap*);
+    void commonAsABitmap(SkBitmap*) const;
     void commonAsAGradient(GradientInfo*) const;
 
 private:
@@ -140,10 +138,11 @@ private:
     SkColor     fStorage[(kStorageSize + 3) >> 2];
     SkColor*    fOrigColors;
 
-    uint16_t*   fCache16;   // working ptr. If this is NULL, we need to recompute the cache values
-    SkPMColor*  fCache32;   // working ptr. If this is NULL, we need to recompute the cache values
+    mutable uint16_t*   fCache16;   // working ptr. If this is NULL, we need to recompute the cache values
+    mutable SkPMColor*  fCache32;   // working ptr. If this is NULL, we need to recompute the cache values
 
-    uint16_t*   fCache16Storage;    // storage for fCache16, allocated on demand
+    mutable uint16_t*   fCache16Storage;    // storage for fCache16, allocated on demand
+    mutable SkMallocPixelRef* fCache32PixelRef;
     unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
 
     static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
@@ -536,7 +535,7 @@ static inline U16CPU bitsTo16(unsigned x, const unsigned bits) {
     return 0;
 }
 
-const uint16_t* Gradient_Shader::getCache16() {
+const uint16_t* Gradient_Shader::getCache16() const {
     if (fCache16 == NULL) {
         // double the count for dither entries
         const int entryCount = kCache16Count * 2;
@@ -579,7 +578,7 @@ const uint16_t* Gradient_Shader::getCache16() {
     return fCache16;
 }
 
-const SkPMColor* Gradient_Shader::getCache32() {
+const SkPMColor* Gradient_Shader::getCache32() const {
     if (fCache32 == NULL) {
         // double the count for dither entries
         const int entryCount = kCache32Count * 2;
@@ -636,7 +635,7 @@ const SkPMColor* Gradient_Shader::getCache32() {
  *  colors and positions. Note: we don't try to flatten the fMapper, so if one
  *  is present, we skip the cache for now.
  */
-void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) {
+void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) const {
     // don't have a way to put the mapper into our cache-key yet
     if (fMapper) {
         // force our cahce32pixelref to be built
@@ -741,7 +740,7 @@ public:
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count);
     virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count);
     virtual BitmapType asABitmap(SkBitmap*, SkMatrix*,
-                                 TileMode*, SkScalar* twoPointRadialParams);
+                             TileMode*, SkScalar* twoPointRadialParams) const;
     virtual GradientType asAGradient(GradientInfo* info) const;
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
@@ -875,7 +874,7 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count)
 SkShader::BitmapType Linear_Gradient::asABitmap(SkBitmap* bitmap,
                                                 SkMatrix* matrix,
                                                 TileMode xy[],
-                                                SkScalar* twoPointRadialParams) {
+                                        SkScalar* twoPointRadialParams) const {
     if (bitmap) {
         this->commonAsABitmap(bitmap);
     }
@@ -1236,7 +1235,7 @@ public:
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
                                  TileMode* xy,
-                                 SkScalar* twoPointRadialParams) {
+                                 SkScalar* twoPointRadialParams) const {
         if (bitmap) {
             this->commonAsABitmap(bitmap);
         }
@@ -1388,7 +1387,7 @@ public:
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
                                  TileMode* xy,
-                                 SkScalar* twoPointRadialParams) {
+                                 SkScalar* twoPointRadialParams) const {
         if (bitmap) {
             this->commonAsABitmap(bitmap);
         }
@@ -1604,7 +1603,7 @@ public:
     virtual BitmapType asABitmap(SkBitmap* bitmap,
                                  SkMatrix* matrix,
                                  TileMode* xy,
-                                 SkScalar* twoPointRadialParams) {
+                                 SkScalar* twoPointRadialParams) const {
         if (bitmap) {
             this->commonAsABitmap(bitmap);
         }

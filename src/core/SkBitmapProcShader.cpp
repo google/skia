@@ -44,10 +44,10 @@ void SkBitmapProcShader::endSession() {
     this->INHERITED::endSession();
 }
 
-SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture, 
-                                                   SkMatrix* texM, 
+SkShader::BitmapType SkBitmapProcShader::asABitmap(SkBitmap* texture,
+                                                   SkMatrix* texM,
                                                    TileMode xy[],
-                                                   SkScalar* twoPointRadialParams) {
+                                       SkScalar* twoPointRadialParams) const {
     if (texture) {
         *texture = fRawBitmap;
     }
@@ -95,7 +95,7 @@ bool SkBitmapProcShader::setContext(const SkBitmap& device,
 
     const SkBitmap& bitmap = *fState.fBitmap;
     bool bitmapIsOpaque = bitmap.isOpaque();
-    
+
     // update fFlags
     uint32_t flags = 0;
     if (bitmapIsOpaque && (255 == this->getPaintAlpha())) {
@@ -182,7 +182,7 @@ void SkBitmapProcShader::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
         }
 #endif
         sproc(state, buffer, n, dstC);
-        
+
         if ((count -= n) == 0) {
             break;
         }
@@ -198,7 +198,7 @@ void SkBitmapProcShader::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
         state.fShaderProc16(state, x, y, dstC, count);
         return;
     }
-    
+
     uint32_t buffer[BUF_MAX];
     SkBitmapProcState::MatrixProc   mproc = state.fMatrixProc;
     SkBitmapProcState::SampleProc16 sproc = state.fSampleProc16;
@@ -215,7 +215,7 @@ void SkBitmapProcShader::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
         }
         mproc(state, buffer, n, x, y);
         sproc(state, buffer, n, dstC);
-        
+
         if ((count -= n) == 0) {
             break;
         }
@@ -287,7 +287,7 @@ bool SkBitmapProcShader::toDumpString(SkString* str) const {
     str->printf("BitmapShader: [%d %d %d",
                 fRawBitmap.width(), fRawBitmap.height(),
                 fRawBitmap.bytesPerPixel());
-    
+
     // add the pixelref
     SkPixelRef* pr = fRawBitmap.pixelRef();
     if (pr) {
@@ -296,7 +296,7 @@ bool SkBitmapProcShader::toDumpString(SkString* str) const {
             str->appendf(" \"%s\"", uri);
         }
     }
-    
+
     // add the (optional) matrix
     {
         SkMatrix m;
@@ -306,7 +306,7 @@ bool SkBitmapProcShader::toDumpString(SkString* str) const {
             str->appendf(" %s", info.c_str());
         }
     }
-    
+
     str->appendf(" [%s %s]]",
                  gTileModeName[fState.fTileModeX],
                  gTileModeName[fState.fTileModeY]);
