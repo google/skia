@@ -147,32 +147,18 @@ public:
         return *this;
     }
 
-    bool operator==(const SkRefPtr& rp) const { return fObj == rp.fObj; }
-    bool operator==(const T* obj) const { return fObj == obj; }
-    bool operator!=(const SkRefPtr& rp) const { return fObj != rp.fObj; }
-    bool operator!=(const T* obj) const { return fObj != obj; }
-
     T* get() const { return fObj; }
     T& operator*() const { return *fObj; }
     T* operator->() const { return fObj; }
-    bool operator!() const { return !fObj; }
 
     typedef T* SkRefPtr::*unspecified_bool_type;
-    operator unspecified_bool_type() const { return fObj ? &SkRefPtr::fObj : NULL; }
+    operator unspecified_bool_type() const {
+        return fObj ? &SkRefPtr::fObj : NULL;
+    }
 
 private:
     T* fObj;
 };
-
-template <typename T>
-inline bool operator==(T* obj, const SkRefPtr<T>& rp) {
-    return obj == rp.get();
-}
-
-template <typename T>
-inline bool operator!=(T* obj, const SkRefPtr<T>& rp) {
-    return obj != rp.get();
-}
 
 #endif
 
