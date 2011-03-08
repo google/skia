@@ -93,7 +93,6 @@
     <ClInclude Include="..\..\gpu\include\FlingState.h" />
     <ClInclude Include="..\..\gpu\include\GrAllocator.h" />
     <ClInclude Include="..\..\gpu\include\GrAllocPool.h" />
-    <ClInclude Include="..\..\gpu\include\GrAPI.h" />
     <ClInclude Include="..\..\gpu\include\GrAtlas.h" />
     <ClInclude Include="..\..\gpu\include\GrClip.h" />
     <ClInclude Include="..\..\gpu\include\GrClipIterator.h" />
@@ -155,7 +154,7 @@
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h" />
     <ClInclude Include="..\..\gpu\src\GrPathRenderer.h" />
-    <ClInclude Include="..\..\gpu\src\GrQuadIndexTable.h" />
+    <ClInclude Include="..\..\gpu\src\GrRedBlackTree.h" />
     <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h" />
     <ClInclude Include="..\..\include\gpu\SkGpuCanvas.h" />
     <ClInclude Include="..\..\include\gpu\SkGpuDevice.h" />
