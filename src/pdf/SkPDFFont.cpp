@@ -195,7 +195,7 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
         const uint8_t* hexData = src + *headerLen;
         const uint8_t* trailer = hexData + hexDataLen;
         size_t outputOffset = 0;
-        uint8_t dataByte;
+        uint8_t dataByte = 0;  // To hush compiler.
         bool highNibble = true;
         for (; hexData < trailer; hexData++) {
             char curNibble = hexToBin(*hexData);
