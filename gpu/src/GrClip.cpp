@@ -19,8 +19,8 @@
 
 GrClip::GrClip()
     : fList(fListMemory, kPreAllocElements) {
-    fBounds.setEmpty();
-    fBoundsValid = true;
+    fConservativeBounds.setEmpty();
+    fConservativeBoundsValid = true;
 }
 
 GrClip::GrClip(const GrClip& src)
@@ -48,15 +48,15 @@ GrClip::~GrClip() {}
 
 GrClip& GrClip::operator=(const GrClip& src) {
     fList = src.fList;
-    fBounds = src.fBounds;
-    fBoundsValid = src.fBoundsValid;
+    fConservativeBounds = src.fConservativeBounds;
+    fConservativeBoundsValid = src.fConservativeBoundsValid;
     return *this;
 }
 
 void GrClip::setEmpty() {
     fList.reset();
-    fBounds.setEmpty();
-    fBoundsValid = true;
+    fConservativeBounds.setEmpty();
+    fConservativeBoundsValid = true;
 }
 
 void GrClip::setFromRect(const GrRect& r) {
@@ -68,8 +68,8 @@ void GrClip::setFromRect(const GrRect& r) {
         fList.push_back();
         fList.back().fRect = r;
         fList.back().fType = kRect_ClipType;
-        fBounds = r;
-        fBoundsValid = true;
+        fConservativeBounds = r;
+        fConservativeBoundsValid = true;
     }
 }
 
@@ -82,13 +82,13 @@ void GrClip::setFromIRect(const GrIRect& r) {
         fList.push_back();
         fList.back().fRect.set(r);
         fList.back().fType = kRect_ClipType;
-        fBounds.set(r);
-        fBoundsValid = true;
+        fConservativeBounds.set(r);
+        fConservativeBoundsValid = true;
     }
 }
 
 void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-                             const GrRect* bounds) {
+                             const GrRect* conservativeBounds) {
     fList.reset();
 
     int rectCount = 0;
@@ -138,18 +138,16 @@ void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
             }
         }
     }
-    fBoundsValid = false;
-    if (NULL == bounds) {
-        if (isectRectValid) {
-            fBoundsValid = true;
-            if (rectCount > 0) {
-                fBounds = fList[0].fRect;
-            } else {
-                fBounds.setEmpty();
-            }
+    fConservativeBoundsValid = false;
+    if (isectRectValid) {
+        fConservativeBoundsValid = true;
+        if (rectCount > 0) {
+            fConservativeBounds = fList[0].fRect;
+        } else {
+            fConservativeBounds.setEmpty();
         }
-    } else {
-        fBounds = *bounds;
-        fBoundsValid = true;
+    } else if (NULL != conservativeBounds) {
+        fConservativeBounds = *conservativeBounds;
+        fConservativeBoundsValid = true;
     }
 }
