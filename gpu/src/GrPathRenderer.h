@@ -23,7 +23,7 @@ class GrPathIter;
 struct GrPoint;
 
 /**
- * A path renderer.
+ *  Base class for drawing paths into a GrDrawTarget.
  */
 class GrPathRenderer {
 public:
@@ -74,18 +74,18 @@ public:
      *         clips.
      */
     virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     GrPathIter* path, 
+                                     GrPathIter* path,
                                      GrPathFill fill) const { return false; }
-    
+
     bool requiresStencilPass(const GrDrawTarget* target,
-                             const GrPath& path, 
-                             GrPathFill fill) const { 
+                             const GrPath& path,
+                             GrPathFill fill) const {
         GrPath::Iter iter(path);
         return requiresStencilPass(target, &iter, fill);
     }
 
     /**
-     * Draws a path to the stencil buffer. Assume the writable stencil bits 
+     * Draws a path to the stencil buffer. Assume the writable stencil bits
      * are already initialized to zero. Fill will always be either
      * kWinding_PathFill or kEvenOdd_PathFill.
      *
@@ -118,6 +118,10 @@ public:
     }
 };
 
+/**
+ *  Subclass that renders the path using the stencil buffer to resolve fill
+ *  rules (e.g. winding, even-odd)
+ */
 class GrDefaultPathRenderer : public GrPathRenderer {
 public:
     GrDefaultPathRenderer(bool separateStencilSupport,
@@ -129,7 +133,7 @@ public:
                           GrPathFill fill,
                           const GrPoint* translate);
     virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     GrPathIter* path, 
+                                     GrPathIter* path,
                                      GrPathFill fill) const;
     virtual void drawPathToStencil(GrDrawTarget* target,
                                    GrPathIter* path,
