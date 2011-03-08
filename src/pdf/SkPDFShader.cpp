@@ -1,0 +1,768 @@
+/*
+ * Copyright (C) 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "SkPDFShader.h"
+
+#include "SkCanvas.h"
+#include "SkPDFCatalog.h"
+#include "SkPDFDevice.h"
+#include "SkPDFTypes.h"
+#include "SkPDFUtils.h"
+#include "SkScalar.h"
+#include "SkStream.h"
+#include "SkThread.h"
+#include "SkTypes.h"
+
+static void transformBBox(const SkMatrix& matrix, SkRect* bbox) {
+    SkMatrix inverse;
+    inverse.reset();
+    matrix.invert(&inverse);
+    inverse.mapRect(bbox);
+}
+
+static void unitToPointsMatrix(const SkPoint pts[2], SkMatrix* matrix) {
+    SkVector    vec = pts[1] - pts[0];
+    SkScalar    mag = vec.length();
+    SkScalar    inv = mag ? SkScalarInvert(mag) : 0;
+
+    vec.scale(inv);
+    matrix->setSinCos(vec.fY, vec.fX);
+    matrix->preTranslate(pts[0].fX, pts[0].fY);
+    matrix->preScale(mag, mag);
+}
+
+/* Assumes t + startOffset is on the stack and does a linear interpolation on t
+   between startOffset and endOffset from prevColor to curColor (for each color
+   component), leaving the result in component order on the stack.
+   @param range                  endOffset - startOffset
+   @param curColor[components]   The current color components.
+   @param prevColor[components]  The previous color components.
+   @param result                 The result ps function.
+ */
+static void interpolateColorCode(SkScalar range, SkScalar* curColor,
+                                 SkScalar* prevColor, int components,
+                                 SkString* result) {
+    // Figure out how to scale each color component.
+    SkScalar multiplier[components];
+    for (int i = 0; i < components; i++) {
+        multiplier[i] = SkScalarDiv(curColor[i] - prevColor[i], range);
+    }
+
+    // Calculate when we no longer need to keep a copy of the input parameter t.
+    // If the last component to use t is i, then dupInput[0..i - 1] = true
+    // and dupInput[i .. components] = false.
+    bool dupInput[components];
+    dupInput[components - 1] = false;
+    for (int i = components - 2; i >= 0; i--) {
+        dupInput[i] = dupInput[i + 1] || multiplier[i + 1] != 0;
+    }
+
+    if (!dupInput[0] && multiplier[0] == 0) {
+        result->append("pop ");
+    }
+
+    for (int i = 0; i < components; i++) {
+        // If the next components needs t, make a copy.
+        if (dupInput[i]) {
+            result->append("dup ");
+        }
+
+        if (multiplier[i] == 0) {
+            result->appendScalar(prevColor[i]);
+            result->append(" ");
+        } else {
+            if (multiplier[i] != 1) {
+                result->appendScalar(multiplier[i]);
+                result->append(" mul ");
+            }
+            if (prevColor[i] != 0) {
+                result->appendScalar(prevColor[i]);
+                result->append(" add ");
+            }
+        }
+
+        if (dupInput[i]) {
+            result->append("exch\n");
+        }
+    }
+}
+
+/* Generate Type 4 function code to map t=[0,1) to the passed gradient,
+   clamping at the edges of the range.  The generated code will be of the form:
+       if (t < 0) {
+           return colorData[0][r,g,b];
+       } else {
+           if (t < info.fColorOffsets[1]) {
+               return linearinterpolation(colorData[0][r,g,b],
+                                          colorData[1][r,g,b]);
+           } else {
+               if (t < info.fColorOffsets[2]) {
+                   return linearinterpolation(colorData[1][r,g,b],
+                                              colorData[2][r,g,b]);
+               } else {
+
+                ...    } else {
+                           return colorData[info.fColorCount - 1][r,g,b];
+                       }
+                ...
+           }
+       }
+ */
+static void gradientFunctionCode(const SkShader::GradientInfo& info,
+                                 SkString* result) {
+    /* We want to linearly interpolate from the previous color to the next.
+       Scale the colors from 0..255 to 0..1 and determine the multipliers
+       for interpolation.
+       C{r,g,b}(t, section) = t - offset_(section-1) + t * Multiplier{r,g,b}.
+     */
+    static const int kColorComponents = 3;
+    SkScalar colorData[info.fColorCount][kColorComponents];
+
+    const SkScalar scale = SkScalarInvert(SkIntToScalar(255));
+    for (int i = 0; i < info.fColorCount; i++) {
+        colorData[i][0] = SkScalarMul(SkColorGetR(info.fColors[i]), scale);
+        colorData[i][1] = SkScalarMul(SkColorGetG(info.fColors[i]), scale);
+        colorData[i][2] = SkScalarMul(SkColorGetB(info.fColors[i]), scale);
+    }
+
+    // Clamp the initial color.
+    result->append("dup 0 le {pop ");
+    result->appendScalar(colorData[0][0]);
+    result->append(" ");
+    result->appendScalar(colorData[0][1]);
+    result->append(" ");
+    result->appendScalar(colorData[0][2]);
+    result->append(" }\n");
+
+    // The gradient colors.
+    for (int i = 1 ; i < info.fColorCount; i++) {
+        result->append("{dup ");
+        result->appendScalar(info.fColorOffsets[i]);
+        result->append(" le {");
+        if (info.fColorOffsets[i - 1] != 0) {
+            result->appendScalar(info.fColorOffsets[i - 1]);
+            result->append(" sub\n");
+        }
+
+        interpolateColorCode(info.fColorOffsets[i] - info.fColorOffsets[i - 1],
+                             colorData[i], colorData[i - 1], kColorComponents,
+                             result);
+        result->append("}\n");
+    }
+
+    // Clamp the final color.
+    result->append("{pop ");
+    result->appendScalar(colorData[info.fColorCount - 1][0]);
+    result->append(" ");
+    result->appendScalar(colorData[info.fColorCount - 1][1]);
+    result->append(" ");
+    result->appendScalar(colorData[info.fColorCount - 1][2]);
+
+    for (int i = 0 ; i < info.fColorCount; i++) {
+        result->append("} ifelse\n");
+    }
+}
+
+/* Map a value of t on the stack into [0, 1) for Repeat or Mirror tile mode. */
+static void tileModeCode(SkShader::TileMode mode, SkString* result) {
+    if (mode == SkShader::kRepeat_TileMode) {
+        result->append("dup truncate sub\n");  // Get the fractional part.
+        result->append("dup 0 le {1 add} if\n");  // Map (-1,0) => (0,1)
+        return;
+    }
+
+    if (mode == SkShader::kMirror_TileMode) {
+        // Map t mod 2 into [0, 1, 1, 0].
+        //               Code                     Stack
+        result->append("abs "                 // Map negative to positive.
+                       "dup "                 // t.s t.s
+                       "truncate "            // t.s t
+                       "dup "                 // t.s t t
+                       "cvi "                 // t.s t T
+                       "2 mod "               // t.s t (i mod 2)
+                       "1 eq "                // t.s t true|false
+                       "3 1 roll "            // true|false t.s t
+                       "sub "                 // true|false 0.s
+                       "exch "                // 0.s true|false
+                       "{1 exch sub} if\n");  // 1 - 0.s|0.s
+    }
+}
+
+static SkString linearCode(const SkShader::GradientInfo& info) {
+    SkString function("{pop\n"); // Just ditch the y value.
+    tileModeCode(info.fTileMode, &function);
+    gradientFunctionCode(info, &function);
+    function.append("}");
+    return function;
+}
+
+static SkString radialCode(const SkShader::GradientInfo& info) {
+    SkString function("{");
+    // Find the distance from the origin.
+    function.append("dup "      // x y y
+                    "mul "      // x y^2
+                    "exch "     // y^2 x
+                    "dup "      // y^2 x x
+                    "mul "      // y^2 x^2
+                    "add "      // y^2+x^2
+                    "sqrt\n");  // sqrt(y^2+x^2)
+
+    tileModeCode(info.fTileMode, &function);
+    gradientFunctionCode(info, &function);
+    function.append("}");
+    return function;
+}
+
+/* The math here is all based on the description in Two_Point_Radial_Gradient,
+   with one simplification, the coordinate space has been scaled so that
+   Dr = 1.  This means we don't need to scale the entire equation by 1/Dr^2.
+ */
+static SkString twoPointRadialCode(const SkShader::GradientInfo& info) {
+    SkScalar dx = info.fPoint[0].fX - info.fPoint[1].fX;
+    SkScalar dy = info.fPoint[0].fY - info.fPoint[1].fY;
+    SkScalar sr = info.fRadius[0];
+    SkScalar a = SkScalarMul(dx, dx) + SkScalarMul(dy, dy) - SK_Scalar1;
+    bool posRoot = info.fRadius[1] > info.fRadius[0];
+
+    // We start with a stack of (x y), copy it and then consume one copy in
+    // order to calculate b and the other to calculate c.
+    SkString function("{");
+    function.append("2 copy ");
+
+    // Calculate -b and b^2.
+    function.appendScalar(dy);
+    function.append(" mul exch ");
+    function.appendScalar(dx);
+    function.append(" mul add ");
+    function.appendScalar(sr);
+    function.append(" sub 2 mul neg dup dup mul\n");
+
+    // Calculate c
+    function.append("4 2 roll dup mul exch dup mul add ");
+    function.appendScalar(SkScalarMul(sr, sr));
+    function.append(" sub\n");
+
+    // Calculate the determinate
+    function.appendScalar(SkScalarMul(SkIntToScalar(4), a));
+    function.append(" mul sub abs sqrt\n");
+
+    // And then the final value of t.
+    if (posRoot) {
+        function.append("sub ");
+    } else {
+        function.append("add ");
+    }
+    function.appendScalar(SkScalarMul(SkIntToScalar(2), a));
+    function.append(" div\n");
+
+    tileModeCode(info.fTileMode, &function);
+    gradientFunctionCode(info, &function);
+    function.append("}");
+    return function;
+}
+
+static SkString sweepCode(const SkShader::GradientInfo& info) {
+    SkString function("{exch atan 360 div\n");
+    tileModeCode(info.fTileMode, &function);
+    gradientFunctionCode(info, &function);
+    function.append("}");
+    return function;
+}
+
+SkPDFShader::~SkPDFShader() {
+    SkAutoMutexAcquire lock(canonicalShadersMutex());
+    ShaderCanonicalEntry entry(this, fState.get());
+    int index = canonicalShaders().find(entry);
+    SkASSERT(index >= 0);
+    canonicalShaders().removeShuffle(index);
+    fResources.unrefAll();
+}
+
+void SkPDFShader::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
+                             bool indirect) {
+    if (indirect)
+        return emitIndirectObject(stream, catalog);
+
+    fContent->emitObject(stream, catalog, indirect);
+}
+
+size_t SkPDFShader::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
+    if (indirect)
+        return getIndirectOutputSize(catalog);
+
+    return fContent->getOutputSize(catalog, indirect);
+}
+
+void SkPDFShader::getResources(SkTDArray<SkPDFObject*>* resourceList) {
+    resourceList->setReserve(resourceList->count() + fResources.count());
+    for (int i = 0; i < fResources.count(); i++) {
+        resourceList->push(fResources[i]);
+        fResources[i]->ref();
+    }
+}
+
+// static
+SkPDFShader* SkPDFShader::getPDFShader(const SkShader& shader,
+                                       const SkMatrix& matrix,
+                                       const SkIRect& surfaceBBox) {
+    SkRefPtr<SkPDFShader> pdfShader;
+    SkAutoMutexAcquire lock(canonicalShadersMutex());
+    SkAutoTDelete<State> shaderState(new State(shader, matrix, surfaceBBox));
+
+    ShaderCanonicalEntry entry(NULL, shaderState.get());
+    int index = canonicalShaders().find(entry);
+    if (index >= 0) {
+        SkPDFShader* result = canonicalShaders()[index].fPDFShader;
+        result->ref();
+        return result;
+    }
+    // The PDFShader takes ownership of the shaderSate.
+    pdfShader = new SkPDFShader(shaderState.detach());
+    // Check for a valid shader.
+    if (pdfShader->fContent.get() == NULL) {
+        pdfShader->unref();
+        return NULL;
+    }
+    entry.fPDFShader = pdfShader.get();
+    canonicalShaders().push(entry);
+    return pdfShader.get();  // return the reference that came from new.
+}
+
+// static
+SkTDArray<SkPDFShader::ShaderCanonicalEntry>& SkPDFShader::canonicalShaders() {
+    // This initialization is only thread safe with gcc.
+    static SkTDArray<ShaderCanonicalEntry> gCanonicalShaders;
+    return gCanonicalShaders;
+}
+
+// static
+SkMutex& SkPDFShader::canonicalShadersMutex() {
+    // This initialization is only thread safe with gcc.
+    static SkMutex gCanonicalShadersMutex;
+    return gCanonicalShadersMutex;
+}
+
+// static
+SkPDFObject* SkPDFShader::rangeObject() {
+    // This initialization is only thread safe with gcc.
+    static SkPDFArray* range = NULL;
+    // This method is only used with canonicalShadersMutex, so it's safe to
+    // populate domain.
+    if (range == NULL) {
+        range = new SkPDFArray;
+        range->reserve(6);
+        range->append(new SkPDFInt(0))->unref();
+        range->append(new SkPDFInt(1))->unref();
+        range->append(new SkPDFInt(0))->unref();
+        range->append(new SkPDFInt(1))->unref();
+        range->append(new SkPDFInt(0))->unref();
+        range->append(new SkPDFInt(1))->unref();
+    }
+    return range;
+}
+
+SkPDFShader::SkPDFShader(State* state) : fState(state) {
+    if (fState.get()->fType == SkShader::kNone_GradientType) {
+        doImageShader();
+    } else {
+        doFunctionShader();
+    }
+}
+
+void SkPDFShader::doFunctionShader() {
+    SkString (*codeFunction)(const SkShader::GradientInfo& info) = NULL;
+    SkPoint transformPoints[2];
+
+    // Depending on the type of the gradient, we want to transform the
+    // coordinate space in different ways.
+    const SkShader::GradientInfo* info = &fState.get()->fInfo;
+    transformPoints[0] = info->fPoint[0];
+    transformPoints[1] = info->fPoint[1];
+    switch (fState.get()->fType) {
+        case SkShader::kLinear_GradientType:
+            codeFunction = &linearCode;
+            break;
+        case SkShader::kRadial_GradientType:
+            transformPoints[1] = transformPoints[0];
+            transformPoints[1].fX += info->fRadius[0];
+            codeFunction = &radialCode;
+            break;
+        case SkShader::kRadial2_GradientType: {
+            // Bail out if the radii are the same.  Not setting fContent will
+            // cause the higher level code to detect the resulting object
+            // as invalid.
+            if (info->fRadius[0] == info->fRadius[1]) {
+                return;
+            }
+            transformPoints[1] = transformPoints[0];
+            SkScalar dr = info->fRadius[1] - info->fRadius[0];
+            transformPoints[1].fX += dr;
+            codeFunction = &twoPointRadialCode;
+            break;
+        }
+        case SkShader::kSweep_GradientType:
+            transformPoints[1] = transformPoints[0];
+            transformPoints[1].fX += 1;
+            codeFunction = &sweepCode;
+            break;
+        case SkShader::kColor_GradientType:
+        case SkShader::kNone_GradientType:
+            SkASSERT(false);
+            return;
+    }
+
+    // Move any scaling (assuming a unit gradient) or translation
+    // (and rotation for linear gradient), of the final gradient from
+    // info->fPoints to the matrix (updating bbox appropriately).  Now
+    // the gradient can be drawn on on the unit segment.
+    SkMatrix mapperMatrix;
+    unitToPointsMatrix(transformPoints, &mapperMatrix);
+    SkMatrix finalMatrix = fState.get()->fCanvasTransform;
+    finalMatrix.preConcat(mapperMatrix);
+    finalMatrix.preConcat(fState.get()->fShaderTransform);
+    SkRect bbox;
+    bbox.set(fState.get()->fBBox);
+    transformBBox(finalMatrix, &bbox);
+
+    SkRefPtr<SkPDFArray> domain = new SkPDFArray;
+    domain->unref();  // SkRefPtr and new both took a reference.
+    domain->reserve(4);
+    domain->append(new SkPDFScalar(bbox.fLeft))->unref();
+    domain->append(new SkPDFScalar(bbox.fRight))->unref();
+    domain->append(new SkPDFScalar(bbox.fTop))->unref();
+    domain->append(new SkPDFScalar(bbox.fBottom))->unref();
+
+    SkString functionCode;
+    // The two point radial gradient further references fState.get()->fInfo
+    // in translating from x, y coordinates to the t parameter. So, we have
+    // to transform the points and radii according to the calculated matrix.
+    if (fState.get()->fType == SkShader::kRadial2_GradientType) {
+        SkShader::GradientInfo twoPointRadialInfo = *info;
+        SkMatrix inverseMapperMatrix;
+        mapperMatrix.invert(&inverseMapperMatrix);
+        inverseMapperMatrix.mapPoints(twoPointRadialInfo.fPoint, 2);
+        twoPointRadialInfo.fRadius[0] =
+            inverseMapperMatrix.mapRadius(info->fRadius[0]);
+        twoPointRadialInfo.fRadius[1] =
+            inverseMapperMatrix.mapRadius(info->fRadius[1]);
+        functionCode = codeFunction(twoPointRadialInfo);
+    } else {
+        functionCode = codeFunction(*info);
+    }
+
+    SkRefPtr<SkPDFStream> function = makePSFunction(functionCode, domain.get());
+    // Pass one reference to fResources, SkRefPtr and new both took a reference.
+    fResources.push(function.get());
+
+    SkRefPtr<SkPDFDict> pdfShader = new SkPDFDict;
+    pdfShader->unref();  // SkRefPtr and new both took a reference.
+    pdfShader->insert("ShadingType", new SkPDFInt(1))->unref();
+    pdfShader->insert("ColorSpace", new SkPDFName("DeviceRGB"))->unref();
+    pdfShader->insert("Domain", domain.get());
+    pdfShader->insert("Function", new SkPDFObjRef(function.get()))->unref();
+
+    fContent = new SkPDFDict("Pattern");
+    fContent->unref();  // SkRefPtr and new both took a reference.
+    fContent->insert("PatternType", new SkPDFInt(2))->unref();
+    fContent->insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
+    fContent->insert("Shading", pdfShader.get());
+}
+
+// SkShader* shader, SkMatrix matrix, const SkRect& surfaceBBox
+void SkPDFShader::doImageShader() {
+    fState.get()->fImage.lockPixels();
+
+    SkMatrix finalMatrix = fState.get()->fCanvasTransform;
+    finalMatrix.preConcat(fState.get()->fShaderTransform);
+    SkRect surfaceBBox;
+    surfaceBBox.set(fState.get()->fBBox);
+    transformBBox(finalMatrix, &surfaceBBox);
+
+    SkPDFDevice pattern(surfaceBBox.fRight, surfaceBBox.fBottom,
+                        SkPDFDevice::kNoFlip_OriginTransform);
+    SkCanvas canvas(&pattern);
+    canvas.clipRect(surfaceBBox, SkRegion::kReplace_Op);
+
+    const SkBitmap* image = &fState.get()->fImage;
+    int width = image->width();
+    int height = image->height();
+    SkShader::TileMode tileModes[2];
+    tileModes[0] = fState.get()->fImageTileModes[0];
+    tileModes[1] = fState.get()->fImageTileModes[1];
+
+    canvas.drawBitmap(*image, 0, 0);
+    SkRect patternBBox = SkRect::MakeWH(width, height);
+
+    // Tiling is implied.  First we handle mirroring.
+    if (tileModes[0] == SkShader::kMirror_TileMode) {
+        SkMatrix xMirror;
+        xMirror.setScale(-1, 1);
+        xMirror.postTranslate(2 * width, 0);
+        canvas.drawBitmapMatrix(*image, xMirror);
+        patternBBox.fRight += width;
+    }
+    if (tileModes[1] == SkShader::kMirror_TileMode) {
+        SkMatrix yMirror;
+        yMirror.setScale(1, -1);
+        yMirror.postTranslate(0, 2 * height);
+        canvas.drawBitmapMatrix(*image, yMirror);
+        patternBBox.fBottom += height;
+    }
+    if (tileModes[0] == SkShader::kMirror_TileMode &&
+            tileModes[1] == SkShader::kMirror_TileMode) {
+        SkMatrix mirror;
+        mirror.setScale(-1, -1);
+        mirror.postTranslate(2 * width, 2 * height);
+        canvas.drawBitmapMatrix(*image, mirror);
+    }
+
+    // Then handle Clamping, which requires expanding the pattern canvas to
+    // cover the entire surfaceBBox.
+
+    // If both x and y are in clamp mode, we start by filling in the corners.
+    // (Which are just a rectangles of the corner colors.)
+    if (tileModes[0] == SkShader::kClamp_TileMode &&
+            tileModes[1] == SkShader::kClamp_TileMode) {
+        SkPaint paint;
+        SkRect rect;
+        rect = SkRect::MakeLTRB(surfaceBBox.fLeft, surfaceBBox.fTop, 0, 0);
+        if (!rect.isEmpty()) {
+            paint.setColor(image->getColor(0, 0));
+            canvas.drawRect(rect, paint);
+        }
+
+        rect = SkRect::MakeLTRB(width, surfaceBBox.fTop, surfaceBBox.fRight, 0);
+        if (!rect.isEmpty()) {
+            paint.setColor(image->getColor(width - 1, 0));
+            canvas.drawRect(rect, paint);
+        }
+
+        rect = SkRect::MakeLTRB(width, height, surfaceBBox.fRight,
+                                surfaceBBox.fBottom);
+        if (!rect.isEmpty()) {
+            paint.setColor(image->getColor(width - 1, height - 1));
+            canvas.drawRect(rect, paint);
+        }
+
+        rect = SkRect::MakeLTRB(surfaceBBox.fLeft, height, 0,
+                                surfaceBBox.fBottom);
+        if (!rect.isEmpty()) {
+            paint.setColor(image->getColor(0, height - 1));
+            canvas.drawRect(rect, paint);
+        }
+    }
+
+    // Then expand the left, right, top, then bottom.
+    if (tileModes[0] == SkShader::kClamp_TileMode) {
+        SkIRect subset = SkIRect::MakeXYWH(0, 0, 1, height);
+        if (surfaceBBox.fLeft < 0) {
+            SkBitmap left;
+            SkAssertResult(image->extractSubset(&left, subset));
+
+            SkMatrix leftMatrix;
+            leftMatrix.setScale(-surfaceBBox.fLeft, 1);
+            leftMatrix.postTranslate(surfaceBBox.fLeft, 0);
+            canvas.drawBitmapMatrix(left, leftMatrix);
+
+            if (tileModes[1] == SkShader::kMirror_TileMode) {
+                leftMatrix.postScale(1, -1);
+                leftMatrix.postTranslate(0, 2 * height);
+                canvas.drawBitmapMatrix(left, leftMatrix);
+            }
+            patternBBox.fLeft = surfaceBBox.fLeft;
+        }
+
+        if (surfaceBBox.fRight > width) {
+            SkBitmap right;
+            subset.offset(width - 1, 0);
+            SkAssertResult(image->extractSubset(&right, subset));
+
+            SkMatrix rightMatrix;
+            rightMatrix.setScale(surfaceBBox.fRight - width, 1);
+            rightMatrix.postTranslate(width, 0);
+            canvas.drawBitmapMatrix(right, rightMatrix);
+
+            if (tileModes[1] == SkShader::kMirror_TileMode) {
+                rightMatrix.postScale(1, -1);
+                rightMatrix.postTranslate(0, 2 * height);
+                canvas.drawBitmapMatrix(right, rightMatrix);
+            }
+            patternBBox.fRight = surfaceBBox.fRight;
+        }
+    }
+
+    if (tileModes[1] == SkShader::kClamp_TileMode) {
+        SkIRect subset = SkIRect::MakeXYWH(0, 0, width, 1);
+        if (surfaceBBox.fTop < 0) {
+            SkBitmap top;
+            SkAssertResult(image->extractSubset(&top, subset));
+
+            SkMatrix topMatrix;
+            topMatrix.setScale(1, -surfaceBBox.fTop);
+            topMatrix.postTranslate(0, surfaceBBox.fTop);
+            canvas.drawBitmapMatrix(top, topMatrix);
+
+            if (tileModes[0] == SkShader::kMirror_TileMode) {
+                topMatrix.postScale(-1, 1);
+                topMatrix.postTranslate(2 * width, 0);
+                canvas.drawBitmapMatrix(top, topMatrix);
+            }
+            patternBBox.fTop = surfaceBBox.fTop;
+        }
+
+        if (surfaceBBox.fBottom > height) {
+            SkBitmap bottom;
+            subset.offset(0, height - 1);
+            SkAssertResult(image->extractSubset(&bottom, subset));
+
+            SkMatrix bottomMatrix;
+            bottomMatrix.setScale(1, surfaceBBox.fBottom - height);
+            bottomMatrix.postTranslate(0, height);
+            canvas.drawBitmapMatrix(bottom, bottomMatrix);
+
+            if (tileModes[0] == SkShader::kMirror_TileMode) {
+                bottomMatrix.postScale(-1, 1);
+                bottomMatrix.postTranslate(2 * width, 0);
+                canvas.drawBitmapMatrix(bottom, bottomMatrix);
+            }
+            patternBBox.fBottom = surfaceBBox.fBottom;
+        }
+    }
+
+    SkRefPtr<SkPDFArray> patternBBoxArray = new SkPDFArray;
+    patternBBoxArray->unref();  // SkRefPtr and new both took a reference.
+    patternBBoxArray->reserve(4);
+    patternBBoxArray->append(new SkPDFInt(patternBBox.fLeft))->unref();
+    patternBBoxArray->append(new SkPDFInt(patternBBox.fTop))->unref();
+    patternBBoxArray->append(new SkPDFInt(patternBBox.fRight))->unref();
+    patternBBoxArray->append(new SkPDFInt(patternBBox.fBottom))->unref();
+
+    // Put the canvas into the pattern stream (fContent).
+    SkRefPtr<SkStream> content = pattern.content();
+    content->unref();  // SkRefPtr and content() both took a reference.
+    pattern.getResources(&fResources);
+
+    fContent = new SkPDFStream(content.get());
+    fContent->unref();  // SkRefPtr and new both took a reference.
+    fContent->insert("Type", new SkPDFName("Pattern"))->unref();
+    fContent->insert("PatternType", new SkPDFInt(1))->unref();
+    fContent->insert("PaintType", new SkPDFInt(1))->unref();
+    fContent->insert("TilingType", new SkPDFInt(1))->unref();
+    fContent->insert("BBox", patternBBoxArray.get());
+    fContent->insert("XStep", new SkPDFInt(patternBBox.width()))->unref();
+    fContent->insert("YStep", new SkPDFInt(patternBBox.height()))->unref();
+    fContent->insert("Resources", pattern.getResourceDict().get());
+    fContent->insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
+
+    fState.get()->fImage.unlockPixels();
+}
+
+SkPDFStream* SkPDFShader::makePSFunction(const SkString& psCode,
+                                         SkPDFArray* domain) {
+    SkRefPtr<SkMemoryStream> funcStream =
+        new SkMemoryStream(psCode.c_str(), psCode.size(), true);
+    funcStream->unref();  // SkRefPtr and new both took a reference.
+
+    SkPDFStream* result = new SkPDFStream(funcStream.get());
+    result->insert("FunctionType", new SkPDFInt(4))->unref();
+    result->insert("Domain", domain);
+    result->insert("Range", rangeObject());
+    return result;
+}
+
+bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
+    if (fType != b.fType ||
+            fCanvasTransform != b.fCanvasTransform ||
+            fShaderTransform != b.fShaderTransform ||
+            fBBox != b.fBBox) {
+        return false;
+    }
+
+    if (fType == SkShader::kNone_GradientType) {
+        if (fPixelGeneration != b.fPixelGeneration ||
+                fPixelGeneration == 0 ||
+                fImageTileModes[0] != b.fImageTileModes[0] ||
+                fImageTileModes[1] != b.fImageTileModes[1]) {
+            return false;
+        }
+    } else {
+        if (fInfo.fColorCount != b.fInfo.fColorCount ||
+                memcmp(fInfo.fColors, b.fInfo.fColors,
+                       sizeof(SkColor) * fInfo.fColorCount) != 0 ||
+                memcmp(fInfo.fColorOffsets, b.fInfo.fColorOffsets,
+                       sizeof(SkScalar) * fInfo.fColorCount) != 0 ||
+                fInfo.fPoint[0] != b.fInfo.fPoint[0] ||
+                fInfo.fTileMode != b.fInfo.fTileMode) {
+            return false;
+        }
+
+        switch (fType) {
+            case SkShader::kLinear_GradientType:
+                if (fInfo.fPoint[1] != b.fInfo.fPoint[1]) {
+                    return false;
+                }
+                break;
+            case SkShader::kRadial_GradientType:
+                if (fInfo.fRadius[0] != b.fInfo.fRadius[0]) {
+                    return false;
+                }
+                break;
+            case SkShader::kRadial2_GradientType:
+                if (fInfo.fPoint[1] != b.fInfo.fPoint[1] ||
+                        fInfo.fRadius[0] != b.fInfo.fRadius[0] ||
+                        fInfo.fRadius[1] != b.fInfo.fRadius[1]) {
+                    return false;
+                }
+                break;
+            case SkShader::kSweep_GradientType:
+            case SkShader::kNone_GradientType:
+            case SkShader::kColor_GradientType:
+                break;
+        }
+    }
+    return true;
+}
+
+SkPDFShader::State::State(const SkShader& shader,
+                          const SkMatrix& canvasTransform, const SkIRect& bbox)
+        : fCanvasTransform(canvasTransform),
+          fBBox(bbox) {
+
+    fInfo.fColorCount = 0;
+    fInfo.fColors = NULL;
+    fInfo.fColorOffsets = NULL;
+    shader.getLocalMatrix(&fShaderTransform);
+
+    fType = shader.asAGradient(&fInfo);
+
+    if (fType == SkShader::kNone_GradientType) {
+        SkShader::BitmapType bitmapType;
+        SkMatrix matrix;
+        bitmapType = shader.asABitmap(&fImage, &matrix, fImageTileModes, NULL);
+        if (bitmapType != SkShader::kDefault_BitmapType) {
+            fImage.reset();
+            return;
+        }
+        SkASSERT(matrix.isIdentity());
+        fPixelGeneration = fImage.getGenerationID();
+    } else {
+        fColorData.set(sk_malloc_throw(
+                    fInfo.fColorCount * (sizeof(SkColor) + sizeof(SkScalar))));
+        fInfo.fColors = (SkColor*)fColorData.get();
+        fInfo.fColorOffsets = (SkScalar*)(fInfo.fColors + fInfo.fColorCount);
+        shader.asAGradient(&fInfo);
+    }
+}

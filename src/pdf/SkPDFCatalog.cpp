@@ -68,6 +68,8 @@ int SkPDFCatalog::findObjectIndex(SkPDFObject* obj) const {
 
 int SkPDFCatalog::assignObjNum(SkPDFObject* obj) {
     int pos = findObjectIndex(obj);
+    // If this assert fails, it means you probably forgot to add an object
+    // to the resource list.
     SkASSERT(pos >= 0);
     uint32_t currentIndex = pos;
     if (fCatalog[currentIndex].fObjNumAssigned)
