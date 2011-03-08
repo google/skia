@@ -47,10 +47,10 @@ public:
     virtual void shadeSpan16(int x, int y, uint16_t span[], int count);
     virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
 
-    virtual BitmapType asABitmap(SkBitmap* outTexture, 
+    virtual BitmapType asABitmap(SkBitmap* outTexture,
                                  SkMatrix* outMatrix,
-                                 TileMode xy[2], 
-                                 SkScalar* twoPointRadialParams);
+                                 TileMode xy[2],
+                                 SkScalar* twoPointRadialParams) const;
 
     virtual GradientType asAGradient(GradientInfo* info) const;
 
@@ -59,8 +59,8 @@ protected:
     virtual void flatten(SkFlattenableWriteBuffer& );
     virtual Factory getFactory() { return CreateProc; }
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
-        return SkNEW_ARGS(SkColorShader, (buffer)); 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkColorShader, (buffer));
     }
     SkColor     fColor;         // ignored if fInheritColor is true
     SkPMColor   fPMColor;       // cached after setContext()
@@ -69,7 +69,7 @@ private:
     SkBool8     fInheritColor;
 
     // deferred allocation, used for asABitmap()
-    SkPixelRef* fAsABitmapPixelRef;
+    mutable SkPixelRef* fAsABitmapPixelRef;
 
     typedef SkShader INHERITED;
 };
