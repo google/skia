@@ -30,7 +30,9 @@ DEFINES += -DSK_SUPPORT_LCDTEXT
 
 ifeq ($(SKIA_PDF_SUPPORT),true)
 	DEFINES += -DSK_SUPPORT_PDF
+ifneq ($(SKIA_DEBUG),true)
 	DEFINES += -DSK_ZLIB_INCLUDE="<zlib.h>"
+endif
 endif
 
 # start with the core (required)

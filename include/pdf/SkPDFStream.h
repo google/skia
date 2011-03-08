@@ -26,7 +26,8 @@ class SkPDFCatalog;
 
 /** \class SkPDFStream
 
-    A stream object in a PDF.
+    A stream object in a PDF.  Note, all streams must be indirect objects (via
+    SkObjRef).
 */
 class SkPDFStream : public SkPDFDict {
 public:

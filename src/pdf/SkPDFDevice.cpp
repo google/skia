@@ -25,6 +25,7 @@
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFTypes.h"
+#include "SkPDFShader.h"
 #include "SkPDFStream.h"
 #include "SkPDFUtils.h"
 #include "SkRect.h"
@@ -138,6 +139,7 @@ SkPDFDevice::SkPDFDevice(int width, int height, OriginTransform flipOrigin)
     fGraphicStack[0].fTextScaleX = SK_Scalar1;
     fGraphicStack[0].fTextFill = SkPaint::kFill_Style;
     fGraphicStack[0].fFont = NULL;
+    fGraphicStack[0].fShader = NULL;
     fGraphicStack[0].fGraphicState = NULL;
     fGraphicStack[0].fClip.setRect(0,0, width, height);
     fGraphicStack[0].fTransform.reset();
@@ -151,6 +153,7 @@ SkPDFDevice::~SkPDFDevice() {
     fGraphicStateResources.unrefAll();
     fXObjectResources.unrefAll();
     fFontResources.unrefAll();
+    fShaderResources.unrefAll();
 }
 
 void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
@@ -500,6 +503,18 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
             fResourceDict->insert("Font", fonts.get());
         }
 
+        if (fShaderResources.count()) {
+            SkRefPtr<SkPDFDict> patterns = new SkPDFDict();
+            patterns->unref();  // SkRefPtr and new both took a reference.
+            for (int i = 0; i < fShaderResources.count(); i++) {
+                SkString nameString("P");
+                nameString.appendS32(i);
+                patterns->insert(nameString.c_str(),
+                                 new SkPDFObjRef(fShaderResources[i]))->unref();
+            }
+            fResourceDict->insert("Pattern", patterns.get());
+        }
+
         // For compatibility, add all proc sets (only used for output to PS
         // devices).
         const char procs[][7] = {"PDF", "Text", "ImageB", "ImageC", "ImageI"};
@@ -517,7 +532,8 @@ void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
     resourceList->setReserve(resourceList->count() +
                              fGraphicStateResources.count() +
                              fXObjectResources.count() +
-                             fFontResources.count());
+                             fFontResources.count() +
+                             fShaderResources.count());
     for (int i = 0; i < fGraphicStateResources.count(); i++) {
         resourceList->push(fGraphicStateResources[i]);
         fGraphicStateResources[i]->ref();
@@ -532,6 +548,11 @@ void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
         resourceList->push(fFontResources[i]);
         fFontResources[i]->ref();
         fFontResources[i]->getResources(resourceList);
+    }
+    for (int i = 0; i < fShaderResources.count(); i++) {
+        resourceList->push(fShaderResources[i]);
+        fShaderResources[i]->ref();
+        fShaderResources[i]->getResources(resourceList);
     }
 }
 
@@ -562,17 +583,78 @@ SkStream* SkPDFDevice::content() const {
     return result;
 }
 
-// Private
+void SkPDFDevice::updateGSFromPaint(const SkPaint& paint, bool forText) {
+    SkASSERT(paint.getPathEffect() == NULL);
 
-// TODO(vandebo) handle these cases.
-#define PAINTCHECK(x,y) NOT_IMPLEMENTED(newPaint.x() y, false)
+    NOT_IMPLEMENTED(paint.getMaskFilter() != NULL, false);
+    NOT_IMPLEMENTED(paint.getColorFilter() != NULL, false);
 
-void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint, bool forText) {
-    SkASSERT(newPaint.getPathEffect() == NULL);
+    SkPaint newPaint = paint;
 
-    PAINTCHECK(getMaskFilter, != NULL);
-    PAINTCHECK(getShader, != NULL);
-    PAINTCHECK(getColorFilter, != NULL);
+    // PDF treats a shader as a color, so we only set one or the other.
+    SkRefPtr<SkPDFShader> pdfShader;
+    const SkShader* shader = newPaint.getShader();
+    if (shader) {
+        // PDF positions patterns relative to the initial transform, so
+        // we need to apply the current transform to the shader parameters.
+        SkMatrix transform = fGraphicStack[fGraphicStackIndex].fTransform;
+        if (fFlipOrigin == kFlip_OriginTransform) {
+            transform.postScale(1, -1);
+            transform.postTranslate(0, fHeight);
+        }
+
+        // PDF doesn't support kClamp_TileMode, so we simulate it by making
+        // a pattern the size of the drawing service.
+        SkIRect bounds = fGraphicStack[fGraphicStackIndex].fClip.getBounds();
+        pdfShader = SkPDFShader::getPDFShader(*shader, transform, bounds);
+        SkSafeUnref(pdfShader.get());  // getShader and SkRefPtr both took a ref
+
+        // A color shader is treated as an invalid shader so we don't have
+        // to set a shader just for a color.
+        if (pdfShader.get() == NULL) {
+            newPaint.setColor(0);
+
+            // Check for a color shader.
+            SkShader::GradientInfo gradientInfo;
+            SkColor gradientColor;
+            gradientInfo.fColors = &gradientColor;
+            gradientInfo.fColorOffsets = NULL;
+            gradientInfo.fColorCount = 1;
+            if (shader->asAGradient(&gradientInfo) ==
+                    SkShader::kColor_GradientType) {
+                newPaint.setColor(gradientColor);
+            }
+        }
+    }
+
+    if (pdfShader) {
+        // pdfShader has been canonicalized so we can directly compare
+        // pointers.
+        if (fGraphicStack[fGraphicStackIndex].fShader != pdfShader.get()) {
+            int resourceIndex = fShaderResources.find(pdfShader.get());
+            if (resourceIndex < 0) {
+                resourceIndex = fShaderResources.count();
+                fShaderResources.push(pdfShader.get());
+                pdfShader->ref();
+            }
+            fContent.appendf("/Pattern CS /Pattern cs /P%d SCN /P%d scn\n",
+                             resourceIndex, resourceIndex);
+            fGraphicStack[fGraphicStackIndex].fShader = pdfShader.get();
+        }
+    } else {
+        SkColor newColor = newPaint.getColor();
+        newColor = SkColorSetA(newColor, 0xFF);
+        if (fGraphicStack[fGraphicStackIndex].fShader ||
+                fGraphicStack[fGraphicStackIndex].fColor != newColor) {
+            SkString colorString = toPDFColor(newColor);
+            fContent.append(colorString);
+            fContent.append("RG ");
+            fContent.append(colorString);
+            fContent.append("rg\n");
+            fGraphicStack[fGraphicStackIndex].fColor = newColor;
+            fGraphicStack[fGraphicStackIndex].fShader = NULL;
+        }
+    }
 
     SkRefPtr<SkPDFGraphicState> newGraphicState =
         SkPDFGraphicState::getGraphicStateForPaint(newPaint);
@@ -591,17 +673,6 @@ void SkPDFDevice::updateGSFromPaint(const SkPaint& newPaint, bool forText) {
         fContent.appendS32(resourceIndex);
         fContent.append(" gs\n");
         fGraphicStack[fGraphicStackIndex].fGraphicState = newGraphicState.get();
-    }
-
-    SkColor newColor = newPaint.getColor();
-    newColor = SkColorSetA(newColor, 0xFF);
-    if (fGraphicStack[fGraphicStackIndex].fColor != newColor) {
-        SkString colorString = toPDFColor(newColor);
-        fContent.append(colorString);
-        fContent.append("RG ");
-        fContent.append(colorString);
-        fContent.append("rg\n");
-        fGraphicStack[fGraphicStackIndex].fColor = newColor;
     }
 
     if (forText) {

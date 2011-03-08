@@ -29,6 +29,7 @@ class SkPDFDict;
 class SkPDFFont;
 class SkPDFGraphicState;
 class SkPDFObject;
+class SkPDFShader;
 class SkPDFStream;
 
 class SkPDFDeviceFactory : public SkDeviceFactory {
@@ -146,6 +147,7 @@ private:
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
     SkTDArray<SkPDFFont*> fFontResources;
+    SkTDArray<SkPDFShader*> fShaderResources;
 
     // In PDF, transforms and clips can only be undone by popping the graphic
     // state to before the transform or clip was applied.  Because it can be
@@ -165,6 +167,7 @@ private:
         SkScalar fTextScaleX;
         SkPaint::Style fTextFill;
         SkPDFFont* fFont;
+        SkPDFShader* fShader;
         SkPDFGraphicState* fGraphicState;
         SkRegion fClip;
         SkMatrix fTransform;
