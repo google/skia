@@ -28,7 +28,7 @@ endif
 
 DEFINES += -DSK_SUPPORT_LCDTEXT
 
-ifeq ($(SKIA_PDF_SUPPORT),true)
+ifneq ($(SKIA_PDF_SUPPORT),false)
 	DEFINES += -DSK_SUPPORT_PDF
 ifneq ($(SKIA_DEBUG),true)
 	DEFINES += -DSK_ZLIB_INCLUDE="<zlib.h>"
@@ -69,7 +69,7 @@ include src/gpu/skgr_files.mk
 SRC_LIST += $(addprefix src/gpu/, $(SOURCE))
 
 # pdf backend files
-ifeq ($(SKIA_PDF_SUPPORT),true)
+ifneq ($(SKIA_PDF_SUPPORT),false)
 	C_INCLUDES += -Iinclude/pdf
 	include src/pdf/pdf_files.mk
 	SRC_LIST += $(addprefix src/pdf/, $(SOURCE))
@@ -176,7 +176,7 @@ bench: $(BENCH_OBJS) out/libskia.a
 C_INCLUDES += -Isrc/core
 
 include tests/tests_files.mk
-ifeq ($(SKIA_PDF_SUPPORT),true)
+ifneq ($(SKIA_PDF_SUPPORT),false)
   SOURCE += PDFPrimitivesTest.cpp
 endif
 TESTS_SRCS := $(addprefix tests/, $(SOURCE))
@@ -230,17 +230,6 @@ gm: $(GM_OBJS) out/libskia.a
 	@echo "linking gm..."
 	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
 
-SAMPLEPDF_SRCS := samplepdf.cpp
-
-SAMPLEPDF_SRCS := $(addprefix tools/, $(SAMPLEPDF_SRCS))
-
-SAMPLEPDF_OBJS := $(SAMPLEPDF_SRCS:.cpp=.o)
-SAMPLEPDF_OBJS := $(addprefix out/, $(SAMPLEPDF_OBJS))
-
-samplepdf: $(SAMPLEPDF_OBJS) out/libskia.a
-	@echo "linking samplepdf..."
-	$(HIDE)$(GPP) $(SAMPLEPDF_OBJS) out/libskia.a -o out/tools/samplepdf $(LINKER_OPTS)
-
 ##############################################################################
 
 .PHONY: all
@@ -265,5 +254,5 @@ help:
 	@echo "    SKIA_DEBUG=true for debug build"
 	@echo "    SKIA_SCALAR=fixed for fixed-point build"
 	@echo "    SKIA_BUILD_FOR=mac for mac build (e.g. CG for image decoding)"
-	@echo "    SKIA_PDF_SUPPORT=true to enable the pdf generation backend"
+	@echo "    SKIA_PDF_SUPPORT=false to disable the pdf generation backend"
 	@echo ""
