@@ -312,7 +312,7 @@ void SkColorShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
 // if we had a asAColor method, that would be more efficient...
 SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
                                               TileMode modes[],
-                                              SkScalar* twoPointRadialParams) {
+                                      SkScalar* twoPointRadialParams) const {
     // we cache the pixelref, since its generateID is used in the texture cache
     if (NULL == fAsABitmapPixelRef) {
         SkPMColor* storage = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor));
