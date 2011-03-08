@@ -36,7 +36,6 @@
 		00115E2912C1167A008296FE /* GrTextureCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DF912C1167A008296FE /* GrTextureCache.cpp */; };
 		00115E7512C116CA008296FE /* GrAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3912C116CA008296FE /* GrAllocator.h */; };
 		00115E7612C116CA008296FE /* GrAllocPool.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3A12C116CA008296FE /* GrAllocPool.h */; };
-		00115E7712C116CA008296FE /* GrAPI.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3B12C116CA008296FE /* GrAPI.h */; };
 		00115E7812C116CA008296FE /* GrAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3C12C116CA008296FE /* GrAtlas.h */; };
 		00115E7912C116CA008296FE /* GrClip.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3D12C116CA008296FE /* GrClip.h */; };
 		00115E7A12C116CA008296FE /* GrClipIterator.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E3E12C116CA008296FE /* GrClipIterator.h */; };
@@ -131,7 +130,6 @@
 		00115DF912C1167A008296FE /* GrTextureCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrTextureCache.cpp; path = ../../gpu/src/GrTextureCache.cpp; sourceTree = SOURCE_ROOT; };
 		00115E3912C116CA008296FE /* GrAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrAllocator.h; path = ../../gpu/include/GrAllocator.h; sourceTree = SOURCE_ROOT; };
 		00115E3A12C116CA008296FE /* GrAllocPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrAllocPool.h; path = ../../gpu/include/GrAllocPool.h; sourceTree = SOURCE_ROOT; };
-		00115E3B12C116CA008296FE /* GrAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrAPI.h; path = ../../gpu/include/GrAPI.h; sourceTree = SOURCE_ROOT; };
 		00115E3C12C116CA008296FE /* GrAtlas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrAtlas.h; path = ../../gpu/include/GrAtlas.h; sourceTree = SOURCE_ROOT; };
 		00115E3D12C116CA008296FE /* GrClip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrClip.h; path = ../../gpu/include/GrClip.h; sourceTree = SOURCE_ROOT; };
 		00115E3E12C116CA008296FE /* GrClipIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrClipIterator.h; path = ../../gpu/include/GrClipIterator.h; sourceTree = SOURCE_ROOT; };
@@ -214,7 +212,6 @@
 				00216E5D130F0B03009A2160 /* GrGLIRect.h */,
 				00115E3912C116CA008296FE /* GrAllocator.h */,
 				00115E3A12C116CA008296FE /* GrAllocPool.h */,
-				00115E3B12C116CA008296FE /* GrAPI.h */,
 				00115E3C12C116CA008296FE /* GrAtlas.h */,
 				00115E3D12C116CA008296FE /* GrClip.h */,
 				00115E3E12C116CA008296FE /* GrClipIterator.h */,
@@ -353,7 +350,6 @@
 				00115E2712C1167A008296FE /* GrTextStrike_impl.h in Headers */,
 				00115E7512C116CA008296FE /* GrAllocator.h in Headers */,
 				00115E7612C116CA008296FE /* GrAllocPool.h in Headers */,
-				00115E7712C116CA008296FE /* GrAPI.h in Headers */,
 				00115E7812C116CA008296FE /* GrAtlas.h in Headers */,
 				00115E7912C116CA008296FE /* GrClip.h in Headers */,
 				00115E7A12C116CA008296FE /* GrClipIterator.h in Headers */,
