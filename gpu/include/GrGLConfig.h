@@ -77,7 +77,7 @@
  * setup GR_GL_CUSTOM_SETUP_HEADER to be enabled:
  *
  * GR_GL_LOG_CALLS: if 1 Gr can print every GL call using GrPrintf. Defaults to
- * 0. Logging can be enabled and disabled at runtime using a debugger via to 
+ * 0. Logging can be enabled and disabled at runtime using a debugger via to
  * global gLogCallsGL. The initial value of gLogCallsGL is controlled by
  * GR_GL_LOG_CALLS_START.
  *
@@ -85,7 +85,7 @@
  * GR_GL_LOG_CALLS is 1. Defaults to 0.
  *
  * GR_GL_CHECK_ERROR: if enabled Gr can do a glGetError() after every GL call.
- * Defaults to 1 if GR_DEBUG is set, otherwise 0. When GR_GL_CHECK_ERROR is 1 
+ * Defaults to 1 if GR_DEBUG is set, otherwise 0. When GR_GL_CHECK_ERROR is 1
  * this can be toggled in a debugger using the gCheckErrorGL global. The initial
  * value of gCheckErrorGL is controlled by by GR_GL_CHECK_ERROR_START.
  *
@@ -218,7 +218,7 @@
     #define GR_GL_LOG_CALLS_START       0
 #endif
 
-#if !defined(GR_GL_CHECK_ERROR) 
+#if !defined(GR_GL_CHECK_ERROR)
     #define GR_GL_CHECK_ERROR           GR_DEBUG
 #endif
 
