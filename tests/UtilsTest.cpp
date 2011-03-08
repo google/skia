@@ -23,17 +23,17 @@ static void test_refptr(skiatest::Reporter* reporter) {
 
     SkRefPtr<RefClass> rc1;
     REPORTER_ASSERT(reporter, rc0 == rc1);
-    REPORTER_ASSERT(reporter, rc0 != r0);
+    REPORTER_ASSERT(reporter, rc0.get() != r0);
 
     rc0 = r0;
     REPORTER_ASSERT(reporter, rc0);
     REPORTER_ASSERT(reporter, rc0 != rc1);
-    REPORTER_ASSERT(reporter, rc0 == r0);
+    REPORTER_ASSERT(reporter, rc0.get() == r0);
 
     rc1 = rc0;
     REPORTER_ASSERT(reporter, rc1);
     REPORTER_ASSERT(reporter, rc0 == rc1);
-    REPORTER_ASSERT(reporter, rc0 == r0);
+    REPORTER_ASSERT(reporter, rc0.get() == r0);
 
     rc0 = NULL;
     REPORTER_ASSERT(reporter, rc0.get() == NULL);
