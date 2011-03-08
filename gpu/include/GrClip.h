@@ -29,10 +29,11 @@ public:
     GrClip();
     GrClip(const GrClip& src);
     /**
-     *  If specified, the bounds parameter already takes (tx,ty) into account.
+     *  If specified, the conservativeBounds parameter already takes (tx,ty)
+     *  into account.
      */
     GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-           const GrRect* bounds = NULL);
+           const GrRect* conservativeBounds = NULL);
     GrClip(const GrIRect& rect);
     GrClip(const GrRect& rect);
 
@@ -40,9 +41,9 @@ public:
 
     GrClip& operator=(const GrClip& src);
 
-    bool hasBounds() const { return fBoundsValid; }
+    bool hasConservativeBounds() const { return fConservativeBoundsValid; }
 
-    const GrRect& getBounds() const { return fBounds; }
+    const GrRect& getConservativeBounds() const { return fConservativeBounds; }
 
     int getElementCount() const { return fList.count(); }
 
@@ -67,8 +68,10 @@ public:
 
     bool isRect() const {
         if (1 == fList.count() && kRect_ClipType == fList[0].fType) {
-            GrAssert(fBoundsValid);
-            GrAssert(fBounds == fList[0].fRect);
+            // if we determined that the clip is a single rect
+            // we ought to have also used that rect as the bounds.
+            GrAssert(fConservativeBoundsValid);
+            GrAssert(fConservativeBounds == fList[0].fRect);
             return true;
         } else {
             return false;
@@ -86,7 +89,7 @@ public:
      *  If specified, the bounds parameter already takes (tx,ty) into account.
      */
     void setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-                         const GrRect* bounds = NULL);
+                         const GrRect* conservativeBounds = NULL);
     void setFromRect(const GrRect& rect);
     void setFromIRect(const GrIRect& rect);
 
@@ -131,8 +134,8 @@ private:
         bool operator !=(const Element& e) const { return !(*this == e); }
     };
 
-    GrRect              fBounds;
-    bool                fBoundsValid;
+    GrRect              fConservativeBounds;
+    bool                fConservativeBoundsValid;
 
     enum {
         kPreAllocElements = 4,

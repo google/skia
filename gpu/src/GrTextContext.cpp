@@ -73,16 +73,16 @@ GrTextContext::GrTextContext(GrContext* context,
     } else {
         fExtMatrix = GrMatrix::I();
     }
-    if (context->getClip().hasBounds()) {
+    if (context->getClip().hasConservativeBounds()) {
         if (!fExtMatrix.isIdentity()) {
             GrMatrix inverse;
-            GrRect r = context->getClip().getBounds();
+            GrRect r = context->getClip().getConservativeBounds();
             if (fExtMatrix.invert(&inverse)) {
                 inverse.mapRect(&r);
                 r.roundOut(&fClipRect);
             }
         } else {
-            context->getClip().getBounds().roundOut(&fClipRect);
+            context->getClip().getConservativeBounds().roundOut(&fClipRect);
         }
     } else {
         fClipRect.setLargest();

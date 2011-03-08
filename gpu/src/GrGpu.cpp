@@ -295,8 +295,8 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
         GrRect rtRect;
         rtRect.setLTRB(0, 0,
                        GrIntToScalar(rt.width()), GrIntToScalar(rt.height()));
-        if (fClip.hasBounds()) {
-            bounds = fClip.getBounds();
+        if (fClip.hasConservativeBounds()) {
+            bounds = fClip.getConservativeBounds();
             bounds.intersectWith(rtRect);
         } else {
             bounds = rtRect;
@@ -342,13 +342,13 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             // the full rt size and another element intersected with it.
             // We can skip the first full-size rect and save a big rect draw.
             int firstElement = 0;
-            if (clip.getElementCount() > 1 && 
+            if (clip.getElementCount() > 1 &&
                 kRect_ClipType == clip.getElementType(0) &&
                 kIntersect_SetOp == clip.getOp(1)&&
                 clip.getRect(0).contains(bounds)) {
                 firstElement = 1;
             }
- 
+
             // walk through each clip element and perform its set op
             // with the existing clip.
             for (int c = firstElement; c < count; ++c) {
@@ -390,8 +390,8 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                         this->drawSimpleRect(clip.getRect(c), NULL, 0);
                     } else {
                         SET_RANDOM_COLOR
-                        getPathRenderer()->drawPathToStencil(this, clip.getPath(c), 
-                                                             NonInvertedFill(fill), 
+                        getPathRenderer()->drawPathToStencil(this, clip.getPath(c),
+                                                             NonInvertedFill(fill),
                                                              NULL);
                     }
                 }
@@ -408,7 +408,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                         } else {
                             SET_RANDOM_COLOR
                             getPathRenderer()->drawPath(this, 0,
-                                                        clip.getPath(c), 
+                                                        clip.getPath(c),
                                                         fill, NULL);
                         }
                     } else {

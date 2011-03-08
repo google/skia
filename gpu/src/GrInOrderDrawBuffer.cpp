@@ -104,10 +104,7 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         bool disabledClip = false;
         if (this->isClipState() && fClip.isRect()) {
 
-            // single rect clip should have bounds
-            GrAssert(fClip.hasBounds());
-
-            GrRect clipRect = GrRect(fClip.getBounds());
+            GrRect clipRect = fClip.getRect(0);
             // If the clip rect touches the edge of the viewport, extended it
             // out (close) to infinity to avoid bogus intersections.
             // We might consider a more exact clip to viewport if this
