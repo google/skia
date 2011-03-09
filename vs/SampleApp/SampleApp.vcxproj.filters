@@ -453,6 +453,9 @@
     <ClCompile Include="..\..\src\pdf\SkPDFTypes.cpp">
       <Filter>PDF</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pdf\SkPDFShader.cpp">
+      <Filter>PDF</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gpu\include\FlingState.h" />

@@ -23,6 +23,7 @@
 #include "SkPDFUtils.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+#include "SkTemplates.h"
 #include "SkThread.h"
 #include "SkTypes.h"
 
@@ -56,7 +57,8 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
                                  SkScalar* prevColor, int components,
                                  SkString* result) {
     // Figure out how to scale each color component.
-    SkScalar multiplier[components];
+    SkAutoSTMalloc<4, SkScalar> multiplierAlloc(components);
+    SkScalar *multiplier = multiplierAlloc.get();
     for (int i = 0; i < components; i++) {
         multiplier[i] = SkScalarDiv(curColor[i] - prevColor[i], range);
     }
@@ -64,7 +66,8 @@ static void interpolateColorCode(SkScalar range, SkScalar* curColor,
     // Calculate when we no longer need to keep a copy of the input parameter t.
     // If the last component to use t is i, then dupInput[0..i - 1] = true
     // and dupInput[i .. components] = false.
-    bool dupInput[components];
+    SkAutoSTMalloc<4, bool> dupInputAlloc(components);
+    bool *dupInput = dupInputAlloc.get();
     dupInput[components - 1] = false;
     for (int i = components - 2; i >= 0; i--) {
         dupInput[i] = dupInput[i + 1] || multiplier[i + 1] != 0;
@@ -129,8 +132,9 @@ static void gradientFunctionCode(const SkShader::GradientInfo& info,
        C{r,g,b}(t, section) = t - offset_(section-1) + t * Multiplier{r,g,b}.
      */
     static const int kColorComponents = 3;
-    SkScalar colorData[info.fColorCount][kColorComponents];
-
+    typedef SkScalar ColorTuple[kColorComponents];
+    SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(info.fColorCount);
+    ColorTuple *colorData = colorDataAlloc.get();
     const SkScalar scale = SkScalarInvert(SkIntToScalar(255));
     for (int i = 0; i < info.fColorCount; i++) {
         colorData[i][0] = SkScalarMul(SkColorGetR(info.fColors[i]), scale);
