@@ -170,11 +170,10 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void SkARGB32_BlitMask_portable(void* dst, size_t dstRB,
-                                       SkBitmap::Config dstConfig,
-                                       const uint8_t* mask,
-                                       size_t maskRB, SkColor color,
-                                       int width, int height) {
+static void D32_Mask_Color(void* dst, size_t dstRB, SkBitmap::Config,
+                           const uint8_t* mask, size_t maskRB, SkColor color,
+                           int width, int height) {
+    SkPMColor pmc = SkPreMultiplyColor(color);
     size_t dstOffset = dstRB - (width << 2);
     size_t maskOffset = maskRB - width;
     SkPMColor *device = (SkPMColor *)dst;
@@ -182,7 +181,7 @@ static void SkARGB32_BlitMask_portable(void* dst, size_t dstRB,
         int w = width;
         do {
             unsigned aa = *mask++;
-            *device = SkBlendARGB32(color, *device, aa);
+            *device = SkBlendARGB32(pmc, *device, aa);
             device += 1;
         } while (--w != 0);
         device = (uint32_t*)((char*)device + dstOffset);
@@ -190,15 +189,57 @@ static void SkARGB32_BlitMask_portable(void* dst, size_t dstRB,
     } while (--height != 0);
 }
 
+static void D32_Mask_Opaque(void* dst, size_t dstRB, SkBitmap::Config,
+                            const uint8_t* mask, size_t maskRB, SkColor color,
+                            int width, int height) {
+    SkPMColor pmc = SkPreMultiplyColor(color);
+    uint32_t* device = (uint32_t*)dst;
+
+    maskRB -= width;
+    dstRB -= (width << 2);
+    do {
+        int w = width;
+        do {
+            unsigned aa = *mask++;
+            *device = SkAlphaMulQ(pmc, SkAlpha255To256(aa)) + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
+            device += 1;
+        } while (--w != 0);
+        device = (uint32_t*)((char*)device + dstRB);
+        mask += maskRB;
+    } while (--height != 0);
+}
+
+static void D32_Mask_Black(void* dst, size_t dstRB, SkBitmap::Config,
+                           const uint8_t* mask, size_t maskRB, SkColor,
+                           int width, int height) {
+    uint32_t* device = (uint32_t*)dst;
+
+    maskRB -= width;
+    dstRB -= (width << 2);
+    do {
+        int w = width;
+        do {
+            unsigned aa = *mask++;
+            *device = (aa << SK_A32_SHIFT) + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
+            device += 1;
+        } while (--w != 0);
+        device = (uint32_t*)((char*)device + dstRB);
+        mask += maskRB;
+    } while (--height != 0);
+}
+
 SkBlitMask::Proc SkBlitMask::Factory(SkBitmap::Config config, SkColor color) {
     SkBlitMask::Proc proc = PlatformProcs(config, color);
+    proc = NULL;
     if (NULL == proc) {
         switch (config) {
             case SkBitmap::kARGB_8888_Config:
-                if ( SK_ColorBLACK != color && 0xFF != SkColorGetA(color) ) {
-                    //TODO: blitmask for black;
-                    //TODO: blitmask for opaque;
-                    proc = SkARGB32_BlitMask_portable;
+                if (SK_ColorBLACK == color) {
+                    proc = D32_Mask_Black;
+                } else if (0xFF == SkColorGetA(color)) {
+                    proc = D32_Mask_Opaque;
+                } else {
+                    proc = D32_Mask_Color;
                 }
                 break;
             default:
