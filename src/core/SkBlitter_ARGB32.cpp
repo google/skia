@@ -78,6 +78,9 @@ SkARGB32_Blitter::SkARGB32_Blitter(const SkBitmap& device, const SkPaint& paint)
 
     fPMColor = SkPackARGB32(fSrcA, fSrcR, fSrcG, fSrcB);
     fColor32Proc = SkBlitRow::ColorProcFactory();
+
+    // init the pro for blitmask
+    fBlitMaskProc = SkBlitMask::Factory(SkBitmap::kARGB_8888_Config, color);
 }
 
 const SkBitmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
@@ -195,19 +198,8 @@ void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     uint32_t*       device = fDevice.getAddr32(x, y);
     const uint8_t*  alpha = mask.getAddr(x, y);
     uint32_t        srcColor = fPMColor;
-    unsigned        devRB = fDevice.rowBytes() - (width << 2);
-    unsigned        maskRB = mask.fRowBytes - width;
-
-    do {
-        int w = width;
-        do {
-            unsigned aa = *alpha++;
-            *device = SkBlendARGB32(srcColor, *device, aa);
-            device += 1;
-        } while (--w != 0);
-        device = (uint32_t*)((char*)device + devRB);
-        alpha += maskRB;
-    } while (--height != 0);
+    fBlitMaskProc(device, fDevice.rowBytes(), SkBitmap::kARGB_8888_Config,
+                  alpha, mask.fRowBytes, srcColor, width, height);
 }
 
 void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,

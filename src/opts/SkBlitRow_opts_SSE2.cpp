@@ -2,16 +2,16 @@
  **
  ** Copyright 2009, The Android Open Source Project
  **
- ** Licensed under the Apache License, Version 2.0 (the "License"); 
- ** you may not use this file except in compliance with the License. 
- ** You may obtain a copy of the License at 
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
  **
- **     http://www.apache.org/licenses/LICENSE-2.0 
+ **     http://www.apache.org/licenses/LICENSE-2.0
  **
- ** Unless required by applicable law or agreed to in writing, software 
- ** distributed under the License is distributed on an "AS IS" BASIS, 
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- ** See the License for the specific language governing permissions and 
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
  ** limitations under the License.
  */
 
@@ -354,7 +354,7 @@ void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
 
                 // Get red and blue pixels into lower byte of each word.
                 __m128i src_rb = _mm_and_si128(rb_mask, src_pixel);
-    
+
                 // Get alpha and green into lower byte of each word.
                 __m128i src_ag = _mm_srli_epi16(src_pixel, 8);
 
@@ -387,6 +387,104 @@ void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
             src += 1;
             dst += 1;
             count--;
-        } 
+        }
     }
+}
+
+void SkARGB32_BlitMask_SSE2(void* device, size_t dstRB,
+                            SkBitmap::Config dstConfig, const uint8_t* mask,
+                            size_t maskRB, SkColor color,
+                            int width, int height)
+{
+    size_t dstOffset = dstRB - (width << 2);
+    size_t maskOffset = maskRB - width;
+    SkPMColor* dst = (SkPMColor *)device;
+    do {
+        int count = width;
+        if (count >= 4) {
+            while (((size_t)dst & 0x0F) != 0 && (count > 0)) {
+                *dst = SkBlendARGB32(color, *dst, *mask);
+                mask++;
+                dst++;
+                count--;
+            }
+            __m128i *d = reinterpret_cast<__m128i*>(dst);
+            __m128i rb_mask = _mm_set1_epi32(0x00FF00FF);
+            __m128i c_256 = _mm_set1_epi16(256);
+            __m128i c_1 = _mm_set1_epi16(1);
+            __m128i src_pixel = _mm_set1_epi32(color);
+            while (count >= 4) {
+                // Load 4 pixels each of src and dest.
+                __m128i dst_pixel = _mm_load_si128(d);
+
+                //set the aphla value
+                __m128i src_scale_wide =  _mm_set_epi8(0, *(mask+3),\
+                                0, *(mask+3),0, \
+                                *(mask+2),0, *(mask+2),\
+                                0,*(mask+1), 0,*(mask+1),\
+                                0, *mask,0,*mask);
+
+                //call SkAlpha255To256()
+                src_scale_wide = _mm_add_epi16(src_scale_wide, c_1);
+
+                // Get red and blue pixels into lower byte of each word.
+                __m128i dst_rb = _mm_and_si128(rb_mask, dst_pixel);
+                __m128i src_rb = _mm_and_si128(rb_mask, src_pixel);
+
+                // Get alpha and green into lower byte of each word.
+                __m128i dst_ag = _mm_srli_epi16(dst_pixel, 8);
+                __m128i src_ag = _mm_srli_epi16(src_pixel, 8);
+
+                // Put per-pixel alpha in low byte of each word.
+                __m128i dst_alpha = _mm_shufflehi_epi16(src_ag, 0xF5);
+                dst_alpha = _mm_shufflelo_epi16(dst_alpha, 0xF5);
+
+                // dst_alpha = dst_alpha * src_scale
+                dst_alpha = _mm_mullo_epi16(dst_alpha, src_scale_wide);
+
+                // Divide by 256.
+                dst_alpha = _mm_srli_epi16(dst_alpha, 8);
+
+                // Subtract alphas from 256, to get 1..256
+                dst_alpha = _mm_sub_epi16(c_256, dst_alpha);
+                // Multiply red and blue by dst pixel alpha.
+                dst_rb = _mm_mullo_epi16(dst_rb, dst_alpha);
+                // Multiply alpha and green by dst pixel alpha.
+                dst_ag = _mm_mullo_epi16(dst_ag, dst_alpha);
+
+                // Multiply red and blue by global alpha.
+                src_rb = _mm_mullo_epi16(src_rb, src_scale_wide);
+                // Multiply alpha and green by global alpha.
+                src_ag = _mm_mullo_epi16(src_ag, src_scale_wide);
+                // Divide by 256.
+                dst_rb = _mm_srli_epi16(dst_rb, 8);
+                src_rb = _mm_srli_epi16(src_rb, 8);
+
+                // Mask out low bits (goodies already in the right place; no need to divide)
+                dst_ag = _mm_andnot_si128(rb_mask, dst_ag);
+                src_ag = _mm_andnot_si128(rb_mask, src_ag);
+
+                // Combine back into RGBA.
+                dst_pixel = _mm_or_si128(dst_rb, dst_ag);
+                __m128i tmp_src_pixel = _mm_or_si128(src_rb, src_ag);
+
+                // Add two pixels into result.
+                __m128i result = _mm_add_epi8(tmp_src_pixel, dst_pixel);
+                _mm_store_si128(d, result);
+                // load the next 4 pixel
+                mask = mask + 4;
+                d++;
+                count -= 4;
+            }
+            dst = reinterpret_cast<SkPMColor *>(d);
+        }
+        while(count > 0) {
+            *dst= SkBlendARGB32(color, *dst, *mask);
+            dst += 1;
+            mask++;
+            count --;
+        }
+        dst = (SkPMColor *)((char*)dst + dstOffset);
+        mask += maskOffset;
+    } while (--height != 0);
 }

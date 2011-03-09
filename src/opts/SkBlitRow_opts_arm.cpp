@@ -1318,3 +1318,10 @@ SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
 SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
     return NULL;
 }
+
+
+SkBlitMask::Proc SkBlitMask::PlatformProcs(SkBitmap::Config dstConfig,
+                                           SkColor color)
+{
+   return NULL;
+}

@@ -3,6 +3,7 @@
 #include "SkPaint.h"
 #include "SkRandom.h"
 #include "SkString.h"
+#include "SkShader.h"
 
 class RectBench : public SkBenchmark {
 public:
@@ -112,6 +113,85 @@ protected:
     virtual const char* onGetName() { return fName; }
 };
 
+/*******************************************************************************
+ * to bench BlitMask [Opaque, Black, color, shader]
+ *******************************************************************************/
+
+class BlitMaskBench : public RectBench {
+public:
+    enum kMaskType {
+        kMaskOpaque = 0,
+        kMaskBlack,
+        kMaskColor,
+        KMaskShader
+    };
+    SkCanvas::PointMode fMode;
+    const char* fName;
+
+    BlitMaskBench(void* param, SkCanvas::PointMode mode, 
+                  BlitMaskBench::kMaskType type, const char* name) :
+                  RectBench(param, 2), fMode(mode), _type(type) {
+        fName = name;
+    }
+
+protected:
+    virtual void onDraw(SkCanvas* canvas) {
+        SkScalar gSizes[] = {
+            SkIntToScalar(13), SkIntToScalar(24)
+        };
+        size_t sizes = SK_ARRAY_COUNT(gSizes);
+
+        if (this->hasStrokeWidth()) {
+            gSizes[0] = this->getStrokeWidth();
+            sizes = 1;
+        }
+        SkRandom rand;
+        SkColor color = 0xFF000000;
+        U8CPU alpha = 0xFF;
+        SkPaint paint;
+        paint.setStrokeCap(SkPaint::kRound_Cap);
+        if (_type == KMaskShader) {
+            SkBitmap srcBM;
+            srcBM.setConfig(SkBitmap::kARGB_8888_Config, 10, 1);
+            srcBM.allocPixels();
+            srcBM.eraseColor(0xFF00FF00);
+
+            SkShader* s;
+            s  = SkShader::CreateBitmapShader(srcBM, SkShader::kClamp_TileMode,
+                                              SkShader::kClamp_TileMode);
+            paint.setShader(s)->unref();
+        }
+        for (size_t i = 0; i < sizes; i++) {
+            switch (_type) {	
+                case kMaskOpaque: 
+                    color = fColors[i]; 
+                    alpha = 0xFF; 
+                    break;
+                case kMaskBlack: 
+                    alpha = 0xFF;
+                    color = 0xFF000000;
+                    break;
+                case kMaskColor:
+                    color = fColors[i]; 
+                    alpha = rand.nextU() & 255;
+                    break;
+                case KMaskShader:
+                    break;
+            }
+            paint.setStrokeWidth(gSizes[i]);
+            this->setupPaint(&paint);
+            paint.setColor(color);
+            paint.setAlpha(alpha);
+            canvas->drawPoints(fMode, N * 2, SkTCast<SkPoint*>(fRects), paint);
+       }
+    }
+    virtual const char* onGetName() { return fName; }
+private:
+	typedef RectBench INHERITED;
+	kMaskType _type;
+};
+
+
 static SkBenchmark* RectFactory1(void* p) { return SkNEW_ARGS(RectBench, (p, 1)); }
 static SkBenchmark* RectFactory2(void* p) { return SkNEW_ARGS(RectBench, (p, 3)); }
 static SkBenchmark* OvalFactory1(void* p) { return SkNEW_ARGS(OvalBench, (p, 1)); }
@@ -128,6 +208,32 @@ static SkBenchmark* PolygonFactory(void* p) {
     return SkNEW_ARGS(PointsBench, (p, SkCanvas::kPolygon_PointMode, "polygon"));
 }
 
+/* init the blitmask bench
+ */
+static SkBenchmark* BlitMaskOpaqueFactory(void* p) {
+    return SkNEW_ARGS(BlitMaskBench,
+                      (p, SkCanvas::kPoints_PointMode,
+                      BlitMaskBench::kMaskOpaque, "maskopaque")
+                      );
+}
+static SkBenchmark* BlitMaskBlackFactory(void* p) {
+    return SkNEW_ARGS(BlitMaskBench,
+                      (p, SkCanvas::kPoints_PointMode,
+                      BlitMaskBench::kMaskBlack, "maskblack")
+                      );
+}
+static SkBenchmark* BlitMaskColorFactory(void* p) {
+    return SkNEW_ARGS(BlitMaskBench,
+                      (p, SkCanvas::kPoints_PointMode,
+                      BlitMaskBench::kMaskColor, "maskcolor")
+                      );
+}
+static SkBenchmark* BlitMaskShaderFactory(void* p) {
+    return SkNEW_ARGS(BlitMaskBench,
+                     (p, SkCanvas::kPoints_PointMode,
+                     BlitMaskBench::KMaskShader, "maskshader")
+                     );
+}
 static BenchRegistry gRectReg1(RectFactory1);
 static BenchRegistry gRectReg2(RectFactory2);
 static BenchRegistry gOvalReg1(OvalFactory1);
@@ -137,3 +243,7 @@ static BenchRegistry gRRectReg2(RRectFactory2);
 static BenchRegistry gPointsReg(PointsFactory);
 static BenchRegistry gLinesReg(LinesFactory);
 static BenchRegistry gPolygonReg(PolygonFactory);
+static BenchRegistry gRectRegOpaque(BlitMaskOpaqueFactory);
+static BenchRegistry gRectRegBlack(BlitMaskBlackFactory);
+static BenchRegistry gRectRegColor(BlitMaskColorFactory);
+static BenchRegistry gRectRegShader(BlitMaskShaderFactory);

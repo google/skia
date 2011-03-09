@@ -18,9 +18,9 @@ public:
     /** Function pointer that reads a scanline of src SkPMColors, and writes
         a corresponding scanline of 16bit colors (specific format based on the
         config passed to the Factory.
-     
+
         The x,y params are useful just for dithering
-     
+
         @param alpha A global alpha to be applied to all of the src colors
         @param x The x coordinate of the beginning of the scanline
         @param y THe y coordinate of the scanline
@@ -29,7 +29,7 @@ public:
                          const SkPMColor* SK_RESTRICT src,
                          int count, U8CPU alpha, int x, int y);
 
-   /** Function pointer that blends a single color with a row of 32-bit colors 
+   /** Function pointer that blends a single color with a row of 32-bit colors
        onto a 32-bit destination
    */
    typedef void (*ColorProc)(SkPMColor* dst, const SkPMColor* src, int count,
@@ -56,12 +56,12 @@ public:
                          int count, U8CPU alpha);
 
     static Proc32 Factory32(unsigned flags32);
-    
+
     /** Blend a single color onto a row of S32 pixels, writing the result
         into a row of D32 pixels. src and dst may be the same memory, but
         if they are not, they may not overlap.
      */
-    static void Color32(SkPMColor dst[], const SkPMColor src[], 
+    static void Color32(SkPMColor dst[], const SkPMColor src[],
                         int count, SkPMColor color);
 
     static ColorProc ColorProcFactory();
@@ -83,5 +83,30 @@ private:
         kFlags32_Mask = 3
     };
 };
+
+/**
+ *  Factory for blitmask procs
+ */
+class SkBlitMask {
+public:
+    /**
+     *  Function pointer that blits the mask into a device (dst) colorized
+     *  by color. The number of pixels to blit is specified by width and height,
+     *  but each scanline is offset by dstRB (rowbytes) and srcRB respectively.
+     */
+    typedef void (*Proc)(void* dst, size_t dstRB, SkBitmap::Config dstConfig,
+                        const uint8_t* mask, size_t maskRB, SkColor color,
+                        int width, int height);
+
+    /* Public entry-point to return a blitmask function ptr
+     */
+    static Proc Factory(SkBitmap::Config dstConfig, SkColor color);
+
+    /* return either platform specific optimized blitmask function-ptr,
+     * or NULL if no optimized
+     */
+    static Proc PlatformProcs(SkBitmap::Config dstConfig, SkColor color);
+};
+
 
 #endif
