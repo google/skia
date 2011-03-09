@@ -439,6 +439,7 @@
     <ClCompile Include="..\..\src\pdf\SkPDFGraphicState.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFImage.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFPage.cpp" />
+    <ClCompile Include="..\..\src\pdf\SkPDFShader.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFStream.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFTypes.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFUtils.cpp" />
