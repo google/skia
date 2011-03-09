@@ -128,7 +128,7 @@ SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
     SkASSERT(flags < SK_ARRAY_COUNT(gDefault_Procs32));
     // just so we don't crash
     flags &= kFlags32_Mask;
-    
+
     SkBlitRow::Proc32 proc = PlatformProcs32(flags);
     if (NULL == proc) {
         proc = gDefault_Procs32[flags];
@@ -146,7 +146,7 @@ SkBlitRow::Proc32 SkBlitRow::ColorProcFactory() {
     return proc;
 }
 
-void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[], 
+void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[],
                         int count, SkPMColor color) {
     if (count > 0) {
         if (0 == color) {
@@ -168,5 +168,43 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[],
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
+static void SkARGB32_BlitMask_portable(void* dst, size_t dstRB,
+                                       SkBitmap::Config dstConfig,
+                                       const uint8_t* mask,
+                                       size_t maskRB, SkColor color,
+                                       int width, int height) {
+    size_t dstOffset = dstRB - (width << 2);
+    size_t maskOffset = maskRB - width;
+    SkPMColor *device = (SkPMColor *)dst;
+    do {
+        int w = width;
+        do {
+            unsigned aa = *mask++;
+            *device = SkBlendARGB32(color, *device, aa);
+            device += 1;
+        } while (--w != 0);
+        device = (uint32_t*)((char*)device + dstOffset);
+        mask += maskOffset;
+    } while (--height != 0);
+}
+
+SkBlitMask::Proc SkBlitMask::Factory(SkBitmap::Config config, SkColor color) {
+    SkBlitMask::Proc proc = PlatformProcs(config, color);
+    if (NULL == proc) {
+        switch (config) {
+            case SkBitmap::kARGB_8888_Config:
+                if ( SK_ColorBLACK != color && 0xFF != SkColorGetA(color) ) {
+                    //TODO: blitmask for black;
+                    //TODO: blitmask for opaque;
+                    proc = SkARGB32_BlitMask_portable;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return proc;
+}
 
