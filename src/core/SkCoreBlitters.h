@@ -101,7 +101,8 @@ public:
     virtual const SkBitmap* justAnOpaqueColor(uint32_t*);
 
 protected:
-    SkColor                fPMColor;
+    SkColor                fColor;
+    SkPMColor              fPMColor;
     SkBlitRow::ColorProc   fColor32Proc;
     SkBlitMask::Proc       fBlitMaskProc;
 

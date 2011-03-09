@@ -68,7 +68,8 @@ static void SkARGB32_Blit32(const SkBitmap& device, const SkMask& mask,
 
 SkARGB32_Blitter::SkARGB32_Blitter(const SkBitmap& device, const SkPaint& paint)
         : INHERITED(device) {
-    uint32_t color = paint.getColor();
+    SkColor color = paint.getColor();
+    fColor = color;
 
     fSrcA = SkColorGetA(color);
     unsigned scale = SkAlpha255To256(fSrcA);
@@ -192,14 +193,11 @@ void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
     int x = clip.fLeft;
     int y = clip.fTop;
-    int width = clip.width();
-    int height = clip.height();
 
-    uint32_t*       device = fDevice.getAddr32(x, y);
-    const uint8_t*  alpha = mask.getAddr(x, y);
-    uint32_t        srcColor = fPMColor;
-    fBlitMaskProc(device, fDevice.rowBytes(), SkBitmap::kARGB_8888_Config,
-                  alpha, mask.fRowBytes, srcColor, width, height);
+    fBlitMaskProc(fDevice.getAddr32(x, y), fDevice.rowBytes(),
+                  SkBitmap::kARGB_8888_Config,
+                  mask.getAddr(x, y), mask.fRowBytes,
+                  fColor, clip.width(), clip.height());
 }
 
 void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
@@ -225,7 +223,7 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
 #endif
 
     // In LCD mode the masks have either an extra couple of rows or columns on the edges.
-    uint32_t        srcColor = fPMColor;
+    SkPMColor srcColor = fPMColor;
 
 #if defined(SK_SUPPORT_LCDTEXT)
     if (lcdMode || verticalLCDMode) {
@@ -254,20 +252,9 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
     }
 #endif
 
-    uint32_t*      device = fDevice.getAddr32(x, y);
-    const uint8_t* alpha = mask.getAddr(x, y);
-    unsigned       maskRB = mask.fRowBytes - width;
-    unsigned       devRB = fDevice.rowBytes() - (width << 2);
-    do {
-        int w = width;
-        do {
-            unsigned aa = *alpha++;
-            *device = SkAlphaMulQ(srcColor, SkAlpha255To256(aa)) + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
-            device += 1;
-        } while (--w != 0);
-        device = (uint32_t*)((char*)device + devRB);
-        alpha += maskRB;
-    } while (--height != 0);
+    fBlitMaskProc(fDevice.getAddr32(x, y), fDevice.rowBytes(),
+                  SkBitmap::kARGB_8888_Config,
+                  mask.getAddr(x, y), mask.fRowBytes, fColor, width, height);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////

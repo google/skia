@@ -393,9 +393,10 @@ void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
 
 void SkARGB32_BlitMask_SSE2(void* device, size_t dstRB,
                             SkBitmap::Config dstConfig, const uint8_t* mask,
-                            size_t maskRB, SkColor color,
+                            size_t maskRB, SkColor origColor,
                             int width, int height)
 {
+    SkPMColor color = SkPreMultiplyColor(origColor);
     size_t dstOffset = dstRB - (width << 2);
     size_t maskOffset = maskRB - width;
     SkPMColor* dst = (SkPMColor *)device;
