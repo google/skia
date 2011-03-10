@@ -403,21 +403,70 @@ public:
     }
 };
 
+/**
+ *  Manage an allocated block of memory. If the requested size is <= kSize, then
+ *  the allocation will come from the stack rather than the heap. This object
+ *  is the sole manager of the lifetime of the block, so the caller must not
+ *  call sk_free() or delete on the block.
+ */
 template <size_t kSize> class SkAutoSMalloc : SkNoncopyable {
 public:
-    explicit SkAutoSMalloc(size_t size)
-    {
-        if (size <= kSize)
-            fPtr = fStorage;
-        else
-            fPtr = sk_malloc_flags(size, SK_MALLOC_THROW | SK_MALLOC_TEMP);
+    /**
+     *  Creates initially empty storage. get() returns a ptr, but it is to
+     *  a zero-byte allocation. Must call realloc(size) to return an allocated
+     *  block.
+     */
+    SkAutoSMalloc() {
+        fPtr = fStorage;
     }
-    ~SkAutoSMalloc()
-    {
-        if (fPtr != (void*)fStorage)
+
+    /**
+     *  Allocate a block of the specified size. If size <= kSize, then the
+     *  allocation will come from the stack, otherwise it will be dynamically
+     *  allocated.
+     */
+    explicit SkAutoSMalloc(size_t size) {
+        fPtr = fStorage;
+        this->realloc(size);
+    }
+
+    /**
+     *  Free the allocated block (if any). If the block was small enought to
+     *  have been allocated on the stack (size <= kSize) then this does nothing.
+     */
+    ~SkAutoSMalloc() {
+        if (fPtr != (void*)fStorage) {
             sk_free(fPtr);
+        }
     }
+
+    /**
+     *  Return the allocated block. May return non-null even if the block is
+     *  of zero size. Since this may be on the stack or dynamically allocated,
+     *  the caller must not call sk_free() on it, but must rely on SkAutoSMalloc
+     *  to manage it.
+     */
     void* get() const { return fPtr; }
+
+    /**
+     *  Return a new block of the requested size, freeing (as necessary) any
+     *  previously allocated block. As with the constructor, if size <= kSize
+     *  then the return block may be allocated locally, rather than from the
+     *  heap.
+     */
+    void* realloc(size_t size) {
+        if (fPtr != (void*)fStorage) {
+            sk_free(fPtr);
+        }
+
+        if (size <= kSize) {
+            fPtr = fStorage;
+        } else {
+            fPtr = sk_malloc_flags(size, SK_MALLOC_THROW | SK_MALLOC_TEMP);
+        }
+        return fPtr;
+    }
+
 private:
     void*       fPtr;
     uint32_t    fStorage[(kSize + 3) >> 2];
