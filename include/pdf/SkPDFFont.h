@@ -120,7 +120,7 @@ private:
 
     void populateType0Font();
     void populateCIDFont();
-    bool populateType1Font();
+    bool populateType1Font(int16_t glyphID);
 
     /** Populate the PDF font dictionary as Type3 font which includes glyph
      *  descriptions with instructions for painting the glyphs. This function
@@ -128,10 +128,14 @@ private:
      *  information including glyph paths are queried from the platform
      *  dependent SkGlyphCache.
     */
-    void populateType3Font();
+    void populateType3Font(int16_t glyphID);
     bool addFontDescriptor(int16_t defaultWidth);
     void addWidthInfoFromRange(int16_t defaultWidth,
         const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry);
+    /** Set fFirstGlyphID and fLastGlyphID to span at most 255 glyphs,
+     *  including the passed glyphID.
+     */
+    void adjustGlyphRangeForSingleByteEncoding(int16_t glyphID);
 
     static bool find(uint32_t fontID, uint16_t glyphID, int* index);
 };

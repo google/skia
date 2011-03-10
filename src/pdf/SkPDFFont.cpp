@@ -24,6 +24,7 @@
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
+#include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
@@ -401,7 +402,7 @@ SkPDFFont* SkPDFFont::getFontResource(SkTypeface* typeface, uint16_t glyphID) {
         fontDescriptor = relatedFont->fDescriptor.get();
     } else {
         fontInfo = SkFontHost::GetAdvancedTypefaceMetrics(fontID, true);
-        fontInfo->unref();  // SkRefPtr and get info both took a reference.
+        SkSafeUnref(fontInfo.get());  // SkRefPtr and Get both took a reference.
     }
 
     SkPDFFont* font = new SkPDFFont(fontInfo.get(), typeface, glyphID, false,
@@ -450,16 +451,23 @@ SkPDFFont::SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo,
 #endif
           fMultiByteGlyphs(false),
           fFirstGlyphID(1),
-          fLastGlyphID(fontInfo->fLastGlyphID),
+          fLastGlyphID(fontInfo ? fontInfo->fLastGlyphID : 0),
           fFontInfo(fontInfo),
           fDescriptor(fontDescriptor) {
 
-    if (fontInfo->fMultiMaster) {
+    SkAdvancedTypefaceMetrics::FontType type;
+    if (fontInfo) {
+        type = fontInfo->fType;
+    } else {
+        type = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
+    }
+
+    if (fontInfo && fontInfo->fMultiMaster) {
         SkASSERT(false);  // Not supported yet.
         fontInfo->fType = SkAdvancedTypefaceMetrics::kOther_Font;
     }
-    if (fontInfo->fType == SkAdvancedTypefaceMetrics::kType1CID_Font ||
-        fontInfo->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
+    if (type == SkAdvancedTypefaceMetrics::kType1CID_Font ||
+        type == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         if (descendantFont) {
             populateCIDFont();
         } else {
@@ -471,22 +479,16 @@ SkPDFFont::SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo,
         return;
     }
 
-    // Single byte glyph encoding supports a max of 255 glyphs.
-    fFirstGlyphID = glyphID - (glyphID - 1) % 255;
-    if (fLastGlyphID > fFirstGlyphID + 255 - 1) {
-        fLastGlyphID = fFirstGlyphID + 255 - 1;
-    }
-
-    if (fontInfo->fType == SkAdvancedTypefaceMetrics::kType1_Font &&
-        populateType1Font()) {
+    if (type == SkAdvancedTypefaceMetrics::kType1_Font &&
+        populateType1Font(glyphID)) {
         return;
     }
 
-    SkASSERT(fontInfo->fType == SkAdvancedTypefaceMetrics::kType1_Font ||
-             fontInfo->fType == SkAdvancedTypefaceMetrics::kCFF_Font ||
-             fontInfo->fType == SkAdvancedTypefaceMetrics::kOther_Font ||
-             fontInfo->fType == SkAdvancedTypefaceMetrics::kNotEmbeddable_Font);
-    populateType3Font();
+    SkASSERT(type == SkAdvancedTypefaceMetrics::kType1_Font ||
+             type == SkAdvancedTypefaceMetrics::kCFF_Font ||
+             type == SkAdvancedTypefaceMetrics::kOther_Font ||
+             type == SkAdvancedTypefaceMetrics::kNotEmbeddable_Font);
+    populateType3Font(glyphID);
 }
 
 void SkPDFFont::populateType0Font() {
@@ -563,9 +565,11 @@ void SkPDFFont::populateCIDFont() {
     }
 }
 
-bool SkPDFFont::populateType1Font() {
+bool SkPDFFont::populateType1Font(int16_t glyphID) {
     SkASSERT(!fFontInfo->fVerticalMetrics.get());
     SkASSERT(fFontInfo->fGlyphWidths.get());
+
+    adjustGlyphRangeForSingleByteEncoding(glyphID);
 
     int16_t defaultWidth = 0;
     const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry = NULL;
@@ -615,7 +619,19 @@ bool SkPDFFont::populateType1Font() {
     return true;
 }
 
-void SkPDFFont::populateType3Font() {
+void SkPDFFont::populateType3Font(int16_t glyphID) {
+    SkPaint paint;
+    paint.setTypeface(fTypeface.get());
+    paint.setTextSize(1000);
+    SkAutoGlyphCache autoCache(paint, NULL);
+    SkGlyphCache* cache = autoCache.getCache();
+    // If fLastGlyphID isn't set (because there is not fFontInfo), look it up.
+    if (fLastGlyphID == 0) {
+        fLastGlyphID = cache->getGlyphCount() - 1;
+    }
+
+    adjustGlyphRangeForSingleByteEncoding(glyphID);
+
     insert("Subtype", new SkPDFName("Type3"))->unref();
     // Flip about the x-axis and scale by 1/1000.
     SkMatrix fontMatrix;
@@ -638,12 +654,6 @@ void SkPDFFont::populateType3Font() {
 
     SkRefPtr<SkPDFArray> widthArray = new SkPDFArray();
     widthArray->unref();  // SkRefPtr and new both took a ref.
-
-    SkPaint paint;
-    paint.setTypeface(fTypeface.get());
-    paint.setTextSize(1000);
-    SkAutoGlyphCache autoCache(paint, NULL);
-    SkGlyphCache* cache = autoCache.getCache();
 
     SkIRect bbox = SkIRect::MakeEmpty();
     for (int gID = fFirstGlyphID; gID <= fLastGlyphID; gID++) {
@@ -682,7 +692,7 @@ void SkPDFFont::populateType3Font() {
     insert("LastChar", new SkPDFInt(fLastGlyphID))->unref();
     insert("Widths", widthArray.get());
 
-    if (fFontInfo->fLastGlyphID <= 255)
+    if (fFontInfo && fFontInfo->fLastGlyphID <= 255)
         fFontInfo = NULL;
 }
 
@@ -810,6 +820,15 @@ void SkPDFFont::addWidthInfoFromRange(
            new SkPDFInt(firstChar + widthArray->size() - 1))->unref();
     insert("Widths", widthArray.get());
 }
+
+void SkPDFFont::adjustGlyphRangeForSingleByteEncoding(int16_t glyphID) {
+    // Single byte glyph encoding supports a max of 255 glyphs.
+    fFirstGlyphID = glyphID - (glyphID - 1) % 255;
+    if (fLastGlyphID > fFirstGlyphID + 255 - 1) {
+        fLastGlyphID = fFirstGlyphID + 255 - 1;
+    }
+}
+
 
 bool SkPDFFont::FontRec::operator==(const SkPDFFont::FontRec& b) const {
     if (fFontID != b.fFontID)
