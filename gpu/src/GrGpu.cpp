@@ -71,6 +71,7 @@ GrGpu::GrGpu() : f8bitPaletteSupport(false),
                  fQuadIndexBuffer(NULL),
                  fUnitSquareVertexBuffer(NULL),
                  fPathRenderer(NULL),
+                 fContextIsDirty(true),
                  fVertexPoolInUse(false),
                  fIndexPoolInUse(false) {
 #if GR_DEBUG
@@ -94,6 +95,54 @@ void GrGpu::unimpl(const char msg[]) {
 #if GR_DEBUG
     GrPrintf("--- GrGpu unimplemented(\"%s\")\n", msg);
 #endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrTexture* GrGpu::createTexture(const TextureDesc& desc,
+                                const void* srcData, size_t rowBytes) {
+    this->handleDirtyContext();
+    return this->createTextureHelper(desc, srcData, rowBytes);
+}
+
+GrRenderTarget* GrGpu::createPlatformRenderTarget(intptr_t platformRenderTarget,
+                                                  int stencilBits,
+                                                  int width, int height) {
+    this->handleDirtyContext();
+    return this->createPlatformRenderTargetHelper(platformRenderTarget,
+                                                  stencilBits,
+                                                  width, height);
+}
+
+GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {
+    this->handleDirtyContext();
+    return this->createRenderTargetFrom3DApiStateHelper();
+}
+
+GrVertexBuffer* GrGpu::createVertexBuffer(uint32_t size, bool dynamic) {
+    this->handleDirtyContext();
+    return this->createVertexBufferHelper(size, dynamic);
+}
+
+GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
+    this->handleDirtyContext();
+    return this->createIndexBufferHelper(size, dynamic);
+}
+
+void GrGpu::eraseColor(GrColor color) {
+    this->handleDirtyContext();
+    this->eraseColorHelper(color);
+}
+
+void GrGpu::forceRenderTargetFlush() {
+    this->handleDirtyContext();
+    this->forceRenderTargetFlushHelper();
+}
+
+bool GrGpu::readPixels(int left, int top, int width, int height,
+                       GrTexture::PixelConfig config, void* buffer) {
+    this->handleDirtyContext();
+    return this->readPixelsHelper(left, top, width, height, config, buffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +233,8 @@ const GrStencilSettings GrGpu::gClipStencilSettings = {
     0,                           0
 };
 
-// converts special stencil func to
+// mapping of clip-respecting stencil funcs to normal stencil funcs
+// mapping depends on whether stencil-clipping is in effect.
 static const GrStencilFunc gGrClipToNormalStencilFunc[2][kClipStencilFuncCount] = {
     {// Stencil-Clipping is DISABLED, effectively always inside the clip
         // In the Clip Funcs
@@ -445,7 +495,9 @@ void GrGpu::drawIndexed(GrPrimitiveType type,
     GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fIndexSrc ||
              fReservedGeometry.fLocked);
 
-    if (!setupClipAndFlushState(type)) {
+    this->handleDirtyContext();
+
+    if (!this->setupClipAndFlushState(type)) {
         return;
     }
 
@@ -469,7 +521,9 @@ void GrGpu::drawNonIndexed(GrPrimitiveType type,
     GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fVertexSrc ||
              fReservedGeometry.fLocked);
 
-    if (!setupClipAndFlushState(type)) {
+    this->handleDirtyContext();
+
+    if (!this->setupClipAndFlushState(type)) {
         return;
     }
 #if GR_COLLECT_STATS

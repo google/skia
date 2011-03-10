@@ -14,7 +14,6 @@
     limitations under the License.
  */
 
-
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
@@ -144,10 +143,10 @@ public:
     /**
      * The GrGpu object normally assumes that no outsider is setting state
      * within the underlying 3D API's context/device/whatever. This call informs
-     * the GrGpu that the state was modified and it should resend. Shouldn't
-     * be called frequently for good performance.
+     * the GrGpu that the state was modified and it shouldn't make assumptions
+     * about the state.
      */
-    virtual void resetContext();
+    void markContextDirty() { fContextIsDirty = true; }
 
     void unimpl(const char[]);
 
@@ -164,8 +163,8 @@ public:
      *
      * @return    The texture object if successful, otherwise NULL.
      */
-    virtual GrTexture* createTexture(const TextureDesc& desc,
-                                     const void* srcData, size_t rowBytes) = 0;
+    GrTexture* createTexture(const TextureDesc& desc,
+                             const void* srcData, size_t rowBytes);
     /**
      * Wraps an externally-created rendertarget in a GrRenderTarget.
      * @param platformRenderTarget  handle to the the render target in the
@@ -178,7 +177,7 @@ public:
     virtual GrRenderTarget* createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
-                                                int width, int height) = 0;
+                                                int width, int height);
 
     /**
      * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
@@ -189,7 +188,7 @@ public:
      *
      * @return the newly created GrRenderTarget
      */
-    virtual GrRenderTarget* createRenderTargetFrom3DApiState() = 0;
+    GrRenderTarget* createRenderTargetFrom3DApiState();
 
     /**
      * Creates a vertex buffer.
@@ -201,7 +200,7 @@ public:
      *
      * @return    The vertex buffer if successful, otherwise NULL.
      */
-    virtual GrVertexBuffer* createVertexBuffer(uint32_t size, bool dynamic) = 0;
+    GrVertexBuffer* createVertexBuffer(uint32_t size, bool dynamic);
 
     /**
      * Creates an index buffer.
@@ -213,14 +212,14 @@ public:
      *
      * @return The index buffer if successful, otherwise NULL.
      */
-    virtual GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic) = 0;
+    GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
 
     /**
      * Erase the entire render target, ignoring any clips/scissors.
      *
      * This is issued to the GPU driver immediately.
      */
-    virtual void eraseColor(GrColor color) = 0;
+    void eraseColor(GrColor color);
 
     /**
      * Are 8 bit paletted textures supported.
@@ -322,10 +321,22 @@ public:
      * underlying 3D API. Used when client wants to use 3D API to directly
      * render to the RT.
      */
-    virtual void forceRenderTargetFlush() = 0;
+    void forceRenderTargetFlush();
 
-    virtual bool readPixels(int left, int top, int width, int height,
-                            GrTexture::PixelConfig, void* buffer) = 0;
+    /**
+     * Reads a rectangle of pixels from the current render target.
+     * @param left      left edge of the rectangle to read (inclusive)
+     * @param top       top edge of the rectangle to read (inclusive)
+     * @param width     width of rectangle to read in pixels.
+     * @param height    height of rectangle to read in pixels.
+     * @param buffer    memory to read the rectangle into.
+     *
+     * @return true if the read succeeded, false if not. The read can fail
+     *              because of a unsupported pixel config or because no render
+     *              target is currently set.
+     */
+    bool readPixels(int left, int top, int width, int height,
+                    GrTexture::PixelConfig, void* buffer);
 
 
     const Stats& getStats() const;
@@ -357,7 +368,7 @@ protected:
 
     // Functions used to map clip-respecting stencil tests into normal
     // stencil funcs supported by GPUs.
-    static GrStencilFunc ConvertStencilFunc(bool stencilInClip, 
+    static GrStencilFunc ConvertStencilFunc(bool stencilInClip,
                                             GrStencilFunc func);
     static void ConvertStencilFuncAndMask(GrStencilFunc func,
                                           bool clipInStencil,
@@ -412,7 +423,28 @@ protected:
     void finalizeReservedVertices();
     void finalizeReservedIndices();
 
-    // overridden by API specific GrGpu-derived class to perform the draw call.
+    // overridden by API-specific derived class to handle re-emitting 3D API
+    // preample and dirtying state cache.
+    virtual void resetContext() = 0;
+
+    // overridden by API-specific derived class to create objects.
+    virtual GrTexture* createTextureHelper(const TextureDesc& desc,
+                                           const void* srcData,
+                                           size_t rowBytes) = 0;
+    virtual GrRenderTarget* createPlatformRenderTargetHelper(
+                                                intptr_t platformRenderTarget,
+                                                int stencilBits,
+                                                int width, int height) = 0;
+    virtual GrRenderTarget* createRenderTargetFrom3DApiStateHelper() = 0;
+    virtual GrVertexBuffer* createVertexBufferHelper(uint32_t size,
+                                                     bool dynamic) = 0;
+    virtual GrIndexBuffer* createIndexBufferHelper(uint32_t size,
+                                                   bool dynamic) = 0;
+
+    // overridden by API-specific derivated class to perform the erase.
+    virtual void eraseColorHelper(GrColor color) = 0;
+
+    // overridden by API-specific derived class to perform the draw call.
     virtual void drawIndexedHelper(GrPrimitiveType type,
                                    uint32_t startVertex,
                                    uint32_t startIndex,
@@ -422,6 +454,13 @@ protected:
     virtual void drawNonIndexedHelper(GrPrimitiveType type,
                                       uint32_t vertexCount,
                                       uint32_t numVertices) = 0;
+
+    // overridden by API-specific derived class to perform flush
+    virtual void forceRenderTargetFlushHelper() = 0;
+
+    // overridden by API-specific derived class to perform the read pixels.
+    virtual bool readPixelsHelper(int left, int top, int width, int height,
+                                  GrTexture::PixelConfig, void* buffer) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
     // indexed geometry. The subclass may adjust the startVertex and/or
@@ -451,6 +490,13 @@ private:
 
     GrPathRenderer* getPathRenderer();
 
+    void handleDirtyContext() {
+        if (fContextIsDirty) {
+            this->resetContext();
+            fContextIsDirty = false;
+        }
+    }
+
     GrVertexBufferAllocPool*    fVertexPool;
 
     GrIndexBufferAllocPool*     fIndexPool;
@@ -462,6 +508,8 @@ private:
                                                          // created on-demand
 
     GrPathRenderer*             fPathRenderer;
+
+    bool                        fContextIsDirty;
 
     // when in an internal draw these indicate whether the pools are in use
     // by one of the outer draws. If false then it is safe to reset the

@@ -560,9 +560,14 @@ void GrContext::drawPath(const GrPaint& paint,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::flush(bool flushRenderTarget) {
-    flushDrawBuffer();
-    if (flushRenderTarget) {
+void GrContext::flush(int flagsBitfield) {
+    if (kDiscard_FlushBit & flagsBitfield) {
+        fDrawBuffer->reset();
+    } else {
+        flushDrawBuffer();
+    }
+
+    if (kForceCurrentRenderTarget_FlushBit & flagsBitfield) {
         fGpu->forceRenderTargetFlush();
     }
 }
@@ -683,7 +688,7 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::resetContext() {
-    fGpu->resetContext();
+    fGpu->markContextDirty();
 }
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {

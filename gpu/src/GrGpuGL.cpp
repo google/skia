@@ -152,8 +152,6 @@ GrGpuGL::GrGpuGL() {
 
     GrGLInitExtensions(&fExts);
 
-    resetContextHelper();
-
     resetDirtyFlags();
 
     GLint maxTextureUnits;
@@ -427,8 +425,8 @@ GrGpuGL::GrGpuGL() {
 GrGpuGL::~GrGpuGL() {
 }
 
-void GrGpuGL::resetContextHelper() {
-// We detect cases when blending is effectively off
+void GrGpuGL::resetContext() {
+    // We detect cases when blending is effectively off
     fHWBlendDisabled = false;
     GR_GL(Enable(GL_BLEND));
 
@@ -491,12 +489,7 @@ void GrGpuGL::resetContextHelper() {
     fHWDrawState.fRenderTarget = NULL;
 }
 
-void GrGpuGL::resetContext() {
-    INHERITED::resetContext();
-    resetContextHelper();
-}
-
-GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
+GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
                                                 int width,
@@ -520,7 +513,7 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTarget(
     return new GrGLRenderTarget(rtIDs, stencilBits, viewport, NULL, this);
 }
 
-GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiState() {
+GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
 
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
 
@@ -575,8 +568,9 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
-                                  const void* srcData, size_t rowBytes) {
+GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
+                                        const void* srcData,
+                                        size_t rowBytes) {
 
 #if GR_COLLECT_STATS
     ++fStats.fTextureCreateCnt;
@@ -988,7 +982,7 @@ GrTexture* GrGpuGL::createTexture(const TextureDesc& desc,
     return tex;
 }
 
-GrVertexBuffer* GrGpuGL::createVertexBuffer(uint32_t size, bool dynamic) {
+GrVertexBuffer* GrGpuGL::createVertexBufferHelper(uint32_t size, bool dynamic) {
     GLuint id;
     GR_GL(GenBuffers(1, &id));
     if (id) {
@@ -1012,7 +1006,7 @@ GrVertexBuffer* GrGpuGL::createVertexBuffer(uint32_t size, bool dynamic) {
     return NULL;
 }
 
-GrIndexBuffer* GrGpuGL::createIndexBuffer(uint32_t size, bool dynamic) {
+GrIndexBuffer* GrGpuGL::createIndexBufferHelper(uint32_t size, bool dynamic) {
     GLuint id;
     GR_GL(GenBuffers(1, &id));
     if (id) {
@@ -1066,7 +1060,7 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
     }
 }
 
-void GrGpuGL::eraseColor(GrColor color) {
+void GrGpuGL::eraseColorHelper(GrColor color) {
     if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
@@ -1121,12 +1115,12 @@ void GrGpuGL::eraseStencilClip(const GrIRect& rect) {
     fHWDrawState.fStencilSettings.invalidate();
 }
 
-void GrGpuGL::forceRenderTargetFlush() {
+void GrGpuGL::forceRenderTargetFlushHelper() {
     flushRenderTarget();
 }
 
-bool GrGpuGL::readPixels(int left, int top, int width, int height,
-                         GrTexture::PixelConfig config, void* buffer) {
+bool GrGpuGL::readPixelsHelper(int left, int top, int width, int height,
+                               GrTexture::PixelConfig config, void* buffer) {
     GLenum internalFormat;  // we don't use this for glReadPixels
     GLenum format;
     GLenum type;
@@ -1207,7 +1201,7 @@ GLenum gPrimitiveType2GLMode[] = {
 
 #define SWAP_PER_DRAW 0
 
-#if SWAP_PER_DRAW 
+#if SWAP_PER_DRAW
     #if GR_MAC_BUILD
         #include <AGL/agl.h>
     #elif GR_WIN32_BUILD

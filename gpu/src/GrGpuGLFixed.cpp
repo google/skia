@@ -58,7 +58,6 @@ static const GLenum gMatrixMode2Enum[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGpuGLFixed::GrGpuGLFixed() {
-    resetContextHelper();
 }
 
 GrGpuGLFixed::~GrGpuGLFixed() {
@@ -66,10 +65,7 @@ GrGpuGLFixed::~GrGpuGLFixed() {
 
 void GrGpuGLFixed::resetContext() {
     INHERITED::resetContext();
-    resetContextHelper();
-}
 
-void GrGpuGLFixed::resetContextHelper() {
     GR_GL(Disable(GL_TEXTURE_2D));
 
     for (int s = 0; s < kNumStages; ++s) {
@@ -204,11 +200,11 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
                 }
 
                 if (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
-                    (fHWDrawState.fSamplerStates[s].getMatrix() != 
+                    (fHWDrawState.fSamplerStates[s].getMatrix() !=
                      getSamplerMatrix(s))) {
 
                     GrMatrix texMat = getSamplerMatrix(s);
-                    AdjustTextureMatrix(texture, 
+                    AdjustTextureMatrix(texture,
                                         GrSamplerState::kNormal_SampleMode,
                                         &texMat);
                     GrGpuMatrix glm;
