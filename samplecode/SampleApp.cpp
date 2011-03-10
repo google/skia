@@ -436,7 +436,11 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         SkCanvas* canvas = fGpuCanvas ? fGpuCanvas : orig;
         SkDevice* device = canvas->getDevice();
         SkBitmap bitmap;
-        SkIRect bounds = { 0, 0, this->width(), this->height() };
+        SkIRect bounds = {
+            0, 0,
+            SkScalarRound(this->width()),
+            SkScalarRound(this->height())
+        };
         if (device->readPixels(bounds, &bitmap)) {
             static int gSampleGrabCounter;
             SkString name;
