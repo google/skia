@@ -1,22 +1,23 @@
-#include "SampleCode.h"
+#include "gm.h"
 #include "SkCanvas.h"
+//#include "SkParsePath.h"
 #include "SkPath.h"
-#include "SkView.h"
+//#include "SkRandom.h"
 
-class ComplexClipView : public SkView {
+namespace skiagm {
+
+class ComplexClipGM : public GM {
 public:
-	ComplexClipView() {
+	ComplexClipGM() {
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ComplexClip");
-            return true;
-        }
-        return this->INHERITED::onQuery(evt);
+
+    SkString onShortName() {
+        return SkString("complexclip");
     }
+
+    SkISize onISize() { return make_isize(550, 1000); }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SkColorSetRGB(0xA0,0xDD,0xA0));
@@ -92,7 +93,7 @@ protected:
         canvas->save();
 
         for (int invA = 0; invA < 2; ++invA) {
-            for (int op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
+            for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
                 int idx = invA * SK_ARRAY_COUNT(gOps) + op;
                 if (!(idx % 3)) {
                     canvas->restore();
@@ -139,17 +140,13 @@ protected:
         }
         canvas->restore();
     }
-
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
 private:
-    typedef SkView INHERITED;
+    typedef GM INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ComplexClipView; }
-static SkViewRegister reg(MyFactory);
+static GM* MyFactory(void*) { return new ComplexClipGM; }
+static GMRegistry reg(MyFactory);
 
+}
