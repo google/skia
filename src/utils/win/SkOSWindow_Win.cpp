@@ -433,10 +433,7 @@ HGLRC create_gl(HWND hwnd) {
     return glrc;
 }
 
-bool SkOSWindow::attachGL(const SkBitmap* offscreen) {
-    if (offscreen) {
-        printf("windows doesn't support rendering to SkBitmap");
-    }
+bool SkOSWindow::attachGL() {
     if (NULL == fHGLRC) {
         fHGLRC = create_gl((HWND)fHWND);
         glClearStencil(0);

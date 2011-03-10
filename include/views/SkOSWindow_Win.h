@@ -30,7 +30,7 @@ public:
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
     
-    bool attachGL(const SkBitmap* offscreen);
+    bool attachGL();
     void detachGL();
     void presentGL();
 
