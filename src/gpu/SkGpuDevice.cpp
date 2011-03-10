@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -142,7 +142,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                        &fTexture, true);
         if (fCache) {
             SkASSERT(NULL != fTexture);
-            SkASSERT(fTexture->isRenderTarget());
+            SkASSERT(NULL != fTexture->asRenderTarget());
         }
 #else
         const GrGpu::TextureDesc desc = {

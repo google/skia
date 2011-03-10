@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -291,12 +291,11 @@ void GrInOrderDrawBuffer::reset() {
     GrAssert(!fReservedGeometry.fLocked);
     uint32_t numStates = fStates.count();
     for (uint32_t i = 0; i < numStates; ++i) {
+        const DrState& dstate = this->accessSavedDrawState(fStates[i]);
         for (int s = 0; s < kNumStages; ++s) {
-            GrTexture* tex = this->accessSavedDrawState(fStates[i]).fTextures[s];
-            if (NULL != tex) {
-                tex->unref();
-            }
+            GrSafeUnref(dstate.fTextures[s]);
         }
+        GrSafeUnref(dstate.fRenderTarget);
     }
     int numDraws = fDraws.count();
     for (int d = 0; d < numDraws; ++d) {
@@ -499,6 +498,7 @@ void GrInOrderDrawBuffer::pushState() {
     for (int s = 0; s < kNumStages; ++s) {
         GrSafeRef(fCurrDrawState.fTextures[s]);
     }
+    GrSafeRef(fCurrDrawState.fRenderTarget);
     this->saveCurrentDrawState(&fStates.push_back());
  }
 

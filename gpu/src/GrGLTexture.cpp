@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include "GrGpuGL.h"
 
 GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids,
+                                   GrGLTexID* texID,
                                    GLuint stencilBits,
                                    const GrGLIRect& viewport,
                                    GrGLTexture* texture,
@@ -34,6 +35,8 @@ GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids,
     fNeedsResolve           = false;
     fViewport               = viewport;
     fOwnIDs                 = ids.fOwnIDs;
+    fTexIDObj               = texID;
+    GrSafeRef(fTexIDObj);
 }
 
 GrGLRenderTarget::~GrGLRenderTarget() {
@@ -52,6 +55,7 @@ GrGLRenderTarget::~GrGLRenderTarget() {
             GR_GLEXT(fGL->extensions(), DeleteRenderbuffers(1, &fMSColorRenderbufferID));
         }
     }
+    GrSafeUnref(fTexIDObj);
 }
 
 void GrGLRenderTarget::abandon() {
@@ -59,6 +63,9 @@ void GrGLRenderTarget::abandon() {
     fTexFBOID               = 0;
     fStencilRenderbufferID  = 0;
     fMSColorRenderbufferID  = 0;
+    if (NULL != fTexIDObj) {
+        fTexIDObj->abandon();
+    }
 }
 
 
@@ -84,7 +91,7 @@ GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
                     textureDesc.fFormat) {
 
     fTexParams          = initialTexParams;
-    fTextureID          = textureDesc.fTextureID;
+    fTexIDObj           = new GrGLTexID(textureDesc.fTextureID);
     fUploadFormat       = textureDesc.fUploadFormat;
     fUploadByteCount    = textureDesc.fUploadByteCount;
     fUploadType         = textureDesc.fUploadType;
@@ -108,43 +115,32 @@ GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
         vp.fHeight = textureDesc.fContentHeight;
         vp.fBottom = textureDesc.fAllocHeight - textureDesc.fContentHeight;
 
-        fRenderTarget = new GrGLRenderTarget(rtIDs, textureDesc.fStencilBits, 
+        fRenderTarget = new GrGLRenderTarget(rtIDs, fTexIDObj,
+                                             textureDesc.fStencilBits,
                                              vp, this, gl);
     }
 }
 
 GrGLTexture::~GrGLTexture() {
-    // make sure we haven't been abandoned
-    if (fTextureID) {
-        fGpuGL->notifyTextureDelete(this);
-        GR_GL(DeleteTextures(1, &fTextureID));
-    }
-    delete fRenderTarget;
+    fGpuGL->notifyTextureDelete(this);
+    fTexIDObj->unref();
+    GrSafeUnref(fRenderTarget);
 }
 
 void GrGLTexture::abandon() {
-    fTextureID = 0;
+    fTexIDObj->abandon();
     if (NULL != fRenderTarget) {
         fRenderTarget->abandon();
     }
-}
-
-bool GrGLTexture::isRenderTarget() const {
-    return NULL != fRenderTarget;
 }
 
 GrRenderTarget* GrGLTexture::asRenderTarget() {
     return (GrRenderTarget*)fRenderTarget;
 }
 
-void GrGLTexture::removeRenderTarget() {
-    GrAssert(NULL != fRenderTarget);
-    if (NULL != fRenderTarget) {
-        // must do this notify before the delete
-        fGpuGL->notifyTextureRemoveRenderTarget(this);
-        delete fRenderTarget;
-        fRenderTarget = NULL;
-    }
+void GrGLTexture::releaseRenderTarget() {
+    GrSafeUnref(fRenderTarget);
+    fRenderTarget = NULL;
 }
 
 void GrGLTexture::uploadTextureData(uint32_t x,
@@ -162,7 +158,7 @@ void GrGLTexture::uploadTextureData(uint32_t x,
     // If we need to update textures that are created upside down
     // then we have to modify this code to flip the srcData
     GrAssert(kTopDown_Orientation == fOrientation);
-    GR_GL(BindTexture(GL_TEXTURE_2D, fTextureID));
+    GR_GL(BindTexture(GL_TEXTURE_2D, fTexIDObj->id()));
     GR_GL(PixelStorei(GL_UNPACK_ALIGNMENT, fUploadByteCount));
     GR_GL(TexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, 
                         fUploadFormat, fUploadType, srcData));
@@ -170,7 +166,7 @@ void GrGLTexture::uploadTextureData(uint32_t x,
 }
 
 intptr_t GrGLTexture::getTextureHandle() {
-    return fTextureID;
+    return fTexIDObj->id();
 }
 
 

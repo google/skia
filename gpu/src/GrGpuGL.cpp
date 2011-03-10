@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -510,7 +510,7 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
     rtIDs.fRTFBOID  = (GLuint)platformRenderTarget;
     rtIDs.fTexFBOID = (GLuint)platformRenderTarget;
 
-    return new GrGLRenderTarget(rtIDs, stencilBits, viewport, NULL, this);
+    return new GrGLRenderTarget(rtIDs, NULL, stencilBits, viewport, NULL, this);
 }
 
 GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
@@ -529,7 +529,7 @@ GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
 
     rtIDs.fOwnIDs = false;
 
-    return new GrGLRenderTarget(rtIDs, stencilBits, viewport, NULL, this);
+    return new GrGLRenderTarget(rtIDs, NULL, stencilBits, viewport, NULL, this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1694,11 +1694,6 @@ void GrGpuGL::notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
 
 void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
     GrAssert(NULL != renderTarget);
-
-    // if the bound FBO is destroyed we can't rely on the implicit bind to 0
-    // a) we want the default RT which may not be FBO 0
-    // b) we set more state than just FBO based on the RT
-    // So trash the HW state to force an RT flush next time
     if (fCurrDrawState.fRenderTarget == renderTarget) {
         fCurrDrawState.fRenderTarget = NULL;
     }
@@ -1717,13 +1712,6 @@ void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
             fHWDrawState.fTextures[s] = NULL;
        }
     }
-}
-
-void GrGpuGL::notifyTextureRemoveRenderTarget(GrGLTexture* texture) {
-    GrAssert(NULL != texture->asRenderTarget());
-
-    // if there is a pending resolve, perform it.
-    resolveTextureRenderTarget(texture);
 }
 
 bool GrGpuGL::canBeTexture(GrTexture::PixelConfig config,

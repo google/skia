@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -151,7 +151,6 @@ private:
     void notifyIndexBufferDelete(const GrGLIndexBuffer* buffer);
     void notifyTextureDelete(GrGLTexture* texture);
     void notifyRenderTargetDelete(GrRenderTarget* renderTarget);
-    void notifyTextureRemoveRenderTarget(GrGLTexture* texture);
 
     void setSpareTextureUnit();
 
