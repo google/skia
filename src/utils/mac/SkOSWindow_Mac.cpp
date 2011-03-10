@@ -452,7 +452,7 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 	}
 }
 
-AGLContext create_gl(WindowRef wref, bool offscreen)
+AGLContext create_gl(WindowRef wref)
 {
     GLint major, minor;
     AGLContext ctx;
@@ -466,8 +466,8 @@ AGLContext create_gl(WindowRef wref, bool offscreen)
         AGL_SAMPLE_BUFFERS_ARB, 1,
 		AGL_MULTISAMPLE,
 		AGL_SAMPLES_ARB, 8,
-		(offscreen ? AGL_OFFSCREEN : AGL_ACCELERATED),
-        (offscreen ? AGL_NONE : AGL_DOUBLEBUFFER),
+		AGL_ACCELERATED,
+        AGL_DOUBLEBUFFER,
         AGL_NONE
     };
     AGLPixelFormat format = aglChoosePixelFormat(NULL, 0, pixelAttrs);
@@ -483,10 +483,10 @@ AGLContext create_gl(WindowRef wref, bool offscreen)
     return ctx;
 }
 
-bool SkOSWindow::attachGL(const SkBitmap* offscreen)
+bool SkOSWindow::attachGL()
 {
     if (NULL == fAGLCtx) {
-        fAGLCtx = create_gl((WindowRef)fHWND, NULL != offscreen);
+        fAGLCtx = create_gl((WindowRef)fHWND);
         if (NULL == fAGLCtx) {
             return false;
         }
@@ -496,24 +496,14 @@ bool SkOSWindow::attachGL(const SkBitmap* offscreen)
 
     int width, height;
 
-    if (offscreen) {
-        success = aglSetOffScreen((AGLContext)fAGLCtx,
-                                    offscreen->width(),
-                                    offscreen->height(),
-                                    offscreen->rowBytes(),
-                                    offscreen->getPixels());
-        width = offscreen->width();
-        height = offscreen->height();
-    } else {
-        success = aglSetWindowRef((AGLContext)fAGLCtx, (WindowRef)fHWND);
-        width = this->width();
-        height = this->height();
-    }
+    success = aglSetWindowRef((AGLContext)fAGLCtx, (WindowRef)fHWND);
+    width = this->width();
+    height = this->height();
 
     GLenum err = aglGetError();
     if (err) {
-        SkDebugf("---- setoffscreen %d %d %s [%d %d]\n", success, err,
-                 aglErrorString(err), offscreen->width(), offscreen->height());
+        SkDebugf("---- aglSetWindowRef %d %d %s [%d %d]\n", success, err,
+                 aglErrorString(err), width, height);
     }
 
     if (success) {

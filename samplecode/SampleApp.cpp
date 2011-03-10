@@ -21,10 +21,6 @@ extern SkView* create_overview(int, const SkViewFactory[]);
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
 
-#if !defined(SK_BUILD_FOR_WIN32)
-//#define USE_OFFSCREEN
-#endif
-
 #ifdef SK_SUPPORT_GL
     #include "GrGLConfig.h"
 #endif
@@ -208,27 +204,20 @@ private:
 bool SampleWindow::make3DReady() {
 
 #if defined(SK_SUPPORT_GL)
-    #if defined(USE_OFFSCREEN)
-        // first clear the raster bitmap, so we don't see any leftover bits
-        bitmap.eraseColor(0);
-        // now setup our glcanvas
-        attachGL(&bitmap);
-    #else
-        attachGL(NULL);
-    #endif
+    if (attachGL()) {
+        if (NULL == fGrContext) {
+        #if defined(SK_USE_SHADERS)
+            fGrContext = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
+        #else
+            fGrContext = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
+        #endif
+        }
 
-    if (NULL == fGrContext) {
-    #if defined(SK_USE_SHADERS)
-        fGrContext = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
-    #else
-        fGrContext = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
-    #endif
-    }
-
-    if (NULL != fGrContext) {
-        return true;
-    } else {
-        detachGL();
+        if (NULL != fGrContext) {
+            return true;
+        } else {
+            detachGL();
+        }
     }
 #endif
     SkDebugf("Failed to setup 3D");
@@ -485,9 +474,6 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             delete fGpuCanvas;
             fGpuCanvas = NULL;
             presentGL();
-    #ifdef USE_OFFSCREEN
-            reverseRedAndBlue(orig->getDevice()->accessBitmap(true));
-    #endif
             break;
 #endif
     }

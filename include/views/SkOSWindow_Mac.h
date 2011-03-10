@@ -36,7 +36,7 @@ public:
     void   doPaint(void* ctx);
 
 
-    bool attachGL(const SkBitmap* offscreen);
+    bool attachGL();
     void detachGL();
     void presentGL();
 
