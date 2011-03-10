@@ -147,7 +147,7 @@ public:
     /**
      * Wraps an externally-created rendertarget in a GrRenderTarget.
      * @param platformRenderTarget  3D API-specific render target identifier
-     *                              e.g. in GL platforamRenderTarget is an FBO 
+     *                              e.g. in GL platforamRenderTarget is an FBO
      *                              id.
      * @param stencilBits           the number of stencil bits that the render
      *                              target has.
@@ -383,15 +383,33 @@ public:
     // Misc.
 
     /**
+     * Flags that affect flush() behavior.
+     */
+    enum FlushBits {
+        /**
+         * A client may want Gr to bind a GrRenderTarget in the 3D API so that
+         * it can be rendered to directly. However, Gr lazily sets state. Simply
+         * calling setRenderTarget() followed by flush() without flags may not
+         * bind the render target. This flag forces the context to bind the last
+         * set render target in the 3D API.
+         */
+        kForceCurrentRenderTarget_FlushBit   = 0x1,
+        /**
+         * A client may reach a point where it has partially rendered a frame
+         * through a GrContext that it knows the user will never see. This flag
+         * causes the flush to skip submission of deferred content to the 3D API
+         * during the flush.
+         */
+        kDiscard_FlushBit                    = 0x2,
+    };
+
+    /**
      * Call to ensure all drawing to the context has been issued to the
      * underlying 3D API.
-     * if flushRenderTarget is true then after the call the last
-     * rendertarget set will be current in the underlying 3D API, otherwise
-     * it may not be. It is useful to set if the caller plans to use the 3D
-     * context outside of Ganesh to render into the current RT.
+     * @param flagsBitfield     flags that control the flushing behavior. See
+     *                          FlushBits.
      */
-    void flush(bool flushRenderTarget);
-
+    void flush(int flagsBitfield);
     /**
      *  Return true on success, i.e. if we could copy the specified range of
      *  pixels from the current render-target into the buffer, converting into
@@ -473,7 +491,7 @@ private:
     static void SetPaint(const GrPaint& paint, GrDrawTarget* target);
 
     bool finalizeTextureKey(GrTextureKey*, const GrSamplerState&) const;
-    
+
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
     void drawClipIntoStencil();

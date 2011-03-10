@@ -31,28 +31,6 @@ public:
             GrGpuGL();
     virtual ~GrGpuGL();
 
-    // overrides from GrGpu
-    virtual void resetContext();
-
-    virtual GrTexture* createTexture(const TextureDesc& desc,
-                                     const void* srcData, size_t rowBytes);
-    virtual GrVertexBuffer* createVertexBuffer(uint32_t size, bool dynamic);
-    virtual GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
-
-    virtual GrRenderTarget* createPlatformRenderTarget(
-                                                 intptr_t platformRenderTarget,
-                                                 int stencilBits,
-                                                 int width, int height);
-
-    virtual GrRenderTarget* createRenderTargetFrom3DApiState();
-
-    virtual void eraseColor(GrColor color);
-
-    virtual void forceRenderTargetFlush();
-
-    virtual bool readPixels(int left, int top, int width, int height,
-                            GrTexture::PixelConfig, void* buffer);
-
     /**
      * Gets the struct containing the GL extensions for the context
      * underlying the GrGpuGL
@@ -97,6 +75,31 @@ protected:
     GrGLExts fExts;
 
     // GrGpu overrides
+    // overrides from GrGpu
+    virtual void resetContext();
+
+    virtual GrTexture* createTextureHelper(const TextureDesc& desc,
+                                           const void* srcData,
+                                           size_t rowBytes);
+    virtual GrVertexBuffer* createVertexBufferHelper(uint32_t size,
+                                                     bool dynamic);
+    virtual GrIndexBuffer* createIndexBufferHelper(uint32_t size,
+                                                   bool dynamic);
+
+    virtual GrRenderTarget* createPlatformRenderTargetHelper(
+                                                 intptr_t platformRenderTarget,
+                                                 int stencilBits,
+                                                 int width, int height);
+
+    virtual GrRenderTarget* createRenderTargetFrom3DApiStateHelper();
+
+    virtual void eraseColorHelper(GrColor color);
+
+    virtual void forceRenderTargetFlushHelper();
+
+    virtual bool readPixelsHelper(int left, int top, int width, int height,
+                                  GrTexture::PixelConfig, void* buffer);
+
     virtual void drawIndexedHelper(GrPrimitiveType type,
                                    uint32_t startVertex,
                                    uint32_t startIndex,
@@ -140,8 +143,6 @@ protected:
                                         const GrSamplerState& sampler);
 
 private:
-    void resetContextHelper();
-
     // notify callbacks to update state tracking when related
     // objects are bound to GL or deleted outside of the class
     void notifyVertexBufferBind(const GrGLVertexBuffer* buffer);

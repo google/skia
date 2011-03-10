@@ -1088,8 +1088,6 @@ void GrGpuGLShaders2::DeleteProgram(Program* program) {
 
 GrGpuGLShaders2::GrGpuGLShaders2() {
 
-    resetContextHelper();
-
     fProgram = NULL;
     fProgramCache = new ProgramCache();
 
@@ -1119,11 +1117,9 @@ void GrGpuGLShaders2::recordHWSamplerMatrix(int stage, const GrMatrix& matrix){
 }
 
 void GrGpuGLShaders2::resetContext() {
-    INHERITED::resetContext();
-    resetContextHelper();
-}
 
-void GrGpuGLShaders2::resetContextHelper() {
+    INHERITED::resetContext();
+
     fHWGeometryState.fVertexLayout = 0;
     fHWGeometryState.fVertexOffset  = ~0;
     GR_GL(DisableVertexAttribArray(COL_ATTR_LOCATION));

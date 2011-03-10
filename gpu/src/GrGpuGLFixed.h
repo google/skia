@@ -26,8 +26,6 @@ public:
              GrGpuGLFixed();
     virtual ~GrGpuGLFixed();
 
-    virtual void resetContext();
-
 protected:
     // overrides from GrGpu
     virtual bool flushGraphicsState(GrPrimitiveType type);
@@ -37,7 +35,7 @@ protected:
                                int indexCount);
 
 private:
-    void resetContextHelper();
+    virtual void resetContext();
 
     // Helpers to make code more readable
     const GrMatrix& getHWSamplerMatrix(int stage) const {
