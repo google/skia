@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -25,6 +25,26 @@
 class GrGpuGL;
 class GrGLTexture;
 
+/**
+ * A ref counted tex id that deletes the texture in its destructor.
+ */
+class GrGLTexID : public GrRefCnt {
+public:
+    GrGLTexID(GLuint texID) : fTexID(texID) {}
+
+    virtual ~GrGLTexID() {
+        if (0 != fTexID) {
+            GR_GL(DeleteTextures(1, &fTexID));
+        }
+    }
+
+    void abandon() { fTexID = 0; }
+    GLuint id() const { return fTexID; }
+
+private:
+    GLuint      fTexID;
+};
+
 class GrGLRenderTarget : public GrRenderTarget {
 public:
     virtual ~GrGLRenderTarget();
@@ -49,6 +69,7 @@ protected:
     };
     
     GrGLRenderTarget(const GLRenderTargetIDs& ids,
+                     GrGLTexID* texID,
                      GLuint stencilBits,
                      const GrGLIRect& fViewport,
                      GrGLTexture* texture,
@@ -59,7 +80,7 @@ protected:
 private:
     GrGpuGL*    fGL;
     GLuint      fRTFBOID;
-    GLuint      fTexFBOID;    
+    GLuint      fTexFBOID;
     GLuint      fStencilRenderbufferID;
     GLuint      fMSColorRenderbufferID;
    
@@ -75,7 +96,10 @@ private:
     // only render to to content area (as opposed to the whole allocation) and
     // we want the rendering to be at top left (GL has origin in bottom left) 
     GrGLIRect fViewport;
-    
+
+    // non-NULL if this RT was created by Gr with an associated GrGLTexture.
+    GrGLTexID* fTexIDObj;
+
     friend class GrGpuGL;
     friend class GrGLTexture;
     
@@ -120,9 +144,8 @@ public:
     
     // overloads of GrTexture
     virtual void abandon();
-    virtual bool isRenderTarget() const;
     virtual GrRenderTarget* asRenderTarget();
-    virtual void removeRenderTarget();
+    virtual void releaseRenderTarget();
     virtual void uploadTextureData(uint32_t x,
                                    uint32_t y,
                                    uint32_t width,
@@ -132,7 +155,7 @@ public:
 
     const TexParams& getTexParams() const { return fTexParams; }
     void setTexParams(const TexParams& texParams) { fTexParams = texParams; }
-    GLuint textureID() const { return fTextureID; }
+    GLuint textureID() const { return fTexIDObj->id(); }
 
     GLenum uploadFormat() const { return fUploadFormat; }
     GLenum uploadByteCount() const { return fUploadByteCount; }
@@ -174,7 +197,7 @@ public:
 
 private:
     TexParams           fTexParams;
-    GLuint              fTextureID;
+    GrGLTexID*          fTexIDObj;
     GLenum              fUploadFormat;
     GLenum              fUploadByteCount;
     GLenum              fUploadType;

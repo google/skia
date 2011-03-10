@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -161,20 +161,8 @@ public:
     virtual void abandon() = 0;
 
     /**
-     * Queries whether the texture was created as a render target.
-     *
-     * Use asRenderTarget() to use the texture as a render target if this
-     * returns true.
-     *
-     * @return true if the texture was created as a render target.
-     */
-    virtual bool isRenderTarget() const = 0;
-
-    /**
      * Retrieves the render target underlying this texture that can be passed to
      * GrGpu::setRenderTarget().
-     *
-     * If isRenderTarget() is false then the returned handle is undefined.
      *
      * @return    handle to render target or undefined if the texture is not a
      *            render target
@@ -182,10 +170,11 @@ public:
     virtual GrRenderTarget* asRenderTarget() = 0;
 
     /**
-     * Removes the "rendertargetness" from a texture. This may or may not
-     * actually do anything with the underlying 3D API.
+     * Removes the reference on the associated GrRenderTarget held by this
+     * texture. Afterwards asRenderTarget() will return NULL. The 
+     * GrRenderTarget survives the release if another ref is held on it.
      */
-    virtual void removeRenderTarget() = 0;
+    virtual void releaseRenderTarget() = 0;
 
     /**
      *  Return the native ID or handle to the texture, depending on the

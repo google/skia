@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -155,6 +155,11 @@ public:
      * two but underlying API requires a power of two texture then srcData
      * will be embedded in a power of two texture. The extra width and height
      * is filled as though srcData were rendered clamped into the texture.
+     *
+     * If kRenderTarget_TextureFlag is specified the GrRenderTarget is 
+     * accessible via GrTexture::asRenderTarget(). The texture will hold a ref
+     * on the render target until its releaseRenderTarget() is called or it is
+     * destroyed.
      *
      * @param desc        describes the texture to be created.
      * @param srcData     texel data to load texture. Begins with full-size

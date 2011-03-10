@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -134,11 +134,6 @@ private:
     void pushClip();
 
     GrTAllocator<Draw>              fDraws;
-    // HACK: We currently do not hold refs on RTs in the saved draw states.
-    // The reason is that in the GL implementation when a GrTexture is destroyed
-    // that has an associated RT the RT is destroyed regardless of its ref count.
-    // We need a third object that holds the shared GL ids and persists until
-    // both reach ref count 0. (skia issue 122)
     GrTAllocator<SavedDrawState>    fStates;
 
     GrTAllocator<GrClip>            fClips;

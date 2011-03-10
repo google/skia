@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -172,7 +172,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                                      0, 4);
                 entry = fTextureCache->createAndLock(*key, texture);
             }
-            texture->removeRenderTarget();
+            texture->releaseRenderTarget();
         } else {
             // TODO: Our CPU stretch doesn't filter. But we create separate
             // stretched textures when the sampler state is either filtered or
