@@ -47,6 +47,7 @@ struct SkMask {
         kHorizontalLCD_Format,  //!< 4 bytes/pixel: a/r/g/b
         kVerticalLCD_Format,    //!< 4 bytes/pixel: a/r/g/b
         kARGB32_Format,         //!< SkPMColor
+        kLCD16_Format           //!< 565 alpha for r/g/b
     };
 
     enum {
@@ -96,6 +97,19 @@ struct SkMask {
         return fImage + x - fBounds.fLeft + (y - fBounds.fTop) * fRowBytes;
     }
 
+    /**
+     *  Return the address of the specified 16bit mask. In the debug build,
+     *  this asserts that the mask's format is kLCD16_Format, and that (x,y)
+     *  are contained in the mask's fBounds.
+     */
+    uint16_t* getAddrLCD16(int x, int y) const {
+        SkASSERT(kLCD16_Format == fFormat);
+        SkASSERT(fBounds.contains(x, y));
+        SkASSERT(fImage != NULL);
+        uint16_t* row = (uint16_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
+        return row + (x - fBounds.fLeft);
+    }
+
     /** Return an address into the 32-bit plane of an LCD or VerticalLCD mask
         for the given position.
     */
@@ -120,7 +134,7 @@ struct SkMask {
 
     static uint8_t* AllocImage(size_t bytes);
     static void FreeImage(void* image);
-    
+
     enum CreateMode {
         kJustComputeBounds_CreateMode,      //!< compute bounds and return
         kJustRenderImage_CreateMode,        //!< render into preallocate mask

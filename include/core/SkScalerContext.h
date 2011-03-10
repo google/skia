@@ -53,16 +53,25 @@ struct SkGlyph {
         fMaskFormat     = MASK_FORMAT_UNKNOWN;
     }
 
-    unsigned rowBytes() const {
-        unsigned rb = fWidth;
-        if (SkMask::kBW_Format == fMaskFormat) {
+    /**
+     *  Compute the rowbytes for the specified width and mask-format.
+     */
+    static unsigned ComputeRowBytes(unsigned width, SkMask::Format format) {
+        unsigned rb = width;
+        if (SkMask::kBW_Format == format) {
             rb = (rb + 7) >> 3;
-		} else if (SkMask::kARGB32_Format == fMaskFormat) {
+		} else if (SkMask::kARGB32_Format == format) {
 			rb <<= 2;
+		} else if (SkMask::kLCD16_Format == format) {
+			rb = SkAlign4(rb << 1);
         } else {
             rb = SkAlign4(rb);
         }
         return rb;
+    }
+
+    unsigned rowBytes() const {
+        return ComputeRowBytes(fWidth, (SkMask::Format)fMaskFormat);
     }
 
     bool isJustAdvance() const {
