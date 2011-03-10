@@ -445,7 +445,8 @@ bool SkOSWindow::attachGL() {
         }
     }
     if (wglMakeCurrent(GetDC((HWND)fHWND), (HGLRC)fHGLRC)) {
-        glViewport(0, 0, this->width(), this->height());
+        glViewport(0, 0, SkScalarRound(this->width()),
+                   SkScalarRound(this->height()));
         fGLAttached = true;
         return true;
     }
