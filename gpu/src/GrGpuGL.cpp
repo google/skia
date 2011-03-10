@@ -1183,7 +1183,7 @@ void GrGpuGL::flushRenderTarget() {
         fDirtyFlags.fRenderTargetChanged = true;
         fHWDrawState.fRenderTarget = fCurrDrawState.fRenderTarget;
         const GrGLIRect& vp = rt->getViewport();
-        if (true || fHWBounds.fViewportRect != vp) {
+        if (fHWBounds.fViewportRect != vp) {
             vp.pushToGLViewport();
             fHWBounds.fViewportRect = vp;
         }
