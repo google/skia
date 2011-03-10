@@ -1,16 +1,16 @@
 /*
  ** Copyright 2006, The Android Open Source Project
  **
- ** Licensed under the Apache License, Version 2.0 (the "License"); 
- ** you may not use this file except in compliance with the License. 
- ** You may obtain a copy of the License at 
+ ** Licensed under the Apache License, Version 2.0 (the "License");
+ ** you may not use this file except in compliance with the License.
+ ** You may obtain a copy of the License at
  **
- **     http://www.apache.org/licenses/LICENSE-2.0 
+ **     http://www.apache.org/licenses/LICENSE-2.0
  **
- ** Unless required by applicable law or agreed to in writing, software 
- ** distributed under the License is distributed on an "AS IS" BASIS, 
- ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- ** See the License for the specific language governing permissions and 
+ ** Unless required by applicable law or agreed to in writing, software
+ ** distributed under the License is distributed on an "AS IS" BASIS,
+ ** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ** See the License for the specific language governing permissions and
  ** limitations under the License.
 */
 #include <vector>
@@ -21,7 +21,7 @@
 #include "SkString.h"
 #include "SkPaint.h"
 #include "SkFloatingPoint.h"
-
+#include "SkUtils.h"
 
 
 
@@ -88,13 +88,13 @@ public:
 
     // Is a font ID valid?
     bool                                IsValid(SkFontID fontID);
-    
-    
+
+
     // Get a font
     CTFontRef                           GetFont(SkFontID fontID);
     SkNativeFontInfo                    GetFontInfo(const SkString &theName, SkTypeface::Style theStyle);
-    
-    
+
+
     // Create a font
     SkNativeFontInfo                    CreateFont(const SkString &theName, SkTypeface::Style theStyle);
 
@@ -132,7 +132,7 @@ SkNativeFontCache::SkNativeFontCache(void)
     fontInfo.style   = SkTypeface::kNormal;
     fontInfo.fontID  = kSkInvalidFontID;
     fontInfo.fontRef = NULL;
-        
+
     mFonts.push_back(fontInfo);
 }
 
@@ -190,7 +190,7 @@ SkNativeFontInfo SkNativeFontCache::GetFontInfo(const SkString &theName, SkTypef
         if (theIter->name == theName && theIter->style == theStyle)
             return(*theIter);
         }
-    
+
     return(fontInfo);
 }
 
@@ -328,7 +328,8 @@ private:
 
 
 private:
-    CGColorSpaceRef                     mColorSpace;
+    CGColorSpaceRef                     mColorSpaceGray;
+    CGColorSpaceRef                     mColorSpaceRGB;
     CGAffineTransform                   mTransform;
 
     CTFontRef                           mFont;
@@ -352,7 +353,11 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 
 
     // Initialise ourselves
-    mColorSpace = CGColorSpaceCreateDeviceGray();
+//    mColorSpaceRGB = CGColorSpaceCreateDeviceRGB();
+//    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
+    mColorSpaceGray = CGColorSpaceCreateDeviceGray();
+
     const float inv = 1.0f / FONT_CANONICAL_POINTSIZE;
     mTransform  = CGAffineTransformMake(SkScalarToFloat(skMatrix[SkMatrix::kMScaleX]) * inv,
                                         -SkScalarToFloat(skMatrix[SkMatrix::kMSkewY]) * inv,
@@ -369,7 +374,8 @@ SkScalerContext_Mac::~SkScalerContext_Mac(void)
 {
 
     // Clean up
-    CFSafeRelease(mColorSpace);
+    CFSafeRelease(mColorSpaceGray);
+    CFSafeRelease(mColorSpaceRGB);
     CFSafeRelease(mFont);
 }
 
@@ -437,8 +443,27 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     glyph->fLeft     =  sk_float_round2int(CGRectGetMinX(theBounds));
 }
 
-void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
-{   CGContextRef        cgContext;
+#include "SkColorPriv.h"
+
+static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
+    int r = (rgb >> 16) & 0xFF;
+    int g = (rgb >>  8) & 0xFF;
+    int b = (rgb >>  0) & 0xFF;
+
+    // invert, since we draw black-on-white, but we want the original
+    // src mask values.
+    r = 255 - r;
+    g = 255 - g;
+    b = 255 - b;
+
+    return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
+}
+
+#define BITMAP_INFO_RGB     (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
+#define BITMAP_INFO_GRAY    (kCGImageAlphaNone)
+
+void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
+    CGContextRef        cgContext;
     CGGlyph             cgGlyph;
     CGFontRef           cgFont;
 
@@ -447,17 +472,61 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph)
 
     cgGlyph   = (CGGlyph) glyph.getGlyphID(fBaseGlyphCount);
     cgFont    = CTFontCopyGraphicsFont(mFont, NULL);
-    cgContext = CGBitmapContextCreate(  glyph.fImage, glyph.fWidth, glyph.fHeight, 8,
-                                        glyph.rowBytes(), mColorSpace, kCGImageAlphaNone);
+
+    SkAutoSMalloc<1024> storage;
+
+    CGColorSpaceRef colorspace = mColorSpaceGray;
+    uint32_t info = BITMAP_INFO_GRAY;
+    void* image = glyph.fImage;
+    size_t rowBytes = glyph.rowBytes();
+    float grayColor = 1; // white
+
+    /*  For LCD16, we first create a temp offscreen cg-context in 32bit,
+     *  erase to white, and then draw a black glyph into it. Then we can
+     *  extract the r,g,b values, invert-them, and now we have the original
+     *  src mask components, which we pack into our 16bit mask.
+     */
+    if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
+        colorspace = mColorSpaceRGB;
+        info = BITMAP_INFO_RGB;
+        // need tmp storage for 32bit RGB offscreen
+        rowBytes = glyph.fWidth << 2;
+        size_t size = glyph.fHeight * rowBytes;
+        image = storage.realloc(size);
+        // we draw black-on-white (and invert in rgb_to_lcd16)
+        sk_memset32((uint32_t*)image, 0xFFFFFFFF, size >> 2);
+        grayColor = 0;  // black
+    }
+
+    cgContext = CGBitmapContextCreate(image, glyph.fWidth, glyph.fHeight, 8,
+                                      rowBytes, colorspace, info);
 
     // Draw the glyph
     if (cgFont != NULL && cgContext != NULL) {
-        CGContextSetGrayFillColor(  cgContext, 1.0, 1.0);
+        CGContextSetAllowsFontSubpixelQuantization(cgContext, true);
+        CGContextSetShouldSubpixelQuantizeFonts(cgContext, true);
+
+        CGContextSetGrayFillColor(  cgContext, grayColor, 1.0);
         CGContextSetTextDrawingMode(cgContext, kCGTextFill);
         CGContextSetFont(           cgContext, cgFont);
         CGContextSetFontSize(       cgContext, FONT_CANONICAL_POINTSIZE);
         CGContextSetTextMatrix(     cgContext, mTransform);
         CGContextShowGlyphsAtPoint( cgContext, -glyph.fLeft, glyph.fTop + glyph.fHeight, &cgGlyph, 1);
+
+        if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
+            // downsample from rgba to rgb565
+            int width = glyph.fWidth;
+            const uint32_t* src = (const uint32_t*)image;
+            uint16_t* dst = (uint16_t*)glyph.fImage;
+            size_t dstRB = glyph.rowBytes();
+            for (int y = 0; y < glyph.fHeight; y++) {
+                for (int i = 0; i < width; i++) {
+                    dst[i] = rgb_to_lcd16(src[i]);
+                }
+                src = (const uint32_t*)((const char*)src + rowBytes);
+                dst = (uint16_t*)((char*)dst + dstRB);
+            }
+        }
     }
 
     // Clean up
@@ -539,7 +608,7 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
         case kCGPathElementCloseSubpath:
             skPath->close();
             break;
-        
+
         default:
             SkASSERT("Unknown path element!");
             break;
@@ -783,7 +852,7 @@ size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag)
         theSize = CFDataGetLength(cfData);
         CFSafeRelease(cfData);
         }
-    
+
     return(theSize);
 }
 

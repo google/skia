@@ -23,6 +23,12 @@
 #include "SkColorPriv.h"
 #include "SkImageDecoder.h"
 
+static void setNamedTypeface(SkPaint* paint, const char name[]) {
+    SkTypeface* face = SkTypeface::CreateFromName(name, SkTypeface::kNormal);
+    paint->setTypeface(face);
+    SkSafeUnref(face);
+}
+
 #if 0
 static int newscale(U8CPU a, U8CPU b, int shift) {
     unsigned prod = a * b + (1 << (shift - 1));
@@ -35,7 +41,7 @@ static void test_srcover565(SkCanvas* canvas) {
     bm1.setConfig(SkBitmap::kRGB_565_Config, width, 256); bm1.allocPixels(NULL);
     bm2.setConfig(SkBitmap::kRGB_565_Config, width, 256); bm2.allocPixels(NULL);
     bm3.setConfig(SkBitmap::kRGB_565_Config, width, 256); bm3.allocPixels(NULL);
-    
+
     int rgb = 0x18;
     int r = rgb >> 3;
     int g = rgb >> 2;
@@ -44,7 +50,7 @@ static void test_srcover565(SkCanvas* canvas) {
         SkPMColor pm = SkPreMultiplyARGB(alpha, rgb, rgb, rgb);
         uint16_t newdst = SkSrcOver32To16(pm, dst);
         sk_memset16(bm1.getAddr16(0, alpha), newdst, bm1.width());
-        
+
         int ia = 255 - alpha;
         int iscale = SkAlpha255To256(ia);
         int dr = (SkGetPackedR32(pm) + (r * iscale >> 5)) >> 3;
@@ -54,7 +60,7 @@ static void test_srcover565(SkCanvas* canvas) {
 
         int dr2 = (SkMulDiv255Round(alpha, rgb) + newscale(r, ia, 5)) >> 3;
         int dg2 = (SkMulDiv255Round(alpha, rgb) + newscale(g, ia, 6)) >> 2;
-        
+
         sk_memset16(bm3.getAddr16(0, alpha), SkPackRGB16(dr2, dg2, dr2), bm3.width());
 
 //        if (mr != dr || mg != dg)
@@ -62,13 +68,13 @@ static void test_srcover565(SkCanvas* canvas) {
 //            SkDebugf("[%d] macro [%d %d] inline [%d %d] new [%d %d]\n", alpha, mr, mg, dr, dg, dr2, dg2);
         }
     }
-    
+
     SkScalar dx = SkIntToScalar(width+4);
-    
+
     canvas->drawBitmap(bm1, 0, 0, NULL); canvas->translate(dx, 0);
     canvas->drawBitmap(bm2, 0, 0, NULL); canvas->translate(dx, 0);
     canvas->drawBitmap(bm3, 0, 0, NULL); canvas->translate(dx, 0);
-    
+
     SkRect rect = { 0, 0, SkIntToScalar(bm1.width()), SkIntToScalar(bm1.height()) };
     SkPaint p;
     p.setARGB(0xFF, rgb, rgb, rgb);
@@ -76,7 +82,7 @@ static void test_srcover565(SkCanvas* canvas) {
 }
 #endif
 
-static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {    
+static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
     src->setConfig(SkBitmap::kARGB_8888_Config, w, h);
     src->allocPixels();
     src->eraseColor(0);
@@ -88,10 +94,10 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
     SkScalar hh = SkIntToScalar(h);
 
     p.setAntiAlias(true);
-    p.setColor(0xFFFFCC44);    
+    p.setColor(0xFFFFCC44);
     r.set(0, 0, ww*3/4, hh*3/4);
     c.drawOval(r, p);
-    
+
     dst->setConfig(SkBitmap::kARGB_8888_Config, w, h);
     dst->allocPixels();
     dst->eraseColor(0);
@@ -112,26 +118,26 @@ class XfermodesView : public SkView {
                    SkScalar x, SkScalar y) {
         SkPaint p;
 
-        canvas->drawBitmap(fSrcB, x, y, &p);        
+        canvas->drawBitmap(fSrcB, x, y, &p);
         p.setAlpha(alpha);
         p.setXfermode(mode);
         canvas->drawBitmap(fDstB, x, y, &p);
     }
-    
+
 public:
     const static int W = 64;
     const static int H = 64;
 	XfermodesView() {
         const int W = 64;
         const int H = 64;
-        
+
         fBG.setConfig(SkBitmap::kARGB_4444_Config, 2, 2, 4);
         fBG.setPixels(gBG);
         fBG.setIsOpaque(true);
-        
+
         make_bitmaps(W, H, &fSrcB, &fDstB);
     }
-    
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
@@ -145,12 +151,12 @@ protected:
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
     }
-    
+
     virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         this->drawBG(canvas);
-        
+
         const struct {
             SkXfermode::Mode  fMode;
             const char*         fLabel;
@@ -190,11 +196,14 @@ protected:
         SkMatrix m;
         m.setScale(SkIntToScalar(6), SkIntToScalar(6));
         s->setLocalMatrix(m);
-        
+
         SkPaint labelP;
         labelP.setAntiAlias(true);
+        labelP.setLCDRenderText(true);
         labelP.setTextAlign(SkPaint::kCenter_Align);
-        
+        setNamedTypeface(&labelP, "Menlo Regular");
+//        labelP.setTextSize(SkIntToScalar(11));
+
         const int W = 5;
 
         SkScalar x0 = 0;
@@ -210,7 +219,7 @@ protected:
                 p.setStyle(SkPaint::kFill_Style);
                 p.setShader(s);
                 canvas->drawRect(r, p);
-                
+
                 canvas->saveLayer(&r, NULL, SkCanvas::kARGB_ClipLayer_SaveFlag);
          //       canvas->save();
                 draw_mode(canvas, mode, twice ? 0x88 : 0xFF, r.fLeft, r.fTop);
