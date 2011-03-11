@@ -226,6 +226,7 @@ protected:
 private:
 	SkScalar	 fScale;	// to get from canonical size to real size
     MAT2         fMat22;
+    XFORM        fXform;
     HDC          fDDC;
     HFONT        fSavefont;
     HFONT        fFont;
@@ -233,16 +234,32 @@ private:
     int          fGlyphCount;
 };
 
+static float mul2float(SkScalar a, SkScalar b) {
+    return SkScalarToFloat(SkScalarMul(a, b));
+}
+
+static FIXED float2FIXED(float x) {
+    return SkFixedToFIXED(SkFloatToFixed(x));
+}
+
 SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
         , fGlyphCount(-1) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
 	fScale = fRec.fTextSize / gCanonicalTextSize;
-    fMat22.eM11 = SkScalarToFIXED(SkScalarMul(fScale, fRec.fPost2x2[0][0]));
-    fMat22.eM12 = SkScalarToFIXED(SkScalarMul(fScale, -fRec.fPost2x2[0][1]));
-    fMat22.eM21 = SkScalarToFIXED(SkScalarMul(fScale, fRec.fPost2x2[1][0]));
-    fMat22.eM22 = SkScalarToFIXED(SkScalarMul(fScale, -fRec.fPost2x2[1][1]));
+
+    fXform.eM11 = mul2float(fScale, fRec.fPost2x2[0][0]);
+    fXform.eM12 = mul2float(fScale, fRec.fPost2x2[1][0]);
+    fXform.eM21 = mul2float(fScale, fRec.fPost2x2[0][1]);
+    fXform.eM22 = mul2float(fScale, fRec.fPost2x2[1][1]);
+    fXform.eDx = 0;
+    fXform.eDy = 0;
+
+    fMat22.eM11 = float2FIXED(fXform.eM11);
+    fMat22.eM12 = float2FIXED(fXform.eM12);
+    fMat22.eM21 = float2FIXED(-fXform.eM21);
+    fMat22.eM22 = float2FIXED(-fXform.eM22);
 
     fDDC = ::CreateCompatibleDC(NULL);
     SetBkMode(fDDC, TRANSPARENT);
@@ -329,15 +346,20 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
         glyph->fLeft    = SkToS16(gm.gmptGlyphOrigin.x);
         glyph->fAdvanceX = SkIntToFixed(gm.gmCellIncX);
         glyph->fAdvanceY = -SkIntToFixed(gm.gmCellIncY);
+
+        // we outset by 1 in all dimensions, since the lcd image may bleed outside
+        // of the computed bounds returned by GetGlyphOutline.
+        // This was deduced by trial and error for small text (e.g. 8pt), so there
+        // maybe a more precise way to make this adjustment...
+        if (SkMask::kLCD16_Format == fRec.fMaskFormat) {
+            glyph->fWidth += 2;
+            glyph->fHeight += 2;
+            glyph->fTop -= 1;
+            glyph->fLeft -= 1;
+        }
     } else {
         glyph->fWidth = 0;
     }
-
-#if 0
-    char buf[1024];
-    sprintf(buf, "generateMetrics: id:%d, w=%d, h=%d, font:%s, fh:%d\n", glyph->fID, glyph->fWidth, glyph->fHeight, lf.lfFaceName, lf.lfHeight);
-    OutputDebugString(buf);
-#endif
 }
 
 void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my) {
@@ -374,21 +396,83 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
     }
 }
 
+#include "SkColorPriv.h"
+
+static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
+    int r = (rgb >> 16) & 0xFF;
+    int g = (rgb >>  8) & 0xFF;
+    int b = (rgb >>  0) & 0xFF;
+
+    // invert, since we draw black-on-white, but we want the original
+    // src mask values.
+    r = 255 - r;
+    g = 255 - g;
+    b = 255 - b;
+    return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
+}
+
 void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     SkAutoMutexAcquire  ac(gFTMutex);
 
     SkASSERT(fDDC);
 
+    if (SkMask::kLCD16_Format == fRec.fMaskFormat) {
+        HDC dc = CreateCompatibleDC(0);
+        void* bits = 0;
+        BITMAPINFO info;
+        sk_bzero(&info, sizeof(info));
+        info.bmiHeader.biSize = sizeof(info.bmiHeader);
+        info.bmiHeader.biWidth = glyph.fWidth;
+        info.bmiHeader.biHeight = glyph.fHeight;
+        info.bmiHeader.biPlanes = 1;
+        info.bmiHeader.biBitCount = 32;
+        info.bmiHeader.biCompression = BI_RGB;
+        HBITMAP bm = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &bits, 0, 0);
+        SelectObject(dc, bm);
+
+        // erase to white
+        size_t srcRB = glyph.fWidth << 2;
+        size_t size = glyph.fHeight * srcRB;
+        memset(bits, 0xFF, size);
+
+        SetBkMode(dc, TRANSPARENT);
+        SetTextAlign(dc, TA_LEFT | TA_BASELINE);
+        SetGraphicsMode(dc, GM_ADVANCED);
+
+        XFORM xform = fXform;
+        xform.eDx = (float)-glyph.fLeft;
+        xform.eDy = (float)-glyph.fTop;
+        SetWorldTransform(dc, &xform);
+
+        HGDIOBJ prevFont = SelectObject(dc, fFont);
+        COLORREF color = SetTextColor(dc, 0); // black
+        SkASSERT(color != CLR_INVALID);
+        uint16_t glyphID = glyph.getGlyphID();
+        ExtTextOut(dc, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCWSTR)&glyphID, 1, NULL);
+        GdiFlush();
+
+        // downsample from rgba to rgb565
+        int width = glyph.fWidth;
+        size_t dstRB = glyph.rowBytes();
+        const uint32_t* src = (const uint32_t*)bits;
+        // gdi's bitmap is upside-down, so we reverse dst walking in Y
+        uint16_t* dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+        for (int y = 0; y < glyph.fHeight; y++) {
+            for (int i = 0; i < width; i++) {
+                dst[i] = rgb_to_lcd16(src[i]);
+            }
+            src = (const uint32_t*)((const char*)src + srcRB);
+            dst = (uint16_t*)((char*)dst - dstRB);
+        }
+
+        DeleteDC(dc);
+        DeleteObject(bm);
+        return;
+    }
+
     GLYPHMETRICS gm;
     memset(&gm, 0, sizeof(gm));
-
-#if 0
-    char buf[1024];
-    sprintf(buf, "generateImage: id:%d, w=%d, h=%d, font:%s,fh:%d\n", glyph.fID, glyph.fWidth, glyph.fHeight, lf.lfFaceName, lf.lfHeight);
-    OutputDebugString(buf);
-#endif
-
     uint32_t bytecount = 0;
     uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
     if (GDI_ERROR != total_size && total_size > 0) {
@@ -796,6 +880,12 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     // We don't control the hinting nor ClearType settings here
     rec->setHinting(SkPaint::kNormal_Hinting);
+
+    // we do support LCD16
+    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
+        return;
+    }
+
     if (SkMask::FormatIsLCD((SkMask::Format)rec->fMaskFormat)) {
         rec->fMaskFormat = SkMask::kA8_Format;
     }
