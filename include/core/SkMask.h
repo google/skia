@@ -142,8 +142,7 @@ struct SkMask {
     };
 
     static bool FormatIsLCD(Format fm) {
-        return kHorizontalLCD_Format == fm || kVerticalLCD_Format == fm ||
-               kLCD16_Format == fm;
+        return kHorizontalLCD_Format == fm || kVerticalLCD_Format == fm;
     }
 };
 
