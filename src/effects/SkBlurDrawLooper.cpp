@@ -31,8 +31,11 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
 
     if (flags & kOverrideColor_BlurFlag)
     {
+        // Set alpha to 1 for the override since transparency will already
+        // be baked into the blurred mask.
+        SkColor opaqueColor = SkColorSetA(color, 255);
         //The SrcIn xfer mode will multiply 'color' by the incoming alpha
-        fColorFilter = SkColorFilter::CreateModeFilter(color, SkXfermode::kSrcIn_Mode);
+        fColorFilter = SkColorFilter::CreateModeFilter(opaqueColor, SkXfermode::kSrcIn_Mode);
     }
     else
     {
