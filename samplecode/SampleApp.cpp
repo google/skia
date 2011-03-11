@@ -41,6 +41,84 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
     #define SK_USE_SHADERS
 #endif
 
+#if 1
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CFURLAccess.h>
+
+static void testpdf() {
+    CFStringRef path = CFStringCreateWithCString(NULL, "/test.pdf",
+                                                 kCFStringEncodingUTF8);
+    CFURLRef url = CFURLCreateWithFileSystemPath(NULL, path,
+                                              kCFURLPOSIXPathStyle,
+                                              false);
+    CFRelease(path);
+    CGRect box = CGRectMake(0, 0, 8*72, 10*72);
+    CGContextRef cg = CGPDFContextCreateWithURL(url, &box, NULL);
+    CFRelease(url);
+
+    CGContextBeginPage(cg, &box);
+    CGRect r = CGRectMake(10, 10, 40 + 0.5, 50 + 0.5);
+    CGContextFillEllipseInRect(cg, r);
+    CGContextEndPage(cg);
+    CGContextRelease(cg);
+
+    if (false) {
+        SkBitmap bm;
+        bm.setConfig(SkBitmap::kA8_Config, 64, 64);
+        bm.allocPixels();
+        bm.eraseColor(0);
+
+        SkCanvas canvas(bm);
+
+    }
+}
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+
+#include "SkDrawFilter.h"
+
+class LCDTextDrawFilter : public SkDrawFilter {
+public:
+    enum Mode {
+        kNeutral_Mode,
+        kForceOn_Mode,
+        kForceOff_Mode
+    };
+
+    LCDTextDrawFilter(Mode mode) : fMode(mode) {}
+
+    virtual bool filter(SkCanvas*, SkPaint* paint, Type t) {
+        if (kText_Type == t && kNeutral_Mode != fMode) {
+            fPrevLCD = paint->isLCDRenderText();
+            paint->setLCDRenderText(kForceOn_Mode == fMode);
+        }
+        return true;
+    }
+
+    /** If filter() returned true, then restore() will be called to restore the
+     canvas/paint to their previous states
+     */
+    virtual void restore(SkCanvas*, SkPaint* paint, Type t) {
+        if (kText_Type == t && kNeutral_Mode != fMode) {
+            paint->setLCDRenderText(fPrevLCD);
+        }
+    }
+
+private:
+    Mode    fMode;
+    bool    fPrevLCD;
+};
+
+LCDTextDrawFilter::Mode cycle_lcdmode(LCDTextDrawFilter::Mode mode) {
+    static const LCDTextDrawFilter::Mode gCycle[] = {
+        /* kNeutral_Mode  -> */  LCDTextDrawFilter::kForceOn_Mode,
+        /* kForceOn_Mode  -> */  LCDTextDrawFilter::kForceOff_Mode,
+        /* kForceOff_Mode -> */  LCDTextDrawFilter::kNeutral_Mode
+    };
+    return gCycle[mode];
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 static const char gCharEvtName[] = "SampleCode_Char_Event";
@@ -180,6 +258,8 @@ private:
     bool fScale;
     bool fRequestGrabImage;
 
+    LCDTextDrawFilter::Mode fLCDMode;
+
     int fScrollTestX, fScrollTestY;
 
     bool make3DReady();
@@ -251,7 +331,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fRotate = false;
     fScale = false;
     fRequestGrabImage = false;
-
+    fLCDMode = LCDTextDrawFilter::kNeutral_Mode;
     fScrollTestX = fScrollTestY = 0;
 
 //    this->setConfig(SkBitmap::kRGB_565_Config);
@@ -268,6 +348,8 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     }
     fCurrIndex = 0;
     this->loadView(fSamples[fCurrIndex]());
+
+    testpdf();
 }
 
 SampleWindow::~SampleWindow() {
@@ -512,9 +594,14 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->rotate(SkIntToScalar(30));
         canvas->translate(-cx, -cy);
     }
+
+    if (LCDTextDrawFilter::kNeutral_Mode != fLCDMode) {
+        canvas->setDrawFilter(new LCDTextDrawFilter(fLCDMode))->unref();
+    }
 }
 
 void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
+    canvas->setDrawFilter(NULL);
 }
 
 static SkBitmap::Config gConfigCycle[] = {
@@ -669,6 +756,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             fRequestGrabImage = true;
             this->inval(NULL);
             break;
+        case 'l':
+            fLCDMode = cycle_lcdmode(fLCDMode);
+            this->updateTitle();
+            this->inval(NULL);
+            break;
         default:
             break;
     }
@@ -798,6 +890,11 @@ void SampleWindow::updateTitle() {
     }
     if (fNClip) {
         title.prepend("<C> ");
+    }
+    if (LCDTextDrawFilter::kForceOn_Mode == fLCDMode) {
+        title.prepend("LCD ");
+    } else if (LCDTextDrawFilter::kForceOff_Mode == fLCDMode) {
+        title.prepend("lcd ");
     }
     this->setTitle(title.c_str());
 }
