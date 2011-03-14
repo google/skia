@@ -52,6 +52,9 @@ public:
         kMultiply_Mode, //!< [Sa * Da, Sc * Dc]
         kScreen_Mode,   //!< [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc]
         kAdd_Mode,      //!< Saturate(S + D)
+#ifdef ANDROID
+        kOverlay_Mode,
+#endif
 
         kModeCount
     };

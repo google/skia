@@ -153,6 +153,14 @@ void SkDevice::drawTextOnPath(const SkDraw& draw, const void* text,
     draw.drawTextOnPath((const char*)text, len, path, matrix, paint);
 }
 
+#ifdef ANDROID
+void SkDevice::drawPosTextOnPath(const SkDraw& draw, const void* text, size_t len,
+                                     const SkPoint pos[], const SkPaint& paint,
+                                     const SkPath& path, const SkMatrix* matrix) {
+    draw.drawPosTextOnPath((const char*)text, len, pos, paint, path, matrix);
+}
+#endif
+
 void SkDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                 int vertexCount,
                                 const SkPoint verts[], const SkPoint textures[],

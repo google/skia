@@ -1237,10 +1237,11 @@ static bool GetBitmapAlpha(const SkBitmap& src, uint8_t SK_RESTRICT alpha[],
 #include "SkMaskFilter.h"
 #include "SkMatrix.h"
 
-void SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
+bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
                             Allocator *allocator, SkIPoint* offset) const {
     SkDEBUGCODE(this->validate();)
 
+    SkBitmap    tmpBitmap;
     SkMatrix    identity;
     SkMask      srcM, dstM;
 
@@ -1260,14 +1261,20 @@ void SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
         dstM.fRowBytes = SkAlign4(dstM.fBounds.width());
     } else {
     NO_FILTER_CASE:
-        dst->setConfig(SkBitmap::kA8_Config, this->width(), this->height(),
+        tmpBitmap.setConfig(SkBitmap::kA8_Config, this->width(), this->height(),
                        srcM.fRowBytes);
-        dst->allocPixels(allocator, NULL);
-        GetBitmapAlpha(*this, dst->getAddr8(0, 0), srcM.fRowBytes);
+        if (!tmpBitmap.allocPixels(allocator, NULL)) {
+            // Allocation of pixels for alpha bitmap failed.
+            SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
+                    tmpBitmap.width(), tmpBitmap.height());
+            return false;
+        }
+        GetBitmapAlpha(*this, tmpBitmap.getAddr8(0, 0), srcM.fRowBytes);
         if (offset) {
             offset->set(0, 0);
         }
-        return;
+        tmpBitmap.swap(*dst);
+        return true;
     }
 
     SkAutoMaskImage srcCleanup(&srcM, true);
@@ -1279,14 +1286,22 @@ void SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
 
     SkAutoMaskImage dstCleanup(&dstM, false);
 
-    dst->setConfig(SkBitmap::kA8_Config, dstM.fBounds.width(),
+    tmpBitmap.setConfig(SkBitmap::kA8_Config, dstM.fBounds.width(),
                    dstM.fBounds.height(), dstM.fRowBytes);
-    dst->allocPixels(allocator, NULL);
-    memcpy(dst->getPixels(), dstM.fImage, dstM.computeImageSize());
+    if (!tmpBitmap.allocPixels(allocator, NULL)) {
+        // Allocation of pixels for alpha bitmap failed.
+        SkDebugf("extractAlpha failed to allocate (%d,%d) alpha bitmap\n",
+                tmpBitmap.width(), tmpBitmap.height());
+        return false;
+    }
+    memcpy(tmpBitmap.getPixels(), dstM.fImage, dstM.computeImageSize());
     if (offset) {
         offset->set(dstM.fBounds.fLeft, dstM.fBounds.fTop);
     }
-    SkDEBUGCODE(dst->validate();)
+    SkDEBUGCODE(tmpBitmap.validate();)
+
+    tmpBitmap.swap(*dst);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

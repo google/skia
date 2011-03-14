@@ -468,16 +468,29 @@ public:
     */
     int extractMipLevel(SkBitmap* dst, SkFixed sx, SkFixed sy);
 
-    void extractAlpha(SkBitmap* dst) const {
-        this->extractAlpha(dst, NULL, NULL, NULL);
+    bool extractAlpha(SkBitmap* dst) const {
+        return this->extractAlpha(dst, NULL, NULL, NULL);
     }
 
-    void extractAlpha(SkBitmap* dst, const SkPaint* paint,
+    bool extractAlpha(SkBitmap* dst, const SkPaint* paint,
                       SkIPoint* offset) const {
-        this->extractAlpha(dst, paint, NULL, offset);
+        return this->extractAlpha(dst, paint, NULL, offset);
     }
 
-    void extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
+    /** Set dst to contain alpha layer of this bitmap. If destination bitmap
+        fails to be initialized, e.g. because allocator can't allocate pixels
+        for it, dst will not be modified and false will be returned.
+
+        @param dst The bitmap to be filled with alpha layer
+        @param paint The paint to draw with
+        @param allocator Allocator used to allocate the pixelref for the dst
+                         bitmap. If this is null, the standard HeapAllocator
+                         will be used.
+        @param offset If not null, it is set to top-left coordinate to position
+                      the returned bitmap so that it visually lines up with the
+                      original
+    */
+    bool extractAlpha(SkBitmap* dst, const SkPaint* paint, Allocator* allocator,
                       SkIPoint* offset) const;
 
     void flatten(SkFlattenableWriteBuffer&) const;
