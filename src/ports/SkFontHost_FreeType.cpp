@@ -345,7 +345,7 @@ static bool getWidthAdvance(FT_Face face, int gId, int16_t* data) {
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID, bool perGlyphInfo) {
-#if defined(SK_BUILD_FOR_MAC)
+#if defined(SK_BUILD_FOR_MAC) || defined(ANDROID)
     return NULL;
 #else
     SkAutoMutexAcquire ac(gFTMutex);
@@ -539,6 +539,21 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
     rec->setHinting(h);
 }
+
+#ifdef ANDROID
+uint32_t SkFontHost::GetUnitsPerEm(SkFontID fontID) {
+    SkAutoMutexAcquire ac(gFTMutex);
+    SkFaceRec *rec = ref_ft_face(fontID);
+    uint16_t unitsPerEm = 0;
+
+    if (rec != NULL && rec->fFace != NULL) {
+        unitsPerEm = rec->fFace->units_per_EM;
+        unref_ft_face(rec->fFace);
+    }
+
+    return (uint32_t)unitsPerEm;
+}
+#endif
 
 SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         : SkScalerContext(desc) {

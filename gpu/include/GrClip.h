@@ -64,7 +64,7 @@ public:
         return fList[i].fRect;
     }
 
-    const GrSetOp getOp(int i) const { return fList[i].fOp; }
+    GrSetOp getOp(int i) const { return fList[i].fOp; }
 
     bool isRect() const {
         if (1 == fList.count() && kRect_ClipType == fList[0].fType) {

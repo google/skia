@@ -27,6 +27,8 @@ struct GrPoint;
  */
 class GrPathRenderer {
 public:
+    virtual ~GrPathRenderer() { };
+
     /**
      * Draws a path into the draw target. The target will already have its draw
      * state configured for the draw.

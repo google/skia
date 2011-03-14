@@ -249,6 +249,12 @@ public:
     */
     bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op);
 
+#ifdef ANDROID
+    /** Returns a new char* containing the list of rectangles in this region
+     */
+    char* toString();
+#endif
+
     /** Returns the sequence of rectangles, sorted in Y and X, that make up
         this region.
     */

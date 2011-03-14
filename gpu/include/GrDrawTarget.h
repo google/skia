@@ -245,7 +245,7 @@ public:
      * @param stage     the stage of sampler set
      * @param matrix    the matrix to set
      */
-    const void setSamplerMatrix(int stage, const GrMatrix& matrix) {
+    void setSamplerMatrix(int stage, const GrMatrix& matrix) {
         fCurrDrawState.fSamplerStates[stage].setMatrix(matrix);
     }
 
