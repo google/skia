@@ -41,7 +41,7 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
     #define SK_USE_SHADERS
 #endif
 
-#if 1
+#ifdef SK_BUILD_FOR_MAC
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreFoundation/CFURLAccess.h>
 
@@ -349,7 +349,9 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fCurrIndex = 0;
     this->loadView(fSamples[fCurrIndex]());
 
+#ifdef SK_BUILD_FOR_MAC
     testpdf();
+#endif
 }
 
 SampleWindow::~SampleWindow() {
