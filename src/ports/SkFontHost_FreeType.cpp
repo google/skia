@@ -346,6 +346,9 @@ static bool getWidthAdvance(FT_Face face, int gId, int16_t* data) {
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID, bool perGlyphInfo) {
+#if defined(SK_BUILD_FOR_MAC)
+    return NULL;
+#else
     SkAutoMutexAcquire ac(gFTMutex);
     FT_Library libInit = NULL;
     if (gFTCount == 0) {
@@ -510,6 +513,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 
     unref_ft_face(face);
     return info;
+#endif
 }
 ///////////////////////////////////////////////////////////////////////////
 
