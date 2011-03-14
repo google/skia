@@ -87,6 +87,9 @@
 		00115EA912C116CA008296FE /* GrUserConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6D12C116CA008296FE /* GrUserConfig.h */; };
 		00115EAA12C116CA008296FE /* GrVertexBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6E12C116CA008296FE /* GrVertexBuffer.h */; };
 		00216E5E130F0B03009A2160 /* GrGLIRect.h in Headers */ = {isa = PBXBuildFile; fileRef = 00216E5D130F0B03009A2160 /* GrGLIRect.h */; };
+		7D669346132ABD5D003AC2F5 /* GrGLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D669345132ABD5D003AC2F5 /* GrGLInterface.cpp */; };
+		7D66934C132ABD8F003AC2F5 /* GrGLInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D66934B132ABD8F003AC2F5 /* GrGLInterface.h */; };
+		7D66934E132ABDA7003AC2F5 /* GrGLPlatformIncludes.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D66934D132ABDA7003AC2F5 /* GrGLPlatformIncludes.h */; };
 		D539049B12EA01E30025F3D6 /* GrContext_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = D539049A12EA01E30025F3D6 /* GrContext_impl.h */; };
 		D53904A112EA026E0025F3D6 /* GrPaint.h in Headers */ = {isa = PBXBuildFile; fileRef = D53904A012EA026E0025F3D6 /* GrPaint.h */; };
 		D542EAAD131C87E90065FC9D /* GrStencil.h in Headers */ = {isa = PBXBuildFile; fileRef = D542EAAC131C87E90065FC9D /* GrStencil.h */; };
@@ -181,6 +184,9 @@
 		00115E6D12C116CA008296FE /* GrUserConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrUserConfig.h; path = ../../gpu/include/GrUserConfig.h; sourceTree = SOURCE_ROOT; };
 		00115E6E12C116CA008296FE /* GrVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrVertexBuffer.h; path = ../../gpu/include/GrVertexBuffer.h; sourceTree = SOURCE_ROOT; };
 		00216E5D130F0B03009A2160 /* GrGLIRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLIRect.h; path = ../../gpu/include/GrGLIRect.h; sourceTree = SOURCE_ROOT; };
+		7D669345132ABD5D003AC2F5 /* GrGLInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLInterface.cpp; path = ../../gpu/src/GrGLInterface.cpp; sourceTree = SOURCE_ROOT; };
+		7D66934B132ABD8F003AC2F5 /* GrGLInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLInterface.h; path = ../../gpu/include/GrGLInterface.h; sourceTree = SOURCE_ROOT; };
+		7D66934D132ABDA7003AC2F5 /* GrGLPlatformIncludes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLPlatformIncludes.h; path = ../../gpu/include/GrGLPlatformIncludes.h; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libgpu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgpu.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D539049A12EA01E30025F3D6 /* GrContext_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrContext_impl.h; path = ../../gpu/include/GrContext_impl.h; sourceTree = SOURCE_ROOT; };
 		D53904A012EA026E0025F3D6 /* GrPaint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrPaint.h; path = ../../gpu/include/GrPaint.h; sourceTree = SOURCE_ROOT; };
@@ -209,6 +215,8 @@
 		00115E3712C116B7008296FE /* include */ = {
 			isa = PBXGroup;
 			children = (
+				7D66934D132ABDA7003AC2F5 /* GrGLPlatformIncludes.h */,
+				7D66934B132ABD8F003AC2F5 /* GrGLInterface.h */,
 				00216E5D130F0B03009A2160 /* GrGLIRect.h */,
 				00115E3912C116CA008296FE /* GrAllocator.h */,
 				00115E3A12C116CA008296FE /* GrAllocPool.h */,
@@ -283,6 +291,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				7D669345132ABD5D003AC2F5 /* GrGLInterface.cpp */,
 				D5ED886E1313F92C00B98D64 /* GrRedBlackTree.h */,
 				D539049A12EA01E30025F3D6 /* GrContext_impl.h */,
 				00115DD812C1167A008296FE /* gr_unittests.cpp */,
@@ -408,6 +417,8 @@
 				D5ED886F1313F92C00B98D64 /* GrRedBlackTree.h in Headers */,
 				D5ED88EC13144FD600B98D64 /* GrPathRenderer.h in Headers */,
 				D542EAAD131C87E90065FC9D /* GrStencil.h in Headers */,
+				7D66934C132ABD8F003AC2F5 /* GrGLInterface.h in Headers */,
+				7D66934E132ABDA7003AC2F5 /* GrGLPlatformIncludes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,6 +498,7 @@
 				D5FAF22313072C27001550A4 /* GrBufferAllocPool.cpp in Sources */,
 				D5ED88EB13144FD600B98D64 /* GrPathRenderer.cpp in Sources */,
 				D5558AE3131EB9BB00C71009 /* GrStencil.cpp in Sources */,
+				7D669346132ABD5D003AC2F5 /* GrGLInterface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

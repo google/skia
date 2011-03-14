@@ -456,6 +456,9 @@
     <ClCompile Include="..\..\src\pdf\SkPDFShader.cpp">
       <Filter>PDF</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\gpu\src\GrGLInterface.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gpu\include\FlingState.h" />
@@ -714,6 +717,12 @@
     </ClInclude>
     <ClInclude Include="..\..\samplecode\SampleCode.h">
       <Filter>Samples</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gpu\include\GrGLInterface.h">
+      <Filter>Gr\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gpu\include\GrGLPlatformIncludes.h">
+      <Filter>Gr\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

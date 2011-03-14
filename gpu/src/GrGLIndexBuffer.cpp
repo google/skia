@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -57,8 +57,7 @@ void* GrGLIndexBuffer::lock() {
         // Let driver know it can discard the old data
         GR_GL(BufferData(GL_ELEMENT_ARRAY_BUFFER, size(), NULL,
                          dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        fLockPtr = GR_GLEXT(fGL->extensions(),
-                            MapBuffer(GL_ELEMENT_ARRAY_BUFFER, GR_WRITE_ONLY));
+        fLockPtr = GR_GL(MapBuffer(GL_ELEMENT_ARRAY_BUFFER, GR_WRITE_ONLY));
 
         return fLockPtr;
     }
@@ -75,7 +74,7 @@ void GrGLIndexBuffer::unlock() {
     GrAssert(fGL->supportsBufferLocking());
 
     bind();
-    GR_GLEXT(fGL->extensions(), UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
+    GR_GL(UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER));
     fLockPtr = NULL;
 }
 

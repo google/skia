@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -19,58 +19,9 @@
 #define GrGLConfig_DEFINED
 
 #include "GrTypes.h"
+#include "GrGLInterface.h"
 
-#if !defined(GR_GL_CUSTOM_SETUP)
-    #define GR_GL_CUSTOM_SETUP 0
-#endif
 /**
- * We need to pull in the right GL headers and determine whether we are
- * compiling for ES1, ES2, or desktop GL. (We allow ES1 and ES2 to both be
- * supported in the same build but not ESx and desktop). We also need to know
- * the platform-specific way to get extension function pointers (e.g.
- * eglGetProcAddress). The port specifies this info explicitly or we will infer
- * it from the GR_*_BUILD flag.
- *
- * To specify GL setup directly define GR_GL_CUSTOM_SETUP to 1 and define:
- *      GR_SUPPORT_GLDESKTOP or (GR_SUPPORT_GLES1 and/or GR_SUPPORT_GLES2) to 1
- *
- *      if GR_SUPPORT_GLDESKTOP is 1 then provide:
- *          1. The name of your GL header in GR_INCLUDE_GLDESKTOP
- *          2. If necessary, the name of a file that includes extension
- *             definitions in GR_INCLUDE_GLDESKTOPext.
- *      if GR_SUPPORT_GLES1 is 1 then provide:
- *          1. The name of your GL header in GR_INCLUDE_GLES1
- *          2. If necessary, the name of a file that includes extension
- *             definitions in GR_INCLUDE_GLES1ext.
- *      if GR_SUPPORT_GLES2 is 1 then provide:
- *          1. The name of your GL header in GR_INCLUDE_GLES2
- *          2. If necessary, the name of a file that includes extension
- *             definitions in GR_INCLUDE_GLES2ext.
- *
- *      Optionally, define GR_GL_FUNC to any qualifier needed on GL function
- *      pointer declarations (e.g. __stdcall).
- *
- *      Define GR_GL_PROC_ADDRESS to take a gl function and produce a
- *      function pointer. Two examples:
- *          1. Your platform doesn't require a proc address function, just take
- *             the address of the function:
- *             #define GR_GL_PROC_ADDRESS(X) &X
- *          2. Your platform uses eglGetProcAddress:
- *             #define GR_GL_PROC_ADDRESS eglGetProcAddress(#X)
- *
- *     Optionally define GR_GL_PROC_ADDRESS_HEADER to include any additional
- *     header necessary to use GR_GL_PROC_ADDRESS (e.g. <EGL/egl.h>)
- *
- * Alternatively, define GR_GL_CUSTOM_SETUP_HEADER (and not GR_GL_CUSTOM_SETUP)
- * to a header that can be included. This file should:
- *      1. Define the approprate GR_SUPPORT_GL* macro(s) to 1
- *      2. Includes all necessary GL headers.
- *      3. Optionally define GR_GL_FUNC.
- *      4. Define GR_GL_PROC_ADDRESS.
- *      5. Optionally define GR_GL_PROC_ADDRESS_HEADER
- *
- *------------------------------------------------------------------------------
- *
  * The following are optional defines that can be enabled at the compiler
  * command line, in a IDE project, in a GrUserConfig.h file, or in a GL custom
  * file (if one is in use). They don't require GR_GL_CUSTOM_SETUP or
@@ -93,122 +44,6 @@
  * when GR_GL_CHECK_ERROR is 1.  Defaults to 1.
  */
 
-#if GR_GL_CUSTOM_SETUP
-
-    #ifdef GR_SUPPORT_GLES1
-        #include GR_INCLUDE_GLES1
-        #if defined(GR_INCLUDE_GLES1ext)
-            #include GR_INCLUDE_GLES1ext
-        #endif
-    #endif
-
-    #ifdef GR_SUPPORT_GLES2
-        #include GR_INCLUDE_GLES2
-        #if defined(GR_INCLUDE_GLES2ext)
-            #include GR_INCLUDE_GLES2ext
-        #endif
-    #endif
-
-    #ifdef GR_SUPPORT_GLDESKTOP
-        #include GR_INCLUDE_GLDESKTOP
-        #if defined(GR_INCLUDE_GLDESKTOPext)
-            #include GR_INCLUDE_GLDESKTOPext
-        #endif
-    #endif
-
-#elif defined(GR_GL_CUSTOM_SETUP_HEADER)
-
-    #include GR_GL_CUSTOM_SETUP_HEADER
-
-#else
-    #undef GR_GL_FUNC
-    #undef GR_GL_PROC_ADDRESS
-    #undef GR_GL_PROC_ADDRESS_HEADER
-
-    #if GR_WIN32_BUILD
-        #define GR_SUPPORT_GLDESKTOP        1
-        // glew has to be included before gl
-        #include <GL/glew.h>
-        #include <GL/gl.h>
-        // remove stupid windows defines
-        #undef near
-        #undef far
-        #define GR_GL_FUNC __stdcall
-        #define GR_GL_PROC_ADDRESS(X)       wglGetProcAddress(#X)
-        #define GR_GL_PROC_ADDRESS_HEADER   <windows.h>
-    #elif GR_MAC_BUILD
-        #define GR_SUPPORT_GLDESKTOP        1
-        #include <OpenGL/gl.h>
-        #include <OpenGL/glext.h>
-        #define GR_GL_PROC_ADDRESS(X)       &X
-    #elif GR_IOS_BUILD
-        #define GR_SUPPORT_GLES1            1
-        #include <OpenGLES/ES1/gl.h>
-        #include <OpenGLES/ES1/glext.h>
-        #define GR_SUPPORT_GLES2            1
-        #include <OpenGLES/ES2/gl.h>
-        #include <OpenGLES/ES2/glext.h>
-        #define GR_GL_PROC_ADDRESS(X)       &X
-    #elif GR_ANDROID_BUILD
-        #ifndef GL_GLEXT_PROTOTYPES
-            #define GL_GLEXT_PROTOTYPES
-        #endif
-        #define GR_SUPPORT_GLES2            1
-        #include <GLES2/gl2.h>
-        #include <GLES2/gl2ext.h>
-        #define GR_GL_PROC_ADDRESS(X)       eglGetProcAddress(#X)
-        #define GR_GL_PROC_ADDRESS_HEADER   <EGL/egl.h>
-    #elif GR_QNX_BUILD
-        #ifndef GL_GLEXT_PROTOTYPES
-            #define GL_GLEXT_PROTOTYPES
-        #endif
-         #define GR_SUPPORT_GLES2           1
-        // This is needed by the QNX GLES2 headers
-        #define GL_API_EXT
-        #include <GLES2/gl2.h>
-        #include <GLES2/gl2ext.h>
-        #define GR_GL_PROC_ADDRESS(X)       eglGetProcAddress(#X)
-        #define GR_GL_PROC_ADDRESS_HEADER   <EGL/egl.h>
-    #elif GR_LINUX_BUILD
-        #ifndef GL_GLEXT_PROTOTYPES
-            #define GL_GLEXT_PROTOTYPES
-        #endif
-        #define GL_EXT_framebuffer_blit     0
-        #include <GL/gl.h>
-        #include <GL/glext.h>
-        #define GR_GL_PROC_ADDRESS(X)       &X
-        #define GR_SUPPORT_GLDESKTOP        1
-    #else
-        #error "unsupported GR_???_BUILD"
-    #endif
-
-#endif
-
-#if !defined(GR_SUPPORT_GLDESKTOP)
-    #define GR_SUPPORT_GLDESKTOP    0
-#endif
-#if !defined(GR_SUPPORT_GLES1)
-    #define GR_SUPPORT_GLES1        0
-#endif
-#if !defined(GR_SUPPORT_GLES2)
-    #define GR_SUPPORT_GLES2        0
-#endif
-
-#define GR_SUPPORT_GLES ((GR_SUPPORT_GLES1) || (GR_SUPPORT_GLES2))
-
-#if !GR_SUPPORT_GLES && !GR_SUPPORT_GLDESKTOP
-    #error "Either desktop or ES GL must be supported"
-#elif GR_SUPPORT_GLES && GR_SUPPORT_GLDESKTOP
-    #error "Cannot support both desktop and ES GL"
-#endif
-
-#if !defined(GR_GL_FUNC)
-    #define GR_GL_FUNC
-#endif
-
-#if !defined(GR_GL_PROC_ADDRESS)
-    #error "Must define GR_GL_PROC_ADDRESS"
-#endif
 
 #if !defined(GR_GL_LOG_CALLS)
     #define GR_GL_LOG_CALLS             0
@@ -249,7 +84,7 @@
     #error "unknown GR_TEXT_SCALAR type"
 #endif
 
-// Pick a pixel config for 32bit bitmaps. Our default is GL_RGBA (expect on
+// Pick a pixel config for 32bit bitmaps. Our default is GL_RGBA (except on
 // Windows where we match GDI's order).
 #ifndef GR_GL_32BPP_COLOR_FORMAT
     #if GR_WIN32_BUILD
@@ -259,67 +94,9 @@
     #endif
 #endif
 
-////////////////////////////////////////////////////////////////////////////////
-// Setup for opengl ES/desktop extensions
-// We make a struct of function pointers so that each GL context
-// can have it's own struct. (Some environments may have different proc
-// addresses for different contexts).
 
-extern "C" {
-struct GrGLExts {
-// FBO
-    GLvoid (GR_GL_FUNC *GenFramebuffers)(GLsizei n, GLuint *framebuffers);
-    GLvoid (GR_GL_FUNC *BindFramebuffer)(GLenum target, GLuint framebuffer);
-    GLvoid (GR_GL_FUNC *FramebufferTexture2D)(GLenum target, GLenum attachment,
-                                              GLenum textarget, GLuint texture,
-                                              GLint level);
-    GLenum (GR_GL_FUNC *CheckFramebufferStatus)(GLenum target);
-    GLvoid (GR_GL_FUNC *DeleteFramebuffers)(GLsizei n, const
-                                            GLuint *framebuffers);
-    GLvoid (GR_GL_FUNC *RenderbufferStorage)(GLenum target,
-                                             GLenum internalformat,
-                                             GLsizei width, GLsizei height);
-    GLvoid (GR_GL_FUNC *GenRenderbuffers)(GLsizei n, GLuint *renderbuffers);
-    GLvoid (GR_GL_FUNC *DeleteRenderbuffers)(GLsizei n,
-                                             const GLuint *renderbuffers);
-    GLvoid (GR_GL_FUNC *FramebufferRenderbuffer)(GLenum target,
-                                                 GLenum attachment,
-                                                 GLenum renderbuffertarget,
-                                                 GLuint renderbuffer);
-    GLvoid (GR_GL_FUNC *BindRenderbuffer)(GLenum target, GLuint renderbuffer);
-
-// Multisampling
-    // same prototype for ARB_FBO, EXT_FBO, GL 3.0, & Apple ES extension
-    GLvoid (GR_GL_FUNC *RenderbufferStorageMultisample)(GLenum target,
-                                                        GLsizei samples,
-                                                        GLenum internalformat,
-                                                        GLsizei width,
-                                                        GLsizei height);
-    // desktop: ext_fbo_blit, arb_fbo, gl 3.0
-    GLvoid (GR_GL_FUNC *BlitFramebuffer)(GLint srcX0, GLint srcY0,
-                                         GLint srcX1, GLint srcY1,
-                                         GLint dstX0, GLint dstY0,
-                                         GLint dstX1, GLint dstY1,
-                                         GLbitfield mask, GLenum filter);
-    // apple's es extension
-    GLvoid (GR_GL_FUNC *ResolveMultisampleFramebuffer)();
-
-    // IMG'e es extension
-    GLvoid (GR_GL_FUNC *FramebufferTexture2DMultisample)(GLenum target,
-                                                         GLenum attachment,
-                                                         GLenum textarget,
-                                                         GLuint texture,
-                                                         GLint level,
-                                                         GLsizei samples);
-
-// Buffer mapping (extension in ES).
-    GLvoid* (GR_GL_FUNC *MapBuffer)(GLenum target, GLenum access);
-    GLboolean (GR_GL_FUNC *UnmapBuffer)(GLenum target);
-};
-}
 
 // BGRA format
-
 #define GR_BGRA                     0x80E1
 
 // FBO / stencil formats
@@ -355,14 +132,12 @@ struct GrGLExts {
 // Palette texture
 #define GR_PALETTE8_RGBA8           0x8B91
 
-extern void GrGLInitExtensions(GrGLExts* exts);
-
 ////////////////////////////////////////////////////////////////////////////////
 
 extern void GrGLCheckErr(const char* location, const char* call);
 
 static inline void GrGLClearErr() {
-    while (GL_NO_ERROR != glGetError()) {}
+    while (GL_NO_ERROR != GrGLGetGLInterface()->fGetError()) {}
 }
 
 #if GR_GL_CHECK_ERROR
@@ -379,18 +154,8 @@ static inline void GrGLClearErr() {
     #define GR_GL_LOG_CALLS_IMPL(X)
 #endif
 
-#define GR_GL(X)                 gl ## X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
-#define GR_GL_NO_ERR(X)          GrGLClearErr(); gl ## X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
-#define GR_GLEXT(exts, X)        exts. X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
-#define GR_GLEXT_NO_ERR(exts, X) GrGLClearErr(); exts. X; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
-
-////////////////////////////////////////////////////////////////////////////////
-
-/**
- * Helpers for glGetString()
- */
-bool has_gl_extension(const char* ext);
-void gl_version(int* major, int* minor);
+#define GR_GL(X)                 GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
+#define GR_GL_NO_ERR(X)          GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
 
 ////////////////////////////////////////////////////////////////////////////////
 

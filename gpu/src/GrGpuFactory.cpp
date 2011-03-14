@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -36,6 +36,11 @@
 #include "GrGpu.h"
 
 GrGpu* GrGpu::Create(Engine engine, Platform3DContext context3D) {
+    // If no GL bindings have been installed, fall-back to calling the
+    // GL functions that have been linked with the executable.
+    if (!GrGLGetGLInterface())
+        GrGLSetDefaultGLInterface();
+
     GrGpu* gpu = NULL;
 
     switch (engine) {
