@@ -5,6 +5,7 @@ SOURCE := \
     GrContext.cpp \
     GrDrawTarget.cpp \
     GrGLIndexBuffer.cpp	\
+    GrGLInterface.cpp \
     GrGLTexture.cpp \
     GrGLVertexBuffer.cpp \
     GrGpu.cpp \

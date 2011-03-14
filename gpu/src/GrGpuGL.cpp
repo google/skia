@@ -103,8 +103,7 @@ bool GrGpuGL::TextureMatrixIsIdentity(const GrGLTexture* texture,
 
 static bool gPrintStartupSpew;
 
-
-static bool fbo_test(GrGLExts exts, int w, int h) {
+static bool fbo_test(int w, int h) {
 
     GLint savedFBO;
     GLint savedTexUnit;
@@ -114,8 +113,8 @@ static bool fbo_test(GrGLExts exts, int w, int h) {
     GR_GL(ActiveTexture(GL_TEXTURE0 + SPARE_TEX_UNIT));
 
     GLuint testFBO;
-    GR_GLEXT(exts, GenFramebuffers(1, &testFBO));
-    GR_GLEXT(exts, BindFramebuffer(GR_FRAMEBUFFER, testFBO));
+    GR_GL(GenFramebuffers(1, &testFBO));
+    GR_GL(BindFramebuffer(GR_FRAMEBUFFER, testFBO));
     GLuint testRTTex;
     GR_GL(GenTextures(1, &testRTTex));
     GR_GL(BindTexture(GL_TEXTURE_2D, testRTTex));
@@ -125,14 +124,14 @@ static bool fbo_test(GrGLExts exts, int w, int h) {
     GR_GL(TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h,
                      0, GL_RGBA, GL_UNSIGNED_BYTE, NULL));
     GR_GL(BindTexture(GL_TEXTURE_2D, 0));
-    GR_GLEXT(exts, FramebufferTexture2D(GR_FRAMEBUFFER, GR_COLOR_ATTACHMENT0,
-                                        GL_TEXTURE_2D, testRTTex, 0));
-    GLenum status = GR_GLEXT(exts, CheckFramebufferStatus(GR_FRAMEBUFFER));
-    GR_GLEXT(exts, DeleteFramebuffers(1, &testFBO));
+    GR_GL(FramebufferTexture2D(GR_FRAMEBUFFER, GR_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, testRTTex, 0));
+    GLenum status = GR_GL(CheckFramebufferStatus(GR_FRAMEBUFFER));
+    GR_GL(DeleteFramebuffers(1, &testFBO));
     GR_GL(DeleteTextures(1, &testRTTex));
 
     GR_GL(ActiveTexture(savedTexUnit));
-    GR_GLEXT(exts, BindFramebuffer(GR_FRAMEBUFFER, savedFBO));
+    GR_GL(BindFramebuffer(GR_FRAMEBUFFER, savedFBO));
 
     return status == GR_FRAMEBUFFER_COMPLETE;
 }
@@ -142,15 +141,17 @@ GrGpuGL::GrGpuGL() {
     if (gPrintStartupSpew) {
         GrPrintf("------------------------- create GrGpuGL %p --------------\n",
                  this);
-        GrPrintf("------ VENDOR %s\n", glGetString(GL_VENDOR));
-        GrPrintf("------ RENDERER %s\n", glGetString(GL_RENDERER));
-        GrPrintf("------ VERSION %s\n", glGetString(GL_VERSION));
-        GrPrintf("------ EXTENSIONS\n %s \n", glGetString(GL_EXTENSIONS));
+        GrPrintf("------ VENDOR %s\n",
+                 GrGLGetGLInterface()->fGetString(GL_VENDOR));
+        GrPrintf("------ RENDERER %s\n",
+                 GrGLGetGLInterface()->fGetString(GL_RENDERER));
+        GrPrintf("------ VERSION %s\n",
+                 GrGLGetGLInterface()->fGetString(GL_VERSION));
+        GrPrintf("------ EXTENSIONS\n %s \n",
+                 GrGLGetGLInterface()->fGetString(GL_EXTENSIONS));
     }
 
     GrGLClearErr();
-
-    GrGLInitExtensions(&fExts);
 
     resetDirtyFlags();
 
@@ -329,7 +330,7 @@ GrGpuGL::GrGpuGL() {
 
     // sanity check to make sure we can at least create an FBO from a POT texture
 
-    bool simpleFBOSuccess = fbo_test(fExts, 128, 128);
+    bool simpleFBOSuccess = fbo_test(128, 128);
     if (gPrintStartupSpew) {
         if (!simpleFBOSuccess) {
             GrPrintf("FBO Sanity Test: FAILED\n");
@@ -348,7 +349,7 @@ GrGpuGL::GrGpuGL() {
      */
     bool fNPOTRenderTargetSupport = false;
     if (fNPOTTextureSupport) {
-        fNPOTRenderTargetSupport = fbo_test(fExts, 200, 200);
+        fNPOTRenderTargetSupport = fbo_test(200, 200);
     }
 
     if (gPrintStartupSpew) {
@@ -384,7 +385,7 @@ GrGpuGL::GrGpuGL() {
     for (GLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? ++i : i *= 2) {
         GLuint w = maxRenderSize;
         GLuint h = i;
-        if (fbo_test(fExts, w, h)) {
+        if (fbo_test(w, h)) {
             if (gPrintStartupSpew) {
                 GrPrintf("\t[%d, %d]: PASSED\n", w, h);
             }
@@ -405,7 +406,7 @@ GrGpuGL::GrGpuGL() {
     for (GLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? i *= 2 : ++i) {
         GLuint w = i;
         GLuint h = maxRenderSize;
-        if (fbo_test(fExts, w, h)) {
+        if (fbo_test(w, h)) {
             if (gPrintStartupSpew) {
                 GrPrintf("\t[%d, %d]: PASSED\n", w, h);
             }
@@ -777,7 +778,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         GrAssert(NULL == srcData);
         glDesc.fOrientation =  GrGLTexture::kBottomUp_Orientation;
 
-        GR_GLEXT(fExts, GenFramebuffers(1, &rtIDs.fTexFBOID));
+        GR_GL(GenFramebuffers(1, &rtIDs.fTexFBOID));
         GrAssert(rtIDs.fTexFBOID);
 
         // If we are using multisampling and any extension other than the IMG
@@ -785,16 +786,15 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         // the texture bound to the other. The IMG extension does an implicit
         // resolve.
         if (samples > 1 && kIMG_MSFBO != fMSFBOType && kNone_MSFBO != fMSFBOType) {
-            GR_GLEXT(fExts, GenFramebuffers(1, &rtIDs.fRTFBOID));
+            GR_GL(GenFramebuffers(1, &rtIDs.fRTFBOID));
             GrAssert(0 != rtIDs.fRTFBOID);
-            GR_GLEXT(fExts, GenRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
+            GR_GL(GenRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
             GrAssert(0 != rtIDs.fMSColorRenderbufferID);
             if (!fboInternalFormat(desc.fFormat, &msColorRenderbufferFormat)) {
-                GR_GLEXT(fExts,
-                         DeleteRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
+                GR_GL(DeleteRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
                 GR_GL(DeleteTextures(1, &glDesc.fTextureID));
-                GR_GLEXT(fExts, DeleteFramebuffers(1, &rtIDs.fTexFBOID));
-                GR_GLEXT(fExts, DeleteFramebuffers(1, &rtIDs.fRTFBOID));
+                GR_GL(DeleteFramebuffers(1, &rtIDs.fTexFBOID));
+                GR_GL(DeleteFramebuffers(1, &rtIDs.fRTFBOID));
                 return return_null_texture();
             }
         } else {
@@ -802,7 +802,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         }
         int attempts = 1;
         if (!(kNoPathRendering_TextureFlag & desc.fFlags)) {
-            GR_GLEXT(fExts, GenRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
+            GR_GL(GenRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
             GrAssert(0 != rtIDs.fStencilRenderbufferID);
             attempts = GR_ARRAY_COUNT(gStencilFormats);
         }
@@ -815,21 +815,20 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         err = ~GL_NO_ERROR;
         for (int i = 0; i < attempts; ++i) {
             if (rtIDs.fStencilRenderbufferID) {
-                GR_GLEXT(fExts, BindRenderbuffer(GR_RENDERBUFFER,
-                                                 rtIDs.fStencilRenderbufferID));
+                GR_GL(BindRenderbuffer(GR_RENDERBUFFER,
+                                       rtIDs.fStencilRenderbufferID));
                 if (samples > 1) {
-                    GR_GLEXT_NO_ERR(fExts, RenderbufferStorageMultisample(
+                    GR_GL_NO_ERR(RenderbufferStorageMultisample(
                                                 GR_RENDERBUFFER,
                                                 samples,
                                                 gStencilFormats[i].fEnum,
                                                 glDesc.fAllocWidth,
                                                 glDesc.fAllocHeight));
                 } else {
-                    GR_GLEXT_NO_ERR(fExts, RenderbufferStorage(
-                                                GR_RENDERBUFFER,
-                                                gStencilFormats[i].fEnum,
-                                                glDesc.fAllocWidth,
-                                                glDesc.fAllocHeight));
+                    GR_GL_NO_ERR(RenderbufferStorage(GR_RENDERBUFFER,
+                                                     gStencilFormats[i].fEnum,
+                                                     glDesc.fAllocWidth,
+                                                     glDesc.fAllocHeight));
                 }
                 err = glGetError();
                 if (err != GL_NO_ERROR) {
@@ -838,9 +837,9 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
             }
             if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
                 GrAssert(samples > 1);
-                GR_GLEXT(fExts, BindRenderbuffer(GR_RENDERBUFFER,
-                                                 rtIDs.fMSColorRenderbufferID));
-                GR_GLEXT_NO_ERR(fExts, RenderbufferStorageMultisample(
+                GR_GL(BindRenderbuffer(GR_RENDERBUFFER,
+                                       rtIDs.fMSColorRenderbufferID));
+                GR_GL_NO_ERR(RenderbufferStorageMultisample(
                                                    GR_RENDERBUFFER,
                                                    samples,
                                                    msColorRenderbufferFormat,
@@ -851,52 +850,50 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
                     continue;
                 }
             }
-            GR_GLEXT(fExts, BindFramebuffer(GR_FRAMEBUFFER, rtIDs.fTexFBOID));
+            GR_GL(BindFramebuffer(GR_FRAMEBUFFER, rtIDs.fTexFBOID));
 
 #if GR_COLLECT_STATS
             ++fStats.fRenderTargetChngCnt;
 #endif
             if (kIMG_MSFBO == fMSFBOType && samples > 1) {
-                GR_GLEXT(fExts, FramebufferTexture2DMultisample(
-                                                         GR_FRAMEBUFFER,
-                                                         GR_COLOR_ATTACHMENT0,
-                                                         GL_TEXTURE_2D,
-                                                         glDesc.fTextureID,
-                                                         0,
-                                                         samples));
+                GR_GL(FramebufferTexture2DMultisample(GR_FRAMEBUFFER,
+                                                      GR_COLOR_ATTACHMENT0,
+                                                      GL_TEXTURE_2D,
+                                                      glDesc.fTextureID,
+                                                      0,
+                                                      samples));
 
             } else {
-                GR_GLEXT(fExts, FramebufferTexture2D(GR_FRAMEBUFFER,
-                                                     GR_COLOR_ATTACHMENT0,
-                                                     GL_TEXTURE_2D,
-                                                     glDesc.fTextureID, 0));
+                GR_GL(FramebufferTexture2D(GR_FRAMEBUFFER,
+                                           GR_COLOR_ATTACHMENT0,
+                                           GL_TEXTURE_2D,
+                                           glDesc.fTextureID, 0));
             }
             if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
-                GLenum status = GR_GLEXT(fExts,
-                                         CheckFramebufferStatus(GR_FRAMEBUFFER));
+                GLenum status = GR_GL(CheckFramebufferStatus(GR_FRAMEBUFFER));
                 if (status != GR_FRAMEBUFFER_COMPLETE) {
                     GrPrintf("-- glCheckFramebufferStatus %x %d %d\n",
                              status, desc.fWidth, desc.fHeight);
                     continue;
                 }
-                GR_GLEXT(fExts, BindFramebuffer(GR_FRAMEBUFFER, rtIDs.fRTFBOID));
+                GR_GL(BindFramebuffer(GR_FRAMEBUFFER, rtIDs.fRTFBOID));
             #if GR_COLLECT_STATS
                 ++fStats.fRenderTargetChngCnt;
             #endif
-                GR_GLEXT(fExts, FramebufferRenderbuffer(GR_FRAMEBUFFER,
-                                                 GR_COLOR_ATTACHMENT0,
-                                                 GR_RENDERBUFFER,
-                                                 rtIDs.fMSColorRenderbufferID));
+                GR_GL(FramebufferRenderbuffer(GR_FRAMEBUFFER,
+                                              GR_COLOR_ATTACHMENT0,
+                                              GR_RENDERBUFFER,
+                                              rtIDs.fMSColorRenderbufferID));
 
             }
             if (rtIDs.fStencilRenderbufferID) {
                 // bind the stencil to rt fbo if present, othewise the tex fbo
-                GR_GLEXT(fExts, FramebufferRenderbuffer(GR_FRAMEBUFFER,
-                                                 GR_STENCIL_ATTACHMENT,
-                                                 GR_RENDERBUFFER,
-                                                 rtIDs.fStencilRenderbufferID));
+                GR_GL(FramebufferRenderbuffer(GR_FRAMEBUFFER,
+                                              GR_STENCIL_ATTACHMENT,
+                                              GR_RENDERBUFFER,
+                                              rtIDs.fStencilRenderbufferID));
             }
-            status = GR_GLEXT(fExts, CheckFramebufferStatus(GR_FRAMEBUFFER));
+            status = GR_GL(CheckFramebufferStatus(GR_FRAMEBUFFER));
 
 #if GR_SUPPORT_GLDESKTOP
             // On some implementations you have to be bound as DEPTH_STENCIL.
@@ -904,16 +901,15 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
             // buffer doesn't work.)
             if (rtIDs.fStencilRenderbufferID &&
                 status != GR_FRAMEBUFFER_COMPLETE) {
-                GR_GLEXT(fExts, FramebufferRenderbuffer(GR_FRAMEBUFFER,
-                                                        GR_STENCIL_ATTACHMENT,
-                                                        GR_RENDERBUFFER,
-                                                        0));
-                GR_GLEXT(fExts,
-                         FramebufferRenderbuffer(GR_FRAMEBUFFER,
-                                                 GR_DEPTH_STENCIL_ATTACHMENT,
-                                                 GR_RENDERBUFFER,
-                                                 rtIDs.fStencilRenderbufferID));
-                status = GR_GLEXT(fExts, CheckFramebufferStatus(GR_FRAMEBUFFER));
+                GR_GL(FramebufferRenderbuffer(GR_FRAMEBUFFER,
+                                              GR_STENCIL_ATTACHMENT,
+                                              GR_RENDERBUFFER,
+                                              0));
+                GR_GL(FramebufferRenderbuffer(GR_FRAMEBUFFER,
+                                              GR_DEPTH_STENCIL_ATTACHMENT,
+                                              GR_RENDERBUFFER,
+                                              rtIDs.fStencilRenderbufferID));
+                status = GR_GL(CheckFramebufferStatus(GR_FRAMEBUFFER));
             }
 #endif
             if (status != GR_FRAMEBUFFER_COMPLETE) {
@@ -921,10 +917,10 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
                          status, desc.fWidth, desc.fHeight);
 #if GR_SUPPORT_GLDESKTOP
                 if (rtIDs.fStencilRenderbufferID) {
-                    GR_GLEXT(fExts, FramebufferRenderbuffer(GR_FRAMEBUFFER,
-                                                     GR_DEPTH_STENCIL_ATTACHMENT,
-                                                     GR_RENDERBUFFER,
-                                                     0));
+                    GR_GL(FramebufferRenderbuffer(GR_FRAMEBUFFER,
+                                                  GR_DEPTH_STENCIL_ATTACHMENT,
+                                                  GR_RENDERBUFFER,
+                                                  0));
                 }
 #endif
                 continue;
@@ -942,18 +938,16 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         }
         if (failed) {
             if (rtIDs.fStencilRenderbufferID) {
-                GR_GLEXT(fExts,
-                         DeleteRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
+                GR_GL(DeleteRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
             }
             if (rtIDs.fMSColorRenderbufferID) {
-                GR_GLEXT(fExts,
-                         DeleteRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
+                GR_GL(DeleteRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
             }
             if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
-                GR_GLEXT(fExts, DeleteFramebuffers(1, &rtIDs.fRTFBOID));
+                GR_GL(DeleteFramebuffers(1, &rtIDs.fRTFBOID));
             }
             if (rtIDs.fTexFBOID) {
-                GR_GLEXT(fExts, DeleteFramebuffers(1, &rtIDs.fTexFBOID));
+                GR_GL(DeleteFramebuffers(1, &rtIDs.fTexFBOID));
             }
             GR_GL(DeleteTextures(1, &glDesc.fTextureID));
             return return_null_texture();
@@ -1169,13 +1163,13 @@ void GrGpuGL::flushRenderTarget() {
 
     if (fHWDrawState.fRenderTarget != fCurrDrawState.fRenderTarget) {
         GrGLRenderTarget* rt = (GrGLRenderTarget*)fCurrDrawState.fRenderTarget;
-        GR_GLEXT(fExts, BindFramebuffer(GR_FRAMEBUFFER, rt->renderFBOID()));
+        GR_GL(BindFramebuffer(GR_FRAMEBUFFER, rt->renderFBOID()));
     #if GR_COLLECT_STATS
         ++fStats.fRenderTargetChngCnt;
     #endif
         rt->setDirty(true);
     #if GR_DEBUG
-        GLenum status = GR_GLEXT(fExts, CheckFramebufferStatus(GR_FRAMEBUFFER));
+        GLenum status = GR_GL(CheckFramebufferStatus(GR_FRAMEBUFFER));
         if (status != GR_FRAMEBUFFER_COMPLETE) {
             GrPrintf("-- glCheckFramebufferStatus %x\n", status);
         }
@@ -1287,9 +1281,9 @@ void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
     if (NULL != rt && rt->needsResolve()) {
         GrAssert(kNone_MSFBO != fMSFBOType);
         GrAssert(rt->textureFBOID() != rt->renderFBOID());
-        GR_GLEXT(fExts, BindFramebuffer(GR_READ_FRAMEBUFFER,
+        GR_GL(BindFramebuffer(GR_READ_FRAMEBUFFER,
                                         rt->renderFBOID()));
-        GR_GLEXT(fExts, BindFramebuffer(GR_DRAW_FRAMEBUFFER,
+        GR_GL(BindFramebuffer(GR_DRAW_FRAMEBUFFER,
                                         rt->textureFBOID()));
     #if GR_COLLECT_STATS
         ++fStats.fRenderTargetChngCnt;
@@ -1305,11 +1299,11 @@ void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
         if (kApple_MSFBO == fMSFBOType) {
             GR_GL(Enable(GL_SCISSOR_TEST));
             GR_GL(Scissor(left, bottom, right-left, top-bottom));
-            GR_GLEXT(fExts, ResolveMultisampleFramebuffer());
+            GR_GL(ResolveMultisampleFramebuffer());
             fHWBounds.fScissorRect.invalidate();
             fHWBounds.fScissorEnabled = true;
         } else {
-            GR_GLEXT(fExts, BlitFramebuffer(left, bottom, right, top,
+            GR_GL(BlitFramebuffer(left, bottom, right, top,
                                      left, bottom, right, top,
                                      GL_COLOR_BUFFER_BIT, GL_NEAREST));
         }

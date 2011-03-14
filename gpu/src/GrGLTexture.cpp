@@ -43,16 +43,16 @@ GrGLRenderTarget::~GrGLRenderTarget() {
     fGL->notifyRenderTargetDelete(this);
     if (fOwnIDs) {
         if (fTexFBOID) {
-            GR_GLEXT(fGL->extensions(), DeleteFramebuffers(1, &fTexFBOID));
+            GR_GL(DeleteFramebuffers(1, &fTexFBOID));
         }
         if (fRTFBOID && fRTFBOID != fTexFBOID) {
-            GR_GLEXT(fGL->extensions(), DeleteFramebuffers(1, &fRTFBOID));
+            GR_GL(DeleteFramebuffers(1, &fRTFBOID));
         }
         if (fStencilRenderbufferID) {
-            GR_GLEXT(fGL->extensions(), DeleteRenderbuffers(1, &fStencilRenderbufferID));
+            GR_GL(DeleteRenderbuffers(1, &fStencilRenderbufferID));
         }
         if (fMSColorRenderbufferID) {
-            GR_GLEXT(fGL->extensions(), DeleteRenderbuffers(1, &fMSColorRenderbufferID));
+            GR_GL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
         }
     }
     GrSafeUnref(fTexIDObj);

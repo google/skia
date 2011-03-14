@@ -105,7 +105,9 @@
     <ClInclude Include="..\..\gpu\include\GrGeometryBuffer.h" />
     <ClInclude Include="..\..\gpu\include\GrGLConfig.h" />
     <ClInclude Include="..\..\gpu\include\GrGLIndexBuffer.h" />
+    <ClInclude Include="..\..\gpu\include\GrGLInterface.h" />
     <ClInclude Include="..\..\gpu\include\GrGLIRect.h" />
+    <ClInclude Include="..\..\gpu\include\GrGLPlatformIncludes.h" />
     <ClInclude Include="..\..\gpu\include\GrGLTexture.h" />
     <ClInclude Include="..\..\gpu\include\GrGLVertexBuffer.h" />
     <ClInclude Include="..\..\gpu\include\GrGlyph.h" />
@@ -219,6 +221,7 @@
     <ClCompile Include="..\..\gpu\src\GrContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrDrawTarget.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLIndexBuffer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGLInterface.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLTexture.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLUtil.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLVertexBuffer.cpp" />

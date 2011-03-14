@@ -31,14 +31,6 @@ public:
             GrGpuGL();
     virtual ~GrGpuGL();
 
-    /**
-     * Gets the struct containing the GL extensions for the context
-     * underlying the GrGpuGL
-     *
-     * @param struct containing extension function pointers
-     */
-    const GrGLExts& extensions() { return fExts; }
-
 protected:
     struct {
         size_t                  fVertexOffset;
@@ -71,8 +63,6 @@ protected:
         GrGLIRect   fScissorRect;
         GrGLIRect   fViewportRect;
     } fHWBounds;
-
-    GrGLExts fExts;
 
     // GrGpu overrides
     // overrides from GrGpu
