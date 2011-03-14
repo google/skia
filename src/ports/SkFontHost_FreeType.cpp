@@ -522,7 +522,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         FT_Done_FreeType(gFTLibrary);
     }
 
-    if (!gLCDSupport && rec->isLCD()) {
+    if (!gLCDSupport && (rec->isLCD() || SkMask::kLCD16_Format == rec->fMaskFormat)) {
         // If the runtime Freetype library doesn't support LCD mode, we disable
         // it here.
         rec->fMaskFormat = SkMask::kA8_Format;
