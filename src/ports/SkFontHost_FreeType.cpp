@@ -902,10 +902,10 @@ using namespace skia_freetype_support;
 #endif
 
 static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap) {
-    SkASSERT(glyph.fWidth * 3 == bitmap.width);
+    SkASSERT(glyph.fWidth * 3 == bitmap.width - 6);
     SkASSERT(glyph.fHeight == bitmap.rows);
 
-    const uint8_t* src = bitmap.buffer;
+    const uint8_t* src = bitmap.buffer + 3;
     uint16_t* dst = reinterpret_cast<uint16_t*>(glyph.fImage);
     size_t dstRB = glyph.rowBytes();
     int width = glyph.fWidth;
