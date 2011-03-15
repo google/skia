@@ -20,38 +20,46 @@
 #include "SkWindow.h"
 #include <X11/Xlib.h>
 
+class SkBitmap;
+class SkEvent;
+
 struct SkUnixWindow {
   Display* fDisplay;
   Window fWin;
   size_t fOSWin;
+  GC fGc;
 };
 
 class SkOSWindow : public SkWindow {
 public:
-    SkOSWindow(Display* display, Window win);
+    SkOSWindow(void*);
+    ~SkOSWindow();
 
-    void*   getHWND() const { return (void*)fUnixWindow.fWin; }
-  void* getDisplay() const { return (void*)fUnixWindow.fDisplay; }
-  void* getUnixWindow() const { return (void*)&fUnixWindow; }
-  void  setSize(int width, int height);
-    void    updateSize();
+    void* getHWND() const { return (void*)fUnixWindow.fWin; }
+    void* getDisplay() const { return (void*)fUnixWindow.fDisplay; }
+    void* getUnixWindow() const { return (void*)&fUnixWindow; }
+    void setUnixWindow(Display*, Window, size_t, GC);
+    bool attachGL(const SkBitmap* offscreen);
+    void detachGL();
+    void presentGL();
 
-    static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
+    //static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
-    static bool WndProc(SkUnixWindow* w,  XEvent &e);
+    //static bool WndProc(SkUnixWindow* w,  XEvent &e);
 
 protected:
     // overrides from SkWindow
+    virtual bool onEvent(const SkEvent&);
     virtual void onHandleInval(const SkIRect&);
-    // overrides from SkView
-    virtual void onAddMenu(const SkOSMenu*);
+    virtual bool onHandleChar(SkUnichar);
+    virtual bool onHandleKey(SkKey);
+    virtual bool onHandleKeyUp(SkKey);
+    virtual void onSetTitle(const char title[]);
 
 private:
     SkUnixWindow  fUnixWindow;
 
     void    doPaint();
-
-    void*   fMBar;
 
     typedef SkWindow INHERITED;
 };
