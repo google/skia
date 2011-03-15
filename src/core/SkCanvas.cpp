@@ -1352,12 +1352,42 @@ void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
     ITER_END
 }
 
+class SkDeviceFilteredPaint {
+public:
+    SkDeviceFilteredPaint(SkDevice* device, const SkPaint& paint) {
+        SkDevice::TextFlags flags;
+        if (device->filterTextFlags(paint, &flags)) {
+            SkPaint* newPaint = new (fStorage) SkPaint(paint);
+            newPaint->setFlags(flags.fFlags);
+            newPaint->setHinting(flags.fHinting);
+            fPaint = newPaint;
+        } else {
+            fPaint = &paint;
+        }
+    }
+
+    ~SkDeviceFilteredPaint() {
+        if (reinterpret_cast<SkPaint*>(fStorage) == fPaint) {
+            fPaint->~SkPaint();
+        }
+    }
+
+    const SkPaint& paint() const { return *fPaint; }
+
+private:
+    // points to either fStorage or the caller's paint
+    const SkPaint*  fPaint;
+    // we rely on the fPaint above to ensure proper alignment of fStorage
+    char            fStorage[sizeof(SkPaint)];
+};
+
 void SkCanvas::drawText(const void* text, size_t byteLength,
                         SkScalar x, SkScalar y, const SkPaint& paint) {
     ITER_BEGIN(paint, SkDrawFilter::kText_Type)
 
     while (iter.next()) {
-        iter.fDevice->drawText(iter, text, byteLength, x, y, paint);
+        SkDeviceFilteredPaint dfp(iter.fDevice, paint);
+        iter.fDevice->drawText(iter, text, byteLength, x, y, dfp.paint());
     }
 
     ITER_END
@@ -1368,8 +1398,9 @@ void SkCanvas::drawPosText(const void* text, size_t byteLength,
     ITER_BEGIN(paint, SkDrawFilter::kText_Type)
 
     while (iter.next()) {
+        SkDeviceFilteredPaint dfp(iter.fDevice, paint);
         iter.fDevice->drawPosText(iter, text, byteLength, &pos->fX, 0, 2,
-                                  paint);
+                                  dfp.paint());
     }
 
     ITER_END
@@ -1381,8 +1412,9 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength,
     ITER_BEGIN(paint, SkDrawFilter::kText_Type)
 
     while (iter.next()) {
+        SkDeviceFilteredPaint dfp(iter.fDevice, paint);
         iter.fDevice->drawPosText(iter, text, byteLength, xpos, constY, 1,
-                                  paint);
+                                  dfp.paint());
     }
 
     ITER_END

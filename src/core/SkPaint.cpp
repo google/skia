@@ -1104,25 +1104,6 @@ static void add_flattenable(SkDescriptor* desc, uint32_t tag,
     buffer->flatten(desc->addEntry(tag, buffer->size(), NULL));
 }
 
-/*
- *  Returns false if any condition holds where we cannot support rendering
- *  LCD16 text. Over time we may loosen these restrictions (e.g. as we write
- *  more blits that can handle it).
- *
- *  The goal is to never return false if the user has requested it, but for now
- *  we have some restrictions.
- */
-static bool canSupportLCD16(const SkPaint& paint) {
-    return  !paint.getShader() &&
-            !paint.getXfermode() && // unless its srcover
-            !paint.getMaskFilter() &&
-            !paint.getRasterizer() &&
-            !paint.getColorFilter() &&
-            !paint.getPathEffect() &&
-            !paint.isFakeBoldText() &&
-            paint.getStyle() == SkPaint::kFill_Style;
-}
-
 static SkMask::Format computeMaskFormat(const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 
@@ -1138,9 +1119,7 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint) {
     }
 #else
     if (flags & SkPaint::kLCDRenderText_Flag) {
-        if (canSupportLCD16(paint)) {
-            return SkMask::kLCD16_Format;
-        }
+        return SkMask::kLCD16_Format;
     }
 #endif
 

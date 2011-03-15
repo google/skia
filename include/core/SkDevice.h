@@ -214,6 +214,21 @@ public:
 
     SkRefDict& getRefDict() { return fRefDict; }
 
+    struct TextFlags {
+        uint32_t            fFlags;     // SkPaint::getFlags()
+        SkPaint::Hinting    fHinting;
+    };
+
+    /**
+     *  Device may filter the text flags for drawing text here. If it wants to
+     *  make a change to the specified values, it should write them into the
+     *  textflags parameter (output) and return true. If the paint is fine as
+     *  is, then ignore the textflags parameter and return false.
+     *
+     *  The baseclass SkDevice filters based on its depth and blitters.
+     */
+    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*);
+
 protected:
     /** Update as needed the pixel value in the bitmap, so that the caller can access
         the pixels directly. Note: only the pixels field should be altered. The config/width/height/rowbytes
