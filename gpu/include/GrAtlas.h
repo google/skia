@@ -72,7 +72,10 @@ public:
     GrAtlas* addToAtlas(GrAtlas*, int width, int height, const void*,
                         GrMaskFormat, GrIPoint16*);
 
-    GrTexture* getTexture() const { return fTexture; }
+    GrTexture* getTexture(GrMaskFormat format) const {
+        GrAssert((unsigned)format < kCount_GrMaskFormats);
+        return fTexture[format];
+    }
 
     // to be called by ~GrAtlas()
     void freePlot(int x, int y);
@@ -81,7 +84,7 @@ public:
 
 private:
     GrGpu*      fGpu;
-    GrTexture*  fTexture;
+    GrTexture*  fTexture[kCount_GrMaskFormats];
     GrPlotMgr*  fPlotMgr;
 };
 
