@@ -83,6 +83,19 @@ SkGrFontScaler::~SkGrFontScaler() {
     GrSafeUnref(fKey);
 }
 
+GrMaskFormat SkGrFontScaler::getMaskFormat() {
+    SkMask::Format format = fStrike->getMaskFormat();
+    switch (format) {
+        case SkMask::kA8_Format:
+            return kA8_GrMaskFormat;
+        case SkMask::kLCD16_Format:
+            return kA565_GrMaskFormat;
+        default:
+            GrAssert(!"unsupported SkMask::Format");
+            return kA8_GrMaskFormat;
+    }
+}
+
 const GrKey* SkGrFontScaler::getKey() {
     if (NULL == fKey) {
         fKey = new SkGrDescKey(fStrike->getDescriptor());
@@ -117,8 +130,9 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
     if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);
     } else {
+        const int bbp = GrMaskFormatBytesPerPixel(this->getMaskFormat());
         for (int y = 0; y < height; y++) {
-            memcpy(dst, src, width);
+            memcpy(dst, src, width * bbp);
             src = (const char*)src + srcRB;
             dst = (char*)dst + dstRB;
         }

@@ -33,6 +33,7 @@ class GrPath;
 class GrFontScaler : public GrRefCnt {
 public:
     virtual const GrKey* getKey() = 0;
+    virtual GrMaskFormat getMaskFormat() = 0;
     virtual bool getPackedGlyphBounds(GrGlyph::PackedID, GrIRect* bounds) = 0;
     virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
                                      int rowBytes, void* image) = 0;

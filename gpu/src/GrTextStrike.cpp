@@ -41,7 +41,8 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
     if (NULL == fAtlasMgr) {
         fAtlasMgr = new GrAtlasMgr(fGpu);
     }
-    GrTextStrike* strike = new GrTextStrike(this, scaler->getKey(), fAtlasMgr);
+    GrTextStrike* strike = new GrTextStrike(this, scaler->getKey(),
+                                            scaler->getMaskFormat(), fAtlasMgr);
     fCache.insert(key, strike);
 
     if (fHead) {
@@ -131,6 +132,7 @@ void GrFontCache::validate() const {
  */
 
 GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
+                           GrMaskFormat format,
                            GrAtlasMgr* atlasMgr) : fPool(64) {
     fFontScalerKey = key;
     fFontScalerKey->ref();
@@ -138,6 +140,8 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
     fFontCache = cache;     // no need to ref, it won't go away before we do
     fAtlasMgr = atlasMgr;   // no need to ref, it won't go away before we do
     fAtlas = NULL;
+
+    fMaskFormat = format;
 
 #if GR_DEBUG
     GrPrintf(" GrTextStrike %p %d\n", this, gCounter);
@@ -180,17 +184,20 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
     }
 
     GrAutoRef ar(scaler);
-    
-    size_t size = glyph->fBounds.area();
+
+    int bytesPerPixel = GrMaskFormatBytesPerPixel(fMaskFormat);
+    size_t size = glyph->fBounds.area() * bytesPerPixel;
     GrAutoSMalloc<1024> storage(size);
     if (!scaler->getPackedGlyphImage(glyph->fPackedID, glyph->width(),
-                                     glyph->height(), glyph->width(),
+                                     glyph->height(),
+                                     glyph->width() * bytesPerPixel,
                                      storage.get())) {
         return false;
     }
 
     GrAtlas* atlas = fAtlasMgr->addToAtlas(fAtlas, glyph->width(),
                                            glyph->height(), storage.get(),
+                                           fMaskFormat,
                                            &glyph->fAtlasLocation);
     if (NULL == atlas) {
         return false;
