@@ -19,7 +19,7 @@
 
 #include "SkTypes.h"
 
-class SkDeque : SkNoncopyable {
+class SK_API SkDeque : SkNoncopyable {
 public:
     explicit SkDeque(size_t elemSize);
     SkDeque(size_t elemSize, void* storage, size_t storageSize);

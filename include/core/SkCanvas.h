@@ -51,7 +51,7 @@ class SkShape;
     color, typeface, textSize, strokeWidth, shader (e.g. gradients, patterns),
     etc.
 */
-class SkCanvas : public SkRefCnt {
+class SK_API SkCanvas : public SkRefCnt {
 public:
     /** Construct a canvas with the given device factory.
         @param factory  Specify the factory for generating additional devices.
@@ -758,7 +758,7 @@ public:
         call made on the canvas. Ownership of all pointers in the iterator stays
         with the canvas, so none of them should be modified or deleted.
     */
-    class LayerIter /*: SkNoncopyable*/ {
+    class SK_API LayerIter /*: SkNoncopyable*/ {
     public:
         /** Initialize iterator with canvas, and set values for 1st device */
         LayerIter(SkCanvas*, bool skipEmptyClips);

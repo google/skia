@@ -29,7 +29,7 @@
     explicitly (or via the object going out of scope on the stack or calling
     delete) if getRefCnt() > 1.
 */
-class SkRefCnt : SkNoncopyable {
+class SK_API SkRefCnt : SkNoncopyable {
 public:
     /** Default construct, initializing the reference count to 1.
     */

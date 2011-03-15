@@ -28,7 +28,7 @@ class SkColorFilter;
     the original object in its original position.
     should there be an option to just draw the shadow/blur layer? webkit?
 */
-class SkBlurDrawLooper : public SkDrawLooper {
+class SK_API SkBlurDrawLooper : public SkDrawLooper {
 public:
     enum BlurFlags {
         kNone_BlurFlag = 0x00,

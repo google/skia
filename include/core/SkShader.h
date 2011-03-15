@@ -32,7 +32,7 @@ class SkPath;
     any object (other than a bitmap) that is drawn with that paint will get its color(s) from the
     shader.
 */
-class SkShader : public SkFlattenable {
+class SK_API SkShader : public SkFlattenable {
 public:
             SkShader();
     virtual ~SkShader();

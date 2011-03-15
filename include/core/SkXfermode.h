@@ -28,7 +28,7 @@
     specified in the Modes enum. When an SkXfermode is assigned to an SkPaint,
     then objects drawn with that paint have the xfermode applied.
 */
-class SkXfermode : public SkFlattenable {
+class SK_API SkXfermode : public SkFlattenable {
 public:
     SkXfermode() {}
 

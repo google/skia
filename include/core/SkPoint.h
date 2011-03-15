@@ -140,7 +140,7 @@ struct SkIPoint {
     }
 };
 
-struct SkPoint {
+struct SK_API SkPoint {
     SkScalar    fX, fY;
 
     static SkPoint Make(SkScalar x, SkScalar y) {

@@ -23,7 +23,7 @@
  *  A dictionary of string,refcnt pairs. The dictionary is also an owner of the
  *  refcnt objects while they are contained.
  */
-class SkRefDict : SkNoncopyable {
+class SK_API SkRefDict : SkNoncopyable {
 public:
     SkRefDict();
     ~SkRefDict();

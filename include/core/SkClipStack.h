@@ -7,7 +7,7 @@
 struct SkRect;
 class SkPath;
 
-class SkClipStack {
+class SK_API SkClipStack {
 public:
     SkClipStack();
     ~SkClipStack() {}

@@ -24,7 +24,7 @@
     SkCornerPathEffect is a subclass of SkPathEffect that can turn sharp corners
     into various treatments (e.g. rounded corners)
 */
-class SkCornerPathEffect : public SkPathEffect {
+class SK_API SkCornerPathEffect : public SkPathEffect {
 public:
     /** radius must be > 0 to have an effect. It specifies the distance from each corner
         that should be "rounded".

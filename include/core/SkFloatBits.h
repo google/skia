@@ -51,17 +51,17 @@ int32_t SkFloatBits_toIntCast(int32_t floatBits);
 /** Given the bit representation of a float, return its floor as an int.
     If the value is out of range, or NaN, return return +/- SK_MaxS32
  */
-int32_t SkFloatBits_toIntFloor(int32_t floatBits);
+SK_API int32_t SkFloatBits_toIntFloor(int32_t floatBits);
 
 /** Given the bit representation of a float, return it rounded to an int.
     If the value is out of range, or NaN, return return +/- SK_MaxS32
  */
-int32_t SkFloatBits_toIntRound(int32_t floatBits);
+SK_API int32_t SkFloatBits_toIntRound(int32_t floatBits);
 
 /** Given the bit representation of a float, return its ceiling as an int.
     If the value is out of range, or NaN, return return +/- SK_MaxS32
  */
-int32_t SkFloatBits_toIntCeil(int32_t floatBits);
+SK_API int32_t SkFloatBits_toIntCeil(int32_t floatBits);
 
 
 #ifdef SK_CAN_USE_FLOAT

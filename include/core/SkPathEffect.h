@@ -29,7 +29,7 @@ class SkPath;
 
     Dashing is implemented as a subclass of SkPathEffect.
 */
-class SkPathEffect : public SkFlattenable {
+class SK_API SkPathEffect : public SkFlattenable {
 public:
     //  This method is not exported to java.
     SkPathEffect() {}

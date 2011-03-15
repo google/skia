@@ -96,5 +96,21 @@
     #define SK_CPU_HAS_CONDITIONAL_INSTR
 #endif
 
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(SKIA_IMPLEMENTATION)
+    #define SKIA_IMPLEMENTATION 0
+#endif
+ 
+#if defined(WIN32) && defined(SKIA_DLL)
+    #if SKIA_IMPLEMENTATION
+        #define SK_API __declspec(dllexport)
+    #else
+        #define SK_API __declspec(dllimport)
+    #endif
+#else
+    #define SK_API
+#endif
+
 #endif
 

@@ -48,7 +48,7 @@ typedef const SkGlyph& (*SkMeasureCacheProc)(SkGlyphCache*, const char**);
     The SkPaint class holds the style and color information about how to draw
     geometries, text and bitmaps.
 */
-class SkPaint {
+class SK_API SkPaint {
 public:
     SkPaint();
     SkPaint(const SkPaint& paint);
@@ -56,7 +56,7 @@ public:
 
     SkPaint& operator=(const SkPaint&);
 
-    friend int operator==(const SkPaint& a, const SkPaint& b);
+    SK_API friend int operator==(const SkPaint& a, const SkPaint& b);
     friend int operator!=(const SkPaint& a, const SkPaint& b)
     {
         return !(a == b);
