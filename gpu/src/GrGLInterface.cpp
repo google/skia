@@ -226,7 +226,7 @@ void InitializeGLInterfaceExtensions(GrGLInterface* glBindings) {
 void GrGLInitializeGLInterface(GrGLInterface* glBindings) {
     Gr_bzero(glBindings, sizeof(GrGLInterface));
 
-#if GR_SUPPORT_GLDESKTOP
+#if GR_SUPPORT_GLDESKTOP || GR_SUPPORT_GLES1
     // These entry points only exist on desktop GL implementations.
     GR_GL_GET_PROC_SYMBOL(Color4ub);
     GR_GL_GET_PROC_SYMBOL(ColorPointer);
