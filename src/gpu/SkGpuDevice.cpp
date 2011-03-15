@@ -1181,6 +1181,31 @@ void SkGpuDevice::drawTextOnPath(const SkDraw& draw, const void* text,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
+    if (!paint.isLCDRenderText()) {
+        // we're cool with the paint as is
+        return false;
+    }
+
+    if (paint.getShader() ||
+        paint.getXfermode() || // unless its srcover
+        paint.getMaskFilter() ||
+        paint.getRasterizer() ||
+        paint.getColorFilter() ||
+        paint.getPathEffect() ||
+        paint.isFakeBoldText() ||
+        paint.getStyle() != SkPaint::kFill_Style) {
+        // turn off lcd
+        flags->fFlags = paint.getFlags() & ~SkPaint::kLCDRenderText_Flag;
+        flags->fHinting = paint.getHinting();
+        return true;
+    }
+    // we're cool with the paint as is
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
                                                   const GrSamplerState& sampler,
                                                   GrTexture** texture,

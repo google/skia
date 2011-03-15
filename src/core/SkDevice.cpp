@@ -178,6 +178,32 @@ void SkDevice::drawDevice(const SkDraw& draw, SkDevice* device,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
+    if (!paint.isLCDRenderText()) {
+        // we're cool with the paint as is
+        return false;
+    }
+
+    if (SkBitmap::kARGB_8888_Config != fBitmap.config() ||
+        paint.getShader() ||
+        paint.getXfermode() || // unless its srcover
+        paint.getMaskFilter() ||
+        paint.getRasterizer() ||
+        paint.getColorFilter() ||
+        paint.getPathEffect() ||
+        paint.isFakeBoldText() ||
+        paint.getStyle() != SkPaint::kFill_Style) {
+        // turn off lcd
+        flags->fFlags = paint.getFlags() & ~SkPaint::kLCDRenderText_Flag;
+        flags->fHinting = paint.getHinting();
+        return true;
+    }
+    // we're cool with the paint as is
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkDevice* SkRasterDeviceFactory::newDevice(SkCanvas* canvas,
                                            SkBitmap::Config config, int width,
                                            int height, bool isOpaque,

@@ -109,6 +109,7 @@ public:
                               const SkPaint& paint);
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&);
+    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*);
 
     virtual void flush() { fContext->flush(false); }
 
