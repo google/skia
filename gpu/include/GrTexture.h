@@ -89,6 +89,7 @@ public:
     };
     static size_t BytesPerPixel(PixelConfig);
     static bool PixelConfigIsOpaque(PixelConfig);
+    static bool PixelConfigIsAlphaOnly(PixelConfig);
 
 protected:
     GrTexture(int width,

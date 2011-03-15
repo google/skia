@@ -132,6 +132,8 @@ protected:
     static bool TextureMatrixIsIdentity(const GrGLTexture* texture,
                                         const GrSamplerState& sampler);
 
+    static bool BlendCoefReferencesConstant(GrBlendCoeff coeff);
+
 private:
     // notify callbacks to update state tracking when related
     // objects are bound to GL or deleted outside of the class

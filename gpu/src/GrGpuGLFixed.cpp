@@ -137,6 +137,14 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
         }
     }
 
+#if GR_SUPPORT_GLES1
+    if (BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
+        BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) {
+        uimpl("ES1 doesn't support blend constant");
+        return false;
+    }
+#endif
+
     if (!flushGLStateCommon(type)) {
         return false;
     }

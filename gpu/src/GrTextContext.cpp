@@ -46,6 +46,25 @@ void GrTextContext::flushGlyphs() {
         int nIndices = fCurrVertex + (fCurrVertex >> 1);
         GrAssert(fCurrTexture);
         fDrawTarget->setTexture(TEXT_STAGE, fCurrTexture);
+
+        if (!GrTexture::PixelConfigIsAlphaOnly(fCurrTexture->config())) {
+            if (kOne_BlendCoeff != fPaint.fSrcBlendCoeff ||
+                kISA_BlendCoeff != fPaint.fDstBlendCoeff ||
+                NULL != fPaint.getTexture()) {
+                GrPrintf("LCD Text will not draw correctly.\n");
+            }
+            // setup blend so that we get mask * paintColor + (1-mask)*dstColor
+            fDrawTarget->setBlendConstant(fPaint.fColor);
+            fDrawTarget->setBlendFunc(kConstC_BlendCoeff, kISC_BlendCoeff);
+            // don't modulate by the paint's color in the frag since we're
+            // already doing it via the blend const.
+            fDrawTarget->setColor(0xffffffff);
+        } else {
+            // set back to normal in case we took LCD path previously.
+            fDrawTarget->setBlendFunc(fPaint.fSrcBlendCoeff, fPaint.fDstBlendCoeff);
+            fDrawTarget->setColor(fPaint.fColor);
+        }
+
         fDrawTarget->setIndexSourceToBuffer(fContext->getQuadIndexBuffer());
 
         fDrawTarget->drawIndexed(kTriangles_PrimitiveType,

@@ -56,6 +56,14 @@ bool GrTexture::PixelConfigIsOpaque(PixelConfig config) {
     }
 }
 
+bool GrTexture::PixelConfigIsAlphaOnly(PixelConfig config) {
+    switch (config) {
+        case GrTexture::kAlpha_8_PixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
