@@ -231,7 +231,7 @@ public:
     SkGrRegionIterator() {}
     SkGrRegionIterator(const SkRegion& region) { this->reset(region); }
 
-    void reset(const SkRegion& region) { 
+    void reset(const SkRegion& region) {
         fRegion = &region;
         fIter.reset(region);
     }
@@ -275,6 +275,7 @@ public:
 
     // overrides
     virtual const GrKey* getKey();
+    virtual GrMaskFormat getMaskFormat();
     virtual bool getPackedGlyphBounds(GrGlyph::PackedID, GrIRect* bounds);
     virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
                                      int rowBytes, void* image);

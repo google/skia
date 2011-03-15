@@ -189,6 +189,22 @@ enum GrBlendCoeff {
 };
 
 /**
+ *  Formats for masks, used by the font cache
+ */
+enum GrMaskFormat {
+    kA8_GrMaskFormat,   //!< 1-byte per pixel
+    kA565_GrMaskFormat  //!< 2-bytes per pixel
+};
+
+/**
+ *  Return the number of bytes-per-pixel for the specified mask format.
+ */
+static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
+    GrAssert((unsigned)format <= 1);
+    return (int)format + 1;
+}
+
+/**
  * Set Operations used to construct clips.
  */
 enum GrSetOp {

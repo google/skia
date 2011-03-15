@@ -35,11 +35,13 @@ class GrFontPurgeListener;
  */
 class GrTextStrike {
 public:
-    GrTextStrike(GrFontCache*, const GrKey* fontScalerKey, GrAtlasMgr*);
+    GrTextStrike(GrFontCache*, const GrKey* fontScalerKey, GrMaskFormat,
+                 GrAtlasMgr*);
     ~GrTextStrike();
 
     const GrKey* getFontScalerKey() const { return fFontScalerKey; }
     GrFontCache* getFontCache() const { return fFontCache; }
+    GrMaskFormat getMaskFormat() const { return fMaskFormat; }
 
     inline GrGlyph* getGlyph(GrGlyph::PackedID, GrFontScaler*);
     bool getGlyphAtlas(GrGlyph*, GrFontScaler*);
@@ -65,6 +67,8 @@ private:
     GrFontCache*    fFontCache;
     GrAtlasMgr*     fAtlasMgr;
     GrAtlas*        fAtlas;     // linklist
+
+    GrMaskFormat fMaskFormat;
 
     GrGlyph* generateGlyph(GrGlyph::PackedID packed, GrFontScaler* scaler);
     // returns true if after the purge, the strike is empty
@@ -110,7 +114,7 @@ private:
     GrGpu*      fGpu;
     GrAtlasMgr* fAtlasMgr;
 
-    
+
     GrTextStrike* generateStrike(GrFontScaler*, const Key&);
     inline void detachStrikeFromList(GrTextStrike*);
 };

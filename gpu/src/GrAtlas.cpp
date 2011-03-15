@@ -51,7 +51,7 @@
     static int gCounter;
 #endif
 
-GrAtlas::GrAtlas(GrAtlasMgr* mgr, int plotX, int plotY) {
+GrAtlas::GrAtlas(GrAtlasMgr* mgr, int plotX, int plotY, GrMaskFormat format) {
     fAtlasMgr = mgr;    // just a pointer, not an owner
     fNext = NULL;
     fTexture = mgr->getTexture(); // we're not an owner, just a pointer
@@ -59,6 +59,8 @@ GrAtlas::GrAtlas(GrAtlasMgr* mgr, int plotX, int plotY) {
 
     fRects = GrRectanizer::Factory(GR_ATLAS_WIDTH - BORDER,
                                    GR_ATLAS_HEIGHT - BORDER);
+
+    fMaskFormat = format;
 
 #if GR_DEBUG
     GrPrintf(" GrAtlas %p [%d %d] %d\n", this, plotX, plotY, gCounter);
@@ -82,6 +84,13 @@ static void adjustForPlot(GrIPoint16* loc, const GrIPoint16& plot) {
     loc->fY += plot.fY * GR_ATLAS_HEIGHT;
 }
 
+static uint8_t* zerofill(uint8_t* ptr, int count) {
+    while (--count >= 0) {
+        *ptr++ = 0;
+    }
+    return ptr;
+}
+
 bool GrAtlas::addSubImage(int width, int height, const void* image,
                           GrIPoint16* loc) {
     if (!fRects->addRect(width + BORDER, height + BORDER, loc)) {
@@ -89,23 +98,26 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
     }
 
     GrAutoSMalloc<1024> storage;
-    int srcW = width + 2*BORDER;
-    int srcH = height + 2*BORDER;
+    int dstW = width + 2*BORDER;
+    int dstH = height + 2*BORDER;
     if (BORDER) {
-        uint8_t* ptr = (uint8_t*)storage.realloc(srcW * srcH);
-        Gr_bzero(ptr, srcW);                // zero top row
-        ptr += srcW;
+        const int bpp = GrMaskFormatBytesPerPixel(fMaskFormat);
+        const size_t dstRB = dstW * bpp;
+        uint8_t* dst = (uint8_t*)storage.realloc(dstH * dstRB);
+        Gr_bzero(dst, dstRB);                // zero top row
+        dst += dstRB;
         for (int y = 0; y < height; y++) {
-            *ptr++ = 0;                     // zero left edge
-            memcpy(ptr, image, width); ptr += width;
-            *ptr++ = 0;                     // zero right edge
-            image = (const void*)((const char*)image + width);
+            dst = zerofill(dst, bpp);   // zero left edge
+            memcpy(dst, image, width * bpp);
+            dst += width * bpp;
+            dst = zerofill(dst, bpp);   // zero right edge
+            image = (const void*)((const char*)image + width * bpp);
         }
-        Gr_bzero(ptr, srcW);                // zero bottom row
+        Gr_bzero(dst, dstRB);                // zero bottom row
         image = storage.get();
     }
     adjustForPlot(loc, fPlot);
-    fTexture->uploadTextureData(loc->fX, loc->fY, srcW, srcH, image);
+    fTexture->uploadTextureData(loc->fX, loc->fY, dstW, dstH, image);
 
     // now tell the caller to skip the top/left BORDER
     loc->fX += BORDER;
@@ -128,9 +140,23 @@ GrAtlasMgr::~GrAtlasMgr() {
     fGpu->unref();
 }
 
+static GrTexture::PixelConfig maskformat2pixelconfig(GrMaskFormat format) {
+    switch (format) {
+        case kA8_GrMaskFormat:
+            return GrTexture::kAlpha_8_PixelConfig;
+        case kA565_GrMaskFormat:
+            return GrTexture::kRGB_565_PixelConfig;
+        default:
+            GrAssert(!"unknown maskformat");
+    }
+    return GrTexture::kUnknown_PixelConfig;
+}
+
 GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
                                 int width, int height, const void* image,
+                                GrMaskFormat format,
                                 GrIPoint16* loc) {
+    GrAssert(NULL == atlas || atlas->getMaskFormat() == format);
     if (atlas && atlas->addSubImage(width, height, image, loc)) {
         return atlas;
     }
@@ -145,11 +171,11 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
 
     if (NULL == fTexture) {
         GrGpu::TextureDesc desc = {
-            GrGpu::kDynamicUpdate_TextureFlag, 
+            GrGpu::kDynamicUpdate_TextureFlag,
             GrGpu::kNone_AALevel,
-            GR_ATLAS_TEXTURE_WIDTH, 
+            GR_ATLAS_TEXTURE_WIDTH,
             GR_ATLAS_TEXTURE_HEIGHT,
-            GrTexture::kAlpha_8_PixelConfig
+            maskformat2pixelconfig(format)
         };
         fTexture = fGpu->createTexture(desc, NULL, 0);
         if (NULL == fTexture) {
@@ -157,7 +183,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
         }
     }
 
-    GrAtlas* newAtlas = new GrAtlas(this, plot.fX, plot.fY);
+    GrAtlas* newAtlas = new GrAtlas(this, plot.fX, plot.fY, format);
     if (!newAtlas->addSubImage(width, height, image, loc)) {
         delete newAtlas;
         return NULL;

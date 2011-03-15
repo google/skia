@@ -222,6 +222,10 @@ public:
     SkScalerContext(const SkDescriptor* desc);
     virtual ~SkScalerContext();
 
+    SkMask::Format getMaskFormat() const {
+        return (SkMask::Format)fRec.fMaskFormat;
+    }
+
     // remember our glyph offset/base
     void setBaseGlyphCount(unsigned baseGlyphCount) {
         fBaseGlyphCount = baseGlyphCount;
