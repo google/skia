@@ -111,7 +111,7 @@ private:
     #include "SkOSWindow_Mac.h"
 #elif defined(SK_BUILD_FOR_WIN)
     #include "SkOSWindow_Win.h"
-#elif defined(SK_BUILD_FOR_UNIXx)
+#elif defined(SK_BUILD_FOR_UNIX)
   #include "SkOSWindow_Unix.h"
 #elif defined(SK_BUILD_FOR_SDL)
     #include "SkOSWindow_SDL.h"
