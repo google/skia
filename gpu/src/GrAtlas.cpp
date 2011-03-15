@@ -54,7 +54,7 @@
 GrAtlas::GrAtlas(GrAtlasMgr* mgr, int plotX, int plotY, GrMaskFormat format) {
     fAtlasMgr = mgr;    // just a pointer, not an owner
     fNext = NULL;
-    fTexture = mgr->getTexture(); // we're not an owner, just a pointer
+    fTexture = mgr->getTexture(format); // we're not an owner, just a pointer
     fPlot.set(plotX, plotY);
 
     fRects = GrRectanizer::Factory(GR_ATLAS_WIDTH - BORDER,
@@ -130,12 +130,14 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
 GrAtlasMgr::GrAtlasMgr(GrGpu* gpu) {
     fGpu = gpu;
     gpu->ref();
-    fTexture = NULL;
+    Gr_bzero(fTexture, sizeof(fTexture));
     fPlotMgr = new GrPlotMgr(GR_PLOT_WIDTH, GR_PLOT_HEIGHT);
 }
 
 GrAtlasMgr::~GrAtlasMgr() {
-    GrSafeUnref(fTexture);
+    for (size_t i = 0; i < GR_ARRAY_COUNT(fTexture); i++) {
+        GrSafeUnref(fTexture[i]);
+    }
     delete fPlotMgr;
     fGpu->unref();
 }
@@ -157,6 +159,7 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
                                 GrMaskFormat format,
                                 GrIPoint16* loc) {
     GrAssert(NULL == atlas || atlas->getMaskFormat() == format);
+
     if (atlas && atlas->addSubImage(width, height, image, loc)) {
         return atlas;
     }
@@ -169,7 +172,9 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
         return NULL;
     }
 
-    if (NULL == fTexture) {
+    GrAssert(0 == kA8_GrMaskFormat);
+    GrAssert(1 == kA565_GrMaskFormat);
+    if (NULL == fTexture[format]) {
         GrGpu::TextureDesc desc = {
             GrGpu::kDynamicUpdate_TextureFlag,
             GrGpu::kNone_AALevel,
@@ -177,8 +182,8 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
             GR_ATLAS_TEXTURE_HEIGHT,
             maskformat2pixelconfig(format)
         };
-        fTexture = fGpu->createTexture(desc, NULL, 0);
-        if (NULL == fTexture) {
+        fTexture[format] = fGpu->createTexture(desc, NULL, 0);
+        if (NULL == fTexture[format]) {
             return NULL;
         }
     }
