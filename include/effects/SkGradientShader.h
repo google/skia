@@ -26,7 +26,7 @@ class SkUnitMapper;
     SkGradientShader hosts factories for creating subclasses of SkShader that
     render linear and radial gradients.
 */
-class SkGradientShader {
+class SK_API SkGradientShader {
 public:
     /** Returns a shader that generates a linear gradient between the two
         specified points.

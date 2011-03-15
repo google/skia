@@ -111,7 +111,7 @@ static inline void Filter_32_opaque_portable(unsigned x, unsigned y,
     SkASSERT((unsigned)y <= 0xF);
     
     int xy = x * y;
-    uint32_t mask = gMask_00FF00FF; //0xFF00FF;
+    static const uint32_t mask = gMask_00FF00FF; //0xFF00FF;
     
     int scale = 256 - 16*y - 16*x + xy;
     uint32_t lo = (a00 & mask) * scale;
@@ -141,7 +141,7 @@ static inline void Filter_32_alpha_portable(unsigned x, unsigned y,
     SkASSERT(alphaScale <= 256);
     
     int xy = x * y;
-    uint32_t mask = gMask_00FF00FF; //0xFF00FF;
+    static const uint32_t mask = gMask_00FF00FF; //0xFF00FF;
     
     int scale = 256 - 16*y - 16*x + xy;
     uint32_t lo = (a00 & mask) * scale;

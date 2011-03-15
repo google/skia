@@ -24,7 +24,7 @@
 
     SkIRect holds four 32 bit integer coordinates for a rectangle
 */
-struct SkIRect {
+struct SK_API SkIRect {
     int32_t fLeft, fTop, fRight, fBottom;
 
     static SkIRect MakeEmpty() {
@@ -267,7 +267,7 @@ struct SkIRect {
 
 /** \struct SkRect
 */
-struct SkRect {
+struct SK_API SkRect {
     SkScalar    fLeft, fTop, fRight, fBottom;
 
     static SkRect MakeEmpty() {

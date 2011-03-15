@@ -28,7 +28,7 @@ class SkString;
     using either reset() - to construct an identity matrix, or one of the set
     functions (e.g. setTranslate, setRotate, etc.).
 */
-class SkMatrix {
+class SK_API SkMatrix {
 public:
     /** Enum of bit fields for the mask return by getType().
         Use this to identify the complexity of the matrix.

@@ -152,12 +152,12 @@ typedef uint32_t SkPMColor;
 
 /** Return a SkPMColor value from unpremultiplied 8 bit component values
 */
-SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
+SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 /** Return a SkPMColor value from a SkColor value. This is done by multiplying the color
     components by the color's alpha, and by arranging the bytes in a configuration
     dependent order, to match the format of kARGB32 bitmaps.
 */
-SkPMColor SkPreMultiplyColor(SkColor c);
+SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
 /** Define a function pointer type for combining two premultiplied colors
 */

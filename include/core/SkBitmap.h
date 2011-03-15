@@ -40,7 +40,7 @@ class SkGpuTexture;
     Bitmaps can be drawn into a SkCanvas, but they are also used to specify the target
     of a SkCanvas' drawing operations.
 */
-class SkBitmap {
+class SK_API SkBitmap {
 public:
     class Allocator;
 

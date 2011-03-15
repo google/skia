@@ -33,7 +33,7 @@ class SkString;
  into a data stream for either transport or as part of the key to the
  font cache.
  */
-class SkFlattenable : public SkRefCnt {
+class SK_API SkFlattenable : public SkRefCnt {
 public:
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
     

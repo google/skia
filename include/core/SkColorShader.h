@@ -24,7 +24,7 @@
     accomplished by just using the color field on the paint, but if an
     actual shader object is needed, this provides that feature.
 */
-class SkColorShader : public SkShader {
+class SK_API SkColorShader : public SkShader {
 public:
     /** Create a ColorShader that will inherit its color from the Paint
         at draw time.

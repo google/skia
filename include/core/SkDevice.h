@@ -49,7 +49,7 @@ public:
                                 int height, bool isOpaque, bool isLayer);
 };
 
-class SkDevice : public SkRefCnt {
+class SK_API SkDevice : public SkRefCnt {
 public:
     SkDevice(SkCanvas*);
     /** Construct a new device, extracting the width/height/config/isOpaque values from

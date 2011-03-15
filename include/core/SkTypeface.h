@@ -32,7 +32,7 @@ class SkWStream;
 
     Typeface objects are immutable, and so they can be shared between threads.
 */
-class SkTypeface : public SkRefCnt {
+class SK_API SkTypeface : public SkRefCnt {
 public:
     /** Style specifies the intrinsic style attributes of a given typeface
     */

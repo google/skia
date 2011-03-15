@@ -59,7 +59,7 @@ enum {
     return null (if SK_MALLOC_TEMP bit is clear) or call sk_throw()
     (if SK_MALLOC_TEMP bit is set). To free the memory, call sk_free().
 */
-extern void* sk_malloc_flags(size_t size, unsigned flags);
+SK_API extern void* sk_malloc_flags(size_t size, unsigned flags);
 /** Same as sk_malloc(), but hard coded to pass SK_MALLOC_THROW as the flag
 */
 extern void* sk_malloc_throw(size_t size);
@@ -69,7 +69,7 @@ extern void* sk_malloc_throw(size_t size);
 extern void* sk_realloc_throw(void* buffer, size_t size);
 /** Free memory returned by sk_malloc(). It is safe to pass null.
 */
-extern void  sk_free(void*);
+SK_API extern void  sk_free(void*);
 
 // bzero is safer than memset, but we can't rely on it, so... sk_bzero()
 static inline void sk_bzero(void* buffer, size_t size) {
@@ -152,12 +152,12 @@ typedef int SkBool;
 typedef uint8_t SkBool8;
 
 #ifdef SK_DEBUG
-    int8_t      SkToS8(long);
-    uint8_t     SkToU8(size_t);
-    int16_t     SkToS16(long);
-    uint16_t    SkToU16(size_t);
-    int32_t     SkToS32(long);
-    uint32_t    SkToU32(size_t);
+    SK_API int8_t      SkToS8(long);
+    SK_API uint8_t     SkToU8(size_t);
+    SK_API int16_t     SkToS16(long);
+    SK_API uint16_t    SkToU16(size_t);
+    SK_API int32_t     SkToS32(long);
+    SK_API uint32_t    SkToU32(size_t);
 #else
     #define SkToS8(x)   ((int8_t)(x))
     #define SkToU8(x)   ((uint8_t)(x))
@@ -337,7 +337,7 @@ template <typename Dst> Dst SkTCast(const void* ptr) {
 SkNoncopyable is the base class for objects that may do not want to
 be copied. It hides its copy-constructor and its assignment-operator.
 */
-class SkNoncopyable {
+class SK_API SkNoncopyable {
 public:
     SkNoncopyable() {}
 

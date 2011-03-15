@@ -34,7 +34,7 @@ namespace android {
     The SkRegion class encapsulates the geometric region used to specify
     clipping areas for drawing.
 */
-class SkRegion {
+class SK_API SkRegion {
 public:
     typedef int32_t RunType;
     enum {
@@ -258,7 +258,7 @@ public:
     /** Returns the sequence of rectangles, sorted in Y and X, that make up
         this region.
     */
-    class Iterator {
+    class SK_API Iterator {
     public:
         Iterator() : fRgn(NULL), fDone(true) {}
         Iterator(const SkRegion&);
@@ -281,7 +281,7 @@ public:
     /** Returns the sequence of rectangles, sorted in Y and X, that make up
         this region intersected with the specified clip rectangle.
     */
-    class Cliperator {
+    class SK_API Cliperator {
     public:
         Cliperator(const SkRegion&, const SkIRect& clip);
         bool            done() { return fDone; }

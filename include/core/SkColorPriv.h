@@ -234,7 +234,7 @@ static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) 
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
 }
 
-extern const uint32_t gMask_00FF00FF;
+SK_API extern const uint32_t gMask_00FF00FF;
 
 static inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
     uint32_t mask = gMask_00FF00FF;

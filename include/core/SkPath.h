@@ -30,7 +30,7 @@ class SkString;
     The SkPath class encapsulates compound (multiple contour) geometric paths
     consisting of straight line segments, quadratic curves, and cubic curves.
 */
-class SkPath {
+class SK_API SkPath {
 public:
     SkPath();
     SkPath(const SkPath&);
@@ -514,7 +514,7 @@ public:
     /** Iterate through all of the segments (lines, quadratics, cubics) of
         each contours in a path.
     */
-    class Iter {
+    class SK_API Iter {
     public:
                 Iter();
                 Iter(const SkPath&, bool forceClose);

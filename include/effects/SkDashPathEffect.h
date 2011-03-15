@@ -23,7 +23,7 @@
 
     SkDashPathEffect is a subclass of SkPathEffect that implements dashing
 */
-class SkDashPathEffect : public SkPathEffect {
+class SK_API SkDashPathEffect : public SkPathEffect {
 public:
     /** The intervals array must contain an even number of entries (>=2), with the even
         indices specifying the "on" intervals, and the odd indices specifying the "off"

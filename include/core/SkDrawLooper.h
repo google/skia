@@ -32,7 +32,7 @@ class SkPaint;
     invoked multiple times (hence the name loop-er), allow it to perform effects
     like shadows or frame/fills, that require more than one pass.
 */
-class SkDrawLooper : public SkFlattenable {
+class SK_API SkDrawLooper : public SkFlattenable {
 public:
     /** Called right before something is being drawn to the specified canvas
         with the specified paint. Subclass that want to modify either parameter
