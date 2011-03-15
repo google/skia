@@ -45,7 +45,49 @@ static const GLenum gXfermodeCoeff2Blend[] = {
     GL_ONE_MINUS_SRC_ALPHA,
     GL_DST_ALPHA,
     GL_ONE_MINUS_DST_ALPHA,
+    GL_CONSTANT_COLOR,
+    GL_ONE_MINUS_CONSTANT_COLOR,
+    GL_CONSTANT_ALPHA,
+    GL_ONE_MINUS_CONSTANT_ALPHA,
 };
+
+bool GrGpuGL::BlendCoefReferencesConstant(GrBlendCoeff coeff) {
+    static const bool gCoeffReferencesBlendConst[] = {
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+    };
+    return gCoeffReferencesBlendConst[coeff];
+    GR_STATIC_ASSERT(kBlendCoeffCount == GR_ARRAY_COUNT(gCoeffReferencesBlendConst));
+}
+
+GR_STATIC_ASSERT(0 == kZero_BlendCoeff);
+GR_STATIC_ASSERT(1 == kOne_BlendCoeff);
+GR_STATIC_ASSERT(2 == kSC_BlendCoeff);
+GR_STATIC_ASSERT(3 == kISC_BlendCoeff);
+GR_STATIC_ASSERT(4 == kDC_BlendCoeff);
+GR_STATIC_ASSERT(5 == kIDC_BlendCoeff);
+GR_STATIC_ASSERT(6 == kSA_BlendCoeff);
+GR_STATIC_ASSERT(7 == kISA_BlendCoeff);
+GR_STATIC_ASSERT(8 == kDA_BlendCoeff);
+GR_STATIC_ASSERT(9 == kIDA_BlendCoeff);
+GR_STATIC_ASSERT(10 == kConstC_BlendCoeff);
+GR_STATIC_ASSERT(11 == kIConstC_BlendCoeff);
+GR_STATIC_ASSERT(12 == kConstA_BlendCoeff);
+GR_STATIC_ASSERT(13 == kIConstA_BlendCoeff);
+
+GR_STATIC_ASSERT(kBlendCoeffCount == GR_ARRAY_COUNT(gXfermodeCoeff2Blend));
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -458,6 +500,10 @@ void GrGpuGL::resetContext() {
     // illegal values
     fHWDrawState.fSrcBlend = (GrBlendCoeff)-1;
     fHWDrawState.fDstBlend = (GrBlendCoeff)-1;
+
+    fHWDrawState.fBlendConstant = 0x00000000;
+    GR_GL(BlendColor(0,0,0,0));
+
     fHWDrawState.fColor = GrColor_ILLEGAL;
 
     fHWDrawState.fViewMatrix = GrMatrix::InvalidMatrix();
@@ -1614,6 +1660,19 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                             gXfermodeCoeff2Blend[fCurrDrawState.fDstBlend]));
             fHWDrawState.fSrcBlend = fCurrDrawState.fSrcBlend;
             fHWDrawState.fDstBlend = fCurrDrawState.fDstBlend;
+        }
+        if ((BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
+             BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) &&
+            fHWDrawState.fBlendConstant != fCurrDrawState.fBlendConstant) {
+
+            float c[] = {
+                GrColorUnpackR(fCurrDrawState.fBlendConstant) / 255.f,
+                GrColorUnpackG(fCurrDrawState.fBlendConstant) / 255.f,
+                GrColorUnpackB(fCurrDrawState.fBlendConstant) / 255.f,
+                GrColorUnpackA(fCurrDrawState.fBlendConstant) / 255.f
+            };
+            GR_GL(BlendColor(c[0], c[1], c[2], c[3]));
+            fHWDrawState.fBlendConstant = fCurrDrawState.fBlendConstant;
         }
     }
 

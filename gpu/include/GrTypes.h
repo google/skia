@@ -186,6 +186,12 @@ enum GrBlendCoeff {
     kISA_BlendCoeff,     //<! one minus src alpha
     kDA_BlendCoeff,      //<! dst alpha
     kIDA_BlendCoeff,     //<! one minus dst alpha
+    kConstC_BlendCoeff,  //<! constant color
+    kIConstC_BlendCoeff, //<! one minus constant color
+    kConstA_BlendCoeff,  //<! constant color alpha
+    kIConstA_BlendCoeff, //<! one minus constant color alpha
+
+    kBlendCoeffCount
 };
 
 /**

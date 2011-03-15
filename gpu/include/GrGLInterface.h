@@ -63,6 +63,7 @@ struct GrGLInterface {
     typedef GLvoid (GR_GL_FUNCTION_TYPE *GrGLBindAttribLocationProc)(GLuint program, GLuint index, const char* name);
     typedef GLvoid (GR_GL_FUNCTION_TYPE *GrGLBindBufferProc)(GLenum target, GLuint buffer);
     typedef GLvoid (GR_GL_FUNCTION_TYPE *GrGLBindTextureProc)(GLenum target, GLuint texture);
+    typedef GLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendColorProc)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
     typedef GLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendFuncProc)(GLenum sfactor, GLenum dfactor);
     typedef GLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferDataProc)(GLenum target, GLsizei size, const void* data, GLenum usage);
     typedef GLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferSubDataProc)(GLenum target, GLint offset, GLsizei size, const void* data);
@@ -167,6 +168,7 @@ struct GrGLInterface {
     GrGLBindBufferProc fBindBuffer;
     GrGLBindTextureProc fBindTexture;
     GrGLBlendFuncProc fBlendFunc;
+    GrGLBlendColorProc fBlendColor;
     GrGLBufferDataProc fBufferData;
     GrGLBufferSubDataProc fBufferSubData;
     GrGLClearProc fClear;

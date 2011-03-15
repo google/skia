@@ -136,6 +136,7 @@ protected:
         uint32_t                fFlagBits;
         GrBlendCoeff            fSrcBlend;
         GrBlendCoeff            fDstBlend;
+        GrColor                 fBlendConstant;
         GrTexture*              fTextures[kNumStages];
         GrSamplerState          fSamplerStates[kNumStages];
         GrRenderTarget*         fRenderTarget;
@@ -357,6 +358,24 @@ public:
      * @param dstCoef coeffecient applied to the dst color.
      */
     void setBlendFunc(GrBlendCoeff srcCoef, GrBlendCoeff dstCoef);
+
+    /**
+     * Sets the blending function constant referenced by the following blending
+     * coeffecients:
+     *      kConstC_BlendCoeff
+     *      kIConstC_BlendCoeff
+     *      kConstA_BlendCoeff
+     *      kIConstA_BlendCoeff
+     *
+     * @param constant the constant to set
+     */
+    void setBlendConstant(GrColor constant) { fCurrDrawState.fBlendConstant = constant; }
+
+    /**
+     * Retrieves the last value set by setBlendConstant()
+     * @return the blending constant value
+     */
+    GrColor getBlendConstant() const { return fCurrDrawState.fBlendConstant; }
 
     /**
      * Used to save and restore the GrGpu's drawing state

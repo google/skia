@@ -281,6 +281,7 @@ void GrGLInitializeGLInterface(GrGLInterface* glBindings) {
     GR_GL_GET_PROC(BindAttribLocation);
     GR_GL_GET_PROC(BindBuffer);
     GR_GL_GET_PROC(BindTexture);
+    GR_GL_GET_PROC(BlendColor);
     GR_GL_GET_PROC(BufferData);
     GR_GL_GET_PROC(BufferSubData);
     GR_GL_GET_PROC(CompileShader);
