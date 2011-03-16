@@ -2,8 +2,6 @@
 
 #if defined(SK_BUILD_FOR_WIN)
 
-#include <GL/glew.h>
-#include <GL/wglew.h>
 #include <GL/gl.h>
 #include <d3d9.h>
 #include <WindowsX.h>
@@ -336,26 +334,45 @@ void kill_dummy(HWND dummy) {
     UnregisterClass(L"Dummy Window", module);
 }
 
+// WGL_ARB_pixel_format
+#define WGL_DRAW_TO_WINDOW_ARB      0x2001
+#define WGL_ACCELERATION_ARB        0x2003
+#define WGL_SUPPORT_OPENGL_ARB      0x2010
+#define WGL_DOUBLE_BUFFER_ARB       0x2011
+#define WGL_COLOR_BITS_ARB          0x2014
+#define WGL_STENCIL_BITS_ARB        0x2023
+#define WGL_FULL_ACCELERATION_ARB   0x2027
+
+// WGL_ARB_multisample
+#define WGL_SAMPLE_BUFFERS_ARB      0x2041
+#define WGL_SAMPLES_ARB             0x2042
+
 HGLRC create_gl(HWND hwnd) {
     HDC hdc;    
     HDC prevHDC;
     HGLRC prevGLRC, glrc;
     PIXELFORMATDESCRIPTOR pfd;
 
-    static bool glewInitialized;
- 
     prevGLRC = wglGetCurrentContext();
     prevHDC  = wglGetCurrentDC();
 
     int format = 0;
 
-    // glew must be initialized after a context has been created and made current
-    // and we need glew already be initialized to get wglChoosePixelFormatEXT :(
-    // Even worse: SetPixelFormat needs to be called before the context is created
-    // But SetPixelFormat is only allowed to succeed once per-window. So we need to
-    // create a dummy window for glew in order for it to call wglGetProcAddress() to 
-    // get wglChoosePixelFormatARB(). This is a Windows problem, not a glew problem.
-    if (!glewInitialized) {
+    typedef BOOL (WINAPI *WGLChoosePixelFormatFunc)(HDC hdc,
+                                                    const int *,
+                                                    const FLOAT *,
+                                                    UINT nMaxFormats,
+                                                    int *,
+                                                    UINT *);
+
+    static WGLChoosePixelFormatFunc wglChoosePixelFormatARB;
+
+    // This is horrible but true: wglGetProcAddress cannot be called before a
+    // context is created. SetPixelFormat also needs to be called before the
+    // context is created. But SetPixelFormat is only allowed to succeed once per
+    // window. So we need to create a dummy window in order to call
+    // wglGetProcAddress to get wglChoosePixelFormatARB.
+    if (NULL == wglChoosePixelFormatARB) {
         ZeroMemory(&pfd, sizeof(pfd));
         pfd.nSize = sizeof(pfd);
         pfd.nVersion = 1;
@@ -374,19 +391,18 @@ HGLRC create_gl(HWND hwnd) {
         SkASSERT(glrc);
         wglMakeCurrent(hdc, glrc);
 
-        GLenum err;
-        err = glewInit();
-        SkASSERT(GLEW_OK == err);
-        SkASSERT(GLEW_EXT_bgra);
-        SkASSERT(GLEW_EXT_framebuffer_object);
-        SkASSERT(WGLEW_ARB_pixel_format);
-        glewInitialized = true;
+        wglChoosePixelFormatARB = (WGLChoosePixelFormatFunc) wglGetProcAddress("wglChoosePixelFormatARB");
+
         wglMakeCurrent(hdc, NULL);
         wglDeleteContext(glrc);
         glrc = 0;
         kill_dummy(dummy);
+
+        if (NULL == wglChoosePixelFormatARB) {
+            return 0;
+        }
     }
-    
+
     hdc = GetDC(hwnd);
     format = 0;
 
@@ -436,13 +452,13 @@ HGLRC create_gl(HWND hwnd) {
 bool SkOSWindow::attachGL() {
     if (NULL == fHGLRC) {
         fHGLRC = create_gl((HWND)fHWND);
+        if (NULL == fHGLRC) {
+            return false;
+        }
         glClearStencil(0);
         glClearColor(0, 0, 0, 0);
         glStencilMask(0xffffffff);
         glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-        if (NULL == fHGLRC) {
-            return false;
-        }
     }
     if (wglMakeCurrent(GetDC((HWND)fHWND), (HGLRC)fHGLRC)) {
         glViewport(0, 0, SkScalarRound(this->width()),
