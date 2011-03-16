@@ -25,7 +25,7 @@
  *  corresponding typeface for the specified logfont. The caller is responsible
  *  for calling unref() when it is finished.
  */
-extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
+SK_API extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
 
 #endif
 
