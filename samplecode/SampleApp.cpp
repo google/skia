@@ -11,6 +11,7 @@
 
 #include "SampleCode.h"
 #include "GrContext.h"
+#include "SkTouchGesture.h"
 
 //#define DEFAULT_TO_GPU
 
@@ -224,6 +225,9 @@ protected:
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
 
+    virtual bool onClick(Click* click);
+    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
+
 #if 0
     virtual bool handleChar(SkUnichar uni);
     virtual bool handleEvent(const SkEvent& evt);
@@ -242,6 +246,8 @@ private:
     SkGpuCanvas* fGpuCanvas;
     GrContext* fGrContext;
     SkPath fClipPath;
+
+    SkTouchGesture fGesture;
 
     enum CanvasType {
         kRaster_CanvasType,
@@ -395,6 +401,20 @@ void SampleWindow::draw(SkCanvas* canvas) {
     gAnimTimePrev = gAnimTime;
     gAnimTime = SkTime::GetMSecs();
 
+    // Apply any gesture matrix
+    if (true) {
+        const SkMatrix& localM = fGesture.localM();
+        if (localM.getType() & SkMatrix::kScale_Mask) {
+            canvas->setExternalMatrix(&localM);
+        }
+        canvas->concat(localM);
+        canvas->concat(fGesture.globalM());
+        
+        if (fGesture.isActive()) {
+            this->inval(NULL);
+        }
+    }
+    
     if (fNClip) {
         this->INHERITED::draw(canvas);
         SkBitmap orig = capture_bitmap(canvas);
@@ -824,6 +844,49 @@ bool SampleWindow::onHandleKey(SkKey key) {
     }
     return this->INHERITED::onHandleKey(key);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char gGestureClickType[] = "GestureClickType";
+
+class GestureClick : public SkView::Click {
+public:
+    GestureClick(SkView* target) : SkView::Click(target) {
+        this->setType(gGestureClickType);
+    }
+
+    static bool IsGesture(Click* click) {
+        return click->isType(gGestureClickType);
+    }
+};
+
+SkView::Click* SampleWindow::onFindClickHandler(SkScalar x, SkScalar y) {
+    return new GestureClick(this);
+}
+
+bool SampleWindow::onClick(Click* click) {
+    if (GestureClick::IsGesture(click)) {
+        float x = SkScalarToFloat(click->fCurr.fX);
+        float y = SkScalarToFloat(click->fCurr.fY);
+        switch (click->fState) {
+            case SkView::Click::kDown_State:
+                fGesture.touchBegin(click, x, y);
+                break;
+            case SkView::Click::kMoved_State:
+                fGesture.touchMoved(click, x, y);
+                this->inval(NULL);
+                break;
+            case SkView::Click::kUp_State:
+                fGesture.touchEnd(click);
+                this->inval(NULL);
+                break;
+        }
+        return true;
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 void SampleWindow::loadView(SkView* view) {
     SkView::F2BIter iter(this);
