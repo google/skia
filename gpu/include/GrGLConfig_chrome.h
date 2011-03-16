@@ -21,4 +21,14 @@
 // glGetError() forces a sync with gpu process on chrome
 #define GR_GL_CHECK_ERROR_START     0
 
+// Using the static vb precludes batching rect-to-rect draws
+// because there are matrix changes between each one.
+// Chrome was getting top performance on Windows with
+// batched rect-to-rect draws. But there seems to be some 
+// regression that now causes any dynamic VB data to perform
+// very poorly. In any event the static VB seems to get equal
+// perf to what batching was producing and it always seems to
+// be better on Linux.
+#define GR_STATIC_RECT_VB 1
+
 #endif
