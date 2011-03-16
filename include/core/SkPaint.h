@@ -57,11 +57,10 @@ public:
     SkPaint& operator=(const SkPaint&);
 
     SK_API friend int operator==(const SkPaint& a, const SkPaint& b);
-    friend int operator!=(const SkPaint& a, const SkPaint& b)
-    {
+    friend int operator!=(const SkPaint& a, const SkPaint& b) {
         return !(a == b);
     }
-    
+
     void flatten(SkFlattenableWriteBuffer&) const;
     void unflatten(SkFlattenableReadBuffer&);
 
@@ -86,13 +85,11 @@ public:
         kFull_Hinting          = 3,
     };
 
-    Hinting getHinting() const
-    {
+    Hinting getHinting() const {
         return static_cast<Hinting>(fHinting);
     }
 
-    void setHinting(Hinting hintingLevel)
-    {
+    void setHinting(Hinting hintingLevel) {
         fHinting = hintingLevel;
     }
 
@@ -130,34 +127,31 @@ public:
     /** Helper for getFlags(), returning true if kAntiAlias_Flag bit is set
         @return true if the antialias bit is set in the paint's flags.
         */
-    bool isAntiAlias() const
-    {
+    bool isAntiAlias() const {
         return SkToBool(this->getFlags() & kAntiAlias_Flag);
     }
-    
+
     /** Helper for setFlags(), setting or clearing the kAntiAlias_Flag bit
         @param aa   true to enable antialiasing, false to disable it
         */
     void setAntiAlias(bool aa);
-    
+
     /** Helper for getFlags(), returning true if kDither_Flag bit is set
         @return true if the dithering bit is set in the paint's flags.
         */
-    bool isDither() const
-    {
+    bool isDither() const {
         return SkToBool(this->getFlags() & kDither_Flag);
     }
-    
+
     /** Helper for setFlags(), setting or clearing the kDither_Flag bit
         @param dither   true to enable dithering, false to disable it
         */
     void setDither(bool dither);
-    
+
     /** Helper for getFlags(), returning true if kLinearText_Flag bit is set
         @return true if the lineartext bit is set in the paint's flags
     */
-    bool isLinearText() const
-    {
+    bool isLinearText() const {
         return SkToBool(this->getFlags() & kLinearText_Flag);
     }
 
@@ -170,19 +164,17 @@ public:
     /** Helper for getFlags(), returning true if kSubpixelText_Flag bit is set
         @return true if the lineartext bit is set in the paint's flags
     */
-    bool isSubpixelText() const
-    {
+    bool isSubpixelText() const {
         return SkToBool(this->getFlags() & kSubpixelText_Flag);
     }
-    
+
     /** Helper for setFlags(), setting or clearing the kSubpixelText_Flag
        bit @param subpixelText true to set the subpixelText bit in the paint's flags,
                                false to clear it.
     */
     void setSubpixelText(bool subpixelText);
 
-    bool isLCDRenderText() const
-    {
+    bool isLCDRenderText() const {
         return SkToBool(this->getFlags() & kLCDRenderText_Flag);
     }
 
@@ -192,8 +184,7 @@ public:
     */
     void setLCDRenderText(bool subpixelRender);
 
-    bool isEmbeddedBitmapText() const
-    {
+    bool isEmbeddedBitmapText() const {
         return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
     }
 
@@ -203,8 +194,7 @@ public:
     */
     void setEmbeddedBitmapText(bool useEmbeddedBitmapText);
 
-    bool isAutohinted() const
-    {
+    bool isAutohinted() const {
         return SkToBool(this->getFlags() & kAutoHinting_Flag);
     }
 
@@ -218,8 +208,7 @@ public:
     /** Helper for getFlags(), returning true if kUnderlineText_Flag bit is set
         @return true if the underlineText bit is set in the paint's flags.
     */
-    bool isUnderlineText() const
-    {
+    bool isUnderlineText() const {
         return SkToBool(this->getFlags() & kUnderlineText_Flag);
     }
 
@@ -232,8 +221,7 @@ public:
     /** Helper for getFlags(), returns true if kStrikeThruText_Flag bit is set
         @return true if the strikeThruText bit is set in the paint's flags.
     */
-    bool    isStrikeThruText() const
-    {
+    bool isStrikeThruText() const {
         return SkToBool(this->getFlags() & kStrikeThruText_Flag);
     }
 
@@ -246,8 +234,7 @@ public:
     /** Helper for getFlags(), returns true if kFakeBoldText_Flag bit is set
         @return true if the kFakeBoldText_Flag bit is set in the paint's flags.
     */
-    bool isFakeBoldText() const
-    {
+    bool isFakeBoldText() const {
         return SkToBool(this->getFlags() & kFakeBoldText_Flag);
     }
 
@@ -260,8 +247,7 @@ public:
     /** Helper for getFlags(), returns true if kDevKernText_Flag bit is set
         @return true if the kernText bit is set in the paint's flags.
     */
-    bool isDevKernText() const
-    {
+    bool isDevKernText() const {
         return SkToBool(this->getFlags() & kDevKernText_Flag);
     }
 
@@ -271,17 +257,16 @@ public:
     */
     void setDevKernText(bool devKernText);
 
-    bool isFilterBitmap() const
-    {
+    bool isFilterBitmap() const {
         return SkToBool(this->getFlags() & kFilterBitmap_Flag);
     }
-    
+
     void setFilterBitmap(bool filterBitmap);
 
     /** Styles apply to rect, oval, path, and text.
         Bitmaps are always drawn in "fill", and lines are always drawn in
         "stroke".
-     
+
         Note: strokeandfill implicitly draws the result with
         SkPath::kWinding_FillType, so if the original path is even-odd, the
         results may not appear the same as if it was drawn twice, filled and
@@ -328,7 +313,7 @@ public:
         @return the alpha component of the paint's color.
         */
     uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
-    
+
     /** Helper to setColor(), that only assigns the color's alpha value,
         leaving its r,g,b values unchanged.
         @param a    set the alpha component (0..255) of the paint's color.
@@ -344,7 +329,7 @@ public:
     */
     void setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 
-    /** Return the width for stroking. 
+    /** Return the width for stroking.
         <p />
         A value of 0 strokes in hairline mode.
         Hairlines always draw 1-pixel wide, regardless of the matrix.
@@ -353,7 +338,7 @@ public:
     */
     SkScalar getStrokeWidth() const { return fWidth; }
 
-    /** Set the width for stroking. 
+    /** Set the width for stroking.
         Pass 0 to stroke in hairline mode.
         Hairlines always draw 1-pixel wide, regardless of the matrix.
         @param width set the paint's stroke width, used whenever the paint's
@@ -454,12 +439,12 @@ public:
         effects in the paint (e.g. stroking). If needed, it uses the storage
         rect parameter. It returns the adjusted bounds that can then be used
         for quickReject tests.
-     
+
         The returned rect will either be orig or storage, thus the caller
         should not rely on storage being set to the result, but should always
         use the retured value. It is legal for orig and storage to be the same
         rect.
-        
+
         e.g.
         if (paint.canComputeFastBounds()) {
             SkRect r, storage;
@@ -492,7 +477,7 @@ public:
         @return         shader
     */
     SkShader* setShader(SkShader* shader);
-    
+
     /** Get the paint's colorfilter. If there is a colorfilter, its reference
         count is not changed.
         @return the paint's colorfilter (or NULL)
@@ -613,8 +598,24 @@ public:
     */
     SkRasterizer* setRasterizer(SkRasterizer* rasterizer);
 
+    /**
+     *  Return the paint's SkDrawLooper (if any). Does not affect the looper's
+     *  reference count.
+     */
     SkDrawLooper* getLooper() const { return fLooper; }
-    SkDrawLooper* setLooper(SkDrawLooper*);
+
+    /**
+     *  Set or clear the looper object.
+     *  <p />
+     *  Pass NULL to clear any previous looper.
+     *  As a convenience, the parameter passed is also returned.
+     *  If a previous looper exists in the paint, its reference count is
+     *  decremented. If looper is not NULL, its reference count is
+     *  incremented.
+     *  @param looper May be NULL. The new looper to be installed in the paint.
+     *  @return looper
+     */
+    SkDrawLooper* setLooper(SkDrawLooper* looper);
 
     enum Align {
         kLeft_Align,
@@ -623,10 +624,12 @@ public:
 
         kAlignCount
     };
+
     /** Return the paint's Align value for drawing text.
         @return the paint's Align value for drawing text.
     */
     Align   getTextAlign() const { return (Align)fTextAlign; }
+
     /** Set the paint's text alignment.
         @param align set the paint's Align value for drawing text.
     */
@@ -676,11 +679,8 @@ public:
         kUTF16_TextEncoding,    //!< the text parameters are UTF16
         kGlyphID_TextEncoding   //!< the text parameters are glyph indices
     };
-    
-    TextEncoding getTextEncoding() const
-    {
-        return (TextEncoding)fTextEncoding;
-    }
+
+    TextEncoding getTextEncoding() const { return (TextEncoding)fTextEncoding; }
 
     void setTextEncoding(TextEncoding encoding);
 
@@ -695,11 +695,11 @@ public:
         SkScalar    fXMax;      //!< The maximum bounding box x value for all glyphs
         SkScalar    fXHeight;   //!< the height of an 'x' in px, or 0 if no 'x' in face
     };
-    
+
     /** Return the recommend spacing between lines (which will be
         fDescent - fAscent + fLeading).
         If metrics is not null, return in it the font metrics for the
-        typeface/pointsize/etc. currently set in the paint. 
+        typeface/pointsize/etc. currently set in the paint.
         @param metrics      If not null, returns the font metrics for the
                             current typeface/pointsize/etc setting in this
                             paint.
@@ -708,7 +708,7 @@ public:
         @param return the recommended spacing between lines
     */
     SkScalar getFontMetrics(FontMetrics* metrics, SkScalar scale = 0) const;
-    
+
     /** Return the recommend line spacing. This will be
         fDescent - fAscent + fLeading
     */
@@ -742,8 +742,7 @@ public:
         want to have the text converted into glyph IDs, call textToGlyphs
         instead.
     */
-    int countText(const void* text, size_t byteLength) const
-    {
+    int countText(const void* text, size_t byteLength) const {
         return this->textToGlyphs(text, byteLength, NULL);
     }
 
@@ -756,19 +755,18 @@ public:
                             by this value
         @return             The advance width of the text
     */
-    SkScalar    measureText(const void* text, size_t length,
-                            SkRect* bounds, SkScalar scale = 0) const;
+    SkScalar measureText(const void* text, size_t length,
+                         SkRect* bounds, SkScalar scale = 0) const;
 
     /** Return the width of the text.
         @param text         Address of the text
         @param length       Number of bytes of text to measure
         @return The width of the text
     */
-    SkScalar measureText(const void* text, size_t length) const
-    {
+    SkScalar measureText(const void* text, size_t length) const {
         return this->measureText(text, length, NULL, 0);
     }
-    
+
     /** Specify the direction the text buffer should be processed in breakText()
     */
     enum TextBufferDirection {
