@@ -467,6 +467,7 @@
     <ClCompile Include="..\..\src\views\SkOSMenu.cpp" />
     <ClCompile Include="..\..\src\views\SkTagList.cpp" />
     <ClCompile Include="..\..\src\views\SkTextBox.cpp" />
+    <ClCompile Include="..\..\src\views\SkTouchGesture.cpp" />
     <ClCompile Include="..\..\src\views\SkView.cpp" />
     <ClCompile Include="..\..\src\views\SkViewInflate.cpp" />
     <ClCompile Include="..\..\src\views\SkViewPriv.cpp" />

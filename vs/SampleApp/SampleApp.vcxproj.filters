@@ -459,6 +459,7 @@
     <ClCompile Include="..\..\gpu\src\GrGLInterface.cpp">
       <Filter>Gr\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\views\SkTouchGesture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gpu\include\FlingState.h" />
