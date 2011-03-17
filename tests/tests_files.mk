@@ -6,6 +6,7 @@ SOURCE := \
     ClipStackTest.cpp \
     ClipperTest.cpp \
     DequeTest.cpp \
+    DrawBitmapRectTest.cpp \
     FillPathTest.cpp \
     FlateTest.cpp \
     GeometryTest.cpp \

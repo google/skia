@@ -1305,7 +1305,9 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
     SkIRect tmpISrc;
     if (src) {
         tmpISrc.set(0, 0, bitmap.width(), bitmap.height());
-        tmpISrc.intersect(*src);
+        if (!tmpISrc.intersect(*src)) {
+            return;
+        }
         src = &tmpISrc;
     }
     this->internalDrawBitmap(*bitmapPtr, src, matrix, paint);
