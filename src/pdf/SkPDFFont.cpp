@@ -225,11 +225,14 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
     return NULL;
 }
 
+// scale from em-units to base-1000, returning as a SkScalar
 SkScalar scaleFromFontUnits(int16_t val, uint16_t emSize) {
-    if (emSize == 1000)
-        return SkIntToScalar(val);
-    int intVal = ((int)val) * 1000;
-    return SkIntToScalar(intVal) * SkScalarInvert(SkIntToScalar(emSize));
+    SkScalar scaled = SkIntToScalar(val);
+    if (emSize == 1000) {
+        return scaled;
+    } else {
+        return SkScalarMulDiv(scaled, 1000, emSize);
+    }
 }
 
 void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
