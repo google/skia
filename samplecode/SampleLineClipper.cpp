@@ -88,7 +88,7 @@ static void quad_clipper(const SkPoint src[], const SkRect& clip,
     
     SkEdgeClipper clipper;
     if (clipper.clipQuad(src, clip)) {
-        SkPoint pts[3];
+        SkPoint pts[4];
         SkPath::Verb verb;
         while ((verb = clipper.next(pts)) != SkPath::kDone_Verb) {
             switch (verb) {
@@ -169,7 +169,8 @@ public:
 
         int x = (640 - W)/2;
         int y = (480 - H)/2;
-        fClip.set(x, y, x + W, y + H);
+        fClip.set(SkIntToScalar(x), SkIntToScalar(y),
+                  SkIntToScalar(x + W), SkIntToScalar(y + H));
         this->randPts();
     }
     
