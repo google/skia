@@ -96,9 +96,9 @@ int main(){
                     window->handleClick(evt.xbutton.x, evt.xbutton.y, SkView::Click::kUp_State);
                 break;
             case MotionNotify:
-                // 'If' statement is unnecessary, since we are only masking for button 1
-                if (evt.xbutton.button == Button1)
-                    window->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
+                // Since we are only masking to get the motion events for when Button1 is pressed,
+                // we can assume the pointer is moving with Button1 pressed.
+                window->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
                 break;
             case KeyPress:
             {
