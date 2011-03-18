@@ -18,7 +18,28 @@
 #include "GrGLInterface.h"
 #include "GrTypes.h"
 
+#include "GrGLPlatformIncludes.h"
 #include <stdio.h>
+
+#if defined(GR_GL_PLATFORM_HEADER_SUPPORT)
+    #include GR_GL_PLATFORM_HEADER_SUPPORT
+#endif
+
+#if defined(GR_GL_PLATFORM_HEADER)
+    #include GR_GL_PLATFORM_HEADER
+#endif
+
+#if defined(GR_GL_PLATFORM_HEADER_EXT)
+    #include GR_GL_PLATFORM_HEADER_EXT
+#endif
+
+#if defined(GR_GL_PLATFORM_HEADER2)
+    #include GR_GL_PLATFORM_HEADER2
+#endif
+
+#if defined(GR_GL_PLATFORM_HEADER_EXT2)
+    #include GR_GL_PLATFORM_HEADER_EXT2
+#endif
 
 #if defined(GR_GL_PROC_ADDRESS_HEADER)
     #include GR_GL_PROC_ADDRESS_HEADER
@@ -55,30 +76,27 @@ void gl_version_from_string(int* major, int* minor,
         *minor = 0;
         return;
     }
-#if GR_SUPPORT_GLDESKTOP
+
     int n = sscanf(versionString, "%d.%d", major, minor);
-    if (n != 2) {
-        GrAssert(0);
-        *major = 0;
-        *minor = 0;
-        return;
+    if (2 == n) {
+      return;
     }
-#else
+
     char profile[2];
-    int n = sscanf(versionString, "OpenGL ES-%c%c %d.%d", profile, profile+1,
-                   major, minor);
+    n = sscanf(versionString, "OpenGL ES-%c%c %d.%d", profile, profile+1,
+               major, minor);
     bool ok = 4 == n;
     if (!ok) {
-        int n = sscanf(versionString, "OpenGL ES %d.%d", major, minor);
+        n = sscanf(versionString, "OpenGL ES %d.%d", major, minor);
         ok = 2 == n;
     }
+
     if (!ok) {
         GrAssert(0);
         *major = 0;
         *minor = 0;
         return;
     }
-#endif
 }
 
 bool has_gl_extension_from_string(const char* ext,
@@ -177,7 +195,7 @@ void InitializeGLInterfaceExtensions(GrGLInterface* glBindings) {
     }
     #endif
 
-    #if GL_OES_mapbuffer
+    #if GL_OES_framebuffer_object
     if (!fboFound &&
             has_gl_extension_from_string("GL_OES_framebuffer_object",
                                          extensionString)) {

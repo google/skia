@@ -20,7 +20,7 @@
 
 GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids,
                                    GrGLTexID* texID,
-                                   GLuint stencilBits,
+                                   GrGLuint stencilBits,
                                    const GrGLIRect& viewport,
                                    GrGLTexture* texture,
                                    GrGpuGL* gl) : INHERITED(texture,
@@ -71,13 +71,13 @@ void GrGLRenderTarget::abandon() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const GLenum GrGLTexture::gWrapMode2GLWrap[] = {
-    GL_CLAMP_TO_EDGE,
-    GL_REPEAT,
-#ifdef GL_MIRRORED_REPEAT
-    GL_MIRRORED_REPEAT
-#else
-    GL_REPEAT       // GL_MIRRORED_REPEAT not supported :(
+const GrGLenum GrGLTexture::gWrapMode2GLWrap[] = {
+    GR_GL_CLAMP_TO_EDGE,
+    GR_GL_REPEAT,
+#if GR_SUPPORT_GLES1 && !GR_SUPPORT_GLES2
+    GR_GL_REPEAT            // GL_MIRRORED_REPEAT not supported :(
+#else 
+    GR_GL_MIRRORED_REPEAT
 #endif
 };
 
@@ -158,9 +158,9 @@ void GrGLTexture::uploadTextureData(uint32_t x,
     // If we need to update textures that are created upside down
     // then we have to modify this code to flip the srcData
     GrAssert(kTopDown_Orientation == fOrientation);
-    GR_GL(BindTexture(GL_TEXTURE_2D, fTexIDObj->id()));
-    GR_GL(PixelStorei(GL_UNPACK_ALIGNMENT, fUploadByteCount));
-    GR_GL(TexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, 
+    GR_GL(BindTexture(GR_GL_TEXTURE_2D, fTexIDObj->id()));
+    GR_GL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, fUploadByteCount));
+    GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height, 
                         fUploadFormat, fUploadType, srcData));
 
 }

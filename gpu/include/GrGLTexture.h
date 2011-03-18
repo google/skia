@@ -30,7 +30,7 @@ class GrGLTexture;
  */
 class GrGLTexID : public GrRefCnt {
 public:
-    GrGLTexID(GLuint texID) : fTexID(texID) {}
+    GrGLTexID(GrGLuint texID) : fTexID(texID) {}
 
     virtual ~GrGLTexID() {
         if (0 != fTexID) {
@@ -39,10 +39,10 @@ public:
     }
 
     void abandon() { fTexID = 0; }
-    GLuint id() const { return fTexID; }
+    GrGLuint id() const { return fTexID; }
 
 private:
-    GLuint      fTexID;
+    GrGLuint      fTexID;
 };
 
 class GrGLRenderTarget : public GrRenderTarget {
@@ -53,24 +53,24 @@ public:
     bool needsResolve() const { return fNeedsResolve; }
     void setDirty(bool dirty) { fNeedsResolve = resolveable() && dirty; }
     
-    GLuint renderFBOID() const { return fRTFBOID; }
-    GLuint textureFBOID() const { return fTexFBOID; }
+    GrGLuint renderFBOID() const { return fRTFBOID; }
+    GrGLuint textureFBOID() const { return fTexFBOID; }
 
     void   abandon();
 
 protected:
 
     struct GLRenderTargetIDs {
-        GLuint      fRTFBOID;
-        GLuint      fTexFBOID;
-        GLuint      fStencilRenderbufferID;
-        GLuint      fMSColorRenderbufferID;
+        GrGLuint      fRTFBOID;
+        GrGLuint      fTexFBOID;
+        GrGLuint      fStencilRenderbufferID;
+        GrGLuint      fMSColorRenderbufferID;
         bool        fOwnIDs;
     };
     
     GrGLRenderTarget(const GLRenderTargetIDs& ids,
                      GrGLTexID* texID,
-                     GLuint stencilBits,
+                     GrGLuint stencilBits,
                      const GrGLIRect& fViewport,
                      GrGLTexture* texture,
                      GrGpuGL* gl);
@@ -79,10 +79,10 @@ protected:
     const GrGLIRect& getViewport() const { return fViewport; }
 private:
     GrGpuGL*    fGL;
-    GLuint      fRTFBOID;
-    GLuint      fTexFBOID;
-    GLuint      fStencilRenderbufferID;
-    GLuint      fMSColorRenderbufferID;
+    GrGLuint      fRTFBOID;
+    GrGLuint      fTexFBOID;
+    GrGLuint      fStencilRenderbufferID;
+    GrGLuint      fMSColorRenderbufferID;
    
     // Should this object delete IDs when it is destroyed or does someone
     // else own them.
@@ -114,9 +114,9 @@ public:
     };
     
     struct TexParams {
-        GLenum fFilter;
-        GLenum fWrapS;
-        GLenum fWrapT;
+        GrGLenum fFilter;
+        GrGLenum fWrapS;
+        GrGLenum fWrapT;
     };
 
 protected:
@@ -126,11 +126,11 @@ protected:
         uint32_t    fAllocWidth;
         uint32_t    fAllocHeight;
         PixelConfig fFormat;
-        GLuint      fTextureID;
-        GLenum      fUploadFormat;
-        GLenum      fUploadByteCount;
-        GLenum      fUploadType;
-        GLuint      fStencilBits;
+        GrGLuint    fTextureID;
+        GrGLenum    fUploadFormat;
+        GrGLenum    fUploadByteCount;
+        GrGLenum    fUploadType;
+        GrGLuint    fStencilBits;
         Orientation fOrientation;
     };
     typedef GrGLRenderTarget::GLRenderTargetIDs GLRenderTargetIDs;
@@ -155,11 +155,11 @@ public:
 
     const TexParams& getTexParams() const { return fTexParams; }
     void setTexParams(const TexParams& texParams) { fTexParams = texParams; }
-    GLuint textureID() const { return fTexIDObj->id(); }
+    GrGLuint textureID() const { return fTexIDObj->id(); }
 
-    GLenum uploadFormat() const { return fUploadFormat; }
-    GLenum uploadByteCount() const { return fUploadByteCount; }
-    GLenum uploadType() const { return fUploadType; }
+    GrGLenum uploadFormat() const { return fUploadFormat; }
+    GrGLenum uploadByteCount() const { return fUploadByteCount; }
+    GrGLenum uploadType() const { return fUploadType; }
 
     /**
      * Retrieves the texture width actually allocated in texels.
@@ -198,9 +198,9 @@ public:
 private:
     TexParams           fTexParams;
     GrGLTexID*          fTexIDObj;
-    GLenum              fUploadFormat;
-    GLenum              fUploadByteCount;
-    GLenum              fUploadType;
+    GrGLenum            fUploadFormat;
+    GrGLenum            fUploadByteCount;
+    GrGLenum            fUploadType;
     int                 fAllocWidth;
     int                 fAllocHeight;
     // precomputed content / alloc ratios
@@ -210,7 +210,7 @@ private:
     GrGLRenderTarget*   fRenderTarget;
     GrGpuGL*            fGpuGL;
 
-    static const GLenum gWrapMode2GLWrap[];
+    static const GrGLenum gWrapMode2GLWrap[];
 
     friend class GrGpuGL;
 

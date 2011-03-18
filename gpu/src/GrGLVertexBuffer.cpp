@@ -18,7 +18,7 @@
 #include "GrGLVertexBuffer.h"
 #include "GrGpuGL.h"
 
-GrGLVertexBuffer::GrGLVertexBuffer(GLuint id, GrGpuGL* gl, size_t sizeInBytes,
+GrGLVertexBuffer::GrGLVertexBuffer(GrGLuint id, GrGpuGL* gl, size_t sizeInBytes,
                                    bool dynamic) :
                                    INHERITED(sizeInBytes, dynamic),
                                    fGL(gl),
@@ -35,11 +35,11 @@ GrGLVertexBuffer::~GrGLVertexBuffer() {
 }
 
 void GrGLVertexBuffer::bind() const {
-    GR_GL(BindBuffer(GL_ARRAY_BUFFER, fBufferID));
+    GR_GL(BindBuffer(GR_GL_ARRAY_BUFFER, fBufferID));
     fGL->notifyVertexBufferBind(this);
 }
 
-GLuint GrGLVertexBuffer::bufferID() const {
+GrGLuint GrGLVertexBuffer::bufferID() const {
     return fBufferID;
 }
 
@@ -55,9 +55,9 @@ void* GrGLVertexBuffer::lock() {
     if (fGL->supportsBufferLocking()) {
         bind();
         // Let driver know it can discard the old data
-        GR_GL(BufferData(GL_ARRAY_BUFFER, size(), NULL,
-                         dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW));
-        fLockPtr = GR_GL(MapBuffer(GL_ARRAY_BUFFER, GR_WRITE_ONLY));
+        GR_GL(BufferData(GR_GL_ARRAY_BUFFER, size(), NULL,
+                         dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
+        fLockPtr = GR_GL(MapBuffer(GR_GL_ARRAY_BUFFER, GR_WRITE_ONLY));
         return fLockPtr;
     }
     return NULL;
@@ -73,7 +73,7 @@ void GrGLVertexBuffer::unlock() {
     GrAssert(fGL->supportsBufferLocking());
 
     bind();
-    GR_GL(UnmapBuffer(GL_ARRAY_BUFFER));
+    GR_GL(UnmapBuffer(GR_GL_ARRAY_BUFFER));
     fLockPtr = NULL;
 }
 
@@ -81,9 +81,9 @@ bool GrGLVertexBuffer::isLocked() const {
     GrAssert(fBufferID);
 #if GR_DEBUG
     if (fGL->supportsBufferLocking()) {
-        GLint mapped;
+        GrGLint mapped;
         bind();
-        GR_GL(GetBufferParameteriv(GL_ARRAY_BUFFER, GR_BUFFER_MAPPED, &mapped));
+        GR_GL(GetBufferParameteriv(GR_GL_ARRAY_BUFFER, GR_BUFFER_MAPPED, &mapped));
         GrAssert(!!mapped == !!fLockPtr);
     }
 #endif
@@ -97,12 +97,12 @@ bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
         return false;
     }
     bind();
-    GLenum usage = dynamic() ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+    GrGLenum usage = dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW;
     if (size() == srcSizeInBytes) {
-        GR_GL(BufferData(GL_ARRAY_BUFFER, srcSizeInBytes, src, usage));
+        GR_GL(BufferData(GR_GL_ARRAY_BUFFER, srcSizeInBytes, src, usage));
     } else {
-        GR_GL(BufferData(GL_ARRAY_BUFFER, size(), NULL, usage));
-        GR_GL(BufferSubData(GL_ARRAY_BUFFER, 0, srcSizeInBytes, src));
+        GR_GL(BufferData(GR_GL_ARRAY_BUFFER, size(), NULL, usage));
+        GR_GL(BufferSubData(GR_GL_ARRAY_BUFFER, 0, srcSizeInBytes, src));
     }
     return true;
 }
@@ -116,7 +116,7 @@ bool GrGLVertexBuffer::updateSubData(const void* src,
         return false;
     }
     bind();
-    GR_GL(BufferSubData(GL_ARRAY_BUFFER, offset, srcSizeInBytes, src));
+    GR_GL(BufferSubData(GR_GL_ARRAY_BUFFER, offset, srcSizeInBytes, src));
     return true;
 }
 

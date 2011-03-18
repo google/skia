@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ class GrGpuGL;
 
 class GrGLIndexBuffer : public GrIndexBuffer {
 protected:
-    GrGLIndexBuffer(GLuint id,
+    GrGLIndexBuffer(GrGLuint id,
                     GrGpuGL* gl,
                     size_t sizeInBytes,
                     bool dynamic);
 public:
     virtual ~GrGLIndexBuffer();
 
-    GLuint bufferID() const;
+    GrGLuint bufferID() const;
 
     // overrides of GrIndexBuffer
     virtual void abandon();
@@ -48,7 +48,7 @@ private:
     void bind() const;
     
     GrGpuGL*     fGL;
-    GLuint       fBufferID;
+    GrGLuint     fBufferID;
     void*        fLockPtr;
     
     friend class GrGpuGL;

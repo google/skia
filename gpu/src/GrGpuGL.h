@@ -151,10 +151,10 @@ private:
     void resolveTextureRenderTarget(GrGLTexture* texture);
 
     bool canBeTexture(GrTexture::PixelConfig config,
-                      GLenum* internalFormat,
-                      GLenum* format,
-                      GLenum* type);
-    bool fboInternalFormat(GrTexture::PixelConfig config, GLenum* format);
+                      GrGLenum* internalFormat,
+                      GrGLenum* format,
+                      GrGLenum* type);
+    bool fboInternalFormat(GrTexture::PixelConfig config, GrGLenum* format);
 
     friend class GrGLVertexBuffer;
     friend class GrGLIndexBuffer;
@@ -163,7 +163,7 @@ private:
 
     bool fHWBlendDisabled;
 
-    GLuint fAASamples[4];
+    GrGLuint fAASamples[4];
     enum {
         kNone_MSFBO = 0,
         kDesktop_MSFBO,

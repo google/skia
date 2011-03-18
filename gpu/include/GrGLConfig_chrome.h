@@ -8,10 +8,10 @@
 #define GL_OES_mapbuffer                      0
 #define GL_IMG_multisampled_render_to_texture 0
 
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+#define GR_GL_PLATFORM_HEADER       <GLES2/gl2.h>
+#define GR_GL_PLATFORM_HEADER_EXT   <GLES2/gl2ext.h>
 
-#define GR_GL_FUNC
+#define GR_GL_FUNCTION_TYPE
 
 #define GR_GL_PROC_ADDRESS(X)       &X
 

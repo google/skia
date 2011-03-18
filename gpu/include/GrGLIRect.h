@@ -1,17 +1,34 @@
-#include "GrGLConfig.h"
+/*
+    Copyright 2011 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ */
+
 
 #ifndef GrGLIRect_DEFINED
 #define GrGLIRect_DEFINED
+
+#include "GrGLConfig.h"
 
 /**
  * Helper struct for dealing with the fact that Ganesh and GL use different
  * window coordinate systems (top-down vs bottom-up)
  */
 struct GrGLIRect {
-    GLint   fLeft;
-    GLint   fBottom;
-    GLsizei fWidth;
-    GLsizei fHeight;
+    GrGLint   fLeft;
+    GrGLint   fBottom;
+    GrGLsizei fWidth;
+    GrGLsizei fHeight;
 
     void pushToGLViewport() const {
         GR_GL(Viewport(fLeft, fBottom, fWidth, fHeight));
@@ -22,8 +39,8 @@ struct GrGLIRect {
     }
 
     void setFromGLViewport() {
-        GR_STATIC_ASSERT(sizeof(GrGLIRect) == 4*sizeof(GLint));
-        GR_GL_GetIntegerv(GL_VIEWPORT, (GLint*) this);
+        GR_STATIC_ASSERT(sizeof(GrGLIRect) == 4*sizeof(GrGLint));
+        GR_GL_GetIntegerv(GR_GL_VIEWPORT, (GrGLint*) this);
     }
 
     // sometimes we have a GrIRect from the client that we
