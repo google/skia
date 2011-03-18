@@ -482,52 +482,48 @@ bool SkRegion::intersects(const SkRegion& rgn) const {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-int operator==(const SkRegion& a, const SkRegion& b)
-{
+bool operator==(const SkRegion& a, const SkRegion& b) {
     SkDEBUGCODE(a.validate();)
     SkDEBUGCODE(b.validate();)
 
-    if (&a == &b)
+    if (&a == &b) {
         return true;
-    if (a.fBounds != b.fBounds)
+    }
+    if (a.fBounds != b.fBounds) {
         return false;
+    }
     
     const SkRegion::RunHead* ah = a.fRunHead;
     const SkRegion::RunHead* bh = b.fRunHead;
 
     // this catches empties and rects being equal
-    if (ah == bh) 
+    if (ah == bh) {
         return true;
-    
+    }
     // now we insist that both are complex (but different ptrs)
-    if (!ah->isComplex() || !bh->isComplex())
+    if (!ah->isComplex() || !bh->isComplex()) {
         return false;
-
+    }
     return  ah->fRunCount == bh->fRunCount &&
             !memcmp(ah->readonly_runs(), bh->readonly_runs(),
                     ah->fRunCount * sizeof(SkRegion::RunType));
 }
 
-void SkRegion::translate(int dx, int dy, SkRegion* dst) const
-{
+void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
     SkDEBUGCODE(this->validate();)
 
-    if (NULL == dst)
+    if (NULL == dst) {
         return;
-
-    if (this->isEmpty())
+    }
+    if (this->isEmpty()) {
         dst->setEmpty();
-    else if (this->isRect())
+    } else if (this->isRect()) {
         dst->setRect(fBounds.fLeft + dx, fBounds.fTop + dy,
                      fBounds.fRight + dx, fBounds.fBottom + dy);
-    else
-    {
-        if (this == dst)
-        {
+    } else {
+        if (this == dst) {
             dst->fRunHead = dst->fRunHead->ensureWritable();
-        }
-        else
-        {
+        } else {
             SkRegion    tmp;
             tmp.allocateRuns(fRunHead->fRunCount);
             tmp.fBounds = fBounds;
@@ -540,17 +536,17 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const
         RunType*        druns = dst->fRunHead->writable_runs();
 
         *druns++ = (SkRegion::RunType)(*sruns++ + dy);    // top
-        for (;;)
-        {
+        for (;;) {
             int bottom = *sruns++;
-            if (bottom == kRunTypeSentinel)
+            if (bottom == kRunTypeSentinel) {
                 break;
+            }
             *druns++ = (SkRegion::RunType)(bottom + dy);  // bottom;
-            for (;;)
-            {
+            for (;;) {
                 int x = *sruns++;
-                if (x == kRunTypeSentinel)
+                if (x == kRunTypeSentinel) {
                     break;
+                }
                 *druns++ = (SkRegion::RunType)(x + dx);
                 *druns++ = (SkRegion::RunType)(*sruns++ + dx);
             }
