@@ -12,12 +12,12 @@ C_INCLUDES := -I../include/core \
               -I../include/utils/unix \
               -I../samplecode
 
-VPATH = libs:../src/ports:../samplecode:../src/core:../out:../src/utils/unix
+VPATH = libs:../src/ports:../samplecode:../src/core:../src/utils/unix
 
 #generate debugging info
 CFLAGS = -g
 
-SRC_LIST := main.cpp SkOSWindow_Unix.cpp SkXMLParser_empty.cpp SkDebug.cpp keysym2ucs.c
+SRC_LIST := main.cpp SkOSWindow_Unix.cpp SkXMLParser_empty.cpp SkDebug.cpp
 
 #views files
 include ../src/views/views_files.mk
@@ -31,6 +31,17 @@ SRC_LIST += $(addprefix ../src/xml/, $(SOURCE))
 include ../samplecode/samplecode_files.mk
 SRC_LIST += $(addprefix ../samplecode/, $(SOURCE))
 
-output: $(SRC_LIST) -lX11 -lskia -lpthread -lz -lfreetype -lGL -lpng
+
+out/output: $(SRC_LIST) out/keysym2ucs.o ../out/libskia.a -lX11 -lpthread -lz -lfreetype -lGL -lpng
 	g++ $(C_INCLUDES) $(CFLAGS) $^ -o $@
 
+out/keysym2ucs.o: ../src/utils/unix/keysym2ucs.c
+	@mkdir -p $(dir $@)
+	@gcc -c $(C_INCLUDES) $(CFLAGS) $^ -o $@
+
+../out/libskia.a:
+	@$(MAKE) -C ../ SKIA_SAMPLES_FOR_X=true
+
+clean:
+	rm -rf ../out # Copied from ../Makefile
+	rm -rf out

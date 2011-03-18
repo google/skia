@@ -106,6 +106,9 @@ else
 	LINKER_OPTS += -lpng -lfreetype -lGL
 	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG -DGR_LINUX_BUILD=1
 
+    ifeq ($(SKIA_SAMPLES_FOR_X),true)
+        DEFINES += -DSK_SAMPLES_FOR_X
+    endif
 	# needed for freetype support
 	C_INCLUDES += -I/usr/include/freetype2
 	SRC_LIST += src/ports/SkFontHost_linux.cpp

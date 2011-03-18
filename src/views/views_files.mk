@@ -6,7 +6,8 @@ SOURCE := \
     SkTagList.cpp \
     SkView.cpp \
     SkViewPriv.cpp \
-    SkWindow.cpp
+    SkWindow.cpp \
+    SkTouchGesture.cpp
 #    SkBGViewArtist.cpp \
     SkListView.cpp \
     SkListWidget.cpp \
