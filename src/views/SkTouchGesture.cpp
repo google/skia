@@ -71,10 +71,10 @@ bool SkFlingState::evaluateMatrix(SkMatrix* matrix) {
         return false;
     }
 
-    const float t =  getseconds() - fTime0;
+    const float t =  (float)(getseconds() - fTime0);
     const float MIN_SPEED = 2;
-    const float K0 = 5.0;
-    const float K1 = 0.02;
+    const float K0 = 5;
+    const float K1 = 0.02f;
     const float speed = fSpeed0 * (sk_float_exp(- K0 * t) - K1);
     if (speed <= MIN_SPEED) {
         fActive = false;
@@ -86,8 +86,8 @@ bool SkFlingState::evaluateMatrix(SkMatrix* matrix) {
     float tx = fDirection.fX * dist;
     float ty = fDirection.fY * dist;
     if (DISCRETIZE_TRANSLATE_TO_AVOID_FLICKER) {
-        tx = sk_float_round2int(tx);
-        ty = sk_float_round2int(ty);
+        tx = (float)sk_float_round2int(tx);
+        ty = (float)sk_float_round2int(ty);
     }
     matrix->setTranslate(tx, ty);
 //    printf("---- evaluate (%g %g)\n", tx, ty);
