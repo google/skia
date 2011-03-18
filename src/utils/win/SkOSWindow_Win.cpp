@@ -275,6 +275,12 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
     }
 }
 
+#if defined(UNICODE)
+    #define STR_LIT(X) L## #X
+#else
+    #define STR_LIT(X) #X
+#endif
+
 static HWND create_dummy()
 {
     HMODULE module = GetModuleHandle(NULL);
@@ -296,7 +302,7 @@ static HWND create_dummy()
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszMenuName = NULL;
-    wc.lpszClassName = L"DummyWindow";
+    wc.lpszClassName = STR_LIT("DummyWindow");
 
     if(!RegisterClass(&wc))
     {
@@ -308,10 +314,9 @@ static HWND create_dummy()
     style = WS_SYSMENU;
 
     AdjustWindowRectEx(&windowRect, style, false, exStyle);
-
     if(!(dummy = CreateWindowEx(exStyle,
-        L"DummyWindow",
-        L"Dummy Window",
+        STR_LIT("DummyWindow"),
+        STR_LIT("Dummy Window"),
         WS_CLIPSIBLINGS | WS_CLIPCHILDREN | style,
         0, 0,
         windowRect.right-windowRect.left,
@@ -320,7 +325,7 @@ static HWND create_dummy()
         module,
         NULL)))
     {
-        UnregisterClass(L"Dummy Window", module);
+        UnregisterClass(STR_LIT("Dummy Window"), module);
         return NULL;
     }
     ShowWindow(dummy, SW_HIDE);
@@ -331,7 +336,7 @@ static HWND create_dummy()
 void kill_dummy(HWND dummy) {
     DestroyWindow(dummy);
     HMODULE module = GetModuleHandle(NULL);
-    UnregisterClass(L"Dummy Window", module);
+    UnregisterClass(STR_LIT("Dummy Window"), module);
 }
 
 // WGL_ARB_pixel_format

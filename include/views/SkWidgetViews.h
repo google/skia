@@ -117,6 +117,8 @@ public:
 protected:
     // overrides
     virtual bool onEvent(const SkEvent&);
+private:
+    typedef SkWidgetView INHERITED;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

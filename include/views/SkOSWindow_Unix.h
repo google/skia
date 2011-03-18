@@ -39,7 +39,7 @@ public:
     void* getDisplay() const { return (void*)fUnixWindow.fDisplay; }
     void* getUnixWindow() const { return (void*)&fUnixWindow; }
     void setUnixWindow(Display*, Window, size_t, GC);
-    bool attachGL(const SkBitmap* offscreen);
+    bool attachGL();
     void detachGL();
     void presentGL();
 

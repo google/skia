@@ -163,7 +163,6 @@
     <ClCompile Include="..\..\src\views\SkWindow.cpp" />
     <ClCompile Include="..\..\src\xml\SkDOM.cpp" />
     <ClCompile Include="..\..\src\xml\SkXMLParser.cpp" />
-    <ClCompile Include="skia_win.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="..\..\gpu\src\gr_unittests.cpp">
       <Filter>Gr\src</Filter>
@@ -459,6 +458,7 @@
     <ClCompile Include="..\..\gpu\src\GrGLInterface.cpp">
       <Filter>Gr\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\utils\win\skia_win.cpp" />
     <ClCompile Include="..\..\src\views\SkTouchGesture.cpp" />
   </ItemGroup>
   <ItemGroup>

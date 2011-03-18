@@ -26,7 +26,7 @@ void SkOSWindow::setUnixWindow(Display* dsp, Window win, size_t screenNumber, GC
     fUnixWindow.fGc = gc;
 }
 
-bool SkOSWindow::attachGL(const SkBitmap* offscreen)
+bool SkOSWindow::attachGL()
 {
     return false;
 }
