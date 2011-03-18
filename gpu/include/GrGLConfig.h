@@ -23,6 +23,16 @@
 #include "GrGLDefines.h"
 
 /**
+ * The following macros are used to staticlly configure the default
+ * GrGLInterface, but should not be used outside of the GrGLInterface
+ * scaffolding.  Undefine here to prevent accidental use.
+ */
+#undef GR_SUPPORT_GLDESKTOP
+#undef GR_SUPPORT_GLES1
+#undef GR_SUPPORT_GLES2
+#undef GR_SUPPORT_GLES
+
+/**
  * The following are optional defines that can be enabled at the compiler
  * command line, in a IDE project, in a GrUserConfig.h file, or in a GL custom
  * file (if one is in use). They don't require GR_GL_CUSTOM_SETUP or
@@ -158,19 +168,22 @@ static inline void GrGLClearErr() {
 #define GR_GL(X)                 GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
 #define GR_GL_NO_ERR(X)          GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
 
+#define GR_GL_SUPPORT_DESKTOP   (kDesktop_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
+#define GR_GL_SUPPORT_ES1       (kES1_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
+#define GR_GL_SUPPORT_ES2       (kES2_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
+#define GR_GL_SUPPORT_ES        (GR_GL_SUPPORT_ES1 || GR_GL_SUPPORT_ES2)
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
  *  GrGL_RestoreResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
  *  this wrapper, since GL_UNPACK_ROW_LENGTH is not available on all GL versions
  */
-#if GR_SUPPORT_GLDESKTOP
-    static inline void GrGL_RestoreResetRowLength() {
+static inline void GrGL_RestoreResetRowLength() {
+    if (GR_GL_SUPPORT_DESKTOP) {
         GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
-#else
-    #define GrGL_RestoreResetRowLength()
-#endif
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

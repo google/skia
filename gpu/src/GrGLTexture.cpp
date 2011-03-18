@@ -71,14 +71,24 @@ void GrGLRenderTarget::abandon() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const GrGLenum GrGLTexture::gWrapMode2GLWrap[] = {
-    GR_GL_CLAMP_TO_EDGE,
-    GR_GL_REPEAT,
-#if GR_SUPPORT_GLES1 && !GR_SUPPORT_GLES2
-    GR_GL_REPEAT            // GL_MIRRORED_REPEAT not supported :(
-#else 
-    GR_GL_MIRRORED_REPEAT
-#endif
+const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
+    static const GrGLenum mirrorRepeatModes[] = {
+        GR_GL_CLAMP_TO_EDGE,
+        GR_GL_REPEAT,
+        GR_GL_MIRRORED_REPEAT
+    };
+
+    static const GrGLenum repeatModes[] = {
+        GR_GL_CLAMP_TO_EDGE,
+        GR_GL_REPEAT,
+        GR_GL_REPEAT
+    };
+
+    if (GR_GL_SUPPORT_ES1 && !GR_GL_SUPPORT_ES2) {
+        return repeatModes;  // GL_MIRRORED_REPEAT not supported.
+    } else {
+        return mirrorRepeatModes;
+    }
 };
 
 

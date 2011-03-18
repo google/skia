@@ -24,14 +24,8 @@
 
 #include "GrGLConfig.h"
 
-
-#if GR_SUPPORT_GLES1 || GR_SUPPORT_GLDESKTOP
-    #include "GrGpuGLFixed.h"
-#endif
-
-#if GR_SUPPORT_GLES2 || GR_SUPPORT_GLDESKTOP
-    #include "GrGpuGLShaders2.h"
-#endif
+#include "GrGpuGLFixed.h"
+#include "GrGpuGLShaders2.h"
 
 #include "GrGpu.h"
 
@@ -46,15 +40,11 @@ GrGpu* GrGpu::Create(Engine engine, Platform3DContext context3D) {
     switch (engine) {
         case kOpenGL_Shaders_Engine:
             GrAssert(NULL == context3D);
-#if GR_SUPPORT_GLES2 || GR_SUPPORT_GLDESKTOP
             gpu = new GrGpuGLShaders2;
-#endif
             break;
         case kOpenGL_Fixed_Engine:
             GrAssert(NULL == context3D);
-#if GR_SUPPORT_GLES1 || GR_SUPPORT_GLDESKTOP
             gpu = new GrGpuGLFixed;
-#endif
             break;
         case kDirect3D9_Engine:
             GrAssert(NULL != context3D);
@@ -69,6 +59,3 @@ GrGpu* GrGpu::Create(Engine engine, Platform3DContext context3D) {
 
     return gpu;
 }
-
-
-

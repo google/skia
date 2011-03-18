@@ -63,7 +63,13 @@
  * Alternatively, define GR_GL_CUSTOM_SETUP_HEADER (and not GR_GL_CUSTOM_SETUP)
  * to a header that can be included. This file should:
  *      1. Define the approprate GR_SUPPORT_GL* macro(s) to 1
- *      2. Includes all necessary GL headers.
+ *      2. Specify all of the necessary GL include headers in the following
+ *         macros:
+ *              GR_GL_PLATFORM_HEADER_SUPPORT:  Header required before GL
+ *                                              includes.
+ *              GR_GL_PLATFORM_HEADER:  GL header location.
+ *              GR_GL_PLATFORM_HEADER_EXT:  (Optional)  Header for extension
+ *                                          definitions.
  *      3. Optionally define GR_GL_FUNCTION_TYPE.
  *      4. Define GR_GL_PROC_ADDRESS.
  *      5. Optionally define GR_GL_PROC_ADDRESS_HEADER
@@ -72,23 +78,23 @@
 #if GR_GL_CUSTOM_SETUP
 
     #ifdef GR_SUPPORT_GLES1
-        #include GR_INCLUDE_GLES1
+        #define GR_GL_PLATFORM_HEADER GR_INCLUDE_GLES1
         #if defined(GR_INCLUDE_GLES1ext)
-            #include GR_INCLUDE_GLES1ext
+            #define GR_GL_PLATFORM_HEADER_EXT GR_INCLUDE_GLES1ext
         #endif
     #endif
 
     #ifdef GR_SUPPORT_GLES2
-        #include GR_INCLUDE_GLES2
+        #define GR_GL_PLATFORM_HEADER GR_INCLUDE_GLES2
         #if defined(GR_INCLUDE_GLES2ext)
-            #include GR_INCLUDE_GLES2ext
+            #define GR_GL_PLATFORM_HEADER_EXT GR_INCLUDE_GLES2ext
         #endif
     #endif
 
     #ifdef GR_SUPPORT_GLDESKTOP
-        #include GR_INCLUDE_GLDESKTOP
+        #define GR_GL_PLATFORM_HEADER GR_INCLUDE_GLDESKTOP
         #if defined(GR_INCLUDE_GLDESKTOPext)
-            #include GR_INCLUDE_GLDESKTOPext
+            #define GR_GL_PLATFORM_HEADER_EXT GR_INCLUDE_GLDESKTOPext
         #endif
     #endif
 
