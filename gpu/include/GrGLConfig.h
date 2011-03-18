@@ -20,6 +20,7 @@
 
 #include "GrTypes.h"
 #include "GrGLInterface.h"
+#include "GrGLDefines.h"
 
 /**
  * The following are optional defines that can be enabled at the compiler
@@ -66,19 +67,19 @@
 #if GR_SCALAR_IS_FIXED
     #define GrGLType   GL_FIXED
 #elif GR_SCALAR_IS_FLOAT
-    #define GrGLType   GL_FLOAT
+    #define GrGLType   GR_GL_FLOAT
 #else
     #error "unknown GR_SCALAR type"
 #endif
 
 #if GR_TEXT_SCALAR_IS_USHORT
-    #define GrGLTextType                    GL_UNSIGNED_SHORT
+    #define GrGLTextType                    GR_GL_UNSIGNED_SHORT
     #define GR_GL_TEXT_TEXTURE_NORMALIZED   1
 #elif GR_TEXT_SCALAR_IS_FLOAT
-    #define GrGLTextType                    GL_FLOAT
+    #define GrGLTextType                    GR_GL_FLOAT
     #define GR_GL_TEXT_TEXTURE_NORMALIZED   0
 #elif GR_TEXT_SCALAR_IS_FIXED
-    #define GrGLTextType                    GL_FIXED
+    #define GrGLTextType                    GR_GL_FIXED
     #define GR_GL_TEXT_TEXTURE_NORMALIZED   0
 #else
     #error "unknown GR_TEXT_SCALAR type"
@@ -90,7 +91,7 @@
     #if GR_WIN32_BUILD
         #define GR_GL_32BPP_COLOR_FORMAT    GR_BGRA //use GR prefix because this
     #else                                           //may be an extension.
-        #define GR_GL_32BPP_COLOR_FORMAT    GL_RGBA
+        #define GR_GL_32BPP_COLOR_FORMAT    GR_GL_RGBA
     #endif
 #endif
 
@@ -137,7 +138,7 @@
 extern void GrGLCheckErr(const char* location, const char* call);
 
 static inline void GrGLClearErr() {
-    while (GL_NO_ERROR != GrGLGetGLInterface()->fGetError()) {}
+    while (GR_GL_NO_ERROR != GrGLGetGLInterface()->fGetError()) {}
 }
 
 #if GR_GL_CHECK_ERROR
@@ -165,7 +166,7 @@ static inline void GrGLClearErr() {
  */
 #if GR_SUPPORT_GLDESKTOP
     static inline void GrGL_RestoreResetRowLength() {
-        GR_GL(PixelStorei(GL_UNPACK_ROW_LENGTH, 0));
+        GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
 #else
     #define GrGL_RestoreResetRowLength()

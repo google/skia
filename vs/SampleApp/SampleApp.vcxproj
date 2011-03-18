@@ -207,6 +207,7 @@
     <ClInclude Include="..\..\src\effects\SkRadialGradient_Table.h" />
     <ClInclude Include="..\..\src\views\SkTagList.h" />
     <ClInclude Include="..\..\src\views\SkViewPriv.h" />
+    <ClInclude Include="GrGLDefines.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SampleApp.h" />
     <ClInclude Include="stdafx.h" />

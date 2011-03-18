@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -52,13 +52,13 @@
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
 
 struct GrGpuGLShaders2::StageUniLocations {
-    GLint fTextureMatrixUni;
-    GLint fSamplerUni;
-    GLint fRadial2Uni;
+    GrGLint fTextureMatrixUni;
+    GrGLint fSamplerUni;
+    GrGLint fRadial2Uni;
 };
 
 struct GrGpuGLShaders2::UniLocations {
-    GLint fViewMatrixUni;
+    GrGLint fViewMatrixUni;
     StageUniLocations fStages[kNumStages];
 };
 
@@ -71,9 +71,9 @@ struct GrGpuGLShaders2::UniLocations {
 // previous uniform state after a program change.
 struct  GrGpuGLShaders2::Program {
     // IDs
-    GLuint    fVShaderID;
-    GLuint    fFShaderID;
-    GLuint    fProgramID;
+    GrGLuint    fVShaderID;
+    GrGLuint    fFShaderID;
+    GrGLuint    fProgramID;
 
     // shader uniform locations (-1 if shader doesn't use them)
     UniLocations fUniLocations;
@@ -814,7 +814,7 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
              segments.fVaryings.cstr(),
              segments.fVSCode.cstr());
 #endif
-    program->fVShaderID = CompileShader(GL_VERTEX_SHADER,
+    program->fVShaderID = CompileShader(GR_GL_VERTEX_SHADER,
                                         stringCnt,
                                         strings,
                                         lengths);
@@ -849,13 +849,13 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
              segments.fVaryings.cstr(),
              segments.fFSCode.cstr());
 #endif
-    program->fFShaderID = CompileShader(GL_FRAGMENT_SHADER,
+    program->fFShaderID = CompileShader(GR_GL_FRAGMENT_SHADER,
                                         stringCnt,
                                         strings,
                                         lengths);
 
     program->fProgramID = GR_GL(CreateProgram());
-    const GLint& progID = program->fProgramID;
+    const GrGLint& progID = program->fProgramID;
 
     GR_GL(AttachShader(progID, program->fVShaderID));
     GR_GL(AttachShader(progID, program->fFShaderID));
@@ -896,11 +896,11 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
 
     GR_GL(LinkProgram(progID));
 
-    GLint linked = GR_GL_INIT_ZERO;
-    GR_GL(GetProgramiv(progID, GL_LINK_STATUS, &linked));
+    GrGLint linked = GR_GL_INIT_ZERO;
+    GR_GL(GetProgramiv(progID, GR_GL_LINK_STATUS, &linked));
     if (!linked) {
-        GLint infoLen = GR_GL_INIT_ZERO;
-        GR_GL(GetProgramiv(progID, GL_INFO_LOG_LENGTH, &infoLen));
+        GrGLint infoLen = GR_GL_INIT_ZERO;
+        GR_GL(GetProgramiv(progID, GR_GL_INFO_LOG_LENGTH, &infoLen));
         GrAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
         if (infoLen > 0) {
             GR_GL(GetProgramInfoLog(progID,
@@ -1042,23 +1042,23 @@ void GrGpuGLShaders2::getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc
     }
 }
 
-GLuint GrGpuGLShaders2::CompileShader(GLenum type,
-                                      int stringCnt,
-                                      const char** strings,
-                                      int* stringLengths) {
-    GLuint shader = GR_GL(CreateShader(type));
+GrGLuint GrGpuGLShaders2::CompileShader(GrGLenum type,
+                                        int stringCnt,
+                                        const char** strings,
+                                        int* stringLengths) {
+    GrGLuint shader = GR_GL(CreateShader(type));
     if (0 == shader) {
         return 0;
     }
 
-    GLint compiled = GR_GL_INIT_ZERO;
+    GrGLint compiled = GR_GL_INIT_ZERO;
     GR_GL(ShaderSource(shader, stringCnt, strings, stringLengths));
     GR_GL(CompileShader(shader));
-    GR_GL(GetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
+    GR_GL(GetShaderiv(shader, GR_GL_COMPILE_STATUS, &compiled));
 
     if (!compiled) {
-        GLint infoLen = GR_GL_INIT_ZERO;
-        GR_GL(GetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen));
+        GrGLint infoLen = GR_GL_INIT_ZERO;
+        GR_GL(GetShaderiv(shader, GR_GL_INFO_LOG_LENGTH, &infoLen));
         GrAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
         if (infoLen > 0) {
             GR_GL(GetShaderInfoLog(shader, infoLen+1, NULL, (char*)log.get()));
@@ -1316,21 +1316,21 @@ void GrGpuGLShaders2::setupGeometry(int* startVertex,
     int newColorOffset;
     int newTexCoordOffsets[kMaxTexCoords];
 
-    GLsizei newStride = VertexSizeAndOffsetsByIdx(fGeometrySrc.fVertexLayout,
-                                                  newTexCoordOffsets,
-                                                  &newColorOffset);
+    GrGLsizei newStride = VertexSizeAndOffsetsByIdx(fGeometrySrc.fVertexLayout,
+                                                    newTexCoordOffsets,
+                                                    &newColorOffset);
     int oldColorOffset;
     int oldTexCoordOffsets[kMaxTexCoords];
-    GLsizei oldStride = VertexSizeAndOffsetsByIdx(fHWGeometryState.fVertexLayout,
-                                                  oldTexCoordOffsets,
-                                                  &oldColorOffset);
+    GrGLsizei oldStride = VertexSizeAndOffsetsByIdx(fHWGeometryState.fVertexLayout,
+                                                    oldTexCoordOffsets,
+                                                    &oldColorOffset);
     bool indexed = NULL != startIndex;
 
     int extraVertexOffset;
     int extraIndexOffset;
     setBuffers(indexed, &extraVertexOffset, &extraIndexOffset);
 
-    GLenum scalarType;
+    GrGLenum scalarType;
     bool texCoordNorm;
     if (fGeometrySrc.fVertexLayout & kTextFormat_VertexLayoutBit) {
         scalarType = GrGLTextType;
@@ -1361,13 +1361,13 @@ void GrGpuGLShaders2::setupGeometry(int* startVertex,
 
     if (posAndTexChange) {
         GR_GL(VertexAttribPointer(POS_ATTR_LOCATION, 2, scalarType,
-                                  false, newStride, (GLvoid*)vertexOffset));
+                                  false, newStride, (GrGLvoid*)vertexOffset));
         fHWGeometryState.fVertexOffset = vertexOffset;
     }
 
     for (int t = 0; t < kMaxTexCoords; ++t) {
         if (newTexCoordOffsets[t] > 0) {
-            GLvoid* texCoordOffset = (GLvoid*)(vertexOffset + newTexCoordOffsets[t]);
+            GrGLvoid* texCoordOffset = (GrGLvoid*)(vertexOffset + newTexCoordOffsets[t]);
             if (oldTexCoordOffsets[t] <= 0) {
                 GR_GL(EnableVertexAttribArray(TEX_ATTR_LOCATION(t)));
                 GR_GL(VertexAttribPointer(TEX_ATTR_LOCATION(t), 2, scalarType,
@@ -1383,15 +1383,15 @@ void GrGpuGLShaders2::setupGeometry(int* startVertex,
     }
 
     if (newColorOffset > 0) {
-        GLvoid* colorOffset = (int8_t*)(vertexOffset + newColorOffset);
+        GrGLvoid* colorOffset = (int8_t*)(vertexOffset + newColorOffset);
         if (oldColorOffset <= 0) {
             GR_GL(EnableVertexAttribArray(COL_ATTR_LOCATION));
             GR_GL(VertexAttribPointer(COL_ATTR_LOCATION, 4,
-                                      GL_UNSIGNED_BYTE,
+                                      GR_GL_UNSIGNED_BYTE,
                                       true, newStride, colorOffset));
         } else if (allOffsetsChange || newColorOffset != oldColorOffset) {
             GR_GL(VertexAttribPointer(COL_ATTR_LOCATION, 4,
-                                      GL_UNSIGNED_BYTE,
+                                      GR_GL_UNSIGNED_BYTE,
                                       true, newStride, colorOffset));
         }
     } else if (oldColorOffset > 0) {

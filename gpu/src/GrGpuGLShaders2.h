@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -84,16 +84,16 @@ private:
 
     // Compiles a GL shader, returns shader ID or 0 if failed
     // params have same meaning as glShaderSource
-    static GLuint CompileShader(GLenum type, int stringCnt,
-                                             const char** strings,
-                                             int* stringLengths);
+    static GrGLuint CompileShader(GrGLenum type, int stringCnt,
+                                  const char** strings,
+                                  int* stringLengths);
     static void DeleteProgram(Program* program);
 
     void ProgramUnitTest();
 
     ProgramCache*   fProgramCache;
     Program*        fProgram;
-    GLuint          fHWProgramID;
+    GrGLuint          fHWProgramID;
 
     typedef GrGpuGL INHERITED;
 };
