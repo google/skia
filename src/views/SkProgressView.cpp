@@ -15,8 +15,8 @@ SkProgressView::SkProgressView(uint32_t flags) : SkView(flags), fOnShader(NULL),
 SkProgressView::~SkProgressView()
 {
 	delete fInterp;
-	fOnShader->safeUnref();
-	fOffShader->safeUnref();
+	SkSafeUnref(fOnShader);
+	SkSafeUnref(fOffShader);
 }
 
 void SkProgressView::setMax(U16CPU max)
