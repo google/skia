@@ -460,6 +460,7 @@
     <ClCompile Include="..\..\src\utils\SkParse.cpp" />
     <ClCompile Include="..\..\src\utils\SkParsePath.cpp" />
     <ClCompile Include="..\..\src\utils\SkUnitMappers.cpp" />
+    <ClCompile Include="..\..\src\utils\win\skia_win.cpp" />
     <ClCompile Include="..\..\src\utils\win\SkOSWindow_Win.cpp" />
     <ClCompile Include="..\..\src\views\SkEvent.cpp" />
     <ClCompile Include="..\..\src\views\SkEventSink.cpp" />
@@ -474,7 +475,6 @@
     <ClCompile Include="..\..\src\views\SkWindow.cpp" />
     <ClCompile Include="..\..\src\xml\SkDOM.cpp" />
     <ClCompile Include="..\..\src\xml\SkXMLParser.cpp" />
-    <ClCompile Include="skia_win.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

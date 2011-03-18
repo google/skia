@@ -17,7 +17,7 @@
 		00003C7A0EFC22CE000FF73A /* SkView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C710EFC22CE000FF73A /* SkView.cpp */; };
 		00003C7B0EFC22CE000FF73A /* SkViewPriv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C720EFC22CE000FF73A /* SkViewPriv.cpp */; };
 		00003C7C0EFC22CE000FF73A /* SkWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C730EFC22CE000FF73A /* SkWindow.cpp */; };
-		00003C810EFC22E1000FF73A /* skia_mac.cp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C7E0EFC22E1000FF73A /* skia_mac.cp */; };
+		00003C810EFC22E1000FF73A /* skia_mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C7E0EFC22E1000FF73A /* skia_mac.cpp */; };
 		00003C820EFC22E1000FF73A /* SkOSWindow_Mac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C7F0EFC22E1000FF73A /* SkOSWindow_Mac.cpp */; };
 		00003C950EFC2316000FF73A /* libeffects.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00003C940EFC230E000FF73A /* libeffects.a */; };
 		00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C9A0EFC233F000FF73A /* SkDOM.cpp */; };
@@ -243,7 +243,7 @@
 		00003C710EFC22CE000FF73A /* SkView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkView.cpp; path = ../../src/views/SkView.cpp; sourceTree = SOURCE_ROOT; };
 		00003C720EFC22CE000FF73A /* SkViewPriv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkViewPriv.cpp; path = ../../src/views/SkViewPriv.cpp; sourceTree = SOURCE_ROOT; };
 		00003C730EFC22CE000FF73A /* SkWindow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkWindow.cpp; path = ../../src/views/SkWindow.cpp; sourceTree = SOURCE_ROOT; };
-		00003C7E0EFC22E1000FF73A /* skia_mac.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skia_mac.cp; path = ../../src/utils/mac/skia_mac.cp; sourceTree = SOURCE_ROOT; };
+		00003C7E0EFC22E1000FF73A /* skia_mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skia_mac.cpp; path = ../../src/utils/mac/skia_mac.cpp; sourceTree = SOURCE_ROOT; };
 		00003C7F0EFC22E1000FF73A /* SkOSWindow_Mac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOSWindow_Mac.cpp; path = ../../src/utils/mac/SkOSWindow_Mac.cpp; sourceTree = SOURCE_ROOT; };
 		00003C8C0EFC230E000FF73A /* effects.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = effects.xcodeproj; path = ../effects/effects.xcodeproj; sourceTree = SOURCE_ROOT; };
 		00003C9A0EFC233F000FF73A /* SkDOM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkDOM.cpp; path = ../../src/xml/SkDOM.cpp; sourceTree = SOURCE_ROOT; };
@@ -528,7 +528,7 @@
 				00003CA30EFC235F000FF73A /* SkXMLParser_empty.cpp */,
 				00003C9A0EFC233F000FF73A /* SkDOM.cpp */,
 				00003C9D0EFC233F000FF73A /* SkXMLParser.cpp */,
-				00003C7E0EFC22E1000FF73A /* skia_mac.cp */,
+				00003C7E0EFC22E1000FF73A /* skia_mac.cpp */,
 				00003C7F0EFC22E1000FF73A /* SkOSWindow_Mac.cpp */,
 				00003C6B0EFC22CE000FF73A /* SkEvent.cpp */,
 				00003C6C0EFC22CE000FF73A /* SkEventSink.cpp */,
@@ -919,7 +919,7 @@
 				00003C7A0EFC22CE000FF73A /* SkView.cpp in Sources */,
 				00003C7B0EFC22CE000FF73A /* SkViewPriv.cpp in Sources */,
 				00003C7C0EFC22CE000FF73A /* SkWindow.cpp in Sources */,
-				00003C810EFC22E1000FF73A /* skia_mac.cp in Sources */,
+				00003C810EFC22E1000FF73A /* skia_mac.cpp in Sources */,
 				00003C820EFC22E1000FF73A /* SkOSWindow_Mac.cpp in Sources */,
 				00003C9E0EFC233F000FF73A /* SkDOM.cpp in Sources */,
 				00003CA10EFC233F000FF73A /* SkXMLParser.cpp in Sources */,

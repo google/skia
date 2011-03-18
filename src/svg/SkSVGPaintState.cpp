@@ -321,7 +321,7 @@ fillStrokeAttrCommon:
                 if (strncmp(attrValue, "url(", 4) == 0) {
                     SkASSERT(attrValue[4] == '#');
                     const char* idStart = attrValue + 5;
-                    char* idEnd = strrchr(attrValue, ')');
+                    const char* idEnd = strrchr(attrValue, ')');
                     SkASSERT(idStart < idEnd);
                     SkString id(idStart, idEnd - idStart);
                     SkSVGElement* found;

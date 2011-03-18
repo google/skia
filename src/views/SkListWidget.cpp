@@ -31,8 +31,8 @@ SkListView::SkListView()
 
 SkListView::~SkListView()
 {
-	fScrollBar->safeUnref();
-	fSource->safeUnref();
+	SkSafeUnref(fScrollBar);
+	SkSafeUnref(fSource);
 	delete[] fAnims;
 	delete[] fBindings;
 }

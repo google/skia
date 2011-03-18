@@ -164,6 +164,14 @@ bool SkDisplayXMLParser::onAddAttributeLen(const char attrName[], const char att
     return false;
 }
 
+#if defined(SKIA_BUILD_FOR_WIN32)
+    #define SK_strcasecmp   stricmp
+    #define SK_strncasecmp  strnicmp
+#else
+    #define SK_strcasecmp   strcasecmp
+    #define SK_strncasecmp  strncasecmp
+#endif
+
 bool SkDisplayXMLParser::onEndElement(const char elem[])
 {
     int parentIndex = fParents.count() - 1;
@@ -199,7 +207,7 @@ bool SkDisplayXMLParser::onEndElement(const char elem[])
         fParents.remove(parentIndex);
     }
     fCurrDisplayable = NULL;
-    if (fInInclude == false && strcasecmp(elem, "screenplay") == 0) {
+    if (fInInclude == false && SK_strcasecmp(elem, "screenplay") == 0) {
         if (fMaker.fInMovie == false) {
             fMaker.fEnableTime = fMaker.getAppTime();
 #if defined SK_DEBUG && defined SK_DEBUG_ANIMATION_TIMING
@@ -231,7 +239,7 @@ bool SkDisplayXMLParser::onStartElement(const char name[])
 bool SkDisplayXMLParser::onStartElementLen(const char name[], size_t len) {
     fCurrDisplayable = NULL; // init so we'll ignore attributes if we exit early
 
-    if (strncasecmp(name, "screenplay", len) == 0) {
+    if (SK_strncasecmp(name, "screenplay", len) == 0) {
         fInSkia = true;
         if (fInInclude == false)
             fMaker.idsSet(name, len, &fMaker.fScreenplay);

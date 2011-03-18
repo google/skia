@@ -6,7 +6,9 @@
 #include "SkView.h"
 #include "SkWindow.h"
 #include "XkeysToSkKeys.h"
-#include "keysym2ucs.h"
+extern "C" {
+    #include "keysym2ucs.h"
+}
 #include "SkTypes.h"
 //#include <signal.h>
 //#include <sys/time.h>
