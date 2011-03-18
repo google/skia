@@ -244,6 +244,20 @@ void InitializeGLInterfaceExtensions(GrGLInterface* glBindings) {
 void GrGLInitializeGLInterface(GrGLInterface* glBindings) {
     Gr_bzero(glBindings, sizeof(GrGLInterface));
 
+    // Indicate the type of the exported GL functions based on macros
+    // pulled in from the platform includes.
+#if GR_SUPPORT_GLDESKTOP
+    glBindings->fBindingsExported = kDesktop_GrGLBinding;
+#endif
+
+#if GR_SUPPORT_GLES1 && !GR_SUPPORT_GLES2
+    glBindings->fBindingsExported = kES1_GrGLBinding;
+#endif
+
+#if GR_SUPPORT_GLES2
+    glBindings->fBindingsExported = kES2_GrGLBinding;
+#endif
+
 #if GR_SUPPORT_GLDESKTOP || GR_SUPPORT_GLES1
     // These entry points only exist on desktop GL implementations.
     GR_GL_GET_PROC_SYMBOL(Color4ub);

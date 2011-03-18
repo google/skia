@@ -63,6 +63,12 @@ typedef double GrGLdouble;
 typedef double GrGLclampd;
 typedef void GrGLvoid;
 
+enum GrGLBinding {
+    kDesktop_GrGLBinding = 0x01,
+    kES1_GrGLBinding = 0x02,
+    kES2_GrGLBinding = 0x04
+};
+
 extern "C" {
 /*
  * The following interface exports the OpenGL entry points used by the system.
@@ -177,6 +183,10 @@ struct GrGLInterface {
     // Buffer mapping (extension in ES).
     typedef GrGLvoid* (GR_GL_FUNCTION_TYPE *GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
     typedef GrGLboolean (GR_GL_FUNCTION_TYPE *GrGLUnmapBufferProc)(GrGLenum target);
+
+    // Indicator variable specifying the type of GL implementation
+    // exported:  GLES{1|2} or Desktop.
+    GrGLBinding fBindingsExported;
 
     GrGLActiveTextureProc fActiveTexture;
     GrGLAttachShaderProc fAttachShader;

@@ -210,7 +210,7 @@ private:
     GrGLRenderTarget*   fRenderTarget;
     GrGpuGL*            fGpuGL;
 
-    static const GrGLenum gWrapMode2GLWrap[];
+    static const GrGLenum* WrapMode2GLWrap();
 
     friend class GrGpuGL;
 

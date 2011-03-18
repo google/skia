@@ -17,8 +17,6 @@
 
 #include "GrGLConfig.h"
 
-#if GR_SUPPORT_GLES1 || GR_SUPPORT_GLDESKTOP
-
 #include "GrGpuGLFixed.h"
 #include "GrGpuVertex.h"
 
@@ -137,13 +135,13 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
         }
     }
 
-#if GR_SUPPORT_GLES1
-    if (BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
-        BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) {
-        uimpl("ES1 doesn't support blend constant");
-        return false;
+    if (GR_GL_SUPPORT_ES1) {
+        if (BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
+            BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) {
+            unimpl("ES1 doesn't support blend constant");
+            return false;
+        }
     }
-#endif
 
     if (!flushGLStateCommon(type)) {
         return false;
@@ -330,6 +328,3 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
     fHWGeometryState.fVertexLayout = fGeometrySrc.fVertexLayout;
     fHWGeometryState.fArrayPtrsDirty = false;
 }
-
-#endif
-
