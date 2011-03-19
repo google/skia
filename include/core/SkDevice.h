@@ -36,7 +36,7 @@ class SkRegion;
     to pass into SkCanvas.  Doing so will eliminate the need to extend
     SkCanvas as well.
 */
-class SkDeviceFactory {
+class SK_API SkDeviceFactory {
 public:
     virtual ~SkDeviceFactory();
     virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
