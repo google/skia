@@ -149,6 +149,9 @@ struct SK_API SkPoint {
         return pt;
     }
 
+    SkScalar x() const { return fX; }
+    SkScalar y() const { return fY; }
+
     /** Set the point's X and Y coordinates */
     void set(SkScalar x, SkScalar y) { fX = x; fY = y; }
 
