@@ -57,7 +57,7 @@ void* GrGLIndexBuffer::lock() {
         // Let driver know it can discard the old data
         GR_GL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, size(), NULL,
                          dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
-        fLockPtr = GR_GL(MapBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, GR_WRITE_ONLY));
+        fLockPtr = GR_GL(MapBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, GR_GL_WRITE_ONLY));
 
         return fLockPtr;
     }
@@ -85,7 +85,7 @@ bool GrGLIndexBuffer::isLocked() const {
         bind();
         GrGLint mapped;
         GR_GL(GetBufferParameteriv(GR_GL_ELEMENT_ARRAY_BUFFER,
-                                   GR_BUFFER_MAPPED, &mapped));
+                                   GR_GL_BUFFER_MAPPED, &mapped));
         GrAssert(!!mapped == !!fLockPtr);
     }
 #endif

@@ -725,7 +725,7 @@
     <ClInclude Include="..\..\gpu\include\GrGLPlatformIncludes.h">
       <Filter>Gr\include</Filter>
     </ClInclude>
-    <ClInclude Include="GrGLDefines.h">
+    <ClInclude Include="..\..\gpu\include\GrGLDefines.h">
       <Filter>Gr\include</Filter>
     </ClInclude>
   </ItemGroup>

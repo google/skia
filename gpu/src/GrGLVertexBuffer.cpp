@@ -57,7 +57,7 @@ void* GrGLVertexBuffer::lock() {
         // Let driver know it can discard the old data
         GR_GL(BufferData(GR_GL_ARRAY_BUFFER, size(), NULL,
                          dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
-        fLockPtr = GR_GL(MapBuffer(GR_GL_ARRAY_BUFFER, GR_WRITE_ONLY));
+        fLockPtr = GR_GL(MapBuffer(GR_GL_ARRAY_BUFFER, GR_GL_WRITE_ONLY));
         return fLockPtr;
     }
     return NULL;
@@ -83,7 +83,7 @@ bool GrGLVertexBuffer::isLocked() const {
     if (fGL->supportsBufferLocking()) {
         GrGLint mapped;
         bind();
-        GR_GL(GetBufferParameteriv(GR_GL_ARRAY_BUFFER, GR_BUFFER_MAPPED, &mapped));
+        GR_GL(GetBufferParameteriv(GR_GL_ARRAY_BUFFER, GR_GL_BUFFER_MAPPED, &mapped));
         GrAssert(!!mapped == !!fLockPtr);
     }
 #endif
