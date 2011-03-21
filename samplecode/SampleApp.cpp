@@ -13,6 +13,7 @@
 #include "GrContext.h"
 #include "SkTouchGesture.h"
 
+#define USE_ARROWS_FOR_ZOOM true
 //#define DEFAULT_TO_GPU
 
 extern SkView* create_overview(int, const SkViewFactory[]);
@@ -122,6 +123,9 @@ LCDTextDrawFilter::Mode cycle_lcdmode(LCDTextDrawFilter::Mode mode) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+#define MAX_ZOOM_LEVEL  8
+#define MIN_ZOOM_LEVEL  -8
+
 static const char gCharEvtName[] = "SampleCode_Char_Event";
 static const char gKeyEvtName[] = "SampleCode_Key_Event";
 static const char gTitleEvtName[] = "SampleCode_Title_Event";
@@ -225,6 +229,7 @@ protected:
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
 
+    virtual bool onDispatchClick(int x, int y, Click::State);
     virtual bool onClick(Click* click);
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
 
@@ -233,9 +238,6 @@ protected:
     virtual bool handleEvent(const SkEvent& evt);
     virtual bool handleKey(SkKey key);
     virtual bool handleKeyUp(SkKey key);
-
-    virtual bool onClick(Click* click);
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
     virtual bool onHandleKeyUp(SkKey key);
 #endif
 
@@ -248,6 +250,8 @@ private:
     SkPath fClipPath;
 
     SkTouchGesture fGesture;
+    int      fZoomLevel;
+    SkScalar fZoomScale;
 
     enum CanvasType {
         kRaster_CanvasType,
@@ -269,6 +273,7 @@ private:
     int fScrollTestX, fScrollTestY;
 
     bool make3DReady();
+    void changeZoomLevel(int delta);
 
     void loadView(SkView*);
     void updateTitle();
@@ -340,6 +345,9 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fLCDMode = LCDTextDrawFilter::kNeutral_Mode;
     fScrollTestX = fScrollTestY = 0;
 
+    fZoomLevel = 0;
+    fZoomScale = SK_Scalar1;
+
 //    this->setConfig(SkBitmap::kRGB_565_Config);
     this->setConfig(SkBitmap::kARGB_8888_Config);
     this->setVisibleP(true);
@@ -401,6 +409,23 @@ void SampleWindow::draw(SkCanvas* canvas) {
     gAnimTimePrev = gAnimTime;
     gAnimTime = SkTime::GetMSecs();
 
+    if (fZoomLevel) {
+        SkMatrix m;
+        SkScalar cx = SkScalarHalf(this->width());
+        SkScalar cy = SkScalarHalf(this->height());
+        SkPoint center;
+        m = canvas->getTotalMatrix();//.invert(&m);
+        m.mapXY(cx, cy, &center);
+        cx = center.fX;
+        cy = center.fY;
+        
+        m.setTranslate(-cx, -cy);
+        m.postScale(fZoomScale, fZoomScale);
+        m.postTranslate(cx, cy);
+        
+        canvas->concat(m);
+    }
+    
     // Apply any gesture matrix
     if (true) {
         const SkMatrix& localM = fGesture.localM();
@@ -506,6 +531,8 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                                                   bitmap.width(), bitmap.height(),
                                                   false, false);
                 fGpuCanvas->setDevice(device)->unref();
+                
+                fGpuCanvas->concat(canvas->getTotalMatrix());
                 canvas = fGpuCanvas;
 
             } else {
@@ -638,6 +665,21 @@ static SkBitmap::Config gConfigCycle[] = {
 
 static SkBitmap::Config cycle_configs(SkBitmap::Config c) {
     return gConfigCycle[c];
+}
+
+void SampleWindow::changeZoomLevel(int delta) {
+    fZoomLevel += delta;
+    if (fZoomLevel > 0) {
+        fZoomLevel = SkMin32(fZoomLevel, MAX_ZOOM_LEVEL);
+        fZoomScale = SkIntToScalar(fZoomLevel + 1);
+    } else if (fZoomLevel < 0) {
+        fZoomLevel = SkMax32(fZoomLevel, MIN_ZOOM_LEVEL);
+        fZoomScale = SK_Scalar1 / (1 - fZoomLevel);
+    } else {
+        fZoomScale = SK_Scalar1;
+    }
+
+    this->inval(NULL);
 }
 
 bool SampleWindow::nextSample() {
@@ -816,12 +858,20 @@ bool SampleWindow::onHandleKey(SkKey key) {
             this->inval(NULL);
             return true;
         case kUp_SkKey:
-            fNClip = !fNClip;
+            if (USE_ARROWS_FOR_ZOOM) {
+                this->changeZoomLevel(1);
+            } else {
+                fNClip = !fNClip;
+                this->inval(NULL);
+            }
             this->updateTitle();
-            this->inval(NULL);
             return true;
         case kDown_SkKey:
-            this->setConfig(cycle_configs(this->getBitmap().config()));
+            if (USE_ARROWS_FOR_ZOOM) {
+                this->changeZoomLevel(-1);
+            } else {
+                this->setConfig(cycle_configs(this->getBitmap().config()));
+            }
             this->updateTitle();
             return true;
         case kOK_SkKey:
@@ -848,6 +898,18 @@ bool SampleWindow::onHandleKey(SkKey key) {
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char gGestureClickType[] = "GestureClickType";
+
+bool SampleWindow::onDispatchClick(int x, int y, Click::State state) {
+    int w = SkScalarRound(this->width());
+    int h = SkScalarRound(this->height());
+
+    // check for the resize-box
+    if (w - x < 16 && h - y < 16) {
+        return false;   // let the OS handle the click
+    } else {
+        return this->INHERITED::onDispatchClick(x, y, state);
+    }
+}
 
 class GestureClick : public SkView::Click {
 public:
@@ -960,6 +1022,10 @@ void SampleWindow::updateTitle() {
         title.prepend("LCD ");
     } else if (LCDTextDrawFilter::kForceOff_Mode == fLCDMode) {
         title.prepend("lcd ");
+    }
+
+    if (fZoomLevel) {
+        title.prependf("{%d} ", fZoomLevel);
     }
     this->setTitle(title.c_str());
 }

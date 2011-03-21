@@ -370,8 +370,11 @@ bool SkWindow::onHandleKeyUp(SkKey key)
     return false;
 }
 
-bool SkWindow::handleClick(int x, int y, Click::State state)
-{
+bool SkWindow::handleClick(int x, int y, Click::State state) {
+    return this->onDispatchClick(x, y, state);
+}
+
+bool SkWindow::onDispatchClick(int x, int y, Click::State state) {
 	bool handled = false;
 
 	switch (state) {
