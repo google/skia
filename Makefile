@@ -87,7 +87,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 #	CC := gcc-4.0 $(SDK_OPTS)
 
 	C_INCLUDES += -I/opt/local/include
-	LINKER_OPTS += -L/opt/local/lib -framework Carbon -lpng12 -framework OpenGL -framework AGL
+	LINKER_OPTS += -L/opt/local/lib -framework Carbon -lpng -framework OpenGL -framework AGL
 	DEFINES += -DSK_BUILD_FOR_MAC -DSK_ENABLE_LIBPNG
 
 	C_INCLUDES += -Iinclude/utils/mac
