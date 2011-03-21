@@ -72,7 +72,7 @@ public:
 
 protected:
     virtual bool onEvent(const SkEvent&);
-
+    virtual bool onDispatchClick(int x, int y, Click::State);
     // called if part of our bitmap is invalidated
     virtual void onHandleInval(const SkIRect&);
     virtual bool onHandleChar(SkUnichar);
