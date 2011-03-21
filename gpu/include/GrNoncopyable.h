@@ -24,7 +24,7 @@
  *  Base for classes that want to disallow copying themselves. It makes its
  *  copy-constructor and assignment operators private (and unimplemented).
  */
-class GrNoncopyable {
+class GR_API GrNoncopyable {
 public:
     GrNoncopyable() {}
 

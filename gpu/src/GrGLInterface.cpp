@@ -350,11 +350,11 @@ void GrGLInitializeGLInterface(GrGLInterface* glBindings) {
 
 }  // unnamed namespace
 
-void GrGLSetGLInterface(GrGLInterface* gl_interface) {
+GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface) {
     gGLInterface = gl_interface;
 }
 
-GrGLInterface* GrGLGetGLInterface() {
+GR_API GrGLInterface* GrGLGetGLInterface() {
     return gGLInterface;
 }
 
