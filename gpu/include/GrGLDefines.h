@@ -286,8 +286,10 @@
 #define GR_GL_ALPHA                          0x1906
 #define GR_GL_RGB                            0x1907
 #define GR_GL_RGBA                           0x1908
+#define GR_GL_BGRA                           0x80E1
 #define GR_GL_LUMINANCE                      0x1909
 #define GR_GL_LUMINANCE_ALPHA                0x190A
+#define GR_GL_PALETTE8_RGBA8                 0x8B96
 
 /* PixelType */
 /*      GL_UNSIGNED_BYTE */
@@ -559,6 +561,9 @@
 #define GR_GL_T2F_C4F_N3F_V3F                    0x2A2C
 #define GR_GL_T4F_C4F_N3F_V4F                    0x2A2D
 
+/* Vertex Buffer Object */
+#define GR_GL_WRITE_ONLY                         0x88B9
+#define GR_GL_BUFFER_MAPPED                      0x88BC
 /* Read Format */
 #define GR_GL_IMPLEMENTATION_COLOR_READ_TYPE   0x8B9A
 #define GR_GL_IMPLEMENTATION_COLOR_READ_FORMAT 0x8B9B
@@ -583,14 +588,25 @@
 
 /* Framebuffer Object. */
 #define GR_GL_FRAMEBUFFER                    0x8D40
+#define GR_GL_READ_FRAMEBUFFER               0x8CA8
+#define GR_GL_DRAW_FRAMEBUFFER               0x8CA9
+
 #define GR_GL_RENDERBUFFER                   0x8D41
 
 #define GR_GL_RGBA4                          0x8056
 #define GR_GL_RGB5_A1                        0x8057
 #define GR_GL_RGB565                         0x8D62
+#define GR_GL_RGBA8                          0x8058
 #define GR_GL_DEPTH_COMPONENT16              0x81A5
 #define GR_GL_STENCIL_INDEX                  0x1901
+#define GR_GL_STENCIL_INDEX4                 0x8D47
 #define GR_GL_STENCIL_INDEX8                 0x8D48
+#define GR_GL_STENCIL_INDEX16                0x8D49
+#define GR_GL_DEPTH_STENCIL                  0x84F9
+#define GR_GL_DEPTH24_STENCIL8               0x88F0
+
+#define GR_GL_MAX_SAMPLES                    0x8D57
+#define GR_GL_MAX_SAMPLES_IMG                0x9135 // to be removed soon.
 
 #define GR_GL_RENDERBUFFER_WIDTH             0x8D42
 #define GR_GL_RENDERBUFFER_HEIGHT            0x8D43
@@ -610,6 +626,7 @@
 #define GR_GL_COLOR_ATTACHMENT0              0x8CE0
 #define GR_GL_DEPTH_ATTACHMENT               0x8D00
 #define GR_GL_STENCIL_ATTACHMENT             0x8D20
+#define GR_GL_DEPTH_STENCIL_ATTACHMENT       0x821A
 
 #define GR_GL_NONE                           0
 

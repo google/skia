@@ -163,7 +163,7 @@ void GrGLTexture::uploadTextureData(uint32_t x,
 
     // glCompressedTexSubImage2D doesn't support any formats
     // (at least without extensions)
-    GrAssert(fUploadFormat != GR_PALETTE8_RGBA8);
+    GrAssert(fUploadFormat != GR_GL_PALETTE8_RGBA8);
 
     // If we need to update textures that are created upside down
     // then we have to modify this code to flip the srcData
