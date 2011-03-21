@@ -167,8 +167,7 @@ private:
     enum {
         kNone_MSFBO = 0,
         kDesktop_MSFBO,
-        kApple_MSFBO,
-        kIMG_MSFBO
+        kApple_MSFBO
     } fMSFBOType;
 
     // Do we have stencil wrap ops.

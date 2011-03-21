@@ -123,7 +123,6 @@
         // builds.
         #define GL_APPLE_framebuffer_multisample        1
         #define GL_EXT_framebuffer_object               1
-        #define GL_IMG_multisampled_render_to_texture   1
         #define GL_OES_mapbuffer                        1
         #define GL_OES_mapbuffer                        1
     #elif GR_MAC_BUILD

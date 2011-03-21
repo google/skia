@@ -178,9 +178,6 @@ struct GrGLInterface {
     // apple's es extension
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLResolveMultisampleFramebufferProc)();
 
-    // IMG'e es extension
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFramebufferTexture2DMultisampleProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level, GrGLsizei samples);
-
     // Buffer mapping (extension in ES).
     typedef GrGLvoid* (GR_GL_FUNCTION_TYPE *GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
     typedef GrGLboolean (GR_GL_FUNCTION_TYPE *GrGLUnmapBufferProc)(GrGLenum target);
@@ -285,9 +282,6 @@ struct GrGLInterface {
     GrGLBlitFramebufferProc fBlitFramebuffer;
     // apple's es extension
     GrGLResolveMultisampleFramebufferProc fResolveMultisampleFramebuffer;
-
-    // IMG'e es extension
-    GrGLFramebufferTexture2DMultisampleProc fFramebufferTexture2DMultisample;
 
     // Buffer mapping (extension in ES).
     GrGLMapBufferProc fMapBuffer;

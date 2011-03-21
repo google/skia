@@ -220,13 +220,6 @@ void InitializeGLInterfaceExtensions(GrGLInterface* glBindings) {
     }
     #endif
 
-    #if GL_IMG_multisampled_render_to_texture
-    if (has_gl_extension_from_string(
-                "GL_IMG_multisampled_render_to_texture", extensionString)) {
-        GR_GL_GET_PROC_SUFFIX(FramebufferTexture2DMultisample, IMG);
-    }
-    #endif
-
     #if GL_OES_mapbuffer
     if (has_gl_extension_from_string("GL_OES_mapbuffer", extensionString)) {
         GR_GL_GET_PROC_SUFFIX(MapBuffer, OES);

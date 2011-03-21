@@ -606,7 +606,6 @@
 #define GR_GL_DEPTH24_STENCIL8               0x88F0
 
 #define GR_GL_MAX_SAMPLES                    0x8D57
-#define GR_GL_MAX_SAMPLES_IMG                0x9135 // to be removed soon.
 
 #define GR_GL_RENDERBUFFER_WIDTH             0x8D42
 #define GR_GL_RENDERBUFFER_HEIGHT            0x8D43
