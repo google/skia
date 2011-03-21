@@ -230,13 +230,7 @@ GrGpuGL::GrGpuGL() {
 
     memset(fAASamples, 0, sizeof(fAASamples));
     fMSFBOType = kNone_MSFBO;
-    if (has_gl_extension("GL_IMG_multisampled_render_to_texture")) {
-        fMSFBOType = kIMG_MSFBO;
-        if (gPrintStartupSpew) {
-            GrPrintf("MSAA Support: IMG ES EXT.\n");
-        }
-    }
-    else if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
+    if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
         fMSFBOType = kApple_MSFBO;
         if (gPrintStartupSpew) {
             GrPrintf("MSAA Support: APPLE ES EXT.\n");
@@ -260,10 +254,7 @@ GrGpuGL::GrGpuGL() {
 
     if (kNone_MSFBO != fMSFBOType) {
         GrGLint maxSamples;
-        GrGLenum maxSampleGetter = (kIMG_MSFBO == fMSFBOType) ?
-                                                            GR_GL_MAX_SAMPLES_IMG :
-                                                            GR_GL_MAX_SAMPLES;
-        GR_GL_GetIntegerv(maxSampleGetter, &maxSamples);
+        GR_GL_GetIntegerv(GR_GL_MAX_SAMPLES, &maxSamples);
         if (maxSamples > 1 ) {
             fAASamples[kNone_AALevel] = 0;
             fAASamples[kLow_AALevel] = GrMax(2,
@@ -830,11 +821,9 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         GR_GL(GenFramebuffers(1, &rtIDs.fTexFBOID));
         GrAssert(rtIDs.fTexFBOID);
 
-        // If we are using multisampling and any extension other than the IMG
-        // one we will create two FBOs. We render to one and then resolve to
-        // the texture bound to the other. The IMG extension does an implicit
-        // resolve.
-        if (samples > 1 && kIMG_MSFBO != fMSFBOType && kNone_MSFBO != fMSFBOType) {
+        // If we are using multisampling and we will create two FBOS We render 
+        // to one and then resolve to the texture bound to the other.
+        if (samples > 1 && kNone_MSFBO != fMSFBOType) {
             GR_GL(GenFramebuffers(1, &rtIDs.fRTFBOID));
             GrAssert(0 != rtIDs.fRTFBOID);
             GR_GL(GenRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
@@ -904,20 +893,10 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
 #if GR_COLLECT_STATS
             ++fStats.fRenderTargetChngCnt;
 #endif
-            if (kIMG_MSFBO == fMSFBOType && samples > 1) {
-                GR_GL(FramebufferTexture2DMultisample(GR_GL_FRAMEBUFFER,
-                                                      GR_GL_COLOR_ATTACHMENT0,
-                                                      GR_GL_TEXTURE_2D,
-                                                      glDesc.fTextureID,
-                                                      0,
-                                                      samples));
-
-            } else {
-                GR_GL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
-                                           GR_GL_COLOR_ATTACHMENT0,
-                                           GR_GL_TEXTURE_2D,
-                                           glDesc.fTextureID, 0));
-            }
+            GR_GL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
+                                        GR_GL_COLOR_ATTACHMENT0,
+                                        GR_GL_TEXTURE_2D,
+                                        glDesc.fTextureID, 0));
             if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
                 GrGLenum status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
                 if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
