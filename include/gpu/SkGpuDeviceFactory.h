@@ -21,7 +21,7 @@
 
 class GrContext;
 
-class SkGpuDeviceFactory : public SkDeviceFactory {
+class SK_API SkGpuDeviceFactory : public SkDeviceFactory {
 public:
     /**
      *  The constructor will ref() the context, passing it to each device

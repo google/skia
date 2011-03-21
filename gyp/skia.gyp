@@ -300,7 +300,7 @@
             'libraries': [
               '-lfreetype',
             ],
-          },  
+          },
         }],
         [ 'OS == "mac"', {
           'include_dirs': [
@@ -932,6 +932,9 @@
         '../gpu/src/GrTextureCache.cpp',
         '../gpu/src/gr_unittests.cpp',
       ],
+      'defines': [
+        'GR_IMPLEMENTATION=1',
+      ],
       'conditions': [
         [ 'OS == "linux"', {
           'defines': [
@@ -942,7 +945,7 @@
               '-lGL',
               '-lX11',
             ],
-          },  
+          },
         }],
         [ 'OS == "mac"', {
           'defines': [
@@ -952,7 +955,7 @@
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
             ],
-          },  
+          },
           }],
         [ 'OS == "win"', {
           'defines': [
@@ -1015,7 +1018,7 @@
         '../src/animator/SkAnimatorScript.cpp',
         '../src/animator/SkAnimatorScript.h',
         #'../src/animator/SkAnimatorScript2.cpp', fails on windows
-        #'../src/animator/SkAnimatorScript2.h', 
+        #'../src/animator/SkAnimatorScript2.h',
         '../src/animator/SkBase64.cpp',
         '../src/animator/SkBase64.h',
         '../src/animator/SkBoundable.cpp',

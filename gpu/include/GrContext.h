@@ -29,7 +29,7 @@ class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
 class GrPathRenderer;
 
-class GrContext : public GrRefCnt {
+class GR_API GrContext : public GrRefCnt {
 public:
     /**
      * Creates a GrContext from within a 3D context.

@@ -19,6 +19,7 @@
 #define GrGLInterface_DEFINED
 
 #include "GrGLPlatformIncludes.h"
+#include "GrTypes.h"
 
 #if !defined(GR_GL_FUNCTION_TYPE)
     #define GR_GL_FUNCTION_TYPE
@@ -38,8 +39,8 @@ void gl_version(int* major, int* minor);
  * Routines managing the global interface used to invoke OpenGL calls.
  */
 struct GrGLInterface;
-extern GrGLInterface* GrGLGetGLInterface();
-extern void GrGLSetGLInterface(GrGLInterface* gl_interface);
+GR_API GrGLInterface* GrGLGetGLInterface();
+GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface);
 
 /*
  * Populates the global GrGLInterface pointer with an instance pointing to the

@@ -30,7 +30,7 @@ class GrTextContext;
  *  Subclass of SkDevice, which directs all drawing to the GrGpu owned by the
  *  canvas.
  */
-class SkGpuDevice : public SkDevice {
+class SK_API SkGpuDevice : public SkDevice {
 public:
     /**
      * The SkGpuDevice will render to the GrRenderTarget, or if the paremeter is

@@ -29,7 +29,7 @@
  *  It is an error (though only checked for in the debug build) to call unref()
  *  such that the reference count becomes 0.
  */
-class GrRefCnt : GrNoncopyable {
+class GR_API GrRefCnt : GrNoncopyable {
 public:
             GrRefCnt() : fRefCnt(1) {}
     virtual ~GrRefCnt() {
