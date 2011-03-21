@@ -664,8 +664,8 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
         characterName.printf("gid%d", gID);
         encDiffs->append(new SkPDFName(characterName))->unref();
 
-        const SkGlyph glyph = cache->getGlyphIDMetrics(gID);
-        appendWidth(SkFixedToFloat(glyph.fAdvanceX), 1000, widthArray.get());
+        const SkGlyph& glyph = cache->getGlyphIDMetrics(gID);
+        widthArray->append(new SkPDFScalar(SkFixedToScalar(glyph.fAdvanceX)))->unref();
         SkIRect glyphBBox = SkIRect::MakeXYWH(glyph.fLeft, glyph.fTop,
                                               glyph.fWidth, glyph.fHeight);
         bbox.join(glyphBBox);
