@@ -616,8 +616,23 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 }
 
 
+static const char* map_css_names(const char* name) {
+    static const struct {
+        const char* fFrom;
+        const char* fTo;
+    } gPairs[] = {
+        { "sans-serif", FONT_DEFAULT_NAME },
+        { "serif",      "Times"           },
+        { "monospace",  "Courier"         }
+    };
 
-
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+        if (strcmp(name, gPairs[i].fFrom) == 0) {
+            return gPairs[i].fTo;
+        }
+    }
+    return name;    // no change
+}
 
 ///////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -631,6 +646,9 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     SkNativeFontInfo        fontInfo;
     SkString                fontName;
 
+    if (familyName) {
+        familyName = map_css_names(familyName);
+    }
 
     // Get the state we need
     fontName  = SkString(familyName);
@@ -644,7 +662,6 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
         familyFace->ref();
         return(const_cast<SkTypeface*>(familyFace));
         }
-
 
     if (fontName.isEmpty()) {
         fontName.set(FONT_DEFAULT_NAME);
