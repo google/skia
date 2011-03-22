@@ -73,7 +73,7 @@ int main(){
 
     // Determine which events to listen for.
     eventMask = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
-            |ExposureMask|Button1MotionMask|KeyPressMask|KeyReleaseMask;
+            |ExposureMask|PointerMotionMask|KeyPressMask|KeyReleaseMask;
     XSelectInput(dsp, win, eventMask);
  
     bool loop = true;
@@ -96,9 +96,10 @@ int main(){
                     window->handleClick(evt.xbutton.x, evt.xbutton.y, SkView::Click::kUp_State);
                 break;
             case MotionNotify:
-                // Since we are only masking to get the motion events for when Button1 is pressed,
-                // we can assume the pointer is moving with Button1 pressed.
-                window->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
+                // FIXME: 272 corresponds to the left mouse button, but should be a constant.
+                if (evt.xmotion.state == 272)
+                    window->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
+                window->updatePointer(evt.xmotion.x, evt.xmotion.y);
                 break;
             case KeyPress:
             {
