@@ -30,9 +30,6 @@ static const SkFontID kSkInvalidFontID          = 0;
 static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
 static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
 
-static const float FONT_CANONICAL_POINTSIZE = 1.0f;
-
-
 typedef struct {
     SkString                name;
     SkTypeface::Style       style;
@@ -257,9 +254,6 @@ CTFontRef SkNativeFontCache::CreateNativeFont(const char familyName[],
 
 
     // Create the font
-    //
-    // Fonts are scaled using the Sk matrix, so we always request a font
-    // at a canonical size FONT_CANONICAL_POINTSIZE
     if (cfFontName != NULL && cfFontTraits != NULL && cfAttributes != NULL && cfTraits != NULL) {
         CFDictionaryAddValue(cfTraits, kCTFontSymbolicTrait, cfFontTraits);
 
@@ -268,7 +262,7 @@ CTFontRef SkNativeFontCache::CreateNativeFont(const char familyName[],
 
         ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
         if (ctFontDesc != NULL) {
-            ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, FONT_CANONICAL_POINTSIZE, NULL);
+            ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL);
         }
     }
 
@@ -358,15 +352,15 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
     mColorSpaceGray = CGColorSpaceCreateDeviceGray();
 
-    const float inv = 1.0f / FONT_CANONICAL_POINTSIZE;
-    mTransform  = CGAffineTransformMake(SkScalarToFloat(skMatrix[SkMatrix::kMScaleX]) * inv,
-                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewY]) * inv,
-                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewX]) * inv,
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMScaleY]) * inv,
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransX]) * inv,
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransY]) * inv);
+    mTransform  = CGAffineTransformMake(SkScalarToFloat(skMatrix[SkMatrix::kMScaleX]),
+                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewY]),
+                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewX]),
+                                        SkScalarToFloat(skMatrix[SkMatrix::kMScaleY]),
+                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransX]),
+                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransY]));
 
-    mFont       = CTFontCreateCopyWithAttributes(ctFont, 0.0, &mTransform, NULL);
+    // since our matrix includes everything, we pass 1 for pointSize
+    mFont       = CTFontCreateCopyWithAttributes(ctFont, 1, &mTransform, NULL);
     mGlyphCount = (uint16_t) numGlyphs;
 }
 
@@ -503,13 +497,14 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 
     // Draw the glyph
     if (cgFont != NULL && cgContext != NULL) {
+#ifdef WE_ARE_RUNNING_ON_10_6_OR_LATER
         CGContextSetAllowsFontSubpixelQuantization(cgContext, true);
         CGContextSetShouldSubpixelQuantizeFonts(cgContext, true);
-
+#endif
         CGContextSetGrayFillColor(  cgContext, grayColor, 1.0);
         CGContextSetTextDrawingMode(cgContext, kCGTextFill);
         CGContextSetFont(           cgContext, cgFont);
-        CGContextSetFontSize(       cgContext, FONT_CANONICAL_POINTSIZE);
+        CGContextSetFontSize(       cgContext, 1); // cgFont know's its size
         CGContextSetTextMatrix(     cgContext, mTransform);
         CGContextShowGlyphsAtPoint( cgContext, -glyph.fLeft, glyph.fTop + glyph.fHeight, &cgGlyph, 1);
 
