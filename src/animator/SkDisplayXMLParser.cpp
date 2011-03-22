@@ -164,7 +164,7 @@ bool SkDisplayXMLParser::onAddAttributeLen(const char attrName[], const char att
     return false;
 }
 
-#if defined(SKIA_BUILD_FOR_WIN32)
+#if defined(SK_BUILD_FOR_WIN32)
     #define SK_strcasecmp   stricmp
     #define SK_strncasecmp  strnicmp
 #else
