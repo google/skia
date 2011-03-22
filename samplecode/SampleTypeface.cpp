@@ -50,11 +50,16 @@ static const struct {
 } gFaces[] = {
     { NULL, SkTypeface::kNormal },
     { NULL, SkTypeface::kBold },
+    { NULL, SkTypeface::kItalic },
+    { NULL, SkTypeface::kBoldItalic },
     { "serif", SkTypeface::kNormal },
     { "serif", SkTypeface::kBold },
     { "serif", SkTypeface::kItalic },
     { "serif", SkTypeface::kBoldItalic },
-    { "monospace", SkTypeface::kNormal }
+    { "monospace", SkTypeface::kNormal },
+    { "monospace", SkTypeface::kBold },
+    { "monospace", SkTypeface::kItalic },
+    { "monospace", SkTypeface::kBoldItalic },
 };
 
 static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
