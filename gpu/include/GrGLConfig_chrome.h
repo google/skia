@@ -15,7 +15,7 @@
 #define GR_GL_PROC_ADDRESS(X)       &X
 
 // chrome always assumes BGRA
-#define GR_GL_32BPP_COLOR_FORMAT    GR_BGRA
+#define GR_GL_32BPP_COLOR_FORMAT    GR_GL_BGRA
 
 // glGetError() forces a sync with gpu process on chrome
 #define GR_GL_CHECK_ERROR_START     0
