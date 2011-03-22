@@ -825,6 +825,18 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->updateTitle();
             this->inval(NULL);
             break;
+#ifdef SK_BUILD_FOR_UNIX
+        // These methods have not been written for other platforms yet.
+        case 'i':
+            this->zoomIn();
+            break;
+        case 'o':
+            this->zoomOut();
+            break;
+        case 'z':
+            this->toggleZoomer();
+            break;
+#endif
         default:
             break;
     }
