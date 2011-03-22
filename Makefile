@@ -3,7 +3,8 @@
 # setup our defaults
 CC := gcc
 GPP := g++
-C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/gpu -Iinclude/utils -Igpu/include
+C_INCLUDES := -Iinclude/config -Iinclude/core -Iinclude/effects -Iinclude/images -Iinclude/ports
+C_INCLUDES +=  -Iinclude/gpu -Iinclude/utils -Igpu/include
 
 CFLAGS := -Wall -fstrict-aliasing
 #CFLAGS += -W -Wextra -Wcast-align -Wchar-subscripts -Wformat -Wformat-security -Wno-format-y2k -Wno-parentheses -Wno-unused-parameter -Wpointer-arith  -Wreturn-type -Wundef -Wwrite-strings
