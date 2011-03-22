@@ -48,10 +48,10 @@ static const struct {
     const char* fName;
     SkTypeface::Style   fStyle;
 } gFaces[] = {
-    { NULL, SkTypeface::kNormal },
-    { NULL, SkTypeface::kBold },
-    { NULL, SkTypeface::kItalic },
-    { NULL, SkTypeface::kBoldItalic },
+    { "sans-serif", SkTypeface::kNormal },
+    { "sans-serif", SkTypeface::kBold },
+    { "sans-serif", SkTypeface::kItalic },
+    { "sans-serif", SkTypeface::kBoldItalic },
     { "serif", SkTypeface::kNormal },
     { "serif", SkTypeface::kBold },
     { "serif", SkTypeface::kItalic },
