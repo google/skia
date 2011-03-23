@@ -36,6 +36,8 @@ class SkRegion;
 */
 class SkBounder : public SkRefCnt {
 public:
+    SkBounder();
+
     /* Call to perform a clip test before calling onIRect. 
        Returns the result from onIRect.
     */
