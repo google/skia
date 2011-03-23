@@ -7,6 +7,7 @@
 // prototypes.
 #define GL_OES_mapbuffer                      0
 
+#define GL_GLEXT_PROTOTYPES
 #define GR_GL_PLATFORM_HEADER       <GLES2/gl2.h>
 #define GR_GL_PLATFORM_HEADER_EXT   <GLES2/gl2ext.h>
 

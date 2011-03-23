@@ -165,9 +165,10 @@ private:
 
     GrGLuint fAASamples[4];
     enum {
-        kNone_MSFBO = 0,
-        kDesktop_MSFBO,
-        kApple_MSFBO
+        kNone_MSFBO = 0,  //<! no support for MSAA FBOs
+        kDesktopARB_MSFBO,//<! GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
+        kDesktopEXT_MSFBO,//<! earlier GL_EXT_framebuffer* extensions
+        kAppleES_MSFBO,   //<! GL_APPLE_framebuffer_multisample ES extension
     } fMSFBOType;
 
     // Do we have stencil wrap ops.
