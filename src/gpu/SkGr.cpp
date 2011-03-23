@@ -166,10 +166,9 @@ void SkGrClipIterator::reset(const SkClipStack& clipStack) {
 
 GrClipType SkGrClipIterator::getType() const {
     GrAssert(!this->isDone());
-    if (NULL != fCurr->fRect) {
+    if (NULL == fCurr->fPath) {
         return kRect_ClipType;
     } else {
-        GrAssert(NULL != fCurr->fPath);
         return kPath_ClipType;
     }
 }

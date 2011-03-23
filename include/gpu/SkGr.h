@@ -207,7 +207,11 @@ public:
     virtual GrSetOp getOp() const;
 
     virtual void getRect(GrRect* rect) const {
-        *rect = Sk2Gr(*fCurr->fRect);
+        if (!fCurr->fRect) {
+            rect->setEmpty();
+        } else {
+            *rect = Sk2Gr(*fCurr->fRect);
+        }
     }
 
     virtual GrPathIter* getPathIter() {
