@@ -365,7 +365,13 @@ public:
      *  of bytes actually read.
      */
     uint32_t unflatten(const void* buffer);
-    
+
+    /**
+     *  Returns a reference to a global empty region. Just a convenience for
+     *  callers that need a const empty region.
+     */
+    static const SkRegion& GetEmptyRegion();
+
     SkDEBUGCODE(void dump() const;)
     SkDEBUGCODE(void validate() const;)
     SkDEBUGCODE(static void UnitTest();)

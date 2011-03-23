@@ -85,36 +85,29 @@ bool SkRegion::ComputeRunBounds(const SkRegion::RunType runs[], int count, SkIRe
 
 //////////////////////////////////////////////////////////////////////////
 
-SkRegion::SkRegion()
-{
+SkRegion::SkRegion() {
     fBounds.set(0, 0, 0, 0);
     fRunHead = SkRegion_gEmptyRunHeadPtr;
 }
 
-SkRegion::SkRegion(const SkRegion& src)
-{
+SkRegion::SkRegion(const SkRegion& src) {
     fRunHead = SkRegion_gEmptyRunHeadPtr;   // just need a value that won't trigger sk_free(fRunHead)
     this->setRegion(src);
 }
 
-SkRegion::SkRegion(const SkIRect& rect)
-{
+SkRegion::SkRegion(const SkIRect& rect) {
     fRunHead = SkRegion_gEmptyRunHeadPtr;   // just need a value that won't trigger sk_free(fRunHead)
     this->setRect(rect);
 }
 
-SkRegion::~SkRegion()
-{
+SkRegion::~SkRegion() {
     this->freeRuns();
 }
 
-void SkRegion::freeRuns()
-{
-    if (fRunHead->isComplex())
-    {
+void SkRegion::freeRuns() {
+    if (fRunHead->isComplex()) {
         SkASSERT(fRunHead->fRefCnt >= 1);
-        if (sk_atomic_dec(&fRunHead->fRefCnt) == 1)
-        {
+        if (sk_atomic_dec(&fRunHead->fRefCnt) == 1) {
             //SkASSERT(gRgnAllocCounter > 0);
             //SkDEBUGCODE(sk_atomic_dec(&gRgnAllocCounter));
             //SkDEBUGF(("************** gRgnAllocCounter::free %d\n", gRgnAllocCounter));
@@ -123,76 +116,68 @@ void SkRegion::freeRuns()
     }
 }
 
-void SkRegion::allocateRuns(int count)
-{
+void SkRegion::allocateRuns(int count) {
     fRunHead = RunHead::Alloc(count);
 }
 
-SkRegion& SkRegion::operator=(const SkRegion& src)
-{
+SkRegion& SkRegion::operator=(const SkRegion& src) {
     (void)this->setRegion(src);
     return *this;
 }
 
-void SkRegion::swap(SkRegion& other)
-{
+void SkRegion::swap(SkRegion& other) {
     SkTSwap<SkIRect>(fBounds, other.fBounds);
     SkTSwap<RunHead*>(fRunHead, other.fRunHead);
 }
 
-bool SkRegion::setEmpty()
-{
+bool SkRegion::setEmpty() {
     this->freeRuns();
     fBounds.set(0, 0, 0, 0);
     fRunHead = SkRegion_gEmptyRunHeadPtr;
     return false;
 }
 
-bool SkRegion::setRect(int32_t left, int32_t top, int32_t right, int32_t bottom)
-{
-    if (left >= right || top >= bottom)
+bool SkRegion::setRect(int32_t left, int32_t top,
+                       int32_t right, int32_t bottom) {
+    if (left >= right || top >= bottom) {
         return this->setEmpty();
-
+    }
     this->freeRuns();
     fBounds.set(left, top, right, bottom);
     fRunHead = SkRegion_gRectRunHeadPtr;
     return true;
 }
 
-bool SkRegion::setRect(const SkIRect& r)
-{
+bool SkRegion::setRect(const SkIRect& r) {
     return this->setRect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
-bool SkRegion::setRegion(const SkRegion& src)
-{
-    if (this != &src)
-    {
+bool SkRegion::setRegion(const SkRegion& src) {
+    if (this != &src) {
         this->freeRuns();
 
         fBounds = src.fBounds;
         fRunHead = src.fRunHead;
-        if (fRunHead->isComplex())
+        if (fRunHead->isComplex()) {
             sk_atomic_inc(&fRunHead->fRefCnt);
+        }
     }
     return fRunHead != SkRegion_gEmptyRunHeadPtr;
 }
 
-bool SkRegion::op(const SkIRect& rect, const SkRegion& rgn, Op op)
-{
+bool SkRegion::op(const SkIRect& rect, const SkRegion& rgn, Op op) {
     SkRegion tmp(rect);
 
     return this->op(tmp, rgn, op);
 }
 
-bool SkRegion::op(const SkRegion& rgn, const SkIRect& rect, Op op)
-{
+bool SkRegion::op(const SkRegion& rgn, const SkIRect& rect, Op op) {
     SkRegion tmp(rect);
 
     return this->op(rgn, tmp, op);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #ifdef ANDROID
 char* SkRegion::toString()
@@ -1082,7 +1067,14 @@ uint32_t SkRegion::unflatten(const void* storage) {
     return buffer.pos();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+const SkRegion& SkRegion::GetEmptyRegion() {
+    static SkRegion gEmpty;
+    return gEmpty;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
 
