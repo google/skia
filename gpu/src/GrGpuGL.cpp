@@ -230,25 +230,37 @@ GrGpuGL::GrGpuGL() {
 
     memset(fAASamples, 0, sizeof(fAASamples));
     fMSFBOType = kNone_MSFBO;
-    if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
-        fMSFBOType = kApple_MSFBO;
-        if (gPrintStartupSpew) {
-            GrPrintf("MSAA Support: APPLE ES EXT.\n");
+    if (GR_GL_SUPPORT_ES) {
+       if (has_gl_extension("GL_CHROMIUM_framebuffer_multisample")) {
+           // chrome's extension is equivalent to the EXT msaa 
+           // and fbo_blit extensions.
+            fMSFBOType = kDesktopEXT_MSFBO;
+       } else if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
+            fMSFBOType = kAppleES_MSFBO;
+        }
+    } else {
+        GrAssert(GR_GL_SUPPORT_DESKTOP);
+        if ((major >= 3) || has_gl_extension("GL_ARB_framebuffer_object")) {
+            fMSFBOType = kDesktopARB_MSFBO;
+        } else if (has_gl_extension("GL_EXT_framebuffer_multisample") &&
+                   has_gl_extension("GL_EXT_framebuffer_blit")) {
+            fMSFBOType = kDesktopEXT_MSFBO;
         }
     }
-    else if (GR_GL_SUPPORT_DESKTOP && (
-             (major >= 3) ||
-             has_gl_extension("GL_ARB_framebuffer_object") ||
-             (has_gl_extension("GL_EXT_framebuffer_multisample") &&
-              has_gl_extension("GL_EXT_framebuffer_blit")))) {
-        fMSFBOType = kDesktop_MSFBO;
-         if (gPrintStartupSpew) {
-             GrPrintf("MSAA Support: DESKTOP\n");
-         }
-    }
-    else {
-        if (gPrintStartupSpew) {
-            GrPrintf("MSAA Support: NONE\n");
+    if (gPrintStartupSpew) {
+        switch (fMSFBOType) {
+            case kNone_MSFBO:
+                GrPrintf("MSAA Support: NONE\n");
+                break;
+            case kDesktopARB_MSFBO:
+                GrPrintf("MSAA Support: DESKTOP ARB.\n");
+                break;
+            case kDesktopEXT_MSFBO:
+                GrPrintf("MSAA Support: DESKTOP EXT.\n");
+                break;
+            case kAppleES_MSFBO:
+                GrPrintf("MSAA Support: APPLE ES.\n");
+                break;
         }
     }
 
@@ -1324,19 +1336,24 @@ void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
         // we will have rendered to the top of the FBO.
         GrGLint top = texture->allocHeight();
         GrGLint bottom = texture->allocHeight() - texture->height();
-        if (kApple_MSFBO == fMSFBOType) {
+        if (kAppleES_MSFBO == fMSFBOType) {
+            // Apple's extension uses the scissor as the blit bounds.
             GR_GL(Enable(GR_GL_SCISSOR_TEST));
             GR_GL(Scissor(left, bottom, right-left, top-bottom));
             GR_GL(ResolveMultisampleFramebuffer());
             fHWBounds.fScissorRect.invalidate();
             fHWBounds.fScissorEnabled = true;
         } else {
+            if (kDesktopARB_MSFBO != fMSFBOType) {
+                // these respect the scissor during the blit, so disable it.
+                GrAssert(kDesktopEXT_MSFBO == fMSFBOType);
+                flushScissor(NULL);
+            }
             GR_GL(BlitFramebuffer(left, bottom, right, top,
                                      left, bottom, right, top,
                                      GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
         }
         rt->setDirty(false);
-
     }
 }
 

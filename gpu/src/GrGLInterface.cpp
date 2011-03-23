@@ -212,11 +212,26 @@ void InitializeGLInterfaceExtensions(GrGLInterface* glBindings) {
         fboFound = true;
     }
     #endif
-
-    #if GL_APPLE_framebuffer_multisample
-    if (has_gl_extension_from_string("GL_APPLE_framebuffer_multisample",
+    bool msaaFound = false;
+    // Chrome advertises the equivalent of GL_EXT_framebuffer_blit plus
+    // GL_EXT_framebuffer_multisample as GL_CHROMIUM_framebuffer_multisample
+    // The EXT suffixes are used on the functions, however.
+    #if GL_EXT_framebuffer_multisample
+    if (!msaaFound &&
+        has_gl_extension_from_string("GL_CHROMIUM_framebuffer_multisample",
                                      extensionString)) {
+        GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
+        GR_GL_GET_PROC_SUFFIX(BlitFramebuffer, EXT);
+        msaaFound = true;
+    }
+    #endif
+    #if GL_APPLE_framebuffer_multisample
+    if (!msaaFound && 
+        has_gl_extension_from_string("GL_APPLE_framebuffer_multisample",
+                                     extensionString)) {
+        GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, APPLE);
         GR_GL_GET_PROC_SUFFIX(ResolveMultisampleFramebuffer, APPLE);
+        msaaFound = true;
     }
     #endif
 
