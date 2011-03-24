@@ -414,43 +414,63 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                 // enabled at bottom of loop
                 this->disableState(kModifyStencilClip_StateBit);
 
-                bool canDrawDirectToClip;
+                bool canRenderDirectToStencil; // can the clip element be drawn
+                                               // directly to the stencil buffer
+                                               // with a non-inverted fill rule
+                                               // without extra passes to
+                                               // resolve in/out status. 
                 if (kRect_ClipType == clip.getElementType(c)) {
-                    canDrawDirectToClip = true;
+                    canRenderDirectToStencil = true;
                     fill = kEvenOdd_PathFill;
                 } else {
                     fill = clip.getPathFill(c);
                     GrPathRenderer* pr = this->getPathRenderer();
-                    canDrawDirectToClip = pr->requiresStencilPass(this, clip.getPath(c), fill);
+                    canRenderDirectToStencil = 
+                        !pr->requiresStencilPass(this, clip.getPath(c), 
+                                                 NonInvertedFill(fill));
                 }
 
                 GrSetOp op = firstElement == c ? kReplace_SetOp : clip.getOp(c);
                 int passes;
                 GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
 
-                canDrawDirectToClip = GrStencilSettings::GetClipPasses(op, canDrawDirectToClip,
-                                                                       clipBit, IsFillInverted(fill),
-                                                                       &passes, stencilSettings);
+                bool canDrawDirectToClip; // Given the renderer, the element, 
+                                          // fill rule, and set operation can
+                                          // we render the element directly to
+                                          // stencil bit used for clipping.
+                canDrawDirectToClip = 
+                    GrStencilSettings::GetClipPasses(op, 
+                                                     canRenderDirectToStencil,
+                                                     clipBit, 
+                                                     IsFillInverted(fill),
+                                                     &passes, stencilSettings);
 
                 // draw the element to the client stencil bits if necessary
                 if (!canDrawDirectToClip) {
+                    static const GrStencilSettings gDrawToStencil = {
+                        kIncClamp_StencilOp, kIncClamp_StencilOp,
+                        kIncClamp_StencilOp, kIncClamp_StencilOp,
+                        kAlways_StencilFunc, kAlways_StencilFunc,
+                        0xffffffff,          0xffffffff,
+                        0x00000000,          0x00000000,
+                        0xffffffff,          0xffffffff,
+                    };
+                    SET_RANDOM_COLOR
                     if (kRect_ClipType == clip.getElementType(c)) {
-                        static const GrStencilSettings gDrawToStencil = {
-                            kIncClamp_StencilOp, kIncClamp_StencilOp,
-                            kIncClamp_StencilOp, kIncClamp_StencilOp,
-                            kAlways_StencilFunc, kAlways_StencilFunc,
-                            0xffffffff,          0xffffffff,
-                            0x00000000,          0x00000000,
-                            0xffffffff,          0xffffffff,
-                        };
                         this->setStencil(gDrawToStencil);
-                        SET_RANDOM_COLOR
                         this->drawSimpleRect(clip.getRect(c), NULL, 0);
                     } else {
-                        SET_RANDOM_COLOR
-                        getPathRenderer()->drawPathToStencil(this, clip.getPath(c),
-                                                             NonInvertedFill(fill),
-                                                             NULL);
+                        if (canRenderDirectToStencil) {
+                            this->setStencil(gDrawToStencil);
+                            getPathRenderer()->drawPath(this, 0, 
+                                                        clip.getPath(c),
+                                                        NonInvertedFill(fill),
+                                                        NULL);
+                        } else {
+                            getPathRenderer()->drawPathToStencil(this, clip.getPath(c),
+                                                                 NonInvertedFill(fill),
+                                                                 NULL);
+                        }
                     }
                 }
 
@@ -465,6 +485,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                             this->drawSimpleRect(clip.getRect(c), NULL, 0);
                         } else {
                             SET_RANDOM_COLOR
+                            GrAssert(!IsFillInverted(fill));
                             getPathRenderer()->drawPath(this, 0,
                                                         clip.getPath(c),
                                                         fill, NULL);

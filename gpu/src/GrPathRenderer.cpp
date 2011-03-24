@@ -294,7 +294,7 @@ static inline bool single_pass_path(const GrDrawTarget& target,
 bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
                                                 GrPathIter* path, 
                                                 GrPathFill fill) const {
-    return single_pass_path(*target, *path, fill);
+    return !single_pass_path(*target, *path, fill);
 }
 
 void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
