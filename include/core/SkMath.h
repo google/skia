@@ -77,7 +77,6 @@ static inline int SkClampPos(int value) {
 
 /** Given an integer and a positive (max) integer, return the value
     pinned against 0 and max, inclusive.
-    Note: only works as long as max - value doesn't wrap around
     @param value    The value we want returned pinned between [0...max]
     @param max      The positive max value
     @return 0 if value < 0, max if value > max, else value
@@ -85,10 +84,6 @@ static inline int SkClampPos(int value) {
 static inline int SkClampMax(int value, int max) {
     // ensure that max is positive
     SkASSERT(max >= 0);
-    // ensure that if value is negative, max - value doesn't wrap around
-    SkASSERT(value >= 0 || max - value > 0);
-
-#ifdef SK_CPU_HAS_CONDITIONAL_INSTR
     if (value < 0) {
         value = 0;
     }
@@ -96,15 +91,6 @@ static inline int SkClampMax(int value, int max) {
         value = max;
     }
     return value;
-#else
-
-    int diff = max - value;
-    // clear diff if diff is positive
-    diff &= diff >> 31;
-
-    // clear the result if value < 0
-    return (value + diff) & ~(value >> 31);
-#endif
 }
 
 /** Given a positive value and a positive max, return the value
