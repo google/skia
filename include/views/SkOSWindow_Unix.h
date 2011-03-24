@@ -22,7 +22,6 @@
 
 class SkBitmap;
 class SkEvent;
-class SkTypeface;
 
 struct SkUnixWindow {
   Display* fDisplay;
@@ -43,10 +42,6 @@ public:
     bool attachGL();
     void detachGL();
     void presentGL();
-    void updatePointer(int x, int y);
-    void toggleZoomer();
-    bool zoomIn();
-    bool zoomOut();
 
     //static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
 
@@ -65,12 +60,6 @@ private:
     SkUnixWindow  fUnixWindow;
 
     void    doPaint();
-    // Latest position of the mouse.
-    int fMouseX, fMouseY;
-    int fScale;
-    // Used by the text showing position and color values.
-    SkTypeface* fTypeface;
-    bool fShowZoomer;
 
     typedef SkWindow INHERITED;
 };

@@ -125,6 +125,7 @@ SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd), fAGLCtx(NULL)
         { kEventClassKeyboard,  kEventRawKeyUp              },
 		{ kEventClassMouse,		kEventMouseDown				},
 		{ kEventClassMouse,		kEventMouseDragged			},
+		{ kEventClassMouse,		kEventMouseMoved			},
 		{ kEventClassMouse,		kEventMouseUp				},
 		{ kEventClassTextInput, kEventTextInputUnicodeForKeyEvent   },
 		{ kEventClassWindow,	kEventWindowBoundsChanged	},
@@ -334,6 +335,8 @@ pascal OSStatus SkOSWindow::EventHandler( EventHandlerCallRef inHandler, EventRe
                         result = noErr;
                     }
                     break;
+                case kEventMouseMoved:
+                    // fall through
                 case kEventMouseDragged:
                     (void)win->handleClick(pt.h, pt.v, Click::kMoved_State);
                   //  result = noErr;

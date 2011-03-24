@@ -12,6 +12,7 @@
 #include "SampleCode.h"
 #include "GrContext.h"
 #include "SkTouchGesture.h"
+#include "SkTypeface.h"
 
 #define USE_ARROWS_FOR_ZOOM true
 //#define DEFAULT_TO_GPU
@@ -268,6 +269,14 @@ private:
     bool fScale;
     bool fRequestGrabImage;
 
+    // The following are for the 'fatbits' drawing
+    // Latest position of the mouse.
+    int fMouseX, fMouseY;
+    int fFatBitsScale;
+    // Used by the text showing position and color values.
+    SkTypeface* fTypeface;
+    bool fShowZoomer;
+
     LCDTextDrawFilter::Mode fLCDMode;
 
     int fScrollTestX, fScrollTestY;
@@ -278,6 +287,11 @@ private:
     void loadView(SkView*);
     void updateTitle();
     bool nextSample();
+
+    void toggleZoomer();
+    bool zoomIn();
+    bool zoomOut();
+    void updatePointer(int x, int y);
 
     void postAnimatingEvent() {
         if (fAnimating) {
@@ -291,6 +305,38 @@ private:
 
     typedef SkOSWindow INHERITED;
 };
+
+bool SampleWindow::zoomIn()
+{
+    // Arbitrarily decided
+    if (fFatBitsScale == 25) return false;
+    fFatBitsScale++;
+    this->inval(NULL);
+    return true;
+}
+
+bool SampleWindow::zoomOut()
+{
+    if (fFatBitsScale == 1) return false;
+    fFatBitsScale--;
+    this->inval(NULL);
+    return true;
+}
+
+void SampleWindow::toggleZoomer()
+{
+    fShowZoomer = !fShowZoomer;
+    this->inval(NULL);
+}
+
+void SampleWindow::updatePointer(int x, int y)
+{
+    fMouseX = x;
+    fMouseY = y;
+    if (fShowZoomer) {
+        this->inval(NULL);
+    }
+}
 
 bool SampleWindow::make3DReady() {
 
@@ -345,6 +391,11 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fLCDMode = LCDTextDrawFilter::kNeutral_Mode;
     fScrollTestX = fScrollTestY = 0;
 
+    fMouseX = fMouseY = 0;
+    fFatBitsScale = 1;
+    fTypeface = SkTypeface::CreateFromTypeface(NULL, SkTypeface::kBold);
+    fShowZoomer = false;
+
     fZoomLevel = 0;
     fZoomScale = SK_Scalar1;
 
@@ -374,6 +425,7 @@ SampleWindow::~SampleWindow() {
     if (NULL != fGrContext) {
         fGrContext->unref();
     }
+    fTypeface->unref();
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
@@ -399,6 +451,26 @@ static bool bitmap_diff(SkCanvas* canvas, const SkBitmap& orig,
         }
     }
     return false;
+}
+
+static void drawText(SkCanvas* canvas, SkString string, SkScalar left, SkScalar top, SkPaint& paint)
+{
+    SkColor desiredColor = paint.getColor();
+    paint.setColor(SK_ColorWHITE);
+    const char* c_str = string.c_str();
+    size_t size = string.size();
+    SkRect bounds;
+    paint.measureText(c_str, size, &bounds);
+    bounds.offset(left, top);
+    SkScalar inset = SkIntToScalar(-2);
+    bounds.inset(inset, inset);
+    canvas->drawRect(bounds, paint);
+    if (desiredColor != SK_ColorBLACK) {
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawText(c_str, size, left + SK_Scalar1, top + SK_Scalar1, paint);
+    }
+    paint.setColor(desiredColor);
+    canvas->drawText(c_str, size, left, top, paint);
 }
 
 #define XCLIP_N  8
@@ -472,6 +544,87 @@ void SampleWindow::draw(SkCanvas* canvas) {
         }
     } else {
         this->INHERITED::draw(canvas);
+    }
+    if (fShowZoomer) {
+        int count = canvas->save();
+        canvas->resetMatrix();
+        // Ensure the mouse position is on screen.
+        int width = this->width();
+        int height = this->height();
+        if (fMouseX >= width) fMouseX = width - 1;
+        else if (fMouseX < 0) fMouseX = 0;
+        if (fMouseY >= height) fMouseY = height - 1;
+        else if (fMouseY < 0) fMouseY = 0;
+        SkBitmap bitmap = capture_bitmap(canvas);
+        // Find the size of the zoomed in view, forced to be odd, so the examined pixel is in the middle.
+        int zoomedWidth = (width >> 2) | 1;
+        int zoomedHeight = (height >> 2) | 1;
+        SkIRect src;
+        src.set(0, 0, zoomedWidth / fFatBitsScale, zoomedHeight / fFatBitsScale);
+        src.offset(fMouseX - (src.width()>>1), fMouseY - (src.height()>>1));
+        SkRect dest;
+        dest.set(0, 0, SkIntToScalar(zoomedWidth), SkIntToScalar(zoomedHeight));
+        dest.offset(SkIntToScalar(width - zoomedWidth), SkIntToScalar(height - zoomedHeight));
+        SkPaint paint;
+        // Clear the background behind our zoomed in view
+        paint.setColor(SK_ColorWHITE);
+        canvas->drawRect(dest, paint);
+        canvas->drawBitmapRect(bitmap, &src, dest);
+        paint.setColor(SK_ColorBLACK);
+        paint.setStyle(SkPaint::kStroke_Style);
+        // Draw a border around the pixel in the middle
+        SkRect originalPixel;
+        originalPixel.set(SkIntToScalar(fMouseX), SkIntToScalar(fMouseY), SkIntToScalar(fMouseX + 1), SkIntToScalar(fMouseY + 1));
+        SkMatrix matrix;
+        SkRect scalarSrc;
+        scalarSrc.set(src);
+        SkColor color = bitmap.getColor(fMouseX, fMouseY);
+        if (matrix.setRectToRect(scalarSrc, dest, SkMatrix::kFill_ScaleToFit)) {
+            SkRect pixel;
+            matrix.mapRect(&pixel, originalPixel);
+            // TODO Perhaps measure the values and make the outline white if it's "dark"
+            if (color == SK_ColorBLACK) {
+                paint.setColor(SK_ColorWHITE);
+            }
+            canvas->drawRect(pixel, paint);
+        }
+        paint.setColor(SK_ColorBLACK);
+        // Draw a border around the destination rectangle
+        canvas->drawRect(dest, paint);
+        paint.setStyle(SkPaint::kStrokeAndFill_Style);
+        // Identify the pixel and its color on screen
+        paint.setTypeface(fTypeface);
+        paint.setAntiAlias(true);
+        SkScalar lineHeight = paint.getFontMetrics(NULL);
+        SkString string;
+        string.appendf("(%i, %i)", fMouseX, fMouseY);
+        SkScalar left = dest.fLeft + SkIntToScalar(3);
+        SkScalar i = SK_Scalar1;
+        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+        // Alpha
+        i += SK_Scalar1;
+        string.reset();
+        string.appendf("A: %X", SkColorGetA(color));
+        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+        // Red
+        i += SK_Scalar1;
+        string.reset();
+        string.appendf("R: %X", SkColorGetR(color));
+        paint.setColor(SK_ColorRED);
+        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+        // Green
+        i += SK_Scalar1;
+        string.reset();
+        string.appendf("G: %X", SkColorGetG(color));
+        paint.setColor(SK_ColorGREEN);
+        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+        // Blue
+        i += SK_Scalar1;
+        string.reset();
+        string.appendf("B: %X", SkColorGetB(color));
+        paint.setColor(SK_ColorBLUE);
+        drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
+        canvas->restoreToCount(count);
     }
 }
 
@@ -825,8 +978,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->updateTitle();
             this->inval(NULL);
             break;
-#ifdef SK_BUILD_FOR_UNIX
-        // These methods have not been written for other platforms yet.
         case 'i':
             this->zoomIn();
             break;
@@ -836,7 +987,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'z':
             this->toggleZoomer();
             break;
-#endif
         default:
             break;
     }
@@ -912,6 +1062,9 @@ bool SampleWindow::onHandleKey(SkKey key) {
 static const char gGestureClickType[] = "GestureClickType";
 
 bool SampleWindow::onDispatchClick(int x, int y, Click::State state) {
+    if (Click::kMoved_State == state) {
+        updatePointer(x, y);
+    }
     int w = SkScalarRound(this->width());
     int h = SkScalarRound(this->height());
 
