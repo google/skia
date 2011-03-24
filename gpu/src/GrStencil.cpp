@@ -249,7 +249,7 @@ bool GrStencilSettings::GetClipPasses(GrSetOp op,
                                       bool invertedFill,
                                       int* numPasses,
                                       GrStencilSettings settings[kMaxStencilClipPasses]) {
-    if (canBeDirect) {
+    if (canBeDirect && !invertedFill) {
         *numPasses = 0;
         switch (op) {
             case kReplace_SetOp:

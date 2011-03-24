@@ -68,7 +68,8 @@ public:
      *
      * @param target target that the path will be rendered to
      * @param path   the path that will be drawn
-     * @param fill   the fill rule that will be used
+     * @param fill   the fill rule that will be used, will never be an inverse
+     *               rule.
      *
      * @return false if this path renderer can generate interior-only fragments
      *         without changing the stencil settings on the target. If it
