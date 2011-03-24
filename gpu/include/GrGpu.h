@@ -77,9 +77,11 @@ public:
                                             //   rendered to by calling
                                             //   GrGpu::setRenderTarget() with
                                             //   GrTexture::asRenderTarget().
-        kNoPathRendering_TextureFlag = 0x2, //<! If the texture is used as a
-                                            //   rendertarget but paths will not
-                                            //   be rendered to it.
+        kNoStencil_TextureFlag      = 0x2,  //<! If the texture is used as a
+                                            //   rendertarget but a stencil
+                                            //   buffer is not required. Stencil
+                                            //   may be required for clipping and
+                                            //   path rendering.
         kDynamicUpdate_TextureFlag = 0x4    //!< Hint that the CPU may modify
                                             // this texture after creation
     };
