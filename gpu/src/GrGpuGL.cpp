@@ -850,7 +850,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         } else {
             rtIDs.fRTFBOID = rtIDs.fTexFBOID;
         }
-        if (!(kNoPathRendering_TextureFlag & desc.fFlags)) {
+        if (!(kNoStencil_TextureFlag & desc.fFlags)) {
             GR_GL(GenRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
             GrAssert(0 != rtIDs.fStencilRenderbufferID);
         }
@@ -1006,7 +1006,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         fHWDrawState.fRenderTarget = NULL;
 
         // clear the new stencil buffer if we have one
-        if (!(desc.fFlags & kNoPathRendering_TextureFlag)) {
+        if (!(desc.fFlags & kNoStencil_TextureFlag)) {
             GrRenderTarget* rtSave = fCurrDrawState.fRenderTarget;
             fCurrDrawState.fRenderTarget = rt;
             eraseStencil(0, ~0);

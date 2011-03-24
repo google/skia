@@ -133,7 +133,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
         }
         GrGpu::TextureDesc rtDesc = desc;
         rtDesc.fFlags |= GrGpu::kRenderTarget_TextureFlag |
-                         GrGpu::kNoPathRendering_TextureFlag;
+                         GrGpu::kNoStencil_TextureFlag;
         rtDesc.fWidth  = GrNextPow2(GrMax<int>(desc.fWidth,
                                                fGpu->minRenderTargetWidth()));
         rtDesc.fHeight = GrNextPow2(GrMax<int>(desc.fHeight,
