@@ -96,10 +96,7 @@ int main(){
                     window->handleClick(evt.xbutton.x, evt.xbutton.y, SkView::Click::kUp_State);
                 break;
             case MotionNotify:
-                // FIXME: 272 corresponds to the left mouse button, but should be a constant.
-                if (evt.xmotion.state == 272)
-                    window->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
-                window->updatePointer(evt.xmotion.x, evt.xmotion.y);
+                window->handleClick(evt.xmotion.x, evt.xmotion.y, SkView::Click::kMoved_State);
                 break;
             case KeyPress:
             {
