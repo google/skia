@@ -3,6 +3,7 @@ SOURCE := \
     GrAtlas.cpp \
     GrClip.cpp \
     GrContext.cpp \
+    GrCreatePathRenderer_none.cpp \
     GrDrawTarget.cpp \
     GrGLIndexBuffer.cpp	\
     GrGLInterface.cpp \

@@ -21,10 +21,10 @@
 #include "GrRefCnt.h"
 #include "GrDrawTarget.h"
 #include "GrTexture.h"
+#include "GrPathRenderer.h"
 
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
-class GrPathRenderer;
 
 class GrGpu : public GrDrawTarget {
 
@@ -308,6 +308,14 @@ public:
                                 int vertexCount);
 
     /**
+     * Installs a path renderer that will be used to draw paths that are
+     * part of the clip.
+     */
+    void setClipPathRenderer(GrPathRenderer* pathRenderer) {
+        GrSafeAssign(fClientPathRenderer, pathRenderer);
+    }
+
+    /**
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
      * The max number of quads can be queried using GrIndexBuffer::maxQuads().
@@ -495,7 +503,9 @@ private:
     void prepareVertexPool();
     void prepareIndexPool();
 
-    GrPathRenderer* getPathRenderer();
+    // determines the path renderer used to draw a clip path element.
+    GrPathRenderer* getClipPathRenderer(GrPathIter* path,
+                                        GrPathFill fill);
 
     void handleDirtyContext() {
         if (fContextIsDirty) {
@@ -514,7 +524,8 @@ private:
     mutable GrVertexBuffer*     fUnitSquareVertexBuffer; // mutable so it can be
                                                          // created on-demand
 
-    GrPathRenderer*             fPathRenderer;
+    GrDefaultPathRenderer*      fDefaultPathRenderer;
+    GrPathRenderer*             fClientPathRenderer;
 
     bool                        fContextIsDirty;
 
