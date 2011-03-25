@@ -180,6 +180,17 @@ public:
                             const SkPoint[], const SkPaint& paint);
     virtual void drawRect(const SkDraw&, const SkRect& r,
                           const SkPaint& paint);
+    /**
+     *  If pathIsMutable, then the implementation is allowed to cast path to a
+     *  non-const pointer and modify it in place (as an optimization). Canvas
+     *  may do this to implement helpers such as drawOval, by placing a temp
+     *  path on the stack to hold the representation of the oval.
+     *
+     *  If prePathMatrix is not null, it should logically be applied before any
+     *  stroking or other effects. If there are no effects on the paint that
+     *  affect the geometry/rasterization, then the pre matrix can just be
+     *  pre-concated with the current matrix.
+     */
     virtual void drawPath(const SkDraw&, const SkPath& path,
                           const SkPaint& paint,
                           const SkMatrix* prePathMatrix = NULL,
