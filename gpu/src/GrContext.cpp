@@ -63,7 +63,7 @@ GrContext::~GrContext() {
     delete fDrawBuffer;
     delete fDrawBufferVBAllocPool;
     delete fDrawBufferIBAllocPool;
-    delete fPathRenderer;
+    GrSafeUnref(fCustomPathRenderer);
 }
 
 void GrContext::abandonAllTextures() {
@@ -546,7 +546,8 @@ void GrContext::drawPath(const GrPaint& paint,
     if (NULL != paint.getTexture()) {
         enabledStages |= 1;
     }
-    fPathRenderer->drawPath(target, enabledStages, path, fill, translate);
+    GrPathRenderer* pr = getPathRenderer(target, path, fill);
+    pr->drawPath(target, enabledStages, path, fill, translate);
 }
 
 void GrContext::drawPath(const GrPaint& paint,
@@ -738,9 +739,16 @@ void GrContext::printStats() const {
     fGpu->printStats();
 }
 
-GrContext::GrContext(GrGpu* gpu) {
+GrContext::GrContext(GrGpu* gpu) :
+    fDefaultPathRenderer(gpu->supportsTwoSidedStencil(),
+                         gpu->supportsStencilWrapOps()) {
+
     fGpu = gpu;
     fGpu->ref();
+    
+    fCustomPathRenderer = GrPathRenderer::CreatePathRenderer();
+    fGpu->setClipPathRenderer(fCustomPathRenderer);
+
     fTextureCache = new GrTextureCache(MAX_TEXTURE_CACHE_COUNT,
                                        MAX_TEXTURE_CACHE_BYTES);
     fFontCache = new GrFontCache(fGpu);
@@ -768,8 +776,6 @@ GrContext::GrContext(GrGpu* gpu) {
 #if BATCH_RECT_TO_RECT
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
 #endif
-    fPathRenderer = new GrDefaultPathRenderer(fGpu->supportsTwoSidedStencil(),
-                                              fGpu->supportsStencilWrapOps());
 }
 
 bool GrContext::finalizeTextureKey(GrTextureKey* key,
@@ -807,4 +813,16 @@ GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
     return fGpu->getQuadIndexBuffer();
+}
+
+GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
+                                           GrPathIter* path,
+                                           GrPathFill fill) {
+    if (NULL != fCustomPathRenderer && 
+        fCustomPathRenderer->canDrawPath(target, path, fill)) {
+        return fCustomPathRenderer;
+    } else {
+        GrAssert(fDefaultPathRenderer.canDrawPath(target, path, fill));
+        return &fDefaultPathRenderer;
+    }
 }

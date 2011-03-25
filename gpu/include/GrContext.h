@@ -21,13 +21,13 @@
 #include "GrGpu.h"
 #include "GrTextureCache.h"
 #include "GrPaint.h"
+#include "GrPathRenderer.h"
 
 class GrFontCache;
 class GrPathIter;
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
-class GrPathRenderer;
 
 class GR_API GrContext : public GrRefCnt {
 public:
@@ -479,13 +479,16 @@ private:
     GrGpu*          fGpu;
     GrTextureCache* fTextureCache;
     GrFontCache*    fFontCache;
-    GrPathRenderer* fPathRenderer;
+
+    GrPathRenderer*         fCustomPathRenderer;
+    GrDefaultPathRenderer   fDefaultPathRenderer;
 
     GrVertexBufferAllocPool*    fDrawBufferVBAllocPool;
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;
     GrInOrderDrawBuffer*        fDrawBuffer;
 
     GrContext(GrGpu* gpu);
+
     void flushDrawBuffer();
 
     static void SetPaint(const GrPaint& paint, GrDrawTarget* target);
@@ -495,6 +498,11 @@ private:
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
     void drawClipIntoStencil();
+
+    GrPathRenderer* getPathRenderer(const GrDrawTarget* target,
+                                    GrPathIter* path,
+                                    GrPathFill fill);
+
 };
 
 /**

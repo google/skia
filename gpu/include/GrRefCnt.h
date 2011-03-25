@@ -93,7 +93,8 @@ static inline void GrSafeUnref(const GrRefCnt* obj) {
  *  Assigns src to dst, checking for NULLs in each, and correctly incrementing
  *  the reference count of src, and decrementing the reference count of dst
  */
-static inline void GrSafeAssign(GrRefCnt*& dst, GrRefCnt* src) {
+template<typename T>
+static inline void GrSafeAssign(T*& dst, T* src) {
     if (src) {
         src->ref();
     }

@@ -460,6 +460,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\utils\win\skia_win.cpp" />
     <ClCompile Include="..\..\src\views\SkTouchGesture.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrCreatePathRenderer_none.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gpu\include\FlingState.h" />
@@ -692,9 +695,6 @@
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h">
       <Filter>Gr\src_headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gpu\src\GrPathRenderer.h">
-      <Filter>Gr\src_headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h">
       <Filter>Gr\src_headers</Filter>
     </ClInclude>
@@ -726,6 +726,9 @@
       <Filter>Gr\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\gpu\include\GrGLDefines.h">
+      <Filter>Gr\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gpu\include\GrPathRenderer.h">
       <Filter>Gr\include</Filter>
     </ClInclude>
   </ItemGroup>

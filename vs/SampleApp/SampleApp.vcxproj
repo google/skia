@@ -126,6 +126,7 @@
     <ClInclude Include="..\..\gpu\include\GrPaint.h" />
     <ClInclude Include="..\..\gpu\include\GrPath.h" />
     <ClInclude Include="..\..\gpu\include\GrPathIter.h" />
+    <ClInclude Include="..\..\gpu\include\GrPathRenderer.h" />
     <ClInclude Include="..\..\gpu\include\GrPathSink.h" />
     <ClInclude Include="..\..\gpu\include\GrPlotMgr.h" />
     <ClInclude Include="..\..\gpu\include\GrPoint.h" />
@@ -156,7 +157,6 @@
     <ClInclude Include="..\..\gpu\src\GrGpuGL.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h" />
-    <ClInclude Include="..\..\gpu\src\GrPathRenderer.h" />
     <ClInclude Include="..\..\gpu\src\GrRedBlackTree.h" />
     <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h" />
     <ClInclude Include="..\..\include\gpu\SkGpuCanvas.h" />
@@ -220,6 +220,7 @@
     <ClCompile Include="..\..\gpu\src\GrBufferAllocPool.cpp" />
     <ClCompile Include="..\..\gpu\src\GrClip.cpp" />
     <ClCompile Include="..\..\gpu\src\GrContext.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrCreatePathRenderer_none.cpp" />
     <ClCompile Include="..\..\gpu\src\GrDrawTarget.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLIndexBuffer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLInterface.cpp" />
