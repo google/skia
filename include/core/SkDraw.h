@@ -41,9 +41,15 @@ public:
     void    drawPoints(SkCanvas::PointMode, size_t count, const SkPoint[],
                        const SkPaint&, bool forceUseDevice = false) const;
     void    drawRect(const SkRect&, const SkPaint&) const;
-    /*  To save on mallocs, we allow a flag that tells us that srcPath is
-        mutable, so that we don't have to make copies of it as we transform it.
-    */
+    /**
+     *  To save on mallocs, we allow a flag that tells us that srcPath is
+     *  mutable, so that we don't have to make copies of it as we transform it.
+     *
+     *  If prePathMatrix is not null, it should logically be applied before any
+     *  stroking or other effects. If there are no effects on the paint that
+     *  affect the geometry/rasterization, then the pre matrix can just be
+     *  pre-concated with the current matrix.
+     */
     void    drawPath(const SkPath& srcPath, const SkPaint&,
                      const SkMatrix* prePathMatrix, bool pathIsMutable) const;
     void    drawBitmap(const SkBitmap&, const SkMatrix&, const SkPaint&) const;
