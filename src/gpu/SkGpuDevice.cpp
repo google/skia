@@ -771,7 +771,22 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-    if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
+    // This "if" is not part of the SkDraw::drawPath() lift.
+    // When we get a 1.0 wide stroke we hairline stroke it instead of creating
+    // a new stroked-path. This is motivated by canvas2D sites that draw
+    // lines as 1.0 wide stroked paths. We can consider doing an alpha-modulated-
+    // hairline for width < 1.0 when AA is enabled.
+    static const int gMatrixMask = ~(SkMatrix::kIdentity_Mask | 
+                                     SkMatrix::kTranslate_Mask);
+    if (!paint.getPathEffect() && 
+        SkPaint::kStroke_Style == paint.getStyle() &&
+        !(draw.fMatrix->getType() & gMatrixMask) &&
+        SK_Scalar1 == paint.getStrokeWidth()) {
+        doFill = false;
+    }
+
+    if (doFill && (paint.getPathEffect() || 
+                   paint.getStyle() != SkPaint::kFill_Style)) {
         doFill = paint.getFillPath(*pathPtr, &tmpPath);
         pathPtr = &tmpPath;
     }
