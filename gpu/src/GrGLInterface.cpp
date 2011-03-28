@@ -147,7 +147,7 @@ void InitializeGLInterfaceExtensions(GrGLInterface* glBindings) {
         fboFound = true;
     }
 
-    #if GL_EXT_framebuffer_object && !GR_MAC_BUILD
+    #if GL_EXT_framebuffer_object
     if (!fboFound &&
             has_gl_extension_from_string("GL_EXT_framebuffer_object",
                                          extensionString)) {

@@ -24,6 +24,7 @@
       [ 'OS == "win"', {
         'defines': [
           'SK_BUILD_FOR_WIN32',
+          'SK_IGNORE_STDINT_DOT_H',
         ],
       },],
     ],
@@ -835,6 +836,9 @@
       'include_dirs': [
         '../gpu/include',
       ],
+      #'dependencies': [
+      #  'libtess',
+      #],
       'sources': [
         '../gpu/include/GrAllocator.h',
         '../gpu/include/GrAllocPool.h',
@@ -873,6 +877,7 @@
         '../gpu/include/GrPathIter.h',
         '../gpu/include/GrPathRenderer.h',
         '../gpu/include/GrPathSink.h',
+        '../gpu/include/GrPathUtils.h',
         '../gpu/include/GrPlotMgr.h',
         '../gpu/include/GrPoint.h',
         '../gpu/include/GrRandom.h',
@@ -887,6 +892,7 @@
         '../gpu/include/GrTArray.h',
         '../gpu/include/GrTBSearch.h',
         '../gpu/include/GrTDArray.h',
+        #'../gpu/include/GrTesselatedPathRenderer.h',
         '../gpu/include/GrTextContext.h',
         '../gpu/include/GrTextStrike.h',
         '../gpu/include/GrTexture.h',
@@ -924,10 +930,12 @@
         '../gpu/src/GrMemory.cpp',
         '../gpu/src/GrPath.cpp',
         '../gpu/src/GrPathRenderer.cpp',
+        '../gpu/src/GrPathUtils.cpp',
         '../gpu/src/GrPrintf_printf.cpp',
         '../gpu/src/GrRectanizer.cpp',
         '../gpu/src/GrRedBlackTree.h',
         '../gpu/src/GrStencil.cpp',
+        #'../gpu/src/GrTesselatedPathRenderer.cpp',
         '../gpu/src/GrTextContext.cpp',
         '../gpu/src/GrTextStrike.cpp',
         '../gpu/src/GrTextStrike_impl.h',
@@ -1444,7 +1452,6 @@
         '../third_party/glu/libtess/mesh.h',
         '../third_party/glu/libtess/normal.c',
         '../third_party/glu/libtess/normal.h',
-        '../third_party/glu/libtess/priorityq-heap.c',
         '../third_party/glu/libtess/priorityq-heap.h',
         '../third_party/glu/libtess/priorityq-sort.h',
         '../third_party/glu/libtess/priorityq.c',
