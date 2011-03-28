@@ -17,6 +17,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPDFUtils.h"
+#include "SkStream.h"
 #include "SkString.h"
 #include "SkPDFTypes.h"
 
@@ -34,59 +35,59 @@ SkPDFArray* SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
 }
 
 // static
-void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkString* content) {
+void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkWStream* content) {
     SkPDFScalar::Append(x, content);
-    content->append(" ");
+    content->writeText(" ");
     SkPDFScalar::Append(y, content);
-    content->append(" m\n");
+    content->writeText(" m\n");
 }
 
 // static
-void SkPDFUtils::AppendLine(SkScalar x, SkScalar y, SkString* content) {
+void SkPDFUtils::AppendLine(SkScalar x, SkScalar y, SkWStream* content) {
     SkPDFScalar::Append(x, content);
-    content->append(" ");
+    content->writeText(" ");
     SkPDFScalar::Append(y, content);
-    content->append(" l\n");
+    content->writeText(" l\n");
 }
 
 // static
 void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
                              SkScalar ctl2X, SkScalar ctl2Y,
-                             SkScalar dstX, SkScalar dstY, SkString* content) {
+                             SkScalar dstX, SkScalar dstY, SkWStream* content) {
     SkString cmd("y\n");
     SkPDFScalar::Append(ctl1X, content);
-    content->append(" ");
+    content->writeText(" ");
     SkPDFScalar::Append(ctl1Y, content);
-    content->append(" ");
+    content->writeText(" ");
     if (ctl2X != dstX || ctl2Y != dstY) {
         cmd.set("c\n");
         SkPDFScalar::Append(ctl2X, content);
-        content->append(" ");
+        content->writeText(" ");
         SkPDFScalar::Append(ctl2Y, content);
-        content->append(" ");
+        content->writeText(" ");
     }
     SkPDFScalar::Append(dstX, content);
-    content->append(" ");
+    content->writeText(" ");
     SkPDFScalar::Append(dstY, content);
-    content->append(" ");
-    content->append(cmd);
+    content->writeText(" ");
+    content->writeText(cmd.c_str());
 }
 
 // static
 void SkPDFUtils::AppendRectangle(SkScalar x, SkScalar y,
-                                 SkScalar w, SkScalar h, SkString* content) {
+                                 SkScalar w, SkScalar h, SkWStream* content) {
     SkPDFScalar::Append(x, content);
-    content->append(" ");
+    content->writeText(" ");
     SkPDFScalar::Append(y, content);
-    content->append(" ");
+    content->writeText(" ");
     SkPDFScalar::Append(w, content);
-    content->append(" ");
+    content->writeText(" ");
     SkPDFScalar::Append(h, content);
-    content->append(" re\n");
+    content->writeText(" re\n");
 }
 
-// static 
-void SkPDFUtils::EmitPath(const SkPath& path, SkString* content) {
+// static
+void SkPDFUtils::EmitPath(const SkPath& path, SkWStream* content) {
     SkPoint args[4];
     SkPath::Iter iter(path, false);
     for (SkPath::Verb verb = iter.next(args);
@@ -129,32 +130,31 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkString* content) {
 }
 
 // static
-void SkPDFUtils::ClosePath(SkString* content) {
-    content->append("h\n");
+void SkPDFUtils::ClosePath(SkWStream* content) {
+    content->writeText("h\n");
 }
 
 // static
 void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
-                           SkString* content) {
+                           SkWStream* content) {
     if (style == SkPaint::kFill_Style)
-        content->append("f");
+        content->writeText("f");
     else if (style == SkPaint::kStrokeAndFill_Style)
-        content->append("B");
+        content->writeText("B");
     else if (style == SkPaint::kStroke_Style)
-        content->append("S");
+        content->writeText("S");
 
     if (style != SkPaint::kStroke_Style) {
-        // Not supported yet.
         NOT_IMPLEMENTED(fill == SkPath::kInverseEvenOdd_FillType, false);
         NOT_IMPLEMENTED(fill == SkPath::kInverseWinding_FillType, false);
         if (fill == SkPath::kEvenOdd_FillType)
-            content->append("*");
+            content->writeText("*");
     }
-    content->append("\n");
+    content->writeText("\n");
 }
 
 // static
-void SkPDFUtils::StrokePath(SkString* content) {
+void SkPDFUtils::StrokePath(SkWStream* content) {
     SkPDFUtils::PaintPath(
         SkPaint::kStroke_Style, SkPath::kWinding_FillType, content);
 }
