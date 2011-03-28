@@ -32,19 +32,19 @@ class SkPDFArray;
 class SkPDFUtils {
 public:
     static SkPDFArray* MatrixToArray(const SkMatrix& matrix);
-    
-    static void MoveTo(SkScalar x, SkScalar y, SkString* content);
-    static void AppendLine(SkScalar x, SkScalar y, SkString* content);
+
+    static void MoveTo(SkScalar x, SkScalar y, SkWStream* content);
+    static void AppendLine(SkScalar x, SkScalar y, SkWStream* content);
     static void AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
                             SkScalar ctl2X, SkScalar ctl2Y,
-                            SkScalar dstX, SkScalar dstY, SkString* content);
+                            SkScalar dstX, SkScalar dstY, SkWStream* content);
     static void AppendRectangle(SkScalar x, SkScalar y, SkScalar w, SkScalar h,
-                                SkString* content);
-    static void EmitPath(const SkPath& path, SkString* content);
-    static void ClosePath(SkString* content);
+                                SkWStream* content);
+    static void EmitPath(const SkPath& path, SkWStream* content);
+    static void ClosePath(SkWStream* content);
     static void PaintPath(SkPaint::Style style, SkPath::FillType fill,
-                          SkString* content);
-    static void StrokePath(SkString* content);
+                          SkWStream* content);
+    static void StrokePath(SkWStream* content);
 };
 
 #endif

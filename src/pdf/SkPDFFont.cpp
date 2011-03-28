@@ -236,11 +236,18 @@ SkScalar scaleFromFontUnits(int16_t val, uint16_t emSize) {
 }
 
 void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
-                                 SkString* content) {
+                                 SkWStream* content) {
     // Specify width and bounding box for the glyph.
     SkPDFScalar::Append(width, content);
-    content->appendf(" 0 %d %d %d %d d1\n", box.fLeft, box.fTop,
-                                            box.fRight, box.fBottom);
+    content->writeText(" 0 ");
+    content->writeDecAsText(box.fLeft);
+    content->writeText(" ");
+    content->writeDecAsText(box.fTop);
+    content->writeText(" ");
+    content->writeDecAsText(box.fRight);
+    content->writeText(" ");
+    content->writeDecAsText(box.fBottom);
+    content->writeText(" d1\n");
 }
 
 SkPDFArray* makeFontBBox(
@@ -670,7 +677,7 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
                                               glyph.fWidth, glyph.fHeight);
         bbox.join(glyphBBox);
 
-        SkString content;
+        SkDynamicMemoryWStream content;
         setGlyphWidthAndBoundingBox(SkFixedToScalar(glyph.fAdvanceX), glyphBBox,
                                     &content);
         const SkPath* path = cache->findPath(glyph);
@@ -679,9 +686,10 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
             SkPDFUtils::PaintPath(paint.getStyle(), path->getFillType(),
                                   &content);
         }
-        SkRefPtr<SkStream> glyphStream =
-            new SkMemoryStream(content.c_str(), content.size(), true);
+        SkRefPtr<SkMemoryStream> glyphStream = new SkMemoryStream();
         glyphStream->unref();  // SkRefPtr and new both took a ref.
+        glyphStream->setMemoryOwned(content.detach(), content.getOffset());
+
         SkRefPtr<SkPDFStream> glyphDescription =
             new SkPDFStream(glyphStream.get());
         // SkRefPtr and new both ref()'d charProcs, pass one.

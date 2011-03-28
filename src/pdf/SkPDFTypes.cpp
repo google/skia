@@ -100,32 +100,31 @@ void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     if (indirect)
         return emitIndirectObject(stream, catalog);
 
-    SkString tmp;
-    Append(fValue, &tmp);
-    stream->write(tmp.c_str(), tmp.size());
+    Append(fValue, stream);
 }
 
 // static
-void SkPDFScalar::Append(SkScalar value, SkString* string) {
+void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
     // The range of reals in PDF/A is the same as SkFixed: +/- 32,767 and
     // +/- 1/65,536 (though integers can range from 2^31 - 1 to -2^31).
     // When using floats that are outside the whole value range, we can use
     // integers instead.
 
+
 #if defined(SK_SCALAR_IS_FIXED)
-    string->appendScalar(value);
+    stream->wrieScalarAsText(value);
     return;
 #endif  // SK_SCALAR_IS_FIXED
 
 #if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
     if (value > 32767 || value < -32767) {
-        string->appendS32(SkScalarRound(value));
+        stream->writeDecAsText(SkScalarRound(value));
         return;
     }
 
     char buffer[SkStrAppendScalar_MaxSize];
     char* end = SkStrAppendFixed(buffer, SkScalarToFixed(value));
-    string->append(buffer, end - buffer);
+    stream->write(buffer, end - buffer);
     return;
 #endif  // !SK_ALLOW_LARGE_PDF_SCALARS
 
@@ -134,12 +133,12 @@ void SkPDFScalar::Append(SkScalar value, SkString* string) {
     // no more precise than an int. (Plus PDF doesn't support scientific
     // notation, so this clamps to SK_Max/MinS32).
     if (value > (1 << 24) || value < -(1 << 24)) {
-        string->appendS32(value);
+        stream->writeDecAsText(value);
         return;
     }
     // Continue to enforce the PDF limits for small floats.
     if (value < 1.0f/65536 && value > -1.0f/65536) {
-        string->appendS32(0);
+        stream->writeDecAsText(0);
         return;
     }
     // SkStrAppendFloat might still use scientific notation, so use snprintf
@@ -154,7 +153,7 @@ void SkPDFScalar::Append(SkScalar value, SkString* string) {
     if (buffer[len - 1] == '.') {
         buffer[len - 1] = '\0';
     }
-    string->append(buffer);
+    stream->writeText(buffer);
     return;
 #endif  // SK_SCALAR_IS_FLOAT && SK_ALLOW_LARGE_PDF_SCALARS
 }

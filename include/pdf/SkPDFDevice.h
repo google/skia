@@ -19,7 +19,7 @@
 
 #include "SkRefCnt.h"
 #include "SkDevice.h"
-#include "SkString.h"
+#include "SkStream.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 
@@ -175,7 +175,7 @@ private:
     struct GraphicStackEntry fGraphicStack[3];
     int fGraphicStackIndex;
 
-    SkString fContent;
+    SkDynamicMemoryWStream fContent;
 
     void updateGSFromPaint(const SkPaint& newPaint, bool forText);
     void updateFont(const SkPaint& paint, uint16_t glyphID);
