@@ -112,6 +112,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+#if GR_WIN32_BUILD
+// VC8 doesn't support stdint.h, so we define those types here.
+typedef signed char int8_t;
+typedef unsigned char uint8_t;
+typedef short int16_t;
+typedef unsigned short uint16_t;
+typedef int int32_t;
+typedef unsigned uint32_t;
+#else
 /*
  *  Include stdint.h with defines that trigger declaration of C99 limit/const
  *  macros here before anyone else has a chance to include stdint.h without 
@@ -120,6 +129,7 @@
 #define __STDC_LIMIT_MACROS
 #define __STDC_CONSTANT_MACROS
 #include <stdint.h>
+#endif
 
 /*
  *  The "user config" file can be empty, and everything should work. It is

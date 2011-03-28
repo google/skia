@@ -610,7 +610,7 @@ void GrGpu::prepareVertexPool() {
 }
 
 void GrGpu::prepareIndexPool() {
-    if (NULL == fVertexPool) {
+    if (NULL == fIndexPool) {
         fIndexPool = new GrIndexBufferAllocPool(this, true, 0, 1);
     } else if (!fIndexPoolInUse) {
         // the client doesn't have valid data in the pool

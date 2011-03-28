@@ -3,6 +3,7 @@
 #include "GrPoint.h"
 #include "GrDrawTarget.h"
 #include "GrPathIter.h"
+#include "GrPathUtils.h"
 #include "GrMemory.h"
 #include "GrTexture.h"
 
@@ -147,127 +148,6 @@ static const GrStencilSettings gDirectToStencil = {
 // Helpers for drawPath
 
 #define STENCIL_OFF     0   // Always disable stencil (even when needed)
-static const GrScalar gTolerance = GR_Scalar1;
-
-static const uint32_t MAX_POINTS_PER_CURVE = 1 << 10;
-
-static uint32_t quadratic_point_count(const GrPoint points[], GrScalar tol) {
-    GrScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
-    if (d < tol) {
-        return 1;
-    } else {
-        // Each time we subdivide, d should be cut in 4. So we need to
-        // subdivide x = log4(d/tol) times. x subdivisions creates 2^(x)
-        // points.
-        // 2^(log4(x)) = sqrt(x);
-        d = ceilf(sqrtf(d/tol));
-        return GrMin(GrNextPow2((uint32_t)d), MAX_POINTS_PER_CURVE);
-    }
-}
-
-static uint32_t generate_quadratic_points(const GrPoint& p0,
-                                          const GrPoint& p1,
-                                          const GrPoint& p2,
-                                          GrScalar tolSqd,
-                                          GrPoint** points,
-                                          uint32_t pointsLeft) {
-    if (pointsLeft < 2 ||
-        (p1.distanceToLineSegmentBetweenSqd(p0, p2)) < tolSqd) {
-        (*points)[0] = p2;
-        *points += 1;
-        return 1;
-    }
-
-    GrPoint q[] = {
-        GrPoint(GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY)),
-        GrPoint(GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY)),
-    };
-    GrPoint r(GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY));
-
-    pointsLeft >>= 1;
-    uint32_t a = generate_quadratic_points(p0, q[0], r, tolSqd, points, pointsLeft);
-    uint32_t b = generate_quadratic_points(r, q[1], p2, tolSqd, points, pointsLeft);
-    return a + b;
-}
-
-static uint32_t cubic_point_count(const GrPoint points[], GrScalar tol) {
-    GrScalar d = GrMax(points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
-                       points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
-    d = sqrtf(d);
-    if (d < tol) {
-        return 1;
-    } else {
-        d = ceilf(sqrtf(d/tol));
-        return GrMin(GrNextPow2((uint32_t)d), MAX_POINTS_PER_CURVE);
-    }
-}
-
-static uint32_t generate_cubic_points(const GrPoint& p0,
-                                      const GrPoint& p1,
-                                      const GrPoint& p2,
-                                      const GrPoint& p3,
-                                      GrScalar tolSqd,
-                                      GrPoint** points,
-                                      uint32_t pointsLeft) {
-    if (pointsLeft < 2 ||
-        (p1.distanceToLineSegmentBetweenSqd(p0, p3) < tolSqd &&
-         p2.distanceToLineSegmentBetweenSqd(p0, p3) < tolSqd)) {
-            (*points)[0] = p3;
-            *points += 1;
-            return 1;
-        }
-    GrPoint q[] = {
-        GrPoint(GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY)),
-        GrPoint(GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY)),
-        GrPoint(GrScalarAve(p2.fX, p3.fX), GrScalarAve(p2.fY, p3.fY))
-    };
-    GrPoint r[] = {
-        GrPoint(GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY)),
-        GrPoint(GrScalarAve(q[1].fX, q[2].fX), GrScalarAve(q[1].fY, q[2].fY))
-    };
-    GrPoint s(GrScalarAve(r[0].fX, r[1].fX), GrScalarAve(r[0].fY, r[1].fY));
-    pointsLeft >>= 1;
-    uint32_t a = generate_cubic_points(p0, q[0], r[0], s, tolSqd, points, pointsLeft);
-    uint32_t b = generate_cubic_points(s, r[1], q[2], p3, tolSqd, points, pointsLeft);
-    return a + b;
-}
-
-static int worst_case_point_count(GrPathIter* path,
-                                  int* subpaths,
-                                  GrScalar tol) {
-    int pointCount = 0;
-    *subpaths = 1;
-
-    bool first = true;
-
-    GrPathCmd cmd;
-
-    GrPoint pts[4];
-    while ((cmd = path->next(pts)) != kEnd_PathCmd) {
-
-        switch (cmd) {
-            case kLine_PathCmd:
-                pointCount += 1;
-                break;
-            case kQuadratic_PathCmd:
-                pointCount += quadratic_point_count(pts, tol);
-                break;
-            case kCubic_PathCmd:
-                pointCount += cubic_point_count(pts, tol);
-                break;
-            case kMove_PathCmd:
-                pointCount += 1;
-                if (!first) {
-                    ++(*subpaths);
-                }
-                break;
-            default:
-                break;
-        }
-        first = false;
-    }
-    return pointCount;
-}
 
 static inline bool single_pass_path(const GrDrawTarget& target,
                                     const GrPathIter& path,
@@ -314,7 +194,7 @@ void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
     // stretch when mapping to screen coordinates.
     GrScalar stretch = viewM.getMaxStretch();
     bool useStretch = stretch > 0;
-    GrScalar tol = gTolerance;
+    GrScalar tol = GrPathUtils::gTolerance;
 
     if (!useStretch) {
         // TODO: deal with perspective in some better way.
@@ -328,9 +208,7 @@ void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
     path->rewind();
 
     int subpathCnt;
-    int maxPts = worst_case_point_count(path,
-                                        &subpathCnt,
-                                        tol);
+    int maxPts = GrPathUtils::worstCasePointCount(path, &subpathCnt, tol);
 
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
@@ -468,15 +346,15 @@ void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
                 vert++;
                 break;
             case kQuadratic_PathCmd: {
-                generate_quadratic_points(pts[0], pts[1], pts[2],
-                                          tolSqd, &vert,
-                                          quadratic_point_count(pts, tol));
+                GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
+                                                     tolSqd, &vert,
+                                                     GrPathUtils::quadraticPointCount(pts, tol));
                 break;
             }
             case kCubic_PathCmd: {
-                generate_cubic_points(pts[0], pts[1], pts[2], pts[3],
-                                      tolSqd, &vert,
-                                      cubic_point_count(pts, tol));
+                GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
+                                                 tolSqd, &vert,
+                                                 GrPathUtils::cubicPointCount(pts, tol));
                 break;
             }
             case kClose_PathCmd:
@@ -563,7 +441,7 @@ void GrDefaultPathRenderer::drawPathToStencil(GrDrawTarget* target,
                                               GrPathIter* path,
                                               GrPathFill fill,
                                               const GrPoint* translate) {
-     GrAssert(kInverseEvenOdd_PathFill != fill);
-     GrAssert(kInverseWinding_PathFill != fill);
-     this->drawPathHelper(target, 0, path, fill, translate, true);
- }
+    GrAssert(kInverseEvenOdd_PathFill != fill);
+    GrAssert(kInverseWinding_PathFill != fill);
+    this->drawPathHelper(target, 0, path, fill, translate, true);
+}
