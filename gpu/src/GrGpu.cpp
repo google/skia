@@ -432,7 +432,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     const GrPath& path = clip.getPath(c);
                     pathIter.reset(path);
                     pr = this->getClipPathRenderer(&pathIter, NonInvertedFill(fill));
-                    canRenderDirectToStencil = 
+                    canRenderDirectToStencil =
                         !pr->requiresStencilPass(this, &pathIter,
                                                  NonInvertedFill(fill));
                 }
@@ -441,14 +441,14 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                 int passes;
                 GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
 
-                bool canDrawDirectToClip; // Given the renderer, the element, 
+                bool canDrawDirectToClip; // Given the renderer, the element,
                                           // fill rule, and set operation can
                                           // we render the element directly to
                                           // stencil bit used for clipping.
-                canDrawDirectToClip = 
-                    GrStencilSettings::GetClipPasses(op, 
+                canDrawDirectToClip =
+                    GrStencilSettings::GetClipPasses(op,
                                                      canRenderDirectToStencil,
-                                                     clipBit, 
+                                                     clipBit,
                                                      IsFillInverted(fill),
                                                      &passes, stencilSettings);
 
@@ -469,7 +469,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     } else {
                         if (canRenderDirectToStencil) {
                             this->setStencil(gDrawToStencil);
-                            pr->drawPath(this, 0, 
+                            pr->drawPath(this, 0,
                                          &pathIter,
                                          NonInvertedFill(fill),
                                          NULL);
@@ -519,12 +519,12 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
 
 GrPathRenderer* GrGpu::getClipPathRenderer(GrPathIter* path,
                                            GrPathFill fill) {
-    if (NULL != fClientPathRenderer && 
+    if (NULL != fClientPathRenderer &&
         fClientPathRenderer->canDrawPath(this, path, fill)) {
             return fClientPathRenderer;
     } else {
         if (NULL == fDefaultPathRenderer) {
-            fDefaultPathRenderer = 
+            fDefaultPathRenderer =
                 new GrDefaultPathRenderer(this->supportsTwoSidedStencil(),
                                           this->supportsStencilWrapOps());
         }
@@ -603,6 +603,7 @@ void GrGpu::prepareVertexPool() {
         fVertexPool = new GrVertexBufferAllocPool(this, true,
                                                   VERTEX_POOL_VB_SIZE,
                                                   VERTEX_POOL_VB_COUNT);
+        fVertexPool->releaseGpuRef();
     } else if (!fVertexPoolInUse) {
         // the client doesn't have valid data in the pool
         fVertexPool->reset();
@@ -612,6 +613,7 @@ void GrGpu::prepareVertexPool() {
 void GrGpu::prepareIndexPool() {
     if (NULL == fIndexPool) {
         fIndexPool = new GrIndexBufferAllocPool(this, true, 0, 1);
+        fIndexPool->releaseGpuRef();
     } else if (!fIndexPoolInUse) {
         // the client doesn't have valid data in the pool
         fIndexPool->reset();

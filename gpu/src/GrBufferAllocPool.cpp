@@ -34,11 +34,14 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
                                      size_t blockSize,
                                      int preallocBufferCnt) :
         fBlocks(GrMax(8, 2*preallocBufferCnt)) {
+
     GrAssert(NULL != gpu);
     fGpu = gpu;
+    fGpu->ref();
+    fGpuIsReffed = true;
+
     fBufferType = bufferType;
     fFrequentResetHint = frequentResetHint;
-    fGpu->ref();
     fBufferPtr = NULL;
     fMinBlockSize = GrMax(GrBufferAllocPool_MIN_BLOCK_SIZE, blockSize);
 
@@ -61,11 +64,18 @@ GrBufferAllocPool::~GrBufferAllocPool() {
             buffer->unlock();
         }
     }
-    fPreallocBuffers.unrefAll();
     while (!fBlocks.empty()) {
         destroyBlock();
     }
-    fGpu->unref();
+    fPreallocBuffers.unrefAll();
+    releaseGpuRef();
+}
+
+void GrBufferAllocPool::releaseGpuRef() {
+    if (fGpuIsReffed) {
+        fGpu->unref();
+        fGpuIsReffed = false;
+    }
 }
 
 void GrBufferAllocPool::reset() {
