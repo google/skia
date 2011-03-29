@@ -342,6 +342,13 @@ bool SampleWindow::make3DReady() {
 
 #if defined(SK_SUPPORT_GL)
     if (attachGL()) {
+#if 0
+        if (NULL != fGrContext) {
+            GrAssert(1 == fGrContext->refcnt());
+            fGrContext->unref();
+            fGrContext = NULL;
+        }
+#endif
         if (NULL == fGrContext) {
         #if defined(SK_USE_SHADERS)
             fGrContext = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
@@ -490,14 +497,14 @@ void SampleWindow::draw(SkCanvas* canvas) {
         m.mapXY(cx, cy, &center);
         cx = center.fX;
         cy = center.fY;
-        
+
         m.setTranslate(-cx, -cy);
         m.postScale(fZoomScale, fZoomScale);
         m.postTranslate(cx, cy);
-        
+
         canvas->concat(m);
     }
-    
+
     // Apply any gesture matrix
     if (true) {
         const SkMatrix& localM = fGesture.localM();
@@ -506,12 +513,12 @@ void SampleWindow::draw(SkCanvas* canvas) {
         }
         canvas->concat(localM);
         canvas->concat(fGesture.globalM());
-        
+
         if (fGesture.isActive()) {
             this->inval(NULL);
         }
     }
-    
+
     if (fNClip) {
         this->INHERITED::draw(canvas);
         SkBitmap orig = capture_bitmap(canvas);
@@ -684,7 +691,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                                                   bitmap.width(), bitmap.height(),
                                                   false, false);
                 fGpuCanvas->setDevice(device)->unref();
-                
+
                 fGpuCanvas->concat(canvas->getTotalMatrix());
                 canvas = fGpuCanvas;
 

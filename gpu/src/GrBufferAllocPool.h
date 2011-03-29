@@ -39,10 +39,45 @@ class GrGpu;
  * be allocated at the min size and kept around until the pool is destroyed.
  */
 class GrBufferAllocPool : GrNoncopyable {
-protected:
 
-    // We could make the createBuffer a virtual except that we want to use it
-    // in the cons for pre-allocated buffers.
+public:
+    /**
+     * Ensures all buffers are unlocked and have all data written to them.
+     * Call before drawing using buffers from the pool.
+     */
+    void unlock();
+
+    /**
+     *  Invalidates all the data in the pool, unrefs non-preallocated buffers.
+     */
+    void reset();
+
+    /**
+     * Gets the number of preallocated buffers that are yet to be used.
+     */
+    int preallocatedBuffersRemaining() const;
+
+    /**
+     * gets the number of preallocated buffers
+     */
+    int preallocatedBufferCount() const;
+
+    /**
+     * Frees data from makeSpaces in LIFO order.
+     */
+    void putBack(size_t bytes);
+
+    /**
+     * Gets the GrGpu that this pool is associated with.
+     */
+    GrGpu* getGpu() { return fGpu; }
+
+protected:
+    /**
+     * Used to determine what type of buffers to create. We could make the
+     * createBuffer a virtual except that we want to use it in the cons for
+     * pre-allocated buffers.
+     */
     enum BufferType {
         kVertex_BufferType,
         kIndex_BufferType,
@@ -72,40 +107,6 @@ protected:
 
     virtual ~GrBufferAllocPool();
 
-public:
-    /**
-     * Ensures all buffers are unlocked and have all data written to them.
-     * Call before drawing using buffers from the pool.
-     */
-    void unlock();
-
-    /**
-     *  Invalidates all the data in the pool, unrefs non-preallocated buffers.
-     */
-    void reset();
-
-    /**
-     * Gets the number of preallocated buffers that are yet to be used.
-     */
-    int preallocatedBuffersRemaining() const;
-
-    /**
-     * gets the number of preallocated buffers
-     */
-    int preallocatedBufferCount() const;
-
-
-    /**
-     * Frees data from makeSpaces in LIFO order.
-     */
-    void putBack(size_t bytes);
-
-    /**
-     * Gets the GrGpu that this pool is associated with.
-     */
-    GrGpu* getGpu() { return fGpu; }
-
-protected:
     /**
      * Gets the size of the preallocated buffers.
      *
@@ -155,6 +156,10 @@ protected:
 
 private:
 
+    // The GrGpu must be able to clear the ref of pools it creates as members
+    friend class GrGpu;
+    void releaseGpuRef();
+
     struct BufferBlock {
         size_t              fBytesFree;
         GrGeometryBuffer*   fBuffer;
@@ -168,6 +173,7 @@ private:
 #endif
 
     GrGpu*                          fGpu;
+    bool                            fGpuIsReffed;
     bool                            fFrequentResetHint;
     GrTDArray<GrGeometryBuffer*>    fPreallocBuffers;
     size_t                          fMinBlockSize;
