@@ -205,6 +205,13 @@ FINISHED:
 
     size_t count = vert - base;
 
+    if (subpathCnt == 1 && !inverted && path->convexHint() == kConvex_ConvexHint) {
+        target->setVertexSourceToArray(layout, base, count);
+        target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, count);
+        delete[] base;
+        return;
+    }
+
     // FIXME:  This copy could be removed if we had (templated?) versions of
     // generate_*_point above that wrote directly into doubles.
     double* inVertices = new double[count * 3];
@@ -243,15 +250,9 @@ FINISHED:
     internal_gluTessEndPolygon(tess);
     internal_gluDeleteTess(tess);
 
-    // FIXME:  If we could figure out the maxIndices before running the
-    // tesselator, we could allocate the geometry upfront, rather than making
-    // yet another copy.
-    GrDrawTarget::AutoReleaseGeometry geom(target, layout, vertices.count(), indices.count());
-
-    memcpy(geom.vertices(), vertices.begin(), vertices.count() * sizeof(GrPoint));
-    memcpy(geom.indices(), indices.begin(), indices.count() * sizeof(short));
-
     if (indices.count() > 0) {
+        target->setVertexSourceToArray(layout, vertices.begin(), vertices.count());
+        target->setIndexSourceToArray(indices.begin(), indices.count());
         target->drawIndexed(kTriangles_PrimitiveType,
                             0,
                             0,
