@@ -99,6 +99,15 @@ public:
     */
     SkDevice* setDevice(SkDevice* device);
 
+    /**
+     *  saveLayer() can create another device (which is later drawn onto
+     *  the previous device). getTopDevice() returns the top-most device current
+     *  installed. Note that this can change on other calls like save/restore,
+     *  so do not access this device after subsequent canvas calls.
+     *  The reference count of the device is not changed.
+     */
+    SkDevice* getTopDevice() const;
+
     /** May be overridden by subclasses. This returns a compatible device
         for this canvas, with the specified config/width/height. If the device
         is raster, the pixels will be allocated automatically.

@@ -472,6 +472,10 @@ SkDevice* SkCanvas::getDevice() const {
     return rec->fLayer->fDevice;
 }
 
+SkDevice* SkCanvas::getTopDevice() const {
+    return fMCRec->fTopLayer->fDevice;
+}
+
 SkDevice* SkCanvas::setDevice(SkDevice* device) {
     // return root device
     SkDeque::F2BIter iter(fMCStack);
