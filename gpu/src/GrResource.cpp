@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -14,18 +14,28 @@
     limitations under the License.
  */
 
+#include "GrResource.h"
+#include "GrGpu.h"
 
-#ifndef GrVertexBuffer_DEFINED
-#define GrVertexBuffer_DEFINED
+GrResource::GrResource(GrGpu* gpu) {
+    fGpu        = gpu;
+    fNext       = NULL;
+    fPrevious   = NULL;
+    fGpu->insertResource(this);
+}
 
-#include "GrGeometryBuffer.h"
+void GrResource::release() {
+    if (NULL != fGpu) {
+        this->onRelease();
+        fGpu->removeResource(this);
+        fGpu = NULL;
+    }
+}
 
-class GrVertexBuffer : public GrGeometryBuffer {
-protected:
-    GrVertexBuffer(GrGpu* gpu, size_t sizeInBytes, bool dynamic)
-        : INHERITED(gpu, sizeInBytes, dynamic) {}
-private:
-    typedef GrGeometryBuffer INHERITED;
-};
-
-#endif
+void GrResource::abandon() {
+    if (NULL != fGpu) {
+        this->onAbandon();
+        fGpu->removeResource(this);
+        fGpu = NULL;
+    }
+}

@@ -18,16 +18,15 @@
 #include "GrGLTexture.h"
 #include "GrGpuGL.h"
 
-GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids,
+#define GPUGL static_cast<GrGpuGL*>(getGpu())
+
+GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
+                                   const GLRenderTargetIDs& ids,
                                    GrGLTexID* texID,
                                    GrGLuint stencilBits,
                                    const GrGLIRect& viewport,
-                                   GrGLTexture* texture,
-                                   GrGpuGL* gl) : INHERITED(texture,
-                                                            viewport.fWidth,
-                                                            viewport.fHeight,
-                                                            stencilBits) {
-    fGL                     = gl;
+                                   GrGLTexture* texture)
+    : INHERITED(gpu, texture, viewport.fWidth, viewport.fHeight, stencilBits) {
     fRTFBOID                = ids.fRTFBOID;
     fTexFBOID               = ids.fTexFBOID;
     fStencilRenderbufferID  = ids.fStencilRenderbufferID;
@@ -39,10 +38,10 @@ GrGLRenderTarget::GrGLRenderTarget(const GLRenderTargetIDs& ids,
     GrSafeRef(fTexIDObj);
 }
 
-GrGLRenderTarget::~GrGLRenderTarget() {
-    fGL->notifyRenderTargetDelete(this);
+void GrGLRenderTarget::onRelease() {
     if (fOwnIDs) {
         if (fTexFBOID) {
+            GPUGL->notifyRenderTargetDelete(this);
             GR_GL(DeleteFramebuffers(1, &fTexFBOID));
         }
         if (fRTFBOID && fRTFBOID != fTexFBOID) {
@@ -55,16 +54,22 @@ GrGLRenderTarget::~GrGLRenderTarget() {
             GR_GL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
         }
     }
+    fRTFBOID                = 0;
+    fTexFBOID               = 0;
+    fStencilRenderbufferID  = 0;
+    fMSColorRenderbufferID  = 0;
     GrSafeUnref(fTexIDObj);
+    fTexIDObj = NULL;
 }
 
-void GrGLRenderTarget::abandon() {
+void GrGLRenderTarget::onAbandon() {
     fRTFBOID                = 0;
     fTexFBOID               = 0;
     fStencilRenderbufferID  = 0;
     fMSColorRenderbufferID  = 0;
     if (NULL != fTexIDObj) {
         fTexIDObj->abandon();
+        fTexIDObj = NULL;
     }
 }
 
@@ -92,13 +97,14 @@ const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
 };
 
 
-GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
+GrGLTexture::GrGLTexture(GrGpuGL* gpu,
+                         const GLTextureDesc& textureDesc,
                          const GLRenderTargetIDs& rtIDs,
-                         const TexParams& initialTexParams,
-                         GrGpuGL* gl)
-        : INHERITED(textureDesc.fContentWidth, 
-                    textureDesc.fContentHeight, 
-                    textureDesc.fFormat) {
+                         const TexParams& initialTexParams)
+    : INHERITED(gpu,
+                textureDesc.fContentWidth,
+                textureDesc.fContentHeight,
+                textureDesc.fFormat) {
 
     fTexParams          = initialTexParams;
     fTexIDObj           = new GrGLTexID(textureDesc.fTextureID);
@@ -113,7 +119,6 @@ GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
     fScaleY             = GrIntToScalar(textureDesc.fContentHeight) /
                             textureDesc.fAllocHeight;
     fRenderTarget       = NULL;
-    fGpuGL              = gl;
 
     GrAssert(0 != textureDesc.fTextureID);
 
@@ -125,27 +130,32 @@ GrGLTexture::GrGLTexture(const GLTextureDesc& textureDesc,
         vp.fHeight = textureDesc.fContentHeight;
         vp.fBottom = textureDesc.fAllocHeight - textureDesc.fContentHeight;
 
-        fRenderTarget = new GrGLRenderTarget(rtIDs, fTexIDObj,
+        fRenderTarget = new GrGLRenderTarget(gpu, rtIDs, fTexIDObj,
                                              textureDesc.fStencilBits,
-                                             vp, this, gl);
+                                             vp, this);
     }
 }
 
-GrGLTexture::~GrGLTexture() {
-    fGpuGL->notifyTextureDelete(this);
-    fTexIDObj->unref();
-    GrSafeUnref(fRenderTarget);
+void GrGLTexture::onRelease() {
+    if (NULL != fTexIDObj) {
+        GPUGL->notifyTextureDelete(this);
+        fTexIDObj->unref();
+        fTexIDObj = NULL;
+        GrSafeUnref(fRenderTarget);
+    }
 }
 
-void GrGLTexture::abandon() {
-    fTexIDObj->abandon();
+void GrGLTexture::onAbandon() {
+    if (NULL != fTexIDObj) {
+        fTexIDObj->abandon();
+    }
     if (NULL != fRenderTarget) {
         fRenderTarget->abandon();
     }
 }
 
 GrRenderTarget* GrGLTexture::asRenderTarget() {
-    return (GrRenderTarget*)fRenderTarget;
+    return fRenderTarget;
 }
 
 void GrGLTexture::releaseRenderTarget() {
@@ -158,8 +168,8 @@ void GrGLTexture::uploadTextureData(uint32_t x,
                                     uint32_t width,
                                     uint32_t height,
                                     const void* srcData) {
-    
-    fGpuGL->setSpareTextureUnit();
+
+    GPUGL->setSpareTextureUnit();
 
     // glCompressedTexSubImage2D doesn't support any formats
     // (at least without extensions)
@@ -170,7 +180,7 @@ void GrGLTexture::uploadTextureData(uint32_t x,
     GrAssert(kTopDown_Orientation == fOrientation);
     GR_GL(BindTexture(GR_GL_TEXTURE_2D, fTexIDObj->id()));
     GR_GL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, fUploadByteCount));
-    GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height, 
+    GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height,
                         fUploadFormat, fUploadType, srcData));
 
 }

@@ -235,8 +235,3 @@ GrTexture::PixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config,
     }
 }
 
-void SkGr::AbandonAllTextures(GrContext* ctx) {
-    ctx->abandonAllTextures();
-}
-
-

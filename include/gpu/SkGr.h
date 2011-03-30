@@ -156,14 +156,6 @@ public:
         unsigned a = SkGetPackedA32(pm);
         return GrColorPackRGBA(r, g, b, a);
     }
-
-    /**
-     *  This abandons all texture caches (for bitmaps and text) associated with
-     *  the gpu, and frees any associated skia caches. It differs from
-     *  deleteAllTextures in that it assumes that the gpu has lots its context,
-     *  and thus the associated HW textures are no longer valid
-     */
-    static void AbandonAllTextures(GrContext*);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

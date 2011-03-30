@@ -104,6 +104,14 @@ static inline void GrSafeAssign(T*& dst, T* src) {
     dst = src;
 }
 
+template<typename T>
+static inline void GrSafeSetNull(T*& obj) {
+    if (NULL != obj) {
+        obj->unref();
+        obj = NULL;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class GrAutoRef : GrNoncopyable {

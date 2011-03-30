@@ -57,6 +57,7 @@ GrContext* GrContext::CreateGLShaderContext() {
 }
 
 GrContext::~GrContext() {
+    this->flush();
     fGpu->unref();
     delete fTextureCache;
     delete fFontCache;
@@ -66,9 +67,31 @@ GrContext::~GrContext() {
     GrSafeUnref(fCustomPathRenderer);
 }
 
-void GrContext::abandonAllTextures() {
-    fTextureCache->deleteAll(GrTextureCache::kAbandonTexture_DeleteMode);
-    fFontCache->abandonAll();
+void GrContext::contextLost() {
+    delete fDrawBuffer;
+    fDrawBuffer = NULL;
+    delete fDrawBufferVBAllocPool;
+    fDrawBufferVBAllocPool = NULL;
+    delete fDrawBufferIBAllocPool;
+    fDrawBufferIBAllocPool = NULL;
+
+    fTextureCache->removeAll();
+    fFontCache->freeAll();
+    fGpu->markContextDirty();
+
+    fGpu->abandonResources();
+
+    this->setupDrawBuffer();
+}
+
+void GrContext::resetContext() {
+    fGpu->markContextDirty();
+}
+
+void GrContext::freeGpuResources() {
+    this->flush();
+    fTextureCache->removeAll();
+    fFontCache->freeAll();
 }
 
 GrTextureEntry* GrContext::findAndLockTexture(GrTextureKey* key,
@@ -688,12 +711,8 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::resetContext() {
-    fGpu->markContextDirty();
-}
-
 void GrContext::setRenderTarget(GrRenderTarget* target) {
-    flush(false);
+    this->flush(false);
     fGpu->setRenderTarget(target);
 }
 
@@ -745,7 +764,7 @@ GrContext::GrContext(GrGpu* gpu) :
 
     fGpu = gpu;
     fGpu->ref();
-    
+
     fCustomPathRenderer = GrPathRenderer::CreatePathRenderer();
     fGpu->setClipPathRenderer(fCustomPathRenderer);
 
@@ -755,22 +774,31 @@ GrContext::GrContext(GrGpu* gpu) :
 
     fLastDrawCategory = kUnbuffered_DrawCategory;
 
+    fDrawBuffer = NULL;
+    fDrawBufferVBAllocPool = NULL;
+    fDrawBufferIBAllocPool = NULL;
+
+    this->setupDrawBuffer();
+}
+
+void GrContext::setupDrawBuffer() {
+
+    GrAssert(NULL == fDrawBuffer);
+    GrAssert(NULL == fDrawBufferVBAllocPool);
+    GrAssert(NULL == fDrawBufferIBAllocPool);
+
 #if DEFER_TEXT_RENDERING || BATCH_RECT_TO_RECT
     fDrawBufferVBAllocPool =
-        new GrVertexBufferAllocPool(gpu, false,
+        new GrVertexBufferAllocPool(fGpu, false,
                                     DRAW_BUFFER_VBPOOL_BUFFER_SIZE,
                                     DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS);
     fDrawBufferIBAllocPool =
-        new GrIndexBufferAllocPool(gpu, false,
+        new GrIndexBufferAllocPool(fGpu, false,
                                    DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
                                    DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS);
 
     fDrawBuffer = new GrInOrderDrawBuffer(fDrawBufferVBAllocPool,
                                           fDrawBufferIBAllocPool);
-#else
-    fDrawBuffer = NULL;
-    fDrawBufferVBAllocPool = NULL;
-    fDrawBufferIBAllocPool = NULL;
 #endif
 
 #if BATCH_RECT_TO_RECT
@@ -818,7 +846,7 @@ const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
 GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
                                            GrPathIter* path,
                                            GrPathFill fill) {
-    if (NULL != fCustomPathRenderer && 
+    if (NULL != fCustomPathRenderer &&
         fCustomPathRenderer->canDrawPath(target, path, fill)) {
         return fCustomPathRenderer;
     } else {

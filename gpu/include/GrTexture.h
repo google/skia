@@ -20,6 +20,7 @@
 
 #include "GrRefCnt.h"
 #include "GrClip.h"
+#include "GrResource.h"
 
 class GrTexture;
 
@@ -30,7 +31,7 @@ class GrTexture;
  * Additionally, GrContext provides methods for creating GrRenderTargets
  * that wrap externally created render targets.
  */
-class GrRenderTarget : public GrRefCnt {
+class GrRenderTarget : public GrResource {
 public:
     /**
      * @return the width of the rendertarget
@@ -52,14 +53,17 @@ public:
     GrTexture* asTexture() {return fTexture;}
 
 protected:
-    GrRenderTarget(GrTexture* texture,
+    GrRenderTarget(GrGpu* gpu,
+                   GrTexture* texture,
                    int width,
                    int height,
                    int stencilBits)
-        : fTexture(texture),
-          fWidth(width),
-          fHeight(height),
-          fStencilBits(stencilBits) {}
+        : INHERITED(gpu)
+        , fTexture(texture)
+        , fWidth(width)
+        , fHeight(height)
+        , fStencilBits(stencilBits)
+    {}
 
 
     GrTexture* fTexture;
@@ -73,10 +77,10 @@ private:
     friend class GrGpu;
     GrClip     fLastStencilClip;
 
-    typedef GrRefCnt INHERITED;
+    typedef GrResource INHERITED;
 };
 
-class GrTexture : public GrRefCnt {
+class GrTexture : public GrResource {
 public:
     enum PixelConfig {
         kUnknown_PixelConfig,
@@ -92,16 +96,19 @@ public:
     static bool PixelConfigIsAlphaOnly(PixelConfig);
 
 protected:
-    GrTexture(int width,
+    GrTexture(GrGpu* gpu,
+              int width,
               int height,
-              PixelConfig config) :
-                fWidth(width),
-                fHeight(height),
-                fConfig(config) {
-                    // only make sense if alloc size is pow2
-                    fShiftFixedX = 31 - Gr_clz(fWidth);
-                    fShiftFixedY = 31 - Gr_clz(fHeight);
-                }
+              PixelConfig config)
+    : INHERITED(gpu)
+    , fWidth(width)
+    , fHeight(height)
+    , fConfig(config) {
+        // only make sense if alloc size is pow2
+        fShiftFixedX = 31 - Gr_clz(fWidth);
+        fShiftFixedY = 31 - Gr_clz(fHeight);
+    }
+
 public:
     virtual ~GrTexture();
 
@@ -111,6 +118,7 @@ public:
      * @return the width in texels
      */
     int width() const { return fWidth; }
+
     /**
      * Retrieves the height of the texture.
      *
@@ -154,12 +162,6 @@ public:
                                    uint32_t width,
                                    uint32_t height,
                                    const void* srcData) = 0;
-    /**
-     * Indicates that GPU context in which this texture was created is destroyed
-     * and that Ganesh should not attempt to free the texture with the
-     * underlying API.
-     */
-    virtual void abandon() = 0;
 
     /**
      * Retrieves the render target underlying this texture that can be passed to
@@ -172,7 +174,7 @@ public:
 
     /**
      * Removes the reference on the associated GrRenderTarget held by this
-     * texture. Afterwards asRenderTarget() will return NULL. The 
+     * texture. Afterwards asRenderTarget() will return NULL. The
      * GrRenderTarget survives the release if another ref is held on it.
      */
     virtual void releaseRenderTarget() = 0;
@@ -200,7 +202,7 @@ private:
     int      fShiftFixedY;
     PixelConfig fConfig;
 
-    typedef GrRefCnt INHERITED;
+    typedef GrResource INHERITED;
 };
 
 #endif

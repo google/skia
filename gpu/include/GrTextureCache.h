@@ -191,7 +191,7 @@ private:
 class GrTextureCache {
 public:
     GrTextureCache(int maxCount, size_t maxBytes);
-    ~GrTextureCache();  // uses kFreeTexture_DeleteMode
+    ~GrTextureCache();
 
     /**
      *  Return the current texture cache limits.
@@ -250,11 +250,7 @@ public:
      */
     void unlock(GrTextureEntry*);
 
-    enum DeleteMode {
-        kFreeTexture_DeleteMode,
-        kAbandonTexture_DeleteMode
-    };
-    void deleteAll(DeleteMode);
+    void removeAll();
 
 #if GR_DEBUG
     void validate() const;

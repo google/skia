@@ -85,7 +85,6 @@ public:
     inline GrTextStrike* getStrike(GrFontScaler*);
 
     void freeAll();
-    void abandonAll();
 
     void purgeExceptFor(GrTextStrike*);
 

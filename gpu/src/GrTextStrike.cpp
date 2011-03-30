@@ -58,19 +58,12 @@ GrTextStrike* GrFontCache::generateStrike(GrFontScaler* scaler,
     return strike;
 }
 
-void GrFontCache::abandonAll() {
-    fCache.deleteAll();
-    if (fAtlasMgr) {
-        fAtlasMgr->abandonAll();
-        delete fAtlasMgr;
-        fAtlasMgr = NULL;
-    }
-}
-
 void GrFontCache::freeAll() {
     fCache.deleteAll();
     delete fAtlasMgr;
     fAtlasMgr = NULL;
+    fHead = NULL;
+    fTail = NULL;
 }
 
 void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {

@@ -24,33 +24,38 @@
 class GrGpuGL;
 
 class GrGLIndexBuffer : public GrIndexBuffer {
-protected:
-    GrGLIndexBuffer(GrGLuint id,
-                    GrGpuGL* gl,
-                    size_t sizeInBytes,
-                    bool dynamic);
+
 public:
-    virtual ~GrGLIndexBuffer();
+
+    virtual ~GrGLIndexBuffer() { this->release(); }
 
     GrGLuint bufferID() const;
 
     // overrides of GrIndexBuffer
-    virtual void abandon();
     virtual void* lock();
     virtual void* lockPtr() const;
     virtual void unlock();
     virtual bool isLocked() const;
     virtual bool updateData(const void* src, size_t srcSizeInBytes);
-    virtual bool updateSubData(const void* src,  
-                               size_t srcSizeInBytes, 
+    virtual bool updateSubData(const void* src,
+                               size_t srcSizeInBytes,
                                size_t offset);
+protected:
+    GrGLIndexBuffer(GrGpuGL* gpu,
+                    GrGLuint id,
+                    size_t sizeInBytes,
+                    bool dynamic);
+
+    // overrides of GrResource
+    virtual void onAbandon();
+    virtual void onRelease();
+
 private:
     void bind() const;
-    
-    GrGpuGL*     fGL;
+
     GrGLuint     fBufferID;
     void*        fLockPtr;
-    
+
     friend class GrGpuGL;
 
     typedef GrIndexBuffer INHERITED;

@@ -80,8 +80,6 @@ public:
     // to be called by ~GrAtlas()
     void freePlot(int x, int y);
 
-    void abandonAll();
-
 private:
     GrGpu*      fGpu;
     GrTexture*  fTexture[kCount_GrMaskFormats];

@@ -342,13 +342,20 @@ bool SampleWindow::make3DReady() {
 
 #if defined(SK_SUPPORT_GL)
     if (attachGL()) {
-#if 0
         if (NULL != fGrContext) {
+        // various gr lifecycle tests
+        #if   0
+            fGrContext->freeGpuResources();
+        #elif 0
+            // this will leak resources.
+            fGrContext->contextLost();
+        #elif 0
             GrAssert(1 == fGrContext->refcnt());
             fGrContext->unref();
             fGrContext = NULL;
+        #endif
         }
-#endif
+
         if (NULL == fGrContext) {
         #if defined(SK_USE_SHADERS)
             fGrContext = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);

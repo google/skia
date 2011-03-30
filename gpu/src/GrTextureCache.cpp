@@ -55,7 +55,7 @@ GrTextureCache::GrTextureCache(int maxCount, size_t maxBytes) :
 GrTextureCache::~GrTextureCache() {
     GrAutoTextureCacheValidate atcv(this);
 
-    this->deleteAll(kFreeTexture_DeleteMode);
+    this->removeAll();
 }
 
 void GrTextureCache::getLimits(int* maxTextures, size_t* maxTextureBytes) const{
@@ -237,7 +237,7 @@ void GrTextureCache::purgeAsNeeded() {
     }
 }
 
-void GrTextureCache::deleteAll(DeleteMode mode) {
+void GrTextureCache::removeAll() {
     GrAssert(!fClientDetachedCount);
     GrAssert(!fClientDetachedBytes);
 
@@ -246,9 +246,6 @@ void GrTextureCache::deleteAll(DeleteMode mode) {
         GrAssert(!entry->isLocked());
 
         GrTextureEntry* next = entry->fNext;
-        if (kAbandonTexture_DeleteMode == mode) {
-            entry->texture()->abandon();
-        }
         delete entry;
         entry = next;
     }
