@@ -16,6 +16,24 @@
 */
 
 #include "SkMetaData.h"
+#include "SkRefCnt.h"
+
+struct PtrPair {
+    void*               fPtr;
+    SkMetaData::PtrProc fProc;
+};
+
+void* SkMetaData::RefCntProc(void* ptr, bool doRef) {
+    SkASSERT(ptr);
+    SkRefCnt* refcnt = reinterpret_cast<SkRefCnt*>(ptr);
+
+    if (doRef) {
+        refcnt->ref();
+    } else {
+        refcnt->unref();
+    }
+    return ptr;
+}
 
 SkMetaData::SkMetaData() : fRec(NULL)
 {
@@ -34,8 +52,13 @@ SkMetaData::~SkMetaData()
 void SkMetaData::reset()
 {
     Rec* rec = fRec;
-    while (rec)
-    {
+    while (rec) {
+        if (kPtr_Type == rec->fType) {
+            PtrPair* pair = (PtrPair*)rec->data();
+            if (pair->fProc && pair->fPtr) {
+                pair->fPtr = pair->fProc(pair->fPtr, false);
+            }
+        }
         Rec* next = rec->fNext;
         Rec::Free(rec);
         rec = next;
@@ -79,9 +102,9 @@ void SkMetaData::setString(const char name[], const char value[])
     (void)this->set(name, value, sizeof(char), kString_Type, strlen(value) + 1);
 }
 
-void SkMetaData::setPtr(const char name[], void* ptr)
-{
-    (void)this->set(name, &ptr, sizeof(void*), kPtr_Type, 1);
+void SkMetaData::setPtr(const char name[], void* ptr, PtrProc proc) {
+    PtrPair pair = { ptr, proc };
+    (void)this->set(name, &pair, sizeof(PtrPair), kPtr_Type, 1);
 }
 
 void SkMetaData::setBool(const char name[], bool value)
@@ -115,32 +138,12 @@ void* SkMetaData::set(const char name[], const void* data, size_t dataSize, Type
         memcpy(rec->data(), data, dataSize * count);
     memcpy(rec->name(), name, len + 1);
 
-#ifdef SK_DEBUG
-    rec->fName = rec->name();
-    switch (type) {
-    case kS32_Type:
-        rec->fData.fS32 = *(const int32_t*)rec->data();
-        break;
-    case kScalar_Type:
-        rec->fData.fScalar = *(const SkScalar*)rec->data();
-        break;
-    case kString_Type:
-        rec->fData.fString = (const char*)rec->data();
-        break;
-    case kPtr_Type:
-        rec->fData.fPtr = *(void**)rec->data();
-        break;
-    case kBool_Type:
-        rec->fData.fBool = *(const bool*)rec->data();
-        break;
-    case kData_Type:
-        rec->fData.fPtr = rec->data();
-        break;
-    default:
-        SkASSERT(!"bad type");
-        break;
+    if (kPtr_Type == type) {
+        PtrPair* pair = (PtrPair*)rec->data();
+        if (pair->fProc && pair->fPtr) {
+            pair->fPtr = pair->fProc(pair->fPtr, true);
+        }
     }
-#endif
 
     rec->fNext = fRec;
     fRec = rec;
@@ -187,14 +190,17 @@ const SkScalar* SkMetaData::findScalars(const char name[], int* count, SkScalar 
     return NULL;
 }
 
-bool SkMetaData::findPtr(const char name[], void** value) const
-{
+bool SkMetaData::findPtr(const char name[], void** ptr, PtrProc* proc) const {
     const Rec* rec = this->find(name, kPtr_Type);
-    if (rec)
-    {
+    if (rec) {
         SkASSERT(rec->fDataCount == 1);
-        if (value)
-            *value = *(void**)rec->data();
+        const PtrPair* pair = (const PtrPair*)rec->data();
+        if (ptr) {
+            *ptr = pair->fPtr;
+        }
+        if (proc) {
+            *proc = pair->fProc;
+        }
         return true;
     }
     return false;
@@ -244,19 +250,24 @@ const SkMetaData::Rec* SkMetaData::find(const char name[], Type type) const
     return NULL;
 }
 
-bool SkMetaData::remove(const char name[], Type type)
-{
+bool SkMetaData::remove(const char name[], Type type) {
     Rec* rec = fRec;
     Rec* prev = NULL;
-    while (rec)
-    {
+    while (rec) {
         Rec* next = rec->fNext;
-        if (rec->fType == type && !strcmp(rec->name(), name))
-        {
-            if (prev)
+        if (rec->fType == type && !strcmp(rec->name(), name)) {
+            if (prev) {
                 prev->fNext = next;
-            else
+            } else {
                 fRec = next;
+            }
+
+            if (kPtr_Type == type) {
+                PtrPair* pair = (PtrPair*)rec->data();
+                if (pair->fProc && pair->fPtr) {
+                    (void)pair->fProc(pair->fPtr, false);
+                }
+            }
             Rec::Free(rec);
             return true;
         }
@@ -295,28 +306,26 @@ bool SkMetaData::removeData(const char name[]) {
     return this->remove(name, kData_Type);
 }
 
-///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-SkMetaData::Iter::Iter(const SkMetaData& metadata)
-{
+SkMetaData::Iter::Iter(const SkMetaData& metadata) {
     fRec = metadata.fRec;
 }
 
-void SkMetaData::Iter::reset(const SkMetaData& metadata)
-{
+void SkMetaData::Iter::reset(const SkMetaData& metadata) {
     fRec = metadata.fRec;
 }
 
-const char* SkMetaData::Iter::next(SkMetaData::Type* t, int* count)
-{
+const char* SkMetaData::Iter::next(SkMetaData::Type* t, int* count) {
     const char* name = NULL;
 
-    if (fRec)
-    {
-        if (t)
+    if (fRec) {
+        if (t) {
             *t = (SkMetaData::Type)fRec->fType;
-        if (count)
+        }
+        if (count) {
             *count = fRec->fDataCount;
+        }
         name = fRec->name();
 
         fRec = fRec->fNext;
@@ -324,105 +333,13 @@ const char* SkMetaData::Iter::next(SkMetaData::Type* t, int* count)
     return name;
 }
 
-///////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-SkMetaData::Rec* SkMetaData::Rec::Alloc(size_t size)
-{
+SkMetaData::Rec* SkMetaData::Rec::Alloc(size_t size) {
     return (Rec*)sk_malloc_throw(size);
 }
 
-void SkMetaData::Rec::Free(Rec* rec)
-{
+void SkMetaData::Rec::Free(Rec* rec) {
     sk_free(rec);
 }
-
-///////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////
-
-#ifdef SK_DEBUG
-
-void SkMetaData::UnitTest()
-{
-#ifdef SK_SUPPORT_UNITTEST
-    SkMetaData  m1;
-
-    SkASSERT(!m1.findS32("int"));
-    SkASSERT(!m1.findScalar("scalar"));
-    SkASSERT(!m1.findString("hello"));
-    SkASSERT(!m1.removeS32("int"));
-    SkASSERT(!m1.removeScalar("scalar"));
-    SkASSERT(!m1.removeString("hello"));
-    SkASSERT(!m1.removeString("true"));
-    SkASSERT(!m1.removeString("false"));
-
-    m1.setS32("int", 12345);
-    m1.setScalar("scalar", SK_Scalar1 * 42);
-    m1.setString("hello", "world");
-    m1.setPtr("ptr", &m1);
-    m1.setBool("true", true);
-    m1.setBool("false", false);
-
-    int32_t     n;
-    SkScalar    s;
-
-    m1.setScalar("scalar", SK_Scalar1/2);
-
-    SkASSERT(m1.findS32("int", &n) && n == 12345);
-    SkASSERT(m1.findScalar("scalar", &s) && s == SK_Scalar1/2);
-    SkASSERT(!strcmp(m1.findString("hello"), "world"));
-    SkASSERT(m1.hasBool("true", true));
-    SkASSERT(m1.hasBool("false", false));
-
-    Iter    iter(m1);
-    const char* name;
-
-    static const struct {
-        const char*         fName;
-        SkMetaData::Type    fType;
-        int                 fCount;
-    } gElems[] = {
-        { "int",    SkMetaData::kS32_Type,      1 },
-        { "scalar", SkMetaData::kScalar_Type,   1 },
-        { "ptr",    SkMetaData::kPtr_Type,      1 },
-        { "hello",  SkMetaData::kString_Type,   sizeof("world") },
-        { "true",   SkMetaData::kBool_Type,     1 },
-        { "false",  SkMetaData::kBool_Type,     1 }
-    };
-
-    int                 loop = 0;
-    int count;
-    SkMetaData::Type    t;
-    while ((name = iter.next(&t, &count)) != NULL)
-    {
-        int match = 0;
-        for (unsigned i = 0; i < SK_ARRAY_COUNT(gElems); i++)
-        {
-            if (!strcmp(name, gElems[i].fName))
-            {
-                match += 1;
-                SkASSERT(gElems[i].fType == t);
-                SkASSERT(gElems[i].fCount == count);
-            }
-        }
-        SkASSERT(match == 1);
-        loop += 1;
-    }
-    SkASSERT(loop == SK_ARRAY_COUNT(gElems));
-
-    SkASSERT(m1.removeS32("int"));
-    SkASSERT(m1.removeScalar("scalar"));
-    SkASSERT(m1.removeString("hello"));
-    SkASSERT(m1.removeBool("true"));
-    SkASSERT(m1.removeBool("false"));
-
-    SkASSERT(!m1.findS32("int"));
-    SkASSERT(!m1.findScalar("scalar"));
-    SkASSERT(!m1.findString("hello"));
-    SkASSERT(!m1.findBool("true"));
-    SkASSERT(!m1.findBool("false"));
-#endif
-}
-
-#endif
-
 

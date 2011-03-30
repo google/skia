@@ -13,6 +13,7 @@ SOURCE := \
     InfRectTest.cpp \
     MathTest.cpp \
     MatrixTest.cpp \
+    MetaDataTest.cpp \
     PackBitsTest.cpp \
     PaintTest.cpp \
     ParsePathTest.cpp \
