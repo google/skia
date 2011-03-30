@@ -318,6 +318,13 @@ static inline uint32_t SkSetClearMask(uint32_t bits, bool cond,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/** Use to combine multiple bits in a bitmask in a type safe way.
+ */
+template <typename T>
+T SkTBitOr(T a, T b) {
+    return (T)(a | b);
+}
+
 /**
  *  Use to cast a pointer to a different type, and maintaining strict-aliasing
  */

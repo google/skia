@@ -613,7 +613,8 @@ static bool getWidthAdvance(HDC hdc, int gId, int16_t* advance) {
 
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID, bool perGlyphInfo) {
+        uint32_t fontID,
+        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
     SkAutoMutexAcquire ac(gFTMutex);
     LogFontTypeface* rec = LogFontTypeface::FindById(fontID);
     LOGFONT lf = rec->logFont();
@@ -721,7 +722,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     // If bit 2 is set, the embedding is read-only.
     if (otm.otmfsType & 0x1) {
         info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
-    } else if (perGlyphInfo) {
+    } else if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
         info->fGlyphWidths.reset(
             getAdvanceData(hdc, glyphCount, &getWidthAdvance));
     }

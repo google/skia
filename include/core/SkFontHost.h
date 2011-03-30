@@ -177,14 +177,14 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     /** Retrieve detailed typeface metrics.  Used by the PDF backend.
-        @param perGlyphInfo Indicate if the glyph specific information.
-        @param perGlyphInfo Indicate if the glyph specific information (advances
-                            and names) should be populated.
+        @param perGlyphInfo Indicate what glyph specific information (advances,
+                            names, etc.) should be populated.
         @return The returned object has already been referenced.  NULL is
                 returned if the font is not found.
      */
     static SkAdvancedTypefaceMetrics* GetAdvancedTypefaceMetrics(
-            SkFontID fontID, bool perGlyphInfo);
+            SkFontID fontID,
+            SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo);
 
     /** Return the number of tables in the font
      */
