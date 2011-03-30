@@ -56,6 +56,7 @@ SOURCE := \
     SkMath.cpp \
     SkMatrix.cpp \
     SkMemory_stdlib.cpp \
+    SkMetaData.cpp \
     SkPackBits.cpp \
     SkPaint.cpp \
     SkPath.cpp \
