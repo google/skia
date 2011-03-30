@@ -3,6 +3,40 @@
 #include "SkPoint.h"
 #include "SkRandom.h"
 
+#if 0
+static U8CPU premul_fast(U8CPU a, U8CPU x) {
+    return a * x * 32897 >> 23;
+}
+
+static U8CPU premul_trunc(U8CPU a, U8CPU x) {
+    double result = a * x;
+    result /= 255.0;
+    return (unsigned)floor(result + 0.0);
+}
+
+static U8CPU premul_round(U8CPU a, U8CPU x) {
+    double result = a * x;
+    result /= 255.0;
+    return (unsigned)floor(result + 0.5);
+}
+
+static void test_premul(skiatest::Reporter* reporter) {
+    for (int a = 0; a <= 255; a++) {
+        for (int x = 0; x <= 255; x++) {
+            unsigned curr_trunc = SkMulDiv255Trunc(a, x);
+            unsigned curr_round = SkMulDiv255Round(a, x);
+            unsigned fast = premul_fast(a, x);
+            unsigned slow_round = premul_round(a, x);
+            unsigned slow_trunc = premul_trunc(a, x);
+            if (fast != slow || curr != fast) {
+                SkDebugf("---- premul(%d %d) curr=%d fast=%d slow=%d\n", a, x,
+                         curr, fast, slow);
+            }
+        }
+    }
+}
+#endif
+
 #if defined(SkLONGLONG)
 static int symmetric_fixmul(int a, int b) {
     int sa = SkExtractSign(a);
@@ -458,6 +492,8 @@ static void TestMath(skiatest::Reporter* reporter) {
     }
     SkDebugf("SinCos: maximum error = %d\n", maxDiff);
 #endif
+
+//    test_premul(reporter);
 }
 
 #include "TestClassDef.h"
