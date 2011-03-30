@@ -1,0 +1,14 @@
+This is a snap of GYP (http://code.google.com/p/gyp/) at r197
+
+svn export http://gyp.googlecode.com/svn/trunk/
+
+The following were omitted:
+DEPS
+MANIFEST
+PRESUBMIT.py
+codereview.settings
+gyp_dummy.c
+gyptest.py
+test/
+samples/
+tools/
