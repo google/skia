@@ -28,6 +28,7 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 #include "SkTypeface.h"
+#include "SkTypes.h"
 #include "SkUtils.h"
 
 namespace {
@@ -411,7 +412,9 @@ SkPDFFont* SkPDFFont::getFontResource(SkTypeface* typeface, uint16_t glyphID) {
         fontInfo = relatedFont->fFontInfo;
         fontDescriptor = relatedFont->fDescriptor.get();
     } else {
-        fontInfo = SkFontHost::GetAdvancedTypefaceMetrics(fontID, true);
+        fontInfo = SkFontHost::GetAdvancedTypefaceMetrics(fontID, SkTBitOr(
+                SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo,
+                SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo));
         SkSafeUnref(fontInfo.get());  // SkRefPtr and Get both took a reference.
     }
 

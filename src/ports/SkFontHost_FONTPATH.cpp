@@ -271,7 +271,8 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
 
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
-        uint32_t fontID, bool perGlyphInfo) {
+        uint32_t fontID,
+        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
     sk_throw();  // not implemented
     return NULL;
 }
