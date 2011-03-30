@@ -1464,13 +1464,13 @@ void GrGpuGL::flushStencil() {
                 frontWriteMask &= userStencilMask;
             }
             GrAssert(settings->fFrontFailOp >= 0 &&
-                     settings->fFrontFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                     (unsigned) settings->fFrontFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
             GrAssert(settings->fFrontPassOp >= 0 &&
-                     settings->fFrontPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                     (unsigned) settings->fFrontPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
             GrAssert(settings->fBackFailOp >= 0 &&
-                     settings->fBackFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                     (unsigned) settings->fBackFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
             GrAssert(settings->fBackPassOp >= 0 &&
-                     settings->fBackPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
+                     (unsigned) settings->fBackPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
             if (fTwoSidedStencilSupport) {
                 GrGLenum backFunc;
 
