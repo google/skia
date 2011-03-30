@@ -21,13 +21,13 @@
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColor.h"
-#include "SkRefDict.h"
 
 class SkClipStack;
 class SkDevice;
 class SkDraw;
 struct SkIRect;
 class SkMatrix;
+class SkMetaData;
 class SkRegion;
 
 /** \class SkDeviceFactory
@@ -63,6 +63,7 @@ public:
         @param bitmap   A copy of this bitmap is made and stored in the device
     */
     SkDevice(SkCanvas*, const SkBitmap& bitmap, bool forOffscreen);
+    virtual ~SkDevice();
 
     virtual SkDeviceFactory* getDeviceFactory() {
         return SkNEW(SkRasterDeviceFactory);
@@ -223,7 +224,7 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
-    SkRefDict& getRefDict() { return fRefDict; }
+    SkMetaData& getMetaData();
 
     struct TextFlags {
         uint32_t            fFlags;     // SkPaint::getFlags()
@@ -261,8 +262,8 @@ private:
 
     SkCanvas*   fCanvas;
     SkBitmap    fBitmap;
-    SkRefDict   fRefDict;
     SkIPoint    fOrigin;
+    SkMetaData* fMetaData;
 };
 
 #endif

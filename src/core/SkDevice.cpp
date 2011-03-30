@@ -1,15 +1,16 @@
 #include "SkDevice.h"
 #include "SkDraw.h"
+#include "SkMetaData.h"
 #include "SkRect.h"
 
 SkDeviceFactory::~SkDeviceFactory() {}
 
-SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas) {
+SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas), fMetaData(NULL) {
     fOrigin.setZero();
 }
 
 SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
-        : fCanvas(canvas), fBitmap(bitmap) {
+        : fCanvas(canvas), fBitmap(bitmap), fMetaData(NULL) {
     fOrigin.setZero();
     // auto-allocate if we're for offscreen drawing
     if (isForLayer) {
@@ -20,6 +21,19 @@ SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
             }
         }
     }
+}
+
+SkDevice::~SkDevice() {
+    delete fMetaData;
+}
+
+SkMetaData& SkDevice::getMetaData() {
+    // metadata users are rare, so we lazily allocate it. If that changes we
+    // can decide to just make it a field in the device (rather than a ptr)
+    if (NULL == fMetaData) {
+        fMetaData = new SkMetaData;
+    }
+    return *fMetaData;
 }
 
 void SkDevice::lockPixels() {
