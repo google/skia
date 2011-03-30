@@ -21,6 +21,7 @@ SOURCE := \
     GrPath.cpp \
     GrPathUtils.cpp \
     GrRectanizer_fifo.cpp \
+    GrResource.cpp \
     GrTextureCache.cpp \
     GrTextContext.cpp \
     GrTextStrike.cpp \
