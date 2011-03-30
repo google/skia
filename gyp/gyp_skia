@@ -25,9 +25,7 @@ import sys
 
 script_dir = os.path.dirname(__file__)
 
-# This assumes that your gyp checkout is placed in the same root directory
-# as your skia checkout.
-gyp_dir = os.path.normpath(os.path.join(script_dir, os.pardir, os.pardir))
+gyp_dir = os.path.normpath(os.path.join(script_dir, os.pardir, 'third_party'))
 
 sys.path.append(os.path.join(gyp_dir, 'gyp', 'pylib'))
 import gyp
