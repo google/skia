@@ -29,8 +29,8 @@ public:
          */
         int maxQuads() const { return size() / (sizeof(uint16_t) * 6); }
 protected:
-    GrIndexBuffer(size_t sizeInBytes, bool dynamic) :
-        INHERITED(sizeInBytes, dynamic) {}
+    GrIndexBuffer(GrGpu* gpu, size_t sizeInBytes, bool dynamic)
+        : INHERITED(gpu, sizeInBytes, dynamic) {}
 private:
     typedef GrGeometryBuffer INHERITED;
 };

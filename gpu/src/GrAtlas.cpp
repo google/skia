@@ -203,16 +203,4 @@ void GrAtlasMgr::freePlot(int x, int y) {
     fPlotMgr->freePlot(x, y);
 }
 
-void GrAtlasMgr::abandonAll() {
-#if 0
-    GrAtlas** curr = fList.begin();
-    GrAtlas** stop = fList.end();
-    for (; curr < stop; curr++) {
-        (*curr)->texture()->abandon();
-        delete *curr;
-    }
-    fList.reset();
-#endif
-}
-
 

@@ -69,20 +69,22 @@ bool GrTexture::PixelConfigIsAlphaOnly(PixelConfig config) {
 
 extern void gr_run_unittests();
 
-GrGpu::GrGpu() : f8bitPaletteSupport(false),
-                 fCurrPoolVertexBuffer(NULL),
-                 fCurrPoolStartVertex(0),
-                 fCurrPoolIndexBuffer(NULL),
-                 fCurrPoolStartIndex(0),
-                 fVertexPool(NULL),
-                 fIndexPool(NULL),
-                 fQuadIndexBuffer(NULL),
-                 fUnitSquareVertexBuffer(NULL),
-                 fDefaultPathRenderer(NULL),
-                 fClientPathRenderer(NULL),
-                 fContextIsDirty(true),
-                 fVertexPoolInUse(false),
-                 fIndexPoolInUse(false) {
+GrGpu::GrGpu()
+    : f8bitPaletteSupport(false)
+    , fCurrPoolVertexBuffer(NULL)
+    , fCurrPoolStartVertex(0)
+    , fCurrPoolIndexBuffer(NULL)
+    , fCurrPoolStartIndex(0)
+    , fVertexPool(NULL)
+    , fIndexPool(NULL)
+    , fQuadIndexBuffer(NULL)
+    , fUnitSquareVertexBuffer(NULL)
+    , fDefaultPathRenderer(NULL)
+    , fClientPathRenderer(NULL)
+    , fContextIsDirty(true)
+    , fVertexPoolInUse(false)
+    , fIndexPoolInUse(false)
+    , fResourceHead(NULL) {
 #if GR_DEBUG
     //gr_run_unittests();
 #endif
@@ -90,16 +92,75 @@ GrGpu::GrGpu() : f8bitPaletteSupport(false),
 }
 
 GrGpu::~GrGpu() {
-    GrSafeUnref(fQuadIndexBuffer);
-    GrSafeUnref(fUnitSquareVertexBuffer);
-    delete fVertexPool;
-    delete fIndexPool;
-    GrSafeUnref(fClientPathRenderer);
-    GrSafeUnref(fDefaultPathRenderer);
+    releaseResources();
 }
 
-void GrGpu::resetContext() {
+void GrGpu::abandonResources() {
+
+    while (NULL != fResourceHead) {
+        fResourceHead->abandon();
+    }
+
+    GrAssert(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
+    GrAssert(NULL == fUnitSquareVertexBuffer ||
+             !fUnitSquareVertexBuffer->isValid());
+    GrSafeSetNull(fQuadIndexBuffer);
+    GrSafeSetNull(fUnitSquareVertexBuffer);
+    delete fVertexPool;
+    fVertexPool = NULL;
+    delete fIndexPool;
+    fIndexPool = NULL;
 }
+
+void GrGpu::releaseResources() {
+
+    while (NULL != fResourceHead) {
+        fResourceHead->release();
+    }
+
+    GrAssert(NULL == fQuadIndexBuffer || !fQuadIndexBuffer->isValid());
+    GrAssert(NULL == fUnitSquareVertexBuffer ||
+             !fUnitSquareVertexBuffer->isValid());
+    GrSafeSetNull(fQuadIndexBuffer);
+    GrSafeSetNull(fUnitSquareVertexBuffer);
+    delete fVertexPool;
+    fVertexPool = NULL;
+    delete fIndexPool;
+    fIndexPool = NULL;
+}
+
+void GrGpu::insertResource(GrResource* resource) {
+    GrAssert(NULL != resource);
+    GrAssert(this == resource->getGpu());
+    GrAssert(NULL == resource->fNext);
+    GrAssert(NULL == resource->fPrevious);
+
+    resource->fNext = fResourceHead;
+    if (NULL != fResourceHead) {
+        GrAssert(NULL == fResourceHead->fPrevious);
+        fResourceHead->fPrevious = resource;
+    }
+    fResourceHead = resource;
+}
+
+void GrGpu::removeResource(GrResource* resource) {
+    GrAssert(NULL != resource);
+    GrAssert(NULL != fResourceHead);
+
+    if (fResourceHead == resource) {
+        GrAssert(NULL == resource->fPrevious);
+        fResourceHead = resource->fNext;
+    } else {
+        GrAssert(NULL != fResourceHead);
+        resource->fPrevious->fNext = resource->fNext;
+    }
+    if (NULL != resource->fNext) {
+        resource->fNext->fPrevious = resource->fPrevious;
+    }
+    resource->fNext = NULL;
+    resource->fPrevious = NULL;
+}
+
 
 void GrGpu::unimpl(const char msg[]) {
 #if GR_DEBUG

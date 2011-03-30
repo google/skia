@@ -91,6 +91,8 @@
 		7D66934C132ABD8F003AC2F5 /* GrGLInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D66934B132ABD8F003AC2F5 /* GrGLInterface.h */; };
 		7D66934E132ABDA7003AC2F5 /* GrGLPlatformIncludes.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D66934D132ABDA7003AC2F5 /* GrGLPlatformIncludes.h */; };
 		7D6EBF5A13330E8400AEAADD /* GrGLDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D6EBF5913330E8400AEAADD /* GrGLDefines.h */; };
+		D5134DB1134281FD0041146E /* GrResource.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5134DB0134281FD0041146E /* GrResource.cpp */; };
+		D5134DB5134282410041146E /* GrResource.h in Headers */ = {isa = PBXBuildFile; fileRef = D5134DB4134282410041146E /* GrResource.h */; };
 		D51B4C3C1342649500718A57 /* GrPathUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D51B4C3A1342649500718A57 /* GrPathUtils.cpp */; };
 		D51B4C3D1342649500718A57 /* GrPathUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = D51B4C3B1342649500718A57 /* GrPathUtils.h */; };
 		D539049B12EA01E30025F3D6 /* GrContext_impl.h in Headers */ = {isa = PBXBuildFile; fileRef = D539049A12EA01E30025F3D6 /* GrContext_impl.h */; };
@@ -193,6 +195,8 @@
 		7D66934D132ABDA7003AC2F5 /* GrGLPlatformIncludes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLPlatformIncludes.h; path = ../../gpu/include/GrGLPlatformIncludes.h; sourceTree = SOURCE_ROOT; };
 		7D6EBF5913330E8400AEAADD /* GrGLDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLDefines.h; path = ../../gpu/include/GrGLDefines.h; sourceTree = SOURCE_ROOT; };
 		D2AAC046055464E500DB518D /* libgpu.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libgpu.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5134DB0134281FD0041146E /* GrResource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrResource.cpp; path = ../../gpu/src/GrResource.cpp; sourceTree = SOURCE_ROOT; };
+		D5134DB4134282410041146E /* GrResource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrResource.h; path = ../../gpu/include/GrResource.h; sourceTree = SOURCE_ROOT; };
 		D51B4C3A1342649500718A57 /* GrPathUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrPathUtils.cpp; path = ../../gpu/src/GrPathUtils.cpp; sourceTree = SOURCE_ROOT; };
 		D51B4C3B1342649500718A57 /* GrPathUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrPathUtils.h; path = ../../gpu/src/GrPathUtils.h; sourceTree = SOURCE_ROOT; };
 		D539049A12EA01E30025F3D6 /* GrContext_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrContext_impl.h; path = ../../gpu/include/GrContext_impl.h; sourceTree = SOURCE_ROOT; };
@@ -223,6 +227,7 @@
 		00115E3712C116B7008296FE /* include */ = {
 			isa = PBXGroup;
 			children = (
+				D5134DB4134282410041146E /* GrResource.h */,
 				D59BD3F3133BBB49003B546A /* GrPathRenderer.h */,
 				7D6EBF5913330E8400AEAADD /* GrGLDefines.h */,
 				7D66934D132ABDA7003AC2F5 /* GrGLPlatformIncludes.h */,
@@ -301,6 +306,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				D5134DB0134281FD0041146E /* GrResource.cpp */,
 				D51B4C3A1342649500718A57 /* GrPathUtils.cpp */,
 				D51B4C3B1342649500718A57 /* GrPathUtils.h */,
 				D59BD412133BD384003B546A /* GrCreatePathRenderer_none.cpp */,
@@ -433,6 +439,7 @@
 				7D6EBF5A13330E8400AEAADD /* GrGLDefines.h in Headers */,
 				D59BD3F4133BBB49003B546A /* GrPathRenderer.h in Headers */,
 				D51B4C3D1342649500718A57 /* GrPathUtils.h in Headers */,
+				D5134DB5134282410041146E /* GrResource.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -515,6 +522,7 @@
 				7D669346132ABD5D003AC2F5 /* GrGLInterface.cpp in Sources */,
 				D59BD413133BD384003B546A /* GrCreatePathRenderer_none.cpp in Sources */,
 				D51B4C3C1342649500718A57 /* GrPathUtils.cpp in Sources */,
+				D5134DB1134281FD0041146E /* GrResource.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

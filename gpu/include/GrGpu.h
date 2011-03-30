@@ -25,6 +25,7 @@
 
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
+class GrResource;
 
 class GrGpu : public GrDrawTarget {
 
@@ -158,7 +159,7 @@ public:
      * will be embedded in a power of two texture. The extra width and height
      * is filled as though srcData were rendered clamped into the texture.
      *
-     * If kRenderTarget_TextureFlag is specified the GrRenderTarget is 
+     * If kRenderTarget_TextureFlag is specified the GrRenderTarget is
      * accessible via GrTexture::asRenderTarget(). The texture will hold a ref
      * on the render target until its releaseRenderTarget() is called or it is
      * destroyed.
@@ -353,10 +354,33 @@ public:
     bool readPixels(int left, int top, int width, int height,
                     GrTexture::PixelConfig, void* buffer);
 
-
     const Stats& getStats() const;
     void resetStats();
     void printStats() const;
+
+    /**
+     * Called to tell Gpu object that all GrResources have been lost and should
+     * be abandoned.
+     */
+    void abandonResources();
+
+    /**
+     * Called to tell Gpu object to release all GrResources.
+     */
+    void releaseResources();
+
+    /**
+     * Add resource to list of resources. Should only be called by GrResource.
+     * @param resource  the resource to add.
+     */
+    void insertResource(GrResource* resource);
+
+    /**
+     * Remove resource from list of resources. Should only be called by
+     * GrResource.
+     * @param resource  the resource to remove.
+     */
+    void removeResource(GrResource* resource);
 
 protected:
     enum PrivateStateBits {
@@ -534,6 +558,8 @@ private:
     // pool.
     bool                        fVertexPoolInUse;
     bool                        fIndexPoolInUse;
+
+    GrResource*                 fResourceHead;
 
     // used to save and restore state when the GrGpu needs
     // to make its geometry pools available internally

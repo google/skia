@@ -232,7 +232,7 @@ GrGpuGL::GrGpuGL() {
     fMSFBOType = kNone_MSFBO;
     if (GR_GL_SUPPORT_ES) {
        if (has_gl_extension("GL_CHROMIUM_framebuffer_multisample")) {
-           // chrome's extension is equivalent to the EXT msaa 
+           // chrome's extension is equivalent to the EXT msaa
            // and fbo_blit extensions.
             fMSFBOType = kDesktopEXT_MSFBO;
        } else if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
@@ -552,7 +552,7 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
     rtIDs.fRTFBOID  = (GrGLuint)platformRenderTarget;
     rtIDs.fTexFBOID = (GrGLuint)platformRenderTarget;
 
-    return new GrGLRenderTarget(rtIDs, NULL, stencilBits, viewport, NULL, this);
+    return new GrGLRenderTarget(this, rtIDs, NULL, stencilBits, viewport, NULL);
 }
 
 GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
@@ -571,7 +571,7 @@ GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
 
     rtIDs.fOwnIDs = false;
 
-    return new GrGLRenderTarget(rtIDs, NULL, stencilBits, viewport, NULL, this);
+    return new GrGLRenderTarget(this, rtIDs, NULL, stencilBits, viewport, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -833,7 +833,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         GR_GL(GenFramebuffers(1, &rtIDs.fTexFBOID));
         GrAssert(rtIDs.fTexFBOID);
 
-        // If we are using multisampling and we will create two FBOS We render 
+        // If we are using multisampling and we will create two FBOS We render
         // to one and then resolve to the texture bound to the other.
         if (samples > 1 && kNone_MSFBO != fMSFBOType) {
             GR_GL(GenFramebuffers(1, &rtIDs.fRTFBOID));
@@ -997,7 +997,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
     GrPrintf("--- new texture [%d] size=(%d %d) bpp=%d\n",
              tex->fTextureID, width, height, tex->fUploadByteCount);
 #endif
-    GrGLTexture* tex = new GrGLTexture(glDesc, rtIDs, DEFAULT_PARAMS, this);
+    GrGLTexture* tex = new GrGLTexture(this, glDesc, rtIDs, DEFAULT_PARAMS);
 
     if (0 != rtIDs.fTexFBOID) {
         GrRenderTarget* rt = tex->asRenderTarget();
@@ -1032,7 +1032,7 @@ GrVertexBuffer* GrGpuGL::createVertexBufferHelper(uint32_t size, bool dynamic) {
             fHWGeometryState.fVertexBuffer = NULL;
             return NULL;
         }
-        GrGLVertexBuffer* vertexBuffer = new GrGLVertexBuffer(id, this,
+        GrGLVertexBuffer* vertexBuffer = new GrGLVertexBuffer(this, id,
                                                               size, dynamic);
         fHWGeometryState.fVertexBuffer = vertexBuffer;
         return vertexBuffer;
@@ -1055,7 +1055,7 @@ GrIndexBuffer* GrGpuGL::createIndexBufferHelper(uint32_t size, bool dynamic) {
             fHWGeometryState.fIndexBuffer = NULL;
             return NULL;
         }
-        GrIndexBuffer* indexBuffer = new GrGLIndexBuffer(id, this,
+        GrIndexBuffer* indexBuffer = new GrGLIndexBuffer(this, id,
                                                          size, dynamic);
         fHWGeometryState.fIndexBuffer = indexBuffer;
         return indexBuffer;

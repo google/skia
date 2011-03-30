@@ -52,14 +52,27 @@ public:
      */
     void resetContext();
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Textures
+    /**
+     * Abandons all gpu resources, assumes 3D API state is unknown. Call this
+     * if you have lost the associated GPU context, and thus internal texture,
+     * buffer, etc. references/IDs are now invalid. Should be called even when
+     * GrContext is no longer going to be used for two reasons:
+     *  1) ~GrContext will not try to free the objects in the 3D API.
+     *  2) If you've created GrResources that outlive the GrContext they will
+     *     be marked as invalid (GrResource::isValid()) and won't attempt to
+     *     free their underlying resource in the 3D API.
+     * Content drawn since the last GrContext::flush() may be lost.
+     */
+    void contextLost();
 
     /**
-     *  Abandons all textures. Call this if you have lost the associated GPU
-     *  context, and thus internal texture references/IDs are now invalid.
+     * Frees gpu created by the context. Can be called to reduce GPU memory
+     * pressure.
      */
-    void abandonAllTextures();
+    void freeGpuResources();
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Textures
 
     /**
      *  Search for an entry with the same Key. If found, "lock" it and return it.
@@ -409,7 +422,7 @@ public:
      * @param flagsBitfield     flags that control the flushing behavior. See
      *                          FlushBits.
      */
-    void flush(int flagsBitfield);
+    void flush(int flagsBitfield = 0);
     /**
      *  Return true on success, i.e. if we could copy the specified range of
      *  pixels from the current render-target into the buffer, converting into
@@ -488,6 +501,8 @@ private:
     GrInOrderDrawBuffer*        fDrawBuffer;
 
     GrContext(GrGpu* gpu);
+
+    void setupDrawBuffer();
 
     void flushDrawBuffer();
 
