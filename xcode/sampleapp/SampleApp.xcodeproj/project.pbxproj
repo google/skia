@@ -11,7 +11,6 @@
 		00003C690EFC22A8000FF73A /* SamplePathEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C650EFC22A8000FF73A /* SamplePathEffects.cpp */; };
 		00003C740EFC22CE000FF73A /* SkEvent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C6B0EFC22CE000FF73A /* SkEvent.cpp */; };
 		00003C750EFC22CE000FF73A /* SkEventSink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C6C0EFC22CE000FF73A /* SkEventSink.cpp */; };
-		00003C760EFC22CE000FF73A /* SkMetaData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C6D0EFC22CE000FF73A /* SkMetaData.cpp */; };
 		00003C770EFC22CE000FF73A /* SkOSMenu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C6E0EFC22CE000FF73A /* SkOSMenu.cpp */; };
 		00003C790EFC22CE000FF73A /* SkTagList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C700EFC22CE000FF73A /* SkTagList.cpp */; };
 		00003C7A0EFC22CE000FF73A /* SkView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00003C710EFC22CE000FF73A /* SkView.cpp */; };
@@ -237,7 +236,6 @@
 		00003C650EFC22A8000FF73A /* SamplePathEffects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SamplePathEffects.cpp; path = ../../samplecode/SamplePathEffects.cpp; sourceTree = SOURCE_ROOT; };
 		00003C6B0EFC22CE000FF73A /* SkEvent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEvent.cpp; path = ../../src/views/SkEvent.cpp; sourceTree = SOURCE_ROOT; };
 		00003C6C0EFC22CE000FF73A /* SkEventSink.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEventSink.cpp; path = ../../src/views/SkEventSink.cpp; sourceTree = SOURCE_ROOT; };
-		00003C6D0EFC22CE000FF73A /* SkMetaData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMetaData.cpp; path = ../../src/views/SkMetaData.cpp; sourceTree = SOURCE_ROOT; };
 		00003C6E0EFC22CE000FF73A /* SkOSMenu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkOSMenu.cpp; path = ../../src/views/SkOSMenu.cpp; sourceTree = SOURCE_ROOT; };
 		00003C700EFC22CE000FF73A /* SkTagList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkTagList.cpp; path = ../../src/views/SkTagList.cpp; sourceTree = SOURCE_ROOT; };
 		00003C710EFC22CE000FF73A /* SkView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkView.cpp; path = ../../src/views/SkView.cpp; sourceTree = SOURCE_ROOT; };
@@ -532,7 +530,6 @@
 				00003C7F0EFC22E1000FF73A /* SkOSWindow_Mac.cpp */,
 				00003C6B0EFC22CE000FF73A /* SkEvent.cpp */,
 				00003C6C0EFC22CE000FF73A /* SkEventSink.cpp */,
-				00003C6D0EFC22CE000FF73A /* SkMetaData.cpp */,
 				00003C6E0EFC22CE000FF73A /* SkOSMenu.cpp */,
 				00003C700EFC22CE000FF73A /* SkTagList.cpp */,
 				00003C710EFC22CE000FF73A /* SkView.cpp */,
@@ -913,7 +910,6 @@
 				00003C690EFC22A8000FF73A /* SamplePathEffects.cpp in Sources */,
 				00003C740EFC22CE000FF73A /* SkEvent.cpp in Sources */,
 				00003C750EFC22CE000FF73A /* SkEventSink.cpp in Sources */,
-				00003C760EFC22CE000FF73A /* SkMetaData.cpp in Sources */,
 				00003C770EFC22CE000FF73A /* SkOSMenu.cpp in Sources */,
 				00003C790EFC22CE000FF73A /* SkTagList.cpp in Sources */,
 				00003C7A0EFC22CE000FF73A /* SkView.cpp in Sources */,
