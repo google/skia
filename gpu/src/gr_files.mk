@@ -19,6 +19,7 @@ SOURCE := \
     GrMatrix.cpp \
     GrMemory.cpp \
     GrPath.cpp \
+    GrPathUtils.cpp \
     GrRectanizer_fifo.cpp \
     GrTextureCache.cpp \
     GrTextContext.cpp \
