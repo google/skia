@@ -722,7 +722,8 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     // If bit 2 is set, the embedding is read-only.
     if (otm.otmfsType & 0x1) {
         info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
-    } else if (perGlyphInfo & kHAdvance_PerGlyphInfo) {
+    } else if (perGlyphInfo &
+               SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
         info->fGlyphWidths.reset(
             getAdvanceData(hdc, glyphCount, &getWidthAdvance));
     }
