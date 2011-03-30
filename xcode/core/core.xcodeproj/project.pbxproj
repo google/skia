@@ -132,6 +132,7 @@
 		008AE3DA12E4A3D6002516FE /* SkUtils_opts_SSE2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 008AE3D512E4A3D6002516FE /* SkUtils_opts_SSE2.cpp */; };
 		0096586E0FC7205100C3AE15 /* SkShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0096586D0FC7205100C3AE15 /* SkShape.cpp */; };
 		00B5785F12BFDC2A00393BE9 /* SkFlate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */; };
+		00E0627213439F5D0021A1A5 /* SkMetaData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00E0627113439F5D0021A1A5 /* SkMetaData.cpp */; };
 		00F043FC10B445F50049C54C /* SkEdgeBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043F910B445F50049C54C /* SkEdgeBuilder.cpp */; };
 		00F043FD10B445F50049C54C /* SkEdgeClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043FA10B445F50049C54C /* SkEdgeClipper.cpp */; };
 		00F043FE10B445F50049C54C /* SkLineClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00F043FB10B445F50049C54C /* SkLineClipper.cpp */; };
@@ -269,6 +270,7 @@
 		008AE3D512E4A3D6002516FE /* SkUtils_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkUtils_opts_SSE2.cpp; path = ../../src/opts/SkUtils_opts_SSE2.cpp; sourceTree = SOURCE_ROOT; };
 		0096586D0FC7205100C3AE15 /* SkShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkShape.cpp; path = ../../src/core/SkShape.cpp; sourceTree = SOURCE_ROOT; };
 		00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkFlate.cpp; path = ../../src/core/SkFlate.cpp; sourceTree = SOURCE_ROOT; };
+		00E0627113439F5D0021A1A5 /* SkMetaData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkMetaData.cpp; path = ../../src/core/SkMetaData.cpp; sourceTree = SOURCE_ROOT; };
 		00F043F910B445F50049C54C /* SkEdgeBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEdgeBuilder.cpp; path = ../../src/core/SkEdgeBuilder.cpp; sourceTree = SOURCE_ROOT; };
 		00F043FA10B445F50049C54C /* SkEdgeClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkEdgeClipper.cpp; path = ../../src/core/SkEdgeClipper.cpp; sourceTree = SOURCE_ROOT; };
 		00F043FB10B445F50049C54C /* SkLineClipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkLineClipper.cpp; path = ../../src/core/SkLineClipper.cpp; sourceTree = SOURCE_ROOT; };
@@ -342,6 +344,7 @@
 		08FB7795FE84155DC02AAC07 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				00E0627113439F5D0021A1A5 /* SkMetaData.cpp */,
 				0009B175131441CD00C52F70 /* SkClipStack.cpp */,
 				006EB61312EF97E100686979 /* SkRefDict.cpp */,
 				00B5785E12BFDC2A00393BE9 /* SkFlate.cpp */,
@@ -677,6 +680,7 @@
 				008AE3DA12E4A3D6002516FE /* SkUtils_opts_SSE2.cpp in Sources */,
 				006EB61412EF97E100686979 /* SkRefDict.cpp in Sources */,
 				0009B176131441CD00C52F70 /* SkClipStack.cpp in Sources */,
+				00E0627213439F5D0021A1A5 /* SkMetaData.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
