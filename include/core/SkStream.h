@@ -70,7 +70,7 @@ public:
     size_t   readPackedUInt();
 };
 
-class SkWStream : SkNoncopyable {
+class SK_API SkWStream : SkNoncopyable {
 public:
     virtual ~SkWStream();
 
@@ -269,7 +269,7 @@ private:
     size_t  fBytesWritten;
 };
 
-class SkDynamicMemoryWStream : public SkWStream {
+class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
     SkDynamicMemoryWStream();
     virtual ~SkDynamicMemoryWStream();

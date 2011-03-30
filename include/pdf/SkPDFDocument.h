@@ -34,20 +34,20 @@ class SkPDFDocument {
 public:
     /** Create a PDF document.
      */
-    SkPDFDocument();
-    ~SkPDFDocument();
+    SK_API SkPDFDocument();
+    SK_API ~SkPDFDocument();
 
     /** Output the PDF to the passed stream.
      *  @param stream    The writable output stream to send the PDF to.
      */
-    bool emitPDF(SkWStream* stream);
+    SK_API bool emitPDF(SkWStream* stream);
 
     /** Append the passed pdf device to the document as a new page.  Returns
      *  true if successful.  Will fail if the document has already been emitted.
      *
      *  @param pdfDevice The page to add to this document.
      */
-    bool appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice);
+    SK_API bool appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice);
 
 private:
     SkPDFCatalog fCatalog;

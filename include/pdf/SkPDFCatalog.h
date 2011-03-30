@@ -28,7 +28,7 @@
     The PDF catalog manages object numbers and file offsets.  It is used
     to create the PDF cross reference table.
 */
-class SkPDFCatalog {
+class SK_API SkPDFCatalog {
 public:
     /** Create a PDF catalog.
      */
