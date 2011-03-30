@@ -19,47 +19,69 @@
 
 #include "SkScalar.h"
 
+class SkRefCnt;
+
 class SkMetaData {
 public:
+    /**
+     *  Used to manage the life-cycle of a ptr in the metadata. This is option
+     *  in setPtr, and is only invoked when either copying one metadata to
+     *  another, or when the metadata is destroyed.
+     *
+     *  setPtr(name, ptr, proc) {
+     *      fPtr = proc(ptr, true);
+     *  }
+     *
+     *  copy: A = B {
+     *      A.fPtr = B.fProc(B.fPtr, true);
+     *  }
+     *
+     *  ~SkMetaData {
+     *      fProc(fPtr, false);
+     *  }
+     */
+    typedef void* (*PtrProc)(void* ptr, bool doRef);
+
+    /**
+     *  Implements PtrProc for SkRefCnt pointers
+     */
+    static void* RefCntProc(void* ptr, bool doRef);
+
     SkMetaData();
     SkMetaData(const SkMetaData& src);
     ~SkMetaData();
 
     SkMetaData& operator=(const SkMetaData& src);
 
-    void    reset();
+    void reset();
 
-    bool    findS32(const char name[], int32_t* value = NULL) const;
-    bool    findScalar(const char name[], SkScalar* value = NULL) const;
-    const SkScalar* findScalars(const char name[], int* count, SkScalar values[] = NULL) const;
+    bool findS32(const char name[], int32_t* value = NULL) const;
+    bool findScalar(const char name[], SkScalar* value = NULL) const;
+    const SkScalar* findScalars(const char name[], int* count,
+                                SkScalar values[] = NULL) const;
     const char* findString(const char name[]) const;
-    bool    findPtr(const char name[], void** value = NULL) const;
-    bool    findBool(const char name[], bool* value = NULL) const;
+    bool findPtr(const char name[], void** value = NULL, PtrProc* = NULL) const;
+    bool findBool(const char name[], bool* value = NULL) const;
     const void* findData(const char name[], size_t* byteCount = NULL) const;
 
-    bool    hasS32(const char name[], int32_t value) const
-    {
+    bool hasS32(const char name[], int32_t value) const {
         int32_t v;
         return this->findS32(name, &v) && v == value;
     }
-    bool    hasScalar(const char name[], SkScalar value) const
-    {
-        SkScalar    v;
+    bool hasScalar(const char name[], SkScalar value) const {
+        SkScalar v;
         return this->findScalar(name, &v) && v == value;
     }
-    bool    hasString(const char name[], const char value[]) const
-    {
+    bool hasString(const char name[], const char value[]) const {
         const char* v = this->findString(name);
         return  v == NULL && value == NULL ||
                 v != NULL && value != NULL && !strcmp(v, value);
     }
-    bool    hasPtr(const char name[], void* value) const
-    {
-        void*   v;
+    bool hasPtr(const char name[], void* value) const {
+        void* v;
         return this->findPtr(name, &v) && v == value;
     }
-    bool    hasBool(const char name[], bool value) const
-    {
+    bool hasBool(const char name[], bool value) const {
         bool    v;
         return this->findBool(name, &v) && v == value;
     }
@@ -69,23 +91,35 @@ public:
         return NULL != ptr && len == byteCount && !memcmp(ptr, data, len);
     }
 
-    void    setS32(const char name[], int32_t value);
-    void    setScalar(const char name[], SkScalar value);
+    void setS32(const char name[], int32_t value);
+    void setScalar(const char name[], SkScalar value);
     SkScalar* setScalars(const char name[], int count, const SkScalar values[] = NULL);
-    void    setString(const char name[], const char value[]);
-    void    setPtr(const char name[], void* value);
-    void    setBool(const char name[], bool value);
+    void setString(const char name[], const char value[]);
+    void setPtr(const char name[], void* value, PtrProc proc = NULL);
+    void setBool(const char name[], bool value);
     // the data is copied from the input pointer.
-    void    setData(const char name[], const void* data, size_t byteCount);
+    void setData(const char name[], const void* data, size_t byteCount);
 
-    bool    removeS32(const char name[]);
-    bool    removeScalar(const char name[]);
-    bool    removeString(const char name[]);
-    bool    removePtr(const char name[]);
-    bool    removeBool(const char name[]);
-    bool    removeData(const char name[]);
+    bool removeS32(const char name[]);
+    bool removeScalar(const char name[]);
+    bool removeString(const char name[]);
+    bool removePtr(const char name[]);
+    bool removeBool(const char name[]);
+    bool removeData(const char name[]);
 
-    SkDEBUGCODE(static void UnitTest();)
+    // helpers for SkRefCnt
+    bool findRefCnt(const char name[], SkRefCnt** ptr = NULL) {
+        return this->findPtr(name, reinterpret_cast<void**>(ptr));
+    }
+    bool hasRefCnt(const char name[], SkRefCnt* ptr) {
+        return this->hasPtr(name, ptr);
+    }
+    void setRefCnt(const char name[], SkRefCnt* ptr) {
+        this->setPtr(name, ptr, RefCntProc);
+    }
+    bool removeRefCnt(const char name[]) {
+        return this->removePtr(name);
+    }
 
     enum Type {
         kS32_Type,
@@ -110,7 +144,7 @@ public:
         /** Reset the iterator, so that calling next() will return the first
             data element. This is done implicitly in the constructor.
         */
-        void    reset(const SkMetaData&);
+        void reset(const SkMetaData&);
 
         /** Each time next is called, it returns the name of the next data element,
             or null when there are no more elements. If non-null is returned, then the
@@ -128,22 +162,7 @@ public:
         Rec*        fNext;
         uint16_t    fDataCount; // number of elements
         uint8_t     fDataLen;   // sizeof a single element
-#ifdef SK_DEBUG
-        Type        fType;
-#else
         uint8_t     fType;
-#endif
-
-#ifdef SK_DEBUG
-        const char* fName;
-        union {
-            int32_t     fS32;
-            SkScalar    fScalar;
-            const char* fString;
-            void*       fPtr;
-            bool        fBool;
-        } fData;
-#endif
 
         const void* data() const { return (this + 1); }
         void*       data() { return (this + 1); }
