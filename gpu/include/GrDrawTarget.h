@@ -30,6 +30,7 @@ class GrTexture;
 class GrClipIterator;
 class GrVertexBuffer;
 class GrIndexBuffer;
+class GrEffect;
 
 class GrDrawTarget : public GrRefCnt {
 public:
@@ -138,6 +139,7 @@ protected:
         GrBlendCoeff            fDstBlend;
         GrColor                 fBlendConstant;
         GrTexture*              fTextures[kNumStages];
+        GrEffect*               fEffects[kNumStages];
         GrSamplerState          fSamplerStates[kNumStages];
         GrRenderTarget*         fRenderTarget;
         GrColor                 fColor;

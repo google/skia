@@ -14,7 +14,6 @@
     limitations under the License.
  */
 
-
 #include "GrTypes.h"
 
 // must be before GrGLConfig.h
@@ -24,10 +23,10 @@
 
 #include "GrGLConfig.h"
 
-#include "GrGpuGLFixed.h"
-#include "GrGpuGLShaders2.h"
-
 #include "GrGpu.h"
+#include "GrGpuGLFixed.h"
+#include "GrGpuGLShaders.h"
+#include "GrGpuGLShaders2.h"
 
 GrGpu* GrGpu::Create(Engine engine, Platform3DContext context3D) {
     // If no GL bindings have been installed, fall-back to calling the
@@ -40,7 +39,13 @@ GrGpu* GrGpu::Create(Engine engine, Platform3DContext context3D) {
     switch (engine) {
         case kOpenGL_Shaders_Engine:
             GrAssert(NULL == context3D);
-            gpu = new GrGpuGLShaders2;
+            {
+#if GR_USE_NEW_GLSHADERS
+                gpu = new GrGpuGLShaders;
+#else
+                gpu = new GrGpuGLShaders2;
+#endif
+            }
             break;
         case kOpenGL_Fixed_Engine:
             GrAssert(NULL == context3D);

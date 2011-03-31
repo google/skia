@@ -21,6 +21,7 @@
 #include "GrMatrix.h"
 #include "GrRedBlackTree.h"
 #include "GrPath.h"
+#include "GrBinHashKey.h"
 
 static void dump(const GrTDArray<int>& array) {
 #if 0
@@ -74,9 +75,84 @@ static void test_bsearch() {
     }
 }
 
+static void test_binHashKey()
+{
+    const char* testStringA = "abcdA";
+    const char* testStringB = "abcdB";
+    enum {
+        kDataLenUsedForKey = 5
+    };
+
+    class Entry {
+        // bogus empty class
+    };
+
+    typedef GrBinHashKey<Entry, kDataLenUsedForKey> KeyType;
+
+    KeyType keyA;
+    int passCnt = 0;
+    while (keyA.doPass()) {
+        ++passCnt;
+        keyA.keyData(reinterpret_cast<const uint8_t*>(testStringA), kDataLenUsedForKey);
+    }
+    GrAssert(passCnt == 1); //We expect the static allocation to suffice
+    GrBinHashKey<Entry, kDataLenUsedForKey-1> keyBust;
+    passCnt = 0;
+    while (keyBust.doPass()) {
+        ++passCnt;
+        // Exceed static storage by 1
+        keyBust.keyData(reinterpret_cast<const uint8_t*>(testStringA), kDataLenUsedForKey);
+    }
+    GrAssert(passCnt == 2); //We expect dynamic allocation to be necessary
+    GrAssert(keyA.getHash() == keyBust.getHash());
+
+    // Test that adding keyData in chunks gives
+    // the same hash as with one chunk
+    KeyType keyA2;
+    while (keyA2.doPass()) {
+        keyA2.keyData(reinterpret_cast<const uint8_t*>(testStringA), 2);
+        keyA2.keyData(&reinterpret_cast<const uint8_t*>(testStringA)[2], kDataLenUsedForKey-2);
+    }
+    GrAssert(keyA.getHash() == keyA2.getHash());
+
+    KeyType keyB;
+    while (keyB.doPass()){
+        keyB.keyData(reinterpret_cast<const uint8_t*>(testStringB), kDataLenUsedForKey);
+    }
+    GrAssert(keyA.compare(keyB) < 0);
+    GrAssert(keyA.compare(keyA2) == 0);
+
+    //Test ownership tranfer and copying
+    keyB.copyAndTakeOwnership(keyA);
+    GrAssert(keyA.fIsValid == false);
+    GrAssert(keyB.fIsValid);
+    GrAssert(keyB.getHash() == keyA2.getHash());
+    GrAssert(keyB.compare(keyA2) == 0);
+    keyA.deepCopyFrom(keyB);
+    GrAssert(keyA.fIsValid);
+    GrAssert(keyB.fIsValid);
+    GrAssert(keyA.getHash() == keyA2.getHash());
+    GrAssert(keyA.compare(keyA2) == 0);
+
+    //Test ownership tranfer and copying with key on heap
+    GrBinHashKey<Entry, kDataLenUsedForKey-1> keyBust2;
+    keyBust2.deepCopyFrom(keyBust);
+    GrAssert(keyBust.fIsValid);
+    GrAssert(keyBust2.fIsValid);
+    GrAssert(keyBust.getHash() == keyBust2.getHash());
+    GrAssert(keyBust.compare(keyBust2) == 0);
+    GrBinHashKey<Entry, kDataLenUsedForKey-1> keyBust3;
+    keyBust3.deepCopyFrom(keyBust);
+    GrAssert(keyBust.fIsValid == false);
+    GrAssert(keyBust3.fIsValid);
+    GrAssert(keyBust3.getHash() == keyBust2.getHash());
+    GrAssert(keyBust3.compare(keyBust2) == 0);
+}
+
 void gr_run_unittests() {
     test_tdarray();
     test_bsearch();
+    test_binHashKey();
     GrMatrix::UnitTest();
     GrRedBlackTree<int>::UnitTest();
     GrPath::ConvexUnitTest();
