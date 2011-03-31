@@ -597,6 +597,7 @@
         '../include/config',
         '../include/core',
         '../include/pdf',
+        '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
       ],
       'sources': [
         '../include/pdf/SkPDFCatalog.h',
