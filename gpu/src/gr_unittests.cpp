@@ -75,6 +75,9 @@ static void test_bsearch() {
     }
 }
 
+// bogus empty class for GrBinHashKey
+class BogusEntry {};
+
 static void test_binHashKey()
 {
     const char* testStringA = "abcdA";
@@ -83,11 +86,7 @@ static void test_binHashKey()
         kDataLenUsedForKey = 5
     };
 
-    class Entry {
-        // bogus empty class
-    };
-
-    typedef GrBinHashKey<Entry, kDataLenUsedForKey> KeyType;
+    typedef GrBinHashKey<BogusEntry, kDataLenUsedForKey> KeyType;
 
     KeyType keyA;
     int passCnt = 0;
@@ -96,7 +95,7 @@ static void test_binHashKey()
         keyA.keyData(reinterpret_cast<const uint8_t*>(testStringA), kDataLenUsedForKey);
     }
     GrAssert(passCnt == 1); //We expect the static allocation to suffice
-    GrBinHashKey<Entry, kDataLenUsedForKey-1> keyBust;
+    GrBinHashKey<BogusEntry, kDataLenUsedForKey-1> keyBust;
     passCnt = 0;
     while (keyBust.doPass()) {
         ++passCnt;
@@ -135,13 +134,13 @@ static void test_binHashKey()
     GrAssert(keyA.compare(keyA2) == 0);
 
     //Test ownership tranfer and copying with key on heap
-    GrBinHashKey<Entry, kDataLenUsedForKey-1> keyBust2;
+    GrBinHashKey<BogusEntry, kDataLenUsedForKey-1> keyBust2;
     keyBust2.deepCopyFrom(keyBust);
     GrAssert(keyBust.fIsValid);
     GrAssert(keyBust2.fIsValid);
     GrAssert(keyBust.getHash() == keyBust2.getHash());
     GrAssert(keyBust.compare(keyBust2) == 0);
-    GrBinHashKey<Entry, kDataLenUsedForKey-1> keyBust3;
+    GrBinHashKey<BogusEntry, kDataLenUsedForKey-1> keyBust3;
     keyBust3.deepCopyFrom(keyBust);
     GrAssert(keyBust.fIsValid == false);
     GrAssert(keyBust3.fIsValid);
