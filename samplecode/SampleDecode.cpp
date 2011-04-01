@@ -23,11 +23,13 @@ public:
 	DecodeView() {
         SkFILEStream stream("/skimages/index.png");
         SkImageDecoder* codec = SkImageDecoder::Factory(&stream);
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
-            stream.rewind();
-            codec->setDitherImage(gRec[i].fDither);
-            codec->decode(&stream, &fBitmap[i], gRec[i].fPrefConfig,
-                          SkImageDecoder::kDecodePixels_Mode);
+        if (codec) {
+            for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+                stream.rewind();
+                codec->setDitherImage(gRec[i].fDither);
+                codec->decode(&stream, &fBitmap[i], gRec[i].fPrefConfig,
+                              SkImageDecoder::kDecodePixels_Mode);
+            }
         }
     }
     
