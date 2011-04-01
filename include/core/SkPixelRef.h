@@ -20,7 +20,9 @@
 #include "SkRefCnt.h"
 #include "SkString.h"
 
+class SkBitmap;
 class SkColorTable;
+struct SkIRect;
 class SkMutex;
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
@@ -112,6 +114,8 @@ public:
      */
     virtual SkGpuTexture* getTexture() { return NULL; }
 
+    bool readPixels(SkBitmap* dst, const SkIRect* subset = NULL);
+
     // serialization
 
     typedef SkPixelRef* (*Factory)(SkFlattenableReadBuffer&);
@@ -156,6 +160,14 @@ protected:
         that.
     */
     virtual void onUnlockPixels() = 0;
+
+    /**
+     *  For pixelrefs that don't have access to their raw pixels, they may be
+     *  able to make a copy of them (e.g. if the pixels are on the GPU).
+     *
+     *  The base class implementation returns false;
+     */
+    virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subsetOrNull);
 
     /** Return the mutex associated with this pixelref. This value is assigned
         in the constructor, and cannot change during the lifetime of the object.

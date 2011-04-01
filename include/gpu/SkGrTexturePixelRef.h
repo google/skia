@@ -40,6 +40,7 @@ protected:
 
     // override from SkPixelRef
     virtual void onUnlockPixels() {}
+    virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset);
 
 private:
     GrTexture*  fTexture;

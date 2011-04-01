@@ -79,6 +79,14 @@ void SkPixelRef::setImmutable() {
     fIsImmutable = true;
 }
 
+bool SkPixelRef::readPixels(SkBitmap* dst, const SkIRect* subset) {
+    return this->onReadPixels(dst, subset);
+}
+
+bool SkPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
+    return false;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define MAX_PAIR_COUNT  16

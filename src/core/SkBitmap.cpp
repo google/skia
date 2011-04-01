@@ -865,61 +865,82 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
         return false;
     }
 
-    // we lock this now, since we may need its colortable
-    SkAutoLockPixels srclock(*this);
-    if (!this->readyToDraw()) {
-        return false;
+    // if we have a texture, first get those pixels
+    SkBitmap tmpSrc;
+    const SkBitmap* src = this;
+
+    if (this->getTexture()) {
+        if (!fPixelRef->readPixels(&tmpSrc)) {
+            return false;
+        }
+        SkASSERT(tmpSrc.width() == this->width());
+        SkASSERT(tmpSrc.height() == this->height());
+
+        // did we get lucky and we can just return tmpSrc?
+        if (tmpSrc.config() == dstConfig && NULL == alloc) {
+            dst->swap(tmpSrc);
+            return true;
+        }
+
+        // fall through to the raster case
+        src = &tmpSrc;
     }
 
-    SkBitmap tmp;
-    tmp.setConfig(dstConfig, this->width(), this->height());
-
+    // we lock this now, since we may need its colortable
+    SkAutoLockPixels srclock(*src);
+    if (!src->readyToDraw()) {
+        return false;
+    }
+    
+    SkBitmap tmpDst;
+    tmpDst.setConfig(dstConfig, src->width(), src->height());
+    
     // allocate colortable if srcConfig == kIndex8_Config
     SkColorTable* ctable = (dstConfig == kIndex8_Config) ?
-        new SkColorTable(*this->getColorTable()) : NULL;
+    new SkColorTable(*src->getColorTable()) : NULL;
     SkAutoUnref au(ctable);
-    if (!tmp.allocPixels(alloc, ctable)) {
+    if (!tmpDst.allocPixels(alloc, ctable)) {
         return false;
     }
-
-    SkAutoLockPixels dstlock(tmp);
-    if (!tmp.readyToDraw()) {
+    
+    SkAutoLockPixels dstlock(tmpDst);
+    if (!tmpDst.readyToDraw()) {
         // allocator/lock failed
         return false;
     }
-
+    
     /* do memcpy for the same configs cases, else use drawing
     */
-    if (this->config() == dstConfig) {
-        if (tmp.getSize() == this->getSize()) {
-            memcpy(tmp.getPixels(), this->getPixels(), this->getSafeSize());
+    if (src->config() == dstConfig) {
+        if (tmpDst.getSize() == src->getSize()) {
+            memcpy(tmpDst.getPixels(), src->getPixels(), src->getSafeSize());
         } else {
-            const char* srcP = reinterpret_cast<const char*>(this->getPixels());
-            char* dstP = reinterpret_cast<char*>(tmp.getPixels());
+            const char* srcP = reinterpret_cast<const char*>(src->getPixels());
+            char* dstP = reinterpret_cast<char*>(tmpDst.getPixels());
             // to be sure we don't read too much, only copy our logical pixels
-            size_t bytesToCopy = tmp.width() * tmp.bytesPerPixel();
-            for (int y = 0; y < tmp.height(); y++) {
+            size_t bytesToCopy = tmpDst.width() * tmpDst.bytesPerPixel();
+            for (int y = 0; y < tmpDst.height(); y++) {
                 memcpy(dstP, srcP, bytesToCopy);
-                srcP += this->rowBytes();
-                dstP += tmp.rowBytes();
+                srcP += src->rowBytes();
+                dstP += tmpDst.rowBytes();
             }
         }
     } else {
         // if the src has alpha, we have to clear the dst first
-        if (!this->isOpaque()) {
-            tmp.eraseColor(0);
+        if (!src->isOpaque()) {
+            tmpDst.eraseColor(0);
         }
 
-        SkCanvas canvas(tmp);
+        SkCanvas canvas(tmpDst);
         SkPaint  paint;
 
         paint.setDither(true);
-        canvas.drawBitmap(*this, 0, 0, &paint);
+        canvas.drawBitmap(*src, 0, 0, &paint);
     }
 
-    tmp.setIsOpaque(this->isOpaque());
+    tmpDst.setIsOpaque(src->isOpaque());
 
-    dst->swap(tmp);
+    dst->swap(tmpDst);
     return true;
 }
 
