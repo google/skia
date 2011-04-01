@@ -28,7 +28,11 @@ const size_t SkFlate::kBufferSize = 1024;
 
 // static
 bool SkFlate::HaveFlate() {
+#ifdef SK_DEBUG
+    return false;
+#else
     return true;
+#endif
 }
 
 namespace {
