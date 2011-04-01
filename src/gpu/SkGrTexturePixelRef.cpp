@@ -27,4 +27,7 @@ SkGrTexturePixelRef::~SkGrTexturePixelRef() {
     GrSafeUnref(fTexture);
 }
 
+bool SkGrTexturePixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
+    return false;
+}
 
