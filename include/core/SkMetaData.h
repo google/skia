@@ -74,8 +74,8 @@ public:
     }
     bool hasString(const char name[], const char value[]) const {
         const char* v = this->findString(name);
-        return  v == NULL && value == NULL ||
-                v != NULL && value != NULL && !strcmp(v, value);
+        return  (v == NULL && value == NULL) ||
+                (v != NULL && value != NULL && !strcmp(v, value));
     }
     bool hasPtr(const char name[], void* value) const {
         void* v;
