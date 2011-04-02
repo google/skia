@@ -7,7 +7,7 @@
 
 class RectBench : public SkBenchmark {
 public:
-    int fShift;
+    int fShift, fStroke;
     enum {
         W = 640,
         H = 480,
@@ -16,8 +16,9 @@ public:
     SkRect  fRects[N];
     SkColor fColors[N];
 
-    RectBench(void* param, int shift) : INHERITED(param), fShift(shift) {
+    RectBench(void* param, int shift, int stroke = 0) : INHERITED(param), fShift(shift), fStroke(stroke) {
         SkRandom rand;
+        const SkScalar offset = SK_Scalar1/3;
         for (int i = 0; i < N; i++) {
             int x = rand.nextU() % W;
             int y = rand.nextU() % H;
@@ -29,14 +30,17 @@ public:
             y -= h/2;
             fRects[i].set(SkIntToScalar(x), SkIntToScalar(y),
                           SkIntToScalar(x+w), SkIntToScalar(y+h));
+            fRects[i].offset(offset, offset);
             fColors[i] = rand.nextU() | 0xFF808080;
         }
     }
 
     SkString fName;
     const char* computeName(const char root[]) {
-        fName.set(root);
-        fName.appendS32(fShift);
+        fName.printf("%s_%d", root, fShift);
+        if (fStroke > 0) {
+            fName.appendf("_stroke_%d", fStroke);
+        }
         return fName.c_str();
     }
 
@@ -48,6 +52,10 @@ protected:
     virtual const char* onGetName() { return computeName("rects"); }
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
+        if (fStroke > 0) {
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setStrokeWidth(SkIntToScalar(fStroke));
+        }
         for (int i = 0; i < N; i++) {
             paint.setColor(fColors[i]);
             this->setupPaint(&paint);
@@ -192,8 +200,10 @@ private:
 };
 
 
-static SkBenchmark* RectFactory1(void* p) { return SkNEW_ARGS(RectBench, (p, 1)); }
-static SkBenchmark* RectFactory2(void* p) { return SkNEW_ARGS(RectBench, (p, 3)); }
+static SkBenchmark* RectFactory1F(void* p) { return SkNEW_ARGS(RectBench, (p, 1)); }
+static SkBenchmark* RectFactory1S(void* p) { return SkNEW_ARGS(RectBench, (p, 1, 4)); }
+static SkBenchmark* RectFactory2F(void* p) { return SkNEW_ARGS(RectBench, (p, 3)); }
+static SkBenchmark* RectFactory2S(void* p) { return SkNEW_ARGS(RectBench, (p, 3, 4)); }
 static SkBenchmark* OvalFactory1(void* p) { return SkNEW_ARGS(OvalBench, (p, 1)); }
 static SkBenchmark* OvalFactory2(void* p) { return SkNEW_ARGS(OvalBench, (p, 3)); }
 static SkBenchmark* RRectFactory1(void* p) { return SkNEW_ARGS(RRectBench, (p, 1)); }
@@ -234,8 +244,11 @@ static SkBenchmark* BlitMaskShaderFactory(void* p) {
                      BlitMaskBench::KMaskShader, "maskshader")
                      );
 }
-static BenchRegistry gRectReg1(RectFactory1);
-static BenchRegistry gRectReg2(RectFactory2);
+
+static BenchRegistry gRectReg1F(RectFactory1F);
+static BenchRegistry gRectReg1S(RectFactory1S);
+static BenchRegistry gRectReg2F(RectFactory2F);
+static BenchRegistry gRectReg2S(RectFactory2S);
 static BenchRegistry gOvalReg1(OvalFactory1);
 static BenchRegistry gOvalReg2(OvalFactory2);
 static BenchRegistry gRRectReg1(RRectFactory1);
