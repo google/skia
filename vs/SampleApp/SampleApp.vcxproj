@@ -54,7 +54,7 @@
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GR_DEBUG=1;GR_IMPLEMENTATION=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;GR_DEBUG=1;GR_IMPLEMENTATION=1;GR_GL_FUNCTION_TYPE=__stdcall;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include;..\..\include\ports</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
@@ -72,7 +72,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GR_RELEASE=1;GR_IMPLEMENTATION=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;GR_RELEASE=1;GR_IMPLEMENTATION=1;GR_GL_FUNCTION_TYPE=__stdcall;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\include\core;..\..\include\xml;..\..\include\utils;..\..\include\config;..\..\include\views;..\..\src\core;..\..\include\images;..\..\include\effects;..\..\include\gpu;..\..\include\pdf;..\..\gpu\include;..\..\include\ports</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
@@ -153,10 +153,14 @@
     <ClInclude Include="..\..\gpu\include\GrUserConfig.h" />
     <ClInclude Include="..\..\gpu\include\GrVertexBuffer.h" />
     <ClInclude Include="..\..\gpu\include\SkUIView.h" />
+    <ClInclude Include="..\..\gpu\src\GrBinHashKey.h" />
     <ClInclude Include="..\..\gpu\src\GrBufferAllocPool.h" />
+    <ClInclude Include="..\..\gpu\src\GrGLEffect.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGL.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
+    <ClInclude Include="..\..\gpu\src\GrGpuGLShaders.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h" />
+    <ClInclude Include="..\..\gpu\src\GrPathUtils.h" />
     <ClInclude Include="..\..\gpu\src\GrRedBlackTree.h" />
     <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h" />
     <ClInclude Include="..\..\include\gpu\SkGpuCanvas.h" />
@@ -237,12 +241,15 @@
     <ClCompile Include="..\..\gpu\src\GrMemory.cpp" />
     <ClCompile Include="..\..\gpu\src\GrPath.cpp" />
     <ClCompile Include="..\..\gpu\src\GrPathRenderer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrPathUtils.cpp" />
     <ClCompile Include="..\..\gpu\src\GrRectanizer.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrResource.cpp" />
     <ClCompile Include="..\..\gpu\src\GrStencil.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextStrike.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextureCache.cpp" />
     <ClCompile Include="..\..\gpu\src\gr_unittests.cpp" />
+    <ClCompile Include="..\..\gpu\src\win\GrGLDefaultInterface_win.cpp" />
     <ClCompile Include="..\..\samplecode\OverView.cpp" />
     <ClCompile Include="..\..\samplecode\SampleAll.cpp" />
     <ClCompile Include="..\..\samplecode\SampleApp.cpp" />
@@ -356,6 +363,7 @@
     <ClCompile Include="..\..\src\core\SkMath.cpp" />
     <ClCompile Include="..\..\src\core\SkMatrix.cpp" />
     <ClCompile Include="..\..\src\core\SkMemory_stdlib.cpp" />
+    <ClCompile Include="..\..\src\core\SkMetaData.cpp" />
     <ClCompile Include="..\..\src\core\SkPackBits.cpp" />
     <ClCompile Include="..\..\src\core\SkPaint.cpp" />
     <ClCompile Include="..\..\src\core\SkPath.cpp" />
@@ -466,7 +474,6 @@
     <ClCompile Include="..\..\src\utils\win\SkOSWindow_Win.cpp" />
     <ClCompile Include="..\..\src\views\SkEvent.cpp" />
     <ClCompile Include="..\..\src\views\SkEventSink.cpp" />
-    <ClCompile Include="..\..\src\views\SkMetaData.cpp" />
     <ClCompile Include="..\..\src\views\SkOSMenu.cpp" />
     <ClCompile Include="..\..\src\views\SkTagList.cpp" />
     <ClCompile Include="..\..\src\views\SkTextBox.cpp" />

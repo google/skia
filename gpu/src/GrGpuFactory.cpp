@@ -29,10 +29,19 @@
 #include "GrGpuGLShaders2.h"
 
 GrGpu* GrGpu::Create(Engine engine, Platform3DContext context3D) {
-    // If no GL bindings have been installed, fall-back to calling the
-    // GL functions that have been linked with the executable.
-    if (!GrGLGetGLInterface())
-        GrGLSetDefaultGLInterface();
+
+    if (kOpenGL_Shaders_Engine == engine ||
+        kOpenGL_Fixed_Engine == engine) {
+        // If no GL bindings have been installed, fall-back to calling the
+        // GL functions that have been linked with the executable.
+        if (!GrGLGetGLInterface()) {
+            GrGLSetDefaultGLInterface();
+            // If there is no platform-default then just fail.
+            if (!GrGLGetGLInterface()) {
+                return NULL;
+            }
+        }
+    }
 
     GrGpu* gpu = NULL;
 

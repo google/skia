@@ -507,6 +507,7 @@
             '../include/images/SkJpegUtility.h',
 
             '../src/images/SkFDStream.cpp',
+            '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libpvjpeg.c',
@@ -899,7 +900,6 @@
         '../gpu/include/GrGLIndexBuffer.h',
         '../gpu/include/GrGLInterface.h',
         '../gpu/include/GrGLIRect.h',
-        '../gpu/include/GrGLPlatformIncludes.h',
         '../gpu/include/GrGLTexture.h',
         '../gpu/include/GrGLVertexBuffer.h',
         '../gpu/include/GrGlyph.h',
@@ -919,7 +919,6 @@
         '../gpu/include/GrPathIter.h',
         '../gpu/include/GrPathRenderer.h',
         '../gpu/include/GrPathSink.h',
-        '../gpu/include/GrPathUtils.h',
         '../gpu/include/GrPlotMgr.h',
         '../gpu/include/GrPoint.h',
         '../gpu/include/GrRandom.h',
@@ -957,6 +956,7 @@
         '../gpu/src/GrCreatePathRenderer_none.cpp',
         '../gpu/src/GrDrawTarget.cpp',
         '../gpu/src/GrGLEffect.h',
+        '../gpu/src/GrGLDefaultInterface_none.cpp',
         '../gpu/src/GrGLIndexBuffer.cpp',
         '../gpu/src/GrGLInterface.cpp',
         '../gpu/src/GrGLProgram.cpp',
@@ -980,6 +980,7 @@
         '../gpu/src/GrPath.cpp',
         '../gpu/src/GrPathRenderer.cpp',
         '../gpu/src/GrPathUtils.cpp',
+        '../gpu/src/GrPathUtils.h',
         '../gpu/src/GrPrintf_printf.cpp',
         '../gpu/src/GrRectanizer.cpp',
         '../gpu/src/GrRedBlackTree.h',
@@ -991,6 +992,10 @@
         '../gpu/src/GrTextStrike_impl.h',
         '../gpu/src/GrTextureCache.cpp',
         '../gpu/src/gr_unittests.cpp',
+
+        '../gpu/src/mac/GrGLDefaultInterface_mac.cpp',
+
+        '../gpu/src/win/GrGLDefaultInterface_win.cpp',
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',
@@ -1016,12 +1021,29 @@
               '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
             ],
           },
+          'sources!': [
+            '../gpu/src/GrGLDefaultInterface_none.cpp',
+          ],
           }],
         [ 'OS == "win"', {
           'defines': [
             'GR_WIN32_BUILD=1',
+            'GR_GL_FUNCTION_TYPE=__stdcall',
+          ],
+          'sources!': [
+            '../gpu/src/GrGLDefaultInterface_none.cpp',
           ],
         },],
+        [ 'OS != "win"', {
+          'sources!': [
+            '../gpu/src/win/GrGLDefaultInterface_win.cpp',
+          ],
+        }],
+        [ 'OS != "mac"', {
+          'sources!': [
+            '../gpu/src/mac/GrGLDefaultInterface_mac.cpp',
+          ],
+        }],
       ],
       'direct_dependent_settings': {
         'conditions': [
@@ -1038,6 +1060,7 @@
           [ 'OS == "win"', {
             'defines': [
               'GR_WIN32_BUILD=1',
+              'GR_GL_FUNCTION_TYPE=__stdcall',
             ],
           },],
         ],

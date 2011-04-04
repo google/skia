@@ -15,58 +15,13 @@
  */
 
 
-#include "GrGLInterface.h"
 #include "GrTypes.h"
+#include "GrGLInterface.h"
+#include "GrGLDefines.h"
 
-#include "GrGLPlatformIncludes.h"
 #include <stdio.h>
 
-#if defined(GR_GL_PLATFORM_HEADER_SUPPORT)
-    #include GR_GL_PLATFORM_HEADER_SUPPORT
-#endif
-
-#if defined(GR_GL_PLATFORM_HEADER)
-    #include GR_GL_PLATFORM_HEADER
-#endif
-
-#if defined(GR_GL_PLATFORM_HEADER_EXT)
-    #include GR_GL_PLATFORM_HEADER_EXT
-#endif
-
-#if defined(GR_GL_PLATFORM_HEADER2)
-    #include GR_GL_PLATFORM_HEADER2
-#endif
-
-#if defined(GR_GL_PLATFORM_HEADER_EXT2)
-    #include GR_GL_PLATFORM_HEADER_EXT2
-#endif
-
-#if defined(GR_GL_PROC_ADDRESS_HEADER)
-    #include GR_GL_PROC_ADDRESS_HEADER
-#endif
-
-#if !defined(GR_GL_PROC_ADDRESS)
-    #error "Must define GR_GL_PROC_ADDRESS"
-#endif
-
-#define GR_GL_GET_PROC(PROC_NAME) \
-    glBindings->f##PROC_NAME = \
-                reinterpret_cast<GrGLInterface::GrGL##PROC_NAME##Proc>( \
-                            GR_GL_PROC_ADDRESS(gl##PROC_NAME)); \
-    GrAssert(NULL != glBindings->f##PROC_NAME && \
-             "Missing GL binding: " #PROC_NAME);
-
-#define GR_GL_GET_PROC_SUFFIX(PROC_NAME, SUFFIX) \
-    glBindings->f##PROC_NAME = \
-                reinterpret_cast<GrGLInterface::GrGL##PROC_NAME##Proc>( \
-                        GR_GL_PROC_ADDRESS(gl##PROC_NAME##SUFFIX)); \
-    GrAssert(NULL != glBindings->f##PROC_NAME && \
-             "Missing GL binding: " #PROC_NAME);
-
-#define GR_GL_GET_PROC_SYMBOL(PROC_NAME) \
-    glBindings->f##PROC_NAME = reinterpret_cast<GrGLInterface::GrGL##PROC_NAME##Proc>(gl##PROC_NAME);
-
-namespace {
+GrGLInterface* gGLInterface = NULL;
 
 void gl_version_from_string(int* major, int* minor,
                             const char* versionString) {
@@ -117,246 +72,6 @@ bool has_gl_extension_from_string(const char* ext,
     return false;
 }
 
-GrGLInterface* gGLInterface = NULL;
-
-void InitializeGLInterfaceExtensions(GrGLInterface* glBindings) {
-    int major, minor;
-    const char* versionString = reinterpret_cast<const char*>(
-                glBindings->fGetString(GL_VERSION));
-    const char* extensionString = reinterpret_cast<const char*>(
-                glBindings->fGetString(GL_EXTENSIONS));
-    gl_version_from_string(&major, &minor, versionString);
-
-    bool fboFound = false;
-#if GR_SUPPORT_GLDESKTOP
-    if (major >= 3 || has_gl_extension_from_string("GL_ARB_framebuffer_object",
-                                                   extensionString)) {
-        // GL_ARB_framebuffer_object doesn't use ARB suffix.
-        GR_GL_GET_PROC(GenFramebuffers);
-        GR_GL_GET_PROC(BindFramebuffer);
-        GR_GL_GET_PROC(FramebufferTexture2D);
-        GR_GL_GET_PROC(CheckFramebufferStatus);
-        GR_GL_GET_PROC(DeleteFramebuffers);
-        GR_GL_GET_PROC(RenderbufferStorage);
-        GR_GL_GET_PROC(GenRenderbuffers);
-        GR_GL_GET_PROC(DeleteRenderbuffers);
-        GR_GL_GET_PROC(FramebufferRenderbuffer);
-        GR_GL_GET_PROC(BindRenderbuffer);
-        GR_GL_GET_PROC(RenderbufferStorageMultisample);
-        GR_GL_GET_PROC(BlitFramebuffer);
-        fboFound = true;
-    }
-
-    #if GL_EXT_framebuffer_object
-    if (!fboFound &&
-            has_gl_extension_from_string("GL_EXT_framebuffer_object",
-                                         extensionString)) {
-        GR_GL_GET_PROC_SUFFIX(GenFramebuffers, EXT);
-        GR_GL_GET_PROC_SUFFIX(BindFramebuffer, EXT);
-        GR_GL_GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
-        GR_GL_GET_PROC_SUFFIX(CheckFramebufferStatus, EXT);
-        GR_GL_GET_PROC_SUFFIX(DeleteFramebuffers, EXT);
-        GR_GL_GET_PROC_SUFFIX(RenderbufferStorage, EXT);
-        GR_GL_GET_PROC_SUFFIX(GenRenderbuffers, EXT);
-        GR_GL_GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
-        GR_GL_GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
-        GR_GL_GET_PROC_SUFFIX(BindRenderbuffer, EXT);
-        fboFound = true;
-
-        if (has_gl_extension_from_string("GL_EXT_framebuffer_multisample",
-                                         extensionString)) {
-            GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
-        }
-        if (has_gl_extension_from_string("GL_EXT_framebuffer_blit",
-                                         extensionString)) {
-            GR_GL_GET_PROC_SUFFIX(BlitFramebuffer, EXT);
-        }
-    }
-    #endif
-
-    // we assume we have at least GL 1.5 or higher (VBOs introduced in 1.5)
-    GrAssert((major == 1 && minor >= 5) || major >=2);
-    GR_GL_GET_PROC(MapBuffer);
-    GR_GL_GET_PROC(UnmapBuffer);
-#else // !GR_SUPPORT_GLDESKTOP
-    #if GR_SUPPORT_GLES2
-    if (!fboFound && major >= 2) {// ES 2.0 supports FBO
-        GR_GL_GET_PROC(GenFramebuffers);
-        GR_GL_GET_PROC(BindFramebuffer);
-        GR_GL_GET_PROC(FramebufferTexture2D);
-        GR_GL_GET_PROC(CheckFramebufferStatus);
-        GR_GL_GET_PROC(DeleteFramebuffers);
-        GR_GL_GET_PROC(RenderbufferStorage);
-        GR_GL_GET_PROC(GenRenderbuffers);
-        GR_GL_GET_PROC(DeleteRenderbuffers);
-        GR_GL_GET_PROC(FramebufferRenderbuffer);
-        GR_GL_GET_PROC(BindRenderbuffer);
-        fboFound = true;
-    }
-    #endif
-
-    #if GL_OES_framebuffer_object
-    if (!fboFound &&
-            has_gl_extension_from_string("GL_OES_framebuffer_object",
-                                         extensionString)) {
-        GR_GL_GET_PROC_SUFFIX(GenFramebuffers, OES);
-        GR_GL_GET_PROC_SUFFIX(BindFramebuffer, OES);
-        GR_GL_GET_PROC_SUFFIX(FramebufferTexture2D, OES);
-        GR_GL_GET_PROC_SUFFIX(CheckFramebufferStatus, OES);
-        GR_GL_GET_PROC_SUFFIX(DeleteFramebuffers, OES);
-        GR_GL_GET_PROC_SUFFIX(RenderbufferStorage, OES);
-        GR_GL_GET_PROC_SUFFIX(GenRenderbuffers, OES);
-        GR_GL_GET_PROC_SUFFIX(DeleteRenderbuffers, OES);
-        GR_GL_GET_PROC_SUFFIX(FramebufferRenderbuffer, OES);
-        GR_GL_GET_PROC_SUFFIX(BindRenderbuffer, OES);
-        fboFound = true;
-    }
-    #endif
-    bool msaaFound = false;
-    // Chrome advertises the equivalent of GL_EXT_framebuffer_blit plus
-    // GL_EXT_framebuffer_multisample as GL_CHROMIUM_framebuffer_multisample
-    // The EXT suffixes are used on the functions, however.
-    #if GL_EXT_framebuffer_multisample
-    if (!msaaFound &&
-        has_gl_extension_from_string("GL_CHROMIUM_framebuffer_multisample",
-                                     extensionString)) {
-        GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
-        GR_GL_GET_PROC_SUFFIX(BlitFramebuffer, EXT);
-        msaaFound = true;
-    }
-    #endif
-    #if GL_APPLE_framebuffer_multisample
-    if (!msaaFound && 
-        has_gl_extension_from_string("GL_APPLE_framebuffer_multisample",
-                                     extensionString)) {
-        GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, APPLE);
-        GR_GL_GET_PROC_SUFFIX(ResolveMultisampleFramebuffer, APPLE);
-        msaaFound = true;
-    }
-    #endif
-
-    #if GL_OES_mapbuffer
-    if (has_gl_extension_from_string("GL_OES_mapbuffer", extensionString)) {
-        GR_GL_GET_PROC_SUFFIX(MapBuffer, OES);
-        GR_GL_GET_PROC_SUFFIX(UnmapBuffer, OES);
-    }
-    #endif
-#endif  // !GR_SUPPORT_GLDESKTOP
-
-    if (!fboFound) {
-        // we require some form of FBO
-        GrAssert(!"No FBOs supported?");
-    }
-}
-
-void GrGLInitializeGLInterface(GrGLInterface* glBindings) {
-    Gr_bzero(glBindings, sizeof(GrGLInterface));
-
-    // Indicate the type of the exported GL functions based on macros
-    // pulled in from the platform includes.
-#if GR_SUPPORT_GLDESKTOP
-    glBindings->fBindingsExported = kDesktop_GrGLBinding;
-#endif
-
-#if GR_SUPPORT_GLES1 && !GR_SUPPORT_GLES2
-    glBindings->fBindingsExported = kES1_GrGLBinding;
-#endif
-
-#if GR_SUPPORT_GLES2
-    glBindings->fBindingsExported = kES2_GrGLBinding;
-#endif
-
-#if GR_SUPPORT_GLDESKTOP || GR_SUPPORT_GLES1
-    // These entry points only exist on desktop GL implementations.
-    GR_GL_GET_PROC_SYMBOL(Color4ub);
-    GR_GL_GET_PROC_SYMBOL(ColorPointer);
-    GR_GL_GET_PROC_SYMBOL(DisableClientState);
-    GR_GL_GET_PROC_SYMBOL(EnableClientState);
-    GR_GL_GET_PROC_SYMBOL(LoadMatrixf);
-    GR_GL_GET_PROC_SYMBOL(MatrixMode);
-    GR_GL_GET_PROC_SYMBOL(PointSize);
-    GR_GL_GET_PROC_SYMBOL(ShadeModel);
-    GR_GL_GET_PROC_SYMBOL(TexCoordPointer);
-    GR_GL_GET_PROC_SYMBOL(TexEnvi);
-    GR_GL_GET_PROC_SYMBOL(VertexPointer);
-    GR_GL_GET_PROC(ClientActiveTexture);
-#endif
-
-    // The following gl entry points are part of GL 1.1, and will always be
-    // exported as symbols.
-    // Note that on windows, the wglGetProcAddress call will fail to retrieve
-    // these entry points.
-    GR_GL_GET_PROC_SYMBOL(BlendFunc);
-    GR_GL_GET_PROC_SYMBOL(Clear);
-    GR_GL_GET_PROC_SYMBOL(ClearColor);
-    GR_GL_GET_PROC_SYMBOL(ClearStencil);
-    GR_GL_GET_PROC_SYMBOL(ColorMask);
-    GR_GL_GET_PROC_SYMBOL(CullFace);
-    GR_GL_GET_PROC_SYMBOL(DeleteTextures);
-    GR_GL_GET_PROC_SYMBOL(DepthMask);
-    GR_GL_GET_PROC_SYMBOL(Disable);
-    GR_GL_GET_PROC_SYMBOL(DrawArrays);
-    GR_GL_GET_PROC_SYMBOL(DrawElements);
-    GR_GL_GET_PROC_SYMBOL(Enable);
-    GR_GL_GET_PROC_SYMBOL(FrontFace);
-    GR_GL_GET_PROC_SYMBOL(GenTextures);
-    GR_GL_GET_PROC_SYMBOL(GetError);
-    GR_GL_GET_PROC_SYMBOL(GetIntegerv);
-    GR_GL_GET_PROC_SYMBOL(GetString);
-    GR_GL_GET_PROC_SYMBOL(LineWidth);
-    GR_GL_GET_PROC_SYMBOL(PixelStorei);
-    GR_GL_GET_PROC_SYMBOL(ReadPixels);
-    GR_GL_GET_PROC_SYMBOL(Scissor);
-    GR_GL_GET_PROC_SYMBOL(StencilFunc);
-    GR_GL_GET_PROC_SYMBOL(StencilMask);
-    GR_GL_GET_PROC_SYMBOL(StencilOp);
-    GR_GL_GET_PROC_SYMBOL(TexImage2D);
-    GR_GL_GET_PROC_SYMBOL(TexParameteri);
-    GR_GL_GET_PROC_SYMBOL(TexSubImage2D);
-    GR_GL_GET_PROC_SYMBOL(Viewport);
-
-    // Capture the remaining entry points as gl extensions.
-    GR_GL_GET_PROC(ActiveTexture);
-    GR_GL_GET_PROC(AttachShader);
-    GR_GL_GET_PROC(BindAttribLocation);
-    GR_GL_GET_PROC(BindBuffer);
-    GR_GL_GET_PROC(BindTexture);
-    GR_GL_GET_PROC(BlendColor);
-    GR_GL_GET_PROC(BufferData);
-    GR_GL_GET_PROC(BufferSubData);
-    GR_GL_GET_PROC(CompileShader);
-    GR_GL_GET_PROC(CompressedTexImage2D);
-    GR_GL_GET_PROC(CreateProgram);
-    GR_GL_GET_PROC(CreateShader);
-    GR_GL_GET_PROC(DeleteBuffers);
-    GR_GL_GET_PROC(DeleteProgram);
-    GR_GL_GET_PROC(DeleteShader);
-    GR_GL_GET_PROC(DisableVertexAttribArray);
-    GR_GL_GET_PROC(EnableVertexAttribArray);
-    GR_GL_GET_PROC(GenBuffers);
-    GR_GL_GET_PROC(GetBufferParameteriv);
-    GR_GL_GET_PROC(GetProgramInfoLog);
-    GR_GL_GET_PROC(GetProgramiv);
-    GR_GL_GET_PROC(GetShaderInfoLog);
-    GR_GL_GET_PROC(GetShaderiv);
-    GR_GL_GET_PROC(GetUniformLocation);
-    GR_GL_GET_PROC(LinkProgram);
-    GR_GL_GET_PROC(ShaderSource);
-    GR_GL_GET_PROC(StencilFuncSeparate);
-    GR_GL_GET_PROC(StencilMaskSeparate);
-    GR_GL_GET_PROC(StencilOpSeparate);
-    GR_GL_GET_PROC(Uniform1fv);
-    GR_GL_GET_PROC(Uniform1i);
-    GR_GL_GET_PROC(Uniform4fv);
-    GR_GL_GET_PROC(UniformMatrix3fv);
-    GR_GL_GET_PROC(UseProgram);
-    GR_GL_GET_PROC(VertexAttrib4fv);
-    GR_GL_GET_PROC(VertexAttribPointer);
-
-    InitializeGLInterfaceExtensions(glBindings);
-}
-
-}  // unnamed namespace
 
 GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface) {
     gGLInterface = gl_interface;
@@ -366,26 +81,15 @@ GR_API GrGLInterface* GrGLGetGLInterface() {
     return gGLInterface;
 }
 
-void GrGLSetDefaultGLInterface() {
-    static GrGLInterface gDefaultInterface;
-    static bool gDefaultInitialized = false;
-    GrAssert(!gDefaultInitialized);
-
-    if (!gDefaultInitialized) {
-        GrGLInitializeGLInterface(&gDefaultInterface);
-        GrGLSetGLInterface(&gDefaultInterface);
-    }
-}
-
 bool has_gl_extension(const char* ext) {
     const char* glstr = reinterpret_cast<const char*>(
-                GrGLGetGLInterface()->fGetString(GL_EXTENSIONS));
+                GrGLGetGLInterface()->fGetString(GR_GL_EXTENSIONS));
 
     return has_gl_extension_from_string(ext, glstr);
 }
 
 void gl_version(int* major, int* minor) {
     const char* v = reinterpret_cast<const char*>(
-                GrGLGetGLInterface()->fGetString(GL_VERSION));
+                GrGLGetGLInterface()->fGetString(GR_GL_VERSION));
     gl_version_from_string(major, minor, v);
 }

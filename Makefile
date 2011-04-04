@@ -103,6 +103,8 @@ ifeq ($(SKIA_BUILD_FOR),mac)
         SRC_LIST += src/images/SkImageDecoder_libpng.cpp
     # support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
+	
+	SRC_LIST += gpu/src/mac/GrGLDefaultInterface_mac.cpp
 else
 	LINKER_OPTS += -lpng -lfreetype -lGL
 	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG -DGR_LINUX_BUILD=1
@@ -124,6 +126,8 @@ else
         SRC_LIST += src/images/SkImageDecoder_libpng.cpp
     # support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
+	
+	SRC_LIST += gpu/src/GrGLDefaultInterface_none.cpp
 endif
 
 # For these files, and these files only, compile with -msse2.
