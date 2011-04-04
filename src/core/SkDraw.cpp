@@ -718,6 +718,11 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     } else if (zeroWidth) {
         rtype = kHair_RectType;
     } else if (easy_rect_join(paint)) {
+#ifdef SK_DISABLE_FAST_AA_STROKE_RECT
+        if (paint.isAntiAlias()) {
+            rtype = kPath_RectType;
+        } else
+#endif
         rtype = kStroke_RectType;
     } else {
         rtype = kPath_RectType;
