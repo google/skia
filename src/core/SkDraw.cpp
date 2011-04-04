@@ -679,15 +679,17 @@ static inline SkPoint* as_rightbottom(SkRect* r) {
     return ((SkPoint*)(void*)r) + 1;
 }
 
-static bool easy_rect_join(const SkPaint& paint) {
-#if 0
-    return SkPaint::kMiter_Join == paint.getStrokeJoin() &&
-           paint.getStrokeMiter() >= SK_ScalarSqrt2;
-#else
-    // return false until we handle non-square scaling in the matrix, where
-    // the horizontal and vertical widths may differ.
-    return false;
-#endif
+static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
+                           SkPoint* strokeSize) {
+    if (SkPaint::kMiter_Join != paint.getStrokeJoin() ||
+        paint.getStrokeMiter() < SK_ScalarSqrt2) {
+        return false;
+    }
+
+    SkASSERT(matrix.rectStaysRect());
+    SkPoint pt = { paint.getStrokeWidth(), paint.getStrokeWidth() };
+    matrix.mapVectors(strokeSize, &pt, 1);
+    return true;
 }
 
 enum RectType {
@@ -710,6 +712,7 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     const SkScalar width = paint.getStrokeWidth();
     bool zeroWidth = (0 == width);
     SkPaint::Style style = paint.getStyle();
+    SkPoint strokeSize;
 
     if ((SkPaint::kStrokeAndFill_Style == style) && zeroWidth) {
         style = SkPaint::kFill_Style;
@@ -723,7 +726,7 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
         rtype = kFill_RectType;
     } else if (zeroWidth) {
         rtype = kHair_RectType;
-    } else if (easy_rect_join(paint)) {
+    } else if (easy_rect_join(paint, *fMatrix, &strokeSize)) {
 #ifdef SK_DISABLE_FAST_AA_STROKE_RECT
         if (paint.isAntiAlias()) {
             rtype = kPath_RectType;
@@ -785,9 +788,9 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
             break;
         case kStroke_RectType:
             if (paint.isAntiAlias()) {
-                SkScan::AntiFrameRect(devRect, width, clip, blitter);
+                SkScan::AntiFrameRect(devRect, strokeSize, clip, blitter);
             } else {
-                SkScan::FrameRect(devRect, width, clip, blitter);
+                SkScan::FrameRect(devRect, strokeSize, clip, blitter);
             }
             break;
         case kHair_RectType:

@@ -317,36 +317,39 @@ void SkScan::AntiHairPath(const SkPath& path, const SkRegion* clip, SkBlitter* b
     hair_path(path, clip, blitter, SkScan::AntiHairLine);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-void SkScan::FrameRect(const SkRect& r, SkScalar diameter, const SkRegion* clip, SkBlitter* blitter)
-{
-    SkASSERT(diameter > 0);
+void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
+                       const SkRegion* clip, SkBlitter* blitter) {
+    SkASSERT(strokeSize.fX >= 0 && strokeSize.fY >= 0);
 
-    if (r.isEmpty())
+    if (strokeSize.fX < 0 || strokeSize.fY < 0) {
         return;
+    }
 
-    SkScalar radius = diameter / 2;
+    const SkScalar dx = strokeSize.fX;
+    const SkScalar dy = strokeSize.fY;
+    SkScalar rx = SkScalarHalf(dx);
+    SkScalar ry = SkScalarHalf(dy);
     SkRect   outer, tmp;
 
-    outer.set(  r.fLeft - radius, r.fTop - radius,
-                r.fRight + radius, r.fBottom + radius);
+    outer.set(r.fLeft - rx, r.fTop - ry,
+                r.fRight + rx, r.fBottom + ry);
 
-    if (r.width() <= diameter || r.height() <= diameter)
-    {
+    if (r.width() <= dx || r.height() <= dx) {
         SkScan::FillRect(outer, clip, blitter);
         return;
     }
 
-    tmp.set(outer.fLeft, outer.fTop, outer.fRight, outer.fTop + diameter);
+    tmp.set(outer.fLeft, outer.fTop, outer.fRight, outer.fTop + dy);
     SkScan::FillRect(tmp, clip, blitter);
-    tmp.fTop = outer.fBottom - diameter;
+    tmp.fTop = outer.fBottom - dy;
     tmp.fBottom = outer.fBottom;
     SkScan::FillRect(tmp, clip, blitter);
 
-    tmp.set(outer.fLeft, outer.fTop + diameter, outer.fLeft + diameter, outer.fBottom - diameter);
+    tmp.set(outer.fLeft, outer.fTop + dy, outer.fLeft + dx, outer.fBottom - dy);
     SkScan::FillRect(tmp, clip, blitter);
-    tmp.fLeft = outer.fRight - diameter;
+    tmp.fLeft = outer.fRight - dx;
     tmp.fRight = outer.fRight;
     SkScan::FillRect(tmp, clip, blitter);
 }
