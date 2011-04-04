@@ -25,7 +25,7 @@ struct GrPoint;
 /**
  *  Base class for drawing paths into a GrDrawTarget.
  */
-class GrPathRenderer : public GrRefCnt {
+class GR_API GrPathRenderer : public GrRefCnt {
 public:
     /**
      * Returns true if this path renderer is able to render the path.
@@ -124,7 +124,7 @@ private:
  *  Subclass that renders the path using the stencil buffer to resolve fill
  *  rules (e.g. winding, even-odd)
  */
-class GrDefaultPathRenderer : public GrPathRenderer {
+class GR_API GrDefaultPathRenderer : public GrPathRenderer {
 public:
     GrDefaultPathRenderer(bool separateStencilSupport,
                           bool stencilWrapOpsSupport);
