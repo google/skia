@@ -15,6 +15,7 @@
  */
 
 #include "SkPDFGraphicState.h"
+#include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
@@ -145,14 +146,14 @@ void SkPDFGraphicState::populateDict() {
         insert("SA", new SkPDFBool(true))->unref();  // Auto stroke adjustment.
 
         SkXfermode::Mode xfermode = SkXfermode::kSrcOver_Mode;
-        // If asMode fails return false, default to kSrcOver_Mode.
+        // If asMode fails, default to kSrcOver_Mode.
         if (fPaint.getXfermode())
             fPaint.getXfermode()->asMode(&xfermode);
         // If we don't support the mode, just use kSrcOver_Mode.
         if (xfermode < 0 || xfermode > SkXfermode::kLastMode ||
                 blendModeFromXfermode(xfermode) == NULL) {
-            fprintf(stderr, "NOT_IMPLEMENTED: xfermode = %d\n", xfermode);
             xfermode = SkXfermode::kSrcOver_Mode;
+            NOT_IMPLEMENTED("unsupported xfermode", false);
         }
         insert("BM", new SkPDFName(blendModeFromXfermode(xfermode)))->unref();
     }
