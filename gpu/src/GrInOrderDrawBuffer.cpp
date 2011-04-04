@@ -316,6 +316,7 @@ void GrInOrderDrawBuffer::reset() {
 }
 
 void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
+    GrAssert(!fReservedGeometry.fLocked);
     GrAssert(NULL != target);
     GrAssert(target != this); // not considered and why?
 
@@ -346,8 +347,6 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
             ++currClip;
             target->setClip(fClips[currClip]);
         }
-        uint32_t vertexReserveCount = 0;
-        uint32_t indexReserveCount = 0;
 
         target->setVertexSourceToBuffer(draw.fVertexLayout, draw.fVertexBuffer);
 
@@ -365,9 +364,6 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
             target->drawNonIndexed(draw.fPrimitiveType,
                                    draw.fStartVertex,
                                    draw.fVertexCount);
-        }
-        if (vertexReserveCount || indexReserveCount) {
-            target->releaseReservedGeometry();
         }
     }
 }

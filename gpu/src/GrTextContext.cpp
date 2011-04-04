@@ -176,7 +176,9 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
         if (fStrike->getGlyphAtlas(glyph, scaler)) {
             goto HAS_ATLAS;
         }
-        // must do this to flush inorder buffering before we purge
+
+        // before we purge the cache, we must flush any accumulated draws
+        this->flushGlyphs();
         fContext->flushText();
 
         // try to purge
@@ -185,11 +187,7 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
             goto HAS_ATLAS;
         }
 
-        // Draw as a path, so we flush any accumulated glyphs first
-        this->flushGlyphs();
-
         if (NULL == glyph->fPath) {
-
             GrPath* path = new GrPath;
             if (!scaler->getGlyphPath(glyph->glyphID(), path)) {
                 // flag the glyph as being dead?
