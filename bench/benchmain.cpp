@@ -317,6 +317,14 @@ int main (int argc, char * const argv[]) {
         }
     }
 
+    // report our current settings
+    {
+        SkString str;
+        str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d\n",
+                   forceAlpha, forceAA, forceFilter);
+        log_progress(str);
+    }
+                   
     Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
