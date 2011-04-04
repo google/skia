@@ -1,7 +1,6 @@
 SOURCE := \
     SkEvent.cpp \
     SkEventSink.cpp \
-    SkMetaData.cpp \
     SkOSMenu.cpp \
     SkTagList.cpp \
     SkView.cpp \
@@ -9,6 +8,7 @@ SOURCE := \
     SkWindow.cpp \
     SkTouchGesture.cpp
 #    SkBGViewArtist.cpp \
+    SkMetaData.cpp \
     SkListView.cpp \
     SkListWidget.cpp \
     SkParsePaint.cpp \
