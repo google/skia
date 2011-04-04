@@ -680,8 +680,14 @@ static inline SkPoint* as_rightbottom(SkRect* r) {
 }
 
 static bool easy_rect_join(const SkPaint& paint) {
+#if 0
     return SkPaint::kMiter_Join == paint.getStrokeJoin() &&
            paint.getStrokeMiter() >= SK_ScalarSqrt2;
+#else
+    // return false until we handle non-square scaling in the matrix, where
+    // the horizontal and vertical widths may differ.
+    return false;
+#endif
 }
 
 enum RectType {
