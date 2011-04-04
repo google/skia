@@ -153,7 +153,6 @@
     <ClCompile Include="..\..\src\utils\win\SkOSWindow_Win.cpp" />
     <ClCompile Include="..\..\src\views\SkEvent.cpp" />
     <ClCompile Include="..\..\src\views\SkEventSink.cpp" />
-    <ClCompile Include="..\..\src\views\SkMetaData.cpp" />
     <ClCompile Include="..\..\src\views\SkOSMenu.cpp" />
     <ClCompile Include="..\..\src\views\SkTagList.cpp" />
     <ClCompile Include="..\..\src\views\SkTextBox.cpp" />
@@ -463,6 +462,16 @@
     <ClCompile Include="..\..\gpu\src\GrCreatePathRenderer_none.cpp">
       <Filter>Gr\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\gpu\src\win\GrGLDefaultInterface_win.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\core\SkMetaData.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrResource.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gpu\src\GrPathUtils.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gpu\include\FlingState.h" />
@@ -730,6 +739,18 @@
     </ClInclude>
     <ClInclude Include="..\..\gpu\include\GrPathRenderer.h">
       <Filter>Gr\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gpu\src\GrBinHashKey.h">
+      <Filter>Gr\src_headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gpu\src\GrGLEffect.h">
+      <Filter>Gr\src_headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gpu\src\GrGpuGLShaders.h">
+      <Filter>Gr\src_headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gpu\src\GrPathUtils.h">
+      <Filter>Gr\src_headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -737,7 +737,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         GR_GL(CompressedTexImage2D(GR_GL_TEXTURE_2D, 0, glDesc.fUploadFormat,
                                    glDesc.fAllocWidth, glDesc.fAllocHeight,
                                    0, imageSize, srcData));
-        GrGL_RestoreResetRowLength();
+        GrGLRestoreResetRowLength();
     } else {
         if (NULL != srcData && (glDesc.fAllocWidth != desc.fWidth ||
                                 glDesc.fAllocHeight != desc.fHeight)) {
@@ -747,7 +747,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
             GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0, 0, desc.fWidth,
                                 desc.fHeight, glDesc.fUploadFormat,
                                 glDesc.fUploadType, srcData));
-            GrGL_RestoreResetRowLength();
+            GrGLRestoreResetRowLength();
 
             uint32_t extraW = glDesc.fAllocWidth  - desc.fWidth;
             uint32_t extraH = glDesc.fAllocHeight - desc.fHeight;
@@ -802,7 +802,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
             GR_GL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat, glDesc.fAllocWidth,
                              glDesc.fAllocHeight, 0, glDesc.fUploadFormat,
                              glDesc.fUploadType, srcData));
-            GrGL_RestoreResetRowLength();
+            GrGLRestoreResetRowLength();
         }
     }
 

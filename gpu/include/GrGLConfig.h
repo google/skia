@@ -19,24 +19,24 @@
 #define GrGLConfig_DEFINED
 
 #include "GrTypes.h"
-#include "GrGLInterface.h"
 #include "GrGLDefines.h"
 
 /**
- * The following macros are used to staticlly configure the default
- * GrGLInterface, but should not be used outside of the GrGLInterface
- * scaffolding.  Undefine here to prevent accidental use.
+ * Optional GL config file.
  */
-#undef GR_SUPPORT_GLDESKTOP
-#undef GR_SUPPORT_GLES1
-#undef GR_SUPPORT_GLES2
-#undef GR_SUPPORT_GLES
+#ifdef GR_GL_CUSTOM_SETUP_HEADER
+    #include GR_GL_CUSTOM_SETUP_HEADER
+#endif
+
+#if !defined(GR_GL_FUNCTION_TYPE)
+    #define GR_GL_FUNCTION_TYPE
+#endif
 
 /**
  * The following are optional defines that can be enabled at the compiler
  * command line, in a IDE project, in a GrUserConfig.h file, or in a GL custom
- * file (if one is in use). They don't require GR_GL_CUSTOM_SETUP or
- * setup GR_GL_CUSTOM_SETUP_HEADER to be enabled:
+ * file (if one is in use). If a GR_GL_CUSTOM_SETUP_HEADER is used they can
+ * also be placed there.
  *
  * GR_GL_LOG_CALLS: if 1 Gr can print every GL call using GrPrintf. Defaults to
  * 0. Logging can be enabled and disabled at runtime using a debugger via to
@@ -71,6 +71,18 @@
 #if !defined(GR_GL_CHECK_ERROR_START)
     #define GR_GL_CHECK_ERROR_START     1
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * The following macros are used to staticlly configure the default
+ * GrGLInterface, but should not be used outside of the GrGLInterface
+ * scaffolding.  Undefine here to prevent accidental use.
+ */
+#undef GR_SUPPORT_GLDESKTOP
+#undef GR_SUPPORT_GLES1
+#undef GR_SUPPORT_GLES2
+#undef GR_SUPPORT_GLES
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -109,9 +121,7 @@
 
 extern void GrGLCheckErr(const char* location, const char* call);
 
-static inline void GrGLClearErr() {
-    while (GR_GL_NO_ERROR != GrGLGetGLInterface()->fGetError()) {}
-}
+extern void GrGLClearErr();
 
 #if GR_GL_CHECK_ERROR
     extern bool gCheckErrorGL;
@@ -138,14 +148,10 @@ static inline void GrGLClearErr() {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *  GrGL_RestoreResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
+ *  GrGLRestoreResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
  *  this wrapper, since GL_UNPACK_ROW_LENGTH is not available on all GL versions
  */
-static inline void GrGL_RestoreResetRowLength() {
-    if (GR_GL_SUPPORT_DESKTOP) {
-        GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
-    }
-}
+extern void GrGLRestoreResetRowLength();
 
 ////////////////////////////////////////////////////////////////////////////////
 

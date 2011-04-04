@@ -18,8 +18,7 @@
 #ifndef GrGLInterface_DEFINED
 #define GrGLInterface_DEFINED
 
-#include "GrGLPlatformIncludes.h"
-#include "GrTypes.h"
+#include "GrGLConfig.h"
 
 #if !defined(GR_GL_FUNCTION_TYPE)
     #define GR_GL_FUNCTION_TYPE
@@ -30,8 +29,15 @@
 /**
  * Helpers for glGetString()
  */
+
+void gl_version_from_string(int* major, int* minor,
+                            const char* versionString);
+bool has_gl_extension_from_string(const char* ext,
+                                  const char* extensionString);
+
 bool has_gl_extension(const char* ext);
 void gl_version(int* major, int* minor);
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,10 +49,14 @@ GR_API GrGLInterface* GrGLGetGLInterface();
 GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface);
 
 /*
- * Populates the global GrGLInterface pointer with an instance pointing to the
- * GL implementation linked with the executable.
+ * This is called when GrGLSetGLInterface() hasn't been called before creating a 
+ * GrGpuGL object. It provides a default implementation. The actual implementation 
+ * depends on which GrGLDefaultInterface_*.cpp has been linked. There are some 
+ * platform-specific implementations provided as well as 
+ * GrGLDefaultInterface_none.cpp which does nothing (effectively requiring an 
+ * explicit GrGLSetGLInterface call by the host).
  */
-extern void GrGLSetDefaultGLInterface();
+void GrGLSetDefaultGLInterface();
 
 typedef unsigned int GrGLenum;
 typedef unsigned char GrGLboolean;
@@ -63,6 +73,8 @@ typedef float GrGLclampf;
 typedef double GrGLdouble;
 typedef double GrGLclampd;
 typedef void GrGLvoid;
+typedef long GrGLintptr;
+typedef long GrGLsizeiptr;
 
 enum GrGLBinding {
     kDesktop_GrGLBinding = 0x01,
@@ -88,8 +100,8 @@ struct GrGLInterface {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendFuncProc)(GrGLenum sfactor, GrGLenum dfactor);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferDataProc)(GrGLenum target, GrGLsizei size, const GrGLvoid* data, GrGLenum usage);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferSubDataProc)(GrGLenum target, GrGLint offset, GrGLsizei size, const GrGLvoid* data);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferDataProc)(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferSubDataProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid* data);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLClearProc)(GrGLbitfield mask);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLClearColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLClearStencilProc)(GrGLint s);
@@ -117,9 +129,9 @@ struct GrGLInterface {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEnableVertexAttribArrayProc)(GrGLuint index);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFrontFaceProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenBuffersProc)(GrGLsizei n, GrGLuint* buffers);
-    typedef GrGLenum (GR_GL_FUNCTION_TYPE *GrGLGetErrorProc)(void);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenTexturesProc)(GrGLsizei n, GrGLuint* textures);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetBufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
+    typedef GrGLenum (GR_GL_FUNCTION_TYPE *GrGLGetErrorProc)(void);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetIntegervProc)(GrGLenum pname, GrGLint* params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetProgramInfoLogProc)(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetProgramivProc)(GrGLuint program, GrGLenum pname, GrGLint* params);
@@ -191,8 +203,8 @@ struct GrGLInterface {
     GrGLBindAttribLocationProc fBindAttribLocation;
     GrGLBindBufferProc fBindBuffer;
     GrGLBindTextureProc fBindTexture;
-    GrGLBlendFuncProc fBlendFunc;
     GrGLBlendColorProc fBlendColor;
+    GrGLBlendFuncProc fBlendFunc;
     GrGLBufferDataProc fBufferData;
     GrGLBufferSubDataProc fBufferSubData;
     GrGLClearProc fClear;
@@ -286,6 +298,11 @@ struct GrGLInterface {
     // Buffer mapping (extension in ES).
     GrGLMapBufferProc fMapBuffer;
     GrGLUnmapBufferProc fUnmapBuffer;
+
+    // Code that initializes this struct using a static initializer should
+    // make this the last entry in the static initializer. It can help to guard
+    // against failing to initialize newly-added members of this struct.
+    enum { kStaticInitEndGuard } fStaticInitEndGuard;
 };
 
 }  // extern "C"

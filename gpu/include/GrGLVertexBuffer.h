@@ -19,7 +19,7 @@
 #define GrGLVertexBuffer_DEFINED
 
 #include "GrVertexBuffer.h"
-#include "GrGLConfig.h"
+#include "GrGLInterface.h"
 
 class GrGpuGL;
 

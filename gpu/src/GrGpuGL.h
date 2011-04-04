@@ -19,7 +19,6 @@
 #define GrGpuGL_DEFINED
 
 #include "GrGpu.h"
-#include "GrGLConfig.h"
 #include "GrGLIRect.h"
 #include "GrGLTexture.h"
 
