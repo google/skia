@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkScan.h
 **
-** Copyright 2006, The Android Open Source Project
+** Copyright 2011, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -42,10 +42,9 @@ public:
 #else
     static void FillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
 #endif
-
-    static void FillTriangle(const SkPoint pts[], const SkRegion*, SkBlitter*);
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
+    static void FillTriangle(const SkPoint pts[], const SkRegion*, SkBlitter*);
     static void FillTriangle(const SkPoint& a, const SkPoint& b,
                              const SkPoint& c, const SkRegion* clip,
                              SkBlitter* blitter) {
@@ -56,11 +55,10 @@ public:
         FillTriangle(pts, clip, blitter);
     }
 
-    static void HairLine(const SkPoint&, const SkPoint&, const SkRegion* clip, SkBlitter*);
+    static void HairLine(const SkPoint&, const SkPoint&, const SkRegion*,
+                         SkBlitter*);
     static void HairRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void HairPath(const SkPath&, const SkRegion* clip, SkBlitter*);
-
-    static void FrameRect(const SkRect&, SkScalar width, const SkRegion* clip, SkBlitter*);
 
     static void AntiFillXRect(const SkXRect&, const SkRegion* clip, SkBlitter*);
 #ifdef SK_SCALAR_IS_FIXED
@@ -74,9 +72,16 @@ public:
     
     static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
 
-    static void AntiHairLine(const SkPoint&, const SkPoint&, const SkRegion* clip, SkBlitter*);
+    static void AntiHairLine(const SkPoint&, const SkPoint&, const SkRegion*,
+                             SkBlitter*);
     static void AntiHairRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiHairPath(const SkPath&, const SkRegion* clip, SkBlitter*);
+
+    // draws with a miter-join
+    static void FrameRect(const SkRect&, SkScalar width, const SkRegion*,
+                          SkBlitter*);
+    static void AntiFrameRect(const SkRect&, SkScalar width, const SkRegion*,
+                              SkBlitter*);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates
