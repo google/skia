@@ -17,17 +17,25 @@
 #ifndef SkPDFUtils_DEFINED
 #define SkPDFUtils_DEFINED
 
-#define NOT_IMPLEMENTED(condition, assert)                         \
-    do {                                                           \
-        if (condition) {                                           \
-            fprintf(stderr, "NOT_IMPLEMENTED: " #condition "\n");  \
-            SkDEBUGCODE(SkASSERT(!assert);)                        \
-        }                                                          \
-    } while(0)
+#include "SkPath.h"
 
 class SkMatrix;
 class SkPath;
 class SkPDFArray;
+
+#if 0
+#define PRINT_NOT_IMPL(str) fprintf(stderr, str)
+#else
+#define PRINT_NOT_IMPL(str)
+#endif
+
+#define NOT_IMPLEMENTED(condition, assert)                         \
+    do {                                                           \
+        if (condition) {                                           \
+            PRINT_NOT_IMPL("NOT_IMPLEMENTED: " #condition "\n");   \
+            SkDEBUGCODE(SkASSERT(!assert);)                        \
+        }                                                          \
+    } while(0)
 
 class SkPDFUtils {
 public:
