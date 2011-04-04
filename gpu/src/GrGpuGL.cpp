@@ -668,6 +668,9 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
 
     glDesc.fUploadByteCount = GrTexture::BytesPerPixel(desc.fFormat);
 
+    // in case we need a temporary, trimmed copy of the src pixels
+    GrAutoSMalloc<128 * 128> trimStorage;
+
     /*
      *  check if our srcData has extra bytes past each row. If so, we need
      *  to trim those off here, since GL doesn't let us pass the rowBytes as
@@ -679,14 +682,12 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
                               rowBytes / glDesc.fUploadByteCount));
         }
     } else {
-        GrAutoSMalloc<128 * 128> trimStorage;
         size_t trimRowBytes = desc.fWidth * glDesc.fUploadByteCount;
         if (srcData && (trimRowBytes < rowBytes)) {
+            // copy the data into our new storage, skipping the trailing bytes
             size_t trimSize = desc.fHeight * trimRowBytes;
-            trimStorage.realloc(trimSize);
-            // now copy the data into our new storage, skipping the trailing bytes
             const char* src = (const char*)srcData;
-            char* dst = (char*)trimStorage.get();
+            char* dst = (char*)trimStorage.realloc(trimSize);
             for (uint32_t y = 0; y < desc.fHeight; y++) {
                 memcpy(dst, src, trimRowBytes);
                 src += rowBytes;
