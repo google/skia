@@ -1,6 +1,6 @@
 /* libs/graphics/sgl/SkScan_Antihair.cpp
 **
-** Copyright 2006, The Android Open Source Project
+** Copyright 2011, The Android Open Source Project
 **
 ** Licensed under the Apache License, Version 2.0 (the "License"); 
 ** you may not use this file except in compliance with the License. 
@@ -530,13 +530,8 @@ static void do_scanline(FDot8 L, int top, FDot8 R, U8CPU alpha, SkBlitter* blitt
         blitter->blitV(rite, top, 1, SkAlphaMul(alpha, R & 0xFF));
 }
 
-static void antifillrect(const SkXRect& xr, SkBlitter* blitter)
-{
-    FDot8 L = SkFixedToFDot8(xr.fLeft);
-    FDot8 T = SkFixedToFDot8(xr.fTop);
-    FDot8 R = SkFixedToFDot8(xr.fRight);
-    FDot8 B = SkFixedToFDot8(xr.fBottom);
-    
+static void antifilldot8(FDot8 L, FDot8 T, FDot8 R, FDot8 B, SkBlitter* blitter,
+                         bool fillInner) {
     // check for empty now that we're in our reduced precision space
     if (L >= R || T >= B)
         return;
@@ -566,7 +561,7 @@ static void antifillrect(const SkXRect& xr, SkBlitter* blitter)
         }
         int rite = R >> 8;
         int width = rite - left;
-        if (width > 0)
+        if (width > 0 && fillInner)
             blitter->blitRect(left, top, width, height);
         if (R & 0xFF)
             blitter->blitV(rite, top, height, R & 0xFF);
@@ -574,6 +569,12 @@ static void antifillrect(const SkXRect& xr, SkBlitter* blitter)
     
     if (B & 0xFF)
         do_scanline(L, bot, R, B & 0xFF, blitter);
+}
+
+static void antifillrect(const SkXRect& xr, SkBlitter* blitter) {
+    antifilldot8(SkFixedToFDot8(xr.fLeft), SkFixedToFDot8(xr.fTop),
+                 SkFixedToFDot8(xr.fRight), SkFixedToFDot8(xr.fBottom),
+                 blitter, true);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -664,6 +665,159 @@ void SkScan::AntiFillRect(const SkRect& origR, const SkRegion* clip,
         }
     } else {
         antifillrect(origR, blitter);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+// calls blitRect() if the rectangle is non-empty
+static void fillcheckrect(int L, int T, int R, int B, SkBlitter* blitter) {
+    if (L < R && T < B) {
+        blitter->blitRect(L, T, R - L, B - T);
+    }
+}
+
+static inline FDot8 SkScalarToFDot8(SkScalar x) {
+#ifdef SK_SCALAR_IS_FLOAT
+    return (int)(x * 256);
+#else
+    return x >> 8;
+#endif
+}
+
+static inline int FDot8Floor(FDot8 x) {
+    return x >> 8;
+}
+
+static inline int FDot8Ceil(FDot8 x) {
+    return (x + 0xFF) >> 8;
+}
+
+// 1 - (1 - a)*(1 - b)
+static inline U8CPU InvAlphaMul(U8CPU a, U8CPU b) {
+    return SkToU8(a + b - SkAlphaMul(a, b));
+}
+
+static void inner_scanline(FDot8 L, int top, FDot8 R, U8CPU alpha,
+                           SkBlitter* blitter) {
+    SkASSERT(L < R);
+    
+    if ((L >> 8) == ((R - 1) >> 8)) {  // 1x1 pixel
+        blitter->blitV(L >> 8, top, 1, InvAlphaMul(alpha, R - L));
+        return;
+    }
+    
+    int left = L >> 8;
+    if (L & 0xFF) {
+        blitter->blitV(left, top, 1, InvAlphaMul(alpha, L & 0xFF));
+        left += 1;
+    }
+    
+    int rite = R >> 8;
+    int width = rite - left;
+    if (width > 0) {
+        call_hline_blitter(blitter, left, top, width, alpha);
+    }
+    
+    if (R & 0xFF) {
+        blitter->blitV(rite, top, 1, InvAlphaMul(alpha, ~R & 0xFF));
+    }
+}
+
+static void innerstrokedot8(FDot8 L, FDot8 T, FDot8 R, FDot8 B,
+                            SkBlitter* blitter) {
+    SkASSERT(L < R && T < B);
+
+    int top = T >> 8;
+    if (top == ((B - 1) >> 8)) {   // just one scanline high
+        inner_scanline(L, top, R, B - T, blitter);
+        return;
+    }
+    
+    if (T & 0xFF) {
+        inner_scanline(L, top, R, T & 0xFF, blitter);
+        top += 1;
+    }
+    
+    int bot = B >> 8;
+    int height = bot - top;
+    if (height > 0) {
+        if (L & 0xFF) {
+            blitter->blitV(L >> 8, top, height, L & 0xFF);
+        }
+        if (R & 0xFF) {
+            blitter->blitV(R >> 8, top, height, ~R & 0xFF);
+        }
+    }
+    
+    if (B & 0xFF) {
+        inner_scanline(L, bot, R, ~B & 0xFF, blitter);
+    }
+}
+
+void SkScan::AntiFrameRect(const SkRect& r, SkScalar diameter,
+                           const SkRegion* clip, SkBlitter* blitter) {
+    SkASSERT(diameter > 0);
+
+    SkScalar radius = SkScalarHalf(diameter);
+
+    // outset by the radius
+    FDot8 L = SkScalarToFDot8(r.fLeft - radius);
+    FDot8 T = SkScalarToFDot8(r.fTop - radius);
+    FDot8 R = SkScalarToFDot8(r.fRight + radius);
+    FDot8 B = SkScalarToFDot8(r.fBottom + radius);
+
+    SkIRect outer;
+    // set outer to the outer rect of the outer section
+    outer.set(FDot8Floor(L), FDot8Floor(T), FDot8Ceil(R), FDot8Ceil(B));
+
+    SkBlitterClipper clipper;
+    if (clip) {
+        if (clip->quickReject(outer)) {
+            return;
+        }
+        if (!clip->contains(outer)) {
+            blitter = clipper.apply(blitter, clip, &outer);
+        }
+        // now we can ignore clip for the rest of the function
+    }
+    
+    // stroke the outer hull
+    antifilldot8(L, T, R, B, blitter, false);
+
+    // set outer to the outer rect of the middle section
+    outer.set(FDot8Ceil(L), FDot8Ceil(T), FDot8Floor(R), FDot8Floor(B));
+
+    // in case we lost a bit with diameter/2
+    radius = diameter - radius;
+    // inset by the radius
+    L = SkScalarToFDot8(r.fLeft + radius);
+    T = SkScalarToFDot8(r.fTop + radius);
+    R = SkScalarToFDot8(r.fRight - radius);
+    B = SkScalarToFDot8(r.fBottom - radius);
+
+    if (L >= R || T >= B) {
+        fillcheckrect(outer.fLeft, outer.fTop, outer.fRight, outer.fBottom,
+                      blitter);
+    } else {
+        SkIRect inner;
+        // set inner to the inner rect of the middle section
+        inner.set(FDot8Floor(L), FDot8Floor(T), FDot8Ceil(R), FDot8Ceil(B));
+
+        // draw the frame in 4 pieces
+        fillcheckrect(outer.fLeft, outer.fTop, outer.fRight, inner.fTop,
+                      blitter);
+        fillcheckrect(outer.fLeft, inner.fTop, inner.fLeft, inner.fBottom,
+                      blitter);
+        fillcheckrect(inner.fRight, inner.fTop, outer.fRight, inner.fBottom,
+                      blitter);
+        fillcheckrect(outer.fLeft, inner.fBottom, outer.fRight, outer.fBottom,
+                      blitter);
+
+        // now stroke the inner rect, which is similar to antifilldot8() except that
+        // it treats the fractional coordinates with the inverse bias (since its
+        // inner).
+        innerstrokedot8(L, T, R, B, blitter);
     }
 }
 
