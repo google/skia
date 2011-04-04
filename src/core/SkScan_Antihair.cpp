@@ -755,17 +755,18 @@ static void innerstrokedot8(FDot8 L, FDot8 T, FDot8 R, FDot8 B,
     }
 }
 
-void SkScan::AntiFrameRect(const SkRect& r, SkScalar diameter,
+void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
                            const SkRegion* clip, SkBlitter* blitter) {
-    SkASSERT(diameter > 0);
+    SkASSERT(strokeSize.fX >= 0 && strokeSize.fY >= 0);
 
-    SkScalar radius = SkScalarHalf(diameter);
+    SkScalar rx = SkScalarHalf(strokeSize.fX);
+    SkScalar ry = SkScalarHalf(strokeSize.fY);
 
     // outset by the radius
-    FDot8 L = SkScalarToFDot8(r.fLeft - radius);
-    FDot8 T = SkScalarToFDot8(r.fTop - radius);
-    FDot8 R = SkScalarToFDot8(r.fRight + radius);
-    FDot8 B = SkScalarToFDot8(r.fBottom + radius);
+    FDot8 L = SkScalarToFDot8(r.fLeft - rx);
+    FDot8 T = SkScalarToFDot8(r.fTop - ry);
+    FDot8 R = SkScalarToFDot8(r.fRight + rx);
+    FDot8 B = SkScalarToFDot8(r.fBottom + ry);
 
     SkIRect outer;
     // set outer to the outer rect of the outer section
@@ -789,12 +790,13 @@ void SkScan::AntiFrameRect(const SkRect& r, SkScalar diameter,
     outer.set(FDot8Ceil(L), FDot8Ceil(T), FDot8Floor(R), FDot8Floor(B));
 
     // in case we lost a bit with diameter/2
-    radius = diameter - radius;
+    rx = strokeSize.fX - rx;
+    ry = strokeSize.fY - ry;
     // inset by the radius
-    L = SkScalarToFDot8(r.fLeft + radius);
-    T = SkScalarToFDot8(r.fTop + radius);
-    R = SkScalarToFDot8(r.fRight - radius);
-    B = SkScalarToFDot8(r.fBottom - radius);
+    L = SkScalarToFDot8(r.fLeft + rx);
+    T = SkScalarToFDot8(r.fTop + ry);
+    R = SkScalarToFDot8(r.fRight - rx);
+    B = SkScalarToFDot8(r.fBottom - ry);
 
     if (L >= R || T >= B) {
         fillcheckrect(outer.fLeft, outer.fTop, outer.fRight, outer.fBottom,

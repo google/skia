@@ -78,10 +78,10 @@ public:
     static void AntiHairPath(const SkPath&, const SkRegion* clip, SkBlitter*);
 
     // draws with a miter-join
-    static void FrameRect(const SkRect&, SkScalar width, const SkRegion*,
-                          SkBlitter*);
-    static void AntiFrameRect(const SkRect&, SkScalar width, const SkRegion*,
-                              SkBlitter*);
+    static void FrameRect(const SkRect&, const SkPoint& strokeSize,
+                          const SkRegion*, SkBlitter*);
+    static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
+                              const SkRegion*, SkBlitter*);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates
