@@ -7,6 +7,7 @@ SOURCE := \
     poly2poly.cpp \
     shadows.cpp \
     shapes.cpp \
+    strokerects.cpp \
     tilemodes.cpp \
     xfermodes.cpp \
     shadertext.cpp \
