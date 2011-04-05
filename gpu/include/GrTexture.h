@@ -32,6 +32,7 @@ class GrTexture;
  * that wrap externally created render targets.
  */
 class GrRenderTarget : public GrResource {
+
 public:
     /**
      * @return the width of the rendertarget
@@ -80,8 +81,18 @@ protected:
         , fStencilBits(stencilBits)
     {}
 
+    friend class GrTexture;
+    // When a texture unrefs an owned rendertarget this func
+    // removes the back pointer. This could be done called from 
+    // texture's destructor but would have to be done in derived
+    // class. By the time of texture base destructor it has already
+    // lost its pointer to the rt.
+    void onTextureReleaseRenderTarget() {
+        GrAssert(NULL != fTexture);
+        fTexture = NULL;
+    }
 
-    GrTexture* fTexture;
+    GrTexture* fTexture; // not ref'ed
     int        fWidth;
     int        fHeight;
     int        fStencilBits;
@@ -96,23 +107,8 @@ private:
 };
 
 class GrTexture : public GrResource {
-protected:
-    GrTexture(GrGpu* gpu,
-              int width,
-              int height,
-              GrPixelConfig config)
-    : INHERITED(gpu)
-    , fWidth(width)
-    , fHeight(height)
-    , fConfig(config) {
-        // only make sense if alloc size is pow2
-        fShiftFixedX = 31 - Gr_clz(fWidth);
-        fShiftFixedY = 31 - Gr_clz(fHeight);
-    }
 
 public:
-    virtual ~GrTexture();
-
     /**
      * Retrieves the width of the texture.
      *
@@ -183,17 +179,24 @@ public:
      * Retrieves the render target underlying this texture that can be passed to
      * GrGpu::setRenderTarget().
      *
-     * @return    handle to render target or undefined if the texture is not a
+     * @return    handle to render target or NULL if the texture is not a
      *            render target
      */
-    virtual GrRenderTarget* asRenderTarget() = 0;
+    GrRenderTarget* asRenderTarget() { return fRenderTarget; }
 
     /**
      * Removes the reference on the associated GrRenderTarget held by this
      * texture. Afterwards asRenderTarget() will return NULL. The
      * GrRenderTarget survives the release if another ref is held on it.
      */
-    virtual void releaseRenderTarget() = 0;
+    void releaseRenderTarget() {
+        if (NULL != fRenderTarget) {
+            GrAssert(fRenderTarget->asTexture() == this);
+            fRenderTarget->onTextureReleaseRenderTarget();
+            fRenderTarget->unref();
+            fRenderTarget = NULL;
+        }
+    }
 
     /**
      *  Return the native ID or handle to the texture, depending on the
@@ -208,6 +211,36 @@ public:
 #else
     void validate() const {}
 #endif
+
+protected:
+    GrRenderTarget* fRenderTarget; // texture refs its rt representation
+                                   // base class cons sets to NULL
+                                   // subclass cons can create and set
+
+    GrTexture(GrGpu* gpu,
+              int width,
+              int height,
+              GrPixelConfig config)
+    : INHERITED(gpu)
+    , fRenderTarget(NULL)
+    , fWidth(width)
+    , fHeight(height)
+    , fConfig(config) {
+        // only make sense if alloc size is pow2
+        fShiftFixedX = 31 - Gr_clz(fWidth);
+        fShiftFixedY = 31 - Gr_clz(fHeight);
+    }
+    
+    // GrResource overrides
+    virtual void onRelease() {
+        releaseRenderTarget();
+    }
+
+    virtual void onAbandon() {
+        if (NULL != fRenderTarget) {
+            fRenderTarget->abandon();
+        }
+    }
 
 private:
     int fWidth;

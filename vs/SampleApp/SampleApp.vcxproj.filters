@@ -472,6 +472,9 @@
     <ClCompile Include="..\..\gpu\src\GrPathUtils.cpp">
       <Filter>Gr\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\gpu\src\GrTexture.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gpu\include\FlingState.h" />
