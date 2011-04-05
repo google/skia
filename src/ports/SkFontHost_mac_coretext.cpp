@@ -439,6 +439,19 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
 
 #include "SkColorPriv.h"
 
+static void bytes_to_bits(uint8_t dst[], const uint8_t src[], int count) {
+    while (count > 0) {
+        uint8_t mask = 0;
+        for (int i = 7; i >= 0; --i) {
+            mask |= (*src++ >> 7) << i;
+            if (0 == --count) {
+                break;
+            }
+        }
+        *dst++ = mask;
+    }
+}
+
 static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
@@ -474,6 +487,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     void* image = glyph.fImage;
     size_t rowBytes = glyph.rowBytes();
     float grayColor = 1; // white
+    bool doAA = true;
 
     /*  For LCD16, we first create a temp offscreen cg-context in 32bit,
      *  erase to white, and then draw a black glyph into it. Then we can
@@ -490,6 +504,12 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         // we draw black-on-white (and invert in rgb_to_lcd16)
         sk_memset32((uint32_t*)image, 0xFFFFFFFF, size >> 2);
         grayColor = 0;  // black
+    } else if (SkMask::kBW_Format == glyph.fMaskFormat) {
+        rowBytes = SkAlign4(glyph.fWidth);
+        size_t size = glyph.fHeight * rowBytes;
+        image = storage.realloc(size);
+        sk_bzero(image, size);
+        doAA = false;
     }
 
     cgContext = CGBitmapContextCreate(image, glyph.fWidth, glyph.fHeight, 8,
@@ -501,6 +521,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         CGContextSetAllowsFontSubpixelQuantization(cgContext, true);
         CGContextSetShouldSubpixelQuantizeFonts(cgContext, true);
 #endif
+        CGContextSetShouldAntialias(cgContext, doAA);
         CGContextSetGrayFillColor(  cgContext, grayColor, 1.0);
         CGContextSetTextDrawingMode(cgContext, kCGTextFill);
         CGContextSetFont(           cgContext, cgFont);
@@ -520,6 +541,16 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 }
                 src = (const uint32_t*)((const char*)src + rowBytes);
                 dst = (uint16_t*)((char*)dst + dstRB);
+            }
+        } else if (SkMask::kBW_Format == glyph.fMaskFormat) {
+            // downsample from A8 to A1
+            const uint8_t* src = (const uint8_t*)image;
+            uint8_t* dst = (uint8_t*)glyph.fImage;
+            size_t dstRB = glyph.rowBytes();
+            for (int y = 0; y < glyph.fHeight; y++) {
+                bytes_to_bits(dst, src, glyph.fWidth);
+                src += rowBytes;
+                dst += dstRB;
             }
         }
     }
