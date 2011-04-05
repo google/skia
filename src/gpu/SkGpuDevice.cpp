@@ -24,6 +24,7 @@
 
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
+#include "SkUtils.h"
 
 #define CACHE_LAYER_TEXTURES 1
 
@@ -644,6 +645,111 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
 #endif
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static void setInsetFan(GrPoint pts[4], const GrRect& r,
+                        GrScalar dx, GrScalar dy) {
+    pts->setRectFan(r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy);
+}
+
+static GrColor getColorForMesh(const GrPaint& paint) {
+    if (NULL == paint.getTexture()) {
+        return paint.fColor;
+    } else {
+        unsigned a = GrColorUnpackA(paint.fColor);
+        return GrColorPackRGBA(a, a, a, a);
+    }
+}
+
+static const uint16_t gFillAARectIdx1[] = {
+    0, 1, 5, 5, 4, 0,
+    1, 2, 6, 6, 5, 1,
+    2, 3, 7, 7, 6, 2,
+    3, 0, 4, 4, 7, 3,
+    4, 5, 6, 6, 7, 4,
+};
+
+static void fillDevAARect(GrContext* ctx, const GrPaint& paint,
+                          const GrRect& rect) {
+    if (rect.isEmpty()) {
+        return;
+    }
+
+    GrAutoMatrix avm(ctx, GrMatrix::I());
+
+    GrPoint verts[8];
+    GrPoint* texs = NULL;
+    GrColor colors[8];
+
+    setInsetFan(&verts[ 0], rect, -0.5f, -0.5f);
+    setInsetFan(&verts[ 4], rect,  0.5f,  0.5f);
+    
+    sk_memset32(&colors[ 0], 0, 4);
+    sk_memset32(&colors[ 4], getColorForMesh(paint), 4);
+    
+    ctx->drawVertices(paint, kTriangles_PrimitiveType,
+                      8, verts, texs, colors,
+                      gFillAARectIdx1, SK_ARRAY_COUNT(gFillAARectIdx1));
+}
+
+static const uint16_t gStrokeAARectIdx[] = {
+    0 + 0, 1 + 0, 5 + 0, 5 + 0, 4 + 0, 0 + 0,
+    1 + 0, 2 + 0, 6 + 0, 6 + 0, 5 + 0, 1 + 0,
+    2 + 0, 3 + 0, 7 + 0, 7 + 0, 6 + 0, 2 + 0,
+    3 + 0, 0 + 0, 4 + 0, 4 + 0, 7 + 0, 3 + 0,
+
+    0 + 4, 1 + 4, 5 + 4, 5 + 4, 4 + 4, 0 + 4,
+    1 + 4, 2 + 4, 6 + 4, 6 + 4, 5 + 4, 1 + 4,
+    2 + 4, 3 + 4, 7 + 4, 7 + 4, 6 + 4, 2 + 4,
+    3 + 4, 0 + 4, 4 + 4, 4 + 4, 7 + 4, 3 + 4,
+
+    0 + 8, 1 + 8, 5 + 8, 5 + 8, 4 + 8, 0 + 8,
+    1 + 8, 2 + 8, 6 + 8, 6 + 8, 5 + 8, 1 + 8,
+    2 + 8, 3 + 8, 7 + 8, 7 + 8, 6 + 8, 2 + 8,
+    3 + 8, 0 + 8, 4 + 8, 4 + 8, 7 + 8, 3 + 8,
+};
+
+static void strokeDevAARect(GrContext* ctx, const GrPaint& paint,
+                            const GrRect& rect, const SkPoint& strokeSize) {
+    const GrScalar dx = SkScalarToGrScalar(strokeSize.fX);
+    const GrScalar dy = SkScalarToGrScalar(strokeSize.fY);
+    const GrScalar rx = dx * 0.5f;
+    const GrScalar ry = dy * 0.5f;
+
+    GrScalar spare;
+    {
+        GrScalar w = rect.width() - dx;
+        GrScalar h = rect.height() - dy;
+        spare = GrMin(w, h);
+    }
+
+    if (spare <= 0) {
+        GrRect r(rect);
+        r.inset(-rx, -ry);
+        fillDevAARect(ctx, paint, r);
+        return;
+    }
+    
+    GrAutoMatrix avm(ctx, GrMatrix::I());
+
+    GrPoint verts[16];
+    GrPoint* texs = NULL;
+    GrColor colors[16];
+
+    setInsetFan(&verts[ 0], rect, -rx - 0.5f, -ry - 0.5f);
+    setInsetFan(&verts[ 4], rect, -rx + 0.5f, -ry + 0.5f);
+    setInsetFan(&verts[ 8], rect,  rx - 0.5f,  ry - 0.5f);
+    setInsetFan(&verts[12], rect,  rx + 0.5f,  ry + 0.5f);
+
+    sk_memset32(&colors[ 0], 0, 4);
+    sk_memset32(&colors[ 4], getColorForMesh(paint), 8);
+    sk_memset32(&colors[12], 0, 4);
+
+    ctx->drawVertices(paint, kTriangles_PrimitiveType,
+                      16, verts, texs, colors,
+                      gStrokeAARectIdx, SK_ARRAY_COUNT(gStrokeAARectIdx));
+}
+
 void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                           const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
@@ -663,11 +769,41 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
             return;
         }
 
-        SkScalar width = paint.getStrokeWidth();
-        if (SkDraw::kFill_RectType == type) {
-            width = -1;
+        bool doAA = paint.isAntiAlias();
+        // disable for now
+        doAA = false;
+    
+        if (SkDraw::kHair_RectType == type && doAA) {
+            strokeSize.set(SK_Scalar1, SK_Scalar1);
+            type = SkDraw::kStroke_RectType;
         }
-        fContext->drawRect(grPaint, Sk2Gr(rect), width);
+    
+        switch (type) {
+            case SkDraw::kHair_RectType:
+                SkASSERT(!doAA);
+                fContext->drawRect(grPaint, Sk2Gr(rect), 0);
+                break;
+            case SkDraw::kFill_RectType:
+                if (doAA) {
+                    SkRect devRect;
+                    matrix.mapRect(&devRect, rect);
+                    fillDevAARect(fContext, grPaint, Sk2Gr(devRect));
+                } else {
+                    fContext->drawRect(grPaint, Sk2Gr(rect), -1);
+                }
+                break;
+            case SkDraw::kStroke_RectType:
+                if (doAA) {
+                    SkRect devRect;
+                    matrix.mapRect(&devRect, rect);
+                    strokeDevAARect(fContext, grPaint, Sk2Gr(devRect), strokeSize);
+                } else {
+                    fContext->drawRect(grPaint, Sk2Gr(rect), paint.getStrokeWidth());
+                }
+                break;
+            default:
+                SkASSERT(!"bad value for RectType");
+        }
     }
 }
 
