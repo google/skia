@@ -40,9 +40,6 @@ public:
         putting the result into dst.  Returns false if an error occurs.
      */
     static bool Inflate(SkStream* src, SkDynamicMemoryWStream* dst);
-
-private:
-    static const size_t kBufferSize;
 };
 
 #endif
