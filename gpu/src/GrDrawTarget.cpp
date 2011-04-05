@@ -492,10 +492,10 @@ bool GrDrawTarget::canDisableBlend() const {
     for (int s = 0; s < kNumStages; ++s) {
         if (VertexUsesStage(s, fGeometrySrc.fVertexLayout)) {
             GrAssert(NULL != fCurrDrawState.fTextures[s]);
-            GrTexture::PixelConfig config = fCurrDrawState.fTextures[s]->config();
+            GrPixelConfig config = fCurrDrawState.fTextures[s]->config();
 
-            if (GrTexture::kRGB_565_PixelConfig != config &&
-                GrTexture::kRGBX_8888_PixelConfig != config) {
+            if (kRGB_565_GrPixelConfig != config &&
+                kRGBX_8888_GrPixelConfig != config) {
                 return false;
             }
         }

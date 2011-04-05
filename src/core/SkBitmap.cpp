@@ -869,10 +869,7 @@ bool SkBitmap::copyTo(SkBitmap* dst, Config dstConfig, Allocator* alloc) const {
     SkBitmap tmpSrc;
     const SkBitmap* src = this;
 
-    if (this->getTexture()) {
-        if (!fPixelRef->readPixels(&tmpSrc)) {
-            return false;
-        }
+    if (fPixelRef && fPixelRef->readPixels(&tmpSrc)) {
         SkASSERT(tmpSrc.width() == this->width());
         SkASSERT(tmpSrc.height() == this->height());
 

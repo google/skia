@@ -508,7 +508,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                 break;
             }
 
-            if (GrTexture::kAlpha_8_PixelConfig == texture->config()) {
+            if (GrPixelConfigIsAlphaOnly(texture->config())) {
                 stage.fModulation = GrGLProgram::ProgramDesc::StageDesc::kAlpha_Modulation;
             } else {
                 stage.fModulation = GrGLProgram::ProgramDesc::StageDesc::kColor_Modulation;

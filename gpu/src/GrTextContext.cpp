@@ -47,7 +47,7 @@ void GrTextContext::flushGlyphs() {
         GrAssert(fCurrTexture);
         fDrawTarget->setTexture(TEXT_STAGE, fCurrTexture);
 
-        if (!GrTexture::PixelConfigIsAlphaOnly(fCurrTexture->config())) {
+        if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_BlendCoeff != fPaint.fSrcBlendCoeff ||
                 kISA_BlendCoeff != fPaint.fDstBlendCoeff ||
                 NULL != fPaint.getTexture()) {

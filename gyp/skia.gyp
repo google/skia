@@ -990,6 +990,7 @@
         '../gpu/src/GrTextContext.cpp',
         '../gpu/src/GrTextStrike.cpp',
         '../gpu/src/GrTextStrike_impl.h',
+        '../gpu/src/GrTexture.cpp',
         '../gpu/src/GrTextureCache.cpp',
         '../gpu/src/gr_unittests.cpp',
 

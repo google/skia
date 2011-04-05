@@ -213,6 +213,54 @@ static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
 }
 
 /**
+ * Pixel configurations.
+ */
+enum GrPixelConfig {
+    kUnknown_GrPixelConfig,
+    kAlpha_8_GrPixelConfig,
+    kIndex_8_GrPixelConfig,
+    kRGB_565_GrPixelConfig,
+    kRGBA_4444_GrPixelConfig, //!< premultiplied
+    kRGBA_8888_GrPixelConfig, //!< premultiplied
+    kRGBX_8888_GrPixelConfig, //!< treat the alpha channel as opaque
+};
+
+static inline size_t GrBytesPerPixel(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+        case kIndex_8_GrPixelConfig:
+            return 1;
+        case kRGB_565_GrPixelConfig:
+        case kRGBA_4444_GrPixelConfig:
+            return 2;
+        case kRGBA_8888_GrPixelConfig:
+        case kRGBX_8888_GrPixelConfig:
+            return 4;
+        default:
+            return 0;
+    }
+}
+
+static inline bool GrPixelConfigIsOpaque(GrPixelConfig config) {
+    switch (config) {
+        case kRGB_565_GrPixelConfig:
+        case kRGBX_8888_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+            return true;
+        default:
+            return false;
+    }
+}
+
+/**
  * Set Operations used to construct clips.
  */
 enum GrSetOp {

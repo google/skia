@@ -206,7 +206,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             // no longer need to clamp at min RT size.
             rtDesc.fWidth  = GrNextPow2(desc.fWidth);
             rtDesc.fHeight = GrNextPow2(desc.fHeight);
-            int bpp = GrTexture::BytesPerPixel(desc.fFormat);
+            int bpp = GrBytesPerPixel(desc.fFormat);
             GrAutoSMalloc<128*128*4> stretchedPixels(bpp *
                                                      rtDesc.fWidth *
                                                      rtDesc.fHeight);
@@ -609,14 +609,39 @@ void GrContext::flushDrawBuffer() {
 #endif
 }
 
-bool GrContext::readPixels(int left, int top, int width, int height,
-                           GrTexture::PixelConfig config, void* buffer) {
-    this->flush(true);
-    return fGpu->readPixels(left, top, width, height, config, buffer);
+bool GrContext::readTexturePixels(GrTexture* texture,
+                                  int left, int top, int width, int height,
+                                  GrPixelConfig config, void* buffer) {
+
+    // TODO: code read pixels for textures that aren't rendertargets
+
+    this->flush();
+    GrRenderTarget* target = texture->asRenderTarget();
+    if (NULL != target) {
+        return fGpu->readPixels(target,
+                                left, top, width, height, 
+                                config, buffer);
+    } else {
+        return false;
+    }
+}
+
+bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
+                                      int left, int top, int width, int height,
+                                      GrPixelConfig config, void* buffer) {
+    uint32_t flushFlags = 0;
+    if (NULL == target) { 
+        flushFlags |= GrContext::kForceCurrentRenderTarget_FlushBit;
+    }
+
+    this->flush(flushFlags);
+    return fGpu->readPixels(target,
+                            left, top, width, height, 
+                            config, buffer);
 }
 
 void GrContext::writePixels(int left, int top, int width, int height,
-                            GrTexture::PixelConfig config, const void* buffer,
+                            GrPixelConfig config, const void* buffer,
                             size_t stride) {
 
     // TODO: when underlying api has a direct way to do this we should use it
@@ -764,6 +789,7 @@ GrContext::GrContext(GrGpu* gpu) :
 
     fGpu = gpu;
     fGpu->ref();
+    fGpu->setContext(this);
 
     fCustomPathRenderer = GrPathRenderer::CreatePathRenderer();
     fGpu->setClipPathRenderer(fCustomPathRenderer);

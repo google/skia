@@ -87,7 +87,7 @@ protected:
     virtual void forceRenderTargetFlushHelper();
 
     virtual bool readPixelsHelper(int left, int top, int width, int height,
-                                  GrTexture::PixelConfig, void* buffer);
+                                  GrPixelConfig, void* buffer);
 
     virtual void drawIndexedHelper(GrPrimitiveType type,
                                    uint32_t startVertex,
@@ -149,11 +149,11 @@ private:
     void flushStencil();
     void resolveTextureRenderTarget(GrGLTexture* texture);
 
-    bool canBeTexture(GrTexture::PixelConfig config,
+    bool canBeTexture(GrPixelConfig config,
                       GrGLenum* internalFormat,
                       GrGLenum* format,
                       GrGLenum* type);
-    bool fboInternalFormat(GrTexture::PixelConfig config, GrGLenum* format);
+    bool fboInternalFormat(GrPixelConfig config, GrGLenum* format);
 
     friend class GrGLVertexBuffer;
     friend class GrGLIndexBuffer;

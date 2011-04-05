@@ -1042,7 +1042,7 @@ void GrGpuGLShaders2::getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc
                 GrAssert(!"Unexpected sample mode!");
                 break;
             }
-            if (GrTexture::kAlpha_8_PixelConfig == texture->config()) {
+            if (GrPixelConfigIsAlphaOnly(texture->config())) {
                 stage.fModulation = StageDesc::kAlpha_Modulation;
             } else {
                 stage.fModulation = StageDesc::kColor_Modulation;

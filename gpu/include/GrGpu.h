@@ -17,15 +17,16 @@
 #ifndef GrGpu_DEFINED
 #define GrGpu_DEFINED
 
+#include "GrDrawTarget.h"
+#include "GrPathRenderer.h"
 #include "GrRect.h"
 #include "GrRefCnt.h"
-#include "GrDrawTarget.h"
 #include "GrTexture.h"
-#include "GrPathRenderer.h"
 
-class GrVertexBufferAllocPool;
+class GrContext;
 class GrIndexBufferAllocPool;
 class GrResource;
+class GrVertexBufferAllocPool;
 
 class GrGpu : public GrDrawTarget {
 
@@ -104,7 +105,7 @@ public:
                                         //   kRenderTarget_TextureFlag.
         uint32_t               fWidth;  //!< Width of the texture
         uint32_t               fHeight; //!< Height of the texture
-        GrTexture::PixelConfig fFormat; //!< Format of source data of the
+        GrPixelConfig          fFormat; //!< Format of source data of the
                                         //   texture. Not guaraunteed to be the
                                         //   same as internal format used by
                                         //   3D API.
@@ -142,6 +143,14 @@ public:
 
     GrGpu();
     virtual ~GrGpu();
+
+    // The GrContext sets itself as the owner of this Gpu object
+    void setContext(GrContext* context) {
+        GrAssert(NULL == fContext); 
+        fContext = context;
+    }
+    GrContext* getContext() { return fContext; }
+    const GrContext* getContext() const { return fContext; }
 
     /**
      * The GrGpu object normally assumes that no outsider is setting state
@@ -340,19 +349,23 @@ public:
     void forceRenderTargetFlush();
 
     /**
-     * Reads a rectangle of pixels from the current render target.
-     * @param left      left edge of the rectangle to read (inclusive)
-     * @param top       top edge of the rectangle to read (inclusive)
-     * @param width     width of rectangle to read in pixels.
-     * @param height    height of rectangle to read in pixels.
-     * @param buffer    memory to read the rectangle into.
+     * Reads a rectangle of pixels from a render target.
+     * @param renderTarget  the render target to read from. NULL means the
+     *                      current render target.
+     * @param left          left edge of the rectangle to read (inclusive)
+     * @param top           top edge of the rectangle to read (inclusive)
+     * @param width         width of rectangle to read in pixels.
+     * @param height        height of rectangle to read in pixels.
+     * @param config        the pixel config of the destination buffer
+     * @param buffer        memory to read the rectangle into.
      *
      * @return true if the read succeeded, false if not. The read can fail
      *              because of a unsupported pixel config or because no render
      *              target is currently set.
      */
-    bool readPixels(int left, int top, int width, int height,
-                    GrTexture::PixelConfig, void* buffer);
+    bool readPixels(GrRenderTarget* renderTarget,
+                    int left, int top, int width, int height,
+                    GrPixelConfig config, void* buffer);
 
     const Stats& getStats() const;
     void resetStats();
@@ -499,7 +512,7 @@ protected:
 
     // overridden by API-specific derived class to perform the read pixels.
     virtual bool readPixelsHelper(int left, int top, int width, int height,
-                                  GrTexture::PixelConfig, void* buffer) = 0;
+                                  GrPixelConfig, void* buffer) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
     // indexed geometry. The subclass may adjust the startVertex and/or
@@ -523,20 +536,7 @@ protected:
     virtual void eraseStencilClip(const GrIRect& rect) = 0;
 
 private:
-    // readies the pools to provide vertex/index data.
-    void prepareVertexPool();
-    void prepareIndexPool();
-
-    // determines the path renderer used to draw a clip path element.
-    GrPathRenderer* getClipPathRenderer(GrPathIter* path,
-                                        GrPathFill fill);
-
-    void handleDirtyContext() {
-        if (fContextIsDirty) {
-            this->resetContext();
-            fContextIsDirty = false;
-        }
-    }
+    GrContext*                  fContext; // not reffed (context refs gpu)
 
     GrVertexBufferAllocPool*    fVertexPool;
 
@@ -560,6 +560,21 @@ private:
     bool                        fIndexPoolInUse;
 
     GrResource*                 fResourceHead;
+
+    // readies the pools to provide vertex/index data.
+    void prepareVertexPool();
+    void prepareIndexPool();
+
+    // determines the path renderer used to draw a clip path element.
+    GrPathRenderer* getClipPathRenderer(GrPathIter* path,
+                                        GrPathFill fill);
+
+    void handleDirtyContext() {
+        if (fContextIsDirty) {
+            this->resetContext();
+            fContextIsDirty = false;
+        }
+    }
 
     // used to save and restore state when the GrGpu needs
     // to make its geometry pools available internally

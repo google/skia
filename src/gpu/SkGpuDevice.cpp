@@ -171,11 +171,15 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
                      this->width(), this->height());
             GrAssert(false);
         }
-    } else if (Current3DApiRenderTarget() == renderTargetOrNull) {
-        fRenderTarget = fContext->createRenderTargetFrom3DApiState();
     } else {
-        fRenderTarget = renderTargetOrNull;
-        fRenderTarget->ref();
+        if (Current3DApiRenderTarget() == renderTargetOrNull) {
+            fRenderTarget = fContext->createRenderTargetFrom3DApiState();
+        } else {
+            fRenderTarget = renderTargetOrNull;
+            fRenderTarget->ref();
+        }
+        SkGrRenderTargetPixelRef* pr = new SkGrRenderTargetPixelRef(fRenderTarget);
+        this->setPixelRef(pr, 0)->unref();
     }
 }
 
@@ -233,15 +237,12 @@ bool SkGpuDevice::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
     }
 
     SkAutoLockPixels alp(tmp);
-    fContext->setRenderTarget(fRenderTarget);
-    // we aren't setting the clip or matrix, so mark as dirty
-    // we don't need to set them for this call and don't have them anyway
-    fNeedPrepareRenderTarget = true;
 
-    if (!fContext->readPixels(bounds.fLeft, bounds.fTop,
-                              bounds.width(), bounds.height(),
-                              GrTexture::kRGBA_8888_PixelConfig,
-                              tmp.getPixels())) {
+    if (!fContext->readRenderTargetPixels(fRenderTarget,
+                                          bounds.fLeft, bounds.fTop,
+                                          bounds.width(), bounds.height(),
+                                          kRGBA_8888_GrPixelConfig,
+                                          tmp.getPixels())) {
         return false;
     }
 
@@ -254,8 +255,8 @@ void SkGpuDevice::writePixels(const SkBitmap& bitmap, int x, int y) {
     if (!bitmap.readyToDraw()) {
         return;
     }
-    GrTexture::PixelConfig config = SkGr::BitmapConfig2PixelConfig(bitmap.config(),
-                                                                   bitmap.isOpaque());
+    GrPixelConfig config = SkGr::BitmapConfig2PixelConfig(bitmap.config(),
+                                                          bitmap.isOpaque());
     fContext->setRenderTarget(fRenderTarget);
     // we aren't setting the clip or matrix, so mark as dirty
     // we don't need to set them for this call and don't have them anyway
@@ -709,7 +710,7 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
         GrGpu::kNone_AALevel,
         dstM.fBounds.width(),
         dstM.fBounds.height(),
-        GrTexture::kAlpha_8_PixelConfig
+        kAlpha_8_GrPixelConfig
     };
 
     GrTexture* texture = context->createUncachedTexture(desc, dstM.fImage,

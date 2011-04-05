@@ -47,5 +47,31 @@ private:
     typedef SkPixelRef INHERITED;
 };
 
+class SkGrRenderTargetPixelRef : public SkPixelRef {
+public:
+            SkGrRenderTargetPixelRef(GrRenderTarget* rt);
+    virtual ~SkGrRenderTargetPixelRef();
+
+    // override from SkPixelRef
+    virtual SkGpuTexture* getTexture();
+
+protected:
+    // override from SkPixelRef
+    virtual void* onLockPixels(SkColorTable** ptr) {
+        if (ptr) {
+            *ptr = NULL;
+        }
+        return NULL;
+    }
+
+    // override from SkPixelRef
+    virtual void onUnlockPixels() {}
+    virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset);
+
+private:
+    GrRenderTarget*  fRenderTarget;
+    typedef SkPixelRef INHERITED;
+};
+
 #endif
 
