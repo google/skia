@@ -125,9 +125,7 @@ public:
 
     virtual ~GrGLTexture() { this->release(); }
 
-    // overloads of GrTexture
-    virtual GrRenderTarget* asRenderTarget();
-    virtual void releaseRenderTarget();
+    // overrides of GrTexture
     virtual void uploadTextureData(uint32_t x,
                                    uint32_t y,
                                    uint32_t width,
@@ -198,7 +196,7 @@ protected:
                 const GLRenderTargetIDs& rtIDs,
                 const TexParams& initialTexParams);
 
-    // overloads of GrResource
+    // overrides of GrTexture
     virtual void onAbandon();
     virtual void onRelease();
 
@@ -214,7 +212,6 @@ private:
     GrScalar            fScaleX;
     GrScalar            fScaleY;
     Orientation         fOrientation;
-    GrGLRenderTarget*   fRenderTarget;
     GrGpuGL*            fGpuGL;
 
     static const GrGLenum* WrapMode2GLWrap();

@@ -804,12 +804,6 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             delete fGpuCanvas;
             fGpuCanvas = NULL;
             presentGL();
-            
-#if 1
-            SkDebugf("---- destructor %d\n", fGrContext->refcnt());
-            fGrContext->unref();
-            fGrContext = NULL;
-#endif
             break;
 #endif
     }

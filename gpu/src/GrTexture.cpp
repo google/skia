@@ -28,11 +28,6 @@ bool GrRenderTarget::readPixels(int left, int top, int width, int height,
                                            config, buffer);
 }
 
-GrTexture::~GrTexture() {
-    // use this to set a break-point if needed
-//    Gr_clz(3);
-}
-
 bool GrTexture::readPixels(int left, int top, int width, int height,
                            GrPixelConfig config, void* buffer) {
     // go through context so that all necessary flushing occurs

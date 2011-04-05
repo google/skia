@@ -118,7 +118,6 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                             textureDesc.fAllocWidth;
     fScaleY             = GrIntToScalar(textureDesc.fContentHeight) /
                             textureDesc.fAllocHeight;
-    fRenderTarget       = NULL;
 
     GrAssert(0 != textureDesc.fTextureID);
 
@@ -137,30 +136,19 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
 }
 
 void GrGLTexture::onRelease() {
+    INHERITED::onRelease();
     if (NULL != fTexIDObj) {
         GPUGL->notifyTextureDelete(this);
         fTexIDObj->unref();
         fTexIDObj = NULL;
-        GrSafeUnref(fRenderTarget);
     }
 }
 
 void GrGLTexture::onAbandon() {
+    INHERITED::onAbandon();
     if (NULL != fTexIDObj) {
         fTexIDObj->abandon();
     }
-    if (NULL != fRenderTarget) {
-        fRenderTarget->abandon();
-    }
-}
-
-GrRenderTarget* GrGLTexture::asRenderTarget() {
-    return fRenderTarget;
-}
-
-void GrGLTexture::releaseRenderTarget() {
-    GrSafeUnref(fRenderTarget);
-    fRenderTarget = NULL;
 }
 
 void GrGLTexture::uploadTextureData(uint32_t x,
@@ -188,6 +176,4 @@ void GrGLTexture::uploadTextureData(uint32_t x,
 intptr_t GrGLTexture::getTextureHandle() {
     return fTexIDObj->id();
 }
-
-
 

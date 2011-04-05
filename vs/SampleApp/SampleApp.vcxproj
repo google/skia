@@ -247,6 +247,7 @@
     <ClCompile Include="..\..\gpu\src\GrStencil.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextContext.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextStrike.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrTexture.cpp" />
     <ClCompile Include="..\..\gpu\src\GrTextureCache.cpp" />
     <ClCompile Include="..\..\gpu\src\gr_unittests.cpp" />
     <ClCompile Include="..\..\gpu\src\win\GrGLDefaultInterface_win.cpp" />
