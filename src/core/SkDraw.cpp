@@ -685,7 +685,7 @@ static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
         paint.getStrokeMiter() < SK_ScalarSqrt2) {
         return false;
     }
-
+    
     SkASSERT(matrix.rectStaysRect());
     SkPoint pt = { paint.getStrokeWidth(), paint.getStrokeWidth() };
     matrix.mapVectors(strokeSize, &pt, 1);
@@ -694,12 +694,33 @@ static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
     return true;
 }
 
-enum RectType {
-    kHair_RectType,
-    kFill_RectType,
-    kStroke_RectType,
-    kPath_RectType
-};
+SkDraw::RectType SkDraw::ComputeRectType(const SkPaint& paint,
+                                         const SkMatrix& matrix,
+                                         SkPoint* strokeSize) {
+    RectType rtype;
+    const SkScalar width = paint.getStrokeWidth();
+    const bool zeroWidth = (0 == width);
+    SkPaint::Style style = paint.getStyle();
+    
+    if ((SkPaint::kStrokeAndFill_Style == style) && zeroWidth) {
+        style = SkPaint::kFill_Style;
+    }
+    
+    if (paint.getPathEffect() || paint.getMaskFilter() ||
+        paint.getRasterizer() || !matrix.rectStaysRect() ||
+        SkPaint::kStrokeAndFill_Style == style) {
+        rtype = kPath_RectType;
+    } else if (SkPaint::kFill_Style == style) {
+        rtype = kFill_RectType;
+    } else if (zeroWidth) {
+        rtype = kHair_RectType;
+    } else if (easy_rect_join(paint, matrix, strokeSize)) {
+        rtype = kStroke_RectType;
+    } else {
+        rtype = kPath_RectType;
+    }
+    return rtype;
+}
 
 void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     SkDEBUGCODE(this->validate();)
@@ -710,35 +731,15 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
         return;
     }
 
-    RectType rtype;
-    const SkScalar width = paint.getStrokeWidth();
-    bool zeroWidth = (0 == width);
-    SkPaint::Style style = paint.getStyle();
     SkPoint strokeSize;
+    RectType rtype = ComputeRectType(paint, *fMatrix, &strokeSize);
 
-    if ((SkPaint::kStrokeAndFill_Style == style) && zeroWidth) {
-        style = SkPaint::kFill_Style;
-    }
-
-    if (paint.getPathEffect() || paint.getMaskFilter() ||
-        paint.getRasterizer() || !fMatrix->rectStaysRect() ||
-        SkPaint::kStrokeAndFill_Style == style) {
-            rtype = kPath_RectType;
-    } else if (SkPaint::kFill_Style == paint.getStyle()) {
-        rtype = kFill_RectType;
-    } else if (zeroWidth) {
-        rtype = kHair_RectType;
-    } else if (easy_rect_join(paint, *fMatrix, &strokeSize)) {
 #ifdef SK_DISABLE_FAST_AA_STROKE_RECT
-        if (paint.isAntiAlias()) {
-            rtype = kPath_RectType;
-        } else
-#endif
-        rtype = kStroke_RectType;
-    } else {
+    if (kStroke_RectType == rtype && paint.isAntiAlias()) {
         rtype = kPath_RectType;
     }
-
+#endif
+        
     if (kPath_RectType == rtype) {
         SkPath  tmp;
         tmp.addRect(rect);
