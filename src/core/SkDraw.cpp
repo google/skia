@@ -689,6 +689,8 @@ static bool easy_rect_join(const SkPaint& paint, const SkMatrix& matrix,
     SkASSERT(matrix.rectStaysRect());
     SkPoint pt = { paint.getStrokeWidth(), paint.getStrokeWidth() };
     matrix.mapVectors(strokeSize, &pt, 1);
+    strokeSize->fX = SkScalarAbs(strokeSize->fX);
+    strokeSize->fY = SkScalarAbs(strokeSize->fY);
     return true;
 }
 
