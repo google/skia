@@ -647,33 +647,27 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                           const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
 
-    bool doStroke = paint.getStyle() == SkPaint::kStroke_Style;
-    SkScalar width = paint.getStrokeWidth();
+    const SkMatrix& matrix = *draw.fMatrix;
+    SkPoint strokeSize;
+    SkDraw::RectType type = SkDraw::ComputeRectType(paint, matrix, &strokeSize);    
 
-    /*
-        We have special code for hairline strokes, miter-strokes, and fills.
-        Anything else we just call our path code.
-     */
-    bool usePath = doStroke && width > 0 &&
-                    paint.getStrokeJoin() != SkPaint::kMiter_Join;
-    // another reason we might need to call drawPath...
-    if (paint.getMaskFilter()) {
-        usePath = true;
-    }
-
-    if (usePath) {
+    if (SkDraw::kPath_RectType == type) {
         SkPath path;
         path.addRect(rect);
         this->drawPath(draw, path, paint, NULL, true);
-        return;
-    }
+    } else {
+        GrPaint grPaint;
+        SkAutoCachedTexture act;
+        if (!this->skPaint2GrPaintShader(paint, &act, matrix, &grPaint)) {
+            return;
+        }
 
-    GrPaint grPaint;
-    SkAutoCachedTexture act;
-    if (!this->skPaint2GrPaintShader(paint, &act, *draw.fMatrix,  &grPaint)) {
-        return;
+        SkScalar width = paint.getStrokeWidth();
+        if (SkDraw::kFill_RectType == type) {
+            width = -1;
+        }
+        fContext->drawRect(grPaint, Sk2Gr(rect), width);
     }
-    fContext->drawRect(grPaint, Sk2Gr(rect), doStroke ? width : -1);
 }
 
 #include "SkMaskFilter.h"

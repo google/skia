@@ -85,6 +85,24 @@ public:
                            SkMaskFilter* filter, const SkMatrix* filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode);
 
+    enum RectType {
+        kHair_RectType,
+        kFill_RectType,
+        kStroke_RectType,
+        kPath_RectType
+    };
+
+    /**
+     *  Based on the paint's style, strokeWidth, and the matrix, classify how
+     *  to draw the rect. If no special-case is available, returns
+     *  kPath_RectType.
+     *
+     *  Iff RectType == kStroke_RectType, then strokeSize is set to the device
+     *  width and height of the stroke.
+     */
+    static RectType ComputeRectType(const SkPaint&, const SkMatrix&,
+                                    SkPoint* strokeSize);
+
 private:
     void    drawText_asPaths(const char text[], size_t byteLength,
                              SkScalar x, SkScalar y, const SkPaint&) const;
