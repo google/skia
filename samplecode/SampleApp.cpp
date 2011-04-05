@@ -79,22 +79,40 @@ static void testpdf() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum FlipAxisEnum {
+    kFlipAxis_X = (1 << 0),
+    kFlipAxis_Y = (1 << 1)
+};
+
+enum SkTriState {
+    kFalse_SkTriState,
+    kTrue_SkTriState,
+    kUnknown_SkTriState,
+};
+
+static SkTriState cycle_tristate(SkTriState state) {
+    static const SkTriState gCycle[] = {
+        /* kFalse_SkTriState   -> */  kUnknown_SkTriState,
+        /* kTrue_SkTriState    -> */  kFalse_SkTriState,
+        /* kUnknown_SkTriState -> */  kTrue_SkTriState,
+    };
+    return gCycle[state];
+}
+
 #include "SkDrawFilter.h"
 
-class LCDTextDrawFilter : public SkDrawFilter {
+class FlagsDrawFilter : public SkDrawFilter {
 public:
-    enum Mode {
-        kNeutral_Mode,
-        kForceOn_Mode,
-        kForceOff_Mode
-    };
-
-    LCDTextDrawFilter(Mode mode) : fMode(mode) {}
+    FlagsDrawFilter(SkTriState lcd, SkTriState aa) : fLCDState(lcd), fAAState(aa) {}
 
     virtual bool filter(SkCanvas*, SkPaint* paint, Type t) {
-        if (kText_Type == t && kNeutral_Mode != fMode) {
+        if (kText_Type == t && kUnknown_SkTriState != fLCDState) {
             fPrevLCD = paint->isLCDRenderText();
-            paint->setLCDRenderText(kForceOn_Mode == fMode);
+            paint->setLCDRenderText(kTrue_SkTriState == fLCDState);
+        }
+        if (kUnknown_SkTriState != fAAState) {
+            fPrevAA = paint->isAntiAlias();
+            paint->setAntiAlias(kTrue_SkTriState == fAAState);
         }
         return true;
     }
@@ -103,24 +121,20 @@ public:
      canvas/paint to their previous states
      */
     virtual void restore(SkCanvas*, SkPaint* paint, Type t) {
-        if (kText_Type == t && kNeutral_Mode != fMode) {
+        if (kText_Type == t && kUnknown_SkTriState != fLCDState) {
             paint->setLCDRenderText(fPrevLCD);
+        }
+        if (kUnknown_SkTriState != fAAState) {
+            paint->setAntiAlias(fPrevAA);
         }
     }
 
 private:
-    Mode    fMode;
-    bool    fPrevLCD;
+    SkTriState  fLCDState;
+    bool        fPrevLCD;
+    SkTriState  fAAState;
+    bool        fPrevAA;
 };
-
-LCDTextDrawFilter::Mode cycle_lcdmode(LCDTextDrawFilter::Mode mode) {
-    static const LCDTextDrawFilter::Mode gCycle[] = {
-        /* kNeutral_Mode  -> */  LCDTextDrawFilter::kForceOn_Mode,
-        /* kForceOn_Mode  -> */  LCDTextDrawFilter::kForceOff_Mode,
-        /* kForceOff_Mode -> */  LCDTextDrawFilter::kNeutral_Mode
-    };
-    return gCycle[mode];
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -277,7 +291,9 @@ private:
     SkTypeface* fTypeface;
     bool fShowZoomer;
 
-    LCDTextDrawFilter::Mode fLCDMode;
+    SkTriState fLCDState;
+    SkTriState fAAState;
+    unsigned   fFlipAxis;
 
     int fScrollTestX, fScrollTestY;
 
@@ -362,6 +378,7 @@ bool SampleWindow::make3DReady() {
         #else
             fGrContext = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
         #endif
+            SkDebugf("---- constructor\n");
         }
 
         if (NULL != fGrContext) {
@@ -402,7 +419,9 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fRotate = false;
     fScale = false;
     fRequestGrabImage = false;
-    fLCDMode = LCDTextDrawFilter::kNeutral_Mode;
+    fLCDState = kUnknown_SkTriState;
+    fAAState = kUnknown_SkTriState;
+    fFlipAxis = 0;
     fScrollTestX = fScrollTestY = 0;
 
     fMouseX = fMouseY = 0;
@@ -495,10 +514,11 @@ void SampleWindow::draw(SkCanvas* canvas) {
     gAnimTimePrev = gAnimTime;
     gAnimTime = SkTime::GetMSecs();
 
+    SkScalar cx = SkScalarHalf(this->width());
+    SkScalar cy = SkScalarHalf(this->height());
+
     if (fZoomLevel) {
         SkMatrix m;
-        SkScalar cx = SkScalarHalf(this->width());
-        SkScalar cy = SkScalarHalf(this->height());
         SkPoint center;
         m = canvas->getTotalMatrix();//.invert(&m);
         m.mapXY(cx, cy, &center);
@@ -509,6 +529,19 @@ void SampleWindow::draw(SkCanvas* canvas) {
         m.postScale(fZoomScale, fZoomScale);
         m.postTranslate(cx, cy);
 
+        canvas->concat(m);
+    }
+
+    if (fFlipAxis) {
+        SkMatrix m;
+        m.setTranslate(cx, cy);
+        if (fFlipAxis & kFlipAxis_X) {
+            m.preScale(-SK_Scalar1, SK_Scalar1);
+        }
+        if (fFlipAxis & kFlipAxis_Y) {
+            m.preScale(SK_Scalar1, -SK_Scalar1);
+        }
+        m.preTranslate(-cx, -cy);
         canvas->concat(m);
     }
 
@@ -776,6 +809,12 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             delete fGpuCanvas;
             fGpuCanvas = NULL;
             presentGL();
+            
+#if 1
+            SkDebugf("---- destructor %d\n", fGrContext->refcnt());
+            fGrContext->unref();
+            fGrContext = NULL;
+#endif
             break;
 #endif
     }
@@ -811,8 +850,9 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->translate(-cx, -cy);
     }
 
-    if (LCDTextDrawFilter::kNeutral_Mode != fLCDMode) {
-        canvas->setDrawFilter(new LCDTextDrawFilter(fLCDMode))->unref();
+    if (kUnknown_SkTriState != fLCDState ||
+        kUnknown_SkTriState != fAAState) {
+        canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState))->unref();
     }
 }
 
@@ -988,7 +1028,12 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             break;
         case 'l':
-            fLCDMode = cycle_lcdmode(fLCDMode);
+            fLCDState = cycle_tristate(fLCDState);
+            this->updateTitle();
+            this->inval(NULL);
+            break;
+        case 'b':
+            fAAState = cycle_tristate(fAAState);
             this->updateTitle();
             this->inval(NULL);
             break;
@@ -997,6 +1042,16 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'o':
             this->zoomOut();
+            break;
+        case 'x':
+            fFlipAxis ^= kFlipAxis_X;
+            this->updateTitle();
+            this->inval(NULL);
+            break;
+        case 'y':
+            fFlipAxis ^= kFlipAxis_Y;
+            this->updateTitle();
+            this->inval(NULL);
             break;
         case 'z':
             this->toggleZoomer();
@@ -1167,6 +1222,16 @@ static const char* gCanvasTypePrefix[] = {
     "opengl: "
 };
 
+static const char* trystate_str(SkTriState state,
+                                const char trueStr[], const char falseStr[]) {
+    if (kTrue_SkTriState == state) {
+        return trueStr;
+    } else if (kFalse_SkTriState == state) {
+        return falseStr;
+    }
+    return NULL;
+}
+
 void SampleWindow::updateTitle() {
     SkString title;
 
@@ -1197,11 +1262,11 @@ void SampleWindow::updateTitle() {
     if (fNClip) {
         title.prepend("<C> ");
     }
-    if (LCDTextDrawFilter::kForceOn_Mode == fLCDMode) {
-        title.prepend("LCD ");
-    } else if (LCDTextDrawFilter::kForceOff_Mode == fLCDMode) {
-        title.prepend("lcd ");
-    }
+
+    title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
+    title.prepend(trystate_str(fAAState, "AA ", "aa "));
+    title.prepend(fFlipAxis & kFlipAxis_X ? "X " : NULL);
+    title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : NULL);
 
     if (fZoomLevel) {
         title.prependf("{%d} ", fZoomLevel);
