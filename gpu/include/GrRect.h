@@ -233,6 +233,15 @@ struct GrRect {
     }
 
     /**
+     *  Inset the rectangle by dx,dy. If dx > 0 the rect becomes narrower,
+     *  if dx < 0 the rect becomes wider.
+     */
+    void inset(GrScalar dx, GrScalar dy) {
+        fLeft += dx;    fTop    += dy;
+        fRight -= dx;   fBottom -= dy;
+    }
+
+    /**
      *  Initialize a rectangle to a point.
      *  @param pt the point used to initialize the rectangle.
      */
