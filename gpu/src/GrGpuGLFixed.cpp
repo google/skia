@@ -192,7 +192,7 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
             GrGLTexture* texture = (GrGLTexture*)fCurrDrawState.fTextures[s];
             if (NULL != texture) {
                 TextureEnvRGBOperands nextRGBOperand0 =
-                    (texture->config() == GrTexture::kAlpha_8_PixelConfig) ?
+                    (GrPixelConfigIsAlphaOnly(texture->config())) ?
                         kAlpha_TextureEnvRGBOperand :
                         kColor_TextureEnvRGBOperand;
                 if (fHWRGBOperand0[s] != nextRGBOperand0) {

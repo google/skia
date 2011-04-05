@@ -129,10 +129,10 @@ public:
      *  Convert the SkBitmap::Config to the corresponding PixelConfig, or
      *  kUnknown_PixelConfig if the conversion cannot be done.
      */
-    static GrTexture::PixelConfig BitmapConfig2PixelConfig(SkBitmap::Config,
-                                                        bool isOpaque);
+    static GrPixelConfig BitmapConfig2PixelConfig(SkBitmap::Config,
+                                                  bool isOpaque);
 
-    static GrTexture::PixelConfig Bitmap2PixelConfig(const SkBitmap& bm) {
+    static GrPixelConfig Bitmap2PixelConfig(const SkBitmap& bm) {
         return BitmapConfig2PixelConfig(bm.config(), bm.isOpaque());
     }
 

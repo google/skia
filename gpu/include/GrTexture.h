@@ -52,6 +52,21 @@ public:
      */
     GrTexture* asTexture() {return fTexture;}
 
+    /**
+     * Reads a rectangle of pixels from the render target.
+     * @param left          left edge of the rectangle to read (inclusive)
+     * @param top           top edge of the rectangle to read (inclusive)
+     * @param width         width of rectangle to read in pixels.
+     * @param height        height of rectangle to read in pixels.
+     * @param config        the pixel config of the destination buffer
+     * @param buffer        memory to read the rectangle into.
+     *
+     * @return true if the read succeeded, false if not. The read can fail
+     *              because of a unsupported pixel config.
+     */
+    bool readPixels(int left, int top, int width, int height,
+                    GrPixelConfig config, void* buffer);
+
 protected:
     GrRenderTarget(GrGpu* gpu,
                    GrTexture* texture,
@@ -81,25 +96,11 @@ private:
 };
 
 class GrTexture : public GrResource {
-public:
-    enum PixelConfig {
-        kUnknown_PixelConfig,
-        kAlpha_8_PixelConfig,
-        kIndex_8_PixelConfig,
-        kRGB_565_PixelConfig,
-        kRGBA_4444_PixelConfig, //!< premultiplied
-        kRGBA_8888_PixelConfig, //!< premultiplied
-        kRGBX_8888_PixelConfig, //!< treat the alpha channel as opaque
-    };
-    static size_t BytesPerPixel(PixelConfig);
-    static bool PixelConfigIsOpaque(PixelConfig);
-    static bool PixelConfigIsAlphaOnly(PixelConfig);
-
 protected:
     GrTexture(GrGpu* gpu,
               int width,
               int height,
-              PixelConfig config)
+              GrPixelConfig config)
     : INHERITED(gpu)
     , fWidth(width)
     , fHeight(height)
@@ -138,13 +139,13 @@ public:
     /**
      * Retrieves the pixel config specified when the texture was created.
      */
-    PixelConfig config() const { return fConfig; }
+    GrPixelConfig config() const { return fConfig; }
 
     /**
      *  Approximate number of bytes used by the texture
      */
     size_t sizeInBytes() const {
-        return fWidth * fHeight * BytesPerPixel(fConfig);
+        return fWidth * fHeight * GrBytesPerPixel(fConfig);
     }
 
     /**
@@ -162,6 +163,21 @@ public:
                                    uint32_t width,
                                    uint32_t height,
                                    const void* srcData) = 0;
+
+    /**
+     * Reads a rectangle of pixels from the texture.
+     * @param left          left edge of the rectangle to read (inclusive)
+     * @param top           top edge of the rectangle to read (inclusive)
+     * @param width         width of rectangle to read in pixels.
+     * @param height        height of rectangle to read in pixels.
+     * @param config        the pixel config of the destination buffer
+     * @param buffer        memory to read the rectangle into.
+     *
+     * @return true if the read succeeded, false if not. The read can fail
+     *              because of a unsupported pixel config.
+     */
+    bool readPixels(int left, int top, int width, int height,
+                    GrPixelConfig config, void* buffer);
 
     /**
      * Retrieves the render target underlying this texture that can be passed to
@@ -200,7 +216,8 @@ private:
     // for this texture if the texture is power of two sized.
     int      fShiftFixedX;
     int      fShiftFixedY;
-    PixelConfig fConfig;
+
+    GrPixelConfig fConfig;
 
     typedef GrResource INHERITED;
 };

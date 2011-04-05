@@ -423,20 +423,49 @@ public:
      *                          FlushBits.
      */
     void flush(int flagsBitfield = 0);
+    
     /**
-     *  Return true on success, i.e. if we could copy the specified range of
-     *  pixels from the current render-target into the buffer, converting into
-     *  the specified pixel-config.
+     * Reads a rectangle of pixels from a render target.
+     * @param renderTarget  the render target to read from. NULL means the
+     *                      current render target.
+     * @param left          left edge of the rectangle to read (inclusive)
+     * @param top           top edge of the rectangle to read (inclusive)
+     * @param width         width of rectangle to read in pixels.
+     * @param height        height of rectangle to read in pixels.
+     * @param config        the pixel config of the destination buffer
+     * @param buffer        memory to read the rectangle into.
+     *
+     * @return true if the read succeeded, false if not. The read can fail
+     *              because of a unsupported pixel config or because no render
+     *              target is currently set.
      */
-    bool readPixels(int left, int top, int width, int height,
-                    GrTexture::PixelConfig, void* buffer);
+    bool readRenderTargetPixels(GrRenderTarget* target,
+                                int left, int top, int width, int height,
+                                GrPixelConfig config, void* buffer);
+
+    /**
+     * Reads a rectangle of pixels from a texture.
+     * @param texture       the render target to read from.
+     * @param left          left edge of the rectangle to read (inclusive)
+     * @param top           top edge of the rectangle to read (inclusive)
+     * @param width         width of rectangle to read in pixels.
+     * @param height        height of rectangle to read in pixels.
+     * @param config        the pixel config of the destination buffer
+     * @param buffer        memory to read the rectangle into.
+     *
+     * @return true if the read succeeded, false if not. The read can fail
+     *              because of a unsupported pixel config.
+     */
+    bool readTexturePixels(GrTexture* target,
+                           int left, int top, int width, int height,
+                           GrPixelConfig config, void* buffer);
 
     /**
      *  Copy the src pixels [buffer, stride, pixelconfig] into the current
      *  render-target at the specified rectangle.
      */
     void writePixels(int left, int top, int width, int height,
-                     GrTexture::PixelConfig, const void* buffer, size_t stride);
+                     GrPixelConfig, const void* buffer, size_t stride);
 
 
     ///////////////////////////////////////////////////////////////////////////

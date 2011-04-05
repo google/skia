@@ -766,17 +766,12 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 
         SkCanvas* canvas = fGpuCanvas ? fGpuCanvas : orig;
         SkDevice* device = canvas->getDevice();
-        SkBitmap bitmap;
-        SkIRect bounds = {
-            0, 0,
-            SkScalarRound(this->width()),
-            SkScalarRound(this->height())
-        };
-        if (device->readPixels(bounds, &bitmap)) {
+        SkBitmap bmp;
+        if (device->accessBitmap(false).copyTo(&bmp, SkBitmap::kARGB_8888_Config)) {
             static int gSampleGrabCounter;
             SkString name;
             name.printf("sample_grab_%d", gSampleGrabCounter++);
-            SkImageEncoder::EncodeFile(name.c_str(), bitmap,
+            SkImageEncoder::EncodeFile(name.c_str(), bmp,
                                        SkImageEncoder::kPNG_Type, 100);
         }
     }

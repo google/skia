@@ -180,17 +180,17 @@ public:
 protected:
 
     struct GLTextureDesc {
-        uint32_t    fContentWidth;
-        uint32_t    fContentHeight;
-        uint32_t    fAllocWidth;
-        uint32_t    fAllocHeight;
-        PixelConfig fFormat;
-        GrGLuint    fTextureID;
-        GrGLenum    fUploadFormat;
-        GrGLenum    fUploadByteCount;
-        GrGLenum    fUploadType;
-        GrGLuint    fStencilBits;
-        Orientation fOrientation;
+        uint32_t        fContentWidth;
+        uint32_t        fContentHeight;
+        uint32_t        fAllocWidth;
+        uint32_t        fAllocHeight;
+        GrPixelConfig   fFormat;
+        GrGLuint        fTextureID;
+        GrGLenum        fUploadFormat;
+        GrGLenum        fUploadByteCount;
+        GrGLenum        fUploadType;
+        GrGLuint        fStencilBits;
+        Orientation     fOrientation;
     };
     typedef GrGLRenderTarget::GLRenderTargetIDs GLRenderTargetIDs;
     GrGLTexture(GrGpuGL* gpu,

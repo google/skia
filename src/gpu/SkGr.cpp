@@ -213,25 +213,25 @@ GrPathFill SkGrClipIterator::getPathFill() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrTexture::PixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config,
+GrPixelConfig SkGr::BitmapConfig2PixelConfig(SkBitmap::Config config,
                                                     bool isOpaque) {
     switch (config) {
         case SkBitmap::kA8_Config:
-            return GrTexture::kAlpha_8_PixelConfig;
+            return kAlpha_8_GrPixelConfig;
         case SkBitmap::kIndex8_Config:
-            return GrTexture::kIndex_8_PixelConfig;
+            return kIndex_8_GrPixelConfig;
         case SkBitmap::kRGB_565_Config:
-            return GrTexture::kRGB_565_PixelConfig;
+            return kRGB_565_GrPixelConfig;
         case SkBitmap::kARGB_4444_Config:
-            return GrTexture::kRGBA_4444_PixelConfig;
+            return kRGBA_4444_GrPixelConfig;
         case SkBitmap::kARGB_8888_Config:
             if (isOpaque) {
-                return GrTexture::kRGBX_8888_PixelConfig;
+                return kRGBX_8888_GrPixelConfig;
             } else {
-                return GrTexture::kRGBA_8888_PixelConfig;
+                return kRGBA_8888_GrPixelConfig;
             }
         default:
-            return GrTexture::kUnknown_PixelConfig;
+            return kUnknown_GrPixelConfig;
     }
 }
 

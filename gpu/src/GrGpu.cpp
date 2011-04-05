@@ -28,42 +28,6 @@
 static const size_t VERTEX_POOL_VB_SIZE = 1 << 12;
 static const int VERTEX_POOL_VB_COUNT = 1;
 
-////////////////////////////////////////////////////////////////////////////////
-
-size_t GrTexture::BytesPerPixel(PixelConfig config) {
-    switch (config) {
-        case kAlpha_8_PixelConfig:
-        case kIndex_8_PixelConfig:
-            return 1;
-        case kRGB_565_PixelConfig:
-        case kRGBA_4444_PixelConfig:
-            return 2;
-        case kRGBA_8888_PixelConfig:
-        case kRGBX_8888_PixelConfig:
-            return 4;
-        default:
-            return 0;
-    }
-}
-
-bool GrTexture::PixelConfigIsOpaque(PixelConfig config) {
-    switch (config) {
-        case GrTexture::kRGB_565_PixelConfig:
-        case GrTexture::kRGBX_8888_PixelConfig:
-            return true;
-        default:
-            return false;
-    }
-}
-
-bool GrTexture::PixelConfigIsAlphaOnly(PixelConfig config) {
-    switch (config) {
-        case GrTexture::kAlpha_8_PixelConfig:
-            return true;
-        default:
-            return false;
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +39,7 @@ GrGpu::GrGpu()
     , fCurrPoolStartVertex(0)
     , fCurrPoolIndexBuffer(NULL)
     , fCurrPoolStartIndex(0)
+    , fContext(NULL)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
     , fQuadIndexBuffer(NULL)
@@ -85,6 +50,7 @@ GrGpu::GrGpu()
     , fVertexPoolInUse(false)
     , fIndexPoolInUse(false)
     , fResourceHead(NULL) {
+
 #if GR_DEBUG
     //gr_run_unittests();
 #endif
@@ -210,10 +176,17 @@ void GrGpu::forceRenderTargetFlush() {
     this->forceRenderTargetFlushHelper();
 }
 
-bool GrGpu::readPixels(int left, int top, int width, int height,
-                       GrTexture::PixelConfig config, void* buffer) {
+bool GrGpu::readPixels(GrRenderTarget* target,
+                       int left, int top, int width, int height,
+                       GrPixelConfig config, void* buffer) {
+
     this->handleDirtyContext();
+    GrRenderTarget* prevTarget = fCurrDrawState.fRenderTarget;
+    if (NULL != target) {
+        fCurrDrawState.fRenderTarget = target;
+    }
     return this->readPixelsHelper(left, top, width, height, config, buffer);
+    fCurrDrawState.fRenderTarget = prevTarget;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -775,12 +748,6 @@ void GrGpu::printStats() const {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-GrTexture::~GrTexture() {
-    // use this to set a break-point if needed
-//    Gr_clz(3);
-}
-
 const GrSamplerState GrSamplerState::gClampNoFilter(
     GrSamplerState::kClamp_WrapMode,
     GrSamplerState::kClamp_WrapMode,

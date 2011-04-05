@@ -666,7 +666,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
         return return_null_texture();
     }
 
-    glDesc.fUploadByteCount = GrTexture::BytesPerPixel(desc.fFormat);
+    glDesc.fUploadByteCount = GrBytesPerPixel(desc.fFormat);
 
     // in case we need a temporary, trimmed copy of the src pixels
     GrAutoSMalloc<128 * 128> trimStorage;
@@ -728,7 +728,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
                         DEFAULT_PARAMS.fWrapT));
 
     GR_GL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, glDesc.fUploadByteCount));
-    if (GrTexture::kIndex_8_PixelConfig == desc.fFormat &&
+    if (kIndex_8_GrPixelConfig == desc.fFormat &&
         supports8BitPalette()) {
         // ES only supports CompressedTexImage2D, not CompressedTexSubimage2D
         GrAssert(desc.fWidth == glDesc.fAllocWidth);
@@ -1155,7 +1155,7 @@ void GrGpuGL::forceRenderTargetFlushHelper() {
 }
 
 bool GrGpuGL::readPixelsHelper(int left, int top, int width, int height,
-                               GrTexture::PixelConfig config, void* buffer) {
+                               GrPixelConfig config, void* buffer) {
     GrGLenum internalFormat;  // we don't use this for glReadPixels
     GrGLenum format;
     GrGLenum type;
@@ -1180,7 +1180,7 @@ bool GrGpuGL::readPixelsHelper(int left, int top, int width, int height,
     // now reverse the order of the rows, since GL's are bottom-to-top, but our
     // API presents top-to-bottom
     {
-        size_t stride = width * GrTexture::BytesPerPixel(config);
+        size_t stride = width * GrBytesPerPixel(config);
         GrAutoMalloc rowStorage(stride);
         void* tmp = rowStorage.get();
 
@@ -1767,13 +1767,13 @@ void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
     }
 }
 
-bool GrGpuGL::canBeTexture(GrTexture::PixelConfig config,
+bool GrGpuGL::canBeTexture(GrPixelConfig config,
                            GrGLenum* internalFormat,
                            GrGLenum* format,
                            GrGLenum* type) {
     switch (config) {
-        case GrTexture::kRGBA_8888_PixelConfig:
-        case GrTexture::kRGBX_8888_PixelConfig: // todo: can we tell it our X?
+        case kRGBA_8888_GrPixelConfig:
+        case kRGBX_8888_GrPixelConfig: // todo: can we tell it our X?
             *format = GR_GL_32BPP_COLOR_FORMAT;
             if (GR_GL_SUPPORT_ES) {
                 // according to GL_EXT_texture_format_BGRA8888 the *internal*
@@ -1784,17 +1784,17 @@ bool GrGpuGL::canBeTexture(GrTexture::PixelConfig config,
             }
             *type = GR_GL_UNSIGNED_BYTE;
             break;
-        case GrTexture::kRGB_565_PixelConfig:
+        case kRGB_565_GrPixelConfig:
             *format = GR_GL_RGB;
             *internalFormat = GR_GL_RGB;
             *type = GR_GL_UNSIGNED_SHORT_5_6_5;
             break;
-        case GrTexture::kRGBA_4444_PixelConfig:
+        case kRGBA_4444_GrPixelConfig:
             *format = GR_GL_RGBA;
             *internalFormat = GR_GL_RGBA;
             *type = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
-        case GrTexture::kIndex_8_PixelConfig:
+        case kIndex_8_GrPixelConfig:
             if (this->supports8BitPalette()) {
                 *format = GR_GL_PALETTE8_RGBA8;
                 *internalFormat = GR_GL_PALETTE8_RGBA8;
@@ -1803,7 +1803,7 @@ bool GrGpuGL::canBeTexture(GrTexture::PixelConfig config,
                 return false;
             }
             break;
-        case GrTexture::kAlpha_8_PixelConfig:
+        case kAlpha_8_GrPixelConfig:
             *format = GR_GL_ALPHA;
             *internalFormat = GR_GL_ALPHA;
             *type = GR_GL_UNSIGNED_BYTE;
@@ -1835,23 +1835,23 @@ void GrGpuGL::setSpareTextureUnit() {
    RenderBufferStorage* has to be a specific format (not a base format like
    GL_RGBA).
  */
-bool GrGpuGL::fboInternalFormat(GrTexture::PixelConfig config, GrGLenum* format) {
+bool GrGpuGL::fboInternalFormat(GrPixelConfig config, GrGLenum* format) {
     switch (config) {
-        case GrTexture::kRGBA_8888_PixelConfig:
-        case GrTexture::kRGBX_8888_PixelConfig:
+        case kRGBA_8888_GrPixelConfig:
+        case kRGBX_8888_GrPixelConfig:
             if (fRGBA8Renderbuffer) {
                 *format = GR_GL_RGBA8;
                 return true;
             } else {
                 return false;
             }
-        case GrTexture::kRGB_565_PixelConfig:
+        case kRGB_565_GrPixelConfig:
             GrAssert(GR_GL_SUPPORT_ES);  // ES2 supports 565. ES1 supports it
                                          // with FBO extension desktop GL has
                                          // no such internal format
             *format = GR_GL_RGB565;
             return true;
-        case GrTexture::kRGBA_4444_PixelConfig:
+        case kRGBA_4444_GrPixelConfig:
             *format = GR_GL_RGBA4;
             return true;
         default:
