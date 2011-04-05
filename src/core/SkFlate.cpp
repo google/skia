@@ -24,9 +24,6 @@ bool SkFlate::Inflate(SkStream*, SkDynamicMemoryWStream*) { return false; }
 #else
 
 // static
-const size_t SkFlate::kBufferSize = 1024;
-
-// static
 bool SkFlate::HaveFlate() {
 #ifdef SK_DEBUG
     return false;
@@ -39,8 +36,10 @@ namespace {
 
 #include SK_ZLIB_INCLUDE
 
-bool doFlate(bool compress, const size_t kBufferSize, SkStream* src,
-             SkDynamicMemoryWStream* dst) {
+// static
+const size_t kBufferSize = 1024;
+
+bool doFlate(bool compress, SkStream* src, SkDynamicMemoryWStream* dst) {
     uint8_t inputBuffer[kBufferSize];
     uint8_t outputBuffer[kBufferSize];
     z_stream flateData;
@@ -121,12 +120,12 @@ bool doFlate(bool compress, const size_t kBufferSize, SkStream* src,
 
 // static
 bool SkFlate::Deflate(SkStream* src, SkDynamicMemoryWStream* dst) {
-    return doFlate(true, kBufferSize, src, dst);
+    return doFlate(true, src, dst);
 }
 
 // static
 bool SkFlate::Inflate(SkStream* src, SkDynamicMemoryWStream* dst) {
-    return doFlate(false, kBufferSize, src, dst);
+    return doFlate(false, src, dst);
 }
 
 #endif
