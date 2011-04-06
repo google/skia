@@ -729,7 +729,7 @@ static void strokeDevAARect(GrContext* ctx, const GrPaint& paint,
         fillDevAARect(ctx, paint, r);
         return;
     }
-    
+
     GrAutoMatrix avm(ctx, GrMatrix::I());
 
     GrPoint verts[16];
@@ -748,6 +748,20 @@ static void strokeDevAARect(GrContext* ctx, const GrPaint& paint,
     ctx->drawVertices(paint, kTriangles_PrimitiveType,
                       16, verts, texs, colors,
                       gStrokeAARectIdx, SK_ARRAY_COUNT(gStrokeAARectIdx));
+}
+
+/*
+ *  If the paint has a texture, preconcat the ctx's inverse, since when we
+ *  draw verts which are already in device coordinates, we need to "undo" that
+ *  before we run our vertex shaders, which expect the coordinates to be local.
+ */
+static void preConcatInverseToTextureMatrix(GrContext* ctx, GrPaint* paint) {
+    if (paint->getTexture()) {
+        GrMatrix inverse;
+        if (ctx->getMatrix().invert(&inverse)) {
+            paint->fSampler.preConcatMatrix(inverse);
+        }
+    }
 }
 
 void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
@@ -770,7 +784,6 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         }
 
         bool doAA = paint.isAntiAlias();
-        doAA = false;
 
         if (SkDraw::kHair_RectType == type && doAA) {
             strokeSize.set(SK_Scalar1, SK_Scalar1);
@@ -786,6 +799,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                 if (doAA) {
                     SkRect devRect;
                     matrix.mapRect(&devRect, rect);
+                    preConcatInverseToTextureMatrix(fContext, &grPaint);
                     fillDevAARect(fContext, grPaint, Sk2Gr(devRect));
                 } else {
                     fContext->drawRect(grPaint, Sk2Gr(rect), -1);
@@ -795,6 +809,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                 if (doAA) {
                     SkRect devRect;
                     matrix.mapRect(&devRect, rect);
+                    preConcatInverseToTextureMatrix(fContext, &grPaint);
                     strokeDevAARect(fContext, grPaint, Sk2Gr(devRect), strokeSize);
                 } else {
                     fContext->drawRect(grPaint, Sk2Gr(rect), paint.getStrokeWidth());
