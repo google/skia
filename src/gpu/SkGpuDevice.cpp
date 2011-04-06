@@ -770,6 +770,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
         }
 
         bool doAA = paint.isAntiAlias();
+        doAA = false;
 
         if (SkDraw::kHair_RectType == type && doAA) {
             strokeSize.set(SK_Scalar1, SK_Scalar1);
