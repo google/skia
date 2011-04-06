@@ -1397,9 +1397,13 @@ public:
                                  SkScalarSquare(fDiff.fY));
         }
         if (matrix) {
-            SkScalar invDiffL = SkScalarInvert(diffL);
-            matrix->setSinCos(-SkScalarMul(invDiffL, fDiff.fY),
-                              SkScalarMul(invDiffL, fDiff.fX));
+            if (diffL) {
+                SkScalar invDiffL = SkScalarInvert(diffL);
+                matrix->setSinCos(-SkScalarMul(invDiffL, fDiff.fY),
+                                  SkScalarMul(invDiffL, fDiff.fX));
+            } else {
+                matrix->reset();
+            }
             matrix->preConcat(fPtsToUnit);
         }
         if (xy) {
