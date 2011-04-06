@@ -24,6 +24,7 @@
 #include "SkScalarCompare.h"
 #include "SkShape.h"
 #include "SkTemplates.h"
+#include "SkTLazy.h"
 #include "SkUtils.h"
 #include <new>
 
@@ -1363,7 +1364,7 @@ public:
     SkDeviceFilteredPaint(SkDevice* device, const SkPaint& paint) {
         SkDevice::TextFlags flags;
         if (device->filterTextFlags(paint, &flags)) {
-            SkPaint* newPaint = new (fStorage) SkPaint(paint);
+            SkPaint* newPaint = fLazy.set(paint);
             newPaint->setFlags(flags.fFlags);
             newPaint->setHinting(flags.fHinting);
             fPaint = newPaint;
@@ -1372,19 +1373,11 @@ public:
         }
     }
 
-    ~SkDeviceFilteredPaint() {
-        if (reinterpret_cast<SkPaint*>(fStorage) == fPaint) {
-            fPaint->~SkPaint();
-        }
-    }
-
     const SkPaint& paint() const { return *fPaint; }
 
 private:
-    // points to either fStorage or the caller's paint
-    const SkPaint*  fPaint;
-    // we rely on the fPaint above to ensure proper alignment of fStorage
-    char            fStorage[sizeof(SkPaint)];
+    const SkPaint*   fPaint;
+    SkTLazy<SkPaint> fLazy;
 };
 
 void SkCanvas::drawText(const void* text, size_t byteLength,
