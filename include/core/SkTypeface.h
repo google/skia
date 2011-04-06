@@ -144,10 +144,6 @@ public:
     SkAdvancedTypefaceMetrics* getAdvancedTypefaceMetrics(
             SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) const;
 
-    // Temporary: for transition purposes.
-    SkAdvancedTypefaceMetrics* getAdvancedTypefaceMetrics(
-            bool perGlyphInfo) const;
-
 protected:
     /** uniqueID must be unique (please!) and non-zero
     */
