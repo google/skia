@@ -80,12 +80,3 @@ SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) const {
     return SkFontHost::GetAdvancedTypefaceMetrics(fUniqueID, perGlyphInfo);
 }
-
-// Temporary: for transitions purposes only.
-SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
-        bool perGlyphInfo) const {
-    SkASSERT(!perGlyphInfo);
-    return SkFontHost::GetAdvancedTypefaceMetrics(
-            fUniqueID,
-            SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo);
-}
