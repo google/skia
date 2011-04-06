@@ -86,6 +86,8 @@ SkGrFontScaler::~SkGrFontScaler() {
 GrMaskFormat SkGrFontScaler::getMaskFormat() {
     SkMask::Format format = fStrike->getMaskFormat();
     switch (format) {
+        case SkMask::kBW_Format:
+            // fall through to kA8 -- we store BW glyphs in our 8-bit cache
         case SkMask::kA8_Format:
             return kA8_GrMaskFormat;
         case SkMask::kLCD16_Format:
@@ -113,6 +115,18 @@ bool SkGrFontScaler::getPackedGlyphBounds(GrGlyph::PackedID packed,
 
 }
 
+static void bits_to_bytes(const uint8_t bits[], uint8_t bytes[], int count) {
+    while (count > 0) {
+        unsigned mask = *bits++;
+        for (int i = 7; i >= 0; --i) {
+            *bytes++ = (mask & (1 << i)) ? 0xFF : 0;
+            if (--count == 0) {
+                return;
+            }
+        }
+    }
+}
+
 bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
                                          int width, int height,
                                          int dstRB, void* dst) {
@@ -127,7 +141,16 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
     }
 
     int srcRB = glyph.rowBytes();
-    if (srcRB == dstRB) {
+    if (SkMask::kBW_Format == fStrike->getMaskFormat()) {
+        // expand bits to bytes
+        const uint8_t* bits = reinterpret_cast<const uint8_t*>(src);
+        uint8_t* bytes = reinterpret_cast<uint8_t*>(dst);
+        for (int y = 0; y < height; y++) {
+            bits_to_bytes(bits, bytes, width);
+            bits += srcRB;
+            bytes += dstRB;
+        }
+    } else if (srcRB == dstRB) {
         memcpy(dst, src, dstRB * height);
     } else {
         const int bbp = GrMaskFormatBytesPerPixel(this->getMaskFormat());
