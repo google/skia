@@ -188,12 +188,14 @@ public:
      *                              underlying 3D API. Interpretation depends on
      *                              GrGpu subclass in use.
      * @param stencilBits           number of stencil bits the target has
+     * @param isMultisampled        specify whether the RT is multisampled
      * @param width                 width of the render target
      * @param height                height of the render target
      */
     virtual GrRenderTarget* createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
+                                                bool isMultisampled,
                                                 int width, int height);
 
     /**
@@ -486,6 +488,7 @@ protected:
     virtual GrRenderTarget* createPlatformRenderTargetHelper(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
+                                                bool isMultisampled,
                                                 int width, int height) = 0;
     virtual GrRenderTarget* createRenderTargetFrom3DApiStateHelper() = 0;
     virtual GrVertexBuffer* createVertexBufferHelper(uint32_t size,

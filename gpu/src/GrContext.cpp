@@ -270,8 +270,10 @@ int GrContext::getMaxTextureDimension() {
 GrRenderTarget* GrContext::createPlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
+                                                bool isMultisampled,
                                                 int width, int height) {
     return fGpu->createPlatformRenderTarget(platformRenderTarget, stencilBits,
+                                            isMultisampled,
                                             width, height);
 }
 

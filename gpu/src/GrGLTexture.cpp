@@ -24,9 +24,11 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                                    const GLRenderTargetIDs& ids,
                                    GrGLTexID* texID,
                                    GrGLuint stencilBits,
+                                   bool isMultisampled,
                                    const GrGLIRect& viewport,
                                    GrGLTexture* texture)
-    : INHERITED(gpu, texture, viewport.fWidth, viewport.fHeight, stencilBits) {
+    : INHERITED(gpu, texture, viewport.fWidth, 
+                viewport.fHeight, stencilBits, isMultisampled) {
     fRTFBOID                = ids.fRTFBOID;
     fTexFBOID               = ids.fTexFBOID;
     fStencilRenderbufferID  = ids.fStencilRenderbufferID;
@@ -96,7 +98,6 @@ const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
     }
 };
 
-
 GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                          const GLTextureDesc& textureDesc,
                          const GLRenderTargetIDs& rtIDs,
@@ -131,6 +132,7 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
 
         fRenderTarget = new GrGLRenderTarget(gpu, rtIDs, fTexIDObj,
                                              textureDesc.fStencilBits,
+                                             rtIDs.fRTFBOID != rtIDs.fTexFBOID,
                                              vp, this);
     }
 }

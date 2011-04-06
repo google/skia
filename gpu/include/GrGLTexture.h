@@ -64,13 +64,14 @@ protected:
         GrGLuint      fTexFBOID;
         GrGLuint      fStencilRenderbufferID;
         GrGLuint      fMSColorRenderbufferID;
-        bool        fOwnIDs;
+        bool          fOwnIDs;
     };
 
     GrGLRenderTarget(GrGpuGL* gpu,
                      const GLRenderTargetIDs& ids,
                      GrGLTexID* texID,
                      GrGLuint stencilBits,
+                     bool isMultisampled,
                      const GrGLIRect& fViewport,
                      GrGLTexture* texture);
 

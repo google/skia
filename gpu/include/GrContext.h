@@ -164,11 +164,14 @@ public:
      *                              id.
      * @param stencilBits           the number of stencil bits that the render
      *                              target has.
+     * @param isMultisampled        specify whether the render target is 
+     *                              multisampled.
      * @param width                 width of the render target.
      * @param height                height of the render target.
      */
     GrRenderTarget* createPlatformRenderTarget(intptr_t platformRenderTarget,
                                                int stencilBits,
+                                               bool isMultisampled,
                                                int width, int height);
 
     /**

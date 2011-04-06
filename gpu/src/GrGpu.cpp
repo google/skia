@@ -144,10 +144,12 @@ GrTexture* GrGpu::createTexture(const TextureDesc& desc,
 
 GrRenderTarget* GrGpu::createPlatformRenderTarget(intptr_t platformRenderTarget,
                                                   int stencilBits,
+                                                  bool isMultisampled,
                                                   int width, int height) {
     this->handleDirtyContext();
     return this->createPlatformRenderTargetHelper(platformRenderTarget,
                                                   stencilBits,
+                                                  isMultisampled,
                                                   width, height);
 }
 
