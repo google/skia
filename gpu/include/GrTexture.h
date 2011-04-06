@@ -54,6 +54,11 @@ public:
     GrTexture* asTexture() {return fTexture;}
 
     /**
+     * @return true if the render target is multisampled, false otherwise
+     */
+    bool isMultisampled() { return fIsMultisampled; }
+
+    /**
      * Reads a rectangle of pixels from the render target.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
@@ -73,12 +78,14 @@ protected:
                    GrTexture* texture,
                    int width,
                    int height,
-                   int stencilBits)
+                   int stencilBits,
+                   bool isMultisampled)
         : INHERITED(gpu)
         , fTexture(texture)
         , fWidth(width)
         , fHeight(height)
         , fStencilBits(stencilBits)
+        , fIsMultisampled(isMultisampled)
     {}
 
     friend class GrTexture;
@@ -96,6 +103,7 @@ protected:
     int        fWidth;
     int        fHeight;
     int        fStencilBits;
+    bool       fIsMultisampled;
 
 private:
     // GrGpu keeps a cached clip in the render target to avoid redundantly

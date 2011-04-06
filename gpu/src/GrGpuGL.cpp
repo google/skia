@@ -481,6 +481,8 @@ void GrGpuGL::resetContext() {
         GR_GL(Disable(GR_GL_LINE_SMOOTH));
         GR_GL(Disable(GR_GL_POINT_SMOOTH));
         GR_GL(Disable(GR_GL_MULTISAMPLE));
+        fHWAAState.fMSAAEnabled = false;
+        fHWAAState.fSmoothLineEnabled = false;
     }
 
     GR_GL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
@@ -534,6 +536,7 @@ void GrGpuGL::resetContext() {
 GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
+                                                bool isMultisampled,
                                                 int width,
                                                 int height) {
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
@@ -552,7 +555,8 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
     rtIDs.fRTFBOID  = (GrGLuint)platformRenderTarget;
     rtIDs.fTexFBOID = (GrGLuint)platformRenderTarget;
 
-    return new GrGLRenderTarget(this, rtIDs, NULL, stencilBits, viewport, NULL);
+    return new GrGLRenderTarget(this, rtIDs, NULL, stencilBits, 
+                                isMultisampled, viewport, NULL);
 }
 
 GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
@@ -569,9 +573,13 @@ GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
     GrGLuint stencilBits;
     GR_GL_GetIntegerv(GR_GL_STENCIL_BITS, (GrGLint*)&stencilBits);
 
+    GrGLint samples;
+    GR_GL_GetIntegerv(GR_GL_SAMPLES, &samples);
+
     rtIDs.fOwnIDs = false;
 
-    return new GrGLRenderTarget(this, rtIDs, NULL, stencilBits, viewport, NULL);
+    return new GrGLRenderTarget(this, rtIDs, NULL, stencilBits, 
+                                (samples > 0), viewport, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1518,6 +1526,42 @@ void GrGpuGL::flushStencil() {
     }
 }
 
+void GrGpuGL::flushAAState(GrPrimitiveType type) {
+    if (GR_GL_SUPPORT_DESKTOP) {
+        // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
+        // smooth lines.
+
+        // we prefer smooth lines over multisampled lines
+        // msaa should be disabled if drawing smooth lines.
+        if (kLines_PrimitiveType == type) {
+            if (!fHWAAState.fSmoothLineEnabled && 
+                (kAntialias_StateBit & fCurrDrawState.fFlagBits)) {
+                GR_GL(Enable(GR_GL_LINE_SMOOTH));
+                fHWAAState.fSmoothLineEnabled = true;
+            } else if (fHWAAState.fSmoothLineEnabled && 
+                       !(kAntialias_StateBit & fCurrDrawState.fFlagBits)) {
+                GR_GL(Disable(GR_GL_LINE_SMOOTH));
+                fHWAAState.fSmoothLineEnabled = false;
+            }
+            if (fCurrDrawState.fRenderTarget->isMultisampled() && 
+                fHWAAState.fMSAAEnabled) {
+                GR_GL(Disable(GR_GL_MULTISAMPLE));
+                fHWAAState.fMSAAEnabled = false;
+            }
+        } else if (fCurrDrawState.fRenderTarget->isMultisampled() &&
+                   !!(kAntialias_StateBit & fCurrDrawState.fFlagBits) !=
+                   fHWAAState.fMSAAEnabled) {
+            if (fHWAAState.fMSAAEnabled) {
+                GR_GL(Disable(GR_GL_MULTISAMPLE));
+                fHWAAState.fMSAAEnabled = false;
+            } else {
+                GR_GL(Enable(GR_GL_MULTISAMPLE));
+                fHWAAState.fMSAAEnabled = true;
+            }
+        }
+    }
+}
+
 bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     // GrGpu::setupClipAndFlushState should have already checked this
@@ -1595,6 +1639,8 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     flushRenderTarget();
 
+    flushAAState(type);
+
     if ((fCurrDrawState.fFlagBits & kDither_StateBit) !=
         (fHWDrawState.fFlagBits & kDither_StateBit)) {
         if (fCurrDrawState.fFlagBits & kDither_StateBit) {
@@ -1613,34 +1659,6 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             mask = GR_GL_TRUE;
         }
         GR_GL(ColorMask(mask, mask, mask, mask));
-    }
-
-    if (GR_GL_SUPPORT_DESKTOP) {
-        // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
-        // smooth lines.
-        if (fDirtyFlags.fRenderTargetChanged ||
-            (fCurrDrawState.fFlagBits & kAntialias_StateBit) !=
-            (fHWDrawState.fFlagBits & kAntialias_StateBit)) {
-            GrGLint msaa = 0;
-            // only perform query if we know MSAA is supported.
-            // calling on non-MSAA target caused a crash in one environment,
-            // though I don't think it should.
-            if (fAASamples[kHigh_AALevel]) {
-                GR_GL_GetIntegerv(GR_GL_SAMPLE_BUFFERS, &msaa);
-            }
-            if (fCurrDrawState.fFlagBits & kAntialias_StateBit) {
-                if (msaa) {
-                    GR_GL(Enable(GR_GL_MULTISAMPLE));
-                } else {
-                    GR_GL(Enable(GR_GL_LINE_SMOOTH));
-                }
-            } else {
-                if (msaa) {
-                    GR_GL(Disable(GR_GL_MULTISAMPLE));
-                }
-                GR_GL(Disable(GR_GL_LINE_SMOOTH));
-            }
-        }
     }
 
     bool blendOff = canDisableBlend();

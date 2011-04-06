@@ -39,6 +39,11 @@ protected:
         bool                    fArrayPtrsDirty;
     } fHWGeometryState;
 
+    struct AAState {
+        bool fMSAAEnabled;
+        bool fSmoothLineEnabled;
+    } fHWAAState;
+
     DrState   fHWDrawState;
     bool      fHWStencilClip;
 
@@ -78,6 +83,7 @@ protected:
     virtual GrRenderTarget* createPlatformRenderTargetHelper(
                                                  intptr_t platformRenderTarget,
                                                  int stencilBits,
+                                                 bool isMultisampled,
                                                  int width, int height);
 
     virtual GrRenderTarget* createRenderTargetFrom3DApiStateHelper();
@@ -147,6 +153,7 @@ private:
 
     void flushRenderTarget();
     void flushStencil();
+    void flushAAState(GrPrimitiveType type);
     void resolveTextureRenderTarget(GrGLTexture* texture);
 
     bool canBeTexture(GrPixelConfig config,
