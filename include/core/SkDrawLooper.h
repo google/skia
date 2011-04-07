@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 The Android Open Source Project
+ * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@
 
 #include "SkFlattenable.h"
 
-////////////////// EXPERIMENTAL //////////////////////////
-
 class SkCanvas;
 class SkPaint;
 
@@ -34,24 +32,25 @@ class SkPaint;
 */
 class SK_API SkDrawLooper : public SkFlattenable {
 public:
-    /** Called right before something is being drawn to the specified canvas
-        with the specified paint. Subclass that want to modify either parameter
-        can do so now.
-    */
-    virtual void init(SkCanvas*, SkPaint*) {}
-    /** Called in a loop (after init()). Each time true is returned, the object
-        is drawn (possibly with a modified canvas and/or paint). When false is
-        finally returned, drawing for the object stops.
-    */
-    virtual bool next() { return false; }
-    /** Called after the looper has finally returned false from next(), allowing
-        the looper to restore the canvas/paint to their original states.
-        is this required, since the subclass knows when it is done???
-        should we pass the canvas/paint here, and/or to the next call
-        so that subclasses don't need to retain pointers to them during the 
-        loop?
-    */
-    virtual void restore() {}
+    /**
+     *  Called right before something is being drawn. This will be followed by
+     *  calls to next() until next() returns false.
+     */
+    virtual void init(SkCanvas*) = 0;
+
+    /**
+     *  Called in a loop (after init()). Each time true is returned, the object
+     *  is drawn (possibly with a modified canvas and/or paint). When false is
+     *  finally returned, drawing for the object stops.
+     *
+     *  On each call, the paint will be in its original state, but the canvas
+     *  will be as it was following the previous call to next() or init().
+     *
+     *  The implementation must ensure that, when next() finally returns false,
+     *  that the canvas has been restored to the state it was initially, before
+     *  init() was first called.
+     */
+    virtual bool next(SkCanvas*, SkPaint* paint) = 0;
     
 protected:
     SkDrawLooper() {}

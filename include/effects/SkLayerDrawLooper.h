@@ -23,9 +23,8 @@ public:
     }
     
     // overrides from SkDrawLooper
-    virtual void init(SkCanvas*, SkPaint*);
-    virtual bool next();
-    virtual void restore();
+    virtual void init(SkCanvas*);
+    virtual bool next(SkCanvas*, SkPaint* paint);
 
     // must be public for Registrar :(
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
@@ -49,14 +48,9 @@ private:
     };
     Rec*    fRecs;
     int     fCount;
-    
-    struct Iter {
-        SkPaint     fSavedPaint;
-        SkPaint*    fPaint;
-        SkCanvas*   fCanvas;
-        Rec*        fRec;
-    };
-    Iter    fIter;
+
+    // state-machine during the init/next cycle
+    Rec* fCurrRec;
     
     class MyRegistrar : public SkFlattenable::Registrar {
     public:

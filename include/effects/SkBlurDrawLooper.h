@@ -48,9 +48,8 @@ public:
     virtual ~SkBlurDrawLooper();
 
     // overrides from SkDrawLooper
-    virtual void init(SkCanvas*, SkPaint*);
-    virtual bool next();
-    virtual void restore();
+    virtual void init(SkCanvas*);
+    virtual bool next(SkCanvas*, SkPaint* paint);
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(SkBlurDrawLooper, (buffer));
@@ -64,14 +63,10 @@ protected:
     virtual Factory getFactory() { return CreateProc; }
 
 private:
-    SkCanvas*       fCanvas;
-    SkPaint*        fPaint;
     SkMaskFilter*   fBlur;
     SkColorFilter*  fColorFilter;
     SkScalar        fDx, fDy;
     SkColor         fBlurColor;
-    SkColor         fSavedColor;    // remember the original
-    int             fSaveCount;
     uint32_t        fBlurFlags;  
 
     enum State {
