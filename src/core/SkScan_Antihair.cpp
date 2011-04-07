@@ -670,6 +670,8 @@ void SkScan::AntiFillRect(const SkRect& origR, const SkRegion* clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define SkAlphaMulRound(a, b)   SkMulDiv255Round(a, b)
+
 // calls blitRect() if the rectangle is non-empty
 static void fillcheckrect(int L, int T, int R, int B, SkBlitter* blitter) {
     if (L < R && T < B) {
@@ -695,7 +697,9 @@ static inline int FDot8Ceil(FDot8 x) {
 
 // 1 - (1 - a)*(1 - b)
 static inline U8CPU InvAlphaMul(U8CPU a, U8CPU b) {
-    return SkToU8(a + b - SkAlphaMul(a, b));
+    // need precise rounding (not just SkAlphaMul) so that values like
+    // a=228, b=252 don't overflow the result
+    return SkToU8(a + b - SkAlphaMulRound(a, b));
 }
 
 static void inner_scanline(FDot8 L, int top, FDot8 R, U8CPU alpha,
