@@ -237,13 +237,15 @@ bool SkGpuDevice::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
         return false;
     }
 
-    SkAutoLockPixels alp(tmp);
+    tmp.lockPixels();
 
-    if (!fContext->readRenderTargetPixels(fRenderTarget,
-                                          bounds.fLeft, bounds.fTop,
-                                          bounds.width(), bounds.height(),
-                                          kRGBA_8888_GrPixelConfig,
-                                          tmp.getPixels())) {
+    bool read = !fContext->readRenderTargetPixels(fRenderTarget,
+                                                  bounds.fLeft, bounds.fTop,
+                                                  bounds.width(), bounds.height(),
+                                                  kRGBA_8888_GrPixelConfig,
+                                                  tmp.getPixels());
+    tmp.unlockPixels();
+    if (!read) {
         return false;
     }
 
