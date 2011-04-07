@@ -27,31 +27,21 @@ SkPaint* SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy) {
     return &rec->fPaint;
 }
 
-void SkLayerDrawLooper::init(SkCanvas* canvas, SkPaint* paint) {
-    fIter.fSavedPaint = *paint;
-    fIter.fPaint = paint;
-    fIter.fCanvas = canvas;
-    fIter.fRec = fRecs;
+void SkLayerDrawLooper::init(SkCanvas* canvas) {
+    fCurrRec = fRecs;
     canvas->save(SkCanvas::kMatrix_SaveFlag);
 }
 
-bool SkLayerDrawLooper::next() {
-    Rec* rec = fIter.fRec;
-    if (rec) {
-        *fIter.fPaint = rec->fPaint;
-        fIter.fCanvas->restore();
-        fIter.fCanvas->save(SkCanvas::kMatrix_SaveFlag);
-        fIter.fCanvas->translate(rec->fOffset.fX, rec->fOffset.fY);
-
-        fIter.fRec = rec->fNext;
-        return true;
+bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
+    canvas->restore();
+    if (NULL == fCurrRec) {
+        return false;
     }
-    return false;
-}
 
-void SkLayerDrawLooper::restore() {
-    fIter.fCanvas->restore();
-    *fIter.fPaint = fIter.fSavedPaint;
+    *paint = fCurrRec->fPaint;
+    canvas->save(SkCanvas::kMatrix_SaveFlag);
+    canvas->translate(fCurrRec->fOffset.fX, fCurrRec->fOffset.fY);
+    return true;
 }
 
 SkLayerDrawLooper::Rec* SkLayerDrawLooper::Rec::Reverse(Rec* head) {
