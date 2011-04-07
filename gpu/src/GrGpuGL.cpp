@@ -1739,9 +1739,6 @@ void GrGpuGL::notifyVertexBufferBind(const GrGLVertexBuffer* buffer) {
 }
 
 void GrGpuGL::notifyVertexBufferDelete(const GrGLVertexBuffer* buffer) {
-    GrAssert(!(kBuffer_GeometrySrcType == fGeometrySrc.fVertexSrc &&
-               buffer == fGeometrySrc.fVertexBuffer));
-
     if (fHWGeometryState.fVertexBuffer == buffer) {
         // deleting bound buffer does implied bind to 0
         fHWGeometryState.fVertexBuffer = NULL;
@@ -1754,9 +1751,6 @@ void GrGpuGL::notifyIndexBufferBind(const GrGLIndexBuffer* buffer) {
 }
 
 void GrGpuGL::notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
-    GrAssert(!(kBuffer_GeometrySrcType == fGeometrySrc.fIndexSrc &&
-               buffer == fGeometrySrc.fIndexBuffer));
-
     if (fHWGeometryState.fIndexBuffer == buffer) {
         // deleting bound buffer does implied bind to 0
         fHWGeometryState.fIndexBuffer = NULL;
