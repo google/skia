@@ -41,6 +41,8 @@ bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
     *paint = fCurrRec->fPaint;
     canvas->save(SkCanvas::kMatrix_SaveFlag);
     canvas->translate(fCurrRec->fOffset.fX, fCurrRec->fOffset.fY);
+    fCurrRec = fCurrRec->fNext;
+
     return true;
 }
 
