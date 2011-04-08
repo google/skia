@@ -151,15 +151,20 @@ private:
 
     void setSpareTextureUnit();
 
+    bool useSmoothLines();
+
     void flushRenderTarget();
     void flushStencil();
     void flushAAState(GrPrimitiveType type);
+    void flushBlend(GrPrimitiveType type);
+
     void resolveTextureRenderTarget(GrGLTexture* texture);
 
     bool canBeTexture(GrPixelConfig config,
                       GrGLenum* internalFormat,
                       GrGLenum* format,
                       GrGLenum* type);
+
     bool fboInternalFormat(GrPixelConfig config, GrGLenum* format);
 
     friend class GrGLVertexBuffer;
