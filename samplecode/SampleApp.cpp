@@ -105,35 +105,18 @@ class FlagsDrawFilter : public SkDrawFilter {
 public:
     FlagsDrawFilter(SkTriState lcd, SkTriState aa) : fLCDState(lcd), fAAState(aa) {}
 
-    virtual bool filter(SkCanvas*, SkPaint* paint, Type t) {
+    virtual void filter(SkPaint* paint, Type t) {
         if (kText_Type == t && kUnknown_SkTriState != fLCDState) {
-            fPrevLCD = paint->isLCDRenderText();
             paint->setLCDRenderText(kTrue_SkTriState == fLCDState);
         }
         if (kUnknown_SkTriState != fAAState) {
-            fPrevAA = paint->isAntiAlias();
             paint->setAntiAlias(kTrue_SkTriState == fAAState);
-        }
-        return true;
-    }
-
-    /** If filter() returned true, then restore() will be called to restore the
-     canvas/paint to their previous states
-     */
-    virtual void restore(SkCanvas*, SkPaint* paint, Type t) {
-        if (kText_Type == t && kUnknown_SkTriState != fLCDState) {
-            paint->setLCDRenderText(fPrevLCD);
-        }
-        if (kUnknown_SkTriState != fAAState) {
-            paint->setAntiAlias(fPrevAA);
         }
     }
 
 private:
     SkTriState  fLCDState;
-    bool        fPrevLCD;
     SkTriState  fAAState;
-    bool        fPrevAA;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -425,7 +408,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fScrollTestX = fScrollTestY = 0;
 
     fMouseX = fMouseY = 0;
-    fFatBitsScale = 1;
+    fFatBitsScale = 8;
     fTypeface = SkTypeface::CreateFromTypeface(NULL, SkTypeface::kBold);
     fShowZoomer = false;
 
@@ -604,8 +587,8 @@ void SampleWindow::draw(SkCanvas* canvas) {
         else if (fMouseY < 0) fMouseY = 0;
         SkBitmap bitmap = capture_bitmap(canvas);
         // Find the size of the zoomed in view, forced to be odd, so the examined pixel is in the middle.
-        int zoomedWidth = (width >> 2) | 1;
-        int zoomedHeight = (height >> 2) | 1;
+        int zoomedWidth = (width >> 1) | 1;
+        int zoomedHeight = (height >> 1) | 1;
         SkIRect src;
         src.set(0, 0, zoomedWidth / fFatBitsScale, zoomedHeight / fFatBitsScale);
         src.offset(fMouseX - (src.width()>>1), fMouseY - (src.height()>>1));
