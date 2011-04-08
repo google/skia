@@ -589,25 +589,26 @@ static const GrGLuint UNKNOWN_BITS = ~0;
 struct StencilFormat {
     GrGLenum  fEnum;
     GrGLuint  fBits;
+    bool      fPacked;
 };
 
 const StencilFormat* GrGLStencilFormats() {
     // defines stencil formats from more to less preferred
     static const StencilFormat desktopStencilFormats[] = {
-        {GR_GL_STENCIL_INDEX8,     8},
-        {GR_GL_STENCIL_INDEX16,    16},
-        {GR_GL_DEPTH24_STENCIL8,   8},
-        {GR_GL_STENCIL_INDEX4,     4},
-        {GR_GL_STENCIL_INDEX,      UNKNOWN_BITS},
-        {GR_GL_DEPTH_STENCIL,      UNKNOWN_BITS},
-        {0, 0}
+        {GR_GL_STENCIL_INDEX8,     8,            false},
+        {GR_GL_STENCIL_INDEX16,    16,           false},
+        {GR_GL_DEPTH24_STENCIL8,   8,            true },
+        {GR_GL_STENCIL_INDEX4,     4,            false},
+        {GR_GL_STENCIL_INDEX,      UNKNOWN_BITS, false},
+        {GR_GL_DEPTH_STENCIL,      UNKNOWN_BITS, true },
+        {0, 0, false}
     };
 
     static const StencilFormat esStencilFormats[] = {
-        {GR_GL_STENCIL_INDEX8,     8},
-        {GR_GL_DEPTH24_STENCIL8,   8},
-        {GR_GL_STENCIL_INDEX4,     4},
-        {0, 0}
+        {GR_GL_STENCIL_INDEX8,     8,   false},
+        {GR_GL_DEPTH24_STENCIL8,   8,   true },
+        {GR_GL_STENCIL_INDEX4,     4,   false},
+        {0, 0, false}
     };
 
     if (GR_GL_SUPPORT_DESKTOP) {
@@ -941,36 +942,27 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
                                               GR_GL_STENCIL_ATTACHMENT,
                                               GR_GL_RENDERBUFFER,
                                               rtIDs.fStencilRenderbufferID));
+                // if it is a packed format bind to depth also, otherwise 
+                // we may get an unsupported fbo completeness result
+                if (stencilFormats[i].fPacked) {
+                    GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                  GR_GL_DEPTH_ATTACHMENT,
+                                                  GR_GL_RENDERBUFFER,
+                                                  rtIDs.fStencilRenderbufferID));
+                }
             }
             status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
 
-            if (GR_GL_SUPPORT_DESKTOP) {
-                // On some implementations you have to be bound as DEPTH_STENCIL.
-                // (Even binding to DEPTH and STENCIL separately with the same
-                // buffer doesn't work.)
-                if (rtIDs.fStencilRenderbufferID &&
-                    status != GR_GL_FRAMEBUFFER_COMPLETE) {
-                    GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                  GR_GL_STENCIL_ATTACHMENT,
-                                                  GR_GL_RENDERBUFFER,
-                                                  0));
-                    GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                  GR_GL_DEPTH_STENCIL_ATTACHMENT,
-                                                  GR_GL_RENDERBUFFER,
-                                                  rtIDs.fStencilRenderbufferID));
-                    status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-                }
-            }
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 GrPrintf("-- glCheckFramebufferStatus %x %d %d\n",
                          status, desc.fWidth, desc.fHeight);
-                if (GR_GL_SUPPORT_DESKTOP) {
-                    if (rtIDs.fStencilRenderbufferID) {
-                        GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                      GR_GL_DEPTH_STENCIL_ATTACHMENT,
-                                                      GR_GL_RENDERBUFFER,
-                                                      0));
-                    }
+                // undo the depth bind
+                if (rtIDs.fStencilRenderbufferID && 
+                    stencilFormats[i].fPacked) {
+                    GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                                    GR_GL_DEPTH_ATTACHMENT,
+                                                    GR_GL_RENDERBUFFER,
+                                                    0));
                 }
                 continue;
             }
