@@ -58,6 +58,13 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
                                  SkPDFCatalog* catalog,
                                  SkTDArray<SkPDFDict*>* pageTree,
                                  SkPDFDict** rootNode) {
+    // PDF wants a tree describing all the pages in the document.  We arbitrary
+    // choose 8 (kNodeSize) as the number of allowed children.  The internal
+    // nodes have type "Pages" with an array of children, a parent pointer, and
+    // the number of leaves below the node as "Count."  The leaves are passed
+    // into the method, have type "Page" and need a parent pointer. This method
+    // builds the tree bottom up, skipping internal nodes that would have only
+    // one child.
     static const int kNodeSize = 8;
 
     SkRefPtr<SkPDFName> kidsName = new SkPDFName("Kids");
@@ -79,6 +86,7 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
     SkTDArray<SkPDFDict*> nextRoundNodes;
     nextRoundNodes.setReserve((pages.count() + kNodeSize - 1)/kNodeSize);
 
+    int treeCapacity = kNodeSize;
     do {
         for (int i = 0; i < curNodes.count(); ) {
             if (i > 0 && i + 1 == curNodes.count()) {
@@ -110,12 +118,17 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
             }
 
             newNode->insert(kidsName.get(), kids.get());
-            newNode->insert(countName.get(), new SkPDFInt(count))->unref();
+            int pageCount = treeCapacity;
+            if (count < kNodeSize) {
+                pageCount = pages.count() % treeCapacity;
+            }
+            newNode->insert(countName.get(), new SkPDFInt(pageCount))->unref();
             nextRoundNodes.push(newNode);  // Transfer reference.
         }
 
         curNodes = nextRoundNodes;
         nextRoundNodes.rewind();
+        treeCapacity *= kNodeSize;
     } while(curNodes.count() > 1);
 
     pageTree->push(curNodes[0]); // Transfer reference.
