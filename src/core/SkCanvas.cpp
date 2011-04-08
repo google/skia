@@ -334,6 +334,10 @@ bool AutoDrawLooper::next(SkDrawFilter::Type drawType) {
     }
     if (fFilter) {
         fFilter->filter(paint, drawType);
+        if (NULL == fLooper) {
+            // no looper means we only draw once
+            fDone = true;
+        }
     }
     fPaint = paint;
     return true;
