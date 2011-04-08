@@ -1261,8 +1261,18 @@ static void SkGPU_Draw1Glyph(const SkDraw1Glyph& state,
     if (NULL == procs->fFontScaler) {
         procs->fFontScaler = get_gr_font_scaler(state.fCache);
     }
+
+    /*
+     *  Skia calls us with fx,fy already biased by 1/2. It does this to speed
+     *  up rounding these, so that all of its procs (like us) can just call
+     *  SkFixedFloor and get the "rounded" value.
+     *
+     *  We take advantage of that for fx, where we pass a rounded value, but
+     *  we want the fractional fy, so we have to unbias it first.
+     */
     procs->fTextContext->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(), fx, 0),
-                                         SkIntToFixed(SkFixedFloor(fx)), fy,
+                                         SkIntToFixed(SkFixedFloor(fx)),
+                                         fy - SK_FixedHalf,
                                          procs->fFontScaler);
 }
 

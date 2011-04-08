@@ -1628,7 +1628,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     // apply the bias here, so we don't have to add 1/2 in the loop
     fx += SK_FixedHalf;
     fy += SK_FixedHalf;
-    fy &= finalFYMask;
+    fyMask &= finalFYMask;
 
     SkAutoKern          autokern;
 	SkDraw1Glyph        d1g;
