@@ -16,12 +16,13 @@ SkLayerDrawLooper::~SkLayerDrawLooper() {
     }
 }
     
-SkPaint* SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy) {
+SkPaint* SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy, BitFlags bits) {
     fCount += 1;
 
     Rec* rec = SkNEW(Rec);
     rec->fNext = fRecs;
     rec->fOffset.set(dx, dy);
+    rec->fBits = bits;
     fRecs = rec;
 
     return &rec->fPaint;
@@ -32,13 +33,73 @@ void SkLayerDrawLooper::init(SkCanvas* canvas) {
     canvas->save(SkCanvas::kMatrix_SaveFlag);
 }
 
+void SkLayerDrawLooper::ApplyBits(SkPaint* dst, const SkPaint& src,
+                                  BitFlags bits) {
+    if (kEntirePaint_Bits == bits) {
+        *dst = src;
+        return;
+    }
+
+    SkColor c = dst->getColor();
+    if (bits & kAlpha_Bit) {
+        c &= 0x00FFFFFF;
+        c |= src.getColor() & 0xFF000000;
+    }
+    if (bits & kColor_Bit) {
+        c &= 0xFF000000;
+        c |= src.getColor() & 0x00FFFFFF;
+    }
+    dst->setColor(c);
+
+    if (bits & kStyle_Bit) {
+        dst->setStyle(src.getStyle());
+        dst->setStrokeWidth(src.getStrokeWidth());
+        dst->setStrokeMiter(src.getStrokeMiter());
+        dst->setStrokeCap(src.getStrokeCap());
+        dst->setStrokeJoin(src.getStrokeJoin());
+    }
+
+    if (bits & kTextSkewX_Bit) {
+        dst->setTextSkewX(src.getTextSkewX());
+    }
+
+    if (bits & kPathEffect_Bit) {
+        dst->setPathEffect(src.getPathEffect());
+    }
+    if (bits & kMaskFilter_Bit) {
+        dst->setMaskFilter(src.getMaskFilter());
+    }
+    if (bits & kShader_Bit) {
+        dst->setShader(src.getShader());
+    }
+    if (bits & kColorFilter_Bit) {
+        dst->setColorFilter(src.getColorFilter());
+    }
+    if (bits & kXfermode_Bit) {
+        dst->setXfermode(src.getXfermode());
+    }
+
+    // we never copy these
+#if 0
+    dst->setFlags(src.getFlags());
+    dst->setTypeface(src.getTypeface());
+    dst->setTextSize(src.getTextSize());
+    dst->setTextScaleX(src.getTextScaleX());
+    dst->setTextSkewX(src.getTextSkewX());
+    dst->setRasterizer(src.getRasterizer());
+    dst->setLooper(src.getLooper());
+    dst->setTextEncoding(src.getTextEncoding());
+    dst->setHinting(src.getHinting());
+#endif
+}
+
 bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
     canvas->restore();
     if (NULL == fCurrRec) {
         return false;
     }
 
-    *paint = fCurrRec->fPaint;
+    ApplyBits(paint, fCurrRec->fPaint, fCurrRec->fBits);
     canvas->save(SkCanvas::kMatrix_SaveFlag);
     canvas->translate(fCurrRec->fOffset.fX, fCurrRec->fOffset.fY);
     fCurrRec = fCurrRec->fNext;
