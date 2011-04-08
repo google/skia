@@ -172,6 +172,16 @@ enum GrPrimitiveType {
     kLineStrip_PrimitiveType
 };
 
+static inline bool GrIsPrimTypeLines(GrPrimitiveType type) {
+    return kLines_PrimitiveType == type || kLineStrip_PrimitiveType == type;
+}
+
+static inline bool GrIsPrimTypeTris(GrPrimitiveType type) {
+    return kTriangles_PrimitiveType == type     ||
+           kTriangleStrip_PrimitiveType == type ||
+           kTriangleFan_PrimitiveType == type;
+}
+
 /**
  * Coeffecients for alpha-blending.
  */

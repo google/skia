@@ -1526,6 +1526,18 @@ void GrGpuGL::flushStencil() {
     }
 }
 
+bool GrGpuGL::useSmoothLines() {
+    // there is a conflict between using smooth lines and our use of
+    // premultiplied alpha. Smooth lines tweak the incoming alpha value
+    // but not in a premul-alpha way. So we only use them when our alpha
+    // is 0xff.
+
+    // TODO: write a smarter line frag shader.
+
+    return (kAntialias_StateBit & fCurrDrawState.fFlagBits) &&
+           canDisableBlend();
+}
+
 void GrGpuGL::flushAAState(GrPrimitiveType type) {
     if (GR_GL_SUPPORT_DESKTOP) {
         // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
@@ -1533,13 +1545,12 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
 
         // we prefer smooth lines over multisampled lines
         // msaa should be disabled if drawing smooth lines.
-        if (kLines_PrimitiveType == type) {
-            if (!fHWAAState.fSmoothLineEnabled && 
-                (kAntialias_StateBit & fCurrDrawState.fFlagBits)) {
+        if (GrIsPrimTypeLines(type)) {
+            bool smooth = useSmoothLines();
+            if (!fHWAAState.fSmoothLineEnabled && smooth) {
                 GR_GL(Enable(GR_GL_LINE_SMOOTH));
                 fHWAAState.fSmoothLineEnabled = true;
-            } else if (fHWAAState.fSmoothLineEnabled && 
-                       !(kAntialias_StateBit & fCurrDrawState.fFlagBits)) {
+            } else if (fHWAAState.fSmoothLineEnabled && !smooth) {
                 GR_GL(Disable(GR_GL_LINE_SMOOTH));
                 fHWAAState.fSmoothLineEnabled = false;
             }
@@ -1557,6 +1568,54 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
             } else {
                 GR_GL(Enable(GR_GL_MULTISAMPLE));
                 fHWAAState.fMSAAEnabled = true;
+            }
+        }
+    }
+}
+
+void GrGpuGL::flushBlend(GrPrimitiveType type) {
+    if (GrIsPrimTypeLines(type) && useSmoothLines()) {
+        if (fHWBlendDisabled) {
+            GR_GL(Enable(GR_GL_BLEND));
+            fHWBlendDisabled = false;
+        }
+        if (kSA_BlendCoeff != fHWDrawState.fSrcBlend ||
+            kISA_BlendCoeff != fHWDrawState.fDstBlend) {
+            GR_GL(BlendFunc(gXfermodeCoeff2Blend[kSA_BlendCoeff],
+                            gXfermodeCoeff2Blend[kISA_BlendCoeff]));
+            fHWDrawState.fSrcBlend = kSA_BlendCoeff;
+            fHWDrawState.fDstBlend = kISA_BlendCoeff;
+        }
+    } else {
+        bool blendOff = canDisableBlend();
+        if (fHWBlendDisabled != blendOff) {
+            if (blendOff) {
+                GR_GL(Disable(GR_GL_BLEND));
+            } else {
+                GR_GL(Enable(GR_GL_BLEND));
+            }
+            fHWBlendDisabled = blendOff;
+        }
+        if (!blendOff) {
+            if (fHWDrawState.fSrcBlend != fCurrDrawState.fSrcBlend ||
+                  fHWDrawState.fDstBlend != fCurrDrawState.fDstBlend) {
+                GR_GL(BlendFunc(gXfermodeCoeff2Blend[fCurrDrawState.fSrcBlend],
+                                gXfermodeCoeff2Blend[fCurrDrawState.fDstBlend]));
+                fHWDrawState.fSrcBlend = fCurrDrawState.fSrcBlend;
+                fHWDrawState.fDstBlend = fCurrDrawState.fDstBlend;
+            }
+            if ((BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
+                 BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) &&
+                fHWDrawState.fBlendConstant != fCurrDrawState.fBlendConstant) {
+
+                float c[] = {
+                    GrColorUnpackR(fCurrDrawState.fBlendConstant) / 255.f,
+                    GrColorUnpackG(fCurrDrawState.fBlendConstant) / 255.f,
+                    GrColorUnpackB(fCurrDrawState.fBlendConstant) / 255.f,
+                    GrColorUnpackA(fCurrDrawState.fBlendConstant) / 255.f
+                };
+                GR_GL(BlendColor(c[0], c[1], c[2], c[3]));
+                fHWDrawState.fBlendConstant = fCurrDrawState.fBlendConstant;
             }
         }
     }
@@ -1638,9 +1697,9 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     }
 
     flushRenderTarget();
-
     flushAAState(type);
-
+    flushBlend(type);
+    
     if ((fCurrDrawState.fFlagBits & kDither_StateBit) !=
         (fHWDrawState.fFlagBits & kDither_StateBit)) {
         if (fCurrDrawState.fFlagBits & kDither_StateBit) {
@@ -1659,39 +1718,6 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             mask = GR_GL_TRUE;
         }
         GR_GL(ColorMask(mask, mask, mask, mask));
-    }
-
-    bool blendOff = canDisableBlend();
-    if (fHWBlendDisabled != blendOff) {
-        if (blendOff) {
-            GR_GL(Disable(GR_GL_BLEND));
-        } else {
-            GR_GL(Enable(GR_GL_BLEND));
-        }
-        fHWBlendDisabled = blendOff;
-    }
-
-    if (!blendOff) {
-        if (fHWDrawState.fSrcBlend != fCurrDrawState.fSrcBlend ||
-              fHWDrawState.fDstBlend != fCurrDrawState.fDstBlend) {
-            GR_GL(BlendFunc(gXfermodeCoeff2Blend[fCurrDrawState.fSrcBlend],
-                            gXfermodeCoeff2Blend[fCurrDrawState.fDstBlend]));
-            fHWDrawState.fSrcBlend = fCurrDrawState.fSrcBlend;
-            fHWDrawState.fDstBlend = fCurrDrawState.fDstBlend;
-        }
-        if ((BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
-             BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) &&
-            fHWDrawState.fBlendConstant != fCurrDrawState.fBlendConstant) {
-
-            float c[] = {
-                GrColorUnpackR(fCurrDrawState.fBlendConstant) / 255.f,
-                GrColorUnpackG(fCurrDrawState.fBlendConstant) / 255.f,
-                GrColorUnpackB(fCurrDrawState.fBlendConstant) / 255.f,
-                GrColorUnpackA(fCurrDrawState.fBlendConstant) / 255.f
-            };
-            GR_GL(BlendColor(c[0], c[1], c[2], c[3]));
-            fHWDrawState.fBlendConstant = fCurrDrawState.fBlendConstant;
-        }
     }
 
     if (fHWDrawState.fDrawFace != fCurrDrawState.fDrawFace) {
