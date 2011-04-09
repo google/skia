@@ -41,7 +41,8 @@ class SkARGB4444_Blitter : public SkRasterBlitter {
 public:
     SkARGB4444_Blitter(const SkBitmap& device, const SkPaint& paint);
     virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
+                           const int16_t runs[]);
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
     virtual void blitRect(int x, int y, int width, int height);
     virtual void blitMask(const SkMask&, const SkIRect&);
@@ -60,9 +61,8 @@ private:
 };
 
 
-SkARGB4444_Blitter::SkARGB4444_Blitter(const SkBitmap& device, const SkPaint& paint)
-    : INHERITED(device)
-{
+SkARGB4444_Blitter::SkARGB4444_Blitter(const SkBitmap& device,
+                                   const SkPaint& paint) : INHERITED(device) {
     // cache premultiplied versions in 4444
     SkPMColor c = SkPreMultiplyColor(paint.getColor());
     fPMColor16 = SkPixel32ToPixel4444(c);
@@ -82,13 +82,6 @@ SkARGB4444_Blitter::SkARGB4444_Blitter(const SkBitmap& device, const SkPaint& pa
         fRawColor16Other = fRawColor16;
     }
 
-#if 0 /// don't think this assertion is true, but need it be?
-
-    // our dithered color will be the same or more opaque than the original
-    // so use dithered to compute our scale
-    SkASSERT(SkGetPackedA4444(fPMColor16Other) >= SkGetPackedA4444(fPMColor16));
-#endif
-
     fScale16 = SkAlpha15To16(SkGetPackedA4444(fPMColor16Other));
     if (16 == fScale16) {
         // force the original to also be opaque
@@ -96,8 +89,7 @@ SkARGB4444_Blitter::SkARGB4444_Blitter(const SkBitmap& device, const SkPaint& pa
     }
 }
 
-const SkBitmap* SkARGB4444_Blitter::justAnOpaqueColor(uint32_t* value)
-{
+const SkBitmap* SkARGB4444_Blitter::justAnOpaqueColor(uint32_t* value) {
     if (16 == fScale16) {
         *value = fPMColor16;
         return &fDevice;
@@ -106,8 +98,7 @@ const SkBitmap* SkARGB4444_Blitter::justAnOpaqueColor(uint32_t* value)
 }
 
 static void src_over_4444(SkPMColor16 dst[], SkPMColor16 color,
-                          SkPMColor16 other, unsigned invScale, int count)
-{
+                          SkPMColor16 other, unsigned invScale, int count) {
     int twice = count >> 1;
     while (--twice >= 0) {
         *dst = color + SkAlphaMulQ4(*dst, invScale);
@@ -120,15 +111,13 @@ static void src_over_4444(SkPMColor16 dst[], SkPMColor16 color,
     }
 }
 
-static inline uint32_t SkExpand_4444_Replicate(SkPMColor16 c)
-{
+static inline uint32_t SkExpand_4444_Replicate(SkPMColor16 c) {
     uint32_t c32 = SkExpand_4444(c);
     return c32 | (c32 << 4);
 }
 
 static void src_over_4444x(SkPMColor16 dst[], uint32_t color,
-                           uint32_t other, unsigned invScale, int count)
-{
+                           uint32_t other, unsigned invScale, int count) {
     int twice = count >> 1;
     uint32_t tmp;
     while (--twice >= 0) {
@@ -143,8 +132,7 @@ static void src_over_4444x(SkPMColor16 dst[], uint32_t color,
     }
 }
 
-void SkARGB4444_Blitter::blitH(int x, int y, int width)
-{
+void SkARGB4444_Blitter::blitH(int x, int y, int width) {
     SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width());
 
     if (0 == fScale16) {
@@ -161,16 +149,14 @@ void SkARGB4444_Blitter::blitH(int x, int y, int width)
 
     if (16 == fScale16) {
         sk_dither_memset16(device, color, other, width);
-    }
-    else {
+    } else {
         src_over_4444x(device, SkExpand_4444_Replicate(color),
                        SkExpand_4444_Replicate(other),
                        16 - fScale16, width);
     }
 }
 
-void SkARGB4444_Blitter::blitV(int x, int y, int height, SkAlpha alpha)
-{
+void SkARGB4444_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     if (0 == alpha || 0 == fScale16) {
         return;
     }
@@ -208,9 +194,9 @@ void SkARGB4444_Blitter::blitV(int x, int y, int height, SkAlpha alpha)
     }
 }
 
-void SkARGB4444_Blitter::blitRect(int x, int y, int width, int height)
-{
-    SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width() && y + height <= fDevice.height());
+void SkARGB4444_Blitter::blitRect(int x, int y, int width, int height) {
+    SkASSERT(x >= 0 && y >= 0 && x + width <= fDevice.width() &&
+             y + height <= fDevice.height());
 
     if (0 == fScale16) {
         return;
@@ -243,8 +229,8 @@ void SkARGB4444_Blitter::blitRect(int x, int y, int width, int height)
     }
 }
 
-void SkARGB4444_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[])
-{
+void SkARGB4444_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
+                                   const int16_t runs[]) {
     if (0 == fScale16) {
         return;
     }
@@ -295,19 +281,19 @@ void SkARGB4444_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[], cons
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #define solid_8_pixels(mask, dst, color)    \
-do {                                    \
-if (mask & 0x80) dst[0] = color;    \
-if (mask & 0x40) dst[1] = color;    \
-if (mask & 0x20) dst[2] = color;    \
-if (mask & 0x10) dst[3] = color;    \
-if (mask & 0x08) dst[4] = color;    \
-if (mask & 0x04) dst[5] = color;    \
-if (mask & 0x02) dst[6] = color;    \
-if (mask & 0x01) dst[7] = color;    \
-} while (0)
+    do {                                    \
+        if (mask & 0x80) dst[0] = color;    \
+        if (mask & 0x40) dst[1] = color;    \
+        if (mask & 0x20) dst[2] = color;    \
+        if (mask & 0x10) dst[3] = color;    \
+        if (mask & 0x08) dst[4] = color;    \
+        if (mask & 0x04) dst[5] = color;    \
+        if (mask & 0x02) dst[6] = color;    \
+        if (mask & 0x01) dst[7] = color;    \
+    } while (0)
 
 #define SK_BLITBWMASK_NAME                  SkARGB4444_BlitBW
 #define SK_BLITBWMASK_ARGS                  , SkPMColor16 color
@@ -316,17 +302,17 @@ if (mask & 0x01) dst[7] = color;    \
 #define SK_BLITBWMASK_DEVTYPE               uint16_t
 #include "SkBlitBWMaskTemplate.h"
 
-#define blend_8_pixels(mask, dst, sc, dst_scale)                            \
-do {                                                                    \
-if (mask & 0x80) { dst[0] = sc + SkAlphaMulQ4(dst[0], dst_scale); }  \
-if (mask & 0x40) { dst[1] = sc + SkAlphaMulQ4(dst[1], dst_scale); }  \
-if (mask & 0x20) { dst[2] = sc + SkAlphaMulQ4(dst[2], dst_scale); }  \
-if (mask & 0x10) { dst[3] = sc + SkAlphaMulQ4(dst[3], dst_scale); }  \
-if (mask & 0x08) { dst[4] = sc + SkAlphaMulQ4(dst[4], dst_scale); }  \
-if (mask & 0x04) { dst[5] = sc + SkAlphaMulQ4(dst[5], dst_scale); }  \
-if (mask & 0x02) { dst[6] = sc + SkAlphaMulQ4(dst[6], dst_scale); }  \
-if (mask & 0x01) { dst[7] = sc + SkAlphaMulQ4(dst[7], dst_scale); }  \
-} while (0)
+#define blend_8_pixels(mask, dst, sc, dst_scale)                             \
+    do {                                                                     \
+        if (mask & 0x80) { dst[0] = sc + SkAlphaMulQ4(dst[0], dst_scale); }  \
+        if (mask & 0x40) { dst[1] = sc + SkAlphaMulQ4(dst[1], dst_scale); }  \
+        if (mask & 0x20) { dst[2] = sc + SkAlphaMulQ4(dst[2], dst_scale); }  \
+        if (mask & 0x10) { dst[3] = sc + SkAlphaMulQ4(dst[3], dst_scale); }  \
+        if (mask & 0x08) { dst[4] = sc + SkAlphaMulQ4(dst[4], dst_scale); }  \
+        if (mask & 0x04) { dst[5] = sc + SkAlphaMulQ4(dst[5], dst_scale); }  \
+        if (mask & 0x02) { dst[6] = sc + SkAlphaMulQ4(dst[6], dst_scale); }  \
+        if (mask & 0x01) { dst[7] = sc + SkAlphaMulQ4(dst[7], dst_scale); }  \
+    } while (0)
 
 #define SK_BLITBWMASK_NAME                  SkARGB4444_BlendBW
 #define SK_BLITBWMASK_ARGS                  , uint16_t sc, unsigned dst_scale
@@ -335,8 +321,7 @@ if (mask & 0x01) { dst[7] = sc + SkAlphaMulQ4(dst[7], dst_scale); }  \
 #define SK_BLITBWMASK_DEVTYPE               uint16_t
 #include "SkBlitBWMaskTemplate.h"
 
-void SkARGB4444_Blitter::blitMask(const SkMask& mask, const SkIRect& clip)
-{
+void SkARGB4444_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     SkASSERT(mask.fBounds.contains(clip));
 
     if (0 == fScale16) {
@@ -375,7 +360,7 @@ void SkARGB4444_Blitter::blitMask(const SkMask& mask, const SkIRect& clip)
     } while (--height != 0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 class SkARGB4444_Shader_Blitter : public SkShaderBlitter {
     SkXfermode*     fXfermode;
@@ -386,8 +371,7 @@ class SkARGB4444_Shader_Blitter : public SkShaderBlitter {
 public:
 
 SkARGB4444_Shader_Blitter(const SkBitmap& device, const SkPaint& paint)
-    : INHERITED(device, paint)
-{
+        : INHERITED(device, paint) {
     const int width = device.width();
     fBuffer = (SkPMColor*)sk_malloc_throw(width * sizeof(SkPMColor) + width);
     fAAExpand = (uint8_t*)(fBuffer + width);
