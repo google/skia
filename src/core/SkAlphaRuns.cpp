@@ -17,8 +17,7 @@
 
 #include "SkAntiRun.h"
 
-void SkAlphaRuns::reset(int width)
-{
+void SkAlphaRuns::reset(int width) {
     SkASSERT(width > 0);
 
     fRuns[0] = SkToS16(width);
@@ -29,8 +28,7 @@ void SkAlphaRuns::reset(int width)
     SkDEBUGCODE(this->validate();)
 }
 
-void SkAlphaRuns::Break(int16_t runs[], uint8_t alpha[], int x, int count)
-{
+void SkAlphaRuns::Break(int16_t runs[], uint8_t alpha[], int x, int count) {
     SkASSERT(count > 0 && x >= 0);
 
 //  SkAlphaRuns::BreakAt(runs, alpha, x);
@@ -39,13 +37,11 @@ void SkAlphaRuns::Break(int16_t runs[], uint8_t alpha[], int x, int count)
     int16_t* next_runs = runs + x;
     uint8_t*  next_alpha = alpha + x;
 
-    while (x > 0)
-    {
+    while (x > 0) {
         int n = runs[0];
         SkASSERT(n > 0);
 
-        if (x < n)
-        {
+        if (x < n) {
             alpha[x] = alpha[0];
             runs[0] = SkToS16(x);
             runs[x] = SkToS16(n - x);
@@ -60,37 +56,34 @@ void SkAlphaRuns::Break(int16_t runs[], uint8_t alpha[], int x, int count)
     alpha = next_alpha;
     x = count;
 
-    for (;;)
-    {
+    for (;;) {
         int n = runs[0];
         SkASSERT(n > 0);
 
-        if (x < n)
-        {
+        if (x < n) {
             alpha[x] = alpha[0];
             runs[0] = SkToS16(x);
             runs[x] = SkToS16(n - x);
             break;
         }
         x -= n;
-        if (x <= 0)
+        if (x <= 0) {
             break;
-
+        }
         runs += n;
         alpha += n;
     }
 }
 
-void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha, U8CPU maxValue)
-{
+void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
+                      U8CPU maxValue) {
     SkASSERT(middleCount >= 0);
     SkASSERT(x >= 0 && x + (startAlpha != 0) + middleCount + (stopAlpha != 0) <= fWidth);
 
     int16_t*    runs = fRuns;
     uint8_t*     alpha = fAlpha;
 
-    if (startAlpha)
-    {
+    if (startAlpha) {
         SkAlphaRuns::Break(runs, alpha, x, 1);
         /*  I should be able to just add alpha[x] + startAlpha.
             However, if the trailing edge of the previous span and the leading
@@ -106,8 +99,8 @@ void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
         x = 0;
         SkDEBUGCODE(this->validate();)
     }
-    if (middleCount)
-    {
+
+    if (middleCount) {
         SkAlphaRuns::Break(runs, alpha, x, middleCount);
         alpha += x;
         runs += x;
@@ -122,8 +115,8 @@ void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
         } while (middleCount > 0);
         SkDEBUGCODE(this->validate();)
     }
-    if (stopAlpha)
-    {
+
+    if (stopAlpha) {
         SkAlphaRuns::Break(runs, alpha, x, 1);
         alpha[x] = SkToU8(alpha[x] + stopAlpha);
         SkDEBUGCODE(this->validate();)
@@ -131,49 +124,44 @@ void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
 }
 
 #ifdef SK_DEBUG
-    void SkAlphaRuns::assertValid(int y, int maxStep) const
-    {
+    void SkAlphaRuns::assertValid(int y, int maxStep) const {
         int max = (y + 1) * maxStep - (y == maxStep - 1);
 
         const int16_t* runs = fRuns;
         const uint8_t*   alpha = fAlpha;
 
-        while (*runs)
-        {
+        while (*runs) {
             SkASSERT(*alpha <= max);
             alpha += *runs;
             runs += *runs;
         }
     }
 
-    void SkAlphaRuns::dump() const
-    {
+    void SkAlphaRuns::dump() const {
         const int16_t* runs = fRuns;
         const uint8_t* alpha = fAlpha;
 
         SkDebugf("Runs");
-        while (*runs)
-        {
+        while (*runs) {
             int n = *runs;
 
             SkDebugf(" %02x", *alpha);
-            if (n > 1)
+            if (n > 1) {
                 SkDebugf(",%d", n);
+            }
             alpha += n;
             runs += n;
         }
         SkDebugf("\n");
     }
 
-    void SkAlphaRuns::validate() const
-    {
+    void SkAlphaRuns::validate() const {
         SkASSERT(fWidth > 0);
 
         int         count = 0;
         const int16_t*  runs = fRuns;
 
-        while (*runs)
-        {
+        while (*runs) {
             SkASSERT(*runs > 0);
             count += *runs;
             SkASSERT(count <= fWidth);
