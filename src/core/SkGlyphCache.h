@@ -280,30 +280,27 @@ private:
 class SkAutoGlyphCache {
 public:
     SkAutoGlyphCache(SkGlyphCache* cache) : fCache(cache) {}
-    SkAutoGlyphCache(const SkDescriptor* desc)
-    {
+    SkAutoGlyphCache(const SkDescriptor* desc) {
         fCache = SkGlyphCache::DetachCache(desc);
     }
-    SkAutoGlyphCache(const SkPaint& paint, const SkMatrix* matrix)
-    {
+    SkAutoGlyphCache(const SkPaint& paint, const SkMatrix* matrix) {
         fCache = paint.detachCache(matrix);
     }
-    ~SkAutoGlyphCache()
-    {
-        if (fCache)
+    ~SkAutoGlyphCache() {
+        if (fCache) {
             SkGlyphCache::AttachCache(fCache);
+        }
     }
 
-    SkGlyphCache*   getCache() const { return fCache; }
+    SkGlyphCache* getCache() const { return fCache; }
 
-    void release()
-    {
-        if (fCache)
-        {
+    void release() {
+        if (fCache) {
             SkGlyphCache::AttachCache(fCache);
             fCache = NULL;
         }
     }
+
 private:
     SkGlyphCache*   fCache;
 

@@ -45,16 +45,14 @@ size_t SkMask::computeTotalImageSize() const {
 /** We explicitly use this allocator for SkBimap pixels, so that we can
     freely assign memory allocated by one class to the other.
 */
-uint8_t* SkMask::AllocImage(size_t size)
-{
+uint8_t* SkMask::AllocImage(size_t size) {
     return (uint8_t*)sk_malloc_throw(SkAlign4(size));
 }
 
 /** We explicitly use this allocator for SkBimap pixels, so that we can
     freely assign memory allocated by one class to the other.
 */
-void SkMask::FreeImage(void* image)
-{
+void SkMask::FreeImage(void* image) {
     sk_free(image);
 }
 
