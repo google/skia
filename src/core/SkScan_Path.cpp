@@ -30,12 +30,10 @@
 #define kEDGE_TAIL_Y    SK_MaxS32
 
 #ifdef SK_DEBUG
-    static void validate_sort(const SkEdge* edge)
-    {
+    static void validate_sort(const SkEdge* edge) {
         int y = kEDGE_HEAD_Y;
 
-        while (edge->fFirstY != SK_MaxS32)
-        {
+        while (edge->fFirstY != SK_MaxS32) {
             edge->validate();
             SkASSERT(y <= edge->fFirstY);
 
@@ -47,14 +45,12 @@
     #define validate_sort(edge)
 #endif
 
-static inline void remove_edge(SkEdge* edge)
-{
+static inline void remove_edge(SkEdge* edge) {
     edge->fPrev->fNext = edge->fNext;
     edge->fNext->fPrev = edge->fPrev;
 }
 
-static inline void swap_edges(SkEdge* prev, SkEdge* next)
-{
+static inline void swap_edges(SkEdge* prev, SkEdge* next) {
     SkASSERT(prev->fNext == next && next->fPrev == prev);
 
     // remove prev from the list
@@ -68,31 +64,27 @@ static inline void swap_edges(SkEdge* prev, SkEdge* next)
     prev->fPrev = next;
 }
 
-static void backward_insert_edge_based_on_x(SkEdge* edge SkDECLAREPARAM(int, curr_y))
-{
+static void backward_insert_edge_based_on_x(SkEdge* edge SkDECLAREPARAM(int, curr_y)) {
     SkFixed x = edge->fX;
 
-    for (;;)
-    {
+    for (;;) {
         SkEdge* prev = edge->fPrev;
 
         // add 1 to curr_y since we may have added new edges (built from curves)
         // that start on the next scanline
         SkASSERT(prev && prev->fFirstY <= curr_y + 1);
 
-        if (prev->fX <= x)
+        if (prev->fX <= x) {
             break;
-
+        }
         swap_edges(prev, edge);
     }
 }
 
-static void insert_new_edges(SkEdge* newEdge, int curr_y)
-{
+static void insert_new_edges(SkEdge* newEdge, int curr_y) {
     SkASSERT(newEdge->fFirstY >= curr_y);
 
-    while (newEdge->fFirstY == curr_y)
-    {
+    while (newEdge->fFirstY == curr_y) {
         SkEdge* next = newEdge->fNext;
         backward_insert_edge_based_on_x(newEdge  SkPARAM(curr_y));
         newEdge = next;
@@ -100,10 +92,8 @@ static void insert_new_edges(SkEdge* newEdge, int curr_y)
 }
 
 #ifdef SK_DEBUG
-static void validate_edges_for_y(const SkEdge* edge, int curr_y)
-{
-    while (edge->fFirstY <= curr_y)
-    {
+static void validate_edges_for_y(const SkEdge* edge, int curr_y) {
+    while (edge->fFirstY <= curr_y) {
         SkASSERT(edge->fPrev && edge->fNext);
         SkASSERT(edge->fPrev->fNext == edge);
         SkASSERT(edge->fNext->fPrev == edge);
@@ -128,16 +118,14 @@ typedef void (*PrePostProc)(SkBlitter* blitter, int y, bool isStartOfScanline);
 
 static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
                        SkBlitter* blitter, int start_y, int stop_y,
-                       PrePostProc proc)
-{
+                       PrePostProc proc) {
     validate_sort(prevHead->fNext);
 
     int curr_y = start_y;
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
     int windingMask = (fillType & 1) ? 1 : -1;
 
-    for (;;)
-    {
+    for (;;) {
         int     w = 0;
         int     left SK_INIT_TO_AVOID_WARNING;
         bool    in_interval = false;
@@ -150,23 +138,19 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
             proc(blitter, curr_y, PREPOST_START);    // pre-proc
         }
 
-        while (currE->fFirstY <= curr_y)
-        {
+        while (currE->fFirstY <= curr_y) {
             SkASSERT(currE->fLastY >= curr_y);
 
             int x = (currE->fX + SK_Fixed1/2) >> 16;
             w += currE->fWinding;
-            if ((w & windingMask) == 0) // we finished an interval
-            {
+            if ((w & windingMask) == 0) { // we finished an interval
                 SkASSERT(in_interval);
                 int width = x - left;
                 SkASSERT(width >= 0);
                 if (width)
                     blitter->blitH(left, curr_y, width);
                 in_interval = false;
-            }
-            else if (!in_interval)
-            {
+            } else if (!in_interval) {
                 left = x;
                 in_interval = true;
             }
@@ -174,38 +158,31 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
             SkEdge* next = currE->fNext;
             SkFixed newX;
 
-            if (currE->fLastY == curr_y)    // are we done with this edge?
-            {
-                if (currE->fCurveCount < 0)
-                {
-                    if (((SkCubicEdge*)currE)->updateCubic())
-                    {
+            if (currE->fLastY == curr_y) {    // are we done with this edge?
+                if (currE->fCurveCount < 0) {
+                    if (((SkCubicEdge*)currE)->updateCubic()) {
                         SkASSERT(currE->fFirstY == curr_y + 1);
 
                         newX = currE->fX;
                         goto NEXT_X;
                     }
-                }
-                else if (currE->fCurveCount > 0)
-                {
-                    if (((SkQuadraticEdge*)currE)->updateQuadratic())
-                    {
+                } else if (currE->fCurveCount > 0) {
+                    if (((SkQuadraticEdge*)currE)->updateQuadratic()) {
                         newX = currE->fX;
                         goto NEXT_X;
                     }
                 }
                 remove_edge(currE);
-            }
-            else
-            {
+            } else {
                 SkASSERT(currE->fLastY > curr_y);
                 newX = currE->fX + currE->fDX;
                 currE->fX = newX;
             NEXT_X:
-                if (newX < prevX)   // ripple currE backwards until it is x-sorted
+                if (newX < prevX) { // ripple currE backwards until it is x-sorted
                     backward_insert_edge_based_on_x(currE  SkPARAM(curr_y));
-                else
+                } else {
                     prevX = newX;
+                }
             }
             currE = next;
             SkASSERT(currE);
@@ -216,9 +193,9 @@ static void walk_edges(SkEdge* prevHead, SkPath::FillType fillType,
         }
 
         curr_y += 1;
-        if (curr_y >= stop_y)
+        if (curr_y >= stop_y) {
             break;
-
+        }
         // now currE points to the first edge with a Yint larger than curr_y
         insert_new_edges(currE, curr_y);
     }
@@ -290,19 +267,6 @@ static void PrePostInverseBlitterProc(SkBlitter* blitter, int y, bool isStart) {
 #if defined _WIN32 && _MSC_VER >= 1300
 #pragma warning ( pop )
 #endif
-
-/*  Our line edge relies on the maximum span being <= 512, so that it can
-    use FDot6 and keep the dx,dy in 16bits (for much faster slope divide).
-    This function returns true if the specified line is too big.
-*/
-static inline bool line_too_big(const SkPoint pts[2])
-{
-    SkScalar dx = pts[1].fX - pts[0].fX;
-    SkScalar dy = pts[1].fY - pts[0].fY;
-
-    return  SkScalarAbs(dx) > SkIntToScalar(511) ||
-            SkScalarAbs(dy) > SkIntToScalar(511);
-}
 
 #ifdef USE_NEW_BUILDER
 #include "SkEdgeBuilder.h"
@@ -379,31 +343,29 @@ static int build_edges(SkEdge edge[], const SkPath& path,
 /* 'quick' computation of the max sized needed to allocated for
     our edgelist.
 */
-static int worst_case_edge_count(const SkPath& path, size_t* storage)
-{
+static int worst_case_edge_count(const SkPath& path, size_t* storage) {
     size_t  size = 0;
     int     edgeCount = 0;
 
     SkPath::Iter    iter(path, true);
     SkPath::Verb    verb;
 
-    while ((verb = iter.next(NULL)) != SkPath::kDone_Verb)
-    {
+    while ((verb = iter.next(NULL)) != SkPath::kDone_Verb) {
         switch (verb) {
-        case SkPath::kLine_Verb:
-            edgeCount += 1;
-            size += sizeof(SkQuadraticEdge);    // treat line like Quad (in case its > 512)
-            break;
-        case SkPath::kQuad_Verb:
-            edgeCount += 2;                     // might need 2 edges when we chop on Y extrema
-            size += 2 * sizeof(SkQuadraticEdge);
-            break;
-        case SkPath::kCubic_Verb:
-            edgeCount += 3;                     // might need 3 edges when we chop on Y extrema
-            size += 3 * sizeof(SkCubicEdge);
-            break;
-        default:
-            break;
+            case SkPath::kLine_Verb:
+                edgeCount += 1;
+                size += sizeof(SkQuadraticEdge);    // treat line like Quad (in case its > 512)
+                break;
+            case SkPath::kQuad_Verb:
+                edgeCount += 2;                     // might need 2 edges when we chop on Y extrema
+                size += 2 * sizeof(SkQuadraticEdge);
+                break;
+            case SkPath::kCubic_Verb:
+                edgeCount += 3;                     // might need 3 edges when we chop on Y extrema
+                size += 3 * sizeof(SkCubicEdge);
+                break;
+            default:
+                break;
         }
     }
 
@@ -477,8 +439,8 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
 // clipRect (if no null) has already been shifted up
 //
 void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitter,
-                  int start_y, int stop_y, int shiftEdgesUp, const SkRegion& clipRgn)
-{
+                  int start_y, int stop_y, int shiftEdgesUp,
+                  const SkRegion& clipRgn) {
     SkASSERT(&path && blitter);
 
 #ifdef USE_NEW_BUILDER
@@ -583,35 +545,30 @@ void sk_blit_below(SkBlitter* blitter, const SkIRect& ir, const SkRegion& clip) 
     }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip, const SkIRect& ir)
-{
+SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
+                             const SkIRect& ir) {
     fBlitter = NULL;     // null means blit nothing
     fClipRect = NULL;
 
-    if (clip)
-    {
+    if (clip) {
         fClipRect = &clip->getBounds();
-        if (!SkIRect::Intersects(*fClipRect, ir))  // completely clipped out
+        if (!SkIRect::Intersects(*fClipRect, ir)) { // completely clipped out
             return;
+        }
 
-        if (clip->isRect())
-        {
-            if (fClipRect->contains(ir))
+        if (clip->isRect()) {
+            if (fClipRect->contains(ir)) {
                 fClipRect = NULL;
-            else
-            {
+            } else {
                 // only need a wrapper blitter if we're horizontally clipped
-                if (fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight)
-                {
+                if (fClipRect->fLeft > ir.fLeft || fClipRect->fRight < ir.fRight) {
                     fRectBlitter.init(blitter, *fClipRect);
                     blitter = &fRectBlitter;
                 }
             }
-        }
-        else
-        {
+        } else {
             fRgnBlitter.init(blitter, clip);
             blitter = &fRgnBlitter;
         }
