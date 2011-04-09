@@ -76,8 +76,8 @@ void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* cl
         // outset the right and bottom, to account for how hairlines are
         // actually drawn, which may hit the pixel to the right or below of
         // the coordinate
-        ptsR.fRight += SK_FDot61;
-        ptsR.fBottom += SK_FDot61;
+        ptsR.fRight += SK_FDot6One;
+        ptsR.fBottom += SK_FDot6One;
 
         if (!SkIRect::Intersects(ptsR, clipR)) {
             return;
