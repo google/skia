@@ -21,8 +21,8 @@
 #include "SkXfermode.h"
 
 SkA8_Blitter::SkA8_Blitter(const SkBitmap& device, const SkPaint& paint)
-    : INHERITED(device) {
-    fSrcA = SkColorGetA(paint.getColor());
+        : INHERITED(device) {
+    fSrcA = paint.getAlpha();
 }
 
 const SkBitmap* SkA8_Blitter::justAnOpaqueColor(uint32_t* value) {
