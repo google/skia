@@ -35,6 +35,9 @@ void SkLayerDrawLooper::init(SkCanvas* canvas) {
 
 void SkLayerDrawLooper::ApplyBits(SkPaint* dst, const SkPaint& src,
                                   BitFlags bits) {
+    if (0 == bits) {
+        return;
+    }
     if (kEntirePaint_Bits == bits) {
         *dst = src;
         return;
