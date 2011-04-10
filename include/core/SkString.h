@@ -78,25 +78,21 @@ public:
     const char* c_str() const { return fRec->data(); }
     char operator[](size_t n) const { return this->c_str()[n]; }
 
-    bool    equals(const SkString&) const;
-    bool    equals(const char text[]) const;
-    bool    equals(const char text[], size_t len) const;
+    bool equals(const SkString&) const;
+    bool equals(const char text[]) const;
+    bool equals(const char text[], size_t len) const;
 
-    bool    startsWith(const char prefix[]) const
-    {
+    bool startsWith(const char prefix[]) const {
         return SkStrStartsWith(fRec->data(), prefix);
     }
-    bool    endsWith(const char suffix[]) const
-    {
+    bool endsWith(const char suffix[]) const {
         return SkStrEndsWith(fRec->data(), suffix);
     }
 
-    friend int operator==(const SkString& a, const SkString& b)
-    {
+    friend int operator==(const SkString& a, const SkString& b) {
         return a.equals(b);
     }
-    friend int operator!=(const SkString& a, const SkString& b)
-    {
+    friend int operator!=(const SkString& a, const SkString& b) {
         return !a.equals(b);
     }
 
@@ -107,51 +103,52 @@ public:
     char*   writable_str();
     char& operator[](size_t n) { return this->writable_str()[n]; }
 
-    void    reset();
-    void    resize(size_t len) { this->set(NULL, len); }
-    void    set(const SkString& src) { *this = src; }
-    void    set(const char text[]);
-    void    set(const char text[], size_t len);
-    void    setUTF16(const uint16_t[]);
-    void    setUTF16(const uint16_t[], size_t len);
+    void reset();
+    void resize(size_t len) { this->set(NULL, len); }
+    void set(const SkString& src) { *this = src; }
+    void set(const char text[]);
+    void set(const char text[], size_t len);
+    void setUTF16(const uint16_t[]);
+    void setUTF16(const uint16_t[], size_t len);
 
-    void    insert(size_t offset, const SkString& src) { this->insert(offset, src.c_str(), src.size()); }
-    void    insert(size_t offset, const char text[]);
-    void    insert(size_t offset, const char text[], size_t len);
-    void    insertUnichar(size_t offset, SkUnichar);
-    void    insertS32(size_t offset, int32_t value);
-    void    insertS64(size_t offset, int64_t value, int minDigits = 0);
-    void    insertHex(size_t offset, uint32_t value, int minDigits = 0);
-    void    insertScalar(size_t offset, SkScalar);
+    void insert(size_t offset, const SkString& src) { this->insert(offset, src.c_str(), src.size()); }
+    void insert(size_t offset, const char text[]);
+    void insert(size_t offset, const char text[], size_t len);
+    void insertUnichar(size_t offset, SkUnichar);
+    void insertS32(size_t offset, int32_t value);
+    void insertS64(size_t offset, int64_t value, int minDigits = 0);
+    void insertHex(size_t offset, uint32_t value, int minDigits = 0);
+    void insertScalar(size_t offset, SkScalar);
 
-    void    append(const SkString& str) { this->insert((size_t)-1, str); }
-    void    append(const char text[]) { this->insert((size_t)-1, text); }
-    void    append(const char text[], size_t len) { this->insert((size_t)-1, text, len); }
-    void    appendUnichar(SkUnichar uni) { this->insertUnichar((size_t)-1, uni); }
-    void    appendS32(int32_t value) { this->insertS32((size_t)-1, value); }
-    void    appendS64(int64_t value, int minDigits = 0) { this->insertS64((size_t)-1, value, minDigits); }
-    void    appendHex(uint32_t value, int minDigits = 0) { this->insertHex((size_t)-1, value, minDigits); }
-    void    appendScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
+    void append(const SkString& str) { this->insert((size_t)-1, str); }
+    void append(const char text[]) { this->insert((size_t)-1, text); }
+    void append(const char text[], size_t len) { this->insert((size_t)-1, text, len); }
+    void appendUnichar(SkUnichar uni) { this->insertUnichar((size_t)-1, uni); }
+    void appendS32(int32_t value) { this->insertS32((size_t)-1, value); }
+    void appendS64(int64_t value, int minDigits = 0) { this->insertS64((size_t)-1, value, minDigits); }
+    void appendHex(uint32_t value, int minDigits = 0) { this->insertHex((size_t)-1, value, minDigits); }
+    void appendScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
 
-    void    prepend(const SkString& str) { this->insert(0, str); }
-    void    prepend(const char text[]) { this->insert(0, text); }
-    void    prepend(const char text[], size_t len) { this->insert(0, text, len); }
-    void    prependUnichar(SkUnichar uni) { this->insertUnichar(0, uni); }
-    void    prependS32(int32_t value) { this->insertS32(0, value); }
-    void    prependS64(int32_t value, int minDigits = 0) { this->insertS64(0, value, minDigits); }
-    void    prependHex(uint32_t value, int minDigits = 0) { this->insertHex(0, value, minDigits); }
-    void    prependScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
+    void prepend(const SkString& str) { this->insert(0, str); }
+    void prepend(const char text[]) { this->insert(0, text); }
+    void prepend(const char text[], size_t len) { this->insert(0, text, len); }
+    void prependUnichar(SkUnichar uni) { this->insertUnichar(0, uni); }
+    void prependS32(int32_t value) { this->insertS32(0, value); }
+    void prependS64(int32_t value, int minDigits = 0) { this->insertS64(0, value, minDigits); }
+    void prependHex(uint32_t value, int minDigits = 0) { this->insertHex(0, value, minDigits); }
+    void prependScalar(SkScalar value) { this->insertScalar((size_t)-1, value); }
 
-    void    printf(const char format[], ...);
-    void    appendf(const char format[], ...);
-    void    prependf(const char format[], ...);
+    void printf(const char format[], ...);
+    void appendf(const char format[], ...);
+    void prependf(const char format[], ...);
 
-    void    remove(size_t offset, size_t length);
+    void remove(size_t offset, size_t length);
 
-    /** Swap contents between this and other. This function is guaranteed
-        to never fail or throw.
-    */
-    void    swap(SkString& other);
+    /**
+     *  Swap contents between this and other. This function is guaranteed
+     *  to never fail or throw.
+     */
+    void swap(SkString& other);
 
 private:
     struct Rec {
@@ -185,6 +182,7 @@ public:
     /** This returns the number of ucs2 characters
     */
     int count() const { return fCount; }
+
     /** This returns a null terminated ucs2 string
     */
     const uint16_t* getUCS2() const { return fUCS2; }
