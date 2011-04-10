@@ -48,6 +48,20 @@ public:
     }
 
     /**
+     *  Return a pointer to a default-initialized instance of the class. If a
+     *  previous instance had been initialzied (either from init() or set()) it
+     *  will first be destroyed, so that a freshly initialized instance is
+     *  always returned.
+     */
+    T* init() {
+        if (fPtr) {
+            fPtr->~T();
+        }
+        fPtr = new (fStorage) T;
+        return fPtr;
+    }
+        
+    /**
      *  Copy src into this, and return a pointer to a copy of it. Note this
      *  will always return the same pointer, so if it is called on a lazy that
      *  has already been initialized, then this will copy over the previous
