@@ -51,6 +51,8 @@
     #define dec_canvas()
 #endif
 
+typedef SkTLazy<SkPaint> SkLazyPaint;
+
 ///////////////////////////////////////////////////////////////////////////////
 // Helpers for computing fast bounds for quickReject tests
 
@@ -305,14 +307,14 @@ public:
     bool next(SkDrawFilter::Type drawType);
     
 private:
-    SkTLazy<SkPaint>    fLazyPaint;
-    SkCanvas*           fCanvas;
-    const SkPaint&      fOrigPaint;
-    SkDrawLooper*       fLooper;
-    SkDrawFilter*       fFilter;
-    const SkPaint*      fPaint;
-    int                 fSaveCount;
-    bool                fDone;
+    SkLazyPaint     fLazyPaint;
+    SkCanvas*       fCanvas;
+    const SkPaint&  fOrigPaint;
+    SkDrawLooper*   fLooper;
+    SkDrawFilter*   fFilter;
+    const SkPaint*  fPaint;
+    int             fSaveCount;
+    bool            fDone;
 };
 
 bool AutoDrawLooper::next(SkDrawFilter::Type drawType) {
@@ -841,12 +843,11 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect
         return;
     }
 
+    SkLazyPaint lazy;
     if (NULL == paint) {
-        SkPaint tmpPaint;
-        this->commonDrawBitmap(bitmap, srcRect, matrix, tmpPaint);
-    } else {
-        this->commonDrawBitmap(bitmap, srcRect, matrix, *paint);
+        paint = lazy.init();
     }
+    this->commonDrawBitmap(bitmap, srcRect, matrix, *paint);
 }
 
 void SkCanvas::drawDevice(SkDevice* device, int x, int y,
@@ -1380,8 +1381,8 @@ public:
     const SkPaint& paint() const { return *fPaint; }
 
 private:
-    const SkPaint*   fPaint;
-    SkTLazy<SkPaint> fLazy;
+    const SkPaint*  fPaint;
+    SkLazyPaint     fLazy;
 };
 
 void SkCanvas::drawText(const void* text, size_t byteLength,
