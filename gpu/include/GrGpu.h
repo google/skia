@@ -192,11 +192,12 @@ public:
      * @param width                 width of the render target
      * @param height                height of the render target
      */
-    virtual GrRenderTarget* createPlatformRenderTarget(
-                                                intptr_t platformRenderTarget,
+     GrRenderTarget* createPlatformRenderTarget(intptr_t platformRenderTarget,
                                                 int stencilBits,
                                                 bool isMultisampled,
                                                 int width, int height);
+
+    GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
 
     /**
      * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
@@ -485,6 +486,7 @@ protected:
     virtual GrTexture* createTextureHelper(const TextureDesc& desc,
                                            const void* srcData,
                                            size_t rowBytes) = 0;
+    virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) = 0;
     virtual GrRenderTarget* createPlatformRenderTargetHelper(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
@@ -514,8 +516,9 @@ protected:
     virtual void forceRenderTargetFlushHelper() = 0;
 
     // overridden by API-specific derived class to perform the read pixels.
-    virtual bool readPixelsHelper(int left, int top, int width, int height,
-                                  GrPixelConfig, void* buffer) = 0;
+    virtual bool onReadPixels(GrRenderTarget* target,
+                              int left, int top, int width, int height,
+                              GrPixelConfig, void* buffer) = 0;
 
     // called to program the vertex data, indexCount will be 0 if drawing non-
     // indexed geometry. The subclass may adjust the startVertex and/or

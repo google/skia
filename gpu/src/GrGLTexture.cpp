@@ -108,7 +108,8 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
                 textureDesc.fFormat) {
 
     fTexParams          = initialTexParams;
-    fTexIDObj           = new GrGLTexID(textureDesc.fTextureID);
+    fTexIDObj           = new GrGLTexID(textureDesc.fTextureID,
+                                        textureDesc.fOwnsID);
     fUploadFormat       = textureDesc.fUploadFormat;
     fUploadByteCount    = textureDesc.fUploadByteCount;
     fUploadType         = textureDesc.fUploadType;

@@ -158,6 +158,43 @@ public:
     // Render targets
 
     /**
+     * Sets the render target.
+     * @param target    the render target to set. (should not be NULL.)
+     */
+    void setRenderTarget(GrRenderTarget* target);
+
+    /**
+     * Gets the current render target.
+     * @return the currently bound render target. Should never be NULL.
+     */
+    const GrRenderTarget* getRenderTarget() const;
+    GrRenderTarget* getRenderTarget();
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Platform Surfaces
+
+    // GrContext provides an interface for wrapping externally created textures
+    // and rendertargets in their Gr-equivalents.
+
+    /**
+     * Wraps an existing 3D API surface in a GrObject. desc.fFlags determines
+     * the type of object returned. If kIsTexture is set the returned object
+     * will be a GrTexture*. Otherwise, it will be a GrRenderTarget*. If both 
+     * are set the render target object is accessible by
+     * GrTexture::asRenderTarget().
+     *
+     * GL: if the object is a texture Gr may change its GL texture parameters
+     *     when it is drawn.
+     *
+     * @param   desc    description of the object to create.
+     * @return either a GrTexture* or GrRenderTarget* depending on desc. NULL
+     *         on failure.
+     */
+    GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
+
+    /**
+     * DEPRECATED, WILL BE REMOVED SOON. USE createPlatformSurface.
+     *
      * Wraps an externally-created rendertarget in a GrRenderTarget.
      * @param platformRenderTarget  3D API-specific render target identifier
      *                              e.g. in GL platforamRenderTarget is an FBO
@@ -172,9 +209,18 @@ public:
     GrRenderTarget* createPlatformRenderTarget(intptr_t platformRenderTarget,
                                                int stencilBits,
                                                bool isMultisampled,
-                                               int width, int height);
+                                               int width, int height) {
+    #if GR_DEBUG
+        GrPrintf("Using deprecated createPlatformRenderTarget API.");
+    #endif
+        return fGpu->createPlatformRenderTarget(platformRenderTarget, 
+                                                stencilBits, isMultisampled, 
+                                                width, height);
+    }
 
     /**
+     * DEPRECATED, WILL BE REMOVED SOON. USE createPlatformSurface.
+     *
      * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
      * viewport state from the underlying 3D API and wraps it in a
      * GrRenderTarget. The GrRenderTarget will not attempt to delete/destroy the
@@ -184,21 +230,11 @@ public:
      * @return the newly created GrRenderTarget
      */
     GrRenderTarget* createRenderTargetFrom3DApiState() {
+    #if GR_DEBUG
+        GrPrintf("Using deprecated createRenderTargetFrom3DApiState API.");
+    #endif
         return fGpu->createRenderTargetFrom3DApiState();
     }
-
-    /**
-     * Sets the render target.
-     * @param target    the render target to set. (should not be NULL.)
-     */
-    void setRenderTarget(GrRenderTarget* target);
-
-    /**
-     * Gets the current render target.
-     * @return the currently bound render target. Should never be NULL.
-     */
-    const GrRenderTarget* getRenderTarget() const;
-    GrRenderTarget* getRenderTarget();
 
     ///////////////////////////////////////////////////////////////////////////
     // Matrix state

@@ -158,6 +158,11 @@ GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {
     return this->createRenderTargetFrom3DApiStateHelper();
 }
 
+GrResource* GrGpu::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
+    this->handleDirtyContext();
+    return this->onCreatePlatformSurface(desc);
+}
+
 GrVertexBuffer* GrGpu::createVertexBuffer(uint32_t size, bool dynamic) {
     this->handleDirtyContext();
     return this->createVertexBufferHelper(size, dynamic);
@@ -183,12 +188,7 @@ bool GrGpu::readPixels(GrRenderTarget* target,
                        GrPixelConfig config, void* buffer) {
 
     this->handleDirtyContext();
-    GrRenderTarget* prevTarget = fCurrDrawState.fRenderTarget;
-    if (NULL != target) {
-        fCurrDrawState.fRenderTarget = target;
-    }
-    return this->readPixelsHelper(left, top, width, height, config, buffer);
-    fCurrDrawState.fRenderTarget = prevTarget;
+    return this->onReadPixels(target, left, top, width, height, config, buffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

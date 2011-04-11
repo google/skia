@@ -267,15 +267,25 @@ int GrContext::getMaxTextureDimension() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTarget* GrContext::createPlatformRenderTarget(
-                                                intptr_t platformRenderTarget,
-                                                int stencilBits,
-                                                bool isMultisampled,
-                                                int width, int height) {
-    return fGpu->createPlatformRenderTarget(platformRenderTarget, stencilBits,
-                                            isMultisampled,
-                                            width, height);
+GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
+    // validate flags here so that GrGpu subclasses don't have to check
+    if (kTexture_GrPlatformSurfaceType == desc.fSurfaceType &&
+        0 != desc.fRenderTargetFlags) {
+            return NULL;
+    }
+    if (!(kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) &&
+        (kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
+            return NULL;
+    }
+    if (kTextureRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType &&
+        (kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) &&
+        !(kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
+        return NULL;
+    }
+    return fGpu->createPlatformSurface(desc);
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
                                           int width, int height) {

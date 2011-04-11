@@ -533,6 +533,73 @@ void GrGpuGL::resetContext() {
     fHWDrawState.fRenderTarget = NULL;
 }
 
+GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) {
+
+    bool isTexture = kTexture_GrPlatformSurfaceType == desc.fSurfaceType ||
+                     kTextureRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType;
+    bool isRenderTarget = kRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType ||
+                          kTextureRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType;
+
+    GrGLRenderTarget::GLRenderTargetIDs rtIDs;
+    if (isRenderTarget) {
+        rtIDs.fRTFBOID = desc.fPlatformRenderTarget;
+        if (kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) {
+            if (kGrCanResolve_GrPlatformRenderTargetFlagBit  & desc.fRenderTargetFlags) {
+                rtIDs.fTexFBOID = desc.fPlatformResolveDestination;
+            } else {
+                GrAssert(!isTexture); // this should have been filtered by GrContext
+                rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+            }
+        } else {
+            rtIDs.fTexFBOID = desc.fPlatformRenderTarget;
+        }
+        // we don't know what the RB ids are without glGets and we don't care
+        // since we aren't responsible for deleting them.
+        rtIDs.fStencilRenderbufferID = 0;
+        rtIDs.fMSColorRenderbufferID = 0;
+
+        rtIDs.fOwnIDs = false;
+    } else {
+        rtIDs.reset();
+    }
+
+    if (isTexture) {
+        GrGLTexture::GLTextureDesc texDesc;
+        GrGLenum dontCare;
+        if (!canBeTexture(desc.fConfig, &dontCare,
+                         &texDesc.fUploadFormat,
+                         &texDesc.fUploadType)) {
+            return NULL;
+        }
+
+        GrGLTexture::TexParams params;
+
+        texDesc.fAllocWidth  = texDesc.fContentWidth  = desc.fWidth;
+        texDesc.fAllocHeight = texDesc.fContentHeight = desc.fHeight;
+
+        texDesc.fFormat             = texDesc.fFormat;
+        texDesc.fOrientation        = GrGLTexture::kBottomUp_Orientation;
+        texDesc.fStencilBits        = desc.fStencilBits;
+        texDesc.fTextureID          = desc.fPlatformTexture;
+        texDesc.fUploadByteCount    = GrBytesPerPixel(desc.fConfig);
+        texDesc.fOwnsID             = false;
+
+        params.invalidate(); // rather than do glGets.
+
+        return new GrGLTexture(this, texDesc, rtIDs, params);
+    } else {
+        GrGLIRect viewport;
+        viewport.fLeft   = 0;
+        viewport.fBottom = 0;
+        viewport.fWidth  = desc.fWidth;
+        viewport.fHeight = desc.fHeight;
+
+        return new GrGLRenderTarget(this, rtIDs, NULL, desc.fStencilBits,
+                                    kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags,
+                                    viewport, NULL);
+    }
+}
+
 GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
@@ -655,6 +722,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
     glDesc.fAllocHeight   = desc.fHeight;
     glDesc.fStencilBits   = 0;
     glDesc.fFormat        = desc.fFormat;
+    glDesc.fOwnsID        = true;
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_TextureFlag);
     if (!canBeTexture(desc.fFormat,
@@ -1154,21 +1222,35 @@ void GrGpuGL::forceRenderTargetFlushHelper() {
     flushRenderTarget();
 }
 
-bool GrGpuGL::readPixelsHelper(int left, int top, int width, int height,
-                               GrPixelConfig config, void* buffer) {
+bool GrGpuGL::onReadPixels(GrRenderTarget* target,
+                           int left, int top, int width, int height,
+                           GrPixelConfig config, void* buffer) {
     GrGLenum internalFormat;  // we don't use this for glReadPixels
     GrGLenum format;
     GrGLenum type;
     if (!this->canBeTexture(config, &internalFormat, &format, &type)) {
         return false;
+    }    
+    GrGLRenderTarget* tgt = static_cast<GrGLRenderTarget*>(target);
+    GrAutoTPtrValueRestore<GrRenderTarget*> autoTargetRestore;
+    switch (tgt->getResolveType()) {
+        case GrGLRenderTarget::kCantResolve_ResolveType:
+            return false;
+        case GrGLRenderTarget::kAutoResolves_ResolveType:
+            autoTargetRestore.save(&fCurrDrawState.fRenderTarget);
+            fCurrDrawState.fRenderTarget = target;
+            flushRenderTarget();
+            break;
+        case GrGLRenderTarget::kCanResolve_ResolveType:
+            resolveRenderTarget(tgt);
+            // we don't track the state of the READ FBO ID.
+            GR_GL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, tgt->textureFBOID()));
+            break;
+        default:
+            GrCrash("Unknown resolve type");
     }
 
-    if (NULL == fCurrDrawState.fRenderTarget) {
-        return false;
-    }
-    flushRenderTarget();
-
-    const GrGLIRect& glvp = ((GrGLRenderTarget*)fCurrDrawState.fRenderTarget)->getViewport();
+    const GrGLIRect& glvp = tgt->getViewport();
 
     // the read rect is viewport-relative
     GrGLIRect readRect;
@@ -1208,7 +1290,7 @@ void GrGpuGL::flushRenderTarget() {
     #if GR_COLLECT_STATS
         ++fStats.fRenderTargetChngCnt;
     #endif
-        rt->setDirty(true);
+        rt->flagAsNeedingResolve();
     #if GR_DEBUG
         GrGLenum status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
@@ -1316,10 +1398,9 @@ void GrGpuGL::drawNonIndexedHelper(GrPrimitiveType type,
 #endif
 }
 
-void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
-    GrGLRenderTarget* rt = (GrGLRenderTarget*) texture->asRenderTarget();
+void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
 
-    if (NULL != rt && rt->needsResolve()) {
+    if (rt->needsResolve()) {
         GrAssert(kNone_MSFBO != fMSFBOType);
         GrAssert(rt->textureFBOID() != rt->renderFBOID());
         GR_GL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER,
@@ -1329,32 +1410,32 @@ void GrGpuGL::resolveTextureRenderTarget(GrGLTexture* texture) {
     #if GR_COLLECT_STATS
         ++fStats.fRenderTargetChngCnt;
     #endif
-        // make sure we go through set render target
+        // make sure we go through flushRenderTarget() since we've modified
+        // the bound DRAW FBO ID.
         fHWDrawState.fRenderTarget = NULL;
+        const GrGLIRect& vp = rt->getViewport();
 
-        GrGLint left = 0;
-        GrGLint right = texture->width();
-        // we will have rendered to the top of the FBO.
-        GrGLint top = texture->allocHeight();
-        GrGLint bottom = texture->allocHeight() - texture->height();
         if (kAppleES_MSFBO == fMSFBOType) {
             // Apple's extension uses the scissor as the blit bounds.
             GR_GL(Enable(GR_GL_SCISSOR_TEST));
-            GR_GL(Scissor(left, bottom, right-left, top-bottom));
+            GR_GL(Scissor(vp.fLeft, vp.fBottom,
+                          vp.fWidth, vp.fHeight));
             GR_GL(ResolveMultisampleFramebuffer());
             fHWBounds.fScissorRect.invalidate();
             fHWBounds.fScissorEnabled = true;
         } else {
             if (kDesktopARB_MSFBO != fMSFBOType) {
-                // these respect the scissor during the blit, so disable it.
+                // this respects the scissor during the blit, so disable it.
                 GrAssert(kDesktopEXT_MSFBO == fMSFBOType);
                 flushScissor(NULL);
             }
-            GR_GL(BlitFramebuffer(left, bottom, right, top,
-                                     left, bottom, right, top,
-                                     GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+            int right = vp.fLeft + vp.fWidth;
+            int top = vp.fBottom + vp.fHeight;
+            GR_GL(BlitFramebuffer(vp.fLeft, vp.fBottom, right, top,
+                                  vp.fLeft, vp.fBottom, right, top,
+                                  GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
         }
-        rt->setDirty(false);
+        rt->flagAsResolved();
     }
 }
 
@@ -1631,7 +1712,11 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                 // texture and now we're texuring from the rt it will still be
                 // the last bound texture, but it needs resolving. So keep this
                 // out of the "last != next" check.
-                resolveTextureRenderTarget(nextTexture);
+                GrGLRenderTarget* texRT = 
+                    static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
+                if (NULL != texRT) {
+                    resolveRenderTarget(texRT);
+                }
 
                 if (fHWDrawState.fTextures[s] != nextTexture) {
                     setTextureUnit(s);

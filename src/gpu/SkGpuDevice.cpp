@@ -1453,12 +1453,27 @@ SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context,
         rootRenderTarget->ref();
     }
     context->ref();
+    fRootTexture = NULL;
+}
 
+SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context, GrTexture* rootRenderTargetTexture) {
+    GrAssert(NULL != context);
+    GrAssert(NULL != rootRenderTargetTexture);
+    GrAssert(NULL != rootRenderTargetTexture->asRenderTarget());
+
+    fRootTexture = rootRenderTargetTexture;
+    rootRenderTargetTexture->ref();
+
+    fRootRenderTarget = rootRenderTargetTexture->asRenderTarget();
+    fRootRenderTarget->ref();
+
+    context->ref();
 }
 
 SkGpuDeviceFactory::~SkGpuDeviceFactory() {
     fContext->unref();
     fRootRenderTarget->unref();
+    GrSafeUnref(fRootTexture);
 }
 
 SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,

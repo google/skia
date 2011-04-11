@@ -154,6 +154,50 @@ template <typename Dst, typename Src> Dst GrTCast(Src src) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// saves value of T* in and restores in destructor
+// e.g.:
+// {
+//      GrAutoTPtrValueRestore<int*> autoCountRestore;
+//      if (useExtra) {
+//          autoCountRestore.save(&fCount);
+//          fCount += fExtraCount;
+//      }
+//      ...
+//  }  // fCount is restored
+//
+template <typename T>
+class GrAutoTPtrValueRestore {
+public:
+    GrAutoTPtrValueRestore() : fPtr(NULL), fVal() {}
+    
+    GrAutoTPtrValueRestore(T* ptr) {
+        fPtr = ptr;
+        if (NULL != ptr) {
+            fVal = *ptr;
+        }
+    }
+    
+    ~GrAutoTPtrValueRestore() {
+        if (NULL != fPtr) {
+            *fPtr = fVal;
+        }
+    }
+    
+    // restores previously saved value (if any) and saves value for passed T*
+    void save(T* ptr) {
+        if (NULL != fPtr) {
+            *fPtr = fVal;
+        }
+        fPtr = ptr;
+        fVal = *ptr;
+    }
+private:
+    T* fPtr;
+    T  fVal;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 /**
  * Type used to describe format of vertices in arrays
  * Values are defined in GrDrawTarget
@@ -387,6 +431,139 @@ enum GrConvexHint {
     kConcave_ConvexHint                       //<! Path is known to be
                                               //   concave
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+enum GrPlatformSurfaceType {
+    /**
+     * Specifies that the object being created is a render target.
+     */
+    kRenderTarget_GrPlatformSurfaceType,
+    /**
+     * Specifies that the object being created is a texture.
+     */
+    kTexture_GrPlatformSurfaceType,
+    /**
+     * Specifies that the object being created is a texture and a render
+     * target.
+     */
+    kTextureRenderTarget_GrPlatformSurfaceType,
+};
+
+enum GrPlatformRenderTargetFlags {
+    kNone_GrPlatformRenderTargetFlagBit             = 0x0,
+    /**
+     * Specifies that the object being created is multisampled.
+     */
+    kIsMultisampled_GrPlatformRenderTargetFlagBit   = 0x1,
+    /**
+     * Gives permission to Gr to perform the downsample-resolve of a
+     * multisampled render target. If this is not set then read pixel
+     * operations may fail. If the object is both a texture and render target
+     * then this *must* be set. Otherwise, if the client wants do its own
+     * resolves it must create separate GrRenderTarget and GrTexture objects
+     * and insert appropriate flushes and resolves betweeen data hazards.
+     * GrRenderTarget has a flagForResolve()
+     */
+    kGrCanResolve_GrPlatformRenderTargetFlagBit     = 0x2,
+};
+
+static inline GrPlatformRenderTargetFlags operator | (GrPlatformRenderTargetFlags a, GrPlatformRenderTargetFlags b) {
+    return (GrPlatformRenderTargetFlags) (+a | +b);
+}
+
+static inline GrPlatformRenderTargetFlags operator & (GrPlatformRenderTargetFlags a, GrPlatformRenderTargetFlags b) {
+    return (GrPlatformRenderTargetFlags) (+a & +b);
+}
+
+// opaque type for 3D API object handles
+typedef intptr_t GrPlatform3DObject;
+
+/**
+ * Description of platform surface to create. See below for GL example.
+ */
+struct GrPlatformSurfaceDesc {
+    GrPlatformSurfaceType           fSurfaceType;   // type of surface to create
+    /**
+     * Flags for kRenderTarget and kTextureRenderTarget surface types
+     */
+    GrPlatformRenderTargetFlags     fRenderTargetFlags;
+
+    int                             fWidth;         // width in pixels
+    int                             fHeight;        // height in pixels
+    GrPixelConfig                   fConfig;        // color format
+    /**
+     * Number of per sample stencil buffer. Only relevant if kIsRenderTarget is
+     * set in fFlags.
+     */
+    int                             fStencilBits;
+    /**
+     * Texture object in 3D API. Only relevant if fSurfaceType is kTexture or
+     * kTextureRenderTarget.
+     * GL: this is a texture object (glGenTextures)
+     */
+    GrPlatform3DObject              fPlatformTexture;
+    /**
+     * Render target object in 3D API. Only relevant if fSurfaceType is
+     * kRenderTarget or kTextureRenderTarget
+     * GL: this is a FBO object (glGenFramebuffers)
+     */
+    GrPlatform3DObject              fPlatformRenderTarget;
+    /**
+     * 3D API object used as destination of resolve. Only relevant if
+     * fSurfaceType is kRenderTarget or kTextureRenderTarget and
+     * kGrCanResolve is set in fRenderTargetFlags.
+     * fFlags.
+     * GL: this is a FBO object (glGenFramebuffers)
+     */
+    GrPlatform3DObject              fPlatformResolveDestination;
+
+    void reset() { memset(this, 0, sizeof(GrPlatformSurfaceDesc)); }
+};
+
+/**
+ * Example of how to wrap render-to-texture-with-MSAA GL objects with a GrPlatformSurace
+ *
+ * GLint colorBufferID;
+ * glGenRenderbuffers(1, &colorID);
+ * glBindRenderbuffer(GL_RENDERBUFFER, colorBufferID);
+ * glRenderbufferStorageMultisample(GL_RENDERBUFFER, S, GL_RGBA, W, H);
+ *
+ * GLint stencilBufferID;
+ * glGenRenderBuffers(1, &stencilBufferID);
+ * glBindRenderbuffer(GL_RENDERBUFFER, stencilBufferID);
+ * glRenderbufferStorageMultisample(GL_RENDERBUFFER, S, GL_STENCIL_INDEX8, W, H);
+ *
+ * GLint drawFBOID;
+ * glGenFramebuffers(1, &drawFBOID);
+ * glBindFramebuffer(GL_FRAMEBUFFER, drawFBOID);
+ * glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBufferID);
+ * glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencilBufferID);
+ *
+ * GLint textureID;
+ * glGenTextures(1, &textureID);
+ * glBindTexture(GL_TEXTURE_2D, textureID);
+ * glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, W, H, ...);
+ *
+ * GLint readFBOID;
+ * glGenFramebuffers(1, &readFBOID);
+ * glBindFramebuffer(GL_FRAMEBUFFER, readFBOID);
+ * glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textureID, 0);
+ *
+ * GrPlatformSurfaceDesc renderTargetTextureDesc;
+ * renderTargetTextureDesc.fSurfaceType       = kTextureRenderTarget_GrPlatformSurfaceType;
+ * renderTargetTextureDesc.fRenderTargetFlags = (kIsMultisampled_GrPlatformRenderTargetFlagBit | kGrCanResolve_GrPlatformRenderTargetFlagBit);
+ * renderTargetTextureDesc.fWidth = W;
+ * renderTargetTextureDesc.fHeight = H;
+ * renderTargetTextureDesc.fConfig = kRGBA_8888_GrPixelConfig
+ * renderTargetTextureDesc.fStencilBits = 8;
+ * renderTargetTextureDesc.fPlatformTexture = textureID;
+ * renderTargetTextureDesc.fPlatformRenderTarget = drawFBOID;
+ * renderTargetTextureDesc.fPlatformResolveDestination = readFBOID;
+ *
+ * GrTexture* texture = static_cast<GrTexture*>(grContext->createPlatrformSurface(renderTargetTextureDesc));
+ */
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
