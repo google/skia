@@ -113,11 +113,13 @@ void alignText(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
 SkDevice* SkPDFDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
                                         int width, int height, bool isOpaque,
                                         bool isForLayer) {
-    SkPDFDevice::OriginTransform flip = SkPDFDevice::kFlip_OriginTransform;
+    SkMatrix initialTransform;
+    initialTransform.reset();
     if (isForLayer) {
-        flip = SkPDFDevice::kNoFlip_OriginTransform;
+        initialTransform.setTranslate(0, height);
+        initialTransform.preScale(1, -1);
     }
-    return SkNEW_ARGS(SkPDFDevice, (width, height, flip));
+    return SkNEW_ARGS(SkPDFDevice, (width, height, initialTransform));
 }
 
 static inline SkBitmap makeABitmap(int width, int height) {
@@ -126,11 +128,11 @@ static inline SkBitmap makeABitmap(int width, int height) {
     return bitmap;
 }
 
-SkPDFDevice::SkPDFDevice(int width, int height, OriginTransform flipOrigin)
+SkPDFDevice::SkPDFDevice(int width, int height,
+                         const SkMatrix& initialTransform)
     : SkDevice(NULL, makeABitmap(width, height), false),
       fWidth(width),
       fHeight(height),
-      fFlipOrigin(flipOrigin),
       fGraphicStackIndex(0) {
     fGraphicStack[0].fColor = SK_ColorBLACK;
     fGraphicStack[0].fTextSize = SK_ScalarNaN;  // This has no default value.
@@ -142,10 +144,14 @@ SkPDFDevice::SkPDFDevice(int width, int height, OriginTransform flipOrigin)
     fGraphicStack[0].fClip.setRect(0,0, width, height);
     fGraphicStack[0].fTransform.reset();
 
-    if (flipOrigin == kFlip_OriginTransform) {
-        fContent.writeText("1 0 0 -1 0 ");
-        fContent.writeDecAsText(fHeight);
-        fContent.writeText(" cm\n");
+    // Skia generally uses the top left as the origin but PDF natively has the
+    // origin at the bottom left. This matrix corrects for that.  When layering,
+    // we specify an inverse correction to cancel this out.
+    fInitialTransform.setTranslate(0, height);
+    fInitialTransform.preScale(1, -1);
+    fInitialTransform.preConcat(initialTransform);
+    if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
+        SkPDFUtils::AppendTransform(fInitialTransform, &fContent);
     }
 }
 
@@ -601,13 +607,10 @@ void SkPDFDevice::updateGSFromPaint(const SkPaint& paint, bool forText) {
         // PDF positions patterns relative to the initial transform, so
         // we need to apply the current transform to the shader parameters.
         SkMatrix transform = fGraphicStack[fGraphicStackIndex].fTransform;
-        if (fFlipOrigin == kFlip_OriginTransform) {
-            transform.postScale(1, -1);
-            transform.postTranslate(0, fHeight);
-        }
+        transform.postConcat(fInitialTransform);
 
         // PDF doesn't support kClamp_TileMode, so we simulate it by making
-        // a pattern the size of the drawing service.
+        // a pattern the size of the drawing surface.
         SkIRect bounds = fGraphicStack[fGraphicStackIndex].fClip.getBounds();
         pdfShader = SkPDFShader::getPDFShader(*shader, transform, bounds);
         SkSafeUnref(pdfShader.get());  // getShader and SkRefPtr both took a ref
@@ -808,13 +811,7 @@ SkMatrix SkPDFDevice::setTransform(const SkMatrix& m) {
             fGraphicStack[fGraphicStackIndex - 1].fClip)
         pushGS();
 
-    SkScalar transform[6];
-    SkAssertResult(m.pdfTransform(transform));
-    for (size_t i = 0; i < SK_ARRAY_COUNT(transform); i++) {
-        SkPDFScalar::Append(transform[i], &fContent);
-        fContent.writeText(" ");
-    }
-    fContent.writeText("cm\n");
+    SkPDFUtils::AppendTransform(m, &fContent);
     fGraphicStack[fGraphicStackIndex].fTransform = m;
 
     return old;

@@ -495,8 +495,10 @@ void SkPDFShader::doImageShader() {
     surfaceBBox.set(fState.get()->fBBox);
     transformBBox(finalMatrix, &surfaceBBox);
 
-    SkPDFDevice pattern(surfaceBBox.fRight, surfaceBBox.fBottom,
-                        SkPDFDevice::kNoFlip_OriginTransform);
+    SkMatrix unflip;
+    unflip.setTranslate(0, surfaceBBox.fBottom);
+    unflip.preScale(1, -1);
+    SkPDFDevice pattern(surfaceBBox.fRight, surfaceBBox.fBottom, unflip);
     SkCanvas canvas(&pattern);
     canvas.clipRect(surfaceBBox, SkRegion::kReplace_Op);
 

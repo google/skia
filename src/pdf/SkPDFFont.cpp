@@ -251,15 +251,7 @@ void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
     content->writeText(" d1\n");
 }
 
-SkPDFArray* makeFontBBox(
-        SkIRect glyphBBox, uint16_t emSize,
-        SkPDFDevice::OriginTransform flipOrigin =
-            SkPDFDevice::kNoFlip_OriginTransform) {
-    if (flipOrigin == SkPDFDevice::kFlip_OriginTransform) {
-        int32_t temp = -glyphBBox.fTop;
-        glyphBBox.fTop = -glyphBBox.fBottom;
-        glyphBBox.fBottom = temp;
-    }
+SkPDFArray* makeFontBBox(SkIRect glyphBBox, uint16_t emSize) {
     SkPDFArray* bbox = new SkPDFArray;
     bbox->reserve(4);
     bbox->append(new SkPDFScalar(scaleFromFontUnits(glyphBBox.fLeft,

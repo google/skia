@@ -35,6 +35,17 @@ SkPDFArray* SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
 }
 
 // static
+void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
+    SkScalar values[6];
+    SkAssertResult(matrix.pdfTransform(values));
+    for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
+        SkPDFScalar::Append(values[i], content);
+        content->writeText(" ");
+    }
+    content->writeText("cm\n");
+}
+
+// static
 void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkWStream* content) {
     SkPDFScalar::Append(x, content);
     content->writeText(" ");

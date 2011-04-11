@@ -40,6 +40,7 @@ class SkPDFArray;
 class SkPDFUtils {
 public:
     static SkPDFArray* MatrixToArray(const SkMatrix& matrix);
+    static void AppendTransform(const SkMatrix& matrix, SkWStream* content);
 
     static void MoveTo(SkScalar x, SkScalar y, SkWStream* content);
     static void AppendLine(SkScalar x, SkScalar y, SkWStream* content);

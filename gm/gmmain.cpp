@@ -261,7 +261,10 @@ int main (int argc, char * const argv[]) {
             if (gRec[i].fBackend == kPDF_Backend && writePath) {
 #ifdef SK_SUPPORT_PDF
                 SkISize size = gm->getISize();
-                SkPDFDevice* dev = new SkPDFDevice(size.width(), size.height());
+                SkMatrix identity;
+                identity.reset();
+                SkPDFDevice* dev = new SkPDFDevice(size.width(), size.height(),
+                                                   identity);
                 SkAutoUnref aur(dev);
 
                 SkCanvas c(dev);
