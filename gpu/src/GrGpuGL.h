@@ -79,21 +79,21 @@ protected:
                                                      bool dynamic);
     virtual GrIndexBuffer* createIndexBufferHelper(uint32_t size,
                                                    bool dynamic);
-
+    virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc);
     virtual GrRenderTarget* createPlatformRenderTargetHelper(
                                                  intptr_t platformRenderTarget,
                                                  int stencilBits,
                                                  bool isMultisampled,
                                                  int width, int height);
-
     virtual GrRenderTarget* createRenderTargetFrom3DApiStateHelper();
 
     virtual void eraseColorHelper(GrColor color);
 
     virtual void forceRenderTargetFlushHelper();
 
-    virtual bool readPixelsHelper(int left, int top, int width, int height,
-                                  GrPixelConfig, void* buffer);
+    virtual bool onReadPixels(GrRenderTarget* target,
+                              int left, int top, int width, int height,
+                              GrPixelConfig, void* buffer);
 
     virtual void drawIndexedHelper(GrPrimitiveType type,
                                    uint32_t startVertex,
@@ -158,7 +158,7 @@ private:
     void flushAAState(GrPrimitiveType type);
     void flushBlend(GrPrimitiveType type);
 
-    void resolveTextureRenderTarget(GrGLTexture* texture);
+    void resolveRenderTarget(GrGLRenderTarget* texture);
 
     bool canBeTexture(GrPixelConfig config,
                       GrGLenum* internalFormat,

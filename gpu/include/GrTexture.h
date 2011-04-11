@@ -59,6 +59,29 @@ public:
     bool isMultisampled() { return fIsMultisampled; }
 
     /**
+     * Call to indicate the multisample contents were modified such that the
+     * render target needs to be resolved before it can be used as texture. Gr
+     * tracks this for its own drawing and thus this only needs to be called
+     * when the render target has been modified outside of Gr. Only meaningful
+     * for Gr-created RT/Textures and Platform RT/Textures created with the
+     * kGrCanResolve flag.
+     */
+    void flagAsNeedingResolve() {
+        fNeedsResolve = kCanResolve_ResolveType == getResolveType();
+    }
+
+    /**
+     * Call to indicate that GrRenderTarget was externally resolved. This may
+     * allow Gr to skip a redundant resolve step.
+     */
+    void flagAsResolved() { fNeedsResolve = false; }
+
+    /**
+     * @return true if the GrRenderTarget requires MSAA resolving
+     */
+    bool needsResolve() { return fNeedsResolve; }
+
+    /**
      * Reads a rectangle of pixels from the render target.
      * @param left          left edge of the rectangle to read (inclusive)
      * @param top           top edge of the rectangle to read (inclusive)
@@ -73,6 +96,16 @@ public:
     bool readPixels(int left, int top, int width, int height,
                     GrPixelConfig config, void* buffer);
 
+    // a MSAA RT may require explicit resolving , it may auto-resolve (e.g. FBO
+    // 0 in GL), or be unresolvable because the client didn't give us the 
+    // resolve destination.
+    enum ResolveType {
+        kCanResolve_ResolveType,
+        kAutoResolves_ResolveType,
+        kCantResolve_ResolveType,
+    };
+    virtual ResolveType getResolveType() const = 0;
+
 protected:
     GrRenderTarget(GrGpu* gpu,
                    GrTexture* texture,
@@ -86,6 +119,7 @@ protected:
         , fHeight(height)
         , fStencilBits(stencilBits)
         , fIsMultisampled(isMultisampled)
+        , fNeedsResolve(false)
     {}
 
     friend class GrTexture;
@@ -104,6 +138,7 @@ protected:
     int        fHeight;
     int        fStencilBits;
     bool       fIsMultisampled;
+    bool       fNeedsResolve;
 
 private:
     // GrGpu keeps a cached clip in the render target to avoid redundantly

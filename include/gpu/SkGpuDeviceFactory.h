@@ -34,6 +34,14 @@ public:
      *  construction.
      */
     SkGpuDeviceFactory(GrContext*, GrRenderTarget* rootRenderTarget);
+    
+    /**
+     * When the root layer is both a GrRenderTarget and a GrTexture it
+     * is handy to have the factory hang on to a ref to the GrTexture object.
+     * This is because the GrTexture has a ref to the GrRenderTarget but not
+     * vice-versa.
+     */
+    SkGpuDeviceFactory(GrContext*, GrTexture* rootRenderTargetTexture);
 
     virtual ~SkGpuDeviceFactory();
 
@@ -43,6 +51,7 @@ public:
 private:
     GrContext* fContext;
     GrRenderTarget* fRootRenderTarget;
+    GrTexture* fRootTexture;
 };
 
 #endif
