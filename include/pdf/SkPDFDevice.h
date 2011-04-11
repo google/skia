@@ -33,8 +33,8 @@ class SkPDFShader;
 class SkPDFStream;
 
 class SkPDFDeviceFactory : public SkDeviceFactory {
-    virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width, int height,
-                                bool isOpaque, bool isForLayer);
+    virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
+                                int height, bool isOpaque, bool isForLayer);
 };
 
 /** \class SkPDFDevice
@@ -43,24 +43,22 @@ class SkPDFDeviceFactory : public SkDeviceFactory {
 */
 class SkPDFDevice : public SkDevice {
 public:
-    /** Skia generally uses the top left as the origin and PDFs natively use
-        the bottom left.  We can move the origin to the top left in the PDF
-        with a transform, but we have to be careful to apply the transform
-        only once.
-     */
-    enum OriginTransform {
-        kFlip_OriginTransform,
-        kNoFlip_OriginTransform,
-    };
-
     /** Create a PDF drawing context with the given width and height.
      *  72 points/in means letter paper is 612x792.
      *  @param width  Page width in points.
      *  @param height Page height in points.
-     *  @param flipOrigin Flip the origin from lower left to upper left.
+     *  @param initialTransform The initial transform to apply to the page.
+     *         This may be useful to, for example, move the origin in and
+     *         over a bit to account for a margin, scale the canvas,
+     *         or apply a rotation.  Note1: the SkPDFDevice also applies
+     *         a scale+translate transform to move the origin from the
+     *         bottom left (PDF default) to the top left.  Note2: drawDevice
+     *         (used by layer restore) draws the device after this initial
+     *         transform is applied, so the PDF device factory does an
+     *         inverse scale+translate to accommodate the one that SkPDFDevice
+     *         always does.
      */
-    SkPDFDevice(int width, int height,
-                OriginTransform flipOrigin = kFlip_OriginTransform);
+    SkPDFDevice(int width, int height, const SkMatrix& initialTransform);
     virtual ~SkPDFDevice();
 
     virtual SkDeviceFactory* getDeviceFactory() {
@@ -141,7 +139,7 @@ public:
 private:
     int fWidth;
     int fHeight;
-    OriginTransform fFlipOrigin;
+    SkMatrix fInitialTransform;
     SkRefPtr<SkPDFDict> fResourceDict;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
