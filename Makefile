@@ -160,7 +160,7 @@ out/libskia.a: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 ##############################################################################
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp benchmain.cpp BitmapBench.cpp \
-			  RepeatTileBench.cpp DecodeBench.cpp FPSBench.cpp
+			  RepeatTileBench.cpp DecodeBench.cpp FPSBench.cpp PathBench.cpp
 
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
