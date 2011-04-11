@@ -27,10 +27,6 @@
 #include "SkStroke.h"
 #include "SkThread.h"
 
-#ifdef SK_DEBUG
-//    #define TRACK_MISSING_CHARS
-#endif
-
 #define ComputeBWRowBytes(width)        (((unsigned)(width) + 7) >> 3)
 
 static const uint8_t* gBlackGammaTable;
@@ -49,14 +45,14 @@ size_t SkGlyph::computeImageSize() const {
     const size_t size = this->rowBytes() * fHeight;
 
     switch (fMaskFormat) {
-    case SkMask::kHorizontalLCD_Format:
-        return SkAlign4(size) + sizeof(uint32_t) * ((fWidth + 2) * fHeight);
-    case SkMask::kVerticalLCD_Format:
-        return SkAlign4(size) + sizeof(uint32_t) * (fWidth * (fHeight + 2));
-    case SkMask::k3D_Format:
-        return 3 * size;
-    default:
-        return size;
+        case SkMask::kHorizontalLCD_Format:
+            return SkAlign4(size) + sizeof(uint32_t) * ((fWidth + 2) * fHeight);
+        case SkMask::kVerticalLCD_Format:
+            return SkAlign4(size) + sizeof(uint32_t) * (fWidth * (fHeight + 2));
+        case SkMask::k3D_Format:
+            return 3 * size;
+        default:
+            return size;
     }
 }
 
@@ -154,14 +150,16 @@ SkScalerContext::SkScalerContext(const SkDescriptor* desc)
 
 #ifdef DUMP_REC
     desc->assertChecksum();
-    SkDebugf("SkScalarContext checksum %x count %d length %d\n", desc->getChecksum(), desc->getCount(), desc->getLength());
+    SkDebugf("SkScalarContext checksum %x count %d length %d\n",
+             desc->getChecksum(), desc->getCount(), desc->getLength());
     SkDebugf(" textsize %g prescale %g preskew %g post [%g %g %g %g]\n",
         rec->fTextSize, rec->fPreScaleX, rec->fPreSkewX, rec->fPost2x2[0][0],
         rec->fPost2x2[0][1], rec->fPost2x2[1][0], rec->fPost2x2[1][1]);
     SkDebugf("  frame %g miter %g hints %d framefill %d format %d join %d\n",
         rec->fFrameWidth, rec->fMiterLimit, rec->fHints, rec->fFrameAndFill,
         rec->fMaskFormat, rec->fStrokeJoin);
-    SkDebugf("  pathEffect %x maskFilter %x\n", desc->findEntry(kPathEffect_SkDescriptorTag, NULL),
+    SkDebugf("  pathEffect %x maskFilter %x\n",
+             desc->findEntry(kPathEffect_SkDescriptorTag, NULL),
         desc->findEntry(kMaskFilter_SkDescriptorTag, NULL));
 #endif
 
@@ -452,8 +450,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             draw.drawPath(devPath, paint);
         }
 
-        if (lcdMode)
+        if (lcdMode) {
             glyph->expandA8ToLCD();
+        }
     } else {
         this->getGlyphContext(*glyph)->generateImage(*glyph);
     }
@@ -501,28 +500,26 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         (fRec.fFlags & (kGammaForBlack_Flag | kGammaForWhite_Flag)) != 0)
     {
         const uint8_t* table = (fRec.fFlags & kGammaForBlack_Flag) ? gBlackGammaTable : gWhiteGammaTable;
-        if (NULL != table)
-        {
+        if (NULL != table) {
             uint8_t* dst = (uint8_t*)origGlyph.fImage;
             unsigned rowBytes = origGlyph.rowBytes();
 
-            for (int y = origGlyph.fHeight - 1; y >= 0; --y)
-            {
-                for (int x = origGlyph.fWidth - 1; x >= 0; --x)
+            for (int y = origGlyph.fHeight - 1; y >= 0; --y) {
+                for (int x = origGlyph.fWidth - 1; x >= 0; --x) {
                     dst[x] = table[dst[x]];
+                }
                 dst += rowBytes;
             }
         }
     }
 }
 
-void SkScalerContext::getPath(const SkGlyph& glyph, SkPath* path)
-{
+void SkScalerContext::getPath(const SkGlyph& glyph, SkPath* path) {
     this->internalGetPath(glyph, NULL, path, NULL);
 }
 
-void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* mx, SkPaint::FontMetrics* my)
-{
+void SkScalerContext::getFontMetrics(SkPaint::FontMetrics* mx,
+                                     SkPaint::FontMetrics* my) {
     this->generateFontMetrics(mx, my);
 }
 
@@ -530,16 +527,15 @@ SkUnichar SkScalerContext::generateGlyphToChar(uint16_t glyph) {
     return 0;
 }
 
-///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath, SkPath* devPath, SkMatrix* fillToDevMatrix)
-{
+void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath,
+                                  SkPath* devPath, SkMatrix* fillToDevMatrix) {
     SkPath  path;
 
     this->getGlyphContext(glyph)->generatePath(glyph, &path);
 
-    if (fRec.fFrameWidth > 0 || fPathEffect != NULL)
-    {
+    if (fRec.fFrameWidth > 0 || fPathEffect != NULL) {
         // need the path in user-space, with only the point-size applied
         // so that our stroking and effects will operate the same way they
         // would if the user had extracted the path themself, and then
@@ -554,16 +550,15 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath, Sk
 
         SkScalar width = fRec.fFrameWidth;
 
-        if (fPathEffect)
-        {
+        if (fPathEffect) {
             SkPath effectPath;
 
-            if (fPathEffect->filterPath(&effectPath, localPath, &width))
+            if (fPathEffect->filterPath(&effectPath, localPath, &width)) {
                 localPath.swap(effectPath);
+            }
         }
 
-        if (width > 0)
-        {
+        if (width > 0) {
             SkStroke    stroker;
             SkPath      outline;
 
@@ -576,41 +571,42 @@ void SkScalerContext::internalGetPath(const SkGlyph& glyph, SkPath* fillPath, Sk
         }
 
         // now return stuff to the caller
-        if (fillToDevMatrix)
+        if (fillToDevMatrix) {
             *fillToDevMatrix = matrix;
-
-        if (devPath)
+        }
+        if (devPath) {
             localPath.transform(matrix, devPath);
-
-        if (fillPath)
+        }
+        if (fillPath) {
             fillPath->swap(localPath);
-    }
-    else    // nothing tricky to do
-    {
-        if (fillToDevMatrix)
+        }
+    } else {   // nothing tricky to do
+        if (fillToDevMatrix) {
             fillToDevMatrix->reset();
-
-        if (devPath)
-        {
-            if (fillPath == NULL)
+        }
+        if (devPath) {
+            if (fillPath == NULL) {
                 devPath->swap(path);
-            else
+            } else {
                 *devPath = path;
+            }
         }
 
-        if (fillPath)
+        if (fillPath) {
             fillPath->swap(path);
+        }
     }
 
-    if (devPath)
+    if (devPath) {
         devPath->updateBoundsCache();
-    if (fillPath)
+    }
+    if (fillPath) {
         fillPath->updateBoundsCache();
+    }
 }
 
 
-void SkScalerContext::Rec::getMatrixFrom2x2(SkMatrix* dst) const
-{
+void SkScalerContext::Rec::getMatrixFrom2x2(SkMatrix* dst) const {
     dst->reset();
     dst->setScaleX(fPost2x2[0][0]);
     dst->setSkewX( fPost2x2[0][1]);
@@ -618,23 +614,20 @@ void SkScalerContext::Rec::getMatrixFrom2x2(SkMatrix* dst) const
     dst->setScaleY(fPost2x2[1][1]);
 }
 
-void SkScalerContext::Rec::getLocalMatrix(SkMatrix* m) const
-{
+void SkScalerContext::Rec::getLocalMatrix(SkMatrix* m) const {
     m->setScale(SkScalarMul(fTextSize, fPreScaleX), fTextSize);
-    if (fPreSkewX)
+    if (fPreSkewX) {
         m->postSkew(fPreSkewX, 0);
+    }
 }
 
-void SkScalerContext::Rec::getSingleMatrix(SkMatrix* m) const
-{
+void SkScalerContext::Rec::getSingleMatrix(SkMatrix* m) const {
     this->getLocalMatrix(m);
 
     //  now concat the device matrix
-    {
-        SkMatrix    deviceMatrix;
-        this->getMatrixFrom2x2(&deviceMatrix);
-        m->postConcat(deviceMatrix);
-    }
+    SkMatrix    deviceMatrix;
+    this->getMatrixFrom2x2(&deviceMatrix);
+    m->postConcat(deviceMatrix);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -673,8 +666,7 @@ protected:
 
 extern SkScalerContext* SkCreateColorScalerContext(const SkDescriptor* desc);
 
-SkScalerContext* SkScalerContext::Create(const SkDescriptor* desc)
-{
+SkScalerContext* SkScalerContext::Create(const SkDescriptor* desc) {
 	SkScalerContext* c = NULL;  //SkCreateColorScalerContext(desc);
 	if (NULL == c) {
 		c = SkFontHost::CreateScalerContext(desc);
