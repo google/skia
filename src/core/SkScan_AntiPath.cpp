@@ -26,7 +26,10 @@
 #define SCALE   (1 << SHIFT)
 #define MASK    (SCALE - 1)
 
-///////////////////////////////////////////////////////////////////////////////////////////
+//#define FORCE_SUPERMASK
+//#define FORCE_RLE
+
+///////////////////////////////////////////////////////////////////////////////
 
 class BaseSuperBlitter : public SkBlitter {
 public:
@@ -99,12 +102,9 @@ SuperBlitter::SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     fRuns.reset(width);
 }
 
-void SuperBlitter::flush()
-{
-    if (fCurrIY >= 0)
-    {
-        if (!fRuns.empty())
-        {
+void SuperBlitter::flush() {
+    if (fCurrIY >= 0) {
+        if (!fRuns.empty()) {
         //  SkDEBUGCODE(fRuns.dump();)
             fRealBlitter->blitAntiH(fLeft, fCurrIY, fRuns.fAlpha, fRuns.fRuns);
             fRuns.reset(fWidth);
@@ -114,8 +114,7 @@ void SuperBlitter::flush()
     }
 }
 
-static inline int coverage_to_alpha(int aa)
-{
+static inline int coverage_to_alpha(int aa) {
     aa <<= 8 - 2*SHIFT;
     aa -= aa >> (8 - SHIFT - 1);
     return aa;
@@ -123,15 +122,13 @@ static inline int coverage_to_alpha(int aa)
 
 #define SUPER_Mask      ((1 << SHIFT) - 1)
 
-void SuperBlitter::blitH(int x, int y, int width)
-{
+void SuperBlitter::blitH(int x, int y, int width) {
     int iy = y >> SHIFT;
     SkASSERT(iy >= fCurrIY);
 
     x -= fSuperLeft;
     // hack, until I figure out why my cubics (I think) go beyond the bounds
-    if (x < 0)
-    {
+    if (x < 0) {
         width += x;
         x = 0;
     }
@@ -142,8 +139,7 @@ void SuperBlitter::blitH(int x, int y, int width)
     fCurrY = y;
 #endif
 
-    if (iy != fCurrIY)  // new scanline
-    {
+    if (iy != fCurrIY) {  // new scanline
         this->flush();
         fCurrIY = iy;
     }
@@ -155,7 +151,8 @@ void SuperBlitter::blitH(int x, int y, int width)
 #if 0
     SkAntiRun<SHIFT>    arun;
     arun.set(x, x + width);
-    fRuns.add(x >> SHIFT, arun.getStartAlpha(), arun.getMiddleCount(), arun.getStopAlpha(), maxValue);
+    fRuns.add(x >> SHIFT, arun.getStartAlpha(), arun.getMiddleCount(),
+              arun.getStopAlpha(), maxValue);
 #else
     {
         int start = x;
@@ -166,18 +163,16 @@ void SuperBlitter::blitH(int x, int y, int width)
         int fe = stop & SUPER_Mask;
         int n = (stop >> SHIFT) - (start >> SHIFT) - 1;
 
-        if (n < 0)
-        {
+        if (n < 0) {
             fb = fe - fb;
             n = 0;
             fe = 0;
-        }
-        else
-        {
-            if (fb == 0)
+        } else {
+            if (fb == 0) {
                 n += 1;
-            else
+            } else {
                 fb = (1 << SHIFT) - fb;
+            }
         }
         fRuns.add(x >> SHIFT, coverage_to_alpha(fb), n, coverage_to_alpha(fe),
                   (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT));
@@ -190,8 +185,7 @@ void SuperBlitter::blitH(int x, int y, int width)
 #endif
 }
 
-void SuperBlitter::blitRect(int x, int y, int width, int height)
-{
+void SuperBlitter::blitRect(int x, int y, int width, int height) {
     for (int i = 0; i < height; ++i) {
         blitH(x, y + i, width);
     }
@@ -211,8 +205,10 @@ public:
 
     virtual void blitH(int x, int y, int width);
 
-    static bool CanHandleRect(const SkIRect& bounds)
-    {
+    static bool CanHandleRect(const SkIRect& bounds) {
+#ifdef FORCE_RLE
+        return false;
+#endif
         int width = bounds.width();
         int rb = SkAlign4(width);
 
@@ -222,8 +218,13 @@ public:
 
 private:
     enum {
+#ifdef FORCE_SUPERMASK
+        kMAX_WIDTH = 2048,
+        kMAX_STORAGE = 1024 * 1024 * 2
+#else
         kMAX_WIDTH = 32,    // so we don't try to do very wide things, where the RLE blitter would be faster
         kMAX_STORAGE = 1024
+#endif
     };
 
     SkMask      fMask;
@@ -251,8 +252,7 @@ MaskSuperBlitter::MaskSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     memset(fStorage, 0, fMask.fBounds.height() * fMask.fRowBytes + 1);
 }
 
-static void add_aa_span(uint8_t* alpha, U8CPU startAlpha)
-{
+static void add_aa_span(uint8_t* alpha, U8CPU startAlpha) {
     /*  I should be able to just add alpha[x] + startAlpha.
         However, if the trailing edge of the previous span and the leading
         edge of the current span round to the same super-sampled x value,
@@ -263,8 +263,16 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha)
     *alpha = SkToU8(tmp - (tmp >> 8));
 }
 
-static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount, U8CPU stopAlpha, U8CPU maxValue)
-{
+static inline uint32_t quadplicate_byte(U8CPU value) {
+    uint32_t pair = (value << 8) | value;
+    return (pair << 16) | pair;
+}
+
+// minimum count before we want to setup an inner loop, adding 4-at-a-time
+#define MIN_COUNT_FOR_QUAD_LOOP  16
+
+static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount,
+                        U8CPU stopAlpha, U8CPU maxValue) {
     SkASSERT(middleCount >= 0);
 
     /*  I should be able to just add alpha[x] + startAlpha.
@@ -276,8 +284,27 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount, U8CPU
     SkASSERT(tmp <= 256);
     *alpha++ = SkToU8(tmp - (tmp >> 8));
 
-    while (--middleCount >= 0)
-    {
+    if (middleCount >= MIN_COUNT_FOR_QUAD_LOOP) {
+        // loop until we're quad-byte aligned
+        while (SkTCast<intptr_t>(alpha) & 0x3) {
+            alpha[0] = SkToU8(alpha[0] + maxValue);
+            alpha += 1;
+            middleCount -= 1;
+        }
+
+        int bigCount = middleCount >> 2;
+        uint32_t* qptr = reinterpret_cast<uint32_t*>(alpha);
+        uint32_t qval = quadplicate_byte(maxValue);
+        do {
+            *qptr++ += qval;
+        } while (--bigCount > 0);
+
+        middleCount &= 3;
+        alpha = reinterpret_cast<uint8_t*> (qptr);
+        // fall through to the following while-loop
+    }
+
+    while (--middleCount >= 0) {
         alpha[0] = SkToU8(alpha[0] + maxValue);
         alpha += 1;
     }
@@ -289,8 +316,7 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount, U8CPU
     *alpha = SkToU8(*alpha + stopAlpha);
 }
 
-void MaskSuperBlitter::blitH(int x, int y, int width)
-{
+void MaskSuperBlitter::blitH(int x, int y, int width) {
     int iy = (y >> SHIFT);
 
     SkASSERT(iy >= fMask.fBounds.fTop && iy < fMask.fBounds.fBottom);
@@ -313,8 +339,7 @@ void MaskSuperBlitter::blitH(int x, int y, int width)
     x -= (fMask.fBounds.fLeft << SHIFT);
 
     // hack, until I figure out why my cubics (I think) go beyond the bounds
-    if (x < 0)
-    {
+    if (x < 0) {
         width += x;
         x = 0;
     }
@@ -334,14 +359,11 @@ void MaskSuperBlitter::blitH(int x, int y, int width)
     int n = (stop >> SHIFT) - (start >> SHIFT) - 1;
 
 
-    if (n < 0)
-    {
+    if (n < 0) {
         SkASSERT(row >= fMask.fImage);
         SkASSERT(row < fMask.fImage + kMAX_STORAGE + 1);
         add_aa_span(row, coverage_to_alpha(fe - fb));
-    }
-    else
-    {
+    } else {
         fb = (1 << SHIFT) - fb;
         SkASSERT(row >= fMask.fImage);
         SkASSERT(row + n + 1 < fMask.fImage + kMAX_STORAGE + 1);
@@ -407,8 +429,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
 
     SkIRect superRect, *superClipRect = NULL;
 
-    if (clipRect)
-    {
+    if (clipRect) {
         superRect.set(  clipRect->fLeft << SHIFT, clipRect->fTop << SHIFT,
                         clipRect->fRight << SHIFT, clipRect->fBottom << SHIFT);
         superClipRect = &superRect;
@@ -418,14 +439,11 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
 
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
     // if we're an inverse filltype
-    if (!path.isInverseFillType() && MaskSuperBlitter::CanHandleRect(ir))
-    {
+    if (!path.isInverseFillType() && MaskSuperBlitter::CanHandleRect(ir)) {
         MaskSuperBlitter    superBlit(blitter, ir, clip);
         SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
         sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, clip);
-    }
-    else
-    {
+    } else {
         SuperBlitter    superBlit(blitter, ir, clip);
         sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, clip);
     }
