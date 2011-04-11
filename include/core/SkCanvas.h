@@ -78,12 +78,16 @@ public:
     /** If the Device supports GL viewports, return true and set size (if not
         null) to the size of the viewport. If it is not supported, ignore size
         and return false.
+     
+        DEPRECATED: the gpu-device backend takes care of managing the viewport
     */
     virtual bool getViewport(SkIPoint* size) const;
 
     /** If the Device supports GL viewports, return true and set the viewport
         to the specified x and y dimensions. If it is not supported, ignore x
         and y and return false.
+     
+        DEPRECATED: the gpu-device backend takes care of managing the viewport
     */
     virtual bool setViewport(int x, int y);
 
