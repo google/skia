@@ -3,6 +3,7 @@ SOURCE := \
     blurs.cpp \
     filltypes.cpp \
     gradients.cpp \
+    pathfill.cpp \
     points.cpp \
     poly2poly.cpp \
     shadows.cpp \
