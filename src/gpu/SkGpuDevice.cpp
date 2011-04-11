@@ -309,8 +309,8 @@ void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
 void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
                                 const SkClipStack& clipStack) {
     this->INHERITED::setMatrixClip(matrix, clip, clipStack);
-
-    convert_matrixclip(fContext, matrix, clipStack, clip, this->getOrigin());
+    // We don't need to set them now because the context may not reflect this device.
+    fNeedPrepareRenderTarget = true;
 }
 
 void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
