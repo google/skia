@@ -407,6 +407,8 @@ GrGpuGL::GrGpuGL() {
         }
     }
 
+    GR_GL_GetIntegerv(GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureDimension);
+
     /* The iPhone 4 has a restriction that for an FBO with texture color
        attachment with height <= 8 then the width must be <= height. Here
        we look for such a limitation.
@@ -414,6 +416,8 @@ GrGpuGL::GrGpuGL() {
     fMinRenderTargetHeight = GR_INVAL_GLINT;
     GrGLint maxRenderSize;
     GR_GL_GetIntegerv(GR_GL_MAX_RENDERBUFFER_SIZE, &maxRenderSize);
+    // fbo_test creates FBOs with texture bound to the color attachment
+    maxRenderSize = GrMin(maxRenderSize, fMaxTextureDimension);
 
     if (gPrintStartupSpew) {
         GrPrintf("Small height FBO texture experiments\n");
@@ -456,8 +460,6 @@ GrGpuGL::GrGpuGL() {
         }
     }
     GrAssert(GR_INVAL_GLINT != fMinRenderTargetWidth);
-
-    GR_GL_GetIntegerv(GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureDimension);
 }
 
 GrGpuGL::~GrGpuGL() {
