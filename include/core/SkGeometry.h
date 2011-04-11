@@ -32,7 +32,8 @@ typedef SkPoint SkXRay;
     one of the endpoints' y coordinates, indicating that another query y
     coordinate is preferred for robustness.
 */
-bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2], bool* ambiguous = NULL);
+bool SkXRayCrossesLine(const SkXRay& pt, const SkPoint pts[2],
+                       bool* ambiguous = NULL);
 
 /** Given a quadratic equation Ax^2 + Bx + C = 0, return 0, 1, 2 roots for the
     equation.
@@ -44,8 +45,10 @@ int SkFindUnitQuadRoots(SkScalar A, SkScalar B, SkScalar C, SkScalar roots[2]);
 /** Set pt to the point on the src quadratic specified by t. t must be
     0 <= t <= 1.0
 */
-void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt, SkVector* tangent = NULL);
-void SkEvalQuadAtHalf(const SkPoint src[3], SkPoint* pt, SkVector* tangent = NULL);
+void SkEvalQuadAt(const SkPoint src[3], SkScalar t, SkPoint* pt,
+                  SkVector* tangent = NULL);
+void SkEvalQuadAtHalf(const SkPoint src[3], SkPoint* pt,
+                      SkVector* tangent = NULL);
 
 /** Given a src quadratic bezier, chop it at the specified t value,
     where 0 < t < 1, and return the two new quadratics in dst:
@@ -92,7 +95,7 @@ int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]);
 */
 SK_API void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]);
 
-////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 /** Convert from parametric from (pts) to polynomial coefficients
     coeff[0]*T^3 + coeff[1]*T^2 + coeff[2]*T + coeff[3]
@@ -102,14 +105,16 @@ void SkGetCubicCoeff(const SkPoint pts[4], SkScalar cx[4], SkScalar cy[4]);
 /** Set pt to the point on the src cubic specified by t. t must be
     0 <= t <= 1.0
 */
-void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* locOrNull, SkVector* tangentOrNull, SkVector* curvatureOrNull);
+void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* locOrNull,
+                   SkVector* tangentOrNull, SkVector* curvatureOrNull);
 
 /** Given a src cubic bezier, chop it at the specified t value,
     where 0 < t < 1, and return the two new cubics in dst:
     dst[0..3] and dst[3..6]
 */
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t);
-void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], const SkScalar t[], int t_count);
+void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], const SkScalar t[],
+                   int t_count);
 
 /** Given a src cubic bezier, chop it at the specified t == 1/2,
     The new cubics are returned in dst[0..3] and dst[3..6]
@@ -125,7 +130,8 @@ void SkChopCubicAtHalf(const SkPoint src[4], SkPoint dst[7]);
     1                   0 < tValues[0] < 1
     2                   0 < tValues[0] < tValues[1] < 1
 */
-int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d, SkScalar tValues[2]);
+int SkFindCubicExtrema(SkScalar a, SkScalar b, SkScalar c, SkScalar d,
+                       SkScalar tValues[2]);
 
 /** Given 4 points on a cubic bezier, chop it into 1, 2, 3 beziers such that
     the resulting beziers are monotonic in Y. This is called by the scan converter.
@@ -149,7 +155,8 @@ int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[2]);
 int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 
 int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]);
-int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13], SkScalar tValues[3] = NULL);
+int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
+                              SkScalar tValues[3] = NULL);
 
 /** Given a monotonic cubic bezier, determine whether an xray intersects the
     cubic.
@@ -163,7 +170,8 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13], SkScalar tV
     coordinates, indicating that another query y coordinate is preferred
     for robustness.
  */
-bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4], bool* ambiguous = NULL);
+bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4],
+                                 bool* ambiguous = NULL);
 
 /** Given an arbitrary cubic bezier, return the number of times an xray crosses
     the cubic. Valid return values are [0..3]
@@ -177,9 +185,10 @@ bool SkXRayCrossesMonotonicCubic(const SkXRay& pt, const SkPoint cubic[4], bool*
     coordinates or at a tangent point, indicating that another query y
     coordinate is preferred for robustness.
  */
-int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4], bool* ambiguous = NULL);
+int SkNumXRayCrossingsForCubic(const SkXRay& pt, const SkPoint cubic[4],
+                               bool* ambiguous = NULL);
 
-///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 enum SkRotationDirection {
     kCW_SkRotationDirection,
@@ -197,7 +206,7 @@ enum SkRotationDirection {
 
     matrix, if not null, is appled to the points before they are returned.
 */
-int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop, SkRotationDirection,
-                   const SkMatrix* matrix, SkPoint quadPoints[]);
+int SkBuildQuadArc(const SkVector& unitStart, const SkVector& unitStop,
+                   SkRotationDirection, const SkMatrix*, SkPoint quadPoints[]);
 
 #endif

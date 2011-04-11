@@ -26,28 +26,33 @@
 class SkPath;
 
 /** \class SkShader
-
-    SkShader is the based class for objects that return horizontal spans of colors during drawing.
-    A subclass of SkShader is installed in a SkPaint calling paint.setShader(shader). After that
-    any object (other than a bitmap) that is drawn with that paint will get its color(s) from the
-    shader.
-*/
+ *
+ *  SkShader is the based class for objects that return horizontal spans of
+ *  colors during drawing. A subclass of SkShader is installed in a SkPaint
+ *  calling paint.setShader(shader). After that any object (other than a bitmap)
+ *  that is drawn with that paint will get its color(s) from the shader.
+ */
 class SK_API SkShader : public SkFlattenable {
 public:
             SkShader();
     virtual ~SkShader();
 
-    /** Return true if the shader has a non-identity local matrix.
-        @param localM   Optional: If not null, return the shader's local matrix
-        @return true if the shader has a non-identity local matrix.
-    */
+    /**
+     *  Return true if the shader has a non-identity local matrix.
+     *  @param localM   Optional: If not null, return the shader's local matrix
+     *  @return true if the shader has a non-identity local matrix.
+     */
     bool getLocalMatrix(SkMatrix* localM) const;
-    /** Set the shader's local matrix.
-        @param localM   The shader's new local matrix.
-    */
+
+    /**
+     *  Set the shader's local matrix.
+     *  @param localM   The shader's new local matrix.
+     */
     void setLocalMatrix(const SkMatrix& localM);
-    /** Reset the shader's local matrix to identity.
-    */
+
+    /**
+     *  Reset the shader's local matrix to identity.
+     */
     void resetLocalMatrix();
 
     enum TileMode {
@@ -89,59 +94,69 @@ public:
         kConstInY16_Flag = 0x10
     };
 
-    /** Called sometimes before drawing with this shader.
-        Return the type of alpha your shader will return.
-        The default implementation returns 0. Your subclass should override if it can
-        (even sometimes) report a non-zero value, since that will enable various blitters
-        to perform faster.
-    */
+    /**
+     *  Called sometimes before drawing with this shader. Return the type of
+     *  alpha your shader will return. The default implementation returns 0.
+     *  Your subclass should override if it can (even sometimes) report a
+     *  non-zero value, since that will enable various blitters to perform
+     *  faster.
+     */
     virtual uint32_t getFlags() { return 0; }
 
-    /** Return the alpha associated with the data returned by shadeSpan16(). If
-        kHasSpan16_Flag is not set, this value is meaningless.
-    */
+    /**
+     *  Return the alpha associated with the data returned by shadeSpan16(). If
+     *  kHasSpan16_Flag is not set, this value is meaningless.
+     */
     virtual uint8_t getSpan16Alpha() const { return fPaintAlpha; }
 
-    /** Called once before drawing, with the current paint and
-        device matrix. Return true if your shader supports these
-        parameters, or false if not. If false is returned, nothing
-        will be drawn.
-    */
+    /**
+     *  Called once before drawing, with the current paint and device matrix.
+     *  Return true if your shader supports these parameters, or false if not.
+     *  If false is returned, nothing will be drawn.
+     */
     virtual bool setContext(const SkBitmap& device, const SkPaint& paint,
                             const SkMatrix& matrix);
 
-    /** Called for each span of the object being drawn. Your subclass
-        should set the appropriate colors (with premultiplied alpha) that
-        correspond to the specified device coordinates.
-    */
+    /**
+     *  Called for each span of the object being drawn. Your subclass should
+     *  set the appropriate colors (with premultiplied alpha) that correspond
+     *  to the specified device coordinates.
+     */
     virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
-    /** Called only for 16bit devices when getFlags() returns
-        kOpaqueAlphaFlag | kHasSpan16_Flag
-    */
+
+    /**
+     *  Called only for 16bit devices when getFlags() returns
+     *  kOpaqueAlphaFlag | kHasSpan16_Flag
+     */
     virtual void shadeSpan16(int x, int y, uint16_t[], int count);
-    /** Similar to shadeSpan, but only returns the alpha-channel for a span.
-        The default implementation calls shadeSpan() and then extracts the alpha
-        values from the returned colors.
-    */
+
+    /**
+     *  Similar to shadeSpan, but only returns the alpha-channel for a span.
+     *  The default implementation calls shadeSpan() and then extracts the alpha
+     *  values from the returned colors.
+     */
     virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
 
-    /** Helper function that returns true if this shader's shadeSpan16() method can
-        be called.
-    */
+    /**
+     *  Helper function that returns true if this shader's shadeSpan16() method
+     *  can be called.
+     */
     bool canCallShadeSpan16() {
         return SkShader::CanCallShadeSpan16(this->getFlags());
     }
 
-    /** Helper to check the flags to know if it is legal to call shadeSpan16()
-    */
+    /**
+     *  Helper to check the flags to know if it is legal to call shadeSpan16()
+     */
     static bool CanCallShadeSpan16(uint32_t flags) {
         return (flags & kHasSpan16_Flag) != 0;
     }
 
-    /** Called before a session using the shader begins. Some shaders override
-        this to defer some of their work (like calling bitmap.lockPixels()).
-        Must be balanced by a call to endSession.
-    */
+    /**
+     *  Called before a session using the shader begins. Some shaders override
+     *  this to defer some of their work (like calling bitmap.lockPixels()).
+     *  Must be balanced by a call to endSession.
+     */
     virtual void beginSession();
     virtual void endSession();
 
@@ -195,7 +210,7 @@ public:
                                     about the first point.
     */
     virtual BitmapType asABitmap(SkBitmap* outTexture, SkMatrix* outMatrix,
-                                 TileMode xy[2], SkScalar* twoPointRadialParams) const;
+                         TileMode xy[2], SkScalar* twoPointRadialParams) const;
 
     /**
      *  If the shader subclass can be represented as a gradient, asAGradient
