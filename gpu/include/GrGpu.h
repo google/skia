@@ -464,16 +464,16 @@ protected:
     int                             fCurrPoolStartIndex;
 
     // GrDrawTarget overrides
-    virtual bool acquireGeometryHelper(GrVertexLayout vertexLayout,
-                                       void**         vertices,
-                                       void**         indices);
-    virtual void releaseGeometryHelper();
+    virtual bool onAcquireGeometry(GrVertexLayout vertexLayout,
+                                   void**         vertices,
+                                   void**         indices);
+    virtual void onReleaseGeometry();
 
-    virtual void setVertexSourceToArrayHelper(const void* vertexArray,
-                                              int vertexCount);
+    virtual void onSetVertexSourceToArray(const void* vertexArray,
+                                          int vertexCount);
 
-    virtual void setIndexSourceToArrayHelper(const void* indexArray,
-                                             int indexCount);
+    virtual void onSetIndexSourceToArray(const void* indexArray,
+                                         int indexCount);
     // Helpers for setting up geometry state
     void finalizeReservedVertices();
     void finalizeReservedIndices();
@@ -483,37 +483,37 @@ protected:
     virtual void resetContext() = 0;
 
     // overridden by API-specific derived class to create objects.
-    virtual GrTexture* createTextureHelper(const TextureDesc& desc,
-                                           const void* srcData,
-                                           size_t rowBytes) = 0;
+    virtual GrTexture* onCreateTexture(const TextureDesc& desc,
+                                       const void* srcData,
+                                       size_t rowBytes) = 0;
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) = 0;
-    virtual GrRenderTarget* createPlatformRenderTargetHelper(
+    virtual GrRenderTarget* onCreatePlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
                                                 bool isMultisampled,
                                                 int width, int height) = 0;
-    virtual GrRenderTarget* createRenderTargetFrom3DApiStateHelper() = 0;
-    virtual GrVertexBuffer* createVertexBufferHelper(uint32_t size,
-                                                     bool dynamic) = 0;
-    virtual GrIndexBuffer* createIndexBufferHelper(uint32_t size,
-                                                   bool dynamic) = 0;
+    virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState() = 0;
+    virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
+                                                 bool dynamic) = 0;
+    virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
+                                               bool dynamic) = 0;
 
     // overridden by API-specific derivated class to perform the erase.
-    virtual void eraseColorHelper(GrColor color) = 0;
+    virtual void onEraseColor(GrColor color) = 0;
 
     // overridden by API-specific derived class to perform the draw call.
-    virtual void drawIndexedHelper(GrPrimitiveType type,
-                                   uint32_t startVertex,
-                                   uint32_t startIndex,
-                                   uint32_t vertexCount,
-                                   uint32_t indexCount) = 0;
+    virtual void onDrawIndexed(GrPrimitiveType type,
+                               uint32_t startVertex,
+                               uint32_t startIndex,
+                               uint32_t vertexCount,
+                               uint32_t indexCount) = 0;
 
-    virtual void drawNonIndexedHelper(GrPrimitiveType type,
-                                      uint32_t vertexCount,
-                                      uint32_t numVertices) = 0;
+    virtual void onDrawNonIndexed(GrPrimitiveType type,
+                                  uint32_t vertexCount,
+                                  uint32_t numVertices) = 0;
 
     // overridden by API-specific derived class to perform flush
-    virtual void forceRenderTargetFlushHelper() = 0;
+    virtual void onForceRenderTargetFlush() = 0;
 
     // overridden by API-specific derived class to perform the read pixels.
     virtual bool onReadPixels(GrRenderTarget* target,

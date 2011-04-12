@@ -44,8 +44,6 @@ private:
 
     class ProgramCache;
 
-    void resetContextHelper();
-
     // Helpers to make code more readable
     const GrMatrix& getHWSamplerMatrix(int stage);
     void recordHWSamplerMatrix(int stage, const GrMatrix& matrix);

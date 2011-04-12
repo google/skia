@@ -163,7 +163,7 @@ private:
     void deleteAtNode(Node* x);
     static void RecursiveDelete(Node* x);
 
-    int countOfHelper(const Node* n, const T& t) const;
+    int onCountOf(const Node* n, const T& t) const;
 
 #if GR_DEBUG
     void validate() const;
@@ -312,11 +312,11 @@ typename GrRedBlackTree<T,C>::Iter GrRedBlackTree<T,C>::findLast(const T& t) {
 
 template <typename T, typename C>
 int GrRedBlackTree<T,C>::countOf(const T& t) const {
-    return countOfHelper(fRoot, t);
+    return onCountOf(fRoot, t);
 }
 
 template <typename T, typename C>
-int GrRedBlackTree<T,C>::countOfHelper(const Node* n, const T& t) const {
+int GrRedBlackTree<T,C>::onCountOf(const Node* n, const T& t) const {
     // this is count*log(n) :(
     while (NULL != n) {
         if (fComp(t, n->fItem)) {
@@ -324,8 +324,8 @@ int GrRedBlackTree<T,C>::countOfHelper(const Node* n, const T& t) const {
         } else {
             if (!fComp(n->fItem, t)) {
                 int count = 1;
-                count += countOfHelper(n->fChildren[kLeft_Child], t);
-                count += countOfHelper(n->fChildren[kRight_Child], t);
+                count += onCountOf(n->fChildren[kLeft_Child], t);
+                count += onCountOf(n->fChildren[kRight_Child], t);
                 return count;
             }
             n = n->fChildren[kRight_Child];

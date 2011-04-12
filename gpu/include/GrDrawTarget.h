@@ -1003,20 +1003,20 @@ protected:
                                                         { return sds.fState; }
 
     // implemented by subclass
-    virtual bool acquireGeometryHelper(GrVertexLayout vertexLayout,
-                                       void** vertices,
-                                       void** indices) = 0;
+    virtual bool onAcquireGeometry(GrVertexLayout vertexLayout,
+                                   void** vertices,
+                                   void** indices) = 0;
 
-    virtual void releaseGeometryHelper() = 0;
+    virtual void onReleaseGeometry() = 0;
 
     // subclass overrides to be notified when clip is set.
     virtual void clipWillBeSet(const GrClip& clip) = 0;
 
-    virtual void setVertexSourceToArrayHelper(const void* vertexArray,
-                                              int vertexCount) = 0;
+    virtual void onSetVertexSourceToArray(const void* vertexArray,
+                                          int vertexCount) = 0;
 
-    virtual void setIndexSourceToArrayHelper(const void* indexArray,
-                                             int indexCount) = 0;
+    virtual void onSetIndexSourceToArray(const void* indexArray,
+                                         int indexCount) = 0;
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.

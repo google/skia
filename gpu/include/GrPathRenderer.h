@@ -147,12 +147,12 @@ public:
                                    const GrPoint* translate);
 private:
 
-    void drawPathHelper(GrDrawTarget* target,
-                        GrDrawTarget::StageBitfield stages,
-                        GrPathIter* path,
-                        GrPathFill fill,
-                        const GrPoint* translate,
-                        bool stencilOnly);
+    void onDrawPath(GrDrawTarget* target,
+                    GrDrawTarget::StageBitfield stages,
+                    GrPathIter* path,
+                    GrPathFill fill,
+                    const GrPoint* translate,
+                    bool stencilOnly);
 
     bool    fSeparateStencil;
     bool    fStencilWrapOps;

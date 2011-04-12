@@ -72,35 +72,35 @@ protected:
     // overrides from GrGpu
     virtual void resetContext();
 
-    virtual GrTexture* createTextureHelper(const TextureDesc& desc,
-                                           const void* srcData,
-                                           size_t rowBytes);
-    virtual GrVertexBuffer* createVertexBufferHelper(uint32_t size,
-                                                     bool dynamic);
-    virtual GrIndexBuffer* createIndexBufferHelper(uint32_t size,
-                                                   bool dynamic);
+    virtual GrTexture* onCreateTexture(const TextureDesc& desc,
+                                       const void* srcData,
+                                       size_t rowBytes);
+    virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
+                                                 bool dynamic);
+    virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
+                                               bool dynamic);
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc);
-    virtual GrRenderTarget* createPlatformRenderTargetHelper(
+    virtual GrRenderTarget* onCreatePlatformRenderTarget(
                                                  intptr_t platformRenderTarget,
                                                  int stencilBits,
                                                  bool isMultisampled,
                                                  int width, int height);
-    virtual GrRenderTarget* createRenderTargetFrom3DApiStateHelper();
+    virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState();
 
-    virtual void eraseColorHelper(GrColor color);
+    virtual void onEraseColor(GrColor color);
 
-    virtual void forceRenderTargetFlushHelper();
+    virtual void onForceRenderTargetFlush();
 
     virtual bool onReadPixels(GrRenderTarget* target,
                               int left, int top, int width, int height,
                               GrPixelConfig, void* buffer);
 
-    virtual void drawIndexedHelper(GrPrimitiveType type,
+    virtual void onDrawIndexed(GrPrimitiveType type,
                                    uint32_t startVertex,
                                    uint32_t startIndex,
                                    uint32_t vertexCount,
                                    uint32_t indexCount);
-    virtual void drawNonIndexedHelper(GrPrimitiveType type,
+    virtual void onDrawNonIndexed(GrPrimitiveType type,
                                       uint32_t vertexCount,
                                       uint32_t numVertices);
     virtual void flushScissor(const GrIRect* rect);
