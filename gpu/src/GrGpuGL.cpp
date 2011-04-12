@@ -602,7 +602,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
     }
 }
 
-GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
+GrRenderTarget* GrGpuGL::onCreatePlatformRenderTarget(
                                                 intptr_t platformRenderTarget,
                                                 int stencilBits,
                                                 bool isMultisampled,
@@ -628,7 +628,7 @@ GrRenderTarget* GrGpuGL::createPlatformRenderTargetHelper(
                                 isMultisampled, viewport, NULL);
 }
 
-GrRenderTarget* GrGpuGL::createRenderTargetFrom3DApiStateHelper() {
+GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
 
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
 
@@ -699,15 +699,15 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
-                                        const void* srcData,
-                                        size_t rowBytes) {
+GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
+                                    const void* srcData,
+                                    size_t rowBytes) {
 
 #if GR_COLLECT_STATS
     ++fStats.fTextureCreateCnt;
 #endif
 
-    setSpareTextureUnit();
+    this->setSpareTextureUnit();
 
     static const GrGLTexture::TexParams DEFAULT_PARAMS = {
         GR_GL_NEAREST,
@@ -1087,7 +1087,7 @@ GrTexture* GrGpuGL::createTextureHelper(const TextureDesc& desc,
     return tex;
 }
 
-GrVertexBuffer* GrGpuGL::createVertexBufferHelper(uint32_t size, bool dynamic) {
+GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {
     GrGLuint id;
     GR_GL(GenBuffers(1, &id));
     if (id) {
@@ -1111,7 +1111,7 @@ GrVertexBuffer* GrGpuGL::createVertexBufferHelper(uint32_t size, bool dynamic) {
     return NULL;
 }
 
-GrIndexBuffer* GrGpuGL::createIndexBufferHelper(uint32_t size, bool dynamic) {
+GrIndexBuffer* GrGpuGL::onCreateIndexBuffer(uint32_t size, bool dynamic) {
     GrGLuint id;
     GR_GL(GenBuffers(1, &id));
     if (id) {
@@ -1165,7 +1165,7 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
     }
 }
 
-void GrGpuGL::eraseColorHelper(GrColor color) {
+void GrGpuGL::onEraseColor(GrColor color) {
     if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
@@ -1220,7 +1220,7 @@ void GrGpuGL::eraseStencilClip(const GrIRect& rect) {
     fHWDrawState.fStencilSettings.invalidate();
 }
 
-void GrGpuGL::forceRenderTargetFlushHelper() {
+void GrGpuGL::onForceRenderTargetFlush() {
     flushRenderTarget();
 }
 
@@ -1339,11 +1339,11 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGpuGL::drawIndexedHelper(GrPrimitiveType type,
-                                uint32_t startVertex,
-                                uint32_t startIndex,
-                                uint32_t vertexCount,
-                                uint32_t indexCount) {
+void GrGpuGL::onDrawIndexed(GrPrimitiveType type,
+                            uint32_t startVertex,
+                            uint32_t startIndex,
+                            uint32_t vertexCount,
+                            uint32_t indexCount) {
     GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
 
     GrGLvoid* indices = (GrGLvoid*)(sizeof(uint16_t) * startIndex);
@@ -1371,9 +1371,9 @@ void GrGpuGL::drawIndexedHelper(GrPrimitiveType type,
 #endif
 }
 
-void GrGpuGL::drawNonIndexedHelper(GrPrimitiveType type,
-                                   uint32_t startVertex,
-                                   uint32_t vertexCount) {
+void GrGpuGL::onDrawNonIndexed(GrPrimitiveType type,
+                               uint32_t startVertex,
+                               uint32_t vertexCount) {
     GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
 
     GrAssert(NULL != fHWGeometryState.fVertexBuffer);

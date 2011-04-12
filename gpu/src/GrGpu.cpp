@@ -139,7 +139,7 @@ void GrGpu::unimpl(const char msg[]) {
 GrTexture* GrGpu::createTexture(const TextureDesc& desc,
                                 const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
-    return this->createTextureHelper(desc, srcData, rowBytes);
+    return this->onCreateTexture(desc, srcData, rowBytes);
 }
 
 GrRenderTarget* GrGpu::createPlatformRenderTarget(intptr_t platformRenderTarget,
@@ -147,7 +147,7 @@ GrRenderTarget* GrGpu::createPlatformRenderTarget(intptr_t platformRenderTarget,
                                                   bool isMultisampled,
                                                   int width, int height) {
     this->handleDirtyContext();
-    return this->createPlatformRenderTargetHelper(platformRenderTarget,
+    return this->onCreatePlatformRenderTarget(platformRenderTarget,
                                                   stencilBits,
                                                   isMultisampled,
                                                   width, height);
@@ -155,7 +155,7 @@ GrRenderTarget* GrGpu::createPlatformRenderTarget(intptr_t platformRenderTarget,
 
 GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {
     this->handleDirtyContext();
-    return this->createRenderTargetFrom3DApiStateHelper();
+    return this->onCreateRenderTargetFrom3DApiState();
 }
 
 GrResource* GrGpu::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
@@ -165,22 +165,22 @@ GrResource* GrGpu::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
 
 GrVertexBuffer* GrGpu::createVertexBuffer(uint32_t size, bool dynamic) {
     this->handleDirtyContext();
-    return this->createVertexBufferHelper(size, dynamic);
+    return this->onCreateVertexBuffer(size, dynamic);
 }
 
 GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
     this->handleDirtyContext();
-    return this->createIndexBufferHelper(size, dynamic);
+    return this->onCreateIndexBuffer(size, dynamic);
 }
 
 void GrGpu::eraseColor(GrColor color) {
     this->handleDirtyContext();
-    this->eraseColorHelper(color);
+    this->onEraseColor(color);
 }
 
 void GrGpu::forceRenderTargetFlush() {
     this->handleDirtyContext();
-    this->forceRenderTargetFlushHelper();
+    this->onForceRenderTargetFlush();
 }
 
 bool GrGpu::readPixels(GrRenderTarget* target,
@@ -598,8 +598,8 @@ void GrGpu::drawIndexed(GrPrimitiveType type,
     int sIndex = startIndex;
     setupGeometry(&sVertex, &sIndex, vertexCount, indexCount);
 
-    drawIndexedHelper(type, sVertex, sIndex,
-                      vertexCount, indexCount);
+    this->onDrawIndexed(type, sVertex, sIndex,
+                        vertexCount, indexCount);
 }
 
 void GrGpu::drawNonIndexed(GrPrimitiveType type,
@@ -621,7 +621,7 @@ void GrGpu::drawNonIndexed(GrPrimitiveType type,
     int sVertex = startVertex;
     setupGeometry(&sVertex, NULL, vertexCount, 0);
 
-    drawNonIndexedHelper(type, sVertex, vertexCount);
+    this->onDrawNonIndexed(type, sVertex, vertexCount);
 }
 
 void GrGpu::finalizeReservedVertices() {
@@ -656,9 +656,9 @@ void GrGpu::prepareIndexPool() {
     }
 }
 
-bool GrGpu::acquireGeometryHelper(GrVertexLayout vertexLayout,
-                                  void**         vertices,
-                                  void**         indices) {
+bool GrGpu::onAcquireGeometry(GrVertexLayout vertexLayout,
+                              void**         vertices,
+                              void**         indices) {
     GrAssert(!fReservedGeometry.fLocked);
     size_t reservedVertexSpace = 0;
 
@@ -694,11 +694,11 @@ bool GrGpu::acquireGeometryHelper(GrVertexLayout vertexLayout,
     return true;
 }
 
-void GrGpu::releaseGeometryHelper() {}
+void GrGpu::onReleaseGeometry() {}
 
-void GrGpu::setVertexSourceToArrayHelper(const void* vertexArray, int vertexCount) {
+void GrGpu::onSetVertexSourceToArray(const void* vertexArray, int vertexCount) {
     GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fVertexCount);
-    prepareVertexPool();
+    this->prepareVertexPool();
 #if GR_DEBUG
     bool success =
 #endif
@@ -710,9 +710,9 @@ void GrGpu::setVertexSourceToArrayHelper(const void* vertexArray, int vertexCoun
     GR_DEBUGASSERT(success);
 }
 
-void GrGpu::setIndexSourceToArrayHelper(const void* indexArray, int indexCount) {
+void GrGpu::onSetIndexSourceToArray(const void* indexArray, int indexCount) {
     GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fIndexCount);
-    prepareIndexPool();
+    this->prepareIndexPool();
 #if GR_DEBUG
     bool success =
 #endif

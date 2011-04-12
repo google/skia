@@ -177,12 +177,12 @@ bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
     return !single_pass_path(*target, *path, fill);
 }
 
-void GrDefaultPathRenderer::drawPathHelper(GrDrawTarget* target,
-                                           GrDrawTarget::StageBitfield stages,
-                                           GrPathIter* path,
-                                           GrPathFill fill,
-                                           const GrPoint* translate,
-                                           bool stencilOnly) {
+void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
+                                       GrDrawTarget::StageBitfield stages,
+                                       GrPathIter* path,
+                                       GrPathFill fill,
+                                       const GrPoint* translate,
+                                       bool stencilOnly) {
 
     GrDrawTarget::AutoStateRestore asr(target);
     bool colorWritesWereDisabled = target->isColorWriteDisabled();
@@ -434,7 +434,7 @@ void GrDefaultPathRenderer::drawPath(GrDrawTarget* target,
                                      GrPathIter* path,
                                      GrPathFill fill,
                                      const GrPoint* translate) {
-    this->drawPathHelper(target, stages, path, fill, translate, false);
+    this->onDrawPath(target, stages, path, fill, translate, false);
 }
 
 void GrDefaultPathRenderer::drawPathToStencil(GrDrawTarget* target,
@@ -443,5 +443,5 @@ void GrDefaultPathRenderer::drawPathToStencil(GrDrawTarget* target,
                                               const GrPoint* translate) {
     GrAssert(kInverseEvenOdd_PathFill != fill);
     GrAssert(kInverseWinding_PathFill != fill);
-    this->drawPathHelper(target, 0, path, fill, translate, true);
+    this->onDrawPath(target, 0, path, fill, translate, true);
 }

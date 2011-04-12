@@ -115,17 +115,17 @@ private:
         const GrIndexBuffer*    fIndexBuffer;
     };
 
-    virtual bool acquireGeometryHelper(GrVertexLayout vertexLayout,
-                                       void**         vertices,
-                                       void**         indices);
-    virtual void releaseGeometryHelper();
+    virtual bool onAcquireGeometry(GrVertexLayout vertexLayout,
+                                   void**         vertices,
+                                   void**         indices);
+    virtual void onReleaseGeometry();
     virtual void clipWillBeSet(const GrClip& newClip);
 
-    virtual void setVertexSourceToArrayHelper(const void* vertexArray,
-                                              int vertexCount);
+    virtual void onSetVertexSourceToArray(const void* vertexArray,
+                                         int vertexCount);
 
-    virtual void setIndexSourceToArrayHelper(const void* indexArray,
-                                             int indexCount);
+    virtual void onSetIndexSourceToArray(const void* indexArray,
+                                         int indexCount);
 
     bool needsNewState() const;
     bool needsNewClip() const;
