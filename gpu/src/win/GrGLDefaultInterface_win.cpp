@@ -127,7 +127,7 @@ void GrGLSetDefaultGLInterface() {
 
             // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
             // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-            if (major >= 3 || has_gl_extension("GL_ARB_framebuffer_object")) {
+            if (major >= 3 || has_gl_extension_from_string("GL_ARB_framebuffer_object", extString)) {
                 GR_GL_GET_PROC(GenFramebuffers);
                 GR_GL_GET_PROC(BindFramebuffer);
                 GR_GL_GET_PROC(FramebufferTexture2D);
@@ -140,8 +140,7 @@ void GrGLSetDefaultGLInterface() {
                 GR_GL_GET_PROC(BindRenderbuffer);
                 GR_GL_GET_PROC(RenderbufferStorageMultisample);
                 GR_GL_GET_PROC(BlitFramebuffer);
-            } else if (has_gl_extension_from_string("GL_EXT_framebuffer_object",
-                                                    extString)) {
+            } else if (has_gl_extension_from_string("GL_EXT_framebuffer_object", extString)) {
                 GR_GL_GET_PROC_SUFFIX(GenFramebuffers, EXT);
                 GR_GL_GET_PROC_SUFFIX(BindFramebuffer, EXT);
                 GR_GL_GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
@@ -152,12 +151,10 @@ void GrGLSetDefaultGLInterface() {
                 GR_GL_GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
                 GR_GL_GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
                 GR_GL_GET_PROC_SUFFIX(BindRenderbuffer, EXT);
-                if (has_gl_extension_from_string("GL_EXT_framebuffer_multisample",
-                                                 extString)) {
+                if (has_gl_extension_from_string("GL_EXT_framebuffer_multisample", extString)) {
                     GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
                 }
-                if (has_gl_extension_from_string("GL_EXT_framebuffer_blit",
-                                                 extString)) {
+                if (has_gl_extension_from_string("GL_EXT_framebuffer_blit", extString)) {
                     GR_GL_GET_PROC_SUFFIX(BlitFramebuffer, EXT);
                 }
             } else {
