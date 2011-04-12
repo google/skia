@@ -1437,9 +1437,7 @@ void SkGpuDevice::unlockCachedTexture(TexCache* cache) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context,
-                                       GrRenderTarget* rootRenderTarget)
-        : fContext(context) {
-
+                                       GrRenderTarget* rootRenderTarget) {
     GrAssert(NULL != context);
     GrAssert(NULL != rootRenderTarget);
 
@@ -1452,7 +1450,10 @@ SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context,
         fRootRenderTarget = rootRenderTarget;
         rootRenderTarget->ref();
     }
+
+    fContext = context;
     context->ref();
+
     fRootTexture = NULL;
 }
 
@@ -1467,6 +1468,7 @@ SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context, GrTexture* rootRender
     fRootRenderTarget = rootRenderTargetTexture->asRenderTarget();
     fRootRenderTarget->ref();
 
+    fContext = context;
     context->ref();
 }
 
@@ -1484,4 +1486,3 @@ SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
     bm.setIsOpaque(isOpaque);
     return new SkGpuDevice(fContext, bm, isLayer ?  NULL : fRootRenderTarget);
 }
-
