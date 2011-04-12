@@ -1,6 +1,15 @@
 #include "SkCanvas.h"
+#include "SkColor.h"
 #include "SkLayerDrawLooper.h"
 #include "SkPaint.h"
+#include "SkUnPreMultiply.h"
+
+SkLayerDrawLooper::LayerInfo::LayerInfo() {
+    fPaintBits = 0;                     // ignore out paint
+    fColorMode = SkXfermode::kDst_Mode; // ignore our color
+    fOffset.set(0, 0);
+    fPostTranslate = false;
+}
 
 SkLayerDrawLooper::SkLayerDrawLooper() {
     fRecs = NULL;
@@ -15,17 +24,23 @@ SkLayerDrawLooper::~SkLayerDrawLooper() {
         rec = next;
     }
 }
-    
-SkPaint* SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy, BitFlags bits) {
+
+SkPaint* SkLayerDrawLooper::addLayer(const LayerInfo& info) {
     fCount += 1;
 
     Rec* rec = SkNEW(Rec);
     rec->fNext = fRecs;
-    rec->fOffset.set(dx, dy);
-    rec->fBits = bits;
+    rec->fInfo = info;
     fRecs = rec;
 
     return &rec->fPaint;
+}
+
+SkPaint* SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy) {
+    LayerInfo info;
+
+    info.fOffset.set(dx, dy);
+    return this->addLayer(info);
 }
 
 void SkLayerDrawLooper::init(SkCanvas* canvas) {
@@ -33,26 +48,35 @@ void SkLayerDrawLooper::init(SkCanvas* canvas) {
     canvas->save(SkCanvas::kMatrix_SaveFlag);
 }
 
+static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
+    switch (mode) {
+        case SkXfermode::kSrc_Mode:
+            return src;
+        case SkXfermode::kDst_Mode:
+            return dst;
+        default: {
+            SkPMColor pmS = SkPreMultiplyColor(src);
+            SkPMColor pmD = SkPreMultiplyColor(dst);
+            SkPMColor result = SkXfermode::GetProc(mode)(pmS, pmD);
+            return SkUnPreMultiply::PMColorToColor(result);
+        }
+    }
+}
+
 void SkLayerDrawLooper::ApplyBits(SkPaint* dst, const SkPaint& src,
-                                  BitFlags bits) {
+                                  BitFlags bits, SkXfermode::Mode colorMode) {
+    dst->setColor(xferColor(src.getColor(), dst->getColor(), colorMode));
+
     if (0 == bits) {
         return;
     }
     if (kEntirePaint_Bits == bits) {
+        // we've already compute the color, so save it from the assignment
+        SkColor c = dst->getColor();
         *dst = src;
+        dst->setColor(c);
         return;
     }
-
-    SkColor c = dst->getColor();
-    if (bits & kAlpha_Bit) {
-        c &= 0x00FFFFFF;
-        c |= src.getColor() & 0xFF000000;
-    }
-    if (bits & kColor_Bit) {
-        c &= 0xFF000000;
-        c |= src.getColor() & 0x00FFFFFF;
-    }
-    dst->setColor(c);
 
     if (bits & kStyle_Bit) {
         dst->setStyle(src.getStyle());
@@ -96,15 +120,29 @@ void SkLayerDrawLooper::ApplyBits(SkPaint* dst, const SkPaint& src,
 #endif
 }
 
+// Should we add this to canvas?
+static void postTranslate(SkCanvas* canvas, SkScalar dx, SkScalar dy) {
+    SkMatrix m = canvas->getTotalMatrix();
+    m.postTranslate(dx, dy);
+    canvas->setMatrix(m);
+}
+
 bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
     canvas->restore();
     if (NULL == fCurrRec) {
         return false;
     }
 
-    ApplyBits(paint, fCurrRec->fPaint, fCurrRec->fBits);
+    ApplyBits(paint, fCurrRec->fPaint, fCurrRec->fInfo.fPaintBits,
+              fCurrRec->fInfo.fColorMode);
+
     canvas->save(SkCanvas::kMatrix_SaveFlag);
-    canvas->translate(fCurrRec->fOffset.fX, fCurrRec->fOffset.fY);
+    if (fCurrRec->fInfo.fPostTranslate) {
+        postTranslate(canvas, fCurrRec->fInfo.fOffset.fX,
+                      fCurrRec->fInfo.fOffset.fY);
+    } else {
+        canvas->translate(fCurrRec->fInfo.fOffset.fX, fCurrRec->fInfo.fOffset.fY);
+    }
     fCurrRec = fCurrRec->fNext;
 
     return true;
@@ -143,8 +181,11 @@ void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) {
     
     Rec* rec = fRecs;
     for (int i = 0; i < fCount; i++) {
-        buffer.writeScalar(rec->fOffset.fX);
-        buffer.writeScalar(rec->fOffset.fY);
+        buffer.writeInt(rec->fInfo.fPaintBits);
+        buffer.writeInt(rec->fInfo.fColorMode);
+        buffer.writeScalar(rec->fInfo.fOffset.fX);
+        buffer.writeScalar(rec->fInfo.fOffset.fY);
+        buffer.writeBool(rec->fInfo.fPostTranslate);
         rec->fPaint.flatten(buffer);
         rec = rec->fNext;
     }
@@ -158,9 +199,13 @@ SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
     int count = buffer.readInt();
 
     for (int i = 0; i < count; i++) {
-        SkScalar dx = buffer.readScalar();
-        SkScalar dy = buffer.readScalar();
-        this->addLayer(dx, dy)->unflatten(buffer);
+        LayerInfo info;
+        info.fPaintBits = buffer.readInt();
+        info.fColorMode = (SkXfermode::Mode)buffer.readInt();
+        info.fOffset.fX = buffer.readScalar();
+        info.fOffset.fY = buffer.readScalar();
+        info.fPostTranslate = buffer.readBool();
+        this->addLayer(info)->unflatten(buffer);
     }
     SkASSERT(count == fCount);
 
