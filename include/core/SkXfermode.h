@@ -115,10 +115,10 @@ public:
         kLastMode = kExclusion_Mode
     };
 
-    /** If the xfermode is one of the modes in the Mode enum, then asMode()
-        returns true and sets (if not null) mode accordingly.
-        This is a better version of IsMode(), which is only able to report
-        about modes that are expressible as coefficients.
+    /**
+     *  If the xfermode is one of the modes in the Mode enum, then asMode()
+     *  returns true and sets (if not null) mode accordingly. Otherwise it
+     *  returns false and ignores the mode parameter.
      */
     virtual bool asMode(Mode* mode);
 
@@ -138,10 +138,9 @@ public:
       */
     static SkXfermodeProc16 GetProc16(Mode mode, SkColor srcColor);
 
-    /** If the specified xfermode advertises itself as one of the porterduff
-        modes (via SkXfermode::Coeff), return true and if not null, set mode
-        to the corresponding porterduff mode. If it is not recognized as a one,
-        return false and ignore the mode parameter.
+    /**
+     *  The same as calling xfermode->asMode(mode), except that this also checks
+     *  if the xfermode is NULL, and if so, treats its as kSrcOver_Mode.
      */
     static bool IsMode(SkXfermode*, Mode* mode);
 
@@ -189,7 +188,6 @@ public:
     // overrides from SkFlattenable
     virtual Factory getFactory() { return CreateProc; }
     virtual void    flatten(SkFlattenableWriteBuffer&);
-    virtual bool asMode(SkXfermode::Mode* mode);
 
 protected:
     SkProcXfermode(SkFlattenableReadBuffer&);
