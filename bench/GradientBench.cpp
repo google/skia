@@ -77,7 +77,7 @@ static const struct {
     int         fRepeat;
 } gGrads[] = {
     { MakeLinear,   "linear",  15 },
-    { MakeRadial,   "radial",  10 },
+    { MakeRadial,   "radial1", 10 },
     { MakeSweep,    "sweep",    1 },
     { Make2Radial,  "radial2",  5 },
 };
