@@ -469,7 +469,7 @@ bool SkXfermode::asCoeff(Coeff* src, Coeff* dst) {
 }
 
 bool SkXfermode::asMode(Mode* mode) {
-    return IsMode(this, mode);
+    return false;
 }
 
 SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) {
@@ -706,28 +706,31 @@ void SkProcXfermode::flatten(SkFlattenableWriteBuffer& buffer) {
     buffer.writeFunctionPtr((void*)fProc);
 }
 
-bool SkProcXfermode::asMode(SkXfermode::Mode* mode) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gProcCoeffs); i++) {
-        if (gProcCoeffs[i].fProc == fProc) {
-            if (mode) {
-                *mode = static_cast<Mode>(i);
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 class SkProcCoeffXfermode : public SkProcXfermode {
 public:
-    SkProcCoeffXfermode(SkXfermodeProc proc, Coeff sc, Coeff dc)
-            : INHERITED(proc), fSrcCoeff(sc), fDstCoeff(dc) {
+    SkProcCoeffXfermode(const ProcCoeff& rec, Mode mode)
+            : INHERITED(rec.fProc) {
+        fMode = mode;
+        // these may be valid, or may be CANNOT_USE_COEFF
+        fSrcCoeff = rec.fSC;
+        fDstCoeff = rec.fDC;
     }
-    
+
+    virtual bool asMode(Mode* mode) {
+        if (mode) {
+            *mode = fMode;
+        }
+        return true;
+    }
+
     virtual bool asCoeff(Coeff* sc, Coeff* dc) {
+        if (CANNOT_USE_COEFF == fSrcCoeff) {
+            return false;
+        }
+
         if (sc) {
             *sc = fSrcCoeff;
         }
@@ -740,6 +743,7 @@ public:
     virtual Factory getFactory() { return CreateProc; }
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
+        buffer.write32(fMode);
         buffer.write32(fSrcCoeff);
         buffer.write32(fDstCoeff);
     }
@@ -747,11 +751,13 @@ public:
 protected:
     SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer)
             : INHERITED(buffer) {
+        fMode = (SkXfermode::Mode)buffer.readU32();
         fSrcCoeff = (Coeff)buffer.readU32();
         fDstCoeff = (Coeff)buffer.readU32();
     }
     
 private:
+    Mode    fMode;
     Coeff   fSrcCoeff, fDstCoeff;
     
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
@@ -764,8 +770,7 @@ private:
 
 class SkClearXfermode : public SkProcCoeffXfermode {
 public:
-    SkClearXfermode() : SkProcCoeffXfermode(clear_modeproc,
-                                            kZero_Coeff, kZero_Coeff) {}
+    SkClearXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kClear_Mode) {}
 
     virtual void xfer32(SK_RESTRICT SkPMColor dst[],
                         const SK_RESTRICT SkPMColor[], int count,
@@ -819,8 +824,7 @@ private:
 
 class SkSrcXfermode : public SkProcCoeffXfermode {
 public:
-    SkSrcXfermode() : SkProcCoeffXfermode(src_modeproc,
-                                          kOne_Coeff, kZero_Coeff) {}
+    SkSrcXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kSrc_Mode) {}
 
     virtual void xfer32(SK_RESTRICT SkPMColor dst[],
                         const SK_RESTRICT SkPMColor src[], int count,
@@ -878,8 +882,7 @@ private:
 
 class SkDstInXfermode : public SkProcCoeffXfermode {
 public:
-    SkDstInXfermode() : SkProcCoeffXfermode(dstin_modeproc,
-                                            kZero_Coeff, kSA_Coeff) {}
+    SkDstInXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstIn_Mode) {}
     
     virtual void xfer32(SK_RESTRICT SkPMColor dst[],
                         const SK_RESTRICT SkPMColor src[], int count,
@@ -915,8 +918,7 @@ private:
 
 class SkDstOutXfermode : public SkProcCoeffXfermode {
 public:
-    SkDstOutXfermode() : SkProcCoeffXfermode(dstout_modeproc,
-                                             kZero_Coeff, kISA_Coeff) {}
+    SkDstOutXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstOut_Mode) {}
     
     virtual void xfer32(SK_RESTRICT SkPMColor dst[],
                         const SK_RESTRICT SkPMColor src[], int count,
@@ -957,29 +959,21 @@ SkXfermode* SkXfermode::Create(Mode mode) {
     SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
     SkASSERT((unsigned)mode < kModeCount);
 
+    const ProcCoeff& rec = gProcCoeffs[mode];
+
     switch (mode) {
         case kClear_Mode:
-            return SkNEW(SkClearXfermode);
+            return SkNEW_ARGS(SkClearXfermode, (rec));
         case kSrc_Mode:
-            return SkNEW(SkSrcXfermode);
+            return SkNEW_ARGS(SkSrcXfermode, (rec));
         case kSrcOver_Mode:
             return NULL;
         case kDstIn_Mode:
-            return SkNEW(SkDstInXfermode);
+            return SkNEW_ARGS(SkDstInXfermode, (rec));
         case kDstOut_Mode:
-            return SkNEW(SkDstOutXfermode);
-        // use the table 
-        default: {
-            const ProcCoeff& rec = gProcCoeffs[mode];
-            if ((unsigned)rec.fSC < SkXfermode::kCoeffCount &&
-                    (unsigned)rec.fDC < SkXfermode::kCoeffCount) {
-                return SkNEW_ARGS(SkProcCoeffXfermode, (rec.fProc,
-                                                        rec.fSC,
-                                                        rec.fDC));
-            } else {
-                return SkNEW_ARGS(SkProcXfermode, (rec.fProc));
-            }
-        }
+            return SkNEW_ARGS(SkDstOutXfermode, (rec));
+        default:
+            return SkNEW_ARGS(SkProcCoeffXfermode, (rec, mode));
     }
 }
 
@@ -990,25 +984,7 @@ bool SkXfermode::IsMode(SkXfermode* xfer, Mode* mode) {
         }
         return true;
     }
-
-    SkXfermode::Coeff sc, dc;
-    if (xfer->asCoeff(&sc, &dc)) {
-        SkASSERT((unsigned)sc < (unsigned)SkXfermode::kCoeffCount);
-        SkASSERT((unsigned)dc < (unsigned)SkXfermode::kCoeffCount);
-        
-        const ProcCoeff* rec = gProcCoeffs;
-        for (size_t i = 0; i < SK_ARRAY_COUNT(gProcCoeffs); i++) {
-            if (rec[i].fSC == sc && rec[i].fDC == dc) {
-                if (mode) {
-                    *mode = static_cast<Mode>(i);
-                }
-                return true;
-            }
-        }
-    }
-
-    // no coefficients, or not found in our table
-    return false;
+    return xfer->asMode(mode);
 }
 
 SkXfermodeProc SkXfermode::GetProc(Mode mode) {
