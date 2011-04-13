@@ -1096,7 +1096,10 @@ public:
             else if (proc == mirror_tileproc)
             {
                 do {
-                    SkFixed dist = SkFixedSqrt(SkFixedSquare(fx) + SkFixedSquare(fy));
+                    SkFixed magnitudeSquared = SkFixedSquare(fx) + SkFixedSquare(fy);
+                    if (magnitudeSquared < 0) // Overflow.
+                        magnitudeSquared = SK_FixedMax;
+                    SkFixed dist = SkFixedSqrt(magnitudeSquared);
                     unsigned fi = mirror_tileproc(dist);
                     SkASSERT(fi <= 0xFFFF);
                     *dstC++ = cache[fi >> (16 - kCache32Bits)];
@@ -1108,7 +1111,10 @@ public:
             {
                 SkASSERT(proc == repeat_tileproc);
                 do {
-                    SkFixed dist = SkFixedSqrt(SkFixedSquare(fx) + SkFixedSquare(fy));
+                    SkFixed magnitudeSquared = SkFixedSquare(fx) + SkFixedSquare(fy);
+                    if (magnitudeSquared < 0) // Overflow.
+                        magnitudeSquared = SK_FixedMax;
+                    SkFixed dist = SkFixedSqrt(magnitudeSquared);
                     unsigned fi = repeat_tileproc(dist);
                     SkASSERT(fi <= 0xFFFF);
                     *dstC++ = cache[fi >> (16 - kCache32Bits)];
