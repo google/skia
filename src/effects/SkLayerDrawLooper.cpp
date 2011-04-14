@@ -5,7 +5,8 @@
 #include "SkUnPreMultiply.h"
 
 SkLayerDrawLooper::LayerInfo::LayerInfo() {
-    fPaintBits = 0;                     // ignore out paint
+    fFlagsMask = 0;                     // ignore our paint flags
+    fPaintBits = 0;                     // ignore our paint fields
     fColorMode = SkXfermode::kDst_Mode; // ignore our color
     fOffset.set(0, 0);
     fPostTranslate = false;
@@ -36,11 +37,11 @@ SkPaint* SkLayerDrawLooper::addLayer(const LayerInfo& info) {
     return &rec->fPaint;
 }
 
-SkPaint* SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy) {
+void SkLayerDrawLooper::addLayer(SkScalar dx, SkScalar dy) {
     LayerInfo info;
 
     info.fOffset.set(dx, dy);
-    return this->addLayer(info);
+    (void)this->addLayer(info);
 }
 
 void SkLayerDrawLooper::init(SkCanvas* canvas) {
@@ -63,17 +64,25 @@ static SkColor xferColor(SkColor src, SkColor dst, SkXfermode::Mode mode) {
     }
 }
 
-void SkLayerDrawLooper::ApplyBits(SkPaint* dst, const SkPaint& src,
-                                  BitFlags bits, SkXfermode::Mode colorMode) {
-    dst->setColor(xferColor(src.getColor(), dst->getColor(), colorMode));
+void SkLayerDrawLooper::ApplyInfo(SkPaint* dst, const SkPaint& src,
+                                  const LayerInfo& info) {
+
+    uint32_t mask = info.fFlagsMask;
+    dst->setFlags((dst->getFlags() & ~mask) | (src.getFlags() & mask));
+
+    dst->setColor(xferColor(src.getColor(), dst->getColor(), info.fColorMode));
+
+    BitFlags bits = info.fPaintBits;
 
     if (0 == bits) {
         return;
     }
     if (kEntirePaint_Bits == bits) {
-        // we've already compute the color, so save it from the assignment
+        // we've already computed these, so save it from the assignment
+        uint32_t f = dst->getFlags();
         SkColor c = dst->getColor();
         *dst = src;
+        dst->setFlags(f);
         dst->setColor(c);
         return;
     }
@@ -133,8 +142,7 @@ bool SkLayerDrawLooper::next(SkCanvas* canvas, SkPaint* paint) {
         return false;
     }
 
-    ApplyBits(paint, fCurrRec->fPaint, fCurrRec->fInfo.fPaintBits,
-              fCurrRec->fInfo.fColorMode);
+    ApplyInfo(paint, fCurrRec->fPaint, fCurrRec->fInfo);
 
     canvas->save(SkCanvas::kMatrix_SaveFlag);
     if (fCurrRec->fInfo.fPostTranslate) {

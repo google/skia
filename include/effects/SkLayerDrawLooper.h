@@ -33,6 +33,12 @@ public:
     /**
      *  Info for how to apply the layer's paint and offset.
      *
+     *  fFlagsMask selects which flags in the layer's paint should be applied.
+     *      result = (draw-flags & ~fFlagsMask) | (layer-flags & fFlagsMask)
+     *  In the extreme:
+     *      If fFlagsMask is 0, we ignore all of the layer's flags
+     *      If fFlagsMask is -1, we use all of the layer's flags
+     *
      *  fColorMode controls how we compute the final color for the layer:
      *      The layer's paint's color is treated as the SRC
      *      The draw's paint's color is treated as the DST
@@ -42,6 +48,7 @@ public:
      *      kDst_Mode: to just keep the draw's color, ignoring the layer's
      */
     struct LayerInfo {
+        uint32_t            fFlagsMask; // SkPaint::Flags
         BitFlags            fPaintBits;
         SkXfermode::Mode    fColorMode;
         SkVector            fOffset;
@@ -60,29 +67,19 @@ public:
     /**
      *  Call for each layer you want to add (from top to bottom).
      *  This returns a paint you can modify, but that ptr is only valid until
-     *  the next call made to this object.
+     *  the next call made to addLayer().
      */
     SkPaint* addLayer(const LayerInfo&);
 
     /**
-     *  Call for each layer you want to add (from top to bottom).
-     *  This returns a paint you can modify, but that ptr is only valid until
-     *  the next call made to this object.
-     *  The returned paint will be ignored, and only the offset will be applied
-     *
-     *  DEPRECATED: call addLayer(const LayerInfo&)
+     *  This layer will draw with the original paint, ad the specified offset
      */
-    SkPaint* addLayer(SkScalar dx, SkScalar dy);
+    void addLayer(SkScalar dx, SkScalar dy);
     
     /**
-     *  Helper for addLayer() which passes (0, 0) for the offset parameters.
-     *  This layer will not affect the drawing in any way.
-     *
-     *  DEPRECATED: call addLayer(const LayerInfo&)
+     *  This layer will with the original paint and no offset.
      */
-    SkPaint* addLayer() {
-        return this->addLayer(0, 0);
-    }
+    void addLayer() { this->addLayer(0, 0); }
     
     // overrides from SkDrawLooper
     virtual void init(SkCanvas*);
@@ -114,8 +111,7 @@ private:
     // state-machine during the init/next cycle
     Rec* fCurrRec;
 
-    static void ApplyBits(SkPaint* dst, const SkPaint& src, BitFlags,
-                          SkXfermode::Mode);
+    static void ApplyInfo(SkPaint* dst, const SkPaint& src, const LayerInfo&);
 
     class MyRegistrar : public SkFlattenable::Registrar {
     public:

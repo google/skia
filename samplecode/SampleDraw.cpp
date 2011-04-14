@@ -4,6 +4,55 @@
 #include "SkGraphics.h"
 #include "SkRandom.h"
 
+static void test_strokerect(SkCanvas* canvas, const SkRect& r) {
+    SkPaint p;
+    
+    p.setAntiAlias(true);
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeWidth(4);
+    
+    canvas->drawRect(r, p);
+
+    SkPath path;
+    SkRect r2(r);
+    r2.offset(18, 0);
+    path.addRect(r2);
+
+    canvas->drawPath(path, p);
+}
+
+static void test_strokerect(SkCanvas* canvas) {
+    canvas->drawColor(SK_ColorWHITE);
+
+    SkRect r;
+
+    r.set(10, 10, 14, 14);
+    r.offset(0.25, 0.3333);
+    test_strokerect(canvas, r);
+    canvas->translate(0, 20);
+    
+    r.set(10, 10, 14.5f, 14.5f);
+    r.offset(0.25, 0.3333);
+    test_strokerect(canvas, r);
+    canvas->translate(0, 20);
+    
+    r.set(10, 10, 14.5f, 20);
+    r.offset(0.25, 0.3333);
+    test_strokerect(canvas, r);
+    canvas->translate(0, 20);
+    
+    r.set(10, 10, 20, 14.5f);
+    r.offset(0.25, 0.3333);
+    test_strokerect(canvas, r);
+    canvas->translate(0, 20);
+    
+    r.set(10, 10, 20, 20);
+    r.offset(0.25, 0.3333);
+    test_strokerect(canvas, r);
+    canvas->translate(0, 20);
+    
+}
+
 class Draw : public SkRefCnt {
 public:
     Draw() : fFlags(0) {}
@@ -83,7 +132,8 @@ public:
     enum Style {
         kRect_Style,
         kOval_Style,
-        kRRect_Style
+        kRRect_Style,
+        kFrame_Style
     };
 
     RDraw(const SkRect& r, Style s) : fRect(r), fStyle(s) {}
@@ -114,6 +164,15 @@ protected:
                     rx = ry;
                 }
                 canvas->drawRoundRect(fRect, rx, ry, fPaint);
+                break;
+            }
+            case kFrame_Style: {
+                SkPath path;
+                path.addOval(fRect, SkPath::kCW_Direction);
+                SkRect r = fRect;
+                r.inset(fRect.width()/6, 0);
+                path.addOval(r, SkPath::kCCW_Direction);
+                canvas->drawPath(path, fPaint);
                 break;
             }
         }
@@ -158,7 +217,8 @@ public:
         r.set(p0.x(), p0.y(), p1.x(), p1.y());
         r.sort();
 
-        RDraw* d = new RDraw(r, RDraw::kRRect_Style);
+//        RDraw* d = new RDraw(r, RDraw::kRRect_Style);
+        RDraw* d = new RDraw(r, RDraw::kFrame_Style);
         d->setPaint(this->getPaint());
         return d;
     }
@@ -217,6 +277,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
+     //   test_strokerect(canvas);
+     //   return;
 
         for (Draw** iter = fList.begin(); iter < fList.end(); iter++) {
             (*iter)->draw(canvas);
