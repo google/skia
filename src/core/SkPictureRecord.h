@@ -27,6 +27,7 @@ public:
     virtual bool clipRect(const SkRect& rect, SkRegion::Op op);
     virtual bool clipPath(const SkPath& path, SkRegion::Op op);
     virtual bool clipRegion(const SkRegion& region, SkRegion::Op op);
+    virtual void clear(SkColor);
     virtual void drawPaint(const SkPaint& paint);
     virtual void drawPoints(PointMode, size_t count, const SkPoint pts[],
                             const SkPaint&);

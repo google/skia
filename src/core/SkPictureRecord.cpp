@@ -166,6 +166,12 @@ bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
     return this->INHERITED::clipRegion(region, op);
 }
 
+void SkPictureRecord::clear(SkColor color) {
+    addDraw(DRAW_CLEAR);
+    addInt(color);
+    validate();
+}
+
 void SkPictureRecord::drawPaint(const SkPaint& paint) {
     addDraw(DRAW_PAINT);
     addPaint(paint);

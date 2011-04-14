@@ -1194,6 +1194,14 @@ SkDevice* SkCanvas::createDevice(SkBitmap::Config config, int width, int height,
 //  These are the virtual drawing methods
 //////////////////////////////////////////////////////////////////////////////
 
+void SkCanvas::clear(SkColor color) {
+    SkDrawIter  iter(this);
+
+    while (iter.next()) {
+        iter.fDevice->clear(color);
+    }
+}
+
 void SkCanvas::drawPaint(const SkPaint& paint) {
     LOOPER_BEGIN(paint, SkDrawFilter::kPaint_Type)
 
