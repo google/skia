@@ -30,14 +30,18 @@ public:
 
         fLooper = new SkLayerDrawLooper;
 
+        SkLayerDrawLooper::LayerInfo info;
+        info.fFlagsMask = SkPaint::kAntiAlias_Flag;
+        info.fPaintBits = SkLayerDrawLooper::kStyle_Bit | SkLayerDrawLooper::kMaskFilter_Bit;
+        info.fColorMode = SkXfermode::kSrc_Mode;
+        
         for (int i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
-            SkPaint* paint = fLooper->addLayer(gParams[i].fOffset,
-                                               gParams[i].fOffset);
+            info.fOffset.set(gParams[i].fOffset, gParams[i].fOffset);
+            SkPaint* paint = fLooper->addLayer(info);
             paint->setAntiAlias(true);
             paint->setColor(gParams[i].fColor);
             paint->setStyle(gParams[i].fStyle);
             paint->setStrokeWidth(gParams[i].fWidth);
-            paint->setTextSize(SkIntToScalar(72));
             if (gParams[i].fBlur > 0) {
                 SkMaskFilter* mf = SkBlurMaskFilter::Create(SkIntToScalar(gParams[i].fBlur),
                                                             SkBlurMaskFilter::kNormal_BlurStyle);
@@ -69,6 +73,7 @@ protected:
         this->drawBG(canvas);
 
         SkPaint  paint;
+        paint.setTextSize(SkIntToScalar(72));
         paint.setLooper(fLooper);
 
         canvas->drawCircle(SkIntToScalar(50), SkIntToScalar(50),
