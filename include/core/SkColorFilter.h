@@ -23,6 +23,13 @@
 
 class SkColorFilter : public SkFlattenable {
 public:
+    /**
+     *  If the filter can be represented by a source color plus Mode, this
+     *  returns true, and sets (if not NULL) the color and mode appropriately.
+     *  If not, this returns false and ignores the parameters.
+     */
+    virtual bool asColorMode(SkColor* color, SkXfermode::Mode* mode);
+
     /** Called with a scanline of colors, as if there was a shader installed.
         The implementation writes out its filtered version into result[].
         Note: shader and result may be the same buffer.

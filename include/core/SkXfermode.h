@@ -75,6 +75,12 @@ public:
      */
     virtual bool asCoeff(Coeff* src, Coeff* dst);
 
+    /**
+     *  The same as calling xfermode->asCoeff(..), except that this also checks
+     *  if the xfermode is NULL, and if so, treats its as kSrcOver_Mode.
+     */
+    static bool AsCoeff(SkXfermode*, Coeff* src, Coeff* dst);
+    
     /** List of predefined xfermodes.
         The algebra for the modes uses the following symbols:
         Sa, Sc  - source alpha and color
@@ -122,6 +128,12 @@ public:
      */
     virtual bool asMode(Mode* mode);
 
+    /**
+     *  The same as calling xfermode->asMode(mode), except that this also checks
+     *  if the xfermode is NULL, and if so, treats its as kSrcOver_Mode.
+     */
+    static bool AsMode(SkXfermode*, Mode* mode);
+
     /** Return an SkXfermode object for the specified mode.
      */
     static SkXfermode* Create(Mode mode);
@@ -137,13 +149,20 @@ public:
         16bit proc, and this will return NULL.
       */
     static SkXfermodeProc16 GetProc16(Mode mode, SkColor srcColor);
-
+    
     /**
-     *  The same as calling xfermode->asMode(mode), except that this also checks
-     *  if the xfermode is NULL, and if so, treats its as kSrcOver_Mode.
+     *  If the specified mode can be represented by a pair of Coeff, then return
+     *  true and set (if not NULL) the corresponding coeffs. If the mode is
+     *  not representable as a pair of Coeffs, return false and ignore the
+     *  src and dst parameters.
      */
-    static bool IsMode(SkXfermode*, Mode* mode);
+    static bool ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst);
 
+    // DEPRECATED: call AsMode(...)
+    static bool IsMode(SkXfermode* xfer, Mode* mode) {
+        return AsMode(xfer, mode);
+    }
+    
 protected:
     SkXfermode(SkFlattenableReadBuffer& rb) : SkFlattenable(rb) {}
     

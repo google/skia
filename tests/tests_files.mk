@@ -5,6 +5,7 @@ SOURCE := \
     ClipCubicTest.cpp \
     ClipStackTest.cpp \
     ClipperTest.cpp \
+    ColorFilterTest.cpp \
     DequeTest.cpp \
     DrawBitmapRectTest.cpp \
     FillPathTest.cpp \

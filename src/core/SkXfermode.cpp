@@ -977,7 +977,39 @@ SkXfermode* SkXfermode::Create(Mode mode) {
     }
 }
 
-bool SkXfermode::IsMode(SkXfermode* xfer, Mode* mode) {
+SkXfermodeProc SkXfermode::GetProc(Mode mode) {
+    SkXfermodeProc  proc = NULL;
+    if ((unsigned)mode < kModeCount) {
+        proc = gProcCoeffs[mode].fProc;
+    }
+    return proc;
+}
+
+bool SkXfermode::ModeAsCoeff(Mode mode, Coeff* src, Coeff* dst) {
+    SkASSERT(SK_ARRAY_COUNT(gProcCoeffs) == kModeCount);
+    
+    if ((unsigned)mode >= (unsigned)kModeCount) {
+        // illegal mode parameter
+        return false;
+    }
+    
+    const ProcCoeff& rec = gProcCoeffs[mode];
+    
+    if (CANNOT_USE_COEFF == rec.fSC) {
+        return false;
+    }
+    
+    SkASSERT(CANNOT_USE_COEFF != rec.fDC);
+    if (src) {
+        *src = rec.fSC;
+    }
+    if (dst) {
+        *dst = rec.fDC;
+    }
+    return true;
+}
+
+bool SkXfermode::AsMode(SkXfermode* xfer, Mode* mode) {
     if (NULL == xfer) {
         if (mode) {
             *mode = kSrcOver_Mode;
@@ -987,12 +1019,11 @@ bool SkXfermode::IsMode(SkXfermode* xfer, Mode* mode) {
     return xfer->asMode(mode);
 }
 
-SkXfermodeProc SkXfermode::GetProc(Mode mode) {
-    SkXfermodeProc  proc = NULL;
-    if ((unsigned)mode < kModeCount) {
-        proc = gProcCoeffs[mode].fProc;
+bool SkXfermode::AsCoeff(SkXfermode* xfer, Coeff* src, Coeff* dst) {
+    if (NULL == xfer) {
+        return ModeAsCoeff(kSrcOver_Mode, src, dst);
     }
-    return proc;
+    return xfer->asCoeff(src, dst);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
