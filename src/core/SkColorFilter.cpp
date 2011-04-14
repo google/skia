@@ -18,6 +18,10 @@
 #include "SkColorFilter.h"
 #include "SkShader.h"
 
+bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) {
+    return false;
+}
+
 void SkColorFilter::filterSpan16(const uint16_t s[], int count, uint16_t d[])
 {
     SkASSERT(this->getFlags() & SkColorFilter::kHasFilter16_Flag);
