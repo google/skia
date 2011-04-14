@@ -138,7 +138,7 @@ extern void GrGLClearErr();
 #endif
 
 #define GR_GL(X)                 GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
-#define GR_GL_NO_ERR(X)          GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
+#define GR_GL_NO_ERR(X)          GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X);
 
 #define GR_GL_SUPPORT_DESKTOP   (kDesktop_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
 #define GR_GL_SUPPORT_ES1       (kES1_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
