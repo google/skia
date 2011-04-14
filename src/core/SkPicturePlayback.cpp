@@ -589,6 +589,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkMatrix* matrix = getMatrix();
                 canvas.drawBitmapMatrix(bitmap, *matrix, paint);
             } break;
+            case DRAW_CLEAR:
+                canvas.clear(getInt());
+                break;
             case DRAW_DATA: {
                 size_t length = getInt();
                 canvas.drawData(fReader.skip(length), length);

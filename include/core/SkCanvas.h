@@ -391,10 +391,27 @@ public:
     void drawColor(SkColor color,
                    SkXfermode::Mode mode = SkXfermode::kSrcOver_Mode);
 
-    /** Fill the entire canvas' bitmap (restricted to the current clip) with the
-        specified paint.
-        @param paint    The paint used to fill the canvas
-    */
+    /**
+     *  This erases the entire drawing surface to the specified color,
+     *  irrespective of the clip. It does not blend with the previous pixels,
+     *  but always overwrites them.
+     *
+     *  It is roughly equivalent to the following:
+     *      canvas.save();
+     *      canvas.clipRect(hugeRect, kReplace_Op);
+     *      paint.setColor(color);
+     *      paint.setXfermodeMode(kSrc_Mode);
+     *      canvas.drawPaint(paint);
+     *      canvas.restore();
+     *  though it is almost always much more efficient.
+     */
+    virtual void clear(SkColor);
+
+    /**
+     *  Fill the entire canvas' bitmap (restricted to the current clip) with the
+     *  specified paint.
+     *  @param paint    The paint used to fill the canvas
+     */
     virtual void drawPaint(const SkPaint& paint);
 
     enum PointMode {
