@@ -87,7 +87,7 @@ protected:
                                                  int width, int height);
     virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState();
 
-    virtual void onEraseColor(GrColor color);
+    virtual void onClear(GrColor color);
 
     virtual void onForceRenderTargetFlush();
 
@@ -104,8 +104,8 @@ protected:
                                       uint32_t vertexCount,
                                       uint32_t numVertices);
     virtual void flushScissor(const GrIRect* rect);
-    void eraseStencil(uint32_t value, uint32_t mask);
-    virtual void eraseStencilClip(const GrIRect& rect);
+    void clearStencil(uint32_t value, uint32_t mask);
+    virtual void clearStencilClip(const GrIRect& rect);
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);

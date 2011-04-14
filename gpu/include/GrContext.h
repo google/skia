@@ -283,9 +283,9 @@ public:
     // Draws
 
     /**
-     *  Erase the entire render target, ignoring any clips
+     *  Clear the entire render target, ignoring any clips
      */
-    void eraseColor(GrColor color);
+    void clear(GrColor color);
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.

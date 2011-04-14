@@ -65,8 +65,8 @@ bool SkDevice::intersects(const SkIRect& r, SkIRect* sect) const {
     return sect ? sect->intersect(r, bounds) : SkIRect::Intersects(r, bounds);
 }
 
-void SkDevice::eraseColor(SkColor eraseColor) {
-    fBitmap.eraseColor(eraseColor);
+void SkDevice::clear(SkColor color) {
+    fBitmap.eraseColor(color);
 }
 
 void SkDevice::onAccessBitmap(SkBitmap* bitmap) {}
