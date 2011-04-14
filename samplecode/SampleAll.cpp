@@ -437,7 +437,7 @@ protected:
 		SkRect rect = {0, 0, SkIntToScalar(40), SkIntToScalar(40) };
 		SkRect rect2 = {0, 0, SkIntToScalar(65), SkIntToScalar(20) };
 		SkScalar left = 0, top = 0, x = 0, y = 0;
-		int index;
+		size_t index;
 		
 		char ascii[] = "ascii...";
 		size_t asciiLength = sizeof(ascii) - 1;

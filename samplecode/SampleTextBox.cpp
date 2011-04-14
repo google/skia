@@ -76,6 +76,7 @@ protected:
 
 		SkPaint paint;
 		paint.setAntiAlias(true);
+        paint.setLCDRenderText(true);
 		tbox.setText(gText, strlen(gText), paint);
 
 		for (int i = 9; i < 24; i += 2) {

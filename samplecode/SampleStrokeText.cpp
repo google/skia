@@ -23,7 +23,7 @@ static void lettersToBitmap(SkBitmap* dst, const char chars[],
     SkScalar x = 0;
     SkScalar width;
     SkPath p;
-    for (int i = 0; i < strlen(chars); i++) {
+    for (size_t i = 0; i < strlen(chars); i++) {
         original.getTextPath(&chars[i], 1, x, 0, &p);
         path.addPath(p);
         original.getTextWidths(&chars[i], 1, &width);
@@ -69,7 +69,7 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
     SkScalar x = 0;
     SkScalar width;
     SkPath p;
-    for (int i = 0; i < strlen(chars); i++) {
+    for (size_t i = 0; i < strlen(chars); i++) {
         original.getTextPath(&chars[i], 1, x, 0, &p);
         path.addPath(p);
         original.getTextWidths(&chars[i], 1, &width);

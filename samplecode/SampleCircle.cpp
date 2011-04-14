@@ -10,7 +10,7 @@
 // see bug# 1504910
 static void test_circlebounds(SkCanvas* canvas) {
 #ifdef SK_SCALAR_IS_FLOAT
-    SkRect r = { 1.39999998, 1, 21.3999996, 21 };
+    SkRect r = { 1.39999998f, 1, 21.3999996f, 21 };
     SkPath p;
     p.addOval(r);
     SkASSERT(r == p.getBounds());

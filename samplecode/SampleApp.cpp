@@ -579,8 +579,8 @@ void SampleWindow::draw(SkCanvas* canvas) {
         int count = canvas->save();
         canvas->resetMatrix();
         // Ensure the mouse position is on screen.
-        int width = this->width();
-        int height = this->height();
+        int width = SkScalarRound(this->width());
+        int height = SkScalarRound(this->height());
         if (fMouseX >= width) fMouseX = width - 1;
         else if (fMouseX < 0) fMouseX = 0;
         if (fMouseY >= height) fMouseY = height - 1;

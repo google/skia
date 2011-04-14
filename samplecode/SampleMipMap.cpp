@@ -88,7 +88,7 @@ protected:
         
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
         
-        canvas->scale(1.00000001, 0.9999999);
+        canvas->scale(1.00000001f, 0.9999999f);
 
         drawN2(canvas, fBitmap);
 
