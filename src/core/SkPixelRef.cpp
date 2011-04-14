@@ -3,7 +3,18 @@
 #include "SkThread.h"
 
 static SkMutex  gPixelRefMutex;
-static int32_t  gPixelRefGenerationID;
+
+extern int32_t SkNextPixelRefGenerationID() {
+    static int32_t  gPixelRefGenerationID;
+    // do a loop in case our global wraps around, as we never want to
+    // return a 0
+    int32_t genID;
+    do {
+        genID = sk_atomic_inc(&gPixelRefGenerationID) + 1;
+    } while (0 == genID);
+    return genID;
+}
+
 
 SkPixelRef::SkPixelRef(SkMutex* mutex) {
     if (NULL == mutex) {
@@ -53,16 +64,10 @@ void SkPixelRef::unlockPixels() {
 }
 
 uint32_t SkPixelRef::getGenerationID() const {
-    uint32_t genID = fGenerationID;
-    if (0 == genID) {
-        // do a loop in case our global wraps around, as we never want to
-        // return a 0
-        do {
-            genID = sk_atomic_inc(&gPixelRefGenerationID) + 1;
-        } while (0 == genID);
-        fGenerationID = genID;
+    if (0 == fGenerationID) {
+        fGenerationID = SkNextPixelRefGenerationID();
     }
-    return genID;
+    return fGenerationID;
 }
 
 void SkPixelRef::notifyPixelsChanged() {

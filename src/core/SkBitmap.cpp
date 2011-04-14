@@ -27,6 +27,8 @@
 #include "SkPackBits.h"
 #include <new>
 
+extern int32_t SkNextPixelRefGenerationID();
+
 static bool isPos32Bits(const Sk64& value) {
     return !value.isNeg() && value.is32();
 }
@@ -122,6 +124,12 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
             // ignore the values from the memcpy
             fPixels = NULL;
             fColorTable = NULL;
+            // Note that what to for genID is somewhat arbitrary. We have no
+            // way to track changes to raw pixels across multiple SkBitmaps.
+            // Would benefit from an SkRawPixelRef type created by
+            // setPixels.
+            // Just leave the memcpy'ed one but they'll get out of sync
+            // as soon either is modified.
         }
     }
 
@@ -130,18 +138,19 @@ SkBitmap& SkBitmap::operator=(const SkBitmap& src) {
 }
 
 void SkBitmap::swap(SkBitmap& other) {
-    SkTSwap<SkColorTable*>(fColorTable, other.fColorTable);
-    SkTSwap<SkPixelRef*>(fPixelRef, other.fPixelRef);
-    SkTSwap<size_t>(fPixelRefOffset, other.fPixelRefOffset);
-    SkTSwap<int>(fPixelLockCount, other.fPixelLockCount);
-    SkTSwap<MipMap*>(fMipMap, other.fMipMap);
-    SkTSwap<void*>(fPixels, other.fPixels);
-    SkTSwap<uint32_t>(fRowBytes, other.fRowBytes);
-    SkTSwap<uint32_t>(fWidth, other.fWidth);
-    SkTSwap<uint32_t>(fHeight, other.fHeight);
-    SkTSwap<uint8_t>(fConfig, other.fConfig);
-    SkTSwap<uint8_t>(fFlags, other.fFlags);
-    SkTSwap<uint8_t>(fBytesPerPixel, other.fBytesPerPixel);
+    SkTSwap(fColorTable, other.fColorTable);
+    SkTSwap(fPixelRef, other.fPixelRef);
+    SkTSwap(fPixelRefOffset, other.fPixelRefOffset);
+    SkTSwap(fPixelLockCount, other.fPixelLockCount);
+    SkTSwap(fMipMap, other.fMipMap);
+    SkTSwap(fPixels, other.fPixels);
+    SkTSwap(fRawPixelGenerationID, other.fRawPixelGenerationID);
+    SkTSwap(fRowBytes, other.fRowBytes);
+    SkTSwap(fWidth, other.fWidth);
+    SkTSwap(fHeight, other.fHeight);
+    SkTSwap(fConfig, other.fConfig);
+    SkTSwap(fFlags, other.fFlags);
+    SkTSwap(fBytesPerPixel, other.fBytesPerPixel);
 
     SkDEBUGCODE(this->validate();)
 }
@@ -387,12 +396,22 @@ void SkBitmap::freeMipMap() {
 }
 
 uint32_t SkBitmap::getGenerationID() const {
-    return fPixelRef ? fPixelRef->getGenerationID() : 0;
+    if (fPixelRef) {
+        return fPixelRef->getGenerationID();
+    } else {
+        SkASSERT(fPixels || !fRawPixelGenerationID);
+        if (fPixels && !fRawPixelGenerationID) {
+            fRawPixelGenerationID = SkNextPixelRefGenerationID();
+        }
+        return fRawPixelGenerationID;
+    }
 }
 
 void SkBitmap::notifyPixelsChanged() const {
     if (fPixelRef) {
         fPixelRef->notifyPixelsChanged();
+    } else {
+        fRawPixelGenerationID = 0; // will grab next ID in getGenerationID
     }
 }
 
