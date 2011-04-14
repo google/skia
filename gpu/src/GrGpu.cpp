@@ -173,9 +173,9 @@ GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
     return this->onCreateIndexBuffer(size, dynamic);
 }
 
-void GrGpu::eraseColor(GrColor color) {
+void GrGpu::clear(GrColor color) {
     this->handleDirtyContext();
-    this->onEraseColor(color);
+    this->onClear(color);
 }
 
 void GrGpu::forceRenderTargetFlush() {
@@ -423,7 +423,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             AutoInternalDrawGeomRestore aidgr(this);
 
             this->setViewMatrix(GrMatrix::I());
-            this->eraseStencilClip(clipRect);
+            this->clearStencilClip(clipRect);
             this->flushScissor(NULL);
 #if !VISUALIZE_COMPLEX_CLIP
             this->enableState(kNoColorWrites_StateBit);

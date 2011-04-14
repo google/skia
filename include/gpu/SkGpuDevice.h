@@ -75,6 +75,7 @@ public:
 
     // overrides from SkDevice
 
+    virtual void clear(SkColor color);
     virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
     virtual void writePixels(const SkBitmap& bitmap, int x, int y);
 

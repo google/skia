@@ -325,8 +325,11 @@ void GrContext::setClip(const GrIRect& rect) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::eraseColor(GrColor color) {
-    fGpu->eraseColor(color);
+void GrContext::clear(GrColor color) {
+    // gpu flush call is immediate, must flush. 
+    // (could in theory skip draws to current render target.)
+    this->flush();
+    fGpu->clear(color);
 }
 
 void GrContext::drawPaint(const GrPaint& paint) {

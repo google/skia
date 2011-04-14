@@ -235,11 +235,11 @@ public:
     GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
 
     /**
-     * Erase the entire render target, ignoring any clips/scissors.
+     * Clear the entire render target, ignoring any clips/scissors.
      *
      * This is issued to the GPU driver immediately.
      */
-    void eraseColor(GrColor color);
+    void clear(GrColor color);
 
     /**
      * Are 8 bit paletted textures supported.
@@ -498,8 +498,8 @@ protected:
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic) = 0;
 
-    // overridden by API-specific derivated class to perform the erase.
-    virtual void onEraseColor(GrColor color) = 0;
+    // overridden by API-specific derivated class to perform the clear.
+    virtual void onClear(GrColor color) = 0;
 
     // overridden by API-specific derived class to perform the draw call.
     virtual void onDrawIndexed(GrPrimitiveType type,
@@ -539,7 +539,7 @@ protected:
     virtual void flushScissor(const GrIRect* rect) = 0;
 
     // GrGpu subclass removes the clip from the stencil buffer
-    virtual void eraseStencilClip(const GrIRect& rect) = 0;
+    virtual void clearStencilClip(const GrIRect& rect) = 0;
 
 private:
     GrContext*                  fContext; // not reffed (context refs gpu)

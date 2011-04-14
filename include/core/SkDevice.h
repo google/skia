@@ -115,10 +115,15 @@ public:
     */
     const SkBitmap& accessBitmap(bool changePixels);
 
-    /** Helper to erase the entire device to the specified color (including
-        alpha).
-    */
-    void eraseColor(SkColor eraseColor);
+    /** Clears the entire device to the specified color (including alpha).
+     *  Ignores the clip.
+     */
+    virtual void clear(SkColor color);
+
+    /**
+     * Deprecated name for clear.
+     */
+    void eraseColor(SkColor eraseColor) { this->clear(eraseColor); }
 
     /** Called when this device is installed into a Canvas. Balanaced by a call
         to unlockPixels() when the device is removed from a Canvas.

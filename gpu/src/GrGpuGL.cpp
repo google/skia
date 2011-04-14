@@ -1080,7 +1080,7 @@ GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
         if (!(desc.fFlags & kNoStencil_TextureFlag)) {
             GrRenderTarget* rtSave = fCurrDrawState.fRenderTarget;
             fCurrDrawState.fRenderTarget = rt;
-            eraseStencil(0, ~0);
+            this->clearStencil(0, ~0);
             fCurrDrawState.fRenderTarget = rtSave;
         }
     }
@@ -1165,7 +1165,7 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
     }
 }
 
-void GrGpuGL::onEraseColor(GrColor color) {
+void GrGpuGL::onClear(GrColor color) {
     if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
@@ -1183,7 +1183,7 @@ void GrGpuGL::onEraseColor(GrColor color) {
     GR_GL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
-void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
+void GrGpuGL::clearStencil(uint32_t value, uint32_t mask) {
     if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
@@ -1198,7 +1198,7 @@ void GrGpuGL::eraseStencil(uint32_t value, uint32_t mask) {
     fHWDrawState.fStencilSettings.invalidate();
 }
 
-void GrGpuGL::eraseStencilClip(const GrIRect& rect) {
+void GrGpuGL::clearStencilClip(const GrIRect& rect) {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
 #if 0
     GrGLint stencilBitCount = fCurrDrawState.fRenderTarget->stencilBits();
