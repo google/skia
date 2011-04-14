@@ -302,7 +302,7 @@ static HWND create_dummy()
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszMenuName = NULL;
-    wc.lpszClassName = STR_LIT("DummyWindow");
+    wc.lpszClassName = STR_LIT("DummyClass");
 
     if(!RegisterClass(&wc))
     {
@@ -315,8 +315,8 @@ static HWND create_dummy()
 
     AdjustWindowRectEx(&windowRect, style, false, exStyle);
     if(!(dummy = CreateWindowEx(exStyle,
+        STR_LIT("DummyClass"),
         STR_LIT("DummyWindow"),
-        STR_LIT("Dummy Window"),
         WS_CLIPSIBLINGS | WS_CLIPCHILDREN | style,
         0, 0,
         windowRect.right-windowRect.left,
@@ -325,7 +325,7 @@ static HWND create_dummy()
         module,
         NULL)))
     {
-        UnregisterClass(STR_LIT("Dummy Window"), module);
+        UnregisterClass(STR_LIT("DummyClass"), module);
         return NULL;
     }
     ShowWindow(dummy, SW_HIDE);
@@ -336,7 +336,7 @@ static HWND create_dummy()
 void kill_dummy(HWND dummy) {
     DestroyWindow(dummy);
     HMODULE module = GetModuleHandle(NULL);
-    UnregisterClass(STR_LIT("Dummy Window"), module);
+    UnregisterClass(STR_LIT("DummyClass"), module);
 }
 
 // WGL_ARB_pixel_format
