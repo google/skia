@@ -334,7 +334,7 @@ public:
     SkColorTable* getColorTable() const { return fColorTable; }
 
     /** Returns a non-zero, unique value corresponding to the pixels in our
-        pixelref, or 0 if we do not have a pixelref. Each time the pixels are
+        pixelref (or raw pixels set via setPixels). Each time the pixels are
         changed (and notifyPixelsChanged is called), a different generation ID
         will be returned.
     */
@@ -551,6 +551,10 @@ private:
     // or a cache of the returned value from fPixelRef->lockPixels()
     mutable void*       fPixels;
     mutable SkColorTable* fColorTable;    // only meaningful for kIndex8
+    // When there is no pixel ref (setPixels was called) we still need a
+    // gen id for SkDevice implementations that may cache a copy of the
+    // pixels (e.g. as a gpu texture)
+    mutable int         fRawPixelGenerationID;
 
     enum Flags {
         kImageIsOpaque_Flag  = 0x01
