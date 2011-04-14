@@ -27,27 +27,27 @@ static void test_strokerect(SkCanvas* canvas) {
     SkRect r;
 
     r.set(10, 10, 14, 14);
-    r.offset(0.25, 0.3333);
+    r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
     
     r.set(10, 10, 14.5f, 14.5f);
-    r.offset(0.25, 0.3333);
+    r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
     
     r.set(10, 10, 14.5f, 20);
-    r.offset(0.25, 0.3333);
+    r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
     
     r.set(10, 10, 20, 14.5f);
-    r.offset(0.25, 0.3333);
+    r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
     
     r.set(10, 10, 20, 20);
-    r.offset(0.25, 0.3333);
+    r.offset(0.25f, 0.3333f);
     test_strokerect(canvas, r);
     canvas->translate(0, 20);
     

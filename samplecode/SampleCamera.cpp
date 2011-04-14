@@ -30,7 +30,7 @@ public:
                                                            SkShader::kClamp_TileMode,
                                                            SkShader::kClamp_TileMode);
                 
-                SkRect src = { 0, 0, bm.width(), bm.height() };
+                SkRect src = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
                 SkRect dst = { -150, -150, 150, 150 };
                 SkMatrix matrix;
                 matrix.setRectToRect(src, dst, SkMatrix::kFill_ScaleToFit);

@@ -10,7 +10,7 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
     bm->eraseColor(0);
 
     SkCanvas    canvas(*bm);
-    SkScalar s = w < h ? w : h;
+    SkScalar s = SkIntToScalar(w < h ? w : h);
     SkPoint     pts[] = { 0, 0, s, s };
     SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
@@ -122,7 +122,7 @@ protected:
 
         const char text[] = "Shaded Text";
         const int textLen = SK_ARRAY_COUNT(text) - 1;
-        static int pointSize = SkIntToScalar(48);
+        static int pointSize = 48;
 
         int w = pointSize * textLen;
         int h = pointSize;

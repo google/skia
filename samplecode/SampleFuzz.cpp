@@ -31,6 +31,12 @@ static int R(float x) {
   return (int)floor(SkScalarToFloat(gRand.nextUScalar1()) * x);
 }
 
+static float huge() {
+    double d = 1e100;
+    float f = (float)d;
+    return f;
+}
+
 static float make_number() {
   float v;
   int sel;
@@ -38,15 +44,15 @@ static float make_number() {
   if (return_large == true && R(3) == 1) sel = R(6); else  sel = R(4);
   if (return_undef == false && sel == 0) sel = 1;
 
-  if (R(2) == 1) v = R(100); else
+  if (R(2) == 1) v = (float)R(100); else
 
   switch (sel) {
     case 0: break; 
     case 1: v = 0; break;
-    case 2: v = 0.000001; break;
+    case 2: v = 0.000001f; break;
     case 3: v = 10000; break;
     case 4: v = 2000000000; break;
-    case 5: v = 1e100; break;
+    case 5: v = huge(); break;
   }
 
   if (R(4) == 1) v = -v;
@@ -303,8 +309,8 @@ static void do_fuzz(SkCanvas* canvas) {
           case 0: canvas->scale(-1000000000,1); 
                   canvas->scale(-1000000000,1);
                   scval = 1; break;
-          case 1: canvas->scale(-.000000001,1); scval = 2; break;
-          case 2: canvas->scale(-.000000001,1); scval = 0; break;
+          case 1: canvas->scale(-.000000001f,1); scval = 2; break;
+          case 2: canvas->scale(-.000000001f,1); scval = 0; break;
         }
 
       }

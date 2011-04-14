@@ -77,15 +77,14 @@ static void make_bm(SkBitmap* bm)
     draw_sweep(&c, bm->width(), bm->height(), 0);
 }
 
-static void pre_dither(const SkBitmap& bm)
-{
+static void pre_dither(const SkBitmap& bm) {
     SkAutoLockPixels alp(bm);
     
-    for (unsigned y = 0; y < bm.height(); y++) {
+    for (int y = 0; y < bm.height(); y++) {
         DITHER_4444_SCAN(y);
         
         SkPMColor* p = bm.getAddr32(0, y);
-        for (unsigned x = 0; x < bm.width(); x++) {
+        for (int x = 0; x < bm.width(); x++) {
             SkPMColor c = *p;
             
             unsigned a = SkGetPackedA32(c);

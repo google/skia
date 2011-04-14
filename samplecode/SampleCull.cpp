@@ -106,8 +106,8 @@ public:
         SkRandom    rand;
         
         for (int i = 0; i < 50; i++) {
-            int x = nextScalarRange(rand, -fClip.width()*1, fClip.width()*2);
-            int y = nextScalarRange(rand, -fClip.height()*1, fClip.height()*2);
+            SkScalar x = nextScalarRange(rand, -fClip.width()*1, fClip.width()*2);
+            SkScalar y = nextScalarRange(rand, -fClip.height()*1, fClip.height()*2);
             if (i == 0)
                 fPath.moveTo(x, y);
             else

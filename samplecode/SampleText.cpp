@@ -134,12 +134,12 @@ static void test_breakText()
                 SkASSERT(m > mm);
             }
         }
-        nn = n;
+        nn = SkIntToScalar(n);
         mm = m;
     }
 
-    nn = paint.breakText(text, length, width, &mm);
-    SkASSERT(nn == length);
+    int length2 = paint.breakText(text, length, width, &mm);
+    SkASSERT(length2 == length);
     SkASSERT(mm == width);
 }
 

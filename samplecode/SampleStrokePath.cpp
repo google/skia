@@ -171,7 +171,7 @@ protected:
                         mf = SkBlurMaskFilter::Create(radius, gStyle[x - 1]);
                         paint.setMaskFilter(mf)->unref();
                     }
-                    canvas->drawText("Title Bar", 9, x*100, y*30, paint);
+                    canvas->drawText("Title Bar", 9, x*SkIntToScalar(100), y*SkIntToScalar(30), paint);
                     radius *= 0.75f;
                 }
                 

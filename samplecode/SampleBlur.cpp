@@ -94,8 +94,8 @@ protected:
                 } else {
                     paint.setMaskFilter(NULL);
                 }
-                canvas->drawCircle(200 + gRecs[i].fCx*100,
-                                   200 + gRecs[i].fCy*100, 50, paint);
+                canvas->drawCircle(200 + gRecs[i].fCx*100.f,
+                                   200 + gRecs[i].fCy*100.f, 50, paint);
             }
             // draw text
             {

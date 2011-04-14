@@ -135,7 +135,9 @@ bool SkWindow::handleInval(const SkRect* localR)
 }
 
 void SkWindow::forceInvalAll() {
-    fDirtyRgn.setRect(0, 0, this->width(), this->height());
+    fDirtyRgn.setRect(0, 0,
+                      SkScalarCeil(this->width()),
+                      SkScalarCeil(this->height()));
 }
 
 #if defined(SK_BUILD_FOR_WINCE) && defined(USE_GX_SCREEN)

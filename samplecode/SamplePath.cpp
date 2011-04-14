@@ -21,10 +21,10 @@
 // http://code.google.com/p/skia/issues/detail?id=32
 static void test_cubic() {
     SkPoint src[4] = {
-        { 556.25000, 523.03003 },
-        { 556.23999, 522.96002 },
-        { 556.21997, 522.89001 },
-        { 556.21997, 522.82001 }
+        { 556.25000f, 523.03003f },
+        { 556.23999f, 522.96002f },
+        { 556.21997f, 522.89001f },
+        { 556.21997f, 522.82001f }
     };
     SkPoint dst[11];
     dst[10].set(42, -42);   // one past the end, that we don't clobber these
