@@ -13,6 +13,10 @@
 #include "SkPictureFlat.h"
 #include "SkShape.h"
 
+#ifdef ANDROID
+#include "SkThread.h"
+#endif
+
 class SkPictureRecord;
 class SkStream;
 class SkWStream;
@@ -172,6 +176,9 @@ private:
     SkRefCntPlayback fRCPlayback;
     SkTypefacePlayback fTFPlayback;
     SkFactoryPlayback*   fFactoryPlayback;
+#ifdef ANDROID
+    SkMutex fDrawMutex;
+#endif
 };
 
 #endif

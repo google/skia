@@ -39,10 +39,7 @@
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
 #include FT_SYNTHESIS_H
 #include FT_XFREE86_H
-
-#if defined(SK_SUPPORT_LCDTEXT) || true
 #include FT_LCD_FILTER_H
-#endif
 
 #ifdef   FT_ADVANCES_H
 #include FT_ADVANCES_H
