@@ -21,7 +21,7 @@
 #include "SkMaskFilter.h"
 #include "SkScalar.h"
 
-class SkBlurMaskFilter {
+class SK_API SkBlurMaskFilter {
 public:
     enum BlurStyle {
         kNormal_BlurStyle,  //!< fuzzy inside and outside
