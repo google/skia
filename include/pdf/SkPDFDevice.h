@@ -71,6 +71,8 @@ public:
 
     virtual int height() const { return fHeight; };
 
+    virtual void clear(SkColor color);
+
     /** Called with the correct matrix and clip before this device is drawn
         to using those settings. If your subclass overrides this, be sure to
         call through to the base class as well.
@@ -175,6 +177,8 @@ private:
 
     SkDynamicMemoryWStream fContent;
 
+    void init();
+    void cleanUp();
     void updateGSFromPaint(const SkPaint& newPaint, bool forText);
     void updateFont(const SkPaint& paint, uint16_t glyphID);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
@@ -182,6 +186,8 @@ private:
     void pushGS();
     void popGS();
     void setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX);
+    void internalDrawPaint(const SkPaint& paint);
+    void internalDrawRect(const SkRect& r, const SkPaint& paint);
     void internalDrawBitmap(const SkMatrix& matrix, const SkBitmap& bitmap,
                             const SkIRect* srcRect, const SkPaint& paint);
 
