@@ -19,6 +19,7 @@
 
 #include "SkWindow.h"
 #include <X11/Xlib.h>
+#include <GL/glx.h>
 
 class SkBitmap;
 class SkEvent;
@@ -28,6 +29,8 @@ struct SkUnixWindow {
   Window fWin;
   size_t fOSWin;
   GC fGc;
+  GLXContext fGLContext;
+  bool fGLCreated;
 };
 
 class SkOSWindow : public SkWindow {
@@ -38,7 +41,8 @@ public:
     void* getHWND() const { return (void*)fUnixWindow.fWin; }
     void* getDisplay() const { return (void*)fUnixWindow.fDisplay; }
     void* getUnixWindow() const { return (void*)&fUnixWindow; }
-    void setUnixWindow(Display*, Window, size_t, GC);
+    void loop();
+    void post_linuxevent();
     bool attachGL();
     void detachGL();
     void presentGL();
@@ -58,8 +62,15 @@ protected:
 
 private:
     SkUnixWindow  fUnixWindow;
+    bool fGLAttached;
+    bool fRestart;
+
+    // Needed for GL
+    XVisualInfo* fVi;
 
     void    doPaint();
+    void    restartLoop();
+    void    mapWindowAndWait();
 
     typedef SkWindow INHERITED;
 };

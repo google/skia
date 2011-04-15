@@ -997,6 +997,8 @@
         '../gpu/src/mac/GrGLDefaultInterface_mac.cpp',
 
         '../gpu/src/win/GrGLDefaultInterface_win.cpp',
+
+        '../gpu/src/unix/GrGLDefaultInterface_unix.cpp',
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',
@@ -1005,6 +1007,9 @@
         [ 'OS == "linux"', {
           'defines': [
               'GR_LINUX_BUILD=1',
+          ],
+          'sources!': [
+            '../gpu/src/GrGLDefaultInterface_none.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -1043,6 +1048,11 @@
         [ 'OS != "mac"', {
           'sources!': [
             '../gpu/src/mac/GrGLDefaultInterface_mac.cpp',
+          ],
+        }],
+        [ 'OS != "linux"', {
+          'sources!': [
+            '../gpu/src/unix/GrGLDefaultInterface_unix.cpp',
           ],
         }],
       ],

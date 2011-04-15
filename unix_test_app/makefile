@@ -17,7 +17,7 @@ VPATH = libs:../src/ports:../samplecode:../src/core:../src/utils/unix
 #generate debugging info
 CFLAGS = -g
 
-SRC_LIST := main.cpp SkOSWindow_Unix.cpp SkXMLParser_empty.cpp SkDebug.cpp
+SRC_LIST := main.cpp SkOSWindow_Unix.cpp SkXMLParser_empty.cpp SkDebug.cpp ../gpu/src/unix/GrGLDefaultInterface_unix.cpp
 
 #views files
 include ../src/views/views_files.mk
