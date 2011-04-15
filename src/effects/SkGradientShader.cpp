@@ -27,6 +27,24 @@
     #define USE_DITHER_32BIT_GRADIENT
 #endif
 
+static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
+                               int count) {
+    if (count > 0) {
+        if (v0 == v1) {
+            sk_memset32(dst, v0, count);
+        } else {
+            int pairs = count >> 1;
+            for (int i = 0; i < pairs; i++) {
+                *dst++ = v0;
+                *dst++ = v1;
+            }
+            if (count & 1) {
+                *dst = v0;
+            }
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 typedef SkFixed (*TileProc)(SkFixed);
@@ -794,6 +812,16 @@ static inline bool no_need_for_clamp(int fx, int dx, int count) {
     return (unsigned)((fx | (fx + (count - 1) * dx)) >> 8) <= 0xFF;
 }
 
+#include "SkClampRange.h"
+
+#define NO_CHECK_ITER               \
+    fi = fx >> 8;                   \
+    SkASSERT(fi <= 0xFF);           \
+    fx += dx;                       \
+    *dstC++ = cache[toggle + fi];   \
+    toggle ^= TOGGLE_MASK
+
+
 void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     SkASSERT(count > 0);
 
@@ -830,6 +858,7 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
             // TODO: dither version
             sk_memset32(dstC, cache[fi >> (16 - kCache32Bits)], count);
         } else if (proc == clamp_tileproc) {
+#if 0
             do {
                 unsigned fi = SkClampMax(fx >> 8, 0xFF);
                 SkASSERT(fi <= 0xFF);
@@ -837,6 +866,39 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
                 *dstC++ = cache[toggle + fi];
                 toggle ^= TOGGLE_MASK;
             } while (--count != 0);
+#else
+            SkClampRange range;
+            range.init(fx, dx, count, 0, 0xFF);
+
+            if ((count = range.fCount0) > 0) {
+                sk_memset32_dither(dstC,
+                                   cache[toggle + range.fV0],
+                                   cache[(toggle ^ TOGGLE_MASK) + range.fV0],
+                                   count);
+                dstC += count;
+            }
+            if ((count = range.fCount1) > 0) {
+                unsigned fi;
+                int i, unroll = count >> 3;
+                for (i = 0; i < unroll; i++) {
+                    NO_CHECK_ITER;  NO_CHECK_ITER;
+                    NO_CHECK_ITER;  NO_CHECK_ITER;
+                    NO_CHECK_ITER;  NO_CHECK_ITER;
+                    NO_CHECK_ITER;  NO_CHECK_ITER;
+                }
+                if ((count &= 7) > 0) {
+                    do {
+                        NO_CHECK_ITER;
+                    } while (--count != 0);
+                }
+            }
+            if ((count = range.fCount2) > 0) {
+                sk_memset32_dither(dstC,
+                                   cache[toggle + range.fV1],
+                                   cache[(toggle ^ TOGGLE_MASK) + range.fV1],
+                                   count);
+            }
+#endif
         } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_8bits(fx >> 8);
@@ -911,6 +973,14 @@ static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
     }
 }
 
+#define NO_CHECK_ITER_16                \
+    fi = fx >> kCache16Shift;           \
+    SkASSERT(fi <= kCache16Mask);       \
+    fx += dx;                           \
+    *dstC++ = cache[toggle + fi];       \
+    toggle ^= TOGGLE_MASK
+
+
 void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
     SkASSERT(count > 0);
 
@@ -919,6 +989,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
     TileProc            proc = fTileProc;
     const uint16_t*     cache = this->getCache16();
     int                 toggle = ((x ^ y) & 1) << kCache16Bits;
+    const int           TOGGLE_MASK = (1 << kCache32Bits);
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
@@ -938,22 +1009,57 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
             // we're a vertical gradient, so no change in a span
             unsigned fi = proc(fx) >> kCache16Shift;
             SkASSERT(fi <= kCache16Mask);
-            dither_memset16(dstC, cache[toggle + fi], cache[(toggle ^ (1 << kCache16Bits)) + fi], count);
+            dither_memset16(dstC, cache[toggle + fi],
+                            cache[(toggle ^ TOGGLE_MASK) + fi], count);
         } else if (proc == clamp_tileproc) {
+#if 0
             do {
                 unsigned fi = SkClampMax(fx >> kCache16Shift, kCache16Mask);
                 SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
-                toggle ^= (1 << kCache16Bits);
+                toggle ^= TOGGLE_MASK;
             } while (--count != 0);
+#else
+            SkClampRange range;
+            range.init(fx, dx, count, 0, kCache16Mask);
+
+            if ((count = range.fCount0) > 0) {
+                dither_memset16(dstC,
+                                cache[toggle + range.fV0],
+                                cache[(toggle ^ TOGGLE_MASK) + range.fV0],
+                                count);
+                dstC += count;
+            }
+            if ((count = range.fCount1) > 0) {
+                unsigned fi;
+                int i, unroll = count >> 3;
+                for (i = 0; i < unroll; i++) {
+                    NO_CHECK_ITER_16;  NO_CHECK_ITER_16;
+                    NO_CHECK_ITER_16;  NO_CHECK_ITER_16;
+                    NO_CHECK_ITER_16;  NO_CHECK_ITER_16;
+                    NO_CHECK_ITER_16;  NO_CHECK_ITER_16;
+                }
+                if ((count &= 7) > 0) {
+                    do {
+                        NO_CHECK_ITER_16;
+                    } while (--count != 0);
+                }
+            }
+            if ((count = range.fCount2) > 0) {
+                dither_memset16(dstC,
+                                cache[toggle + range.fV1],
+                                cache[(toggle ^ TOGGLE_MASK) + range.fV1],
+                                count);
+            }
+#endif
         } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_bits(fx >> kCache16Shift, kCache16Bits);
                 SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
-                toggle ^= (1 << kCache16Bits);
+                toggle ^= TOGGLE_MASK;
             } while (--count != 0);
         } else {
             SkASSERT(proc == repeat_tileproc);
@@ -962,7 +1068,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
                 SkASSERT(fi <= kCache16Mask);
                 fx += dx;
                 *dstC++ = cache[toggle + fi];
-                toggle ^= (1 << kCache16Bits);
+                toggle ^= TOGGLE_MASK;
             } while (--count != 0);
         }
     } else {
@@ -975,7 +1081,7 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
 
             int index = fi >> kCache16Shift;
             *dstC++ = cache[toggle + index];
-            toggle ^= (1 << kCache16Bits);
+            toggle ^= TOGGLE_MASK;
 
             dstX += SK_Scalar1;
         } while (--count != 0);
