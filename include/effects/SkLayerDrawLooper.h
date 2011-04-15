@@ -6,7 +6,7 @@
 
 struct SkPoint;
 
-class SkLayerDrawLooper : public SkDrawLooper {
+class SK_API SkLayerDrawLooper : public SkDrawLooper {
 public:
             SkLayerDrawLooper();
     virtual ~SkLayerDrawLooper();
@@ -47,7 +47,7 @@ public:
      *      kSrc_Mode: to use the layer's color, ignoring the draw's
      *      kDst_Mode: to just keep the draw's color, ignoring the layer's
      */
-    struct LayerInfo {
+    struct SK_API LayerInfo {
         uint32_t            fFlagsMask; // SkPaint::Flags
         BitFlags            fPaintBits;
         SkXfermode::Mode    fColorMode;

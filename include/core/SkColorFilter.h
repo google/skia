@@ -21,7 +21,7 @@
 #include "SkFlattenable.h"
 #include "SkXfermode.h"
 
-class SkColorFilter : public SkFlattenable {
+class SK_API SkColorFilter : public SkFlattenable {
 public:
     /**
      *  If the filter can be represented by a source color plus Mode, this
