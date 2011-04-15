@@ -102,6 +102,7 @@ void SkClampRange::init(SkFixed fx, SkFixed dx, int count, int v0, int v1) {
 ////////////////////////////
 #include "SkRandom.h"
 
+#ifdef SK_DEBUG
 static bool in_range(int x, int target, int slop) {
     SkASSERT(slop >= 0);
     return SkAbs32(x - target) <= slop;
@@ -171,4 +172,7 @@ void SkClampRange::UnitTest() {
         test_range(fx, dx, count);
     }
 }
+#else
+void SkClampRange::UnitTest() {}
+#endif
 
