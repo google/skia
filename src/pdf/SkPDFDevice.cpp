@@ -21,13 +21,13 @@
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkPDFImage.h"
-#include "SkPDFGraphicState.h"
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
-#include "SkPDFTypes.h"
+#include "SkPDFGraphicState.h"
+#include "SkPDFImage.h"
 #include "SkPDFShader.h"
 #include "SkPDFStream.h"
+#include "SkPDFTypes.h"
 #include "SkPDFUtils.h"
 #include "SkRect.h"
 #include "SkString.h"
@@ -135,6 +135,21 @@ SkPDFDevice::SkPDFDevice(int width, int height,
       fWidth(width),
       fHeight(height),
       fGraphicStackIndex(0) {
+    // Skia generally uses the top left as the origin but PDF natively has the
+    // origin at the bottom left. This matrix corrects for that.  When layering,
+    // we specify an inverse correction to cancel this out.
+    fInitialTransform.setTranslate(0, height);
+    fInitialTransform.preScale(1, -1);
+    fInitialTransform.preConcat(initialTransform);
+
+    this->init();
+}
+
+SkPDFDevice::~SkPDFDevice() {
+    this->cleanUp();
+}
+
+void SkPDFDevice::init() {
     fGraphicStack[0].fColor = SK_ColorBLACK;
     fGraphicStack[0].fTextSize = SK_ScalarNaN;  // This has no default value.
     fGraphicStack[0].fTextScaleX = SK_Scalar1;
@@ -142,25 +157,39 @@ SkPDFDevice::SkPDFDevice(int width, int height,
     fGraphicStack[0].fFont = NULL;
     fGraphicStack[0].fShader = NULL;
     fGraphicStack[0].fGraphicState = NULL;
-    fGraphicStack[0].fClip.setRect(0,0, width, height);
+    fGraphicStack[0].fClip.setRect(0,0, fWidth, fHeight);
     fGraphicStack[0].fTransform.reset();
+    fGraphicStackIndex = 0;
+    fResourceDict = NULL;
+    fContent.reset();
 
-    // Skia generally uses the top left as the origin but PDF natively has the
-    // origin at the bottom left. This matrix corrects for that.  When layering,
-    // we specify an inverse correction to cancel this out.
-    fInitialTransform.setTranslate(0, height);
-    fInitialTransform.preScale(1, -1);
-    fInitialTransform.preConcat(initialTransform);
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
         SkPDFUtils::AppendTransform(fInitialTransform, &fContent);
     }
 }
 
-SkPDFDevice::~SkPDFDevice() {
+void SkPDFDevice::cleanUp() {
     fGraphicStateResources.unrefAll();
     fXObjectResources.unrefAll();
     fFontResources.unrefAll();
     fShaderResources.unrefAll();
+}
+
+void SkPDFDevice::clear(SkColor color) {
+    SkMatrix curTransform = fGraphicStack[fGraphicStackIndex].fTransform;
+    SkRegion curClip = fGraphicStack[fGraphicStackIndex].fClip;
+
+    this->cleanUp();
+    this->init();
+
+    SkPaint paint;
+    paint.setColor(color);
+    paint.setStyle(SkPaint::kFill_Style);
+    updateGSFromPaint(paint, false);
+    internalDrawPaint(paint);
+
+    SkClipStack clipStack;
+    setMatrixClip(curTransform, curClip, clipStack);
 }
 
 void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
@@ -180,12 +209,14 @@ void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
     if (region != fGraphicStack[fGraphicStackIndex].fClip) {
         while (fGraphicStackIndex > 0)
             popGS();
-        pushGS();
 
-        SkPath clipPath;
-        if (region.getBoundaryPath(&clipPath)) {
+        if (region != fGraphicStack[fGraphicStackIndex].fClip) {
+            pushGS();
+
+            SkPath clipPath;
+            SkAssertResult(region.getBoundaryPath(&clipPath));
+
             SkPDFUtils::EmitPath(clipPath, &fContent);
-
             SkPath::FillType clipFill = clipPath.getFillType();
             NOT_IMPLEMENTED(clipFill == SkPath::kInverseEvenOdd_FillType,
                             false);
@@ -195,9 +226,9 @@ void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
                 fContent.writeText("W* n ");
             else
                 fContent.writeText("W n ");
-        }
 
-        fGraphicStack[fGraphicStackIndex].fClip = region;
+            fGraphicStack[fGraphicStackIndex].fClip = region;
+        }
     }
     setTransform(matrix);
 }
@@ -207,18 +238,24 @@ void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
         return;
     }
 
-    SkMatrix identityTransform;
-    identityTransform.reset();
-    SkMatrix curTransform = setTransform(identityTransform);
-
     SkPaint newPaint = paint;
     newPaint.setStyle(SkPaint::kFill_Style);
     updateGSFromPaint(newPaint, false);
 
-    SkRect all = SkRect::MakeWH(SkIntToScalar(this->width()),
-                                SkIntToScalar(this->height()));
-    drawRect(d, all, newPaint);
-    setTransform(curTransform);
+    internalDrawPaint(newPaint);
+}
+
+void SkPDFDevice::internalDrawPaint(const SkPaint& paint) {
+    SkRect bbox = SkRect::MakeWH(SkIntToScalar(this->width()),
+                                 SkIntToScalar(this->height()));
+    SkMatrix totalTransform = fInitialTransform;
+    totalTransform.preConcat(fGraphicStack[fGraphicStackIndex].fTransform);
+    SkMatrix inverse;
+    inverse.reset();
+    totalTransform.invert(&inverse);
+    inverse.mapRect(&bbox);
+
+    internalDrawRect(bbox, paint);
 }
 
 void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
@@ -293,6 +330,10 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
     }
     updateGSFromPaint(paint, false);
 
+    internalDrawRect(r, paint);
+}
+
+void SkPDFDevice::internalDrawRect(const SkRect& r, const SkPaint& paint) {
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
     SkScalar bottom = r.fBottom < r.fTop ? r.fBottom : r.fTop;
     SkPDFUtils::AppendRectangle(r.fLeft, bottom, r.width(), r.height(),
