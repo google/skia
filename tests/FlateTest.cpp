@@ -90,7 +90,7 @@ static void TestFlate(skiatest::Reporter* reporter, SkMemoryStream* testStream,
 
 static void TestFlateCompression(skiatest::Reporter* reporter) {
     TestFlate(reporter, NULL, 0);
-#ifdef SK_ZLIB_INCLUDE
+#if defined(SK_ZLIB_INCLUDE) && !defined(SK_DEBUG)
     REPORTER_ASSERT(reporter, SkFlate::HaveFlate());
 
     SkMemoryStream memStream;

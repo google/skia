@@ -17,6 +17,7 @@
 #include "SkPDFDevice.h"
 
 #include "SkColor.h"
+#include "SkDraw.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -165,6 +166,16 @@ SkPDFDevice::~SkPDFDevice() {
 void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
                                 const SkRegion& region,
                                 const SkClipStack&) {
+    if (region.isEmpty()) {
+        return;
+    }
+
+    // TODO(vandebo) SkCanvas may not draw anything after doing this call, we
+    // should defer writing anything out to fContent until we actually get
+    // a draw command.  In fact SkDraw contains the clip and transform, so
+    // this method should do nothing and we should have an update
+    // transform-and-clip method, like update paint.
+
     // See the comment in the header file above GraphicStackEntry.
     if (region != fGraphicStack[fGraphicStackIndex].fClip) {
         while (fGraphicStackIndex > 0)
@@ -192,6 +203,10 @@ void SkPDFDevice::setMatrixClip(const SkMatrix& matrix,
 }
 
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
+
     SkMatrix identityTransform;
     identityTransform.reset();
     SkMatrix curTransform = setTransform(identityTransform);
@@ -209,8 +224,9 @@ void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
 void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
                              size_t count, const SkPoint* points,
                              const SkPaint& paint) {
-    if (count == 0)
+    if (count == 0 || d.fClip->isEmpty()) {
         return;
+    }
 
     switch (mode) {
         case SkCanvas::kPolygon_PointMode:
@@ -260,6 +276,10 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
 
 void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
                            const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
+
     if (paint.getPathEffect()) {
         // Create a path for the rectangle and apply the path effect to it.
         SkPath path;
@@ -284,6 +304,9 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
 void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
     NOT_IMPLEMENTED(prePathMatrix != NULL, true);
 
     if (paint.getPathEffect()) {
@@ -302,16 +325,24 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
     SkPDFUtils::PaintPath(paint.getStyle(), path.getFillType(), &fContent);
 }
 
-void SkPDFDevice::drawBitmap(const SkDraw&, const SkBitmap& bitmap,
+void SkPDFDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
                              const SkIRect* srcRect,
                              const SkMatrix& matrix, const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
+
     SkMatrix transform = matrix;
     transform.postConcat(fGraphicStack[fGraphicStackIndex].fTransform);
     internalDrawBitmap(transform, bitmap, srcRect, paint);
 }
 
-void SkPDFDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
+void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
                              int x, int y, const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
+
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
     internalDrawBitmap(matrix, bitmap, NULL, paint);
@@ -319,6 +350,10 @@ void SkPDFDevice::drawSprite(const SkDraw&, const SkBitmap& bitmap,
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
+
     SkPaint textPaint = calculateTextPaint(paint);
     updateGSFromPaint(textPaint, true);
 
@@ -384,9 +419,13 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
     }
 }
 
-void SkPDFDevice::drawPosText(const SkDraw&, const void* text, size_t len,
+void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], SkScalar constY,
                               int scalarsPerPos, const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
+
     SkASSERT(1 == scalarsPerPos || 2 == scalarsPerPos);
     SkPaint textPaint = calculateTextPaint(paint);
     updateGSFromPaint(textPaint, true);
@@ -432,22 +471,32 @@ void SkPDFDevice::drawPosText(const SkDraw&, const void* text, size_t len,
     fContent.writeText("ET\n");
 }
 
-void SkPDFDevice::drawTextOnPath(const SkDraw&, const void* text, size_t len,
+void SkPDFDevice::drawTextOnPath(const SkDraw& d, const void* text, size_t len,
                                  const SkPath& path, const SkMatrix* matrix,
                                  const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
     NOT_IMPLEMENTED("drawTextOnPath", true);
 }
 
-void SkPDFDevice::drawVertices(const SkDraw&, SkCanvas::VertexMode,
+void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
                                int vertexCount, const SkPoint verts[],
                                const SkPoint texs[], const SkColor colors[],
                                SkXfermode* xmode, const uint16_t indices[],
                                int indexCount, const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
     NOT_IMPLEMENTED("drawVerticies", true);
 }
 
 void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
                              const SkPaint& paint) {
+    if (d.fClip->isEmpty()) {
+        return;
+    }
+
     if ((device->getDeviceCapabilities() & kVector_Capability) == 0) {
         // If we somehow get a raster device, do what our parent would do.
         SkDevice::drawDevice(d, device, x, y, paint);
