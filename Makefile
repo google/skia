@@ -23,7 +23,7 @@ ifeq ($(SKIA_DEBUG),true)
  	DEFINES += -DSK_DEBUG -DSK_SUPPORT_UNIT -DGR_DEBUG=1
 	CFLAGS += -g
 else
-	CFLAGS += -O2
+	CFLAGS += -O3
 	DEFINES += -DSK_RELEASE -DGR_DEBUG=0
 endif
 
@@ -160,7 +160,8 @@ out/libskia.a: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 ##############################################################################
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp benchmain.cpp BitmapBench.cpp \
-			  RepeatTileBench.cpp DecodeBench.cpp FPSBench.cpp PathBench.cpp
+			  RepeatTileBench.cpp DecodeBench.cpp FPSBench.cpp PathBench.cpp \
+			  GradientBench.cpp
 
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
