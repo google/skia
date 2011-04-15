@@ -89,9 +89,7 @@ public:
         return static_cast<Hinting>(fHinting);
     }
 
-    void setHinting(Hinting hintingLevel) {
-        fHinting = hintingLevel;
-    }
+    void setHinting(Hinting hintingLevel);
 
     /** Specifies the bit values that are stored in the paint's flags.
     */
@@ -817,6 +815,13 @@ public:
     void getTextPath(const void* text, size_t length, SkScalar x, SkScalar y,
                      SkPath* path) const;
 
+#ifdef ANDROID
+    const SkGlyph& getUnicharMetrics(SkUnichar);
+    const void* findImage(const SkGlyph&);
+
+    uint32_t getGenerationID() const;
+#endif
+
 private:
     SkTypeface*     fTypeface;
     SkScalar        fTextSize;
@@ -841,6 +846,9 @@ private:
     unsigned        fStyle : 2;
     unsigned        fTextEncoding : 2;  // 3 values
     unsigned        fHinting : 2;
+#ifdef ANDROID
+    uint32_t        fGenerationID;
+#endif
 
     SkDrawCacheProc    getDrawCacheProc() const;
     SkMeasureCacheProc getMeasureCacheProc(TextBufferDirection dir,

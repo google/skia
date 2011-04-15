@@ -35,6 +35,14 @@
 
 #define SK_DefaultFlags         0   //(kNativeHintsText_Flag)
 
+#ifdef ANDROID
+#define GEN_ID_INC                  fGenerationID++
+#define GEN_ID_INC_EVAL(expression) if (expression) { fGenerationID++; }
+#else
+#define GEN_ID_INC
+#define GEN_ID_INC_EVAL(expression)
+#endif
+
 SkPaint::SkPaint() {
     // since we may have padding, we zero everything so that our memcmp() call
     // in operator== will work correctly.
@@ -65,6 +73,9 @@ SkPaint::SkPaint() {
     fStyle      = kFill_Style;
     fTextEncoding = kUTF8_TextEncoding;
     fHinting    = kNormal_Hinting;
+#ifdef ANDROID
+    fGenerationID = 0;
+#endif
 }
 
 SkPaint::SkPaint(const SkPaint& src) {
@@ -112,7 +123,13 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     SkSafeUnref(fRasterizer);
     SkSafeUnref(fLooper);
 
+#ifdef ANDROID
+    uint32_t oldGenerationID = fGenerationID;
+#endif
     memcpy(this, &src, sizeof(src));
+#ifdef ANDROID
+    fGenerationID = oldGenerationID + 1;
+#endif
 
     return *this;
 }
@@ -124,109 +141,135 @@ int operator==(const SkPaint& a, const SkPaint& b) {
 void SkPaint::reset() {
     SkPaint init;
 
+#ifdef ANDROID
+    uint32_t oldGenerationID = fGenerationID;
+#endif
     *this = init;
+#ifdef ANDROID
+    fGenerationID = oldGenerationID + 1;
+#endif
+}
+
+#ifdef ANDROID
+uint32_t SkPaint::getGenerationID() const {
+    return fGenerationID;
+}
+#endif
+
+void SkPaint::setHinting(Hinting hintingLevel) {
+    GEN_ID_INC_EVAL((unsigned) hintingLevel != fHinting);
+    fHinting = hintingLevel;
 }
 
 void SkPaint::setFlags(uint32_t flags) {
+    GEN_ID_INC_EVAL(fFlags != flags);
     fFlags = flags;
 }
 
 void SkPaint::setAntiAlias(bool doAA) {
+    GEN_ID_INC_EVAL(doAA != isAntiAlias());
     this->setFlags(SkSetClearMask(fFlags, doAA, kAntiAlias_Flag));
 }
 
 void SkPaint::setDither(bool doDither) {
+    GEN_ID_INC_EVAL(doDither != isDither());
     this->setFlags(SkSetClearMask(fFlags, doDither, kDither_Flag));
 }
 
 void SkPaint::setSubpixelText(bool doSubpixel) {
+    GEN_ID_INC_EVAL(doSubpixel != isSubpixelText());
     this->setFlags(SkSetClearMask(fFlags, doSubpixel, kSubpixelText_Flag));
 }
 
 void SkPaint::setLCDRenderText(bool doLCDRender) {
+    GEN_ID_INC_EVAL(doLCDRender != isLCDRenderText());
     this->setFlags(SkSetClearMask(fFlags, doLCDRender, kLCDRenderText_Flag));
 }
 
 void SkPaint::setEmbeddedBitmapText(bool doEmbeddedBitmapText) {
+    GEN_ID_INC_EVAL(doEmbeddedBitmapText != isEmbeddedBitmapText());
     this->setFlags(SkSetClearMask(fFlags, doEmbeddedBitmapText, kEmbeddedBitmapText_Flag));
 }
 
 void SkPaint::setAutohinted(bool useAutohinter) {
+    GEN_ID_INC_EVAL(useAutohinter != isAutohinted());
     this->setFlags(SkSetClearMask(fFlags, useAutohinter, kAutoHinting_Flag));
 }
 
 void SkPaint::setLinearText(bool doLinearText) {
+    GEN_ID_INC_EVAL(doLinearText != isLinearText());
     this->setFlags(SkSetClearMask(fFlags, doLinearText, kLinearText_Flag));
 }
 
 void SkPaint::setUnderlineText(bool doUnderline) {
+    GEN_ID_INC_EVAL(doUnderline != isUnderlineText());
     this->setFlags(SkSetClearMask(fFlags, doUnderline, kUnderlineText_Flag));
 }
 
 void SkPaint::setStrikeThruText(bool doStrikeThru) {
+    GEN_ID_INC_EVAL(doStrikeThru != isStrikeThruText());
     this->setFlags(SkSetClearMask(fFlags, doStrikeThru, kStrikeThruText_Flag));
 }
 
 void SkPaint::setFakeBoldText(bool doFakeBold) {
+    GEN_ID_INC_EVAL(doFakeBold != isFakeBoldText());
     this->setFlags(SkSetClearMask(fFlags, doFakeBold, kFakeBoldText_Flag));
 }
 
 void SkPaint::setDevKernText(bool doDevKern) {
+    GEN_ID_INC_EVAL(doDevKern != isDevKernText());
     this->setFlags(SkSetClearMask(fFlags, doDevKern, kDevKernText_Flag));
 }
 
 void SkPaint::setFilterBitmap(bool doFilter) {
+    GEN_ID_INC_EVAL(doFilter != isFilterBitmap());
     this->setFlags(SkSetClearMask(fFlags, doFilter, kFilterBitmap_Flag));
 }
 
 void SkPaint::setStyle(Style style) {
     if ((unsigned)style < kStyleCount) {
+        GEN_ID_INC_EVAL((unsigned)style != fStyle);
         fStyle = style;
+    } else {
+        SkDEBUGCODE(SkDebugf("SkPaint::setStyle(%d) out of range\n", style);)
     }
-#ifdef SK_DEBUG
-    else {
-        SkDebugf("SkPaint::setStyle(%d) out of range\n", style);
-    }
-#endif
 }
 
 void SkPaint::setColor(SkColor color) {
+    GEN_ID_INC_EVAL(color != fColor);
     fColor = color;
 }
 
 void SkPaint::setAlpha(U8CPU a) {
-    fColor = SkColorSetARGB(a, SkColorGetR(fColor),
-                            SkColorGetG(fColor), SkColorGetB(fColor));
+    this->setColor(SkColorSetARGB(a, SkColorGetR(fColor),
+                                  SkColorGetG(fColor), SkColorGetB(fColor)));
 }
 
 void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
-    fColor = SkColorSetARGB(a, r, g, b);
+    this->setColor(SkColorSetARGB(a, r, g, b));
 }
 
 void SkPaint::setStrokeWidth(SkScalar width) {
     if (width >= 0) {
+        GEN_ID_INC_EVAL(width != fWidth);
         fWidth = width;
+    } else {
+        SkDEBUGCODE(SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");)
     }
-#ifdef SK_DEBUG
-    else {
-        SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");
-    }
-#endif
 }
 
 void SkPaint::setStrokeMiter(SkScalar limit) {
     if (limit >= 0) {
+        GEN_ID_INC_EVAL(limit != fMiterLimit);
         fMiterLimit = limit;
+    } else {
+        SkDEBUGCODE(SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");)
     }
-#ifdef SK_DEBUG
-    else {
-        SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");
-    }
-#endif
 }
 
 void SkPaint::setStrokeCap(Cap ct) {
     if ((unsigned)ct < kCapCount) {
+        GEN_ID_INC_EVAL((unsigned)ct != fCapType);
         fCapType = SkToU8(ct);
     } else {
         SkDEBUGCODE(SkDebugf("SkPaint::setStrokeCap(%d) out of range\n", ct);)
@@ -235,6 +278,7 @@ void SkPaint::setStrokeCap(Cap ct) {
 
 void SkPaint::setStrokeJoin(Join jt) {
     if ((unsigned)jt < kJoinCount) {
+        GEN_ID_INC_EVAL((unsigned)jt != fJoinType);
         fJoinType = SkToU8(jt);
     } else {
         SkDEBUGCODE(SkDebugf("SkPaint::setStrokeJoin(%d) out of range\n", jt);)
@@ -245,6 +289,7 @@ void SkPaint::setStrokeJoin(Join jt) {
 
 void SkPaint::setTextAlign(Align align) {
     if ((unsigned)align < kAlignCount) {
+        GEN_ID_INC_EVAL((unsigned)align != fTextAlign);
         fTextAlign = SkToU8(align);
     } else {
         SkDEBUGCODE(SkDebugf("SkPaint::setTextAlign(%d) out of range\n", align);)
@@ -252,7 +297,8 @@ void SkPaint::setTextAlign(Align align) {
 }
 
 void SkPaint::setTextSize(SkScalar ts) {
-    if (ts >= 0) {
+    if (ts > 0) {
+        GEN_ID_INC_EVAL(ts != fTextSize);
         fTextSize = ts;
     } else {
         SkDEBUGCODE(SkDebugf("SkPaint::setTextSize() called with negative value\n");)
@@ -260,15 +306,18 @@ void SkPaint::setTextSize(SkScalar ts) {
 }
 
 void SkPaint::setTextScaleX(SkScalar scaleX) {
+    GEN_ID_INC_EVAL(scaleX != fTextScaleX);
     fTextScaleX = scaleX;
 }
 
 void SkPaint::setTextSkewX(SkScalar skewX) {
+    GEN_ID_INC_EVAL(skewX != fTextSkewX);
     fTextSkewX = skewX;
 }
 
 void SkPaint::setTextEncoding(TextEncoding encoding) {
     if ((unsigned)encoding <= kGlyphID_TextEncoding) {
+        GEN_ID_INC_EVAL((unsigned)encoding != fTextEncoding);
         fTextEncoding = encoding;
     } else {
         SkDEBUGCODE(SkDebugf("SkPaint::setTextEncoding(%d) out of range\n", encoding);)
@@ -279,16 +328,19 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
 
 SkTypeface* SkPaint::setTypeface(SkTypeface* font) {
     SkRefCnt_SafeAssign(fTypeface, font);
+    GEN_ID_INC;
     return font;
 }
 
 SkRasterizer* SkPaint::setRasterizer(SkRasterizer* r) {
     SkRefCnt_SafeAssign(fRasterizer, r);
+    GEN_ID_INC;
     return r;
 }
 
 SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
     SkRefCnt_SafeAssign(fLooper, looper);
+    GEN_ID_INC;
     return looper;
 }
 
@@ -296,6 +348,33 @@ SkDrawLooper* SkPaint::setLooper(SkDrawLooper* looper) {
 
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
+
+static void DetachDescProc(const SkDescriptor* desc, void* context) {
+    *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(desc);
+}
+
+#ifdef ANDROID
+const SkGlyph& SkPaint::getUnicharMetrics(SkUnichar text) {
+    SkGlyphCache* cache;
+    descriptorProc(NULL, DetachDescProc, &cache, true);
+
+    const SkGlyph& glyph = cache->getUnicharMetrics(text);
+
+    SkGlyphCache::AttachCache(cache);
+    return glyph;
+}
+
+const void* SkPaint::findImage(const SkGlyph& glyph) {
+    // See ::detachCache()
+    SkGlyphCache* cache;
+    descriptorProc(NULL, DetachDescProc, &cache, true);
+
+    const void* image = cache->findImage(glyph);
+
+    SkGlyphCache::AttachCache(cache);
+    return image;
+}
+#endif
 
 int SkPaint::textToGlyphs(const void* textData, size_t byteLength,
                           uint16_t glyphs[]) const {
@@ -1300,10 +1379,6 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
     proc(desc, context);
 }
 
-static void DetachDescProc(const SkDescriptor* desc, void* context) {
-    *((SkGlyphCache**)context) = SkGlyphCache::DetachCache(desc);
-}
-
 SkGlyphCache* SkPaint::detachCache(const SkMatrix* deviceMatrix) const {
     SkGlyphCache* cache;
     this->descriptorProc(deviceMatrix, DetachDescProc, &cache);
@@ -1456,16 +1531,19 @@ void SkPaint::unflatten(SkFlattenableReadBuffer& buffer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkShader* SkPaint::setShader(SkShader* shader) {
+    GEN_ID_INC_EVAL(shader != fShader);
     SkRefCnt_SafeAssign(fShader, shader);
     return shader;
 }
 
 SkColorFilter* SkPaint::setColorFilter(SkColorFilter* filter) {
+    GEN_ID_INC_EVAL(filter != fColorFilter);
     SkRefCnt_SafeAssign(fColorFilter, filter);
     return filter;
 }
 
 SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
+    GEN_ID_INC_EVAL(mode != fXfermode);
     SkRefCnt_SafeAssign(fXfermode, mode);
     return mode;
 }
@@ -1473,15 +1551,18 @@ SkXfermode* SkPaint::setXfermode(SkXfermode* mode) {
 SkXfermode* SkPaint::setXfermodeMode(SkXfermode::Mode mode) {
     SkSafeUnref(fXfermode);
     fXfermode = SkXfermode::Create(mode);
+    GEN_ID_INC;
     return fXfermode;
 }
 
 SkPathEffect* SkPaint::setPathEffect(SkPathEffect* effect) {
+    GEN_ID_INC_EVAL(effect != fPathEffect);
     SkRefCnt_SafeAssign(fPathEffect, effect);
     return effect;
 }
 
 SkMaskFilter* SkPaint::setMaskFilter(SkMaskFilter* filter) {
+    GEN_ID_INC_EVAL(filter != fMaskFilter);
     SkRefCnt_SafeAssign(fMaskFilter, filter);
     return filter;
 }

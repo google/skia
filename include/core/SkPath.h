@@ -20,6 +20,14 @@
 #include "SkMatrix.h"
 #include "SkTDArray.h"
 
+#ifdef ANDROID
+#define GEN_ID_INC              fGenerationID++
+#define GEN_ID_PTR_INC(ptr)     ptr->fGenerationID++
+#else
+#define GEN_ID_INC
+#define GEN_ID_PTR_INC(ptr)
+#endif
+
 class SkFlattenableReadBuffer;
 class SkFlattenableWriteBuffer;
 class SkAutoPathBoundsUpdate;
@@ -72,7 +80,10 @@ public:
      
         @param ft The new fill type for this path
     */
-    void setFillType(FillType ft) { fFillType = SkToU8(ft); }
+    void setFillType(FillType ft) {
+        fFillType = SkToU8(ft);
+        GEN_ID_INC;
+    }
 
     /** Returns true if the filltype is one of the Inverse variants */
     bool isInverseFillType() const { return (fFillType & 2) != 0; }
@@ -80,7 +91,10 @@ public:
     /** Toggle between inverse and normal filltypes. This reverse the return
         value of isInverseFillType()
     */
-    void toggleInverseFillType() { fFillType ^= 2; }
+    void toggleInverseFillType() {
+        fFillType ^= 2;
+        GEN_ID_INC;
+     }
 
     /** Returns true if the path is flagged as being convex. This is not a
         confirmed by any analysis, it is just the value set earlier.
@@ -92,7 +106,10 @@ public:
         not convex can give undefined results when drawn. Paths default to
         isConvex == false
      */
-    void setIsConvex(bool isConvex) { fIsConvex = (isConvex != 0); }
+    void setIsConvex(bool isConvex) {
+        fIsConvex = (isConvex != 0);
+        GEN_ID_INC;
+    }
 
     /** Clear any lines and curves from the path, making it empty. This frees up
         internal storage associated with those segments.
@@ -571,6 +588,10 @@ public:
     */
     void subdivide(SkScalar dist, bool bendLines, SkPath* dst = NULL) const;
 
+#ifdef ANDROID
+    uint32_t getGenerationID() const;
+#endif
+
     SkDEBUGCODE(void validate() const;)
 
 private:
@@ -580,6 +601,9 @@ private:
     mutable uint8_t     fBoundsIsDirty;
     uint8_t             fFillType;
     uint8_t             fIsConvex;
+#ifdef ANDROID
+    uint32_t            fGenerationID;
+#endif
 
     // called, if dirty, by getBounds()
     void computeBounds() const;
