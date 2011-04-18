@@ -42,12 +42,24 @@ void SkClampRange::init(SkFixed fx, SkFixed dx, int count, int v0, int v1) {
     fV0 = v0;
     fV1 = v1;
 
+    // check for over/underflow
+    {
+        int64_t eex = (int64_t)fx + count * (int64_t)dx;
+        if (eex > SK_FixedMax) {
+            
+        } else if (eex < -SK_FixedMax) {
+        }
+    }
+
+    // remember our original fx
+    const SkFixed fx0 = fx;
     // start with ex equal to the last computed value
     SkFixed ex = fx + (count - 1) * dx;
 
     if ((unsigned)(fx | ex) <= 0xFFFF) {
         fCount0 = fCount2 = 0;
         fCount1 = count;
+        fFx1 = fx;
         return;
     }
     if (fx <= 0 && ex <= 0) {
@@ -96,83 +108,11 @@ void SkClampRange::init(SkFixed fx, SkFixed dx, int count, int v0, int v1) {
     if (doSwap) {
         SkTSwap(fCount0, fCount2);
         SkTSwap(fV0, fV1);
+        dx = -dx;
+    }
+
+    if (fCount1 > 0) {
+        fFx1 = fx0 + fCount0 * dx;
     }
 }
-
-////////////////////////////
-#include "SkRandom.h"
-
-#ifdef SK_DEBUG
-static bool in_range(int x, int target, int slop) {
-    SkASSERT(slop >= 0);
-    return SkAbs32(x - target) <= slop;
-}
-
-static int classify_value(SkFixed fx, int v0, int v1) {
-    if (fx <= 0) {
-        return v0;
-    }
-    if (fx >= 0xFFFF) {
-        return v1;
-    }
-    SkASSERT(!"bad fx");
-    return 0;
-}
-
-#define V0  -42
-#define V1  1024
-
-static void slow_check(const SkClampRange& range,
-                       SkFixed fx, SkFixed dx, int count) {
-    SkASSERT(range.fCount0 + range.fCount1 + range.fCount2 == count);
-
-    int i;
-    for (i = 0; i < range.fCount0; i++) {
-        int v = classify_value(fx, V0, V1);
-        SkASSERT(v == range.fV0);
-        fx += dx;
-    }
-    for (i = 0; i < range.fCount1; i++) {
-        SkASSERT(fx >= 0 && fx <= 0xFFFF);
-        fx += dx;
-    }
-    for (i = 0; i < range.fCount2; i++) {
-        int v = classify_value(fx, V0, V1);
-        SkASSERT(v == range.fV1);
-        fx += dx;
-    }
-}
-
-static void test_range(SkFixed fx, SkFixed dx, int count) {
-    SkClampRange range;
-    range.init(fx, dx, count, V0, V1);
-    slow_check(range, fx, dx, count);
-}
-
-#define ff(x)   SkIntToFixed(x)
-
-void SkClampRange::UnitTest() {
-    test_range(0, 0, 20);
-    test_range(0xFFFF, 0, 20);
-    test_range(-ff(2), 0, 20);
-    test_range( ff(2), 0, 20);
-
-    test_range(-10, 1, 20);
-    test_range(10, -1, 20);
-    test_range(-10, 3, 20);
-    test_range(10, -3, 20);
-
-    SkRandom rand;
-
-    for (int i = 0; i < 1000000; i++) {
-        SkFixed fx = rand.nextS() >> 1;
-        SkFixed sx = rand.nextS() >> 1;
-        int count = rand.nextU() % 1000 + 1;
-        SkFixed dx = (sx - fx) / count;
-        test_range(fx, dx, count);
-    }
-}
-#else
-void SkClampRange::UnitTest() {}
-#endif
 
