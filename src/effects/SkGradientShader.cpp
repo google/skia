@@ -27,7 +27,7 @@
     #define USE_DITHER_32BIT_GRADIENT
 #endif
 
-//#define SK_ENABLE_FAST_LINEAR_GRADIENTS
+#define SK_ENABLE_FAST_LINEAR_GRADIENTS
 
 #ifdef SK_ENABLE_FAST_LINEAR_GRADIENTS
 static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
@@ -819,11 +819,13 @@ static inline bool no_need_for_clamp(int fx, int dx, int count) {
 #include "SkClampRange.h"
 
 #define NO_CHECK_ITER               \
-    fi = fx >> 8;                   \
+    do {                            \
+    unsigned fi = fx >> 8;          \
     SkASSERT(fi <= 0xFF);           \
     fx += dx;                       \
     *dstC++ = cache[toggle + fi];   \
-    toggle ^= TOGGLE_MASK
+    toggle ^= TOGGLE_MASK;          \
+    } while (0)
 
 
 void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
@@ -874,9 +876,9 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
                 dstC += count;
             }
             if ((count = range.fCount1) > 0) {
-                unsigned fi;
-                int i, unroll = count >> 3;
-                for (i = 0; i < unroll; i++) {
+                int unroll = count >> 3;
+                fx = range.fFx1;
+                for (int i = 0; i < unroll; i++) {
                     NO_CHECK_ITER;  NO_CHECK_ITER;
                     NO_CHECK_ITER;  NO_CHECK_ITER;
                     NO_CHECK_ITER;  NO_CHECK_ITER;
@@ -978,11 +980,13 @@ static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
 }
 
 #define NO_CHECK_ITER_16                \
-    fi = fx >> kCache16Shift;           \
+    do {                                \
+    unsigned fi = fx >> kCache16Shift;  \
     SkASSERT(fi <= kCache16Mask);       \
     fx += dx;                           \
     *dstC++ = cache[toggle + fi];       \
-    toggle ^= TOGGLE_MASK
+    toggle ^= TOGGLE_MASK;              \
+    } while (0)
 
 
 void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
@@ -1028,9 +1032,9 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
                 dstC += count;
             }
             if ((count = range.fCount1) > 0) {
-                unsigned fi;
-                int i, unroll = count >> 3;
-                for (i = 0; i < unroll; i++) {
+                int unroll = count >> 3;
+                fx = range.fFx1;
+                for (int i = 0; i < unroll; i++) {
                     NO_CHECK_ITER_16;  NO_CHECK_ITER_16;
                     NO_CHECK_ITER_16;  NO_CHECK_ITER_16;
                     NO_CHECK_ITER_16;  NO_CHECK_ITER_16;
