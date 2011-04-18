@@ -37,6 +37,9 @@ struct SkClampRange {
     bool fOverflowed;   // true if we had to clamp due to numerical overflow
 
     void init(SkFixed fx, SkFixed dx, int count, int v0, int v1);
+
+private:
+    void initFor1(SkFixed fx);
 };
 
 #endif
