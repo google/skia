@@ -27,7 +27,7 @@
     #define USE_DITHER_32BIT_GRADIENT
 #endif
 
-#define SK_ENABLE_FAST_LINEAR_GRADIENTS
+//#define SK_ENABLE_FAST_LINEAR_GRADIENTS
 
 #ifdef SK_ENABLE_FAST_LINEAR_GRADIENTS
 static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
