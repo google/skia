@@ -31,11 +31,12 @@ struct SkClampRange {
     int fCount0;    // count for fV0
     int fCount1;    // count for interpolating (fV0...fV1)
     int fCount2;    // count for fV1
+    SkFixed fFx1;   // initial fx value for the fCount1 range.
+                    // only valid if fCount1 > 0
     int fV0, fV1;
+    bool fOverflowed;   // true if we had to clamp due to numerical overflow
 
     void init(SkFixed fx, SkFixed dx, int count, int v0, int v1);
-
-    static void UnitTest();
 };
 
 #endif
