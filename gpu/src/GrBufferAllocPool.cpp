@@ -346,8 +346,8 @@ void* GrVertexBufferAllocPool::makeSpace(GrVertexLayout layout,
     GrAssert(NULL != startVertex);
 
     size_t vSize = GrDrawTarget::VertexSize(layout);
-    size_t offset;
-    const GrGeometryBuffer* geomBuffer;
+    size_t offset = 0; // assign to suppress warning
+    const GrGeometryBuffer* geomBuffer = NULL; // assign to suppress warning
     void* ptr = INHERITED::makeSpace(vSize * vertexCount,
                                      vSize,
                                      &geomBuffer,
@@ -405,8 +405,8 @@ void* GrIndexBufferAllocPool::makeSpace(int indexCount,
     GrAssert(NULL != buffer);
     GrAssert(NULL != startIndex);
 
-    size_t offset;
-    const GrGeometryBuffer* geomBuffer;
+    size_t offset = 0; // assign to suppress warning
+    const GrGeometryBuffer* geomBuffer = NULL; // assign to suppress warning
     void* ptr = INHERITED::makeSpace(indexCount * sizeof(uint16_t),
                                      sizeof(uint16_t),
                                      &geomBuffer,
