@@ -17,6 +17,7 @@
 
 #include "SkColorFilter.h"
 #include "SkShader.h"
+#include "SkUnPreMultiply.h"
 
 bool SkColorFilter::asColorMode(SkColor* color, SkXfermode::Mode* mode) {
     return false;
@@ -31,7 +32,13 @@ void SkColorFilter::filterSpan16(const uint16_t s[], int count, uint16_t d[])
         memcpy(d, s, count * sizeof(uint16_t));
 }
 
-//////////////////////////////////////////////////////////////////////////////
+SkColor SkColorFilter::filterColor(SkColor c) {
+    SkPMColor dst, src = SkPreMultiplyColor(c);
+    this->filterSpan(&src, 1, &dst);
+    return SkUnPreMultiply::PMColorToColor(dst);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 SkFilterShader::SkFilterShader(SkShader* shader, SkColorFilter* filter)
 {

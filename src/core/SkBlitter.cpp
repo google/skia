@@ -666,36 +666,6 @@ private:
 
 #include "SkCoreBlitters.h"
 
-class SkAutoRestoreShaderXfer {
-public:
-    SkAutoRestoreShaderXfer(const SkPaint& p) : fPaint((SkPaint*)&p) {
-        fShader = fPaint->getShader();
-        SkSafeRef(fShader);
-        fXfer = fPaint->getXfermode();
-        SkSafeRef(fXfer);
-    }
-
-    ~SkAutoRestoreShaderXfer() {
-        fPaint->setShader(fShader);
-        SkSafeUnref(fShader);
-        fPaint->setXfermode(fXfer);
-        SkSafeUnref(fXfer);
-    }
-
-    SkShader* setShader(SkShader* shader) {
-        return fPaint->setShader(shader);
-    }
-
-    SkXfermode* setXfermode(SkXfermode* mode) {
-        return fPaint->setXfermode(mode);
-    }
-
-private:
-    SkPaint*    fPaint;
-    SkShader*   fShader;
-    SkXfermode* fXfer;
-};
-
 class SkAutoCallProc {
 public:
     typedef void (*Proc)(void*);
@@ -790,7 +760,7 @@ static XferInterp interpret_xfermode(const SkPaint& paint, SkXfermode* xfer,
 
 SkBlitter* SkBlitter::Choose(const SkBitmap& device,
                              const SkMatrix& matrix,
-                             const SkPaint& paint,
+                             const SkPaint& origPaint,
                              void* storage, size_t storageSize) {
     SkASSERT(storageSize == 0 || storage != NULL);
 
@@ -803,23 +773,24 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         return blitter;
     }
 
-    SkAutoRestoreShaderXfer restorePaint(paint);
+    SkPaint paint(origPaint);
     SkShader* shader = paint.getShader();
+    SkColorFilter* cf = paint.getColorFilter();
+    SkXfermode* mode = paint.getXfermode();
 
     Sk3DShader* shader3D = NULL;
     if (paint.getMaskFilter() != NULL &&
             paint.getMaskFilter()->getFormat() == SkMask::k3D_Format) {
         shader3D = SkNEW_ARGS(Sk3DShader, (shader));
-        restorePaint.setShader(shader3D)->unref();
+        paint.setShader(shader3D)->unref();
         shader = shader3D;
     }
 
-    SkXfermode* mode = paint.getXfermode();
     if (NULL != mode) {
         switch (interpret_xfermode(paint, mode, device.config())) {
             case kSrcOver_XferInterp:
                 mode = NULL;
-                restorePaint.setXfermode(NULL);
+                paint.setXfermode(NULL);
                 break;
             case kSkipDrawing_XferInterp:
                 SK_PLACEMENT_NEW(blitter, SkNullBlitter, storage, storageSize);
@@ -829,16 +800,28 @@ SkBlitter* SkBlitter::Choose(const SkBitmap& device,
         }
     }
 
-    if (NULL == shader && (NULL != mode || paint.getColorFilter() != NULL)) {
-        // xfermodes (and filters) require shaders for our current blitters
-        shader = SkNEW(SkColorShader);
-        restorePaint.setShader(shader)->unref();
+    if (NULL == shader) {
+#ifdef SK_IGNORE_CF_OPTIMIZATION
+        if (mode || cf) {
+#else
+        if (mode) {
+#endif
+            // xfermodes (and filters) require shaders for our current blitters
+            shader = SkNEW(SkColorShader);
+            paint.setShader(shader)->unref();
+        } else if (cf) {
+            // if no shader && no xfermode, we just apply the colorfilter to
+            // our color and move on.
+            paint.setColor(cf->filterColor(paint.getColor()));
+            paint.setColorFilter(NULL);
+            cf = NULL;
+        }
     }
 
-    if (paint.getColorFilter() != NULL) {
+    if (cf) {
         SkASSERT(shader);
-        shader = SkNEW_ARGS(SkFilterShader, (shader, paint.getColorFilter()));
-        restorePaint.setShader(shader)->unref();
+        shader = SkNEW_ARGS(SkFilterShader, (shader, cf));
+        paint.setShader(shader)->unref();
         // blitters should ignore the presence/absence of a filter, since
         // if there is one, the shader will take care of it.
     }
