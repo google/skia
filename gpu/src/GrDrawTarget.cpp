@@ -22,7 +22,7 @@
 // recursive helper for creating mask with all the tex coord bits set for
 // one stage
 template <int N>
-static int stage_mask_recur(int stage) {
+int stage_mask_recur(int stage) {
     return GrDrawTarget::StageTexCoordVertexLayoutBit(stage, N) |
            stage_mask_recur<N+1>(stage);
 }
@@ -43,7 +43,7 @@ static int stage_mask(int stage) {
 // recursive helper for creating mask of with all bits set relevant to one
 // texture coordinate index
 template <int N>
-static int tex_coord_mask_recur(int texCoordIdx) {
+int tex_coord_mask_recur(int texCoordIdx) {
     return GrDrawTarget::StageTexCoordVertexLayoutBit(N, texCoordIdx) |
            tex_coord_mask_recur<N+1>(texCoordIdx);
 }
