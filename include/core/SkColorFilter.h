@@ -65,6 +65,15 @@ public:
     */
     virtual uint32_t getFlags() { return 0; }
 
+    /**
+     *  Apply this colorfilter to the specified SkColor. This routine handles
+     *  converting to SkPMColor, calling the filter, and then converting back
+     *  to SkColor. This method is not virtual, but will call filterSpan()
+     *   which is virtual.
+     */
+    SkColor filterColor(SkColor);
+    
+    
     /** Create a colorfilter that uses the specified color and mode.
         If the Mode is DST, this function will return NULL (since that
         mode will have no effect on the result).
@@ -90,7 +99,7 @@ public:
         are ignored.
     */
     static SkColorFilter* CreateLightingFilter(SkColor mul, SkColor add);
-    
+
 protected:
     SkColorFilter() {}
     SkColorFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}
