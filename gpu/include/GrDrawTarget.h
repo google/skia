@@ -498,7 +498,7 @@ public:
         kHighVertexLayoutBit = kDummyVertexLayoutBit - 1
     };
     // make sure we haven't exceeded the number of bits in GrVertexLayout.
-    GR_STATIC_ASSERT(kHighVertexLayoutBit < (1 << 8*sizeof(GrVertexLayout)));
+    GR_STATIC_ASSERT(kHighVertexLayoutBit < ((uint64_t)1 << 8*sizeof(GrVertexLayout)));
 
     /**
      * There are three paths for specifying geometry (vertices and optionally

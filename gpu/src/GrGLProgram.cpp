@@ -42,7 +42,7 @@ const char* GrShaderPrecision() {
 
 }  // namespace
 
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     #define VIEW_MATRIX_NAME "aViewM"
 #else
     #define VIEW_MATRIX_NAME "uViewM"
@@ -50,6 +50,7 @@ const char* GrShaderPrecision() {
 
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
+#define COL_UNI_NAME "uColor"
 
 // for variable names etc
 typedef GrSStringBuilder<16> GrTokenString;
@@ -84,7 +85,7 @@ static inline const char* vector_all_coords(int count) {
 }
 
 static void tex_matrix_name(int stage, GrStringBuilder* s) {
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     *s = "aTexM";
 #else
     *s = "uTexM";
@@ -179,33 +180,40 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
 
     memset(&programData->fUniLocations, 0, sizeof(UniLocations));
 
-    bool haveColor = !(ProgramDesc::kVertexColorAllOnes_OptFlagBit &
-                       fProgramDesc.fOptFlags);
-
-#if ATTRIBUTE_MATRIX
-    segments.fVSAttrs = "attribute mat3 " VIEW_MATRIX_NAME ";\n";
+#if GR_GL_ATTRIBUTE_MATRICES
+    segments.fVSAttrs += "attribute mat3 " VIEW_MATRIX_NAME ";\n";
 #else
-    segments.fVSUnis  = "uniform mat3 " VIEW_MATRIX_NAME ";\n";
-    segments.fVSAttrs = "";
+    segments.fVSUnis  += "uniform mat3 " VIEW_MATRIX_NAME ";\n";
 #endif
     segments.fVSAttrs += "attribute vec2 " POS_ATTR_NAME ";\n";
-    if (haveColor) {
-        segments.fVSAttrs += "attribute vec4 " COL_ATTR_NAME ";\n";
-        segments.fVaryings = "varying vec4 vColor;\n";
-    } else {
-        segments.fVaryings = "";
-    }
 
     segments.fVSCode   = "void main() {\n"
                          "\tvec3 pos3 = " VIEW_MATRIX_NAME " * vec3(" POS_ATTR_NAME ", 1);\n"
                          "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n";
-    if (haveColor) {
+
+        // incoming color to current stage being processed.
+    GrTokenString inColor;
+
+    switch (fProgramDesc.fColorType) {
+    case ProgramDesc::kAttribute_ColorType:
+        segments.fVSAttrs += "attribute vec4 " COL_ATTR_NAME ";\n";
+        segments.fVaryings += "varying vec4 vColor;\n";
         segments.fVSCode += "\tvColor = " COL_ATTR_NAME ";\n";
+        inColor = "vColor";
+        break;
+    case ProgramDesc::kUniform_ColorType:
+        segments.fFSUnis += "uniform vec4 " COL_UNI_NAME ";\n";
+        inColor = COL_UNI_NAME;
+        break;
+    case ProgramDesc::kNone_ColorType:
+        inColor = "";
+        break;
     }
 
-    if (!(fProgramDesc.fOptFlags & ProgramDesc::kNotPoints_OptFlagBit)) {
+    if (fProgramDesc.fEmitsPointSize){
         segments.fVSCode += "\tgl_PointSize = 1.0;\n";
     }
+
     segments.fFSCode   = "void main() {\n";
 
     // add texture coordinates that are used to the list of vertex attr decls
@@ -240,8 +248,6 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
         }
     }
 
-    GrTokenString inColor = "vColor";
-
     // if we have active stages string them together, feeding the output color
     // of each to the next and generating code for each stage.
     if (numActiveStages) {
@@ -261,19 +267,18 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
 
                 genStageCode(s,
                              fProgramDesc.fStages[s],
-                             haveColor ? inColor.cstr() : NULL,
+                             inColor.length() ? inColor.cstr() : NULL,
                              outColor.cstr(),
                              stageInCoords[s],
                              &segments,
                              &programData->fUniLocations.fStages[s]);
                 ++currActiveStage;
                 inColor = outColor;
-                haveColor = true;
             }
         }
     } else {
         segments.fFSCode += "\tgl_FragColor = ";
-        if (haveColor) {
+        if (inColor.length()) {
             segments.fFSCode += inColor;
         } else {
             segments.fFSCode += "vec4(1,1,1,1)";
@@ -372,7 +377,7 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
         }
     }
 
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     // set unis to a bogus value so that checks against -1 before
     // flushing will pass.
     GR_GL(BindAttribLocation(progID,
@@ -418,15 +423,23 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
     }
 
     // Get uniform locations
-#if !ATTRIBUTE_MATRIX
+#if !GR_GL_ATTRIBUTE_MATRICES
     programData->fUniLocations.fViewMatrixUni =
                     GR_GL(GetUniformLocation(progID, VIEW_MATRIX_NAME));
     GrAssert(-1 != programData->fUniLocations.fViewMatrixUni);
 #endif
+    if (ProgramDesc::kUniform_ColorType == fProgramDesc.fColorType) {
+        programData->fUniLocations.fColorUni = 
+                                GR_GL(GetUniformLocation(progID, COL_UNI_NAME));
+        GrAssert(-1 != programData->fUniLocations.fColorUni);
+    } else {
+        programData->fUniLocations.fColorUni = -1;
+    }
+
     for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
         StageUniLocations& locations = programData->fUniLocations.fStages[s];
         if (fProgramDesc.fStages[s].fEnabled) {
-#if !ATTRIBUTE_MATRIX
+#if !GR_GL_ATTRIBUTE_MATRICES
             if (locations.fTextureMatrixUni) {
                 GrTokenString texMName;
                 tex_matrix_name(s, &texMName);
@@ -548,7 +561,7 @@ void GrGLProgram::genStageCode(int stageNum,
     if (desc.fOptFlags & ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit) {
         varyingDims = coordDims;
     } else {
-    #if ATTRIBUTE_MATRIX
+    #if GR_GL_ATTRIBUTE_MATRICES
         segments->fVSAttrs += "attribute mat3 ";
         segments->fVSAttrs += texMName;
         segments->fVSAttrs += ";\n";
