@@ -202,7 +202,7 @@ private:
  * Type used to describe format of vertices in arrays
  * Values are defined in GrDrawTarget
  */
-typedef uint16_t GrVertexLayout;
+typedef int GrVertexLayout;
 
 /**
 * Geometric primitives used for drawing.

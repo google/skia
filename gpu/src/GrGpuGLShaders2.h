@@ -36,6 +36,19 @@ protected:
 
 private:
 
+    struct Program;
+
+    struct StageDesc;
+    struct ProgramDesc;
+
+    struct UniLocations;
+    struct StageUniLocations;
+
+    struct ShaderCodeSegments;
+
+    class ProgramCache;
+
+    // GrGpu override
     virtual void resetContext();
 
     // Helpers to make code more readable
@@ -51,20 +64,12 @@ private:
     // flushes the parameters to two point radial gradient
     void flushRadial2(int stage);
 
-    // called at flush time to setup the appropriate program
-    void flushProgram(GrPrimitiveType type);
+    // called at flush time to setup the appropriate program, also returns
+    // the program description.
+    void flushProgram(GrPrimitiveType type, ProgramDesc* desc);
 
-    struct Program;
-
-    struct StageDesc;
-    struct ProgramDesc;
-
-    struct UniLocations;
-    struct StageUniLocations;
-
-    struct ShaderCodeSegments;
-
-    class ProgramCache;
+    // called at flush time to handle the color specified by setColor()
+    void flushColor(const ProgramDesc& desc);
 
     // gets a description of needed shader
     void getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc);
@@ -93,7 +98,7 @@ private:
 
     ProgramCache*   fProgramCache;
     Program*        fProgram;
-    GrGLuint          fHWProgramID;
+    GrGLuint        fHWProgramID;
 
     typedef GrGpuGL INHERITED;
 };

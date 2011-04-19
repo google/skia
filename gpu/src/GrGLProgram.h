@@ -84,16 +84,22 @@ private:
 
     //Parameters that affect code generation
     struct ProgramDesc {
+        ProgramDesc() {
+            // since we use this as part of a key we can't have any unitialized
+            // padding
+            memset(this, 0, sizeof(ProgramDesc));
+        }
+
+        // stripped of bits that don't affect prog generation
         GrVertexLayout fVertexLayout;
 
         enum {
-            kNotPoints_OptFlagBit = 0x1,
-            kVertexColorAllOnes_OptFlagBit = 0x2,
-        };
-        // we're assuming optflags and layout pack into 32 bits
-        // VS 2010 seems to require short rather than just unsigned
-        // for this to pack
-        unsigned short fOptFlags : 16;
+            kNone_ColorType         = 0,
+            kAttribute_ColorType    = 1,
+            kUniform_ColorType      = 2,
+        } fColorType;
+
+        bool fEmitsPointSize;
 
         struct StageDesc {
             enum OptFlagBits {
@@ -118,6 +124,8 @@ private:
         } fStages[GrDrawTarget::kNumStages];
     } fProgramDesc;
 
+    const ProgramDesc& getDesc() { return fProgramDesc; }
+
 public:
     struct StageUniLocations {
         GrGLint fTextureMatrixUni;
@@ -127,6 +135,7 @@ public:
 
     struct UniLocations {
         GrGLint fViewMatrixUni;
+        GrGLint fColorUni;
         StageUniLocations fStages[GrDrawTarget::kNumStages];
     };
 
@@ -177,6 +186,7 @@ public:
 
         // these reflect the current values of uniforms
         // (GL uniform values travel with program)
+        GrColor                     fColor;
         GrMatrix                    fTextureMatrices[GrDrawTarget::kNumStages];
         GrScalar                    fRadial2CenterX1[GrDrawTarget::kNumStages];
         GrScalar                    fRadial2Radius0[GrDrawTarget::kNumStages];

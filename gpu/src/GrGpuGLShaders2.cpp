@@ -22,20 +22,17 @@
 #include "GrMemory.h"
 #include "GrStringBuilder.h"
 
-
-#define ATTRIBUTE_MATRIX        0
-
 #define PRINT_SHADERS           0
 
-#define SKIP_CACHE_CHECK    true
+#define SKIP_CACHE_CHECK        true
 
 #define POS_ATTR_LOCATION 0
 #define TEX_ATTR_LOCATION(X) (1 + X)
 #define COL_ATTR_LOCATION (2 + GrDrawTarget::kMaxTexCoords)
-#if ATTRIBUTE_MATRIX
-#define VIEWMAT_ATTR_LOCATION (3 + GrDrawTarget::kMaxTexCoords)
-#define TEXMAT_ATTR_LOCATION(X) (6 + GrDrawTarget::kMaxTexCoords + 3 * (X))
-#define BOGUS_MATRIX_UNI_LOCATION 1000
+#if GR_GL_ATTRIBUTE_MATRICES
+    #define VIEWMAT_ATTR_LOCATION (3 + GrDrawTarget::kMaxTexCoords)
+    #define TEXMAT_ATTR_LOCATION(X) (6 + GrDrawTarget::kMaxTexCoords + 3 * (X))
+    #define BOGUS_MATRIX_UNI_LOCATION 1000
 #endif
 
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
@@ -68,6 +65,7 @@ struct GrGpuGLShaders2::StageUniLocations {
 
 struct GrGpuGLShaders2::UniLocations {
     GrGLint fViewMatrixUni;
+    GrGLint fColorUni;
     StageUniLocations fStages[kNumStages];
 };
 
@@ -90,6 +88,7 @@ struct  GrGpuGLShaders2::Program {
     // these reflect the current values of uniforms
     // (GL uniform values travel with program)
     GrMatrix                    fViewMatrix;
+    GrColor                     fColor;
     GrMatrix                    fTextureMatrices[kNumStages];
     GrScalar                    fRadial2CenterX1[kNumStages];
     GrScalar                    fRadial2Radius0[kNumStages];
@@ -122,24 +121,23 @@ struct GrGpuGLShaders2::StageDesc {
 
 // must be tightly packed
 struct GrGpuGLShaders2::ProgramDesc {
-    GrVertexLayout fVertexLayout;
-    GR_STATIC_ASSERT(2 == sizeof(GrVertexLayout)); // pack with next field
+    ProgramDesc() {
+        // since we use this as a key we can't have any unitialized padding
+        memset(this, 0, sizeof(ProgramDesc));
+    }
 
+    GrVertexLayout fVertexLayout; // stripped of bits that don't affect
+                                  // program generation.
     enum {
-        kNotPoints_OptFlagBit = 0x1,
-        kVertexColorAllOnes_OptFlagBit = 0x2,
-    };
-    // we're assuming optflags and layout pack into 32 bits
-    // VS 2010 seems to require short rather than just unsigned
-    // for this to pack
-    unsigned short fOptFlags : 16;
+        kNone_ColorType         = 0,
+        kAttribute_ColorType    = 1,
+        kUniform_ColorType      = 2,
+    } fColorType;
+    bool fEmitsPointSize;
 
     StageDesc fStages[kNumStages];
 
     bool operator == (const ProgramDesc& desc) const {
-        // keep 4-byte aligned and tightly packed
-        GR_STATIC_ASSERT(4 == sizeof(StageDesc));
-        GR_STATIC_ASSERT(2 + 2 + 4 * kNumStages == sizeof(ProgramDesc));
         return 0 == memcmp(this, &desc, sizeof(ProgramDesc));
     }
 };
@@ -239,21 +237,29 @@ public:
 GrGpuGLShaders2::ProgramCache::HashKey::HashKey() {
 }
 
-static uint32_t ror(uint32_t x) {
+static inline uint32_t ror(uint32_t x) {
     return (x >> 8) | (x << 24);
 }
 
-static uint32_t rol(uint32_t x) {
+static inline uint32_t rol(uint32_t x) {
     return (x << 8) | (x >> 24);
+}
+
+static inline uint32_t roh(uint32_t x) {
+    return (x << 16) | (x >> 16);
+}
+
+static inline uint32_t swapouter(uint32_t x) {
+    return (x & 0x00ff00) | (x << 24) | (x >> 24);
 }
 
 GrGpuGLShaders2::ProgramCache::HashKey::HashKey(const ProgramDesc& desc) {
     fDesc = desc;
     // if you change the size of the desc, need to update the hash function
-    GR_STATIC_ASSERT(12 == sizeof(ProgramDesc));
+    GR_STATIC_ASSERT(20 == sizeof(ProgramDesc));
 
     uint32_t* d = GrTCast<uint32_t*>(&fDesc);
-    fHash = d[0] ^ ror(d[1]) ^ rol(d[2]);
+    fHash = d[0] ^ ror(d[1]) ^ rol(d[2]) ^ roh(d[3]) ^ swapouter(d[4]);
 }
 
 bool GrGpuGLShaders2::ProgramCache::HashKey::EQ(const Entry& entry,
@@ -289,7 +295,7 @@ struct GrGpuGLShaders2::ShaderCodeSegments {
 // for variable names etc
 typedef GrSStringBuilder<16> GrTokenString;
 
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     #define VIEW_MATRIX_NAME "aViewM"
 #else
     #define VIEW_MATRIX_NAME "uViewM"
@@ -297,6 +303,7 @@ typedef GrSStringBuilder<16> GrTokenString;
 
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
+#define COL_UNI_NAME "uColor"
 
 static inline void tex_attr_name(int coordIdx, GrStringBuilder* s) {
     *s = "aTexCoord";
@@ -328,7 +335,7 @@ static inline const char* vector_all_coords(int count) {
 }
 
 static void tex_matrix_name(int stage, GrStringBuilder* s) {
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     *s = "aTexM";
 #else
     *s = "uTexM";
@@ -359,12 +366,7 @@ static void radial2_varying_name(int stage, GrStringBuilder* s) {
 #include "GrRandom.h"
 
 void GrGpuGLShaders2::ProgramUnitTest() {
-    static const int PROG_OPTS[] = {
-        0,
-        ProgramDesc::kNotPoints_OptFlagBit,
-        ProgramDesc::kVertexColorAllOnes_OptFlagBit,
-        ProgramDesc::kNotPoints_OptFlagBit | ProgramDesc::kVertexColorAllOnes_OptFlagBit
-    };
+
     static const int STAGE_OPTS[] = {
         0,
         StageDesc::kNoPerspective_OptFlagBit,
@@ -391,6 +393,15 @@ void GrGpuGLShaders2::ProgramUnitTest() {
     for (int t = 0; t < NUM_TESTS; ++t) {
 
         pdesc.fVertexLayout = 0;
+        pdesc.fEmitsPointSize = random.nextF() > .5f;
+        float colorType = random.nextF();
+        if (colorType < 1.f / 3.f) {
+            pdesc.fColorType = ProgramDesc::kAttribute_ColorType;
+        } else if (colorType < 2.f / 3.f) {
+            pdesc.fColorType = ProgramDesc::kUniform_ColorType;
+        } else {
+            pdesc.fColorType = ProgramDesc::kNone_ColorType;
+        }
         for (int s = 0; s < kNumStages; ++s) {
             // enable the stage?
             if (random.nextF() > .5f) {
@@ -408,9 +419,8 @@ void GrGpuGLShaders2::ProgramUnitTest() {
             }
         }
 
-        int x = (int)(random.nextF() * GR_ARRAY_COUNT(PROG_OPTS));
-        pdesc.fOptFlags = PROG_OPTS[x];
         for (int s = 0; s < kNumStages; ++s) {
+            int x;
             pdesc.fStages[s].fEnabled = VertexUsesStage(s, pdesc.fVertexLayout);
             x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
             pdesc.fStages[s].fOptFlags = STAGE_OPTS[x];
@@ -452,7 +462,7 @@ void GrGpuGLShaders2::GenStageCode(int stageNum,
     if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
         varyingDims = coordDims;
     } else {
-    #if ATTRIBUTE_MATRIX
+    #if GR_GL_ATTRIBUTE_MATRICES
         segments->fVSAttrs += "attribute mat3 ";
         segments->fVSAttrs += texMName;
         segments->fVSAttrs += ";\n";
@@ -691,34 +701,40 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
 
     memset(&program->fUniLocations, 0, sizeof(UniLocations));
 
-    bool haveColor = !(ProgramDesc::kVertexColorAllOnes_OptFlagBit &
-                       desc.fOptFlags);
-
-#if ATTRIBUTE_MATRIX
-    segments.fVSAttrs = "attribute mat3 " VIEW_MATRIX_NAME ";\n";
+#if GR_GL_ATTRIBUTE_MATRICES
+    segments.fVSAttrs += "attribute mat3 " VIEW_MATRIX_NAME ";\n";
 #else
-    segments.fVSUnis  = "uniform mat3 " VIEW_MATRIX_NAME ";\n";
-    segments.fVSAttrs = "";
+    segments.fVSUnis  += "uniform mat3 " VIEW_MATRIX_NAME ";\n";
 #endif
     segments.fVSAttrs += "attribute vec2 " POS_ATTR_NAME ";\n";
-    if (haveColor) {
+
+    segments.fVSCode  += "void main() {\n"
+                        "\tvec3 pos3 = " VIEW_MATRIX_NAME " * vec3(" POS_ATTR_NAME ", 1);\n"
+                        "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n";
+
+    // incoming color to current stage being processed.
+    GrTokenString inColor;
+
+    switch (desc.fColorType) {
+    case ProgramDesc::kAttribute_ColorType:
         segments.fVSAttrs += "attribute vec4 " COL_ATTR_NAME ";\n";
-        segments.fVaryings = "varying vec4 vColor;\n";
-    } else {
-        segments.fVaryings = "";
-    }
-
-    segments.fVSCode   = "void main() {\n"
-                         "\tvec3 pos3 = " VIEW_MATRIX_NAME " * vec3(" POS_ATTR_NAME ", 1);\n"
-                         "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n";
-    if (haveColor) {
+        segments.fVaryings += "varying vec4 vColor;\n";
         segments.fVSCode += "\tvColor = " COL_ATTR_NAME ";\n";
+        inColor = "vColor";
+        break;
+    case ProgramDesc::kUniform_ColorType:
+        segments.fFSUnis += "uniform vec4 " COL_UNI_NAME ";\n";
+        inColor = COL_UNI_NAME;
+        break;
+    case ProgramDesc::kNone_ColorType:
+        inColor = "";
+        break;
     }
 
-    if (!(desc.fOptFlags & ProgramDesc::kNotPoints_OptFlagBit)){
+    if (desc.fEmitsPointSize){
         segments.fVSCode += "\tgl_PointSize = 1.0;\n";
     }
-    segments.fFSCode   = "void main() {\n";
+    segments.fFSCode  += "void main() {\n";
 
     // add texture coordinates that are used to the list of vertex attr decls
     GrTokenString texCoordAttrs[kMaxTexCoords];
@@ -752,8 +768,6 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
         }
     }
 
-    GrTokenString inColor = "vColor";
-
     // if we have active stages string them together, feeding the output color
     // of each to the next and generating code for each stage.
     if (numActiveStages) {
@@ -772,19 +786,18 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
                 }
                 GenStageCode(s,
                              desc.fStages[s],
-                             haveColor ? inColor.cstr() : NULL,
+                             inColor.length() ? inColor.cstr() : NULL,
                              outColor.cstr(),
                              stageInCoords[s],
                              &segments,
                              &program->fUniLocations.fStages[s]);
                 ++currActiveStage;
                 inColor = outColor;
-                haveColor = true;
             }
         }
     } else {
         segments.fFSCode += "\tgl_FragColor = ";
-        if (haveColor) {
+        if (inColor.length()) {
             segments.fFSCode += inColor;
         } else {
             segments.fFSCode += "vec4(1,1,1,1)";
@@ -883,7 +896,7 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
         }
     }
 
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     // set unis to a bogus value so that checks against -1 before
     // flushing will pass.
     GR_GL(BindAttribLocation(progID,
@@ -929,15 +942,23 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
     }
 
     // Get uniform locations
-#if !ATTRIBUTE_MATRIX
+#if !GR_GL_ATTRIBUTE_MATRICES
     program->fUniLocations.fViewMatrixUni =
                     GR_GL(GetUniformLocation(progID, VIEW_MATRIX_NAME));
     GrAssert(-1 != program->fUniLocations.fViewMatrixUni);
 #endif
+    if (ProgramDesc::kUniform_ColorType == desc.fColorType) {
+        program->fUniLocations.fColorUni = 
+                                GR_GL(GetUniformLocation(progID, COL_UNI_NAME));
+        GrAssert(-1 != program->fUniLocations.fColorUni);
+    } else {
+        program->fUniLocations.fColorUni = -1;
+    }
+
     for (int s = 0; s < kNumStages; ++s) {
         StageUniLocations& locations = program->fUniLocations.fStages[s];
         if (desc.fStages[s].fEnabled) {
-#if !ATTRIBUTE_MATRIX
+#if !GR_GL_ATTRIBUTE_MATRICES
             if (locations.fTextureMatrixUni) {
                 GrTokenString texMName;
                 tex_matrix_name(s, &texMName);
@@ -988,6 +1009,7 @@ void GrGpuGLShaders2::GenProgram(const ProgramDesc& desc,
         program->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
         program->fRadial2CenterX1[s] = GR_ScalarMax;
         program->fRadial2Radius0[s] = -GR_ScalarMax;
+        program->fColor = GrColor_ILLEGAL;
     }
     program->fViewMatrix = GrMatrix::InvalidMatrix();
 }
@@ -997,16 +1019,27 @@ void GrGpuGLShaders2::getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc
     // Must initialize all fields or cache will have false negatives!
     desc->fVertexLayout = fGeometrySrc.fVertexLayout;
 
-    desc->fOptFlags = 0;
-    if (kPoints_PrimitiveType != primType) {
-        desc->fOptFlags |= ProgramDesc::kNotPoints_OptFlagBit;
-    }
+    desc->fEmitsPointSize = kPoints_PrimitiveType == primType;
+
+    bool requiresAttributeColors = desc->fVertexLayout & kColor_VertexLayoutBit;
+    // fColorType records how colors are specified for the program. Strip
+    // the bit from the layout to avoid false negatives when searching for an
+    // existing program in the cache.
+    desc->fVertexLayout &= ~(kColor_VertexLayoutBit);
+
 #if GR_AGGRESSIVE_SHADER_OPTS
-    if (!(desc->fVertexLayout & kColor_VertexLayoutBit) &&
-        (0xffffffff == fCurrDrawState.fColor)) {
-        desc->fOptFlags |= ProgramDesc::kVertexColorAllOnes_OptFlagBit;
-    }
+    if (!requiresAttributeColors && (0xffffffff == fCurrDrawState.fColor)) {
+        desc->fColorType = ProgramDesc::kNone_ColorType;
+    } else
 #endif
+#if GR_GL_NO_CONSTANT_ATTRIBUTES
+    if (!requiresAttributeColors) {
+        desc->fColorType = ProgramDesc::kUniform_ColorType;
+    } else
+#endif
+    {
+        desc->fColorType = ProgramDesc::kAttribute_ColorType;
+    }
 
     for (int s = 0; s < kNumStages; ++s) {
         StageDesc& stage = desc->fStages[s];
@@ -1114,7 +1147,7 @@ GrGpuGLShaders2::~GrGpuGLShaders2() {
 }
 
 const GrMatrix& GrGpuGLShaders2::getHWSamplerMatrix(int stage) {
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     return fHWDrawState.fSamplerStates[stage].getMatrix();
 #else
     return fProgram->fTextureMatrices[stage];
@@ -1122,7 +1155,7 @@ const GrMatrix& GrGpuGLShaders2::getHWSamplerMatrix(int stage) {
 }
 
 void GrGpuGLShaders2::recordHWSamplerMatrix(int stage, const GrMatrix& matrix){
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     fHWDrawState.fSamplerStates[stage].setMatrix(matrix);
 #else
     fProgram->fTextureMatrices[stage] = matrix;
@@ -1165,7 +1198,7 @@ void GrGpuGLShaders2::flushViewMatrix() {
         m[GrMatrix::kTransY],
         m[GrMatrix::kPersp2]
     };
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     GR_GL(VertexAttrib4fv(VIEWMAT_ATTR_LOCATION+0, mt+0));
     GR_GL(VertexAttrib4fv(VIEWMAT_ATTR_LOCATION+1, mt+3));
     GR_GL(VertexAttrib4fv(VIEWMAT_ATTR_LOCATION+2, mt+6));
@@ -1197,7 +1230,7 @@ void GrGpuGLShaders2::flushTextureMatrix(int stage) {
         m[GrMatrix::kTransY],
         m[GrMatrix::kPersp2]
     };
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+0, mt+0));
     GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+1, mt+3));
     GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+2, mt+6));
@@ -1229,10 +1262,9 @@ void GrGpuGLShaders2::flushRadial2(int stage) {
                      unis));
 }
 
-void GrGpuGLShaders2::flushProgram(GrPrimitiveType type) {
-    ProgramDesc desc;
-    getProgramDesc(type, &desc);
-    fProgram = fProgramCache->getProgram(desc);
+void GrGpuGLShaders2::flushProgram(GrPrimitiveType type, ProgramDesc* desc) {
+    getProgramDesc(type, desc);
+    fProgram = fProgramCache->getProgram(*desc);
 
     if (fHWProgramID != fProgram->fProgramID) {
         GR_GL(UseProgram(fProgram->fProgramID));
@@ -1240,6 +1272,49 @@ void GrGpuGLShaders2::flushProgram(GrPrimitiveType type) {
 #if GR_COLLECT_STATS
         ++fStats.fProgChngCnt;
 #endif
+    }
+}
+
+void GrGpuGLShaders2::flushColor(const ProgramDesc& desc) {
+    if (fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit) {
+        // color will be specified per-vertex as an attribute
+        // invalidate the const vertex attrib color
+        fHWDrawState.fColor = GrColor_ILLEGAL;
+    } else {
+        switch (desc.fColorType) {
+            case ProgramDesc::kAttribute_ColorType:
+                if (fHWDrawState.fColor != fCurrDrawState.fColor) {
+                    // OpenGL ES only supports the float varities of glVertexAttrib
+                    float c[] = {
+                        GrColorUnpackR(fCurrDrawState.fColor) / 255.f,
+                        GrColorUnpackG(fCurrDrawState.fColor) / 255.f,
+                        GrColorUnpackB(fCurrDrawState.fColor) / 255.f,
+                        GrColorUnpackA(fCurrDrawState.fColor) / 255.f
+                    };
+                    GR_GL(VertexAttrib4fv(COL_ATTR_LOCATION, c));
+                    fHWDrawState.fColor = fCurrDrawState.fColor;
+                }
+                break;
+            case ProgramDesc::kUniform_ColorType:
+                if (fProgram->fColor != fCurrDrawState.fColor) {
+                    // OpenGL ES only supports the float varities of glVertexAttrib
+                    float c[] = {
+                        GrColorUnpackR(fCurrDrawState.fColor) / 255.f,
+                        GrColorUnpackG(fCurrDrawState.fColor) / 255.f,
+                        GrColorUnpackB(fCurrDrawState.fColor) / 255.f,
+                        GrColorUnpackA(fCurrDrawState.fColor) / 255.f
+                    };
+                    GrAssert(-1 != fProgram->fUniLocations.fColorUni);
+                    GR_GL(Uniform4fv(fProgram->fUniLocations.fColorUni, 1, c));
+                    fProgram->fColor = fCurrDrawState.fColor;
+                }
+                break;
+            case ProgramDesc::kNone_ColorType:
+                GrAssert(0xffffffff == fCurrDrawState.fColor);
+                break;
+            default:
+                GrCrash("Unknown color type.");
+        }
     }
 }
 
@@ -1252,7 +1327,7 @@ bool GrGpuGLShaders2::flushGraphicsState(GrPrimitiveType type) {
     if (fDirtyFlags.fRenderTargetChanged) {
         // our coords are in pixel space and the GL matrices map to NDC
         // so if the viewport changed, our matrix is now wrong.
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
         fHWDrawState.fViewMatrix = GrMatrix::InvalidMatrix();
 #else
         // we assume all shader matrices may be wrong after viewport changes
@@ -1260,29 +1335,12 @@ bool GrGpuGLShaders2::flushGraphicsState(GrPrimitiveType type) {
 #endif
     }
 
-    flushProgram(type);
+    ProgramDesc desc;
+    flushProgram(type, &desc);
 
-    if (fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit) {
-        // invalidate the immediate mode color
-        fHWDrawState.fColor = GrColor_ILLEGAL;
-    } else {
-        if (fHWDrawState.fColor != fCurrDrawState.fColor &&
-            (!GR_AGGRESSIVE_SHADER_OPTS || 0xffffffff != fCurrDrawState.fColor)) {
-            // avoid pushing the color attrib if the shader will optimize it out
+    flushColor(desc);
 
-            // OpenGL ES only supports the float varities of glVertexAttrib
-            float c[] = {
-                GrColorUnpackR(fCurrDrawState.fColor) / 255.f,
-                GrColorUnpackG(fCurrDrawState.fColor) / 255.f,
-                GrColorUnpackB(fCurrDrawState.fColor) / 255.f,
-                GrColorUnpackA(fCurrDrawState.fColor) / 255.f
-            };
-            GR_GL(VertexAttrib4fv(COL_ATTR_LOCATION, c));
-            fHWDrawState.fColor = fCurrDrawState.fColor;
-        }
-    }
-
-#if ATTRIBUTE_MATRIX
+#if GR_GL_ATTRIBUTE_MATRICES
     GrMatrix& currViewMatrix = fHWDrawState.fViewMatrix;
 #else
     GrMatrix& currViewMatrix = fProgram->fViewMatrix;

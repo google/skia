@@ -51,6 +51,9 @@ private:
     // sets the texture matrix uniform for currently bound program
     void flushTextureMatrix(int stage);
 
+    // sets the color specified by GrDrawTarget::setColor()
+    void flushColor();
+
     // sets the MVP matrix uniform for currently bound program
     void flushViewMatrix();
 
