@@ -22,33 +22,31 @@
 #include "SkDraw.h"
 #include "SkRegion.h"
 
-bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&, SkIPoint*)
-{
+bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
+                              SkIPoint*) {
     return false;
 }
 
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                               const SkRegion& clip, SkBounder* bounder,
-                              SkBlitter* blitter)
-{
+                              SkBlitter* blitter) {
     SkMask  srcM, dstM;
 
     if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), this, &matrix, &srcM,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode))
-    {
+                            SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
         return false;
     }
 
     SkAutoMaskImage autoSrc(&srcM, false);
 
-    if (!this->filterMask(&dstM, srcM, matrix, NULL))
+    if (!this->filterMask(&dstM, srcM, matrix, NULL)) {
         return false;
+    }
 
     SkAutoMaskImage         autoDst(&dstM, false);
     SkRegion::Cliperator    clipper(clip, dstM.fBounds);
 
-    if (!clipper.done() && (bounder == NULL || bounder->doIRect(dstM.fBounds)))
-    {
+    if (!clipper.done() && (bounder == NULL || bounder->doIRect(dstM.fBounds))) {
         const SkIRect& cr = clipper.rect();
         do {
             blitter->blitMask(dstM, cr);
