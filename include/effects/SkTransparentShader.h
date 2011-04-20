@@ -31,8 +31,7 @@ public:
 
     // overrides for SkFlattenable
     virtual Factory getFactory() { return Create; }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer)
-    {
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
     }
         
@@ -43,8 +42,7 @@ private:
 
     SkTransparentShader(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
     
-    static SkFlattenable* Create(SkFlattenableReadBuffer& buffer)
-    {
+    static SkFlattenable* Create(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(SkTransparentShader, (buffer));
     }
 

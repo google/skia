@@ -38,7 +38,8 @@ public:
     //  This method is not exported to java.
     virtual SkMask::Format getFormat();
     //  This method is not exported to java.
-    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix& matrix, SkIPoint* margin);
+    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+                            SkIPoint* margin);
 
     // overrides from SkFlattenable
 
