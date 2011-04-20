@@ -21,8 +21,8 @@
 #include "SkFDot6.h"
 #include "SkLineClipper.h"
 
-static void horiline(int x, int stopx, SkFixed fy, SkFixed dy, SkBlitter* blitter)
-{
+static void horiline(int x, int stopx, SkFixed fy, SkFixed dy,
+                     SkBlitter* blitter) {
     SkASSERT(x < stopx);
 
     do {
@@ -31,8 +31,8 @@ static void horiline(int x, int stopx, SkFixed fy, SkFixed dy, SkBlitter* blitte
     } while (++x < stopx);
 }
 
-static void vertline(int y, int stopy, SkFixed fx, SkFixed dx, SkBlitter* blitter)
-{
+static void vertline(int y, int stopy, SkFixed fx, SkFixed dx,
+                     SkBlitter* blitter) {
     SkASSERT(y < stopy);
 
     do {
@@ -41,8 +41,8 @@ static void vertline(int y, int stopy, SkFixed fx, SkFixed dx, SkBlitter* blitte
     } while (++y < stopy);
 }
 
-void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* clip, SkBlitter* blitter)
-{
+void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1,
+                      const SkRegion* clip, SkBlitter* blitter) {
     SkBlitterClipper    clipper;
     SkRect  r;
     SkIRect clipR, ptsR;
@@ -92,34 +92,31 @@ void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* cl
     SkFDot6 dx = x1 - x0;
     SkFDot6 dy = y1 - y0;
 
-    if (SkAbs32(dx) > SkAbs32(dy))  // mostly horizontal
-    {
-        if (x0 > x1)    // we want to go left-to-right
-        {
+    if (SkAbs32(dx) > SkAbs32(dy)) { // mostly horizontal
+        if (x0 > x1) {   // we want to go left-to-right
             SkTSwap<SkFDot6>(x0, x1);
             SkTSwap<SkFDot6>(y0, y1);
         }
         int ix0 = SkFDot6Round(x0);
         int ix1 = SkFDot6Round(x1);
-        if (ix0 == ix1) // too short to draw
+        if (ix0 == ix1) {// too short to draw
             return;
+        }
 
         SkFixed slope = SkFixedDiv(dy, dx);
         SkFixed startY = SkFDot6ToFixed(y0) + (slope * ((32 - x0) & 63) >> 6);
 
         horiline(ix0, ix1, startY, slope, blitter);
-    }
-    else                // mostly vertical
-    {
-        if (y0 > y1)    // we want to go top-to-bottom
-        {
+    } else {              // mostly vertical
+        if (y0 > y1) {   // we want to go top-to-bottom
             SkTSwap<SkFDot6>(x0, x1);
             SkTSwap<SkFDot6>(y0, y1);
         }
         int iy0 = SkFDot6Round(y0);
         int iy1 = SkFDot6Round(y1);
-        if (iy0 == iy1) // too short to draw
+        if (iy0 == iy1) { // too short to draw
             return;
+        }
 
         SkFixed slope = SkFixedDiv(dx, dy);
         SkFixed startX = SkFDot6ToFixed(x0) + (slope * ((32 - y0) & 63) >> 6);
@@ -131,8 +128,8 @@ void SkScan::HairLine(const SkPoint& pt0, const SkPoint& pt1, const SkRegion* cl
 // we don't just draw 4 lines, 'cause that can leave a gap in the bottom-right
 // and double-hit the top-left.
 // TODO: handle huge coordinates on rect (before calling SkScalarToFixed)
-void SkScan::HairRect(const SkRect& rect, const SkRegion* clip, SkBlitter* blitter)
-{
+void SkScan::HairRect(const SkRect& rect, const SkRegion* clip,
+                      SkBlitter* blitter) {
     SkBlitterClipper    clipper;
     SkIRect             r;
 
@@ -141,21 +138,22 @@ void SkScan::HairRect(const SkRect& rect, const SkRegion* clip, SkBlitter* blitt
           (SkScalarToFixed(rect.fRight) >> 16) + 1,
           (SkScalarToFixed(rect.fBottom) >> 16) + 1);
 
-    if (clip)
-    {
-        if (clip->quickReject(r))
+    if (clip) {
+        if (clip->quickReject(r)) {
             return;
-        if (!clip->quickContains(r))
+        }
+        if (!clip->quickContains(r)) {
             blitter = clipper.apply(blitter, clip);
+        }
     }
 
     int width = r.width();
     int height = r.height();
     
-    if ((width | height) == 0)
+    if ((width | height) == 0) {
         return;
-    if (width <= 2 || height <= 2)
-    {
+    }
+    if (width <= 2 || height <= 2) {
         blitter->blitRect(r.fLeft, r.fTop, width, height);
         return;
     }
@@ -166,13 +164,12 @@ void SkScan::HairRect(const SkRect& rect, const SkRegion* clip, SkBlitter* blitt
     blitter->blitH(r.fLeft, r.fBottom - 1, width);              // bottom
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkPath.h"
 #include "SkGeometry.h"
 
-static bool quad_too_curvy(const SkPoint pts[3])
-{
+static bool quad_too_curvy(const SkPoint pts[3]) {
     return true;
 }
 
@@ -252,68 +249,68 @@ static void haircubic(const SkPoint pts[4], const SkRegion* clip, SkBlitter* bli
 static void hair_path(const SkPath& path, const SkRegion* clip, SkBlitter* blitter,
                       void (*lineproc)(const SkPoint&, const SkPoint&, const SkRegion*, SkBlitter*))
 {
-    if (path.isEmpty())
+    if (path.isEmpty()) {
         return;
+    }
 
     const SkIRect* clipR = NULL;
 
-    if (clip)
-    {
+    if (clip) {
         SkIRect ibounds;
         path.getBounds().roundOut(&ibounds);
         ibounds.inset(-1, -1);
 
-        if (clip->quickReject(ibounds))
+        if (clip->quickReject(ibounds)) {
             return;
-
-        if (clip->quickContains(ibounds))
+        }
+        if (clip->quickContains(ibounds)) {
             clip = NULL;
-        else
+        } else {
             clipR = &clip->getBounds();
+        }
     }
 
     SkPath::Iter    iter(path, false);
     SkPoint         pts[4];
     SkPath::Verb    verb;
 
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb)
-    {
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
-        case SkPath::kLine_Verb:
-            lineproc(pts[0], pts[1], clip, blitter);
-            break;
-        case SkPath::kQuad_Verb: {
-            int d = compute_int_quad_dist(pts);
-            /*  quadratics approach the line connecting their start and end points
-             4x closer with each subdivision, so we compute the number of
-             subdivisions to be the minimum need to get that distance to be less
-             than a pixel.
-             */
-            int level = (33 - SkCLZ(d)) >> 1;
-//          SkDebugf("----- distance %d computedLevel %d\n", d, computedLevel);
-            // sanity check on level (from the previous version)
-            if (level > kMaxQuadSubdivideLevel) {
-                level = kMaxQuadSubdivideLevel;
+            case SkPath::kLine_Verb:
+                lineproc(pts[0], pts[1], clip, blitter);
+                break;
+            case SkPath::kQuad_Verb: {
+                int d = compute_int_quad_dist(pts);
+                /*  quadratics approach the line connecting their start and end points
+                 4x closer with each subdivision, so we compute the number of
+                 subdivisions to be the minimum need to get that distance to be less
+                 than a pixel.
+                 */
+                int level = (33 - SkCLZ(d)) >> 1;
+    //          SkDebugf("----- distance %d computedLevel %d\n", d, computedLevel);
+                // sanity check on level (from the previous version)
+                if (level > kMaxQuadSubdivideLevel) {
+                    level = kMaxQuadSubdivideLevel;
+                }
+                hairquad(pts, clip, blitter, level, lineproc);
+                break;
             }
-            hairquad(pts, clip, blitter, level, lineproc);
-            break;
-        }
-        case SkPath::kCubic_Verb:
-            haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
-            break;
-        default:
-            break;
+            case SkPath::kCubic_Verb:
+                haircubic(pts, clip, blitter, kMaxCubicSubdivideLevel, lineproc);
+                break;
+            default:
+                break;
         }
     }
 }
 
-void SkScan::HairPath(const SkPath& path, const SkRegion* clip, SkBlitter* blitter)
-{
+void SkScan::HairPath(const SkPath& path, const SkRegion* clip,
+                      SkBlitter* blitter) {
     hair_path(path, clip, blitter, SkScan::HairLine);
 }
 
-void SkScan::AntiHairPath(const SkPath& path, const SkRegion* clip, SkBlitter* blitter)
-{
+void SkScan::AntiHairPath(const SkPath& path, const SkRegion* clip,
+                          SkBlitter* blitter) {
     hair_path(path, clip, blitter, SkScan::AntiHairLine);
 }
 
