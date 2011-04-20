@@ -24,9 +24,9 @@
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool) :
-        fDraws(DRAWS_BLOCK_SIZE, fDrawsStorage),
-        fStates(STATES_BLOCK_SIZE, fStatesStorage),
-        fClips(CLIPS_BLOCK_SIZE, fClipsStorage),
+        fDraws(&fDrawStorage),
+        fStates(&fStateStorage),
+        fClips(&fClipStorage),
         fClipSet(true),
 
         fLastRectVertexLayout(0),

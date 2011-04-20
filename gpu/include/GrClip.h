@@ -22,6 +22,7 @@
 #include "GrRect.h"
 #include "GrPath.h"
 #include "GrTArray.h"
+#include "GrTemplates.h"
 
 
 class GrClip {
@@ -140,7 +141,7 @@ private:
     enum {
         kPreAllocElements = 4,
     };
-    uint8_t             fListMemory[sizeof(Element) * kPreAllocElements];
+    GrAlignedSTStorage<kPreAllocElements, Element>  fListStorage;
     GrTArray<Element>   fList;
 };
 #endif
