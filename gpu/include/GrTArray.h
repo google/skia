@@ -20,6 +20,7 @@
 
 #include <new>
 #include "GrTypes.h"
+#include "GrTemplates.h"
 
 // DATA_TYPE indicates that T has a trivial cons, destructor
 // and can be shallow-copied
@@ -43,6 +44,16 @@ public:
         fPreAllocMemArray = NULL;
     }
 
+    template <int N>
+    GrTArray(GrAlignedSTStorage<N,T>* storage) {
+        GrAssert(N > 0);
+        fCount              = 0;
+        fReserveCount       = N;
+        fAllocCount         = N;
+        fMemArray           = storage->get();
+        fPreAllocMemArray   = storage->get();
+    }
+
     GrTArray(void* preAllocStorage, int preAllocCount) {
         GrAssert(preAllocCount >= 0);
         // we allow NULL,0 args and revert to the default cons. behavior
@@ -64,6 +75,7 @@ public:
         fAllocCount         = GrMax(fReserveCount, fCount);
         fMemArray           = GrMalloc(sizeof(T) * fAllocCount);
         fPreAllocMemArray   = NULL;
+
         if (DATA_TYPE) {
             memcpy(fMemArray, array.fMemArray, sizeof(T) * fCount);
         } else {

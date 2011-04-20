@@ -18,29 +18,29 @@
 #include "GrClip.h"
 
 GrClip::GrClip()
-    : fList(fListMemory, kPreAllocElements) {
+    : fList(&fListStorage) {
     fConservativeBounds.setEmpty();
     fConservativeBoundsValid = true;
 }
 
 GrClip::GrClip(const GrClip& src)
-    : fList(fListMemory, kPreAllocElements) {
+    : fList(&fListStorage) {
     *this = src;
 }
 
 GrClip::GrClip(const GrIRect& rect)
-    : fList(fListMemory, kPreAllocElements) {
+    : fList(&fListStorage) {
     this->setFromIRect(rect);
 }
 
 GrClip::GrClip(const GrRect& rect)
-    : fList(fListMemory, kPreAllocElements) {
+    : fList(&fListStorage) {
     this->setFromRect(rect);
 }
 
 GrClip::GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
                const GrRect* bounds)
-    : fList(fListMemory, kPreAllocElements) {
+    : fList(&fListStorage) {
     this->setFromIterator(iter, tx, ty, bounds);
 }
 

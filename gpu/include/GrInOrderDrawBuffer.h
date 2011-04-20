@@ -158,18 +158,17 @@ private:
     size_t                          fReservedIndexBytes;
     size_t                          fUsedReservedVertexBytes;
     size_t                          fUsedReservedIndexBytes;
+    
+    enum {
+        kDrawPreallocCnt   = 8,
+        kStatePreallocCnt  = 8,
+        kClipPreallocCnt   = 8,
+    };
 
-    static const uint32_t           STATES_BLOCK_SIZE = 8;
-    static const uint32_t           DRAWS_BLOCK_SIZE  = 8;
-    static const uint32_t           CLIPS_BLOCK_SIZE  = 8;
-    static const uint32_t           VERTEX_BLOCK_SIZE = 1 << 12;
-    static const uint32_t           INDEX_BLOCK_SIZE  = 1 << 10;
-    int8_t                          fDrawsStorage[sizeof(Draw) *
-                                                  DRAWS_BLOCK_SIZE];
-    int8_t                          fStatesStorage[sizeof(SavedDrawState) *
-                                                   STATES_BLOCK_SIZE];
-    int8_t                          fClipsStorage[sizeof(GrClip) *
-                                                  CLIPS_BLOCK_SIZE];
+    GrAlignedSTStorage<kDrawPreallocCnt, Draw>              fDrawStorage;
+    GrAlignedSTStorage<kStatePreallocCnt, SavedDrawState>   fStateStorage;
+    GrAlignedSTStorage<kClipPreallocCnt, GrClip>            fClipStorage;
+
     typedef GrDrawTarget INHERITED;
 };
 

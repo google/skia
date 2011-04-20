@@ -135,12 +135,12 @@ private:
     static const uint32_t NUM_INIT_BLOCK_PTRS = 8;
     
     GrTArray<void*> fBlocks;
-    size_t          fBlockSize;    
-    char            fBlockInitialStorage[NUM_INIT_BLOCK_PTRS*sizeof(void*)];    
+    size_t          fBlockSize;
+    char            fBlockInitialStorage[NUM_INIT_BLOCK_PTRS*sizeof(void*)];
     size_t          fItemSize;
     uint32_t        fItemsPerBlock;
     bool            fOwnFirstBlock;
-    uint32_t        fCount;    
+    uint32_t        fCount;
 };
 
 template <typename T>
@@ -150,7 +150,7 @@ private:
     
 public:
     virtual ~GrTAllocator() {};
-    
+
     /**
      * Create an allocator
      *
@@ -159,9 +159,18 @@ public:
      *                          Must be at least size(T)*itemsPerBlock sized.
      *                          Caller is responsible for freeing this memory.
      */
-    GrTAllocator(uint32_t itemsPerBlock, void* initialBlock) :
-        fAllocator(sizeof(T), itemsPerBlock, initialBlock)
-    {}
+    GrTAllocator(uint32_t itemsPerBlock, void* initialBlock)
+        : fAllocator(sizeof(T), itemsPerBlock, initialBlock) {}
+
+    /**
+     * Create an allocator using a GrAlignedTAlloc as the initial block.
+     *
+     * @param   initialBlock    specifies the storage for the initial block
+     *                          and the size of subsequent blocks.
+     */
+    template <int N>
+    GrTAllocator(GrAlignedSTStorage<N,T>* initialBlock)
+        : fAllocator(sizeof(T), N, initialBlock->get()) {}
     
     /**
      * Adds an item and returns it.
