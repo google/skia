@@ -44,7 +44,7 @@ public:
     /** Returns the format of the resulting mask that this subclass will return
         when its filterMask() method is called.
     */
-    virtual SkMask::Format  getFormat() = 0;
+    virtual SkMask::Format getFormat() = 0;
 
     /** Create a new mask by filter the src mask.
         If src.fImage == null, then do not allocate or create the dst image
@@ -59,7 +59,8 @@ public:
                         applying the filter. If returning false, ignore this parameter.
         @return true if the dst mask was correctly created.
     */
-    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&, SkIPoint* margin);
+    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+                            SkIPoint* margin);
 
     /** Helper method that, given a path in device space, will rasterize it into a kA8_Format mask
         and then call filterMask(). If this returns true, the specified blitter will be called
@@ -70,6 +71,7 @@ public:
                     const SkRegion& devClip, SkBounder*, SkBlitter* blitter);
 
     virtual void flatten(SkFlattenableWriteBuffer& ) {}
+
 protected:
     // empty for now, but lets get our subclass to remember to init us for the future
     SkMaskFilter(SkFlattenableReadBuffer&) {}
@@ -82,14 +84,14 @@ protected:
 */
 class SkAutoMaskImage {
 public:
-    SkAutoMaskImage(SkMask* mask, bool alloc)
-    {
-        if (alloc)
+    SkAutoMaskImage(SkMask* mask, bool alloc) {
+        if (alloc) {
             mask->fImage = SkMask::AllocImage(mask->computeImageSize());
+        }
         fImage = mask->fImage;
     }
-    ~SkAutoMaskImage()
-    {
+
+    ~SkAutoMaskImage() {
         SkMask::FreeImage(fImage);
     }
 private:

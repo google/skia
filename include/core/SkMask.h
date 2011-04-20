@@ -126,10 +126,11 @@ struct SkMask {
     */
     unsigned rowWordsLCD() const {
         SkASSERT(fFormat == kHorizontalLCD_Format || fFormat == kVerticalLCD_Format);
-        if (fFormat == kHorizontalLCD_Format)
+        if (fFormat == kHorizontalLCD_Format) {
             return fBounds.width() + 2;
-        else
+        } else {
             return fBounds.width();
+        }
     }
 
     static uint8_t* AllocImage(size_t bytes);
