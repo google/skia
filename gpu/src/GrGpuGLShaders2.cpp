@@ -250,7 +250,7 @@ static inline uint32_t roh(uint32_t x) {
 }
 
 static inline uint32_t swapouter(uint32_t x) {
-    return (x & 0x00ff00) | (x << 24) | (x >> 24);
+    return (x & 0x00ffff00) | (x << 24) | (x >> 24);
 }
 
 GrGpuGLShaders2::ProgramCache::HashKey::HashKey(const ProgramDesc& desc) {
