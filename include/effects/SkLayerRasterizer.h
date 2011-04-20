@@ -28,8 +28,7 @@ public:
             SkLayerRasterizer();
     virtual ~SkLayerRasterizer();
     
-    void addLayer(const SkPaint& paint)
-    {
+    void addLayer(const SkPaint& paint) {
         this->addLayer(paint, 0, 0);
     }
 

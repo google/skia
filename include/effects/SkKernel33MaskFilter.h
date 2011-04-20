@@ -47,8 +47,7 @@ private:
 class SkKernel33MaskFilter : public SkKernel33ProcMaskFilter {
 public:
     SkKernel33MaskFilter(const int coeff[3][3], int shift, int percent256 = 256)
-        : SkKernel33ProcMaskFilter(percent256)
-    {
+            : SkKernel33ProcMaskFilter(percent256) {
         memcpy(fKernel, coeff, 9 * sizeof(int));
         fShift = shift;
     }

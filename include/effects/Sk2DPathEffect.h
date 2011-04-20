@@ -27,14 +27,14 @@ public:
 
     // overrides
     //  This method is not exported to java.
-    virtual bool    filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
+    virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
     // overrides from SkFlattenable
     //  This method is not exported to java.
-    virtual void    flatten(SkFlattenableWriteBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&);
     
     //  This method is not exported to java.
-       virtual Factory getFactory();
+    virtual Factory getFactory();
 
 protected:
     /** New virtual, to be overridden by subclasses.
