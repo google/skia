@@ -224,7 +224,7 @@ void GrGpuGLShaders::flushTextureMatrix(int stage) {
 
     GrMatrix m = getSamplerMatrix(stage);
     GrSamplerState::SampleMode mode = 
-        fCurrDrawState.fSamplerStates[0].getSampleMode();
+        fCurrDrawState.fSamplerStates[stage].getSampleMode();
     AdjustTextureMatrix(texture, mode, &m);
 
     // ES doesn't allow you to pass true to the transpose param,
