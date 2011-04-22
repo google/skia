@@ -24,9 +24,28 @@ extern SkView* create_overview(int, const SkViewFactory[]);
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
 
+#ifdef SK_DEBUG
+    #define FPS_REPEAT_COUNT    10
+#else
+    #define FPS_REPEAT_COUNT    100
+#endif
+
 #ifdef SK_SUPPORT_GL
     #include "GrGLConfig.h"
 #endif
+
+///////////////
+static const char view_inval_msg[] = "view-inval-msg";
+
+static void postInvalDelay(SkEventSinkID sinkID) {
+    SkEvent* evt = new SkEvent(view_inval_msg);
+    evt->post(sinkID, 10);
+}
+
+static bool isInvalEvent(const SkEvent& evt) {
+    return evt.isType(view_inval_msg);
+}
+//////////////////
 
 SkViewRegister* SkViewRegister::gHead;
 SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
@@ -265,6 +284,8 @@ private:
     bool fRotate;
     bool fScale;
     bool fRequestGrabImage;
+    bool fMeasureFPS;
+    SkMSec fMeasureFPS_Time;
 
     // The following are for the 'fatbits' drawing
     // Latest position of the mouse.
@@ -402,6 +423,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fRotate = false;
     fScale = false;
     fRequestGrabImage = false;
+    fMeasureFPS = false;
     fLCDState = kUnknown_SkTriState;
     fAAState = kUnknown_SkTriState;
     fFlipAxis = 0;
@@ -802,7 +824,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         r.set(50, 50, 50+100, 50+100);
         bm.scrollRect(&r, dx, dy, &inval);
         paint_rgn(bm, r, inval);
-    }
+    }        
 }
 
 void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
@@ -826,10 +848,21 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         kUnknown_SkTriState != fAAState) {
         canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState))->unref();
     }
+
+    SampleView::SetRepeatDraw(child, fMeasureFPS ? FPS_REPEAT_COUNT : 1);
+    if (fMeasureFPS) {
+        fMeasureFPS_Time = SkTime::GetMSecs();
+    }
 }
 
 void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
     canvas->setDrawFilter(NULL);
+
+    if (fMeasureFPS) {
+        fMeasureFPS_Time = SkTime::GetMSecs() - fMeasureFPS_Time;
+        this->updateTitle();
+        postInvalDelay(this->getSinkID());
+    }
 }
 
 static SkBitmap::Config gConfigCycle[] = {
@@ -878,6 +911,10 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
     if (evt.isType("set-curr-index")) {
         fCurrIndex = evt.getFast32() % fSamples.count();
         this->loadView(fSamples[fCurrIndex]());
+        return true;
+    }
+    if (isInvalEvent(evt)) {
+        this->inval(NULL);
         return true;
     }
     return this->INHERITED::onEvent(evt);
@@ -963,20 +1000,38 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->postAnimatingEvent();
             this->updateTitle();
             return true;
-        case 'f': {
-            const char* title = this->getTitle();
-            if (title[0] == 0) {
-                title = "sampleapp";
-            }
-            SkString name(title);
-            cleanup_for_filename(&name);
-            name.append(".png");
-            if (SkImageEncoder::EncodeFile(name.c_str(), this->getBitmap(),
-                                           SkImageEncoder::kPNG_Type, 100)) {
-                SkDebugf("Created %s\n", name.c_str());
-            }
+        case 'b':
+            fAAState = cycle_tristate(fAAState);
+            this->updateTitle();
+            this->inval(NULL);
+            break;
+        case 'c':
+            fUseClip = !fUseClip;
+            this->inval(NULL);
+            this->updateTitle();
             return true;
-        }
+        case 'd':
+            SkGraphics::SetFontCacheUsed(0);
+            return true;
+        case 'f':
+            fMeasureFPS = !fMeasureFPS;
+            this->inval(NULL);
+            break;
+        case 'g':
+            fRequestGrabImage = true;
+            this->inval(NULL);
+            break;
+        case 'i':
+            this->zoomIn();
+            break;
+        case 'l':
+            fLCDState = cycle_tristate(fLCDState);
+            this->updateTitle();
+            this->inval(NULL);
+            break;
+        case 'o':
+            this->zoomOut();
+            break;
         case 'r':
             fRotate = !fRotate;
             this->inval(NULL);
@@ -987,34 +1042,6 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             this->updateTitle();
             return true;
-        case 'c':
-            fUseClip = !fUseClip;
-            this->inval(NULL);
-            this->updateTitle();
-            return true;
-        case 'd':
-            SkGraphics::SetFontCacheUsed(0);
-            return true;
-        case 'g':
-            fRequestGrabImage = true;
-            this->inval(NULL);
-            break;
-        case 'l':
-            fLCDState = cycle_tristate(fLCDState);
-            this->updateTitle();
-            this->inval(NULL);
-            break;
-        case 'b':
-            fAAState = cycle_tristate(fAAState);
-            this->updateTitle();
-            this->inval(NULL);
-            break;
-        case 'i':
-            this->zoomIn();
-            break;
-        case 'o':
-            this->zoomOut();
-            break;
         case 'x':
             fFlipAxis ^= kFlipAxis_X;
             this->updateTitle();
@@ -1243,6 +1270,11 @@ void SampleWindow::updateTitle() {
     if (fZoomLevel) {
         title.prependf("{%d} ", fZoomLevel);
     }
+    
+    if (fMeasureFPS) {
+        title.appendf(" %4d ms", fMeasureFPS_Time);
+    }
+
     this->setTitle(title.c_str());
 }
 
@@ -1276,6 +1308,40 @@ void SampleWindow::onSizeChange() {
     }
 
     this->updateTitle();    // to refresh our config
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const char repeat_count_tag[] = "sample-set-repeat-count";
+
+void SampleView::SetRepeatDraw(SkView* view, int count) {
+    SkEvent evt(repeat_count_tag);
+    evt.setFast32(count);
+    (void)view->doEvent(evt);
+}
+
+bool SampleView::onEvent(const SkEvent& evt) {
+    if (evt.isType(repeat_count_tag)) {
+        fRepeatCount = evt.getFast32();
+        return true;
+    }
+    return this->INHERITED::onEvent(evt);
+}
+
+bool SampleView::onQuery(SkEvent* evt) {
+    return this->INHERITED::onQuery(evt);
+}
+
+void SampleView::onDraw(SkCanvas* canvas) {
+    this->onDrawBackground(canvas);
+    for (int i = 0; i < fRepeatCount; i++) {
+        SkAutoCanvasRestore acr(canvas, true);
+        this->onDrawContent(canvas);
+    }
+}
+
+void SampleView::onDrawBackground(SkCanvas* canvas) {
+    canvas->drawColor(SK_ColorWHITE);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -3,6 +3,7 @@
 
 #include "SkEvent.h"
 #include "SkKey.h"
+#include "SkView.h"
 
 class SampleCode {
 public:
@@ -25,8 +26,6 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SkView;
-
 typedef SkView* (*SkViewFactory)();
 
 class SkViewRegister : SkNoncopyable {
@@ -43,6 +42,29 @@ private:
     SkViewRegister* fChain;
     
     static SkViewRegister* gHead;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+class SampleView : public SkView {
+public:
+    SampleView() : fRepeatCount(1) {}
+
+    static void SetRepeatDraw(SkView*, int count);
+
+protected:
+    virtual void onDrawBackground(SkCanvas*);
+    virtual void onDrawContent(SkCanvas*) = 0;
+
+    // overrides
+    virtual bool onEvent(const SkEvent& evt);
+    virtual bool onQuery(SkEvent* evt);
+    virtual void onDraw(SkCanvas*);
+
+private:
+    int fRepeatCount;
+
+    typedef SkView INHERITED;
 };
 
 #endif
