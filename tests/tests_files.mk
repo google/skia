@@ -7,6 +7,7 @@ SOURCE := \
     ClipStackTest.cpp \
     ClipperTest.cpp \
     ColorFilterTest.cpp \
+    ColorTest.cpp \
     DequeTest.cpp \
     DrawBitmapRectTest.cpp \
     FillPathTest.cpp \
