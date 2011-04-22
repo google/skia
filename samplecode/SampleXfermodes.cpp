@@ -110,7 +110,7 @@ static void make_bitmaps(int w, int h, SkBitmap* src, SkBitmap* dst) {
 
 static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
 
-class XfermodesView : public SkView {
+class XfermodesView : public SampleView {
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
 
@@ -148,14 +148,8 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
-
-        this->drawBG(canvas);
 
         const struct {
             SkXfermode::Mode  fMode;
@@ -246,7 +240,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
