@@ -35,7 +35,7 @@ static SkShader* make_shader1(const SkIPoint& size) {
                     SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode, NULL);
 }
 
-class VerticesView : public SkView {
+class VerticesView : public SampleView {
     SkShader*   fShader0;
     SkShader*   fShader1;
 
@@ -51,6 +51,8 @@ public:
         make_tris(&fRecs[2]);
 
         fScale = SK_Scalar1;
+
+        this->setBGColor(SK_ColorGRAY);
     }
 
     virtual ~VerticesView() {
@@ -70,15 +72,9 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorGRAY);
-    }
-
     SkScalar fScale;
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setDither(true);
         paint.setFilterBitmap(true);
@@ -214,7 +210,7 @@ private:
 
     Rec fRecs[3];
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

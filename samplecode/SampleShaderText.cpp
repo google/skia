@@ -99,9 +99,11 @@ static const GradMaker gGradMakers[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ShaderTextView : public SkView {
+class ShaderTextView : public SampleView {
 public:
-	ShaderTextView() {}
+	ShaderTextView() {
+        this->setBGColor(0xFFDDDDDD);
+    }
 
 protected:
     // overrides from SkEventSink
@@ -113,13 +115,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         const char text[] = "Shaded Text";
         const int textLen = SK_ARRAY_COUNT(text) - 1;
         static int pointSize = 48;
@@ -189,7 +185,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

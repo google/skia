@@ -201,7 +201,7 @@ static void test_textpathmatrix(SkCanvas* canvas) {
     canvas->drawTextOnPath(text, len, path, &matrix, paint);
 }
 
-class TextOnPathView : public SkView {
+class TextOnPathView : public SampleView {
 public:
     SkPath      fPath;
     SkScalar    fHOffset;
@@ -226,36 +226,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-#if 0        
-        SkRect r;
-        SkPaint p;
-        SkRandom rand;
-        p.setAntiAlias(true);
-        
-        for (int i = 0; i < 100; i++) {
-            SkScalar x = rand.nextUScalar1() * 300 + SkIntToScalar(50);
-            SkScalar y = rand.nextUScalar1() * 200 + SkIntToScalar(50);
-            SkScalar w = rand.nextUScalar1() * 10;
-            SkScalar h = rand.nextUScalar1() * 10;
-            r.set(x, y, x + w, y + h);
-            canvas->drawRect(r, p);
-        }
-        
-        test_textBounds(canvas);
-//        return;
-
-        SkBitmap    bm;
-        if (SkImageDecoder::DecodeFile("/loading_tile.png",
-                                       &bm, SkBitmap::kRGB_565_Config, true))
-            canvas->drawBitmap(bm, 0, 0);
-#endif
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         
         paint.setAntiAlias(true);
@@ -300,7 +271,7 @@ protected:
     
 private:
     int fHints;
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
