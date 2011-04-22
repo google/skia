@@ -20,7 +20,7 @@
 #include "SkStream.h"
 #include "SkXMLParser.h"
 
-class PointsView : public SkView {
+class PointsView : public SampleView {
 public:
 	PointsView() {}
 
@@ -34,18 +34,12 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
     static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
         for (size_t i = 0; i < n; i++)
             pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SK_Scalar1, SK_Scalar1);
 
         SkRandom rand;
@@ -74,7 +68,7 @@ protected:
 
 private:
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

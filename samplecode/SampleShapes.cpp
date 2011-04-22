@@ -46,7 +46,7 @@ static SkShape* make_shape2() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ShapesView : public SkView {
+class ShapesView : public SampleView {
     SkGroupShape fGroup;
     SkMatrixRef*    fMatrixRefs[4];
 public:
@@ -65,6 +65,8 @@ public:
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrixRefs); i++) {
             SkSafeRef(fMatrixRefs[i] = fGroup.getShapeMatrixRef(i));
         }
+
+        this->setBGColor(0xFFDDDDDD);
     }
     
     virtual ~ShapesView() {
@@ -83,10 +85,6 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
     void drawpicture(SkCanvas* canvas, SkPicture& pict) {
 #if 0
         SkDynamicMemoryWStream ostream;
@@ -101,9 +99,7 @@ protected:
 #endif
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar angle = SampleCode::GetAnimScalar(SkIntToScalar(180),
                                                    SkIntToScalar(360));
 
@@ -154,7 +150,7 @@ protected:
 }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

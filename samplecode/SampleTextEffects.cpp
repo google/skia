@@ -11,8 +11,7 @@
 #include "SkTypeface.h"
 #include "SkAvoidXfermode.h"
 
-static inline SkPMColor rgb2gray(SkPMColor c)
-{
+static inline SkPMColor rgb2gray(SkPMColor c) {
     unsigned r = SkGetPackedR32(c);
     unsigned g = SkGetPackedG32(c);
     unsigned b = SkGetPackedB32(c);
@@ -24,25 +23,26 @@ static inline SkPMColor rgb2gray(SkPMColor c)
 
 class SkGrayScaleColorFilter : public SkColorFilter {
 public:
-    virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[])
-    {
-        for (int i = 0; i < count; i++)
+    virtual void filterSpan(const SkPMColor src[], int count,
+                            SkPMColor result[]) {
+        for (int i = 0; i < count; i++) {
             result[i] = rgb2gray(src[i]);
+        }
     }
 };
 
 class SkChannelMaskColorFilter : public SkColorFilter {
 public:
-    SkChannelMaskColorFilter(U8CPU redMask, U8CPU greenMask, U8CPU blueMask)
-    {
+    SkChannelMaskColorFilter(U8CPU redMask, U8CPU greenMask, U8CPU blueMask) {
         fMask = SkPackARGB32(0xFF, redMask, greenMask, blueMask);
     }
 
-    virtual void filterSpan(const SkPMColor src[], int count, SkPMColor result[])
-    {
+    virtual void filterSpan(const SkPMColor src[], int count,
+                            SkPMColor result[]) {
         SkPMColor mask = fMask;
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++) {
             result[i] = src[i] & mask;
+        }
     }
 
 private:
@@ -55,8 +55,7 @@ private:
 #include "SkLayerRasterizer.h"
 #include "SkBlurMaskFilter.h"
 
-static void r0(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r0(SkLayerRasterizer* rast, SkPaint& p) {
     p.setMaskFilter(SkBlurMaskFilter::Create(SkIntToScalar(3),
                                              SkBlurMaskFilter::kNormal_BlurStyle))->unref();
     rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
@@ -72,8 +71,7 @@ static void r0(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 }
 
-static void r1(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r1(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
     p.setAlpha(0x40);
@@ -83,8 +81,7 @@ static void r1(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 }
 
-static void r2(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r2(SkLayerRasterizer* rast, SkPaint& p) {
     p.setStyle(SkPaint::kStrokeAndFill_Style);
     p.setStrokeWidth(SK_Scalar1*4);
     rast->addLayer(p);
@@ -95,8 +92,7 @@ static void r2(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 }
 
-static void r3(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r3(SkLayerRasterizer* rast, SkPaint& p) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SK_Scalar1*3);
     rast->addLayer(p);
@@ -107,8 +103,7 @@ static void r3(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 }
 
-static void r4(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r4(SkLayerRasterizer* rast, SkPaint& p) {
     p.setAlpha(0x60);
     rast->addLayer(p, SkIntToScalar(3), SkIntToScalar(3));
 
@@ -122,8 +117,7 @@ static void r4(SkLayerRasterizer* rast, SkPaint& p)
 
 #include "SkDiscretePathEffect.h"
 
-static void r5(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r5(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
     p.setPathEffect(new SkDiscretePathEffect(SK_Scalar1*4, SK_Scalar1*3))->unref();
@@ -131,8 +125,7 @@ static void r5(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 }
 
-static void r6(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r6(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
     p.setAntiAlias(false);
@@ -150,8 +143,7 @@ public:
     Dot2DPathEffect(SkScalar radius, const SkMatrix& matrix)
         : Sk2DPathEffect(matrix), fRadius(radius) {}
 
-    virtual void flatten(SkFlattenableWriteBuffer& buffer)
-    {
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
 
         buffer.writeScalar(fRadius);
@@ -159,28 +151,24 @@ public:
     virtual Factory getFactory() { return CreateProc; }
 
 protected:
-	virtual void next(const SkPoint& loc, int u, int v, SkPath* dst)
-    {
+	virtual void next(const SkPoint& loc, int u, int v, SkPath* dst) {
         dst->addCircle(loc.fX, loc.fY, fRadius);
     }
 
-    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
-    {
+    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer) {
         fRadius = buffer.readScalar();
     }
 private:
     SkScalar fRadius;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)
-    {
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return new Dot2DPathEffect(buffer);
     }
 
     typedef Sk2DPathEffect INHERITED;
 };
 
-static void r7(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r7(SkLayerRasterizer* rast, SkPaint& p) {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
@@ -188,8 +176,7 @@ static void r7(SkLayerRasterizer* rast, SkPaint& p)
     rast->addLayer(p);
 }
 
-static void r8(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r8(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
     SkMatrix    lattice;
@@ -211,10 +198,8 @@ public:
     Line2DPathEffect(SkScalar width, const SkMatrix& matrix)
         : Sk2DPathEffect(matrix), fWidth(width) {}
 
-	virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width)
-    {
-        if (this->INHERITED::filterPath(dst, src, width))
-        {
+	virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
+        if (this->INHERITED::filterPath(dst, src, width)) {
             *width = fWidth;
             return true;
         }
@@ -222,16 +207,14 @@ public:
     }
 
     virtual Factory getFactory() { return CreateProc; }
-    virtual void flatten(SkFlattenableWriteBuffer& buffer)
-    {
+    virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
         buffer.writeScalar(fWidth);
     }
+
 protected:
-	virtual void nextSpan(int u, int v, int ucount, SkPath* dst)
-    {
-        if (ucount > 1)
-        {
+	virtual void nextSpan(int u, int v, int ucount, SkPath* dst) {
+        if (ucount > 1) {
             SkPoint	src[2], dstP[2];
 
             src[0].set(SkIntToScalar(u) + SK_ScalarHalf,
@@ -245,24 +228,21 @@ protected:
         }
     }
 
-    Line2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
-    {
+    Line2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer) {
         fWidth = buffer.readScalar();
     }
 
 private:
     SkScalar fWidth;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)
-    {
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return new Line2DPathEffect(buffer);
     }
 
     typedef Sk2DPathEffect INHERITED;
 };
 
-static void r9(SkLayerRasterizer* rast, SkPaint& p)
-{
+static void r9(SkLayerRasterizer* rast, SkPaint& p) {
     rast->addLayer(p);
 
     SkMatrix    lattice;
@@ -297,8 +277,7 @@ static const struct {
 
 #include "SkXfermode.h"
 
-static unsigned color_dist16(uint16_t a, uint16_t b)
-{
+static unsigned color_dist16(uint16_t a, uint16_t b) {
     unsigned dr = SkAbs32(SkPacked16ToR32(a) - SkPacked16ToR32(b));
     unsigned dg = SkAbs32(SkPacked16ToG32(a) - SkPacked16ToG32(b));
     unsigned db = SkAbs32(SkPacked16ToB32(a) - SkPacked16ToB32(b));
@@ -306,8 +285,7 @@ static unsigned color_dist16(uint16_t a, uint16_t b)
     return SkMax32(dr, SkMax32(dg, db));
 }
 
-static unsigned scale_dist(unsigned dist, unsigned scale)
-{
+static unsigned scale_dist(unsigned dist, unsigned scale) {
     dist >>= 6;
     dist = (dist << 2) | dist;
     dist = (dist << 4) | dist;
@@ -316,8 +294,7 @@ static unsigned scale_dist(unsigned dist, unsigned scale)
 //    return SkAlphaMul(dist, scale);
 }
 
-static void apply_shader(SkPaint* paint, int index)
-{
+static void apply_shader(SkPaint* paint, int index) {
     raster_proc proc = gRastProcs[index];
     if (proc)
     {
@@ -338,41 +315,28 @@ static void apply_shader(SkPaint* paint, int index)
 
 static int gRastIndex;
 
-class TextEffectView : public SkView {
+class TextEffectView : public SampleView {
     SkTypeface* fFace;
 public:
-	TextEffectView()
-    {
+	TextEffectView() {
         fFace = SkTypeface::CreateFromFile("/Users/reed/Downloads/p052024l.pfb");
     }
 
-    virtual ~TextEffectView()
-    {
+    virtual ~TextEffectView() {
         SkSafeUnref(fFace);
     }
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Text Effects");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas)
-    {
-//        canvas->drawColor(0xFFDDDDDD);
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->save();
 //        canvas->scale(SK_Scalar1*2, SK_Scalar1*2, 0, 0);
 
@@ -390,14 +354,13 @@ protected:
 
         paint.setTypeface(fFace);
 
-        for (int i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++)
-        {
+        for (int i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
             apply_shader(&paint, i);
 
           //  paint.setMaskFilter(NULL);
           //  paint.setColor(SK_ColorBLACK);
 
-#if 0
+#if 1
             int index = i % SK_ARRAY_COUNT(gLightingColors);
             paint.setColorFilter(SkColorFilter::CreateLightingFilter(
                                     gLightingColors[index].fMul,
@@ -406,58 +369,25 @@ protected:
 
             canvas->drawText(str.c_str(), str.size(), x, y, paint);
 
-            if (0)
-            {
-                SkPath path;
-                paint.getTextPath(str.c_str(), str.size(), x + SkIntToScalar(260), y, &path);
-                canvas->drawPath(path, paint);
-            }
-
             y += paint.getFontSpacing();
         }
 
         canvas->restore();
-
-        if (0)
-        {
-            SkPoint pts[] = { 0, 0, 0, SkIntToScalar(150) };
-            SkColor colors[] = { 0xFFE6E6E6, 0xFFFFFFFF };
-            SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
-
-            paint.reset();
-            paint.setShader(s);
-            canvas->drawRectCoords(0, 0, SkIntToScalar(120), SkIntToScalar(150), paint);
-        }
-
-        if (0)
-        {
-            SkAvoidXfermode   mode(SK_ColorWHITE, 0xFF,
-                                    SkAvoidXfermode::kTargetColor_Mode);
-            SkPaint paint;
-            x += SkIntToScalar(20);
-            SkRect  r = { x, 0, x + SkIntToScalar(360), SkIntToScalar(700) };
-            paint.setXfermode(&mode);
-            paint.setColor(SK_ColorGREEN);
-            paint.setAntiAlias(true);
-            canvas->drawOval(r, paint);
-        }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y)
-    {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         gRastIndex = (gRastIndex + 1) % SK_ARRAY_COUNT(gRastProcs);
         this->inval(NULL);
 
         return this->INHERITED::onFindClickHandler(x, y);
     }
 
-    virtual bool onClick(Click* click)
-    {
+    virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -55,7 +55,7 @@ static const SkBitmap::Config gConfigs[] = {
 static const int gWidth = 32;
 static const int gHeight = 32;
 
-class TilingView : public SkView {
+class TilingView : public SampleView {
     SkPicture           fTextPicture;
     SkBlurDrawLooper    fLooper;
 public:
@@ -79,13 +79,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };
 
         static const char* gConfigNames[] = { "8888", "565", "4444" };
@@ -167,7 +161,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

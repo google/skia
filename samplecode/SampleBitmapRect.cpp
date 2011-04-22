@@ -33,12 +33,13 @@ static SkBitmap make_bitmap() {
     return bm;
 }
 
-class BitmapRectView : public SkView {
+class BitmapRectView : public SampleView {
 public:
     SkBitmap fBitmap;
 
 	BitmapRectView() {
         fBitmap = make_bitmap();
+        this->setBGColor(SK_ColorGRAY);
     }
     
 protected:
@@ -51,13 +52,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorGRAY);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         const SkIRect src[] = {
             { 0, 0, 32, 32 },
             { 0, 0, 80, 80 },

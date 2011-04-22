@@ -64,7 +64,7 @@ static const struct {
 
 static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
 
-class TypefaceView : public SkView {
+class TypefaceView : public SampleView {
     SkTypeface* fFaces[gFaceCount];
 
 public:
@@ -74,6 +74,8 @@ public:
             fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,
                                                    gFaces[i].fStyle);
         }
+
+        this->setBGColor(0xFFDDDDDD);
     }
 
     virtual ~TypefaceView() {
@@ -92,13 +94,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(30));
@@ -162,7 +158,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

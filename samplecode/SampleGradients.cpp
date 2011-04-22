@@ -113,9 +113,11 @@ static const GradMaker gGradMakers[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GradientsView : public SkView {
+class GradientsView : public SampleView {
 public:
-	GradientsView() {}
+	GradientsView() {
+        this->setBGColor(0xFFDDDDDD);
+    }
     
 protected:
     // overrides from SkEventSink
@@ -127,13 +129,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPoint pts[2] = {
             { 0, 0 },
             { SkIntToScalar(100), SkIntToScalar(100) }
@@ -170,7 +166,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

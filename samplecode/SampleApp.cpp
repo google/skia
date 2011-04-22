@@ -39,7 +39,7 @@ static const char view_inval_msg[] = "view-inval-msg";
 
 static void postInvalDelay(SkEventSinkID sinkID) {
     SkEvent* evt = new SkEvent(view_inval_msg);
-    evt->post(sinkID, 10);
+    evt->post(sinkID, 1);
 }
 
 static bool isInvalEvent(const SkEvent& evt) {
@@ -849,16 +849,20 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState))->unref();
     }
 
-    SampleView::SetRepeatDraw(child, fMeasureFPS ? FPS_REPEAT_COUNT : 1);
     if (fMeasureFPS) {
-        fMeasureFPS_Time = SkTime::GetMSecs();
+        fMeasureFPS_Time = 0;   // 0 means the child is not aware of repeat-draw
+        if (SampleView::SetRepeatDraw(child, FPS_REPEAT_COUNT)) {
+            fMeasureFPS_Time = SkTime::GetMSecs();
+        }
+    } else {
+        (void)SampleView::SetRepeatDraw(child, 1);
     }
 }
 
 void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
     canvas->setDrawFilter(NULL);
 
-    if (fMeasureFPS) {
+    if (fMeasureFPS && fMeasureFPS_Time) {
         fMeasureFPS_Time = SkTime::GetMSecs() - fMeasureFPS_Time;
         this->updateTitle();
         postInvalDelay(this->getSinkID());
@@ -1314,10 +1318,10 @@ void SampleWindow::onSizeChange() {
 
 static const char repeat_count_tag[] = "sample-set-repeat-count";
 
-void SampleView::SetRepeatDraw(SkView* view, int count) {
+bool SampleView::SetRepeatDraw(SkView* view, int count) {
     SkEvent evt(repeat_count_tag);
     evt.setFast32(count);
-    (void)view->doEvent(evt);
+    return view->doEvent(evt);
 }
 
 bool SampleView::onEvent(const SkEvent& evt) {
@@ -1341,7 +1345,7 @@ void SampleView::onDraw(SkCanvas* canvas) {
 }
 
 void SampleView::onDrawBackground(SkCanvas* canvas) {
-    canvas->drawColor(SK_ColorWHITE);
+    canvas->drawColor(fBGColor);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

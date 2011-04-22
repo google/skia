@@ -1,6 +1,7 @@
 #ifndef SampleCode_DEFINED
 #define SampleCode_DEFINED
 
+#include "SkColor.h"
 #include "SkEvent.h"
 #include "SkKey.h"
 #include "SkView.h"
@@ -48,9 +49,11 @@ private:
 
 class SampleView : public SkView {
 public:
-    SampleView() : fRepeatCount(1) {}
+    SampleView() : fRepeatCount(1), fBGColor(SK_ColorWHITE) {}
 
-    static void SetRepeatDraw(SkView*, int count);
+    void setBGColor(SkColor color) { fBGColor = color; }
+
+    static bool SetRepeatDraw(SkView*, int count);
 
 protected:
     virtual void onDrawBackground(SkCanvas*);
@@ -63,6 +66,7 @@ protected:
 
 private:
     int fRepeatCount;
+    SkColor fBGColor;
 
     typedef SkView INHERITED;
 };
