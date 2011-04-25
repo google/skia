@@ -813,7 +813,14 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 #endif
     }
 
-//    if ((fScrollTestX | fScrollTestY) != 0)
+    // Do this after presentGL and other finishing, rather than in afterChild
+    if (fMeasureFPS && fMeasureFPS_Time) {
+        fMeasureFPS_Time = SkTime::GetMSecs() - fMeasureFPS_Time;
+        this->updateTitle();
+        postInvalDelay(this->getSinkID());
+    }
+
+    //    if ((fScrollTestX | fScrollTestY) != 0)
     if (false) {
         const SkBitmap& bm = orig->getDevice()->accessBitmap(true);
         int dx = fScrollTestX * 7;
@@ -861,12 +868,6 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
 
 void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
     canvas->setDrawFilter(NULL);
-
-    if (fMeasureFPS && fMeasureFPS_Time) {
-        fMeasureFPS_Time = SkTime::GetMSecs() - fMeasureFPS_Time;
-        this->updateTitle();
-        postInvalDelay(this->getSinkID());
-    }
 }
 
 static SkBitmap::Config gConfigCycle[] = {
