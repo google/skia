@@ -530,9 +530,6 @@ void GrGpuGL::resetContext() {
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
     
-    GR_GL(BindBuffer(GR_GL_ARRAY_BUFFER, 0));
-    GR_GL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, 0));
-    
     fHWGeometryState.fArrayPtrsDirty = true;
 
     GR_GL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
