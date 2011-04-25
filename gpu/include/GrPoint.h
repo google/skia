@@ -153,6 +153,14 @@ public:
         fX = x;
         fY = y;
     }
+
+    /**
+     * set this to (abs(v.x), abs(v.y))
+     */
+    void setAbs(const GrVec& v) {
+        fX = GrScalarAbs(v.fX);
+        fY = GrScalarAbs(v.fY);
+    }
     
     /**
      * set vector to point from a to b.

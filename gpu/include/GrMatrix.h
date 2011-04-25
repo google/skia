@@ -135,7 +135,7 @@ public:
                 GrScalar scaleY,
                 GrScalar transY,
                 GrScalar persp0,
-                GrScalar persp1,                
+                GrScalar persp1,
                 GrScalar persp2) {
         fM[kScaleX] = scaleX;
         fM[kSkewX]  = skewX;
@@ -253,6 +253,21 @@ public:
             start = (GrPoint*)((intptr_t)start + stride);
         }
     }
+
+    /**
+     * Transforms a vector by the matrix. Doesn't handle cases when a
+     * homogeneous vector maps to a point (i.e. perspective transform).
+     * In this case the desired answer is dependent on where the tail of
+     * the vector is in space.
+     */
+    void mapVec(GrVec* vec) {
+        GrAssert(!this->hasPerspective());
+        if (!this->isIdentity()) {
+            GrScalar x = vec->fX;
+            vec->fX = (*this)[kScaleX] * x + (*this)[kSkewX]  * vec->fY;
+            vec->fY = (*this)[kSkewY ] * x + (*this)[kScaleY] * vec->fY;
+        }
+    }
     
     /**
      *  Transform the 4 corners of the src rect, and return the bounding rect
@@ -278,7 +293,12 @@ public:
      * @return true if matrix is idenity
      */
     bool isIdentity() const;
-    
+
+    /**
+     * Do axis-aligned lines stay axis aligned? May do 90 degree rotation / mirroring.
+     */
+    bool preservesAxisAlignment() const;
+
     /**
      * Calculates the maximum stretching factor of the matrix. Only defined if
      * the matrix does not have perspective.

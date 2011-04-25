@@ -259,6 +259,26 @@ bool GrMatrix::isIdentity() const {
 }
 
 
+bool GrMatrix::preservesAxisAlignment() const {
+
+    // check if matrix is trans and scale only
+    static const int gAllowedMask1 = kScale_TypeBit | kTranslate_TypeBit;
+
+    if (!(~gAllowedMask1 & fTypeMask)) {
+        return true;
+    }
+
+    // check matrix is trans and skew only (0 scale)
+    static const int gAllowedMask2 = kScale_TypeBit | kSkew_TypeBit |
+                                     kTranslate_TypeBit | kZeroScale_TypeBit;
+
+    if (!(~gAllowedMask2 & fTypeMask) && (kZeroScale_TypeBit & fTypeMask)) {
+        return true;
+    }
+
+    return false;
+}
+
 GrScalar GrMatrix::getMaxStretch() const {
 
     if (fTypeMask & kPerspective_TypeBit) {

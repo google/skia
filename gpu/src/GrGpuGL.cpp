@@ -361,6 +361,8 @@ GrGpuGL::GrGpuGL() {
         }
     }
 
+    fAALineSupport = GR_GL_SUPPORT_DESKTOP;
+
     ////////////////////////////////////////////////////////////////////////////
     // Experiments to determine limitations that can't be queried. TODO: Make
     // these a preprocess that generate some compile time constants.

@@ -58,28 +58,37 @@ GrContext* GrContext::CreateGLShaderContext() {
 
 GrContext::~GrContext() {
     this->flush();
-    fGpu->unref();
     delete fTextureCache;
     delete fFontCache;
     delete fDrawBuffer;
     delete fDrawBufferVBAllocPool;
     delete fDrawBufferIBAllocPool;
     GrSafeUnref(fCustomPathRenderer);
+    GrSafeUnref(fAAFillRectIndexBuffer);
+    GrSafeUnref(fAAStrokeRectIndexBuffer);
+    fGpu->unref();
 }
 
 void GrContext::contextLost() {
+    // abandon first to so destructors
+    // don't try to free the resources in the API.
+    fGpu->abandonResources();
+
     delete fDrawBuffer;
     fDrawBuffer = NULL;
+
     delete fDrawBufferVBAllocPool;
     fDrawBufferVBAllocPool = NULL;
+
     delete fDrawBufferIBAllocPool;
     fDrawBufferIBAllocPool = NULL;
+
+    GrSafeSetNull(fAAFillRectIndexBuffer);
+    GrSafeSetNull(fAAStrokeRectIndexBuffer);
 
     fTextureCache->removeAll();
     fFontCache->freeAll();
     fGpu->markContextDirty();
-
-    fGpu->abandonResources();
 
     this->setupDrawBuffer();
 }
@@ -348,14 +357,17 @@ void GrContext::drawPaint(const GrPaint& paint) {
     this->drawRect(paint, r);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 /*  create a triangle strip that strokes the specified triangle. There are 8
  unique vertices, but we repreat the last 2 to close up. Alternatively we
  could use an indices array, and then only send 8 verts, but not sure that
  would be faster.
  */
-static void setStrokeRectStrip(GrPoint verts[10], const GrRect& rect,
+static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
                                GrScalar width) {
     const GrScalar rad = GrScalarHalf(width);
+    rect.sort();
 
     verts[0].set(rect.fLeft + rad, rect.fTop + rad);
     verts[1].set(rect.fLeft - rad, rect.fTop - rad);
@@ -369,6 +381,235 @@ static void setStrokeRectStrip(GrPoint verts[10], const GrRect& rect,
     verts[9] = verts[1];
 }
 
+static GrColor getColorForMesh(const GrPaint& paint) {
+    if (NULL == paint.getTexture()) {
+        return paint.fColor;
+    } else {
+        unsigned a = GrColorUnpackA(paint.fColor);
+        return GrColorPackRGBA(a, a, a, a);
+    }
+}
+
+static void setInsetFan(GrPoint* pts, size_t stride,
+                        const GrRect& r, GrScalar dx, GrScalar dy) {
+    pts->setRectFan(r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
+}
+
+static const uint16_t gFillAARectIdx[] = {
+    0, 1, 5, 5, 4, 0,
+    1, 2, 6, 6, 5, 1,
+    2, 3, 7, 7, 6, 2,
+    3, 0, 4, 4, 7, 3,
+    4, 5, 6, 6, 7, 4,
+};
+
+int GrContext::aaFillRectIndexCount() const {
+    return GR_ARRAY_COUNT(gFillAARectIdx);
+}
+
+GrIndexBuffer* GrContext::aaFillRectIndexBuffer() {
+    if (NULL == fAAFillRectIndexBuffer) {
+        fAAFillRectIndexBuffer = fGpu->createIndexBuffer(sizeof(gFillAARectIdx),
+                                                         false);
+        GrAssert(NULL != fAAFillRectIndexBuffer);
+#if GR_DEBUG
+        bool updated =
+#endif
+        fAAFillRectIndexBuffer->updateData(gFillAARectIdx,
+                                           sizeof(gFillAARectIdx));
+        GR_DEBUGASSERT(updated);
+    }
+    return fAAFillRectIndexBuffer;
+}
+
+static const uint16_t gStrokeAARectIdx[] = {
+    0 + 0, 1 + 0, 5 + 0, 5 + 0, 4 + 0, 0 + 0,
+    1 + 0, 2 + 0, 6 + 0, 6 + 0, 5 + 0, 1 + 0,
+    2 + 0, 3 + 0, 7 + 0, 7 + 0, 6 + 0, 2 + 0,
+    3 + 0, 0 + 0, 4 + 0, 4 + 0, 7 + 0, 3 + 0,
+
+    0 + 4, 1 + 4, 5 + 4, 5 + 4, 4 + 4, 0 + 4,
+    1 + 4, 2 + 4, 6 + 4, 6 + 4, 5 + 4, 1 + 4,
+    2 + 4, 3 + 4, 7 + 4, 7 + 4, 6 + 4, 2 + 4,
+    3 + 4, 0 + 4, 4 + 4, 4 + 4, 7 + 4, 3 + 4,
+
+    0 + 8, 1 + 8, 5 + 8, 5 + 8, 4 + 8, 0 + 8,
+    1 + 8, 2 + 8, 6 + 8, 6 + 8, 5 + 8, 1 + 8,
+    2 + 8, 3 + 8, 7 + 8, 7 + 8, 6 + 8, 2 + 8,
+    3 + 8, 0 + 8, 4 + 8, 4 + 8, 7 + 8, 3 + 8,
+};
+
+int GrContext::aaStrokeRectIndexCount() const {
+    return GR_ARRAY_COUNT(gStrokeAARectIdx);
+}
+
+GrIndexBuffer* GrContext::aaStrokeRectIndexBuffer() {
+    if (NULL == fAAStrokeRectIndexBuffer) {
+        fAAStrokeRectIndexBuffer = fGpu->createIndexBuffer(sizeof(gStrokeAARectIdx),
+                                                           false);
+        GrAssert(NULL != fAAStrokeRectIndexBuffer);
+#if GR_DEBUG
+        bool updated =
+#endif
+        fAAStrokeRectIndexBuffer->updateData(gStrokeAARectIdx,
+                                             sizeof(gStrokeAARectIdx));
+        GR_DEBUGASSERT(updated);
+    }
+    return fAAStrokeRectIndexBuffer;
+}
+
+void GrContext::fillAARect(GrDrawTarget* target,
+                           const GrPaint& paint,
+                           const GrRect& devRect) {
+
+    GrVertexLayout layout = GrDrawTarget::kColor_VertexLayoutBit;
+    if (NULL != paint.getTexture()) {
+        layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
+    }
+
+    size_t vsize = GrDrawTarget::VertexSize(layout);
+
+    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 8, 0);
+
+    intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
+
+    GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
+    GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
+
+    setInsetFan(fan0Pos, vsize, devRect, -GR_ScalarHalf, -GR_ScalarHalf);
+    setInsetFan(fan1Pos, vsize, devRect,  GR_ScalarHalf,  GR_ScalarHalf);
+
+    verts += sizeof(GrPoint);
+    for (int i = 0; i < 4; ++i) {
+        *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
+    }
+
+    GrColor innerColor = getColorForMesh(paint);
+    verts += 4 * vsize;
+    for (int i = 0; i < 4; ++i) {
+        *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
+    }
+
+    target->setIndexSourceToBuffer(this->aaFillRectIndexBuffer());
+
+    target->drawIndexed(kTriangles_PrimitiveType, 0,
+                         0, 8, this->aaFillRectIndexCount());
+}
+
+void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
+                             const GrRect& devRect, const GrVec& devStrokeSize) {
+    const GrScalar& dx = devStrokeSize.fX;
+    const GrScalar& dy = devStrokeSize.fY;
+    const GrScalar rx = GrMul(dx, GR_ScalarHalf);
+    const GrScalar ry = GrMul(dy, GR_ScalarHalf);
+
+    GrVertexLayout layout = GrDrawTarget::kColor_VertexLayoutBit;
+
+    if (NULL != paint.getTexture()) {
+        layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
+    }
+
+    GrScalar spare;
+    {
+        GrScalar w = devRect.width() - dx;
+        GrScalar h = devRect.height() - dy;
+        spare = GrMin(w, h);
+    }
+
+    if (spare <= 0) {
+        GrRect r(devRect);
+        r.inset(-rx, -ry);
+        fillAARect(target, paint, r);
+        return;
+    }
+
+    size_t vsize = GrDrawTarget::VertexSize(layout);
+
+    GrDrawTarget::AutoReleaseGeometry geo(target, layout, 16, 0);
+
+    intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
+
+    GrPoint* fan0Pos = reinterpret_cast<GrPoint*>(verts);
+    GrPoint* fan1Pos = reinterpret_cast<GrPoint*>(verts + 4 * vsize);
+    GrPoint* fan2Pos = reinterpret_cast<GrPoint*>(verts + 8 * vsize);
+    GrPoint* fan3Pos = reinterpret_cast<GrPoint*>(verts + 12 * vsize);
+
+    setInsetFan(fan0Pos, vsize, devRect, -rx - GR_ScalarHalf, -ry - GR_ScalarHalf);
+    setInsetFan(fan1Pos, vsize, devRect, -rx + GR_ScalarHalf, -ry + GR_ScalarHalf);
+    setInsetFan(fan2Pos, vsize, devRect,  rx - GR_ScalarHalf,  ry - GR_ScalarHalf);
+    setInsetFan(fan3Pos, vsize, devRect,  rx + GR_ScalarHalf,  ry + GR_ScalarHalf);
+
+    verts += sizeof(GrPoint);
+    for (int i = 0; i < 4; ++i) {
+        *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
+    }
+
+    GrColor innerColor = getColorForMesh(paint);
+    verts += 4 * vsize;
+    for (int i = 0; i < 8; ++i) {
+        *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
+    }
+
+    verts += 8 * vsize;
+    for (int i = 0; i < 8; ++i) {
+        *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
+    }
+
+    target->setIndexSourceToBuffer(aaStrokeRectIndexBuffer());
+    target->drawIndexed(kTriangles_PrimitiveType,
+                        0, 0, 16, aaStrokeRectIndexCount());
+}
+
+static bool apply_aa_to_rect(GrDrawTarget* target,
+                             GrGpu* gpu,
+                             const GrPaint& paint,
+                             const GrRect& rect,
+                             GrScalar width, 
+                             const GrMatrix* matrix,
+                             GrMatrix* combinedMatrix,
+                             GrRect* devRect) {
+    // we use a simple alpha ramp to do aa on axis-aligned rects
+    // do AA with alpha ramp if the caller requested AA, the rect 
+    // will be axis-aligned,the render target is not
+    // multisampled, and the rect won't land on integer coords.
+
+    if (!paint.fAntiAlias) {
+        return false;
+    }
+
+    if (target->getRenderTarget()->isMultisampled()) {
+        return false;
+    }
+
+    if (0 == width && gpu->supportsAALines()) {
+        return false;
+    }
+
+    if (!target->getViewMatrix().preservesAxisAlignment()) {
+        return false;
+    }
+
+    if (NULL != matrix && 
+        !matrix->preservesAxisAlignment()) {
+        return false;
+    }
+
+    *combinedMatrix = target->getViewMatrix();
+    if (NULL != matrix) {
+        combinedMatrix->preConcat(*matrix);
+        GrAssert(combinedMatrix->preservesAxisAlignment());
+    }
+    
+    combinedMatrix->mapRect(devRect, rect);
+    devRect->sort();
+
+    if (width < 0) {
+        return !devRect->isIRect();
+    } else {
+        return true;
+    }
+}
+
 void GrContext::drawRect(const GrPaint& paint,
                          const GrRect& rect,
                          GrScalar width,
@@ -378,13 +619,43 @@ void GrContext::drawRect(const GrPaint& paint,
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
+    GrRect devRect = rect;
+    GrMatrix combinedMatrix;
+    bool doAA = apply_aa_to_rect(target, fGpu, paint, rect, width, matrix, 
+                                 &combinedMatrix, &devRect);
+
+    if (doAA) {
+        GrDrawTarget::AutoViewMatrixRestore avm(target);
+        if (textured) {
+            GrMatrix inv;
+            if (combinedMatrix.invert(&inv)) {
+                target->preConcatSamplerMatrix(0, inv);
+            }
+        }
+        target->setViewMatrix(GrMatrix::I());
+        if (width >= 0) {
+            GrVec strokeSize;;
+            if (width > 0) {
+                strokeSize.set(width, width);
+                combinedMatrix.mapVec(&strokeSize);
+                strokeSize.setAbs(strokeSize);
+            } else {
+                strokeSize.set(GR_Scalar1, GR_Scalar1);
+            }
+            strokeAARect(target, paint, devRect, strokeSize);
+        } else {
+            fillAARect(target, paint, devRect);
+        }
+        return;
+    }
+
     if (width >= 0) {
         // TODO: consider making static vertex buffers for these cases.
         // Hairline could be done by just adding closing vertex to
         // unitSquareVertexBuffer()
-        GrVertexLayout layout = (textured) ?
-                                 GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
-                                 0;
+        GrVertexLayout layout = textured ?
+                            GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0) :
+                            0;
         static const int worstCaseVertCount = 10;
         GrDrawTarget::AutoReleaseGeometry geo(target, layout, worstCaseVertCount, 0);
 
@@ -415,7 +686,9 @@ void GrContext::drawRect(const GrPaint& paint,
         if (NULL != matrix) {
             avmr.set(target);
             target->preConcatViewMatrix(*matrix);
-            target->preConcatSamplerMatrix(0, *matrix);
+            if (textured) {
+                target->preConcatSamplerMatrix(0, *matrix);
+            }
         }
 
         target->drawNonIndexed(primType, 0, vertCount);
@@ -429,8 +702,8 @@ void GrContext::drawRect(const GrPaint& paint,
             GrDrawTarget::AutoViewMatrixRestore avmr(target);
             GrMatrix m;
             m.setAll(rect.width(), 0,             rect.fLeft,
-                     0,            rect.height(), rect.fTop,
-                     0,            0,             GrMatrix::I()[8]);
+                        0,            rect.height(), rect.fTop,
+                        0,            0,             GrMatrix::I()[8]);
 
             if (NULL != matrix) {
                 m.postConcat(*matrix);
@@ -818,6 +1091,9 @@ GrContext::GrContext(GrGpu* gpu) :
     fDrawBuffer = NULL;
     fDrawBufferVBAllocPool = NULL;
     fDrawBufferIBAllocPool = NULL;
+
+    fAAFillRectIndexBuffer = NULL;
+    fAAStrokeRectIndexBuffer = NULL;
 
     this->setupDrawBuffer();
 }

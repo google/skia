@@ -56,9 +56,17 @@
  */
 #define GrFloatToFixed(x)      ((GrFixed)((x) * GR_Fixed1))
 
-inline GrFixed GrFixedAbs(GrFixed x) {
+static inline GrFixed GrFixedAbs(GrFixed x) {
     int32_t s = (x & 0x80000000) >> 31;
     return (GrFixed)(((int32_t)x ^ s) - s);  
+}
+
+static inline bool GrFixedIsInt(GrFixed x) {
+    return 0 == (x & 0xffff);
+}
+
+static inline bool GrFloatIsInt(float x) {
+    return x == (float)(int)x;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,6 +80,7 @@ inline GrFixed GrFixedAbs(GrFixed x) {
     #define GrScalarHalf(x)         ((x) >> 1)
     #define GrScalarAve(x,y)        (((x)+(y)) >> 1)
     #define GrScalarAbs(x)          GrFixedAbs(x)
+    #define GrScalarIsInt           GrFixedIsInt
     #define GR_Scalar1              GR_Fixed1
     #define GR_ScalarHalf           GR_FixedHalf
     #define GR_ScalarMax            GR_FixedMax
@@ -85,6 +94,7 @@ inline GrFixed GrFixedAbs(GrFixed x) {
     #define GrScalarHalf(x)         ((x) * 0.5f)
     #define GrScalarAbs(x)          fabsf(x)
     #define GrScalarAve(x,y)        (((x) + (y)) * 0.5f)
+    #define GrScalarIsInt           GrFloatIsInt
     #define GR_Scalar1              1.f    
     #define GR_ScalarHalf           0.5f
     #define GR_ScalarMax            (FLT_MAX)
