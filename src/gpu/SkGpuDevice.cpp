@@ -192,8 +192,7 @@ SkGpuDevice::~SkGpuDevice() {
     if (fCache) {
         GrAssert(NULL != fTexture);
         GrAssert(fRenderTarget == fTexture->asRenderTarget());
-        // IMPORTANT: reattach the rendertarget/tex back to the cache.
-        fContext->reattachAndUnlockCachedTexture((GrTextureEntry*)fCache);
+        fContext->unlockTexture((GrTextureEntry*)fCache);
     } else if (NULL != fTexture) {
         GrAssert(!CACHE_LAYER_TEXTURES);
         GrAssert(fRenderTarget == fTexture->asRenderTarget());
@@ -720,9 +719,9 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 
     GrAutoMatrix avm(context, GrMatrix::I());
 
-    const GrGpu::TextureDesc desc = {
-        0,
-        GrGpu::kNone_AALevel,
+    const GrTextureDesc desc = {
+        kNone_GrTextureFlags,
+        kNone_GrAALevel,
         dstM.fBounds.width(),
         dstM.fBounds.height(),
         kAlpha_8_GrPixelConfig
@@ -1242,40 +1241,36 @@ bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
-                                                  const GrSamplerState& sampler,
-                                                  GrTexture** texture,
-                                                  bool forDeviceRenderTarget) {
+                                                      const GrSamplerState& sampler,
+                                                      GrTexture** texture,
+                                                      bool forDeviceRenderTarget) {
+    GrTexture* newTexture = NULL;
+    GrTextureEntry* entry = NULL;
     GrContext* ctx = this->context();
-    uint32_t p0, p1;
+
     if (forDeviceRenderTarget) {
-        p0 = p1 = -1;
+        const GrTextureDesc desc = {
+            kRenderTarget_GrTextureFlagBit,
+            kNone_GrAALevel,
+            bitmap.width(),
+            bitmap.height(),
+            SkGr::Bitmap2PixelConfig(bitmap)
+        };
+        entry = ctx->lockKeylessTexture(desc, sampler);
     } else {
+        uint32_t p0, p1;
         p0 = bitmap.getGenerationID();
         p1 = bitmap.pixelRefOffset();
-    }
 
-    GrTexture* newTexture = NULL;
-    GrTextureKey key(p0, p1, bitmap.width(), bitmap.height());
-    GrTextureEntry* entry = ctx->findAndLockTexture(&key, sampler);
+        GrTextureKey key(p0, p1, bitmap.width(), bitmap.height());
+        entry = ctx->findAndLockTexture(&key, sampler);
 
-    if (NULL == entry) {
-
-        if (forDeviceRenderTarget) {
-            const GrGpu::TextureDesc desc = {
-                GrGpu::kRenderTarget_TextureFlag,
-                GrGpu::kNone_AALevel,
-                bitmap.width(),
-                bitmap.height(),
-                SkGr::Bitmap2PixelConfig(bitmap)
-            };
-            entry = ctx->createAndLockTexture(&key, sampler, desc, NULL, 0);
-
-        } else {
-            entry = sk_gr_create_bitmap_texture(ctx, &key, sampler, bitmap);
-        }
         if (NULL == entry) {
-            GrPrintf("---- failed to create texture for cache [%d %d]\n",
-                     bitmap.width(), bitmap.height());
+            entry = sk_gr_create_bitmap_texture(ctx, &key, sampler, bitmap);
+            if (NULL == entry) {
+                GrPrintf("---- failed to create texture for cache [%d %d]\n",
+                         bitmap.width(), bitmap.height());
+            }
         }
     }
 
@@ -1283,11 +1278,6 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
         newTexture = entry->texture();
         if (texture) {
             *texture = newTexture;
-        }
-        // IMPORTANT: We can't allow another SkGpuDevice to get this
-        // cache entry until this one is destroyed!
-        if (forDeviceRenderTarget) {
-            ctx->detachCachedTexture(entry);
         }
     }
     return (TexCache*)entry;

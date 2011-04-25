@@ -92,6 +92,8 @@ private:
     uint16_t width() const { return fP2 & 0xffff; }
     uint16_t height() const { return (fP2 >> 16); }
 
+    uint32_t getPrivateBits() const { return fPrivateBits; }
+
     static uint32_t rol(uint32_t x) {
         return (x >> 24) | (x << 8);
     }

@@ -72,7 +72,7 @@ protected:
     // overrides from GrGpu
     virtual void resetContext();
 
-    virtual GrTexture* onCreateTexture(const TextureDesc& desc,
+    virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
                                        size_t rowBytes);
     virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,

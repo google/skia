@@ -136,7 +136,7 @@ void GrGpu::unimpl(const char msg[]) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTexture* GrGpu::createTexture(const TextureDesc& desc,
+GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
                                 const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
     return this->onCreateTexture(desc, srcData, rowBytes);
