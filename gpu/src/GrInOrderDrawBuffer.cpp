@@ -26,6 +26,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool) :
         fDraws(&fDrawStorage),
         fStates(&fStateStorage),
+        fClears(&fClearStorage),
         fClips(&fClipStorage),
         fClipSet(true),
 
@@ -287,6 +288,16 @@ void GrInOrderDrawBuffer::drawNonIndexed(GrPrimitiveType primitiveType,
     draw.fIndexBuffer = NULL;
 }
 
+void GrInOrderDrawBuffer::clear(GrColor color) {
+    Clear& clr = fClears.push_back();
+    clr.fColor = color;
+    clr.fBeforeDrawIdx = fDraws.count();
+
+    // We could do something smart and remove previous draws and clears to the
+    // current render target. If we get that smart we have to make sure those
+    // draws aren't read before this clear (render-to-texture).
+}
+
 void GrInOrderDrawBuffer::reset() {
     GrAssert(!fReservedGeometry.fLocked);
     uint32_t numStates = fStates.count();
@@ -306,6 +317,8 @@ void GrInOrderDrawBuffer::reset() {
     }
     fDraws.reset();
     fStates.reset();
+
+    fClears.reset();
 
     fVertexPool.reset();
     fIndexPool.reset();
@@ -336,8 +349,15 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
 
     uint32_t currState = ~0;
     uint32_t currClip  = ~0;
+    uint32_t currClear = 0;
 
     for (uint32_t i = 0; i < numDraws; ++i) {
+        while (currClear < fClears.count() && 
+               i == fClears[currClear].fBeforeDrawIdx) {
+            target->clear(fClears[currClear].fColor);
+            ++currClear;
+        }
+
         const Draw& draw = fDraws[i];
         if (draw.fStateChanged) {
             ++currState;
@@ -365,6 +385,11 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
                                    draw.fStartVertex,
                                    draw.fVertexCount);
         }
+    }
+    while (currClear < fClears.count()) {
+        GrAssert(fDraws.count() == fClears[currClear].fBeforeDrawIdx);
+        target->clear(fClears[currClear].fColor);
+        ++currClear;
     }
 }
 

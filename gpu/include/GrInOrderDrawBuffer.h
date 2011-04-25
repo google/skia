@@ -100,6 +100,8 @@ public:
                                int* vertexCount,
                                int* indexCount) const;
 
+    virtual void clear(GrColor color);
+
 private:
 
     struct Draw {
@@ -113,6 +115,11 @@ private:
         GrVertexLayout          fVertexLayout;
         const GrVertexBuffer*   fVertexBuffer;
         const GrIndexBuffer*    fIndexBuffer;
+    };
+
+    struct Clear {
+        int fBeforeDrawIdx;
+        GrColor fColor;
     };
 
     virtual bool onAcquireGeometry(GrVertexLayout vertexLayout,
@@ -135,6 +142,7 @@ private:
 
     GrTAllocator<Draw>              fDraws;
     GrTAllocator<SavedDrawState>    fStates;
+    GrTAllocator<Clear>             fClears;
 
     GrTAllocator<GrClip>            fClips;
     bool                            fClipSet;
@@ -163,11 +171,13 @@ private:
         kDrawPreallocCnt   = 8,
         kStatePreallocCnt  = 8,
         kClipPreallocCnt   = 8,
+        kClearPreallocCnt  = 4,
     };
 
     GrAlignedSTStorage<kDrawPreallocCnt, Draw>              fDrawStorage;
     GrAlignedSTStorage<kStatePreallocCnt, SavedDrawState>   fStateStorage;
     GrAlignedSTStorage<kClipPreallocCnt, GrClip>            fClipStorage;
+    GrAlignedSTStorage<kClearPreallocCnt, Clear>            fClearStorage;
 
     typedef GrDrawTarget INHERITED;
 };
