@@ -30,7 +30,7 @@ class SkWStream;
     The SkPicture class records the drawing commands made to a canvas, to
     be played back at a later time.
 */
-class SkPicture : public SkRefCnt {
+class SK_API SkPicture : public SkRefCnt {
 public:
     /** The constructor prepares the picture to record.
         @param width the width of the virtual device the picture records.
