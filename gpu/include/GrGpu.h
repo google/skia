@@ -57,61 +57,6 @@ public:
     static GrGpu* Create(Engine, Platform3DContext context3D);
 
     /**
-     * Used to control the level of antialiasing available for a rendertarget.
-     * Anti-alias quality levels depend on the underlying API/GPU capabilities.
-     */
-    enum AALevels {
-        kNone_AALevel, //<! No antialiasing available.
-        kLow_AALevel,  //<! Low quality antialiased rendering. Actual
-                       //   interpretation is platform-dependent.
-        kMed_AALevel,  //<! Medium quality antialiased rendering. Actual
-                       //   interpretation is platform-dependent.
-        kHigh_AALevel, //<! High quality antialiased rendering. Actual
-                       //   interpretation is platform-dependent.
-    };
-
-
-    /**
-     * Optional bitfield flags that can be passed to createTexture.
-     */
-    enum TextureFlags {
-        kRenderTarget_TextureFlag  = 0x1,   //<! Creates a texture that can be
-                                            //   rendered to by calling
-                                            //   GrGpu::setRenderTarget() with
-                                            //   GrTexture::asRenderTarget().
-        kNoStencil_TextureFlag      = 0x2,  //<! If the texture is used as a
-                                            //   rendertarget but a stencil
-                                            //   buffer is not required. Stencil
-                                            //   may be required for clipping and
-                                            //   path rendering.
-        kDynamicUpdate_TextureFlag = 0x4    //!< Hint that the CPU may modify
-                                            // this texture after creation
-    };
-
-    enum {
-        /**
-         *  For Index8 pixel config, the colortable must be 256 entries
-         */
-        kColorTableSize = 256 * sizeof(GrColor)
-    };
-    /**
-     * Describes a texture to be created.
-     */
-    struct TextureDesc {
-        uint32_t               fFlags;  //!< bitfield of TextureFlags
-        GrGpu::AALevels        fAALevel;//!< The level of antialiasing available
-                                        //   for a rendertarget texture. Only
-                                        //   flags contains
-                                        //   kRenderTarget_TextureFlag.
-        uint32_t               fWidth;  //!< Width of the texture
-        uint32_t               fHeight; //!< Height of the texture
-        GrPixelConfig          fFormat; //!< Format of source data of the
-                                        //   texture. Not guaraunteed to be the
-                                        //   same as internal format used by
-                                        //   3D API.
-    };
-
-    /**
      * Gpu usage statistics.
      */
     struct Stats {
@@ -180,7 +125,7 @@ public:
      *
      * @return    The texture object if successful, otherwise NULL.
      */
-    GrTexture* createTexture(const TextureDesc& desc,
+    GrTexture* createTexture(const GrTextureDesc& desc,
                              const void* srcData, size_t rowBytes);
     /**
      * Wraps an externally-created rendertarget in a GrRenderTarget.
@@ -490,7 +435,7 @@ protected:
     virtual void resetContext() = 0;
 
     // overridden by API-specific derived class to create objects.
-    virtual GrTexture* onCreateTexture(const TextureDesc& desc,
+    virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
                                        size_t rowBytes) = 0;
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) = 0;

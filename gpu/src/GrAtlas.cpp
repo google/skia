@@ -175,9 +175,9 @@ GrAtlas* GrAtlasMgr::addToAtlas(GrAtlas* atlas,
     GrAssert(0 == kA8_GrMaskFormat);
     GrAssert(1 == kA565_GrMaskFormat);
     if (NULL == fTexture[format]) {
-        GrGpu::TextureDesc desc = {
-            GrGpu::kDynamicUpdate_TextureFlag,
-            GrGpu::kNone_AALevel,
+        GrTextureDesc desc = {
+            kDynamicUpdate_GrTextureFlagBit,
+            kNone_GrAALevel,
             GR_ATLAS_TEXTURE_WIDTH,
             GR_ATLAS_TEXTURE_HEIGHT,
             maskformat2pixelconfig(format)

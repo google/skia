@@ -23,6 +23,32 @@
 #include <memory.h>
 #include <string.h>
 
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Defines overloaded bitwise operators to make it easier to use an enum as a
+ * bitfield.
+ */
+#define GR_MAKE_BITFIELD_OPS(X) \
+    static inline X operator | (X a, X b) { \
+        return (X) (+a | +b); \
+    } \
+    \
+    static inline X operator & (X a, X b) { \
+        return (X) (+a & +b); \
+    } \
+    template <typename T> \
+    static inline X operator & (T a, X b) { \
+        return (X) (+a & +b); \
+    } \
+    template <typename T> \
+    static inline X operator & (X a, T b) { \
+        return (X) (+a & +b); \
+    } \
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 /**
  *  Macro to round n up to the next multiple of 4, or return it unchanged if
  *  n is already a multiple of 4
@@ -258,6 +284,71 @@ static inline bool GrPixelConfigIsAlphaOnly(GrPixelConfig config) {
 }
 
 /**
+    * Used to control the level of antialiasing available for a rendertarget.
+    * Anti-alias quality levels depend on the underlying API/GPU capabilities.
+    */
+enum GrAALevels {
+    kNone_GrAALevel, //<! No antialiasing available.
+    kLow_GrAALevel,  //<! Low quality antialiased rendering. Actual
+                     //   interpretation is platform-dependent.
+    kMed_GrAALevel,  //<! Medium quality antialiased rendering. Actual
+                     //   interpretation is platform-dependent.
+    kHigh_GrAALevel, //<! High quality antialiased rendering. Actual
+                     //   interpretation is platform-dependent.
+};
+
+/**
+ * Optional bitfield flags that can be passed to createTexture.
+ */
+enum GrTextureFlags {
+    kNone_GrTextureFlags            = 0x0,
+    /**
+     * Creates a texture that can be rendered to as a GrRenderTarget. Use
+     * GrTexture::asRenderTarget() to access.
+     */
+    kRenderTarget_GrTextureFlagBit  = 0x1,  
+    /**
+     * By default all render targets have an associated stencil buffer that
+     * may be required for path filling. This flag overrides stencil buffer
+     * creation.
+     * MAKE THIS PRIVATE?
+     */
+    kNoStencil_GrTextureFlagBit     = 0x2,
+    /**
+     * Hint that the CPU may modify this texture after creation.
+     */
+    kDynamicUpdate_GrTextureFlagBit = 0x4,
+};
+
+GR_MAKE_BITFIELD_OPS(GrTextureFlags)
+
+enum {
+   /**
+    *  For Index8 pixel config, the colortable must be 256 entries
+    */
+    kGrColorTableSize = 256 * 4 //sizeof(GrColor)
+};
+
+/**
+ * Describes a texture to be created.
+ */
+struct GrTextureDesc {
+    GrTextureFlags         fFlags;  //!< bitfield of TextureFlags
+    /**
+     * The level of antialiasing available for a rendertarget texture. Only used
+     * fFlags contains kRenderTarget_GrTextureFlag.
+     */
+    GrAALevels             fAALevel;
+    uint32_t               fWidth;  //!< Width of the texture
+    uint32_t               fHeight; //!< Height of the texture
+    /**
+     * Format of source data of the texture. Not guaraunteed to be the same as
+     * internal format used by 3D API.
+     */
+    GrPixelConfig          fFormat; 
+};
+
+/**
  * Set Operations used to construct clips.
  */
 enum GrSetOp {
@@ -411,13 +502,7 @@ enum GrPlatformRenderTargetFlags {
     kGrCanResolve_GrPlatformRenderTargetFlagBit     = 0x2,
 };
 
-static inline GrPlatformRenderTargetFlags operator | (GrPlatformRenderTargetFlags a, GrPlatformRenderTargetFlags b) {
-    return (GrPlatformRenderTargetFlags) (+a | +b);
-}
-
-static inline GrPlatformRenderTargetFlags operator & (GrPlatformRenderTargetFlags a, GrPlatformRenderTargetFlags b) {
-    return (GrPlatformRenderTargetFlags) (+a & +b);
-}
+GR_MAKE_BITFIELD_OPS(GrPlatformRenderTargetFlags)
 
 // opaque type for 3D API object handles
 typedef intptr_t GrPlatform3DObject;

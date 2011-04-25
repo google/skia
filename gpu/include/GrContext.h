@@ -91,8 +91,17 @@ public:
      */
     GrTextureEntry* createAndLockTexture(GrTextureKey* key,
                                          const GrSamplerState&,
-                                         const GrGpu::TextureDesc&,
+                                         const GrTextureDesc&,
                                          void* srcData, size_t rowBytes);
+
+    /**
+     * Returns a texture matching the desc. It's contents are unknown. Subsequent
+     * requests with the same descriptor are not guaranteed to return the same
+     * texture. The same texture is guaranteed not be returned again until it is
+     * unlocked.
+     */
+    GrTextureEntry* lockKeylessTexture(const GrTextureDesc& desc,
+                                       const GrSamplerState& state);
 
     /**
      *  When done with an entry, call unlockTexture(entry) on it, which returns
@@ -101,25 +110,10 @@ public:
     void unlockTexture(GrTextureEntry* entry);
 
     /**
-     *  Removes an texture from the cache. This prevents the texture from
-     *  being found by a subsequent findAndLockTexture() until it is
-     *  reattached. The entry still counts against the cache's budget and should
-     *  be reattached when exclusive access is no longer needed.
-     */
-    void detachCachedTexture(GrTextureEntry*);
-
-    /**
-     * Reattaches a texture to the cache and unlocks it. Allows it to be found
-     * by a subsequent findAndLock or be purged (provided its lock count is
-     * now 0.)
-     */
-    void reattachAndUnlockCachedTexture(GrTextureEntry*);
-
-    /**
      * Creates a texture that is outside the cache. Does not count against
      * cache's budget.
      */
-    GrTexture* createUncachedTexture(const GrGpu::TextureDesc&,
+    GrTexture* createUncachedTexture(const GrTextureDesc&,
                                      void* srcData,
                                      size_t rowBytes);
 
@@ -594,7 +588,9 @@ private:
 
     static void SetPaint(const GrPaint& paint, GrDrawTarget* target);
 
-    bool finalizeTextureKey(GrTextureKey*, const GrSamplerState&) const;
+    bool finalizeTextureKey(GrTextureKey*, 
+                            const GrSamplerState&,
+                            bool keyless) const;
 
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 

@@ -103,9 +103,46 @@ void GrContext::freeGpuResources() {
     fFontCache->freeAll();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+
+enum {
+    kNPOTBit    = 0x1,
+    kFilterBit  = 0x2,
+    kKeylessBit = 0x4,
+};
+
+bool GrContext::finalizeTextureKey(GrTextureKey* key,
+                                   const GrSamplerState& sampler,
+                                   bool keyless) const {
+    uint32_t bits = 0;
+    uint16_t width = key->width();
+    uint16_t height = key->height();
+
+    if (!fGpu->npotTextureTileSupport()) {
+        bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
+
+        bool tiled = (sampler.getWrapX() != GrSamplerState::kClamp_WrapMode) ||
+                     (sampler.getWrapY() != GrSamplerState::kClamp_WrapMode);
+
+        if (tiled && !isPow2) {
+            bits |= kNPOTBit;
+            if (sampler.isFilter()) {
+                bits |= kFilterBit;
+            }
+        }
+    }
+
+    if (keyless) {
+        bits |= kKeylessBit;
+    }
+    key->finalize(bits);
+    return 0 != bits;
+}
+
 GrTextureEntry* GrContext::findAndLockTexture(GrTextureKey* key,
                                               const GrSamplerState& sampler) {
-    finalizeTextureKey(key, sampler);
+    finalizeTextureKey(key, sampler, false);
     return fTextureCache->findAndLock(*key);
 }
 
@@ -138,7 +175,7 @@ static void stretchImage(void* dst,
 
 GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                                                 const GrSamplerState& sampler,
-                                                const GrGpu::TextureDesc& desc,
+                                                const GrTextureDesc& desc,
                                                 void* srcData, size_t rowBytes) {
     GrAssert(key->width() == desc.fWidth);
     GrAssert(key->height() == desc.fHeight);
@@ -148,7 +185,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
 #endif
 
     GrTextureEntry* entry = NULL;
-    bool special = finalizeTextureKey(key, sampler);
+    bool special = finalizeTextureKey(key, sampler, false);
     if (special) {
         GrTextureEntry* clampEntry;
         GrTextureKey clampKey(*key);
@@ -163,9 +200,10 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                 return NULL;
             }
         }
-        GrGpu::TextureDesc rtDesc = desc;
-        rtDesc.fFlags |= GrGpu::kRenderTarget_TextureFlag |
-                         GrGpu::kNoStencil_TextureFlag;
+        GrTextureDesc rtDesc = desc;
+        rtDesc.fFlags =  rtDesc.fFlags |
+                         kRenderTarget_GrTextureFlagBit |
+                         kNoStencil_GrTextureFlagBit;
         rtDesc.fWidth  = GrNextPow2(GrMax<int>(desc.fWidth,
                                                fGpu->minRenderTargetWidth()));
         rtDesc.fHeight = GrNextPow2(GrMax<int>(desc.fHeight,
@@ -211,7 +249,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             // not. Either implement filtered stretch blit on CPU or just create
             // one when FBO case fails.
 
-            rtDesc.fFlags = 0;
+            rtDesc.fFlags = kNone_GrTextureFlags;
             // no longer need to clamp at min RT size.
             rtDesc.fWidth  = GrNextPow2(desc.fWidth);
             rtDesc.fHeight = GrNextPow2(desc.fHeight);
@@ -243,19 +281,37 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
     return entry;
 }
 
+GrTextureEntry* GrContext::lockKeylessTexture(const GrTextureDesc& desc,
+                                              const GrSamplerState& state) {
+    uint32_t p0 = desc.fFormat;
+    uint32_t p1 = (desc.fAALevel << 16) | desc.fFlags;
+    GrTextureKey key(p0, p1, desc.fWidth, desc.fHeight);
+    this->finalizeTextureKey(&key, state, true);
+    GrTextureEntry* entry = fTextureCache->findAndLock(key);
+    if (NULL == entry) {
+        GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
+        if (NULL != texture) {
+            entry = fTextureCache->createAndLock(key, texture);
+        }
+    }
+    // If the caller gives us the same desc/sampler twice we don't want
+    // to return the same texture the second time (unless it was previously
+    // released). So we detach the entry from the cache and reattach at release.
+    if (NULL != entry) {
+        fTextureCache->detach(entry);
+    }
+    return entry;
+}
+
 void GrContext::unlockTexture(GrTextureEntry* entry) {
-    fTextureCache->unlock(entry);
+    if (kKeylessBit & entry->key().getPrivateBits()) {
+        fTextureCache->reattachAndUnlock(entry);
+    } else {
+        fTextureCache->unlock(entry);
+    }
 }
 
-void GrContext::detachCachedTexture(GrTextureEntry* entry) {
-    fTextureCache->detach(entry);
-}
-
-void GrContext::reattachAndUnlockCachedTexture(GrTextureEntry* entry) {
-    fTextureCache->reattachAndUnlock(entry);
-}
-
-GrTexture* GrContext::createUncachedTexture(const GrGpu::TextureDesc& desc,
+GrTexture* GrContext::createUncachedTexture(const GrTextureDesc& desc,
                                             void* srcData,
                                             size_t rowBytes) {
     return fGpu->createTexture(desc, srcData, rowBytes);
@@ -935,8 +991,8 @@ void GrContext::writePixels(int left, int top, int width, int height,
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).
 
-    const GrGpu::TextureDesc desc = {
-        0, GrGpu::kNone_AALevel, width, height, config
+    const GrTextureDesc desc = {
+        kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
     };
     GrTexture* texture = fGpu->createTexture(desc, buffer, stride);
     if (NULL == texture) {
@@ -1121,28 +1177,6 @@ void GrContext::setupDrawBuffer() {
 #if BATCH_RECT_TO_RECT
     fDrawBuffer->setQuadIndexBuffer(this->getQuadIndexBuffer());
 #endif
-}
-
-bool GrContext::finalizeTextureKey(GrTextureKey* key,
-                                   const GrSamplerState& sampler) const {
-    uint32_t bits = 0;
-    uint16_t width = key->width();
-    uint16_t height = key->height();
-
-
-    if (!fGpu->npotTextureTileSupport()) {
-        bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
-
-        bool tiled = (sampler.getWrapX() != GrSamplerState::kClamp_WrapMode) ||
-                     (sampler.getWrapY() != GrSamplerState::kClamp_WrapMode);
-
-        if (tiled && !isPow2) {
-            bits |= 1;
-            bits |= sampler.isFilter() ? 2 : 0;
-        }
-    }
-    key->finalize(bits);
-    return 0 != bits;
 }
 
 GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {

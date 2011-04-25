@@ -223,10 +223,10 @@ GrGpuGL::GrGpuGL() {
         GrPrintf("Palette8 support: %s\n", (f8bitPaletteSupport ? "YES" : "NO"));
     }
 
-    GR_STATIC_ASSERT(0 == kNone_AALevel);
-    GR_STATIC_ASSERT(1 == kLow_AALevel);
-    GR_STATIC_ASSERT(2 == kMed_AALevel);
-    GR_STATIC_ASSERT(3 == kHigh_AALevel);
+    GR_STATIC_ASSERT(0 == kNone_GrAALevel);
+    GR_STATIC_ASSERT(1 == kLow_GrAALevel);
+    GR_STATIC_ASSERT(2 == kMed_GrAALevel);
+    GR_STATIC_ASSERT(3 == kHigh_GrAALevel);
 
     memset(fAASamples, 0, sizeof(fAASamples));
     fMSFBOType = kNone_MSFBO;
@@ -268,14 +268,14 @@ GrGpuGL::GrGpuGL() {
         GrGLint maxSamples;
         GR_GL_GetIntegerv(GR_GL_MAX_SAMPLES, &maxSamples);
         if (maxSamples > 1 ) {
-            fAASamples[kNone_AALevel] = 0;
-            fAASamples[kLow_AALevel] = GrMax(2,
-                                             GrFixedFloorToInt((GR_FixedHalf) *
-                                                             maxSamples));
-            fAASamples[kMed_AALevel] = GrMax(2,
-                                             GrFixedFloorToInt(((GR_Fixed1*3)/4) *
-                                                             maxSamples));
-            fAASamples[kHigh_AALevel] = maxSamples;
+            fAASamples[kNone_GrAALevel] = 0;
+            fAASamples[kLow_GrAALevel] = GrMax(2,
+                                               GrFixedFloorToInt((GR_FixedHalf) *
+                                               maxSamples));
+            fAASamples[kMed_GrAALevel] = GrMax(2,
+                                               GrFixedFloorToInt(((GR_Fixed1*3)/4) *
+                                               maxSamples));
+            fAASamples[kHigh_GrAALevel] = maxSamples;
         }
         if (gPrintStartupSpew) {
             GrPrintf("\tMax Samples: %d\n", maxSamples);
@@ -529,8 +529,10 @@ void GrGpuGL::resetContext() {
 
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
+    
     GR_GL(BindBuffer(GR_GL_ARRAY_BUFFER, 0));
     GR_GL(BindBuffer(GR_GL_ELEMENT_ARRAY_BUFFER, 0));
+    
     fHWGeometryState.fArrayPtrsDirty = true;
 
     GR_GL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
@@ -701,7 +703,7 @@ static size_t as_size_t(int x) {
 }
 #endif
 
-GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
+GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                     const void* srcData,
                                     size_t rowBytes) {
 
@@ -728,7 +730,7 @@ GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
     glDesc.fFormat        = desc.fFormat;
     glDesc.fOwnsID        = true;
 
-    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_TextureFlag);
+    bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
     if (!canBeTexture(desc.fFormat,
                       &internalFormat,
                       &glDesc.fUploadFormat,
@@ -738,7 +740,7 @@ GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
 
     GrAssert(as_size_t(desc.fAALevel) < GR_ARRAY_COUNT(fAASamples));
     GrGLint samples = fAASamples[desc.fAALevel];
-    if (kNone_MSFBO == fMSFBOType && desc.fAALevel != kNone_AALevel) {
+    if (kNone_MSFBO == fMSFBOType && desc.fAALevel != kNone_GrAALevel) {
         GrPrintf("AA RT requested but not supported on this platform.");
     }
 
@@ -815,7 +817,7 @@ GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
         GrAssert(desc.fWidth == glDesc.fAllocWidth);
         GrAssert(desc.fHeight == glDesc.fAllocHeight);
         GrGLsizei imageSize = glDesc.fAllocWidth * glDesc.fAllocHeight +
-                              kColorTableSize;
+                              kGrColorTableSize;
         GR_GL(CompressedTexImage2D(GR_GL_TEXTURE_2D, 0, glDesc.fUploadFormat,
                                    glDesc.fAllocWidth, glDesc.fAllocHeight,
                                    0, imageSize, srcData));
@@ -932,7 +934,7 @@ GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
         } else {
             rtIDs.fRTFBOID = rtIDs.fTexFBOID;
         }
-        if (!(kNoStencil_TextureFlag & desc.fFlags)) {
+        if (!(kNoStencil_GrTextureFlagBit & desc.fFlags)) {
             GR_GL(GenRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
             GrAssert(0 != rtIDs.fStencilRenderbufferID);
         }
@@ -1079,7 +1081,7 @@ GrTexture* GrGpuGL::onCreateTexture(const TextureDesc& desc,
         fHWDrawState.fRenderTarget = NULL;
 
         // clear the new stencil buffer if we have one
-        if (!(desc.fFlags & kNoStencil_TextureFlag)) {
+        if (!(desc.fFlags & kNoStencil_GrTextureFlagBit)) {
             GrRenderTarget* rtSave = fCurrDrawState.fRenderTarget;
             fCurrDrawState.fRenderTarget = rt;
             this->clearStencil(0, ~0);

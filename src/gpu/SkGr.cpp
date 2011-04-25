@@ -44,7 +44,7 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
     ctable->unlockColors(false);
 
     // always skip a full 256 number of entries, even if we memcpy'd fewer
-    dst += GrGpu::kColorTableSize;
+    dst += kGrColorTableSize;
 
     if (bitmap.width() == bitmap.rowBytes()) {
         memcpy(dst, bitmap.getPixels(), bitmap.getSize());
@@ -76,9 +76,9 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
 
     const SkBitmap* bitmap = &origBitmap;
 
-    GrGpu::TextureDesc desc = {
-        0,
-        GrGpu::kNone_AALevel,
+    GrTextureDesc desc = {
+        kNone_GrTextureFlags,
+        kNone_GrAALevel,
         bitmap->width(),
         bitmap->height(),
         SkGr::Bitmap2PixelConfig(*bitmap)
@@ -90,7 +90,7 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
         if (ctx->supportsIndex8PixelConfig(sampler,
                                            bitmap->width(), bitmap->height())) {
             size_t imagesize = bitmap->width() * bitmap->height() +
-                                GrGpu::kColorTableSize;
+                                kGrColorTableSize;
             SkAutoMalloc storage(imagesize);
 
             build_compressed_data(storage.get(), origBitmap);
