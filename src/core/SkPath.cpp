@@ -16,7 +16,8 @@
 */
 
 #include "SkPath.h"
-#include "SkFlattenable.h"
+#include "SkReader32.h"
+#include "SkWriter32.h"
 #include "SkMath.h"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1267,7 +1268,7 @@ DONE:
     Format in flattened buffer: [ptCount, verbCount, pts[], verbs[]]
 */
 
-void SkPath::flatten(SkFlattenableWriteBuffer& buffer) const {
+void SkPath::flatten(SkWriter32& buffer) const {
     SkDEBUGCODE(this->validate();)
 
     buffer.write32(fPts.count());
@@ -1277,7 +1278,7 @@ void SkPath::flatten(SkFlattenableWriteBuffer& buffer) const {
     buffer.writePad(fVerbs.begin(), fVerbs.count());
 }
 
-void SkPath::unflatten(SkFlattenableReadBuffer& buffer) {
+void SkPath::unflatten(SkReader32& buffer) {
     fPts.setCount(buffer.readS32());
     fVerbs.setCount(buffer.readS32());
     fFillType = buffer.readS32();

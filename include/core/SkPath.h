@@ -28,8 +28,8 @@
 #define GEN_ID_PTR_INC(ptr)
 #endif
 
-class SkFlattenableReadBuffer;
-class SkFlattenableWriteBuffer;
+class SkReader32;
+class SkWriter32;
 class SkAutoPathBoundsUpdate;
 class SkString;
 
@@ -579,8 +579,8 @@ public:
     void dump(bool forceClose, const char title[] = NULL) const;
     void dump() const;
 
-    void flatten(SkFlattenableWriteBuffer&) const;
-    void unflatten(SkFlattenableReadBuffer&);
+    void flatten(SkWriter32&) const;
+    void unflatten(SkReader32&);
 
     /** Subdivide the path so that no segment is longer that dist.
         If bendLines is true, then turn all line segments into curves.
