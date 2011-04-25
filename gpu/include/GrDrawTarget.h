@@ -718,6 +718,12 @@ public:
          drawRect(rect, matrix, stageEnableBitfield, NULL, NULL);
     }
 
+    /**
+     * Clear the entire render target. Ignores the clip an all other draw state
+     * (blend mode, stages, etc).
+     */
+    virtual void clear(GrColor color) = 0;
+
     ///////////////////////////////////////////////////////////////////////////
 
     class AutoStateRestore : ::GrNoncopyable {

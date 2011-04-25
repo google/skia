@@ -180,13 +180,6 @@ public:
     GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
 
     /**
-     * Clear the entire render target, ignoring any clips/scissors.
-     *
-     * This is issued to the GPU driver immediately.
-     */
-    void clear(GrColor color);
-
-    /**
      * Are 8 bit paletted textures supported.
      *
      * @return    true if 8bit palette textures are supported, false otherwise
@@ -270,6 +263,7 @@ public:
     virtual void drawNonIndexed(GrPrimitiveType type,
                                 int startVertex,
                                 int vertexCount);
+    virtual void clear(GrColor color);
 
     /**
      * Installs a path renderer that will be used to draw paths that are
