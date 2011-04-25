@@ -374,8 +374,6 @@ static void test_picture_playback(GM* gm,
     SkPicture* pict = generate_new_picture(gm);
     SkAutoUnref aur(pict);
 
-    //@todo thudson 22 April 2011 wrap GM with a proxy so we can
-    // pass this pict to generate_image()?
     if (kRaster_Backend == gRec.fBackend) {
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, pict, &bitmap);
@@ -394,8 +392,6 @@ static void test_picture_serialization(GM* gm,
     SkPicture* repict = stream_to_new_picture(*pict);
     SkAutoUnref aurr(repict);
 
-    //@todo thudson 22 April 2011 wrap GM with a proxy so we can
-    // pass this pict to generate_image()?
     if (kRaster_Backend == gRec.fBackend) {
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, repict, &bitmap);
@@ -406,10 +402,15 @@ static void test_picture_serialization(GM* gm,
 
 static void usage(const char * argv0) {
     SkDebugf("%s [-w writePath] [-r readPath] [-d diffPath]\n", argv0);
+    SkDebugf("    [--replay] [--serialize]\n");
     SkDebugf("    writePath: directory to write rendered images in.\n");
-    SkDebugf("    readPath: directory to read reference images from;\n"
-             "        reports if any pixels mismatch between reference and newly rendered\n");
+    SkDebugf(
+"    readPath: directory to read reference images from;\n"
+"        reports if any pixels mismatch between reference and new images\n");
     SkDebugf("    diffPath: directory to write difference images in.\n");
+    SkDebugf("    --replay: exercise SkPicture replay.\n");
+    SkDebugf(
+"    --serialize: exercise SkPicture serialization & deserialization.\n");
 }
 
 static const ConfigData gRec[] = {
@@ -429,6 +430,8 @@ int main(int argc, char * const argv[]) {
     const char* readPath = NULL;    // if non-null, were we read from to compare
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
 
+    bool doReplay = false;
+    bool doSerialize = true;
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -447,6 +450,10 @@ int main(int argc, char * const argv[]) {
             if (argv < stop && **argv) {
                 diffPath = *argv;
             }
+        } else if (strcmp(*argv, "--replay") == 0) {
+            doReplay = true;
+        } else if (strcmp(*argv, "--serialize") == 0) {
+            doSerialize = true;
         } else {
           usage(commandName);
           return 0;
@@ -482,11 +489,15 @@ int main(int argc, char * const argv[]) {
             test_drawing(gm, gRec[i],
                          writePath, readPath, diffPath, context);
 
-            test_picture_playback(gm, gRec[i],
-                                  writePath, readPath, diffPath);
+            if (doReplay) {
+                test_picture_playback(gm, gRec[i],
+                                      writePath, readPath, diffPath);
+            }
 
-            test_picture_serialization(gm, gRec[i],
-                                       writePath, readPath, diffPath);
+            if (doSerialize) {
+                test_picture_serialization(gm, gRec[i],
+                                           writePath, readPath, diffPath);
+            }
         }
         SkDELETE(gm);
     }
