@@ -206,6 +206,14 @@ struct GrRect {
     }
 
     /**
+     * Returns true if the rects edges are integer-aligned.
+     */
+    bool isIRect() const {
+        return GrScalarIsInt(fLeft) && GrScalarIsInt(fTop) && 
+               GrScalarIsInt(fRight) && GrScalarIsInt(fBottom);
+    }
+
+    /**
      * Does this rect contain a point.
      */
     bool contains(const GrPoint& point) const {
@@ -361,6 +369,22 @@ struct GrRect {
     GrPoint* setRectFan(GrPoint pts[4]) const {
         pts->setRectFan(fLeft, fTop, fRight, fBottom);
         return pts + 4;
+    }
+
+    /**
+     * Swaps (left and right) and/or (top and bottom) if they are inverted
+     */
+    void sort() {
+        if (fLeft > fRight) {
+            GrScalar temp = fLeft;
+            fLeft = fRight;
+            fRight = temp;
+        }
+        if (fTop > fBottom) {
+            GrScalar temp = fTop;
+            fTop = fBottom;
+            fBottom = temp;
+        }
     }
 
     bool operator ==(const GrRect& r) const {

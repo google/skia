@@ -568,7 +568,25 @@ private:
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;
     GrInOrderDrawBuffer*        fDrawBuffer;
 
+    GrIndexBuffer*              fAAFillRectIndexBuffer;
+    GrIndexBuffer*              fAAStrokeRectIndexBuffer;
+
     GrContext(GrGpu* gpu);
+
+    void fillAARect(GrDrawTarget* target,
+                    const GrPaint& paint,
+                    const GrRect& devRect);
+
+    void strokeAARect(GrDrawTarget* target,
+                      const GrPaint& paint,
+                      const GrRect& devRect,
+                      const GrVec& devStrokeSize);
+
+    inline int aaFillRectIndexCount() const;
+    GrIndexBuffer* aaFillRectIndexBuffer();
+
+    inline int aaStrokeRectIndexCount() const;
+    GrIndexBuffer* aaStrokeRectIndexBuffer();
 
     void setupDrawBuffer();
 

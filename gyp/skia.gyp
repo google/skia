@@ -1444,6 +1444,7 @@
         '../samplecode/SamplePicture.cpp',
         '../samplecode/SamplePoints.cpp',
         '../samplecode/SamplePolyToPoly.cpp',
+        '../samplecode/SampleAARects.cpp',
         '../samplecode/SampleRegion.cpp',
         '../samplecode/SampleRepeatTile.cpp',
         '../samplecode/SampleShaders.cpp',

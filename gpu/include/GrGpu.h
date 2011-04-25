@@ -273,6 +273,12 @@ public:
     bool supportsBufferLocking() const { return fBufferLockSupport; }
 
     /**
+     * Does the 3D API support anti-aliased lines. If so then line primitive
+     * types will use this functionality when the AA state flag is set.
+     */
+    bool supportsAALines() const { return fAALineSupport; }
+
+    /**
      * Gets the minimum width of a render target. If a texture/rt is created
      * with a width less than this size the GrGpu object will clamp it to this
      * value.
@@ -445,6 +451,7 @@ protected:
     bool fNPOTRenderTargetSupport;
     bool fTwoSidedStencilSupport;
     bool fStencilWrapOpsSupport;
+    bool fAALineSupport;
 
     // set by subclass to true if index and vertex buffers can be locked, false
     // otherwise.
