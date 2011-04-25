@@ -50,6 +50,17 @@ static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+// Can't use a two-argument function with side effects like this in a
+// constructor's initializer's argument list because the order of
+// evaluations in that context is undefined (and backwards on linux/gcc).
+static SkPoint unflatten_point(SkReader32& buffer) {
+    SkPoint retval;
+    retval.fX = buffer.readScalar();
+    retval.fY = buffer.readScalar();
+    return retval;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 typedef SkFixed (*TileProc)(SkFixed);
 
@@ -780,8 +791,8 @@ public:
 protected:
     Linear_Gradient(SkFlattenableReadBuffer& buffer)
         : Gradient_Shader(buffer),
-          fStart(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
-          fEnd(SkPoint::Make(buffer.readScalar(), buffer.readScalar())) {
+          fStart(unflatten_point(buffer)),
+          fEnd(unflatten_point(buffer)) {
     }
     virtual Factory getFactory() { return CreateProc; }
 
@@ -1379,7 +1390,7 @@ public:
 protected:
     Radial_Gradient(SkFlattenableReadBuffer& buffer)
         : Gradient_Shader(buffer),
-          fCenter(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
+          fCenter(unflatten_point(buffer)),
           fRadius(buffer.readScalar()) {
     }
     virtual Factory getFactory() { return CreateProc; }
@@ -1772,8 +1783,8 @@ public:
 protected:
     Two_Point_Radial_Gradient(SkFlattenableReadBuffer& buffer)
             : Gradient_Shader(buffer),
-              fCenter1(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
-              fCenter2(SkPoint::Make(buffer.readScalar(), buffer.readScalar())),
+              fCenter1(unflatten_point(buffer)),
+              fCenter2(unflatten_point(buffer)),
               fRadius1(buffer.readScalar()),
               fRadius2(buffer.readScalar()) {
         init();
@@ -1857,7 +1868,7 @@ public:
 protected:
     Sweep_Gradient(SkFlattenableReadBuffer& buffer)
         : Gradient_Shader(buffer),
-          fCenter(SkPoint::Make(buffer.readScalar(), buffer.readScalar())) {
+          fCenter(unflatten_point(buffer)) {
     }
 
     virtual Factory getFactory() { return CreateProc; }
@@ -2256,4 +2267,3 @@ static SkFlattenable::Registrar gRadialGradientReg("Radial_Gradient",
 
 static SkFlattenable::Registrar gSweepGradientReg("Sweep_Gradient",
                                                    Sweep_Gradient::CreateProc);
-
