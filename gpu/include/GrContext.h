@@ -605,6 +605,26 @@ private:
                                     GrPathIter* path,
                                     GrPathFill fill);
 
+    struct OffscreenRecord;
+    // we currently only expose stage 0 through the paint so use stage 1. We
+    // use stage 1 for the offscreen.
+    enum {
+        kOffscreenStage = 1,
+    };
+
+    // sets up target to draw coverage to the supersampled render target
+    bool setupOffscreenAAPass1(GrDrawTarget* target,
+                               bool requireStencil,
+                               OffscreenRecord* record);
+
+    // sets up target to sample coverage of supersampled render target back
+    // to the main render target using stage kOffscreenStage.
+    void setupOffscreenAAPass2(GrDrawTarget* target,
+                               const GrPaint& paint,
+                               OffscreenRecord* record);
+    
+    // cleans up from supersample aa drawing
+    void endOffscreenAA(GrDrawTarget* target, OffscreenRecord* record);
 };
 
 /**
