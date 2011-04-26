@@ -416,14 +416,6 @@ void GrContext::drawPaint(const GrPaint& paint) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct GrContext::OffscreenRecord {
-    OffscreenRecord() { fEntry = NULL; }
-    ~OffscreenRecord() { GrAssert(NULL == fEntry); }
-
-    GrTextureEntry*                fEntry;
-    GrDrawTarget::SavedDrawState   fSavedState;
-};
-
 bool GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
                                       bool requireStencil,
                                       OffscreenRecord* record) {
@@ -484,17 +476,16 @@ void GrContext::setupOffscreenAAPass2(GrDrawTarget* target,
 
     target->restoreDrawState(record->fSavedState);
 
-    target->setViewMatrix(GrMatrix::I());
     target->setTexture(kOffscreenStage, offscreen);
-    GrMatrix scaleM;
-
-    scaleM.setScale(GR_Scalar1 / target->getRenderTarget()->width(),
-                    GR_Scalar1 / target->getRenderTarget()->height());
+    GrMatrix sampleM;
+    sampleM.setScale(GR_Scalar1 / target->getRenderTarget()->width(),
+                     GR_Scalar1 / target->getRenderTarget()->height());
+    sampleM.preConcat(target->getViewMatrix());
 
     // use bilinear filtering to get downsample
     GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
                            GrSamplerState::kClamp_WrapMode,
-                           scaleM, true);
+                           sampleM, true);
     target->setSamplerState(kOffscreenStage, sampler);
 }
 
@@ -955,6 +946,16 @@ void GrContext::drawVertices(const GrPaint& paint,
         vertexSize += sizeof(GrColor);
     }
 
+    bool doOffscreenAA = false;
+    OffscreenRecord record;
+    if (paint.fAntiAlias &&
+        !this->getRenderTarget()->isMultisampled() &&
+        !(GrIsPrimTypeLines(primitiveType) && fGpu->supportsAALines()) &&
+        this->setupOffscreenAAPass1(target, false, &record)) {
+        doOffscreenAA = true;
+        layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(kOffscreenStage);
+    }
+
     if (sizeof(GrPoint) != vertexSize) {
         if (!geo.set(target, layout, vertexCount, 0)) {
             GrPrintf("Failed to get space for vertices!");
@@ -984,9 +985,47 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     if (NULL != indices) {
         target->setIndexSourceToArray(indices, indexCount);
-        target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+    }
+
+    if (doOffscreenAA) {
+        // draw to the offscreen
+        if (NULL != indices) {
+            target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+        } else {
+            target->drawNonIndexed(primitiveType, 0, vertexCount);
+        }
+        // When there are custom texture coordinates we can't just draw
+        // a quad to sample the offscreen. Instead we redraw the geometry to
+        // specify the texture coords. This isn't quite right either, primitives
+        // will only be eroded at the edges, not expanded into partial pixels.
+        bool useRect = 0 == (layout & GrDrawTarget::StageTexCoordVertexLayoutBit(0,0));
+        if (useRect) {
+            target->setViewMatrix(GrMatrix::I());
+        }
+        this->setupOffscreenAAPass2(target, paint, &record);
+        if (useRect) {
+            geo.set(NULL, 0, 0, 0);
+            int stages = (NULL != paint.getTexture()) ? 0x1 : 0x0;
+            stages |= (1 << kOffscreenStage);
+            GrRect dstRect(0, 0, 
+                        target->getRenderTarget()->width(),
+                        target->getRenderTarget()->height());
+                        target->drawSimpleRect(dstRect, NULL, stages);
+            target->drawSimpleRect(dstRect, NULL, stages);
+        } else {
+            if (NULL != indices) {
+                target->drawIndexed (primitiveType, 0, 0, vertexCount, indexCount);
+            } else {
+                target->drawNonIndexed(primitiveType, 0, vertexCount);
+            }
+        }
+        this->endOffscreenAA(target, &record);
     } else {
-        target->drawNonIndexed(primitiveType, 0, vertexCount);
+        if (NULL != indices) {
+            target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+        } else {
+            target->drawNonIndexed(primitiveType, 0, vertexCount);
+        }
     }
 }
 
@@ -1010,8 +1049,9 @@ void GrContext::drawPath(const GrPaint& paint,
          if (this->setupOffscreenAAPass1(target, needsStencil, &record)) {
              pr->drawPath(target, 0, path, fill, translate);
              
+             target->setViewMatrix(GrMatrix::I());
              this->setupOffscreenAAPass2(target, paint, &record);
-             
+
              int stages = (NULL != paint.getTexture()) ? 0x1 : 0x0;
              stages |= (1 << kOffscreenStage);
              GrRect dstRect(0, 0, 

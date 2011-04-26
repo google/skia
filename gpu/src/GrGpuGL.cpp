@@ -1704,75 +1704,70 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
     for (int s = 0; s < kNumStages; ++s) {
-        bool usingTexture = VertexUsesStage(s, fGeometrySrc.fVertexLayout);
-
         // bind texture and set sampler state
-        if (usingTexture) {
+        if (this->isStageEnabled(s)) {
             GrGLTexture* nextTexture = (GrGLTexture*)fCurrDrawState.fTextures[s];
 
-            if (NULL != nextTexture) {
-                // if we created a rt/tex and rendered to it without using a
-                // texture and now we're texuring from the rt it will still be
-                // the last bound texture, but it needs resolving. So keep this
-                // out of the "last != next" check.
-                GrGLRenderTarget* texRT = 
-                    static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
-                if (NULL != texRT) {
-                    resolveRenderTarget(texRT);
-                }
-
-                if (fHWDrawState.fTextures[s] != nextTexture) {
-                    setTextureUnit(s);
-                    GR_GL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
-                #if GR_COLLECT_STATS
-                    ++fStats.fTextureChngCnt;
-                #endif
-                    //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
-                    fHWDrawState.fTextures[s] = nextTexture;
-                }
-
-                const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
-                const GrGLTexture::TexParams& oldTexParams =
-                                                    nextTexture->getTexParams();
-                GrGLTexture::TexParams newTexParams;
-
-                newTexParams.fFilter = sampler.isFilter() ? GR_GL_LINEAR :
-                                                            GR_GL_NEAREST;
-                newTexParams.fWrapS =
-                            GrGLTexture::WrapMode2GLWrap()[sampler.getWrapX()];
-                newTexParams.fWrapT =
-                            GrGLTexture::WrapMode2GLWrap()[sampler.getWrapY()];
-
-                if (newTexParams.fFilter != oldTexParams.fFilter) {
-                    setTextureUnit(s);
-                    GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_MAG_FILTER,
-                                        newTexParams.fFilter));
-                    GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_MIN_FILTER,
-                                        newTexParams.fFilter));
-                }
-                if (newTexParams.fWrapS != oldTexParams.fWrapS) {
-                    setTextureUnit(s);
-                    GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_WRAP_S,
-                                        newTexParams.fWrapS));
-                }
-                if (newTexParams.fWrapT != oldTexParams.fWrapT) {
-                    setTextureUnit(s);
-                    GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
-                                        GR_GL_TEXTURE_WRAP_T,
-                                        newTexParams.fWrapT));
-                }
-                nextTexture->setTexParams(newTexParams);
-
-                // The texture matrix has to compensate for texture width/height
-                // and NPOT-embedded-in-POT
-                fDirtyFlags.fTextureChangedMask |= (1 << s);
-            } else {
-                GrAssert(!"Rendering with texture vert flag set but no texture");
-                return false;
+            // true for now, but maybe not with GrEffect.
+            GrAssert(NULL != nextTexture);
+            // if we created a rt/tex and rendered to it without using a
+            // texture and now we're texuring from the rt it will still be
+            // the last bound texture, but it needs resolving. So keep this
+            // out of the "last != next" check.
+            GrGLRenderTarget* texRT = 
+                static_cast<GrGLRenderTarget*>(nextTexture->asRenderTarget());
+            if (NULL != texRT) {
+                resolveRenderTarget(texRT);
             }
+
+            if (fHWDrawState.fTextures[s] != nextTexture) {
+                setTextureUnit(s);
+                GR_GL(BindTexture(GR_GL_TEXTURE_2D, nextTexture->textureID()));
+            #if GR_COLLECT_STATS
+                ++fStats.fTextureChngCnt;
+            #endif
+                //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
+                fHWDrawState.fTextures[s] = nextTexture;
+            }
+
+            const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
+            const GrGLTexture::TexParams& oldTexParams =
+                                                nextTexture->getTexParams();
+            GrGLTexture::TexParams newTexParams;
+
+            newTexParams.fFilter = sampler.isFilter() ? GR_GL_LINEAR :
+                                                        GR_GL_NEAREST;
+            newTexParams.fWrapS =
+                        GrGLTexture::WrapMode2GLWrap()[sampler.getWrapX()];
+            newTexParams.fWrapT =
+                        GrGLTexture::WrapMode2GLWrap()[sampler.getWrapY()];
+
+            if (newTexParams.fFilter != oldTexParams.fFilter) {
+                setTextureUnit(s);
+                GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
+                                    GR_GL_TEXTURE_MAG_FILTER,
+                                    newTexParams.fFilter));
+                GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
+                                    GR_GL_TEXTURE_MIN_FILTER,
+                                    newTexParams.fFilter));
+            }
+            if (newTexParams.fWrapS != oldTexParams.fWrapS) {
+                setTextureUnit(s);
+                GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
+                                    GR_GL_TEXTURE_WRAP_S,
+                                    newTexParams.fWrapS));
+            }
+            if (newTexParams.fWrapT != oldTexParams.fWrapT) {
+                setTextureUnit(s);
+                GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
+                                    GR_GL_TEXTURE_WRAP_T,
+                                    newTexParams.fWrapT));
+            }
+            nextTexture->setTexParams(newTexParams);
+
+            // The texture matrix has to compensate for texture width/height
+            // and NPOT-embedded-in-POT
+            fDirtyFlags.fTextureChangedMask |= (1 << s);
         }
     }
 
@@ -1822,7 +1817,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 #if GR_DEBUG
     // check for circular rendering
     for (int s = 0; s < kNumStages; ++s) {
-        GrAssert(!VertexUsesStage(s, fGeometrySrc.fVertexLayout) ||
+        GrAssert(!this->isStageEnabled(s) ||
                  NULL == fCurrDrawState.fRenderTarget ||
                  NULL == fCurrDrawState.fTextures[s] ||
                  fCurrDrawState.fTextures[s]->asRenderTarget() !=

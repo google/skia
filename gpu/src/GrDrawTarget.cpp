@@ -494,12 +494,12 @@ bool GrDrawTarget::canDisableBlend() const {
 
     // ...and there isn't a texture with an alpha channel...
     for (int s = 0; s < kNumStages; ++s) {
-        if (VertexUsesStage(s, fGeometrySrc.fVertexLayout)) {
+        if (this->isStageEnabled(s)) {
             GrAssert(NULL != fCurrDrawState.fTextures[s]);
+
             GrPixelConfig config = fCurrDrawState.fTextures[s]->config();
 
-            if (kRGB_565_GrPixelConfig != config &&
-                kRGBX_8888_GrPixelConfig != config) {
+            if (!GrPixelConfigIsOpaque(config)) {
                 return false;
             }
         }

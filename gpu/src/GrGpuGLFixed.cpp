@@ -127,8 +127,7 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
     bool usingTextures[kNumStages];
 
     for (int s = 0; s < kNumStages; ++s) {
-        usingTextures[s] = VertexUsesStage(s, fGeometrySrc.fVertexLayout);
-
+        usingTextures[s] = this->isStageEnabled(s);
         if (usingTextures[s] && fCurrDrawState.fSamplerStates[s].isGradient()) {
             unimpl("Fixed pipe doesn't support radial/sweep gradients");
             return false;
@@ -152,7 +151,7 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
     }
 
     for (int s = 0; s < kNumStages; ++s) {
-        bool wasUsingTexture = VertexUsesStage(s, fHWGeometryState.fVertexLayout);
+        bool wasUsingTexture = StageWillBeUsed(s, fHWGeometryState.fVertexLayout, fHWDrawState);
         if (usingTextures[s] != wasUsingTexture) {
             setTextureUnit(s);
             if (usingTextures[s]) {
