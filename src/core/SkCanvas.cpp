@@ -417,21 +417,27 @@ SkDevice* SkCanvas::init(SkDevice* device) {
 }
 
 SkCanvas::SkCanvas(SkDeviceFactory* factory)
-        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)),
-          fDeviceFactory(factory) {
+        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
 
-    if (!factory)
-        fDeviceFactory = SkNEW(SkRasterDeviceFactory);
+    if (factory) {
+        factory->ref();
+    } else {
+        factory = SkNEW(SkRasterDeviceFactory);
+    }
+    fDeviceFactory = factory;
 
     this->init(NULL);
 }
 
 SkCanvas::SkCanvas(SkDevice* device)
-        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)),
-          fDeviceFactory(device->getDeviceFactory()) {
+        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
 
+    fDeviceFactory = device->getDeviceFactory();
+    SkASSERT(fDeviceFactory);
+    fDeviceFactory->ref();
+              
     this->init(device);
 }
 
@@ -441,6 +447,9 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
 
     SkDevice* device = SkNEW_ARGS(SkDevice, (this, bitmap, false));
     fDeviceFactory = device->getDeviceFactory();
+    SkASSERT(fDeviceFactory);
+    fDeviceFactory->ref();
+
     this->init(device)->unref();
 }
 
@@ -450,7 +459,7 @@ SkCanvas::~SkCanvas() {
     this->internalRestore();    // restore the last, since we're going away
 
     SkSafeUnref(fBounder);
-    SkDELETE(fDeviceFactory);
+    SkSafeUnref(fDeviceFactory);
 
     dec_canvas();
 }
@@ -560,8 +569,7 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
 }
 
 SkDeviceFactory* SkCanvas::setDeviceFactory(SkDeviceFactory* factory) {
-    SkDELETE(fDeviceFactory);
-    fDeviceFactory = factory;
+    SkRefCnt_SafeAssign(fDeviceFactory, factory);
     return factory;
 }
 

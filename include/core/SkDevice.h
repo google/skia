@@ -36,8 +36,9 @@ class SkRegion;
     to pass into SkCanvas.  Doing so will eliminate the need to extend
     SkCanvas as well.
 */
-class SK_API SkDeviceFactory {
+class SK_API SkDeviceFactory : public SkRefCnt {
 public:
+    SkDeviceFactory();
     virtual ~SkDeviceFactory();
     virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
                                 int height, bool isOpaque, bool isLayer) = 0;
@@ -65,9 +66,12 @@ public:
     SkDevice(SkCanvas*, const SkBitmap& bitmap, bool forOffscreen);
     virtual ~SkDevice();
 
-    virtual SkDeviceFactory* getDeviceFactory() {
-        return SkNEW(SkRasterDeviceFactory);
-    }
+    /**
+     *  Return the factory that will create this subclass of SkDevice.
+     *  The returned factory is cached by the device, and so its reference count
+     *  is not changed by this call.
+     */
+    SkDeviceFactory* getDeviceFactory();
 
     enum Capabilities {
         kGL_Capability     = 0x1,  //!< mask indicating GL support
@@ -247,6 +251,13 @@ public:
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*);
 
 protected:
+    /**
+     *  subclasses must override this to return a new (or ref'd) instance of
+     *  a device factory that will create this subclass of device. This value
+     *  is cached, so it should get called at most once for a given instance.
+     */
+    virtual SkDeviceFactory* onNewDeviceFactory();
+
     /** Update as needed the pixel value in the bitmap, so that the caller can access
         the pixels directly. Note: only the pixels field should be altered. The config/width/height/rowbytes
         must remain unchanged.
@@ -269,6 +280,8 @@ private:
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
+
+    SkDeviceFactory* fCachedDeviceFactory;
 };
 
 #endif

@@ -61,10 +61,6 @@ public:
     SkPDFDevice(int width, int height, const SkMatrix& initialTransform);
     virtual ~SkPDFDevice();
 
-    virtual SkDeviceFactory* getDeviceFactory() {
-        return SkNEW(SkPDFDeviceFactory);
-    }
-
     virtual uint32_t getDeviceCapabilities() { return kVector_Capability; }
 
     virtual int width() const { return fWidth; };
@@ -137,6 +133,10 @@ public:
         for a reference to the returned value.
      */
     SkStream* content() const;
+
+protected:
+    // override
+    virtual SkDeviceFactory* onNewDeviceFactory();
 
 private:
     int fWidth;
