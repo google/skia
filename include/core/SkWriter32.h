@@ -70,6 +70,14 @@ public:
     
     // write count bytes (must be a multiple of 4)
     void writeMul4(const void* values, size_t size) {
+        this->write(values, size);
+    }
+
+    /**
+     *  Write size bytes from values. size must be a multiple of 4, though
+     *  values need not be 4-byte aligned.
+     */
+    void write(const void* values, size_t size) {
         SkASSERT(SkAlign4(size) == size);
         // if we could query how much is avail in the current block, we might
         // copy that much, and then alloc the rest. That would reduce the waste
@@ -83,7 +91,7 @@ public:
     uint32_t  size() const { return fSize; }
     void      reset();
     uint32_t* reserve(size_t size); // size MUST be multiple of 4
-    
+
     // return the address of the 4byte int at the specified offset (which must
     // be a multiple of 4. This does not allocate any new space, so the returned
     // address is only valid for 1 int.
