@@ -24,7 +24,7 @@
 
     Sk64 is a 64-bit math package that does not require long long support from the compiler.
 */
-struct Sk64 {
+struct SK_API Sk64 {
     int32_t  fHi;   //!< the high 32 bits of the number (including sign)
     uint32_t fLo;   //!< the low 32 bits of the number
 

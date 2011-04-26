@@ -20,7 +20,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
-class SkStream : public SkRefCnt {
+class SK_API SkStream : public SkRefCnt {
 public:
     virtual ~SkStream();
     /** Called to rewind to the beginning of the stream. If this cannot be
