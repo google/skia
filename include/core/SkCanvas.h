@@ -126,12 +126,15 @@ public:
     SkDevice* setBitmapDevice(const SkBitmap& bitmap, bool forLayer = false);
 
     /**
-     *  Return the current device factory, or NULL.
+     *  Return the current device factory, or NULL. The reference count of
+     *  the returned factory is not changed.
      */
     SkDeviceFactory* getDeviceFactory() const { return fDeviceFactory; }
 
     /**
-     *  Replace any existing factory with the specified factory.
+     *  Replace any existing factory with the specified factory, unrefing the
+     *  previous (if any), and refing the new one (if any). For convenience,
+     *  the factory parameter is also returned.
      */
     SkDeviceFactory* setDeviceFactory(SkDeviceFactory*);
 

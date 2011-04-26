@@ -168,6 +168,10 @@ void SkPDFDevice::init() {
     }
 }
 
+SkDeviceFactory* SkPDFDevice::onNewDeviceFactory() {
+    return SkNEW(SkPDFDeviceFactory);
+}
+
 void SkPDFDevice::cleanUp() {
     fGraphicStateResources.unrefAll();
     fXObjectResources.unrefAll();

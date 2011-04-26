@@ -210,6 +210,11 @@ intptr_t SkGpuDevice::getLayerTextureHandle() const {
         return 0;
     }
 }
+
+SkDeviceFactory* SkGpuDevice::onNewDeviceFactory() {
+    return SkNEW_ARGS(SkGpuDeviceFactory, (fContext, fRenderTarget));
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::makeRenderTargetCurrent() {

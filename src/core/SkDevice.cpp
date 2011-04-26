@@ -3,10 +3,31 @@
 #include "SkMetaData.h"
 #include "SkRect.h"
 
-SkDeviceFactory::~SkDeviceFactory() {}
+//#define TRACE_FACTORY_LIFETIME
+
+#ifdef TRACE_FACTORY_LIFETIME
+    static int gFactoryCounter;
+#endif
+
+SkDeviceFactory::SkDeviceFactory() {
+#ifdef TRACE_FACTORY_LIFETIME
+    SkDebugf("+++ factory index %d\n", gFactoryCounter);
+    ++gFactoryCounter;
+#endif
+}
+
+SkDeviceFactory::~SkDeviceFactory() {
+#ifdef TRACE_FACTORY_LIFETIME
+    --gFactoryCounter;
+    SkDebugf("--- factory index %d\n", gFactoryCounter);
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas), fMetaData(NULL) {
     fOrigin.setZero();
+    fCachedDeviceFactory = NULL;
 }
 
 SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
@@ -21,10 +42,23 @@ SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
             }
         }
     }
+    fCachedDeviceFactory = NULL;
 }
 
 SkDevice::~SkDevice() {
     delete fMetaData;
+    SkSafeUnref(fCachedDeviceFactory);
+}
+
+SkDeviceFactory* SkDevice::onNewDeviceFactory() {
+    return SkNEW(SkRasterDeviceFactory);
+}
+
+SkDeviceFactory* SkDevice::getDeviceFactory() {
+    if (NULL == fCachedDeviceFactory) {
+        fCachedDeviceFactory = this->onNewDeviceFactory();
+    }
+    return fCachedDeviceFactory;
 }
 
 SkMetaData& SkDevice::getMetaData() {

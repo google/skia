@@ -23,14 +23,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkDeviceFactory* make_df(GrContext* context, 
-                                GrRenderTarget* renderTarget) {
-    return SkNEW_ARGS(SkGpuDeviceFactory, (context, renderTarget));
-}
+SkGpuCanvas::SkGpuCanvas(GrContext* context, GrRenderTarget* renderTarget) {
+    SkDeviceFactory* factory = SkNEW_ARGS(SkGpuDeviceFactory,
+                                          (context, renderTarget));
+    this->setDeviceFactory(factory)->unref();
 
-SkGpuCanvas::SkGpuCanvas(GrContext* context,
-                         GrRenderTarget* renderTarget) 
-      : SkCanvas(make_df(context, renderTarget)) {
     SkASSERT(context);
     fContext = context;
     fContext->ref();

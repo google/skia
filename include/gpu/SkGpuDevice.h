@@ -121,6 +121,9 @@ public:
     virtual void makeRenderTargetCurrent();
 
 protected:
+    // override
+    virtual SkDeviceFactory* onNewDeviceFactory();
+
     class TexCache;
     TexCache* lockCachedTexture(const SkBitmap& bitmap,
                                 const GrSamplerState& sampler,
