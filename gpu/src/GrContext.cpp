@@ -281,12 +281,12 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
     return entry;
 }
 
-GrTextureEntry* GrContext::lockKeylessTexture(const GrTextureDesc& desc,
-                                              const GrSamplerState& state) {
+GrTextureEntry* GrContext::lockKeylessTexture(const GrTextureDesc& desc) {
     uint32_t p0 = desc.fFormat;
     uint32_t p1 = (desc.fAALevel << 16) | desc.fFlags;
     GrTextureKey key(p0, p1, desc.fWidth, desc.fHeight);
-    this->finalizeTextureKey(&key, state, true);
+    this->finalizeTextureKey(&key, GrSamplerState::ClampNoFilter(), true);
+    
     GrTextureEntry* entry = fTextureCache->findAndLock(key);
     if (NULL == entry) {
         GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
