@@ -99,9 +99,14 @@ public:
      * requests with the same descriptor are not guaranteed to return the same
      * texture. The same texture is guaranteed not be returned again until it is
      * unlocked.
+     *
+     * Textures created by createAndLockTexture() hide the complications of
+     * tiling non-power-of-two textures on APIs that don't support this (e.g. 
+     * unextended GLES2). Tiling a npot texture created by lockKeylessTexture on
+     * such an API will create gaps in the tiling pattern. This includes clamp
+     * mode. (This may be addressed in a future update.)
      */
-    GrTextureEntry* lockKeylessTexture(const GrTextureDesc& desc,
-                                       const GrSamplerState& state);
+    GrTextureEntry* lockKeylessTexture(const GrTextureDesc& desc);
 
     /**
      *  When done with an entry, call unlockTexture(entry) on it, which returns

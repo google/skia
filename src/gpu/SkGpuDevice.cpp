@@ -1261,7 +1261,7 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             bitmap.height(),
             SkGr::Bitmap2PixelConfig(bitmap)
         };
-        entry = ctx->lockKeylessTexture(desc, sampler);
+        entry = ctx->lockKeylessTexture(desc);
     } else {
         uint32_t p0, p1;
         p0 = bitmap.getGenerationID();
