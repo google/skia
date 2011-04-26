@@ -120,7 +120,8 @@ static void compute_diff(const SkBitmap& target, const SkBitmap& base,
 }
 
 static bool compare(const SkBitmap& target, const SkBitmap& base,
-                    const SkString& name, SkBitmap* diff) {
+                    const SkString& name, const char* modeDescriptor,
+                    SkBitmap* diff) {
     SkBitmap copy;
     const SkBitmap* bm = &target;
     if (target.config() != SkBitmap::kARGB_8888_Config) {
@@ -133,8 +134,9 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
     const int w = bm->width();
     const int h = bm->height();
     if (w != base.width() || h != base.height()) {
-        SkDebugf("---- dimensions mismatch for %s base [%d %d] current [%d %d]\n",
-                 name.c_str(), base.width(), base.height(), w, h);
+        SkDebugf("---- %s dimensions mismatch for %s base [%d %d] current [%d %d]\n",
+                 modeDescriptor, name.c_str(),
+                 base.width(), base.height(), w, h);
         return false;
     }
 
@@ -146,8 +148,8 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
             SkPMColor c0 = *base.getAddr32(x, y);
             SkPMColor c1 = *bm->getAddr32(x, y);
             if (c0 != c1) {
-                SkDebugf("----- pixel mismatch for %s at [%d %d] base 0x%08X current 0x%08X\n",
-                         name.c_str(), x, y, c0, c1);
+                SkDebugf("----- %s pixel mismatch for %s at [%d %d] base 0x%08X current 0x%08X\n",
+                         modeDescriptor, name.c_str(), x, y, c0, c1);
 
                 if (diff) {
                     diff->setConfig(SkBitmap::kARGB_8888_Config, w, h);
@@ -268,7 +270,8 @@ static void write_reference_image(const ConfigData& gRec,
 static void compare_to_reference_image(const char readPath [],
                                        const SkString& name,
                                        SkBitmap &bitmap,
-                                       const char diffPath []) {
+                                       const char diffPath [],
+                                       const char modeDescriptor []) {
     SkString path = make_filename(readPath, "", name, "png");
     SkBitmap orig;
     bool success = SkImageDecoder::DecodeFile(path.c_str(), &orig,
@@ -276,7 +279,8 @@ static void compare_to_reference_image(const char readPath [],
                         SkImageDecoder::kDecodePixels_Mode, NULL);
     if (success) {
         SkBitmap diffBitmap;
-        success = compare(bitmap, orig, name, diffPath ? &diffBitmap : NULL);
+        success = compare(bitmap, orig, name, modeDescriptor,
+                          diffPath ? &diffBitmap : NULL);
         if (!success && diffPath) {
             SkString diffName = make_filename(diffPath, "", name, ".diff.png");
             fprintf(stderr, "Writing %s\n", diffName.c_str());
@@ -304,7 +308,7 @@ static void handle_test_results(GM* gm,
     // TODO: Figure out a way to compare PDFs.
     } else if (readPath && gRec.fBackend != kPDF_Backend) {
         compare_to_reference_image(readPath, name, bitmap,
-                                   diffPath);
+                                   diffPath, writePathSuffix);
     }
 }
 
@@ -378,7 +382,7 @@ static void test_picture_playback(GM* gm,
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, pict, &bitmap);
         handle_test_results(gm, gRec, writePath, readPath, diffPath,
-                            "-pict", bitmap, NULL);
+                            "-replay", bitmap, NULL);
     }
 }
 
@@ -396,7 +400,7 @@ static void test_picture_serialization(GM* gm,
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, repict, &bitmap);
         handle_test_results(gm, gRec, writePath, readPath, diffPath,
-                            "-replay", bitmap, NULL);
+                            "-serialize", bitmap, NULL);
     }
 }
 
@@ -431,7 +435,7 @@ int main(int argc, char * const argv[]) {
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
 
     bool doReplay = false;
-    bool doSerialize = true;
+    bool doSerialize = false;
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
