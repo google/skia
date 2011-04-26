@@ -333,7 +333,7 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     GrAssert(NULL != target);
     GrAssert(target != this); // not considered and why?
 
-    uint32_t numDraws = fDraws.count();
+    int numDraws = fDraws.count();
     if (!numDraws) {
         return;
     }
@@ -351,7 +351,7 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     uint32_t currClip  = ~0;
     uint32_t currClear = 0;
 
-    for (uint32_t i = 0; i < numDraws; ++i) {
+    for (int i = 0; i < numDraws; ++i) {
         while (currClear < fClears.count() && 
                i == fClears[currClear].fBeforeDrawIdx) {
             target->clear(fClears[currClear].fColor);
