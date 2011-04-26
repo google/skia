@@ -171,11 +171,15 @@ typedef unsigned __int64 uint64_t;
     #define GR_DLL 0
 #endif
 
-#if GR_WIN32_BUILD && GR_DLL
-    #if GR_IMPLEMENTATION
-        #define GR_API __declspec(dllexport)
+#if GR_DLL
+    #if GR_WIN32_BUILD
+        #if GR_IMPLEMENTATION
+            #define GR_API __declspec(dllexport)
+        #else
+            #define GR_API __declspec(dllimport)
+        #endif
     #else
-        #define GR_API __declspec(dllimport)
+        #define GR_API __attribute__((visibility("default")))
     #endif
 #else
     #define GR_API
