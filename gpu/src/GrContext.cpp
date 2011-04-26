@@ -26,6 +26,8 @@
 #include "GrBufferAllocPool.h"
 #include "GrPathRenderer.h"
 
+#define ENABLE_SSAA 0
+
 #define DEFER_TEXT_RENDERING 1
 
 #define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
@@ -104,7 +106,6 @@ void GrContext::freeGpuResources() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 enum {
     kNPOTBit    = 0x1,
@@ -411,6 +412,97 @@ void GrContext::drawPaint(const GrPaint& paint) {
         GrPrintf("---- fGpu->getViewInverse failed\n");
     }
     this->drawRect(paint, r);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct GrContext::OffscreenRecord {
+    OffscreenRecord() { fEntry = NULL; }
+    ~OffscreenRecord() { GrAssert(NULL == fEntry); }
+
+    GrTextureEntry*                fEntry;
+    GrDrawTarget::SavedDrawState   fSavedState;
+};
+
+bool GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
+                                      bool requireStencil,
+                                      OffscreenRecord* record) {
+#if !ENABLE_SSAA
+    return false;
+#endif
+
+    GrAssert(NULL == record->fEntry);
+
+    int width  = this->getRenderTarget()->width();
+    int height = this->getRenderTarget()->height();
+
+    GrTextureDesc desc;
+    desc.fAALevel = kNone_GrAALevel;
+    if (requireStencil) {
+        desc.fFlags = kRenderTarget_GrTextureFlagBit;
+    } else {
+        desc.fFlags = kRenderTarget_GrTextureFlagBit | 
+                      kNoStencil_GrTextureFlagBit;
+    }
+
+    desc.fWidth = 2 * width;
+    desc.fHeight = 2 * height;
+    desc.fFormat = kRGBA_8888_GrPixelConfig;
+
+    record->fEntry = this->lockKeylessTexture(desc);
+    if (NULL == record->fEntry) {
+        return false;
+    }
+    GrRenderTarget* offscreen = record->fEntry->texture()->asRenderTarget();
+    GrAssert(NULL != offscreen);
+
+    target->saveCurrentDrawState(&record->fSavedState);
+
+    GrPaint tempPaint;
+    tempPaint.reset();
+    SetPaint(tempPaint, target);
+    target->setRenderTarget(offscreen);
+
+    GrMatrix scaleM;
+    scaleM.setScale(2 * GR_Scalar1, 2 * GR_Scalar1);
+    target->postConcatViewMatrix(scaleM);
+
+    // clip gets applied in second pass
+    target->disableState(GrDrawTarget::kClip_StateBit);
+
+    target->clear(0x0);
+    return true;
+}
+
+void GrContext::setupOffscreenAAPass2(GrDrawTarget* target,
+                                      const GrPaint& paint,
+                                      OffscreenRecord* record) {
+
+    GrAssert(NULL != record->fEntry);
+    GrTexture* offscreen = record->fEntry->texture();
+    GrAssert(NULL != offscreen);
+
+    target->restoreDrawState(record->fSavedState);
+
+    target->setViewMatrix(GrMatrix::I());
+    target->setTexture(kOffscreenStage, offscreen);
+    GrMatrix scaleM;
+
+    scaleM.setScale(GR_Scalar1 / target->getRenderTarget()->width(),
+                    GR_Scalar1 / target->getRenderTarget()->height());
+
+    // use bilinear filtering to get downsample
+    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
+                           GrSamplerState::kClamp_WrapMode,
+                           scaleM, true);
+    target->setSamplerState(kOffscreenStage, sampler);
+}
+
+void GrContext::endOffscreenAA(GrDrawTarget* target, OffscreenRecord* record) {
+    this->unlockTexture(record->fEntry);
+    record->fEntry = NULL;
+
+    target->restoreDrawState(record->fSavedState);    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -899,24 +991,45 @@ void GrContext::drawVertices(const GrPaint& paint,
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 void GrContext::drawPath(const GrPaint& paint,
                          GrPathIter* path,
                          GrPathFill fill,
                          const GrPoint* translate) {
 
-
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+    GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
 
+    if (paint.fAntiAlias &&
+        !this->getRenderTarget()->isMultisampled() &&
+        !pr->supportsAA()) {
+
+         OffscreenRecord record;
+         bool needsStencil = pr->requiresStencilPass(target, path, fill);
+         if (this->setupOffscreenAAPass1(target, needsStencil, &record)) {
+             pr->drawPath(target, 0, path, fill, translate);
+             
+             this->setupOffscreenAAPass2(target, paint, &record);
+             
+             int stages = (NULL != paint.getTexture()) ? 0x1 : 0x0;
+             stages |= (1 << kOffscreenStage);
+             GrRect dstRect(0, 0, 
+                            target->getRenderTarget()->width(),
+                            target->getRenderTarget()->height());
+                            target->drawSimpleRect(dstRect, NULL, stages);
+
+             this->endOffscreenAA(target, &record);
+             return;
+         }
+    } 
     GrDrawTarget::StageBitfield enabledStages = 0;
     if (NULL != paint.getTexture()) {
         enabledStages |= 1;
     }
-    GrPathRenderer* pr = getPathRenderer(target, path, fill);
+
     pr->drawPath(target, enabledStages, path, fill, translate);
 }
-
 void GrContext::drawPath(const GrPaint& paint,
                          const GrPath& path,
                          GrPathFill fill,
@@ -1205,3 +1318,4 @@ GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
         return &fDefaultPathRenderer;
     }
 }
+

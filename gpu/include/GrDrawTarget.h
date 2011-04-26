@@ -276,6 +276,18 @@ public:
     void preConcatViewMatrix(const GrMatrix& m);
 
     /**
+     *  Multiplies the current view matrix by a matrix
+     *
+     *  After this call V' = m*V where V is the old view matrix,
+     *  m is the parameter to this function, and V' is the new view matrix.
+     *  (We consider positions to be column vectors so position vector p is
+     *  transformed by matrix X as p' = X*p.)
+     *
+     *  @param m the matrix used to modify the view matrix.
+     */
+    void postConcatViewMatrix(const GrMatrix& m);
+
+    /**
      * Retrieves the current view matrix
      * @return the current view matrix.
      */
@@ -728,8 +740,16 @@ public:
 
     class AutoStateRestore : ::GrNoncopyable {
     public:
+        AutoStateRestore();
         AutoStateRestore(GrDrawTarget* target);
         ~AutoStateRestore();
+
+        /**
+         * if this object is already saving state for param target then
+         * this does nothing. Otherise, it restores previously saved state on
+         * previous target (if any) and saves current state on param target.
+         */
+        void set(GrDrawTarget* target);
 
     private:
         GrDrawTarget*       fDrawTarget;

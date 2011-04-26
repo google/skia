@@ -335,6 +335,10 @@ void GrDrawTarget::preConcatViewMatrix(const GrMatrix& matrix) {
     fCurrDrawState.fViewMatrix.preConcat(matrix);
 }
 
+void GrDrawTarget::postConcatViewMatrix(const GrMatrix& matrix) {
+    fCurrDrawState.fViewMatrix.postConcat(matrix);
+}
+
 const GrMatrix& GrDrawTarget::getViewMatrix() const {
     return fCurrDrawState.fViewMatrix;
 }
@@ -581,6 +585,9 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+GrDrawTarget::AutoStateRestore::AutoStateRestore() {
+    fDrawTarget = NULL;
+}
 
 GrDrawTarget::AutoStateRestore::AutoStateRestore(GrDrawTarget* target) {
     fDrawTarget = target;
@@ -595,3 +602,14 @@ GrDrawTarget::AutoStateRestore::~AutoStateRestore() {
     }
 }
 
+void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target) {
+    if (target != fDrawTarget) {
+        if (NULL != fDrawTarget) {
+            fDrawTarget->restoreDrawState(fDrawState);
+        }
+        if (NULL != target) {
+            fDrawTarget->saveCurrentDrawState(&fDrawState);
+        }
+        fDrawTarget = target;
+    }
+}

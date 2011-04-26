@@ -109,6 +109,12 @@ public:
     }
     
     /**
+     * @return true if the path renderer can perform anti-aliasing (aside from
+     * having FSAA enabled for a render target)
+     */
+    virtual bool supportsAA() { return false; }
+
+    /**
      * This is called to install a custom path renderer in every GrContext at
      * create time. The default implementation in GrCreatePathRenderer_none.cpp
      * returns NULL. Link against another implementation to install your own.
