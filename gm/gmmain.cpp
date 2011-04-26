@@ -195,6 +195,8 @@ static void setup_bitmap(const ConfigData& gRec, SkISize& size,
     bitmap->eraseColor(0);
 }
 
+// Returns true if the test should continue, false if the test should
+// halt.
 static bool generate_image(GM* gm, const ConfigData& gRec,
                            GrContext* context,
                            SkBitmap& bitmap) {
@@ -247,7 +249,7 @@ static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
 #endif
 }
 
-static void write_reference_image(const ConfigData& gRec,
+static bool write_reference_image(const ConfigData& gRec,
                                   const char writePath [],
                                   const char writePathSuffix [],
                                   const SkString& name,
@@ -265,9 +267,10 @@ static void write_reference_image(const ConfigData& gRec,
     if (!success) {
         fprintf(stderr, "FAILED to write %s\n", path.c_str());
     }
+    return success;
 }
 
-static void compare_to_reference_image(const char readPath [],
+static bool compare_to_reference_image(const char readPath [],
                                        const SkString& name,
                                        SkBitmap &bitmap,
                                        const char diffPath [],
@@ -289,10 +292,10 @@ static void compare_to_reference_image(const char readPath [],
     } else {
         fprintf(stderr, "FAILED to read %s\n", path.c_str());
     }
-
+    return success;
 }
 
-static void handle_test_results(GM* gm,
+static bool handle_test_results(GM* gm,
                                 const ConfigData& gRec,
                                 const char writePath [],
                                 const char readPath [],
@@ -307,9 +310,10 @@ static void handle_test_results(GM* gm,
                               name, bitmap, pdf);
     // TODO: Figure out a way to compare PDFs.
     } else if (readPath && gRec.fBackend != kPDF_Backend) {
-        compare_to_reference_image(readPath, name, bitmap,
+        return compare_to_reference_image(readPath, name, bitmap,
                                    diffPath, writePathSuffix);
     }
+    return true;
 }
 
 static SkPicture* generate_new_picture(GM* gm) {
@@ -347,7 +351,7 @@ static SkPicture* stream_to_new_picture(const SkPicture& src) {
 // Test: draw into a bitmap or pdf.
 // Depending on flags, possibly compare to an expected image
 // and possibly output a diff image if it fails to match.
-static void test_drawing(GM* gm,
+static bool test_drawing(GM* gm,
                          const ConfigData& gRec,
                          const char writePath [],
                          const char readPath [],
@@ -358,19 +362,21 @@ static void test_drawing(GM* gm,
 
     if (gRec.fBackend == kRaster_Backend ||
             gRec.fBackend == kGPU_Backend) {
+        // Early exit if we can't generate the image, but this is
+        // expected in some cases, so don't report a test failure.
         if (!generate_image(gm, gRec, context, bitmap)) {
-            return;
+            return true;
         }
     }
     // TODO: Figure out a way to compare PDFs.
     if (gRec.fBackend == kPDF_Backend && writePath) {
         generate_pdf(gm, pdf);
     }
-    handle_test_results(gm, gRec, writePath, readPath, diffPath,
+    return handle_test_results(gm, gRec, writePath, readPath, diffPath,
                         "", bitmap, &pdf);
 }
 
-static void test_picture_playback(GM* gm,
+static bool test_picture_playback(GM* gm,
                                   const ConfigData& gRec,
                                   const char writePath [],
                                   const char readPath [],
@@ -381,12 +387,13 @@ static void test_picture_playback(GM* gm,
     if (kRaster_Backend == gRec.fBackend) {
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, pict, &bitmap);
-        handle_test_results(gm, gRec, writePath, readPath, diffPath,
+        return handle_test_results(gm, gRec, writePath, readPath, diffPath,
                             "-replay", bitmap, NULL);
     }
+    return true;
 }
 
-static void test_picture_serialization(GM* gm,
+static bool test_picture_serialization(GM* gm,
                                        const ConfigData& gRec,
                                        const char writePath [],
                                        const char readPath [],
@@ -399,9 +406,10 @@ static void test_picture_serialization(GM* gm,
     if (kRaster_Backend == gRec.fBackend) {
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, repict, &bitmap);
-        handle_test_results(gm, gRec, writePath, readPath, diffPath,
+        return handle_test_results(gm, gRec, writePath, readPath, diffPath,
                             "-serialize", bitmap, NULL);
     }
+    return true;
 }
 
 static void usage(const char * argv0) {
@@ -460,12 +468,12 @@ int main(int argc, char * const argv[]) {
             doSerialize = true;
         } else {
           usage(commandName);
-          return 0;
+          return -1;
         }
     }
     if (argv != stop) {
       usage(commandName);
-      return 0;
+      return -1;
     }
 
     // setup a GL context for drawing offscreen
@@ -484,26 +492,32 @@ int main(int argc, char * const argv[]) {
         fprintf(stderr, "writing to %s\n", writePath);
     }
 
+    // Accumulate success of all tests so we can flag error in any
+    // one with the return value.
+    bool testSuccess = true;
     while ((gm = iter.next()) != NULL) {
         SkISize size = gm->getISize();
         SkDebugf("drawing... %s [%d %d]\n", gm->shortName(),
                  size.width(), size.height());
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
-            test_drawing(gm, gRec[i],
+            testSuccess &= test_drawing(gm, gRec[i],
                          writePath, readPath, diffPath, context);
 
             if (doReplay) {
-                test_picture_playback(gm, gRec[i],
+                testSuccess &= test_picture_playback(gm, gRec[i],
                                       writePath, readPath, diffPath);
             }
 
             if (doSerialize) {
-                test_picture_serialization(gm, gRec[i],
+                testSuccess &= test_picture_serialization(gm, gRec[i],
                                            writePath, readPath, diffPath);
             }
         }
         SkDELETE(gm);
+    }
+    if (false == testSuccess) {
+        return -1;
     }
     return 0;
 }
