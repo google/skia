@@ -553,7 +553,7 @@ static void TestBitmapCopy(skiatest::Reporter* reporter) {
                     REPORTER_ASSERT(reporter,
                         subset.copyPixelsFrom(buf, bufSize, 1) == false);
 
-                    // Test #6 ////////////////////////////////////////////
+                    // Test #6 ///////////////////////////////////////////
                     // Tests basic copy from an external buffer to the bitmap.
                     // If the bitmap is "extracted", this also tests the case
                     // where the source stride is different from the dest.
