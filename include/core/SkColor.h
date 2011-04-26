@@ -104,7 +104,7 @@ static inline SkColor SkColorSetA(SkColor c, U8CPU a) {
     @param blue  blue component value [0..255]
     @param hsv  3 element array which holds the resulting HSV components.
 */
-void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3]);
+SK_API void SkRGBToHSV(U8CPU red, U8CPU green, U8CPU blue, SkScalar hsv[3]);
 
 /** Convert the argb color to its HSV components.
         hsv[0] is Hue [0 .. 360)
@@ -127,7 +127,7 @@ static inline void SkColorToHSV(SkColor color, SkScalar hsv[3])
     @param hsv  3 element array which holds the input HSV components.
     @return the resulting argb color
 */
-SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3]);
+SK_API SkColor SkHSVToColor(U8CPU alpha, const SkScalar hsv[3]);
 
 /** Convert HSV components to an ARGB color. The alpha component set to 0xFF.
         hsv[0] is Hue [0 .. 360)

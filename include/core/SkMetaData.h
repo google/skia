@@ -21,7 +21,7 @@
 
 class SkRefCnt;
 
-class SkMetaData {
+class SK_API SkMetaData {
 public:
     /**
      *  Used to manage the life-cycle of a ptr in the metadata. This is option

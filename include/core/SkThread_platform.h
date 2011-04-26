@@ -41,12 +41,12 @@ public:
 /** Implemented by the porting layer, this function adds 1 to the int specified
     by the address (in a thread-safe manner), and returns the previous value.
 */
-int32_t sk_atomic_inc(int32_t* addr);
+SK_API int32_t sk_atomic_inc(int32_t* addr);
 /** Implemented by the porting layer, this function subtracts 1 to the int
     specified by the address (in a thread-safe manner), and returns the previous
     value.
 */
-int32_t sk_atomic_dec(int32_t* addr);
+SK_API int32_t sk_atomic_dec(int32_t* addr);
 
 class SkMutex {
 public:
