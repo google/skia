@@ -347,9 +347,9 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 
 
     // Initialise ourselves
-//    mColorSpaceRGB = CGColorSpaceCreateDeviceRGB();
+    mColorSpaceRGB = CGColorSpaceCreateDeviceRGB();
 //    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
+//    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
     mColorSpaceGray = CGColorSpaceCreateDeviceGray();
 
     mTransform  = CGAffineTransformMake(SkScalarToFloat(skMatrix[SkMatrix::kMScaleX]),
