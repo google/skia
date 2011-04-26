@@ -17,6 +17,14 @@
 #ifndef GrContext_impl_DEFINED
 #define GrContext_impl_DEFINED
 
+struct GrContext::OffscreenRecord {
+    OffscreenRecord() { fEntry = NULL; }
+    ~OffscreenRecord() { GrAssert(NULL == fEntry); }
+
+    GrTextureEntry*                fEntry;
+    GrDrawTarget::SavedDrawState   fSavedState;
+};
+
 template <typename POS_SRC, typename TEX_SRC,
           typename COL_SRC, typename IDX_SRC>
 inline void GrContext::drawCustomVertices(const GrPaint& paint,
@@ -42,6 +50,16 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
 
     if (NULL != colorSrc) {
         layout |= GrDrawTarget::kColor_VertexLayoutBit;
+    }
+
+    bool doOffscreenAA = false;
+    OffscreenRecord record;
+    if (paint.fAntiAlias &&
+        !this->getRenderTarget()->isMultisampled() &&
+        !(GrIsPrimTypeLines(primitiveType) && fGpu->supportsAALines()) &&
+        this->setupOffscreenAAPass1(target, false, &record)) {
+        doOffscreenAA = true;
+        layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(kOffscreenStage);
     }
 
     int vertexCount = posSrc.count();
@@ -80,6 +98,47 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
         target->drawNonIndexed(primitiveType, 0, vertexCount);
     } else {
         target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+    }
+
+    if (doOffscreenAA) {
+        // draw to the offscreen
+        if (NULL != indices) {
+            target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+        } else {
+            target->drawNonIndexed(primitiveType, 0, vertexCount);
+        }
+        // When there are custom texture coordinates we can't just draw
+        // a quad to sample the offscreen. Instead we redraw the geometry to
+        // specify the texture coords. This isn't quite right either, primitives
+        // will only be eroded at the edges, not expanded into partial pixels.
+        bool useRect = 0 == (layout & GrDrawTarget::StageTexCoordVertexLayoutBit(0,0));
+        if (useRect) {
+            target->setViewMatrix(GrMatrix::I());
+        }
+        this->setupOffscreenAAPass2(target, paint, &record);
+        if (useRect) {
+            geo.set(NULL, 0, 0, 0);
+            int stages = (NULL != paint.getTexture()) ? 0x1 : 0x0;
+            stages |= (1 << kOffscreenStage);
+            GrRect dstRect(0, 0, 
+                        target->getRenderTarget()->width(),
+                        target->getRenderTarget()->height());
+                        target->drawSimpleRect(dstRect, NULL, stages);
+            target->drawSimpleRect(dstRect, NULL, stages);
+        } else {
+            if (NULL != indices) {
+                target->drawIndexed (primitiveType, 0, 0, vertexCount, indexCount);
+            } else {
+                target->drawNonIndexed(primitiveType, 0, vertexCount);
+            }
+        }
+        this->endOffscreenAA(target, &record);
+    } else {
+        if (NULL != indices) {
+            target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
+        } else {
+            target->drawNonIndexed(primitiveType, 0, vertexCount);
+        }
     }
 }
 

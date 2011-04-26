@@ -619,6 +619,8 @@ private:
 
     // sets up target to sample coverage of supersampled render target back
     // to the main render target using stage kOffscreenStage.
+    // caller should set view matrix to matrix used for this pass prior to 
+    // calling.
     void setupOffscreenAAPass2(GrDrawTarget* target,
                                const GrPaint& paint,
                                OffscreenRecord* record);

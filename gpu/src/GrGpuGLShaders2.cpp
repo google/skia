@@ -1044,7 +1044,7 @@ void GrGpuGLShaders2::getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc
     for (int s = 0; s < kNumStages; ++s) {
         StageDesc& stage = desc->fStages[s];
 
-        stage.fEnabled = VertexUsesStage(s, fGeometrySrc.fVertexLayout);
+        stage.fEnabled = this->isStageEnabled(s);
 
         if (stage.fEnabled) {
             GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];

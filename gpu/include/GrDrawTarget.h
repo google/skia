@@ -797,20 +797,16 @@ public:
                             GrVertexLayout vertexLayout,
                             uint32_t       vertexCount,
                             uint32_t       indexCount) {
-            fTarget = target;
-            fSuccess = fTarget->reserveAndLockGeometry(vertexLayout,
-                                                       vertexCount,
-                                                       indexCount,
-                                                       &fVertices,
-                                                       &fIndices);
+            fTarget = NULL;
+            this->set(target, vertexLayout, vertexCount, indexCount);
         }
 
         AutoReleaseGeometry() {
-            fSuccess = false;
+            fTarget = NULL;
         }
 
         ~AutoReleaseGeometry() {
-            if (fSuccess) {
+            if (NULL != fTarget) {
                 fTarget->releaseReservedGeometry();
             }
         }
@@ -819,19 +815,23 @@ public:
                  GrVertexLayout vertexLayout,
                  uint32_t       vertexCount,
                  uint32_t       indexCount) {
-            if (fSuccess) {
+            if (NULL != fTarget) {
                 fTarget->releaseReservedGeometry();
             }
             fTarget = target;
-            fSuccess = fTarget->reserveAndLockGeometry(vertexLayout,
-                                                       vertexCount,
-                                                       indexCount,
-                                                       &fVertices,
-                                                       &fIndices);
-            return fSuccess;
+            if (NULL != fTarget) {
+                if (!fTarget->reserveAndLockGeometry(vertexLayout,
+                                                     vertexCount,
+                                                     indexCount,
+                                                     &fVertices,
+                                                     &fIndices)) {
+                    fTarget = NULL;
+                }
+            }
+            return NULL != fTarget;
         }
 
-        bool succeeded() const { return fSuccess; }
+        bool succeeded() const { return NULL != fTarget; }
         void* vertices() const { return fVertices; }
         void* indices() const { return fIndices; }
 
@@ -841,7 +841,6 @@ public:
 
     private:
         GrDrawTarget* fTarget;
-        bool          fSuccess;
         void*         fVertices;
         void*         fIndices;
     };
@@ -1020,6 +1019,15 @@ public:
     static void VertexLayoutUnitTest();
 
 protected:
+    // given a vertex layout and a draw state, will a stage be used?
+    static bool StageWillBeUsed(int stage, GrVertexLayout layout, 
+                         const DrState& state) {
+        return NULL != state.fTextures[stage] && VertexUsesStage(stage, layout);
+    }
+
+    bool isStageEnabled(int stage) const {
+        return StageWillBeUsed(stage, fGeometrySrc.fVertexLayout, fCurrDrawState);
+    }
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
     // SavedDrawState but need to peek at the state values.
