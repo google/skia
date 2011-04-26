@@ -36,6 +36,13 @@ ifneq ($(SKIA_PDF_SUPPORT),false)
 	DEFINES += -DSK_ZLIB_INCLUDE="<zlib.h>"
 endif
 
+ifeq ($(SKIA_SHARED),true)
+	CFLAGS += -fPIC
+	LIBSKIA = out/libskia.so
+else
+	LIBSKIA = out/libskia.a
+endif
+
 # start with the core (required)
 include src/core/core_files.mk
 SRC_LIST := $(addprefix src/core/, $(SOURCE))
@@ -157,6 +164,9 @@ out/libskia.a: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 	$(HIDE)$(AR) ru $@ $(OBJ_LIST)
 	$(HIDE)ranlib $@
 
+out/libskia.so: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
+	$(HIDE)$(GPP) -shared -o $@ $(OBJ_LIST) $(JUST_COMPILE_OBJS) $(LINKER_OPTS)
+
 ##############################################################################
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp benchmain.cpp BitmapBench.cpp \
@@ -175,9 +185,9 @@ endif
 BENCH_OBJS := $(BENCH_SRCS:.cpp=.o)
 BENCH_OBJS := $(addprefix out/, $(BENCH_OBJS))
 
-bench: $(BENCH_OBJS) out/libskia.a
+bench: $(BENCH_OBJS) $(LIBSKIA)
 	@echo "linking bench..."
-	$(HIDE)$(GPP) $(BENCH_OBJS) out/libskia.a -o out/bench/bench $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(BENCH_OBJS) $(LIBSKIA) -o out/bench/bench $(LINKER_OPTS)
 
 ##############################################################################
 
@@ -193,9 +203,9 @@ TESTS_SRCS := $(addprefix tests/, $(SOURCE))
 TESTS_OBJS := $(TESTS_SRCS:.cpp=.o)
 TESTS_OBJS := $(addprefix out/, $(TESTS_OBJS))
 
-tests: $(TESTS_OBJS) out/libskia.a
+tests: $(TESTS_OBJS) $(LIBSKIA)
 	@echo "linking tests..."
-	$(HIDE)$(GPP) $(TESTS_OBJS) out/libskia.a -o out/tests/tests $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(TESTS_OBJS) $(LIBSKIA) -o out/tests/tests $(LINKER_OPTS)
 
 ##############################################################################
 
@@ -206,9 +216,9 @@ SKIMAGE_SRCS := $(addprefix tools/, $(SKIMAGE_SRCS))
 SKIMAGE_OBJS := $(SKIMAGE_SRCS:.cpp=.o)
 SKIMAGE_OBJS := $(addprefix out/, $(SKIMAGE_OBJS))
 
-skimage: $(SKIMAGE_OBJS) out/libskia.a
+skimage: $(SKIMAGE_OBJS) $(LIBSKIA)
 	@echo "linking skimage..."
-	$(HIDE)$(GPP) $(SKIMAGE_OBJS) out/libskia.a -o out/tools/skimage $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(SKIMAGE_OBJS) $(LIBSKIA) -o out/tools/skimage $(LINKER_OPTS)
 
 ##############################################################################
 
@@ -219,9 +229,9 @@ SKHELLO_SRCS := $(addprefix tools/, $(SKHELLO_SRCS))
 SKHELLO_OBJS := $(SKHELLO_SRCS:.cpp=.o)
 SKHELLO_OBJS := $(addprefix out/, $(SKHELLO_OBJS))
 
-skhello: $(SKHELLO_OBJS) out/libskia.a
+skhello: $(SKHELLO_OBJS) $(LIBSKIA)
 	@echo "linking shkello..."
-	$(HIDE)$(GPP) $(SKHELLO_OBJS) out/libskia.a -o out/tools/skhello $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(SKHELLO_OBJS) $(LIBSKIA) -o out/tools/skhello $(LINKER_OPTS)
 
 ##############################################################################
 
@@ -235,9 +245,9 @@ endif
 GM_OBJS := $(GM_SRCS:.cpp=.o)
 GM_OBJS := $(addprefix out/, $(GM_OBJS))
 
-gm: $(GM_OBJS) out/libskia.a
+gm: $(GM_OBJS) $(LIBSKIA)
 	@echo "linking gm..."
-	$(HIDE)$(GPP) $(GM_OBJS) out/libskia.a -o out/gm/gm $(LINKER_OPTS)
+	$(HIDE)$(GPP) $(GM_OBJS) $(LIBSKIA) -o out/gm/gm $(LINKER_OPTS)
 
 ##############################################################################
 
@@ -261,6 +271,7 @@ help:
 	@echo "    help: this text"
 	@echo "Options: (after make, or in bash shell)"
 	@echo "    SKIA_DEBUG=true for debug build"
+	@echo "    SKIA_SHARED=true for shared-object libskia build"
 	@echo "    SKIA_SCALAR=fixed for fixed-point build"
 	@echo "    SKIA_BUILD_FOR=mac for mac build (e.g. CG for image decoding)"
 	@echo "    SKIA_PDF_SUPPORT=false to disable the pdf generation backend"
