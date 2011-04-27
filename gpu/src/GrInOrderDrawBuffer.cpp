@@ -150,7 +150,12 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             GrAssert(0 == lastDraw.fIndexCount % 6);
             GrAssert(0 == lastDraw.fStartIndex);
 
-            appendToPreviousDraw = lastDraw.fVertexBuffer == fCurrPoolVertexBuffer &&
+            bool clearSinceLastDraw =
+                            fClears.count() && 
+                            fClears.back().fBeforeDrawIdx == fDraws.count();
+
+            appendToPreviousDraw =  !clearSinceLastDraw &&
+                                    lastDraw.fVertexBuffer == fCurrPoolVertexBuffer &&
                                    (fCurrQuad * 4 + lastDraw.fStartVertex) == fCurrPoolStartVertex;
             if (appendToPreviousDraw) {
                 lastDraw.fVertexCount += 4;
@@ -288,14 +293,21 @@ void GrInOrderDrawBuffer::drawNonIndexed(GrPrimitiveType primitiveType,
     draw.fIndexBuffer = NULL;
 }
 
-void GrInOrderDrawBuffer::clear(GrColor color) {
+void GrInOrderDrawBuffer::clear(const GrIRect* rect, GrColor color) {
+    GrIRect r;
+    if (NULL == rect) {
+        // We could do something smart and remove previous draws and clears to
+        // the current render target. If we get that smart we have to make sure
+        // those draws aren't read before this clear (render-to-texture).
+        r.setLTRB(0, 0, 
+                  this->getRenderTarget()->width(), 
+                  this->getRenderTarget()->height());
+        rect = &r;
+    }
     Clear& clr = fClears.push_back();
     clr.fColor = color;
     clr.fBeforeDrawIdx = fDraws.count();
-
-    // We could do something smart and remove previous draws and clears to the
-    // current render target. If we get that smart we have to make sure those
-    // draws aren't read before this clear (render-to-texture).
+    clr.fRect = *rect;
 }
 
 void GrInOrderDrawBuffer::reset() {
@@ -354,7 +366,7 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     for (int i = 0; i < numDraws; ++i) {
         while (currClear < fClears.count() && 
                i == fClears[currClear].fBeforeDrawIdx) {
-            target->clear(fClears[currClear].fColor);
+            target->clear(&fClears[currClear].fRect, fClears[currClear].fColor);
             ++currClear;
         }
 
@@ -388,7 +400,7 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     }
     while (currClear < fClears.count()) {
         GrAssert(fDraws.count() == fClears[currClear].fBeforeDrawIdx);
-        target->clear(fClears[currClear].fColor);
+        target->clear(&fClears[currClear].fRect, fClears[currClear].fColor);
         ++currClear;
     }
 }

@@ -173,9 +173,9 @@ GrIndexBuffer* GrGpu::createIndexBuffer(uint32_t size, bool dynamic) {
     return this->onCreateIndexBuffer(size, dynamic);
 }
 
-void GrGpu::clear(GrColor color) {
+void GrGpu::clear(const GrIRect* rect, GrColor color) {
     this->handleDirtyContext();
-    this->onClear(color);
+    this->onClear(rect, color);
 }
 
 void GrGpu::forceRenderTargetFlush() {

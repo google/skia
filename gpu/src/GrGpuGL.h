@@ -27,10 +27,11 @@
 
 class GrGpuGL : public GrGpu {
 public:
-            GrGpuGL();
     virtual ~GrGpuGL();
 
 protected:
+    GrGpuGL();
+
     struct {
         size_t                  fVertexOffset;
         GrVertexLayout          fVertexLayout;
@@ -87,7 +88,7 @@ protected:
                                                  int width, int height);
     virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState();
 
-    virtual void onClear(GrColor color);
+    virtual void onClear(const GrIRect* rect, GrColor color);
 
     virtual void onForceRenderTargetFlush();
 
@@ -140,6 +141,7 @@ protected:
     static bool BlendCoefReferencesConstant(GrBlendCoeff coeff);
 
 private:
+
     // notify callbacks to update state tracking when related
     // objects are bound to GL or deleted outside of the class
     void notifyVertexBufferBind(const GrGLVertexBuffer* buffer);

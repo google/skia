@@ -731,10 +731,11 @@ public:
     }
 
     /**
-     * Clear the entire render target. Ignores the clip an all other draw state
-     * (blend mode, stages, etc).
+     * Clear the render target. Ignores the clip and all other draw state
+     * (blend mode, stages, etc). Clears the whole thing if rect is NULL,
+     * otherwise just the rect.
      */
-    virtual void clear(GrColor color) = 0;
+    virtual void clear(const GrIRect* rect, GrColor color) = 0;
 
     ///////////////////////////////////////////////////////////////////////////
 
