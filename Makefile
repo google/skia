@@ -222,6 +222,16 @@ skimage: $(SKIMAGE_OBJS) $(LIBSKIA)
 
 ##############################################################################
 
+SKDIFF_SRCS := skdiff_main.cpp
+SKDIFF_SRCS := $(addprefix tools/, $(SKDIFF_SRCS))
+SKDIFF_OBJS := $(SKDIFF_SRCS:.cpp=.o)
+SKDIFF_OBJS := $(addprefix out/, $(SKDIFF_OBJS))
+skdiff: $(SKDIFF_OBJS) out/libskia.a
+	@echo "linking skdiff..."
+	$(HIDE)$(GPP) $(SKDIFF_OBJS) out/libskia.a -o out/tools/skdiff $(LINKER_OPTS)
+
+##############################################################################
+
 SKHELLO_SRCS := skhello.cpp
 
 SKHELLO_SRCS := $(addprefix tools/, $(SKHELLO_SRCS))
@@ -252,7 +262,7 @@ gm: $(GM_OBJS) $(LIBSKIA)
 ##############################################################################
 
 .PHONY: all
-all: $ bench gm skimage tests skhello
+all: $ bench gm skimage tests skhello skdiff
 
 .PHONY: clean
 clean:
