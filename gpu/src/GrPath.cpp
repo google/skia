@@ -2,6 +2,7 @@
 
 GrPath::GrPath() {
     fConvexHint = kNone_ConvexHint;
+    fConservativeBounds.setLargestInverted();
 }
 
 GrPath::GrPath(const GrPath& src) : INHERITED() {
@@ -40,6 +41,7 @@ void GrPath::ensureMoveTo() {
     if (fCmds.isEmpty() || this->wasLastVerb(kClose_PathCmd)) {
         *fCmds.append() = kMove_PathCmd;
         fPts.append()->set(0, 0);
+        fConservativeBounds.growToInclude(0,0);
     }
 }
 
@@ -51,12 +53,14 @@ void GrPath::moveTo(GrScalar x, GrScalar y) {
         *fCmds.append() = kMove_PathCmd;
         fPts.append()->set(x, y);
     }
+    fConservativeBounds.growToInclude(x,y);
 }
 
 void GrPath::lineTo(GrScalar x, GrScalar y) {
     this->ensureMoveTo();
     *fCmds.append() = kLine_PathCmd;
     fPts.append()->set(x, y);
+    fConservativeBounds.growToInclude(x,y);
 }
 
 void GrPath::quadTo(GrScalar x0, GrScalar y0, GrScalar x1, GrScalar y1) {
@@ -64,6 +68,8 @@ void GrPath::quadTo(GrScalar x0, GrScalar y0, GrScalar x1, GrScalar y1) {
     *fCmds.append() = kQuadratic_PathCmd;
     fPts.append()->set(x0, y0);
     fPts.append()->set(x1, y1);
+    fConservativeBounds.growToInclude(x0,y0);
+    fConservativeBounds.growToInclude(x1,y1);
 }
 
 void GrPath::cubicTo(GrScalar x0, GrScalar y0, GrScalar x1, GrScalar y1,
@@ -73,6 +79,9 @@ void GrPath::cubicTo(GrScalar x0, GrScalar y0, GrScalar x1, GrScalar y1,
     fPts.append()->set(x0, y0);
     fPts.append()->set(x1, y1);
     fPts.append()->set(x2, y2);
+    fConservativeBounds.growToInclude(x0,y0);
+    fConservativeBounds.growToInclude(x1,y1);
+    fConservativeBounds.growToInclude(x2,y2);
 }
 
 void GrPath::close() {
@@ -95,6 +104,7 @@ void GrPath::offset(GrScalar tx, GrScalar ty) {
         iter->offset(tx, ty);
         ++iter;
     }
+    fConservativeBounds.translate(tx, ty);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -148,6 +158,7 @@ static void init_from_two_vecs(const GrVec& firstVec,
 void GrPath::resetFromIter(GrPathIter* iter) {
     fPts.reset();
     fCmds.reset();
+    fConservativeBounds.setLargestInverted();
 
     fConvexHint = iter->convexHint();
 
@@ -209,6 +220,9 @@ void GrPath::resetFromIter(GrPathIter* iter) {
                 break;
         }
         int n = NumPathCmdPoints(cmd);
+        for (int i = 0; i < n; ++i) {
+            fConservativeBounds.growToInclude(pts[i]);
+        }
         if (0 == subPathPts && n > 0) {
             previousPt = pts[0];
             firstPt = previousPt;
@@ -427,6 +441,7 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[0];
             GrAssert(fPtIndex <= fPath->fPts.count() + 1);
+            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
             fPtIndex += 1;
             break;
         case kLine_PathCmd:
@@ -436,6 +451,7 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[0];
             GrAssert(fPtIndex <= fPath->fPts.count() + 1);
+            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
             fPtIndex += 1;
             break;
         case kQuadratic_PathCmd:
@@ -446,6 +462,8 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[1];
             GrAssert(fPtIndex <= fPath->fPts.count() + 2);
+            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
+            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[1]));
             fPtIndex += 2;
             break;
         case kCubic_PathCmd:
@@ -457,6 +475,9 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[2];
             GrAssert(fPtIndex <= fPath->fPts.count() + 3);
+            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
+            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[1]));
+            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[2]));
             fPtIndex += 3;
             break;
         case kClose_PathCmd:
@@ -485,4 +506,11 @@ void GrPath::Iter::reset(const GrPath& path) {
     fCmdIndex = fPtIndex = 0;
 }
 
+bool GrPath::Iter::getConservativeBounds(GrRect* rect) const {
+    if (!fPath->getConservativeBounds().isEmpty()) {
+        *rect = fPath->getConservativeBounds();
+        return true;
+    }
+    return false;
+}
 

@@ -22,6 +22,7 @@
 #include "GrPathIter.h"
 #include "GrTDArray.h"
 #include "GrPoint.h"
+#include "GrRect.h"
 
 class GrPath : public GrPathSink {
 public:
@@ -32,6 +33,8 @@ public:
 
     GrConvexHint getConvexHint() const { return fConvexHint; }
     void setConvexHint(GrConvexHint hint) { fConvexHint = hint; }
+
+    const GrRect& getConservativeBounds() const { return fConservativeBounds; }
 
     void resetFromIter(GrPathIter*);
 
@@ -66,6 +69,7 @@ public:
         virtual GrConvexHint convexHint() const;
         virtual GrPathCmd next();
         virtual void rewind();
+        virtual bool getConservativeBounds(GrRect* rect) const;
 
         /**
          * Sets iterator to begining of path
@@ -84,7 +88,8 @@ private:
 
     GrTDArray<GrPathCmd>    fCmds;
     GrTDArray<GrPoint>      fPts;
-    GrConvexHint  fConvexHint;
+    GrConvexHint            fConvexHint;
+    GrRect                  fConservativeBounds;
 
     // this ensures we have a moveTo at the start of each contour
     inline void ensureMoveTo();
