@@ -327,7 +327,7 @@ void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
     convert_matrixclip(fContext, matrix, clipStack, clip, this->getOrigin());
 
     if (fNeedClear) {
-        fContext->clear(0x0);
+        fContext->clear(NULL, 0x0);
         fNeedClear = false;
     }
 }
@@ -596,7 +596,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::clear(SkColor color) {
-    fContext->clear(color);
+    fContext->clear(NULL, color);
 }
 
 void SkGpuDevice::drawPaint(const SkDraw& draw, const SkPaint& paint) {
