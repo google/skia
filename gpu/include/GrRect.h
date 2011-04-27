@@ -76,19 +76,22 @@ struct GrIRect {
 
     /**
      * Sets this rect to the intersection with a clip rect. If there is no
-     * intersection then this rect will be made empty.
+     * intersection then this rect will be made empty and the function will
+     * return false.
      */
-    void intersectWith(const GrIRect& clipRect) {
+    bool intersectWith(const GrIRect& clipRect) {
         if (fRight < clipRect.fLeft ||
             fLeft > clipRect.fRight ||
             fBottom < clipRect.fTop ||
             fTop > clipRect.fBottom) {
             this->setEmpty();
+            return false;
         } else {
             fLeft = GrMax(fLeft, clipRect.fLeft);
             fRight = GrMin(fRight, clipRect.fRight);
             fTop = GrMax(fTop, clipRect.fTop);
             fBottom = GrMin(fBottom, clipRect.fBottom);
+            return true;
         }
     }
 

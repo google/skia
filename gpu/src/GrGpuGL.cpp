@@ -1166,15 +1166,25 @@ void GrGpuGL::flushScissor(const GrIRect* rect) {
     }
 }
 
-void GrGpuGL::onClear(GrColor color) {
+void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
-    flushRenderTarget();
-    if (fHWBounds.fScissorEnabled) {
-        GR_GL(Disable(GR_GL_SCISSOR_TEST));
-        fHWBounds.fScissorEnabled = false;
+    GrIRect r;
+    if (NULL != rect) {
+        // flushScissor expects rect to be clipped to the target.
+        r = *rect;
+        GrIRect rtRect(0, 0, 
+                       fCurrDrawState.fRenderTarget->width(),
+                       fCurrDrawState.fRenderTarget->height());
+        if (r.intersectWith(rtRect)) {
+            rect = &r;
+        } else {
+            return;
+        }
     }
+    this->flushRenderTarget();
+    this->flushScissor(rect);
     GR_GL(ColorMask(GR_GL_TRUE,GR_GL_TRUE,GR_GL_TRUE,GR_GL_TRUE));
     fHWDrawState.fFlagBits &= ~kNoColorWrites_StateBit;
     GR_GL(ClearColor(GrColorUnpackR(color)/255.f,

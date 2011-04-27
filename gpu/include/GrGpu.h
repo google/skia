@@ -263,7 +263,7 @@ public:
     virtual void drawNonIndexed(GrPrimitiveType type,
                                 int startVertex,
                                 int vertexCount);
-    virtual void clear(GrColor color);
+    virtual void clear(const GrIRect* rect, GrColor color);
 
     /**
      * Installs a path renderer that will be used to draw paths that are
@@ -444,8 +444,9 @@ protected:
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic) = 0;
 
-    // overridden by API-specific derivated class to perform the clear.
-    virtual void onClear(GrColor color) = 0;
+    // overridden by API-specific derivated class to perform the clear and 
+    // clearRect. NULL rect means clear whole target.
+    virtual void onClear(const GrIRect* rect, GrColor color) = 0;
 
     // overridden by API-specific derived class to perform the draw call.
     virtual void onDrawIndexed(GrPrimitiveType type,

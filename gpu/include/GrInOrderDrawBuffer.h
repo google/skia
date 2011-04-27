@@ -100,7 +100,7 @@ public:
                                int* vertexCount,
                                int* indexCount) const;
 
-    virtual void clear(GrColor color);
+    virtual void clear(const GrIRect* rect, GrColor color);
 
 private:
 
@@ -119,6 +119,7 @@ private:
 
     struct Clear {
         int fBeforeDrawIdx;
+        GrIRect fRect;
         GrColor fColor;
     };
 

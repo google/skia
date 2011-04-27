@@ -282,9 +282,11 @@ public:
     // Draws
 
     /**
-     *  Clear the entire render target, ignoring any clips
+     * Clear the entire or rect of the render target, ignoring any clips.
+     * @param rect  the rect to clear or the whole thing if rect is NULL.
+     * @param color the color to clear to.
      */
-    void clear(GrColor color);
+    void clear(const GrIRect* rect, GrColor color);
 
     /**
      *  Draw everywhere (respecting the clip) with the paint.

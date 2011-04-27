@@ -391,11 +391,9 @@ void GrContext::setClip(const GrIRect& rect) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrContext::clear(GrColor color) {
-    // gpu flush call is immediate, must flush. 
-    // (could in theory skip draws to current render target.)
+void GrContext::clear(const GrIRect* rect, const GrColor color) {
     this->flush();
-    fGpu->clear(color);
+    fGpu->clear(rect, color);
 }
 
 void GrContext::drawPaint(const GrPaint& paint) {
@@ -462,7 +460,7 @@ bool GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     // clip gets applied in second pass
     target->disableState(GrDrawTarget::kClip_StateBit);
 
-    target->clear(0x0);
+    target->clear(NULL, 0x0);
     return true;
 }
 
