@@ -72,8 +72,8 @@ public:
      *   which is virtual.
      */
     SkColor filterColor(SkColor);
-    
-    
+
+
     /** Create a colorfilter that uses the specified color and mode.
         If the Mode is DST, this function will return NULL (since that
         mode will have no effect on the result).
@@ -103,7 +103,7 @@ public:
 protected:
     SkColorFilter() {}
     SkColorFilter(SkFlattenableReadBuffer& rb) : INHERITED(rb) {}
-    
+
 private:
     typedef SkFlattenable INHERITED;
 };
@@ -123,17 +123,17 @@ public:
     virtual void shadeSpan16(int x, int y, uint16_t result[], int count);
     virtual void beginSession();
     virtual void endSession();
-    
+
 protected:
     SkFilterShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer& );
     virtual Factory getFactory() { return CreateProc; }
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) { 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(SkFilterShader, (buffer)); }
     SkShader*       fShader;
     SkColorFilter*  fFilter;
-    
+
     typedef SkShader INHERITED;
 };
 
