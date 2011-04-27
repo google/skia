@@ -43,3 +43,6 @@ SkFlattenable* SkPixelXorXfermode::Create(SkFlattenableReadBuffer& rb) {
     return SkNEW_ARGS(SkPixelXorXfermode, (rb));
 }
 
+static SkFlattenable::Registrar
+    gSkPixelXorXfermodeReg("SkPixelXorXfermode",
+                           SkPixelXorXfermode::CreateProc);

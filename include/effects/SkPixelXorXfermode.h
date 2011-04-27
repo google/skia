@@ -32,6 +32,10 @@ public:
     virtual Factory getFactory();
     virtual void flatten(SkFlattenableWriteBuffer&);
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkPixelXorXfermode, (buffer));
+    }
+
 protected:
     // override from SkXfermode
     virtual SkPMColor xferColor(SkPMColor src, SkPMColor dst);
@@ -47,4 +51,3 @@ private:
 };
 
 #endif
-

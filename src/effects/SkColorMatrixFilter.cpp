@@ -18,7 +18,7 @@ static void General(SkColorMatrixFilter::State* state,
     const int32_t* SK_RESTRICT array = state->fArray;
     const int shift = state->fShift;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     result[0] = rowmul4(&array[0], r, g, b, a) >> shift;
     result[1] = rowmul4(&array[5], r, g, b, a) >> shift;
     result[2] = rowmul4(&array[10], r, g, b, a) >> shift;
@@ -29,7 +29,7 @@ static void General16(SkColorMatrixFilter::State* state,
                       unsigned r, unsigned g, unsigned b, unsigned a) {
     const int32_t* SK_RESTRICT array = state->fArray;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     result[0] = rowmul4(&array[0], r, g, b, a) >> 16;
     result[1] = rowmul4(&array[5], r, g, b, a) >> 16;
     result[2] = rowmul4(&array[10], r, g, b, a) >> 16;
@@ -41,7 +41,7 @@ static void AffineAdd(SkColorMatrixFilter::State* state,
     const int32_t* SK_RESTRICT array = state->fArray;
     const int shift = state->fShift;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     result[0] = rowmul3(&array[0], r, g, b) >> shift;
     result[1] = rowmul3(&array[5], r, g, b) >> shift;
     result[2] = rowmul3(&array[10], r, g, b) >> shift;
@@ -52,7 +52,7 @@ static void AffineAdd16(SkColorMatrixFilter::State* state,
                         unsigned r, unsigned g, unsigned b, unsigned a) {
     const int32_t* SK_RESTRICT array = state->fArray;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     result[0] = rowmul3(&array[0], r, g, b) >> 16;
     result[1] = rowmul3(&array[5], r, g, b) >> 16;
     result[2] = rowmul3(&array[10], r, g, b) >> 16;
@@ -64,7 +64,7 @@ static void ScaleAdd(SkColorMatrixFilter::State* state,
     const int32_t* SK_RESTRICT array = state->fArray;
     const int shift = state->fShift;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     // cast to (int) to keep the expression signed for the shift
     result[0] = (array[0] * (int)r + array[4]) >> shift;
     result[1] = (array[6] * (int)g + array[9]) >> shift;
@@ -76,7 +76,7 @@ static void ScaleAdd16(SkColorMatrixFilter::State* state,
                        unsigned r, unsigned g, unsigned b, unsigned a) {
     const int32_t* SK_RESTRICT array = state->fArray;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     // cast to (int) to keep the expression signed for the shift
     result[0] = (array[0] * (int)r + array[4]) >> 16;
     result[1] = (array[6] * (int)g + array[9]) >> 16;
@@ -89,7 +89,7 @@ static void Add(SkColorMatrixFilter::State* state,
     const int32_t* SK_RESTRICT array = state->fArray;
     const int shift = state->fShift;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     result[0] = r + (array[4] >> shift);
     result[1] = g + (array[9] >> shift);
     result[2] = b + (array[14] >> shift);
@@ -100,7 +100,7 @@ static void Add16(SkColorMatrixFilter::State* state,
                   unsigned r, unsigned g, unsigned b, unsigned a) {
     const int32_t* SK_RESTRICT array = state->fArray;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     result[0] = r + (array[4] >> 16);
     result[1] = g + (array[9] >> 16);
     result[2] = b + (array[14] >> 16);
@@ -117,7 +117,7 @@ void SkColorMatrixFilter::setup(const SkScalar SK_RESTRICT src[20]) {
         // fState is undefined, but that is OK, since we shouldn't look at it
         return;
     }
-    
+
     int32_t* SK_RESTRICT array = fState.fArray;
 
     int i;
@@ -129,7 +129,7 @@ void SkColorMatrixFilter::setup(const SkScalar SK_RESTRICT src[20]) {
         value = SkAbs32(value);
         max = SkMax32(max, value);
     }
-    
+
     /*  All of fArray[] values must fit in 23 bits, to safely allow me to
         multiply them by 8bit unsigned values, and get a signed answer without
         overflow. This means clz needs to be 9 or bigger
@@ -146,7 +146,7 @@ void SkColorMatrixFilter::setup(const SkScalar SK_RESTRICT src[20]) {
         }
         one >>= bits;
     }
-    
+
     // check if we have to munge Alpha
     int32_t changesAlpha = (array[15] | array[16] | array[17] |
                             (array[18] - one) | array[19]);
@@ -224,36 +224,36 @@ void SkColorMatrixFilter::filterSpan(const SkPMColor src[], int count,
     Proc proc = fProc;
     State* state = &fState;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     if (NULL == proc) {
         if (src != dst) {
             memcpy(dst, src, count * sizeof(SkPMColor));
         }
         return;
     }
-    
+
     const SkUnPreMultiply::Scale* table = SkUnPreMultiply::GetScaleTable();
 
     for (int i = 0; i < count; i++) {
         SkPMColor c = src[i];
-        
+
         unsigned r = SkGetPackedR32(c);
         unsigned g = SkGetPackedG32(c);
         unsigned b = SkGetPackedB32(c);
         unsigned a = SkGetPackedA32(c);
-        
+
         // need our components to be un-premultiplied
         if (255 != a) {
             SkUnPreMultiply::Scale scale = table[a];
             r = SkUnPreMultiply::ApplyScale(scale, r);
             g = SkUnPreMultiply::ApplyScale(scale, g);
             b = SkUnPreMultiply::ApplyScale(scale, b);
-            
+
             SkASSERT(r <= 255);
             SkASSERT(g <= 255);
             SkASSERT(b <= 255);
         }
-        
+
         proc(state, r, g, b, a);
 
         r = pin(result[0], SK_R32_MASK);
@@ -278,7 +278,7 @@ void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
     Proc   proc = fProc;
     State* state = &fState;
     int32_t* SK_RESTRICT result = state->fResult;
-    
+
     if (NULL == proc) {
         if (src != dst) {
             memcpy(dst, src, count * sizeof(uint16_t));
@@ -288,18 +288,18 @@ void SkColorMatrixFilter::filterSpan16(const uint16_t src[], int count,
 
     for (int i = 0; i < count; i++) {
         uint16_t c = src[i];
-        
+
         // expand to 8bit components (since our matrix translate is 8bit biased
         unsigned r = SkPacked16ToR32(c);
         unsigned g = SkPacked16ToG32(c);
         unsigned b = SkPacked16ToB32(c);
-        
+
         proc(state, r, g, b, 0);
-        
+
         r = pin(result[0], SK_R32_MASK);
         g = pin(result[1], SK_G32_MASK);
         b = pin(result[2], SK_B32_MASK);
-        
+
         // now packed it back down to 16bits (hmmm, could dither...)
         dst[i] = SkPack888ToRGB16(r, g, b);
     }
@@ -314,17 +314,20 @@ void SkColorMatrixFilter::flatten(SkFlattenableWriteBuffer& buffer)  {
     buffer.writeMul4(&fState, sizeof(fState));
     buffer.write32(fFlags);
 }
-    
+
 SkFlattenable::Factory SkColorMatrixFilter::getFactory() { return CreateProc;  }
-    
+
 SkColorMatrixFilter::SkColorMatrixFilter(SkFlattenableReadBuffer& buffer)
         : INHERITED(buffer) {
     fProc = (Proc)buffer.readFunctionPtr();
     buffer.read(&fState, sizeof(fState));
     fFlags = buffer.readU32();
 }
-    
+
 SkFlattenable* SkColorMatrixFilter::CreateProc(SkFlattenableReadBuffer& buf) {
     return SkNEW_ARGS(SkColorMatrixFilter, (buf));
 }
 
+static SkFlattenable::Registrar
+  gSkColorMatrixFilterReg("SkColorMatrixFilter",
+                          SkColorMatrixFilter::CreateProc);

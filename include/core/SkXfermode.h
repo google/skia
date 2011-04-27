@@ -40,7 +40,7 @@ public:
                           const SkAlpha aa[]);
     virtual void xferA8(SkAlpha dst[], const SkPMColor src[], int count,
                         const SkAlpha aa[]);
-    
+
     /** Enum of possible coefficients to describe some xfermodes
      */
     enum Coeff {
@@ -54,18 +54,18 @@ public:
         kISA_Coeff,     /** inverse src alpha (i.e. 1 - sa) */
         kDA_Coeff,      /** dst alpha */
         kIDA_Coeff,     /** inverse dst alpha (i.e. 1 - da) */
-        
+
         kCoeffCount
     };
-    
+
     /** If the xfermode can be expressed as an equation using the coefficients
         in Coeff, then asCoeff() returns true, and sets (if not null) src and
         dst accordingly.
-     
+
             result = src_coeff * src_color + dst_coeff * dst_color;
-     
+
         As examples, here are some of the porterduff coefficients
-     
+
         MODE        SRC_COEFF       DST_COEFF
         clear       zero            zero
         src         one             zero
@@ -80,7 +80,7 @@ public:
      *  if the xfermode is NULL, and if so, treats its as kSrcOver_Mode.
      */
     static bool AsCoeff(SkXfermode*, Coeff* src, Coeff* dst);
-    
+
     /** List of predefined xfermodes.
         The algebra for the modes uses the following symbols:
         Sa, Sc  - source alpha and color
@@ -149,7 +149,7 @@ public:
         16bit proc, and this will return NULL.
       */
     static SkXfermodeProc16 GetProc16(Mode mode, SkColor srcColor);
-    
+
     /**
      *  If the specified mode can be represented by a pair of Coeff, then return
      *  true and set (if not NULL) the corresponding coeffs. If the mode is
@@ -162,15 +162,15 @@ public:
     static bool IsMode(SkXfermode* xfer, Mode* mode) {
         return AsMode(xfer, mode);
     }
-    
+
 protected:
     SkXfermode(SkFlattenableReadBuffer& rb) : SkFlattenable(rb) {}
-    
+
     /** The default implementation of xfer32/xfer16/xferA8 in turn call this
         method, 1 color at a time (upscaled to a SkPMColor). The default
         implmentation of this method just returns dst. If performance is
         important, your subclass should override xfer32/xfer16/xferA8 directly.
-        
+
         This method will not be called directly by the client, so it need not
         be implemented if your subclass has overridden xfer32/xfer16/xferA8
     */
@@ -213,7 +213,7 @@ protected:
 
 private:
     SkXfermodeProc  fProc;
-    
+
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
         return SkNEW_ARGS(SkProcXfermode, (buffer)); }
 
@@ -221,4 +221,3 @@ private:
 };
 
 #endif
-
