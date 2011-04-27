@@ -169,6 +169,7 @@ public:
     virtual GrPathCmd next();
     virtual void rewind();
     virtual GrConvexHint convexHint() const;
+    virtual bool getConservativeBounds(GrRect* rect) const;
 
     void reset(const SkPath& path) {
         fPath = &path;

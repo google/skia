@@ -225,6 +225,15 @@ struct GrRect {
     }
 
     /**
+     * Returns true if the rect contains the point or the
+     * point lies on the edge of the rect.
+     */
+    bool containsInclusive(const GrPoint& point) const {
+        return point.fX >= fLeft && point.fX <= fRight &&
+               point.fY >= fTop && point.fY <= fBottom;
+    }
+
+    /**
      * Does this rect fully contain another rect.
      */
     bool contains(const GrRect& r) const {
@@ -333,6 +342,14 @@ struct GrRect {
         fBottom = GrMax(pt.fY, fBottom);
     }
 
+    void growToInclude(GrScalar x, GrScalar y) {
+        fLeft  = GrMin(x, fLeft);
+        fRight = GrMax(y, fRight);
+
+        fTop    = GrMin(x, fTop);
+        fBottom = GrMax(y, fBottom);
+    }
+
     /**
      * Grows a rect to include another rect.
      * @param rect the rect to include
@@ -388,6 +405,14 @@ struct GrRect {
             fTop = fBottom;
             fBottom = temp;
         }
+    }
+
+    void translate(GrScalar tx, GrScalar ty) {
+        fLeft += tx;
+        fRight += tx;
+
+        fTop += ty;
+        fBottom += ty;
     }
 
     bool operator ==(const GrRect& r) const {

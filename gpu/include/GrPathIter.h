@@ -21,6 +21,7 @@
 #include "GrTypes.h"
 
 struct GrPoint;
+struct GrRect;
 
 /**
  2D Path iterator. Porting layer creates a subclass of this. It allows Ganesh to
@@ -59,6 +60,12 @@ public:
       * @return The next command of the path.
       */
      virtual GrPathCmd next() = 0;
+
+     /**
+      * Returns conservative bounds on the path points. If returns false then
+      * no bounds are available.
+      */
+     virtual bool getConservativeBounds(GrRect* rect) const = 0;
 
     /**
      Restarts iteration from the beginning.

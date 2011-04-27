@@ -143,6 +143,11 @@ GrConvexHint SkGrPathIter::convexHint() const {
                                kNone_ConvexHint;
 }
 
+bool SkGrPathIter::getConservativeBounds(GrRect* rect) const {
+    *rect = Sk2Gr(fPath->getBounds());
+    return true;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGrClipIterator::reset(const SkClipStack& clipStack) {
