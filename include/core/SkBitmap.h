@@ -37,8 +37,11 @@ class SkGpuTexture;
 
     The SkBitmap class specifies a raster bitmap. A bitmap has an integer width
     and height, and a format (config), and a pointer to the actual pixels.
-    Bitmaps can be drawn into a SkCanvas, but they are also used to specify the target
-    of a SkCanvas' drawing operations.
+    Bitmaps can be drawn into a SkCanvas, but they are also used to specify the
+    target of a SkCanvas' drawing operations.
+    A const SkBitmap exposes getAddr(), which lets a caller write its pixels;
+    the constness is considered to apply to the bitmap's configuration, not
+    its contents.
 */
 class SK_API SkBitmap {
 public:
@@ -781,4 +784,3 @@ inline uint8_t* SkBitmap::getAddr1(int x, int y) const {
 }
 
 #endif
-
