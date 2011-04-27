@@ -354,9 +354,11 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
     if (config == SkBitmap::kRGB_565_Config) {
         SkRefPtr<SkPDFInt> zeroVal = new SkPDFInt(0);
         zeroVal->unref();  // SkRefPtr and new both took a reference.
-        SkRefPtr<SkPDFScalar> scale5Val = new SkPDFScalar(8.2258);  // 255/2^5-1
+        SkRefPtr<SkPDFScalar> scale5Val =
+                new SkPDFScalar(8.2258f);  // 255/2^5-1
         scale5Val->unref();  // SkRefPtr and new both took a reference.
-        SkRefPtr<SkPDFScalar> scale6Val = new SkPDFScalar(4.0476);  // 255/2^6-1
+        SkRefPtr<SkPDFScalar> scale6Val =
+                new SkPDFScalar(4.0476f);  // 255/2^6-1
         scale6Val->unref();  // SkRefPtr and new both took a reference.
         SkRefPtr<SkPDFArray> decodeValue = new SkPDFArray();
         decodeValue->unref();  // SkRefPtr and new both took a reference.
