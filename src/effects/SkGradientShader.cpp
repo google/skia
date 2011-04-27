@@ -2267,3 +2267,7 @@ static SkFlattenable::Registrar gRadialGradientReg("Radial_Gradient",
 
 static SkFlattenable::Registrar gSweepGradientReg("Sweep_Gradient",
                                                    Sweep_Gradient::CreateProc);
+
+static SkFlattenable::Registrar
+    gTwoPointRadialGradientReg("Two_Point_Radial_Gradient",
+                               Two_Point_Radial_Gradient::CreateProc);
