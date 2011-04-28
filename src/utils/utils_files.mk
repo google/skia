@@ -7,6 +7,7 @@ SOURCE := \
     SkLayer.cpp \
 	SkNinePatch.cpp \
     SkNWayCanvas.cpp \
+	SkOSFile.cpp \
     SkParse.cpp \
     SkParseColor.cpp \
     SkParsePath.cpp \
