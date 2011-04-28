@@ -1,13 +1,17 @@
 {
   'target_defaults': {
-   'msvs_settings': {
-      #really need to figure out how to generate debug and release
-      'VCLinkerTool': {
-        'GenerateDebugInformation': 'true',
+    'configurations': {
+      'Debug': {
+        'defines': [
+          'SK_DEBUG',
+          'GR_DEBUG=1',
+        ],
       },
-      'VCCLCompilerTool': {
-          'DebugInformationFormat': '4',
-          'Optimization': '0',
+      'Release': {
+        'defines': [
+          'SK_RELEASE',
+          'GR_RELEASE=1',
+        ],
       },
     },
     'conditions': [
@@ -1121,7 +1125,7 @@
         '../src/animator/SkBoundable.h',
         '../src/animator/SkBuildCondensedInfo.cpp',
         #'../src/animator/SkCondensedDebug.cpp', fails on windows
-        '../src/animator/SkCondensedRelease.cpp',
+        #'../src/animator/SkCondensedRelease.cpp',
         '../src/animator/SkDisplayable.cpp',
         '../src/animator/SkDisplayable.h',
         '../src/animator/SkDisplayAdd.cpp',
