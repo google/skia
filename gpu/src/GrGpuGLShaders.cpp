@@ -509,6 +509,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     } else
 #endif
     {
+        if (requiresAttributeColors) {} // suppress unused var warning
         desc.fColorType = GrGLProgram::ProgramDesc::kAttribute_ColorType;
     }
 

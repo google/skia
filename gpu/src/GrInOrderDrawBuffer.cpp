@@ -359,9 +359,9 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
     // on the stack.
     GrDrawTarget::AutoGeometrySrcRestore agsr(target);
 
-    uint32_t currState = ~0;
-    uint32_t currClip  = ~0;
-    uint32_t currClear = 0;
+    int currState = ~0;
+    int currClip  = ~0;
+    int currClear = 0;
 
     for (int i = 0; i < numDraws; ++i) {
         while (currClear < fClears.count() && 
