@@ -125,7 +125,6 @@ else
 	SRC_LIST += src/ports/SkFontHost_gamma_none.cpp
 	SRC_LIST += src/ports/SkFontHost_FreeType.cpp
 	SRC_LIST += src/ports/SkFontHost_FreeType_Subpixel.cpp
-	SRC_LIST += src/utils/SkOSFile.cpp
 	SRC_LIST += src/utils/SkEGLContext_none.cpp
     # these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
