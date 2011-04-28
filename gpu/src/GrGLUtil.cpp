@@ -43,6 +43,11 @@ void GrGLRestoreResetRowLength() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool gLogCallsGL = !!(GR_GL_LOG_CALLS_START);
+#if GR_GL_LOG_CALLS
+    bool gLogCallsGL = !!(GR_GL_LOG_CALLS_START);
+#endif
 
-bool gCheckErrorGL = !!(GR_GL_CHECK_ERROR_START);
+#if GR_GL_CHECK_ERROR
+    bool gCheckErrorGL = !!(GR_GL_CHECK_ERROR_START);
+#endif
+
