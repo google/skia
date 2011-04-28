@@ -413,9 +413,13 @@ bool GrDrawTarget::reserveAndLockGeometry(GrVertexLayout    vertexLayout,
         if (vertexCount) {
             fGeometrySrc.fVertexSrc = kReserved_GeometrySrcType;
             fGeometrySrc.fVertexLayout = vertexLayout;
+        } else if (NULL != vertices) {
+            *vertices = NULL;
         }
         if (indexCount) {
             fGeometrySrc.fIndexSrc = kReserved_GeometrySrcType;
+        } else if (NULL != indices) {
+            *indices = NULL;
         }
     }
     return fReservedGeometry.fLocked;
