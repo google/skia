@@ -715,7 +715,9 @@ bool SkPDFFont::addFontDescriptor(int16_t defaultWidth) {
 
     switch (fFontInfo->fType) {
         case SkAdvancedTypefaceMetrics::kType1_Font: {
-            size_t header, data, trailer;
+            size_t header SK_INIT_TO_AVOID_WARNING;
+            size_t data SK_INIT_TO_AVOID_WARNING;
+            size_t trailer SK_INIT_TO_AVOID_WARNING;
             SkRefPtr<SkStream> rawFontData =
                 SkFontHost::OpenStream(SkTypeface::UniqueID(fTypeface.get()));
             rawFontData->unref();  // SkRefPtr and OpenStream both took a ref.
