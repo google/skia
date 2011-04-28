@@ -36,12 +36,13 @@ public:
      *                          Must be at least itemSize*itemsPerBlock sized.
      *                          Caller is responsible for freeing this memory.
      */
-    GrAllocator(size_t itemSize, uint32_t itemsPerBlock, void* initialBlock) :
+    GrAllocator(size_t itemSize, int itemsPerBlock, void* initialBlock) :
             fBlocks(fBlockInitialStorage, NUM_INIT_BLOCK_PTRS),
             fItemSize(itemSize),
             fItemsPerBlock(itemsPerBlock),
             fOwnFirstBlock(NULL == initialBlock),
             fCount(0) {
+        GrAssert(itemsPerBlock > 0);
         fBlockSize = fItemSize * fItemsPerBlock;
         fBlocks.push_back() = initialBlock;
         GR_DEBUGCODE(if (!fOwnFirstBlock) {*((char*)initialBlock+fBlockSize-1)='a';} );
@@ -53,7 +54,7 @@ public:
      * @return pointer to the added item.
      */
     void* push_back() {        
-        uint32_t indexInBlock = fCount % fItemsPerBlock;
+        int indexInBlock = fCount % fItemsPerBlock;
         // we always have at least one block
         if (0 == indexInBlock) {
             if (0 != fCount) {
@@ -72,9 +73,9 @@ public:
      * removes all added items
      */
     void reset() {        
-        uint32_t blockCount = GrMax((unsigned)1, 
-                                    GrUIDivRoundUp(fCount, fItemsPerBlock));
-        for (uint32_t i = 1; i < blockCount; ++i) {
+        int blockCount = GrMax((unsigned)1, 
+                               GrUIDivRoundUp(fCount, fItemsPerBlock));
+        for (int i = 1; i < blockCount; ++i) {
             GrFree(fBlocks[i]);
         }
         if (fOwnFirstBlock) {
@@ -88,7 +89,7 @@ public:
     /**
      * count of items
      */
-    uint32_t count() const {
+    int count() const {
         return fCount;
     }
     
@@ -116,8 +117,8 @@ public:
     /**
      * access item by index.
      */    
-    void* operator[] (uint32_t i) {
-        GrAssert(i < fCount);
+    void* operator[] (int i) {
+        GrAssert(i >= 0 && i < fCount);
         return (char*)fBlocks[i / fItemsPerBlock] + 
                fItemSize * (i % fItemsPerBlock);
     }
@@ -125,22 +126,22 @@ public:
     /**
      * access item by index.
      */  
-    const void* operator[] (uint32_t i) const {
-        GrAssert(i < fCount);
+    const void* operator[] (int i) const {
+        GrAssert(i >= 0 && i < fCount);
         return (const char*)fBlocks[i / fItemsPerBlock] + 
                fItemSize * (i % fItemsPerBlock);
     }
 
 private:
-    static const uint32_t NUM_INIT_BLOCK_PTRS = 8;
+    static const int NUM_INIT_BLOCK_PTRS = 8;
     
     GrTArray<void*> fBlocks;
     size_t          fBlockSize;
     char            fBlockInitialStorage[NUM_INIT_BLOCK_PTRS*sizeof(void*)];
     size_t          fItemSize;
-    uint32_t        fItemsPerBlock;
+    int             fItemsPerBlock;
     bool            fOwnFirstBlock;
-    uint32_t        fCount;
+    int             fCount;
 };
 
 template <typename T>
@@ -159,7 +160,7 @@ public:
      *                          Must be at least size(T)*itemsPerBlock sized.
      *                          Caller is responsible for freeing this memory.
      */
-    GrTAllocator(uint32_t itemsPerBlock, void* initialBlock)
+    GrTAllocator(int itemsPerBlock, void* initialBlock)
         : fAllocator(sizeof(T), itemsPerBlock, initialBlock) {}
 
     /**
@@ -188,8 +189,8 @@ public:
      * removes all added items
      */
     void reset() {
-        uint32_t c = fAllocator.count();
-        for (uint32_t i = 0; i < c; ++i) {
+        int c = fAllocator.count();
+        for (int i = 0; i < c; ++i) {
             ((T*)fAllocator[i])->~T();
         }
         fAllocator.reset();
@@ -198,7 +199,7 @@ public:
     /**
      * count of items
      */
-    uint32_t count() const {
+    int count() const {
         return fAllocator.count();
     }
     
@@ -224,14 +225,14 @@ public:
     /**
      * access item by index.
      */  
-    T& operator[] (uint32_t i) {
+    T& operator[] (int i) {
         return *(T*)(fAllocator[i]);
     }
     
     /**
      * access item by index.
      */
-    const T& operator[] (uint32_t i) const {
+    const T& operator[] (int i) const {
         return *(const T*)(fAllocator[i]);
     }    
 };

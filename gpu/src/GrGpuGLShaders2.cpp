@@ -1038,6 +1038,7 @@ void GrGpuGLShaders2::getProgramDesc(GrPrimitiveType primType, ProgramDesc* desc
     } else
 #endif
     {
+        if (requiresAttributeColors) {} // suppress unused var warning
         desc->fColorType = ProgramDesc::kAttribute_ColorType;
     }
 
