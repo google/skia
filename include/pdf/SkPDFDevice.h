@@ -45,8 +45,11 @@ class SkPDFDevice : public SkDevice {
 public:
     /** Create a PDF drawing context with the given width and height.
      *  72 points/in means letter paper is 612x792.
-     *  @param width  Page width in points.
-     *  @param height Page height in points.
+     *  @param pageSize Page size in points.
+     *  @param contentSize The content size of the page in points. This will be
+     *         combined with the initial transform to determine the drawing area
+     *         (as reported by the width and height methods). Anything outside
+     *         of the drawing area will be clipped.
      *  @param initialTransform The initial transform to apply to the page.
      *         This may be useful to, for example, move the origin in and
      *         over a bit to account for a margin, scale the canvas,
@@ -58,14 +61,11 @@ public:
      *         inverse scale+translate to accommodate the one that SkPDFDevice
      *         always does.
      */
-    SkPDFDevice(int width, int height, const SkMatrix& initialTransform);
-    virtual ~SkPDFDevice();
+    SK_API SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
+                       const SkMatrix& initialTransform);
+    SK_API virtual ~SkPDFDevice();
 
     virtual uint32_t getDeviceCapabilities() { return kVector_Capability; }
-
-    virtual int width() const { return fWidth; };
-
-    virtual int height() const { return fHeight; };
 
     virtual void clear(SkColor color);
 
@@ -139,8 +139,7 @@ protected:
     virtual SkDeviceFactory* onNewDeviceFactory();
 
 private:
-    int fWidth;
-    int fHeight;
+    SkISize fPageSize;
     SkMatrix fInitialTransform;
     SkRefPtr<SkPDFDict> fResourceDict;
 

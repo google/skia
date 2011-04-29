@@ -236,8 +236,7 @@ static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
     SkISize size = gm->getISize();
     SkMatrix identity;
     identity.reset();
-    SkPDFDevice* dev = new SkPDFDevice(size.width(), size.height(),
-                                       identity);
+    SkPDFDevice* dev = new SkPDFDevice(size, size, identity);
     SkAutoUnref aur(dev);
 
     SkCanvas c(dev);
