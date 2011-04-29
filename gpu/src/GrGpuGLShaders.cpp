@@ -500,7 +500,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
 
 #if GR_AGGRESSIVE_SHADER_OPTS
     if (!requiresAttributeColors && (0xffffffff == fCurrDrawState.fColor)) {
-        desc.fColorType = ProgramDesc::kNone_ColorType;
+        desc.fColorType = GrGLProgram::ProgramDesc::kNone_ColorType;
     } else
 #endif
 #if GR_GL_NO_CONSTANT_ATTRIBUTES
