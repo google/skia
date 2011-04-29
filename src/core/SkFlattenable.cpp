@@ -117,48 +117,45 @@ void* SkFlattenableReadBuffer::readFunctionPtr() {
 SkFlattenableWriteBuffer::SkFlattenableWriteBuffer(size_t minSize) :
         INHERITED(minSize) {
     fFlags = (Flags)0;
-    fRCRecorder = NULL;
-    fTFRecorder = NULL;
-    fFactoryRecorder = NULL;
+    fRCSet = NULL;
+    fTFSet = NULL;
+    fFactorySet = NULL;
 }
 
 SkFlattenableWriteBuffer::~SkFlattenableWriteBuffer() {
-    SkSafeUnref(fRCRecorder);
-    SkSafeUnref(fTFRecorder);
-    SkSafeUnref(fFactoryRecorder);
+    SkSafeUnref(fRCSet);
+    SkSafeUnref(fTFSet);
+    SkSafeUnref(fFactorySet);
 }
 
-SkRefCntRecorder* SkFlattenableWriteBuffer::setRefCntRecorder(
-                                                    SkRefCntRecorder* rec) {
-    SkRefCnt_SafeAssign(fRCRecorder, rec);
+SkRefCntSet* SkFlattenableWriteBuffer::setRefCntRecorder(SkRefCntSet* rec) {
+    SkRefCnt_SafeAssign(fRCSet, rec);
     return rec;
 }
 
-SkRefCntRecorder* SkFlattenableWriteBuffer::setTypefaceRecorder(
-                                                    SkRefCntRecorder* rec) {
-    SkRefCnt_SafeAssign(fTFRecorder, rec);
+SkRefCntSet* SkFlattenableWriteBuffer::setTypefaceRecorder(SkRefCntSet* rec) {
+    SkRefCnt_SafeAssign(fTFSet, rec);
     return rec;
 }
 
-SkFactoryRecorder* SkFlattenableWriteBuffer::setFactoryRecorder(
-                                                    SkFactoryRecorder* rec) {
-    SkRefCnt_SafeAssign(fFactoryRecorder, rec);
+SkFactorySet* SkFlattenableWriteBuffer::setFactoryRecorder(SkFactorySet* rec) {
+    SkRefCnt_SafeAssign(fFactorySet, rec);
     return rec;
 }
 
 void SkFlattenableWriteBuffer::writeTypeface(SkTypeface* obj) {
-    if (NULL == obj || NULL == fTFRecorder) {
+    if (NULL == obj || NULL == fTFSet) {
         this->write32(0);
     } else {
-        this->write32(fTFRecorder->record(obj));
+        this->write32(fTFSet->add(obj));
     }
 }
 
 void SkFlattenableWriteBuffer::writeRefCnt(SkRefCnt* obj) {
-    if (NULL == obj || NULL == fRCRecorder) {
+    if (NULL == obj || NULL == fRCSet) {
         this->write32(0);
     } else {
-        this->write32(fRCRecorder->record(obj));
+        this->write32(fRCSet->add(obj));
     }
 }
 
@@ -168,8 +165,8 @@ void SkFlattenableWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
         factory = flattenable->getFactory();
     }
 
-    if (fFactoryRecorder) {
-        this->write32(fFactoryRecorder->record(factory));
+    if (fFactorySet) {
+        this->write32(fFactorySet->add(factory));
     } else {
         this->writeFunctionPtr((void*)factory);
     }
@@ -193,16 +190,16 @@ void SkFlattenableWriteBuffer::writeFunctionPtr(void* proc) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkRefCntRecorder::~SkRefCntRecorder() {
+SkRefCntSet::~SkRefCntSet() {
     // call this now, while our decPtr() is sill in scope
     this->reset();
 }
 
-void SkRefCntRecorder::incPtr(void* ptr) {
+void SkRefCntSet::incPtr(void* ptr) {
     ((SkRefCnt*)ptr)->ref();
 }
 
-void SkRefCntRecorder::decPtr(void* ptr) {
+void SkRefCntSet::decPtr(void* ptr) {
     ((SkRefCnt*)ptr)->unref();
 }
 

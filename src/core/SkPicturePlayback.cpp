@@ -65,10 +65,10 @@ SkPicturePlayback::SkPicturePlayback(const SkPictureRecord& record) {
 
     // copy over the refcnt dictionary to our reader
     //
-    fRCPlayback.reset(&record.fRCRecorder);
+    fRCPlayback.reset(&record.fRCSet);
     fRCPlayback.setupBuffer(fReader);
 
-    fTFPlayback.reset(&record.fTFRecorder);
+    fTFPlayback.reset(&record.fTFSet);
     fTFPlayback.setupBuffer(fReader);
 
     const SkTDArray<const SkFlatBitmap* >& bitmaps = record.getBitmaps();
@@ -297,14 +297,14 @@ static void writeTagSize(SkWStream* stream, uint32_t tag,
     stream->write32(size);
 }
 
-static void writeFactories(SkWStream* stream, const SkFactoryRecorder& rec) {
+static void writeFactories(SkWStream* stream, const SkFactorySet& rec) {
     int count = rec.count();
 
     writeTagSize(stream, PICT_FACTORY_TAG, count);
 
     SkAutoSTMalloc<16, SkFlattenable::Factory> storage(count);
     SkFlattenable::Factory* array = (SkFlattenable::Factory*)storage.get();
-    rec.get(array);
+    rec.copyToArray(array);
 
     for (int i = 0; i < count; i++) {
         const char* name = SkFlattenable::FactoryToName(array[i]);
@@ -319,14 +319,14 @@ static void writeFactories(SkWStream* stream, const SkFactoryRecorder& rec) {
     }
 }
 
-static void writeTypefaces(SkWStream* stream, const SkRefCntRecorder& rec) {
+static void writeTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     int count = rec.count();
 
     writeTagSize(stream, PICT_TYPEFACE_TAG, count);
 
     SkAutoSTMalloc<16, SkTypeface*> storage(count);
     SkTypeface** array = (SkTypeface**)storage.get();
-    rec.get((SkRefCnt**)array);
+    rec.copyToArray((SkRefCnt**)array);
 
     for (int i = 0; i < count; i++) {
         array[i]->serialize(stream);
@@ -337,14 +337,14 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
     writeTagSize(stream, PICT_READER_TAG, fReader.size());
     stream->write(fReader.base(), fReader.size());
 
-    SkRefCntRecorder  typefaceRecorder;
-    SkFactoryRecorder factRecorder;
+    SkRefCntSet  typefaceSet;
+    SkFactorySet factSet;
 
     SkFlattenableWriteBuffer buffer(1024);
 
     buffer.setFlags(SkFlattenableWriteBuffer::kCrossProcess_Flag);
-    buffer.setTypefaceRecorder(&typefaceRecorder);
-    buffer.setFactoryRecorder(&factRecorder);
+    buffer.setTypefaceRecorder(&typefaceSet);
+    buffer.setFactoryRecorder(&factSet);
 
     int i;
 
@@ -385,8 +385,8 @@ void SkPicturePlayback::serialize(SkWStream* stream) const {
 
     // now we can write to the stream again
 
-    writeFactories(stream, factRecorder);
-    writeTypefaces(stream, typefaceRecorder);
+    writeFactories(stream, factSet);
+    writeTypefaces(stream, typefaceSet);
 
     writeTagSize(stream, PICT_PICTURE_TAG, fPictureCount);
     for (i = 0; i < fPictureCount; i++) {

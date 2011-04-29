@@ -57,7 +57,7 @@ public:
     
     int count() const { return fCount; }
     
-    void reset(const SkRefCntRecorder*);
+    void reset(const SkRefCntSet*);
 
     void setCount(int count);
     SkRefCnt* set(int index, SkRefCnt*);
@@ -121,7 +121,7 @@ protected:
 class SkFlatBitmap : public SkFlatData {
 public:
     static SkFlatBitmap* Flatten(SkChunkAlloc*, const SkBitmap&, int index,
-                                 SkRefCntRecorder*);
+                                 SkRefCntSet*);
 
     void unflatten(SkBitmap* bitmap, SkRefCntPlayback* rcp) const {
         SkFlattenableReadBuffer buffer(fBitmapData);
@@ -168,8 +168,8 @@ private:
 class SkFlatPaint : public SkFlatData {
 public:
     static SkFlatPaint* Flatten(SkChunkAlloc* heap, const SkPaint& paint,
-                                int index, SkRefCntRecorder*,
-                                SkRefCntRecorder* faceRecorder);
+                                int index, SkRefCntSet*,
+                                SkRefCntSet* faceRecorder);
     
     void unflatten(SkPaint* result, SkRefCntPlayback* rcp,
                    SkTypefacePlayback* facePlayback) const {

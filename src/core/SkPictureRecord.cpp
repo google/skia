@@ -440,8 +440,8 @@ void SkPictureRecord::reset() {
     fRestoreOffsetStack.setCount(1);
     fRestoreOffsetStack.top() = 0;
 
-    fRCRecorder.reset();
-    fTFRecorder.reset();
+    fRCSet.reset();
+    fTFSet.reset();
 }
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {
@@ -544,7 +544,7 @@ void SkPictureRecord::addText(const void* text, size_t byteLength) {
 
 int SkPictureRecord::find(SkTDArray<const SkFlatBitmap* >& bitmaps, const SkBitmap& bitmap) {
     SkFlatBitmap* flat = SkFlatBitmap::Flatten(&fHeap, bitmap, fBitmapIndex,
-                                               &fRCRecorder);
+                                               &fRCSet);
     int index = SkTSearch<SkFlatData>((const SkFlatData**) bitmaps.begin(),
         bitmaps.count(), (SkFlatData*) flat, sizeof(flat), &SkFlatData::Compare);
     if (index >= 0) {
@@ -577,7 +577,7 @@ int SkPictureRecord::find(SkTDArray<const SkFlatPaint* >& paints, const SkPaint*
     }
 
     SkFlatPaint* flat = SkFlatPaint::Flatten(&fHeap, *paint, fPaintIndex,
-                                             &fRCRecorder, &fTFRecorder);
+                                             &fRCSet, &fTFSet);
     int index = SkTSearch<SkFlatData>((const SkFlatData**) paints.begin(),
         paints.count(), (SkFlatData*) flat, sizeof(flat), &SkFlatData::Compare);
     if (index >= 0) {
