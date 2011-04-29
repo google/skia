@@ -175,8 +175,8 @@ private:
     SkTDArray<SkPicture*> fPictureRefs;
     SkTDArray<SkShape*> fShapes;
 
-    SkRefCntRecorder fRCRecorder;
-    SkRefCntRecorder fTFRecorder;
+    SkRefCntSet fRCSet;
+    SkRefCntSet fTFSet;
     
     uint32_t fRecordFlags;
 

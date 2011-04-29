@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef SkPtrRecorder_DEFINED
-#define SkPtrRecorder_DEFINED
+#ifndef SkPtrSet_DEFINED
+#define SkPtrSet_DEFINED
 
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
@@ -26,15 +26,15 @@
  *  and decPtr(). incPtr() is called each time a unique ptr is added ot the
  *  set. decPtr() is called on each ptr when the set is destroyed or reset.
  */
-class SkPtrRecorder : public SkRefCnt {
+class SkPtrSet : public SkRefCnt {
 public:
     /**
      *  Add the specified ptr to the set, returning a unique 32bit ID for it
      *  [1...N]. Duplicate ptrs will return the same ID.
      *
-     *  If the ptr is NULL, it is not recorded, and 0 is returned.
+     *  If the ptr is NULL, it is not added, and 0 is returned.
      */
-    uint32_t recordPtr(void*);
+    uint32_t add(void*);
     
     /**
      *  Return the number of (non-null) ptrs in the set.
@@ -48,7 +48,7 @@ public:
      *
      *  incPtr() and decPtr() are not called during this operation.
      */
-    void getPtrs(void* array[]) const;
+    void copyToArray(void* array[]) const;
 
     /**
      *  Call decPtr() on each ptr in the set, and the reset the size of the set
@@ -67,7 +67,7 @@ private:
     };
 
     // we store the ptrs in sorted-order (using Cmp) so that we can efficiently
-    // detect duplicates when recordPtr() is called. Hence we need to store the
+    // detect duplicates when add() is called. Hence we need to store the
     // ptr and its ID/fIndex explicitly, since the ptr's position in the array
     // is not related to its "index".
     SkTDArray<Pair>  fList;
@@ -75,6 +75,24 @@ private:
     static int Cmp(const Pair& a, const Pair& b);
     
     typedef SkRefCnt INHERITED;
+};
+
+/**
+ *  Templated wrapper for SkPtrSet, just meant to automate typecasting
+ *  parameters to and from void* (which the base class expects).
+ */
+template <typename T> class SkTPtrSet : public SkPtrSet {
+public:
+    uint32_t add(T ptr) {
+        return this->INHERITED::add((void*)ptr);
+    }
+
+    void copyToArray(T* array) const {
+        this->INHERITED::copyToArray((void**)array);
+    }
+
+private:
+    typedef SkPtrSet INHERITED;
 };
 
 #endif

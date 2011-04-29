@@ -118,48 +118,22 @@ private:
 
 #include "SkPtrRecorder.h"
 
-class SkRefCntRecorder : public SkPtrRecorder {
+/**
+ *  Subclass of SkTPtrSet specialed to call ref() and unref() when the
+ *  base class's incPtr() and decPtr() are called. This makes it a valid owner
+ *  of each ptr, which is released when the set is reset or destroyed.
+ */
+class SkRefCntSet : public SkTPtrSet<SkRefCnt*> {
 public:
-    virtual ~SkRefCntRecorder();
+    virtual ~SkRefCntSet();
     
-    /** Add a refcnt object to the set and ref it if not already present,
-        or if it is already present, do nothing. Either way, returns 0 if obj
-        is null, or a base-1 index if obj is not null.
-    */
-    uint32_t record(SkRefCnt* ref) {
-        return this->recordPtr(ref);
-    }
-
-    // This does not change the owner counts on the objects
-    void get(SkRefCnt* array[]) const {
-        this->getPtrs((void**)array);
-    }
-
 protected:
     // overrides
     virtual void incPtr(void*);
     virtual void decPtr(void*);
-
-private:
-    typedef SkPtrRecorder INHERITED;
 };
 
-class SkFactoryRecorder : public SkPtrRecorder {
-public:
-    /** Add a factory to the set. If it is null return 0, otherwise return a
-        base-1 index for the factory.
-    */
-    uint32_t record(SkFlattenable::Factory fact) {
-        return this->recordPtr((void*)fact);
-    }
-    
-    void get(SkFlattenable::Factory array[]) const {
-        this->getPtrs((void**)array);
-    }
-    
-private:
-    typedef SkPtrRecorder INHERITED;
-};
+class SkFactorySet : public SkTPtrSet<SkFlattenable::Factory> {};
 
 class SkFlattenableWriteBuffer : public SkWriter32 {
 public:
@@ -171,14 +145,14 @@ public:
     void writeFunctionPtr(void*);
     void writeFlattenable(SkFlattenable* flattenable);
     
-    SkRefCntRecorder* getTypefaceRecorder() const { return fTFRecorder; }
-    SkRefCntRecorder* setTypefaceRecorder(SkRefCntRecorder*);
+    SkRefCntSet* getTypefaceRecorder() const { return fTFSet; }
+    SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
     
-    SkRefCntRecorder* getRefCntRecorder() const { return fRCRecorder; }
-    SkRefCntRecorder* setRefCntRecorder(SkRefCntRecorder*);
+    SkRefCntSet* getRefCntRecorder() const { return fRCSet; }
+    SkRefCntSet* setRefCntRecorder(SkRefCntSet*);
     
-    SkFactoryRecorder* getFactoryRecorder() const { return fFactoryRecorder; }
-    SkFactoryRecorder* setFactoryRecorder(SkFactoryRecorder*);
+    SkFactorySet* getFactoryRecorder() const { return fFactorySet; }
+    SkFactorySet* setFactoryRecorder(SkFactorySet*);
 
     enum Flags {
         kCrossProcess_Flag      = 0x01
@@ -195,10 +169,10 @@ public:
     bool persistTypeface() const { return (fFlags & kCrossProcess_Flag) != 0; }
 
 private:
-    Flags               fFlags;
-    SkRefCntRecorder*   fTFRecorder;
-    SkRefCntRecorder*   fRCRecorder;
-    SkFactoryRecorder*  fFactoryRecorder;
+    Flags          fFlags;
+    SkRefCntSet*   fTFSet;
+    SkRefCntSet*   fRCSet;
+    SkFactorySet*  fFactorySet;
     
     typedef SkWriter32 INHERITED;
 };
