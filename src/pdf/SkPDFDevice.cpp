@@ -120,25 +120,34 @@ SkDevice* SkPDFDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
         initialTransform.setTranslate(0, height);
         initialTransform.preScale(1, -1);
     }
-    return SkNEW_ARGS(SkPDFDevice, (width, height, initialTransform));
+    SkISize size = SkISize::Make(width, height);
+    return SkNEW_ARGS(SkPDFDevice, (size, size, initialTransform));
 }
 
-static inline SkBitmap makeABitmap(int width, int height) {
+static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
+                                         const SkMatrix& initialTransform) {
+    // Compute the size of the drawing area.
+    SkVector drawingSize;
+    SkMatrix inverse;
+    drawingSize.set(contentSize.fWidth, contentSize.fHeight);
+    initialTransform.invert(&inverse);
+    inverse.mapVectors(&drawingSize, 1);
+    SkISize size = SkSize::Make(drawingSize.fX, drawingSize.fY).toRound();
+
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kNo_Config, width, height);
+    bitmap.setConfig(SkBitmap::kNo_Config, size.fWidth, size.fHeight);
     return bitmap;
 }
 
-SkPDFDevice::SkPDFDevice(int width, int height,
+SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                          const SkMatrix& initialTransform)
-    : SkDevice(NULL, makeABitmap(width, height), false),
-      fWidth(width),
-      fHeight(height),
+    : SkDevice(NULL, makeContentBitmap(contentSize, initialTransform), false),
+      fPageSize(pageSize),
       fGraphicStackIndex(0) {
     // Skia generally uses the top left as the origin but PDF natively has the
     // origin at the bottom left. This matrix corrects for that.  When layering,
     // we specify an inverse correction to cancel this out.
-    fInitialTransform.setTranslate(0, height);
+    fInitialTransform.setTranslate(0, pageSize.fHeight);
     fInitialTransform.preScale(1, -1);
     fInitialTransform.preConcat(initialTransform);
 
@@ -157,7 +166,7 @@ void SkPDFDevice::init() {
     fGraphicStack[0].fFont = NULL;
     fGraphicStack[0].fShader = NULL;
     fGraphicStack[0].fGraphicState = NULL;
-    fGraphicStack[0].fClip.setRect(0,0, fWidth, fHeight);
+    fGraphicStack[0].fClip.setRect(0, 0, this->width(), this->height());
     fGraphicStack[0].fTransform.reset();
     fGraphicStackIndex = 0;
     fResourceDict = NULL;
@@ -668,8 +677,8 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     mediaBox->reserve(4);
     mediaBox->append(zero.get());
     mediaBox->append(zero.get());
-    mediaBox->append(new SkPDFInt(fWidth))->unref();
-    mediaBox->append(new SkPDFInt(fHeight))->unref();
+    mediaBox->append(new SkPDFInt(fPageSize.fWidth))->unref();
+    mediaBox->append(new SkPDFInt(fPageSize.fHeight))->unref();
     return mediaBox;
 }
 
