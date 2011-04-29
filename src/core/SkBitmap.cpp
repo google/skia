@@ -624,7 +624,7 @@ SkColor SkBitmap::getColor(int x, int y) const {
 
     switch (this->config()) {
         case SkBitmap::kA1_Config: {
-            uint8_t* addr = getAddr1(x, y);
+            uint8_t* addr = this->getAddr1(x, y);
             uint8_t mask = 1 << (7  - (x % 8));
             if (addr[0] & mask) {
                 return SK_ColorBLACK;
@@ -633,30 +633,30 @@ SkColor SkBitmap::getColor(int x, int y) const {
             }
         }
         case SkBitmap::kA8_Config: {
-            uint8_t* addr = getAddr8(x, y);
+            uint8_t* addr = this->getAddr8(x, y);
             return SkColorSetA(0, addr[0]);
         }
         case SkBitmap::kIndex8_Config: {
-            SkPMColor c = getIndex8Color(x, y);
+            SkPMColor c = this->getIndex8Color(x, y);
             return SkUnPreMultiply::PMColorToColor(c);
         }
         case SkBitmap::kRGB_565_Config: {
-            uint16_t* addr = getAddr16(x, y);
+            uint16_t* addr = this->getAddr16(x, y);
             return SkPixel16ToColor(addr[0]);
         }
         case SkBitmap::kARGB_4444_Config: {
-            uint16_t* addr = getAddr16(x, y);
+            uint16_t* addr = this->getAddr16(x, y);
             SkPMColor c = SkPixel4444ToPixel32(addr[0]);
             return SkUnPreMultiply::PMColorToColor(c);
         }
         case SkBitmap::kARGB_8888_Config: {
-            uint32_t* addr = getAddr32(x, y);
+            uint32_t* addr = this->getAddr32(x, y);
             return SkUnPreMultiply::PMColorToColor(addr[0]);
         }
         case kRLE_Index8_Config: {
             uint8_t dst;
             const SkBitmap::RLEPixels* rle =
-                (const SkBitmap::RLEPixels*) getPixels();
+                (const SkBitmap::RLEPixels*)this->getPixels();
             SkPackBits::Unpack8(&dst, x, 1, rle->packedAtY(y));
             return SkUnPreMultiply::PMColorToColor((*fColorTable)[dst]);
         }

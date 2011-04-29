@@ -393,6 +393,15 @@ public:
     bool scrollRect(const SkIRect* subset, int dx, int dy,
                     SkRegion* inval = NULL) const;
 
+    /**
+     *  Return the SkColor of the specified pixel.  In most cases this will
+     *  require un-premultiplying the color.  Alpha only configs (A1 and A8)
+     *  return black with the appropriate alpha set.  The value is undefined
+     *  for kNone_Config or if x or y are out of bounds, or if the bitmap
+     *  does not have any pixels (or has not be locked with lockPixels()).
+     */
+    SkColor getColor(int x, int y) const;
+    
     /** Returns the address of the specified pixel. This performs a runtime
         check to know the size of the pixels, and will return the same answer
         as the corresponding size-specific method (e.g. getAddr16). Since the
@@ -404,30 +413,41 @@ public:
     */
     void* getAddr(int x, int y) const;
 
-    /** Return the SkColor of the specified pixel.  In most cases this will
-        require un-premultiplying the color.  Alpha only configs (A1 and A8)
-        return black with the appropriate alpha set.  The value is undefined
-        for kNone_Config or if x or y are out of bounds.
-    */
-    SkColor getColor(int x, int y) const;
-
     /** Returns the address of the pixel specified by x,y for 32bit pixels.
-    */
+     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  and that the config is 32-bit, however none of these checks are performed
+     *  in the release build.
+     */
     inline uint32_t* getAddr32(int x, int y) const;
+
     /** Returns the address of the pixel specified by x,y for 16bit pixels.
-    */
+     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  and that the config is 16-bit, however none of these checks are performed
+     *  in the release build.
+     */
     inline uint16_t* getAddr16(int x, int y) const;
+
     /** Returns the address of the pixel specified by x,y for 8bit pixels.
-    */
+     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  and that the config is 8-bit, however none of these checks are performed
+     *  in the release build.
+     */
     inline uint8_t* getAddr8(int x, int y) const;
+
     /** Returns the address of the byte containing the pixel specified by x,y
-        for 1bit pixels.
-        */
+     *  for 1bit pixels.
+     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  and that the config is 1-bit, however none of these checks are performed
+     *  in the release build.
+     */
     inline uint8_t* getAddr1(int x, int y) const;
 
     /** Returns the color corresponding to the pixel specified by x,y for
-        colortable based bitmaps.
-    */
+     *  colortable based bitmaps.
+     *  In debug build, this asserts that the pixels are allocated and locked,
+     *  that the config is kIndex8, and that the colortable is allocated,
+     *  however none of these checks are performed in the release build.
+     */
     inline SkPMColor getIndex8Color(int x, int y) const;
 
     /** Set dst to be a setset of this bitmap. If possible, it will share the
