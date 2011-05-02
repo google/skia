@@ -19,7 +19,6 @@ public:
             bool success;
 
             success = m1.setPolyToPoly(src, dst, 3);
-            SkDebugf("--- setPolyToPoly1 %d\n", success);
 
             m2.reset();
             m2.set(SkMatrix::kMScaleX, dst[1].fX - dst[0].fX);
@@ -40,7 +39,6 @@ public:
             };
 
             success = m2.setPolyToPoly((const SkPoint*)src1, (SkPoint*)dst1, 4);
-            SkDebugf("--- setPolyToPoly2 %d\n", success);
 
             {
                 const SkPoint src[] = {
@@ -57,8 +55,8 @@ public:
                 SkMatrix m0, m1;
                 m0.setPolyToPoly(src, dst, 3);
               //  SkSetPoly3To3(&m1, src, dst);
-                m0.dump();
-                m1.dump();
+              //  m0.dump();
+              //  m1.dump();
             }
         }
     }

@@ -4,6 +4,30 @@
 #include "SkGraphics.h"
 #include "SkRandom.h"
 
+static void test_clearonlayers(SkCanvas* canvas) {
+    SkCanvas& c = *canvas;
+    
+    SkPaint paint;
+    paint.setColor(SK_ColorBLUE);
+    paint.setStyle(SkPaint::kStrokeAndFill_Style);
+    SkRect rect = SkRect::MakeXYWH(25, 25, 50, 50);
+    c.drawRect(rect, paint);
+    
+    c.clipRect(rect);
+    
+    c.saveLayer(NULL, NULL);
+    rect = SkRect::MakeXYWH(50, 10, 40, 80);
+    c.clipRect(rect, SkRegion::kUnion_Op);
+    
+    rect = SkRect::MakeXYWH(50, 0, 50, 100);
+    // You might draw something here, but it's not necessary.
+    // paint.setColor(SK_ColorRED);
+    // c.drawRect(rect, paint);
+    paint.setXfermodeMode(SkXfermode::kClear_Mode);
+    c.drawRect(rect, paint);
+    c.restore();
+}
+
 static void test_strokerect(SkCanvas* canvas, const SkRect& r) {
     SkPaint p;
     
@@ -277,8 +301,8 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-     //   test_strokerect(canvas);
-     //   return;
+        test_clearonlayers(canvas); return;
+     //   test_strokerect(canvas); return;
 
         for (Draw** iter = fList.begin(); iter < fList.end(); iter++) {
             (*iter)->draw(canvas);

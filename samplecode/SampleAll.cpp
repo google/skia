@@ -343,23 +343,9 @@ static void apply_shader(SkPaint* paint, int index)
 #endif
 }
 
-static void test_math()
-{
-    float x;
-    const float PI = 3.141593f;
-    
-    for (x = 0; x < 1; x += 0.05f)
-        printf("atan(%g) = %g\n", x, atanf(x) * 180/PI);
-    for (x = 1; x < 10000000; x *= 2)
-        printf("atan(%g) = %g\n", x, atanf(x) * 180/PI);
-}
-
 class DemoView : public SkView {
 public:
-    DemoView()
-    {
-        test_math();
-    }
+    DemoView() {}
 	
 protected:
     // overrides from SkEventSink

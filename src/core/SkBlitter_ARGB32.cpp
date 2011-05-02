@@ -40,14 +40,16 @@ using namespace skia_blitter_support;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static int upscale31To256(int value) {
+static inline int upscale31To32(int value) {
     SkASSERT((unsigned)value <= 31);
-    // 0..31 -> 0..255
-    value = (value << 3) | (value >> 2);
-    // 0..255 -> 0..256
-    value += (value >> 7);
-    SkASSERT((unsigned)value <= 256);
-    return value;
+    return value + (value >> 4);
+}
+
+static inline unsigned blend32(unsigned src, unsigned dst, unsigned scale) {
+    SkASSERT(src <= 0xFF);
+    SkASSERT(dst <= 0xFF);
+    SkASSERT(scale <= 32);
+    return dst + ((src - dst) * scale >> 5);
 }
 
 static void blit_lcd16_opaque(SkPMColor dst[], const uint16_t src[],
@@ -62,6 +64,8 @@ static void blit_lcd16_opaque(SkPMColor dst[], const uint16_t src[],
             continue;
         }
 
+        SkPMColor d = dst[i];
+        
         /*  We want all of these in 5bits, hence the shifts in case one of them
          *  (green) is 6bits.
          */
@@ -70,22 +74,21 @@ static void blit_lcd16_opaque(SkPMColor dst[], const uint16_t src[],
         int maskB = SkGetPackedB16(mask) >> (SK_B16_BITS - 5);
 
         // Now upscale them to 0..256, so we can use SkAlphaBlend
-        maskR = upscale31To256(maskR);
-        maskG = upscale31To256(maskG);
-        maskB = upscale31To256(maskB);
+        maskR = upscale31To32(maskR);
+        maskG = upscale31To32(maskG);
+        maskB = upscale31To32(maskB);
 
         int maskA = SkMax32(SkMax32(maskR, maskG), maskB);
 
-        SkPMColor d = dst[i];
         int dstA = SkGetPackedA32(d);
         int dstR = SkGetPackedR32(d);
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
 
-        dst[i] = SkPackARGB32(SkAlphaBlend(0xFF, dstA, maskA),
-                              SkAlphaBlend(srcR, dstR, maskR),
-                              SkAlphaBlend(srcG, dstG, maskG),
-                              SkAlphaBlend(srcB, dstB, maskB));
+        dst[i] = SkPackARGB32(blend32(0xFF, dstA, maskA),
+                              blend32(srcR, dstR, maskR),
+                              blend32(srcG, dstG, maskG),
+                              blend32(srcB, dstB, maskB));
     }
 }
 
