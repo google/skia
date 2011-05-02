@@ -28,61 +28,43 @@ class GrIndexBufferAllocPool;
 class GrResource;
 class GrVertexBufferAllocPool;
 
+/**
+ * Gpu usage statistics.
+ */
+struct GrGpuStats {
+    uint32_t fVertexCnt;  //<! Number of vertices drawn
+    uint32_t fIndexCnt;   //<! Number of indices drawn
+    uint32_t fDrawCnt;    //<! Number of draws
+
+    uint32_t fProgChngCnt;//<! Number of program changes (N/A for fixed)
+
+    /*
+        *  Number of times the texture is set in 3D API
+        */
+    uint32_t fTextureChngCnt;
+    /*
+        *  Number of times the render target is set in 3D API
+        */
+    uint32_t fRenderTargetChngCnt;
+    /*
+        *  Number of textures created (includes textures that are rendertargets).
+        */
+    uint32_t fTextureCreateCnt;
+    /*
+        *  Number of rendertargets created.
+        */
+    uint32_t fRenderTargetCreateCnt;
+};
+
 class GrGpu : public GrDrawTarget {
 
 public:
-    /**
-     * Possible 3D APIs that may be used by Ganesh.
-     */
-    enum Engine {
-        kOpenGL_Shaders_Engine,
-        kOpenGL_Fixed_Engine,
-        kDirect3D9_Engine
-    };
-
-    /**
-     * Platform specific 3D context.
-     * For
-     *    kOpenGL_Shaders_Engine use NULL
-     *    kOpenGL_Fixed_Engine   use NULL
-     *    kDirect3D9_Engine      use an IDirect3DDevice9*
-     */
-    typedef void* Platform3DContext;
-
     /**
      *  Create an instance of GrGpu that matches the specified Engine backend.
      *  If the requested engine is not supported (at compile-time or run-time)
      *  this returns NULL.
      */
-    static GrGpu* Create(Engine, Platform3DContext context3D);
-
-    /**
-     * Gpu usage statistics.
-     */
-    struct Stats {
-        uint32_t fVertexCnt;  //<! Number of vertices drawn
-        uint32_t fIndexCnt;   //<! Number of indices drawn
-        uint32_t fDrawCnt;    //<! Number of draws
-
-        uint32_t fProgChngCnt;//<! Number of program changes (N/A for fixed)
-
-        /*
-         *  Number of times the texture is set in 3D API
-         */
-        uint32_t fTextureChngCnt;
-        /*
-         *  Number of times the render target is set in 3D API
-         */
-        uint32_t fRenderTargetChngCnt;
-        /*
-         *  Number of textures created (includes textures that are rendertargets).
-         */
-        uint32_t fTextureCreateCnt;
-        /*
-         *  Number of rendertargets created.
-         */
-        uint32_t fRenderTargetCreateCnt;
-    };
+    static GrGpu* Create(GrEngine, GrPlatform3DContext context3D);
 
     ////////////////////////////////////////////////////////////////////////////
 
@@ -320,7 +302,7 @@ public:
                     int left, int top, int width, int height,
                     GrPixelConfig config, void* buffer);
 
-    const Stats& getStats() const;
+    const GrGpuStats& getStats() const;
     void resetStats();
     void printStats() const;
 
@@ -407,7 +389,7 @@ protected:
     int fMinRenderTargetHeight;
     int fMaxTextureDimension;
 
-    Stats           fStats;
+    GrGpuStats fStats;
 
     const GrVertexBuffer*           fCurrPoolVertexBuffer;
     int                             fCurrPoolStartVertex;

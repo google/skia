@@ -168,6 +168,24 @@ static inline int16_t GrToS16(intptr_t x) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
+ * Possible 3D APIs that may be used by Ganesh.
+ */
+enum GrEngine {
+    kOpenGL_Shaders_GrEngine,
+    kOpenGL_Fixed_GrEngine,
+    kDirect3D9_GrEngine
+};
+
+/**
+ * Engine-specific 3D context handle
+ *      Unused for GL.
+ *      IDirect3DDevice9* for D3D9
+ */
+typedef intptr_t GrPlatform3DContext;
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
  * Type used to describe format of vertices in arrays
  * Values are defined in GrDrawTarget
  */

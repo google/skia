@@ -725,7 +725,7 @@ void GrGpu::onSetIndexSourceToArray(const void* indexArray, int indexCount) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const GrGpu::Stats& GrGpu::getStats() const {
+const GrGpuStats& GrGpu::getStats() const {
     return fStats;
 }
 

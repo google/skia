@@ -16,6 +16,7 @@
 
 #include "GrTexture.h"
 #include "GrContext.h"
+#include "GrGpu.h"
 
 bool GrRenderTarget::readPixels(int left, int top, int width, int height,
                                 GrPixelConfig config, void* buffer) {
