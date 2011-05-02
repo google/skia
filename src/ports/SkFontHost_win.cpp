@@ -24,6 +24,7 @@
 #include "SkStream.h"
 #include "SkThread.h"
 #include "SkTypeface_win.h"
+#include "SkTypefaceCache.h"
 #include "SkUtils.h"
 
 #ifdef WIN32
@@ -35,8 +36,6 @@
 #define CAN_USE_LOGFONT_NAME
 
 using namespace skia_advanced_typeface_metrics_utils;
-
-static SkMutex gFTMutex;
 
 static const uint16_t BUFFERSIZE = (16384 - 32);
 static uint8_t glyphbuf[BUFFERSIZE];
@@ -54,6 +53,24 @@ static const int gCanonicalTextSize = 64;
 
 static void make_canonical(LOGFONT* lf) {
 	lf->lfHeight = -gCanonicalTextSize;
+    lf->lfQuality = CLEARTYPE_QUALITY;//PROOF_QUALITY;
+    lf->lfCharSet = DEFAULT_CHARSET;
+}
+
+static SkTypeface::Style getStyle(const LOGFONT& lf) {
+    unsigned style = 0;
+    if (lf.lfWeight >= FW_BOLD) {
+        style |= SkTypeface::kBold;
+    }
+    if (lf.lfItalic) {
+        style |= SkTypeface::kItalic;
+    }
+    return (SkTypeface::Style)style;
+}
+
+static void setStyle(LOGFONT* lf, SkTypeface::Style style) {
+    lf->lfWeight = (style & SkTypeface::kBold) != 0 ? FW_BOLD : FW_NORMAL ;
+    lf->lfItalic = ((style & SkTypeface::kItalic) != 0);
 }
 
 static inline FIXED SkFixedToFIXED(SkFixed x) {
@@ -100,73 +117,19 @@ static SkTypeface::Style GetFontStyle(const LOGFONT& lf) {
     return (SkTypeface::Style)style;
 }
 
-// have to do this because SkTypeface::SkTypeface() is protected
 class LogFontTypeface : public SkTypeface {
-private:
-    static SkMutex                  gMutex;
-    static LogFontTypeface*         gHead;
-    static int32_t                  gCurrId;
-
-    LogFontTypeface*                fNext;
-    LOGFONT                         fLogFont;
-
 public:
+    LogFontTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf) :
+      SkTypeface(style, fontID, false), fLogFont(lf) {}
 
-    LogFontTypeface(Style style, const LOGFONT& logFont) :
-      SkTypeface(style, sk_atomic_inc(&gCurrId)+1), // 0 id is reserved so add 1
-      fLogFont(logFont)
-    {
-		make_canonical(&fLogFont);
+    LOGFONT fLogFont;
 
-        SkAutoMutexAcquire am(gMutex);
-        fNext = gHead;
-        gHead = this;
-    }
-
-    const LOGFONT& logFont() const { return fLogFont; }
-
-    virtual ~LogFontTypeface() {
-        SkAutoMutexAcquire am(gMutex);
-        if (gHead == this) {
-            gHead = fNext;
-            return;
-        }
-
-        LogFontTypeface* prev = gHead;
-        SkASSERT(prev);
-        while (prev->fNext != this) {
-            prev = prev->fNext;
-            SkASSERT(prev);
-        }
-        prev->fNext = fNext;
-    }
-
-    static LogFontTypeface* FindById(uint32_t id){
-        SkASSERT(gHead);
-        LogFontTypeface* curr = gHead;
-        while (curr->uniqueID() != id) {
-            curr = curr->fNext;
-            SkASSERT(curr);
-        }
-        return curr;
-    }
-
-    static LogFontTypeface* FindByLogFont(const LOGFONT& lf)
-    {
-		LOGFONT canonical = lf;
-		make_canonical(&canonical);
-
-        LogFontTypeface* curr = gHead;
-        while (curr && memcmp(&curr->fLogFont, &canonical, sizeof(LOGFONT))) {
-            curr = curr->fNext;
-        }
-        return curr;
+    static LogFontTypeface* Create(const LOGFONT& lf) {
+        SkTypeface::Style style = GetFontStyle(lf);
+        SkFontID fontID = SkTypefaceCache::NewFontID();
+        return new LogFontTypeface(style, fontID, lf);
     }
 };
-
-LogFontTypeface* LogFontTypeface::gHead;
-int32_t LogFontTypeface::gCurrId;
-SkMutex LogFontTypeface::gMutex;
 
 static const LOGFONT& get_default_font() {
     static LOGFONT gDefaultFont;
@@ -190,16 +153,29 @@ static const LOGFONT& get_default_font() {
     return gDefaultFont;
 }
 
-SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& lf) {
-    LogFontTypeface* ptypeface = LogFontTypeface::FindByLogFont(lf);
+static bool FindByLogFont(SkTypeface* face, SkTypeface::Style requestedStyle, void* ctx) {
+    LogFontTypeface* lface = reinterpret_cast<LogFontTypeface*>(face);
+    const LOGFONT* lf = reinterpret_cast<const LOGFONT*>(ctx);
 
-    if (NULL == ptypeface) {
-        SkTypeface::Style style = GetFontStyle(lf);
-        ptypeface = new LogFontTypeface(style, lf);
+    return getStyle(lface->fLogFont) == requestedStyle &&
+           !memcmp(&lface->fLogFont, lf, sizeof(LOGFONT));
+}
+
+/**
+ *  This guy is public. It first searches the cache, and if a match is not found,
+ *  it creates a new face.
+ */
+SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
+    LOGFONT lf = origLF;
+    make_canonical(&lf);
+    SkTypeface* face = SkTypefaceCache::FindByProc(FindByLogFont, &lf);
+    if (face) {
+        face->ref();
     } else {
-	    ptypeface->ref();
-	}
-    return ptypeface;
+        face = LogFontTypeface::Create(lf);
+        SkTypefaceCache::Add(face, getStyle(lf));
+    }
+    return face;
 }
 
 uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
@@ -208,6 +184,17 @@ uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
   // meaning here.
   return 0;
 }
+
+static void GetLogFontByID(SkFontID fontID, LOGFONT* lf) {
+    LogFontTypeface* face = (LogFontTypeface*)SkTypefaceCache::FindByID(fontID);
+    if (face) {
+        *lf = face->fLogFont;
+    } else {
+        sk_bzero(lf, sizeof(LOGFONT));
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkScalerContext_Windows : public SkScalerContext {
 public:
@@ -242,6 +229,8 @@ static FIXED float2FIXED(float x) {
     return SkFixedToFIXED(SkFloatToFixed(x));
 }
 
+static SkMutex gFTMutex;
+
 SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
         , fGlyphCount(-1) {
@@ -266,7 +255,8 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
 
     // Scaling by the DPI is inconsistent with how Skia draws elsewhere
     //SkScalar height = -(fRec.fTextSize * GetDeviceCaps(ddc, LOGPIXELSY) / 72);
-    LOGFONT lf = LogFontTypeface::FindById(fRec.fFontID)->logFont();
+    LOGFONT lf;
+    GetLogFontByID(fRec.fFontID, &lf);
     lf.lfHeight = -gCanonicalTextSize;
     fFont = CreateFontIndirect(&lf);
     fSavefont = (HFONT)SelectObject(fDDC, fFont);
@@ -615,9 +605,8 @@ static bool getWidthAdvance(HDC hdc, int gId, int16_t* advance) {
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
-    SkAutoMutexAcquire ac(gFTMutex);
-    LogFontTypeface* rec = LogFontTypeface::FindById(fontID);
-    LOGFONT lf = rec->logFont();
+    LOGFONT lf;
+    GetLogFontByID(fontID, &lf);
     SkAdvancedTypefaceMetrics* info = NULL;
 
     HDC hdc = CreateCompatibleDC(NULL);
@@ -745,11 +734,11 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
-    SkAutoMutexAcquire ac(gFTMutex);
-    LogFontTypeface* rec = LogFontTypeface::FindById(uniqueID);
+    LOGFONT lf;
+    GetLogFontByID(uniqueID, &lf);
 
     HDC hdc = ::CreateCompatibleDC(NULL);
-    HFONT font = CreateFontIndirect(&rec->logFont());
+    HFONT font = CreateFontIndirect(&lf);
     HFONT savefont = (HFONT)SelectObject(hdc, font);
 
     size_t bufferSize = GetFontData(hdc, 0, 0, NULL, 0);
@@ -783,83 +772,33 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
                                        const char familyName[],
                                        const void* data, size_t bytelength,
                                        SkTypeface::Style style) {
-
-    static SkTypeface* gDefaultTypeface;
-    SkAutoMutexAcquire  ac(gFTMutex);
-
-#ifndef CAN_USE_LOGFONT_NAME
-    familyName = NULL;
-    familyFace = NULL;
-#endif
-
-    // clip to legal style bits
-    style = (SkTypeface::Style)(style & SkTypeface::kBoldItalic);
-
-    SkTypeface* tf = NULL;
+    LOGFONT lf;
     if (NULL == familyFace && NULL == familyName) {
-        LOGFONT lf = get_default_font();
-        lf.lfWeight = (style & SkTypeface::kBold) != 0 ? FW_BOLD : FW_NORMAL ;
-        lf.lfItalic = ((style & SkTypeface::kItalic) != 0);
-        // hack until we figure out if SkTypeface should cache this itself
-        if (style == SkTypeface::kNormal) {
-            if (NULL == gDefaultTypeface) {
-                gDefaultTypeface = SkCreateTypefaceFromLOGFONT(lf);
-            }
-            tf = gDefaultTypeface;
-            tf->ref();
-        } else {
-            tf = SkCreateTypefaceFromLOGFONT(lf);
-        }
+        lf = get_default_font();
+    } else if (familyFace) {
+        LogFontTypeface* face = (LogFontTypeface*)familyFace;
+        lf = face->fLogFont;
     } else {
-#ifdef CAN_USE_LOGFONT_NAME
-        LOGFONT lf;
-        if (NULL != familyFace) {
-            uint32_t id = familyFace->uniqueID();
-            LogFontTypeface* rec = LogFontTypeface::FindById(id);
-            if (!rec) {
-                SkASSERT(false);
-                lf = get_default_font();
-            }
-            else {
-                lf = rec->logFont();
-            }
-        }
-        else {
-            memset(&lf, 0, sizeof(LOGFONT));
-
-            lf.lfHeight = -11; // default
-            lf.lfQuality = PROOF_QUALITY;
-            lf.lfCharSet = DEFAULT_CHARSET;
-
+        memset(&lf, 0, sizeof(LOGFONT));
 #ifdef UNICODE
-            // Get the buffer size needed first.
-            size_t str_len = ::MultiByteToWideChar(CP_UTF8, 0, familyName,
-                                                   -1, NULL, 0);
-            // Allocate a buffer (str_len already has terminating null
-            // accounted for).
-            wchar_t *wideFamilyName = new wchar_t[str_len];
-            // Now actually convert the string.
-            ::MultiByteToWideChar(CP_UTF8, 0, familyName, -1,
-                                  wideFamilyName, str_len);
-            ::wcsncpy(lf.lfFaceName, wideFamilyName, LF_FACESIZE);
-            delete [] wideFamilyName;
+        // Get the buffer size needed first.
+        size_t str_len = ::MultiByteToWideChar(CP_UTF8, 0, familyName,
+                                                -1, NULL, 0);
+        // Allocate a buffer (str_len already has terminating null
+        // accounted for).
+        wchar_t *wideFamilyName = new wchar_t[str_len];
+        // Now actually convert the string.
+        ::MultiByteToWideChar(CP_UTF8, 0, familyName, -1,
+                                wideFamilyName, str_len);
+        ::wcsncpy(lf.lfFaceName, wideFamilyName, LF_FACESIZE);
+        delete [] wideFamilyName;
 #else
-            ::strncpy(lf.lfFaceName, familyName, LF_FACESIZE);
+        ::strncpy(lf.lfFaceName, familyName, LF_FACESIZE);
 #endif
-            lf.lfFaceName[LF_FACESIZE-1] = '\0';
-        }
-
-        // use the style desired
-        lf.lfWeight = (style & SkTypeface::kBold) != 0 ? FW_BOLD : FW_NORMAL ;
-        lf.lfItalic = ((style & SkTypeface::kItalic) != 0);
-        tf = SkCreateTypefaceFromLOGFONT(lf);
-#endif
+        lf.lfFaceName[LF_FACESIZE-1] = '\0';
     }
-
-    if (NULL == tf) {
-        tf = SkCreateTypefaceFromLOGFONT(get_default_font());
-    }
-    return tf;
+    setStyle(&lf, style);
+    return SkCreateTypefaceFromLOGFONT(lf);
 }
 
 size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {

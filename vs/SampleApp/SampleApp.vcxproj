@@ -206,6 +206,7 @@
     <ClInclude Include="..\..\src\core\SkStrokerPriv.h" />
     <ClInclude Include="..\..\src\core\SkTemplatesPriv.h" />
     <ClInclude Include="..\..\src\core\SkTSort.h" />
+    <ClInclude Include="..\..\src\core\SkTypefaceCache.h" />
     <ClInclude Include="..\..\src\effects\SkBlurMask.h" />
     <ClInclude Include="..\..\src\effects\SkEmbossMask.h" />
     <ClInclude Include="..\..\src\effects\SkEmbossMask_Table.h" />
@@ -264,6 +265,7 @@
     <ClCompile Include="..\..\samplecode\SampleCull.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDither.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDitherBitmap.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDraw.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDrawLooper.cpp" />
     <ClCompile Include="..\..\samplecode\SampleEffects.cpp" />
     <ClCompile Include="..\..\samplecode\SampleEmboss.cpp" />
@@ -331,6 +333,7 @@
     <ClCompile Include="..\..\src\core\SkBuffer.cpp" />
     <ClCompile Include="..\..\src\core\SkCanvas.cpp" />
     <ClCompile Include="..\..\src\core\SkChunkAlloc.cpp" />
+    <ClCompile Include="..\..\src\core\SkClampRange.cpp" />
     <ClCompile Include="..\..\src\core\SkClipStack.cpp" />
     <ClCompile Include="..\..\src\core\SkColor.cpp" />
     <ClCompile Include="..\..\src\core\SkColorFilter.cpp" />
@@ -402,6 +405,7 @@
     <ClCompile Include="..\..\src\core\SkStrokerPriv.cpp" />
     <ClCompile Include="..\..\src\core\SkTSearch.cpp" />
     <ClCompile Include="..\..\src\core\SkTypeface.cpp" />
+    <ClCompile Include="..\..\src\core\SkTypefaceCache.cpp" />
     <ClCompile Include="..\..\src\core\SkUnPreMultiply.cpp" />
     <ClCompile Include="..\..\src\core\SkUtils.cpp" />
     <ClCompile Include="..\..\src\core\SkWriter32.cpp" />
@@ -457,7 +461,7 @@
     <ClCompile Include="..\..\src\pdf\SkPDFStream.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFTypes.cpp" />
     <ClCompile Include="..\..\src\pdf\SkPDFUtils.cpp" />
-    <ClCompile Include="..\..\src\ports\SkDebug_stdio.cpp" />
+    <ClCompile Include="..\..\src\ports\SkDebug_win.cpp" />
     <ClCompile Include="..\..\src\ports\SkFontHost_win.cpp" />
     <ClCompile Include="..\..\src\ports\SkGlobals_global.cpp" />
     <ClCompile Include="..\..\src\ports\SkOSFile_stdio.cpp" />
