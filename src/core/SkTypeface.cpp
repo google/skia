@@ -18,7 +18,7 @@
 #include "SkTypeface.h"
 #include "SkFontHost.h"
 
-#define TRACE_LIFECYCLE
+//#define TRACE_LIFECYCLE
 
 #ifdef TRACE_LIFECYCLE
     static int32_t gTypefaceCounter;
