@@ -45,10 +45,10 @@ static inline int upscale31To32(int value) {
     return value + (value >> 4);
 }
 
-static inline unsigned blend32(unsigned src, unsigned dst, unsigned scale) {
-    SkASSERT(src <= 0xFF);
-    SkASSERT(dst <= 0xFF);
-    SkASSERT(scale <= 32);
+static inline int blend32(int src, int dst, int scale) {
+    SkASSERT((unsigned)src <= 0xFF);
+    SkASSERT((unsigned)dst <= 0xFF);
+    SkASSERT((unsigned)scale <= 32);
     return dst + ((src - dst) * scale >> 5);
 }
 
