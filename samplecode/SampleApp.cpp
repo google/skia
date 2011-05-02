@@ -1338,7 +1338,9 @@ bool SampleView::onQuery(SkEvent* evt) {
 }
 
 #define TEST_GPIPEx
-#include "SkGPipe.h"
+#ifdef TEST_GPIPE
+    #include "SkGPipe.h"
+#endif
 
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
