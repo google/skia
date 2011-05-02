@@ -135,7 +135,7 @@ static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
     SkISize size = SkSize::Make(drawingSize.fX, drawingSize.fY).toRound();
 
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kNo_Config, size.fWidth, size.fHeight);
+    bitmap.setConfig(SkBitmap::kNo_Config, abs(size.fWidth), abs(size.fHeight));
     return bitmap;
 }
 

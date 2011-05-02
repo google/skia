@@ -496,12 +496,14 @@ void SkPDFShader::doImageShader() {
     transformBBox(finalMatrix, &surfaceBBox);
 
     SkMatrix unflip;
-    unflip.setTranslate(0, surfaceBBox.fBottom);
+    unflip.setTranslate(0, SkScalarRound(surfaceBBox.height()));
     unflip.preScale(1, -1);
-    SkISize size = SkISize::Make(surfaceBBox.width(), surfaceBBox.height());
+    SkISize size = SkISize::Make(SkScalarRound(surfaceBBox.width()),
+                                 SkScalarRound(surfaceBBox.height()));
     SkPDFDevice pattern(size, size, unflip);
     SkCanvas canvas(&pattern);
-    canvas.clipRect(surfaceBBox, SkRegion::kReplace_Op);
+    canvas.translate(-surfaceBBox.fLeft, -surfaceBBox.fTop);
+    finalMatrix.preTranslate(surfaceBBox.fLeft, surfaceBBox.fTop);
 
     const SkBitmap* image = &fState.get()->fImage;
     int width = image->width();
@@ -511,7 +513,8 @@ void SkPDFShader::doImageShader() {
     tileModes[1] = fState.get()->fImageTileModes[1];
 
     canvas.drawBitmap(*image, 0, 0);
-    SkRect patternBBox = SkRect::MakeWH(width, height);
+    SkRect patternBBox = SkRect::MakeXYWH(-surfaceBBox.fLeft, -surfaceBBox.fTop,
+                                          width, height);
 
     // Tiling is implied.  First we handle mirroring.
     if (tileModes[0] == SkShader::kMirror_TileMode) {
@@ -589,7 +592,7 @@ void SkPDFShader::doImageShader() {
                 leftMatrix.postTranslate(0, 2 * height);
                 canvas.drawBitmapMatrix(left, leftMatrix);
             }
-            patternBBox.fLeft = surfaceBBox.fLeft;
+            patternBBox.fLeft = 0;
         }
 
         if (surfaceBBox.fRight > width) {
@@ -607,7 +610,7 @@ void SkPDFShader::doImageShader() {
                 rightMatrix.postTranslate(0, 2 * height);
                 canvas.drawBitmapMatrix(right, rightMatrix);
             }
-            patternBBox.fRight = surfaceBBox.fRight;
+            patternBBox.fRight = surfaceBBox.width();
         }
     }
 
@@ -627,7 +630,7 @@ void SkPDFShader::doImageShader() {
                 topMatrix.postTranslate(2 * width, 0);
                 canvas.drawBitmapMatrix(top, topMatrix);
             }
-            patternBBox.fTop = surfaceBBox.fTop;
+            patternBBox.fTop = 0;
         }
 
         if (surfaceBBox.fBottom > height) {
@@ -645,17 +648,17 @@ void SkPDFShader::doImageShader() {
                 bottomMatrix.postTranslate(2 * width, 0);
                 canvas.drawBitmapMatrix(bottom, bottomMatrix);
             }
-            patternBBox.fBottom = surfaceBBox.fBottom;
+            patternBBox.fBottom = surfaceBBox.height();
         }
     }
 
     SkRefPtr<SkPDFArray> patternBBoxArray = new SkPDFArray;
     patternBBoxArray->unref();  // SkRefPtr and new both took a reference.
     patternBBoxArray->reserve(4);
-    patternBBoxArray->append(new SkPDFInt(patternBBox.fLeft))->unref();
-    patternBBoxArray->append(new SkPDFInt(patternBBox.fTop))->unref();
-    patternBBoxArray->append(new SkPDFInt(patternBBox.fRight))->unref();
-    patternBBoxArray->append(new SkPDFInt(patternBBox.fBottom))->unref();
+    patternBBoxArray->append(new SkPDFScalar(patternBBox.fLeft))->unref();
+    patternBBoxArray->append(new SkPDFScalar(patternBBox.fTop))->unref();
+    patternBBoxArray->append(new SkPDFScalar(patternBBox.fRight))->unref();
+    patternBBoxArray->append(new SkPDFScalar(patternBBox.fBottom))->unref();
 
     // Put the canvas into the pattern stream (fContent).
     SkRefPtr<SkStream> content = pattern.content();
@@ -669,8 +672,8 @@ void SkPDFShader::doImageShader() {
     fContent->insert("PaintType", new SkPDFInt(1))->unref();
     fContent->insert("TilingType", new SkPDFInt(1))->unref();
     fContent->insert("BBox", patternBBoxArray.get());
-    fContent->insert("XStep", new SkPDFInt(patternBBox.width()))->unref();
-    fContent->insert("YStep", new SkPDFInt(patternBBox.height()))->unref();
+    fContent->insert("XStep", new SkPDFScalar(patternBBox.width()))->unref();
+    fContent->insert("YStep", new SkPDFScalar(patternBBox.height()))->unref();
     fContent->insert("Resources", pattern.getResourceDict().get());
     fContent->insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
 
