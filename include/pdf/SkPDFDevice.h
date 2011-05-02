@@ -61,6 +61,7 @@ public:
      *         inverse scale+translate to accommodate the one that SkPDFDevice
      *         always does.
      */
+    // TODO(vandebo) The sizes should be SkSize and not SkISize.
     SK_API SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                        const SkMatrix& initialTransform);
     SK_API virtual ~SkPDFDevice();
