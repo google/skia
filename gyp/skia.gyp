@@ -179,6 +179,8 @@
         '../src/core/SkTSort.h',
         '../src/core/SkTemplatesPriv.h',
         '../src/core/SkTypeface.cpp',
+        '../src/core/SkTypefaceCache.cpp',
+        '../src/core/SkTypefaceCache.h',
         '../src/core/SkUnPreMultiply.cpp',
         '../src/core/SkUtils.cpp',
         '../src/core/SkWriter32.cpp',
@@ -187,6 +189,8 @@
         '../src/opts/opts_check_SSE2.cpp',
 
         '../src/ports/SkDebug_stdio.cpp',
+        '../src/ports/SkDebug_win.cpp',
+
         '../src/ports/SkFontHost_tables.cpp',
         '../src/ports/SkGlobals_global.cpp',
         '../src/ports/SkMemory_malloc.cpp',
@@ -336,6 +340,14 @@
           'sources': [
             '../src/ports/SkFontHost_win.cpp',
             '../src/ports/SkThread_win.cpp',
+          ],
+          'sources!': [
+            '../src/ports/SkDebug_stdio.cpp',
+          ],
+        },],
+        [ 'OS != "win"', {
+          'sources!': [
+            '../src/ports/SkDebug_win.cpp',
           ],
         },],
       ],
