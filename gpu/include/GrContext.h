@@ -18,12 +18,13 @@
 #define GrContext_DEFINED
 
 #include "GrClip.h"
-#include "GrGpu.h"
 #include "GrTextureCache.h"
 #include "GrPaint.h"
 #include "GrPathRenderer.h"
 
 class GrFontCache;
+class GrGpu;
+struct GrGpuStats;
 class GrPathIter;
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
@@ -34,8 +35,8 @@ public:
     /**
      * Creates a GrContext from within a 3D context.
      */
-    static GrContext* Create(GrGpu::Engine engine,
-                             GrGpu::Platform3DContext context3D);
+    static GrContext* Create(GrEngine engine,
+                             GrPlatform3DContext context3D);
 
     /**
      *  Helper to create a opengl-shader based context
@@ -208,14 +209,7 @@ public:
     GrRenderTarget* createPlatformRenderTarget(intptr_t platformRenderTarget,
                                                int stencilBits,
                                                bool isMultisampled,
-                                               int width, int height) {
-    #if GR_DEBUG
-        GrPrintf("Using deprecated createPlatformRenderTarget API.");
-    #endif
-        return fGpu->createPlatformRenderTarget(platformRenderTarget, 
-                                                stencilBits, isMultisampled, 
-                                                width, height);
-    }
+                                               int width, int height);
 
     /**
      * DEPRECATED, WILL BE REMOVED SOON. USE createPlatformSurface.
@@ -228,12 +222,7 @@ public:
      *
      * @return the newly created GrRenderTarget
      */
-    GrRenderTarget* createRenderTargetFrom3DApiState() {
-    #if GR_DEBUG
-        GrPrintf("Using deprecated createRenderTargetFrom3DApiState API.");
-    #endif
-        return fGpu->createRenderTargetFrom3DApiState();
-    }
+    GrRenderTarget* createRenderTargetFrom3DApiState();
 
     ///////////////////////////////////////////////////////////////////////////
     // Matrix state
@@ -264,7 +253,7 @@ public:
      * Gets the current clip.
      * @return the current clip.
      */
-    const GrClip& getClip() const { return fGpu->getClip(); }
+    const GrClip& getClip() const;
 
     /**
      * Sets the clip.
@@ -507,16 +496,6 @@ public:
     void writePixels(int left, int top, int width, int height,
                      GrPixelConfig, const void* buffer, size_t stride);
 
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Statistics
-
-    void resetStats();
-
-    const GrGpu::Stats& getStats() const;
-
-    void printStats() const;
-
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 
@@ -548,6 +527,9 @@ public:
     GrDrawTarget* getTextTarget(const GrPaint& paint);
     void flushText();
     const GrIndexBuffer* getQuadIndexBuffer() const;
+    void resetStats();
+    const GrGpuStats& getStats() const;
+    void printStats() const;
 
 private:
     // used to keep track of when we need to flush the draw buffer

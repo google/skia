@@ -378,9 +378,9 @@ bool SampleWindow::make3DReady() {
 
         if (NULL == fGrContext) {
         #if defined(SK_USE_SHADERS)
-            fGrContext = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
+            fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
         #else
-            fGrContext = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
+            fGrContext = GrContext::Create(kOpenGL_Fixed_GrEngine, NULL);
         #endif
             SkDebugf("---- constructor\n");
         }

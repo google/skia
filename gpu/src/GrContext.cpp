@@ -15,7 +15,7 @@
  */
 
 #include "GrContext.h"
-#include "GrTypes.h"
+#include "GrGpu.h"
 #include "GrTextureCache.h"
 #include "GrTextStrike.h"
 #include "GrMemory.h"
@@ -43,8 +43,8 @@ static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
 static const size_t DRAW_BUFFER_IBPOOL_BUFFER_SIZE = 0;
 static const int DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS = 0;
 
-GrContext* GrContext::Create(GrGpu::Engine engine,
-                             GrGpu::Platform3DContext context3D) {
+GrContext* GrContext::Create(GrEngine engine,
+                             GrPlatform3DContext context3D) {
     GrContext* ctx = NULL;
     GrGpu* fGpu = GrGpu::Create(engine, context3D);
     if (NULL != fGpu) {
@@ -55,7 +55,7 @@ GrContext* GrContext::Create(GrGpu::Engine engine,
 }
 
 GrContext* GrContext::CreateGLShaderContext() {
-    return GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
+    return GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
 }
 
 GrContext::~GrContext() {
@@ -351,6 +351,25 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
     return fGpu->createPlatformSurface(desc);
 }
 
+GrRenderTarget* GrContext::createPlatformRenderTarget(intptr_t platformRenderTarget,
+                                                      int stencilBits,
+                                                      bool isMultisampled,
+                                                      int width, int height) {
+#if GR_DEBUG
+    GrPrintf("Using deprecated createPlatformRenderTarget API.");
+#endif
+    return fGpu->createPlatformRenderTarget(platformRenderTarget, 
+                                            stencilBits, isMultisampled, 
+                                            width, height);
+}
+
+GrRenderTarget* GrContext::createRenderTargetFrom3DApiState() {
+#if GR_DEBUG
+    GrPrintf("Using deprecated createRenderTargetFrom3DApiState API.");
+#endif
+    return fGpu->createRenderTargetFrom3DApiState();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
@@ -377,6 +396,8 @@ bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+const GrClip& GrContext::getClip() const { return fGpu->getClip(); }
 
 void GrContext::setClip(const GrClip& clip) {
     fGpu->setClip(clip);
@@ -1355,7 +1376,7 @@ void GrContext::resetStats() {
     fGpu->resetStats();
 }
 
-const GrGpu::Stats& GrContext::getStats() const {
+const GrGpuStats& GrContext::getStats() const {
     return fGpu->getStats();
 }
 
