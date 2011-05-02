@@ -17,7 +17,7 @@
 
 #include "SkTypes.h"
 
-static const size_t kBufferSize = 256;
+static const size_t kBufferSize = 2048;
 
 #include <stdarg.h>
 #include <stdio.h>
