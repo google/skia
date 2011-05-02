@@ -21,11 +21,20 @@
 
 static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;
+    size->set(2, 2);
+    bm.setConfig(SkBitmap::kARGB_8888_Config, size->fX, size->fY);
+    SkPMColor color0 = SkPreMultiplyARGB(0x80, 0x80, 0xff, 0x80);
+    SkPMColor color1 = SkPreMultiplyARGB(0x40, 0xff, 0x00, 0xff);
+    bm.allocPixels();
+    bm.eraseColor(color0);
+    bm.lockPixels();
+    uint32_t* pixels = (uint32_t*) bm.getPixels();
+    pixels[0] = pixels[2] = color0;
+    pixels[1] = pixels[3] = color1;
+    bm.unlockPixels();
 
-    SkImageDecoder::DecodeFile("/skimages/logo.png", &bm);
-    size->set(bm.width(), bm.height());
-    return SkShader::CreateBitmapShader(bm, SkShader::kClamp_TileMode,
-                                        SkShader::kClamp_TileMode);
+    return SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                            SkShader::kRepeat_TileMode);
 }
 
 static SkShader* make_shader1(const SkIPoint& size) {

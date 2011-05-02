@@ -155,7 +155,9 @@ private:
 
     bool useSmoothLines();
 
-    void flushRenderTarget();
+    // bound is region that may be modified and therefore has to be resolved.
+    // NULL means whole target. Can be an empty rect.
+    void flushRenderTarget(const GrIRect* bound);
     void flushStencil();
     void flushAAState(GrPrimitiveType type);
     void flushBlend(GrPrimitiveType type);

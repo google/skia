@@ -281,6 +281,7 @@ GrGpuGL::GrGpuGL() {
             GrPrintf("\tMax Samples: %d\n", maxSamples);
         }
     }
+    fFSAASupport = fAASamples[kHigh_GrAALevel] > 0;
 
     if (GR_GL_SUPPORT_DESKTOP) {
         fHasStencilWrap = (major >= 2 || (major == 1 && minor >= 4)) ||
@@ -1183,7 +1184,7 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
             return;
         }
     }
-    this->flushRenderTarget();
+    this->flushRenderTarget(rect);
     this->flushScissor(rect);
     GR_GL(ColorMask(GR_GL_TRUE,GR_GL_TRUE,GR_GL_TRUE,GR_GL_TRUE));
     fHWDrawState.fFlagBits &= ~kNoColorWrites_StateBit;
@@ -1198,7 +1199,9 @@ void GrGpuGL::clearStencil(uint32_t value, uint32_t mask) {
     if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
-    flushRenderTarget();
+    
+    this->flushRenderTarget(&GrIRect::EmptyIRect());
+
     if (fHWBounds.fScissorEnabled) {
         GR_GL(Disable(GR_GL_SCISSOR_TEST));
         fHWBounds.fScissorEnabled = false;
@@ -1223,7 +1226,7 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect) {
     // zero the client's clip bits. So we just clear the whole thing.
     static const GrGLint clipStencilMask  = ~0;
 #endif
-    flushRenderTarget();
+    this->flushRenderTarget(&GrIRect::EmptyIRect());
     flushScissor(&rect);
     GR_GL(StencilMask(clipStencilMask));
     GR_GL(ClearStencil(0));
@@ -1232,7 +1235,7 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect) {
 }
 
 void GrGpuGL::onForceRenderTargetFlush() {
-    flushRenderTarget();
+    this->flushRenderTarget(&GrIRect::EmptyIRect());
 }
 
 bool GrGpuGL::onReadPixels(GrRenderTarget* target,
@@ -1252,10 +1255,10 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
         case GrGLRenderTarget::kAutoResolves_ResolveType:
             autoTargetRestore.save(&fCurrDrawState.fRenderTarget);
             fCurrDrawState.fRenderTarget = target;
-            flushRenderTarget();
+            this->flushRenderTarget(&GrIRect::EmptyIRect());
             break;
         case GrGLRenderTarget::kCanResolve_ResolveType:
-            resolveRenderTarget(tgt);
+            this->resolveRenderTarget(tgt);
             // we don't track the state of the READ FBO ID.
             GR_GL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER, tgt->textureFBOID()));
             break;
@@ -1293,17 +1296,16 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     return true;
 }
 
-void GrGpuGL::flushRenderTarget() {
+void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
 
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
+    GrGLRenderTarget* rt = (GrGLRenderTarget*)fCurrDrawState.fRenderTarget;
     if (fHWDrawState.fRenderTarget != fCurrDrawState.fRenderTarget) {
-        GrGLRenderTarget* rt = (GrGLRenderTarget*)fCurrDrawState.fRenderTarget;
         GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, rt->renderFBOID()));
     #if GR_COLLECT_STATS
         ++fStats.fRenderTargetChngCnt;
     #endif
-        rt->flagAsNeedingResolve();
     #if GR_DEBUG
         GrGLenum status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
@@ -1317,6 +1319,9 @@ void GrGpuGL::flushRenderTarget() {
             vp.pushToGLViewport();
             fHWBounds.fViewportRect = vp;
         }
+    }
+    if (NULL == bound || !bound->isEmpty()) {
+        rt->flagAsNeedingResolve(bound);
     }
 }
 
@@ -1427,12 +1432,16 @@ void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
         // the bound DRAW FBO ID.
         fHWDrawState.fRenderTarget = NULL;
         const GrGLIRect& vp = rt->getViewport();
+        const GrIRect dirtyRect = rt->getResolveRect();
+        GrGLIRect r;
+        r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop, 
+                        dirtyRect.width(), dirtyRect.height());
 
         if (kAppleES_MSFBO == fMSFBOType) {
             // Apple's extension uses the scissor as the blit bounds.
             GR_GL(Enable(GR_GL_SCISSOR_TEST));
-            GR_GL(Scissor(vp.fLeft, vp.fBottom,
-                          vp.fWidth, vp.fHeight));
+            GR_GL(Scissor(r.fLeft, r.fBottom,
+                          r.fWidth, r.fHeight));
             GR_GL(ResolveMultisampleFramebuffer());
             fHWBounds.fScissorRect.invalidate();
             fHWBounds.fScissorEnabled = true;
@@ -1442,10 +1451,10 @@ void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
                 GrAssert(kDesktopEXT_MSFBO == fMSFBOType);
                 flushScissor(NULL);
             }
-            int right = vp.fLeft + vp.fWidth;
-            int top = vp.fBottom + vp.fHeight;
-            GR_GL(BlitFramebuffer(vp.fLeft, vp.fBottom, right, top,
-                                  vp.fLeft, vp.fBottom, right, top,
+            int right = r.fLeft + r.fWidth;
+            int top = r.fBottom + r.fHeight;
+            GR_GL(BlitFramebuffer(r.fLeft, r.fBottom, right, top,
+                                  r.fLeft, r.fBottom, right, top,
                                   GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
         }
         rt->flagAsResolved();
@@ -1781,9 +1790,16 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
         }
     }
 
-    flushRenderTarget();
-    flushAAState(type);
-    flushBlend(type);
+    GrIRect* rect = NULL;
+    GrIRect clipBounds;
+    if ((fCurrDrawState.fFlagBits & kClip_StateBit) &&
+        fClip.hasConservativeBounds()) {
+        fClip.getConservativeBounds().roundOut(&clipBounds);
+        rect = &clipBounds;
+    }
+    this->flushRenderTarget(rect);
+    this->flushAAState(type);
+    this->flushBlend(type);
     
     if ((fCurrDrawState.fFlagBits & kDither_StateBit) !=
         (fHWDrawState.fFlagBits & kDither_StateBit)) {

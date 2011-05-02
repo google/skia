@@ -65,21 +65,31 @@ public:
      * when the render target has been modified outside of Gr. Only meaningful
      * for Gr-created RT/Textures and Platform RT/Textures created with the
      * kGrCanResolve flag.
+     * @param rect  a rect bounding the area needing resolve. NULL indicates
+     *              the whole RT needs resolving.
      */
-    void flagAsNeedingResolve() {
-        fNeedsResolve = kCanResolve_ResolveType == getResolveType();
-    }
+    void flagAsNeedingResolve(const GrIRect* rect = NULL);
+
+    /**
+     * Call to override the region that needs to be resolved.
+     */
+    void overrideResolveRect(const GrIRect rect);
 
     /**
      * Call to indicate that GrRenderTarget was externally resolved. This may
      * allow Gr to skip a redundant resolve step.
      */
-    void flagAsResolved() { fNeedsResolve = false; }
+    void flagAsResolved() { fResolveRect.setLargestInverted(); }
 
     /**
      * @return true if the GrRenderTarget requires MSAA resolving
      */
-    bool needsResolve() { return fNeedsResolve; }
+    bool needsResolve() const { return !fResolveRect.isEmpty(); }
+
+    /**
+     * Returns a rect bounding the region needing resolving.
+     */
+    const GrIRect& getResolveRect() const { return fResolveRect; }
 
     /**
      * Reads a rectangle of pixels from the render target.
@@ -119,8 +129,9 @@ protected:
         , fHeight(height)
         , fStencilBits(stencilBits)
         , fIsMultisampled(isMultisampled)
-        , fNeedsResolve(false)
-    {}
+    {
+        fResolveRect.setLargestInverted();
+    }
 
     friend class GrTexture;
     // When a texture unrefs an owned rendertarget this func
@@ -133,14 +144,14 @@ protected:
         fTexture = NULL;
     }
 
+private:
     GrTexture* fTexture; // not ref'ed
     int        fWidth;
     int        fHeight;
     int        fStencilBits;
     bool       fIsMultisampled;
-    bool       fNeedsResolve;
+    GrIRect    fResolveRect;
 
-private:
     // GrGpu keeps a cached clip in the render target to avoid redundantly
     // rendering the clip into the same stencil buffer.
     friend class GrGpu;
