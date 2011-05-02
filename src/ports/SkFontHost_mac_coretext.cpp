@@ -23,22 +23,10 @@
 #include "SkString.h"
 #include "SkTypeface_mac.h"
 #include "SkUtils.h"
-
-
-static const SkFontID kSkInvalidFontID          = 0;
+#include "SkTypefaceCache.h"
 
 static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
 static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
-
-typedef struct {
-    SkString                name;
-    SkTypeface::Style       style;
-    SkFontID                fontID;
-    CTFontRef               fontRef;
-} SkNativeFontInfo;
-
-typedef std::vector<SkNativeFontInfo>   SkNativeFontInfoList;
-typedef SkNativeFontInfoList::iterator  SkNativeFontInfoListIterator;
 
 //============================================================================
 //      Macros
@@ -74,233 +62,193 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
     return (SkTypeface::Style)style;
 }
 
-
-//============================================================================
-//      SkNativeFontCache
-//----------------------------------------------------------------------------
-#pragma mark -
-class SkNativeFontCache {
+class SkTypeface_Mac : public SkTypeface {
 public:
-            SkNativeFontCache(void);
-    virtual ~SkNativeFontCache(void);
+    SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isMonospace)
+        : SkTypeface(style, fontID, isMonospace), fFontRef(0) {}
 
-    bool IsValid(SkFontID fontID);
-    CTFontRef GetFont(SkFontID fontID);
-    SkNativeFontInfo GetFontInfo(const char familyName[], SkTypeface::Style);
-    SkNativeFontInfo CreateFont(const char familyName[], SkTypeface::Style);
-    SkNativeFontInfo CreateFromCTFont(CTFontRef);
+    virtual ~SkTypeface_Mac() { CFRelease(fFontRef); }
 
-    static SkNativeFontCache* Get(void);
-
-private:
-    CTFontRef CreateNativeFont(const char familyName[], SkTypeface::Style style);
-
-
-private:
-    SkNativeFontInfoList mFonts;
-    SkMutex mMutex;
+    SkString    fName;
+    CTFontRef   fFontRef;
 };
 
-SkNativeFontCache::SkNativeFontCache(void)
-{   SkAutoMutexAcquire      acquireLock(mMutex);
-    SkNativeFontInfo        fontInfo;
-
-
-    // Initialise ourselves
-    //
-    // SkTypeface uses a uint32_t to identify fonts, however CoreText font references
-    // are opaque pointers.
-    //
-    // To support 64-bit builds, we need a separate index to look up a 64-bit font
-    // reference from its 32-bit SkFontID. As an ID of 0 is reserved, we insert a
-    // dummy entry into the cache so we can use the array index as the font ID.
-    //
-    // This could be simplified if SkFontID was changed to a intptr_t, and SkTypeface
-    // returned an SkFontID from uniqueID().
-    fontInfo.name    = SkString("__SkNativeFontCache__");
-    fontInfo.style   = SkTypeface::kNormal;
-    fontInfo.fontID  = kSkInvalidFontID;
-    fontInfo.fontRef = NULL;
-
-    mFonts.push_back(fontInfo);
+static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
+    bool isMonospace;
+    SkTypeface::Style style = computeStyleBits(fontRef, &isMonospace);
+    SkTypeface_Mac* face = new SkTypeface_Mac(style,
+                                              SkTypefaceCache::NewFontID(),
+                                              isMonospace);
+    face->fFontRef = fontRef;   // we take over ownership of fontRef
+    face->fName.set(name);
+    return face;
 }
 
-SkNativeFontCache::~SkNativeFontCache(void)
-{   SkAutoMutexAcquire                  acquireLock(mMutex);
-    SkNativeFontInfoListIterator        theIter;
-
-
-    // Clean up
-    for (theIter = mFonts.begin(); theIter != mFonts.end(); theIter++)
-        CFSafeRelease(theIter->fontRef);
-}
-
-bool SkNativeFontCache::IsValid(SkFontID fontID)
-{   SkAutoMutexAcquire  acquireLock(mMutex);
-    bool                isValid;
-
-
-    // Check the ID
-    isValid = (fontID >= 1 && fontID < mFonts.size());
-    return(isValid);
-}
-
-CTFontRef SkNativeFontCache::GetFont(SkFontID fontID)
-{   SkAutoMutexAcquire  acquireLock(mMutex);
-
-
-    // Validate our parameters
-    SkASSERT(fontID >= 1 && fontID < mFonts.size());
-
-
-    // Get the font
-    return(mFonts.at(fontID).fontRef);
-}
-
-SkNativeFontInfo SkNativeFontCache::GetFontInfo(const char familyName[],
-                                                SkTypeface::Style theStyle)
-{   SkAutoMutexAcquire              acquireLock(mMutex);
-    SkNativeFontInfo                fontInfo;
-    SkNativeFontInfoListIterator    theIter;
-
-    // Validate our parameters
-    SkASSERT(familyName && *familyName);
-
-    // Get the state we need
-    fontInfo.style   = SkTypeface::kNormal;
-    fontInfo.fontID  = kSkInvalidFontID;
-    fontInfo.fontRef = NULL;
-
-    // Get the font
-    for (theIter = mFonts.begin(); theIter != mFonts.end(); theIter++) {
-        if (theIter->style == theStyle && theIter->name.equals(familyName)) {
-            return *theIter;
-        }
-    }
-
-    return fontInfo;
-}
-
-SkNativeFontInfo SkNativeFontCache::CreateFont(const char familyName[],
-                                               SkTypeface::Style theStyle) {
-    SkAutoMutexAcquire      acquireLock(mMutex);
-    SkNativeFontInfo        fontInfo;
-    
-    
-    // Validate our parameters
-    SkASSERT(familyName && *familyName);
-    
-    
-    // Create the font
-    fontInfo.name.set(familyName);
-    fontInfo.fontID = mFonts.size();
-    fontInfo.fontRef = CreateNativeFont(familyName, theStyle);
-    fontInfo.style = computeStyleBits(fontInfo.fontRef, NULL);
-    
-    mFonts.push_back(fontInfo);
-    return(fontInfo);
-}
-
-SkNativeFontInfo SkNativeFontCache::CreateFromCTFont(CTFontRef font) {
-    SkAutoMutexAcquire      acquireLock(mMutex);
-    SkNativeFontInfo        fontInfo;
-    
-    // TODO: need to query the font's name
-//    fontInfo.name.set(familyName);
-    fontInfo.fontID = mFonts.size();
-    fontInfo.fontRef = font;
-    CFRetain(font);
-    fontInfo.style = computeStyleBits(font, NULL);
-    
-    mFonts.push_back(fontInfo);
-    return(fontInfo);
-}
-
-SkNativeFontCache *SkNativeFontCache::Get(void) {
-    static SkNativeFontCache    sInstance;
-    // We use a local static for well-defined static initialisation order.
-    return &sInstance;
-}
-
-///////////////////////////////////////////////////////////////////////////
-
-CTFontRef SkNativeFontCache::CreateNativeFont(const char familyName[],
-                                              SkTypeface::Style theStyle) {
+static SkTypeface* NewFromName(const char familyName[],
+                               SkTypeface::Style theStyle) {
     CFMutableDictionaryRef      cfAttributes, cfTraits;
     CFNumberRef                 cfFontTraits;
     CTFontSymbolicTraits        ctFontTraits;
     CTFontDescriptorRef         ctFontDesc;
     CFStringRef                 cfFontName;
     CTFontRef                   ctFont;
-
-
+    
+    
     // Get the state we need
     ctFontDesc   = NULL;
     ctFont       = NULL;
     ctFontTraits = 0;
-
-    if (theStyle & SkTypeface::kBold)
+    
+    if (theStyle & SkTypeface::kBold) {
         ctFontTraits |= kCTFontBoldTrait;
+    }
 
-    if (theStyle & SkTypeface::kItalic)
+    if (theStyle & SkTypeface::kItalic) {
         ctFontTraits |= kCTFontItalicTrait;
-
-
+    }
+    
     // Create the font info
     cfFontName   = CFStringCreateWithCString(NULL, familyName, kCFStringEncodingUTF8);
     cfFontTraits = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits);
     cfAttributes = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     cfTraits     = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-
-
+    
+    
     // Create the font
     if (cfFontName != NULL && cfFontTraits != NULL && cfAttributes != NULL && cfTraits != NULL) {
         CFDictionaryAddValue(cfTraits, kCTFontSymbolicTrait, cfFontTraits);
-
+        
         CFDictionaryAddValue(cfAttributes, kCTFontFamilyNameAttribute, cfFontName);
         CFDictionaryAddValue(cfAttributes, kCTFontTraitsAttribute,     cfTraits);
-
+        
         ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
         if (ctFontDesc != NULL) {
             ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL);
         }
     }
-
+    
     CFSafeRelease(cfFontName);
     CFSafeRelease(cfFontTraits);
     CFSafeRelease(cfAttributes);
     CFSafeRelease(cfTraits);
     CFSafeRelease(ctFontDesc);
 
-    return(ctFont);
+    return ctFont ? NewFromFontRef(ctFont, familyName) : NULL;
 }
 
-//============================================================================
-//      SkTypeface_Mac
-//----------------------------------------------------------------------------
-#pragma mark -
-class SkTypeface_Mac : public SkTypeface {
-public:
-    SkTypeface_Mac(SkTypeface::Style style, uint32_t fontID);
+static CTFontRef GetFontRefFromFontID(SkFontID fontID) {
+    SkTypeface_Mac* face = reinterpret_cast<SkTypeface_Mac*>(SkTypefaceCache::FindByID(fontID));
+    return face ? face->fFontRef : 0;
+}
+
+static SkTypeface* GetDefaultFace() {
+    static SkTypeface* gDefaultFace;
+
+    if (NULL == gDefaultFace) {
+        gDefaultFace = new SkTypeface_Mac(SkTypeface::kNormal,
+                                          SkTypefaceCache::NewFontID(), false);
+    }
+    return gDefaultFace;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct FontRefRec {
+    CTFontRef   fFontRef;
 };
 
+static bool FindByFontRef(SkTypeface* face, SkTypeface::Style, void* ctx) {
+    const SkTypeface_Mac* mface = reinterpret_cast<SkTypeface_Mac*>(face);
+    const FontRefRec* rec = reinterpret_cast<const FontRefRec*>(ctx);
 
-SkTypeface_Mac::SkTypeface_Mac(SkTypeface::Style style, uint32_t fontID)
-    : SkTypeface(style, fontID) {
+    return rec->fFontRef == mface->fFontRef;
 }
 
+/*  This function is visible on the outside. It first searches the cache, and if
+ *  not found, returns a new entry (after adding it to the cache).
+ */
+SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
+    FontRefRec rec = { fontRef };
+    SkTypeface* face = SkTypefaceCache::FindByProc(FindByFontRef, &rec);
+    if (face) {
+        face->ref();
+    } else {
+        face = NewFromFontRef(fontRef, NULL);
+        SkTypefaceCache::Add(face, face->style());
+    }
+    SkASSERT(face->getRefCnt() > 1);
+    return face;
+}
 
-SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef font) {
-    SkNativeFontInfo info;
+struct NameStyleRec {
+    const char*         fName;
+    SkTypeface::Style   fStyle;
+};
+
+static bool FindByNameStyle(SkTypeface* face, SkTypeface::Style style,
+                            void* ctx) {
+    const SkTypeface_Mac* mface = reinterpret_cast<SkTypeface_Mac*>(face);
+    const NameStyleRec* rec = reinterpret_cast<const NameStyleRec*>(ctx);
     
-    info = SkNativeFontCache::Get()->CreateFromCTFont(font);
-    return new SkTypeface_Mac(info.style, info.fontID);
+    return rec->fStyle == style && mface->fName.equals(rec->fName);
 }
 
-//============================================================================
-//      SkScalerContext_Mac
-//----------------------------------------------------------------------------
-#pragma mark -
+static const char* map_css_names(const char* name) {
+    static const struct {
+        const char* fFrom;  // name the caller specified
+        const char* fTo;    // "canonical" name we map to
+    } gPairs[] = {
+        { "sans-serif", "Helvetica" },
+        { "serif",      "Times"     },
+        { "monospace",  "Courier"   }
+    };
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
+        if (strcmp(name, gPairs[i].fFrom) == 0) {
+            return gPairs[i].fTo;
+        }
+    }
+    return name;    // no change
+}
+
+SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
+                                       const char familyName[],
+                                       const void* data, size_t bytelength,
+                                       SkTypeface::Style style) {
+    if (familyName) {
+        familyName = map_css_names(familyName);
+    }
+    
+    // Clone an existing typeface
+    // TODO: only clone if style matches the familyFace's style...
+    if (familyName == NULL && familyFace != NULL) {
+        familyFace->ref();
+        return const_cast<SkTypeface*>(familyFace);
+    }
+    
+    if (!familyName || !*familyName) {
+        familyName = FONT_DEFAULT_NAME;
+    }
+    
+    NameStyleRec rec = { familyName, style };
+    SkTypeface* face = SkTypefaceCache::FindByProc(FindByNameStyle, &rec);
+
+    if (face) {
+        face->ref();
+    } else {
+        face = NewFromName(familyName, style);
+        if (face) {
+            SkTypefaceCache::Add(face, style);
+        } else {
+            face = GetDefaultFace();
+            face->ref();
+        }
+    }
+    return face;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class SkScalerContext_Mac : public SkScalerContext {
 public:
                                         SkScalerContext_Mac(const SkDescriptor* desc);
@@ -341,7 +289,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     // Get the state we need
     fRec.getSingleMatrix(&skMatrix);
 
-    ctFont    = SkNativeFontCache::Get()->GetFont(fRec.fFontID);
+    ctFont    = GetFontRefFromFontID(fRec.fFontID);
     numGlyphs = CTFontGetGlyphCount(ctFont);
     SkASSERT(numGlyphs >= 1 && numGlyphs <= 0xFFFF);
 
@@ -642,56 +590,7 @@ void SkScalerContext_Mac::CTPathElement(void *info, const CGPathElement *element
 }
 
 
-static const char* map_css_names(const char* name) {
-    static const struct {
-        const char* fFrom;
-        const char* fTo;
-    } gPairs[] = {
-        { "sans-serif", "Helvetica" },
-        { "serif",      "Times"     },
-        { "monospace",  "Courier"   }
-    };
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
-        if (strcmp(name, gPairs[i].fFrom) == 0) {
-            return gPairs[i].fTo;
-        }
-    }
-    return name;    // no change
-}
-
-///////////////////////////////////////////////////////////////////////////
-#pragma mark -
-
-SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
-                                       const char familyName[],
-                                       const void* data, size_t bytelength,
-                                       SkTypeface::Style style) {
-    if (familyName) {
-        familyName = map_css_names(familyName);
-    }
-
-    SkNativeFontCache* fontTable = SkNativeFontCache::Get();
-
-    // Clone an existing typeface
-    // TODO: only clone if style matches the familyFace's style...
-    if (familyName == NULL && familyFace != NULL) {
-        familyFace->ref();
-        return const_cast<SkTypeface*>(familyFace);
-    }
-
-    if (!familyName || !*familyName) {
-        familyName = FONT_DEFAULT_NAME;
-    }
-
-    // Get the native font
-    SkNativeFontInfo fontInfo = fontTable->GetFontInfo(familyName, style);
-    if (fontInfo.fontID == kSkInvalidFontID) {
-        fontInfo = fontTable->CreateFont(familyName, style);
-    }
-
-    return new SkTypeface_Mac(fontInfo.style, fontInfo.fontID);
-}
+///////////////////////////////////////////////////////////////////////////////
 
 SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream)
 {
@@ -713,76 +612,50 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     return NULL;
 }
 
-///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-bool SkFontHost::ValidFontID(SkFontID uniqueID)
-{
-
-    // Check the font ID
-    return(SkNativeFontCache::Get()->IsValid(uniqueID));
+bool SkFontHost::ValidFontID(SkFontID fontID) {
+    return SkTypefaceCache::FindByID(fontID) != NULL;
 }
 
-SkStream* SkFontHost::OpenStream(SkFontID uniqueID)
-{
+SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     SkASSERT(!"SkFontHost::OpenStream unimplemented");
     return(NULL);
 }
 
-size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length, int32_t* index)
-{
+size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
+                               int32_t* index) {
     SkASSERT(!"SkFontHost::GetFileName unimplemented");
     return(0);
 }
 
-///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream)
-{
+void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
     SkASSERT(!"SkFontHost::Serialize unimplemented");
 }
 
-SkTypeface* SkFontHost::Deserialize(SkStream* stream)
-{
+SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
     SkASSERT(!"SkFontHost::Deserialize unimplemented");
     return(NULL);
 }
 
-///////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc)
-{
+SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return new SkScalerContext_Mac(desc);
 }
 
-uint32_t SkFontHost::NextLogicalFont(uint32_t fontID)
-{   SkTypeface      *typeFace;
-    uint32_t        newFontID;
-
-
-    // Get the state we need
-    newFontID = kSkInvalidFontID;
-    typeFace  = CreateTypeface(NULL, FONT_DEFAULT_NAME, NULL, 0, SkTypeface::kNormal);
-
-    if (typeFace == NULL)
-        return(0);
-
-
-    // Get the next font
-    //
-    // When we're passed in the default font, we've reached the end.
-    newFontID = typeFace->uniqueID();
-    if (newFontID == fontID)
-        newFontID = 0;
-
-
-    // Clean up
-    typeFace->unref();
-
-    return(newFontID);
+SkFontID SkFontHost::NextLogicalFont(SkFontID fontID) {
+    SkFontID nextFontID = 0;
+    SkTypeface* face = GetDefaultFace();
+    if (face->uniqueID() != fontID) {
+        nextFontID = face->uniqueID();
+    }
+    return nextFontID;
 }
 
-void SkFontHost::FilterRec(SkScalerContext::Rec* rec)
-{
+void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     // we only support 2 levels of hinting
     SkPaint::Hinting h = rec->getHinting();
     if (SkPaint::kSlight_Hinting == h) {
@@ -800,35 +673,32 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec)
 
 ///////////////////////////////////////////////////////////////////////////
 
-size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar)
-{
-    if (sizeAllocatedSoFar > FONT_CACHE_MEMORY_BUDGET)
+size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
+    if (sizeAllocatedSoFar > FONT_CACHE_MEMORY_BUDGET) {
         return sizeAllocatedSoFar - FONT_CACHE_MEMORY_BUDGET;
-    else
-        return 0;   // nothing to do
-}
-
-int SkFontHost::ComputeGammaFlag(const SkPaint& paint)
-{
+    }
     return 0;
 }
 
-void SkFontHost::GetGammaTables(const uint8_t* tables[2])
-{
+int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
+    return 0;
+}
+
+void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
     tables[0] = NULL;   // black gamma (e.g. exp=1.4)
     tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
-int SkFontHost::CountTables(SkFontID fontID)
-{   int             numTables;
+int SkFontHost::CountTables(SkFontID fontID) {
+    int             numTables;
     CFArrayRef      cfArray;
     CTFontRef       ctFont;
 
 
     // Get the state we need
-    ctFont    = SkNativeFontCache::Get()->GetFont(fontID);
+    ctFont    = GetFontRefFromFontID(fontID);
     cfArray   = CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions);
     numTables = 0;
 
@@ -850,7 +720,7 @@ int SkFontHost::GetTableTags(SkFontID fontID, SkFontTableTag tags[])
 
 
     // Get the state we need
-    ctFont    = SkNativeFontCache::Get()->GetFont(fontID);
+    ctFont    = GetFontRefFromFontID(fontID);
     cfArray   = CTFontCopyAvailableTables(ctFont, kCTFontTableOptionNoOptions);
     numTables = 0;
 
@@ -875,7 +745,7 @@ size_t SkFontHost::GetTableSize(SkFontID fontID, SkFontTableTag tag)
 
 
     // Get the state we need
-    ctFont  = SkNativeFontCache::Get()->GetFont(fontID);
+    ctFont  = GetFontRefFromFontID(fontID);
     cfData  = CTFontCopyTable(ctFont, (CTFontTableTag) tag, kCTFontTableOptionNoOptions);
     theSize = 0;
 
@@ -898,7 +768,7 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
 
 
     // Get the state we need
-    ctFont  = SkNativeFontCache::Get()->GetFont(fontID);
+    ctFont  = GetFontRefFromFontID(fontID);
     cfData  = CTFontCopyTable(ctFont, (CTFontTableTag) tag, kCTFontTableOptionNoOptions);
     theSize = 0;
 

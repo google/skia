@@ -102,6 +102,7 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 #	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
 	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
 	SRC_LIST += src/utils/mac/SkEGLContext_mac.cpp
+	SRC_LIST += src/core/SkTypefaceCache.cpp
 	SRC_LIST += src/ports/SkFontHost_mac_coretext.cpp
 
     # these are our registry-based factories

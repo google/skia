@@ -1337,12 +1337,34 @@ bool SampleView::onQuery(SkEvent* evt) {
     return this->INHERITED::onQuery(evt);
 }
 
+#define TEST_GPIPEx
+#include "SkGPipe.h"
+
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
+
+#ifdef TEST_GPIPE
+    SkGPipeWriter writer;
+    SkCanvas* origCanvas = canvas;
+    canvas = writer.startRecording();
+#endif
+
     for (int i = 0; i < fRepeatCount; i++) {
         SkAutoCanvasRestore acr(canvas, true);
         this->onDrawContent(canvas);
     }
+
+#ifdef TEST_GPIPE
+    writer.endRecording();
+
+    size_t size = writer.flatten(NULL);
+    SkAutoMalloc storage(size);
+    writer.flatten(storage.get());
+
+    SkGPipeReader reader(origCanvas);
+    SkGPipeReader::Status status = reader.playback(storage.get(), size);
+    SkASSERT(SkGPipeReader::kDone_Status == status);
+#endif
 }
 
 void SampleView::onDrawBackground(SkCanvas* canvas) {

@@ -138,7 +138,7 @@ static void test_breakText()
         mm = m;
     }
 
-    int length2 = paint.breakText(text, length, width, &mm);
+    SkDEBUGCODE(int length2 =) paint.breakText(text, length, width, &mm);
     SkASSERT(length2 == length);
     SkASSERT(mm == width);
 }
@@ -221,12 +221,6 @@ static const struct {
     { "Normal",   0,                           true },
     { "Subpixel", SkPaint::kSubpixelText_Flag, true }
 };
-
-#ifdef SK_DEBUG
-    #define REPEAT_COUNT    1
-#else
-    #define REPEAT_COUNT    5
-#endif
 
 static int count_char_points(const SkPaint& paint, char c)
 {
@@ -488,209 +482,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas)
     {
-        inval(NULL);
-        if (false)
-        {
-            canvas->translate(SkIntToScalar(480), 0);
-            canvas->rotate(SkIntToScalar(90));
-        }
-
         this->drawBG(canvas);
-
-        if (false)
-        {
-            SkPaint p;
-
-            p.setAntiAlias(true);
-            p.setSubpixelText(true);
-         //   p.setLinearText(true);
-
-            SkScalar size = SkIntToScalar(6);
-            SkMSec   dur = 0;
-            const int LOOP = 16;
-            const int TIMES = 10;
-
-            for (int times = 0; times < TIMES; times++)
-            {
-                SkMSec now = SkTime::GetMSecs();
-                for (int loop = 0; loop < LOOP; loop++)
-                {
-                    p.setTextSize(size);
-                    size += SK_Scalar1/5;
-                    canvas->drawText("Hamburgefons", 12, SkIntToScalar(10), SkIntToScalar(50), p);
-                }
-                dur += SkTime::GetMSecs() - now;
-                SkGraphics::SetFontCacheUsed(0);
-            }
-
-            printf("----- duration = %g\n", dur * 1.0 / TIMES);
-            this->inval(NULL);
-            return;
-        }
-
-        if (false)
-        {
-            SkPaint p;
-            p.setAntiAlias(true);
-            for (int i = 6; i <= 36; i++)
-            {
-                SkRect r;
-                SkPaint::FontMetrics m;
-                p.setTextSize(SkIntToScalar(i));
-                p.getFontMetrics(&m);
-                int ascent = SkScalarRound(m.fAscent);
-                int descent = SkScalarRound(m.fDescent);
-                for (uint8_t c = ' '; c <= 127; c++)
-                {
-                    p.getTextWidths(&c, 1, NULL, &r);
-                    if (SkScalarRound(r.fTop) < ascent)
-                        printf("PS %d --- %c [%d] top=%g, ascent=%g ymax=%g\n", i, c, c,
-                                SkScalarToFloat(r.fTop), SkScalarToFloat(m.fAscent), SkScalarToFloat(m.fTop));
-                    if (SkScalarRound(r.fBottom) > descent)
-                        printf("PS %d --- %c [%d] bottom=%g, descent=%g ymin=%g\n", i, c, c,
-                                SkScalarToFloat(r.fBottom), SkScalarToFloat(m.fDescent), SkScalarToFloat(m.fBottom));
-                }
-            }
-        }
-
-        if (false)
-        {
-            SkPaint p;
-            p.setShader(fGradient);
-
-#ifdef SK_RELEASE
-            SkMSec now = SkTime::GetMSecs();
-            for (int i = 0; i < 100; i++)
-#endif
-            canvas->drawPaint(p);
-#ifdef SK_RELEASE
-            printf("----- %d ms\n", SkTime::GetMSecs() - now);
-            this->inval(NULL);
-#endif
-            return;
-        }
-
-        if (false)
-        {
-            SkBitmap    bm;
-
-            make_textstrip(&bm);
-            canvas->translate(0, SkIntToScalar(50));
-            for (int i = 0; i < 10; i++)
-            {
-                float gamma = 1 + i * 0.2f;
-                SkPowerMode mode(SkFloatToScalar(1 / gamma));
-                SkPaint     p;
-                p.setXfermode(&mode);
-
-                canvas->drawBitmap(bm, 0, SkIntToScalar(i) * bm.height(), &p);
-            }
-            return;
-        }
-
-        if (false)
-        {
-            SkPaint paint;
-
-            paint.setAntiAlias(true);
-            paint.setDevKernText(true);
-            SkMSec now = SkTime::GetMSecs();
-            for (int i = 0; i < 1000000; i++)
-            {
-                paint.measureText("Hamburgefons", 15, NULL, NULL);
-            }
-            printf("--------- measure %d\n", SkTime::GetMSecs() - now);
-            this->inval(NULL);
-            return;
-        }
-
-        if (false)
-        {
-            SkRegion    rgn;
-            SkPath      path;
-            SkPaint     paint;
-
-        //    make_badrgn(&rgn, -2);
-
-            if (false)
-            {
-                paint.setColor(SK_ColorBLUE);
-                canvas->drawIRect(rgn.getBounds(), paint);
-            }
-            paint.setColor(SK_ColorRED);
-            draw_rgn(rgn, canvas, paint);
-
-            rgn.getBoundaryPath(&path);
-            paint.setARGB(0x80, 0, 0, 0xFF);
-            canvas->drawPath(path, paint);
-            return;
-        }
-
-        if (false)
-        {
-            SkRect r = { SkIntToScalar(50), SkIntToScalar(50), SkIntToScalar(300), SkIntToScalar(300) };
-            SkPaint p;
-
-            p.setStyle(SkPaint::kStroke_Style);
-            p.setAlpha(0x80);
-            p.setStrokeWidth(SkIntToScalar(20));
-            canvas->drawRect(r, p);
-        }
-
-        if (false)
-        {
-            SkPaint p;
-            SkRect r = { SkIntToScalar(100), SkIntToScalar(100), SkIntToScalar(104), SkIntToScalar(104) };
-         //   r.offset(SK_ScalarHalf, SK_ScalarHalf);
-            p.setStyle(SkPaint::kStroke_Style);
-            p.setStrokeWidth(SK_Scalar1*2);
-        //    p.setAntiAliasOn(true);
-            canvas->drawRect(r, p);
-            return;
-        }
-
-        if (false)
-        {
-            Sk64    aa, bb;
-            int64_t a = (int64_t)6062080 * -30596;
-            int64_t b = (int64_t)4816896 * 57957;
-            aa.setMul(6062080, -30596);
-            bb.setMul(4816896, 57957);
-
-            a += b;
-            b = a >> 16;
-
-//            SkFixed c = aa.addGetFixed(bb);
-
-            printf("%d %d\n", (int)a, a >> 32);
-
-            SkBitmap    bm;
-            SkPaint     paint;
-            SkScalar    scale = SkFloatToScalar(0.5625f);
-            SkScalar    x = SkIntToScalar(100);
-            SkScalar    y = SkIntToScalar(100);
-
-            //paint.setFilterType(SkPaint::kBilinear_FilterType);
-
-            SkImageDecoder::DecodeFile("/app_web_browser.png", &bm);
-
-           // canvas->drawBitmap(bm, x, y, paint);
-            x += SkIntToScalar(100);
-            canvas->save();
-                canvas->translate(x, y);
-                canvas->scale(SkIntToScalar(2)/1, SkIntToScalar(2)/1);
-                canvas->translate(-x, -y);
-                canvas->drawBitmap(bm, x, y, &paint);
-            canvas->restore();
-            x += SkIntToScalar(100);
-            canvas->save();
-                canvas->translate(x, y);
-                canvas->scale(scale, scale);
-                canvas->translate(-x, -y);
-            //    canvas->drawBitmap(bm, x, y, paint);
-            canvas->restore();
-            return;
-        }
 
         SkAutoCanvasRestore restore(canvas, false);
         {
@@ -712,10 +504,6 @@ protected:
         SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromFile("/skimages/samplefont.ttf")));
         paint.setAntiAlias(true);
         paint.setFlags(paint.getFlags() | gHints[index].fFlags);
-
-        SkMSec now = 0;
-        if (REPEAT_COUNT > 1)
-            now = SkTime::GetMSecs();
 
         SkRect clip;
         clip.set(SkIntToScalar(25), SkIntToScalar(34), SkIntToScalar(88), SkIntToScalar(155));
@@ -743,26 +531,17 @@ protected:
         }
 #endif
 
-        for (int j = 0; j < REPEAT_COUNT; j++)
-        {
-            SkScalar y = SkIntToScalar(0);
-            for (int i = 9; i <= 24; i++) {
-                paint.setTextSize(SkIntToScalar(i) /*+ (gRand.nextU() & 0xFFFF)*/);
-                for (SkScalar dx = 0; dx <= SkIntToScalar(3)/4; dx += SkIntToScalar(1) /* /4 */)
-                {
-                    y += paint.getFontSpacing();
-                    DrawTheText(canvas, text, length, SkIntToScalar(20) + dx, y, paint, fClickX, fMF);
-                }
-            }
-            if (gHints[index].fFlushCache) {
-//                SkGraphics::SetFontCacheUsed(0);
+        SkScalar y = SkIntToScalar(0);
+        for (int i = 9; i <= 24; i++) {
+            paint.setTextSize(SkIntToScalar(i) /*+ (gRand.nextU() & 0xFFFF)*/);
+            for (SkScalar dx = 0; dx <= SkIntToScalar(3)/4; dx += SkIntToScalar(1) /* /4 */)
+            {
+                y += paint.getFontSpacing();
+                DrawTheText(canvas, text, length, SkIntToScalar(20) + dx, y, paint, fClickX, fMF);
             }
         }
-
-        if (REPEAT_COUNT > 1)
-        {
-            printf("--------- FPS = %g\n", REPEAT_COUNT * 1000. / (SkTime::GetMSecs() - now));
-            this->inval(NULL);
+        if (gHints[index].fFlushCache) {
+//                SkGraphics::SetFontCacheUsed(0);
         }
     }
 

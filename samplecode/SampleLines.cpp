@@ -25,30 +25,7 @@
 
 class LinesView : public SkView {
 public:
-	LinesView()
-    {
-        unsigned r = 0x1F;
-        unsigned g = 0x3F;
-        for (unsigned a = 0; a <= 0xF; a++) {
-            unsigned scale = 16 - SkAlpha15To16(a);
-            unsigned sr = (a << 1) | (a >> 3);
-            unsigned dr = r * scale >> 4;
-            unsigned sg = (a << 2) | (a >> 2);
-            unsigned dg = g * scale >> 4;
-            
-            unsigned ssg = sg & ~(~(a >> 3) & 1);
-            
-            printf("4444 sa=%d sr=%d sg=%d da=%d dr=%d dg=%d total-r=%d total-g=%d %d\n",
-                   a, sr, sg, scale, dr, dg, sr+dr, sg+dg, ssg+dg);
-        }
-        
-        for (unsigned aa = 0; aa <= 0xFF; aa++) {
-            unsigned invScale = SkAlpha255To256(255 - aa);
-            unsigned dst = SkAlphaMul(0xFF, invScale);
-            printf("8888 sa=%02x dst=%02x sum=%d %s\n", aa, dst, aa+dst,
-                   (aa+dst) > 0xFF ? "OVERFLOW" : "");
-        }
-    }
+	LinesView() {}
     
 protected:
     // overrides from SkEventSink

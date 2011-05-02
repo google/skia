@@ -24,6 +24,8 @@ class SkStream;
 class SkAdvancedTypefaceMetrics;
 class SkWStream;
 
+typedef uint32_t SkFontID;
+
 /** \class SkTypeface
 
     The SkTypeface class specifies the typeface and intrinsic style of a font.
@@ -65,13 +67,13 @@ public:
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
      */
-    uint32_t uniqueID() const { return fUniqueID; }
+    SkFontID uniqueID() const { return fUniqueID; }
 
     /** Return the uniqueID for the specified typeface. If the face is null,
         resolve it to the default font and return its uniqueID. Will never
         return 0.
     */
-    static uint32_t UniqueID(const SkTypeface* face);
+    static SkFontID UniqueID(const SkTypeface* face);
 
     /** Returns true if the two typefaces reference the same underlying font,
         handling either being null (treating null as the default font)
@@ -147,11 +149,11 @@ public:
 protected:
     /** uniqueID must be unique (please!) and non-zero
     */
-    SkTypeface(Style style, uint32_t uniqueID, bool isFixedWidth = false)
-        : fUniqueID(uniqueID), fStyle(style), fIsFixedWidth(isFixedWidth) {}
+    SkTypeface(Style style, SkFontID uniqueID, bool isFixedWidth = false);
+    virtual ~SkTypeface();
 
 private:
-    uint32_t    fUniqueID;
+    SkFontID    fUniqueID;
     Style       fStyle;
     bool        fIsFixedWidth;
 

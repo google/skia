@@ -18,6 +18,29 @@
 #include "SkTypeface.h"
 #include "SkFontHost.h"
 
+#define TRACE_LIFECYCLE
+
+#ifdef TRACE_LIFECYCLE
+    static int32_t gTypefaceCounter;
+#endif
+
+SkTypeface::SkTypeface(Style style, SkFontID fontID, bool isFixedWidth)
+    : fUniqueID(fontID), fStyle(style), fIsFixedWidth(isFixedWidth) {
+#ifdef TRACE_LIFECYCLE
+    SkDebugf("SkTypeface: create  %p fontID %d total %d\n",
+             this, fontID, ++gTypefaceCounter);
+#endif
+}
+
+SkTypeface::~SkTypeface() {
+#ifdef TRACE_LIFECYCLE
+    SkDebugf("SkTypeface: destroy %p fontID %d total %d\n",
+             this, fUniqueID, --gTypefaceCounter);
+#endif
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
     if (face) {
         return face->uniqueID();

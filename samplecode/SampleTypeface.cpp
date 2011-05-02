@@ -13,6 +13,7 @@
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkDither.h"
+#include "SkTypefaceCache.h"
 
 static int dither_4444(int x) {
     return ((x << 1) - ((x >> 4 << 4) | (x >> 4))) >> 4;
@@ -82,6 +83,8 @@ public:
         for (int i = 0; i < gFaceCount; i++) {
             SkSafeUnref(fFaces[i]);
         }
+
+        SkTypefaceCache::Dump();
     }
 
 protected:
@@ -99,11 +102,6 @@ protected:
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(30));
 
-        if (false) {
-            paint.setStyle(SkPaint::kStroke_Style);
-            paint.setStrokeWidth(SkIntToScalar(1));
-        }
-
         const char* text = "Hamburgefons";
         const size_t textLen = strlen(text);
 
@@ -111,49 +109,11 @@ protected:
         SkScalar dy = paint.getFontMetrics(NULL);
         SkScalar y = dy;
 
+        paint.setLinearText(true);
         for (int i = 0; i < gFaceCount; i++) {
             paint.setTypeface(fFaces[i]);
             canvas->drawText(text, textLen, x, y, paint);
             y += dy;
-        }
-
-        SkRect r;
-        if (false) {
-        r.set(10, 10, 100, 100);
-        paint.setStyle(SkPaint::kStrokeAndFill_Style);
-        paint.setColor(SK_ColorBLUE);
-        paint.setStrokeWidth(1);
-        canvas->drawRect(r, paint);
-        paint.setStrokeWidth(0);
-        }
-
-        if (false) {
-        r.set(294912.75f, 294912.75f, 884738.25f, 884738.25f);
-        canvas->scale(2.4414E-4f, 2.4414E-4f);
-        paint.setStyle(SkPaint::kFill_Style);
-        canvas->drawRect(r, paint);
-        }
-
-        if (false) {
-            SkScalar rad = 90;
-            SkScalar angle = 210;
-            SkScalar cx = 150;
-            SkScalar cy = 105;
-            r.set(cx - rad, cy - rad, cx + rad, cy + rad);
-            SkPath path;
-            path.arcTo(r, angle, -(angle + 90), true);
-            path.close();
-
-            paint.setColor(SK_ColorRED);
-            canvas->drawRect(path.getBounds(), paint);
-            paint.setColor(SK_ColorBLUE);
-            canvas->drawPath(path, paint);
-
-            paint.setColor(SK_ColorGREEN);
-            SkPoint pts[100];
-            int count = path.getPoints(pts, 100);
-            paint.setStrokeWidth(5);
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, count, pts, paint);
         }
     }
 

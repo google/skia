@@ -29,7 +29,7 @@ static const struct {
 
 static const int gFaceCount = SK_ARRAY_COUNT(gFaces);
 
-class FontScalerTestView : public SkView {
+class FontScalerTestView : public SampleView {
     SkTypeface* fFaces[gFaceCount];
 
 public:
@@ -38,6 +38,7 @@ public:
             fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,
                                                    gFaces[i].fStyle);
         }
+        this->setBGColor(0xFFDDDDDD);
     }
 
     virtual ~FontScalerTestView() {
@@ -56,13 +57,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
 
         // test handling of obscene cubic values (currently broken)

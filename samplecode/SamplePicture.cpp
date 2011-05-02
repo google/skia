@@ -33,7 +33,7 @@ public:
 
 protected:
     virtual void onDraw(SkCanvas* canvas) {
-        SkDebugf("---- sc %d\n", canvas->getSaveCount() - 1);
+    //    SkDebugf("---- sc %d\n", canvas->getSaveCount() - 1);
     }
 
 private:
