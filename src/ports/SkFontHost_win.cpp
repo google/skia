@@ -830,6 +830,10 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         return;
     }
+    // we never like BW format
+    if (SkMask::kBW_Format == rec->fMaskFormat) {
+        rec->fMaskFormat = SkMask::kA8_Format;
+    }
 
     if (SkMask::FormatIsLCD((SkMask::Format)rec->fMaskFormat)) {
         rec->fMaskFormat = SkMask::kA8_Format;
