@@ -614,21 +614,23 @@ private:
         kOffscreenStage = 1,
     };
 
+    bool doOffscreenAA(GrDrawTarget* target, 
+                       const GrPaint& paint,
+                       bool isLines) const;
+
     // sets up target to draw coverage to the supersampled render target
     bool setupOffscreenAAPass1(GrDrawTarget* target,
                                bool requireStencil,
+                               const GrIRect& boundRect,
                                OffscreenRecord* record);
 
     // sets up target to sample coverage of supersampled render target back
     // to the main render target using stage kOffscreenStage.
-    // caller should set view matrix to matrix used for this pass prior to 
-    // calling.
-    void setupOffscreenAAPass2(GrDrawTarget* target,
-                               const GrPaint& paint,
-                               OffscreenRecord* record);
+    void offscreenAAPass2(GrDrawTarget* target,
+                          const GrPaint& paint,
+                          const GrIRect& boundRect,
+                          OffscreenRecord* record);
     
-    // cleans up from supersample aa drawing
-    void endOffscreenAA(GrDrawTarget* target, OffscreenRecord* record);
 };
 
 /**
@@ -655,3 +657,4 @@ private:
 #endif
 
 #include "GrContext_impl.h"
+

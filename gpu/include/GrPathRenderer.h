@@ -112,7 +112,9 @@ public:
      * @return true if the path renderer can perform anti-aliasing (aside from
      * having FSAA enabled for a render target)
      */
-    virtual bool supportsAA() { return false; }
+    virtual bool supportsAA(GrDrawTarget* target,
+                            GrPathIter* path,
+                            GrPathFill fill) { return false; }
 
     /**
      * This is called to install a custom path renderer in every GrContext at

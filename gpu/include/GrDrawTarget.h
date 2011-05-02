@@ -551,7 +551,7 @@ public:
      *          of vertices to be filled by caller. The next draw will read
      *          these vertices.
      *
-     *          if indecCount is nonzero, *indices will be the array of indices
+     *          if indexCount is nonzero, *indices will be the array of indices
      *          to be filled by caller. The next indexed draw will read from
      *          these indices.
      *

@@ -33,7 +33,6 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
     fTexFBOID               = ids.fTexFBOID;
     fStencilRenderbufferID  = ids.fStencilRenderbufferID;
     fMSColorRenderbufferID  = ids.fMSColorRenderbufferID;
-    fNeedsResolve           = false;
     fViewport               = viewport;
     fOwnIDs                 = ids.fOwnIDs;
     fTexIDObj               = texID;

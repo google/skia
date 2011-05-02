@@ -28,6 +28,28 @@ bool GrRenderTarget::readPixels(int left, int top, int width, int height,
                                            config, buffer);
 }
 
+void GrRenderTarget::flagAsNeedingResolve(const GrIRect* rect) {
+    if (kCanResolve_ResolveType == getResolveType()) {
+        if (NULL != rect) {
+            fResolveRect.growToInclude(*rect);
+            fResolveRect.intersectWith(0, 0, this->width(), this->height());
+        } else {
+            fResolveRect.setLTRB(0, 0, this->width(), this->height());
+        }
+    }
+}
+
+void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
+    fResolveRect = rect;
+    if (fResolveRect.isEmpty()) {
+        fResolveRect.setLargestInverted();
+    } else {
+        if (!fResolveRect.intersectWith(0, 0, this->width(), this->height())) {
+            fResolveRect.setLargestInverted();
+        }
+    }
+}
+
 bool GrTexture::readPixels(int left, int top, int width, int height,
                            GrPixelConfig config, void* buffer) {
     // go through context so that all necessary flushing occurs

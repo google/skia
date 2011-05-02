@@ -229,6 +229,11 @@ public:
      * value.
      */
     int minRenderTargetHeight() const  { return fMinRenderTargetHeight; }
+    
+    /**
+     * Reports whether full scene anti-aliasing is supported.
+     */
+    bool supportsFullsceneAA() const { return fFSAASupport; }
 
     /**
      * Returns true if NPOT textures can be created
@@ -391,6 +396,7 @@ protected:
     bool fTwoSidedStencilSupport;
     bool fStencilWrapOpsSupport;
     bool fAALineSupport;
+    bool fFSAASupport;
 
     // set by subclass to true if index and vertex buffers can be locked, false
     // otherwise.

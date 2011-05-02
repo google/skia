@@ -63,6 +63,11 @@ struct GrIRect {
         fRight = fBottom = GR_Int32Max;
     }
 
+    void setLargestInverted() {
+        fLeft = fTop = GR_Int32Max;
+        fRight = fBottom = GR_Int32Min;
+    }
+
     bool quickReject(int l, int t, int r, int b) const {
         return l >= fRight || fLeft >= r || t >= fBottom || fTop >= b;
     }
@@ -95,6 +100,35 @@ struct GrIRect {
         }
     }
 
+    bool intersectWith(int left, int top,
+                       int right, int bottom) {
+        if (fRight < left ||
+            fLeft > right ||
+            fBottom < top ||
+            fTop > bottom) {
+            this->setEmpty();
+            return false;
+        } else {
+            fLeft = GrMax(fLeft, left);
+            fRight = GrMin(fRight, right);
+            fTop = GrMax(fTop, top);
+            fBottom = GrMin(fBottom, bottom);
+            return true;
+        }
+    }
+
+    /**
+     * Enlarge the rectangle to include rect.
+     */
+    void growToInclude(const GrIRect& rect) {
+        GrAssert(!rect.isEmpty());
+        fLeft  = GrMin(rect.fLeft, fLeft);
+        fRight = GrMax(rect.fRight, fRight);
+
+        fTop    = GrMin(rect.fTop, fTop);
+        fBottom = GrMax(rect.fBottom, fBottom);
+    }
+
     friend bool operator==(const GrIRect& a, const GrIRect& b) {
         return 0 == memcmp(&a, &b, sizeof(a));
     }
@@ -117,6 +151,11 @@ struct GrIRect {
                fRight  >= r.fRight &&
                fTop    <= r.fTop &&
                fBottom >= r.fBottom;
+    }
+
+    static const GrIRect& EmptyIRect() {
+        static const GrIRect gEmpty(0,0,0,0);
+        return gEmpty;
     }
 };
 
@@ -367,17 +406,36 @@ struct GrRect {
      * Sets this rect to the intersection with a clip rect. If there is no
      * intersection then this rect will be made empty.
      */
-    void intersectWith(const GrRect& clipRect) {
+    bool intersectWith(const GrRect& clipRect) {
         if (fRight < clipRect.fLeft ||
             fLeft > clipRect.fRight ||
             fBottom < clipRect.fTop ||
             fTop > clipRect.fBottom) {
             this->setEmpty();
+            return false;
         } else {
             fLeft = GrMax(fLeft, clipRect.fLeft);
             fRight = GrMin(fRight, clipRect.fRight);
             fTop = GrMax(fTop, clipRect.fTop);
             fBottom = GrMin(fBottom, clipRect.fBottom);
+            return true;
+        }
+    }
+
+    bool intersectWith(GrScalar left, GrScalar top,
+                       GrScalar right, GrScalar bottom) {
+        if (fRight < left ||
+            fLeft > right ||
+            fBottom < top ||
+            fTop > bottom) {
+            this->setEmpty();
+            return false;
+        } else {
+            fLeft = GrMax(fLeft, left);
+            fRight = GrMin(fRight, right);
+            fTop = GrMax(fTop, top);
+            fBottom = GrMin(fBottom, bottom);
+            return true;
         }
     }
 
