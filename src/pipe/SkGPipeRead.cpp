@@ -17,6 +17,7 @@
 
 #include "SkCanvas.h"
 #include "SkPaint.h"
+#include "SkGPipe.h"
 #include "SkGPipePriv.h"
 #include "SkReader32.h"
 
@@ -156,7 +157,8 @@ static void save_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void saveLayer_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                          SkGPipeState* state) {
-    unsigned flags = DrawOp_unpackData(op32);
+    unsigned flags = DrawOp_unpackFlags(op32);
+    SkCanvas::SaveFlags saveFlags = (SkCanvas::SaveFlags)DrawOp_unpackData(op32);
 
     const SkRect* bounds = NULL;
     if (flags & kSaveLayer_HasBounds_DrawOpFlag) {
@@ -166,8 +168,7 @@ static void saveLayer_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     if (flags & kSaveLayer_HasPaint_DrawOpFlag) {
         paint = &state->getPaint(reader->readU32());
     }
-    canvas->saveLayer(bounds, paint,
-                      (SkCanvas::SaveFlags)DrawOp_unpackFlags(op32));
+    canvas->saveLayer(bounds, paint, saveFlags);
 }
 
 static void restore_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -404,11 +405,17 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static void skip_rp(SkCanvas*, SkReader32* reader, uint32_t op32, SkGPipeState*) {
+    size_t bytes = DrawOp_unpackData(op32);
+    (void)reader->skip(bytes);
+}
+
 static void done_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState*) {}
 
 typedef void (*ReadProc)(SkCanvas*, SkReader32*, uint32_t op32, SkGPipeState*);
 
 static const ReadProc gReadTable[] = {
+    skip_rp,
     clipPath_rp,
     clipRegion_rp,
     clipRect_rp,

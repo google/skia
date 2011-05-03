@@ -9,8 +9,7 @@ struct SkWriter32::Block {
     char*   base() { return (char*)(this + 1); }
     const char* base() const { return (const char*)(this + 1); }
     
-    uint32_t* alloc(size_t size)
-    {
+    uint32_t* alloc(size_t size) {
         SkASSERT(SkAlign4(size) == size);
         SkASSERT(this->available() >= size);
         void* ptr = this->base() + fAllocated;
@@ -19,15 +18,13 @@ struct SkWriter32::Block {
         return (uint32_t*)ptr;
     }
     
-    uint32_t* peek32(size_t offset)
-    {
+    uint32_t* peek32(size_t offset) {
         SkASSERT(offset <= fAllocated + 4);
         void* ptr = this->base() + offset;
         return (uint32_t*)ptr;
     }
 
-    static Block* Create(size_t size)
-    {
+    static Block* Create(size_t size) {
         SkASSERT(SkAlign4(size) == size);
         Block* block = (Block*)sk_malloc_throw(sizeof(Block) + size);
         block->fNext = NULL;
@@ -39,37 +36,46 @@ struct SkWriter32::Block {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkWriter32::~SkWriter32()
-{
+SkWriter32::~SkWriter32() {
     this->reset();
 }
 
-void SkWriter32::reset()
-{
+void SkWriter32::reset() {
     Block* block = fHead;    
-    while (block)
-    {
+    while (block) {
         Block* next = block->fNext;
         sk_free(block);
         block = next;
     }
-    fHead = fTail = NULL;
+
     fSize = 0;
+    fHead = fTail = NULL;
+    fSingleBlock = NULL;
 }
 
-uint32_t* SkWriter32::reserve(size_t size)
-{
+void SkWriter32::reset(void* block, size_t size) {
+    this->reset();
+    SkASSERT(0 == (fSingleBlock - (char*)0) & 3);   // need 4-byte alignment
+    fSingleBlock = (char*)block;
+    fSingleBlockSize = (size & ~3);
+}
+
+uint32_t* SkWriter32::reserve(size_t size) {
     SkASSERT(SkAlign4(size) == size);
-    
+
+    if (fSingleBlock) {
+        uint32_t* ptr = (uint32_t*)(fSingleBlock + fSize);
+        fSize += size;
+        SkASSERT(fSize <= fSingleBlockSize);
+        return ptr;
+    }
+
     Block* block = fTail;
 
-    if (NULL == block)
-    {
+    if (NULL == block) {
         SkASSERT(NULL == fHead);
         fHead = fTail = block = Block::Create(SkMax32(size, fMinSize));
-    }
-    else if (block->available() < size)
-    {
+    } else if (block->available() < size) {
         fTail = Block::Create(SkMax32(size, fMinSize));
         block->fNext = fTail;
         block = fTail;
@@ -80,16 +86,18 @@ uint32_t* SkWriter32::reserve(size_t size)
     return block->alloc(size);
 }
 
-uint32_t* SkWriter32::peek32(size_t offset)
-{
+uint32_t* SkWriter32::peek32(size_t offset) {
     SkASSERT(SkAlign4(offset) == offset);
     SkASSERT(offset <= fSize);
+
+    if (fSingleBlock) {
+        return (uint32_t*)(fSingleBlock + offset);
+    }
 
     Block* block = fHead;
     SkASSERT(NULL != block);
     
-    while (offset >= block->fAllocated)
-    {
+    while (offset >= block->fAllocated) {
         offset -= block->fAllocated;
         block = block->fNext;
         SkASSERT(NULL != block);
@@ -97,13 +105,16 @@ uint32_t* SkWriter32::peek32(size_t offset)
     return block->peek32(offset);
 }
 
-void SkWriter32::flatten(void* dst) const
-{
+void SkWriter32::flatten(void* dst) const {
+    if (fSingleBlock) {
+        memcpy(dst, fSingleBlock, fSize);
+        return;
+    }
+
     const Block* block = fHead;
     SkDEBUGCODE(size_t total = 0;)
 
-    while (block)
-    {
+    while (block) {
         size_t allocated = block->fAllocated;
         memcpy(dst, block->base(), allocated);
         dst = (char*)dst + allocated;
@@ -129,6 +140,17 @@ void SkWriter32::writePad(const void* src, size_t size) {
 #include "SkStream.h"
 
 size_t SkWriter32::readFromStream(SkStream* stream, size_t length) {
+    if (fSingleBlock) {
+        SkASSERT(fSingleBlockSize >= fSize);
+        size_t remaining = fSingleBlockSize - fSize;
+        if (length > remaining) {
+            length = remaining;
+        }
+        stream->read(fSingleBlock + fSize, length);
+        fSize += length;
+        return length;
+    }
+
     char scratch[1024];
     const size_t MAX = sizeof(scratch);
     size_t remaining = length;
@@ -149,6 +171,10 @@ size_t SkWriter32::readFromStream(SkStream* stream, size_t length) {
 }
 
 bool SkWriter32::writeToStream(SkWStream* stream) {
+    if (fSingleBlock) {
+        return stream->write(fSingleBlock, fSize);
+    }
+
     const Block* block = fHead;    
     while (block) {
         if (!stream->write(block->base(), block->fAllocated)) {

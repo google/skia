@@ -32,9 +32,23 @@ public:
         fMinSize = minSize;
         fSize = 0;
         fHead = fTail = NULL;
+        fSingleBlock = NULL;
     }
     ~SkWriter32();
 
+    /**
+     *  Returns the single block backing the writer, or NULL if the memory is
+     *  to be dynamically allocated.
+     */
+    void* getSingleBlock() const { return fSingleBlock; }
+
+    /**
+     *  Specify the single block to back the writer, rathern than dynamically
+     *  allocating the memory. If block == NULL, then the writer reverts to
+     *  dynamic allocation (and resets).
+     */
+    void reset(void* block, size_t size);
+                    
     bool writeBool(bool value) {
         this->writeInt(value);
         return value;
@@ -109,11 +123,14 @@ public:
 private:
     size_t      fMinSize;
     uint32_t    fSize;
+
+    char*       fSingleBlock;
+    uint32_t    fSingleBlockSize;
     
     struct Block;
     Block*  fHead;
     Block*  fTail;
-    
+
     Block* newBlock(size_t bytes);
 };
 
