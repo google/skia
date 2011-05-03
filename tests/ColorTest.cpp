@@ -14,6 +14,11 @@ static void test_premul(skiatest::Reporter* reporter) {
             // we can't promise that c0 == c1, since c0 -> p0 is a many to one
             // function, however, we can promise that p0 -> c1 -> p1 : p0 == p1
             REPORTER_ASSERT(reporter, p0 == p1);
+
+            {
+                int ax = SkMulDiv255Ceiling(x, a);
+                REPORTER_ASSERT(reporter, ax <= a);
+            }
         }
     }
 }
