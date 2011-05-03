@@ -23,6 +23,8 @@
 #define UNIMPLEMENTED
 
 enum DrawOps {
+    kSkip_DrawOp,   // skip an addition N bytes (N == data)
+
     // these match Canvas apis
     kClipPath_DrawOp,
     kClipRegion_DrawOp,

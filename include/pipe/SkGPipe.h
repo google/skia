@@ -33,6 +33,8 @@ public:
         kError_Status   //!< encountered error
     };
 
+    // data must be 4-byte aligned
+    // length must be a multiple of 4
     Status playback(const void* data, size_t length);
 
 private:
@@ -42,34 +44,28 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkGPipeControler {
+class SkGPipeController {
 public:
-    struct Block {
-        void*   fAddr;
-        size_t  fSize;
-    };
-
-    enum Status {
-        kSuccess_Status,
-        kFailure_Status
-    };
+    /**
+     *  Called periodically by the writer, to get a working buffer of RAM to
+     *  write into. The actual size of the block is also returned, and must be
+     *  actual >= minRequest. If NULL is returned, then actual is ignored and
+     *  writing will stop.
+     *
+     *  The returned block must be 4-byte aligned, and actual must be a
+     *  multiple of 4.
+     *  minRequest will always be a multiple of 4.
+     */
+    virtual void* requestBlock(size_t minRequest, size_t* actual) = 0;
 
     /**
-     *  To record drawing commands, we request blocks from the controller for
-     *  subsequent writes, and we want to send/flush blocks of commands we have
-     *  already written.
+     *  This is called each time some atomic portion of the data has been
+     *  written to the block (most recently returned by requestBlock()).
+     *  If bytes == 0, then the writer has finished.
      *
-     *  For each call to handleBlock, the send block will contain the block
-     *  (previously returned in a request parameter) that we have written, and
-     *  if there is more to be recorded, the request block will receive the
-     *  new block of memory to write into. When the writer detects that there
-     *  are no more drawing commands expected, it will call handleBlock with
-     *  NULL for the request parameter.
-     *
-     *  If handleBlock ever returns kFailure_Status, the writer will cease to
-     *  call handleBlock.
+     *  bytes will always be a multiple of 4.
      */
-    virtual Status handleBlock(const Block& send, Block* request) = 0;
+    virtual void notifyWritten(size_t bytes) = 0;
 };
 
 class SkGPipeWriter {
@@ -78,14 +74,15 @@ public:
     ~SkGPipeWriter();
 
     bool isRecording() const { return NULL != fCanvas; }
-    SkCanvas* startRecording(SkGPipeControler*);
-    void endRecording();
+    SkCanvas* startRecording(SkGPipeController*);
 
-    size_t flatten(void* buffer);
+    // called in destructor, but can be called sooner once you know there
+    // should be no more drawing calls made into the recording canvas.
+    void endRecording();
 
 private:
     class SkGPipeCanvas* fCanvas;
-    SkGPipeControler*    fControler;
+    SkGPipeController*   fController;
     SkWriter32 fWriter;
 };
 
