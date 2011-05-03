@@ -23,6 +23,12 @@
 #include "SkUtils.h"
 
 #if __ARM_ARCH__ >= 6 && !defined(SK_CPU_BENDIAN)
+void SI8_D16_nofilter_DX_arm(
+    const SkBitmapProcState& s,
+    const uint32_t* SK_RESTRICT xy,
+    int count,
+    uint16_t* SK_RESTRICT colors) __attribute__((optimize("O1")));
+
 void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
                              const uint32_t* SK_RESTRICT xy,
                              int count, uint16_t* SK_RESTRICT colors) {
@@ -107,6 +113,12 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
 
     s.fBitmap->getColorTable()->unlock16BitCache(); 
 }
+
+void SI8_opaque_D32_nofilter_DX_arm(
+    const SkBitmapProcState& s,
+    const uint32_t* SK_RESTRICT xy,
+    int count,
+    SkPMColor* SK_RESTRICT colors) __attribute__((optimize("O1")));
 
 void SI8_opaque_D32_nofilter_DX_arm(const SkBitmapProcState& s,
                                     const uint32_t* SK_RESTRICT xy,
