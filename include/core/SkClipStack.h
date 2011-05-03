@@ -10,7 +10,12 @@ class SkPath;
 class SK_API SkClipStack {
 public:
     SkClipStack();
+    SkClipStack(const SkClipStack& b);
     ~SkClipStack() {}
+
+    SkClipStack& operator=(const SkClipStack& b);
+    bool operator==(const SkClipStack& b) const;
+    bool operator!=(const SkClipStack& b) const { return !(*this == b); }
 
     void reset();
 

@@ -1,5 +1,81 @@
 #include "Test.h"
 #include "SkClipStack.h"
+#include "SkPath.h"
+#include "SkRect.h"
+
+static void test_assign_and_comparison(skiatest::Reporter* reporter) {
+    SkClipStack s;
+
+    // Build up a clip stack with a path, an empty clip, and a rect.
+    s.save();
+    SkPath p;
+    p.moveTo(5, 6);
+    p.lineTo(7, 8);
+    p.lineTo(5, 9);
+    p.close();
+    s.clipDevPath(p);
+
+    s.save();
+    SkRect r = SkRect::MakeLTRB(1, 2, 3, 4);
+    s.clipDevRect(r);
+    r = SkRect::MakeLTRB(10, 11, 12, 13);
+    s.clipDevRect(r);
+
+    s.save();
+    r = SkRect::MakeLTRB(14, 15, 16, 17);
+    s.clipDevRect(r, SkRegion::kUnion_Op);
+
+    // Test that assignment works.
+    SkClipStack copy = s;
+    REPORTER_ASSERT(reporter, s == copy);
+
+    // Test that different save levels triggers not equal.
+    s.restore();
+    REPORTER_ASSERT(reporter, s != copy);
+
+    // Test that an equal, but not copied version is equal.
+    s.save();
+    r = SkRect::MakeLTRB(14, 15, 16, 17);
+    s.clipDevRect(r, SkRegion::kUnion_Op);
+    REPORTER_ASSERT(reporter, s == copy);
+
+    // Test that a different op on one level triggers not equal.
+    s.restore();
+    s.save();
+    r = SkRect::MakeLTRB(14, 15, 16, 17);
+    s.clipDevRect(r);
+    REPORTER_ASSERT(reporter, s != copy);
+
+    // Test that different state (clip type) triggers not equal.
+    s.restore();
+    s.save();
+    SkPath rp;
+    rp.addRect(r);
+    s.clipDevPath(rp, SkRegion::kUnion_Op);
+    REPORTER_ASSERT(reporter, s != copy);
+
+    // Test that different rects triggers not equal.
+    s.restore();
+    s.save();
+    r = SkRect::MakeLTRB(24, 25, 26, 27);
+    s.clipDevRect(r, SkRegion::kUnion_Op);
+    REPORTER_ASSERT(reporter, s != copy);
+
+    // Sanity check
+    s.restore();
+    copy.restore();
+    REPORTER_ASSERT(reporter, s == copy);
+    s.restore();
+    copy.restore();
+    REPORTER_ASSERT(reporter, s == copy);
+
+    // Test that different paths triggers not equal.
+    s.restore();
+    s.save();
+    p.addRect(r);
+    s.clipDevPath(p);
+    REPORTER_ASSERT(reporter, s != copy);
+}
 
 static void assert_count(skiatest::Reporter* reporter, const SkClipStack& stack,
                          int count) {
@@ -43,6 +119,8 @@ static void TestClipStack(skiatest::Reporter* reporter) {
 
     stack.reset();
     assert_count(reporter, stack, 0);
+
+    test_assign_and_comparison(reporter);
 }
 
 #include "TestClassDef.h"
