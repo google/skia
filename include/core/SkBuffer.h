@@ -32,16 +32,14 @@ public:
     /** Initialize RBuffer with a data pointer, but no specified length.
         This signals the RBuffer to not perform range checks during reading.
     */
-    SkRBuffer(const void* data)
-    {
+    SkRBuffer(const void* data) {
         fData = (const char*)data;
         fPos = (const char*)data;
         fStop = 0;  // no bounds checking
     }
     /** Initialize RBuffer with a data point and length.
     */
-    SkRBuffer(const void* data, size_t size)
-    {
+    SkRBuffer(const void* data, size_t size) {
         SkASSERT(data != 0 || size == 0);
         fData = (const char*)data;
         fPos = (const char*)data;
@@ -65,7 +63,12 @@ public:
     /** Read the specified number of bytes from the data pointer. If buffer is not
         null, copy those bytes into buffer.
     */
-    void    read(void* buffer, size_t size) { if (size) this->readNoSizeCheck(buffer, size); }
+    void read(void* buffer, size_t size) {
+        if (size) {
+            this->readNoSizeCheck(buffer, size);
+        }
+    }
+
     const void* skip(size_t size); // return start of skipped data
     size_t  skipToAlign4();
 
@@ -100,26 +103,28 @@ public:
     SkWBuffer(void* data) { reset(data); }
     SkWBuffer(void* data, size_t size) { reset(data, size); }
 
-    void reset(void* data)
-    {
+    void reset(void* data) {
         fData = (char*)data;
         fPos = (char*)data;
         fStop = 0;  // no bounds checking
     }
-    void reset(void* data, size_t size)
-    {
+
+    void reset(void* data, size_t size) {
         SkASSERT(data != 0 || size == 0);
         fData = (char*)data;
         fPos = (char*)data;
         fStop = (char*)data + size;
     }
     
-    void*   data() const { return fData; }
     size_t  pos() const { return fPos - fData; }
-    size_t  size() const { return fStop - fData; }
-    bool    eof() const { return fPos >= fStop; }
     void*   skip(size_t size); // return start of skipped data
-    void    write(const void* buffer, size_t size) { if (size) this->writeNoSizeCheck(buffer, size); }
+
+    void write(const void* buffer, size_t size) {
+        if (size) {
+            this->writeNoSizeCheck(buffer, size);
+        }
+    }
+
     size_t  padToAlign4();
 
     void    writePtr(const void* x) { this->writeNoSizeCheck(&x, sizeof(x)); }
