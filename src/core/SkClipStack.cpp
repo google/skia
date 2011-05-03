@@ -27,11 +27,33 @@ struct SkClipStack::Rec {
         fState = kPath_State;
     }
 
+    bool operator==(const Rec& b) const {
+        if (fSaveCount != b.fSaveCount || fOp != b.fOp || fState != b.fState) {
+            return false;
+        }
+        switch (fState) {
+            case kEmpty_State:
+                return true;
+            case kRect_State:
+                return fRect == b.fRect;
+            case kPath_State:
+                return fPath == b.fPath;
+        }
+        return false;  // Silence the compiler.
+    }
+
+    bool operator!=(const Rec& b) const {
+        return !(*this == b);
+    }
+
+
     /**
      *  Returns true if this Rec can be intersected in place with a new clip
      */
     bool canBeIntersected(int saveCount, SkRegion::Op op) const {
-        if (kEmpty_State == fState) {
+        if (kEmpty_State == fState && (
+                    SkRegion::kDifference_Op == op ||
+                    SkRegion::kIntersect_Op == op)) {
             return true;
         }
         return  fSaveCount == saveCount &&
@@ -42,6 +64,46 @@ struct SkClipStack::Rec {
 
 SkClipStack::SkClipStack() : fDeque(sizeof(Rec)) {
     fSaveCount = 0;
+}
+
+SkClipStack::SkClipStack(const SkClipStack& b) : fDeque(sizeof(Rec)) {
+    *this = b;
+}
+
+SkClipStack& SkClipStack::operator=(const SkClipStack& b) {
+    if (this == &b) {
+        return *this;
+    }
+    reset();
+
+    fSaveCount = b.fSaveCount;
+    SkDeque::F2BIter recIter(b.fDeque);
+    for (const Rec* rec = (const Rec*)recIter.next();
+            rec != NULL;
+            rec = (const Rec*)recIter.next()) {
+        new (fDeque.push_back()) Rec(*rec);
+    }
+
+    return *this;
+}
+
+bool SkClipStack::operator==(const SkClipStack& b) const {
+    if (fSaveCount != b.fSaveCount || fDeque.count() != b.fDeque.count()) {
+        return false;
+    }
+    SkDeque::F2BIter myIter(fDeque);
+    SkDeque::F2BIter bIter(b.fDeque);
+    const Rec* myRec = (const Rec*)myIter.next();
+    const Rec* bRec = (const Rec*)bIter.next();
+
+    while (myRec != NULL && bRec != NULL) {
+        if (*myRec != *bRec) {
+            return false;
+        }
+        myRec = (const Rec*)myIter.next();
+        bRec = (const Rec*)bIter.next();
+    }
+    return myRec == NULL && bRec == NULL;
 }
 
 void SkClipStack::reset() {
