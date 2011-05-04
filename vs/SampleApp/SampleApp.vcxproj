@@ -261,8 +261,10 @@
     <ClCompile Include="..\..\samplecode\SampleBlur.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCamera.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCircle.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleClamp.cpp" />
     <ClCompile Include="..\..\samplecode\SampleComplexClip.cpp" />
     <ClCompile Include="..\..\samplecode\SampleCull.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDash.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDither.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDitherBitmap.cpp" />
     <ClCompile Include="..\..\samplecode\SampleDraw.cpp" />
