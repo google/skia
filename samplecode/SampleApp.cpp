@@ -705,9 +705,6 @@ static void reverseRedAndBlue(const SkBitmap& bm) {
 }
 
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
-    SkIPoint viewport;
-    bool alreadyGPU = canvas->getViewport(&viewport);
-
     if (kGPU_CanvasType != fCanvasType) {
 #ifdef SK_SUPPORT_GL
         detachGL();
@@ -723,7 +720,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
             canvas = fPicture->beginRecording(9999, 9999);
             break;
         case kGPU_CanvasType: {
-            if (!alreadyGPU && make3DReady()) {
+            if (make3DReady()) {
                 SkDevice* device = canvas->getDevice();
                 const SkBitmap& bitmap = device->accessBitmap(true);
 
@@ -1338,35 +1335,77 @@ bool SampleView::onQuery(SkEvent* evt) {
 }
 
 #define TEST_GPIPEx
+
 #ifdef TEST_GPIPE
     #include "SkGPipe.h"
+
+class SimplePC : public SkGPipeController {
+public:
+    SimplePC(SkCanvas* target);
+    ~SimplePC();
+
+    virtual void* requestBlock(size_t minRequest, size_t* actual);
+    virtual void notifyWritten(size_t bytes);
+
+private:
+    SkGPipeReader fReader;
+    void*         fBlock;
+    size_t        fBlockSize;
+    size_t        fBytesWritten;
+    SkGPipeReader::Status   fStatus;
+
+    size_t        fTotalWritten;
+};
+
+SimplePC::SimplePC(SkCanvas* target) : fReader(target) {
+    fBlock = NULL;
+    fBlockSize = fBytesWritten = 0;
+    fStatus = SkGPipeReader::kDone_Status;
+    fTotalWritten = 0;
+}
+
+SimplePC::~SimplePC() {
+//    SkASSERT(SkGPipeReader::kDone_Status == fStatus);
+    sk_free(fBlock);
+
+    SkDebugf("--- %d bytes written to pipe, status %d\n", fTotalWritten, fStatus);
+}
+
+void* SimplePC::requestBlock(size_t minRequest, size_t* actual) {
+    sk_free(fBlock);
+
+    fBlockSize = minRequest * 4;
+    fBlock = sk_malloc_throw(fBlockSize);
+    fBytesWritten = 0;
+    *actual = fBlockSize;
+    return fBlock;
+}
+
+void SimplePC::notifyWritten(size_t bytes) {
+    SkASSERT(fBytesWritten + bytes <= fBlockSize);
+
+    fStatus = fReader.playback((const char*)fBlock + fBytesWritten, bytes);
+    SkASSERT(SkGPipeReader::kError_Status != fStatus);
+    fBytesWritten += bytes;
+    fTotalWritten += bytes;
+}
+
 #endif
+
 
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
 
 #ifdef TEST_GPIPE
+    SimplePC controller(canvas);
     SkGPipeWriter writer;
-    SkCanvas* origCanvas = canvas;
-    canvas = writer.startRecording();
+    canvas = writer.startRecording(&controller);
 #endif
 
     for (int i = 0; i < fRepeatCount; i++) {
         SkAutoCanvasRestore acr(canvas, true);
         this->onDrawContent(canvas);
     }
-
-#ifdef TEST_GPIPE
-    writer.endRecording();
-
-    size_t size = writer.flatten(NULL);
-    SkAutoMalloc storage(size);
-    writer.flatten(storage.get());
-
-    SkGPipeReader reader(origCanvas);
-    SkGPipeReader::Status status = reader.playback(storage.get(), size);
-    SkASSERT(SkGPipeReader::kDone_Status == status);
-#endif
 }
 
 void SampleView::onDrawBackground(SkCanvas* canvas) {
