@@ -631,13 +631,20 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "SkStream.h"
+
 void SkFontHost::Serialize(const SkTypeface* face, SkWStream* stream) {
-    SkASSERT(!"SkFontHost::Serialize unimplemented");
+    // hack: need a real name or something from CG
+    uint32_t fontID = face->uniqueID();
+    stream->write(&fontID, 4);
 }
 
 SkTypeface* SkFontHost::Deserialize(SkStream* stream) {
-    SkASSERT(!"SkFontHost::Deserialize unimplemented");
-    return(NULL);
+    // hack: need a real name or something from CG
+    SkFontID fontID = stream->readU32();
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
+    SkSafeRef(face);
+    return face;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
