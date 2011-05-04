@@ -55,7 +55,7 @@ void SkWriter32::reset() {
 
 void SkWriter32::reset(void* block, size_t size) {
     this->reset();
-    SkASSERT(0 == (fSingleBlock - (char*)0) & 3);   // need 4-byte alignment
+    SkASSERT(0 == ((fSingleBlock - (char*)0) & 3));   // need 4-byte alignment
     fSingleBlock = (char*)block;
     fSingleBlockSize = (size & ~3);
 }
