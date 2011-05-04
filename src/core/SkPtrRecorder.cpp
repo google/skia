@@ -15,6 +15,22 @@ int SkPtrSet::Cmp(const Pair& a, const Pair& b) {
     return (char*)a.fPtr - (char*)b.fPtr;
 }
 
+uint32_t SkPtrSet::find(void* ptr) const {
+    if (NULL == ptr) {
+        return 0;
+    }
+    
+    int count = fList.count();
+    Pair pair;
+    pair.fPtr = ptr;
+    
+    int index = SkTSearch<Pair>(fList.begin(), count, pair, sizeof(pair), &Cmp);
+    if (index < 0) {
+        return 0;
+    }
+    return fList[index].fIndex;
+}
+
 uint32_t SkPtrSet::add(void* ptr) {
     if (NULL == ptr) {
         return 0;

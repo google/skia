@@ -29,6 +29,12 @@
 class SkPtrSet : public SkRefCnt {
 public:
     /**
+     *  Search for the specified ptr in the set. If it is found, return its
+     *  32bit ID [1..N], or if not found, return 0. Always returns 0 for NULL.
+     */
+    uint32_t find(void*) const;
+
+    /**
      *  Add the specified ptr to the set, returning a unique 32bit ID for it
      *  [1...N]. Duplicate ptrs will return the same ID.
      *
