@@ -20,6 +20,8 @@
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
 #include "SkReader32.h"
+#include "SkStream.h"
+#include "SkTypeface.h"
 
 class SkGPipeState {
 public:
@@ -32,9 +34,22 @@ public:
     //  Returns the specified paint from our list, or creates a new paint if
     //  index == count. If index > count, return NULL
     SkPaint* editPaint(uint32_t drawOp32);
-    
+
+    SkTypeface* findTypeface(int id) const {
+        SkASSERT(id <= fTypefaces.count());
+        return id ? fTypefaces[id - 1] : NULL;
+    }
+    void addTypeface(SkReader32* reader) {
+        size_t size = reader->readU32();
+        const void* data = reader->skip(SkAlign4(size));
+        SkMemoryStream stream(data, size, false);
+        // fTypefaces takes over ownership of the typeface reference
+        *fTypefaces.append() = SkTypeface::Deserialize(&stream);
+    }
+
 private:
     SkTDArray<SkPaint*> fPaints;
+    SkTDArray<SkTypeface*> fTypefaces;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -389,6 +404,7 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
             case kTextSize_PaintOp: p->setTextSize(reader->readScalar()); break;
             case kTextScaleX_PaintOp: p->setTextScaleX(reader->readScalar()); break;
             case kTextSkewX_PaintOp: p->setTextSkewX(reader->readScalar()); break;
+            case kTypeface_PaintOp: p->setTypeface(state->findTypeface(data)); break;
                 
             // flag to reference a cached index instead of inflating?
             case kPathEffect_PaintOp: inflate_patheffect(reader, p); break;
@@ -401,6 +417,11 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
             default: SkASSERT(!"bad paintop"); return;
         }
     } while (!done);
+}
+
+static void defTypeface_rp(SkCanvas*, SkReader32* reader, uint32_t,
+                           SkGPipeState* state) {
+    state->addTypeface(reader);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -446,6 +467,7 @@ static const ReadProc gReadTable[] = {
     skew_rp,
     translate_rp,
     paintOp_rp,
+    defTypeface_rp,
     done_rp
 };
 
@@ -457,6 +479,7 @@ SkGPipeState::SkGPipeState() {
 }
 
 SkGPipeState::~SkGPipeState() {
+    fTypefaces.unrefAll();
     fPaints.deleteAll();
 }
 
