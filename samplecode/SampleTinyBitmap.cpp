@@ -30,11 +30,12 @@ static SkBitmap make_bitmap() {
     return bm;
 }
 
-class TinyBitmapView : public SkView {
+class TinyBitmapView : public SampleView {
     SkBitmap    fBM;
 public:
 	TinyBitmapView() {
         fBM = make_bitmap();
+        this->setBGColor(0xFFDDDDDD);
     }
     
 protected:
@@ -47,14 +48,6 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        SkIPoint size;
-        if (canvas->getViewport(&size)) {
-            SkDebugf("");
-        }
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
         SkAutoLockPixels alp(*bm);  // needed for ctable
         bm->setIsOpaque(isOpaque);
@@ -64,9 +57,7 @@ protected:
         }
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkShader* s = SkShader::CreateBitmapShader(fBM, SkShader::kRepeat_TileMode,
                                                    SkShader::kMirror_TileMode);
         SkPaint paint;

@@ -32,7 +32,7 @@ static const char gText[] =
 	"a decent respect to the opinions of mankind requires that they should "
 	"declare the causes which impel them to the separation.";
 
-class TextBoxView : public SkView {
+class TextBoxView : public SampleView {
 public:
 	TextBoxView() {
 #ifdef SK_BUILD_FOR_WIN
@@ -60,13 +60,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
 		SkScalar margin = 20;
         SkTextBox tbox;
 		tbox.setMode(SkTextBox::kLineBreak_Mode);

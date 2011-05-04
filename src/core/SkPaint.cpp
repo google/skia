@@ -1315,6 +1315,10 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
 #define MIN_SIZE_FOR_EFFECT_BUFFER  1024
 
+#ifdef SK_DEBUG
+    #define TEST_DESC
+#endif
+
 void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
                              void (*proc)(const SkDescriptor*, void*),
                              void* context, bool ignoreGamma) const {
@@ -1376,6 +1380,49 @@ void SkPaint::descriptorProc(const SkMatrix* deviceMatrix,
     SkASSERT(descSize == desc->getLength());
     desc->computeChecksum();
 
+#ifdef TEST_DESC
+    {
+        // Check that we completely write the bytes in desc (our key), and that
+        // there are no uninitialized bytes. If there were, then we would get
+        // false-misses (or worse, false-hits) in our fontcache.
+        //
+        // We do this buy filling 2 others, one with 0s and the other with 1s
+        // and create those, and then check that all 3 are identical.
+        SkAutoDescriptor    ad1(descSize);
+        SkAutoDescriptor    ad2(descSize);
+        SkDescriptor*       desc1 = ad1.getDesc();
+        SkDescriptor*       desc2 = ad2.getDesc();
+        
+        memset(desc1, 0x00, descSize);
+        memset(desc2, 0xFF, descSize);
+        
+        desc1->init();
+        desc2->init();
+        desc1->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+        desc2->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
+        
+        if (pe) {
+            add_flattenable(desc1, kPathEffect_SkDescriptorTag, &peBuffer);
+            add_flattenable(desc2, kPathEffect_SkDescriptorTag, &peBuffer);
+        }
+        if (mf) {
+            add_flattenable(desc1, kMaskFilter_SkDescriptorTag, &mfBuffer);
+            add_flattenable(desc2, kMaskFilter_SkDescriptorTag, &mfBuffer);
+        }
+        if (ra) {
+            add_flattenable(desc1, kRasterizer_SkDescriptorTag, &raBuffer);
+            add_flattenable(desc2, kRasterizer_SkDescriptorTag, &raBuffer);
+        }
+        
+        SkASSERT(descSize == desc1->getLength());
+        SkASSERT(descSize == desc2->getLength());
+        desc1->computeChecksum();
+        desc2->computeChecksum();
+        SkASSERT(!memcmp(desc, desc1, descSize));
+        SkASSERT(!memcmp(desc, desc2, descSize));
+    }
+#endif
+    
     proc(desc, context);
 }
 
