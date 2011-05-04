@@ -91,14 +91,29 @@ void GrGLSetDefaultGLInterface() {
         gDefaultInterface.fTexEnvi = glTexEnvi;
         // mac uses GLenum for internalFormat param (non-standard)
         // amounts to int vs. uint.
-        gDefaultInterface.fTexImage2D = 
-                (GrGLInterface::GrGLTexImage2DProc)glTexImage2D;
+        gDefaultInterface.fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
         gDefaultInterface.fTexParameteri = glTexParameteri;
         gDefaultInterface.fTexSubImage2D = glTexSubImage2D;
-        gDefaultInterface.fUniform1fv = glUniform1fv;
+        gDefaultInterface.fUniform1f = glUniform1f;
         gDefaultInterface.fUniform1i = glUniform1i;
+        gDefaultInterface.fUniform1fv = glUniform1fv;
+        gDefaultInterface.fUniform1iv = glUniform1iv;
+        gDefaultInterface.fUniform2f = glUniform2f;
+        gDefaultInterface.fUniform2i = glUniform2i;
+        gDefaultInterface.fUniform2fv = glUniform2fv;
+        gDefaultInterface.fUniform2iv = glUniform2iv;
+        gDefaultInterface.fUniform3f = glUniform3f;
+        gDefaultInterface.fUniform3i = glUniform3i;
+        gDefaultInterface.fUniform3fv = glUniform3fv;
+        gDefaultInterface.fUniform3iv = glUniform3iv;
+        gDefaultInterface.fUniform4f = glUniform4f;
+        gDefaultInterface.fUniform4i = glUniform4i;
         gDefaultInterface.fUniform4fv = glUniform4fv;
+        gDefaultInterface.fUniform4iv = glUniform4iv;
+        gDefaultInterface.fUniform4fv = glUniform4fv;
+        gDefaultInterface.fUniformMatrix2fv = glUniformMatrix2fv;
         gDefaultInterface.fUniformMatrix3fv = glUniformMatrix3fv;
+        gDefaultInterface.fUniformMatrix4fv = glUniformMatrix4fv;
         gDefaultInterface.fUnmapBuffer = glUnmapBuffer;
         gDefaultInterface.fUseProgram = glUseProgram;
         gDefaultInterface.fVertexAttrib4fv = glVertexAttrib4fv;

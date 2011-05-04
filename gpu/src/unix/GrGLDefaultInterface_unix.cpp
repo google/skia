@@ -21,9 +21,9 @@
 #include <GL/glext.h>
 #include <GL/glu.h>
 
-#define GR_GL_GET_PROC(F) gDefaultInterface.f ## F = (GrGLInterface::GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC(F) gDefaultInterface.f ## F = (GrGL ## F ## Proc) \
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("gl" #F));
-#define GR_GL_GET_PROC_SUFFIX(F, S) gDefaultInterface.f ## F = (GrGLInterface::GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC_SUFFIX(F, S) gDefaultInterface.f ## F = (GrGL ## F ## Proc) \
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("gl" #F #S));
 
 void GrGLSetDefaultGLInterface() {
@@ -105,16 +105,28 @@ void GrGLSetDefaultGLInterface() {
         GR_GL_GET_PROC(StencilOpSeparate);
         gDefaultInterface.fTexCoordPointer = glTexCoordPointer;
         gDefaultInterface.fTexEnvi = glTexEnvi;
-        // mac uses GLenum for internalFormat param (non-standard)
-        // amounts to int vs. uint.
-        gDefaultInterface.fTexImage2D = 
-                (GrGLInterface::GrGLTexImage2DProc)glTexImage2D;
+        gDefaultInterface.fTexImage2D = glTexImage2D;
         gDefaultInterface.fTexParameteri = glTexParameteri;
         gDefaultInterface.fTexSubImage2D = glTexSubImage2D;
-        GR_GL_GET_PROC(Uniform1fv);
+        GR_GL_GET_PROC(Uniform1f);
         GR_GL_GET_PROC(Uniform1i);
+        GR_GL_GET_PROC(Uniform1fv);
+        GR_GL_GET_PROC(Uniform1iv);
+        GR_GL_GET_PROC(Uniform2f);
+        GR_GL_GET_PROC(Uniform2i);
+        GR_GL_GET_PROC(Uniform2fv);
+        GR_GL_GET_PROC(Uniform2iv);
+        GR_GL_GET_PROC(Uniform3f);
+        GR_GL_GET_PROC(Uniform3i);
+        GR_GL_GET_PROC(Uniform3fv);
+        GR_GL_GET_PROC(Uniform3iv);
+        GR_GL_GET_PROC(Uniform4f);
+        GR_GL_GET_PROC(Uniform4i);
         GR_GL_GET_PROC(Uniform4fv);
+        GR_GL_GET_PROC(Uniform4iv);
+        GR_GL_GET_PROC(UniformMatrix2fv);
         GR_GL_GET_PROC(UniformMatrix3fv);
+        GR_GL_GET_PROC(UniformMatrix4fv);
         GR_GL_GET_PROC(UnmapBuffer);
         GR_GL_GET_PROC(UseProgram);
         GR_GL_GET_PROC(VertexAttrib4fv);

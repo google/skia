@@ -25,8 +25,8 @@
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
 
-#define GR_GL_GET_PROC(F) gDefaultInterface.f ## F = (GrGLInterface::GrGL ## F ## Proc) wglGetProcAddress("gl" #F);
-#define GR_GL_GET_PROC_SUFFIX(F, S) gDefaultInterface.f ## F = (GrGLInterface::GrGL ## F ## Proc) wglGetProcAddress("gl" #F #S);
+#define GR_GL_GET_PROC(F) gDefaultInterface.f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F);
+#define GR_GL_GET_PROC_SUFFIX(F, S) gDefaultInterface.f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F #S);
 
 void GrGLSetDefaultGLInterface() {
     static GrGLInterface gDefaultInterface;
@@ -117,10 +117,25 @@ void GrGLSetDefaultGLInterface() {
             GR_GL_GET_PROC(StencilFuncSeparate);
             GR_GL_GET_PROC(StencilMaskSeparate);
             GR_GL_GET_PROC(StencilOpSeparate);
-            GR_GL_GET_PROC(Uniform1fv);
+            GR_GL_GET_PROC(Uniform1f);
             GR_GL_GET_PROC(Uniform1i);
+            GR_GL_GET_PROC(Uniform1fv);
+            GR_GL_GET_PROC(Uniform1iv);
+            GR_GL_GET_PROC(Uniform2f);
+            GR_GL_GET_PROC(Uniform2i);
+            GR_GL_GET_PROC(Uniform2fv);
+            GR_GL_GET_PROC(Uniform2iv);
+            GR_GL_GET_PROC(Uniform3f);
+            GR_GL_GET_PROC(Uniform3i);
+            GR_GL_GET_PROC(Uniform3fv);
+            GR_GL_GET_PROC(Uniform3iv);
+            GR_GL_GET_PROC(Uniform4f);
+            GR_GL_GET_PROC(Uniform4i);
             GR_GL_GET_PROC(Uniform4fv);
+            GR_GL_GET_PROC(Uniform4iv);
+            GR_GL_GET_PROC(UniformMatrix2fv);
             GR_GL_GET_PROC(UniformMatrix3fv);
+            GR_GL_GET_PROC(UniformMatrix4fv);
             GR_GL_GET_PROC(UseProgram);
             GR_GL_GET_PROC(VertexAttrib4fv);
             GR_GL_GET_PROC(VertexAttribPointer);
