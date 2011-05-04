@@ -25,7 +25,7 @@ const int HEIGHT = 1000;
 const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
         |ExposureMask|PointerMotionMask|KeyPressMask|KeyReleaseMask;
 
-SkOSWindow::SkOSWindow(void* unused)
+SkOSWindow::SkOSWindow(void* unused) : fGLAttached(false), fVi(0)
 {
     fUnixWindow.fDisplay = XOpenDisplay(NULL);
     Display* dsp = fUnixWindow.fDisplay;
