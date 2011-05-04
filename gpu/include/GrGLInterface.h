@@ -19,6 +19,7 @@
 #define GrGLInterface_DEFINED
 
 #include "GrGLConfig.h"
+#include "GrTypes.h"
 
 #if !defined(GR_GL_FUNCTION_TYPE)
     #define GR_GL_FUNCTION_TYPE
@@ -83,16 +84,6 @@ enum GrGLBinding {
 };
 
 extern "C" {
-/*
- * The following interface exports the OpenGL entry points used by the system.
- * Use of OpenGL calls is disallowed.  All calls should be invoked through
- * the global instance of this struct, defined above.
- *
- * IMPORTANT NOTE: The OpenGL entry points exposed here include both core GL
- * functions, and extensions.  The system assumes that the address of the
- * extension pointer will be valid across contexts.
- */
-struct GrGLInterface {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLActiveTextureProc)(GrGLenum texture);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLAttachShaderProc)(GrGLuint program, GrGLuint shader);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindAttribLocationProc)(GrGLuint program, GrGLuint index, const char* name);
@@ -160,10 +151,25 @@ struct GrGLInterface {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLTexImage2DProc)(GrGLenum target, GrGLint level, GrGLint internalformat, GrGLsizei width, GrGLsizei height, GrGLint border, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLTexParameteriProc)(GrGLenum target, GrGLenum pname, GrGLint param);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLTexSubImage2DProc)(GrGLenum target, GrGLint level, GrGLint xoffset, GrGLint yoffset, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, const GrGLvoid* pixels);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform1fProc)(GrGLint location, GrGLfloat v0);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform1iProc)(GrGLint location, GrGLint v0);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform1fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform1iProc)(GrGLint location, GrGLint x);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform1ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform2fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform2iProc)(GrGLint location, GrGLint v0, GrGLint v1);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform2fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform2ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform3fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform3iProc)(GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform3fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform3ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform4fProc)(GrGLint location, GrGLfloat v0, GrGLfloat v1, GrGLfloat v2, GrGLfloat v3);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform4iProc)(GrGLint location, GrGLint v0, GrGLint v1, GrGLint v2, GrGLint v3);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform4fvProc)(GrGLint location, GrGLsizei count, const GrGLfloat* v);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniform4ivProc)(GrGLint location, GrGLsizei count, const GrGLint* v);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniformMatrix2fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniformMatrix3fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUniformMatrix4fvProc)(GrGLint location, GrGLsizei count, GrGLboolean transpose, const GrGLfloat* value);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLUseProgramProc)(GrGLuint program);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLVertexAttrib4fvProc)(GrGLuint indx, const GrGLfloat* values);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLVertexAttribPointerProc)(GrGLuint indx, GrGLint size, GrGLenum type, GrGLboolean normalized, GrGLsizei stride, const GrGLvoid* ptr);
@@ -193,6 +199,19 @@ struct GrGLInterface {
     // Buffer mapping (extension in ES).
     typedef GrGLvoid* (GR_GL_FUNCTION_TYPE *GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
     typedef GrGLboolean (GR_GL_FUNCTION_TYPE *GrGLUnmapBufferProc)(GrGLenum target);
+}  // extern "C"
+
+/*
+ * The following interface exports the OpenGL entry points used by the system.
+ * Use of OpenGL calls is disallowed.  All calls should be invoked through
+ * the global instance of this struct, defined above.
+ *
+ * IMPORTANT NOTE: The OpenGL entry points exposed here include both core GL
+ * functions, and extensions.  The system assumes that the address of the
+ * extension pointer will be valid across contexts.
+ */
+struct GrGLInterface {
+    bool validate(GrEngine engine) const;
 
     // Indicator variable specifying the type of GL implementation
     // exported:  GLES{1|2} or Desktop.
@@ -265,10 +284,25 @@ struct GrGLInterface {
     GrGLTexImage2DProc fTexImage2D;
     GrGLTexParameteriProc fTexParameteri;
     GrGLTexSubImage2DProc fTexSubImage2D;
-    GrGLUniform1fvProc fUniform1fv;
+    GrGLUniform1fProc fUniform1f;
     GrGLUniform1iProc fUniform1i;
+    GrGLUniform1fvProc fUniform1fv;
+    GrGLUniform1ivProc fUniform1iv;
+    GrGLUniform2fProc fUniform2f;
+    GrGLUniform2iProc fUniform2i;
+    GrGLUniform2fvProc  fUniform2fv;
+    GrGLUniform2ivProc fUniform2iv;
+    GrGLUniform3fProc fUniform3f;
+    GrGLUniform3iProc fUniform3i;
+    GrGLUniform3fvProc fUniform3fv;
+    GrGLUniform3ivProc fUniform3iv;
+    GrGLUniform4fProc fUniform4f;
+    GrGLUniform4iProc fUniform4i;
     GrGLUniform4fvProc fUniform4fv;
+    GrGLUniform4ivProc fUniform4iv;
+    GrGLUniformMatrix2fvProc fUniformMatrix2fv;
     GrGLUniformMatrix3fvProc fUniformMatrix3fv;
+    GrGLUniformMatrix4fvProc fUniformMatrix4fv;
     GrGLUseProgramProc fUseProgram;
     GrGLVertexAttrib4fvProc fVertexAttrib4fv;
     GrGLVertexAttribPointerProc fVertexAttribPointer;
@@ -303,8 +337,10 @@ struct GrGLInterface {
     // make this the last entry in the static initializer. It can help to guard
     // against failing to initialize newly-added members of this struct.
     enum { kStaticInitEndGuard } fStaticInitEndGuard;
-};
 
-}  // extern "C"
+private:
+    bool validateShaderFunctions() const;
+    bool validateFixedFunctions() const;
+};
 
 #endif
