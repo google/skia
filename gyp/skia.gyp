@@ -1004,7 +1004,6 @@
         '../gpu/src/GrPathRenderer.cpp',
         '../gpu/src/GrPathUtils.cpp',
         '../gpu/src/GrPathUtils.h',
-        '../gpu/src/GrPrintf_printf.cpp',
         '../gpu/src/GrRectanizer.cpp',
         '../gpu/src/GrRedBlackTree.h',
         '../gpu/src/GrResource.cpp',
