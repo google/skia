@@ -95,6 +95,7 @@ SOURCE := \
     SkStrokerPriv.cpp \
     SkTSearch.cpp \
     SkTypeface.cpp \
+    SkTypefaceCache.cpp \
     SkUnPreMultiply.cpp \
     SkUtils.cpp \
     SkWriter32.cpp \
