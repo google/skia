@@ -10,7 +10,8 @@ C_INCLUDES := -I../include/core \
               -I../include/gpu \
               -I../gpu/include \
               -I../include/utils/unix \
-              -I../samplecode
+              -I../samplecode \
+              -I../src/core
 
 VPATH = libs:../src/ports:../samplecode:../src/core:../src/utils/unix
 
