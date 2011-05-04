@@ -58,6 +58,7 @@ enum DrawOps {
 
     // these edit paints
     kPaintOp_DrawOp,
+    kDefineTypeface_DrawOp,
 
     // these are signals to playback, not drawing verbs
     kDone_DrawOp,
@@ -144,7 +145,8 @@ enum PaintOps {
     kTextSize_PaintOp,  // arg scalar - text
     kTextScaleX_PaintOp,// arg scalar - text
     kTextSkewX_PaintOp, // arg scalar - text
-    
+    kTypeface_PaintOp,  // arg inline (index) - text
+
     kPathEffect_PaintOp,    // arg inline
     kShader_PaintOp,
     kXfermode_PaintOp,

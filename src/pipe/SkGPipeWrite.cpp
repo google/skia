@@ -19,6 +19,8 @@
 #include "SkPaint.h"
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
+#include "SkStream.h"
+#include "SkTypeface.h"
 #include "SkWriter32.h"
 
 static size_t estimateFlattenSize(const SkPath& path) {
@@ -47,6 +49,18 @@ static void writeMatrix(SkWriter32* writer, const SkMatrix& matrix) {
     size_t size = matrix.flatten(NULL);
     SkASSERT(SkAlign4(size) == size);
     matrix.flatten(writer->reserve(size));
+}
+
+static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
+    SkASSERT(typeface);
+    SkDynamicMemoryWStream stream;
+    typeface->serialize(&stream);
+    size_t size = stream.getOffset();
+    if (writer) {
+        writer->write32(size);
+        writer->write(stream.getStream(), size);
+    }
+    return 4 + size;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -114,6 +128,10 @@ private:
     size_t      fBlockSize; // amount allocated for writer
     size_t      fBytesNotified;
     bool        fDone;
+
+    SkRefCntSet fTypefaceSet;
+
+    uint32_t getTypefaceID(SkTypeface*);
 
     inline void writeOp(DrawOps op, unsigned flags, unsigned data) {
         fWriter.write32(DrawOp_packOpFlagData(op, flags, data));
@@ -184,6 +202,22 @@ bool SkGPipeCanvas::needOpBytes(size_t needed) {
         fBytesNotified = 0;
     }
     return true;
+}
+
+uint32_t SkGPipeCanvas::getTypefaceID(SkTypeface* face) {
+    uint32_t id = 0; // 0 means default/null typeface
+    if (face) {
+        id = fTypefaceSet.find(face);
+        if (0 == id) {
+            id = fTypefaceSet.add(face);
+            size_t size = writeTypeface(NULL, face);
+            if (this->needOpBytes(size)) {
+                this->writeOp(kDefineTypeface_DrawOp);
+                writeTypeface(&fWriter, face);
+            }
+        }
+    }
+    return id;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -567,7 +601,7 @@ template <typename T> uint32_t castToU32(T value) {
 }
 
 unsigned SkGPipeCanvas::writePaint(const SkPaint& paint) {
-    const SkPaint& base = *fPaints[0];
+    SkPaint& base = *fPaints[0];
     uint32_t storage[32];
     uint32_t* ptr = storage;
     uint32_t* last = NULL;
@@ -575,66 +609,84 @@ unsigned SkGPipeCanvas::writePaint(const SkPaint& paint) {
     if (base.getFlags() != paint.getFlags()) {
         last = ptr;
         *ptr++ = PaintOp_packOpData(kFlags_PaintOp, paint.getFlags());
+        base.setFlags(paint.getFlags());
     }
     if (base.getColor() != paint.getColor()) {
         last = ptr;
         *ptr++ = PaintOp_packOp(kColor_PaintOp);
         *ptr++ = paint.getColor();
+        base.setColor(paint.getColor());
     }
     if (base.getStyle() != paint.getStyle()) {
         last = ptr;
         *ptr++ = PaintOp_packOpData(kStyle_PaintOp, paint.getStyle());
+        base.setStyle(paint.getStyle());
     }
     if (base.getStrokeJoin() != paint.getStrokeJoin()) {
         last = ptr;
         *ptr++ = PaintOp_packOpData(kJoin_PaintOp, paint.getStrokeJoin());
+        base.setStrokeJoin(paint.getStrokeJoin());
     }
     if (base.getStrokeCap() != paint.getStrokeCap()) {
         last = ptr;
         *ptr++ = PaintOp_packOpData(kCap_PaintOp, paint.getStrokeCap());
+        base.setStrokeCap(paint.getStrokeCap());
     }
     if (base.getStrokeWidth() != paint.getStrokeWidth()) {
         last = ptr;
         *ptr++ = PaintOp_packOp(kWidth_PaintOp);
         *ptr++ = castToU32(paint.getStrokeWidth());
+        base.setStrokeWidth(paint.getStrokeWidth());
     }
     if (base.getStrokeMiter() != paint.getStrokeMiter()) {
         last = ptr;
         *ptr++ = PaintOp_packOp(kMiter_PaintOp);
         *ptr++ = castToU32(paint.getStrokeMiter());
+        base.setStrokeMiter(paint.getStrokeMiter());
     }
     if (base.getTextEncoding() != paint.getTextEncoding()) {
         last = ptr;
         *ptr++ = PaintOp_packOpData(kEncoding_PaintOp, paint.getTextEncoding());
+        base.setTextEncoding(paint.getTextEncoding());
     }
     if (base.getHinting() != paint.getHinting()) {
         last = ptr;
         *ptr++ = PaintOp_packOpData(kHinting_PaintOp, paint.getHinting());
+        base.setHinting(paint.getHinting());
     }
     if (base.getTextAlign() != paint.getTextAlign()) {
         last = ptr;
         *ptr++ = PaintOp_packOpData(kAlign_PaintOp, paint.getTextAlign());
+        base.setTextAlign(paint.getTextAlign());
     }
     if (base.getTextSize() != paint.getTextSize()) {
         last = ptr;
         *ptr++ = PaintOp_packOp(kTextSize_PaintOp);
         *ptr++ = castToU32(paint.getTextSize());
+        base.setTextSize(paint.getTextSize());
     }
     if (base.getTextScaleX() != paint.getTextScaleX()) {
         last = ptr;
         *ptr++ = PaintOp_packOp(kTextScaleX_PaintOp);
         *ptr++ = castToU32(paint.getTextScaleX());
+        base.setTextScaleX(paint.getTextScaleX());
     }
     if (base.getTextSkewX() != paint.getTextSkewX()) {
         last = ptr;
         *ptr++ = PaintOp_packOp(kTextSkewX_PaintOp);
         *ptr++ = castToU32(paint.getTextSkewX());
+        base.setTextSkewX(paint.getTextSkewX());
+    }
+
+    if (!SkTypeface::Equal(base.getTypeface(), paint.getTypeface())) {
+        uint32_t id = this->getTypefaceID(paint.getTypeface());
+        last = ptr;
+        *ptr++ = PaintOp_packOpData(kTypeface_PaintOp, id);
+        base.setTypeface(paint.getTypeface());
     }
 
     size_t size = (char*)ptr - (char*)storage;
     if (size && this->needOpBytes(size)) {
-        *fPaints[0] = paint;
-
         this->writeOp(kPaintOp_DrawOp, 0, 0);
         size_t size = (char*)ptr - (char*)storage;
         *last |= kLastOp_PaintOpFlag << PAINTOPS_DATA_BITS;
