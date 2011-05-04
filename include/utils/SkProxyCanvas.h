@@ -21,8 +21,6 @@ public:
     
     // overrides from SkCanvas
 
-    virtual bool getViewport(SkIPoint* size) const;
-    
     virtual int save(SaveFlags flags = kMatrixClip_SaveFlag);
     virtual int saveLayer(const SkRect* bounds, const SkPaint* paint,
                           SaveFlags flags = kARGB_ClipLayer_SaveFlag);

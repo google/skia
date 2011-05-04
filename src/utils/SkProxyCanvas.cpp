@@ -14,10 +14,6 @@ void SkProxyCanvas::setProxy(SkCanvas* proxy) {
 
 ///////////////////////////////// Overrides ///////////
 
-bool SkProxyCanvas::getViewport(SkIPoint* size) const {
-    return fProxy->getViewport(size);
-}
-
 int SkProxyCanvas::save(SaveFlags flags) {
     return fProxy->save(flags);
 }
