@@ -282,7 +282,7 @@ void SkNinePatch::DrawNine(SkCanvas* canvas, const SkRect& bounds,
      when not in GL, the vertices impl is slower (more math) than calling
      the viaRects code.
      */
-    if (canvas->getViewport(NULL)) {    // returns true for OpenGL
+    if (false /* is our canvas backed by a gpu?*/) {
         int32_t xDivs[2];
         int32_t yDivs[2];
         

@@ -594,23 +594,6 @@ void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool SkCanvas::getViewport(SkIPoint* size) const {
-    if ((getDevice()->getDeviceCapabilities() & SkDevice::kGL_Capability) == 0)
-        return false;
-    if (size)
-        size->set(getDevice()->width(), getDevice()->height());
-    return true;
-}
-
-bool SkCanvas::setViewport(int width, int height) {
-    if ((getDevice()->getDeviceCapabilities() & SkDevice::kGL_Capability) == 0)
-        return false;
-
-    this->setDevice(this->createDevice(SkBitmap::kARGB_8888_Config, width, height,
-                                       false, false))->unref();
-    return true;
-}
-
 void SkCanvas::updateDeviceCMCache() {
     if (fDeviceCMDirty) {
         const SkMatrix& totalMatrix = this->getTotalMatrix();
