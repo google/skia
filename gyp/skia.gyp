@@ -30,7 +30,12 @@
           'SK_BUILD_FOR_WIN32',
           'SK_IGNORE_STDINT_DOT_H',
         ],
-      },],
+      }],
+      [ 'OS == "linux"', {
+        'defines': [
+          'SK_SAMPLES_FOR_X',
+        ],
+      }],
     ],
     'direct_dependent_settings': {
       'conditions': [
@@ -43,7 +48,7 @@
           'defines': [
             'SK_BUILD_FOR_WIN32',
           ],
-        },],
+        }],
       ],
     },
   },
@@ -344,12 +349,12 @@
           'sources!': [
             '../src/ports/SkDebug_stdio.cpp',
           ],
-        },],
+        }],
         [ 'OS != "win"', {
           'sources!': [
             '../src/ports/SkDebug_win.cpp',
           ],
-        },],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -532,7 +537,7 @@
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
-        },],
+        }],
         [ 'OS == "mac"', {
           'sources!': [
             '../include/images/SkJpegUtility.h',
@@ -544,7 +549,7 @@
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
-        },],
+        }],
         [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
           'sources!': [
             '../include/images/SkJpegUtility.h',
@@ -601,7 +606,7 @@
             '../src/xml/SkJS.cpp',
             '../src/xml/SkJSDisplayable.cpp',
           ],
-        },],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -710,7 +715,7 @@
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../src/utils/mac/SkEGLContext_mac.cpp',
           ],
-        },],
+        }],
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -793,7 +798,7 @@
             '../src/utils/win/SkOSWindow_Win.cpp',
             '../src/utils/win/skia_win.cpp',
           ],
-        },],
+        }],
         [ 'OS == "mac"', {
           'sources': [
             '../include/utils/SkCGUtils.h',
@@ -809,7 +814,7 @@
               '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
             ],
           },
-        },],
+        }],
         [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
           'include_dirs' : [
             '../include/utils/unix',
@@ -866,7 +871,7 @@
           'defines': [
               'GR_WIN32_BUILD=1',
           ],
-          },],
+          }],
       ],
       'direct_dependent_settings': {
         'conditions': [
@@ -884,7 +889,7 @@
             'defines': [
               'GR_WIN32_BUILD=1',
             ],
-          },],
+          }],
         ],
         'include_dirs': [
           '../include/gpu',
@@ -1057,7 +1062,7 @@
           'sources!': [
             '../gpu/src/GrGLDefaultInterface_none.cpp',
           ],
-        },],
+        }],
         [ 'OS != "win"', {
           'sources!': [
             '../gpu/src/win/GrGLDefaultInterface_win.cpp',
@@ -1091,7 +1096,7 @@
               'GR_WIN32_BUILD=1',
               'GR_GL_FUNCTION_TYPE=__stdcall',
             ],
-          },],
+          }],
         ],
         'include_dirs': [
           '../gpu/include',
@@ -1516,12 +1521,12 @@
             '../samplecode/SampleEncode.cpp',
             '../samplecode/SamplePageFlip.cpp',
           ],
-        },],
+        }],
         [ 'OS == "mac"', {
           'sources!': [
             '../samplecode/SampleDecode.cpp',
           ],
-        },],
+        }],
 
       ],
       'msvs_settings': {
