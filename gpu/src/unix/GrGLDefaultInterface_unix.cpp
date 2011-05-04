@@ -136,7 +136,8 @@ void GrGLSetDefaultGLInterface() {
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
         // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-        if (major >= 3 || has_gl_extension("GL_ARB_framebuffer_object")) {
+        if (major >= 3 || has_gl_extension_from_string(
+                "GL_ARB_framebuffer_object", extString)) {
             GR_GL_GET_PROC(GenFramebuffers);
             GR_GL_GET_PROC(BindFramebuffer);
             GR_GL_GET_PROC(FramebufferTexture2D);
