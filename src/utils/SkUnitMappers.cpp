@@ -1,23 +1,19 @@
 #include "SkUnitMappers.h"
 
-SkDiscreteMapper::SkDiscreteMapper(int segments)
-{
-    if (segments < 2)
-    {
+SkDiscreteMapper::SkDiscreteMapper(int segments) {
+    if (segments < 2) {
         fSegments = 0;
         fScale = 0;
-    }
-    else
-    {
-        if (segments > 0xFFFF)
+    } else {
+        if (segments > 0xFFFF) {
             segments = 0xFFFF;
+        }
         fSegments = segments;
         fScale = SK_Fract1 / (segments - 1);
     }
 }
 
-uint16_t SkDiscreteMapper::mapUnit16(uint16_t input)
-{
+uint16_t SkDiscreteMapper::mapUnit16(uint16_t input) {
     SkFixed x = input * fSegments >> 16;
     x = x * fScale >> 14;
     x += x << 15 >> 31; // map 0x10000 to 0xFFFF
@@ -25,24 +21,20 @@ uint16_t SkDiscreteMapper::mapUnit16(uint16_t input)
 }
 
 SkDiscreteMapper::SkDiscreteMapper(SkFlattenableReadBuffer& rb)
-    : SkUnitMapper(rb)
-{
+        : SkUnitMapper(rb) {
     fSegments = rb.readU32();
     fScale = rb.readU32();
 }
 
-SkFlattenable::Factory SkDiscreteMapper::getFactory()
-{
+SkFlattenable::Factory SkDiscreteMapper::getFactory() {
     return Create;
 }
 
-SkFlattenable* SkDiscreteMapper::Create(SkFlattenableReadBuffer& rb)
-{
+SkFlattenable* SkDiscreteMapper::Create(SkFlattenableReadBuffer& rb) {
     return SkNEW_ARGS(SkDiscreteMapper, (rb));
 }
 
-void SkDiscreteMapper::flatten(SkFlattenableWriteBuffer& wb)
-{
+void SkDiscreteMapper::flatten(SkFlattenableWriteBuffer& wb) {
     this->INHERITED::flatten(wb);
 
     wb.write32(fSegments);
@@ -64,17 +56,13 @@ uint16_t SkCosineMapper::mapUnit16(uint16_t input)
 }
 
 SkCosineMapper::SkCosineMapper(SkFlattenableReadBuffer& rb)
-    : SkUnitMapper(rb)
-{
-}
+    : SkUnitMapper(rb) {}
 
-SkFlattenable::Factory SkCosineMapper::getFactory()
-{
+SkFlattenable::Factory SkCosineMapper::getFactory() {
     return Create;
 }
 
-SkFlattenable* SkCosineMapper::Create(SkFlattenableReadBuffer& rb)
-{
+SkFlattenable* SkCosineMapper::Create(SkFlattenableReadBuffer& rb) {
     return SkNEW_ARGS(SkCosineMapper, (rb));
 }
 
