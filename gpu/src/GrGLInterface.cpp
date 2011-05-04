@@ -150,6 +150,7 @@ bool GrGLInterface::validateFixedFunctions() const {
         NULL == fPointSize ||
         NULL == fShadeModel ||
         NULL == fTexCoordPointer ||
+        NULL == fTexEnvi ||
         NULL == fVertexPointer) {
         return false;
     }
@@ -200,7 +201,6 @@ bool GrGLInterface::validate(GrEngine engine) const {
         NULL == fStencilFunc ||
         NULL == fStencilMask ||
         NULL == fStencilOp ||
-        NULL == fTexEnvi ||
         NULL == fTexImage2D ||
         NULL == fTexParameteri ||
         NULL == fTexSubImage2D ||
