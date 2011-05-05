@@ -42,6 +42,8 @@ const char* GrShaderPrecision() {
 
 }  // namespace
 
+#define PRINT_SHADERS 0
+
 #if GR_GL_ATTRIBUTE_MATRICES
     #define VIEW_MATRIX_NAME "aViewM"
 #else
@@ -90,6 +92,11 @@ static void tex_matrix_name(int stage, GrStringBuilder* s) {
 #else
     *s = "uTexM";
 #endif
+    s->appendInt(stage);
+}
+
+static void normalized_texel_size_name(int stage, GrStringBuilder* s) {
+    *s = "uTexelSize";
     s->appendInt(stage);
 }
 
@@ -172,8 +179,7 @@ void GrGLProgram::doGLPost() const {
     }
 }
 
-void GrGLProgram::genProgram(GrGLProgram::CachedData* programData, 
-                             const GrDrawTarget* target) const {
+void GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
 
     ShaderCodeSegments segments;
     const uint32_t& layout = fProgramDesc.fVertexLayout;
@@ -219,7 +225,7 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
     // add texture coordinates that are used to the list of vertex attr decls
     GrTokenString texCoordAttrs[GrDrawTarget::kMaxTexCoords];
     for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
-        if (target->VertexUsesTexCoordIdx(t, layout)) {
+        if (GrDrawTarget::VertexUsesTexCoordIdx(t, layout)) {
             tex_attr_name(t, texCoordAttrs + t);
 
             segments.fVSAttrs += "attribute vec2 ";
@@ -315,11 +321,11 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
     ++stringCnt;
 
 #if PRINT_SHADERS
-    GrPrintf("%s%s%s%s\n",
-             segments.fVSUnis.cstr(),
-             segments.fVSAttrs.cstr(),
-             segments.fVaryings.cstr(),
-             segments.fVSCode.cstr());
+    GrPrintf(segments.fVSUnis.cstr());
+    GrPrintf(segments.fVSAttrs.cstr());
+    GrPrintf(segments.fVaryings.cstr());
+    GrPrintf(segments.fVSCode.cstr());
+    GrPrintf("\n");
 #endif
     programData->fVShaderID = CompileShader(GR_GL_VERTEX_SHADER,
                                         stringCnt,
@@ -350,11 +356,11 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
     ++stringCnt;
 
 #if PRINT_SHADERS
-    GrPrintf("%s%s%s%s\n",
-             GR_SHADER_PRECISION,
-             segments.fFSUnis.cstr(),
-             segments.fVaryings.cstr(),
-             segments.fFSCode.cstr());
+    GrPrintf(GrShaderPrecision());
+    GrPrintf(segments.fFSUnis.cstr());
+    GrPrintf(segments.fVaryings.cstr());
+    GrPrintf(segments.fFSCode.cstr());
+    GrPrintf("\n");
 #endif
     programData->fFShaderID = CompileShader(GR_GL_FRAGMENT_SHADER,
                                             stringCnt,
@@ -464,6 +470,16 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
                 locations.fSamplerUni = -1;
             }
 
+            if (locations.fNormalizedTexelSizeUni) {
+                GrTokenString texelSizeName;
+                normalized_texel_size_name(s, &texelSizeName);
+                locations.fNormalizedTexelSizeUni = 
+                   GR_GL(GetUniformLocation(progID, texelSizeName.cstr()));
+                GrAssert(-1 != locations.fNormalizedTexelSizeUni);
+            } else {
+                locations.fNormalizedTexelSizeUni = -1;
+            }
+
             if (locations.fRadial2Uni) {
                 GrTokenString radial2ParamName;
                 radial2_param_name(s, &radial2ParamName);
@@ -478,6 +494,7 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
             locations.fSamplerUni = -1;
             locations.fRadial2Uni = -1;
             locations.fTextureMatrixUni = -1;
+            locations.fNormalizedTexelSizeUni = -1;
         }
     }
     GR_GL(UseProgram(progID));
@@ -490,8 +507,11 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData,
         programData->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
         programData->fRadial2CenterX1[s] = GR_ScalarMax;
         programData->fRadial2Radius0[s] = -GR_ScalarMax;
+        programData->fTextureWidth[s] = -1;
+        programData->fTextureHeight[s] = -1;
     }
     programData->fViewMatrix = GrMatrix::InvalidMatrix();
+    programData->fColor = GrColor_ILLEGAL;
 }
 
 GrGLuint GrGLProgram::CompileShader(GrGLenum type,
@@ -535,12 +555,12 @@ GrGLuint GrGLProgram::CompileShader(GrGLenum type,
 //============================================================================
 
 void GrGLProgram::genStageCode(int stageNum,
-                                  const GrGLProgram::ProgramDesc::StageDesc& desc,
-                                  const char* fsInColor, // NULL means no incoming color
-                                  const char* fsOutColor,
-                                  const char* vsInCoord,
-                                  ShaderCodeSegments* segments,
-                                  StageUniLocations* locations) const {
+                               const GrGLProgram::ProgramDesc::StageDesc& desc,
+                               const char* fsInColor, // NULL means no incoming color
+                               const char* fsOutColor,
+                               const char* vsInCoord,
+                               ShaderCodeSegments* segments,
+                               StageUniLocations* locations) const {
 
     GrAssert(stageNum >= 0 && stageNum <= 9);
 
@@ -584,6 +604,14 @@ void GrGLProgram::genStageCode(int stageNum,
     segments->fFSUnis += samplerName;
     segments->fFSUnis += ";\n";
     locations->fSamplerUni = 1;
+
+    GrTokenString texelSizeName;
+    if (ProgramDesc::StageDesc::k2x2_FetchMode == desc.fFetchMode) {
+        normalized_texel_size_name(stageNum, &texelSizeName);
+        segments->fFSUnis += "uniform vec2 ";
+        segments->fFSUnis += texelSizeName;
+        segments->fFSUnis += ";\n";
+    }
 
     segments->fVaryings += "varying ";
     segments->fVaryings += float_vector_type(varyingDims);
@@ -661,14 +689,15 @@ void GrGLProgram::genStageCode(int stageNum,
         GrAssert(varyingDims == coordDims);
         fsCoordName = varyingName;
     } else {
-        // if we have to do some non-matrix op on the varyings to get
+        // if we have to do some special op on the varyings to get
         // our final tex coords then when in perspective we have to
         // do an explicit divide
-        if  (ProgramDesc::StageDesc::kIdentity_CoordMapping == desc.fCoordMapping) {
+        if  (ProgramDesc::StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
+             ProgramDesc::StageDesc::kSingle_FetchMode == desc.fFetchMode) {
             texFunc += "Proj";
             fsCoordName = varyingName;
         } else {
-            fsCoordName = "tCoord";
+            fsCoordName = "inCoord";
             fsCoordName.appendInt(stageNum);
 
             segments->fFSCode += "\t";
@@ -686,6 +715,7 @@ void GrGLProgram::genStageCode(int stageNum,
     }
 
     GrSStringBuilder<96> sampleCoords;
+    bool complexCoord = false;
     switch (desc.fCoordMapping) {
     case ProgramDesc::StageDesc::kIdentity_CoordMapping:
         sampleCoords = fsCoordName;
@@ -696,11 +726,13 @@ void GrGLProgram::genStageCode(int stageNum,
         sampleCoords += ".y, -";
         sampleCoords += fsCoordName;
         sampleCoords += ".x)*0.1591549430918 + 0.5, 0.5)";
+        complexCoord = true;
         break;
     case ProgramDesc::StageDesc::kRadialGradient_CoordMapping:
         sampleCoords = "vec2(length(";
         sampleCoords += fsCoordName;
         sampleCoords += ".xy), 0.5)";
+        complexCoord = true;
         break;
     case ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping: {
         GrTokenString cName    = "c";
@@ -769,26 +801,85 @@ void GrGLProgram::genStageCode(int stageNum,
         sampleCoords += ") * ";
         sampleCoords += radial2ParamsName;
         sampleCoords += "[1], 0.5)\n";
+        complexCoord = true;
         break;}
     };
 
-    segments->fFSCode += "\t";
-    segments->fFSCode += fsOutColor;
-    segments->fFSCode += " = ";
-    if (NULL != fsInColor) {
-        segments->fFSCode += fsInColor;
-        segments->fFSCode += " * ";
+    if (ProgramDesc::StageDesc::k2x2_FetchMode == desc.fFetchMode) {
+        locations->fNormalizedTexelSizeUni = 1;
+        if (complexCoord) {
+            GrTokenString coordVar("tCoord");
+            coordVar.appendInt(stageNum);
+            segments->fFSCode += "\t";
+            segments->fFSCode += float_vector_type(coordDims);
+            segments->fFSCode += " ";
+            segments->fFSCode += coordVar;
+            segments->fFSCode += " = ";
+            segments->fFSCode += sampleCoords;
+            segments->fFSCode += ";\n";
+            sampleCoords = coordVar;
+        }
+        static const char sign[] = {'-','+'};
+        GrTokenString stageAccumVar("stage2x2Accum");
+        stageAccumVar.appendInt(stageNum);
+        segments->fFSCode += "\tvec4 ";
+        segments->fFSCode += stageAccumVar;
+        segments->fFSCode += " = ";
+        GrAssert(2 == coordDims);
+        for (int y = 0; y < 2; ++y) {
+            for (int x = 0; x < 2; ++x) {
+                segments->fFSCode += texFunc;
+                segments->fFSCode += "(";
+                segments->fFSCode += samplerName;
+                segments->fFSCode += ", ";
+                segments->fFSCode += sampleCoords;
+                segments->fFSCode += " + vec2(";
+                segments->fFSCode += sign[x];
+                segments->fFSCode += texelSizeName;
+                segments->fFSCode += ".x, ";
+                segments->fFSCode += sign[y];
+                segments->fFSCode += texelSizeName;
+                segments->fFSCode += ".y))";
+                if (desc.fModulation == ProgramDesc::StageDesc::kAlpha_Modulation) {
+                    segments->fFSCode += ".aaaa";
+                }
+                segments->fFSCode += ";\n";
+                if (1 != x || 1 !=y ) {
+                    segments->fFSCode += "\t";
+                    segments->fFSCode += stageAccumVar;
+                    segments->fFSCode += " += ";
+                }
+            }
+        }
+        segments->fFSCode += "\t";
+        segments->fFSCode += fsOutColor;
+        segments->fFSCode += " = ";
+        if (NULL != fsInColor) {
+            segments->fFSCode += fsInColor;
+            segments->fFSCode += " * ";
+        }
+        segments->fFSCode += stageAccumVar;
+        segments->fFSCode += " / 4;\n";
+    } else {
+        segments->fFSCode += "\t";
+        segments->fFSCode += fsOutColor;
+        segments->fFSCode += " = ";
+        if (NULL != fsInColor) {
+            segments->fFSCode += fsInColor;
+            segments->fFSCode += " * ";
+        }
+
+        segments->fFSCode += texFunc;
+        segments->fFSCode += "(";
+        segments->fFSCode += samplerName;
+        segments->fFSCode += ", ";
+        segments->fFSCode += sampleCoords;
+        segments->fFSCode += ")";
+        if (desc.fModulation == ProgramDesc::StageDesc::kAlpha_Modulation) {
+            segments->fFSCode += ".aaaa";
+        }
+        segments->fFSCode += ";\n";
     }
-    segments->fFSCode += texFunc;
-    segments->fFSCode += "(";
-    segments->fFSCode += samplerName;
-    segments->fFSCode += ", ";
-    segments->fFSCode += sampleCoords;
-    segments->fFSCode += ")";
-    if (desc.fModulation == ProgramDesc::StageDesc::kAlpha_Modulation) {
-        segments->fFSCode += ".aaaa";
-    }
-    segments->fFSCode += ";\n";
 
     if(fStageEffects[stageNum]) {
         fStageEffects[stageNum]->genShaderCode(segments);

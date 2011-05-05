@@ -23,6 +23,24 @@
 
 class GrSamplerState {
 public:
+    enum Filter {
+        /**
+         * Read the closest src texel to the sample position
+         */
+        kNearest_Filter,
+        /**
+         * Blend between closest 4 src texels to sample position (tent filter)
+         */
+        kBilinear_Filter,
+        /**
+         * Average of 4 bilinear filterings spaced +/- 1 texel from sample
+         * position in x and y. Intended for averaging 16 texels in a downsample
+         * pass. (rasterizing such that texture samples fall exactly halfway
+         * between texels in x and y spaced 4 texels apart.)
+         */
+        k4x4Downsample_Filter,
+    };
+
     /**
      * The intepretation of the texture matrix depends on the sample mode. The
      * texture matrix is applied both when the texture coordinates are explicit
@@ -70,7 +88,7 @@ public:
         this->setClampNoFilter();
     }
 
-    explicit GrSamplerState(bool filter) {
+    explicit GrSamplerState(Filter filter) {
         fWrapX = kClamp_WrapMode;
         fWrapY = kClamp_WrapMode;
         fSampleMode = kNormal_SampleMode;
@@ -78,7 +96,7 @@ public:
         fMatrix.setIdentity();
     }
 
-    GrSamplerState(WrapMode wx, WrapMode wy, bool filter) {
+    GrSamplerState(WrapMode wx, WrapMode wy, Filter filter) {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = kNormal_SampleMode;
@@ -86,7 +104,8 @@ public:
         fMatrix.setIdentity();
     }
 
-    GrSamplerState(WrapMode wx, WrapMode wy, const GrMatrix& matrix, bool filter) {
+    GrSamplerState(WrapMode wx, WrapMode wy, 
+                   const GrMatrix& matrix, Filter filter) {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = kNormal_SampleMode;
@@ -94,7 +113,8 @@ public:
         fMatrix = matrix;
     }
 
-    GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, const GrMatrix& matrix, bool filter) {
+    GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, 
+                   const GrMatrix& matrix, Filter filter) {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = sample;
@@ -106,7 +126,7 @@ public:
     WrapMode getWrapY() const { return fWrapY; }
     SampleMode getSampleMode() const { return fSampleMode; }
     const GrMatrix& getMatrix() const { return fMatrix; }
-    bool isFilter() const { return fFilter; }
+    Filter getFilter() const { return fFilter; }
 
     bool isGradient() const {
         return  kRadial_SampleMode == fSampleMode ||
@@ -138,16 +158,16 @@ public:
     void preConcatMatrix(const GrMatrix& matrix) { fMatrix.preConcat(matrix); }
 
     /**
-     * Enables or disables filtering.
-     * @param filter    indicates whether filtering is applied.
+     * Sets filtering type.
+     * @param filter    type of filtering to apply
      */
-    void setFilter(bool filter) { fFilter = filter; }
+    void setFilter(Filter filter) { fFilter = filter; }
 
     void setClampNoFilter() {
         fWrapX = kClamp_WrapMode;
         fWrapY = kClamp_WrapMode;
         fSampleMode = kNormal_SampleMode;
-        fFilter = false;
+        fFilter = kNearest_Filter;
         fMatrix.setIdentity();
     }
 
@@ -176,7 +196,7 @@ private:
     WrapMode    fWrapX;
     WrapMode    fWrapY;
     SampleMode  fSampleMode;
-    bool        fFilter;
+    Filter      fFilter;
     GrMatrix    fMatrix;
 
     // these are undefined unless fSampleMode == kRadial2_SampleMode

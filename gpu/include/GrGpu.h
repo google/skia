@@ -199,6 +199,11 @@ public:
     bool supportsAALines() const { return fAALineSupport; }
 
     /**
+     * Does the subclass support GrSamplerState::k4x4Downsample_Filter
+     */
+    bool supports4x4DownsampleFilter() const { return f4X4DownsampleFilterSupport; }
+
+    /**
      * Gets the minimum width of a render target. If a texture/rt is created
      * with a width less than this size the GrGpu object will clamp it to this
      * value.
@@ -379,6 +384,7 @@ protected:
     bool fStencilWrapOpsSupport;
     bool fAALineSupport;
     bool fFSAASupport;
+    bool f4X4DownsampleFilterSupport; // supports GrSamplerState::k4x4Downsample_Filter
 
     // set by subclass to true if index and vertex buffers can be locked, false
     // otherwise.

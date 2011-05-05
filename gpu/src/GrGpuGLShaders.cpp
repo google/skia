@@ -22,8 +22,8 @@
 #include "GrMemory.h"
 #include "GrNoncopyable.h"
 #include "GrStringBuilder.h"
+#include "GrRandom.h"
 
-#define PRINT_SHADERS           0
 #define SKIP_CACHE_CHECK    true
 #define GR_UINT32_MAX   static_cast<uint32_t>(-1)
 
@@ -52,7 +52,7 @@ private:
         void copyAndTakeOwnership(Entry& entry) {
             fProgramData.copyAndTakeOwnership(entry.fProgramData);
             fKey.copyAndTakeOwnership(entry.fKey); // ownership transfer
-            fLRUStamp = entry.fLRUStamp;        
+            fLRUStamp = entry.fLRUStamp;
         }
 
     public:
@@ -96,8 +96,7 @@ public:
         }
     }
 
-    GrGLProgram::CachedData* getProgramData(const GrGLProgram& desc, 
-                                            const GrDrawTarget* target) {
+    GrGLProgram::CachedData* getProgramData(const GrGLProgram& desc) {
         ProgramHashKey key;
         while (key.doPass()) {
             desc.buildKey(key);
@@ -119,7 +118,7 @@ public:
                 GrGpuGLShaders::DeleteProgram(&entry->fProgramData);
             }
             entry->fKey.copyAndTakeOwnership(key);
-            desc.genProgram(&entry->fProgramData, target);
+            desc.genProgram(&entry->fProgramData);
             fHashCache.insert(entry->fKey, entry);
         }
 
@@ -142,13 +141,99 @@ void GrGpuGLShaders::DeleteProgram(GrGLProgram::CachedData* programData) {
     GR_DEBUGCODE(memset(programData, 0, sizeof(*programData));)
 }
 
+void GrGpuGLShaders::ProgramUnitTest() {
+
+    static const int STAGE_OPTS[] = {
+        0,
+        GrGLProgram::ProgramDesc::StageDesc::kNoPerspective_OptFlagBit,
+        GrGLProgram::ProgramDesc::StageDesc::kIdentity_CoordMapping
+    };
+    static const GrGLProgram::ProgramDesc::StageDesc::Modulation STAGE_MODULATES[] = {
+        GrGLProgram::ProgramDesc::StageDesc::kColor_Modulation,
+        GrGLProgram::ProgramDesc::StageDesc::kAlpha_Modulation
+    };
+    static const GrGLProgram::ProgramDesc::StageDesc::CoordMapping STAGE_COORD_MAPPINGS[] = {
+        GrGLProgram::ProgramDesc::StageDesc::kIdentity_CoordMapping,
+        GrGLProgram::ProgramDesc::StageDesc::kRadialGradient_CoordMapping,
+        GrGLProgram::ProgramDesc::StageDesc::kSweepGradient_CoordMapping,
+        GrGLProgram::ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping
+    };
+    static const GrGLProgram::ProgramDesc::StageDesc::FetchMode FETCH_MODES[] = {
+        GrGLProgram::ProgramDesc::StageDesc::kSingle_FetchMode,
+        GrGLProgram::ProgramDesc::StageDesc::k2x2_FetchMode,
+    };
+    GrGLProgram program;
+    GrGLProgram::ProgramDesc& pdesc = program.fProgramDesc;
+
+    static const int NUM_TESTS = 512;
+
+    // GrRandoms nextU() values have patterns in the low bits
+    // So using nextU() % array_count might never take some values.
+    GrRandom random;
+    for (int t = 0; t < NUM_TESTS; ++t) {
+
+        pdesc.fVertexLayout = 0;
+        pdesc.fEmitsPointSize = random.nextF() > .5f;
+        float colorType = random.nextF();
+        if (colorType < 1.f / 3.f) {
+            pdesc.fColorType = GrGLProgram::ProgramDesc::kAttribute_ColorType;
+        } else if (colorType < 2.f / 3.f) {
+            pdesc.fColorType = GrGLProgram::ProgramDesc::kUniform_ColorType;
+        } else {
+            pdesc.fColorType = GrGLProgram::ProgramDesc::kNone_ColorType;
+        }
+        for (int s = 0; s < kNumStages; ++s) {
+            // enable the stage?
+            if (random.nextF() > .5f) {
+                // use separate tex coords?
+                if (random.nextF() > .5f) {
+                    int t = (int)(random.nextF() * kMaxTexCoords);
+                    pdesc.fVertexLayout |= StageTexCoordVertexLayoutBit(s, t);
+                } else {
+                    pdesc.fVertexLayout |= StagePosAsTexCoordVertexLayoutBit(s);
+                }
+            }
+            // use text-formatted verts?
+            if (random.nextF() > .5f) {
+                pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
+            }
+        }
+
+        for (int s = 0; s < kNumStages; ++s) {
+            int x;
+            pdesc.fStages[s].fEnabled = VertexUsesStage(s, pdesc.fVertexLayout);
+            x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
+            pdesc.fStages[s].fOptFlags = STAGE_OPTS[x];
+            x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_MODULATES));
+            pdesc.fStages[s].fModulation = STAGE_MODULATES[x];
+            x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_COORD_MAPPINGS));
+            pdesc.fStages[s].fCoordMapping = STAGE_COORD_MAPPINGS[x];
+            x = (int)(random.nextF() * GR_ARRAY_COUNT(FETCH_MODES));
+            pdesc.fStages[s].fFetchMode = FETCH_MODES[x];
+        }
+        GrGLProgram::CachedData cachedData;
+        program.genProgram(&cachedData);
+        DeleteProgram(&cachedData);
+        bool again = false;
+        if (again) {
+            program.genProgram(&cachedData);
+            DeleteProgram(&cachedData);
+        }
+    }
+}
+
 
 GrGpuGLShaders::GrGpuGLShaders() {
 
     resetContext();
+    f4X4DownsampleFilterSupport = true;
 
     fProgramData = NULL;
     fProgramCache = new ProgramCache();
+
+#if 0
+    ProgramUnitTest();
+#endif
 }
 
 GrGpuGLShaders::~GrGpuGLShaders() {
@@ -217,59 +302,90 @@ void GrGpuGLShaders::flushViewMatrix() {
 #endif
 }
 
-void GrGpuGLShaders::flushTextureMatrix(int stage) {
-    GrAssert(NULL != fCurrDrawState.fTextures[stage]);
+void GrGpuGLShaders::flushTextureMatrix(int s) {
+    const int& uni = fProgramData->fUniLocations.fStages[s].fTextureMatrixUni;
+    GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
+    if (NULL != texture) {
+        if (-1 != uni &&
+            (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
+            getHWSamplerMatrix(s) != getSamplerMatrix(s))) {
 
-    GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[stage];
+                GrAssert(NULL != fCurrDrawState.fTextures[s]);
 
-    GrMatrix m = getSamplerMatrix(stage);
-    GrSamplerState::SampleMode mode = 
-        fCurrDrawState.fSamplerStates[stage].getSampleMode();
-    AdjustTextureMatrix(texture, mode, &m);
+                GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
 
-    // ES doesn't allow you to pass true to the transpose param,
-    // so do our own transpose
-    GrScalar mt[]  = {
-        m[GrMatrix::kScaleX],
-        m[GrMatrix::kSkewY],
-        m[GrMatrix::kPersp0],
-        m[GrMatrix::kSkewX],
-        m[GrMatrix::kScaleY],
-        m[GrMatrix::kPersp1],
-        m[GrMatrix::kTransX],
-        m[GrMatrix::kTransY],
-        m[GrMatrix::kPersp2]
-    };
-#if GR_GL_ATTRIBUTE_MATRICES
-    GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+0, mt+0));
-    GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+1, mt+3));
-    GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+2, mt+6));
-#else
-    GR_GL(UniformMatrix3fv(fProgramData->fUniLocations.fStages[stage].fTextureMatrixUni,
-                           1, false, mt));
-#endif
+                GrMatrix m = getSamplerMatrix(s);
+                GrSamplerState::SampleMode mode = 
+                    fCurrDrawState.fSamplerStates[s].getSampleMode();
+                AdjustTextureMatrix(texture, mode, &m);
+
+                // ES doesn't allow you to pass true to the transpose param,
+                // so do our own transpose
+                GrScalar mt[]  = {
+                    m[GrMatrix::kScaleX],
+                    m[GrMatrix::kSkewY],
+                    m[GrMatrix::kPersp0],
+                    m[GrMatrix::kSkewX],
+                    m[GrMatrix::kScaleY],
+                    m[GrMatrix::kPersp1],
+                    m[GrMatrix::kTransX],
+                    m[GrMatrix::kTransY],
+                    m[GrMatrix::kPersp2]
+                };
+            #if GR_GL_ATTRIBUTE_MATRICES
+                GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+0, mt+0));
+                GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+1, mt+3));
+                GR_GL(VertexAttrib4fv(TEXMAT_ATTR_LOCATION(0)+2, mt+6));
+            #else
+                GR_GL(UniformMatrix3fv(uni, 1, false, mt));
+            #endif
+            recordHWSamplerMatrix(s, getSamplerMatrix(s));
+        }
+    }
 }
 
-void GrGpuGLShaders::flushRadial2(int stage) {
+void GrGpuGLShaders::flushRadial2(int s) {
 
-    const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[stage];
+    const int &uni = fProgramData->fUniLocations.fStages[s].fRadial2Uni;
+    const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
+    if (-1 != uni &&
+        (fProgramData->fRadial2CenterX1[s] != sampler.getRadial2CenterX1() ||
+         fProgramData->fRadial2Radius0[s]  != sampler.getRadial2Radius0()  ||
+         fProgramData->fRadial2PosRoot[s]  != sampler.isRadial2PosRoot())) {
 
-    GrScalar centerX1 = sampler.getRadial2CenterX1();
-    GrScalar radius0 = sampler.getRadial2Radius0();
+        GrScalar centerX1 = sampler.getRadial2CenterX1();
+        GrScalar radius0 = sampler.getRadial2Radius0();
 
-    GrScalar a = GrMul(centerX1, centerX1) - GR_Scalar1;
+        GrScalar a = GrMul(centerX1, centerX1) - GR_Scalar1;
 
-    float unis[6] = {
-        GrScalarToFloat(a),
-        1 / (2.f * unis[0]),
-        GrScalarToFloat(centerX1),
-        GrScalarToFloat(radius0),
-        GrScalarToFloat(GrMul(radius0, radius0)),
-        sampler.isRadial2PosRoot() ? 1.f : -1.f
-    };
-    GR_GL(Uniform1fv(fProgramData->fUniLocations.fStages[stage].fRadial2Uni,
-                     6,
-                     unis));
+        float values[6] = {
+            GrScalarToFloat(a),
+            1 / (2.f * values[0]),
+            GrScalarToFloat(centerX1),
+            GrScalarToFloat(radius0),
+            GrScalarToFloat(GrMul(radius0, radius0)),
+            sampler.isRadial2PosRoot() ? 1.f : -1.f
+        };
+        GR_GL(Uniform1fv(uni, 6, values));
+        fProgramData->fRadial2CenterX1[s] = sampler.getRadial2CenterX1();
+        fProgramData->fRadial2Radius0[s]  = sampler.getRadial2Radius0();
+        fProgramData->fRadial2PosRoot[s]  = sampler.isRadial2PosRoot();
+    }
+}
+
+void GrGpuGLShaders::flushTexelSize(int s) {
+    const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
+    const int& uni = fProgramData->fUniLocations.fStages[s].fNormalizedTexelSizeUni;
+    if (-1 != uni) {
+        GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
+        if (texture->allocWidth() != fProgramData->fTextureWidth[s] ||
+            texture->allocHeight() != fProgramData->fTextureWidth[s]) {
+
+            float texelSize[] = {1.f / texture->allocWidth(),
+                                 1.f / texture->allocHeight()};
+            GR_GL(Uniform2fv(uni, 1, texelSize));
+        }
+    }
 }
 
 void GrGpuGLShaders::flushColor() {
@@ -334,7 +450,7 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     }
 
     buildProgram(type);
-    fProgramData = fProgramCache->getProgramData(fCurrentProgram, this);
+    fProgramData = fProgramCache->getProgramData(fCurrentProgram);
 
     if (fHWProgramID != fProgramData->fProgramID) {
         GR_GL(UseProgram(fProgramData->fProgramID));
@@ -345,7 +461,7 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         return false;
     }
 
-    flushColor();
+    this->flushColor();
 
 #if GR_GL_ATTRIBUTE_MATRICES
     GrMatrix& currViewMatrix = fHWDrawState.fViewMatrix;
@@ -359,28 +475,11 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
     }
 
     for (int s = 0; s < kNumStages; ++s) {
-        GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
-        if (NULL != texture) {
-            if (-1 != fProgramData->fUniLocations.fStages[s].fTextureMatrixUni &&
-                (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
-                getHWSamplerMatrix(s) != getSamplerMatrix(s))) {
-                flushTextureMatrix(s);
-                recordHWSamplerMatrix(s, getSamplerMatrix(s));
-            }
-        }
+        this->flushTextureMatrix(s);
 
-        const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
-        if (-1 != fProgramData->fUniLocations.fStages[s].fRadial2Uni &&
-            (fProgramData->fRadial2CenterX1[s] != sampler.getRadial2CenterX1() ||
-             fProgramData->fRadial2Radius0[s]  != sampler.getRadial2Radius0()  ||
-             fProgramData->fRadial2PosRoot[s]  != sampler.isRadial2PosRoot())) {
+        this->flushRadial2(s);
 
-            flushRadial2(s);
-
-            fProgramData->fRadial2CenterX1[s] = sampler.getRadial2CenterX1();
-            fProgramData->fRadial2Radius0[s]  = sampler.getRadial2Radius0();
-            fProgramData->fRadial2PosRoot[s]  = sampler.isRadial2PosRoot();
-        }
+        this->flushTexelSize(s);
     }
     resetDirtyFlags();
     return true;
@@ -531,21 +630,36 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                 stage.fOptFlags = 0;
             }
             switch (fCurrDrawState.fSamplerStates[s].getSampleMode()) {
-            case GrSamplerState::kNormal_SampleMode:
-                stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kIdentity_CoordMapping;
-                break;
-            case GrSamplerState::kRadial_SampleMode:
-                stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kRadialGradient_CoordMapping;
-                break;
-            case GrSamplerState::kRadial2_SampleMode:
-                stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping;
-                break;
-            case GrSamplerState::kSweep_SampleMode:
-                stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kSweepGradient_CoordMapping;
-                break;
-            default:
-                GrAssert(!"Unexpected sample mode!");
-                break;
+                case GrSamplerState::kNormal_SampleMode:
+                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kIdentity_CoordMapping;
+                    break;
+                case GrSamplerState::kRadial_SampleMode:
+                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kRadialGradient_CoordMapping;
+                    break;
+                case GrSamplerState::kRadial2_SampleMode:
+                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping;
+                    break;
+                case GrSamplerState::kSweep_SampleMode:
+                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kSweepGradient_CoordMapping;
+                    break;
+                default:
+                    GrCrash("Unexpected sample mode!");
+                    break;
+            }
+
+            switch (fCurrDrawState.fSamplerStates[s].getFilter()) {
+                // these both can use a regular texture2D()
+                case GrSamplerState::kNearest_Filter:
+                case GrSamplerState::kBilinear_Filter:
+                    stage.fFetchMode = GrGLProgram::ProgramDesc::StageDesc::kSingle_FetchMode;
+                    break;
+                // performs 4 texture2D()s
+                case GrSamplerState::k4x4Downsample_Filter:
+                    stage.fFetchMode = GrGLProgram::ProgramDesc::StageDesc::k2x2_FetchMode;
+                    break;
+                default:
+                    GrCrash("Unexpected filter!");
+                    break;
             }
 
             if (GrPixelConfigIsAlphaOnly(texture->config())) {

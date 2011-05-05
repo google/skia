@@ -1135,6 +1135,7 @@ void GrGpuGLShaders2::DeleteProgram(Program* program) {
 
 GrGpuGLShaders2::GrGpuGLShaders2() {
 
+    f4X4DownsampleFilterSupport = false;
     fProgram = NULL;
     fProgramCache = new ProgramCache();
 
