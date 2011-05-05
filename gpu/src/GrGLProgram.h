@@ -58,7 +58,7 @@ public:
      *  The result of heavy init is not stored in datamembers of GrGLProgam,
      *  but in a separate cacheable container.
      */
-    void genProgram(CachedData* programData, const GrDrawTarget* target) const;
+    void genProgram(CachedData* programData) const;
 
     /**
      *  Routine that is called before rendering. Sets-up all the state and
@@ -107,20 +107,25 @@ private:
                 kIdentityMatrix_OptFlagBit = 0x2
             };
 
-            unsigned fOptFlags : 8;
-            unsigned fEnabled : 8;
+            unsigned fOptFlags;
+            bool fEnabled;
 
             enum Modulation {
                 kColor_Modulation,
                 kAlpha_Modulation
-            } fModulation : 8;
+            } fModulation;
+
+            enum FetchMode {
+                kSingle_FetchMode,
+                k2x2_FetchMode
+            } fFetchMode;
 
             enum CoordMapping {
                 kIdentity_CoordMapping,
                 kRadialGradient_CoordMapping,
                 kSweepGradient_CoordMapping,
                 kRadial2Gradient_CoordMapping
-            } fCoordMapping : 8;
+            } fCoordMapping;
         } fStages[GrDrawTarget::kNumStages];
     } fProgramDesc;
 
@@ -129,6 +134,7 @@ private:
 public:
     struct StageUniLocations {
         GrGLint fTextureMatrixUni;
+        GrGLint fNormalizedTexelSizeUni;
         GrGLint fSamplerUni;
         GrGLint fRadial2Uni;
     };
@@ -188,6 +194,9 @@ public:
         // (GL uniform values travel with program)
         GrColor                     fColor;
         GrMatrix                    fTextureMatrices[GrDrawTarget::kNumStages];
+        // width and height used for normalized texel size
+        int                         fTextureWidth[GrDrawTarget::kNumStages];
+        int                         fTextureHeight[GrDrawTarget::kNumStages]; 
         GrScalar                    fRadial2CenterX1[GrDrawTarget::kNumStages];
         GrScalar                    fRadial2Radius0[GrDrawTarget::kNumStages];
         bool                        fRadial2PosRoot[GrDrawTarget::kNumStages];

@@ -128,7 +128,7 @@ bool GrContext::finalizeTextureKey(GrTextureKey* key,
 
         if (tiled && !isPow2) {
             bits |= kNPOTBit;
-            if (sampler.isFilter()) {
+            if (GrSamplerState::kNearest_Filter != sampler.getFilter()) {
                 bits |= kFilterBit;
             }
         }
@@ -223,9 +223,18 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             fGpu->disableState(GrDrawTarget::kDither_StateBit |
                                GrDrawTarget::kClip_StateBit   |
                                GrDrawTarget::kAntialias_StateBit);
+            GrSamplerState::Filter filter;
+            // if filtering is not desired then we want to ensure all
+            // texels in the resampled image are copies of texels from
+            // the original.
+            if (GrSamplerState::kNearest_Filter == sampler.getFilter()) {
+                filter = GrSamplerState::kNearest_Filter;
+            } else {
+                filter = GrSamplerState::kBilinear_Filter;
+            }
             GrSamplerState stretchSampler(GrSamplerState::kClamp_WrapMode,
                                           GrSamplerState::kClamp_WrapMode,
-                                          sampler.isFilter());
+                                          filter);
             fGpu->setSamplerState(0, stretchSampler);
 
             static const GrVertexLayout layout =
@@ -490,9 +499,13 @@ bool GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     int scale;
     // Using MSAA seems to be slower for some yet unknown reason.
     if (false && fGpu->supportsFullsceneAA()) {
+        record->fDownsample = OffscreenRecord::kFSAA_Downsample;
         scale = GR_Scalar1;
         desc.fAALevel = kMed_GrAALevel;
     } else {
+        record->fDownsample = (fGpu->supports4x4DownsampleFilter()) ?
+                                OffscreenRecord::k4x4SinglePass_Downsample :
+                                OffscreenRecord::k4x4TwoPass_Downsample;
         scale = 4;
         desc.fAALevel = kNone_GrAALevel;
     }
@@ -506,7 +519,7 @@ bool GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
         return false;
     }
 
-    if (scale > 1) {
+    if (OffscreenRecord::k4x4TwoPass_Downsample == record->fDownsample) {
         desc.fWidth /= 2;
         desc.fHeight /= 2;
         record->fEntry1 = this->lockKeylessTexture(desc);
@@ -550,16 +563,22 @@ void GrContext::offscreenAAPass2(GrDrawTarget* target,
 
     GrAssert(NULL != record->fEntry0);
 
-    bool downsample =  NULL != record->fEntry1;
-    
+    GrSamplerState::Filter filter;
+    if (OffscreenRecord::k4x4SinglePass_Downsample == record->fDownsample) {
+        filter = GrSamplerState::k4x4Downsample_Filter;
+    } else {
+        filter = GrSamplerState::kBilinear_Filter;
+    }
+
     GrMatrix sampleM;
     GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
-                           GrSamplerState::kClamp_WrapMode, true);
+                           GrSamplerState::kClamp_WrapMode, filter);
 
     GrTexture* src = record->fEntry0->texture();
     int scale;
 
-    if (downsample) {
+    if (OffscreenRecord::k4x4TwoPass_Downsample == record->fDownsample) {
+        GrAssert(NULL != record->fEntry1);
         scale = 2;
         GrRenderTarget* dst = record->fEntry1->texture()->asRenderTarget();
         
@@ -577,10 +596,14 @@ void GrContext::offscreenAAPass2(GrDrawTarget* target,
         target->drawSimpleRect(rect, NULL, 1 << kOffscreenStage);
         
         src = record->fEntry1->texture();
-    } else {
+    } else if (OffscreenRecord::kFSAA_Downsample == record->fDownsample) {
         scale = 1;
         GrIRect rect(0, 0, boundRect.width(), boundRect.height());
         src->asRenderTarget()->overrideResolveRect(rect);
+    } else {
+        GrAssert(OffscreenRecord::k4x4SinglePass_Downsample == 
+                 record->fDownsample);
+        scale = 4;
     }
 
     // setup for draw back to main RT
@@ -607,7 +630,7 @@ void GrContext::offscreenAAPass2(GrDrawTarget* target,
 
     this->unlockTexture(record->fEntry0);
     record->fEntry0 = NULL;
-    if (downsample) {
+    if (NULL != record->fEntry1) {
         this->unlockTexture(record->fEntry1);
         record->fEntry1 = NULL;
     }

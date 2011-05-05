@@ -36,10 +36,15 @@ void GrTextContext::flushGlyphs() {
         GrDrawTarget::AutoStateRestore asr(fDrawTarget);
 
         // setup our sampler state for our text texture/atlas
-
+        GrSamplerState::Filter filter;
+        if (fExtMatrix.isIdentity()) {
+            filter = GrSamplerState::kNearest_Filter;
+        } else {
+            filter = GrSamplerState::kBilinear_Filter;
+        }
         GrSamplerState sampler(GrSamplerState::kRepeat_WrapMode,
                                GrSamplerState::kRepeat_WrapMode,
-                               !fExtMatrix.isIdentity());
+                               filter);
         fDrawTarget->setSamplerState(TEXT_STAGE, sampler);
 
         GrAssert(GrIsALIGN4(fCurrVertex));

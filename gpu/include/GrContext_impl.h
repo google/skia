@@ -21,6 +21,11 @@ struct GrContext::OffscreenRecord {
     OffscreenRecord() { fEntry0 = NULL; fEntry1 = NULL; }
     ~OffscreenRecord() { GrAssert(NULL == fEntry0 && NULL == fEntry1); }
 
+    enum Downsample {
+        k4x4TwoPass_Downsample,
+        k4x4SinglePass_Downsample,
+        kFSAA_Downsample
+    }                              fDownsample;
     GrTextureEntry*                fEntry0;
     GrTextureEntry*                fEntry1;
     GrDrawTarget::SavedDrawState   fSavedState;

@@ -1754,8 +1754,12 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                                                 nextTexture->getTexParams();
             GrGLTexture::TexParams newTexParams;
 
-            newTexParams.fFilter = sampler.isFilter() ? GR_GL_LINEAR :
-                                                        GR_GL_NEAREST;
+            if (GrSamplerState::kNearest_Filter == sampler.getFilter()) {
+                newTexParams.fFilter = GR_GL_NEAREST;
+            } else {
+                newTexParams.fFilter = GR_GL_LINEAR;
+            }
+
             newTexParams.fWrapS =
                         GrGLTexture::WrapMode2GLWrap()[sampler.getWrapX()];
             newTexParams.fWrapT =

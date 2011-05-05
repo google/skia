@@ -423,7 +423,11 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         return false;
     }
     grPaint->fSampler.setSampleMode(sampleMode);
-    grPaint->fSampler.setFilter(skPaint.isFilterBitmap());
+    if (skPaint.isFilterBitmap()) {
+        grPaint->fSampler.setFilter(GrSamplerState::kBilinear_Filter);
+    } else {
+        grPaint->fSampler.setFilter(GrSamplerState::kNearest_Filter);
+    }
     grPaint->fSampler.setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
     grPaint->fSampler.setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
     if (GrSamplerState::kRadial2_SampleMode == sampleMode) {
@@ -863,7 +867,12 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     if (!this->skPaint2GrPaintNoShader(paint, true, &grPaint)) {
         return;
     }
-    grPaint.fSampler.setFilter(paint.isFilterBitmap());
+    if (paint.isFilterBitmap()) {
+        grPaint.fSampler.setFilter(GrSamplerState::kBilinear_Filter);
+    } else {
+        grPaint.fSampler.setFilter(GrSamplerState::kNearest_Filter);
+    }
+    
 
     const int maxTextureDim = fContext->getMaxTextureDimension();
     if (bitmap.getTexture() || (bitmap.width() <= maxTextureDim &&

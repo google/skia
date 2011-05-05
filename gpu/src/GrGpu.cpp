@@ -755,7 +755,7 @@ const GrSamplerState GrSamplerState::gClampNoFilter(
     GrSamplerState::kClamp_WrapMode,
     GrSamplerState::kNormal_SampleMode,
     GrMatrix::I(),
-    false);
+    GrSamplerState::kNearest_Filter);
 
 
 

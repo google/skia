@@ -56,6 +56,7 @@ static const GrGLenum gMatrixMode2Enum[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 GrGpuGLFixed::GrGpuGLFixed() {
+    f4X4DownsampleFilterSupport = false;
 }
 
 GrGpuGLFixed::~GrGpuGLFixed() {
