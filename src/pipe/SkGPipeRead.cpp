@@ -21,13 +21,28 @@
 #include "SkGPipePriv.h"
 #include "SkReader32.h"
 #include "SkStream.h"
+
+#include "SkColorFilter.h"
+#include "SkDrawLooper.h"
+#include "SkMaskFilter.h"
+#include "SkPathEffect.h"
+#include "SkRasterizer.h"
+#include "SkShader.h"
 #include "SkTypeface.h"
+#include "SkXfermode.h"
+
+template <typename T> class SkRefCntTDArray : public SkTDArray<T> {
+public:
+    ~SkRefCntTDArray() { this->unrefAll(); }
+};
 
 class SkGPipeState {
 public:
     SkGPipeState();
     ~SkGPipeState();
-    
+
+    void setReader(SkFlattenableReadBuffer* reader) { fReader = reader; }
+
     const SkPaint& getPaint(uint32_t drawOp32) const;
     
     //  Extracts index from DrawOp_unpackData().
@@ -35,21 +50,72 @@ public:
     //  index == count. If index > count, return NULL
     SkPaint* editPaint(uint32_t drawOp32);
 
-    SkTypeface* findTypeface(int id) const {
-        SkASSERT(id <= fTypefaces.count());
-        return id ? fTypefaces[id - 1] : NULL;
-    }
-    void addTypeface(SkReader32* reader) {
-        size_t size = reader->readU32();
-        const void* data = reader->skip(SkAlign4(size));
+    void addTypeface() {
+        size_t size = fReader->readU32();
+        const void* data = fReader->skip(SkAlign4(size));
         SkMemoryStream stream(data, size, false);
-        // fTypefaces takes over ownership of the typeface reference
         *fTypefaces.append() = SkTypeface::Deserialize(&stream);
     }
-
+    void addColorFilter() {
+        *fColorFilters.append() = (SkColorFilter*)fReader->readFlattenable();
+    }
+    void addDrawLooper() {
+        *fDrawLoopers.append() = (SkDrawLooper*)fReader->readFlattenable();
+    }
+    void addMaskFilter() {
+        *fMaskFilters.append() = (SkMaskFilter*)fReader->readFlattenable();
+    }
+    void addPathEffect() {
+        *fPathEffects.append() = (SkPathEffect*)fReader->readFlattenable();
+    }
+    void addRasterizer() {
+        *fRasterizers.append() = (SkRasterizer*)fReader->readFlattenable();
+    }
+    void addShader() {
+        *fShaders.append() = (SkShader*)fReader->readFlattenable();
+    }
+    void addXfermode() {
+        *fXfermodes.append() = (SkXfermode*)fReader->readFlattenable();
+    }
+    
+    void setColorFilter(SkPaint* paint, unsigned id) {
+        paint->setColorFilter(id ? fColorFilters[id - 1] : NULL);
+    }
+    void setLooper(SkPaint* paint, unsigned id) {
+        paint->setLooper(id ? fDrawLoopers[id - 1] : NULL);
+    }
+    void setMaskFilter(SkPaint* paint, unsigned id) {
+        paint->setMaskFilter(id ? fMaskFilters[id - 1] : NULL);
+    }
+    void setPathEffect(SkPaint* paint, unsigned id) {
+        paint->setPathEffect(id ? fPathEffects[id - 1] : NULL);
+    }
+    void setRasterizer(SkPaint* paint, unsigned id) {
+        paint->setRasterizer(id ? fRasterizers[id - 1] : NULL);
+    }
+    void setShader(SkPaint* paint, unsigned id) {
+        paint->setShader(id ? fShaders[id - 1] : NULL);
+    }
+    void setTypeface(SkPaint* paint, unsigned id) {
+        paint->setTypeface(id ? fTypefaces[id - 1] : NULL);
+    }
+    void setXfermode(SkPaint* paint, unsigned id) {
+        paint->setXfermode(id ? fXfermodes[id - 1] : NULL);
+    }
+    
 private:
+    SkFlattenableReadBuffer* fReader;
+
     SkTDArray<SkPaint*> fPaints;
-    SkTDArray<SkTypeface*> fTypefaces;
+
+    SkRefCntTDArray<SkColorFilter*> fColorFilters;
+    SkRefCntTDArray<SkDrawLooper*> fDrawLoopers;
+    SkRefCntTDArray<SkMaskFilter*> fMaskFilters;
+    SkRefCntTDArray<SkPathEffect*> fPathEffects;
+    SkRefCntTDArray<SkRasterizer*> fRasterizers;
+    SkRefCntTDArray<SkShader*> fShaders;
+    SkRefCntTDArray<SkTypeface*> fTypefaces;
+    SkRefCntTDArray<SkXfermode*> fXfermodes;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -353,27 +419,6 @@ static void drawPicture_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void inflate_patheffect(SkReader32* reader, SkPaint* paint) {
-}
-
-static void inflate_shader(SkReader32* reader, SkPaint* paint) {
-}
-
-static void inflate_xfermode(SkReader32* reader, SkPaint* paint) {
-}
-
-static void inflate_maskfilter(SkReader32* reader, SkPaint* paint) {
-}
-
-static void inflate_colorfilter(SkReader32* reader, SkPaint* paint) {
-}
-
-static void inflate_rasterizer(SkReader32* reader, SkPaint* paint) {
-}
-
-static void inflate_drawlooper(SkReader32* reader, SkPaint* paint) {
-}
-
 static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
                        SkGPipeState* state) {
     SkPaint* p = state->editPaint(op32);
@@ -404,24 +449,52 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
             case kTextSize_PaintOp: p->setTextSize(reader->readScalar()); break;
             case kTextScaleX_PaintOp: p->setTextScaleX(reader->readScalar()); break;
             case kTextSkewX_PaintOp: p->setTextSkewX(reader->readScalar()); break;
-            case kTypeface_PaintOp: p->setTypeface(state->findTypeface(data)); break;
-                
-            // flag to reference a cached index instead of inflating?
-            case kPathEffect_PaintOp: inflate_patheffect(reader, p); break;
-            case kShader_PaintOp: inflate_shader(reader, p); break;
-            case kXfermode_PaintOp: inflate_xfermode(reader, p); break;
-            case kMaskFilter_PaintOp: inflate_maskfilter(reader, p); break;
-            case kColorFilter_PaintOp: inflate_colorfilter(reader, p); break;
-            case kRasterizer_PaintOp: inflate_rasterizer(reader, p); break;
-            case kDrawLooper_PaintOp: inflate_drawlooper(reader, p); break;
+
+            case kTypeface_PaintOp: state->setTypeface(p, data); break;
+            case kPathEffect_PaintOp: state->setPathEffect(p, data); break;
+            case kShader_PaintOp: state->setShader(p, data); break;
+            case kXfermode_PaintOp: state->setXfermode(p, data); break;
+            case kMaskFilter_PaintOp: state->setMaskFilter(p, data); break;
+            case kColorFilter_PaintOp: state->setColorFilter(p, data); break;
+            case kRasterizer_PaintOp: state->setRasterizer(p, data); break;
+            case kDrawLooper_PaintOp: state->setLooper(p, data); break;
             default: SkASSERT(!"bad paintop"); return;
         }
     } while (!done);
 }
 
-static void defTypeface_rp(SkCanvas*, SkReader32* reader, uint32_t,
-                           SkGPipeState* state) {
-    state->addTypeface(reader);
+///////////////////////////////////////////////////////////////////////////////
+
+static void def_ColorFilter_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addColorFilter();
+}
+
+static void def_DrawLooper_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addDrawLooper();
+}
+
+static void def_MaskFilter_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addMaskFilter();
+}
+
+static void def_PathEffect_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addPathEffect();
+}
+
+static void def_Rasterizer_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addRasterizer();
+}
+
+static void def_Shader_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addShader();
+}
+
+static void def_Typeface_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addTypeface();
+}
+
+static void def_Xfermode_rp(SkCanvas*, SkReader32*, uint32_t, SkGPipeState* state) {
+    state->addXfermode();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -467,7 +540,14 @@ static const ReadProc gReadTable[] = {
     skew_rp,
     translate_rp,
     paintOp_rp,
-    defTypeface_rp,
+    def_ColorFilter_rp,
+    def_DrawLooper_rp,
+    def_MaskFilter_rp,
+    def_PathEffect_rp,
+    def_Rasterizer_rp,
+    def_Shader_rp,
+    def_Typeface_rp,
+    def_Xfermode_rp,
     done_rp
 };
 
@@ -478,8 +558,7 @@ SkGPipeState::SkGPipeState() {
     *fPaints.append() = SkNEW(SkPaint);
 }
 
-SkGPipeState::~SkGPipeState() {
-    fTypefaces.unrefAll();
+SkGPipeState::~SkGPipeState() {    
     fPaints.deleteAll();
 }
 
@@ -508,12 +587,14 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length) {
     }
 
     const ReadProc* table = gReadTable;
-    SkReader32 reader(data, length);
+    SkFlattenableReadBuffer reader(data, length);
     SkCanvas* canvas = fCanvas;
-    
+
+    fState->setReader(&reader);
     while (!reader.eof()) {
         uint32_t op32 = reader.readU32();
         unsigned op = DrawOp_unpackOp(op32);
+        SkDEBUGCODE(DrawOps drawOp = (DrawOps)op;)
         
         if (op >= SK_ARRAY_COUNT(gReadTable)) {
             SkDebugf("---- bad op during GPipeState::playback\n");

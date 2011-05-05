@@ -16,6 +16,7 @@
 
 
 #include "SkCanvas.h"
+#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
@@ -178,6 +179,13 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 
     // always begin with 1 default paint
     *fPaints.append() = SkNEW(SkPaint);
+
+    // we need a device to limit our clip
+    // should the caller give us the bounds?
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, 32767, 32767);
+    SkDevice* device = SkNEW_ARGS(SkDevice, (this, bitmap, false));
+    this->setDevice(device)->unref();
 }
 
 SkGPipeCanvas::~SkGPipeCanvas() {
@@ -212,7 +220,7 @@ uint32_t SkGPipeCanvas::getTypefaceID(SkTypeface* face) {
             id = fTypefaceSet.add(face);
             size_t size = writeTypeface(NULL, face);
             if (this->needOpBytes(size)) {
-                this->writeOp(kDefineTypeface_DrawOp);
+                this->writeOp(kDef_Typeface_DrawOp);
                 writeTypeface(&fWriter, face);
             }
         }
@@ -584,7 +592,7 @@ void SkGPipeCanvas::drawData(const void* ptr, size_t size) {
             if (0 == data) {
                 fWriter.write32(size);
             }
-            fWriter.write(ptr, size);
+            fWriter.writePad(ptr, size);
         }
     }
 }
