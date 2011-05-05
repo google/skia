@@ -533,17 +533,21 @@ static void antifilldot8(FDot8 L, FDot8 T, FDot8 R, FDot8 B, SkBlitter* blitter,
     int height = bot - top;
     if (height > 0) {
         int left = L >> 8;
-        if (L & 0xFF) {
-            blitter->blitV(left, top, height, 256 - (L & 0xFF));
-            left += 1;
-        }
-        int rite = R >> 8;
-        int width = rite - left;
-        if (width > 0 && fillInner) {
-            blitter->blitRect(left, top, width, height);
-        }
-        if (R & 0xFF) {
-            blitter->blitV(rite, top, height, R & 0xFF);
+        if (left == ((R - 1) >> 8)) {   // just 1-pixel wide
+            blitter->blitV(left, top, height, R - L - 1);
+        } else {
+            if (L & 0xFF) {
+                blitter->blitV(left, top, height, 256 - (L & 0xFF));
+                left += 1;
+            }
+            int rite = R >> 8;
+            int width = rite - left;
+            if (width > 0 && fillInner) {
+                blitter->blitRect(left, top, width, height);
+            }
+            if (R & 0xFF) {
+                blitter->blitV(rite, top, height, R & 0xFF);
+            }
         }
     }
     
