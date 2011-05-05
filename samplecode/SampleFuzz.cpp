@@ -326,9 +326,11 @@ static void do_fuzz(SkCanvas* canvas) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class FuzzView : public SkView {
+class FuzzView : public SampleView {
 public:
-	FuzzView() {}
+	FuzzView() {
+        this->setBGColor(0xFFDDDDDD);
+    }
     
 protected:
     // overrides from SkEventSink
@@ -344,9 +346,8 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkIRect r = canvas->getTotalClip().getBounds();
-        this->drawBG(canvas);
         do_fuzz(canvas);
         this->inval(NULL);
     }

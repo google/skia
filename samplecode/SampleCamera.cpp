@@ -11,7 +11,7 @@
 #include "SkRandom.h"
 #include "SkImageDecoder.h"
 
-class CameraView : public SkView {
+class CameraView : public SampleView {
     SkTDArray<SkShader*> fShaders;
     int     fShaderIndex;
     bool    fFrontFace;
@@ -40,6 +40,7 @@ public:
                 break;
             }
         }
+        this->setBGColor(0xFFDDDDDD);
     }
     
     virtual ~CameraView() {
@@ -57,13 +58,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(this->width()/2, this->height()/2);
 
         Sk3DView    view;
@@ -72,8 +67,6 @@ protected:
         view.applyToCanvas(canvas);
         
         SkPaint paint;
-        SkScalar rad = SkIntToScalar(50);
-        SkScalar dim = rad*2;
         if (fShaders.count() > 0) {
             bool frontFace = view.dotWithNormal(0, 0, SK_Scalar1) < 0;
             if (frontFace != fFrontFace) {
@@ -83,16 +76,8 @@ protected:
         
             paint.setAntiAlias(true);
             paint.setShader(fShaders[fShaderIndex]);
-#if 0
-            canvas->drawCircle(0, 0, rad, paint);
-            canvas->drawCircle(-dim, -dim, rad, paint);
-            canvas->drawCircle(-dim,  dim, rad, paint);
-            canvas->drawCircle( dim, -dim, rad, paint);
-            canvas->drawCircle( dim,  dim, rad, paint);
-#else
             SkRect r = { -150, -150, 150, 150 };
             canvas->drawRoundRect(r, 30, 30, paint);
-#endif
         }
         
         fRY += SampleCode::GetAnimSecondsDelta() * 90;
@@ -104,7 +89,7 @@ protected:
 
 private:
     SkScalar fRX, fRY, fRZ;
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

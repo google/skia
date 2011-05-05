@@ -27,7 +27,7 @@ static void set_scalar(SkStaticTextView* view, SkScalar value) {
     view->setText(str);
 }
 
-class UnitMapperView : public SkView {
+class UnitMapperView : public SampleView {
     SkPoint fPts[4];
     SkMatrix fMatrix;
     SkStaticTextView* fViews[4];
@@ -73,13 +73,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setColor(0xFF8888FF);
@@ -153,7 +147,7 @@ protected:
 private:
     int fDragIndex;
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

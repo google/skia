@@ -6,7 +6,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class AvoidView : public SkView {
+class AvoidView : public SampleView {
     SkShader* fShader;
 
     enum {
@@ -44,9 +44,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         SkRect r = { 0, 0, SkIntToScalar(W), SkIntToScalar(H) };
         
@@ -88,7 +86,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

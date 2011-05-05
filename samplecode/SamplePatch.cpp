@@ -221,7 +221,7 @@ static void drawpatches(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     patch->draw(canvas, paint, 10, 10, true, true);
 }
 
-class PatchView : public SkView {
+class PatchView : public SampleView {
     SkShader*   fShader0;
     SkShader*   fShader1;
     SkIPoint    fSize0, fSize1;
@@ -250,6 +250,8 @@ public:
         fPts[9].set(S*0, T*4);
         fPts[10].set(S*0, T*3);
         fPts[11].set(S*0, T*2);
+
+        this->setBGColor(SK_ColorGRAY);
     }
 
     virtual ~PatchView() {
@@ -269,13 +271,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorGRAY);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setDither(true);
         paint.setFilterBitmap(true);
@@ -335,7 +331,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

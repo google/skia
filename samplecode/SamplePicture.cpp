@@ -109,7 +109,7 @@ static void drawCircle(SkCanvas* canvas, int r, SkColor color) {
                        paint);
 }
 
-class PictureView : public SkView {
+class PictureView : public SampleView {
     SkBitmap fBitmap;
 public:
 	PictureView() {
@@ -155,12 +155,6 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-//        canvas->drawColor(0xFFDDDDDD);
-        canvas->drawColor(SK_ColorWHITE);
-   //     canvas->drawColor(SK_ColorBLACK);
-    }
-    
     void drawSomething(SkCanvas* canvas) {
         SkPaint paint;
 
@@ -186,9 +180,7 @@ protected:
         
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         drawSomething(canvas);
 
         SkPicture* pict = new SkPicture;
@@ -252,7 +244,7 @@ private:
     SkPicture*  fPicture;
     SkPicture*  fSubPicture;
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

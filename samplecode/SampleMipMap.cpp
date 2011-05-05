@@ -28,7 +28,7 @@ static SkBitmap createBitmap(int n) {
     return bitmap;
 }
 
-class MipMapView : public SkView {
+class MipMapView : public SampleView {
     SkBitmap fBitmap;
     enum {
         N = 64
@@ -79,13 +79,7 @@ protected:
         }
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
         
         canvas->scale(1.00000001f, 0.9999999f);
@@ -139,7 +133,7 @@ protected:
 private:
     int fWidth;
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
