@@ -90,7 +90,7 @@ public:
     }
     
     void read(void* dst, size_t size) {
-        SkASSERT(dst != NULL);
+        SkASSERT(0 == size || dst != NULL);
         SkASSERT(ptr_align_4(fCurr));
         memcpy(dst, fCurr, size);
         fCurr += SkAlign4(size);
