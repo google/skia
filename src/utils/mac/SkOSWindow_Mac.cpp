@@ -455,6 +455,8 @@ void SkEvent::SignalQueueTimer(SkMSec delay)
 	}
 }
 
+#define USE_MSAA 0
+
 AGLContext create_gl(WindowRef wref)
 {
     GLint major, minor;
@@ -466,10 +468,12 @@ AGLContext create_gl(WindowRef wref)
     const GLint pixelAttrs[] = {
         AGL_RGBA,
         AGL_STENCIL_SIZE, 8,
+#if USE_MSAA
         AGL_SAMPLE_BUFFERS_ARB, 1,
-		AGL_MULTISAMPLE,
-		AGL_SAMPLES_ARB, 8,
-		AGL_ACCELERATED,
+        AGL_MULTISAMPLE,
+        AGL_SAMPLES_ARB, 8,
+#endif
+        AGL_ACCELERATED,
         AGL_DOUBLEBUFFER,
         AGL_NONE
     };

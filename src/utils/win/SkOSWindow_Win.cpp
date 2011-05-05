@@ -352,6 +352,8 @@ void kill_dummy(HWND dummy) {
 #define WGL_SAMPLE_BUFFERS_ARB      0x2041
 #define WGL_SAMPLES_ARB             0x2042
 
+#define USE_MSAA 0
+
 HGLRC create_gl(HWND hwnd) {
     HDC hdc;    
     HDC prevHDC;
@@ -418,8 +420,12 @@ HGLRC create_gl(HWND hwnd) {
         WGL_SUPPORT_OPENGL_ARB, TRUE,
         WGL_COLOR_BITS_ARB, 24,
         WGL_STENCIL_BITS_ARB, 8,
+#if USE_MSAA
         WGL_SAMPLE_BUFFERS_ARB, TRUE,
         WGL_SAMPLES_ARB, 0,
+#else
+        0, 0, 0, 0,
+#endif
         0,0
     };
     for (int samples = 16; samples > 1; --samples) {
