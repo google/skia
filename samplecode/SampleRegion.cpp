@@ -86,18 +86,17 @@ static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
     }
 }
 
-class RegionView : public SkView {
+class RegionView : public SampleView {
 public:
-	RegionView() 
-	{
+	RegionView() {
         fBase.set(100, 100, 150, 150);
         fRect = fBase;
         fRect.inset(5, 5);
         fRect.offset(25, 25);
+        this->setBGColor(0xFFDDDDDD);
     }
 
-    void build_rgn(SkRegion* rgn, SkRegion::Op op)
-    {
+    void build_rgn(SkRegion* rgn, SkRegion::Op op) {
         rgn->setRect(fBase);
         SkIRect r = fBase;
         r.offset(75, 20);
@@ -108,18 +107,15 @@ public:
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Regions");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawOrig(SkCanvas* canvas, bool bg)
-    {
+    void drawOrig(SkCanvas* canvas, bool bg) {
         SkRect      r;
         SkPaint     paint;
         
@@ -133,8 +129,7 @@ protected:
         canvas->drawRect(r, paint);
     }
     
-    void drawRgnOped(SkCanvas* canvas, SkRegion::Op op, SkColor color)
-    {
+    void drawRgnOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
         SkRegion    rgn;
 
         this->build_rgn(&rgn, op);
@@ -176,8 +171,7 @@ protected:
         paint_rgn(canvas, rgn, paint);
     }
     
-    void drawPathOped(SkCanvas* canvas, SkRegion::Op op, SkColor color)
-    {
+    void drawPathOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
         SkRegion    rgn;
         SkPath      path;
 
@@ -196,68 +190,7 @@ protected:
         canvas->drawPath(path, paint);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
-        canvas->drawColor(0xFFDDDDDD);
-        return;
-
-#if 0
-        SkColorTable    ct;
-        SkPMColor       colors[] = { SK_ColorRED, SK_ColorBLUE };
-        ct.setColors(colors, 2);
-        ct.setFlags(ct.getFlags() | SkColorTable::kColorsAreOpaque_Flag);
-
-        SkBitmap        bm;
-        bm.setConfig(SkBitmap::kIndex8_Config, 20, 20, 21);
-        bm.setColorTable(&ct);
-        bm.allocPixels();
-        sk_memset16((uint16_t*)bm.getAddr8(0, 0), 0x0001, bm.rowBytes() * bm.height() / 2);
-#endif
-#if 0
-        SkBitmap        bm;
-        bm.setConfig(SkBitmap::kRGB_565_Config, 20, 20, 42);
-        bm.allocPixels();
-        sk_memset32((uint32_t*)bm.getAddr16(0, 0), 0x0000FFFF, bm.rowBytes() * bm.height() / 4);
-#endif
-#if 1
-        SkBitmap        bm;
-        bm.setConfig(SkBitmap::kARGB_8888_Config, 20, 20);
-        bm.allocPixels();
-        sk_memset32((uint32_t*)bm.getAddr32(0, 0), 0xFFDDDDDD, bm.rowBytes() * bm.height() / 4);
-#endif
-
-        SkPaint paint;
-
-//        SkShader* shader = SkShader::CreateBitmapShader(bm, false, SkPaint::kBilinear_FilterType, SkShader::kRepeat_TileMode);
-        SkPoint pts[] = { 0, 0, SkIntToScalar(100), SkIntToScalar(0) };
-        SkColor colors[] = { SK_ColorBLACK, SK_ColorWHITE };
-        SkShader* shader = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kMirror_TileMode);
-        paint.setShader(shader)->unref();
-
-        canvas->drawPaint(paint);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
-        if (false) {
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            SkBitmap bm;
-            bm.setConfig(SkBitmap::kA8_Config, 100, 100);
-            bm.allocPixels();
-            bm.eraseColor(0);
-            SkCanvas c(bm);
-            c.drawCircle(50, 50, 50, paint);
-
-            paint.setColor(SK_ColorBLUE);
-            canvas->drawBitmap(bm, 0, 0, &paint);
-            canvas->scale(SK_Scalar1/2, SK_Scalar1/2);
-            paint.setColor(SK_ColorRED);
-            canvas->drawBitmap(bm, 0, 0, &paint);
-            return;
-        }
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
 #ifdef SK_DEBUG
         if (true) {
             SkRegion a, b, c;
@@ -302,31 +235,25 @@ protected:
         
         canvas->translate(0, SkIntToScalar(200));
 
-        for (int op = 0; op < SK_ARRAY_COUNT(gOps); op++)
-        {
+        for (int op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
             canvas->drawText(gOps[op].fName, strlen(gOps[op].fName), SkIntToScalar(75), SkIntToScalar(50), textPaint);
 
             this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);
 
-            if (true)
-            {
-                canvas->save();
-                canvas->translate(0, SkIntToScalar(200));
-                this->drawPathOped(canvas, gOps[op].fOp, gOps[op].fColor);
-                canvas->restore();
-            }
+            canvas->save();
+            canvas->translate(0, SkIntToScalar(200));
+            this->drawPathOped(canvas, gOps[op].fOp, gOps[op].fColor);
+            canvas->restore();
             
             canvas->translate(SkIntToScalar(200), 0);
         }
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         return fRect.contains(SkScalarRound(x), SkScalarRound(y)) ? new Click(this) : NULL;
     }
     
-    virtual bool onClick(Click* click) 
-    {
+    virtual bool onClick(Click* click) {
         fRect.offset(click->fICurr.fX - click->fIPrev.fX,
                      click->fICurr.fY - click->fIPrev.fY);
         this->inval(NULL);
@@ -336,7 +263,7 @@ protected:
 private:
     SkIRect    fBase, fRect;
     
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

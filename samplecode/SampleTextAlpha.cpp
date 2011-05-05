@@ -35,7 +35,7 @@ static void check_for_nonwhite(const SkBitmap& bm, int alpha) {
     }
 }
 
-class TextAlphaView : public SkView {
+class TextAlphaView : public SampleView {
 public:    
 	TextAlphaView() {
         fByte = 0xFF;
@@ -52,13 +52,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         const char* str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         SkPaint paint;
         SkScalar    x = SkIntToScalar(10);
@@ -110,7 +104,7 @@ protected:
 private:
     int fByte;
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

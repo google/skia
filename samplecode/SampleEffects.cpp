@@ -65,7 +65,7 @@ const PaintProc gPaintProcs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EffectsView : public SkView {
+class EffectsView : public SampleView {
 public:
     SkPath fPath;
     SkPaint fPaint[SK_ARRAY_COUNT(gPaintProcs)];
@@ -96,6 +96,8 @@ public:
         SkColorMatrix cm;
         cm.setRotate(SkColorMatrix::kG_Axis, 180);
         cm.setIdentity();
+        
+        this->setBGColor(0xFFDDDDDD);
     }
     
 protected:
@@ -108,13 +110,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->scale(3, 3);
         canvas->translate(10, 30);
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPaint); i++) {
@@ -124,7 +120,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

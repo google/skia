@@ -40,13 +40,12 @@ static SkShader* make_bitmapfade(const SkBitmap& bm)
     return shader;
 }
 
-class ShaderView : public SkView {
+class ShaderView : public SampleView {
 public:
     SkShader*   fShader;
     SkBitmap    fBitmap;
 
-	ShaderView()
-    {
+	ShaderView() {
         SkImageDecoder::DecodeFile("/skimages/logo.gif", &fBitmap);
 
         SkPoint pts[2];
@@ -71,8 +70,7 @@ public:
         shaderB->unref();
         mode->unref();
     }
-    virtual ~ShaderView()
-    {
+    virtual ~ShaderView() {
         SkSafeUnref(fShader);
     }
 
@@ -86,16 +84,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas)
-    {
-//        canvas->drawColor(0xFFDDDDDD);
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->drawBitmap(fBitmap, 0, 0);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(120));
@@ -125,19 +114,17 @@ protected:
         canvas->drawRect(r, paint);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y)
-    {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
 
-    virtual bool onClick(Click* click)
-    {
+    virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

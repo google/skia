@@ -98,10 +98,12 @@ static void lettersToBitmap2(SkBitmap* dst, const char chars[],
     canvas.drawPath(path, paint);
 }
 
-class StrokeTextView : public SkView {
+class StrokeTextView : public SampleView {
     bool fAA;
 public:
-	StrokeTextView() : fAA(false) {}
+	StrokeTextView() : fAA(false) {
+        this->setBGColor(0xFFCC8844);
+    }
     
 protected:
     // overrides from SkEventSink
@@ -113,14 +115,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFF333333);
-        canvas->drawColor(0xFFCC8844);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkBitmap bm;
         SkPaint paint;
         
@@ -135,7 +130,7 @@ protected:
     
 private:
     
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

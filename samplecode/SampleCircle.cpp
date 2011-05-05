@@ -17,7 +17,7 @@ static void test_circlebounds(SkCanvas* canvas) {
 #endif
 }
 
-class CircleView : public SkView {
+class CircleView : public SampleView {
 public:
     static const SkScalar ANIM_DX;
     static const SkScalar ANIM_DY;
@@ -37,10 +37,6 @@ protected:
             return true;
         }
         return this->INHERITED::onQuery(evt);
-    }
-    
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
     }
     
     void circle(SkCanvas* canvas, int width, bool aa) {
@@ -95,9 +91,7 @@ protected:
         canvas->translate(px, py);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -114,34 +108,11 @@ protected:
             canvas->translate(-SK_Scalar1, 0);
             canvas->drawPath(path, paint);
         }
-        
-        if (false) {
-            test_circlebounds(canvas);
-            
-            SkScalar dx = SkIntToScalar(32);
-            SkScalar dy = SkIntToScalar(32);
-            
-            canvas->translate(dx + fDX, dy + fDY);
-            drawSix(canvas, dx, dy);
-
-            canvas->translate(dx, 0);
-            canvas->translate(SK_ScalarHalf, SK_ScalarHalf);
-            drawSix(canvas, dx, dy);
-        
-            fDX += ANIM_DX;
-            fDY += ANIM_DY;
-            fRAD += ANIM_RAD;
-            fN += 1;
-            if (fN > 40) {
-                fN = 3;
-            }
-            this->inval(NULL);
-        }
     }
     
 private:
     int fN;
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 const SkScalar CircleView::ANIM_DX(SK_Scalar1 / 67);
