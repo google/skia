@@ -17,7 +17,7 @@ static const char* gNames[] = {
     "/skimages/background_01.png"
 };
 
-class Filter2View : public SkView {
+class Filter2View : public SampleView {
 public:
     SkBitmap*   fBitmaps;
     int         fBitmapCount;
@@ -38,6 +38,8 @@ public:
                                    SkImageDecoder::kDecodePixels_Mode, NULL);
         }
         fCurrIndex = 0;
+        
+        this->setBGColor(SK_ColorGRAY);
     }
     
     virtual ~Filter2View() {
@@ -56,15 +58,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-//        canvas->drawColor(0xFFDDDDDD);
-        canvas->drawColor(SK_ColorGRAY);
-//        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(50));
         
         const SkScalar W = SkIntToScalar(fBitmaps[0].width() + 1);
@@ -112,7 +106,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

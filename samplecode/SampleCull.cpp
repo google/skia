@@ -10,8 +10,7 @@
 #include "SkUtils.h"
 #include "SkRandom.h"
 
-static void addbump(SkPath* path, const SkPoint pts[2], SkScalar bump)
-{
+static void addbump(SkPath* path, const SkPoint pts[2], SkScalar bump) {
     SkVector    tang;
     
     tang.setLength(pts[1].fX - pts[0].fX, pts[1].fY - pts[0].fY, bump);
@@ -21,8 +20,7 @@ static void addbump(SkPath* path, const SkPoint pts[2], SkScalar bump)
     path->lineTo(pts[1]);
 }
 
-static void subdivide(SkPath* path, SkScalar bump)
-{
+static void subdivide(SkPath* path, SkScalar bump) {
     SkPath::Iter    iter(*path, false);
     SkPoint         pts[4];
     SkPath          tmp;
@@ -46,8 +44,7 @@ FINISH:
     path->swap(tmp);
 }
 
-static SkIPoint* getpts(const SkPath& path, int* count)
-{
+static SkIPoint* getpts(const SkPath& path, int* count) {
     SkPoint     pts[4];
     int         n = 1;
     SkIPoint*   array;
@@ -92,15 +89,13 @@ FINISHED2:
     return array;
 }
 
-static SkScalar nextScalarRange(SkRandom& rand, SkScalar min, SkScalar max)
-{
+static SkScalar nextScalarRange(SkRandom& rand, SkScalar min, SkScalar max) {
     return min + SkScalarMul(rand.nextUScalar1(), max - min);
 }
 
-class CullView : public SkView {
+class CullView : public SampleView {
 public:
-	CullView()
-    {
+	CullView() {
         fClip.set(0, 0, SkIntToScalar(160), SkIntToScalar(160));
         
         SkRandom    rand;
@@ -119,51 +114,25 @@ public:
         subdivide(&fPath, bump);
         subdivide(&fPath, bump);
         fPoints = getpts(fPath, &fPtCount);
+        
+        this->setBGColor(0xFFDDDDDD);
     }
     
-    virtual ~CullView()
-    {
+    virtual ~CullView() {
         delete[] fPoints;
     }
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Culling");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
-        canvas->drawColor(0xFFDDDDDD);
-        
-    #if 0
-        SkPaint paint;
-        
-        paint.setAntiAliasOn(true);
-        paint.setTextSize(SkIntToScalar(20));
-        paint.setTypeface(SkTypeface::Create("serif", SkTypeface::kBoldItalic))->unref();
-
-        uint16_t    text[20];
-        
-        text[0] = 'H';
-        text[1] = 'i';
-        text[2] = ' ';
-        for (int i = 3; i < 20; i++)
-            text[i] = 0x3040 + i;
-        canvas->drawText16(text, 20, SkIntToScalar(20), SkIntToScalar(20), paint);
-    #endif
-    }
-    
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkAutoCanvasRestore ar(canvas, true);
 
         canvas->translate(  SkScalarHalf(this->width() - fClip.width()),
@@ -204,23 +173,13 @@ protected:
         this->inval(NULL);
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
-    
-    virtual bool onClick(Click* click) 
-    {
-        return this->INHERITED::onClick(click);
-    }
-    
 private:
     SkRect      fClip;
     SkIPoint*   fPoints;
     SkPath      fPath;
     int         fPtCount;
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

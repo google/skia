@@ -62,8 +62,7 @@ static void draw_sweep(SkCanvas* c, int width, int height, SkScalar angle) {
     }
 }
 
-static void make_bm(SkBitmap* bm)
-{
+static void make_bm(SkBitmap* bm) {
     bm->setConfig(SkBitmap::kARGB_8888_Config, 100, 100);
     bm->allocPixels();
 #if 0
@@ -109,7 +108,7 @@ static void pre_dither(const SkBitmap& bm) {
     }
 }
 
-class DitherView : public SkView {
+class DitherView : public SampleView {
 public:
     SkBitmap    fBM, fBMPreDither, fBM16;
     SkScalar fAngle;
@@ -121,6 +120,8 @@ public:
         fBM.copyTo(&fBM16, SkBitmap::kARGB_4444_Config);
         
         fAngle = 0;
+        
+        this->setBGColor(0xFF181818);
     }
 
 protected:
@@ -133,14 +134,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-//        canvas->drawColor(0xFFDDDDDD);
-        canvas->drawColor(0xFF181818);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
@@ -173,20 +167,8 @@ protected:
         this->inval(NULL);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
-     //   fSweep += SK_Scalar1;
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
-    
-    virtual bool onClick(Click* click) 
-    {
-        return this->INHERITED::onClick(click);
-    }
-    
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

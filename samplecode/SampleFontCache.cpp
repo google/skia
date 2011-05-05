@@ -6,8 +6,7 @@
 
 #include <pthread.h>
 
-static void call_measure()
-{
+static void call_measure() {
     SkPaint paint;
     uint16_t text[32];
     SkRandom rand;
@@ -17,8 +16,7 @@ static void call_measure()
     for (int j = 0; j < SK_ARRAY_COUNT(text); j++)
         text[j] = (uint16_t)((rand.nextU() & 0xFF) + 32);
     
-    for (int i = 9; i < 36; i++)
-    {
+    for (int i = 9; i < 36; i++) {
         SkPaint::FontMetrics m;
         
         paint.setTextSize(SkIntToScalar(i));
@@ -27,8 +25,7 @@ static void call_measure()
     }
 }
 
-static void call_draw(SkCanvas* canvas)
-{
+static void call_draw(SkCanvas* canvas) {
     SkPaint paint;
     uint16_t text[32];
     SkRandom rand;
@@ -55,28 +52,24 @@ static void call_draw(SkCanvas* canvas)
 
 static bool gDone;
 
-static void* measure_proc(void* context)
-{
-    while (!gDone)
-    {
+static void* measure_proc(void* context) {
+    while (!gDone) {
         call_measure();
     }
     return NULL;
 }
 
-static void* draw_proc(void* context)
-{
+static void* draw_proc(void* context) {
     SkBitmap* bm = (SkBitmap*)context;
     SkCanvas    canvas(*bm);
 
-    while (!gDone)
-    {
+    while (!gDone) {
         call_draw(&canvas);
     }
     return NULL;
 }
 
-class FontCacheView : public SkView {
+class FontCacheView : public SampleView {
 public:
     enum { N = 4 };
     
@@ -84,11 +77,9 @@ public:
     pthread_t   fDThreads[N];
     SkBitmap    fBitmaps[N];
 
-	FontCacheView()
-    {
+	FontCacheView() {
         gDone = false;
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             int status;
             
             status = pthread_create(&fMThreads[i], NULL,  measure_proc, NULL);
@@ -99,13 +90,12 @@ public:
             status = pthread_create(&fDThreads[i], NULL,  draw_proc, &fBitmaps[i]);
             SkASSERT(0 == status);
         }
+        this->setBGColor(0xFFDDDDDD);
     }
     
-    virtual ~FontCacheView()
-    {
+    virtual ~FontCacheView() {
         gDone = true;
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             void* ret;
             int status = pthread_join(fMThreads[i], &ret);
             SkASSERT(0 == status);
@@ -116,49 +106,26 @@ public:
     
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "FontCache");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
-        canvas->drawColor(0xFFDDDDDD);
-//        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar x = 0;
         SkScalar y = 0;
-        for (int i = 0; i < N; i++)
-        {
+        for (int i = 0; i < N; i++) {
             canvas->drawBitmap(fBitmaps[i], x, y);
             x += SkIntToScalar(fBitmaps[i].width());
         }
         this->inval(NULL);
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
-    
-    virtual bool onClick(Click* click) 
-    {
-        return this->INHERITED::onClick(click);
-    }
-    
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

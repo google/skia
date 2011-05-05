@@ -23,34 +23,24 @@
 #include "SkColorPriv.h"
 #include "SkImageDecoder.h"
 
-class LinesView : public SkView {
+class LinesView : public SampleView {
 public:
 	LinesView() {}
     
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Lines");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas)
-    {
-//        canvas->drawColor(0xFFDDDDDD);
-        canvas->drawColor(SK_ColorWHITE);
-   //     canvas->drawColor(SK_ColorBLACK);
-    }
-    
     /*
      0x1F * x + 0x1F * (32 - x)
      */
-    void drawRings(SkCanvas* canvas)
-    {
+    void drawRings(SkCanvas* canvas) {
         canvas->scale(SkIntToScalar(1)/2, SkIntToScalar(1)/2);
         
         SkRect  r;        
@@ -67,10 +57,7 @@ protected:
         canvas->drawRect(r, paint);
     }
     
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkBitmap bm;
         SkImageDecoder::DecodeFile("/kill.gif", &bm);
         canvas->drawBitmap(bm, 0, 0, NULL);
@@ -104,8 +91,7 @@ protected:
         canvas->drawLine(x, y, x + SkIntToScalar(90), y + SkIntToScalar(90), paint);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         fAlpha = SkScalarRound(y);
         this->inval(NULL);
         return NULL;
@@ -113,7 +99,7 @@ protected:
 private:
 
     int fAlpha;
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

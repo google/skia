@@ -14,8 +14,7 @@
 #include "SkColorFilter.h"
 #include "SkDither.h"
 
-static void make_bm(SkBitmap* bm)
-{
+static void make_bm(SkBitmap* bm) {
     const SkColor colors[] = {
         SK_ColorRED, SK_ColorGREEN,
         SK_ColorBLUE, SK_ColorWHITE
@@ -32,8 +31,7 @@ static void make_bm(SkBitmap* bm)
 }
 
 static SkScalar draw_bm(SkCanvas* canvas, const SkBitmap& bm,
-                        SkScalar x, SkScalar y, SkPaint* paint)
-{
+                        SkScalar x, SkScalar y, SkPaint* paint) {
 #if 1
     canvas->drawBitmap(bm, x, y, paint);
     return SkIntToScalar(bm.width()) * 5/4;
@@ -52,8 +50,7 @@ static SkScalar draw_bm(SkCanvas* canvas, const SkBitmap& bm,
 #endif
 }
 
-static SkScalar draw_set(SkCanvas* c, const SkBitmap& bm, SkScalar x, SkPaint* p)
-{
+static SkScalar draw_set(SkCanvas* c, const SkBitmap& bm, SkScalar x, SkPaint* p) {
     x += draw_bm(c, bm, x, 0, p);
     p->setFilterBitmap(true);
     x += draw_bm(c, bm, x, 0, p);
@@ -71,8 +68,7 @@ static const char* gConfigNames[] = {
     "8888"
 };
 
-static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm)
-{
+static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     SkAutoCanvasRestore acr(canvas, true);
 
     SkPaint paint;
@@ -94,39 +90,30 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm)
     return x * scale / 3;
 }
 
-class FilterView : public SkView {
+class FilterView : public SampleView {
 public:
     SkBitmap    fBM8, fBM4444, fBM16, fBM32;
 
-	FilterView()
-    {
+	FilterView() {
         make_bm(&fBM8);
         fBM8.copyTo(&fBM4444, SkBitmap::kARGB_4444_Config);
         fBM8.copyTo(&fBM16, SkBitmap::kRGB_565_Config);
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
+        
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Filter");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
         
@@ -140,20 +127,8 @@ protected:
         draw_row(canvas, fBM32);
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
-     //   fSweep += SK_Scalar1;
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
-    
-    virtual bool onClick(Click* click) 
-    {
-        return this->INHERITED::onClick(click);
-    }
-    
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

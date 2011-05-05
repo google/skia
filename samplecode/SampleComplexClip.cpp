@@ -3,9 +3,10 @@
 #include "SkPath.h"
 #include "SkView.h"
 
-class ComplexClipView : public SkView {
+class ComplexClipView : public SampleView {
 public:
 	ComplexClipView() {
+        this->setBGColor(0xFFA0DDA0);
     }
 
 protected:
@@ -18,11 +19,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SkColorSetRGB(0xA0,0xDD,0xA0));
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPath path;
         path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));
         path.quadTo(SkIntToScalar(0),   SkIntToScalar(0),   SkIntToScalar(50),  SkIntToScalar(0));
@@ -62,7 +59,6 @@ protected:
         clipB.close();
         SkColor colorB = SK_ColorRED;
 
-        drawBG(canvas);
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -145,7 +141,7 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y);
     }
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

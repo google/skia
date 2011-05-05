@@ -1334,7 +1334,7 @@ bool SampleView::onQuery(SkEvent* evt) {
     return this->INHERITED::onQuery(evt);
 }
 
-#define TEST_GPIPEx
+#define TEST_GPIPE
 
 #ifdef TEST_GPIPE
     #include "SkGPipe.h"
@@ -1348,10 +1348,11 @@ public:
     virtual void notifyWritten(size_t bytes);
 
 private:
-    SkGPipeReader fReader;
-    void*         fBlock;
-    size_t        fBlockSize;
-    size_t        fBytesWritten;
+    SkGPipeReader   fReader;
+    void*           fBlock;
+    size_t          fBlockSize;
+    size_t          fBytesWritten;
+    int             fAtomsWritten;
     SkGPipeReader::Status   fStatus;
 
     size_t        fTotalWritten;
@@ -1362,13 +1363,15 @@ SimplePC::SimplePC(SkCanvas* target) : fReader(target) {
     fBlockSize = fBytesWritten = 0;
     fStatus = SkGPipeReader::kDone_Status;
     fTotalWritten = 0;
+    fAtomsWritten = 0;
 }
 
 SimplePC::~SimplePC() {
 //    SkASSERT(SkGPipeReader::kDone_Status == fStatus);
     sk_free(fBlock);
 
-    SkDebugf("--- %d bytes written to pipe, status %d\n", fTotalWritten, fStatus);
+    SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
+             fAtomsWritten, fStatus);
 }
 
 void* SimplePC::requestBlock(size_t minRequest, size_t* actual) {
@@ -1388,6 +1391,8 @@ void SimplePC::notifyWritten(size_t bytes) {
     SkASSERT(SkGPipeReader::kError_Status != fStatus);
     fBytesWritten += bytes;
     fTotalWritten += bytes;
+
+    fAtomsWritten += 1;
 }
 
 #endif
