@@ -9,7 +9,7 @@
 #define WIDTH   200
 #define HEIGHT  200
 
-class LooperView : public SkView {
+class LooperView : public SampleView {
 public:
 
     SkLayerDrawLooper*   fLooper;
@@ -48,6 +48,8 @@ public:
                 paint->setMaskFilter(mf)->unref();
             }
         }
+        
+        this->setBGColor(0xFFDDDDDD);
     }
 
     virtual ~LooperView() {
@@ -64,14 +66,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-//        canvas->drawColor(SK_ColorWHITE);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint  paint;
         paint.setTextSize(SkIntToScalar(72));
         paint.setLooper(fLooper);
@@ -86,17 +81,8 @@ protected:
                          paint);
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
-
-    virtual bool onClick(Click* click) {
-        return this->INHERITED::onClick(click);
-    }
-
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
