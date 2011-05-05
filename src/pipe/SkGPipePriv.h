@@ -56,9 +56,16 @@ enum DrawOps {
     kSkew_DrawOp,
     kTranslate_DrawOp,
 
-    // these edit paints
     kPaintOp_DrawOp,
-    kDefineTypeface_DrawOp,
+
+    kDef_ColorFilter_DrawOp,
+    kDef_DrawLooper_DrawOp,
+    kDef_MaskFilter_DrawOp,
+    kDef_PathEffect_DrawOp,
+    kDef_Rasterizer_DrawOp,
+    kDef_Shader_DrawOp,
+    kDef_Typeface_DrawOp,
+    kDef_Xfermode_DrawOp,
 
     // these are signals to playback, not drawing verbs
     kDone_DrawOp,
