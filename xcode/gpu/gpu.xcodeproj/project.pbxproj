@@ -22,8 +22,6 @@
 		00115E1612C1167A008296FE /* GrGpuGL.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115DE612C1167A008296FE /* GrGpuGL.h */; };
 		00115E1712C1167A008296FE /* GrGpuGLFixed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DE712C1167A008296FE /* GrGpuGLFixed.cpp */; };
 		00115E1812C1167A008296FE /* GrGpuGLFixed.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115DE812C1167A008296FE /* GrGpuGLFixed.h */; };
-		00115E1B12C1167A008296FE /* GrGpuGLShaders2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DEB12C1167A008296FE /* GrGpuGLShaders2.cpp */; };
-		00115E1C12C1167A008296FE /* GrGpuGLShaders2.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115DEC12C1167A008296FE /* GrGpuGLShaders2.h */; };
 		00115E1D12C1167A008296FE /* GrInOrderDrawBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DED12C1167A008296FE /* GrInOrderDrawBuffer.cpp */; };
 		00115E1E12C1167A008296FE /* GrMatrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DEE12C1167A008296FE /* GrMatrix.cpp */; };
 		00115E1F12C1167A008296FE /* GrMemory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00115DEF12C1167A008296FE /* GrMemory.cpp */; };
@@ -87,6 +85,8 @@
 		00115EA912C116CA008296FE /* GrUserConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6D12C116CA008296FE /* GrUserConfig.h */; };
 		00115EAA12C116CA008296FE /* GrVertexBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 00115E6E12C116CA008296FE /* GrVertexBuffer.h */; };
 		00216E5E130F0B03009A2160 /* GrGLIRect.h in Headers */ = {isa = PBXBuildFile; fileRef = 00216E5D130F0B03009A2160 /* GrGLIRect.h */; };
+		005CE9221372E6D200F36FD0 /* GrGpuGLShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005CE9211372E6D200F36FD0 /* GrGpuGLShaders.cpp */; };
+		005CE93C1372E70900F36FD0 /* GrGLProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 005CE93B1372E70900F36FD0 /* GrGLProgram.cpp */; };
 		7D669346132ABD5D003AC2F5 /* GrGLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7D669345132ABD5D003AC2F5 /* GrGLInterface.cpp */; };
 		7D66934C132ABD8F003AC2F5 /* GrGLInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D66934B132ABD8F003AC2F5 /* GrGLInterface.h */; };
 		7D6EBF5A13330E8400AEAADD /* GrGLDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 7D6EBF5913330E8400AEAADD /* GrGLDefines.h */; };
@@ -126,8 +126,6 @@
 		00115DE612C1167A008296FE /* GrGpuGL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGpuGL.h; path = ../../gpu/src/GrGpuGL.h; sourceTree = SOURCE_ROOT; };
 		00115DE712C1167A008296FE /* GrGpuGLFixed.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGpuGLFixed.cpp; path = ../../gpu/src/GrGpuGLFixed.cpp; sourceTree = SOURCE_ROOT; };
 		00115DE812C1167A008296FE /* GrGpuGLFixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGpuGLFixed.h; path = ../../gpu/src/GrGpuGLFixed.h; sourceTree = SOURCE_ROOT; };
-		00115DEB12C1167A008296FE /* GrGpuGLShaders2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGpuGLShaders2.cpp; path = ../../gpu/src/GrGpuGLShaders2.cpp; sourceTree = SOURCE_ROOT; };
-		00115DEC12C1167A008296FE /* GrGpuGLShaders2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGpuGLShaders2.h; path = ../../gpu/src/GrGpuGLShaders2.h; sourceTree = SOURCE_ROOT; };
 		00115DED12C1167A008296FE /* GrInOrderDrawBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrInOrderDrawBuffer.cpp; path = ../../gpu/src/GrInOrderDrawBuffer.cpp; sourceTree = SOURCE_ROOT; };
 		00115DEE12C1167A008296FE /* GrMatrix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrMatrix.cpp; path = ../../gpu/src/GrMatrix.cpp; sourceTree = SOURCE_ROOT; };
 		00115DEF12C1167A008296FE /* GrMemory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrMemory.cpp; path = ../../gpu/src/GrMemory.cpp; sourceTree = SOURCE_ROOT; };
@@ -191,6 +189,8 @@
 		00115E6D12C116CA008296FE /* GrUserConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrUserConfig.h; path = ../../gpu/include/GrUserConfig.h; sourceTree = SOURCE_ROOT; };
 		00115E6E12C116CA008296FE /* GrVertexBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrVertexBuffer.h; path = ../../gpu/include/GrVertexBuffer.h; sourceTree = SOURCE_ROOT; };
 		00216E5D130F0B03009A2160 /* GrGLIRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLIRect.h; path = ../../gpu/include/GrGLIRect.h; sourceTree = SOURCE_ROOT; };
+		005CE9211372E6D200F36FD0 /* GrGpuGLShaders.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGpuGLShaders.cpp; path = ../../gpu/src/GrGpuGLShaders.cpp; sourceTree = SOURCE_ROOT; };
+		005CE93B1372E70900F36FD0 /* GrGLProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLProgram.cpp; path = ../../gpu/src/GrGLProgram.cpp; sourceTree = SOURCE_ROOT; };
 		7D669345132ABD5D003AC2F5 /* GrGLInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLInterface.cpp; path = ../../gpu/src/GrGLInterface.cpp; sourceTree = SOURCE_ROOT; };
 		7D66934B132ABD8F003AC2F5 /* GrGLInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLInterface.h; path = ../../gpu/include/GrGLInterface.h; sourceTree = SOURCE_ROOT; };
 		7D6EBF5913330E8400AEAADD /* GrGLDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GrGLDefines.h; path = ../../gpu/include/GrGLDefines.h; sourceTree = SOURCE_ROOT; };
@@ -307,6 +307,8 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				005CE93B1372E70900F36FD0 /* GrGLProgram.cpp */,
+				005CE9211372E6D200F36FD0 /* GrGpuGLShaders.cpp */,
 				D595ACF7134B70A80069756C /* GrTexture.cpp */,
 				D5E5B5BB13462F1C00A1A3BF /* GrGLDefaultInterface_mac.cpp */,
 				D5134DB0134281FD0041146E /* GrResource.cpp */,
@@ -333,8 +335,6 @@
 				00115DE612C1167A008296FE /* GrGpuGL.h */,
 				00115DE712C1167A008296FE /* GrGpuGLFixed.cpp */,
 				00115DE812C1167A008296FE /* GrGpuGLFixed.h */,
-				00115DEB12C1167A008296FE /* GrGpuGLShaders2.cpp */,
-				00115DEC12C1167A008296FE /* GrGpuGLShaders2.h */,
 				00115DED12C1167A008296FE /* GrInOrderDrawBuffer.cpp */,
 				00115DEE12C1167A008296FE /* GrMatrix.cpp */,
 				00115DEF12C1167A008296FE /* GrMemory.cpp */,
@@ -376,7 +376,6 @@
 			files = (
 				00115E1612C1167A008296FE /* GrGpuGL.h in Headers */,
 				00115E1812C1167A008296FE /* GrGpuGLFixed.h in Headers */,
-				00115E1C12C1167A008296FE /* GrGpuGLShaders2.h in Headers */,
 				00115E2712C1167A008296FE /* GrTextStrike_impl.h in Headers */,
 				00115E7512C116CA008296FE /* GrAllocator.h in Headers */,
 				00115E7612C116CA008296FE /* GrAllocPool.h in Headers */,
@@ -507,7 +506,6 @@
 				00115E1412C1167A008296FE /* GrGpuFactory.cpp in Sources */,
 				00115E1512C1167A008296FE /* GrGpuGL.cpp in Sources */,
 				00115E1712C1167A008296FE /* GrGpuGLFixed.cpp in Sources */,
-				00115E1B12C1167A008296FE /* GrGpuGLShaders2.cpp in Sources */,
 				00115E1D12C1167A008296FE /* GrInOrderDrawBuffer.cpp in Sources */,
 				00115E1E12C1167A008296FE /* GrMatrix.cpp in Sources */,
 				00115E1F12C1167A008296FE /* GrMemory.cpp in Sources */,
@@ -527,6 +525,8 @@
 				D5134DB1134281FD0041146E /* GrResource.cpp in Sources */,
 				D5E5B5BC13462F1C00A1A3BF /* GrGLDefaultInterface_mac.cpp in Sources */,
 				D595ACF8134B70A80069756C /* GrTexture.cpp in Sources */,
+				005CE9221372E6D200F36FD0 /* GrGpuGLShaders.cpp in Sources */,
+				005CE93C1372E70900F36FD0 /* GrGLProgram.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
