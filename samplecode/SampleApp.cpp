@@ -1334,7 +1334,7 @@ bool SampleView::onQuery(SkEvent* evt) {
     return this->INHERITED::onQuery(evt);
 }
 
-#define TEST_GPIPE
+#define TEST_GPIPEx
 
 #ifdef TEST_GPIPE
     #include "SkGPipe.h"
