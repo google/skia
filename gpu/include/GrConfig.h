@@ -334,10 +334,6 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
     #define GR_DUMP_TEXTURE_UPLOAD  0
 #endif
 
-#ifndef GR_USE_NEW_GLSHADERS
-    #define GR_USE_NEW_GLSHADERS 0
-#endif
-
 /**
  *  GR_COLLECT_STATS controls whether the GrGpu class collects stats.
  *  If not already defined then collect in debug build but not release.
