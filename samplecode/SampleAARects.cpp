@@ -28,7 +28,7 @@ static SkBitmap createBitmap(int n) {
     return bitmap;
 }
 
-class AARectView : public SkView {
+class AARectView : public SampleView {
     SkBitmap fBitmap;
     enum {
         N = 64
@@ -50,13 +50,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
         SkPaint bluePaint;
@@ -187,7 +181,7 @@ protected:
 private:
     int fWidth;
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
