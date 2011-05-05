@@ -55,10 +55,10 @@ GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
         case kOpenGL_Shaders_GrEngine:
             GrAssert(NULL == context3D);
             {
-#if GR_USE_NEW_GLSHADERS
-                gpu = new GrGpuGLShaders;
-#else
+#if 0 // old code path, will be removed soon
                 gpu = new GrGpuGLShaders2;
+#else
+                gpu = new GrGpuGLShaders;
 #endif
             }
             break;
