@@ -19,108 +19,35 @@
 #define GrScalar_DEFINED
 
 #include "GrTypes.h"
+#include "SkScalar.h"
 
-#include <float.h>
-#include <math.h>
+#define GR_Int32Min         SK_NaN32
+#define GR_Int32Max         SK_MaxS32
 
-#define GR_Int32Max            (0x7fffffff)
-#define GR_Int32Min            (0x80000000)
+#define GR_Fixed1           SK_Fixed1
+#define GR_FixedHalf        SK_FixedHalf
+#define GrIntToFixed(a)     SkIntToFixed(a)
+#define GrFixedToFloat(a)   SkFixedToFloat(a)
+#define GrFixedFloorToInt(a)    SkFixedFloor(a)
 
-/**
- *  Convert an int to fixed point 
- */
-#if GR_DEBUG
-    inline GrFixed GrIntToFixed(int i) {
-        GrAssert(((i & 0xffff0000) == 0xffff0000) || ((i & 0xffff0000) == 0x0));
-        return i << 16;
-    }
-#else
-    #define GrIntToFixed(i) (GrFixed)((i) << 16)
-#endif
+#define GrScalar            SkScalar
+#define GR_Scalar1          SK_Scalar1
+#define GR_ScalarHalf       SK_ScalarHalf
+#define GR_ScalarMin        SK_ScalarMin
+#define GR_ScalarMax        SK_ScalarMax
 
-#define GR_Fixed1              (1 << 16)
-#define GR_FixedHalf           (1 << 15)
-#define GR_FixedMax            GR_Int32Max
-#define GR_FixedMin            GR_Int32Min
-
-#define GrFixedFloorToFixed(x)  ((x) & ~0xFFFF)
-#define GrFixedFloorToInt(x)    ((x) >> 16)
-
-/**
- *  Convert fixed point to floating point
- */
-#define GrFixedToFloat(x)      ((x) * 0.0000152587890625f)
-
-/**
- *  Convert floating point to fixed point
- */
-#define GrFloatToFixed(x)      ((GrFixed)((x) * GR_Fixed1))
-
-static inline GrFixed GrFixedAbs(GrFixed x) {
-    int32_t s = (x & 0x80000000) >> 31;
-    return (GrFixed)(((int32_t)x ^ s) - s);  
-}
-
-static inline bool GrFixedIsInt(GrFixed x) {
-    return 0 == (x & 0xffff);
-}
-
-static inline bool GrFloatIsInt(float x) {
-    return x == (float)(int)x;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-#if GR_SCALAR_IS_FIXED
-    typedef GrFixed                 GrScalar;
-    #define GrIntToScalar(x)        GrIntToFixed(x)
-    #define GrFixedToScalar(x)      (x)
-    #define GrScalarToFloat(x)      GrFixedToFloat(x)
-    #define GrFloatToScalar(x)      GrFloatToFixed(x)
-    #define GrScalarHalf(x)         ((x) >> 1)
-    #define GrScalarAve(x,y)        (((x)+(y)) >> 1)
-    #define GrScalarAbs(x)          GrFixedAbs(x)
-    #define GrScalarIsInt           GrFixedIsInt
-    #define GR_Scalar1              GR_Fixed1
-    #define GR_ScalarHalf           GR_FixedHalf
-    #define GR_ScalarMax            GR_FixedMax
-    #define GR_ScalarMin            GR_FixedMin
-#elif GR_SCALAR_IS_FLOAT
-    typedef float                   GrScalar;
-    #define GrIntToScalar(x)        ((GrScalar)x)
-    #define GrFixedToScalar(x)      GrFixedToFloat(x)
-    #define GrScalarToFloat(x)      (x)
-    #define GrFloatToScalar(x)      (x)
-    #define GrScalarHalf(x)         ((x) * 0.5f)
-    #define GrScalarAbs(x)          fabsf(x)
-    #define GrScalarAve(x,y)        (((x) + (y)) * 0.5f)
-    #define GrScalarIsInt           GrFloatIsInt
-    #define GR_Scalar1              1.f    
-    #define GR_ScalarHalf           0.5f
-    #define GR_ScalarMax            (FLT_MAX)
-    #define GR_ScalarMin            (-FLT_MAX)
-
-    static inline int32_t GrScalarFloorToInt(float x) {
-        return (int32_t)::floorf(x);
-    }
-    static inline int32_t GrScalarCeilToInt(float x) {
-        return (int32_t)::ceilf(x);
-    }
-#else
-    #error "Scalar type not defined"
-#endif
-
-/**
- *  Multiply two GrScalar values
- */
-static inline GrScalar GrMul(GrScalar a, GrScalar b) {
-#if GR_SCALAR_IS_FLOAT
-    return a * b;
-#else
-    int64_t tmp = (int64_t)a * b;
-    return (tmp + GR_FixedHalf) >> 16;
-#endif
-}
+#define GrScalarHalf(a)     SkScalarHalf(a)
+#define GrScalarAve(a,b)    SkScalarAve(a,b)
+#define GrMul(a,b)          SkScalarMul(a,b)
+#define GrScalarToFloat(a)  SkScalarToFloat(a)
+#define GrFloatToScalar(a)  SkScalarToFloat(a)
+#define GrIntToScalar(a)    SkIntToScalar(a)
+#define GrScalarAbs(a)      SkScalarAbs(a)
+#define GrScalarIsInt(a)    SkScalarIsInt(a)
+#define GrScalarMax(a,b)    SkScalarMax(a,b)
+#define GrScalarFloorToInt(a)   SkScalarFloor(a)
+#define GrScalarCeilToInt(a)    SkScalarCeil(a)
+#define GrFixedToScalar(a)  SkFixedToScalar(a)
 
 #endif
 
