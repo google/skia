@@ -374,7 +374,6 @@ void GrGpuGLShaders::flushRadial2(int s) {
 }
 
 void GrGpuGLShaders::flushTexelSize(int s) {
-    const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
     const int& uni = fProgramData->fUniLocations.fStages[s].fNormalizedTexelSizeUni;
     if (-1 != uni) {
         GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
