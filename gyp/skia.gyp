@@ -901,6 +901,8 @@
       'type': 'static_library',
       'include_dirs': [
         '../gpu/include',
+        '../include/core',
+        '../include/config',
       ],
       #'dependencies': [
       #  'libtess',
@@ -995,8 +997,6 @@
         '../gpu/src/GrGpuGLFixed.h',
         '../gpu/src/GrGpuGLShaders.cpp',
         '../gpu/src/GrGpuGLShaders.h',
-        '../gpu/src/GrGpuGLShaders2.cpp',
-        '../gpu/src/GrGpuGLShaders2.h',
         '../gpu/src/GrInOrderDrawBuffer.cpp',
         '../gpu/src/GrMatrix.cpp',
         '../gpu/src/GrMemory.cpp',

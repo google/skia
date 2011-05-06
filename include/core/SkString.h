@@ -99,6 +99,7 @@ public:
     // these methods edit the string
 
     SkString&   operator=(const SkString&);
+    SkString&   operator=(const char text[]);
 
     char*   writable_str();
     char& operator[](size_t n) { return this->writable_str()[n]; }
@@ -143,6 +144,10 @@ public:
     void prependf(const char format[], ...);
 
     void remove(size_t offset, size_t length);
+
+    SkString& operator+=(const SkString& s) { this->append(s); return *this; }
+    SkString& operator+=(const char text[]) { this->append(text); return *this; }
+    SkString& operator+=(const char c) { this->append(&c, 1); return *this; }
 
     /**
      *  Swap contents between this and other. This function is guaranteed

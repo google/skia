@@ -317,6 +317,15 @@ SkString& SkString::operator=(const SkString& src) {
     return *this;
 }
 
+SkString& SkString::operator=(const char text[]) {
+    this->validate();
+
+    SkString tmp(text);
+    this->swap(tmp);
+
+    return *this;
+}
+
 void SkString::reset() {
     this->validate();
 

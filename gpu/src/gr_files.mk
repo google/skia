@@ -11,7 +11,6 @@ SOURCE := \
     GrGLTexture.cpp \
     GrGLVertexBuffer.cpp \
     GrGpu.cpp \
-    GrGpuGLShaders2.cpp \
     GrGpuGLFixed.cpp \
     GrGpuFactory.cpp \
     GrGLUtil.cpp \
