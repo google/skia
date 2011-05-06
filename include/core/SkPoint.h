@@ -171,9 +171,40 @@ struct SK_API SkPoint {
         fY = SkIntToScalar(p.fY);
     }
 
+    void setAbs(const SkPoint& pt) {
+        fX = SkScalarAbs(pt.fX);
+        fY = SkScalarAbs(pt.fY);
+    }
+    
+    // counter-clockwise fan
+    void setIRectFan(int l, int t, int r, int b) {
+        SkPoint* v = this;
+        v[0].set(SkIntToScalar(l), SkIntToScalar(t));
+        v[1].set(SkIntToScalar(l), SkIntToScalar(b));
+        v[2].set(SkIntToScalar(r), SkIntToScalar(b));
+        v[3].set(SkIntToScalar(r), SkIntToScalar(t));
+    }
+    void setIRectFan(int l, int t, int r, int b, size_t stride);
+
+    // counter-clockwise fan
+    void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b) {
+        SkPoint* v = this;
+        v[0].set(l, t);
+        v[1].set(l, b);
+        v[2].set(r, b);
+        v[3].set(r, t);
+    }
+    void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b, size_t stride);
+
+    void offset(SkScalar dx, SkScalar dy) {
+        fX += dx;
+        fY += dy;
+    }
+
     /** Return the euclidian distance from (0,0) to the point
     */
     SkScalar length() const { return SkPoint::Length(fX, fY); }
+    SkScalar distanceToOrigin() const { return this->length(); }
 
     /** Set the point (vector) to be unit-length in the same direction as it
         currently is, and return its old length. If the old length is
@@ -314,6 +345,32 @@ struct SK_API SkPoint {
     */
     static SkScalar CrossProduct(const SkPoint& a, const SkPoint& b) {
         return SkScalarMul(a.fX, b.fY) - SkScalarMul(a.fY, b.fX);
+    }
+
+    SkScalar cross(const SkPoint& vec) const {
+        return CrossProduct(*this, vec);
+    }
+
+    SkScalar dot(const SkPoint& vec) const {
+        return DotProduct(*this, vec);
+    }
+    
+    SkScalar lengthSqd() const {
+        return DotProduct(*this, *this);
+    }
+    
+    SkScalar distanceToSqd(const SkPoint& pt) const {
+        SkScalar dx = fX - pt.fX;
+        SkScalar dy = fY - pt.fY;
+        return SkScalarMul(dx, dx) + SkScalarMul(dy, dy);
+    }
+    
+    SkScalar distanceToLineSegmentBetweenSqd(const SkPoint& a, 
+                                             const SkPoint& b) const;
+    
+    SkScalar distanceToLineSegmentBetween(const SkPoint& a, 
+                                          const SkPoint& b) const {
+        return SkScalarSqrt(this->distanceToLineSegmentBetweenSqd(a, b));
     }
 };
 

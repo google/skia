@@ -36,6 +36,29 @@ void SkIPoint::rotateCCW(SkIPoint* dst) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkPoint::setIRectFan(int l, int t, int r, int b, size_t stride) {
+    SkASSERT(stride >= sizeof(SkPoint));
+    
+    ((SkPoint*)((intptr_t)this + 0 * stride))->set(SkIntToScalar(l), 
+                                                   SkIntToScalar(t));
+    ((SkPoint*)((intptr_t)this + 1 * stride))->set(SkIntToScalar(l), 
+                                                   SkIntToScalar(b));
+    ((SkPoint*)((intptr_t)this + 2 * stride))->set(SkIntToScalar(r), 
+                                                   SkIntToScalar(b));
+    ((SkPoint*)((intptr_t)this + 3 * stride))->set(SkIntToScalar(r), 
+                                                   SkIntToScalar(t));
+}
+
+void SkPoint::setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b,
+                         size_t stride) {
+    SkASSERT(stride >= sizeof(SkPoint));
+    
+    ((SkPoint*)((intptr_t)this + 0 * stride))->set(l, t);
+    ((SkPoint*)((intptr_t)this + 1 * stride))->set(l, b);
+    ((SkPoint*)((intptr_t)this + 2 * stride))->set(r, b);
+    ((SkPoint*)((intptr_t)this + 3 * stride))->set(r, t);
+}
+
 void SkPoint::rotateCW(SkPoint* dst) const {
     SkASSERT(dst);
 
@@ -342,4 +365,40 @@ bool SkPoint::setLength(SkFixed ox, SkFixed oy, SkFixed length) {
 #endif
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a, 
+                                                  const SkPoint& b) const {
+    // See comments to distanceToLineBetweenSqd. If the projection of c onto
+    // u is between a and b then this returns the same result as that 
+    // function. Otherwise, it returns the distance to the closer of a and
+    // b. Let the projection of v onto u be v'.  There are three cases:
+    //    1. v' points opposite to u. c is not between a and b and is closer
+    //       to a than b.
+    //    2. v' points along u and has magnitude less than y. c is between
+    //       a and b and the distance to the segment is the same as distance
+    //       to the line ab.
+    //    3. v' points along u and has greater magnitude than u. c is not
+    //       not between a and b and is closer to b than a.
+    // v' = (u dot v) * u / |u|. So if (u dot v)/|u| is less than zero we're 
+    // in case 1. If (u dot v)/|u| is > |u| we are in case 3. Otherwise
+    // we're in case 2. We actually compare (u dot v) to 0 and |u|^2 to 
+    // avoid a sqrt to compute |u|.
+    
+    SkVector u = b - a;
+    SkVector v = *this - a;
+    
+    SkScalar uLengthSqd = u.lengthSqd();
+    SkScalar uDotV = SkPoint::DotProduct(u, v);
+    
+    if (uDotV <= 0) {
+        return v.lengthSqd();
+    } else if (uDotV > uLengthSqd) {
+        return b.distanceToSqd(*this);
+    } else {
+        SkScalar det = u.cross(v);
+        return SkScalarMulDiv(det, det, uLengthSqd);
+    }
+}
 

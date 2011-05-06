@@ -238,10 +238,16 @@ const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
     if (NULL == fUnitSquareVertexBuffer) {
 
         static const GrPoint DATA[] = {
+            { 0,            0 },
+            { GR_Scalar1,   0 },
+            { GR_Scalar1,   GR_Scalar1 },
+            { 0,            GR_Scalar1 }
+#if 0
             GrPoint(0,         0),
             GrPoint(GR_Scalar1,0),
             GrPoint(GR_Scalar1,GR_Scalar1),
             GrPoint(0,         GR_Scalar1)
+#endif
         };
         static const size_t SIZE = sizeof(DATA);
 
