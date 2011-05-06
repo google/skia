@@ -62,7 +62,7 @@
 #endif
 
 #ifdef SK_BUILD_FOR_WIN32
-	#define SK_RESTRICT
+    #define SK_RESTRICT
     #include "sk_stdint.h"
 #endif
 
