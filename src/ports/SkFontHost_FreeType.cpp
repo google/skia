@@ -663,6 +663,11 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         if ((fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag) == 0)
             loadFlags |= FT_LOAD_NO_BITMAP;
 
+        // Always using FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH to get correct
+        // advances, as fontconfig and cairo do.
+        // See http://code.google.com/p/skia/issues/detail?id=222.
+        loadFlags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
+
         fLoadGlyphFlags = loadFlags;
     }
 
