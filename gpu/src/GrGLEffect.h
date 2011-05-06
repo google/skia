@@ -23,12 +23,12 @@
 class GrEffect;
 
 struct ShaderCodeSegments {
-    GrSStringBuilder<256> fVSUnis;
-    GrSStringBuilder<256> fVSAttrs;
-    GrSStringBuilder<256> fVaryings;
-    GrSStringBuilder<256> fFSUnis;
-    GrSStringBuilder<512> fVSCode;
-    GrSStringBuilder<512> fFSCode;
+    GrStringBuilder fVSUnis;
+    GrStringBuilder fVSAttrs;
+    GrStringBuilder fVaryings;
+    GrStringBuilder fFSUnis;
+    GrStringBuilder fVSCode;
+    GrStringBuilder fFSCode;
 };
 
 /**
