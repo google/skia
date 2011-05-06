@@ -18,9 +18,8 @@
 #ifndef GrPathIter_DEFINED
 #define GrPathIter_DEFINED
 
-#include "GrTypes.h"
+#include "GrPoint.h"
 
-struct GrPoint;
 struct GrRect;
 
 /**

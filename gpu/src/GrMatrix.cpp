@@ -631,7 +631,7 @@ void GrMatrix::UnitTest() {
         if (maxStretch > 0) {
             maxStretch = GrMul(GR_Scalar1 + GR_Scalar1 / 100, maxStretch);
         }
-        GrPoint origin = a.mapPoint(GrPoint(0,0));
+        GrPoint origin = a.mapPoint(GrPoint::Make(0,0));
 
         for (int j = 0; j < 9; ++j) {
             int mask, origMask = a.fTypeMask;
@@ -668,8 +668,8 @@ void GrMatrix::UnitTest() {
             a.mapPerspective(&t2, &pt, 1);   // full mult
             GrAssert(t0 == t1 && t1 == t2);
             if (maxStretch >= 0.f) {
-                GrVec vec;
-                vec.setBetween(t0, origin);
+                GrVec vec = origin - t0;
+//                vec.setBetween(t0, origin);
                 GrScalar stretch = vec.length() / pt.distanceToOrigin();
                 GrAssert(stretch <= maxStretch);
             }

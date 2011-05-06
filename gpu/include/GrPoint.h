@@ -20,7 +20,21 @@
 
 #include "GrTypes.h"
 #include "GrScalar.h"
+#include "SkPoint.h"
 
+#define GrPoint     SkPoint
+#define GrVec       SkVector
+
+struct GrIPoint16 {
+    int16_t fX, fY;
+    
+    void set(intptr_t x, intptr_t y) {
+        fX = GrToS16(x);
+        fY = GrToS16(y);
+    }
+};
+
+#if 0
 /**
  *  2D Point struct
  */
@@ -336,7 +350,7 @@ GrScalar GrPoint::distanceToLineSegmentBetween(const GrPoint& a,
     // TODO: fixed point sqrt
     return GrFloatToScalar(sqrtf(GrScalarToFloat(distanceToLineSegmentBetweenSqd(a,b))));
 }
-
+#endif
 
 #endif
 

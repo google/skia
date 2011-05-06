@@ -18,10 +18,9 @@
 #define GrPathUtils_DEFINED
 
 #include "GrNoncopyable.h"
-#include "GrScalar.h"
+#include "GrPoint.h"
 
 class GrPathIter;
-struct GrPoint;
 
 /**
  *  Utilities for evaluating paths.

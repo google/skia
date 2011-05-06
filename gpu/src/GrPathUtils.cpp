@@ -52,10 +52,10 @@ uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
     }
 
     GrPoint q[] = {
-        GrPoint(GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY)),
-        GrPoint(GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY)),
+        { GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY) },
+        { GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY) },
     };
-    GrPoint r(GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY));
+    GrPoint r = { GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY) };
 
     pointsLeft >>= 1;
     uint32_t a = generateQuadraticPoints(p0, q[0], r, tolSqd, points, pointsLeft);
@@ -91,15 +91,15 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
             return 1;
         }
     GrPoint q[] = {
-        GrPoint(GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY)),
-        GrPoint(GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY)),
-        GrPoint(GrScalarAve(p2.fX, p3.fX), GrScalarAve(p2.fY, p3.fY))
+        { GrScalarAve(p0.fX, p1.fX), GrScalarAve(p0.fY, p1.fY) },
+        { GrScalarAve(p1.fX, p2.fX), GrScalarAve(p1.fY, p2.fY) },
+        { GrScalarAve(p2.fX, p3.fX), GrScalarAve(p2.fY, p3.fY) }
     };
     GrPoint r[] = {
-        GrPoint(GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY)),
-        GrPoint(GrScalarAve(q[1].fX, q[2].fX), GrScalarAve(q[1].fY, q[2].fY))
+        { GrScalarAve(q[0].fX, q[1].fX), GrScalarAve(q[0].fY, q[1].fY) },
+        { GrScalarAve(q[1].fX, q[2].fX), GrScalarAve(q[1].fY, q[2].fY) }
     };
-    GrPoint s(GrScalarAve(r[0].fX, r[1].fX), GrScalarAve(r[0].fY, r[1].fY));
+    GrPoint s = { GrScalarAve(r[0].fX, r[1].fX), GrScalarAve(r[0].fY, r[1].fY) };
     pointsLeft >>= 1;
     uint32_t a = generateCubicPoints(p0, q[0], r[0], s, tolSqd, points, pointsLeft);
     uint32_t b = generateCubicPoints(s, r[1], q[2], p3, tolSqd, points, pointsLeft);

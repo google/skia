@@ -163,13 +163,13 @@ void GrPath::resetFromIter(GrPathIter* iter) {
     fConvexHint = iter->convexHint();
 
     // first point of the subpath
-    GrPoint firstPt(0,0);
+    GrPoint firstPt = { 0, 0 };
     // first edge of the subpath
-    GrVec firstVec(0,0);
+    GrVec firstVec = { 0, 0 };
     // vec of most recently processed edge, that wasn't degenerate
-    GrVec previousVec(0,0);
+    GrVec previousVec = { 0, 0 };
     // most recently processed point
-    GrPoint previousPt(0,0);
+    GrPoint previousPt = { 0, 0 };
 
     // sign indicates whether we're bending left or right
     GrScalar turnDir = 0;
@@ -239,8 +239,8 @@ void GrPath::resetFromIter(GrPathIter* iter) {
         if (numSubPaths < 2 && kNone_ConvexHint == fConvexHint) {
             while (consumed < n) {
                 GrAssert(pts[consumed-1] == previousPt);
-                GrVec vec;
-                vec.setBetween(previousPt, pts[consumed]);
+                GrVec vec = pts[consumed] - previousPt;
+//                vec.setBetween(previousPt, pts[consumed]);
                 if (vec.fX || vec.fY) {
                     if (subPathPts >= 2) {
                         if (0 == turnDir) {
@@ -269,8 +269,8 @@ void GrPath::resetFromIter(GrPathIter* iter) {
                         (!subPathClosed && kEnd_PathCmd == cmd ))) {
                 // if an additional vector is needed to close the loop check
                 // that it validates against the previous vector.
-                GrVec vec;
-                vec.setBetween(previousPt, firstPt);
+                GrVec vec = firstPt - previousPt;
+//                vec.setBetween(previousPt, firstPt);
                 if (vec.fX || vec.fY) {
                     if (!check_two_vecs(previousVec, vec, turnDir,
                                         &xDir, &yDir, &flipX, &flipY)) {

@@ -36,6 +36,7 @@
 #define GR_ScalarMin        SK_ScalarMin
 #define GR_ScalarMax        SK_ScalarMax
 
+#define GrIntToScalar(a)    SkIntToScalar(a)
 #define GrScalarHalf(a)     SkScalarHalf(a)
 #define GrScalarAve(a,b)    SkScalarAve(a,b)
 #define GrMul(a,b)          SkScalarMul(a,b)
