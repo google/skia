@@ -13,7 +13,6 @@ static void S32_D565_Opaque(uint16_t* SK_RESTRICT dst,
         do {
             SkPMColor c = *src++;
             SkPMColorAssert(c);
-            SkASSERT(SkGetPackedA32(c) == 255);
             *dst++ = SkPixel32ToPixel16_ToU16(c);
         } while (--count != 0);
     }
@@ -29,7 +28,6 @@ static void S32_D565_Blend(uint16_t* SK_RESTRICT dst,
         do {
             SkPMColor c = *src++;
             SkPMColorAssert(c);
-            SkASSERT(SkGetPackedA32(c) == 255);
             uint16_t d = *dst;
             *dst++ = SkPackRGB16(
                     SkAlphaBlend(SkPacked32ToR16(c), SkGetPackedR16(d), scale),
@@ -91,7 +89,6 @@ static void S32_D565_Opaque_Dither(uint16_t* SK_RESTRICT dst,
         do {
             SkPMColor c = *src++;
             SkPMColorAssert(c);
-            SkASSERT(SkGetPackedA32(c) == 255);
 
             unsigned dither = DITHER_VALUE(x);
             *dst++ = SkDitherRGB32To565(c, dither);
@@ -111,7 +108,6 @@ static void S32_D565_Blend_Dither(uint16_t* SK_RESTRICT dst,
         do {
             SkPMColor c = *src++;
             SkPMColorAssert(c);
-            SkASSERT(SkGetPackedA32(c) == 255);
 
             int dither = DITHER_VALUE(x);            
             int sr = SkGetPackedR32(c);
