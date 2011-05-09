@@ -53,7 +53,7 @@
     #define SK_ScalarMax            (3.402823466e+38f)
     /** SK_ScalarMin is defined to be the smallest value representable as an SkScalar
     */
-    #define SK_ScalarMin            (1.175494351e-38f)
+    #define SK_ScalarMin            (-SK_ScalarMax)
     /** SK_ScalarNaN is defined to be 'Not a Number' as an SkScalar
     */
     #define SK_ScalarNaN      (*(const float*)(const void*)&gIEEENotANumber)
