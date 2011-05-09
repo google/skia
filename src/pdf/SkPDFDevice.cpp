@@ -327,6 +327,56 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     currentEntry()->fClipRegion = clipRegion;
 }
 
+static void append_clip_stack(const SkClipStack& src, SkClipStack* dst) {
+    SkClipStack::B2FIter iter(src);
+    const SkClipStack::B2FIter::Clip* clipEntry;
+    for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
+        if (clipEntry->fRect) {
+            dst->clipDevRect(*clipEntry->fRect, clipEntry->fOp);
+        } else if (clipEntry->fPath) {
+            dst->clipDevPath(*clipEntry->fPath, clipEntry->fOp);
+        } else {
+            // There's not an easy way to add an empty clip with an arbitrary
+            // op, but an empty path (we've already used an empty rect) will
+            // work just fine for our purposes.
+            SkPath empty;
+            dst->clipDevPath(empty, clipEntry->fOp);
+        }
+    }
+}
+
+static void apply_inverse_clip_to_content_entries(
+        const SkClipStack& clipStack,
+        const SkRegion& clipRegion,
+        SkTScopedPtr<ContentEntry>* entries) {
+    // I don't see how to find the inverse of a clip stack and apply it to
+    // another clip stack.  So until we can do polygon boolean operations,
+    // we combine the two clip stacks plus a sentinal with a non-intersect
+    // operator to annotate the intent and force use of the clip region while
+    // keeping the stacks comparable.
+    // Our sentinal is an empty SkRect with kReplace_Op.  This sentinal should
+    // not appear in any reasonable real clip stack.
+    SkRect empty = SkRect::MakeEmpty();
+    SkTScopedPtr<ContentEntry>* entry = entries;
+    while (entry->get()) {
+        entry->get()->fState.fClipRegion.op(clipRegion,
+                                            SkRegion::kDifference_Op);
+        if (entry->get()->fState.fClipRegion.isEmpty()) {
+            // TODO(vandebo) The content entry we are removing may have been
+            // the only one referencing specific resources, we should remove
+            // those from our resource lists.
+            entry->reset(entry->get()->fNext.release());
+            continue;
+        }
+        entry->get()->fState.fClipStack.save();
+        entry->get()->fState.fClipStack.clipDevRect(empty,
+                                                    SkRegion::kReplace_Op);
+        append_clip_stack(clipStack, &entry->get()->fState.fClipStack);
+
+        entry = &entry->get()->fNext;
+    }
+}
+
 void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
     if (matrix == currentEntry()->fMatrix) {
         return;
@@ -500,19 +550,20 @@ void SkPDFDevice::clear(SkColor color) {
     paint.setStyle(SkPaint::kFill_Style);
     SkMatrix identity;
     identity.reset();
-    setUpContentEntry(fExistingClipStack, fExistingClipRegion, identity, paint);
+    if (!setUpContentEntry(fExistingClipStack, fExistingClipRegion, identity,
+                           paint)) {
+        return;
+    }
 
     internalDrawPaint(paint);
 }
 
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
-    if (d.fClip->isEmpty()) {
-        return;
-    }
-
     SkPaint newPaint = paint;
     newPaint.setStyle(SkPaint::kFill_Style);
-    setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, newPaint);
+    if (!setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, newPaint)) {
+        return;
+    }
 
     internalDrawPaint(newPaint);
 }
@@ -534,14 +585,42 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint) {
 
 void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
                              size_t count, const SkPoint* points,
-                             const SkPaint& paint) {
-    if (count == 0 || d.fClip->isEmpty()) {
+                             const SkPaint& passedPaint) {
+    if (count == 0) {
+        return;
+    }
+
+    const SkPaint* paint = &passedPaint;
+    SkPaint modifiedPaint;
+
+    if (mode == SkCanvas::kPoints_PointMode &&
+            paint->getStrokeCap() != SkPaint::kRound_Cap) {
+        modifiedPaint = *paint;
+        paint = &modifiedPaint;
+        if (paint->getStrokeWidth()) {
+            // PDF won't draw a single point with square/butt caps because the
+            // orientation is ambiguous.  Draw a rectangle instead.
+            modifiedPaint.setStyle(SkPaint::kFill_Style);
+            SkScalar strokeWidth = paint->getStrokeWidth();
+            SkScalar halfStroke = SkScalarHalf(strokeWidth);
+            for (size_t i = 0; i < count; i++) {
+                SkRect r = SkRect::MakeXYWH(points[i].fX, points[i].fY, 0, 0);
+                r.inset(-halfStroke, -halfStroke);
+                drawRect(d, r, modifiedPaint);
+            }
+            return;
+        } else {
+            modifiedPaint.setStrokeCap(SkPaint::kRound_Cap);
+        }
+    }
+
+
+    if (!setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, *paint)) {
         return;
     }
 
     switch (mode) {
         case SkCanvas::kPolygon_PointMode:
-            setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, paint);
             SkPDFUtils::MoveTo(points[0].fX, points[0].fY,
                                &fCurrentContentEntry->fContent);
             for (size_t i = 1; i < count; i++) {
@@ -551,7 +630,6 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
             SkPDFUtils::StrokePath(&fCurrentContentEntry->fContent);
             break;
         case SkCanvas::kLines_PointMode:
-            setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, paint);
             for (size_t i = 0; i < count/2; i++) {
                 SkPDFUtils::MoveTo(points[i * 2].fX, points[i * 2].fY,
                                    &fCurrentContentEntry->fContent);
@@ -562,26 +640,12 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
             }
             break;
         case SkCanvas::kPoints_PointMode:
-            if (paint.getStrokeCap() == SkPaint::kRound_Cap) {
-                setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, paint);
-                for (size_t i = 0; i < count; i++) {
-                    SkPDFUtils::MoveTo(points[i].fX, points[i].fY,
-                                       &fCurrentContentEntry->fContent);
-                    SkPDFUtils::StrokePath(&fCurrentContentEntry->fContent);
-                }
-            } else {
-                // PDF won't draw a single point with square/butt caps because
-                // the orientation is ambiguous.  Draw a rectangle instead.
-                SkPaint newPaint = paint;
-                newPaint.setStyle(SkPaint::kFill_Style);
-                SkScalar strokeWidth = paint.getStrokeWidth();
-                SkScalar halfStroke = strokeWidth * SK_ScalarHalf;
-                for (size_t i = 0; i < count; i++) {
-                    SkRect r = SkRect::MakeXYWH(points[i].fX, points[i].fY,
-                                                0, 0);
-                    r.inset(-halfStroke, -halfStroke);
-                    drawRect(d, r, newPaint);
-                }
+            SkASSERT(paint->getStrokeCap() == SkPaint::kRound_Cap);
+            for (size_t i = 0; i < count; i++) {
+                SkPDFUtils::MoveTo(points[i].fX, points[i].fY,
+                                   &fCurrentContentEntry->fContent);
+                SkPDFUtils::ClosePath(&fCurrentContentEntry->fContent);
+                SkPDFUtils::StrokePath(&fCurrentContentEntry->fContent);
             }
             break;
         default:
@@ -591,11 +655,10 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
 
 void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
                            const SkPaint& paint) {
-    if (d.fClip->isEmpty()) {
-        return;
-    }
-
     if (paint.getPathEffect()) {
+        if (d.fClip->isEmpty()) {
+            return;
+        }
         // Create a path for the rectangle and apply the path effect to it.
         SkPath path;
         path.addRect(r);
@@ -606,7 +669,9 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
         drawPath(d, path, noEffectPaint, NULL, true);
         return;
     }
-    setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, paint);
+    if (!setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, paint)) {
+        return;
+    }
 
     SkPDFUtils::AppendRectangle(r, &fCurrentContentEntry->fContent);
     SkPDFUtils::PaintPath(paint.getStyle(), SkPath::kWinding_FillType,
@@ -616,12 +681,12 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
 void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
-    if (d.fClip->isEmpty()) {
-        return;
-    }
     NOT_IMPLEMENTED(prePathMatrix != NULL, true);
 
     if (paint.getPathEffect()) {
+        if (d.fClip->isEmpty()) {
+            return;
+        }
         // Apply the path effect to path and draw it that way.
         SkPath noEffectPath;
         paint.getFillPath(path, &noEffectPath);
@@ -631,7 +696,9 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
         drawPath(d, noEffectPath, noEffectPaint, NULL, true);
         return;
     }
-    setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, paint);
+    if (!setUpContentEntry(*d.fClipStack, *d.fClip, *d.fMatrix, paint)) {
+        return;
+    }
 
     SkPDFUtils::EmitPath(path, &fCurrentContentEntry->fContent);
     SkPDFUtils::PaintPath(paint.getStyle(), path.getFillType(),
@@ -664,12 +731,11 @@ void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
 
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
-    if (d.fClip->isEmpty()) {
+    SkPaint textPaint = calculate_text_paint(paint);
+    if (!setUpContentEntryForText(*d.fClipStack, *d.fClip, *d.fMatrix,
+                                  textPaint)) {
         return;
     }
-
-    SkPaint textPaint = calculate_text_paint(paint);
-    setUpContentEntryForText(*d.fClipStack, *d.fClip, *d.fMatrix, textPaint);
 
     // We want the text in glyph id encoding and a writable buffer, so we end
     // up making a copy either way.
@@ -737,13 +803,12 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               const SkScalar pos[], SkScalar constY,
                               int scalarsPerPos, const SkPaint& paint) {
-    if (d.fClip->isEmpty()) {
-        return;
-    }
-
     SkASSERT(1 == scalarsPerPos || 2 == scalarsPerPos);
     SkPaint textPaint = calculate_text_paint(paint);
-    setUpContentEntryForText(*d.fClipStack, *d.fClip, *d.fMatrix, textPaint);
+    if (!setUpContentEntryForText(*d.fClipStack, *d.fClip, *d.fMatrix,
+                                  textPaint)) {
+        return;
+    }
 
     // Make sure we have a glyph id encoding.
     SkAutoFree glyphStorage;
@@ -808,22 +873,20 @@ void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,
 
 void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
                              const SkPaint& paint) {
-    if (d.fClip->isEmpty()) {
-        return;
-    }
-
     if ((device->getDeviceCapabilities() & kVector_Capability) == 0) {
         // If we somehow get a raster device, do what our parent would do.
         SkDevice::drawDevice(d, device, x, y, paint);
         return;
     }
-    // Assume that a vector capable device means that it's a PDF Device.
-    SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    setUpContentEntry(*d.fClipStack, *d.fClip, matrix, paint);
+    if (!setUpContentEntry(*d.fClipStack, *d.fClip, matrix, paint)) {
+        return;
+    }
 
+    // Assume that a vector capable device means that it's a PDF Device.
+    SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
     SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice);
     fXObjectResources.push(xobject);  // Transfer reference.
     fCurrentContentEntry->fContent.writeText("/X");
@@ -975,11 +1038,49 @@ SkStream* SkPDFDevice::content() const {
     return result;
 }
 
-void SkPDFDevice::setUpContentEntry(const SkClipStack& clipStack,
+bool SkPDFDevice::setUpContentEntry(const SkClipStack& clipStack,
                                     const SkRegion& clipRegion,
                                     const SkMatrix& matrix,
                                     const SkPaint& paint,
                                     bool hasText) {
+    if (clipRegion.isEmpty()) {
+        return false;
+    }
+
+    SkXfermode::Mode xfermode = SkXfermode::kSrcOver_Mode;
+    if (paint.getXfermode()) {
+        paint.getXfermode()->asMode(&xfermode);
+    }
+
+    // For Clear and Src modes, we need to push down the inverse of the
+    // current clip.
+    if (xfermode == SkXfermode::kClear_Mode ||
+            xfermode == SkXfermode::kSrc_Mode) {
+        apply_inverse_clip_to_content_entries(clipStack, clipRegion,
+                                              &fContentEntries);
+        // apply_inverse_clip_to_content_entries may have removed entries
+        // from fContentEntries and this may have invalidated
+        // fCurrentContentEntry. Set it to a known good value.
+        fCurrentContentEntry = fContentEntries.get();
+    }
+
+    // TODO(vandebo) For the following modes, we need to calculate various
+    // operations between the source and destination shape:
+    // SrcIn, DstIn, SrcOut, DstOut, SrcAtop, DestAtop, Xor.
+
+    // These xfer modes don't draw source at all.
+    if (xfermode == SkXfermode::kClear_Mode ||
+            xfermode == SkXfermode::kDst_Mode) {
+        return false;
+    }
+
+    // If the previous content entry was for DstOver reset fCurrentContentEntry.
+    if (fCurrentContentEntry && xfermode != SkXfermode::kDstOver_Mode) {
+        while (fCurrentContentEntry->fNext.get()) {
+            fCurrentContentEntry = fCurrentContentEntry->fNext.get();
+        }
+    }
+
     ContentEntry* entry;
     SkTScopedPtr<ContentEntry> newEntry;
     if (fCurrentContentEntry &&
@@ -992,25 +1093,29 @@ void SkPDFDevice::setUpContentEntry(const SkClipStack& clipStack,
 
     populateGraphicStateEntryFromPaint(matrix, clipStack, clipRegion, paint,
                                        hasText, &entry->fState);
-    if (fCurrentContentEntry &&
+    if (fCurrentContentEntry && xfermode != SkXfermode::kDstOver_Mode &&
             entry->fState.compareInitialState(fCurrentContentEntry->fState)) {
-        return;
+        return true;
     }
 
     if (!fCurrentContentEntry) {
+        fContentEntries.reset(entry);
+    } else if (xfermode == SkXfermode::kDstOver_Mode) {
+        entry->fNext.reset(fContentEntries.release());
         fContentEntries.reset(entry);
     } else {
         fCurrentContentEntry->fNext.reset(entry);
     }
     newEntry.release();
     fCurrentContentEntry = entry;
+    return true;
 }
 
-void SkPDFDevice::setUpContentEntryForText(const SkClipStack& clipStack,
+bool SkPDFDevice::setUpContentEntryForText(const SkClipStack& clipStack,
                                            const SkRegion& clipRegion,
                                            const SkMatrix& matrix,
                                            const SkPaint& paint) {
-    setUpContentEntry(clipStack, clipRegion, matrix, paint, true);
+    return setUpContentEntry(clipStack, clipRegion, matrix, paint, true);
 }
 
 void SkPDFDevice::populateGraphicStateEntryFromPaint(
@@ -1153,23 +1258,27 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
                                      const SkBitmap& bitmap,
                                      const SkIRect* srcRect,
                                      const SkPaint& paint) {
-    SkIRect subset = SkIRect::MakeWH(bitmap.width(), bitmap.height());
-    if (srcRect && !subset.intersect(*srcRect))
-        return;
-
-    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset, paint);
-    if (!image)
-        return;
-
     SkMatrix scaled;
     // Adjust for origin flip.
     scaled.setScale(1, -1);
     scaled.postTranslate(0, 1);
     // Scale the image up from 1x1 to WxH.
+    SkIRect subset = SkIRect::MakeWH(bitmap.width(), bitmap.height());
     scaled.postScale(SkIntToScalar(subset.width()),
                      SkIntToScalar(subset.height()));
     scaled.postConcat(matrix);
-    setUpContentEntry(clipStack, clipRegion, scaled, paint);
+    if (!setUpContentEntry(clipStack, clipRegion, scaled, paint)) {
+        return;
+    }
+
+    if (srcRect && !subset.intersect(*srcRect)) {
+        return;
+    }
+
+    SkPDFImage* image = SkPDFImage::CreateImage(bitmap, subset, paint);
+    if (!image) {
+        return;
+    }
 
     fXObjectResources.push(image);  // Transfer reference.
     fCurrentContentEntry->fContent.writeText("/X");
