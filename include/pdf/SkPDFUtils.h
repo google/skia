@@ -22,6 +22,7 @@
 class SkMatrix;
 class SkPath;
 class SkPDFArray;
+class SkRect;
 
 #if 0
 #define PRINT_NOT_IMPL(str) fprintf(stderr, str)
@@ -47,8 +48,7 @@ public:
     static void AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
                             SkScalar ctl2X, SkScalar ctl2Y,
                             SkScalar dstX, SkScalar dstY, SkWStream* content);
-    static void AppendRectangle(SkScalar x, SkScalar y, SkScalar w, SkScalar h,
-                                SkWStream* content);
+    static void AppendRectangle(const SkRect& rect, SkWStream* content);
     static void EmitPath(const SkPath& path, SkWStream* content);
     static void ClosePath(SkWStream* content);
     static void PaintPath(SkPaint::Style style, SkPath::FillType fill,

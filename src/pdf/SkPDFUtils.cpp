@@ -85,15 +85,17 @@ void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
 }
 
 // static
-void SkPDFUtils::AppendRectangle(SkScalar x, SkScalar y,
-                                 SkScalar w, SkScalar h, SkWStream* content) {
-    SkPDFScalar::Append(x, content);
+void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
+    // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
+    SkScalar bottom = SkMinScalar(rect.fBottom, rect.fTop);
+
+    SkPDFScalar::Append(rect.fLeft, content);
     content->writeText(" ");
-    SkPDFScalar::Append(y, content);
+    SkPDFScalar::Append(bottom, content);
     content->writeText(" ");
-    SkPDFScalar::Append(w, content);
+    SkPDFScalar::Append(rect.width(), content);
     content->writeText(" ");
-    SkPDFScalar::Append(h, content);
+    SkPDFScalar::Append(rect.height(), content);
     content->writeText(" re\n");
 }
 

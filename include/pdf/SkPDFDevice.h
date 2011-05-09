@@ -17,11 +17,12 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
-#include "SkRefCnt.h"
 #include "SkDevice.h"
-#include "SkStream.h"
 #include "SkPaint.h"
 #include "SkPath.h"
+#include "SkRefCnt.h"
+#include "SkStream.h"
+#include "SkTScopedPtr.h"
 
 class SkPDFArray;
 class SkPDFDevice;
@@ -31,6 +32,10 @@ class SkPDFGraphicState;
 class SkPDFObject;
 class SkPDFShader;
 class SkPDFStream;
+
+// Private classes.
+struct ContentEntry;
+struct GraphicStateEntry;
 
 class SkPDFDeviceFactory : public SkDeviceFactory {
     virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
@@ -69,13 +74,6 @@ public:
     virtual uint32_t getDeviceCapabilities() { return kVector_Capability; }
 
     virtual void clear(SkColor color);
-
-    /** Called with the correct matrix and clip before this device is drawn
-        to using those settings. If your subclass overrides this, be sure to
-        call through to the base class as well.
-    */
-    virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
-                               const SkClipStack&);
 
     virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
         return false;
@@ -141,7 +139,10 @@ protected:
 
 private:
     SkISize fPageSize;
+    SkISize fContentSize;
     SkMatrix fInitialTransform;
+    SkClipStack fExistingClipStack;
+    SkRegion fExistingClipRegion;
     SkRefPtr<SkPDFDict> fResourceDict;
 
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
@@ -149,49 +150,45 @@ private:
     SkTDArray<SkPDFFont*> fFontResources;
     SkTDArray<SkPDFShader*> fShaderResources;
 
-    // In PDF, transforms and clips can only be undone by popping the graphic
-    // state to before the transform or clip was applied.  Because it can be
-    // a lot of work to reapply a clip and because this class has to apply
-    // different transforms to accomplish various operations, the clip is
-    // always applied before a transform and always at a different graphic
-    // state-stack level than a transform.  This strategy results in the
-    // following possible states for the graphic state stack:
-    // empty:  (identity transform and clip to page)
-    // one entry: a transform
-    // one entry: a clip
-    // two entries: a clip and then a transform
-    // Pointers are owned by the respective Resources list.
-    struct GraphicStackEntry {
-        SkColor fColor;
-        SkScalar fTextSize;
-        SkScalar fTextScaleX;
-        SkPaint::Style fTextFill;
-        SkPDFFont* fFont;
-        SkPDFShader* fShader;
-        SkPDFGraphicState* fGraphicState;
-        SkRegion fClip;
-        SkMatrix fTransform;
-    };
-    struct GraphicStackEntry fGraphicStack[3];
-    int fGraphicStackIndex;
-
-    SkDynamicMemoryWStream fContent;
+    SkTScopedPtr<ContentEntry> fContentEntries;
+    ContentEntry* fCurrentContentEntry;
 
     void init();
     void cleanUp();
-    void updateGSFromPaint(const SkPaint& newPaint, bool forText);
+    void setExistingClip(const SkClipStack& clipStack,
+                         const SkRegion& clipRegion);
+
+    void setUpContentEntry(const SkClipStack& clipStack,
+                           const SkRegion& clipRegion,
+                           const SkMatrix& matrix,
+                           const SkPaint& paint,
+                           bool hasText = false);
+    void setUpContentEntryForText(const SkClipStack& clipStack,
+                                  const SkRegion& clipRegion,
+                                  const SkMatrix& matrix,
+                                  const SkPaint& paint);
+    void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
+                                            const SkClipStack& clipStack,
+                                            const SkRegion& clipRegion,
+                                            const SkPaint& paint,
+                                            bool hasText,
+                                            GraphicStateEntry* entry);
+
     void updateFont(const SkPaint& paint, uint16_t glyphID);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
-
-    void pushGS();
-    void popGS();
     void setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX);
-    void internalDrawPaint(const SkPaint& paint);
-    void internalDrawRect(const SkRect& r, const SkPaint& paint);
-    void internalDrawBitmap(const SkMatrix& matrix, const SkBitmap& bitmap,
-                            const SkIRect* srcRect, const SkPaint& paint);
 
-    SkMatrix setTransform(const SkMatrix& matrix);
+    void internalDrawPaint(const SkPaint& paint);
+    void internalDrawBitmap(const SkMatrix& matrix,
+                            const SkClipStack& clipStack,
+                            const SkRegion& clipRegion,
+                            const SkBitmap& bitmap,
+                            const SkIRect* srcRect,
+                            const SkPaint& paint);
+
+    // Disable the default copy and assign implementation.
+    SkPDFDevice(const SkPDFDevice&);
+    void operator=(const SkPDFDevice&);
 };
 
 #endif
