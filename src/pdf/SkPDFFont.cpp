@@ -319,6 +319,92 @@ SkPDFArray* composeAdvanceData(
 
 }  // namespace
 
+static void append_tounicode_header(SkDynamicMemoryWStream* cmap) {
+    // 12 dict begin: 12 is an Adobe-suggested value. Shall not change.
+    // It's there to prevent old version Adobe Readers from malfunctioning.
+    const char* kHeader =
+        "/CIDInit /ProcSet findresource begin\n"
+        "12 dict begin\n"
+        "begincmap\n";
+    cmap->writeText(kHeader);
+
+    // The /CIDSystemInfo must be consistent to the one in
+    // SkPDFFont::populateCIDFont().
+    // We can not pass over the system info object here because the format is
+    // different. This is not a reference object.
+    const char* kSysInfo =
+        "/CIDSystemInfo\n"
+        "<<  /Registry (Adobe)\n"
+        "/Ordering (UCS)\n"
+        "/Supplement 0\n"
+        ">> def\n";
+    cmap->writeText(kSysInfo);
+
+    // The CMapName must be consistent to /CIDSystemInfo above.
+    // /CMapType 2 means ToUnicode.
+    // We specify codespacerange from 0x0000 to 0xFFFF because we convert our
+    // code table from unsigned short (16-bits). Codespace range just tells the
+    // PDF processor the valid range. It does not matter whether a complete
+    // mapping is provided or not.
+    const char* kTypeInfo =
+        "/CMapName /Adobe-Identity-UCS def\n"
+        "/CMapType 2 def\n"
+        "1 begincodespacerange\n"
+        "<0000> <FFFF>\n"
+        "endcodespacerange\n";
+    cmap->writeText(kTypeInfo);
+}
+
+static void append_cmap_bfchar_table(uint16_t* glyph_id, SkUnichar* unicode,
+                                     size_t count,
+                                     SkDynamicMemoryWStream* cmap) {
+    cmap->writeDecAsText(count);
+    cmap->writeText(" beginbfchar\n");
+    for (size_t i = 0; i < count; ++i) {
+        cmap->writeText("<");
+        cmap->writeHexAsText(glyph_id[i], 4);
+        cmap->writeText("> <");
+        cmap->writeHexAsText(unicode[i], 4);
+        cmap->writeText(">\n");
+    }
+    cmap->writeText("endbfchar\n");
+}
+
+static void append_cmap_footer(SkDynamicMemoryWStream* cmap) {
+    const char* kFooter =
+        "endcmap\n"
+        "CMapName currentdict /CMap defineresource pop\n"
+        "end\n"
+        "end";
+    cmap->writeText(kFooter);
+}
+
+// Generate <bfchar> table according to PDF spec 1.4 and Adobe Technote 5014.
+static void append_cmap_bfchar_sections(
+                const SkTDArray<SkUnichar>& glyphUnicode,
+                SkDynamicMemoryWStream* cmap) {
+    // PDF spec defines that every bf* list can have at most 100 entries.
+    const size_t kMaxEntries = 100;
+    uint16_t glyphId[kMaxEntries];
+    SkUnichar unicode[kMaxEntries];
+    size_t index = 0;
+    for (int i = 0; i < glyphUnicode.count(); i++) {
+        if (glyphUnicode[i]) {
+            glyphId[index] = i;
+            unicode[index] = glyphUnicode[i];
+            ++index;
+        }
+        if (index == kMaxEntries) {
+            append_cmap_bfchar_table(glyphId, unicode, index, cmap);
+            index = 0;
+        }
+    }
+
+    if (index) {
+        append_cmap_bfchar_table(glyphId, unicode, index, cmap);
+    }
+}
+
 /* Font subset design: It would be nice to be able to subset fonts
  * (particularly type 3 fonts), but it's a lot of work and not a priority.
  *
@@ -404,9 +490,13 @@ SkPDFFont* SkPDFFont::getFontResource(SkTypeface* typeface, uint16_t glyphID) {
         fontInfo = relatedFont->fFontInfo;
         fontDescriptor = relatedFont->fDescriptor.get();
     } else {
-        fontInfo = SkFontHost::GetAdvancedTypefaceMetrics(fontID, SkTBitOr(
-                SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo,
-                SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo));
+        SkAdvancedTypefaceMetrics::PerGlyphInfo info;
+        info = SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo;
+        info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
+                  info, SkAdvancedTypefaceMetrics::kGlyphNames_PerGlyphInfo);
+        info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
+                  info, SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo);
+        fontInfo = SkFontHost::GetAdvancedTypefaceMetrics(fontID, info);
         SkSafeUnref(fontInfo.get());  // SkRefPtr and Get both took a reference.
     }
 
@@ -497,7 +587,6 @@ SkPDFFont::SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo,
 }
 
 void SkPDFFont::populateType0Font() {
-    // TODO(vandebo) add a ToUnicode mapping.
     fMultiByteGlyphs = true;
 
     insert("Subtype", new SkPDFName("Type0"))->unref();
@@ -512,6 +601,26 @@ void SkPDFFont::populateType0Font() {
         new SkPDFFont(fFontInfo.get(), fTypeface.get(), 1, true, NULL));
     descendantFonts->append(new SkPDFObjRef(fResources.top()))->unref();
     insert("DescendantFonts", descendantFonts.get());
+
+    populateToUnicodeTable();
+}
+
+void SkPDFFont::populateToUnicodeTable() {
+    if (fFontInfo.get() == NULL ||
+        fFontInfo->fGlyphToUnicode.begin() == NULL) {
+        return;
+    }
+
+    SkDynamicMemoryWStream cmap;
+    append_tounicode_header(&cmap);
+    append_cmap_bfchar_sections(fFontInfo->fGlyphToUnicode, &cmap);
+    append_cmap_footer(&cmap);
+    SkRefPtr<SkMemoryStream> cmapStream = new SkMemoryStream();
+    cmapStream->unref();  // SkRefPtr and new took a reference.
+    cmapStream->setMemoryOwned(cmap.detach(), cmap.getOffset());
+    SkRefPtr<SkPDFStream> pdfCmap = new SkPDFStream(cmapStream.get());
+    fResources.push(pdfCmap.get());  // Pass reference from new.
+    insert("ToUnicode", new SkPDFObjRef(pdfCmap.get()))->unref();
 }
 
 void SkPDFFont::populateCIDFont() {
@@ -522,6 +631,7 @@ void SkPDFFont::populateCIDFont() {
         insert("Subtype", new SkPDFName("CIDFontType0"))->unref();
     } else if (fFontInfo->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         insert("Subtype", new SkPDFName("CIDFontType2"))->unref();
+        insert("CIDToGIDMap", new SkPDFName("Identity"))->unref();
     } else {
         SkASSERT(false);
     }
@@ -697,9 +807,12 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
     insert("FirstChar", new SkPDFInt(fFirstGlyphID))->unref();
     insert("LastChar", new SkPDFInt(fLastGlyphID))->unref();
     insert("Widths", widthArray.get());
+    insert("CIDToGIDMap", new SkPDFName("Identity"))->unref();
 
     if (fFontInfo && fFontInfo->fLastGlyphID <= 255)
         fFontInfo = NULL;
+
+    populateToUnicodeTable();
 }
 
 bool SkPDFFont::addFontDescriptor(int16_t defaultWidth) {

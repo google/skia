@@ -194,6 +194,58 @@ static void GetLogFontByID(SkFontID fontID, LOGFONT* lf) {
     }
 }
 
+// Construct Glyph to Unicode table.
+// Unicode code points that require conjugate pairs in utf16 are not
+// supported.
+// TODO(arthurhsu): Add support for conjugate pairs. It looks like that may
+// require parsing the TTF cmap table (platform 4, encoding 12) directly instead
+// of calling GetFontUnicodeRange().
+static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
+                                      SkTDArray<SkUnichar>* glyphToUnicode) {
+    DWORD glyphSetBufferSize = GetFontUnicodeRanges(fontHdc, NULL);
+    if (!glyphSetBufferSize) {
+        return;
+    }
+
+    SkAutoTDeleteArray<BYTE> glyphSetBuffer(new BYTE[glyphSetBufferSize]);
+    GLYPHSET* glyphSet =
+        reinterpret_cast<LPGLYPHSET>(glyphSetBuffer.get());
+    if (GetFontUnicodeRanges(fontHdc, glyphSet) != glyphSetBufferSize) {
+        return;
+    }
+
+    glyphToUnicode->setCount(glyphCount);
+    memset(glyphToUnicode->begin(), 0, glyphCount * sizeof(SkUnichar));
+    for (DWORD i = 0; i < glyphSet->cRanges; ++i) {
+        // There is no guarantee that within a Unicode range, the corresponding
+        // glyph id in a font file are continuous. So, even if we have ranges,
+        // we can't just use the first and last entry of the range to compute
+        // result. We need to enumerate them one by one.
+        int count = glyphSet->ranges[i].cGlyphs;
+        SkAutoTArray<WCHAR> chars(count + 1);
+        chars[count] = 0;  // termintate string
+        SkAutoTArray<WORD> glyph(count);
+        for (USHORT j = 0; j < count; ++j) {
+            chars[j] = glyphSet->ranges[i].wcLow + j;
+        }
+        GetGlyphIndicesW(fontHdc, chars.get(), count, glyph.get(),
+                         GGI_MARK_NONEXISTING_GLYPHS);
+        // If the glyph ID is valid, and the glyph is not mapped, then we will
+        // fill in the char id into the vector. If the glyph is mapped already,
+        // skip it.
+        // TODO(arthurhsu): better improve this. e.g. Get all used char ids from
+        // font cache, then generate this mapping table from there. It's
+        // unlikely to have collisions since glyph reuse happens mostly for
+        // different Unicode pages.
+        for (USHORT j = 0; j < count; ++j) {
+            if (glyph[j] != 0xffff && glyph[j] < glyphCount &&
+                (*glyphToUnicode)[glyph[j]] == 0) {
+                (*glyphToUnicode)[glyph[j]] = chars[j];
+            }
+        }
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 class SkScalerContext_Windows : public SkScalerContext {
@@ -648,6 +700,10 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 #else
     info->fFontName.set(lf.lfFaceName);
 #endif
+
+    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
+        populate_glyph_to_unicode(hdc, glyphCount, &(info->fGlyphToUnicode));
+    }
 
     if (otm.otmTextMetrics.tmPitchAndFamily & TMPF_TRUETYPE) {
         info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
