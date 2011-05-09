@@ -498,8 +498,8 @@ struct SK_API SkRect {
 
     void growToInclude(SkScalar x, SkScalar y) {
         fLeft  = SkMinScalar(x, fLeft);
-        fRight = SkMaxScalar(y, fRight);
-        fTop    = SkMinScalar(x, fTop);
+        fRight = SkMaxScalar(x, fRight);
+        fTop    = SkMinScalar(y, fTop);
         fBottom = SkMaxScalar(y, fBottom);
     }
     
