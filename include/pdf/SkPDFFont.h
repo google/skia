@@ -130,6 +130,7 @@ private:
     */
     void populateType3Font(int16_t glyphID);
     bool addFontDescriptor(int16_t defaultWidth);
+    void populateToUnicodeTable();
     void addWidthInfoFromRange(int16_t defaultWidth,
         const SkAdvancedTypefaceMetrics::WidthRange* widthRangeEntry);
     /** Set fFirstGlyphID and fLastGlyphID to span at most 255 glyphs,

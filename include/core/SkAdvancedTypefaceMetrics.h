@@ -82,6 +82,8 @@ public:
       kHAdvance_PerGlyphInfo   = 0x1, // Populate horizontal advance data.
       kVAdvance_PerGlyphInfo   = 0x2, // Populate vertical advance data.
       kGlyphNames_PerGlyphInfo = 0x4, // Populate glyph names (Type 1 only).
+      kToUnicode_PerGlyphInfo  = 0x8, // Populate ToUnicode table, ignored
+                                      // for Type 1 fonts
     };
 
     template <typename Data>
@@ -113,6 +115,10 @@ public:
 
     // The names of each glyph, only populated for postscript fonts.
     SkTScopedPtr<SkAutoTArray<SkString> > fGlyphNames;
+
+    // The mapping from glyph to Unicode, only populated if
+    // kToUnicode_PerGlyphInfo is passed to GetAdvancedTypefaceMetrics.
+    SkTDArray<SkUnichar> fGlyphToUnicode;
 };
 
 namespace skia_advanced_typeface_metrics_utils {
