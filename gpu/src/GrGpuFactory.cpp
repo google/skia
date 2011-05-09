@@ -26,7 +26,6 @@
 #include "GrGpu.h"
 #include "GrGpuGLFixed.h"
 #include "GrGpuGLShaders.h"
-#include "GrGpuGLShaders2.h"
 
 GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 
