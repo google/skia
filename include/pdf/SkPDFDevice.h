@@ -163,12 +163,14 @@ private:
     void init();
     void cleanUp();
 
-    void setUpContentEntry(const SkClipStack& clipStack,
+    // If the paint or clip is such that we shouldn't draw anything, these
+    // return false and do not create a content entry.
+    bool setUpContentEntry(const SkClipStack& clipStack,
                            const SkRegion& clipRegion,
                            const SkMatrix& matrix,
                            const SkPaint& paint,
                            bool hasText = false);
-    void setUpContentEntryForText(const SkClipStack& clipStack,
+    bool setUpContentEntryForText(const SkClipStack& clipStack,
                                   const SkRegion& clipRegion,
                                   const SkMatrix& matrix,
                                   const SkPaint& paint);

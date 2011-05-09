@@ -36,11 +36,14 @@ const char* blendModeFromXfermode(SkXfermode::Mode mode) {
         case SkXfermode::kDifference_Mode: return "Difference";
         case SkXfermode::kExclusion_Mode:  return "Exclusion";
 
-        // TODO(vandebo) Figure out if we can support more of these modes.
+        // These are handled in SkPDFDevice::setUpContentEntry.
         case SkXfermode::kClear_Mode:
         case SkXfermode::kSrc_Mode:
         case SkXfermode::kDst_Mode:
         case SkXfermode::kDstOver_Mode:
+            return "Normal";
+
+        // TODO(vandebo) Figure out if we can support more of these modes.
         case SkXfermode::kSrcIn_Mode:
         case SkXfermode::kDstIn_Mode:
         case SkXfermode::kSrcOut_Mode:
