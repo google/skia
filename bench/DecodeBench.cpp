@@ -33,10 +33,12 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        for (int i = 0; i < N; i++) {
-            SkBitmap bm;
-            SkImageDecoder::DecodeFile(fFilename, &bm, fPrefConfig,
-                                       SkImageDecoder::kDecodePixels_Mode);
+        if (fFilename) {
+            for (int i = 0; i < N; i++) {
+                SkBitmap bm;
+                SkImageDecoder::DecodeFile(fFilename, &bm, fPrefConfig,
+                                           SkImageDecoder::kDecodePixels_Mode);
+            }
         }
     }
 
