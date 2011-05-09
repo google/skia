@@ -32,8 +32,10 @@ bool GrRenderTarget::readPixels(int left, int top, int width, int height,
 void GrRenderTarget::flagAsNeedingResolve(const GrIRect* rect) {
     if (kCanResolve_ResolveType == getResolveType()) {
         if (NULL != rect) {
-            fResolveRect.growToInclude(*rect);
-            fResolveRect.intersectWith(0, 0, this->width(), this->height());
+            fResolveRect.join(*rect);
+            if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
+                fResolveRect.setEmpty();
+            }
         } else {
             fResolveRect.setLTRB(0, 0, this->width(), this->height());
         }
@@ -45,7 +47,7 @@ void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
     if (fResolveRect.isEmpty()) {
         fResolveRect.setLargestInverted();
     } else {
-        if (!fResolveRect.intersectWith(0, 0, this->width(), this->height())) {
+        if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
             fResolveRect.setLargestInverted();
         }
     }

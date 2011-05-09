@@ -691,7 +691,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     if (!this->skPaint2GrPaintShader(paint, &act, *draw.fMatrix,  &grPaint)) {
         return;
     }
-    fContext->drawRect(grPaint, Sk2Gr(rect), doStroke ? width : -1);
+    fContext->drawRect(grPaint, rect, doStroke ? width : -1);
 }
 
 #include "SkMaskFilter.h"
@@ -967,7 +967,8 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
 
     grPaint->setTexture(texture);
 
-    GrRect dstRect(0, 0, GrIntToScalar(srcRect.width()), GrIntToScalar(srcRect.height()));
+    GrRect dstRect = SkRect::MakeWH(GrIntToScalar(srcRect.width()),
+                                    GrIntToScalar(srcRect.height()));
     GrRect paintRect;
     paintRect.setLTRB(GrFixedToScalar((srcRect.fLeft << 16)   / bitmap.width()),
                       GrFixedToScalar((srcRect.fTop << 16)    / bitmap.height()),
@@ -1003,10 +1004,11 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
     grPaint.setTexture(texture);
 
     fContext->drawRectToRect(grPaint,
-                             GrRect(GrIntToScalar(left), GrIntToScalar(top),
-                                    GrIntToScalar(left + bitmap.width()),
-                                    GrIntToScalar(top + bitmap.height())),
-                             GrRect(0, 0, GR_Scalar1, GR_Scalar1));
+                             GrRect::MakeXYWH(GrIntToScalar(left),
+                                              GrIntToScalar(top),
+                                              GrIntToScalar(bitmap.width()),
+                                              GrIntToScalar(bitmap.height())),
+                             GrRect::MakeWH(GR_Scalar1, GR_Scalar1));
 }
 
 void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
@@ -1030,11 +1032,11 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
     grPaint.fSampler.setClampNoFilter();
 
     fContext->drawRectToRect(grPaint,
-                             GrRect(GrIntToScalar(x),
-                                    GrIntToScalar(y),
-                                    GrIntToScalar(x + w),
-                                    GrIntToScalar(y + h)),
-                             GrRect(0, 0, GR_Scalar1, GR_Scalar1));
+                             GrRect::MakeXYWH(GrIntToScalar(x),
+                                              GrIntToScalar(y),
+                                              GrIntToScalar(w),
+                                              GrIntToScalar(h)),
+                             GrRect::MakeWH(GR_Scalar1, GR_Scalar1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

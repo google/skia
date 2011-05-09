@@ -87,6 +87,12 @@ void GrClip::setFromIRect(const GrIRect& r) {
     }
 }
 
+static void intersectWith(SkRect* dst, const SkRect& src) {
+    if (!dst->intersect(src)) {
+        dst->setEmpty();
+    }
+}
+
 void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
                              const GrRect* conservativeBounds) {
     fList.reset();
@@ -118,7 +124,7 @@ void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
                                 rectCount = 1;
                                 fList.pop_back();
                                 GrAssert(kRect_ClipType == fList.back().fType);
-                                fList.back().fRect.intersectWith(e.fRect);
+                                intersectWith(&fList.back().fRect, e.fRect);
                             }
                         } else {
                             isectRectValid = false;

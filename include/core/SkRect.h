@@ -94,12 +94,33 @@ struct SK_API SkIRect {
         fRight  = right;
         fBottom = bottom;
     }
+    // alias for set(l, t, r, b)
+    void setLTRB(int32_t left, int32_t top, int32_t right, int32_t bottom) {
+        this->set(left, top, right, bottom);
+    }
 
     void setXYWH(int32_t x, int32_t y, int32_t width, int32_t height) {
         fLeft = x;
         fTop = y;
         fRight = x + width;
         fBottom = y + height;
+    }
+
+    /**
+     *  Make the largest representable rectangle
+     */
+    void setLargest() {
+        fLeft = fTop = SK_MinS32;
+        fRight = fBottom = SK_MaxS32;
+    }
+    
+    /**
+     *  Make the largest representable rectangle, but inverted (e.g. fLeft will
+     *  be max 32bit and right will be min 32bit).
+     */
+    void setLargestInverted() {
+        fLeft = fTop = SK_MaxS32;
+        fRight = fBottom = SK_MinS32;
     }
     
     /** Offset set the rectangle by adding dx to its left and right,
@@ -127,6 +148,10 @@ struct SK_API SkIRect {
         fBottom -= dy;
     }
 
+    bool quickReject(int l, int t, int r, int b) const {
+        return l >= fRight || fLeft >= r || t >= fBottom || fTop >= b;
+    }
+    
     /** Returns true if (x,y) is inside the rectangle and the rectangle is not
         empty. The left and top are considered to be inside, while the right
         and bottom are not. Thus for the rectangle (0, 0, 5, 10), the
@@ -263,6 +288,11 @@ struct SK_API SkIRect {
         When this returns, left <= right && top <= bottom
     */
     void sort();
+
+    static const SkIRect& EmptyIRect() {
+        static const SkIRect gEmpty = {0};
+        return gEmpty;
+    }
 };
 
 /** \struct SkRect
@@ -304,6 +334,10 @@ struct SK_API SkRect {
     */
     bool        isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
     bool        hasValidCoordinates() const;
+    SkScalar    left() const { return fLeft; }
+    SkScalar    top() const { return fTop; }
+    SkScalar    right() const { return fRight; }
+    SkScalar    bottom() const { return fBottom; }
     SkScalar    width() const { return fRight - fLeft; }
     SkScalar    height() const { return fBottom - fTop; }
     SkScalar    centerX() const { return SkScalarHalf(fLeft + fRight); }
@@ -338,7 +372,11 @@ struct SK_API SkRect {
         fRight  = right;
         fBottom = bottom;
     }
-    
+    // alias for set(l, t, r, b)
+    void setLTRB(SkScalar left, SkScalar top, SkScalar right, SkScalar bottom) {
+        this->set(left, top, right, bottom);
+    }
+
     /** Initialize the rect with the 4 specified integers. The routine handles
         converting them to scalars (by calling SkIntToScalar)
      */
@@ -355,11 +393,33 @@ struct SK_API SkRect {
     */
     void set(const SkPoint pts[], int count);
 
+    // alias for set(pts, count)
+    void setBounds(const SkPoint pts[], int count) {
+        this->set(pts, count);
+    }
+
     void setXYWH(SkScalar x, SkScalar y, SkScalar width, SkScalar height) {
         fLeft = x;
         fTop = y;
         fRight = x + width;
         fBottom = y + height;
+    }
+
+    /**
+     *  Make the largest representable rectangle
+     */
+    void setLargest() {
+        fLeft = fTop = SK_ScalarMin;
+        fRight = fBottom = SK_ScalarMax;
+    }
+    
+    /**
+     *  Make the largest representable rectangle, but inverted (e.g. fLeft will
+     *  be max and right will be min).
+     */
+    void setLargestInverted() {
+        fLeft = fTop = SK_ScalarMax;
+        fRight = fBottom = SK_ScalarMin;
     }
 
     /** Offset set the rectangle by adding dx to its left and right,
@@ -432,6 +492,15 @@ struct SK_API SkRect {
     */
     void join(const SkRect& r) {
         this->join(r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
+    // alias for join()
+    void growToInclude(const SkRect& r) { this->join(r); }
+
+    void growToInclude(SkScalar x, SkScalar y) {
+        fLeft  = SkMinScalar(x, fLeft);
+        fRight = SkMaxScalar(y, fRight);
+        fTop    = SkMinScalar(x, fTop);
+        fBottom = SkMaxScalar(y, fBottom);
     }
     
     /** Returns true if (p.fX,p.fY) is inside the rectangle. The left and top coordinates of
