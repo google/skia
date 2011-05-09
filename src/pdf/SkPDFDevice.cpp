@@ -1216,6 +1216,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID) {
     SkTypeface* typeface = paint.getTypeface();
     if (fCurrentContentEntry->fState.fFont == NULL ||
+            fCurrentContentEntry->fState.fTextSize != paint.getTextSize() ||
             !fCurrentContentEntry->fState.fFont->hasGlyph(glyphID)) {
         int fontIndex = getFontResourceIndex(typeface, glyphID);
         fCurrentContentEntry->fContent.writeText("/F");
