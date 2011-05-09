@@ -446,8 +446,8 @@ bool GrGLProgram::bindAttribsAndLinkProgram(GrStringBuilder texCoordAttrNames[],
     }
 
     for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
-        const ProgramDesc::StageDesc& desc = fProgramDesc.fStages[s];
-        if (kSetAsAttribute == programData->fUniLocations.fStages[s].fTextureMatrixUni) {
+        const StageUniLocations& unis = programData->fUniLocations.fStages[s];
+        if (kSetAsAttribute == unis.fTextureMatrixUni) {
             GrStringBuilder matName;
             tex_matrix_name(s, &matName);
             GR_GL(BindAttribLocation(progID,
