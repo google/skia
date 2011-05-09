@@ -53,7 +53,7 @@ GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 
     switch (engine) {
         case kOpenGL_Shaders_GrEngine:
-            GrAssert(NULL == context3D);
+            GrAssert(NULL == (void*)context3D);
             {
 #if 0 // old code path, will be removed soon
                 gpu = new GrGpuGLShaders2;
@@ -63,11 +63,11 @@ GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
             }
             break;
         case kOpenGL_Fixed_GrEngine:
-            GrAssert(NULL == context3D);
+            GrAssert(NULL == (void*)context3D);
             gpu = new GrGpuGLFixed;
             break;
         case kDirect3D9_GrEngine:
-            GrAssert(NULL != context3D);
+            GrAssert(NULL != (void*)context3D);
 #if GR_WIN32_BUILD
 //            gpu = new GrGpuD3D9((IDirect3DDevice9*)context3D);
 #endif
