@@ -18,9 +18,7 @@
 #ifndef GrPathIter_DEFINED
 #define GrPathIter_DEFINED
 
-#include "GrPoint.h"
-
-struct GrRect;
+#include "GrRect.h"
 
 /**
  2D Path iterator. Porting layer creates a subclass of this. It allows Ganesh to

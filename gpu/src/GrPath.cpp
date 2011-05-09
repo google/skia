@@ -104,7 +104,7 @@ void GrPath::offset(GrScalar tx, GrScalar ty) {
         iter->offset(tx, ty);
         ++iter;
     }
-    fConservativeBounds.translate(tx, ty);
+    fConservativeBounds.offset(tx, ty);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -221,7 +221,7 @@ void GrPath::resetFromIter(GrPathIter* iter) {
         }
         int n = NumPathCmdPoints(cmd);
         for (int i = 0; i < n; ++i) {
-            fConservativeBounds.growToInclude(pts[i]);
+            fConservativeBounds.growToInclude(pts[i].fX, pts[i].fY);
         }
         if (0 == subPathPts && n > 0) {
             previousPt = pts[0];
@@ -423,6 +423,13 @@ GrPath::Iter::Iter(const GrPath& path) : fPath(&path) {
     this->rewind();
 }
 
+#ifdef SK_DEBUG
+static bool containsInclusive(const GrRect& rect, const GrPoint& point) {
+    return point.fX >= rect.fLeft && point.fX <= rect.fRight &&
+            point.fY >= rect.fTop && point.fY <= rect.fBottom;
+}
+#endif
+
 GrPathCmd GrPath::Iter::next(GrPoint points[]) {
     if (fCmdIndex == fPath->fCmds.count()) {
         GrAssert(fPtIndex == fPath->fPts.count());
@@ -441,7 +448,7 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[0];
             GrAssert(fPtIndex <= fPath->fPts.count() + 1);
-            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
+            GrAssert(containsInclusive(fPath->getConservativeBounds(), srcPts[0]));
             fPtIndex += 1;
             break;
         case kLine_PathCmd:
@@ -451,7 +458,7 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[0];
             GrAssert(fPtIndex <= fPath->fPts.count() + 1);
-            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
+            GrAssert(containsInclusive(fPath->getConservativeBounds(), srcPts[0]));
             fPtIndex += 1;
             break;
         case kQuadratic_PathCmd:
@@ -462,8 +469,8 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[1];
             GrAssert(fPtIndex <= fPath->fPts.count() + 2);
-            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
-            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[1]));
+            GrAssert(containsInclusive(fPath->getConservativeBounds(), srcPts[0]));
+            GrAssert(containsInclusive(fPath->getConservativeBounds(), srcPts[1]));
             fPtIndex += 2;
             break;
         case kCubic_PathCmd:
@@ -475,9 +482,9 @@ GrPathCmd GrPath::Iter::next(GrPoint points[]) {
             }
             fLastPt = srcPts[2];
             GrAssert(fPtIndex <= fPath->fPts.count() + 3);
-            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[0]));
-            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[1]));
-            GrAssert(fPath->getConservativeBounds().containsInclusive(srcPts[2]));
+            GrAssert(containsInclusive(fPath->getConservativeBounds(), srcPts[0]));
+            GrAssert(containsInclusive(fPath->getConservativeBounds(), srcPts[1]));
+            GrAssert(containsInclusive(fPath->getConservativeBounds(), srcPts[2]));
             fPtIndex += 3;
             break;
         case kClose_PathCmd:

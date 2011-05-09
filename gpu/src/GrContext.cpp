@@ -550,7 +550,7 @@ bool GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     // clip gets applied in second pass
     target->disableState(GrDrawTarget::kClip_StateBit);
 
-    GrIRect clear(0, 0, scale * boundW, scale * boundH);
+    GrIRect clear = SkIRect::MakeWH(scale * boundW, scale * boundH);
     target->clear(&clear, 0x0);
 
     return true;
@@ -590,15 +590,14 @@ void GrContext::offscreenAAPass2(GrDrawTarget* target,
                          scale * GR_Scalar1 / src->height());
         sampler.setMatrix(sampleM);
         target->setSamplerState(kOffscreenStage, sampler);
-        GrRect rect(0, 0,
-                    scale * boundRect.width(),
-                    scale * boundRect.height());
+        GrRect rect = SkRect::MakeWH(scale * boundRect.width(),
+                                     scale * boundRect.height());
         target->drawSimpleRect(rect, NULL, 1 << kOffscreenStage);
         
         src = record->fEntry1->texture();
     } else if (OffscreenRecord::kFSAA_Downsample == record->fDownsample) {
         scale = 1;
-        GrIRect rect(0, 0, boundRect.width(), boundRect.height());
+        GrIRect rect = SkIRect::MakeWH(boundRect.width(), boundRect.height());
         src->asRenderTarget()->overrideResolveRect(rect);
     } else {
         GrAssert(OffscreenRecord::k4x4SinglePass_Downsample == 
@@ -624,8 +623,9 @@ void GrContext::offscreenAAPass2(GrDrawTarget* target,
     sampler.preConcatMatrix(sampleM);
     target->setSamplerState(kOffscreenStage, sampler);
 
-    GrRect dstRect(boundRect);
+    GrRect dstRect;
     int stages = (1 << kOffscreenStage) | (NULL == paint.getTexture() ? 0 : 1);
+    dstRect.set(boundRect);
     target->drawSimpleRect(dstRect, NULL, stages);
 
     this->unlockTexture(record->fEntry0);
@@ -840,6 +840,14 @@ void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
                         0, 0, 16, aaStrokeRectIndexCount());
 }
 
+/**
+ * Returns true if the rects edges are integer-aligned.
+ */
+static bool isIRect(const GrRect& r) {
+    return GrScalarIsInt(r.fLeft) && GrScalarIsInt(r.fTop) && 
+           GrScalarIsInt(r.fRight) && GrScalarIsInt(r.fBottom);
+}
+
 static bool apply_aa_to_rect(GrDrawTarget* target,
                              GrGpu* gpu,
                              const GrPaint& paint,
@@ -884,7 +892,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     devRect->sort();
 
     if (width < 0) {
-        return !devRect->isIRect();
+        return !isIRect(*devRect);
     } else {
         return true;
     }
@@ -1163,13 +1171,12 @@ void GrContext::drawPath(const GrPaint& paint,
         bool needsStencil = pr->requiresStencilPass(target, path, fill);
 
         // compute bounds as intersection of rt size, clip, and path
-        GrIRect bound(0, 0, 
-                      target->getRenderTarget()->width(), 
-                      target->getRenderTarget()->height());
+        GrIRect bound = SkIRect::MakeWH(target->getRenderTarget()->width(), 
+                                        target->getRenderTarget()->height());
         if (target->getClip().hasConservativeBounds()) {
             GrIRect clipIBounds;
             target->getClip().getConservativeBounds().roundOut(&clipIBounds);
-            if (!bound.intersectWith(clipIBounds)) {
+            if (!bound.intersect(clipIBounds)) {
                 return;
             }
         }
@@ -1178,7 +1185,7 @@ void GrContext::drawPath(const GrPaint& paint,
             GrIRect pathIBounds;
             target->getViewMatrix().mapRect(&pathBounds, pathBounds);
             pathBounds.roundOut(&pathIBounds);
-            if (!bound.intersectWith(pathIBounds)) {
+            if (!bound.intersect(pathIBounds)) {
                 return;
             }
         }

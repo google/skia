@@ -717,33 +717,3 @@ int Gr_clz(uint32_t n) {
     return count;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-#include "GrRect.h"
-
-void GrRect::setBounds(const GrPoint pts[], int count) {
-    if (count <= 0) {
-        this->setEmpty();
-    } else {
-        GrScalar L, R, T, B;
-        L = R = pts[0].fX;
-        T = B = pts[0].fY;
-        for (int i = 1; i < count; i++) {
-            GrScalar x = pts[i].fX;
-            GrScalar y = pts[i].fY;
-            if (x < L) {
-                L = x;
-            } else if (x > R) {
-                R = x;
-            }
-            if (y < T) {
-                T = y;
-            } else if (y > B) {
-                B = y;
-            }
-        }
-        this->setLTRB(L, T, R, B);
-    }
-}
-
-
-

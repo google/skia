@@ -144,7 +144,7 @@ GrConvexHint SkGrPathIter::convexHint() const {
 }
 
 bool SkGrPathIter::getConservativeBounds(GrRect* rect) const {
-    *rect = Sk2Gr(fPath->getBounds());
+    *rect = fPath->getBounds();
     return true;
 }
 

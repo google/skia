@@ -399,7 +399,9 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                        GrIntToScalar(rt.width()), GrIntToScalar(rt.height()));
         if (fClip.hasConservativeBounds()) {
             bounds = fClip.getConservativeBounds();
-            bounds.intersectWith(rtRect);
+            if (!bounds.intersect(rtRect)) {
+                bounds.setEmpty();
+            }
         } else {
             bounds = rtRect;
         }

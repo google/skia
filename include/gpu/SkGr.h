@@ -104,27 +104,8 @@ GR_STATIC_ASSERT((int)SkPath::kDone_Verb  == (int)kEnd_PathCmd);
 
 #include "SkColorPriv.h"
 
-static inline GrRect Sk2Gr(const SkRect& src) {
-    return GrRect(SkScalarToGrScalar(src.fLeft),
-                  SkScalarToGrScalar(src.fTop),
-                  SkScalarToGrScalar(src.fRight),
-                  SkScalarToGrScalar(src.fBottom));
-}
-
 class SkGr {
 public:
-    static inline SkIRect& SetIRect(SkIRect* dst, const GrIRect& src) {
-        GR_STATIC_ASSERT(sizeof(*dst) == sizeof(src));
-        memcpy(dst, &src, sizeof(*dst));
-        return *dst;
-    }
-
-    static inline GrIRect& SetIRect(GrIRect* dst, const SkIRect& src) {
-        GR_STATIC_ASSERT(sizeof(*dst) == sizeof(src));
-        memcpy(dst, &src, sizeof(*dst));
-        return *dst;
-    }
-
     /**
      *  Convert the SkBitmap::Config to the corresponding PixelConfig, or
      *  kUnknown_PixelConfig if the conversion cannot be done.
@@ -203,7 +184,7 @@ public:
         if (!fCurr->fRect) {
             rect->setEmpty();
         } else {
-            *rect = Sk2Gr(*fCurr->fRect);
+            *rect = *fCurr->fRect;
         }
     }
 

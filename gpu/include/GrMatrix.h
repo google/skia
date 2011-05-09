@@ -18,9 +18,7 @@
 #ifndef GrMatrix_DEFINED
 #define GrMatrix_DEFINED
 
-#include "GrPoint.h"
-
-struct GrRect;
+#include "GrRect.h"
 
 /*
  * 3x3 matrix

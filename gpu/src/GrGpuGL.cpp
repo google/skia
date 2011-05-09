@@ -1175,10 +1175,9 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     if (NULL != rect) {
         // flushScissor expects rect to be clipped to the target.
         r = *rect;
-        GrIRect rtRect(0, 0, 
-                       fCurrDrawState.fRenderTarget->width(),
-                       fCurrDrawState.fRenderTarget->height());
-        if (r.intersectWith(rtRect)) {
+        GrIRect rtRect = SkIRect::MakeWH(fCurrDrawState.fRenderTarget->width(),
+                                         fCurrDrawState.fRenderTarget->height());
+        if (r.intersect(rtRect)) {
             rect = &r;
         } else {
             return;
