@@ -402,47 +402,71 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkDevice* SkPDFDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
+SkDevice* SkPDFDeviceFactory::newDevice(SkCanvas* c, SkBitmap::Config config,
                                         int width, int height, bool isOpaque,
                                         bool isForLayer) {
     SkMatrix initialTransform;
     initialTransform.reset();
-    if (isForLayer) {
-        initialTransform.setTranslate(0, height);
-        initialTransform.preScale(1, -1);
-    }
     SkISize size = SkISize::Make(width, height);
-    return SkNEW_ARGS(SkPDFDevice, (size, size, initialTransform));
+    if (isForLayer) {
+        return SkNEW_ARGS(SkPDFDevice, (size, c->getTotalClipStack(),
+                                        c->getTotalClip()));
+    } else {
+        return SkNEW_ARGS(SkPDFDevice, (size, size, initialTransform));
+    }
 }
 
 static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
-                                         const SkMatrix& initialTransform) {
-    // Compute the size of the drawing area.
-    SkVector drawingSize;
-    SkMatrix inverse;
-    drawingSize.set(contentSize.fWidth, contentSize.fHeight);
-    initialTransform.invert(&inverse);
-    inverse.mapVectors(&drawingSize, 1);
-    SkISize size = SkSize::Make(drawingSize.fX, drawingSize.fY).toRound();
-
+                                         const SkMatrix* initialTransform) {
     SkBitmap bitmap;
-    bitmap.setConfig(SkBitmap::kNo_Config, abs(size.fWidth), abs(size.fHeight));
+    if (initialTransform) {
+        // Compute the size of the drawing area.
+        SkVector drawingSize;
+        SkMatrix inverse;
+        drawingSize.set(contentSize.fWidth, contentSize.fHeight);
+        initialTransform->invert(&inverse);
+        inverse.mapVectors(&drawingSize, 1);
+        SkISize size = SkSize::Make(drawingSize.fX, drawingSize.fY).toRound();
+        bitmap.setConfig(SkBitmap::kNo_Config, abs(size.fWidth),
+                         abs(size.fHeight));
+    } else {
+        bitmap.setConfig(SkBitmap::kNo_Config, abs(contentSize.fWidth),
+                         abs(contentSize.fHeight));
+    }
+
     return bitmap;
 }
 
 SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                          const SkMatrix& initialTransform)
-    : SkDevice(NULL, makeContentBitmap(contentSize, initialTransform), false),
+    : SkDevice(NULL, makeContentBitmap(contentSize, &initialTransform), false),
       fPageSize(pageSize),
       fContentSize(contentSize),
       fCurrentContentEntry(NULL) {
     // Skia generally uses the top left as the origin but PDF natively has the
-    // origin at the bottom left. This matrix corrects for that.  When layering,
-    // we specify an inverse correction to cancel this out.
+    // origin at the bottom left. This matrix corrects for that.  But that only
+    // needs to be done once, we don't do it when layering.
     fInitialTransform.setTranslate(0, pageSize.fHeight);
     fInitialTransform.preScale(1, -1);
     fInitialTransform.preConcat(initialTransform);
 
+    SkIRect existingClip = SkIRect::MakeWH(this->width(), this->height());
+    fExistingClipStack.clipDevRect(existingClip);
+    fExistingClipRegion.setRect(existingClip);
+
+    this->init();
+}
+
+SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
+                         const SkClipStack& existingClipStack,
+                         const SkRegion& existingClipRegion)
+    : SkDevice(NULL, makeContentBitmap(layerSize, NULL), false),
+      fPageSize(layerSize),
+      fContentSize(layerSize),
+      fExistingClipStack(existingClipStack),
+      fExistingClipRegion(existingClipRegion),
+      fCurrentContentEntry(NULL) {
+    fInitialTransform.reset();
     this->init();
 }
 
@@ -454,10 +478,6 @@ void SkPDFDevice::init() {
     fResourceDict = NULL;
     fContentEntries.reset();
     fCurrentContentEntry = NULL;
-
-    SkIRect existingClip = SkIRect::MakeWH(this->width(), this->height());
-    fExistingClipStack.clipDevRect(existingClip);
-    fExistingClipRegion.setRect(existingClip);
 }
 
 SkDeviceFactory* SkPDFDevice::onNewDeviceFactory() {
@@ -469,12 +489,6 @@ void SkPDFDevice::cleanUp() {
     fXObjectResources.unrefAll();
     fFontResources.unrefAll();
     fShaderResources.unrefAll();
-}
-
-void SkPDFDevice::setExistingClip(const SkClipStack& clipStack,
-                                  const SkRegion& clipRegion) {
-    this->fExistingClipStack = clipStack;
-    this->fExistingClipRegion = clipRegion;
 }
 
 void SkPDFDevice::clear(SkColor color) {
@@ -809,7 +823,6 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
     setUpContentEntry(*d.fClipStack, *d.fClip, matrix, paint);
-    pdfDevice->setExistingClip(*d.fClipStack, *d.fClip);
 
     SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice);
     fXObjectResources.push(xobject);  // Transfer reference.
