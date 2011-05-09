@@ -38,6 +38,7 @@ struct ContentEntry;
 struct GraphicStateEntry;
 
 class SkPDFDeviceFactory : public SkDeviceFactory {
+public:
     virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
                                 int height, bool isOpaque, bool isForLayer);
 };
@@ -138,6 +139,8 @@ protected:
     virtual SkDeviceFactory* onNewDeviceFactory();
 
 private:
+    friend class SkPDFDeviceFactory;
+
     SkISize fPageSize;
     SkISize fContentSize;
     SkMatrix fInitialTransform;
@@ -153,10 +156,12 @@ private:
     SkTScopedPtr<ContentEntry> fContentEntries;
     ContentEntry* fCurrentContentEntry;
 
+    // For use by the DeviceFactory.
+    SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
+                const SkRegion& existingClipRegion);
+
     void init();
     void cleanUp();
-    void setExistingClip(const SkClipStack& clipStack,
-                         const SkRegion& clipRegion);
 
     void setUpContentEntry(const SkClipStack& clipStack,
                            const SkRegion& clipRegion,
