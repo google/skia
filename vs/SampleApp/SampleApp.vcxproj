@@ -159,7 +159,6 @@
     <ClInclude Include="..\..\gpu\src\GrGpuGL.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h" />
     <ClInclude Include="..\..\gpu\src\GrGpuGLShaders.h" />
-    <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h" />
     <ClInclude Include="..\..\gpu\src\GrPathUtils.h" />
     <ClInclude Include="..\..\gpu\src\GrRedBlackTree.h" />
     <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h" />
@@ -229,6 +228,7 @@
     <ClCompile Include="..\..\gpu\src\GrDrawTarget.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLIndexBuffer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLInterface.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGLProgram.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLTexture.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLUtil.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGLVertexBuffer.cpp" />
@@ -236,7 +236,7 @@
     <ClCompile Include="..\..\gpu\src\GrGpuFactory.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGpuGL.cpp" />
     <ClCompile Include="..\..\gpu\src\GrGpuGLFixed.cpp" />
-    <ClCompile Include="..\..\gpu\src\GrGpuGLShaders2.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpuGLShaders.cpp" />
     <ClCompile Include="..\..\gpu\src\GrInOrderDrawBuffer.cpp" />
     <ClCompile Include="..\..\gpu\src\GrMatrix.cpp" />
     <ClCompile Include="..\..\gpu\src\GrMemory.cpp" />

@@ -136,7 +136,6 @@
     <ClCompile Include="..\..\src\opts\SkBitmapProcState_opts_SSE2.cpp" />
     <ClCompile Include="..\..\src\opts\SkBlitRow_opts_SSE2.cpp" />
     <ClCompile Include="..\..\src\opts\SkUtils_opts_SSE2.cpp" />
-    <ClCompile Include="..\..\src\ports\SkDebug_stdio.cpp" />
     <ClCompile Include="..\..\src\ports\SkFontHost_win.cpp" />
     <ClCompile Include="..\..\src\ports\SkGlobals_global.cpp" />
     <ClCompile Include="..\..\src\ports\SkOSFile_stdio.cpp" />
@@ -206,9 +205,6 @@
       <Filter>Gr\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\gpu\src\GrGpuGLFixed.cpp">
-      <Filter>Gr\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\gpu\src\GrGpuGLShaders2.cpp">
       <Filter>Gr\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\gpu\src\GrInOrderDrawBuffer.cpp">
@@ -475,6 +471,18 @@
     <ClCompile Include="..\..\gpu\src\GrTexture.cpp">
       <Filter>Gr\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\samplecode\SampleClamp.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDash.cpp" />
+    <ClCompile Include="..\..\samplecode\SampleDraw.cpp" />
+    <ClCompile Include="..\..\src\core\SkClampRange.cpp" />
+    <ClCompile Include="..\..\src\core\SkTypefaceCache.cpp" />
+    <ClCompile Include="..\..\src\ports\SkDebug_win.cpp" />
+    <ClCompile Include="..\..\gpu\src\GrGpuGLShaders.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gpu\src\GrGLProgram.cpp">
+      <Filter>Gr\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gpu\include\FlingState.h" />
@@ -704,9 +712,6 @@
     <ClInclude Include="..\..\gpu\src\GrGpuGLFixed.h">
       <Filter>Gr\src_headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\gpu\src\GrGpuGLShaders2.h">
-      <Filter>Gr\src_headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\gpu\src\GrTextStrike_impl.h">
       <Filter>Gr\src_headers</Filter>
     </ClInclude>
@@ -755,6 +760,7 @@
     <ClInclude Include="..\..\gpu\src\GrPathUtils.h">
       <Filter>Gr\src_headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\core\SkTypefaceCache.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
