@@ -18,11 +18,7 @@
 #define GrGLProgram_DEFINED
 
 #include "GrGLInterface.h"
-
-#define POS_ATTR_LOCATION 0
-#define TEX_ATTR_LOCATION(X) (1 + (X))
-#define COL_ATTR_LOCATION (2 + GrDrawTarget::kMaxTexCoords)
-
+#include "GrStringBuilder.h"
 #include "GrDrawTarget.h"
 
 class GrBinHashKeyBuilder;
@@ -58,7 +54,7 @@ public:
      *  The result of heavy init is not stored in datamembers of GrGLProgam,
      *  but in a separate cacheable container.
      */
-    void genProgram(CachedData* programData) const;
+    bool genProgram(CachedData* programData) const;
 
     /**
      *  Routine that is called before rendering. Sets-up all the state and
@@ -79,6 +75,16 @@ public:
      *  or for retrieving heavy init results from cache.
      */
     void buildFromTarget(const GrDrawTarget* target);
+
+    static int PositionAttributeIdx() { return 0; }
+    static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
+    static int ColorAttributeIdx() { return 1 + GrDrawTarget::kMaxTexCoords; }
+    static int ViewMatrixAttributeIdx() { 
+        return 2 + GrDrawTarget::kMaxTexCoords; 
+    }
+    static int TextureMatrixAttributeIdx(int stage) { 
+        return 5 + GrDrawTarget::kMaxTexCoords + 3 * stage; 
+    }
 
 private:
 
@@ -132,17 +138,35 @@ private:
     const ProgramDesc& getDesc() { return fProgramDesc; }
 
 public:
+    enum {
+        kUnusedUniform = -1,
+        kSetAsAttribute = 1000,
+    };
+
     struct StageUniLocations {
         GrGLint fTextureMatrixUni;
         GrGLint fNormalizedTexelSizeUni;
         GrGLint fSamplerUni;
         GrGLint fRadial2Uni;
+        void reset() {
+            fTextureMatrixUni = kUnusedUniform;
+            fNormalizedTexelSizeUni = kUnusedUniform;
+            fSamplerUni = kUnusedUniform;
+            fRadial2Uni = kUnusedUniform;
+        }
     };
 
     struct UniLocations {
         GrGLint fViewMatrixUni;
         GrGLint fColorUni;
         StageUniLocations fStages[GrDrawTarget::kNumStages];
+        void reset() {
+            fViewMatrixUni = kUnusedUniform;
+            fColorUni = kUnusedUniform;
+            for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+                fStages[s].reset();
+            }
+        }
     };
 
     class CachedData : public ::GrNoncopyable {
@@ -214,6 +238,12 @@ public:
     GrGLEffect* fStageEffects[GrDrawTarget::kNumStages];
 
 private:
+    enum {
+        kUseUniform = 2000
+    };
+
+    // should set all fields in locations var to kUseUniform if the
+    // corresponding uniform is required for the program.
     void genStageCode(int stageNum,
                       const ProgramDesc::StageDesc& desc,
                       const char* fsInColor, // NULL means no incoming color
@@ -222,11 +252,23 @@ private:
                       ShaderCodeSegments* segments,
                       StageUniLocations* locations) const;
 
+    static bool CompileFSAndVS(const ShaderCodeSegments& segments, 
+                               CachedData* programData);
+
     // Compiles a GL shader, returns shader ID or 0 if failed
     // params have same meaning as glShaderSource
     static GrGLuint CompileShader(GrGLenum type, int stringCnt,
                                   const char** strings,
                                   int* stringLengths);
+
+    // Creates a GL program ID, binds shader attributes to GL vertex attrs, and
+    // links the program
+    bool bindAttribsAndLinkProgram(GrStringBuilder texCoordAttrNames[GrDrawTarget::kMaxTexCoords],
+                                   CachedData* programData) const;
+
+    // Gets locations for all uniforms set to kUseUniform and initializes cache
+    // to invalid values.
+    void getUniformLocationsAndInitCache(CachedData* programData) const;
 
     friend class GrGpuGLShaders;
 };
