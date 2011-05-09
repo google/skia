@@ -20,7 +20,6 @@
 #include "GrGLConfig.h"
 #include "GrGLEffect.h"
 #include "GrMemory.h"
-#include "GrStringBuilder.h"
 
 namespace {
 
@@ -28,7 +27,7 @@ const char* GrPrecision() {
     if (GR_GL_SUPPORT_ES2) {
         return "mediump";
     } else {
-        return "";
+        return " ";
     }
 }
 
@@ -53,9 +52,6 @@ const char* GrShaderPrecision() {
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
 #define COL_UNI_NAME "uColor"
-
-// for variable names etc
-typedef GrStringBuilder GrTokenString;
 
 static inline void tex_attr_name(int coordIdx, GrStringBuilder* s) {
     *s = "aTexCoord";
@@ -127,7 +123,6 @@ GrGLProgram::GrGLProgram() {
 }
 
 GrGLProgram::~GrGLProgram() {
-
 }
 
 void GrGLProgram::buildKey(GrBinHashKeyBuilder& key) const {
@@ -179,36 +174,40 @@ void GrGLProgram::doGLPost() const {
     }
 }
 
-void GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
+bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
 
     ShaderCodeSegments segments;
     const uint32_t& layout = fProgramDesc.fVertexLayout;
 
-    memset(&programData->fUniLocations, 0, sizeof(UniLocations));
+    programData->fUniLocations.reset();
 
 #if GR_GL_ATTRIBUTE_MATRICES
     segments.fVSAttrs += "attribute mat3 " VIEW_MATRIX_NAME ";\n";
+    programData->fUniLocations.fViewMatrixUni = kSetAsAttribute;
 #else
     segments.fVSUnis  += "uniform mat3 " VIEW_MATRIX_NAME ";\n";
+    programData->fUniLocations.fViewMatrixUni = kUseUniform;
 #endif
     segments.fVSAttrs += "attribute vec2 " POS_ATTR_NAME ";\n";
 
-    segments.fVSCode   = "void main() {\n"
-                         "\tvec3 pos3 = " VIEW_MATRIX_NAME " * vec3(" POS_ATTR_NAME ", 1);\n"
-                         "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n";
+    segments.fVSCode.append(
+        "void main() {\n"
+            "\tvec3 pos3 = " VIEW_MATRIX_NAME " * vec3("POS_ATTR_NAME", 1);\n"
+            "\tgl_Position = vec4(pos3.xy, 0, pos3.z);\n");
 
-        // incoming color to current stage being processed.
-    GrTokenString inColor;
+    // incoming color to current stage being processed.
+    GrStringBuilder inColor;
 
     switch (fProgramDesc.fColorType) {
     case ProgramDesc::kAttribute_ColorType:
-        segments.fVSAttrs += "attribute vec4 " COL_ATTR_NAME ";\n";
-        segments.fVaryings += "varying vec4 vColor;\n";
-        segments.fVSCode += "\tvColor = " COL_ATTR_NAME ";\n";
+        segments.fVSAttrs.append( "attribute vec4 " COL_ATTR_NAME ";\n");
+        segments.fVaryings.append("varying vec4 vColor;\n");
+        segments.fVSCode.append(    "\tvColor = " COL_ATTR_NAME ";\n");
         inColor = "vColor";
         break;
     case ProgramDesc::kUniform_ColorType:
-        segments.fFSUnis += "uniform vec4 " COL_UNI_NAME ";\n";
+        segments.fFSUnis.append(  "uniform vec4 " COL_UNI_NAME ";\n");
+        programData->fUniLocations.fColorUni = kUseUniform;
         inColor = COL_UNI_NAME;
         break;
     case ProgramDesc::kNone_ColorType:
@@ -217,20 +216,17 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
     }
 
     if (fProgramDesc.fEmitsPointSize){
-        segments.fVSCode += "\tgl_PointSize = 1.0;\n";
+        segments.fVSCode.append("\tgl_PointSize = 1.0;\n");
     }
 
-    segments.fFSCode   = "void main() {\n";
+    segments.fFSCode.append("void main() {\n");
 
     // add texture coordinates that are used to the list of vertex attr decls
-    GrTokenString texCoordAttrs[GrDrawTarget::kMaxTexCoords];
+    GrStringBuilder texCoordAttrs[GrDrawTarget::kMaxTexCoords];
     for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
         if (GrDrawTarget::VertexUsesTexCoordIdx(t, layout)) {
             tex_attr_name(t, texCoordAttrs + t);
-
-            segments.fVSAttrs += "attribute vec2 ";
-            segments.fVSAttrs += texCoordAttrs[t];
-            segments.fVSAttrs += ";\n";
+            segments.fVSAttrs.appendf("attribute vec2 %s;\n", texCoordAttrs[t].c_str());
         }
     }
 
@@ -260,13 +256,11 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
         int currActiveStage = 0;
         for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
             if (fProgramDesc.fStages[s].fEnabled) {
-                GrTokenString outColor;
+                GrStringBuilder outColor;
                 if (currActiveStage < (numActiveStages - 1)) {
                     outColor = "color";
                     outColor.appendS32(currActiveStage);
-                    segments.fFSCode += "\tvec4 ";
-                    segments.fFSCode += outColor;
-                    segments.fFSCode += ";\n";
+                    segments.fFSCode.appendf("\tvec4 %s;\n", outColor.c_str());
                 } else {
                     outColor = "gl_FragColor";
                 }
@@ -283,16 +277,27 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
             }
         }
     } else {
-        segments.fFSCode += "\tgl_FragColor = ";
-        if (inColor.size()) {
-            segments.fFSCode += inColor;
-        } else {
-            segments.fFSCode += "vec4(1,1,1,1)";
-        }
-        segments.fFSCode += ";\n";
+        // we may not have any incoming color
+        segments.fFSCode.appendf("\tgl_FragColor = %s;\n", (inColor.size() ? inColor.c_str() : "vec4(1,1,1,1);\n"));
     }
-    segments.fFSCode += "}\n";
-    segments.fVSCode += "}\n";
+    segments.fVSCode.append("}\n");
+    segments.fFSCode.append("}\n");
+
+    if (!CompileFSAndVS(segments, programData)) {
+        return false;
+    }
+
+    if (!this->bindAttribsAndLinkProgram(texCoordAttrs, programData)) {
+        return false;
+    }
+
+    this->getUniformLocationsAndInitCache(programData);
+
+    return true;
+}
+
+bool GrGLProgram::CompileFSAndVS(const ShaderCodeSegments& segments,
+                                 CachedData* programData) {
 
     const char* strings[4];
     int lengths[4];
@@ -331,6 +336,10 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
                                         strings,
                                         lengths);
 
+    if (!programData->fVShaderID) {
+        return false;
+    }
+
     stringCnt = 0;
 
     if (strlen(GrShaderPrecision()) > 1) {
@@ -366,151 +375,10 @@ void GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
                                             strings,
                                             lengths);
 
-    programData->fProgramID = GR_GL(CreateProgram());
-    const GrGLint& progID = programData->fProgramID;
-
-    GR_GL(AttachShader(progID, programData->fVShaderID));
-    GR_GL(AttachShader(progID, programData->fFShaderID));
-
-    // Bind the attrib locations to same values for all shaders
-    GR_GL(BindAttribLocation(progID, POS_ATTR_LOCATION, POS_ATTR_NAME));
-    for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
-        if (texCoordAttrs[t].size()) {
-            GR_GL(BindAttribLocation(progID,
-                                     TEX_ATTR_LOCATION(t),
-                                     texCoordAttrs[t].c_str()));
-        }
+    if (!programData->fFShaderID) {
+        return false;
     }
-
-#if GR_GL_ATTRIBUTE_MATRICES
-    // set unis to a bogus value so that checks against -1 before
-    // flushing will pass.
-    GR_GL(BindAttribLocation(progID,
-                             VIEWMAT_ATTR_LOCATION,
-                             VIEW_MATRIX_NAME));
-
-    program->fUniLocations.fViewMatrixUni = BOGUS_MATRIX_UNI_LOCATION;
-
-    for (int s = 0; s < kNumStages; ++s) {
-        if (fProgramDesc.fStages[s].fEnabled) {
-            GrStringBuilder matName;
-            tex_matrix_name(s, &matName);
-            GR_GL(BindAttribLocation(progID,
-                                     TEXMAT_ATTR_LOCATION(s),
-                                     matName.c_str()));
-            program->fUniLocations.fStages[s].fTextureMatrixUni =
-                                                    BOGUS_MATRIX_UNI_LOCATION;
-        }
-    }
-#endif
-
-    GR_GL(BindAttribLocation(progID, COL_ATTR_LOCATION, COL_ATTR_NAME));
-
-    GR_GL(LinkProgram(progID));
-
-    GrGLint linked = GR_GL_INIT_ZERO;
-    GR_GL(GetProgramiv(progID, GR_GL_LINK_STATUS, &linked));
-    if (!linked) {
-        GrGLint infoLen = GR_GL_INIT_ZERO;
-        GR_GL(GetProgramiv(progID, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        GrAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
-        if (infoLen > 0) {
-            GR_GL(GetProgramInfoLog(progID,
-                                    infoLen+1,
-                                    NULL,
-                                    (char*)log.get()));
-            GrPrintf((char*)log.get());
-        }
-        GrAssert(!"Error linking program");
-        GR_GL(DeleteProgram(progID));
-        programData->fProgramID = 0;
-        return;
-    }
-
-    // Get uniform locations
-#if !GR_GL_ATTRIBUTE_MATRICES
-    programData->fUniLocations.fViewMatrixUni =
-                    GR_GL(GetUniformLocation(progID, VIEW_MATRIX_NAME));
-    GrAssert(-1 != programData->fUniLocations.fViewMatrixUni);
-#endif
-    if (ProgramDesc::kUniform_ColorType == fProgramDesc.fColorType) {
-        programData->fUniLocations.fColorUni = 
-                                GR_GL(GetUniformLocation(progID, COL_UNI_NAME));
-        GrAssert(-1 != programData->fUniLocations.fColorUni);
-    } else {
-        programData->fUniLocations.fColorUni = -1;
-    }
-
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
-        StageUniLocations& locations = programData->fUniLocations.fStages[s];
-        if (fProgramDesc.fStages[s].fEnabled) {
-#if !GR_GL_ATTRIBUTE_MATRICES
-            if (locations.fTextureMatrixUni) {
-                GrTokenString texMName;
-                tex_matrix_name(s, &texMName);
-                locations.fTextureMatrixUni = GR_GL(GetUniformLocation(
-                                                progID,
-                                                texMName.c_str()));
-                GrAssert(-1 != locations.fTextureMatrixUni);
-            } else {
-                locations.fTextureMatrixUni = -1;
-
-            }
-#endif
-
-            if (locations.fSamplerUni) {
-                GrTokenString samplerName;
-                sampler_name(s, &samplerName);
-                locations.fSamplerUni = GR_GL(GetUniformLocation(
-                                                     progID,
-                                                     samplerName.c_str()));
-                GrAssert(-1 != locations.fSamplerUni);
-            } else {
-                locations.fSamplerUni = -1;
-            }
-
-            if (locations.fNormalizedTexelSizeUni) {
-                GrTokenString texelSizeName;
-                normalized_texel_size_name(s, &texelSizeName);
-                locations.fNormalizedTexelSizeUni = 
-                   GR_GL(GetUniformLocation(progID, texelSizeName.c_str()));
-                GrAssert(-1 != locations.fNormalizedTexelSizeUni);
-            } else {
-                locations.fNormalizedTexelSizeUni = -1;
-            }
-
-            if (locations.fRadial2Uni) {
-                GrTokenString radial2ParamName;
-                radial2_param_name(s, &radial2ParamName);
-                locations.fRadial2Uni = GR_GL(GetUniformLocation(
-                                             progID,
-                                             radial2ParamName.c_str()));
-                GrAssert(-1 != locations.fRadial2Uni);
-            } else {
-                locations.fRadial2Uni = -1;
-            }
-        } else {
-            locations.fSamplerUni = -1;
-            locations.fRadial2Uni = -1;
-            locations.fTextureMatrixUni = -1;
-            locations.fNormalizedTexelSizeUni = -1;
-        }
-    }
-    GR_GL(UseProgram(progID));
-
-    // init sampler unis and set bogus values for state tracking
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
-        if (-1 != programData->fUniLocations.fStages[s].fSamplerUni) {
-            GR_GL(Uniform1i(programData->fUniLocations.fStages[s].fSamplerUni, s));
-        }
-        programData->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
-        programData->fRadial2CenterX1[s] = GR_ScalarMax;
-        programData->fRadial2Radius0[s] = -GR_ScalarMax;
-        programData->fTextureWidth[s] = -1;
-        programData->fTextureHeight[s] = -1;
-    }
-    programData->fViewMatrix = GrMatrix::InvalidMatrix();
-    programData->fColor = GrColor_ILLEGAL;
+    return true;
 }
 
 GrGLuint GrGLProgram::CompileShader(GrGLenum type,
@@ -549,6 +417,141 @@ GrGLuint GrGLProgram::CompileShader(GrGLenum type,
     return shader;
 }
 
+bool GrGLProgram::bindAttribsAndLinkProgram(GrStringBuilder texCoordAttrNames[],
+                                            CachedData* programData) const {
+    programData->fProgramID = GR_GL(CreateProgram());
+    if (!programData->fProgramID) {
+        return false;
+    }
+    const GrGLint& progID = programData->fProgramID;
+
+    GR_GL(AttachShader(progID, programData->fVShaderID));
+    GR_GL(AttachShader(progID, programData->fFShaderID));
+
+    // Bind the attrib locations to same values for all shaders
+    GR_GL(BindAttribLocation(progID, PositionAttributeIdx(), POS_ATTR_NAME));
+    for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
+        if (texCoordAttrNames[t].size()) {
+            GR_GL(BindAttribLocation(progID,
+                                     TexCoordAttributeIdx(t),
+                                     texCoordAttrNames[t].c_str()));
+        }
+    }
+
+
+    if (kSetAsAttribute == programData->fUniLocations.fViewMatrixUni) {
+        GR_GL(BindAttribLocation(progID,
+                             ViewMatrixAttributeIdx(),
+                             VIEW_MATRIX_NAME));
+    }
+
+    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+        const ProgramDesc::StageDesc& desc = fProgramDesc.fStages[s];
+        if (kSetAsAttribute == programData->fUniLocations.fStages[s].fTextureMatrixUni) {
+            GrStringBuilder matName;
+            tex_matrix_name(s, &matName);
+            GR_GL(BindAttribLocation(progID,
+                                     TextureMatrixAttributeIdx(s),
+                                     matName.c_str()));
+        }
+    }
+
+
+    GR_GL(BindAttribLocation(progID, ColorAttributeIdx(), COL_ATTR_NAME));
+
+    GR_GL(LinkProgram(progID));
+
+    GrGLint linked = GR_GL_INIT_ZERO;
+    GR_GL(GetProgramiv(progID, GR_GL_LINK_STATUS, &linked));
+    if (!linked) {
+        GrGLint infoLen = GR_GL_INIT_ZERO;
+        GR_GL(GetProgramiv(progID, GR_GL_INFO_LOG_LENGTH, &infoLen));
+        GrAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
+        if (infoLen > 0) {
+            GR_GL(GetProgramInfoLog(progID,
+                                    infoLen+1,
+                                    NULL,
+                                    (char*)log.get()));
+            GrPrintf((char*)log.get());
+        }
+        GrAssert(!"Error linking program");
+        GR_GL(DeleteProgram(progID));
+        programData->fProgramID = 0;
+        return false;
+    }
+    return true;
+}
+
+void GrGLProgram::getUniformLocationsAndInitCache(CachedData* programData) const {
+    const GrGLint& progID = programData->fProgramID;
+
+    if (kUseUniform == programData->fUniLocations.fViewMatrixUni) {
+        programData->fUniLocations.fViewMatrixUni =
+                        GR_GL(GetUniformLocation(progID, VIEW_MATRIX_NAME));
+        GrAssert(kUnusedUniform != programData->fUniLocations.fViewMatrixUni);
+    }
+    if (kUseUniform == programData->fUniLocations.fColorUni) {
+        programData->fUniLocations.fColorUni = 
+                                GR_GL(GetUniformLocation(progID, COL_UNI_NAME));
+        GrAssert(kUnusedUniform != programData->fUniLocations.fColorUni);
+    }
+
+    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+        StageUniLocations& locations = programData->fUniLocations.fStages[s];
+        if (fProgramDesc.fStages[s].fEnabled) {
+            if (kUseUniform == locations.fTextureMatrixUni) {
+                GrStringBuilder texMName;
+                tex_matrix_name(s, &texMName);
+                locations.fTextureMatrixUni = GR_GL(GetUniformLocation(
+                                                progID,
+                                                texMName.c_str()));
+                GrAssert(kUnusedUniform != locations.fTextureMatrixUni);
+            }
+
+            if (kUseUniform == locations.fSamplerUni) {
+                GrStringBuilder samplerName;
+                sampler_name(s, &samplerName);
+                locations.fSamplerUni = GR_GL(GetUniformLocation(
+                                                     progID,
+                                                     samplerName.c_str()));
+                GrAssert(kUnusedUniform != locations.fSamplerUni);
+            }
+
+            if (kUseUniform == locations.fNormalizedTexelSizeUni) {
+                GrStringBuilder texelSizeName;
+                normalized_texel_size_name(s, &texelSizeName);
+                locations.fNormalizedTexelSizeUni = 
+                   GR_GL(GetUniformLocation(progID, texelSizeName.c_str()));
+                GrAssert(kUnusedUniform != locations.fNormalizedTexelSizeUni);
+            }
+
+            if (kUseUniform == locations.fRadial2Uni) {
+                GrStringBuilder radial2ParamName;
+                radial2_param_name(s, &radial2ParamName);
+                locations.fRadial2Uni = GR_GL(GetUniformLocation(
+                                             progID,
+                                             radial2ParamName.c_str()));
+                GrAssert(kUnusedUniform != locations.fRadial2Uni);
+            }
+        }
+    }
+    GR_GL(UseProgram(progID));
+
+    // init sampler unis and set bogus values for state tracking
+    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+        if (kUnusedUniform != programData->fUniLocations.fStages[s].fSamplerUni) {
+            GR_GL(Uniform1i(programData->fUniLocations.fStages[s].fSamplerUni, s));
+        }
+        programData->fTextureMatrices[s] = GrMatrix::InvalidMatrix();
+        programData->fRadial2CenterX1[s] = GR_ScalarMax;
+        programData->fRadial2Radius0[s] = -GR_ScalarMax;
+        programData->fTextureWidth[s] = -1;
+        programData->fTextureHeight[s] = -1;
+    }
+    programData->fViewMatrix = GrMatrix::InvalidMatrix();
+    programData->fColor = GrColor_ILLEGAL;
+}
+
 //============================================================================
 // Stage code generation
 //============================================================================
@@ -563,7 +566,7 @@ void GrGLProgram::genStageCode(int stageNum,
 
     GrAssert(stageNum >= 0 && stageNum <= 9);
 
-    GrTokenString varyingName;
+    GrStringBuilder varyingName;
     stage_varying_name(stageNum, &varyingName);
 
     // First decide how many coords are needed to access the texture
@@ -575,20 +578,17 @@ void GrGLProgram::genStageCode(int stageNum,
 
     // decide whether we need a matrix to transform texture coords
     // and whether the varying needs a perspective coord.
-    GrTokenString texMName;
+    GrStringBuilder texMName;
     tex_matrix_name(stageNum, &texMName);
     if (desc.fOptFlags & ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit) {
         varyingDims = coordDims;
     } else {
     #if GR_GL_ATTRIBUTE_MATRICES
-        segments->fVSAttrs += "attribute mat3 ";
-        segments->fVSAttrs += texMName;
-        segments->fVSAttrs += ";\n";
+        segments->fVSAttrs.appendf("attribute mat3 %s;\n", texMName.c_str());
+        locations->fTextureMatrixUni = kSetAsAttribute;
     #else
-        segments->fVSUnis += "uniform mat3 ";
-        segments->fVSUnis += texMName;
-        segments->fVSUnis += ";\n";
-        locations->fTextureMatrixUni = 1;
+        segments->fVSUnis.appendf("uniform mat3 %s;\n", texMName.c_str());
+        locations->fTextureMatrixUni = kUseUniform;
     #endif
         if (desc.fOptFlags & ProgramDesc::StageDesc::kNoPerspective_OptFlagBit) {
             varyingDims = coordDims;
@@ -597,92 +597,61 @@ void GrGLProgram::genStageCode(int stageNum,
         }
     }
 
-    GrTokenString samplerName;
+    GrStringBuilder samplerName;
     sampler_name(stageNum, &samplerName);
-    segments->fFSUnis += "uniform sampler2D ";
-    segments->fFSUnis += samplerName;
-    segments->fFSUnis += ";\n";
-    locations->fSamplerUni = 1;
+    segments->fFSUnis.appendf("uniform sampler2D %s;\n", samplerName.c_str());
+    locations->fSamplerUni = kUseUniform;
 
-    GrTokenString texelSizeName;
+    GrStringBuilder texelSizeName;
     if (ProgramDesc::StageDesc::k2x2_FetchMode == desc.fFetchMode) {
         normalized_texel_size_name(stageNum, &texelSizeName);
-        segments->fFSUnis += "uniform vec2 ";
-        segments->fFSUnis += texelSizeName;
-        segments->fFSUnis += ";\n";
+        segments->fFSUnis.appendf("uniform vec2 %s;\n", texelSizeName.c_str());
     }
 
-    segments->fVaryings += "varying ";
-    segments->fVaryings += float_vector_type(varyingDims);
-    segments->fVaryings += " ";
-    segments->fVaryings += varyingName;
-    segments->fVaryings += ";\n";
+    segments->fVaryings.appendf("varying %s %s;\n", 
+                                float_vector_type(varyingDims), varyingName.c_str());
 
     if (desc.fOptFlags & ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit) {
         GrAssert(varyingDims == coordDims);
-        segments->fVSCode += "\t";
-        segments->fVSCode += varyingName;
-        segments->fVSCode += " = ";
-        segments->fVSCode += vsInCoord;
-        segments->fVSCode += ";\n";
+        segments->fVSCode.appendf("\t%s = %s;\n", varyingName.c_str(), vsInCoord);
     } else {
-        segments->fVSCode += "\t";
-        segments->fVSCode += varyingName;
-        segments->fVSCode += " = (";
-        segments->fVSCode += texMName;
-        segments->fVSCode += " * vec3(";
-        segments->fVSCode += vsInCoord;
-        segments->fVSCode += ", 1))";
-        segments->fVSCode += vector_all_coords(varyingDims);
-        segments->fVSCode += ";\n";
+        // varying = texMatrix * texCoord
+        segments->fVSCode.appendf("\t%s = (%s * vec3(%s, 1))%s;\n",
+                                  varyingName.c_str(), texMName.c_str(),
+                                  vsInCoord, vector_all_coords(varyingDims));
     }
 
-    GrTokenString radial2ParamsName;
+    GrStringBuilder radial2ParamsName;
     radial2_param_name(stageNum, &radial2ParamsName);
     // for radial grads without perspective we can pass the linear
     // part of the quadratic as a varying.
-    GrTokenString radial2VaryingName;
+    GrStringBuilder radial2VaryingName;
     radial2_varying_name(stageNum, &radial2VaryingName);
 
     if (ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping == desc.fCoordMapping) {
 
-        segments->fVSUnis += "uniform ";
-        segments->fVSUnis += GrPrecision();
-        segments->fVSUnis += " float ";
-        segments->fVSUnis += radial2ParamsName;
-        segments->fVSUnis += "[6];\n";
-
-        segments->fFSUnis += "uniform ";
-        segments->fFSUnis += GrPrecision();
-        segments->fFSUnis += " float ";
-        segments->fFSUnis += radial2ParamsName;
-        segments->fFSUnis += "[6];\n";
-        locations->fRadial2Uni = 1;
+        segments->fVSUnis.appendf("uniform %sfloat %s[6];\n", 
+                                  GrPrecision(), radial2ParamsName.c_str());
+        segments->fFSUnis.appendf("uniform float %s[6];\n", 
+                                  radial2ParamsName.c_str());
+        locations->fRadial2Uni = kUseUniform;
 
         // if there is perspective we don't interpolate this
         if (varyingDims == coordDims) {
             GrAssert(2 == coordDims);
-            segments->fVaryings += "varying float ";
-            segments->fVaryings += radial2VaryingName;
-            segments->fVaryings += ";\n";
+            segments->fVaryings.appendf("varying float %s;\n", radial2VaryingName.c_str());
 
-            segments->fVSCode += "\t";
-            segments->fVSCode += radial2VaryingName;
-            segments->fVSCode += " = 2.0 * (";
-            segments->fVSCode += radial2ParamsName;
-            segments->fVSCode += "[2] * ";
-            segments->fVSCode += varyingName;
-            segments->fVSCode += ".x ";
-            segments->fVSCode += " - ";
-            segments->fVSCode += radial2ParamsName;
-            segments->fVSCode += "[3]);\n";
+            // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
+            segments->fVSCode.appendf("\t%s = 2.0 *(%s[2] * %s.x - %s[3]);\n",
+                                      radial2VaryingName.c_str(), radial2ParamsName.c_str(),
+                                      varyingName.c_str(), radial2ParamsName.c_str());
         }
     }
 
     /// Fragment Shader Stuff
-    GrTokenString fsCoordName;
+    GrStringBuilder fsCoordName;
     // function used to access the shader, may be made projective
-    GrTokenString texFunc("texture2D");
+    GrStringBuilder texFunc("texture2D");
     if (desc.fOptFlags & (ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit |
                           ProgramDesc::StageDesc::kNoPerspective_OptFlagBit)) {
         GrAssert(varyingDims == coordDims);
@@ -690,26 +659,21 @@ void GrGLProgram::genStageCode(int stageNum,
     } else {
         // if we have to do some special op on the varyings to get
         // our final tex coords then when in perspective we have to
-        // do an explicit divide
+        // do an explicit divide. Otherwise, we can use a Proj func.
         if  (ProgramDesc::StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
              ProgramDesc::StageDesc::kSingle_FetchMode == desc.fFetchMode) {
-            texFunc += "Proj";
+            texFunc.append("Proj");
             fsCoordName = varyingName;
         } else {
             fsCoordName = "inCoord";
             fsCoordName.appendS32(stageNum);
-
-            segments->fFSCode += "\t";
-            segments->fFSCode += float_vector_type(coordDims);
-            segments->fFSCode += " ";
-            segments->fFSCode += fsCoordName;
-            segments->fFSCode += " = ";
-            segments->fFSCode += varyingName;
-            segments->fFSCode += vector_nonhomog_coords(varyingDims);
-            segments->fFSCode += " / ";
-            segments->fFSCode += varyingName;
-            segments->fFSCode += vector_homog_coord(varyingDims);
-            segments->fFSCode += ";\n";
+            segments->fFSCode.appendf("\t%s %s = %s%s / %s%s;\n",
+                                       float_vector_type(coordDims),
+                                       fsCoordName.c_str(),
+                                       varyingName.c_str(),
+                                       vector_nonhomog_coords(varyingDims),
+                                       varyingName.c_str(),
+                                       vector_homog_coord(varyingDims));
         }
     }
 
@@ -720,29 +684,25 @@ void GrGLProgram::genStageCode(int stageNum,
         sampleCoords = fsCoordName;
         break;
     case ProgramDesc::StageDesc::kSweepGradient_CoordMapping:
-        sampleCoords = "vec2(atan(-";
-        sampleCoords += fsCoordName;
-        sampleCoords += ".y, -";
-        sampleCoords += fsCoordName;
-        sampleCoords += ".x)*0.1591549430918 + 0.5, 0.5)";
+        sampleCoords.printf("vec2(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5, 0.5)", fsCoordName.c_str(), fsCoordName.c_str());
         complexCoord = true;
         break;
     case ProgramDesc::StageDesc::kRadialGradient_CoordMapping:
-        sampleCoords = "vec2(length(";
-        sampleCoords += fsCoordName;
-        sampleCoords += ".xy), 0.5)";
+        sampleCoords.printf("vec2(length(%s.xy), 0.5)", fsCoordName.c_str());
         complexCoord = true;
         break;
     case ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping: {
-        GrTokenString cName("c");
-        GrTokenString ac4Name("ac4");
-        GrTokenString rootName("root");
+        GrStringBuilder cName("c");
+        GrStringBuilder ac4Name("ac4");
+        GrStringBuilder rootName("root");
 
         cName.appendS32(stageNum);
         ac4Name.appendS32(stageNum);
         rootName.appendS32(stageNum);
 
-        GrTokenString bVar;
+        // if we were able to interpolate the linear component bVar is the varying
+        // otherwise compute it
+        GrStringBuilder bVar;
         if (coordDims == varyingDims) {
             bVar = radial2VaryingName;
             GrAssert(2 == varyingDims);
@@ -750,134 +710,68 @@ void GrGLProgram::genStageCode(int stageNum,
             GrAssert(3 == varyingDims);
             bVar = "b";
             bVar.appendS32(stageNum);
-            segments->fFSCode += "\tfloat ";
-            segments->fFSCode += bVar;
-            segments->fFSCode += " = 2.0 * (";
-            segments->fFSCode += radial2ParamsName;
-            segments->fFSCode += "[2] * ";
-            segments->fFSCode += fsCoordName;
-            segments->fFSCode += ".x ";
-            segments->fFSCode += " - ";
-            segments->fFSCode += radial2ParamsName;
-            segments->fFSCode += "[3]);\n";
+            segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s[2] * %s.x - %s[3]);\n",
+                                        bVar.c_str(), radial2ParamsName.c_str(),
+                                        fsCoordName.c_str(), radial2ParamsName.c_str());
         }
 
-        segments->fFSCode += "\tfloat ";
-        segments->fFSCode += cName;
-        segments->fFSCode += " = dot(";
-        segments->fFSCode += fsCoordName;
-        segments->fFSCode += ", ";
-        segments->fFSCode += fsCoordName;
-        segments->fFSCode += ") + ";
-        segments->fFSCode += " - ";
-        segments->fFSCode += radial2ParamsName;
-        segments->fFSCode += "[4];\n";
+        // c = (x^2)+(y^2) - params[4]
+        segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s[4];\n",
+                                  cName.c_str(), fsCoordName.c_str(),
+                                  fsCoordName.c_str(),
+                                  radial2ParamsName.c_str());
+        // ac4 = 4.0 * params[0] * c
+        segments->fFSCode.appendf("\tfloat %s = %s[0] * 4.0 * %s;\n",
+                                  ac4Name.c_str(), radial2ParamsName.c_str(),
+                                  cName.c_str());
 
-        segments->fFSCode += "\tfloat ";
-        segments->fFSCode += ac4Name;
-        segments->fFSCode += " = ";
-        segments->fFSCode += radial2ParamsName;
-        segments->fFSCode += "[0] * 4.0 * ";
-        segments->fFSCode += cName;
-        segments->fFSCode += ";\n";
+        // root = sqrt(b^2-4ac)
+        // (abs to avoid exception due to fp precision)
+        segments->fFSCode.appendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
+                                  rootName.c_str(), bVar.c_str(), bVar.c_str(),
+                                  ac4Name.c_str());
 
-        segments->fFSCode += "\tfloat ";
-        segments->fFSCode += rootName;
-        segments->fFSCode += " = sqrt(abs(";
-        segments->fFSCode += bVar;
-        segments->fFSCode += " * ";
-        segments->fFSCode += bVar;
-        segments->fFSCode += " - ";
-        segments->fFSCode += ac4Name;
-        segments->fFSCode += "));\n";
-
-        sampleCoords = "vec2((-";
-        sampleCoords += bVar;
-        sampleCoords += " + ";
-        sampleCoords += radial2ParamsName;
-        sampleCoords += "[5] * ";
-        sampleCoords += rootName;
-        sampleCoords += ") * ";
-        sampleCoords += radial2ParamsName;
-        sampleCoords += "[1], 0.5)\n";
+        // x coord is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
+        // y coord is 0.5 (texture is effectively 1D)
+        sampleCoords.printf("vec2((-%s + %s[5] * %s) * %s[1], 0.5)",
+                            bVar.c_str(), radial2ParamsName.c_str(),
+                            rootName.c_str(), radial2ParamsName.c_str());
         complexCoord = true;
         break;}
     };
 
+    const char* smear;
+    if (desc.fModulation == ProgramDesc::StageDesc::kAlpha_Modulation) {
+        smear = ".aaaa";
+    } else {
+        smear = "";
+    }
+    GrStringBuilder modulate;
+    if (NULL != fsInColor) {
+        modulate.printf(" * %s", fsInColor);
+    }
+
     if (ProgramDesc::StageDesc::k2x2_FetchMode == desc.fFetchMode) {
-        locations->fNormalizedTexelSizeUni = 1;
+        locations->fNormalizedTexelSizeUni = kUseUniform;
         if (complexCoord) {
-            GrTokenString coordVar("tCoord");
+            // assign the coord to a var rather than compute 4x.
+            GrStringBuilder coordVar("tCoord");
             coordVar.appendS32(stageNum);
-            segments->fFSCode += "\t";
-            segments->fFSCode += float_vector_type(coordDims);
-            segments->fFSCode += " ";
-            segments->fFSCode += coordVar;
-            segments->fFSCode += " = ";
-            segments->fFSCode += sampleCoords;
-            segments->fFSCode += ";\n";
+            segments->fFSCode.appendf("\t%s %s = %s;\n",
+                                      float_vector_type(coordDims),
+                                      coordVar.c_str(), sampleCoords.c_str());
             sampleCoords = coordVar;
         }
-        static const char sign[] = {'-','+'};
-        GrTokenString stageAccumVar("stage2x2Accum");
-        stageAccumVar.appendS32(stageNum);
-        segments->fFSCode += "\tvec4 ";
-        segments->fFSCode += stageAccumVar;
-        segments->fFSCode += " = ";
         GrAssert(2 == coordDims);
-        for (int y = 0; y < 2; ++y) {
-            for (int x = 0; x < 2; ++x) {
-                segments->fFSCode += texFunc;
-                segments->fFSCode += "(";
-                segments->fFSCode += samplerName;
-                segments->fFSCode += ", ";
-                segments->fFSCode += sampleCoords;
-                segments->fFSCode += " + vec2(";
-                segments->fFSCode += sign[x];
-                segments->fFSCode += texelSizeName;
-                segments->fFSCode += ".x, ";
-                segments->fFSCode += sign[y];
-                segments->fFSCode += texelSizeName;
-                segments->fFSCode += ".y))";
-                if (desc.fModulation == ProgramDesc::StageDesc::kAlpha_Modulation) {
-                    segments->fFSCode += ".aaaa";
-                }
-                segments->fFSCode += ";\n";
-                if (1 != x || 1 !=y ) {
-                    segments->fFSCode += "\t";
-                    segments->fFSCode += stageAccumVar;
-                    segments->fFSCode += " += ";
-                }
-            }
-        }
-        segments->fFSCode += "\t";
-        segments->fFSCode += fsOutColor;
-        segments->fFSCode += " = ";
-        if (NULL != fsInColor) {
-            segments->fFSCode += fsInColor;
-            segments->fFSCode += " * ";
-        }
-        segments->fFSCode += stageAccumVar;
-        segments->fFSCode += " / 4;\n";
+        GrStringBuilder accumVar("accum");
+        accumVar.appendS32(stageNum);
+        segments->fFSCode.appendf("\tvec4 %s  = %s(%s, %s + vec2(-%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), texelSizeName.c_str(), texelSizeName.c_str(), smear);
+        segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), texelSizeName.c_str(), texelSizeName.c_str(), smear);
+        segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), texelSizeName.c_str(), texelSizeName.c_str(), smear);
+        segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), texelSizeName.c_str(), texelSizeName.c_str(), smear);
+        segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), modulate.c_str());
     } else {
-        segments->fFSCode += "\t";
-        segments->fFSCode += fsOutColor;
-        segments->fFSCode += " = ";
-        if (NULL != fsInColor) {
-            segments->fFSCode += fsInColor;
-            segments->fFSCode += " * ";
-        }
-
-        segments->fFSCode += texFunc;
-        segments->fFSCode += "(";
-        segments->fFSCode += samplerName;
-        segments->fFSCode += ", ";
-        segments->fFSCode += sampleCoords;
-        segments->fFSCode += ")";
-        if (desc.fModulation == ProgramDesc::StageDesc::kAlpha_Modulation) {
-            segments->fFSCode += ".aaaa";
-        }
-        segments->fFSCode += ";\n";
+        segments->fFSCode.appendf("\t%s = %s(%s, %s)%s %s;\n", fsOutColor, texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), smear, modulate.c_str());
     }
 
     if(fStageEffects[stageNum]) {
