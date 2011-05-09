@@ -179,20 +179,29 @@ bool SkPDFGraphicState::GSCanonicalEntry::operator==(
         return false;
     }
 
-    SkXfermode* aXfermode = a->getXfermode();
     SkXfermode::Mode aXfermodeName = SkXfermode::kSrcOver_Mode;
-    bool aXfermodeKnown = true;
-    if (aXfermode)
-        aXfermodeKnown = aXfermode->asMode(&aXfermodeName);
-    SkXfermode* bXfermode = b->getXfermode();
-    SkXfermode::Mode bXfermodeName = SkXfermode::kSrcOver_Mode;
-    bool bXfermodeKnown = true;
-    if (bXfermode)
-        bXfermodeKnown = bXfermode->asMode(&bXfermodeName);
+    SkXfermode* aXfermode = a->getXfermode();
+    if (aXfermode) {
+        aXfermode->asMode(&aXfermodeName);
+    }
+    if (aXfermodeName < 0 || aXfermodeName > SkXfermode::kLastMode ||
+            blendModeFromXfermode(aXfermodeName) == NULL) {
+        aXfermodeName = SkXfermode::kSrcOver_Mode;
+    }
+    const char* aXfermodeString = blendModeFromXfermode(aXfermodeName);
+    SkASSERT(aXfermodeString != NULL);
 
-    if (aXfermodeKnown != bXfermodeKnown)
-        return false;
-    if (!aXfermodeKnown)
-       return aXfermode == bXfermode;
-    return aXfermodeName == bXfermodeName;
+    SkXfermode::Mode bXfermodeName = SkXfermode::kSrcOver_Mode;
+    SkXfermode* bXfermode = b->getXfermode();
+    if (bXfermode) {
+        bXfermode->asMode(&bXfermodeName);
+    }
+    if (bXfermodeName < 0 || bXfermodeName > SkXfermode::kLastMode ||
+            blendModeFromXfermode(bXfermodeName) == NULL) {
+        bXfermodeName = SkXfermode::kSrcOver_Mode;
+    }
+    const char* bXfermodeString = blendModeFromXfermode(bXfermodeName);
+    SkASSERT(bXfermodeString != NULL);
+
+    return strcmp(aXfermodeString, bXfermodeString) == 0;
 }
