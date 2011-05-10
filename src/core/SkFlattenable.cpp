@@ -1,6 +1,35 @@
 #include "SkFlattenable.h"
 #include "SkTypeface.h"
 
+#include "SkMatrix.h"
+#include "SkRegion.h"
+
+void SkReadMatrix(SkReader32* reader, SkMatrix* matrix) {
+    size_t size = matrix->unflatten(reader->peek());
+    SkASSERT(SkAlign4(size) == size);
+    (void)reader->skip(size);
+}
+
+void SkWriteMatrix(SkWriter32* writer, const SkMatrix& matrix) {
+    size_t size = matrix.flatten(NULL);
+    SkASSERT(SkAlign4(size) == size);
+    matrix.flatten(writer->reserve(size));
+}
+
+void SkReadRegion(SkReader32* reader, SkRegion* rgn) {
+    size_t size = rgn->unflatten(reader->peek());
+    SkASSERT(SkAlign4(size) == size);
+    (void)reader->skip(size);
+}
+
+void SkWriteRegion(SkWriter32* writer, const SkRegion& rgn) {
+    size_t size = rgn.flatten(NULL);
+    SkASSERT(SkAlign4(size) == size);
+    rgn.flatten(writer->reserve(size));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkFlattenable::flatten(SkFlattenableWriteBuffer&)
 {
     /*  we don't write anything at the moment, but this allows our subclasses
