@@ -75,12 +75,17 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
 
     SkTScopedPtr<SkAdvancedTypefaceMetrics::AdvanceMetric<Data> > result;
     SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* curRange;
+    SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* prevRange = NULL;
     curRange = appendRange(&result, 0);
     Data lastAdvance = SK_MinS16;
     int repeats = 0;
-    for (int gId = 0; gId < num_glyphs; gId++) {
+    for (int gId = 0; gId <= num_glyphs; gId++) {
         Data advance;
-        SkAssertResult(getAdvance(fontHandle, gId, &advance));
+        if (gId < num_glyphs) {
+            SkAssertResult(getAdvance(fontHandle, gId, &advance));
+        } else {
+            advance = SK_MinS16;
+        }
         if (advance == lastAdvance) {
             repeats++;
         } else if (curRange->fAdvance.count() == repeats + 1) {
@@ -89,6 +94,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
             } else if (repeats >= 2) {
                 finishRange(curRange, gId - 1,
                             SkAdvancedTypefaceMetrics::WidthRange::kRun);
+                prevRange = curRange;
                 curRange = appendRange(&curRange->fNext, gId);
             }
             repeats = 0;
@@ -96,6 +102,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
             if (lastAdvance == 0 && repeats >= 3) {
                 finishRange(curRange, gId - repeats - 2,
                             SkAdvancedTypefaceMetrics::WidthRange::kRange);
+                prevRange = curRange;
                 curRange = appendRange(&curRange->fNext, gId);
             } else if (repeats >= 4) {
                 finishRange(curRange, gId - repeats - 2,
@@ -104,6 +111,7 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
                 curRange->fAdvance.append(1, &lastAdvance);
                 finishRange(curRange, gId - 1,
                             SkAdvancedTypefaceMetrics::WidthRange::kRun);
+                prevRange = curRange;
                 curRange = appendRange(&curRange->fNext, gId);
             }
             repeats = 0;
@@ -111,8 +119,14 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
         curRange->fAdvance.append(1, &advance);
         lastAdvance = advance;
     }
-    finishRange(curRange, num_glyphs - 1,
-                SkAdvancedTypefaceMetrics::WidthRange::kRange);
+    if (curRange->fStartId == num_glyphs) {
+        SkASSERT(prevRange);
+        SkASSERT(prevRange->fNext->fStartId == num_glyphs);
+        prevRange->fNext.reset();
+    } else {
+        finishRange(curRange, num_glyphs - 1,
+                    SkAdvancedTypefaceMetrics::WidthRange::kRange);
+    }
     return result.release();
 }
 
