@@ -1586,6 +1586,95 @@ bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
+SkScalar SkMatrix::getMaxStretch() const {
+    TypeMask mask = this->getType();
+
+    if (mask & kPerspective_Mask) {
+        return -SK_Scalar1;
+    }
+    
+    SkScalar stretch;
+    
+    if (this->isIdentity()) {
+        stretch = SK_Scalar1;
+    } else if (!(mask & kAffine_Mask)) {
+        stretch = SkMaxScalar(SkScalarAbs(fMat[kMScaleX]), SkScalarAbs(fMat[kMScaleY]));
+#if 0   // don't have this bit
+    } else if (mask & kZeroScale_TypeBit) {
+        stretch = SkMaxScalar(SkScalarAbs(fM[kSkewX]), SkScalarAbs(fM[kSkewY]));
+#endif
+    } else {
+        // ignore the translation part of the matrix, just look at 2x2 portion.
+        // compute singular values, take largest abs value.
+        // [a b; b c] = A^T*A
+        SkScalar a = SkScalarMul(fMat[kMScaleX], fMat[kMScaleX]) + SkScalarMul(fMat[kMSkewY],  fMat[kMSkewY]);
+        SkScalar b = SkScalarMul(fMat[kMScaleX], fMat[kMSkewX]) +  SkScalarMul(fMat[kMScaleY], fMat[kMSkewY]);
+        SkScalar c = SkScalarMul(fMat[kMSkewX],  fMat[kMSkewX]) +  SkScalarMul(fMat[kMScaleY], fMat[kMScaleY]);
+        // eigenvalues of A^T*A are the squared singular values of A.
+        // characteristic equation is det((A^T*A) - l*I) = 0
+        // l^2 - (a + c)l + (ac-b^2)
+        // solve using quadratic equation (divisor is non-zero since l^2 has 1 coeff
+        // and roots are guaraunteed to be pos and real).
+        SkScalar largerRoot;
+        SkScalar bSqd = SkScalarMul(b,b);
+        if (bSqd <= SkFloatToScalar(1e-10)) { // will be true if upper left 2x2 is orthogonal, which is common, so save some math
+            largerRoot = SkMaxScalar(a, c);
+        } else {
+            SkScalar aminusc = a - c;
+            SkScalar apluscdiv2 = (a + c) / 2;
+            SkScalar x = SkScalarSqrt(SkScalarMul(aminusc, aminusc) + 4 * bSqd) / 2;
+            largerRoot = apluscdiv2 + x;
+        }
+        
+        stretch = SkScalarSqrt(largerRoot);
+    }
+#if defined(SK_DEBUG) && 0
+    // test a bunch of vectors. None should be scaled by more than stretch
+    // (modulo some error) and we should find a vector that is scaled by almost
+    // stretch.
+    SkPoint pt;
+    SkScalar max = 0;
+    for (int i = 0; i < 1000; ++i) {
+        SkScalar x = (float)rand() / RAND_MAX;
+        SkScalar y = sqrtf(1 - (x*x));
+        pt.fX = fMat[kMScaleX]*x + fMat[kMSkewX]*y;
+        pt.fY = fMat[kMSkewY]*x + fMat[kMScaleY]*y;
+        SkScalar d = pt.distanceToOrigin();
+        SkASSERT(d <= (1.0001 * stretch));
+        if (max < pt.distanceToOrigin()) {
+            max = pt.distanceToOrigin();
+        }
+    }
+    SkASSERT((stretch - max) < .05*stretch);
+#endif
+    return stretch;
+}
+
+const SkMatrix& SkMatrix::I() {
+    static SkMatrix gIdentity;
+    static bool gOnce;
+    if (!gOnce) {
+        gIdentity.reset();
+        gOnce = true;
+    }
+    return gIdentity;
+};
+
+const SkMatrix& SkMatrix::InvalidMatrix() {
+    static SkMatrix gInvalid;
+    static bool gOnce;
+    if (!gOnce) {
+        gInvalid.setAll(SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+                        SK_ScalarMax, SK_ScalarMax, SK_ScalarMax,
+                        SK_ScalarMax, SK_ScalarMax, SK_ScalarMax);
+        gInvalid.getType(); // force the type to be computed
+        gOnce = true;
+    }
+    return gInvalid;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 uint32_t SkMatrix::flatten(void* buffer) const {
     // TODO write less for simple matrices
     if (buffer) {

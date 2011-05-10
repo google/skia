@@ -117,18 +117,6 @@ public:
         return BitmapConfig2PixelConfig(bm.config(), bm.isOpaque());
     }
 
-    static void SkMatrix2GrMatrix(const SkMatrix& m, GrMatrix* g) {
-        g->setAll(SkScalarToGrScalar(m[0]),
-                  SkScalarToGrScalar(m[1]),
-                  SkScalarToGrScalar(m[2]),
-                  SkScalarToGrScalar(m[3]),
-                  SkScalarToGrScalar(m[4]),
-                  SkScalarToGrScalar(m[5]),
-                  SkScalarToGrScalar(m[6]),
-                  SkScalarToGrScalar(m[7]),
-                  SkScalarToGrScalar(m[8]));
-    }
-
     static GrColor SkColor2GrColor(SkColor c) {
         SkPMColor pm = SkPreMultiplyColor(c);
         unsigned r = SkGetPackedR32(pm);

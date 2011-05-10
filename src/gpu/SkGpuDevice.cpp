@@ -39,23 +39,6 @@
     #define CHECK_SHOULD_DRAW(draw) this->prepareRenderTarget(draw)
 #endif
 
-class SkAutoExtMatrix {
-public:
-    SkAutoExtMatrix(const SkMatrix* extMatrix) {
-        if (extMatrix) {
-            SkGr::SkMatrix2GrMatrix(*extMatrix, &fMatrix);
-            fExtMatrix = &fMatrix;
-        } else {
-            fExtMatrix = NULL;
-        }
-    }
-    const GrMatrix* extMatrix() const { return fExtMatrix; }
-
-private:
-    GrMatrix    fMatrix;
-    GrMatrix*   fExtMatrix; // NULL or &fMatrix
-};
-
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice::SkAutoCachedTexture::
@@ -279,9 +262,7 @@ static void convert_matrixclip(GrContext* context, const SkMatrix& matrix,
                                const SkClipStack& clipStack,
                                const SkRegion& clipRegion,
                                const SkIPoint& origin) {
-    GrMatrix grmat;
-    SkGr::SkMatrix2GrMatrix(matrix, &grmat);
-    context->setMatrix(grmat);
+    context->setMatrix(matrix);
 
     SkGrClipIterator iter;
     iter.reset(clipStack);
@@ -460,9 +441,7 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         GrScalar s = GrFixedToScalar(GR_Fixed1 / bitmap.width());
         matrix.postScale(s, s);
     }
-    GrMatrix grMat;
-    SkGr::SkMatrix2GrMatrix(matrix, &grMat);
-    grPaint->fSampler.setMatrix(grMat);
+    grPaint->fSampler.setMatrix(matrix);
 
     return true;
 }
@@ -975,10 +954,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                       GrFixedToScalar((srcRect.fRight << 16)  / bitmap.width()),
                       GrFixedToScalar((srcRect.fBottom << 16) / bitmap.height()));
 
-    GrMatrix grMat;
-    SkGr::SkMatrix2GrMatrix(m, &grMat);
-
-    fContext->drawRectToRect(*grPaint, dstRect, paintRect, &grMat);
+    fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
 }
 
 void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
@@ -1178,7 +1154,6 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
         // this guy will just call our drawPath()
         draw.drawText((const char*)text, byteLength, x, y, paint);
     } else {
-        SkAutoExtMatrix aem(draw.fExtMatrix);
         SkDraw myDraw(draw);
 
         GrPaint grPaint;
@@ -1187,7 +1162,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
         if (!this->skPaint2GrPaintShader(paint, &act, *draw.fMatrix, &grPaint)) {
             return;
         }
-        GrTextContext context(fContext, grPaint, aem.extMatrix());
+        GrTextContext context(fContext, grPaint, draw.fExtMatrix);
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawText(myDraw, text, byteLength, x, y, paint);
     }
@@ -1204,7 +1179,6 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
         draw.drawPosText((const char*)text, byteLength, pos, constY,
                          scalarsPerPos, paint);
     } else {
-        SkAutoExtMatrix aem(draw.fExtMatrix);
         SkDraw myDraw(draw);
 
         GrPaint grPaint;
@@ -1213,7 +1187,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
             return;
         }
 
-        GrTextContext context(fContext, grPaint, aem.extMatrix());
+        GrTextContext context(fContext, grPaint, draw.fExtMatrix);
         myDraw.fProcs = this->initDrawForText(&context);
         this->INHERITED::drawPosText(myDraw, text, byteLength, pos, constY,
                                      scalarsPerPos, paint);

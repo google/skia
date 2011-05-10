@@ -925,7 +925,7 @@ void GrContext::drawRect(const GrPaint& paint,
             GrVec strokeSize;;
             if (width > 0) {
                 strokeSize.set(width, width);
-                combinedMatrix.mapVec(&strokeSize);
+                combinedMatrix.mapVectors(&strokeSize, 1);
                 strokeSize.setAbs(strokeSize);
             } else {
                 strokeSize.set(GR_Scalar1, GR_Scalar1);

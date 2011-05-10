@@ -19,6 +19,7 @@
 #include "GrRect.h"
 #include <stddef.h>
 
+#if 0
 #if GR_SCALAR_IS_FLOAT
     const GrScalar GrMatrix::gRESCALE(GR_Scalar1);
 #else
@@ -688,6 +689,7 @@ void GrMatrix::UnitTest() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+#endif
 
 int Gr_clz(uint32_t n) {
     if (0 == n) {
@@ -716,4 +718,3 @@ int Gr_clz(uint32_t n) {
     }
     return count;
 }
-
