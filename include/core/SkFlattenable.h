@@ -70,6 +70,16 @@ protected:
     SkFlattenable(SkFlattenableReadBuffer&) {}
 };
 
+// helpers for matrix and region
+
+class SkMatrix;
+extern void SkReadMatrix(SkReader32*, SkMatrix*);
+extern void SkWriteMatrix(SkWriter32*, const SkMatrix&);
+
+class SkRegion;
+extern void SkReadRegion(SkReader32*, SkRegion*);
+extern void SkWriteRegion(SkWriter32*, const SkRegion&);
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 

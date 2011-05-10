@@ -342,7 +342,7 @@ Gradient_Shader::Gradient_Shader(SkFlattenableReadBuffer& buffer) :
             recs[i].fScale = buffer.readU32();
         }
     }
-    buffer.read(&fPtsToUnit, sizeof(SkMatrix));
+    SkReadMatrix(&buffer, &fPtsToUnit);
     fFlags = 0;
 }
 
@@ -370,7 +370,7 @@ void Gradient_Shader::flatten(SkFlattenableWriteBuffer& buffer) {
             buffer.write32(recs[i].fScale);
         }
     }
-    buffer.writeMul4(&fPtsToUnit, sizeof(SkMatrix));
+    SkWriteMatrix(&buffer, fPtsToUnit);
 }
 
 bool Gradient_Shader::setContext(const SkBitmap& device,
