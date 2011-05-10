@@ -273,7 +273,8 @@ void GrGpuGLShaders::resetContext() {
 
 void GrGpuGLShaders::flushViewMatrix() {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
-    GrMatrix m (
+    GrMatrix m;
+    m.setAll(
         GrIntToScalar(2) / fCurrDrawState.fRenderTarget->width(), 0, -GR_Scalar1,
         0,-GrIntToScalar(2) / fCurrDrawState.fRenderTarget->height(), GR_Scalar1,
         0, 0, GrMatrix::I()[8]);
@@ -282,15 +283,15 @@ void GrGpuGLShaders::flushViewMatrix() {
     // ES doesn't allow you to pass true to the transpose param,
     // so do our own transpose
     GrScalar mt[]  = {
-        m[GrMatrix::kScaleX],
-        m[GrMatrix::kSkewY],
-        m[GrMatrix::kPersp0],
-        m[GrMatrix::kSkewX],
-        m[GrMatrix::kScaleY],
-        m[GrMatrix::kPersp1],
-        m[GrMatrix::kTransX],
-        m[GrMatrix::kTransY],
-        m[GrMatrix::kPersp2]
+        m[GrMatrix::kMScaleX],
+        m[GrMatrix::kMSkewY],
+        m[GrMatrix::kMPersp0],
+        m[GrMatrix::kMSkewX],
+        m[GrMatrix::kMScaleY],
+        m[GrMatrix::kMPersp1],
+        m[GrMatrix::kMTransX],
+        m[GrMatrix::kMTransY],
+        m[GrMatrix::kMPersp2]
     };
 
     if (GrGLProgram::kSetAsAttribute ==  
@@ -327,15 +328,15 @@ void GrGpuGLShaders::flushTextureMatrix(int s) {
             // ES doesn't allow you to pass true to the transpose param,
             // so do our own transpose
             GrScalar mt[]  = {
-                m[GrMatrix::kScaleX],
-                m[GrMatrix::kSkewY],
-                m[GrMatrix::kPersp0],
-                m[GrMatrix::kSkewX],
-                m[GrMatrix::kScaleY],
-                m[GrMatrix::kPersp1],
-                m[GrMatrix::kTransX],
-                m[GrMatrix::kTransY],
-                m[GrMatrix::kPersp2]
+                m[GrMatrix::kMScaleX],
+                m[GrMatrix::kMSkewY],
+                m[GrMatrix::kMPersp0],
+                m[GrMatrix::kMSkewX],
+                m[GrMatrix::kMScaleY],
+                m[GrMatrix::kMPersp1],
+                m[GrMatrix::kMTransX],
+                m[GrMatrix::kMTransY],
+                m[GrMatrix::kMPersp2]
             };
             if (GrGLProgram::kSetAsAttribute ==
                 fProgramData->fUniLocations.fStages[s].fTextureMatrixUni) {

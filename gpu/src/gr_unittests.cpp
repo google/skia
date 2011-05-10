@@ -152,7 +152,6 @@ void gr_run_unittests() {
     test_tdarray();
     test_bsearch();
     test_binHashKey();
-    GrMatrix::UnitTest();
     GrRedBlackTree<int>::UnitTest();
     GrPath::ConvexUnitTest();
     GrDrawTarget::VertexLayoutUnitTest();

@@ -20,9 +20,9 @@
 
 #include "GrGlyph.h"
 #include "GrPaint.h"
+#include "GrMatrix.h"
 
 struct GrGpuTextVertex;
-class GrMatrix;
 class GrContext;
 class GrTextStrike;
 class GrFontScaler;

@@ -70,6 +70,15 @@ public:
         }
         return (fTypeMask & kRectStaysRect_Mask) != 0;
     }
+    // alias for rectStaysRect()
+    bool preservesAxisAlignment() const { return this->rectStaysRect(); }
+
+    /**
+     *  Returns true if the perspective contains perspective elements.
+     */
+    bool hasPerspective() const {
+        return SkToBool(this->getType() & kPerspective_Mask);
+    }
 
     enum {
         kMScaleX,
@@ -123,10 +132,27 @@ public:
     void setPerspX(SkScalar v) { this->set(kMPersp0, v); }
     void setPerspY(SkScalar v) { this->set(kMPersp1, v); }
 
+    void setAll(SkScalar scaleX, SkScalar skewX, SkScalar transX,
+                SkScalar skewY, SkScalar scaleY, SkScalar transY,
+                SkScalar persp0, SkScalar persp1, SkScalar persp2) {
+        fMat[kMScaleX] = scaleX;
+        fMat[kMSkewX]  = skewX;
+        fMat[kMTransX] = transX;
+        fMat[kMSkewY]  = skewY;
+        fMat[kMScaleY] = scaleY;
+        fMat[kMTransY] = transY;
+        fMat[kMPersp0] = persp0;
+        fMat[kMPersp1] = persp1;
+        fMat[kMPersp2] = persp2;
+        this->setTypeMask(kUnknown_Mask);
+    }
+        
     /** Set the matrix to identity
     */
     void reset();
-    
+    // alias for reset()
+    void setIdentity() { this->reset(); }
+
     /** Set the matrix to translate by (dx, dy).
     */
     void setTranslate(SkScalar dx, SkScalar dy);
@@ -369,6 +395,13 @@ public:
         return this->mapRect(rect, *rect);
     }
 
+    void mapPointsWithStride(SkPoint pts[], size_t stride, int count) const {
+        for (int i = 0; i < count; ++i) {            
+            this->mapPoints(pts, pts, 1);
+            pts = (SkPoint*)((intptr_t)pts + stride);
+        }
+    }
+    
     /** Return the mean radius of a circle after it has been mapped by
         this matrix. NOTE: in perspective this value assumes the circle
         has its center at the origin.
@@ -424,6 +457,25 @@ public:
     
     void dump() const;
     void toDumpString(SkString*) const;
+
+    /**
+     * Calculates the maximum stretching factor of the matrix. Only defined if
+     * the matrix does not have perspective.
+     *
+     * @return maximum strecthing factor or negative if matrix has perspective.
+     */
+    SkScalar getMaxStretch() const;
+
+    /**
+     *  Return a reference to a const identity matrix
+     */
+    static const SkMatrix& I();
+
+    /**
+     *  Return a reference to a const matrix that is "invalid", one that could
+     *  never be used.
+     */
+    static const SkMatrix& InvalidMatrix();
 
 private:
     enum {
