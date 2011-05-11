@@ -396,6 +396,15 @@ void GrGpuGLShaders::flushTexelSize(int s) {
     }
 }
 
+static const float ONE_OVER_255 = 1.f / 255.f;
+
+#define GR_COLOR_TO_VEC4(color) {\
+    GrColorUnpackR(color) * ONE_OVER_255,\
+    GrColorUnpackG(color) * ONE_OVER_255,\
+    GrColorUnpackB(color) * ONE_OVER_255,\
+    GrColorUnpackA(color) * ONE_OVER_255 \
+}
+
 void GrGpuGLShaders::flushColor() {
     const GrGLProgram::ProgramDesc& desc = fCurrentProgram.getDesc();
     if (fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit) {
@@ -407,12 +416,7 @@ void GrGpuGLShaders::flushColor() {
             case GrGLProgram::ProgramDesc::kAttribute_ColorType:
                 if (fHWDrawState.fColor != fCurrDrawState.fColor) {
                     // OpenGL ES only supports the float varities of glVertexAttrib
-                    float c[] = {
-                        GrColorUnpackR(fCurrDrawState.fColor) / 255.f,
-                        GrColorUnpackG(fCurrDrawState.fColor) / 255.f,
-                        GrColorUnpackB(fCurrDrawState.fColor) / 255.f,
-                        GrColorUnpackA(fCurrDrawState.fColor) / 255.f
-                    };
+                    float c[] = GR_COLOR_TO_VEC4(fCurrDrawState.fColor);
                     GR_GL(VertexAttrib4fv(GrGLProgram::ColorAttributeIdx(), c));
                     fHWDrawState.fColor = fCurrDrawState.fColor;
                 }
@@ -420,12 +424,7 @@ void GrGpuGLShaders::flushColor() {
             case GrGLProgram::ProgramDesc::kUniform_ColorType:
                 if (fProgramData->fColor != fCurrDrawState.fColor) {
                     // OpenGL ES only supports the float varities of glVertexAttrib
-                    float c[] = {
-                        GrColorUnpackR(fCurrDrawState.fColor) / 255.f,
-                        GrColorUnpackG(fCurrDrawState.fColor) / 255.f,
-                        GrColorUnpackB(fCurrDrawState.fColor) / 255.f,
-                        GrColorUnpackA(fCurrDrawState.fColor) / 255.f
-                    };
+                    float c[] = GR_COLOR_TO_VEC4(fCurrDrawState.fColor);
                     GrAssert(GrGLProgram::kUnusedUniform != 
                              fProgramData->fUniLocations.fColorUni);
                     GR_GL(Uniform4fv(fProgramData->fUniLocations.fColorUni, 1, c));
@@ -443,12 +442,7 @@ void GrGpuGLShaders::flushColor() {
                 != GrGLProgram::kUnusedUniform
             && fProgramData->fColorFilterColor
                 != fCurrDrawState.fColorFilterColor) {
-        float c[] = {
-            GrColorUnpackR(fCurrDrawState.fColorFilterColor) / 255.f,
-            GrColorUnpackG(fCurrDrawState.fColorFilterColor) / 255.f,
-            GrColorUnpackB(fCurrDrawState.fColorFilterColor) / 255.f,
-            GrColorUnpackA(fCurrDrawState.fColorFilterColor) / 255.f
-        };
+        float c[] = GR_COLOR_TO_VEC4(fCurrDrawState.fColorFilterColor);
         GR_GL(Uniform4fv(fProgramData->fUniLocations.fColorFilterUni, 1, c));
         fProgramData->fColorFilterColor = fCurrDrawState.fColorFilterColor;
     }
