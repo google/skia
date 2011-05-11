@@ -188,7 +188,7 @@ public:
         }
 
         void copyAndTakeOwnership(CachedData& other) {
-            memcpy(this, &other, sizeof(this));
+            memcpy(this, &other, sizeof(*this));
             other.fEffectUniLocationsExtended = NULL; // ownership transfer
             GR_DEBUGCODE(other.fEffectUniCount = 0;)
         }

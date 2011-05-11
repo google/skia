@@ -42,7 +42,6 @@ private:
     class Entry : public ::GrNoncopyable {
     public:
         Entry() {}
-    private:
         void copyAndTakeOwnership(Entry& entry) {
             fProgramData.copyAndTakeOwnership(entry.fProgramData);
             fKey.copyAndTakeOwnership(entry.fKey); // ownership transfer
@@ -60,6 +59,8 @@ private:
 
     GrTHashTable<Entry, ProgramHashKey, 8> fHashCache;
 
+    // We may have kMaxEntries+1 shaders in the GL context because
+    // we create a new shader before evicting from the cache.
     enum {
         kMaxEntries = 32
     };
@@ -91,12 +92,15 @@ public:
     }
 
     GrGLProgram::CachedData* getProgramData(const GrGLProgram& desc) {
-        ProgramHashKey key;
-        while (key.doPass()) {
-            desc.buildKey(key);
+        Entry newEntry;
+        while (newEntry.fKey.doPass()) {
+            desc.buildKey(newEntry.fKey);
         }
-        Entry* entry = fHashCache.find(key);
+        Entry* entry = fHashCache.find(newEntry.fKey);
         if (NULL == entry) {
+            if (!desc.genProgram(&newEntry.fProgramData)) {
+                return NULL;
+            }
             if (fCount < kMaxEntries) {
                 entry = fEntries + fCount;
                 ++fCount;
@@ -111,10 +115,7 @@ public:
                 fHashCache.remove(entry->fKey, entry);
                 GrGpuGLShaders::DeleteProgram(&entry->fProgramData);
             }
-            entry->fKey.copyAndTakeOwnership(key);
-            if (!desc.genProgram(&entry->fProgramData)) {
-                return NULL;
-            }
+            entry->copyAndTakeOwnership(newEntry);
             fHashCache.insert(entry->fKey, entry);
         }
 
