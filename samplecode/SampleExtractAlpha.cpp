@@ -40,7 +40,7 @@ static SkBitmap make_bitmap() {
     return bm;
 }
 
-class ExtractAlphaView : public SkView {
+class ExtractAlphaView : public SampleView {
     SkBitmap    fBM8;
     SkBitmap    fBM32;
     SkBitmap    fBM4;
@@ -49,6 +49,8 @@ public:
         fBM8 = make_bitmap();
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
         fBM8.copyTo(&fBM4, SkBitmap::kARGB_4444_Config);
+        
+        this->setBGColor(0xFFDDDDDD);
     }
     
 protected:
@@ -61,13 +63,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -84,7 +80,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

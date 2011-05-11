@@ -44,13 +44,15 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GMView : public SkView {
+class GMView : public SampleView {
     Iter fIter;
     GM*  fGM;
 public:
 	GMView() {
         fGM = fIter.next();
         this->postNextGM();
+        
+        this->setBGColor(0xFFDDDDDD);
     }
     
 protected:
@@ -77,11 +79,7 @@ protected:
         return this->INHERITED::onEvent(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) {
         fGM->draw(canvas);
     }
     
@@ -90,7 +88,7 @@ private:
         (new SkEvent("next-gm"))->post(this->getSinkID(), 1500);
     }
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

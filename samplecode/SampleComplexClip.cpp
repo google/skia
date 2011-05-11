@@ -136,10 +136,6 @@ protected:
         canvas->restore();
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
 private:
     typedef SampleView INHERITED;
 };

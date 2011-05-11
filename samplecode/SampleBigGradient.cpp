@@ -10,7 +10,7 @@ static SkShader* make_grad(SkScalar w, SkScalar h) {
                                           SkShader::kClamp_TileMode);
 }
 
-class BigGradientView : public SkView {
+class BigGradientView : public SampleView {
 public:
 	BigGradientView() {}
 
@@ -24,10 +24,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkRect r;
         r.set(0, 0, this->width(), this->height());
         SkPaint p;
@@ -36,7 +33,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

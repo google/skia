@@ -49,11 +49,14 @@ private:
 
 class SampleView : public SkView {
 public:
-    SampleView() : fRepeatCount(1), fBGColor(SK_ColorWHITE) {}
+    SampleView() : fRepeatCount(1), fBGColor(SK_ColorWHITE) {
+        fUsePipe = false;
+    }
 
     void setBGColor(SkColor color) { fBGColor = color; }
 
     static bool SetRepeatDraw(SkView*, int count);
+    static bool SetUsePipe(SkView*, bool);
 
 protected:
     virtual void onDrawBackground(SkCanvas*);
@@ -67,6 +70,8 @@ protected:
 private:
     int fRepeatCount;
     SkColor fBGColor;
+
+    bool fUsePipe;
 
     typedef SkView INHERITED;
 };

@@ -25,6 +25,7 @@
 #include "SkTypeface.h"
 #include "SkWriter32.h"
 #include "SkColorFilter.h"
+#include "SkDrawLooper.h"
 #include "SkMaskFilter.h"
 #include "SkRasterizer.h"
 #include "SkShader.h"
@@ -33,6 +34,7 @@ static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
     SkASSERT(paintFlat < kCount_PaintFlats);
     switch (paintFlat) {
         case kColorFilter_PaintFlat:    return paint.getColorFilter();
+        case kDrawLooper_PaintFlat:     return paint.getLooper();
         case kMaskFilter_PaintFlat:     return paint.getMaskFilter();
         case kPathEffect_PaintFlat:     return paint.getPathEffect();
         case kRasterizer_PaintFlat:     return paint.getRasterizer();
@@ -222,7 +224,7 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 //        SkDebugf("--- add flattenable[%d] size=%d index=%d\n", paintflat, len, copy->fIndex);
 
         if (this->needOpBytes(len)) {
-            this->writeOp(kDef_PaintFlat_DrawOp, paintflat, copy->fIndex);
+            this->writeOp(kDef_Flattenable_DrawOp, paintflat, copy->fIndex);
             fWriter.write(copy->data(), len);
         }
     }
@@ -590,7 +592,8 @@ void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength,
 }
 
 void SkGPipeCanvas::drawPicture(SkPicture& picture) {
-    UNIMPLEMENTED
+    // we want to playback the picture into individual draw calls
+    this->INHERITED::drawPicture(picture);
 }
 
 void SkGPipeCanvas::drawShape(SkShape* shape) {

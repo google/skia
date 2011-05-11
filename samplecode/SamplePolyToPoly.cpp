@@ -8,7 +8,7 @@
 
 extern bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3]);
 
-class PolyToPolyView : public SkView {
+class PolyToPolyView : public SampleView {
 public:
 	PolyToPolyView() {
         // tests
@@ -72,10 +72,6 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
     static void doDraw(SkCanvas* canvas, SkPaint* paint, const int isrc[],
                        const int idst[], int count) {
         SkMatrix matrix;
@@ -110,9 +106,7 @@ protected:
         canvas->restore();
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(4));
@@ -153,7 +147,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

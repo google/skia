@@ -151,15 +151,6 @@ protected:
         canvas->drawPicture(fTextPicture);
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
-    
-    virtual bool onClick(Click* click) {
-        return this->INHERITED::onClick(click);
-    }
-    
 private:
     typedef SampleView INHERITED;
 };

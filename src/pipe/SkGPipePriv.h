@@ -25,6 +25,7 @@
 // these must be contiguous, 0...N-1
 enum PaintFlats {
     kColorFilter_PaintFlat,
+    kDrawLooper_PaintFlat,
     kMaskFilter_PaintFlat,
     kPathEffect_PaintFlat,
     kRasterizer_PaintFlat,
@@ -71,16 +72,8 @@ enum DrawOps {
 
     kPaintOp_DrawOp,
 
-    kDef_PaintFlat_DrawOp,
-
-    kDef_ColorFilter_DrawOp,
-    kDef_DrawLooper_DrawOp,
-    kDef_MaskFilter_DrawOp,
-    kDef_PathEffect_DrawOp,
-    kDef_Rasterizer_DrawOp,
-    kDef_Shader_DrawOp,
     kDef_Typeface_DrawOp,
-    kDef_Xfermode_DrawOp,
+    kDef_Flattenable_DrawOp,
 
     // these are signals to playback, not drawing verbs
     kDone_DrawOp,
@@ -170,14 +163,6 @@ enum PaintOps {
     kTypeface_PaintOp,  // arg inline (index) - text
 
     kFlatIndex_PaintOp, // flags=paintflat, data=index
-
-    kPathEffect_PaintOp,
-    kShader_PaintOp,
-    kXfermode_PaintOp,
-    kMaskFilter_PaintOp,
-    kColorFilter_PaintOp,
-    kRasterizer_PaintOp,
-    kDrawLooper_PaintOp,
 };
 
 #define PAINTOPS_OP_BITS     8
