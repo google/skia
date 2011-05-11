@@ -718,7 +718,7 @@ void GrGLProgram::genStageCode(int stageNum,
 
     if (ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping == desc.fCoordMapping) {
 
-        segments->fVSUnis.appendf("uniform %sfloat %s[6];\n", 
+        segments->fVSUnis.appendf("uniform %s float %s[6];\n", 
                                   GrPrecision(), radial2ParamsName.c_str());
         segments->fFSUnis.appendf("uniform float %s[6];\n", 
                                   radial2ParamsName.c_str());
