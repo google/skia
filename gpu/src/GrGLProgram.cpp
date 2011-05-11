@@ -216,8 +216,8 @@ static void coefficientString(GrStringBuilder& str, SkXfermode::Coeff coeff,
 static void addColorFilter(GrStringBuilder& FSCode, const char * outputVar,
             SkXfermode::Mode colorFilterXfermode, const char* dstColor) {
     SkXfermode::Coeff srcCoeff, dstCoeff;
-    bool success = SkXfermode::ModeAsCoeff(colorFilterXfermode,
-            &srcCoeff, &dstCoeff);
+    SkDEBUGCODE(bool success =)
+    SkXfermode::ModeAsCoeff(colorFilterXfermode, &srcCoeff, &dstCoeff);
     // We currently do not handle modes that cannot be represented as
     // coefficients.
     GrAssert(success);
