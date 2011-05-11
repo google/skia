@@ -21,6 +21,8 @@
 #include "GrColor.h"
 #include "GrSamplerState.h"
 
+#include "SkXfermode.h"
+
 /**
  * The paint describes how pixels are colored when the context draws to
  * them.
@@ -37,6 +39,9 @@ public:
     GrColor                     fColor;
 
     GrSamplerState              fSampler;
+
+    GrColor                     fColorFilterColor;
+    SkXfermode::Mode            fColorFilterXfermode;
 
     void setTexture(GrTexture* texture) {
         GrSafeRef(texture);
@@ -59,6 +64,9 @@ public:
 
         fColor = paint.fColor;
 
+        fColorFilterColor = paint.fColorFilterColor;
+        fColorFilterXfermode = paint.fColorFilterXfermode;
+
         fSampler = paint.fSampler;
         fTexture = paint.fTexture;
         GrSafeRef(fTexture);
@@ -74,6 +82,12 @@ public:
         resetOptions();
         resetColor();
         resetTexture();
+        resetColorFilter();
+    }
+
+    void resetColorFilter() {
+        fColorFilterXfermode = SkXfermode::kDst_Mode;
+        fColorFilterColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
     }
 
 private:

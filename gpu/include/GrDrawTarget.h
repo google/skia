@@ -26,6 +26,8 @@
 #include "GrTexture.h"
 #include "GrStencil.h"
 
+#include "SkXfermode.h"
+
 class GrTexture;
 class GrClipIterator;
 class GrVertexBuffer;
@@ -131,6 +133,9 @@ protected:
             // all DrState members should default to something
             // valid by the memset
             memset(this, 0, sizeof(DrState));
+            // This is an exception to our memset, since it will
+            // result in no change.
+            fColorFilterXfermode = SkXfermode::kDstIn_Mode;
             GrAssert((intptr_t)(void*)NULL == 0LL);
             GrAssert(fStencilSettings.isDisabled());
         }
@@ -144,6 +149,8 @@ protected:
         GrRenderTarget*         fRenderTarget;
         GrColor                 fColor;
         DrawFace                fDrawFace;
+        GrColor                 fColorFilterColor;
+        SkXfermode::Mode        fColorFilterXfermode;
 
         GrStencilSettings       fStencilSettings;
         GrMatrix                fViewMatrix;
@@ -310,6 +317,11 @@ public:
      *  @param the color to set.
      */
     void setColor(GrColor);
+
+    /**
+     * Add a color filter that can be represented by a color and a mode.
+     */
+    void setColorFilter(GrColor, SkXfermode::Mode);
 
     /**
      *  Sets the color to be used for the next draw to be

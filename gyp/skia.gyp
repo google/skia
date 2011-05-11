@@ -1424,6 +1424,7 @@
         '../samplecode/SampleCamera.cpp',
         '../samplecode/SampleCircle.cpp',
         '../samplecode/SampleCode.h',
+        '../samplecode/SampleColorFilter.cpp',
         '../samplecode/SampleComplexClip.cpp',
         '../samplecode/SampleCull.cpp',
         '../samplecode/SampleDecode.cpp',

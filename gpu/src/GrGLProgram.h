@@ -21,6 +21,8 @@
 #include "GrStringBuilder.h"
 #include "GrDrawTarget.h"
 
+#include "SkXfermode.h"
+
 class GrBinHashKeyBuilder;
 class GrGLEffect;
 struct ShaderCodeSegments;
@@ -107,6 +109,9 @@ private:
 
         bool fEmitsPointSize;
 
+        GrColor fColorFilterColor;
+        SkXfermode::Mode fColorFilterXfermode;
+
         struct StageDesc {
             enum OptFlagBits {
                 kNoPerspective_OptFlagBit  = 0x1,
@@ -159,10 +164,12 @@ public:
     struct UniLocations {
         GrGLint fViewMatrixUni;
         GrGLint fColorUni;
+        GrGLint fColorFilterUni;
         StageUniLocations fStages[GrDrawTarget::kNumStages];
         void reset() {
             fViewMatrixUni = kUnusedUniform;
             fColorUni = kUnusedUniform;
+            fColorFilterUni = kUnusedUniform;
             for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
                 fStages[s].reset();
             }
@@ -217,6 +224,7 @@ public:
         // these reflect the current values of uniforms
         // (GL uniform values travel with program)
         GrColor                     fColor;
+        GrColor                     fColorFilterColor;
         GrMatrix                    fTextureMatrices[GrDrawTarget::kNumStages];
         // width and height used for normalized texel size
         int                         fTextureWidth[GrDrawTarget::kNumStages];

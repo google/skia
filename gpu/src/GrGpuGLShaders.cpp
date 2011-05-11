@@ -438,6 +438,19 @@ void GrGpuGLShaders::flushColor() {
                 GrCrash("Unknown color type.");
         }
     }
+    if (fProgramData->fUniLocations.fColorFilterUni
+                != GrGLProgram::kUnusedUniform
+            && fProgramData->fColorFilterColor
+                != fCurrDrawState.fColorFilterColor) {
+        float c[] = {
+            GrColorUnpackR(fCurrDrawState.fColorFilterColor) / 255.f,
+            GrColorUnpackG(fCurrDrawState.fColorFilterColor) / 255.f,
+            GrColorUnpackB(fCurrDrawState.fColorFilterColor) / 255.f,
+            GrColorUnpackA(fCurrDrawState.fColorFilterColor) / 255.f
+        };
+        GR_GL(Uniform4fv(fProgramData->fUniLocations.fColorFilterUni, 1, c));
+        fProgramData->fColorFilterColor = fCurrDrawState.fColorFilterColor;
+    }
 }
 
 
@@ -693,6 +706,8 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             fCurrentProgram.fStageEffects[s] = NULL;
         }
     }
+    desc.fColorFilterColor = fCurrDrawState.fColorFilterColor;
+    desc.fColorFilterXfermode = fCurrDrawState.fColorFilterXfermode;
 }
 
 

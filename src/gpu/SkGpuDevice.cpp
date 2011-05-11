@@ -22,6 +22,7 @@
 #include "SkGpuDeviceFactory.h"
 #include "SkGrTexturePixelRef.h"
 
+#include "SkColorFilter.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
 #include "SkUtils.h"
@@ -367,6 +368,15 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
     } else {
         grPaint->fColor = SkGr::SkColor2GrColor(skPaint.getColor());
         grPaint->setTexture(NULL);
+    }
+    SkColorFilter* colorFilter = skPaint.getColorFilter();
+    SkColor color;
+    SkXfermode::Mode filterMode;
+    if (colorFilter != NULL && colorFilter->asColorMode(&color, &filterMode)) {
+        grPaint->fColorFilterColor = SkGr::SkColor2GrColor(color);
+        grPaint->fColorFilterXfermode = filterMode;
+    } else {
+        grPaint->resetColorFilter();
     }
     return true;
 }

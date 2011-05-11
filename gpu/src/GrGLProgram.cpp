@@ -21,6 +21,8 @@
 #include "GrGLEffect.h"
 #include "GrMemory.h"
 
+#include "SkXfermode.h"
+
 namespace {
 
 const char* GrPrecision() {
@@ -52,6 +54,7 @@ const char* GrShaderPrecision() {
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
 #define COL_UNI_NAME "uColor"
+#define COL_FILTER_UNI_NAME "uColorFilter"
 
 static inline void tex_attr_name(int coordIdx, GrStringBuilder* s) {
     *s = "aTexCoord";
@@ -174,6 +177,57 @@ void GrGLProgram::doGLPost() const {
     }
 }
 
+/**
+ * Create a text coefficient to be used in fragment shader code.
+ */
+static void coefficientString(GrStringBuilder& str, SkXfermode::Coeff coeff,
+            const char* src, const char* dst) {
+    switch (coeff) {
+    case SkXfermode::kZero_Coeff:    /** 0 */
+        str = "0.0";
+        break;
+    case SkXfermode::kOne_Coeff:     /** 1 */
+        str = "1.0";
+        break;
+    case SkXfermode::kSA_Coeff:      /** src alpha */
+        str.appendf("%s.a", src);
+        break;
+    case SkXfermode::kISA_Coeff:     /** inverse src alpha (i.e. 1 - sa) */
+        str.appendf("(1.0 - %s.a)", src);
+        break;
+    case SkXfermode::kDA_Coeff:      /** dst alpha */
+        str.appendf("%s.a", dst);
+        break;
+    case SkXfermode::kIDA_Coeff:     /** inverse dst alpha (i.e. 1 - da) */
+        str.appendf("(1.0 - %s.a)", dst);
+        break;
+    case SkXfermode::kSC_Coeff:
+        str.append(src);
+        break;
+    default:
+        break;
+    }
+}
+
+/**
+ * Adds a line to the fragment shader code which modifies the color by
+ * the specified color filter.
+ */
+static void addColorFilter(GrStringBuilder& FSCode, const char * outputVar,
+            SkXfermode::Mode colorFilterXfermode, const char* dstColor) {
+    SkXfermode::Coeff srcCoeff, dstCoeff;
+    bool success = SkXfermode::ModeAsCoeff(colorFilterXfermode,
+            &srcCoeff, &dstCoeff);
+    // We currently do not handle modes that cannot be represented as
+    // coefficients.
+    GrAssert(success);
+    GrStringBuilder srcCoeffStr, dstCoeffStr;
+    coefficientString(srcCoeffStr, srcCoeff, COL_FILTER_UNI_NAME, dstColor);
+    coefficientString(dstCoeffStr, dstCoeff, COL_FILTER_UNI_NAME, dstColor);
+    FSCode.appendf("\t%s = %s*%s + %s*%s;\n", outputVar, srcCoeffStr.c_str(),
+            COL_FILTER_UNI_NAME, dstCoeffStr.c_str(), dstColor);
+}
+
 bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
 
     ShaderCodeSegments segments;
@@ -230,23 +284,39 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
         }
     }
 
+    bool useColorFilter = 
+            // The rest of transfer mode color filters have not been implemented
+            fProgramDesc.fColorFilterXfermode <= SkXfermode::kMultiply_Mode
+            // This mode has no effect.
+            && fProgramDesc.fColorFilterXfermode != SkXfermode::kDst_Mode;
+    bool onlyUseColorFilter = useColorFilter
+            && (fProgramDesc.fColorFilterXfermode == SkXfermode::kClear_Mode
+            || fProgramDesc.fColorFilterXfermode == SkXfermode::kSrc_Mode);
+    if (useColorFilter) {
+        // Set up a uniform for the color
+        segments.fFSUnis.append(  "uniform vec4 " COL_FILTER_UNI_NAME ";\n");
+        programData->fUniLocations.fColorFilterUni = kUseUniform;
+    }
+
     // for each enabled stage figure out what the input coordinates are
     // and count the number of stages in use.
     const char* stageInCoords[GrDrawTarget::kNumStages];
     int numActiveStages = 0;
 
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
-        if (fProgramDesc.fStages[s].fEnabled) {
-            if (GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s) & layout) {
-                stageInCoords[s] = POS_ATTR_NAME;
-            } else {
-                int tcIdx = GrDrawTarget::VertexTexCoordsForStage(s, layout);
-                 // we better have input tex coordinates if stage is enabled.
-                GrAssert(tcIdx >= 0);
-                GrAssert(texCoordAttrs[tcIdx].size());
-                stageInCoords[s] = texCoordAttrs[tcIdx].c_str();
+    if (!onlyUseColorFilter) {
+        for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+            if (fProgramDesc.fStages[s].fEnabled) {
+                if (GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s) & layout) {
+                    stageInCoords[s] = POS_ATTR_NAME;
+                } else {
+                    int tcIdx = GrDrawTarget::VertexTexCoordsForStage(s, layout);
+                     // we better have input tex coordinates if stage is enabled.
+                    GrAssert(tcIdx >= 0);
+                    GrAssert(texCoordAttrs[tcIdx].size());
+                    stageInCoords[s] = texCoordAttrs[tcIdx].c_str();
+                }
+                ++numActiveStages;
             }
-            ++numActiveStages;
         }
     }
 
@@ -254,10 +324,10 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
     // of each to the next and generating code for each stage.
     if (numActiveStages) {
         int currActiveStage = 0;
+        GrStringBuilder outColor;
         for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
             if (fProgramDesc.fStages[s].fEnabled) {
-                GrStringBuilder outColor;
-                if (currActiveStage < (numActiveStages - 1)) {
+                if (currActiveStage < (numActiveStages - 1) || useColorFilter) {
                     outColor = "color";
                     outColor.appendS32(currActiveStage);
                     segments.fFSCode.appendf("\tvec4 %s;\n", outColor.c_str());
@@ -276,9 +346,21 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
                 inColor = outColor;
             }
         }
+        if (useColorFilter) {
+            addColorFilter(segments.fFSCode, "gl_FragColor",
+                    fProgramDesc.fColorFilterXfermode, outColor.c_str());
+        }
+
     } else {
         // we may not have any incoming color
-        segments.fFSCode.appendf("\tgl_FragColor = %s;\n", (inColor.size() ? inColor.c_str() : "vec4(1,1,1,1);\n"));
+        const char * incomingColor = (inColor.size() ? inColor.c_str()
+                : "vec4(1,1,1,1)");
+        if (useColorFilter) {
+            addColorFilter(segments.fFSCode, "gl_FragColor",
+                    fProgramDesc.fColorFilterXfermode, incomingColor);
+        } else {
+            segments.fFSCode.appendf("\tgl_FragColor = %s;\n", incomingColor);
+        }
     }
     segments.fVSCode.append("}\n");
     segments.fFSCode.append("}\n");
@@ -495,6 +577,11 @@ void GrGLProgram::getUniformLocationsAndInitCache(CachedData* programData) const
                                 GR_GL(GetUniformLocation(progID, COL_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fColorUni);
     }
+    if (kUseUniform == programData->fUniLocations.fColorFilterUni) {
+        programData->fUniLocations.fColorFilterUni = 
+                        GR_GL(GetUniformLocation(progID, COL_FILTER_UNI_NAME));
+        GrAssert(kUnusedUniform != programData->fUniLocations.fColorFilterUni);
+    }
 
     for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
         StageUniLocations& locations = programData->fUniLocations.fStages[s];
@@ -550,6 +637,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(CachedData* programData) const
     }
     programData->fViewMatrix = GrMatrix::InvalidMatrix();
     programData->fColor = GrColor_ILLEGAL;
+    programData->fColorFilterColor = GrColor_ILLEGAL;
 }
 
 //============================================================================
