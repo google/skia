@@ -21,8 +21,27 @@
 #include "SkGPipe.h"
 #include "SkGPipePriv.h"
 #include "SkStream.h"
+#include "SkTSearch.h"
 #include "SkTypeface.h"
 #include "SkWriter32.h"
+#include "SkColorFilter.h"
+#include "SkMaskFilter.h"
+#include "SkRasterizer.h"
+#include "SkShader.h"
+
+static SkFlattenable* get_paintflat(const SkPaint& paint, unsigned paintFlat) {
+    SkASSERT(paintFlat < kCount_PaintFlats);
+    switch (paintFlat) {
+        case kColorFilter_PaintFlat:    return paint.getColorFilter();
+        case kMaskFilter_PaintFlat:     return paint.getMaskFilter();
+        case kPathEffect_PaintFlat:     return paint.getPathEffect();
+        case kRasterizer_PaintFlat:     return paint.getRasterizer();
+        case kShader_PaintFlat:         return paint.getShader();
+        case kXfermode_PaintFlat:       return paint.getXfermode();
+    }
+    SkASSERT(!"never gets here");
+    return NULL;
+}
 
 static size_t estimateFlattenSize(const SkPath& path) {
     int n = path.countPoints();
@@ -38,18 +57,6 @@ static size_t estimateFlattenSize(const SkPath& path) {
     }
 #endif
     return bytes;
-}
-
-static void writeRegion(SkWriter32* writer, const SkRegion& rgn) {
-    size_t size = rgn.flatten(NULL);
-    SkASSERT(SkAlign4(size) == size);
-    rgn.flatten(writer->reserve(size));
-}
-
-static void writeMatrix(SkWriter32* writer, const SkMatrix& matrix) {
-    size_t size = matrix.flatten(NULL);
-    SkASSERT(SkAlign4(size) == size);
-    matrix.flatten(writer->reserve(size));
 }
 
 static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
@@ -151,7 +158,21 @@ private:
             fBytesNotified += bytes;
         }
     }
-    
+
+    struct FlatData {
+        uint32_t    fIndex; // always > 0
+        uint32_t    fSize;
+
+        void*       data() { return (char*)this + sizeof(*this); }
+        
+        static int Compare(const FlatData* a, const FlatData* b) {
+            return memcmp(&a->fSize, &b->fSize, a->fSize + sizeof(a->fSize));
+        }
+    };
+    SkTDArray<FlatData*> fFlatArray;
+    int fCurrFlatIndex[kCount_PaintFlats];
+    int flattenToIndex(SkFlattenable* obj, PaintFlats);
+
     SkTDArray<SkPaint*> fPaints;
     unsigned writePaint(const SkPaint&);
 
@@ -167,6 +188,47 @@ private:
     typedef SkCanvas INHERITED;
 };
 
+// return 0 for NULL (or unflattenable obj), or index-base-1
+int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
+    if (NULL == obj) {
+        return 0;
+    }
+    
+    SkFlattenable::Factory fact = obj->getFactory();
+    if (NULL == fact) {
+        return 0;
+    }
+
+    SkFlattenableWriteBuffer tmpWriter(1024);
+    tmpWriter.writeFlattenable(obj);
+    size_t len = tmpWriter.size();
+    size_t allocSize = len + sizeof(FlatData);
+
+    SkAutoSMalloc<1024> storage(allocSize);
+    FlatData* flat = (FlatData*)storage.get();
+    flat->fSize = len;
+    tmpWriter.flatten(flat->data());
+
+    int index = SkTSearch<FlatData>((const FlatData**)fFlatArray.begin(),
+                                    fFlatArray.count(), flat, sizeof(flat),
+                                    &FlatData::Compare);
+    if (index < 0) {
+        index = ~index;
+        FlatData* copy = (FlatData*)sk_malloc_throw(allocSize);
+        memcpy(copy, flat, allocSize);
+        *fFlatArray.insert(index) = copy;
+        // call this after the insert, so that count() will have been grown
+        copy->fIndex = fFlatArray.count();
+//        SkDebugf("--- add flattenable[%d] size=%d index=%d\n", paintflat, len, copy->fIndex);
+
+        if (this->needOpBytes(len)) {
+            this->writeOp(kDef_PaintFlat_DrawOp, paintflat, copy->fIndex);
+            fWriter.write(copy->data(), len);
+        }
+    }
+    return fFlatArray[index]->fIndex;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define MIN_BLOCK_SIZE  (16 * 1024)
@@ -176,6 +238,7 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
+    sk_bzero(fCurrFlatIndex, sizeof(fCurrFlatIndex));
 
     // always begin with 1 default paint
     *fPaints.append() = SkNEW(SkPaint);
@@ -192,6 +255,7 @@ SkGPipeCanvas::~SkGPipeCanvas() {
     this->finish();
 
     fPaints.deleteAll();
+    fFlatArray.freeAll();
 }
 
 bool SkGPipeCanvas::needOpBytes(size_t needed) {
@@ -332,7 +396,7 @@ bool SkGPipeCanvas::concat(const SkMatrix& matrix) {
         NOTIFY_SETUP(this);
         if (this->needOpBytes(matrix.flatten(NULL))) {
             this->writeOp(kConcat_DrawOp);
-            writeMatrix(&fWriter, matrix);
+            SkWriteMatrix(&fWriter, matrix);
         }
     }
     return this->INHERITED::concat(matrix);
@@ -342,7 +406,7 @@ void SkGPipeCanvas::setMatrix(const SkMatrix& matrix) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(matrix.flatten(NULL))) {
         this->writeOp(kSetMatrix_DrawOp);
-        writeMatrix(&fWriter, matrix);
+        SkWriteMatrix(&fWriter, matrix);
     }
     this->INHERITED::setMatrix(matrix);
 }
@@ -370,7 +434,7 @@ bool SkGPipeCanvas::clipRegion(const SkRegion& region, SkRegion::Op rgnOp) {
     NOTIFY_SETUP(this);
     if (this->needOpBytes(region.flatten(NULL))) {
         this->writeOp(kClipRegion_DrawOp, 0, rgnOp);
-        writeRegion(&fWriter, region);
+        SkWriteRegion(&fWriter, region);
     }
     return this->INHERITED::clipRegion(region, rgnOp);
 }
@@ -519,7 +583,7 @@ void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength,
 
             path.flatten(fWriter);
             if (matrix) {
-                writeMatrix(&fWriter, *matrix);
+                SkWriteMatrix(&fWriter, *matrix);
             }
         }
     }
@@ -693,14 +757,23 @@ unsigned SkGPipeCanvas::writePaint(const SkPaint& paint) {
         base.setTypeface(paint.getTypeface());
     }
 
+    for (int i = 0; i < kCount_PaintFlats; i++) {
+        int index = this->flattenToIndex(get_paintflat(paint, i), (PaintFlats)i);
+        SkASSERT(index >= 0 && index <= fFlatArray.count());
+        if (index != fCurrFlatIndex[i]) {
+            last = ptr;
+            *ptr++ = PaintOp_packOpFlagData(kFlatIndex_PaintOp, i, index);
+            fCurrFlatIndex[i] = index;
+        }
+    }
+
     size_t size = (char*)ptr - (char*)storage;
     if (size && this->needOpBytes(size)) {
-        this->writeOp(kPaintOp_DrawOp, 0, 0);
-        size_t size = (char*)ptr - (char*)storage;
-        *last |= kLastOp_PaintOpFlag << PAINTOPS_DATA_BITS;
-        fWriter.write(storage, (char*)ptr - (char*)storage);
+        this->writeOp(kPaintOp_DrawOp, 0, size);
+//        *last |= kLastOp_PaintOpFlag << PAINTOPS_DATA_BITS;
+        fWriter.write(storage, size);
         for (size_t i = 0; i < size/4; i++) {
-            SkDebugf("[%d] %08X\n", i, storage[i]);
+//            SkDebugf("[%d] %08X\n", i, storage[i]);
         }
     }
     return 0;
