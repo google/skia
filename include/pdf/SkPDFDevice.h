@@ -165,12 +165,12 @@ private:
 
     // If the paint or clip is such that we shouldn't draw anything, these
     // return false and do not create a content entry.
-    bool setUpContentEntry(const SkClipStack& clipStack,
+    bool setUpContentEntry(const SkClipStack* clipStack,
                            const SkRegion& clipRegion,
                            const SkMatrix& matrix,
                            const SkPaint& paint,
                            bool hasText = false);
-    bool setUpContentEntryForText(const SkClipStack& clipStack,
+    bool setUpContentEntryForText(const SkClipStack* clipStack,
                                   const SkRegion& clipRegion,
                                   const SkMatrix& matrix,
                                   const SkPaint& paint);
@@ -187,7 +187,7 @@ private:
 
     void internalDrawPaint(const SkPaint& paint);
     void internalDrawBitmap(const SkMatrix& matrix,
-                            const SkClipStack& clipStack,
+                            const SkClipStack* clipStack,
                             const SkRegion& clipRegion,
                             const SkBitmap& bitmap,
                             const SkIRect* srcRect,
