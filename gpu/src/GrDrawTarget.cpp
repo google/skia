@@ -514,6 +514,13 @@ bool GrDrawTarget::canDisableBlend() const {
         }
     }
 
+    // ...and there isn't an interesting color filter...
+    // TODO: Consider being more aggressive with regards to disabling
+    // blending when a color filter is used.
+    if (SkXfermode::kDst_Mode != fCurrDrawState.fColorFilterXfermode) {
+        return false;
+    }
+
     // ...then we disable blend.
     return true;
 }
