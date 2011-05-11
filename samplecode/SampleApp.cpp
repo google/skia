@@ -284,6 +284,7 @@ private:
     bool fRotate;
     bool fScale;
     bool fRequestGrabImage;
+    bool fUsePipe;
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;
 
@@ -423,6 +424,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fRotate = false;
     fScale = false;
     fRequestGrabImage = false;
+    fUsePipe = false;
     fMeasureFPS = false;
     fLCDState = kUnknown_SkTriState;
     fAAState = kUnknown_SkTriState;
@@ -861,6 +863,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     } else {
         (void)SampleView::SetRepeatDraw(child, 1);
     }
+    (void)SampleView::SetUsePipe(child, fUsePipe);
 }
 
 void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
@@ -1033,6 +1036,10 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'o':
             this->zoomOut();
+            break;
+        case 'p':
+            fUsePipe = !fUsePipe;
+            this->inval(NULL);
             break;
         case 'r':
             fRotate = !fRotate;
@@ -1315,6 +1322,7 @@ void SampleWindow::onSizeChange() {
 ///////////////////////////////////////////////////////////////////////////////
 
 static const char repeat_count_tag[] = "sample-set-repeat-count";
+static const char set_use_pipe_tag[] = "sample-set-use-pipe";
 
 bool SampleView::SetRepeatDraw(SkView* view, int count) {
     SkEvent evt(repeat_count_tag);
@@ -1322,9 +1330,19 @@ bool SampleView::SetRepeatDraw(SkView* view, int count) {
     return view->doEvent(evt);
 }
 
+bool SampleView::SetUsePipe(SkView* view, bool pred) {
+    SkEvent evt(set_use_pipe_tag);
+    evt.setFast32(pred);
+    return view->doEvent(evt);
+}
+
 bool SampleView::onEvent(const SkEvent& evt) {
     if (evt.isType(repeat_count_tag)) {
         fRepeatCount = evt.getFast32();
+        return true;
+    }
+    if (evt.isType(set_use_pipe_tag)) {
+        fUsePipe = !!evt.getFast32();
         return true;
     }
     return this->INHERITED::onEvent(evt);
@@ -1370,8 +1388,10 @@ SimplePC::~SimplePC() {
 //    SkASSERT(SkGPipeReader::kDone_Status == fStatus);
     sk_free(fBlock);
 
-    SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
-             fAtomsWritten, fStatus);
+    if (fTotalWritten) {
+        SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
+                 fAtomsWritten, fStatus);
+    }
 }
 
 void* SimplePC::requestBlock(size_t minRequest, size_t* actual) {
@@ -1404,7 +1424,9 @@ void SampleView::onDraw(SkCanvas* canvas) {
 #ifdef TEST_GPIPE
     SimplePC controller(canvas);
     SkGPipeWriter writer;
-    canvas = writer.startRecording(&controller);
+    if (fUsePipe) {
+        canvas = writer.startRecording(&controller);
+    }
 #endif
 
     for (int i = 0; i < fRepeatCount; i++) {

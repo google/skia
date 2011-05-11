@@ -70,7 +70,7 @@ static SkBitmap make_bitmap() {
     return bm;
 }
 
-class DitherBitmapView : public SkView {
+class DitherBitmapView : public SampleView {
     SkBitmap    fBM8;
     SkBitmap    fBM32;
 public:
@@ -78,6 +78,8 @@ public:
         test_pathregion();
         fBM8 = make_bitmap();
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
+        
+        this->setBGColor(0xFFDDDDDD);
     }
     
 protected:
@@ -88,10 +90,6 @@ protected:
             return true;
         }
         return this->INHERITED::onQuery(evt);
-    }
-    
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
     }
     
     static void setBitmapOpaque(SkBitmap* bm, bool isOpaque) {
@@ -121,9 +119,7 @@ protected:
         canvas->drawBitmap(bitmap, x, SkIntToScalar(bm.height() + 10), &paint);
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
         draw2(canvas, fBM8);
@@ -135,7 +131,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

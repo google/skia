@@ -74,7 +74,7 @@ static void test_cubic2() {
     canvas.drawPath(path, paint);
 }
 
-class PathView : public SkView {
+class PathView : public SampleView {
 public:
     int fDStroke, fStroke, fMinStroke, fMaxStroke;
     SkPath fPath[6];
@@ -116,14 +116,11 @@ public:
         fPath[5].moveTo(SkIntToScalar(52), SkIntToScalar(50));
         fPath[5].lineTo(SkIntToScalar(50), SkIntToScalar(V));
         fPath[5].lineTo(SkIntToScalar(50), SkIntToScalar(50));
+        
+        this->setBGColor(0xFFDDDDDD);
     }
     
-    virtual ~PathView()
-    {
-    }
-    
-    void nextStroke()
-    {
+    void nextStroke() {
         fStroke += fDStroke;
         if (fStroke > fMaxStroke || fStroke < fMinStroke)
             fDStroke = -fDStroke;
@@ -131,24 +128,15 @@ public:
     
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Paths");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
-        canvas->drawColor(0xFFDDDDDD);
-//        canvas->drawColor(SK_ColorWHITE);
-    }
-    
-    void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j)
-    {
+    void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
         SkPaint paint;
         
         paint.setAntiAlias(true);
@@ -156,26 +144,22 @@ protected:
         paint.setStrokeJoin(j);
         paint.setStrokeWidth(SkIntToScalar(fStroke));
 
-        if (fShowHairline)
-        {
+        if (fShowHairline) {
             SkPath  fill;
             
             paint.getFillPath(path, &fill);            
             paint.setStrokeWidth(0);
             canvas->drawPath(fill, paint);
-        }
-        else
+        } else {
             canvas->drawPath(path, paint);
+        }
         
         paint.setColor(SK_ColorRED);
         paint.setStrokeWidth(0);
         canvas->drawPath(path, paint);
     }
     
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {        
         canvas->translate(SkIntToScalar(50), SkIntToScalar(50));
 
         static const SkPaint::Join gJoins[] = {
@@ -184,11 +168,9 @@ protected:
             SkPaint::kRound_Join
         };
 
-        for (int i = 0; i < SK_ARRAY_COUNT(gJoins); i++)
-        {
+        for (int i = 0; i < SK_ARRAY_COUNT(gJoins); i++) {
             canvas->save();
-            for (int j = 0; j < SK_ARRAY_COUNT(fPath); j++)
-            {
+            for (int j = 0; j < SK_ARRAY_COUNT(fPath); j++) {
                 this->drawPath(canvas, fPath[j], gJoins[i]);
                 canvas->translate(SkIntToScalar(200), 0);
             }
@@ -201,20 +183,14 @@ protected:
         this->inval(NULL);
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         fShowHairline = !fShowHairline;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
     
-    virtual bool onClick(Click* click) 
-    {
-        return this->INHERITED::onClick(click);
-    }
-    
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
