@@ -22,6 +22,19 @@
 
 #define UNIMPLEMENTED
 
+// these must be contiguous, 0...N-1
+enum PaintFlats {
+    kColorFilter_PaintFlat,
+    kMaskFilter_PaintFlat,
+    kPathEffect_PaintFlat,
+    kRasterizer_PaintFlat,
+    kShader_PaintFlat,
+    kXfermode_PaintFlat,
+
+    kLast_PaintFlat = kXfermode_PaintFlat
+};
+#define kCount_PaintFlats   (kLast_PaintFlat + 1)
+
 enum DrawOps {
     kSkip_DrawOp,   // skip an addition N bytes (N == data)
 
@@ -57,6 +70,8 @@ enum DrawOps {
     kTranslate_DrawOp,
 
     kPaintOp_DrawOp,
+
+    kDef_PaintFlat_DrawOp,
 
     kDef_ColorFilter_DrawOp,
     kDef_DrawLooper_DrawOp,
@@ -154,7 +169,9 @@ enum PaintOps {
     kTextSkewX_PaintOp, // arg scalar - text
     kTypeface_PaintOp,  // arg inline (index) - text
 
-    kPathEffect_PaintOp,    // arg inline
+    kFlatIndex_PaintOp, // flags=paintflat, data=index
+
+    kPathEffect_PaintOp,
     kShader_PaintOp,
     kXfermode_PaintOp,
     kMaskFilter_PaintOp,
