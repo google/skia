@@ -707,7 +707,6 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             fCurrentProgram.fStageEffects[s] = NULL;
         }
     }
-    desc.fColorFilterColor = fCurrDrawState.fColorFilterColor;
     desc.fColorFilterXfermode = fCurrDrawState.fColorFilterXfermode;
 }
 
