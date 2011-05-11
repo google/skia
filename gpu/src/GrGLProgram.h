@@ -109,7 +109,6 @@ private:
 
         bool fEmitsPointSize;
 
-        GrColor fColorFilterColor;
         SkXfermode::Mode fColorFilterXfermode;
 
         struct StageDesc {
