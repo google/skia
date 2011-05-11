@@ -1,3 +1,4 @@
+THIS_BOGUS_LINE_BREAKS_THE_TEST_BUILD
 #include "Test.h"
 #include "SkRandom.h"
 #include "SkRefCnt.h"
