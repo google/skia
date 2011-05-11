@@ -391,8 +391,6 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
     SkShader* shader = skPaint.getShader();
     if (NULL == shader) {
         return this->skPaint2GrPaintNoShader(skPaint, false, grPaint);
-        grPaint->setTexture(NULL);
-        return true;
     } else if (!this->skPaint2GrPaintNoShader(skPaint, true, grPaint)) {
         return false;
     }
