@@ -1335,6 +1335,7 @@ void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
         target->disableState(GrDrawTarget::kAntialias_StateBit);
     }
     target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
+    target->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
 }
 
 GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,

@@ -380,6 +380,11 @@ void GrDrawTarget::setColor(GrColor c) {
     fCurrDrawState.fColor = c;
 }
 
+void GrDrawTarget::setColorFilter(GrColor c, SkXfermode::Mode mode) {
+    fCurrDrawState.fColorFilterColor = c;
+    fCurrDrawState.fColorFilterXfermode = mode;
+}
+
 void GrDrawTarget::setAlpha(uint8_t a) {
     this->setColor((a << 24) | (a << 16) | (a << 8) | a);
 }
