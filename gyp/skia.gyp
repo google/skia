@@ -904,9 +904,9 @@
         '../include/core',
         '../include/config',
       ],
-      #'dependencies': [
-      #  'libtess',
-      #],
+      'dependencies': [
+        'libtess',
+      ],
       'sources': [
         '../gpu/include/GrAllocator.h',
         '../gpu/include/GrAllocPool.h',
@@ -959,7 +959,7 @@
         '../gpu/include/GrTArray.h',
         '../gpu/include/GrTBSearch.h',
         '../gpu/include/GrTDArray.h',
-        #'../gpu/include/GrTesselatedPathRenderer.h',
+        '../gpu/include/GrTesselatedPathRenderer.h',
         '../gpu/include/GrTextContext.h',
         '../gpu/include/GrTextStrike.h',
         '../gpu/include/GrTexture.h',
@@ -1008,7 +1008,7 @@
         '../gpu/src/GrRedBlackTree.h',
         '../gpu/src/GrResource.cpp',
         '../gpu/src/GrStencil.cpp',
-        #'../gpu/src/GrTesselatedPathRenderer.cpp',
+        '../gpu/src/GrTesselatedPathRenderer.cpp',
         '../gpu/src/GrTextContext.cpp',
         '../gpu/src/GrTextStrike.cpp',
         '../gpu/src/GrTextStrike_impl.h',

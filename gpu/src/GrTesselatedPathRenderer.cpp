@@ -55,8 +55,8 @@ static void combineData(GLdouble coords[3], void* vertexData[4],
 {
     PolygonData* polygonData = static_cast<PolygonData*>(data);
     int index = polygonData->fVertices->count();
-    *polygonData->fVertices->append() = GrPoint(static_cast<float>(coords[0]),
-                                                 static_cast<float>(coords[1]));
+    *polygonData->fVertices->append() = GrPoint::Make(static_cast<float>(coords[0]),
+                                                      static_cast<float>(coords[1]));
     *outData = reinterpret_cast<void*>(index);
 }
 
@@ -81,6 +81,59 @@ static unsigned fill_type_to_glu_winding_rule(GrPathFill fill) {
 }
 
 GrTesselatedPathRenderer::GrTesselatedPathRenderer() {
+}
+
+class Edge {
+  public:
+    Edge() {}
+    Edge(float x, float y, float z) : fX(x), fY(y), fZ(z) {}
+    GrPoint intersect(const Edge& other) {
+        return GrPoint::Make(
+            (fY * other.fZ - other.fY * fZ) / (fX * other.fY - other.fX * fY),
+            (fX * other.fZ - other.fX * fZ) / (other.fX * fY - fX * other.fY));
+    }
+    float fX, fY, fZ;
+};
+
+typedef GrTDArray<Edge> EdgeArray;
+
+bool isCCW(const GrPoint* v)
+{
+    GrVec v1 = v[1] - v[0];
+    GrVec v2 = v[2] - v[1];
+    return v1.cross(v2) < 0;
+}
+
+static size_t computeEdgesAndOffsetVertices(const GrMatrix& matrix,
+                                            const GrMatrix& inverse,
+                                            GrPoint* vertices,
+                                            size_t numVertices,
+                                            EdgeArray* edges)
+{
+    GrPoint p = vertices[numVertices - 1];
+    matrix.mapPoints(&p, 1);
+    float sign = isCCW(vertices) ? -1.0f : 1.0f;
+    for (size_t i = 0; i < numVertices; ++i) {
+        GrPoint q = vertices[i];
+        matrix.mapPoints(&q, 1);
+        if (p == q) continue;
+        GrVec tangent = GrVec::Make(p.fY - q.fY, q.fX - p.fX);
+        float scale = sign / tangent.length();
+        float cross2 = p.fX * q.fY - q.fX * p.fY;
+        Edge edge(tangent.fX * scale,
+                  tangent.fY * scale,
+                  cross2 * scale + 0.5f);
+        *edges->append() = edge;
+        p = q;
+    }
+    Edge prev_edge = *edges->back();
+    for (size_t i = 0; i < edges->count(); ++i) {
+        Edge edge = edges->at(i);
+        vertices[i] = prev_edge.intersect(edge);
+        inverse.mapPoints(&vertices[i], 1);
+        prev_edge = edge;
+    }
+    return edges->count();
 }
 
 void GrTesselatedPathRenderer::drawPath(GrDrawTarget* target,
@@ -193,10 +246,10 @@ FINISHED:
         if (target->getViewInverse(&vmi)) {
             vmi.mapRect(&bounds);
         }
-        *vert++ = GrPoint(bounds.fLeft, bounds.fTop);
-        *vert++ = GrPoint(bounds.fLeft, bounds.fBottom);
-        *vert++ = GrPoint(bounds.fRight, bounds.fBottom);
-        *vert++ = GrPoint(bounds.fRight, bounds.fTop);
+        *vert++ = GrPoint::Make(bounds.fLeft, bounds.fTop);
+        *vert++ = GrPoint::Make(bounds.fLeft, bounds.fBottom);
+        *vert++ = GrPoint::Make(bounds.fRight, bounds.fBottom);
+        *vert++ = GrPoint::Make(bounds.fRight, bounds.fTop);
         subpathVertCount[subpath++] = 4;
     }
 
@@ -205,9 +258,40 @@ FINISHED:
 
     size_t count = vert - base;
 
+    if (count < 3) {
+      delete[] base;
+      return;
+    }
+
     if (subpathCnt == 1 && !inverted && path->convexHint() == kConvex_ConvexHint) {
-        target->setVertexSourceToArray(layout, base, count);
-        target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, count);
+        if (target->isAntialiasState()) {
+            target->enableState(GrDrawTarget::kEdgeAA_StateBit);
+            EdgeArray edges;
+            GrMatrix inverse, matrix = target->getViewMatrix();
+            target->getViewInverse(&inverse);
+
+            count = computeEdgesAndOffsetVertices(matrix, inverse, base, count, &edges);
+            GrPoint triangle[3];
+            triangle[0] = base[0];
+            Edge triangleEdges[6];
+            triangleEdges[0] = *edges.back();
+            triangleEdges[1] = edges[0];
+            for (size_t i = 1; i < count - 1; i++) {
+                triangle[1] = base[i];
+                triangle[2] = base[i + 1];
+                triangleEdges[2] = edges[i - 1];
+                triangleEdges[3] = edges[i];
+                triangleEdges[4] = edges[i];
+                triangleEdges[5] = edges[i + 1];
+                target->setVertexSourceToArray(layout, triangle, 3);
+                target->setEdgeAAData(&triangleEdges[0].fX);
+                target->drawNonIndexed(kTriangles_PrimitiveType, 0, 3);
+            }
+            target->disableState(GrDrawTarget::kEdgeAA_StateBit);
+        } else {
+            target->setVertexSourceToArray(layout, base, count);
+            target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, count);
+        }
         delete[] base;
         return;
     }
@@ -241,7 +325,7 @@ FINISHED:
         int end = start + subpathVertCount[sp];
         for (; i < end; ++i) {
             double* inVertex = &inVertices[i * 3];
-            *vertices.append() = GrPoint(inVertex[0], inVertex[1]);
+            *vertices.append() = GrPoint::Make(inVertex[0], inVertex[1]);
             internal_gluTessVertex(tess, inVertex, reinterpret_cast<void*>(i));
         }
         internal_gluTessEndContour(tess);
@@ -274,4 +358,15 @@ void GrTesselatedPathRenderer::drawPathToStencil(GrDrawTarget* target,
                                                  GrPathFill fill,
                                                  const GrPoint* translate) {
     GrAlwaysAssert(!"multipass stencil should not be needed");
+}
+
+bool GrTesselatedPathRenderer::supportsAA(GrDrawTarget* target,
+                                                  GrPathIter* path,
+                                                  GrPathFill fill) {
+    int subpathCnt = 0;
+    int tol = GrPathUtils::gTolerance;
+    GrPathUtils::worstCasePointCount(path, &subpathCnt, tol);
+    return (subpathCnt == 1 &&
+            !IsFillInverted(fill) &&
+            path->convexHint() == kConvex_ConvexHint);
 }

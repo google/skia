@@ -54,6 +54,7 @@ const char* GrShaderPrecision() {
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
 #define COL_UNI_NAME "uColor"
+#define EDGES_UNI_NAME "uEdges"
 #define COL_FILTER_UNI_NAME "uColorFilter"
 
 static inline void tex_attr_name(int coordIdx, GrStringBuilder* s) {
@@ -269,6 +270,10 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
         break;
     }
 
+    if (fProgramDesc.fUsesEdgeAA) {
+        segments.fFSUnis.append("uniform vec3 " EDGES_UNI_NAME "[6];\n");
+    }
+
     if (fProgramDesc.fEmitsPointSize){
         segments.fVSCode.append("\tgl_PointSize = 1.0;\n");
     }
@@ -352,6 +357,23 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
         }
 
     } else {
+        if (fProgramDesc.fUsesEdgeAA) {
+            // FIXME:  put the a's in a loop
+            segments.fFSCode.append(
+                "\tvec3 pos = vec3(gl_FragCoord.xy, 1);\n"
+                "\tfloat a0 = clamp(dot(uEdges[0], pos), 0.0, 1.0);\n"
+                "\tfloat a1 = clamp(dot(uEdges[1], pos), 0.0, 1.0);\n"
+                "\tfloat a2 = clamp(dot(uEdges[2], pos), 0.0, 1.0);\n"
+                "\tfloat a3 = clamp(dot(uEdges[3], pos), 0.0, 1.0);\n"
+                "\tfloat a4 = clamp(dot(uEdges[4], pos), 0.0, 1.0);\n"
+                "\tfloat a5 = clamp(dot(uEdges[5], pos), 0.0, 1.0);\n"
+                "\tfloat edgeAlpha = min(min(a0 * a1, a2 * a3), a4 * a5);\n");
+            if (inColor.size()) {
+                inColor.append(" * edgeAlpha");
+            } else {
+                inColor = "vec4(edgeAlpha)";
+            }
+        }
         // we may not have any incoming color
         const char * incomingColor = (inColor.size() ? inColor.c_str()
                 : "vec4(1,1,1,1)");
@@ -581,6 +603,14 @@ void GrGLProgram::getUniformLocationsAndInitCache(CachedData* programData) const
         programData->fUniLocations.fColorFilterUni = 
                         GR_GL(GetUniformLocation(progID, COL_FILTER_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fColorFilterUni);
+    }
+
+    if (fProgramDesc.fUsesEdgeAA) {
+        programData->fUniLocations.fEdgesUni = 
+            GR_GL(GetUniformLocation(progID, EDGES_UNI_NAME));
+        GrAssert(kUnusedUniform != programData->fUniLocations.fEdgesUni);
+    } else {
+        programData->fUniLocations.fEdgesUni = kUnusedUniform;
     }
 
     for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {

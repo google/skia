@@ -108,6 +108,7 @@ private:
         } fColorType;
 
         bool fEmitsPointSize;
+        bool fUsesEdgeAA;
 
         SkXfermode::Mode fColorFilterXfermode;
 
@@ -163,11 +164,13 @@ public:
     struct UniLocations {
         GrGLint fViewMatrixUni;
         GrGLint fColorUni;
+        GrGLint fEdgesUni;
         GrGLint fColorFilterUni;
         StageUniLocations fStages[GrDrawTarget::kNumStages];
         void reset() {
             fViewMatrixUni = kUnusedUniform;
             fColorUni = kUnusedUniform;
+            fEdgesUni = kUnusedUniform;
             fColorFilterUni = kUnusedUniform;
             for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
                 fStages[s].reset();

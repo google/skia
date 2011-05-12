@@ -66,18 +66,22 @@ public:
      *  default to disabled.
      */
     enum StateBits {
-        kDither_StateBit          = 0x1,//<! Perform color dithering
-        kAntialias_StateBit       = 0x2,//<! Perform anti-aliasing. The render-
+        kDither_StateBit        = 0x01, //<! Perform color dithering
+        kAntialias_StateBit     = 0x02, //<! Perform anti-aliasing. The render-
                                         //   target must support some form of AA
                                         //   (msaa, coverage sampling, etc). For
                                         //   GrGpu-created rendertarget/textures
                                         //   this is controlled by parameters
                                         //   passed to createTexture.
-        kClip_StateBit            = 0x4,//<! Controls whether drawing is clipped
+        kClip_StateBit          = 0x04, //<! Controls whether drawing is clipped
                                         //   against the region specified by
                                         //   setClip.
-        kNoColorWrites_StateBit   = 0x8,//<! If set it disables writing colors.
-                                        //   Useful while performing stencil ops.
+        kNoColorWrites_StateBit = 0x08, //<! If set it disables writing colors.
+                                        //   Useful while performing stencil
+                                        //   ops.
+        kEdgeAA_StateBit        = 0x10, //<! Perform edge anti-aliasing.
+                                        //   Requires the edges to be passed in
+                                        //   setEdgeAAData().
 
         // subclass may use additional bits internally
         kDummyStateBit,
@@ -154,6 +158,7 @@ protected:
 
         GrStencilSettings       fStencilSettings;
         GrMatrix                fViewMatrix;
+        float                   fEdgeAAEdges[18];
         bool operator ==(const DrState& s) const {
             return 0 == memcmp(this, &s, sizeof(DrState));
         }
@@ -362,6 +367,10 @@ public:
         return 0 != (fCurrDrawState.fFlagBits & kDither_StateBit);
     }
 
+    bool isAntialiasState() const {
+        return 0 != (fCurrDrawState.fFlagBits & kAntialias_StateBit);
+    }
+
     bool isClipState() const {
         return 0 != (fCurrDrawState.fFlagBits & kClip_StateBit);
     }
@@ -482,6 +491,14 @@ public:
      *  with the vertex source.
      */
     bool canDisableBlend() const;
+
+    /**
+     * Sets the edge data required for edge antialiasing.
+     *
+     * @param edges       3 * 6 float values, representing the edge
+     *                    equations in Ax + By + C form
+     */
+     void setEdgeAAData(const float edges[18]);
 
 private:
     static const int TEX_COORD_BIT_CNT = kNumStages*kMaxTexCoords;
