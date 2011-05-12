@@ -181,29 +181,29 @@ void GrGLProgram::doGLPost() const {
 /**
  * Create a text coefficient to be used in fragment shader code.
  */
-static void coefficientString(GrStringBuilder& str, SkXfermode::Coeff coeff,
+static void coefficientString(GrStringBuilder* str, SkXfermode::Coeff coeff,
             const char* src, const char* dst) {
     switch (coeff) {
     case SkXfermode::kZero_Coeff:    /** 0 */
-        str = "0.0";
+        *str = "0.0";
         break;
     case SkXfermode::kOne_Coeff:     /** 1 */
-        str = "1.0";
+        *str = "1.0";
         break;
     case SkXfermode::kSA_Coeff:      /** src alpha */
-        str.appendf("%s.a", src);
+        str->appendf("%s.a", src);
         break;
     case SkXfermode::kISA_Coeff:     /** inverse src alpha (i.e. 1 - sa) */
-        str.appendf("(1.0 - %s.a)", src);
+        str->appendf("(1.0 - %s.a)", src);
         break;
     case SkXfermode::kDA_Coeff:      /** dst alpha */
-        str.appendf("%s.a", dst);
+        str->appendf("%s.a", dst);
         break;
     case SkXfermode::kIDA_Coeff:     /** inverse dst alpha (i.e. 1 - da) */
-        str.appendf("(1.0 - %s.a)", dst);
+        str->appendf("(1.0 - %s.a)", dst);
         break;
     case SkXfermode::kSC_Coeff:
-        str.append(src);
+        str->append(src);
         break;
     default:
         break;
@@ -214,7 +214,7 @@ static void coefficientString(GrStringBuilder& str, SkXfermode::Coeff coeff,
  * Adds a line to the fragment shader code which modifies the color by
  * the specified color filter.
  */
-static void addColorFilter(GrStringBuilder& FSCode, const char * outputVar,
+static void addColorFilter(GrStringBuilder* FSCode, const char * outputVar,
             SkXfermode::Mode colorFilterXfermode, const char* dstColor) {
     SkXfermode::Coeff srcCoeff, dstCoeff;
     SkDEBUGCODE(bool success =)
@@ -223,9 +223,9 @@ static void addColorFilter(GrStringBuilder& FSCode, const char * outputVar,
     // coefficients.
     GrAssert(success);
     GrStringBuilder srcCoeffStr, dstCoeffStr;
-    coefficientString(srcCoeffStr, srcCoeff, COL_FILTER_UNI_NAME, dstColor);
-    coefficientString(dstCoeffStr, dstCoeff, COL_FILTER_UNI_NAME, dstColor);
-    FSCode.appendf("\t%s = %s*%s + %s*%s;\n", outputVar, srcCoeffStr.c_str(),
+    coefficientString(&srcCoeffStr, srcCoeff, COL_FILTER_UNI_NAME, dstColor);
+    coefficientString(&dstCoeffStr, dstCoeff, COL_FILTER_UNI_NAME, dstColor);
+    FSCode->appendf("\t%s = %s*%s + %s*%s;\n", outputVar, srcCoeffStr.c_str(),
             COL_FILTER_UNI_NAME, dstCoeffStr.c_str(), dstColor);
 }
 
@@ -352,7 +352,7 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
             }
         }
         if (useColorFilter) {
-            addColorFilter(segments.fFSCode, "gl_FragColor",
+            addColorFilter(&segments.fFSCode, "gl_FragColor",
                     fProgramDesc.fColorFilterXfermode, outColor.c_str());
         }
 
@@ -378,7 +378,7 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
         const char * incomingColor = (inColor.size() ? inColor.c_str()
                 : "vec4(1,1,1,1)");
         if (useColorFilter) {
-            addColorFilter(segments.fFSCode, "gl_FragColor",
+            addColorFilter(&segments.fFSCode, "gl_FragColor",
                     fProgramDesc.fColorFilterXfermode, incomingColor);
         } else {
             segments.fFSCode.appendf("\tgl_FragColor = %s;\n", incomingColor);
