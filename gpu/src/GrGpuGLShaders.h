@@ -63,6 +63,9 @@ private:
     // flushes the normalized texel size
     void flushTexelSize(int stage);
 
+    // flushes the edges for edge AA
+    void flushEdgeAAData();
+
     static void DeleteProgram(GrGLProgram::CachedData* programData);
 
     void ProgramUnitTest();

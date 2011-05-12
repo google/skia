@@ -88,7 +88,7 @@ void SkOSWindow::restartLoop()
 {
     // We have a new window, so we need to set the title again and restart the
     // loop.
-    this->setTitle(this->getTitle());
+    this->onSetTitle(this->getTitle());
     fRestart = true;
 }
 

@@ -39,6 +39,9 @@ public:
                                    GrPathIter* path,
                                    GrPathFill fill,
                                    const GrPoint* translate);
+    virtual bool supportsAA(GrDrawTarget* target,
+                            GrPathIter* path,
+                            GrPathFill fill);
 };
 
 #endif

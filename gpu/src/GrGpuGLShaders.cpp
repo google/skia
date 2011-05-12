@@ -36,7 +36,7 @@ private:
 #if GR_DEBUG
     typedef GrBinHashKey<Entry, 4> ProgramHashKey; // Flex the dynamic allocation muscle in debug
 #else
-    typedef GrBinHashKey<Entry, 32> ProgramHashKey;
+    typedef GrBinHashKey<Entry, 64> ProgramHashKey;
 #endif
 
     class Entry : public ::GrNoncopyable {
@@ -396,6 +396,22 @@ void GrGpuGLShaders::flushTexelSize(int s) {
     }
 }
 
+void GrGpuGLShaders::flushEdgeAAData() {
+    const int& uni = fProgramData->fUniLocations.fEdgesUni;
+    if (GrGLProgram::kUnusedUniform != uni) {
+        float edges[18];
+        memcpy(edges, fCurrDrawState.fEdgeAAEdges, sizeof(edges));
+        // Flip the edges in Y
+        float height = fCurrDrawState.fRenderTarget->height();
+        for (int i = 0; i < 6; ++i) {
+            float b = edges[i * 3 + 1];
+            edges[i * 3 + 1] = -b;
+            edges[i * 3 + 2] += b * height;
+        }
+        GR_GL(Uniform3fv(uni, 6, edges));
+    }
+}
+
 static const float ONE_OVER_255 = 1.f / 255.f;
 
 #define GR_COLOR_TO_VEC4(color) {\
@@ -500,6 +516,7 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
 
         this->flushTexelSize(s);
     }
+    this->flushEdgeAAData();
     resetDirtyFlags();
     return true;
 }
@@ -631,6 +648,8 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
         if (requiresAttributeColors) {} // suppress unused var warning
         desc.fColorType = GrGLProgram::ProgramDesc::kAttribute_ColorType;
     }
+
+    desc.fUsesEdgeAA = fCurrDrawState.fFlagBits & kEdgeAA_StateBit;
 
     for (int s = 0; s < kNumStages; ++s) {
         GrGLProgram::ProgramDesc::StageDesc& stage = desc.fStages[s];
