@@ -1,4 +1,3 @@
-INTENTIONAL_BREAKAGE_RUN_SVN_UPDATE
 #include "Test.h"
 #include "SkRandom.h"
 #include "SkRefCnt.h"
