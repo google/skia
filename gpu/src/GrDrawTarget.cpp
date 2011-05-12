@@ -479,7 +479,7 @@ void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
 
 bool GrDrawTarget::canDisableBlend() const {
     // If we're using edge antialiasing, we can't force blend off.
-    if (fCurrDrawState.fFlagBits & kAntialias_StateBit) {
+    if (fCurrDrawState.fFlagBits & kEdgeAA_StateBit) {
         return false;
     }
 
