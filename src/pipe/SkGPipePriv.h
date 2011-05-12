@@ -208,8 +208,4 @@ static uint32_t PaintOp_packOpFlagData(PaintOps op, unsigned flags, unsigned dat
     data;
 }
 
-enum {
-    kLastOp_PaintOpFlag = 1 << 0
-};
-
 #endif

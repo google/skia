@@ -72,13 +72,9 @@ public:
 
     void setReader(SkFlattenableReadBuffer* reader) { fReader = reader; }
 
-    const SkPaint& getPaint(uint32_t drawOp32) const;
+    const SkPaint& paint() const { return fPaint; }
+    SkPaint* editPaint() { return &fPaint; }
     
-    //  Extracts index from DrawOp_unpackData().
-    //  Returns the specified paint from our list, or creates a new paint if
-    //  index == count. If index > count, return NULL
-    SkPaint* editPaint(uint32_t drawOp32);
-
     SkFlattenable* getFlat(unsigned index) const {
         if (0 == index) {
             return NULL;
@@ -103,20 +99,11 @@ public:
     }
     
     SkFlattenableReadBuffer* fReader;
-    SkTDArray<SkFlattenable*> fFlatArray;
 
 private:
-
-    SkTDArray<SkPaint*> fPaints;
-
-    SkRefCntTDArray<SkColorFilter*> fColorFilters;
-    SkRefCntTDArray<SkDrawLooper*> fDrawLoopers;
-    SkRefCntTDArray<SkMaskFilter*> fMaskFilters;
-    SkRefCntTDArray<SkPathEffect*> fPathEffects;
-    SkRefCntTDArray<SkRasterizer*> fRasterizers;
-    SkRefCntTDArray<SkShader*> fShaders;
-    SkRefCntTDArray<SkTypeface*> fTypefaces;
-    SkRefCntTDArray<SkXfermode*> fXfermodes;
+    SkPaint                   fPaint;
+    SkTDArray<SkFlattenable*> fFlatArray;
+    SkTDArray<SkTypeface*>    fTypefaces;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -132,29 +119,6 @@ template <typename T> const T* skipAlign(SkReader32* reader, int count = 1) {
     SkASSERT(count >= 0);
     size_t size = SkAlign4(sizeof(T) * count);
     return reinterpret_cast<const T*>(reader->skip(size));
-}
-
-const SkPaint& SkGPipeState::getPaint(uint32_t op32) const {
-    unsigned index = DrawOp_unpackData(op32);
-    if (index >= fPaints.count()) {
-        SkASSERT(!"paint index out of range");
-        index = 0;  // we always have at least 1 paint
-    }
-    return *fPaints[index];
-}
-
-SkPaint* SkGPipeState::editPaint(uint32_t op32) {
-    unsigned index = DrawOp_unpackData(op32);
-
-    if (index > fPaints.count()) {
-        SkASSERT(!"paint index out of range");
-        return NULL;
-    }
-
-    if (index == fPaints.count()) {
-        *fPaints.append() = SkNEW(SkPaint);
-    }
-    return fPaints[index];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -236,7 +200,7 @@ static void saveLayer_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     }
     const SkPaint* paint = NULL;
     if (flags & kSaveLayer_HasPaint_DrawOpFlag) {
-        paint = &state->getPaint(reader->readU32());
+        paint = &state->paint();
     }
     canvas->saveLayer(bounds, paint, saveFlags);
 }
@@ -259,7 +223,7 @@ static void drawClear_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
 
 static void drawPaint_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                          SkGPipeState* state) {
-    canvas->drawPaint(state->getPaint(op32));
+    canvas->drawPaint(state->paint());
 }
 
 static void drawPoints_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -267,19 +231,19 @@ static void drawPoints_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     SkCanvas::PointMode mode = (SkCanvas::PointMode)DrawOp_unpackFlags(op32);
     size_t count = reader->readU32();
     const SkPoint* pts = skip<SkPoint>(reader, count);
-    canvas->drawPoints(mode, count, pts, state->getPaint(op32));
+    canvas->drawPoints(mode, count, pts, state->paint());
 }
 
 static void drawRect_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
-    canvas->drawRect(*skip<SkRect>(reader), state->getPaint(op32));
+    canvas->drawRect(*skip<SkRect>(reader), state->paint());
 }
 
 static void drawPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                         SkGPipeState* state) {
     SkPath path;
     path.unflatten(*reader);
-    canvas->drawPath(path, state->getPaint(op32));
+    canvas->drawPath(path, state->paint());
 }
 
 static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -311,7 +275,7 @@ static void drawVertices_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     }
 
     canvas->drawVertices(mode, vertexCount, verts, texs, colors, xfer,
-                         indices, indexCount, state->getPaint(op32));
+                         indices, indexCount, state->paint());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -321,7 +285,7 @@ static void drawText_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     size_t len = reader->readU32();
     const void* text = reader->skip(SkAlign4(len));
     const SkScalar* xy = skip<SkScalar>(reader, 2);
-    canvas->drawText(text, len, xy[0], xy[1], state->getPaint(op32));
+    canvas->drawText(text, len, xy[0], xy[1], state->paint());
 }
 
 static void drawPosText_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -330,7 +294,7 @@ static void drawPosText_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     const void* text = reader->skip(SkAlign4(len));
     size_t posCount = reader->readU32();    // compute by our writer
     const SkPoint* pos = skip<SkPoint>(reader, posCount);
-    canvas->drawPosText(text, len, pos, state->getPaint(op32));
+    canvas->drawPosText(text, len, pos, state->paint());
 }
 
 static void drawPosTextH_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -340,7 +304,7 @@ static void drawPosTextH_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     size_t posCount = reader->readU32();    // compute by our writer
     const SkScalar* xpos = skip<SkScalar>(reader, posCount);
     SkScalar constY = reader->readScalar();
-    canvas->drawPosTextH(text, len, xpos, constY, state->getPaint(op32));
+    canvas->drawPosTextH(text, len, xpos, constY, state->paint());
 }
 
 static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
@@ -358,7 +322,7 @@ static void drawTextOnPath_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op3
         matrix = &matrixStorage;
     }
 
-    canvas->drawTextOnPath(text, len, path, matrix, state->getPaint(op32));
+    canvas->drawTextOnPath(text, len, path, matrix, state->paint());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -412,14 +376,12 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
                        SkGPipeState* state) {
     size_t offset = reader->offset();
     size_t stop = offset + PaintOp_unpackData(op32);
-    SkPaint* p = state->editPaint(0);
-    int done;
+    SkPaint* p = state->editPaint();
 
     do {
         uint32_t p32 = reader->readU32();
         unsigned op = PaintOp_unpackOp(p32);
         unsigned data = PaintOp_unpackData(p32);
-        done = PaintOp_unpackFlags(p32) & kLastOp_PaintOpFlag;
 
 //        SkDebugf(" read %08X op=%d flags=%d data=%d\n", p32, op, done, data);
 
@@ -452,8 +414,7 @@ static void paintOp_rp(SkCanvas*, SkReader32* reader, uint32_t op32,
             default: SkASSERT(!"bad paintop"); return;
         }
         SkASSERT(reader->offset() <= stop);
-        done = (reader->offset() >= stop);
-    } while (!done);
+    } while (reader->offset() < stop);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -521,14 +482,11 @@ static const ReadProc gReadTable[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGPipeState::SkGPipeState() {
-    // start out with one paint in default state
-    *fPaints.append() = SkNEW(SkPaint);
-}
+SkGPipeState::SkGPipeState() {}
 
 SkGPipeState::~SkGPipeState() {
+    fTypefaces.unrefAll();
     fFlatArray.unrefAll();
-    fPaints.deleteAll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
