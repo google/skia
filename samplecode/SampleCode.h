@@ -55,6 +55,7 @@ public:
 
     void setBGColor(SkColor color) { fBGColor = color; }
 
+    static bool IsSampleView(SkView*);
     static bool SetRepeatDraw(SkView*, int count);
     static bool SetUsePipe(SkView*, bool);
 

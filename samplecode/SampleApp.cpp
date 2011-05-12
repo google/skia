@@ -1039,6 +1039,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'p':
             fUsePipe = !fUsePipe;
+            this->updateTitle();
             this->inval(NULL);
             break;
         case 'r':
@@ -1283,6 +1284,12 @@ void SampleWindow::updateTitle() {
     if (fMeasureFPS) {
         title.appendf(" %4d ms", fMeasureFPS_Time);
     }
+    if (fUsePipe && SampleView::IsSampleView(view)) {
+        title.prepend("<P> ");
+    }
+    if (SampleView::IsSampleView(view)) {
+        title.prepend("! ");
+    }
 
     this->setTitle(title.c_str());
 }
@@ -1321,8 +1328,14 @@ void SampleWindow::onSizeChange() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static const char is_sample_view_tag[] = "sample-is-sample-view";
 static const char repeat_count_tag[] = "sample-set-repeat-count";
 static const char set_use_pipe_tag[] = "sample-set-use-pipe";
+
+bool SampleView::IsSampleView(SkView* view) {
+    SkEvent evt(is_sample_view_tag);
+    return view->doQuery(&evt);
+}
 
 bool SampleView::SetRepeatDraw(SkView* view, int count) {
     SkEvent evt(repeat_count_tag);
@@ -1349,6 +1362,9 @@ bool SampleView::onEvent(const SkEvent& evt) {
 }
 
 bool SampleView::onQuery(SkEvent* evt) {
+    if (evt->isType(is_sample_view_tag)) {
+        return true;
+    }
     return this->INHERITED::onQuery(evt);
 }
 

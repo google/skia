@@ -36,17 +36,17 @@ static SkScalar draw_bm(SkCanvas* canvas, const SkBitmap& bm,
     canvas->drawBitmap(bm, x, y, paint);
     return SkIntToScalar(bm.width()) * 5/4;
 #else
-    SkRect r;
-    
-    r.set(x, y,
-          x + SkIntToScalar(bm.width() * 2),
-          y + SkIntToScalar(bm.height() * 2));
+    SkAutoCanvasRestore acr(canvas, true);
+    canvas->translate(x, y);
+
+    SkScalar w = SkIntToScalar(bm.width());
+    SkScalar h = SkIntToScalar(bm.height());
     SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
     paint->setShader(s)->unref();
-    canvas->drawRect(r, *paint);
+    canvas->drawRect(SkRect::MakeWH(w, h), *paint);
     paint->setShader(NULL);
-    return r.width() * 5/4;
+    return w * 5/4;
 #endif
 }
 
