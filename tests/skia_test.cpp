@@ -123,5 +123,5 @@ int main (int argc, char * const argv[]) {
         SkDebugf("Finished %d tests, %d failures.\n", count,
                  count - successCount);
     }
-    return 0;
+    return (count == successCount) ? 0 : 1;
 }
