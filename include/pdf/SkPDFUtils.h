@@ -54,6 +54,8 @@ public:
     static void PaintPath(SkPaint::Style style, SkPath::FillType fill,
                           SkWStream* content);
     static void StrokePath(SkWStream* content);
+    static void DrawFormXObject(int objectIndex, SkWStream* content);
+    static void ApplyGraphicState(int objectIndex, SkWStream* content);
 };
 
 #endif

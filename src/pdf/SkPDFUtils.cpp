@@ -171,3 +171,17 @@ void SkPDFUtils::StrokePath(SkWStream* content) {
     SkPDFUtils::PaintPath(
         SkPaint::kStroke_Style, SkPath::kWinding_FillType, content);
 }
+
+// static
+void SkPDFUtils::DrawFormXObject(int objectIndex, SkWStream* content) {
+    content->writeText("/X");
+    content->writeDecAsText(objectIndex);
+    content->writeText(" Do\n");
+}
+
+// static
+void SkPDFUtils::ApplyGraphicState(int objectIndex, SkWStream* content) {
+    content->writeText("/G");
+    content->writeDecAsText(objectIndex);
+    content->writeText(" gs\n");
+}
