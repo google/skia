@@ -790,6 +790,7 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
+    const DWORD kTTCTag = *(DWORD*) "ttcf";
     LOGFONT lf;
     GetLogFontByID(uniqueID, &lf);
 
@@ -797,11 +798,20 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
     HFONT font = CreateFontIndirect(&lf);
     HFONT savefont = (HFONT)SelectObject(hdc, font);
 
-    size_t bufferSize = GetFontData(hdc, 0, 0, NULL, 0);
-    SkMemoryStream* stream = new SkMemoryStream(bufferSize);
-    if (!GetFontData(hdc, 0, 0, (void*)stream->getMemoryBase(), bufferSize)) {
-        delete stream;
-        stream = NULL;
+    SkMemoryStream* stream = NULL;
+    DWORD tables[2] = {kTTCTag, 0};
+    for (int i = 0; i < SK_ARRAY_COUNT(tables); i++) {
+        size_t bufferSize = GetFontData(hdc, tables[i], 0, NULL, 0);
+        if (bufferSize != GDI_ERROR) {
+            stream = new SkMemoryStream(bufferSize);
+            if (GetFontData(hdc, tables[i], 0, (void*)stream->getMemoryBase(),
+                            bufferSize)) {
+                break;
+            } else {
+                delete stream;
+                stream = NULL;
+            }
+        }
     }
 
     SelectObject(hdc, savefont);
