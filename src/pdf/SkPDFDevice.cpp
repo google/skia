@@ -423,9 +423,7 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
     }
 
     if (state.fGraphicStateIndex != currentEntry()->fGraphicStateIndex) {
-        fContentStream->writeText("/G");
-        fContentStream->writeDecAsText(state.fGraphicStateIndex);
-        fContentStream->writeText(" gs\n");
+        SkPDFUtils::ApplyGraphicState(state.fGraphicStateIndex, fContentStream);
         currentEntry()->fGraphicStateIndex = state.fGraphicStateIndex;
     }
 
@@ -556,6 +554,7 @@ void SkPDFDevice::clear(SkColor color) {
     }
 
     internalDrawPaint(paint);
+    finishContentEntry(paint);
 }
 
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
@@ -566,6 +565,7 @@ void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
     }
 
     internalDrawPaint(newPaint);
+    finishContentEntry(newPaint);
 }
 
 void SkPDFDevice::internalDrawPaint(const SkPaint& paint) {
@@ -651,6 +651,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
         default:
             SkASSERT(false);
     }
+    finishContentEntry(*paint);
 }
 
 void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
@@ -676,6 +677,7 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
     SkPDFUtils::AppendRectangle(r, &fCurrentContentEntry->fContent);
     SkPDFUtils::PaintPath(paint.getStyle(), SkPath::kWinding_FillType,
                           &fCurrentContentEntry->fContent);
+    finishContentEntry(paint);
 }
 
 void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
@@ -703,6 +705,7 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
     SkPDFUtils::EmitPath(path, &fCurrentContentEntry->fContent);
     SkPDFUtils::PaintPath(paint.getStyle(), path.getFillType(),
                           &fCurrentContentEntry->fContent);
+    finishContentEntry(paint);
 }
 
 void SkPDFDevice::drawBitmap(const SkDraw& d, const SkBitmap& bitmap,
@@ -798,6 +801,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
             drawRect(d, r, paint);
         }
     }
+    finishContentEntry(textPaint);
 }
 
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
@@ -849,6 +853,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
         fCurrentContentEntry->fContent.writeText(" Tj\n");
     }
     fCurrentContentEntry->fContent.writeText("ET\n");
+    finishContentEntry(textPaint);
 }
 
 void SkPDFDevice::drawTextOnPath(const SkDraw& d, const void* text, size_t len,
@@ -889,10 +894,9 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
     SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice);
     fXObjectResources.push(xobject);  // Transfer reference.
-    fCurrentContentEntry->fContent.writeText("/X");
-    fCurrentContentEntry->fContent.writeDecAsText(
-            fXObjectResources.count() - 1);
-    fCurrentContentEntry->fContent.writeText(" Do\n");
+    SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
+                                &fCurrentContentEntry->fContent);
+    finishContentEntry(paint);
 }
 
 const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
@@ -1038,6 +1042,14 @@ SkStream* SkPDFDevice::content() const {
     return result;
 }
 
+void SkPDFDevice::createFormXObjectFromDevice(
+        SkRefPtr<SkPDFFormXObject>* xobject) {
+    *xobject = new SkPDFFormXObject(this);
+    (*xobject)->unref();  // SkRefPtr and new both took a reference.
+    cleanUp();  // Reset this device to have no content.
+    init();
+}
+
 bool SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
                                     const SkRegion& clipRegion,
                                     const SkMatrix& matrix,
@@ -1081,9 +1093,19 @@ bool SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
         fCurrentContentEntry = fContentEntries.get();
     }
 
-    // TODO(vandebo) For the following modes, we need to calculate various
-    // operations between the source and destination shape:
-    // SrcIn, DstIn, SrcOut, DstOut, SrcAtop, DestAtop, Xor.
+    // For the following modes, we use both source and destination, but
+    // we use one as a smask for the other, so we have to make form xobjects
+    // out of both of them: SrcIn, DstIn, SrcOut, DstOut.
+    if (xfermode == SkXfermode::kSrcIn_Mode ||
+            xfermode == SkXfermode::kDstIn_Mode ||
+            xfermode == SkXfermode::kSrcOut_Mode ||
+            xfermode == SkXfermode::kDstOut_Mode) {
+        SkASSERT(fDstFormXObject.get() == NULL);
+        createFormXObjectFromDevice(&fDstFormXObject);
+    }
+
+    // TODO(vandebo) Figure out how/if we can handle the following modes:
+    // SrcAtop, DestAtop, Xor.
 
     // These xfer modes don't draw source at all.
     if (xfermode == SkXfermode::kClear_Mode ||
@@ -1133,6 +1155,57 @@ bool SkPDFDevice::setUpContentEntryForText(const SkClipStack* clipStack,
                                            const SkMatrix& matrix,
                                            const SkPaint& paint) {
     return setUpContentEntry(clipStack, clipRegion, matrix, paint, true);
+}
+
+void SkPDFDevice::finishContentEntry(const SkPaint& paint) {
+    SkXfermode::Mode xfermode = SkXfermode::kSrcOver_Mode;
+    if (paint.getXfermode()) {
+        paint.getXfermode()->asMode(&xfermode);
+    }
+    if (xfermode != SkXfermode::kSrcIn_Mode &&
+            xfermode != SkXfermode::kDstIn_Mode &&
+            xfermode != SkXfermode::kSrcOut_Mode &&
+            xfermode != SkXfermode::kDstOut_Mode) {
+        SkASSERT(fDstFormXObject.get() == NULL);
+        return;
+    }
+
+    SkRefPtr<SkPDFFormXObject> srcFormXObject;
+    createFormXObjectFromDevice(&srcFormXObject);
+
+    SkMatrix identity;
+    identity.reset();
+    SkPaint stockPaint;
+    setUpContentEntry(&fExistingClipStack, fExistingClipRegion, identity,
+                      stockPaint);
+
+    SkRefPtr<SkPDFGraphicState> sMaskGS;
+    if (xfermode == SkXfermode::kSrcIn_Mode ||
+            xfermode == SkXfermode::kSrcOut_Mode) {
+        sMaskGS = SkPDFGraphicState::getSMaskGraphicState(
+                fDstFormXObject.get(), xfermode == SkXfermode::kSrcOut_Mode);
+        fXObjectResources.push(srcFormXObject.get());
+        srcFormXObject->ref();
+    } else {
+        sMaskGS = SkPDFGraphicState::getSMaskGraphicState(
+                srcFormXObject.get(), xfermode == SkXfermode::kDstOut_Mode);
+        fXObjectResources.push(fDstFormXObject.get());
+        fDstFormXObject->ref();
+    }
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
+    SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
+                                  &fCurrentContentEntry->fContent);
+
+    SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
+                                &fCurrentContentEntry->fContent);
+
+    sMaskGS = SkPDFGraphicState::getNoSMaskGraphicState();
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
+    SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
+                                  &fCurrentContentEntry->fContent);
+
+    fDstFormXObject = NULL;
+    finishContentEntry(stockPaint);
 }
 
 void SkPDFDevice::populateGraphicStateEntryFromPaint(
@@ -1212,14 +1285,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         newGraphicState = SkPDFGraphicState::getGraphicStateForPaint(newPaint);
     }
     newGraphicState->unref();  // getGraphicState and SkRefPtr both took a ref.
-    // newGraphicState has been canonicalized so we can directly compare
-    // pointers.
-    int resourceIndex = fGraphicStateResources.find(newGraphicState.get());
-    if (resourceIndex < 0) {
-        resourceIndex = fGraphicStateResources.count();
-        fGraphicStateResources.push(newGraphicState.get());
-        newGraphicState->ref();
-    }
+    int resourceIndex = addGraphicStateResource(newGraphicState.get());
     entry->fGraphicStateIndex = resourceIndex;
 
     if (hasText) {
@@ -1228,6 +1294,18 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     } else {
         entry->fTextScaleX = 0;
     }
+}
+
+int SkPDFDevice::addGraphicStateResource(SkPDFGraphicState* gs) {
+    // Assumes that gs has been canonicalized (so we can directly compare
+    // pointers).
+    int result = fGraphicStateResources.find(gs);
+    if (result < 0) {
+        result = fGraphicStateResources.count();
+        fGraphicStateResources.push(gs);
+        gs->ref();
+    }
+    return result;
 }
 
 void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID) {
@@ -1299,8 +1377,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
     }
 
     fXObjectResources.push(image);  // Transfer reference.
-    fCurrentContentEntry->fContent.writeText("/X");
-    fCurrentContentEntry->fContent.writeDecAsText(
-            fXObjectResources.count() - 1);
-    fCurrentContentEntry->fContent.writeText(" Do\n");
+    SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
+                                &fCurrentContentEntry->fContent);
+    finishContentEntry(paint);
 }

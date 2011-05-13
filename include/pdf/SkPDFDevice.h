@@ -28,6 +28,7 @@ class SkPDFArray;
 class SkPDFDevice;
 class SkPDFDict;
 class SkPDFFont;
+class SkPDFFormXObject;
 class SkPDFGraphicState;
 class SkPDFObject;
 class SkPDFShader;
@@ -155,6 +156,7 @@ private:
 
     SkTScopedPtr<ContentEntry> fContentEntries;
     ContentEntry* fCurrentContentEntry;
+    SkRefPtr<SkPDFFormXObject> fDstFormXObject;
 
     // For use by the DeviceFactory.
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
@@ -162,6 +164,7 @@ private:
 
     void init();
     void cleanUp();
+    void createFormXObjectFromDevice(SkRefPtr<SkPDFFormXObject>* xobject);
 
     // If the paint or clip is such that we shouldn't draw anything, these
     // return false and do not create a content entry.
@@ -174,12 +177,14 @@ private:
                                   const SkRegion& clipRegion,
                                   const SkMatrix& matrix,
                                   const SkPaint& paint);
+    void finishContentEntry(const SkPaint& paint);
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
                                             const SkClipStack& clipStack,
                                             const SkRegion& clipRegion,
                                             const SkPaint& paint,
                                             bool hasText,
                                             GraphicStateEntry* entry);
+    int addGraphicStateResource(SkPDFGraphicState* gs);
 
     void updateFont(const SkPaint& paint, uint16_t glyphID);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
