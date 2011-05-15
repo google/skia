@@ -1,32 +1,60 @@
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
-#include "SkBlurMaskFilter.h"
-#include "SkCamera.h"
-#include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkDevice.h"
-#include "SkGradientShader.h"
-#include "SkImageDecoder.h"
-#include "SkInterpolator.h"
-#include "SkMaskFilter.h"
-#include "SkPath.h"
-#include "SkRegion.h"
-#include "SkShader.h"
-#include "SkShaderExtras.h"
-#include "SkTime.h"
-#include "SkTypeface.h"
-#include "SkUtils.h"
-#include "SkKey.h"
-#include "SkXfermode.h"
-#include "SkDrawFilter.h"
 
 #include "test.h"
 
+namespace skiatest {
+    
+class MyReporter : public Reporter {
+protected:
+    virtual void onStart(Test* test) {}
+    virtual void onReport(const char desc[], Reporter::Result result) {
+        SkASSERT(Reporter::kPassed == result);
+    }
+    virtual void onEnd(Test* test) {}
+};
+
+class Iter {
+public:
+    Iter(Reporter* r) : fReporter(r) {
+        r->ref();
+        fReg = TestRegistry::Head();
+    }
+    
+    ~Iter() {
+        fReporter->unref();
+    }
+    
+    Test* next() {
+        if (fReg) {
+            TestRegistry::Factory fact = fReg->factory();
+            fReg = fReg->next();
+            Test* test = fact(NULL);
+            test->setReporter(fReporter);
+            return test;
+        }
+        return NULL;
+    }
+    
+    static int Count() {
+        const TestRegistry* reg = TestRegistry::Head();
+        int count = 0;
+        while (reg) {
+            count += 1;
+            reg = reg->next();
+        }
+        return count;
+    }
+    
+private:
+    Reporter* fReporter;
+    const TestRegistry* fReg;
+};
+}
+
 class TestsView : public SkView {
 public:
-    skia::Test::Iter fIter;
-
 	TestsView() {}
 
 protected:
@@ -45,30 +73,15 @@ protected:
     
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
+
+        skiatest::MyReporter reporter;
+        skiatest::Iter iter(&reporter);
+        skiatest::Test* test;
         
-        skia::Test* test = fIter.next();
-        if (NULL == test) {
-            fIter.reset();
-            test = fIter.next();
+        while ((test = iter.next()) != NULL) {
+            test->run();
+            SkDELETE(test);
         }
-        
-        SkIPoint    size;
-        test->getSize(&size);
-        
-        SkBitmap    bitmap;
-        bitmap.setConfig(SkBitmap::kARGB_8888_Config, size.fX, size.fY);
-        bitmap.allocPixels();
-        bitmap.eraseColor(0);
-        
-        SkCanvas c(bitmap);
-        test->draw(&c);
-        
-        canvas->drawBitmap(bitmap, SkIntToScalar(10), SkIntToScalar(10), NULL);
-        
-        SkString str;
-        test->getString(skia::Test::kTitle, &str);
-        SkDebugf("--- %s\n", str.c_str());
-        delete test;
     }
     
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {

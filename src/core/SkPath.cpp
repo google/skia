@@ -97,7 +97,7 @@ static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 ////////////////////////////////////////////////////////////////////////////
 
 SkPath::SkPath() : fBoundsIsDirty(true), fFillType(kWinding_FillType) {
-    fIsConvex = false;  // really should be kUnknown
+    fConvexity = kUnknown_Convexity;
 #ifdef ANDROID
     fGenerationID = 0;
 #endif
@@ -125,7 +125,7 @@ SkPath& SkPath::operator=(const SkPath& src) {
         fVerbs          = src.fVerbs;
         fFillType       = src.fFillType;
         fBoundsIsDirty  = src.fBoundsIsDirty;
-        fIsConvex       = src.fIsConvex;
+        fConvexity      = src.fConvexity;
         GEN_ID_INC;
     }
     SkDEBUGCODE(this->validate();)
@@ -148,7 +148,7 @@ void SkPath::swap(SkPath& other) {
         fVerbs.swap(other.fVerbs);
         SkTSwap<uint8_t>(fFillType, other.fFillType);
         SkTSwap<uint8_t>(fBoundsIsDirty, other.fBoundsIsDirty);
-        SkTSwap<uint8_t>(fIsConvex, other.fIsConvex);
+        SkTSwap<uint8_t>(fConvexity, other.fConvexity);
         GEN_ID_INC;
     }
 }
@@ -166,7 +166,7 @@ void SkPath::reset() {
     fVerbs.reset();
     GEN_ID_INC;
     fBoundsIsDirty = true;
-    fIsConvex = false;  // really should be kUnknown
+    fConvexity = kUnknown_Convexity;
 }
 
 void SkPath::rewind() {
@@ -176,7 +176,7 @@ void SkPath::rewind() {
     fVerbs.rewind();
     GEN_ID_INC;
     fBoundsIsDirty = true;
-    fIsConvex = false;  // really should be kUnknown
+    fConvexity = kUnknown_Convexity;
 }
 
 bool SkPath::isEmpty() const {
@@ -242,6 +242,13 @@ void SkPath::computeBounds() const {
 
     fBoundsIsDirty = false;
     compute_pt_bounds(&fBounds, fPts);
+}
+
+void SkPath::setConvexity(Convexity c) {
+    if (fConvexity != c) {
+        fConvexity = c;
+        GEN_ID_INC;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1381,4 +1388,126 @@ void SkPath::validate() const {
     }
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Returns -1 || 0 || 1 depending on the sign of value:
+ *  -1 if value < 0
+ *   0 if vlaue == 0
+ *   1 if value > 0
+ */
+static int SkScalarSign(SkScalar value) {
+    return value < 0 ? -1 : (value > 0);
+}
+
+static int CrossProductSign(const SkVector& a, const SkVector& b) {
+    return SkScalarSign(SkPoint::CrossProduct(a, b));
+}
+
+// only valid for a single contour
+struct Convexicator {
+    Convexicator() : fPtCount(0), fConvexity(SkPath::kUnknown_Convexity) {
+        fSign = 0;
+        // warnings
+        fCurrPt.set(0, 0);
+        fVec0.set(0, 0);
+        fVec1.set(0, 0);
+        fFirstVec.set(0, 0);
+    }
+
+    SkPath::Convexity getConvexity() const { return fConvexity; }
+
+    void addPt(const SkPoint& pt) {
+        if (SkPath::kConcave_Convexity == fConvexity) {
+            return;
+        }
+
+        if (0 == fPtCount) {
+            fCurrPt = pt;
+            ++fPtCount;
+        } else {
+            SkVector vec = pt - fCurrPt;
+            if (vec.fX || vec.fY) {
+                fCurrPt = pt;
+                if (++fPtCount == 2) {
+                    fFirstVec = fVec1 = vec;
+                } else {
+                    SkASSERT(fPtCount > 2);
+                    this->addVec(vec);
+                }
+            }
+        }
+    }
+
+    void close() {
+        if (fPtCount > 2) {
+            this->addVec(fFirstVec);
+        }
+    }
+
+private:
+    void addVec(const SkVector& vec) {
+        SkASSERT(vec.fX || vec.fY);
+        fVec0 = fVec1;
+        fVec1 = vec;
+        int sign = CrossProductSign(fVec0, fVec1);
+        if (0 == fSign) {
+            fSign = sign;
+        } else if (sign) {
+            if (fSign == sign) {
+                fConvexity = SkPath::kConvex_Convexity;
+            } else {
+                fConvexity = SkPath::kConcave_Convexity;
+            }
+        }
+    }
+
+    SkPoint             fCurrPt;
+    SkVector            fVec0, fVec1, fFirstVec;
+    int                 fPtCount;   // non-degenerate points
+    int                 fSign;
+    SkPath::Convexity   fConvexity;
+};
+
+SkPath::Convexity SkPath::ComputeConvexity(const SkPath& path) {
+    SkPoint         pts[4];
+    SkPath::Verb    verb;
+    SkPath::Iter    iter(path, true);
+
+    int             contourCount = 0;
+    int             count;
+    Convexicator    state;
+
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        switch (verb) {
+            case kMove_Verb:
+                if (++contourCount > 1) {
+                    return kConcave_Convexity;
+                }
+                pts[1] = pts[0];
+                count = 1;
+                break;
+            case kLine_Verb: count = 1; break;
+            case kQuad_Verb: count = 2; break;
+            case kCubic_Verb: count = 3; break;
+            case kClose_Verb:
+                state.close();
+                count = 0;
+                break;
+            default:
+                SkASSERT(!"bad verb");
+                return kConcave_Convexity;
+        }
+
+        for (int i = 1; i <= count; i++) {
+            state.addPt(pts[i]);
+        }
+        // early exit
+        if (kConcave_Convexity == state.getConvexity()) {
+            return kConcave_Convexity;
+        }
+    }
+    return state.getConvexity();
+}
 

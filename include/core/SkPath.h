@@ -96,19 +96,54 @@ public:
         GEN_ID_INC;
      }
 
-    /** Returns true if the path is flagged as being convex. This is not a
-        confirmed by any analysis, it is just the value set earlier.
-     */
-    bool isConvex() const { return fIsConvex != 0; }
+    enum Convexity {
+        kUnknown_Convexity,
+        kConvex_Convexity,
+        kConcave_Convexity
+    };
 
-    /** Set the isConvex flag to true or false. Convex paths may draw faster if
-        this flag is set, though setting this to true on a path that is in fact
-        not convex can give undefined results when drawn. Paths default to
-        isConvex == false
+    /**
+     *  Return the path's convexity, as stored in the path.
+     */
+    Convexity getConvexity() const { return (Convexity)fConvexity; }
+
+    /**
+     *  Store a convexity setting in the path. There is no automatic check to
+     *  see if this value actually agress with the return value from
+     *  ComputeConvexity().
+     */
+    void setConvexity(Convexity);
+
+    /**
+     *  Compute the convexity of the specified path. This does not look at the
+     *  value stored in the path, but computes it directly from the path's data.
+     *
+     *  If there is more than one contour, this returns kConcave_Convexity.
+     *  If the contour is degenerate (i.e. all segements are colinear,
+     *  then this returns kUnknown_Convexity.
+     *  The contour is treated as if it were closed, even if there is no kClose
+     *  verb.
+     */
+    static Convexity ComputeConvexity(const SkPath&);
+
+    /**
+     *  DEPRECATED: use getConvexity()
+     *  Returns true if the path is flagged as being convex. This is not a
+     *  confirmed by any analysis, it is just the value set earlier.
+     */
+    bool isConvex() const {
+        return kConvex_Convexity == this->getConvexity();
+    }
+
+    /**
+     *  DEPRECATED: use setConvexity()
+     *  Set the isConvex flag to true or false. Convex paths may draw faster if
+     *  this flag is set, though setting this to true on a path that is in fact
+     *  not convex can give undefined results when drawn. Paths default to
+     *  isConvex == false
      */
     void setIsConvex(bool isConvex) {
-        fIsConvex = (isConvex != 0);
-        GEN_ID_INC;
+        this->setConvexity(isConvex ? kConvex_Convexity : kConcave_Convexity);
     }
 
     /** Clear any lines and curves from the path, making it empty. This frees up
@@ -600,7 +635,7 @@ private:
     mutable SkRect      fBounds;
     mutable uint8_t     fBoundsIsDirty;
     uint8_t             fFillType;
-    uint8_t             fIsConvex;
+    uint8_t             fConvexity;
 #ifdef ANDROID
     uint32_t            fGenerationID;
 #endif

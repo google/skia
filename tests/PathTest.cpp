@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "SkPath.h"
+#include "SkParse.h"
 #include "SkSize.h"
 
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
@@ -17,7 +18,67 @@ static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
     REPORTER_ASSERT(reporter, other.getBounds() == bounds);
 }
 
-static void TestPath(skiatest::Reporter* reporter) {
+static void setFromString(SkPath* path, const char str[]) {
+    bool first = true;
+    while (str) {
+        SkScalar x, y;
+        str = SkParse::FindScalar(str, &x);
+        if (NULL == str) {
+            break;
+        }
+        str = SkParse::FindScalar(str, &y);
+        SkASSERT(str);
+        if (first) {
+            path->moveTo(x, y);
+            first = false;
+        } else {
+            path->lineTo(x, y);
+        }
+    }
+}
+
+static void test_convexity(skiatest::Reporter* reporter) {
+    static const SkPath::Convexity U = SkPath::kUnknown_Convexity;
+    static const SkPath::Convexity C = SkPath::kConcave_Convexity;
+    static const SkPath::Convexity V = SkPath::kConvex_Convexity;
+
+    SkPath path;
+
+    REPORTER_ASSERT(reporter, U == SkPath::ComputeConvexity(path));
+    path.addCircle(0, 0, 10);
+    REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
+    path.addCircle(0, 0, 10);   // 2nd circle
+    REPORTER_ASSERT(reporter, C == SkPath::ComputeConvexity(path));
+    path.reset();
+    path.addRect(0, 0, 10, 10, SkPath::kCCW_Direction);
+    REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
+    path.reset();
+    path.addRect(0, 0, 10, 10, SkPath::kCW_Direction);
+    REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
+    
+    static const struct {
+        const char*         fPathStr;
+        SkPath::Convexity   fExpectedConvexity;
+    } gRec[] = {
+        { "0 0", SkPath::kUnknown_Convexity },
+        { "0 0 10 10", SkPath::kUnknown_Convexity },
+        { "0 0 10 10 20 20 0 0 10 10", SkPath::kUnknown_Convexity },
+        { "0 0 10 10 10 20", SkPath::kConvex_Convexity },
+        { "0 0 10 10 10 0", SkPath::kConvex_Convexity },
+        { "0 0 10 10 10 0 0 10", SkPath::kConcave_Convexity },
+        { "0 0 10 0 0 10 -10 -10", SkPath::kConcave_Convexity },
+    };
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        SkPath path;
+        setFromString(&path, gRec[i].fPathStr);
+        SkPath::Convexity c = SkPath::ComputeConvexity(path);
+        REPORTER_ASSERT(reporter, c == gRec[i].fExpectedConvexity);
+    }
+}
+
+void TestPath(skiatest::Reporter* reporter);
+void TestPath(skiatest::Reporter* reporter) {
     {
         SkSize size;
         size.fWidth = 3.4f;
@@ -100,6 +161,8 @@ static void TestPath(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, p.isConvex());
     p.rewind();
     REPORTER_ASSERT(reporter, !p.isConvex());
+
+    test_convexity(reporter);
 }
 
 #include "TestClassDef.h"
