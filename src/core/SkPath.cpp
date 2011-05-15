@@ -1401,12 +1401,16 @@ static int SkScalarSign(SkScalar value) {
     return value < 0 ? -1 : (value > 0);
 }
 
+static int sign(SkScalar x) { return x < 0 ? -1 : 1; }
+
 static int CrossProductSign(const SkVector& a, const SkVector& b) {
     return SkScalarSign(SkPoint::CrossProduct(a, b));
 }
 
 // only valid for a single contour
 struct Convexicator {
+    int fDx, fDy, fSx, fSy;
+
     Convexicator() : fPtCount(0), fConvexity(SkPath::kUnknown_Convexity) {
         fSign = 0;
         // warnings
@@ -1414,6 +1418,9 @@ struct Convexicator {
         fVec0.set(0, 0);
         fVec1.set(0, 0);
         fFirstVec.set(0, 0);
+
+        fDx = fDy = 0;
+        fSx = fSy = 2;
     }
 
     SkPath::Convexity getConvexity() const { return fConvexity; }
@@ -1435,6 +1442,17 @@ struct Convexicator {
                 } else {
                     SkASSERT(fPtCount > 2);
                     this->addVec(vec);
+                }
+                
+                int sx = sign(vec.fX);
+                int sy = sign(vec.fY);
+                fDx += (sx != fSx);
+                fDy += (sy != fSy);
+                fSx = sx;
+                fSy = sy;
+                
+                if (fDx > 3 || fDy > 3) {
+                    fConvexity = SkPath::kConcave_Convexity;
                 }
             }
         }

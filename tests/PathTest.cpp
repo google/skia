@@ -86,7 +86,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     spiral.lineTo(.5,.5);
     spiral.lineTo(.5,.75);
     spiral.close();
-//    check_convexity(reporter, spiral, SkPath::kConcave_Convexity);
+    check_convexity(reporter, spiral, SkPath::kConcave_Convexity);
     
     SkPath dent;
     dent.moveTo(0, 0);
@@ -157,7 +157,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
     } gRec[] = {
         { "0 0", SkPath::kUnknown_Convexity },
         { "0 0 10 10", SkPath::kUnknown_Convexity },
-        { "0 0 10 10 20 20 0 0 10 10", SkPath::kUnknown_Convexity },
+        { "0 0 10 10 20 20 0 0 10 10", SkPath::kConcave_Convexity },
         { "0 0 10 10 10 20", SkPath::kConvex_Convexity },
         { "0 0 10 10 10 0", SkPath::kConvex_Convexity },
         { "0 0 10 10 10 0 0 10", SkPath::kConcave_Convexity },
