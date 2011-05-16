@@ -94,6 +94,7 @@ public:
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
         fMatrix.setIdentity();
+        fTextureDomain.setEmpty();
     }
 
     GrSamplerState(WrapMode wx, WrapMode wy, Filter filter) {
@@ -102,6 +103,7 @@ public:
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
         fMatrix.setIdentity();
+        fTextureDomain.setEmpty();
     }
 
     GrSamplerState(WrapMode wx, WrapMode wy, 
@@ -111,6 +113,7 @@ public:
         fSampleMode = kNormal_SampleMode;
         fFilter = filter;
         fMatrix = matrix;
+        fTextureDomain.setEmpty();
     }
 
     GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, 
@@ -120,12 +123,15 @@ public:
         fSampleMode = sample;
         fMatrix = matrix;
         fFilter = filter;
+        fTextureDomain.setEmpty();
     }
 
     WrapMode getWrapX() const { return fWrapX; }
     WrapMode getWrapY() const { return fWrapY; }
     SampleMode getSampleMode() const { return fSampleMode; }
     const GrMatrix& getMatrix() const { return fMatrix; }
+    const GrRect& getTextureDomain() const { return fTextureDomain; }
+    const bool hasTextureDomain() const {return SkIntToScalar(0) != fTextureDomain.right();}
     Filter getFilter() const { return fFilter; }
 
     bool isGradient() const {
@@ -145,6 +151,13 @@ public:
      */
     void setMatrix(const GrMatrix& matrix) { fMatrix = matrix; }
     
+    /**
+     * Sets the sampler's texture coordinate domain to a 
+     * custom rectangle, rather than the default (0,1).
+     * This option is currently only supported with kClamp_WrapMode
+     */
+    void setTextureDomain(const GrRect& textureDomain) { fTextureDomain = textureDomain; }
+
     /**
      *  Multiplies the current sampler matrix  a matrix
      *
@@ -169,6 +182,7 @@ public:
         fSampleMode = kNormal_SampleMode;
         fFilter = kNearest_Filter;
         fMatrix.setIdentity();
+        fTextureDomain.setEmpty();
     }
 
     GrScalar getRadial2CenterX1() const { return fRadial2CenterX1; }
@@ -198,6 +212,7 @@ private:
     SampleMode  fSampleMode;
     Filter      fFilter;
     GrMatrix    fMatrix;
+    GrRect      fTextureDomain;
 
     // these are undefined unless fSampleMode == kRadial2_SampleMode
     GrScalar    fRadial2CenterX1;

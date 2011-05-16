@@ -120,6 +120,11 @@ static void radial2_varying_name(int stage, GrStringBuilder* s) {
     s->appendS32(stage);
 }
 
+static void tex_domain_name(int stage, GrStringBuilder* s) {
+    *s = "uTexDom";
+    s->appendS32(stage);
+}
+
 GrGLProgram::GrGLProgram() {
     for(int stage = 0; stage < GrDrawTarget::kNumStages; ++stage) {
         fStageEffects[stage] = NULL;
@@ -650,6 +655,15 @@ void GrGLProgram::getUniformLocationsAndInitCache(CachedData* programData) const
                                              radial2ParamName.c_str()));
                 GrAssert(kUnusedUniform != locations.fRadial2Uni);
             }
+
+            if (kUseUniform == locations.fTexDomUni) {
+                GrStringBuilder texDomName;
+                tex_domain_name(s, &texDomName);
+                locations.fTexDomUni = GR_GL(GetUniformLocation(
+                                             progID,
+                                             texDomName.c_str()));
+                GrAssert(kUnusedUniform != locations.fTexDomUni);
+            }
         }
     }
     GR_GL(UseProgram(progID));
@@ -867,6 +881,24 @@ void GrGLProgram::genStageCode(int stageNum,
     GrStringBuilder modulate;
     if (NULL != fsInColor) {
         modulate.printf(" * %s", fsInColor);
+    }
+
+    if (desc.fOptFlags & 
+        ProgramDesc::StageDesc::kCustomTextureDomain_OptFlagBit) {
+        GrStringBuilder texDomainName;
+        tex_domain_name(stageNum, &texDomainName);
+        segments->fFSUnis.appendf("uniform %s %s;\n", 
+                                  float_vector_type(4),
+                                  texDomainName.c_str());
+        GrStringBuilder coordVar("clampCoord");
+        segments->fFSCode.appendf("\t%s %s = clamp(%s, %s.xy, %s.zw);\n",
+                                  float_vector_type(coordDims),
+                                  coordVar.c_str(),
+                                  sampleCoords.c_str(),
+                                  texDomainName.c_str(),
+                                  texDomainName.c_str());
+        sampleCoords = coordVar;
+        locations->fTexDomUni = kUseUniform;
     }
 
     if (ProgramDesc::StageDesc::k2x2_FetchMode == desc.fFetchMode) {

@@ -1403,6 +1403,7 @@
         '../gm/filltypes.cpp',
         '../gm/gm.h',
         '../gm/gradients.cpp',
+        '../gm/nocolorbleed.cpp',
         '../gm/points.cpp',
         '../gm/poly2poly.cpp',
         '../gm/shadertext.cpp',

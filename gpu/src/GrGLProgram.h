@@ -70,14 +70,6 @@ public:
      */
     void doGLPost() const;
 
-    /**
-     *  Configures the GrGLProgram based on the state of a GrDrawTarget
-     *  object.  This is the fast and light initialization. Retrieves all the
-     *  state that is required for performing the heavy init (i.e. genProgram),
-     *  or for retrieving heavy init results from cache.
-     */
-    void buildFromTarget(const GrDrawTarget* target);
-
     static int PositionAttributeIdx() { return 0; }
     static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
     static int ColorAttributeIdx() { return 1 + GrDrawTarget::kMaxTexCoords; }
@@ -114,8 +106,9 @@ private:
 
         struct StageDesc {
             enum OptFlagBits {
-                kNoPerspective_OptFlagBit  = 0x1,
-                kIdentityMatrix_OptFlagBit = 0x2
+                kNoPerspective_OptFlagBit       = 1 << 0,
+                kIdentityMatrix_OptFlagBit      = 1 << 1,
+                kCustomTextureDomain_OptFlagBit = 1 << 2
             };
 
             unsigned fOptFlags;
@@ -153,11 +146,13 @@ public:
         GrGLint fNormalizedTexelSizeUni;
         GrGLint fSamplerUni;
         GrGLint fRadial2Uni;
+        GrGLint fTexDomUni;
         void reset() {
             fTextureMatrixUni = kUnusedUniform;
             fNormalizedTexelSizeUni = kUnusedUniform;
             fSamplerUni = kUnusedUniform;
             fRadial2Uni = kUnusedUniform;
+            fTexDomUni = kUnusedUniform;
         }
     };
 
