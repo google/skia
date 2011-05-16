@@ -163,17 +163,26 @@ private:
     // doesn't set the texture/sampler/matrix state
     // caller needs to null out GrPaint's texture if
     // non-textured drawing is desired.
+    // Set constantColor to true if a constant color
+    // will be used.  This is an optimization, and can 
+    // always be set to false. constantColor should 
+    // never be true if justAlpha is true.
     bool skPaint2GrPaintNoShader(const SkPaint& skPaint,
                                  bool justAlpha,
-                                 GrPaint* grPaint);
+                                 GrPaint* grPaint,
+                                 bool constantColor);
 
     // uses the SkShader to setup paint, act used to
     // hold lock on cached texture and free it when
     // destroyed.
+    // If there is no shader, constantColor will
+    // be passed to skPaint2GrPaintNoShader.  Otherwise
+    // it is ignored.
     bool skPaint2GrPaintShader(const SkPaint& skPaint,
                                SkAutoCachedTexture* act,
                                const SkMatrix& ctm,
-                               GrPaint* grPaint);
+                               GrPaint* grPaint,
+                               bool constantColor);
 
     SkDrawProcs* initDrawForText(GrTextContext*);
     bool bindDeviceAsTexture(GrPaint* paint);
