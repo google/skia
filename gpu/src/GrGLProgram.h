@@ -99,6 +99,7 @@ private:
             kUniform_ColorType      = 2,
         } fColorType;
 
+        int  fFirstCoverageStage;
         bool fEmitsPointSize;
         bool fUsesEdgeAA;
 

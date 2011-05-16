@@ -137,10 +137,16 @@ protected:
             // all DrState members should default to something
             // valid by the memset
             memset(this, 0, sizeof(DrState));
-            // This is an exception to our memset, since it will
-            // result in no change.
+            
+            // memset exceptions
             fColorFilterXfermode = SkXfermode::kDstIn_Mode;
+            fFirstCoverageStage = kNumStages;
+
+            // pedantic assertion that our ptrs will
+            // be NULL (0 ptr is mem addr 0)
             GrAssert((intptr_t)(void*)NULL == 0LL);
+
+            // default stencil setting should be disabled
             GrAssert(fStencilSettings.isDisabled());
         }
         uint32_t                fFlagBits;
@@ -150,6 +156,7 @@ protected:
         GrTexture*              fTextures[kNumStages];
         GrEffect*               fEffects[kNumStages];
         GrSamplerState          fSamplerStates[kNumStages];
+        int                     fFirstCoverageStage;
         GrRenderTarget*         fRenderTarget;
         GrColor                 fColor;
         DrawFace                fDrawFace;
@@ -341,6 +348,26 @@ public:
      * @param face  the face(s) to draw.
      */
     void setDrawFace(DrawFace face) { fCurrDrawState.fDrawFace = face; }
+
+    /**
+     * A common pattern is to compute a color with the initial stages and then
+     * modulate that color by a coverage value in later stage(s) (AA, mask-
+     * filters, glyph mask, etc). Color-filters, xfermodes, etc should be 
+     * computed based on the pre-coverage-modulated color. The division of 
+     * stages between color-computing and coverage-computing is specified by 
+     * this method. Initially this is kNumStages (all stages are color-
+     * computing).
+     */
+    void setFirstCoverageStage(int firstCoverageStage) { 
+        fCurrDrawState.fFirstCoverageStage = firstCoverageStage; 
+    }
+
+    /**
+     * Gets the index of the first coverage-computing stage.
+     */
+    int getFirstCoverageStage() const { 
+        return fCurrDrawState.fFirstCoverageStage; 
+    }
 
     /**
      * Gets whether the target is drawing clockwise, counterclockwise,
