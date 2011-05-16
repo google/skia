@@ -13,15 +13,13 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     SkPath pt;
     pt.moveTo(0, 0);
     pt.close();
-//    check_convexity(reporter, pt, SkPath::kConvex_Convexity);
-    check_convexity(reporter, pt, SkPath::kUnknown_Convexity);
+    check_convexity(reporter, pt, SkPath::kConvex_Convexity);
     
     SkPath line;
     line.moveTo(12, 20);
     line.lineTo(-12, -20);
     line.close();
-    //    check_convexity(reporter, pt, SkPath::kConvex_Convexity);
-    check_convexity(reporter, pt, SkPath::kUnknown_Convexity);
+    check_convexity(reporter, pt, SkPath::kConvex_Convexity);
     
     SkPath triLeft;
     triLeft.moveTo(0, 0);
@@ -133,13 +131,12 @@ static void setFromString(SkPath* path, const char str[]) {
 }
 
 static void test_convexity(skiatest::Reporter* reporter) {
-    static const SkPath::Convexity U = SkPath::kUnknown_Convexity;
     static const SkPath::Convexity C = SkPath::kConcave_Convexity;
     static const SkPath::Convexity V = SkPath::kConvex_Convexity;
 
     SkPath path;
 
-    REPORTER_ASSERT(reporter, U == SkPath::ComputeConvexity(path));
+    REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
     path.addCircle(0, 0, 10);
     REPORTER_ASSERT(reporter, V == SkPath::ComputeConvexity(path));
     path.addCircle(0, 0, 10);   // 2nd circle
@@ -155,8 +152,9 @@ static void test_convexity(skiatest::Reporter* reporter) {
         const char*         fPathStr;
         SkPath::Convexity   fExpectedConvexity;
     } gRec[] = {
-        { "0 0", SkPath::kUnknown_Convexity },
-        { "0 0 10 10", SkPath::kUnknown_Convexity },
+        { "", SkPath::kConvex_Convexity },
+        { "0 0", SkPath::kConvex_Convexity },
+        { "0 0 10 10", SkPath::kConvex_Convexity },
         { "0 0 10 10 20 20 0 0 10 10", SkPath::kConcave_Convexity },
         { "0 0 10 10 10 20", SkPath::kConvex_Convexity },
         { "0 0 10 10 10 0", SkPath::kConvex_Convexity },
@@ -188,7 +186,7 @@ void TestPath(skiatest::Reporter* reporter) {
     SkRect  bounds, bounds2;
 
     REPORTER_ASSERT(reporter, p.isEmpty());
-    REPORTER_ASSERT(reporter, !p.isConvex());
+    REPORTER_ASSERT(reporter, p.isConvex());
     REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, !p.isInverseFillType());
     REPORTER_ASSERT(reporter, p == p2);
@@ -198,17 +196,14 @@ void TestPath(skiatest::Reporter* reporter) {
 
     bounds.set(0, 0, SK_Scalar1, SK_Scalar1);
 
-    p.setIsConvex(false);
     p.addRoundRect(bounds, SK_Scalar1, SK_Scalar1);
     check_convex_bounds(reporter, p, bounds);
 
     p.reset();
-    p.setIsConvex(false);
     p.addOval(bounds);
     check_convex_bounds(reporter, p, bounds);
 
     p.reset();
-    p.setIsConvex(false);
     p.addRect(bounds);
     check_convex_bounds(reporter, p, bounds);
 
@@ -244,18 +239,6 @@ void TestPath(skiatest::Reporter* reporter) {
     p.moveTo(SK_Scalar1, 0);
     p.getLastPt(&pt);
     REPORTER_ASSERT(reporter, pt.fX == SK_Scalar1);
-
-    // check that reset and rewind clear the convex hint back to false
-    p.setIsConvex(false);
-    REPORTER_ASSERT(reporter, !p.isConvex());
-    p.setIsConvex(true);
-    REPORTER_ASSERT(reporter, p.isConvex());
-    p.reset();
-    REPORTER_ASSERT(reporter, !p.isConvex());
-    p.setIsConvex(true);
-    REPORTER_ASSERT(reporter, p.isConvex());
-    p.rewind();
-    REPORTER_ASSERT(reporter, !p.isConvex());
 
     test_convexity(reporter);
     test_convexity2(reporter);

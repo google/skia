@@ -88,9 +88,10 @@ public:
     /** Returns true if the filltype is one of the Inverse variants */
     bool isInverseFillType() const { return (fFillType & 2) != 0; }
 
-    /** Toggle between inverse and normal filltypes. This reverse the return
-        value of isInverseFillType()
-    */
+    /**
+     *  Toggle between inverse and normal filltypes. This reverse the return
+     *  value of isInverseFillType()
+     */
     void toggleInverseFillType() {
         fFillType ^= 2;
         GEN_ID_INC;
@@ -103,14 +104,33 @@ public:
     };
 
     /**
-     *  Return the path's convexity, as stored in the path.
+     *  Return the path's convexity, as stored in the path. If it is currently
+     *  unknown, and the computeIfUnknown bool is true, then this will first
+     *  call ComputeConvexity() and then return that (cached) value.
      */
-    Convexity getConvexity() const { return (Convexity)fConvexity; }
+    Convexity getConvexity() const {
+        if (kUnknown_Convexity == fConvexity) {
+            fConvexity = (uint8_t)ComputeConvexity(*this);
+        }
+        return (Convexity)fConvexity;
+    }
+
+    /**
+     *  Return the currently cached value for convexity, even if that is set to
+     *  kUnknown_Convexity. Note: getConvexity() will automatically call
+     *  ComputeConvexity and cache its return value if the current setting is
+     *  kUnknown.
+     */
+    Convexity getConvexityOrUnknown() const { return (Convexity)fConvexity; }
 
     /**
      *  Store a convexity setting in the path. There is no automatic check to
      *  see if this value actually agress with the return value from
      *  ComputeConvexity().
+     *
+     *  Note: even if this is set to a "known" value, if the path is later
+     *  changed (e.g. lineTo(), addRect(), etc.) then the cached value will be
+     *  reset to kUnknown_Convexity.
      */
     void setConvexity(Convexity);
 
@@ -118,9 +138,11 @@ public:
      *  Compute the convexity of the specified path. This does not look at the
      *  value stored in the path, but computes it directly from the path's data.
      *
+     *  This never returns kUnknown_Convexity.
+     *
      *  If there is more than one contour, this returns kConcave_Convexity.
-     *  If the contour is degenerate (i.e. all segements are colinear,
-     *  then this returns kUnknown_Convexity.
+     *  If the contour is degenerate (e.g. there are fewer than 3 non-degenerate
+     *  segments), then this returns kConvex_Convexity.
      *  The contour is treated as if it were closed, even if there is no kClose
      *  verb.
      */
@@ -635,7 +657,7 @@ private:
     mutable SkRect      fBounds;
     mutable uint8_t     fBoundsIsDirty;
     uint8_t             fFillType;
-    uint8_t             fConvexity;
+    mutable uint8_t     fConvexity;
 #ifdef ANDROID
     uint32_t            fGenerationID;
 #endif

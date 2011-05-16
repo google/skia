@@ -254,6 +254,12 @@ void SkPath::setConvexity(Convexity c) {
 //////////////////////////////////////////////////////////////////////////////
 //  Construction methods
 
+#define DIRTY_AFTER_EDIT                \
+    do {                                \
+        fBoundsIsDirty = true;          \
+        fConvexity = kUnknown_Convexity;\
+    } while (0)
+
 void SkPath::incReserve(U16CPU inc) {
     SkDEBUGCODE(this->validate();)
 
@@ -278,7 +284,7 @@ void SkPath::moveTo(SkScalar x, SkScalar y) {
     pt->set(x, y);
 
     GEN_ID_INC;
-    fBoundsIsDirty = true;
+    DIRTY_AFTER_EDIT;
 }
 
 void SkPath::rMoveTo(SkScalar x, SkScalar y) {
@@ -298,7 +304,7 @@ void SkPath::lineTo(SkScalar x, SkScalar y) {
     *fVerbs.append() = kLine_Verb;
 
     GEN_ID_INC;
-    fBoundsIsDirty = true;
+    DIRTY_AFTER_EDIT;
 }
 
 void SkPath::rLineTo(SkScalar x, SkScalar y) {
@@ -321,7 +327,7 @@ void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     *fVerbs.append() = kQuad_Verb;
 
     GEN_ID_INC;
-    fBoundsIsDirty = true;
+    DIRTY_AFTER_EDIT;
 }
 
 void SkPath::rQuadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
@@ -345,7 +351,7 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     *fVerbs.append() = kCubic_Verb;
 
     GEN_ID_INC;
-    fBoundsIsDirty = true;
+    DIRTY_AFTER_EDIT;
 }
 
 void SkPath::rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
@@ -1293,7 +1299,7 @@ void SkPath::unflatten(SkReader32& buffer) {
     buffer.read(fVerbs.begin(), fVerbs.count());
 
     GEN_ID_INC;
-    fBoundsIsDirty = true;
+    DIRTY_AFTER_EDIT;
 
     SkDEBUGCODE(this->validate();)
 }
@@ -1410,7 +1416,7 @@ static int CrossProductSign(const SkVector& a, const SkVector& b) {
 
 // only valid for a single contour
 struct Convexicator {
-    Convexicator() : fPtCount(0), fConvexity(SkPath::kUnknown_Convexity) {
+    Convexicator() : fPtCount(0), fConvexity(SkPath::kConvex_Convexity) {
         fSign = 0;
         // warnings
         fCurrPt.set(0, 0);
@@ -1472,9 +1478,7 @@ private:
         if (0 == fSign) {
             fSign = sign;
         } else if (sign) {
-            if (fSign == sign) {
-                fConvexity = SkPath::kConvex_Convexity;
-            } else {
+            if (fSign != sign) {
                 fConvexity = SkPath::kConcave_Convexity;
             }
         }
