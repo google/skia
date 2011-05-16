@@ -1401,7 +1401,8 @@ static int SkScalarSign(SkScalar value) {
     return value < 0 ? -1 : (value > 0);
 }
 
-static int sign(SkScalar x) { return x < 0 ? -1 : 1; }
+static int sign(SkScalar x) { return x < 0; }
+#define kValueNeverReturnedBySign   2
 
 static int CrossProductSign(const SkVector& a, const SkVector& b) {
     return SkScalarSign(SkPoint::CrossProduct(a, b));
@@ -1409,8 +1410,6 @@ static int CrossProductSign(const SkVector& a, const SkVector& b) {
 
 // only valid for a single contour
 struct Convexicator {
-    int fDx, fDy, fSx, fSy;
-
     Convexicator() : fPtCount(0), fConvexity(SkPath::kUnknown_Convexity) {
         fSign = 0;
         // warnings
@@ -1420,7 +1419,7 @@ struct Convexicator {
         fFirstVec.set(0, 0);
 
         fDx = fDy = 0;
-        fSx = fSy = 2;
+        fSx = fSy = kValueNeverReturnedBySign;
     }
 
     SkPath::Convexity getConvexity() const { return fConvexity; }
@@ -1486,6 +1485,7 @@ private:
     int                 fPtCount;   // non-degenerate points
     int                 fSign;
     SkPath::Convexity   fConvexity;
+    int                 fDx, fDy, fSx, fSy;
 };
 
 SkPath::Convexity SkPath::ComputeConvexity(const SkPath& path) {
