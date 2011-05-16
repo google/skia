@@ -103,11 +103,15 @@ public:
         kDstATop_Mode,  //!< [Sa, Sa * Dc + Sc * (1 - Da)]
         kXor_Mode,      //!< [Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + (1 - Sa) * Dc]
 
-        // these modes are defined in the SVG Compositing standard
+        // all remaining modes are defined in the SVG Compositing standard
         // http://www.w3.org/TR/2009/WD-SVGCompositing-20090430/
         kPlus_Mode,
-        kMultiply_Mode,
-        kScreen_Mode,
+        kMultiply_Mode, 
+        
+        // all above modes can be expressed as pair of src/dst Coeffs
+        kCoeffModesCnt, 
+        
+        kScreen_Mode = kCoeffModesCnt,
         kOverlay_Mode,
         kDarken_Mode,
         kLighten_Mode,

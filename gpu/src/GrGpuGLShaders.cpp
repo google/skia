@@ -169,6 +169,14 @@ void GrGpuGLShaders::ProgramUnitTest() {
     GrRandom random;
     for (int t = 0; t < NUM_TESTS; ++t) {
 
+#if 0
+        GrPrintf("\nTest Program %d\n-------------\n", t);
+        static const int stop = -1;
+        if (t == stop) {
+            int breakpointhere = 9;
+        }
+#endif
+
         pdesc.fVertexLayout = 0;
         pdesc.fEmitsPointSize = random.nextF() > .5f;
         float colorType = random.nextF();
@@ -179,6 +187,15 @@ void GrGpuGLShaders::ProgramUnitTest() {
         } else {
             pdesc.fColorType = GrGLProgram::ProgramDesc::kNone_ColorType;
         }
+
+        int idx = (int)(random.nextF() * (SkXfermode::kCoeffModesCnt));
+        pdesc.fColorFilterXfermode = (SkXfermode::Mode)idx;
+
+        idx = (int)(random.nextF() * (kNumStages+1));
+        pdesc.fFirstCoverageStage = idx;
+
+        pdesc.fUsesEdgeAA = (random.nextF() > .5f);
+
         for (int s = 0; s < kNumStages; ++s) {
             // enable the stage?
             if (random.nextF() > .5f) {
@@ -194,19 +211,15 @@ void GrGpuGLShaders::ProgramUnitTest() {
             if (random.nextF() > .5f) {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
-        }
-
-        for (int s = 0; s < kNumStages; ++s) {
-            int x;
             pdesc.fStages[s].fEnabled = VertexUsesStage(s, pdesc.fVertexLayout);
-            x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
-            pdesc.fStages[s].fOptFlags = STAGE_OPTS[x];
-            x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_MODULATES));
-            pdesc.fStages[s].fModulation = STAGE_MODULATES[x];
-            x = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_COORD_MAPPINGS));
-            pdesc.fStages[s].fCoordMapping = STAGE_COORD_MAPPINGS[x];
-            x = (int)(random.nextF() * GR_ARRAY_COUNT(FETCH_MODES));
-            pdesc.fStages[s].fFetchMode = FETCH_MODES[x];
+            idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
+            pdesc.fStages[s].fOptFlags = STAGE_OPTS[idx];
+            idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_MODULATES));
+            pdesc.fStages[s].fModulation = STAGE_MODULATES[idx];
+            idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_COORD_MAPPINGS));
+            pdesc.fStages[s].fCoordMapping = STAGE_COORD_MAPPINGS[idx];
+            idx = (int)(random.nextF() * GR_ARRAY_COUNT(FETCH_MODES));
+            pdesc.fStages[s].fFetchMode = FETCH_MODES[idx];
         }
         GrGLProgram::CachedData cachedData;
         program.genProgram(&cachedData);
@@ -218,7 +231,6 @@ void GrGpuGLShaders::ProgramUnitTest() {
         }
     }
 }
-
 
 GrGpuGLShaders::GrGpuGLShaders() {
 
@@ -668,6 +680,18 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     // existing program in the cache.
     desc.fVertexLayout &= ~(kColor_VertexLayoutBit);
 
+    desc.fColorFilterXfermode = fCurrDrawState.fColorFilterXfermode;
+
+    // coverage vs. color only applies when there is a color filter
+    // (currently)
+    if (SkXfermode::kDst_Mode != desc.fColorFilterXfermode) {
+        desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+    } else {
+        // use canonical value when this won't affect generated
+        // code to prevent duplicate programs.
+        desc.fFirstCoverageStage = kNumStages;
+    }
+
 #if GR_AGGRESSIVE_SHADER_OPTS
     if (!requiresAttributeColors && (0xffffffff == fCurrDrawState.fColor)) {
         desc.fColorType = GrGLProgram::ProgramDesc::kNone_ColorType;
@@ -764,7 +788,6 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             fCurrentProgram.fStageEffects[s] = NULL;
         }
     }
-    desc.fColorFilterXfermode = fCurrDrawState.fColorFilterXfermode;
 }
 
 
