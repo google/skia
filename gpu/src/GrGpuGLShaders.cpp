@@ -283,16 +283,16 @@ void GrGpuGLShaders::flushViewMatrix() {
 
     // ES doesn't allow you to pass true to the transpose param,
     // so do our own transpose
-    GrScalar mt[]  = {
-        m[GrMatrix::kMScaleX],
-        m[GrMatrix::kMSkewY],
-        m[GrMatrix::kMPersp0],
-        m[GrMatrix::kMSkewX],
-        m[GrMatrix::kMScaleY],
-        m[GrMatrix::kMPersp1],
-        m[GrMatrix::kMTransX],
-        m[GrMatrix::kMTransY],
-        m[GrMatrix::kMPersp2]
+    GrGLfloat mt[]  = {
+        GrScalarToFloat(m[GrMatrix::kMScaleX]),
+        GrScalarToFloat(m[GrMatrix::kMSkewY]),
+        GrScalarToFloat(m[GrMatrix::kMPersp0]),
+        GrScalarToFloat(m[GrMatrix::kMSkewX]),
+        GrScalarToFloat(m[GrMatrix::kMScaleY]),
+        GrScalarToFloat(m[GrMatrix::kMPersp1]),
+        GrScalarToFloat(m[GrMatrix::kMTransX]),
+        GrScalarToFloat(m[GrMatrix::kMTransY]),
+        GrScalarToFloat(m[GrMatrix::kMPersp2])
     };
 
     if (GrGLProgram::kSetAsAttribute ==  
@@ -328,17 +328,18 @@ void GrGpuGLShaders::flushTextureMatrix(int s) {
 
             // ES doesn't allow you to pass true to the transpose param,
             // so do our own transpose
-            GrScalar mt[]  = {
-                m[GrMatrix::kMScaleX],
-                m[GrMatrix::kMSkewY],
-                m[GrMatrix::kMPersp0],
-                m[GrMatrix::kMSkewX],
-                m[GrMatrix::kMScaleY],
-                m[GrMatrix::kMPersp1],
-                m[GrMatrix::kMTransX],
-                m[GrMatrix::kMTransY],
-                m[GrMatrix::kMPersp2]
+            GrGLfloat mt[]  = {
+                GrScalarToFloat(m[GrMatrix::kMScaleX]),
+                GrScalarToFloat(m[GrMatrix::kMSkewY]),
+                GrScalarToFloat(m[GrMatrix::kMPersp0]),
+                GrScalarToFloat(m[GrMatrix::kMSkewX]),
+                GrScalarToFloat(m[GrMatrix::kMScaleY]),
+                GrScalarToFloat(m[GrMatrix::kMPersp1]),
+                GrScalarToFloat(m[GrMatrix::kMTransX]),
+                GrScalarToFloat(m[GrMatrix::kMTransY]),
+                GrScalarToFloat(m[GrMatrix::kMPersp2])
             };
+
             if (GrGLProgram::kSetAsAttribute ==
                 fProgramData->fUniLocations.fStages[s].fTextureMatrixUni) {
                 int baseIdx = GrGLProgram::TextureMatrixAttributeIdx(s);
