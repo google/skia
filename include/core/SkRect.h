@@ -290,7 +290,7 @@ struct SK_API SkIRect {
     void sort();
 
     static const SkIRect& EmptyIRect() {
-        static const SkIRect gEmpty = {0};
+        static const SkIRect gEmpty = { 0, 0, 0, 0 };
         return gEmpty;
     }
 };
