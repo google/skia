@@ -984,10 +984,35 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     GrRect dstRect = SkRect::MakeWH(GrIntToScalar(srcRect.width()),
                                     GrIntToScalar(srcRect.height()));
     GrRect paintRect;
-    paintRect.setLTRB(GrFixedToScalar((srcRect.fLeft << 16)   / bitmap.width()),
-                      GrFixedToScalar((srcRect.fTop << 16)    / bitmap.height()),
-                      GrFixedToScalar((srcRect.fRight << 16)  / bitmap.width()),
+    paintRect.setLTRB(GrFixedToScalar((srcRect.fLeft << 16) / bitmap.width()),
+                      GrFixedToScalar((srcRect.fTop << 16) / bitmap.height()),
+                      GrFixedToScalar((srcRect.fRight << 16) / bitmap.width()),
                       GrFixedToScalar((srcRect.fBottom << 16) / bitmap.height()));
+
+    if (GrSamplerState::kNearest_Filter != grPaint->fSampler.getFilter() &&
+        (srcRect.width() < bitmap.width() || 
+        srcRect.height() < bitmap.height())) {
+        // If drawing a subrect of the bitmap and filtering is enabled,
+        // use a constrained texture domain to avoid color bleeding
+        GrScalar left, top, right, bottom;
+        if (srcRect.width() > 1) {
+            GrScalar border = GR_ScalarHalf / bitmap.width();
+            left = paintRect.left() + border;
+            right = paintRect.right() - border;
+        } else {
+            left = right = GrScalarHalf(paintRect.left() + paintRect.right());
+        }
+        if (srcRect.height() > 1) {
+            GrScalar border = GR_ScalarHalf / bitmap.height();
+            top = paintRect.top() + border;
+            bottom = paintRect.bottom() - border;
+        } else {
+            top = bottom = GrScalarHalf(paintRect.top() + paintRect.bottom());
+        }
+        GrRect textureDomain;
+        textureDomain.setLTRB(left, top, right, bottom);
+        grPaint->fSampler.setTextureDomain(textureDomain);
+    }
 
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
 }

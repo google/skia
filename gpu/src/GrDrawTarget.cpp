@@ -19,6 +19,8 @@
 #include "GrGpuVertex.h"
 #include "GrTexture.h"
 
+namespace {
+
 // recursive helper for creating mask with all the tex coord bits set for
 // one stage
 template <int N>
@@ -26,16 +28,16 @@ int stage_mask_recur(int stage) {
     return GrDrawTarget::StageTexCoordVertexLayoutBit(stage, N) |
            stage_mask_recur<N+1>(stage);
 }
-template<> // linux build doesn't like static on specializations
+template<> 
 int stage_mask_recur<GrDrawTarget::kNumStages>(int) { return 0; }
 
 // mask of all tex coord indices for one stage
-static int stage_tex_coord_mask(int stage) {
+int stage_tex_coord_mask(int stage) {
     return stage_mask_recur<0>(stage);
 }
 
 // mask of all bits relevant to one stage
-static int stage_mask(int stage) {
+int stage_mask(int stage) {
     return stage_tex_coord_mask(stage) |
            GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(stage);
 }
@@ -47,11 +49,11 @@ int tex_coord_mask_recur(int texCoordIdx) {
     return GrDrawTarget::StageTexCoordVertexLayoutBit(N, texCoordIdx) |
            tex_coord_mask_recur<N+1>(texCoordIdx);
 }
-template<> // linux build doesn't like static on specializations
+template<> 
 int tex_coord_mask_recur<GrDrawTarget::kMaxTexCoords>(int) { return 0; }
 
 // mask of all bits relevant to one texture coordinate index
-static int tex_coord_idx_mask(int texCoordIdx) {
+int tex_coord_idx_mask(int texCoordIdx) {
     return tex_coord_mask_recur<0>(texCoordIdx);
 }
 
@@ -65,6 +67,8 @@ bool check_layout(GrVertexLayout layout) {
     }
     return true;
 }
+
+} //unnamed namespace
 
 size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));

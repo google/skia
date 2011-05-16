@@ -309,8 +309,39 @@ void GrGpuGLShaders::flushViewMatrix() {
     }
 }
 
+void GrGpuGLShaders::flushTextureDomain(int s) {
+    const GrGLint& uni = fProgramData->fUniLocations.fStages[s].fTexDomUni;
+    if (GrGLProgram::kUnusedUniform != uni) {
+        const GrRect &texDom = 
+            fCurrDrawState.fSamplerStates[s].getTextureDomain();
+
+        float values[4] = {
+            GrScalarToFloat(texDom.left()), 
+            GrScalarToFloat(texDom.top()), 
+            GrScalarToFloat(texDom.right()), 
+            GrScalarToFloat(texDom.bottom())            
+        };
+
+        GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
+        GrGLTexture::Orientation orientation = texture->orientation();
+
+        // vertical flip if necessary
+        if (GrGLTexture::kBottomUp_Orientation == orientation) {
+            values[1] = 1.0f - values[1];
+            values[3] = 1.0f - values[3];
+        }
+
+        values[0] *= SkScalarToFloat(texture->contentScaleX());
+        values[2] *= SkScalarToFloat(texture->contentScaleX());
+        values[1] *= SkScalarToFloat(texture->contentScaleY());
+        values[3] *= SkScalarToFloat(texture->contentScaleY());
+
+        GR_GL(Uniform4fv(uni, 1, values));
+    }
+}
+
 void GrGpuGLShaders::flushTextureMatrix(int s) {
-    const int& uni = fProgramData->fUniLocations.fStages[s].fTextureMatrixUni;
+    const GrGLint& uni = fProgramData->fUniLocations.fStages[s].fTextureMatrixUni;
     GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
     if (NULL != texture) {
         if (GrGLProgram::kUnusedUniform != uni &&
@@ -516,6 +547,8 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         this->flushRadial2(s);
 
         this->flushTexelSize(s);
+
+        this->flushTextureDomain(s);
     }
     this->flushEdgeAAData();
     resetDirtyFlags();
@@ -702,6 +735,16 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                     break;
             }
 
+            if (fCurrDrawState.fSamplerStates[s].hasTextureDomain()) {
+                GrAssert(GrSamplerState::kClamp_WrapMode == 
+                    fCurrDrawState.fSamplerStates[s].getWrapX() && 
+                    GrSamplerState::kClamp_WrapMode ==
+                    fCurrDrawState.fSamplerStates[s].getWrapY());
+                stage.fOptFlags |= 
+                    GrGLProgram::ProgramDesc::StageDesc::
+                    kCustomTextureDomain_OptFlagBit;
+            }
+
             if (GrPixelConfigIsAlphaOnly(texture->config())) {
                 stage.fModulation = GrGLProgram::ProgramDesc::StageDesc::kAlpha_Modulation;
             } else {
@@ -723,6 +766,5 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     }
     desc.fColorFilterXfermode = fCurrDrawState.fColorFilterXfermode;
 }
-
 
 
