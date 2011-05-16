@@ -2,7 +2,6 @@
 
 #include "GrPoint.h"
 #include "GrDrawTarget.h"
-#include "GrPathIter.h"
 #include "GrPathUtils.h"
 #include "GrMemory.h"
 #include "GrTexture.h"
@@ -147,20 +146,24 @@ static const GrStencilSettings gDirectToStencil = {
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers for drawPath
 
+static GrConvexHint getConvexHint(const SkPath& path) {
+    return path.isConvex() ? kConvex_ConvexHint : kConcave_ConvexHint;
+}
+
 #define STENCIL_OFF     0   // Always disable stencil (even when needed)
 
 static inline bool single_pass_path(const GrDrawTarget& target,
-                                    const GrPathIter& path,
+                                    const GrPath& path,
                                     GrPathFill fill) {
 #if STENCIL_OFF
     return true;
 #else
     if (kEvenOdd_PathFill == fill) {
-        GrConvexHint hint = path.convexHint();
+        GrConvexHint hint = getConvexHint(path);
         return hint == kConvex_ConvexHint ||
                hint == kNonOverlappingConvexPieces_ConvexHint;
     } else if (kWinding_PathFill == fill) {
-        GrConvexHint hint = path.convexHint();
+        GrConvexHint hint = getConvexHint(path);
         return hint == kConvex_ConvexHint ||
                hint == kNonOverlappingConvexPieces_ConvexHint ||
                (hint == kSameWindingConvexPieces_ConvexHint &&
@@ -172,14 +175,14 @@ static inline bool single_pass_path(const GrDrawTarget& target,
 }
 
 bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
-                                                GrPathIter* path, 
+                                                const GrPath& path, 
                                                 GrPathFill fill) const {
-    return !single_pass_path(*target, *path, fill);
+    return !single_pass_path(*target, path, fill);
 }
 
 void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
                                        GrDrawTarget::StageBitfield stages,
-                                       GrPathIter* path,
+                                       const GrPath& path,
                                        GrPathFill fill,
                                        const GrPoint* translate,
                                        bool stencilOnly) {
@@ -205,8 +208,6 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
     }
     GrScalar tolSqd = GrMul(tol, tol);
 
-    path->rewind();
-
     int subpathCnt;
     int maxPts = GrPathUtils::worstCasePointCount(path, &subpathCnt, tol);
 
@@ -225,8 +226,6 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
     GrPoint* subpathBase = base;
 
     GrAutoSTMalloc<8, uint16_t> subpathVertCount(subpathCnt);
-
-    path->rewind();
 
     // TODO: use primitve restart if available rather than multiple draws
     GrPrimitiveType             type;
@@ -248,7 +247,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
         drawFace[0] = GrDrawTarget::kBoth_DrawFace;
     } else {
         type = kTriangleFan_PrimitiveType;
-        if (single_pass_path(*target, *path, fill)) {
+        if (single_pass_path(*target, path, fill)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -329,8 +328,10 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
     bool first = true;
     int subpath = 0;
 
+    SkPath::Iter iter(path, false);
+
     for (;;) {
-        GrPathCmd cmd = path->next(pts);
+        GrPathCmd cmd = (GrPathCmd)iter.next(pts);
         switch (cmd) {
             case kMove_PathCmd:
                 if (!first) {
@@ -431,14 +432,14 @@ FINISHED:
 
 void GrDefaultPathRenderer::drawPath(GrDrawTarget* target,
                                      GrDrawTarget::StageBitfield stages,
-                                     GrPathIter* path,
+                                     const GrPath& path,
                                      GrPathFill fill,
                                      const GrPoint* translate) {
     this->onDrawPath(target, stages, path, fill, translate, false);
 }
 
 void GrDefaultPathRenderer::drawPathToStencil(GrDrawTarget* target,
-                                              GrPathIter* path,
+                                              const GrPath& path,
                                               GrPathFill fill,
                                               const GrPoint* translate) {
     GrAssert(kInverseEvenOdd_PathFill != fill);

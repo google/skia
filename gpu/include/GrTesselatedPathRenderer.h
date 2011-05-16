@@ -25,22 +25,22 @@ public:
 
     virtual void drawPath(GrDrawTarget* target,
                           GrDrawTarget::StageBitfield stages,
-                          GrPathIter* path,
+                          const GrPath& path,
                           GrPathFill fill,
                           const GrPoint* translate);
     virtual bool canDrawPath(const GrDrawTarget* target,
-                             GrPathIter* path,
+                             const GrPath& path,
                              GrPathFill fill) const;
 
     virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     GrPathIter* path,
+                                     const GrPath& path,
                                      GrPathFill fill) const { return false; }
     virtual void drawPathToStencil(GrDrawTarget* target,
-                                   GrPathIter* path,
+                                   const GrPath& path,
                                    GrPathFill fill,
                                    const GrPoint* translate);
     virtual bool supportsAA(GrDrawTarget* target,
-                            GrPathIter* path,
+                            const GrPath& path,
                             GrPathFill fill);
 };
 

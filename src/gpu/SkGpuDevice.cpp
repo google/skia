@@ -860,8 +860,7 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         }
     }
 
-    SkGrPathIter iter(*pathPtr);
-    fContext->drawPath(grPaint, &iter, fill);
+    fContext->drawPath(grPaint, *pathPtr, fill);
 }
 
 void SkGpuDevice::drawBitmap(const SkDraw& draw,

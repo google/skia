@@ -163,13 +163,13 @@ bool SkGrFontScaler::getPackedGlyphImage(GrGlyph::PackedID packed,
     return true;
 }
 
+// we should just return const SkPath* (NULL means false)
 bool SkGrFontScaler::getGlyphPath(uint16_t glyphID, GrPath* path) {
 
     const SkGlyph& glyph = fStrike->getGlyphIDMetrics(glyphID);
     const SkPath* skPath = fStrike->findPath(glyph);
     if (skPath) {
-        SkGrPathIter iter(*skPath);
-        path->resetFromIter(&iter);
+        *path = *skPath;
         return true;
     }
     return false;

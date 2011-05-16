@@ -201,11 +201,11 @@ void GrTextContext::drawPackedGlyph(GrGlyph::PackedID packed,
             }
             glyph->fPath = path;
         }
-        GrPath::Iter iter(*glyph->fPath);
+
         GrPoint translate;
         translate.set(GrFixedToScalar(vx - GrIntToFixed(glyph->fBounds.fLeft)),
                       GrFixedToScalar(vy - GrIntToFixed(glyph->fBounds.fTop)));
-        fContext->drawPath(fPaint, &iter, kWinding_PathFill,
+        fContext->drawPath(fPaint, *glyph->fPath, kWinding_PathFill,
                            &translate);
         return;
     }

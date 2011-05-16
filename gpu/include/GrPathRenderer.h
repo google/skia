@@ -19,7 +19,7 @@
 
 #include "GrDrawTarget.h"
 
-class GrPathIter;
+class SkPath;
 struct GrPoint;
 
 /**
@@ -37,8 +37,7 @@ public:
      *
      * @return  true if the path can be drawn by this object, false otherwise.
      */
-    virtual bool canDrawPath(const GrDrawTarget* target,
-                             GrPathIter* path,
+    virtual bool canDrawPath(const GrDrawTarget* target, const SkPath& path,
                              GrPathFill fill) const = 0;
 
     /**
@@ -57,7 +56,7 @@ public:
      */
     virtual void drawPath(GrDrawTarget* target,
                           GrDrawTarget::StageBitfield stages,
-                          GrPathIter* path,
+                          const SkPath& path,
                           GrPathFill fill,
                           const GrPoint* translate) = 0;
 
@@ -80,7 +79,7 @@ public:
      *         clips.
      */
     virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     GrPathIter* path,
+                                     const SkPath& path,
                                      GrPathFill fill) const { return false; }
 
     /**
@@ -102,7 +101,7 @@ public:
      *                              the path. NULL means (0,0).
      */
     virtual void drawPathToStencil(GrDrawTarget* target,
-                                   GrPathIter* path,
+                                   const SkPath& path,
                                    GrPathFill fill,
                                    const GrPoint* translate) {
         GrCrash("Unexpected call to drawPathToStencil.");
@@ -113,7 +112,7 @@ public:
      * having FSAA enabled for a render target)
      */
     virtual bool supportsAA(GrDrawTarget* target,
-                            GrPathIter* path,
+                            const SkPath& path,
                             GrPathFill fill) { return false; }
 
     /**
@@ -138,26 +137,26 @@ public:
                           bool stencilWrapOpsSupport);
 
     virtual bool canDrawPath(const GrDrawTarget* target,
-                             GrPathIter* path,
+                             const SkPath& path,
                              GrPathFill fill) const { return true; }
 
     virtual void drawPath(GrDrawTarget* target,
                           GrDrawTarget::StageBitfield stages,
-                          GrPathIter* path,
+                          const SkPath& path,
                           GrPathFill fill,
                           const GrPoint* translate);
     virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     GrPathIter* path,
+                                     const SkPath& path,
                                      GrPathFill fill) const;
     virtual void drawPathToStencil(GrDrawTarget* target,
-                                   GrPathIter* path,
+                                   const SkPath& path,
                                    GrPathFill fill,
                                    const GrPoint* translate);
 private:
 
     void onDrawPath(GrDrawTarget* target,
                     GrDrawTarget::StageBitfield stages,
-                    GrPathIter* path,
+                    const SkPath& path,
                     GrPathFill fill,
                     const GrPoint* translate,
                     bool stencilOnly);

@@ -24,8 +24,8 @@
 #include "GrConfig.h"
 #include "GrContext.h"
 #include "GrFontScaler.h"
-#include "GrPathIter.h"
 #include "GrClipIterator.h"
+#include "GrPath.h"
 
 // skia headers
 #include "SkBitmap.h"
@@ -130,29 +130,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 // Classes
 
-class SkGrPathIter : public GrPathIter {
-public:
-    SkGrPathIter() { fPath = NULL; }
-    SkGrPathIter(const SkPath& path) { reset(path); }
-    virtual GrPathCmd next(GrPoint pts[]);
-    virtual GrPathCmd next();
-    virtual void rewind();
-    virtual GrConvexHint convexHint() const;
-    virtual bool getConservativeBounds(GrRect* rect) const;
-
-    void reset(const SkPath& path) {
-        fPath = &path;
-        fIter.setPath(path, false);
-    }
-private:
-
-#if !SK_SCALAR_IS_GR_SCALAR
-    SkPoint             fPoints[4];
-#endif
-    SkPath::Iter        fIter;
-    const SkPath*       fPath;
-};
-
 class SkGrClipIterator : public GrClipIterator {
 public:
     SkGrClipIterator() { fClipStack = NULL;  fCurr = NULL; }
@@ -176,9 +153,8 @@ public:
         }
     }
 
-    virtual GrPathIter* getPathIter() {
-        fPathIter.reset(*fCurr->fPath);
-        return &fPathIter;
+    virtual const GrPath* getPath() {
+        return fCurr->fPath;
     }
 
     virtual GrPathFill getPathFill() const;
@@ -186,7 +162,6 @@ public:
 private:
     const SkClipStack*                  fClipStack;
     SkClipStack::B2FIter                fIter;
-    SkGrPathIter                        fPathIter;
     // SkClipStack's auto advances on each get
     // so we store the current pos here.
     const SkClipStack::B2FIter::Clip*   fCurr;
@@ -218,7 +193,7 @@ public:
         rect->fBottom = GrIntToScalar(r.fBottom);
     }
 
-    virtual GrPathIter* getPathIter() {
+    virtual const GrPath* getPath() {
         SkASSERT(0);
         return NULL;
     }

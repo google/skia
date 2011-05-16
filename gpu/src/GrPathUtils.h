@@ -19,15 +19,14 @@
 
 #include "GrNoncopyable.h"
 #include "GrPoint.h"
-
-class GrPathIter;
+#include "GrPath.h"
 
 /**
  *  Utilities for evaluating paths.
  */
 class GrPathUtils : public GrNoncopyable {
 public:
-    static int worstCasePointCount(GrPathIter* path,
+    static int worstCasePointCount(const GrPath&,
                                    int* subpaths,
                                    GrScalar tol);
     static uint32_t quadraticPointCount(const GrPoint points[], GrScalar tol);
