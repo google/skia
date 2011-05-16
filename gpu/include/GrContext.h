@@ -25,7 +25,6 @@
 class GrFontCache;
 class GrGpu;
 struct GrGpuStats;
-class GrPathIter;
 class GrVertexBufferAllocPool;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
@@ -323,22 +322,14 @@ public:
      * Draws a path.
      *
      * @param paint         describes how to color pixels.
-     * @param pathIter      the path to draw
+     * @param path          the path to draw
      * @param fill          the path filling rule to use.
      * @param translate     optional additional translation applied to the
      *                      path.
      */
-    void drawPath(const GrPaint& paint,
-                  GrPathIter* pathIter,
-                  GrPathFill fill,
+    void drawPath(const GrPaint& paint, const GrPath& path, GrPathFill fill,
                   const GrPoint* translate = NULL);
-    /**
-     * Helper version of drawPath that takes a GrPath
-     */
-    void drawPath(const GrPaint& paint,
-                  const GrPath& path,
-                  GrPathFill fill,
-                  const GrPoint* translate = NULL);
+
     /**
      * Draws vertices with a paint.
      *
@@ -585,9 +576,7 @@ private:
 
     void drawClipIntoStencil();
 
-    GrPathRenderer* getPathRenderer(const GrDrawTarget* target,
-                                    GrPathIter* path,
-                                    GrPathFill fill);
+    GrPathRenderer* getPathRenderer(const GrDrawTarget*, const GrPath&, GrPathFill);
 
     struct OffscreenRecord;
     // we currently only expose stage 0 through the paint so use stage 1. We

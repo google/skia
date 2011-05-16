@@ -19,10 +19,10 @@ SOURCE := \
     GrInOrderDrawBuffer.cpp \
     GrMatrix.cpp \
     GrMemory.cpp \
-    GrPath.cpp \
     GrPathUtils.cpp \
     GrRectanizer_fifo.cpp \
     GrResource.cpp \
+    GrTesselatedPathRenderer.cpp \
     GrTexture.cpp \
     GrTextureCache.cpp \
     GrTextContext.cpp \

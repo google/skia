@@ -19,7 +19,6 @@
 #include "GrTextureCache.h"
 #include "GrTextStrike.h"
 #include "GrMemory.h"
-#include "GrPathIter.h"
 #include "GrClipIterator.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
@@ -1155,10 +1154,8 @@ void GrContext::drawVertices(const GrPaint& paint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrContext::drawPath(const GrPaint& paint,
-                         GrPathIter* path,
-                         GrPathFill fill,
-                         const GrPoint* translate) {
+void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
+                         GrPathFill fill, const GrPoint* translate) {
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
     GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
@@ -1180,8 +1177,8 @@ void GrContext::drawPath(const GrPaint& paint,
                 return;
             }
         }
-        GrRect pathBounds;
-        if (path->getConservativeBounds(&pathBounds)) {
+        GrRect pathBounds = path.getBounds();
+        if (!pathBounds.isEmpty()) {
             GrIRect pathIBounds;
             target->getViewMatrix().mapRect(&pathBounds, pathBounds);
             pathBounds.roundOut(&pathIBounds);
@@ -1203,15 +1200,6 @@ void GrContext::drawPath(const GrPaint& paint,
 
     pr->drawPath(target, enabledStages, path, fill, translate);
 }
-
-void GrContext::drawPath(const GrPaint& paint,
-                         const GrPath& path,
-                         GrPathFill fill,
-                         const GrPoint* translate) {
-    GrPath::Iter iter(path);
-    this->drawPath(paint, &iter, fill, translate);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1483,7 +1471,7 @@ const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
 }
 
 GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
-                                           GrPathIter* path,
+                                           const GrPath& path,
                                            GrPathFill fill) {
     if (NULL != fCustomPathRenderer &&
         fCustomPathRenderer->canDrawPath(target, path, fill)) {

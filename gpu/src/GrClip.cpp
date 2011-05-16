@@ -132,7 +132,7 @@ void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
                     }
                     break;
                 case kPath_ClipType:
-                    e.fPath.resetFromIter(iter->getPathIter());
+                    e.fPath = *iter->getPath();
                     if (tx || ty) {
                         e.fPath.offset(tx, ty);
                     }

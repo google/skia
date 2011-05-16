@@ -513,8 +513,7 @@ private:
     void prepareIndexPool();
 
     // determines the path renderer used to draw a clip path element.
-    GrPathRenderer* getClipPathRenderer(GrPathIter* path,
-                                        GrPathFill fill);
+    GrPathRenderer* getClipPathRenderer(const SkPath& path, GrPathFill fill);
 
     void handleDirtyContext() {
         if (fContextIsDirty) {

@@ -112,42 +112,6 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
                                      bitmap->rowBytes());
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-
-GrPathCmd SkGrPathIter::next(GrPoint pts[]) {
-    GrAssert(NULL != pts);
-#if SK_SCALAR_IS_GR_SCALAR
-    return sk_path_verb_to_gr_path_command(fIter.next((SkPoint*)pts));
-#else
-    Command cmd = sk_path_verb_to_gr_path_command(fIter.next(fPoints));
-    int n = NumCommandPoints(cmd);
-    for (int i = 0; i < n; ++i) {
-        pts[i].fX = SkScalarToGrScalar(fPoints[i].fX);
-        pts[i].fY = SkScalarToGrScalar(fPoints[i].fY);
-    }
-    return cmd;
-#endif
-}
-
-GrPathCmd SkGrPathIter::next() {
-    return sk_path_verb_to_gr_path_command(fIter.next(NULL));
-}
-
-void SkGrPathIter::rewind() {
-    fIter.setPath(*fPath, false);
-}
-
-GrConvexHint SkGrPathIter::convexHint() const {
-    return fPath->isConvex() ? kConvex_ConvexHint :
-                               kNone_ConvexHint;
-}
-
-bool SkGrPathIter::getConservativeBounds(GrRect* rect) const {
-    *rect = fPath->getBounds();
-    return true;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGrClipIterator::reset(const SkClipStack& clipStack) {

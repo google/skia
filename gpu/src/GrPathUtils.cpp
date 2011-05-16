@@ -15,8 +15,6 @@
  */
 
 #include "GrPathUtils.h"
-
-#include "GrPathIter.h"
 #include "GrPoint.h"
 
 const GrScalar GrPathUtils::gTolerance = GR_Scalar1;
@@ -106,18 +104,18 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
     return a + b;
 }
 
-int GrPathUtils::worstCasePointCount(GrPathIter* path,
-                                        int* subpaths,
-                                        GrScalar tol) {
+int GrPathUtils::worstCasePointCount(const GrPath& path, int* subpaths,
+                                     GrScalar tol) {
     int pointCount = 0;
     *subpaths = 1;
 
     bool first = true;
 
+    SkPath::Iter iter(path, false);
     GrPathCmd cmd;
 
     GrPoint pts[4];
-    while ((cmd = path->next(pts)) != kEnd_PathCmd) {
+    while ((cmd = (GrPathCmd)iter.next(pts)) != kEnd_PathCmd) {
 
         switch (cmd) {
             case kLine_PathCmd:

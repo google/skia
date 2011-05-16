@@ -18,6 +18,8 @@
 
 #include "GrMemory.h"
 #include "GrPathUtils.h"
+#include "GrPoint.h"
+#include "GrTDArray.h"
 
 #include <internal_glu.h>
 
@@ -137,7 +139,7 @@ static size_t computeEdgesAndOffsetVertices(const GrMatrix& matrix,
 
 void GrTesselatedPathRenderer::drawPath(GrDrawTarget* target,
                                         GrDrawTarget::StageBitfield stages,
-                                        GrPathIter* path,
+                                        const GrPath& path,
                                         GrPathFill fill,
                                         const GrPoint* translate) {
     GrDrawTarget::AutoStateRestore asr(target);
@@ -161,8 +163,6 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget* target,
     }
     GrScalar tolSqd = GrMul(tol, tol);
 
-    path->rewind();
-
     int subpathCnt;
     int maxPts = GrPathUtils::worstCasePointCount(path, &subpathCnt, tol);
 
@@ -184,16 +184,14 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget* target,
 
     GrAutoSTMalloc<8, uint16_t> subpathVertCount(subpathCnt);
 
-    path->rewind();
-
     GrPoint pts[4];
+    SkPath::Iter iter(path, true);
 
     bool first = true;
     int subpath = 0;
 
     for (;;) {
-        GrPathCmd cmd = path->next(pts);
-        switch (cmd) {
+        switch (iter.next(pts)) {
             case kMove_PathCmd:
                 if (!first) {
                     subpathVertCount[subpath] = vert-subpathBase;
@@ -262,7 +260,7 @@ FINISHED:
       return;
     }
 
-    if (subpathCnt == 1 && !inverted && path->convexHint() == kConvex_ConvexHint) {
+    if (subpathCnt == 1 && !inverted && path.isConvex()) {
         if (target->isAntialiasState()) {
             target->enableState(GrDrawTarget::kEdgeAA_StateBit);
             EdgeArray edges;
@@ -347,25 +345,25 @@ FINISHED:
 }
 
 bool GrTesselatedPathRenderer::canDrawPath(const GrDrawTarget* target,
-                                           GrPathIter* path,
+                                           const SkPath& path,
                                            GrPathFill fill) const {
     return kHairLine_PathFill != fill;
 }
 
 void GrTesselatedPathRenderer::drawPathToStencil(GrDrawTarget* target,
-                                                 GrPathIter* path,
+                                                 const SkPath& path,
                                                  GrPathFill fill,
                                                  const GrPoint* translate) {
     GrAlwaysAssert(!"multipass stencil should not be needed");
 }
 
 bool GrTesselatedPathRenderer::supportsAA(GrDrawTarget* target,
-                                                  GrPathIter* path,
+                                                  const SkPath& path,
                                                   GrPathFill fill) {
     int subpathCnt = 0;
     int tol = GrPathUtils::gTolerance;
     GrPathUtils::worstCasePointCount(path, &subpathCnt, tol);
     return (subpathCnt == 1 &&
             !IsFillInverted(fill) &&
-            path->convexHint() == kConvex_ConvexHint);
+            path.isConvex());
 }

@@ -21,7 +21,7 @@
 #include "GrGlyph.h"
 #include "GrKey.h"
 
-class GrPath;
+class SkPath;
 
 /**
  *  This is a virtual base class which Gr's interface to the host platform's
@@ -37,7 +37,7 @@ public:
     virtual bool getPackedGlyphBounds(GrGlyph::PackedID, GrIRect* bounds) = 0;
     virtual bool getPackedGlyphImage(GrGlyph::PackedID, int width, int height,
                                      int rowBytes, void* image) = 0;
-    virtual bool getGlyphPath(uint16_t glyphID, GrPath*) = 0;
+    virtual bool getGlyphPath(uint16_t glyphID, SkPath*) = 0;
 };
 
 #endif
