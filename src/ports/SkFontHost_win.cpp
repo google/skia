@@ -83,7 +83,8 @@ static inline FIXED SkScalarToFIXED(SkScalar x) {
 
 static unsigned calculateGlyphCount(HDC hdc) {
     // The 'maxp' table stores the number of glyphs at offset 4, in 2 bytes.
-    const DWORD maxpTag = *(DWORD*) "maxp";
+    const DWORD maxpTag =
+        SkEndian_SwapBE32(SkSetFourByteTag('m', 'a', 'x', 'p'));
     uint16_t glyphs;
     if (GetFontData(hdc, maxpTag, 4, &glyphs, sizeof(glyphs)) != GDI_ERROR) {
         return SkEndian_SwapBE16(glyphs);
@@ -790,7 +791,8 @@ SkTypeface* SkFontHost::CreateTypefaceFromStream(SkStream* stream) {
 }
 
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
-    const DWORD kTTCTag = *(DWORD*) "ttcf";
+    const DWORD kTTCTag =
+        SkEndian_SwapBE32(SkSetFourByteTag('t', 't', 'c', 'f'));
     LOGFONT lf;
     GetLogFontByID(uniqueID, &lf);
 
