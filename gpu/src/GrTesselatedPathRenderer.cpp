@@ -97,10 +97,10 @@ class Edge {
 
 typedef GrTDArray<Edge> EdgeArray;
 
-bool isCCW(const GrPoint* v)
+bool isCCW(const GrPoint* pts)
 {
-    GrVec v1 = v[1] - v[0];
-    GrVec v2 = v[2] - v[1];
+    GrVec v1 = pts[1] - pts[0];
+    GrVec v2 = pts[2] - pts[1];
     return v1.cross(v2) < 0;
 }
 
@@ -110,12 +110,11 @@ static size_t computeEdgesAndOffsetVertices(const GrMatrix& matrix,
                                             size_t numVertices,
                                             EdgeArray* edges)
 {
+    matrix.mapPoints(vertices, numVertices);
     GrPoint p = vertices[numVertices - 1];
-    matrix.mapPoints(&p, 1);
     float sign = isCCW(vertices) ? -1.0f : 1.0f;
     for (size_t i = 0; i < numVertices; ++i) {
         GrPoint q = vertices[i];
-        matrix.mapPoints(&q, 1);
         if (p == q) continue;
         GrVec tangent = GrVec::Make(p.fY - q.fY, q.fX - p.fX);
         float scale = sign / tangent.length();
