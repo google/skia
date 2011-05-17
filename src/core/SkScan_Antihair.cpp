@@ -653,6 +653,8 @@ void SkScan::AntiFillRect(const SkRect& origR, const SkRegion* clip,
     }
 }
 
+#endif // SK_SCALAR_IS_FLOAT
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #define SkAlphaMulRound(a, b)   SkMulDiv255Round(a, b)
@@ -811,7 +813,3 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
         innerstrokedot8(L, T, R, B, blitter);
     }
 }
-
-#endif
-
-

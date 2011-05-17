@@ -54,7 +54,7 @@
 
 /*  Somewhat independent of how SkScalar is implemented, Skia also wants to know
     if it can use floats at all. Naturally, if SK_SCALAR_IS_FLOAT is defined,
-    then so muse SK_CAN_USE_FLOAT, but if scalars are fixed, SK_CAN_USE_FLOAT
+    SK_CAN_USE_FLOAT must be too; but if scalars are fixed, SK_CAN_USE_FLOAT
     can go either way.
  */
 //#define SK_CAN_USE_FLOAT
@@ -151,4 +151,3 @@
 #endif
 
 #endif
-

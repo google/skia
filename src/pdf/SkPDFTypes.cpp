@@ -112,7 +112,7 @@ void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
 
 
 #if defined(SK_SCALAR_IS_FIXED)
-    stream->wrieScalarAsText(value);
+    stream->writeScalarAsText(value);
     return;
 #endif  // SK_SCALAR_IS_FIXED
 

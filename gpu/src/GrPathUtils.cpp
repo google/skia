@@ -31,8 +31,8 @@ uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
         // subdivide x = log4(d/tol) times. x subdivisions creates 2^(x)
         // points.
         // 2^(log4(x)) = sqrt(x);
-        d = ceilf(sqrtf(d/tol));
-        return GrMin(GrNextPow2((uint32_t)d), MAX_POINTS_PER_CURVE);
+        int temp = SkScalarCeil(SkScalarSqrt(SkScalarDiv(d, tol)));
+        return GrMin(GrNextPow2(temp), MAX_POINTS_PER_CURVE);
     }
 }
 
@@ -65,12 +65,12 @@ uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
                                            GrScalar tol) {
     GrScalar d = GrMax(points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
                        points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
-    d = sqrtf(d);
+    d = SkScalarSqrt(d);
     if (d < tol) {
         return 1;
     } else {
-        d = ceilf(sqrtf(d/tol));
-        return GrMin(GrNextPow2((uint32_t)d), MAX_POINTS_PER_CURVE);
+        int temp = SkScalarCeil(SkScalarSqrt(SkScalarDiv(d, tol)));
+        return GrMin(GrNextPow2(temp), MAX_POINTS_PER_CURVE);
     }
 }
 
