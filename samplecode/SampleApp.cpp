@@ -434,6 +434,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fMeasureFPS = false;
     fLCDState = kUnknown_SkTriState;
     fAAState = kUnknown_SkTriState;
+    fFilterState = kUnknown_SkTriState;
     fFlipAxis = 0;
     fScrollTestX = fScrollTestY = 0;
 
