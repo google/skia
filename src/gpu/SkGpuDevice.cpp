@@ -40,6 +40,13 @@
     #define CHECK_SHOULD_DRAW(draw) this->prepareRenderTarget(draw)
 #endif
 
+// we use the same texture slot on GrPaint for bitmaps and shaders
+// (since drawBitmap, drawSprite, and drawDevice ignore skia's shader)
+enum {
+    kBitmapTextureIdx = 0,
+    kShaderTextureIdx = 0
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice::SkAutoCachedTexture::
@@ -316,7 +323,7 @@ void SkGpuDevice::gainFocus(SkCanvas* canvas, const SkMatrix& matrix,
 
 bool SkGpuDevice::bindDeviceAsTexture(GrPaint* paint) {
     if (NULL != fTexture) {
-        paint->setTexture(fTexture);
+        paint->setTexture(kBitmapTextureIdx, fTexture);
         return true;
     }
     return false;
@@ -371,7 +378,7 @@ bool SkGpuDevice::skPaint2GrPaintNoShader(const SkPaint& skPaint,
         GrAssert(!constantColor);
     } else {
         grPaint->fColor = SkGr::SkColor2GrColor(skPaint.getColor());
-        grPaint->setTexture(NULL);
+        grPaint->setTexture(kShaderTextureIdx, NULL);
     }
     SkColorFilter* colorFilter = skPaint.getColorFilter();
     SkColor color;
@@ -423,26 +430,27 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         SkDebugf("shader->asABitmap() == kNone_BitmapType\n");
         return false;
     }
-    grPaint->fSampler.setSampleMode(sampleMode);
+    GrSamplerState* sampler = grPaint->getTextureSampler(kShaderTextureIdx);
+    sampler->setSampleMode(sampleMode);
     if (skPaint.isFilterBitmap()) {
-        grPaint->fSampler.setFilter(GrSamplerState::kBilinear_Filter);
+        sampler->setFilter(GrSamplerState::kBilinear_Filter);
     } else {
-        grPaint->fSampler.setFilter(GrSamplerState::kNearest_Filter);
+        sampler->setFilter(GrSamplerState::kNearest_Filter);
     }
-    grPaint->fSampler.setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
-    grPaint->fSampler.setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
+    sampler->setWrapX(sk_tile_mode_to_grwrap(tileModes[0]));
+    sampler->setWrapY(sk_tile_mode_to_grwrap(tileModes[1]));
     if (GrSamplerState::kRadial2_SampleMode == sampleMode) {
-        grPaint->fSampler.setRadial2Params(twoPointParams[0],
-                                           twoPointParams[1],
-                                           twoPointParams[2] < 0);
+        sampler->setRadial2Params(twoPointParams[0],
+                                  twoPointParams[1],
+                                  twoPointParams[2] < 0);
     }
 
-    GrTexture* texture = act->set(this, bitmap, grPaint->fSampler);
+    GrTexture* texture = act->set(this, bitmap, *sampler);
     if (NULL == texture) {
         SkDebugf("Couldn't convert bitmap to texture.\n");
         return false;
     }
-    grPaint->setTexture(texture);
+    grPaint->setTexture(kShaderTextureIdx, texture);
 
     // since our texture coords will be in local space, we wack the texture
     // matrix to map them back into 0...1 before we load it
@@ -461,7 +469,7 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         GrScalar s = GrFixedToScalar(GR_Fixed1 / bitmap.width());
         matrix.postScale(s, s);
     }
-    grPaint->fSampler.setMatrix(matrix);
+    sampler->setMatrix(matrix);
 
     return true;
 }
@@ -737,6 +745,9 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
     // the current clip (and identity matrix) and grpaint settings
 
+    // used to compute inverse view, if necessary
+    GrMatrix ivm = context->getMatrix();
+
     GrAutoMatrix avm(context, GrMatrix::I());
 
     const GrTextureDesc desc = {
@@ -753,18 +764,29 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
         return false;
     }
 
-    grp->setTexture(texture);
+    if (grp->hasTextureOrMask() && ivm.invert(&ivm)) {
+        grp->preConcatActiveSamplerMatrices(ivm);
+    }
+
+    static const int MASK_IDX = GrPaint::kMaxMasks - 1;
+    // we assume the last mask index is available for use
+    GrAssert(NULL == grp->getMask(MASK_IDX));
+    grp->setMask(MASK_IDX, texture);
     texture->unref();
-    grp->fSampler.setClampNoFilter();
+    grp->getMaskSampler(MASK_IDX)->setClampNoFilter();
 
     GrRect d;
     d.setLTRB(GrIntToScalar(dstM.fBounds.fLeft),
               GrIntToScalar(dstM.fBounds.fTop),
               GrIntToScalar(dstM.fBounds.fRight),
               GrIntToScalar(dstM.fBounds.fBottom));
-    GrRect s;
-    s.setLTRB(0, 0, GR_Scalar1, GR_Scalar1);
-    context->drawRectToRect(*grp, d, s);
+
+    GrMatrix m;
+    m.setTranslate(-dstM.fBounds.fLeft, -dstM.fBounds.fTop);
+    m.postIDiv(dstM.fBounds.width(), dstM.fBounds.height());
+    grp->getMaskSampler(MASK_IDX)->setMatrix(m);
+    
+    context->drawRect(*grp, d);
     return true;
 }
 
@@ -881,12 +903,12 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     if (!this->skPaint2GrPaintNoShader(paint, true, &grPaint, false)) {
         return;
     }
+    GrSamplerState* sampler = grPaint.getTextureSampler(kBitmapTextureIdx);
     if (paint.isFilterBitmap()) {
-        grPaint.fSampler.setFilter(GrSamplerState::kBilinear_Filter);
+        sampler->setFilter(GrSamplerState::kBilinear_Filter);
     } else {
-        grPaint.fSampler.setFilter(GrSamplerState::kNearest_Filter);
+        sampler->setFilter(GrSamplerState::kNearest_Filter);
     }
-    
 
     const int maxTextureDim = fContext->getMaxTextureDimension();
     if (bitmap.getTexture() || (bitmap.width() <= maxTextureDim &&
@@ -968,18 +990,20 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
         return;
     }
 
-    grPaint->fSampler.setWrapX(GrSamplerState::kClamp_WrapMode);
-    grPaint->fSampler.setWrapY(GrSamplerState::kClamp_WrapMode);
-    grPaint->fSampler.setSampleMode(GrSamplerState::kNormal_SampleMode);
-    grPaint->fSampler.setMatrix(GrMatrix::I());
+    GrSamplerState* sampler = grPaint->getTextureSampler(kBitmapTextureIdx);
+
+    sampler->setWrapX(GrSamplerState::kClamp_WrapMode);
+    sampler->setWrapY(GrSamplerState::kClamp_WrapMode);
+    sampler->setSampleMode(GrSamplerState::kNormal_SampleMode);
+    sampler->setMatrix(GrMatrix::I());
 
     GrTexture* texture;
-    SkAutoCachedTexture act(this, bitmap, grPaint->fSampler, &texture);
+    SkAutoCachedTexture act(this, bitmap, *sampler, &texture);
     if (NULL == texture) {
         return;
     }
 
-    grPaint->setTexture(texture);
+    grPaint->setTexture(kShaderTextureIdx, texture);
 
     GrRect dstRect = SkRect::MakeWH(GrIntToScalar(srcRect.width()),
                                     GrIntToScalar(srcRect.height()));
@@ -989,9 +1013,9 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                       GrFixedToScalar((srcRect.fRight << 16) / bitmap.width()),
                       GrFixedToScalar((srcRect.fBottom << 16) / bitmap.height()));
 
-    if (GrSamplerState::kNearest_Filter != grPaint->fSampler.getFilter() &&
+    if (GrSamplerState::kNearest_Filter != sampler->getFilter() &&
         (srcRect.width() < bitmap.width() || 
-        srcRect.height() < bitmap.height())) {
+         srcRect.height() < bitmap.height())) {
         // If drawing a subrect of the bitmap and filtering is enabled,
         // use a constrained texture domain to avoid color bleeding
         GrScalar left, top, right, bottom;
@@ -1011,7 +1035,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
         }
         GrRect textureDomain;
         textureDomain.setLTRB(left, top, right, bottom);
-        grPaint->fSampler.setTextureDomain(textureDomain);
+        sampler->setTextureDomain(textureDomain);
     }
 
     fContext->drawRectToRect(*grPaint, dstRect, paintRect, &m);
@@ -1033,11 +1057,13 @@ void SkGpuDevice::drawSprite(const SkDraw& draw, const SkBitmap& bitmap,
 
     GrAutoMatrix avm(fContext, GrMatrix::I());
 
-    GrTexture* texture;
-    grPaint.fSampler.setClampNoFilter();
-    SkAutoCachedTexture act(this, bitmap, grPaint.fSampler, &texture);
+    GrSamplerState* sampler = grPaint.getTextureSampler(kBitmapTextureIdx);
 
-    grPaint.setTexture(texture);
+    GrTexture* texture;
+    sampler->setClampNoFilter();
+    SkAutoCachedTexture act(this, bitmap, *sampler, &texture);
+
+    grPaint.setTexture(kBitmapTextureIdx, texture);
 
     fContext->drawRectToRect(grPaint,
                              GrRect::MakeXYWH(GrIntToScalar(left),
@@ -1057,7 +1083,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
         return;
     }
 
-    SkASSERT(NULL != grPaint.getTexture());
+    SkASSERT(NULL != grPaint.getTexture(0));
 
     const SkBitmap& bm = dev->accessBitmap(false);
     int w = bm.width();
@@ -1065,7 +1091,7 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
 
     GrAutoMatrix avm(fContext, GrMatrix::I());
 
-    grPaint.fSampler.setClampNoFilter();
+    grPaint.getTextureSampler(kBitmapTextureIdx)->setClampNoFilter();
 
     fContext->drawRectToRect(grPaint,
                              GrRect::MakeXYWH(GrIntToScalar(x),

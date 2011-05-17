@@ -50,7 +50,7 @@ public:
      * or not.
      */
     enum {
-        kNumStages = 2,
+        kNumStages = 3,
         kMaxTexCoords = kNumStages
     };
 
@@ -147,6 +147,7 @@ protected:
 
             // default stencil setting should be disabled
             GrAssert(fStencilSettings.isDisabled());
+            fFirstCoverageStage = kNumStages;
         }
         uint32_t                fFlagBits;
         GrBlendCoeff            fSrcBlend;
@@ -247,6 +248,18 @@ public:
     void preConcatSamplerMatrix(int stage, const GrMatrix& matrix)  {
         GrAssert(stage >= 0 && stage < kNumStages);
         fCurrDrawState.fSamplerStates[stage].preConcatMatrix(matrix);
+    }
+
+    /**
+     * Shortcut for preConcatSamplerMatrix on all stages in mask with same 
+     * matrix
+     */
+    void preConcatSamplerMatrices(int stageMask, const GrMatrix& matrix) {
+        for (int i = 0; i < kNumStages; ++i) {
+            if ((1 << i) & stageMask) {
+                this->preConcatSamplerMatrix(i, matrix);
+            }
+        }
     }
 
     /**

@@ -25,12 +25,17 @@
 
 /**
  * The paint describes how pixels are colored when the context draws to
- * them.
+ * them. TODO: Make this a "real" class with getters and setters, default
+ * values, and documentation.
  */
 class GrPaint {
 public:
+    enum {
+        kMaxTextures = 1,
+        kMaxMasks    = 1,
+    };
 
-    // All the paint fields are public except texture (it's ref-counted)
+    // All the paint fields are public except textures/samplers
     GrBlendCoeff                fSrcBlendCoeff;
     GrBlendCoeff                fDstBlendCoeff;
     bool                        fAntiAlias;
@@ -38,22 +43,75 @@ public:
 
     GrColor                     fColor;
 
-    GrSamplerState              fSampler;
-
     GrColor                     fColorFilterColor;
     SkXfermode::Mode            fColorFilterXfermode;
 
-    void setTexture(GrTexture* texture) {
+    void setTexture(int i, GrTexture* texture) {
+        GrAssert((unsigned)i < kMaxTextures);
         GrSafeRef(texture);
-        GrSafeUnref(fTexture);
-        fTexture = texture;
+        GrSafeUnref(fTextures[i]);
+        fTextures[i] = texture;
     }
 
-    GrTexture* getTexture() const { return fTexture; }
+    GrTexture* getTexture(int i) const { 
+        GrAssert((unsigned)i < kMaxTextures);
+        return fTextures[i]; 
+    }
+
+    GrSamplerState* getTextureSampler(int i) {
+        GrAssert((unsigned)i < kMaxTextures);
+        return fTextureSamplers + i;
+    }
+
+    const GrSamplerState* getTextureSampler(int i) const {
+        GrAssert((unsigned)i < kMaxTextures);
+        return fTextureSamplers + i;
+    }
+
+    // The mask can be alpha-only or per channel. It is applied
+    // after the colorfilter
+    void setMask(int i, GrTexture* mask) {
+        GrAssert((unsigned)i < kMaxMasks);
+        GrSafeRef(mask);
+        GrSafeUnref(fMaskTextures[i]);
+        fMaskTextures[i] = mask;
+    }
+
+    GrTexture* getMask(int i) const { 
+        GrAssert((unsigned)i < kMaxMasks);
+        return fMaskTextures[i]; 
+    }
+
+    // mask's sampler matrix is always applied to the positions
+    // (i.e. no explicit texture coordinates)
+    GrSamplerState* getMaskSampler(int i) {
+        GrAssert((unsigned)i < kMaxMasks);
+        return fMaskSamplers + i;
+    }
+
+    const GrSamplerState* getMaskSampler(int i) const {
+        GrAssert((unsigned)i < kMaxMasks);
+        return fMaskSamplers + i;
+    }
+
+    // pre-concats sampler matrices for non-NULL textures and masks
+    void preConcatActiveSamplerMatrices(const GrMatrix& matrix) {
+        for (int i = 0; i < kMaxTextures; ++i) {
+            fTextureSamplers[i].preConcatMatrix(matrix);
+        }
+        for (int i = 0; i < kMaxMasks; ++i) {
+            fMaskSamplers[i].preConcatMatrix(matrix);
+        }
+    }
 
     // uninitialized
     GrPaint() {
-        fTexture = NULL;
+        for (int i = 0; i < kMaxTextures; ++i) {
+            fTextures[i] = NULL;
+        }
+        for (int i = 0; i < kMaxMasks; ++i) {
+            fMaskTextures[i] = NULL;
+        }
     }
 
     GrPaint(const GrPaint& paint) {
@@ -67,22 +125,35 @@ public:
         fColorFilterColor = paint.fColorFilterColor;
         fColorFilterXfermode = paint.fColorFilterXfermode;
 
-        fSampler = paint.fSampler;
-        fTexture = paint.fTexture;
-        GrSafeRef(fTexture);
+        for (int i = 0; i < kMaxTextures; ++i) {
+            fTextureSamplers[i] = paint.fTextureSamplers[i];
+            fTextures[i] = paint.fTextures[i];
+            GrSafeRef(fTextures[i]);
+        }
+        for (int i = 0; i < kMaxMasks; ++i) {
+            fMaskSamplers[i] = paint.fMaskSamplers[i];
+            fMaskTextures[i] = paint.fMaskTextures[i];
+            GrSafeRef(fMaskTextures[i]);
+        }
     }
 
     ~GrPaint() {
-        GrSafeUnref(fTexture);
+        for (int i = 0; i < kMaxTextures; ++i) {
+            GrSafeUnref(fTextures[i]);
+        }
+        for (int i = 0; i < kMaxMasks; ++i) {
+            GrSafeUnref(fMaskTextures[i]);
+        }
     }
 
-    // sets paint to src-over, solid white, no texture
+    // sets paint to src-over, solid white, no texture, no mask
     void reset() {
-        resetBlend();
-        resetOptions();
-        resetColor();
-        resetTexture();
-        resetColorFilter();
+        this->resetBlend();
+        this->resetOptions();
+        this->resetColor();
+        this->resetTextures();
+        this->resetColorFilter();
+        this->resetMasks();
     }
 
     void resetColorFilter() {
@@ -90,8 +161,60 @@ public:
         fColorFilterColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
     }
 
+    bool hasTexture() const {
+        return 0 != this->getActiveTextureStageMask();
+    }
+
+    bool hasMask() const {
+        return 0 != this->getActiveMaskStageMask();
+    }
+
+    bool hasTextureOrMask() const {
+        return this->hasTexture() || this->hasMask();
+    }
+
+    // helpers for GrContext, GrTextContext
+    int getActiveTextureStageMask() const {
+        int mask = 0;
+        for (int i = 0; i < kMaxTextures; ++i) {
+            if (NULL != fTextures[i]) {
+                mask |= 1 << (i + kFirstTextureStage);
+            }
+        }
+        return mask;
+    }
+
+    int getActiveMaskStageMask() const {
+        int mask;
+        for (int i = 0; i < kMaxMasks; ++i) {
+            if (NULL != fMaskTextures[i]) {
+                mask |= 1 << (i + kFirstMaskStage);
+            }
+        }
+        return mask;
+    }
+    
+    int getActiveStageMask() const {
+        return this->getActiveTextureStageMask() |
+                this->getActiveMaskStageMask();
+    }
+
+    // internal use
+    // GrPaint's textures and masks map to the first N stages
+    // of GrDrawTarget in that order (textures followed by masks)
+    enum {
+        kFirstTextureStage = 0,
+        kFirstMaskStage = kMaxTextures,
+        kTotalStages = kMaxTextures + kMaxMasks,
+    };
+
 private:
-    GrTexture*      fTexture;
+
+    GrSamplerState              fTextureSamplers[kMaxTextures];
+    GrSamplerState              fMaskSamplers[kMaxMasks];
+
+    GrTexture*      fTextures[kMaxTextures];
+    GrTexture*      fMaskTextures[kMaxMasks];
 
     void resetBlend() {
         fSrcBlendCoeff = kOne_BlendCoeff;
@@ -107,11 +230,19 @@ private:
         fColor = GrColorPackRGBA(0xff, 0xff, 0xff, 0xff);
     }
 
-    void resetTexture() {
-        setTexture(NULL);
-        fSampler.setClampNoFilter();
+    void resetTextures() {
+        for (int i = 0; i < kMaxTextures; ++i) {
+            this->setTexture(i, NULL);
+            fTextureSamplers[i].setClampNoFilter();
+        }
     }
 
+    void resetMasks() {
+        for (int i = 0; i < kMaxMasks; ++i) {
+            this->setMask(i, NULL);
+            fMaskSamplers[i].setClampNoFilter();
+        }
+    }
 };
 
 #endif
