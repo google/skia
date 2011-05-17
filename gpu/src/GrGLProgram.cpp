@@ -18,7 +18,6 @@
 
 #include "GrBinHashKey.h"
 #include "GrGLConfig.h"
-#include "GrGLEffect.h"
 #include "GrMemory.h"
 
 #include "SkXfermode.h"
@@ -140,9 +139,6 @@ static void tex_domain_name(int stage, GrStringBuilder* s) {
 }
 
 GrGLProgram::GrGLProgram() {
-    for(int stage = 0; stage < GrDrawTarget::kNumStages; ++stage) {
-        fStageEffects[stage] = NULL;
-    }
 }
 
 GrGLProgram::~GrGLProgram() {
@@ -151,50 +147,6 @@ GrGLProgram::~GrGLProgram() {
 void GrGLProgram::buildKey(GrBinHashKeyBuilder& key) const {
     // Add stage configuration to the key
     key.keyData(reinterpret_cast<const uint8_t*>(&fProgramDesc), sizeof(ProgramDesc));
-
-    for(int stage = 0; stage < GrDrawTarget::kNumStages; ++stage) {
-        // First pass: count effects and write the count to the key.
-        // This may seem like  we are adding redundant data to the
-        // key, but in ensures the one key cannot be a prefix of
-        // another key, or identical to the key of a different program.
-        GrGLEffect* currentEffect = fStageEffects[stage];
-        uint8_t effectCount = 0;
-        while (currentEffect) {
-            GrAssert(effectCount < 255); // overflow detection
-            ++effectCount;
-            currentEffect = currentEffect->nextEffect();
-        }
-        key.keyData(reinterpret_cast<const uint8_t*>(&effectCount), sizeof(uint8_t));
-
-        // Second pass: continue building key using the effects
-        currentEffect = fStageEffects[stage];
-        while (currentEffect) {
-            fStageEffects[stage]->buildKey(key);
-        }
-    }
-}
-
-bool GrGLProgram::doGLSetup(GrPrimitiveType type, 
-                            GrGLProgram::CachedData* programData) const {
-    for (int stage = 0; stage < GrDrawTarget::kNumStages; ++stage) {
-        GrGLEffect* effect = fStageEffects[stage];
-        if (effect) {
-            if (!effect->doGLSetup(type, programData->fProgramID)) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-void GrGLProgram::doGLPost() const {
-    for (int stage = 0; stage < GrDrawTarget::kNumStages; ++stage) {
-        GrGLEffect* effect = fStageEffects[stage];
-        if (effect) {
-            effect->doGLPost(); 
-        }    
-    }
 }
 
 // assigns modulation of two vars to an output var
@@ -1106,10 +1058,6 @@ void GrGLProgram::genStageCode(int stageNum,
         segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), modulate.c_str());
     } else {
         segments->fFSCode.appendf("\t%s = %s(%s, %s)%s %s;\n", fsOutColor, texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), smear, modulate.c_str());
-    }
-
-    if(fStageEffects[stageNum]) {
-        fStageEffects[stageNum]->genShaderCode(segments);
     }
 }
 

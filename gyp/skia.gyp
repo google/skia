@@ -979,7 +979,6 @@
         '../gpu/src/GrContext.cpp',
         '../gpu/src/GrCreatePathRenderer_none.cpp',
         '../gpu/src/GrDrawTarget.cpp',
-        '../gpu/src/GrGLEffect.h',
         '../gpu/src/GrGLDefaultInterface_none.cpp',
         '../gpu/src/GrGLIndexBuffer.cpp',
         '../gpu/src/GrGLInterface.cpp',
