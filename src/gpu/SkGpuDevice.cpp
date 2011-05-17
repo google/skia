@@ -130,9 +130,9 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
             SkASSERT(NULL != fTexture->asRenderTarget());
         }
 #else
-        const GrGpu::TextureDesc desc = {
-            GrGpu::kRenderTarget_TextureFlag,
-            GrGpu::kNone_AALevel,
+        const GrTextureDesc desc = {
+            kRenderTarget_GrTextureFlagBit,
+            kNone_GrAALevel,
             this->width(),
             this->height(),
             SkGr::Bitmap2PixelConfig(bm)
