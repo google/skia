@@ -272,6 +272,10 @@ private:
     HFONT        fFont;
     SCRIPT_CACHE fSC;
     int          fGlyphCount;
+
+    HFONT        fHiResFont;
+    MAT2         fMat22Identity;
+    SkMatrix     fHiResMatrix;
 };
 
 static float mul2float(SkScalar a, SkScalar b) {
@@ -283,6 +287,16 @@ static FIXED float2FIXED(float x) {
 }
 
 static SkMutex gFTMutex;
+
+#define HIRES_TEXTSIZE  2048
+#define HIRES_SHIFT     11
+static inline SkFixed HiResToFixed(int value) {
+    return value << (16 - HIRES_SHIFT);
+}
+
+static bool needHiResMetrics(const SkScalar mat[2][2]) {
+    return mat[1][0] || mat[0][1];
+}
 
 SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
@@ -304,6 +318,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     fMat22.eM22 = float2FIXED(-fXform.eM22);
 
     fDDC = ::CreateCompatibleDC(NULL);
+    SetGraphicsMode(fDDC, GM_ADVANCED);
     SetBkMode(fDDC, TRANSPARENT);
 
     // Scaling by the DPI is inconsistent with how Skia draws elsewhere
@@ -312,6 +327,21 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     GetLogFontByID(fRec.fFontID, &lf);
     lf.lfHeight = -gCanonicalTextSize;
     fFont = CreateFontIndirect(&lf);
+
+    // if we're rotated, or want fractional widths, create a hires font
+    fHiResFont = 0;
+    if (needHiResMetrics(fRec.fPost2x2) || (fRec.fFlags & kSubpixelPositioning_Flag)) {
+        lf.lfHeight = -HIRES_TEXTSIZE;
+        fHiResFont = CreateFontIndirect(&lf);
+
+        fMat22Identity.eM11 = fMat22Identity.eM22 = SkFixedToFIXED(SK_Fixed1);
+        fMat22Identity.eM12 = fMat22Identity.eM21 = SkFixedToFIXED(0);
+
+        // construct a matrix to go from HIRES logical units to our device units
+        fRec.getSingleMatrix(&fHiResMatrix);
+        SkScalar scale = SkScalarInvert(SkIntToScalar(HIRES_TEXTSIZE));
+        fHiResMatrix.preScale(scale, scale);
+    }
     fSavefont = (HFONT)SelectObject(fDDC, fFont);
 }
 
@@ -322,6 +352,9 @@ SkScalerContext_Windows::~SkScalerContext_Windows() {
     }
     if (fFont) {
         ::DeleteObject(fFont);
+    }
+    if (fHiResFont) {
+        ::DeleteObject(fHiResFont);
     }
     if (fSC) {
         ::ScriptFreeCache(&fSC);
@@ -369,7 +402,7 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
     SkASSERT(fDDC);
 
     GLYPHMETRICS gm;
-    memset(&gm, 0, sizeof(gm));
+    sk_bzero(&gm, sizeof(gm));
 
     glyph->fRsbDelta = 0;
     glyph->fLsbDelta = 0;
@@ -399,6 +432,19 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
             glyph->fHeight += 2;
             glyph->fTop -= 1;
             glyph->fLeft -= 1;
+        }
+
+        if (fHiResFont) {
+            SelectObject(fDDC, fHiResFont);
+            sk_bzero(&gm, sizeof(gm));
+            ret = GetGlyphOutlineW(fDDC, glyph->getGlyphID(0), GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22Identity);
+            if (GDI_ERROR != ret) {
+                SkPoint advance;
+                fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY), &advance);
+                glyph->fAdvanceX = SkScalarToFixed(advance.fX);
+                glyph->fAdvanceY = SkScalarToFixed(advance.fY);
+            }
+            SelectObject(fDDC, fFont);
         }
     } else {
         glyph->fWidth = 0;
@@ -479,9 +525,9 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         size_t size = glyph.fHeight * srcRB;
         memset(bits, 0xFF, size);
 
+        SetGraphicsMode(dc, GM_ADVANCED);
         SetBkMode(dc, TRANSPARENT);
         SetTextAlign(dc, TA_LEFT | TA_BASELINE);
-        SetGraphicsMode(dc, GM_ADVANCED);
 
         XFORM xform = fXform;
         xform.eDx = (float)-glyph.fLeft;
