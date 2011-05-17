@@ -15,7 +15,6 @@
  */
 
 #include "GrBinHashKey.h"
-#include "GrGLEffect.h"
 #include "GrGLProgram.h"
 #include "GrGpuGLShaders.h"
 #include "GrGpuVertex.h"
@@ -534,10 +533,6 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         fHWProgramID = fProgramData->fProgramID;
     }
 
-    if (!fCurrentProgram.doGLSetup(type, fProgramData)) {
-        return false;
-    }
-
     this->flushColor();
 
     GrMatrix* currViewMatrix;
@@ -568,7 +563,6 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
 }
 
 void GrGpuGLShaders::postDraw() {
-    fCurrentProgram.doGLPost();
 }
 
 void GrGpuGLShaders::setupGeometry(int* startVertex,
@@ -774,18 +768,10 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             } else {
                 stage.fModulation = GrGLProgram::ProgramDesc::StageDesc::kColor_Modulation;
             }
-
-            if (fCurrDrawState.fEffects[s]) {
-                fCurrentProgram.fStageEffects[s] = GrGLEffect::Create(fCurrDrawState.fEffects[s]);
-            } else {
-                delete fCurrentProgram.fStageEffects[s];
-                fCurrentProgram.fStageEffects[s] = NULL;
-            }
         } else {
             stage.fOptFlags     = 0;
             stage.fCoordMapping = (GrGLProgram::ProgramDesc::StageDesc::CoordMapping)0;
             stage.fModulation   = (GrGLProgram::ProgramDesc::StageDesc::Modulation)0;
-            fCurrentProgram.fStageEffects[s] = NULL;
         }
     }
 }

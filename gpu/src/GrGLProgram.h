@@ -24,8 +24,15 @@
 #include "SkXfermode.h"
 
 class GrBinHashKeyBuilder;
-class GrGLEffect;
-struct ShaderCodeSegments;
+
+struct ShaderCodeSegments {
+    GrStringBuilder fVSUnis;
+    GrStringBuilder fVSAttrs;
+    GrStringBuilder fVaryings;
+    GrStringBuilder fFSUnis;
+    GrStringBuilder fVSCode;
+    GrStringBuilder fFSCode;
+};
 
 /**
  * This class manages a GPU program and records per-program information.
@@ -57,18 +64,6 @@ public:
      *  but in a separate cacheable container.
      */
     bool genProgram(CachedData* programData) const;
-
-    /**
-     *  Routine that is called before rendering. Sets-up all the state and
-     *  other initializations required for the Gpu Program to run.
-     */
-    bool doGLSetup(GrPrimitiveType type, CachedData* programData) const;
-
-    /**
-     *  Routine that is called after rendering. Performs state restoration.
-     *  May perform secondary render passes.
-     */
-    void doGLPost() const;
 
     static int PositionAttributeIdx() { return 0; }
     static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
@@ -177,36 +172,15 @@ public:
     class CachedData : public ::GrNoncopyable {
     public:
         CachedData() {
-            GR_DEBUGCODE(fEffectUniCount = 0;)
-            fEffectUniLocationsExtended = NULL;
         }
 
         ~CachedData() {
-            GrFree(fEffectUniLocationsExtended);
         }
 
         void copyAndTakeOwnership(CachedData& other) {
             memcpy(this, &other, sizeof(*this));
-            other.fEffectUniLocationsExtended = NULL; // ownership transfer
-            GR_DEBUGCODE(other.fEffectUniCount = 0;)
         }
 
-        void setEffectUniformCount(size_t effectUniforms) {
-            GR_DEBUGCODE(fEffectUniCount = effectUniforms;)
-            GrFree(fEffectUniLocationsExtended);
-            if (effectUniforms > kUniLocationPreAllocSize) {
-                fEffectUniLocationsExtended = (GrGLint*)GrMalloc(sizeof(GrGLint)*(effectUniforms-kUniLocationPreAllocSize));
-            } else {
-                fEffectUniLocationsExtended = NULL;
-            }
-        }
-
-        GrGLint&  effectUniLocation(size_t index) {
-            GrAssert(index < fEffectUniCount);
-            return (index < kUniLocationPreAllocSize) ? 
-                fEffectUniLocations[index] :
-                fEffectUniLocationsExtended[index - kUniLocationPreAllocSize];
-        }
 
     public:
 
@@ -236,12 +210,7 @@ public:
             kUniLocationPreAllocSize = 8
         };
 
-        GrGLint     fEffectUniLocations[kUniLocationPreAllocSize];
-        GrGLint*    fEffectUniLocationsExtended;
-        GR_DEBUGCODE(size_t fEffectUniCount;)
     }; // CachedData
-
-    GrGLEffect* fStageEffects[GrDrawTarget::kNumStages];
 
 private:
     enum {
