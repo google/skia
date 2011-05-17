@@ -1,6 +1,6 @@
 #include "SkEGLContext.h"
 
-SkEGLContext::SkEGLContext() : fContext(NULL) {
+SkEGLContext::SkEGLContext() {
 }
 
 SkEGLContext::~SkEGLContext() {
