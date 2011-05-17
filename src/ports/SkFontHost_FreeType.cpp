@@ -72,6 +72,13 @@
 
 using namespace skia_advanced_typeface_metrics_utils;
 
+// SK_FREETYPE_LCD_LERP should be 0...256, where 0 means no color reduction
+// and 256 means 100% color reduction (e.g. gray)
+//
+#ifndef SK_FREETYPE_LCD_LERP
+    #define SK_FREETYPE_LCD_LERP    128
+#endif
+
 //////////////////////////////////////////////////////////////////////////
 
 struct SkFaceRec;
@@ -979,6 +986,21 @@ extern void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bi
 using namespace skia_freetype_support;
 #endif
 
+static int lerp(int start, int end, int percent) {
+    return start + ((end - start) * percent >> 8);
+}
+
+static uint16_t packTriple(unsigned r, unsigned g, unsigned b) {
+    if (SK_FREETYPE_LCD_LERP) {
+        SkASSERT((unsigned)SK_FREETYPE_LCD_LERP <= 256);
+        unsigned sum = r + 2 * g + b >> 2;
+        r = lerp(r, sum, SK_FREETYPE_LCD_LERP);
+        g = lerp(g, sum, SK_FREETYPE_LCD_LERP);
+        b = lerp(b, sum, SK_FREETYPE_LCD_LERP);
+    }
+    return SkPackRGB16(r >> 3, g >> 2, b >> 3);
+}
+
 static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap) {
     SkASSERT(glyph.fWidth * 3 == bitmap.width - 6);
     SkASSERT(glyph.fHeight == bitmap.rows);
@@ -991,7 +1013,7 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap) {
     for (int y = 0; y < glyph.fHeight; y++) {
         const uint8_t* triple = src;
         for (int x = 0; x < width; x++) {
-            dst[x] = SkPackRGB16(triple[0] >> 3, triple[1] >> 2, triple[2] >> 3);
+            dst[x] = packTriple(triple[0], triple[1], triple[2]);
             triple += 3;
         }
         src += bitmap.pitch;
