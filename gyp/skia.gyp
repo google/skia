@@ -1481,6 +1481,7 @@
         '../samplecode/SampleTextBox.cpp',
         '../samplecode/SampleTextEffects.cpp',
         '../samplecode/SampleTextOnPath.cpp',
+        '../samplecode/SampleTextureDomian.cpp',
         '../samplecode/SampleTiling.cpp',
         '../samplecode/SampleTinyBitmap.cpp',
         '../samplecode/SampleTriangles.cpp',
