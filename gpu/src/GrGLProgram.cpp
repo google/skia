@@ -363,6 +363,7 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
 
     if (fProgramDesc.fUsesEdgeAA) {
         segments.fFSUnis.append("uniform vec3 " EDGES_UNI_NAME "[6];\n");
+        programData->fUniLocations.fEdgesUni = kUseUniform;
     }
 
     if (fProgramDesc.fEmitsPointSize){
