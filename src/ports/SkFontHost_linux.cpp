@@ -391,7 +391,7 @@ static SkTypeface* gDefaultNormal;
 static void load_system_fonts() {
     // check if we've already be called
     if (NULL != gDefaultNormal) {
-        printf("---- default font %p\n", gDefaultNormal);
+//        printf("---- default font %p\n", gDefaultNormal);
         return;
     }
 
