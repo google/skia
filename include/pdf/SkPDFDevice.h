@@ -91,7 +91,7 @@ public:
                             size_t count, const SkPoint[],
                             const SkPaint& paint);
     virtual void drawRect(const SkDraw&, const SkRect& r, const SkPaint& paint);
-    virtual void drawPath(const SkDraw&, const SkPath& path,
+    virtual void drawPath(const SkDraw&, const SkPath& origpath,
                           const SkPaint& paint, const SkMatrix* prePathMatrix,
                           bool pathIsMutable);
     virtual void drawBitmap(const SkDraw&, const SkBitmap& bitmap,
