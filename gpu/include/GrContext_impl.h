@@ -40,19 +40,15 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
                                           const COL_SRC* colorSrc,
                                           const IDX_SRC* idxSrc) {
 
-    GrVertexLayout layout = 0;
-
     GrDrawTarget::AutoReleaseGeometry geo;
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
-    if (NULL != paint.getTexture()) {
-        if (NULL != texCoordSrc) {
-            layout |= GrDrawTarget::StageTexCoordVertexLayoutBit(0,0);
-        } else {
-            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
-        }
-    }
+    bool hasTexCoords[GrPaint::kTotalStages] = {
+        NULL != texCoordSrc, // texCoordSrc provides explicit stage 0 coords
+        0                    // remaining stages use positions
+    };
+    GrVertexLayout layout = PaintStageVertexLayoutBits(paint, hasTexCoords);
 
     if (NULL != colorSrc) {
         layout |= GrDrawTarget::kColor_VertexLayoutBit;

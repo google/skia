@@ -25,11 +25,9 @@
 #include "GrGpuVertex.h"
 #include "GrDrawTarget.h"
 
-static const int TEXT_STAGE = 1;
-
-static const GrVertexLayout BASE_VLAYOUT =
-                    GrDrawTarget::kTextFormat_VertexLayoutBit |
-                    GrDrawTarget::StageTexCoordVertexLayoutBit(TEXT_STAGE,0);
+enum {
+    kGlyphMaskStage = GrPaint::kTotalStages,
+};
 
 void GrTextContext::flushGlyphs() {
     if (fCurrVertex > 0) {
@@ -45,17 +43,17 @@ void GrTextContext::flushGlyphs() {
         GrSamplerState sampler(GrSamplerState::kRepeat_WrapMode,
                                GrSamplerState::kRepeat_WrapMode,
                                filter);
-        fDrawTarget->setSamplerState(TEXT_STAGE, sampler);
+        fDrawTarget->setSamplerState(kGlyphMaskStage, sampler);
 
         GrAssert(GrIsALIGN4(fCurrVertex));
         int nIndices = fCurrVertex + (fCurrVertex >> 1);
         GrAssert(fCurrTexture);
-        fDrawTarget->setTexture(TEXT_STAGE, fCurrTexture);
+        fDrawTarget->setTexture(kGlyphMaskStage, fCurrTexture);
 
         if (!GrPixelConfigIsAlphaOnly(fCurrTexture->config())) {
             if (kOne_BlendCoeff != fPaint.fSrcBlendCoeff ||
                 kISA_BlendCoeff != fPaint.fDstBlendCoeff ||
-                NULL != fPaint.getTexture()) {
+                fPaint.hasTexture()) {
                 GrPrintf("LCD Text will not draw correctly.\n");
             }
             // setup blend so that we get mask * paintColor + (1-mask)*dstColor
@@ -117,18 +115,31 @@ GrTextContext::GrTextContext(GrContext* context,
     fOrigViewMatrix = fContext->getMatrix();
     fContext->setMatrix(fExtMatrix);
 
-    fVertexLayout = BASE_VLAYOUT;
-    if (NULL != paint.getTexture()) {
-        fVertexLayout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
-        GrMatrix inverseViewMatrix;
-        if (fOrigViewMatrix.invert(&inverseViewMatrix)) {
-            fPaint.fSampler.preConcatMatrix(inverseViewMatrix);
-        }
-    }
+    fDrawTarget = fContext->getTextTarget(fPaint);
 
     fVertices = NULL;
     fMaxVertices = 0;
-    fDrawTarget = fContext->getTextTarget(fPaint);
+
+    fVertexLayout = 
+        GrDrawTarget::kTextFormat_VertexLayoutBit |
+        GrDrawTarget::StageTexCoordVertexLayoutBit(kGlyphMaskStage, 0);
+
+    int stageMask = paint.getActiveStageMask();
+    if (stageMask) {
+        GrMatrix inverseViewMatrix;
+        if (fOrigViewMatrix.invert(&inverseViewMatrix)) {
+            fDrawTarget->preConcatSamplerMatrices(stageMask, 
+                                                  inverseViewMatrix);
+        }
+        for (int i = 0; i < GrPaint::kTotalStages; ++i) {
+            if ((1 << i) & stageMask) {
+                fVertexLayout |= 
+                    GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(i);
+                GrAssert(i != kGlyphMaskStage);
+            }
+        }
+    }
+
 }
 
 GrTextContext::~GrTextContext() {
