@@ -115,19 +115,19 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 	
 	SRC_LIST += gpu/src/mac/GrGLDefaultInterface_mac.cpp
 else
-	LINKER_OPTS += -lpng -lfreetype -lGL
+	LINKER_OPTS += -lpng -lfreetype -lGL -lGLU -lX11
 	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG -DGR_LINUX_BUILD=1
 
-    ifeq ($(SKIA_SAMPLES_FOR_X),true)
-        DEFINES += -DSK_SAMPLES_FOR_X
-    endif
+	#Assume the color order for now.
+	DEFINES += -DSK_SAMPLES_FOR_X
+
 	# needed for freetype support
 	C_INCLUDES += -I/usr/include/freetype2
 	SRC_LIST += src/ports/SkFontHost_linux.cpp
 	SRC_LIST += src/ports/SkFontHost_gamma_none.cpp
 	SRC_LIST += src/ports/SkFontHost_FreeType.cpp
 	SRC_LIST += src/ports/SkFontHost_FreeType_Subpixel.cpp
-	SRC_LIST += src/utils/SkEGLContext_none.cpp
+	SRC_LIST += src/utils/unix/SkEGLContext_Unix.cpp
     # these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
 	SRC_LIST += src/images/SkImageEncoder_Factory.cpp
@@ -135,7 +135,7 @@ else
     # support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
 	
-	SRC_LIST += gpu/src/GrGLDefaultInterface_none.cpp
+	SRC_LIST += gpu/src/unix/GrGLDefaultInterface_unix.cpp
 endif
 
 # For these files, and these files only, compile with -msse2.
