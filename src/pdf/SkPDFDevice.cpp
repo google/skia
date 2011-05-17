@@ -590,6 +590,19 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
         return;
     }
 
+    // SkDraw::drawPoints converts to multiple calls to fDevice->drawPath.
+    // We only use this when there's a path effect because of the overhead
+    // of multiple calls to setUpContentEntry it causes.
+    if (passedPaint.getPathEffect()) {
+        if (d.fClip->isEmpty()) {
+            return;
+        }
+        SkDraw pointDraw(d);
+        pointDraw.fDevice = this;
+        pointDraw.drawPoints(mode, count, points, passedPaint, true);
+        return;
+    }
+
     const SkPaint* paint = &passedPaint;
     SkPaint modifiedPaint;
 
@@ -660,14 +673,9 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
         if (d.fClip->isEmpty()) {
             return;
         }
-        // Create a path for the rectangle and apply the path effect to it.
         SkPath path;
         path.addRect(r);
-        paint.getFillPath(path, &path);
-
-        SkPaint noEffectPaint(paint);
-        SkSafeUnref(noEffectPaint.setPathEffect(NULL));
-        drawPath(d, path, noEffectPaint, NULL, true);
+        drawPath(d, path, paint, NULL, true);
         return;
     }
     if (!setUpContentEntry(d.fClipStack, *d.fClip, *d.fMatrix, paint)) {
@@ -680,30 +688,54 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
     finishContentEntry(paint);
 }
 
-void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& path,
+void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
                            const SkPaint& paint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
-    NOT_IMPLEMENTED(prePathMatrix != NULL, true);
+    SkPath modifiedPath;
+    SkPath* pathPtr = const_cast<SkPath*>(&origPath);
+
+    SkMatrix matrix = *d.fMatrix;
+    if (prePathMatrix) {
+        if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
+            if (!pathIsMutable) {
+                pathPtr = &modifiedPath;
+                pathIsMutable = true;
+            }
+            origPath.transform(*prePathMatrix, pathPtr);
+        } else {
+            if (!matrix.preConcat(*prePathMatrix)) {
+                return;
+            }
+        }
+    }
 
     if (paint.getPathEffect()) {
         if (d.fClip->isEmpty()) {
             return;
         }
-        // Apply the path effect to path and draw it that way.
-        SkPath noEffectPath;
-        paint.getFillPath(path, &noEffectPath);
+        if (!pathIsMutable) {
+            pathPtr = &modifiedPath;
+            pathIsMutable = true;
+        }
+        bool fill = paint.getFillPath(origPath, pathPtr);
 
         SkPaint noEffectPaint(paint);
-        SkSafeUnref(noEffectPaint.setPathEffect(NULL));
-        drawPath(d, noEffectPath, noEffectPaint, NULL, true);
+        noEffectPaint.setPathEffect(NULL);
+        if (fill) {
+            noEffectPaint.setStyle(SkPaint::kFill_Style);
+        } else {
+            noEffectPaint.setStyle(SkPaint::kStroke_Style);
+            noEffectPaint.setStrokeWidth(0);
+        }
+        drawPath(d, *pathPtr, noEffectPaint, NULL, true);
         return;
     }
+
     if (!setUpContentEntry(d.fClipStack, *d.fClip, *d.fMatrix, paint)) {
         return;
     }
-
-    SkPDFUtils::EmitPath(path, &fCurrentContentEntry->fContent);
-    SkPDFUtils::PaintPath(paint.getStyle(), path.getFillType(),
+    SkPDFUtils::EmitPath(*pathPtr, &fCurrentContentEntry->fContent);
+    SkPDFUtils::PaintPath(paint.getStyle(), pathPtr->getFillType(),
                           &fCurrentContentEntry->fContent);
     finishContentEntry(paint);
 }
