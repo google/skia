@@ -122,7 +122,8 @@ static SkTriState cycle_tristate(SkTriState state) {
 
 class FlagsDrawFilter : public SkDrawFilter {
 public:
-    FlagsDrawFilter(SkTriState lcd, SkTriState aa) : fLCDState(lcd), fAAState(aa) {}
+    FlagsDrawFilter(SkTriState lcd, SkTriState aa, SkTriState filter) :
+        fLCDState(lcd), fAAState(aa), fFilterState(filter) {}
 
     virtual void filter(SkPaint* paint, Type t) {
         if (kText_Type == t && kUnknown_SkTriState != fLCDState) {
@@ -131,11 +132,15 @@ public:
         if (kUnknown_SkTriState != fAAState) {
             paint->setAntiAlias(kTrue_SkTriState == fAAState);
         }
+        if (kUnknown_SkTriState != fFilterState) {
+            paint->setFilterBitmap(kTrue_SkTriState == fFilterState);
+        }
     }
 
 private:
     SkTriState  fLCDState;
     SkTriState  fAAState;
+    SkTriState  fFilterState;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -298,6 +303,7 @@ private:
 
     SkTriState fLCDState;
     SkTriState fAAState;
+    SkTriState fFilterState;
     unsigned   fFlipAxis;
 
     int fScrollTestX, fScrollTestY;
@@ -850,10 +856,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->translate(-cx, -cy);
     }
 
-    if (kUnknown_SkTriState != fLCDState ||
-        kUnknown_SkTriState != fAAState) {
-        canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState))->unref();
-    }
+    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState, fFilterState))->unref();
 
     if (fMeasureFPS) {
         fMeasureFPS_Time = 0;   // 0 means the child is not aware of repeat-draw
@@ -1031,6 +1034,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'l':
             fLCDState = cycle_tristate(fLCDState);
+            this->updateTitle();
+            this->inval(NULL);
+            break;
+        case 'n':
+            fFilterState = cycle_tristate(fFilterState);
             this->updateTitle();
             this->inval(NULL);
             break;
@@ -1274,6 +1282,7 @@ void SampleWindow::updateTitle() {
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
     title.prepend(trystate_str(fAAState, "AA ", "aa "));
+    title.prepend(trystate_str(fFilterState, "LERP ", "lerp "));
     title.prepend(fFlipAxis & kFlipAxis_X ? "X " : NULL);
     title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : NULL);
 
