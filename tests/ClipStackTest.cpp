@@ -107,7 +107,8 @@ static void TestClipStack(skiatest::Reporter* reporter) {
     // all of the above rects should have been intersected, leaving only 1 rect
     SkClipStack::B2FIter iter(stack);
     const SkClipStack::B2FIter::Clip* clip = iter.next();
-    const SkRect answer = { 25, 25, 75, 75 };
+    SkRect answer;
+    answer.iset(25, 25, 75, 75);
 
     REPORTER_ASSERT(reporter, clip);
     REPORTER_ASSERT(reporter, clip->fRect);

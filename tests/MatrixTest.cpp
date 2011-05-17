@@ -2,10 +2,12 @@
 #include "SkMatrix.h"
 
 static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
+    // Note that we get more compounded error for multiple operations when
+    // SK_SCALAR_IS_FIXED.
 #ifdef SK_SCALAR_IS_FLOAT
-    const float tolerance = 0.000005f;
+    const SkScalar tolerance = SK_Scalar1 / 200000;
 #else
-    const int32_t tolerance = 8;
+    const SkScalar tolerance = SK_Scalar1 / 1024;
 #endif
 
     return SkScalarAbs(a - b) <= tolerance;
