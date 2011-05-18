@@ -24,13 +24,17 @@ protected:
 
         SkBitmap sprite;
         sprite.setConfig(SkBitmap::kARGB_8888_Config, 4, 4, 4*sizeof(SkColor));
-        SkColor spriteData[16] = {
+        const SkColor spriteData[16] = {
             SK_ColorBLACK,  SK_ColorCYAN,    SK_ColorMAGENTA, SK_ColorYELLOW,
             SK_ColorBLACK,  SK_ColorWHITE,   SK_ColorBLACK,   SK_ColorRED,
             SK_ColorGREEN,  SK_ColorBLACK,   SK_ColorWHITE,   SK_ColorBLUE,
             SK_ColorYELLOW, SK_ColorMAGENTA, SK_ColorCYAN,    SK_ColorBLACK
         };
-        sprite.setPixels(spriteData);
+        SkPMColor spriteDataPM[16];
+        for (size_t i = 0; i < SK_ARRAY_COUNT(spriteData); ++i) {
+            spriteDataPM[i] = SkPreMultiplyColor(spriteData[i]);
+        }
+        sprite.setPixels(spriteDataPM);
 
         // We draw a magnified subrect of the sprite
         // sample interpolation may cause color bleeding around edges
