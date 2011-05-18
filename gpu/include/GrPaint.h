@@ -185,7 +185,7 @@ public:
     }
 
     int getActiveMaskStageMask() const {
-        int mask;
+        int mask = 0;
         for (int i = 0; i < kMaxMasks; ++i) {
             if (NULL != fMaskTextures[i]) {
                 mask |= 1 << (i + kFirstMaskStage);
