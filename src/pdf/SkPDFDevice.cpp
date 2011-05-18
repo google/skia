@@ -327,56 +327,6 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     currentEntry()->fClipRegion = clipRegion;
 }
 
-static void append_clip_stack(const SkClipStack& src, SkClipStack* dst) {
-    SkClipStack::B2FIter iter(src);
-    const SkClipStack::B2FIter::Clip* clipEntry;
-    for (clipEntry = iter.next(); clipEntry; clipEntry = iter.next()) {
-        if (clipEntry->fRect) {
-            dst->clipDevRect(*clipEntry->fRect, clipEntry->fOp);
-        } else if (clipEntry->fPath) {
-            dst->clipDevPath(*clipEntry->fPath, clipEntry->fOp);
-        } else {
-            // There's not an easy way to add an empty clip with an arbitrary
-            // op, but an empty path (we've already used an empty rect) will
-            // work just fine for our purposes.
-            SkPath empty;
-            dst->clipDevPath(empty, clipEntry->fOp);
-        }
-    }
-}
-
-static void apply_inverse_clip_to_content_entries(
-        const SkClipStack& clipStack,
-        const SkRegion& clipRegion,
-        SkTScopedPtr<ContentEntry>* entries) {
-    // I don't see how to find the inverse of a clip stack and apply it to
-    // another clip stack.  So until we can do polygon boolean operations,
-    // we combine the two clip stacks plus a sentinal with a non-intersect
-    // operator to annotate the intent and force use of the clip region while
-    // keeping the stacks comparable.
-    // Our sentinal is an empty SkRect with kReplace_Op.  This sentinal should
-    // not appear in any reasonable real clip stack.
-    SkRect empty = SkRect::MakeEmpty();
-    SkTScopedPtr<ContentEntry>* entry = entries;
-    while (entry->get()) {
-        entry->get()->fState.fClipRegion.op(clipRegion,
-                                            SkRegion::kDifference_Op);
-        if (entry->get()->fState.fClipRegion.isEmpty()) {
-            // TODO(vandebo) The content entry we are removing may have been
-            // the only one referencing specific resources, we should remove
-            // those from our resource lists.
-            entry->reset(entry->get()->fNext.release());
-            continue;
-        }
-        entry->get()->fState.fClipStack.save();
-        entry->get()->fState.fClipStack.clipDevRect(empty,
-                                                    SkRegion::kReplace_Op);
-        append_clip_stack(clipStack, &entry->get()->fState.fClipStack);
-
-        entry = &entry->get()->fNext;
-    }
-}
-
 void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
     if (matrix == currentEntry()->fMatrix) {
         return;
@@ -1082,6 +1032,43 @@ void SkPDFDevice::createFormXObjectFromDevice(
     init();
 }
 
+void SkPDFDevice::clearClipFromContent(const SkClipStack* clipStack,
+                                       const SkRegion& clipRegion) {
+    SkRefPtr<SkPDFFormXObject> curContent;
+    createFormXObjectFromDevice(&curContent);
+
+    // Create the mask.
+    SkMatrix identity;
+    identity.reset();
+    SkDraw draw;
+    draw.fMatrix = &identity;
+    draw.fClip = &clipRegion;
+    draw.fClipStack = clipStack;
+    SkPaint stockPaint;
+    this->drawPaint(draw, stockPaint);
+    SkRefPtr<SkPDFFormXObject> maskFormXObject;
+    createFormXObjectFromDevice(&maskFormXObject);
+    SkRefPtr<SkPDFGraphicState> sMaskGS =
+        SkPDFGraphicState::getSMaskGraphicState(maskFormXObject.get(), false);
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
+
+    // Redraw what we already had, but with the clip as a mask.
+    setUpContentEntry(&fExistingClipStack, fExistingClipRegion, identity,
+                      stockPaint);
+    SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
+                                  &fCurrentContentEntry->fContent);
+    SkPDFUtils::DrawFormXObject(fXObjectResources.count(),
+                                &fCurrentContentEntry->fContent);
+    fXObjectResources.push(curContent.get());
+    curContent->ref();
+
+    sMaskGS = SkPDFGraphicState::getNoSMaskGraphicState();
+    sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
+    SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
+                                  &fCurrentContentEntry->fContent);
+    finishContentEntry(stockPaint);
+}
+
 bool SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
                                     const SkRegion& clipRegion,
                                     const SkMatrix& matrix,
@@ -1117,12 +1104,7 @@ bool SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
     // current clip.
     if (xfermode == SkXfermode::kClear_Mode ||
             xfermode == SkXfermode::kSrc_Mode) {
-        apply_inverse_clip_to_content_entries(*clipStack, clipRegion,
-                                              &fContentEntries);
-        // apply_inverse_clip_to_content_entries may have removed entries
-        // from fContentEntries and this may have invalidated
-        // fCurrentContentEntry. Set it to a known good value.
-        fCurrentContentEntry = fContentEntries.get();
+        this->clearClipFromContent(clipStack, clipRegion);
     }
 
     // For the following modes, we use both source and destination, but

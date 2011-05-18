@@ -166,6 +166,10 @@ private:
     void cleanUp();
     void createFormXObjectFromDevice(SkRefPtr<SkPDFFormXObject>* xobject);
 
+    // Clear the passed clip from all existing content entries.
+    void clearClipFromContent(const SkClipStack* clipStack,
+                              const SkRegion& clipRegion);
+
     // If the paint or clip is such that we shouldn't draw anything, these
     // return false and do not create a content entry.
     bool setUpContentEntry(const SkClipStack* clipStack,
