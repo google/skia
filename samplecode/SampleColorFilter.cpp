@@ -6,6 +6,74 @@
 #include "SkPaint.h"
 #include "SkShader.h"
 
+static int inflate5To8(int x) {
+    return (x << 3) | (x >> 2);
+}
+
+static int trunc5(int x) {
+    return x >> 3;
+}
+
+#define SK_R16_BITS 5
+
+static int round5_slow(int x) {    
+    int orig = x & 7;
+    int fake = x >> 5;
+    int trunc = x >> 3;
+
+    int diff = fake - orig;
+
+    int bias = 0;
+    if (diff > 4) {
+        bias = -1;
+    } else if (diff < -4) {
+        bias = 1;
+    }
+    return trunc + bias;
+}
+
+static int round5_fast(int x) {
+    int result = x + 3 - (x >> 5) + (x >> 7);
+    result >>= 3;
+
+    {
+        int r2 = round5_slow(x);
+        SkASSERT(r2 == result);
+    }
+    return result;
+}
+
+static void test_5bits() {
+    int e0 = 0;
+    int e1 = 0;
+    int e2 = 0;
+    int ae0 = 0;
+    int ae1 = 0;
+    int ae2 = 0;
+    for (int i = 0; i < 256; i++) {
+        int t0 = trunc5(i);
+        int t1 = round5_fast(i);
+        int t2 = trunc5(i);
+        int v0 = inflate5To8(t0);
+        int v1 = inflate5To8(t1);
+        int v2 = inflate5To8(t2);
+        int err0 = i - v0;
+        int err1 = i - v1;
+        int err2 = i - v2;
+        SkDebugf("--- %3d : trunc=%3d (%2d) round:%3d (%2d) \n"/*new:%d (%2d)\n"*/, i,
+                 v0, err0, v1, err1, v2, err2);
+        
+
+        e0 += err0;
+        e1 += err1;
+        e2 += err2;
+        ae0 += SkAbs32(err0);
+        ae1 += SkAbs32(err1);
+        ae2 += SkAbs32(err2);
+    }
+    SkDebugf("--- trunc: %d %d  round: %d %d new: %d %d\n", e0, ae0, e1, ae1, e2, ae2);
+}
+
 static SkShader* createChecker() {
     SkBitmap bm;
     bm.setConfig(SkBitmap::kARGB_8888_Config, 2, 2);
@@ -57,6 +125,8 @@ public:
     ColorFilterView() {
         fBitmap = createBitmap(N);
         fShader = createChecker();
+      
+//        test_5bits();
     }
 
     virtual ~ColorFilterView() {
