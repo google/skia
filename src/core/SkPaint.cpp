@@ -1292,18 +1292,35 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->fStrokeJoin = 0;
     }
 
-    rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
-    rec->fFlags = SkToU8(flags);
     rec->setHinting(computeHinting(paint));
+    rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
+
+    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
+        SkFontHost::LCDOrder order = SkFontHost::GetSubpixelOrder();
+        SkFontHost::LCDOrientation orient = SkFontHost::GetSubpixelOrientation();
+        if (SkFontHost::kNONE_LCDOrder == order) {
+            // eeek, can't support LCD
+            rec->fMaskFormat = SkMask::kA8_Format;
+        } else {
+            if (SkFontHost::kVertical_LCDOrientation == orient) {
+                flags |= SkScalerContext::kLCD_Vertical_Flag;
+            }
+            if (SkFontHost::kBGR_LCDOrder == order) {
+                flags |= SkScalerContext::kLCD_BGROrder_Flag;
+            }
+        }
+    }
+
     if (paint.isEmbeddedBitmapText()) {
-        rec->fFlags |= SkScalerContext::kEmbeddedBitmapText_Flag;
+        flags |= SkScalerContext::kEmbeddedBitmapText_Flag;
     }
     if (paint.isSubpixelText()) {
-        rec->fFlags |= SkScalerContext::kSubpixelPositioning_Flag;
+        flags |= SkScalerContext::kSubpixelPositioning_Flag;
     }
     if (paint.isAutohinted()) {
-        rec->fFlags |= SkScalerContext::kAutohinting_Flag;
+        flags |= SkScalerContext::kAutohinting_Flag;
     }
+    rec->fFlags = SkToU16(flags);
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,

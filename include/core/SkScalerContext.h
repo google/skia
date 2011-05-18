@@ -179,6 +179,9 @@ public:
         kEmbolden_Flag      = 0x80,
         kSubpixelPositioning_Flag = 0x100,
         kAutohinting_Flag   = 0x200,
+        // these should only ever be set if fMaskFormat is LCD
+        kLCD_Vertical_Flag  = 0x400,    // else Horizontal
+        kLCD_BGROrder_Flag  = 0x800,    // else RGB order
     };
 private:
     enum {
