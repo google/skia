@@ -1292,7 +1292,6 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         rec->fStrokeJoin = 0;
     }
 
-    rec->setHinting(computeHinting(paint));
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
 
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
@@ -1321,6 +1320,9 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         flags |= SkScalerContext::kAutohinting_Flag;
     }
     rec->fFlags = SkToU16(flags);
+
+    // setHinting modifies fFlags, so do this last
+    rec->setHinting(computeHinting(paint));
 
     /*  Allow the fonthost to modify our rec before we use it as a key into the
         cache. This way if we're asking for something that they will ignore,
