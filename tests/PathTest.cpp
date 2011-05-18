@@ -86,14 +86,12 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     spiral.close();
     check_convexity(reporter, spiral, SkPath::kConcave_Convexity);
     
-    // TODO(reed): We evaluate this path as concave for SK_SCALAR_IS_FLOAT,
-    // but convex for SK_SCALAR_IS_FIXED.
     SkPath dent;
-    dent.moveTo(0, 0);
-    dent.lineTo(100, 100);
-    dent.lineTo(0, 100);
-    dent.lineTo(-50, 200);
-    dent.lineTo(-200, 100);
+    dent.moveTo(SkIntToScalar(0), SkIntToScalar(0));
+    dent.lineTo(SkIntToScalar(100), SkIntToScalar(100));
+    dent.lineTo(SkIntToScalar(0), SkIntToScalar(100));
+    dent.lineTo(SkIntToScalar(-50), SkIntToScalar(200));
+    dent.lineTo(SkIntToScalar(-200), SkIntToScalar(100));
     dent.close();
     check_convexity(reporter, dent, SkPath::kConcave_Convexity);
 }
