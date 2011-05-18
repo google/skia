@@ -3,15 +3,20 @@
 namespace skiagm {
 
 static void make_bm(SkBitmap* bm) {
-    const SkColor colors[] = {
+    const SkColor colors[4] = {
         SK_ColorRED, SK_ColorGREEN,
         SK_ColorBLUE, SK_ColorWHITE
     };
-    SkColorTable* ctable = new SkColorTable(colors, 4);
+    SkPMColor colorsPM[4];
+    for (size_t i = 0; i < SK_ARRAY_COUNT(colors); ++i) {
+        colorsPM[i] = SkPreMultiplyColor(colors[i]);
+    }
+    SkColorTable* ctable = new SkColorTable(colorsPM, 4);
+
     bm->setConfig(SkBitmap::kIndex8_Config, 2, 2);
     bm->allocPixels(ctable);
     ctable->unref();
-    
+
     *bm->getAddr8(0, 0) = 0;
     *bm->getAddr8(1, 0) = 1;
     *bm->getAddr8(0, 1) = 2;
@@ -57,7 +62,7 @@ static SkScalar draw_row(SkCanvas* canvas, const SkBitmap& bm) {
     canvas->translate(SkIntToScalar(48), 0);
 
     canvas->scale(SkIntToScalar(scale), SkIntToScalar(scale));
-    
+
     x += draw_set(canvas, bm, 0, &paint);
     paint.reset();
     paint.setAlpha(0x80);
@@ -90,7 +95,7 @@ protected:
 
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);
-        
+
         canvas->translate(x, y);
         y = draw_row(canvas, fBM8);
         canvas->translate(0, y);
@@ -100,7 +105,7 @@ protected:
         canvas->translate(0, y);
         draw_row(canvas, fBM32);
     }
-    
+
 private:
     typedef GM INHERITED;
 };
