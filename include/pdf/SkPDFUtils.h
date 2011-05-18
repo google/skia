@@ -22,7 +22,7 @@
 class SkMatrix;
 class SkPath;
 class SkPDFArray;
-class SkRect;
+struct SkRect;
 
 #if 0
 #define PRINT_NOT_IMPL(str) fprintf(stderr, str)
