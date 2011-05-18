@@ -50,8 +50,7 @@ public:
     virtual Factory getFactory() { return Create; }
 private:
     ReduceNoise(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
-    static SkFlattenable* Create(SkFlattenableReadBuffer& rb)
-    {
+    static SkFlattenable* Create(SkFlattenableReadBuffer& rb) {
         return new ReduceNoise(rb);
     }
 };
@@ -64,12 +63,9 @@ public:
         int c = srcRows[1][1];
         float f = c / 255.f;
 
-        if (c >= 0)
-        {
+        if (c >= 0) {
             f = sqrtf(f);
-        }
-        else
-        {
+        } else {
             f *= f;
         }
         SkASSERT(f >= 0 && f <= 1);
@@ -78,33 +74,14 @@ public:
     virtual Factory getFactory() { return Create; }
 private:
     Darken(SkFlattenableReadBuffer& rb) : SkKernel33ProcMaskFilter(rb) {}
-    static SkFlattenable* Create(SkFlattenableReadBuffer& rb)
-    {
+    static SkFlattenable* Create(SkFlattenableReadBuffer& rb) {
         return new Darken(rb);
     }
 };
 
 static SkMaskFilter* makemf() { return new Darken(0x30); }
 
-//#ifdef TEST_CLICKX
-
-static void test_typefaceCache()
-{
-#ifdef ANDROID
-    SkTypeface* t0 = SkTypeface::CreateFromName("sans-serif",
-                                                SkTypeface::kNormal);
-    SkTypeface* t1 = SkTypeface::CreateFromName(NULL, SkTypeface::kNormal);
-    SkTypeface* t2 = SkTypeface::CreateFromName("arial", SkTypeface::kNormal);
-    SkTypeface* t3 = SkTypeface::CreateFromName("helvetica", SkTypeface::kItalic);
-
-    SkASSERT(t0 == t1);
-    SkASSERT(t0 == t2);
-    SkASSERT(t0 == t3);
-#endif
-}
-
-static void test_breakText()
-{
+static void test_breakText() {
     SkPaint paint;
     const char* text = "sdfkljAKLDFJKEWkldfjlk#$%&sdfs.dsj";
     size_t length = strlen(text);
@@ -112,8 +89,7 @@ static void test_breakText()
 
     SkScalar mm = 0;
     SkScalar nn = 0;
-    for (SkScalar w = 0; w <= width; w += SK_Scalar1)
-    {
+    for (SkScalar w = 0; w <= width; w += SK_Scalar1) {
         SkScalar m;
         size_t n = paint.breakText(text, length, w, &m,
                                     SkPaint::kBackward_TextBufferDirection);
@@ -121,15 +97,13 @@ static void test_breakText()
         SkASSERT(n <= length);
         SkASSERT(m <= width);
 
-        if (n == 0)
+        if (n == 0) {
             SkASSERT(m == 0);
-        else
-        {
+        } else {
             // now assert that we're monotonic
-            if (n == nn)
+            if (n == nn) {
                 SkASSERT(m == mm);
-            else
-            {
+            } else {
                 SkASSERT(n > nn);
                 SkASSERT(m > mm);
             }
@@ -149,14 +123,14 @@ class SkPowerMode : public SkXfermode {
 public:
     SkPowerMode(SkScalar exponent) { this->init(exponent); }
 
-    virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count, const SkAlpha aa[]);
+    virtual void xfer16(uint16_t dst[], const SkPMColor src[], int count,
+                        const SkAlpha aa[]);
 
     typedef SkFlattenable* (*Factory)(SkFlattenableReadBuffer&);
 
     // overrides for SkFlattenable
     virtual Factory getFactory() { return Create; }
-    virtual void flatten(SkFlattenableWriteBuffer& b)
-    {
+    virtual void flatten(SkFlattenableWriteBuffer& b) {
     //    this->INHERITED::flatten(b);  How can we know if this is legal????
         b.write32(SkScalarToFixed(fExp));
     }
@@ -166,27 +140,23 @@ private:
     uint8_t fTable[256];    // cache
 
     void init(SkScalar exponent);
-    SkPowerMode(SkFlattenableReadBuffer& b) : SkXfermode(b)
-    {
+    SkPowerMode(SkFlattenableReadBuffer& b) : SkXfermode(b) {
         // read the exponent
         this->init(SkFixedToScalar(b.readS32()));
     }
-    static SkFlattenable* Create(SkFlattenableReadBuffer& b)
-    {
+    static SkFlattenable* Create(SkFlattenableReadBuffer& b) {
         return SkNEW_ARGS(SkPowerMode, (b));
     }
 
     typedef SkXfermode INHERITED;
 };
 
-void SkPowerMode::init(SkScalar e)
-{
+void SkPowerMode::init(SkScalar e) {
     fExp = e;
     float ee = SkScalarToFloat(e);
 
     printf("------ %g\n", ee);
-    for (int i = 0; i < 256; i++)
-    {
+    for (int i = 0; i < 256; i++) {
         float x = i / 255.f;
      //   printf(" %d %g", i, x);
         x = powf(x, ee);
@@ -197,10 +167,9 @@ void SkPowerMode::init(SkScalar e)
     }
 }
 
-void SkPowerMode::xfer16(uint16_t dst[], const SkPMColor src[], int count, const SkAlpha aa[])
-{
-    for (int i = 0; i < count; i++)
-    {
+void SkPowerMode::xfer16(uint16_t dst[], const SkPMColor src[], int count,
+                         const SkAlpha aa[]) {
+    for (int i = 0; i < count; i++) {
         SkPMColor c = src[i];
         int r = SkGetPackedR32(c);
         int g = SkGetPackedG32(c);
@@ -222,8 +191,7 @@ static const struct {
     { "Subpixel", SkPaint::kSubpixelText_Flag, true }
 };
 
-static int count_char_points(const SkPaint& paint, char c)
-{
+static int count_char_points(const SkPaint& paint, char c) {
     SkPath  path;
 
     paint.getTextPath(&c, 1, 0, 0, &path);
@@ -232,10 +200,8 @@ static int count_char_points(const SkPaint& paint, char c)
 
 static int gOld, gNew, gCount;
 
-static void dump(int c, int oldc, int newc)
-{
-    if (oldc != newc)
-    {
+static void dump(int c, int oldc, int newc) {
+    if (oldc != newc) {
         gOld += oldc;
         gNew += newc;
         gCount += 1;
@@ -243,51 +209,18 @@ static void dump(int c, int oldc, int newc)
     }
 }
 
-static void tab(int n)
-{
+static void tab(int n) {
 //    printf("[%d] ", n); return;
     SkASSERT(n >= 0);
     for (int i = 0; i < n; i++)
         printf("    ");
 }
 
-#if 0
-#include "badrects.cpp"
-
-static void make_badrgn(SkRegion* rgn, int insetAmount)
-{
-    SkRect16    r, bounds;
-    int         i;
-
-    rgn->setEmpty();
-    bounds.setEmpty();
-
-    for (i = 0; i < SK_ARRAY_COUNT(badrects); i++)
-    {
-        SkASSERT(badrects[i].width > 0 && badrects[i].height > 0);
-
-        r.set(badrects[i].x, badrects[i].y, badrects[i].x + badrects[i].width, badrects[i].y + badrects[i].height);
-        r.inset(insetAmount, insetAmount);
-        rgn->op(r, SkRegion::kUnion_Op);
-        bounds.join(r);
-    }
-    SkASSERT(bounds == rgn->getBounds());
-
-    for (i = 0; i < SK_ARRAY_COUNT(badrects); i++)
-    {
-        r.set(badrects[i].x, badrects[i].y, badrects[i].x + badrects[i].width, badrects[i].y + badrects[i].height);
-        SkASSERT(rgn->contains(r));
-    }
-}
-#endif
-
-static void draw_rgn(const SkRegion& rgn, SkCanvas* canvas, const SkPaint& paint)
-{
+static void draw_rgn(const SkRegion& rgn, SkCanvas* canvas, const SkPaint& paint) {
     SkRect    r;
     SkRegion::Iterator  iter(rgn);
 
-    for (; !iter.done(); iter.next())
-    {
+    for (; !iter.done(); iter.next()) {
         r.set(iter.rect());
         canvas->drawRect(r, paint);
     }
@@ -295,62 +228,30 @@ static void draw_rgn(const SkRegion& rgn, SkCanvas* canvas, const SkPaint& paint
 
 static void test_break(SkCanvas* canvas, const char text[], size_t length,
                         SkScalar x, SkScalar y, const SkPaint& paint,
-                        SkScalar clickX)
-{
+                        SkScalar clickX) {
     SkPaint linePaint;
 
     linePaint.setAntiAlias(true);
 
     SkScalar measured;
 
-    if (paint.breakText(text, length, clickX - x, &measured, SkPaint::kForward_TextBufferDirection))
-    {
+    if (paint.breakText(text, length, clickX - x, &measured,
+                        SkPaint::kForward_TextBufferDirection)) {
         linePaint.setColor(SK_ColorRED);
         canvas->drawLine(x, y, x + measured, y, linePaint);
     }
 
     x += paint.measureText(text, length);
-    if (paint.breakText(text, length, x - clickX, &measured, SkPaint::kBackward_TextBufferDirection))
-    {
+    if (paint.breakText(text, length, x - clickX, &measured,
+                        SkPaint::kBackward_TextBufferDirection)) {
         linePaint.setColor(SK_ColorBLUE);
         canvas->drawLine(x - measured, y, x, y, linePaint);
     }
 }
 
-static void test_poly()
-{
-    static const SkPoint dst[] = {
-        SkIntToScalar(2), SkIntToScalar(1),
-        SkIntToScalar(5), SkIntToScalar(1),
-        SkIntToScalar(5), SkIntToScalar(3),
-        SkIntToScalar(2), SkIntToScalar(3)
-    };
-
-    static const SkPoint src[] = {
-        SkIntToScalar(0), SkIntToScalar(0),
-        SkIntToScalar(1), SkIntToScalar(0),
-        SkIntToScalar(1), SkIntToScalar(1),
-        SkIntToScalar(0), SkIntToScalar(1)
-    };
-
-    SkMatrix matrix;
-
-    if (matrix.setPolyToPoly(src, dst, 4))
-    {
-        SkPoint pt = { SK_Scalar1/2, SK_Scalar1/2 };
-        matrix.mapPoints(&pt, 1);
-        printf("---- x = %g y = %g\n", SkScalarToFloat(pt.fX), SkScalarToFloat(pt.fY));
-    }
-    else
-        printf("---- setPolyToPoly failed\n");
-}
-
-#include "SkColorShader.h"
-
 static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
                         SkScalar x, SkScalar y, const SkPaint& paint,
-                        SkScalar clickX, SkMaskFilter* mf)
-{
+                        SkScalar clickX, SkMaskFilter* mf) {
     SkPaint p(paint);
 
 #if 0
@@ -360,8 +261,9 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
         SkPoint pts[1000];
         SkScalar xpos = x;
         SkASSERT(length <= SK_ARRAY_COUNT(pts));
-        for (size_t i = 0; i < length; i++)
+        for (size_t i = 0; i < length; i++) {
             pts[i].set(xpos, y), xpos += paint.getTextSize();
+        }
         canvas->drawPosText(text, length, pts, paint);
     }
 #endif
@@ -370,22 +272,8 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
     x += SkIntToScalar(180);
     canvas->drawText(text, length, x, y, p);
 
-#ifdef TEST_CLICKX
-    test_break(canvas, text, length, x, y, p, clickX);
-#endif
-
 #ifdef SK_DEBUG
-    if (false)
-    {
-        SkColorShader   shader;
-        p.setShader(&shader);
-        x += SkIntToScalar(180);
-        canvas->drawText(text, length, x, y, p);
-        p.setShader(NULL);
-    }
-
-    if (true)
-    {
+    if (true) {
     //    p.setMaskFilter(mf);
         p.setSubpixelText(false);
         p.setLinearText(true);
@@ -395,71 +283,32 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length,
 #endif
 }
 
-class TextSpeedView : public SkView {
+class TextSpeedView : public SampleView {
 public:
-	TextSpeedView()
-    {
+	TextSpeedView() {
         fMF = makemf();
 
         fHints = 0;
-
-        if (false)
-        {
-            static const char extra[] = { '.', ',', ':', ';', '!' };
-            SkPaint   paint, paint2;
-
-            paint2.setTypeface(SkTypeface::CreateFromName(NULL,
-                                                SkTypeface::kItalic))->unref();
-
-            for (int i = 0; i < 26; i++)
-                ::dump('a' + i, count_char_points(paint, 'a' + i), count_char_points(paint2, 'a' + i));
-            for (int j = 0; j < SK_ARRAY_COUNT(extra); j++)
-                ::dump(extra[j], count_char_points(paint, extra[j]), count_char_points(paint2, extra[j]));
-
-            printf("--- ave reduction = %g%%\n", 100. * (gOld - gNew) / gOld);
-        }
-
-        if (true)
-        {
-            SkPoint pts[] = { SkIntToScalar(20), 0, SkIntToScalar(256+20), 0 };
-            SkColor colors[] = { SkColorSetARGB(0, 255, 255, 255), SkColorSetARGB(255, 255, 255, 255) };
-            fGradient = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
-        }
-
         fClickX = 0;
 
         test_breakText();
-        test_typefaceCache();
-//        test_poly();
     }
 
-    virtual ~TextSpeedView()
-    {
-        fGradient->unref();
+    virtual ~TextSpeedView() {
         SkSafeUnref(fMF);
     }
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Text");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas)
-    {
-//        canvas->drawColor(0xFFDDDDDD);
-        canvas->drawColor(SK_ColorWHITE);
-   //     canvas->drawColor(SK_ColorBLACK);
-    }
-
-    static void make_textstrip(SkBitmap* bm)
-    {
+    static void make_textstrip(SkBitmap* bm) {
         bm->setConfig(SkBitmap::kRGB_565_Config, 200, 18);
         bm->allocPixels();
         bm->eraseColor(SK_ColorWHITE);
@@ -474,16 +323,12 @@ protected:
         canvas.drawText(s, strlen(s), SkIntToScalar(8), SkIntToScalar(14), paint);
     }
 
-    static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand)
-    {
+    static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
         for (size_t i = 0; i < n; i++)
             pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
     }
 
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkAutoCanvasRestore restore(canvas, false);
         {
             SkRect r;
@@ -508,36 +353,17 @@ protected:
         SkRect clip;
         clip.set(SkIntToScalar(25), SkIntToScalar(34), SkIntToScalar(88), SkIntToScalar(155));
 
-        if (0) {
-            canvas->clipRect(clip);
-        }
-
-        if (0) {
-            SkPath clipPath;
-            clipPath.addOval(clip);
-            canvas->clipPath(clipPath);
-        }
-
         const char* text = "Hamburgefons";
         size_t length = strlen(text);
-
-#ifdef TEST_CLICKX
-        {
-            SkPaint p;
-
-            p.setColor(SK_ColorGREEN);
-            p.setAntiAlias(true);
-            canvas->drawLine(fClickX, 0, fClickX, SkIntToScalar(1000), p);
-        }
-#endif
 
         SkScalar y = SkIntToScalar(0);
         for (int i = 9; i <= 24; i++) {
             paint.setTextSize(SkIntToScalar(i) /*+ (gRand.nextU() & 0xFFFF)*/);
-            for (SkScalar dx = 0; dx <= SkIntToScalar(3)/4; dx += SkIntToScalar(1) /* /4 */)
-            {
+            for (SkScalar dx = 0; dx <= SkIntToScalar(3)/4;
+                                            dx += SkIntToScalar(1) /* /4 */) {
                 y += paint.getFontSpacing();
-                DrawTheText(canvas, text, length, SkIntToScalar(20) + dx, y, paint, fClickX, fMF);
+                DrawTheText(canvas, text, length, SkIntToScalar(20) + dx, y,
+                            paint, fClickX, fMF);
             }
         }
         if (gHints[index].fFlushCache) {
@@ -545,15 +371,13 @@ protected:
         }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y)
-    {
+    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
         fClickX = x;
         this->inval(NULL);
         return this->INHERITED::onFindClickHandler(x, y);
     }
 
-    virtual bool onClick(Click* click)
-    {
+    virtual bool onClick(Click* click) {
         return this->INHERITED::onClick(click);
     }
 
@@ -561,9 +385,8 @@ private:
     int fHints;
     SkScalar fClickX;
     SkMaskFilter* fMF;
-    SkShader* fGradient;
 
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
