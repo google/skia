@@ -122,8 +122,9 @@ static SkTriState cycle_tristate(SkTriState state) {
 
 class FlagsDrawFilter : public SkDrawFilter {
 public:
-    FlagsDrawFilter(SkTriState lcd, SkTriState aa, SkTriState filter) :
-        fLCDState(lcd), fAAState(aa), fFilterState(filter) {}
+    FlagsDrawFilter(SkTriState lcd, SkTriState aa, SkTriState filter,
+                    SkTriState hinting) :
+        fLCDState(lcd), fAAState(aa), fFilterState(filter), fHintingState(hinting) {}
 
     virtual void filter(SkPaint* paint, Type t) {
         if (kText_Type == t && kUnknown_SkTriState != fLCDState) {
@@ -135,12 +136,18 @@ public:
         if (kUnknown_SkTriState != fFilterState) {
             paint->setFilterBitmap(kTrue_SkTriState == fFilterState);
         }
+        if (kUnknown_SkTriState != fHintingState) {
+            paint->setHinting(kTrue_SkTriState == fHintingState ?
+                              SkPaint::kNormal_Hinting :
+                              SkPaint::kSlight_Hinting);
+        }
     }
 
 private:
     SkTriState  fLCDState;
     SkTriState  fAAState;
     SkTriState  fFilterState;
+    SkTriState  fHintingState;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -304,6 +311,7 @@ private:
     SkTriState fLCDState;
     SkTriState fAAState;
     SkTriState fFilterState;
+    SkTriState fHintingState;
     unsigned   fFlipAxis;
 
     int fScrollTestX, fScrollTestY;
@@ -435,6 +443,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fLCDState = kUnknown_SkTriState;
     fAAState = kUnknown_SkTriState;
     fFilterState = kUnknown_SkTriState;
+    fHintingState = kUnknown_SkTriState;
     fFlipAxis = 0;
     fScrollTestX = fScrollTestY = 0;
 
@@ -857,7 +866,8 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->translate(-cx, -cy);
     }
 
-    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState, fFilterState))->unref();
+    canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState,
+                                       fFilterState, fHintingState))->unref();
 
     if (fMeasureFPS) {
         fMeasureFPS_Time = 0;   // 0 means the child is not aware of repeat-draw
@@ -1028,6 +1038,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             break;
         case 'g':
             fRequestGrabImage = true;
+            this->inval(NULL);
+            break;
+        case 'h':
+            fHintingState = cycle_tristate(fHintingState);
+            this->updateTitle();
             this->inval(NULL);
             break;
         case 'i':
@@ -1283,7 +1298,7 @@ void SampleWindow::updateTitle() {
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
     title.prepend(trystate_str(fAAState, "AA ", "aa "));
-    title.prepend(trystate_str(fFilterState, "LERP ", "lerp "));
+    title.prepend(trystate_str(fFilterState, "H ", "h "));
     title.prepend(fFlipAxis & kFlipAxis_X ? "X " : NULL);
     title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : NULL);
 
