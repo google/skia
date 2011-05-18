@@ -122,15 +122,14 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     realHalf->unref();  // SkRefPtr and new both took a reference.
     CheckObjectOutput(reporter, realHalf.get(), "0.5", true);
 
+#if defined(SK_SCALAR_IS_FLOAT)
     SkRefPtr<SkPDFScalar> bigScalar = new SkPDFScalar(110999.75);
     bigScalar->unref();  // SkRefPtr and new both took a reference.
-#if defined(SK_SCALAR_IS_FIXED) || !defined(SK_ALLOW_LARGE_PDF_SCALARS)
+#if !defined(SK_ALLOW_LARGE_PDF_SCALARS)
     CheckObjectOutput(reporter, bigScalar.get(), "111000", true);
 #else
     CheckObjectOutput(reporter, bigScalar.get(), "110999.75", true);
-#endif
 
-#if defined(SK_SCALAR_IS_FLOAT) && defined(SK_ALLOW_LARGE_PDF_SCALARS)
     SkRefPtr<SkPDFScalar> biggerScalar = new SkPDFScalar(50000000.1);
     biggerScalar->unref();  // SkRefPtr and new both took a reference.
     CheckObjectOutput(reporter, biggerScalar.get(), "50000000", true);
@@ -138,6 +137,7 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     SkRefPtr<SkPDFScalar> smallestScalar = new SkPDFScalar(1.0/65536);
     smallestScalar->unref();  // SkRefPtr and new both took a reference.
     CheckObjectOutput(reporter, smallestScalar.get(), "0.00001526", true);
+#endif
 #endif
 
     SkRefPtr<SkPDFString> stringSimple = new SkPDFString("test ) string ( foo");
