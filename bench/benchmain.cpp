@@ -66,7 +66,7 @@ public:
         }
         return NULL;
     }
-    
+
 private:
     const BenchRegistry* fBench;
     void* fParam;
@@ -106,7 +106,7 @@ static void saveFile(const char name[], const char config[], const char dir[],
             *p++ = c | (SK_A32_MASK << SK_A32_SHIFT);
         }
     }
-
+    
     SkString str;
     make_filename(name, &str);
     str.appendf("_%s.png", config);
@@ -122,7 +122,7 @@ static void performClip(SkCanvas* canvas, int w, int h) {
     r.set(SkIntToScalar(10), SkIntToScalar(10),
           SkIntToScalar(w*2/3), SkIntToScalar(h*2/3));
     canvas->clipRect(r, SkRegion::kIntersect_Op);
-
+    
     r.set(SkIntToScalar(w/3), SkIntToScalar(h/3),
           SkIntToScalar(w-10), SkIntToScalar(h-10));
     canvas->clipRect(r, SkRegion::kXOR_Op);
@@ -166,7 +166,7 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
     SkDevice* device = NULL;
     SkBitmap bitmap;
     bitmap.setConfig(config, size.fX, size.fY);
-
+    
     switch (backend) {
         case kRaster_Backend:
             bitmap.allocPixels();
@@ -205,7 +205,7 @@ static int findConfig(const char config[]) {
 
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
-
+    
     SkTDict<const char*> defineDict(1024);
     int repeatDraw = 1;
     int forceAlpha = 0xFF;
@@ -218,13 +218,13 @@ int main (int argc, char * const argv[]) {
     const char* matchStr = NULL;
     bool hasStrokeWidth = false;
     float strokeWidth;
-
+    
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
     const char* configName = "";
     Backend backend = kRaster_Backend;  // for warning
     int configCount = SK_ARRAY_COUNT(gConfigs);
-
+    
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
         if (strcmp(*argv, "-o") == 0) {
@@ -331,7 +331,7 @@ int main (int argc, char * const argv[]) {
             return -1;
         }
     }
-
+    
     // report our current settings
     {
         SkString str;
@@ -339,7 +339,7 @@ int main (int argc, char * const argv[]) {
                    forceAlpha, forceAA, forceFilter);
         log_progress(str);
     }
-
+    
     GrContext* context = NULL;
     SkEGLContext eglContext;
     if (eglContext.init(1024, 1024)) {
@@ -361,34 +361,34 @@ int main (int argc, char * const argv[]) {
         if (hasStrokeWidth) {
             bench->setStrokeWidth(strokeWidth);
         }
-
+        
         // only run benchmarks if their name contains matchStr
         if (matchStr && strstr(bench->getName(), matchStr) == NULL) {
             continue;
         }
-
+        
         {
             SkString str;
             str.printf("running bench [%d %d] %28s", dim.fX, dim.fY,
                        bench->getName());
             log_progress(str);
         }
-
+        
         for (int configIndex = 0; configIndex < configCount; configIndex++) {
             if (configCount > 1) {
                 outConfig = gConfigs[configIndex].fConfig;
                 configName = gConfigs[configIndex].fName;
                 backend = gConfigs[configIndex].fBackend;
             }
-
+            
             if (kGPU_Backend == backend && NULL == context) {
                 continue;
             }
-
+            
             SkDevice* device = make_device(outConfig, dim, backend, context);
             SkCanvas canvas(device);
             device->unref();
-
+            
             if (doClip) {
                 performClip(&canvas, dim.fX, dim.fY);
             }
@@ -398,21 +398,27 @@ int main (int argc, char * const argv[]) {
             if (doRotate) {
                 performRotate(&canvas, dim.fX, dim.fY);
             }
-
+            
+            //warm up caches if needed
             if (repeatDraw > 1) {
                 SkAutoCanvasRestore acr(&canvas, true);
                 bench->draw(&canvas);
+                if (kGPU_Backend == backend && context) {
+                    context->flush();
+                    glFinish();
+                }
             }
-
+            
             SkMSec now = SkTime::GetMSecs();
             for (int i = 0; i < repeatDraw; i++) {
                 SkAutoCanvasRestore acr(&canvas, true);
                 bench->draw(&canvas);
             }
-            if (context) {
+            if (kGPU_Backend == backend && context) {
                 context->flush();
+                glFinish();
             }
-
+            
             if (repeatDraw > 1) {
                 double duration = SkTime::GetMSecs() - now;
                 SkString str;
