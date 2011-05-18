@@ -500,30 +500,49 @@ static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
     return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
 }
 
+static int alignTo32(int n) {
+    return (n + 31) & ~31;
+}
+
+struct MyBitmapInfo : public BITMAPINFO {
+    RGBQUAD fMoreSpaceForColors[1];
+};
+
 void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     SkAutoMutexAcquire  ac(gFTMutex);
 
     SkASSERT(fDDC);
 
-    if (SkMask::kLCD16_Format == fRec.fMaskFormat) {
+    const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
+    if ((SkMask::kLCD16_Format == fRec.fMaskFormat) || isBW) {
         HDC dc = CreateCompatibleDC(0);
         void* bits = 0;
-        BITMAPINFO info;
+        int biWidth = isBW ? alignTo32(glyph.fWidth) : glyph.fWidth;
+        MyBitmapInfo info;
         sk_bzero(&info, sizeof(info));
+        if (isBW) {
+            RGBQUAD blackQuad = { 0, 0, 0, 0 };
+            RGBQUAD whiteQuad = { 0xFF, 0xFF, 0xFF, 0 };
+            info.bmiColors[0] = blackQuad;
+            info.bmiColors[1] = whiteQuad;
+        }
         info.bmiHeader.biSize = sizeof(info.bmiHeader);
-        info.bmiHeader.biWidth = glyph.fWidth;
+        info.bmiHeader.biWidth = biWidth;
         info.bmiHeader.biHeight = glyph.fHeight;
         info.bmiHeader.biPlanes = 1;
-        info.bmiHeader.biBitCount = 32;
+        info.bmiHeader.biBitCount = isBW ? 1 : 32;
         info.bmiHeader.biCompression = BI_RGB;
+        if (isBW) {
+            info.bmiHeader.biClrUsed = 2;
+        }
         HBITMAP bm = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &bits, 0, 0);
         SelectObject(dc, bm);
 
         // erase to white
-        size_t srcRB = glyph.fWidth << 2;
+        size_t srcRB = isBW ? (biWidth >> 3) : (glyph.fWidth << 2);
         size_t size = glyph.fHeight * srcRB;
-        memset(bits, 0xFF, size);
+        memset(bits, isBW ? 0 : 0xFF, size);
 
         SetGraphicsMode(dc, GM_ADVANCED);
         SetBkMode(dc, TRANSPARENT);
@@ -535,7 +554,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         SetWorldTransform(dc, &xform);
 
         HGDIOBJ prevFont = SelectObject(dc, fFont);
-        COLORREF color = SetTextColor(dc, 0); // black
+        COLORREF color = SetTextColor(dc, isBW ? 0xFFFFFF : 0);
         SkASSERT(color != CLR_INVALID);
         uint16_t glyphID = glyph.getGlyphID();
 #if defined(UNICODE)
@@ -548,15 +567,26 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         // downsample from rgba to rgb565
         int width = glyph.fWidth;
         size_t dstRB = glyph.rowBytes();
-        const uint32_t* src = (const uint32_t*)bits;
-        // gdi's bitmap is upside-down, so we reverse dst walking in Y
-        uint16_t* dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-        for (int y = 0; y < glyph.fHeight; y++) {
-            for (int i = 0; i < width; i++) {
-                dst[i] = rgb_to_lcd16(src[i]);
+        if (isBW) {
+            const uint8_t* src = (const uint8_t*)bits;
+            // gdi's bitmap is upside-down, so we reverse dst walking in Y
+            uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+            for (int y = 0; y < glyph.fHeight; y++) {
+                memcpy(dst, src, dstRB);
+                src += srcRB;
+                dst -= dstRB;
             }
-            src = (const uint32_t*)((const char*)src + srcRB);
-            dst = (uint16_t*)((char*)dst - dstRB);
+        } else {    // LCD16
+            const uint32_t* src = (const uint32_t*)bits;
+            // gdi's bitmap is upside-down, so we reverse dst walking in Y
+            uint16_t* dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+            for (int y = 0; y < glyph.fHeight; y++) {
+                for (int i = 0; i < width; i++) {
+                    dst[i] = rgb_to_lcd16(src[i]);
+                }
+                src = (const uint32_t*)((const char*)src + srcRB);
+                dst = (uint16_t*)((char*)dst - dstRB);
+            }
         }
 
         DeleteDC(dc);
@@ -943,10 +973,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     // we do support LCD16
     if (SkMask::kLCD16_Format == rec->fMaskFormat) {
         return;
-    }
-    // we never like BW format
-    if (SkMask::kBW_Format == rec->fMaskFormat) {
-        rec->fMaskFormat = SkMask::kA8_Format;
     }
 
     if (SkMask::FormatIsLCD((SkMask::Format)rec->fMaskFormat)) {
