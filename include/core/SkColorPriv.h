@@ -155,30 +155,12 @@ static inline void SkBlendRGB16(const uint16_t src[], uint16_t dst[],
     #define SkRGB16Add(a, b)  ((a) + (b))
 #endif
 
-/////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #define SK_A32_BITS     8
 #define SK_R32_BITS     8
 #define SK_G32_BITS     8
 #define SK_B32_BITS     8
-
-/* we check to see if the SHIFT value has already been defined (SkUserConfig.h)
-    if not, we define it ourself to some default values. We default to OpenGL
-    order (in memory: r,g,b,a)
-*/
-#ifndef SK_A32_SHIFT
-    #ifdef SK_CPU_BENDIAN
-        #define SK_R32_SHIFT    24
-        #define SK_G32_SHIFT    16
-        #define SK_B32_SHIFT    8
-        #define SK_A32_SHIFT    0
-    #else
-        #define SK_R32_SHIFT    0
-        #define SK_G32_SHIFT    8
-        #define SK_B32_SHIFT    16
-        #define SK_A32_SHIFT    24
-    #endif
-#endif
 
 #define SK_A32_MASK     ((1 << SK_A32_BITS) - 1)
 #define SK_R32_MASK     ((1 << SK_R32_BITS) - 1)
