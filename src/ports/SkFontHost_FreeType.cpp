@@ -72,11 +72,12 @@
 
 using namespace skia_advanced_typeface_metrics_utils;
 
-// SK_FREETYPE_LCD_LERP should be 0...256, where 0 means no color reduction
-// and 256 means 100% color reduction (e.g. gray)
+// SK_FREETYPE_LCD_LERP should be 0...256
+//   0 means no color reduction (e.g. just as returned from FreeType)
+//   256 means 100% color reduction (e.g. gray)
 //
 #ifndef SK_FREETYPE_LCD_LERP
-    #define SK_FREETYPE_LCD_LERP    128
+    #define SK_FREETYPE_LCD_LERP    96
 #endif
 
 //////////////////////////////////////////////////////////////////////////
@@ -986,17 +987,18 @@ extern void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bi
 using namespace skia_freetype_support;
 #endif
 
-static int lerp(int start, int end, int percent) {
-    return start + ((end - start) * percent >> 8);
+static int lerp(int start, int end) {
+    SkASSERT((unsigned)SK_FREETYPE_LCD_LERP <= 256);
+    return start + ((end - start) * (SK_FREETYPE_LCD_LERP) >> 8);
 }
 
 static uint16_t packTriple(unsigned r, unsigned g, unsigned b) {
     if (SK_FREETYPE_LCD_LERP) {
-        SkASSERT((unsigned)SK_FREETYPE_LCD_LERP <= 256);
-        unsigned sum = r + 2 * g + b >> 2;
-        r = lerp(r, sum, SK_FREETYPE_LCD_LERP);
-        g = lerp(g, sum, SK_FREETYPE_LCD_LERP);
-        b = lerp(b, sum, SK_FREETYPE_LCD_LERP);
+        // want (a+b+c)/3, but we approx to avoid the divide
+        unsigned ave = (5 * (r + g + b) + b) >> 4;
+        r = lerp(r, ave);
+        g = lerp(g, ave);
+        b = lerp(b, ave);
     }
     return SkPackRGB16(r >> 3, g >> 2, b >> 3);
 }
