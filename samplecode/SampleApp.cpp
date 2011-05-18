@@ -25,10 +25,11 @@ extern SkView* create_overview(int, const SkViewFactory[]);
 #define ANIMATING_DELAY     750
 
 #ifdef SK_DEBUG
-    #define FPS_REPEAT_COUNT    10
+    #define FPS_REPEAT_MULTIPLIER   1
 #else
-    #define FPS_REPEAT_COUNT    100
+    #define FPS_REPEAT_MULTIPLIER   10
 #endif
+#define FPS_REPEAT_COUNT    (10 * FPS_REPEAT_MULTIPLIER)
 
 #ifdef SK_SUPPORT_GL
     #include "GrGLConfig.h"
@@ -1310,7 +1311,7 @@ void SampleWindow::updateTitle() {
     }
     
     if (fMeasureFPS) {
-        title.appendf(" %4d ms", fMeasureFPS_Time);
+        title.appendf(" %6.1f ms", fMeasureFPS_Time / (float)FPS_REPEAT_MULTIPLIER);
     }
     if (fUsePipe && SampleView::IsSampleView(view)) {
         title.prepend("<P> ");
