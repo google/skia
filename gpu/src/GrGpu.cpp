@@ -142,17 +142,6 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
     return this->onCreateTexture(desc, srcData, rowBytes);
 }
 
-GrRenderTarget* GrGpu::createPlatformRenderTarget(intptr_t platformRenderTarget,
-                                                  int stencilBits,
-                                                  bool isMultisampled,
-                                                  int width, int height) {
-    this->handleDirtyContext();
-    return this->onCreatePlatformRenderTarget(platformRenderTarget,
-                                                  stencilBits,
-                                                  isMultisampled,
-                                                  width, height);
-}
-
 GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {
     this->handleDirtyContext();
     return this->onCreateRenderTargetFrom3DApiState();

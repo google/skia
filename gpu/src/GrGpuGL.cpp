@@ -615,32 +615,6 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
     }
 }
 
-GrRenderTarget* GrGpuGL::onCreatePlatformRenderTarget(
-                                                intptr_t platformRenderTarget,
-                                                int stencilBits,
-                                                bool isMultisampled,
-                                                int width,
-                                                int height) {
-    GrGLRenderTarget::GLRenderTargetIDs rtIDs;
-    rtIDs.fStencilRenderbufferID = 0;
-    rtIDs.fMSColorRenderbufferID = 0;
-    rtIDs.fTexFBOID              = 0;
-    rtIDs.fOwnIDs                = false;
-    GrGLIRect viewport;
-
-    // viewport is in GL coords (top >= bottom)
-    viewport.fLeft      = 0;
-    viewport.fBottom    = 0;
-    viewport.fWidth     = width;
-    viewport.fHeight    = height;
-
-    rtIDs.fRTFBOID  = (GrGLuint)platformRenderTarget;
-    rtIDs.fTexFBOID = (GrGLuint)platformRenderTarget;
-
-    return new GrGLRenderTarget(this, rtIDs, NULL, stencilBits, 
-                                isMultisampled, viewport, NULL);
-}
-
 GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
 
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
