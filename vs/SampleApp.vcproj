@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject Keyword="Win32Proj" Name="SampleApp" ProjectGUID="{B93D957F-7EE5-7568-0488-12D166CBBC28}" ProjectType="Visual C++" RootNamespace="SampleApp" Version="9.00">
+  <Platforms>
+    <Platform Name="Win32"/>
+  </Platforms>
+  <ToolFiles/>
+  <Configurations>
+    <Configuration ConfigurationType="1" IntermediateDirectory="$(ConfigurationName)\obj\$(ProjectName)" Name="Debug|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories="..\src\core;..\gm;config;..\include\config;..\include\core;ext;..\include\effects;..\include\images;..\include\views;..\include\utils;..\include\animator;..\include\xml;..\include\svg;..\experimental;..\gpu\include;..\include\gpu" AdditionalOptions="/MP" DebugInformationFormat="3" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="_DEBUG;&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;GR_WIN32_BUILD=1&quot;;&quot;GR_GL_FUNCTION_TYPE=__stdcall&quot;;&quot;SK_DEBUG&quot;;&quot;GR_DEBUG=1&quot;" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="3" WarnAsError="false" WarningLevel="1"/>
+      <Tool AdditionalIncludeDirectories="..\src\core;..\gm;config;..\include\config;..\include\core;ext;..\include\effects;..\include\images;..\include\views;..\include\utils;..\include\animator;..\include\xml;..\include\svg;..\experimental;..\gpu\include;..\include\gpu" Name="VCResourceCompilerTool" PreprocessorDefinitions="&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;GR_WIN32_BUILD=1&quot;;&quot;GR_GL_FUNCTION_TYPE=__stdcall&quot;;&quot;SK_DEBUG&quot;;&quot;GR_DEBUG=1&quot;"/>
+      <Tool AdditionalDependencies="OpenGL32.lib usp10.lib d3d9.lib" GenerateDebugInformation="true" Name="VCLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" SubSystem="2"/>
+    </Configuration>
+    <Configuration ConfigurationType="1" IntermediateDirectory="$(ConfigurationName)\obj\$(ProjectName)" Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories="..\src\core;..\gm;config;..\include\config;..\include\core;ext;..\include\effects;..\include\images;..\include\views;..\include\utils;..\include\animator;..\include\xml;..\include\svg;..\experimental;..\gpu\include;..\include\gpu" AdditionalOptions="/MP" DebugInformationFormat="3" Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions="NDEBUG;&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;GR_WIN32_BUILD=1&quot;;&quot;GR_GL_FUNCTION_TYPE=__stdcall&quot;;&quot;SK_RELEASE&quot;;&quot;GR_RELEASE=1&quot;" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="2" WarnAsError="false" WarningLevel="1"/>
+      <Tool AdditionalIncludeDirectories="..\src\core;..\gm;config;..\include\config;..\include\core;ext;..\include\effects;..\include\images;..\include\views;..\include\utils;..\include\animator;..\include\xml;..\include\svg;..\experimental;..\gpu\include;..\include\gpu" Name="VCResourceCompilerTool" PreprocessorDefinitions="&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;GR_WIN32_BUILD=1&quot;;&quot;GR_GL_FUNCTION_TYPE=__stdcall&quot;;&quot;SK_RELEASE&quot;;&quot;GR_RELEASE=1&quot;"/>
+      <Tool AdditionalDependencies="OpenGL32.lib usp10.lib d3d9.lib" GenerateDebugInformation="false" Name="VCLinkerTool" OutputFile="$(OutDir)\$(ProjectName).exe" SubSystem="2"/>
+    </Configuration>
+  </Configurations>
+  <References/>
+  <Files>
+    <File RelativePath="skia.gyp"/>
+    <Filter Name="..">
+      <Filter Name="gm">
+        <File RelativePath="..\gm\nocolorbleed.cpp"/>
+        <File RelativePath="..\gm\shadertext.cpp"/>
+        <File RelativePath="..\gm\blurs.cpp"/>
+        <File RelativePath="..\gm\shadows.cpp"/>
+        <File RelativePath="..\gm\bitmapfilters.cpp"/>
+        <File RelativePath="..\gm\poly2poly.cpp"/>
+        <File RelativePath="..\gm\points.cpp"/>
+        <File RelativePath="..\gm\tilemodes.cpp"/>
+        <File RelativePath="..\gm\shapes.cpp"/>
+        <File RelativePath="..\gm\complexclip.cpp"/>
+        <File RelativePath="..\gm\gm.h"/>
+        <File RelativePath="..\gm\gradients.cpp"/>
+        <File RelativePath="..\gm\filltypes.cpp"/>
+        <File RelativePath="..\gm\xfermodes.cpp"/>
+      </Filter>
+      <Filter Name="samplecode">
+        <File RelativePath="..\samplecode\OverView.cpp"/>
+        <File RelativePath="..\samplecode\SampleComplexClip.cpp"/>
+        <File RelativePath="..\samplecode\SampleFilter.cpp"/>
+        <File RelativePath="..\samplecode\SampleXfermodes.cpp"/>
+        <File RelativePath="..\samplecode\SampleTextAlpha.cpp"/>
+        <File RelativePath="..\samplecode\SampleCircle.cpp"/>
+        <File RelativePath="..\samplecode\SamplePicture.cpp"/>
+        <File RelativePath="..\samplecode\SampleLines.cpp"/>
+        <File RelativePath="..\samplecode\SampleEmboss.cpp"/>
+        <File RelativePath="..\samplecode\SampleCode.h"/>
+        <File RelativePath="..\samplecode\SampleDitherBitmap.cpp"/>
+        <File RelativePath="..\samplecode\SampleRegion.cpp"/>
+        <File RelativePath="..\samplecode\SamplePathEffects.cpp"/>
+        <File RelativePath="..\samplecode\SampleTiling.cpp"/>
+        <File RelativePath="..\samplecode\SampleHairline.cpp"/>
+        <File RelativePath="..\samplecode\SampleStrokeText.cpp"/>
+        <File RelativePath="..\samplecode\SampleGradients.cpp"/>
+        <File RelativePath="..\samplecode\SampleTextBox.cpp"/>
+        <File RelativePath="..\samplecode\SampleApp.cpp"/>
+        <File RelativePath="..\samplecode\SampleLineClipper.cpp"/>
+        <File RelativePath="..\samplecode\SampleAARects.cpp"/>
+        <File RelativePath="..\samplecode\SamplePatch.cpp"/>
+        <File RelativePath="..\samplecode\SamplePath.cpp"/>
+        <File RelativePath="..\samplecode\SampleCull.cpp"/>
+        <File RelativePath="..\samplecode\SampleStrokePath.cpp"/>
+        <File RelativePath="..\samplecode\SampleShapes.cpp"/>
+        <File RelativePath="..\samplecode\SampleMeasure.cpp"/>
+        <File RelativePath="..\samplecode\SampleLCD.cpp"/>
+        <File RelativePath="..\samplecode\SampleGM.cpp"/>
+        <File RelativePath="..\samplecode\SampleEffects.cpp"/>
+        <File RelativePath="..\samplecode\SampleAnimator.cpp"/>
+        <File RelativePath="..\samplecode\SampleUnitMapper.cpp"/>
+        <File RelativePath="..\samplecode\SampleAvoid.cpp"/>
+        <File RelativePath="..\samplecode\SampleDecode.cpp"/>
+        <File RelativePath="..\samplecode\SampleColorFilter.cpp"/>
+        <File RelativePath="..\samplecode\SamplePathClip.cpp"/>
+        <File RelativePath="..\samplecode\SamplePolyToPoly.cpp"/>
+        <File RelativePath="..\samplecode\SampleExtractAlpha.cpp"/>
+        <File RelativePath="..\samplecode\SampleImage.cpp"/>
+        <File RelativePath="..\samplecode\SampleAll.cpp"/>
+        <File RelativePath="..\samplecode\SampleLayerMask.cpp"/>
+        <File RelativePath="..\samplecode\SampleMovie.cpp"/>
+        <File RelativePath="..\samplecode\SampleDither.cpp"/>
+        <File RelativePath="..\samplecode\SampleSVG.cpp"/>
+        <File RelativePath="..\samplecode\SampleTriangles.cpp"/>
+        <File RelativePath="..\samplecode\SampleOvalTest.cpp"/>
+        <File RelativePath="..\samplecode\SampleNinePatch.cpp"/>
+        <File RelativePath="..\samplecode\SampleRepeatTile.cpp"/>
+        <File RelativePath="..\samplecode\SampleTextEffects.cpp"/>
+        <File RelativePath="..\samplecode\SampleShaders.cpp"/>
+        <File RelativePath="..\samplecode\SampleFontScalerTest.cpp"/>
+        <File RelativePath="..\samplecode\SampleImageDir.cpp"/>
+        <File RelativePath="..\samplecode\SampleFilter2.cpp"/>
+        <File RelativePath="..\samplecode\SampleShaderText.cpp"/>
+        <File RelativePath="..\samplecode\SampleOverflow.cpp"/>
+        <File RelativePath="..\samplecode\SampleFillType.cpp"/>
+        <File RelativePath="..\samplecode\SampleArc.cpp"/>
+        <File RelativePath="..\samplecode\SampleFuzz.cpp"/>
+        <File RelativePath="..\samplecode\SampleLayers.cpp"/>
+        <File RelativePath="..\samplecode\SampleBlur.cpp"/>
+        <File RelativePath="..\samplecode\SampleSlides.cpp"/>
+        <File RelativePath="..\samplecode\SampleBitmapRect.cpp"/>
+        <File RelativePath="..\samplecode\SampleMipMap.cpp"/>
+        <File RelativePath="..\samplecode\SampleText.cpp"/>
+        <File RelativePath="..\samplecode\SampleCamera.cpp"/>
+        <File RelativePath="..\samplecode\SampleTypeface.cpp"/>
+        <File RelativePath="..\samplecode\SampleTextureDomain.cpp"/>
+        <File RelativePath="..\samplecode\ClockFaceView.cpp"/>
+        <File RelativePath="..\samplecode\SampleTextOnPath.cpp"/>
+        <File RelativePath="..\samplecode\SampleDrawLooper.cpp"/>
+        <File RelativePath="..\samplecode\SampleVertices.cpp"/>
+        <File RelativePath="..\samplecode\SampleTinyBitmap.cpp"/>
+        <File RelativePath="..\samplecode\SamplePoints.cpp"/>
+        <File RelativePath="..\samplecode\SampleBigGradient.cpp"/>
+        <Filter Name="_excluded_files">
+          <File RelativePath="..\samplecode\SampleTests.cpp">
+            <FileConfiguration ExcludedFromBuild="true" Name="Debug|Win32"/>
+            <FileConfiguration ExcludedFromBuild="true" Name="Release|Win32"/>
+          </File>
+          <File RelativePath="..\samplecode\SampleSkLayer.cpp">
+            <FileConfiguration ExcludedFromBuild="true" Name="Debug|Win32"/>
+            <FileConfiguration ExcludedFromBuild="true" Name="Release|Win32"/>
+          </File>
+          <File RelativePath="..\samplecode\SamplePageFlip.cpp">
+            <FileConfiguration ExcludedFromBuild="true" Name="Debug|Win32"/>
+            <FileConfiguration ExcludedFromBuild="true" Name="Release|Win32"/>
+          </File>
+          <File RelativePath="..\samplecode\SampleFontCache.cpp">
+            <FileConfiguration ExcludedFromBuild="true" Name="Debug|Win32"/>
+            <FileConfiguration ExcludedFromBuild="true" Name="Release|Win32"/>
+          </File>
+          <File RelativePath="..\samplecode\SampleEncode.cpp">
+            <FileConfiguration ExcludedFromBuild="true" Name="Debug|Win32"/>
+            <FileConfiguration ExcludedFromBuild="true" Name="Release|Win32"/>
+          </File>
+        </Filter>
+      </Filter>
+    </Filter>
+  </Files>
+  <Globals/>
+</VisualStudioProject>
