@@ -174,7 +174,7 @@ protected:
             canvas->save();
             canvas->translate(SkIntToScalar((s / testsPerCol) * colWidth),
                               SkIntToScalar((s % testsPerCol) * rowHeight));
-                              paint.setShader(shaders[s])->ref();
+            paint.setShader(shaders[s])->unref();
             canvas->drawText(text, textLen, 0, textBase, paint);
             canvas->restore();
         }
