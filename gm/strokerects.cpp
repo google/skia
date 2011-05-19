@@ -63,7 +63,7 @@ protected:
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SW * x, SH * y);
-                canvas->clipRect(SkRect::MakeLTRB(2, 2, SW - 2, SH - 2));
+                canvas->clipRect(SkRect::MakeLTRB(SkIntToScalar(2), SkIntToScalar(2), SW - SkIntToScalar(2), SH - SkIntToScalar(2)));
 
                 SkRandom rand;
                 for (int i = 0; i < N; i++) {
