@@ -96,7 +96,7 @@ private:
 
         int  fFirstCoverageStage;
         bool fEmitsPointSize;
-        bool fUsesEdgeAA;
+        int fEdgeAANumEdges;
 
         SkXfermode::Mode fColorFilterXfermode;
 

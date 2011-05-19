@@ -107,6 +107,7 @@ protected:
     virtual void flushScissor(const GrIRect* rect);
     void clearStencil(uint32_t value, uint32_t mask);
     virtual void clearStencilClip(const GrIRect& rect);
+    virtual int getMaxEdges() const;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -188,6 +189,9 @@ private:
 
     // Do we have stencil wrap ops.
     bool fHasStencilWrap;
+
+    // The maximum number of fragment uniform vectors (GLES has min. 16).
+    int fMaxFragmentUniformVectors;
 
     // ES requires an extension to support RGBA8 in RenderBufferStorage
     bool fRGBA8Renderbuffer;

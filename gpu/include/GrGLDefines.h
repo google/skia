@@ -318,6 +318,8 @@
 #define GR_GL_ACTIVE_ATTRIBUTE_MAX_LENGTH      0x8B8A
 #define GR_GL_SHADING_LANGUAGE_VERSION         0x8B8C
 #define GR_GL_CURRENT_PROGRAM                  0x8B8D
+#define GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS  0x8B49
+#define GR_GL_MAX_VERTEX_UNIFORM_COMPONENTS    0x8B4A
 
 /* StencilFunction */
 #define GR_GL_NEVER                          0x0200

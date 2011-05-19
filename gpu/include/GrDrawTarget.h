@@ -54,6 +54,17 @@ public:
         kMaxTexCoords = kNumStages
     };
 
+
+    /**
+     * The absolute maximum number of edges that may be specified for
+     * a single draw call when performing edge antialiasing.  This is used for
+     * the size of several static buffers, so implementations of getMaxEdges()
+     * (below) should clamp to this value.
+     */
+    enum {
+        kMaxEdges = 32
+    };
+
     /**
      *  Bitfield used to indicate which stages are in use.
      */
@@ -78,9 +89,6 @@ public:
         kNoColorWrites_StateBit = 0x08, //<! If set it disables writing colors.
                                         //   Useful while performing stencil
                                         //   ops.
-        kEdgeAA_StateBit        = 0x10, //<! Perform edge anti-aliasing.
-                                        //   Requires the edges to be passed in
-                                        //   setEdgeAAData().
 
         // subclass may use additional bits internally
         kDummyStateBit,
@@ -128,6 +136,20 @@ public:
         fCurrDrawState.fStencilSettings.setDisabled();
     }
 
+    class Edge {
+      public:
+        Edge() {}
+        Edge(float x, float y, float z) : fX(x), fY(y), fZ(z) {}
+        GrPoint intersect(const Edge& other) {
+            return GrPoint::Make(
+                (fY * other.fZ - other.fY * fZ) /
+                  (fX * other.fY - other.fX * fY),
+                (fX * other.fZ - other.fX * fZ) /
+                  (other.fX * fY - fX * other.fY));
+        }
+        float fX, fY, fZ;
+    };
+
 protected:
 
     struct DrState {
@@ -164,7 +186,8 @@ protected:
 
         GrStencilSettings       fStencilSettings;
         GrMatrix                fViewMatrix;
-        float                   fEdgeAAEdges[18];
+        Edge                    fEdgeAAEdges[kMaxEdges];
+        int                     fEdgeAANumEdges;
         bool operator ==(const DrState& s) const {
             return 0 == memcmp(this, &s, sizeof(DrState));
         }
@@ -536,7 +559,7 @@ public:
      * @param edges       3 * 6 float values, representing the edge
      *                    equations in Ax + By + C form
      */
-     void setEdgeAAData(const float edges[18]);
+     void setEdgeAAData(const Edge* edges, int numEdges);
 
 private:
     static const int TEX_COORD_BIT_CNT = kNumStages*kMaxTexCoords;
@@ -803,6 +826,15 @@ public:
      * otherwise just the rect.
      */
     virtual void clear(const GrIRect* rect, GrColor color) = 0;
+
+    /**
+     * Returns the maximum number of edges that may be specified in a single
+     * draw call when performing edge antialiasing.  This is usually limited
+     * by the number of fragment uniforms which may be uploaded.  Must be a
+     * minimum of six, since a triangle's vertices each belong to two boundary
+     * edges which may be distinct.
+     */
+    virtual int getMaxEdges() const { return 6; }
 
     ///////////////////////////////////////////////////////////////////////////
 

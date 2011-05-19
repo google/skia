@@ -193,7 +193,7 @@ void GrGpuGLShaders::ProgramUnitTest() {
         idx = (int)(random.nextF() * (kNumStages+1));
         pdesc.fFirstCoverageStage = idx;
 
-        pdesc.fUsesEdgeAA = (random.nextF() > .5f);
+        pdesc.fEdgeAANumEdges = (random.nextF() * (getMaxEdges() + 1));
 
         for (int s = 0; s < kNumStages; ++s) {
             // enable the stage?
@@ -442,16 +442,17 @@ void GrGpuGLShaders::flushTexelSize(int s) {
 void GrGpuGLShaders::flushEdgeAAData() {
     const int& uni = fProgramData->fUniLocations.fEdgesUni;
     if (GrGLProgram::kUnusedUniform != uni) {
-        float edges[18];
-        memcpy(edges, fCurrDrawState.fEdgeAAEdges, sizeof(edges));
+        int count = fCurrDrawState.fEdgeAANumEdges;
+        Edge edges[kMaxEdges];
         // Flip the edges in Y
         float height = fCurrDrawState.fRenderTarget->height();
-        for (int i = 0; i < 6; ++i) {
-            float b = edges[i * 3 + 1];
-            edges[i * 3 + 1] = -b;
-            edges[i * 3 + 2] += b * height;
+        for (int i = 0; i < count; ++i) {
+            edges[i] = fCurrDrawState.fEdgeAAEdges[i];
+            float b = edges[i].fY;
+            edges[i].fY = -b;
+            edges[i].fZ += b * height;
         }
-        GR_GL(Uniform3fv(uni, 6, edges));
+        GR_GL(Uniform3fv(uni, count, &edges[0].fX));
     }
 }
 
@@ -701,7 +702,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
         desc.fColorType = GrGLProgram::ProgramDesc::kAttribute_ColorType;
     }
 
-    desc.fUsesEdgeAA = fCurrDrawState.fFlagBits & kEdgeAA_StateBit;
+    desc.fEdgeAANumEdges = fCurrDrawState.fEdgeAANumEdges;
 
     for (int s = 0; s < kNumStages; ++s) {
         GrGLProgram::ProgramDesc::StageDesc& stage = desc.fStages[s];

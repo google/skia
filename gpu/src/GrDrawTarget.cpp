@@ -483,7 +483,7 @@ void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
 
 bool GrDrawTarget::canDisableBlend() const {
     // If we're using edge antialiasing, we can't force blend off.
-    if (fCurrDrawState.fFlagBits & kEdgeAA_StateBit) {
+    if (fCurrDrawState.fEdgeAANumEdges > 0) {
         return false;
     }
 
@@ -535,8 +535,10 @@ bool GrDrawTarget::canDisableBlend() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void GrDrawTarget::setEdgeAAData(const float edges[18]) {
-    memcpy(fCurrDrawState.fEdgeAAEdges, edges, sizeof(fCurrDrawState.fEdgeAAEdges));
+void GrDrawTarget::setEdgeAAData(const Edge* edges, int numEdges) {
+    GrAssert(numEdges <= kMaxEdges);
+    memcpy(fCurrDrawState.fEdgeAAEdges, edges, numEdges * sizeof(Edge));
+    fCurrDrawState.fEdgeAANumEdges = numEdges;
 }
 
 
