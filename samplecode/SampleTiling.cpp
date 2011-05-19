@@ -22,7 +22,7 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
     bm->eraseColor(0);
     
     SkCanvas    canvas(*bm);
-    SkPoint     pts[] = { 0, 0, SkIntToScalar(w), SkIntToScalar(h) };
+    SkPoint     pts[] = { { 0, 0 }, { SkIntToScalar(w), SkIntToScalar(h) } };
     SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     SkPaint     paint;
@@ -62,7 +62,7 @@ public:
 	TilingView()
             : fLooper(SkIntToScalar(1), SkIntToScalar(2), SkIntToScalar(2),
                       0x88000000) {
-        for (int i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
             makebm(&fTexture[i], gConfigs[i], gWidth, gHeight);
         }
     }
@@ -99,8 +99,8 @@ protected:
         }
 
         if (textCanvas) {
-            for (int kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
-                for (int ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
+            for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
+                for (size_t ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
                     SkPaint p;
                     SkString str;
                     p.setAntiAlias(true);
@@ -118,11 +118,11 @@ protected:
         
         y += SkIntToScalar(16);
 
-        for (int i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
-            for (int j = 0; j < SK_ARRAY_COUNT(gFilters); j++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gConfigs); i++) {
+            for (size_t j = 0; j < SK_ARRAY_COUNT(gFilters); j++) {
                 x = SkIntToScalar(10);
-                for (int kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
-                    for (int ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
+                for (size_t kx = 0; kx < SK_ARRAY_COUNT(gModes); kx++) {
+                    for (size_t ky = 0; ky < SK_ARRAY_COUNT(gModes); ky++) {
                         SkPaint paint;
                         setup(&paint, fTexture[i], gFilters[j], gModes[kx], gModes[ky]);
                         paint.setDither(true);

@@ -58,7 +58,7 @@ bool SkDump::enable(SkAnimateMaker& maker ) {
         maker.fEvents.dump(maker);
     if ((hasAttr |= (name.size() > 0)) == true)
         maker.dump(name.c_str());
-    if (displayList > 0 || displayList != 0 && hasAttr == false)
+    if (displayList > 0 || (displayList != 0 && hasAttr == false))
         maker.fDisplayList.dump(&maker);
     return true;
 }

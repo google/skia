@@ -97,7 +97,7 @@ protected:
             225, 90
         };
         
-        for (int i = 0; i < SK_ARRAY_COUNT(gAngles); i += 2) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gAngles); i += 2) {
             paint.setColor(SK_ColorBLACK);
             drawRectWithLines(canvas, r, paint);
 

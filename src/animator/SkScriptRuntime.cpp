@@ -304,6 +304,8 @@ bool SkScriptRuntime::executeTokens(unsigned char* opCode) {
 			goto done;
 		case SkScriptEngine2::kNop:
 				SkASSERT(0);
+    default:
+        break;
 	}
 	} while (true);
 done:

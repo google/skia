@@ -116,7 +116,7 @@ static size_t computeEdgesAndOffsetVertices(const GrMatrix& matrix,
         p = q;
     }
     GrDrawTarget::Edge prev_edge = *edges->back();
-    for (size_t i = 0; i < edges->count(); ++i) {
+    for (int i = 0; i < edges->count(); ++i) {
         GrDrawTarget::Edge edge = edges->at(i);
         vertices[i] = prev_edge.intersect(edge);
         inverse.mapPoints(&vertices[i], 1);
@@ -131,7 +131,6 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget* target,
                                         GrPathFill fill,
                                         const GrPoint* translate) {
     GrDrawTarget::AutoStateRestore asr(target);
-    bool colorWritesWereDisabled = target->isColorWriteDisabled();
     // face culling doesn't make sense here
     GrAssert(GrDrawTarget::kBoth_DrawFace == target->getDrawFace());
 
@@ -255,7 +254,7 @@ FINISHED:
             target->getViewInverse(&inverse);
 
             count = computeEdgesAndOffsetVertices(matrix, inverse, base, count, &edges);
-            int maxEdges = target->getMaxEdges();
+            size_t maxEdges = target->getMaxEdges();
             if (count <= maxEdges) {
                 // All edges fit; upload all edges and draw all verts as a fan
                 target->setVertexSourceToArray(layout, base, count);
@@ -308,7 +307,7 @@ FINISHED:
     for (int sp = 0; sp < subpathCnt; ++sp) {
         internal_gluTessBeginContour(tess);
         int start = i;
-        int end = start + subpathVertCount[sp];
+        size_t end = start + subpathVertCount[sp];
         for (; i < end; ++i) {
             double* inVertex = &inVertices[i * 3];
             *vertices.append() = GrPoint::Make(inVertex[0], inVertex[1]);

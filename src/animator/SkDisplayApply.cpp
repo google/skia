@@ -294,7 +294,7 @@ bool SkApply::enable(SkAnimateMaker& maker) {
     if ((mode == kMode_immediate || mode == kMode_create) && scope == NULL)
         return false;   // !!! error?
     bool enableMe = scope && (scope->hasEnable() || scope->isApply() || scope->isDrawable() == false);
-    if (mode == kMode_immediate && enableMe || mode == kMode_create)
+    if ((mode == kMode_immediate && enableMe) || mode == kMode_create)
         activate(maker);    // for non-drawables like post, prime them here
     if (mode == kMode_immediate && enableMe)
         fActive->enable();
@@ -479,7 +479,7 @@ void SkApply::endSave(int index) {
     } else {
         SkScriptValue scriptValue;
         bool success = target->getProperty(info->propertyIndex(), &scriptValue);
-        SkASSERT(success = true);
+        SkASSERT(success == true);
         last[0] = scriptValue.fOperand;
         scriptValue.fOperand = fActive->fSaveRestore[activeIndex][0];
         target->setProperty(info->propertyIndex(), scriptValue);
@@ -624,8 +624,8 @@ bool SkApply::interpolate(SkAnimateMaker& maker, SkMSec rawTime) {
         SkInterpolatorBase::Result interpResult = fActive->fInterpolators[inner]->timeToValues(
             innerTime, values.get());
         result |= (interpResult != SkInterpolatorBase::kFreezeEnd_Result);
-        if ((transition != SkApply::kTransition_reverse && interpResult == SkInterpolatorBase::kFreezeEnd_Result ||
-                transition == SkApply::kTransition_reverse && fLastTime == 0) && state.fUnpostedEndEvent) {
+        if (((transition != SkApply::kTransition_reverse && interpResult == SkInterpolatorBase::kFreezeEnd_Result) ||
+                (transition == SkApply::kTransition_reverse && fLastTime == 0)) && state.fUnpostedEndEvent) {
 //          SkDEBUGF(("interpolate: post on end\n"));
             state.fUnpostedEndEvent = false;
             maker.postOnEnd(animate, state.fBegin + state.fDuration);

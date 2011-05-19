@@ -17,7 +17,7 @@ static inline SkPMColor rgb2gray(SkPMColor c)
     unsigned g = SkGetPackedG32(c);
     unsigned b = SkGetPackedB32(c);
 
-    unsigned x = r * 5 + g * 7 + b * 4 >> 4;
+    unsigned x = (r * 5 + g * 7 + b * 4) >> 4;
 
     return SkPackARGB32(0, x, x, x) | (c & (SK_A32_MASK << SK_A32_SHIFT));
 }

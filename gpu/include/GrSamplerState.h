@@ -131,7 +131,7 @@ public:
     SampleMode getSampleMode() const { return fSampleMode; }
     const GrMatrix& getMatrix() const { return fMatrix; }
     const GrRect& getTextureDomain() const { return fTextureDomain; }
-    const bool hasTextureDomain() const {return SkIntToScalar(0) != fTextureDomain.right();}
+    bool hasTextureDomain() const {return SkIntToScalar(0) != fTextureDomain.right();}
     Filter getFilter() const { return fFilter; }
 
     bool isGradient() const {

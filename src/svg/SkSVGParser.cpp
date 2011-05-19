@@ -76,8 +76,8 @@ void SkSVGParser::Delete(SkTDArray<SkSVGElement*>& fChildren) {
 int SkSVGParser::findAttribute(SkSVGBase* element, const char* attrValue,
         size_t len, bool isPaint) {
     const SkSVGAttribute* attributes;
-    int count = element->getAttributes(&attributes);
-    int result = 0;
+    size_t count = element->getAttributes(&attributes);
+    size_t result = 0;
     while (result < count) {
         if (strncmp(attributes->fName, attrValue, len) == 0 && strlen(attributes->fName) == len) {
             SkASSERT(result == (attributes->fOffset - 
@@ -200,7 +200,7 @@ bool SkSVGParser::onStartElementLen(const char name[], size_t len) {
     } else if (fInSVG == false)
         return false;
     const char* nextColon = strchr(name, ':');
-    if (nextColon && nextColon - name < len)
+    if (nextColon && (size_t)(nextColon - name) < len)
         return false;
     SkSVGTypes type = GetType(name, len);
 //    SkASSERT(type >= 0);

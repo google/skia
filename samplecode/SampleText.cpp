@@ -112,7 +112,7 @@ static void test_breakText() {
         mm = m;
     }
 
-    SkDEBUGCODE(int length2 =) paint.breakText(text, length, width, &mm);
+    SkDEBUGCODE(size_t length2 =) paint.breakText(text, length, width, &mm);
     SkASSERT(length2 == length);
     SkASSERT(mm == width);
 }

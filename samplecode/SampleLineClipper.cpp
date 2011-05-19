@@ -155,7 +155,7 @@ class LineClipperView : public SkView {
     SkPoint     fPts[4];
 
     void randPts() {
-        for (int i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             fPts[i].set(fRand.nextUScalar1() * 640,
                         fRand.nextUScalar1() * 480);
         }

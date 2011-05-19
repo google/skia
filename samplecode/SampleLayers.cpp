@@ -22,7 +22,7 @@
 
 static void make_paint(SkPaint* paint) {
     SkColor colors[] = { 0, SK_ColorWHITE };
-    SkPoint pts[] = { 0, 0, 0, SK_Scalar1*20 };
+    SkPoint pts[] = { { 0, 0 }, { 0, SK_Scalar1*20 } };
     SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2, SkShader::kClamp_TileMode);
     
     paint->setShader(s)->unref();

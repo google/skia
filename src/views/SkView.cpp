@@ -552,7 +552,7 @@ SkView* SkView::attachChildToFront(SkView* child)
 {
 	SkASSERT(child != this);
 
-	if (child == NULL || fFirstChild && fFirstChild->fPrevSibling == child)
+	if (child == NULL || (fFirstChild && fFirstChild->fPrevSibling == child))
 		goto DONE;
 
 	child->ref();

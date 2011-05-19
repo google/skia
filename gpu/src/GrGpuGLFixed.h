@@ -41,7 +41,7 @@ private:
     const GrMatrix& getHWSamplerMatrix(int stage) const {
         return fHWDrawState.fSamplerStates[stage].getMatrix();
     }
-    const void recordHWSamplerMatrix(int stage, const GrMatrix& matrix) {
+    void recordHWSamplerMatrix(int stage, const GrMatrix& matrix) {
         fHWDrawState.fSamplerStates[stage].setMatrix(matrix);
     }
 

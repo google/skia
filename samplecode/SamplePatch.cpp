@@ -42,7 +42,8 @@ static SkShader* make_shader0(SkIPoint* size) {
 }
 
 static SkShader* make_shader1(const SkIPoint& size) {
-    SkPoint pts[] = { 0, 0, SkIntToScalar(size.fX), SkIntToScalar(size.fY) };
+    SkPoint pts[] = { { 0, 0, },
+                      { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::CreateLinear(pts, colors, NULL,
                     SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode, NULL);
@@ -316,7 +317,7 @@ protected:
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        for (int i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
             if (hittest(fPts[i], x, y)) {
                 return new PtClick(this, i);
             }
