@@ -96,27 +96,48 @@ ifeq ($(SKIA_BUILD_FOR),mac)
 #	CC := gcc-4.0 $(SDK_OPTS)
 
 	C_INCLUDES += -I/opt/local/include
-	LINKER_OPTS += -L/opt/local/lib -framework Carbon -lpng -framework OpenGL -framework AGL
+	LINKER_OPTS += -L/opt/local/lib -framework Carbon -lpng
 	DEFINES += -DSK_BUILD_FOR_MAC -DSK_ENABLE_LIBPNG
-
+	ifeq ($(SKIA_MESA),true)
+		C_INCLUDES += -I/usr/X11/include
+		LINKER_OPTS += -L/usr/X11/lib -lOSMesa -lGLU
+		DEFINES += -DSK_MESA
+	else
+		LINKER_OPTS += -framework OpenGL -framework AGL
+	endif
 	C_INCLUDES += -Iinclude/utils/mac
 #	SRC_LIST += src/ports/SkImageDecoder_CG.cpp
 	SRC_LIST += src/utils/mac/SkCreateCGImageRef.cpp
-	SRC_LIST += src/utils/mac/SkEGLContext_mac.cpp
+	ifeq ($(SKIA_MESA),true)
+		SRC_LIST += src/utils/mesa/SkEGLContext_Mesa.cpp
+	else
+		SRC_LIST += src/utils/mac/SkEGLContext_mac.cpp
+	endif
 	SRC_LIST += src/core/SkTypefaceCache.cpp
 	SRC_LIST += src/ports/SkFontHost_mac_coretext.cpp
 
-    # these are our registry-based factories
+	# these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
 	SRC_LIST += src/images/SkImageEncoder_Factory.cpp
         SRC_LIST += src/images/SkImageDecoder_libpng.cpp
-    # support files
+	# support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
 	
-	SRC_LIST += gpu/src/mac/GrGLDefaultInterface_mac.cpp
+	ifeq ($(SKIA_MESA),true)
+		SRC_LIST += gpu/src/mesa/GrGLDefaultInterface_mesa.cpp
+	else
+		SRC_LIST += gpu/src/mac/GrGLDefaultInterface_mac.cpp
+	endif
+	
 else
-	LINKER_OPTS += -lpng -lfreetype -lGL -lGLU -lX11
+	LINKER_OPTS += -lpng -lfreetype
 	DEFINES += -DSK_BUILD_FOR_UNIX -DSK_ENABLE_LIBPNG -DGR_LINUX_BUILD=1
+	ifeq ($(SKIA_MESA),true)
+		LINKER_OPTS += -lOSMesa -lGLU
+		DEFINES += -DSK_MESA
+	else
+		LINKER_OPTS += -lGL -lGLU -lX11
+	endif
 
 	#Assume the color order for now.
 	DEFINES += -DSK_SAMPLES_FOR_X
@@ -127,15 +148,23 @@ else
 	SRC_LIST += src/ports/SkFontHost_gamma_none.cpp
 	SRC_LIST += src/ports/SkFontHost_FreeType.cpp
 	SRC_LIST += src/ports/SkFontHost_FreeType_Subpixel.cpp
-	SRC_LIST += src/utils/unix/SkEGLContext_Unix.cpp
-    # these are our registry-based factories
+	ifeq ($(SKIA_MESA),true)
+		SRC_LIST += src/utils/mesa/SkEGLContext_Mesa.cpp
+	else
+		SRC_LIST += src/utils/unix/SkEGLContext_Unix.cpp
+	endif
+	# these are our registry-based factories
 	SRC_LIST += src/images/SkImageDecoder_Factory.cpp
 	SRC_LIST += src/images/SkImageEncoder_Factory.cpp
         SRC_LIST += src/images/SkImageDecoder_libpng.cpp
-    # support files
+	# support files
 	SRC_LIST += src/images/SkScaledBitmapSampler.cpp
 	
-	SRC_LIST += gpu/src/unix/GrGLDefaultInterface_unix.cpp
+	ifeq ($(SKIA_MESA),true)
+		SRC_LIST += gpu/src/mesa/GrGLDefaultInterface_mesa.cpp
+	else
+		SRC_LIST += gpu/src/unix/GrGLDefaultInterface_unix.cpp
+	endif
 endif
 
 # For these files, and these files only, compile with -msse2.

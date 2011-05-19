@@ -1,7 +1,9 @@
 #ifndef SkEGLContext_DEFINED
 #define SkEGLContext_DEFINED
 
-#if defined(SK_BUILD_FOR_MAC)
+#if defined(SK_MESA)
+    #include "GL/osmesa.h"
+#elif defined(SK_BUILD_FOR_MAC)
     #include <AGL/agl.h>
 #elif defined(SK_BUILD_FOR_UNIX)
     #include <X11/Xlib.h>
@@ -18,10 +20,13 @@ public:
     SkEGLContext();
     ~SkEGLContext();
 
-    bool init(int width, int height);
+    bool init(const int width, const int height);
 
 private:
-#if defined(SK_BUILD_FOR_MAC)
+#if defined(SK_MESA)
+    OSMesaContext context;
+    GLfloat *image;
+#elif defined(SK_BUILD_FOR_MAC)
     AGLContext context;
 #elif defined(SK_BUILD_FOR_UNIX)
     GLXContext context;
