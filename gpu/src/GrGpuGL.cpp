@@ -16,6 +16,7 @@
 
 #include "GrGpuGL.h"
 #include "GrMemory.h"
+#include "GrTypes.h"
 
 static const GrGLuint GR_MAX_GLUINT = ~0;
 static const GrGLint  GR_INVAL_GLINT = ~0;
@@ -200,6 +201,16 @@ GrGpuGL::GrGpuGL() {
     if (GR_GL_SUPPORT_DESKTOP || GR_GL_SUPPORT_ES1) {
         GR_GL_GetIntegerv(GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
         GrAssert(maxTextureUnits > kNumStages);
+    }
+    if (GR_GL_SUPPORT_ES2) {
+        GR_GL_GetIntegerv(GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
+                          &fMaxFragmentUniformVectors);
+    } else if (GR_GL_SUPPORT_DESKTOP) {
+        GrGLint max;
+        GR_GL_GetIntegerv(GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
+        fMaxFragmentUniformVectors = max / 4;
+    } else {
+        fMaxFragmentUniformVectors = 16;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -2063,4 +2074,10 @@ void GrGpuGL::setBuffers(bool indexed,
             fHWGeometryState.fIndexBuffer = ibuf;
         }
     }
+}
+
+int GrGpuGL::getMaxEdges() const {
+    // FIXME:  This is a pessimistic estimate based on how many other things
+    // want to add uniforms.  This should be centralized somewhere.
+    return GR_CT_MIN(fMaxFragmentUniformVectors - 8, kMaxEdges);
 }

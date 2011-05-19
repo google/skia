@@ -85,19 +85,7 @@ static unsigned fill_type_to_glu_winding_rule(GrPathFill fill) {
 GrTesselatedPathRenderer::GrTesselatedPathRenderer() {
 }
 
-class Edge {
-  public:
-    Edge() {}
-    Edge(float x, float y, float z) : fX(x), fY(y), fZ(z) {}
-    GrPoint intersect(const Edge& other) {
-        return GrPoint::Make(
-            (fY * other.fZ - other.fY * fZ) / (fX * other.fY - other.fX * fY),
-            (fX * other.fZ - other.fX * fZ) / (other.fX * fY - fX * other.fY));
-    }
-    float fX, fY, fZ;
-};
-
-typedef GrTDArray<Edge> EdgeArray;
+typedef GrTDArray<GrDrawTarget::Edge> EdgeArray;
 
 bool isCCW(const GrPoint* pts)
 {
@@ -121,15 +109,15 @@ static size_t computeEdgesAndOffsetVertices(const GrMatrix& matrix,
         GrVec tangent = GrVec::Make(p.fY - q.fY, q.fX - p.fX);
         float scale = sign / tangent.length();
         float cross2 = p.fX * q.fY - q.fX * p.fY;
-        Edge edge(tangent.fX * scale,
+        GrDrawTarget::Edge edge(tangent.fX * scale,
                   tangent.fY * scale,
                   cross2 * scale + 0.5f);
         *edges->append() = edge;
         p = q;
     }
-    Edge prev_edge = *edges->back();
+    GrDrawTarget::Edge prev_edge = *edges->back();
     for (size_t i = 0; i < edges->count(); ++i) {
-        Edge edge = edges->at(i);
+        GrDrawTarget::Edge edge = edges->at(i);
         vertices[i] = prev_edge.intersect(edge);
         inverse.mapPoints(&vertices[i], 1);
         prev_edge = edge;
@@ -262,29 +250,30 @@ FINISHED:
 
     if (subpathCnt == 1 && !inverted && path.isConvex()) {
         if (target->isAntialiasState()) {
-            target->enableState(GrDrawTarget::kEdgeAA_StateBit);
             EdgeArray edges;
             GrMatrix inverse, matrix = target->getViewMatrix();
             target->getViewInverse(&inverse);
 
             count = computeEdgesAndOffsetVertices(matrix, inverse, base, count, &edges);
-            GrPoint triangle[3];
-            triangle[0] = base[0];
-            Edge triangleEdges[6];
-            triangleEdges[0] = *edges.back();
-            triangleEdges[1] = edges[0];
-            for (size_t i = 1; i < count - 1; i++) {
-                triangle[1] = base[i];
-                triangle[2] = base[i + 1];
-                triangleEdges[2] = edges[i - 1];
-                triangleEdges[3] = edges[i];
-                triangleEdges[4] = edges[i];
-                triangleEdges[5] = edges[i + 1];
-                target->setVertexSourceToArray(layout, triangle, 3);
-                target->setEdgeAAData(&triangleEdges[0].fX);
-                target->drawNonIndexed(kTriangles_PrimitiveType, 0, 3);
+            int maxEdges = target->getMaxEdges();
+            if (count <= maxEdges) {
+                // All edges fit; upload all edges and draw all verts as a fan
+                target->setVertexSourceToArray(layout, base, count);
+                target->setEdgeAAData(&edges[0], count);
+                target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, count);
+            } else {
+                // Upload "maxEdges" edges and verts at a time, and draw as
+                // separate fans
+                for (size_t i = 0; i < count - 2; i += maxEdges - 2) {
+                    edges[i] = edges[0];
+                    base[i] = base[0];
+                    int size = GR_CT_MIN(count - i, maxEdges);
+                    target->setVertexSourceToArray(layout, &base[i], size);
+                    target->setEdgeAAData(&edges[i], size);
+                    target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, size);
+                }
             }
-            target->disableState(GrDrawTarget::kEdgeAA_StateBit);
+            target->setEdgeAAData(NULL, 0);
         } else {
             target->setVertexSourceToArray(layout, base, count);
             target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, count);

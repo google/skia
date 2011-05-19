@@ -23,7 +23,7 @@
 #include "SkTypes.h"
 
 void GrPrintf(const char format[], ...) {
-    const size_t MAX_BUFFER_SIZE = 512;
+    const size_t MAX_BUFFER_SIZE = 2048;
 
     char buffer[MAX_BUFFER_SIZE + 1];
     va_list args;

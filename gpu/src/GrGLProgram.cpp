@@ -361,11 +361,6 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
         }
     }
 
-    if (fProgramDesc.fUsesEdgeAA) {
-        segments.fFSUnis.append("uniform vec3 " EDGES_UNI_NAME "[6];\n");
-        programData->fUniLocations.fEdgesUni = kUseUniform;
-    }
-
     if (fProgramDesc.fEmitsPointSize){
         segments.fVSCode.append("\tgl_PointSize = 1.0;\n");
     }
@@ -457,17 +452,36 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
     // we will want to compute coverage for some blend when there is no
     // color (when dual source blending is enabled). But for now we have this if
     if (!wroteFragColorZero) {
-        if (fProgramDesc.fUsesEdgeAA) {
-            // FIXME:  put the a's in a loop
+        if (fProgramDesc.fEdgeAANumEdges > 0) {
+            segments.fFSUnis.append("uniform vec3 " EDGES_UNI_NAME "[");
+            segments.fFSUnis.appendS32(fProgramDesc.fEdgeAANumEdges);
+            segments.fFSUnis.append("];\n");
+            programData->fUniLocations.fEdgesUni = kUseUniform;
+            int count = fProgramDesc.fEdgeAANumEdges;
             segments.fFSCode.append(
-                "\tvec3 pos = vec3(gl_FragCoord.xy, 1);\n"
-                "\tfloat a0 = clamp(dot(uEdges[0], pos), 0.0, 1.0);\n"
-                "\tfloat a1 = clamp(dot(uEdges[1], pos), 0.0, 1.0);\n"
-                "\tfloat a2 = clamp(dot(uEdges[2], pos), 0.0, 1.0);\n"
-                "\tfloat a3 = clamp(dot(uEdges[3], pos), 0.0, 1.0);\n"
-                "\tfloat a4 = clamp(dot(uEdges[4], pos), 0.0, 1.0);\n"
-                "\tfloat a5 = clamp(dot(uEdges[5], pos), 0.0, 1.0);\n"
-                "\tfloat edgeAlpha = min(min(a0 * a1, a2 * a3), a4 * a5);\n");
+                "\tvec3 pos = vec3(gl_FragCoord.xy, 1);\n");
+            for (int i = 0; i < count; i++) {
+                segments.fFSCode.append("\tfloat a");
+                segments.fFSCode.appendS32(i);
+                segments.fFSCode.append(" = clamp(dot(" EDGES_UNI_NAME "[");
+                segments.fFSCode.appendS32(i);
+                segments.fFSCode.append("], pos), 0.0, 1.0);\n");
+            }
+            segments.fFSCode.append("\tfloat edgeAlpha = ");
+            for (int i = 0; i < count - 1; i++) {
+                segments.fFSCode.append("min(a");
+                segments.fFSCode.appendS32(i);
+                segments.fFSCode.append(" * a");
+                segments.fFSCode.appendS32(i + 1);
+                segments.fFSCode.append(", ");
+            }
+            segments.fFSCode.append("a");
+            segments.fFSCode.appendS32(count - 1);
+            segments.fFSCode.append(" * a0");
+            for (int i = 0; i < count - 1; i++) {
+                segments.fFSCode.append(")");
+            }
+            segments.fFSCode.append(";\n");
             inCoverage = "edgeAlpha";
             coverageIsScalar = true;
         }
