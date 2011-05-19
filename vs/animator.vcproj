@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject Keyword="Win32Proj" Name="animator" ProjectGUID="{EEAC521A-0FDE-D6CB-BC9A-98FFD6B0A7E6}" ProjectType="Visual C++" RootNamespace="animator" Version="9.00">
+  <Platforms>
+    <Platform Name="Win32"/>
+  </Platforms>
+  <ToolFiles/>
+  <Configurations>
+    <Configuration ConfigurationType="4" IntermediateDirectory="$(ConfigurationName)\obj\$(ProjectName)" Name="Debug|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\effects;..\include\animator;..\include\views;..\include\xml;..\include\utils;..\include\images" AdditionalOptions="/MP" DebugInformationFormat="3" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="_DEBUG;&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_DEBUG&quot;;&quot;GR_DEBUG=1&quot;" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="3" WarnAsError="false" WarningLevel="1"/>
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\effects;..\include\animator;..\include\views;..\include\xml;..\include\utils;..\include\images" Name="VCResourceCompilerTool" PreprocessorDefinitions="&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_DEBUG&quot;;&quot;GR_DEBUG=1&quot;"/>
+      <Tool Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool GenerateDebugInformation="true" Name="VCLinkerTool"/>
+    </Configuration>
+    <Configuration ConfigurationType="4" IntermediateDirectory="$(ConfigurationName)\obj\$(ProjectName)" Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\effects;..\include\animator;..\include\views;..\include\xml;..\include\utils;..\include\images" AdditionalOptions="/MP" DebugInformationFormat="3" Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions="NDEBUG;&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_RELEASE&quot;;&quot;GR_RELEASE=1&quot;" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="2" WarnAsError="false" WarningLevel="1"/>
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\effects;..\include\animator;..\include\views;..\include\xml;..\include\utils;..\include\images" Name="VCResourceCompilerTool" PreprocessorDefinitions="&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_RELEASE&quot;;&quot;GR_RELEASE=1&quot;"/>
+      <Tool Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool GenerateDebugInformation="false" Name="VCLinkerTool"/>
+    </Configuration>
+  </Configurations>
+  <References/>
+  <Files>
+    <File RelativePath="skia.gyp"/>
+    <Filter Name="..">
+      <Filter Name="src">
+        <Filter Name="animator">
+          <File RelativePath="..\src\animator\SkDisplayList.h"/>
+          <File RelativePath="..\src\animator\SkOpArray.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawBlur.cpp"/>
+          <File RelativePath="..\src\animator\SkTime.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayMath.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawGradient.cpp"/>
+          <File RelativePath="..\src\animator\SkPaintParts.cpp"/>
+          <File RelativePath="..\src\animator\SkDraw3D.cpp"/>
+          <File RelativePath="..\src\animator\SkDump.cpp"/>
+          <File RelativePath="..\src\animator\SkPaintParts.h"/>
+          <File RelativePath="..\src\animator\SkDrawGradient.h"/>
+          <File RelativePath="..\src\animator\SkDrawEmboss.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawClip.cpp"/>
+          <File RelativePath="..\src\animator\SkIntArray.h"/>
+          <File RelativePath="..\src\animator\SkDisplayAdd.cpp"/>
+          <File RelativePath="..\src\animator\SkSnapshot.cpp"/>
+          <File RelativePath="..\src\animator\SkParseSVGPath.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawBitmap.h"/>
+          <File RelativePath="..\src\animator\SkAnimator.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayMovie.h"/>
+          <File RelativePath="..\src\animator\SkDrawShader.h"/>
+          <File RelativePath="..\src\animator\SkDisplayApply.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawLine.h"/>
+          <File RelativePath="..\src\animator\SkPathParts.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawable.h"/>
+          <File RelativePath="..\src\animator\SkScriptRuntime.h"/>
+          <File RelativePath="..\src\animator\SkMatrixParts.h"/>
+          <File RelativePath="..\src\animator\SkBuildCondensedInfo.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayNumber.cpp"/>
+          <File RelativePath="..\src\animator\SkPostParts.cpp"/>
+          <File RelativePath="..\src\animator\SkOperandInterpolator.h"/>
+          <File RelativePath="..\src\animator\SkDrawExtraPathEffect.cpp"/>
+          <File RelativePath="..\src\animator\SkTextOnPath.h"/>
+          <File RelativePath="..\src\animator\SkDisplayInclude.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawPoint.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawLine.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawPoint.h"/>
+          <File RelativePath="..\src\animator\SkBase64.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawEmboss.h"/>
+          <File RelativePath="..\src\animator\SkScript.h"/>
+          <File RelativePath="..\src\animator\SkDisplayList.cpp"/>
+          <File RelativePath="..\src\animator\SkAnimateProperties.h"/>
+          <File RelativePath="..\src\animator\SkAnimateActive.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayScreenplay.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawTransparentShader.h"/>
+          <File RelativePath="..\src\animator\SkDrawText.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawTextBox.h"/>
+          <File RelativePath="..\src\animator\SkScriptTokenizer.cpp"/>
+          <File RelativePath="..\src\animator\SkDraw3D.h"/>
+          <File RelativePath="..\src\animator\SkAnimateSet.h"/>
+          <File RelativePath="..\src\animator\SkScript2.h"/>
+          <File RelativePath="..\src\animator\SkBoundable.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawTransparentShader.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawTo.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawMatrix.h"/>
+          <File RelativePath="..\src\animator\SkDisplayBounds.h"/>
+          <File RelativePath="..\src\animator\SkDisplayType.cpp"/>
+          <File RelativePath="..\src\animator\SkAnimateActive.h"/>
+          <File RelativePath="..\src\animator\SkXMLAnimatorWriter.cpp"/>
+          <File RelativePath="..\src\animator\SkBase64.h"/>
+          <File RelativePath="..\src\animator\SkDisplayNumber.h"/>
+          <File RelativePath="..\src\animator\SkDrawable.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawMatrix.cpp"/>
+          <File RelativePath="..\src\animator\SkAnimateMaker.h"/>
+          <File RelativePath="..\src\animator\SkDisplayEvents.cpp"/>
+          <File RelativePath="..\src\animator\SkScriptCallBack.h"/>
+          <File RelativePath="..\src\animator\SkDrawRectangle.cpp"/>
+          <File RelativePath="..\src\animator\SkTextToPath.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawSaveLayer.h"/>
+          <File RelativePath="..\src\animator\SkAnimateMaker.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayRandom.h"/>
+          <File RelativePath="..\src\animator\SkDrawGroup.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawBlur.h"/>
+          <File RelativePath="..\src\animator\SkSnapshot.h"/>
+          <File RelativePath="..\src\animator\SkDrawDash.cpp"/>
+          <File RelativePath="..\src\animator\SkAnimate.h"/>
+          <File RelativePath="..\src\animator\SkDisplayApply.h"/>
+          <File RelativePath="..\src\animator\SkScriptRuntime.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayInput.h"/>
+          <File RelativePath="..\src\animator\SkDrawOval.h"/>
+          <File RelativePath="..\src\animator\SkMemberInfo.h"/>
+          <File RelativePath="..\src\animator\SkDisplayBounds.cpp"/>
+          <File RelativePath="..\src\animator\SkHitClear.h"/>
+          <File RelativePath="..\src\animator\SkDrawTextBox.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayable.h"/>
+          <File RelativePath="..\src\animator\SkDisplayAdd.h"/>
+          <File RelativePath="..\src\animator\SkDisplayXMLParser.h"/>
+          <File RelativePath="..\src\animator\SkHitClear.cpp"/>
+          <File RelativePath="..\src\animator\SkDump.h"/>
+          <File RelativePath="..\src\animator\SkDrawColor.h"/>
+          <File RelativePath="..\src\animator\SkAnimateBase.h"/>
+          <File RelativePath="..\src\animator\SkDrawSaveLayer.cpp"/>
+          <File RelativePath="..\src\animator\SkAnimatorScript.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawPaint.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayType.h"/>
+          <File RelativePath="..\src\animator\SkDrawPath.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawFull.h"/>
+          <File RelativePath="..\src\animator\SkMatrixParts.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayXMLParser.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawPath.h"/>
+          <File RelativePath="..\src\animator\SkDisplayRandom.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawFull.cpp"/>
+          <File RelativePath="..\src\animator\SkAnimateBase.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayInclude.h"/>
+          <File RelativePath="..\src\animator\SkDisplayMovie.cpp"/>
+          <File RelativePath="..\src\animator\SkAnimateField.cpp"/>
+          <File RelativePath="..\src\animator\SkTextOnPath.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayEvent.h"/>
+          <File RelativePath="..\src\animator\SkHitTest.h"/>
+          <File RelativePath="..\src\animator\SkDrawOval.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawShader.cpp"/>
+          <File RelativePath="..\src\animator\SkOperand2.h"/>
+          <File RelativePath="..\src\animator\SkAnimateSet.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayable.cpp"/>
+          <File RelativePath="..\src\animator\SkPostParts.h"/>
+          <File RelativePath="..\src\animator\SkTypedArray.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawText.h"/>
+          <File RelativePath="..\src\animator\SkDrawClip.h"/>
+          <File RelativePath="..\src\animator\SkDrawTo.h"/>
+          <File RelativePath="..\src\animator\SkExtras.h"/>
+          <File RelativePath="..\src\animator\SkOperand.h"/>
+          <File RelativePath="..\src\animator\SkDrawDiscrete.h"/>
+          <File RelativePath="..\src\animator\SkOperandIterpolator.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayScreenplay.h"/>
+          <File RelativePath="..\src\animator\SkScript.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayPost.cpp"/>
+          <File RelativePath="..\src\animator\SkBoundable.h"/>
+          <File RelativePath="..\src\animator\SkDrawPaint.h"/>
+          <File RelativePath="..\src\animator\SkAnimatorScript.h"/>
+          <File RelativePath="..\src\animator\SkDisplayEvent.cpp"/>
+          <File RelativePath="..\src\animator\SkDisplayTypes.cpp"/>
+          <File RelativePath="..\src\animator\SkHitTest.cpp"/>
+          <File RelativePath="..\src\animator\SkMemberInfo.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawBitmap.cpp"/>
+          <File RelativePath="..\src\animator\SkXMLAnimatorWriter.h"/>
+          <File RelativePath="..\src\animator\SkDisplayTypes.h"/>
+          <File RelativePath="..\src\animator\SkPathParts.h"/>
+          <File RelativePath="..\src\animator\SkDrawGroup.h"/>
+          <File RelativePath="..\src\animator\SkDisplayEvents.h"/>
+          <File RelativePath="..\src\animator\SkTDArray_Experimental.h"/>
+          <File RelativePath="..\src\animator\SkDisplayInput.cpp"/>
+          <File RelativePath="..\src\animator\SkTypedArray.h"/>
+          <File RelativePath="..\src\animator\SkGetCondensedInfo.cpp"/>
+          <File RelativePath="..\src\animator\SkTextToPath.h"/>
+          <File RelativePath="..\src\animator\SkDisplayPost.h"/>
+          <File RelativePath="..\src\animator\SkDrawDash.h"/>
+          <File RelativePath="..\src\animator\SkDrawRectangle.h"/>
+          <File RelativePath="..\src\animator\SkDisplayMath.h"/>
+          <File RelativePath="..\src\animator\SkScriptDecompile.cpp"/>
+          <File RelativePath="..\src\animator\SkOpArray.h"/>
+          <File RelativePath="..\src\animator\SkDrawDiscrete.cpp"/>
+          <File RelativePath="..\src\animator\SkDrawColor.cpp"/>
+        </Filter>
+      </Filter>
+      <Filter Name="include">
+        <Filter Name="animator">
+          <File RelativePath="..\include\animator\SkAnimator.h"/>
+          <File RelativePath="..\include\animator\SkAnimatorView.h"/>
+        </Filter>
+      </Filter>
+    </Filter>
+  </Files>
+  <Globals/>
+</VisualStudioProject>

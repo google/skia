@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject Keyword="Win32Proj" Name="pdf" ProjectGUID="{A2778412-4E81-F2EC-BEEC-BDE38C0DB156}" ProjectType="Visual C++" RootNamespace="pdf" Version="9.00">
+  <Platforms>
+    <Platform Name="Win32"/>
+  </Platforms>
+  <ToolFiles/>
+  <Configurations>
+    <Configuration ConfigurationType="4" IntermediateDirectory="$(ConfigurationName)\obj\$(ProjectName)" Name="Debug|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\pdf;..\src\core" AdditionalOptions="/MP" DebugInformationFormat="3" Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="_DEBUG;&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_DEBUG&quot;;&quot;GR_DEBUG=1&quot;" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="3" WarnAsError="false" WarningLevel="1"/>
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\pdf;..\src\core" Name="VCResourceCompilerTool" PreprocessorDefinitions="&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_DEBUG&quot;;&quot;GR_DEBUG=1&quot;"/>
+      <Tool Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool GenerateDebugInformation="true" Name="VCLinkerTool"/>
+    </Configuration>
+    <Configuration ConfigurationType="4" IntermediateDirectory="$(ConfigurationName)\obj\$(ProjectName)" Name="Release|Win32" OutputDirectory="$(SolutionDir)$(ConfigurationName)">
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\pdf;..\src\core" AdditionalOptions="/MP" DebugInformationFormat="3" Name="VCCLCompilerTool" Optimization="2" PreprocessorDefinitions="NDEBUG;&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_RELEASE&quot;;&quot;GR_RELEASE=1&quot;" ProgramDataBaseFileName="$(IntDir)\$(ProjectName)\vc80.pdb" RuntimeLibrary="2" WarnAsError="false" WarningLevel="1"/>
+      <Tool AdditionalIncludeDirectories="..\include\config;..\include\core;..\include\pdf;..\src\core" Name="VCResourceCompilerTool" PreprocessorDefinitions="&quot;SK_BUILD_FOR_WIN32&quot;;&quot;SK_IGNORE_STDINT_DOT_H&quot;;&quot;SK_RELEASE&quot;;&quot;GR_RELEASE=1&quot;"/>
+      <Tool Name="VCLibrarianTool" OutputFile="$(OutDir)\lib\$(ProjectName).lib"/>
+      <Tool GenerateDebugInformation="false" Name="VCLinkerTool"/>
+    </Configuration>
+  </Configurations>
+  <References/>
+  <Files>
+    <File RelativePath="skia.gyp"/>
+    <Filter Name="..">
+      <Filter Name="src">
+        <Filter Name="pdf">
+          <File RelativePath="..\src\pdf\SkPDFDevice.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFTypes.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFStream.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFGraphicState.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFImage.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFPage.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFFormXObject.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFUtils.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFDocument.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFShader.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFFont.cpp"/>
+          <File RelativePath="..\src\pdf\SkPDFCatalog.cpp"/>
+        </Filter>
+      </Filter>
+      <Filter Name="include">
+        <Filter Name="pdf">
+          <File RelativePath="..\include\pdf\SkPDFImage.h"/>
+          <File RelativePath="..\include\pdf\SkPDFTypes.h"/>
+          <File RelativePath="..\include\pdf\SkPDFStream.h"/>
+          <File RelativePath="..\include\pdf\SkPDFGraphicState.h"/>
+          <File RelativePath="..\include\pdf\SkPDFFormXObject.h"/>
+          <File RelativePath="..\include\pdf\SkPDFPage.h"/>
+          <File RelativePath="..\include\pdf\SkPDFDevice.h"/>
+          <File RelativePath="..\include\pdf\SkPDFShader.h"/>
+          <File RelativePath="..\include\pdf\SkPDFUtils.h"/>
+          <File RelativePath="..\include\pdf\SkPDFFont.h"/>
+          <File RelativePath="..\include\pdf\SkPDFCatalog.h"/>
+          <File RelativePath="..\include\pdf\SkPDFDocument.h"/>
+        </Filter>
+      </Filter>
+    </Filter>
+  </Files>
+  <Globals/>
+</VisualStudioProject>
