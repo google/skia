@@ -707,6 +707,11 @@
         '../src/utils/SkProxyCanvas.cpp',
         '../src/utils/SkSfntUtils.cpp',
         '../src/utils/SkUnitMappers.cpp',
+
+        '../src/utils/mac/SkEGLContext_Mesa.cpp',
+      ],
+      'sources!': [
+          '../src/utils/mac/SkEGLContext_Mesa.cpp',
       ],
       'conditions': [
         [ 'OS == "mac"', {
@@ -714,6 +719,11 @@
             '../include/utils/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../src/utils/mac/SkEGLContext_mac.cpp',
+          ],
+        }],
+        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
+          'sources': [
+            '../src/utils/unix/SkEGLContext_Unix.cpp',
           ],
         }],
       ],
@@ -1018,6 +1028,11 @@
         '../gpu/src/win/GrGLDefaultInterface_win.cpp',
 
         '../gpu/src/unix/GrGLDefaultInterface_unix.cpp',
+
+        '../gpu/src/mesa/GrGLDefaultInterface_mesa.cpp',
+      ],
+      'sources!': [
+        '../gpu/src/mesa/GrGLDefaultInterface_mesa.cpp',
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',
