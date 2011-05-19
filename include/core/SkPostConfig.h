@@ -63,25 +63,6 @@
     #endif
 #endif
 
-/*
- *  We check to see if the SHIFT value has already been defined.
- *  if not, we define it ourself to some default values. We default to OpenGL
- *  order (in memory: r,g,b,a)
- */
-#ifndef SK_A32_SHIFT
-    #ifdef SK_CPU_BENDIAN
-        #define SK_R32_SHIFT    24
-        #define SK_G32_SHIFT    16
-        #define SK_B32_SHIFT    8
-        #define SK_A32_SHIFT    0
-    #else
-        #define SK_R32_SHIFT    0
-        #define SK_G32_SHIFT    8
-        #define SK_B32_SHIFT    16
-        #define SK_A32_SHIFT    24
-    #endif
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef SkNEW
@@ -148,6 +129,25 @@
                 SkDebugf("%s:%d: failed assertion \"%s\"\n", \
                 __FILE__, __LINE__, #cond); SK_CRASH(); } while (false)
         #endif
+    #endif
+#endif
+
+/*
+ *  We check to see if the SHIFT value has already been defined.
+ *  if not, we define it ourself to some default values. We default to OpenGL
+ *  order (in memory: r,g,b,a)
+ */
+#ifndef SK_A32_SHIFT
+    #ifdef SK_CPU_BENDIAN
+        #define SK_R32_SHIFT    24
+        #define SK_G32_SHIFT    16
+        #define SK_B32_SHIFT    8
+        #define SK_A32_SHIFT    0
+    #else
+        #define SK_R32_SHIFT    0
+        #define SK_G32_SHIFT    8
+        #define SK_B32_SHIFT    16
+        #define SK_A32_SHIFT    24
     #endif
 #endif
 
