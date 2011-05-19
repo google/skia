@@ -34,6 +34,7 @@
       [ 'OS == "linux"', {
         'defines': [
           'SK_SAMPLES_FOR_X',
+          'SK_BUILD_FOR_UNIX',
         ],
       }],
     ],
