@@ -379,22 +379,7 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
     return fGpu->createPlatformSurface(desc);
 }
 
-GrRenderTarget* GrContext::createPlatformRenderTarget(intptr_t platformRenderTarget,
-                                                      int stencilBits,
-                                                      bool isMultisampled,
-                                                      int width, int height) {
-#if GR_DEBUG
-    GrPrintf("Using deprecated createPlatformRenderTarget API.");
-#endif
-    return fGpu->createPlatformRenderTarget(platformRenderTarget, 
-                                            stencilBits, isMultisampled, 
-                                            width, height);
-}
-
 GrRenderTarget* GrContext::createRenderTargetFrom3DApiState() {
-#if GR_DEBUG
-    GrPrintf("Using deprecated createRenderTargetFrom3DApiState API.");
-#endif
     return fGpu->createRenderTargetFrom3DApiState();
 }
 

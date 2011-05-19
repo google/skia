@@ -109,20 +109,6 @@ public:
      */
     GrTexture* createTexture(const GrTextureDesc& desc,
                              const void* srcData, size_t rowBytes);
-    /**
-     * Wraps an externally-created rendertarget in a GrRenderTarget.
-     * @param platformRenderTarget  handle to the the render target in the
-     *                              underlying 3D API. Interpretation depends on
-     *                              GrGpu subclass in use.
-     * @param stencilBits           number of stencil bits the target has
-     * @param isMultisampled        specify whether the RT is multisampled
-     * @param width                 width of the render target
-     * @param height                height of the render target
-     */
-     GrRenderTarget* createPlatformRenderTarget(intptr_t platformRenderTarget,
-                                                int stencilBits,
-                                                bool isMultisampled,
-                                                int width, int height);
 
     GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
 
@@ -427,11 +413,6 @@ protected:
                                        const void* srcData,
                                        size_t rowBytes) = 0;
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) = 0;
-    virtual GrRenderTarget* onCreatePlatformRenderTarget(
-                                                intptr_t platformRenderTarget,
-                                                int stencilBits,
-                                                bool isMultisampled,
-                                                int width, int height) = 0;
     virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState() = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
                                                  bool dynamic) = 0;

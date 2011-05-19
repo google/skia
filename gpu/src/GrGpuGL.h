@@ -81,11 +81,6 @@ protected:
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic);
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc);
-    virtual GrRenderTarget* onCreatePlatformRenderTarget(
-                                                 intptr_t platformRenderTarget,
-                                                 int stencilBits,
-                                                 bool isMultisampled,
-                                                 int width, int height);
     virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState();
 
     virtual void onClear(const GrIRect* rect, GrColor color);

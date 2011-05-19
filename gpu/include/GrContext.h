@@ -190,34 +190,15 @@ public:
      *         on failure.
      */
     GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
-
     /**
-     * DEPRECATED, WILL BE REMOVED SOON. USE createPlatformSurface.
-     *
-     * Wraps an externally-created rendertarget in a GrRenderTarget.
-     * @param platformRenderTarget  3D API-specific render target identifier
-     *                              e.g. in GL platforamRenderTarget is an FBO
-     *                              id.
-     * @param stencilBits           the number of stencil bits that the render
-     *                              target has.
-     * @param isMultisampled        specify whether the render target is 
-     *                              multisampled.
-     * @param width                 width of the render target.
-     * @param height                height of the render target.
-     */
-    GrRenderTarget* createPlatformRenderTarget(intptr_t platformRenderTarget,
-                                               int stencilBits,
-                                               bool isMultisampled,
-                                               int width, int height);
-
-    /**
-     * DEPRECATED, WILL BE REMOVED SOON. USE createPlatformSurface.
-     *
      * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
      * viewport state from the underlying 3D API and wraps it in a
      * GrRenderTarget. The GrRenderTarget will not attempt to delete/destroy the
      * underlying object in its destructor and it is up to caller to guarantee
      * that it remains valid while the GrRenderTarget is used.
+     *
+     * Will not detect that the render target is also a texture. If you need
+     * to also use the render target as a GrTexture use createPlatformSurface.
      *
      * @return the newly created GrRenderTarget
      */
