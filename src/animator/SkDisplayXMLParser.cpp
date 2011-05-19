@@ -304,8 +304,8 @@ const SkMemberInfo* SkDisplayXMLParser::searchContainer(const SkMemberInfo* info
         }
         return info;
 next:
-        if (type == SkType_Drawable || type == SkType_Displayable && 
-            container->fDisplayable->isDrawable()) {
+        if (type == SkType_Drawable || (type == SkType_Displayable && 
+            container->fDisplayable->isDrawable())) {
 rectNext:
             if (fParents.count() > 1) {
                 Parent* parent = fParents.end() - 2;

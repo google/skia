@@ -354,7 +354,7 @@ protected:
 
         paint.setTypeface(fFace);
 
-        for (int i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
             apply_shader(&paint, i);
 
           //  paint.setMaskFilter(NULL);

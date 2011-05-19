@@ -235,7 +235,7 @@ protected:
         
         canvas->translate(0, SkIntToScalar(200));
 
-        for (int op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
+        for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); op++) {
             canvas->drawText(gOps[op].fName, strlen(gOps[op].fName), SkIntToScalar(75), SkIntToScalar(50), textPaint);
 
             this->drawRgnOped(canvas, gOps[op].fOp, gOps[op].fColor);

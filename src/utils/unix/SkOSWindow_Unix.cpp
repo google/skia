@@ -76,7 +76,7 @@ void SkOSWindow::post_linuxevent()
     long event_mask = NoEventMask;
     XClientMessageEvent event;
     event.type = ClientMessage;
-    Atom myAtom;
+    Atom myAtom(0);
     event.message_type = myAtom;
     event.format = 32;
     event.data.l[0] = 0;

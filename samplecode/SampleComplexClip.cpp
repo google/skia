@@ -88,7 +88,7 @@ protected:
         canvas->save();
 
         for (int invA = 0; invA < 2; ++invA) {
-            for (int op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
+            for (size_t op = 0; op < SK_ARRAY_COUNT(gOps); ++op) {
                 int idx = invA * SK_ARRAY_COUNT(gOps) + op;
                 if (!(idx % 3)) {
                     canvas->restore();

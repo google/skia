@@ -23,7 +23,7 @@ public:
                                                  SK_ARRAY_COUNT(colors),
                                                  SkShader::kMirror_TileMode);
 #else
-        SkPoint pts[] = { SkIntToScalar(W)/2, SkIntToScalar(H)/2 };
+        SkPoint pts[] = { { SkIntToScalar(W)/2, SkIntToScalar(H)/2 } };
         fShader = SkGradientShader::CreateRadial(pts[0], SkIntToScalar(H)/5,
                                                  colors, NULL,
                                                  SK_ARRAY_COUNT(colors),

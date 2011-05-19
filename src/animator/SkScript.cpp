@@ -305,8 +305,8 @@ twoChar:
             } while (true);
             signed char topPrecedence = gPrecedence[compare];
             SkASSERT(topPrecedence != -1);
-            if (topPrecedence > precedence || topPrecedence == precedence && 
-                    gOpAttributes[op].fLeftType == kNoType) {
+            if (topPrecedence > precedence || (topPrecedence == precedence && 
+                    gOpAttributes[op].fLeftType == kNoType)) {
                 break;
             }
             if (processOp() == false)

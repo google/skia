@@ -408,7 +408,7 @@ protected:
 			pos2[index].set(SkIntToScalar(index * 10), SkIntToScalar(20));
 		
         // shaders
-        SkPoint linearPoints[] = { 0, 0, SkIntToScalar(40), SkIntToScalar(40) };
+        SkPoint linearPoints[] = { { 0, 0, }, { SkIntToScalar(40), SkIntToScalar(40) } };
         SkColor linearColors[] = { SK_ColorRED, SK_ColorBLUE };
         SkScalar* linearPos = NULL;
         int linearCount = 2;
@@ -624,7 +624,7 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
     }
     
     SkShader* shaderTest() {
-        SkPoint pts[] = {0, 0, SkIntToScalar(100), 0 };
+        SkPoint pts[] = { { 0, 0, }, { SkIntToScalar(100), 0 } };
         SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
         SkShader* shaderA = SkGradientShader::CreateLinear(pts, colors, NULL, 
             2, SkShader::kClamp_TileMode);
@@ -647,7 +647,7 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
 	}
 
     void drawRaster(SkCanvas* canvas)  {
-        for (int index = 0; index < SK_ARRAY_COUNT(gRastProcs); index++)
+        for (size_t index = 0; index < SK_ARRAY_COUNT(gRastProcs); index++)
             drawOneRaster(canvas);
     }
     
@@ -665,7 +665,7 @@ SkCornerPathEffect.h:28:class SkCornerPathEffect : public SkPathEffect {
 
         SkString str("GOOGLE");
 
-        for (int i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
             apply_shader(&paint, i);
             
           //  paint.setMaskFilter(NULL);

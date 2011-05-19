@@ -11,7 +11,7 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
 
     SkCanvas    canvas(*bm);
     SkScalar s = SkIntToScalar(w < h ? w : h);
-    SkPoint     pts[] = { 0, 0, s, s };
+    SkPoint     pts[] = { { 0, 0 }, { s, s } };
     SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
     SkPaint     paint;

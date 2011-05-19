@@ -35,7 +35,7 @@ public:
         info.fPaintBits = SkLayerDrawLooper::kStyle_Bit | SkLayerDrawLooper::kMaskFilter_Bit;
         info.fColorMode = SkXfermode::kSrc_Mode;
         
-        for (int i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gParams); i++) {
             info.fOffset.set(gParams[i].fOffset, gParams[i].fOffset);
             SkPaint* paint = fLooper->addLayer(info);
             paint->setAntiAlias(true);

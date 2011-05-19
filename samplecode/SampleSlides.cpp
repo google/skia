@@ -324,7 +324,8 @@ static SkShader* make_shader0(SkIPoint* size) {
 }
 
 static SkShader* make_shader1(const SkIPoint& size) {
-    SkPoint pts[] = { 0, 0, SkIntToScalar(size.fX), SkIntToScalar(size.fY) };
+    SkPoint pts[] = { { 0, 0 },
+                      { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::CreateLinear(pts, colors, NULL,
                                           SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode, NULL);
@@ -439,7 +440,7 @@ static void mesh_slide(SkCanvas* canvas) {
     paint.setDither(true);
     paint.setFilterBitmap(true);
     
-    for (int i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
         canvas->save();
         
         paint.setShader(NULL);
@@ -725,7 +726,7 @@ static void texteffect_slide(SkCanvas* canvas) {
     paint.setTextSize(75);
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorBLUE);
-    for (int i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRastProcs); i++) {
         apply_shader(&paint, i);
         canvas->drawText(str, len, x, y, paint);
         y += 80;

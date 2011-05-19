@@ -16,7 +16,7 @@ static void draw_rect(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
 
 static void draw_gradient(SkCanvas* canvas) {
     SkRect r = { 0, 0, SkIntToScalar(256), SkIntToScalar(32) };
-    SkPoint pts[] = { r.fLeft, r.fTop, r.fRight, r.fTop };
+    SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fTop } };
     SkColor colors[] = { 0xFF000000, 0xFFFF0000 };
     SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL, 2,
                                                  SkShader::kClamp_TileMode);

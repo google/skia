@@ -117,7 +117,7 @@ void SkWidgetView::setLabel(const char label[])
 
 void SkWidgetView::setLabel(const char label[], size_t len)
 {
-	if (label == NULL && fLabel.size() != 0 || !fLabel.equals(label, len))
+	if ((label == NULL && fLabel.size() != 0) || !fLabel.equals(label, len))
 	{
 		SkString	tmp(label, len);
 
@@ -368,7 +368,7 @@ SkView* SkWidgetFactory(const char name[])
 		
 	};
 
-	for (int i = 0; i < SK_ARRAY_COUNT(gNames); i++)
+	for (size_t i = 0; i < SK_ARRAY_COUNT(gNames); i++)
 		if (!strcmp(gNames[i], name))
 			return SkWidgetFactory((SkWidgetEnum)i);
 

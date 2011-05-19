@@ -46,7 +46,7 @@ static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
     SkRect      bounds;
 
     SkPaint p(paint);
-    for (int i = 0; i < SK_ARRAY_COUNT(gSettings); i++) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gSettings); i++) {
         p.setLinearText(gSettings[i].fLinearText);
         p.setDevKernText(gSettings[i].fDevKernText);
         SkScalar scale = gSettings[i].fScale;

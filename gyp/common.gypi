@@ -65,6 +65,7 @@
               'cflags': ['-O2']
             },
           },
+          'cflags': [ '-Wall', '-Wextra', '-Wno-unused' ]
         },
       },
     ],

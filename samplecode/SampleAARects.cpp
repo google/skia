@@ -70,7 +70,7 @@ protected:
         SkScalar dx = SkIntToScalar(80);
         SkScalar dy = SkIntToScalar(100);
         SkMatrix matrix;
-        for (int p = 0; p < SK_ARRAY_COUNT(paints); ++p) {
+        for (size_t p = 0; p < SK_ARRAY_COUNT(paints); ++p) {
             for (int stroke = 0; stroke < 2; ++stroke) {
                 paints[p].setStyle(stroke ? SkPaint::kStroke_Style : SkPaint::kFill_Style);
                 for (int a = 0; a < 3; ++ a) {

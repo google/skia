@@ -38,7 +38,8 @@ static SkShader* make_shader0(SkIPoint* size) {
 }
 
 static SkShader* make_shader1(const SkIPoint& size) {
-    SkPoint pts[] = { 0, 0, SkIntToScalar(size.fX), SkIntToScalar(size.fY) };
+    SkPoint pts[] = { { 0, 0 },
+                      { SkIntToScalar(size.fX), SkIntToScalar(size.fY) } };
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorRED };
     return SkGradientShader::CreateLinear(pts, colors, NULL,
                     SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode, NULL);
@@ -88,7 +89,7 @@ protected:
         paint.setDither(true);
         paint.setFilterBitmap(true);
 
-        for (int i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(fRecs); i++) {
             canvas->save();
 
             paint.setShader(NULL);

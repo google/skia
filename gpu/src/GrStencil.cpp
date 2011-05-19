@@ -16,7 +16,14 @@
 
 #include "GrStencil.h"
 
-const GrStencilSettings GrStencilSettings::gDisabled = {};
+const GrStencilSettings GrStencilSettings::gDisabled = {
+    kKeep_StencilOp,     kKeep_StencilOp,
+    kKeep_StencilOp,     kKeep_StencilOp,
+    kAlways_StencilFunc, kAlways_StencilFunc,
+    0x0,                 0x0,
+    0x0,                 0x0,
+    0x0,                 0x0
+};
 GR_STATIC_ASSERT(0 == kKeep_StencilOp);
 GR_STATIC_ASSERT(0 == kAlways_StencilFunc);
 

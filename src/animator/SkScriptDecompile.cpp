@@ -114,7 +114,7 @@ static size_t gOperandNamesSize = sizeof(gOperandNames) / sizeof(gOperandNames[0
 // check to see that there are no missing or duplicate entries
 void SkScriptEngine2::ValidateDecompileTable() {
     SkScriptEngine2::TypeOp op = SkScriptEngine2::kNop;
-    int index;
+    size_t index;
     for (index = 0; index < gOpNamesSize; index++) {
         SkASSERT(gOpNames[index].fOp == op);
         op = (SkScriptEngine2::TypeOp) (op + 1);
@@ -132,9 +132,9 @@ void SkScriptEngine2::decompile(const unsigned char* start, size_t length) {
     SkASSERT(length > 0);
     const unsigned char* opCode = start;
     do {
-        SkASSERT(opCode - start < length);
+        SkASSERT((size_t)(opCode - start) < length);
         SkScriptEngine2::TypeOp op = (SkScriptEngine2::TypeOp) *opCode++;
-        SkASSERT(op < gOpNamesSize);
+        SkASSERT((size_t)op < gOpNamesSize);
         SkDebugf("%d: %s", opCode - start - 1, gOpNames[op].fName);
         switch (op) {
         case SkScriptEngine2::kCallback: {
@@ -184,7 +184,7 @@ void SkScriptEngine2::decompile(const unsigned char* start, size_t length) {
             SkOperand2::OpType type;
             memcpy(&type, opCode, sizeof(type));
             opCode += sizeof(type);
-            int index = 0;
+            size_t index = 0;
             if (type == 0)
                 SkDebugf(" type: %s", gOperandNames[index].fName);
             else {
@@ -211,6 +211,8 @@ void SkScriptEngine2::decompile(const unsigned char* start, size_t length) {
             goto done;
         case SkScriptEngine2::kNop:
                 SkASSERT(0);
+        default:
+            break;
     }
     SkDebugf("\n");
     } while (true);

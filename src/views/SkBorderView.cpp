@@ -5,8 +5,10 @@
 #include "SkTime.h"
 #include "SkStackViewLayout.h"
 
-SkBorderView::SkBorderView() : fTop(SkIntToScalar(0)), fLeft(SkIntToScalar(0)),
-					fRight(SkIntToScalar(0)), fBottom(SkIntToScalar(0))
+SkBorderView::SkBorderView() : fLeft(SkIntToScalar(0)),
+                               fRight(SkIntToScalar(0)),
+                               fTop(SkIntToScalar(0)),
+                               fBottom(SkIntToScalar(0))
 {
 	fAnim.setHostEventSink(this);
 	init_skin_anim(kBorder_SkinEnum, &fAnim);

@@ -13,8 +13,12 @@ public:
 	PolyToPolyView() {
         // tests
         {
-            SkPoint src[] = { 0, 0, SK_Scalar1, 0, 0, SK_Scalar1 };
-            SkPoint dst[] = { 0, 0, 2*SK_Scalar1, 0, 0, 2*SK_Scalar1 };
+            SkPoint src[] = { { 0, 0 },
+                              { SK_Scalar1, 0 },
+                              { 0, SK_Scalar1 } };
+            SkPoint dst[] = { { 0, 0 },
+                              { 2*SK_Scalar1, 0 },
+                              { 0, 2*SK_Scalar1 } };
             SkMatrix m1, m2;
             bool success;
 
@@ -42,14 +46,14 @@ public:
 
             {
                 const SkPoint src[] = {
-                    SkIntToScalar(1), SkIntToScalar(0),
-                    SkIntToScalar(4), SkIntToScalar(7),
-                    SkIntToScalar(10), SkIntToScalar(2)
+                    { SkIntToScalar(1), SkIntToScalar(0) },
+                    { SkIntToScalar(4), SkIntToScalar(7) },
+                    { SkIntToScalar(10), SkIntToScalar(2) }
                 };
                 const SkPoint dst[] = {
-                    SkIntToScalar(4), SkIntToScalar(2),
-                    SkIntToScalar(45), SkIntToScalar(26),
-                    SkIntToScalar(32), SkIntToScalar(17)
+                    { SkIntToScalar(4), SkIntToScalar(2) },
+                    { SkIntToScalar(45), SkIntToScalar(26) },
+                    { SkIntToScalar(32), SkIntToScalar(17) }
                 };
 
                 SkMatrix m0, m1;

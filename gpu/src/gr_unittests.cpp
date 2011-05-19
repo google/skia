@@ -68,7 +68,7 @@ static void test_bsearch() {
     for (size_t n = 0; n < GR_ARRAY_COUNT(array); n++) {
         for (size_t i = 0; i < n; i++) {
             int index = GrTBSearch<int, int>(array, n, array[i]);
-            GrAssert(index == i);
+            GrAssert(index == (int) i);
             index = GrTBSearch<int, int>(array, n, -array[i]);
             GrAssert(index < 0);
         }
