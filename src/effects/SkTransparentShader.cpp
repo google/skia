@@ -53,7 +53,10 @@ void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
     switch (fDevice->getConfig()) {
         case SkBitmap::kARGB_8888_Config:
             if (scale == 256) {
-                memcpy(span, fDevice->getAddr32(x, y), count * sizeof(SkPMColor));
+                SkPMColor* src = fDevice->getAddr32(x, y);
+                if (src != span) {
+                    memcpy(span, src, count * sizeof(SkPMColor));
+                }
             } else {
                 const SkPMColor* src = fDevice->getAddr32(x, y);
                 for (int i = count - 1; i >= 0; --i) {
@@ -125,6 +128,9 @@ void SkTransparentShader::shadeSpan(int x, int y, SkPMColor span[], int count) {
 void SkTransparentShader::shadeSpan16(int x, int y, uint16_t span[], int count) {
     SkASSERT(fDevice->getConfig() == SkBitmap::kRGB_565_Config);
 
-    memcpy(span, fDevice->getAddr16(x, y), count << 1);
+    uint16_t* src = fDevice->getAddr16(x, y);
+    if (src != span) {
+        memcpy(span, src, count << 1);
+    }
 }
 
