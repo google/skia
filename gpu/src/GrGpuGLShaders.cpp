@@ -195,6 +195,15 @@ void GrGpuGLShaders::ProgramUnitTest() {
 
         pdesc.fEdgeAANumEdges = (random.nextF() * (getMaxEdges() + 1));
 
+        if (fDualSourceBlendingSupport) {
+            pdesc.fDualSrcOutput = 
+               (GrGLProgram::ProgramDesc::DualSrcOutput)
+               (int)(random.nextF() * GrGLProgram::ProgramDesc::kDualSrcOutputCnt);
+        } else {
+            pdesc.fDualSrcOutput = 
+                                GrGLProgram::ProgramDesc::kNone_DualSrcOutput;
+        }
+
         for (int s = 0; s < kNumStages; ++s) {
             // enable the stage?
             if (random.nextF() > .5f) {
@@ -234,7 +243,17 @@ void GrGpuGLShaders::ProgramUnitTest() {
 GrGpuGLShaders::GrGpuGLShaders() {
 
     resetContext();
+    int major, minor;
+    gl_version(&major, &minor);
+
     f4X4DownsampleFilterSupport = true;
+    if (GR_GL_SUPPORT_DESKTOP) {
+        fDualSourceBlendingSupport =
+            major > 3 ||(3 == major && 3 <= minor) ||
+            has_gl_extension("GL_ARB_blend_func_extended");
+    } else {
+        fDualSourceBlendingSupport = false;
+    }
 
     fProgramData = NULL;
     fProgramCache = new ProgramCache();
@@ -533,6 +552,11 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         GR_GL(UseProgram(fProgramData->fProgramID));
         fHWProgramID = fProgramData->fProgramID;
     }
+    GrBlendCoeff srcCoeff = fCurrDrawState.fSrcBlend;
+    GrBlendCoeff dstCoeff = fCurrDrawState.fDstBlend;
+    
+    fCurrentProgram.overrideBlend(&srcCoeff, &dstCoeff);
+    this->flushBlend(type, srcCoeff, dstCoeff);
 
     this->flushColor();
 
@@ -677,16 +701,6 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
 
     desc.fColorFilterXfermode = fCurrDrawState.fColorFilterXfermode;
 
-    // coverage vs. color only applies when there is a color filter
-    // (currently)
-    if (SkXfermode::kDst_Mode != desc.fColorFilterXfermode) {
-        desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
-    } else {
-        // use canonical value when this won't affect generated
-        // code to prevent duplicate programs.
-        desc.fFirstCoverageStage = kNumStages;
-    }
-
 #if GR_AGGRESSIVE_SHADER_OPTS
     if (!requiresAttributeColors && (0xffffffff == fCurrDrawState.fColor)) {
         desc.fColorType = GrGLProgram::ProgramDesc::kNone_ColorType;
@@ -704,12 +718,15 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
 
     desc.fEdgeAANumEdges = fCurrDrawState.fEdgeAANumEdges;
 
+    int lastEnabledStage = -1;
+
     for (int s = 0; s < kNumStages; ++s) {
         GrGLProgram::ProgramDesc::StageDesc& stage = desc.fStages[s];
 
         stage.fEnabled = this->isStageEnabled(s);
 
         if (stage.fEnabled) {
+            lastEnabledStage = s;
             GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
             GrAssert(NULL != texture);
             // we matrix to invert when orientation is TopDown, so make sure
@@ -773,6 +790,43 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             stage.fOptFlags     = 0;
             stage.fCoordMapping = (GrGLProgram::ProgramDesc::StageDesc::CoordMapping)0;
             stage.fModulation   = (GrGLProgram::ProgramDesc::StageDesc::Modulation)0;
+        }
+    }
+
+    desc.fDualSrcOutput = GrGLProgram::ProgramDesc::kNone_DualSrcOutput;
+    // use canonical value when coverage/color distinction won't affect
+    // generated code to prevent duplicate programs.
+    desc.fFirstCoverageStage = kNumStages;
+    if (fCurrDrawState.fFirstCoverageStage <= lastEnabledStage) {
+        // color filter is applied between color/coverage computation
+        if (SkXfermode::kDst_Mode != desc.fColorFilterXfermode) {
+            desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+        }
+
+        // We could consider cases where the final color is solid (0xff alpha)
+        // and the dst coeff can correctly be set to a non-dualsrc gl value.
+        // (e.g. solid draw, and dst coeff is kZero. It's correct to make
+        // the dst coeff be kISA. Or solid draw with kSA can be tweaked to be
+        // kOne).
+        if (fDualSourceBlendingSupport) {
+            if (kZero_BlendCoeff == fCurrDrawState.fDstBlend) {
+                // write the coverage value to second color
+                desc.fDualSrcOutput = 
+                                GrGLProgram::ProgramDesc::kCoverage_DualSrcOutput;
+                desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+            } else if (kSA_BlendCoeff == fCurrDrawState.fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially 
+                // cover
+                desc.fDualSrcOutput = 
+                            GrGLProgram::ProgramDesc::kCoverageISA_DualSrcOutput;
+                desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+            } else if (kSC_BlendCoeff == fCurrDrawState.fDstBlend) {
+                // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially
+                // cover
+                desc.fDualSrcOutput = 
+                        GrGLProgram::ProgramDesc::kCoverageISC_DualSrcOutput;
+                desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+            }
         }
     }
 }

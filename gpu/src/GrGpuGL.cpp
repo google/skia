@@ -42,9 +42,15 @@ static const GrGLenum gXfermodeCoeff2Blend[] = {
     GR_GL_ONE_MINUS_CONSTANT_COLOR,
     GR_GL_CONSTANT_ALPHA,
     GR_GL_ONE_MINUS_CONSTANT_ALPHA,
+
+    // extended blend coeffs
+    GR_GL_SRC1_COLOR,
+    GR_GL_ONE_MINUS_SRC1_COLOR,
+    GR_GL_SRC1_ALPHA,
+    GR_GL_ONE_MINUS_SRC1_ALPHA,
 };
 
-bool GrGpuGL::BlendCoefReferencesConstant(GrBlendCoeff coeff) {
+bool GrGpuGL::BlendCoeffReferencesConstant(GrBlendCoeff coeff) {
     static const bool gCoeffReferencesBlendConst[] = {
         false,
         false,
@@ -60,27 +66,39 @@ bool GrGpuGL::BlendCoefReferencesConstant(GrBlendCoeff coeff) {
         true,
         true,
         true,
+
+        // extended blend coeffs
+        false,
+        false,
+        false,
+        false,
     };
     return gCoeffReferencesBlendConst[coeff];
-    GR_STATIC_ASSERT(kBlendCoeffCount == GR_ARRAY_COUNT(gCoeffReferencesBlendConst));
+    GR_STATIC_ASSERT(kTotalBlendCoeffCount == GR_ARRAY_COUNT(gCoeffReferencesBlendConst));
+
+    GR_STATIC_ASSERT(0 == kZero_BlendCoeff);
+    GR_STATIC_ASSERT(1 == kOne_BlendCoeff);
+    GR_STATIC_ASSERT(2 == kSC_BlendCoeff);
+    GR_STATIC_ASSERT(3 == kISC_BlendCoeff);
+    GR_STATIC_ASSERT(4 == kDC_BlendCoeff);
+    GR_STATIC_ASSERT(5 == kIDC_BlendCoeff);
+    GR_STATIC_ASSERT(6 == kSA_BlendCoeff);
+    GR_STATIC_ASSERT(7 == kISA_BlendCoeff);
+    GR_STATIC_ASSERT(8 == kDA_BlendCoeff);
+    GR_STATIC_ASSERT(9 == kIDA_BlendCoeff);
+    GR_STATIC_ASSERT(10 == kConstC_BlendCoeff);
+    GR_STATIC_ASSERT(11 == kIConstC_BlendCoeff);
+    GR_STATIC_ASSERT(12 == kConstA_BlendCoeff);
+    GR_STATIC_ASSERT(13 == kIConstA_BlendCoeff);
+
+    GR_STATIC_ASSERT(14 == kS2C_BlendCoeff);
+    GR_STATIC_ASSERT(15 == kIS2C_BlendCoeff);
+    GR_STATIC_ASSERT(16 == kS2A_BlendCoeff);
+    GR_STATIC_ASSERT(17 == kIS2A_BlendCoeff);
+
+    // assertion for gXfermodeCoeff2Blend have to be in GrGpu scope
+    GR_STATIC_ASSERT(kTotalBlendCoeffCount == GR_ARRAY_COUNT(gXfermodeCoeff2Blend));
 }
-
-GR_STATIC_ASSERT(0 == kZero_BlendCoeff);
-GR_STATIC_ASSERT(1 == kOne_BlendCoeff);
-GR_STATIC_ASSERT(2 == kSC_BlendCoeff);
-GR_STATIC_ASSERT(3 == kISC_BlendCoeff);
-GR_STATIC_ASSERT(4 == kDC_BlendCoeff);
-GR_STATIC_ASSERT(5 == kIDC_BlendCoeff);
-GR_STATIC_ASSERT(6 == kSA_BlendCoeff);
-GR_STATIC_ASSERT(7 == kISA_BlendCoeff);
-GR_STATIC_ASSERT(8 == kDA_BlendCoeff);
-GR_STATIC_ASSERT(9 == kIDA_BlendCoeff);
-GR_STATIC_ASSERT(10 == kConstC_BlendCoeff);
-GR_STATIC_ASSERT(11 == kIConstC_BlendCoeff);
-GR_STATIC_ASSERT(12 == kConstA_BlendCoeff);
-GR_STATIC_ASSERT(13 == kIConstA_BlendCoeff);
-
-GR_STATIC_ASSERT(kBlendCoeffCount == GR_ARRAY_COUNT(gXfermodeCoeff2Blend));
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1652,7 +1670,9 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
     }
 }
 
-void GrGpuGL::flushBlend(GrPrimitiveType type) {
+void GrGpuGL::flushBlend(GrPrimitiveType type, 
+                         GrBlendCoeff srcCoeff, 
+                         GrBlendCoeff dstCoeff) {
     if (GrIsPrimTypeLines(type) && useSmoothLines()) {
         if (fHWBlendDisabled) {
             GR_GL(Enable(GR_GL_BLEND));
@@ -1676,15 +1696,15 @@ void GrGpuGL::flushBlend(GrPrimitiveType type) {
             fHWBlendDisabled = blendOff;
         }
         if (!blendOff) {
-            if (fHWDrawState.fSrcBlend != fCurrDrawState.fSrcBlend ||
-                  fHWDrawState.fDstBlend != fCurrDrawState.fDstBlend) {
-                GR_GL(BlendFunc(gXfermodeCoeff2Blend[fCurrDrawState.fSrcBlend],
-                                gXfermodeCoeff2Blend[fCurrDrawState.fDstBlend]));
-                fHWDrawState.fSrcBlend = fCurrDrawState.fSrcBlend;
-                fHWDrawState.fDstBlend = fCurrDrawState.fDstBlend;
+            if (fHWDrawState.fSrcBlend != srcCoeff ||
+                fHWDrawState.fDstBlend != dstCoeff) {
+                GR_GL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
+                                gXfermodeCoeff2Blend[dstCoeff]));
+                fHWDrawState.fSrcBlend = srcCoeff;
+                fHWDrawState.fDstBlend = dstCoeff;
             }
-            if ((BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
-                 BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) &&
+            if ((BlendCoeffReferencesConstant(srcCoeff) ||
+                 BlendCoeffReferencesConstant(dstCoeff)) &&
                 fHWDrawState.fBlendConstant != fCurrDrawState.fBlendConstant) {
 
                 float c[] = {
@@ -1787,7 +1807,6 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     }
     this->flushRenderTarget(rect);
     this->flushAAState(type);
-    this->flushBlend(type);
     
     if ((fCurrDrawState.fFlagBits & kDither_StateBit) !=
         (fHWDrawState.fFlagBits & kDither_StateBit)) {

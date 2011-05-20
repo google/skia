@@ -453,7 +453,7 @@ public:
      * @param srcCoef coeffecient applied to the src color.
      * @param dstCoef coeffecient applied to the dst color.
      */
-    void setBlendFunc(GrBlendCoeff srcCoef, GrBlendCoeff dstCoef);
+    void setBlendFunc(GrBlendCoeff srcCoeff, GrBlendCoeff dstCoeff);
 
     /**
      * Sets the blending function constant referenced by the following blending

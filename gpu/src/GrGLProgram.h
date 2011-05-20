@@ -19,17 +19,19 @@
 
 #include "GrGLInterface.h"
 #include "GrStringBuilder.h"
-#include "GrDrawTarget.h"
+#include "GrGpu.h"
 
 #include "SkXfermode.h"
 
 class GrBinHashKeyBuilder;
 
 struct ShaderCodeSegments {
+    GrStringBuilder fHeader; // VS+FS, GLSL version, etc
     GrStringBuilder fVSUnis;
     GrStringBuilder fVSAttrs;
     GrStringBuilder fVaryings;
     GrStringBuilder fFSUnis;
+    GrStringBuilder fFSOutputs;
     GrStringBuilder fVSCode;
     GrStringBuilder fFSCode;
 };
@@ -65,6 +67,14 @@ public:
      */
     bool genProgram(CachedData* programData) const;
 
+     /**
+      * The shader may modify the blend coeffecients. Params are in/out
+      */
+     void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
+
+    /**
+     * Attribute indices
+     */
     static int PositionAttributeIdx() { return 0; }
     static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
     static int ColorAttributeIdx() { return 1 + GrDrawTarget::kMaxTexCoords; }
@@ -93,6 +103,17 @@ private:
             kAttribute_ColorType    = 1,
             kUniform_ColorType      = 2,
         } fColorType;
+
+        // Dual-src blending makes use of a secondary output color that can be 
+        // used as a per-pixel blend coeffecient. This controls whether a
+        // secondary source is output and what value it holds.
+        enum DualSrcOutput {
+            kNone_DualSrcOutput,
+            kCoverage_DualSrcOutput,
+            kCoverageISA_DualSrcOutput,
+            kCoverageISC_DualSrcOutput,
+            kDualSrcOutputCnt
+        } fDualSrcOutput;
 
         int  fFirstCoverageStage;
         bool fEmitsPointSize;
@@ -181,7 +202,6 @@ public:
             memcpy(this, &other, sizeof(*this));
         }
 
-
     public:
 
         // IDs
@@ -238,8 +258,11 @@ private:
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and
     // links the program
-    bool bindAttribsAndLinkProgram(GrStringBuilder texCoordAttrNames[GrDrawTarget::kMaxTexCoords],
-                                   CachedData* programData) const;
+    bool bindOutputsAttribsAndLinkProgram(
+                GrStringBuilder texCoordAttrNames[GrDrawTarget::kMaxTexCoords],
+                bool bindColorOut,
+                bool bindDualSrcOut,
+                CachedData* programData) const;
 
     // Gets locations for all uniforms set to kUseUniform and initializes cache
     // to invalid values.

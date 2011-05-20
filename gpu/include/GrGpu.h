@@ -60,6 +60,21 @@ class GrGpu : public GrDrawTarget {
 
 public:
     /**
+     * Additional blend coeffecients for dual source blending, not exposed
+     * through GrPaint/GrContext.
+     */
+    enum ExtendedBlendCoeffs {
+        // source 2 refers to second output color when
+        // using dual source blending.
+        kS2C_BlendCoeff = kPublicBlendCoeffCount,
+        kIS2C_BlendCoeff,
+        kS2A_BlendCoeff,
+        kIS2A_BlendCoeff,
+
+        kTotalBlendCoeffCount
+    };
+
+    /**
      *  Create an instance of GrGpu that matches the specified Engine backend.
      *  If the requested engine is not supported (at compile-time or run-time)
      *  this returns NULL.
@@ -188,6 +203,15 @@ public:
      * Does the subclass support GrSamplerState::k4x4Downsample_Filter
      */
     bool supports4x4DownsampleFilter() const { return f4X4DownsampleFilterSupport; }
+
+    /**
+     * Does this instance support dual-source blending? Required for proper
+     * blending with partial coverage with certain blend modes (dst coeff is
+     * not 1, ISA, or ISC)
+     */
+    bool supportsDualSourceBlending() const { 
+        return fDualSourceBlendingSupport; 
+    }
 
     /**
      * Gets the minimum width of a render target. If a texture/rt is created
@@ -371,6 +395,7 @@ protected:
     bool fAALineSupport;
     bool fFSAASupport;
     bool f4X4DownsampleFilterSupport; // supports GrSamplerState::k4x4Downsample_Filter
+    bool fDualSourceBlendingSupport;
 
     // set by subclass to true if index and vertex buffers can be locked, false
     // otherwise.

@@ -1504,6 +1504,7 @@
         '../samplecode/SampleUnitMapper.cpp',
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodes.cpp',
+        '../samplecode/SampleXfermodesBlur.cpp',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile

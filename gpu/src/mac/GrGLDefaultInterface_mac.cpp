@@ -155,6 +155,8 @@ void GrGLSetDefaultGLInterface() {
         gDefaultInterface.fBlitFramebuffer = glBlitFramebufferEXT;
     #endif
 #endif
+        gDefaultInterface.fBindFragDataLocationIndexed = NULL;
+
         gDefaultInterface.fBindingsExported = kDesktop_GrGLBinding;
 
         gDefaultInterfaceInit = true;

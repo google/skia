@@ -116,12 +116,16 @@ protected:
     // flushes state that is common to fixed and programmable GL
     // dither
     // line smoothing
-    // blend func
     // texture binding
     // sampler state (filtering, tiling)
     // FBO binding
     // line width
     bool flushGLStateCommon(GrPrimitiveType type);
+
+    // subclass should call this to flush the blend state
+    void flushBlend(GrPrimitiveType type,
+                    GrBlendCoeff srcCoeff,
+                    GrBlendCoeff dstCoeff);
 
     // adjusts texture matrix to account for orientation, size, and npotness
     static void AdjustTextureMatrix(const GrGLTexture* texture,
@@ -134,7 +138,7 @@ protected:
     static bool TextureMatrixIsIdentity(const GrGLTexture* texture,
                                         const GrSamplerState& sampler);
 
-    static bool BlendCoefReferencesConstant(GrBlendCoeff coeff);
+    static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
 private:
 
@@ -156,7 +160,6 @@ private:
     void flushRenderTarget(const GrIRect* bound);
     void flushStencil();
     void flushAAState(GrPrimitiveType type);
-    void flushBlend(GrPrimitiveType type);
 
     void resolveRenderTarget(GrGLRenderTarget* texture);
 
