@@ -203,8 +203,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
         // TODO: deal with perspective in some better way.
         tol /= 10;
     } else {
-        GrScalar sinv = GR_Scalar1 / stretch;
-        tol = GrMul(tol, sinv);
+        tol = GrScalarDiv(tol, stretch);
     }
     GrScalar tolSqd = GrMul(tol, tol);
 
