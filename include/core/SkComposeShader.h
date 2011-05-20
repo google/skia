@@ -27,7 +27,7 @@ class SkXfermode;
     This subclass of shader returns the coposition of two other shaders, combined by
     a xfermode.
 */
-class SkComposeShader : public SkShader {
+class SK_API SkComposeShader : public SkShader {
 public:
     /** Create a new compose shader, given shaders A, B, and a combining xfermode mode.
         When the xfermode is called, it will be given the result from shader A as its
