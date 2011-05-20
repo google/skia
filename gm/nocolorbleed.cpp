@@ -4,14 +4,14 @@ namespace skiagm {
 
 class NoColorBleedGM : public GM {
 public:
-	NoColorBleedGM() {}
+    NoColorBleedGM() {}
 
 protected:
     virtual SkString onShortName() {
         return SkString("nocolorbleed");
     }
 
-	virtual SkISize onISize() {
+    virtual SkISize onISize() {
         return make_isize(200, 200);
     }
 
@@ -45,15 +45,19 @@ protected:
         paint.setFilterBitmap(true);
         //First row : full texture with and without filtering
         srcRect.setXYWH(0, 0, 4, 4);
-        dstRect.setXYWH(0.0f, 0.0f, 100.0f, 100.0f);
+        dstRect.setXYWH(SkIntToScalar(0), SkIntToScalar(0)
+                        , SkIntToScalar(100), SkIntToScalar(100));
         canvas->drawBitmapRect(sprite, &srcRect, dstRect, &paint);
-        dstRect.setXYWH(100.0f, 0.0f, 100.0f, 100.0f);
+        dstRect.setXYWH(SkIntToScalar(100), SkIntToScalar(0)
+                        , SkIntToScalar(100), SkIntToScalar(100));
         canvas->drawBitmapRect(sprite, &srcRect, dstRect);
         //Second row : sub rect of texture with and without filtering
         srcRect.setXYWH(1, 1, 2, 2);
-        dstRect.setXYWH(25.0f, 125.0f, 50.0f, 50.0f);
+        dstRect.setXYWH(SkIntToScalar(25), SkIntToScalar(125)
+                        , SkIntToScalar(50), SkIntToScalar(50));
         canvas->drawBitmapRect(sprite, &srcRect, dstRect, &paint);
-        dstRect.setXYWH(125.0f, 125.0f, 50.0f, 50.0f);
+        dstRect.setXYWH(SkIntToScalar(125), SkIntToScalar(125)
+                        , SkIntToScalar(50), SkIntToScalar(50));
         canvas->drawBitmapRect(sprite, &srcRect, dstRect);
     }
 

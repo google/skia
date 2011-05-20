@@ -29,14 +29,14 @@ static const SkScalar SH = SkIntToScalar(H);
 
 class StrokeRectGM : public GM {
 public:
-	StrokeRectGM() {}
+    StrokeRectGM() {}
     
 protected:
     virtual SkString onShortName() {
         return SkString("strokerects");
     }
 
-	virtual SkISize onISize() {
+    virtual SkISize onISize() {
         return make_isize(W*2, H*2);
     }
 
@@ -63,7 +63,10 @@ protected:
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(SW * x, SH * y);
-                canvas->clipRect(SkRect::MakeLTRB(SkIntToScalar(2), SkIntToScalar(2), SW - SkIntToScalar(2), SH - SkIntToScalar(2)));
+                canvas->clipRect(SkRect::MakeLTRB(
+                        SkIntToScalar(2), SkIntToScalar(2)
+                        , SW - SkIntToScalar(2), SH - SkIntToScalar(2)
+                ));
 
                 SkRandom rand;
                 for (int i = 0; i < N; i++) {
