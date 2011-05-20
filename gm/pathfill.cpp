@@ -6,14 +6,15 @@
 typedef SkScalar (*MakePathProc)(SkPath*);
 
 static SkScalar make_frame(SkPath* path) {
-    SkRect r = { 10, 10, 630, 470 };
-    path->addRoundRect(r, 15, 15);
+    SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
+                 SkIntToScalar(630), SkIntToScalar(470) };
+    path->addRoundRect(r, SkIntToScalar(15), SkIntToScalar(15));
     
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(5);
+    paint.setStrokeWidth(SkIntToScalar(5));
     paint.getFillPath(*path, path);
-    return 15;
+    return SkIntToScalar(15);
 }
 
 static SkScalar make_triangle(SkPath* path) {
@@ -24,21 +25,23 @@ static SkScalar make_triangle(SkPath* path) {
     path->lineTo(SkIntToScalar(gCoord[2]), SkIntToScalar(gCoord[3]));
     path->lineTo(SkIntToScalar(gCoord[4]), SkIntToScalar(gCoord[5]));
     path->close();
-    path->offset(10, 0);
+    path->offset(SkIntToScalar(10), SkIntToScalar(0));
     return SkIntToScalar(30);
 }
 
 static SkScalar make_rect(SkPath* path) {
-    SkRect r = { 10, 10, 30, 30 };
+    SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
+                 SkIntToScalar(30), SkIntToScalar(30) };
     path->addRect(r);
-    path->offset(10, 0);
+    path->offset(SkIntToScalar(10), SkIntToScalar(0));
     return SkIntToScalar(30);
 }
 
 static SkScalar make_oval(SkPath* path) {
-    SkRect r = { 10, 10, 30, 30 };
+    SkRect r = { SkIntToScalar(10), SkIntToScalar(10),
+                 SkIntToScalar(30), SkIntToScalar(30) };
     path->addOval(r);
-    path->offset(10, 0);
+    path->offset(SkIntToScalar(10), SkIntToScalar(0));
     return SkIntToScalar(30);
 }
 
@@ -56,8 +59,8 @@ static SkScalar make_sawtooth(SkPath* path) {
         x += dx;
         path->lineTo(x, y + dy);
     }
-    path->lineTo(x, y + 2 * dy);
-    path->lineTo(x0, y + 2 * dy);
+    path->lineTo(x, y + (2 * dy));
+    path->lineTo(x0, y + (2 * dy));
     path->close();
     return SkIntToScalar(30);
 }
@@ -100,7 +103,7 @@ class PathFillGM : public GM {
     SkPath  fPath[N];
     SkScalar fDY[N];
 public:
-	PathFillGM() {
+    PathFillGM() {
         for (size_t i = 0; i < N; i++) {
             fDY[i] = gProcs[i](&fPath[i]);
         }
@@ -111,7 +114,7 @@ protected:
         return SkString("pathfill");
     }
 
-	virtual SkISize onISize() {
+    virtual SkISize onISize() {
         return make_isize(640, 480);
     }
 
@@ -127,7 +130,7 @@ protected:
         
         for (size_t i = 0; i < N; i++) {
             canvas->drawPath(fPath[i], paint);
-            canvas->translate(0, fDY[i]);
+            canvas->translate(SkIntToScalar(0), fDY[i]);
         }
     }
 
