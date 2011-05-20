@@ -69,6 +69,12 @@
 /*      GL_DST_ALPHA */
 /*      GL_ONE_MINUS_DST_ALPHA */
 
+/* ExtendedBlendFactors */
+#define GR_GL_SRC1_COLOR                     0x88F9
+#define GR_GL_ONE_MINUS_SRC1_COLOR           0x88FA
+/*      GL_SRC1_ALPHA */
+#define GR_GL_ONE_MINUS_SRC1_ALPHA           0x88FB
+
 /* BlendEquationSeparate */
 #define GR_GL_FUNC_ADD                       0x8006
 #define GR_GL_BLEND_EQUATION                 0x8009

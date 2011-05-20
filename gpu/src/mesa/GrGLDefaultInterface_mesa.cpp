@@ -174,6 +174,7 @@ void GrGLSetDefaultGLInterface() {
             // we must have FBOs
             return;
         }
+        GR_GL_GET_PROC(BindFragDataLocationIndexed);
         gDefaultInterface.fBindingsExported = kDesktop_GrGLBinding;
 
         gDefaultInterfaceInit = true;

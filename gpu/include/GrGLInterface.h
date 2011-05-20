@@ -63,6 +63,7 @@ typedef unsigned int GrGLenum;
 typedef unsigned char GrGLboolean;
 typedef unsigned int GrGLbitfield;
 typedef signed char GrGLbyte;
+typedef char GrGLchar;
 typedef short GrGLshort;
 typedef int GrGLint;
 typedef int GrGLsizei;
@@ -199,6 +200,9 @@ extern "C" {
     // Buffer mapping (extension in ES).
     typedef GrGLvoid* (GR_GL_FUNCTION_TYPE *GrGLMapBufferProc)(GrGLenum target, GrGLenum access);
     typedef GrGLboolean (GR_GL_FUNCTION_TYPE *GrGLUnmapBufferProc)(GrGLenum target);
+
+    // Dual source blending
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
 }  // extern "C"
 
 /*
@@ -332,6 +336,9 @@ struct GrGLInterface {
     // Buffer mapping (extension in ES).
     GrGLMapBufferProc fMapBuffer;
     GrGLUnmapBufferProc fUnmapBuffer;
+
+    // Dual Source Blending
+    GrGLBindFragDataLocationIndexedProc fBindFragDataLocationIndexed;
 
     // Code that initializes this struct using a static initializer should
     // make this the last entry in the static initializer. It can help to guard

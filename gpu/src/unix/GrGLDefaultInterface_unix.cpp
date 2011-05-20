@@ -133,6 +133,7 @@ void GrGLSetDefaultGLInterface() {
         GR_GL_GET_PROC(VertexAttribPointer);
         gDefaultInterface.fVertexPointer = glVertexPointer;
         gDefaultInterface.fViewport = glViewport;
+        GR_GL_GET_PROC(BindFragDataLocationIndexed);
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
         // GL_ARB_framebuffer_object doesn't use ARB suffix.)

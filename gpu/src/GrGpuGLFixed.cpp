@@ -57,6 +57,7 @@ static const GrGLenum gMatrixMode2Enum[] = {
 
 GrGpuGLFixed::GrGpuGLFixed() {
     f4X4DownsampleFilterSupport = false;
+    fDualSourceBlendingSupport = false;
 }
 
 GrGpuGLFixed::~GrGpuGLFixed() {
@@ -136,8 +137,8 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
     }
 
     if (GR_GL_SUPPORT_ES1) {
-        if (BlendCoefReferencesConstant(fCurrDrawState.fSrcBlend) ||
-            BlendCoefReferencesConstant(fCurrDrawState.fDstBlend)) {
+        if (BlendCoeffReferencesConstant(fCurrDrawState.fSrcBlend) ||
+            BlendCoeffReferencesConstant(fCurrDrawState.fDstBlend)) {
             unimpl("ES1 doesn't support blend constant");
             return false;
         }
@@ -146,6 +147,8 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
     if (!flushGLStateCommon(type)) {
         return false;
     }
+
+    this->flushBlend(type, fCurrDrawState.fSrcBlend, fCurrDrawState.fDstBlend);
 
     if (fDirtyFlags.fRenderTargetChanged) {
         flushProjectionMatrix();

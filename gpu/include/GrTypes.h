@@ -232,7 +232,7 @@ enum GrBlendCoeff {
     kConstA_BlendCoeff,  //<! constant color alpha
     kIConstA_BlendCoeff, //<! one minus constant color alpha
 
-    kBlendCoeffCount
+    kPublicBlendCoeffCount
 };
 
 /**

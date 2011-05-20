@@ -333,6 +333,15 @@ bool GrGLInterface::validate(GrEngine engine) const {
         }
     }
 
+    // Dual source blending
+    if (kDesktop_GrGLBinding == fBindingsExported  &&
+        (has_gl_extension_from_string("GL_ARB_blend_func_extended", ext) ||
+         (3 < major) || (3 == major && 3 <= minor))) {
+        if (NULL == fBindFragDataLocationIndexed) {
+            return false;
+        }
+    }
+
     return true;
 }
 
