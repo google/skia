@@ -82,12 +82,19 @@ void Sk2DPathEffect::end(SkPath* dst) {}
 
 void Sk2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer)
 {
-    buffer.writeMul4(&fMatrix, sizeof(fMatrix));
+    char storage[SkMatrix::kMaxFlattenSize];
+    uint32_t size = fMatrix.flatten(storage);
+    buffer.write32(size);
+    buffer.write(storage, size);
 }
 
 Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer)
 {
-    buffer.read(&fMatrix, sizeof(fMatrix));
+    char storage[SkMatrix::kMaxFlattenSize];
+    uint32_t size = buffer.readS32();
+    SkASSERT(size <= sizeof(storage));
+    buffer.read(storage, size);
+    fMatrix.unflatten(storage);
     fMatrix.invert(&fInverse);
 }
 
