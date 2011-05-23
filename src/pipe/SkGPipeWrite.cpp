@@ -77,7 +77,7 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
 
 class SkGPipeCanvas : public SkCanvas {
 public:
-    SkGPipeCanvas(SkGPipeController*, SkWriter32*);
+    SkGPipeCanvas(SkGPipeController*, SkWriter32*, SkFactorySet*);
     virtual ~SkGPipeCanvas();
 
     void finish() {
@@ -133,6 +133,7 @@ public:
     virtual void drawData(const void*, size_t);
 
 private:
+    SkFactorySet* fFactorySet;  // optional, only used if cross-process
     SkGPipeController* fController;
     SkWriter32& fWriter;
     size_t      fBlockSize; // amount allocated for writer
@@ -201,7 +202,27 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
         return 0;
     }
 
+    if (fFactorySet) {
+        uint32_t id = fFactorySet->find((void*)fact);
+        if (0 == id) {
+            const char* name = SkFlattenable::FactoryToName(fact);
+            if (NULL == name) {
+                return 0;
+            }
+            size_t len = strlen(name);
+            size_t size = SkWriter32::WriteStringSize(name, len);
+            if (!this->needOpBytes(size)) {
+                return 0;
+            }
+            unsigned id = fFactorySet->add(fact);
+            this->writeOp(kName_Flattenable_DrawOp, paintflat, id);
+            fWriter.writeString(name, len);
+        }
+    }
+    
     SkFlattenableWriteBuffer tmpWriter(1024);
+    tmpWriter.setFactoryRecorder(fFactorySet);
+
     tmpWriter.writeFlattenable(obj);
     size_t len = tmpWriter.size();
     size_t allocSize = len + sizeof(FlatData);
@@ -236,7 +257,8 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 #define MIN_BLOCK_SIZE  (16 * 1024)
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
-                             SkWriter32* writer) : fWriter(*writer) {
+                             SkWriter32* writer, SkFactorySet* fset)
+        : fWriter(*writer), fFactorySet(fset) {
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
@@ -768,10 +790,14 @@ SkGPipeWriter::~SkGPipeWriter() {
     SkSafeUnref(fCanvas);
 }
 
-SkCanvas* SkGPipeWriter::startRecording(SkGPipeController* controller) {
+SkCanvas* SkGPipeWriter::startRecording(SkGPipeController* controller,
+                                        uint32_t flags) {
     if (NULL == fCanvas) {
         fWriter.reset(NULL, 0);
-        fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter));
+        fFactorySet.reset();
+        fCanvas = SkNEW_ARGS(SkGPipeCanvas, (controller, &fWriter,
+                                             (flags & kCrossProcess_Flag) ?
+                                             &fFactorySet : NULL));
     }
     return fCanvas;
 }

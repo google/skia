@@ -22,6 +22,7 @@ SOURCE := \
     ParsePathTest.cpp \
     PathMeasureTest.cpp \
     PathTest.cpp \
+    Reader32Test.cpp \
     RefDictTest.cpp \
     RegionTest.cpp \
     Sk64Test.cpp \
@@ -33,4 +34,5 @@ SOURCE := \
     Test.cpp \
     TestSize.cpp \
     UtilsTest.cpp \
+    Writer32Test.cpp \
     XfermodeTest.cpp

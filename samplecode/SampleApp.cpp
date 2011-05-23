@@ -1470,7 +1470,9 @@ void SampleView::onDraw(SkCanvas* canvas) {
     SimplePC controller(canvas);
     SkGPipeWriter writer;
     if (fUsePipe) {
-        canvas = writer.startRecording(&controller);
+        uint32_t flags = SkGPipeWriter::kCrossProcess_Flag;
+//        flags = 0;
+        canvas = writer.startRecording(&controller, flags);
     }
 #endif
 

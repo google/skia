@@ -70,7 +70,10 @@ public:
     SkGPipeState();
     ~SkGPipeState();
 
-    void setReader(SkFlattenableReadBuffer* reader) { fReader = reader; }
+    void setReader(SkFlattenableReadBuffer* reader) {
+        fReader = reader;
+        fReader->setFactoryPlayback(fFactoryArray.begin(), fFactoryArray.count());
+    }
 
     const SkPaint& paint() const { return fPaint; }
     SkPaint* editPaint() { return &fPaint; }
@@ -83,11 +86,21 @@ public:
     }
 
     void defFlattenable(PaintFlats pf, unsigned index) {
+        SkASSERT(index == fFlatArray.count() + 1);
         SkFlattenable* obj = fReader->readFlattenable();
         *fFlatArray.append() = obj;
-        SkASSERT(index == fFlatArray.count());
     }
 
+    void nameFlattenable(PaintFlats pf, unsigned index) {
+        SkASSERT(index == fFactoryArray.count() + 1);
+        const char* name = fReader->readString();
+        SkFlattenable::Factory fact = SkFlattenable::NameToFactory(name);
+        *fFactoryArray.append() = fact;
+
+        // update this each time we grow the array
+        fReader->setFactoryPlayback(fFactoryArray.begin(), fFactoryArray.count());
+    }
+    
     void addTypeface() {
         size_t size = fReader->readU32();
         const void* data = fReader->skip(SkAlign4(size));
@@ -104,6 +117,7 @@ private:
     SkPaint                   fPaint;
     SkTDArray<SkFlattenable*> fFlatArray;
     SkTDArray<SkTypeface*>    fTypefaces;
+    SkTDArray<SkFlattenable::Factory> fFactoryArray;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -430,6 +444,13 @@ static void def_PaintFlat_rp(SkCanvas*, SkReader32*, uint32_t op32,
     state->defFlattenable(pf, index);
 }
 
+static void name_PaintFlat_rp(SkCanvas*, SkReader32*, uint32_t op32,
+                              SkGPipeState* state) {
+    PaintFlats pf = (PaintFlats)DrawOp_unpackFlags(op32);
+    unsigned index = DrawOp_unpackData(op32);
+    state->nameFlattenable(pf, index);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void skip_rp(SkCanvas*, SkReader32* reader, uint32_t op32, SkGPipeState*) {
@@ -476,6 +497,7 @@ static const ReadProc gReadTable[] = {
     paintOp_rp,
     def_Typeface_rp,
     def_PaintFlat_rp,
+    name_PaintFlat_rp,
 
     done_rp
 };

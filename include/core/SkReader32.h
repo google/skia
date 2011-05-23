@@ -101,7 +101,14 @@ public:
     uint16_t readU16() { return (uint16_t)this->readInt(); }
     int32_t readS32() { return this->readInt(); }
     uint32_t readU32() { return this->readInt(); }
-    
+
+    /**
+     *  Read the length of a string written by SkWriter32::writeString()
+     *  (if len is not NULL) and return the null-ternimated address of the
+     *  string.
+     */
+    const char* readString(size_t* len = NULL);
+
 private:
     // these are always 4-byte aligned
     const char* fCurr;  // current position within buffer

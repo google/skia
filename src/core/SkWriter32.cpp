@@ -185,3 +185,72 @@ bool SkWriter32::writeToStream(SkWStream* stream) {
     return true;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkReader32.h"
+
+const char* SkReader32::readString(size_t* outLen) {
+    // we need to read at least 1-4 bytes
+    SkASSERT(this->isAvailable(4));
+    const uint8_t* base = (const uint8_t*)this->peek();
+    const uint8_t* ptr = base;
+
+    size_t len = *ptr++;
+    if (0xFF == len) {
+        len = (ptr[0] << 8) | ptr[1];
+        ptr += 2;
+        SkASSERT(len < 0xFFFF);
+    }
+    
+    // skip what we've read, and 0..3 pad bytes
+    // add 1 for the terminating 0 that writeString() included
+    size_t alignedSize = SkAlign4(len + (ptr - base) + 1);
+    this->skip(alignedSize);
+
+    if (outLen) {
+        *outLen = len;
+    }
+    return (const char*)ptr;
+}
+
+void SkWriter32::writeString(const char str[], size_t len) {
+    if ((long)len < 0) {
+        SkASSERT(str);
+        len = strlen(str);
+    }
+    size_t lenBytes = 1;
+    if (len >= 0xFF) {
+        lenBytes = 3;
+        SkASSERT(len < 0xFFFF);
+    }
+    // add 1 since we also write a terminating 0
+    size_t alignedLen = SkAlign4(lenBytes + len + 1);
+    uint8_t* ptr = (uint8_t*)this->reserve(alignedLen);
+    if (1 == lenBytes) {
+        *ptr++ = SkToU8(len);
+    } else {
+        *ptr++ = 0xFF;
+        *ptr++ = SkToU8(len >> 8);
+        *ptr++ = len & 0xFF;
+    }
+    memcpy(ptr, str, len);
+    ptr[len] = 0;
+    // we may have left 0,1,2,3 bytes uninitialized, since we reserved align4
+    // number of bytes. That's ok, since the reader will know to skip those
+}
+
+size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
+    if ((long)len < 0) {
+        SkASSERT(str);
+        len = strlen(str);
+    }
+    size_t lenBytes = 1;
+    if (len >= 0xFF) {
+        lenBytes = 3;
+        SkASSERT(len < 0xFFFF);
+    }
+    // add 1 since we also write a terminating 0
+    return SkAlign4(lenBytes + len + 1);
+}
+
+
