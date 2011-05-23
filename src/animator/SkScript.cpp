@@ -1207,7 +1207,7 @@ noMatch:
             } break;
         case kElse:
 flipSuppress:
-            if (fSuppressStack.top().fElse == true)
+            if (fSuppressStack.top().fElse)
                 fSuppressStack.pop();
             fSuppressStack.top().fElse = true;
             fSuppressStack.top().fSuppress ^= true;
