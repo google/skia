@@ -65,8 +65,8 @@ static void Tests(skiatest::Reporter* reporter) {
     assert_eof(reporter, reader);
     reader.rewind();
     assert_start(reporter, reader);
-    reader.read(buffer, sizeof(buffer));
-    REPORTER_ASSERT(reporter, !memcmp(data, buffer, sizeof(buffer)));
+    reader.read(buffer, sizeof(data));
+    REPORTER_ASSERT(reporter, !memcmp(data, buffer, sizeof(data)));
 
     reader.setMemory(data2, sizeof(data2));
     for (i = 0; i < SK_ARRAY_COUNT(data2); ++i) {
@@ -79,8 +79,8 @@ static void Tests(skiatest::Reporter* reporter) {
     assert_eof(reporter, reader);
     reader.rewind();
     assert_start(reporter, reader);
-    reader.read(buffer, sizeof(buffer));
-    REPORTER_ASSERT(reporter, !memcmp(data2, buffer, sizeof(buffer)));
+    reader.read(buffer, sizeof(data2));
+    REPORTER_ASSERT(reporter, !memcmp(data2, buffer, sizeof(data2)));
 
     reader.setMemory(NULL, 0);
     assert_empty(reporter, reader);
