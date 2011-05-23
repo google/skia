@@ -356,7 +356,7 @@ bool SkApply::enable(SkAnimateMaker& maker) {
     if (old < 0)
         goto append;
     else if (fContainsScope) {
-        if ((*parentList)[old] != this || restore == true) {
+        if ((*parentList)[old] != this || restore) {
 append:
             if (parentGroup)
                 parentGroup->markCopySize(old);
