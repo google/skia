@@ -83,6 +83,7 @@ public:
     void finish() {
         if (!fDone) {
             this->writeOp(kDone_DrawOp);
+            this->doNotify();
             fDone = true;
         }
     }
