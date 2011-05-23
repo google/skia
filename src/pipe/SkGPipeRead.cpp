@@ -526,7 +526,8 @@ SkGPipeReader::~SkGPipeReader() {
     delete fState;
 }
 
-SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length) {
+SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
+                                              size_t* bytesRead) {
     if (NULL == fCanvas) {
         return kError_Status;
     }
@@ -540,6 +541,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length) {
     const ReadProc* table = gReadTable;
     SkFlattenableReadBuffer reader(data, length);
     SkCanvas* canvas = fCanvas;
+    Status status = kEOF_Status;
 
     fState->setReader(&reader);
     while (!reader.eof()) {
@@ -549,14 +551,20 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length) {
         
         if (op >= SK_ARRAY_COUNT(gReadTable)) {
             SkDebugf("---- bad op during GPipeState::playback\n");
-            return kError_Status;
+            status = kError_Status;
+            break;
         }
         if (kDone_DrawOp == op) {
-            return kDone_Status;
+            status = kDone_Status;
+            break;
         }
         table[op](canvas, &reader, op32, fState);
     }
-    return kEOF_Status;
+
+    if (bytesRead) {
+        *bytesRead = reader.size();
+    }
+    return status;
 }
 
 

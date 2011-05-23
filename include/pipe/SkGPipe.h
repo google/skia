@@ -36,7 +36,7 @@ public:
 
     // data must be 4-byte aligned
     // length must be a multiple of 4
-    Status playback(const void* data, size_t length);
+    Status playback(const void* data, size_t length, size_t* bytesRead = NULL);
 
 private:
     SkCanvas*           fCanvas;
