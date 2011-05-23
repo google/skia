@@ -75,6 +75,8 @@ enum DrawOps {
     kDef_Typeface_DrawOp,
     kDef_Flattenable_DrawOp,
 
+    kName_Flattenable_DrawOp,   // index <--> name
+
     // these are signals to playback, not drawing verbs
     kDone_DrawOp,
 };

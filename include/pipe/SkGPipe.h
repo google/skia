@@ -19,6 +19,7 @@
 #define SkGPipe_DEFINED
 
 #include "SkWriter32.h"
+#include "SkFlattenable.h"
 
 class SkCanvas;
 
@@ -74,7 +75,12 @@ public:
     ~SkGPipeWriter();
 
     bool isRecording() const { return NULL != fCanvas; }
-    SkCanvas* startRecording(SkGPipeController*);
+
+    enum Flags {
+        kCrossProcess_Flag = 1 << 0,
+    };
+
+    SkCanvas* startRecording(SkGPipeController*, uint32_t flags = 0);
 
     // called in destructor, but can be called sooner once you know there
     // should be no more drawing calls made into the recording canvas.
@@ -83,6 +89,7 @@ public:
 private:
     class SkGPipeCanvas* fCanvas;
     SkGPipeController*   fController;
+    SkFactorySet         fFactorySet;
     SkWriter32 fWriter;
 };
 

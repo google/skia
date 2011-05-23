@@ -100,7 +100,22 @@ public:
     }
     
     void writePad(const void* src, size_t size);
-    
+
+    /**
+     *  Writes a string to the writer, which can be retrieved with
+     *  SkReader32::readString().
+     *  The length can be specified, or if -1 is passed, it will be computed by
+     *  calling strlen(). The length must be < 0xFFFF
+     */
+    void writeString(const char* str, size_t len = (size_t)-1);
+
+    /**
+     *  Computes the size (aligned to multiple of 4) need to write the string
+     *  in a call to writeString(). If the length is not specified, it will be
+     *  computed by calling strlen().
+     */
+    static size_t WriteStringSize(const char* str, size_t len = (size_t)-1);
+
     // return the current offset (will always be a multiple of 4)
     uint32_t  size() const { return fSize; }
     void      reset();
