@@ -19,6 +19,7 @@
 #include "SkMatrix.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
+#include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkTypes.h"
 
@@ -37,6 +38,16 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     insert("Subtype", new SkPDFName("Form"))->unref();
     insert("BBox", device->getMediaBox().get());
     insert("Resources", device->getResourceDict().get());
+
+    // We invert the initial transform and apply that to the xobject so that
+    // it doesn't get applied twice. We can't just undo it because it's
+    // embedded in things like shaders and images.
+    if (!device->initialTransform().isIdentity()) {
+        SkMatrix inverse;
+        inverse.reset();
+        device->initialTransform().invert(&inverse);
+        insert("Matrix", SkPDFUtils::MatrixToArray(inverse))->unref();
+    }
 
     // Right now SkPDFFormXObject is only used for saveLayer, which implies
     // isolated blending.  Do this conditionally if that changes.
