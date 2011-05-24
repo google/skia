@@ -137,6 +137,8 @@ public:
      */
     SkStream* content() const;
 
+    const SkMatrix& initialTransform() const { return fInitialTransform; }
+
 protected:
     // override
     virtual SkDeviceFactory* onNewDeviceFactory();
