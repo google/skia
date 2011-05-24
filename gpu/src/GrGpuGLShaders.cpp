@@ -345,28 +345,35 @@ void GrGpuGLShaders::flushTextureDomain(int s) {
         const GrRect &texDom = 
             fCurrDrawState.fSamplerStates[s].getTextureDomain();
 
-        float values[4] = {
-            GrScalarToFloat(texDom.left()), 
-            GrScalarToFloat(texDom.top()), 
-            GrScalarToFloat(texDom.right()), 
-            GrScalarToFloat(texDom.bottom())            
-        };
+        if (((1 << s) & fDirtyFlags.fTextureChangedMask) || 
+            fProgramData->fTextureDomain[s] != texDom)
 
-        GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
-        GrGLTexture::Orientation orientation = texture->orientation();
+        {
+            fProgramData->fTextureDomain[s] = texDom;
 
-        // vertical flip if necessary
-        if (GrGLTexture::kBottomUp_Orientation == orientation) {
-            values[1] = 1.0f - values[1];
-            values[3] = 1.0f - values[3];
+            float values[4] = {
+                GrScalarToFloat(texDom.left()), 
+                GrScalarToFloat(texDom.top()), 
+                GrScalarToFloat(texDom.right()), 
+                GrScalarToFloat(texDom.bottom())            
+            };
+
+            GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
+            GrGLTexture::Orientation orientation = texture->orientation();
+
+            // vertical flip if necessary
+            if (GrGLTexture::kBottomUp_Orientation == orientation) {
+                values[1] = 1.0f - values[1];
+                values[3] = 1.0f - values[3];
+            }
+
+            values[0] *= SkScalarToFloat(texture->contentScaleX());
+            values[2] *= SkScalarToFloat(texture->contentScaleX());
+            values[1] *= SkScalarToFloat(texture->contentScaleY());
+            values[3] *= SkScalarToFloat(texture->contentScaleY());
+
+            GR_GL(Uniform4fv(uni, 1, values));
         }
-
-        values[0] *= SkScalarToFloat(texture->contentScaleX());
-        values[2] *= SkScalarToFloat(texture->contentScaleX());
-        values[1] *= SkScalarToFloat(texture->contentScaleY());
-        values[3] *= SkScalarToFloat(texture->contentScaleY());
-
-        GR_GL(Uniform4fv(uni, 1, values));
     }
 }
 
