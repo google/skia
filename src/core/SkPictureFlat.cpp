@@ -28,9 +28,9 @@ SkFlatBitmap* SkFlatBitmap::Flatten(SkChunkAlloc* heap, const SkBitmap& bitmap,
 }
 
 SkFlatMatrix* SkFlatMatrix::Flatten(SkChunkAlloc* heap, const SkMatrix& matrix, int index) {
-    int32_t size = sizeof(SkMatrix);
+    size_t size = matrix.flatten(NULL);
     SkFlatMatrix* result = (SkFlatMatrix*) INHERITED::Alloc(heap, size, index);
-    memcpy(&result->fMatrixData, &matrix, sizeof(SkMatrix));
+    matrix.flatten(&result->fMatrixData);
     return result;
 }
 

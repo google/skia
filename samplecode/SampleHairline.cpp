@@ -186,6 +186,7 @@ class HairlineView : public SampleView {
     bool fDoAA;
 public:
 	HairlineView() {
+        fCounter = 0;
         fProcIndex = 0;
         fDoAA = true;
         fNow = 0;
