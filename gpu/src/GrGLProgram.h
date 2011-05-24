@@ -224,6 +224,7 @@ public:
         GrScalar                    fRadial2CenterX1[GrDrawTarget::kNumStages];
         GrScalar                    fRadial2Radius0[GrDrawTarget::kNumStages];
         bool                        fRadial2PosRoot[GrDrawTarget::kNumStages];
+        GrRect                      fTextureDomain[GrDrawTarget::kNumStages];
 
     private:
         enum Constants {
