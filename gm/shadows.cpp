@@ -47,29 +47,34 @@ protected:
 
     SkBlurDrawLooper* shadowLoopers[5];
     shadowLoopers[0] =
-        new SkBlurDrawLooper (10, 5, 10, 0xFF0000FF, 
+        new SkBlurDrawLooper (SkIntToScalar(10), SkIntToScalar(5),
+                              SkIntToScalar(10), 0xFF0000FF,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kOverrideColor_BlurFlag |
                               SkBlurDrawLooper::kHighQuality_BlurFlag );
     SkAutoUnref aurL0(shadowLoopers[0]);
     shadowLoopers[1] =
-        new SkBlurDrawLooper (10, 5, 10, 0xFF0000FF, 
+        new SkBlurDrawLooper (SkIntToScalar(10), SkIntToScalar(5),
+                              SkIntToScalar(10), 0xFF0000FF,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kOverrideColor_BlurFlag );
     SkAutoUnref aurL1(shadowLoopers[1]);
     shadowLoopers[2] =
-        new SkBlurDrawLooper (5, 5, 10, 0xFF000000,
+        new SkBlurDrawLooper (SkIntToScalar(5), SkIntToScalar(5),
+                              SkIntToScalar(10), 0xFF000000,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kHighQuality_BlurFlag  );
     SkAutoUnref aurL2(shadowLoopers[2]);
     shadowLoopers[3] =
-        new SkBlurDrawLooper (5, -5 ,-10, 0x7FFF0000, 
+        new SkBlurDrawLooper (SkIntToScalar(5), SkIntToScalar(-5),
+                              SkIntToScalar(-10), 0x7FFF0000,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kOverrideColor_BlurFlag |
                               SkBlurDrawLooper::kHighQuality_BlurFlag  );
     SkAutoUnref aurL3(shadowLoopers[3]);
     shadowLoopers[4] =
-        new SkBlurDrawLooper (0, 5, 5, 0xFF000000, 
+        new SkBlurDrawLooper (SkIntToScalar(0), SkIntToScalar(5),
+                              SkIntToScalar(5), 0xFF000000,
                               SkBlurDrawLooper::kIgnoreTransform_BlurFlag |
                               SkBlurDrawLooper::kOverrideColor_BlurFlag |
                               SkBlurDrawLooper::kHighQuality_BlurFlag  );
