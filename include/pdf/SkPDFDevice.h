@@ -169,6 +169,10 @@ private:
     // Clear the passed clip from all existing content entries.
     void clearClipFromContent(const SkClipStack* clipStack,
                               const SkRegion& clipRegion);
+    void drawFormXObjectWithClip(SkPDFFormXObject* form,
+                                 const SkClipStack* clipStack,
+                                 const SkRegion& clipRegion,
+                                 bool invertClip);
 
     // If the paint or clip is such that we shouldn't draw anything, these
     // return false and do not create a content entry.
@@ -182,6 +186,8 @@ private:
                                   const SkMatrix& matrix,
                                   const SkPaint& paint);
     void finishContentEntry(const SkPaint& paint);
+    bool isContentEmpty();
+
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
                                             const SkClipStack& clipStack,
                                             const SkRegion& clipRegion,
