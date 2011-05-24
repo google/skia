@@ -166,6 +166,7 @@ public:
 	LineClipperView() {
         fProcIndex = 0;
         fCounter = 0;
+        fNow = 0;
 
         int x = (640 - W)/2;
         int y = (480 - H)/2;
