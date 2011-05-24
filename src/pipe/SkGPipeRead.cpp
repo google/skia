@@ -562,7 +562,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
     }
 
     if (bytesRead) {
-        *bytesRead = reader.size();
+        *bytesRead = reader.offset();
     }
     return status;
 }
