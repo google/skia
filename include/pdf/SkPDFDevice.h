@@ -17,6 +17,7 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
+#include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkPath.h"
@@ -35,6 +36,7 @@ class SkPDFShader;
 class SkPDFStream;
 
 // Private classes.
+class ContentEntryAccessor;
 struct ContentEntry;
 struct GraphicStateEntry;
 
@@ -141,6 +143,9 @@ protected:
 
 private:
     friend class SkPDFDeviceFactory;
+    // TODO(vandebo) push most of SkPDFDevice's state into a core object in
+    // order to get the right access levels without using friend.
+    friend class ContentEntryAccessor;
 
     SkISize fPageSize;
     SkISize fContentSize;
@@ -155,8 +160,7 @@ private:
     SkTDArray<SkPDFShader*> fShaderResources;
 
     SkTScopedPtr<ContentEntry> fContentEntries;
-    ContentEntry* fCurrentContentEntry;
-    SkRefPtr<SkPDFFormXObject> fDstFormXObject;
+    ContentEntry* fLastContentEntry;
 
     // For use by the DeviceFactory.
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
@@ -174,18 +178,18 @@ private:
                                  const SkRegion& clipRegion,
                                  bool invertClip);
 
-    // If the paint or clip is such that we shouldn't draw anything, these
-    // return false and do not create a content entry.
-    bool setUpContentEntry(const SkClipStack* clipStack,
-                           const SkRegion& clipRegion,
-                           const SkMatrix& matrix,
-                           const SkPaint& paint,
-                           bool hasText = false);
-    bool setUpContentEntryForText(const SkClipStack* clipStack,
-                                  const SkRegion& clipRegion,
-                                  const SkMatrix& matrix,
-                                  const SkPaint& paint);
-    void finishContentEntry(const SkPaint& paint);
+    // If the paint or clip is such that we shouldn't draw anything, this
+    // returns NULL and does not create a content entry.
+    // setUpContentEntry and finishContentEntry can be used directly, but
+    // the preferred method is to use the ContentEntryAccessor helper class.
+    ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
+                                    const SkRegion& clipRegion,
+                                    const SkMatrix& matrix,
+                                    const SkPaint& paint,
+                                    bool hasText,
+                                    SkRefPtr<SkPDFFormXObject>* dst);
+    void finishContentEntry(SkXfermode::Mode xfermode,
+                            SkPDFFormXObject* dst);
     bool isContentEmpty();
 
     void populateGraphicStateEntryFromPaint(const SkMatrix& matrix,
@@ -196,11 +200,11 @@ private:
                                             GraphicStateEntry* entry);
     int addGraphicStateResource(SkPDFGraphicState* gs);
 
-    void updateFont(const SkPaint& paint, uint16_t glyphID);
+    void updateFont(const SkPaint& paint, uint16_t glyphID,
+                    ContentEntry* contentEntry);
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
-    void setTextTransform(SkScalar x, SkScalar y, SkScalar textSkewX);
 
-    void internalDrawPaint(const SkPaint& paint);
+    void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
     void internalDrawBitmap(const SkMatrix& matrix,
                             const SkClipStack* clipStack,
                             const SkRegion& clipRegion,
