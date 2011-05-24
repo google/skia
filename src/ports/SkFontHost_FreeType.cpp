@@ -914,7 +914,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     }
 
     switch ( fFace->glyph->format ) {
-      case FT_GLYPH_FORMAT_OUTLINE:
+      case FT_GLYPH_FORMAT_OUTLINE: {
         FT_BBox bbox;
 
         if (fRec.fFlags & kEmbolden_Flag) {
@@ -942,6 +942,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         glyph->fTop     = -SkToS16(bbox.yMax >> 6);
         glyph->fLeft    = SkToS16(bbox.xMin >> 6);
         break;
+      }
 
       case FT_GLYPH_FORMAT_BITMAP:
         if (fRec.fFlags & kEmbolden_Flag) {
