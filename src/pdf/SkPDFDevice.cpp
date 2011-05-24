@@ -918,6 +918,13 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
         return;
     }
 
+    // Assume that a vector capable device means that it's a PDF Device.
+    SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
+    if (!pdfDevice->fContentEntries.get() ||
+            !pdfDevice->fContentEntries->fContent.getOffset()) {
+        return;
+    }
+
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
     ContentEntryAccessor content(this, d.fClipStack, *d.fClip, matrix, paint);
@@ -925,8 +932,6 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
         return;
     }
 
-    // Assume that a vector capable device means that it's a PDF Device.
-    SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
     SkPDFFormXObject* xobject = new SkPDFFormXObject(pdfDevice);
     fXObjectResources.push(xobject);  // Transfer reference.
     SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
