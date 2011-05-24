@@ -11,8 +11,7 @@ static void makebm(SkBitmap* bm, SkBitmap::Config config, int w, int h) {
     bm->eraseColor(0);
 
     SkCanvas    canvas(*bm);
-    int         shorterDimensionAsInt = w < h ? w : h;
-    SkScalar    s = SkIntToScalar(shorterDimensionAsInt);
+    SkScalar    s = SkIntToScalar(SkMin32(w, h));
     SkPoint     pts[] = { { 0, 0 }, { s, s } };
     SkColor     colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
     SkScalar    pos[] = { 0, SK_Scalar1/2, SK_Scalar1 };
