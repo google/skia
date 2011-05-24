@@ -920,8 +920,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
 
     // Assume that a vector capable device means that it's a PDF Device.
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
-    if (!pdfDevice->fContentEntries.get() ||
-            !pdfDevice->fContentEntries->fContent.getOffset()) {
+    if (pdfDevice->isContentEmpty()) {
         return;
     }
 
