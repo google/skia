@@ -1034,8 +1034,23 @@ void SkPDFDevice::createFormXObjectFromDevice(
 
 void SkPDFDevice::clearClipFromContent(const SkClipStack* clipStack,
                                        const SkRegion& clipRegion) {
+    if (clipRegion.isEmpty() || isContentEmpty()) {
+        return;
+    }
     SkRefPtr<SkPDFFormXObject> curContent;
     createFormXObjectFromDevice(&curContent);
+
+    // Redraw what we already had, but with the clip as a mask.
+    drawFormXObjectWithClip(curContent.get(), clipStack, clipRegion, true);
+}
+
+void SkPDFDevice::drawFormXObjectWithClip(SkPDFFormXObject* xobject,
+                                          const SkClipStack* clipStack,
+                                          const SkRegion& clipRegion,
+                                          bool invertClip) {
+    if (clipRegion.isEmpty() && !invertClip) {
+        return;
+    }
 
     // Create the mask.
     SkMatrix identity;
@@ -1049,18 +1064,19 @@ void SkPDFDevice::clearClipFromContent(const SkClipStack* clipStack,
     SkRefPtr<SkPDFFormXObject> maskFormXObject;
     createFormXObjectFromDevice(&maskFormXObject);
     SkRefPtr<SkPDFGraphicState> sMaskGS =
-        SkPDFGraphicState::getSMaskGraphicState(maskFormXObject.get(), false);
+        SkPDFGraphicState::getSMaskGraphicState(maskFormXObject.get(),
+                                                invertClip);
     sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
 
-    // Redraw what we already had, but with the clip as a mask.
+    // Draw the xobject with the clip as a mask.
     setUpContentEntry(&fExistingClipStack, fExistingClipRegion, identity,
                       stockPaint);
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &fCurrentContentEntry->fContent);
     SkPDFUtils::DrawFormXObject(fXObjectResources.count(),
                                 &fCurrentContentEntry->fContent);
-    fXObjectResources.push(curContent.get());
-    curContent->ref();
+    fXObjectResources.push(xobject);
+    xobject->ref();
 
     sMaskGS = SkPDFGraphicState::getNoSMaskGraphicState();
     sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
@@ -1100,8 +1116,6 @@ bool SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
         paint.getXfermode()->asMode(&xfermode);
     }
 
-    // For Clear and Src modes, we need to push down the inverse of the
-    // current clip.
     if (xfermode == SkXfermode::kClear_Mode ||
             xfermode == SkXfermode::kSrc_Mode) {
         this->clearClipFromContent(clipStack, clipRegion);
@@ -1114,12 +1128,16 @@ bool SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
             xfermode == SkXfermode::kDstIn_Mode ||
             xfermode == SkXfermode::kSrcOut_Mode ||
             xfermode == SkXfermode::kDstOut_Mode) {
-        SkASSERT(fDstFormXObject.get() == NULL);
-        createFormXObjectFromDevice(&fDstFormXObject);
+        if (isContentEmpty()) {
+            return false;
+        } else {
+            SkASSERT(fDstFormXObject.get() == NULL);
+            createFormXObjectFromDevice(&fDstFormXObject);
+        }
     }
 
     // TODO(vandebo) Figure out how/if we can handle the following modes:
-    // SrcAtop, DestAtop, Xor.
+    // SrcAtop, DestAtop, Xor, Plus.
 
     // These xfer modes don't draw source at all.
     if (xfermode == SkXfermode::kClear_Mode ||
@@ -1180,12 +1198,27 @@ void SkPDFDevice::finishContentEntry(const SkPaint& paint) {
             xfermode != SkXfermode::kDstIn_Mode &&
             xfermode != SkXfermode::kSrcOut_Mode &&
             xfermode != SkXfermode::kDstOut_Mode) {
-        SkASSERT(fDstFormXObject.get() == NULL);
         return;
     }
 
+    // We have to make a copy of these here because changing the current
+    // content into a form xobject will destroy them.
+    SkClipStack clipStack = fCurrentContentEntry->fState.fClipStack;
+    SkRegion clipRegion = fCurrentContentEntry->fState.fClipRegion;
+
     SkRefPtr<SkPDFFormXObject> srcFormXObject;
-    createFormXObjectFromDevice(&srcFormXObject);
+    if (!isContentEmpty()) {
+        createFormXObjectFromDevice(&srcFormXObject);
+    }
+
+    drawFormXObjectWithClip(fDstFormXObject.get(), &clipStack, clipRegion,
+                            true);
+
+    // We've redrawn dst minus the clip area, if there's no src, we're done.
+    if (!srcFormXObject.get()) {
+        fDstFormXObject = NULL;
+        return;
+    }
 
     SkMatrix identity;
     identity.reset();
@@ -1203,8 +1236,8 @@ void SkPDFDevice::finishContentEntry(const SkPaint& paint) {
     } else {
         sMaskGS = SkPDFGraphicState::getSMaskGraphicState(
                 srcFormXObject.get(), xfermode == SkXfermode::kDstOut_Mode);
-        fXObjectResources.push(fDstFormXObject.get());
-        fDstFormXObject->ref();
+        // fDstFormXObject already added to fXObjectResources in
+        // drawFormXObjectWithClip.
     }
     sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
@@ -1221,6 +1254,15 @@ void SkPDFDevice::finishContentEntry(const SkPaint& paint) {
     fDstFormXObject = NULL;
     finishContentEntry(stockPaint);
 }
+
+bool SkPDFDevice::isContentEmpty() {
+    if (!fContentEntries.get() || fContentEntries->fContent.getOffset() == 0) {
+        SkASSERT(!fContentEntries.get() || !fContentEntries->fNext.get());
+        return true;
+    }
+    return false;
+}
+
 
 void SkPDFDevice::populateGraphicStateEntryFromPaint(
         const SkMatrix& matrix,
