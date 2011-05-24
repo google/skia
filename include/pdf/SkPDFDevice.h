@@ -36,7 +36,6 @@ class SkPDFShader;
 class SkPDFStream;
 
 // Private classes.
-class ContentEntryAccessor;
 struct ContentEntry;
 struct GraphicStateEntry;
 
@@ -147,7 +146,7 @@ private:
     friend class SkPDFDeviceFactory;
     // TODO(vandebo) push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
-    friend class ContentEntryAccessor;
+    friend class ScopedContentEntry;
 
     SkISize fPageSize;
     SkISize fContentSize;
@@ -183,7 +182,7 @@ private:
     // If the paint or clip is such that we shouldn't draw anything, this
     // returns NULL and does not create a content entry.
     // setUpContentEntry and finishContentEntry can be used directly, but
-    // the preferred method is to use the ContentEntryAccessor helper class.
+    // the preferred method is to use the ScopedContentEntry helper class.
     ContentEntry* setUpContentEntry(const SkClipStack* clipStack,
                                     const SkRegion& clipRegion,
                                     const SkMatrix& matrix,

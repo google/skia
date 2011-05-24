@@ -413,25 +413,25 @@ struct ContentEntry {
 
 // A helper class to automatically finish a ContentEntry at the end of a
 // drawing method and maintain the state needed between set up and finish.
-class ContentEntryAccessor {
+class ScopedContentEntry {
 public:
-    ContentEntryAccessor(SkPDFDevice* device, const SkDraw& draw,
-                         const SkPaint& paint, bool hasText = false)
+    ScopedContentEntry(SkPDFDevice* device, const SkDraw& draw,
+                       const SkPaint& paint, bool hasText = false)
         : fDevice(device),
           fContentEntry(NULL),
           fXfermode(SkXfermode::kSrcOver_Mode) {
         init(draw.fClipStack, *draw.fClip, *draw.fMatrix, paint, hasText);
     }
-    ContentEntryAccessor(SkPDFDevice* device, const SkClipStack* clipStack,
-                         const SkRegion& clipRegion, const SkMatrix& matrix,
-                         const SkPaint& paint, bool hasText = false)
+    ScopedContentEntry(SkPDFDevice* device, const SkClipStack* clipStack,
+                       const SkRegion& clipRegion, const SkMatrix& matrix,
+                       const SkPaint& paint, bool hasText = false)
         : fDevice(device),
           fContentEntry(NULL),
           fXfermode(SkXfermode::kSrcOver_Mode) {
         init(clipStack, clipRegion, matrix, paint, hasText);
     }
 
-    ~ContentEntryAccessor() {
+    ~ScopedContentEntry() {
         if (fContentEntry) {
             fDevice->finishContentEntry(fXfermode, fDstFormXObject.get());
         }
@@ -555,15 +555,15 @@ void SkPDFDevice::clear(SkColor color) {
     paint.setStyle(SkPaint::kFill_Style);
     SkMatrix identity;
     identity.reset();
-    ContentEntryAccessor content(this, &fExistingClipStack, fExistingClipRegion,
-                                 identity, paint);
+    ScopedContentEntry content(this, &fExistingClipStack, fExistingClipRegion,
+                               identity, paint);
     internalDrawPaint(paint, content.entry());
 }
 
 void SkPDFDevice::drawPaint(const SkDraw& d, const SkPaint& paint) {
     SkPaint newPaint = paint;
     newPaint.setStyle(SkPaint::kFill_Style);
-    ContentEntryAccessor content(this, d, newPaint);
+    ScopedContentEntry content(this, d, newPaint);
     internalDrawPaint(newPaint, content.entry());
 }
 
@@ -630,7 +630,7 @@ void SkPDFDevice::drawPoints(const SkDraw& d, SkCanvas::PointMode mode,
         }
     }
 
-    ContentEntryAccessor content(this, d, *paint);
+    ScopedContentEntry content(this, d, *paint);
     if (!content.entry()) {
         return;
     }
@@ -681,7 +681,7 @@ void SkPDFDevice::drawRect(const SkDraw& d, const SkRect& r,
         return;
     }
 
-    ContentEntryAccessor content(this, d, paint);
+    ScopedContentEntry content(this, d, paint);
     if (!content.entry()) {
         return;
     }
@@ -733,7 +733,7 @@ void SkPDFDevice::drawPath(const SkDraw& d, const SkPath& origPath,
         return;
     }
 
-    ContentEntryAccessor content(this, d, paint);
+    ScopedContentEntry content(this, d, paint);
     if (!content.entry()) {
         return;
     }
@@ -769,7 +769,7 @@ void SkPDFDevice::drawSprite(const SkDraw& d, const SkBitmap& bitmap,
 void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
                            SkScalar x, SkScalar y, const SkPaint& paint) {
     SkPaint textPaint = calculate_text_paint(paint);
-    ContentEntryAccessor content(this, d, textPaint, true);
+    ScopedContentEntry content(this, d, textPaint, true);
     if (!content.entry()) {
         return;
     }
@@ -843,7 +843,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
                               int scalarsPerPos, const SkPaint& paint) {
     SkASSERT(1 == scalarsPerPos || 2 == scalarsPerPos);
     SkPaint textPaint = calculate_text_paint(paint);
-    ContentEntryAccessor content(this, d, textPaint, true);
+    ScopedContentEntry content(this, d, textPaint, true);
     if (!content.entry()) {
         return;
     }
@@ -926,7 +926,7 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
 
     SkMatrix matrix;
     matrix.setTranslate(SkIntToScalar(x), SkIntToScalar(y));
-    ContentEntryAccessor content(this, d.fClipStack, *d.fClip, matrix, paint);
+    ScopedContentEntry content(this, d.fClipStack, *d.fClip, matrix, paint);
     if (!content.entry()) {
         return;
     }
@@ -1125,7 +1125,7 @@ void SkPDFDevice::drawFormXObjectWithClip(SkPDFFormXObject* xobject,
     sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
 
     // Draw the xobject with the clip as a mask.
-    ContentEntryAccessor content(this, &fExistingClipStack, fExistingClipRegion,
+    ScopedContentEntry content(this, &fExistingClipStack, fExistingClipRegion,
                                  identity, stockPaint);
     if (!content.entry()) {
         return;
@@ -1262,9 +1262,9 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
     SkMatrix identity;
     identity.reset();
     SkPaint stockPaint;
-    ContentEntryAccessor inClipContentEntry(this, &fExistingClipStack,
-                                            fExistingClipRegion, identity,
-                                            stockPaint);
+    ScopedContentEntry inClipContentEntry(this, &fExistingClipStack,
+                                          fExistingClipRegion, identity,
+                                          stockPaint);
     if (!inClipContentEntry.entry()) {
         return;
     }
@@ -1446,7 +1446,7 @@ void SkPDFDevice::internalDrawBitmap(const SkMatrix& matrix,
     scaled.postScale(SkIntToScalar(subset.width()),
                      SkIntToScalar(subset.height()));
     scaled.postConcat(matrix);
-    ContentEntryAccessor content(this, clipStack, clipRegion, scaled, paint);
+    ScopedContentEntry content(this, clipStack, clipRegion, scaled, paint);
     if (!content.entry()) {
         return;
     }
