@@ -328,6 +328,7 @@ private:
     bool zoomIn();
     bool zoomOut();
     void updatePointer(int x, int y);
+    void showZoomer(SkCanvas* canvas);
 
     void postAnimatingEvent() {
         if (fAnimating) {
@@ -616,7 +617,17 @@ void SampleWindow::draw(SkCanvas* canvas) {
     } else {
         this->INHERITED::draw(canvas);
     }
-    if (fShowZoomer) {
+    if (fShowZoomer && fCanvasType != kGPU_CanvasType) {
+        // In the GPU case, INHERITED::draw calls beforeChildren, which
+        // creates an SkGpuCanvas.  All further draw calls are directed
+        // at that canvas, which is deleted in afterChildren (which is
+        // also called by draw), so we cannot show the zoomer here.
+        // Instead, we call it inside afterChildren.
+        showZoomer(canvas);
+    }
+}
+
+void SampleWindow::showZoomer(SkCanvas* canvas) {
         int count = canvas->save();
         canvas->resetMatrix();
         // Ensure the mouse position is on screen.
@@ -699,7 +710,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
         paint.setColor(SK_ColorBLUE);
         drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
         canvas->restoreToCount(count);
-    }
+        bitmap.unlockPixels();
 }
 
 void SampleWindow::onDraw(SkCanvas* canvas) {
@@ -825,6 +836,9 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             break;
 #ifdef SK_SUPPORT_GL
         case kGPU_CanvasType:
+            if (fShowZoomer) {
+                this->showZoomer(fGpuCanvas);
+            }
             delete fGpuCanvas;
             fGpuCanvas = NULL;
             presentGL();
