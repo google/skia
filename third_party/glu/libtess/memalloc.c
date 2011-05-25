@@ -39,8 +39,8 @@
 ** $Header: //depot/main/gfx/lib/glu/libtess/memalloc.c#5 $
 */
 
-#include "string.h"
 #include "memalloc.h"
+#include "string.h"
 
 int __gl_memInit( size_t maxFast )
 {

@@ -39,18 +39,17 @@
 ** $Header: //depot/main/gfx/lib/glu/libtess/tess.c#7 $
 */
 
+#include "gluos.h"
+#include <stddef.h>
 #include <assert.h>
 #include <setjmp.h>
-#include <stddef.h>
-
-#include <gluos.h>
 #include "memalloc.h"
+#include "tess.h"
 #include "mesh.h"
 #include "normal.h"
-#include "render.h"
 #include "sweep.h"
-#include "tess.h"
 #include "tessmono.h"
+#include "render.h"
 
 #define GLU_TESS_DEFAULT_TOLERANCE 0.0
 #define GLU_TESS_MESH		100112	/* void (*)(GLUmesh *mesh)	    */
@@ -92,7 +91,7 @@ typedef struct { GLUhalfEdge e, eSym; } EdgePair;
 
 
 GLUtesselator * GLAPIENTRY
-internal_gluNewTess( void )
+gluNewTess( void )
 {
   GLUtesselator *tess;
 
@@ -164,11 +163,11 @@ static void GotoState( GLUtesselator *tess, enum TessState newState )
       switch( tess->state ) {
       case T_DORMANT:
 	CALL_ERROR_OR_ERROR_DATA( GLU_TESS_MISSING_BEGIN_POLYGON );
-	internal_gluTessBeginPolygon( tess, NULL );
+	gluTessBeginPolygon( tess, NULL );
 	break;
       case T_IN_POLYGON:
 	CALL_ERROR_OR_ERROR_DATA( GLU_TESS_MISSING_BEGIN_CONTOUR );
-	internal_gluTessBeginContour( tess );
+	gluTessBeginContour( tess );
 	break;
       default:
         assert(0);
@@ -178,7 +177,7 @@ static void GotoState( GLUtesselator *tess, enum TessState newState )
       switch( tess->state ) {
       case T_IN_CONTOUR:
 	CALL_ERROR_OR_ERROR_DATA( GLU_TESS_MISSING_END_CONTOUR );
-	internal_gluTessEndContour( tess );
+	gluTessEndContour( tess );
 	break;
       case T_IN_POLYGON:
 	CALL_ERROR_OR_ERROR_DATA( GLU_TESS_MISSING_END_POLYGON );
@@ -195,7 +194,7 @@ static void GotoState( GLUtesselator *tess, enum TessState newState )
 
 
 void GLAPIENTRY
-internal_gluDeleteTess( GLUtesselator *tess )
+gluDeleteTess( GLUtesselator *tess )
 {
   RequireState( tess, T_DORMANT );
   memFree( tess );
@@ -203,7 +202,7 @@ internal_gluDeleteTess( GLUtesselator *tess )
 
 
 void GLAPIENTRY
-internal_gluTessProperty( GLUtesselator *tess, GLenum which, GLdouble value )
+gluTessProperty( GLUtesselator *tess, GLenum which, GLdouble value )
 {
   GLenum windingRule;
 
@@ -242,7 +241,7 @@ internal_gluTessProperty( GLUtesselator *tess, GLenum which, GLdouble value )
 
 /* Returns tessellator property */
 void GLAPIENTRY
-internal_gluGetTessProperty( GLUtesselator *tess, GLenum which, GLdouble *value )
+gluGetTessProperty( GLUtesselator *tess, GLenum which, GLdouble *value )
 {
    switch (which) {
    case GLU_TESS_TOLERANCE:
@@ -270,7 +269,7 @@ internal_gluGetTessProperty( GLUtesselator *tess, GLenum which, GLdouble *value 
 } /* gluGetTessProperty() */
 
 void GLAPIENTRY
-internal_gluTessNormal( GLUtesselator *tess, GLdouble x, GLdouble y, GLdouble z )
+gluTessNormal( GLUtesselator *tess, GLdouble x, GLdouble y, GLdouble z )
 {
   tess->normal[0] = x;
   tess->normal[1] = y;
@@ -278,7 +277,7 @@ internal_gluTessNormal( GLUtesselator *tess, GLdouble x, GLdouble y, GLdouble z 
 }
 
 void GLAPIENTRY
-internal_gluTessCallback( GLUtesselator *tess, GLenum which, void (GLAPIENTRY *fn)())
+gluTessCallback( GLUtesselator *tess, GLenum which, void (GLAPIENTRY *fn)())
 {
   switch( which ) {
   case GLU_TESS_BEGIN:
@@ -417,7 +416,7 @@ static int EmptyCache( GLUtesselator *tess )
 
 
 void GLAPIENTRY
-internal_gluTessVertex( GLUtesselator *tess, GLdouble coords[3], void *data )
+gluTessVertex( GLUtesselator *tess, GLdouble coords[3], void *data )
 {
   int i, tooLarge = FALSE;
   GLdouble x, clamped[3];
@@ -464,7 +463,7 @@ internal_gluTessVertex( GLUtesselator *tess, GLdouble coords[3], void *data )
 
 
 void GLAPIENTRY
-internal_gluTessBeginPolygon( GLUtesselator *tess, void *data )
+gluTessBeginPolygon( GLUtesselator *tess, void *data )
 {
   RequireState( tess, T_DORMANT );
 
@@ -478,7 +477,7 @@ internal_gluTessBeginPolygon( GLUtesselator *tess, void *data )
 
 
 void GLAPIENTRY
-internal_gluTessBeginContour( GLUtesselator *tess )
+gluTessBeginContour( GLUtesselator *tess )
 {
   RequireState( tess, T_IN_POLYGON );
 
@@ -495,14 +494,14 @@ internal_gluTessBeginContour( GLUtesselator *tess )
 
 
 void GLAPIENTRY
-internal_gluTessEndContour( GLUtesselator *tess )
+gluTessEndContour( GLUtesselator *tess )
 {
   RequireState( tess, T_IN_CONTOUR );
   tess->state = T_IN_POLYGON;
 }
 
 void GLAPIENTRY
-internal_gluTessEndPolygon( GLUtesselator *tess )
+gluTessEndPolygon( GLUtesselator *tess )
 {
   GLUmesh *mesh;
 

@@ -39,12 +39,12 @@
 ** $Header: //depot/main/gfx/lib/glu/libtess/render.c#5 $
 */
 
+#include "gluos.h"
 #include <assert.h>
 #include <stddef.h>
-#include <gluos.h>
 #include "mesh.h"
-#include "render.h"
 #include "tess.h"
+#include "render.h"
 
 #define TRUE 1
 #define FALSE 0

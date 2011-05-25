@@ -21,7 +21,7 @@
 #include "GrPoint.h"
 #include "GrTDArray.h"
 
-#include <internal_glu.h>
+#include <sk_glu.h>
 
 struct PolygonData {
     PolygonData(GrTDArray<GrPoint>* vertices, GrTDArray<short>* indices)
@@ -289,34 +289,34 @@ FINISHED:
         inVertices[i * 3 + 2] = 1.0;
     }
 
-    GLUtesselator* tess = internal_gluNewTess();
+    GLUtesselator* tess = Sk_gluNewTess();
     unsigned windingRule = fill_type_to_glu_winding_rule(fill);
-    internal_gluTessProperty(tess, GLU_TESS_WINDING_RULE, windingRule);
-    internal_gluTessCallback(tess, GLU_TESS_BEGIN_DATA, (TESSCB) &beginData);
-    internal_gluTessCallback(tess, GLU_TESS_VERTEX_DATA, (TESSCB) &vertexData);
-    internal_gluTessCallback(tess, GLU_TESS_END_DATA, (TESSCB) &endData);
-    internal_gluTessCallback(tess, GLU_TESS_EDGE_FLAG_DATA, (TESSCB) &edgeFlagData);
-    internal_gluTessCallback(tess, GLU_TESS_COMBINE_DATA, (TESSCB) &combineData);
+    Sk_gluTessProperty(tess, GLU_TESS_WINDING_RULE, windingRule);
+    Sk_gluTessCallback(tess, GLU_TESS_BEGIN_DATA, (TESSCB) &beginData);
+    Sk_gluTessCallback(tess, GLU_TESS_VERTEX_DATA, (TESSCB) &vertexData);
+    Sk_gluTessCallback(tess, GLU_TESS_END_DATA, (TESSCB) &endData);
+    Sk_gluTessCallback(tess, GLU_TESS_EDGE_FLAG_DATA, (TESSCB) &edgeFlagData);
+    Sk_gluTessCallback(tess, GLU_TESS_COMBINE_DATA, (TESSCB) &combineData);
     GrTDArray<short> indices;
     GrTDArray<GrPoint> vertices;
     PolygonData data(&vertices, &indices);
 
-    internal_gluTessBeginPolygon(tess, &data);
+    Sk_gluTessBeginPolygon(tess, &data);
     size_t i = 0;
     for (int sp = 0; sp < subpathCnt; ++sp) {
-        internal_gluTessBeginContour(tess);
+        Sk_gluTessBeginContour(tess);
         int start = i;
         size_t end = start + subpathVertCount[sp];
         for (; i < end; ++i) {
             double* inVertex = &inVertices[i * 3];
             *vertices.append() = GrPoint::Make(inVertex[0], inVertex[1]);
-            internal_gluTessVertex(tess, inVertex, reinterpret_cast<void*>(i));
+            Sk_gluTessVertex(tess, inVertex, reinterpret_cast<void*>(i));
         }
-        internal_gluTessEndContour(tess);
+        Sk_gluTessEndContour(tess);
     }
 
-    internal_gluTessEndPolygon(tess);
-    internal_gluDeleteTess(tess);
+    Sk_gluTessEndPolygon(tess);
+    Sk_gluDeleteTess(tess);
 
     if (indices.count() > 0) {
         target->setVertexSourceToArray(layout, vertices.begin(), vertices.count());
