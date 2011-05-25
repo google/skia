@@ -42,11 +42,10 @@
 #ifndef __tess_h_
 #define __tess_h_
 
+#include <sk_glu.h>
 #include <setjmp.h>
-
-#include <internal_glu.h>
-#include "dict.h"
 #include "mesh.h"
+#include "dict.h"
 #include "priorityq.h"
 
 /* The begin/end calls must be properly nested.  We keep track of

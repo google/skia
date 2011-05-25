@@ -39,11 +39,11 @@
 ** $Header: //depot/main/gfx/lib/glu/libtess/priorityq-heap.c#5 $
 */
 
+#include <stddef.h>
 #include <assert.h>
 #include <limits.h>
-#include <stddef.h>
-#include "memalloc.h"
 #include "priorityq-heap.h"
+#include "memalloc.h"
 
 #define INIT_SIZE	32
 

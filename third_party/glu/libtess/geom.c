@@ -39,8 +39,8 @@
 ** $Header: //depot/main/gfx/lib/glu/libtess/geom.c#5 $
 */
 
+#include "gluos.h"
 #include <assert.h>
-#include <gluos.h>
 #include "mesh.h"
 #include "geom.h"
 

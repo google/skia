@@ -39,10 +39,10 @@
 ** $Header: //depot/main/gfx/lib/glu/libtess/priorityq.c#5 $
 */
 
+#include "gluos.h"
+#include <stddef.h>
 #include <assert.h>
 #include <limits.h>		/* LONG_MAX */
-#include <stddef.h>
-#include <gluos.h>
 #include "memalloc.h"
 
 /* Include all the code for the regular heap-based queue here. */

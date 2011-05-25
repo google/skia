@@ -33,8 +33,8 @@
 // only the definitions, constants and function declarations necessary
 // to compile the GLU tessellator.
 
-#ifndef INTERNAL_GLU_H_
-#define INTERNAL_GLU_H_
+#ifndef SK_GLU_H_
+#define SK_GLU_H_
 
 #include "gluos.h"
 
@@ -110,32 +110,32 @@ typedef struct GLUtesselator GLUtesselator;
 extern "C" {
 #endif
 
-extern GLUtesselator * GLAPIENTRY internal_gluNewTess(void);
-extern void GLAPIENTRY internal_gluDeleteTess(GLUtesselator *tess);
-extern void GLAPIENTRY internal_gluTessProperty(GLUtesselator *tess,
+extern GLUtesselator * GLAPIENTRY Sk_gluNewTess(void);
+extern void GLAPIENTRY Sk_gluDeleteTess(GLUtesselator *tess);
+extern void GLAPIENTRY Sk_gluTessProperty(GLUtesselator *tess,
                                                 GLenum which,
                                                 GLdouble value);
-extern void GLAPIENTRY internal_gluGetTessProperty(GLUtesselator *tess,
+extern void GLAPIENTRY Sk_gluGetTessProperty(GLUtesselator *tess,
                                                    GLenum which,
                                                    GLdouble *value);
-extern void GLAPIENTRY internal_gluTessNormal(GLUtesselator *tess,
+extern void GLAPIENTRY Sk_gluTessNormal(GLUtesselator *tess,
                                               GLdouble x,
                                               GLdouble y,
                                               GLdouble z);
-extern void GLAPIENTRY internal_gluTessCallback(GLUtesselator *tess,
+extern void GLAPIENTRY Sk_gluTessCallback(GLUtesselator *tess,
                                                 GLenum which,
                                                 void (GLAPIENTRY *fn)());
-extern void GLAPIENTRY internal_gluTessVertex(GLUtesselator *tess,
+extern void GLAPIENTRY Sk_gluTessVertex(GLUtesselator *tess,
                                               GLdouble coords[3],
                                               void *data);
-extern void GLAPIENTRY internal_gluTessBeginPolygon(GLUtesselator *tess,
+extern void GLAPIENTRY Sk_gluTessBeginPolygon(GLUtesselator *tess,
                                                     void *data);
-extern void GLAPIENTRY internal_gluTessBeginContour(GLUtesselator *tess);
-extern void GLAPIENTRY internal_gluTessEndContour(GLUtesselator *tess);
-extern void GLAPIENTRY internal_gluTessEndPolygon(GLUtesselator *tess);
+extern void GLAPIENTRY Sk_gluTessBeginContour(GLUtesselator *tess);
+extern void GLAPIENTRY Sk_gluTessEndContour(GLUtesselator *tess);
+extern void GLAPIENTRY Sk_gluTessEndPolygon(GLUtesselator *tess);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif  // INTERNAL_GLU_H_
+#endif  // SK_GLU_H_
