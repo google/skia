@@ -97,7 +97,7 @@ static const MakePathProc gProcs[] = {
 
 #define N   SK_ARRAY_COUNT(gProcs)
 
-class PathFillView : public SkView {
+class PathFillView : public SampleView {
     SkPath  fPath[N];
     SkScalar fDY[N];
 
@@ -106,6 +106,7 @@ public:
         for (size_t i = 0; i < N; i++) {
             fDY[i] = gProcs[i](&fPath[i]);
         }
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -118,13 +119,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -135,7 +130,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
