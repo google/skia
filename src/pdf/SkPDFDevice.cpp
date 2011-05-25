@@ -233,11 +233,29 @@ static void skip_clip_stack_prefix(const SkClipStack& prefix,
     const SkClipStack::B2FIter::Clip* prefixEntry;
     const SkClipStack::B2FIter::Clip* iterEntry;
 
+    int count = 0;
     for (prefixEntry = prefixIter.next(); prefixEntry;
-            prefixEntry = prefixIter.next()) {
+            prefixEntry = prefixIter.next(), count++) {
         iterEntry = iter->next();
         SkASSERT(iterEntry);
-        SkASSERT(*prefixEntry == *iterEntry);
+        // Because of SkClipStack does internal intersection, the last clip
+        // entry may differ.
+        if(*prefixEntry != *iterEntry) {
+            SkASSERT(prefixEntry->fOp == SkRegion::kIntersect_Op);
+            SkASSERT(iterEntry->fOp == SkRegion::kIntersect_Op);
+            SkASSERT((iterEntry->fRect == NULL) ==
+                    (prefixEntry->fRect == NULL));
+            SkASSERT((iterEntry->fPath == NULL) ==
+                    (prefixEntry->fPath == NULL));
+            // We need to back up the iterator by one but don't have that
+            // function, so reset and go forward by one less.
+            iter->reset(stack);
+            for (int i = 0; i < count; i++) {
+                iter->next();
+            }
+            prefixEntry = prefixIter.next();
+            break;
+        }
     }
 
     SkASSERT(prefixEntry == NULL);
