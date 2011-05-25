@@ -84,8 +84,8 @@ private:
 
 public:    
     void copyAndTakeOwnership(GrBinHashKey<Entry, StackSize>& key) {
-        memcpy(this, &key, sizeof(*this));
         GrAssert(key.fIsValid);
+        copyFields(key);
         if (fUseHeap) {
             key.fHeapData = NULL;  // ownership transfer
         }
@@ -98,7 +98,7 @@ public:
 
     void deepCopyFrom(const GrBinHashKey<Entry, StackSize>& key) {
         GrAssert(key.fIsValid);
-        memcpy(this, &key, sizeof(key));
+        copyFields(key);
         if (fUseHeap) {
             fHeapData = reinterpret_cast<uint8_t*>(
                 GrMalloc(sizeof(uint8_t) * fPhysicalSize));
@@ -197,6 +197,22 @@ public:
     }
 
 private:
+    void copyFields(const GrBinHashKey<Entry, StackSize>& src) {
+        if (fUseHeap) {
+            GrFree(fHeapData);
+        }
+        // We do a field-by-field copy because this is a non-POD
+        // class, and therefore memcpy would be bad 
+        fA = src.fA;
+        fB = src.fB;
+        fLength = src.fLength;
+        memcpy(fStackData, src.fStackData, StackSize);
+        fHeapData = src.fHeapData;
+        fPhysicalSize = src.fPhysicalSize;
+        fUseHeap = src.fUseHeap;
+        fPass = src.fPass;
+    }
+
     // For computing the Adler-32 hash
     enum Constants {
         kBigPrime = 65521 // largest prime smaller than 2^16
