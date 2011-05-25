@@ -188,6 +188,11 @@ bool operator==(const SkClipStack::B2FIter::Clip& a,
            ((a.fPath == NULL && b.fPath == NULL) || *a.fPath == *b.fPath);
 }
 
+bool operator!=(const SkClipStack::B2FIter::Clip& a,
+               const SkClipStack::B2FIter::Clip& b) {
+    return !(a == b);
+}
+
 SkClipStack::B2FIter::B2FIter(const SkClipStack& stack) {
     this->reset(stack);
 }
