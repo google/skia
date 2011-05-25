@@ -117,6 +117,32 @@ SkPDFGraphicState* SkPDFGraphicState::getGraphicStateForPaint(
 }
 
 // static
+SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
+    // This assumes that canonicalPaintsMutex is held.
+    static SkPDFStream* invertFunction = NULL;
+    if (!invertFunction) {
+        // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
+        // a type 2 function, so we use a type 4 function.
+        SkRefPtr<SkPDFArray> domainAndRange = new SkPDFArray;
+        domainAndRange->unref();  // SkRefPtr and new both took a reference.
+        domainAndRange->reserve(2);
+        domainAndRange->append(new SkPDFInt(0))->unref();
+        domainAndRange->append(new SkPDFInt(1))->unref();
+
+        static const char psInvert[] = "{1 exch sub}";
+        SkRefPtr<SkMemoryStream> psInvertStream =
+            new SkMemoryStream(&psInvert, strlen(psInvert), true);
+        psInvertStream->unref();  // SkRefPtr and new both took a reference.
+
+        invertFunction = new SkPDFStream(psInvertStream.get());
+        invertFunction->insert("FunctionType", new SkPDFInt(4))->unref();
+        invertFunction->insert("Domain", domainAndRange.get());
+        invertFunction->insert("Range", domainAndRange.get());
+    }
+    return invertFunction;
+}
+
+// static
 SkPDFGraphicState* SkPDFGraphicState::getSMaskGraphicState(
         SkPDFFormXObject* sMask, bool invert) {
     // The practical chances of using the same mask more than once are unlikely
@@ -137,27 +163,10 @@ SkPDFGraphicState* SkPDFGraphicState::getSMaskGraphicState(
     sMask->ref();
 
     if (invert) {
-        // Acrobat crashes if we use a type 0 function, kpdf crashes if we use
-        // a type 2 function, so we use a type 4 function.
-        SkRefPtr<SkPDFArray> domainAndRange = new SkPDFArray;
-        domainAndRange->unref();  // SkRefPtr and new both took a reference.
-        domainAndRange->reserve(2);
-        domainAndRange->append(new SkPDFInt(0))->unref();
-        domainAndRange->append(new SkPDFInt(1))->unref();
-
-        static const char psInvert[] = "{1 exch sub}";
-        SkRefPtr<SkMemoryStream> psInvertStream =
-            new SkMemoryStream(&psInvert, strlen(psInvert), true);
-        psInvertStream->unref();  // SkRefPtr and new both took a reference.
-
-        SkRefPtr<SkPDFStream> invertFunc =
-            new SkPDFStream(psInvertStream.get());
-        result->fResources.push(invertFunc.get());  // Pass the ref from new.
-        invertFunc->insert("FunctionType", new SkPDFInt(4))->unref();
-        invertFunc->insert("Domain", domainAndRange.get());
-        invertFunc->insert("Range", domainAndRange.get());
-
-        sMaskDict->insert("TR", new SkPDFObjRef(invertFunc.get()))->unref();
+        SkPDFObject* invertFunction = GetInvertFunction();
+        result->fResources.push(invertFunction);
+        invertFunction->ref();
+        sMaskDict->insert("TR", new SkPDFObjRef(invertFunction))->unref();
     }
 
     return result;

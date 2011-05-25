@@ -98,6 +98,8 @@ private:
 
     void populateDict();
 
+    static SkPDFObject* GetInvertFunction();
+
     static int find(const SkPaint& paint);
 };
 
