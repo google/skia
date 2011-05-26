@@ -400,6 +400,28 @@ static void bytes_to_bits(uint8_t dst[], const uint8_t src[], int count) {
     }
 }
 
+#if 1
+static inline int r32_to_16(int x) { return SkR32ToR16(x); }
+static inline int g32_to_16(int x) { return SkG32ToG16(x); }
+static inline int b32_to_16(int x) { return SkB32ToB16(x); }
+#else
+static inline int round8to5(int x) {
+    return (x + 3 - (x >> 5) + (x >> 7)) >> 3;
+}
+static inline int round8to6(int x) {
+    int xx = (x + 1 - (x >> 6) + (x >> 7)) >> 2;
+    SkASSERT((unsigned)xx <= 63);
+
+    int ix = x >> 2;
+    SkASSERT(SkAbs32(xx - ix) <= 1);
+    return xx;
+}
+
+static inline int r32_to_16(int x) { return round8to5(x); }
+static inline int g32_to_16(int x) { return round8to6(x); }
+static inline int b32_to_16(int x) { return round8to5(x); }
+#endif
+
 static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
@@ -411,7 +433,7 @@ static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
     g = 255 - g;
     b = 255 - b;
 
-    return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
+    return SkPackRGB16(r32_to_16(r), g32_to_16(g), b32_to_16(b));
 }
 
 #define BITMAP_INFO_RGB     (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
