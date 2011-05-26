@@ -57,6 +57,8 @@ public:
         for (size_t i = 0; i < SK_ARRAY_COUNT(fMatrixRefs); i++) {
             SkSafeRef(fMatrixRefs[i] = fGroup.getShapeMatrixRef(i));
         }
+        SkScalar c = SkIntToScalar(50);
+        fMatrixRefs[3]->preRotate(SkIntToScalar(30), c, c);
     }
 
     virtual ~ShapesGM() {
@@ -80,10 +82,6 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         this->drawBG(canvas);
-
-        SkMatrix saveM = *fMatrixRefs[3];
-        SkScalar c = SkIntToScalar(50);
-        fMatrixRefs[3]->preRotate(SkIntToScalar(30), c, c);
 
         SkMatrix matrix;
 
@@ -111,8 +109,6 @@ protected:
         canvas->drawPicture(*pict);
         pict->unref();
 #endif
-
-        *fMatrixRefs[3] = saveM;
 }
 
 private:
