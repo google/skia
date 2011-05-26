@@ -155,31 +155,6 @@ public:
     virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
                                const SkClipStack&);
 
-    /**
-     *  Observer interface for listening to the calls to
-     *  SkDevice::setMatrixClip(...).  Users of SkDevice instances should
-     *  implement matrixClipChanged(...) to receive notifications.
-     */
-    class SkMatrixClipObserver : public SkRefCnt {
-    public:
-        virtual void matrixClipChanged(const SkMatrix&, const SkRegion&,
-                                       const SkClipStack&) = 0;
-    };
-
-    /** Assign the clip observer.  Note that an extra reference is added to the
-      * observer, and removed at SkDevice construction, or re-assignment of a
-      * different observer.
-      */
-    void setMatrixClipObserver(SkMatrixClipObserver* observer);
-
-    /** Return the device's associated SkMatrixClipObserver, or NULL.
-      * If non-null is returned, the reference count of the object is not
-      * modified.
-      */
-    SkMatrixClipObserver* getMatrixClipObserver() const {
-        return fMatrixClipObserver;
-    }
-
     /** Called when this device gains focus (i.e becomes the current device
         for drawing).
     */
@@ -305,8 +280,6 @@ private:
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;
-
-    SkMatrixClipObserver* fMatrixClipObserver;
 
     SkDeviceFactory* fCachedDeviceFactory;
 };
