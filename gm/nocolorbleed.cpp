@@ -30,11 +30,13 @@ protected:
             SK_ColorGREEN,  SK_ColorBLACK,   SK_ColorWHITE,   SK_ColorBLUE,
             SK_ColorYELLOW, SK_ColorMAGENTA, SK_ColorCYAN,    SK_ColorBLACK
         };
-        SkPMColor spriteDataPM[16];
+        sprite.allocPixels();
+        sprite.lockPixels();
+        SkPMColor* addr = sprite.getAddr32(0, 0);
         for (size_t i = 0; i < SK_ARRAY_COUNT(spriteData); ++i) {
-            spriteDataPM[i] = SkPreMultiplyColor(spriteData[i]);
+            addr[i] = SkPreMultiplyColor(spriteData[i]);
         }
-        sprite.setPixels(spriteDataPM);
+        sprite.unlockPixels();
 
         // We draw a magnified subrect of the sprite
         // sample interpolation may cause color bleeding around edges
