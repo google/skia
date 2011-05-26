@@ -693,6 +693,10 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     if (paint.getMaskFilter()) {
         usePath = true;
     }
+    // until we aa rotated rects...
+    if (!usePath && paint.isAntiAlias() && !draw.fMatrix->rectStaysRect()) {
+        usePath = true;
+    }
 
     if (usePath) {
         SkPath path;
