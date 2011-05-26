@@ -441,7 +441,7 @@ int main(int argc, char * const argv[]) {
     const char* readPath = NULL;    // if non-null, were we read from to compare
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
 
-    bool doReplay = false;
+    bool doReplay = true;
     bool doSerialize = false;
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
@@ -461,8 +461,8 @@ int main(int argc, char * const argv[]) {
             if (argv < stop && **argv) {
                 diffPath = *argv;
             }
-        } else if (strcmp(*argv, "--replay") == 0) {
-            doReplay = true;
+        } else if (strcmp(*argv, "--noreplay") == 0) {
+            doReplay = false;
         } else if (strcmp(*argv, "--serialize") == 0) {
             doSerialize = true;
         } else {
