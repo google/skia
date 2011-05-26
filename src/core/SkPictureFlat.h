@@ -147,7 +147,7 @@ public:
     static SkFlatMatrix* Flatten(SkChunkAlloc* heap, const SkMatrix& matrix, int index);
 
     void unflatten(SkMatrix* result) const {
-        memcpy(result, fMatrixData, sizeof(SkMatrix));
+        result->unflatten(fMatrixData);
     }
 
 #ifdef SK_DEBUG_DUMP
