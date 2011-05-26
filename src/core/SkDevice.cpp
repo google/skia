@@ -25,13 +25,13 @@ SkDeviceFactory::~SkDeviceFactory() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas), fMetaData(NULL), fMatrixClipObserver(NULL) {
+SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas), fMetaData(NULL) {
     fOrigin.setZero();
     fCachedDeviceFactory = NULL;
 }
 
 SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
-        : fCanvas(canvas), fBitmap(bitmap), fMetaData(NULL), fMatrixClipObserver(NULL) {
+        : fCanvas(canvas), fBitmap(bitmap), fMetaData(NULL) {
     fOrigin.setZero();
     // auto-allocate if we're for offscreen drawing
     if (isForLayer) {
@@ -48,7 +48,6 @@ SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
 SkDevice::~SkDevice() {
     delete fMetaData;
     SkSafeUnref(fCachedDeviceFactory);
-    SkSafeUnref(fMatrixClipObserver);
 }
 
 SkDeviceFactory* SkDevice::onNewDeviceFactory() {
@@ -108,13 +107,6 @@ void SkDevice::onAccessBitmap(SkBitmap* bitmap) {}
 
 void SkDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& region,
                              const SkClipStack& clipStack) {
-    if (fMatrixClipObserver) {
-        fMatrixClipObserver->matrixClipChanged(matrix, region, clipStack);
-    }
-}
-
-void SkDevice::setMatrixClipObserver(SkMatrixClipObserver* observer) {
-    SkRefCnt_SafeAssign(fMatrixClipObserver, observer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
