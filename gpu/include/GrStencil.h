@@ -159,7 +159,7 @@ struct GrStencilSettings {
         return kKeep_StencilOp == fFrontPassOp   &&
                kKeep_StencilOp == fBackPassOp    &&
                kKeep_StencilOp == fFrontFailOp   &&
-               kKeep_StencilOp == fFrontFailOp   &&
+               kKeep_StencilOp == fBackFailOp   &&
                kAlways_StencilFunc == fFrontFunc &&
                kAlways_StencilFunc == fBackFunc;
     }
