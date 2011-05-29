@@ -86,6 +86,10 @@ public:
                                  SkTDArray<SkPDFDict*>* pageTree,
                                  SkPDFDict** rootNode);
 
+    /** Get the fonts used on this page.
+     */
+    const SkTDArray<SkPDFFont*>& getFontResources() const;
+
 private:
     // Multiple pages may reference the content.
     SkRefPtr<SkPDFDevice> fDevice;

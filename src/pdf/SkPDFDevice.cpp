@@ -1051,6 +1051,10 @@ void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {
     }
 }
 
+const SkTDArray<SkPDFFont*>& SkPDFDevice::getFontResources() const {
+    return fFontResources;
+}
+
 SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     SkRefPtr<SkPDFInt> zero = new SkPDFInt(0);
     zero->unref();  // SkRefPtr and new both took a reference.

@@ -136,3 +136,7 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
     if (rootNode)
         *rootNode = curNodes[0];
 }
+
+const SkTDArray<SkPDFFont*>& SkPDFPage::getFontResources() const {
+    return fDevice->getFontResources();
+}

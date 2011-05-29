@@ -444,6 +444,10 @@ SkTypeface* SkPDFFont::typeface() {
     return fTypeface.get();
 }
 
+SkAdvancedTypefaceMetrics::FontType SkPDFFont::getType() {
+    return fType;
+}
+
 bool SkPDFFont::hasGlyph(uint16_t id) {
     return (id >= fFirstGlyphID && id <= fLastGlyphID) || id == 0;
 }
@@ -541,6 +545,8 @@ SkPDFFont::SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo,
                      SkPDFDict* fontDescriptor)
         : SkPDFDict("Font"),
           fTypeface(typeface),
+          fType(fontInfo ? fontInfo->fType :
+                           SkAdvancedTypefaceMetrics::kNotEmbeddable_Font),
 #ifdef SK_DEBUG
           fDescendant(descendantFont),
 #endif
@@ -549,20 +555,12 @@ SkPDFFont::SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo,
           fLastGlyphID(fontInfo ? fontInfo->fLastGlyphID : 0),
           fFontInfo(fontInfo),
           fDescriptor(fontDescriptor) {
-
-    SkAdvancedTypefaceMetrics::FontType type;
-    if (fontInfo) {
-        type = fontInfo->fType;
-    } else {
-        type = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
-    }
-
     if (fontInfo && fontInfo->fMultiMaster) {
-        SkASSERT(false);  // Not supported yet.
-        fontInfo->fType = SkAdvancedTypefaceMetrics::kOther_Font;
+        NOT_IMPLEMENTED(true, true);
+        fType = SkAdvancedTypefaceMetrics::kOther_Font;
     }
-    if (type == SkAdvancedTypefaceMetrics::kType1CID_Font ||
-        type == SkAdvancedTypefaceMetrics::kTrueType_Font) {
+    if (fType == SkAdvancedTypefaceMetrics::kType1CID_Font ||
+        fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
         if (descendantFont) {
             populateCIDFont();
         } else {
@@ -574,15 +572,15 @@ SkPDFFont::SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo,
         return;
     }
 
-    if (type == SkAdvancedTypefaceMetrics::kType1_Font &&
+    if (fType == SkAdvancedTypefaceMetrics::kType1_Font &&
         populateType1Font(glyphID)) {
         return;
     }
 
-    SkASSERT(type == SkAdvancedTypefaceMetrics::kType1_Font ||
-             type == SkAdvancedTypefaceMetrics::kCFF_Font ||
-             type == SkAdvancedTypefaceMetrics::kOther_Font ||
-             type == SkAdvancedTypefaceMetrics::kNotEmbeddable_Font);
+    SkASSERT(fType == SkAdvancedTypefaceMetrics::kType1_Font ||
+             fType == SkAdvancedTypefaceMetrics::kCFF_Font ||
+             fType == SkAdvancedTypefaceMetrics::kOther_Font ||
+             fType == SkAdvancedTypefaceMetrics::kNotEmbeddable_Font);
     populateType3Font(glyphID);
 }
 

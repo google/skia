@@ -127,6 +127,10 @@ public:
      */
     void getResources(SkTDArray<SkPDFObject*>* resourceList) const;
 
+    /** Get the fonts used on this device.
+     */
+    const SkTDArray<SkPDFFont*>& getFontResources() const;
+
     /** Returns the media box for this device.
      */
     SkRefPtr<SkPDFArray> getMediaBox() const;
