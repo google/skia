@@ -42,6 +42,11 @@ public:
      */
     SkTypeface* typeface();
 
+    /** Returns the font type represented in this font.  For Type0 fonts,
+     *  returns the type of the decendant font.
+     */
+    SkAdvancedTypefaceMetrics::FontType getType();
+
     /** Return true if this font has an encoding for the passed glyph id.
      */
     bool hasGlyph(uint16_t glyphID);
@@ -72,6 +77,7 @@ public:
 
 private:
     SkRefPtr<SkTypeface> fTypeface;
+    SkAdvancedTypefaceMetrics::FontType fType;
 #ifdef SK_DEBUG
     bool fDescendant;
 #endif
