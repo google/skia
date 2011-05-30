@@ -33,27 +33,27 @@ class SkPaint;
 */
 class SkPDFFont : public SkPDFDict {
 public:
-    virtual ~SkPDFFont();
+    SK_API virtual ~SkPDFFont();
 
-    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
+    SK_API virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
     /** Returns the typeface represented by this class. Returns NULL for the
      *  default typeface.
      */
-    SkTypeface* typeface();
+    SK_API SkTypeface* typeface();
 
     /** Returns the font type represented in this font.  For Type0 fonts,
      *  returns the type of the decendant font.
      */
-    SkAdvancedTypefaceMetrics::FontType getType();
+    SK_API SkAdvancedTypefaceMetrics::FontType getType();
 
     /** Return true if this font has an encoding for the passed glyph id.
      */
-    bool hasGlyph(uint16_t glyphID);
+    SK_API bool hasGlyph(uint16_t glyphID);
 
     /** Returns true if this font encoding supports glyph IDs above 255.
      */
-    bool multiByteGlyphs();
+    SK_API bool multiByteGlyphs();
 
     /** Convert (in place) the input glyph IDs into the font encoding.  If the
      *  font has more glyphs than can be encoded (like a type 1 font with more
@@ -63,7 +63,7 @@ public:
      *  @param numGlyphs      The number of input glyphs.
      *  @return               Returns the number of glyphs consumed.
      */
-    size_t glyphsToPDFFontEncoding(uint16_t* glyphIDs, size_t numGlyphs);
+    SK_API size_t glyphsToPDFFontEncoding(uint16_t* glyphIDs, size_t numGlyphs);
 
     /** Get the font resource for the passed typeface and glyphID. The
      *  reference count of the object is incremented and it is the caller's
@@ -73,7 +73,8 @@ public:
      *  @param typeface  The typeface to find.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    static SkPDFFont* getFontResource(SkTypeface* typeface, uint16_t glyphID);
+    SK_API static SkPDFFont* getFontResource(SkTypeface* typeface,
+                                             uint16_t glyphID);
 
 private:
     SkRefPtr<SkTypeface> fTypeface;
