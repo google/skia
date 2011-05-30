@@ -120,27 +120,29 @@ public:
 
     /** Returns a reference to the resource dictionary for this device.
      */
-    const SkRefPtr<SkPDFDict>& getResourceDict();
+    SK_API const SkRefPtr<SkPDFDict>& getResourceDict();
 
     /** Get the list of resources (PDF objects) used on this page.
      *  @param resourceList A list to append the resources to.
      */
-    void getResources(SkTDArray<SkPDFObject*>* resourceList) const;
+    SK_API void getResources(SkTDArray<SkPDFObject*>* resourceList) const;
 
     /** Get the fonts used on this device.
      */
-    const SkTDArray<SkPDFFont*>& getFontResources() const;
+    SK_API const SkTDArray<SkPDFFont*>& getFontResources() const;
 
     /** Returns the media box for this device.
      */
-    SkRefPtr<SkPDFArray> getMediaBox() const;
+    SK_API SkRefPtr<SkPDFArray> getMediaBox() const;
 
     /** Returns a SkStream with the page contents.  The caller is responsible
         for a reference to the returned value.
      */
-    SkStream* content() const;
+    SK_API SkStream* content() const;
 
-    const SkMatrix& initialTransform() const { return fInitialTransform; }
+    SK_API const SkMatrix& initialTransform() const {
+        return fInitialTransform;
+    }
 
 protected:
     // override
