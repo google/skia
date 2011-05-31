@@ -116,7 +116,7 @@
         '../samplecode/SampleFontCache.cpp',
       ],
       'dependencies': [
-        'skia.gyp:skia',
+        'core.gyp:core',
         'effects.gyp:effects',
         'images.gyp:images',
         'views.gyp:views',

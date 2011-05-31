@@ -1,10 +1,11 @@
+# Core Skia library code.
 {
   'includes': [
     'target_defaults.gypi',
   ],
   'targets': [
     {
-      'target_name': 'skia',
+      'target_name': 'core',
       'type': 'static_library',
       'msvs_guid': 'B7760B5E-BFA8-486B-ACFD-49E3A6DE8E76',
       'sources': [
