@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # This script is a wrapper which invokes gyp with the correct --depth argument,
-# and supports the automatic regeneration of build files if skia.gyp is 
+# and supports the automatic regeneration of build files if all.gyp is 
 # changed (Linux-only).
 
 import glob
@@ -61,10 +61,10 @@ if __name__ == '__main__':
       gyp_file_specified = True
       break
 
-  # If we didn't get a file, then fall back to assuming 'skia.gyp' from the
+  # If we didn't get a file, then fall back to assuming 'all.gyp' from the
   # same directory as the script.
   if not gyp_file_specified:
-    args.append(os.path.join(script_dir, 'skia.gyp'))
+    args.append(os.path.join(script_dir, 'all.gyp'))
 
   args.extend(['-I' + i for i in additional_include_files(args)])
 
