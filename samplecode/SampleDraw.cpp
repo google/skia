@@ -262,6 +262,7 @@ public:
     virtual ~DrawView() {
         fList.unrefAll();
         SkSafeUnref(fDraw);
+        delete fFactory;
     }
 
     Draw* setDraw(Draw* d) {

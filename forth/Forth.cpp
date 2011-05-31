@@ -277,6 +277,11 @@ ForthParser::ForthParser() : fDict(4096) {
 }
 
 ForthParser::~ForthParser() {
+    SkTDict<ForthWord*>::Iter iter(fDict);
+    ForthWord* word;
+    while (iter.next(&word)) {
+        delete word;
+    }
 }
 
 static const char* parse_error(const char msg[]) {

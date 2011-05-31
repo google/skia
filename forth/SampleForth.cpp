@@ -188,6 +188,10 @@ public:
 #endif
     }
     
+    virtual ~ForthView() {
+        SkDebugf("");
+    }
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
