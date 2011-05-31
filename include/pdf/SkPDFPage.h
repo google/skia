@@ -88,7 +88,7 @@ public:
 
     /** Get the fonts used on this page.
      */
-    const SkTDArray<SkPDFFont*>& getFontResources() const;
+    SK_API const SkTDArray<SkPDFFont*>& getFontResources() const;
 
 private:
     // Multiple pages may reference the content.
