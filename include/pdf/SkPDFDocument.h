@@ -49,6 +49,10 @@ public:
      */
     SK_API bool appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice);
 
+    /** Get the list of pages in this document.
+     */
+    SK_API const SkTDArray<SkPDFPage*>& getPages();
+
 private:
     SkPDFCatalog fCatalog;
     int64_t fXRefFileOffset;

@@ -154,6 +154,10 @@ bool SkPDFDocument::appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice) {
     return true;
 }
 
+const SkTDArray<SkPDFPage*>& SkPDFDocument::getPages() {
+    return fPages;
+}
+
 void SkPDFDocument::emitHeader(SkWStream* stream) {
     stream->writeText("%PDF-1.4\n%");
     // The PDF spec recommends including a comment with four bytes, all
