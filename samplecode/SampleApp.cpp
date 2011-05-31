@@ -710,7 +710,6 @@ void SampleWindow::showZoomer(SkCanvas* canvas) {
         paint.setColor(SK_ColorBLUE);
         drawText(canvas, string, left, SkScalarMulAdd(lineHeight, i, dest.fTop), paint);
         canvas->restoreToCount(count);
-        bitmap.unlockPixels();
 }
 
 void SampleWindow::onDraw(SkCanvas* canvas) {
