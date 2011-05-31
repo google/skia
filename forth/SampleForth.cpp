@@ -189,7 +189,6 @@ public:
     }
     
     virtual ~ForthView() {
-        SkDebugf("");
     }
 
 protected:
