@@ -54,6 +54,13 @@ typedef void GLvoid;
 #define gluTessEndContour Sk_gluTessEndContour
 #define gluTessEndPolygon Sk_gluTessEndPolygon
 
+#define __gl_noBeginData Sk__gl_noBeginData
+#define __gl_noEdgeFlagData Sk__gl_noEdgeFlagData
+#define __gl_noVertexData Sk__gl_noVertexData
+#define __gl_noEndData Sk__gl_noEndData
+#define __gl_noErrorData Sk__gl_noErrorData
+#define __gl_noCombineData Sk__gl_noCombineData
+
 #undef MIN
 #undef MAX
 
