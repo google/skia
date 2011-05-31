@@ -8,6 +8,9 @@
 #elif defined(SK_BUILD_FOR_UNIX)
     #include <X11/Xlib.h>
     #include <GL/glx.h>
+#elif defined(SK_BUILD_FOR_WIN32)
+	#include <Windows.h>
+	#include <GL/GL.h>
 #else
 
 #endif
