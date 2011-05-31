@@ -148,36 +148,27 @@ void SuperBlitter::blitH(int x, int y, int width) {
     // hit 256 as a summed max, but 255.
 //  int maxValue = (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT);
 
-#if 0
-    SkAntiRun<SHIFT>    arun;
-    arun.set(x, x + width);
-    fRuns.add(x >> SHIFT, arun.getStartAlpha(), arun.getMiddleCount(),
-              arun.getStopAlpha(), maxValue);
-#else
-    {
-        int start = x;
-        int stop = x + width;
+    int start = x;
+    int stop = x + width;
 
-        SkASSERT(start >= 0 && stop > start);
-        int fb = start & SUPER_Mask;
-        int fe = stop & SUPER_Mask;
-        int n = (stop >> SHIFT) - (start >> SHIFT) - 1;
+    SkASSERT(start >= 0 && stop > start);
+    int fb = start & SUPER_Mask;
+    int fe = stop & SUPER_Mask;
+    int n = (stop >> SHIFT) - (start >> SHIFT) - 1;
 
-        if (n < 0) {
-            fb = fe - fb;
-            n = 0;
-            fe = 0;
+    if (n < 0) {
+        fb = fe - fb;
+        n = 0;
+        fe = 0;
+    } else {
+        if (fb == 0) {
+            n += 1;
         } else {
-            if (fb == 0) {
-                n += 1;
-            } else {
-                fb = (1 << SHIFT) - fb;
-            }
+            fb = (1 << SHIFT) - fb;
         }
-        fRuns.add(x >> SHIFT, coverage_to_alpha(fb), n, coverage_to_alpha(fe),
-                  (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT));
     }
-#endif
+    fRuns.add(x >> SHIFT, coverage_to_alpha(fb), n, coverage_to_alpha(fe),
+              (1 << (8 - SHIFT)) - (((y & MASK) + 1) >> SHIFT));
 
 #ifdef SK_DEBUG
     fRuns.assertValid(y & MASK, (1 << (8 - SHIFT)));
