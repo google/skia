@@ -153,6 +153,7 @@
         '../src/ports/SkMemory_malloc.cpp',
         '../src/ports/SkOSFile_stdio.cpp',
         '../src/ports/SkTime_Unix.cpp',
+        '../src/ports/SkTime_win.cpp',
         '../src/ports/SkXMLParser_empty.cpp',
         '../src/ports/sk_predefined_gamma.h',
 
@@ -304,6 +305,7 @@
         [ 'OS != "win"', {
           'sources!': [
             '../src/ports/SkDebug_win.cpp',
+            '../src/ports/SkTime_win.cpp',
           ],
         }],
       ],
