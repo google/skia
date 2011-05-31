@@ -54,7 +54,11 @@ public:
         
         this->setBGColor(0xFFDDDDDD);
     }
-    
+
+    virtual ~GMView() {
+        delete fGM;
+    }
+
 protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {

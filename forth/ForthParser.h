@@ -21,7 +21,8 @@ public:
     void add(const char name[], size_t len, ForthWord* word) {
     //    SkString str(name, len);
     //    SkDebugf("add %s %p\n", str.c_str(), word);
-        (void)fDict.set(name, len, word);
+        SkDEBUGCODE(bool isNewWord = )fDict.set(name, len, word);
+        SkASSERT(isNewWord);
     }
 
     ForthWord* find(const char name[], size_t len) const {
