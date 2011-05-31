@@ -31,7 +31,15 @@ public:
     }
 
     void    reset(int width);
-    void    add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha, U8CPU maxValue);
+    
+    /**
+     *  Returns the offsetX value that should be passed on the next call,
+     *  assuming we're on the same scanline. If the caller is switching
+     *  scanlines, then offsetX should be 0 when this is called.
+     */
+    int add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
+            U8CPU maxValue, int offsetX);
+
     SkDEBUGCODE(void assertValid(int y, int maxStep) const;)
     SkDEBUGCODE(void dump() const;)
 

@@ -16,10 +16,14 @@
 */
 
 #include "SkAntiRun.h"
+#include "SkUtils.h"
 
 void SkAlphaRuns::reset(int width) {
     SkASSERT(width > 0);
 
+#ifdef SK_DEBUG
+    sk_memset16((uint16_t*)fRuns, (uint16_t)(-42), width);
+#endif
     fRuns[0] = SkToS16(width);
     fRuns[width] = 0;
     fAlpha[0] = 0;
@@ -75,13 +79,17 @@ void SkAlphaRuns::Break(int16_t runs[], uint8_t alpha[], int x, int count) {
     }
 }
 
-void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
-                      U8CPU maxValue) {
+int SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
+                     U8CPU maxValue, int offsetX) {
     SkASSERT(middleCount >= 0);
     SkASSERT(x >= 0 && x + (startAlpha != 0) + middleCount + (stopAlpha != 0) <= fWidth);
 
-    int16_t*    runs = fRuns;
-    uint8_t*     alpha = fAlpha;
+    SkASSERT(fRuns[offsetX] >= 0);
+
+    int16_t*    runs = fRuns + offsetX;
+    uint8_t*    alpha = fAlpha + offsetX;
+    uint8_t*    lastAlpha = alpha;
+    x -= offsetX;
 
     if (startAlpha) {
         SkAlphaRuns::Break(runs, alpha, x, 1);
@@ -97,6 +105,7 @@ void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
         runs += x + 1;
         alpha += x + 1;
         x = 0;
+        lastAlpha += x; // we don't want the +1
         SkDEBUGCODE(this->validate();)
     }
 
@@ -114,13 +123,18 @@ void SkAlphaRuns::add(int x, U8CPU startAlpha, int middleCount, U8CPU stopAlpha,
             middleCount -= n;
         } while (middleCount > 0);
         SkDEBUGCODE(this->validate();)
+        lastAlpha = alpha;
     }
 
     if (stopAlpha) {
         SkAlphaRuns::Break(runs, alpha, x, 1);
-        alpha[x] = SkToU8(alpha[x] + stopAlpha);
+        alpha += x;
+        alpha[0] = SkToU8(alpha[0] + stopAlpha);
         SkDEBUGCODE(this->validate();)
+        lastAlpha = alpha;
     }
+
+    return lastAlpha - fAlpha;  // new offsetX
 }
 
 #ifdef SK_DEBUG
