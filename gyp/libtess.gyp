@@ -10,7 +10,7 @@
         '../third_party/glu',
       ],
       'sources': [
-        '../third_party/glu/internal_glu.h',
+        '../third_party/glu/sk_glu.h',
         '../third_party/glu/gluos.h',
         '../third_party/glu/libtess/dict-list.h',
         '../third_party/glu/libtess/dict.c',
