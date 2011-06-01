@@ -201,7 +201,7 @@ out/libskia.so: Makefile $(OBJ_LIST) $(JUST_COMPILE_OBJS)
 
 BENCH_SRCS := RectBench.cpp SkBenchmark.cpp benchmain.cpp BitmapBench.cpp \
 			  RepeatTileBench.cpp DecodeBench.cpp FPSBench.cpp PathBench.cpp \
-			  GradientBench.cpp
+			  GradientBench.cpp MatrixBench.cpp
 
 BENCH_SRCS := $(addprefix bench/, $(BENCH_SRCS))
 
