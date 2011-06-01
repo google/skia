@@ -18,12 +18,16 @@
 
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
+#include "SkEndian.h"
 #include "SkFloatingPoint.h"
 #include "SkPaint.h"
 #include "SkString.h"
+#include "SkStream.h"
 #include "SkTypeface_mac.h"
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
+
+using namespace skia_advanced_typeface_metrics_utils;
 
 static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
 static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
@@ -626,12 +630,141 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
     return SkFontHost::CreateTypeface(NULL, NULL, NULL, NULL, SkTypeface::kNormal);
 }
 
+// Construct Glyph to Unicode table.
+// Unicode code points that require conjugate pairs in utf16 are not
+// supported.
+static void populate_glyph_to_unicode(CTFontRef ctFont,
+        const unsigned glyphCount, SkTDArray<SkUnichar>* glyphToUnicode) {
+    CFCharacterSetRef charSet = CTFontCopyCharacterSet(ctFont);
+    CFDataRef bitmap = CFCharacterSetCreateBitmapRepresentation(
+        kCFAllocatorDefault, charSet);
+    if (!bitmap) {
+        return;
+    }
+    CFIndex length = CFDataGetLength(bitmap);
+    if (!length) {
+        CFSafeRelease(bitmap);
+        return;
+    }
+    if (length > 8192) {
+        // TODO: Add support for Unicode above 0xFFFF
+        // Consider only the BMP portion of the Unicode character points.
+        // The bitmap may contain other planes, up to plane 16.
+        // See http://developer.apple.com/library/ios/#documentation/CoreFoundation/Reference/CFCharacterSetRef/Reference/reference.html
+        length = 8192;
+    }
+    const UInt8* bits = CFDataGetBytePtr(bitmap);
+    glyphToUnicode->setCount(glyphCount);
+    SkUnichar* out = glyphToUnicode->begin();
+    sk_bzero(out, glyphCount * sizeof(SkUnichar));
+    for (int i = 0; i < length; i++) {
+        int mask = bits[i];
+        if (!mask) {
+            continue;
+        }
+        for (int j = 0; j < 8; j++) {
+            CGGlyph glyph;
+            UniChar unichar = static_cast<UniChar>((i << 3) + j);
+            if (mask & (1 << j) && CTFontGetGlyphsForCharacters(ctFont,
+                    &unichar, &glyph, 1)) {
+                out[glyph] = unichar;
+            }
+        }
+    }
+    CFSafeRelease(bitmap);
+}
+
+static bool getWidthAdvance(CTFontRef ctFont, int gId, int16_t* data) {
+    CGSize advance;
+    advance.width = 0;
+    CGGlyph glyph = gId;
+    CTFontGetAdvancesForGlyphs(ctFont, kCTFontHorizontalOrientation, &glyph,
+        &advance, 1);
+    *data = advance.width;
+    return true;
+}
+
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
-    SkASSERT(!"SkFontHost::GetAdvancedTypefaceMetrics unimplemented");
-    return NULL;
+    CTFontRef ctFont = GetFontRefFromFontID(fontID);
+    SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
+    CFStringRef fontName = CTFontCopyPostScriptName(ctFont);
+    int length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(fontName),
+        kCFStringEncodingUTF8);
+    info->fFontName.resize(length); 
+    CFStringGetCString(fontName, info->fFontName.writable_str(), length,
+        kCFStringEncodingUTF8);
+    info->fMultiMaster = false;
+    CFIndex glyphCount = CTFontGetGlyphCount(ctFont);
+    info->fLastGlyphID = SkToU16(glyphCount - 1);
+    info->fEmSize = CTFontGetUnitsPerEm(ctFont);
+
+    if (perGlyphInfo & SkAdvancedTypefaceMetrics::kToUnicode_PerGlyphInfo) {
+        populate_glyph_to_unicode(ctFont, glyphCount, &info->fGlyphToUnicode);
+    }
+
+    // TODO: get font type, ala:
+    //  CFTypeRef attr = CTFontCopyAttribute(ctFont, kCTFontFormatAttribute);
+    info->fType = SkAdvancedTypefaceMetrics::kTrueType_Font;
+    info->fStyle = 0;
+    CTFontSymbolicTraits symbolicTraits = CTFontGetSymbolicTraits(ctFont);
+    if (symbolicTraits & kCTFontMonoSpaceTrait) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+    }
+    if (symbolicTraits & kCTFontItalicTrait) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kItalic_Style;
+    }
+    CTFontStylisticClass stylisticClass = symbolicTraits &
+            kCTFontClassMaskTrait;
+    if (stylisticClass & kCTFontSymbolicClass) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kSymbolic_Style;
+    }
+    if (stylisticClass >= kCTFontOldStyleSerifsClass
+            && stylisticClass <= kCTFontSlabSerifsClass) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kSerif_Style;
+    } else if (stylisticClass & kCTFontScriptsClass) {
+        info->fStyle |= SkAdvancedTypefaceMetrics::kScript_Style;
+    }
+    info->fItalicAngle = CTFontGetSlantAngle(ctFont);
+    info->fAscent = CTFontGetAscent(ctFont);
+    info->fDescent = CTFontGetDescent(ctFont);
+    info->fCapHeight = CTFontGetCapHeight(ctFont);
+    CGRect bbox = CTFontGetBoundingBox(ctFont);
+    info->fBBox = SkIRect::MakeXYWH(bbox.origin.x, bbox.origin.y,
+        bbox.size.width, bbox.size.height);
+
+    // Figure out a good guess for StemV - Min width of i, I, !, 1.
+    // This probably isn't very good with an italic font.
+    int16_t min_width = SHRT_MAX;
+    info->fStemV = 0;
+    static const UniChar stem_chars[] = {'i', 'I', '!', '1'};
+    const size_t count = sizeof(stem_chars) / sizeof(stem_chars[0]);
+    CGGlyph glyphs[count];
+    CGRect boundingRects[count];
+    if (CTFontGetGlyphsForCharacters(ctFont, stem_chars, glyphs, count)) {
+        CTFontGetBoundingRectsForGlyphs(ctFont, kCTFontHorizontalOrientation, 
+            glyphs, boundingRects, count);
+        for (size_t i = 0; i < count; i++) {
+            int16_t width = boundingRects[i].size.width;
+            if (width > 0 && width < min_width) {
+                min_width = width;
+                info->fStemV = min_width;
+            }
+        }
+    }
+
+    if (false) { // TODO: haven't figured out how to know if font is embeddable
+        // (information is in the OS/2 table)
+        info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
+    } else if (perGlyphInfo &
+               SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
+        info->fGlyphWidths.reset(
+            getAdvanceData(ctFont, glyphCount, &getWidthAdvance));
+    }
+
+    return info;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -640,9 +773,88 @@ bool SkFontHost::ValidFontID(SkFontID fontID) {
     return SkTypefaceCache::FindByID(fontID) != NULL;
 }
 
+struct FontHeader {
+    SkFixed fVersion;
+    uint16_t fNumTables;
+    uint16_t fSearchRange;
+    uint16_t fEntrySelector;
+    uint16_t fRangeShift;
+};
+
+struct TableEntry {
+    uint32_t fTag;
+    uint32_t fCheckSum;
+    uint32_t fOffset;
+    uint32_t fLength;
+};
+
+static uint32 CalcTableCheckSum(uint32 *table, uint32 numberOfBytesInTable) {
+    uint32 sum = 0;
+    uint32 nLongs = (numberOfBytesInTable + 3) / 4;
+
+    while (nLongs-- > 0) {
+        sum += SkEndian_SwapBE32(*table++);
+    }
+    return sum;
+}
+
 SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
-    SkASSERT(!"SkFontHost::OpenStream unimplemented");
-    return(NULL);
+    // get table tags
+    int tableCount = CountTables(uniqueID);
+    SkTDArray<SkFontTableTag> tableTags;
+    tableTags.setCount(tableCount);
+    GetTableTags(uniqueID, tableTags.begin());
+
+    // calc total size for font, save sizes
+    SkTDArray<size_t> tableSizes;
+    size_t totalSize = sizeof(FontHeader) + sizeof(TableEntry) * tableCount;
+    for (int index = 0; index < tableCount; ++index) {
+        size_t tableSize = GetTableSize(uniqueID, tableTags[index]);
+        totalSize += (tableSize + 3) & ~3;
+        *tableSizes.append() = tableSize;
+    }
+
+    // reserve memory for stream, and zero it (tables must be zero padded)
+    SkMemoryStream* stream = new SkMemoryStream(totalSize);
+    char* dataStart = (char*)stream->getMemoryBase();
+    sk_bzero(dataStart, totalSize);
+    char* dataPtr = dataStart;
+
+    // compute font header entries
+    uint16_t entrySelector = 0;
+    uint16_t searchRange = 1;
+    while (searchRange < tableCount >> 1) {
+        entrySelector++;
+        searchRange <<= 1;
+    }
+    searchRange <<= 4;
+    uint16_t rangeShift = (tableCount << 4) - searchRange;
+
+    // write font header (also called sfnt header, offset subtable)
+    FontHeader* offsetTable = (FontHeader*)dataPtr;
+    offsetTable->fVersion = SkEndian_SwapBE32(SK_Fixed1);
+    offsetTable->fNumTables = SkEndian_SwapBE16(tableCount);
+    offsetTable->fSearchRange = SkEndian_SwapBE16(searchRange);
+    offsetTable->fEntrySelector = SkEndian_SwapBE16(entrySelector);
+    offsetTable->fRangeShift = SkEndian_SwapBE16(rangeShift);
+    dataPtr += sizeof(FontHeader);
+
+    // write tables
+    TableEntry* entry = (TableEntry*)dataPtr;
+    dataPtr += sizeof(TableEntry) * tableCount;
+    for (int index = 0; index < tableCount; ++index) {
+        size_t tableSize = tableSizes[index];
+        GetTableData(uniqueID, tableTags[index], 0, tableSize, dataPtr);
+        entry->fTag = SkEndian_SwapBE32(tableTags[index]);
+        entry->fCheckSum = SkEndian_SwapBE32(CalcTableCheckSum(
+            (uint32*)dataPtr, tableSize));
+        entry->fOffset = SkEndian_SwapBE32(dataPtr - dataStart);
+        entry->fLength = SkEndian_SwapBE32(tableSize);
+        dataPtr += (tableSize + 3) & ~3;
+        ++entry;
+    }
+
+    return stream;
 }
 
 size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,

@@ -22,6 +22,10 @@
 #include FT_FREETYPE_H
 #endif
 
+#ifdef SK_BUILD_FOR_MAC
+#include <Carbon/Carbon.h>
+#endif
+
 namespace skia_advanced_typeface_metrics_utils {
 
 template <typename Data>
@@ -142,6 +146,11 @@ template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         FT_Face face,
         int num_glyphs,
         bool (*getAdvance)(FT_Face face, int gId, int16_t* data));
+#elif defined(SK_BUILD_FOR_MAC)
+template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
+        CTFontRef ctFont,
+        int num_glyphs,
+        bool (*getAdvance)(CTFontRef ctFont, int gId, int16_t* data));
 #endif
 template void resetRange(
         SkAdvancedTypefaceMetrics::WidthRange* range,
