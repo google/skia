@@ -18,10 +18,8 @@
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 
+#include "SkTypes.h"
 #include "GrConfig.h"
-
-#include <memory.h>
-#include <string.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +51,7 @@
  *  Macro to round n up to the next multiple of 4, or return it unchanged if
  *  n is already a multiple of 4
  */
-#define GrALIGN4(n)     (((n) + 3) >> 2 << 2)
+#define GrALIGN4(n)     SkAlign4(n)
 #define GrIsALIGN4(n)   (((n) & 3) == 0)
 
 template <typename T> const T& GrMin(const T& a, const T& b) {
@@ -111,7 +109,7 @@ static inline uint32_t GrSizeAlignDown(size_t x, uint32_t alignment) {
 /**
  *  Count elements in an array
  */
-#define GR_ARRAY_COUNT(array)  (sizeof(array) / sizeof(array[0]))
+#define GR_ARRAY_COUNT(array)  SK_ARRAY_COUNT(array)
 
 //!< allocate a block of memory, will never return NULL
 extern void* GrMalloc(size_t bytes);
