@@ -10,6 +10,7 @@
         '../include/config',
         '../include/core',
         '../include/utils',
+        '../include/utils/unix',
         '../include/views',
         '../include/effects',
         '../include/xml',
@@ -93,6 +94,9 @@
             '../src/utils/unix/keysym2ucs.c',
             '../src/utils/unix/SkEGLContext_Unix.cpp',
             '../src/utils/unix/SkOSWindow_Unix.cpp',
+          ],
+          'include_dirs!': [
+            '../include/utils/unix',
           ],
         }],
         [ 'OS != "win"', {

@@ -96,12 +96,7 @@
           },
         }],
         [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
-          'include_dirs' : [
-            '../include/utils/unix',
-          ],
           'sources': [
-            '../src/utils/unix/keysym2ucs.c',
-            '../src/utils/unix/SkOSWindow_Unix.cpp',
             '../unix_test_app/main.cpp',
           ],
         }],
