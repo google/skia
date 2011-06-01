@@ -6,6 +6,11 @@
           'SK_DEBUG',
           'GR_DEBUG=1',
         ],
+        'msvs_settings': {
+           'VCLinkerTool': {
+             'GenerateDebugInformation': 'true',
+            },
+         },
       },
       'Release': {
         'defines': [
