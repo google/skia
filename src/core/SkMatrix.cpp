@@ -119,6 +119,21 @@ uint8_t SkMatrix::computeTypeMask() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_SCALAR_IS_FLOAT
+
+bool operator==(const SkMatrix& a, const SkMatrix& b) {
+    const SkScalar* SK_RESTRICT ma = a.fMat;
+    const SkScalar* SK_RESTRICT mb = b.fMat;
+
+    return  ma[0] == mb[0] && ma[1] == mb[1] && ma[2] == mb[2] &&
+            ma[3] == mb[3] && ma[4] == mb[4] && ma[5] == mb[5] &&
+            ma[6] == mb[6] && ma[7] == mb[7] && ma[8] == mb[8];
+}
+
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
 void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
     if (SkScalarToCompareType(dx) || SkScalarToCompareType(dy)) {
         fMat[kMTransX] = dx;
@@ -202,9 +217,27 @@ bool SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
 }
 
 bool SkMatrix::preScale(SkScalar sx, SkScalar sy) {
+#ifdef SK_SCALAR_IS_FIXED
     SkMatrix    m;
     m.setScale(sx, sy);
     return this->preConcat(m);
+#else
+    // the assumption is that these multiplies are very cheap, and that
+    // a full concat and/or just computing the matrix type is more expensive.
+    // Also, the fixed-point case checks for overflow, but the float doesn't,
+    // so we can get away with these blind multiplies.
+
+    fMat[kMScaleX] = SkScalarMul(fMat[kMScaleX], sx);
+    fMat[kMSkewY] = SkScalarMul(fMat[kMSkewY],   sx);
+    fMat[kMPersp0] = SkScalarMul(fMat[kMPersp0], sx);
+
+    fMat[kMSkewX] = SkScalarMul(fMat[kMSkewX],   sy);
+    fMat[kMScaleY] = SkScalarMul(fMat[kMScaleY], sy);
+    fMat[kMPersp1] = SkScalarMul(fMat[kMPersp1], sy);
+
+    this->orTypeMask(kScale_Mask);
+    return true;
+#endif
 }
 
 bool SkMatrix::postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
