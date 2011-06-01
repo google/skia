@@ -69,7 +69,8 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     fSuperLeft = left << SHIFT;
     fWidth = right - left;
     fCurrIY = -1;
-    SkDEBUGCODE(fCurrX = -1; fCurrY = -1;)
+    fCurrY = -1;
+    SkDEBUGCODE(fCurrX = -1;)
 }
 
 class SuperBlitter : public BaseSuperBlitter {
