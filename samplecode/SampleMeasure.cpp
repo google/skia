@@ -34,8 +34,7 @@ static const Setting gSettings[] = {
     { ONE,   true,   true    }
 };
 
-static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
-{
+static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[]) {
     SkScalar    dy = paint.getFontMetrics(NULL);
 
     size_t      len = strlen(text);
@@ -80,55 +79,33 @@ static void doMeasure(SkCanvas* canvas, const SkPaint& paint, const char text[])
     }
 }
 
-class MeasureView : public SkView {
+class MeasureView : public SampleView {
 public:
     SkPaint fPaint;
 
-	MeasureView()
-    {
+	MeasureView() {
         fPaint.setAntiAlias(true);
         fPaint.setTextSize(SkIntToScalar(64));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
     // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)
-    {
-        if (SampleCode::TitleQ(*evt))
-        {
+    virtual bool onQuery(SkEvent* evt) {
+        if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Measure");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas)
-    {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas)
-    {
-        this->drawBG(canvas);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(fPaint.getTextSize(), fPaint.getTextSize());
         doMeasure(canvas, fPaint, "Hamburgefons");
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) 
-    {
-     //   fSweep += SK_Scalar1;
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
-    
-    virtual bool onClick(Click* click) 
-    {
-        return this->INHERITED::onClick(click);
-    }
-    
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

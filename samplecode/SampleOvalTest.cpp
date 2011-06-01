@@ -5,7 +5,7 @@
 static const int kILimit = 101;
 static const SkScalar kLimit = SK_Scalar1 * kILimit;
 
-class OvalTestView : public SkView {
+class OvalTestView : public SampleView {
 public:
     SkSize      fSize;
     SkPMColor   fInsideColor;   // signals an interior pixel that was not set
@@ -20,6 +20,8 @@ public:
 
         fInsideColor = SkPreMultiplyColor(SK_ColorRED);
         fOutsideColor = SkPreMultiplyColor(SK_ColorGREEN);
+
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -30,10 +32,6 @@ protected:
             return true;
         }
         return this->INHERITED::onQuery(evt);
-    }
-
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
     }
 
     void drawOval() {
@@ -72,9 +70,7 @@ protected:
         return flatc + buldgec;
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         this->drawOval();
         int flatCount, buldgeCount;
         this->checkOval(&flatCount, &buldgeCount);
@@ -104,7 +100,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

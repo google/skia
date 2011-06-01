@@ -749,7 +749,7 @@ static const SlideProc gProc[] = {
     texteffect_slide
 };
 
-class SlideView : public SkView {
+class SlideView : public SampleView {
     int fIndex;
 public:
     SlideView() {
@@ -770,6 +770,7 @@ public:
             str.printf("/skimages/slide_%d.png", i);
             SkImageEncoder::EncodeFile(str.c_str(), bm, SkImageEncoder::kPNG_Type, 100);
         }
+        this->setBGColor(BG_COLOR);
     }
     
 protected:
@@ -782,8 +783,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(BG_COLOR);
+    virtual void onDrawContent(SkCanvas* canvas) {
         gProc[fIndex](canvas);
     }
 
@@ -794,7 +794,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
