@@ -80,10 +80,10 @@ class BogusEntry {};
 
 static void test_binHashKey()
 {
-    const char* testStringA = "abcdA";
-    const char* testStringB = "abcdB";
+    const char* testStringA = "abcdABCD";
+    const char* testStringB = "abcdBBCD";
     enum {
-        kDataLenUsedForKey = 5
+        kDataLenUsedForKey = 8
     };
 
     typedef GrBinHashKey<BogusEntry, kDataLenUsedForKey> KeyType;
@@ -92,7 +92,7 @@ static void test_binHashKey()
     int passCnt = 0;
     while (keyA.doPass()) {
         ++passCnt;
-        keyA.keyData(reinterpret_cast<const uint8_t*>(testStringA), kDataLenUsedForKey);
+        keyA.keyData(reinterpret_cast<const uint32_t*>(testStringA), kDataLenUsedForKey);
     }
     GrAssert(passCnt == 1); //We expect the static allocation to suffice
     GrBinHashKey<BogusEntry, kDataLenUsedForKey-1> keyBust;
@@ -100,7 +100,7 @@ static void test_binHashKey()
     while (keyBust.doPass()) {
         ++passCnt;
         // Exceed static storage by 1
-        keyBust.keyData(reinterpret_cast<const uint8_t*>(testStringA), kDataLenUsedForKey);
+        keyBust.keyData(reinterpret_cast<const uint32_t*>(testStringA), kDataLenUsedForKey);
     }
     GrAssert(passCnt == 2); //We expect dynamic allocation to be necessary
     GrAssert(keyA.getHash() == keyBust.getHash());
@@ -109,14 +109,14 @@ static void test_binHashKey()
     // the same hash as with one chunk
     KeyType keyA2;
     while (keyA2.doPass()) {
-        keyA2.keyData(reinterpret_cast<const uint8_t*>(testStringA), 2);
-        keyA2.keyData(&reinterpret_cast<const uint8_t*>(testStringA)[2], kDataLenUsedForKey-2);
+        keyA2.keyData(reinterpret_cast<const uint32_t*>(testStringA), 4);
+        keyA2.keyData(&reinterpret_cast<const uint32_t*>(testStringA)[4], kDataLenUsedForKey-4);
     }
     GrAssert(keyA.getHash() == keyA2.getHash());
 
     KeyType keyB;
     while (keyB.doPass()){
-        keyB.keyData(reinterpret_cast<const uint8_t*>(testStringB), kDataLenUsedForKey);
+        keyB.keyData(reinterpret_cast<const uint32_t*>(testStringB), kDataLenUsedForKey);
     }
     GrAssert(keyA.compare(keyB) < 0);
     GrAssert(keyA.compare(keyA2) == 0);
@@ -275,5 +275,3 @@ void gr_run_unittests() {
     GrRedBlackTree<int>::UnitTest();
     GrDrawTarget::VertexLayoutUnitTest();
 }
-
-
