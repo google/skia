@@ -6,7 +6,7 @@
 #include "SkPaint.h"
 #include "SkUnPreMultiply.h"
 
-class NinePatchView : public SkView {
+class NinePatchView : public SampleView {
 public:
     SkBitmap fBM;
 
@@ -34,7 +34,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
+    virtual void onDrawBackground(SkCanvas* canvas) {
         SkPaint p;
         p.setDither(true);
         p.setColor(0xFF909090);
@@ -69,11 +69,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
-      //  canvas->scale(1.5f, 1.5f);
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         canvas->drawBitmap(fBM, 0, 0);
         
         SkIRect margins;
@@ -108,7 +104,7 @@ protected:
     }
 private:
     SkScalar fX, fY;
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

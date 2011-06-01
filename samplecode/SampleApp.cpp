@@ -1477,8 +1477,6 @@ void SimplePC::notifyWritten(size_t bytes) {
 
 
 void SampleView::onDraw(SkCanvas* canvas) {
-    this->onDrawBackground(canvas);
-
 #ifdef TEST_GPIPE
     SimplePC controller(canvas);
     SkGPipeWriter writer;
@@ -1488,6 +1486,8 @@ void SampleView::onDraw(SkCanvas* canvas) {
         canvas = writer.startRecording(&controller, flags);
     }
 #endif
+
+    this->onDrawBackground(canvas);
 
     for (int i = 0; i < fRepeatCount; i++) {
         SkAutoCanvasRestore acr(canvas, true);

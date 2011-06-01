@@ -88,7 +88,7 @@ static const struct {
     { SkPaint::kStrokeAndFill_Style,    SkPaint::kMiter_Join,   10 },
 };
 
-class StrokePathView : public SkView {
+class StrokePathView : public SampleView {
     SkScalar    fWidth;
     SkPath      fPath;
 public:
@@ -111,6 +111,8 @@ public:
         scale_to_width(&fPath, fWidth);
         const SkRect& bounds = fPath.getBounds();
         fPath.offset(-bounds.fLeft, -bounds.fTop);
+
+        this->setBGColor(0xFFDDDDDD);
     }
     
 protected:
@@ -121,10 +123,6 @@ protected:
             return true;
         }
         return this->INHERITED::onQuery(evt);
-    }
-    
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
     }
     
     SkRandom rand;
@@ -141,9 +139,7 @@ protected:
         }
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
-        drawBG(canvas);
-        //return;
+    virtual void onDrawContent(SkCanvas* canvas) {
         test_huge_stroke(canvas); return;
         canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
 
@@ -211,7 +207,7 @@ protected:
         return this->INHERITED::onFindClickHandler(x, y);
     }
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
