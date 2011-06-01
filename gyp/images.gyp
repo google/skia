@@ -34,7 +34,8 @@
         '../src/images/SkImageDecoder_libico.cpp',
         '../src/images/SkImageDecoder_libjpeg.cpp',
         '../src/images/SkImageDecoder_libpng.cpp',
-        '../src/images/SkImageDecoder_libpvjpeg.c',
+        # This file wasn't being compiled, and seems to have bitrotted.
+        #'../src/images/SkImageDecoder_libpvjpeg.cpp',
         '../src/images/SkImageDecoder_wbmp.cpp',
         '../src/images/SkImageEncoder.cpp',
         '../src/images/SkImageEncoder_Factory.cpp',

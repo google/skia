@@ -92,7 +92,6 @@
         '../samplecode/SampleSlides.cpp',
         '../samplecode/SampleStrokePath.cpp',
         '../samplecode/SampleStrokeText.cpp',
-        '../samplecode/SampleSVG.cpp',
         '../samplecode/SampleTests.cpp',
         '../samplecode/SampleText.cpp',
         '../samplecode/SampleTextAlpha.cpp',
