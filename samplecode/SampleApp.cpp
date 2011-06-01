@@ -14,6 +14,13 @@
 #include "SkTouchGesture.h"
 #include "SkTypeface.h"
 
+#define TEST_GPIPEx
+
+#ifdef  TEST_GPIPE
+#define PIPE_FILE
+#define FILE_PATH "/path/to/drawing.data"
+#endif
+
 #define USE_ARROWS_FOR_ZOOM true
 //#define DEFAULT_TO_GPU
 
@@ -423,6 +430,12 @@ SampleWindow::CanvasType SampleWindow::cycle_canvastype(CanvasType ct) {
 }
 
 SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
+#ifdef  PIPE_FILE
+    //Clear existing file or create file if it doesn't exist
+    FILE* f = fopen(FILE_PATH, "wb");
+    fclose(f);
+#endif
+     
     fPicture = NULL;
     fGpuCanvas = NULL;
 
@@ -1410,8 +1423,6 @@ bool SampleView::onQuery(SkEvent* evt) {
     return this->INHERITED::onQuery(evt);
 }
 
-#define TEST_GPIPEx
-
 #ifdef TEST_GPIPE
     #include "SkGPipe.h"
 
@@ -1464,7 +1475,15 @@ void* SimplePC::requestBlock(size_t minRequest, size_t* actual) {
 
 void SimplePC::notifyWritten(size_t bytes) {
     SkASSERT(fBytesWritten + bytes <= fBlockSize);
-
+    
+#ifdef  PIPE_FILE
+    //File is open in append mode
+    FILE* f = fopen(FILE_PATH, "ab");
+    SkASSERT(f != NULL);
+    fwrite((const char*)fBlock + fBytesWritten, 1, bytes, f);
+    fclose(f);
+#endif
+    
     fStatus = fReader.playback((const char*)fBlock + fBytesWritten, bytes);
     SkASSERT(SkGPipeReader::kError_Status != fStatus);
     fBytesWritten += bytes;
