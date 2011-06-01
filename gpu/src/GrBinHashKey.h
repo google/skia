@@ -28,19 +28,20 @@ class GrBinHashKeyBuilder {
 public:
     GrBinHashKeyBuilder() {}
     virtual ~GrBinHashKeyBuilder() {}
-    virtual void keyData(const uint8_t *dataToAdd, size_t len) = 0;
+    virtual void keyData(const uint32_t *dataToAdd, size_t len) = 0;
 };
 
 /**
  *  Hash function class than can take a data stream of indeterminate length.
- *  It also has the ability to recieve data in several chunks (steamed). The 
- *  hash function used is Adler-32.
+ *  It also has the ability to recieve data in several chunks (steamed). The
+ *  hash function used is the One-at-a-Time Hash
+ *  (http://burtleburtle.net/bob/hash/doobs.html).
  *
- *  Keys are built in two passes the first pass builds the key until the 
+ *  Keys are built in two passes the first pass builds the key until the
  *  allocated storage for the key runs out, raw data accumulation stops, but
  *  the calculation of the 32-bit hash value and total key length continue.
  *  The second pass is only necessary if storage ran-out during the first pass.
- *  If that is the case, the heap storage portion of the key will be 
+ *  If that is the case, the heap storage portion of the key will be
  *  re-allocated so that the entire key can be stored in the second pass.
  *
  *  Code for building a key:
@@ -57,9 +58,8 @@ public:
 template<typename Entry, size_t StackSize>
 class GrBinHashKey : public GrBinHashKeyBuilder {
 public:
-    GrBinHashKey() 
-        : fA(1)
-        , fB(0)
+    GrBinHashKey()
+        : fA(0)
         , fLength(0)
         , fHeapData(NULL)
         , fPhysicalSize(StackSize)
@@ -77,12 +77,12 @@ private:
     // errors with template classes, which are hard to trace back to the use
     // of assignment.
     GrBinHashKey(const GrBinHashKey<Entry, StackSize>&) {}
-    GrBinHashKey<Entry, StackSize>& operator=(const GrBinHashKey<Entry, 
+    GrBinHashKey<Entry, StackSize>& operator=(const GrBinHashKey<Entry,
         StackSize>&) {
         return this;
     }
 
-public:    
+public:
     void copyAndTakeOwnership(GrBinHashKey<Entry, StackSize>& key) {
         GrAssert(key.fIsValid);
         copyFields(key);
@@ -121,7 +121,7 @@ public:
         if (1 == fPass) {
             bool passNeeded = false;
             if (fLength > fPhysicalSize) {
-                // If the first pass ran out of space the we need to 
+                // If the first pass ran out of space the we need to
                 // re-allocate and perform a second pass
                 GrFree(fHeapData);
                 fHeapData = reinterpret_cast<uint8_t*>(
@@ -132,14 +132,15 @@ public:
                 fLength = 0;
             }
             fPass++;
-            return passNeeded;       
+            return passNeeded;
         }
         return false;
     }
 
-    void keyData(const uint8_t *dataToAdd, size_t len) {
+    void keyData(const uint32_t *dataToAdd, size_t len) {
         GrAssert(fIsValid);
         GrAssert(fPass);
+        GrAssert(SkAlign4(len) == len);
         if (fUseHeap) {
             GrAssert(fHeapData);
             GrAssert(fLength + len <= fPhysicalSize);
@@ -155,13 +156,18 @@ public:
         fLength += len;
 
         if (1 == fPass) {
-            // update the 32-bit hash
-            while (len) {
-                fA = (fA + *dataToAdd) % kBigPrime;
-                fB = (fB + fA) % kBigPrime;
-                dataToAdd++;
-                len--;
+            uint32_t a = fA;
+            while (len >= 4) {
+                a += *dataToAdd++;
+                a += (a << 10);
+                a ^= (a >> 6);
+                len -= 4;
             }
+            a += (a << 3);
+            a ^= (a >> 11);
+            a += (a << 15);
+
+            fA = a;
         }
     }
 
@@ -175,25 +181,25 @@ public:
                 return memcmp(fStackData, key.fStackData, fLength);
             }
         }
-        
+
         return (fLength - key.fLength);
     }
 
-    static bool 
+    static bool
     EQ(const Entry& entry, const GrBinHashKey<Entry, StackSize>& key) {
         GrAssert(key.fIsValid);
         return 0 == entry.compare(key);
     }
-    
-    static bool 
+
+    static bool
     LT(const Entry& entry, const GrBinHashKey<Entry, StackSize>& key) {
         GrAssert(key.fIsValid);
-        return entry.compare(key) < 0;    
+        return entry.compare(key) < 0;
     }
 
     uint32_t getHash() const {
         GrAssert(fIsValid);
-        return (fB << 16) | fA;
+        return fA;
     }
 
 private:
@@ -202,9 +208,8 @@ private:
             GrFree(fHeapData);
         }
         // We do a field-by-field copy because this is a non-POD
-        // class, and therefore memcpy would be bad 
+        // class, and therefore memcpy would be bad
         fA = src.fA;
-        fB = src.fB;
         fLength = src.fLength;
         memcpy(fStackData, src.fStackData, StackSize);
         fHeapData = src.fHeapData;
@@ -213,12 +218,7 @@ private:
         fPass = src.fPass;
     }
 
-    // For computing the Adler-32 hash
-    enum Constants {
-        kBigPrime = 65521 // largest prime smaller than 2^16
-    };
     uint32_t                fA;
-    uint32_t                fB;
 
     // For accumulating the variable length binary key
     size_t              fLength;                // length of data accumulated so far
