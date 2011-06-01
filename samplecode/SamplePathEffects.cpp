@@ -90,7 +90,7 @@ public:
     }
 };
 
-class PathEffectView : public SkView {
+class PathEffectView : public SampleView {
     SkPath  fPath;
     SkPoint fClickPt;
 public:
@@ -121,6 +121,8 @@ public:
         }
         
         fClickPt.set(SkIntToScalar(200), SkIntToScalar(200));
+        
+        this->setBGColor(0xFFDDDDDD);
     }
 	
 protected:
@@ -133,30 +135,7 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
-        if (false) {
-            canvas->drawColor(SK_ColorWHITE);
-            
-            SkPixelXorXfermode  mode(SK_ColorWHITE);
-            SkPaint             paint;
-            
-            paint.setColor(SK_ColorRED);
-            paint.setXfermode(&mode);
-            paint.setStrokeWidth(SkIntToScalar(8));
-            
-            canvas->drawLine(SkIntToScalar(100), SkIntToScalar(100),
-                             SkIntToScalar(200), SkIntToScalar(200), paint);
-            canvas->drawLine(SkIntToScalar(100), SkIntToScalar(200),
-                             SkIntToScalar(200), SkIntToScalar(100), paint);
-         //   return;
-        }
-        
+    virtual void onDrawContent(SkCanvas* canvas) {
         gPhase -= SampleCode::GetAnimSecondsDelta() * 40;
         this->inval(NULL);
         
@@ -195,7 +174,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
