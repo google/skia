@@ -55,22 +55,50 @@
         '../src/utils/SkSfntUtils.cpp',
         '../src/utils/SkUnitMappers.cpp',
 
-        '../src/utils/mac/SkEGLContext_Mesa.cpp',
+        '../include/utils/mac/SkCGUtils.h',
+        '../src/utils/mac/SkBitmap_Mac.cpp',
+        '../src/utils/mac/SkCreateCGImageRef.cpp',
+        '../src/utils/mac/SkEGLContext_mac.cpp',
+        '../src/utils/mac/skia_mac.cpp',
+        '../src/utils/mac/SkOSWindow_Mac.cpp',
+
+        '../src/utils/mesa/SkEGLContext_Mesa.cpp',
+
+        '../src/utils/SDL/SkOSWindow_SDL.cpp',
+
+        '../src/utils/unix/keysym2ucs.c',
+        '../src/utils/unix/SkEGLContext_Unix.cpp',
+        '../src/utils/unix/SkOSWindow_Unix.cpp',
+        
+        '../src/utils/win/skia_win.cpp',
+        '../src/utils/win/SkOSWindow_Win.cpp',
       ],
       'sources!': [
-          '../src/utils/mac/SkEGLContext_Mesa.cpp',
+          '../src/utils/mesa/SkEGLContext_Mesa.cpp',
+          '../src/utils/SDL/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
-        [ 'OS == "mac"', {
-          'sources': [
-            '../include/utils/SkCGUtils.h',
+        [ 'OS != "mac"', {
+          'sources!': [
+            '../include/utils/mac/SkCGUtils.h',
+            '../src/utils/mac/SkBitmap_Mac.cpp',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../src/utils/mac/SkEGLContext_mac.cpp',
+            '../src/utils/mac/skia_mac.cpp',
+            '../src/utils/mac/SkOSWindow_Mac.cpp',
           ],
         }],
-        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
-          'sources': [
+        [ 'OS != "linux" and OS != "freebsd" and OS != "openbsd" and OS != "solaris"', {
+          'sources!': [
+            '../src/utils/unix/keysym2ucs.c',
             '../src/utils/unix/SkEGLContext_Unix.cpp',
+            '../src/utils/unix/SkOSWindow_Unix.cpp',
+          ],
+        }],
+        [ 'OS != "win"', {
+          'sources!': [
+            '../src/utils/win/skia_win.cpp',
+            '../src/utils/win/SkOSWindow_Win.cpp',
           ],
         }],
       ],
