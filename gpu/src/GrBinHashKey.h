@@ -140,7 +140,7 @@ public:
     void keyData(const uint32_t *dataToAdd, size_t len) {
         GrAssert(fIsValid);
         GrAssert(fPass);
-        GrAssert(SkAlign4(len) == len);
+        GrAssert(GrIsALIGN4(len));
         if (fUseHeap) {
             GrAssert(fHeapData);
             GrAssert(fLength + len <= fPhysicalSize);
