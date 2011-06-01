@@ -6,12 +6,6 @@
     {
       'target_name': 'bench',
       'type': 'executable',
-      'mac_bundle' : 1,
-      'include_dirs': [
-        '../include/effects',
-        '../include/utils',
-        '../include/images',
-      ],
       'sources': [
         '../bench/benchmain.cpp',
         
@@ -30,15 +24,20 @@
       'dependencies': [
         'core.gyp:core',
         'effects.gyp:effects',
-        'images.gyp:images',
-        'utils.gyp:utils',
         'gpu.gyp:gr',
         'gpu.gyp:skgr',
+        'images.gyp:images',
+        'utils.gyp:utils',
       ],
       'msvs_settings': {
         'VCLinkerTool': {
+          #Allows for creation / output to console.
+          #Console (/SUBSYSTEM:CONSOLE)
           'SubSystem': '1',
+          
+          #Console app, use main/wmain
           'EntryPointSymbol': 'mainCRTStartup',
+          
           'AdditionalDependencies': [
               'OpenGL32.lib',
               'usp10.lib',
