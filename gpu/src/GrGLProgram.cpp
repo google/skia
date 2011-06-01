@@ -147,7 +147,7 @@ GrGLProgram::GrGLProgram() {
 GrGLProgram::~GrGLProgram() {
 }
 
-void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff, 
+void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
                                 GrBlendCoeff* dstCoeff) const {
     switch (fProgramDesc.fDualSrcOutput) {
         case ProgramDesc::kNone_DualSrcOutput:
@@ -167,7 +167,7 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
 
 void GrGLProgram::buildKey(GrBinHashKeyBuilder& key) const {
     // Add stage configuration to the key
-    key.keyData(reinterpret_cast<const uint8_t*>(&fProgramDesc), sizeof(ProgramDesc));
+    key.keyData(reinterpret_cast<const uint32_t*>(&fProgramDesc), sizeof(ProgramDesc));
 }
 
 // assigns modulation of two vars to an output var
@@ -273,7 +273,6 @@ static inline void needBlendInputs(SkXfermode::Coeff srcCoeff,
 static void blendTermString(GrStringBuilder* str, SkXfermode::Coeff coeff,
                              const char* src, const char* dst,
                              const char* value) {
-                       
     switch (coeff) {
     case SkXfermode::kZero_Coeff:    /** 0 */
         *str = "";
@@ -315,7 +314,7 @@ static void blendTermString(GrStringBuilder* str, SkXfermode::Coeff coeff,
  * the specified color filter.
  */
 static void addColorFilter(GrStringBuilder* fsCode, const char * outputVar,
-                           SkXfermode::Coeff uniformCoeff, 
+                           SkXfermode::Coeff uniformCoeff,
                            SkXfermode::Coeff colorCoeff,
                            const char* inColor) {
     GrStringBuilder colorStr, constStr;
@@ -354,7 +353,7 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
     const char* fsColorOutput;
     bool dualSourceOutputWritten = false;
-    bool usingDeclaredOutputs = ProgramDesc::kNone_DualSrcOutput != 
+    bool usingDeclaredOutputs = ProgramDesc::kNone_DualSrcOutput !=
                                 fProgramDesc.fDualSrcOutput;
     if (usingDeclaredOutputs) {
         GrAssert(0 == segments.fHeader.size());
@@ -1174,4 +1173,3 @@ void GrGLProgram::genStageCode(int stageNum,
         segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n", fsOutColor, texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), smear, modulate.c_str());
     }
 }
-
