@@ -1,11 +1,20 @@
 # Creates a Makefile that is capable of building all executable targets.
+#
+# To build on Linux:
+#  ./gyp_skia && make all
+#
+# Building on other platforms not tested yet.
+#
 {
   'targets': [
     {
       'target_name': 'all',
       'type': 'none',
       'dependencies': [
-        'SampleApp.gyp:SampleApp'
+        'gm.gyp:gm',
+        'SampleApp.gyp:SampleApp',
+        'tests.gyp:tests',
+        'tools.gyp:tools',
       ],
     },
   ],

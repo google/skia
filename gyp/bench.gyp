@@ -1,5 +1,14 @@
+# GYP file to build performance testbench.
+#
+# To build and run on Linux:
+#  ./gyp_skia bench.gyp && make
+#  out/Debug/bench -repeat 2
+#
+# Building on other platforms not tested yet.
+#
 {
   'includes': [
+    'apptype_console.gypi',
     'target_defaults.gypi',
   ],
   'targets': [
@@ -29,21 +38,6 @@
         'images.gyp:images',
         'utils.gyp:utils',
       ],
-      'msvs_settings': {
-        'VCLinkerTool': {
-          #Allows for creation / output to console.
-          #Console (/SUBSYSTEM:CONSOLE)
-          'SubSystem': '1',
-          
-          #Console app, use main/wmain
-          'EntryPointSymbol': 'mainCRTStartup',
-          
-          'AdditionalDependencies': [
-              'OpenGL32.lib',
-              'usp10.lib',
-          ],
-        },
-      },
     },
   ],
 }
