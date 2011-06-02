@@ -80,13 +80,17 @@
           ],
         }],
         [ 'OS == "mac"', {
+          # TODO(epoger): why are we building these here instead of inheriting
+          # them from utils.gyp?
           'sources': [
             '../include/utils/SkCGUtils.h',
-            #'../src/utils/mac/SkBitmap_Mac.cpp',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../src/utils/mac/SkEGLContext_mac.cpp',
             '../src/utils/mac/skia_mac.cpp',
             '../src/utils/mac/SkOSWindow_Mac.cpp',
+          ],
+          'include_dirs': [
+            '../include/utils/mac',
           ],
           'link_settings': {
             'libraries': [
