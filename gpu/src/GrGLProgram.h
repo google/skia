@@ -78,16 +78,18 @@ public:
     static int PositionAttributeIdx() { return 0; }
     static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
     static int ColorAttributeIdx() { return 1 + GrDrawTarget::kMaxTexCoords; }
-    static int ViewMatrixAttributeIdx() { 
-        return 2 + GrDrawTarget::kMaxTexCoords; 
+    static int ViewMatrixAttributeIdx() {
+        return 2 + GrDrawTarget::kMaxTexCoords;
     }
-    static int TextureMatrixAttributeIdx(int stage) { 
-        return 5 + GrDrawTarget::kMaxTexCoords + 3 * stage; 
+    static int TextureMatrixAttributeIdx(int stage) {
+        return 5 + GrDrawTarget::kMaxTexCoords + 3 * stage;
     }
 
 private:
 
-    //Parameters that affect code generation
+    // Parameters that affect code generation
+    // These structs should be kept compact; they are the input to an
+    // expensive hash key generator.
     struct ProgramDesc {
         ProgramDesc() {
             // since we use this as part of a key we can't have any unitialized
@@ -95,16 +97,51 @@ private:
             memset(this, 0, sizeof(ProgramDesc));
         }
 
-        // stripped of bits that don't affect prog generation
-        GrVertexLayout fVertexLayout;
+        struct StageDesc {
+            enum OptFlagBits {
+                kNoPerspective_OptFlagBit       = 1 << 0,
+                kIdentityMatrix_OptFlagBit      = 1 << 1,
+                kCustomTextureDomain_OptFlagBit = 1 << 2,
+                kIsEnabled_OptFlagBit           = 1 << 7
+            };
+            enum Modulation {
+                kColor_Modulation,
+                kAlpha_Modulation
+            };
+            enum FetchMode {
+                kSingle_FetchMode,
+                k2x2_FetchMode
+            };
+            enum CoordMapping {
+                kIdentity_CoordMapping,
+                kRadialGradient_CoordMapping,
+                kSweepGradient_CoordMapping,
+                kRadial2Gradient_CoordMapping
+            };
 
-        enum {
+            uint8_t fOptFlags;
+            uint8_t fModulation;  // casts to enum Modulation
+            uint8_t fFetchMode;  // casts to enum FetchMode
+            uint8_t fCoordMapping;  // casts to enum CoordMapping
+
+            inline bool isEnabled() const {
+                return fOptFlags & kIsEnabled_OptFlagBit;
+            }
+            inline void setEnabled(bool newValue) {
+                if (newValue) {
+                    fOptFlags |= kIsEnabled_OptFlagBit;
+                } else {
+                    fOptFlags &= ~kIsEnabled_OptFlagBit;
+                }
+            }
+        };
+
+        enum ColorType {
             kNone_ColorType         = 0,
             kAttribute_ColorType    = 1,
             kUniform_ColorType      = 2,
-        } fColorType;
-
-        // Dual-src blending makes use of a secondary output color that can be 
+        };
+        // Dual-src blending makes use of a secondary output color that can be
         // used as a per-pixel blend coeffecient. This controls whether a
         // secondary source is output and what value it holds.
         enum DualSrcOutput {
@@ -113,41 +150,23 @@ private:
             kCoverageISA_DualSrcOutput,
             kCoverageISC_DualSrcOutput,
             kDualSrcOutputCnt
-        } fDualSrcOutput;
+        };
 
-        int  fFirstCoverageStage;
-        bool fEmitsPointSize;
-        int fEdgeAANumEdges;
+        // stripped of bits that don't affect prog generation
+        GrVertexLayout fVertexLayout;
 
-        SkXfermode::Mode fColorFilterXfermode;
+        StageDesc fStages[GrDrawTarget::kNumStages];
 
-        struct StageDesc {
-            enum OptFlagBits {
-                kNoPerspective_OptFlagBit       = 1 << 0,
-                kIdentityMatrix_OptFlagBit      = 1 << 1,
-                kCustomTextureDomain_OptFlagBit = 1 << 2
-            };
+        uint8_t fColorType;  // casts to enum ColorType
+        uint8_t fDualSrcOutput;  // casts to enum DualSrcOutput
+        int8_t fFirstCoverageStage;
+        SkBool8 fEmitsPointSize;
 
-            unsigned fOptFlags;
-            bool fEnabled;
+        int8_t fEdgeAANumEdges;
+        uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
 
-            enum Modulation {
-                kColor_Modulation,
-                kAlpha_Modulation
-            } fModulation;
+        uint8_t fPadTo32bLengthMultiple [2];
 
-            enum FetchMode {
-                kSingle_FetchMode,
-                k2x2_FetchMode
-            } fFetchMode;
-
-            enum CoordMapping {
-                kIdentity_CoordMapping,
-                kRadialGradient_CoordMapping,
-                kSweepGradient_CoordMapping,
-                kRadial2Gradient_CoordMapping
-            } fCoordMapping;
-        } fStages[GrDrawTarget::kNumStages];
     } fProgramDesc;
 
     const ProgramDesc& getDesc() { return fProgramDesc; }

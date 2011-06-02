@@ -196,11 +196,11 @@ void GrGpuGLShaders::ProgramUnitTest() {
         pdesc.fEdgeAANumEdges = (random.nextF() * (getMaxEdges() + 1));
 
         if (fDualSourceBlendingSupport) {
-            pdesc.fDualSrcOutput = 
+            pdesc.fDualSrcOutput =
                (GrGLProgram::ProgramDesc::DualSrcOutput)
                (int)(random.nextF() * GrGLProgram::ProgramDesc::kDualSrcOutputCnt);
         } else {
-            pdesc.fDualSrcOutput = 
+            pdesc.fDualSrcOutput =
                                 GrGLProgram::ProgramDesc::kNone_DualSrcOutput;
         }
 
@@ -219,7 +219,6 @@ void GrGpuGLShaders::ProgramUnitTest() {
             if (random.nextF() > .5f) {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
-            pdesc.fStages[s].fEnabled = VertexUsesStage(s, pdesc.fVertexLayout);
             idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
             pdesc.fStages[s].fOptFlags = STAGE_OPTS[idx];
             idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_MODULATES));
@@ -228,6 +227,7 @@ void GrGpuGLShaders::ProgramUnitTest() {
             pdesc.fStages[s].fCoordMapping = STAGE_COORD_MAPPINGS[idx];
             idx = (int)(random.nextF() * GR_ARRAY_COUNT(FETCH_MODES));
             pdesc.fStages[s].fFetchMode = FETCH_MODES[idx];
+            pdesc.fStages[s].setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
         }
         GrGLProgram::CachedData cachedData;
         program.genProgram(&cachedData);
@@ -730,20 +730,19 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     for (int s = 0; s < kNumStages; ++s) {
         GrGLProgram::ProgramDesc::StageDesc& stage = desc.fStages[s];
 
-        stage.fEnabled = this->isStageEnabled(s);
+        stage.fOptFlags = 0;
+        stage.setEnabled(this->isStageEnabled(s));
 
-        if (stage.fEnabled) {
+        if (stage.isEnabled()) {
             lastEnabledStage = s;
             GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
             GrAssert(NULL != texture);
             // we matrix to invert when orientation is TopDown, so make sure
             // we aren't in that case before flagging as identity.
             if (TextureMatrixIsIdentity(texture, fCurrDrawState.fSamplerStates[s])) {
-                stage.fOptFlags = GrGLProgram::ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit;
+                stage.fOptFlags |= GrGLProgram::ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit;
             } else if (!getSamplerMatrix(s).hasPerspective()) {
-                stage.fOptFlags = GrGLProgram::ProgramDesc::StageDesc::kNoPerspective_OptFlagBit;
-            } else {
-                stage.fOptFlags = 0;
+                stage.fOptFlags |= GrGLProgram::ProgramDesc::StageDesc::kNoPerspective_OptFlagBit;
             }
             switch (fCurrDrawState.fSamplerStates[s].getSampleMode()) {
                 case GrSamplerState::kNormal_SampleMode:
@@ -779,11 +778,11 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             }
 
             if (fCurrDrawState.fSamplerStates[s].hasTextureDomain()) {
-                GrAssert(GrSamplerState::kClamp_WrapMode == 
-                    fCurrDrawState.fSamplerStates[s].getWrapX() && 
+                GrAssert(GrSamplerState::kClamp_WrapMode ==
+                    fCurrDrawState.fSamplerStates[s].getWrapX() &&
                     GrSamplerState::kClamp_WrapMode ==
                     fCurrDrawState.fSamplerStates[s].getWrapY());
-                stage.fOptFlags |= 
+                stage.fOptFlags |=
                     GrGLProgram::ProgramDesc::StageDesc::
                     kCustomTextureDomain_OptFlagBit;
             }
@@ -837,5 +836,3 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
         }
     }
 }
-
-
