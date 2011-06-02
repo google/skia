@@ -72,6 +72,7 @@
         '../src/utils/unix/SkOSWindow_Unix.cpp',
         
         '../src/utils/win/skia_win.cpp',
+        '../src/utils/win/SkEGLContext_Win.cpp',
         '../src/utils/win/SkOSWindow_Win.cpp',
       ],
       'sources!': [
@@ -89,6 +90,11 @@
             '../src/utils/mac/SkOSWindow_Mac.cpp',
           ],
         }],
+        [ 'OS == "mac"', {
+          'sources!': [
+            '../src/utils/SkEGLContext_none.cpp',
+          ],
+        }],
         [ 'OS != "linux" and OS != "freebsd" and OS != "openbsd" and OS != "solaris"', {
           'sources!': [
             '../src/utils/unix/keysym2ucs.c',
@@ -99,10 +105,21 @@
             '../include/utils/unix',
           ],
         }],
+        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
+          'sources!': [
+            '../src/utils/SkEGLContext_none.cpp',
+          ],
+        }],
         [ 'OS != "win"', {
           'sources!': [
             '../src/utils/win/skia_win.cpp',
+            '../src/utils/win/SkEGLContext_Win.cpp',
             '../src/utils/win/SkOSWindow_Win.cpp',
+          ],
+        }],
+        [ 'OS == "win"', {
+          'sources!': [
+            '../src/utils/SkEGLContext_none.cpp',
           ],
         }],
       ],
