@@ -9,8 +9,8 @@
     #include <X11/Xlib.h>
     #include <GL/glx.h>
 #elif defined(SK_BUILD_FOR_WIN32)
-	#include <Windows.h>
-	#include <GL/GL.h>
+    #include <Windows.h>
+    #include <GL/GL.h>
 #else
 
 #endif
@@ -36,6 +36,10 @@ private:
     Display *display;
     Pixmap pixmap;
     GLXPixmap glxPixmap;
+#elif defined(SK_BUILD_FOR_WIN32)
+    HWND fWindow;
+    HDC fDeviceContext;
+    HGLRC fGlRenderContext;
 #else
 
 #endif
