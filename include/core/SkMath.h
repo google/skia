@@ -115,7 +115,7 @@ static inline unsigned SkClampUMax(unsigned value, unsigned max) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if defined(__arm__) && !defined(__thumb__)
+#if defined(__arm__)
     #define SkCLZ(x)    __builtin_clz(x)
 #endif
 
