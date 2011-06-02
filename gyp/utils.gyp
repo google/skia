@@ -10,6 +10,7 @@
         '../include/config',
         '../include/core',
         '../include/utils',
+        '../include/utils/mac',
         '../include/utils/unix',
         '../include/views',
         '../include/effects',
@@ -57,7 +58,6 @@
         '../src/utils/SkUnitMappers.cpp',
 
         '../include/utils/mac/SkCGUtils.h',
-        '../src/utils/mac/SkBitmap_Mac.cpp',
         '../src/utils/mac/SkCreateCGImageRef.cpp',
         '../src/utils/mac/SkEGLContext_mac.cpp',
         '../src/utils/mac/skia_mac.cpp',
@@ -83,11 +83,13 @@
         [ 'OS != "mac"', {
           'sources!': [
             '../include/utils/mac/SkCGUtils.h',
-            '../src/utils/mac/SkBitmap_Mac.cpp',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../src/utils/mac/SkEGLContext_mac.cpp',
             '../src/utils/mac/skia_mac.cpp',
             '../src/utils/mac/SkOSWindow_Mac.cpp',
+          ],
+          'include_dirs!': [
+            '../include/utils/mac',
           ],
         }],
         [ 'OS == "mac"', {
