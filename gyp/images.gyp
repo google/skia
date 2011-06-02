@@ -84,6 +84,17 @@
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
+          'link_settings': {
+            # Any targets that depend on this target should link in libpng and
+            # our code that calls it.
+            # See http://code.google.com/p/gyp/wiki/InputFormatReference#Dependent_Settings
+            'sources': [
+              '../src/images/SkImageDecoder_libpng.cpp',
+            ],
+            'libraries': [
+              '-lpng',
+            ],
+          },
         }],
 
       ],
