@@ -342,20 +342,19 @@ void GrGpuGLShaders::flushViewMatrix() {
 void GrGpuGLShaders::flushTextureDomain(int s) {
     const GrGLint& uni = fProgramData->fUniLocations.fStages[s].fTexDomUni;
     if (GrGLProgram::kUnusedUniform != uni) {
-        const GrRect &texDom = 
+        const GrRect &texDom =
             fCurrDrawState.fSamplerStates[s].getTextureDomain();
 
-        if (((1 << s) & fDirtyFlags.fTextureChangedMask) || 
-            fProgramData->fTextureDomain[s] != texDom)
+        if (((1 << s) & fDirtyFlags.fTextureChangedMask) ||
+            fProgramData->fTextureDomain[s] != texDom) {
 
-        {
             fProgramData->fTextureDomain[s] = texDom;
 
             float values[4] = {
-                GrScalarToFloat(texDom.left()), 
-                GrScalarToFloat(texDom.top()), 
-                GrScalarToFloat(texDom.right()), 
-                GrScalarToFloat(texDom.bottom())            
+                GrScalarToFloat(texDom.left()),
+                GrScalarToFloat(texDom.top()),
+                GrScalarToFloat(texDom.right()),
+                GrScalarToFloat(texDom.bottom())
             };
 
             GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
@@ -365,6 +364,9 @@ void GrGpuGLShaders::flushTextureDomain(int s) {
             if (GrGLTexture::kBottomUp_Orientation == orientation) {
                 values[1] = 1.0f - values[1];
                 values[3] = 1.0f - values[3];
+                // The top and bottom were just flipped, so correct the ordering
+                // of elements so that values = (l, t, r, b).
+                SkTSwap(values[1], values[3]);
             }
 
             values[0] *= SkScalarToFloat(texture->contentScaleX());
