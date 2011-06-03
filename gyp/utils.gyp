@@ -111,6 +111,12 @@
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
           ],
+          'link_settings': {
+            'libraries': [
+              '-lGL',
+              '-lGLU',
+            ],
+          },
         }],
         [ 'OS != "win"', {
           'sources!': [
