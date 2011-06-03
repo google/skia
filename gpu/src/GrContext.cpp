@@ -25,7 +25,10 @@
 #include "GrBufferAllocPool.h"
 #include "GrPathRenderer.h"
 
-#define ENABLE_OFFSCREEN_AA 0
+// larger than this, and we don't AA. set to 0 for no AA
+#ifndef GR_MAX_OFFSCREEN_AA_DIM
+    #define GR_MAX_OFFSCREEN_AA_DIM    0
+#endif
 
 #define DEFER_TEXT_RENDERING 1
 
@@ -451,7 +454,7 @@ void GrContext::drawPaint(const GrPaint& paint) {
 bool GrContext::doOffscreenAA(GrDrawTarget* target, 
                               const GrPaint& paint,
                               bool isLines) const {
-#if !ENABLE_OFFSCREEN_AA
+#if GR_MAX_OFFSCREEN_AA_DIM==0
     return false;
 #else
     if (!paint.fAntiAlias) {
@@ -481,7 +484,7 @@ bool GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
                                       bool requireStencil,
                                       const GrIRect& boundRect,
                                       OffscreenRecord* record) {
-    GrAssert(ENABLE_OFFSCREEN_AA);
+    GrAssert(GR_MAX_OFFSCREEN_AA_DIM > 0);
 
     GrAssert(NULL == record->fEntry0);
     GrAssert(NULL == record->fEntry1);
@@ -1185,9 +1188,10 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                 return;
             }
         }
+
         GrRect pathBounds = path.getBounds();
+        GrIRect pathIBounds;
         if (!pathBounds.isEmpty()) {
-            GrIRect pathIBounds;
             target->getViewMatrix().mapRect(&pathBounds, pathBounds);
             pathBounds.roundOut(&pathIBounds);
             if (!bound.intersect(pathIBounds)) {
@@ -1195,12 +1199,22 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
             }
         }
 
+        // for now, abort antialiasing if our bounds are too big, so we don't
+        // hit the FBO size limit
+        if (pathIBounds.width() > GR_MAX_OFFSCREEN_AA_DIM ||
+            pathIBounds.height() > GR_MAX_OFFSCREEN_AA_DIM) {
+            goto NO_AA;
+        }
+
         if (this->setupOffscreenAAPass1(target, needsStencil, bound, &record)) {
             pr->drawPath(target, 0, path, fill, translate);
             this->offscreenAAPass2(target, paint, bound, &record);
             return;
         }
-    } 
+    }
+
+// we can fall out of the AA section for some reasons, and land here
+NO_AA:
     GrDrawTarget::StageBitfield enabledStages = paint.getActiveStageMask();
 
     pr->drawPath(target, enabledStages, path, fill, translate);
