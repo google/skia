@@ -9,7 +9,14 @@
         'msvs_settings': {
            'VCLinkerTool': {
              'GenerateDebugInformation': 'true',
-            },
+           },
+           'VCCLCompilerTool': {
+             #0 Disabled (/Od)
+             #1 Minimize Size (/O1)
+             #2 Maximize Speed (/O2)
+             #3 Full Optimization (/Ox)
+             'Optimization': '0',
+           },
          },
       },
       'Release': {
