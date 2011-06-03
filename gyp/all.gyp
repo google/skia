@@ -11,6 +11,7 @@
       'target_name': 'all',
       'type': 'none',
       'dependencies': [
+        'bench.gyp:bench',
         'gm.gyp:gm',
         'SampleApp.gyp:SampleApp',
         'tests.gyp:tests',
