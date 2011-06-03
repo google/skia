@@ -96,22 +96,24 @@ protected:
       *result = a * b + c * d;
     }
     virtual void performTest() {
-        float a[9];
-        float b[9];
-        float r[9];
-        a[0] = rnd.nextS();
-        a[3] = rnd.nextS();
+        const float* a = mya;
+        const float* b = myb;
+        float* r = myr;
         muladdmul(a[0], b[0], a[1], b[3], &r[0]);
         muladdmul(a[0], b[1], a[1], b[4], &r[1]);
         muladdmul(a[0], b[2], a[1], b[5], &r[2]);
+        r[2] += a[2];
         muladdmul(a[3], b[0], a[4], b[3], &r[3]);
         muladdmul(a[3], b[1], a[4], b[4], &r[4]);
         muladdmul(a[3], b[2], a[4], b[5], &r[5]);
-        always_do(r[0] + r[1] + r[2] + r[3] + r[4] + r[5] +
-                  r[6] + r[7] + r[8] > 0.0f);
+        r[5] += a[5];
+        r[6] = r[7] = 0.0f;
+        r[8] = 1.0f;
     }
 private:
-    SkRandom rnd;
+    float mya [9];
+    float myb [9];
+    float myr [9];
     typedef MatrixBench INHERITED;
 };
 
@@ -133,22 +135,24 @@ protected:
       *result = SkDoubleToFloat((double)a * b + (double)c * d);
     }
     virtual void performTest() {
-        float a[9];
-        float b[9];
-        float r[9];
-        a[0] = rnd.nextS();
-        a[3] = rnd.nextS();
+        const float* a = mya;
+        const float* b = myb;
+        float* r = myr;
         muladdmul(a[0], b[0], a[1], b[3], &r[0]);
         muladdmul(a[0], b[1], a[1], b[4], &r[1]);
         muladdmul(a[0], b[2], a[1], b[5], &r[2]);
+        r[2] += a[2];
         muladdmul(a[3], b[0], a[4], b[3], &r[3]);
         muladdmul(a[3], b[1], a[4], b[4], &r[4]);
         muladdmul(a[3], b[2], a[4], b[5], &r[5]);
-        always_do(r[0] + r[1] + r[2] + r[3] + r[4] + r[5] +
-                  r[6] + r[7] + r[8] > 0.0f);
+        r[5] += a[5];
+        r[6] = r[7] = 0.0f;
+        r[8] = 1.0f;
     }
 private:
-    SkRandom rnd;
+    float mya [9];
+    float myb [9];
+    float myr [9];
     typedef MatrixBench INHERITED;
 };
 
@@ -165,22 +169,24 @@ protected:
       *result = a * b + c * d;
     }
     virtual void performTest() {
-        double a[9];
-        double b[9];
-        double r[9];
-        a[0] = rnd.nextS();
-        a[3] = rnd.nextS();
+        const double* a = mya;
+        const double* b = myb;
+        double* r = myr;
         muladdmul(a[0], b[0], a[1], b[3], &r[0]);
         muladdmul(a[0], b[1], a[1], b[4], &r[1]);
         muladdmul(a[0], b[2], a[1], b[5], &r[2]);
+        r[2] += a[2];
         muladdmul(a[3], b[0], a[4], b[3], &r[3]);
         muladdmul(a[3], b[1], a[4], b[4], &r[4]);
         muladdmul(a[3], b[2], a[4], b[5], &r[5]);
-        always_do(r[0] + r[1] + r[2] + r[3] + r[4] + r[5] +
-                  r[6] + r[7] + r[8] > 0.0f);
+        r[5] += a[5];
+        r[6] = r[7] = 0.0;
+        r[8] = 1.0;
     }
 private:
-    SkRandom rnd;
+    double mya [9];
+    double myb [9];
+    double myr [9];
     typedef MatrixBench INHERITED;
 };
 
