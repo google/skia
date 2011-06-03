@@ -96,6 +96,11 @@
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
           ],
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
+            ],
+          },
         }],
         [ 'OS != "linux" and OS != "freebsd" and OS != "openbsd" and OS != "solaris"', {
           'sources!': [
