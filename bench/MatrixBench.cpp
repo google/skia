@@ -1,5 +1,6 @@
 #include "SkBenchmark.h"
 #include "SkMatrix.h"
+#include "SkRandom.h"
 #include "SkString.h"
 
 class MatrixBench : public SkBenchmark {
@@ -45,7 +46,7 @@ public:
 protected:
     virtual void performTest() {
         SkMatrix m0, m1, m2;
-        
+
         m0.reset();
         m1.reset();
         m2.reset();
@@ -63,7 +64,7 @@ private:
 class ScaleMatrixBench : public MatrixBench {
 public:
     ScaleMatrixBench(void* param) : INHERITED(param, "scale") {
-        
+
         fM0.reset();
         fM1.setScale(fSX, fSY);
         fM2.setTranslate(fSX, fSY);
@@ -82,9 +83,116 @@ private:
     typedef MatrixBench INHERITED;
 };
 
+// Test the performance of setConcat() non-perspective case:
+// using floating point precision only.
+class FloatConcatMatrixBench : public MatrixBench {
+public:
+    FloatConcatMatrixBench(void* param)
+        : INHERITED(param, "concat_float") {
+    }
+protected:
+    static inline void muladdmul(float a, float b, float c, float d,
+                                   float* result) {
+      *result = a * b + c * d;
+    }
+    virtual void performTest() {
+        float a[9];
+        float b[9];
+        float r[9];
+        a[0] = rnd.nextS();
+        a[3] = rnd.nextS();
+        muladdmul(a[0], b[0], a[1], b[3], &r[0]);
+        muladdmul(a[0], b[1], a[1], b[4], &r[1]);
+        muladdmul(a[0], b[2], a[1], b[5], &r[2]);
+        muladdmul(a[3], b[0], a[4], b[3], &r[3]);
+        muladdmul(a[3], b[1], a[4], b[4], &r[4]);
+        muladdmul(a[3], b[2], a[4], b[5], &r[5]);
+        always_do(r[0] + r[1] + r[2] + r[3] + r[4] + r[5] +
+                  r[6] + r[7] + r[8] > 0.0f);
+    }
+private:
+    SkRandom rnd;
+    typedef MatrixBench INHERITED;
+};
+
+static inline float SkDoubleToFloat(double x) {
+    return static_cast<float>(x);
+}
+
+// Test the performance of setConcat() non-perspective case:
+// using floating point precision but casting up to float for
+// intermediate results during computations.
+class FloatDoubleConcatMatrixBench : public MatrixBench {
+public:
+    FloatDoubleConcatMatrixBench(void* param)
+        : INHERITED(param, "concat_floatdouble") {
+    }
+protected:
+    static inline void muladdmul(float a, float b, float c, float d,
+                                   float* result) {
+      *result = SkDoubleToFloat((double)a * b + (double)c * d);
+    }
+    virtual void performTest() {
+        float a[9];
+        float b[9];
+        float r[9];
+        a[0] = rnd.nextS();
+        a[3] = rnd.nextS();
+        muladdmul(a[0], b[0], a[1], b[3], &r[0]);
+        muladdmul(a[0], b[1], a[1], b[4], &r[1]);
+        muladdmul(a[0], b[2], a[1], b[5], &r[2]);
+        muladdmul(a[3], b[0], a[4], b[3], &r[3]);
+        muladdmul(a[3], b[1], a[4], b[4], &r[4]);
+        muladdmul(a[3], b[2], a[4], b[5], &r[5]);
+        always_do(r[0] + r[1] + r[2] + r[3] + r[4] + r[5] +
+                  r[6] + r[7] + r[8] > 0.0f);
+    }
+private:
+    SkRandom rnd;
+    typedef MatrixBench INHERITED;
+};
+
+// Test the performance of setConcat() non-perspective case:
+// using double precision only.
+class DoubleConcatMatrixBench : public MatrixBench {
+public:
+    DoubleConcatMatrixBench(void* param)
+        : INHERITED(param, "concat_double") {
+    }
+protected:
+    static inline void muladdmul(double a, double b, double c, double d,
+                                   double* result) {
+      *result = a * b + c * d;
+    }
+    virtual void performTest() {
+        double a[9];
+        double b[9];
+        double r[9];
+        a[0] = rnd.nextS();
+        a[3] = rnd.nextS();
+        muladdmul(a[0], b[0], a[1], b[3], &r[0]);
+        muladdmul(a[0], b[1], a[1], b[4], &r[1]);
+        muladdmul(a[0], b[2], a[1], b[5], &r[2]);
+        muladdmul(a[3], b[0], a[4], b[3], &r[3]);
+        muladdmul(a[3], b[1], a[4], b[4], &r[4]);
+        muladdmul(a[3], b[2], a[4], b[5], &r[5]);
+        always_do(r[0] + r[1] + r[2] + r[3] + r[4] + r[5] +
+                  r[6] + r[7] + r[8] > 0.0f);
+    }
+private:
+    SkRandom rnd;
+    typedef MatrixBench INHERITED;
+};
+
+
 static SkBenchmark* M0(void* p) { return new EqualsMatrixBench(p); }
 static SkBenchmark* M1(void* p) { return new ScaleMatrixBench(p); }
+static SkBenchmark* M2(void* p) { return new FloatConcatMatrixBench(p); }
+static SkBenchmark* M3(void* p) { return new FloatDoubleConcatMatrixBench(p); }
+static SkBenchmark* M4(void* p) { return new DoubleConcatMatrixBench(p); }
 
 static BenchRegistry gReg0(M0);
 static BenchRegistry gReg1(M1);
-
+static BenchRegistry gReg2(M2);
+static BenchRegistry gReg3(M3);
+static BenchRegistry gReg4(M4);
