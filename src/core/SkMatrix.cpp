@@ -46,10 +46,6 @@ void SkMatrix::reset() {
     this->setTypeMask(kIdentity_Mask | kRectStaysRect_Mask);
 }
 
-static inline int has_perspective(const SkMatrix& matrix) {
-    return matrix.getType() & SkMatrix::kPerspective_Mask;
-}
-
 // this guy aligns with the masks, so we can compute a mask from a varaible 0/1
 enum {
     kTranslate_Shift,
@@ -165,7 +161,7 @@ void SkMatrix::setTranslate(SkScalar dx, SkScalar dy) {
 }
 
 bool SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
-    if (has_perspective(*this)) {
+    if (this->hasPerspective()) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
         return this->preConcat(m);
@@ -183,7 +179,7 @@ bool SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
 }
 
 bool SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
-    if (has_perspective(*this)) {
+    if (this->hasPerspective()) {
         SkMatrix    m;
         m.setTranslate(dx, dy);
         return this->postConcat(m);
@@ -768,7 +764,7 @@ bool SkMatrix::pdfTransform(SkScalar transform[6]) const {
     SkMatrix identity;
     const SkMatrix* use = this;
     bool ret = true;
-    if (has_perspective(*this)) {
+    if (this->hasPerspective()) {
         identity.reset();
         use = &identity;
         ret = false;
@@ -783,7 +779,7 @@ bool SkMatrix::pdfTransform(SkScalar transform[6]) const {
 }
 
 bool SkMatrix::invert(SkMatrix* inv) const {
-    int         isPersp = has_perspective(*this);
+    int         isPersp = this->hasPerspective();
     int         shift;
     SkDetScalar scale = sk_inv_determinant(fMat, isPersp, &shift);
 
@@ -965,7 +961,7 @@ void SkMatrix::Rot_pts(const SkMatrix& m, SkPoint dst[],
 
 void SkMatrix::RotTrans_pts(const SkMatrix& m, SkPoint dst[],
                             const SkPoint src[], int count) {
-    SkASSERT((m.getType() & kPerspective_Mask) == 0);
+    SkASSERT(!m.hasPerspective());
 
     if (count > 0) {
         SkScalar mx = m.fMat[kMScaleX];
@@ -987,7 +983,7 @@ void SkMatrix::RotTrans_pts(const SkMatrix& m, SkPoint dst[],
 
 void SkMatrix::Persp_pts(const SkMatrix& m, SkPoint dst[],
                          const SkPoint src[], int count) {
-    SkASSERT(m.getType() & kPerspective_Mask);
+    SkASSERT(m.hasPerspective());
 
 #ifdef SK_SCALAR_IS_FIXED
     SkFixed persp2 = SkFractToFixed(m.fMat[kMPersp2]);
@@ -1044,7 +1040,7 @@ void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::mapVectors(SkPoint dst[], const SkPoint src[], int count) const {
-    if (this->getType() & kPerspective_Mask) {
+    if (this->hasPerspective()) {
         SkPoint origin;
 
         MapXYProc proc = this->getMapXYProc();
@@ -1099,7 +1095,7 @@ SkScalar SkMatrix::mapRadius(SkScalar radius) const {
 
 void SkMatrix::Persp_xy(const SkMatrix& m, SkScalar sx, SkScalar sy,
                         SkPoint* pt) {
-    SkASSERT(m.getType() & kPerspective_Mask);
+    SkASSERT(m.hasPerspective());
 
     SkScalar x = SkScalarMul(sx, m.fMat[kMScaleX]) +
                  SkScalarMul(sy, m.fMat[kMSkewX]) + m.fMat[kMTransX];

@@ -1232,8 +1232,7 @@ static SkScalar sk_relax(SkScalar x) {
 
 void SkScalerContext::MakeRec(const SkPaint& paint,
                               const SkMatrix* deviceMatrix, Rec* rec) {
-    SkASSERT(deviceMatrix == NULL ||
-             (deviceMatrix->getType() & SkMatrix::kPerspective_Mask) == 0);
+    SkASSERT(deviceMatrix == NULL || !deviceMatrix->hasPerspective());
 
     rec->fFontID = SkTypeface::UniqueID(paint.getTypeface());
     rec->fTextSize = paint.getTextSize();

@@ -1064,7 +1064,7 @@ bool SkCanvas::quickReject(const SkRect& rect, EdgeType et) const {
         return true;
     }
 
-    if (fMCRec->fMatrix->getType() & SkMatrix::kPerspective_Mask) {
+    if (fMCRec->fMatrix->hasPerspective()) {
         SkRect dst;
         fMCRec->fMatrix->mapRect(&dst, rect);
         SkIRect idst;
@@ -1666,4 +1666,3 @@ const SkPaint& SkCanvas::LayerIter::paint() const {
 const SkRegion& SkCanvas::LayerIter::clip() const { return fImpl->getClip(); }
 int SkCanvas::LayerIter::x() const { return fImpl->getX(); }
 int SkCanvas::LayerIter::y() const { return fImpl->getY(); }
-
