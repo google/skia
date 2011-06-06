@@ -14,12 +14,15 @@ public:
     virtual void performTest() = 0;
 
 protected:
+    virtual int mulLoopCount() const { return 1; }
+
     virtual const char* onGetName() {
         return fName.c_str();
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        for (int i = 0; i < N; i++) {
+        int n = N * this->mulLoopCount();
+        for (int i = 0; i < n; i++) {
             this->performTest();
         }
     }
@@ -103,6 +106,8 @@ public:
         init9(myr);
     }
 protected:
+    virtual int mulLoopCount() const { return 4; }
+
     static inline void muladdmul(float a, float b, float c, float d,
                                    float* result) {
       *result = a * b + c * d;
@@ -144,6 +149,8 @@ public:
         init9(myr);
     }
 protected:
+    virtual int mulLoopCount() const { return 4; }
+
     static inline void muladdmul(float a, float b, float c, float d,
                                    float* result) {
       *result = SkDoubleToFloat((double)a * b + (double)c * d);
@@ -180,6 +187,8 @@ public:
         init9(myr);
     }
 protected:
+    virtual int mulLoopCount() const { return 4; }
+
     static inline void muladdmul(double a, double b, double c, double d,
                                    double* result) {
       *result = a * b + c * d;
