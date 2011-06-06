@@ -83,12 +83,24 @@ private:
     typedef MatrixBench INHERITED;
 };
 
+// having unknown values in our arrays can throw off the timing a lot, perhaps
+// handling NaN values is a lot slower. Anyway, this guy is just meant to put
+// reasonable values in our arrays.
+template <typename T> void init9(T array[9]) {
+    SkRandom rand;
+    for (int i = 0; i < 9; i++) {
+        array[i] = rand.nextSScalar1();
+    }
+}
+
 // Test the performance of setConcat() non-perspective case:
 // using floating point precision only.
 class FloatConcatMatrixBench : public MatrixBench {
 public:
-    FloatConcatMatrixBench(void* param)
-        : INHERITED(param, "concat_float") {
+    FloatConcatMatrixBench(void* p) : INHERITED(p, "concat_floatfloat") {
+        init9(mya);
+        init9(myb);
+        init9(myr);
     }
 protected:
     static inline void muladdmul(float a, float b, float c, float d,
@@ -126,8 +138,10 @@ static inline float SkDoubleToFloat(double x) {
 // intermediate results during computations.
 class FloatDoubleConcatMatrixBench : public MatrixBench {
 public:
-    FloatDoubleConcatMatrixBench(void* param)
-        : INHERITED(param, "concat_floatdouble") {
+    FloatDoubleConcatMatrixBench(void* p) : INHERITED(p, "concat_floatdouble") {
+        init9(mya);
+        init9(myb);
+        init9(myr);
     }
 protected:
     static inline void muladdmul(float a, float b, float c, float d,
@@ -160,8 +174,10 @@ private:
 // using double precision only.
 class DoubleConcatMatrixBench : public MatrixBench {
 public:
-    DoubleConcatMatrixBench(void* param)
-        : INHERITED(param, "concat_double") {
+    DoubleConcatMatrixBench(void* p) : INHERITED(p, "concat_double") {
+        init9(mya);
+        init9(myb);
+        init9(myr);
     }
 protected:
     static inline void muladdmul(double a, double b, double c, double d,
