@@ -295,14 +295,10 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
     int height = clip.height();
 
 #if defined(SK_SUPPORT_LCDTEXT)
-    const bool      lcdMode = mask.fFormat == SkMask::kHorizontalLCD_Format;
-    const bool      verticalLCDMode = mask.fFormat == SkMask::kVerticalLCD_Format;
-#endif
+    const bool lcdMode = mask.fFormat == SkMask::kHorizontalLCD_Format;
+    const bool verticalLCDMode = mask.fFormat == SkMask::kVerticalLCD_Format;
 
     // In LCD mode the masks have either an extra couple of rows or columns on the edges.
-    SkPMColor srcColor = fPMColor;
-
-#if defined(SK_SUPPORT_LCDTEXT)
     if (lcdMode || verticalLCDMode) {
         int widthAdjustment, heightAdjustment;
         const uint32_t* alpha32;
@@ -313,6 +309,7 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
 
         unsigned devRB = fDevice.rowBytes() - (width << 2);
         unsigned alphaExtraRowWords = mask.rowWordsLCD() - width;
+        SkPMColor srcColor = fPMColor;
 
         do {
             unsigned w = width;
