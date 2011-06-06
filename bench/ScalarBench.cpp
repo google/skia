@@ -1,4 +1,5 @@
 #include "SkBenchmark.h"
+#include "SkFloatBits.h"
 #include "SkRandom.h"
 #include "SkString.h"
 
@@ -85,7 +86,7 @@ protected:
     }
 private:
     static const int32_t kPersp1Int = 0x3f800000;
-    float fArray[9];
+    SkScalar fArray[9];
     typedef ScalarBench INHERITED;
 };
 
