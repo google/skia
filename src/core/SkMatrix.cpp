@@ -87,7 +87,7 @@ uint8_t SkMatrix::computeTypeMask() const {
     // is a win, but replacing those below is not. We don't yet understand
     // that result.
     if (fMat[kMPersp0] != 0 || fMat[kMPersp1] != 0 ||
-        fMat[kMPersp2] != SK_Scalar1) {
+        fMat[kMPersp2] != kMatrix22Elem) {
         mask |= kPerspective_Mask;
     }
 
