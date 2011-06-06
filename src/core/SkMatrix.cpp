@@ -71,22 +71,36 @@ enum {
 uint8_t SkMatrix::computeTypeMask() const {
     unsigned mask = 0;
 
+#ifdef SK_SCALAR_SLOW_COMPARES
     if (SkScalarAs2sCompliment(fMat[kMPersp0]) |
             SkScalarAs2sCompliment(fMat[kMPersp1]) |
             (SkScalarAs2sCompliment(fMat[kMPersp2]) - kPersp1Int)) {
         mask |= kPerspective_Mask;
     }
-    
+
     if (SkScalarAs2sCompliment(fMat[kMTransX]) |
             SkScalarAs2sCompliment(fMat[kMTransY])) {
         mask |= kTranslate_Mask;
     }
+#else
+    // Benchmarking suggests that replacing this set of SkScalarAs2sCompliment
+    // is a win, but replacing those below is not. We don't yet understand
+    // that result.
+    if (fMat[kMPersp0] != 0 || fMat[kMPersp1] != 0 ||
+        fMat[kMPersp2] != SK_Scalar1) {
+        mask |= kPerspective_Mask;
+    }
+
+    if (fMat[kMTransX] != 0 || fMat[kMTransY] != 0) {
+        mask |= kTranslate_Mask;
+    }
+#endif
 
     int m00 = SkScalarAs2sCompliment(fMat[SkMatrix::kMScaleX]);
     int m01 = SkScalarAs2sCompliment(fMat[SkMatrix::kMSkewX]);
     int m10 = SkScalarAs2sCompliment(fMat[SkMatrix::kMSkewY]);
     int m11 = SkScalarAs2sCompliment(fMat[SkMatrix::kMScaleY]);
-    
+
     if (m01 | m10) {
         mask |= kAffine_Mask;
     }
@@ -94,21 +108,21 @@ uint8_t SkMatrix::computeTypeMask() const {
     if ((m00 - kScalar1Int) | (m11 - kScalar1Int)) {
         mask |= kScale_Mask;
     }
-    
+
     if ((mask & kPerspective_Mask) == 0) {
         // map non-zero to 1
         m00 = m00 != 0;
         m01 = m01 != 0;
         m10 = m10 != 0;
         m11 = m11 != 0;
-        
+
         // record if the (p)rimary and (s)econdary diagonals are all 0 or
         // all non-zero (answer is 0 or 1)
         int dp0 = (m00 | m11) ^ 1;  // true if both are 0
         int dp1 = m00 & m11;        // true if both are 1
         int ds0 = (m01 | m10) ^ 1;  // true if both are 0
         int ds1 = m01 & m10;        // true if both are 1
-        
+
         // return 1 if primary is 1 and secondary is 0 or
         // primary is 0 and secondary is 1
         mask |= ((dp0 & ds1) | (dp1 & ds0)) << kRectStaysRect_Shift;
@@ -1747,4 +1761,3 @@ void SkMatrix::toDumpString(SkString* str) const {
                 fMat[6], fMat[7], fMat[8]);
 #endif
 }
-
