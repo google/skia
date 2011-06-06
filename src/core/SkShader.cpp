@@ -185,7 +185,7 @@ void SkShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
 SkShader::MatrixClass SkShader::ComputeMatrixClass(const SkMatrix& mat) {
     MatrixClass mc = kLinear_MatrixClass;
 
-    if (mat.getType() & SkMatrix::kPerspective_Mask) {
+    if (mat.hasPerspective()) {
         if (mat.fixedStepInX(0, NULL, NULL)) {
             mc = kFixedStepInX_MatrixClass;
         } else {

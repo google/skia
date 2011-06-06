@@ -949,7 +949,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         dst = (SkPath*)this;
     }
 
-    if (matrix.getType() & SkMatrix::kPerspective_Mask) {
+    if (matrix.hasPerspective()) {
         SkPath  tmp;
         tmp.fFillType = fFillType;
 
@@ -1532,4 +1532,3 @@ SkPath::Convexity SkPath::ComputeConvexity(const SkPath& path) {
     }
     return state.getConvexity();
 }
-

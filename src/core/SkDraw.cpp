@@ -864,7 +864,7 @@ static SkScalar fast_len(const SkVector& vec) {
 // for that we'll transform (0,1) and (1,0), and check that the resulting dot-prod
 // is nearly one
 static bool map_radius(const SkMatrix& matrix, SkScalar* value) {
-    if (matrix.getType() & SkMatrix::kPerspective_Mask) {
+    if (matrix.hasPerspective()) {
         return false;
     }
     SkVector src[2], dst[2];
@@ -1562,7 +1562,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     }
 
     if (/*paint.isLinearText() ||*/
-        (fMatrix->getType() & SkMatrix::kPerspective_Mask)) {
+        (fMatrix->hasPerspective())) {
         this->drawText_asPaths(text, byteLength, x, y, paint);
         handle_aftertext(this, paint, underlineWidth, underlineStart);
         return;
@@ -1760,7 +1760,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     if (/*paint.isLinearText() ||*/
-        (fMatrix->getType() & SkMatrix::kPerspective_Mask)) {
+        (fMatrix->hasPerspective())) {
         // TODO !!!!
 //      this->drawText_asPaths(text, byteLength, x, y, paint);
         return;
