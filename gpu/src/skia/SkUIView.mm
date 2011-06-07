@@ -362,9 +362,9 @@ static GrContext* get_global_grctx() {
     // should be pthread-local at least
     if (NULL == gCtx) {        
 #ifdef USE_GL_1
-        gCtx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
+        gCtx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, 0);
 #else
-        gCtx = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
+        gCtx = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, 0);
 #endif
     }
     return gCtx;

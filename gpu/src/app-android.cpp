@@ -14,8 +14,8 @@
 
 static GrContext* make_context() {
     SkDebugf("---- before create\n");
-    GrContext* ctx = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, NULL);
-//    GrContext* ctx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, NULL);
+    GrContext* ctx = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, 0);
+//    GrContext* ctx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, 0);
     SkDebugf("---- after create %p\n", ctx);
     return ctx;
 }
