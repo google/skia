@@ -17,6 +17,18 @@
       'type': 'executable',
       'sources': [
         '../bench/benchmain.cpp',
+        '../bench/BenchTimer.h',
+        '../bench/BenchTimer.cpp',
+        '../bench/BenchSysTimer_mach.h',
+        '../bench/BenchSysTimer_mach.cpp',
+        '../bench/BenchSysTimer_posix.h',
+        '../bench/BenchSysTimer_posix.cpp',
+        '../bench/BenchSysTimer_windows.h',
+        '../bench/BenchSysTimer_windows.cpp',
+        '../bench/BenchGpuTimer_gl.h',
+        '../bench/BenchGpuTimer_gl.cpp',
+        '../bench/BenchGpuTimer_none.h',
+        '../bench/BenchGpuTimer_none.cpp',
         
         '../bench/SkBenchmark.h',
         '../bench/SkBenchmark.cpp',
@@ -37,6 +49,46 @@
         'gpu.gyp:skgr',
         'images.gyp:images',
         'utils.gyp:utils',
+      ],
+      'conditions': [
+        [ 'OS != "mac"', {
+          'sources!': [
+            '../bench/BenchSysTimer_mach.h',
+            '../bench/BenchSysTimer_mach.cpp',
+          ],
+        }],
+        [ 'OS not in ["linux", "freebsd", "openbsd", "solaris"]', {
+          'sources!': [
+            '../bench/BenchSysTimer_posix.h',
+            '../bench/BenchSysTimer_posix.cpp',
+          ],
+        }],
+        [ 'OS in ["linux", "freebsd", "openbsd", "solaris"]', {
+          'link_settings': {
+            'libraries': [
+              '-lrt',
+            ],
+          },
+        }],
+        [ 'OS != "win"', {
+          'sources!': [
+            '../bench/BenchSysTimer_windows.h',
+            '../bench/BenchSysTimer_windows.cpp',
+          ],
+        }],
+
+        [ 'OS in ["win", "mac", "linux", "freebsd", "openbsd", "solaris"]', {
+          'sources!': [
+            '../bench/BenchGpuTimer_none.h',
+            '../bench/BenchGpuTimer_none.cpp',
+          ],
+        }],
+        [ 'OS not in ["win", "mac", "linux", "freebsd", "openbsd", "solaris"]', {
+          'sources!': [
+            '../bench/BenchGpuTimer_gl.h',
+            '../bench/BenchGpuTimer_gl.cpp',
+          ],
+        }],
       ],
     },
   ],

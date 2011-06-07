@@ -5,12 +5,12 @@
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkString.h"
-#include "SkTime.h"
 #include "GrContext.h"
 #include "SkGpuDevice.h"
 #include "SkEGLContext.h"
 
 #include "SkBenchmark.h"
+#include "BenchTimer.h"
 
 #ifdef ANDROID
 static void log_error(const char msg[]) { SkDebugf("%s", msg); }
@@ -212,6 +212,9 @@ int main (int argc, char * const argv[]) {
     bool forceAA = true;
     bool forceFilter = false;
     SkTriState::State forceDither = SkTriState::kDefault;
+    bool timerWall = false;
+    bool timerCpu = true;
+    bool timerGpu = true;
     bool doScale = false;
     bool doRotate = false;
     bool doClip = false;
@@ -244,6 +247,23 @@ int main (int argc, char * const argv[]) {
                 }
             } else {
                 log_error("missing arg for -repeat\n");
+                return -1;
+            }
+        } else if (strcmp(*argv, "-timers") == 0) {
+            argv++;
+            if (argv < stop) {
+                timerWall = false;
+                timerCpu = false;
+                timerGpu = false;
+                for (char* t = *argv; *t; ++t) {
+                    switch (*t) {
+                    case 'w': timerWall = true; break;
+                    case 'c': timerCpu = true; break;
+                    case 'g': timerGpu = true; break;
+                    }
+                }
+            } else {
+                log_error("missing arg for -timers\n");
                 return -1;
             }
         } else if (!strcmp(*argv, "-rotate")) {
@@ -346,6 +366,8 @@ int main (int argc, char * const argv[]) {
         context = GrContext::CreateGLShaderContext();
     }
     
+    BenchTimer timer = BenchTimer();
+    
     Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
@@ -399,30 +421,36 @@ int main (int argc, char * const argv[]) {
                 performRotate(&canvas, dim.fX, dim.fY);
             }
             
+            bool gpu = kGPU_Backend == backend && context;
             //warm up caches if needed
             if (repeatDraw > 1) {
                 SkAutoCanvasRestore acr(&canvas, true);
                 bench->draw(&canvas);
-                if (kGPU_Backend == backend && context) {
+                if (gpu) {
                     context->flush();
                     glFinish();
                 }
             }
             
-            SkMSec now = SkTime::GetMSecs();
+            timer.start();
             for (int i = 0; i < repeatDraw; i++) {
                 SkAutoCanvasRestore acr(&canvas, true);
                 bench->draw(&canvas);
             }
-            if (kGPU_Backend == backend && context) {
-                context->flush();
-                glFinish();
-            }
+            timer.end();
             
             if (repeatDraw > 1) {
-                double duration = SkTime::GetMSecs() - now;
                 SkString str;
-                str.printf("  %4s: msecs = %5.2f", configName, duration / repeatDraw);
+                str.printf("  %4s:", configName);
+                if (timerWall) {
+                    str.appendf(" msecs = %6.2f", timer.fWall / repeatDraw);
+                }
+                if (timerCpu) {
+                    str.appendf(" cmsecs = %6.2f", timer.fCpu / repeatDraw);
+                }
+                if (timerGpu && gpu && timer.fGpu > 0) {
+                    str.appendf(" gmsecs = %6.2f", timer.fGpu / repeatDraw);
+                }
                 log_progress(str);
             }
             if (outDir.size() > 0) {
