@@ -1192,6 +1192,9 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
         GrRect pathBounds = path.getBounds();
         GrIRect pathIBounds;
         if (!pathBounds.isEmpty()) {
+            if (NULL != translate) {
+                pathBounds.offset(*translate);
+            }
             target->getViewMatrix().mapRect(&pathBounds, pathBounds);
             pathBounds.roundOut(&pathIBounds);
             if (!bound.intersect(pathIBounds)) {
