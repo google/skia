@@ -15,21 +15,8 @@
 # limitations under the License.
 
 # This script is a wrapper which invokes gyp with the correct --depth argument,
-# and supports the automatic regeneration of build files if all.gyp is 
+# and supports the automatic regeneration of build files if all.gyp is
 # changed (Linux-only).
-#
-
-#
-#
-#
-#
-#
-# THIS IS DEPRECATED IN FAVOR OF trunk/gyp_skia !!!
-# Questions? Contact epoger@google.com
-#
-#
-#
-#
 
 import glob
 import os
@@ -38,9 +25,17 @@ import sys
 
 script_dir = os.path.dirname(__file__)
 
-gyp_dir = os.path.normpath(os.path.join(script_dir, os.pardir, 'third_party'))
+# Directory within which we can find the gyp source.
+gyp_source_dir = os.path.join(script_dir, 'third_party', 'externals', 'gyp')
 
-sys.path.append(os.path.join(gyp_dir, 'externals', 'gyp', 'pylib'))
+# Directory within which we can find most of Skia's gyp configuration files.
+gyp_config_dir = os.path.join(script_dir, 'gyp')
+
+# Directory within which we want all generated files (including Makefiles)
+# to be written.
+output_dir = os.path.join(os.path.abspath(script_dir), 'out')
+
+sys.path.append(os.path.join(gyp_source_dir, 'pylib'))
 import gyp
 
 def additional_include_files(args=[]):
@@ -59,7 +54,7 @@ def additional_include_files(args=[]):
       result.append(path)
 
   # Always include common.gypi
-  AddInclude(os.path.join(script_dir, 'common.gypi'))
+  AddInclude(os.path.join(gyp_config_dir, 'common.gypi'))
 
   return result
 
@@ -74,15 +69,20 @@ if __name__ == '__main__':
       gyp_file_specified = True
       break
 
-  # If we didn't get a file, then fall back to assuming 'all.gyp' from the
+  # If we didn't get a file, then fall back to assuming 'skia.gyp' from the
   # same directory as the script.
   if not gyp_file_specified:
-    args.append(os.path.join(script_dir, 'all.gyp'))
+    args.append(os.path.join(script_dir, 'skia.gyp'))
 
   args.extend(['-I' + i for i in additional_include_files(args)])
+  args.extend(['--depth', '.'])
 
-  args.extend(['--depth'])
-  args.extend([os.path.abspath(script_dir)])
+  # Tell gyp to write the Makefiles into output_dir
+  args.extend(['--generator-output', os.path.abspath(output_dir)])
+
+  # Tell make to write its output into the same dir
+  args.extend(['-Goutput_dir=.'])
+
   print 'Updating projects from gyp files...'
   sys.stdout.flush()
 

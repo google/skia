@@ -5,6 +5,19 @@
 #
 # Building on other platforms not tested yet.
 #
+
+#
+#
+#
+#
+#
+# THIS IS DEPRECATED IN FAVOR OF trunk/skia.gyp !!!
+# Questions? Contact epoger@google.com
+#
+#
+#
+#
+
 {
   'targets': [
     {
