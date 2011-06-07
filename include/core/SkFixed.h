@@ -111,6 +111,9 @@ inline SkFixed SkFixedFraction(SkFixed x)
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
 
+// The same as SkIntToFixed(SkFixedFloor(x))
+#define SkFixedFloorToFixed(x)  ((x) & ~0xFFFF)
+
 SkFixed SkFixedMul_portable(SkFixed, SkFixed);
 SkFract SkFractMul_portable(SkFract, SkFract);
 inline SkFixed SkFixedSquare_portable(SkFixed value)
