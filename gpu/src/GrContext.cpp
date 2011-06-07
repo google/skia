@@ -1302,6 +1302,7 @@ void GrContext::writePixels(int left, int top, int width, int height,
     matrix.setTranslate(GrIntToScalar(left), GrIntToScalar(top));
     fGpu->setViewMatrix(matrix);
 
+    fGpu->setColorFilter(0, SkXfermode::kDst_Mode);
     fGpu->disableState(GrDrawTarget::kClip_StateBit);
     fGpu->setAlpha(0xFF);
     fGpu->setBlendFunc(kOne_BlendCoeff,
