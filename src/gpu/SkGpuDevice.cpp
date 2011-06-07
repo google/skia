@@ -1211,16 +1211,23 @@ static void SkGPU_Draw1Glyph(const SkDraw1Glyph& state,
     }
 
     /*
-     *  Skia calls us with fx,fy already biased by 1/2. It does this to speed
-     *  up rounding these, so that all of its procs (like us) can just call
-     *  SkFixedFloor and get the "rounded" value.
+     *  What should we do with fy? (assuming horizontal/latin text)
      *
-     *  We take advantage of that for fx, where we pass a rounded value, but
-     *  we want the fractional fy, so we have to unbias it first.
+     *  The raster code calls SkFixedFloorToFixed on it, as it does with fx.
+     *  It calls that rather than round, because our caller has already added
+     *  SK_FixedHalf, so that calling floor gives us the rounded integer.
+     *
+     *  Test code between raster and gpu (they should draw the same)
+     *
+     *      canvas->drawText("Hamburgefons", 12, 0, 16.5f, paint);
+     *
+     *  Perhaps we should only perform this integralization if there is no
+     *  fExtMatrix...
      */
+    fy = SkFixedFloorToFixed(fy);
+
     procs->fTextContext->drawPackedGlyph(GrGlyph::Pack(glyph.getGlyphID(), fx, 0),
-                                         SkIntToFixed(SkFixedFloor(fx)),
-                                         fy - SK_FixedHalf,
+                                         SkFixedFloorToFixed(fx), fy,
                                          procs->fFontScaler);
 }
 
