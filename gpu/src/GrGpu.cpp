@@ -527,7 +527,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                         }
                     } else {
                         SET_RANDOM_COLOR
-                        this->drawSimpleRect(bounds, 0, NULL);
+                        this->drawSimpleRect(bounds, NULL, 0);
                     }
                 }
             }
