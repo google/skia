@@ -215,6 +215,89 @@ private:
     typedef MatrixBench INHERITED;
 };
 
+#ifdef SK_SCALAR_IS_FLOAT
+class ScaleTransMixedMatrixBench : public MatrixBench {
+ public:
+    ScaleTransMixedMatrixBench(void* p) : INHERITED(p, "scaletrans_mixed"), fCount (16) {
+        fMatrix.setAll(fRandom.nextS(), fRandom.nextS(), fRandom.nextS(),
+                       fRandom.nextS(), fRandom.nextS(), fRandom.nextS(),
+                       fRandom.nextS(), fRandom.nextS(), fRandom.nextS());
+        int i;
+        for (i = 0; i < fCount; i++) {
+            fSrc[i].fX = fRandom.nextS();
+            fSrc[i].fY = fRandom.nextS();
+            fDst[i].fX = fRandom.nextS();
+            fDst[i].fY = fRandom.nextS();
+        }
+    }
+ protected:
+    virtual void performTest() {
+        SkPoint* dst = fDst;
+        const SkPoint* src = fSrc;
+        int count = fCount;
+        float mx = fMatrix[SkMatrix::kMScaleX];
+        float my = fMatrix[SkMatrix::kMScaleY];
+        float tx = fMatrix[SkMatrix::kMTransX];
+        float ty = fMatrix[SkMatrix::kMTransY];
+        do {
+            dst->fY = SkScalarMulAdd(src->fY, my, ty);
+            dst->fX = SkScalarMulAdd(src->fX, mx, tx);
+            src += 1;
+            dst += 1;
+        } while (--count);
+    }
+ private:
+    SkMatrix fMatrix;
+    SkPoint fSrc [16];
+    SkPoint fDst [16];
+    int fCount;
+    SkRandom fRandom;
+    typedef MatrixBench INHERITED;
+};
+
+
+class ScaleTransDoubleMatrixBench : public MatrixBench {
+ public:
+    ScaleTransDoubleMatrixBench(void* p) : INHERITED(p, "scaletrans_double"), fCount (16) {
+        init9(fMatrix);
+        int i;
+        for (i = 0; i < fCount; i++) {
+            fSrc[i].fX = fRandom.nextS();
+            fSrc[i].fY = fRandom.nextS();
+            fDst[i].fX = fRandom.nextS();
+            fDst[i].fY = fRandom.nextS();
+        }
+    }
+ protected:
+    virtual void performTest() {
+        SkPoint* dst = fDst;
+        const SkPoint* src = fSrc;
+        int count = fCount;
+        // As doubles, on Z600 Linux systems this is 2.5x as expensive as mixed mode
+        float mx = fMatrix[SkMatrix::kMScaleX];
+        float my = fMatrix[SkMatrix::kMScaleY];
+        float tx = fMatrix[SkMatrix::kMTransX];
+        float ty = fMatrix[SkMatrix::kMTransY];
+        do {
+            dst->fY = src->fY * my + ty;
+            dst->fX = src->fX * mx + tx;
+            src += 1;
+            dst += 1;
+        } while (--count);
+    }
+ private:
+    double fMatrix [9];
+    SkPoint fSrc [16];
+    SkPoint fDst [16];
+    int fCount;
+    SkRandom fRandom;
+    typedef MatrixBench INHERITED;
+};
+#endif
+
+
+
+
 
 static SkBenchmark* M0(void* p) { return new EqualsMatrixBench(p); }
 static SkBenchmark* M1(void* p) { return new ScaleMatrixBench(p); }
@@ -227,3 +310,10 @@ static BenchRegistry gReg1(M1);
 static BenchRegistry gReg2(M2);
 static BenchRegistry gReg3(M3);
 static BenchRegistry gReg4(M4);
+
+#ifdef SK_SCALAR_IS_FLOAT
+static SkBenchmark* FlM0(void* p) { return new ScaleTransMixedMatrixBench(p); }
+static SkBenchmark* FlM1(void* p) { return new ScaleTransDoubleMatrixBench(p); }
+static BenchRegistry gFlReg5(FlM0);
+static BenchRegistry gFlReg6(FlM1);
+#endif
