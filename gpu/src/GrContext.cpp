@@ -57,7 +57,7 @@ GrContext* GrContext::Create(GrEngine engine,
 }
 
 GrContext* GrContext::CreateGLShaderContext() {
-    return GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
+    return GrContext::Create(kOpenGL_Shaders_GrEngine, 0);
 }
 
 GrContext::~GrContext() {
