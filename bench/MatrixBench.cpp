@@ -67,11 +67,10 @@ private:
 class ScaleMatrixBench : public MatrixBench {
 public:
     ScaleMatrixBench(void* param) : INHERITED(param, "scale") {
-
+        fSX = fSY = SkFloatToScalar(1.5f);
         fM0.reset();
         fM1.setScale(fSX, fSY);
         fM2.setTranslate(fSX, fSY);
-        fSX = fSY = SkFloatToScalar(1.5f);
     }
 protected:
     virtual void performTest() {
