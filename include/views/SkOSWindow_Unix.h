@@ -63,13 +63,11 @@ protected:
 private:
     SkUnixWindow  fUnixWindow;
     bool fGLAttached;
-    bool fRestart;
 
     // Needed for GL
     XVisualInfo* fVi;
 
     void    doPaint();
-    void    restartLoop();
     void    mapWindowAndWait();
 
     typedef SkWindow INHERITED;
