@@ -40,7 +40,7 @@ script_dir = os.path.dirname(__file__)
 
 gyp_dir = os.path.normpath(os.path.join(script_dir, os.pardir, 'third_party'))
 
-sys.path.append(os.path.join(gyp_dir, 'externals', 'gyp', 'pylib'))
+sys.path.append(os.path.join(gyp_dir, 'gyp', 'pylib'))
 import gyp
 
 def additional_include_files(args=[]):

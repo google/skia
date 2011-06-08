@@ -26,7 +26,7 @@ import sys
 script_dir = os.path.dirname(__file__)
 
 # Directory within which we can find the gyp source.
-gyp_source_dir = os.path.join(script_dir, 'third_party', 'externals', 'gyp')
+gyp_source_dir = os.path.join(script_dir, 'third_party', 'gyp')
 
 # Directory within which we can find most of Skia's gyp configuration files.
 gyp_config_dir = os.path.join(script_dir, 'gyp')
