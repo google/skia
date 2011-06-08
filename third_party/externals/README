@@ -9,3 +9,14 @@ svn propedit svn:externals .
 
 See http://svnbook.red-bean.com/en/1.5/svn.advanced.externals.html for
 more info.
+
+
+NOTE: We have disabled our use of these external dependencies, for now, because
+they will fail for anyone using gclient to check out the skia code.  (As of
+early 2011, gclient passes --ignore-externals when calling svn update.)  See
+http://code.google.com/p/skia/issues/detail?id=291 and
+https://groups.google.com/a/chromium.org/group/chromium-dev/browse_thread/thread/1f99541c2c5f6c6e
+
+Leaving this directory (and unused external dependency on gyp) in place until
+we figure out the long-term solution.  We may start using it again, or replace with
+DEPS, or ???
