@@ -848,7 +848,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             break;
 #ifdef SK_SUPPORT_GL
         case kGPU_CanvasType:
-            if (fShowZoomer) {
+            if (fShowZoomer && fGpuCanvas) {
                 this->showZoomer(fGpuCanvas);
             }
             delete fGpuCanvas;

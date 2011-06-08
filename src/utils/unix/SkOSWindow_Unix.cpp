@@ -18,8 +18,8 @@ extern "C" {
     #include "keysym2ucs.h"
 }
 
-const int WIDTH = 1000;
-const int HEIGHT = 1000;
+const int WIDTH = 500;
+const int HEIGHT = 500;
 
 // Determine which events to listen for.
 const long EVENT_MASK = StructureNotifyMask|ButtonPressMask|ButtonReleaseMask
@@ -33,13 +33,16 @@ SkOSWindow::SkOSWindow(void* unused) : fGLAttached(false), fVi(0)
         // Attempt to create a window that supports GL
         GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER,
                 GLX_STENCIL_SIZE, 8, None };
-        fVi = glXChooseVisual(dsp, 0, att);
+        fVi = glXChooseVisual(dsp, DefaultScreen(dsp), att);
         if (fVi) {
+            Colormap colorMap = XCreateColormap(dsp, RootWindow(dsp, fVi->screen),
+                fVi->visual, AllocNone);
             XSetWindowAttributes swa;
+            swa.colormap = colorMap;
             swa.event_mask = EVENT_MASK;
-            fUnixWindow.fWin = XCreateWindow(dsp, DefaultRootWindow(dsp),
+            fUnixWindow.fWin = XCreateWindow(dsp, RootWindow(dsp, fVi->screen),
                     0, 0, WIDTH, HEIGHT, 0, fVi->depth,
-                    InputOutput, fVi->visual, CWEventMask, &swa);
+                    InputOutput, fVi->visual, CWEventMask | CWColormap, &swa);
 
         } else {
             // Create a simple window instead.  We will not be able to
@@ -51,7 +54,6 @@ SkOSWindow::SkOSWindow(void* unused) : fGLAttached(false), fVi(0)
         fUnixWindow.fGc = XCreateGC(dsp, fUnixWindow.fWin, 0, NULL);
     }
     this->resize(WIDTH, HEIGHT);
-    fRestart = false;
     fUnixWindow.fGLCreated = false;
 }
 
@@ -84,14 +86,6 @@ void SkOSWindow::post_linuxevent()
                (XEvent*) &event);
 }
 
-void SkOSWindow::restartLoop()
-{
-    // We have a new window, so we need to set the title again and restart the
-    // loop.
-    this->onSetTitle(this->getTitle());
-    fRestart = true;
-}
-
 void SkOSWindow::loop()
 {
     Display* dsp = fUnixWindow.fDisplay;
@@ -100,11 +94,6 @@ void SkOSWindow::loop()
     bool loop = true;
     XEvent evt;
     while (loop) {
-        if (fRestart) {
-            fRestart = false;
-            this->loop();
-            return;
-        }
         XNextEvent(dsp, &evt);
         switch (evt.type) {
             case Expose:
@@ -194,8 +183,6 @@ bool SkOSWindow::attachGL()
         glXMakeCurrent(dsp, fUnixWindow.fWin, fUnixWindow.fGLContext);
     fGLAttached = true;
 
-
-    this->restartLoop();
     return true;
 }
 
@@ -205,7 +192,6 @@ void SkOSWindow::detachGL()
     fGLAttached = false;
     // Returns back to normal drawing.
     glXMakeCurrent(fUnixWindow.fDisplay, None, NULL);
-    this->restartLoop();
     // Ensure that we redraw when switching back to raster.
     this->inval(NULL);
 }
