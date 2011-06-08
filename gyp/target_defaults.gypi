@@ -1,5 +1,8 @@
 {
   'target_defaults': {
+    'variables': {
+      'skia_scalar%': 'float',
+    },
     'configurations': {
       'Debug': {
         'defines': [
@@ -27,6 +30,17 @@
       },
     },
     'conditions': [
+      [ 'skia_scalar == "float"',
+        {
+          'defines': [
+            'SK_SCALAR_IS_FLOAT',
+          ],
+        }, { # else, skia_scalar != "float"
+          'defines': [
+            'SK_SCALAR_IS_FIXED',
+          ],
+        }
+      ],
       [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
         'include_dirs' : [
           '/usr/include/freetype2',
