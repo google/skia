@@ -52,7 +52,9 @@ static void Tests(skiatest::Reporter* reporter) {
 
     const int32_t data[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     const SkScalar data2[] = { 0, SK_Scalar1, -SK_Scalar1, SK_Scalar1/2 };
-    char buffer[SkMax32(sizeof(data), sizeof(data2))];
+    const size_t bufsize = sizeof(data) > sizeof(data2) ?
+      sizeof(data) : sizeof(data2);
+    char buffer[bufsize];
 
     reader.setMemory(data, sizeof(data));
     for (i = 0; i < SK_ARRAY_COUNT(data); ++i) {

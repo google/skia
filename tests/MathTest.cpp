@@ -188,7 +188,7 @@ static float make_zero() {
 
 static void unittest_isfinite(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
-    float nan = ::asin(2);
+    float nan = sk_float_asin(2);
     float inf = 1.0 / make_zero();
     float big = 3.40282e+038;
 
