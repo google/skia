@@ -74,6 +74,11 @@ GrContext::~GrContext() {
 }
 
 void GrContext::contextLost() {
+    contextDestroyed();
+    this->setupDrawBuffer();
+}
+
+void GrContext::contextDestroyed() {
     // abandon first to so destructors
     // don't try to free the resources in the API.
     fGpu->abandonResources();
@@ -93,8 +98,6 @@ void GrContext::contextLost() {
     fTextureCache->removeAll();
     fFontCache->freeAll();
     fGpu->markContextDirty();
-
-    this->setupDrawBuffer();
 }
 
 void GrContext::resetContext() {
@@ -1245,8 +1248,10 @@ void GrContext::flushText() {
 
 void GrContext::flushDrawBuffer() {
 #if BATCH_RECT_TO_RECT || DEFER_TEXT_RENDERING
-    fDrawBuffer->playback(fGpu);
-    fDrawBuffer->reset();
+    if (fDrawBuffer) {
+        fDrawBuffer->playback(fGpu);
+        fDrawBuffer->reset();
+    }
 #endif
 }
 

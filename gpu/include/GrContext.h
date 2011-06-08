@@ -66,6 +66,13 @@ public:
     void contextLost();
 
     /**
+     * Similar to contextLost, but makes no attempt to reset state.
+     * Use this method when GrContext destruction is pending, but
+     * the graphics context is destroyed first.
+     */
+    void contextDestroyed();
+
+    /**
      * Frees gpu created by the context. Can be called to reduce GPU memory
      * pressure.
      */
