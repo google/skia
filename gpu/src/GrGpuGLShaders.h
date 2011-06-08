@@ -31,6 +31,8 @@ public:
 
     virtual void resetContext();
 
+    virtual void abandonResources();
+
 protected:
     // overrides from GrGpu
     virtual bool flushGraphicsState(GrPrimitiveType type);

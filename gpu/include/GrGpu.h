@@ -325,7 +325,7 @@ public:
      * Called to tell Gpu object that all GrResources have been lost and should
      * be abandoned.
      */
-    void abandonResources();
+    virtual void abandonResources();
 
     /**
      * Called to tell Gpu object to release all GrResources.

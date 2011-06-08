@@ -130,6 +130,11 @@ public:
     }
 };
 
+void GrGpuGLShaders::abandonResources(){
+    INHERITED::abandonResources();
+    fProgramCache->abandon();
+}
+
 void GrGpuGLShaders::DeleteProgram(GrGLProgram::CachedData* programData) {
     GR_GL(DeleteShader(programData->fVShaderID));
     GR_GL(DeleteShader(programData->fFShaderID));
