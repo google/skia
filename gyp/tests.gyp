@@ -43,6 +43,7 @@
         '../tests/InfRectTest.cpp',
         '../tests/MathTest.cpp',
         '../tests/MatrixTest.cpp',
+        '../tests/Matrix44Test.cpp',
         '../tests/MetaDataTest.cpp',
         '../tests/PackBitsTest.cpp',
         '../tests/PaintTest.cpp',
@@ -68,6 +69,7 @@
       'dependencies': [
         'core.gyp:core',
         'effects.gyp:effects',
+        'experimental.gyp:experimental',
         'images.gyp:images',
         'utils.gyp:utils',
       ],
