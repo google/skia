@@ -120,7 +120,7 @@ static void compute_diff(const SkBitmap& target, const SkBitmap& base,
 }
 
 static bool compare(const SkBitmap& target, const SkBitmap& base,
-                    const SkString& name, const char* modeDescriptor,
+                    const SkString& name, const char* renderModeDescriptor,
                     SkBitmap* diff) {
     SkBitmap copy;
     const SkBitmap* bm = &target;
@@ -134,8 +134,9 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
     const int w = bm->width();
     const int h = bm->height();
     if (w != base.width() || h != base.height()) {
-        SkDebugf("---- %s dimensions mismatch for %s base [%d %d] current [%d %d]\n",
-                 modeDescriptor, name.c_str(),
+        SkDebugf(
+"---- %s dimensions mismatch for %s base [%d %d] current [%d %d]\n",
+                 renderModeDescriptor, name.c_str(),
                  base.width(), base.height(), w, h);
         return false;
     }
@@ -148,8 +149,9 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
             SkPMColor c0 = *base.getAddr32(x, y);
             SkPMColor c1 = *bm->getAddr32(x, y);
             if (c0 != c1) {
-                SkDebugf("----- %s pixel mismatch for %s at [%d %d] base 0x%08X current 0x%08X\n",
-                         modeDescriptor, name.c_str(), x, y, c0, c1);
+                SkDebugf(
+"----- %s pixel mismatch for %s at [%d %d] base 0x%08X current 0x%08X\n",
+                         renderModeDescriptor, name.c_str(), x, y, c0, c1);
 
                 if (diff) {
                     diff->setConfig(SkBitmap::kARGB_8888_Config, w, h);
@@ -250,17 +252,17 @@ static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
 
 static bool write_reference_image(const ConfigData& gRec,
                                   const char writePath [],
-                                  const char writePathSuffix [],
+                                  const char renderModeDescriptor [],
                                   const SkString& name,
                                   SkBitmap& bitmap,
                                   SkDynamicMemoryWStream* pdf) {
     SkString path;
     bool success = false;
     if (gRec.fBackend != kPDF_Backend) {
-        path = make_filename(writePath, writePathSuffix, name, "png");
+        path = make_filename(writePath, renderModeDescriptor, name, "png");
         success = write_bitmap(path, bitmap);
     } else if (pdf) {
-        path = make_filename(writePath, writePathSuffix, name, "pdf");
+        path = make_filename(writePath, renderModeDescriptor, name, "pdf");
         success = write_pdf(path, *pdf);
     }
     if (!success) {
@@ -273,7 +275,7 @@ static bool compare_to_reference_image(const char readPath [],
                                        const SkString& name,
                                        SkBitmap &bitmap,
                                        const char diffPath [],
-                                       const char modeDescriptor []) {
+                                       const char renderModeDescriptor []) {
     SkString path = make_filename(readPath, "", name, "png");
     SkBitmap orig;
     bool success = SkImageDecoder::DecodeFile(path.c_str(), &orig,
@@ -281,7 +283,7 @@ static bool compare_to_reference_image(const char readPath [],
                         SkImageDecoder::kDecodePixels_Mode, NULL);
     if (success) {
         SkBitmap diffBitmap;
-        success = compare(bitmap, orig, name, modeDescriptor,
+        success = compare(bitmap, orig, name, renderModeDescriptor,
                           diffPath ? &diffBitmap : NULL);
         if (!success && diffPath) {
             SkString diffName = make_filename(diffPath, "", name, ".diff.png");
@@ -299,18 +301,18 @@ static bool handle_test_results(GM* gm,
                                 const char writePath [],
                                 const char readPath [],
                                 const char diffPath [],
-                                const char writePathSuffix [],
+                                const char renderModeDescriptor [],
                                 SkBitmap& bitmap,
                                 SkDynamicMemoryWStream* pdf) {
     SkString name = make_name(gm->shortName(), gRec.fName);
 
     if (writePath) {
-        write_reference_image(gRec, writePath, writePathSuffix,
+        write_reference_image(gRec, writePath, renderModeDescriptor,
                               name, bitmap, pdf);
     // TODO: Figure out a way to compare PDFs.
     } else if (readPath && gRec.fBackend != kPDF_Backend) {
         return compare_to_reference_image(readPath, name, bitmap,
-                                   diffPath, writePathSuffix);
+                                   diffPath, renderModeDescriptor);
     }
     return true;
 }
@@ -377,7 +379,6 @@ static bool test_drawing(GM* gm,
 
 static bool test_picture_playback(GM* gm,
                                   const ConfigData& gRec,
-                                  const char writePath [],
                                   const char readPath [],
                                   const char diffPath []) {
     SkPicture* pict = generate_new_picture(gm);
@@ -386,7 +387,7 @@ static bool test_picture_playback(GM* gm,
     if (kRaster_Backend == gRec.fBackend) {
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, pict, &bitmap);
-        return handle_test_results(gm, gRec, writePath, readPath, diffPath,
+        return handle_test_results(gm, gRec, NULL, readPath, diffPath,
                             "-replay", bitmap, NULL);
     }
     return true;
@@ -394,7 +395,6 @@ static bool test_picture_playback(GM* gm,
 
 static bool test_picture_serialization(GM* gm,
                                        const ConfigData& gRec,
-                                       const char writePath [],
                                        const char readPath [],
                                        const char diffPath []) {
     SkPicture* pict = generate_new_picture(gm);
@@ -405,7 +405,7 @@ static bool test_picture_serialization(GM* gm,
     if (kRaster_Backend == gRec.fBackend) {
         SkBitmap bitmap;
         generate_image_from_picture(gm, gRec, repict, &bitmap);
-        return handle_test_results(gm, gRec, writePath, readPath, diffPath,
+        return handle_test_results(gm, gRec, NULL, readPath, diffPath,
                             "-serialize", bitmap, NULL);
     }
     return true;
@@ -493,29 +493,31 @@ int main(int argc, char * const argv[]) {
 
     // Accumulate success of all tests so we can flag error in any
     // one with the return value.
-    bool testSuccess = true;
+    bool overallSuccess = true;
     while ((gm = iter.next()) != NULL) {
         SkISize size = gm->getISize();
         SkDebugf("drawing... %s [%d %d]\n", gm->shortName(),
                  size.width(), size.height());
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
-            testSuccess &= test_drawing(gm, gRec[i],
+            bool testSuccess = test_drawing(gm, gRec[i],
                          writePath, readPath, diffPath, context);
+            overallSuccess &= testSuccess;
 
-            if (doReplay) {
-                testSuccess &= test_picture_playback(gm, gRec[i],
-                                      writePath, readPath, diffPath);
+            if (doReplay && testSuccess) {
+                testSuccess = test_picture_playback(gm, gRec[i],
+                                      readPath, diffPath);
+                overallSuccess &= testSuccess;
             }
 
-            if (doSerialize) {
-                testSuccess &= test_picture_serialization(gm, gRec[i],
-                                           writePath, readPath, diffPath);
+            if (doSerialize && testSuccess) {
+                overallSuccess &= test_picture_serialization(gm, gRec[i],
+                                           readPath, diffPath);
             }
         }
         SkDELETE(gm);
     }
-    if (false == testSuccess) {
+    if (false == overallSuccess) {
         return -1;
     }
     return 0;
