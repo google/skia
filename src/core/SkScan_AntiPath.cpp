@@ -26,8 +26,20 @@
 #define SCALE   (1 << SHIFT)
 #define MASK    (SCALE - 1)
 
+/*
+    We have two techniques for capturing the output of the supersampler:
+    - SUPERMASK, which records a large mask-bitmap
+        this is often faster for small, complex objects
+    - RLE, which records a rle-encoded scanline
+        this is often faster for large objects with big spans
+
+    NEW_AA is a set of code-changes to try to make both paths produce identical
+    results. Its not quite there yet, though the remaining differences may be
+    in the subsequent blits, and not in the different masks/runs...
+ */
 //#define FORCE_SUPERMASK
 //#define FORCE_RLE
+//#define SK_SUPPORT_NEW_AA
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -281,9 +293,17 @@ static void add_aa_span(uint8_t* alpha, U8CPU startAlpha, int middleCount,
         edge of the current span round to the same super-sampled x value,
         I might overflow to 256 with this add, hence the funny subtract.
     */
+#ifdef SK_SUPPORT_NEW_AA
+    if (startAlpha) {
+        unsigned tmp = *alpha + startAlpha;
+        SkASSERT(tmp <= 256);
+        *alpha++ = SkToU8(tmp - (tmp >> 8));
+    }
+#else
     unsigned tmp = *alpha + startAlpha;
     SkASSERT(tmp <= 256);
     *alpha++ = SkToU8(tmp - (tmp >> 8));
+#endif
 
     if (middleCount >= MIN_COUNT_FOR_QUAD_LOOP) {
         // loop until we're quad-byte aligned
@@ -365,7 +385,15 @@ void MaskSuperBlitter::blitH(int x, int y, int width) {
         SkASSERT(row < fMask.fImage + kMAX_STORAGE + 1);
         add_aa_span(row, coverage_to_alpha(fe - fb));
     } else {
+#ifdef SK_SUPPORT_NEW_AA
+        if (0 == fb) {
+            n += 1;
+        } else {
+            fb = (1 << SHIFT) - fb;
+        }
+#else
         fb = (1 << SHIFT) - fb;
+#endif
         SkASSERT(row >= fMask.fImage);
         SkASSERT(row + n + 1 < fMask.fImage + kMAX_STORAGE + 1);
         add_aa_span(row,  coverage_to_alpha(fb), n, coverage_to_alpha(fe),
