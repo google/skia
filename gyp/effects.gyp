@@ -33,7 +33,6 @@
         '../include/effects/SkPixelXorXfermode.h',
         '../include/effects/SkPorterDuff.h',
         '../include/effects/SkRectShape.h',
-        '../include/effects/SkTableMaskFilter.h',
         '../include/effects/SkTransparentShader.h',
 
         '../src/effects/Sk1DPathEffect.cpp',
@@ -64,7 +63,6 @@
         '../src/effects/SkPorterDuff.cpp',
         '../src/effects/SkRadialGradient_Table.h',
         '../src/effects/SkRectShape.cpp',
-        '../src/effects/SkTableMaskFilter.cpp',
         '../src/effects/SkTransparentShader.cpp',
       ],
       'direct_dependent_settings': {
