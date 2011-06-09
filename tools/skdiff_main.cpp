@@ -24,8 +24,8 @@
 struct DiffRecord {
     DiffRecord (const SkString filename)
         : fFilename (filename)
-        , fPercentDifference (0)
-        , fWeightedPercent (0)
+        , fFractionDifference (0)
+        , fWeightedFraction (0)
         , fAverageMismatchR (0)
         , fAverageMismatchG (0)
         , fAverageMismatchB (0)
@@ -42,8 +42,8 @@ struct DiffRecord {
     /// Arbitrary floating-point metric to be used to sort images from most
     /// to least different from baseline; values of 0 will be omitted from the
     /// summary webpage.
-    float fPercentDifference;
-    float fWeightedPercent;
+    float fFractionDifference;
+    float fWeightedFraction;
 
     float fAverageMismatchR;
     float fAverageMismatchG;
@@ -54,32 +54,73 @@ struct DiffRecord {
     uint32_t fMaxMismatchB;
 };
 
+#define MAX2(a,b) (((b) < (a)) ? (a) : (b))
+#define MAX3(a,b,c) (((b) < (a)) ? MAX2((a), (c)) : MAX2((b), (c)))
+
+struct DiffSummary {
+    DiffSummary ()
+        : fNumMatches (0)
+        , fNumMismatches (0)
+        , fMaxMismatchV (0)
+        , fMaxMismatchPercent (0) { };
+
+    uint32_t fNumMatches;
+    uint32_t fNumMismatches;
+    uint32_t fMaxMismatchV;
+    float fMaxMismatchPercent;
+
+    void print () {
+        printf("%d of %d images matched.\n", fNumMatches,
+               fNumMatches + fNumMismatches);
+        if (fNumMismatches > 0) {
+            printf("Maximum pixel intensity mismatch %d\n", fMaxMismatchV);
+            printf("Largest area mismatch was %.2f%% of pixels\n",
+                   fMaxMismatchPercent);
+        }
+
+    }
+
+    void add (DiffRecord* drp) {
+        if (0 == drp->fFractionDifference) {
+            fNumMatches++;
+        } else {
+            fNumMismatches++;
+            if (drp->fFractionDifference * 100 > fMaxMismatchPercent) {
+                fMaxMismatchPercent = drp->fFractionDifference * 100;
+            }
+            int value = MAX3(drp->fMaxMismatchR, drp->fMaxMismatchG,
+                             drp->fMaxMismatchB);
+            if (value > fMaxMismatchV) {
+                fMaxMismatchV = value;
+            }
+        }
+    }
+};
+
 typedef SkTDArray<DiffRecord*> RecordArray;
 
-/// Comparison routine for qsort;  sorts by fPercentDifference
+/// Comparison routine for qsort;  sorts by fFractionDifference
 /// from largest to smallest.
 static int compare_diff_metrics (DiffRecord** lhs, DiffRecord** rhs) {
-    if ((*lhs)->fPercentDifference < (*rhs)->fPercentDifference) {
+    if ((*lhs)->fFractionDifference < (*rhs)->fFractionDifference) {
         return 1;
     }
-    if ((*rhs)->fPercentDifference < (*lhs)->fPercentDifference) {
+    if ((*rhs)->fFractionDifference < (*lhs)->fFractionDifference) {
         return -1;
     }
     return 0;
 }
 
 static int compare_diff_weighted (DiffRecord** lhs, DiffRecord** rhs) {
-    if ((*lhs)->fWeightedPercent < (*rhs)->fWeightedPercent) {
+    if ((*lhs)->fWeightedFraction < (*rhs)->fWeightedFraction) {
         return 1;
     }
-    if ((*lhs)->fWeightedPercent > (*rhs)->fWeightedPercent) {
+    if ((*lhs)->fWeightedFraction > (*rhs)->fWeightedFraction) {
         return -1;
     }
     return 0;
 }
 
-#define MAX2(a,b) (((b) < (a)) ? (a) : (b))
-#define MAX3(a,b,c) (((b) < (a)) ? MAX2((a), (c)) : MAX2((b), (c)))
 /// Comparison routine for qsort;  sorts by max(fAverageMismatch{RGB})
 /// from largest to smallest.
 static int compare_diff_mean_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
@@ -233,22 +274,22 @@ static void compute_diff(DiffRecord* dr,
     int totalMismatchB = 0;
     // Accumulate fractionally different pixels, then divide out
     // # of pixels at the end.
-    dr->fWeightedPercent = 0;
+    dr->fWeightedFraction = 0;
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
             SkPMColor c0 = *dr->fBaseBitmap.getAddr32(x, y);
             SkPMColor c1 = *dr->fComparisonBitmap.getAddr32(x, y);
-            SkPMColor d = 0;
-            d = diffFunction(c0, c1);
-            uint32_t thisR = SkGetPackedR32(d);
-            uint32_t thisG = SkGetPackedG32(d);
-            uint32_t thisB = SkGetPackedB32(d);
+            SkPMColor trueDifference = compute_diff_pmcolor(c0, c1);
+            SkPMColor outputDifference = diffFunction(c0, c1);
+            uint32_t thisR = SkGetPackedR32(trueDifference);
+            uint32_t thisG = SkGetPackedG32(trueDifference);
+            uint32_t thisB = SkGetPackedB32(trueDifference);
             totalMismatchR += thisR;
             totalMismatchG += thisG;
             totalMismatchB += thisB;
             // In HSV, value is defined as max RGB component.
             int value = MAX3(thisR, thisG, thisB);
-            dr->fWeightedPercent += ((float) value) / 255;
+            dr->fWeightedFraction += ((float) value) / 255;
             if (thisR > dr->fMaxMismatchR) {
                 dr->fMaxMismatchR = thisR;
             }
@@ -260,28 +301,40 @@ static void compute_diff(DiffRecord* dr,
             }
             if (!colors_match_thresholded(c0, c1, colorThreshold)) {
                 mismatchedPixels++;
-                *dr->fDifferenceBitmap.getAddr32(x, y) = d;
+                *dr->fDifferenceBitmap.getAddr32(x, y) = outputDifference;
             } else {
                 *dr->fDifferenceBitmap.getAddr32(x, y) = 0;
             }
         }
     }
     int pixelCount = w * h;
-    dr->fPercentDifference = ((float) mismatchedPixels) / pixelCount;
-    dr->fWeightedPercent /= pixelCount;
+    dr->fFractionDifference = ((float) mismatchedPixels) / pixelCount;
+    dr->fWeightedFraction /= pixelCount;
     dr->fAverageMismatchR = ((float) totalMismatchR) / pixelCount;
     dr->fAverageMismatchG = ((float) totalMismatchG) / pixelCount;
     dr->fAverageMismatchB = ((float) totalMismatchB) / pixelCount;
 }
 
+/// Given a image filename, returns the name of the file containing the
+/// associated difference image.
+static SkString filename_to_diff_filename (const SkString& filename) {
+    SkString diffName (filename);
+    const char* cstring = diffName.c_str();
+    int dotOffset = strrchr(cstring, '.') - cstring;
+    diffName.remove(dotOffset, diffName.size() - dotOffset);
+    diffName.append("-diff.png");
+    return diffName;
+}
+
 /// Creates difference images, returns the number that have a 0 metric.
-static int create_diff_images (DiffMetricProc dmp,
-                               SkQSortCompareProc scp,
-                               const int colorThreshold,
-                               RecordArray* differences,
-                               const SkString& baseDir,
-                               const SkString& comparisonDir,
-                               const SkString& outputDir) {
+static void create_diff_images (DiffMetricProc dmp,
+                                SkQSortCompareProc scp,
+                                const int colorThreshold,
+                                RecordArray* differences,
+                                const SkString& baseDir,
+                                const SkString& comparisonDir,
+                                const SkString& outputDir,
+                                DiffSummary* summary) {
 
     //@todo thudson 19 Apr 2011
     // this lets us know about files in baseDir not in compareDir, but it
@@ -292,7 +345,6 @@ static int create_diff_images (DiffMetricProc dmp,
 
     SkOSFile::Iter baseIterator (baseDir.c_str());
     SkString filename;
-    int matchCount = 0;
     while (baseIterator.next(&filename)) {
         if (filename.endsWith(".pdf")) {
             continue;
@@ -309,18 +361,15 @@ static int create_diff_images (DiffMetricProc dmp,
         compute_diff(drp, dmp, colorThreshold);
 
         SkString outPath (outputDir);
-        outPath.append(filename);
+        outPath.append(filename_to_diff_filename(filename));
         write_bitmap(outPath, drp->fDifferenceBitmap);
 
         differences->push(drp);
-        if (0 == drp->fPercentDifference) {
-            matchCount++;
-        }
+        summary->add(drp);
     }
 
     SkQSort(differences->begin(), differences->count(), sizeof(DiffRecord*),
             scp);
-    return matchCount;
 }
 
 /// Make layout more consistent by scaling image to 240 height, 360 width,
@@ -375,12 +424,12 @@ static void print_page_header (SkFILEWStream* stream,
 static void print_pixel_count (SkFILEWStream* stream,
                                const DiffRecord& diff) {
     stream->writeText("<br>(");
-    stream->writeDecAsText(diff.fPercentDifference *
+    stream->writeDecAsText(diff.fFractionDifference *
                            diff.fBaseBitmap.width() *
                            diff.fBaseBitmap.height());
     stream->writeText(" pixels)");
 /*
-    stream->writeDecAsText(diff.fWeightedPercent *
+    stream->writeDecAsText(diff.fWeightedFraction *
                            diff.fBaseBitmap.width() *
                            diff.fBaseBitmap.height());
     stream->writeText(" weighted pixels)");
@@ -393,15 +442,15 @@ static void print_label_cell (SkFILEWStream* stream,
     stream->writeText(diff.fFilename.c_str());
     stream->writeText("<br>");
     char metricBuf [20];
-    sprintf(metricBuf, "%12.4f%%", 100 * diff.fPercentDifference);
+    sprintf(metricBuf, "%12.4f%%", 100 * diff.fFractionDifference);
     stream->writeText(metricBuf);
     stream->writeText(" of pixels differ");
     stream->writeText("\n  (");
-    sprintf(metricBuf, "%12.4f%%", 100 * diff.fWeightedPercent);
+    sprintf(metricBuf, "%12.4f%%", 100 * diff.fWeightedFraction);
     stream->writeText(metricBuf);
     stream->writeText(" weighted)");
     // Write the actual number of pixels that differ if it's < 1%
-    if (diff.fPercentDifference < 0.01) {
+    if (diff.fFractionDifference < 0.01) {
         print_pixel_count(stream, diff);
     }
     stream->writeText("<br>Average color mismatch ");
@@ -463,7 +512,7 @@ static void print_diff_page (const int matchCount,
     int i;
     for (i = 0; i < differences.count(); i++) {
         DiffRecord* diff = differences[i];
-        if (0 == diff->fPercentDifference) {
+        if (0 == diff->fFractionDifference) {
             continue;
         }
         int height = compute_image_height(diff->fBaseBitmap);
@@ -471,7 +520,8 @@ static void print_diff_page (const int matchCount,
         print_label_cell(&outputStream, *diff);
         print_image_cell(&outputStream, relativeBaseDir,
                          diff->fFilename, height);
-        print_image_cell(&outputStream, localDir, diff->fFilename, height);
+        print_image_cell(&outputStream, localDir,
+                         filename_to_diff_filename(diff->fFilename), height);
         print_image_cell(&outputStream, relativeComparisonDir,
                          diff->fFilename, height);
         outputStream.writeText("</tr>\n");
@@ -484,7 +534,7 @@ static void print_diff_page (const int matchCount,
 
 static void usage (char * argv0) {
     SkDebugf("Skia baseline image diff tool\n");
-    SkDebugf("Usage: %s baseDir comparisonDir outputDir\n", argv0);
+    SkDebugf("Usage: %s baseDir comparisonDir [outputDir]\n", argv0);
     SkDebugf(
 "    -white: force all difference pixels to white\n"
 "    -threshold n: only report differences > n (in one channel) [default 0]\n"
@@ -497,7 +547,9 @@ static void usage (char * argv0) {
 "    -weighted: sort by # pixels different weighted by color difference\n");
     SkDebugf("    baseDir: directory to read baseline images from\n");
     SkDebugf("    comparisonDir: directory to read comparison images from\n");
-    SkDebugf("    outputDir: directory to write difference images to\n");
+    SkDebugf(
+"    outputDir: directory to write difference images to; defaults to\n"
+"               comparisonDir\n");
     SkDebugf("Also creates an \"index.html\" file in the current directory.\n");
 }
 
@@ -513,6 +565,7 @@ int main (int argc, char ** argv) {
     SkString outputDir;
 
     RecordArray differences;
+    DiffSummary summary;
 
     int i, j;
     for (i = 1, j = 0; i < argc; i++) {
@@ -561,9 +614,11 @@ int main (int argc, char ** argv) {
         usage(argv[0]);
         return 0;
     }
-    if (j != 3) {
-      usage(argv[0]);
-      return 0;
+    if (j == 2) {
+        outputDir = comparisonDir;
+    } else if (j != 3) {
+        usage(argv[0]);
+        return 0;
     }
 
     if (!baseDir.endsWith("/")) {
@@ -576,11 +631,10 @@ int main (int argc, char ** argv) {
         outputDir.append("/");
     }
 
-    int matchCount = create_diff_images(diffProc, sortProc,
-                                        colorThreshold, &differences,
-                                        baseDir, comparisonDir,
-                                        outputDir);
-    print_diff_page(matchCount, colorThreshold, differences,
+    create_diff_images(diffProc, sortProc, colorThreshold, &differences,
+                       baseDir, comparisonDir, outputDir, &summary);
+    summary.print();
+    print_diff_page(summary.fNumMatches, colorThreshold, differences,
                     baseDir, comparisonDir, outputDir);
 
     for (i = 0; i < differences.count(); i++) {
