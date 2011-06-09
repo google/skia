@@ -1,5 +1,8 @@
 {
   'target_defaults': {
+    'defines': [
+      'SK_CAN_USE_FLOAT',
+    ],
     'variables': {
       'skia_scalar%': 'float',
     },
