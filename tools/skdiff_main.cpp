@@ -88,8 +88,8 @@ struct DiffSummary {
             if (drp->fFractionDifference * 100 > fMaxMismatchPercent) {
                 fMaxMismatchPercent = drp->fFractionDifference * 100;
             }
-            int value = MAX3(drp->fMaxMismatchR, drp->fMaxMismatchG,
-                             drp->fMaxMismatchB);
+            uint32_t value = MAX3(drp->fMaxMismatchR, drp->fMaxMismatchG,
+                                  drp->fMaxMismatchB);
             if (value > fMaxMismatchV) {
                 fMaxMismatchV = value;
             }
