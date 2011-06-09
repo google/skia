@@ -18,6 +18,7 @@
 #define SkScalar_DEFINED
 
 #include "SkFixed.h"
+#include "SkFloatingPoint.h"
 
 /** \file SkScalar.h
 
@@ -29,7 +30,6 @@
 */
 
 #ifdef SK_SCALAR_IS_FLOAT
-    #include "SkFloatingPoint.h"
 
     /** SkScalar is our type for fractional values and coordinates. Depending on
         compile configurations, it is either represented as an IEEE float, or
