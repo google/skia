@@ -17,10 +17,6 @@
         '../experimental/SkSetPoly3To3_A.cpp',
         '../experimental/SkSetPoly3To3_D.cpp',
       ],
-      'sources!': [
-        '../experimental/SkMatrix44.cpp',  #doesn't compile
-        '../experimental/SkMatrix44.h',
-      ],
       'direct_dependent_settings': {
         'include_dirs': [
           '../experimental',

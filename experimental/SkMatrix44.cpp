@@ -18,15 +18,27 @@
 #include "SkMatrix44.h"
 
 SkMatrix44::SkMatrix44() {
-	this->setIdentity();
+    this->setIdentity();
 }
 
 SkMatrix44::SkMatrix44(const SkMatrix44& src) {
-	memcpy(this, &src, sizeof(src));
+    memcpy(this, &src, sizeof(src));
 }
 
 SkMatrix44::SkMatrix44(const SkMatrix44& a, const SkMatrix44& b) {
-	this->setConcat(a, b);
+    this->setConcat(a, b);
+}
+
+SkMScalar SkMatrix44::get(int row, int col) const {
+    SkASSERT(row <= 3 && row >= 0);
+    SkASSERT(col <= 3 && col >= 0);
+    return fMat[col][row];
+}
+
+void SkMatrix44::set(int row, int col, const SkMScalar& value) {
+    SkASSERT(row <= 3 && row >= 0);
+    SkASSERT(col <= 3 && col >= 0);
+    fMat[col][row] = value;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,47 +52,47 @@ bool SkMatrix44::isIdentity() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setIdentity() {
-	sk_bzero(fMat, sizeof(fMat));
-	fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = 1;
+    sk_bzero(fMat, sizeof(fMat));
+    fMat[0][0] = fMat[1][1] = fMat[2][2] = fMat[3][3] = 1;
 }
 
 void SkMatrix44::set3x3(SkMScalar m00, SkMScalar m01, SkMScalar m02,
                         SkMScalar m10, SkMScalar m11, SkMScalar m12,
                         SkMScalar m20, SkMScalar m21, SkMScalar m22) {
-	sk_bzero(fMat, sizeof(fMat));
-	fMat[0][0] = m00; fMat[0][1] = m01; fMat[0][2] = m02; fMat[0][3] = 0;
-	fMat[1][0] = m10; fMat[1][1] = m11; fMat[1][2] = m12; fMat[1][3] = 0;
-	fMat[2][0] = m20; fMat[2][1] = m21; fMat[2][2] = m22; fMat[2][3] = 0;
+    sk_bzero(fMat, sizeof(fMat));
+    fMat[0][0] = m00; fMat[0][1] = m01; fMat[0][2] = m02; fMat[0][3] = 0;
+    fMat[1][0] = m10; fMat[1][1] = m11; fMat[1][2] = m12; fMat[1][3] = 0;
+    fMat[2][0] = m20; fMat[2][1] = m21; fMat[2][2] = m22; fMat[2][3] = 0;
     fMat[3][0] = 0;   fMat[3][1] = 0;   fMat[3][2] = 0;   fMat[3][3] = 1;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setTranslate(SkMScalar tx, SkMScalar ty, SkMScalar tz) {
-	this->setIdentity();
-	fMat[3][0] = tx;
-	fMat[3][1] = ty;
-	fMat[3][2] = tz;
-	fMat[3][3] = 1;
+    this->setIdentity();
+    fMat[3][0] = tx;
+    fMat[3][1] = ty;
+    fMat[3][2] = tz;
+    fMat[3][3] = 1;
 }
 
 void SkMatrix44::preTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
-	SkMatrix44 mat;
-	mat.setTranslate(dx, dy, dz);
-	this->preConcat(mat);
+    SkMatrix44 mat;
+    mat.setTranslate(dx, dy, dz);
+    this->preConcat(mat);
 }
 
 void SkMatrix44::postTranslate(SkMScalar dx, SkMScalar dy, SkMScalar dz) {
-	fMat[3][0] += dx;
-	fMat[3][1] += dy;
-	fMat[3][2] += dz;
+    fMat[3][0] += dx;
+    fMat[3][1] += dy;
+    fMat[3][2] += dz;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setScale(SkMScalar sx, SkMScalar sy, SkMScalar sz) {
-	sk_bzero(fMat, sizeof(fMat));
-	fMat[0][0] = sx;
+    sk_bzero(fMat, sizeof(fMat));
+    fMat[0][0] = sx;
     fMat[1][1] = sy;
     fMat[2][2] = sz;
     fMat[3][3] = 1;
@@ -133,25 +145,26 @@ void SkMatrix44::setRotateAboutUnit(SkMScalar x, SkMScalar y, SkMScalar z,
     double yzC = y * zC;
     double zxC = z * xC;
 
-    this->set3x3(x * xC + c,    xyC - zs,       zxC + ys,
-                 xyC + zs,      y * yC + c,     yzC - xs,
-                 zxC - ys,      yzC + xs,       z * zC + c);
+    // if you're looking at wikipedia, remember that we're column major.
+    this->set3x3(x * xC + c,    xyC + zs,       zxC - ys,
+                 xyC - zs,      y * yC + c,     yzC + xs,
+                 zxC + ys,      yzC - xs,       z * zC + c);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
-	SkMScalar result[4][4];
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			double value = 0;
-			for (int k = 0; k < 4; k++) {
-				value += SkMScalarToDouble(a.fMat[k][i]) * b.fMat[j][k];
-			}
-			result[j][i] = SkDoubleToMScalar(value);
-		}
-	}
-	memcpy(fMat, result, sizeof(result));
+    SkMScalar result[4][4];
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            double value = 0;
+            for (int k = 0; k < 4; k++) {
+                value += SkMScalarToDouble(a.fMat[k][i]) * b.fMat[j][k];
+            }
+            result[j][i] = SkDoubleToMScalar(value);
+        }
+    }
+    memcpy(fMat, result, sizeof(result));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,8 +177,8 @@ static inline double det3x3(double m00, double m01, double m02,
                             double m10, double m11, double m12,
                             double m20, double m21, double m22) {
     return  m00 * det2x2(m11, m12, m21, m22) -
-            m10 * det2x2(m01, m02, m21, m22) +
-            m20 * det2x2(m01, m02, m11, m12);
+    m10 * det2x2(m01, m02, m21, m22) +
+    m20 * det2x2(m01, m02, m11, m12);
 }
 
 /** We always perform the calculation in doubles, to avoid prematurely losing
@@ -176,15 +189,15 @@ double SkMatrix44::determinant() const {
     return  fMat[0][0] * det3x3(fMat[1][1], fMat[1][2], fMat[1][3],
                                 fMat[2][1], fMat[2][2], fMat[2][3],
                                 fMat[3][1], fMat[3][2], fMat[3][3]) -
-            fMat[1][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
-                                fMat[2][1], fMat[2][2], fMat[2][3],
-                                fMat[3][1], fMat[3][2], fMat[3][3]) +
-            fMat[2][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
-                                fMat[1][1], fMat[1][2], fMat[1][3],
-                                fMat[3][1], fMat[3][2], fMat[3][3]) -
-            fMat[3][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
-                                fMat[1][1], fMat[1][2], fMat[1][3],
-                                fMat[2][1], fMat[2][2], fMat[2][3]);
+    fMat[1][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
+                        fMat[2][1], fMat[2][2], fMat[2][3],
+                        fMat[3][1], fMat[3][2], fMat[3][3]) +
+    fMat[2][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
+                        fMat[1][1], fMat[1][2], fMat[1][3],
+                        fMat[3][1], fMat[3][2], fMat[3][3]) -
+    fMat[3][0] * det3x3(fMat[0][1], fMat[0][2], fMat[0][3],
+                        fMat[1][1], fMat[1][2], fMat[1][3],
+                        fMat[2][1], fMat[2][2], fMat[2][3]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -226,7 +239,7 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
     double m31 = fMat[3][1];
     double m32 = fMat[3][2];
     double m33 = fMat[3][3];
-    
+
     double tmp[4][4];
 
     tmp[0][0] = m12*m23*m31 - m13*m22*m31 + m13*m21*m32 - m11*m23*m32 - m12*m21*m33 + m11*m22*m33;
@@ -258,15 +271,15 @@ bool SkMatrix44::invert(SkMatrix44* inverse) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix44::map(const SkScalar src[4], SkScalar dst[4]) const {
-	SkScalar result[4];
-	for (int i = 0; i < 4; i++) {
-		SkMScalar value = 0;
-		for (int j = 0; j < 4; j++) {
-			value += fMat[j][i] * src[j];
-		}
-		result[i] = value;
-	}
-	memcpy(dst, result, sizeof(result));
+    SkScalar result[4];
+    for (int i = 0; i < 4; i++) {
+        SkMScalar value = 0;
+        for (int j = 0; j < 4; j++) {
+            value += fMat[j][i] * src[j];
+        }
+        result[i] = value;
+    }
+    memcpy(dst, result, sizeof(result));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -279,17 +292,17 @@ void SkMatrix44::dump() const {
              fMat[2][0], fMat[2][1], fMat[2][2], fMat[2][3],
              fMat[3][0], fMat[3][1], fMat[3][2], fMat[3][3]);
 #else
-            fMat[0][0], fMat[1][0], fMat[2][0], fMat[3][0],
-            fMat[0][1], fMat[1][1], fMat[2][1], fMat[3][1],
-            fMat[0][2], fMat[1][2], fMat[2][2], fMat[3][2],
-            fMat[0][3], fMat[1][3], fMat[2][3], fMat[3][3]);
+             fMat[0][0], fMat[1][0], fMat[2][0], fMat[3][0],
+             fMat[0][1], fMat[1][1], fMat[2][1], fMat[3][1],
+             fMat[0][2], fMat[1][2], fMat[2][2], fMat[3][2],
+             fMat[0][3], fMat[1][3], fMat[2][3], fMat[3][3]);
 #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 static void initFromMatrix(SkMScalar dst[4][4], const SkMatrix& src) {
-	sk_bzero(dst, 16 * sizeof(SkMScalar));
+    sk_bzero(dst, 16 * sizeof(SkMScalar));
     dst[0][0] = src[SkMatrix::kMScaleX];
     dst[1][0] = src[SkMatrix::kMSkewX];
     dst[3][0] = src[SkMatrix::kMTransX];
