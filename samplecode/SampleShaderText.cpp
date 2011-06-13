@@ -118,7 +118,7 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         const char text[] = "Shaded Text";
         const int textLen = SK_ARRAY_COUNT(text) - 1;
-        static int pointSize = 48;
+        static int pointSize = 36;
 
         int w = pointSize * textLen;
         int h = pointSize;
@@ -166,16 +166,28 @@ protected:
         canvas->save();
         canvas->translate(SkIntToScalar(20), SkIntToScalar(10));
 
+        SkPath path;
+        path.arcTo(SkRect::MakeXYWH(-40, 15, 300, 90), 
+                   SK_Scalar1 * 225,  SK_Scalar1 * 90, false);
+        path.close();
+
         static const int testsPerCol = 8;
         static const int rowHeight = 60;
         static const int colWidth = 300;
         canvas->save();
         for (size_t s = 0; s < SK_ARRAY_COUNT(shaders); s++) {
             canvas->save();
-            canvas->translate(SkIntToScalar((s / testsPerCol) * colWidth),
-                              SkIntToScalar((s % testsPerCol) * rowHeight));
+            int i = 2*s;
+            canvas->translate(SkIntToScalar((i / testsPerCol) * colWidth),
+                              SkIntToScalar((i % testsPerCol) * rowHeight));
             paint.setShader(shaders[s])->unref();
             canvas->drawText(text, textLen, 0, textBase, paint);
+            canvas->restore();
+            canvas->save();
+            ++i;
+            canvas->translate(SkIntToScalar((i / testsPerCol) * colWidth),
+                              SkIntToScalar((i % testsPerCol) * rowHeight));
+            canvas->drawTextOnPath(text, textLen, path, NULL, paint);
             canvas->restore();
         }
         canvas->restore();

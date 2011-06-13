@@ -51,6 +51,7 @@ private:
     GrTextStrike*   fStrike;
 
     inline void flushGlyphs();
+    void setupDrawTarget();
 
     enum {
         kMinRequestedGlyphs      = 1,
