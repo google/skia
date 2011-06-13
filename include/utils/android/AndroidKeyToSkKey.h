@@ -17,7 +17,7 @@
 #ifndef _ANDROID_TO_SKIA_KEYCODES_H
 #define _ANDROID_TO_SKIA_KEYCODES_H
 
-#include "keycodes.h"
+#include "android/keycodes.h"
 #include "SkKey.h"
 
 // Convert an Android keycode to an SkKey.  This is an incomplete list, only
@@ -32,6 +32,8 @@ SkKey AndroidKeycodeToSkKey(int keycode) {
             return kUp_SkKey;
         case AKEYCODE_DPAD_DOWN:
             return kDown_SkKey;
+        case AKEYCODE_BACK:
+            return kBack_SkKey;
         default:
             return kNONE_SkKey;
     }

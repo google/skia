@@ -30,14 +30,13 @@ LOCAL_C_INCLUDES += \
     external/skia/include/effects \
     external/skia/include/images \
     external/skia/include/utils \
-    $(LOCAL_PATH)/skia_extra/include/views \
-    $(LOCAL_PATH)/skia_extra/samplecode \
-    $(LOCAL_PATH)/skia_extra/include/xml \
+    external/skia/include/utils/android \
+    external/skia/include/views \
+    external/skia/samplecode \
+    external/skia/include/xml \
     external/skia/include/gpu \
     external/skia/src/core \
     external/skia/gpu/include \
-    frameworks/base/core/jni/android/graphics \
-    frameworks/base/native/include/android \
     $(LOCAL_PATH)/jni
 
 LOCAL_SHARED_LIBRARIES := \
@@ -55,16 +54,16 @@ LOCAL_PRELINK_MODULE := false
 LOCAL_MODULE := libskia-sample
 
 LOCAL_SRC_FILES := \
-    skia_extra/src/ports/SkXMLParser_empty.cpp \
+    ../../src/ports/SkXMLParser_empty.cpp \
     jni/sample-jni.cpp
 
-include $(LOCAL_PATH)/skia_extra/src/views/views_files.mk
-LOCAL_SRC_FILES += $(addprefix skia_extra/src/views/, $(SOURCE))
+include external/skia/src/views/views_files.mk
+LOCAL_SRC_FILES += $(addprefix ../../src/views/, $(SOURCE))
 
-include $(LOCAL_PATH)/skia_extra/src/xml/xml_files.mk
-LOCAL_SRC_FILES += $(addprefix skia_extra/src/xml/, $(SOURCE))
+include external/skia/src/xml/xml_files.mk
+LOCAL_SRC_FILES += $(addprefix ../../src/xml/, $(SOURCE))
 
-include $(LOCAL_PATH)/skia_extra/samplecode/samplecode_files.mk
-LOCAL_SRC_FILES += $(addprefix skia_extra/samplecode/, $(SOURCE))
+include external/skia/samplecode/samplecode_files.mk
+LOCAL_SRC_FILES += $(addprefix ../../samplecode/, $(SOURCE))
 
 include $(BUILD_SHARED_LIBRARY)

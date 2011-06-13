@@ -18,11 +18,14 @@
 #include <jni.h>
 
 #include "SkCanvas.h"
-#include "GraphicsJNI.h"
 #include "SkEvent.h"
 #include "SkWindow.h"
 #include "SkApplication.h"
-#include "AndroidKeyToSkKey.h"
+#include "utils/android/AndroidKeyToSkKey.h"
+
+#include "SkDevice.h"
+#include "SkGpuCanvas.h"
+#include "GrContext.h"
 
 ///////////////////////////////////////////
 ///////////////// Globals /////////////////
@@ -70,8 +73,7 @@ void SkOSWindow::onHandleInval(const SkIRect& rect)
     if (!gActivityGlue.m_env || !gWindowGlue.m_inval || !gWindowGlue.m_obj) {
         return;
     }
-    gActivityGlue.m_env->CallVoidMethod(gWindowGlue.m_obj, gWindowGlue.m_inval,
-            rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+    gActivityGlue.m_env->CallVoidMethod(gWindowGlue.m_obj, gWindowGlue.m_inval);
 }
 
 ///////////////////////////////////////////
@@ -95,8 +97,8 @@ static jmethodID GetJMethod(JNIEnv* env, jclass clazz, const char name[],
 }
 
 extern "C" {
-JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_drawToCanvas(
-        JNIEnv* env, jobject thiz, jobject jcanvas);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_draw(
+        JNIEnv* env, jobject thiz);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_init(
         JNIEnv* env, jobject thiz);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_term(
@@ -111,6 +113,8 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_handleClick(
         JNIEnv* env, jobject thiz, jint x, jint y, jint state);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_createOSWindow(
         JNIEnv* env, jobject thiz, jobject jsampleView);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_zoom(
+        JNIEnv* env, jobject thiz, jfloat factor);
 };
 
 JNIEXPORT bool JNICALL Java_com_skia_sampleapp_SampleApp_handleKeyDown(
@@ -160,10 +164,10 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_createOSWindow(
 {
     gWindow = create_sk_window(NULL);
     // Only using a method on View.
-    jclass clazz = gActivityGlue.m_env->FindClass("android/view/View");
+    jclass clazz = gActivityGlue.m_env->FindClass("android/opengl/GLSurfaceView");
     gWindowGlue.m_obj = gActivityGlue.m_env->NewWeakGlobalRef(jsampleView);
-    gWindowGlue.m_inval = GetJMethod(gActivityGlue.m_env, clazz, "invalidate",
-            "(IIII)V");
+    gWindowGlue.m_inval = GetJMethod(gActivityGlue.m_env, clazz, "requestRender",
+            "()V");
     gActivityGlue.m_env->DeleteLocalRef(clazz);
 }
 
@@ -198,11 +202,42 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_term(JNIEnv* env,
 }
 
 
-JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_drawToCanvas(
-        JNIEnv* env, jobject thiz, jobject jcanvas)
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_draw(
+        JNIEnv* env, jobject thiz)
 {
     if (!gWindow) return;
     gWindow->update(NULL);
-    SkCanvas* canvas = GraphicsJNI::getNativeCanvas(env, jcanvas);
-    canvas->drawBitmap(gWindow->getBitmap(), 0, 0);
+
+    // Copy the bitmap to the screen in raster mode
+    if (!gWindow->drawsToHardware()) {
+
+        SkBitmap bitmap = gWindow->getBitmap();
+
+        GrContext* context = gWindow->getGrContext();
+        if (!context) {
+            context = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
+            if (!context || !gWindow->setGrContext(context)) {
+                return;
+            }
+            context->unref();
+        }
+        GrRenderTarget* renderTarget = context->createRenderTargetFrom3DApiState();
+        SkGpuCanvas* gpuCanvas = new SkGpuCanvas(context, renderTarget);
+
+        SkDevice* device = gpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
+                                          bitmap.width(), bitmap.height(),
+                                          false, false);
+        gpuCanvas->setDevice(device)->unref();
+        gpuCanvas->drawBitmap(bitmap, 0, 0);
+
+        SkSafeUnref(renderTarget);
+        SkSafeUnref(gpuCanvas);
+    }
 }
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_zoom(
+        JNIEnv* env, jobject thiz, jfloat factor)
+{
+    gWindow->changeZoomLevel(factor);
+}
+

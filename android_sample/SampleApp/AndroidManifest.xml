@@ -21,7 +21,7 @@
     <application android:label="@string/app_name"
                  android:debuggable="true">
         <activity android:name=".SampleApp"
-                  android:theme="@android:style/Theme.Holo.NoActionBar"
+                  android:theme="@android:style/Theme.Holo.Light"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
