@@ -69,6 +69,10 @@ template <typename T> const T& GrMax(const T& a, const T& b) {
 /**
  *  divide, rounding up
  */
+static inline int32_t GrIDivRoundUp(int x, int y) {
+    GrAssert(y > 0);
+    return (x + (y-1)) / y;
+}
 static inline uint32_t GrUIDivRoundUp(uint32_t x, uint32_t y) {
     return (x + (y-1)) / y;
 }
