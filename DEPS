@@ -7,5 +7,5 @@
 
 use_relative_paths = True
 deps = {
-  "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@930",
+  "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@907",
 }
