@@ -251,6 +251,11 @@ public:
     virtual ~SampleWindow();
 
     virtual void draw(SkCanvas* canvas);
+#ifdef ANDROID
+    virtual bool drawsToHardware() { return fCanvasType == kGPU_CanvasType; }
+    virtual bool setGrContext(GrContext*);
+    virtual GrContext* getGrContext();
+#endif
 
 protected:
     virtual void onDraw(SkCanvas* canvas);
@@ -287,7 +292,7 @@ private:
     SkPath fClipPath;
 
     SkTouchGesture fGesture;
-    int      fZoomLevel;
+    SkScalar fZoomLevel;
     SkScalar fZoomScale;
 
     enum CanvasType {
@@ -325,7 +330,10 @@ private:
     int fScrollTestX, fScrollTestY;
 
     bool make3DReady();
-    void changeZoomLevel(int delta);
+#ifdef ANDROID
+    virtual
+#endif
+    void changeZoomLevel(float delta);
 
     void loadView(SkView*);
     void updateTitle();
@@ -349,6 +357,23 @@ private:
 
     typedef SkOSWindow INHERITED;
 };
+
+#ifdef ANDROID
+bool SampleWindow::setGrContext(GrContext* context)
+{
+    if (fGrContext) {
+        fGrContext->unref();
+    }
+    fGrContext = context;
+    fGrContext->ref();
+    return true;
+}
+
+GrContext* SampleWindow::getGrContext()
+{
+    return fGrContext;
+}
+#endif
 
 bool SampleWindow::zoomIn()
 {
@@ -928,17 +953,19 @@ static SkBitmap::Config cycle_configs(SkBitmap::Config c) {
     return gConfigCycle[c];
 }
 
-void SampleWindow::changeZoomLevel(int delta) {
-    fZoomLevel += delta;
+void SampleWindow::changeZoomLevel(float delta) {
+    fZoomLevel += SkFloatToScalar(delta);
     if (fZoomLevel > 0) {
-        fZoomLevel = SkMin32(fZoomLevel, MAX_ZOOM_LEVEL);
-        fZoomScale = SkIntToScalar(fZoomLevel + 1);
+        fZoomLevel = SkMinScalar(fZoomLevel, MAX_ZOOM_LEVEL);
+        fZoomScale = fZoomLevel + SK_Scalar1;
     } else if (fZoomLevel < 0) {
-        fZoomLevel = SkMax32(fZoomLevel, MIN_ZOOM_LEVEL);
-        fZoomScale = SK_Scalar1 / (1 - fZoomLevel);
+        fZoomLevel = SkMaxScalar(fZoomLevel, MIN_ZOOM_LEVEL);
+        fZoomScale = SK_Scalar1 / (SK_Scalar1 - fZoomLevel);
     } else {
         fZoomScale = SK_Scalar1;
     }
+
+    this->updateTitle();
 
     this->inval(NULL);
 }
@@ -1153,20 +1180,20 @@ bool SampleWindow::onHandleKey(SkKey key) {
             return true;
         case kUp_SkKey:
             if (USE_ARROWS_FOR_ZOOM) {
-                this->changeZoomLevel(1);
+                this->changeZoomLevel(1.f);
             } else {
                 fNClip = !fNClip;
                 this->inval(NULL);
+                this->updateTitle();
             }
-            this->updateTitle();
             return true;
         case kDown_SkKey:
             if (USE_ARROWS_FOR_ZOOM) {
-                this->changeZoomLevel(-1);
+                this->changeZoomLevel(-1.f);
             } else {
                 this->setConfig(cycle_configs(this->getBitmap().config()));
+                this->updateTitle();
             }
-            this->updateTitle();
             return true;
         case kOK_SkKey:
             if (false) {
@@ -1333,7 +1360,7 @@ void SampleWindow::updateTitle() {
     title.prepend(fFlipAxis & kFlipAxis_Y ? "Y " : NULL);
 
     if (fZoomLevel) {
-        title.prependf("{%d} ", fZoomLevel);
+        title.prependf("{%.2f} ", SkScalarToFloat(fZoomLevel));
     }
     
     if (fMeasureFPS) {

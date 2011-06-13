@@ -19,94 +19,151 @@ package com.skia.sampleapp;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
+
 public class SampleApp extends Activity
 {
     private TextView mTitle;
-
-    public class SampleView extends View {
-        public SampleView(Context context) {
-            super(context);
-            createOSWindow(this);
-        }
-
-        @Override
-        protected void onDraw(Canvas canvas) {
-            drawToCanvas(canvas);
-        }
-
-        @Override
-        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-            updateSize(w, h);
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            final int x = (int) event.getX();
-            final int y = (int) event.getY();
-            final int action = event.getAction();
-            handleClick(x, y, action);
-            return true;
-        }
-    }
+    private SampleView mView;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        init();
         setContentView(R.layout.layout);
         mTitle = (TextView) findViewById(R.id.title_view);
         LinearLayout holder = (LinearLayout) findViewById(R.id.holder);
-        View view = new SampleView(this);
-        holder.addView(view, new LinearLayout.LayoutParams(
+        mView = new SampleView(this);
+
+        holder.addView(mView, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
+        
+        mTitle.setVisibility(View.GONE);
+        getActionBar().setDisplayShowHomeEnabled(false);
+        
     }
 
     @Override
-    public void onDestroy()
-    {
-        term();
+    public void onDestroy() {
+        mView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                term();
+            }
+        });
         super.onDestroy();
     }
 
     @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        switch (event.getAction()) {
-            case KeyEvent.ACTION_DOWN:
-                int uni = event.getUnicodeChar(event.getMetaState());
-                return handleKeyDown(event.getKeyCode(), uni);
-            case KeyEvent.ACTION_UP:
-                return handleKeyUp(event.getKeyCode());
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.sample, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.overview:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleKeyDown(KeyEvent.KEYCODE_BACK, 0);
+                    }
+                });
+                return true;
+            case R.id.next:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleKeyDown(KeyEvent.KEYCODE_DPAD_RIGHT, 0);
+                    }
+                });
+                return true;
             default:
                 return false;
         }
     }
 
     @Override
-    public void setTitle(CharSequence title) {
-        mTitle.setText(title);
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        final int keycode = event.getKeyCode();
+        if (keycode == KeyEvent.KEYCODE_BACK) {
+            if (event.getAction() == KeyEvent.ACTION_UP) {
+                finish();
+            }
+            return true;
+        }
+        switch (event.getAction()) {
+            case KeyEvent.ACTION_DOWN:
+                final int uni = event.getUnicodeChar(event.getMetaState());
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleKeyDown(keycode, uni);
+                    }
+                });
+                
+                return true;
+            case KeyEvent.ACTION_UP:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        handleKeyUp(keycode);
+                    }
+                });
+                return true;
+            default:
+                return false;
+        }
     }
 
-    private native void drawToCanvas(Canvas canvas);
-    private native void init();
-    private native void term();
+    private static final int SET_TITLE = 1;
+    
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case SET_TITLE:
+                    mTitle.setText((String) msg.obj);
+                    SampleApp.this.getActionBar().setSubtitle((String) msg.obj);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+    
+    @Override
+    public void setTitle(CharSequence title) {
+        mHandler.obtainMessage(SET_TITLE, title).sendToTarget();
+    }
+
+    native void draw();
+    native void init();
+    native void term();
     // Currently depends on init having already been called.
-    private native void createOSWindow(SampleView view);
-    private native void updateSize(int w, int h);
-    private native void handleClick(int x, int y, int state);
-    private native boolean handleKeyDown(int key, int uni);
-    private native boolean handleKeyUp(int key);
+    native void createOSWindow(GLSurfaceView view);
+    native void updateSize(int w, int h);
+    native void handleClick(int x, int y, int state);
+    native boolean handleKeyDown(int key, int uni);
+    native boolean handleKeyUp(int key);
+    native void zoom(float factor);
 
     static {
         System.loadLibrary("skia-sample");

@@ -20,14 +20,19 @@
 #include "SkWindow.h"
 #include "SkEvent.h"
 
+class GrContext;
+
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void*) {}
     ~SkOSWindow() {}
-    bool attachGL() { return false; }
+    bool attachGL() { return true; }
     void detachGL() {}
     void presentGL() {}
-
+    virtual bool drawsToHardware() { return false; }
+    virtual bool setGrContext(GrContext*) { return false; }
+    virtual GrContext* getGrContext() { return NULL; }
+    virtual void changeZoomLevel(float delta) {}
 protected:
     // overrides from SkWindow
     virtual void onHandleInval(const SkIRect&);

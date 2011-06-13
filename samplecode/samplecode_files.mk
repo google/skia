@@ -20,12 +20,10 @@ SOURCE := \
     SampleShaderText.cpp \
     SamplePolyToPoly.cpp \
     SampleBlur.cpp \
-    SampleEffects.cpp \
     SampleHairline.cpp \
     SampleCircle.cpp \
     SampleOvalTest.cpp \
     SampleLines.cpp \
-    SampleCull.cpp \
     SampleOverflow.cpp \
     SampleStrokePath.cpp \
     SampleSlides.cpp \
@@ -57,19 +55,9 @@ SOURCE := \
     SampleFilter.cpp \
     OverView.cpp \
     SampleFuzz.cpp \
-    SampleShaders.cpp
-#    SampleSVG.cpp \
-    SampleTests.cpp \
-    SampleTestGL.cpp \
-    SampleTriangles.cpp \
-    SampleSkLayer.cpp \
-    SampleGM.cpp \
-    SampleText.cpp \
-    SampleTextBox.cpp \
+    SampleShaders.cpp \
     SampleImage.cpp \
     SampleMovie.cpp \
-    SampleAnimator.cpp \
-    SampleUnitMapper.cpp \
     SampleImageDir.cpp \
     SampleWarp.cpp \
     SamplePageFlip.cpp \
