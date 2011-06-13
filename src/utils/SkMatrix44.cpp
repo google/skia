@@ -43,6 +43,54 @@ void SkMatrix44::set(int row, int col, const SkMScalar& value) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void SkMatrix44::asColMajorf(float dst[]) const {
+    const SkMScalar* src = &fMat[0][0];
+#ifdef SK_MSCALAR_IS_DOUBLE
+    for (int i = 0; i < 16; ++i) {
+        dst[i] = SkMScalarToFloat(src[i]);
+    }
+#else
+    memcpy(dst, src, 16 * sizeof(float));
+#endif
+}
+
+void SkMatrix44::asColMajord(double dst[]) const {
+    const SkMScalar* src = &fMat[0][0];
+#ifdef SK_MSCALAR_IS_DOUBLE
+    memcpy(dst, src, 16 * sizeof(double));
+#else
+    for (int i = 0; i < 16; ++i) {
+        dst[i] = SkMScalarToDouble(src[i]);
+    }
+#endif
+}
+
+void SkMatrix44::asRowMajorf(float dst[]) const {
+    const SkMScalar* src = &fMat[0][0];
+    for (int i = 0; i < 4; ++i) {
+        dst[0] = SkMScalarToFloat(src[0]);
+        dst[4] = SkMScalarToFloat(src[1]);
+        dst[8] = SkMScalarToFloat(src[2]);
+        dst[12] = SkMScalarToFloat(src[3]);
+        src += 4;
+        dst += 1;
+    }
+}
+
+void SkMatrix44::asRowMajord(double dst[]) const {
+    const SkMScalar* src = &fMat[0][0];
+    for (int i = 0; i < 4; ++i) {
+        dst[0] = SkMScalarToDouble(src[0]);
+        dst[4] = SkMScalarToDouble(src[1]);
+        dst[8] = SkMScalarToDouble(src[2]);
+        dst[12] = SkMScalarToDouble(src[3]);
+        src += 4;
+        dst += 1;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 static const SkMatrix44 gIdentity44;
 
 bool SkMatrix44::isIdentity() const {
