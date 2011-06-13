@@ -578,7 +578,7 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     return 0;
 }
 
-uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
+SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     return 0;
 }
 

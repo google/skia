@@ -491,9 +491,9 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return new SkScalerContext_Mac(desc);
 }
 
-uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
+SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     uint32_t newFontID = find_default_fontID();
-    if (newFontID == fontID) {
+    if (newFontID == currFontID) {
         newFontID = 0;
     }
     return newFontID;

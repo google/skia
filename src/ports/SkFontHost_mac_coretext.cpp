@@ -887,10 +887,10 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
     return new SkScalerContext_Mac(desc);
 }
 
-SkFontID SkFontHost::NextLogicalFont(SkFontID fontID) {
+SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     SkFontID nextFontID = 0;
     SkTypeface* face = GetDefaultFace();
-    if (face->uniqueID() != fontID) {
+    if (face->uniqueID() != currFontID) {
         nextFontID = face->uniqueID();
     }
     return nextFontID;

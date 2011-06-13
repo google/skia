@@ -632,7 +632,7 @@ size_t SkFontHost::GetFileName(SkFontID fontID, char path[], size_t length,
     }
 }
 
-uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
+SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     load_system_fonts();
 
     /*  First see if fontID is already one of our fallbacks. If so, return
@@ -642,7 +642,7 @@ uint32_t SkFontHost::NextLogicalFont(uint32_t fontID) {
      */
     const uint32_t* list = gFallbackFonts;
     for (int i = 0; list[i] != 0; i++) {
-        if (list[i] == fontID) {
+        if (list[i] == currFontID) {
             return list[i+1];
         }
     }
