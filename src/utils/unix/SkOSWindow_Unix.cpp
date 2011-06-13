@@ -84,6 +84,7 @@ void SkOSWindow::post_linuxevent()
     event.data.l[0] = 0;
     XSendEvent(fUnixWindow.fDisplay, fUnixWindow.fWin, false, 0,
                (XEvent*) &event);
+    XFlush(fUnixWindow.fDisplay);
 }
 
 void SkOSWindow::loop()
