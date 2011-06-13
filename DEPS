@@ -1,14 +1,11 @@
-hooks = [
-  {
-    # This is a hack to download the code in third_party/externals in gclient
-    # (it works fine without this hack when you use svn instead of gclient).
-    #
-    # Because gclient runs svn update with the --ignore_externals flag set,
-    # it will not pick up our external dependencies in third_party/externals.
-    # So run "svn update" again for these directories.
-    #
-    # See https://groups.google.com/a/chromium.org/group/chromium-dev/browse_thread/thread/1f99541c2c5f6c6e
-    "pattern": ".*",
-    "action": ["svn", "update", "trunk/third_party/externals"],
-  },
-]
+# Dependencies on outside packages, as needed for developers/bots that use
+# "gclient" instead of raw SVN access.
+#
+# For now, this must be maintained in parallel with "SVN externals"
+# dependencies for developers who use raw SVN instead of "gclient".
+# See third_party/externals/README
+
+use_relative_paths = True
+deps = {
+  "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@930",
+}
