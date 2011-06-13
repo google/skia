@@ -141,10 +141,10 @@ public:
     };
 
     struct GLTextureDesc {
-        uint32_t        fContentWidth;
-        uint32_t        fContentHeight;
-        uint32_t        fAllocWidth;
-        uint32_t        fAllocHeight;
+        int             fContentWidth;
+        int             fContentHeight;
+        int             fAllocWidth;
+        int             fAllocHeight;
         GrPixelConfig   fFormat;
         GrGLuint        fTextureID;
         bool            fOwnsID;
@@ -165,10 +165,10 @@ public:
     virtual ~GrGLTexture() { this->release(); }
 
     // overrides of GrTexture
-    virtual void uploadTextureData(uint32_t x,
-                                   uint32_t y,
-                                   uint32_t width,
-                                   uint32_t height,
+    virtual void uploadTextureData(int x,
+                                   int y,
+                                   int width,
+                                   int height,
                                    const void* srcData);
     virtual intptr_t getTextureHandle();
 

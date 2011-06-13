@@ -770,7 +770,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             size_t trimSize = desc.fHeight * trimRowBytes;
             const char* src = (const char*)srcData;
             char* dst = (char*)trimStorage.realloc(trimSize);
-            for (uint32_t y = 0; y < desc.fHeight; y++) {
+            for (int y = 0; y < desc.fHeight; y++) {
                 memcpy(dst, src, trimRowBytes);
                 src += rowBytes;
                 dst += trimRowBytes;
@@ -786,19 +786,19 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
         }
 
-        glDesc.fAllocWidth = GrMax<int>(fMinRenderTargetWidth,
-                                        glDesc.fAllocWidth);
-        glDesc.fAllocHeight = GrMax<int>(fMinRenderTargetHeight,
-                                         glDesc.fAllocHeight);
-        if ((int)glDesc.fAllocWidth > fMaxRenderTargetSize ||
-            (int)glDesc.fAllocHeight > fMaxRenderTargetSize) {
+        glDesc.fAllocWidth = GrMax(fMinRenderTargetWidth,
+                                   glDesc.fAllocWidth);
+        glDesc.fAllocHeight = GrMax(fMinRenderTargetHeight,
+                                    glDesc.fAllocHeight);
+        if (glDesc.fAllocWidth > fMaxRenderTargetSize ||
+            glDesc.fAllocHeight > fMaxRenderTargetSize) {
             return return_null_texture();
         }
     } else if (!this->npotTextureSupport()) {
         glDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
         glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
-        if ((int)glDesc.fAllocWidth > fMaxTextureSize ||
-            (int)glDesc.fAllocHeight > fMaxTextureSize) {
+        if (glDesc.fAllocWidth > fMaxTextureSize ||
+            glDesc.fAllocHeight > fMaxTextureSize) {
             return return_null_texture();
         }
     }
@@ -840,9 +840,9 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                 glDesc.fUploadType, srcData));
             GrGLRestoreResetRowLength();
 
-            uint32_t extraW = glDesc.fAllocWidth  - desc.fWidth;
-            uint32_t extraH = glDesc.fAllocHeight - desc.fHeight;
-            uint32_t maxTexels = extraW * extraH;
+            int extraW = glDesc.fAllocWidth  - desc.fWidth;
+            int extraH = glDesc.fAllocHeight - desc.fHeight;
+            int maxTexels = extraW * extraH;
             maxTexels = GrMax(extraW * desc.fHeight, maxTexels);
             maxTexels = GrMax(desc.fWidth * extraH, maxTexels);
 
@@ -854,7 +854,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                         (desc.fHeight - 1) * rowSize;
                 uint8_t* extraRowStart = (uint8_t*)texels.get();
 
-                for (uint32_t i = 0; i < extraH; ++i) {
+                for (int i = 0; i < extraH; ++i) {
                     memcpy(extraRowStart, lastRowStart, rowSize);
                     extraRowStart += rowSize;
                 }
@@ -865,8 +865,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             if (extraW) {
                 uint8_t* edgeTexel = (uint8_t*)srcData + rowSize - glDesc.fUploadByteCount;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
-                for (uint32_t j = 0; j < desc.fHeight; ++j) {
-                    for (uint32_t i = 0; i < extraW; ++i) {
+                for (int j = 0; j < desc.fHeight; ++j) {
+                    for (int i = 0; i < extraW; ++i) {
                         memcpy(extraTexel, edgeTexel, glDesc.fUploadByteCount);
                         extraTexel += glDesc.fUploadByteCount;
                     }
@@ -880,7 +880,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                 uint8_t* cornerTexel = (uint8_t*)srcData + desc.fHeight * rowSize
                                        - glDesc.fUploadByteCount;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
-                for (uint32_t i = 0; i < extraW*extraH; ++i) {
+                for (int i = 0; i < extraW*extraH; ++i) {
                     memcpy(extraTexel, cornerTexel, glDesc.fUploadByteCount);
                     extraTexel += glDesc.fUploadByteCount;
                 }

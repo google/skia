@@ -208,10 +208,10 @@ public:
      * @param srcData width*height texels of data in same format that was used
      *                at texture creation.
      */
-    virtual void uploadTextureData(uint32_t x,
-                                   uint32_t y,
-                                   uint32_t width,
-                                   uint32_t height,
+    virtual void uploadTextureData(int x,
+                                   int y,
+                                   int width,
+                                   int height,
                                    const void* srcData) = 0;
 
     /**
