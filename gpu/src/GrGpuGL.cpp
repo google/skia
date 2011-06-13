@@ -1003,8 +1003,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
                 GrGLenum status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
                 if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-                    GrPrintf("-- glCheckFramebufferStatus %x %d %d\n",
-                             status, desc.fWidth, desc.fHeight);
                     continue;
                 }
                 GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs.fRTFBOID));
@@ -1035,8 +1033,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
 
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-                GrPrintf("-- glCheckFramebufferStatus %x %d %d\n",
-                         status, desc.fWidth, desc.fHeight);
                 // undo the depth bind
                 if (rtIDs.fStencilRenderbufferID && 
                     stencilFormats[i].fPacked) {
@@ -1317,7 +1313,7 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
     #if GR_DEBUG
         GrGLenum status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
-            GrPrintf("-- glCheckFramebufferStatus %x\n", status);
+            GrPrintf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
         }
     #endif
         fDirtyFlags.fRenderTargetChanged = true;
