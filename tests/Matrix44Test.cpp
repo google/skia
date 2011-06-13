@@ -1,7 +1,7 @@
 #include "Test.h"
 #include "SkMatrix44.h"
 
-static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
+static bool nearly_equal_scalar(SkMScalar a, SkMScalar b) {
     // Note that we get more compounded error for multiple operations when
     // SK_SCALAR_IS_FIXED.
 #ifdef SK_SCALAR_IS_FLOAT
@@ -13,11 +13,37 @@ static bool nearly_equal_scalar(SkScalar a, SkScalar b) {
     return SkScalarAbs(a - b) <= tolerance;
 }
 
+template <typename T> void assert16(skiatest::Reporter* reporter, const T data[],
+                                    T m0,  T m1,  T m2,  T m3,
+                                    T m4,  T m5,  T m6,  T m7,
+                                    T m8,  T m9,  T m10, T m11,
+                                    T m12, T m13, T m14, T m15) {
+    REPORTER_ASSERT(reporter, data[0] == m0);
+    REPORTER_ASSERT(reporter, data[1] == m1);
+    REPORTER_ASSERT(reporter, data[2] == m2);
+    REPORTER_ASSERT(reporter, data[3] == m3);
+
+    REPORTER_ASSERT(reporter, data[4] == m4);
+    REPORTER_ASSERT(reporter, data[5] == m5);
+    REPORTER_ASSERT(reporter, data[6] == m6);
+    REPORTER_ASSERT(reporter, data[7] == m7);
+
+    REPORTER_ASSERT(reporter, data[8] == m8);
+    REPORTER_ASSERT(reporter, data[9] == m9);
+    REPORTER_ASSERT(reporter, data[10] == m10);
+    REPORTER_ASSERT(reporter, data[11] == m11);
+
+    REPORTER_ASSERT(reporter, data[12] == m12);
+    REPORTER_ASSERT(reporter, data[13] == m13);
+    REPORTER_ASSERT(reporter, data[14] == m14);
+    REPORTER_ASSERT(reporter, data[15] == m15);
+}
+
 static bool nearly_equal(const SkMatrix44& a, const SkMatrix44& b) {
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 4; ++j) {
             if (!nearly_equal_scalar(a.get(i, j), b.get(i, j))) {
-                printf("not equal %g %g\n", (float)a.get(i, j), (float)b.get(i, j));
+                printf("not equal %g %g\n", a.get(i, j), b.get(i, j));
                 return false;
             }
         }
@@ -31,8 +57,8 @@ static bool is_identity(const SkMatrix44& m) {
     return nearly_equal(m, identity);
 }
 
-
 void TestMatrix44(skiatest::Reporter* reporter) {
+#ifdef SK_SCALAR_IS_FLOAT
     SkMatrix44 mat, inverse, iden1, iden2, rot;
 
     mat.reset();
@@ -64,6 +90,36 @@ void TestMatrix44(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, is_identity(iden1));
     iden2.setConcat(inverse, mat);
     REPORTER_ASSERT(reporter, is_identity(iden2));
+
+    // test rol/col Major getters
+    {
+        mat.setTranslate(2, 3, 4);
+        float dataf[16];
+        double datad[16];
+        
+        mat.asColMajorf(dataf);
+        assert16<float>(reporter, dataf,
+                 1, 0, 0, 0,
+                 0, 1, 0, 0,
+                 0, 0, 1, 0,
+                 2, 3, 4, 1);
+        mat.asColMajord(datad);
+        assert16<double>(reporter, datad, 1, 0, 0, 0,
+                        0, 1, 0, 0,
+                        0, 0, 1, 0,
+                        2, 3, 4, 1);
+        mat.asRowMajorf(dataf);
+        assert16<float>(reporter, dataf, 1, 0, 0, 2,
+                        0, 1, 0, 3,
+                        0, 0, 1, 4,
+                        0, 0, 0, 1);
+        mat.asRowMajord(datad);
+        assert16<double>(reporter, datad, 1, 0, 0, 2,
+                        0, 1, 0, 3,
+                        0, 0, 1, 4,
+                        0, 0, 0, 1);
+    }
+#endif
 }
 
 #include "TestClassDef.h"

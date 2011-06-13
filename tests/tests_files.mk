@@ -15,6 +15,7 @@ SOURCE := \
     GeometryTest.cpp \
     InfRectTest.cpp \
     MathTest.cpp \
+    Matrix44Test.cpp \
     MatrixTest.cpp \
     MetaDataTest.cpp \
     PackBitsTest.cpp \

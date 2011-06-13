@@ -21,9 +21,6 @@
 #include "SkMatrix.h"
 #include "SkScalar.h"
 
-// uncomment this to use doubles for matrix44
-#define SK_MSCALAR_IS_DOUBLE
-
 #ifdef SK_MSCALAR_IS_DOUBLE
     typedef double SkMScalar;
     static inline double SkFloatToMScalar(float x) {
@@ -125,6 +122,11 @@ public:
 
     SkMScalar get(int row, int col) const;
     void set(int row, int col, const SkMScalar& value);
+
+    void asColMajorf(float[]) const;
+    void asColMajord(double[]) const;
+    void asRowMajorf(float[]) const;
+    void asRowMajord(double[]) const;
 
     bool isIdentity() const;
     void setIdentity();

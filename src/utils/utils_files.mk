@@ -5,6 +5,7 @@ SOURCE := \
 	SkDumpCanvas.cpp \
 	SkInterpolator.cpp \
     SkLayer.cpp \
+    SkMatrix44.cpp \
 	SkNinePatch.cpp \
     SkNWayCanvas.cpp \
 	SkOSFile.cpp \
