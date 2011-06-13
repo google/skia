@@ -26,6 +26,10 @@ template GMRegistry* GMRegistry::gHead;
 class Iter {
 public:
     Iter() {
+        this->reset();
+    }
+
+    void reset() {
         fReg = GMRegistry::Head();
     }
 
@@ -475,15 +479,22 @@ int main(int argc, char * const argv[]) {
       return -1;
     }
 
+    int maxW = -1;
+    int maxH = -1;
+    Iter iter;
+    GM* gm;
+    while ((gm = iter.next()) != NULL) {
+        SkISize size = gm->getISize();
+        maxW = SkMax32(size.width(), maxW);
+        maxH = SkMax32(size.height(), maxH);
+    }
     // setup a GL context for drawing offscreen
     GrContext* context = NULL;
     SkEGLContext eglContext;
-    if (eglContext.init(1024, 1024)) {
+    if (eglContext.init(maxW, maxH)) {
         context = GrContext::CreateGLShaderContext();
     }
 
-    Iter iter;
-    GM* gm;
 
     if (readPath) {
         fprintf(stderr, "reading from %s\n", readPath);
@@ -493,6 +504,7 @@ int main(int argc, char * const argv[]) {
 
     // Accumulate success of all tests so we can flag error in any
     // one with the return value.
+    iter.reset();
     bool overallSuccess = true;
     while ((gm = iter.next()) != NULL) {
         SkISize size = gm->getISize();

@@ -115,6 +115,34 @@ GrTextContext::GrTextContext(GrContext* context,
     fOrigViewMatrix = fContext->getMatrix();
     fContext->setMatrix(fExtMatrix);
 
+    /*
+     We need to call preConcatMatrix with our viewmatrix's inverse, for each
+     texture and mask in the paint. However, computing the inverse can be 
+     expensive, and its possible we may not have any textures or masks, so these
+     two loops are written such that we only compute the inverse (once) if we
+     need it. We do this on our copy of the paint rather than directly on the 
+     draw target because we re-provide the paint to the context when we have
+     to flush our glyphs or draw a glyph as a path midstream.
+    */
+    bool invVMComputed = false;
+    GrMatrix invVM;
+    for (int t = 0; t < GrPaint::kMaxTextures; ++t) {
+        if (NULL != fPaint.getTexture(t)) {
+            if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
+                invVMComputed = true;
+                fPaint.getTextureSampler(t)->preConcatMatrix(invVM);
+            }
+        }
+    }
+    for (int m = 0; m < GrPaint::kMaxMasks; ++m) {
+        if (NULL != fPaint.getMask(m)) {
+            if (invVMComputed || fOrigViewMatrix.invert(&invVM)) {
+                invVMComputed = true;
+                fPaint.getMaskSampler(m)->preConcatMatrix(invVM);
+            }
+        }
+    }
+
     fDrawTarget = fContext->getTextTarget(fPaint);
 
     fVertices = NULL;
@@ -126,11 +154,6 @@ GrTextContext::GrTextContext(GrContext* context,
 
     int stageMask = paint.getActiveStageMask();
     if (stageMask) {
-        GrMatrix inverseViewMatrix;
-        if (fOrigViewMatrix.invert(&inverseViewMatrix)) {
-            fDrawTarget->preConcatSamplerMatrices(stageMask, 
-                                                  inverseViewMatrix);
-        }
         for (int i = 0; i < GrPaint::kTotalStages; ++i) {
             if ((1 << i) & stageMask) {
                 fVertexLayout |= 
@@ -139,7 +162,6 @@ GrTextContext::GrTextContext(GrContext* context,
             }
         }
     }
-
 }
 
 GrTextContext::~GrTextContext() {
