@@ -11,8 +11,6 @@
         '../include/core',
       ],
       'sources': [
-        '../experimental/SkMatrix44.cpp',
-        '../experimental/SkMatrix44.h',
         '../experimental/SkSetPoly3To3.cpp',
         '../experimental/SkSetPoly3To3_A.cpp',
         '../experimental/SkSetPoly3To3_D.cpp',
