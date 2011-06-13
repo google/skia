@@ -153,10 +153,10 @@ void GrGLTexture::onAbandon() {
     }
 }
 
-void GrGLTexture::uploadTextureData(uint32_t x,
-                                    uint32_t y,
-                                    uint32_t width,
-                                    uint32_t height,
+void GrGLTexture::uploadTextureData(int x,
+                                    int y,
+                                    int width,
+                                    int height,
                                     const void* srcData) {
 
     GPUGL->setSpareTextureUnit();

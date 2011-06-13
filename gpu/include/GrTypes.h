@@ -359,8 +359,8 @@ struct GrTextureDesc {
      * fFlags contains kRenderTarget_GrTextureFlag.
      */
     GrAALevels             fAALevel;
-    uint32_t               fWidth;  //!< Width of the texture
-    uint32_t               fHeight; //!< Height of the texture
+    int                    fWidth;  //!< Width of the texture
+    int                    fHeight; //!< Height of the texture
     /**
      * Format of source data of the texture. Not guaraunteed to be the same as
      * internal format used by 3D API.
