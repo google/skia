@@ -158,7 +158,13 @@ public:
     /**
      *  Return the max width or height of a texture supported by the current gpu
      */
-    int getMaxTextureDimension();
+    int getMaxTextureSize() const;
+
+    /**
+     * Return the max width or height of a render target supported by the 
+     * current gpu
+     */
+    int getMaxRenderTargetSize() const;
 
     ///////////////////////////////////////////////////////////////////////////
     // Render targets
@@ -399,7 +405,6 @@ public:
                             const TEX_SRC* texCoordSrc,
                             const COL_SRC* colorSrc);
 
-
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
@@ -532,6 +537,7 @@ private:
 
     GrIndexBuffer*              fAAFillRectIndexBuffer;
     GrIndexBuffer*              fAAStrokeRectIndexBuffer;
+    int                         fMaxOffscreenAASize;
 
     GrContext(GrGpu* gpu);
 
@@ -568,22 +574,34 @@ private:
 
     struct OffscreenRecord;
 
+    // determines whether offscreen AA should be applied
     bool doOffscreenAA(GrDrawTarget* target, 
                        const GrPaint& paint,
                        bool isLines) const;
 
-    // sets up target to draw coverage to the supersampled render target
-    bool setupOffscreenAAPass1(GrDrawTarget* target,
+    // attempts to setup offscreen AA. All paint state must be transferred to
+    // target by the time this is called.
+    bool prepareForOffscreenAA(GrDrawTarget* target,
                                bool requireStencil,
                                const GrIRect& boundRect,
                                OffscreenRecord* record);
 
+    // sets up target to draw coverage to the supersampled render target
+    void setupOffscreenAAPass1(GrDrawTarget* target,
+                               const GrIRect& boundRect,
+                               int tileX, int tileY,
+                               OffscreenRecord* record);
+
     // sets up target to sample coverage of supersampled render target back
     // to the main render target using stage kOffscreenStage.
-    void offscreenAAPass2(GrDrawTarget* target,
-                          const GrPaint& paint,
-                          const GrIRect& boundRect,
-                          OffscreenRecord* record);
+    void doOffscreenAAPass2(GrDrawTarget* target,
+                            const GrPaint& paint,
+                            const GrIRect& boundRect,
+                            int tileX, int tileY,
+                            OffscreenRecord* record);
+
+    // restored the draw target state and releases offscreen target to cache
+    void cleanupOffscreenAA(GrDrawTarget* target, OffscreenRecord* record);
     
     // computes vertex layout bits based on the paint. If paint expresses
     // a texture for a stage, the stage coords will be bound to postitions

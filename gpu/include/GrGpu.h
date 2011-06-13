@@ -253,7 +253,14 @@ public:
      */
     bool npotRenderTargetSupport() const { return fNPOTRenderTargetSupport; }
 
-    int maxTextureDimension() const { return fMaxTextureDimension; }
+    /**
+     * Gets the largest allowed width and height of a texture.
+     */
+    int maxTextureSize() const { return fMaxTextureSize; }
+    /**
+     * Gets the largest allowed width and height of a render target.
+     */
+    int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
 
     // GrDrawTarget overrides
     virtual void drawIndexed(GrPrimitiveType type,
@@ -404,7 +411,8 @@ protected:
     // set by subclass
     int fMinRenderTargetWidth;
     int fMinRenderTargetHeight;
-    int fMaxTextureDimension;
+    int fMaxRenderTargetSize;
+    int fMaxTextureSize;
 
     GrGpuStats fStats;
 

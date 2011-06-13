@@ -439,24 +439,22 @@ GrGpuGL::GrGpuGL() {
         }
     }
 
-    GR_GL_GetIntegerv(GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureDimension);
+    GR_GL_GetIntegerv(GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
+    GR_GL_GetIntegerv(GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
+    // Our render targets are always created with textures as the color 
+    // attachment, hence this min:
+    fMaxRenderTargetSize = GrMin(fMaxTextureSize, fMaxRenderTargetSize);
 
     /* The iPhone 4 has a restriction that for an FBO with texture color
        attachment with height <= 8 then the width must be <= height. Here
        we look for such a limitation.
      */
-    fMinRenderTargetHeight = GR_INVAL_GLINT;
-    GrGLint maxRenderSize;
-    GR_GL_GetIntegerv(GR_GL_MAX_RENDERBUFFER_SIZE, &maxRenderSize);
-    // fbo_test creates FBOs with texture bound to the color attachment
-    maxRenderSize = GrMin(maxRenderSize, fMaxTextureDimension);
-
     if (gPrintStartupSpew) {
         GrPrintf("Small height FBO texture experiments\n");
     }
-
+    fMinRenderTargetHeight = GR_INVAL_GLINT;
     for (GrGLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? ++i : i *= 2) {
-        GrGLuint w = maxRenderSize;
+        GrGLuint w = fMaxRenderTargetSize;
         GrGLuint h = i;
         if (fbo_test(w, h)) {
             if (gPrintStartupSpew) {
@@ -475,10 +473,10 @@ GrGpuGL::GrGpuGL() {
     if (gPrintStartupSpew) {
         GrPrintf("Small width FBO texture experiments\n");
     }
-    fMinRenderTargetWidth = GR_MAX_GLUINT;
+    fMinRenderTargetWidth = GR_INVAL_GLINT;
     for (GrGLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? i *= 2 : ++i) {
         GrGLuint w = i;
-        GrGLuint h = maxRenderSize;
+        GrGLuint h = fMaxRenderTargetSize;
         if (fbo_test(w, h)) {
             if (gPrintStartupSpew) {
                 GrPrintf("\t[%d, %d]: PASSED\n", w, h);
@@ -792,9 +790,17 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                         glDesc.fAllocWidth);
         glDesc.fAllocHeight = GrMax<int>(fMinRenderTargetHeight,
                                          glDesc.fAllocHeight);
+        if ((int)glDesc.fAllocWidth > fMaxRenderTargetSize ||
+            (int)glDesc.fAllocHeight > fMaxRenderTargetSize) {
+            return return_null_texture();
+        }
     } else if (!this->npotTextureSupport()) {
         glDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
         glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
+        if ((int)glDesc.fAllocWidth > fMaxTextureSize ||
+            (int)glDesc.fAllocHeight > fMaxTextureSize) {
+            return return_null_texture();
+        }
     }
 
     GR_GL(BindTexture(GR_GL_TEXTURE_2D, glDesc.fTextureID));

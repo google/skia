@@ -914,9 +914,9 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
         sampler->setFilter(GrSamplerState::kNearest_Filter);
     }
 
-    const int maxTextureDim = fContext->getMaxTextureDimension();
-    if (bitmap.getTexture() || (bitmap.width() <= maxTextureDim &&
-                                bitmap.height() <= maxTextureDim)) {
+    const int maxTextureSize = fContext->getMaxTextureSize();
+    if (bitmap.getTexture() || (bitmap.width() <= maxTextureSize &&
+                                bitmap.height() <= maxTextureSize)) {
         // take the fast case
         this->internalDrawBitmap(draw, bitmap, srcRect, m, &grPaint);
         return;
@@ -941,13 +941,13 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
         clipRect.offset(DX, DY);
     }
 
-    int nx = bitmap.width() / maxTextureDim;
-    int ny = bitmap.height() / maxTextureDim;
+    int nx = bitmap.width() / maxTextureSize;
+    int ny = bitmap.height() / maxTextureSize;
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
             SkIRect tileR;
-            tileR.set(x * maxTextureDim, y * maxTextureDim,
-                      (x + 1) * maxTextureDim, (y + 1) * maxTextureDim);
+            tileR.set(x * maxTextureSize, y * maxTextureSize,
+                      (x + 1) * maxTextureSize, (y + 1) * maxTextureSize);
             if (!SkIRect::Intersects(tileR, clipRect)) {
                 continue;
             }
@@ -986,8 +986,8 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
                                      const SkIRect& srcRect,
                                      const SkMatrix& m,
                                      GrPaint* grPaint) {
-    SkASSERT(bitmap.width() <= fContext->getMaxTextureDimension() &&
-             bitmap.height() <= fContext->getMaxTextureDimension());
+    SkASSERT(bitmap.width() <= fContext->getMaxTextureSize() &&
+             bitmap.height() <= fContext->getMaxTextureSize());
 
     SkAutoLockPixels alp(bitmap);
     if (!bitmap.getTexture() && !bitmap.readyToDraw()) {

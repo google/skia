@@ -17,20 +17,6 @@
 #ifndef GrContext_impl_DEFINED
 #define GrContext_impl_DEFINED
 
-struct GrContext::OffscreenRecord {
-    OffscreenRecord() { fEntry0 = NULL; fEntry1 = NULL; }
-    ~OffscreenRecord() { GrAssert(NULL == fEntry0 && NULL == fEntry1); }
-
-    enum Downsample {
-        k4x4TwoPass_Downsample,
-        k4x4SinglePass_Downsample,
-        kFSAA_Downsample
-    }                              fDownsample;
-    GrTextureEntry*                fEntry0;
-    GrTextureEntry*                fEntry1;
-    GrDrawTarget::SavedDrawState   fSavedState;
-};
-
 template <typename POS_SRC, typename TEX_SRC,
           typename COL_SRC, typename IDX_SRC>
 inline void GrContext::drawCustomVertices(const GrPaint& paint,
@@ -86,30 +72,13 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
         idxSrc->writeValue(i, indices + i);
     }
 
-    bool doAA = false;
-    OffscreenRecord record;
-    GrIRect bounds;
-
-    if (-1 == texOffsets[0] && -1 == colorOffset && 
-        this->doOffscreenAA(target, paint, GrIsPrimTypeLines(primitiveType))) {
-        GrRect b;
-        b.setBounds(geo.positions(), vertexCount);
-        target->getViewMatrix().mapRect(&b);
-        b.roundOut(&bounds);
-        if (this->setupOffscreenAAPass1(target, false, bounds, &record)) {
-            doAA = true;
-        }
-    }
+    // we don't currently apply offscreen AA to this path. Need improved 
+    // management of GrDrawTarget's geometry to avoid copying points per-tile.
 
     if (NULL == idxSrc) {
         target->drawNonIndexed(primitiveType, 0, vertexCount);
     } else {
         target->drawIndexed(primitiveType, 0, 0, vertexCount, indexCount);
-    }
-
-    if (doAA) {
-        geo.set(NULL, 0, 0, 0); // have to release geom before can draw again
-        this->offscreenAAPass2(target, paint, bounds, &record);
     }
 }
 
