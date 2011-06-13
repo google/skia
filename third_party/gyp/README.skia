@@ -1,4 +1,9 @@
-This is a snap of GYP (http://code.google.com/p/gyp/) at r197
+This is a snap of GYP (http://code.google.com/p/gyp/) at r907,
+added by bsalomon on 30 March 2011.
+
+(Brian had originally recorded that this was a snap as of r197,
+but the gyp code copied over is very different than r197;
+further investigation indicates that it was probably r907.)
 
 svn export http://gyp.googlecode.com/svn/trunk/
 
