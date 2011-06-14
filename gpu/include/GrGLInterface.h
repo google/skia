@@ -50,11 +50,11 @@ GR_API GrGLInterface* GrGLGetGLInterface();
 GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface);
 
 /*
- * This is called when GrGLSetGLInterface() hasn't been called before creating a 
- * GrGpuGL object. It provides a default implementation. The actual implementation 
- * depends on which GrGLDefaultInterface_*.cpp has been linked. There are some 
- * platform-specific implementations provided as well as 
- * GrGLDefaultInterface_none.cpp which does nothing (effectively requiring an 
+ * This is called when GrGLSetGLInterface() hasn't been called before creating
+ * a GrGpuGL object. It provides a default implementation. The actual
+ * implementation depends on which GrGLDefaultInterface_*.cpp has been linked.
+ * There are some platform-specific implementations provided as well as
+ * GrGLDefaultInterface_none.cpp which does nothing (effectively requiring an
  * explicit GrGLSetGLInterface call by the host).
  */
 void GrGLSetDefaultGLInterface();
@@ -220,6 +220,16 @@ struct GrGLInterface {
     // Indicator variable specifying the type of GL implementation
     // exported:  GLES{1|2} or Desktop.
     GrGLBinding fBindingsExported;
+
+    /// Does this GL support NPOT textures on FBOs?
+    /// boolean value, or -1 to probe (slowly) at context creation.
+    int fNPOTRenderTargetSupport;
+
+    /// Some GL implementations (PowerVR SGX devices like the iPhone 4)
+    /// have restrictions on the size of small render targets.
+    /// -1 to probe (slowly) at context creation.
+    int fMinRenderTargetHeight;
+    int fMinRenderTargetWidth;
 
     GrGLActiveTextureProc fActiveTexture;
     GrGLAttachShaderProc fAttachShader;

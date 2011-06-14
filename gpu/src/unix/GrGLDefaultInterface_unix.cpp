@@ -40,6 +40,10 @@ void GrGLSetDefaultGLInterface() {
             return;
         }
 
+        gDefaultInterface.fNPOTRenderTargetSupport = 1;
+        gDefaultInterface.fMinRenderTargetHeight = 1;
+        gDefaultInterface.fMinRenderTargetWidth = 1;
+
         gDefaultInterface.fActiveTexture = glActiveTexture;
         GR_GL_GET_PROC(AttachShader);
         GR_GL_GET_PROC(BindAttribLocation);
