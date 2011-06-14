@@ -891,6 +891,23 @@ public:
 
     ///////////////////////////////////////////////////////////////////////////
 
+    /** 
+     * Sets the view matrix to I and preconcats all stage matrices enabled in
+     * mask by the view inverse. Destructor undoes these changes.
+     */
+    class AutoDeviceCoordDraw : ::GrNoncopyable {
+    public:
+        AutoDeviceCoordDraw(GrDrawTarget* target, int stageMask);
+        ~AutoDeviceCoordDraw();
+    private:
+        GrDrawTarget*       fDrawTarget;
+        GrMatrix            fViewMatrix;
+        GrMatrix            fSamplerMatrices[kNumStages];
+        int                 fStageMask;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+
     class AutoReleaseGeometry : ::GrNoncopyable {
     public:
         AutoReleaseGeometry(GrDrawTarget*  target,

@@ -1226,8 +1226,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
     GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
 
-    if (!IsFillInverted(fill) && // will be relaxed soon
-        !pr->supportsAA(target, path, fill) &&
+    if (!pr->supportsAA(target, path, fill) &&
         this->doOffscreenAA(target, paint, kHairLine_PathFill == fill)) {
 
         bool needsStencil = pr->requiresStencilPass(target, path, fill);
@@ -1235,8 +1234,8 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
         // compute bounds as intersection of rt size, clip, and path
         GrIRect bound = SkIRect::MakeWH(target->getRenderTarget()->width(), 
                                         target->getRenderTarget()->height());
+        GrIRect clipIBounds;
         if (target->getClip().hasConservativeBounds()) {
-            GrIRect clipIBounds;
             target->getClip().getConservativeBounds().roundOut(&clipIBounds);
             if (!bound.intersect(clipIBounds)) {
                 return;
@@ -1265,6 +1264,31 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                 }
             }
             this->cleanupOffscreenAA(target, &record);
+            if (IsFillInverted(fill) && bound != clipIBounds) {
+                int stageMask = paint.getActiveStageMask();
+                GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
+                GrRect rect;
+                if (clipIBounds.fTop < bound.fTop) {
+                    rect.setLTRB(clipIBounds.fLeft, clipIBounds.fTop, 
+                                 clipIBounds.fRight, bound.fTop);
+                    target->drawSimpleRect(rect, NULL, stageMask);
+                }
+                if (clipIBounds.fLeft < bound.fLeft) {
+                    rect.setLTRB(clipIBounds.fLeft, bound.fTop, 
+                                 bound.fLeft, bound.fBottom);
+                    target->drawSimpleRect(rect, NULL, stageMask);
+                }
+                if (clipIBounds.fRight > bound.fRight) {
+                    rect.setLTRB(bound.fRight, bound.fTop, 
+                                 clipIBounds.fRight, bound.fBottom);
+                    target->drawSimpleRect(rect, NULL, stageMask);
+                }
+                if (clipIBounds.fBottom > bound.fBottom) {
+                    rect.setLTRB(clipIBounds.fLeft, bound.fBottom, 
+                                 clipIBounds.fRight, clipIBounds.fBottom);
+                    target->drawSimpleRect(rect, NULL, stageMask);
+                }
+            }
             return;
         }
     }
