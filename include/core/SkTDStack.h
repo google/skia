@@ -21,18 +21,16 @@
 
 template <typename T> class SkTDStack : SkNoncopyable {
 public:
-    SkTDStack() : fCount(0), fTotalCount(0)
-    {
+    SkTDStack() : fCount(0), fTotalCount(0) {
         fInitialRec.fNext = NULL;
         fRec = &fInitialRec;
 
     //  fCount = kSlotCount;
     }
-    ~SkTDStack()
-    {
+
+    ~SkTDStack() {
         Rec* rec = fRec;
-        while (rec != &fInitialRec)
-        {
+        while (rec != &fInitialRec) {
             Rec* next = rec->fNext;
             sk_free(rec);
             rec = next;
@@ -43,11 +41,9 @@ public:
     int depth() const { return fTotalCount; }
     bool empty() const { return fTotalCount == 0; }
 
-    T* push()
-    {
+    T* push() {
         SkASSERT(fCount <= kSlotCount);
-        if (fCount == kSlotCount)
-        {
+        if (fCount == kSlotCount) {
             Rec* rec = (Rec*)sk_malloc_throw(sizeof(Rec));
             rec->fNext = fRec;
             fRec = rec;
@@ -56,48 +52,48 @@ public:
         ++fTotalCount;
         return &fRec->fSlots[fCount++];
     }
+
     void push(const T& elem) { *this->push() = elem; }
-    const T& index(int idx) const
-    {
+
+    const T& index(int idx) const {
         SkASSERT(fRec && fCount > idx);
         return fRec->fSlots[fCount - idx - 1];
-    }   
-    T& index(int idx)
-    {
+    }
+
+    T& index(int idx) {
         SkASSERT(fRec && fCount > idx);
         return fRec->fSlots[fCount - idx - 1];
-    }   
-    const T& top() const
-    {
+    }
+
+    const T& top() const {
         SkASSERT(fRec && fCount > 0);
         return fRec->fSlots[fCount - 1];
     }
-    T& top()
-    {
+
+    T& top() {
         SkASSERT(fRec && fCount > 0);
         return fRec->fSlots[fCount - 1];
     }
-    void pop(T* elem)
-    {
-        if (elem)
+
+    void pop(T* elem) {
+        if (elem) {
             *elem = fRec->fSlots[fCount - 1];
+        }
         this->pop();
     }
-    void pop()
-    {
+
+    void pop() {
         SkASSERT(fCount > 0 && fRec);
         --fTotalCount;
-        if (--fCount == 0)
-        {
-            if (fRec != &fInitialRec)
-            {
+        if (--fCount == 0) {
+            if (fRec != &fInitialRec) {
                 Rec* rec = fRec->fNext;
                 sk_free(fRec);
                 fCount = kSlotCount;
                 fRec = rec;
-            }
-            else
+            } else {
                 SkASSERT(fTotalCount == 0);
+            }
         }
     }
 
