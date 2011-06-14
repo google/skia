@@ -35,6 +35,7 @@
         '../tests/ClipperTest.cpp',
         '../tests/ColorFilterTest.cpp',
         '../tests/ColorTest.cpp',
+        '../tests/DataRefTest.cpp',
         '../tests/DequeTest.cpp',
         '../tests/DrawBitmapRectTest.cpp',
         '../tests/FillPathTest.cpp',

@@ -55,6 +55,7 @@
         '../src/core/SkCoreBlitters.h',
         '../src/core/SkCubicClipper.cpp',
         '../src/core/SkCubicClipper.h',
+        '../src/core/SkDataRef.cpp',
         '../src/core/SkDebug.cpp',
         '../src/core/SkDeque.cpp',
         '../src/core/SkDevice.cpp',
