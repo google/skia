@@ -32,7 +32,7 @@ void GrGLSetDefaultGLInterface() {
     static GrGLInterface gDefaultInterface;
     static bool gDefaultInterfaceInit;
     if (!gDefaultInterfaceInit) {
-        
+
         // wglGetProcAddress requires a context.
         if (NULL != wglGetCurrentContext()) {
             int major, minor;
@@ -45,7 +45,11 @@ void GrGLSetDefaultGLInterface() {
                 return;
             }
 
-            // Functions that are part of GL 1.1 will return NULL in 
+            gDefaultInterface.fNPOTRenderTargetSupport = 1;
+            gDefaultInterface.fMinRenderTargetHeight = 1;
+            gDefaultInterface.fMinRenderTargetWidth = 1;
+
+            // Functions that are part of GL 1.1 will return NULL in
             // wglGetProcAddress
             gDefaultInterface.fBlendFunc = glBlendFunc;
             gDefaultInterface.fClear = glClear;

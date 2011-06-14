@@ -189,6 +189,79 @@ static bool fbo_test(int w, int h) {
     return status == GR_GL_FRAMEBUFFER_COMPLETE;
 }
 
+static bool probe_for_npot_render_target_support(bool hasNPOTTextureSupport) {
+
+    /* Experimentation has found that some GLs that support NPOT textures
+       do not support FBOs with a NPOT texture. They report "unsupported" FBO
+       status. I don't know how to explicitly query for this. Do an
+       experiment. Note they may support NPOT with a renderbuffer but not a
+       texture. Presumably, the implementation bloats the renderbuffer
+       internally to the next POT.
+     */
+    if (hasNPOTTextureSupport) {
+        return fbo_test(200, 200);
+    }
+    return false;
+}
+
+static int probe_for_min_render_target_height(bool hasNPOTRenderTargetSupport,
+                                              int maxRenderTargetSize) {
+    /* The iPhone 4 has a restriction that for an FBO with texture color
+       attachment with height <= 8 then the width must be <= height. Here
+       we look for such a limitation.
+     */
+    if (gPrintStartupSpew) {
+        GrPrintf("Small height FBO texture experiments\n");
+    }
+    int minRenderTargetHeight = GR_INVAL_GLINT;
+    for (GrGLuint i = 1; i <= 256; hasNPOTRenderTargetSupport ? ++i : i *= 2) {
+        GrGLuint w = maxRenderTargetSize;
+        GrGLuint h = i;
+        if (fbo_test(w, h)) {
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
+            }
+            minRenderTargetHeight = i;
+            break;
+        } else {
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
+            }
+        }
+    }
+    GrAssert(GR_INVAL_GLINT != minRenderTargetHeight);
+
+    return minRenderTargetHeight;
+}
+
+static int probe_for_min_render_target_width(bool hasNPOTRenderTargetSupport,
+                                              int maxRenderTargetSize) {
+
+    if (gPrintStartupSpew) {
+        GrPrintf("Small width FBO texture experiments\n");
+    }
+    int minRenderTargetWidth = GR_INVAL_GLINT;
+    for (GrGLuint i = 1; i <= 256; hasNPOTRenderTargetSupport ? i *= 2 : ++i) {
+        GrGLuint w = i;
+        GrGLuint h = maxRenderTargetSize;
+        if (fbo_test(w, h)) {
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
+            }
+            minRenderTargetWidth = i;
+            break;
+        } else {
+            if (gPrintStartupSpew) {
+                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
+            }
+        }
+    }
+    GrAssert(GR_INVAL_GLINT != minRenderTargetWidth);
+
+    return minRenderTargetWidth;
+}
+
+
 GrGpuGL::GrGpuGL() {
 
     if (gPrintStartupSpew) {
@@ -394,31 +467,14 @@ GrGpuGL::GrGpuGL() {
     fAALineSupport = GR_GL_SUPPORT_DESKTOP;
 
     ////////////////////////////////////////////////////////////////////////////
-    // Experiments to determine limitations that can't be queried. TODO: Make
-    // these a preprocess that generate some compile time constants.
+    // Experiments to determine limitations that can't be queried.
+    // TODO: Make these a preprocess that generate some compile time constants.
+    // TODO: probe once at startup, rather than once per context creation.
 
-    // sanity check to make sure we can at least create an FBO from a POT texture
-
-    bool simpleFBOSuccess = fbo_test(128, 128);
-    if (gPrintStartupSpew) {
-        if (!simpleFBOSuccess) {
-            GrPrintf("FBO Sanity Test: FAILED\n");
-        } else {
-            GrPrintf("FBO Sanity Test: PASSED\n");
-        }
-    }
-    GrAssert(simpleFBOSuccess);
-
-    /* Experimentation has found that some GLs that support NPOT textures
-       do not support FBOs with a NPOT texture. They report "unsupported" FBO
-       status. I don't know how to explicitly query for this. Do an
-       experiment. Note they may support NPOT with a renderbuffer but not a
-       texture. Presumably, the implementation bloats the renderbuffer
-       internally to the next POT.
-     */
-    bool fNPOTRenderTargetSupport = false;
-    if (fNPOTTextureSupport) {
-        fNPOTRenderTargetSupport = fbo_test(200, 200);
+    fNPOTRenderTargetSupport = GrGLGetGLInterface()->fNPOTRenderTargetSupport;
+    if (fNPOTRenderTargetSupport < 0) {
+        fNPOTRenderTargetSupport =
+            probe_for_npot_render_target_support(fNPOTTextureSupport);
     }
 
     if (gPrintStartupSpew) {
@@ -441,55 +497,24 @@ GrGpuGL::GrGpuGL() {
 
     GR_GL_GetIntegerv(GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
     GR_GL_GetIntegerv(GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
-    // Our render targets are always created with textures as the color 
+    // Our render targets are always created with textures as the color
     // attachment, hence this min:
     fMaxRenderTargetSize = GrMin(fMaxTextureSize, fMaxRenderTargetSize);
 
-    /* The iPhone 4 has a restriction that for an FBO with texture color
-       attachment with height <= 8 then the width must be <= height. Here
-       we look for such a limitation.
-     */
-    if (gPrintStartupSpew) {
-        GrPrintf("Small height FBO texture experiments\n");
+    fMinRenderTargetHeight = GrGLGetGLInterface()->fMinRenderTargetHeight;
+    if (fMinRenderTargetHeight < 0) {
+        fMinRenderTargetHeight =
+            probe_for_min_render_target_height(fNPOTRenderTargetSupport,
+                                               fMaxRenderTargetSize);
     }
-    fMinRenderTargetHeight = GR_INVAL_GLINT;
-    for (GrGLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? ++i : i *= 2) {
-        GrGLuint w = fMaxRenderTargetSize;
-        GrGLuint h = i;
-        if (fbo_test(w, h)) {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
-            }
-            fMinRenderTargetHeight = i;
-            break;
-        } else {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
-            }
-        }
-    }
-    GrAssert(GR_INVAL_GLINT != fMinRenderTargetHeight);
 
-    if (gPrintStartupSpew) {
-        GrPrintf("Small width FBO texture experiments\n");
+    fMinRenderTargetWidth = GrGLGetGLInterface()->fMinRenderTargetWidth;
+    if (fMinRenderTargetWidth < 0) {
+        fMinRenderTargetWidth =
+            probe_for_min_render_target_width(fNPOTRenderTargetSupport,
+                                              fMaxRenderTargetSize);
     }
-    fMinRenderTargetWidth = GR_INVAL_GLINT;
-    for (GrGLuint i = 1; i <= 256; fNPOTRenderTargetSupport ? i *= 2 : ++i) {
-        GrGLuint w = i;
-        GrGLuint h = fMaxRenderTargetSize;
-        if (fbo_test(w, h)) {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: PASSED\n", w, h);
-            }
-            fMinRenderTargetWidth = i;
-            break;
-        } else {
-            if (gPrintStartupSpew) {
-                GrPrintf("\t[%d, %d]: FAILED\n", w, h);
-            }
-        }
-    }
-    GrAssert(GR_INVAL_GLINT != fMinRenderTargetWidth);
+
 }
 
 GrGpuGL::~GrGpuGL() {

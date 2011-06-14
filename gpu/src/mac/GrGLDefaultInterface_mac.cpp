@@ -23,6 +23,10 @@ void GrGLSetDefaultGLInterface() {
     static GrGLInterface gDefaultInterface;
     static bool gDefaultInterfaceInit;
     if (!gDefaultInterfaceInit) {
+        gDefaultInterface.fNPOTRenderTargetSupport = 1;
+        gDefaultInterface.fMinRenderTargetHeight = 1;
+        gDefaultInterface.fMinRenderTargetWidth = 1;
+
         gDefaultInterface.fActiveTexture = glActiveTexture;
         gDefaultInterface.fAttachShader = glAttachShader;
         gDefaultInterface.fBindAttribLocation = glBindAttribLocation;
