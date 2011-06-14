@@ -649,6 +649,7 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
 GrDrawTarget::AutoStateRestore::AutoStateRestore() {
     fDrawTarget = NULL;
 }
@@ -677,3 +678,39 @@ void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target) {
         fDrawTarget = target;
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawTarget* target, 
+                                                       int stageMask) {
+    GrAssert(NULL != target);
+
+    fDrawTarget = target;
+    fViewMatrix = target->getViewMatrix();
+    fStageMask = stageMask;
+    if (fStageMask) {
+        GrMatrix invVM;
+        if (fViewMatrix.invert(&invVM)) {
+            for (int s = 0; s < kNumStages; ++s) {
+                if (fStageMask & (1 << s)) {
+                    fSamplerMatrices[s] = target->getSamplerMatrix(s);
+                }
+            }
+            target->preConcatSamplerMatrices(fStageMask, invVM);
+        } else {
+            // sad trombone sound
+            fStageMask = 0;
+        }
+    }
+    target->setViewMatrix(GrMatrix::I());
+}
+
+GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
+    fDrawTarget->setViewMatrix(fViewMatrix);
+    for (int s = 0; s < kNumStages; ++s) {
+        if (fStageMask & (1 << s)) {
+            fDrawTarget->setSamplerMatrix(s, fSamplerMatrices[s]);
+        }
+    }
+}
+
