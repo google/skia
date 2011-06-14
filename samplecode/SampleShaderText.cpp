@@ -167,8 +167,10 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(10));
 
         SkPath path;
-        path.arcTo(SkRect::MakeXYWH(-40, 15, 300, 90), 
-                   SK_Scalar1 * 225,  SK_Scalar1 * 90, false);
+        path.arcTo(SkRect::MakeXYWH(SkIntToScalar(-40), SkIntToScalar(15),
+                                    SkIntToScalar(300), SkIntToScalar(90)), 
+                                    SkIntToScalar(225), SkIntToScalar(90), 
+                                    false);
         path.close();
 
         static const int testsPerCol = 8;
