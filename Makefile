@@ -1,2 +1,1 @@
-# Temporarily fall back to the old makefile; the new one was killing buildbot.
-include Makefile.old
+$(error Skia now uses the "Gyp" build system. Please see http://code.google.com/p/skia/wiki/DocRoot )

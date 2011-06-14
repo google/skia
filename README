@@ -1,5 +1,3 @@
 Skia is a complete 2D graphic library for drawing Text, Geometries, and Images.
 
-- 3x3 matrices w/ perspective
-- antialiasing, transparency, filters
-- shaders, xfermodes, maskfilters, patheffects
+See full details, and build instructions, at http://code.google.com/p/skia/wiki/DocRoot
