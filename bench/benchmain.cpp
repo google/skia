@@ -355,16 +355,59 @@ int main (int argc, char * const argv[]) {
     // report our current settings
     {
         SkString str;
-        str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d\n",
+        str.printf("skia bench: alpha=0x%02X antialias=%d filter=%d",
                    forceAlpha, forceAA, forceFilter);
+        str.appendf(" rotate=%d scale=%d clip=%d",
+                   doRotate, doScale, doClip);
+                   
+        const char * ditherName;
+        switch (forceDither) {
+            case SkTriState::kDefault: ditherName = "default"; break;
+            case SkTriState::kTrue: ditherName = "true"; break;
+            case SkTriState::kFalse: ditherName = "false"; break;
+            default: ditherName = "<invalid>"; break;
+        }
+        str.appendf(" dither=%s", ditherName);
+        
+        if (hasStrokeWidth) {
+            str.appendf(" strokeWidth=%f", strokeWidth);
+        } else {
+            str.append(" strokeWidth=none");
+        }
+        
+#if defined(SK_SCALAR_IS_FLOAT)
+        str.append(" scalar=float");
+#elif defined(SK_SCALAR_IS_FIXED)
+        str.append(" scalar=fixed");
+#endif
+
+#if defined(SK_BUILD_FOR_WIN32)
+        str.append(" system=WIN32");
+#elif defined(SK_BUILD_FOR_MAC)
+        str.append(" system=MAC");
+#elif defined(SK_BUILD_FOR_ANDROID)
+        str.append(" system=ANDROID");
+#elif defined(SK_BUILD_FOR_UNIX)
+        str.append(" system=UNIX");
+#else
+        str.append(" system=other");
+#endif
+
+#if defined(SK_DEBUG)
+        str.append(" DEBUG");
+#endif
+        str.append("\n");
         log_progress(str);
     }
     
     GrContext* context = NULL;
+    //Don't do GL when fixed.
+#if !defined(SK_SCALAR_IS_FIXED)
     SkEGLContext eglContext;
     if (eglContext.init(1024, 1024)) {
         context = GrContext::CreateGLShaderContext();
     }
+#endif
     
     BenchTimer timer = BenchTimer();
     
