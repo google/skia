@@ -199,6 +199,7 @@ void GrGpuGLShaders::ProgramUnitTest() {
         pdesc.fFirstCoverageStage = idx;
 
         pdesc.fEdgeAANumEdges = (random.nextF() * (getMaxEdges() + 1));
+        pdesc.fEdgeAAConcave = random.nextF() > .5f;
 
         if (fDualSourceBlendingSupport) {
             pdesc.fDualSrcOutput =
@@ -731,6 +732,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     }
 
     desc.fEdgeAANumEdges = fCurrDrawState.fEdgeAANumEdges;
+    desc.fEdgeAAConcave = desc.fEdgeAANumEdges > 0 && SkToBool(fCurrDrawState.fFlagBits & kEdgeAAConcave_StateBit);
 
     int lastEnabledStage = -1;
 

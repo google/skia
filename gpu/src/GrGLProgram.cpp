@@ -510,21 +510,39 @@ bool GrGLProgram::genProgram(GrGLProgram::CachedData* programData) const {
                 segments.fFSCode.appendS32(i);
                 segments.fFSCode.append("], pos), 0.0, 1.0);\n");
             }
-            segments.fFSCode.append("\tfloat edgeAlpha = ");
-            for (int i = 0; i < count - 1; i++) {
-                segments.fFSCode.append("min(a");
-                segments.fFSCode.appendS32(i);
-                segments.fFSCode.append(" * a");
-                segments.fFSCode.appendS32(i + 1);
-                segments.fFSCode.append(", ");
+            if (fProgramDesc.fEdgeAAConcave && (count & 0x01) == 0) {
+                // For concave polys, we consider the edges in pairs.
+                segments.fFSFunctions.append("float cross2(vec2 a, vec2 b) {\n");
+                segments.fFSFunctions.append("\treturn dot(a, vec2(b.y, -b.x));\n");
+                segments.fFSFunctions.append("}\n");
+                for (int i = 0; i < count; i += 2) {
+                    segments.fFSCode.appendf("\tfloat eb%d;\n", i / 2);
+                    segments.fFSCode.appendf("\tif (cross2(" EDGES_UNI_NAME "[%d].xy, " EDGES_UNI_NAME "[%d].xy) < 0.0) {\n", i, i + 1);
+                    segments.fFSCode.appendf("\t\teb%d = a%d * a%d;\n", i / 2, i, i + 1);
+                    segments.fFSCode.append("\t} else {\n");
+                    segments.fFSCode.appendf("\t\teb%d = a%d + a%d - a%d * a%d;\n", i / 2, i, i + 1, i, i + 1);
+                    segments.fFSCode.append("\t}\n");
+                }
+                segments.fFSCode.append("\tfloat edgeAlpha = ");
+                for (int i = 0; i < count / 2 - 1; i++) {
+                    segments.fFSCode.appendf("min(eb%d, ", i);
+                }
+                segments.fFSCode.appendf("eb%d", count / 2 - 1);
+                for (int i = 0; i < count / 2 - 1; i++) {
+                    segments.fFSCode.append(")");
+                }
+                segments.fFSCode.append(";\n");
+            } else {
+                segments.fFSCode.append("\tfloat edgeAlpha = ");
+                for (int i = 0; i < count - 1; i++) {
+                    segments.fFSCode.appendf("min(a%d * a%d, ", i, i + 1);
+                }
+                segments.fFSCode.appendf("a%d * a0", count - 1);
+                for (int i = 0; i < count - 1; i++) {
+                    segments.fFSCode.append(")");
+                }
+                segments.fFSCode.append(";\n");
             }
-            segments.fFSCode.append("a");
-            segments.fFSCode.appendS32(count - 1);
-            segments.fFSCode.append(" * a0");
-            for (int i = 0; i < count - 1; i++) {
-                segments.fFSCode.append(")");
-            }
-            segments.fFSCode.append(";\n");
             inCoverage = "edgeAlpha";
         }
 
@@ -702,6 +720,11 @@ bool GrGLProgram::CompileFSAndVS(const ShaderCodeSegments& segments,
         lengths[stringCnt] = segments.fFSOutputs.size();
         ++stringCnt;
     }
+    if (segments.fFSFunctions.size()) {
+        strings[stringCnt] = segments.fFSFunctions.c_str();
+        lengths[stringCnt] = segments.fFSFunctions.size();
+        ++stringCnt;
+    }
 
     GrAssert(segments.fFSCode.size());
     strings[stringCnt] = segments.fFSCode.c_str();
@@ -714,6 +737,7 @@ bool GrGLProgram::CompileFSAndVS(const ShaderCodeSegments& segments,
     GrPrintf(segments.fFSUnis.c_str());
     GrPrintf(segments.fVaryings.c_str());
     GrPrintf(segments.fFSOutputs.c_str());
+    GrPrintf(segments.fFSFunctions.c_str());
     GrPrintf(segments.fFSCode.c_str());
     GrPrintf("\n");
 #endif
