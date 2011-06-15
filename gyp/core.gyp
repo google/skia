@@ -333,7 +333,7 @@
     {
       'target_name': 'core_tests',
       'type': 'static_library',
-      'all_dependent_settings': {
+      'direct_dependent_settings': {
         'sources': [
           '../tests/core/PointTest.cpp',
         ],
