@@ -1778,6 +1778,9 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
             #endif
                 //GrPrintf("---- bindtexture %d\n", nextTexture->textureID());
                 fHWDrawState.fTextures[s] = nextTexture;
+                // The texture matrix has to compensate for texture width/height
+                // and NPOT-embedded-in-POT
+                fDirtyFlags.fTextureChangedMask |= (1 << s);
             }
 
             const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
@@ -1818,10 +1821,6 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                                     newTexParams.fWrapT));
             }
             nextTexture->setTexParams(newTexParams);
-
-            // The texture matrix has to compensate for texture width/height
-            // and NPOT-embedded-in-POT
-            fDirtyFlags.fTextureChangedMask |= (1 << s);
         }
     }
 
