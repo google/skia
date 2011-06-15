@@ -19,7 +19,8 @@
 
 typedef SkTRegistry<SkImageEncoder*, SkImageEncoder::Type> EncodeReg;
 
-template EncodeReg* EncodeReg::gHead;
+// Can't use the typedef here because of complex C++ corner cases
+template EncodeReg* SkTRegistry<SkImageEncoder*, SkImageEncoder::Type>::gHead;
 
 #ifdef SK_ENABLE_LIBPNG
     extern SkImageEncoder* sk_libpng_efactory(SkImageEncoder::Type);
@@ -41,4 +42,3 @@ SkImageEncoder* SkImageEncoder::Create(Type t) {
 #endif
     return NULL;
 }
-

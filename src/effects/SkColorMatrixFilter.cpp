@@ -110,7 +110,9 @@ static void Add16(SkColorMatrixFilter::State* state,
 #define kNO_ALPHA_FLAGS (SkColorFilter::kAlphaUnchanged_Flag |  \
                          SkColorFilter::kHasFilter16_Flag)
 
-void SkColorMatrixFilter::setup(const SkScalar SK_RESTRICT src[20]) {
+// src is [20] but some compilers won't accept __restrict__ on anything
+// but an raw pointer or reference
+void SkColorMatrixFilter::setup(const SkScalar* SK_RESTRICT src) {
     if (NULL == src) {
         fProc = NULL;   // signals identity
         fFlags  = kNO_ALPHA_FLAGS;

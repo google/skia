@@ -15,13 +15,23 @@
  */
 
 
-#include "GrDrawTarget.h"
-#include "GrTDArray.h"
-#include "GrTBSearch.h"
-#include "GrMatrix.h"
-#include "GrRedBlackTree.h"
-#include "GrPath.h"
 #include "GrBinHashKey.h"
+#include "GrDrawTarget.h"
+#include "GrMatrix.h"
+#include "GrPath.h"
+#include "GrRedBlackTree.h"
+#include "GrTDArray.h"
+
+// If we aren't inheriting these as #defines from elsewhere,
+// clang demands they be declared before we #include the template
+// that relies on them.
+static bool LT(const int& elem, int value) {
+    return elem < value;
+}
+static bool EQ(const int& elem, int value) {
+    return elem == value;
+}
+#include "GrTBSearch.h"
 
 static void dump(const GrTDArray<int>& array) {
 #if 0
@@ -53,12 +63,6 @@ static void test_tdarray() {
     GrAssert(array.count() == 4);
 }
 
-static bool LT(const int& elem, int value) {
-    return elem < value;
-}
-static bool EQ(const int& elem, int value) {
-    return elem == value;
-}
 
 static void test_bsearch() {
     const int array[] = {

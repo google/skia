@@ -30,7 +30,8 @@ public:
     virtual ~SkBlitter();
 
     virtual void blitH(int x, int y, int width);
-    virtual void blitAntiH(int x, int y, const SkAlpha[], const int16_t runs[]);
+    virtual void blitAntiH(int x, int y, const SkAlpha* antialias,
+                           const int16_t* runs);
     virtual void blitV(int x, int y, int height, SkAlpha alpha);
     virtual void blitRect(int x, int y, int width, int height);
     virtual void blitMask(const SkMask&, const SkIRect& clip);

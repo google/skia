@@ -27,8 +27,8 @@ public:
         SkASSERT(width > 0 && height > 0);
         int srcX = x - fLeft;
         int srcY = y - fTop;
-        SK_RESTRICT SkSPRITE_DST_TYPE* dst =fDevice->SkSPRITE_DST_GETADDR(x, y);
-        const SK_RESTRICT SkSPRITE_SRC_TYPE* src =
+        SkSPRITE_DST_TYPE* SK_RESTRICT dst =fDevice->SkSPRITE_DST_GETADDR(x, y);
+        const SkSPRITE_SRC_TYPE* SK_RESTRICT src =
                                       fSource->SkSPRITE_SRC_GETADDR(srcX, srcY);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
@@ -55,8 +55,8 @@ public:
                 d += 1;
             } while (--w != 0);
 #endif
-            dst = (SK_RESTRICT SkSPRITE_DST_TYPE*)((char*)dst + dstRB);
-            src = (const SK_RESTRICT SkSPRITE_SRC_TYPE*)
+            dst = (SkSPRITE_DST_TYPE* SK_RESTRICT)((char*)dst + dstRB);
+            src = (const SkSPRITE_SRC_TYPE* SK_RESTRICT)
                                             ((const char*)src + srcRB);
             SkSPRITE_NEXT_ROW
 #ifdef SkSPRITE_ROW_PROC
@@ -88,4 +88,3 @@ private:
 #ifdef SkSPRITE_ROW_PROC
     #undef SkSPRITE_ROW_PROC
 #endif
-

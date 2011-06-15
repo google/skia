@@ -63,8 +63,8 @@ public:
 
     // overrides
     virtual void blitRect(int x, int y, int width, int height) {
-        SK_RESTRICT uint16_t* dst = fDevice->getAddr16(x, y);
-        const SK_RESTRICT uint16_t* src = fSource->getAddr16(x - fLeft,
+        uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
+        const uint16_t* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                              y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
@@ -176,9 +176,9 @@ static intptr_t asint(const void* ptr) {
     return reinterpret_cast<const char*>(ptr) - (const char*)0;
 }
 
-static void blitrow_d16_si8(SK_RESTRICT uint16_t* dst,
-                            SK_RESTRICT const uint8_t* src, int count,
-                            SK_RESTRICT const uint16_t* ctable) {
+static void blitrow_d16_si8(uint16_t* SK_RESTRICT dst,
+                            const uint8_t* SK_RESTRICT src, int count,
+                            const uint16_t* SK_RESTRICT ctable) {
     if (count <= 8) {
         do {
             *dst++ = ctable[*src++];
@@ -290,8 +290,8 @@ public:
     }
     
     virtual void blitRect(int x, int y, int width, int height) {
-        SK_RESTRICT uint16_t* dst = fDevice->getAddr16(x, y);
-        const SK_RESTRICT SkPMColor* src = fSource->getAddr32(x - fLeft,
+        uint16_t* SK_RESTRICT dst = fDevice->getAddr16(x, y);
+        const SkPMColor* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
                                                               y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
@@ -301,8 +301,8 @@ public:
         while (--height >= 0) {
             proc(dst, src, width, alpha, x, y);
             y += 1;
-            dst = (SK_RESTRICT uint16_t*)((char*)dst + dstRB);
-            src = (const SK_RESTRICT SkPMColor*)((const char*)src + srcRB);
+            dst = (uint16_t* SK_RESTRICT)((char*)dst + dstRB);
+            src = (const SkPMColor* SK_RESTRICT)((const char*)src + srcRB);
         }
     }
     
@@ -383,4 +383,3 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD16(const SkBitmap& source,
     }
     return blitter;
 }
-

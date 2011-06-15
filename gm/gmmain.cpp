@@ -21,7 +21,7 @@
 using namespace skiagm;
 
 // need to explicitly declare this, or we get some weird infinite loop llist
-template GMRegistry* GMRegistry::gHead;
+template GMRegistry* SkTRegistry<GM*, void*>::gHead;
 
 class Iter {
 public:
