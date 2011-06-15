@@ -89,6 +89,10 @@ public:
         kNoColorWrites_StateBit = 0x08, //<! If set it disables writing colors.
                                         //   Useful while performing stencil
                                         //   ops.
+        kEdgeAAConcave_StateBit =  0x10,//<! If set, edge AA will test edge
+                                        //   pairs for convexity while 
+                                        //   rasterizing.  Set this if the
+                                        //   source polygon is non-convex.
 
         // subclass may use additional bits internally
         kDummyStateBit,

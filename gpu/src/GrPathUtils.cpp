@@ -111,7 +111,7 @@ int GrPathUtils::worstCasePointCount(const GrPath& path, int* subpaths,
 
     bool first = true;
 
-    SkPath::Iter iter(path, true);
+    SkPath::Iter iter(path, false);
     GrPathCmd cmd;
 
     GrPoint pts[4];

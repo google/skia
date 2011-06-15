@@ -32,6 +32,7 @@ struct ShaderCodeSegments {
     GrStringBuilder fVaryings;
     GrStringBuilder fFSUnis;
     GrStringBuilder fFSOutputs;
+    GrStringBuilder fFSFunctions;
     GrStringBuilder fVSCode;
     GrStringBuilder fFSCode;
 };
@@ -161,11 +162,12 @@ private:
         uint8_t fDualSrcOutput;  // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
         SkBool8 fEmitsPointSize;
+        SkBool8 fEdgeAAConcave;
 
         int8_t fEdgeAANumEdges;
         uint8_t fColorFilterXfermode;  // casts to enum SkXfermode::Mode
 
-        uint8_t fPadTo32bLengthMultiple [2];
+        uint8_t fPadTo32bLengthMultiple [1];
 
     } fProgramDesc;
 

@@ -43,6 +43,7 @@
         '../samplecode/SampleCode.h',
         '../samplecode/SampleColorFilter.cpp',
         '../samplecode/SampleComplexClip.cpp',
+        '../samplecode/SampleConcavePaths.cpp',
         '../samplecode/SampleCull.cpp',
         '../samplecode/SampleDecode.cpp',
         '../samplecode/SampleDither.cpp',
