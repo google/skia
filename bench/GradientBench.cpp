@@ -89,6 +89,20 @@ enum GradType { // these must match the order in gGrads
     kRadial2_GradType
 };
 
+static const char* tilemodename(SkShader::TileMode tm) {
+    switch (tm) {
+        case SkShader::kClamp_TileMode:
+            return "clamp";
+        case SkShader::kRepeat_TileMode:
+            return "repeat";
+        case SkShader::kMirror_TileMode:
+            return "mirror";
+        default:
+            SkASSERT(!"unknown tilemode");
+            return "error";
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class GradientBench : public SkBenchmark {
@@ -101,8 +115,9 @@ class GradientBench : public SkBenchmark {
         N   = 1
     };
 public:
-    GradientBench(void* param, GradType gt) : INHERITED(param) {
-        fName.printf("gradient_%s", gGrads[gt].fName);
+    GradientBench(void* param, GradType gt,
+                  SkShader::TileMode tm = SkShader::kClamp_TileMode) : INHERITED(param) {
+        fName.printf("gradient_%s_%s", gGrads[gt].fName, tilemodename(tm));
 
         const SkPoint pts[2] = {
             { 0, 0 },
@@ -110,8 +125,7 @@ public:
         };
         
         fCount = N * gGrads[gt].fRepeat;
-        fShader = gGrads[gt].fMaker(pts, gGradData[0],
-                                    SkShader::kClamp_TileMode, NULL);
+        fShader = gGrads[gt].fMaker(pts, gGradData[0], tm, NULL);
     }
 
     virtual ~GradientBench() {
@@ -141,11 +155,13 @@ private:
 
 static SkBenchmark* Fact0(void* p) { return new GradientBench(p, kLinear_GradType); }
 static SkBenchmark* Fact1(void* p) { return new GradientBench(p, kRadial_GradType); }
+static SkBenchmark* Fact11(void* p) { return new GradientBench(p, kRadial_GradType, SkShader::kMirror_TileMode); }
 static SkBenchmark* Fact2(void* p) { return new GradientBench(p, kSweep_GradType); }
 static SkBenchmark* Fact3(void* p) { return new GradientBench(p, kRadial2_GradType); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
+static BenchRegistry gReg11(Fact11);
 static BenchRegistry gReg2(Fact2);
 static BenchRegistry gReg3(Fact3);
 
