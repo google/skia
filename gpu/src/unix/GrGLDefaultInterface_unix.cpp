@@ -40,7 +40,7 @@ void GrGLSetDefaultGLInterface() {
             return;
         }
 
-        gDefaultInterface.fNPOTRenderTargetSupport = 1;
+        gDefaultInterface.fNPOTRenderTargetSupport = true;
         gDefaultInterface.fMinRenderTargetHeight = 1;
         gDefaultInterface.fMinRenderTargetWidth = 1;
 
