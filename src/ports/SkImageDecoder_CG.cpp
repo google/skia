@@ -76,12 +76,12 @@ bool SkImageDecoder_CG::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     bm->lockPixels();
     bm->eraseColor(0);
 
-    CGColorSpaceRef cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    // use the same colorspace, so we don't change the pixels at all
+    CGColorSpaceRef cs = CGImageGetColorSpace(image);
     CGContextRef cg = CGBitmapContextCreate(bm->getPixels(), width, height,
                                             8, bm->rowBytes(), cs, BITMAP_INFO);
     CGContextDrawImage(cg, CGRectMake(0, 0, width, height), image);
     CGContextRelease(cg);
-    CGColorSpaceRelease(cs);
 
     bm->unlockPixels();
     return true;
