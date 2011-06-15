@@ -52,6 +52,7 @@
         '../tests/PathMeasureTest.cpp',
         '../tests/PathTest.cpp',
         '../tests/PDFPrimitivesTest.cpp',
+        '../tests/PointTest.cpp',
         '../tests/Reader32Test.cpp',
         '../tests/RefDictTest.cpp',
         '../tests/RegionTest.cpp',
@@ -69,7 +70,6 @@
       ],
       'dependencies': [
         'core.gyp:core',
-        'core.gyp:core_tests',
         'effects.gyp:effects',
         'experimental.gyp:experimental',
         'images.gyp:images',
