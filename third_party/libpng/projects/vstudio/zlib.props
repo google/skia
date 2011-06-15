@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * zlib.props - location of zlib source
+ *
+ * libpng version 1.5.2 - March 31, 2011
+ *
+ * Copyright (c) 1998-2010 Glenn Randers-Pehrson
+ *
+ * This code is released under the libpng license.
+ * For conditions of distribution and use, see the disclaimer
+ * and license in png.h
+
+ * You must edit this file to record the location of the zlib
+ * source code.
+ -->
+
+<Project ToolsVersion="4.0"
+   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <!-- Place the name of the directory containing the source of zlib used for
+	 debugging in this property.
+         The directory need only contain the '.c' and '.h' files from the
+	 source.
+	 If you use a relative directory name (as below) then it must be
+	 relative to the project directories; these are one level deepers than
+	 the directories containing this file.
+     -->
+    <ZLibSrcDir>..\..\..\..\zlib-1.2.4</ZLibSrcDir>
+  </PropertyGroup>
+</Project>
