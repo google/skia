@@ -1,0 +1,12 @@
+zlib-1.2.5
+imported by epoger@google.com on 15 June 2011
+
+Modifications from the stock distribution tar file:
+- Addition of this README.skia file
+
+All Skia-specific build glue is in zlib.gyp, which is not kept
+in this directory.
+
+I would have included this library via SVN externals like we do with "gyp",
+but zlib source does not appear to be kept in a public source code control
+system.

@@ -68,11 +68,23 @@
 
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libjpeg.cpp',
-            '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libpvjpeg.c',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
+          # libpng stuff:
+          # Any targets that depend on this target should link in libpng and
+          # our code that calls it.
+          # See http://code.google.com/p/gyp/wiki/InputFormatReference#Dependent_Settings
+          'dependencies' : [
+            'libpng.gyp:libpng',
+          ],
+          'link_settings': {
+            'sources': [
+              '../src/images/SkImageDecoder_libpng.cpp',
+            ],
+          },
+          # end libpng stuff
         }],
         [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
           'sources!': [
