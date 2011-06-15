@@ -207,9 +207,8 @@ struct SK_API SkPoint {
     SkScalar distanceToOrigin() const { return this->length(); }
 
     /** Set the point (vector) to be unit-length in the same direction as it
-        currently is, and return its old length. If the old length is
-        degenerately small (nearly zero), do nothing and return false, otherwise
-        return true.
+        already points.  If the point has a degenerate length (i.e. nearly 0)
+        then return false and do nothing; otherwise return true.
     */
     bool normalize();
 
@@ -326,6 +325,11 @@ struct SK_API SkPoint {
 
     /** Normalize pt, returning its previous length. If the prev length is too
         small (degenerate), return 0 and leave pt unchanged.
+
+        Note that this method may be significantly more expensive than
+        the non-static normalize(), because it has to return the previous length
+        of the point.  If you don't need the previous length, call the
+        non-static normalize() method instead.
      */
     static SkScalar Normalize(SkPoint* pt);
 
@@ -377,4 +381,3 @@ struct SK_API SkPoint {
 typedef SkPoint SkVector;
 
 #endif
-

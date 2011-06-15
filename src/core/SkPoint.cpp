@@ -82,8 +82,6 @@ void SkPoint::scale(SkScalar scale, SkPoint* dst) const {
     dst->set(SkScalarMul(fX, scale), SkScalarMul(fY, scale));
 }
 
-#define kNearlyZero     (SK_Scalar1 / 8092)
-
 bool SkPoint::normalize() {
     return this->setLength(fX, fY, SK_Scalar1);
 }
@@ -96,26 +94,26 @@ bool SkPoint::setLength(SkScalar length) {
     return this->setLength(fX, fY, length);
 }
 
+SkScalar SkPoint::Normalize(SkPoint* pt) {
+    SkScalar mag = SkPoint::Length(pt->fX, pt->fY);
+    if (mag > SK_ScalarNearlyZero) {
+        SkScalar scale = SkScalarInvert(mag);
+        pt->fX = SkScalarMul(pt->fX, scale);
+        pt->fY = SkScalarMul(pt->fY, scale);
+        return mag;
+    }
+    return 0;
+}
+
 #ifdef SK_SCALAR_IS_FLOAT
 
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
     return sk_float_sqrt(dx * dx + dy * dy);
 }
 
-SkScalar SkPoint::Normalize(SkPoint* pt) {
-    float mag = SkPoint::Length(pt->fX, pt->fY);
-    if (mag > kNearlyZero) {
-        float scale = 1 / mag;
-        pt->fX *= scale;
-        pt->fY *= scale;
-        return mag;
-    }
-    return 0;
-}
-
 bool SkPoint::setLength(float x, float y, float length) {
     float mag = sk_float_sqrt(x * x + y * y);
-    if (mag > kNearlyZero) {
+    if (mag > SK_ScalarNearlyZero) {
         length /= mag;
         fX = x * length;
         fY = y * length;
@@ -401,4 +399,3 @@ SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a,
         return SkScalarMulDiv(det, det, uLengthSqd);
     }
 }
-

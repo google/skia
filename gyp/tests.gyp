@@ -69,6 +69,7 @@
       ],
       'dependencies': [
         'core.gyp:core',
+        'core.gyp:core_tests',
         'effects.gyp:effects',
         'experimental.gyp:experimental',
         'images.gyp:images',
