@@ -471,10 +471,11 @@ GrGpuGL::GrGpuGL() {
     // TODO: Make these a preprocess that generate some compile time constants.
     // TODO: probe once at startup, rather than once per context creation.
 
-    fNPOTRenderTargetSupport = GrGLGetGLInterface()->fNPOTRenderTargetSupport;
-    if (fNPOTRenderTargetSupport < 0) {
+    if (GrGLGetGLInterface()->fNPOTRenderTargetSupport < 0) {
         fNPOTRenderTargetSupport =
             probe_for_npot_render_target_support(fNPOTTextureSupport);
+    } else {
+        fNPOTRenderTargetSupport = GrGLGetGLInterface()->fNPOTRenderTargetSupport;
     }
 
     if (gPrintStartupSpew) {

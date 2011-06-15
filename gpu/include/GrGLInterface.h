@@ -205,6 +205,10 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
 }  // extern "C"
 
+enum GrGLBug {
+    kProbe_GrGLBug = -1
+};
+
 /*
  * The following interface exports the OpenGL entry points used by the system.
  * Use of OpenGL calls is disallowed.  All calls should be invoked through
@@ -222,12 +226,12 @@ struct GrGLInterface {
     GrGLBinding fBindingsExported;
 
     /// Does this GL support NPOT textures on FBOs?
-    /// boolean value, or -1 to probe (slowly) at context creation.
+    /// boolean value, or kProbe_GrGLBug to probe (slowly) at context creation.
     int fNPOTRenderTargetSupport;
 
     /// Some GL implementations (PowerVR SGX devices like the iPhone 4)
     /// have restrictions on the size of small render targets.
-    /// -1 to probe (slowly) at context creation.
+    /// kProbe_GrGLBug to probe (slowly) at context creation.
     int fMinRenderTargetHeight;
     int fMinRenderTargetWidth;
 

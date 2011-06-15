@@ -23,7 +23,7 @@ void GrGLSetDefaultGLInterface() {
     static GrGLInterface gDefaultInterface;
     static bool gDefaultInterfaceInit;
     if (!gDefaultInterfaceInit) {
-        gDefaultInterface.fNPOTRenderTargetSupport = 1;
+        gDefaultInterface.fNPOTRenderTargetSupport = true;
         gDefaultInterface.fMinRenderTargetHeight = 1;
         gDefaultInterface.fMinRenderTargetWidth = 1;
 
