@@ -18,9 +18,8 @@
 #define SkOSWindow_Android_DEFINED
 
 #include "SkWindow.h"
-#include "SkEvent.h"
 
-class GrContext;
+class SkIRect;
 
 class SkOSWindow : public SkWindow {
 public:
@@ -29,10 +28,7 @@ public:
     bool attachGL() { return true; }
     void detachGL() {}
     void presentGL() {}
-    virtual bool drawsToHardware() { return false; }
-    virtual bool setGrContext(GrContext*) { return false; }
-    virtual GrContext* getGrContext() { return NULL; }
-    virtual void changeZoomLevel(float delta) {}
+
 protected:
     // overrides from SkWindow
     virtual void onHandleInval(const SkIRect&);

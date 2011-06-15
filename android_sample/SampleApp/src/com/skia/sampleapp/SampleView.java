@@ -33,9 +33,10 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class SampleView extends GLSurfaceView implements OnScaleGestureListener {
-    
+
     private final SampleApp mApp;
     private ScaleGestureDetector mDetector;
+
     public SampleView(SampleApp app) {
         super(app);
         mApp = app;
@@ -44,6 +45,17 @@ public class SampleView extends GLSurfaceView implements OnScaleGestureListener 
         setRenderer(new SampleView.Renderer());
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         mDetector = new ScaleGestureDetector(app, this);
+    }
+
+    // Called by JNI
+    @SuppressWarnings("unused")
+    private void queueSkEvent() {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mApp.processSkEvent();
+            }
+        });
     }
 
     @Override
@@ -62,23 +74,33 @@ public class SampleView extends GLSurfaceView implements OnScaleGestureListener 
                mApp.handleClick(x, y, action);
            }
         });
-        
+
         return true;
     }
+
     // ScaleGestureDetector.OnScaleGestureListener implementation
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector) {
+        final float x = detector.getFocusX();
+        final float y = detector.getFocusY();
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mApp.setZoomCenter(x, y);
+            }
+        });
         return true;
     }
 
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         if (detector.getScaleFactor() != 1) {
-            final float difference = detector.getCurrentSpan() - detector.getPreviousSpan();
+            final float difference = detector.getCurrentSpan()
+                    - detector.getPreviousSpan();
             queueEvent(new Runnable() {
                 @Override
                 public void run() {
-                    mApp.zoom(difference * .03f);
+                    mApp.zoom(difference * .01f);
                 }
             });
 
@@ -96,11 +118,11 @@ public class SampleView extends GLSurfaceView implements OnScaleGestureListener 
         public void onDrawFrame(GL10 gl) {
             mApp.draw();
         }
-        
+
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             mApp.updateSize(width, height);
         }
-        
+
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             gl.glClearStencil(0);
             gl.glClear(gl.GL_STENCIL_BUFFER_BIT);

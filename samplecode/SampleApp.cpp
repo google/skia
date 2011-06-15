@@ -1,3 +1,5 @@
+#include "SampleApp.h"
+
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGpuCanvas.h"
@@ -11,8 +13,11 @@
 
 #include "SampleCode.h"
 #include "GrContext.h"
-#include "SkTouchGesture.h"
 #include "SkTypeface.h"
+
+#ifdef ANDROID
+    #include "gl2.h"
+#endif
 
 #define TEST_GPIPEx
 
@@ -109,12 +114,6 @@ static void testpdf() {
 enum FlipAxisEnum {
     kFlipAxis_X = (1 << 0),
     kFlipAxis_Y = (1 << 1)
-};
-
-enum SkTriState {
-    kFalse_SkTriState,
-    kTrue_SkTriState,
-    kUnknown_SkTriState,
 };
 
 static SkTriState cycle_tristate(SkTriState state) {
@@ -244,121 +243,12 @@ static SkView* curr_view(SkWindow* wind) {
     return iter.next();
 }
 
-class SampleWindow : public SkOSWindow {
-    SkTDArray<SkViewFactory> fSamples;
-public:
-    SampleWindow(void* hwnd);
-    virtual ~SampleWindow();
+void SampleWindow::setZoomCenter(float x, float y)
+{
+    fZoomCenterX = SkFloatToScalar(x);
+    fZoomCenterY = SkFloatToScalar(y);
+}
 
-    virtual void draw(SkCanvas* canvas);
-#ifdef ANDROID
-    virtual bool drawsToHardware() { return fCanvasType == kGPU_CanvasType; }
-    virtual bool setGrContext(GrContext*);
-    virtual GrContext* getGrContext();
-#endif
-
-protected:
-    virtual void onDraw(SkCanvas* canvas);
-    virtual bool onHandleKey(SkKey key);
-    virtual bool onHandleChar(SkUnichar);
-    virtual void onSizeChange();
-
-    virtual SkCanvas* beforeChildren(SkCanvas*);
-    virtual void afterChildren(SkCanvas*);
-    virtual void beforeChild(SkView* child, SkCanvas* canvas);
-    virtual void afterChild(SkView* child, SkCanvas* canvas);
-
-    virtual bool onEvent(const SkEvent& evt);
-    virtual bool onQuery(SkEvent* evt);
-
-    virtual bool onDispatchClick(int x, int y, Click::State);
-    virtual bool onClick(Click* click);
-    virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
-
-#if 0
-    virtual bool handleChar(SkUnichar uni);
-    virtual bool handleEvent(const SkEvent& evt);
-    virtual bool handleKey(SkKey key);
-    virtual bool handleKeyUp(SkKey key);
-    virtual bool onHandleKeyUp(SkKey key);
-#endif
-
-private:
-    int fCurrIndex;
-
-    SkPicture* fPicture;
-    SkGpuCanvas* fGpuCanvas;
-    GrContext* fGrContext;
-    SkPath fClipPath;
-
-    SkTouchGesture fGesture;
-    SkScalar fZoomLevel;
-    SkScalar fZoomScale;
-
-    enum CanvasType {
-        kRaster_CanvasType,
-        kPicture_CanvasType,
-        kGPU_CanvasType
-    };
-    CanvasType fCanvasType;
-
-    bool fUseClip;
-    bool fNClip;
-    bool fRepeatDrawing;
-    bool fAnimating;
-    bool fRotate;
-    bool fScale;
-    bool fRequestGrabImage;
-    bool fUsePipe;
-    bool fMeasureFPS;
-    SkMSec fMeasureFPS_Time;
-
-    // The following are for the 'fatbits' drawing
-    // Latest position of the mouse.
-    int fMouseX, fMouseY;
-    int fFatBitsScale;
-    // Used by the text showing position and color values.
-    SkTypeface* fTypeface;
-    bool fShowZoomer;
-
-    SkTriState fLCDState;
-    SkTriState fAAState;
-    SkTriState fFilterState;
-    SkTriState fHintingState;
-    unsigned   fFlipAxis;
-
-    int fScrollTestX, fScrollTestY;
-
-    bool make3DReady();
-#ifdef ANDROID
-    virtual
-#endif
-    void changeZoomLevel(float delta);
-
-    void loadView(SkView*);
-    void updateTitle();
-    bool nextSample();
-
-    void toggleZoomer();
-    bool zoomIn();
-    bool zoomOut();
-    void updatePointer(int x, int y);
-    void showZoomer(SkCanvas* canvas);
-
-    void postAnimatingEvent() {
-        if (fAnimating) {
-            SkEvent* evt = new SkEvent(ANIMATING_EVENTTYPE);
-            evt->post(this->getSinkID(), ANIMATING_DELAY);
-        }
-    }
-
-
-    static CanvasType cycle_canvastype(CanvasType);
-
-    typedef SkOSWindow INHERITED;
-};
-
-#ifdef ANDROID
 bool SampleWindow::setGrContext(GrContext* context)
 {
     if (fGrContext) {
@@ -373,7 +263,6 @@ GrContext* SampleWindow::getGrContext()
 {
     return fGrContext;
 }
-#endif
 
 bool SampleWindow::zoomIn()
 {
@@ -577,8 +466,8 @@ void SampleWindow::draw(SkCanvas* canvas) {
     gAnimTimePrev = gAnimTime;
     gAnimTime = SkTime::GetMSecs();
 
-    SkScalar cx = SkScalarHalf(this->width());
-    SkScalar cy = SkScalarHalf(this->height());
+    SkScalar cx = fZoomCenterX;
+    SkScalar cy = fZoomCenterY;
 
     if (fZoomLevel) {
         SkMatrix m;
@@ -970,10 +859,23 @@ void SampleWindow::changeZoomLevel(float delta) {
     this->inval(NULL);
 }
 
+bool SampleWindow::previousSample() {
+    fCurrIndex = (fCurrIndex - 1) % fSamples.count();
+    this->loadView(fSamples[fCurrIndex]());
+    return true;
+}
+
 bool SampleWindow::nextSample() {
     fCurrIndex = (fCurrIndex + 1) % fSamples.count();
     this->loadView(fSamples[fCurrIndex]());
     return true;
+}
+
+void SampleWindow::postAnimatingEvent() {
+    if (fAnimating) {
+        SkEvent* evt = new SkEvent(ANIMATING_EVENTTYPE);
+        evt->post(this->getSinkID(), ANIMATING_DELAY);
+    }
 }
 
 bool SampleWindow::onEvent(const SkEvent& evt) {
@@ -1072,9 +974,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
 
     switch (uni) {
         case 'a':
-            fAnimating = !fAnimating;
-            this->postAnimatingEvent();
-            this->updateTitle();
+            this->toggleSlideshow();
             return true;
         case 'b':
             fAAState = cycle_tristate(fAAState);
@@ -1090,8 +990,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             SkGraphics::SetFontCacheUsed(0);
             return true;
         case 'f':
-            fMeasureFPS = !fMeasureFPS;
-            this->inval(NULL);
+            this->toggleFPS();
             break;
         case 'g':
             fRequestGrabImage = true;
@@ -1153,6 +1052,24 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     return this->INHERITED::onHandleChar(uni);
 }
 
+void SampleWindow::toggleFPS() {
+    fMeasureFPS = !fMeasureFPS;
+    this->inval(NULL);
+    this->updateTitle();
+}
+
+void SampleWindow::toggleSlideshow() {
+    fAnimating = !fAnimating;
+    this->postAnimatingEvent();
+    this->updateTitle();
+}
+
+void SampleWindow::toggleRendering() {
+    fCanvasType = cycle_canvastype(fCanvasType);
+    this->updateTitle();
+    this->inval(NULL);
+}
+
 #include "SkDumpCanvas.h"
 
 bool SampleWindow::onHandleKey(SkKey key) {
@@ -1174,9 +1091,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             }
             break;
         case kLeft_SkKey:
-            fCanvasType = cycle_canvastype(fCanvasType);
-            this->updateTitle();
-            this->inval(NULL);
+            toggleRendering();
             return true;
         case kUp_SkKey:
             if (USE_ARROWS_FOR_ZOOM) {
@@ -1403,6 +1318,15 @@ void SampleWindow::onSizeChange() {
         r.set(W/4, H/4, W*3/4, H*3/4);
         fClipPath.addRect(r, SkPath::kCW_Direction);
 #endif
+    }
+
+    fZoomCenterX = SkScalarHalf(this->width());
+    fZoomCenterY = SkScalarHalf(this->height());
+
+    if (fGrContext) {
+        glViewport(0, 0, SkScalarRound(this->width()),
+                SkScalarRound(this->height()));
+        fGrContext->resetContext();
     }
 
     this->updateTitle();    // to refresh our config

@@ -15,17 +15,18 @@
  *
  */
 
-#include <jni.h>
-
-#include "SkCanvas.h"
-#include "SkEvent.h"
-#include "SkWindow.h"
+#include "GrContext.h"
+#include "SampleApp.h"
 #include "SkApplication.h"
+#include "SkCanvas.h"
+#include "SkDevice.h"
+#include "SkEvent.h"
+#include "SkGpuCanvas.h"
+#include "SkWindow.h"
+
+#include <jni.h>
 #include "utils/android/AndroidKeyToSkKey.h"
 
-#include "SkDevice.h"
-#include "SkGpuCanvas.h"
-#include "GrContext.h"
 
 ///////////////////////////////////////////
 ///////////////// Globals /////////////////
@@ -35,23 +36,27 @@ struct ActivityGlue {
     JNIEnv* m_env;
     jweak m_obj;
     jmethodID m_setTitle;
+    jmethodID m_startTimer;
     ActivityGlue() {
         m_env = NULL;
         m_obj = NULL;
         m_setTitle = NULL;
+        m_startTimer = NULL;
     }
 } gActivityGlue;
 
 struct WindowGlue {
     jweak m_obj;
     jmethodID m_inval;
+    jmethodID m_queueSkEvent;
     WindowGlue() {
         m_obj = NULL;
         m_inval = NULL;
+        m_queueSkEvent = NULL;
     }
 } gWindowGlue;
 
-SkOSWindow* gWindow;
+SampleWindow* gWindow;
 
 ///////////////////////////////////////////
 ///////////// SkOSWindow impl /////////////
@@ -80,9 +85,25 @@ void SkOSWindow::onHandleInval(const SkIRect& rect)
 /////////////// SkEvent impl //////////////
 ///////////////////////////////////////////
 
-void SkEvent::SignalQueueTimer(SkMSec) {}
+void SkEvent::SignalQueueTimer(SkMSec ms)
+{
+    if (!gActivityGlue.m_env || !gActivityGlue.m_startTimer
+            || !gActivityGlue.m_obj || !ms) {
+        return;
+    }
+    gActivityGlue.m_env->CallVoidMethod(gActivityGlue.m_obj,
+            gActivityGlue.m_startTimer, ms);
+}
 
-void SkEvent::SignalNonEmptyQueue() {}
+void SkEvent::SignalNonEmptyQueue()
+{
+    if (!gActivityGlue.m_env || !gWindowGlue.m_queueSkEvent
+            || !gWindowGlue.m_obj) {
+        return;
+    }
+    gActivityGlue.m_env->CallVoidMethod(gWindowGlue.m_obj,
+            gWindowGlue.m_queueSkEvent);
+}
 
 ///////////////////////////////////////////
 ////////////////// JNI ////////////////////
@@ -113,8 +134,22 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_handleClick(
         JNIEnv* env, jobject thiz, jint x, jint y, jint state);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_createOSWindow(
         JNIEnv* env, jobject thiz, jobject jsampleView);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_setZoomCenter(
+        JNIEnv* env, jobject thiz, jfloat x, jfloat y);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_zoom(
         JNIEnv* env, jobject thiz, jfloat factor);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_nextSample(
+        JNIEnv* env, jobject thiz, jboolean fprevious);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_toggleRendering(
+        JNIEnv* env, jobject thiz);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_toggleSlideshow(
+        JNIEnv* env, jobject thiz);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_toggleFps(
+        JNIEnv* env, jobject thiz);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_processSkEvent(
+        JNIEnv* env, jobject thiz);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_serviceQueueTimer(
+        JNIEnv* env, jobject thiz);
 };
 
 JNIEXPORT bool JNICALL Java_com_skia_sampleapp_SampleApp_handleKeyDown(
@@ -162,12 +197,14 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_updateSize(JNIEnv* env,
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_createOSWindow(
         JNIEnv* env, jobject thiz, jobject jsampleView)
 {
-    gWindow = create_sk_window(NULL);
-    // Only using a method on View.
-    jclass clazz = gActivityGlue.m_env->FindClass("android/opengl/GLSurfaceView");
+    gWindow = new SampleWindow(NULL);
+    jclass clazz = gActivityGlue.m_env->FindClass(
+            "com/skia/sampleapp/SampleView");
     gWindowGlue.m_obj = gActivityGlue.m_env->NewWeakGlobalRef(jsampleView);
-    gWindowGlue.m_inval = GetJMethod(gActivityGlue.m_env, clazz, "requestRender",
-            "()V");
+    gWindowGlue.m_inval = GetJMethod(gActivityGlue.m_env, clazz,
+            "requestRender", "()V");
+    gWindowGlue.m_queueSkEvent = GetJMethod(gActivityGlue.m_env, clazz,
+            "queueSkEvent", "()V");
     gActivityGlue.m_env->DeleteLocalRef(clazz);
 }
 
@@ -175,11 +212,12 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_init(JNIEnv* env,
         jobject thiz)
 {
     gActivityGlue.m_env = env;
-    // Only using a method on Activity.
-    jclass clazz = env->FindClass("android/app/Activity");
+    jclass clazz = env->FindClass("com/skia/sampleapp/SampleApp");
     gActivityGlue.m_obj = env->NewWeakGlobalRef(thiz);
     gActivityGlue.m_setTitle = GetJMethod(env, clazz, "setTitle",
             "(Ljava/lang/CharSequence;)V");
+    gActivityGlue.m_startTimer = GetJMethod(gActivityGlue.m_env, clazz,
+            "startTimer", "(I)V");
     env->DeleteLocalRef(clazz);
 
     application_init();
@@ -235,9 +273,56 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_draw(
     }
 }
 
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_setZoomCenter(
+        JNIEnv* env, jobject thiz, jfloat x, jfloat y)
+{
+    gWindow->setZoomCenter(x, y);
+}
+
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_zoom(
         JNIEnv* env, jobject thiz, jfloat factor)
 {
     gWindow->changeZoomLevel(factor);
 }
 
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_nextSample(
+        JNIEnv* env, jobject thiz, jboolean fprevious)
+{
+    if (fprevious) {
+        gWindow->previousSample();
+    } else {
+        gWindow->nextSample();
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_toggleRendering(
+        JNIEnv* env, jobject thiz)
+{
+    gWindow->toggleRendering();
+}
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_toggleSlideshow(
+        JNIEnv* env, jobject thiz)
+{
+    gWindow->toggleSlideshow();
+}
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_toggleFps(
+        JNIEnv* env, jobject thiz)
+{
+    gWindow->toggleFPS();
+}
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_processSkEvent(
+        JNIEnv* env, jobject thiz)
+{
+    if (SkEvent::ProcessEvent()) {
+        SkEvent::SignalNonEmptyQueue();
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_serviceQueueTimer(
+        JNIEnv* env, jobject thiz)
+{
+    SkEvent::ServiceQueueTimer();
+}

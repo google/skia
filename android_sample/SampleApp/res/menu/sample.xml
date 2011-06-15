@@ -16,6 +16,21 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/fps"
+        android:title="@string/fps"
+        android:showAsAction="always"
+        />
+    <item
+        android:id="@+id/toggle_rendering"
+        android:title="@string/toggle_rendering"
+        android:showAsAction="always"
+        />
+    <item
+        android:id="@+id/prev"
+        android:showAsAction="always"
+        android:icon="@*android:drawable/ic_btn_find_prev"
+        />
+    <item
         android:id="@+id/next"
         android:showAsAction="always"
         android:icon="@*android:drawable/ic_btn_find_next"
@@ -23,6 +38,10 @@
     <item
         android:id="@+id/overview"
         android:title="@string/overview"
+        />
+    <item
+        android:id="@+id/slideshow"
+        android:title="@string/slideshow"
         />
 <!--
         android:icon="@drawable/ic_menu_new_window"
