@@ -1205,7 +1205,7 @@ SkFixed SkBitmap::ComputeMipLevel(SkFixed sx, SkFixed sy) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool GetBitmapAlpha(const SkBitmap& src, uint8_t SK_RESTRICT alpha[],
+static bool GetBitmapAlpha(const SkBitmap& src, uint8_t* SK_RESTRICT alpha,
                            int alphaRowBytes) {
     SkASSERT(alpha != NULL);
     SkASSERT(alphaRowBytes >= src.width());
@@ -1527,4 +1527,3 @@ void SkBitmap::validate() const {
 #endif
 }
 #endif
-

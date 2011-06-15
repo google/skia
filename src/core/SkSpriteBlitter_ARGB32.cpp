@@ -44,8 +44,8 @@ public:
 
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
-        SK_RESTRICT uint32_t* dst = fDevice->getAddr32(x, y);
-        const SK_RESTRICT uint32_t* src = fSource->getAddr32(x - fLeft,
+        uint32_t* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        const uint32_t* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
                                                              y - fTop);
         size_t dstRB = fDevice->rowBytes();
         size_t srcRB = fSource->rowBytes();
@@ -54,8 +54,8 @@ public:
 
         do {
             proc(dst, src, width, alpha);
-            dst = (SK_RESTRICT uint32_t*)((char*)dst + dstRB);
-            src = (const SK_RESTRICT uint32_t*)((const char*)src + srcRB);
+            dst = (uint32_t* SK_RESTRICT)((char*)dst + dstRB);
+            src = (const uint32_t* SK_RESTRICT)((const char*)src + srcRB);
         } while (--height != 0);
     }
 
@@ -132,8 +132,8 @@ public:
 
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
-        SK_RESTRICT uint32_t* dst = fDevice->getAddr32(x, y);
-        const SK_RESTRICT uint32_t* src = fSource->getAddr32(x - fLeft,
+        uint32_t* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        const uint32_t* SK_RESTRICT src = fSource->getAddr32(x - fLeft,
                                                              y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
@@ -154,8 +154,8 @@ public:
                 fProc32(dst, tmp, width, fAlpha);
             }
 
-            dst = (SK_RESTRICT uint32_t*)((char*)dst + dstRB);
-            src = (const SK_RESTRICT uint32_t*)((const char*)src + srcRB);
+            dst = (uint32_t* SK_RESTRICT)((char*)dst + dstRB);
+            src = (const uint32_t* SK_RESTRICT)((const char*)src + srcRB);
         } while (--height != 0);
     }
 
@@ -163,8 +163,8 @@ private:
     typedef Sprite_D32_XferFilter INHERITED;
 };
 
-static void fillbuffer(SK_RESTRICT SkPMColor dst[],
-                       const SK_RESTRICT SkPMColor16 src[], int count) {
+static void fillbuffer(SkPMColor* SK_RESTRICT dst,
+                       const SkPMColor16* SK_RESTRICT src, int count) {
     SkASSERT(count > 0);
 
     do {
@@ -179,12 +179,12 @@ public:
 
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
-        SK_RESTRICT SkPMColor* dst = fDevice->getAddr32(x, y);
-        const SK_RESTRICT SkPMColor16* src = fSource->getAddr16(x - fLeft,
+        SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                                 y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
-        SK_RESTRICT SkPMColor* buffer = fBuffer;
+        SkPMColor* SK_RESTRICT buffer = fBuffer;
         SkColorFilter* colorFilter = fColorFilter;
         SkXfermode* xfermode = fXfermode;
 
@@ -200,8 +200,8 @@ public:
                 fProc32(dst, buffer, width, fAlpha);
             }
 
-            dst = (SK_RESTRICT SkPMColor*)((char*)dst + dstRB);
-            src = (const SK_RESTRICT SkPMColor16*)((const char*)src + srcRB);
+            dst = (SkPMColor* SK_RESTRICT)((char*)dst + dstRB);
+            src = (const SkPMColor16* SK_RESTRICT)((const char*)src + srcRB);
         } while (--height != 0);
     }
 
@@ -211,8 +211,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void src_row(SK_RESTRICT SkPMColor dst[],
-                    const SK_RESTRICT SkPMColor16 src[], int count) {
+static void src_row(SkPMColor* SK_RESTRICT dst,
+                    const SkPMColor16* SK_RESTRICT src, int count) {
     do {
         *dst = SkPixel4444ToPixel32(*src);
         src += 1;
@@ -226,22 +226,22 @@ public:
 
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
-        SK_RESTRICT SkPMColor* dst = fDevice->getAddr32(x, y);
-        const SK_RESTRICT SkPMColor16* src = fSource->getAddr16(x - fLeft,
+        SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                                 y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
 
         do {
             src_row(dst, src, width);
-            dst = (SK_RESTRICT SkPMColor*)((char*)dst + dstRB);
-            src = (const SK_RESTRICT SkPMColor16*)((const char*)src + srcRB);
+            dst = (SkPMColor* SK_RESTRICT)((char*)dst + dstRB);
+            src = (const SkPMColor16* SK_RESTRICT)((const char*)src + srcRB);
         } while (--height != 0);
     }
 };
 
-static void srcover_row(SK_RESTRICT SkPMColor dst[],
-                        const SK_RESTRICT SkPMColor16 src[], int count) {
+static void srcover_row(SkPMColor* SK_RESTRICT dst,
+                        const SkPMColor16* SK_RESTRICT src, int count) {
     do {
         *dst = SkPMSrcOver(SkPixel4444ToPixel32(*src), *dst);
         src += 1;
@@ -255,16 +255,16 @@ public:
 
     virtual void blitRect(int x, int y, int width, int height) {
         SkASSERT(width > 0 && height > 0);
-        SK_RESTRICT SkPMColor* dst = fDevice->getAddr32(x, y);
-        const SK_RESTRICT SkPMColor16* src = fSource->getAddr16(x - fLeft,
+        SkPMColor* SK_RESTRICT dst = fDevice->getAddr32(x, y);
+        const SkPMColor16* SK_RESTRICT src = fSource->getAddr16(x - fLeft,
                                                                 y - fTop);
         unsigned dstRB = fDevice->rowBytes();
         unsigned srcRB = fSource->rowBytes();
 
         do {
             srcover_row(dst, src, width);
-            dst = (SK_RESTRICT SkPMColor*)((char*)dst + dstRB);
-            src = (const SK_RESTRICT SkPMColor16*)((const char*)src + srcRB);
+            dst = (SkPMColor* SK_RESTRICT)((char*)dst + dstRB);
+            src = (const SkPMColor16* SK_RESTRICT)((const char*)src + srcRB);
         } while (--height != 0);
     }
 };
@@ -319,4 +319,3 @@ SkSpriteBlitter* SkSpriteBlitter::ChooseD32(const SkBitmap& source,
     }
     return blitter;
 }
-

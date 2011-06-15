@@ -477,9 +477,9 @@ SkPMColor SkXfermode::xferColor(SkPMColor src, SkPMColor dst) {
     return dst;
 }
 
-void SkXfermode::xfer32(SK_RESTRICT SkPMColor dst[],
-                        const SK_RESTRICT SkPMColor src[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+void SkXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT src, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -501,9 +501,9 @@ void SkXfermode::xfer32(SK_RESTRICT SkPMColor dst[],
     }
 }
 
-void SkXfermode::xfer16(SK_RESTRICT uint16_t dst[],
-                        const SK_RESTRICT SkPMColor src[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+void SkXfermode::xfer16(uint16_t* dst,
+                        const SkPMColor* SK_RESTRICT src, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
     SkASSERT(dst && src && count >= 0);
 
     if (NULL == aa) {
@@ -526,9 +526,9 @@ void SkXfermode::xfer16(SK_RESTRICT uint16_t dst[],
     }
 }
 
-void SkXfermode::xfer4444(SK_RESTRICT SkPMColor16 dst[],
-                          const SK_RESTRICT SkPMColor src[], int count,
-                          const SK_RESTRICT SkAlpha aa[])
+void SkXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
+                          const SkPMColor* SK_RESTRICT src, int count,
+                          const SkAlpha* SK_RESTRICT aa)
 {
     SkASSERT(dst && src && count >= 0);
 
@@ -552,9 +552,9 @@ void SkXfermode::xfer4444(SK_RESTRICT SkPMColor16 dst[],
     }
 }
 
-void SkXfermode::xferA8(SK_RESTRICT SkAlpha dst[],
+void SkXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
                         const SkPMColor src[], int count,
-                        const SK_RESTRICT SkAlpha aa[])
+                        const SkAlpha* SK_RESTRICT aa)
 {
     SkASSERT(dst && src && count >= 0);
 
@@ -581,9 +581,9 @@ void SkXfermode::xferA8(SK_RESTRICT SkAlpha dst[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkProcXfermode::xfer32(SK_RESTRICT SkPMColor dst[],
-                            const SK_RESTRICT SkPMColor src[], int count,
-                            const SK_RESTRICT SkAlpha aa[]) {
+void SkProcXfermode::xfer32(SkPMColor* SK_RESTRICT dst,
+                            const SkPMColor* SK_RESTRICT src, int count,
+                            const SkAlpha* SK_RESTRICT aa) {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -609,9 +609,9 @@ void SkProcXfermode::xfer32(SK_RESTRICT SkPMColor dst[],
     }
 }
 
-void SkProcXfermode::xfer16(SK_RESTRICT uint16_t dst[],
-                            const SK_RESTRICT SkPMColor src[], int count,
-                            const SK_RESTRICT SkAlpha aa[]) {
+void SkProcXfermode::xfer16(uint16_t* SK_RESTRICT dst,
+                            const SkPMColor* SK_RESTRICT src, int count,
+                            const SkAlpha* SK_RESTRICT aa) {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -638,9 +638,9 @@ void SkProcXfermode::xfer16(SK_RESTRICT uint16_t dst[],
     }
 }
 
-void SkProcXfermode::xfer4444(SK_RESTRICT SkPMColor16 dst[],
-                              const SK_RESTRICT SkPMColor src[], int count,
-                              const SK_RESTRICT SkAlpha aa[]) {
+void SkProcXfermode::xfer4444(SkPMColor16* SK_RESTRICT dst,
+                              const SkPMColor* SK_RESTRICT src, int count,
+                              const SkAlpha* SK_RESTRICT aa) {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -667,9 +667,9 @@ void SkProcXfermode::xfer4444(SK_RESTRICT SkPMColor16 dst[],
     }
 }
 
-void SkProcXfermode::xferA8(SK_RESTRICT SkAlpha dst[],
-                            const SK_RESTRICT SkPMColor src[], int count,
-                            const SK_RESTRICT SkAlpha aa[]) {
+void SkProcXfermode::xferA8(SkAlpha* SK_RESTRICT dst,
+                            const SkPMColor* SK_RESTRICT src, int count,
+                            const SkAlpha* SK_RESTRICT aa) {
     SkASSERT(dst && src && count >= 0);
 
     SkXfermodeProc proc = fProc;
@@ -774,9 +774,9 @@ class SkClearXfermode : public SkProcCoeffXfermode {
 public:
     SkClearXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kClear_Mode) {}
 
-    virtual void xfer32(SK_RESTRICT SkPMColor dst[],
-                        const SK_RESTRICT SkPMColor[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+    virtual void xfer32(SkPMColor* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
         SkASSERT(dst && count >= 0);
 
         if (NULL == aa) {
@@ -792,9 +792,9 @@ public:
             }
         }
     }
-    virtual void xferA8(SK_RESTRICT SkAlpha dst[],
-                        const SK_RESTRICT SkPMColor[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+    virtual void xferA8(SkAlpha* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
         SkASSERT(dst && count >= 0);
 
         if (NULL == aa) {
@@ -829,9 +829,9 @@ class SkSrcXfermode : public SkProcCoeffXfermode {
 public:
     SkSrcXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kSrc_Mode) {}
 
-    virtual void xfer32(SK_RESTRICT SkPMColor dst[],
-                        const SK_RESTRICT SkPMColor src[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+    virtual void xfer32(SkPMColor* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT src, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
         SkASSERT(dst && src && count >= 0);
 
         if (NULL == aa) {
@@ -848,9 +848,9 @@ public:
         }
     }
 
-    virtual void xferA8(SK_RESTRICT SkAlpha dst[],
-                        const SK_RESTRICT SkPMColor src[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+    virtual void xferA8(SkAlpha* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT src, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
         SkASSERT(dst && src && count >= 0);
 
         if (NULL == aa) {
@@ -888,9 +888,9 @@ class SkDstInXfermode : public SkProcCoeffXfermode {
 public:
     SkDstInXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstIn_Mode) {}
 
-    virtual void xfer32(SK_RESTRICT SkPMColor dst[],
-                        const SK_RESTRICT SkPMColor src[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+    virtual void xfer32(SkPMColor* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT src, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
         SkASSERT(dst && src);
 
         if (count <= 0) {
@@ -924,9 +924,9 @@ class SkDstOutXfermode : public SkProcCoeffXfermode {
 public:
     SkDstOutXfermode(const ProcCoeff& rec) : SkProcCoeffXfermode(rec, kDstOut_Mode) {}
 
-    virtual void xfer32(SK_RESTRICT SkPMColor dst[],
-                        const SK_RESTRICT SkPMColor src[], int count,
-                        const SK_RESTRICT SkAlpha aa[]) {
+    virtual void xfer32(SkPMColor* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT src, int count,
+                        const SkAlpha* SK_RESTRICT aa) {
         SkASSERT(dst && src);
 
         if (count <= 0) {

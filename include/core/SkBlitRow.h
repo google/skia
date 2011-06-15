@@ -25,8 +25,8 @@ public:
         @param x The x coordinate of the beginning of the scanline
         @param y THe y coordinate of the scanline
      */
-    typedef void (*Proc)(uint16_t* SK_RESTRICT dst,
-                         const SkPMColor* SK_RESTRICT src,
+    typedef void (*Proc)(uint16_t* dst,
+                         const SkPMColor* src,
                          int count, U8CPU alpha, int x, int y);
 
    /** Function pointer that blends a single color with a row of 32-bit colors
@@ -51,8 +51,8 @@ public:
         @param count number of colors to blend
         @param alpha global alpha to be applied to all src colors
      */
-    typedef void (*Proc32)(uint32_t* SK_RESTRICT dst,
-                         const SkPMColor* SK_RESTRICT src,
+    typedef void (*Proc32)(uint32_t* dst,
+                         const SkPMColor* src,
                          int count, U8CPU alpha);
 
     static Proc32 Factory32(unsigned flags32);
