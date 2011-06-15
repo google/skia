@@ -37,9 +37,11 @@
         '../bench/DecodeBench.cpp',
         '../bench/FPSBench.cpp',
         '../bench/GradientBench.cpp',
+        '../bench/MatrixBench.cpp',
         '../bench/PathBench.cpp',
         '../bench/RectBench.cpp',
         '../bench/RepeatTileBench.cpp',
+        '../bench/ScalarBench.cpp',
         '../bench/TextBench.cpp',
       ],
       'dependencies': [
@@ -62,8 +64,7 @@
             '../bench/BenchSysTimer_posix.h',
             '../bench/BenchSysTimer_posix.cpp',
           ],
-        }],
-        [ 'OS in ["linux", "freebsd", "openbsd", "solaris"]', {
+        },{
           'link_settings': {
             'libraries': [
               '-lrt',
@@ -76,14 +77,12 @@
             '../bench/BenchSysTimer_windows.cpp',
           ],
         }],
-
         [ 'OS in ["win", "mac", "linux", "freebsd", "openbsd", "solaris"]', {
           'sources!': [
             '../bench/BenchGpuTimer_none.h',
             '../bench/BenchGpuTimer_none.cpp',
           ],
-        }],
-        [ 'OS not in ["win", "mac", "linux", "freebsd", "openbsd", "solaris"]', {
+        },{
           'sources!': [
             '../bench/BenchGpuTimer_gl.h',
             '../bench/BenchGpuTimer_gl.cpp',
