@@ -4,6 +4,9 @@
     {
       'target_name': 'libpng',
       'type': 'static_library',
+      'dependencies': [
+        'zlib.gyp:zlib',
+      ],
       'include_dirs': [
         '../third_party/libpng',
       ],
