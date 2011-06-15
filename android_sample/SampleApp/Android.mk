@@ -14,6 +14,8 @@ LOCAL_PACKAGE_NAME := SampleApp
 
 LOCAL_JNI_SHARED_LIBRARIES := libskia-sample
 
+LOCAL_PROGUARD_ENABLED := disabled
+
 include $(BUILD_PACKAGE)
 
 ######################################
@@ -37,6 +39,7 @@ LOCAL_C_INCLUDES += \
     external/skia/include/gpu \
     external/skia/src/core \
     external/skia/gpu/include \
+    frameworks/base/opengl/include/GLES2 \
     $(LOCAL_PATH)/jni
 
 LOCAL_SHARED_LIBRARIES := \

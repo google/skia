@@ -53,10 +53,9 @@ public class SampleApp extends Activity
         holder.addView(mView, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        
+
         mTitle.setVisibility(View.GONE);
         getActionBar().setDisplayShowHomeEnabled(false);
-        
     }
 
     @Override
@@ -87,11 +86,43 @@ public class SampleApp extends Activity
                     }
                 });
                 return true;
+            case R.id.prev:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        nextSample(true);
+                    }
+                });
+                return true;
             case R.id.next:
                 mView.queueEvent(new Runnable() {
                     @Override
                     public void run() {
-                        handleKeyDown(KeyEvent.KEYCODE_DPAD_RIGHT, 0);
+                        nextSample(false);
+                    }
+                });
+                return true;
+            case R.id.toggle_rendering:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        toggleRendering();
+                    }
+                });
+                return true;
+            case R.id.slideshow:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        toggleSlideshow();
+                    }
+                });
+                return true;
+            case R.id.fps:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        toggleFps();
                     }
                 });
                 return true;
@@ -118,7 +149,6 @@ public class SampleApp extends Activity
                         handleKeyDown(keycode, uni);
                     }
                 });
-                
                 return true;
             case KeyEvent.ACTION_UP:
                 mView.queueEvent(new Runnable() {
@@ -134,7 +164,7 @@ public class SampleApp extends Activity
     }
 
     private static final int SET_TITLE = 1;
-    
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -148,22 +178,47 @@ public class SampleApp extends Activity
             }
         }
     };
-    
+
     @Override
     public void setTitle(CharSequence title) {
         mHandler.obtainMessage(SET_TITLE, title).sendToTarget();
+    }
+
+    // Called by JNI
+    @SuppressWarnings("unused")
+    private void startTimer(int ms) {
+        // After the delay, queue an event to the Renderer's thread
+        // to handle the event on the timer queue
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        serviceQueueTimer();
+                    }
+                });
+            }
+        }, ms);
     }
 
     native void draw();
     native void init();
     native void term();
     // Currently depends on init having already been called.
-    native void createOSWindow(GLSurfaceView view);
+    native void createOSWindow(SampleView view);
     native void updateSize(int w, int h);
     native void handleClick(int x, int y, int state);
     native boolean handleKeyDown(int key, int uni);
     native boolean handleKeyUp(int key);
     native void zoom(float factor);
+    native void setZoomCenter(float x, float y);
+    native void nextSample(boolean previous);
+    native void toggleRendering();
+    native void toggleSlideshow();
+    native void toggleFps();
+    native void processSkEvent();
+    native void serviceQueueTimer();
 
     static {
         System.loadLibrary("skia-sample");

@@ -15,4 +15,8 @@
 -->
 <resources>
     <string name="app_name">SampleApp</string>
+    <string name="overview">Overview</string>
+    <string name="toggle_rendering">Toggle rendering</string>
+    <string name="slideshow">Slideshow</string>
+    <string name="fps">FPS</string>
 </resources>
