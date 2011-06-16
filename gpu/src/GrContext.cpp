@@ -337,6 +337,75 @@ GrTextureEntry* GrContext::lockKeylessTexture(const GrTextureDesc& desc) {
     return entry;
 }
 
+GrTextureEntry* GrContext::findApproximateKeylessTexture(
+                                                    const GrTextureDesc& inDesc) {
+    GrTextureDesc desc = inDesc;
+    // bin by pow2 with a reasonable min
+    static const int MIN_SIZE = 256;
+    desc.fWidth  = GrMax(MIN_SIZE, GrNextPow2(desc.fWidth));
+    desc.fHeight = GrMax(MIN_SIZE, GrNextPow2(desc.fHeight));
+
+    uint32_t p0 = desc.fFormat;
+    uint32_t p1 = (desc.fAALevel << 16) | desc.fFlags;
+    
+    GrTextureEntry* entry;
+    bool keepTrying = true;
+    int origWidth = desc.fWidth;
+    int origHeight = desc.fHeight;
+    bool doubledW = false;
+    bool doubledH = false;
+
+    do {
+        GrTextureKey key(p0, p1, desc.fWidth, desc.fHeight);
+        this->finalizeTextureKey(&key, GrSamplerState::ClampNoFilter(), true);
+        entry = fTextureCache->findAndLock(key);
+
+        // if we miss, relax the fit of the flags...
+        // then try doubling width... then height.
+        if (NULL != entry) {
+            break;
+        }
+        if (!(desc.fFlags & kRenderTarget_GrTextureFlagBit)) {
+            desc.fFlags = desc.fFlags | kRenderTarget_GrTextureFlagBit;
+        } else if (desc.fFlags & kNoStencil_GrTextureFlagBit) {
+            desc.fFlags = desc.fFlags & ~kNoStencil_GrTextureFlagBit;
+        } else if (!doubledW) {
+            desc.fFlags = inDesc.fFlags;
+            desc.fWidth *= 2;
+            doubledW = true;
+        } else if (!doubledH) {
+            desc.fFlags = inDesc.fFlags;
+            desc.fWidth = origWidth;
+            desc.fHeight *= 2;
+            doubledH = true;
+        } else {
+            break;
+        }
+        
+    } while (true);
+
+    if (NULL == entry) {
+        desc.fFlags = inDesc.fFlags;
+        desc.fWidth = origWidth;
+        desc.fHeight = origHeight;
+        GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
+        if (NULL != texture) {
+            GrTextureKey key(p0, p1, desc.fWidth, desc.fHeight);
+            this->finalizeTextureKey(&key, GrSamplerState::ClampNoFilter(), 
+                                     true);
+            entry = fTextureCache->createAndLock(key, texture);
+        }
+    }
+
+    // If the caller gives us the same desc/sampler twice we don't want
+    // to return the same texture the second time (unless it was previously
+    // released). So we detach the entry from the cache and reattach at release.
+    if (NULL != entry) {
+        fTextureCache->detach(entry);
+    }
+    return entry;
+}
+
 void GrContext::unlockTexture(GrTextureEntry* entry) {
     if (kKeylessBit & entry->key().getPrivateBits()) {
         fTextureCache->reattachAndUnlock(entry);
@@ -466,7 +535,8 @@ struct GrContext::OffscreenRecord {
         k4x4SinglePass_Downsample,
         kFSAA_Downsample
     }                              fDownsample;
-    int                            fTileSize;
+    int                            fTileSizeX;
+    int                            fTileSizeY;
     int                            fTileCountX;
     int                            fTileCountY;
     int                            fScale;
@@ -518,14 +588,11 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
     int boundW = boundRect.width();
     int boundH = boundRect.height();
 
-    record->fTileSize  = (int)GrNextPow2(GrMax(boundW, boundH));
-    record->fTileSize = GrMax(64, record->fTileSize);
-    record->fTileSize = GrMin(fMaxOffscreenAASize, record->fTileSize);
-
-    record->fTileCountX = GrIDivRoundUp(boundW, record->fTileSize);
-    record->fTileCountY = GrIDivRoundUp(boundH, record->fTileSize);
-
     GrTextureDesc desc;
+
+    desc.fWidth  = GrMin(fMaxOffscreenAASize, boundW);
+    desc.fHeight = GrMin(fMaxOffscreenAASize, boundH);
+
     if (requireStencil) {
         desc.fFlags = kRenderTarget_GrTextureFlagBit;
     } else {
@@ -548,26 +615,41 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
         GR_STATIC_ASSERT(4 == OFFSCREEN_SSAA_SCALE);
         desc.fAALevel = kNone_GrAALevel;
     }
-    
-    desc.fWidth = record->fScale * record->fTileSize;
-    desc.fHeight = record->fScale * record->fTileSize;
 
-    record->fEntry0 = this->lockKeylessTexture(desc);
+    desc.fWidth *= record->fScale;
+    desc.fHeight *= record->fScale;
 
+    record->fEntry0 = this->findApproximateKeylessTexture(desc);
     if (NULL == record->fEntry0) {
         return false;
     }
+    // the approximate lookup might have given us some slop space, might as well
+    // use it when computing the tiles size.
+    // these are scale values, will adjust after considering
+    // the possible second offscreen.
+    record->fTileSizeX = record->fEntry0->texture()->width();
+    record->fTileSizeY = record->fEntry0->texture()->height();
 
     if (OffscreenRecord::k4x4TwoPass_Downsample == record->fDownsample) {
         desc.fWidth /= 2;
         desc.fHeight /= 2;
-        record->fEntry1 = this->lockKeylessTexture(desc);
+        record->fEntry1 = this->findApproximateKeylessTexture(desc);
         if (NULL == record->fEntry1) {
             this->unlockTexture(record->fEntry0);
             record->fEntry0 = NULL;
             return false;
         }
+        record->fTileSizeX = GrMin(record->fTileSizeX, 
+                                   2 * record->fEntry0->texture()->width());
+        record->fTileSizeY = GrMin(record->fTileSizeY, 
+                                   2 * record->fEntry0->texture()->height());
     }
+    record->fTileSizeX /= record->fScale;
+    record->fTileSizeY /= record->fScale;
+
+    record->fTileCountX = GrIDivRoundUp(boundW, record->fTileSizeX);
+    record->fTileCountY = GrIDivRoundUp(boundH, record->fTileSizeY);
+
     target->saveCurrentDrawState(&record->fSavedState);
     return true;
 }
@@ -586,8 +668,8 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     target->setRenderTarget(offRT0);
 
     GrMatrix transM;
-    int left = boundRect.fLeft + tileX * record->fTileSize;
-    int top =  boundRect.fTop  + tileY * record->fTileSize;
+    int left = boundRect.fLeft + tileX * record->fTileSizeX;
+    int top =  boundRect.fTop  + tileY * record->fTileSizeY;
     transM.setTranslate(-left * GR_Scalar1, -top * GR_Scalar1);
     target->postConcatViewMatrix(transM);
     GrMatrix scaleM;
@@ -598,9 +680,9 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     target->disableState(GrDrawTarget::kClip_StateBit);
 
     int w = (tileX == record->fTileCountX-1) ? boundRect.fRight - left :
-                                               record->fTileSize;
+                                               record->fTileSizeX;
     int h = (tileY == record->fTileCountY-1) ? boundRect.fBottom - top :
-                                               record->fTileSize;
+                                               record->fTileSizeY;
     GrIRect clear = SkIRect::MakeWH(record->fScale * w, 
                                     record->fScale * h);
 #if 0
@@ -627,14 +709,14 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     GrAssert(NULL != record->fEntry0);
     
     GrIRect tileRect;
-    tileRect.fLeft = boundRect.fLeft + tileX * record->fTileSize;
-    tileRect.fTop  = boundRect.fTop  + tileY * record->fTileSize,
+    tileRect.fLeft = boundRect.fLeft + tileX * record->fTileSizeX;
+    tileRect.fTop  = boundRect.fTop  + tileY * record->fTileSizeY,
     tileRect.fRight = (tileX == record->fTileCountX-1) ? 
                         boundRect.fRight :
-                        tileRect.fLeft + record->fTileSize;
+                        tileRect.fLeft + record->fTileSizeX;
     tileRect.fBottom = (tileY == record->fTileCountY-1) ? 
                         boundRect.fBottom :
-                        tileRect.fTop + record->fTileSize;
+                        tileRect.fTop + record->fTileSizeY;
 
     GrSamplerState::Filter filter;
     if (OffscreenRecord::k4x4SinglePass_Downsample == record->fDownsample) {

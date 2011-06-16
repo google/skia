@@ -35,11 +35,13 @@ public:
     /**
      * The SkGpuDevice will render to the GrRenderTarget, or if the paremeter is
      * null it will create its own render target and manage that target's
-     * lifetime.
+     * lifetime. Setting isSaveLayer to true is for internal use and may cause 
+     * problems when using the device's bitmap as a src if used externally.
      */
     SkGpuDevice(GrContext*,
                 const SkBitmap& bitmap,
-                GrRenderTarget* renderTargetOrNull);
+                GrRenderTarget* renderTargetOrNull,
+                bool isSaveLayer = false);
 
     /**
      * Magic value that can be passed to constructor. Causes
@@ -128,7 +130,8 @@ protected:
     TexCache* lockCachedTexture(const SkBitmap& bitmap,
                                 const GrSamplerState& sampler,
                                 GrTexture** texture,
-                                bool forDeviceRenderTarget = false);
+                                bool forDeviceRenderTarget = false,
+                                bool isSaveLayer = false);
     void unlockCachedTexture(TexCache*);
 
     class SkAutoCachedTexture {

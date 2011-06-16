@@ -116,6 +116,16 @@ public:
     GrTextureEntry* lockKeylessTexture(const GrTextureDesc& desc);
 
     /**
+     * Finds a texture that approximately matches the descriptor. Will be
+     * at least as large in width and height as desc specifies. If desc
+     * specifies that texture is a render target then result will be a
+     * render target. If desc specifies a render target and doesn't set the
+     * no stencil flag then result will have a stencil. Format and aa level
+     * will always match.
+     */
+    GrTextureEntry* findApproximateKeylessTexture(const GrTextureDesc& desc);
+
+    /**
      *  When done with an entry, call unlockTexture(entry) on it, which returns
      *  it to the cache, where it may be purged.
      */
