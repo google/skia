@@ -216,15 +216,16 @@ static bool generate_image(GM* gm, const ConfigData& gRec,
         if (NULL == context) {
             return false;
         }
-        SkGpuCanvas gc(context,
-                       SkGpuDevice::Current3DApiRenderTarget());
-        gc.setDevice(gc.createDevice(bitmap.config(),
-                                     bitmap.width(),
-                                     bitmap.height(),
-                                     bitmap.isOpaque(),
-                                     false))->unref();
+        
+        // not a real object, so don't unref it
+        GrRenderTarget* rt = SkGpuDevice::Current3DApiRenderTarget();
+        SkGpuCanvas gc(context, rt);
+        gc.setDevice(new SkGpuDevice(context, rt))->unref();
+
         gm->draw(&gc);
-        gc.readPixels(&bitmap); // overwrite our previous allocation
+        // the device is as large as the current rendertarget, so we explicitly
+        // only readback the amount we expect (in size)
+        gc.readPixels(SkIRect::MakeSize(size), &bitmap); // overwrite our previous allocation
     }
     return true;
 }

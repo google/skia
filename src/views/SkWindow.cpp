@@ -172,11 +172,8 @@ bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
 
         if (NULL == canvas) {
             canvas = &rasterCanvas;
-            device = new SkDevice(canvas, bm, false);
-            canvas->setDevice(device)->unref();
-        } else {
-            canvas->setBitmapDevice(bm);
         }
+        canvas->setBitmapDevice(bm);
 
 		canvas->clipRegion(fDirtyRgn);
 		if (updateArea)

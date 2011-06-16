@@ -171,10 +171,10 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
         case kRaster_Backend:
             bitmap.allocPixels();
             erase(bitmap);
-            device = new SkDevice(NULL, bitmap, true);
+            device = new SkDevice(bitmap);
             break;
         case kGPU_Backend:
-            device = new SkGpuDevice(context, bitmap, SkGpuDevice::Current3DApiRenderTarget());
+            device = new SkGpuDevice(context, SkGpuDevice::Current3DApiRenderTarget());
 //            device->clear(0xFFFFFFFF);
             break;
         case kPDF_Backend:

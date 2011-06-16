@@ -445,7 +445,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
 
-    SkDevice* device = SkNEW_ARGS(SkDevice, (this, bitmap, false));
+    SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
     fDeviceFactory = device->getDeviceFactory();
     SkASSERT(fDeviceFactory);
     fDeviceFactory->ref();
@@ -554,8 +554,8 @@ SkDevice* SkCanvas::setDevice(SkDevice* device) {
     return device;
 }
 
-SkDevice* SkCanvas::setBitmapDevice(const SkBitmap& bitmap, bool forLayer) {
-    SkDevice* device = this->setDevice(SkNEW_ARGS(SkDevice, (this, bitmap, forLayer)));
+SkDevice* SkCanvas::setBitmapDevice(const SkBitmap& bitmap) {
+    SkDevice* device = this->setDevice(SkNEW_ARGS(SkDevice, (bitmap)));
     device->unref();
     return device;
 }
@@ -737,7 +737,7 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     SkBitmap::Config config = resolve_config(this, ir, flags, &isOpaque);
 
     SkDevice* device = this->createDevice(config, ir.width(), ir.height(),
-                                          isOpaque, true);
+                                          isOpaque);
     device->setOrigin(ir.fLeft, ir.fTop);
     DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, ir.fLeft, ir.fTop, paint));
     device->unref();
@@ -1177,8 +1177,8 @@ void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
 }
 
 SkDevice* SkCanvas::createDevice(SkBitmap::Config config, int width, int height,
-                                 bool isOpaque, bool forLayer) {
-    return fDeviceFactory->newDevice(this, config, width, height, isOpaque, forLayer);
+                                 bool isOpaque) {
+    return fDeviceFactory->newDevice(this, config, width, height, isOpaque, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////

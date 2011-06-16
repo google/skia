@@ -55,7 +55,7 @@ protected:
         // when copying from one GPU device to another.
         SkRefPtr<SkDevice> primaryDevice(canvas->getDevice());
         SkRefPtr<SkDevice> secondDevice(canvas->createDevice(
-                SkBitmap::kARGB_8888_Config, 5, 5, true, true));
+                SkBitmap::kARGB_8888_Config, 5, 5, true));
         secondDevice->unref();
         SkCanvas secondCanvas(secondDevice.get());
 

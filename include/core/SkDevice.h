@@ -52,18 +52,30 @@ public:
 
 class SK_API SkDevice : public SkRefCnt {
 public:
-    SkDevice(SkCanvas*);
-    /** Construct a new device, extracting the width/height/config/isOpaque values from
-        the bitmap. If transferPixelOwnership is true, and the bitmap claims to own its
-        own pixels (getOwnsPixels() == true), then transfer this responsibility to the
-        device, and call setOwnsPixels(false) on the bitmap.
+//    SkDevice();
 
-        Subclasses may override the destructor, which is virtual, even though this class
-        doesn't have one. SkRefCnt does.
-
-        @param bitmap   A copy of this bitmap is made and stored in the device
+    /**
+     *  Construct a new device with the specified bitmap as its backend. It is
+     *  valid for the bitmap to have no pixels associated with it. In that case,
+     *  any drawing to this device will have no effect.
     */
-    SkDevice(SkCanvas*, const SkBitmap& bitmap, bool forOffscreen);
+    SkDevice(const SkBitmap& bitmap);
+
+    /**
+     *  Create a new raster device and have the pixels be automatically
+     *  allocated. The rowBytes of the device will be computed automatically
+     *  based on the config and the width.
+     *
+     *  @param config   The desired config for the pixels. If the request cannot
+     *                  be met, the closest matching support config will be used.
+     *  @param width    width (in pixels) of the device
+     *  @param height   height (in pixels) of the device
+     *  @param isOpaque Set to true if it is known that all of the pixels will
+     *                  be drawn to opaquely. Used as an accelerator when drawing
+     *                  these pixels to another device.
+     */
+    SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque = false);
+
     virtual ~SkDevice();
 
     /**
@@ -276,7 +288,6 @@ private:
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
 
-    SkCanvas*   fCanvas;
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;
     SkMetaData* fMetaData;

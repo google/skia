@@ -104,12 +104,70 @@ GrRenderTarget* SkGpuDevice::Current3DApiRenderTarget() {
     return (GrRenderTarget*) -1;
 }
 
-SkGpuDevice::SkGpuDevice(GrContext* context,
-                         const SkBitmap& bitmap,
-                         GrRenderTarget* renderTargetOrNull,
-                         bool isSaveLayer)
-        : SkDevice(NULL, bitmap, (NULL == renderTargetOrNull)) {
+static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) {
+    switch (config) {
+        case kAlpha_8_GrPixelConfig:
+            *isOpaque = false;
+            return SkBitmap::kA8_Config;
+        case kRGB_565_GrPixelConfig:
+            *isOpaque = true;
+            return SkBitmap::kRGB_565_Config;
+        case kRGBA_4444_GrPixelConfig:
+            *isOpaque = false;
+            return SkBitmap::kARGB_4444_Config;
+        case kRGBA_8888_GrPixelConfig:
+        case kRGBX_8888_GrPixelConfig:
+            *isOpaque = (kRGBX_8888_GrPixelConfig == config);
+            return SkBitmap::kARGB_8888_Config;
+        default:
+            *isOpaque = false;
+            return SkBitmap::kNo_Config;
+    }
+}
 
+static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
+    if (SkGpuDevice::Current3DApiRenderTarget() == renderTarget) {
+        renderTarget = context->createRenderTargetFrom3DApiState();
+    }
+    GrTexture* texture = renderTarget->asTexture();
+    GrPixelConfig config = texture ? texture->config() : kRGBA_8888_GrPixelConfig;
+
+    bool isOpaque;
+    SkBitmap bitmap;
+    bitmap.setConfig(grConfig2skConfig(config, &isOpaque),
+                     renderTarget->width(), renderTarget->height());
+    bitmap.setIsOpaque(isOpaque);
+    return bitmap;
+}
+
+SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
+: SkDevice(make_bitmap(context, renderTarget)) {
+    
+    fNeedPrepareRenderTarget = false;
+    fDrawProcs = NULL;
+    
+    fContext = context;
+    fContext->ref();
+    
+    fCache = NULL;
+    fTexture = NULL;
+    fRenderTarget = NULL;
+    fNeedClear = false;
+    
+    if (Current3DApiRenderTarget() == renderTarget) {
+        fRenderTarget = fContext->createRenderTargetFrom3DApiState();
+    } else {
+        fRenderTarget = renderTarget;
+        fRenderTarget->ref();
+    }
+
+    SkGrRenderTargetPixelRef* pr = new SkGrRenderTargetPixelRef(fRenderTarget);
+    this->setPixelRef(pr, 0)->unref();
+}
+
+SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
+                         int height, bool isForSaveLayer)
+: SkDevice(config, width, height, false /*isOpaque*/) {
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
 
@@ -121,58 +179,46 @@ SkGpuDevice::SkGpuDevice(GrContext* context,
     fRenderTarget = NULL;
     fNeedClear = false;
 
-    if (NULL == renderTargetOrNull) {
-        SkBitmap::Config c = bitmap.config();
-        if (c != SkBitmap::kRGB_565_Config) {
-            c = SkBitmap::kARGB_8888_Config;
-        }
-        SkBitmap bm;
-        bm.setConfig(c, this->width(), this->height());
+    if (config != SkBitmap::kRGB_565_Config) {
+        config = SkBitmap::kARGB_8888_Config;
+    }
+    SkBitmap bm;
+    bm.setConfig(config, width, height);
 
 #if CACHE_LAYER_TEXTURES
 
-        fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNoFilter(),
-                       &fTexture, true);
-        if (fCache) {
-            SkASSERT(NULL != fTexture);
-            SkASSERT(NULL != fTexture->asRenderTarget());
-        }
+    fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNoFilter(),
+                                     &fTexture, true, isForSaveLayer);
+    if (fCache) {
+        SkASSERT(NULL != fTexture);
+        SkASSERT(NULL != fTexture->asRenderTarget());
+    }
 #else
-        const GrTextureDesc desc = {
-            kRenderTarget_GrTextureFlagBit,
-            kNone_GrAALevel,
-            this->width(),
-            this->height(),
-            SkGr::Bitmap2PixelConfig(bm)
-        };
+    const GrTextureDesc desc = {
+        kRenderTarget_GrTextureFlagBit,
+        kNone_GrAALevel,
+        width,
+        height,
+        SkGr::Bitmap2PixelConfig(bm)
+    };
 
-        fTexture = fContext->createUncachedTexture(desc, NULL, 0);
+    fTexture = fContext->createUncachedTexture(desc, NULL, 0);
 #endif
-        if (NULL != fTexture) {
-            fRenderTarget = fTexture->asRenderTarget();
+    if (NULL != fTexture) {
+        fRenderTarget = fTexture->asRenderTarget();
 
-            GrAssert(NULL != fRenderTarget);
+        GrAssert(NULL != fRenderTarget);
 
-            // we defer the actual clear until our gainFocus()
-            fNeedClear = true;
+        // we defer the actual clear until our gainFocus()
+        fNeedClear = true;
 
-            // wrap the bitmap with a pixelref to expose our texture
-            SkGrTexturePixelRef* pr = new SkGrTexturePixelRef(fTexture);
-            this->setPixelRef(pr, 0)->unref();
-        } else {
-            GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
-                     this->width(), this->height());
-            GrAssert(false);
-        }
-    } else {
-        if (Current3DApiRenderTarget() == renderTargetOrNull) {
-            fRenderTarget = fContext->createRenderTargetFrom3DApiState();
-        } else {
-            fRenderTarget = renderTargetOrNull;
-            fRenderTarget->ref();
-        }
-        SkGrRenderTargetPixelRef* pr = new SkGrRenderTargetPixelRef(fRenderTarget);
+        // wrap the bitmap with a pixelref to expose our texture
+        SkGrTexturePixelRef* pr = new SkGrTexturePixelRef(fTexture);
         this->setPixelRef(pr, 0)->unref();
+    } else {
+        GrPrintf("--- failed to create gpu-offscreen [%d %d]\n",
+                 width, height);
+        GrAssert(false);
     }
 }
 
@@ -1447,8 +1493,9 @@ SkGpuDeviceFactory::~SkGpuDeviceFactory() {
 SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
                                         int width, int height,
                                         bool isOpaque, bool isLayer) {
-    SkBitmap bm;
-    bm.setConfig(config, width, height);
-    bm.setIsOpaque(isOpaque);
-    return new SkGpuDevice(fContext, bm, isLayer ?  NULL : fRootRenderTarget);
+    if (isLayer) {
+        return SkNEW_ARGS(SkGpuDevice, (fContext, config, width, height));
+    } else {
+        return SkNEW_ARGS(SkGpuDevice, (fContext, fRootRenderTarget));
+    }
 }
