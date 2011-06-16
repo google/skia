@@ -1323,12 +1323,13 @@ void SampleWindow::onSizeChange() {
     fZoomCenterX = SkScalarHalf(this->width());
     fZoomCenterY = SkScalarHalf(this->height());
 
+#if defined(SK_BUILD_FOR_UNIX) || defined(ANDROID)
     if (fGrContext) {
         glViewport(0, 0, SkScalarRound(this->width()),
                 SkScalarRound(this->height()));
         fGrContext->resetContext();
     }
-
+#endif
     this->updateTitle();    // to refresh our config
 }
 
