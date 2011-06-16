@@ -11,10 +11,10 @@ deps = {
   "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@907",
 }
 
-hooks = [
-  {
-    # A change to a .gyp, .gypi, or to GYP itself should run the generator.
-    "pattern": ".",
-    "action": ["python", "trunk/gyp_skia"],
-  },
-]
+#hooks = [
+#  {
+#    # A change to a .gyp, .gypi, or to GYP itself should run the generator.
+#    "pattern": ".",
+#    "action": ["python", "trunk/gyp_skia"],
+#  },
+#]
