@@ -19,7 +19,7 @@
 
 const GrScalar GrPathUtils::gTolerance = GR_Scalar1;
 
-static const uint32_t MAX_POINTS_PER_CURVE = 1 << 10;
+static const int MAX_POINTS_PER_CURVE = 1 << 10;
 
 uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
                                              GrScalar tol) {

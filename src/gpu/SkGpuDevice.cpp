@@ -106,7 +106,8 @@ GrRenderTarget* SkGpuDevice::Current3DApiRenderTarget() {
 
 SkGpuDevice::SkGpuDevice(GrContext* context,
                          const SkBitmap& bitmap,
-                         GrRenderTarget* renderTargetOrNull)
+                         GrRenderTarget* renderTargetOrNull,
+                         bool isSaveLayer)
         : SkDevice(NULL, bitmap, (NULL == renderTargetOrNull)) {
 
     fNeedPrepareRenderTarget = false;
@@ -1087,7 +1088,8 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
         return;
     }
 
-    SkASSERT(NULL != grPaint.getTexture(0));
+    GrTexture* devTex = grPaint.getTexture(0);
+    SkASSERT(NULL != devTex);
 
     const SkBitmap& bm = dev->accessBitmap(false);
     int w = bm.width();
@@ -1097,12 +1099,16 @@ void SkGpuDevice::drawDevice(const SkDraw& draw, SkDevice* dev,
 
     grPaint.getTextureSampler(kBitmapTextureIdx)->setClampNoFilter();
 
-    fContext->drawRectToRect(grPaint,
-                             GrRect::MakeXYWH(GrIntToScalar(x),
-                                              GrIntToScalar(y),
-                                              GrIntToScalar(w),
-                                              GrIntToScalar(h)),
-                             GrRect::MakeWH(GR_Scalar1, GR_Scalar1));
+    GrRect dstRect = GrRect::MakeXYWH(GrIntToScalar(x),
+                                      GrIntToScalar(y),
+                                      GrIntToScalar(w),
+                                      GrIntToScalar(h));
+    // The device being drawn may not fill up its texture (saveLayer uses
+    // the approximate ).
+    GrRect srcRect = GrRect::MakeWH(GR_Scalar1 * w / devTex->width(),
+                                    GR_Scalar1 * h / devTex->height());
+
+    fContext->drawRectToRect(grPaint, dstRect, srcRect);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1342,7 +1348,8 @@ bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
 SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
                                                       const GrSamplerState& sampler,
                                                       GrTexture** texture,
-                                                      bool forDeviceRenderTarget) {
+                                                      bool forDeviceRenderTarget,
+                                                      bool isSaveLayer) {
     GrTexture* newTexture = NULL;
     GrTextureEntry* entry = NULL;
     GrContext* ctx = this->context();
@@ -1355,7 +1362,14 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             bitmap.height(),
             SkGr::Bitmap2PixelConfig(bitmap)
         };
-        entry = ctx->lockKeylessTexture(desc);
+        if (isSaveLayer) {
+            // we know layers will only be drawn through drawDevice.
+            // drawDevice has been made to work with content embedded in a
+            // larger texture so its okay to use the approximate version.
+            entry = ctx->findApproximateKeylessTexture(desc);
+        } else {
+            entry = ctx->lockKeylessTexture(desc);
+        }
     } else {
         uint32_t p0, p1;
         p0 = bitmap.getGenerationID();

@@ -146,6 +146,11 @@ static inline uint32_t GrNextPow2(uint32_t n) {
     return n ? (1 << (32 - Gr_clz(n - 1))) : 1;
 }
 
+static inline int GrNextPow2(int n) {
+    GrAssert(n >= 0); // this impl only works for non-neg.
+    return n ? (1 << (32 - Gr_clz(n - 1))) : 1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
