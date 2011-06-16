@@ -1,7 +1,7 @@
 #import "SkView.h"
 #import "SkMatrix.h"
 #import "SkCanvas.h"
-
+#import <AppKit/AppKit.h>
 class SkNSContainerView : public SkView {
 public:
     SkNSContainerView(NSView* parent){
