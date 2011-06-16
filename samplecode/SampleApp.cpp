@@ -15,9 +15,7 @@
 #include "GrContext.h"
 #include "SkTypeface.h"
 
-#ifdef ANDROID
-    #include "gl2.h"
-#endif
+#include "GrGLInterface.h"
 
 #define TEST_GPIPEx
 
@@ -684,7 +682,20 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                 const SkBitmap& bitmap = device->accessBitmap(true);
 
                 GrRenderTarget* renderTarget;
-                renderTarget = fGrContext->createRenderTargetFrom3DApiState();
+
+                GrPlatformSurfaceDesc desc;
+                desc.reset();
+                desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+                desc.fWidth = bitmap.width();
+                desc.fHeight = bitmap.height();
+                desc.fConfig = kRGBA_8888_GrPixelConfig;
+                desc.fStencilBits = 8;
+                GrGLint buffer;
+                GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
+                desc.fPlatformRenderTarget = buffer;
+
+                renderTarget = static_cast<GrRenderTarget*>(
+                        fGrContext->createPlatformSurface(desc));
                 fGpuCanvas = new SkGpuCanvas(fGrContext, renderTarget);
                 renderTarget->unref();
 
@@ -1323,12 +1334,8 @@ void SampleWindow::onSizeChange() {
     fZoomCenterX = SkScalarHalf(this->width());
     fZoomCenterY = SkScalarHalf(this->height());
 
-#if defined(SK_BUILD_FOR_UNIX) || defined(ANDROID)
-    if (fGrContext) {
-        glViewport(0, 0, SkScalarRound(this->width()),
-                SkScalarRound(this->height()));
-        fGrContext->resetContext();
-    }
+#ifdef ANDROID
+    postInvalDelay(this->getSinkID());
 #endif
     this->updateTitle();    // to refresh our config
 }

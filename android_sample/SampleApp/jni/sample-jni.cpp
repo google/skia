@@ -16,6 +16,7 @@
  */
 
 #include "GrContext.h"
+#include "GrGLInterface.h"
 #include "SampleApp.h"
 #include "SkApplication.h"
 #include "SkCanvas.h"
@@ -259,7 +260,23 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_draw(
             }
             context->unref();
         }
-        GrRenderTarget* renderTarget = context->createRenderTargetFrom3DApiState();
+
+        GrRenderTarget* renderTarget;
+
+        GrPlatformSurfaceDesc desc;
+        desc.reset();
+        desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+        desc.fWidth = bitmap.width();
+        desc.fHeight = bitmap.height();
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        desc.fStencilBits = 8;
+        GrGLint buffer;
+        GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
+        desc.fPlatformRenderTarget = buffer;
+
+        renderTarget = static_cast<GrRenderTarget*>(
+                context->createPlatformSurface(desc));
+
         SkGpuCanvas* gpuCanvas = new SkGpuCanvas(context, renderTarget);
 
         SkDevice* device = gpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
