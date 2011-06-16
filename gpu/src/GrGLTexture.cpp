@@ -40,9 +40,9 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
 }
 
 void GrGLRenderTarget::onRelease() {
+    GPUGL->notifyRenderTargetDelete(this);
     if (fOwnIDs) {
         if (fTexFBOID) {
-            GPUGL->notifyRenderTargetDelete(this);
             GR_GL(DeleteFramebuffers(1, &fTexFBOID));
         }
         if (fRTFBOID && fRTFBOID != fTexFBOID) {
@@ -139,8 +139,8 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
 
 void GrGLTexture::onRelease() {
     INHERITED::onRelease();
+    GPUGL->notifyTextureDelete(this);
     if (NULL != fTexIDObj) {
-        GPUGL->notifyTextureDelete(this);
         fTexIDObj->unref();
         fTexIDObj = NULL;
     }
