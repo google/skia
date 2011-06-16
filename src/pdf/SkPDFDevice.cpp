@@ -512,7 +512,7 @@ static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
 
 SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                          const SkMatrix& initialTransform)
-    : SkDevice(NULL, makeContentBitmap(contentSize, &initialTransform), false),
+    : SkDevice(makeContentBitmap(contentSize, &initialTransform)),
       fPageSize(pageSize),
       fContentSize(contentSize),
       fLastContentEntry(NULL) {
@@ -533,7 +533,7 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
 SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
                          const SkClipStack& existingClipStack,
                          const SkRegion& existingClipRegion)
-    : SkDevice(NULL, makeContentBitmap(layerSize, NULL), false),
+    : SkDevice(makeContentBitmap(layerSize, NULL)),
       fPageSize(layerSize),
       fContentSize(layerSize),
       fExistingClipStack(existingClipStack),

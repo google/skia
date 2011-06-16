@@ -19,6 +19,7 @@
 #define SkGpuDevice_DEFINED
 
 #include "SkGr.h"
+#include "SkBitmap.h"
 #include "SkDevice.h"
 #include "SkRegion.h"
 
@@ -33,15 +34,19 @@ class GrTextContext;
 class SK_API SkGpuDevice : public SkDevice {
 public:
     /**
-     * The SkGpuDevice will render to the GrRenderTarget, or if the paremeter is
-     * null it will create its own render target and manage that target's
-     * lifetime. Setting isSaveLayer to true is for internal use and may cause 
-     * problems when using the device's bitmap as a src if used externally.
+     *  New device that will create an offscreen renderTarget based on the
+     *  config, width, height.
+     *
+     *  isForSaveLayer is a special flag that should only be set by SkCanvas
+     *  internally.
      */
-    SkGpuDevice(GrContext*,
-                const SkBitmap& bitmap,
-                GrRenderTarget* renderTargetOrNull,
-                bool isSaveLayer = false);
+    SkGpuDevice(GrContext*, SkBitmap::Config, int width, int height,
+                bool isForSaveLayer = false);
+
+    /**
+     *  New device that will render to the specified renderTarget.
+     */
+    SkGpuDevice(GrContext*, GrRenderTarget*);
 
     /**
      * Magic value that can be passed to constructor. Causes

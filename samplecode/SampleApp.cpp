@@ -3,6 +3,7 @@
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGpuCanvas.h"
+#include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkPaint.h"
@@ -699,9 +700,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
                 fGpuCanvas = new SkGpuCanvas(fGrContext, renderTarget);
                 renderTarget->unref();
 
-                device = fGpuCanvas->createDevice(SkBitmap::kARGB_8888_Config,
-                                                  bitmap.width(), bitmap.height(),
-                                                  false, false);
+                device = new SkGpuDevice(fGrContext, renderTarget);
                 fGpuCanvas->setDevice(device)->unref();
 
                 fGpuCanvas->concat(canvas->getTotalMatrix());

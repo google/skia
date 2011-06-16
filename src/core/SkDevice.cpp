@@ -25,24 +25,30 @@ SkDeviceFactory::~SkDeviceFactory() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDevice::SkDevice(SkCanvas* canvas) : fCanvas(canvas), fMetaData(NULL) {
+#if 0
+SkDevice::SkDevice() : fMetaData(NULL) {
     fOrigin.setZero();
     fCachedDeviceFactory = NULL;
 }
+#endif
 
-SkDevice::SkDevice(SkCanvas* canvas, const SkBitmap& bitmap, bool isForLayer)
-        : fCanvas(canvas), fBitmap(bitmap), fMetaData(NULL) {
+SkDevice::SkDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
     fOrigin.setZero();
-    // auto-allocate if we're for offscreen drawing
-    if (isForLayer) {
-        if (NULL == fBitmap.getPixels() && NULL == fBitmap.pixelRef()) {
-            fBitmap.allocPixels();
-            if (!fBitmap.isOpaque()) {
-                fBitmap.eraseColor(0);
-            }
-        }
-    }
+    fMetaData = NULL;
     fCachedDeviceFactory = NULL;
+}
+
+SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque) {
+    fOrigin.setZero();
+    fMetaData = NULL;
+    fCachedDeviceFactory = NULL;
+
+    fBitmap.setConfig(config, width, height);
+    fBitmap.allocPixels();
+    fBitmap.setIsOpaque(isOpaque);
+    if (!isOpaque) {
+        fBitmap.eraseColor(0);
+    }
 }
 
 SkDevice::~SkDevice() {
@@ -253,13 +259,17 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDevice* SkRasterDeviceFactory::newDevice(SkCanvas* canvas,
+SkDevice* SkRasterDeviceFactory::newDevice(SkCanvas*,
                                            SkBitmap::Config config, int width,
                                            int height, bool isOpaque,
                                            bool isForLayer) {
-    SkBitmap bitmap;
-    bitmap.setConfig(config, width, height);
-    bitmap.setIsOpaque(isOpaque);
-
-    return SkNEW_ARGS(SkDevice, (canvas, bitmap, isForLayer));
+    if (isForLayer) {
+        return SkNEW_ARGS(SkDevice, (config, width, height, isOpaque));
+    } else {
+        // should we ever get here?
+        SkBitmap bitmap;
+        bitmap.setConfig(config, width, height);
+        bitmap.setIsOpaque(isOpaque);
+        return SkNEW_ARGS(SkDevice, (bitmap));
+    }
 }

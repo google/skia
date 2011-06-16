@@ -101,13 +101,13 @@ public:
         is raster, the pixels will be allocated automatically.
      */
     virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
-                                   bool isOpaque, bool forLayer = false);
+                                   bool isOpaque);
 
     /**
      *  Create a new raster device and make it current. This also returns
      *  the new device.
      */
-    SkDevice* setBitmapDevice(const SkBitmap& bitmap, bool forLayer = false);
+    SkDevice* setBitmapDevice(const SkBitmap& bitmap);
 
     /**
      *  Return the current device factory, or NULL. The reference count of
