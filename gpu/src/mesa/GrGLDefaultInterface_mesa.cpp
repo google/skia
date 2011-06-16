@@ -38,9 +38,9 @@ void GrGLSetDefaultGLInterface() {
             // We must have array and element_array buffer objects.
             return;
         }
-        gDefaultInterface.fNPOTRenderTargetSupport = true;
-        gDefaultInterface.fMinRenderTargetHeight = 1;
-        gDefaultInterface.fMinRenderTargetWidth = 1;
+        gDefaultInterface.fNPOTRenderTargetSupport = kProbe_GrGLCapability;
+        gDefaultInterface.fMinRenderTargetHeight = kProbe_GrGLCapability;
+        gDefaultInterface.fMinRenderTargetWidth = kProbe_GrGLCapability;
 
         gDefaultInterface.fActiveTexture = glActiveTexture;
         GR_GL_GET_PROC(AttachShader);

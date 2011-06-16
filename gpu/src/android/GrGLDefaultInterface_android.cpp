@@ -19,9 +19,9 @@
 void GrGLSetDefaultGLInterface() {
   static GrGLInterface cmd_buffer_interface = {
     kES2_GrGLBinding,
-    kProbe_GrGLBug,  // fNPOTRenderTargetSupport
-    kProbe_GrGLBug,  // fMinRenderTargetHeight
-    kProbe_GrGLBug,  // fMinRenderTargetWidth
+    kProbe_GrGLCapability,  // fNPOTRenderTargetSupport
+    kProbe_GrGLCapability,  // fMinRenderTargetHeight
+    kProbe_GrGLCapability,  // fMinRenderTargetWidth
     glActiveTexture,
     glAttachShader,
     glBindAttribLocation,
