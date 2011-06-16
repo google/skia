@@ -31,13 +31,14 @@ public:
     enum Status {
         kDone_Status,   //!< no more data expected from reader
         kEOF_Status,    //!< need more data from reader
-        kError_Status   //!< encountered error
+        kError_Status,  //!< encountered error
+        kReadAtom_Status//!< finished reading an atom
     };
 
     // data must be 4-byte aligned
     // length must be a multiple of 4
-    Status playback(const void* data, size_t length, size_t* bytesRead = NULL);
-
+    Status playback(const void* data, size_t length, size_t* bytesRead = NULL,
+                    bool readAtom = false);
 private:
     SkCanvas*           fCanvas;
     class SkGPipeState* fState;
