@@ -471,11 +471,13 @@ GrGpuGL::GrGpuGL() {
     // TODO: Make these a preprocess that generate some compile time constants.
     // TODO: probe once at startup, rather than once per context creation.
 
-    if (GrGLGetGLInterface()->fNPOTRenderTargetSupport < 0) {
+    int expectNPOTTargets = GrGLGetGLInterface()->fNPOTRenderTargetSupport;
+    if (expectNPOTTargets == kProbe_GrGLCapability) {
         fNPOTRenderTargetSupport =
             probe_for_npot_render_target_support(fNPOTTextureSupport);
     } else {
-        fNPOTRenderTargetSupport = GrGLGetGLInterface()->fNPOTRenderTargetSupport;
+        GrAssert(expectNPOTTargets == 0 || expectNPOTTargets == 1);
+        fNPOTRenderTargetSupport = static_cast<bool>(expectNPOTTargets);
     }
 
     if (gPrintStartupSpew) {
@@ -503,14 +505,14 @@ GrGpuGL::GrGpuGL() {
     fMaxRenderTargetSize = GrMin(fMaxTextureSize, fMaxRenderTargetSize);
 
     fMinRenderTargetHeight = GrGLGetGLInterface()->fMinRenderTargetHeight;
-    if (fMinRenderTargetHeight < 0) {
+    if (fMinRenderTargetHeight == kProbe_GrGLCapability) {
         fMinRenderTargetHeight =
             probe_for_min_render_target_height(fNPOTRenderTargetSupport,
                                                fMaxRenderTargetSize);
     }
 
     fMinRenderTargetWidth = GrGLGetGLInterface()->fMinRenderTargetWidth;
-    if (fMinRenderTargetWidth < 0) {
+    if (fMinRenderTargetWidth == kProbe_GrGLCapability) {
         fMinRenderTargetWidth =
             probe_for_min_render_target_width(fNPOTRenderTargetSupport,
                                               fMaxRenderTargetSize);

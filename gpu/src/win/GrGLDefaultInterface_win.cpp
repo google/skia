@@ -45,9 +45,9 @@ void GrGLSetDefaultGLInterface() {
                 return;
             }
 
-            gDefaultInterface.fNPOTRenderTargetSupport = true;
-            gDefaultInterface.fMinRenderTargetHeight = 1;
-            gDefaultInterface.fMinRenderTargetWidth = 1;
+            gDefaultInterface.fNPOTRenderTargetSupport = kProbe_GrGLCapability;
+            gDefaultInterface.fMinRenderTargetHeight = kProbe_GrGLCapability;
+            gDefaultInterface.fMinRenderTargetWidth = kProbe_GrGLCapability;
 
             // Functions that are part of GL 1.1 will return NULL in
             // wglGetProcAddress

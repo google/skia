@@ -205,8 +205,8 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
 }  // extern "C"
 
-enum GrGLBug {
-    kProbe_GrGLBug = -1
+enum GrGLCapability {
+    kProbe_GrGLCapability = -1
 };
 
 /*
@@ -226,12 +226,12 @@ struct GrGLInterface {
     GrGLBinding fBindingsExported;
 
     /// Does this GL support NPOT textures on FBOs?
-    /// boolean value, or kProbe_GrGLBug to probe (slowly) at context creation.
+    /// boolean value, or kProbe_GrGLCapability to probe (slowly) at context creation.
     int fNPOTRenderTargetSupport;
 
     /// Some GL implementations (PowerVR SGX devices like the iPhone 4)
     /// have restrictions on the size of small render targets.
-    /// kProbe_GrGLBug to probe (slowly) at context creation.
+    /// kProbe_GrGLCapability to probe (slowly) at context creation.
     int fMinRenderTargetHeight;
     int fMinRenderTargetWidth;
 
