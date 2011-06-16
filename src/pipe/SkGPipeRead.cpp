@@ -527,7 +527,7 @@ SkGPipeReader::~SkGPipeReader() {
 }
 
 SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
-                                              size_t* bytesRead) {
+                                              size_t* bytesRead, bool readAtom) {
     if (NULL == fCanvas) {
         return kError_Status;
     }
@@ -559,6 +559,15 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
             break;
         }
         table[op](canvas, &reader, op32, fState);
+        if (readAtom && 
+            (table[op] != paintOp_rp &&
+             table[op] != def_Typeface_rp &&
+             table[op] != def_PaintFlat_rp &&
+             table[op] != name_PaintFlat_rp
+             )) {
+                status = kReadAtom_Status;
+                break;
+            }
     }
 
     if (bytesRead) {
