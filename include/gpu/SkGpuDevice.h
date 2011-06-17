@@ -37,11 +37,12 @@ public:
      *  New device that will create an offscreen renderTarget based on the
      *  config, width, height.
      *
-     *  isForSaveLayer is a special flag that should only be set by SkCanvas
+     *  usage is a special flag that should only be set by SkCanvas
      *  internally.
      */
-    SkGpuDevice(GrContext*, SkBitmap::Config, int width, int height,
-                bool isForSaveLayer = false);
+    SkGpuDevice(GrContext*, SkBitmap::Config,
+                int width, int height, 
+                SkDevice::Usage usage = SkDevice::kGeneral_Usage);
 
     /**
      *  New device that will render to the specified renderTarget.
@@ -132,11 +133,15 @@ protected:
     virtual SkDeviceFactory* onNewDeviceFactory();
 
     class TexCache;
+    enum TexType {
+        kBitmap_TexType,
+        kDeviceRenderTarget_TexType,
+        kSaveLayerDeviceRenderTarget_TexType
+    };
     TexCache* lockCachedTexture(const SkBitmap& bitmap,
                                 const GrSamplerState& sampler,
                                 GrTexture** texture,
-                                bool forDeviceRenderTarget = false,
-                                bool isSaveLayer = false);
+                                TexType type = kBitmap_TexType);
     void unlockCachedTexture(TexCache*);
 
     class SkAutoCachedTexture {
@@ -191,6 +196,12 @@ private:
                                const SkMatrix& ctm,
                                GrPaint* grPaint,
                                bool constantColor);
+
+    // override from SkDevice
+    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
+                                               int width, int height, 
+                                               bool isOpaque,
+                                               Usage usage);
 
     SkDrawProcs* initDrawForText(GrTextContext*);
     bool bindDeviceAsTexture(GrPaint* paint);

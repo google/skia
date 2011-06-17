@@ -423,6 +423,17 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
     }
 }
 
+SkDevice* SkPDFDevice::onCreateCompatibleDevice(SkBitmap::Config config, 
+                                                int width, int height, 
+                                                bool isOpaque,
+                                                Usage usage) {
+    SkMatrix initialTransform;
+    initialTransform.reset();
+    SkISize size = SkISize::Make(width, height);
+    return SkNEW_ARGS(SkPDFDevice, (size, size, initialTransform));
+}
+
+
 struct ContentEntry {
     GraphicStateEntry fState;
     SkDynamicMemoryWStream fContent;
