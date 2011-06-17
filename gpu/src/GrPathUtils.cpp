@@ -32,7 +32,14 @@ uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
         // points.
         // 2^(log4(x)) = sqrt(x);
         int temp = SkScalarCeil(SkScalarSqrt(SkScalarDiv(d, tol)));
-        return GrMin(GrNextPow2(temp), MAX_POINTS_PER_CURVE);
+        int pow2 = GrNextPow2(temp);
+        // Because of NaNs & INFs we can wind up with a degenerate temp
+        // such that pow2 comes out negative. Also, our point generator
+        // will always output at least one pt.
+        if (pow2 < 1) {
+            pow2 = 1;
+        }
+        return GrMin(pow2, MAX_POINTS_PER_CURVE);
     }
 }
 
@@ -70,7 +77,14 @@ uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
         return 1;
     } else {
         int temp = SkScalarCeil(SkScalarSqrt(SkScalarDiv(d, tol)));
-        return GrMin(GrNextPow2(temp), MAX_POINTS_PER_CURVE);
+        int pow2 = GrNextPow2(temp);
+        // Because of NaNs & INFs we can wind up with a degenerate temp
+        // such that pow2 comes out negative. Also, our point generator
+        // will always output at least one pt.
+        if (pow2 < 1) {
+            pow2 = 1;
+        }
+        return GrMin(pow2, MAX_POINTS_PER_CURVE);
     }
 }
 
