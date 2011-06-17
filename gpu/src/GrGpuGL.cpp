@@ -636,7 +636,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         texDesc.fAllocWidth  = texDesc.fContentWidth  = desc.fWidth;
         texDesc.fAllocHeight = texDesc.fContentHeight = desc.fHeight;
 
-        texDesc.fFormat             = texDesc.fFormat;
+        texDesc.fFormat             = desc.fConfig;
         texDesc.fOrientation        = GrGLTexture::kBottomUp_Orientation;
         texDesc.fStencilBits        = desc.fStencilBits;
         texDesc.fTextureID          = desc.fPlatformTexture;
