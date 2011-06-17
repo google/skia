@@ -25,7 +25,7 @@ static GrContext* make_context() {
 void gr_run_unittests() {}
 
 #include "FlingState.h"
-#include "GrTouchGesture.h"
+#include "SkTouchGesture.h"
 #include "SkView.h"
 
 typedef SkView* (*SkViewFactory)();
@@ -64,7 +64,7 @@ private:
     SkView*     fView;
     SkIPoint    fViewport;
     
-    GrTouchGesture fGesture;
+    SkTouchGesture fGesture;
 
     SkTDArray<SkViewFactory> fFactory;
 
