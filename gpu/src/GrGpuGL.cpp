@@ -518,6 +518,7 @@ GrGpuGL::GrGpuGL() {
                                               fMaxRenderTargetSize);
     }
 
+    fLastSuccessfulStencilFmtIdx = 0;
 }
 
 GrGpuGL::~GrGpuGL() {
@@ -692,7 +693,7 @@ struct StencilFormat {
     bool      fPacked;
 };
 
-const StencilFormat* GrGLStencilFormats() {
+const StencilFormat* GrGLStencilFormats(int* count) {
     // defines stencil formats from more to less preferred
     static const StencilFormat desktopStencilFormats[] = {
         {GR_GL_STENCIL_INDEX8,     8,            false},
@@ -701,19 +702,19 @@ const StencilFormat* GrGLStencilFormats() {
         {GR_GL_STENCIL_INDEX4,     4,            false},
         {GR_GL_STENCIL_INDEX,      UNKNOWN_BITS, false},
         {GR_GL_DEPTH_STENCIL,      UNKNOWN_BITS, true },
-        {0, 0, false}
     };
 
     static const StencilFormat esStencilFormats[] = {
         {GR_GL_STENCIL_INDEX8,     8,   false},
         {GR_GL_DEPTH24_STENCIL8,   8,   true },
         {GR_GL_STENCIL_INDEX4,     4,   false},
-        {0, 0, false}
     };
 
     if (GR_GL_SUPPORT_DESKTOP) {
+        *count = GR_ARRAY_COUNT(desktopStencilFormats);
         return desktopStencilFormats;
     } else {
+        *count = GR_ARRAY_COUNT(esStencilFormats);
         return esStencilFormats;
     }
 }
@@ -981,8 +982,20 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
         err = ~GR_GL_NO_ERROR;
 
-        const StencilFormat* stencilFormats = GrGLStencilFormats();
-        for (int i = 0; 0 != stencilFormats[i].fEnum; ++i) {
+        int stencilFmtCnt;
+        const StencilFormat* stencilFormats = NULL;
+        if (rtIDs.fStencilRenderbufferID) {
+            stencilFormats = GrGLStencilFormats(&stencilFmtCnt);
+        } else {
+            stencilFmtCnt = 1; // only 1 attempt when we don't need a stencil
+        }
+
+        for (int i = 0; i < stencilFmtCnt; ++i) {
+            // we start with the last stencil format that succeeded in hopes
+            // that we won't go through this loop more than once after the
+            // first (painful) stencil creation.
+            int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
+            
             if (rtIDs.fStencilRenderbufferID) {
                 GR_GL(BindRenderbuffer(GR_GL_RENDERBUFFER,
                                        rtIDs.fStencilRenderbufferID));
@@ -990,12 +1003,12 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                     GR_GL_NO_ERR(RenderbufferStorageMultisample(
                                                 GR_GL_RENDERBUFFER,
                                                 samples,
-                                                stencilFormats[i].fEnum,
+                                                stencilFormats[sIdx].fEnum,
                                                 glDesc.fAllocWidth,
                                                 glDesc.fAllocHeight));
                 } else {
                     GR_GL_NO_ERR(RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                                     stencilFormats[i].fEnum,
+                                                     stencilFormats[sIdx].fEnum,
                                                      glDesc.fAllocWidth,
                                                      glDesc.fAllocHeight));
                 }
@@ -1051,7 +1064,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                               rtIDs.fStencilRenderbufferID));
                 // if it is a packed format bind to depth also, otherwise 
                 // we may get an unsupported fbo completeness result
-                if (stencilFormats[i].fPacked) {
+                if (stencilFormats[sIdx].fPacked) {
                     GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                   GR_GL_DEPTH_ATTACHMENT,
                                                   GR_GL_RENDERBUFFER,
@@ -1063,7 +1076,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 // undo the depth bind
                 if (rtIDs.fStencilRenderbufferID && 
-                    stencilFormats[i].fPacked) {
+                    stencilFormats[sIdx].fPacked) {
                     GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                     GR_GL_DEPTH_ATTACHMENT,
                                                     GR_GL_RENDERBUFFER,
@@ -1074,10 +1087,11 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             // we're successful!
             failed = false;
             if (rtIDs.fStencilRenderbufferID) {
-                if (UNKNOWN_BITS == stencilFormats[i].fBits) {
+                fLastSuccessfulStencilFmtIdx = sIdx;
+                if (UNKNOWN_BITS == stencilFormats[sIdx].fBits) {
                     GR_GL_GetIntegerv(GR_GL_STENCIL_BITS, (GrGLint*)&glDesc.fStencilBits);
                 } else {
-                    glDesc.fStencilBits = stencilFormats[i].fBits;
+                    glDesc.fStencilBits = stencilFormats[sIdx].fBits;
                 }
             }
             break;
@@ -2103,3 +2117,4 @@ int GrGpuGL::getMaxEdges() const {
     // want to add uniforms.  This should be centralized somewhere.
     return GR_CT_MIN(fMaxFragmentUniformVectors - 8, kMaxEdges);
 }
+

@@ -196,7 +196,12 @@ private:
 
     int fActiveTextureUnitIdx;
 
+    // we record what stencil format worked last time to hopefully exit early
+    // from our loop that tries stencil formats and calls check fb status.
+    int fLastSuccessfulStencilFmtIdx;
+
     typedef GrGpu INHERITED;
 };
 
 #endif
+
