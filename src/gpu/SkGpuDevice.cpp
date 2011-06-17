@@ -140,9 +140,18 @@ static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
     return bitmap;
 }
 
+SkGpuDevice::SkGpuDevice(GrContext* context, GrTexture* texture)
+: SkDevice(make_bitmap(context, texture->asRenderTarget())) {
+    this->initFromRenderTarget(context, texture->asRenderTarget());
+}
+
 SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
 : SkDevice(make_bitmap(context, renderTarget)) {
-    
+    this->initFromRenderTarget(context, renderTarget);
+}
+
+void SkGpuDevice::initFromRenderTarget(GrContext* context, 
+                                       GrRenderTarget* renderTarget) {
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
     
@@ -157,8 +166,12 @@ SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
     if (Current3DApiRenderTarget() == renderTarget) {
         fRenderTarget = fContext->createRenderTargetFrom3DApiState();
     } else {
+        GrAssert(NULL != renderTarget);
         fRenderTarget = renderTarget;
         fRenderTarget->ref();
+        // if this RT is also a texture, hold a ref on it
+        fTexture = fRenderTarget->asTexture();
+        SkSafeRef(fTexture);
     }
 
     SkGrRenderTargetPixelRef* pr = new SkGrRenderTargetPixelRef(fRenderTarget);
@@ -194,6 +207,9 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
     if (fCache) {
         SkASSERT(NULL != fTexture);
         SkASSERT(NULL != fTexture->asRenderTarget());
+        // hold a ref directly on fTexture (even though fCache has one) to match
+        // other constructor paths. Simplifies cleanup.
+        fTexture->ref();
     }
 #else
     const GrTextureDesc desc = {
@@ -208,6 +224,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
 #endif
     if (NULL != fTexture) {
         fRenderTarget = fTexture->asRenderTarget();
+        fRenderTarget->ref();
 
         GrAssert(NULL != fRenderTarget);
 
@@ -229,17 +246,13 @@ SkGpuDevice::~SkGpuDevice() {
         delete fDrawProcs;
     }
 
+    SkSafeUnref(fTexture);
+    SkSafeUnref(fRenderTarget);
     if (fCache) {
         GrAssert(NULL != fTexture);
         GrAssert(fRenderTarget == fTexture->asRenderTarget());
         fContext->unlockTexture((GrTextureEntry*)fCache);
-    } else if (NULL != fTexture) {
-        GrAssert(!CACHE_LAYER_TEXTURES);
-        GrAssert(fRenderTarget == fTexture->asRenderTarget());
-        fTexture->unref();
-    } else if (NULL != fRenderTarget) {
-        fRenderTarget->unref();
-    }
+    } 
     fContext->unref();
 }
 
@@ -249,10 +262,6 @@ intptr_t SkGpuDevice::getLayerTextureHandle() const {
     } else {
         return 0;
     }
-}
-
-SkDeviceFactory* SkGpuDevice::onNewDeviceFactory() {
-    return SkNEW_ARGS(SkGpuDeviceFactory, (fContext, fRenderTarget));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
