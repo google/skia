@@ -208,11 +208,9 @@ public class SampleApp extends Activity
     // Currently depends on init having already been called.
     native void createOSWindow(SampleView view);
     native void updateSize(int w, int h);
-    native void handleClick(int x, int y, int state);
+    native void handleClick(int owner, float x, float y, int state);
     native boolean handleKeyDown(int key, int uni);
     native boolean handleKeyUp(int key);
-    native void zoom(float factor);
-    native void setZoomCenter(float x, float y);
     native void nextSample(boolean previous);
     native void toggleRendering();
     native void toggleSlideshow();
