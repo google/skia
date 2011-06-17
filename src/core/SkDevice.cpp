@@ -57,7 +57,7 @@ SkDevice::~SkDevice() {
 }
 
 SkDeviceFactory* SkDevice::onNewDeviceFactory() {
-    return SkNEW(SkRasterDeviceFactory);
+    return NULL;
 }
 
 SkDeviceFactory* SkDevice::getDeviceFactory() {
@@ -65,6 +65,27 @@ SkDeviceFactory* SkDevice::getDeviceFactory() {
         fCachedDeviceFactory = this->onNewDeviceFactory();
     }
     return fCachedDeviceFactory;
+}
+
+SkDevice* SkDevice::createCompatibleDevice(SkBitmap::Config config, 
+                                           int width, int height,
+                                           bool isOpaque) {
+    return this->onCreateCompatibleDevice(config, width, height,
+                                          isOpaque, kGeneral_Usage);
+}
+
+SkDevice* SkDevice::createCompatibleDeviceForSaveLayer(SkBitmap::Config config,
+                                                       int width, int height,
+                                                       bool isOpaque) {
+    return this->onCreateCompatibleDevice(config, width, height,
+                                          isOpaque, kSaveLayer_Usage);
+}
+
+SkDevice* SkDevice::onCreateCompatibleDevice(SkBitmap::Config config, 
+                                             int width, int height, 
+                                             bool isOpaque,
+                                             Usage usage) {
+    return SkNEW_ARGS(SkDevice,(config, width, height, isOpaque));
 }
 
 SkMetaData& SkDevice::getMetaData() {

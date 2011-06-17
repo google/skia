@@ -173,6 +173,12 @@ private:
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);
 
+    // override from SkDevice
+    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
+                                               int width, int height, 
+                                               bool isOpaque,
+                                               Usage usage);
+
     void init();
     void cleanUp();
     void createFormXObjectFromDevice(SkRefPtr<SkPDFFormXObject>* xobject);

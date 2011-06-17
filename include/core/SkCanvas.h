@@ -53,7 +53,10 @@ class SkShape;
 */
 class SK_API SkCanvas : public SkRefCnt {
 public:
-    /** Construct a canvas with the given device factory.
+    /**
+        DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
+
+        Construct a canvas with the given device factory.
         @param factory  Specify the factory for generating additional devices.
                         The factory may be null, in which case
                         SkRasterDeviceFactory will be used.
@@ -62,6 +65,7 @@ public:
 
     /** Construct a canvas with the specified device to draw into.  The device
         factory will be retrieved from the passed device.
+
         @param device   Specifies a device for the canvas to draw into.
     */
     explicit SkCanvas(SkDevice* device);
@@ -96,13 +100,6 @@ public:
      */
     SkDevice* getTopDevice() const;
 
-    /** May be overridden by subclasses. This returns a compatible device
-        for this canvas, with the specified config/width/height. If the device
-        is raster, the pixels will be allocated automatically.
-     */
-    virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
-                                   bool isOpaque);
-
     /**
      *  Create a new raster device and make it current. This also returns
      *  the new device.
@@ -110,17 +107,28 @@ public:
     SkDevice* setBitmapDevice(const SkBitmap& bitmap);
 
     /**
+     * DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
+     *
      *  Return the current device factory, or NULL. The reference count of
      *  the returned factory is not changed.
      */
     SkDeviceFactory* getDeviceFactory() const { return fDeviceFactory; }
 
     /**
+     *  DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
+     *
      *  Replace any existing factory with the specified factory, unrefing the
      *  previous (if any), and refing the new one (if any). For convenience,
      *  the factory parameter is also returned.
      */
     SkDeviceFactory* setDeviceFactory(SkDeviceFactory*);
+
+    /**
+     * Shortcut for getDevice()->createCompatibleDevice(...)
+     */
+    SkDevice* createCompatibleDevice(SkBitmap::Config config, 
+                                    int width, int height,
+                                    bool isOpaque);
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -833,6 +841,9 @@ private:
     void updateDeviceCMCache();
 
     friend class SkDrawIter;    // needs setupDrawForLayerDevice()
+
+    SkDevice* createLayerDevice(SkBitmap::Config, int width, int height, 
+                                bool isOpaque);
 
     SkDevice* init(SkDevice*);
     void internalDrawBitmap(const SkBitmap&, const SkIRect*, const SkMatrix& m,

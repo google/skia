@@ -151,8 +151,3 @@ SkDrawFilter* SkProxyCanvas::setDrawFilter(SkDrawFilter* filter) {
     return fProxy->setDrawFilter(filter);
 }
 
-SkDevice* SkProxyCanvas::createDevice(SkBitmap::Config config, int width, int height,
-                                      bool isOpaque) {
-    return fProxy->createDevice(config, width, height, isOpaque);
-}
-

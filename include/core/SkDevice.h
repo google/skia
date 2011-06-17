@@ -32,6 +32,8 @@ class SkRegion;
 
 /** \class SkDeviceFactory
 
+    DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
+
     Devices that extend SkDevice should also provide a SkDeviceFactory class
     to pass into SkCanvas.  Doing so will eliminate the need to extend
     SkCanvas as well.
@@ -79,11 +81,26 @@ public:
     virtual ~SkDevice();
 
     /**
+     *  DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
+     *
      *  Return the factory that will create this subclass of SkDevice.
      *  The returned factory is cached by the device, and so its reference count
      *  is not changed by this call.
      */
     SkDeviceFactory* getDeviceFactory();
+
+    /**
+     * Creates a device that is of the same type as this device (e.g. SW-raster,
+     * GPU, or PDF).
+     *
+     * @param width     width of the device to create
+     * @param height    height of the device to create
+     * @param isOpaque  
+     * @param usage     clients should always use the default, kGeneral_Usage.
+     */
+    SkDevice* createCompatibleDevice(SkBitmap::Config config, 
+                                     int width, int height,
+                                     bool isOpaque);
 
     enum Capabilities {
         kGL_Capability     = 0x1,  //!< mask indicating GL support
@@ -264,9 +281,13 @@ public:
 
 protected:
     /**
-     *  subclasses must override this to return a new (or ref'd) instance of
+     *  DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
+     *
+     *  subclasses can override this to return a new (or ref'd) instance of
      *  a device factory that will create this subclass of device. This value
      *  is cached, so it should get called at most once for a given instance.
+     *
+     *  If not overriden then createCompatibleDevice will be used by canvas.
      */
     virtual SkDeviceFactory* onNewDeviceFactory();
 
@@ -275,6 +296,18 @@ protected:
         must remain unchanged.
     */
     virtual void onAccessBitmap(SkBitmap*);
+
+    enum Usage {
+       kGeneral_Usage,
+       kSaveLayer_Usage, // <! internal use only
+    };
+    /**
+     * subclasses should override this to implement createCompatibleDevice.
+     */
+    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
+                                               int width, int height, 
+                                               bool isOpaque,
+                                               Usage usage);
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref
@@ -287,6 +320,10 @@ private:
     friend class SkCanvas;
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
+    // just called by SkCanvas for saveLayer
+    SkDevice* createCompatibleDeviceForSaveLayer(SkBitmap::Config config, 
+                                                 int width, int height,
+                                                 bool isOpaque);
 
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;

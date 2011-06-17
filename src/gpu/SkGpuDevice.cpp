@@ -76,7 +76,7 @@ GrTexture* SkGpuDevice::SkAutoCachedTexture::set(SkGpuDevice* device,
         fTex = NULL;
     } else {
         // look it up in our cache
-        fTex = device->lockCachedTexture(bitmap, sampler, &texture, false);
+        fTex = device->lockCachedTexture(bitmap, sampler, &texture);
     }
     return texture;
 }
@@ -166,7 +166,7 @@ SkGpuDevice::SkGpuDevice(GrContext* context, GrRenderTarget* renderTarget)
 }
 
 SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
-                         int height, bool isForSaveLayer)
+                         int height, Usage usage)
 : SkDevice(config, width, height, false /*isOpaque*/) {
     fNeedPrepareRenderTarget = false;
     fDrawProcs = NULL;
@@ -186,9 +186,11 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
     bm.setConfig(config, width, height);
 
 #if CACHE_LAYER_TEXTURES
-
+    TexType type = (kSaveLayer_Usage == usage) ? 
+                            kSaveLayerDeviceRenderTarget_TexType :
+                            kDeviceRenderTarget_TexType;
     fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNoFilter(),
-                                     &fTexture, true, isForSaveLayer);
+                                     &fTexture, type);
     if (fCache) {
         SkASSERT(NULL != fTexture);
         SkASSERT(NULL != fTexture->asRenderTarget());
@@ -1394,13 +1396,12 @@ bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
 SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
                                                       const GrSamplerState& sampler,
                                                       GrTexture** texture,
-                                                      bool forDeviceRenderTarget,
-                                                      bool isSaveLayer) {
+                                                      TexType type) {
     GrTexture* newTexture = NULL;
     GrTextureEntry* entry = NULL;
     GrContext* ctx = this->context();
 
-    if (forDeviceRenderTarget) {
+    if (kBitmap_TexType != type) {
         const GrTextureDesc desc = {
             kRenderTarget_GrTextureFlagBit,
             kNone_GrAALevel,
@@ -1408,12 +1409,13 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             bitmap.height(),
             SkGr::Bitmap2PixelConfig(bitmap)
         };
-        if (isSaveLayer) {
+        if (kSaveLayerDeviceRenderTarget_TexType == type) {
             // we know layers will only be drawn through drawDevice.
             // drawDevice has been made to work with content embedded in a
             // larger texture so its okay to use the approximate version.
             entry = ctx->findApproximateKeylessTexture(desc);
         } else {
+            SkASSERT(kDeviceRenderTarget_TexType == type);
             entry = ctx->lockKeylessTexture(desc);
         }
     } else {
@@ -1445,6 +1447,15 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
 void SkGpuDevice::unlockCachedTexture(TexCache* cache) {
     this->context()->unlockTexture((GrTextureEntry*)cache);
 }
+
+SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config, 
+                                                int width, int height, 
+                                                bool isOpaque,
+                                                Usage usage) {
+    return SkNEW_ARGS(SkGpuDevice,(this->context(), config, 
+                                   width, height, usage));
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1499,3 +1510,4 @@ SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
         return SkNEW_ARGS(SkGpuDevice, (fContext, fRootRenderTarget));
     }
 }
+

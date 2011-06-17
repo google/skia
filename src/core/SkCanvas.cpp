@@ -435,9 +435,8 @@ SkCanvas::SkCanvas(SkDevice* device)
     inc_canvas();
 
     fDeviceFactory = device->getDeviceFactory();
-    SkASSERT(fDeviceFactory);
-    fDeviceFactory->ref();
-              
+    SkSafeRef(fDeviceFactory);
+
     this->init(device);
 }
 
@@ -447,8 +446,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
 
     SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
     fDeviceFactory = device->getDeviceFactory();
-    SkASSERT(fDeviceFactory);
-    fDeviceFactory->ref();
+    SkSafeRef(fDeviceFactory);
 
     this->init(device)->unref();
 }
@@ -736,8 +734,9 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
     bool isOpaque;
     SkBitmap::Config config = resolve_config(this, ir, flags, &isOpaque);
 
-    SkDevice* device = this->createDevice(config, ir.width(), ir.height(),
-                                          isOpaque);
+    SkDevice* device = this->createLayerDevice(config, ir.width(), ir.height(),
+                                               isOpaque);
+
     device->setOrigin(ir.fLeft, ir.fTop);
     DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, ir.fLeft, ir.fTop, paint));
     device->unref();
@@ -1176,10 +1175,31 @@ void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
     }
 }
 
-SkDevice* SkCanvas::createDevice(SkBitmap::Config config, int width, int height,
-                                 bool isOpaque) {
-    return fDeviceFactory->newDevice(this, config, width, height, isOpaque, true);
+SkDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
+                                      int width, int height,
+                                      bool isOpaque) {
+    if (fDeviceFactory) {
+        return fDeviceFactory->newDevice(this, config, width, height,
+                                         isOpaque, true);
+    } else {
+        return this->getDevice()->createCompatibleDeviceForSaveLayer(
+                                config, width, height,
+                                isOpaque);
+    }
 }
+
+SkDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config, 
+                                           int width, int height,
+                                           bool isOpaque) {
+    SkDevice* device = this->getDevice();
+    if (device) {
+        return device->createCompatibleDevice(config, width, height,
+                                              isOpaque);
+    } else {
+        return NULL;
+    }
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //  These are the virtual drawing methods
