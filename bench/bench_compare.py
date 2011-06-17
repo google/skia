@@ -5,31 +5,7 @@ Created on May 16, 2011
 '''
 import sys
 import getopt
-import re
-
-def parse(lines):
-    """Takes iterable lines of bench output, returns {bench:{config:time}}."""
-    
-    benches = {}
-    current_bench = None
-    
-    for line in lines:
-        #see if this line starts a new bench
-        new_bench = re.search('running bench \[\d+ \d+\] (.{28})', line)
-        if new_bench:
-            current_bench = new_bench.group(1)
-        
-        #add configs on this line to the current bench
-        if current_bench:
-            for new_config in re.finditer('  (.{4}): msecs = (\d+\.\d+)', line):
-                current_config = new_config.group(1)
-                current_time = float(new_config.group(2))
-                if current_bench in benches:
-                    benches[current_bench][current_config] = current_time
-                else:
-                    benches[current_bench] = {current_config : current_time}
-    
-    return benches
+import bench_util
 
 def usage():
     """Prints simple usage information."""
@@ -38,20 +14,39 @@ def usage():
     print '-n <file> the new bench output file.'
     print '-h causes headers to be output.'
     print '-f <fieldSpec> which fields to output and in what order.'
-    print '   Not specifying is the same as -f "bcondp".'
+    print '   Not specifying is the same as -f "bctondp".'
     print '  b: bench'
     print '  c: config'
+    print '  t: time type'
     print '  o: old time'
     print '  n: new time'
     print '  d: diff'
     print '  p: percent diff'
     
+class BenchDiff:
+    """A compare between data points produced by bench.
     
+    (BenchDataPoint, BenchDataPoint)"""
+    def __init__(self, old, new):
+        self.old = old
+        self.new = new
+        self.diff = old.time - new.time
+        diffp = 0
+        if old.time != 0:
+            diffp = self.diff / old.time
+        self.diffp = diffp
+    
+    def __repr__(self):
+        return "BenchDiff(%s, %s)" % (
+                   str(self.new),
+                   str(self.old),
+               )
+        
 def main():
     """Parses command line and writes output."""
     
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:o:n:h")
+        opts, _ = getopt.getopt(sys.argv[1:], "f:o:n:h")
     except getopt.GetoptError, err:
         print str(err) 
         usage()
@@ -60,25 +55,27 @@ def main():
     column_formats = {
         'b' : '{bench: >28} ',
         'c' : '{config: <4} ',
+        't' : '{time_type: <4} ',
         'o' : '{old_time: >10.2f} ',
         'n' : '{new_time: >10.2f} ',
         'd' : '{diff: >+10.2f} ',
-        'p' : '{diffp: >+7.1%} ',
+        'p' : '{diffp: >+8.1%} ',
     }
     header_formats = {
         'b' : '{bench: >28} ',
         'c' : '{config: <4} ',
+        't' : '{time_type: <4} ',
         'o' : '{old_time: >10} ',
         'n' : '{new_time: >10} ',
         'd' : '{diff: >10} ',
-        'p' : '{diffp: >7} ',
+        'p' : '{diffp: >8} ',
     }
     
     old = None
     new = None
     column_format = ""
     header_format = ""
-    columns = 'bcondp'
+    columns = 'bctondp'
     header = False
     
     for option, value in opts:
@@ -110,31 +107,43 @@ def main():
         print header_format.format(
             bench='bench'
             , config='conf'
+            , time_type='time'
             , old_time='old'
             , new_time='new'
             , diff='diff'
             , diffp='diffP'
         )
     
-    old_benches = parse(open(old, 'r'))
-    new_benches = parse(open(new, 'r'))
+    old_benches = bench_util.parse({}, open(old, 'r'))
+    new_benches = bench_util.parse({}, open(new, 'r'))
     
-    for old_bench, old_configs in old_benches.items():
-        if old_bench in new_benches:
-            new_configs = new_benches[old_bench]
-            for old_config, old_time in old_configs.items():
-                if old_config in new_configs:
-                    new_time = new_configs[old_config]
-                    old_time = old_configs[old_config]
-                    print column_format.format(
-                        bench=old_bench.strip()
-                        , config=old_config.strip()
-                        , old_time=old_time
-                        , new_time=new_time
-                        , diff=(old_time - new_time)
-                        , diffp=((old_time-new_time)/old_time)
-                    )
+    bench_diffs = []
+    for old_bench in old_benches:
+        #filter new_benches for benches that match old_bench
+        new_bench_match = [bench for bench in new_benches
+            if old_bench.bench == bench.bench and
+               old_bench.config == bench.config and
+               old_bench.time_type == bench.time_type
+        ]
+        if (len(new_bench_match) < 1):
+            continue
+        bench_diffs.append(BenchDiff(old_bench, new_bench_match[0]))
     
+    bench_diffs.sort(key=lambda d : [d.diffp,
+                                     d.old.bench,
+                                     d.old.config,
+                                     d.old.time_type,
+                                    ])
+    for bench_diff in bench_diffs:
+        print column_format.format(
+            bench=bench_diff.old.bench.strip()
+            , config=bench_diff.old.config.strip()
+            , time_type=bench_diff.old.time_type
+            , old_time=bench_diff.old.time
+            , new_time=bench_diff.new.time
+            , diff=bench_diff.diff
+            , diffp=bench_diff.diffp
+        )
     
 if __name__ == "__main__":
     main()
