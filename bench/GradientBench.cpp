@@ -170,7 +170,8 @@ protected:
         const SkPoint pts[] = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
 
         for (int i = 0; i < 1000; i++) {
-            SkColor colors[] = { SK_ColorBLACK, SkColorSetARGB(i, i, i, i), SK_ColorWHITE };
+            const int a = i % 256;
+            SkColor colors[] = { SK_ColorBLACK, SkColorSetARGB(a, a, a, a), SK_ColorWHITE };
             SkShader* s = SkGradientShader::CreateLinear(pts, colors, NULL,
                                                          SK_ARRAY_COUNT(colors),
                                                          SkShader::kClamp_TileMode);
