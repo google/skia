@@ -136,7 +136,6 @@
         '../gpu/include/GrTextureCache.h',
         '../gpu/include/GrTHashCache.h',
         '../gpu/include/GrTLList.h',
-        '../gpu/include/GrTouchGesture.h',
         '../gpu/include/GrTypes.h',
         '../gpu/include/GrUserConfig.h',
         '../gpu/include/GrVertexBuffer.h',
