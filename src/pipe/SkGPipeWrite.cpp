@@ -267,9 +267,10 @@ SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
 
     // we need a device to limit our clip
     // should the caller give us the bounds?
+    // We don't allocate pixels for the bitmap
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, 32767, 32767);
-    SkDevice* device = SkNEW_ARGS(SkDevice, (this, bitmap, false));
+    SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
     this->setDevice(device)->unref();
 }
 
