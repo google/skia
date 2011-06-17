@@ -50,6 +50,13 @@ public:
     SkGpuDevice(GrContext*, GrRenderTarget*);
 
     /**
+     *  New device that will render to the texture (as a rendertarget).
+     *  The GrTexture's asRenderTarget() must be non-NULL or device will not
+     *  function.
+     */
+    SkGpuDevice(GrContext*, GrTexture*);
+
+    /**
      * Magic value that can be passed to constructor. Causes
      * the device to infer rendertarget from underlying 3D API (e.g. GL or D3D).
      * This isn't a valid pointer, don't attempt to dereference.
@@ -129,8 +136,6 @@ public:
     virtual void makeRenderTargetCurrent();
 
 protected:
-    // override
-    virtual SkDeviceFactory* onNewDeviceFactory();
 
     class TexCache;
     enum TexType {
@@ -172,6 +177,9 @@ private:
     GrRenderTarget* fRenderTarget;
     bool            fNeedClear;
     bool            fNeedPrepareRenderTarget;
+
+    // called from rt and tex cons
+    void initFromRenderTarget(GrContext*, GrRenderTarget*);
 
     // doesn't set the texture/sampler/matrix state
     // caller needs to null out GrPaint's texture if
