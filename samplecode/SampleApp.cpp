@@ -398,6 +398,12 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fCurrIndex = 0;
     this->loadView(fSamples[fCurrIndex]());
 
+    // If another constructor set our dimensions, ensure that our
+    // onSizeChange gets called.
+    if (this->height() && this->width()) {
+        this->onSizeChange();
+    }
+
 #ifdef SK_BUILD_FOR_MAC
     testpdf();
 #endif
@@ -1365,6 +1371,8 @@ void SampleWindow::onSizeChange() {
     fZoomCenterY = SkScalarHalf(this->height());
 
 #ifdef ANDROID
+    // FIXME: The first draw after a size change does not work on Android, so
+    // we post an invalidate.
     postInvalDelay(this->getSinkID());
 #endif
     this->updateTitle();    // to refresh our config
