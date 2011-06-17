@@ -10,6 +10,7 @@
       'include_dirs' : [
         '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
         '../gm',       # SampleGM.cpp pulls gm.h
+        '../include/pipe', # To pull in SkGPipe.h for pipe reader/writer
       ],
       'sources': [
         # gm files needed for SampleGM.cpp
@@ -108,6 +109,10 @@
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
+        
+        # Dependecies for the pipe code in SampleApp
+        '../src/pipe/SkGPipeRead.cpp',
+        '../src/pipe/SkGPipeWrite.cpp',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
