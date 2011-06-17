@@ -132,7 +132,7 @@ JNIEXPORT bool JNICALL Java_com_skia_sampleapp_SampleApp_handleKeyDown(
 JNIEXPORT bool JNICALL Java_com_skia_sampleapp_SampleApp_handleKeyUp(
         JNIEnv* env, jobject thiz, jint keyCode);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_handleClick(
-        JNIEnv* env, jobject thiz, jint x, jint y, jint state);
+        JNIEnv* env, jobject thiz, jint owner, jfloat x, jfloat y, jint state);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_createOSWindow(
         JNIEnv* env, jobject thiz, jobject jsampleView);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_setZoomCenter(
@@ -168,7 +168,7 @@ JNIEXPORT bool JNICALL Java_com_skia_sampleapp_SampleApp_handleKeyUp(JNIEnv* env
 }
 
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_handleClick(JNIEnv* env,
-        jobject thiz, jint x, jint y, jint jstate)
+        jobject thiz, jint owner, jfloat x, jfloat y, jint jstate)
 {
     SkView::Click::State state;
     switch(jstate) {
@@ -186,7 +186,7 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_handleClick(JNIEnv* env
             SkDebugf("motion event ignored\n");
             return;
     }
-    gWindow->handleClick(x, y, state);
+    gWindow->handleTouch(owner, x, y, state);
 }
 
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_updateSize(JNIEnv* env,

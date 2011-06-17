@@ -1175,6 +1175,37 @@ SkView::Click* SampleWindow::onFindClickHandler(SkScalar x, SkScalar y) {
     return new GestureClick(this);
 }
 
+union IntPtr {
+    int     fInt;
+    void*   fPtr;
+};
+
+static void* int2ptr(int n) {
+    IntPtr data;
+    data.fInt = n;
+    return data.fPtr;
+}
+
+bool SampleWindow::handleTouch(int ownerId, float x, float y, SkView::Click::State state) {
+    void* click = int2ptr(ownerId);
+    switch(state) {
+        case SkView::Click::kDown_State:
+            fGesture.touchBegin(click, x, y);
+            break;
+        case SkView::Click::kMoved_State:
+            fGesture.touchMoved(click, x, y);
+            this->inval(NULL);
+            break;
+        case SkView::Click::kUp_State:
+            fGesture.touchEnd(click);
+            this->inval(NULL);
+            break;
+        default:
+            return false;
+    }
+    return true;
+}
+
 bool SampleWindow::onClick(Click* click) {
     if (GestureClick::IsGesture(click)) {
         float x = SkScalarToFloat(click->fCurr.fX);

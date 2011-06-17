@@ -23,19 +23,15 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
-import android.view.ScaleGestureDetector.OnScaleGestureListener;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class SampleView extends GLSurfaceView implements OnScaleGestureListener {
+public class SampleView extends GLSurfaceView {
 
     private final SampleApp mApp;
-    private ScaleGestureDetector mDetector;
 
     public SampleView(SampleApp app) {
         super(app);
@@ -44,7 +40,6 @@ public class SampleView extends GLSurfaceView implements OnScaleGestureListener 
         setEGLConfigChooser(8,8,8,8,0,8);
         setRenderer(new SampleView.Renderer());
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-        mDetector = new ScaleGestureDetector(app, this);
     }
 
     // Called by JNI
@@ -60,58 +55,31 @@ public class SampleView extends GLSurfaceView implements OnScaleGestureListener 
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mDetector.onTouchEvent(event);
-        if (mDetector.isInProgress()) {
-            return true;
-        }
-
-        final int x = (int) event.getX();
-        final int y = (int) event.getY();
-        final int action = event.getAction();
-        queueEvent(new Runnable() {
-           @Override
-           public void run() {
-               mApp.handleClick(x, y, action);
-           }
-        });
-
-        return true;
-    }
-
-    // ScaleGestureDetector.OnScaleGestureListener implementation
-    @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
-        final float x = detector.getFocusX();
-        final float y = detector.getFocusY();
-        queueEvent(new Runnable() {
-            @Override
-            public void run() {
-                mApp.setZoomCenter(x, y);
+        int count = event.getPointerCount();
+        for (int i = 0; i < count; i++) {
+            final float x = event.getX(i);
+            final float y = event.getY(i);
+            final int owner = event.getPointerId(i);
+            int action = event.getAction() & MotionEvent.ACTION_MASK;
+            switch (action) {
+                case MotionEvent.ACTION_POINTER_UP:
+                    action = MotionEvent.ACTION_UP;
+                    break;
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    action = MotionEvent.ACTION_DOWN;
+                    break;
+                default:
+                    break;
             }
-        });
-        return true;
-    }
-
-    @Override
-    public boolean onScale(ScaleGestureDetector detector) {
-        if (detector.getScaleFactor() != 1) {
-            final float difference = detector.getCurrentSpan()
-                    - detector.getPreviousSpan();
+            final int finalAction = action;
             queueEvent(new Runnable() {
-                @Override
-                public void run() {
-                    mApp.zoom(difference * .01f);
-                }
+               @Override
+               public void run() {
+                   mApp.handleClick(owner, x, y, finalAction);
+               }
             });
-
-            return true;
         }
-        return false;
-    }
-
-    @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
-
+        return true;
     }
 
     private class Renderer implements GLSurfaceView.Renderer {

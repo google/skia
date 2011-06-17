@@ -58,6 +58,8 @@ public:
     void changeZoomLevel(float delta);
     bool nextSample();
     bool previousSample();
+    bool handleTouch(int ownerId, float x, float y,
+            SkView::Click::State state);
 
 protected:
     virtual void onDraw(SkCanvas* canvas);
