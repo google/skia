@@ -27,6 +27,7 @@
         '../gm/shadows.cpp',
         '../gm/shapes.cpp',
         '../gm/strokerects.cpp',
+        '../gm/strokes.cpp',
         '../gm/tilemodes.cpp',
         '../gm/xfermodes.cpp',
         '../gm/shadertext.cpp',
