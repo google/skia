@@ -146,7 +146,7 @@ enum {
     H = 480/3
 };
 
-class LineClipperView : public SkView {
+class LineClipperView : public SampleView {
     SkMSec      fNow;
     int         fCounter;
     int         fProcIndex;
@@ -185,10 +185,6 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
     static void drawVLine(SkCanvas* canvas, SkScalar x, const SkPaint& paint) {
         canvas->drawLine(x, -999, x, 999, paint);
     }
@@ -197,9 +193,7 @@ protected:
         canvas->drawLine(-999, y, 999, y, paint);
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
+    virtual void onDrawContent(SkCanvas* canvas) {
         SkMSec now = SampleCode::GetAnimTime();
         if (fNow != now) {
             fNow = now;
@@ -229,6 +223,7 @@ protected:
         paint1.setColor(SK_ColorRED);
         paint1.setStyle(SkPaint::kStroke_Style);
         gProcs[fProcIndex](fPts, fClip, canvas, paint, paint1);
+        this->inval(NULL);
     }
 
     virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
@@ -245,7 +240,7 @@ protected:
     }
     
 private:
-    typedef SkView INHERITED;
+    typedef SampleView INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
