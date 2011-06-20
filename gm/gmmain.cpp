@@ -457,7 +457,9 @@ static const ConfigData gRec[] = {
     { SkBitmap::kARGB_8888_Config, kRaster_Backend, "8888" },
     { SkBitmap::kARGB_4444_Config, kRaster_Backend, "4444" },
     { SkBitmap::kRGB_565_Config,   kRaster_Backend, "565" },
+#ifdef SK_SCALAR_IS_FLOAT
     { SkBitmap::kARGB_8888_Config, kGPU_Backend,    "gpu" },
+#endif
 #ifdef SK_SUPPORT_PDF
     { SkBitmap::kARGB_8888_Config, kPDF_Backend,    "pdf" },
 #endif
