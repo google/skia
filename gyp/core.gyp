@@ -289,9 +289,6 @@
 
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkTime_Unix.cpp',
-
-            # TODO(epoger): why are we building this here?
-            '../src/utils/mac/SkCreateCGImageRef.cpp',
           ],
           'link_settings': {
             'libraries': [

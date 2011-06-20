@@ -73,25 +73,7 @@
         '../src/views/SkListWidget.cpp', #depends on missing SkListSource implementation
       ],
       'conditions': [
-        [ 'OS == "win"', {
-          'sources': [
-            '../src/utils/win/SkOSWindow_Win.cpp',
-            '../src/utils/win/skia_win.cpp',
-          ],
-        }],
         [ 'OS == "mac"', {
-          # TODO(epoger): why are we building these here instead of inheriting
-          # them from utils.gyp?
-          'sources': [
-            '../include/utils/SkCGUtils.h',
-            '../src/utils/mac/SkCreateCGImageRef.cpp',
-            '../src/utils/mac/SkEGLContext_mac.cpp',
-            '../src/utils/mac/skia_mac.cpp',
-            '../src/utils/mac/SkOSWindow_Mac.cpp',
-          ],
-          'include_dirs': [
-            '../include/utils/mac',
-          ],
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
