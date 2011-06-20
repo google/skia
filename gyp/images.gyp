@@ -97,6 +97,9 @@
           # our code that calls it.
           # See http://code.google.com/p/gyp/wiki/InputFormatReference#Dependent_Settings
           'link_settings': {
+            'sources': [
+              '../src/images/SkImageDecoder_libpng.cpp',
+            ],
             'libraries': [
               '-lpng',
             ],
