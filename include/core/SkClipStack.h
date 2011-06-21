@@ -42,6 +42,7 @@ public:
         B2FIter(const SkClipStack& stack);
 
         struct Clip {
+            Clip() : fRect(NULL), fPath(NULL), fOp(SkRegion::kIntersect_Op) {}
             friend bool operator==(const Clip& a, const Clip& b);
             friend bool operator!=(const Clip& a, const Clip& b);
             const SkRect*   fRect;  // if non-null, this is a rect clip

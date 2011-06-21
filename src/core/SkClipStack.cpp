@@ -22,6 +22,7 @@ struct SkClipStack::Rec {
     }
 
     Rec(int saveCount, const SkPath& path, SkRegion::Op op) : fPath(path) {
+        fRect.setEmpty();
         fSaveCount = saveCount;
         fOp = op;
         fState = kPath_State;
