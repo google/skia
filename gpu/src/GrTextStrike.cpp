@@ -68,15 +68,19 @@ void GrFontCache::freeAll() {
 
 void GrFontCache::purgeExceptFor(GrTextStrike* preserveStrike) {
     GrTextStrike* strike = fTail;
-    if (strike == preserveStrike) {
-        strike = strike->fPrev;
-    }
-    if (strike) {
-        int index = fCache.slowFindIndex(strike);
+    while (strike) {
+        if (strike == preserveStrike) {
+            strike = strike->fPrev;
+            continue;
+        }
+        GrTextStrike* strikeToPurge = strike;
+        // keep going if we won't free up any atlases with this strike.
+        strike = (NULL == strikeToPurge->fAtlas) ? strikeToPurge->fPrev : NULL;
+        int index = fCache.slowFindIndex(strikeToPurge);
         GrAssert(index >= 0);
-        fCache.removeAt(index, strike->fFontScalerKey->getHash());
-        this->detachStrikeFromList(strike);
-        delete strike;
+        fCache.removeAt(index, strikeToPurge->fFontScalerKey->getHash());
+        this->detachStrikeFromList(strikeToPurge);
+        delete strikeToPurge;
     }
 }
 
