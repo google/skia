@@ -90,13 +90,15 @@ public:
     SkDeviceFactory* getDeviceFactory();
 
     /**
-     * Creates a device that is of the same type as this device (e.g. SW-raster,
-     * GPU, or PDF).
+     *  Creates a device that is of the same type as this device (e.g. SW-raster,
+     *  GPU, or PDF). The backing store for this device is created automatically
+     *  (e.g. offscreen pixels or FBO or whatever is appropriate).
      *
-     * @param width     width of the device to create
-     * @param height    height of the device to create
-     * @param isOpaque  
-     * @param usage     clients should always use the default, kGeneral_Usage.
+     *  @param width    width of the device to create
+     *  @param height   height of the device to create
+     *  @param isOpaque performance hint, set to true if you know that you will
+     *                  draw into this device such that all of the pixels will
+     *                  be opaque.
      */
     SkDevice* createCompatibleDevice(SkBitmap::Config config, 
                                      int width, int height,
