@@ -70,6 +70,8 @@ public:
     void    preConcat(const SkMatrix&);
     void    postConcat(const SkMatrix&);
 
+    virtual void onPDFSaved(const char title[], const char desc[],
+        const char path[]) {}
 protected:
     virtual bool onEvent(const SkEvent&);
     virtual bool onDispatchClick(int x, int y, Click::State);

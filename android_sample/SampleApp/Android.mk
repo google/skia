@@ -40,6 +40,7 @@ LOCAL_C_INCLUDES += \
     external/skia/src/core \
     external/skia/gpu/include \
     frameworks/base/opengl/include/GLES2 \
+    external/skia/include/pdf \
     $(LOCAL_PATH)/jni
 
 LOCAL_SHARED_LIBRARIES := \
@@ -60,6 +61,18 @@ LOCAL_MODULE := libskia-sample
 
 LOCAL_SRC_FILES := \
     ../../src/ports/SkXMLParser_empty.cpp \
+    ../../src/pdf/SkPDFCatalog.cpp \
+    ../../src/pdf/SkPDFDevice.cpp \
+    ../../src/pdf/SkPDFDocument.cpp \
+    ../../src/pdf/SkPDFFont.cpp \
+    ../../src/pdf/SkPDFFormXObject.cpp \
+    ../../src/pdf/SkPDFGraphicState.cpp \
+    ../../src/pdf/SkPDFImage.cpp \
+    ../../src/pdf/SkPDFPage.cpp \
+    ../../src/pdf/SkPDFShader.cpp \
+    ../../src/pdf/SkPDFStream.cpp \
+    ../../src/pdf/SkPDFTypes.cpp \
+    ../../src/pdf/SkPDFUtils.cpp \
     jni/sample-jni.cpp
 
 include external/skia/src/views/views_files.mk

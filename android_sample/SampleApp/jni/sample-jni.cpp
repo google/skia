@@ -38,11 +38,13 @@ struct ActivityGlue {
     jweak m_obj;
     jmethodID m_setTitle;
     jmethodID m_startTimer;
+    jmethodID m_addToDownloads;
     ActivityGlue() {
         m_env = NULL;
         m_obj = NULL;
         m_setTitle = NULL;
         m_startTimer = NULL;
+        m_addToDownloads = NULL;
     }
 } gActivityGlue;
 
@@ -80,6 +82,24 @@ void SkOSWindow::onHandleInval(const SkIRect& rect)
         return;
     }
     gActivityGlue.m_env->CallVoidMethod(gWindowGlue.m_obj, gWindowGlue.m_inval);
+}
+
+void SkOSWindow::onPDFSaved(const char title[], const char desc[],
+        const char path[])
+{
+    if (gActivityGlue.m_env) {
+        JNIEnv* env = gActivityGlue.m_env;
+        jstring jtitle = env->NewStringUTF(title);
+        jstring jdesc = env->NewStringUTF(desc);
+        jstring jpath = env->NewStringUTF(path);
+
+        env->CallVoidMethod(gActivityGlue.m_obj, gActivityGlue.m_addToDownloads,
+                jtitle, jdesc, jpath);
+
+        env->DeleteLocalRef(jtitle);
+        env->DeleteLocalRef(jdesc);
+        env->DeleteLocalRef(jpath);
+    }
 }
 
 ///////////////////////////////////////////
@@ -151,6 +171,8 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_processSkEvent(
         JNIEnv* env, jobject thiz);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_serviceQueueTimer(
         JNIEnv* env, jobject thiz);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_saveToPdf(
+        JNIEnv* env, jobject thiz);
 };
 
 JNIEXPORT bool JNICALL Java_com_skia_sampleapp_SampleApp_handleKeyDown(
@@ -217,6 +239,8 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_init(JNIEnv* env,
     gActivityGlue.m_obj = env->NewWeakGlobalRef(thiz);
     gActivityGlue.m_setTitle = GetJMethod(env, clazz, "setTitle",
             "(Ljava/lang/CharSequence;)V");
+    gActivityGlue.m_addToDownloads = GetJMethod(env, clazz, "addToDownloads",
+            "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     gActivityGlue.m_startTimer = GetJMethod(gActivityGlue.m_env, clazz,
             "startTimer", "(I)V");
     env->DeleteLocalRef(clazz);
@@ -342,4 +366,10 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_serviceQueueTimer(
         JNIEnv* env, jobject thiz)
 {
     SkEvent::ServiceQueueTimer();
+}
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_saveToPdf(
+        JNIEnv* env, jobject thiz)
+{
+    gWindow->saveToPdf();
 }

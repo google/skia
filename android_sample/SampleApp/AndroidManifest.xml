@@ -17,6 +17,10 @@
       package="com.skia.sampleapp"
       android:versionCode="1"
       android:versionName="1.0">
+    <!-- Needed to save a file to the file system. -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- Needed to add to the download manager. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-sdk android:minSdkVersion="3" />
     <application android:label="@string/app_name"
                  android:debuggable="true">

@@ -13,10 +13,13 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">SampleApp</string>
     <string name="overview">Overview</string>
     <string name="toggle_rendering">Toggle rendering</string>
     <string name="slideshow">Slideshow</string>
     <string name="fps">FPS</string>
+    <string name="file_saved"><xliff:g id="title">%s1</xliff:g> saved!</string>
+    <string name="failed">PDF creation failed</string>
+    <string name="save_to_pdf">Save as PDF</string>
 </resources>

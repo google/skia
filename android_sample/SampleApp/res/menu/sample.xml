@@ -43,7 +43,8 @@
         android:id="@+id/slideshow"
         android:title="@string/slideshow"
         />
-<!--
-        android:icon="@drawable/ic_menu_new_window"
--->
+    <item
+        android:id="@+id/save_to_pdf"
+        android:title="@string/save_to_pdf"
+        />
 </menu>
