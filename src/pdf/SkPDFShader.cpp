@@ -749,12 +749,13 @@ bool SkPDFShader::State::operator==(const SkPDFShader::State& b) const {
 SkPDFShader::State::State(const SkShader& shader,
                           const SkMatrix& canvasTransform, const SkIRect& bbox)
         : fCanvasTransform(canvasTransform),
-          fBBox(bbox) {
-
+          fBBox(bbox),
+          fPixelGeneration(0) {
     fInfo.fColorCount = 0;
     fInfo.fColors = NULL;
     fInfo.fColorOffsets = NULL;
     shader.getLocalMatrix(&fShaderTransform);
+    fImageTileModes[0] = fImageTileModes[1] = SkShader::kClamp_TileMode;
 
     fType = shader.asAGradient(&fInfo);
 

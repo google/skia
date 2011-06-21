@@ -28,11 +28,13 @@ class SkWStream;
 
 class SkWriter32 : SkNoncopyable {
 public:
-    SkWriter32(size_t minSize) {
-        fMinSize = minSize;
-        fSize = 0;
-        fHead = fTail = NULL;
-        fSingleBlock = NULL;
+    SkWriter32(size_t minSize)
+        : fMinSize(minSize),
+          fSize(0),
+          fSingleBlock(NULL),
+          fSingleBlockSize(0),
+          fHead(NULL),
+          fTail(NULL) {
     }
     ~SkWriter32();
 

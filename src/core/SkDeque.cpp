@@ -225,9 +225,7 @@ void SkDeque::pop_back() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDeque::F2BIter::F2BIter() {
-    fPos = NULL;
-}
+SkDeque::F2BIter::F2BIter() : fHead(NULL), fPos(NULL), fElemSize(0) {}
 
 SkDeque::F2BIter::F2BIter(const SkDeque& d) {
     this->reset(d);
