@@ -184,8 +184,10 @@ SkClipStack::B2FIter::B2FIter() {
 bool operator==(const SkClipStack::B2FIter::Clip& a,
                const SkClipStack::B2FIter::Clip& b) {
     return a.fOp == b.fOp &&
-           ((a.fRect == NULL && b.fRect == NULL) || *a.fRect == *b.fRect) &&
-           ((a.fPath == NULL && b.fPath == NULL) || *a.fPath == *b.fPath);
+           ((a.fRect == NULL && b.fRect == NULL) ||
+               (a.fRect != NULL && b.fRect != NULL && *a.fRect == *b.fRect)) &&
+           ((a.fPath == NULL && b.fPath == NULL) ||
+               (a.fPath != NULL && b.fPath != NULL && *a.fPath == *b.fPath));
 }
 
 bool operator!=(const SkClipStack::B2FIter::Clip& a,
