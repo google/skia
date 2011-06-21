@@ -19,8 +19,13 @@
 #define SkTypeface_mac_DEFINED
 
 #include "SkTypeface.h"
-#include <Carbon/Carbon.h>
+#ifdef SK_BUILD_FOR_MAC
+#import <ApplicationServices/ApplicationServices.h>
+#endif
 
+#ifdef SK_BUILD_FOR_IOS
+#include <CoreText/CoreText.h>
+#endif
 /**
  *  Like the other Typeface create methods, this returns a new reference to the
  *  corresponding typeface for the specified CTFontRef. The caller must call

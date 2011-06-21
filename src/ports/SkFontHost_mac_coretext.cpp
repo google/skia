@@ -14,7 +14,14 @@
  ** limitations under the License.
 */
 #include <vector>
-#include <Carbon/Carbon.h>
+#ifdef SK_BUILD_FOR_MAC
+#import <ApplicationServices/ApplicationServices.h>
+#endif
+
+#ifdef SK_BUILD_FOR_IOS
+#include <CoreText/CoreText.h>
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
@@ -788,9 +795,9 @@ struct TableEntry {
     uint32_t fLength;
 };
 
-static uint32 CalcTableCheckSum(uint32 *table, uint32 numberOfBytesInTable) {
-    uint32 sum = 0;
-    uint32 nLongs = (numberOfBytesInTable + 3) / 4;
+static uint32_t CalcTableCheckSum(uint32_t *table, uint32_t numberOfBytesInTable) {
+    uint32_t sum = 0;
+    uint32_t nLongs = (numberOfBytesInTable + 3) / 4;
 
     while (nLongs-- > 0) {
         sum += SkEndian_SwapBE32(*table++);
@@ -847,7 +854,7 @@ SkStream* SkFontHost::OpenStream(SkFontID uniqueID) {
         GetTableData(uniqueID, tableTags[index], 0, tableSize, dataPtr);
         entry->fTag = SkEndian_SwapBE32(tableTags[index]);
         entry->fCheckSum = SkEndian_SwapBE32(CalcTableCheckSum(
-            (uint32*)dataPtr, tableSize));
+            (uint32_t*)dataPtr, tableSize));
         entry->fOffset = SkEndian_SwapBE32(dataPtr - dataStart);
         entry->fLength = SkEndian_SwapBE32(tableSize);
         dataPtr += (tableSize + 3) & ~3;

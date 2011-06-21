@@ -13,7 +13,7 @@
 ** limitations under the License.
 */
 
-#include <Carbon/Carbon.h>
+#include <ApplicationServices/ApplicationServices.h>
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkMovie.h"
