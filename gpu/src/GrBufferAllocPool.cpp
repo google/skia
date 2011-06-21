@@ -23,9 +23,10 @@
 #if GR_DEBUG
     #define VALIDATE validate
 #else
-    #define VALIDATE()
+    static void VALIDATE(bool x = false) {}
 #endif
 
+// page size
 #define GrBufferAllocPool_MIN_BLOCK_SIZE ((size_t)1 << 12)
 
 GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
@@ -45,6 +46,8 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu,
     fBufferPtr = NULL;
     fMinBlockSize = GrMax(GrBufferAllocPool_MIN_BLOCK_SIZE, blockSize);
 
+    fBytesInUse = 0;
+            
     fPreallocBuffersInUse = 0;
     fFirstPreallocBuffer = 0;
     for (int i = 0; i < preallocBufferCnt; ++i) {
@@ -80,6 +83,7 @@ void GrBufferAllocPool::releaseGpuRef() {
 
 void GrBufferAllocPool::reset() {
     VALIDATE();
+    fBytesInUse = 0;
     if (fBlocks.count()) {
         GrGeometryBuffer* buffer = fBlocks.back().fBuffer;
         if (buffer->isLocked()) {
@@ -116,7 +120,7 @@ void GrBufferAllocPool::unlock() {
 }
 
 #if GR_DEBUG
-void GrBufferAllocPool::validate() const {
+void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
     if (NULL != fBufferPtr) {
         GrAssert(!fBlocks.empty());
         if (fBlocks.back().fBuffer->isLocked()) {
@@ -129,8 +133,22 @@ void GrBufferAllocPool::validate() const {
     } else {
         GrAssert(fBlocks.empty() || !fBlocks.back().fBuffer->isLocked());
     }
+    size_t bytesInUse = 0;
     for (int i = 0; i < fBlocks.count() - 1; ++i) {
         GrAssert(!fBlocks[i].fBuffer->isLocked());
+    }
+    for (int i = 0; i < fBlocks.count(); ++i) {
+        size_t bytes = fBlocks[i].fBuffer->size() - fBlocks[i].fBytesFree; 
+        bytesInUse += bytes;
+        GrAssert(bytes || unusedBlockAllowed);
+    }
+    
+    GrAssert(bytesInUse == fBytesInUse);
+    if (unusedBlockAllowed) {
+        GrAssert((fBytesInUse && !fBlocks.empty()) ||
+                 (!fBytesInUse && (fBlocks.count() < 2)));
+    } else {
+        GrAssert((0 == fBytesInUse) == fBlocks.empty());
     }
 }
 #endif
@@ -154,20 +172,27 @@ void* GrBufferAllocPool::makeSpace(size_t size,
             *offset = usedBytes;
             *buffer = back.fBuffer;
             back.fBytesFree -= size + pad;
+            fBytesInUse += size;
             return (void*)(reinterpret_cast<intptr_t>(fBufferPtr) + usedBytes);
         }
     }
 
+    // We could honor the space request using updateSubData on the current VB
+    // (if there is room). But we don't currently use draw calls to GL that
+    // allow the driver to know that previously issued draws won't read from
+    // the part of the buffer we update.
+    
     if (!createBlock(size)) {
         return NULL;
     }
-    VALIDATE();
     GrAssert(NULL != fBufferPtr);
 
     *offset = 0;
     BufferBlock& back = fBlocks.back();
     *buffer = back.fBuffer;
     back.fBytesFree -= size;
+    fBytesInUse += size;
+    VALIDATE();
     return fBufferPtr;
 }
 
@@ -194,27 +219,22 @@ int GrBufferAllocPool::preallocatedBufferCount() const {
 
 void GrBufferAllocPool::putBack(size_t bytes) {
     VALIDATE();
-    if (NULL != fBufferPtr) {
-        BufferBlock& back = fBlocks.back();
-        size_t bytesUsed = back.fBuffer->size() - back.fBytesFree;
+
+    while (bytes) {
+        // caller shouldnt try to put back more than they've taken
+        GrAssert(!fBlocks.empty());
+        BufferBlock& block = fBlocks.back();
+        size_t bytesUsed = block.fBuffer->size() - block.fBytesFree;
         if (bytes >= bytesUsed) {
-            destroyBlock();
             bytes -= bytesUsed;
+            fBytesInUse -= bytesUsed;
+            destroyBlock();
         } else {
-            back.fBytesFree += bytes;
-            return;
+            block.fBytesFree += bytes;
+            fBytesInUse -= bytes;
+            bytes = 0;
+            break;
         }
-    }
-    VALIDATE();
-    GrAssert(NULL == fBufferPtr);
-    // we don't partially roll-back buffers because our VB semantics say locking
-    // a VB discards its previous content.
-    // We could honor it by being sure we use updateSubData and not lock
-    // we will roll-back fully released buffers, though.
-    while (!fBlocks.empty() &&
-           bytes >= fBlocks.back().fBuffer->size()) {
-        bytes -= fBlocks.back().fBuffer->size();
-        destroyBlock();
     }
     VALIDATE();
 }
@@ -269,7 +289,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
         fBufferPtr = fCpuData.realloc(size);
     }
 
-    VALIDATE();
+    VALIDATE(true);
 
     return true;
 }

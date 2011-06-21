@@ -202,6 +202,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
 
     GrDrawTarget();
+    virtual ~GrDrawTarget();
 
     /**
      * Sets the current clip to the region specified by clip. All draws will be
@@ -607,9 +608,14 @@ public:
     GR_STATIC_ASSERT(kHighVertexLayoutBit < ((uint64_t)1 << 8*sizeof(GrVertexLayout)));
 
     /**
-     * There are three paths for specifying geometry (vertices and optionally
+     * There are three methods for specifying geometry (vertices and optionally
      * indices) to the draw target. When indexed drawing the indices and vertices
-     * can be each use a different path.
+     * can use a different method. Once geometry is specified it can be used for
+     * multiple drawIndexed and drawNonIndexed calls.
+     *
+     * Sometimes it is necessary to perform a draw while upstack code has
+     * already specified geometry that it isn't finished with. There are push
+     * pop methods
      *
      * 1. Provide a cpu array (set*SourceToArray). This is useful when the
      *    caller's client has already provided vertex data in a format
@@ -618,69 +624,76 @@ public:
      *    drawIndexed & drawNonIndexed calls until set*SourceToArray is called
      *    again or one of the other two paths is chosen.
      *
-     * 2. Reserve and Lock. This is most useful when the caller has data it must
-     *    transform before drawing and will not likely render it again. The
-     *    caller requests that the draw target make room for some amount of
-     *    vertex and/or index data. The target provides ptrs to hold the data
-     *    data. The caller can write the data into the pts up until the first
-     *    drawIndexed or drawNonIndexed call. At this point the data is frozen
-     *    and the ptrs are no longer guaranteed to be valid. All subsequent
-     *    drawIndexed & drawNonIndexed calls will use this data until
-     *    releaseReserved geometry is called. This must be called before another
-     *    source is set.
+     * 2. Reserve. This is most useful when the caller has data it must
+     *    transform before drawing and is not long-lived. The caller requests
+     *    that the draw target make room for some amount of vertex and/or index
+     *    data. The target provides ptrs to hold the vertex and/or index data.
+     *
+     *    The data is writable up until the next drawIndexed, drawNonIndexed, 
+     *    or pushGeometrySource At this point the data is frozen and the ptrs
+     *    are no longer valid.
      *
      * 3. Vertex and Index Buffers. This is most useful for geometry that will
-     *    be rendered multiple times. SetVertexSourceToBuffer &
-     *    SetIndexSourceToBuffer are used to set the buffer and subsequent
-     *    drawIndexed and drawNonIndexed calls use this source until another
-     *    source is set.
+     *    is long-lived. SetVertexSourceToBuffer and SetIndexSourceToBuffer are
+     *    used to set the buffer and subsequent drawIndexed and drawNonIndexed 
+     *    calls use this source until another source is set.
      */
 
     /**
-     * Reserves space for vertices and/or indices. Draw target will use
-     * reserved vertices / indices at next draw.
+     * Reserves space for vertices. Draw target will use reserved vertices at
+     * at the next draw.
      *
      * If succeeds:
-     *          if vertexCount is nonzero, *vertices will be the array
+     *          if vertexCount > 0, *vertices will be the array
      *          of vertices to be filled by caller. The next draw will read
      *          these vertices.
      *
-     *          if indexCount is nonzero, *indices will be the array of indices
-     *          to be filled by caller. The next indexed draw will read from
-     *          these indices.
-     *
      * If a client does not already have a vertex buffer then this is the
-     * preferred way to allocate vertex/index array. It allows the subclass of
+     * preferred way to allocate vertex data. It allows the subclass of
      * GrDrawTarget to decide whether to put data in buffers, to group vertex
      * data that uses the same state (e.g. for deferred rendering), etc.
      *
-     * Following the first draw after reserveAndLockGeometry the ptrs returned
-     * by releaseReservedGeometry are no longer valid and the geometry data
-     * cannot be further modified. The contents that were put in the reserved
-     * space can be drawn by multiple draws, however.
+     * After the next draw or pushGeometrySource the vertices ptr is no longer
+     * valid and the geometry data cannot be further modified. The contents
+     * that were put in the reserved space can be drawn by multiple draws,
+     * however.
      *
-     * reserveAndLockGeometry must be matched with a releaseReservedGeometry
-     * call after all draws that reference the reserved geometry data have
-     * been called.
-     *
-     * AutoGeometryRelease can be used to automatically call the release.
-     *
-     * @param vertexCount  the number of vertices to reserve space for. Can be 0.
-     * @param indexCount   the number of indices to reserve space for. Can be 0.
      * @param vertexLayout the format of vertices (ignored if vertexCount == 0).
+     * @param vertexCount  the number of vertices to reserve space for. Can be 0.
      * @param vertices     will point to reserved vertex space if vertexCount is
      *                     non-zero. Illegal to pass NULL if vertexCount > 0.
-     * @param indices      will point to reserved index space if indexCount is
-     *                     non-zero. Illegal to pass NULL if indexCount > 0.
      *
      * @return  true if succeeded in allocating space for the vertices and false
      *               if not.
      */
-    bool reserveAndLockGeometry(GrVertexLayout    vertexLayout,
-                                uint32_t          vertexCount,
-                                uint32_t          indexCount,
-                                void**            vertices,
-                                void**            indices);
+    bool reserveVertexSpace(GrVertexLayout vertexLayout,
+                            int vertexCount,
+                            void** vertices);
+    /**
+     * Reserves space for indices. Draw target will use the reserved indices at
+     * the next indexed draw.
+     *
+     * If succeeds:
+     *          if indexCount > 0, *indices will be the array
+     *          of indices to be filled by caller. The next draw will read
+     *          these indices.
+     *
+     * If a client does not already have a index buffer then this is the
+     * preferred way to allocate index data. It allows the subclass of
+     * GrDrawTarget to decide whether to put data in buffers, to group index
+     * data that uses the same state (e.g. for deferred rendering), etc.
+     *
+     * After the next indexed draw or pushGeometrySource the indices ptr is no
+     * longer valid and the geometry data cannot be further modified. The
+     * contents that were put in the reserved space can be drawn by multiple
+     * draws, however.
+     *
+     * @param indexCount   the number of indices to reserve space for. Can be 0.
+     * @param indices      will point to reserved index space if indexCount is
+     *                     non-zero. Illegal to pass NULL if indexCount > 0.
+     */
+
+    bool reserveIndexSpace(int indexCount, void** indices);
     /**
      * Provides hints to caller about the number of vertices and indices
      * that can be allocated cheaply. This can be useful if caller is reserving
@@ -706,11 +719,6 @@ public:
     virtual bool geometryHints(GrVertexLayout vertexLayout,
                                int* vertexCount,
                                int* indexCount) const;
-
-    /**
-     * Releases reserved vertex/index data from reserveAndLockGeometry().
-     */
-    void releaseReservedGeometry();
 
     /**
      * Sets source of vertex data for the next draw. Array must contain
@@ -752,7 +760,35 @@ public:
      *               before indexed draw call.
      */
     void setIndexSourceToBuffer(const GrIndexBuffer* buffer);
+    
+    /**
+     * Resets vertex source. Drawing from reset vertices is illegal. Set vertex
+     * source to reserved, array, or buffer before next draw. May be able to free
+     * up temporary storage allocated by setVertexSourceToArray or
+     * reserveVertexSpace.
+     */
+    void resetVertexSource();
+    
+    /**
+     * Resets index source. Indexed Drawing from reset indices is illegal. Set
+     * index source to reserved, array, or buffer before next indexed draw. May
+     * be able to free up temporary storage allocated by setIndexSourceToArray
+     * or reserveIndexSpace.
+     */
+    void resetIndexSource(); 
 
+    /**
+     * Pushes and resets the vertex/index sources. Any reserved vertex / index
+     * data is finalized (i.e. cannot be updated after the matching pop but can
+     * be drawn from). Must be balanced by a pop.
+     */
+    void pushGeometrySource();
+
+    /**
+     * Pops the vertex / index sources from the matching push.
+     */
+    void popGeometrySource();
+    
     /**
      * Draws indexed geometry using the current state and current vertex / index
      * sources.
@@ -766,11 +802,11 @@ public:
      *                     is effectively trimmed to the last completely
      *                     specified primitive.
      */
-    virtual void drawIndexed(GrPrimitiveType type,
-                             int startVertex,
-                             int startIndex,
-                             int vertexCount,
-                             int indexCount) = 0;
+    void drawIndexed(GrPrimitiveType type,
+                     int startVertex,
+                     int startIndex,
+                     int vertexCount,
+                     int indexCount);
 
     /**
      * Draws non-indexed geometry using the current state and current vertex
@@ -781,9 +817,9 @@ public:
      *                     to index 0
      * @param vertexCount  one greater than the max index.
      */
-    virtual void drawNonIndexed(GrPrimitiveType type,
-                                int startVertex,
-                                int vertexCount)  = 0;
+    void drawNonIndexed(GrPrimitiveType type,
+                        int startVertex,
+                        int vertexCount);
 
     /**
      * Helper function for drawing rects. This does not use the current index
@@ -840,7 +876,7 @@ public:
      */
     virtual int getMaxEdges() const { return 6; }
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     class AutoStateRestore : ::GrNoncopyable {
     public:
@@ -860,7 +896,7 @@ public:
         SavedDrawState      fDrawState;
     };
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     class AutoViewMatrixRestore : ::GrNoncopyable {
     public:
@@ -893,7 +929,7 @@ public:
         GrMatrix            fMatrix;
     };
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     /** 
      * Sets the view matrix to I and preconcats all stage matrices enabled in
@@ -910,63 +946,36 @@ public:
         int                 fStageMask;
     };
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     class AutoReleaseGeometry : ::GrNoncopyable {
     public:
         AutoReleaseGeometry(GrDrawTarget*  target,
                             GrVertexLayout vertexLayout,
-                            uint32_t       vertexCount,
-                            uint32_t       indexCount) {
-            fTarget = NULL;
-            this->set(target, vertexLayout, vertexCount, indexCount);
-        }
-
-        AutoReleaseGeometry() {
-            fTarget = NULL;
-        }
-
-        ~AutoReleaseGeometry() {
-            if (NULL != fTarget) {
-                fTarget->releaseReservedGeometry();
-            }
-        }
-
+                            int            vertexCount,
+                            int            indexCount);
+        AutoReleaseGeometry();
+        ~AutoReleaseGeometry();
         bool set(GrDrawTarget*  target,
                  GrVertexLayout vertexLayout,
-                 uint32_t       vertexCount,
-                 uint32_t       indexCount) {
-            if (NULL != fTarget) {
-                fTarget->releaseReservedGeometry();
-            }
-            fTarget = target;
-            if (NULL != fTarget) {
-                if (!fTarget->reserveAndLockGeometry(vertexLayout,
-                                                     vertexCount,
-                                                     indexCount,
-                                                     &fVertices,
-                                                     &fIndices)) {
-                    fTarget = NULL;
-                }
-            }
-            return NULL != fTarget;
-        }
-
+                 int            vertexCount,
+                 int            indexCount);
         bool succeeded() const { return NULL != fTarget; }
         void* vertices() const { return fVertices; }
         void* indices() const { return fIndices; }
-
         GrPoint* positions() const {
             return static_cast<GrPoint*>(fVertices);
         }
 
     private:
+        void reset();
+        
         GrDrawTarget* fTarget;
         void*         fVertices;
         void*         fIndices;
     };
 
-    ///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
 
     class AutoClipRestore : ::GrNoncopyable {
     public:
@@ -981,6 +990,22 @@ public:
     private:
         GrDrawTarget* fTarget;
         GrClip        fClip;
+    };
+    
+    ////////////////////////////////////////////////////////////////////////////
+    
+    class AutoGeometryPush : ::GrNoncopyable {
+    public:
+        AutoGeometryPush(GrDrawTarget* target) {
+            GrAssert(NULL != target);
+            fTarget = target;
+            target->pushGeometrySource();
+        }
+        ~AutoGeometryPush() {
+            fTarget->popGeometrySource();
+        }
+    private:
+        GrDrawTarget* fTarget;
     };
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1140,6 +1165,34 @@ public:
     static void VertexLayoutUnitTest();
 
 protected:
+    
+    enum GeometrySrcType {
+        kNone_GeometrySrcType,     //<! src has not been specified
+        kReserved_GeometrySrcType, //<! src was set using reserve*Space
+        kArray_GeometrySrcType,    //<! src was set using set*SourceToArray
+        kBuffer_GeometrySrcType    //<! src was set using set*SourceToBuffer
+    };
+    
+    struct GeometrySrcState {
+        GeometrySrcType         fVertexSrc;
+        union {
+            // valid if src type is buffer
+            const GrVertexBuffer*   fVertexBuffer;
+            // valid if src type is reserved or array
+            int                     fVertexCount;
+        };
+        
+        GeometrySrcType         fIndexSrc;
+        union {
+            // valid if src type is buffer
+            const GrIndexBuffer*    fIndexBuffer;
+            // valid if src type is reserved or array
+            int                     fIndexCount;
+        };
+        
+        GrVertexLayout          fVertexLayout;
+    };
+    
     // given a vertex layout and a draw state, will a stage be used?
     static bool StageWillBeUsed(int stage, GrVertexLayout layout, 
                          const DrState& state) {
@@ -1147,7 +1200,8 @@ protected:
     }
 
     bool isStageEnabled(int stage) const {
-        return StageWillBeUsed(stage, fGeometrySrc.fVertexLayout, fCurrDrawState);
+        return StageWillBeUsed(stage, this->getGeomSrc().fVertexLayout, 
+                               fCurrDrawState);
     }
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
@@ -1157,21 +1211,38 @@ protected:
     static const DrState& accessSavedDrawState(const SavedDrawState& sds)
                                                         { return sds.fState; }
 
-    // implemented by subclass
-    virtual bool onAcquireGeometry(GrVertexLayout vertexLayout,
-                                   void** vertices,
-                                   void** indices) = 0;
-
-    virtual void onReleaseGeometry() = 0;
-
+    // implemented by subclass to allocate space for reserved geom
+    virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,
+                                      int vertexCount,
+                                      void** vertices) = 0;
+    virtual bool onReserveIndexSpace(int indexCount, void** indices) = 0;
+    // implemented by subclass to handle release of reserved geom space
+    virtual void releaseReservedVertexSpace() = 0;
+    virtual void releaseReservedIndexSpace() = 0;
+    // subclass must consume array contents when set
+    virtual void onSetVertexSourceToArray(const void* vertexArray,
+                                          int vertexCount) = 0;
+    virtual void onSetIndexSourceToArray(const void* indexArray,
+                                         int indexCount) = 0;
+    // subclass is notified that geom source will be set away from an array
+    virtual void releaseVertexArray() = 0;
+    virtual void releaseIndexArray() = 0;
+    // subclass overrides to be notified just before geo src state
+    // is pushed/popped.
+    virtual void geometrySourceWillPush() = 0;
+    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState) = 0;
+    // subclass called to perform drawing
+    virtual void onDrawIndexed(GrPrimitiveType type,
+                               int startVertex,
+                               int startIndex,
+                               int vertexCount,
+                               int indexCount) = 0;
+    virtual void onDrawNonIndexed(GrPrimitiveType type,
+                                  int startVertex,
+                                  int vertexCount) = 0;
     // subclass overrides to be notified when clip is set.
     virtual void clipWillBeSet(const GrClip& clip) = 0;
 
-    virtual void onSetVertexSourceToArray(const void* vertexArray,
-                                          int vertexCount) = 0;
-
-    virtual void onSetIndexSourceToArray(const void* indexArray,
-                                         int indexCount) = 0;
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.
@@ -1185,51 +1256,28 @@ protected:
                                 GrVertexLayout layout,
                                 void* vertices);
 
-    enum GeometrySrcType {
-        kReserved_GeometrySrcType,  // src was set using reserveAndLockGeometry
-        kArray_GeometrySrcType,     // src was set using set*SourceToArray
-        kBuffer_GeometrySrcType     // src was set using set*SourceToBuffer
-    };
-
-    struct ReservedGeometry {
-        bool            fLocked;
-        uint32_t        fVertexCount;
-        uint32_t        fIndexCount;
-    } fReservedGeometry;
-
-    struct GeometrySrc {
-        GeometrySrcType         fVertexSrc;
-        const GrVertexBuffer*   fVertexBuffer; // valid if src type is buffer
-        GeometrySrcType         fIndexSrc;
-        const GrIndexBuffer*    fIndexBuffer; // valid if src type is buffer
-        GrVertexLayout          fVertexLayout;
-    } fGeometrySrc;
+    // accessor for derived classes
+    const GeometrySrcState& getGeomSrc() const {
+        return fGeoSrcStateStack.back();
+    }
 
     GrClip fClip;
 
     DrState fCurrDrawState;
 
-    // Not meant for external use. Only setVertexSourceToBuffer and
-    // setIndexSourceToBuffer will work since GrDrawTarget subclasses don't
-    // support nested reserveAndLockGeometry (and cpu arrays internally use the
-    // same path).
-    class AutoGeometrySrcRestore {
-    public:
-        AutoGeometrySrcRestore(GrDrawTarget* target) {
-            fTarget = target;
-            fGeometrySrc = fTarget->fGeometrySrc;
-        }
-        ~AutoGeometrySrcRestore() {
-            fTarget->fGeometrySrc = fGeometrySrc;
-        }
-    private:
-        GrDrawTarget *fTarget;
-        GeometrySrc  fGeometrySrc;
-
-        AutoGeometrySrcRestore();
-        AutoGeometrySrcRestore(const AutoGeometrySrcRestore&);
-        AutoGeometrySrcRestore& operator =(AutoGeometrySrcRestore&);
+private:
+    // called when setting a new vert/idx source to unref prev vb/ib
+    void releasePreviousVertexSource();
+    void releasePreviousIndexSource();
+    
+    enum {
+        kPreallocGeoSrcStateStackCnt = 4,
     };
+    GrAlignedSTStorage<kPreallocGeoSrcStateStackCnt, 
+                        GeometrySrcState> 
+                                     fGeoSrcStateStackStorage;
+    GrTArray<GeometrySrcState, true> fGeoSrcStateStack;
+    
 };
 
 #endif

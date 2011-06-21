@@ -1401,11 +1401,11 @@ GrGLenum gPrimitiveType2GLMode[] = {
     #endif
 #endif
 
-void GrGpuGL::onDrawIndexed(GrPrimitiveType type,
-                            uint32_t startVertex,
-                            uint32_t startIndex,
-                            uint32_t vertexCount,
-                            uint32_t indexCount) {
+void GrGpuGL::onGpuDrawIndexed(GrPrimitiveType type,
+                               uint32_t startVertex,
+                               uint32_t startIndex,
+                               uint32_t vertexCount,
+                               uint32_t indexCount) {
     GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
 
     GrGLvoid* indices = (GrGLvoid*)(sizeof(uint16_t) * startIndex);
@@ -1433,9 +1433,9 @@ void GrGpuGL::onDrawIndexed(GrPrimitiveType type,
 #endif
 }
 
-void GrGpuGL::onDrawNonIndexed(GrPrimitiveType type,
-                               uint32_t startVertex,
-                               uint32_t vertexCount) {
+void GrGpuGL::onGpuDrawNonIndexed(GrPrimitiveType type,
+                                  uint32_t startVertex,
+                                  uint32_t vertexCount) {
     GrAssert((size_t)type < GR_ARRAY_COUNT(gPrimitiveType2GLMode));
 
     GrAssert(NULL != fHWGeometryState.fVertexBuffer);
@@ -1924,7 +1924,7 @@ void GrGpuGL::notifyVertexBufferDelete(const GrGLVertexBuffer* buffer) {
 }
 
 void GrGpuGL::notifyIndexBufferBind(const GrGLIndexBuffer* buffer) {
-    fGeometrySrc.fIndexBuffer = buffer;
+    fHWGeometryState.fIndexBuffer = buffer;
 }
 
 void GrGpuGL::notifyIndexBufferDelete(const GrGLIndexBuffer* buffer) {
@@ -2058,17 +2058,19 @@ void GrGpuGL::setBuffers(bool indexed,
 
     GrAssert(NULL != extraVertexOffset);
 
+    const GeometryPoolState& geoPoolState = this->getGeomPoolState();
+
     GrGLVertexBuffer* vbuf;
-    switch (fGeometrySrc.fVertexSrc) {
+    switch (this->getGeomSrc().fVertexSrc) {
     case kBuffer_GeometrySrcType:
         *extraVertexOffset = 0;
-        vbuf = (GrGLVertexBuffer*) fGeometrySrc.fVertexBuffer;
+        vbuf = (GrGLVertexBuffer*) this->getGeomSrc().fVertexBuffer;
         break;
     case kArray_GeometrySrcType:
     case kReserved_GeometrySrcType:
-        finalizeReservedVertices();
-        *extraVertexOffset = fCurrPoolStartVertex;
-        vbuf = (GrGLVertexBuffer*) fCurrPoolVertexBuffer;
+        this->finalizeReservedVertices();
+        *extraVertexOffset = geoPoolState.fPoolStartVertex;
+        vbuf = (GrGLVertexBuffer*) geoPoolState.fPoolVertexBuffer;
         break;
     default:
         vbuf = NULL; // suppress warning
@@ -2087,16 +2089,16 @@ void GrGpuGL::setBuffers(bool indexed,
         GrAssert(NULL != extraIndexOffset);
 
         GrGLIndexBuffer* ibuf;
-        switch (fGeometrySrc.fIndexSrc) {
+        switch (this->getGeomSrc().fIndexSrc) {
         case kBuffer_GeometrySrcType:
             *extraIndexOffset = 0;
-            ibuf = (GrGLIndexBuffer*)fGeometrySrc.fIndexBuffer;
+            ibuf = (GrGLIndexBuffer*)this->getGeomSrc().fIndexBuffer;
             break;
         case kArray_GeometrySrcType:
         case kReserved_GeometrySrcType:
-            finalizeReservedIndices();
-            *extraIndexOffset = fCurrPoolStartIndex;
-            ibuf = (GrGLIndexBuffer*) fCurrPoolIndexBuffer;
+            this->finalizeReservedIndices();
+            *extraIndexOffset = geoPoolState.fPoolStartIndex;
+            ibuf = (GrGLIndexBuffer*) geoPoolState.fPoolIndexBuffer;
             break;
         default:
             ibuf = NULL; // suppress warning

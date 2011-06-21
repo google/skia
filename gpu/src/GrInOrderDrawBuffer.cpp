@@ -23,30 +23,34 @@
 #include "GrGpu.h"
 
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
-                                         GrIndexBufferAllocPool* indexPool) :
-        fDraws(&fDrawStorage),
-        fStates(&fStateStorage),
-        fClears(&fClearStorage),
-        fClips(&fClipStorage),
-        fClipSet(true),
+                                         GrIndexBufferAllocPool* indexPool)
+    : fDraws(&fDrawStorage)
+    , fStates(&fStateStorage)
+    , fClears(&fClearStorage)
+    , fClips(&fClipStorage)
+    , fClipSet(true)
 
-        fLastRectVertexLayout(0),
-        fQuadIndexBuffer(NULL),
-        fMaxQuads(0),
-        fCurrQuad(0),
+    , fLastRectVertexLayout(0)
+    , fQuadIndexBuffer(NULL)
+    , fMaxQuads(0)
+    , fCurrQuad(0)
 
-        fVertexPool(*vertexPool),
-        fCurrPoolVertexBuffer(NULL),
-        fCurrPoolStartVertex(0),
-        fIndexPool(*indexPool),
-        fCurrPoolIndexBuffer(NULL),
-        fCurrPoolStartIndex(0),
-        fReservedVertexBytes(0),
-        fReservedIndexBytes(0),
-        fUsedReservedVertexBytes(0),
-        fUsedReservedIndexBytes(0) {
+    , fVertexPool(*vertexPool)
+    , fIndexPool(*indexPool)
+    , fGeoPoolStateStack(&fGeoStackStorage) {
+    
     GrAssert(NULL != vertexPool);
     GrAssert(NULL != indexPool);
+
+    GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
+    poolState.fUsedPoolVertexBytes = 0;
+    poolState.fUsedPoolIndexBytes = 0;
+#if GR_DEBUG
+    poolState.fPoolVertexBuffer = (GrVertexBuffer*)~0;
+    poolState.fPoolStartVertex = ~0;
+    poolState.fPoolIndexBuffer = (GrIndexBuffer*)~0;
+    poolState.fPoolStartIndex = ~0;
+#endif
 }
 
 GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
@@ -150,19 +154,24 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
             GrAssert(0 == lastDraw.fIndexCount % 6);
             GrAssert(0 == lastDraw.fStartIndex);
 
+            GeometryPoolState& poolState = fGeoPoolStateStack.back();
             bool clearSinceLastDraw =
                             fClears.count() && 
                             fClears.back().fBeforeDrawIdx == fDraws.count();
 
-            appendToPreviousDraw =  !clearSinceLastDraw &&
-                                    lastDraw.fVertexBuffer == fCurrPoolVertexBuffer &&
-                                   (fCurrQuad * 4 + lastDraw.fStartVertex) == fCurrPoolStartVertex;
+            appendToPreviousDraw =  
+                !clearSinceLastDraw &&
+                lastDraw.fVertexBuffer == poolState.fPoolVertexBuffer &&
+                (fCurrQuad * 4 + lastDraw.fStartVertex) == poolState.fPoolStartVertex;
+
             if (appendToPreviousDraw) {
                 lastDraw.fVertexCount += 4;
                 lastDraw.fIndexCount += 6;
                 fCurrQuad += 1;
-                GrAssert(0 == fUsedReservedVertexBytes);
-                fUsedReservedVertexBytes = 4 * vsize;
+                // we reserved above, so we should be the first
+                // use of this vertex reserveation.
+                GrAssert(0 == poolState.fUsedPoolVertexBytes);
+                poolState.fUsedPoolVertexBytes = 4 * vsize;
             }
         }
         if (!appendToPreviousDraw) {
@@ -179,17 +188,19 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
     }
 }
 
-void GrInOrderDrawBuffer::drawIndexed(GrPrimitiveType primitiveType,
-                                      int startVertex,
-                                      int startIndex,
-                                      int vertexCount,
-                                      int indexCount) {
+void GrInOrderDrawBuffer::onDrawIndexed(GrPrimitiveType primitiveType,
+                                        int startVertex,
+                                        int startIndex,
+                                        int vertexCount,
+                                        int indexCount) {
 
     if (!vertexCount || !indexCount) {
         return;
     }
 
     fCurrQuad = 0;
+
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
     Draw& draw = fDraws.push_back();
     draw.fPrimitiveType = primitiveType;
@@ -208,51 +219,55 @@ void GrInOrderDrawBuffer::drawIndexed(GrPrimitiveType primitiveType,
         this->pushState();
     }
 
-    draw.fVertexLayout = fGeometrySrc.fVertexLayout;
-    switch (fGeometrySrc.fVertexSrc) {
+    draw.fVertexLayout = this->getGeomSrc().fVertexLayout;
+    switch (this->getGeomSrc().fVertexSrc) {
     case kBuffer_GeometrySrcType:
-        draw.fVertexBuffer = fGeometrySrc.fVertexBuffer;
+        draw.fVertexBuffer = this->getGeomSrc().fVertexBuffer;
         break;
-    case kReserved_GeometrySrcType: {
+    case kReserved_GeometrySrcType: // fallthrough
+    case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
-        VertexSize(fGeometrySrc.fVertexLayout);
-        fUsedReservedVertexBytes = GrMax(fUsedReservedVertexBytes, vertexBytes);
-    } // fallthrough
-    case kArray_GeometrySrcType:
-        draw.fVertexBuffer = fCurrPoolVertexBuffer;
-        draw.fStartVertex += fCurrPoolStartVertex;
+                             VertexSize(this->getGeomSrc().fVertexLayout);
+        poolState.fUsedPoolVertexBytes = 
+                            GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
+        draw.fVertexBuffer = poolState.fPoolVertexBuffer;
+        draw.fStartVertex += poolState.fPoolStartVertex;
         break;
+    }
     default:
         GrCrash("unknown geom src type");
     }
     draw.fVertexBuffer->ref();
 
-    switch (fGeometrySrc.fIndexSrc) {
+    switch (this->getGeomSrc().fIndexSrc) {
     case kBuffer_GeometrySrcType:
-        draw.fIndexBuffer = fGeometrySrc.fIndexBuffer;
+        draw.fIndexBuffer = this->getGeomSrc().fIndexBuffer;
         break;
-    case kReserved_GeometrySrcType: {
+    case kReserved_GeometrySrcType: // fallthrough 
+    case kArray_GeometrySrcType: {
         size_t indexBytes = (indexCount + startIndex) * sizeof(uint16_t);
-        fUsedReservedIndexBytes = GrMax(fUsedReservedIndexBytes, indexBytes);
-    } // fallthrough
-    case kArray_GeometrySrcType:
-        draw.fIndexBuffer = fCurrPoolIndexBuffer;
-        draw.fStartIndex += fCurrPoolStartVertex;
+        poolState.fUsedPoolIndexBytes = 
+                            GrMax(poolState.fUsedPoolIndexBytes, indexBytes);
+        draw.fIndexBuffer = poolState.fPoolIndexBuffer;
+        draw.fStartIndex += poolState.fPoolStartVertex;
         break;
+    }
     default:
         GrCrash("unknown geom src type");
     }
     draw.fIndexBuffer->ref();
 }
 
-void GrInOrderDrawBuffer::drawNonIndexed(GrPrimitiveType primitiveType,
-                                         int startVertex,
-                                         int vertexCount) {
+void GrInOrderDrawBuffer::onDrawNonIndexed(GrPrimitiveType primitiveType,
+                                           int startVertex,
+                                           int vertexCount) {
     if (!vertexCount) {
         return;
     }
 
     fCurrQuad = 0;
+
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
 
     Draw& draw = fDraws.push_back();
     draw.fPrimitiveType = primitiveType;
@@ -271,21 +286,21 @@ void GrInOrderDrawBuffer::drawNonIndexed(GrPrimitiveType primitiveType,
         this->pushState();
     }
 
-    draw.fVertexLayout = fGeometrySrc.fVertexLayout;
-    switch (fGeometrySrc.fVertexSrc) {
+    draw.fVertexLayout = this->getGeomSrc().fVertexLayout;
+    switch (this->getGeomSrc().fVertexSrc) {
     case kBuffer_GeometrySrcType:
-        draw.fVertexBuffer = fGeometrySrc.fVertexBuffer;
+        draw.fVertexBuffer = this->getGeomSrc().fVertexBuffer;
         break;
-    case kReserved_GeometrySrcType: {
+    case kReserved_GeometrySrcType: // fallthrough
+    case kArray_GeometrySrcType: {
         size_t vertexBytes = (vertexCount + startVertex) *
-        VertexSize(fGeometrySrc.fVertexLayout);
-        fUsedReservedVertexBytes = GrMax(fUsedReservedVertexBytes,
-                                         vertexBytes);
-    } // fallthrough
-    case kArray_GeometrySrcType:
-        draw.fVertexBuffer = fCurrPoolVertexBuffer;
-        draw.fStartVertex += fCurrPoolStartVertex;
+                             VertexSize(this->getGeomSrc().fVertexLayout);
+        poolState.fUsedPoolVertexBytes = 
+                            GrMax(poolState.fUsedPoolVertexBytes, vertexBytes);
+        draw.fVertexBuffer = poolState.fPoolVertexBuffer;
+        draw.fStartVertex += poolState.fPoolStartVertex;
         break;
+    }
     default:
         GrCrash("unknown geom src type");
     }
@@ -311,7 +326,9 @@ void GrInOrderDrawBuffer::clear(const GrIRect* rect, GrColor color) {
 }
 
 void GrInOrderDrawBuffer::reset() {
-    GrAssert(!fReservedGeometry.fLocked);
+    GrAssert(1 == fGeoPoolStateStack.count());
+    this->resetVertexSource();
+    this->resetIndexSource();
     uint32_t numStates = fStates.count();
     for (uint32_t i = 0; i < numStates; ++i) {
         const DrState& dstate = this->accessSavedDrawState(fStates[i]);
@@ -341,7 +358,8 @@ void GrInOrderDrawBuffer::reset() {
 }
 
 void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
-    GrAssert(!fReservedGeometry.fLocked);
+    GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fVertexSrc);
+    GrAssert(kReserved_GeometrySrcType != this->getGeomSrc().fIndexSrc);
     GrAssert(NULL != target);
     GrAssert(target != this); // not considered and why?
 
@@ -355,9 +373,7 @@ void GrInOrderDrawBuffer::playback(GrDrawTarget* target) {
 
     GrDrawTarget::AutoStateRestore asr(target);
     GrDrawTarget::AutoClipRestore acr(target);
-    // important to not mess with reserve/lock geometry in the target with this
-    // on the stack.
-    GrDrawTarget::AutoGeometrySrcRestore agsr(target);
+    AutoGeometryPush agp(target);
 
     int currState = ~0;
     int currClip  = ~0;
@@ -435,87 +451,141 @@ bool GrInOrderDrawBuffer::geometryHints(GrVertexLayout vertexLayout,
     return flush;
 }
 
-bool GrInOrderDrawBuffer::onAcquireGeometry(GrVertexLayout vertexLayout,
-                                            void**         vertices,
-                                            void**         indices) {
-    GrAssert(!fReservedGeometry.fLocked);
-    if (fReservedGeometry.fVertexCount) {
-        GrAssert(NULL != vertices);
-        GrAssert(0 == fReservedVertexBytes);
-        GrAssert(0 == fUsedReservedVertexBytes);
+bool GrInOrderDrawBuffer::onReserveVertexSpace(GrVertexLayout vertexLayout,
+                                               int vertexCount,
+                                               void** vertices) {
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    GrAssert(vertexCount > 0);
+    GrAssert(NULL != vertices);
+    GrAssert(0 == poolState.fUsedPoolVertexBytes);
+    
+    *vertices = fVertexPool.makeSpace(vertexLayout,
+                                      vertexCount,
+                                      &poolState.fPoolVertexBuffer,
+                                      &poolState.fPoolStartVertex);
+    return NULL != *vertices;
+}
+    
+bool GrInOrderDrawBuffer::onReserveIndexSpace(int indexCount, void** indices) {
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    GrAssert(indexCount > 0);
+    GrAssert(NULL != indices);
+    GrAssert(0 == poolState.fUsedPoolIndexBytes);
 
-        fReservedVertexBytes = VertexSize(vertexLayout) *
-                               fReservedGeometry.fVertexCount;
-        *vertices = fVertexPool.makeSpace(vertexLayout,
-                                          fReservedGeometry.fVertexCount,
-                                          &fCurrPoolVertexBuffer,
-                                          &fCurrPoolStartVertex);
-        if (NULL == *vertices) {
-            return false;
-        }
-    }
-    if (fReservedGeometry.fIndexCount) {
-        GrAssert(NULL != indices);
-        GrAssert(0 == fReservedIndexBytes);
-        GrAssert(0 == fUsedReservedIndexBytes);
-
-        *indices = fIndexPool.makeSpace(fReservedGeometry.fIndexCount,
-                                        &fCurrPoolIndexBuffer,
-                                        &fCurrPoolStartIndex);
-        if (NULL == *indices) {
-            fVertexPool.putBack(fReservedVertexBytes);
-            fReservedVertexBytes = 0;
-            fCurrPoolVertexBuffer = NULL;
-            return false;
-        }
-    }
-    return true;
+    *indices = fIndexPool.makeSpace(indexCount,
+                                    &poolState.fPoolIndexBuffer,
+                                    &poolState.fPoolStartIndex);
+    return NULL != *indices;
 }
 
-void GrInOrderDrawBuffer::onReleaseGeometry() {
-    GrAssert(fUsedReservedVertexBytes <= fReservedVertexBytes);
-    GrAssert(fUsedReservedIndexBytes <= fReservedIndexBytes);
-
-    size_t vertexSlack = fReservedVertexBytes - fUsedReservedVertexBytes;
-    fVertexPool.putBack(vertexSlack);
-
-    size_t indexSlack = fReservedIndexBytes - fUsedReservedIndexBytes;
-    fIndexPool.putBack(indexSlack);
-
-    fReservedVertexBytes = 0;
-    fReservedIndexBytes  = 0;
-    fUsedReservedVertexBytes = 0;
-    fUsedReservedIndexBytes  = 0;
-    fCurrPoolVertexBuffer = 0;
-    fCurrPoolStartVertex = 0;
-
+void GrInOrderDrawBuffer::releaseReservedVertexSpace() {
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    const GeometrySrcState& geoSrc = this->getGeomSrc(); 
+    
+    GrAssert(kReserved_GeometrySrcType == geoSrc.fVertexSrc);
+    
+    size_t reservedVertexBytes = VertexSize(geoSrc.fVertexLayout) * 
+                                 geoSrc.fVertexCount;
+    fVertexPool.putBack(reservedVertexBytes - 
+                        poolState.fUsedPoolVertexBytes);
+    poolState.fUsedPoolVertexBytes = 0;
+    poolState.fPoolVertexBuffer = 0;
 }
 
+void GrInOrderDrawBuffer::releaseReservedIndexSpace() {
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    const GeometrySrcState& geoSrc = this->getGeomSrc(); 
+
+    GrAssert(kReserved_GeometrySrcType == geoSrc.fIndexSrc);
+    
+    size_t reservedIndexBytes = sizeof(uint16_t) * geoSrc.fIndexCount;
+    fIndexPool.putBack(reservedIndexBytes - poolState.fUsedPoolIndexBytes);
+    poolState.fUsedPoolIndexBytes = 0;
+    poolState.fPoolStartVertex = 0;
+}
+    
 void GrInOrderDrawBuffer::onSetVertexSourceToArray(const void* vertexArray,
                                                    int vertexCount) {
-    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fVertexCount);
+
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    GrAssert(0 == poolState.fUsedPoolVertexBytes);
 #if GR_DEBUG
     bool success =
 #endif
-    fVertexPool.appendVertices(fGeometrySrc.fVertexLayout,
+    fVertexPool.appendVertices(this->getGeomSrc().fVertexLayout,
                                vertexCount,
                                vertexArray,
-                               &fCurrPoolVertexBuffer,
-                               &fCurrPoolStartVertex);
+                               &poolState.fPoolVertexBuffer,
+                               &poolState.fPoolStartVertex);
     GR_DEBUGASSERT(success);
 }
 
 void GrInOrderDrawBuffer::onSetIndexSourceToArray(const void* indexArray,
                                                   int indexCount) {
-    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fIndexCount);
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    GrAssert(0 == poolState.fUsedPoolIndexBytes);
 #if GR_DEBUG
     bool success =
 #endif
     fIndexPool.appendIndices(indexCount,
                              indexArray,
-                             &fCurrPoolIndexBuffer,
-                             &fCurrPoolStartIndex);
+                             &poolState.fPoolIndexBuffer,
+                             &poolState.fPoolStartIndex);
     GR_DEBUGASSERT(success);
+}
+
+void GrInOrderDrawBuffer::geometrySourceWillPush() {
+    GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
+    poolState.fUsedPoolVertexBytes = 0;
+    poolState.fUsedPoolIndexBytes = 0;
+#if GR_DEBUG
+    poolState.fPoolVertexBuffer = (GrVertexBuffer*)~0;
+    poolState.fPoolStartVertex = ~0;
+    poolState.fPoolIndexBuffer = (GrIndexBuffer*)~0;
+    poolState.fPoolStartIndex = ~0;
+#endif
+}
+
+void GrInOrderDrawBuffer::releaseVertexArray() {
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    const GeometrySrcState& geoSrc = this->getGeomSrc(); 
+    
+    size_t reservedVertexBytes = VertexSize(geoSrc.fVertexLayout) * 
+    geoSrc.fVertexCount;
+    fVertexPool.putBack(reservedVertexBytes - poolState.fUsedPoolVertexBytes);
+    
+    poolState.fUsedPoolVertexBytes = 0;
+}
+
+void GrInOrderDrawBuffer::releaseIndexArray() {
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    const GeometrySrcState& geoSrc = this->getGeomSrc(); 
+    
+    size_t reservedIndexBytes = sizeof(uint16_t) * geoSrc.fIndexCount;
+    fIndexPool.putBack(reservedIndexBytes - poolState.fUsedPoolIndexBytes);
+    
+    poolState.fUsedPoolIndexBytes = 0;
+}
+
+void GrInOrderDrawBuffer::geometrySourceWillPop(
+                                        const GeometrySrcState& restoredState) {
+    GrAssert(fGeoPoolStateStack.count() > 1);
+    fGeoPoolStateStack.pop_back();
+    GeometryPoolState& poolState = fGeoPoolStateStack.back();
+    // we have to assume that any slack we had in our vertex/index data
+    // is now unreleasable because data may have been appended later in the
+    // pool.
+    if (kReserved_GeometrySrcType == restoredState.fVertexSrc ||
+        kArray_GeometrySrcType == restoredState.fVertexSrc) {
+        poolState.fUsedPoolVertexBytes = 
+            VertexSize(restoredState.fVertexLayout) * 
+            restoredState.fVertexCount;
+    }
+    if (kReserved_GeometrySrcType == restoredState.fIndexSrc ||
+        kArray_GeometrySrcType == restoredState.fIndexSrc) {
+        poolState.fUsedPoolVertexBytes = sizeof(uint16_t) * 
+                                         restoredState.fIndexCount;
+    }
 }
 
 bool GrInOrderDrawBuffer::needsNewState() const {

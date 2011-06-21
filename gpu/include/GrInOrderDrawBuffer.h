@@ -81,15 +81,6 @@ public:
     void playback(GrDrawTarget* target);
     
     // overrides from GrDrawTarget
-    virtual void drawIndexed(GrPrimitiveType primitiveType,
-                             int startVertex,
-                             int startIndex,
-                             int vertexCount,
-                             int indexCount);
-    virtual void drawNonIndexed(GrPrimitiveType primitiveType,
-                                int startVertex,
-                                int vertexCount);
-
     virtual void drawRect(const GrRect& rect, 
                           const GrMatrix* matrix = NULL,
                           int stageEnableMask = 0,
@@ -123,17 +114,30 @@ private:
         GrColor fColor;
     };
 
-    virtual bool onAcquireGeometry(GrVertexLayout vertexLayout,
-                                   void**         vertices,
-                                   void**         indices);
-    virtual void onReleaseGeometry();
-    virtual void clipWillBeSet(const GrClip& newClip);
-
+    // overrides from GrDrawTarget
+    virtual void onDrawIndexed(GrPrimitiveType primitiveType,
+                               int startVertex,
+                               int startIndex,
+                               int vertexCount,
+                               int indexCount);
+    virtual void onDrawNonIndexed(GrPrimitiveType primitiveType,
+                                  int startVertex,
+                                  int vertexCount);
+    virtual bool onReserveVertexSpace(GrVertexLayout layout, 
+                                      int vertexCount,
+                                      void** vertices);
+    virtual bool onReserveIndexSpace(int indexCount, void** indices);
+    virtual void releaseReservedVertexSpace();
+    virtual void releaseReservedIndexSpace();
     virtual void onSetVertexSourceToArray(const void* vertexArray,
-                                         int vertexCount);
-
+                                          int vertexCount);
     virtual void onSetIndexSourceToArray(const void* indexArray,
                                          int indexCount);
+    virtual void releaseVertexArray();
+    virtual void releaseIndexArray();
+    virtual void geometrySourceWillPush();
+    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState);
+    virtual void clipWillBeSet(const GrClip& newClip);
 
     bool needsNewState() const;
     bool needsNewClip() const;
@@ -154,31 +158,36 @@ private:
     int                             fCurrQuad;
 
     GrVertexBufferAllocPool&        fVertexPool;
-    const GrVertexBuffer*           fCurrPoolVertexBuffer;
-    int                             fCurrPoolStartVertex;
 
     GrIndexBufferAllocPool&         fIndexPool;
-    const GrIndexBuffer*            fCurrPoolIndexBuffer;
-    int                             fCurrPoolStartIndex;
+    struct GeometryPoolState {
+        const GrVertexBuffer*           fPoolVertexBuffer;
+        int                             fPoolStartVertex;
+        const GrIndexBuffer*            fPoolIndexBuffer;
+        int                             fPoolStartIndex;
+        // caller may conservatively over reserve vertices / indices.
+        // we release unused space back to allocator if possible
+        // can only do this if there isn't an intervening pushGeometrySource()
+        size_t                          fUsedPoolVertexBytes;
+        size_t                          fUsedPoolIndexBytes;
+    };
+    GrTArray<GeometryPoolState> fGeoPoolStateStack;
 
-    // caller may conservatively over reserve vertices / indices.
-    // we release unused space back to allocator if possible
-    size_t                          fReservedVertexBytes;
-    size_t                          fReservedIndexBytes;
-    size_t                          fUsedReservedVertexBytes;
-    size_t                          fUsedReservedIndexBytes;
     
     enum {
-        kDrawPreallocCnt   = 8,
-        kStatePreallocCnt  = 8,
-        kClipPreallocCnt   = 8,
-        kClearPreallocCnt  = 4,
+        kDrawPreallocCnt         = 8,
+        kStatePreallocCnt        = 8,
+        kClipPreallocCnt         = 8,
+        kClearPreallocCnt        = 4,
+        kGeoPoolStatePreAllocCnt = 4,
     };
 
     GrAlignedSTStorage<kDrawPreallocCnt, Draw>              fDrawStorage;
     GrAlignedSTStorage<kStatePreallocCnt, SavedDrawState>   fStateStorage;
     GrAlignedSTStorage<kClipPreallocCnt, GrClip>            fClipStorage;
     GrAlignedSTStorage<kClearPreallocCnt, Clear>            fClearStorage;
+    GrAlignedSTStorage<kGeoPoolStatePreAllocCnt, 
+                        GeometryPoolState>                  fGeoStackStorage;
 
     typedef GrDrawTarget INHERITED;
 };

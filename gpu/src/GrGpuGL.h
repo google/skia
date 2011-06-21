@@ -91,14 +91,14 @@ protected:
                               int left, int top, int width, int height,
                               GrPixelConfig, void* buffer);
 
-    virtual void onDrawIndexed(GrPrimitiveType type,
-                                   uint32_t startVertex,
-                                   uint32_t startIndex,
-                                   uint32_t vertexCount,
-                                   uint32_t indexCount);
-    virtual void onDrawNonIndexed(GrPrimitiveType type,
-                                      uint32_t vertexCount,
-                                      uint32_t numVertices);
+    virtual void onGpuDrawIndexed(GrPrimitiveType type,
+                                  uint32_t startVertex,
+                                  uint32_t startIndex,
+                                  uint32_t vertexCount,
+                                  uint32_t indexCount);
+    virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
+                                     uint32_t vertexCount,
+                                     uint32_t numVertices);
     virtual void flushScissor(const GrIRect* rect);
     void clearStencil(uint32_t value, uint32_t mask);
     virtual void clearStencilClip(const GrIRect& rect);

@@ -33,26 +33,35 @@ static const int VERTEX_POOL_VB_COUNT = 1;
 
 extern void gr_run_unittests();
 
+#define DEBUG_INVAL_BUFFER    0xdeadcafe
+#define DEBUG_INVAL_START_IDX -1
+
 GrGpu::GrGpu()
     : f8bitPaletteSupport(false)
-    , fCurrPoolVertexBuffer(NULL)
-    , fCurrPoolStartVertex(0)
-    , fCurrPoolIndexBuffer(NULL)
-    , fCurrPoolStartIndex(0)
     , fContext(NULL)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
+    , fVertexPoolUseCnt(0)
+    , fIndexPoolUseCnt(0)
+    , fGeomPoolStateStack(&fGeoSrcStateStackStorage)
     , fQuadIndexBuffer(NULL)
     , fUnitSquareVertexBuffer(NULL)
     , fDefaultPathRenderer(NULL)
     , fClientPathRenderer(NULL)
     , fContextIsDirty(true)
-    , fVertexPoolInUse(false)
-    , fIndexPoolInUse(false)
     , fResourceHead(NULL) {
 
 #if GR_DEBUG
     //gr_run_unittests();
+#endif
+        
+    fGeomPoolStateStack.push_back();
+#if GR_DEBUG
+    GeometryPoolState& poolState = fGeomPoolStateStack.back();
+    poolState.fPoolVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
+    poolState.fPoolStartVertex = DEBUG_INVAL_START_IDX;
+    poolState.fPoolIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
+    poolState.fPoolStartIndex = DEBUG_INVAL_START_IDX;
 #endif
     resetStats();
 }
@@ -417,7 +426,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             fClip.setFromRect(bounds);
 
             AutoStateRestore asr(this);
-            AutoInternalDrawGeomRestore aidgr(this);
+            AutoGeometryPush agp(this);
 
             this->setViewMatrix(GrMatrix::I());
             this->clearStencilClip(clipRect);
@@ -566,15 +575,36 @@ GrPathRenderer* GrGpu::getClipPathRenderer(const GrPath& path,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::drawIndexed(GrPrimitiveType type,
-                        int startVertex,
-                        int startIndex,
-                        int vertexCount,
-                        int indexCount) {
-    GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fVertexSrc ||
-             fReservedGeometry.fLocked);
-    GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fIndexSrc ||
-             fReservedGeometry.fLocked);
+void GrGpu::geometrySourceWillPush() {
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
+    if (kArray_GeometrySrcType == geoSrc.fVertexSrc ||
+        kReserved_GeometrySrcType == geoSrc.fVertexSrc) {
+        this->finalizeReservedVertices();
+    }
+    if (kArray_GeometrySrcType == geoSrc.fIndexSrc ||
+        kReserved_GeometrySrcType == geoSrc.fIndexSrc) {
+        this->finalizeReservedIndices();
+    }
+    GeometryPoolState& newState = fGeomPoolStateStack.push_back();
+#if GR_DEBUG
+    newState.fPoolVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
+    newState.fPoolStartVertex = DEBUG_INVAL_START_IDX;
+    newState.fPoolIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
+    newState.fPoolStartIndex = DEBUG_INVAL_START_IDX;
+#endif
+}
+
+void GrGpu::geometrySourceWillPop(const GeometrySrcState& restoredState) {
+    // if popping last entry then pops are unbalanced with pushes
+    GrAssert(fGeomPoolStateStack.count() > 1);
+    fGeomPoolStateStack.pop_back();
+}
+
+void GrGpu::onDrawIndexed(GrPrimitiveType type,
+                          int startVertex,
+                          int startIndex,
+                          int vertexCount,
+                          int indexCount) {
 
     this->handleDirtyContext();
 
@@ -592,16 +622,13 @@ void GrGpu::drawIndexed(GrPrimitiveType type,
     int sIndex = startIndex;
     setupGeometry(&sVertex, &sIndex, vertexCount, indexCount);
 
-    this->onDrawIndexed(type, sVertex, sIndex,
-                        vertexCount, indexCount);
+    this->onGpuDrawIndexed(type, sVertex, sIndex,
+                           vertexCount, indexCount);
 }
 
-void GrGpu::drawNonIndexed(GrPrimitiveType type,
+void GrGpu::onDrawNonIndexed(GrPrimitiveType type,
                            int startVertex,
                            int vertexCount) {
-    GrAssert(kReserved_GeometrySrcType != fGeometrySrc.fVertexSrc ||
-             fReservedGeometry.fLocked);
-
     this->handleDirtyContext();
 
     if (!this->setupClipAndFlushState(type)) {
@@ -615,7 +642,7 @@ void GrGpu::drawNonIndexed(GrPrimitiveType type,
     int sVertex = startVertex;
     setupGeometry(&sVertex, NULL, vertexCount, 0);
 
-    this->onDrawNonIndexed(type, sVertex, vertexCount);
+    this->onGpuDrawNonIndexed(type, sVertex, vertexCount);
 }
 
 void GrGpu::finalizeReservedVertices() {
@@ -630,11 +657,12 @@ void GrGpu::finalizeReservedIndices() {
 
 void GrGpu::prepareVertexPool() {
     if (NULL == fVertexPool) {
+        GrAssert(0 == fVertexPoolUseCnt);
         fVertexPool = new GrVertexBufferAllocPool(this, true,
                                                   VERTEX_POOL_VB_SIZE,
                                                   VERTEX_POOL_VB_COUNT);
         fVertexPool->releaseGpuRef();
-    } else if (!fVertexPoolInUse) {
+    } else if (!fVertexPoolUseCnt) {
         // the client doesn't have valid data in the pool
         fVertexPool->reset();
     }
@@ -642,79 +670,115 @@ void GrGpu::prepareVertexPool() {
 
 void GrGpu::prepareIndexPool() {
     if (NULL == fIndexPool) {
+        GrAssert(0 == fIndexPoolUseCnt);
         fIndexPool = new GrIndexBufferAllocPool(this, true, 0, 1);
         fIndexPool->releaseGpuRef();
-    } else if (!fIndexPoolInUse) {
+    } else if (!fIndexPoolUseCnt) {
         // the client doesn't have valid data in the pool
         fIndexPool->reset();
     }
 }
 
-bool GrGpu::onAcquireGeometry(GrVertexLayout vertexLayout,
-                              void**         vertices,
-                              void**         indices) {
-    GrAssert(!fReservedGeometry.fLocked);
-    size_t reservedVertexSpace = 0;
-
-    if (fReservedGeometry.fVertexCount) {
-        GrAssert(NULL != vertices);
-
-        this->prepareVertexPool();
-
-        *vertices = fVertexPool->makeSpace(vertexLayout,
-                                           fReservedGeometry.fVertexCount,
-                                           &fCurrPoolVertexBuffer,
-                                           &fCurrPoolStartVertex);
-        if (NULL == *vertices) {
-            return false;
-        }
-        reservedVertexSpace = VertexSize(vertexLayout) *
-                              fReservedGeometry.fVertexCount;
+bool GrGpu::onReserveVertexSpace(GrVertexLayout vertexLayout,
+                                 int vertexCount,
+                                 void** vertices) {
+    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
+    
+    GrAssert(vertexCount > 0);
+    GrAssert(NULL != vertices);
+    
+    this->prepareVertexPool();
+    
+    *vertices = fVertexPool->makeSpace(vertexLayout,
+                                       vertexCount,
+                                       &geomPoolState.fPoolVertexBuffer,
+                                       &geomPoolState.fPoolStartVertex);
+    if (NULL == *vertices) {
+        return false;
     }
-    if (fReservedGeometry.fIndexCount) {
-        GrAssert(NULL != indices);
-
-        this->prepareIndexPool();
-
-        *indices = fIndexPool->makeSpace(fReservedGeometry.fIndexCount,
-                                         &fCurrPoolIndexBuffer,
-                                         &fCurrPoolStartIndex);
-        if (NULL == *indices) {
-            fVertexPool->putBack(reservedVertexSpace);
-            fCurrPoolVertexBuffer = NULL;
-            return false;
-        }
-    }
+    ++fVertexPoolUseCnt;
     return true;
 }
 
-void GrGpu::onReleaseGeometry() {}
+bool GrGpu::onReserveIndexSpace(int indexCount, void** indices) {
+    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
+    
+    GrAssert(indexCount > 0);
+    GrAssert(NULL != indices);
+
+    this->prepareIndexPool();
+
+    *indices = fIndexPool->makeSpace(indexCount,
+                                     &geomPoolState.fPoolIndexBuffer,
+                                     &geomPoolState.fPoolStartIndex);
+    if (NULL == *indices) {
+        return false;
+    }
+    ++fIndexPoolUseCnt;
+    return true;
+}
+
+void GrGpu::releaseReservedVertexSpace() {
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
+    GrAssert(kReserved_GeometrySrcType == geoSrc.fVertexSrc);
+    size_t bytes = geoSrc.fVertexCount * VertexSize(geoSrc.fVertexLayout);
+    fVertexPool->putBack(bytes);
+    --fVertexPoolUseCnt;
+}
+
+void GrGpu::releaseReservedIndexSpace() {
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
+    GrAssert(kReserved_GeometrySrcType == geoSrc.fIndexSrc);
+    size_t bytes = geoSrc.fIndexCount * sizeof(uint16_t);
+    fIndexPool->putBack(bytes);
+    --fIndexPoolUseCnt;
+}
 
 void GrGpu::onSetVertexSourceToArray(const void* vertexArray, int vertexCount) {
-    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fVertexCount);
     this->prepareVertexPool();
+    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
 #if GR_DEBUG
     bool success =
 #endif
-    fVertexPool->appendVertices(fGeometrySrc.fVertexLayout,
+    fVertexPool->appendVertices(this->getGeomSrc().fVertexLayout,
                                 vertexCount,
                                 vertexArray,
-                                &fCurrPoolVertexBuffer,
-                                &fCurrPoolStartVertex);
+                                &geomPoolState.fPoolVertexBuffer,
+                                &geomPoolState.fPoolStartVertex);
+    ++fVertexPoolUseCnt;
     GR_DEBUGASSERT(success);
 }
 
 void GrGpu::onSetIndexSourceToArray(const void* indexArray, int indexCount) {
-    GrAssert(!fReservedGeometry.fLocked || !fReservedGeometry.fIndexCount);
     this->prepareIndexPool();
+    GeometryPoolState& geomPoolState = fGeomPoolStateStack.back();
 #if GR_DEBUG
     bool success =
 #endif
     fIndexPool->appendIndices(indexCount,
                               indexArray,
-                              &fCurrPoolIndexBuffer,
-                              &fCurrPoolStartIndex);
+                              &geomPoolState.fPoolIndexBuffer,
+                              &geomPoolState.fPoolStartIndex);
+    ++fIndexPoolUseCnt;
     GR_DEBUGASSERT(success);
+}
+
+void GrGpu::releaseVertexArray() {
+    // if vertex source was array, we stowed data in the pool
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
+    GrAssert(kArray_GeometrySrcType == geoSrc.fVertexSrc);
+    size_t bytes = geoSrc.fVertexCount * VertexSize(geoSrc.fVertexLayout);
+    fVertexPool->putBack(bytes);
+    --fVertexPoolUseCnt;
+}
+
+void GrGpu::releaseIndexArray() {
+    // if index source was array, we stowed data in the pool
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
+    GrAssert(kArray_GeometrySrcType == geoSrc.fIndexSrc);
+    size_t bytes = geoSrc.fIndexCount * sizeof(uint16_t);
+    fIndexPool->putBack(bytes);
+    --fIndexPoolUseCnt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
