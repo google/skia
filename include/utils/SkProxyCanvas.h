@@ -75,9 +75,6 @@ public:
     virtual SkBounder* setBounder(SkBounder* bounder);
     virtual SkDrawFilter* setDrawFilter(SkDrawFilter* filter);
 
-    virtual SkDevice* createDevice(SkBitmap::Config, int width, int height,
-                                   bool isOpaque);
-
 private:
     SkCanvas*   fProxy;
     
