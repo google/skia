@@ -86,7 +86,9 @@ private:
         explicit GSCanonicalEntry(SkPDFGraphicState* gs)
             : fGraphicState(gs),
               fPaint(&gs->fPaint) {}
-        explicit GSCanonicalEntry(const SkPaint* paint) : fPaint(paint) {}
+        explicit GSCanonicalEntry(const SkPaint* paint)
+            : fGraphicState(NULL),
+              fPaint(paint) {}
     };
 
     // This should be made a hash table if performance is a problem.
