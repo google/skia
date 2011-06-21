@@ -84,11 +84,17 @@ public:
      * Default sampler state is set to clamp, use normal sampling mode, be
      * unfiltered, and use identity matrix.
      */
-    GrSamplerState() {
+    GrSamplerState()
+    : fRadial2CenterX1()
+    , fRadial2Radius0()
+    , fRadial2PosRoot() {
         this->setClampNoFilter();
     }
 
-    explicit GrSamplerState(Filter filter) {
+    explicit GrSamplerState(Filter filter)
+    : fRadial2CenterX1()
+    , fRadial2Radius0()
+    , fRadial2PosRoot() {
         fWrapX = kClamp_WrapMode;
         fWrapY = kClamp_WrapMode;
         fSampleMode = kNormal_SampleMode;
@@ -97,7 +103,10 @@ public:
         fTextureDomain.setEmpty();
     }
 
-    GrSamplerState(WrapMode wx, WrapMode wy, Filter filter) {
+    GrSamplerState(WrapMode wx, WrapMode wy, Filter filter)
+    : fRadial2CenterX1()
+    , fRadial2Radius0()
+    , fRadial2PosRoot() {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = kNormal_SampleMode;
@@ -107,7 +116,10 @@ public:
     }
 
     GrSamplerState(WrapMode wx, WrapMode wy, 
-                   const GrMatrix& matrix, Filter filter) {
+                   const GrMatrix& matrix, Filter filter)
+    : fRadial2CenterX1()
+    , fRadial2Radius0()
+    , fRadial2PosRoot() {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = kNormal_SampleMode;
@@ -117,7 +129,10 @@ public:
     }
 
     GrSamplerState(WrapMode wx, WrapMode wy, SampleMode sample, 
-                   const GrMatrix& matrix, Filter filter) {
+                   const GrMatrix& matrix, Filter filter)
+    : fRadial2CenterX1()
+    , fRadial2Radius0()
+    , fRadial2PosRoot() {
         fWrapX = wx;
         fWrapY = wy;
         fSampleMode = sample;
