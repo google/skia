@@ -41,13 +41,13 @@ public:
     //  This method is not exported to java.
     virtual void flatten(SkFlattenableWriteBuffer&);
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
 protected:
     SkDiscretePathEffect(SkFlattenableReadBuffer&);
 
 private:
     SkScalar fSegLength, fPerterb;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
     
     typedef SkPathEffect INHERITED;
 };

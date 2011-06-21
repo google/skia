@@ -44,6 +44,8 @@ public:
     //  This method is not exported to java.
     virtual void flatten(SkFlattenableWriteBuffer&);
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
 protected:
     SkDashPathEffect(SkFlattenableReadBuffer&);
     
@@ -55,8 +57,6 @@ private:
     int32_t     fInitialDashIndex;
     SkScalar    fIntervalLength;
     bool        fScaleToFit;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
     typedef SkPathEffect INHERITED;
 };

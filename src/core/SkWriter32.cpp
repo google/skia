@@ -195,8 +195,6 @@ bool SkWriter32::writeToStream(SkWStream* stream) {
  */
 
 const char* SkReader32::readString(size_t* outLen) {
-    // we need to read at least 1-4 bytes
-    SkASSERT(this->isAvailable(4));
     size_t len = this->readInt();
     const void* ptr = this->peek();
 

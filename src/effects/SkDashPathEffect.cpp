@@ -168,4 +168,8 @@ SkDashPathEffect::SkDashPathEffect(SkFlattenableReadBuffer& buffer) {
     buffer.read(fIntervals, fCount * sizeof(fIntervals[0]));
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static SkFlattenable::Registrar gReg("SkDashPathEffect",
+                                     SkDashPathEffect::CreateProc);
 

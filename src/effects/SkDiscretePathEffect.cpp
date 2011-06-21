@@ -93,3 +93,8 @@ SkDiscretePathEffect::SkDiscretePathEffect(SkFlattenableReadBuffer& buffer) {
     fPerterb = buffer.readScalar();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static SkFlattenable::Registrar gReg("SkDiscretePathEffect",
+                                     SkDiscretePathEffect::CreateProc);
+

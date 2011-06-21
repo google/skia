@@ -72,7 +72,7 @@ public:
 
     void setReader(SkFlattenableReadBuffer* reader) {
         fReader = reader;
-        fReader->setFactoryPlayback(fFactoryArray.begin(), fFactoryArray.count());
+        fReader->setFactoryArray(&fFactoryArray);
     }
 
     const SkPaint& paint() const { return fPaint; }
@@ -91,16 +91,6 @@ public:
         *fFlatArray.append() = obj;
     }
 
-    void nameFlattenable(PaintFlats pf, unsigned index) {
-        SkASSERT(index == fFactoryArray.count() + 1);
-        const char* name = fReader->readString();
-        SkFlattenable::Factory fact = SkFlattenable::NameToFactory(name);
-        *fFactoryArray.append() = fact;
-
-        // update this each time we grow the array
-        fReader->setFactoryPlayback(fFactoryArray.begin(), fFactoryArray.count());
-    }
-    
     void addTypeface() {
         size_t size = fReader->readU32();
         const void* data = fReader->skip(SkAlign4(size));
@@ -444,13 +434,6 @@ static void def_PaintFlat_rp(SkCanvas*, SkReader32*, uint32_t op32,
     state->defFlattenable(pf, index);
 }
 
-static void name_PaintFlat_rp(SkCanvas*, SkReader32*, uint32_t op32,
-                              SkGPipeState* state) {
-    PaintFlats pf = (PaintFlats)DrawOp_unpackFlags(op32);
-    unsigned index = DrawOp_unpackData(op32);
-    state->nameFlattenable(pf, index);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static void skip_rp(SkCanvas*, SkReader32* reader, uint32_t op32, SkGPipeState*) {
@@ -497,7 +480,6 @@ static const ReadProc gReadTable[] = {
     paintOp_rp,
     def_Typeface_rp,
     def_PaintFlat_rp,
-    name_PaintFlat_rp,
 
     done_rp
 };
@@ -507,8 +489,8 @@ static const ReadProc gReadTable[] = {
 SkGPipeState::SkGPipeState() {}
 
 SkGPipeState::~SkGPipeState() {
-    fTypefaces.unrefAll();
-    fFlatArray.unrefAll();
+    fTypefaces.safeUnrefAll();
+    fFlatArray.safeUnrefAll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -562,8 +544,7 @@ SkGPipeReader::Status SkGPipeReader::playback(const void* data, size_t length,
         if (readAtom && 
             (table[op] != paintOp_rp &&
              table[op] != def_Typeface_rp &&
-             table[op] != def_PaintFlat_rp &&
-             table[op] != name_PaintFlat_rp
+             table[op] != def_PaintFlat_rp
              )) {
                 status = kReadAtom_Status;
                 break;

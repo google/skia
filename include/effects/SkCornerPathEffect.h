@@ -42,17 +42,13 @@ public:
     //  This method is not exported to java.
     virtual void flatten(SkFlattenableWriteBuffer&);
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
 protected:
     SkCornerPathEffect(SkFlattenableReadBuffer&);
 
 private:
     SkScalar    fRadius;
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
-    
-    // illegal
-    SkCornerPathEffect(const SkCornerPathEffect&);
-    SkCornerPathEffect& operator=(const SkCornerPathEffect&);
     
     typedef SkPathEffect INHERITED;
 };

@@ -31,7 +31,6 @@ class SkPath;
 */
 class SK_API SkPathEffect : public SkFlattenable {
 public:
-    //  This method is not exported to java.
     SkPathEffect() {}
 
     /** Given a src path and a width value, return true if the patheffect
@@ -86,16 +85,16 @@ public:
 
     // overrides
     
-    //  This method is not exported to java.
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
+
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkComposePathEffect, (buffer));
+    }
 
 protected:
     virtual Factory getFactory() { return CreateProc; }
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkComposePathEffect, (buffer));
-    }
     SkComposePathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
     // illegal
@@ -121,16 +120,16 @@ public:
         : INHERITED(first, second) {}
 
     // overrides
-    //  This method is not exported to java.
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
+
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)  {
+        return SkNEW_ARGS(SkSumPathEffect, (buffer));
+    }
 
 protected:
     virtual Factory getFactory() { return CreateProc; }
 
 private:
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)  {
-        return SkNEW_ARGS(SkSumPathEffect, (buffer));
-    }
     SkSumPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
 
     // illegal

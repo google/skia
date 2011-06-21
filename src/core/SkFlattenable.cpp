@@ -48,6 +48,7 @@ SkFlattenableReadBuffer::SkFlattenableReadBuffer() {
     fTFArray = NULL;
     fTFCount = 0;
 
+    fFactoryTDArray = NULL;
     fFactoryArray = NULL;
     fFactoryCount = 0;
 }
@@ -60,6 +61,7 @@ SkFlattenableReadBuffer::SkFlattenableReadBuffer(const void* data) :
     fTFArray = NULL;
     fTFCount = 0;
 
+    fFactoryTDArray = NULL;
     fFactoryArray = NULL;
     fFactoryCount = 0;
 }
@@ -72,6 +74,7 @@ SkFlattenableReadBuffer::SkFlattenableReadBuffer(const void* data, size_t size)
     fTFArray = NULL;
     fTFCount = 0;
 
+    fFactoryTDArray = NULL;
     fFactoryArray = NULL;
     fFactoryCount = 0;
 }
@@ -103,26 +106,48 @@ SkFlattenable* SkFlattenableReadBuffer::readFlattenable() {
     SkFlattenable::Factory factory = NULL;
 
     if (fFactoryCount > 0) {
-        uint32_t index = this->readU32();
-        if (index > 0) {
-            index -= 1;
-            SkASSERT(index < (unsigned)fFactoryCount);
-            factory = fFactoryArray[index];
-            // if we recorded an index, but failed to get a factory, we need
-            // to skip the flattened data in the buffer
-            if (NULL == factory) {
-                uint32_t size = this->readU32();
-                this->skip(size);
-                // fall through and return NULL for the object
+        int32_t index = this->readU32();
+        if (0 == index) {
+            return NULL; // writer failed to give us the flattenable
+        }
+        index = -index; // we stored the negative of the index
+        index -= 1;     // we stored the index-base-1
+        SkASSERT(index < (unsigned)fFactoryCount);
+        factory = fFactoryArray[index];
+    } else if (fFactoryTDArray) {
+        const int32_t* peek = (const int32_t*)this->peek();
+        if (*peek <= 0) {
+            int32_t index = this->readU32();
+            if (0 == index) {
+                return NULL; // writer failed to give us the flattenable
             }
+            index = -index; // we stored the negative of the index
+            index -= 1;     // we stored the index-base-1
+            factory = (*fFactoryTDArray)[index];
+        } else {
+            const char* name = this->readString();
+            factory = SkFlattenable::NameToFactory(name);
+            if (factory) {
+                SkASSERT(fFactoryTDArray->find(factory) < 0);
+                *fFactoryTDArray->append() = factory;
+            } else {
+//                SkDebugf("can't find factory for [%s]\n", name);
+            }
+            // if we didn't find a factory, that's our failure, not the writer's,
+            // so we fall through, so we can skip the sizeRecorded data.
         }
     } else {
         factory = (SkFlattenable::Factory)readFunctionPtr();
+        if (NULL == factory) {
+            return NULL; // writer failed to give us the flattenable
+        }
     }
 
+    // if we get here, factory may still be null, but if that is the case, the
+    // failure was ours, not the writer.
     SkFlattenable* obj = NULL;
+    uint32_t sizeRecorded = this->readU32();
     if (factory) {
-        uint32_t sizeRecorded = this->readU32();
         uint32_t offset = this->offset();
         obj = (*factory)(*this);
         // check that we read the amount we expected
@@ -131,6 +156,9 @@ SkFlattenable* SkFlattenableReadBuffer::readFlattenable() {
             // we could try to fix up the offset...
             sk_throw();
         }
+    } else {
+        // we must skip the remaining data
+        this->skip(sizeRecorded);
     }
     return obj;
 }
@@ -189,28 +217,78 @@ void SkFlattenableWriteBuffer::writeRefCnt(SkRefCnt* obj) {
 }
 
 void SkFlattenableWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
+    /*
+     *  If we have a factoryset, then the first 32bits tell us...
+     *       0: failure to write the flattenable
+     *      <0: we store the negative of the (1-based) index
+     *      >0: the length of the name
+     *  If we don't have a factoryset, then the first "ptr" is either the
+     *  factory, or null for failure.
+     *
+     *  The distinction is important, since 0-index is 32bits (always), but a
+     *  0-functionptr might be 32 or 64 bits.
+     */
+
     SkFlattenable::Factory factory = NULL;
     if (flattenable) {
         factory = flattenable->getFactory();
     }
+    if (NULL == factory) {
+        if (fFactorySet) {
+            this->write32(0);
+        } else {
+            this->writeFunctionPtr(NULL);
+        }
+        return;
+    }
 
+    /*
+     *  We can write 1 of 3 versions of the flattenable:
+     *  1.  function-ptr : this is the fastest for the reader, but assumes that
+     *      the writer and reader are in the same process.
+     *  2.  index into fFactorySet : This is assumes the writer will later
+     *      resolve the function-ptrs into strings for its reader. SkPicture
+     *      does exactly this, by writing a table of names (matching the indices)
+     *      up front in its serialized form.
+     *  3.  names : Reuse fFactorySet to store indices, but only after we've
+     *      written the name the first time. SkGPipe uses this technique, as it
+     *      doesn't require the reader to be told to know the table of names
+     *      up front.
+     */
     if (fFactorySet) {
-        this->write32(fFactorySet->add(factory));
+        if (this->inlineFactoryNames()) {
+            int index = fFactorySet->find(factory);
+            if (index) {
+                // we write the negative of the index, to distinguish it from
+                // the length of a string
+                this->write32(-index);
+            } else {
+                const char* name = SkFlattenable::FactoryToName(factory);
+                if (NULL == name) {
+                    this->write32(0);
+                    return;
+                }
+                this->writeString(name);
+                index = fFactorySet->add(factory);
+            }
+        } else {
+            // we write the negative of the index, to distinguish it from
+            // the length of a string
+            this->write32(-fFactorySet->add(factory));
+        }
     } else {
         this->writeFunctionPtr((void*)factory);
     }
 
-    if (factory) {
-        // make room for the size of the flatttened object
-        (void)this->reserve(sizeof(uint32_t));
-        // record the current size, so we can subtract after the object writes.
-        uint32_t offset = this->size();
-        // now flatten the object
-        flattenable->flatten(*this);
-        uint32_t objSize = this->size() - offset;
-        // record the obj's size
-        *this->peek32(offset - sizeof(uint32_t)) = objSize;
-    }
+    // make room for the size of the flatttened object
+    (void)this->reserve(sizeof(uint32_t));
+    // record the current size, so we can subtract after the object writes.
+    uint32_t offset = this->size();
+    // now flatten the object
+    flattenable->flatten(*this);
+    uint32_t objSize = this->size() - offset;
+    // record the obj's size
+    *this->peek32(offset - sizeof(uint32_t)) = objSize;
 }
 
 void SkFlattenableWriteBuffer::writeFunctionPtr(void* proc) {
