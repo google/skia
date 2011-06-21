@@ -197,31 +197,9 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
     if (NULL == obj) {
         return 0;
     }
-    
-    SkFlattenable::Factory fact = obj->getFactory();
-    if (NULL == fact) {
-        return 0;
-    }
 
-    if (fFactorySet) {
-        uint32_t id = fFactorySet->find((void*)fact);
-        if (0 == id) {
-            const char* name = SkFlattenable::FactoryToName(fact);
-            if (NULL == name) {
-                return 0;
-            }
-            size_t len = strlen(name);
-            size_t size = SkWriter32::WriteStringSize(name, len);
-            if (!this->needOpBytes(size)) {
-                return 0;
-            }
-            unsigned id = fFactorySet->add(fact);
-            this->writeOp(kName_Flattenable_DrawOp, paintflat, id);
-            fWriter.writeString(name, len);
-        }
-    }
-    
     SkFlattenableWriteBuffer tmpWriter(1024);
+    tmpWriter.setFlags(SkFlattenableWriteBuffer::kInlineFactoryNames_Flag);
     tmpWriter.setFactoryRecorder(fFactorySet);
 
     tmpWriter.writeFlattenable(obj);

@@ -38,7 +38,9 @@ SkBlurDrawLooper::SkBlurDrawLooper(SkScalar radius, SkScalar dx, SkScalar dy,
     }
 }
 
-SkBlurDrawLooper::SkBlurDrawLooper(SkFlattenableReadBuffer& buffer) {
+SkBlurDrawLooper::SkBlurDrawLooper(SkFlattenableReadBuffer& buffer)
+: INHERITED(buffer) {
+
     fDx = buffer.readScalar();
     fDy = buffer.readScalar();
     fBlurColor = buffer.readU32();

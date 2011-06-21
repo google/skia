@@ -89,10 +89,13 @@ private:
  */
 template <typename T> class SkTPtrSet : public SkPtrSet {
 public:
+    uint32_t find(T ptr) {
+        return this->INHERITED::find((void*)ptr);
+    }
     uint32_t add(T ptr) {
         return this->INHERITED::add((void*)ptr);
     }
-
+    
     void copyToArray(T* array) const {
         this->INHERITED::copyToArray((void**)array);
     }

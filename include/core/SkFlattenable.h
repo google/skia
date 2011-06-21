@@ -100,10 +100,26 @@ public:
         fTFArray = array;
         fTFCount = count;
     }
-    
+
+    /**
+     *  Call this with a pre-loaded array of Factories, in the same order as
+     *  were created/written by the writer. SkPicture uses this.
+     */
     void setFactoryPlayback(SkFlattenable::Factory array[], int count) {
+        fFactoryTDArray = NULL;
         fFactoryArray = array;
         fFactoryCount = count;
+    }
+
+    /**
+     *  Call this with an initially empty array, so the reader can cache each
+     *  factory it sees by name. Used by the pipe code in conjunction with
+     *  the writer's kInlineFactoryNames_Flag.
+     */
+    void setFactoryArray(SkTDArray<SkFlattenable::Factory>* array) {
+        fFactoryTDArray = array;
+        fFactoryArray = NULL;
+        fFactoryCount = 0;
     }
     
     SkTypeface* readTypeface();
@@ -118,6 +134,7 @@ private:
     SkTypeface** fTFArray;
     int        fTFCount;
     
+    SkTDArray<SkFlattenable::Factory>* fFactoryTDArray;
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
     
@@ -165,12 +182,22 @@ public:
     SkFactorySet* setFactoryRecorder(SkFactorySet*);
 
     enum Flags {
-        kCrossProcess_Flag      = 0x01
+        kCrossProcess_Flag       = 0x01,
+        /**
+         *  Instructs the writer to inline Factory names as there are seen the
+         *  first time (after that we store an index). The pipe code uses this.
+         */
+        kInlineFactoryNames_Flag = 0x02,
     };
-    Flags getFlags() const { return fFlags; }
+    Flags getFlags() const { return (Flags)fFlags; }
     void setFlags(Flags flags) { fFlags = flags; }
     
-    bool isCrossProcess() const { return (fFlags & kCrossProcess_Flag) != 0; }
+    bool isCrossProcess() const {
+        return SkToBool(fFlags & kCrossProcess_Flag);
+    }
+    bool inlineFactoryNames() const {
+        return SkToBool(fFlags & kInlineFactoryNames_Flag);
+    }
 
     bool persistBitmapPixels() const {
         return (fFlags & kCrossProcess_Flag) != 0;
@@ -179,10 +206,10 @@ public:
     bool persistTypeface() const { return (fFlags & kCrossProcess_Flag) != 0; }
 
 private:
-    Flags          fFlags;
-    SkRefCntSet*   fTFSet;
-    SkRefCntSet*   fRCSet;
-    SkFactorySet*  fFactorySet;
+    uint32_t        fFlags;
+    SkRefCntSet*    fTFSet;
+    SkRefCntSet*    fRCSet;
+    SkFactorySet*   fFactorySet;
     
     typedef SkWriter32 INHERITED;
 };

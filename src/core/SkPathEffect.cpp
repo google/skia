@@ -30,8 +30,8 @@ SkPairPathEffect::SkPairPathEffect(SkPathEffect* pe0, SkPathEffect* pe1)
 }
 
 SkPairPathEffect::~SkPairPathEffect() {
-    fPE0->unref();
-    fPE1->unref();
+    SkSafeUnref(fPE0);
+    SkSafeUnref(fPE1);
 }
 
 /*
@@ -45,12 +45,18 @@ void SkPairPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
 SkPairPathEffect::SkPairPathEffect(SkFlattenableReadBuffer& buffer) {
     fPE0 = (SkPathEffect*)buffer.readFlattenable();
     fPE1 = (SkPathEffect*)buffer.readFlattenable();
+    // either of these may fail, so we have to check for nulls later on
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkComposePathEffect::filterPath(SkPath* dst, const SkPath& src,
                                      SkScalar* width) {
+    // we may have failed to unflatten these, so we have to check
+    if (!fPE0 || !fPE1) {
+        return false;
+    }
+
     SkPath          tmp;
     const SkPath*   ptr = &src;
 
@@ -133,4 +139,15 @@ SkStrokePathEffect::SkStrokePathEffect(SkFlattenableReadBuffer& buffer) {
     fJoin = buffer.readU8();
     fCap = buffer.readU8();
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+static SkFlattenable::Registrar gComposePathEffectReg("SkComposePathEffect",
+                                     SkComposePathEffect::CreateProc);
+
+static SkFlattenable::Registrar gSumPathEffectReg("SkSumPathEffect",
+                                     SkSumPathEffect::CreateProc);
+
+static SkFlattenable::Registrar gStrokePathEffectReg("SkStrokePathEffect",
+                                     SkStrokePathEffect::CreateProc);
 

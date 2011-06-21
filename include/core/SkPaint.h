@@ -876,7 +876,7 @@ private:
     friend class SkTextToPathIter;
 };
 
-//////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkPathEffect.h"
 
@@ -894,20 +894,18 @@ public:
                        SkPaint::Cap, SkScalar miterLimit = -1);
 
     // overrides
-    // This method is not exported to java.
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
     // overrides for SkFlattenable
-    // This method is not exported to java.
     virtual void flatten(SkFlattenableWriteBuffer&);
-    // This method is not exported to java.
     virtual Factory getFactory();
+
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
 private:
     SkScalar    fWidth, fMiter;
     uint8_t     fStyle, fJoin, fCap;
 
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
     SkStrokePathEffect(SkFlattenableReadBuffer&);
 
     typedef SkPathEffect INHERITED;
