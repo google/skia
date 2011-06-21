@@ -132,6 +132,7 @@
         'experimental.gyp:experimental',
         'gpu.gyp:gr',
         'gpu.gyp:skgr',
+        'pdf.gyp:pdf',
       ],
       'conditions' : [
        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {

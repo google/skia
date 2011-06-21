@@ -29,6 +29,9 @@ public:
     void detachGL() {}
     void presentGL() {}
 
+    virtual void onPDFSaved(const char title[], const char desc[],
+        const char path[]);
+
 protected:
     // overrides from SkWindow
     virtual void onHandleInval(const SkIRect&);

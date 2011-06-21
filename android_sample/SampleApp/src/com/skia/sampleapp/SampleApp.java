@@ -17,6 +17,7 @@
 package com.skia.sampleapp;
 
 import android.app.Activity;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.opengl.GLSurfaceView;
@@ -32,9 +33,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
+import java.io.File;
 
 public class SampleApp extends Activity
 {
@@ -126,6 +130,15 @@ public class SampleApp extends Activity
                     }
                 });
                 return true;
+            case R.id.save_to_pdf:
+                mView.queueEvent(new Runnable() {
+                    @Override
+                    public void run() {
+                        saveToPdf();
+                    }
+                });
+                return true;
+
             default:
                 return false;
         }
@@ -164,6 +177,7 @@ public class SampleApp extends Activity
     }
 
     private static final int SET_TITLE = 1;
+    private static final int TOAST_DOWNLOAD = 2;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -172,6 +186,10 @@ public class SampleApp extends Activity
                 case SET_TITLE:
                     mTitle.setText((String) msg.obj);
                     SampleApp.this.getActionBar().setSubtitle((String) msg.obj);
+                    break;
+                case TOAST_DOWNLOAD:
+                    Toast.makeText(SampleApp.this, (String) msg.obj,
+                            Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     break;
@@ -182,6 +200,30 @@ public class SampleApp extends Activity
     @Override
     public void setTitle(CharSequence title) {
         mHandler.obtainMessage(SET_TITLE, title).sendToTarget();
+    }
+
+    // Called by JNI
+    @SuppressWarnings("unused")
+    private void addToDownloads(final String title, final String desc,
+            final String path) {
+        File file = new File(path);
+        final long length = file.exists() ? file.length() : 0;
+        if (length == 0) {
+            String failed = getString(R.string.failed);
+            mHandler.obtainMessage(TOAST_DOWNLOAD, failed).sendToTarget();
+            return;
+        }
+        String toast = getString(R.string.file_saved).replace("%s", title);
+        mHandler.obtainMessage(TOAST_DOWNLOAD, toast).sendToTarget();
+        final DownloadManager manager = (DownloadManager) getSystemService(
+                Context.DOWNLOAD_SERVICE);
+        new Thread("Add pdf to downloads") {
+            @Override
+            public void run() {
+                manager.addCompletedDownload(title, desc, true,
+                        "application/pdf", path, length, true);
+            }
+        }.start();
     }
 
     // Called by JNI
@@ -217,6 +259,7 @@ public class SampleApp extends Activity
     native void toggleFps();
     native void processSkEvent();
     native void serviceQueueTimer();
+    native void saveToPdf();
 
     static {
         System.loadLibrary("skia-sample");

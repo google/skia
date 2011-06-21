@@ -18,6 +18,10 @@
 
 #include "GrGLInterface.h"
 
+#include "SkPDFDevice.h"
+#include "SkPDFDocument.h"
+#include "SkStream.h"
+
 #define TEST_GPIPEx
 
 #ifdef  TEST_GPIPE
@@ -383,6 +387,9 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     fZoomLevel = 0;
     fZoomScale = SK_Scalar1;
 
+    fSaveToPdf = false;
+    fPdfCanvas = NULL;
+
 //    this->setConfig(SkBitmap::kRGB_565_Config);
     this->setConfig(SkBitmap::kARGB_8888_Config);
     this->setVisibleP(true);
@@ -412,6 +419,7 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
 SampleWindow::~SampleWindow() {
     delete fPicture;
     delete fGpuCanvas;
+    delete fPdfCanvas;
     if (NULL != fGrContext) {
         fGrContext->unref();
     }
@@ -549,7 +557,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
     } else {
         this->INHERITED::draw(canvas);
     }
-    if (fShowZoomer && fCanvasType != kGPU_CanvasType) {
+    if (fShowZoomer && fCanvasType != kGPU_CanvasType && !fSaveToPdf) {
         // In the GPU case, INHERITED::draw calls beforeChildren, which
         // creates an SkGpuCanvas.  All further draw calls are directed
         // at that canvas, which is deleted in afterChildren (which is
@@ -668,6 +676,12 @@ static void reverseRedAndBlue(const SkBitmap& bm) {
     }
 }
 
+void SampleWindow::saveToPdf()
+{
+    fSaveToPdf = true;
+    this->inval(NULL);
+}
+
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     if (kGPU_CanvasType != fCanvasType) {
 #ifdef SK_SUPPORT_GL
@@ -675,47 +689,57 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
 #endif
     }
 
-    switch (fCanvasType) {
-        case kRaster_CanvasType:
-            canvas = this->INHERITED::beforeChildren(canvas);
-            break;
-        case kPicture_CanvasType:
-            fPicture = new SkPicture;
-            canvas = fPicture->beginRecording(9999, 9999);
-            break;
-        case kGPU_CanvasType: {
-            if (make3DReady()) {
-                SkDevice* device = canvas->getDevice();
-                const SkBitmap& bitmap = device->accessBitmap(true);
-
-                GrRenderTarget* renderTarget;
-
-                GrPlatformSurfaceDesc desc;
-                desc.reset();
-                desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
-                desc.fWidth = bitmap.width();
-                desc.fHeight = bitmap.height();
-                desc.fConfig = kRGBA_8888_GrPixelConfig;
-                desc.fStencilBits = 8;
-                GrGLint buffer;
-                GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
-                desc.fPlatformRenderTarget = buffer;
-
-                renderTarget = static_cast<GrRenderTarget*>(
-                        fGrContext->createPlatformSurface(desc));
-                fGpuCanvas = new SkGpuCanvas(fGrContext, renderTarget);
-                renderTarget->unref();
-
-                device = new SkGpuDevice(fGrContext, renderTarget);
-                fGpuCanvas->setDevice(device)->unref();
-
-                fGpuCanvas->concat(canvas->getTotalMatrix());
-                canvas = fGpuCanvas;
-
-            } else {
+    if (fSaveToPdf) {
+        const SkBitmap& bmp = canvas->getDevice()->accessBitmap(false);
+        SkISize size = SkISize::Make(bmp.width(), bmp.height());
+        SkPDFDevice* pdfDevice = new SkPDFDevice(size, size,
+                canvas->getTotalMatrix());
+        fPdfCanvas = new SkCanvas(pdfDevice);
+        pdfDevice->unref();
+        canvas = fPdfCanvas;
+    } else {
+        switch (fCanvasType) {
+            case kRaster_CanvasType:
                 canvas = this->INHERITED::beforeChildren(canvas);
+                break;
+            case kPicture_CanvasType:
+                fPicture = new SkPicture;
+                canvas = fPicture->beginRecording(9999, 9999);
+                break;
+            case kGPU_CanvasType: {
+                if (make3DReady()) {
+                    SkDevice* device = canvas->getDevice();
+                    const SkBitmap& bitmap = device->accessBitmap(true);
+
+                    GrRenderTarget* renderTarget;
+
+                    GrPlatformSurfaceDesc desc;
+                    desc.reset();
+                    desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+                    desc.fWidth = bitmap.width();
+                    desc.fHeight = bitmap.height();
+                    desc.fConfig = kRGBA_8888_GrPixelConfig;
+                    desc.fStencilBits = 8;
+                    GrGLint buffer;
+                    GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
+                    desc.fPlatformRenderTarget = buffer;
+
+                    renderTarget = static_cast<GrRenderTarget*>(
+                            fGrContext->createPlatformSurface(desc));
+                    fGpuCanvas = new SkGpuCanvas(fGrContext, renderTarget);
+                    renderTarget->unref();
+
+                    device = new SkGpuDevice(fGrContext, renderTarget);
+                    fGpuCanvas->setDevice(device)->unref();
+
+                    fGpuCanvas->concat(canvas->getTotalMatrix());
+                    canvas = fGpuCanvas;
+
+                } else {
+                    canvas = this->INHERITED::beforeChildren(canvas);
+                }
+                break;
             }
-            break;
         }
     }
 
@@ -738,6 +762,34 @@ static void paint_rgn(const SkBitmap& bm, const SkIRect& r,
 }
 
 void SampleWindow::afterChildren(SkCanvas* orig) {
+    if (fSaveToPdf) {
+        fSaveToPdf = false;
+        if (fShowZoomer) {
+            showZoomer(fPdfCanvas);
+        }
+        SkString name;
+        name.printf("%s.pdf", this->getTitle());
+        SkPDFDocument doc;
+        SkPDFDevice* device = static_cast<SkPDFDevice*>(fPdfCanvas->getDevice());
+        doc.appendPage(device);
+#ifdef ANDROID
+        name.prepend("/sdcard/");
+#endif
+        SkFILEWStream stream(name.c_str());
+        if (stream.isValid()) {
+            doc.emitPDF(&stream);
+            const char* desc = "File saved from Skia SampleApp";
+            this->onPDFSaved(this->getTitle(), desc, name.c_str());
+        }
+        delete fPdfCanvas;
+        fPdfCanvas = NULL;
+
+        // We took over the draw calls in order to create the PDF, so we need
+        // to redraw.
+        this->inval(NULL);
+        return;
+    }
+
     if (fRequestGrabImage) {
         fRequestGrabImage = false;
 
@@ -1005,6 +1057,9 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'd':
             SkGraphics::SetFontCacheUsed(0);
             return true;
+        case 'e':
+            this->saveToPdf();
+            break;
         case 'f':
             this->toggleFPS();
             break;

@@ -60,6 +60,7 @@ public:
     bool previousSample();
     bool handleTouch(int ownerId, float x, float y,
             SkView::Click::State state);
+    void saveToPdf();
 
 protected:
     virtual void onDraw(SkCanvas* canvas);
@@ -97,6 +98,9 @@ private:
         kGPU_CanvasType
     };
     CanvasType fCanvasType;
+
+    bool fSaveToPdf;
+    SkCanvas* fPdfCanvas;
 
     bool fUseClip;
     bool fNClip;
