@@ -188,23 +188,20 @@ bool SkWriter32::writeToStream(SkWStream* stream) {
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkReader32.h"
+#include "SkString.h"
+
+/*
+ *  Strings are stored as: length[4-bytes] + string_data + '\0' + pad_to_mul_4
+ */
 
 const char* SkReader32::readString(size_t* outLen) {
     // we need to read at least 1-4 bytes
     SkASSERT(this->isAvailable(4));
-    const uint8_t* base = (const uint8_t*)this->peek();
-    const uint8_t* ptr = base;
+    size_t len = this->readInt();
+    const void* ptr = this->peek();
 
-    size_t len = *ptr++;
-    if (0xFF == len) {
-        len = (ptr[0] << 8) | ptr[1];
-        ptr += 2;
-        SkASSERT(len < 0xFFFF);
-    }
-    
-    // skip what we've read, and 0..3 pad bytes
-    // add 1 for the terminating 0 that writeString() included
-    size_t alignedSize = SkAlign4(len + (ptr - base) + 1);
+    // skip over teh string + '\0' and then pad to a multiple of 4
+    size_t alignedSize = SkAlign4(len + 1);
     this->skip(alignedSize);
 
     if (outLen) {
@@ -213,26 +210,24 @@ const char* SkReader32::readString(size_t* outLen) {
     return (const char*)ptr;
 }
 
+size_t SkReader32::readIntoString(SkString* copy) {
+    size_t len;
+    const char* ptr = this->readString(&len);
+    if (copy) {
+        copy->set(ptr, len);
+    }
+    return len;
+}
+
 void SkWriter32::writeString(const char str[], size_t len) {
     if ((long)len < 0) {
         SkASSERT(str);
         len = strlen(str);
     }
-    size_t lenBytes = 1;
-    if (len >= 0xFF) {
-        lenBytes = 3;
-        SkASSERT(len < 0xFFFF);
-    }
+    this->write32(len);
     // add 1 since we also write a terminating 0
-    size_t alignedLen = SkAlign4(lenBytes + len + 1);
-    uint8_t* ptr = (uint8_t*)this->reserve(alignedLen);
-    if (1 == lenBytes) {
-        *ptr++ = SkToU8(len);
-    } else {
-        *ptr++ = 0xFF;
-        *ptr++ = SkToU8(len >> 8);
-        *ptr++ = len & 0xFF;
-    }
+    size_t alignedLen = SkAlign4(len + 1);
+    char* ptr = (char*)this->reserve(alignedLen);
     memcpy(ptr, str, len);
     ptr[len] = 0;
     // we may have left 0,1,2,3 bytes uninitialized, since we reserved align4
@@ -244,11 +239,7 @@ size_t SkWriter32::WriteStringSize(const char* str, size_t len) {
         SkASSERT(str);
         len = strlen(str);
     }
-    size_t lenBytes = 1;
-    if (len >= 0xFF) {
-        lenBytes = 3;
-        SkASSERT(len < 0xFFFF);
-    }
+    const size_t lenBytes = 4;    // we use 4 bytes to record the length
     // add 1 since we also write a terminating 0
     return SkAlign4(lenBytes + len + 1);
 }

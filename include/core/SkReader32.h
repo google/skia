@@ -17,11 +17,11 @@
 #ifndef SkReader32_DEFINED
 #define SkReader32_DEFINED
 
-#include "SkTypes.h"
-
 #include "SkScalar.h"
 #include "SkPoint.h"
 #include "SkRect.h"
+
+class SkString;
 
 class SkReader32 : SkNoncopyable {
 public:
@@ -103,11 +103,17 @@ public:
     uint32_t readU32() { return this->readInt(); }
 
     /**
-     *  Read the length of a string written by SkWriter32::writeString()
-     *  (if len is not NULL) and return the null-ternimated address of the
-     *  string.
+     *  Read the length of a string (written by SkWriter32::writeString) into
+     *  len (if len is not NULL) and return the null-ternimated address of the
+     *  string within the reader's buffer.
      */
     const char* readString(size_t* len = NULL);
+
+    /**
+     *  Read the string (written by SkWriter32::writeString) and return it in
+     *  copy (if copy is not null). Return the length of the string.
+     */
+    size_t readIntoString(SkString* copy);
 
 private:
     // these are always 4-byte aligned
