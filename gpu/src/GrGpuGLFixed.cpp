@@ -166,7 +166,7 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
         }
     }
 
-    uint32_t vertColor = (fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit);
+    uint32_t vertColor = (this->getGeomSrc().fVertexLayout & kColor_VertexLayoutBit);
     uint32_t prevVertColor = (fHWGeometryState.fVertexLayout &
                               kColor_VertexLayoutBit);
 
@@ -250,7 +250,7 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
     int newColorOffset;
     int newTexCoordOffsets[kNumStages];
 
-    GrGLsizei newStride = VertexSizeAndOffsetsByStage(fGeometrySrc.fVertexLayout,
+    GrGLsizei newStride = VertexSizeAndOffsetsByStage(this->getGeomSrc().fVertexLayout,
                                                       newTexCoordOffsets,
                                                       &newColorOffset);
     int oldColorOffset;
@@ -266,7 +266,7 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
     setBuffers(indexed, &extraVertexOffset, &extraIndexOffset);
 
     GrGLenum scalarType;
-    if (fGeometrySrc.fVertexLayout & kTextFormat_VertexLayoutBit) {
+    if (this->getGeomSrc().fVertexLayout & kTextFormat_VertexLayoutBit) {
         scalarType = GrGLTextType;
     } else {
         scalarType = GrGLType;
@@ -289,7 +289,7 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
                            ((GrGLTextType != GrGLType) &&
                                 (kTextFormat_VertexLayoutBit &
                                   (fHWGeometryState.fVertexLayout ^
-                                   fGeometrySrc.fVertexLayout)));
+                                   this->getGeomSrc().fVertexLayout)));
 
     if (posAndTexChange) {
         GR_GL(VertexPointer(2, scalarType, newStride, (GrGLvoid*)vertexOffset));
@@ -328,6 +328,6 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
         GR_GL(DisableClientState(GR_GL_COLOR_ARRAY));
     }
 
-    fHWGeometryState.fVertexLayout = fGeometrySrc.fVertexLayout;
+    fHWGeometryState.fVertexLayout = this->getGeomSrc().fVertexLayout;
     fHWGeometryState.fArrayPtrsDirty = false;
 }

@@ -169,8 +169,10 @@ private:
     void destroyBlock();
     void flushCpuData(GrGeometryBuffer* buffer, size_t flushSize);
 #if GR_DEBUG
-    void validate() const;
+    void validate(bool unusedBlockAllowed = false) const;
 #endif
+    
+    size_t                          fBytesInUse;
 
     GrGpu*                          fGpu;
     bool                            fGpuIsReffed;

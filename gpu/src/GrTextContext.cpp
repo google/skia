@@ -72,7 +72,7 @@ void GrTextContext::flushGlyphs() {
 
         fDrawTarget->drawIndexed(kTriangles_PrimitiveType,
                                  0, 0, fCurrVertex, nIndices);
-        fDrawTarget->releaseReservedGeometry();
+        fDrawTarget->resetVertexSource();
         fVertices = NULL;
         fMaxVertices = 0;
         fCurrVertex = 0;
@@ -284,10 +284,9 @@ HAS_ATLAS:
             // don't exceed the limit of the index buffer
             fMaxVertices = maxQuadVertices;
         }
-        bool success = fDrawTarget->reserveAndLockGeometry(fVertexLayout,
-                                                           fMaxVertices, 0,
-                                                   GrTCast<void**>(&fVertices),
-                                                           NULL);
+        bool success = fDrawTarget->reserveVertexSpace(fVertexLayout, 
+                                                   fMaxVertices,
+                                                   GrTCast<void**>(&fVertices));
         GrAlwaysAssert(success);
     }
 

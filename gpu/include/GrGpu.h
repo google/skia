@@ -262,16 +262,6 @@ public:
      */
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
 
-    // GrDrawTarget overrides
-    virtual void drawIndexed(GrPrimitiveType type,
-                             int startVertex,
-                             int startIndex,
-                             int vertexCount,
-                             int indexCount);
-
-    virtual void drawNonIndexed(GrPrimitiveType type,
-                                int startVertex,
-                                int vertexCount);
     virtual void clear(const GrIRect* rect, GrColor color);
 
     /**
@@ -416,23 +406,33 @@ protected:
 
     GrGpuStats fStats;
 
-    const GrVertexBuffer*           fCurrPoolVertexBuffer;
-    int                             fCurrPoolStartVertex;
-
-    const GrIndexBuffer*            fCurrPoolIndexBuffer;
-    int                             fCurrPoolStartIndex;
+    struct GeometryPoolState {
+        const GrVertexBuffer* fPoolVertexBuffer;
+        int                   fPoolStartVertex;
+        
+        const GrIndexBuffer*  fPoolIndexBuffer;
+        int                   fPoolStartIndex;
+    };
+    const GeometryPoolState& getGeomPoolState() { 
+        return fGeomPoolStateStack.back(); 
+    }
 
     // GrDrawTarget overrides
-    virtual bool onAcquireGeometry(GrVertexLayout vertexLayout,
-                                   void**         vertices,
-                                   void**         indices);
-    virtual void onReleaseGeometry();
-
+    virtual bool onReserveVertexSpace(GrVertexLayout vertexLayout,
+                                      int vertexCount,
+                                      void** vertices);
+    virtual bool onReserveIndexSpace(int indexCount, void** indices);
+    virtual void releaseReservedVertexSpace();
+    virtual void releaseReservedIndexSpace();    
     virtual void onSetVertexSourceToArray(const void* vertexArray,
                                           int vertexCount);
-
     virtual void onSetIndexSourceToArray(const void* indexArray,
                                          int indexCount);
+    virtual void releaseVertexArray();
+    virtual void releaseIndexArray();
+    virtual void geometrySourceWillPush();
+    virtual void geometrySourceWillPop(const GeometrySrcState& restoredState);
+
     // Helpers for setting up geometry state
     void finalizeReservedVertices();
     void finalizeReservedIndices();
@@ -457,15 +457,15 @@ protected:
     virtual void onClear(const GrIRect* rect, GrColor color) = 0;
 
     // overridden by API-specific derived class to perform the draw call.
-    virtual void onDrawIndexed(GrPrimitiveType type,
-                               uint32_t startVertex,
-                               uint32_t startIndex,
-                               uint32_t vertexCount,
-                               uint32_t indexCount) = 0;
-
-    virtual void onDrawNonIndexed(GrPrimitiveType type,
+    virtual void onGpuDrawIndexed(GrPrimitiveType type,
+                                  uint32_t startVertex,
+                                  uint32_t startIndex,
                                   uint32_t vertexCount,
-                                  uint32_t numVertices) = 0;
+                                  uint32_t indexCount) = 0;
+
+    virtual void onGpuDrawNonIndexed(GrPrimitiveType type,
+                                     uint32_t vertexCount,
+                                     uint32_t numVertices) = 0;
 
     // overridden by API-specific derived class to perform flush
     virtual void onForceRenderTargetFlush() = 0;
@@ -502,7 +502,18 @@ private:
     GrVertexBufferAllocPool*    fVertexPool;
 
     GrIndexBufferAllocPool*     fIndexPool;
-
+    
+    // counts number of uses of vertex/index pool in the geometry stack
+    int                         fVertexPoolUseCnt;
+    int                         fIndexPoolUseCnt;
+    
+    enum {
+        kPreallocGeomPoolStateStackCnt = 4,
+    };
+    GrAlignedSTStorage<kPreallocGeomPoolStateStackCnt, 
+                       GeometryPoolState>           fGeoSrcStateStackStorage;
+    GrTArray<GeometryPoolState, true>               fGeomPoolStateStack;
+    
     mutable GrIndexBuffer*      fQuadIndexBuffer; // mutable so it can be
                                                   // created on-demand
 
@@ -514,13 +525,17 @@ private:
 
     bool                        fContextIsDirty;
 
-    // when in an internal draw these indicate whether the pools are in use
-    // by one of the outer draws. If false then it is safe to reset the
-    // pool.
-    bool                        fVertexPoolInUse;
-    bool                        fIndexPoolInUse;
-
     GrResource*                 fResourceHead;
+
+    // GrDrawTarget overrides
+    virtual void onDrawIndexed(GrPrimitiveType type,
+                               int startVertex,
+                               int startIndex,
+                               int vertexCount,
+                               int indexCount);
+    virtual void onDrawNonIndexed(GrPrimitiveType type,
+                                  int startVertex,
+                                  int vertexCount);
 
     // readies the pools to provide vertex/index data.
     void prepareVertexPool();
@@ -535,52 +550,6 @@ private:
             fContextIsDirty = false;
         }
     }
-
-    // used to save and restore state when the GrGpu needs
-    // to make its geometry pools available internally
-    class AutoInternalDrawGeomRestore {
-    public:
-        AutoInternalDrawGeomRestore(GrGpu* gpu) : fAgsr(gpu) {
-            fGpu = gpu;
-
-            fVertexPoolWasInUse = gpu->fVertexPoolInUse;
-            fIndexPoolWasInUse  = gpu->fIndexPoolInUse;
-
-            gpu->fVertexPoolInUse = fVertexPoolWasInUse ||
-                                   (kBuffer_GeometrySrcType !=
-                                    gpu->fGeometrySrc.fVertexSrc);
-            gpu->fIndexPoolInUse  = fIndexPoolWasInUse ||
-                                   (kBuffer_GeometrySrcType !=
-                                    gpu->fGeometrySrc.fIndexSrc);;
-
-            fSavedPoolVertexBuffer = gpu->fCurrPoolVertexBuffer;
-            fSavedPoolStartVertex  = gpu->fCurrPoolStartVertex;
-            fSavedPoolIndexBuffer  = gpu->fCurrPoolIndexBuffer;
-            fSavedPoolStartIndex   = gpu->fCurrPoolStartIndex;
-
-            fSavedReservedGeometry = gpu->fReservedGeometry;
-            gpu->fReservedGeometry.fLocked = false;
-        }
-        ~AutoInternalDrawGeomRestore() {
-            fGpu->fCurrPoolVertexBuffer = fSavedPoolVertexBuffer;
-            fGpu->fCurrPoolStartVertex  = fSavedPoolStartVertex;
-            fGpu->fCurrPoolIndexBuffer  = fSavedPoolIndexBuffer;
-            fGpu->fCurrPoolStartIndex   = fSavedPoolStartIndex;
-            fGpu->fVertexPoolInUse = fVertexPoolWasInUse;
-            fGpu->fIndexPoolInUse  = fIndexPoolWasInUse;
-            fGpu->fReservedGeometry = fSavedReservedGeometry;
-        }
-    private:
-        AutoGeometrySrcRestore  fAgsr;
-        GrGpu*                  fGpu;
-        const GrVertexBuffer*   fSavedPoolVertexBuffer;
-        int                     fSavedPoolStartVertex;
-        const GrIndexBuffer*    fSavedPoolIndexBuffer;
-        int                     fSavedPoolStartIndex;
-        bool                    fVertexPoolWasInUse;
-        bool                    fIndexPoolWasInUse;
-        ReservedGeometry        fSavedReservedGeometry;
-    };
 
     typedef GrDrawTarget INHERITED;
 };

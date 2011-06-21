@@ -18,6 +18,8 @@
 #include "GrDrawTarget.h"
 #include "GrGpuVertex.h"
 #include "GrTexture.h"
+#include "GrVertexBuffer.h"
+#include "GrIndexBuffer.h"
 
 namespace {
 
@@ -282,17 +284,33 @@ void GrDrawTarget::VertexLayoutUnitTest() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrDrawTarget::GrDrawTarget() {
+#define DEBUG_INVAL_BUFFER 0xdeadcafe
+#define DEBUG_INVAL_START_IDX -1
+
+GrDrawTarget::GrDrawTarget() 
+: fGeoSrcStateStack(&fGeoSrcStateStackStorage) {
 #if GR_DEBUG
     VertexLayoutUnitTest();
 #endif
-    fReservedGeometry.fLocked = false;
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.push_back();
 #if GR_DEBUG
-    fReservedGeometry.fVertexCount  = ~0;
-    fReservedGeometry.fIndexCount   = ~0;
+    geoSrc.fVertexCount = DEBUG_INVAL_START_IDX;
+    geoSrc.fVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
+    geoSrc.fIndexCount = DEBUG_INVAL_START_IDX;
+    geoSrc.fIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
 #endif
-    fGeometrySrc.fVertexSrc = kReserved_GeometrySrcType;
-    fGeometrySrc.fIndexSrc  = kReserved_GeometrySrcType;
+    geoSrc.fVertexSrc = kNone_GeometrySrcType;
+    geoSrc.fIndexSrc  = kNone_GeometrySrcType;
+}
+
+GrDrawTarget::~GrDrawTarget() {
+    int popCnt = fGeoSrcStateStack.count() - 1;
+    while (popCnt) {
+        this->popGeometrySource();
+        --popCnt;
+    }
+    this->releasePreviousVertexSource();
+    this->releasePreviousIndexSource();
 }
 
 void GrDrawTarget::setClip(const GrClip& clip) {
@@ -429,39 +447,54 @@ void GrDrawTarget::copyDrawState(const GrDrawTarget& srcTarget) {
     fCurrDrawState = srcTarget.fCurrDrawState;
 }
 
+bool GrDrawTarget::reserveVertexSpace(GrVertexLayout vertexLayout,
+                                      int vertexCount,
+                                      void** vertices) {
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    bool acquired = false;
+    if (vertexCount > 0) {
+        GrAssert(NULL != vertices);
+        this->releasePreviousVertexSource();
+        geoSrc.fVertexSrc = kNone_GeometrySrcType;
 
-bool GrDrawTarget::reserveAndLockGeometry(GrVertexLayout    vertexLayout,
-                                          uint32_t          vertexCount,
-                                          uint32_t          indexCount,
-                                          void**            vertices,
-                                          void**            indices) {
-    GrAssert(!fReservedGeometry.fLocked);
-    fReservedGeometry.fVertexCount  = vertexCount;
-    fReservedGeometry.fIndexCount   = indexCount;
-
-    fReservedGeometry.fLocked = this->onAcquireGeometry(vertexLayout,
-                                                        vertices,
-                                                        indices);
-    if (fReservedGeometry.fLocked) {
-        if (vertexCount) {
-            fGeometrySrc.fVertexSrc = kReserved_GeometrySrcType;
-            fGeometrySrc.fVertexLayout = vertexLayout;
-        } else if (NULL != vertices) {
-            *vertices = NULL;
-        }
-        if (indexCount) {
-            fGeometrySrc.fIndexSrc = kReserved_GeometrySrcType;
-        } else if (NULL != indices) {
-            *indices = NULL;
-        }
+        acquired = this->onReserveVertexSpace(vertexLayout,
+                                              vertexCount,
+                                              vertices);
     }
-    return fReservedGeometry.fLocked;
+    if (acquired) {
+        geoSrc.fVertexSrc = kReserved_GeometrySrcType;
+        geoSrc.fVertexCount = vertexCount;
+        geoSrc.fVertexLayout = vertexLayout;
+    } else if (NULL != vertices) {
+        *vertices = NULL;
+    }
+    return acquired;
+}
+
+bool GrDrawTarget::reserveIndexSpace(int indexCount,
+                                     void** indices) {
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    bool acquired = false;
+    if (indexCount > 0) {
+        GrAssert(NULL != indices);
+        this->releasePreviousIndexSource();
+        geoSrc.fIndexSrc = kNone_GeometrySrcType;
+        
+        acquired = this->onReserveIndexSpace(indexCount, indices);
+    }
+    if (acquired) {
+        geoSrc.fIndexSrc = kReserved_GeometrySrcType;
+        geoSrc.fIndexCount = indexCount;
+    } else if (NULL != indices) {
+        *indices = NULL;
+    }
+    return acquired;
+    
 }
 
 bool GrDrawTarget::geometryHints(GrVertexLayout vertexLayout,
                                  int32_t* vertexCount,
                                  int32_t* indexCount) const {
-    GrAssert(!fReservedGeometry.fLocked);
     if (NULL != vertexCount) {
         *vertexCount = -1;
     }
@@ -471,39 +504,199 @@ bool GrDrawTarget::geometryHints(GrVertexLayout vertexLayout,
     return false;
 }
 
-void GrDrawTarget::releaseReservedGeometry() {
-    GrAssert(fReservedGeometry.fLocked);
-    this->onReleaseGeometry();
-    fReservedGeometry.fLocked = false;
+void GrDrawTarget::releasePreviousVertexSource() {
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    switch (geoSrc.fVertexSrc) {
+        case kNone_GeometrySrcType:
+            break;
+        case kArray_GeometrySrcType:
+            this->releaseVertexArray();
+            break;
+        case kReserved_GeometrySrcType:
+            this->releaseReservedVertexSpace();
+            break;
+        case kBuffer_GeometrySrcType:
+            geoSrc.fVertexBuffer->unref();
+#if GR_DEBUG
+            geoSrc.fVertexBuffer = (GrVertexBuffer*)DEBUG_INVAL_BUFFER;
+#endif
+            break;
+        default:
+            GrCrash("Unknown Vertex Source Type.");
+            break;
+    }
+}
+
+void GrDrawTarget::releasePreviousIndexSource() {
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    switch (geoSrc.fIndexSrc) {
+        case kNone_GeometrySrcType:   // these two don't require
+            break;
+        case kArray_GeometrySrcType:
+            this->releaseIndexArray();
+            break;
+        case kReserved_GeometrySrcType:
+            this->releaseReservedIndexSpace();
+            break;
+        case kBuffer_GeometrySrcType:
+            geoSrc.fIndexBuffer->unref();
+#if GR_DEBUG
+            geoSrc.fIndexBuffer = (GrIndexBuffer*)DEBUG_INVAL_BUFFER;
+#endif
+            break;
+        default:
+            GrCrash("Unknown Index Source Type.");
+            break;
+    }
 }
 
 void GrDrawTarget::setVertexSourceToArray(GrVertexLayout vertexLayout,
                                           const void* vertexArray,
                                           int vertexCount) {
-    fGeometrySrc.fVertexSrc = kArray_GeometrySrcType;
-    fGeometrySrc.fVertexLayout = vertexLayout;
+    this->releasePreviousVertexSource();
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    geoSrc.fVertexSrc = kArray_GeometrySrcType;
+    geoSrc.fVertexLayout = vertexLayout;
+    geoSrc.fVertexCount = vertexCount;
     this->onSetVertexSourceToArray(vertexArray, vertexCount);
 }
 
 void GrDrawTarget::setIndexSourceToArray(const void* indexArray,
                                          int indexCount) {
-    fGeometrySrc.fIndexSrc = kArray_GeometrySrcType;
+    this->releasePreviousIndexSource();
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    geoSrc.fIndexSrc = kArray_GeometrySrcType;
+    geoSrc.fIndexCount = indexCount;
     this->onSetIndexSourceToArray(indexArray, indexCount);
 }
 
 void GrDrawTarget::setVertexSourceToBuffer(GrVertexLayout vertexLayout,
                                            const GrVertexBuffer* buffer) {
-    fGeometrySrc.fVertexSrc    = kBuffer_GeometrySrcType;
-    fGeometrySrc.fVertexBuffer = buffer;
-    fGeometrySrc.fVertexLayout = vertexLayout;
+    this->releasePreviousVertexSource();
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    geoSrc.fVertexSrc    = kBuffer_GeometrySrcType;
+    geoSrc.fVertexBuffer = buffer;
+    buffer->ref();
+    geoSrc.fVertexLayout = vertexLayout;
 }
 
 void GrDrawTarget::setIndexSourceToBuffer(const GrIndexBuffer* buffer) {
-    fGeometrySrc.fIndexSrc     = kBuffer_GeometrySrcType;
-    fGeometrySrc.fIndexBuffer  = buffer;
+    this->releasePreviousIndexSource();
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    geoSrc.fIndexSrc     = kBuffer_GeometrySrcType;
+    geoSrc.fIndexBuffer  = buffer;
+    buffer->ref();
 }
 
-///////////////////////////////////////////////////////////////////////////////
+void GrDrawTarget::resetVertexSource() {
+    this->releasePreviousVertexSource();
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    geoSrc.fVertexSrc = kNone_GeometrySrcType;
+}
+
+void GrDrawTarget::resetIndexSource() {
+    this->releasePreviousIndexSource();
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    geoSrc.fIndexSrc = kNone_GeometrySrcType;
+}
+
+void GrDrawTarget::pushGeometrySource() {
+    this->geometrySourceWillPush();
+    GeometrySrcState& newState = fGeoSrcStateStack.push_back();
+    newState.fIndexSrc = kNone_GeometrySrcType;
+    newState.fVertexSrc = kNone_GeometrySrcType;
+#if GR_DEBUG
+    newState.fVertexCount  = ~0;
+    newState.fVertexBuffer = (GrVertexBuffer*)~0;
+    newState.fIndexCount   = ~0;
+    newState.fIndexBuffer = (GrIndexBuffer*)~0;
+#endif
+}
+
+void GrDrawTarget::popGeometrySource() {
+    const GeometrySrcState& geoSrc = this->getGeomSrc();
+    // if popping last element then pops are unbalanced with pushes
+    GrAssert(fGeoSrcStateStack.count() > 1);
+    
+    this->geometrySourceWillPop(fGeoSrcStateStack.fromBack(1));
+    this->releasePreviousVertexSource();
+    this->releasePreviousIndexSource();
+    fGeoSrcStateStack.pop_back();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
+                               int startIndex, int vertexCount,
+                               int indexCount) {
+#if GR_DEBUG
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    int maxVertex = startVertex + vertexCount;
+    int maxValidVertex;
+    switch (geoSrc.fVertexSrc) {
+        case kNone_GeometrySrcType:
+            GrCrash("Attempting to draw indexed geom without vertex src.");
+        case kReserved_GeometrySrcType: // fallthrough
+        case kArray_GeometrySrcType:
+            maxValidVertex = geoSrc.fVertexCount;
+            break;
+        case kBuffer_GeometrySrcType:
+            maxValidVertex = geoSrc.fVertexBuffer->size() / 
+                             VertexSize(geoSrc.fVertexLayout);
+            break;
+    }
+    if (maxVertex > maxValidVertex) {
+        GrCrash("Indexed drawing outside valid vertex range.");
+    }
+    int maxIndex = startIndex + indexCount;
+    int maxValidIndex;
+    switch (geoSrc.fIndexSrc) {
+        case kNone_GeometrySrcType:
+            GrCrash("Attempting to draw indexed geom without index src.");
+        case kReserved_GeometrySrcType: // fallthrough
+        case kArray_GeometrySrcType:
+            maxValidIndex = geoSrc.fIndexCount;
+            break;
+        case kBuffer_GeometrySrcType:
+            maxValidIndex = geoSrc.fIndexBuffer->size() / sizeof(uint16_t);
+            break;
+    }
+    if (maxIndex > maxValidIndex) {
+        GrCrash("Indexed drawing outside valid index range.");
+    }
+#endif
+    this->onDrawIndexed(type, startVertex, startIndex,
+                        vertexCount, indexCount);
+}
+
+
+void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
+                                  int startVertex,
+                                  int vertexCount) {
+#if GR_DEBUG
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    int maxVertex = startVertex + vertexCount;
+    int maxValidVertex;
+    switch (geoSrc.fVertexSrc) {
+        case kNone_GeometrySrcType:
+            GrCrash("Attempting to draw non-indexed geom without vertex src.");
+        case kReserved_GeometrySrcType: // fallthrough
+        case kArray_GeometrySrcType:
+            maxValidVertex = geoSrc.fVertexCount;
+            break;
+        case kBuffer_GeometrySrcType:
+            maxValidVertex = geoSrc.fVertexBuffer->size() / 
+            VertexSize(geoSrc.fVertexLayout);
+            break;
+    }
+    if (maxVertex > maxValidVertex) {
+        GrCrash("Non-indexed drawing outside valid vertex range.");
+    }
+#endif
+    this->onDrawNonIndexed(type, startVertex, vertexCount);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawTarget::canDisableBlend() const {
     // If we compute a coverage value (using edge AA or a coverage stage) then
@@ -523,7 +716,7 @@ bool GrDrawTarget::canDisableBlend() const {
     }
 
     // If we have vertex color without alpha then we can't force blend off
-    if ((fGeometrySrc.fVertexLayout & kColor_VertexLayoutBit) ||
+    if ((this->getGeomSrc().fVertexLayout & kColor_VertexLayoutBit) ||
          0xff != GrColorUnpackA(fCurrDrawState.fColor)) {
         return false;
     }
@@ -572,7 +765,8 @@ void GrDrawTarget::setEdgeAAData(const Edge* edges, int numEdges) {
 }
 
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
 void GrDrawTarget::drawRect(const GrRect& rect, 
                             const GrMatrix* matrix,
                             StageBitfield stageEnableBitfield,
@@ -648,7 +842,7 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 GrDrawTarget::AutoStateRestore::AutoStateRestore() {
     fDrawTarget = NULL;
@@ -679,7 +873,7 @@ void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target) {
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawTarget* target, 
                                                        int stageMask) {
@@ -711,6 +905,65 @@ GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
         if (fStageMask & (1 << s)) {
             fDrawTarget->setSamplerMatrix(s, fSamplerMatrices[s]);
         }
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry(
+                                         GrDrawTarget*  target,
+                                         GrVertexLayout vertexLayout,
+                                         int vertexCount,
+                                         int indexCount) {
+    fTarget = NULL;
+    this->set(target, vertexLayout, vertexCount, indexCount);
+}
+    
+GrDrawTarget::AutoReleaseGeometry::AutoReleaseGeometry() {
+    fTarget = NULL;
+}
+
+GrDrawTarget::AutoReleaseGeometry::~AutoReleaseGeometry() {
+    this->reset();
+}
+
+bool GrDrawTarget::AutoReleaseGeometry::set(GrDrawTarget*  target,
+                                            GrVertexLayout vertexLayout,
+                                            int vertexCount,
+                                            int indexCount) {
+    this->reset();
+    fTarget = target;
+    bool success = true;
+    if (NULL != fTarget) {
+        fTarget = target;
+        if (vertexCount > 0) {
+            success = target->reserveVertexSpace(vertexLayout, 
+                                                 vertexCount,
+                                                 &fVertices);
+            if (!success) {
+                this->reset();
+            }
+        }
+        if (success && indexCount > 0) {
+            success = target->reserveIndexSpace(indexCount, &fIndices);
+            if (!success) {
+                this->reset();
+            }
+        }
+    }
+    GrAssert(success == (NULL != fTarget));
+    return success;
+}
+
+void GrDrawTarget::AutoReleaseGeometry::reset() {
+    if (NULL != fTarget) {
+        if (NULL != fVertices) {
+            fTarget->resetVertexSource();
+        }
+        if (NULL != fIndices) {
+            fTarget->resetIndexSource();
+        }
+        fTarget = NULL;
     }
 }
 
