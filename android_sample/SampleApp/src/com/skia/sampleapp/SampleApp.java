@@ -63,6 +63,16 @@ public class SampleApp extends Activity
     }
 
     @Override
+    protected void onResume () {
+        super.onResume();
+        int width = mView.getWidth();
+        int height = mView.getHeight();
+        if (width > 0 && height > 0) {
+            mView.postInval();
+        }
+    }
+
+    @Override
     public void onDestroy() {
         mView.queueEvent(new Runnable() {
             @Override
@@ -260,6 +270,7 @@ public class SampleApp extends Activity
     native void processSkEvent();
     native void serviceQueueTimer();
     native void saveToPdf();
+    native void postInval();
 
     static {
         System.loadLibrary("skia-sample");

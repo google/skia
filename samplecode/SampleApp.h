@@ -61,6 +61,7 @@ public:
     bool handleTouch(int ownerId, float x, float y,
             SkView::Click::State state);
     void saveToPdf();
+    void postInvalDelay();
 
 protected:
     virtual void onDraw(SkCanvas* canvas);

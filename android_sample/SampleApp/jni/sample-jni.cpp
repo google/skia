@@ -173,6 +173,8 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_serviceQueueTimer(
         JNIEnv* env, jobject thiz);
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_saveToPdf(
         JNIEnv* env, jobject thiz);
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_postInval(
+        JNIEnv* env, jobject thiz);
 };
 
 JNIEXPORT bool JNICALL Java_com_skia_sampleapp_SampleApp_handleKeyDown(
@@ -251,6 +253,8 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_init(JNIEnv* env,
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_term(JNIEnv* env,
         jobject thiz)
 {
+    delete gWindow;
+    gWindow = NULL;
     application_term();
     if (gWindowGlue.m_obj) {
         env->DeleteWeakGlobalRef(gWindowGlue.m_obj);
@@ -260,8 +264,6 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_term(JNIEnv* env,
         env->DeleteWeakGlobalRef(gActivityGlue.m_obj);
         gActivityGlue.m_obj = NULL;
     }
-    delete gWindow;
-    gWindow = NULL;
 }
 
 
@@ -372,4 +374,10 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_saveToPdf(
         JNIEnv* env, jobject thiz)
 {
     gWindow->saveToPdf();
+}
+
+JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_postInval(
+        JNIEnv* env, jobject thiz)
+{
+    gWindow->postInvalDelay();    
 }

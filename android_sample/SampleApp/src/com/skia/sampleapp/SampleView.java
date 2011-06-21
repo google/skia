@@ -42,6 +42,15 @@ public class SampleView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
+    public void postInval() {
+        queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                mApp.postInval();
+            }
+        });
+    }
+
     // Called by JNI
     @SuppressWarnings("unused")
     private void queueSkEvent() {

@@ -25,6 +25,7 @@ int main(){
 
     gWindow->loop();
 
+    delete gWindow;
     application_term();
     return 0;
 }

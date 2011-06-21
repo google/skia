@@ -53,9 +53,9 @@ extern SkView* create_overview(int, const SkViewFactory[]);
 ///////////////
 static const char view_inval_msg[] = "view-inval-msg";
 
-static void postInvalDelay(SkEventSinkID sinkID) {
+void SampleWindow::postInvalDelay() {
     SkEvent* evt = new SkEvent(view_inval_msg);
-    evt->post(sinkID, 1);
+    evt->post(this->getSinkID(), 1);
 }
 
 static bool isInvalEvent(const SkEvent& evt) {
@@ -844,7 +844,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     if (fMeasureFPS && fMeasureFPS_Time) {
         fMeasureFPS_Time = SkTime::GetMSecs() - fMeasureFPS_Time;
         this->updateTitle();
-        postInvalDelay(this->getSinkID());
+        this->postInvalDelay();
     }
 
     //    if ((fScrollTestX | fScrollTestY) != 0)
@@ -928,7 +928,7 @@ void SampleWindow::changeZoomLevel(float delta) {
 }
 
 bool SampleWindow::previousSample() {
-    fCurrIndex = (fCurrIndex - 1) % fSamples.count();
+    fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
     this->loadView(fSamples[fCurrIndex]());
     return true;
 }
@@ -1428,7 +1428,7 @@ void SampleWindow::onSizeChange() {
 #ifdef ANDROID
     // FIXME: The first draw after a size change does not work on Android, so
     // we post an invalidate.
-    postInvalDelay(this->getSinkID());
+    this->postInvalDelay();
 #endif
     this->updateTitle();    // to refresh our config
 }
