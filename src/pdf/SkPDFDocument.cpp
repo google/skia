@@ -36,7 +36,9 @@ void addResourcesToCatalog(int firstIndex, bool firstPage,
     }
 }
 
-SkPDFDocument::SkPDFDocument() : fXRefFileOffset(0) {
+SkPDFDocument::SkPDFDocument()
+        : fXRefFileOffset(0),
+          fSecondPageFirstResourceIndex(0) {
     fDocCatalog = new SkPDFDict("Catalog");
     fDocCatalog->unref();  // SkRefPtr and new both took a reference.
     fCatalog.addObject(fDocCatalog.get(), true);

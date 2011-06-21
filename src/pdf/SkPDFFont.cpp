@@ -47,7 +47,8 @@ bool parsePFBSection(const uint8_t** src, size_t* len, int sectionType,
     if (*len < 6)
         return false;
 
-    *size = buf[2] | (buf[3] << 8) | (buf[4] << 16) | (buf[5] << 24);
+    *size = (size_t)buf[2] | ((size_t)buf[3] << 8) | ((size_t)buf[4] << 16) |
+            ((size_t)buf[5] << 24);
     size_t consumed = *size + 6;
     if (consumed > *len)
         return false;

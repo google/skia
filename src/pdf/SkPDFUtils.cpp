@@ -133,8 +133,6 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkWStream* content) {
             case SkPath::kClose_Verb:
                 ClosePath(content);
                 break;
-            case SkPath::kDone_Verb:
-                break;
             default:
                 SkASSERT(false);
                 break;
