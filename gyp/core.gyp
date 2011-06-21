@@ -293,6 +293,7 @@
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
+              '$(SDKROOT)/System/Library/Frameworks/ApplicationServices.framework',
             ],
           },
         }],

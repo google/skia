@@ -4,9 +4,7 @@
 #include "SkTypes.h"
 
 #ifdef SK_BUILD_FOR_MAC
-    #include <Carbon/Carbon.h>
-#else
-    #include <CoreGraphics/CoreGraphics.h>
+#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 class SkBitmap;

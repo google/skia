@@ -23,7 +23,12 @@
 #endif
 
 #ifdef SK_BUILD_FOR_MAC
-#include <Carbon/Carbon.h>
+#import <ApplicationServices/ApplicationServices.h>
+#endif
+
+#ifdef SK_BUILD_FOR_IOS
+#include <CoreText/CoreText.h>
+#include <CoreGraphics/CoreGraphics.h>
 #endif
 
 namespace skia_advanced_typeface_metrics_utils {
@@ -146,7 +151,7 @@ template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         FT_Face face,
         int num_glyphs,
         bool (*getAdvance)(FT_Face face, int gId, int16_t* data));
-#elif defined(SK_BUILD_FOR_MAC)
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         CTFontRef ctFont,
         int num_glyphs,
