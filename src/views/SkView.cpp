@@ -296,10 +296,11 @@ void SkView::onFocusChange(bool gainFocusP)
 
 SkView::Click::Click(SkView* target)
 {
-	SkASSERT(target);
-	fTargetID = target->getSinkID();
-	fType = NULL;
-	fWeOwnTheType = false;
+    SkASSERT(target);
+    fTargetID = target->getSinkID();
+    fType = NULL;
+    fWeOwnTheType = false;
+    fOwner = NULL;
 }
 
 SkView::Click::~Click()

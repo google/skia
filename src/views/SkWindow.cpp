@@ -41,13 +41,13 @@ private:
 
 SkWindow::SkWindow() : fFocusView(NULL)
 {
-	fClick = NULL;
-	fWaitingOnInval = false;
+    fClicks.reset();
+    fWaitingOnInval = false;
 
 #ifdef SK_BUILD_FOR_WINCE
-	fConfig = SkBitmap::kRGB_565_Config;
+    fConfig = SkBitmap::kRGB_565_Config;
 #else
-	fConfig = SkBitmap::kARGB_8888_Config;
+    fConfig = SkBitmap::kARGB_8888_Config;
 #endif
 
     fMatrix.reset();
@@ -55,9 +55,8 @@ SkWindow::SkWindow() : fFocusView(NULL)
 
 SkWindow::~SkWindow()
 {
-	delete fClick;
-
-	fMenus.deleteAll();
+    fClicks.deleteAll();
+    fMenus.deleteAll();
 }
 
 void SkWindow::setMatrix(const SkMatrix& matrix) {
@@ -369,40 +368,57 @@ bool SkWindow::onHandleKeyUp(SkKey key)
     return false;
 }
 
-bool SkWindow::handleClick(int x, int y, Click::State state) {
-    return this->onDispatchClick(x, y, state);
+bool SkWindow::handleClick(int x, int y, Click::State state, void *owner) {
+    return this->onDispatchClick(x, y, state, owner);
 }
 
-bool SkWindow::onDispatchClick(int x, int y, Click::State state) {
+bool SkWindow::onDispatchClick(int x, int y, Click::State state,
+        void* owner) {
 	bool handled = false;
 
+    // First, attempt to find an existing click with this owner.
+    int index = -1;
+    for (int i = 0; i < fClicks.count(); i++) {
+        if (owner == fClicks[i]->fOwner) {
+            index = i;
+            break;
+        }
+    }
+
 	switch (state) {
-	case Click::kDown_State:
-		if (fClick)
-			delete fClick;
-		fClick = this->findClickHandler(SkIntToScalar(x), SkIntToScalar(y));
-		if (fClick)
-		{
-			SkView::DoClickDown(fClick, x, y);
-			handled = true;
-		}
-		break;
-	case Click::kMoved_State:
-		if (fClick)
-		{
-			SkView::DoClickMoved(fClick, x, y);
-			handled = true;
-		}
-		break;
-	case Click::kUp_State:
-		if (fClick)
-		{
-			SkView::DoClickUp(fClick, x, y);
-			delete fClick;
-			fClick = NULL;
-			handled = true;
-		}
-		break;
+        case Click::kDown_State: {
+            if (index != -1) {
+                delete fClicks[index];
+                fClicks.remove(index);
+            }
+            Click* click = this->findClickHandler(SkIntToScalar(x),
+                    SkIntToScalar(y));
+
+            if (click) {
+                click->fOwner = owner;
+                *fClicks.append() = click;
+                SkView::DoClickDown(click, x, y);
+                handled = true;
+            }
+            break;
+        }
+        case Click::kMoved_State:
+            if (index != -1) {
+                SkView::DoClickMoved(fClicks[index], x, y);
+                handled = true;
+            }
+            break;
+        case Click::kUp_State:
+            if (index != -1) {
+                SkView::DoClickUp(fClicks[index], x, y);
+                delete fClicks[index];
+                fClicks.remove(index);
+                handled = true;
+            }
+            break;
+        default:
+            // Do nothing
+            break;
 	}
 	return handled;
 }

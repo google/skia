@@ -1206,7 +1206,8 @@ bool SampleWindow::onHandleKey(SkKey key) {
 
 static const char gGestureClickType[] = "GestureClickType";
 
-bool SampleWindow::onDispatchClick(int x, int y, Click::State state) {
+bool SampleWindow::onDispatchClick(int x, int y, Click::State state,
+        void* owner) {
     if (Click::kMoved_State == state) {
         updatePointer(x, y);
     }
@@ -1217,7 +1218,7 @@ bool SampleWindow::onDispatchClick(int x, int y, Click::State state) {
     if (w - x < 16 && h - y < 16) {
         return false;   // let the OS handle the click
     } else {
-        return this->INHERITED::onDispatchClick(x, y, state);
+        return this->INHERITED::onDispatchClick(x, y, state, owner);
     }
 }
 
@@ -1236,51 +1237,20 @@ SkView::Click* SampleWindow::onFindClickHandler(SkScalar x, SkScalar y) {
     return new GestureClick(this);
 }
 
-union IntPtr {
-    int     fInt;
-    void*   fPtr;
-};
-
-static void* int2ptr(int n) {
-    IntPtr data;
-    data.fInt = n;
-    return data.fPtr;
-}
-
-bool SampleWindow::handleTouch(int ownerId, float x, float y, SkView::Click::State state) {
-    void* click = int2ptr(ownerId);
-    switch(state) {
-        case SkView::Click::kDown_State:
-            fGesture.touchBegin(click, x, y);
-            break;
-        case SkView::Click::kMoved_State:
-            fGesture.touchMoved(click, x, y);
-            this->inval(NULL);
-            break;
-        case SkView::Click::kUp_State:
-            fGesture.touchEnd(click);
-            this->inval(NULL);
-            break;
-        default:
-            return false;
-    }
-    return true;
-}
-
 bool SampleWindow::onClick(Click* click) {
     if (GestureClick::IsGesture(click)) {
         float x = SkScalarToFloat(click->fCurr.fX);
         float y = SkScalarToFloat(click->fCurr.fY);
         switch (click->fState) {
             case SkView::Click::kDown_State:
-                fGesture.touchBegin(click, x, y);
+                fGesture.touchBegin(click->fOwner, x, y);
                 break;
             case SkView::Click::kMoved_State:
-                fGesture.touchMoved(click, x, y);
+                fGesture.touchMoved(click->fOwner, x, y);
                 this->inval(NULL);
                 break;
             case SkView::Click::kUp_State:
-                fGesture.touchEnd(click);
+                fGesture.touchEnd(click->fOwner);
                 this->inval(NULL);
                 break;
         }

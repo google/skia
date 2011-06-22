@@ -77,7 +77,7 @@ protected:
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
 
-    virtual bool onDispatchClick(int x, int y, Click::State);
+    virtual bool onDispatchClick(int x, int y, Click::State, void* owner);
     virtual bool onClick(Click* click);
     virtual Click* onFindClickHandler(SkScalar x, SkScalar y);
 

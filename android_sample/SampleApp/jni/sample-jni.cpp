@@ -210,7 +210,7 @@ JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_handleClick(JNIEnv* env
             SkDebugf("motion event ignored\n");
             return;
     }
-    gWindow->handleTouch(owner, x, y, state);
+    gWindow->handleClick(x, y, state, (void*) owner);
 }
 
 JNIEXPORT void JNICALL Java_com_skia_sampleapp_SampleApp_updateSize(JNIEnv* env,
