@@ -24,7 +24,10 @@ struct SkBitmapCache::Entry {
     size_t      fSize;
     SkBitmap    fBitmap;
 
-    Entry(const void* buffer, size_t size, const SkBitmap& bm) : fBitmap(bm) {
+    Entry(const void* buffer, size_t size, const SkBitmap& bm)
+            : fPrev(NULL),
+              fNext(NULL),
+              fBitmap(bm) {
         fBuffer = sk_malloc_throw(size);
         fSize = size;
         memcpy(fBuffer, buffer, size);

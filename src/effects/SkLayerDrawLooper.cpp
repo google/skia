@@ -12,9 +12,10 @@ SkLayerDrawLooper::LayerInfo::LayerInfo() {
     fPostTranslate = false;
 }
 
-SkLayerDrawLooper::SkLayerDrawLooper() {
-    fRecs = NULL;
-    fCount = 0;
+SkLayerDrawLooper::SkLayerDrawLooper()
+        : fRecs(NULL),
+          fCount(0),
+          fCurrRec(NULL) {
 }
 
 SkLayerDrawLooper::~SkLayerDrawLooper() {
@@ -200,10 +201,10 @@ void SkLayerDrawLooper::flatten(SkFlattenableWriteBuffer& buffer) {
 }
 
 SkLayerDrawLooper::SkLayerDrawLooper(SkFlattenableReadBuffer& buffer)
-        : INHERITED(buffer) {
-    fRecs = NULL;
-    fCount = 0;
-    
+        : INHERITED(buffer),
+          fRecs(NULL),
+          fCount(0),
+          fCurrRec(NULL) {
     int count = buffer.readInt();
 
     for (int i = 0; i < count; i++) {
