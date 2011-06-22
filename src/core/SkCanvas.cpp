@@ -399,7 +399,9 @@ private:
 
 SkDevice* SkCanvas::init(SkDevice* device) {
     fBounder = NULL;
+    fLocalBoundsCompareType.setEmpty();
     fLocalBoundsCompareTypeDirty = true;
+    fLocalBoundsCompareTypeBW.setEmpty();
     fLocalBoundsCompareTypeDirtyBW = true;
     fLastDeviceToGainFocus = NULL;
     fDeviceCMDirty = false;
@@ -411,6 +413,8 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     fMCRec->fTopLayer = fMCRec->fLayer;
     fMCRec->fNext = NULL;
 
+    fExternalMatrix.reset();
+    fExternalInverse.reset();
     fUseExternalMatrix = false;
 
     return this->setDevice(device);
