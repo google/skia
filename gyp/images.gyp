@@ -1,4 +1,4 @@
-{
+﻿{
   'includes': [
     'target_defaults.gypi',
   ],
@@ -47,6 +47,9 @@
         '../src/images/SkPageFlipper.cpp',
         '../src/images/SkScaledBitmapSampler.cpp',
         '../src/images/SkScaledBitmapSampler.h',
+
+        '../src/ports/SkImageDecoder_CG.cpp',
+        '../src/ports/SkImageDecoder_WIC.cpp',
       ],
       'conditions': [
         [ 'OS == "win"', {
@@ -54,32 +57,39 @@
             '../include/images/SkJpegUtility.h',
 
             '../src/images/SkFDStream.cpp',
+            '../src/images/SkImageDecoder_Factory.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libpvjpeg.c',
+            '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
+          ],
+        },{ #else if OS != win
+          'sources!': [
+            '../src/ports/SkImageDecoder_WIC.cpp',
           ],
         }],
         [ 'OS == "mac"', {
           'include_dirs': [
             '../include/utils/mac',
           ],
-          'sources': [
-            '../src/ports/SkImageDecoder_CG.cpp'
-          ],
           'sources!': [
             '../include/images/SkJpegUtility.h',
 
-            '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkImageDecoder_Factory.cpp',
             '../src/images/SkImageDecoder_libpng.cpp',
             '../src/images/SkImageDecoder_libgif.cpp',
             '../src/images/SkImageDecoder_libjpeg.cpp',
             '../src/images/SkImageDecoder_libpvjpeg.c',
+            '../src/images/SkImageEncoder_Factory.cpp',
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
+          ],
+        },{ #else if OS != mac
+          'sources!': [
+            '../src/ports/SkImageDecoder_CG.cpp',
           ],
         }],
         [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
