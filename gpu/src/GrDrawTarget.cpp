@@ -867,7 +867,7 @@ void GrDrawTarget::AutoStateRestore::set(GrDrawTarget* target) {
             fDrawTarget->restoreDrawState(fDrawState);
         }
         if (NULL != target) {
-            fDrawTarget->saveCurrentDrawState(&fDrawState);
+            target->saveCurrentDrawState(&fDrawState);
         }
         fDrawTarget = target;
     }
