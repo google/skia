@@ -497,6 +497,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     if (NULL == fMaskFilter &&
         fRec.fMaskFormat != SkMask::kBW_Format &&
         fRec.fMaskFormat != SkMask::kLCD16_Format &&
+        fRec.fMaskFormat != SkMask::kLCD32_Format &&
         (fRec.fFlags & (kGammaForBlack_Flag | kGammaForWhite_Flag)) != 0)
     {
         const uint8_t* table = (fRec.fFlags & kGammaForBlack_Flag) ? gBlackGammaTable : gWhiteGammaTable;

@@ -92,6 +92,8 @@ GrMaskFormat SkGrFontScaler::getMaskFormat() {
             return kA8_GrMaskFormat;
         case SkMask::kLCD16_Format:
             return kA565_GrMaskFormat;
+        case SkMask::kLCD32_Format:
+            return kA888_GrMaskFormat;
         default:
             GrAssert(!"unsupported SkMask::Format");
             return kA8_GrMaskFormat;
