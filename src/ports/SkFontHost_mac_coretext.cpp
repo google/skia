@@ -447,6 +447,16 @@ static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
     return SkPackRGB16(r32_to_16(r), g32_to_16(g), b32_to_16(b));
 }
 
+static inline uint32_t rgb_to_lcd32(uint32_t rgb) {
+    // invert, since we draw black-on-white, but we want the original
+    // src mask values.
+    rgb = ~rgb;
+    int r = (rgb >> 16) & 0xFF;
+    int g = (rgb >>  8) & 0xFF;
+    int b = (rgb >>  0) & 0xFF;
+    return SkPackARGB32(0xFF, r, g, b);
+}
+
 #define BITMAP_INFO_RGB     (kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host)
 #define BITMAP_INFO_GRAY    (kCGImageAlphaNone)
 
@@ -475,7 +485,9 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
      *  extract the r,g,b values, invert-them, and now we have the original
      *  src mask components, which we pack into our 16bit mask.
      */
-    if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
+    if (SkMask::kLCD16_Format == glyph.fMaskFormat ||
+        SkMask::kLCD32_Format == glyph.fMaskFormat)
+    {
         colorspace = mColorSpaceRGB;
         info = BITMAP_INFO_RGB;
         // need tmp storage for 32bit RGB offscreen
@@ -522,6 +534,18 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
                 }
                 src = (const uint32_t*)((const char*)src + rowBytes);
                 dst = (uint16_t*)((char*)dst + dstRB);
+            }
+        } else if (SkMask::kLCD32_Format == glyph.fMaskFormat) {
+            int width = glyph.fWidth;
+            const uint32_t* src = (const uint32_t*)image;
+            uint32_t* dst = (uint32_t*)glyph.fImage;
+            size_t dstRB = glyph.rowBytes();
+            for (int y = 0; y < glyph.fHeight; y++) {
+                for (int i = 0; i < width; i++) {
+                    dst[i] = rgb_to_lcd32(src[i]);
+                }
+                src = (const uint32_t*)((const char*)src + rowBytes);
+                dst = (uint32_t*)((char*)dst + dstRB);
             }
         } else if (SkMask::kBW_Format == glyph.fMaskFormat) {
             // downsample from A8 to A1
@@ -698,11 +722,15 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     CFStringRef fontName = CTFontCopyPostScriptName(ctFont);
-    int length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(fontName),
-        kCFStringEncodingUTF8);
+    // Reserve enough room for the worst-case string,
+    // plus 1 byte for the trailing null.
+    int length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(
+        fontName), kCFStringEncodingUTF8) + 1;
     info->fFontName.resize(length); 
     CFStringGetCString(fontName, info->fFontName.writable_str(), length,
         kCFStringEncodingUTF8);
+    // Resize to the actual UTF-8 length used, stripping the null character.
+    info->fFontName.resize(strlen(info->fFontName.c_str())); 
     info->fMultiMaster = false;
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont);
     info->fLastGlyphID = SkToU16(glyphCount - 1);

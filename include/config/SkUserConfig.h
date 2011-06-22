@@ -117,6 +117,17 @@
  */
 //#define SK_SUPPORT_LCDTEXT
 
+/* Define this to pack glyphs using 8 bits per component instead of 5-6-5.
+   This will double the size of the font cache, but will produce fonts with
+   gray levels closer to the designer's intent.
+*/
+//#define SK_SUPPORT_888_TEXT
+
+/* If defined, use CoreText instead of ATSUI on OS X.
+*/
+//#define SK_USE_MAC_CORE_TEXT
+
+
 /*  If zlib is available and you want to support the flate compression
     algorithm (used in PDF generation), define SK_ZLIB_INCLUDE to be the
     include path.

@@ -1198,7 +1198,11 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint) {
     }
 #else
     if (flags & SkPaint::kLCDRenderText_Flag) {
+#if !defined(SK_SUPPORT_888_TEXT)    
         return SkMask::kLCD16_Format;
+#else
+        return SkMask::kLCD32_Format;
+#endif
     }
 #endif
 
@@ -1294,7 +1298,9 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
 
     rec->fMaskFormat = SkToU8(computeMaskFormat(paint));
 
-    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
+    if (SkMask::kLCD16_Format == rec->fMaskFormat ||
+        SkMask::kLCD32_Format == rec->fMaskFormat)
+    {
         SkFontHost::LCDOrder order = SkFontHost::GetSubpixelOrder();
         SkFontHost::LCDOrientation orient = SkFontHost::GetSubpixelOrientation();
         if (SkFontHost::kNONE_LCDOrder == order) {

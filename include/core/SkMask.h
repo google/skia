@@ -47,7 +47,8 @@ struct SkMask {
         kHorizontalLCD_Format,  //!< 4 bytes/pixel: a/r/g/b
         kVerticalLCD_Format,    //!< 4 bytes/pixel: a/r/g/b
         kARGB32_Format,         //!< SkPMColor
-        kLCD16_Format           //!< 565 alpha for r/g/b
+        kLCD16_Format,          //!< 565 alpha for r/g/b
+        kLCD32_Format           //!< 888 alpha for r/g/b
     };
 
     enum {
@@ -107,6 +108,19 @@ struct SkMask {
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);
         uint16_t* row = (uint16_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
+        return row + (x - fBounds.fLeft);
+    }
+
+    /**
+     *  Return the address of the specified 32bit mask. In the debug build,
+     *  this asserts that the mask's format is kLCD32_Format, and that (x,y)
+     *  are contained in the mask's fBounds.
+     */
+    uint32_t* getAddrLCD32(int x, int y) const {
+        SkASSERT(kLCD32_Format == fFormat);
+        SkASSERT(fBounds.contains(x, y));
+        SkASSERT(fImage != NULL);
+        uint32_t* row = (uint32_t*)(fImage + (y - fBounds.fTop) * fRowBytes);
         return row + (x - fBounds.fLeft);
     }
 

@@ -247,10 +247,12 @@ enum GrBlendCoeff {
  *  Important that these are 0-based.
  */
 enum GrMaskFormat {
-    kA8_GrMaskFormat,   //!< 1-byte per pixel
-    kA565_GrMaskFormat  //!< 2-bytes per pixel
+    kA8_GrMaskFormat,    //!< 1-byte per pixel
+    kA565_GrMaskFormat,  //!< 2-bytes per pixel
+    kA888_GrMaskFormat,  //!< 4-bytes per pixel
+
+    kCount_GrMaskFormats //!< used to allocate arrays sized for mask formats
 };
-#define kCount_GrMaskFormats    2
 
 /**
  *  Return the number of bytes-per-pixel for the specified mask format.
