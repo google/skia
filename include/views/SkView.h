@@ -142,6 +142,7 @@ public:
         SkPoint     fOrig, fPrev, fCurr;
         SkIPoint    fIOrig, fIPrev, fICurr;
         State       fState;
+        void*       fOwner;
     private:
         SkEventSinkID   fTargetID;
         char*           fType;
