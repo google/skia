@@ -20,6 +20,8 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
+class SkDataRef;
+
 class SK_API SkStream : public SkRefCnt {
 public:
     virtual ~SkStream();
@@ -289,8 +291,14 @@ public:
     const char* getStream() const;
 
     // same as getStream, but additionally detach the flattened datat
-    const char* detach();
-    
+    // DEPRECATED : use copyToData() instead
+    const char* detach() const;
+
+    /**
+     *  Return a copy of the data written so far
+     */
+    SkDataRef* copyToData() const;
+
     // reset the stream to its original state
     void reset();
     void padToAlign4();

@@ -16,6 +16,7 @@
 */
 
 #include "SkStream.h"
+#include "SkDataRef.h"
 #include "SkFixed.h"
 #include "SkString.h"
 #include "SkOSFile.h"
@@ -594,7 +595,7 @@ SkDynamicMemoryWStream::~SkDynamicMemoryWStream()
     reset();
 }
 
-const char* SkDynamicMemoryWStream::detach()
+const char* SkDynamicMemoryWStream::detach() const
 {
     const char* result = getStream();
     fCopyToCache = NULL;
@@ -722,6 +723,15 @@ void SkDynamicMemoryWStream::padToAlign4()
         return;
     int zero = 0;
     write(&zero, padBytes);
+}
+
+static void sk_free_release_proc(const void* ptr, size_t length, void*) {
+    sk_free((void*)ptr);
+}
+
+SkDataRef* SkDynamicMemoryWStream::copyToData() const {
+    return SkDataRef::NewWithProc(this->detach(), fBytesWritten,
+                                  sk_free_release_proc, NULL);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
