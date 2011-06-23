@@ -1004,23 +1004,56 @@ static uint16_t packTriple(unsigned r, unsigned g, unsigned b) {
     return SkPackRGB16(r >> 3, g >> 2, b >> 3);
 }
 
+static uint16_t grayToRGB16(U8CPU gray) {
+    SkASSERT(gray <= 255);
+    return SkPackRGB16(gray >> 3, gray >> 2, gray >> 3);
+}
+
+static int bittst(const uint8_t data[], int bitOffset) {
+    SkASSERT(bitOffset >= 0);
+    int lowBit = data[bitOffset >> 3] >> (1 << (~bitOffset & 7));
+    return lowBit & 1;
+}
+
 static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap) {
-    SkASSERT(glyph.fWidth * 3 == bitmap.width - 6);
     SkASSERT(glyph.fHeight == bitmap.rows);
-
-    const uint8_t* src = bitmap.buffer + 3;
     uint16_t* dst = reinterpret_cast<uint16_t*>(glyph.fImage);
-    size_t dstRB = glyph.rowBytes();
-    int width = glyph.fWidth;
+    const size_t dstRB = glyph.rowBytes();
+    const int width = glyph.fWidth;
+    const uint8_t* src = bitmap.buffer;
 
-    for (int y = 0; y < glyph.fHeight; y++) {
-        const uint8_t* triple = src;
-        for (int x = 0; x < width; x++) {
-            dst[x] = packTriple(triple[0], triple[1], triple[2]);
-            triple += 3;
-        }
-        src += bitmap.pitch;
-        dst = (uint16_t*)((char*)dst + dstRB);
+    switch (bitmap.pixel_mode) {
+        case FT_PIXEL_MODE_MONO: {
+            for (int y = 0; y < glyph.fHeight; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    dst[x] = -bittst(src, x);
+                }
+                dst = (uint16_t*)((char*)dst + dstRB);
+                src += bitmap.pitch;
+            }
+        } break;
+        case FT_PIXEL_MODE_GRAY: {
+            for (int y = 0; y < glyph.fHeight; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    dst[x] = grayToRGB16(src[x]);
+                }
+                dst = (uint16_t*)((char*)dst + dstRB);
+                src += bitmap.pitch;
+            }
+        } break;
+        default: {
+            SkASSERT(glyph.fWidth * 3 == bitmap.width - 6);
+            src += 3;
+            for (int y = 0; y < glyph.fHeight; y++) {
+                const uint8_t* triple = src;
+                for (int x = 0; x < width; x++) {
+                    dst[x] = packTriple(triple[0], triple[1], triple[2]);
+                    triple += 3;
+                }
+                src += bitmap.pitch;
+                dst = (uint16_t*)((char*)dst + dstRB);
+            }
+        } break;
     }
 }
 
@@ -1159,8 +1192,10 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                     src += fFace->glyph->bitmap.pitch;
                     dst += glyph.rowBytes();
                 }
+            } else if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
+                copyFT2LCD16(glyph, fFace->glyph->bitmap);
             } else {
-              SkASSERT(!"unknown glyph bitmap transform needed");
+                SkASSERT(!"unknown glyph bitmap transform needed");
             }
 
             if (lcdRenderMode)
