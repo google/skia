@@ -3,11 +3,12 @@
 BenchGpuTimer::BenchGpuTimer() {
 }
 
-BenchTimer::~BenchTimer() {
+BenchGpuTimer::~BenchGpuTimer() {
 }
 
-void BenchTimer::startGpu() {
+void BenchGpuTimer::startGpu() {
 }
 
-void BenchTimer::endGpu() {
+double BenchGpuTimer::endGpu() {
+    return -1.0;
 }
