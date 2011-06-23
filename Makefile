@@ -40,7 +40,7 @@ endif
 default: all
 
 .PHONY: all
-all: SampleApp bench gm tests
+all: SampleApp bench gm tests tools
 
 .PHONY: clean
 clean:
