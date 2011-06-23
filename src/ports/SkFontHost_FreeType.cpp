@@ -1011,7 +1011,7 @@ static uint16_t grayToRGB16(U8CPU gray) {
 
 static int bittst(const uint8_t data[], int bitOffset) {
     SkASSERT(bitOffset >= 0);
-    int lowBit = data[bitOffset >> 3] >> (1 << (~bitOffset & 7));
+    int lowBit = data[bitOffset >> 3] >> (~bitOffset & 7);
     return lowBit & 1;
 }
 
