@@ -1476,6 +1476,9 @@ private:
 #ifdef SK_USE_SLOW_2POINT_RADIAL_GRADIENT
 static inline SkFixed two_point_radial(SkFixed b, SkFixed fx, SkFixed fy, SkFixed sr2d2, SkFixed foura, SkFixed oneOverTwoA, bool posRoot) {
     SkFixed c = SkFixedSquare(fx) + SkFixedSquare(fy) - sr2d2;
+    if (0 == foura) {
+        return SkFixedDiv(-c, b);
+    }
     SkFixed discrim = SkFixedSquare(b) - SkFixedMul(foura, c);
     if (discrim < 0) {
         discrim = -discrim;
@@ -1492,6 +1495,10 @@ static inline SkFixed two_point_radial(SkScalar b, SkScalar fx, SkScalar fy,
                                        SkScalar sr2d2, SkScalar foura,
                                        SkScalar oneOverTwoA, bool posRoot) {
     SkScalar c = SkScalarSquare(fx) + SkScalarSquare(fy) - sr2d2;
+    if (0 == foura) {
+        return SkScalarToFixed(SkScalarDiv(-c, b));
+    }
+
     SkScalar discrim = SkScalarSquare(b) - SkScalarMul(foura, c);
     if (discrim < 0) {
         discrim = -discrim;
