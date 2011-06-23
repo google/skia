@@ -3,9 +3,13 @@
     'defines': [
       'SK_CAN_USE_FLOAT',
     ],
+
     'variables': {
       'skia_scalar%': 'float',
     },
+    # Allow override in GYP_DEFINES environment variable.
+    'skia_scalar%': '<(skia_scalar)',
+
     'configurations': {
       'Debug': {
         'defines': [
