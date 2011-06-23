@@ -7,6 +7,10 @@
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 
+#ifdef SK_BUILD_FOR_IOS
+#include <CoreGraphics/CoreGraphics.h>
+#endif
+
 class SkBitmap;
 
 /**
