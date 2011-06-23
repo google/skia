@@ -6,6 +6,9 @@
     {
       'target_name': 'images',
       'type': 'static_library',
+      'dependencies': [
+        'utils.gyp:utils',
+      ],
       'include_dirs': [
         '../include/config',
         '../include/core',

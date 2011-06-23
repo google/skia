@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -17,129 +17,18 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <wincodec.h>
+#include "SkAutoCoInitialize.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkIStream.h"
 #include "SkMovie.h"
 #include "SkStream.h"
-#include "SkTemplates.h"
-
-template<typename T>
-class scoped_com_ptr {
-private:
-    T *fPtr;
-    
-    scoped_com_ptr(scoped_com_ptr const &);
-    scoped_com_ptr & operator=(scoped_com_ptr const &);
-
-public:
-    explicit scoped_com_ptr(T *ptr = NULL) : fPtr(ptr) { }
-    ~scoped_com_ptr() {
-        if (NULL != fPtr) {
-            fPtr->Release();
-            fPtr = NULL;
-        }
-    }
-    T &operator*() const { return *fPtr; }
-    T *operator->() const { return fPtr; }
-    /**
-     * Returns the address of the underlying pointer.
-     * This is dangerous -- it breaks encapsulation and the reference escapes.
-     * Must only be used on instances currently pointing to NULL,
-     * and only to initialize the instance.
-     */
-    T **operator&() { SkASSERT(fPtr == NULL); return &fPtr; }
-    T *get() const { return fPtr; }
-};
-
-/**
- * An instance of this class initializes COM on creation
- * and closes the COM library on destruction.
- */
-class AutoCoInitialize : SkNoncopyable {
-private:
-    HRESULT hr;
-public:
-    AutoCoInitialize() :
-        hr(
-            CoInitializeEx(
-                NULL
-                , COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE
-            )
-        )
-    { }
-    ~AutoCoInitialize() {
-        if (SUCCEEDED(this->hr)) {
-            CoUninitialize();
-        }
-    }
-    HRESULT getHR() { return this->hr; }
-};
+#include "SkTScopedComPtr.h"
 
 class SkImageDecoder_WIC : public SkImageDecoder {
 protected:
-    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
+    virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode mode);
 };
-
-/**
- * Converts a SkStream to an IStream.
- * The caller must call Release() on the returned IStream.
- */
-static HRESULT SkStreamToIStream(SkStream* stream, IStream** ppStream) {
-    //TODO(bungeman): use a real IStream wrapper
-    HRESULT hr = S_OK;
-    
-    size_t len = stream->getLength();
-    
-    //Reserve memory for content of IStream.
-    HGLOBAL hdata = NULL;
-    if (SUCCEEDED(hr)) {
-        hdata = GlobalAlloc(GMEM_MOVEABLE | GMEM_NODISCARD, len);
-        if (NULL == hdata) {
-            hr = HRESULT_FROM_WIN32(GetLastError());
-        }
-    }
-    
-    //Lock memory.
-    void* data = NULL;
-    if (SUCCEEDED(hr)) {
-        data = GlobalLock(hdata);
-        if (NULL == data) {
-            hr = HRESULT_FROM_WIN32(GetLastError());
-        }
-    }
-    
-    //Write SkStream data to memory.
-    if (SUCCEEDED(hr)) {
-        size_t read = stream->read(data, len);
-        if (read != len) {
-            hr = E_FAIL;
-        }
-    }
-    
-    //Unlock memory.
-    if (NULL != data) {
-        data = NULL;
-        SetLastError(NO_ERROR);
-        GlobalUnlock(hdata);
-        DWORD lastError = GetLastError();
-        if (SUCCEEDED(hr) && NO_ERROR != lastError) {
-            hr = HRESULT_FROM_WIN32(lastError);
-        }
-    }
-    
-    //Create IStream from memory.
-    if (SUCCEEDED(hr)) {
-        hr = CreateStreamOnHGlobal(hdata, TRUE, ppStream);
-    }
-    //If we failed for any reason, free the memory.
-    if (FAILED(hr)) {
-        if (NULL != hdata) {
-            GlobalFree(hdata);
-        }
-    }
-    
-    return hr;
-}
 
 bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     //Initialize COM.
@@ -147,7 +36,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     HRESULT hr = scopedCo.getHR();
     
     //Create Windows Imaging Component ImagingFactory.
-    scoped_com_ptr<IWICImagingFactory> piImagingFactory;
+    SkTScopedComPtr<IWICImagingFactory> piImagingFactory;
     if (SUCCEEDED(hr)) {
         hr = CoCreateInstance(
             CLSID_WICImagingFactory
@@ -158,9 +47,9 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
     
     //Convert SkStream to IStream.
-    scoped_com_ptr<IStream> piStream;
+    SkTScopedComPtr<IStream> piStream;
     if (SUCCEEDED(hr)) {
-        hr = SkStreamToIStream(stream, &piStream);
+        hr = SkIStream::CreateFromSkStream(stream, false, &piStream);
     }
     
     //Make sure we're at the beginning of the stream.
@@ -170,7 +59,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
     
     //Create the decoder from the stream content.
-    scoped_com_ptr<IWICBitmapDecoder> piBitmapDecoder;
+    SkTScopedComPtr<IWICBitmapDecoder> piBitmapDecoder;
     if (SUCCEEDED(hr)) {
         hr = piImagingFactory->CreateDecoderFromStream(
             piStream.get()                    //Image to be decoded
@@ -181,13 +70,13 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
     
     //Get the first frame from the decoder.
-    scoped_com_ptr<IWICBitmapFrameDecode> piBitmapFrameDecode;
+    SkTScopedComPtr<IWICBitmapFrameDecode> piBitmapFrameDecode;
     if (SUCCEEDED(hr)) {
         hr = piBitmapDecoder->GetFrame(0, &piBitmapFrameDecode);
     }
     
     //Get the BitmapSource interface of the frame.
-    scoped_com_ptr<IWICBitmapSource> piBitmapSourceOriginal;
+    SkTScopedComPtr<IWICBitmapSource> piBitmapSourceOriginal;
     if (SUCCEEDED(hr)) {
         hr = piBitmapFrameDecode->QueryInterface(
             IID_PPV_ARGS(&piBitmapSourceOriginal)
@@ -213,7 +102,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
     
     //Create a format converter.
-    scoped_com_ptr<IWICFormatConverter> piFormatConverter;
+    SkTScopedComPtr<IWICFormatConverter> piFormatConverter;
     if (SUCCEEDED(hr)) {
         hr = piImagingFactory->CreateFormatConverter(&piFormatConverter);
     }
@@ -230,7 +119,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     }
     
     //Get the BitmapSource interface of the format converter.
-    scoped_com_ptr<IWICBitmapSource> piBitmapSourceConverted;
+    SkTScopedComPtr<IWICBitmapSource> piBitmapSourceConverted;
     if (SUCCEEDED(hr)) {
         hr = piFormatConverter->QueryInterface(
             IID_PPV_ARGS(&piBitmapSourceConverted)
@@ -300,7 +189,7 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     HRESULT hr = scopedCo.getHR();
     
     //Create Windows Imaging Component ImagingFactory.
-    scoped_com_ptr<IWICImagingFactory> piImagingFactory;
+    SkTScopedComPtr<IWICImagingFactory> piImagingFactory;
     if (SUCCEEDED(hr)) {
         hr = CoCreateInstance(
             CLSID_WICImagingFactory
@@ -310,14 +199,14 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
         );
     }
     
-    //Create the stream to hold the output of the encoder.
-    scoped_com_ptr<IStream> piStream;
+    //Convert the SkWStream to an IStream.
+    SkTScopedComPtr<IStream> piStream;
     if (SUCCEEDED(hr)) {
-        hr = CreateStreamOnHGlobal(NULL, TRUE, &piStream);
+        hr = SkWIStream::CreateFromSkWStream(stream, &piStream);
     }
     
     //Create an encode of the appropriate type.
-    scoped_com_ptr<IWICBitmapEncoder> piEncoder;
+    SkTScopedComPtr<IWICBitmapEncoder> piEncoder;
     if (SUCCEEDED(hr)) {
         hr = piImagingFactory->CreateEncoder(type, NULL, &piEncoder);
     }
@@ -327,8 +216,8 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     }
     
     //Create a the frame.
-    scoped_com_ptr<IWICBitmapFrameEncode> piBitmapFrameEncode;
-    scoped_com_ptr<IPropertyBag2> piPropertybag;
+    SkTScopedComPtr<IWICBitmapFrameEncode> piBitmapFrameEncode;
+    SkTScopedComPtr<IPropertyBag2> piPropertybag;
     if (SUCCEEDED(hr)) {
         hr = piEncoder->CreateNewFrame(&piBitmapFrameEncode, &piPropertybag);
     }
@@ -387,36 +276,6 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     
     if (SUCCEEDED(hr)) {
         hr = piEncoder->Commit();
-    }
-    
-    //Rewind the IStream with the output of the encoder.
-    if (SUCCEEDED(hr)) {
-        LARGE_INTEGER liBeginning = { 0 };
-        hr = piStream->Seek(liBeginning, STREAM_SEEK_SET, NULL);
-    }
-    
-    //Write the content of the IStream to the SkWStream.
-    if (SUCCEEDED(hr)) {
-        //TODO(bungeman): use a real IStream(SkWStream) wrapper
-        const unsigned int BUFFER_SIZE = 1024;
-        void* buffer = new BYTE[BUFFER_SIZE];
-        ULONG bytesRead = 0;
-        while (true) {
-            hr = piStream->Read(buffer, BUFFER_SIZE, &bytesRead);
-            if (FAILED(hr)) {
-                break;
-            }
-            bool wrote = stream->write(buffer, bytesRead);
-            if (!wrote) {
-                hr = E_FAIL;
-                break;
-            }
-            if (BUFFER_SIZE != bytesRead) {
-                break;
-            }
-        }
-        stream->flush();
-        delete[] buffer;
     }
     
     return SUCCEEDED(hr);

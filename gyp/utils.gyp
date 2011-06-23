@@ -12,6 +12,7 @@
         '../include/utils',
         '../include/utils/mac',
         '../include/utils/unix',
+        '../include/utils/win',
         '../include/views',
         '../include/effects',
         '../include/xml',
@@ -59,22 +60,32 @@
         '../src/utils/SkSfntUtils.cpp',
         '../src/utils/SkUnitMappers.cpp',
 
+        #mac
         '../include/utils/mac/SkCGUtils.h',
         '../src/utils/mac/SkCreateCGImageRef.cpp',
         '../src/utils/mac/SkEGLContext_mac.cpp',
         '../src/utils/mac/skia_mac.cpp',
         '../src/utils/mac/SkOSWindow_Mac.cpp',
 
+        #mesa
         '../src/utils/mesa/SkEGLContext_Mesa.cpp',
 
+        #sdl
         '../src/utils/SDL/SkOSWindow_SDL.cpp',
 
+        #*nix
         '../src/utils/unix/keysym2ucs.c',
         '../src/utils/unix/SkEGLContext_Unix.cpp',
         '../src/utils/unix/SkOSWindow_Unix.cpp',
         
+        #windows
+        '../include/utils/win/SkAutoCoInitialize.h',
+        '../include/utils/win/SkIStream.h',
+        '../include/utils/win/SkTScopedComPtr.h',
+        '../src/utils/win/SkAutoCoInitialize.cpp',
         '../src/utils/win/skia_win.cpp',
         '../src/utils/win/SkEGLContext_Win.cpp',
+        '../src/utils/win/SkIStream.cpp',
         '../src/utils/win/SkOSWindow_Win.cpp',
       ],
       'sources!': [
@@ -82,18 +93,6 @@
           '../src/utils/SDL/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
-        [ 'OS != "mac"', {
-          'sources!': [
-            '../include/utils/mac/SkCGUtils.h',
-            '../src/utils/mac/SkCreateCGImageRef.cpp',
-            '../src/utils/mac/SkEGLContext_mac.cpp',
-            '../src/utils/mac/skia_mac.cpp',
-            '../src/utils/mac/SkOSWindow_Mac.cpp',
-          ],
-          'include_dirs!': [
-            '../include/utils/mac',
-          ],
-        }],
         [ 'OS == "mac"', {
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
@@ -103,18 +102,19 @@
               '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
             ],
           },
-        }],
-        [ 'OS != "linux" and OS != "freebsd" and OS != "openbsd" and OS != "solaris"', {
-          'sources!': [
-            '../src/utils/unix/keysym2ucs.c',
-            '../src/utils/unix/SkEGLContext_Unix.cpp',
-            '../src/utils/unix/SkOSWindow_Unix.cpp',
-          ],
+        },{ #else if 'OS != "mac"'
           'include_dirs!': [
-            '../include/utils/unix',
+            '../include/utils/mac',
+          ],
+          'sources!': [
+            '../include/utils/mac/SkCGUtils.h',
+            '../src/utils/mac/SkCreateCGImageRef.cpp',
+            '../src/utils/mac/SkEGLContext_mac.cpp',
+            '../src/utils/mac/skia_mac.cpp',
+            '../src/utils/mac/SkOSWindow_Mac.cpp',
           ],
         }],
-        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
+        [ 'OS in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
           ],
@@ -124,17 +124,38 @@
               '-lGLU',
             ],
           },
-        }],
-        [ 'OS != "win"', {
+        },{ #else if 'OS not in ["linux", "freebsd", "openbsd", "solaris"]'
+          'include_dirs!': [
+            '../include/utils/unix',
+          ],
           'sources!': [
-            '../src/utils/win/skia_win.cpp',
-            '../src/utils/win/SkEGLContext_Win.cpp',
-            '../src/utils/win/SkOSWindow_Win.cpp',
+            '../src/utils/unix/keysym2ucs.c',
+            '../src/utils/unix/SkEGLContext_Unix.cpp',
+            '../src/utils/unix/SkOSWindow_Unix.cpp',
           ],
         }],
         [ 'OS == "win"', {
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
+          ],
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '../include/utils/win',
+            ],
+          },
+        },{ #else if 'OS != "win"'
+          'include_dirs!': [
+            '../include/utils/win',
+          ],
+          'sources!': [
+            '../include/utils/win/SkAutoCoInitialize.h',
+            '../include/utils/win/SkIStream.h',
+            '../include/utils/win/SkTScopedComPtr.h',
+            '../src/utils/win/SkAutoCoInitialize.cpp',
+            '../src/utils/win/skia_win.cpp',
+            '../src/utils/win/SkEGLContext_Win.cpp',
+            '../src/utils/win/SkIStream.cpp',
+            '../src/utils/win/SkOSWindow_Win.cpp',
           ],
         }],
       ],
