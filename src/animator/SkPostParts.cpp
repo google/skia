@@ -20,17 +20,17 @@
 
 #if SK_USE_CONDENSED_INFO == 0
 
-const SkMemberInfo SkData::fInfo[] = {
+const SkMemberInfo SkDataInput::fInfo[] = {
     SK_MEMBER_INHERITED
 };
 
 #endif
 
-DEFINE_GET_MEMBER(SkData);
+DEFINE_GET_MEMBER(SkDataInput);
 
-SkData::SkData() : fParent(NULL) {}
+SkDataInput::SkDataInput() : fParent(NULL) {}
 
-bool SkData::add() {
+bool SkDataInput::add() {
     SkASSERT(name.size() > 0);
     const char* dataName = name.c_str();
     if (fInt != (int) SK_NaN32)
@@ -44,22 +44,22 @@ bool SkData::add() {
     return false;
 }
 
-void SkData::dirty() {
+void SkDataInput::dirty() {
     fParent->dirty();
 }
 
-SkDisplayable* SkData::getParent() const {
+SkDisplayable* SkDataInput::getParent() const {
     return fParent;
 }
 
-bool SkData::setParent(SkDisplayable* displayable) {
+bool SkDataInput::setParent(SkDisplayable* displayable) {
     if (displayable->isPost() == false)
         return true;
     fParent = (SkPost*) displayable;
     return false;
 }
 
-void SkData::onEndElement(SkAnimateMaker&) {
+void SkDataInput::onEndElement(SkAnimateMaker&) {
     add();
 }
 

@@ -25,7 +25,7 @@
 
 class SkActive;
 class SkAnimateBase;
-class SkData;
+class SkDataInput;
 class SkDisplayable;
 class SkDisplayEvent;
 class SkDrawable;
@@ -46,7 +46,7 @@ typedef SkIntArray(SkScalar) SkTDScalarArray;
 
 typedef SkLongArray(SkActive*) SkTDActiveArray; 
 typedef SkLongArray(SkAnimateBase*) SkTDAnimateArray; 
-typedef SkLongArray(SkData*) SkTDDataArray; 
+typedef SkLongArray(SkDataInput*) SkTDDataArray; 
 typedef SkLongArray(SkDisplayable*) SkTDDisplayableArray; 
 typedef SkLongArray(SkDisplayEvent*) SkTDDisplayEventArray; 
 typedef SkLongArray(SkDrawable*) SkTDDrawableArray; 

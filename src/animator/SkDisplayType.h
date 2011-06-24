@@ -75,7 +75,7 @@ enum SkDisplayTypes {
     SkType_Color,
     SkType_CubicTo,
     SkType_Dash,
-    SkType_Data,
+    SkType_DataInput,
     SkType_Discrete,
     SkType_Displayable,
     SkType_Drawable,

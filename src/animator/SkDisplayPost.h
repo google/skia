@@ -24,7 +24,7 @@
 #include "SkMemberInfo.h"
 #include "SkIntArray.h"
 
-class SkData;
+class SkDataInput;
 class SkAnimateMaker;
 
 class SkPost : public SkDisplayable {
@@ -60,7 +60,7 @@ protected:
     SkBool8 fDirty;
 private:
     void findSinkID();
-    friend class SkData;
+    friend class SkDataInput;
     typedef SkDisplayable INHERITED;
 };
 

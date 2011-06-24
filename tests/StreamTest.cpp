@@ -1,7 +1,7 @@
 #include "Test.h"
 #include "SkRandom.h"
 #include "SkStream.h"
-#include "SkDataRef.h"
+#include "SkData.h"
 
 #define MAX_SIZE    (256 * 1024)
 
@@ -85,7 +85,7 @@ static void TestWStream(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, memcmp(dst, ds.getStream(), 100*26) == 0);
 
     {
-        SkDataRef* data = ds.copyToData();
+        SkData* data = ds.copyToData();
         REPORTER_ASSERT(reporter, 100 * 26 == data->size());
         REPORTER_ASSERT(reporter, memcmp(dst, data->data(), data->size()) == 0);
         data->unref();

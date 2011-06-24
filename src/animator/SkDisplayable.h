@@ -96,7 +96,7 @@ public:
     virtual bool setProperty(int index, SkScriptValue& );
     void setReference(const SkMemberInfo* info, SkDisplayable* ref);
 #ifdef SK_DEBUG
-    bool isData() const { return getType() == SkType_Data; };
+    bool isDataInput() const { return getType() == SkType_DataInput; };
     bool isEvent() const { return getType() == SkType_Event; }
     virtual bool isMatrixPart() const { return false; }
     bool isPatch() const { return getType() == SkType_3D_Patch; }

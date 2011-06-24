@@ -51,13 +51,13 @@ SkPost::SkPost() : delay(0), /*initialized(SkBool(-1)), */ mode(kImmediate), fMa
 }
 
 SkPost::~SkPost() {
-    for (SkData** part = fParts.begin(); part < fParts.end();  part++)
+    for (SkDataInput** part = fParts.begin(); part < fParts.end();  part++)
         delete *part;
 }
 
 bool SkPost::add(SkAnimateMaker& , SkDisplayable* child) {
-    SkASSERT(child && child->isData());
-    SkData* part = (SkData*) child;
+    SkASSERT(child && child->isDataInput());
+    SkDataInput* part = (SkDataInput*) child;
     *fParts.append() = part;
     return true;
 }
@@ -113,8 +113,8 @@ void SkPost::dump(SkAnimateMaker* maker) {
     //for some reason the last part is id, which i don't want
     //and the parts seem to be in the reverse order from the one in which we find the 
     //data itself
-    //SkData** ptr = fParts.end();
-    //SkData* data;
+    //SkDataInput** ptr = fParts.end();
+    //SkDataInput* data;
     //const char* ID;
     while ((name = iter.next(&type, &number)) != NULL) {
         //ptr--;
@@ -190,7 +190,7 @@ bool SkPost::enable(SkAnimateMaker& maker ) {
             fEvent.getMetaData().reset();
             if (preserveID.size() > 0)
                 fEvent.setString("id", preserveID);
-            for (SkData** part = fParts.begin(); part < fParts.end();  part++) {
+            for (SkDataInput** part = fParts.begin(); part < fParts.end();  part++) {
                 if ((*part)->add())
                     maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingDataToPost);
             }
@@ -284,7 +284,7 @@ bool SkPost::hasEnable() const {
 void SkPost::onEndElement(SkAnimateMaker& maker) {
     fTargetMaker = fMaker = &maker;
     if (fChildHasID == false) {
-        for (SkData** part = fParts.begin(); part < fParts.end();  part++)
+        for (SkDataInput** part = fParts.begin(); part < fParts.end();  part++)
             delete *part;
         fParts.reset();
     }

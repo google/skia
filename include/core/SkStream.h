@@ -20,7 +20,7 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 
-class SkDataRef;
+class SkData;
 
 class SK_API SkStream : public SkRefCnt {
 public:
@@ -297,7 +297,7 @@ public:
     /**
      *  Return a copy of the data written so far
      */
-    SkDataRef* copyToData() const;
+    SkData* copyToData() const;
 
     // reset the stream to its original state
     void reset();

@@ -16,7 +16,7 @@
 */
 
 #include "SkStream.h"
-#include "SkDataRef.h"
+#include "SkData.h"
 #include "SkFixed.h"
 #include "SkString.h"
 #include "SkOSFile.h"
@@ -729,9 +729,10 @@ static void sk_free_release_proc(const void* ptr, size_t length, void*) {
     sk_free((void*)ptr);
 }
 
-SkDataRef* SkDynamicMemoryWStream::copyToData() const {
-    return SkDataRef::NewWithProc(this->detach(), fBytesWritten,
-                                  sk_free_release_proc, NULL);
+SkData* SkDynamicMemoryWStream::copyToData() const {
+    // should rewrite when we remove detach()
+    return SkData::NewWithProc(this->detach(), fBytesWritten,
+                               sk_free_release_proc, NULL);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
