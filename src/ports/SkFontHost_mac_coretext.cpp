@@ -75,8 +75,13 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
 
 class SkTypeface_Mac : public SkTypeface {
 public:
-    SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isMonospace)
-        : SkTypeface(style, fontID, isMonospace), fFontRef(0) {}
+    SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isMonospace,
+                   CTFontRef fontRef, const char name[])
+    : SkTypeface(style, fontID, isMonospace) {
+        SkASSERT(fontRef);
+        fFontRef = fontRef; // we take over ownership
+        fName.set(name);
+    }
 
     virtual ~SkTypeface_Mac() { CFRelease(fFontRef); }
 
@@ -85,14 +90,11 @@ public:
 };
 
 static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
+    SkASSERT(fontRef);
     bool isMonospace;
     SkTypeface::Style style = computeStyleBits(fontRef, &isMonospace);
-    SkTypeface_Mac* face = new SkTypeface_Mac(style,
-                                              SkTypefaceCache::NewFontID(),
-                                              isMonospace);
-    face->fFontRef = fontRef;   // we take over ownership of fontRef
-    face->fName.set(name);
-    return face;
+    return new SkTypeface_Mac(style, SkTypefaceCache::NewFontID(),
+                              isMonospace, fontRef, name);
 }
 
 static SkTypeface* NewFromName(const char familyName[],
@@ -156,8 +158,7 @@ static SkTypeface* GetDefaultFace() {
     static SkTypeface* gDefaultFace;
 
     if (NULL == gDefaultFace) {
-        gDefaultFace = new SkTypeface_Mac(SkTypeface::kNormal,
-                                          SkTypefaceCache::NewFontID(), false);
+        gDefaultFace = NewFromName(FONT_DEFAULT_NAME, SkTypeface::kNormal);
     }
     return gDefaultFace;
 }
