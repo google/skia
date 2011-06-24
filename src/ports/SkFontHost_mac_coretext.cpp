@@ -21,6 +21,7 @@
 #ifdef SK_BUILD_FOR_IOS
 #include <CoreText/CoreText.h>
 #include <CoreGraphics/CoreGraphics.h>
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 #include "SkFontHost.h"
@@ -30,6 +31,7 @@
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkStream.h"
+#include "SkThread.h"
 #include "SkTypeface_mac.h"
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
@@ -155,10 +157,14 @@ static CTFontRef GetFontRefFromFontID(SkFontID fontID) {
 }
 
 static SkTypeface* GetDefaultFace() {
+    static SkMutex gMutex;
+    SkAutoMutexAcquire ma(gMutex);
+
     static SkTypeface* gDefaultFace;
 
     if (NULL == gDefaultFace) {
         gDefaultFace = NewFromName(FONT_DEFAULT_NAME, SkTypeface::kNormal);
+        SkTypefaceCache::Add(gDefaultFace, SkTypeface::kNormal);
     }
     return gDefaultFace;
 }
