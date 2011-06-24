@@ -32,7 +32,8 @@ class SkPDFCatalog;
 class SkPDFStream : public SkPDFDict {
 public:
     /** Create a PDF stream. A Length entry is automatically added to the
-     *  stream dictionary.
+     *  stream dictionary. The stream may be retained (stream->ref() may be
+     *  called) so its contents must not be changed after calling this.
      *  @param stream The data part of the stream.
      */
     explicit SkPDFStream(SkStream* stream);
