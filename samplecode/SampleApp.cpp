@@ -781,7 +781,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 #ifdef SK_BUILD_FOR_IOS
         SkDynamicMemoryWStream mstream;
         doc.emitPDF(&mstream);
-        fPDFData = SkData::NewWithCopy(mstream.getStream(),mstream.getOffset());
+        fPDFData = mstream.copyToData();
 #endif
         SkFILEWStream stream(name.c_str());
         if (stream.isValid()) {
