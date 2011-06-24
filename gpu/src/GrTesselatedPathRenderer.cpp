@@ -365,7 +365,7 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget* target,
     // stretch when mapping to screen coordinates.
     GrScalar stretch = viewM.getMaxStretch();
     bool useStretch = stretch > 0;
-    GrScalar tol = GrPathUtils::gTolerance;
+    GrScalar tol = fCurveTolerance;
 
     if (!useStretch) {
         // TODO: deal with perspective in some better way.

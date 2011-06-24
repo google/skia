@@ -594,6 +594,7 @@ private:
     bool prepareForOffscreenAA(GrDrawTarget* target,
                                bool requireStencil,
                                const GrIRect& boundRect,
+                               GrPathRenderer* pr,
                                OffscreenRecord* record);
 
     // sets up target to draw coverage to the supersampled render target
@@ -611,7 +612,9 @@ private:
                             OffscreenRecord* record);
 
     // restored the draw target state and releases offscreen target to cache
-    void cleanupOffscreenAA(GrDrawTarget* target, OffscreenRecord* record);
+    void cleanupOffscreenAA(GrDrawTarget* target,
+                            GrPathRenderer* pr,
+                            OffscreenRecord* record);
     
     // computes vertex layout bits based on the paint. If paint expresses
     // a texture for a stage, the stage coords will be bound to postitions

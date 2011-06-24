@@ -24,6 +24,7 @@
 #include "GrInOrderDrawBuffer.h"
 #include "GrBufferAllocPool.h"
 #include "GrPathRenderer.h"
+#include "GrPathUtils.h"
 
 // Using MSAA seems to be slower for some yet unknown reason.
 #define PREFER_MSAA_OFFSCREEN_AA 0
@@ -577,6 +578,7 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
 bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
                                       bool requireStencil,
                                       const GrIRect& boundRect,
+                                      GrPathRenderer* pr,
                                       OffscreenRecord* record) {
 
     GrAssert(GR_USE_OFFSCREEN_AA);
@@ -604,7 +606,7 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
 
     if (PREFER_MSAA_OFFSCREEN_AA && fGpu->supportsFullsceneAA()) {
         record->fDownsample = OffscreenRecord::kFSAA_Downsample;
-        record->fScale = GR_Scalar1;
+        record->fScale = 1;
         desc.fAALevel = kMed_GrAALevel;
     } else {
         record->fDownsample = (fGpu->supports4x4DownsampleFilter()) ?
@@ -615,7 +617,12 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
         GR_STATIC_ASSERT(4 == OFFSCREEN_SSAA_SCALE);
         desc.fAALevel = kNone_GrAALevel;
     }
-
+    // Avoid overtesselating paths in AA buffers; may unduly reduce quality
+    // of simple circles?
+    if (pr) {
+        //pr->scaleCurveTolerance(GrIntToScalar(record->fScale));
+    }
+    
     desc.fWidth *= record->fScale;
     desc.fHeight *= record->fScale;
 
@@ -798,9 +805,15 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     target->drawSimpleRect(dstRect, NULL, stages);
 }
 
-void GrContext::cleanupOffscreenAA(GrDrawTarget* target, OffscreenRecord* record) {
+void GrContext::cleanupOffscreenAA(GrDrawTarget* target,
+                                   GrPathRenderer* pr,
+                                   OffscreenRecord* record) {
     this->unlockTexture(record->fEntry0);
     record->fEntry0 = NULL;
+    if (pr) {
+        // Counterpart of scale() in prepareForOffscreenAA()
+        //pr->scaleCurveTolerance(SkScalarInvert(SkIntToScalar(record->fScale)));
+    }
     if (NULL != record->fEntry1) {
         this->unlockTexture(record->fEntry1);
         record->fEntry1 = NULL;
@@ -1337,7 +1350,8 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
             }
         }
         OffscreenRecord record;
-        if (this->prepareForOffscreenAA(target, needsStencil, bound, &record)) {
+        if (this->prepareForOffscreenAA(target, needsStencil, bound,
+                                        pr, &record)) {
             for (int tx = 0; tx < record.fTileCountX; ++tx) {
                 for (int ty = 0; ty < record.fTileCountY; ++ty) {
                     this->setupOffscreenAAPass1(target, bound, tx, ty, &record);
@@ -1345,7 +1359,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                     this->doOffscreenAAPass2(target, paint, bound, tx, ty, &record);
                 }
             }
-            this->cleanupOffscreenAA(target, &record);
+            this->cleanupOffscreenAA(target, pr, &record);
             if (IsFillInverted(fill) && bound != clipIBounds) {
                 int stageMask = paint.getActiveStageMask();
                 GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);

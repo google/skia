@@ -44,7 +44,5 @@ public:
                                         GrScalar tolSqd,
                                         GrPoint** points,
                                         uint32_t pointsLeft);
-
-    static const GrScalar gTolerance;
 };
 #endif

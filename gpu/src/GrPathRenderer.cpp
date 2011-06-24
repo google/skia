@@ -6,10 +6,15 @@
 #include "GrMemory.h"
 #include "GrTexture.h"
 
+GrPathRenderer::GrPathRenderer()
+    : fCurveTolerance (GR_Scalar1) {
+
+}
+   
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)
-    : fSeparateStencil(separateStencilSupport),
-      fStencilWrapOps(stencilWrapOpsSupport) {
+    : fSeparateStencil(separateStencilSupport)
+    , fStencilWrapOps(stencilWrapOpsSupport) {
 
 }
 
@@ -197,7 +202,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
     // stretch when mapping to screen coordinates.
     GrScalar stretch = viewM.getMaxStretch();
     bool useStretch = stretch > 0;
-    GrScalar tol = GrPathUtils::gTolerance;
+    GrScalar tol = fCurveTolerance;
 
     if (!useStretch) {
         // TODO: deal with perspective in some better way.
