@@ -102,6 +102,11 @@
               '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
             ],
           },
+          'direct_dependent_settings': {
+            'include_dirs': [
+              '../include/utils/mac',
+            ],
+          },
         },{ #else if 'OS != "mac"'
           'include_dirs!': [
             '../include/utils/mac',

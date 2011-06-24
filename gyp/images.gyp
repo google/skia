@@ -75,9 +75,6 @@
           ],
         }],
         [ 'OS == "mac"', {
-          'include_dirs': [
-            '../include/utils/mac',
-          ],
           'sources!': [
             '../include/images/SkJpegUtility.h',
 
