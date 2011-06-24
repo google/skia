@@ -1,11 +1,3 @@
-//
-//  SkUIView_withSkUIContainerView.h
-//  iOSShell
-//
-//  Created by Yang Su on 6/23/11.
-//  Copyright 2011 Google Inc. All rights reserved.
-//
-
 #import <UIKit/UIKit.h>
 
 
