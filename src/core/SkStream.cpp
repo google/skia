@@ -255,6 +255,14 @@ size_t SkFILEStream::read(void* buffer, size_t size)
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static SkData* newFromParams(const void* src, size_t size, bool copyData) {
+    if (copyData) {
+        return SkData::NewWithCopy(src, size);
+    } else {
+        return SkData::NewWithProc(src, size, NULL, NULL);
+    }
+}
+
 SkMemoryStream::SkMemoryStream() {
     fData = SkData::NewEmpty();
     fOffset = 0;
@@ -266,11 +274,7 @@ SkMemoryStream::SkMemoryStream(size_t size) {
 }
 
 SkMemoryStream::SkMemoryStream(const void* src, size_t size, bool copyData) {
-    if (copyData) {
-        fData = SkData::NewWithCopy(src, size);
-    } else {
-        fData = SkData::NewWithProc(src, size, NULL, NULL);
-    }
+    fData = newFromParams(src, size, copyData);
     fOffset = 0;
 }
 
@@ -286,11 +290,7 @@ void SkMemoryStream::setMemoryOwned(const void* src, size_t size) {
 
 void SkMemoryStream::setMemory(const void* src, size_t size, bool copyData) {
     fData->unref();
-    if (copyData) {
-        fData = SkData::NewWithCopy(src, size);
-    } else {
-        fData = SkData::NewWithProc(src, size, NULL, NULL);
-    }
+    fData = newFromParams(src, size, copyData);
     fOffset = 0;
 }
 
