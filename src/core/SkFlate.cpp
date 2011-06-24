@@ -19,8 +19,8 @@
 
 #ifndef SK_ZLIB_INCLUDE
 bool SkFlate::HaveFlate() { return false; }
-bool SkFlate::Deflate(SkStream*, SkDynamicMemoryWStream*) { return false; }
-bool SkFlate::Inflate(SkStream*, SkDynamicMemoryWStream*) { return false; }
+bool SkFlate::Deflate(SkStream*, SkWStream*) { return false; }
+bool SkFlate::Inflate(SkStream*, SkWStream*) { return false; }
 #else
 
 // static
@@ -39,7 +39,7 @@ namespace {
 // static
 const size_t kBufferSize = 1024;
 
-bool doFlate(bool compress, SkStream* src, SkDynamicMemoryWStream* dst) {
+bool doFlate(bool compress, SkStream* src, SkWStream* dst) {
     uint8_t inputBuffer[kBufferSize];
     uint8_t outputBuffer[kBufferSize];
     z_stream flateData;
@@ -119,12 +119,12 @@ bool doFlate(bool compress, SkStream* src, SkDynamicMemoryWStream* dst) {
 }
 
 // static
-bool SkFlate::Deflate(SkStream* src, SkDynamicMemoryWStream* dst) {
+bool SkFlate::Deflate(SkStream* src, SkWStream* dst) {
     return doFlate(true, src, dst);
 }
 
 // static
-bool SkFlate::Inflate(SkStream* src, SkDynamicMemoryWStream* dst) {
+bool SkFlate::Inflate(SkStream* src, SkWStream* dst) {
     return doFlate(false, src, dst);
 }
 

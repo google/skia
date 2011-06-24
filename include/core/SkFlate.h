@@ -19,7 +19,7 @@
 
 #include "SkTypes.h"
 
-class SkDynamicMemoryWStream;
+class SkWStream;
 class SkStream;
 
 /** \class SkFlate
@@ -34,12 +34,12 @@ public:
     /** Use the flate compression algorithm to compress the data in src,
         putting the result into dst.  Returns false if an error occurs.
      */
-    static bool Deflate(SkStream* src, SkDynamicMemoryWStream* dst);
+    static bool Deflate(SkStream* src, SkWStream* dst);
 
     /** Use the flate compression algorithm to decompress the data in src,
         putting the result into dst.  Returns false if an error occurs.
      */
-    static bool Inflate(SkStream* src, SkDynamicMemoryWStream* dst);
+    static bool Inflate(SkStream* src, SkWStream* dst);
 };
 
 #endif
