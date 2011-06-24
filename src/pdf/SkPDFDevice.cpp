@@ -926,7 +926,7 @@ void SkPDFDevice::drawTextOnPath(const SkDraw& d, const void* text, size_t len,
     if (d.fClip->isEmpty()) {
         return;
     }
-    NOT_IMPLEMENTED("drawTextOnPath", true);
+    NOT_IMPLEMENTED("drawTextOnPath", false);
 }
 
 void SkPDFDevice::drawVertices(const SkDraw& d, SkCanvas::VertexMode,

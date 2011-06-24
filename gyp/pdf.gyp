@@ -49,6 +49,9 @@
           '../include/pdf',
         ],
       },
+      'dependencies': [
+        'zlib.gyp:zlib',
+      ],
     },
   ],
 }
