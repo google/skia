@@ -57,6 +57,18 @@ static bool is_identity(const SkMatrix44& m) {
     return nearly_equal(m, identity);
 }
 
+static void test_common_angles(skiatest::Reporter* reporter) {
+    SkMatrix44 rot;
+    // Test precision of rotation in common cases
+    int common_angles[] = { 0, 90, -90, 180, -180, 270, -270, 360, -360 };
+    for (int i = 0; i < 9; ++i) {
+        rot.setRotateDegreesAbout(0, 0, -1, common_angles[i]);
+
+        SkMatrix rot3x3 = rot;
+        REPORTER_ASSERT(reporter, rot3x3.rectStaysRect());
+    }
+}
+
 void TestMatrix44(skiatest::Reporter* reporter) {
 #ifdef SK_SCALAR_IS_FLOAT
     SkMatrix44 mat, inverse, iden1, iden2, rot;
@@ -119,6 +131,10 @@ void TestMatrix44(skiatest::Reporter* reporter) {
                         0, 0, 1, 4,
                         0, 0, 0, 1);
     }
+
+#if 0   // working on making this pass
+    test_common_angles(reporter);
+#endif
 #endif
 }
 
