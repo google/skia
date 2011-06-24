@@ -27,6 +27,8 @@ struct GrPoint;
  */
 class GR_API GrPathRenderer : public GrRefCnt {
 public:
+    GrPathRenderer(void);
+
     /**
      * Returns true if this path renderer is able to render the path.
      * Returning false allows the caller to fallback to another path renderer.
@@ -121,6 +123,19 @@ public:
      * returns NULL. Link against another implementation to install your own.
      */
     static GrPathRenderer* CreatePathRenderer();
+
+    /**
+     * Multiply curve tolerance by the given value, increasing or decreasing
+     * the maximum error permitted in tesselating curves with short straight
+     * line segments.
+     */
+    void scaleCurveTolerance(GrScalar multiplier) {
+        GrAssert(multiplier > 0);
+        fCurveTolerance = SkScalarMul(fCurveTolerance, multiplier);
+    }
+
+protected:
+    GrScalar fCurveTolerance;
 
 private:
 
