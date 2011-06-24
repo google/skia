@@ -167,7 +167,10 @@ protected:
         this->setupPaint(&paint);
         
         const SkRect r = { 0, 0, SkIntToScalar(4), SkIntToScalar(4) };
-        const SkPoint pts[] = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
+        const SkPoint pts[] = {
+            { 0, 0 },
+            { SkIntToScalar(100), SkIntToScalar(100) },
+        };
 
         for (int i = 0; i < 1000; i++) {
             const int a = i % 256;
