@@ -56,9 +56,6 @@ protected:
         always_do(m0 == m1);
         always_do(m1 == m2);
         always_do(m2 == m0);
-        always_do(m0.getType());
-        always_do(m1.getType());
-        always_do(m2.getType());
     }
 private:
     typedef MatrixBench INHERITED;
@@ -214,6 +211,51 @@ private:
     typedef MatrixBench INHERITED;
 };
 
+class GetTypeMatrixBench : public MatrixBench {
+public:
+    GetTypeMatrixBench(void* param)
+        : INHERITED(param, "gettype") {
+        fArray[0] = fRnd.nextS();
+        fArray[1] = fRnd.nextS();
+        fArray[2] = fRnd.nextS();
+        fArray[3] = fRnd.nextS();
+        fArray[4] = fRnd.nextS();
+        fArray[5] = fRnd.nextS();
+        fArray[6] = fRnd.nextS();
+        fArray[7] = fRnd.nextS();
+        fArray[8] = fRnd.nextS();
+    }
+protected:
+    // Putting random generation of the matrix inside performTest()
+    // would help us avoid anomalous runs, but takes up 25% or
+    // more of the function time.
+    virtual void performTest() {
+        fMatrix.setAll(fArray[0], fArray[1], fArray[2],
+                       fArray[3], fArray[4], fArray[5],
+                       fArray[6], fArray[7], fArray[8]);
+        always_do(fMatrix.getType());
+        fMatrix.dirtyMatrixTypeCache();
+        always_do(fMatrix.getType());
+        fMatrix.dirtyMatrixTypeCache();
+        always_do(fMatrix.getType());
+        fMatrix.dirtyMatrixTypeCache();
+        always_do(fMatrix.getType());
+        fMatrix.dirtyMatrixTypeCache();
+        always_do(fMatrix.getType());
+        fMatrix.dirtyMatrixTypeCache();
+        always_do(fMatrix.getType());
+        fMatrix.dirtyMatrixTypeCache();
+        always_do(fMatrix.getType());
+        fMatrix.dirtyMatrixTypeCache();
+        always_do(fMatrix.getType());
+    }
+private:
+    SkMatrix fMatrix;
+    float fArray[9];
+    SkRandom fRnd;
+    typedef MatrixBench INHERITED;
+};
+
 #ifdef SK_SCALAR_IS_FLOAT
 class ScaleTransMixedMatrixBench : public MatrixBench {
  public:
@@ -253,6 +295,7 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
     SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
+>>>>>>> .r1709
 
 
 class ScaleTransDoubleMatrixBench : public MatrixBench {
@@ -303,12 +346,14 @@ static SkBenchmark* M1(void* p) { return new ScaleMatrixBench(p); }
 static SkBenchmark* M2(void* p) { return new FloatConcatMatrixBench(p); }
 static SkBenchmark* M3(void* p) { return new FloatDoubleConcatMatrixBench(p); }
 static SkBenchmark* M4(void* p) { return new DoubleConcatMatrixBench(p); }
+static SkBenchmark* M5(void* p) { return new GetTypeMatrixBench(p); }
 
 static BenchRegistry gReg0(M0);
 static BenchRegistry gReg1(M1);
 static BenchRegistry gReg2(M2);
 static BenchRegistry gReg3(M3);
 static BenchRegistry gReg4(M4);
+static BenchRegistry gReg5(M5);
 
 #ifdef SK_SCALAR_IS_FLOAT
 static SkBenchmark* FlM0(void* p) { return new ScaleTransMixedMatrixBench(p); }

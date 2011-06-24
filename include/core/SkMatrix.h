@@ -484,6 +484,14 @@ public:
      */
     static const SkMatrix& InvalidMatrix();
 
+    /**
+     * Testing routine; the matrix's type cache should never need to be
+     * manually invalidated during normal use.
+     */
+    void dirtyMatrixTypeCache() {
+        this->setTypeMask(kUnknown_Mask);
+    }
+
 private:
     enum {
         /** Set if the matrix will map a rectangle to another rectangle. This
@@ -560,4 +568,3 @@ private:
 };
 
 #endif
-
