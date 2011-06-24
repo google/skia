@@ -447,7 +447,6 @@
 		260E1EAB13B3B15A0064D447 /* SkPDFStream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E1E9F13B3B15A0064D447 /* SkPDFStream.cpp */; };
 		260E1EAC13B3B15A0064D447 /* SkPDFTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E1EA013B3B15A0064D447 /* SkPDFTypes.cpp */; };
 		260E1EAD13B3B15A0064D447 /* SkPDFUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E1EA113B3B15A0064D447 /* SkPDFUtils.cpp */; };
-		260EE93E13AFA7790064D447 /* SkOSFile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */; };
 		260EE9D513AFA7850064D447 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D013AFA7850064D447 /* CoreFoundation.framework */; };
 		260EEDCD13AFCBF30064D447 /* SkOSWindow_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BC13AFA7790064D447 /* SkOSWindow_iOS.mm */; };
 		260EEDD713AFCC740064D447 /* SkUIView_shell.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EEA2D13AFB1C70064D447 /* SkUIView_shell.mm */; };
@@ -458,6 +457,7 @@
 		26677D6613B4C548009319B8 /* SkData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26677D6513B4C548009319B8 /* SkData.cpp */; };
 		26E0E33013B4DB3800866555 /* SkTime_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EEC0013AFBEFF0064D447 /* SkTime_iOS.mm */; };
 		26E0E40A13B4E67800866555 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D113AFA7850064D447 /* OpenGLES.framework */; };
+		26E0E46413B4F28A00866555 /* SkOSFile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */; };
 		2860E328111B887F00E27156 /* AppDelegate_iPhone.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2860E326111B887F00E27156 /* AppDelegate_iPhone.mm */; };
 		2860E329111B887F00E27156 /* MainWindow_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2860E327111B887F00E27156 /* MainWindow_iPhone.xib */; };
 		2860E32E111B888700E27156 /* AppDelegate_iPad.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2860E32C111B888700E27156 /* AppDelegate_iPad.mm */; };
@@ -1285,7 +1285,7 @@
 		260E080E13B1294E0064D447 /* SkImageDecoder_CG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_CG.cpp; sourceTree = "<group>"; };
 		260E083B13B12A200064D447 /* SkImageDecoder_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_Factory.cpp; sourceTree = "<group>"; };
 		260E083C13B12A200064D447 /* SkImageEncoder_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageEncoder_Factory.cpp; sourceTree = "<group>"; };
-		260E08CF13B12DBE0064D447 /* SkOSWindow_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOSWindow_iOS.h; path = ../../include/utils/ios/SkOSWindow_iOS.h; sourceTree = SOURCE_ROOT; };
+		260E08CF13B12DBE0064D447 /* SkOSWindow_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOSWindow_iOS.h; path = ../../include/views/SkOSWindow_iOS.h; sourceTree = SOURCE_ROOT; };
 		260E08D013B12DBE0064D447 /* SkStream_NSData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkStream_NSData.h; path = ../../include/utils/ios/SkStream_NSData.h; sourceTree = SOURCE_ROOT; };
 		260E095513B134C90064D447 /* FlingState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlingState.cpp; sourceTree = "<group>"; };
 		260E095613B134C90064D447 /* GrDrawMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawMesh.cpp; sourceTree = "<group>"; };
@@ -1332,7 +1332,7 @@
 		260EEA2D13AFB1C70064D447 /* SkUIView_shell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUIView_shell.mm; sourceTree = "<group>"; };
 		260EEC0013AFBEFF0064D447 /* SkTime_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkTime_iOS.mm; sourceTree = "<group>"; };
 		260EEC9313AFC5CA0064D447 /* SkUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkUIView.h; path = ../../gpu/include/SkUIView.h; sourceTree = SOURCE_ROOT; };
-		260EEC9413AFC5D60064D447 /* SkUIView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkUIView.mm; path = ../../gpu/src/skia/SkUIView.mm; sourceTree = SOURCE_ROOT; };
+		260EEC9413AFC5D60064D447 /* SkUIView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkUIView.mm; path = ../../gpu/src/ios/SkUIView.mm; sourceTree = SOURCE_ROOT; };
 		260EF18413AFD62E0064D447 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		260EFB6F13B0DBFF0064D447 /* SkUIRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUIRootViewController.h; sourceTree = "<group>"; };
 		260EFB7013B0DBFF0064D447 /* SkUIRootViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUIRootViewController.mm; sourceTree = "<group>"; };
@@ -2671,8 +2671,8 @@
 				26E0E3C413B4E60500866555 /* Unused Old Code */,
 				260E08CF13B12DBE0064D447 /* SkOSWindow_iOS.h */,
 				260EE8BC13AFA7790064D447 /* SkOSWindow_iOS.mm */,
-				260EEC0013AFBEFF0064D447 /* SkTime_iOS.mm */,
 				260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */,
+				260EEC0013AFBEFF0064D447 /* SkTime_iOS.mm */,
 				260E0AC313B1401D0064D447 /* SkIOSNotifier.h */,
 				260E0AC413B1401D0064D447 /* SkIOSNotifier.mm */,
 			);
@@ -2841,7 +2841,6 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				2860E328111B887F00E27156 /* AppDelegate_iPhone.mm in Sources */,
 				2860E32E111B888700E27156 /* AppDelegate_iPad.mm in Sources */,
-				260EE93E13AFA7790064D447 /* SkOSFile_iOS.mm in Sources */,
 				260EEDCD13AFCBF30064D447 /* SkOSWindow_iOS.mm in Sources */,
 				260EEDD713AFCC740064D447 /* SkUIView_shell.mm in Sources */,
 				260EFB7113B0DBFF0064D447 /* SkUIRootViewController.mm in Sources */,
@@ -3286,6 +3285,7 @@
 				260E1EAD13B3B15A0064D447 /* SkPDFUtils.cpp in Sources */,
 				26677D6613B4C548009319B8 /* SkData.cpp in Sources */,
 				26E0E33013B4DB3800866555 /* SkTime_iOS.mm in Sources */,
+				26E0E46413B4F28A00866555 /* SkOSFile_iOS.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
