@@ -33,6 +33,7 @@ class SkCanvas;
 class SkGpuCanvas;
 class SkPicture;
 class SkTypeface;
+class SkData;
 
 enum SkTriState {
     kFalse_SkTriState,
@@ -58,9 +59,13 @@ public:
     void changeZoomLevel(float delta);
     bool nextSample();
     bool previousSample();
+    bool goToSample(int i);
+    SkString getSampleTitle(int i);
+    int  sampleCount();
     bool handleTouch(int ownerId, float x, float y,
             SkView::Click::State state);
     void saveToPdf();
+    SkData* getPDFData() { return fPDFData; }
     void postInvalDelay();
 
 protected:
@@ -102,6 +107,7 @@ private:
 
     bool fSaveToPdf;
     SkCanvas* fPdfCanvas;
+    SkData* fPDFData;
 
     bool fUseClip;
     bool fNClip;

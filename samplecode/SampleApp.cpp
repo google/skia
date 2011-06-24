@@ -410,7 +410,8 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
     if (this->height() && this->width()) {
         this->onSizeChange();
     }
-
+    
+    fPDFData = NULL;
 #ifdef SK_BUILD_FOR_MAC
     testpdf();
 #endif
@@ -760,7 +761,7 @@ static void paint_rgn(const SkBitmap& bm, const SkIRect& r,
     canvas.clipRegion(inval);
     canvas.drawColor(0xFFFF8080);
 }
-
+#include "SkData.h"
 void SampleWindow::afterChildren(SkCanvas* orig) {
     if (fSaveToPdf) {
         fSaveToPdf = false;
@@ -775,12 +776,19 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
 #ifdef ANDROID
         name.prepend("/sdcard/");
 #endif
+        
+#ifdef SK_BUILD_FOR_IOS
+        SkDynamicMemoryWStream mstream;
+        doc.emitPDF(&mstream);
+        fPDFData = SkData::NewWithCopy(mstream.getStream(),mstream.getOffset());
+#endif
         SkFILEWStream stream(name.c_str());
         if (stream.isValid()) {
             doc.emitPDF(&stream);
             const char* desc = "File saved from Skia SampleApp";
             this->onPDFSaved(this->getTitle(), desc, name.c_str());
         }
+        
         delete fPdfCanvas;
         fPdfCanvas = NULL;
 
@@ -937,6 +945,27 @@ bool SampleWindow::nextSample() {
     fCurrIndex = (fCurrIndex + 1) % fSamples.count();
     this->loadView(fSamples[fCurrIndex]());
     return true;
+}
+
+bool SampleWindow::goToSample(int i) {
+    fCurrIndex = (i) % fSamples.count();
+    this->loadView(fSamples[fCurrIndex]());
+    return true;
+}
+
+SkString SampleWindow::getSampleTitle(int i) {
+    SkView* view = fSamples[i]();
+    SkString title;
+    SkEvent evt(gTitleEvtName);
+    if (view->doQuery(&evt)) {
+        title.set(evt.findString(gTitleEvtName));
+    }
+    view->unref();
+    return title;
+}
+
+int SampleWindow::sampleCount() {
+    return fSamples.count();
 }
 
 void SampleWindow::postAnimatingEvent() {
