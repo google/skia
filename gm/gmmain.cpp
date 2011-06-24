@@ -1,5 +1,6 @@
 #include "gm.h"
 #include "SkColorPriv.h"
+#include "SkData.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
@@ -180,7 +181,8 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
 
 static bool write_pdf(const SkString& path, const SkDynamicMemoryWStream& pdf) {
     SkFILEWStream stream(path.c_str());
-    return stream.write(pdf.getStream(), pdf.getOffset());
+    SkAutoDataUnref data(pdf.copyToData());
+    return stream.writeData(data.get());
 }
 
 enum Backend {

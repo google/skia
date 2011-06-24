@@ -90,6 +90,7 @@ int SkSVGParser::findAttribute(SkSVGBase* element, const char* attrValue,
     return -1;
 }
 
+#if 0
 const char* SkSVGParser::getFinal() {
     _startElement("screenplay");
     // generate defs
@@ -114,6 +115,7 @@ const char* SkSVGParser::getFinal() {
     fStream.write("", 1);
     return fStream.getStream();
 }
+#endif
 
 SkString& SkSVGParser::getPaintLast(SkSVGPaint::Field field) {
     SkSVGPaint* state = fHead;

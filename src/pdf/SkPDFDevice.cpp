@@ -18,6 +18,7 @@
 
 #include "SkColor.h"
 #include "SkClipStack.h"
+#include "SkData.h"
 #include "SkDraw.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
@@ -1080,6 +1081,9 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     return mediaBox;
 }
 
+/**
+ *  Can this return SkData instead of SkStream?
+ */
 SkStream* SkPDFDevice::content() const {
     SkDynamicMemoryWStream data;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
@@ -1104,12 +1108,14 @@ SkStream* SkPDFDevice::content() const {
                            translation);
         gsState.updateMatrix(entry->fState.fMatrix);
         gsState.updateDrawingState(entry->fState);
-        data.write(entry->fContent.getStream(), entry->fContent.getOffset());
+        
+        SkAutoDataUnref copy(entry->fContent.copyToData());
+        data.write(copy.data(), copy.size());
     }
     gsState.drainStack();
 
     SkMemoryStream* result = new SkMemoryStream;
-    result->setMemoryOwned(data.detach(), data.getOffset());
+    result->setData(data.copyToData())->unref();
     return result;
 }
 

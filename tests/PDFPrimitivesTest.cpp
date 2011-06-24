@@ -17,11 +17,21 @@
 #include <string>
 
 #include "Test.h"
+#include "SkData.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFStream.h"
 #include "SkPDFTypes.h"
 #include "SkScalar.h"
 #include "SkStream.h"
+
+static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
+                          const void* buffer, size_t len) {
+    SkAutoDataUnref data(stream.copyToData());
+    if (offset + len > data.size()) {
+        return false;
+    }
+    return memcmp(data.bytes() + offset, buffer, len) == 0;
+}
 
 static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
                               const std::string& representation,
@@ -32,8 +42,8 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
     SkDynamicMemoryWStream buffer;
     obj->emitObject(&buffer, NULL, false);
     REPORTER_ASSERT(reporter, directSize == buffer.getOffset());
-    REPORTER_ASSERT(reporter, memcmp(buffer.getStream(), representation.c_str(),
-                                     directSize) == 0);
+    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, representation.c_str(),
+                                            directSize));
 
     if (indirect) {
         // Indirect output.
@@ -52,14 +62,12 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
         buffer.reset();
         obj->emitObject(&buffer, &catalog, true);
         REPORTER_ASSERT(reporter, indirectSize == buffer.getOffset());
-        REPORTER_ASSERT(reporter, memcmp(buffer.getStream(), header,
-                                         headerLen) == 0);
-        REPORTER_ASSERT(reporter,
-                        memcmp(buffer.getStream() + headerLen,
-                               representation.c_str(), directSize) == 0);
-        REPORTER_ASSERT(reporter,
-                        memcmp(buffer.getStream() + headerLen + directSize,
-                               footer, footerLen) == 0);
+        REPORTER_ASSERT(reporter, stream_equals(buffer, 0, header, headerLen));
+        REPORTER_ASSERT(reporter, stream_equals(buffer, headerLen,
+                                                representation.c_str(),
+                                                directSize));
+        REPORTER_ASSERT(reporter, stream_equals(buffer, headerLen + directSize,
+                                                footer, footerLen));
     }
 }
 
@@ -87,8 +95,8 @@ static void TestCatalog(skiatest::Reporter* reporter) {
     catalog.emitObjectNumber(&buffer, int3.get());
     catalog.emitObjectNumber(&buffer, int1Again.get());
     char expectedResult[] = "1 02 03 01 0";
-    REPORTER_ASSERT(reporter, memcmp(buffer.getStream(), expectedResult,
-                                     strlen(expectedResult)) == 0);
+    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
+                                            strlen(expectedResult)));
 }
 
 static void TestObjectRef(skiatest::Reporter* reporter) {
@@ -109,8 +117,8 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream buffer;
     int2ref->emitObject(&buffer, &catalog, false);
     REPORTER_ASSERT(reporter, buffer.getOffset() == strlen(expectedResult));
-    REPORTER_ASSERT(reporter, memcmp(buffer.getStream(), expectedResult,
-                                     buffer.getOffset()) == 0);
+    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
+                                            buffer.getOffset()));
 }
 
 static void TestPDFPrimitives(skiatest::Reporter* reporter) {

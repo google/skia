@@ -72,6 +72,12 @@ public:
                                ReleaseProc proc, void* context);
 
     /**
+     *  Create a new dataref, reference the data ptr as is, and calling
+     *  sk_free to delete it.
+     */
+    static SkData* NewFromMalloc(const void* data, size_t length);
+
+    /**
      *  Create a new dataref using a subset of the data in the specified
      *  src dataref.
      */
@@ -92,6 +98,47 @@ private:
 
     SkData(const void* ptr, size_t size, ReleaseProc, void* context);
     ~SkData();
+};
+
+/**
+ *  Specialized version of SkAutoTUnref<SkData> for automatically unref-ing a
+ *  SkData. If the SkData is null, data(), bytes() and size() will return 0.
+ */
+class SkAutoDataUnref : SkNoncopyable {
+public:
+    SkAutoDataUnref(SkData* data) : fRef(data) {
+        if (data) {
+            fData = data->data();
+            fSize = data->size();
+        } else {
+            fData = NULL;
+            fSize = 0;
+        }
+    }
+    ~SkAutoDataUnref() {
+        SkSafeUnref(fRef);
+    }
+
+    const void* data() const { return fData; }
+    const uint8_t* bytes() const {
+        return reinterpret_cast<const uint8_t*> (fData);
+    }
+    size_t size() const { return fSize; }
+    SkData* get() const { return fRef; }
+
+    void release() {
+        if (fRef) {
+            fRef->unref();
+            fRef = NULL;
+            fData = NULL;
+            fSize = 0;
+        }
+    }
+
+private:
+    SkData*     fRef;
+    const void* fData;
+    size_t      fSize;
 };
 
 #endif
