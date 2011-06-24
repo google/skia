@@ -49,6 +49,7 @@
         '../tests/PackBitsTest.cpp',
         '../tests/PaintTest.cpp',
         '../tests/ParsePathTest.cpp',
+        '../tests/PathCoverageTest.cpp',
         '../tests/PathMeasureTest.cpp',
         '../tests/PathTest.cpp',
         '../tests/PDFPrimitivesTest.cpp',

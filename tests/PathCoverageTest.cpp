@@ -4,12 +4,19 @@
 
 /*
    Duplicates lots of code from gpu/src/GrPathUtils.cpp
-   It'd be nice not to do so, but that code's set up currently to only have a single implementation.
+   It'd be nice not to do so, but that code's set up currently to only have
+   a single implementation.
 */
 
+// Sk uses 6, Gr (implicitly) used 10, both apparently arbitrarily.
 #define MAX_COEFF_SHIFT     6
 static const uint32_t MAX_POINTS_PER_CURVE = 1 << MAX_COEFF_SHIFT;
 
+// max + 0.5 min has error [0.0, 0.12]
+// max + 0.375 min has error [-.03, 0.07]
+// 0.96043387 max + 0.397824735 min has error [-.06, +.05]
+// For determining the maximum possible number of points to use in
+// drawing a quadratic, we want to err on the high side.
 static inline int cheap_distance(SkScalar dx, SkScalar dy) {
     int idx = SkAbs32(SkScalarRound(dx));
     int idy = SkAbs32(SkScalarRound(dy));
@@ -21,30 +28,27 @@ static inline int cheap_distance(SkScalar dx, SkScalar dy) {
     return idx;
 }
 
-static inline int diff_to_shift(SkScalar dx, SkScalar dy) {
-    int dist = cheap_distance(dx, dy);
-    return (32 - SkCLZ(dist));
+static inline int estimate_distance(const SkPoint points[]) {
+    return cheap_distance(points[1].fX * 2 - points[2].fX - points[0].fX,
+                          points[1].fY * 2 - points[2].fY - points[0].fY);
 }
 
-uint32_t estimatedQuadraticPointCount(const SkPoint points[], SkScalar tol) {
-    int shift = diff_to_shift(points[1].fX * 2 - points[2].fX - points[0].fX,
-                              points[1].fY * 2 - points[2].fY - points[0].fY);
-    SkASSERT(shift >= 0);
-    //SkDebugf("Quad shift %d;", shift);
-    // bias to more closely approximate exact value, then clamp to zero
-    shift -= 2;
-    shift &= ~(shift>>31);
+static inline SkScalar compute_distance(const SkPoint points[]) {
+    return points[1].distanceToLineSegmentBetween(points[0], points[2]);
+}
 
+static inline uint32_t estimate_pointCount(int distance) {
+    // Includes -2 bias because this estimator runs 4x high?
+    int shift = 30 - SkCLZ(distance);
+    // Clamp to zero if above subtraction went negative.
+    shift &= ~(shift>>31);
     if (shift > MAX_COEFF_SHIFT) {
         shift = MAX_COEFF_SHIFT;
     }
-    uint32_t count = 1 << shift;
-    //SkDebugf(" biased shift %d, scale %u\n", shift, count);
-    return count;
+    return 1 << shift;
 }
 
-uint32_t computedQuadraticPointCount(const SkPoint points[], SkScalar tol) {
-    SkScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
+static inline uint32_t compute_pointCount(SkScalar d, SkScalar tol) {
     if (d < tol) {
        return 1;
     } else {
@@ -52,6 +56,26 @@ uint32_t computedQuadraticPointCount(const SkPoint points[], SkScalar tol) {
        uint32_t count = SkMinScalar(SkNextPow2(temp), MAX_POINTS_PER_CURVE);
        return count;
     }
+}
+
+uint32_t quadraticPointCount_EE(const SkPoint points[], SkScalar tol) {
+    int distance = estimate_distance(points);
+    return estimate_pointCount(distance);
+}
+
+uint32_t quadraticPointCount_EC(const SkPoint points[], SkScalar tol) {
+    int distance = estimate_distance(points);
+    return compute_pointCount(SkIntToScalar(distance), tol);
+}
+
+uint32_t quadraticPointCount_CE(const SkPoint points[], SkScalar tol) {
+    SkScalar distance = compute_distance(points);
+    return estimate_pointCount(SkScalarRound(distance));
+}
+
+uint32_t quadraticPointCount_CC(const SkPoint points[], SkScalar tol) {
+    SkScalar distance = compute_distance(points);
+    return compute_pointCount(distance, tol);
 }
 
 // Curve from samplecode/SampleSlides.cpp
@@ -82,24 +106,28 @@ static bool one_d_pe(const int* array, const unsigned int count,
     path[1] = SkPoint::Make(SkIntToScalar(array[0]), SkIntToScalar(array[1]));
     path[2] = SkPoint::Make(SkIntToScalar(array[2]), SkIntToScalar(array[3]));
     int numErrors = 0;
-    for (unsigned i = 4; i < (count); i += 2) {
+    for (unsigned i = 4; i < count; i += 2) {
         path[0] = path[1];
         path[1] = path[2];
         path[2] = SkPoint::Make(SkIntToScalar(array[i]),
                                 SkIntToScalar(array[i+1]));
         uint32_t computedCount =
-            computedQuadraticPointCount(path, SkIntToScalar(1));
+            quadraticPointCount_CC(path, SkIntToScalar(1));
         uint32_t estimatedCount =
-            estimatedQuadraticPointCount(path, SkIntToScalar(1));
-        // Allow estimated to be off by a factor of two, but no more.
-        if ((estimatedCount > 2 * computedCount) ||
-            (computedCount > estimatedCount * 2)) {
+            quadraticPointCount_EE(path, SkIntToScalar(1));
+        // Allow estimated to be high by a factor of two, but no less than
+        // the computed value.
+        bool isAccurate = (estimatedCount >= computedCount) &&
+            (estimatedCount <= 2 * computedCount);
+
+        if (!isAccurate) {
             SkString errorDescription;
             errorDescription.printf(
                 "Curve from %.2f %.2f through %.2f %.2f to %.2f %.2f "
                 "computes %d, estimates %d\n",
                 path[0].fX, path[0].fY, path[1].fX, path[1].fY,
                 path[2].fX, path[2].fY, computedCount, estimatedCount);
+            printf(errorDescription.c_str());
             numErrors++;
             reporter->reportFailed(errorDescription);
         }
