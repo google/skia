@@ -20,13 +20,13 @@
 #include "SkTemplates.h"
 #include "SkCGUtils.h"
 
-//#ifdef SK_BUILD_FOR_MAC
-//#include <ApplicationServices/ApplicationServices.h>
-//#endif
-//
-//#ifdef SK_BUILD_FOR_IOS
-//#include <CoreGraphics/CoreGraphics.h>
-//#endif
+#ifdef SK_BUILD_FOR_MAC
+#include <ApplicationServices/ApplicationServices.h>
+#endif
+
+#ifdef SK_BUILD_FOR_IOS
+#include <CoreGraphics/CoreGraphics.h>
+#endif
 
 static void malloc_release_proc(void* info, const void* data, size_t size) {
     sk_free(info);
