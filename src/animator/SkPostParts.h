@@ -22,9 +22,9 @@
 
 class SkPost;
 
-class SkData: public SkInput {
-    DECLARE_MEMBER_INFO(Data);
-    SkData();
+class SkDataInput: public SkInput {
+    DECLARE_MEMBER_INFO(DataInput);
+    SkDataInput();
     bool add();
     virtual void dirty();
     virtual SkDisplayable* getParent() const;
