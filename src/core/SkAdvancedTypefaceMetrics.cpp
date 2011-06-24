@@ -29,6 +29,7 @@
 #ifdef SK_BUILD_FOR_IOS
 #include <CoreText/CoreText.h>
 #include <CoreGraphics/CoreGraphics.h>
+#include <CoreFoundation/CoreFoundation.h>
 #endif
 
 namespace skia_advanced_typeface_metrics_utils {
