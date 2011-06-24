@@ -295,8 +295,6 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
     SkRandom fRandom;
     typedef MatrixBench INHERITED;
 };
->>>>>>> .r1709
-
 
 class ScaleTransDoubleMatrixBench : public MatrixBench {
  public:
