@@ -39,7 +39,7 @@ private:
 #import "SkCGUtils.h"
 #import "SkNSView.h"
 @implementation SkNSView
-@synthesize offset, center, scale, rotation;
+@synthesize fOffset, fCenter, fScale, fRotation;
 
 -(id) initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
@@ -77,10 +77,10 @@ private:
 }
 
 -(void) resetTransformations {
-    offset = NSMakePoint(0, 0);
-    center = NSMakePoint(fView->width() / 2.0, fView->height() / 2.0);
-    rotation = 0;
-    scale = 1.0;
+    fOffset = NSMakePoint(0, 0);
+    fCenter = NSMakePoint(fView->width() / 2.0, fView->height() / 2.0);
+    fRotation = 0;
+    fScale = 1.0;
 }
 
 -(void) drawRect:(NSRect)dirtyRect {
@@ -96,10 +96,10 @@ private:
         //Apply view transformations so they can be applied to individual 
         //child views without affecting the parent's clip/matrix
         SkMatrix matrix;
-        matrix.setTranslate(offset.x + center.x, offset.y + center.y);
-        matrix.preRotate(rotation);
-        matrix.preScale(scale, scale);
-        matrix.preTranslate(-center.x, -center.y);
+        matrix.setTranslate(fOffset.x + fCenter.x, fOffset.y + fCenter.y);
+        matrix.preRotate(fRotation);
+        matrix.preScale(fScale, fScale);
+        matrix.preTranslate(-fCenter.x, -fCenter.y);
         fView->setBeforeChildMatrix(matrix);
 
         fView->draw(&canvas);

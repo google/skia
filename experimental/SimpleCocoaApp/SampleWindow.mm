@@ -6,6 +6,7 @@ public:
     SkSampleView() {};
 protected:
     virtual void onDraw(SkCanvas* canvas) {
+        canvas->drawColor(0xFFFFFFFF);
         SkPaint p;
         p.setTextSize(20);
         p.setAntiAlias(true);

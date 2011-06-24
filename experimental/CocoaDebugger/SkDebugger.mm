@@ -97,8 +97,10 @@
     NSRect contentRect = [fContentView convertRectToBase:[fContentView bounds]];
     NSRect commandRect = [fCommandView convertRectToBase:[fCommandView bounds]];
     if ([fContentView mouse:p inRect:contentRect]) {
-        fContentView.offset =  NSMakePoint(fContentView.offset.x + [event deltaX], 
-                                           fContentView.offset.y + [event deltaY]);
+        fContentView.fOffset =  NSMakePoint(fContentView.fOffset.x + [event deltaX], 
+                                           fContentView.fOffset.y + [event deltaY]);
+        fContentView.fCenter =  NSMakePoint(fContentView.fCenter.x - [event deltaX], 
+                                           fContentView.fCenter.y - [event deltaY]);
         [fContentView setNeedsDisplay:YES];
     }
     [super mouseDragged:event];
@@ -107,9 +109,9 @@
 - (void)magnifyWithEvent:(NSEvent *)event {
     if ([fContentView mouse:[event locationInWindow] 
                      inRect:[fContentView convertRectToBase:[fContentView bounds]]]) {
-        fContentView.center = [fContentView convertPoint:[event locationInWindow]
-                                                fromView:nil];
-        fContentView.scale = fContentView.scale * ([event magnification] + 1.0);
+//        fContentView.fCenter = [fContentView convertPoint:[event locationInWindow]
+//                                                fromView:nil];
+        fContentView.fScale = fContentView.fScale * ([event magnification] + 1.0);
         [fContentView setNeedsDisplay:YES];
     }
     [super magnifyWithEvent:event];
@@ -118,9 +120,9 @@
 - (void)rotateWithEvent:(NSEvent *)event {
     if ([fContentView mouse:[event locationInWindow] 
                      inRect:[fContentView convertRectToBase:[fContentView bounds]]]) {
-        fContentView.center = [fContentView convertPoint:[event locationInWindow]
-                                                fromView:nil];
-        fContentView.rotation = fContentView.rotation - [event rotation];
+//        fContentView.fCenter  = [fContentView convertPoint:[event locationInWindow]
+//                                          fromView:nil];
+        fContentView.fRotation = fContentView.fRotation - [event rotation];
         [fContentView setNeedsDisplay:YES];
     }
     [super rotateWithEvent:event];
@@ -131,13 +133,13 @@
     NSRect contentRect = [fContentView convertRectToBase:[fContentView bounds]];
     NSRect commandRect = [fCommandView convertRectToBase:[fCommandView bounds]];
     if ([fContentView mouse:p inRect:contentRect]) {
-        fContentView.center = [fContentView convertPoint:[event locationInWindow]
-                                                fromView:nil];
+//        fContentView.fCenter = [fContentView convertPoint:[event locationInWindow]
+//                                                fromView:nil];
         if ([event deltaY] > 0) {
-            fContentView.scale = fContentView.scale * (1.05);
+            fContentView.fScale = fContentView.fScale * (1.05);
         }
         if ([event deltaY] < 0) {
-            fContentView.scale = fContentView.scale * (0.95);
+            fContentView.fScale = fContentView.fScale * (0.95);
         }
         [fContentView setNeedsDisplay:YES];
     }
