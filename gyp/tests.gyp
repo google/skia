@@ -1,28 +1,14 @@
 # GYP file to build unit tests.
-#
-# To build and run on Linux:
-#  ./gyp_skia tests.gyp && make
-#  out/Debug/tests
-#
-# To build on Linux with skia_pdf_support disabled:
-#  ./gyp_skia tests.gyp -Dskia_pdf_support=false && make
-#
-# Building on other platforms not tested yet.
-#
 {
   'includes': [
     'apptype_console.gypi',
     'target_defaults.gypi',
   ],
-  'variables': {
-    'skia_pdf_support%': 'true',
-  },
   'targets': [
     {
       'target_name': 'tests',
       'type': 'executable',
       'include_dirs' : [
-        '../include/pdf',
         '../src/core',
       ],
       'sources': [
@@ -74,20 +60,8 @@
         'effects.gyp:effects',
         'experimental.gyp:experimental',
         'images.gyp:images',
+        'pdf.gyp:pdf',
         'utils.gyp:utils',
-      ],
-      'conditions': [
-        [ 'skia_pdf_support == "true"',
-          { # if skia_pdf_support is TRUE, depend on pdf.gyp...
-            'dependencies': [
-              'pdf.gyp:pdf',
-            ],
-          }, { # else, we don't need PDFPrimitivesTest.cpp after all.
-            'sources!': [
-              '../tests/PDFPrimitivesTest.cpp',
-            ],
-          }
-        ],
       ],
     },
   ],

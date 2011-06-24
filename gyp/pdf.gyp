@@ -39,7 +39,12 @@
         '../src/pdf/SkPDFTypes.cpp',
         '../src/pdf/SkPDFUtils.cpp',
       ],
+      # This section makes all targets that depend on this target
+      # #define SK_SUPPORT_PDF and have access to the pdf header files.
       'direct_dependent_settings': {
+        'defines': [
+          'SK_SUPPORT_PDF',
+        ],
         'include_dirs': [
           '../include/pdf',
         ],

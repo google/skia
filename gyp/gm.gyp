@@ -1,11 +1,4 @@
 # GYP file to build the "gm" (golden master) executable.
-#
-# To build and run on Linux:
-#  ./gyp_skia gm.gyp && make
-#  out/Debug/gm -r ../gm/base-linux
-#
-# Building on other platforms not tested yet.
-#
 {
   'includes': [
     'apptype_console.gypi',
@@ -40,6 +33,7 @@
         'gpu.gyp:gr',
         'gpu.gyp:skgr',
         'images.gyp:images',
+        'pdf.gyp:pdf',
         'utils.gyp:utils',
       ],
     },
