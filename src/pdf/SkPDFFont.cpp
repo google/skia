@@ -16,6 +16,7 @@
 
 #include <ctype.h>
 
+#include "SkData.h"
 #include "SkFontHost.h"
 #include "SkGlyphCache.h"
 #include "SkPaint.h"
@@ -140,6 +141,7 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
     // Make as few copies as possible given these constraints.
     SkDynamicMemoryWStream dynamicStream;
     SkRefPtr<SkMemoryStream> staticStream;
+    SkData* data = NULL;
     const uint8_t* src;
     size_t srcLen;
     if ((srcLen = srcStream->getLength()) > 0) {
@@ -168,10 +170,14 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
             dynamicStream.write(buf, amount);
         amount = 0;
         dynamicStream.write(&amount, 1);  // NULL terminator.
-        // getStream makes another copy, but we couldn't do any better.
-        src = (const uint8_t*)dynamicStream.getStream();
-        srcLen = dynamicStream.getOffset() - 1;
+        data = dynamicStream.copyToData();
+        src = data->bytes();
+        srcLen = data->size() - 1;
     }
+
+    // this handles releasing the data we may have gotten from dynamicStream.
+    // if data is null, it is a no-op
+    SkAutoDataUnref aud(data);
 
     if (parsePFB(src, srcLen, headerLen, dataLen, trailerLen)) {
         SkMemoryStream* result =
@@ -616,7 +622,7 @@ void SkPDFFont::populateToUnicodeTable() {
     append_cmap_footer(&cmap);
     SkRefPtr<SkMemoryStream> cmapStream = new SkMemoryStream();
     cmapStream->unref();  // SkRefPtr and new took a reference.
-    cmapStream->setMemoryOwned(cmap.detach(), cmap.getOffset());
+    cmapStream->setData(cmap.copyToData())->unref();
     SkRefPtr<SkPDFStream> pdfCmap = new SkPDFStream(cmapStream.get());
     fResources.push(pdfCmap.get());  // Pass reference from new.
     insert("ToUnicode", new SkPDFObjRef(pdfCmap.get()))->unref();
@@ -792,7 +798,7 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
         }
         SkRefPtr<SkMemoryStream> glyphStream = new SkMemoryStream();
         glyphStream->unref();  // SkRefPtr and new both took a ref.
-        glyphStream->setMemoryOwned(content.detach(), content.getOffset());
+        glyphStream->setData(content.copyToData())->unref();
 
         SkRefPtr<SkPDFStream> glyphDescription =
             new SkPDFStream(glyphStream.get());

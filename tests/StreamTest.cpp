@@ -82,7 +82,6 @@ static void TestWStream(skiatest::Reporter* reporter) {
     for (i = 0; i < 100; i++) {
         REPORTER_ASSERT(reporter, memcmp(&dst[i * 26], s, 26) == 0);
     }
-    REPORTER_ASSERT(reporter, memcmp(dst, ds.getStream(), 100*26) == 0);
 
     {
         SkData* data = ds.copyToData();

@@ -102,6 +102,8 @@ public:
     bool    writePackedUInt(size_t);
     
     bool writeStream(SkStream* input, size_t length);
+
+    bool writeData(const SkData*);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -184,6 +186,20 @@ public:
         will be freed with sk_free.
     */
     void setMemoryOwned(const void* data, size_t length);
+
+    /**
+     *  Return the stream's data in a SkData. The caller must call unref() when
+     *  it is finished using the data.
+     */
+    SkData* copyToData() const;
+
+    /**
+     *  Use the specified data as the memory for this stream. The stream will
+     *  call ref() on the data (assuming it is not null). The function returns
+     *  the data parameter as a convenience.
+     */
+    SkData* setData(SkData*);
+
     void skipToAlign4();
     virtual bool rewind();
     virtual size_t read(void* buffer, size_t size);
@@ -193,9 +209,8 @@ public:
     size_t peek() const { return fOffset; }
     
 private:
-    const void* fSrc;
-    size_t fSize, fOffset;
-    SkBool8 fWeOwnTheData;
+    SkData* fData;
+    size_t  fOffset;
 };
 
 /** \class SkBufferStream
@@ -275,27 +290,21 @@ class SK_API SkDynamicMemoryWStream : public SkWStream {
 public:
     SkDynamicMemoryWStream();
     virtual ~SkDynamicMemoryWStream();
+
     virtual bool write(const void* buffer, size_t size);
     // random access write
     // modifies stream and returns true if offset + size is less than or equal to getOffset()
     bool write(const void* buffer, size_t offset, size_t size);
     bool read(void* buffer, size_t offset, size_t size);
     size_t getOffset() const { return fBytesWritten; }
+    size_t bytesWritten() const { return fBytesWritten; }
 
     // copy what has been written to the stream into dst
-    void    copyTo(void* dst) const;
-    /*  return a cache of the flattened data returned by copyTo().
-        This copy is only valid until the next call to write().
-        The memory is managed by the stream class.
-    */
-    const char* getStream() const;
-
-    // same as getStream, but additionally detach the flattened datat
-    // DEPRECATED : use copyToData() instead
-    const char* detach() const;
+    void copyTo(void* dst) const;
 
     /**
-     *  Return a copy of the data written so far
+     *  Return a copy of the data written so far. This call is responsible for
+     *  calling unref() when they are finished with the data.
      */
     SkData* copyToData() const;
 
@@ -307,7 +316,9 @@ private:
     Block*  fHead;
     Block*  fTail;
     size_t  fBytesWritten;
-    mutable char*   fCopyToCache;
+    mutable SkData* fCopy;  // is invalidated if we write after it is created
+
+    void invalidateCopy();
 };
 
 

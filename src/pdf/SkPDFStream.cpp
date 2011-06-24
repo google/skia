@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "SkData.h"
 #include "SkFlate.h"
 #include "SkPDFCatalog.h"
 #include "SkPDFStream.h"
@@ -45,10 +46,12 @@ void SkPDFStream::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 
     this->INHERITED::emitObject(stream, catalog, false);
     stream->writeText(" stream\n");
-    if (fPlainData.get())
+    if (fPlainData.get()) {
         stream->write(fPlainData->getMemoryBase(), fLength);
-    else
-        stream->write(fCompressedData.getStream(), fLength);
+    } else {
+        SkAutoDataUnref data(fCompressedData.copyToData());
+        stream->write(data.data(), fLength);
+    }
     stream->writeText("\nendstream");
 }
 

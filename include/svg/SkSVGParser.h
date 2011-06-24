@@ -42,7 +42,7 @@ public:
         fXMLWriter.addAttributeLen(attrName, attrValue, len); }
     void _endElement() { fXMLWriter.endElement(); }
     int findAttribute(SkSVGBase* , const char* attrValue, size_t len, bool isPaint);
-    const char* getFinal();
+//    const char* getFinal();
     SkTDict<SkSVGElement*>& getIDs() { return fIDs; }
     SkString& getPaintLast(SkSVGPaint::Field field);
     void _startElement(const char name[]) { fXMLWriter.startElement(name); }

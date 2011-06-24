@@ -16,6 +16,7 @@
 
 
 #include "SkCanvas.h"
+#include "SkData.h"
 #include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkGPipe.h"
@@ -68,7 +69,8 @@ static size_t writeTypeface(SkWriter32* writer, SkTypeface* typeface) {
     size_t size = stream.getOffset();
     if (writer) {
         writer->write32(size);
-        writer->write(stream.getStream(), size);
+        SkAutoDataUnref data(stream.copyToData());
+        writer->write(data.data(), size);
     }
     return 4 + size;
 }

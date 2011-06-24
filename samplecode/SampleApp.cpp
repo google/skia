@@ -1,5 +1,6 @@
 #include "SampleApp.h"
 
+#include "SkData.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
 #include "SkGpuCanvas.h"
@@ -827,7 +828,8 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
                 fPicture->serialize(&ostream);
                 fPicture->unref();
 
-                SkMemoryStream istream(ostream.getStream(), ostream.getOffset());
+                SkAutoDataUnref data(ostream.copyToData());
+                SkMemoryStream istream(data.data(), data.size());
                 SkPicture pict(&istream);
                 orig->drawPicture(pict);
             } else {

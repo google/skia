@@ -1,4 +1,5 @@
 #include "SkScript2.h"
+#include "SkData.h"
 #include "SkFloatingPoint.h"
 #include "SkMath.h"
 #include "SkParse.h"
@@ -736,11 +737,12 @@ scalarCommon:
     }
     if (fStream.getOffset() > 0) {
         addToken(kEnd);
+        SkAutoDataUnref data(fStream.copyToData());
 #ifdef SK_DEBUG
-        decompile((const unsigned char*)fStream.getStream(), fStream.getOffset());
+        decompile(data.bytes(), data.size());
 #endif
         SkScriptRuntime runtime(fCallBackArray);
-        runtime.executeTokens((unsigned char*) fStream.getStream());
+        runtime.executeTokens((unsigned char*) data.bytes());
         SkScriptValue2 value1;
         runtime.getResult(&value1.fOperand);
         value1.fType = fReturnType;
@@ -1142,11 +1144,12 @@ bool SkScriptEngine2::processOp() {
     addToken(typeOp);
     if (constantOperands) {
         addToken(kEnd);
+        SkAutoDataUnref data(fStream.copyToData());
 #ifdef SK_DEBUG        
-        decompile((const unsigned char*) stream.getStream(), stream.getOffset());
+        decompile(data.bytes(), data.size());
 #endif
         SkScriptRuntime runtime(fCallBackArray);
-        runtime.executeTokens((unsigned char*) stream.getStream());
+        runtime.executeTokens((unsigned char*)data.bytes());
         runtime.getResult(&value1.fOperand);
         if (attributes->fResultIsBoolean == kResultIsBoolean)
             value1.fType = SkOperand2::kS32;

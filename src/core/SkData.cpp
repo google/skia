@@ -57,8 +57,12 @@ SkData* SkData::NewEmpty() {
 }
 
 // assumes fPtr was allocated via sk_malloc
-static void sk_malloc_releaseproc(const void* ptr, size_t, void*) {
+static void sk_free_releaseproc(const void* ptr, size_t, void*) {
     sk_free((void*)ptr);
+}
+
+SkData* SkData::NewFromMalloc(const void* data, size_t length) {
+    return new SkData(data, length, sk_free_releaseproc, NULL);
 }
 
 SkData* SkData::NewWithCopy(const void* data, size_t length) {
@@ -66,13 +70,13 @@ SkData* SkData::NewWithCopy(const void* data, size_t length) {
         return SkData::NewEmpty();
     }
 
-    void* copy = sk_malloc_throw(length); // balanced in sk_malloc_releaseproc
+    void* copy = sk_malloc_throw(length); // balanced in sk_free_releaseproc
     memcpy(copy, data, length);
-    return new SkData(copy, length, sk_malloc_releaseproc, NULL);
+    return new SkData(copy, length, sk_free_releaseproc, NULL);
 }
 
 SkData* SkData::NewWithProc(const void* data, size_t length,
-                                  ReleaseProc proc, void* context) {
+                            ReleaseProc proc, void* context) {
     return new SkData(data, length, proc, context);
 }
 
