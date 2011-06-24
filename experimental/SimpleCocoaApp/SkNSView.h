@@ -6,11 +6,11 @@ class SkView;
     SkNSContainerView* fView;
     
     @private
-    NSPoint offset, center;
-    CGFloat scale, rotation;
+    NSPoint fOffset, fCenter;
+    CGFloat fScale, fRotation;
 }
-    @property(readwrite) NSPoint offset, center; 
-    @property(readwrite) CGFloat scale, rotation;
+    @property(readwrite) NSPoint fOffset, fCenter; 
+    @property(readwrite) CGFloat fScale, fRotation;
 
     -(void) addSkView:(SkView*)aView; 
     -(void) resetTransformations;
