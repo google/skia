@@ -51,7 +51,6 @@ public:
                             const SkPath& path, const SkMatrix* matrix, 
                                 const SkPaint&);
     virtual void drawPicture(SkPicture& picture);
-    virtual void drawShape(SkShape*);
     virtual void drawVertices(VertexMode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
                           const SkColor colors[], SkXfermode*,
@@ -72,9 +71,6 @@ public:
     }
     const SkTDArray<SkPicture* >& getPictureRefs() const {
         return fPictureRefs;
-    }
-    const SkTDArray<SkShape* >& getShapes() const {
-        return fShapes;
     }
     const SkTDArray<const SkFlatRegion* >& getRegions() const {
         return fRegions;
@@ -173,7 +169,6 @@ private:
 
     // we ref each item in these arrays
     SkTDArray<SkPicture*> fPictureRefs;
-    SkTDArray<SkShape*> fShapes;
 
     SkRefCntSet fRCSet;
     SkRefCntSet fTFSet;

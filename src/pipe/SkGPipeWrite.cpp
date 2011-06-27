@@ -127,7 +127,6 @@ public:
                             const SkPath& path, const SkMatrix* matrix, 
                                 const SkPaint&);
     virtual void drawPicture(SkPicture& picture);
-    virtual void drawShape(SkShape*);
     virtual void drawVertices(VertexMode, int vertexCount,
                           const SkPoint vertices[], const SkPoint texs[],
                           const SkColor colors[], SkXfermode*,
@@ -589,10 +588,6 @@ void SkGPipeCanvas::drawTextOnPath(const void* text, size_t byteLength,
 void SkGPipeCanvas::drawPicture(SkPicture& picture) {
     // we want to playback the picture into individual draw calls
     this->INHERITED::drawPicture(picture);
-}
-
-void SkGPipeCanvas::drawShape(SkShape* shape) {
-    UNIMPLEMENTED
 }
 
 void SkGPipeCanvas::drawVertices(VertexMode mode, int vertexCount,

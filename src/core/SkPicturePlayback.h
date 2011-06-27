@@ -11,7 +11,6 @@
 #include "SkPathHeap.h"
 #include "SkRegion.h"
 #include "SkPictureFlat.h"
-#include "SkShape.h"
 
 #ifdef ANDROID
 #include "SkThread.h"
@@ -76,12 +75,6 @@ private:
         int index = getInt();
         SkASSERT(index > 0 && index <= fPictureCount);
         return *fPictureRefs[index - 1];
-    }
-    
-    SkShape* getShape() {
-        int index = getInt();
-        SkASSERT(index > 0 && index <= fShapeCount);
-        return fShapes[index - 1];
     }
     
     const SkPaint* getPaint() {
@@ -170,8 +163,6 @@ private:
 
     SkPicture** fPictureRefs;
     int fPictureCount;
-    SkShape** fShapes;
-    int fShapeCount;
 
     SkRefCntPlayback fRCPlayback;
     SkTypefacePlayback fTFPlayback;

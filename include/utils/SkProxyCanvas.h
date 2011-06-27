@@ -64,7 +64,6 @@ public:
                                 const SkPath& path, const SkMatrix* matrix,
                                 const SkPaint& paint);
     virtual void drawPicture(SkPicture&);
-    virtual void drawShape(SkShape*);
     virtual void drawVertices(VertexMode vmode, int vertexCount,
                               const SkPoint vertices[], const SkPoint texs[],
                               const SkColor colors[], SkXfermode* xmode,

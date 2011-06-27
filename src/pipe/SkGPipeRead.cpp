@@ -364,11 +364,6 @@ static void drawData_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
     canvas->drawData(data, size);
 }
 
-static void drawShape_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
-                         SkGPipeState* state) {
-    UNIMPLEMENTED
-}
-
 static void drawPicture_rp(SkCanvas* canvas, SkReader32* reader, uint32_t op32,
                            SkGPipeState* state) {
     UNIMPLEMENTED
@@ -463,7 +458,6 @@ static const ReadProc gReadTable[] = {
     drawPosText_rp,
     drawPosTextH_rp,
     drawRect_rp,
-    drawShape_rp,
     drawSprite_rp,
     drawText_rp,
     drawTextOnPath_rp,

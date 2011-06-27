@@ -1081,10 +1081,13 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     return mediaBox;
 }
 
-/**
- *  Can this return SkData instead of SkStream?
- */
 SkStream* SkPDFDevice::content() const {
+    SkMemoryStream* result = new SkMemoryStream;
+    result->setData(this->copyContentToData())->unref();
+    return result;
+}
+
+SkData* SkPDFDevice::copyContentToData() const {
     SkDynamicMemoryWStream data;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
         SkPDFUtils::AppendTransform(fInitialTransform, &data);
@@ -1097,11 +1100,11 @@ SkStream* SkPDFDevice::content() const {
         SkRect r = SkRect::MakeWH(this->width(), this->height());
         emit_clip(NULL, &r, &data);
     }
-
+    
     GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, &data);
     for (ContentEntry* entry = fContentEntries.get();
-            entry != NULL;
-            entry = entry->fNext.get()) {
+         entry != NULL;
+         entry = entry->fNext.get()) {
         SkIPoint translation = this->getOrigin();
         translation.negate();
         gsState.updateClip(entry->fState.fClipStack, entry->fState.fClipRegion,
@@ -1114,9 +1117,9 @@ SkStream* SkPDFDevice::content() const {
     }
     gsState.drainStack();
 
-    SkMemoryStream* result = new SkMemoryStream;
-    result->setData(data.copyToData())->unref();
-    return result;
+    // potentially we could cache this SkData, and only rebuild it if we
+    // see that our state has changed.
+    return data.copyToData();
 }
 
 void SkPDFDevice::createFormXObjectFromDevice(
