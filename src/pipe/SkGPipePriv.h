@@ -116,7 +116,7 @@ static uint32_t DrawOp_packOpFlagData(DrawOps op, unsigned flags, unsigned data)
     SkASSERT(0 == (flags & ~DRAWOPS_FLAG_MASK));
     SkASSERT(0 == (data & ~DRAWOPS_DATA_MASK));
 
-    return (op << DRAWOPS_FLAG_BITS + DRAWOPS_DATA_BITS) |
+    return (op << (DRAWOPS_FLAG_BITS + DRAWOPS_DATA_BITS)) |
            (flags << DRAWOPS_DATA_BITS) |
             data;
 }
@@ -187,14 +187,14 @@ static unsigned PaintOp_unpackData(uint32_t op32) {
 static uint32_t PaintOp_packOp(PaintOps op) {
     SkASSERT(0 == (op & ~PAINTOPS_OP_MASK));
     
-    return (op << PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS);
+    return op << (PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS);
 }
 
 static uint32_t PaintOp_packOpData(PaintOps op, unsigned data) {
     SkASSERT(0 == (op & ~PAINTOPS_OP_MASK));
     SkASSERT(0 == (data & ~PAINTOPS_DATA_MASK));
     
-    return (op << PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS) | data;
+    return (op << (PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS)) | data;
 }
 
 static uint32_t PaintOp_packOpFlagData(PaintOps op, unsigned flags, unsigned data) {
@@ -202,7 +202,7 @@ static uint32_t PaintOp_packOpFlagData(PaintOps op, unsigned flags, unsigned dat
     SkASSERT(0 == (flags & ~PAINTOPS_FLAG_MASK));
     SkASSERT(0 == (data & ~PAINTOPS_DATA_MASK));
     
-    return (op << PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS) |
+    return (op << (PAINTOPS_FLAG_BITS + PAINTOPS_DATA_BITS)) |
     (flags << PAINTOPS_DATA_BITS) |
     data;
 }

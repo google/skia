@@ -238,7 +238,8 @@ int SkGPipeCanvas::flattenToIndex(SkFlattenable* obj, PaintFlats paintflat) {
 
 SkGPipeCanvas::SkGPipeCanvas(SkGPipeController* controller,
                              SkWriter32* writer, SkFactorySet* fset)
-        : fWriter(*writer), fFactorySet(fset) {
+        : fWriter(*writer) {
+    fFactorySet = fset;
     fController = controller;
     fDone = false;
     fBlockSize = 0; // need first block from controller
