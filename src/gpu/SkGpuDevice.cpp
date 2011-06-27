@@ -961,6 +961,37 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
         srcRect = *srcRectPtr;
     }
 
+    if (paint.getMaskFilter()){
+        SkBitmap        tmp;    // storage if we need a subset of bitmap
+        const SkBitmap* bitmapPtr = &bitmap;
+        if (srcRectPtr) {
+            if (!bitmap.extractSubset(&tmp, srcRect)) {
+                return;     // extraction failed
+            }
+            bitmapPtr = &tmp;
+        }
+        SkPaint paintWithTexture(paint);
+        paintWithTexture.setShader(SkShader::CreateBitmapShader( *bitmapPtr,
+            SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
+        paintWithTexture.getShader()->setLocalMatrix(m);
+
+        SkRect ScalarRect;
+        ScalarRect.set(srcRect);
+
+        if (m.rectStaysRect()) {
+            // Preferred drawing method, optimized for rectangles
+            m.mapRect(&ScalarRect);
+            this->drawRect(draw, ScalarRect, paintWithTexture);
+        } else {
+            // Slower drawing method, for warped or rotated rectangles
+            SkPath path;
+            path.addRect(ScalarRect);
+            path.transform(m);
+            this->drawPath(draw, path, paintWithTexture, NULL, true);
+        }
+        return;
+    }
+
     GrPaint grPaint;
     if (!this->skPaint2GrPaintNoShader(paint, true, &grPaint, false)) {
         return;

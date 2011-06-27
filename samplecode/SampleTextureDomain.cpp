@@ -1,6 +1,7 @@
 #include "SampleCode.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
+#include "SkBlurMaskFilter.h"
 
 namespace {
 SkBitmap make_bitmap() {
@@ -68,6 +69,27 @@ protected:
         srcRect.setXYWH(1, 1, 3, 3);
         dstRect.setXYWH(405.0f, 5.0f, 305.0f, 305.0f);
         canvas->drawBitmapRect(deviceBitmap, &srcRect, dstRect, &paint);
+
+        // Test that bitmap blurring using a subrect
+        // renders correctly 
+        srcRect.setXYWH(1, 1, 3, 3);
+        dstRect.setXYWH(5.0f, 405.0f, 305.0f, 305.0f);
+        SkMaskFilter* mf = SkBlurMaskFilter::Create(
+            5,
+            SkBlurMaskFilter::kNormal_BlurStyle,
+            SkBlurMaskFilter::kHighQuality_BlurFlag);
+        paint.setMaskFilter(mf)->unref();
+        canvas->drawBitmapRect(deviceBitmap, &srcRect, dstRect, &paint);
+
+        // Blur and a rotation + NULL src rect
+        // This should not trigger the texture domain code
+        // but it will test a code path in SkGpuDevice::drawBitmap
+        // that handles blurs with rects transformed to non-
+        // orthogonal rects. It also tests the NULL src rect handling
+        dstRect.setXYWH(-150.0f, -150.0f, 300.0f, 300.0f);
+        canvas->translate(550, 550);
+        canvas->rotate(45);
+        canvas->drawBitmapRect(fBM, NULL, dstRect, &paint);
     }
 private:
     typedef SkView INHERITED;
