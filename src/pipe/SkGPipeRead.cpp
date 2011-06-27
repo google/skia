@@ -85,7 +85,7 @@ public:
         return fFlatArray[index - 1];
     }
 
-    void defFlattenable(PaintFlats pf, unsigned index) {
+    void defFlattenable(PaintFlats pf, int index) {
         SkASSERT(index == fFlatArray.count() + 1);
         SkFlattenable* obj = fReader->readFlattenable();
         *fFlatArray.append() = obj;
