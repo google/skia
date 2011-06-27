@@ -260,10 +260,8 @@
           'sources': [
             '../include/core/SkMMapStream.h',
             '../src/core/SkMMapStream.cpp',
-            '../src/core/SkBlitter_ARGB32_Subpixel.cpp',
             '../src/ports/SkThread_pthread.cpp',
             '../src/ports/SkTime_Unix.cpp',
-            '../src/ports/SkFontHost_FreeType_Subpixel.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_gamma_none.cpp',
             '../src/ports/SkFontHost_linux.cpp',

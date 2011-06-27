@@ -947,11 +947,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         h = SkPaint::kNormal_Hinting;
     }
     rec->setHinting(h);
-
-    // we don't support LCD text
-    if (SkMask::FormatIsLCD((SkMask::Format)rec->fMaskFormat)) {
-        rec->fMaskFormat = SkMask::kA8_Format;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////

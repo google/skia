@@ -28,31 +28,13 @@ struct SkMask {
         kBW_Format, //!< 1bit per pixel mask (e.g. monochrome)
         kA8_Format, //!< 8bits per pixel mask (e.g. antialiasing)
         k3D_Format, //!< 3 8bit per pixl planes: alpha, mul, add
-
-        /* The LCD formats look like this in memory:
-
-           First, there's an A8 plane which contains the average alpha value for
-           each pixel. Because of this, the LCD formats can be passed directly
-           to functions which expect an A8 and everything will just work.
-
-           After that in memory, there's a bitmap of 32-bit values which have
-           been RGB order corrected for the current screen (based on the
-           settings in SkFontHost at the time of renderering). The alpha value
-           for each pixel is the maximum of the three alpha values.
-
-           kHorizontalLCD_Format has an extra column of pixels on the left and right
-           edges. kVerticalLCD_Format has an extra row at the top and bottom.
-        */
-
-        kHorizontalLCD_Format,  //!< 4 bytes/pixel: a/r/g/b
-        kVerticalLCD_Format,    //!< 4 bytes/pixel: a/r/g/b
         kARGB32_Format,         //!< SkPMColor
         kLCD16_Format,          //!< 565 alpha for r/g/b
         kLCD32_Format           //!< 888 alpha for r/g/b
     };
 
     enum {
-        kCountMaskFormats = kVerticalLCD_Format + 1
+        kCountMaskFormats = kLCD32_Format + 1
     };
 
     uint8_t*    fImage;
@@ -124,29 +106,6 @@ struct SkMask {
         return row + (x - fBounds.fLeft);
     }
 
-    /** Return an address into the 32-bit plane of an LCD or VerticalLCD mask
-        for the given position.
-    */
-    const uint32_t* getAddrLCD(int x, int y) const {
-        SkASSERT(fFormat == kHorizontalLCD_Format || fFormat == kVerticalLCD_Format);
-        SkASSERT(fImage != NULL);
-
-        return reinterpret_cast<const uint32_t*>(fImage + SkAlign4(fRowBytes * fBounds.height())) +
-               x - fBounds.fLeft + (y - fBounds.fTop) * rowWordsLCD();
-    }
-
-    /** Return the number of 32-bit words in a row of the 32-bit plane of an
-       LCD or VerticalLCD mask.
-    */
-    unsigned rowWordsLCD() const {
-        SkASSERT(fFormat == kHorizontalLCD_Format || fFormat == kVerticalLCD_Format);
-        if (fFormat == kHorizontalLCD_Format) {
-            return fBounds.width() + 2;
-        } else {
-            return fBounds.width();
-        }
-    }
-
     static uint8_t* AllocImage(size_t bytes);
     static void FreeImage(void* image);
 
@@ -155,10 +114,6 @@ struct SkMask {
         kJustRenderImage_CreateMode,        //!< render into preallocate mask
         kComputeBoundsAndRenderImage_CreateMode  //!< compute bounds, alloc image and render into it
     };
-
-    static bool FormatIsLCD(Format fm) {
-        return kHorizontalLCD_Format == fm || kVerticalLCD_Format == fm;
-    }
 };
 
 #endif

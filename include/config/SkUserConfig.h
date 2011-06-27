@@ -112,14 +112,10 @@
  */
 //#define SkDebugf(...)  MyFunction(__VA_ARGS__)
 
-/*  To enable additional blitters (and fontscaler code) to support separate
-    alpha channels for R G B channels, define SK_SUPPORT_LCDTEXT
- */
-//#define SK_SUPPORT_LCDTEXT
-
-/* Define this to pack glyphs using 8 bits per component instead of 5-6-5.
-   This will double the size of the font cache, but will produce fonts with
-   gray levels closer to the designer's intent.
+/**
+ *  Used only for lcdtext, define this to pack glyphs using 8 bits per component
+ *  instead of 5-6-5. This can increase fidelity with the native font scaler,
+ *  but doubles the RAM used by the font cache.
 */
 //#define SK_SUPPORT_888_TEXT
 
