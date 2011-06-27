@@ -1816,7 +1816,7 @@ private:
         fStartRadius = SkScalarMul(fRadius1, inv);
         fSr2D2 = SkScalarSquare(fStartRadius);
         fA = SkScalarSquare(fDiff.fX) + SkScalarSquare(fDiff.fY) - SK_Scalar1;
-        fOneOverTwoA = SkScalarInvert(fA * 2);
+        fOneOverTwoA = fA ? SkScalarInvert(fA * 2) : 0;
 
         fPtsToUnit.setTranslate(-fCenter1.fX, -fCenter1.fY);
         fPtsToUnit.postScale(inv, inv);
