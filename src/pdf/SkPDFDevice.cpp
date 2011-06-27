@@ -270,7 +270,7 @@ static void emit_clip(SkPath* clipPath, SkRect* clipRect,
     if (clipPath) {
         SkPDFUtils::EmitPath(*clipPath, contentStream);
         clipFill = clipPath->getFillType();
-    } else if (clipRect) {
+    } else {
         SkPDFUtils::AppendRectangle(*clipRect, contentStream);
         clipFill = SkPath::kWinding_FillType;
     }
