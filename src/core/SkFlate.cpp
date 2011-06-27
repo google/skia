@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "SkData.h"
 #include "SkFlate.h"
 #include "SkStream.h"
 
@@ -121,6 +122,19 @@ bool doFlate(bool compress, SkStream* src, SkWStream* dst) {
 // static
 bool SkFlate::Deflate(SkStream* src, SkWStream* dst) {
     return doFlate(true, src, dst);
+}
+
+bool SkFlate::Deflate(const void* ptr, size_t len, SkWStream* dst) {
+    SkMemoryStream stream(ptr, len);
+    return doFlate(true, &stream, dst);
+}
+
+bool SkFlate::Deflate(const SkData* data, SkWStream* dst) {
+    if (data) {
+        SkMemoryStream stream(data->data(), data->size());
+        return doFlate(true, &stream, dst);
+    }
+    return false;
 }
 
 // static

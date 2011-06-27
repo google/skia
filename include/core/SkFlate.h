@@ -19,6 +19,7 @@
 
 #include "SkTypes.h"
 
+class SkData;
 class SkWStream;
 class SkStream;
 
@@ -31,11 +32,24 @@ public:
      */
     static bool HaveFlate();
 
-    /** Use the flate compression algorithm to compress the data in src,
-        putting the result into dst.  Returns false if an error occurs.
+    /**
+     *  Use the flate compression algorithm to compress the data in src,
+     *  putting the result into dst.  Returns false if an error occurs.
      */
     static bool Deflate(SkStream* src, SkWStream* dst);
-
+    
+    /**
+     *  Use the flate compression algorithm to compress the data in src,
+     *  putting the result into dst.  Returns false if an error occurs.
+     */
+    static bool Deflate(const void* src, size_t len, SkWStream* dst);
+    
+    /**
+     *  Use the flate compression algorithm to compress the data,
+     *  putting the result into dst.  Returns false if an error occurs.
+     */
+    static bool Deflate(const SkData*, SkWStream* dst);
+    
     /** Use the flate compression algorithm to decompress the data in src,
         putting the result into dst.  Returns false if an error occurs.
      */
