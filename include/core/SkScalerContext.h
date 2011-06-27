@@ -159,11 +159,6 @@ struct SkGlyph {
     }
 
     void toMask(SkMask* mask) const;
-
-    /** Given a glyph which is has a mask format of LCD or VerticalLCD, take
-        the A8 plane in fImage and produce a valid LCD plane from it.
-    */
-    void expandA8ToLCD() const;
 };
 
 class SkScalerContext {
@@ -181,7 +176,8 @@ public:
         kEmbolden_Flag      = 0x80,
         kSubpixelPositioning_Flag = 0x100,
         kAutohinting_Flag   = 0x200,
-        // these should only ever be set if fMaskFormat is LCD
+
+        // these should only ever be set if fMaskFormat is LCD16 or LCD32
         kLCD_Vertical_Flag  = 0x400,    // else Horizontal
         kLCD_BGROrder_Flag  = 0x800,    // else RGB order
     };
@@ -218,10 +214,6 @@ public:
 
         SkMask::Format getFormat() const {
             return static_cast<SkMask::Format>(fMaskFormat);
-        }
-
-        bool isLCD() const {
-            return SkMask::FormatIsLCD(this->getFormat());
         }
     };
 

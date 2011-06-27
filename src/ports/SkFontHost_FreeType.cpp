@@ -80,6 +80,16 @@ using namespace skia_advanced_typeface_metrics_utils;
     #define SK_FREETYPE_LCD_LERP    96
 #endif
 
+static bool isLCD(const SkScalerContext::Rec& rec) {
+    switch (rec.fMaskFormat) {
+        case SkMask::kLCD16_Format:
+        case SkMask::kLCD32_Format:
+            return true;
+        default:
+            return false;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 struct SkFaceRec;
@@ -588,14 +598,14 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         FT_Done_FreeType(gFTLibrary);
     }
 
-    if (!gLCDSupport && (rec->isLCD() || SkMask::kLCD16_Format == rec->fMaskFormat)) {
+    if (!gLCDSupport && isLCD(*rec)) {
         // If the runtime Freetype library doesn't support LCD mode, we disable
         // it here.
         rec->fMaskFormat = SkMask::kA8_Format;
     }
 
     SkPaint::Hinting h = rec->getHinting();
-    if (SkPaint::kFull_Hinting == h && !rec->isLCD()) {
+    if (SkPaint::kFull_Hinting == h && !isLCD(*rec)) {
         // collapse full->normal hinting if we're not doing LCD
         h = SkPaint::kNormal_Hinting;
     } else if ((rec->fFlags & SkScalerContext::kSubpixelPositioning_Flag) &&
@@ -689,8 +699,9 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
         if (SkMask::kBW_Format == fRec.fMaskFormat) {
             // See http://code.google.com/p/chromium/issues/detail?id=43252#c24
             loadFlags = FT_LOAD_TARGET_MONO;
-            if (fRec.getHinting() == SkPaint::kNo_Hinting)
+            if (fRec.getHinting() == SkPaint::kNo_Hinting) {
                 loadFlags = FT_LOAD_NO_HINTING;
+            }
         } else {
             switch (fRec.getHinting()) {
             case SkPaint::kNo_Hinting:
@@ -711,11 +722,12 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
                     break;
                 }
                 loadFlags = FT_LOAD_TARGET_NORMAL;
-                if (SkMask::kHorizontalLCD_Format == fRec.fMaskFormat ||
-                        SkMask::kLCD16_Format == fRec.fMaskFormat) {
-                    loadFlags = FT_LOAD_TARGET_LCD;
-                } else if (SkMask::kVerticalLCD_Format == fRec.fMaskFormat) {
-                    loadFlags = FT_LOAD_TARGET_LCD_V;
+                if (isLCD(fRec)) {
+                    if (fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag) {
+                        loadFlags = FT_LOAD_TARGET_LCD_V;
+                    } else {
+                        loadFlags = FT_LOAD_TARGET_LCD;
+                    }
                 }
                 break;
             default:
@@ -724,8 +736,9 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(const SkDescriptor* desc)
             }
         }
 
-        if ((fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag) == 0)
+        if ((fRec.fFlags & SkScalerContext::kEmbeddedBitmapText_Flag) == 0) {
             loadFlags |= FT_LOAD_NO_BITMAP;
+        }
 
         // Always using FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH to get correct
         // advances, as fontconfig and cairo do.
@@ -847,10 +860,6 @@ SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
 
 static FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {
     switch (format) {
-        case SkMask::kHorizontalLCD_Format:
-        case SkMask::kVerticalLCD_Format:
-            SkASSERT(!"An LCD format should never be passed here");
-            return FT_PIXEL_MODE_GRAY;
         case SkMask::kBW_Format:
             return FT_PIXEL_MODE_MONO;
         case SkMask::kA8_Format:
@@ -978,16 +987,6 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
 #endif
 }
 
-#if defined(SK_SUPPORT_LCDTEXT)
-namespace skia_freetype_support {
-// extern functions from SkFontHost_FreeType_Subpixel
-extern void CopyFreetypeBitmapToLCDMask(const SkGlyph& dest, const FT_Bitmap& source);
-extern void CopyFreetypeBitmapToVerticalLCDMask(const SkGlyph& dest, const FT_Bitmap& source);
-}
-
-using namespace skia_freetype_support;
-#endif
-
 static int lerp(int start, int end) {
     SkASSERT((unsigned)SK_FREETYPE_LCD_LERP <= 256);
     return start + ((end - start) * (SK_FREETYPE_LCD_LERP) >> 8);
@@ -1015,7 +1014,8 @@ static int bittst(const uint8_t data[], int bitOffset) {
     return lowBit & 1;
 }
 
-static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap) {
+static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap,
+                         int lcdIsBGR) {
     SkASSERT(glyph.fHeight == bitmap.rows);
     uint16_t* dst = reinterpret_cast<uint16_t*>(glyph.fImage);
     const size_t dstRB = glyph.rowBytes();
@@ -1046,9 +1046,16 @@ static void copyFT2LCD16(const SkGlyph& glyph, const FT_Bitmap& bitmap) {
             src += 3;
             for (int y = 0; y < glyph.fHeight; y++) {
                 const uint8_t* triple = src;
-                for (int x = 0; x < width; x++) {
-                    dst[x] = packTriple(triple[0], triple[1], triple[2]);
-                    triple += 3;
+                if (lcdIsBGR) {
+                    for (int x = 0; x < width; x++) {
+                        dst[x] = packTriple(triple[2], triple[1], triple[0]);
+                        triple += 3;
+                    }
+                } else {
+                    for (int x = 0; x < width; x++) {
+                        dst[x] = packTriple(triple[0], triple[1], triple[2]);
+                        triple += 3;
+                    }
                 }
                 src += bitmap.pitch;
                 dst = (uint16_t*)((char*)dst + dstRB);
@@ -1074,9 +1081,6 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
         memset(glyph.fImage, 0, glyph.rowBytes() * glyph.fHeight);
         return;
     }
-
-    const bool lcdRenderMode = fRec.fMaskFormat == SkMask::kHorizontalLCD_Format ||
-                               fRec.fMaskFormat == SkMask::kVerticalLCD_Format;
 
     switch ( fFace->glyph->format ) {
         case FT_GLYPH_FORMAT_OUTLINE: {
@@ -1107,26 +1111,10 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
             FT_Outline_Translate(outline, dx - ((bbox.xMin + dx) & ~63),
                                           dy - ((bbox.yMin + dy) & ~63));
 
-#if defined(SK_SUPPORT_LCDTEXT)
-            if (lcdRenderMode) {
-                // FT_Outline_Get_Bitmap cannot render LCD glyphs. In this case
-                // we have to call FT_Render_Glyph and memcpy the image out.
-                const bool isVertical = fRec.fMaskFormat == SkMask::kVerticalLCD_Format;
-                FT_Render_Mode mode = isVertical ? FT_RENDER_MODE_LCD_V : FT_RENDER_MODE_LCD;
-                FT_Render_Glyph(fFace->glyph, mode);
-
-                if (isVertical)
-                    CopyFreetypeBitmapToVerticalLCDMask(glyph, fFace->glyph->bitmap);
-                else
-                    CopyFreetypeBitmapToLCDMask(glyph, fFace->glyph->bitmap);
-
-                break;
-            }
-#endif
-
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
                 FT_Render_Glyph(fFace->glyph, FT_RENDER_MODE_LCD);
-                copyFT2LCD16(glyph, fFace->glyph->bitmap);
+                copyFT2LCD16(glyph, fFace->glyph->bitmap,
+                             fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
             } else {
                 target.width = glyph.fWidth;
                 target.rows = glyph.fHeight;
@@ -1169,9 +1157,7 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                     dst += dstRowBytes;
                 }
             } else if (fFace->glyph->bitmap.pixel_mode == FT_PIXEL_MODE_MONO &&
-                       (glyph.fMaskFormat == SkMask::kA8_Format ||
-                        glyph.fMaskFormat == SkMask::kHorizontalLCD_Format ||
-                        glyph.fMaskFormat == SkMask::kVerticalLCD_Format)) {
+                       glyph.fMaskFormat == SkMask::kA8_Format) {
                 for (int y = 0; y < fFace->glyph->bitmap.rows; ++y) {
                     uint8_t byte = 0;
                     int bits = 0;
@@ -1193,14 +1179,11 @@ void SkScalerContext_FreeType::generateImage(const SkGlyph& glyph) {
                     dst += glyph.rowBytes();
                 }
             } else if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
-                copyFT2LCD16(glyph, fFace->glyph->bitmap);
+                copyFT2LCD16(glyph, fFace->glyph->bitmap,
+                             fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
             } else {
                 SkASSERT(!"unknown glyph bitmap transform needed");
             }
-
-            if (lcdRenderMode)
-                glyph.expandA8ToLCD();
-
         } break;
 
     default:

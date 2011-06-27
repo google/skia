@@ -118,7 +118,8 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     rec->setHinting(h);
 
     // we don't support LCD text
-    if (SkMask::FormatIsLCD((SkMask::Format)rec->fMaskFormat)) {
+    if (SkMask::kLCD16_Format == rec->fMaskFormat ||
+        SkMask::kLCD32_Format == rec->fMaskFormat) {
         rec->fMaskFormat = SkMask::kA8_Format;
     }
 }

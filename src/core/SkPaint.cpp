@@ -1191,12 +1191,6 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint) {
         return SkMask::kBW_Format;
     }
 
-#if defined(SK_SUPPORT_LCDTEXT)
-    if (flags & SkPaint::kLCDRenderText_Flag) {
-        return SkFontHost::GetSubpixelOrientation() == SkFontHost::kHorizontal_LCDOrientation ?
-                   SkMask::kHorizontalLCD_Format : SkMask::kVerticalLCD_Format;
-    }
-#else
     if (flags & SkPaint::kLCDRenderText_Flag) {
 #if !defined(SK_SUPPORT_888_TEXT)    
         return SkMask::kLCD16_Format;
@@ -1204,7 +1198,6 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint) {
         return SkMask::kLCD32_Format;
 #endif
     }
-#endif
 
     return SkMask::kA8_Format;
 }
