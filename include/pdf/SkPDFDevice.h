@@ -137,9 +137,15 @@ public:
 
     /** Returns a SkStream with the page contents.  The caller is responsible
         for a reference to the returned value.
+        DEPRECATED: use copyContentToData()
      */
     SK_API SkStream* content() const;
 
+    /** Returns a SkStream with the page contents.  The caller is responsible
+     *  for calling data->unref() when it is finished.
+     */
+    SK_API SkData* copyContentToData() const;
+    
     SK_API const SkMatrix& initialTransform() const {
         return fInitialTransform;
     }
