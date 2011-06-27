@@ -316,6 +316,11 @@ static bool compare_to_reference_image(const char readPath [],
                                              renderModeDescriptor);
     } else {
         fprintf(stderr, "FAILED to read %s\n", path.c_str());
+        // we lie here, and report succes, since we're just missing a master
+        // image. This way we can check in new tests, and not report failure.
+        // A real failure is to draw *differently* from the master image, but
+        // that's not the case here.
+        success = true;
     }
     return success;
 }
