@@ -718,7 +718,7 @@ static bool getWidthAdvance(CTFontRef ctFont, int gId, int16_t* data) {
     CGGlyph glyph = gId;
     CTFontGetAdvancesForGlyphs(ctFont, kCTFontHorizontalOrientation, &glyph,
         &advance, 1);
-    *data = advance.width;
+    *data = sk_float_round2int(advance.width);
     return true;
 }
 
@@ -727,6 +727,8 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
+    ctFont = CTFontCreateCopyWithAttributes(ctFont, CTFontGetUnitsPerEm(ctFont)
+                                            NULL, NULL);
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     CFStringRef fontName = CTFontCopyPostScriptName(ctFont);
     // Reserve enough room for the worst-case string,
@@ -806,6 +808,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
             getAdvanceData(ctFont, glyphCount, &getWidthAdvance));
     }
 
+    CFSafeRelease(ctFont);
     return info;
 }
 
