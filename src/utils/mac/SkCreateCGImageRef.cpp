@@ -125,5 +125,70 @@ void SkCGDrawBitmap(CGContextRef cg, const SkBitmap& bm, float x, float y) {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
+#include "SkStream.h"
+
+class SkAutoPDFRelease {
+public:
+    SkAutoPDFRelease(CGPDFDocumentRef doc) : fDoc(doc) {}
+    ~SkAutoPDFRelease() {
+        if (fDoc) {
+            CGPDFDocumentRelease(fDoc);
+        }
+    }
+private:
+    CGPDFDocumentRef fDoc;
+};
+
+static void CGDataProviderReleaseData_FromMalloc(void*, const void* data,
+                                                 size_t size) {
+    sk_free((void*)data);
+}
+
+bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
+    size_t size = stream->getLength();
+    void* ptr = sk_malloc_throw(size);
+    stream->read(ptr, size);
+    CGDataProviderRef data = CGDataProviderCreateWithData(NULL, ptr, size,
+                                          CGDataProviderReleaseData_FromMalloc);
+    if (NULL == data) {
+        return false;
+    }
+    
+    CGPDFDocumentRef pdf = CGPDFDocumentCreateWithProvider(data);
+    CGDataProviderRelease(data);
+    if (NULL == pdf) {
+        return false;
+    }
+    SkAutoPDFRelease releaseMe(pdf);
+
+    CGPDFPageRef page = CGPDFDocumentGetPage(pdf, 1);
+    if (NULL == page) {
+        return false;
+    }
+    
+    CGRect bounds = CGPDFPageGetBoxRect(page, kCGPDFMediaBox);
+    
+    int w = (int)CGRectGetWidth(bounds);
+    int h = (int)CGRectGetHeight(bounds);
+    
+    SkBitmap bitmap;
+    bitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
+    bitmap.allocPixels();
+    bitmap.eraseColor(SK_ColorWHITE);
+    
+    CGBitmapInfo info = kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst;
+    CGContextRef ctx = CGBitmapContextCreateWithData(bitmap.getPixels(),
+                                                     w, h, 8, bitmap.rowBytes(),
+                                                     CGColorSpaceCreateDeviceRGB(),
+                                                     info, NULL, NULL);
+    if (ctx) {
+        CGContextDrawPDFPage(ctx, page);
+        CGContextRelease(ctx);
+    }
+
+    output->swap(bitmap);
+    return true;
+}
 
