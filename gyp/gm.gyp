@@ -13,6 +13,7 @@
         '../gm/blurs.cpp',
         '../gm/filltypes.cpp',
         '../gm/gradients.cpp',
+        '../gm/lcdtext.cpp',
         '../gm/nocolorbleed.cpp',
         '../gm/pathfill.cpp',
         '../gm/points.cpp',
