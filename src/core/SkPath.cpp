@@ -1198,7 +1198,6 @@ static bool exceeds_dist(const SkScalar p[], const SkScalar q[], SkScalar dist,
                          int count) {
     SkASSERT(dist > 0);
 
-    count *= 2;
     for (int i = 0; i < count; i++) {
         if (SkScalarAbs(p[i] - q[i]) > dist) {
             return true;
