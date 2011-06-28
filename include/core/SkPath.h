@@ -639,12 +639,6 @@ public:
     void flatten(SkWriter32&) const;
     void unflatten(SkReader32&);
 
-    /** Subdivide the path so that no segment is longer that dist.
-        If bendLines is true, then turn all line segments into curves.
-        If dst == null, then the original path itself is modified (not const!)
-    */
-    void subdivide(SkScalar dist, bool bendLines, SkPath* dst = NULL) const;
-
 #ifdef ANDROID
     uint32_t getGenerationID() const;
 #endif
