@@ -54,7 +54,7 @@ clean:
 %:
 	./gyp_skia
 ifneq (,$(findstring Linux, $(uname)))
-	make -C out $@ BUILDTYPE=$(BUILDTYPE)
+	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
 endif
 ifneq (,$(findstring Darwin, $(uname)))
 	xcodebuild -project out/gyp/$@.xcodeproj -configuration $(BUILDTYPE)
@@ -72,7 +72,7 @@ local_filenames := $(shell ls)
 $(local_filenames)::
 	./gyp_skia
 ifneq (,$(findstring Linux, $(uname)))
-	make -C out $@ BUILDTYPE=$(BUILDTYPE)
+	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
 endif
 ifneq (,$(findstring Darwin, $(uname)))
 	xcodebuild -project out/gyp/$@.xcodeproj -configuration $(BUILDTYPE)
