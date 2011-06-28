@@ -112,7 +112,7 @@ SkFlattenable* SkFlattenableReadBuffer::readFlattenable() {
         }
         index = -index; // we stored the negative of the index
         index -= 1;     // we stored the index-base-1
-        SkASSERT(index < (unsigned)fFactoryCount);
+        SkASSERT(index < fFactoryCount);
         factory = fFactoryArray[index];
     } else if (fFactoryTDArray) {
         const int32_t* peek = (const int32_t*)this->peek();
@@ -274,7 +274,7 @@ void SkFlattenableWriteBuffer::writeFlattenable(SkFlattenable* flattenable) {
         } else {
             // we write the negative of the index, to distinguish it from
             // the length of a string
-            this->write32(-fFactorySet->add(factory));
+            this->write32(-(int)fFactorySet->add(factory));
         }
     } else {
         this->writeFunctionPtr((void*)factory);
