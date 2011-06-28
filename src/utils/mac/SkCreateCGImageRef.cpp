@@ -11,29 +11,34 @@ static void SkBitmap_ReleaseInfo(void* info, const void* pixelData, size_t size)
     (SK_A32_SHIFT == (a) && SK_R32_SHIFT == (r) \
     && SK_G32_SHIFT == (g) && SK_B32_SHIFT == (b))
 
-static SkBitmap* prepareForImageRef(const SkBitmap& bm,
-                                    size_t* bitsPerComponent,
-                                    CGBitmapInfo* info) {
-    bool upscaleTo32 = false;
-
+static bool getBitmapInfo(const SkBitmap& bm, 
+                          size_t* bitsPerComponent,
+                          CGBitmapInfo* info,
+                          bool* upscaleTo32) {
+    if (upscaleTo32) {
+        *upscaleTo32 = false;
+    }
+    
     switch (bm.config()) {
         case SkBitmap::kRGB_565_Config:
-            upscaleTo32 = true;
+            if (upscaleTo32) {
+                *upscaleTo32 = true;
+            }
             // fall through
         case SkBitmap::kARGB_8888_Config:
             *bitsPerComponent = 8;
 #if defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 0, 8, 16) \
- || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(0, 24, 16, 8)
+|| defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(0, 24, 16, 8)
             *info = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
 #elif defined(SK_CPU_LENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0) \
-   || defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0)
+|| defined(SK_CPU_BENDIAN) && HAS_ARGB_SHIFTS(24, 16, 8, 0)
             // Matches the CGBitmapInfo that Apple recommends for best
             // performance, used by google chrome.
             *info = kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst;
 #else
-// ...add more formats as required...
+            // ...add more formats as required...
 #warning Cannot convert SkBitmap to CGImageRef with these shiftmasks. \
-            This will probably not work.
+This will probably not work.
             // Legacy behavior. Perhaps turn this into an error at some
             // point.
             *info = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
@@ -51,7 +56,17 @@ static SkBitmap* prepareForImageRef(const SkBitmap& bm,
             *info = kCGBitmapByteOrder16Little | kCGImageAlphaPremultipliedLast;
             break;
         default:
-            return NULL;
+            return false;
+    }
+    return true;
+}
+
+static SkBitmap* prepareForImageRef(const SkBitmap& bm,
+                                    size_t* bitsPerComponent,
+                                    CGBitmapInfo* info) {
+    bool upscaleTo32;
+    if (!getBitmapInfo(bm, bitsPerComponent, info, &upscaleTo32)) {
+        return NULL;
     }
 
     SkBitmap* copy;
@@ -172,15 +187,19 @@ bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
     
     int w = (int)CGRectGetWidth(bounds);
     int h = (int)CGRectGetHeight(bounds);
-    
+        
     SkBitmap bitmap;
     bitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
     bitmap.allocPixels();
     bitmap.eraseColor(SK_ColorWHITE);
+
+    size_t bitsPerComponent;
+    CGBitmapInfo info;
+    getBitmapInfo(bitmap, &bitsPerComponent, &info, NULL); 
     
-    CGBitmapInfo info = kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst;
     CGContextRef ctx = CGBitmapContextCreateWithData(bitmap.getPixels(),
-                                                     w, h, 8, bitmap.rowBytes(),
+                                                     w, h, bitsPerComponent,
+                                                     bitmap.rowBytes(),
                                                      CGColorSpaceCreateDeviceRGB(),
                                                      info, NULL, NULL);
     if (ctx) {
