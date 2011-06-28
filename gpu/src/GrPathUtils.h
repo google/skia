@@ -26,9 +26,13 @@
  */
 class GrPathUtils : public GrNoncopyable {
 public:
+    /// Since we divide by tol if we're computing exact worst-case bounds,
+    /// very small tolerances will be increased to gMinCurveTol.
     static int worstCasePointCount(const GrPath&,
                                    int* subpaths,
                                    GrScalar tol);
+    /// Since we divide by tol if we're computing exact worst-case bounds,
+    /// very small tolerances will be increased to gMinCurveTol.
     static uint32_t quadraticPointCount(const GrPoint points[], GrScalar tol);
     static uint32_t generateQuadraticPoints(const GrPoint& p0,
                                             const GrPoint& p1,
@@ -36,6 +40,8 @@ public:
                                             GrScalar tolSqd,
                                             GrPoint** points,
                                             uint32_t pointsLeft);
+    /// Since we divide by tol if we're computing exact worst-case bounds,
+    /// very small tolerances will be increased to gMinCurveTol.
     static uint32_t cubicPointCount(const GrPoint points[], GrScalar tol);
     static uint32_t generateCubicPoints(const GrPoint& p0,
                                         const GrPoint& p1,
@@ -44,5 +50,8 @@ public:
                                         GrScalar tolSqd,
                                         GrPoint** points,
                                         uint32_t pointsLeft);
+
+private:
+    static const GrScalar gMinCurveTol;
 };
 #endif
