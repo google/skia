@@ -12,6 +12,7 @@
 #endif
 
 class SkBitmap;
+class SkStream;
 
 /**
  *  Create an imageref from the specified bitmap using the specified colorspace.
@@ -35,5 +36,7 @@ static inline CGImageRef SkCreateCGImageRef(const SkBitmap& bm) {
  *  colorspace returned by CGColorSpaceCreateDeviceRGB()
  */
 void SkCGDrawBitmap(CGContextRef, const SkBitmap&, float x, float y);
+
+bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output);
 
 #endif
