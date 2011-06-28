@@ -16,10 +16,10 @@ static void catch_alarm(int sig)
     SkEvent::ServiceQueueTimer();
 }
 
-int main(){
+int main(int argc, char** argv){
     signal(SIGALRM, catch_alarm);
 
-    gWindow = create_sk_window(NULL);
+    gWindow = create_sk_window(NULL, argc, argv);
     // Start normal Skia sequence
     application_init();
 

@@ -19,7 +19,7 @@
 
 class SkOSWindow;
 
-extern SkOSWindow* create_sk_window(void* hwnd);
+extern SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
 extern void application_init();
 extern void application_term();
 

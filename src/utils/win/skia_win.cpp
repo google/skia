@@ -9,7 +9,7 @@ TCHAR szWindowClass[] = _T("SAMPLEAPP");    // the main window class name
 
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
-BOOL                InitInstance(HINSTANCE, int);
+BOOL                InitInstance(HINSTANCE, int, LPTSTR);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
@@ -19,7 +19,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(lpCmdLine);
 
     MSG msg;
 
@@ -27,7 +26,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
+    if (!InitInstance (hInstance, nCmdShow, lpCmdLine))
     {
         return FALSE;
     }
@@ -82,12 +81,24 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 }
 
 #include "SkOSWindow_Win.h"
-extern SkOSWindow* create_sk_window(void* hwnd);
+extern SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
 
 static SkOSWindow* gSkWind;
 
+char* tchar_to_utf8(const TCHAR* str) {
+#ifdef _UNICODE
+    int size = WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), NULL, 0, NULL, NULL);
+    char* str8 = (char*) malloc(size+1);
+    WideCharToMultiByte(CP_UTF8, 0, str, wcslen(str), str8, size, NULL, NULL);
+    str8[size] = '\0';
+    return str8;
+#else
+    return strdup(str);
+#endif
+}
+
 //
-//   FUNCTION: InitInstance(HINSTANCE, int)
+//   FUNCTION: InitInstance(HINSTANCE, int, LPTSTR)
 //
 //   PURPOSE: Saves instance handle and creates main window
 //
@@ -96,7 +107,9 @@ static SkOSWindow* gSkWind;
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+
+
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow, LPTSTR lpCmdLine)
 {
    HWND hWnd;
 
@@ -110,7 +123,21 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   gSkWind = create_sk_window(hWnd);
+   char* argv[4096];
+   int argc = 0;
+   TCHAR exename[1024], *next;
+   int exenameLen = GetModuleFileName(NULL, exename, 1024);
+   argv[argc++] = tchar_to_utf8(exename);
+   TCHAR* arg = _tcstok_s(lpCmdLine, _T(" "), &next);
+   while (arg != NULL) {
+      argv[argc++] = tchar_to_utf8(arg);
+      arg = _tcstok_s(NULL, _T(" "), &next);
+   }
+
+   gSkWind = create_sk_window(hWnd, argc, argv);
+   for (int i = 0; i < argc; ++i) {
+      free(argv[i]);
+   }
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);

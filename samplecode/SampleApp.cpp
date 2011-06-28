@@ -347,7 +347,7 @@ SampleWindow::CanvasType SampleWindow::cycle_canvastype(CanvasType ct) {
     return gCT[ct];
 }
 
-SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
+SampleWindow::SampleWindow(void* hwnd, int argc, char** argv) : INHERITED(hwnd) {
 #ifdef  PIPE_FILE
     //Clear existing file or create file if it doesn't exist
     FILE* f = fopen(FILE_PATH, "wb");
@@ -404,6 +404,19 @@ SampleWindow::SampleWindow(void* hwnd) : INHERITED(hwnd) {
         }
     }
     fCurrIndex = 0;
+    if (argc > 1) {
+        int i, count = fSamples.count();
+        for (i = 0; i < count; i++) {
+            SkString title = getSampleTitle(i);
+            if (title.equals(argv[1])) {
+                fCurrIndex = i;
+                break;
+            }
+        }
+        if (i == count) {
+            fprintf(stderr, "Unknown sample \"%s\"\n", argv[1]);
+        }
+    }
     this->loadView(fSamples[fCurrIndex]());
 
     // If another constructor set our dimensions, ensure that our
@@ -1673,9 +1686,9 @@ static void test() {
     }
 }
 
-SkOSWindow* create_sk_window(void* hwnd) {
+SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv) {
 //    test();
-    return new SampleWindow(hwnd);
+    return new SampleWindow(hwnd, argc, argv);
 }
 
 void get_preferred_size(int* x, int* y, int* width, int* height) {
