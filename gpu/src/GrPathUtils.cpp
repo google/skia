@@ -18,11 +18,17 @@
 #include "GrPoint.h"
 
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
+const GrScalar GrPathUtils::gMinCurveTol (GrFloatToScalar(0.0001f));
 
 uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
-                                             GrScalar tol) {
+                                          GrScalar tol) {
+    if (tol < gMinCurveTol) {
+        tol == gMinCurveTol;
+    }
+    GrAssert(tol > 0);
+
     GrScalar d = points[1].distanceToLineSegmentBetween(points[0], points[2]);
-    if (d < tol) {
+    if (d <= tol) {
         return 1;
     } else {
         // Each time we subdivide, d should be cut in 4. So we need to
@@ -42,11 +48,11 @@ uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
 }
 
 uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
-                                                 const GrPoint& p1,
-                                                 const GrPoint& p2,
-                                                 GrScalar tolSqd,
-                                                 GrPoint** points,
-                                                 uint32_t pointsLeft) {
+                                              const GrPoint& p1,
+                                              const GrPoint& p2,
+                                              GrScalar tolSqd,
+                                              GrPoint** points,
+                                              uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
         (p1.distanceToLineSegmentBetweenSqd(p0, p2)) < tolSqd) {
         (*points)[0] = p2;
@@ -68,10 +74,16 @@ uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
 
 uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
                                            GrScalar tol) {
-    GrScalar d = GrMax(points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
-                       points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
+    if (tol < gMinCurveTol) {
+        tol == gMinCurveTol;
+    }
+    GrAssert(tol > 0);
+
+    GrScalar d = GrMax(
+        points[1].distanceToLineSegmentBetweenSqd(points[0], points[3]),
+        points[2].distanceToLineSegmentBetweenSqd(points[0], points[3]));
     d = SkScalarSqrt(d);
-    if (d < tol) {
+    if (d <= tol) {
         return 1;
     } else {
         int temp = SkScalarCeil(SkScalarSqrt(SkScalarDiv(d, tol)));
@@ -87,12 +99,12 @@ uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
 }
 
 uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
-                                             const GrPoint& p1,
-                                             const GrPoint& p2,
-                                             const GrPoint& p3,
-                                             GrScalar tolSqd,
-                                             GrPoint** points,
-                                             uint32_t pointsLeft) {
+                                          const GrPoint& p1,
+                                          const GrPoint& p2,
+                                          const GrPoint& p3,
+                                          GrScalar tolSqd,
+                                          GrPoint** points,
+                                          uint32_t pointsLeft) {
     if (pointsLeft < 2 ||
         (p1.distanceToLineSegmentBetweenSqd(p0, p3) < tolSqd &&
          p2.distanceToLineSegmentBetweenSqd(p0, p3) < tolSqd)) {
@@ -118,6 +130,11 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
 
 int GrPathUtils::worstCasePointCount(const GrPath& path, int* subpaths,
                                      GrScalar tol) {
+    if (tol < gMinCurveTol) {
+        tol == gMinCurveTol;
+    }
+    GrAssert(tol > 0);
+
     int pointCount = 0;
     *subpaths = 1;
 
