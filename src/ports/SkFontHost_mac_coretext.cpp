@@ -727,7 +727,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
         SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
-    ctFont = CTFontCreateCopyWithAttributes(ctFont, CTFontGetUnitsPerEm(ctFont)
+    ctFont = CTFontCreateCopyWithAttributes(ctFont, CTFontGetUnitsPerEm(ctFont),
                                             NULL, NULL);
     SkAdvancedTypefaceMetrics* info = new SkAdvancedTypefaceMetrics;
     CFStringRef fontName = CTFontCopyPostScriptName(ctFont);
