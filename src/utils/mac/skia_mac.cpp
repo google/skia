@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     // if we get here, we can start our normal Skia sequence
     {
         application_init();
-        (void)create_sk_window(window);
+        (void)create_sk_window(window, argc, argv);
         SizeWindow(window, 640, 480, false);
     }
     

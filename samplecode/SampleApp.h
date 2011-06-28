@@ -44,7 +44,7 @@ enum SkTriState {
 class SampleWindow : public SkOSWindow {
     SkTDArray<SkViewFactory> fSamples;
 public:
-    SampleWindow(void* hwnd);
+    SampleWindow(void* hwnd, int argc, char** argv);
     virtual ~SampleWindow();
 
     virtual void draw(SkCanvas* canvas);

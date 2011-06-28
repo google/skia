@@ -52,7 +52,7 @@ static bool should_draw() {
 
 static float gScreenScale = 1;
 
-extern SkOSWindow* create_sk_window(void* hwnd);
+extern SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
 
 #define kREDRAW_UIVIEW_GL "sk_redraw_uiview_gl_iOS"
 
@@ -155,7 +155,8 @@ static FPSState gFPS;
     fBackend = kGL_Backend;
     fUseWarp = false;
     fRedrawRequestPending = false;
-    fWind = create_sk_window(self);
+    // FIXME:  If iOS has argc & argv, pass them here.
+    fWind = create_sk_window(self, 0, NULL);
     fWind->setConfig(SKWIND_CONFIG);
     fMatrix.reset();
     fLocalMatrix.reset();
