@@ -19,6 +19,13 @@
     #include "SkPDFDocument.h"
 #endif
 
+#ifdef SK_BUILD_FOR_MAC
+    #include "SkCGUtils.h"
+    #define CAN_IMAGE_PDF   true
+#else
+    #define CAN_IMAGE_PDF   false
+#endif
+
 using namespace skiagm;
 
 // need to explicitly declare this, or we get some weird infinite loop llist
@@ -271,10 +278,11 @@ static bool write_reference_image(const ConfigData& gRec,
                                   SkDynamicMemoryWStream* pdf) {
     SkString path;
     bool success = false;
-    if (gRec.fBackend != kPDF_Backend) {
+    if (gRec.fBackend != kPDF_Backend || CAN_IMAGE_PDF) {
         path = make_filename(writePath, renderModeDescriptor, name, "png");
         success = write_bitmap(path, bitmap);
-    } else if (pdf) {
+    }
+    if (kPDF_Backend == gRec.fBackend) {
         path = make_filename(writePath, renderModeDescriptor, name, "pdf");
         success = write_pdf(path, *pdf);
     }
@@ -339,8 +347,7 @@ static bool handle_test_results(GM* gm,
     if (writePath) {
         write_reference_image(gRec, writePath, renderModeDescriptor,
                               name, bitmap, pdf);
-    // TODO: Figure out a way to compare PDFs.
-    } else if (readPath && gRec.fBackend != kPDF_Backend) {
+    } else if (readPath && (gRec.fBackend != kPDF_Backend || CAN_IMAGE_PDF)) {
         return compare_to_reference_image(readPath, name, bitmap,
                                    diffPath, renderModeDescriptor);
     } else if (comparisonBitmap) {
@@ -402,10 +409,13 @@ static bool test_drawing(GM* gm,
         if (!generate_image(gm, gRec, context, bitmap)) {
             return true;
         }
-    }
-    // TODO: Figure out a way to compare PDFs.
-    if (gRec.fBackend == kPDF_Backend && writePath) {
+    } else if (gRec.fBackend == kPDF_Backend) {
         generate_pdf(gm, pdf);
+#if CAN_IMAGE_PDF
+        SkAutoDataUnref data(pdf.copyToData());
+        SkMemoryStream stream(data.data(), data.size());
+        SkPDFDocumentToBitmap(&stream, bitmap);
+#endif
     }
     return handle_test_results(gm, gRec, writePath, readPath, diffPath,
                         "", *bitmap, &pdf, NULL);
