@@ -41,6 +41,10 @@ using namespace skia_advanced_typeface_metrics_utils;
 static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
 static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
 
+static bool isLCDFormat(unsigned format) {
+    return SkMask::kLCD16_Format == format || SkMask::kLCD32_Format == format;
+}
+
 //============================================================================
 //      Macros
 //----------------------------------------------------------------------------
@@ -486,15 +490,14 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     size_t rowBytes = glyph.rowBytes();
     float grayColor = 1; // white
     bool doAA = true;
+    bool doLCD = false;
 
     /*  For LCD16, we first create a temp offscreen cg-context in 32bit,
      *  erase to white, and then draw a black glyph into it. Then we can
      *  extract the r,g,b values, invert-them, and now we have the original
      *  src mask components, which we pack into our 16bit mask.
      */
-    if (SkMask::kLCD16_Format == glyph.fMaskFormat ||
-        SkMask::kLCD32_Format == glyph.fMaskFormat)
-    {
+    if (isLCDFormat(glyph.fMaskFormat)) {
         colorspace = mColorSpaceRGB;
         info = BITMAP_INFO_RGB;
         // need tmp storage for 32bit RGB offscreen
@@ -504,6 +507,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         // we draw black-on-white (and invert in rgb_to_lcd16)
         sk_memset32((uint32_t*)image, 0xFFFFFFFF, size >> 2);
         grayColor = 0;  // black
+        doLCD = true;
     } else if (SkMask::kBW_Format == glyph.fMaskFormat) {
         rowBytes = SkAlign4(glyph.fWidth);
         size_t size = glyph.fHeight * rowBytes;
@@ -517,9 +521,19 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 
     // Draw the glyph
     if (cgFont != NULL && cgContext != NULL) {
-#ifdef WE_ARE_RUNNING_ON_10_6_OR_LATER
-        CGContextSetAllowsFontSubpixelQuantization(cgContext, true);
-        CGContextSetShouldSubpixelQuantizeFonts(cgContext, true);
+        CGContextSetAllowsFontSmoothing(cgContext, doLCD);
+        CGContextSetShouldSmoothFonts(cgContext, doLCD);
+
+#ifdef WE_ARE_RUNNING_ON_10_5_OR_LATER
+        // need to pass the fractional part of our position to cg...
+        bool doSubPosition = SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
+        CGContextSetAllowsFontSubpixelPositioning(cgContext, doSubPosition);
+        CGContextSetShouldSubpixelPositionFonts(cgContext, doSubPosition);
+
+        // skia handles quantization itself, so we disable this for cg to get
+        // full fractional data from them.
+        CGContextSetAllowsFontSubpixelQuantization(cgContext, false);
+        CGContextSetShouldSubpixelQuantizeFonts(cgContext, false);
 #endif
         CGContextSetShouldAntialias(cgContext, doAA);
         CGContextSetGrayFillColor(  cgContext, grayColor, 1.0);
