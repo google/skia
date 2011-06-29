@@ -965,5 +965,7 @@ void GrDrawTarget::AutoReleaseGeometry::reset() {
         }
         fTarget = NULL;
     }
+    fVertices = NULL;
+    fIndices = NULL;
 }
 
