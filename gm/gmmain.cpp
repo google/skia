@@ -21,9 +21,9 @@
 
 #ifdef SK_BUILD_FOR_MAC
     #include "SkCGUtils.h"
-    #define CAN_IMAGE_PDF   true
+    #define CAN_IMAGE_PDF   1
 #else
-    #define CAN_IMAGE_PDF   false
+    #define CAN_IMAGE_PDF   0
 #endif
 
 using namespace skiagm;
