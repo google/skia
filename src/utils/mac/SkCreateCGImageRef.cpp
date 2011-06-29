@@ -196,12 +196,13 @@ bool SkPDFDocumentToBitmap(SkStream* stream, SkBitmap* output) {
     size_t bitsPerComponent;
     CGBitmapInfo info;
     getBitmapInfo(bitmap, &bitsPerComponent, &info, NULL); 
-    
-    CGContextRef ctx = CGBitmapContextCreateWithData(bitmap.getPixels(),
-                                                     w, h, bitsPerComponent,
-                                                     bitmap.rowBytes(),
-                                                     CGColorSpaceCreateDeviceRGB(),
-                                                     info, NULL, NULL);
+
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceRGB();
+    CGContextRef ctx = CGBitmapContextCreate(bitmap.getPixels(), w, h,
+                                             bitsPerComponent, bitmap.rowBytes(),
+                                             cs, info);
+    CGColorSpaceRelease(cs);
+
     if (ctx) {
         CGContextDrawPDFPage(ctx, page);
         CGContextRelease(ctx);
