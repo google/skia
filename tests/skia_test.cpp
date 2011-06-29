@@ -11,6 +11,13 @@ public:
     Iter(Reporter* r) : fReporter(r) {
         r->ref();
         fReg = TestRegistry::Head();
+#ifdef SK_DEBUG
+#ifdef SK_SCALAR_IS_FIXED
+#ifndef SK_BUILD_FOR_MAC
+intentional_error_added_by_epoger
+#endif
+#endif
+#endif
     }
 
     ~Iter() {
