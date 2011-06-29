@@ -118,7 +118,7 @@ InitFreetype() {
 
     // Setup LCD filtering. This reduces colour fringes for LCD rendered
     // glyphs.
-#ifdef FT_LCD_FILTER_DEFAULT
+#ifdef FT_LCD_FILTER_H
     err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
     gLCDSupport = err == 0;
 #else
