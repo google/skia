@@ -508,6 +508,10 @@ SkDevice* SkCanvas::setDevice(SkDevice* device) {
        things like lock/unlock their pixels, etc.
     */
     if (device) {
+        // To mirror our (SkDevice*) constructor, we grab the factory from the
+        // new device
+        this->setDeviceFactory(device->getDeviceFactory());
+
         device->lockPixels();
     }
     if (rootDevice) {
