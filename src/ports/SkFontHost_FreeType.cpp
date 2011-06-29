@@ -39,7 +39,9 @@
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
 #include FT_SYNTHESIS_H
 #include FT_XFREE86_H
+#ifdef FT_LCD_FILTER_H
 #include FT_LCD_FILTER_H
+#endif
 
 #ifdef   FT_ADVANCES_H
 #include FT_ADVANCES_H
@@ -116,8 +118,12 @@ InitFreetype() {
 
     // Setup LCD filtering. This reduces colour fringes for LCD rendered
     // glyphs.
+#ifdef FT_LCD_FILTER_DEFAULT
     err = FT_Library_SetLcdFilter(gFTLibrary, FT_LCD_FILTER_DEFAULT);
     gLCDSupport = err == 0;
+#else
+    gLCDSupport = false;
+#endif
     gLCDSupportValid = true;
 
     return true;
