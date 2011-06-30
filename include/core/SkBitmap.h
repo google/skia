@@ -464,7 +464,7 @@ public:
      */
     inline SkPMColor getIndex8Color(int x, int y) const;
 
-    /** Set dst to be a setset of this bitmap. If possible, it will share the
+    /** Set dst to be a subset of this bitmap. If possible, it will share the
         pixel memory, and just point into a subset of it. However, if the config
         does not support this, a local copy will be made and associated with
         the dst bitmap. If the subset rectangle, intersected with the bitmap's

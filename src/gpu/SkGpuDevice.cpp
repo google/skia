@@ -962,33 +962,46 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     }
 
     if (paint.getMaskFilter()){
-        SkBitmap        tmp;    // storage if we need a subset of bitmap
+        SkBitmap tmpBitmap; // local copy of bitmap
         const SkBitmap* bitmapPtr = &bitmap;
-        if (srcRectPtr) {
-            if (!bitmap.extractSubset(&tmp, srcRect)) {
-                return;     // extraction failed
-            }
-            bitmapPtr = &tmp;
+        
+        // FIXME : texture-backed bitmaps not yet supported
+        SkAutoLockPixels alp(bitmap);
+        if (!bitmap.getPixels())
+            return;
+
+        // A temporary copy of the bitmap may be necessary
+        // to prevent color bleeding if a sub rect is used
+        if (NULL != srcRectPtr) {
+            tmpBitmap.setConfig(bitmap.config(), srcRect.width(), 
+                srcRect.height());
+
+            size_t pixelOffset = srcRect.fTop * bitmap.rowBytes()
+                + srcRect.fLeft * bitmap.bytesPerPixel();
+            tmpBitmap.copyPixelsFrom(
+                (uint8_t*)bitmap.getPixels() + pixelOffset, 
+                bitmap.getSafeSize() - pixelOffset,
+                bitmap.rowBytes());
+
+            bitmapPtr = &tmpBitmap;
         }
+
         SkPaint paintWithTexture(paint);
         paintWithTexture.setShader(SkShader::CreateBitmapShader( *bitmapPtr,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
         paintWithTexture.getShader()->setLocalMatrix(m);
 
         SkRect ScalarRect;
-        ScalarRect.set(srcRect);
+        ScalarRect.setXYWH(0, 0, srcRect.width(), srcRect.height());
 
-        if (m.rectStaysRect()) {
-            // Preferred drawing method, optimized for rectangles
-            m.mapRect(&ScalarRect);
-            this->drawRect(draw, ScalarRect, paintWithTexture);
-        } else {
-            // Slower drawing method, for warped or rotated rectangles
-            SkPath path;
-            path.addRect(ScalarRect);
-            path.transform(m);
-            this->drawPath(draw, path, paintWithTexture, NULL, true);
-        }
+        // Transform 'm' must be applied globally so that it will
+        // affect the blur radius.
+        SkMatrix matrix = *draw.fMatrix;
+        matrix.preConcat(m);
+        SkDraw myDraw(draw);
+        myDraw.fMatrix = &matrix;
+
+        this->drawRect(myDraw, ScalarRect, paintWithTexture);
         return;
     }
 
