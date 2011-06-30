@@ -19,31 +19,15 @@
 #include "SkColorPriv.h"
 
 SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
-    if (a != 255) {
-#if 0
-        unsigned scale = SkAlpha255To256(a);
-        r = SkAlphaMul(r, scale);
-        g = SkAlphaMul(g, scale);
-        b = SkAlphaMul(b, scale);
-#else
-        r = SkMulDiv255Round(r, a);
-        g = SkMulDiv255Round(g, a);
-        b = SkMulDiv255Round(b, a);
-#endif
-    }
-    return SkPackARGB32(a, r, g, b);
+    return SkPremultiplyARGBInline(a, r, g, b);
 }
 
 SkPMColor SkPreMultiplyColor(SkColor c) {
-    unsigned a = SkColorGetA(c);
-    unsigned r = SkColorGetR(c);
-    unsigned g = SkColorGetG(c);
-    unsigned b = SkColorGetB(c);
-
-    return SkPreMultiplyARGB(a, r, g, b);
+    return SkPremultiplyARGBInline(SkColorGetA(c), SkColorGetR(c),
+                                   SkColorGetG(c), SkColorGetB(c));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 static inline SkScalar ByteToScalar(U8CPU x) {
     SkASSERT(x <= 255);

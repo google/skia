@@ -216,6 +216,21 @@ static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) 
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
 }
 
+static inline
+SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
+    SkA32Assert(a);
+    SkASSERT(r <= a);
+    SkASSERT(g <= a);
+    SkASSERT(b <= a);
+
+    if (a != 255) {
+        r = SkMulDiv255Round(r, a);
+        g = SkMulDiv255Round(g, a);
+        b = SkMulDiv255Round(b, a);
+    }
+    return SkPackARGB32(a, r, g, b);
+}
+
 SK_API extern const uint32_t gMask_00FF00FF;
 
 static inline uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
