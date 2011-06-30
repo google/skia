@@ -168,10 +168,24 @@ public:
     /** Returns true if the bitmap is opaque (has no translucent/transparent pixels).
     */
     bool isOpaque() const;
+
     /** Specify if this bitmap's pixels are all opaque or not. Is only meaningful for configs
         that support per-pixel alpha (RGB32, A1, A8).
     */
     void setIsOpaque(bool);
+
+    /** Returns true if the bitmap is volatile (i.e. should not be cached by devices.)
+    */
+    bool isVolatile() const;
+
+    /** Specify whether this bitmap is volatile. Bitmaps are not volatile by 
+        default. Temporary bitmaps that are discarded after use should be
+        marked as volatile. This provides a hint to the device that the bitmap
+        should not be cached. Providing this hint when appropriate can  
+        improve performance by avoiding unnecessary overhead and resource 
+        consumption on the device.
+    */
+    void setIsVolatile(bool);
 
     /** Reset the bitmap to its initial state (see default constructor). If we are a (shared)
         owner of the pixels, that ownership is decremented.
@@ -580,7 +594,8 @@ private:
     mutable int         fRawPixelGenerationID;
 
     enum Flags {
-        kImageIsOpaque_Flag  = 0x01
+        kImageIsOpaque_Flag = 0x01,
+        kImageIsVolatile_Flag     = 0x02
     };
 
     uint32_t    fRowBytes;

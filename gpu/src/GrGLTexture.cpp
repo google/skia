@@ -17,6 +17,7 @@
 
 #include "GrGLTexture.h"
 #include "GrGpuGL.h"
+#include "GrMemory.h"
 
 #define GPUGL static_cast<GrGpuGL*>(getGpu())
 
@@ -157,13 +158,45 @@ void GrGLTexture::uploadTextureData(int x,
                                     int y,
                                     int width,
                                     int height,
-                                    const void* srcData) {
+                                    const void* srcData,
+                                    size_t rowBytes) {
 
     GPUGL->setSpareTextureUnit();
 
     // glCompressedTexSubImage2D doesn't support any formats
     // (at least without extensions)
     GrAssert(fUploadFormat != GR_GL_PALETTE8_RGBA8);
+
+    // in case we need a temporary, trimmed copy of the src pixels
+    GrAutoSMalloc<128 * 128> trimStorage;
+
+    /*
+     *  check if our srcData has extra bytes past each row. If so, we need
+     *  to trim those off here, since GL doesn't let us pass the rowBytes as
+     *  a parameter to glTexImage2D
+     */
+
+    if (GR_GL_SUPPORT_DESKTOP) {
+        if (srcData && rowBytes) {
+            GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
+                              rowBytes / fUploadByteCount));
+        }
+    } else {
+        size_t trimRowBytes = width * fUploadByteCount;
+        if (srcData && (trimRowBytes < rowBytes)) {
+            // copy the data into our new storage, skipping the trailing bytes
+            size_t trimSize = height * trimRowBytes;
+            const char* src = (const char*)srcData;
+            char* dst = (char*)trimStorage.realloc(trimSize);
+            for (int y = 0; y < height; y++) {
+                memcpy(dst, src, trimRowBytes);
+                src += rowBytes;
+                dst += trimRowBytes;
+            }
+            // now point srcData to our trimmed version
+            srcData = trimStorage.get();
+        }
+    }
 
     // If we need to update textures that are created upside down
     // then we have to modify this code to flip the srcData
@@ -173,6 +206,11 @@ void GrGLTexture::uploadTextureData(int x,
     GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height,
                         fUploadFormat, fUploadType, srcData));
 
+    if (GR_GL_SUPPORT_DESKTOP) {
+        if (srcData && rowBytes) {
+            GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+        }
+    }
 }
 
 intptr_t GrGLTexture::getTextureHandle() {
