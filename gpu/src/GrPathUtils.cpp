@@ -23,7 +23,7 @@ const GrScalar GrPathUtils::gMinCurveTol (GrFloatToScalar(0.0001f));
 uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
                                           GrScalar tol) {
     if (tol < gMinCurveTol) {
-        tol == gMinCurveTol;
+        tol = gMinCurveTol;
     }
     GrAssert(tol > 0);
 
@@ -75,7 +75,7 @@ uint32_t GrPathUtils::generateQuadraticPoints(const GrPoint& p0,
 uint32_t GrPathUtils::cubicPointCount(const GrPoint points[],
                                            GrScalar tol) {
     if (tol < gMinCurveTol) {
-        tol == gMinCurveTol;
+        tol = gMinCurveTol;
     }
     GrAssert(tol > 0);
 
@@ -131,7 +131,7 @@ uint32_t GrPathUtils::generateCubicPoints(const GrPoint& p0,
 int GrPathUtils::worstCasePointCount(const GrPath& path, int* subpaths,
                                      GrScalar tol) {
     if (tol < gMinCurveTol) {
-        tol == gMinCurveTol;
+        tol = gMinCurveTol;
     }
     GrAssert(tol > 0);
 
