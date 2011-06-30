@@ -20,7 +20,6 @@
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
-#include "GrMemory.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
 #include "GrTextureCache.h"
@@ -291,7 +290,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
             rtDesc.fWidth  = GrNextPow2(desc.fWidth);
             rtDesc.fHeight = GrNextPow2(desc.fHeight);
             int bpp = GrBytesPerPixel(desc.fFormat);
-            GrAutoSMalloc<128*128*4> stretchedPixels(bpp *
+            SkAutoSMalloc<128*128*4> stretchedPixels(bpp *
                                                      rtDesc.fWidth *
                                                      rtDesc.fHeight);
             stretchImage(stretchedPixels.get(), rtDesc.fWidth, rtDesc.fHeight,

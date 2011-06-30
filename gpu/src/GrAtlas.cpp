@@ -17,7 +17,6 @@
 
 #include "GrAtlas.h"
 #include "GrGpu.h"
-#include "GrMemory.h"
 #include "GrRectanizer.h"
 #include "GrPlotMgr.h"
 
@@ -97,7 +96,7 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
         return false;
     }
 
-    GrAutoSMalloc<1024> storage;
+    SkAutoSMalloc<1024> storage;
     int dstW = width + 2*BORDER;
     int dstH = height + 2*BORDER;
     if (BORDER) {

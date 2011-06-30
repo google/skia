@@ -21,7 +21,6 @@
 #include "GrNoncopyable.h"
 #include "GrTDArray.h"
 #include "GrTArray.h"
-#include "GrMemory.h"
 
 class GrGeometryBuffer;
 class GrGpu;
@@ -184,8 +183,8 @@ private:
     GrTArray<BufferBlock>           fBlocks;
     int                             fPreallocBuffersInUse;
     int                             fFirstPreallocBuffer;
-    GrAutoMalloc                    fCpuData;
-    void*                       	fBufferPtr;
+    SkAutoMalloc                    fCpuData;
+    void*                           fBufferPtr;
 };
 
 class GrVertexBuffer;

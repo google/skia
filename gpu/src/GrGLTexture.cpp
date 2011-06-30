@@ -17,7 +17,6 @@
 
 #include "GrGLTexture.h"
 #include "GrGpuGL.h"
-#include "GrMemory.h"
 
 #define GPUGL static_cast<GrGpuGL*>(getGpu())
 
@@ -168,7 +167,7 @@ void GrGLTexture::uploadTextureData(int x,
     GrAssert(fUploadFormat != GR_GL_PALETTE8_RGBA8);
 
     // in case we need a temporary, trimmed copy of the src pixels
-    GrAutoSMalloc<128 * 128> trimStorage;
+    SkAutoSMalloc<128 * 128> trimStorage;
 
     /*
      *  check if our srcData has extra bytes past each row. If so, we need

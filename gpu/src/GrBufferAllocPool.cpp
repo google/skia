@@ -98,7 +98,7 @@ void GrBufferAllocPool::reset() {
         fFirstPreallocBuffer = (fFirstPreallocBuffer + fPreallocBuffersInUse) %
                                fPreallocBuffers.count();
     }
-    fCpuData.realloc(fGpu->supportsBufferLocking() ? 0 : fMinBlockSize);
+    fCpuData.alloc(fGpu->supportsBufferLocking() ? 0 : fMinBlockSize);
     GrAssert(0 == fPreallocBuffersInUse);
     VALIDATE();
 }
@@ -128,7 +128,6 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
             GrAssert(buf->lockPtr() == fBufferPtr);
         } else {
             GrAssert(fCpuData.get() == fBufferPtr);
-            GrAssert(fCpuData.size() == fBlocks.back().fBuffer->size());
         }
     } else {
         GrAssert(fBlocks.empty() || !fBlocks.back().fBuffer->isLocked());
@@ -286,7 +285,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     }
 
     if (NULL == fBufferPtr) {
-        fBufferPtr = fCpuData.realloc(size);
+        fBufferPtr = fCpuData.alloc(size);
     }
 
     VALIDATE(true);
@@ -318,7 +317,6 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
     GrAssert(NULL != buffer);
     GrAssert(!buffer->isLocked());
     GrAssert(fCpuData.get() == fBufferPtr);
-    GrAssert(fCpuData.size() == buffer->size());
     GrAssert(flushSize <= buffer->size());
 
     bool updated = false;

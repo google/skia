@@ -15,8 +15,6 @@
  */
 
 
-#include "GrMemory.h"
-
 #include <stdlib.h>
 
 void* GrMalloc(size_t bytes) {

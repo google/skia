@@ -16,10 +16,11 @@
 
 #include "GrTesselatedPathRenderer.h"
 
-#include "GrMemory.h"
 #include "GrPathUtils.h"
 #include "GrPoint.h"
 #include "GrTDArray.h"
+
+#include "SkTemplates.h"
 
 #include <limits.h>
 #include <sk_glu.h>
@@ -393,12 +394,12 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget* target,
     if (maxPts > USHRT_MAX) {
         return;
     }
-    GrAutoSTMalloc<8, GrPoint> baseMem(maxPts);
-    GrPoint* base = (GrPoint*) baseMem;
+    SkAutoSTMalloc<8, GrPoint> baseMem(maxPts);
+    GrPoint* base = baseMem;
     GrPoint* vert = base;
     GrPoint* subpathBase = base;
 
-    GrAutoSTMalloc<8, uint16_t> subpathVertCount(subpathCnt);
+    SkAutoSTMalloc<8, uint16_t> subpathVertCount(subpathCnt);
 
     GrPoint pts[4];
     SkPath::Iter iter(path, false);

@@ -179,15 +179,37 @@ private:
 */
 template <typename T> class SkAutoTMalloc : SkNoncopyable {
 public:
-    SkAutoTMalloc(size_t count)
-    {
+    SkAutoTMalloc(size_t count) {
         fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
     }
-    ~SkAutoTMalloc()
-    {
+
+    ~SkAutoTMalloc() {
         sk_free(fPtr);
     }
+
+    // doesn't preserve contents
+    void realloc (size_t count) {
+        sk_free(fPtr);
+        fPtr = fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+    }
+
     T* get() const { return fPtr; }
+
+    operator T*() {
+        return fPtr;
+    }
+
+    operator const T*() const {
+        return fPtr;
+    }
+
+    T& operator[](int index) {
+        return fPtr[index];
+    }
+
+    const T& operator[](int index) const {
+        return fPtr[index];
+    }
 
 private:
     T*  fPtr;
@@ -195,19 +217,49 @@ private:
 
 template <size_t N, typename T> class SkAutoSTMalloc : SkNoncopyable {
 public:
-    SkAutoSTMalloc(size_t count)
-    {
-        if (count <= N)
+    SkAutoSTMalloc(size_t count) {
+        if (count <= N) {
             fPtr = fTStorage;
-        else
+        } else {
             fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+        }
     }
-    ~SkAutoSTMalloc()
-    {
-        if (fPtr != fTStorage)
+
+    ~SkAutoSTMalloc() {
+        if (fPtr != fTStorage) {
             sk_free(fPtr);
+        }
     }
+
+    // doesn't preserve contents
+    void realloc (size_t count) {
+        if (fPtr != fTStorage) {
+            sk_free(fPtr);
+        }
+        if (count <= N) {
+            fPtr = fTStorage;
+        } else {
+            fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
+        }
+    }
+
     T* get() const { return fPtr; }
+
+    operator T*() {
+        return fPtr;
+    }
+
+    operator const T*() const {
+        return fPtr;
+    }
+
+    T& operator[](int index) {
+        return fPtr[index];
+    }
+
+    const T& operator[](int index) const {
+        return fPtr[index];
+    }
 
 private:
     T*          fPtr;

@@ -15,8 +15,8 @@
  */
 
 #include "GrGpuGL.h"
-#include "GrMemory.h"
 #include "GrTypes.h"
+#include "SkTemplates.h"
 
 static const GrGLuint GR_MAX_GLUINT = ~0;
 static const GrGLint  GR_INVAL_GLINT = ~0;
@@ -312,7 +312,7 @@ GrGpuGL::GrGpuGL() {
 
     GrGLint numFormats;
     GR_GL_GetIntegerv(GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    GrAutoSTMalloc<10, GrGLint> formats(numFormats);
+    SkAutoSTMalloc<10, GrGLint> formats(numFormats);
     GR_GL_GetIntegerv(GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
     for (int i = 0; i < numFormats; ++i) {
         if (formats[i] == GR_GL_PALETTE8_RGBA8) {
@@ -780,7 +780,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     glDesc.fUploadByteCount = GrBytesPerPixel(desc.fFormat);
 
     // in case we need a temporary, trimmed copy of the src pixels
-    GrAutoSMalloc<128 * 128> trimStorage;
+    SkAutoSMalloc<128 * 128> trimStorage;
 
     /*
      *  check if our srcData has extra bytes past each row. If so, we need
@@ -875,7 +875,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             maxTexels = GrMax(extraW * desc.fHeight, maxTexels);
             maxTexels = GrMax(desc.fWidth * extraH, maxTexels);
 
-            GrAutoSMalloc<128*128> texels(glDesc.fUploadByteCount * maxTexels);
+            SkAutoSMalloc<128*128> texels(glDesc.fUploadByteCount * maxTexels);
 
             uint32_t rowSize = desc.fWidth * glDesc.fUploadByteCount;
             if (extraH) {
@@ -1325,7 +1325,7 @@ bool GrGpuGL::onReadPixels(GrRenderTarget* target,
     // API presents top-to-bottom
     {
         size_t stride = width * GrBytesPerPixel(config);
-        GrAutoMalloc rowStorage(stride);
+        SkAutoMalloc rowStorage(stride);
         void* tmp = rowStorage.get();
 
         const int halfY = height >> 1;
