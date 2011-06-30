@@ -85,6 +85,8 @@ static void TestString(skiatest::Reporter* reporter) {
 //        SkDebugf(" received <%s> expected <%s>\n", a.c_str(), gRec[i].fString);
         REPORTER_ASSERT(reporter, a.equals(gRec[i].fString));
     }
+
+    REPORTER_ASSERT(reporter, SkStringPrintf("%i", 0).equals("0"));
 }
 
 #include "TestClassDef.h"
