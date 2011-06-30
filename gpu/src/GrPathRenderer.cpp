@@ -3,10 +3,11 @@
 #include "GrPoint.h"
 #include "GrDrawTarget.h"
 #include "GrPathUtils.h"
-#include "GrMemory.h"
 #include "GrTexture.h"
 
 #include "SkString.h"
+#include "SkTemplates.h"
+
 #include SK_USER_TRACE_INCLUDE_FILE
 
 GrPathRenderer::GrPathRenderer()
@@ -234,7 +235,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
     GrPoint* vert = base;
     GrPoint* subpathBase = base;
 
-    GrAutoSTMalloc<8, uint16_t> subpathVertCount(subpathCnt);
+    SkAutoSTMalloc<8, uint16_t> subpathVertCount(subpathCnt);
 
     // TODO: use primitve restart if available rather than multiple draws
     GrPrimitiveType             type;

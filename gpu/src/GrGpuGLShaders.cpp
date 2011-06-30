@@ -18,7 +18,6 @@
 #include "GrGLProgram.h"
 #include "GrGpuGLShaders.h"
 #include "GrGpuVertex.h"
-#include "GrMemory.h"
 #include "GrNoncopyable.h"
 #include "GrStringBuilder.h"
 #include "GrRandom.h"

@@ -17,7 +17,6 @@
 
 #include "GrAtlas.h"
 #include "GrGpu.h"
-#include "GrMemory.h"
 #include "GrRectanizer.h"
 #include "GrTextStrike.h"
 #include "GrTextStrike_impl.h"
@@ -189,7 +188,7 @@ bool GrTextStrike::getGlyphAtlas(GrGlyph* glyph, GrFontScaler* scaler) {
 
     int bytesPerPixel = GrMaskFormatBytesPerPixel(fMaskFormat);
     size_t size = glyph->fBounds.area() * bytesPerPixel;
-    GrAutoSMalloc<1024> storage(size);
+    SkAutoSMalloc<1024> storage(size);
     if (!scaler->getPackedGlyphImage(glyph->fPackedID, glyph->width(),
                                      glyph->height(),
                                      glyph->width() * bytesPerPixel,

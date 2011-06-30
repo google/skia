@@ -18,7 +18,6 @@
 
 #include "GrBinHashKey.h"
 #include "GrGLConfig.h"
-#include "GrMemory.h"
 
 #include "SkXfermode.h"
 #include SK_USER_TRACE_INCLUDE_FILE
@@ -775,7 +774,7 @@ GrGLuint GrGLProgram::CompileShader(GrGLenum type,
     if (!compiled) {
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GR_GL(GetShaderiv(shader, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        GrAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
+        SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
         if (infoLen > 0) {
             GR_GL(GetShaderInfoLog(shader, infoLen+1, NULL, (char*)log.get()));
             for (int i = 0; i < stringCnt; ++i) {
@@ -853,7 +852,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
     if (!linked) {
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GR_GL(GetProgramiv(progID, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        GrAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
+        SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
         if (infoLen > 0) {
             GR_GL(GetProgramInfoLog(progID,
                                     infoLen+1,

@@ -107,7 +107,6 @@
         '../gpu/include/GrIPoint.h',
         '../gpu/include/GrKey.h',
         '../gpu/include/GrMatrix.h',
-        '../gpu/include/GrMemory.h',
         '../gpu/include/GrMesh.h',
         '../gpu/include/GrNoncopyable.h',
         '../gpu/include/GrPaint.h',
