@@ -21,6 +21,7 @@
 #include "GrMemory.h"
 
 #include "SkXfermode.h"
+#include SK_USER_TRACE_INCLUDE_FILE
 
 namespace {
 
@@ -758,6 +759,9 @@ GrGLuint GrGLProgram::CompileShader(GrGLenum type,
                                       int stringCnt,
                                       const char** strings,
                                       int* stringLengths) {
+    SK_TRACE_EVENT1("GrGLProgram::CompileShader",
+                    "stringCount", SkStringPrintf("%i", stringCnt).c_str());
+
     GrGLuint shader = GR_GL(CreateShader(type));
     if (0 == shader) {
         return 0;

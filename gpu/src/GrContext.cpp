@@ -14,17 +14,18 @@
     limitations under the License.
  */
 
+#include "GrBufferAllocPool.h"
+#include "GrClipIterator.h"
 #include "GrContext.h"
 #include "GrGpu.h"
-#include "GrTextureCache.h"
-#include "GrTextStrike.h"
-#include "GrMemory.h"
-#include "GrClipIterator.h"
 #include "GrIndexBuffer.h"
 #include "GrInOrderDrawBuffer.h"
-#include "GrBufferAllocPool.h"
+#include "GrMemory.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
+#include "GrTextureCache.h"
+#include "GrTextStrike.h"
+#include SK_USER_TRACE_INCLUDE_FILE
 
 // Using MSAA seems to be slower for some yet unknown reason.
 #define PREFER_MSAA_OFFSCREEN_AA 0
@@ -203,6 +204,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                                                 const GrSamplerState& sampler,
                                                 const GrTextureDesc& desc,
                                                 void* srcData, size_t rowBytes) {
+    SK_TRACE_EVENT0("GrContext::createAndLockTexture");
     GrAssert(key->width() == desc.fWidth);
     GrAssert(key->height() == desc.fHeight);
 
@@ -712,7 +714,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
                                  const GrIRect& boundRect,
                                  int tileX, int tileY,
                                  OffscreenRecord* record) {
-
+    SK_TRACE_EVENT0("GrContext::doOffscreenAAPass2");
     GrAssert(NULL != record->fEntry0);
     
     GrIRect tileRect;
@@ -928,7 +930,6 @@ GrIndexBuffer* GrContext::aaStrokeRectIndexBuffer() {
 void GrContext::fillAARect(GrDrawTarget* target,
                            const GrPaint& paint,
                            const GrRect& devRect) {
-
     GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL) |
                             GrDrawTarget::kColor_VertexLayoutBit;
 
@@ -1084,7 +1085,7 @@ void GrContext::drawRect(const GrPaint& paint,
                          const GrRect& rect,
                          GrScalar width,
                          const GrMatrix* matrix) {
-
+    SK_TRACE_EVENT0("GrContext::drawRect");
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
     int stageMask = paint.getActiveStageMask();
@@ -1190,6 +1191,7 @@ void GrContext::drawRectToRect(const GrPaint& paint,
                                const GrRect& srcRect,
                                const GrMatrix* dstMatrix,
                                const GrMatrix* srcMatrix) {
+    SK_TRACE_EVENT0("GrContext::drawRectToRect");
 
     // srcRect refers to paint's first texture
     if (NULL == paint.getTexture(0)) {
@@ -1258,6 +1260,7 @@ void GrContext::drawVertices(const GrPaint& paint,
                              const GrColor colors[],
                              const uint16_t indices[],
                              int indexCount) {
+    SK_TRACE_EVENT0("GrContext::drawVertices");
 
     GrDrawTarget::AutoReleaseGeometry geo;
 
@@ -1426,6 +1429,7 @@ void GrContext::flushDrawBuffer() {
 bool GrContext::readTexturePixels(GrTexture* texture,
                                   int left, int top, int width, int height,
                                   GrPixelConfig config, void* buffer) {
+    SK_TRACE_EVENT0("GrContext::readTexturePixels");
 
     // TODO: code read pixels for textures that aren't rendertargets
 
@@ -1443,6 +1447,7 @@ bool GrContext::readTexturePixels(GrTexture* texture,
 bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
                                       int left, int top, int width, int height,
                                       GrPixelConfig config, void* buffer) {
+    SK_TRACE_EVENT0("GrContext::readRenderTargetPixels");
     uint32_t flushFlags = 0;
     if (NULL == target) { 
         flushFlags |= GrContext::kForceCurrentRenderTarget_FlushBit;
@@ -1457,6 +1462,7 @@ bool GrContext::readRenderTargetPixels(GrRenderTarget* target,
 void GrContext::writePixels(int left, int top, int width, int height,
                             GrPixelConfig config, const void* buffer,
                             size_t stride) {
+    SK_TRACE_EVENT0("GrContext::writePixels");
 
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).

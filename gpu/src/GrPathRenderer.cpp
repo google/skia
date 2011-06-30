@@ -6,6 +6,9 @@
 #include "GrMemory.h"
 #include "GrTexture.h"
 
+#include "SkString.h"
+#include SK_USER_TRACE_INCLUDE_FILE
+
 GrPathRenderer::GrPathRenderer()
     : fCurveTolerance (GR_Scalar1) {
 
@@ -191,6 +194,8 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
                                        GrPathFill fill,
                                        const GrPoint* translate,
                                        bool stencilOnly) {
+    SK_TRACE_EVENT1("GrDefaultPathRenderer::onDrawPath",
+                    "points", SkStringPrintf("%i", path.countPoints()).c_str());
 
     GrDrawTarget::AutoStateRestore asr(target);
     bool colorWritesWereDisabled = target->isColorWriteDisabled();
@@ -334,7 +339,10 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
 
     SkPath::Iter iter(path, false);
 
+    {
+    SK_TRACE_EVENT0("GrDefaultPathRenderer::onDrawPath::assembleVerts");
     for (;;) {
+
         GrPathCmd cmd = (GrPathCmd)iter.next(pts);
         switch (cmd) {
             case kMove_PathCmd:
@@ -371,6 +379,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
         }
         first = false;
     }
+    }
 FINISHED:
     GrAssert(subpath == subpathCnt);
     GrAssert((vert - base) <= maxPts);
@@ -406,6 +415,9 @@ FINISHED:
                                   bounds.fBottom);
     }
 
+    {
+    SK_TRACE_EVENT1("GrDefaultPathRenderer::onDrawPath::renderPasses",
+                    "verts", SkStringPrintf("%i", vert - base).c_str());
     for (int p = 0; p < passCount; ++p) {
         target->setDrawFace(drawFace[p]);
         if (NULL != passes[p]) {
@@ -431,6 +443,7 @@ FINISHED:
                 baseVertex += subpathVertCount[sp];
             }
         }
+    }
     }
 }
 
