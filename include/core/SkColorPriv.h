@@ -219,9 +219,9 @@ static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) 
 static inline
 SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
-    SkASSERT(r <= a);
-    SkASSERT(g <= a);
-    SkASSERT(b <= a);
+    SkA32Assert(r);
+    SkA32Assert(g);
+    SkA32Assert(b);
 
     if (a != 255) {
         r = SkMulDiv255Round(r, a);
