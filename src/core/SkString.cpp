@@ -542,8 +542,6 @@ void SkString::prependf(const char format[], ...) {
     this->prepend(buffer, strlen(buffer));
 }
 
-#undef VSNPRINTF
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkString::remove(size_t offset, size_t length) {
@@ -605,3 +603,16 @@ SkAutoUCS2::SkAutoUCS2(const char utf8[]) {
 SkAutoUCS2::~SkAutoUCS2() {
     sk_free(fUCS2);
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkString SkStringPrintf(const char* format, ...) {
+    SkString formattedOutput;
+    char buffer[kBufferSize];
+    ARGS_TO_BUFFER(format, buffer, kBufferSize);
+    formattedOutput.set(buffer);
+    return formattedOutput;
+}
+
+#undef VSNPRINTF
+

@@ -197,4 +197,7 @@ private:
     uint16_t*   fUCS2;
 };
 
+/// Creates a new string and writes into it using a printf()-style format.
+SkString SkStringPrintf(const char* format, ...);
+
 #endif
