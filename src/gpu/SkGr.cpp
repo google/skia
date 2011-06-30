@@ -97,8 +97,16 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
 
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
-            return ctx->createAndLockTexture(key, sampler, desc, storage.get(),
-                                             bitmap->width());
+            
+            if (NULL != key) {
+                return ctx->createAndLockTexture(key, sampler, desc, storage.get(),
+                                                 bitmap->width());
+            } else {
+                GrTextureEntry* entry = ctx->lockKeylessTexture(desc);
+                entry->texture()->uploadTextureData(0, 0, bitmap->width(), 
+                    bitmap->height(), storage.get(), 0);
+                return entry;
+            }
 
         } else {
             origBitmap.copyTo(&tmpBitmap, SkBitmap::kARGB_8888_Config);
@@ -108,8 +116,15 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
     }
 
     desc.fFormat = SkGr::Bitmap2PixelConfig(*bitmap);
-    return ctx->createAndLockTexture(key, sampler, desc, bitmap->getPixels(),
-                                     bitmap->rowBytes());
+    if (NULL != key) {
+        return ctx->createAndLockTexture(key, sampler, desc, 
+            bitmap->getPixels(), bitmap->rowBytes());
+    } else {
+        GrTextureEntry* entry = ctx->lockKeylessTexture(desc);
+        entry->texture()->uploadTextureData(0, 0, bitmap->width(), 
+            bitmap->height(), bitmap->getPixels(), bitmap->rowBytes());
+        return entry;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////

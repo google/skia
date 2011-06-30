@@ -169,7 +169,8 @@ public:
                                    int y,
                                    int width,
                                    int height,
-                                   const void* srcData);
+                                   const void* srcData,
+                                   size_t rowBytes);
     virtual intptr_t getTextureHandle();
 
     const TexParams& getTexParams() const { return fTexParams; }

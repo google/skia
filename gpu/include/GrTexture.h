@@ -201,18 +201,21 @@ public:
     /**
      * Updates a subrectangle of texels in the texture.
      *
-     * @param x       left edge of rectangle to update
-     * @param y       top edge of rectangle to update
-     * @param width   width of rectangle to update
-     * @param height  height of rectangle to update
-     * @param srcData width*height texels of data in same format that was used
-     *                at texture creation.
+     * @param x         left edge of rectangle to update
+     * @param y         top edge of rectangle to update
+     * @param width     width of rectangle to update
+     * @param height    height of rectangle to update
+     * @param srcData   width*height texels of data in same format that was
+     *                  used at texture creation.
+     * @param rowBytes  number of bytes per row in srcData, 0 means rows are 
+     *                  packed
      */
     virtual void uploadTextureData(int x,
                                    int y,
                                    int width,
                                    int height,
-                                   const void* srcData) = 0;
+                                   const void* srcData,
+                                   size_t rowBytes) = 0;
 
     /**
      * Reads a rectangle of pixels from the texture.

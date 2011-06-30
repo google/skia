@@ -583,6 +583,18 @@ void SkBitmap::setIsOpaque(bool isOpaque) {
     }
 }
 
+bool SkBitmap::isVolatile() const {
+    return (fFlags & kImageIsVolatile_Flag) != 0;
+}
+
+void SkBitmap::setIsVolatile(bool isVolatile) {
+    if (isVolatile) {
+        fFlags |= kImageIsVolatile_Flag;
+    } else {
+        fFlags &= ~kImageIsVolatile_Flag;
+    }
+}
+
 void* SkBitmap::getAddr(int x, int y) const {
     SkASSERT((unsigned)x < (unsigned)this->width());
     SkASSERT((unsigned)y < (unsigned)this->height());
@@ -1510,7 +1522,7 @@ SkBitmap::RLEPixels::~RLEPixels() {
 void SkBitmap::validate() const {
     SkASSERT(fConfig < kConfigCount);
     SkASSERT(fRowBytes >= (unsigned)ComputeRowBytes((Config)fConfig, fWidth));
-    SkASSERT(fFlags <= kImageIsOpaque_Flag);
+    SkASSERT(fFlags <= (kImageIsOpaque_Flag | kImageIsVolatile_Flag));
     SkASSERT(fPixelLockCount >= 0);
     SkASSERT(NULL == fColorTable || (unsigned)fColorTable->getRefCnt() < 10000);
     SkASSERT((uint8_t)ComputeBytesPerPixel((Config)fConfig) == fBytesPerPixel);

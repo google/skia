@@ -1459,19 +1459,22 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             entry = ctx->lockKeylessTexture(desc);
         }
     } else {
-        uint32_t p0, p1;
-        p0 = bitmap.getGenerationID();
-        p1 = bitmap.pixelRefOffset();
-
-        GrTextureKey key(p0, p1, bitmap.width(), bitmap.height());
-        entry = ctx->findAndLockTexture(&key, sampler);
-
+        if (!bitmap.isVolatile()) {
+            uint32_t p0, p1;
+            p0 = bitmap.getGenerationID();
+            p1 = bitmap.pixelRefOffset();
+            GrTextureKey key(p0, p1, bitmap.width(), bitmap.height());
+        
+            entry = ctx->findAndLockTexture(&key, sampler);
+            if (NULL == entry)
+                entry = sk_gr_create_bitmap_texture(ctx, &key, sampler, 
+                                                    bitmap);
+        } else {
+            entry = sk_gr_create_bitmap_texture(ctx, NULL, sampler, bitmap);
+        }
         if (NULL == entry) {
-            entry = sk_gr_create_bitmap_texture(ctx, &key, sampler, bitmap);
-            if (NULL == entry) {
-                GrPrintf("---- failed to create texture for cache [%d %d]\n",
-                         bitmap.width(), bitmap.height());
-            }
+            GrPrintf("---- failed to create texture for cache [%d %d]\n",
+                     bitmap.width(), bitmap.height());
         }
     }
 

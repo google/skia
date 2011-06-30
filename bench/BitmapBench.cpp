@@ -93,13 +93,15 @@ class BitmapBench : public SkBenchmark {
     SkBitmap    fBitmap;
     SkPaint     fPaint;
     bool        fIsOpaque;
+    bool        fForceUpdate; //bitmap marked as dirty before each draw. forces bitmap to be updated on device cache
     int         fTileX, fTileY; // -1 means don't use shader
     SkString    fName;
     enum { N = 300 };
 public:
     BitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
+                bool forceUpdate = false, bool bitmapVolatile = false, 
                 int tx = -1, int ty = -1)
-        : INHERITED(param), fIsOpaque(isOpaque), fTileX(tx), fTileY(ty) {
+        : INHERITED(param), fIsOpaque(isOpaque), fForceUpdate(forceUpdate), fTileX(tx), fTileY(ty) {
         const int w = 128;
         const int h = 128;
         SkBitmap bm;
@@ -124,6 +126,7 @@ public:
             fBitmap.getColorTable()->setIsOpaque(isOpaque);
         }
         fBitmap.setIsOpaque(isOpaque);
+        fBitmap.setIsVolatile(bitmapVolatile);
     }
 
 protected:
@@ -137,6 +140,11 @@ protected:
         }
         fName.appendf("_%s%s", gConfigName[fBitmap.config()],
                       fIsOpaque ? "" : "_A");
+        if (fForceUpdate) 
+            fName.append("_update");
+        if (fBitmap.isVolatile())
+            fName.append("_volatile");
+
         return fName.c_str();
     }
 
@@ -154,6 +162,10 @@ protected:
         for (int i = 0; i < N; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
+
+            if (fForceUpdate)
+                bitmap.notifyPixelsChanged();
+
             canvas->drawBitmap(bitmap, x, y, &paint);
         }
     }
@@ -169,6 +181,8 @@ static SkBenchmark* Fact3(void* p) { return new BitmapBench(p, false, SkBitmap::
 static SkBenchmark* Fact4(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_4444_Config); }
 static SkBenchmark* Fact5(void* p) { return new BitmapBench(p, false, SkBitmap::kIndex8_Config); }
 static SkBenchmark* Fact6(void* p) { return new BitmapBench(p, true, SkBitmap::kIndex8_Config); }
+static SkBenchmark* Fact7(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, true); }
+static SkBenchmark* Fact8(void* p) { return new BitmapBench(p, true, SkBitmap::kARGB_8888_Config, true, false); }
 
 static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg1(Fact1);
@@ -177,3 +191,5 @@ static BenchRegistry gReg3(Fact3);
 static BenchRegistry gReg4(Fact4);
 static BenchRegistry gReg5(Fact5);
 static BenchRegistry gReg6(Fact6);
+static BenchRegistry gReg7(Fact7);
+static BenchRegistry gReg8(Fact8);

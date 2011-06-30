@@ -117,7 +117,7 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
         image = storage.get();
     }
     adjustForPlot(loc, fPlot);
-    fTexture->uploadTextureData(loc->fX, loc->fY, dstW, dstH, image);
+    fTexture->uploadTextureData(loc->fX, loc->fY, dstW, dstH, image, 0);
 
     // now tell the caller to skip the top/left BORDER
     loc->fX += BORDER;
