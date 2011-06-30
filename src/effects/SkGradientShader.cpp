@@ -538,11 +538,11 @@ void Gradient_Shader::Build32bitCache(SkPMColor cache[], SkColor c0, SkColor c1,
     b = SkIntToFixed(b) + 0x8000;
 
     do {
-        cache[0] = SkPreMultiplyARGB(a >> 16, r >> 16, g >> 16, b >> 16);
-        cache[kCache32Count] = SkPreMultiplyARGB(dither_ceil_fixed_to_8(a),
-                                                 dither_fixed_to_8(r),
-                                                 dither_fixed_to_8(g),
-                                                 dither_fixed_to_8(b));
+        cache[0] = SkPremultiplyARGBInline(a >> 16, r >> 16, g >> 16, b >> 16);
+        cache[kCache32Count] = SkPremultiplyARGBInline(dither_ceil_fixed_to_8(a),
+                                                       dither_fixed_to_8(r),
+                                                       dither_fixed_to_8(g),
+                                                       dither_fixed_to_8(b));
         cache += 1;
         a += da;
         r += dr;
