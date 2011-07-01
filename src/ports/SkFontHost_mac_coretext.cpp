@@ -36,6 +36,10 @@
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
 
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+    #define SK_SUPPORT_MAC_FONT_SUBPIXEL
+#endif
+
 using namespace skia_advanced_typeface_metrics_utils;
 
 static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
@@ -521,10 +525,11 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 
     // Draw the glyph
     if (cgFont != NULL && cgContext != NULL) {
-        CGContextSetAllowsFontSmoothing(cgContext, doLCD);
         CGContextSetShouldSmoothFonts(cgContext, doLCD);
 
-#ifdef WE_ARE_RUNNING_ON_10_5_OR_LATER
+#ifdef SK_SUPPORT_MAC_FONT_SUBPIXEL
+        CGContextSetAllowsFontSmoothing(cgContext, doLCD);
+
         // need to pass the fractional part of our position to cg...
         bool doSubPosition = SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
         CGContextSetAllowsFontSubpixelPositioning(cgContext, doSubPosition);
@@ -956,6 +961,14 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
 }
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
+    unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
+                                  SkScalerContext::kAutohinting_Flag;
+#ifndef SK_SUPPORT_MAC_FONT_SUBPIXEL
+    flagsWeDontSupport |= SkScalerContext::kSubpixelPositioning_Flag;
+#endif
+
+    rec->fFlags &= ~flagsWeDontSupport;
+    
     // we only support 2 levels of hinting
     SkPaint::Hinting h = rec->getHinting();
     if (SkPaint::kSlight_Hinting == h) {
