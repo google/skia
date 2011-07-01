@@ -24,7 +24,7 @@
 #include "GrPathUtils.h"
 #include "GrTextureCache.h"
 #include "GrTextStrike.h"
-#include SK_USER_TRACE_INCLUDE_FILE
+#include "SkTrace.h"
 
 // Using MSAA seems to be slower for some yet unknown reason.
 #define PREFER_MSAA_OFFSCREEN_AA 0

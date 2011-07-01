@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -13,12 +13,17 @@
     See the License for the specific language governing permissions and
     limitations under the License.
  */
-#ifndef SkUserTrace_DEFINED
-#define SkUserTrace_DEFINED
+#ifndef SkTrace_DEFINED
+#define SkTrace_DEFINED
 
-/* If your system embeds skia and has complex event logging, define these
-   to map to your system's equivalents. A trivial example is given in
-   src/utils/SkDebugTrace.h.
+#ifdef SK_USER_TRACE_INCLUDE_FILE
+
+/* If your system embeds skia and has complex event logging, in
+   src/config/SkUserConfig.h:
+     - define the three SK_TRACE_EVENT macros to map to your system's
+       equivalents,
+     - define the name of the include file in SK_USER_TRACE_INCLUDE_FILE
+   A trivial example is given in src/utils/SkDebugTrace.h.
 
    All arguments are const char*. Skia typically passes the name of
    the object and function (and sometimes region of interest within
@@ -33,9 +38,16 @@
     SK_TRACE_EVENT1("GrDefaultPathRenderer::onDrawPath::renderPasses",
                     "verts", SkStringPrintf("%i", vert - base).c_str());
 */
-#define SK_TRACE_EVENT0(event)
-#define SK_TRACE_EVENT1(event, name1, value1)
-#define SK_TRACE_EVENT2(event, name1, value1, name2, value2)
+
+    #include SK_USER_TRACE_INCLUDE_FILE
+
+#else
+
+    #define SK_TRACE_EVENT0(event)
+    #define SK_TRACE_EVENT1(event, name1, value1)
+    #define SK_TRACE_EVENT2(event, name1, value1, name2, value2)
+
+#endif
 
 #endif
 
