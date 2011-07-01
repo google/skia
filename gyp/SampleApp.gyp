@@ -1,3 +1,4 @@
+
 {
   'includes': [
     'common.gypi',
@@ -110,7 +111,7 @@
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
         
-        # Dependecies for the pipe code in SampleApp
+        # Dependencies for the pipe code in SampleApp
         '../src/pipe/SkGPipeRead.cpp',
         '../src/pipe/SkGPipeWrite.cpp',
       ],
@@ -150,6 +151,47 @@
         [ 'skia_os == "mac"', {
           'sources!': [
             '../samplecode/SampleDecode.cpp',
+          ],
+        }],
+        [ 'skia_os == "ios"', {
+          # TODO: This doesn't build properly yet, but it's getting there.
+          'sources!': [
+            '../samplecode/SampleDecode.cpp',
+          ],
+          'sources': [
+            '../experimental/iOSSampleApp/SkIOSNotifier.mm',
+            '../experimental/iOSSampleApp/SkTime_iOS.mm',
+            '../experimental/iOSSampleApp/SkUIDetailViewController.mm',
+            '../experimental/iOSSampleApp/SkUIRootViewController.mm',
+            '../experimental/iOSSampleApp/SkUIView_shell.mm',
+
+            '../experimental/iOSSampleApp/iOSSampleApp_Prefix.pch',
+            '../experimental/iOSSampleApp/Shared/main.m',
+            '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
+            '../experimental/iOSSampleApp/iPad/SkUISplitViewController.mm',
+            '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',
+            '../experimental/iOSSampleApp/iPhone/SkUINavigationController.mm',
+
+            '../src/utils/ios/SkOSWindow_iOS.mm',
+            '../src/utils/ios/SkImageDecoder_iOS.mm',
+            '../src/utils/ios/SkStream_NSData.mm',
+            '../src/utils/ios/SkOSFile_iOS.mm',
+
+            '../src/utils/mac/SkCreateCGImageRef.cpp',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
+          ],
+          'include_dirs' : [
+            '../experimental/iOSSampleApp',
+            '../experimental/iOSSampleApp/iPad',
+            '../experimental/iOSSampleApp/iPhone',
+            '../include/utils/ios',
+            '../../gpu/include',
+          ],
+          'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
+          'mac_bundle_resources' : [
+            '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
+            '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
           ],
         }],
 

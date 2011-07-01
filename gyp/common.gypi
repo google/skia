@@ -157,6 +157,25 @@
         },
       ],
 
+      ['skia_os == "ios"', 
+        {
+          'defines': [
+            'SK_BUILD_FOR_IOS',
+          ],
+          'configurations': {
+            'Debug': {
+              'cflags': ['-g']
+            },
+            'Release': {
+              'cflags': ['-O2']
+            },
+          },
+          'xcode_settings': {
+            'SYMROOT': '<(DEPTH)/xcodebuild',
+          },
+        },
+      ],
+
     ], # end 'conditions'
   }, # end 'target_defaults'
 }

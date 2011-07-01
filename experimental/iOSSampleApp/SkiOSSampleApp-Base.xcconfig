@@ -1,0 +1,16 @@
+//
+//  SkiOSSampleApp-Base.xcconfig
+//  iOSSampleApp
+//
+//  Created by Yang Su on 6/30/11.
+//  Copyright 2011 Google Inc. All rights reserved.
+//
+
+ARCHS=armv6
+IPHONEOS_DEPLOYMENT_TARGET=4.0
+SDKROOT=iphoneos
+TARGETED_DEVICE_FAMILY=1,2
+
+USER_HEADER_SEARCH_PATHS=../../gpu/include/** ../../include/**
+CODE_SIGN_IDENTITY=iPhone Developer
+

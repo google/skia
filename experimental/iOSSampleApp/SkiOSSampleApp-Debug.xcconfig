@@ -1,0 +1,11 @@
+//
+//  SkiOSSampleApp.xcconfig
+//  iOSSampleApp
+//
+//  Created by Yang Su on 6/30/11.
+//  Copyright 2011 Google Inc. All rights reserved.
+//
+#include "SkiOSSampleApp-Base"
+
+GCC_PREPROCESSOR_DEFINITIONS=SK_DEBUG SK_BUILD_FOR_IOS
+GCC_OPTIMIZATION_LEVEL=0
