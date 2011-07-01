@@ -296,6 +296,32 @@
             ],
           },
         }],
+        [ 'skia_os == "ios"', {
+          'include_dirs': [
+            '../include/utils/ios',
+          ],
+          'sources': [
+            '../include/core/SkMMapStream.h',
+            '../include/utils/mac/SkCGUtils.h',
+
+            '../src/core/SkMMapStream.cpp',
+            '../src/ports/SkFontHost_mac_coretext.cpp',
+
+            '../src/ports/SkThread_pthread.cpp',
+            '../src/ports/SkTime_Unix.cpp',
+          ],
+          'link_settings': {
+            'libraries': [
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/CoreFoundation.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/CoreGraphics.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/CoreText.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/UIKit.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/Foundation.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/QuartzCore.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/OpenGLES.framework',
+            ],
+          },
+        }],
         [ 'skia_os == "win"', {
           'include_dirs': [
             'config/win',
