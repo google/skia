@@ -10,11 +10,6 @@
 
         #Console app, use main/wmain
         'EntryPointSymbol': 'mainCRTStartup',
-
-        'AdditionalDependencies': [
-          'OpenGL32.lib',
-          'usp10.lib',
-        ],
       },
     },
   },

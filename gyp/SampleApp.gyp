@@ -1,6 +1,6 @@
 {
   'includes': [
-    'target_defaults.gypi',
+    'common.gypi',
   ],
   'targets': [
     {
@@ -158,9 +158,7 @@
         'VCLinkerTool': {
           'SubSystem': '2',
           'AdditionalDependencies': [
-              'OpenGL32.lib',
-              'usp10.lib',
-              'd3d9.lib',
+            'd3d9.lib',
           ],
         },
       },
