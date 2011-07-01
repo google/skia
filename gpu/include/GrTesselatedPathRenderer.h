@@ -23,22 +23,14 @@ class GrTesselatedPathRenderer : public GrPathRenderer {
 public:
     GrTesselatedPathRenderer();
 
-    virtual void drawPath(GrDrawTarget* target,
-                          GrDrawTarget::StageBitfield stages,
-                          const GrPath& path,
-                          GrPathFill fill,
-                          const GrPoint* translate);
-    virtual bool canDrawPath(const GrDrawTarget* target,
-                             const GrPath& path,
+    virtual void drawPath(GrDrawTarget::StageBitfield stages);
+    virtual bool canDrawPath(const GrPath& path,
                              GrPathFill fill) const;
 
     virtual bool requiresStencilPass(const GrDrawTarget* target,
                                      const GrPath& path,
                                      GrPathFill fill) const { return false; }
-    virtual void drawPathToStencil(GrDrawTarget* target,
-                                   const GrPath& path,
-                                   GrPathFill fill,
-                                   const GrPoint* translate);
+    virtual void drawPathToStencil();
     virtual bool supportsAA(GrDrawTarget* target,
                             const GrPath& path,
                             GrPathFill fill);
