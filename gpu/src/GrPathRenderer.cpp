@@ -7,8 +7,7 @@
 
 #include "SkString.h"
 #include "SkTemplates.h"
-
-#include SK_USER_TRACE_INCLUDE_FILE
+#include "SkTrace.h"
 
 GrPathRenderer::GrPathRenderer()
     : fCurveTolerance (GR_Scalar1)

@@ -148,17 +148,17 @@
 //#define SK_SUPPORT_UNITTEST
 #endif
 
-/* If your system embeds skia and has complex event logging, redefine this
-   symbol to point to a file that maps the following macros to your system's
+/* If your system embeds skia and has complex event logging, define this
+   symbol to name a file that maps the following macros to your system's
    equivalents:
        SK_TRACE_EVENT0(event)
        SK_TRACE_EVENT1(event, name1, value1)
        SK_TRACE_EVENT2(event, name1, value1, name2, value2)
-   include/config/SkUserTrace.h has a no-op implementation, while
    src/utils/SkDebugTrace.h has a trivial implementation that writes to
-   the debug output stream.
+   the debug output stream. If SK_USER_TRACE_INCLUDE_FILE is not defined,
+   SkTrace.h will define the above three macros to do nothing.
 */
-#define SK_USER_TRACE_INCLUDE_FILE "../../include/config/SkUserTrace.h"
+//#undef SK_USER_TRACE_INCLUDE_FILE
 
 /*  Change the ordering to work in X windows.
  */

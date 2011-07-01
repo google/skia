@@ -19,8 +19,8 @@
 #include "GrBinHashKey.h"
 #include "GrGLConfig.h"
 
+#include "SkTrace.h"
 #include "SkXfermode.h"
-#include SK_USER_TRACE_INCLUDE_FILE
 
 namespace {
 
