@@ -473,6 +473,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                 }
             } else {
                 bounds = fPath->getBounds();
+                bounds.offset(fTranslate);
             }
             GrDrawTarget::AutoGeometryPush agp(fTarget);
             fTarget->drawSimpleRect(bounds, NULL, stages);
