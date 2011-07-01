@@ -1,7 +1,7 @@
 # Core Skia library code.
 {
   'includes': [
-    'target_defaults.gypi',
+    'common.gypi',
   ],
   'targets': [
     {

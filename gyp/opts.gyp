@@ -1,6 +1,6 @@
 {
   'includes': [
-    'target_defaults.gypi',
+    'common.gypi',
   ],
   'targets': [
     # Due to an unfortunate intersection of lameness between gcc and gyp,

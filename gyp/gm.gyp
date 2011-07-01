@@ -2,7 +2,7 @@
 {
   'includes': [
     'apptype_console.gypi',
-    'target_defaults.gypi',
+    'common.gypi',
   ],
   'targets': [
     {

@@ -1,6 +1,6 @@
 ﻿{
   'includes': [
-    'target_defaults.gypi',
+    'common.gypi',
   ],
   'targets': [
     {
