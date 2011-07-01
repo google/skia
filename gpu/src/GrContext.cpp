@@ -715,7 +715,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
                                  OffscreenRecord* record) {
     SK_TRACE_EVENT0("GrContext::doOffscreenAAPass2");
     GrAssert(NULL != record->fEntry0);
-    
+    GrDrawTarget::AutoGeometryPush agp(target);
     GrIRect tileRect;
     tileRect.fLeft = boundRect.fLeft + tileX * record->fTileSizeX;
     tileRect.fTop  = boundRect.fTop  + tileY * record->fTileSizeY,
@@ -1321,7 +1321,9 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                          GrPathFill fill, const GrPoint* translate) {
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
-    GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
+    GrPathRenderer* pr = this->getPathRenderer(path, fill);
+    GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, translate);
+    GrDrawTarget::StageBitfield stageMask = paint.getActiveStageMask();
 
     if (!pr->supportsAA(target, path, fill) &&
         this->doOffscreenAA(target, paint, kHairLine_PathFill == fill)) {
@@ -1357,13 +1359,12 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
             for (int tx = 0; tx < record.fTileCountX; ++tx) {
                 for (int ty = 0; ty < record.fTileCountY; ++ty) {
                     this->setupOffscreenAAPass1(target, bound, tx, ty, &record);
-                    pr->drawPath(target, 0, path, fill, translate);
+                    pr->drawPath(0);
                     this->doOffscreenAAPass2(target, paint, bound, tx, ty, &record);
                 }
             }
             this->cleanupOffscreenAA(target, pr, &record);
             if (IsFillInverted(fill) && bound != clipIBounds) {
-                int stageMask = paint.getActiveStageMask();
                 GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
                 GrRect rect;
                 if (clipIBounds.fTop < bound.fTop) {
@@ -1389,11 +1390,8 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
             }
             return;
         }
-    }
-
-    GrDrawTarget::StageBitfield enabledStages = paint.getActiveStageMask();
-
-    pr->drawPath(target, enabledStages, path, fill, translate);
+    } 
+    pr->drawPath(stageMask);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1690,14 +1688,13 @@ const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
     return fGpu->getQuadIndexBuffer();
 }
 
-GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
-                                           const GrPath& path,
+GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
                                            GrPathFill fill) {
     if (NULL != fCustomPathRenderer &&
-        fCustomPathRenderer->canDrawPath(target, path, fill)) {
+        fCustomPathRenderer->canDrawPath(path, fill)) {
         return fCustomPathRenderer;
     } else {
-        GrAssert(fDefaultPathRenderer.canDrawPath(target, path, fill));
+        GrAssert(fDefaultPathRenderer.canDrawPath(path, fill));
         return &fDefaultPathRenderer;
     }
 }

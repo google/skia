@@ -11,15 +11,49 @@
 #include SK_USER_TRACE_INCLUDE_FILE
 
 GrPathRenderer::GrPathRenderer()
-    : fCurveTolerance (GR_Scalar1) {
-
+    : fCurveTolerance (GR_Scalar1)
+    , fPath(NULL)
+    , fTarget(NULL) {
 }
-   
+
+
+void GrPathRenderer::setPath(GrDrawTarget* target,
+                             const SkPath* path,
+                             GrPathFill fill,
+                             const GrPoint* translate) {
+    GrAssert(NULL == fPath);
+    GrAssert(NULL == fTarget);
+    GrAssert(NULL != target);
+
+    fTarget = target;
+    fPath = path;
+    fFill = fill;
+    if (NULL != translate) {
+        fTranslate = *translate;
+    } else {
+        fTranslate.fX = fTranslate.fY = 0;
+    }
+    this->pathWasSet();
+}
+
+void GrPathRenderer::clearPath() {
+    this->pathWillClear();
+    fTarget->resetVertexSource();
+    fTarget = NULL;
+    fPath = NULL;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
                                              bool stencilWrapOpsSupport)
     : fSeparateStencil(separateStencilSupport)
-    , fStencilWrapOps(stencilWrapOpsSupport) {
-
+    , fStencilWrapOps(stencilWrapOpsSupport)
+    , fSubpathCount(0)
+    , fSubpathVertCount(0)
+    , fPreviousSrcTol(-GR_Scalar1)
+    , fPreviousStages(-1) {
+    fTarget = NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -189,21 +223,105 @@ bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
     return !single_pass_path(*target, path, fill);
 }
 
-void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
-                                       GrDrawTarget::StageBitfield stages,
-                                       const GrPath& path,
-                                       GrPathFill fill,
-                                       const GrPoint* translate,
+void GrDefaultPathRenderer::pathWillClear() {
+    fSubpathVertCount.realloc(0);
+    fTarget->resetVertexSource();
+    fPreviousSrcTol = -GR_Scalar1;
+    fPreviousStages = -1;
+}
+
+void GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol, 
+                                       GrDrawTarget::StageBitfield stages) {
+    {
+    SK_TRACE_EVENT0("GrDefaultPathRenderer::createGeom");
+
+    fPreviousSrcTol = srcSpaceTol;
+    fPreviousStages = stages;
+
+    GrScalar srcSpaceTolSqd = GrMul(srcSpaceTol, srcSpaceTol);
+    int maxPts = GrPathUtils::worstCasePointCount(*fPath, &fSubpathCount,
+                                                  srcSpaceTol);
+
+    GrVertexLayout layout = 0;
+    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+        if ((1 << s) & stages) {
+            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
+        }
+    }
+
+    // add 4 to hold the bounding rect
+    GrPoint* base;
+    fTarget->reserveVertexSpace(layout, maxPts + 4, (void**)&base);
+
+    GrPoint* vert = base;
+    GrPoint* subpathBase = base;
+
+    fSubpathVertCount.realloc(fSubpathCount);
+
+    GrPoint pts[4];
+
+    bool first = true;
+    int subpath = 0;
+
+    SkPath::Iter iter(*fPath, false);
+
+    for (;;) {
+        GrPathCmd cmd = (GrPathCmd)iter.next(pts);
+        switch (cmd) {
+            case kMove_PathCmd:
+                if (!first) {
+                    fSubpathVertCount[subpath] = vert-subpathBase;
+                    subpathBase = vert;
+                    ++subpath;
+                }
+                *vert = pts[0];
+                vert++;
+                break;
+            case kLine_PathCmd:
+                *vert = pts[1];
+                vert++;
+                break;
+            case kQuadratic_PathCmd: {
+                GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
+                                                     srcSpaceTolSqd, &vert,
+                                                     GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
+                break;
+            }
+            case kCubic_PathCmd: {
+                GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
+                                                 srcSpaceTolSqd, &vert,
+                                                 GrPathUtils::cubicPointCount(pts, srcSpaceTol));
+                break;
+            }
+            case kClose_PathCmd:
+                break;
+            case kEnd_PathCmd:
+                fSubpathVertCount[subpath] = vert-subpathBase;
+                ++subpath; // this could be only in debug
+                goto FINISHED;
+        }
+        first = false;
+    }
+FINISHED:
+    GrAssert(subpath == fSubpathCount);
+    GrAssert((vert - base) <= maxPts);
+
+    if (fTranslate.fX || fTranslate.fY) {
+        int count = vert - base;
+        for (int i = 0; i < count; i++) {
+            base[i].offset(fTranslate.fX, fTranslate.fY);
+        }
+    }
+    }
+}
+
+void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                                        bool stencilOnly) {
+
     SK_TRACE_EVENT1("GrDefaultPathRenderer::onDrawPath",
                     "points", SkStringPrintf("%i", path.countPoints()).c_str());
 
-    GrDrawTarget::AutoStateRestore asr(target);
-    bool colorWritesWereDisabled = target->isColorWriteDisabled();
-    // face culling doesn't make sense here
-    GrAssert(GrDrawTarget::kBoth_DrawFace == target->getDrawFace());
-
-    GrMatrix viewM = target->getViewMatrix();
+    GrMatrix viewM = fTarget->getViewMatrix();
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
     GrScalar stretch = viewM.getMaxStretch();
@@ -216,28 +334,25 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
     } else {
         tol = GrScalarDiv(tol, stretch);
     }
-    GrScalar tolSqd = GrMul(tol, tol);
-
-    int subpathCnt;
-    int maxPts = GrPathUtils::worstCasePointCount(path, &subpathCnt, tol);
-
-    GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
-        if ((1 << s) & stages) {
-            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
-        }
+    // FIXME: It's really dumb that we recreate the verts for a new vertex
+    // layout. We only do that because the GrDrawTarget API doesn't allow
+    // us to change the vertex layout after reserveVertexSpace(). We won't
+    // actually change the vertex data when the layout changes since all the
+    // stages reference the positions (rather than having separate tex coords)
+    // and we don't ever have per-vert colors. In practice our call sites
+    // won't change the stages in use inside a setPath / removePath pair. But
+    // it is a silly limitation of the GrDrawTarget design that should be fixed.
+    if (tol != fPreviousSrcTol ||
+        stages != fPreviousStages) {
+        this->createGeom(tol, stages);
     }
 
-    // add 4 to hold the bounding rect
-    GrDrawTarget::AutoReleaseGeometry arg(target, layout, maxPts + 4, 0);
+    GrAssert(NULL != fTarget);
+    GrDrawTarget::AutoStateRestore asr(fTarget);
+    bool colorWritesWereDisabled = fTarget->isColorWriteDisabled();
+    // face culling doesn't make sense here
+    GrAssert(GrDrawTarget::kBoth_DrawFace == fTarget->getDrawFace());
 
-    GrPoint* base = (GrPoint*) arg.vertices();
-    GrPoint* vert = base;
-    GrPoint* subpathBase = base;
-
-    SkAutoSTMalloc<8, uint16_t> subpathVertCount(subpathCnt);
-
-    // TODO: use primitve restart if available rather than multiple draws
     GrPrimitiveType             type;
     int                         passCount = 0;
     const GrStencilSettings*    passes[3];
@@ -245,7 +360,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
     bool                        reverse = false;
     bool                        lastPassIsBounds;
 
-    if (kHairLine_PathFill == fill) {
+    if (kHairLine_PathFill == fFill) {
         type = kLineStrip_PrimitiveType;
         passCount = 1;
         if (stencilOnly) {
@@ -257,7 +372,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
         drawFace[0] = GrDrawTarget::kBoth_DrawFace;
     } else {
         type = kTriangleFan_PrimitiveType;
-        if (single_pass_path(*target, path, fill)) {
+        if (single_pass_path(*fTarget, *fPath, fFill)) {
             passCount = 1;
             if (stencilOnly) {
                 passes[0] = &gDirectToStencil;
@@ -267,7 +382,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
             drawFace[0] = GrDrawTarget::kBoth_DrawFace;
             lastPassIsBounds = false;
         } else {
-            switch (fill) {
+            switch (fFill) {
                 case kInverseEvenOdd_PathFill:
                     reverse = true;
                     // fallthrough
@@ -327,140 +442,62 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget* target,
                     }
                     break;
                 default:
-                    GrAssert(!"Unknown path fill!");
+                    GrAssert(!"Unknown path fFill!");
                     return;
             }
         }
-    }
-
-    GrPoint pts[4];
-
-    bool first = true;
-    int subpath = 0;
-
-    SkPath::Iter iter(path, false);
-
-    {
-    SK_TRACE_EVENT0("GrDefaultPathRenderer::onDrawPath::assembleVerts");
-    for (;;) {
-
-        GrPathCmd cmd = (GrPathCmd)iter.next(pts);
-        switch (cmd) {
-            case kMove_PathCmd:
-                if (!first) {
-                    subpathVertCount[subpath] = vert-subpathBase;
-                    subpathBase = vert;
-                    ++subpath;
-                }
-                *vert = pts[0];
-                vert++;
-                break;
-            case kLine_PathCmd:
-                *vert = pts[1];
-                vert++;
-                break;
-            case kQuadratic_PathCmd: {
-                GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
-                                                     tolSqd, &vert,
-                                                     GrPathUtils::quadraticPointCount(pts, tol));
-                break;
-            }
-            case kCubic_PathCmd: {
-                GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
-                                                 tolSqd, &vert,
-                                                 GrPathUtils::cubicPointCount(pts, tol));
-                break;
-            }
-            case kClose_PathCmd:
-                break;
-            case kEnd_PathCmd:
-                subpathVertCount[subpath] = vert-subpathBase;
-                ++subpath; // this could be only in debug
-                goto FINISHED;
-        }
-        first = false;
-    }
-    }
-FINISHED:
-    GrAssert(subpath == subpathCnt);
-    GrAssert((vert - base) <= maxPts);
-
-    if (translate) {
-        int count = vert - base;
-        for (int i = 0; i < count; i++) {
-            base[i].offset(translate->fX, translate->fY);
-        }
-    }
-
-    // if we're stenciling we will follow with a pass that draws
-    // a bounding rect to set the color. We're stenciling when
-    // passCount > 1.
-    const int& boundVertexStart = maxPts;
-    GrPoint* boundsVerts = base + boundVertexStart;
-    if (lastPassIsBounds) {
-        GrRect bounds;
-        if (reverse) {
-            GrAssert(NULL != target->getRenderTarget());
-            // draw over the whole world.
-            bounds.setLTRB(0, 0,
-                           GrIntToScalar(target->getRenderTarget()->width()),
-                           GrIntToScalar(target->getRenderTarget()->height()));
-            GrMatrix vmi;
-            if (target->getViewInverse(&vmi)) {
-                vmi.mapRect(&bounds);
-            }
-        } else {
-            bounds.setBounds((GrPoint*)base, vert - base);
-        }
-        boundsVerts[0].setRectFan(bounds.fLeft, bounds.fTop, bounds.fRight,
-                                  bounds.fBottom);
     }
 
     {
     SK_TRACE_EVENT1("GrDefaultPathRenderer::onDrawPath::renderPasses",
                     "verts", SkStringPrintf("%i", vert - base).c_str());
     for (int p = 0; p < passCount; ++p) {
-        target->setDrawFace(drawFace[p]);
+        fTarget->setDrawFace(drawFace[p]);
         if (NULL != passes[p]) {
-            target->setStencil(*passes[p]);
+            fTarget->setStencil(*passes[p]);
         }
 
         if (lastPassIsBounds && (p == passCount-1)) {
             if (!colorWritesWereDisabled) {
-                target->disableState(GrDrawTarget::kNoColorWrites_StateBit);
+                fTarget->disableState(GrDrawTarget::kNoColorWrites_StateBit);
             }
-            target->drawNonIndexed(kTriangleFan_PrimitiveType,
-                                   boundVertexStart, 4);
-
+            GrRect bounds;
+            if (reverse) {
+                GrAssert(NULL != fTarget->getRenderTarget());
+                // draw over the whole world.
+                bounds.setLTRB(0, 0,
+                               GrIntToScalar(fTarget->getRenderTarget()->width()),
+                               GrIntToScalar(fTarget->getRenderTarget()->height()));
+                GrMatrix vmi;
+                if (fTarget->getViewInverse(&vmi)) {
+                    vmi.mapRect(&bounds);
+                }
+            } else {
+                bounds = fPath->getBounds();
+            }
+            GrDrawTarget::AutoGeometryPush agp(fTarget);
+            fTarget->drawSimpleRect(bounds, NULL, stages);
         } else {
             if (passCount > 1) {
-                target->enableState(GrDrawTarget::kNoColorWrites_StateBit);
+                fTarget->enableState(GrDrawTarget::kNoColorWrites_StateBit);
             }
             int baseVertex = 0;
-            for (int sp = 0; sp < subpathCnt; ++sp) {
-                target->drawNonIndexed(type,
-                                      baseVertex,
-                                      subpathVertCount[sp]);
-                baseVertex += subpathVertCount[sp];
+            for (int sp = 0; sp < fSubpathCount; ++sp) {
+                fTarget->drawNonIndexed(type, baseVertex, 
+                                        fSubpathVertCount[sp]);
+                baseVertex += fSubpathVertCount[sp];
             }
         }
     }
     }
 }
 
-void GrDefaultPathRenderer::drawPath(GrDrawTarget* target,
-                                     GrDrawTarget::StageBitfield stages,
-                                     const GrPath& path,
-                                     GrPathFill fill,
-                                     const GrPoint* translate) {
-    this->onDrawPath(target, stages, path, fill, translate, false);
+void GrDefaultPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
+    this->onDrawPath(stages, false);
 }
 
-void GrDefaultPathRenderer::drawPathToStencil(GrDrawTarget* target,
-                                              const GrPath& path,
-                                              GrPathFill fill,
-                                              const GrPoint* translate) {
-    GrAssert(kInverseEvenOdd_PathFill != fill);
-    GrAssert(kInverseWinding_PathFill != fill);
-    this->onDrawPath(target, 0, path, fill, translate, true);
+void GrDefaultPathRenderer::drawPathToStencil() {
+    GrAssert(kInverseEvenOdd_PathFill != fFill);
+    GrAssert(kInverseWinding_PathFill != fFill);
+    this->onDrawPath(0, true);
 }

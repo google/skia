@@ -580,7 +580,7 @@ private:
 
     void drawClipIntoStencil();
 
-    GrPathRenderer* getPathRenderer(const GrDrawTarget*, const GrPath&, GrPathFill);
+    GrPathRenderer* getPathRenderer(const GrPath&, GrPathFill);
 
     struct OffscreenRecord;
 

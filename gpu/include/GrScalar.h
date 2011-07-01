@@ -39,7 +39,8 @@
 #define GrIntToScalar(a)    SkIntToScalar(a)
 #define GrScalarHalf(a)     SkScalarHalf(a)
 #define GrScalarAve(a,b)    SkScalarAve(a,b)
-#define GrMul(a,b)          SkScalarMul(a,b)
+#define GrMul(a,b)          SkScalarMul(a,b) // deprecated, prefer GrScalarMul
+#define GrScalarMul(a,b)    SkScalarMul(a,b)
 #define GrScalarDiv(a,b)    SkScalarDiv(a, b)
 #define GrScalarToFloat(a)  SkScalarToFloat(a)
 #define GrFloatToScalar(a)  SkScalarToFloat(a)
