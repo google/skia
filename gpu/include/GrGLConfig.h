@@ -65,6 +65,16 @@
  * Setting this build flag enables this behavior. GR_GL_NO_CONSTANT_ATTRIBUTES
  * must not be set since this uses constant attributes for the matrices. 
  * Defaults to 0.
+ *
+ * GR_GL_USE_BUFFER_DATA_NULL_HINT: When specifing new data for a vertex/index
+ * buffer that replaces old data Ganesh can give a hint to the driver that the
+ * previous data will not be used in future draws like this:
+ *  glBufferData(GL_..._BUFFER, size, NULL, usage);       //<--hint, NULL means
+ *  glBufferSubData(GL_..._BUFFER, 0, lessThanSize, data) //   old data can't be
+ *                                                        //   used again.
+ * However, this can cause a performance decrease on Chrome cmd buffer because
+ * it will create a new allocation and memset the whole thing to zero (for
+ * security reasons). Defaults to 1 (enabled).
  */
 
 #if !defined(GR_GL_LOG_CALLS)
@@ -89,6 +99,10 @@
 
 #if !defined(GR_GL_ATTRIBUTE_MATRICES)
     #define GR_GL_ATTRIBUTE_MATRICES        0
+#endif
+
+#if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)
+    #define GR_GL_USE_BUFFER_DATA_NULL_HINT 1
 #endif
 
 #if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)
