@@ -215,7 +215,7 @@ private:
     T*  fPtr;
 };
 
-template <size_t N, typename T> class SkAutoSTMalloc : SkNoncopyable {
+template <size_t N, typename T> class SK_API SkAutoSTMalloc : SkNoncopyable {
 public:
     SkAutoSTMalloc(size_t count) {
         if (count <= N) {
