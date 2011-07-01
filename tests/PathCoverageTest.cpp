@@ -127,14 +127,11 @@ static bool one_d_pe(const int* array, const unsigned int count,
                 "computes %d, estimates %d\n",
                 path[0].fX, path[0].fY, path[1].fX, path[1].fY,
                 path[2].fX, path[2].fY, computedCount, estimatedCount);
-            printf(errorDescription.c_str());
             numErrors++;
             reporter->reportFailed(errorDescription);
         }
     }
 
-    if (numErrors > 0)
-        printf("%d curve segments differ\n", numErrors);
     return (numErrors == 0);
 }
 
