@@ -10,4 +10,8 @@
 // ANGLE creates a temp VB for vertex attributes not specified per-vertex.
 #define GR_GL_NO_CONSTANT_ATTRIBUTES    GR_WIN32_BUILD
 
+// cmd buffer allocates memory and memsets it to zero when it sees glBufferData
+// with NULL.
+#define GR_GL_USE_BUFFER_DATA_NULL_HINT 0
+
 #endif

@@ -106,7 +106,9 @@ bool GrGLIndexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     if (size() == srcSizeInBytes) {
         GR_GL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, srcSizeInBytes, src, usage));
     } else {
+#if GR_GL_USE_BUFFER_DATA_NULL_HINT
         GR_GL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER, size(), NULL, usage));
+#endif
         GR_GL(BufferSubData(GR_GL_ELEMENT_ARRAY_BUFFER, 0, srcSizeInBytes, src));
     }
     return true;
