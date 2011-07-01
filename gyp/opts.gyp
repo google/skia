@@ -30,7 +30,7 @@
         '../src/core',
       ],
       'conditions': [
-        [ '(OS == "linux" or OS == "freebsd" or OS == "openbsd")', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'cflags': [
             '-msse2',
           ],

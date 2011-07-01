@@ -12,13 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 {
+  # Define all variables, allowing for override in GYP_DEFINES.
+  #
+  # One such variable is 'skia_os', which we use instead of 'OS' throughout
+  # our gyp files.  We set it automatically based on 'OS', but allow the
+  # user to override it via GYP_DEFINES if they like.
+  'variables': {
+    'skia_scalar%': 'float',
+    'skia_os%': '<(OS)',
+  },
+  'skia_scalar%': '<(skia_scalar)',
+  'skia_os': '<(skia_os)',
+
   'target_defaults': {
 
-    # Define variables, and allow for override in GYP_DEFINES environment var.
+    # Validate the 'skia_os' setting against 'OS', because only certain
+    # combinations work.  You should only override 'skia_os' for certain
+    # situations, like building for iOS on a Mac.
     'variables': {
-      'skia_scalar%': 'float',
+      'conditions': [
+        ['skia_os != OS and not (skia_os == "ios" and OS == "mac")',
+          {'error': '<!(Cannot build with skia_os=<(skia_os) on OS=<(OS))'}],
+      ],
     },
-    'skia_scalar%': '<(skia_scalar)',
 
     'configurations': {
       'Debug': {
@@ -51,7 +67,7 @@
         }
       ],
 
-      ['OS == "win"',
+      ['skia_os == "win"',
         {
           'defines': [
             'SK_BUILD_FOR_WIN32',
@@ -101,7 +117,7 @@
         },
       ],
 
-      ['OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', 
+      ['skia_os in ["linux", "freebsd", "openbsd", "solaris"]',
         {
           'defines': [
             'SK_SAMPLES_FOR_X',
@@ -122,7 +138,7 @@
         },
       ],
 
-      ['OS == "mac"', 
+      ['skia_os == "mac"', 
         {
           'defines': [
             'SK_BUILD_FOR_MAC',

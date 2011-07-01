@@ -1,11 +1,5 @@
 # GYP file to build performance testbench.
 #
-# To build and run on Linux:
-#  ./gyp_skia bench.gyp && make
-#  out/Debug/bench -repeat 2
-#
-# Building on other platforms not tested yet.
-#
 {
   'includes': [
     'apptype_console.gypi',
@@ -53,13 +47,13 @@
         'utils.gyp:utils',
       ],
       'conditions': [
-        [ 'OS != "mac"', {
+        [ 'skia_os != "mac"', {
           'sources!': [
             '../bench/BenchSysTimer_mach.h',
             '../bench/BenchSysTimer_mach.cpp',
           ],
         }],
-        [ 'OS not in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os not in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources!': [
             '../bench/BenchSysTimer_posix.h',
             '../bench/BenchSysTimer_posix.cpp',
@@ -71,13 +65,13 @@
             ],
           },
         }],
-        [ 'OS != "win"', {
+        [ 'skia_os != "win"', {
           'sources!': [
             '../bench/BenchSysTimer_windows.h',
             '../bench/BenchSysTimer_windows.cpp',
           ],
         }],
-        [ 'OS in ["win", "mac", "linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["win", "mac", "linux", "freebsd", "openbsd", "solaris"]', {
           'sources!': [
             '../bench/BenchGpuTimer_none.h',
             '../bench/BenchGpuTimer_none.cpp',

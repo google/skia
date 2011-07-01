@@ -30,7 +30,7 @@
       ],
       'conditions' : [
         # Only supports Mac currently
-        ['OS == "mac"', {
+        ['skia_os == "mac"', {
           'sources': [
             '../experimental/SimpleCocoaApp/SkNSWindow.mm',
             '../experimental/SimpleCocoaApp/SkNSView.mm',

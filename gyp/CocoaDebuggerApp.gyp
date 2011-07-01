@@ -31,7 +31,7 @@
       ],
       'conditions' : [
         # Only supports Mac currently
-        ['OS == "mac"', {
+        ['skia_os == "mac"', {
           'sources': [
             '../experimental/CocoaDebugger/CocoaDebugger-Info.plist',
             '../experimental/CocoaDebugger/CocoaDebugger_Prefix.pch',
