@@ -16,7 +16,7 @@
         '../src/core/SkFlate.cpp',
       ],
       'conditions': [
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/usr/lib/libz.dylib',
@@ -24,7 +24,7 @@
           },
           'defines': [ 'SK_ZLIB_INCLUDE=<zlib.h>', ],
         }],
-        [ 'OS == "linux"', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'link_settings': { 'libraries': [ '-lz', ], },
           'defines': [ 'SK_ZLIB_INCLUDE=<zlib.h>', ],
         }],

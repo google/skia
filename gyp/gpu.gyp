@@ -28,17 +28,17 @@
         '../src/gpu/SkGrTexturePixelRef.cpp',
       ],
       'conditions': [
-          [ 'OS == "linux"', {
+          [ 'skia_os == "linux"', {
           'defines': [
               'GR_LINUX_BUILD=1',
           ],
           }],
-          [ 'OS == "mac"', {
+          [ 'skia_os == "mac"', {
           'defines': [
               'GR_MAC_BUILD=1',
           ],
           }],
-          [ 'OS == "win"', {
+          [ 'skia_os == "win"', {
           'defines': [
               'GR_WIN32_BUILD=1',
           ],
@@ -46,17 +46,17 @@
       ],
       'direct_dependent_settings': {
         'conditions': [
-          [ 'OS == "linux"', {
+          [ 'skia_os == "linux"', {
             'defines': [
               'GR_LINUX_BUILD=1',
             ],
           }],
-          [ 'OS == "mac"', {
+          [ 'skia_os == "mac"', {
             'defines': [
               'GR_MAC_BUILD=1',
             ],
           }],
-          [ 'OS == "win"', {
+          [ 'skia_os == "win"', {
             'defines': [
               'GR_WIN32_BUILD=1',
             ],
@@ -197,7 +197,7 @@
         'GR_IMPLEMENTATION=1',
       ],
       'conditions': [
-        [ 'OS == "linux"', {
+        [ 'skia_os == "linux"', {
           'defines': [
               'GR_LINUX_BUILD=1',
           ],
@@ -211,7 +211,7 @@
             ],
           },
         }],
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'defines': [
               'GR_MAC_BUILD=1',
           ],
@@ -224,7 +224,7 @@
             '../gpu/src/GrGLDefaultInterface_none.cpp',
           ],
           }],
-        [ 'OS == "win"', {
+        [ 'skia_os == "win"', {
           'defines': [
             'GR_WIN32_BUILD=1',
             'GR_GL_FUNCTION_TYPE=__stdcall',
@@ -233,17 +233,17 @@
             '../gpu/src/GrGLDefaultInterface_none.cpp',
           ],
         }],
-        [ 'OS != "win"', {
+        [ 'skia_os != "win"', {
           'sources!': [
             '../gpu/src/win/GrGLDefaultInterface_win.cpp',
           ],
         }],
-        [ 'OS != "mac"', {
+        [ 'skia_os != "mac"', {
           'sources!': [
             '../gpu/src/mac/GrGLDefaultInterface_mac.cpp',
           ],
         }],
-        [ 'OS != "linux"', {
+        [ 'skia_os != "linux"', {
           'sources!': [
             '../gpu/src/unix/GrGLDefaultInterface_unix.cpp',
           ],
@@ -251,17 +251,17 @@
       ],
       'direct_dependent_settings': {
         'conditions': [
-          [ 'OS == "linux"', {
+          [ 'skia_os == "linux"', {
             'defines': [
               'GR_LINUX_BUILD=1',
             ],
           }],
-          [ 'OS == "mac"', {
+          [ 'skia_os == "mac"', {
             'defines': [
               'GR_MAC_BUILD=1',
             ],
           }],
-          [ 'OS == "win"', {
+          [ 'skia_os == "win"', {
             'defines': [
               'GR_WIN32_BUILD=1',
               'GR_GL_FUNCTION_TYPE=__stdcall',

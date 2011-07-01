@@ -93,7 +93,7 @@
           '../src/utils/SDL/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
           ],
@@ -107,7 +107,7 @@
               '../include/utils/mac',
             ],
           },
-        },{ #else if 'OS != "mac"'
+        },{ #else if 'skia_os != "mac"'
           'include_dirs!': [
             '../include/utils/mac',
           ],
@@ -119,7 +119,7 @@
             '../src/utils/mac/SkOSWindow_Mac.cpp',
           ],
         }],
-        [ 'OS in ["linux", "freebsd", "openbsd", "solaris"]', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
           ],
@@ -129,7 +129,7 @@
               '-lGLU',
             ],
           },
-        },{ #else if 'OS not in ["linux", "freebsd", "openbsd", "solaris"]'
+        },{ #else if 'skia_os not in ["linux", "freebsd", "openbsd", "solaris"]'
           'include_dirs!': [
             '../include/utils/unix',
           ],
@@ -139,7 +139,7 @@
             '../src/utils/unix/SkOSWindow_Unix.cpp',
           ],
         }],
-        [ 'OS == "win"', {
+        [ 'skia_os == "win"', {
           'sources!': [
             '../src/utils/SkEGLContext_none.cpp',
           ],
@@ -148,7 +148,7 @@
               '../include/utils/win',
             ],
           },
-        },{ #else if 'OS != "win"'
+        },{ #else if 'skia_os != "win"'
           'include_dirs!': [
             '../include/utils/win',
           ],

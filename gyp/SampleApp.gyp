@@ -135,19 +135,19 @@
         'pdf.gyp:pdf',
       ],
       'conditions' : [
-       [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
+       [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
          'sources!': [
             '../samplecode/SampleDecode.cpp',
          ],
         }],
-        [ 'OS == "win"', {
+        [ 'skia_os == "win"', {
           'sources!': [
             # require UNIX functions
             '../samplecode/SampleEncode.cpp',
             '../samplecode/SamplePageFlip.cpp',
           ],
         }],
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'sources!': [
             '../samplecode/SampleDecode.cpp',
           ],

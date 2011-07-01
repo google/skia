@@ -254,7 +254,7 @@
       ],
       'msvs_disabled_warnings': [4244, 4267,4345, 4390, 4554, 4800],
       'conditions': [
-        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'cflags': [
             '-Wno-unused',
             '-Wno-unused-function',
@@ -275,7 +275,7 @@
             ],
           },
         }],
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'include_dirs': [
             '../include/utils/mac',
           ],
@@ -296,7 +296,7 @@
             ],
           },
         }],
-        [ 'OS == "win"', {
+        [ 'skia_os == "win"', {
           'include_dirs': [
             'config/win',
           ],
@@ -308,7 +308,7 @@
             '../src/ports/SkDebug_stdio.cpp',
           ],
         }],
-        [ 'OS != "win"', {
+        [ 'skia_os != "win"', {
           'sources!': [
             '../src/ports/SkDebug_win.cpp',
             '../src/ports/SkTime_win.cpp',

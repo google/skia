@@ -55,7 +55,7 @@
         '../src/ports/SkImageDecoder_WIC.cpp',
       ],
       'conditions': [
-        [ 'OS == "win"', {
+        [ 'skia_os == "win"', {
           'sources!': [
             '../include/images/SkJpegUtility.h',
 
@@ -69,12 +69,12 @@
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
-        },{ #else if OS != win
+        },{ #else if skia_os != win
           'sources!': [
             '../src/ports/SkImageDecoder_WIC.cpp',
           ],
         }],
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'sources!': [
             '../include/images/SkJpegUtility.h',
 
@@ -87,12 +87,12 @@
             '../src/images/SkJpegUtility.cpp',
             '../src/images/SkMovie_gif.cpp',
           ],
-        },{ #else if OS != mac
+        },{ #else if skia_os != mac
           'sources!': [
             '../src/ports/SkImageDecoder_CG.cpp',
           ],
         }],
-        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources!': [
             '../include/images/SkJpegUtility.h',
 

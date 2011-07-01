@@ -28,7 +28,7 @@
       ],
       'conditions' : [
         # Only supports Mac currently
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'sources': [
             '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',

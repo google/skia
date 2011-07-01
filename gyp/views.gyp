@@ -73,7 +73,7 @@
         '../src/views/SkListWidget.cpp', #depends on missing SkListSource implementation
       ],
       'conditions': [
-        [ 'OS == "mac"', {
+        [ 'skia_os == "mac"', {
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
@@ -81,7 +81,7 @@
             ],
           },
         }],
-        [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
+        [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
           'sources': [
             '../unix_test_app/main.cpp',
           ],
