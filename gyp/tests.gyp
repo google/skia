@@ -14,6 +14,7 @@
       'sources': [
         '../tests/BitmapCopyTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
+	'../tests/BitSetTest.cpp',
         '../tests/BlitRowTest.cpp',
         '../tests/ClampRangeTest.cpp',
         '../tests/ClipCubicTest.cpp',
