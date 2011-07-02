@@ -13,6 +13,7 @@
         '../src/core', # needed to get SkGlyphCache.h and SkTextFormatParams.h
       ],
       'sources': [
+        '../include/pdf/SkBitSet.h',
         '../include/pdf/SkPDFCatalog.h',
         '../include/pdf/SkPDFDevice.h',
         '../include/pdf/SkPDFDocument.h',
@@ -26,6 +27,7 @@
         '../include/pdf/SkPDFTypes.h',
         '../include/pdf/SkPDFUtils.h',
 
+	'../src/pdf/SkBitSet.cpp',
         '../src/pdf/SkPDFCatalog.cpp',
         '../src/pdf/SkPDFDevice.cpp',
         '../src/pdf/SkPDFDocument.cpp',
