@@ -472,10 +472,6 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         return false;
     }
 
-    SkPaint noAlphaPaint(skPaint);
-    noAlphaPaint.setAlpha(255);
-    shader->setContext(this->accessBitmap(false), noAlphaPaint, ctm);
-
     SkBitmap bitmap;
     SkMatrix matrix;
     SkShader::TileMode tileModes[2];
