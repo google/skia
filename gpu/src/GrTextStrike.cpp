@@ -140,7 +140,7 @@ GrTextStrike::GrTextStrike(GrFontCache* cache, const GrKey* key,
     fMaskFormat = format;
 
 #if GR_DEBUG
-    GrPrintf(" GrTextStrike %p %d\n", this, gCounter);
+//    GrPrintf(" GrTextStrike %p %d\n", this, gCounter);
     gCounter += 1;
 #endif
 }
@@ -154,7 +154,7 @@ GrTextStrike::~GrTextStrike() {
 
 #if GR_DEBUG
     gCounter -= 1;
-    GrPrintf("~GrTextStrike %p %d\n", this, gCounter);
+//    GrPrintf("~GrTextStrike %p %d\n", this, gCounter);
 #endif
 }
 
