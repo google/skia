@@ -98,7 +98,7 @@ struct SkVector4 {
     }
 };
 
-class SkMatrix44 {
+class SK_API SkMatrix44 {
 public:
     SkMatrix44();
     SkMatrix44(const SkMatrix44&);
