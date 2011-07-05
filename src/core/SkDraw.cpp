@@ -38,6 +38,14 @@
 
 //#define TRACE_BITMAP_DRAWS
 
+static bool hasCustomD1GProc(const SkDraw& draw) {
+    return draw.fProcs && draw.fProcs->fD1GProc;
+}
+
+static bool needsRasterTextBlit(const SkDraw& draw) {
+    return !hasCustomD1GProc(draw);
+}
+
 class SkAutoRestoreBounder : SkNoncopyable {
 public:
     // note: initializing fBounder is done only to fix a warning
@@ -71,16 +79,26 @@ static SkPoint* rect_points(SkRect& r, int index) {
 
 class SkAutoBlitterChoose {
 public:
+    SkAutoBlitterChoose() {
+        fBlitter = NULL;
+    }
     SkAutoBlitterChoose(const SkBitmap& device, const SkMatrix& matrix,
                         const SkPaint& paint) {
         fBlitter = SkBlitter::Choose(device, matrix, paint,
                                      fStorage, sizeof(fStorage));
     }
-
+    
     ~SkAutoBlitterChoose();
 
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
+
+    void choose(const SkBitmap& device, const SkMatrix& matrix,
+                const SkPaint& paint) {
+        SkASSERT(!fBlitter);
+        fBlitter = SkBlitter::Choose(device, matrix, paint,
+                                     fStorage, sizeof(fStorage));
+    }
 
 private:
     SkBlitter*  fBlitter;
@@ -1496,7 +1514,7 @@ SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter,
 	fBlitter = blitter;
 	fCache = cache;
 
-    if (draw->fProcs && draw->fProcs->fD1GProc) {
+    if (hasCustomD1GProc(*draw)) {
         return draw->fProcs->fD1GProc;
     }
 
@@ -1572,7 +1590,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
     const SkMatrix* matrix = fMatrix;
     SkFixed finalFYMask = ~0xFFFF;  // trunc fy;
-    if (fProcs && fProcs->fD1GProc) {
+    if (hasCustomD1GProc(*this)) {
         // only support the fMVMatrix (for now) for the GPU case, which also
         // sets the fD1GProc
         if (fMVMatrix) {
@@ -1583,7 +1601,6 @@ void SkDraw::drawText(const char text[], size_t byteLength,
 
     SkAutoGlyphCache    autoCache(paint, matrix);
     SkGlyphCache*       cache = autoCache.getCache();
-    SkAutoBlitterChoose blitter(*fBitmap, *matrix, paint);
 
     // transform our starting point
     {
@@ -1629,6 +1646,11 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     fx += SK_FixedHalf;
     fy += SK_FixedHalf;
     fyMask &= finalFYMask;
+
+    SkAutoBlitterChoose blitter;
+    if (needsRasterTextBlit(*this)) {
+        blitter.choose(*fBitmap, *matrix, paint);
+    }
 
     SkAutoKern          autokern;
 	SkDraw1Glyph        d1g;
@@ -1767,7 +1789,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     }
 
     const SkMatrix* matrix = fMatrix;
-    if (fProcs && fProcs->fD1GProc) {
+    if (hasCustomD1GProc(*this)) {
         // only support the fMVMatrix (for now) for the GPU case, which also
         // sets the fD1GProc
         if (fMVMatrix) {
@@ -1778,8 +1800,12 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     SkDrawCacheProc     glyphCacheProc = paint.getDrawCacheProc();
     SkAutoGlyphCache    autoCache(paint, matrix);
     SkGlyphCache*       cache = autoCache.getCache();
-    SkAutoBlitterChoose blitter(*fBitmap, *matrix, paint);
 
+    SkAutoBlitterChoose blitter;
+    if (needsRasterTextBlit(*this)) {
+        blitter.choose(*fBitmap, *matrix, paint);
+    }
+    
     const char*        stop = text + byteLength;
     AlignProc          alignProc = pick_align_proc(paint.getTextAlign());
 	SkDraw1Glyph	   d1g;
