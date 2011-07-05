@@ -481,7 +481,6 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
 
     GrSamplerState::SampleMode sampleMode = sk_bmp_type_to_sample_mode[bmptype];
     if (-1 == sampleMode) {
-        SkDebugf("shader->asABitmap() == kNone_BitmapType\n");
         return false;
     }
     GrSamplerState* sampler = grPaint->getTextureSampler(kShaderTextureIdx);
