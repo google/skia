@@ -344,3 +344,26 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
     }
     return kColor_GradientType;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkEmptyShader.h"
+
+SkEmptyShader::SkEmptyShader() {}
+SkEmptyShader::SkEmptyShader(SkFlattenableReadBuffer& b) : INHERITED(b) {}
+
+uint32_t SkEmptyShader::getFlags() { return 0; }
+uint8_t SkEmptyShader::getSpan16Alpha() const { return 0; }
+bool SkEmptyShader::setContext(const SkBitmap& device, const SkPaint& paint,
+                               const SkMatrix& matrix) {
+    return false;
+}
+void SkEmptyShader::shadeSpan(int x, int y, SkPMColor span[], int count) {}
+void SkEmptyShader::shadeSpan16(int x, int y, uint16_t span[], int count) {}
+void SkEmptyShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {}
+
+SkFlattenable::Factory SkEmptyShader::getFactory() { return NULL; }
+void SkEmptyShader::flatten(SkFlattenableWriteBuffer& buffer) {
+    this->INHERITED::flatten(buffer);
+}
+
