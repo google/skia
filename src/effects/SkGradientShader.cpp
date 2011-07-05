@@ -176,11 +176,12 @@ private:
 
     mutable uint16_t*   fCache16Storage;    // storage for fCache16, allocated on demand
     mutable SkMallocPixelRef* fCache32PixelRef;
-    unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
+    mutable unsigned    fCacheAlpha;        // the alpha value we used when we computed the cache. larger than 8bits so we can store uninitialized value
 
     static void Build16bitCache(uint16_t[], SkColor c0, SkColor c1, int count);
     static void Build32bitCache(SkPMColor[], SkColor c0, SkColor c1, int count,
                                 U8CPU alpha);
+    void setCacheAlpha(U8CPU alpha) const;
 
     typedef SkShader INHERITED;
 };
@@ -411,19 +412,23 @@ bool Gradient_Shader::setContext(const SkBitmap& device,
         fFlags |= kHasSpan16_Flag;
     }
 
+    this->setCacheAlpha(paintAlpha);
+    return true;
+}
+
+void Gradient_Shader::setCacheAlpha(U8CPU alpha) const {
     // if the new alpha differs from the previous time we were called, inval our cache
     // this will trigger the cache to be rebuilt.
     // we don't care about the first time, since the cache ptrs will already be NULL
-    if (fCacheAlpha != paintAlpha) {
-        fCache16 = NULL;                // inval the cache
-        fCache32 = NULL;                // inval the cache
-        fCacheAlpha = paintAlpha;       // record the new alpha
+    if (fCacheAlpha != alpha) {
+        fCache16 = NULL;            // inval the cache
+        fCache32 = NULL;            // inval the cache
+        fCacheAlpha = alpha;        // record the new alpha
         // inform our subclasses
         if (fCache32PixelRef) {
             fCache32PixelRef->notifyPixelsChanged();
         }
     }
-    return true;
 }
 
 static inline int blend8(int a, int b, int scale) {
@@ -669,6 +674,10 @@ const SkPMColor* Gradient_Shader::getCache32() const {
  *  is present, we skip the cache for now.
  */
 void Gradient_Shader::commonAsABitmap(SkBitmap* bitmap) const {
+    // our caller assumes no external alpha, so we ensure that our cache is
+    // built with 0xFF
+    this->setCacheAlpha(0xFF);
+
     // don't have a way to put the mapper into our cache-key yet
     if (fMapper) {
         // force our cahce32pixelref to be built
