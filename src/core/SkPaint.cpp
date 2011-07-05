@@ -31,6 +31,10 @@
 #include "SkXfermode.h"
 #include "SkAutoKern.h"
 
+// define this to get a printf for out-of-range parameter in setters
+// e.g. setTextSize(-1)
+//#define SK_REPORT_API_RANGE_CHECK
+
 #define SK_DefaultTextSize      SkIntToScalar(12)
 
 #define SK_DefaultFlags         0   //(kNativeHintsText_Flag)
@@ -231,7 +235,9 @@ void SkPaint::setStyle(Style style) {
         GEN_ID_INC_EVAL((unsigned)style != fStyle);
         fStyle = style;
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setStyle(%d) out of range\n", style);)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setStyle(%d) out of range\n", style);
+#endif
     }
 }
 
@@ -254,7 +260,9 @@ void SkPaint::setStrokeWidth(SkScalar width) {
         GEN_ID_INC_EVAL(width != fWidth);
         fWidth = width;
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setStrokeWidth() called with negative value\n");
+#endif
     }
 }
 
@@ -263,7 +271,9 @@ void SkPaint::setStrokeMiter(SkScalar limit) {
         GEN_ID_INC_EVAL(limit != fMiterLimit);
         fMiterLimit = limit;
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setStrokeMiter() called with negative value\n");
+#endif
     }
 }
 
@@ -272,7 +282,9 @@ void SkPaint::setStrokeCap(Cap ct) {
         GEN_ID_INC_EVAL((unsigned)ct != fCapType);
         fCapType = SkToU8(ct);
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setStrokeCap(%d) out of range\n", ct);)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setStrokeCap(%d) out of range\n", ct);
+#endif
     }
 }
 
@@ -281,7 +293,9 @@ void SkPaint::setStrokeJoin(Join jt) {
         GEN_ID_INC_EVAL((unsigned)jt != fJoinType);
         fJoinType = SkToU8(jt);
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setStrokeJoin(%d) out of range\n", jt);)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setStrokeJoin(%d) out of range\n", jt);
+#endif
     }
 }
 
@@ -292,7 +306,9 @@ void SkPaint::setTextAlign(Align align) {
         GEN_ID_INC_EVAL((unsigned)align != fTextAlign);
         fTextAlign = SkToU8(align);
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setTextAlign(%d) out of range\n", align);)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setTextAlign(%d) out of range\n", align);
+#endif
     }
 }
 
@@ -301,7 +317,9 @@ void SkPaint::setTextSize(SkScalar ts) {
         GEN_ID_INC_EVAL(ts != fTextSize);
         fTextSize = ts;
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setTextSize() called with negative value\n");)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setTextSize() called with negative value\n");
+#endif
     }
 }
 
@@ -320,7 +338,9 @@ void SkPaint::setTextEncoding(TextEncoding encoding) {
         GEN_ID_INC_EVAL((unsigned)encoding != fTextEncoding);
         fTextEncoding = encoding;
     } else {
-        SkDEBUGCODE(SkDebugf("SkPaint::setTextEncoding(%d) out of range\n", encoding);)
+#ifdef SK_REPORT_API_RANGE_CHECK
+        SkDebugf("SkPaint::setTextEncoding(%d) out of range\n", encoding);
+#endif
     }
 }
 
