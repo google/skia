@@ -38,6 +38,7 @@ void GrPathRenderer::setPath(GrDrawTarget* target,
 void GrPathRenderer::clearPath() {
     this->pathWillClear();
     fTarget->resetVertexSource();
+    fTarget->resetIndexSource();
     fTarget = NULL;
     fPath = NULL;
 }
@@ -229,17 +230,39 @@ void GrDefaultPathRenderer::pathWillClear() {
     fPreviousStages = -1;
 }
 
-void GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol, 
+static inline void append_countour_edge_indices(GrPathFill fillType,
+                                                uint16_t fanCenterIdx,
+                                                uint16_t edgeV0Idx,
+                                                uint16_t** indices) {
+    // when drawing lines we're appending line segments along
+    // the contour. When applying the other fill rules we're
+    // drawing triangle fans around fanCenterIdx.
+    if (kHairLine_PathFill != fillType) {
+        *((*indices)++) = fanCenterIdx;
+    }
+    *((*indices)++) = edgeV0Idx;
+    *((*indices)++) = edgeV0Idx + 1;
+}
+
+bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol, 
                                        GrDrawTarget::StageBitfield stages) {
     {
     SK_TRACE_EVENT0("GrDefaultPathRenderer::createGeom");
 
-    fPreviousSrcTol = srcSpaceTol;
-    fPreviousStages = stages;
-
     GrScalar srcSpaceTolSqd = GrMul(srcSpaceTol, srcSpaceTol);
     int maxPts = GrPathUtils::worstCasePointCount(*fPath, &fSubpathCount,
                                                   srcSpaceTol);
+
+    if (maxPts <= 0) {
+        return false;
+    }
+    if (maxPts > ((int)SK_MaxU16 + 1)) {
+        GrPrintf("Path not rendered, too many verts (%d)\n", maxPts);
+        return false;
+    }
+
+    fPreviousSrcTol = srcSpaceTol;
+    fPreviousStages = stages;
 
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
@@ -248,12 +271,36 @@ void GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
         }
     }
 
-    // add 4 to hold the bounding rect
-    GrPoint* base;
-    fTarget->reserveVertexSpace(layout, maxPts + 4, (void**)&base);
+    fUseIndexedDraw = fSubpathCount > 1;
 
+    int maxIdxs = 0;
+    if (kHairLine_PathFill == fFill) {
+        if (fUseIndexedDraw) {
+            maxIdxs = 2 * maxPts;
+            fPrimitiveType = kLines_PrimitiveType;
+        } else {
+            fPrimitiveType = kLineStrip_PrimitiveType;
+        }
+    } else {
+        if (fUseIndexedDraw) {
+            maxIdxs = 3 * maxPts;
+            fPrimitiveType = kTriangles_PrimitiveType;
+        } else {
+            fPrimitiveType = kTriangleFan_PrimitiveType;
+        }
+    }
+
+    GrPoint* base;
+    fTarget->reserveVertexSpace(layout, maxPts, (void**)&base);
     GrPoint* vert = base;
-    GrPoint* subpathBase = base;
+
+    uint16_t* idxBase = NULL;
+    uint16_t* idx = NULL;
+    uint16_t subpathIdxStart = 0;
+    if (fUseIndexedDraw) {
+        fTarget->reserveIndexSpace(maxIdxs, (void**)&idxBase);
+        idx = idxBase;
+    }
 
     fSubpathVertCount.realloc(fSubpathCount);
 
@@ -269,41 +316,68 @@ void GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
         switch (cmd) {
             case kMove_PathCmd:
                 if (!first) {
-                    fSubpathVertCount[subpath] = vert-subpathBase;
-                    subpathBase = vert;
+                    uint16_t currIdx = (uint16_t) (vert - base);
+                    fSubpathVertCount[subpath] = currIdx - subpathIdxStart;
+                    subpathIdxStart = currIdx;
                     ++subpath;
                 }
                 *vert = pts[0];
                 vert++;
                 break;
             case kLine_PathCmd:
-                *vert = pts[1];
-                vert++;
+                if (fUseIndexedDraw) {
+                    uint16_t prevIdx = (uint16_t)(vert - base) - 1;
+                    append_countour_edge_indices(fFill, subpathIdxStart,
+                                                 prevIdx, &idx);
+                }
+                *(vert++) = pts[1];
                 break;
             case kQuadratic_PathCmd: {
-                GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
-                                                     srcSpaceTolSqd, &vert,
-                                                     GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
+                // first pt of quad is the pt we ended on in previous step
+                uint16_t firstQPtIdx = (uint16_t)(vert - base) - 1;
+                uint16_t numPts =  (uint16_t) 
+                    GrPathUtils::generateQuadraticPoints(
+                            pts[0], pts[1], pts[2],
+                            srcSpaceTolSqd, &vert,
+                            GrPathUtils::quadraticPointCount(pts, srcSpaceTol));
+                if (fUseIndexedDraw) {
+                    for (uint16_t i = 0; i < numPts; ++i) {
+                        append_countour_edge_indices(fFill, subpathIdxStart,
+                                                     firstQPtIdx + i, &idx);
+                    }
+                }
                 break;
             }
             case kCubic_PathCmd: {
-                GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
-                                                 srcSpaceTolSqd, &vert,
-                                                 GrPathUtils::cubicPointCount(pts, srcSpaceTol));
+                // first pt of cubic is the pt we ended on in previous step
+                uint16_t firstCPtIdx = (uint16_t)(vert - base) - 1;
+                uint16_t numPts = (uint16_t) GrPathUtils::generateCubicPoints(
+                                pts[0], pts[1], pts[2], pts[3],
+                                srcSpaceTolSqd, &vert,
+                                GrPathUtils::cubicPointCount(pts, srcSpaceTol));
+                if (fUseIndexedDraw) {
+                    for (uint16_t i = 0; i < numPts; ++i) {
+                        append_countour_edge_indices(fFill, subpathIdxStart,
+                                                     firstCPtIdx + i, &idx);
+                    }
+                }
                 break;
             }
             case kClose_PathCmd:
                 break;
             case kEnd_PathCmd:
-                fSubpathVertCount[subpath] = vert-subpathBase;
-                ++subpath; // this could be only in debug
+                uint16_t currIdx = (uint16_t) (vert - base);
+                fSubpathVertCount[subpath] = currIdx - subpathIdxStart;
                 goto FINISHED;
         }
         first = false;
     }
 FINISHED:
-    GrAssert(subpath == fSubpathCount);
     GrAssert((vert - base) <= maxPts);
+    GrAssert((idx - idxBase) <= maxIdxs);
+
+    fVertexCnt = vert - base;
+    fIndexCnt = idx - idxBase;
 
     if (fTranslate.fX || fTranslate.fY) {
         int count = vert - base;
@@ -312,6 +386,7 @@ FINISHED:
         }
     }
     }
+    return true;
 }
 
 void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
@@ -343,7 +418,9 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
     // it is a silly limitation of the GrDrawTarget design that should be fixed.
     if (tol != fPreviousSrcTol ||
         stages != fPreviousStages) {
-        this->createGeom(tol, stages);
+        if (!this->createGeom(tol, stages)) {
+            return;
+        }
     }
 
     GrAssert(NULL != fTarget);
@@ -352,7 +429,6 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
     // face culling doesn't make sense here
     GrAssert(GrDrawTarget::kBoth_DrawFace == fTarget->getDrawFace());
 
-    GrPrimitiveType             type;
     int                         passCount = 0;
     const GrStencilSettings*    passes[3];
     GrDrawTarget::DrawFace      drawFace[3];
@@ -360,7 +436,6 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
     bool                        lastPassIsBounds;
 
     if (kHairLine_PathFill == fFill) {
-        type = kLineStrip_PrimitiveType;
         passCount = 1;
         if (stencilOnly) {
             passes[0] = &gDirectToStencil;
@@ -370,7 +445,6 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
         lastPassIsBounds = false;
         drawFace[0] = GrDrawTarget::kBoth_DrawFace;
     } else {
-        type = kTriangleFan_PrimitiveType;
         if (single_pass_path(*fTarget, *fPath, fFill)) {
             passCount = 1;
             if (stencilOnly) {
@@ -481,11 +555,16 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
             if (passCount > 1) {
                 fTarget->enableState(GrDrawTarget::kNoColorWrites_StateBit);
             }
-            int baseVertex = 0;
-            for (int sp = 0; sp < fSubpathCount; ++sp) {
-                fTarget->drawNonIndexed(type, baseVertex, 
-                                        fSubpathVertCount[sp]);
-                baseVertex += fSubpathVertCount[sp];
+            if (fUseIndexedDraw) {
+                fTarget->drawIndexed(fPrimitiveType, 0, 0, 
+                                     fVertexCnt, fIndexCnt);
+            } else {
+                int baseVertex = 0;
+                for (int sp = 0; sp < fSubpathCount; ++sp) {
+                    fTarget->drawNonIndexed(fPrimitiveType, baseVertex,
+                                            fSubpathVertCount[sp]);
+                    baseVertex += fSubpathVertCount[sp];
+                }
             }
         }
     }

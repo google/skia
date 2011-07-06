@@ -241,7 +241,7 @@ private:
 
     void onDrawPath(GrDrawTarget::StageBitfield stages, bool stencilOnly);
 
-    void createGeom(GrScalar srcSpaceTolSqd,
+    bool createGeom(GrScalar srcSpaceTol,
                     GrDrawTarget::StageBitfield stages);
 
     bool    fSeparateStencil;
@@ -249,9 +249,12 @@ private:
 
     int                         fSubpathCount;
     SkAutoSTMalloc<8, uint16_t> fSubpathVertCount;
+    int                         fIndexCnt;
+    int                         fVertexCnt;
     GrScalar                    fPreviousSrcTol;
     GrDrawTarget::StageBitfield fPreviousStages;
-
+    GrPrimitiveType             fPrimitiveType;
+    bool                        fUseIndexedDraw;
 
     typedef GrPathRenderer INHERITED;
 };
