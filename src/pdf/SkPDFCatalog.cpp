@@ -25,10 +25,15 @@ SkPDFCatalog::SkPDFCatalog()
       fNextFirstPageObjNum(0) {
 }
 
-SkPDFCatalog::~SkPDFCatalog() {}
+SkPDFCatalog::~SkPDFCatalog() {
+    fSubstituteResourcesRemaining.safeUnrefAll();
+    fSubstituteResourcesFirstPage.safeUnrefAll();
+}
 
 SkPDFObject* SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
-    SkASSERT(findObjectIndex(obj) == -1);
+    if (findObjectIndex(obj) != -1) {  // object already added
+        return obj;
+    }
     SkASSERT(fNextFirstPageObjNum == 0);
     if (onFirstPage)
         fFirstPageCount++;
@@ -62,6 +67,12 @@ int SkPDFCatalog::findObjectIndex(SkPDFObject* obj) const {
     for (int i = 0; i < fCatalog.count(); i++) {
         if (fCatalog[i].fObject == obj)
             return i;
+    }
+    // If it's not in the main array, check if it's a substitute object.
+    for (int i = 0; i < fSubstituteMap.count(); ++i) {
+        if (fSubstituteMap[i].fSubstitute == obj) {
+            return findObjectIndex(fSubstituteMap[i].fOriginal);
+        }
     }
     return -1;
 }
@@ -125,4 +136,74 @@ int32_t SkPDFCatalog::emitXrefTable(SkWStream* stream, bool firstPage) {
     }
 
     return fCatalog.count() + 1;
+}
+
+void SkPDFCatalog::setSubstitute(SkPDFObject* original,
+                                 SkPDFObject* substitute) {
+#if defined(SK_DEBUG)
+    // Sanity check: is the original already in substitute list?
+    for (int i = 0; i < fSubstituteMap.count(); ++i) {
+        if (original == fSubstituteMap[i].fSubstitute ||
+            original == fSubstituteMap[i].fOriginal) {
+            SkASSERT(false);
+            return;
+        }
+    }
+#endif
+    // Check if the original is on first page.
+    bool onFirstPage = false;
+    for (int i = 0; i < fCatalog.count(); ++i) {
+        if (fCatalog[i].fObject == original) {
+            onFirstPage = fCatalog[i].fOnFirstPage;
+            break;
+        }
+#if defined(SK_DEBUG)
+        if (i == fCatalog.count() - 1) {
+            SkASSERT(false);  // original not in catalog
+            return;
+        }
+#endif
+    }
+
+    SubstituteMapping newMapping(original, substitute);
+    fSubstituteMap.append(1, &newMapping);
+
+    // Add resource objects of substitute object to catalog.
+    SkTDArray<SkPDFObject*>* targetList = getSubstituteList(onFirstPage);
+    int existingSize = targetList->count();
+    newMapping.fSubstitute->getResources(targetList);
+    for (int i = existingSize; i < targetList->count(); ++i) {
+        addObject((*targetList)[i], onFirstPage);
+    }
+}
+
+SkPDFObject* SkPDFCatalog::getSubstituteObject(SkPDFObject* object) {
+    for (int i = 0; i < fSubstituteMap.count(); ++i) {
+        if (object == fSubstituteMap[i].fOriginal) {
+            return fSubstituteMap[i].fSubstitute;
+        }
+    }
+    return object;
+}
+
+off_t SkPDFCatalog::setSubstituteResourcesOffsets(off_t fileOffset,
+                                                  bool firstPage) {
+    SkTDArray<SkPDFObject*>* targetList = getSubstituteList(firstPage);
+    off_t offsetSum = fileOffset;
+    for (int i = 0; i < targetList->count(); ++i) {
+        offsetSum += setFileOffset((*targetList)[i], offsetSum);
+    }
+    return offsetSum;
+}
+
+void SkPDFCatalog::emitSubstituteResources(SkWStream *stream, bool firstPage) {
+    SkTDArray<SkPDFObject*>* targetList = getSubstituteList(firstPage);
+    for (int i = 0; i < targetList->count(); ++i) {
+        (*targetList)[i]->emit(stream, this, true);
+    }
+}
+
+SkTDArray<SkPDFObject*>* SkPDFCatalog::getSubstituteList(bool firstPage) {
+    return firstPage ? &fSubstituteResourcesFirstPage :
+                       &fSubstituteResourcesRemaining;
 }

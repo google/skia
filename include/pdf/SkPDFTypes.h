@@ -39,15 +39,6 @@ public:
     SkPDFObject();
     virtual ~SkPDFObject();
 
-    /** Subclasses must implement this method to print the object to the
-     *  PDF file.
-     *  @param catalog  The object catalog to use.
-     *  @param indirect If true, output an object identifier with the object.
-     *  @param stream   The writable output stream to send the output to.
-     */
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect) = 0;
-
     /** Return the size (number of bytes) of this object in the final output
      *  file. Compound objects or objects that are computationally intensive
      *  to output should override this method.
@@ -65,6 +56,12 @@ public:
      */
     virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
+    /** Emit this object unless the catalog has a substitute object, in which
+     *  case emit that.
+     *  @see emitObject
+     */
+    void emit(SkWStream* stream, SkPDFCatalog* catalog, bool indirect);
+
     /** Helper function to output an indirect object.
      *  @param catalog The object catalog to use.
      *  @param stream  The writable output stream to send the output to.
@@ -75,6 +72,16 @@ public:
      *  @param catalog The object catalog to use.
      */
     size_t getIndirectOutputSize(SkPDFCatalog* catalog);
+
+protected:
+    /** Subclasses must implement this method to print the object to the
+     *  PDF file.
+     *  @param catalog  The object catalog to use.
+     *  @param indirect If true, output an object identifier with the object.
+     *  @param stream   The writable output stream to send the output to.
+     */
+    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
+                            bool indirect) = 0;
 };
 
 /** \class SkPDFObjRef

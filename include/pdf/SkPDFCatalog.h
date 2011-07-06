@@ -70,6 +70,26 @@ public:
      */
     int32_t emitXrefTable(SkWStream* stream, bool firstPage);
 
+    /** Set substitute object for the passed object.
+     */
+    void setSubstitute(SkPDFObject* original, SkPDFObject* substitute);
+
+    /** Find and return any substitute object set for the passed object. If
+     *  there is none, return the passed object.
+     */
+    SkPDFObject* getSubstituteObject(SkPDFObject* object);
+
+    /** Set file offsets for the resources of substitute objects.
+     *  @param fileOffset Accumulated offset of current document.
+     *  @param firstPage  Indicate whether this is for the first page only.
+     *  @return           Accumulated offset of resources of substitute objects.
+     */
+    off_t setSubstituteResourcesOffsets(off_t fileOffset, bool firstPage);
+
+    /** Emit the resources of substitute objects.
+     */
+    void emitSubstituteResources(SkWStream* stream, bool firstPage);
+
 private:
     struct Rec {
         Rec(SkPDFObject* object, bool onFirstPage)
@@ -84,8 +104,21 @@ private:
         bool fOnFirstPage;
     };
 
+    struct SubstituteMapping {
+        SubstituteMapping(SkPDFObject* original, SkPDFObject* substitute)
+            : fOriginal(original), fSubstitute(substitute) {
+        }
+        SkPDFObject* fOriginal;
+        SkPDFObject* fSubstitute;
+    };
+
     // TODO(vandebo) Make this a hash if it's a performance problem.
     SkTDArray<struct Rec> fCatalog;
+
+    // TODO(arthurhsu) Make this a hash if it's a performance problem.
+    SkTDArray<SubstituteMapping> fSubstituteMap;
+    SkTDArray<SkPDFObject*> fSubstituteResourcesFirstPage;
+    SkTDArray<SkPDFObject*> fSubstituteResourcesRemaining;
 
     // Number of objects on the first page.
     uint32_t fFirstPageCount;
@@ -97,6 +130,8 @@ private:
     int findObjectIndex(SkPDFObject* obj) const;
 
     int assignObjNum(SkPDFObject* obj);
+
+    SkTDArray<SkPDFObject*>* getSubstituteList(bool firstPage);
 };
 
 #endif
