@@ -25,6 +25,8 @@
 #include "GrGLVertexBuffer.h"
 #include "GrGLIndexBuffer.h"
 
+#include "SkString.h"
+
 class GrGpuGL : public GrGpu {
 public:
     virtual ~GrGpuGL();
@@ -47,6 +49,10 @@ protected:
 
     DrState   fHWDrawState;
     bool      fHWStencilClip;
+
+    // read these once at begining and then never again
+    SkString fExtensionString;
+    float fGLVersion;
 
     // As flush of GL state proceeds it updates fHDrawState
     // to reflect the new state. Later parts of the state flush
@@ -127,6 +133,10 @@ protected:
                     GrBlendCoeff srcCoeff,
                     GrBlendCoeff dstCoeff);
 
+    bool hasExtension(const char* ext) {
+        return has_gl_extension_from_string(ext, fExtensionString.c_str());
+    }
+
     // adjusts texture matrix to account for orientation, size, and npotness
     static void AdjustTextureMatrix(const GrGLTexture* texture,
                                     GrSamplerState::SampleMode mode,
@@ -141,6 +151,9 @@ protected:
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
 private:
+
+    // determines valid stencil formats
+    void setupStencilFormats();
 
     // notify callbacks to update state tracking when related
     // objects are bound to GL or deleted outside of the class
@@ -174,6 +187,16 @@ private:
     friend class GrGLIndexBuffer;
     friend class GrGLTexture;
     friend class GrGLRenderTarget;
+
+    static const GrGLuint gUNKNOWN_BITCOUNT = ~0;
+
+    struct StencilFormat {
+        GrGLenum  fEnum;
+        GrGLuint  fBits;
+        bool      fPacked;
+    };
+
+    GrTArray<StencilFormat, true> fStencilFormats;
 
     bool fHWBlendDisabled;
 

@@ -54,6 +54,25 @@ void gl_version_from_string(int* major, int* minor,
     }
 }
 
+float gl_version_as_float_from_string(const char* versionString) {
+    int major, minor;
+    gl_version_from_string(&major, &minor, versionString);
+    GrAssert(minor >= 0);
+    // AFAIK there are only single digit minor numbers
+    if (minor < 10) {
+        return major + minor / 10.f;
+    } else if (minor < 100) {
+        return major + minor / 100.f;
+    } else if (minor < 1000) {
+        return major + minor / 1000.f;
+    } else {
+        GrAssert(!"Why so many digits in minor revision number?");
+        char temp[32];
+        sprintf(temp, "%d.%d", major, minor);
+        return (float) atof(temp);
+    }
+}
+
 bool has_gl_extension_from_string(const char* ext,
                                   const char* extensionString) {
     int extLength = strlen(ext);
@@ -71,7 +90,6 @@ bool has_gl_extension_from_string(const char* ext,
 
     return false;
 }
-
 
 GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface) {
     gGLInterface = gl_interface;
@@ -92,6 +110,12 @@ void gl_version(int* major, int* minor) {
     const char* v = reinterpret_cast<const char*>(
                 GrGLGetGLInterface()->fGetString(GR_GL_VERSION));
     gl_version_from_string(major, minor, v);
+}
+
+float gl_version_as_float() {
+    const char* v = reinterpret_cast<const char*>(
+                GrGLGetGLInterface()->fGetString(GR_GL_VERSION));
+    return gl_version_as_float_from_string(v);
 }
 
 bool GrGLInterface::validateShaderFunctions() const {
