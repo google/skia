@@ -425,16 +425,15 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv) : INHERITED(hwnd) 
         }
     }
     this->loadView(fSamples[fCurrIndex]());
+    
+    fPDFData = NULL;
 
+    this->make3DReady();
     // If another constructor set our dimensions, ensure that our
     // onSizeChange gets called.
     if (this->height() && this->width()) {
         this->onSizeChange();
     }
-    
-    fPDFData = NULL;
-
-    this->make3DReady();
 }
 
 SampleWindow::~SampleWindow() {
