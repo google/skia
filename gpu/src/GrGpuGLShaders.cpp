@@ -248,14 +248,12 @@ void GrGpuGLShaders::ProgramUnitTest() {
 GrGpuGLShaders::GrGpuGLShaders() {
 
     resetContext();
-    int major, minor;
-    gl_version(&major, &minor);
 
     f4X4DownsampleFilterSupport = true;
     if (GR_GL_SUPPORT_DESKTOP) {
-        fDualSourceBlendingSupport =
-            major > 3 ||(3 == major && 3 <= minor) ||
-            has_gl_extension("GL_ARB_blend_func_extended");
+        fDualSourceBlendingSupport = 
+                            fGLVersion >= 3.3f ||
+                            this->hasExtension("GL_ARB_blend_func_extended");
     } else {
         fDualSourceBlendingSupport = false;
     }

@@ -262,7 +262,10 @@ static int probe_for_min_render_target_width(bool hasNPOTRenderTargetSupport,
 }
 
 
-GrGpuGL::GrGpuGL() {
+GrGpuGL::GrGpuGL() 
+    : fStencilFormats(8) {
+
+    GrGLClearErr();
 
     if (gPrintStartupSpew) {
         GrPrintf("------------------------- create GrGpuGL %p --------------\n",
@@ -277,9 +280,10 @@ GrGpuGL::GrGpuGL() {
                  GrGLGetGLInterface()->fGetString(GR_GL_EXTENSIONS));
     }
 
-    GrGLClearErr();
+    fGLVersion = gl_version_as_float();
+    fExtensionString = (const char*) GR_GL(GetString(GR_GL_EXTENSIONS));
 
-    resetDirtyFlags();
+    this->resetDirtyFlags();
 
     GrGLint maxTextureUnits;
     // check FS and fixed-function texture unit limits
@@ -307,8 +311,7 @@ GrGpuGL::GrGpuGL() {
     ////////////////////////////////////////////////////////////////////////////
     // Check for supported features.
 
-    int major, minor;
-    gl_version(&major, &minor);
+    this->setupStencilFormats();
 
     GrGLint numFormats;
     GR_GL_GetIntegerv(GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
@@ -333,19 +336,19 @@ GrGpuGL::GrGpuGL() {
     memset(fAASamples, 0, sizeof(fAASamples));
     fMSFBOType = kNone_MSFBO;
     if (GR_GL_SUPPORT_ES) {
-       if (has_gl_extension("GL_CHROMIUM_framebuffer_multisample")) {
+       if (this->hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
            // chrome's extension is equivalent to the EXT msaa
            // and fbo_blit extensions.
             fMSFBOType = kDesktopEXT_MSFBO;
-       } else if (has_gl_extension("GL_APPLE_framebuffer_multisample")) {
+       } else if (this->hasExtension("GL_APPLE_framebuffer_multisample")) {
             fMSFBOType = kAppleES_MSFBO;
         }
     } else {
         GrAssert(GR_GL_SUPPORT_DESKTOP);
-        if ((major >= 3) || has_gl_extension("GL_ARB_framebuffer_object")) {
+        if ((fGLVersion >= 3.f) || this->hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = kDesktopARB_MSFBO;
-        } else if (has_gl_extension("GL_EXT_framebuffer_multisample") &&
-                   has_gl_extension("GL_EXT_framebuffer_blit")) {
+        } else if (this->hasExtension("GL_EXT_framebuffer_multisample") &&
+                   this->hasExtension("GL_EXT_framebuffer_blit")) {
             fMSFBOType = kDesktopEXT_MSFBO;
         }
     }
@@ -386,10 +389,10 @@ GrGpuGL::GrGpuGL() {
     fFSAASupport = fAASamples[kHigh_GrAALevel] > 0;
 
     if (GR_GL_SUPPORT_DESKTOP) {
-        fHasStencilWrap = (major >= 2 || (major == 1 && minor >= 4)) ||
-                          has_gl_extension("GL_EXT_stencil_wrap");
+        fHasStencilWrap = (fGLVersion >= 1.4f) ||
+                          this->hasExtension("GL_EXT_stencil_wrap");
     } else {
-        fHasStencilWrap = (major >= 2) || has_gl_extension("GL_OES_stencil_wrap");
+        fHasStencilWrap = (fGLVersion >= 2.0f) || this->hasExtension("GL_OES_stencil_wrap");
     }
     if (gPrintStartupSpew) {
         GrPrintf("Stencil Wrap: %s\n", (fHasStencilWrap ? "YES" : "NO"));
@@ -399,18 +402,17 @@ GrGpuGL::GrGpuGL() {
         // we could also look for GL_ATI_separate_stencil extension or
         // GL_EXT_stencil_two_side but they use different function signatures
         // than GL2.0+ (and than each other).
-        fTwoSidedStencilSupport = (major >= 2);
+        fTwoSidedStencilSupport = (fGLVersion >= 2.f);
         // supported on GL 1.4 and higher or by extension
-        fStencilWrapOpsSupport = (major > 1) ||
-                                 ((1 == major) && (minor >= 4)) ||
-                                  has_gl_extension("GL_EXT_stencil_wrap");
+        fStencilWrapOpsSupport = (fGLVersion >= 1.4f) ||
+                                  this->hasExtension("GL_EXT_stencil_wrap");
     } else {
         // ES 2 has two sided stencil but 1.1 doesn't. There doesn't seem to be
         // an ES1 extension.
-        fTwoSidedStencilSupport = (major >= 2);
+        fTwoSidedStencilSupport = (fGLVersion >= 2.f);
         // stencil wrap support is in ES2, ES1 requires extension.
-        fStencilWrapOpsSupport = (major > 1) ||
-                                  has_gl_extension("GL_OES_stencil_wrap");
+        fStencilWrapOpsSupport = (fGLVersion >= 2.f) ||
+                                 this->hasExtension("GL_OES_stencil_wrap");
     }
     if (gPrintStartupSpew) {
         GrPrintf("Stencil Caps: TwoSide: %s, Wrap: %s\n",
@@ -421,7 +423,7 @@ GrGpuGL::GrGpuGL() {
     if (GR_GL_SUPPORT_DESKTOP) {
         fRGBA8Renderbuffer = true;
     } else {
-        fRGBA8Renderbuffer = has_gl_extension("GL_OES_rgb8_rgba8");
+        fRGBA8Renderbuffer = this->hasExtension("GL_OES_rgb8_rgba8");
     }
     if (gPrintStartupSpew) {
         GrPrintf("RGBA Renderbuffer: %s\n", (fRGBA8Renderbuffer ? "YES" : "NO"));
@@ -430,7 +432,7 @@ GrGpuGL::GrGpuGL() {
 
     if (GR_GL_SUPPORT_ES) {
         if (GR_GL_32BPP_COLOR_FORMAT == GR_GL_BGRA) {
-            GrAssert(has_gl_extension("GL_EXT_texture_format_BGRA8888"));
+            GrAssert(this->hasExtension("GL_EXT_texture_format_BGRA8888"));
         }
     }
 
@@ -438,7 +440,7 @@ GrGpuGL::GrGpuGL() {
         fBufferLockSupport = true; // we require VBO support and the desktop VBO
                                    // extension includes glMapBuffer.
     } else {
-        fBufferLockSupport = has_gl_extension("GL_OES_mapbuffer");
+        fBufferLockSupport = this->hasExtension("GL_OES_mapbuffer");
     }
 
     if (gPrintStartupSpew) {
@@ -446,7 +448,8 @@ GrGpuGL::GrGpuGL() {
     }
 
     if (GR_GL_SUPPORT_DESKTOP) {
-        if (major >= 2 || has_gl_extension("GL_ARB_texture_non_power_of_two")) {
+        if (fGLVersion >= 2.f || 
+            this->hasExtension("GL_ARB_texture_non_power_of_two")) {
             fNPOTTextureTileSupport = true;
             fNPOTTextureSupport = true;
         } else {
@@ -454,12 +457,12 @@ GrGpuGL::GrGpuGL() {
             fNPOTTextureSupport = false;
         }
     } else {
-        if (major >= 2) {
+        if (fGLVersion >= 2.f) {
             fNPOTTextureSupport = true;
-            fNPOTTextureTileSupport = has_gl_extension("GL_OES_texture_npot");
+            fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
         } else {
             fNPOTTextureSupport =
-                        has_gl_extension("GL_APPLE_texture_2D_limited_npot");
+                        this->hasExtension("GL_APPLE_texture_2D_limited_npot");
             fNPOTTextureTileSupport = false;
         }
     }
@@ -685,37 +688,57 @@ GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static const GrGLuint UNKNOWN_BITS = ~0;
+void GrGpuGL::setupStencilFormats() {
 
-struct StencilFormat {
-    GrGLenum  fEnum;
-    GrGLuint  fBits;
-    bool      fPacked;
-};
+    // Build up list of legal stencil formats (though perhaps not supported on
+    // the particular gpu/driver) from most preferred to least.
 
-const StencilFormat* GrGLStencilFormats(int* count) {
-    // defines stencil formats from more to less preferred
-    static const StencilFormat desktopStencilFormats[] = {
-        {GR_GL_STENCIL_INDEX8,     8,            false},
-        {GR_GL_STENCIL_INDEX16,    16,           false},
-        {GR_GL_DEPTH24_STENCIL8,   8,            true },
-        {GR_GL_STENCIL_INDEX4,     4,            false},
-        {GR_GL_STENCIL_INDEX,      UNKNOWN_BITS, false},
-        {GR_GL_DEPTH_STENCIL,      UNKNOWN_BITS, true },
-    };
-
-    static const StencilFormat esStencilFormats[] = {
-        {GR_GL_STENCIL_INDEX8,     8,   false},
-        {GR_GL_DEPTH24_STENCIL8,   8,   true },
-        {GR_GL_STENCIL_INDEX4,     4,   false},
-    };
+    // these consts are in order of most preferred to least preferred
+    // we don't bother with GL_STENCIL_INDEX1 or GL_DEPTH32F_STENCIL8
+    static const StencilFormat gS8    = {GR_GL_STENCIL_INDEX8,     8,                 false};
+    static const StencilFormat gS16   = {GR_GL_STENCIL_INDEX16,    16,                false};
+    static const StencilFormat gD24S8 = {GR_GL_DEPTH24_STENCIL8,   8,                 true };
+    static const StencilFormat gS4    = {GR_GL_STENCIL_INDEX4,     4,                 false};
+    static const StencilFormat gS     = {GR_GL_STENCIL_INDEX,      gUNKNOWN_BITCOUNT, false};
+    static const StencilFormat gDS    = {GR_GL_DEPTH_STENCIL,      gUNKNOWN_BITCOUNT, true };
 
     if (GR_GL_SUPPORT_DESKTOP) {
-        *count = GR_ARRAY_COUNT(desktopStencilFormats);
-        return desktopStencilFormats;
+        bool supportsPackedDS = fGLVersion >= 3.0f || 
+                                this->hasExtension("GL_EXT_packed_depth_stencil") ||
+                                this->hasExtension("GL_ARB_framebuffer_object");
+
+        // S1 thru S16 formats are in GL 3.0+, EXT_FBO, and ARB_FBO since we
+        // require FBO support we can expect these are legal formats and don't
+        // check. These also all support the unsized GL_STENCIL_INDEX.
+        fStencilFormats.push_back() = gS8;
+        fStencilFormats.push_back() = gS16;
+        if (supportsPackedDS) {
+            fStencilFormats.push_back() = gD24S8;
+        }
+        fStencilFormats.push_back() = gS4;
+        if (supportsPackedDS) {
+            fStencilFormats.push_back() = gDS;
+        }
     } else {
-        *count = GR_ARRAY_COUNT(esStencilFormats);
-        return esStencilFormats;
+        // ES2 has STENCIL_INDEX8 without extensions.
+        // ES1 with GL_OES_framebuffer_object (which we require for ES1)
+        // introduces tokens for S1 thu S8 but there are separate extensions
+        // that make them legal (GL_OES_stencil1, ...).
+        // GL_OES_packed_depth_stencil adds DEPTH24_STENCIL8
+        // ES doesn't support using the unsized formats.
+
+        if (fGLVersion >= 2.f || this->hasExtension("GL_OES_stencil8")) {
+            fStencilFormats.push_back() = gS8;
+        }
+        //fStencilFormats.push_back() = gS16;
+        if (this->hasExtension("GL_OES_packed_depth_stencil")) {
+            fStencilFormats.push_back() = gD24S8;
+        }
+        if (this->hasExtension("GL_OES_stencil4")) {
+            fStencilFormats.push_back() = gS4;
+        }
+        // we require some stencil format.
+        GrAssert(fStencilFormats.count() > 0);
     }
 }
 
@@ -983,9 +1006,8 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         err = ~GR_GL_NO_ERROR;
 
         int stencilFmtCnt;
-        const StencilFormat* stencilFormats = NULL;
         if (rtIDs.fStencilRenderbufferID) {
-            stencilFormats = GrGLStencilFormats(&stencilFmtCnt);
+            stencilFmtCnt = fStencilFormats.count();
         } else {
             stencilFmtCnt = 1; // only 1 attempt when we don't need a stencil
         }
@@ -1003,12 +1025,12 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                     GR_GL_NO_ERR(RenderbufferStorageMultisample(
                                                 GR_GL_RENDERBUFFER,
                                                 samples,
-                                                stencilFormats[sIdx].fEnum,
+                                                fStencilFormats[sIdx].fEnum,
                                                 glDesc.fAllocWidth,
                                                 glDesc.fAllocHeight));
                 } else {
                     GR_GL_NO_ERR(RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                                     stencilFormats[sIdx].fEnum,
+                                                     fStencilFormats[sIdx].fEnum,
                                                      glDesc.fAllocWidth,
                                                      glDesc.fAllocHeight));
                 }
@@ -1064,7 +1086,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                                               rtIDs.fStencilRenderbufferID));
                 // if it is a packed format bind to depth also, otherwise 
                 // we may get an unsupported fbo completeness result
-                if (stencilFormats[sIdx].fPacked) {
+                if (fStencilFormats[sIdx].fPacked) {
                     GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                   GR_GL_DEPTH_ATTACHMENT,
                                                   GR_GL_RENDERBUFFER,
@@ -1076,7 +1098,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 // undo the depth bind
                 if (rtIDs.fStencilRenderbufferID && 
-                    stencilFormats[sIdx].fPacked) {
+                    fStencilFormats[sIdx].fPacked) {
                     GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                     GR_GL_DEPTH_ATTACHMENT,
                                                     GR_GL_RENDERBUFFER,
@@ -1088,10 +1110,10 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             failed = false;
             if (rtIDs.fStencilRenderbufferID) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
-                if (UNKNOWN_BITS == stencilFormats[sIdx].fBits) {
+                if (gUNKNOWN_BITCOUNT == fStencilFormats[sIdx].fBits) {
                     GR_GL_GetIntegerv(GR_GL_STENCIL_BITS, (GrGLint*)&glDesc.fStencilBits);
                 } else {
-                    glDesc.fStencilBits = stencilFormats[sIdx].fBits;
+                    glDesc.fStencilBits = fStencilFormats[sIdx].fBits;
                 }
             }
             break;

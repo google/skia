@@ -31,14 +31,17 @@
  * Helpers for glGetString()
  */
 
+// these variants assume caller already has a string from glGetString()
 void gl_version_from_string(int* major, int* minor,
                             const char* versionString);
+float gl_version_as_float_from_string(const char* versionString);
 bool has_gl_extension_from_string(const char* ext,
                                   const char* extensionString);
 
+// these variants call glGetString()
 bool has_gl_extension(const char* ext);
 void gl_version(int* major, int* minor);
-
+float gl_version_as_float();
 
 ////////////////////////////////////////////////////////////////////////////////
 
