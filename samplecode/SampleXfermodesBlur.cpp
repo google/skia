@@ -25,6 +25,15 @@
 #include "SkBlurMaskFilter.h"
 
 static void test_gradient2(SkCanvas* canvas) {
+#if 1
+    SkBitmap bm;
+    bm.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
+    bm.allocPixels();
+    *bm.getAddr32(0, 0) = SkPackARGB32(0xFF, 0, 0xFF, 0);
+
+    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
+                                               SkShader::kRepeat_TileMode);
+#else
 /*
     ctx.fillStyle = '#f00';
     ctx.fillRect(0, 0, 100, 50);
@@ -46,6 +55,7 @@ static void test_gradient2(SkCanvas* canvas) {
     SkShader* s = SkGradientShader::CreateTwoPointRadial(c0, r0, c1, r1, colors,
                                                          pos, SK_ARRAY_COUNT(pos),
                                                          SkShader::kClamp_TileMode);
+#endif
 
     SkPaint paint;
     paint.setShader(s)->unref();
