@@ -9,6 +9,7 @@ int main(int argc, char* argv[])
 
     Rect bounds = {100, 100, 500, 500};
     WindowAttributes attrs = kWindowStandardHandlerAttribute | 
+                             kWindowResizableAttribute |
                              kWindowLiveResizeAttribute |
                              kWindowInWindowMenuAttribute | 
                              kWindowCompositingAttribute |
