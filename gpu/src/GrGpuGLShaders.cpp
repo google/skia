@@ -134,36 +134,31 @@ void GrGpuGLShaders::abandonResources(){
     fProgramCache->abandon();
 }
 
-void GrGpuGLShaders::DeleteProgram(GrGLProgram::CachedData* programData) {
+void GrGpuGLShaders::DeleteProgram(CachedData* programData) {
     GR_GL(DeleteShader(programData->fVShaderID));
     GR_GL(DeleteShader(programData->fFShaderID));
     GR_GL(DeleteProgram(programData->fProgramID));
     GR_DEBUGCODE(memset(programData, 0, sizeof(*programData));)
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+namespace {
+    template <typename T>
+    T random_val(GrRandom* r, T count) {
+        return (T)(int)(r->nextF() * count);
+    }
+};
+
 void GrGpuGLShaders::ProgramUnitTest() {
 
     static const int STAGE_OPTS[] = {
         0,
-        GrGLProgram::ProgramDesc::StageDesc::kNoPerspective_OptFlagBit,
-        GrGLProgram::ProgramDesc::StageDesc::kIdentity_CoordMapping
-    };
-    static const GrGLProgram::ProgramDesc::StageDesc::Modulation STAGE_MODULATES[] = {
-        GrGLProgram::ProgramDesc::StageDesc::kColor_Modulation,
-        GrGLProgram::ProgramDesc::StageDesc::kAlpha_Modulation
-    };
-    static const GrGLProgram::ProgramDesc::StageDesc::CoordMapping STAGE_COORD_MAPPINGS[] = {
-        GrGLProgram::ProgramDesc::StageDesc::kIdentity_CoordMapping,
-        GrGLProgram::ProgramDesc::StageDesc::kRadialGradient_CoordMapping,
-        GrGLProgram::ProgramDesc::StageDesc::kSweepGradient_CoordMapping,
-        GrGLProgram::ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping
-    };
-    static const GrGLProgram::ProgramDesc::StageDesc::FetchMode FETCH_MODES[] = {
-        GrGLProgram::ProgramDesc::StageDesc::kSingle_FetchMode,
-        GrGLProgram::ProgramDesc::StageDesc::k2x2_FetchMode,
+        StageDesc::kNoPerspective_OptFlagBit,
+        StageDesc::kIdentity_CoordMapping
     };
     GrGLProgram program;
-    GrGLProgram::ProgramDesc& pdesc = program.fProgramDesc;
+    ProgramDesc& pdesc = program.fProgramDesc;
 
     static const int NUM_TESTS = 512;
 
@@ -184,11 +179,11 @@ void GrGpuGLShaders::ProgramUnitTest() {
         pdesc.fEmitsPointSize = random.nextF() > .5f;
         float colorType = random.nextF();
         if (colorType < 1.f / 3.f) {
-            pdesc.fColorType = GrGLProgram::ProgramDesc::kAttribute_ColorType;
+            pdesc.fColorType = ProgramDesc::kAttribute_ColorType;
         } else if (colorType < 2.f / 3.f) {
-            pdesc.fColorType = GrGLProgram::ProgramDesc::kUniform_ColorType;
+            pdesc.fColorType = ProgramDesc::kUniform_ColorType;
         } else {
-            pdesc.fColorType = GrGLProgram::ProgramDesc::kNone_ColorType;
+            pdesc.fColorType = ProgramDesc::kNone_ColorType;
         }
 
         int idx = (int)(random.nextF() * (SkXfermode::kCoeffModesCnt));
@@ -202,11 +197,10 @@ void GrGpuGLShaders::ProgramUnitTest() {
 
         if (fDualSourceBlendingSupport) {
             pdesc.fDualSrcOutput =
-               (GrGLProgram::ProgramDesc::DualSrcOutput)
-               (int)(random.nextF() * GrGLProgram::ProgramDesc::kDualSrcOutputCnt);
+               (ProgramDesc::DualSrcOutput)
+               (int)(random.nextF() * ProgramDesc::kDualSrcOutputCnt);
         } else {
-            pdesc.fDualSrcOutput =
-                                GrGLProgram::ProgramDesc::kNone_DualSrcOutput;
+            pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
         for (int s = 0; s < kNumStages; ++s) {
@@ -225,16 +219,14 @@ void GrGpuGLShaders::ProgramUnitTest() {
                 pdesc.fVertexLayout |= kTextFormat_VertexLayoutBit;
             }
             idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_OPTS));
-            pdesc.fStages[s].fOptFlags = STAGE_OPTS[idx];
-            idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_MODULATES));
-            pdesc.fStages[s].fModulation = STAGE_MODULATES[idx];
-            idx = (int)(random.nextF() * GR_ARRAY_COUNT(STAGE_COORD_MAPPINGS));
-            pdesc.fStages[s].fCoordMapping = STAGE_COORD_MAPPINGS[idx];
-            idx = (int)(random.nextF() * GR_ARRAY_COUNT(FETCH_MODES));
-            pdesc.fStages[s].fFetchMode = FETCH_MODES[idx];
-            pdesc.fStages[s].setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
+            StageDesc& stage = pdesc.fStages[s];
+            stage.fOptFlags = STAGE_OPTS[idx];
+            stage.fModulation = random_val(&random, StageDesc::kModulationCnt);
+            stage.fCoordMapping =  random_val(&random, StageDesc::kCoordMappingCnt);
+            stage.fFetchMode = random_val(&random, StageDesc::kFetchModeCnt);
+            stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
         }
-        GrGLProgram::CachedData cachedData;
+        CachedData cachedData;
         program.genProgram(&cachedData);
         DeleteProgram(&cachedData);
         bool again = false;
@@ -251,7 +243,7 @@ GrGpuGLShaders::GrGpuGLShaders() {
 
     f4X4DownsampleFilterSupport = true;
     if (GR_GL_SUPPORT_DESKTOP) {
-        fDualSourceBlendingSupport = 
+        fDualSourceBlendingSupport =
                             fGLVersion >= 3.3f ||
                             this->hasExtension("GL_ARB_blend_func_extended");
     } else {
@@ -497,14 +489,14 @@ static const float ONE_OVER_255 = 1.f / 255.f;
 }
 
 void GrGpuGLShaders::flushColor() {
-    const GrGLProgram::ProgramDesc& desc = fCurrentProgram.getDesc();
+    const ProgramDesc& desc = fCurrentProgram.getDesc();
     if (this->getGeomSrc().fVertexLayout & kColor_VertexLayoutBit) {
         // color will be specified per-vertex as an attribute
         // invalidate the const vertex attrib color
         fHWDrawState.fColor = GrColor_ILLEGAL;
     } else {
         switch (desc.fColorType) {
-            case GrGLProgram::ProgramDesc::kAttribute_ColorType:
+            case ProgramDesc::kAttribute_ColorType:
                 if (fHWDrawState.fColor != fCurrDrawState.fColor) {
                     // OpenGL ES only supports the float varities of glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(fCurrDrawState.fColor);
@@ -512,7 +504,7 @@ void GrGpuGLShaders::flushColor() {
                     fHWDrawState.fColor = fCurrDrawState.fColor;
                 }
                 break;
-            case GrGLProgram::ProgramDesc::kUniform_ColorType:
+            case ProgramDesc::kUniform_ColorType:
                 if (fProgramData->fColor != fCurrDrawState.fColor) {
                     // OpenGL ES only supports the float varities of glVertexAttrib
                     float c[] = GR_COLOR_TO_VEC4(fCurrDrawState.fColor);
@@ -522,7 +514,7 @@ void GrGpuGLShaders::flushColor() {
                     fProgramData->fColor = fCurrDrawState.fColor;
                 }
                 break;
-            case GrGLProgram::ProgramDesc::kNone_ColorType:
+            case ProgramDesc::kNone_ColorType:
                 GrAssert(0xffffffff == fCurrDrawState.fColor);
                 break;
             default:
@@ -700,7 +692,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
 }
 
 void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
-    GrGLProgram::ProgramDesc& desc = fCurrentProgram.fProgramDesc;
+    ProgramDesc& desc = fCurrentProgram.fProgramDesc;
 
     // Must initialize all fields or cache will have false negatives!
     desc.fVertexLayout = this->getGeomSrc().fVertexLayout;
@@ -717,17 +709,17 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
 
 #if GR_AGGRESSIVE_SHADER_OPTS
     if (!requiresAttributeColors && (0xffffffff == fCurrDrawState.fColor)) {
-        desc.fColorType = GrGLProgram::ProgramDesc::kNone_ColorType;
+        desc.fColorType = ProgramDesc::kNone_ColorType;
     } else
 #endif
 #if GR_GL_NO_CONSTANT_ATTRIBUTES
     if (!requiresAttributeColors) {
-        desc.fColorType = GrGLProgram::ProgramDesc::kUniform_ColorType;
+        desc.fColorType = ProgramDesc::kUniform_ColorType;
     } else
 #endif
     {
         if (requiresAttributeColors) {} // suppress unused var warning
-        desc.fColorType = GrGLProgram::ProgramDesc::kAttribute_ColorType;
+        desc.fColorType = ProgramDesc::kAttribute_ColorType;
     }
 
     desc.fEdgeAANumEdges = fCurrDrawState.fEdgeAANumEdges;
@@ -736,7 +728,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     int lastEnabledStage = -1;
 
     for (int s = 0; s < kNumStages; ++s) {
-        GrGLProgram::ProgramDesc::StageDesc& stage = desc.fStages[s];
+        StageDesc& stage = desc.fStages[s];
 
         stage.fOptFlags = 0;
         stage.setEnabled(this->isStageEnabled(s));
@@ -748,22 +740,22 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             // we matrix to invert when orientation is TopDown, so make sure
             // we aren't in that case before flagging as identity.
             if (TextureMatrixIsIdentity(texture, fCurrDrawState.fSamplerStates[s])) {
-                stage.fOptFlags |= GrGLProgram::ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit;
+                stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
             } else if (!getSamplerMatrix(s).hasPerspective()) {
-                stage.fOptFlags |= GrGLProgram::ProgramDesc::StageDesc::kNoPerspective_OptFlagBit;
+                stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
             switch (fCurrDrawState.fSamplerStates[s].getSampleMode()) {
                 case GrSamplerState::kNormal_SampleMode:
-                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kIdentity_CoordMapping;
+                    stage.fCoordMapping = StageDesc::kIdentity_CoordMapping;
                     break;
                 case GrSamplerState::kRadial_SampleMode:
-                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kRadialGradient_CoordMapping;
+                    stage.fCoordMapping = StageDesc::kRadialGradient_CoordMapping;
                     break;
                 case GrSamplerState::kRadial2_SampleMode:
-                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping;
+                    stage.fCoordMapping = StageDesc::kRadial2Gradient_CoordMapping;
                     break;
                 case GrSamplerState::kSweep_SampleMode:
-                    stage.fCoordMapping = GrGLProgram::ProgramDesc::StageDesc::kSweepGradient_CoordMapping;
+                    stage.fCoordMapping = StageDesc::kSweepGradient_CoordMapping;
                     break;
                 default:
                     GrCrash("Unexpected sample mode!");
@@ -774,11 +766,11 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                 // these both can use a regular texture2D()
                 case GrSamplerState::kNearest_Filter:
                 case GrSamplerState::kBilinear_Filter:
-                    stage.fFetchMode = GrGLProgram::ProgramDesc::StageDesc::kSingle_FetchMode;
+                    stage.fFetchMode = StageDesc::kSingle_FetchMode;
                     break;
                 // performs 4 texture2D()s
                 case GrSamplerState::k4x4Downsample_Filter:
-                    stage.fFetchMode = GrGLProgram::ProgramDesc::StageDesc::k2x2_FetchMode;
+                    stage.fFetchMode = StageDesc::k2x2_FetchMode;
                     break;
                 default:
                     GrCrash("Unexpected filter!");
@@ -790,24 +782,22 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                     fCurrDrawState.fSamplerStates[s].getWrapX() &&
                     GrSamplerState::kClamp_WrapMode ==
                     fCurrDrawState.fSamplerStates[s].getWrapY());
-                stage.fOptFlags |=
-                    GrGLProgram::ProgramDesc::StageDesc::
-                    kCustomTextureDomain_OptFlagBit;
+                stage.fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
             }
 
             if (GrPixelConfigIsAlphaOnly(texture->config())) {
-                stage.fModulation = GrGLProgram::ProgramDesc::StageDesc::kAlpha_Modulation;
+                stage.fModulation = StageDesc::kAlpha_Modulation;
             } else {
-                stage.fModulation = GrGLProgram::ProgramDesc::StageDesc::kColor_Modulation;
+                stage.fModulation = StageDesc::kColor_Modulation;
             }
         } else {
             stage.fOptFlags     = 0;
-            stage.fCoordMapping = (GrGLProgram::ProgramDesc::StageDesc::CoordMapping)0;
-            stage.fModulation   = (GrGLProgram::ProgramDesc::StageDesc::Modulation)0;
+            stage.fCoordMapping = (StageDesc::CoordMapping)0;
+            stage.fModulation   = (StageDesc::Modulation)0;
         }
     }
 
-    desc.fDualSrcOutput = GrGLProgram::ProgramDesc::kNone_DualSrcOutput;
+    desc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
     // use canonical value when coverage/color distinction won't affect
     // generated code to prevent duplicate programs.
     desc.fFirstCoverageStage = kNumStages;
@@ -825,20 +815,17 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
         if (fDualSourceBlendingSupport) {
             if (kZero_BlendCoeff == fCurrDrawState.fDstBlend) {
                 // write the coverage value to second color
-                desc.fDualSrcOutput = 
-                                GrGLProgram::ProgramDesc::kCoverage_DualSrcOutput;
+                desc.fDualSrcOutput =  ProgramDesc::kCoverage_DualSrcOutput;
                 desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
             } else if (kSA_BlendCoeff == fCurrDrawState.fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially 
                 // cover
-                desc.fDualSrcOutput = 
-                            GrGLProgram::ProgramDesc::kCoverageISA_DualSrcOutput;
+                desc.fDualSrcOutput = ProgramDesc::kCoverageISA_DualSrcOutput;
                 desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
             } else if (kSC_BlendCoeff == fCurrDrawState.fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially
                 // cover
-                desc.fDualSrcOutput = 
-                        GrGLProgram::ProgramDesc::kCoverageISC_DualSrcOutput;
+                desc.fDualSrcOutput = ProgramDesc::kCoverageISC_DualSrcOutput;
                 desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
             }
         }

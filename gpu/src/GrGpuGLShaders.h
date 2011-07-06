@@ -44,6 +44,11 @@ protected:
 
 private:
 
+    // for readability of function impls
+    typedef GrGLProgram::ProgramDesc ProgramDesc;
+    typedef ProgramDesc::StageDesc   StageDesc;
+    typedef GrGLProgram::CachedData  CachedData;
+
     class ProgramCache;
 
     // Helpers to make code more readable
@@ -71,14 +76,14 @@ private:
     // flushes the edges for edge AA
     void flushEdgeAAData();
 
-    static void DeleteProgram(GrGLProgram::CachedData* programData);
+    static void DeleteProgram(CachedData* programData);
 
     void ProgramUnitTest();
 
     void buildProgram(GrPrimitiveType type);
 
     ProgramCache*               fProgramCache;
-    GrGLProgram::CachedData*    fProgramData;
+    CachedData*                 fProgramData;
     GrGLuint                    fHWProgramID;
     GrGLProgram                 fCurrentProgram;
 
