@@ -29,6 +29,10 @@ static void drawmarshmallow(SkCanvas* canvas) {
     SkMatrix m;
 
     SkImageDecoder::DecodeFile("/Users/reed/Downloads/3elfs.jpg", &bitmap);
+    if (!bitmap.pixelRef()) {
+        return;
+    }
+
     SkShader* s = SkShader::CreateBitmapShader(bitmap,
                                                SkShader::kRepeat_TileMode,
                                                SkShader::kRepeat_TileMode);
