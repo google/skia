@@ -52,15 +52,7 @@ class SkPicture;
 */
 class SK_API SkCanvas : public SkRefCnt {
 public:
-    /**
-        DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
-
-        Construct a canvas with the given device factory.
-        @param factory  Specify the factory for generating additional devices.
-                        The factory may be null, in which case
-                        SkRasterDeviceFactory will be used.
-    */
-    explicit SkCanvas(SkDeviceFactory* factory = NULL);
+    SkCanvas();
 
     /** Construct a canvas with the specified device to draw into.  The device
         factory will be retrieved from the passed device.
@@ -106,24 +98,8 @@ public:
     SkDevice* setBitmapDevice(const SkBitmap& bitmap);
 
     /**
-     * DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
-     *
-     *  Return the current device factory, or NULL. The reference count of
-     *  the returned factory is not changed.
-     */
-    SkDeviceFactory* getDeviceFactory() const { return fDeviceFactory; }
-
-    /**
-     *  DEPRECATED: Will be replaced by SkDevice::createCompatibleDevice
-     *
-     *  Replace any existing factory with the specified factory, unrefing the
-     *  previous (if any), and refing the new one (if any). For convenience,
-     *  the factory parameter is also returned.
-     */
-    SkDeviceFactory* setDeviceFactory(SkDeviceFactory*);
-
-    /**
-     * Shortcut for getDevice()->createCompatibleDevice(...)
+     *  Shortcut for getDevice()->createCompatibleDevice(...).
+     *  If getDevice() == NULL, this method does nothing, and returns NULL.
      */
     SkDevice* createCompatibleDevice(SkBitmap::Config config, 
                                     int width, int height,

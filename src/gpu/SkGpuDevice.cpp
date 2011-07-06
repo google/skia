@@ -19,7 +19,6 @@
 #include "GrTextContext.h"
 
 #include "SkGpuDevice.h"
-#include "SkGpuDeviceFactory.h"
 #include "SkGrTexturePixelRef.h"
 
 #include "SkColorFilter.h"
@@ -46,6 +45,7 @@ enum {
     kBitmapTextureIdx = 0,
     kShaderTextureIdx = 0
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1492,60 +1492,5 @@ SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config,
                                                 Usage usage) {
     return SkNEW_ARGS(SkGpuDevice,(this->context(), config, 
                                    width, height, usage));
-}
-
-
-///////////////////////////////////////////////////////////////////////////////
-
-SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context,
-                                       GrRenderTarget* rootRenderTarget) {
-    GrAssert(NULL != context);
-    GrAssert(NULL != rootRenderTarget);
-
-    // check this now rather than passing this value to SkGpuDevice cons.
-    // we want the rt that is bound *now* in the 3D API, not the one
-    // at the time of newDevice.
-    if (SkGpuDevice::Current3DApiRenderTarget() == rootRenderTarget) {
-        fRootRenderTarget = context->createRenderTargetFrom3DApiState();
-    } else {
-        fRootRenderTarget = rootRenderTarget;
-        rootRenderTarget->ref();
-    }
-
-    fContext = context;
-    context->ref();
-
-    fRootTexture = NULL;
-}
-
-SkGpuDeviceFactory::SkGpuDeviceFactory(GrContext* context, GrTexture* rootRenderTargetTexture) {
-    GrAssert(NULL != context);
-    GrAssert(NULL != rootRenderTargetTexture);
-    GrAssert(NULL != rootRenderTargetTexture->asRenderTarget());
-
-    fRootTexture = rootRenderTargetTexture;
-    rootRenderTargetTexture->ref();
-
-    fRootRenderTarget = rootRenderTargetTexture->asRenderTarget();
-    fRootRenderTarget->ref();
-
-    fContext = context;
-    context->ref();
-}
-
-SkGpuDeviceFactory::~SkGpuDeviceFactory() {
-    fContext->unref();
-    fRootRenderTarget->unref();
-    GrSafeUnref(fRootTexture);
-}
-
-SkDevice* SkGpuDeviceFactory::newDevice(SkCanvas*, SkBitmap::Config config,
-                                        int width, int height,
-                                        bool isOpaque, bool isLayer) {
-    if (isLayer) {
-        return SkNEW_ARGS(SkGpuDevice, (fContext, config, width, height));
-    } else {
-        return SkNEW_ARGS(SkGpuDevice, (fContext, fRootRenderTarget));
-    }
 }
 

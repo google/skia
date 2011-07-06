@@ -168,10 +168,12 @@ public:
         kDevKernText_Flag   = 0x02,
         kGammaForBlack_Flag = 0x04, // illegal to set both Gamma flags
         kGammaForWhite_Flag = 0x08, // illegal to set both Gamma flags
+
         // together, these two flags resulting in a two bit value which matches
         // up with the SkPaint::Hinting enum.
         kHintingBit1_Flag   = 0x10,
         kHintingBit2_Flag   = 0x20,
+
         kEmbeddedBitmapText_Flag = 0x40,
         kEmbolden_Flag      = 0x80,
         kSubpixelPositioning_Flag = 0x100,
