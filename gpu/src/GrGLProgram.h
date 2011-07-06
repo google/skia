@@ -107,17 +107,23 @@ private:
             };
             enum Modulation {
                 kColor_Modulation,
-                kAlpha_Modulation
+                kAlpha_Modulation,
+
+                kModulationCnt
             };
             enum FetchMode {
                 kSingle_FetchMode,
-                k2x2_FetchMode
+                k2x2_FetchMode,
+
+                kFetchModeCnt,
             };
             enum CoordMapping {
                 kIdentity_CoordMapping,
                 kRadialGradient_CoordMapping,
                 kSweepGradient_CoordMapping,
-                kRadial2Gradient_CoordMapping
+                kRadial2Gradient_CoordMapping,
+
+                kCoordMappingCnt
             };
 
             uint8_t fOptFlags;
@@ -150,6 +156,7 @@ private:
             kCoverage_DualSrcOutput,
             kCoverageISA_DualSrcOutput,
             kCoverageISC_DualSrcOutput,
+
             kDualSrcOutputCnt
         };
 
