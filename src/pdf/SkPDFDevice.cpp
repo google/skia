@@ -487,20 +487,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkDevice* SkPDFDeviceFactory::newDevice(SkCanvas* c, SkBitmap::Config config,
-                                        int width, int height, bool isOpaque,
-                                        bool isForLayer) {
-    SkMatrix initialTransform;
-    initialTransform.reset();
-    SkISize size = SkISize::Make(width, height);
-    if (isForLayer) {
-        return SkNEW_ARGS(SkPDFDevice, (size, c->getTotalClipStack(),
-                                        c->getTotalClip()));
-    } else {
-        return SkNEW_ARGS(SkPDFDevice, (size, size, initialTransform));
-    }
-}
-
 static inline SkBitmap makeContentBitmap(const SkISize& contentSize,
                                          const SkMatrix* initialTransform) {
     SkBitmap bitmap;
@@ -563,10 +549,6 @@ void SkPDFDevice::init() {
     fResourceDict = NULL;
     fContentEntries.reset();
     fLastContentEntry = NULL;
-}
-
-SkDeviceFactory* SkPDFDevice::onNewDeviceFactory() {
-    return SkNEW(SkPDFDeviceFactory);
 }
 
 void SkPDFDevice::cleanUp() {

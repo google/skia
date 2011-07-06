@@ -19,18 +19,15 @@
 
 #include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
-#include "SkGpuDeviceFactory.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuCanvas::SkGpuCanvas(GrContext* context, GrRenderTarget* renderTarget) {
-    SkDeviceFactory* factory = SkNEW_ARGS(SkGpuDeviceFactory,
-                                          (context, renderTarget));
-    this->setDeviceFactory(factory)->unref();
-
     SkASSERT(context);
     fContext = context;
     fContext->ref();
+
+    this->setDevice(new SkGpuDevice(context, renderTarget))->unref();
 }
 
 SkGpuCanvas::~SkGpuCanvas() {

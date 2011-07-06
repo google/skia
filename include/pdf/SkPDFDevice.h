@@ -39,12 +39,6 @@ class SkPDFStream;
 struct ContentEntry;
 struct GraphicStateEntry;
 
-class SkPDFDeviceFactory : public SkDeviceFactory {
-public:
-    virtual SkDevice* newDevice(SkCanvas*, SkBitmap::Config, int width,
-                                int height, bool isOpaque, bool isForLayer);
-};
-
 /** \class SkPDFDevice
 
     The drawing context for the PDF backend.
@@ -65,7 +59,7 @@ public:
      *         a scale+translate transform to move the origin from the
      *         bottom left (PDF default) to the top left.  Note2: drawDevice
      *         (used by layer restore) draws the device after this initial
-     *         transform is applied, so the PDF device factory does an
+     *         transform is applied, so the PDF device does an
      *         inverse scale+translate to accommodate the one that SkPDFDevice
      *         always does.
      */
@@ -150,12 +144,7 @@ public:
         return fInitialTransform;
     }
 
-protected:
-    // override
-    virtual SkDeviceFactory* onNewDeviceFactory();
-
 private:
-    friend class SkPDFDeviceFactory;
     // TODO(vandebo) push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
@@ -175,7 +164,6 @@ private:
     SkTScopedPtr<ContentEntry> fContentEntries;
     ContentEntry* fLastContentEntry;
 
-    // For use by the DeviceFactory.
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);
 

@@ -3,45 +3,16 @@
 #include "SkMetaData.h"
 #include "SkRect.h"
 
-//#define TRACE_FACTORY_LIFETIME
-
-#ifdef TRACE_FACTORY_LIFETIME
-    static int gFactoryCounter;
-#endif
-
-SkDeviceFactory::SkDeviceFactory() {
-#ifdef TRACE_FACTORY_LIFETIME
-    SkDebugf("+++ factory index %d\n", gFactoryCounter);
-    ++gFactoryCounter;
-#endif
-}
-
-SkDeviceFactory::~SkDeviceFactory() {
-#ifdef TRACE_FACTORY_LIFETIME
-    --gFactoryCounter;
-    SkDebugf("--- factory index %d\n", gFactoryCounter);
-#endif
-}
-
 ///////////////////////////////////////////////////////////////////////////////
-
-#if 0
-SkDevice::SkDevice() : fMetaData(NULL) {
-    fOrigin.setZero();
-    fCachedDeviceFactory = NULL;
-}
-#endif
 
 SkDevice::SkDevice(const SkBitmap& bitmap) : fBitmap(bitmap) {
     fOrigin.setZero();
     fMetaData = NULL;
-    fCachedDeviceFactory = NULL;
 }
 
 SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque) {
     fOrigin.setZero();
     fMetaData = NULL;
-    fCachedDeviceFactory = NULL;
 
     fBitmap.setConfig(config, width, height);
     fBitmap.allocPixels();
@@ -53,18 +24,6 @@ SkDevice::SkDevice(SkBitmap::Config config, int width, int height, bool isOpaque
 
 SkDevice::~SkDevice() {
     delete fMetaData;
-    SkSafeUnref(fCachedDeviceFactory);
-}
-
-SkDeviceFactory* SkDevice::onNewDeviceFactory() {
-    return NULL;
-}
-
-SkDeviceFactory* SkDevice::getDeviceFactory() {
-    if (NULL == fCachedDeviceFactory) {
-        fCachedDeviceFactory = this->onNewDeviceFactory();
-    }
-    return fCachedDeviceFactory;
 }
 
 SkDevice* SkDevice::createCompatibleDevice(SkBitmap::Config config, 
@@ -278,19 +237,3 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     return false;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-SkDevice* SkRasterDeviceFactory::newDevice(SkCanvas*,
-                                           SkBitmap::Config config, int width,
-                                           int height, bool isOpaque,
-                                           bool isForLayer) {
-    if (isForLayer) {
-        return SkNEW_ARGS(SkDevice, (config, width, height, isOpaque));
-    } else {
-        // should we ever get here?
-        SkBitmap bitmap;
-        bitmap.setConfig(config, width, height);
-        bitmap.setIsOpaque(isOpaque);
-        return SkNEW_ARGS(SkDevice, (bitmap));
-    }
-}

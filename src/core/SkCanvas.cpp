@@ -419,26 +419,16 @@ SkDevice* SkCanvas::init(SkDevice* device) {
     return this->setDevice(device);
 }
 
-SkCanvas::SkCanvas(SkDeviceFactory* factory)
-        : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
+SkCanvas::SkCanvas()
+: fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
-
-    if (factory) {
-        factory->ref();
-    } else {
-        factory = SkNEW(SkRasterDeviceFactory);
-    }
-    fDeviceFactory = factory;
-
+    
     this->init(NULL);
 }
 
 SkCanvas::SkCanvas(SkDevice* device)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
-
-    fDeviceFactory = device->getDeviceFactory();
-    SkSafeRef(fDeviceFactory);
 
     this->init(device);
 }
@@ -447,11 +437,7 @@ SkCanvas::SkCanvas(const SkBitmap& bitmap)
         : fMCStack(sizeof(MCRec), fMCRecStorage, sizeof(fMCRecStorage)) {
     inc_canvas();
 
-    SkDevice* device = SkNEW_ARGS(SkDevice, (bitmap));
-    fDeviceFactory = device->getDeviceFactory();
-    SkSafeRef(fDeviceFactory);
-
-    this->init(device)->unref();
+    this->init(SkNEW_ARGS(SkDevice, (bitmap)))->unref();
 }
 
 SkCanvas::~SkCanvas() {
@@ -460,7 +446,6 @@ SkCanvas::~SkCanvas() {
     this->internalRestore();    // restore the last, since we're going away
 
     SkSafeUnref(fBounder);
-    SkSafeUnref(fDeviceFactory);
 
     dec_canvas();
 }
@@ -508,10 +493,6 @@ SkDevice* SkCanvas::setDevice(SkDevice* device) {
        things like lock/unlock their pixels, etc.
     */
     if (device) {
-        // To mirror our (SkDevice*) constructor, we grab the factory from the
-        // new device
-        this->setDeviceFactory(device->getDeviceFactory());
-
         device->lockPixels();
     }
     if (rootDevice) {
@@ -571,11 +552,6 @@ bool SkCanvas::readPixels(const SkIRect& srcRect, SkBitmap* bitmap) {
         return false;
     }
     return device->readPixels(srcRect, bitmap);
-}
-
-SkDeviceFactory* SkCanvas::setDeviceFactory(SkDeviceFactory* factory) {
-    SkRefCnt_SafeAssign(fDeviceFactory, factory);
-    return factory;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1185,13 +1161,12 @@ void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
 SkDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
                                       int width, int height,
                                       bool isOpaque) {
-    if (fDeviceFactory) {
-        return fDeviceFactory->newDevice(this, config, width, height,
-                                         isOpaque, true);
+    SkDevice* device = this->getDevice();
+    if (device) {
+        return device->createCompatibleDeviceForSaveLayer(config, width, height,
+                                                          isOpaque);
     } else {
-        return this->getDevice()->createCompatibleDeviceForSaveLayer(
-                                config, width, height,
-                                isOpaque);
+        return NULL;
     }
 }
 
@@ -1200,8 +1175,7 @@ SkDevice* SkCanvas::createCompatibleDevice(SkBitmap::Config config,
                                            bool isOpaque) {
     SkDevice* device = this->getDevice();
     if (device) {
-        return device->createCompatibleDevice(config, width, height,
-                                              isOpaque);
+        return device->createCompatibleDevice(config, width, height, isOpaque);
     } else {
         return NULL;
     }
