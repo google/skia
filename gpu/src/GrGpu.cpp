@@ -26,6 +26,8 @@
 // probably makes no sense for this to be less than a page
 static const size_t VERTEX_POOL_VB_SIZE = 1 << 18;
 static const int VERTEX_POOL_VB_COUNT = 4;
+static const size_t INDEX_POOL_IB_SIZE = 1 << 16;
+static const int INDEX_POOL_IB_COUNT = 4;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -670,7 +672,9 @@ void GrGpu::prepareVertexPool() {
 void GrGpu::prepareIndexPool() {
     if (NULL == fIndexPool) {
         GrAssert(0 == fIndexPoolUseCnt);
-        fIndexPool = new GrIndexBufferAllocPool(this, true, 0, 1);
+        fIndexPool = new GrIndexBufferAllocPool(this, true,
+                                                INDEX_POOL_IB_SIZE,
+                                                INDEX_POOL_IB_COUNT);
         fIndexPool->releaseGpuRef();
     } else if (!fIndexPoolUseCnt) {
         // the client doesn't have valid data in the pool
