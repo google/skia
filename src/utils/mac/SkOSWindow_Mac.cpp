@@ -205,11 +205,14 @@ bool SkOSWindow::onEvent(const SkEvent& evt) {
     if (evt.isType("inval-imageview")) {
         this->update(NULL);
 
-        const SkBitmap& bm = this->getBitmap();
+        SkEvent query("ignore-window-bitmap");
+        if (!this->doQuery(&query) || !query.getFast32()) {
+            const SkBitmap& bm = this->getBitmap();
 
-        CGImageRef img = SkCreateCGImageRef(bm);
-        HIImageViewSetImage((HIViewRef)getHVIEW(), img);
-        CGImageRelease(img);
+            CGImageRef img = SkCreateCGImageRef(bm);
+            HIImageViewSetImage((HIViewRef)getHVIEW(), img);
+            CGImageRelease(img);
+        }
         return true;
     }
     return INHERITED::onEvent(evt);

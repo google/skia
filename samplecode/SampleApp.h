@@ -27,10 +27,10 @@
 #include "SkWindow.h"
 
 class GrContext;
+class GrRenderTarget;
 
 class SkEvent;
 class SkCanvas;
-class SkGpuCanvas;
 class SkPicture;
 class SkTypeface;
 class SkData;
@@ -90,8 +90,8 @@ private:
     int fCurrIndex;
 
     SkPicture* fPicture;
-    SkGpuCanvas* fGpuCanvas;
     GrContext* fGrContext;
+    GrRenderTarget* fGrRenderTarget;
     SkPath fClipPath;
 
     SkTouchGesture fGesture;

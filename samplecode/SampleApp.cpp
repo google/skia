@@ -3,7 +3,6 @@
 #include "SkData.h"
 #include "SkCanvas.h"
 #include "SkDevice.h"
-#include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
@@ -82,7 +81,7 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
     #define SK_USE_SHADERS
 #endif
 
-#ifdef SK_BUILD_FOR_MAC
+#if 0
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreFoundation/CFURLAccess.h>
 
@@ -363,9 +362,9 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv) : INHERITED(hwnd) 
 #endif
      
     fPicture = NULL;
-    fGpuCanvas = NULL;
 
     fGrContext = NULL;
+    fGrRenderTarget = NULL;
 
 #ifdef DEFAULT_TO_GPU
     fCanvasType = kGPU_CanvasType;
@@ -434,19 +433,17 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv) : INHERITED(hwnd) 
     }
     
     fPDFData = NULL;
-#ifdef SK_BUILD_FOR_MAC
-    testpdf();
-#endif
+
+    this-make3DReady();
 }
 
 SampleWindow::~SampleWindow() {
     delete fPicture;
-    delete fGpuCanvas;
     delete fPdfCanvas;
-    if (NULL != fGrContext) {
-        fGrContext->unref();
-    }
     fTypeface->unref();
+
+    SkSafeUnref(fGrRenderTarget);
+    SkSafeUnref(fGrContext);
 }
 
 static SkBitmap capture_bitmap(SkCanvas* canvas) {
@@ -498,6 +495,11 @@ static void drawText(SkCanvas* canvas, SkString string, SkScalar left, SkScalar 
 #define YCLIP_N  8
 
 void SampleWindow::draw(SkCanvas* canvas) {
+    if (fGrContext && (kGPU_CanvasType == fCanvasType)) {
+        canvas->setDevice(new SkGpuDevice(fGrContext,
+                                          fGrRenderTarget))->unref();
+    }
+
     // update the animation time
     gAnimTimePrev = gAnimTime;
     gAnimTime = SkTime::GetMSecs();
@@ -588,6 +590,17 @@ void SampleWindow::draw(SkCanvas* canvas) {
         // Instead, we call it inside afterChildren.
         showZoomer(canvas);
     }
+
+    // do this last
+    if (fGrContext && (fCanvasType != kGPU_CanvasType)) {
+        fGrContext->setRenderTarget(fGrRenderTarget);
+        // need to send the bits to the (gpu) window
+        const SkBitmap& bm = this->getBitmap();
+        fGrContext->writePixels(0, 0, bm.width(), bm.height(),
+                                kRGBA_8888_GrPixelConfig, bm.getPixels(),
+                                bm.rowBytes());
+    }
+    presentGL();
 }
 
 void SampleWindow::showZoomer(SkCanvas* canvas) {
@@ -706,12 +719,6 @@ void SampleWindow::saveToPdf()
 }
 
 SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
-    if (kGPU_CanvasType != fCanvasType) {
-#ifdef SK_SUPPORT_GL
-        detachGL();
-#endif
-    }
-
     if (fSaveToPdf) {
         const SkBitmap& bmp = canvas->getDevice()->accessBitmap(false);
         SkISize size = SkISize::Make(bmp.width(), bmp.height());
@@ -723,46 +730,13 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
     } else {
         switch (fCanvasType) {
             case kRaster_CanvasType:
+            case kGPU_CanvasType:
                 canvas = this->INHERITED::beforeChildren(canvas);
                 break;
             case kPicture_CanvasType:
                 fPicture = new SkPicture;
                 canvas = fPicture->beginRecording(9999, 9999);
                 break;
-            case kGPU_CanvasType: {
-                if (make3DReady()) {
-                    SkDevice* device = canvas->getDevice();
-                    const SkBitmap& bitmap = device->accessBitmap(true);
-
-                    GrRenderTarget* renderTarget;
-
-                    GrPlatformSurfaceDesc desc;
-                    desc.reset();
-                    desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
-                    desc.fWidth = bitmap.width();
-                    desc.fHeight = bitmap.height();
-                    desc.fConfig = kRGBA_8888_GrPixelConfig;
-                    desc.fStencilBits = 8;
-                    GrGLint buffer;
-                    GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
-                    desc.fPlatformRenderTarget = buffer;
-
-                    renderTarget = static_cast<GrRenderTarget*>(
-                            fGrContext->createPlatformSurface(desc));
-                    fGpuCanvas = new SkGpuCanvas(fGrContext, renderTarget);
-                    renderTarget->unref();
-
-                    device = new SkGpuDevice(fGrContext, renderTarget);
-                    fGpuCanvas->setDevice(device)->unref();
-
-                    fGpuCanvas->concat(canvas->getTotalMatrix());
-                    canvas = fGpuCanvas;
-
-                } else {
-                    canvas = this->INHERITED::beforeChildren(canvas);
-                }
-                break;
-            }
         }
     }
 
@@ -823,8 +797,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
     if (fRequestGrabImage) {
         fRequestGrabImage = false;
 
-        SkCanvas* canvas = fGpuCanvas ? fGpuCanvas : orig;
-        SkDevice* device = canvas->getDevice();
+        SkDevice* device = orig->getDevice();
         SkBitmap bmp;
         if (device->accessBitmap(false).copyTo(&bmp, SkBitmap::kARGB_8888_Config)) {
             static int gSampleGrabCounter;
@@ -861,12 +834,9 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
             break;
 #ifdef SK_SUPPORT_GL
         case kGPU_CanvasType:
-            if (fShowZoomer && fGpuCanvas) {
-                this->showZoomer(fGpuCanvas);
+            if (fShowZoomer) {
+                this->showZoomer(orig);
             }
-            delete fGpuCanvas;
-            fGpuCanvas = NULL;
-            presentGL();
             break;
 #endif
     }
@@ -1035,6 +1005,10 @@ bool SampleWindow::onQuery(SkEvent* query) {
     if (query->isType("use-fast-text")) {
         SkEvent evt(gFastTextEvtName);
         return curr_view(this)->doQuery(&evt);
+    }
+    if (query->isType("ignore-window-bitmap")) {
+        query->setFast32(this->getGrContext() != NULL);
+        return true;
     }
     return this->INHERITED::onQuery(query);
 }
@@ -1418,6 +1392,25 @@ void SampleWindow::updateTitle() {
 void SampleWindow::onSizeChange() {
     this->INHERITED::onSizeChange();
 
+    if (fGrContext) {
+        this->attachGL();
+
+        GrPlatformSurfaceDesc desc;
+        desc.reset();
+        desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+        desc.fWidth = SkScalarRound(this->width());
+        desc.fHeight = SkScalarRound(this->height());
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+        desc.fStencilBits = 8;
+        GrGLint buffer;
+        GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
+        desc.fPlatformRenderTarget = buffer;
+
+        SkSafeUnref(fGrRenderTarget);
+        fGrRenderTarget = static_cast<GrRenderTarget*>(
+                                      fGrContext->createPlatformSurface(desc));
+    }
+    
     SkView::F2BIter iter(this);
     SkView* view = iter.next();
     view->setSize(this->width(), this->height());
