@@ -434,7 +434,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv) : INHERITED(hwnd) 
     
     fPDFData = NULL;
 
-    this-make3DReady();
+    this->make3DReady();
 }
 
 SampleWindow::~SampleWindow() {
