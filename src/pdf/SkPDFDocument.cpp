@@ -78,14 +78,14 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fDocCatalog->insert("OutputIntent", intentArray.get());
         */
 
-        bool first_page = true;
+        bool firstPage = true;
         for (int i = 0; i < fPages.count(); i++) {
             int resourceCount = fPageResources.count();
-            fPages[i]->finalizePage(&fCatalog, first_page, &fPageResources);
-            addResourcesToCatalog(resourceCount, first_page, &fPageResources,
-                                 &fCatalog);
+            fPages[i]->finalizePage(&fCatalog, firstPage, &fPageResources);
+            addResourcesToCatalog(resourceCount, firstPage, &fPageResources,
+                                  &fCatalog);
             if (i == 0) {
-                first_page = false;
+                firstPage = false;
                 fSecondPageFirstResourceIndex = fPageResources.count();
             }
         }
@@ -97,6 +97,8 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fileOffset += fPages[0]->getPageSize(&fCatalog, fileOffset);
         for (int i = 0; i < fSecondPageFirstResourceIndex; i++)
             fileOffset += fCatalog.setFileOffset(fPageResources[i], fileOffset);
+        // Add the size of resources of substitute objects used on page 1.
+        fileOffset += fCatalog.setSubstituteResourcesOffsets(fileOffset, true);
         if (fPages.count() > 1) {
             // TODO(vandebo) For linearized format, save the start of the
             // first page xref table and calculate the size.
@@ -113,6 +115,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
                  i++)
             fileOffset += fCatalog.setFileOffset(fPageResources[i], fileOffset);
 
+        fileOffset += fCatalog.setSubstituteResourcesOffsets(fileOffset, false);
         fXRefFileOffset = fileOffset;
     }
 
@@ -121,7 +124,8 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     fPages[0]->emitObject(stream, &fCatalog, true);
     fPages[0]->emitPage(stream, &fCatalog);
     for (int i = 0; i < fSecondPageFirstResourceIndex; i++)
-        fPageResources[i]->emitObject(stream, &fCatalog, true);
+        fPageResources[i]->emit(stream, &fCatalog, true);
+    fCatalog.emitSubstituteResources(stream, true);
     // TODO(vandebo) support linearized format
     //if (fPages.size() > 1) {
     //    // TODO(vandebo) save the file offset for the first page xref table.
@@ -135,8 +139,9 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fPages[i]->emitPage(stream, &fCatalog);
 
     for (int i = fSecondPageFirstResourceIndex; i < fPageResources.count(); i++)
-        fPageResources[i]->emitObject(stream, &fCatalog, true);
+        fPageResources[i]->emit(stream, &fCatalog, true);
 
+    fCatalog.emitSubstituteResources(stream, false);
     int64_t objCount = fCatalog.emitXrefTable(stream, fPages.count() > 1);
     emitFooter(stream, objCount);
     return true;

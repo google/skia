@@ -24,6 +24,24 @@
 #include "SkScalar.h"
 #include "SkStream.h"
 
+class SkPDFTestDict : public SkPDFDict {
+public:
+    void getResources(SkTDArray<SkPDFObject*>* resourceList) {
+        resourceList->setReserve(resourceList->count() + fResources.count());
+        for (int i = 0; i < fResources.count(); i++) {
+            resourceList->push(fResources[i]);
+            fResources[i]->ref();
+        }
+    }
+
+    void addResource(SkPDFObject* object) {
+        fResources.append(1, &object);
+    }
+
+private:
+    SkTDArray<SkPDFObject*> fResources;
+};
+
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
                           const void* buffer, size_t len) {
     SkAutoDataUnref data(stream.copyToData());
@@ -36,11 +54,12 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,
 static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
                               const std::string& representation,
                               bool indirect) {
-    size_t directSize = obj->getOutputSize(NULL, false);
+    SkPDFCatalog catalog;
+    size_t directSize = obj->getOutputSize(&catalog, false);
     REPORTER_ASSERT(reporter, directSize == representation.size());
 
     SkDynamicMemoryWStream buffer;
-    obj->emitObject(&buffer, NULL, false);
+    obj->emit(&buffer, &catalog, false);
     REPORTER_ASSERT(reporter, directSize == buffer.getOffset());
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, representation.c_str(),
                                             directSize));
@@ -52,7 +71,6 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
         static char footer[] = "\nendobj\n";
         static size_t footerLen = strlen(footer);
 
-        SkPDFCatalog catalog;
         catalog.addObject(obj, false);
 
         size_t indirectSize = obj->getOutputSize(&catalog, true);
@@ -60,7 +78,7 @@ static void CheckObjectOutput(skiatest::Reporter* reporter, SkPDFObject* obj,
                         indirectSize == directSize + headerLen + footerLen);
 
         buffer.reset();
-        obj->emitObject(&buffer, &catalog, true);
+        obj->emit(&buffer, &catalog, true);
         REPORTER_ASSERT(reporter, indirectSize == buffer.getOffset());
         REPORTER_ASSERT(reporter, stream_equals(buffer, 0, header, headerLen));
         REPORTER_ASSERT(reporter, stream_equals(buffer, headerLen,
@@ -116,6 +134,37 @@ static void TestObjectRef(skiatest::Reporter* reporter) {
     char expectedResult[] = "2 0 R";
     SkDynamicMemoryWStream buffer;
     int2ref->emitObject(&buffer, &catalog, false);
+    REPORTER_ASSERT(reporter, buffer.getOffset() == strlen(expectedResult));
+    REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
+                                            buffer.getOffset()));
+}
+
+static void TestSubstitute(skiatest::Reporter* reporter) {
+    SkRefPtr<SkPDFTestDict> proxy = new SkPDFTestDict();
+    proxy->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFTestDict> stub = new SkPDFTestDict();
+    stub->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int33 = new SkPDFInt(33);
+    int33->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFDict> stubResource = new SkPDFDict();
+    stubResource->unref();  // SkRefPtr and new both took a reference.
+    SkRefPtr<SkPDFInt> int44 = new SkPDFInt(44);
+    int44->unref();  // SkRefPtr and new both took a reference.
+
+    stub->insert("Value", int33.get());
+    stubResource->insert("InnerValue", int44.get());
+    stub->addResource(stubResource.get());
+
+    SkPDFCatalog catalog;
+    catalog.addObject(proxy.get(), false);
+    catalog.setSubstitute(proxy.get(), stub.get());
+
+    SkDynamicMemoryWStream buffer;
+    proxy->emit(&buffer, &catalog, false);
+    catalog.emitSubstituteResources(&buffer, false);
+
+    char expectedResult[] =
+        "<</Value 33\n>>1 0 obj\n<</InnerValue 44\n>>\nendobj\n";
     REPORTER_ASSERT(reporter, buffer.getOffset() == strlen(expectedResult));
     REPORTER_ASSERT(reporter, stream_equals(buffer, 0, expectedResult,
                                             buffer.getOffset()));
@@ -212,6 +261,8 @@ static void TestPDFPrimitives(skiatest::Reporter* reporter) {
     TestCatalog(reporter);
 
     TestObjectRef(reporter);
+
+    TestSubstitute(reporter);
 }
 
 #include "TestClassDef.h"

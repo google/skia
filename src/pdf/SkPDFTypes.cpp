@@ -27,9 +27,15 @@
 SkPDFObject::SkPDFObject() {}
 SkPDFObject::~SkPDFObject() {}
 
+void SkPDFObject::emit(SkWStream* stream, SkPDFCatalog* catalog,
+                       bool indirect) {
+    SkPDFObject* realObject = catalog->getSubstituteObject(this);
+    return realObject->emitObject(stream, catalog, indirect);
+}
+
 size_t SkPDFObject::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     SkDynamicMemoryWStream buffer;
-    emitObject(&buffer, catalog, indirect);
+    emit(&buffer, catalog, indirect);
     return buffer.getOffset();
 }
 
@@ -38,7 +44,7 @@ void SkPDFObject::getResources(SkTDArray<SkPDFObject*>* resourceList) {}
 void SkPDFObject::emitIndirectObject(SkWStream* stream, SkPDFCatalog* catalog) {
     catalog->emitObjectNumber(stream, this);
     stream->writeText(" obj\n");
-    emitObject(stream, catalog, false);
+    emit(stream, catalog, false);
     stream->writeText("\nendobj\n");
 }
 
@@ -292,7 +298,7 @@ void SkPDFArray::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 
     stream->writeText("[");
     for (int i = 0; i < fValue.count(); i++) {
-        fValue[i]->emitObject(stream, catalog, false);
+        fValue[i]->emit(stream, catalog, false);
         if (i + 1 < fValue.count())
             stream->writeText(" ");
     }
@@ -350,7 +356,7 @@ void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
     for (int i = 0; i < fValue.count(); i++) {
         fValue[i].key->emitObject(stream, catalog, false);
         stream->writeText(" ");
-        fValue[i].value->emitObject(stream, catalog, false);
+        fValue[i].value->emit(stream, catalog, false);
         stream->writeText("\n");
     }
     stream->writeText(">>");
