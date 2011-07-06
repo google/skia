@@ -437,9 +437,6 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv) : INHERITED(hwnd) 
 #ifdef SK_BUILD_FOR_MAC
     testpdf();
 #endif
-
-    this->make3DReady();
-    this->detachGL();
 }
 
 SampleWindow::~SampleWindow() {
