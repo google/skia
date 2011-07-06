@@ -17,28 +17,34 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 
-static SkBitmap make_bitmap() {
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
-    bm.allocPixels();
-    SkCanvas canvas(bm);
+#include "SkGpuDevice.h"
+
+static SkDevice* make_bitmap(SkBitmap* bitmap, GrContext* ctx) {
+    SkCanvas canvas;
+
+    if (ctx) {
+        SkDevice* dev = new SkGpuDevice(ctx, SkBitmap::kARGB_8888_Config, 64, 64);
+        canvas.setDevice(dev)->unref();
+        *bitmap = dev->accessBitmap(false);
+    } else {
+        bitmap->setConfig(SkBitmap::kARGB_8888_Config, 64, 64);
+        bitmap->allocPixels();
+        canvas.setBitmapDevice(*bitmap);
+    }
+
     canvas.drawColor(SK_ColorRED);
     SkPaint paint;
     paint.setAntiAlias(true);
     const SkPoint pts[] = { { 0, 0 }, { 64, 64 } };
     const SkColor colors[] = { SK_ColorWHITE, SK_ColorBLUE };
     paint.setShader(SkGradientShader::CreateLinear(pts, colors, NULL, 2,
-                                       SkShader::kClamp_TileMode))->unref();
+                                                   SkShader::kClamp_TileMode))->unref();
     canvas.drawCircle(32, 32, 32, paint);
-    return bm;
 }
 
 class BitmapRectView : public SampleView {
 public:
-    SkBitmap fBitmap;
-
 	BitmapRectView() {
-        fBitmap = make_bitmap();
         this->setBGColor(SK_ColorGRAY);
     }
     
@@ -64,6 +70,9 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(SK_ColorGREEN);
 
+        SkBitmap bitmap;
+        make_bitmap(&bitmap, NULL /*SampleCode::GetGr()*/);
+
         SkRect dstR = { 0, 200, 128, 380 };
 
         canvas->translate(16, 40);
@@ -71,8 +80,8 @@ protected:
             SkRect srcR;
             srcR.set(src[i]);
 
-            canvas->drawBitmap(fBitmap, 0, 0, &paint);
-            canvas->drawBitmapRect(fBitmap, &src[i], dstR, &paint);
+            canvas->drawBitmap(bitmap, 0, 0, &paint);
+            canvas->drawBitmapRect(bitmap, &src[i], dstR, &paint);
 
             canvas->drawRect(dstR, paint);
             canvas->drawRect(srcR, paint);

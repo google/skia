@@ -51,6 +51,8 @@ extern SkView* create_overview(int, const SkViewFactory[]);
     #include "GrGLConfig.h"
 #endif
 
+static SampleWindow* gSampleWindow;
+
 ///////////////
 static const char view_inval_msg[] = "view-inval-msg";
 
@@ -240,6 +242,10 @@ SkScalar SampleCode::GetAnimScalar(SkScalar speed, SkScalar period) {
     return SkDoubleToScalar(value);
 }
 
+GrContext* SampleCode::GetGr() {
+    return gSampleWindow ? gSampleWindow->getGrContext() : NULL;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 static SkView* curr_view(SkWindow* wind) {
@@ -348,6 +354,8 @@ SampleWindow::CanvasType SampleWindow::cycle_canvastype(CanvasType ct) {
 }
 
 SampleWindow::SampleWindow(void* hwnd, int argc, char** argv) : INHERITED(hwnd) {
+    gSampleWindow = this;
+
 #ifdef  PIPE_FILE
     //Clear existing file or create file if it doesn't exist
     FILE* f = fopen(FILE_PATH, "wb");

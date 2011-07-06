@@ -6,6 +6,8 @@
 #include "SkKey.h"
 #include "SkView.h"
 
+class GrContext;
+
 class SampleCode {
 public:
     static bool KeyQ(const SkEvent&, SkKey* outKey);
@@ -23,6 +25,8 @@ public:
     static SkMSec GetAnimTimeDelta();
     static SkScalar GetAnimSecondsDelta();
     static SkScalar GetAnimScalar(SkScalar speedPerSec, SkScalar period = 0);
+
+    static GrContext* GetGr();
 };
 
 //////////////////////////////////////////////////////////////////////////////
