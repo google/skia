@@ -219,23 +219,18 @@ SkShader* SkShader::CreateBitmapShader(const SkBitmap& src,
 SkColorShader::SkColorShader() {
     fFlags = 0;
     fInheritColor = true;
-    fAsABitmapPixelRef = NULL;
 }
 
 SkColorShader::SkColorShader(SkColor c) {
     fFlags = 0;
     fColor = c;
     fInheritColor = false;
-    fAsABitmapPixelRef = NULL;
 }
 
-SkColorShader::~SkColorShader() {
-    SkSafeUnref(fAsABitmapPixelRef);
-}
+SkColorShader::~SkColorShader() {}
 
 SkColorShader::SkColorShader(SkFlattenableReadBuffer& b) : INHERITED(b) {
     fFlags = 0; // computed in setContext
-    fAsABitmapPixelRef = NULL;
 
     fInheritColor = b.readU8();
     if (fInheritColor) {
@@ -313,25 +308,7 @@ void SkColorShader::shadeSpanAlpha(int x, int y, uint8_t alpha[], int count) {
 SkShader::BitmapType SkColorShader::asABitmap(SkBitmap* bitmap, SkMatrix* matrix,
                                               TileMode modes[],
                                       SkScalar* twoPointRadialParams) const {
-    // we cache the pixelref, since its generateID is used in the texture cache
-    if (NULL == fAsABitmapPixelRef) {
-        SkPMColor* storage = (SkPMColor*)sk_malloc_throw(sizeof(SkPMColor));
-        *storage = fPMColor;
-        fAsABitmapPixelRef = new SkMallocPixelRef(storage, sizeof(SkPMColor),
-                                                  NULL);
-    }
-
-    if (bitmap) {
-        bitmap->setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-        bitmap->setPixelRef(fAsABitmapPixelRef);
-    }
-    if (matrix) {
-        matrix->reset();
-    }
-    if (modes) {
-        modes[0] = modes[1] = SkShader::kRepeat_TileMode;
-    }
-    return kDefault_BitmapType;
+    return kNone_BitmapType;
 }
 
 SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {

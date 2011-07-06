@@ -47,6 +47,7 @@ public:
     virtual void shadeSpan16(int x, int y, uint16_t span[], int count);
     virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
 
+    // we return false for this, use asAGradient
     virtual BitmapType asABitmap(SkBitmap* outTexture,
                                  SkMatrix* outMatrix,
                                  TileMode xy[2],
@@ -67,9 +68,6 @@ private:
     uint32_t    fFlags;         // cached after setContext()
     uint16_t    fColor16;       // cached after setContext()
     SkBool8     fInheritColor;
-
-    // deferred allocation, used for asABitmap()
-    mutable SkPixelRef* fAsABitmapPixelRef;
 
     typedef SkShader INHERITED;
 };
