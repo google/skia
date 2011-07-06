@@ -19,7 +19,7 @@
 
 #include "SkGpuDevice.h"
 
-static SkDevice* make_bitmap(SkBitmap* bitmap, GrContext* ctx) {
+static void make_bitmap(SkBitmap* bitmap, GrContext* ctx) {
     SkCanvas canvas;
 
     if (ctx) {
@@ -59,6 +59,8 @@ protected:
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
+        GrContext* ctx = NULL;//SampleCode::GetGr();
+
         const SkIRect src[] = {
             { 0, 0, 32, 32 },
             { 0, 0, 80, 80 },
@@ -68,10 +70,10 @@ protected:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorGREEN);
+        paint.setColor(ctx ? SK_ColorGREEN : SK_ColorYELLOW);
 
         SkBitmap bitmap;
-        make_bitmap(&bitmap, NULL /*SampleCode::GetGr()*/);
+        make_bitmap(&bitmap, ctx);
 
         SkRect dstR = { 0, 200, 128, 380 };
 
