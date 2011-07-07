@@ -72,17 +72,20 @@ public:
         if (doScale) {
             fMatrix.setScale(SkIntToScalar(3)/2, SkIntToScalar(3)/2);
         }
+
     }
     
 protected:
     virtual const char* onGetName() { return fName.c_str(); }
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawBitmapMatrix(fBitmap, fMatrix);
+        this->setupPaint(&fPaint);
+        canvas->drawBitmapMatrix(fBitmap, fMatrix, &fPaint);
     }
     
 private:
     SkBitmap    fBitmap;
     SkMatrix    fMatrix;
+    SkPaint     fPaint;
     SkString    fName;
     
     typedef FPSBench INHERITED;
