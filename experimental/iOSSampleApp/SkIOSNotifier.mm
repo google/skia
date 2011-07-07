@@ -2,15 +2,16 @@
 #import "SkEvent.h"
 #define SkEventClass @"SkEvenClass"
 @implementation SkIOSNotifier
+//Overwritten from NSObject
 - (id)init {
     self = [super init];
     if (self) {
-        //Register as an observer for SkEventClass events and call 
+        //Register as an observer for SkEventClass events and call
         //receiveSkEvent: upon receiving the event
-        [[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(receiveSkEvent:) 
-                                                     name:SkEventClass object:nil];
-        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(receiveSkEvent:)
+                                                     name:SkEventClass
+                                                   object:nil];
     }
     return self;
 }
@@ -24,25 +25,27 @@
     return YES;
 }
 
--(void) receiveSkEvent:(NSNotification *)notification {
+//SkEvent Handers
+- (void)receiveSkEvent:(NSNotification *)notification {
     if(SkEvent::ProcessEvent())
         SkEvent::SignalNonEmptyQueue();
 }
 
-+(void) postTimedEvent:(NSTimeInterval)ti {
-    [NSTimer scheduledTimerWithTimeInterval:ti target:self 
++ (void)postTimedSkEvent:(NSTimeInterval)timeInterval {
+    [NSTimer scheduledTimerWithTimeInterval:timeInterval target:self
                                    selector:@selector(timerFireMethod:)
                                    userInfo:nil repeats:NO];
 }
 
-+(void) timerFireMethod:(NSTimer*)theTimer {
++ (void)timerFireMethod:(NSTimer*)theTimer {
 	SkEvent::ServiceQueueTimer();
 }
+
 @end
 ////////////////////////////////////////////////////////////////////////////////
 void SkEvent::SignalNonEmptyQueue() {
     //post a SkEventClass event to the default notification center
-    [[NSNotificationCenter defaultCenter] postNotificationName:SkEventClass 
+    [[NSNotificationCenter defaultCenter] postNotificationName:SkEventClass
                                                         object:nil];
 }
 
@@ -50,6 +53,6 @@ void SkEvent::SignalQueueTimer(SkMSec delay) {
 	if (delay) {
         //Convert to seconds
         NSTimeInterval ti = delay/(float)SK_MSec1;
-        [SkIOSNotifier postTimedEvent:ti];
-	}  
+        [SkIOSNotifier postTimedSkEvent:ti];
+	}
 }

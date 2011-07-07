@@ -1,6 +1,5 @@
 #import "SkUISplitViewController.h"
 
-
 @implementation SkUISplitViewController
 @synthesize fRoot, fDetail;
 
@@ -9,7 +8,7 @@
 }
 
 - (void)loadData {
-    [fRoot initList];
+    [fRoot initSamples];
     [fDetail populateRoot:fRoot];
 }
 
@@ -24,9 +23,7 @@
     [super dealloc];
 }
 
-#pragma mark -
-#pragma mark Table view delegate
-
+//Table View Delegate Methods
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [fDetail goToItem:indexPath.row];
     if (fRoot.popoverController != nil) {
@@ -34,22 +31,20 @@
     }
 }
 
-#pragma mark -
-#pragma mark  Split view controller delegate
-- (void)splitViewController:(UISplitViewController*)svc 
-     willHideViewController:(UIViewController *)aViewController 
-          withBarButtonItem:(UIBarButtonItem*)barButtonItem 
+//Split View Controller Delegate
+- (void)splitViewController:(UISplitViewController*)svc
+     willHideViewController:(UIViewController *)aViewController
+          withBarButtonItem:(UIBarButtonItem*)barButtonItem
        forPopoverController:(UIPopoverController*)pc {
-    
+
     barButtonItem.title = @"Samples";
     fRoot.popoverController = pc;
     fRoot.popoverButtonItem = barButtonItem;
     [fDetail showRootPopoverButtonItem:fRoot.popoverButtonItem];
 }
 
-
-- (void)splitViewController:(UISplitViewController*)svc 
-     willShowViewController:(UIViewController *)aViewController 
+- (void)splitViewController:(UISplitViewController*)svc
+     willShowViewController:(UIViewController *)aViewController
   invalidatingBarButtonItem:(UIBarButtonItem *)barButtonItem {
     [fDetail invalidateRootPopoverButtonItem:fRoot.popoverButtonItem];
     fRoot.popoverController = nil;

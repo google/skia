@@ -17,7 +17,6 @@
 
 #include "SkTime.h"
 
-#if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_MAC)
 #include <sys/time.h>
 #include <time.h>
 

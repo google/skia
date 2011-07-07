@@ -4,13 +4,9 @@
 
 @synthesize window, splitViewController;
 
-#pragma mark -
-#pragma mark Application lifecycle
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    
     // Override point for customization after application launch.
-    
     [window addSubview:[splitViewController view]];
     [window makeKeyAndVisible];
     [splitViewController loadData];

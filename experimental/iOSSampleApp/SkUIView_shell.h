@@ -1,22 +1,18 @@
 #import <UIKit/UIKit.h>
-#import "SkView.h"
-#import "SkOSWindow_iOS.h"
-class SkUIContainerView;
+#include "SkEvent.h"
 
+class SkOSWindow;
+class SkIRect;
 @interface SkUIView_shell : UIView {
+@private
     UINavigationItem* fTitle;
     SkOSWindow* fSkWind;
-@private
-    CGPoint fOffset, fCenter;
-    CGFloat fScale, fRotation;
 }
+@property(nonatomic, retain) UINavigationItem* fTitle;
 
-@property(assign) CGPoint fOffset, fCenter; 
-@property(assign) CGFloat fScale, fRotation;
-@property(retain) UINavigationItem* fTitle;
-- (void)resetTransformations;
 - (void)setSkWindow:(SkOSWindow*)anSkWindow;
 - (void)setSkTitle:(const char*)title;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
+
 @end
