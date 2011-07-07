@@ -57,4 +57,8 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
     return true;
 }
 
+SkMaskFilter::BlurType SkMaskFilter::asABlur(BlurInfo*) {
+    return kNone_BlurType;
+}
+
 
