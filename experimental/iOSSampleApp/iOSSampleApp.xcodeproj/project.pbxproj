@@ -9,9 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
-		26075BB013C4B45C0034339C /* SampleNetPipeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E0E53C13B5167C00866555 /* SampleNetPipeReader.cpp */; };
 		26075E6013C506560034339C /* SkAlertPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 26075E5F13C506560034339C /* SkAlertPrompt.m */; };
-		26075F5913C513D30034339C /* SampleDrawingBoard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26075F5813C513D30034339C /* SampleDrawingBoard.cpp */; };
 		260E00D513B11F5B0064D447 /* bitmapfilters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E001513B11F5B0064D447 /* bitmapfilters.cpp */; };
 		260E00D613B11F5B0064D447 /* blurs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E001613B11F5B0064D447 /* blurs.cpp */; };
 		260E00D713B11F5B0064D447 /* complexclip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E001713B11F5B0064D447 /* complexclip.cpp */; };
@@ -448,7 +446,6 @@
 		26677D6613B4C548009319B8 /* SkData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26677D6513B4C548009319B8 /* SkData.cpp */; };
 		26E0E40A13B4E67800866555 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D113AFA7850064D447 /* OpenGLES.framework */; };
 		26E0E46413B4F28A00866555 /* SkOSFile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */; };
-		26E0E55413B5186100866555 /* SkNetIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26E0E55213B5186100866555 /* SkNetIO.cpp */; };
 		26F548C213B918EC007CC564 /* SkBlitter_4444.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022313B1225D0064D447 /* SkBlitter_4444.cpp */; };
 		26F548C313B918ED007CC564 /* SkBlitter_A1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022413B1225D0064D447 /* SkBlitter_A1.cpp */; };
 		26F548C413B918ED007CC564 /* SkBlitter_A8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022513B1225D0064D447 /* SkBlitter_A8.cpp */; };
@@ -476,7 +473,6 @@
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		26075E5E13C506560034339C /* SkAlertPrompt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkAlertPrompt.h; sourceTree = "<group>"; };
 		26075E5F13C506560034339C /* SkAlertPrompt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SkAlertPrompt.m; sourceTree = "<group>"; };
-		26075F5813C513D30034339C /* SampleDrawingBoard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleDrawingBoard.cpp; sourceTree = "<group>"; };
 		260E001513B11F5B0064D447 /* bitmapfilters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmapfilters.cpp; sourceTree = "<group>"; };
 		260E001613B11F5B0064D447 /* blurs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blurs.cpp; sourceTree = "<group>"; };
 		260E001713B11F5B0064D447 /* complexclip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = complexclip.cpp; sourceTree = "<group>"; };
@@ -1350,9 +1346,6 @@
 		2662AB7713BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SkiOSSampleApp-Base.xcconfig"; sourceTree = "<group>"; };
 		26677D6413B4C53E009319B8 /* SkData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkData.h; path = core/SkData.h; sourceTree = "<group>"; };
 		26677D6513B4C548009319B8 /* SkData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkData.cpp; path = core/SkData.cpp; sourceTree = "<group>"; };
-		26E0E53C13B5167C00866555 /* SampleNetPipeReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleNetPipeReader.cpp; sourceTree = "<group>"; };
-		26E0E55213B5186100866555 /* SkNetIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkNetIO.cpp; path = ../../samplecode/SkNetIO.cpp; sourceTree = SOURCE_ROOT; };
-		26E0E55313B5186100866555 /* SkNetIO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkNetIO.h; path = ../../samplecode/SkNetIO.h; sourceTree = SOURCE_ROOT; };
 		26E0E5C913B5299E00866555 /* SkGPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkGPipe.h; path = ../../include/pipe/SkGPipe.h; sourceTree = SOURCE_ROOT; };
 		26F548DF13B91980007CC564 /* opts_check_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_check_arm.cpp; sourceTree = "<group>"; };
 		26F548E013B91980007CC564 /* SkBitmapProcState_opts_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_arm.cpp; sourceTree = "<group>"; };
@@ -1523,8 +1516,6 @@
 				260E007113B11F5B0064D447 /* SampleVertices.cpp */,
 				260E007213B11F5B0064D447 /* SampleXfermodes.cpp */,
 				260E007313B11F5B0064D447 /* SampleXfermodesBlur.cpp */,
-				26E0E53C13B5167C00866555 /* SampleNetPipeReader.cpp */,
-				26075F5813C513D30034339C /* SampleDrawingBoard.cpp */,
 			);
 			name = samplecode;
 			path = ../../samplecode;
@@ -2772,8 +2763,6 @@
 		28EEBF621118D79A00187D67 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				26E0E55213B5186100866555 /* SkNetIO.cpp */,
-				26E0E55313B5186100866555 /* SkNetIO.h */,
 				260EFB6F13B0DBFF0064D447 /* SkUIRootViewController.h */,
 				260EFB7013B0DBFF0064D447 /* SkUIRootViewController.mm */,
 				260EFBA313B0DF600064D447 /* SkUIDetailViewController.h */,
@@ -3328,7 +3317,6 @@
 				260E1EAD13B3B15A0064D447 /* SkPDFUtils.cpp in Sources */,
 				26677D6613B4C548009319B8 /* SkData.cpp in Sources */,
 				26E0E46413B4F28A00866555 /* SkOSFile_iOS.mm in Sources */,
-				26E0E55413B5186100866555 /* SkNetIO.cpp in Sources */,
 				26F548C213B918EC007CC564 /* SkBlitter_4444.cpp in Sources */,
 				26F548C313B918ED007CC564 /* SkBlitter_A1.cpp in Sources */,
 				26F548C413B918ED007CC564 /* SkBlitter_A8.cpp in Sources */,
@@ -3343,9 +3331,7 @@
 				26F548E913B91980007CC564 /* SkBitmapProcState_opts_arm.cpp in Sources */,
 				26F548EC13B91980007CC564 /* SkBlitRow_opts_none.cpp in Sources */,
 				26F548ED13B91980007CC564 /* SkUtils_opts_none.cpp in Sources */,
-				26075BB013C4B45C0034339C /* SampleNetPipeReader.cpp in Sources */,
 				26075E6013C506560034339C /* SkAlertPrompt.m in Sources */,
-				26075F5913C513D30034339C /* SampleDrawingBoard.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

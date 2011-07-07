@@ -10,7 +10,8 @@ public:
     void*   getHWND() const { return fHWND; }
 
     static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
-    
+    virtual bool onDispatchClick(int x, int y, Click::State state, 
+                                 void* owner);
     void    detachGL();
     bool    attachGL();
     void    presentGL();
