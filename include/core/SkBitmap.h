@@ -330,6 +330,14 @@ public:
     */
     void unlockPixels() const;
 
+    /**
+     *  Some bitmaps can return a copy of their pixels for lockPixels(), but
+     *  that copy, if modified, will not be pushed back. These bitmaps should
+     *  not be used as targets for a raster device/canvas (since all pixels
+     *  modifications will be lost when unlockPixels() is called.)
+     */
+    bool lockPixelsAreWritable() const;
+
     /** Call this to be sure that the bitmap is valid enough to be drawn (i.e.
         it has non-null pixels, and if required by its config, it has a
         non-null colortable. Returns true if all of the above are met.
@@ -713,17 +721,23 @@ private:
     void inval16BitCache();
 };
 
-class SkAutoLockPixels {
+class SkAutoLockPixels : public SkNoncopyable {
 public:
-    SkAutoLockPixels(const SkBitmap& bitmap) : fBitmap(bitmap) {
-        bitmap.lockPixels();
+    SkAutoLockPixels(const SkBitmap& bm, bool doLock = true) : fBitmap(bm) {
+        fDidLock = doLock;
+        if (doLock) {
+            bm.lockPixels();
+        }
     }
     ~SkAutoLockPixels() {
-        fBitmap.unlockPixels();
+        if (fDidLock) {
+            fBitmap.unlockPixels();
+        }
     }
 
 private:
     const SkBitmap& fBitmap;
+    bool            fDidLock;
 };
 
 /** Helper class that performs the lock/unlockColors calls on a colortable.

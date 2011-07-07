@@ -66,6 +66,14 @@ public:
     */
     void unlockPixels();
 
+    /**
+     *  Some bitmaps can return a copy of their pixels for lockPixels(), but
+     *  that copy, if modified, will not be pushed back. These bitmaps should
+     *  not be used as targets for a raster device/canvas (since all pixels
+     *  modifications will be lost when unlockPixels() is called.)
+     */
+    bool lockPixelsAreWritable() const;
+
     /** Returns a non-zero, unique value corresponding to the pixels in this
         pixelref. Each time the pixels are changed (and notifyPixelsChanged is
         called), a different generation ID will be returned.
@@ -160,6 +168,9 @@ protected:
         that.
     */
     virtual void onUnlockPixels() = 0;
+
+    /** Default impl returns true */
+    virtual bool onLockPixelsAreWritable() const;
 
     /**
      *  For pixelrefs that don't have access to their raw pixels, they may be

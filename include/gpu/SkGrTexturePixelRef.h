@@ -18,36 +18,54 @@
 #ifndef SkGrTexturePixelRef_DEFINED
 #define SkGrTexturePixelRef_DEFINED
 
+#include "SkBitmap.h"
 #include "SkPixelRef.h"
 #include "GrGpu.h"
 
-class SkGrTexturePixelRef : public SkPixelRef {
+/**
+ *  Common baseclass that implements onLockPixels() by calling onReadPixels().
+ *  Since it has a copy, it always returns false for onLockPixelsAreWritable().
+ */
+class SkROLockPixelsPixelRef : public SkPixelRef {
+public:
+    SkROLockPixelsPixelRef();
+    virtual ~SkROLockPixelsPixelRef();
+
+protected:
+    // override from SkPixelRef
+    virtual void* onLockPixels(SkColorTable** ptr);
+    virtual void onUnlockPixels();
+    virtual bool onLockPixelsAreWritable() const;   // return false;
+
+private:
+    SkBitmap    fBitmap;
+    typedef SkPixelRef INHERITED;
+};
+
+/**
+ *  PixelRef that wraps a GrTexture
+ */
+class SkGrTexturePixelRef : public SkROLockPixelsPixelRef {
 public:
             SkGrTexturePixelRef(GrTexture*);
     virtual ~SkGrTexturePixelRef();
 
     // override from SkPixelRef
-    virtual SkGpuTexture* getTexture() { return (SkGpuTexture*)fTexture; }
+    virtual SkGpuTexture* getTexture();
 
 protected:
     // override from SkPixelRef
-    virtual void* onLockPixels(SkColorTable** ptr) {
-        if (ptr) {
-            *ptr = NULL;
-        }
-        return NULL;
-    }
-
-    // override from SkPixelRef
-    virtual void onUnlockPixels() {}
     virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset);
 
 private:
     GrTexture*  fTexture;
-    typedef SkPixelRef INHERITED;
+    typedef SkROLockPixelsPixelRef INHERITED;
 };
 
-class SkGrRenderTargetPixelRef : public SkPixelRef {
+/**
+ *  PixelRef that wraps a GrRenderTarget
+ */
+class SkGrRenderTargetPixelRef : public SkROLockPixelsPixelRef {
 public:
             SkGrRenderTargetPixelRef(GrRenderTarget* rt);
     virtual ~SkGrRenderTargetPixelRef();
@@ -57,20 +75,11 @@ public:
 
 protected:
     // override from SkPixelRef
-    virtual void* onLockPixels(SkColorTable** ptr) {
-        if (ptr) {
-            *ptr = NULL;
-        }
-        return NULL;
-    }
-
-    // override from SkPixelRef
-    virtual void onUnlockPixels() {}
     virtual bool onReadPixels(SkBitmap* dst, const SkIRect* subset);
 
 private:
     GrRenderTarget*  fRenderTarget;
-    typedef SkPixelRef INHERITED;
+    typedef SkROLockPixelsPixelRef INHERITED;
 };
 
 #endif

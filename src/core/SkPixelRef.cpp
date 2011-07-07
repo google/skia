@@ -4,7 +4,8 @@
 
 static SkMutex  gPixelRefMutex;
 
-extern int32_t SkNextPixelRefGenerationID() {
+extern int32_t SkNextPixelRefGenerationID();
+int32_t SkNextPixelRefGenerationID() {
     static int32_t  gPixelRefGenerationID;
     // do a loop in case our global wraps around, as we never want to
     // return a 0
@@ -61,6 +62,14 @@ void SkPixelRef::unlockPixels() {
         fPixels = NULL;
         fColorTable = NULL;
     }
+}
+
+bool SkPixelRef::lockPixelsAreWritable() const {
+    return this->onLockPixelsAreWritable();
+}
+
+bool SkPixelRef::onLockPixelsAreWritable() const {
+    return true;
 }
 
 uint32_t SkPixelRef::getGenerationID() const {
