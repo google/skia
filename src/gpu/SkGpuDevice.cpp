@@ -1088,8 +1088,9 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
     SkASSERT(bitmap.width() <= fContext->getMaxTextureSize() &&
              bitmap.height() <= fContext->getMaxTextureSize());
 
-    SkAutoLockPixels alp(bitmap);
+    SkAutoLockPixels alp(bitmap, !bitmap.getTexture());
     if (!bitmap.getTexture() && !bitmap.readyToDraw()) {
+        SkDebugf("nothing to draw\n");
         return;
     }
 

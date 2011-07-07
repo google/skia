@@ -16,11 +16,42 @@
 
 
 #include "SkGrTexturePixelRef.h"
-
 #include "GrTexture.h"
-
 #include "SkRect.h"
-#include "SkBitmap.h"
+
+// since we call lockPixels recursively on fBitmap, we need a distinct mutex,
+// to avoid deadlock with the default one provided by SkPixelRef.
+static SkMutex  gROLockPixelsPixelRefMutex;
+
+SkROLockPixelsPixelRef::SkROLockPixelsPixelRef() : INHERITED(&gROLockPixelsPixelRefMutex) {
+}
+
+SkROLockPixelsPixelRef::~SkROLockPixelsPixelRef() {
+}
+
+void* SkROLockPixelsPixelRef::onLockPixels(SkColorTable** ctable) {
+    if (ctable) {
+        *ctable = NULL;
+    }
+    fBitmap.reset();
+//    SkDebugf("---------- calling readpixels in support of lockpixels\n");
+    if (!this->onReadPixels(&fBitmap, NULL)) {
+        SkDebugf("SkROLockPixelsPixelRef::onLockPixels failed!\n");
+        return NULL;
+    }
+    fBitmap.lockPixels();
+    return fBitmap.getPixels();
+}
+
+void SkROLockPixelsPixelRef::onUnlockPixels() {
+    fBitmap.unlockPixels();
+}
+
+bool SkROLockPixelsPixelRef::onLockPixelsAreWritable() const {
+    return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 SkGrTexturePixelRef::SkGrTexturePixelRef(GrTexture* tex) {
     fTexture = tex;
@@ -29,6 +60,10 @@ SkGrTexturePixelRef::SkGrTexturePixelRef(GrTexture* tex) {
 
 SkGrTexturePixelRef::~SkGrTexturePixelRef() {
     GrSafeUnref(fTexture);
+}
+
+SkGpuTexture* SkGrTexturePixelRef::getTexture() {
+    return (SkGpuTexture*)fTexture;
 }
 
 bool SkGrTexturePixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
@@ -57,7 +92,7 @@ bool SkGrTexturePixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset) {
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 SkGrRenderTargetPixelRef::SkGrRenderTargetPixelRef(GrRenderTarget* rt) {
     fRenderTarget = rt;
@@ -100,3 +135,4 @@ bool SkGrRenderTargetPixelRef::onReadPixels(SkBitmap* dst, const SkIRect* subset
         return false;
     }
 }
+

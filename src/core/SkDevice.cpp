@@ -57,11 +57,15 @@ SkMetaData& SkDevice::getMetaData() {
 }
 
 void SkDevice::lockPixels() {
-    fBitmap.lockPixels();
+    if (fBitmap.lockPixelsAreWritable()) {
+        fBitmap.lockPixels();
+    }
 }
 
 void SkDevice::unlockPixels() {
-    fBitmap.unlockPixels();
+    if (fBitmap.lockPixelsAreWritable()) {
+        fBitmap.unlockPixels();
+    }
 }
 
 const SkBitmap& SkDevice::accessBitmap(bool changePixels) {
