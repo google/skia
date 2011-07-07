@@ -2,8 +2,8 @@
 #import "SkUIRootViewController.h"
 #import "SkUIDetailViewController.h"
 
-
 @interface SkUINavigationController : UINavigationController {
+@private
     SkUIRootViewController* fRoot;
     SkUIDetailViewController* fDetail;
 }
@@ -11,4 +11,5 @@
 @property (nonatomic, retain) IBOutlet SkUIDetailViewController* fDetail;
 
 - (void)loadData;
+
 @end

@@ -4,7 +4,7 @@
 @synthesize fRoot, fDetail;
 
 - (void)loadData {
-    [fRoot initList];
+    [fRoot initSamples];
     [fDetail populateRoot:fRoot];
 }
 

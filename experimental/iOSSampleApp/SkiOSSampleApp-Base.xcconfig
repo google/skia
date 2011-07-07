@@ -5,9 +5,10 @@
 //  Created by Yang Su on 6/30/11.
 //  Copyright 2011 Google Inc. All rights reserved.
 //
+GCC_PREFIX_HEADER=iOSSampleApp_Prefix.pch
 
-ARCHS=armv6
-IPHONEOS_DEPLOYMENT_TARGET=4.0
+ARCHS=armv6 armv7
+IPHONEOS_DEPLOYMENT_TARGET=4.2
 SDKROOT=iphoneos
 TARGETED_DEVICE_FAMILY=1,2
 

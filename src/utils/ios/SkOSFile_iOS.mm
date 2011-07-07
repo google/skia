@@ -1,7 +1,7 @@
 /*
     Copyright 2010, Tetrark Inc.
 */
-
+#include <Foundation/Foundation.h>
 #include "SkOSFile.h"
 #include "SkString.h"
 
@@ -17,7 +17,7 @@ SkFILE* sk_fopen(const char cpath[], SkFILE_Flags flags) {
     }
 
     SkString cname, csuffix;
-   
+
     const char* start = strrchr(cpath, '/');
     if (NULL == start) {
         start = cpath;
@@ -33,7 +33,7 @@ SkFILE* sk_fopen(const char cpath[], SkFILE_Flags flags) {
 
     cname.set(start, stop - start - 1);
     csuffix.set(stop);
-            
+
     NSBundle* bundle = [NSBundle mainBundle];
     NSString* name = [NSString stringWithUTF8String:cname.c_str()];
     NSString* suffix = [NSString stringWithUTF8String:csuffix.c_str()];
