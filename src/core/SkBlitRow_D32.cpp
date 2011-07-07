@@ -230,7 +230,6 @@ static void D32_Mask_Black(void* dst, size_t dstRB, SkBitmap::Config,
 
 SkBlitMask::Proc SkBlitMask::Factory(SkBitmap::Config config, SkColor color) {
     SkBlitMask::Proc proc = PlatformProcs(config, color);
-    proc = NULL;
     if (NULL == proc) {
         switch (config) {
             case SkBitmap::kARGB_8888_Config:

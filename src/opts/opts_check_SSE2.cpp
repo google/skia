@@ -107,17 +107,16 @@ SkBlitRow::Proc32 SkBlitRow::PlatformProcs32(unsigned flags) {
 
 
 SkBlitMask::Proc SkBlitMask::PlatformProcs(SkBitmap::Config dstConfig,
-                                           SkColor color)
-{
-
+                                           SkColor color) {
     SkBlitMask::Proc proc = NULL;
     if (hasSSE2()) {
         switch (dstConfig) {
             case SkBitmap::kARGB_8888_Config:
-                // TODO: is our current SSE2 faster than the portable, even in
-                // the case of black or opaque? If so, no need for this check.
-                if ( SK_ColorBLACK != color && 0xFF != SkColorGetA(color))
+                // The SSE2 version is not (yet) faster for black, so we check
+                // for that.
+                if (SK_ColorBLACK != color) {
                     proc = SkARGB32_BlitMask_SSE2;
+                }
                 break;
             default:
                  break;

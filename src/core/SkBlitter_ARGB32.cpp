@@ -409,26 +409,11 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     } else if (SkMask::kLCD32_Format == mask.fFormat) {
         blitmask_lcd32(fDevice, mask, clip, fPMColor);
     } else {
-        unsigned width = clip.width();
-        unsigned height = clip.height();
-
-        SkASSERT((int)height > 0);
-        SkASSERT((int)width > 0);
-
-        uint32_t*      device = fDevice.getAddr32(clip.fLeft, clip.fTop);
-        unsigned       maskRB = mask.fRowBytes - width;
-        unsigned       deviceRB = fDevice.rowBytes() - (width << 2);
-        const uint8_t* alpha = mask.getAddr(clip.fLeft, clip.fTop);
-        do {
-            unsigned w = width;
-            do {
-                unsigned aa = *alpha++;
-                *device = (aa << SK_A32_SHIFT) + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
-                device += 1;
-            } while (--w != 0);
-            device = (uint32_t*)((char*)device + deviceRB);
-            alpha += maskRB;
-        } while (--height != 0);
+        fBlitMaskProc(fDevice.getAddr32(clip.fLeft, clip.fTop),
+                      fDevice.rowBytes(),
+                      SkBitmap::kARGB_8888_Config,
+                      mask.getAddr(clip.fLeft, clip.fTop), mask.fRowBytes,
+                      0xFF000000, clip.width(), clip.height());
     }
 }
 
