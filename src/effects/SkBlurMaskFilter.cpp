@@ -27,11 +27,10 @@ public:
     // overrides from SkMaskFilter
     virtual SkMask::Format getFormat();
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix& matrix, SkIPoint* margin);
+    virtual BlurType asABlur(BlurInfo*);
 
     // overrides from SkFlattenable
-    // This method is not exported to java.
     virtual Factory getFactory();
-    // This method is not exported to java.
     virtual void flatten(SkFlattenableWriteBuffer&);
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
@@ -136,6 +135,22 @@ void SkBlurMaskFilterImpl::flatten(SkFlattenableWriteBuffer& buffer)
     buffer.writeScalar(fRadius);
     buffer.write32(fBlurStyle);
     buffer.write32(fBlurFlags);
+}
+
+static const SkMaskFilter::BlurType gBlurStyle2BlurType[] = {
+    SkMaskFilter::kNormal_BlurType,
+    SkMaskFilter::kSolid_BlurType,
+    SkMaskFilter::kOuter_BlurType,
+    SkMaskFilter::kInner_BlurType,
+};
+
+SkMaskFilter::BlurType SkBlurMaskFilterImpl::asABlur(BlurInfo* info) {
+    if (info) {
+        info->fRadius = fRadius;
+        info->fIgnoreTransform = SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
+        info->fHighQuality = SkToBool(fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag);
+    }
+    return gBlurStyle2BlurType[fBlurStyle];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
