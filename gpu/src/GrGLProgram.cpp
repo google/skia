@@ -966,7 +966,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(CachedData* programData) const
 //============================================================================
 
 void GrGLProgram::genStageCode(int stageNum,
-                               const GrGLProgram::ProgramDesc::StageDesc& desc,
+                               const GrGLProgram::StageDesc& desc,
                                const char* fsInColor, // NULL means no incoming color
                                const char* fsOutColor,
                                const char* vsInCoord,
@@ -989,7 +989,7 @@ void GrGLProgram::genStageCode(int stageNum,
     // and whether the varying needs a perspective coord.
     GrStringBuilder texMName;
     tex_matrix_name(stageNum, &texMName);
-    if (desc.fOptFlags & ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit) {
+    if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
         varyingDims = coordDims;
     } else {
     #if GR_GL_ATTRIBUTE_MATRICES
@@ -999,7 +999,7 @@ void GrGLProgram::genStageCode(int stageNum,
         segments->fVSUnis.appendf("uniform mat3 %s;\n", texMName.c_str());
         locations->fTextureMatrixUni = kUseUniform;
     #endif
-        if (desc.fOptFlags & ProgramDesc::StageDesc::kNoPerspective_OptFlagBit) {
+        if (desc.fOptFlags & StageDesc::kNoPerspective_OptFlagBit) {
             varyingDims = coordDims;
         } else {
             varyingDims = coordDims + 1;
@@ -1012,7 +1012,7 @@ void GrGLProgram::genStageCode(int stageNum,
     locations->fSamplerUni = kUseUniform;
 
     GrStringBuilder texelSizeName;
-    if (ProgramDesc::StageDesc::k2x2_FetchMode == desc.fFetchMode) {
+    if (StageDesc::k2x2_FetchMode == desc.fFetchMode) {
         normalized_texel_size_name(stageNum, &texelSizeName);
         segments->fFSUnis.appendf("uniform vec2 %s;\n", texelSizeName.c_str());
     }
@@ -1020,7 +1020,7 @@ void GrGLProgram::genStageCode(int stageNum,
     segments->fVaryings.appendf("varying %s %s;\n",
                                 float_vector_type(varyingDims), varyingName.c_str());
 
-    if (desc.fOptFlags & ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit) {
+    if (desc.fOptFlags & StageDesc::kIdentityMatrix_OptFlagBit) {
         GrAssert(varyingDims == coordDims);
         segments->fVSCode.appendf("\t%s = %s;\n", varyingName.c_str(), vsInCoord);
     } else {
@@ -1037,7 +1037,8 @@ void GrGLProgram::genStageCode(int stageNum,
     GrStringBuilder radial2VaryingName;
     radial2_varying_name(stageNum, &radial2VaryingName);
 
-    if (ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping == desc.fCoordMapping) {
+    if (StageDesc::kRadial2Gradient_CoordMapping == desc.fCoordMapping || 
+        StageDesc::kRadial2GradientDegenerate_CoordMapping == desc.fCoordMapping) {
 
         segments->fVSUnis.appendf("uniform %s float %s[6];\n",
                                   GrPrecision(), radial2ParamsName.c_str());
@@ -1061,16 +1062,16 @@ void GrGLProgram::genStageCode(int stageNum,
     GrStringBuilder fsCoordName;
     // function used to access the shader, may be made projective
     GrStringBuilder texFunc("texture2D");
-    if (desc.fOptFlags & (ProgramDesc::StageDesc::kIdentityMatrix_OptFlagBit |
-                          ProgramDesc::StageDesc::kNoPerspective_OptFlagBit)) {
+    if (desc.fOptFlags & (StageDesc::kIdentityMatrix_OptFlagBit |
+                          StageDesc::kNoPerspective_OptFlagBit)) {
         GrAssert(varyingDims == coordDims);
         fsCoordName = varyingName;
     } else {
         // if we have to do some special op on the varyings to get
         // our final tex coords then when in perspective we have to
         // do an explicit divide. Otherwise, we can use a Proj func.
-        if  (ProgramDesc::StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
-             ProgramDesc::StageDesc::kSingle_FetchMode == desc.fFetchMode) {
+        if  (StageDesc::kIdentity_CoordMapping == desc.fCoordMapping &&
+             StageDesc::kSingle_FetchMode == desc.fFetchMode) {
             texFunc.append("Proj");
             fsCoordName = varyingName;
         } else {
@@ -1089,18 +1090,18 @@ void GrGLProgram::genStageCode(int stageNum,
     GrStringBuilder sampleCoords;
     bool complexCoord = false;
     switch (desc.fCoordMapping) {
-    case ProgramDesc::StageDesc::kIdentity_CoordMapping:
+    case StageDesc::kIdentity_CoordMapping:
         sampleCoords = fsCoordName;
         break;
-    case ProgramDesc::StageDesc::kSweepGradient_CoordMapping:
+    case StageDesc::kSweepGradient_CoordMapping:
         sampleCoords.printf("vec2(atan(- %s.y, - %s.x) * 0.1591549430918 + 0.5, 0.5)", fsCoordName.c_str(), fsCoordName.c_str());
         complexCoord = true;
         break;
-    case ProgramDesc::StageDesc::kRadialGradient_CoordMapping:
+    case StageDesc::kRadialGradient_CoordMapping:
         sampleCoords.printf("vec2(length(%s.xy), 0.5)", fsCoordName.c_str());
         complexCoord = true;
         break;
-    case ProgramDesc::StageDesc::kRadial2Gradient_CoordMapping: {
+    case StageDesc::kRadial2Gradient_CoordMapping: {
         GrStringBuilder cName("c");
         GrStringBuilder ac4Name("ac4");
         GrStringBuilder rootName("root");
@@ -1147,10 +1148,41 @@ void GrGLProgram::genStageCode(int stageNum,
                             rootName.c_str(), radial2ParamsName.c_str());
         complexCoord = true;
         break;}
+    case StageDesc::kRadial2GradientDegenerate_CoordMapping: {
+        GrStringBuilder cName("c");
+
+        cName.appendS32(stageNum);
+
+        // if we were able to interpolate the linear component bVar is the varying
+        // otherwise compute it
+        GrStringBuilder bVar;
+        if (coordDims == varyingDims) {
+            bVar = radial2VaryingName;
+            GrAssert(2 == varyingDims);
+        } else {
+            GrAssert(3 == varyingDims);
+            bVar = "b";
+            bVar.appendS32(stageNum);
+            segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s[2] * %s.x - %s[3]);\n",
+                                        bVar.c_str(), radial2ParamsName.c_str(),
+                                        fsCoordName.c_str(), radial2ParamsName.c_str());
+        }
+
+        // c = (x^2)+(y^2) - params[4]
+        segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s[4];\n",
+                                  cName.c_str(), fsCoordName.c_str(),
+                                  fsCoordName.c_str(),
+                                  radial2ParamsName.c_str());
+
+        // x coord is: -c/b
+        // y coord is 0.5 (texture is effectively 1D)
+        sampleCoords.printf("vec2((-%s / %s), 0.5)", cName.c_str(), bVar.c_str());
+        complexCoord = true;
+        break;}
     };
 
     const char* smear;
-    if (desc.fModulation == ProgramDesc::StageDesc::kAlpha_Modulation) {
+    if (desc.fModulation == StageDesc::kAlpha_Modulation) {
         smear = ".aaaa";
     } else {
         smear = "";
@@ -1161,7 +1193,7 @@ void GrGLProgram::genStageCode(int stageNum,
     }
 
     if (desc.fOptFlags &
-        ProgramDesc::StageDesc::kCustomTextureDomain_OptFlagBit) {
+        StageDesc::kCustomTextureDomain_OptFlagBit) {
         GrStringBuilder texDomainName;
         tex_domain_name(stageNum, &texDomainName);
         segments->fFSUnis.appendf("uniform %s %s;\n",
@@ -1178,7 +1210,7 @@ void GrGLProgram::genStageCode(int stageNum,
         locations->fTexDomUni = kUseUniform;
     }
 
-    if (ProgramDesc::StageDesc::k2x2_FetchMode == desc.fFetchMode) {
+    if (StageDesc::k2x2_FetchMode == desc.fFetchMode) {
         locations->fNormalizedTexelSizeUni = kUseUniform;
         if (complexCoord) {
             // assign the coord to a var rather than compute 4x.
