@@ -24,50 +24,6 @@
 #include "SkImageDecoder.h"
 #include "SkBlurMaskFilter.h"
 
-static void test_gradient2(SkCanvas* canvas) {
-#if 1
-    SkBitmap bm;
-    bm.setConfig(SkBitmap::kARGB_8888_Config, 1, 1);
-    bm.allocPixels();
-    *bm.getAddr32(0, 0) = SkPackARGB32(0xFF, 0, 0xFF, 0);
-
-    SkShader* s = SkShader::CreateBitmapShader(bm, SkShader::kRepeat_TileMode,
-                                               SkShader::kRepeat_TileMode);
-#else
-/*
-    ctx.fillStyle = '#f00';
-    ctx.fillRect(0, 0, 100, 50);
-    
-    var g = ctx.createRadialGradient(-80, 25, 70, 0, 25, 150);
-    g.addColorStop(0, '#f00');
-    g.addColorStop(0.01, '#0f0');
-    g.addColorStop(0.99, '#0f0');
-    g.addColorStop(1, '#f00');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 100, 50);
-*/
-    SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorRED };
-    SkScalar pos[] = { 0, SkFloatToScalar(0.01f), SkFloatToScalar(0.99f), SK_Scalar1 };
-    SkPoint c0 = { -80, 25 };
-    SkScalar r0 = 70;
-    SkPoint c1 = { 0, 25 };
-    SkScalar r1 = 150;
-    SkShader* s = SkGradientShader::CreateTwoPointRadial(c0, r0, c1, r1, colors,
-                                                         pos, SK_ARRAY_COUNT(pos),
-                                                         SkShader::kClamp_TileMode);
-#endif
-
-    SkPaint paint;
-    paint.setShader(s)->unref();
-
-    canvas->drawPaint(paint);
-
-    paint.setShader(NULL);
-    paint.setStyle(SkPaint::kStroke_Style);
-    SkRect r = { 0, 0, 100, 50 };
-    canvas->drawRect(r, paint);
-}
-
 static void setNamedTypeface(SkPaint* paint, const char name[]) {
     SkTypeface* face = SkTypeface::CreateFromName(name, SkTypeface::kNormal);
     paint->setTypeface(face);
@@ -110,7 +66,7 @@ class XfermodesBlurView : public SampleView {
 public:
     const static int W = 64;
     const static int H = 64;
-	XfermodesBlurView() {
+    XfermodesBlurView() {
         const int W = 64;
         const int H = 64;
 
@@ -130,10 +86,6 @@ protected:
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        if (false) {
-            test_gradient2(canvas);
-            return;
-        }
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
         const struct {

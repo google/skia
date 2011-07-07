@@ -48,6 +48,7 @@
         '../samplecode/SampleConcavePaths.cpp',
         '../samplecode/SampleCull.cpp',
         '../samplecode/SampleDecode.cpp',
+        '../samplecode/SampleDegenerateTwoPtRadials.cpp',
         '../samplecode/SampleDither.cpp',
         '../samplecode/SampleDitherBitmap.cpp',
         '../samplecode/SampleDrawLooper.cpp',

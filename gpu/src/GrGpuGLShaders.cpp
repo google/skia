@@ -433,6 +433,11 @@ void GrGpuGLShaders::flushRadial2(int s) {
 
         GrScalar a = GrMul(centerX1, centerX1) - GR_Scalar1;
 
+        // when were in the degenerate (linear) case the second
+        // value will be INF but the program doesn't read it. (We
+        // use the same 6 uniforms even though we don't need them
+        // all in the linear case just to keep the code complexity
+        // down).
         float values[6] = {
             GrScalarToFloat(a),
             1 / (2.f * values[0]),
@@ -737,14 +742,15 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             lastEnabledStage = s;
             GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
             GrAssert(NULL != texture);
+            const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
             // we matrix to invert when orientation is TopDown, so make sure
             // we aren't in that case before flagging as identity.
-            if (TextureMatrixIsIdentity(texture, fCurrDrawState.fSamplerStates[s])) {
+            if (TextureMatrixIsIdentity(texture, sampler)) {
                 stage.fOptFlags |= StageDesc::kIdentityMatrix_OptFlagBit;
             } else if (!getSamplerMatrix(s).hasPerspective()) {
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
-            switch (fCurrDrawState.fSamplerStates[s].getSampleMode()) {
+            switch (sampler.getSampleMode()) {
                 case GrSamplerState::kNormal_SampleMode:
                     stage.fCoordMapping = StageDesc::kIdentity_CoordMapping;
                     break;
@@ -752,7 +758,13 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                     stage.fCoordMapping = StageDesc::kRadialGradient_CoordMapping;
                     break;
                 case GrSamplerState::kRadial2_SampleMode:
-                    stage.fCoordMapping = StageDesc::kRadial2Gradient_CoordMapping;
+                    if (sampler.radial2IsDegenerate()) {
+                        stage.fCoordMapping =
+                            StageDesc::kRadial2GradientDegenerate_CoordMapping;
+                    } else {
+                        stage.fCoordMapping =
+                            StageDesc::kRadial2Gradient_CoordMapping;
+                    }
                     break;
                 case GrSamplerState::kSweep_SampleMode:
                     stage.fCoordMapping = StageDesc::kSweepGradient_CoordMapping;
@@ -762,7 +774,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                     break;
             }
 
-            switch (fCurrDrawState.fSamplerStates[s].getFilter()) {
+            switch (sampler.getFilter()) {
                 // these both can use a regular texture2D()
                 case GrSamplerState::kNearest_Filter:
                 case GrSamplerState::kBilinear_Filter:
@@ -777,11 +789,11 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                     break;
             }
 
-            if (fCurrDrawState.fSamplerStates[s].hasTextureDomain()) {
+            if (sampler.hasTextureDomain()) {
                 GrAssert(GrSamplerState::kClamp_WrapMode ==
-                    fCurrDrawState.fSamplerStates[s].getWrapX() &&
-                    GrSamplerState::kClamp_WrapMode ==
-                    fCurrDrawState.fSamplerStates[s].getWrapY());
+                            sampler.getWrapX() &&
+                         GrSamplerState::kClamp_WrapMode ==
+                            sampler.getWrapY());
                 stage.fOptFlags |= StageDesc::kCustomTextureDomain_OptFlagBit;
             }
 

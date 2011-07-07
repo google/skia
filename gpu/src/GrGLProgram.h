@@ -122,7 +122,9 @@ private:
                 kRadialGradient_CoordMapping,
                 kSweepGradient_CoordMapping,
                 kRadial2Gradient_CoordMapping,
-
+                // need different shader computation when quadratic
+                // eq describing the gradient degenerates to a linear eq.
+                kRadial2GradientDegenerate_CoordMapping,
                 kCoordMappingCnt
             };
 
@@ -179,6 +181,9 @@ private:
     } fProgramDesc;
 
     const ProgramDesc& getDesc() { return fProgramDesc; }
+
+    // for code readability
+    typedef ProgramDesc::StageDesc StageDesc;
 
 public:
     enum {
