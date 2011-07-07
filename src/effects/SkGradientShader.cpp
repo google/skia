@@ -27,9 +27,6 @@
     #define USE_DITHER_32BIT_GRADIENT
 #endif
 
-#define SK_ENABLE_FAST_LINEAR_GRADIENTS
-
-#ifdef SK_ENABLE_FAST_LINEAR_GRADIENTS
 static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
                                int count) {
     if (count > 0) {
@@ -47,7 +44,6 @@ static void sk_memset32_dither(uint32_t dst[], uint32_t v0, uint32_t v1,
         }
     }
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Can't use a two-argument function with side effects like this in a
@@ -884,7 +880,6 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
             // TODO: dither version
             sk_memset32(dstC, cache[fi >> (16 - kCache32Bits)], count);
         } else if (proc == clamp_tileproc) {
-#ifdef SK_ENABLE_FAST_LINEAR_GRADIENTS
             SkClampRange range;
             range.init(fx, dx, count, 0, 0xFF);
 
@@ -916,15 +911,6 @@ void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
                                    cache[(toggle ^ TOGGLE_MASK) + range.fV1],
                                    count);
             }
-#else
-            do {
-                unsigned fi = SkClampMax(fx >> 8, 0xFF);
-                SkASSERT(fi <= 0xFF);
-                fx += dx;
-                *dstC++ = cache[toggle + fi];
-                toggle ^= TOGGLE_MASK;
-            } while (--count != 0);
-#endif
         } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_8bits(fx >> 8);
@@ -1040,7 +1026,6 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
             dither_memset16(dstC, cache[toggle + fi],
                             cache[(toggle ^ TOGGLE_MASK) + fi], count);
         } else if (proc == clamp_tileproc) {
-#ifdef SK_ENABLE_FAST_LINEAR_GRADIENTS
             SkClampRange range;
             range.init(fx, dx, count, 0, kCache16Mask);
 
@@ -1072,15 +1057,6 @@ void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
                                 cache[(toggle ^ TOGGLE_MASK) + range.fV1],
                                 count);
             }
-#else
-            do {
-                unsigned fi = SkClampMax(fx >> kCache16Shift, kCache16Mask);
-                SkASSERT(fi <= kCache16Mask);
-                fx += dx;
-                *dstC++ = cache[toggle + fi];
-                toggle ^= TOGGLE_MASK;
-            } while (--count != 0);
-#endif
         } else if (proc == mirror_tileproc) {
             do {
                 unsigned fi = mirror_bits(fx >> kCache16Shift, kCache16Bits);
@@ -1482,24 +1458,6 @@ private:
 
 */
 
-#ifdef SK_USE_SLOW_2POINT_RADIAL_GRADIENT
-static inline SkFixed two_point_radial(SkFixed b, SkFixed fx, SkFixed fy, SkFixed sr2d2, SkFixed foura, SkFixed oneOverTwoA, bool posRoot) {
-    SkFixed c = SkFixedSquare(fx) + SkFixedSquare(fy) - sr2d2;
-    if (0 == foura) {
-        return SkFixedDiv(-c, b);
-    }
-    SkFixed discrim = SkFixedSquare(b) - SkFixedMul(foura, c);
-    if (discrim < 0) {
-        discrim = -discrim;
-    }
-    SkFixed rootDiscrim = SkFixedSqrt(discrim);
-    if (posRoot) {
-        return SkFixedMul(-b + rootDiscrim, oneOverTwoA);
-    } else {
-        return SkFixedMul(-b - rootDiscrim, oneOverTwoA);
-    }
-}
-#else
 static inline SkFixed two_point_radial(SkScalar b, SkScalar fx, SkScalar fy,
                                        SkScalar sr2d2, SkScalar foura,
                                        SkScalar oneOverTwoA, bool posRoot) {
@@ -1521,7 +1479,6 @@ static inline SkFixed two_point_radial(SkScalar b, SkScalar fx, SkScalar fy,
     }
     return SkScalarToFixed(result);
 }
-#endif
 
 class Two_Point_Radial_Gradient : public Gradient_Shader {
 public:
@@ -1583,106 +1540,6 @@ public:
         return kRadial2_GradientType;
     }
 
-#ifdef SK_USE_SLOW_2POINT_RADIAL_GRADIENT
-    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count)
-    {
-        SkASSERT(count > 0);
-        
-        // Zero difference between radii:  fill with transparent black.
-        if (fDiffRadius == 0) {
-            sk_bzero(dstC, count * sizeof(*dstC));
-            return;
-        }
-        SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-        TileProc            proc = fTileProc;
-        const SkPMColor*    cache = this->getCache32();
-        SkFixed diffx = SkScalarToFixed(fDiff.fX);
-        SkFixed diffy = SkScalarToFixed(fDiff.fY);
-        SkFixed foura = SkScalarToFixed(SkScalarMul(fA, 4));
-        SkFixed startRadius = SkScalarToFixed(fStartRadius);
-        SkFixed sr2D2 = SkScalarToFixed(fSr2D2);
-        SkFixed oneOverTwoA = SkScalarToFixed(fOneOverTwoA);
-        bool posRoot = fDiffRadius < 0;
-        if (fDstToIndexClass != kPerspective_MatrixClass)
-        {
-            SkPoint srcPt;
-            dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
-                    SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-            SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-            SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
-            
-            if (fDstToIndexClass == kFixedStepInX_MatrixClass)
-            {
-                (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &dx, &dy);
-            }
-            else
-            {
-                SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-                dx = SkScalarToFixed(fDstToIndex.getScaleX());
-                dy = SkScalarToFixed(fDstToIndex.getSkewY());
-            }
-            SkFixed b = (SkFixedMul(diffx, fx) +
-                         SkFixedMul(diffy, fy) - startRadius) << 1;
-            SkFixed db = (SkFixedMul(diffx, dx) +
-                          SkFixedMul(diffy, dy)) << 1;
-            if (proc == clamp_tileproc)
-            {
-                for (; count > 0; --count) {
-                    SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
-                    SkFixed index = SkClampMax(t, 0xFFFF);
-                    SkASSERT(index <= 0xFFFF);
-                    *dstC++ = cache[index >> (16 - kCache32Bits)];
-                    fx += dx;
-                    fy += dy;
-                    b += db;
-                }
-            }
-            else if (proc == mirror_tileproc)
-            {
-                for (; count > 0; --count) {
-                    SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
-                    SkFixed index = mirror_tileproc(t);
-                    SkASSERT(index <= 0xFFFF);
-                    *dstC++ = cache[index >> (16 - kCache32Bits)];
-                    fx += dx;
-                    fy += dy;
-                    b += db;
-                }
-            }
-            else
-            {
-                SkASSERT(proc == repeat_tileproc);
-                for (; count > 0; --count) {
-                    SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
-                    SkFixed index = repeat_tileproc(t);
-                    SkASSERT(index <= 0xFFFF);
-                    *dstC++ = cache[index >> (16 - kCache32Bits)];
-                    fx += dx;
-                    fy += dy;
-                    b += db;
-                }
-            }
-        }
-        else    // perspective case
-        {
-            SkScalar dstX = SkIntToScalar(x);
-            SkScalar dstY = SkIntToScalar(y);
-            for (; count > 0; --count) {
-                SkPoint             srcPt;
-                dstProc(fDstToIndex, dstX, dstY, &srcPt);
-                SkFixed fx = SkScalarToFixed(srcPt.fX);
-                SkFixed fy = SkScalarToFixed(srcPt.fY);
-                SkFixed b = (SkFixedMul(diffx, fx) +
-                             SkFixedMul(diffy, fy) - startRadius) << 1;
-                SkFixed t = two_point_radial(b, fx, fy, sr2D2, foura, oneOverTwoA, posRoot);
-                SkFixed index = proc(t);
-                SkASSERT(index <= 0xFFFF);
-                *dstC++ = cache[index >> (16 - kCache32Bits)];
-                dstX += SK_Scalar1;
-            }
-        }
-    }
-#else
     virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) {
         SkASSERT(count > 0);
 
@@ -1768,7 +1625,6 @@ public:
             }
         }
     }
-#endif
 
     virtual bool setContext(const SkBitmap& device,
                             const SkPaint& paint,
