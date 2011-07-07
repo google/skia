@@ -591,13 +591,17 @@ void SampleWindow::draw(SkCanvas* canvas) {
     }
 
     // do this last
-    if (fGrContext && (fCanvasType != kGPU_CanvasType)) {
-        fGrContext->setRenderTarget(fGrRenderTarget);
-        // need to send the bits to the (gpu) window
-        const SkBitmap& bm = this->getBitmap();
-        fGrContext->writePixels(0, 0, bm.width(), bm.height(),
-                                kRGBA_8888_GrPixelConfig, bm.getPixels(),
-                                bm.rowBytes());
+    if (fGrContext) {
+        // in case we have queued drawing calls
+        fGrContext->flush();
+        if (fCanvasType != kGPU_CanvasType) {
+            // need to send the raster bits to the (gpu) window
+            fGrContext->setRenderTarget(fGrRenderTarget);
+            const SkBitmap& bm = this->getBitmap();
+            fGrContext->writePixels(0, 0, bm.width(), bm.height(),
+                                    kRGBA_8888_GrPixelConfig, bm.getPixels(),
+                                    bm.rowBytes());
+        }
     }
     presentGL();
 }
