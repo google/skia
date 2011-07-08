@@ -24,6 +24,7 @@ public:
 protected:
     // overrides
     virtual void onDraw(SkCanvas*);
+    virtual bool onQuery(SkEvent* evt);
     
 private:
     SkString fBaseURI;
@@ -138,6 +139,14 @@ void SkAnimatorView::onDraw(SkCanvas* canvas) {
         this->inval(NULL);
 #endif
     }
+}
+
+bool SkAnimatorView::onQuery(SkEvent* evt) {
+    if (SampleCode::TitleQ(*evt)) {
+        SampleCode::TitleR(evt, "Animator");
+        return true;
+    }
+    return this->INHERITED::onQuery(evt);
 }
 
 //////////////////////////////////////////////////////////////////////////////

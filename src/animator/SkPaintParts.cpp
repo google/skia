@@ -61,7 +61,7 @@ bool SkDrawPathEffect::add() {
         fPaint->fOwnsPathEffect = true;
         return false;
     }
-    fPaint->add(*(SkAnimateMaker*) NULL, this);
+    fPaint->add(NULL, this);
     return false;
 }
 

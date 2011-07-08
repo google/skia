@@ -98,11 +98,11 @@ SkDrawPaint::~SkDrawPaint() {
         delete typeface;
 }
 
-bool SkDrawPaint::add(SkAnimateMaker& maker, SkDisplayable* child) {
+bool SkDrawPaint::add(SkAnimateMaker* maker, SkDisplayable* child) {
     SkASSERT(child && child->isPaintPart());
     SkPaintPart* part = (SkPaintPart*) child;
-    if (part->add())
-        maker.setErrorCode(SkDisplayXMLParserError::kErrorAddingToPaint);
+    if (part->add() && maker)
+        maker->setErrorCode(SkDisplayXMLParserError::kErrorAddingToPaint);
     return true;
 }
 
