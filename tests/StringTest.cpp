@@ -1,5 +1,31 @@
 #include "Test.h"
 #include "SkString.h"
+#include <stdarg.h>
+
+
+// Windows vsnprintf doesn't 0-terminate safely), but is so far
+// encapsulated in SkString that we can't test it directly.
+
+#ifdef SK_BUILD_FOR_WIN
+    #define VSNPRINTF(buffer, size, format, args)   \
+        vsnprintf_s(buffer, size, _TRUNCATE, format, args)
+#else
+    #define VSNPRINTF   vsnprintf
+#endif
+
+#define ARGS_TO_BUFFER(format, buffer, size)        \
+    do {                                            \
+        va_list args;                               \
+        va_start(args, format);                     \
+        VSNPRINTF(buffer, size, format, args);      \
+        va_end(args);                               \
+    } while (0)
+
+void printfAnalog(char* buffer, int size, const char format[], ...) {
+    ARGS_TO_BUFFER(format, buffer, size);
+}
+
+
 
 static void TestString(skiatest::Reporter* reporter) {
     SkString    a;
@@ -74,8 +100,13 @@ static void TestString(skiatest::Reporter* reporter) {
         { -SK_Scalar1,  "-1" },
         { SK_Scalar1/2, "0.5" },
 #ifdef SK_SCALAR_IS_FLOAT
+  #ifdef SK_BUILD_FOR_WIN
+        { 3.4028234e38f,   "3.4028235e+038" },
+        { -3.4028234e38f, "-3.4028235e+038" },
+  #else
         { 3.4028234e38f,   "3.4028235e+38" },
         { -3.4028234e38f, "-3.4028235e+38" },
+  #endif
 #endif
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
@@ -87,6 +118,17 @@ static void TestString(skiatest::Reporter* reporter) {
     }
 
     REPORTER_ASSERT(reporter, SkStringPrintf("%i", 0).equals("0"));
+
+    char buffer [40];
+    memset(buffer, 'a', 40);
+    REPORTER_ASSERT(reporter, buffer[18] == 'a');
+    REPORTER_ASSERT(reporter, buffer[19] == 'a');
+    REPORTER_ASSERT(reporter, buffer[20] == 'a');
+    printfAnalog(buffer, 20, "%30d", 0);
+    REPORTER_ASSERT(reporter, buffer[18] == ' ');
+    REPORTER_ASSERT(reporter, buffer[19] == 0);
+    REPORTER_ASSERT(reporter, buffer[20] == 'a');
+    
 }
 
 #include "TestClassDef.h"

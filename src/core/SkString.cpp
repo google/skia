@@ -25,7 +25,8 @@
 static const size_t kBufferSize = 256;
 
 #ifdef SK_BUILD_FOR_WIN
-    #define VSNPRINTF   _vsnprintf
+    #define VSNPRINTF(buffer, size, format, args) \
+        _vsnprintf_s(buffer, size, _TRUNCATE, format, args)
     #define SNPRINTF    _snprintf
 #else
     #define VSNPRINTF   vsnprintf
@@ -615,4 +616,5 @@ SkString SkStringPrintf(const char* format, ...) {
 }
 
 #undef VSNPRINTF
+#undef SNPRINTF
 
