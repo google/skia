@@ -149,6 +149,8 @@
 
         '../src/ports/SkDebug_stdio.cpp',
         '../src/ports/SkDebug_win.cpp',
+        '../src/ports/SkFontHost_win.cpp',
+        '../src/ports/SkThread_win.cpp',
 
         '../src/ports/SkFontHost_tables.cpp',
         '../src/ports/SkGlobals_global.cpp',
@@ -263,7 +265,6 @@
             '../include/core/SkMMapStream.h',
             '../src/core/SkMMapStream.cpp',
             '../src/ports/SkThread_pthread.cpp',
-            '../src/ports/SkTime_Unix.cpp',
             '../src/ports/SkFontHost_FreeType.cpp',
             '../src/ports/SkFontHost_gamma_none.cpp',
             '../src/ports/SkFontHost_linux.cpp',
@@ -287,7 +288,6 @@
             '../src/ports/SkFontHost_mac_coretext.cpp',
 
             '../src/ports/SkThread_pthread.cpp',
-            '../src/ports/SkTime_Unix.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -308,7 +308,6 @@
             '../src/ports/SkFontHost_mac_coretext.cpp',
 
             '../src/ports/SkThread_pthread.cpp',
-            '../src/ports/SkTime_Unix.cpp',
           ],
           'link_settings': {
             'libraries': [
@@ -326,17 +325,15 @@
           'include_dirs': [
             'config/win',
           ],
-          'sources': [
-            '../src/ports/SkFontHost_win.cpp',
-            '../src/ports/SkThread_win.cpp',
-          ],
-          'sources!': [
+          'sources!': [ # these are used everywhere but windows
             '../src/ports/SkDebug_stdio.cpp',
+            '../src/ports/SkTime_Unix.cpp',
           ],
-        }],
-        [ 'skia_os != "win"', {
+        }, { # else !win
           'sources!': [
             '../src/ports/SkDebug_win.cpp',
+            '../src/ports/SkFontHost_win.cpp',
+            '../src/ports/SkThread_win.cpp',
             '../src/ports/SkTime_win.cpp',
           ],
         }],
