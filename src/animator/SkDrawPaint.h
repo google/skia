@@ -34,7 +34,7 @@ class SkDrawPaint : public SkDrawable {
     DECLARE_DRAW_MEMBER_INFO(Paint);
     SkDrawPaint();
     virtual ~SkDrawPaint();
-    virtual bool add(SkAnimateMaker& , SkDisplayable* child);
+    virtual bool add(SkAnimateMaker* , SkDisplayable* child);
     virtual SkDisplayable* deepCopy(SkAnimateMaker* );
     virtual bool draw(SkAnimateMaker& );
 #ifdef SK_DUMP_ENABLED
