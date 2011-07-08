@@ -114,6 +114,7 @@ private:
             enum FetchMode {
                 kSingle_FetchMode,
                 k2x2_FetchMode,
+                kConvolution_FetchMode,
 
                 kFetchModeCnt,
             };
@@ -132,6 +133,7 @@ private:
             uint8_t fModulation;  // casts to enum Modulation
             uint8_t fFetchMode;  // casts to enum FetchMode
             uint8_t fCoordMapping;  // casts to enum CoordMapping
+            uint8_t fKernelWidth;
 
             inline bool isEnabled() const {
                 return fOptFlags & kIsEnabled_OptFlagBit;
@@ -197,12 +199,16 @@ public:
         GrGLint fSamplerUni;
         GrGLint fRadial2Uni;
         GrGLint fTexDomUni;
+        GrGLint fKernelUni;
+        GrGLint fImageIncrementUni;
         void reset() {
             fTextureMatrixUni = kUnusedUniform;
             fNormalizedTexelSizeUni = kUnusedUniform;
             fSamplerUni = kUnusedUniform;
             fRadial2Uni = kUnusedUniform;
             fTexDomUni = kUnusedUniform;
+            fKernelUni = kUnusedUniform;
+            fImageIncrementUni = kUnusedUniform;
         }
     };
 

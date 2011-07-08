@@ -21,6 +21,8 @@
 #include "GrTypes.h"
 #include "GrMatrix.h"
 
+#define MAX_KERNEL_WIDTH 25
+
 class GrSamplerState {
 public:
     enum Filter {
@@ -39,6 +41,10 @@ public:
          * between texels in x and y spaced 4 texels apart.)
          */
         k4x4Downsample_Filter,
+        /**
+         * Apply a separable convolution kernel.
+         */
+        kConvolution_Filter
     };
 
     /**
@@ -148,6 +154,9 @@ public:
     const GrRect& getTextureDomain() const { return fTextureDomain; }
     bool hasTextureDomain() const {return SkIntToScalar(0) != fTextureDomain.right();}
     Filter getFilter() const { return fFilter; }
+    int getKernelWidth() const { return fKernelWidth; }
+    const float* getKernel() const { return fKernel; }
+    const float* getImageIncrement() const { return fImageIncrement; }
 
     bool isGradient() const {
         return  kRadial_SampleMode == fSampleMode ||
@@ -220,6 +229,19 @@ public:
         fRadial2PosRoot = posRoot;
     }
 
+    void setConvolutionParams(int kernelWidth, const float* kernel, float imageIncrement[2]) {
+        GrAssert(kernelWidth >= 0 && kernelWidth <= MAX_KERNEL_WIDTH);
+        fKernelWidth = kernelWidth;
+        if (NULL != kernel) {
+            memcpy(fKernel, kernel, kernelWidth * sizeof(float));
+        }
+        if (NULL != imageIncrement) {
+            memcpy(fImageIncrement, imageIncrement, sizeof(fImageIncrement));
+        } else {
+            memset(fImageIncrement, 0, sizeof(fImageIncrement));
+        }
+    }
+
     static const GrSamplerState& ClampNoFilter() {
         return gClampNoFilter;
     }
@@ -236,6 +258,11 @@ private:
     GrScalar    fRadial2CenterX1;
     GrScalar    fRadial2Radius0;
     bool        fRadial2PosRoot;
+
+    // These are undefined unless fFilter == kConvolution_Filter
+    int         fKernelWidth;
+    float       fKernel[MAX_KERNEL_WIDTH];
+    float       fImageIncrement[2];
 
     static const GrSamplerState gClampNoFilter;
 };

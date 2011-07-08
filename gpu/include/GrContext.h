@@ -490,6 +490,21 @@ public:
     void writePixels(int left, int top, int width, int height,
                      GrPixelConfig, const void* buffer, size_t stride);
 
+    /**
+     * Performs a 1D convolution over a rectangle of pixels.  Set
+     * imageIncrement to (1/w, 0) for a convolution in X, (0, 1/h) for a
+     * convolution in Y, where w, h are the texture dimensions.
+     * @param srcTexture      the texture to read from
+     * @param dstRect         the destination rectangle
+     * @param imageIncrement  the displacement between pixel samples
+     * @param kernel          the convolution kernel (kernelWidth elements)
+     * @param kernelWidth     the width of the convolution kernel
+     */
+    void convolveRect(GrTexture* srcTexture,
+                      const SkRect& dstRect,
+                      float imageIncrement[2],
+                      const float* kernel,
+                      int kernelWidth);
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 

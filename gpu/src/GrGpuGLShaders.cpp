@@ -453,6 +453,18 @@ void GrGpuGLShaders::flushRadial2(int s) {
     }
 }
 
+void GrGpuGLShaders::flushConvolution(int s) {
+    const GrSamplerState& sampler = fCurrDrawState.fSamplerStates[s];
+    int kernelUni = fProgramData->fUniLocations.fStages[s].fKernelUni;
+    if (GrGLProgram::kUnusedUniform != kernelUni) {
+        GR_GL(Uniform1fv(kernelUni, sampler.getKernelWidth(), sampler.getKernel()));
+    }
+    int imageIncrementUni = fProgramData->fUniLocations.fStages[s].fImageIncrementUni;
+    if (GrGLProgram::kUnusedUniform != imageIncrementUni) {
+        GR_GL(Uniform2fv(imageIncrementUni, 1, sampler.getImageIncrement()));
+    }
+}
+
 void GrGpuGLShaders::flushTexelSize(int s) {
     const int& uni = fProgramData->fUniLocations.fStages[s].fNormalizedTexelSizeUni;
     if (GrGLProgram::kUnusedUniform != uni) {
@@ -586,6 +598,8 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         this->flushTextureMatrix(s);
 
         this->flushRadial2(s);
+
+        this->flushConvolution(s);
 
         this->flushTexelSize(s);
 
@@ -784,6 +798,10 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                 case GrSamplerState::k4x4Downsample_Filter:
                     stage.fFetchMode = StageDesc::k2x2_FetchMode;
                     break;
+                // performs fKernelWidth texture2D()s
+                case GrSamplerState::kConvolution_Filter:
+                    stage.fFetchMode = StageDesc::kConvolution_FetchMode;
+                    break;
                 default:
                     GrCrash("Unexpected filter!");
                     break;
@@ -801,6 +819,11 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
                 stage.fModulation = StageDesc::kAlpha_Modulation;
             } else {
                 stage.fModulation = StageDesc::kColor_Modulation;
+            }
+            if (sampler.getFilter() == GrSamplerState::kConvolution_Filter) {
+                stage.fKernelWidth = sampler.getKernelWidth();
+            } else {
+                stage.fKernelWidth = 0;
             }
         } else {
             stage.fOptFlags     = 0;

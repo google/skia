@@ -574,8 +574,8 @@ void GrGpuGL::resetContext() {
         fHWDrawState.fSamplerStates[s].setRadial2Params(-GR_ScalarMax,
                                                         -GR_ScalarMax,
                                                         true);
-
         fHWDrawState.fSamplerStates[s].setMatrix(GrMatrix::InvalidMatrix());
+        fHWDrawState.fSamplerStates[s].setConvolutionParams(0, NULL, NULL);
     }
 
     fHWBounds.fScissorRect.invalidate();
@@ -586,6 +586,7 @@ void GrGpuGL::resetContext() {
     fHWDrawState.fStencilSettings.invalidate();
     fHWStencilClip = false;
     fClipState.fClipIsDirty = true;
+    fClipState.fClipInStencil = false;
 
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
@@ -1786,6 +1787,20 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
     }
 }
 
+static unsigned grToGLFilter(GrSamplerState::Filter filter) {
+    switch (filter) {
+        case GrSamplerState::kBilinear_Filter:
+        case GrSamplerState::k4x4Downsample_Filter:
+            return GR_GL_LINEAR;
+        case GrSamplerState::kNearest_Filter:
+        case GrSamplerState::kConvolution_Filter:
+            return GR_GL_NEAREST;
+        default:
+            GrAssert(!"Unknown filter type");
+            return GR_GL_LINEAR;
+    }
+}
+
 bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     // GrGpu::setupClipAndFlushState should have already checked this
@@ -1827,11 +1842,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
                                                 nextTexture->getTexParams();
             GrGLTexture::TexParams newTexParams;
 
-            if (GrSamplerState::kNearest_Filter == sampler.getFilter()) {
-                newTexParams.fFilter = GR_GL_NEAREST;
-            } else {
-                newTexParams.fFilter = GR_GL_LINEAR;
-            }
+            newTexParams.fFilter = grToGLFilter(sampler.getFilter());
 
             newTexParams.fWrapS =
                         GrGLTexture::WrapMode2GLWrap()[sampler.getWrapX()];

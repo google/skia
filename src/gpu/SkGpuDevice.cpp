@@ -47,6 +47,8 @@ enum {
 };
 
 
+#define USE_GPU_BLUR false
+#define MAX_SIGMA 4.0f
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice::SkAutoCachedTexture::
@@ -790,6 +792,214 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
 #include "SkMaskFilter.h"
 #include "SkBounder.h"
 
+static GrPathFill skToGrFillType(SkPath::FillType fillType) {
+    switch (fillType) {
+        case SkPath::kWinding_FillType:
+            return kWinding_PathFill;
+        case SkPath::kEvenOdd_FillType:
+            return kEvenOdd_PathFill;
+        case SkPath::kInverseWinding_FillType:
+            return kInverseWinding_PathFill;
+        case SkPath::kInverseEvenOdd_FillType:
+            return kInverseEvenOdd_PathFill;
+        default:
+            SkDebugf("Unsupported path fill type\n");
+            return kHairLine_PathFill;
+    }
+}
+
+static float gauss(float x, float sigma)
+{
+    // Note that the constant term (1/(sqrt(2*pi*sigma^2)) is dropped here,
+    // since we renormalize the kernel after generation anyway.
+    return exp(- (x * x) / (2.0f * sigma * sigma));
+}
+
+static void buildKernel(float sigma, float* kernel, int kernelWidth)
+{
+    int halfWidth = (kernelWidth - 1) / 2;
+    float sum = 0.0f;
+    for (int i = 0; i < kernelWidth; ++i) {
+        kernel[i] = gauss(i - halfWidth, sigma);
+        sum += kernel[i];
+    }
+    // Normalize the kernel
+    float scale = 1.0f / sum;
+    for (int i = 0; i < kernelWidth; ++i)
+        kernel[i] *= scale;
+}
+
+static void swap(GrTexture*& a, GrTexture*& b)
+{
+    GrTexture* tmp = a;
+    a = b;
+    b = tmp;
+}
+
+static void scaleRect(SkRect* rect, float scale)
+{
+    rect->fLeft *= scale;
+    rect->fTop *= scale;
+    rect->fRight *= scale;
+    rect->fBottom *= scale;
+}
+
+static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
+                                  SkMaskFilter* filter, const SkMatrix& matrix,
+                                  const SkRegion& clip, SkBounder* bounder,
+                                  GrPaint* grp) {
+    SkMaskFilter::BlurInfo info;
+    if (!filter->asABlur(&info)) {
+        return false;
+    }
+    float radius = info.fIgnoreTransform ? info.fRadius
+                                         : matrix.mapRadius(info.fRadius);
+    float sigma = radius * 0.6666f;
+    SkRect srcRect = path.getBounds();
+
+    int scaleFactor = 1;
+
+    while (sigma > MAX_SIGMA) {
+        scaleFactor *= 2;
+        sigma *= 0.5f;
+    }
+    scaleRect(&srcRect, 1.0f / scaleFactor);
+    int halfWidth = static_cast<int>(sigma * 3.0f);
+    int kernelWidth = halfWidth * 2 + 1;
+
+    SkIRect srcIRect;
+    srcRect.roundOut(&srcIRect);
+    srcRect.set(srcIRect);
+    srcRect.inset(-halfWidth, -halfWidth);
+
+    scaleRect(&srcRect, scaleFactor);
+    SkRect finalRect = srcRect;
+
+    SkIRect finalIRect;
+    finalRect.roundOut(&finalIRect);
+    if (clip.quickReject(finalIRect)) {
+        return false;
+    }
+    if (bounder && !bounder->doIRect(finalIRect)) {
+        return false;
+    }
+    GrPoint offset = GrPoint::Make(-srcRect.fLeft, -srcRect.fTop);
+    srcRect.offset(-srcRect.fLeft, -srcRect.fTop);
+    const GrTextureDesc desc = {
+        kRenderTarget_GrTextureFlagBit,
+        kNone_GrAALevel,
+        srcRect.width(),
+        srcRect.height(),
+        // We actually only need A8, but it often isn't supported as a
+        // render target
+        kRGBA_8888_GrPixelConfig
+    };
+
+    GrTextureEntry* srcEntry = context->findApproximateKeylessTexture(desc);
+    GrTextureEntry* dstEntry = context->findApproximateKeylessTexture(desc);
+    if (NULL == srcEntry || NULL == dstEntry) {
+        return false;
+    }
+    GrTexture* srcTexture = srcEntry->texture();
+    GrTexture* dstTexture = dstEntry->texture();
+    if (NULL == srcTexture || NULL == dstTexture) {
+        return false;
+    }
+    GrRenderTarget* oldRenderTarget = context->getRenderTarget();
+    context->setRenderTarget(dstTexture->asRenderTarget());
+    // FIXME:  could just clear bounds
+    context->clear(NULL, 0);
+    GrMatrix transM;
+    GrPaint tempPaint;
+    tempPaint.reset();
+
+    GrAutoMatrix avm(context, GrMatrix::I());
+    // Draw hard shadow to offscreen context, with path topleft at origin 0,0.
+    context->drawPath(tempPaint, path, skToGrFillType(path.getFillType()), &offset);
+    swap(srcTexture, dstTexture);
+
+    GrMatrix sampleM;
+    sampleM.setScale(GR_Scalar1 / srcTexture->width(),
+                     GR_Scalar1 / srcTexture->height());
+    GrPaint paint;
+    paint.reset();
+    paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+    paint.getTextureSampler(0)->setMatrix(sampleM);
+    for (int i = 1; i < scaleFactor; i *= 2) {
+        context->setRenderTarget(dstTexture->asRenderTarget());
+        SkRect dstRect(srcRect);
+        scaleRect(&dstRect, 0.5f);
+        // Clear out 1 pixel border for linear filtering.
+        // FIXME:  for now, clear everything
+        context->clear(NULL, 0);
+        paint.setTexture(0, srcTexture);
+        context->drawRectToRect(paint, dstRect, srcRect);
+        srcRect = dstRect;
+        swap(srcTexture, dstTexture);
+    }
+
+    SkAutoTMalloc<float> kernelStorage(kernelWidth);
+    float* kernel = kernelStorage.get();
+    buildKernel(sigma, kernel, kernelWidth);
+
+    float imageIncrementX[2] = {1.0f / srcTexture->width(), 0.0f};
+    context->setRenderTarget(dstTexture->asRenderTarget());
+    context->clear(NULL, 0);
+    context->convolveRect(srcTexture, srcRect, imageIncrementX, kernel,
+                          kernelWidth);
+    swap(srcTexture, dstTexture);
+
+    float imageIncrementY[2] = {0.0f, 1.0f / srcTexture->height()};
+    context->setRenderTarget(dstTexture->asRenderTarget());
+    context->clear(NULL, 0);
+    context->convolveRect(srcTexture, srcRect, imageIncrementY, kernel,
+                          kernelWidth);
+    swap(srcTexture, dstTexture);
+
+    if (scaleFactor > 1) {
+        // FIXME:  This should be mitchell, not bilinear.
+        paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
+        sampleM.setScale(GR_Scalar1 / srcTexture->width(),
+                         GR_Scalar1 / srcTexture->height());
+        paint.getTextureSampler(0)->setMatrix(sampleM);
+        context->setRenderTarget(dstTexture->asRenderTarget());
+        // Clear out 2 pixel border for bicubic filtering.
+        // FIXME:  for now, clear everything
+        context->clear(NULL, 0);
+        paint.setTexture(0, srcTexture);
+        SkRect dstRect(srcRect);
+        scaleRect(&dstRect, scaleFactor);
+        context->drawRectToRect(paint, dstRect, srcRect);
+        srcRect = dstRect;
+        swap(srcTexture, dstTexture);
+    }
+
+    context->setRenderTarget(oldRenderTarget);
+    
+    if (grp->hasTextureOrMask()) {
+        GrMatrix inverse;
+        if (!matrix.invert(&inverse)) {
+            return false;
+        }
+        grp->preConcatActiveSamplerMatrices(inverse);
+    }
+
+    static const int MASK_IDX = GrPaint::kMaxMasks - 1;
+    // we assume the last mask index is available for use
+    GrAssert(NULL == grp->getMask(MASK_IDX));
+    grp->setMask(MASK_IDX, srcTexture);
+    grp->getMaskSampler(MASK_IDX)->setClampNoFilter();
+
+    GrMatrix m;
+    m.setTranslate(-finalRect.fLeft, -finalRect.fTop);
+    m.postIDiv(srcTexture->width(), srcTexture->height());
+    grp->getMaskSampler(MASK_IDX)->setMatrix(m);
+    context->drawRect(*grp, finalRect);
+    context->unlockTexture(srcEntry);
+    context->unlockTexture(dstEntry);
+    return true;
+}
+
 static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
                                SkMaskFilter* filter, const SkMatrix& matrix,
                                const SkRegion& clip, SkBounder* bounder,
@@ -928,9 +1138,15 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // transform the path into device space
         pathPtr->transform(*draw.fMatrix, devPathPtr);
-
-        drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
-                           *draw.fMatrix, *draw.fClip, draw.fBounder, &grPaint);
+        if (USE_GPU_BLUR) {
+            drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
+                                  *draw.fMatrix, *draw.fClip, draw.fBounder,
+                                  &grPaint);
+        } else {
+            drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
+                               *draw.fMatrix, *draw.fClip, draw.fBounder,
+                               &grPaint);
+        }
         return;
     }
 
