@@ -490,7 +490,9 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
         if (SkShader::kColor_GradientType == shader->asAGradient(&info)) {
             SkPaint copy(skPaint);
             copy.setShader(NULL);
-            copy.setColor(SkColorSetA(color, copy.getAlpha()));
+            // modulate the paint alpha by the shader's solid color alpha
+            U8CPU newA = SkMulDiv255Round(SkColorGetA(color), copy.getAlpha());
+            copy.setColor(SkColorSetA(color, newA));
             return this->skPaint2GrPaintNoShader(copy,
                                                  false,
                                                  grPaint,
