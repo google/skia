@@ -1699,3 +1699,22 @@ GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
     }
 }
 
+void GrContext::convolveRect(GrTexture* srcTexture,
+                             const SkRect& rect,
+                             float imageIncrement[2],
+                             const float* kernel,
+                             int kernelWidth) {
+    GrDrawTarget::AutoStateRestore asr(fGpu);
+    GrMatrix sampleM;
+    GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
+                           GrSamplerState::kClamp_WrapMode,
+                           GrSamplerState::kConvolution_Filter);
+    sampler.setConvolutionParams(kernelWidth, kernel, imageIncrement);
+    sampleM.setScale(GR_Scalar1 / srcTexture->width(),
+                     GR_Scalar1 / srcTexture->height());
+    sampler.setMatrix(sampleM);
+    fGpu->setSamplerState(0, sampler);
+    fGpu->setViewMatrix(GrMatrix::I());
+    fGpu->setTexture(0, srcTexture);
+    fGpu->drawSimpleRect(rect, NULL, 1 << 0);
+}

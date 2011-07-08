@@ -70,6 +70,9 @@ private:
     // flushes the parameters to two point radial gradient
     void flushRadial2(int stage);
 
+    // flushes the parameters for convolution
+    void flushConvolution(int stage);
+
     // flushes the normalized texel size
     void flushTexelSize(int stage);
 

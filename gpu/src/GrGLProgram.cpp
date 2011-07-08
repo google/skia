@@ -136,6 +136,13 @@ static void radial2_varying_name(int stage, GrStringBuilder* s) {
     s->appendS32(stage);
 }
 
+static void convolve_param_names(int stage, GrStringBuilder* k, GrStringBuilder* i) {
+    *k = "uKernel";
+    k->appendS32(stage);
+    *i = "uImageIncrement";
+    i->appendS32(stage);
+}
+
 static void tex_domain_name(int stage, GrStringBuilder* s) {
     *s = "uTexDom";
     s->appendS32(stage);
@@ -941,6 +948,22 @@ void GrGLProgram::getUniformLocationsAndInitCache(CachedData* programData) const
                                              texDomName.c_str()));
                 GrAssert(kUnusedUniform != locations.fTexDomUni);
             }
+
+            GrStringBuilder kernelName, imageIncrementName;
+            convolve_param_names(s, &kernelName, &imageIncrementName);
+            if (kUseUniform == locations.fKernelUni) {
+                locations.fKernelUni = GR_GL(GetUniformLocation(
+                                             progID,
+                                             kernelName.c_str()));
+                GrAssert(kUnusedUniform != locations.fKernelUni);
+            }
+
+            if (kUseUniform == locations.fImageIncrementUni) {
+                locations.fImageIncrementUni = GR_GL(GetUniformLocation(
+                                                     progID,
+                                                     imageIncrementName.c_str()));
+                GrAssert(kUnusedUniform != locations.fImageIncrementUni);
+            }
         }
     }
     GR_GL(UseProgram(progID));
@@ -1057,6 +1080,24 @@ void GrGLProgram::genStageCode(int stageNum,
                                       varyingName.c_str(), radial2ParamsName.c_str());
         }
     }
+
+    GrStringBuilder kernelName, kernelWidthName, imageIncrementName;
+    convolve_param_names(stageNum, &kernelName, &imageIncrementName);
+
+    if (ProgramDesc::StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
+        segments->fFSUnis.appendf("uniform float %s[%d];\n",
+                                  kernelName.c_str(), desc.fKernelWidth);
+        segments->fFSUnis.appendf("uniform vec2 %s;\n",
+                                  imageIncrementName.c_str());
+        segments->fVSUnis.appendf("uniform vec2 %s;\n",
+                                  imageIncrementName.c_str());
+        locations->fKernelUni = kUseUniform;
+        locations->fImageIncrementUni = kUseUniform;
+        float scale = (desc.fKernelWidth - 1) * 0.5f;
+        segments->fVSCode.appendf("\t%s -= vec2(%g, %g) * %s;\n",
+                                  varyingName.c_str(), scale, scale,
+                                  imageIncrementName.c_str());
+}
 
     /// Fragment Shader Stuff
     GrStringBuilder fsCoordName;
@@ -1229,6 +1270,17 @@ void GrGLProgram::genStageCode(int stageNum,
         segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), texelSizeName.c_str(), texelSizeName.c_str(), smear);
         segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), texelSizeName.c_str(), texelSizeName.c_str(), smear);
         segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), modulate.c_str());
+    } else if (ProgramDesc::StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
+        segments->fFSCode.append("\tvec4 sum = vec4(0, 0, 0, 0);\n");
+        segments->fFSCode.appendf("\tvec2 coord = %s;\n", sampleCoords.c_str());
+        segments->fFSCode.appendf("\tfor (int i = 0; i < %d; i++) {\n", desc.fKernelWidth);
+        segments->fFSCode.appendf("\t\tsum += %s(%s, coord)%s * %s[i];\n",
+                                  texFunc.c_str(), samplerName.c_str(),
+                                  smear, kernelName.c_str());
+        segments->fFSCode.appendf("\t\tcoord += %s;\n",
+                                  imageIncrementName.c_str());
+        segments->fFSCode.appendf("\t}\n");
+        segments->fFSCode.appendf("\t%s = sum%s;\n", fsOutColor, modulate.c_str());
     } else {
         segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n", fsOutColor, texFunc.c_str(), samplerName.c_str(), sampleCoords.c_str(), smear, modulate.c_str());
     }
