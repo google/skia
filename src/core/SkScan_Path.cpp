@@ -578,33 +578,58 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkScan::FillPath(const SkPath& path, const SkRegion& clip,
+static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
+    const int32_t limit = 32767;
+
+    SkIRect limitR;
+    limitR.set(-limit, -limit, limit, limit);
+    if (limitR.contains(orig.getBounds())) {
+        return false;
+    }
+    reduced->op(orig, limitR, SkRegion::kIntersect_Op);
+    return true;
+}
+
+void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
                       SkBlitter* blitter) {
-    if (clip.isEmpty()) {
+    if (origClip.isEmpty()) {
         return;
     }
+
+    // Our edges are fixed-point, and don't like the bounds of the clip to
+    // exceed that. Here we trim the clip just so we don't overflow later on
+    const SkRegion* clipPtr = &origClip;
+    SkRegion finiteClip;
+    if (clip_to_limit(origClip, &finiteClip)) {
+        if (finiteClip.isEmpty()) {
+            return;
+        }
+        clipPtr = &finiteClip;
+    }
+        // don't reference "origClip" any more, just use clipPtr
 
     SkIRect ir;
     path.getBounds().round(&ir);
     if (ir.isEmpty()) {
         if (path.isInverseFillType()) {
-            blitter->blitRegion(clip);
+            blitter->blitRegion(*clipPtr);
         }
         return;
     }
 
-    SkScanClipper   clipper(blitter, &clip, ir);
+    SkScanClipper   clipper(blitter, clipPtr, ir);
 
     blitter = clipper.getBlitter();
     if (blitter) {
         // we have to keep our calls to blitter in sorted order, so we
         // must blit the above section first, then the middle, then the bottom.
         if (path.isInverseFillType()) {
-            sk_blit_above(blitter, ir, clip);
+            sk_blit_above(blitter, ir, *clipPtr);
         }
-        sk_fill_path(path, clipper.getClipRect(), blitter, ir.fTop, ir.fBottom, 0, clip);
+        sk_fill_path(path, clipper.getClipRect(), blitter, ir.fTop, ir.fBottom,
+                     0, *clipPtr);
         if (path.isInverseFillType()) {
-            sk_blit_below(blitter, ir, clip);
+            sk_blit_below(blitter, ir, *clipPtr);
         }
     } else {
         // what does it mean to not have a blitter if path.isInverseFillType???
