@@ -397,10 +397,9 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
 
 void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     SkASSERT(mask.fBounds.contains(clip));
+    SkPMColor black = (SkPMColor)(SK_A32_MASK << SK_A32_SHIFT);
 
     if (mask.fFormat == SkMask::kBW_Format) {
-        SkPMColor black = (SkPMColor)(SK_A32_MASK << SK_A32_SHIFT);
-
         SkARGB32_BlitBW(fDevice, mask, clip, black);
     } else if (SkMask::kARGB32_Format == mask.fFormat) {
 		SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
@@ -413,7 +412,7 @@ void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
                       fDevice.rowBytes(),
                       SkBitmap::kARGB_8888_Config,
                       mask.getAddr(clip.fLeft, clip.fTop), mask.fRowBytes,
-                      0xFF000000, clip.width(), clip.height());
+                      black, clip.width(), clip.height());
     }
 }
 
