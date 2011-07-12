@@ -513,7 +513,8 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
     : SkDevice(makeContentBitmap(contentSize, &initialTransform)),
       fPageSize(pageSize),
       fContentSize(contentSize),
-      fLastContentEntry(NULL) {
+      fLastContentEntry(NULL),
+      fLastMarginContentEntry(NULL) {
     // Skia generally uses the top left as the origin but PDF natively has the
     // origin at the bottom left. This matrix corrects for that.  But that only
     // needs to be done once, we don't do it when layering.
@@ -536,7 +537,8 @@ SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
       fContentSize(layerSize),
       fExistingClipStack(existingClipStack),
       fExistingClipRegion(existingClipRegion),
-      fLastContentEntry(NULL) {
+      fLastContentEntry(NULL),
+      fLastMarginContentEntry(NULL) {
     fInitialTransform.reset();
     this->init();
 }
@@ -549,6 +551,9 @@ void SkPDFDevice::init() {
     fResourceDict = NULL;
     fContentEntries.reset();
     fLastContentEntry = NULL;
+    fMarginContentEntries.reset();
+    fLastMarginContentEntry = NULL;
+    fDrawingArea = kContent_DrawingArea; 
 }
 
 void SkPDFDevice::cleanUp() {
@@ -949,6 +954,35 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
                                 &content.entry()->fContent);
 }
 
+ContentEntry* SkPDFDevice::getLastContentEntry() {
+    if (fDrawingArea == kContent_DrawingArea) {
+        return fLastContentEntry;
+    } else {
+        return fLastMarginContentEntry;
+    }
+}
+
+SkTScopedPtr<ContentEntry>& SkPDFDevice::getContentEntries() {
+    if (fDrawingArea == kContent_DrawingArea) {
+        return fContentEntries;
+    } else {
+        return fMarginContentEntries;
+    }
+}
+
+void SkPDFDevice::setLastContentEntry(ContentEntry* contentEntry) {
+    if (fDrawingArea == kContent_DrawingArea) {
+        fLastContentEntry = contentEntry;
+    } else {
+        fLastMarginContentEntry = contentEntry;
+    }
+}
+
+void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
+    // TODO(ctguil): Verify this isn't called when a ScopedContentEntry exists.
+    fDrawingArea = drawingArea;
+}
+
 const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
     if (fResourceDict.get() == NULL) {
         fResourceDict = new SkPDFDict;
@@ -1069,11 +1103,37 @@ SkStream* SkPDFDevice::content() const {
     return result;
 }
 
+void SkPDFDevice::copyContentEntriesToData(ContentEntry* entry,
+        SkWStream* data) const {
+    GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, data);
+    while(entry != NULL) {
+        SkIPoint translation = this->getOrigin();
+        translation.negate();
+        gsState.updateClip(entry->fState.fClipStack, entry->fState.fClipRegion,
+                           translation);
+        gsState.updateMatrix(entry->fState.fMatrix);
+        gsState.updateDrawingState(entry->fState);
+        
+        SkAutoDataUnref copy(entry->fContent.copyToData());
+        data->write(copy.data(), copy.size());
+        entry = entry->fNext.get();
+    }
+    gsState.drainStack();
+}
+
 SkData* SkPDFDevice::copyContentToData() const {
     SkDynamicMemoryWStream data;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
         SkPDFUtils::AppendTransform(fInitialTransform, &data);
     }
+   
+    // TODO(aayushkumar): Apply clip along the margins.  Currently, webkit
+    // colors the contentArea white before it starts drawing into it and
+    // that currently acts as our clip.
+    // Also, think about adding a transform here (or assume that the values
+    // sent across account for that)
+    SkPDFDevice::copyContentEntriesToData(fMarginContentEntries.get(), &data);
+    
     // If the content area is the entire page, then we don't need to clip
     // the content area (PDF area clips to the page size).  Otherwise,
     // we have to clip to the content area; we've already applied the
@@ -1083,21 +1143,7 @@ SkData* SkPDFDevice::copyContentToData() const {
         emit_clip(NULL, &r, &data);
     }
     
-    GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, &data);
-    for (ContentEntry* entry = fContentEntries.get();
-         entry != NULL;
-         entry = entry->fNext.get()) {
-        SkIPoint translation = this->getOrigin();
-        translation.negate();
-        gsState.updateClip(entry->fState.fClipStack, entry->fState.fClipRegion,
-                           translation);
-        gsState.updateMatrix(entry->fState.fMatrix);
-        gsState.updateDrawingState(entry->fState);
-        
-        SkAutoDataUnref copy(entry->fContent.copyToData());
-        data.write(copy.data(), copy.size());
-    }
-    gsState.drainStack();
+    SkPDFDevice::copyContentEntriesToData(fContentEntries.get(), &data);
 
     // potentially we could cache this SkData, and only rebuild it if we
     // see that our state has changed.
@@ -1226,8 +1272,10 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
 
     ContentEntry* entry;
     SkTScopedPtr<ContentEntry> newEntry;
-    if (fLastContentEntry && fLastContentEntry->fContent.getOffset() == 0) {
-        entry = fLastContentEntry;
+
+    ContentEntry* lastContentEntry = getLastContentEntry();
+    if (lastContentEntry && lastContentEntry->fContent.getOffset() == 0) {
+        entry = lastContentEntry;
     } else {
         newEntry.reset(new ContentEntry);
         entry = newEntry.get();
@@ -1235,20 +1283,21 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
 
     populateGraphicStateEntryFromPaint(matrix, *clipStack, clipRegion, paint,
                                        hasText, &entry->fState);
-    if (fLastContentEntry && xfermode != SkXfermode::kDstOver_Mode &&
-            entry->fState.compareInitialState(fLastContentEntry->fState)) {
-        return fLastContentEntry;
+    if (lastContentEntry && xfermode != SkXfermode::kDstOver_Mode &&
+            entry->fState.compareInitialState(lastContentEntry->fState)) {
+        return lastContentEntry;
     }
 
-    if (!fLastContentEntry) {
-        fContentEntries.reset(entry);
-        fLastContentEntry = entry;
+    SkTScopedPtr<ContentEntry>& contentEntries = getContentEntries();
+    if (!lastContentEntry) {
+        contentEntries.reset(entry);
+        setLastContentEntry(entry);
     } else if (xfermode == SkXfermode::kDstOver_Mode) {
-        entry->fNext.reset(fContentEntries.release());
-        fContentEntries.reset(entry);
+        entry->fNext.reset(contentEntries.release());
+        contentEntries.reset(entry);
     } else {
-        fLastContentEntry->fNext.reset(entry);
-        fLastContentEntry = entry;
+        lastContentEntry->fNext.reset(entry);
+        setLastContentEntry(entry);
     }
     newEntry.release();
     return entry;
@@ -1263,13 +1312,14 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
         SkASSERT(!dst);
         return;
     }
+ 
+    SkTScopedPtr<ContentEntry>& contentEntries = getContentEntries();
     SkASSERT(dst);
-    SkASSERT(!fContentEntries->fNext.get());
-
+    SkASSERT(!contentEntries->fNext.get());
     // We have to make a copy of these here because changing the current
     // content into a form xobject will destroy them.
-    SkClipStack clipStack = fContentEntries->fState.fClipStack;
-    SkRegion clipRegion = fContentEntries->fState.fClipRegion;
+    SkClipStack clipStack = contentEntries->fState.fClipStack;
+    SkRegion clipRegion = contentEntries->fState.fClipRegion;
 
     SkRefPtr<SkPDFFormXObject> srcFormXObject;
     if (!isContentEmpty()) {
@@ -1319,13 +1369,13 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
 }
 
 bool SkPDFDevice::isContentEmpty() {
-    if (!fContentEntries.get() || fContentEntries->fContent.getOffset() == 0) {
-        SkASSERT(!fContentEntries.get() || !fContentEntries->fNext.get());
+    SkTScopedPtr<ContentEntry>& contentEntries = getContentEntries();
+    if (!contentEntries.get() || contentEntries->fContent.getOffset() == 0) {
+        SkASSERT(!contentEntries.get() || !contentEntries->fNext.get());
         return true;
     }
     return false;
 }
-
 
 void SkPDFDevice::populateGraphicStateEntryFromPaint(
         const SkMatrix& matrix,

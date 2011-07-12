@@ -110,6 +110,17 @@ public:
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&);
 
+    enum DrawingArea {
+        kContent_DrawingArea, // Drawing area for the page content.
+        kMargin_DrawingArea,  // Drawing area for the margin content.
+    };
+
+    /** Sets the drawing area for the device. Subsequent draw calls are directed
+     *  to the specific drawing area (margin or content). The default drawing 
+     *  area is the content drawing area.
+     */
+    void setDrawingArea(DrawingArea drawingArea);
+
     // PDF specific methods.
 
     /** Returns a reference to the resource dictionary for this device.
@@ -163,6 +174,14 @@ private:
 
     SkTScopedPtr<ContentEntry> fContentEntries;
     ContentEntry* fLastContentEntry;
+    SkTScopedPtr<ContentEntry> fMarginContentEntries;
+    ContentEntry* fLastMarginContentEntry;
+    DrawingArea fDrawingArea;
+
+    // Accessor and setter functions based on the current DrawingArea.
+    SkTScopedPtr<ContentEntry>& getContentEntries();
+    ContentEntry* getLastContentEntry();
+    void setLastContentEntry(ContentEntry* contentEntry);
 
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);
@@ -219,6 +238,11 @@ private:
                             const SkIRect* srcRect,
                             const SkPaint& paint);
 
+    /** Helper method for copyContentToData. It is responsible for copying the
+     *  list of content entries |entry| to |data|.
+     */
+    void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
+    
     // Disable the default copy and assign implementation.
     SkPDFDevice(const SkPDFDevice&);
     void operator=(const SkPDFDevice&);
