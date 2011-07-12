@@ -808,19 +808,15 @@ static GrPathFill skToGrFillType(SkPath::FillType fillType) {
     }
 }
 
-static float gauss(float x, float sigma)
-{
-    // Note that the constant term (1/(sqrt(2*pi*sigma^2)) is dropped here,
-    // since we renormalize the kernel after generation anyway.
-    return exp(- (x * x) / (2.0f * sigma * sigma));
-}
-
-static void buildKernel(float sigma, float* kernel, int kernelWidth)
-{
+static void buildKernel(float sigma, float* kernel, int kernelWidth) {
     int halfWidth = (kernelWidth - 1) / 2;
     float sum = 0.0f;
+    float denom = 1.0f / (2.0f * sigma * sigma);
     for (int i = 0; i < kernelWidth; ++i) {
-        kernel[i] = gauss(i - halfWidth, sigma);
+        float x = static_cast<float>(i - halfWidth);
+        // Note that the constant term (1/(sqrt(2*pi*sigma^2)) of the Gaussian
+        // is dropped here, since we renormalize the kernel below.
+        kernel[i] = sk_float_exp(- x * x * denom);
         sum += kernel[i];
     }
     // Normalize the kernel
@@ -829,15 +825,7 @@ static void buildKernel(float sigma, float* kernel, int kernelWidth)
         kernel[i] *= scale;
 }
 
-static void swap(GrTexture*& a, GrTexture*& b)
-{
-    GrTexture* tmp = a;
-    a = b;
-    b = tmp;
-}
-
-static void scaleRect(SkRect* rect, float scale)
-{
+static void scaleRect(SkRect* rect, float scale) {
     rect->fLeft *= scale;
     rect->fTop *= scale;
     rect->fRight *= scale;
@@ -849,7 +837,12 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
                                   const SkRegion& clip, SkBounder* bounder,
                                   GrPaint* grp) {
     SkMaskFilter::BlurInfo info;
-    if (!filter->asABlur(&info)) {
+#if USE_GPU_BLUR
+    SkMaskFilter::BlurType blurType = filter->asABlur(&info);
+#else
+    SkMaskFilter::BlurType blurType = SkMaskFilter::kNone_BlurType;
+#endif
+    if (SkMaskFilter::kNone_BlurType == blurType) {
         return false;
     }
     float radius = info.fIgnoreTransform ? info.fRadius
@@ -914,9 +907,20 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     tempPaint.reset();
 
     GrAutoMatrix avm(context, GrMatrix::I());
-    // Draw hard shadow to offscreen context, with path topleft at origin 0,0.
+    tempPaint.fAntiAlias = grp->fAntiAlias;
+    if (tempPaint.fAntiAlias) {
+        // AA uses the "coverage" stages on GrDrawTarget. Coverage with a dst
+        // blend coeff of zero requires dual source blending support in order
+        // to properly blend partially covered pixels. This means the AA
+        // code path may not be taken. So we use a dst blend coeff of ISA. We
+        // could special case AA draws to a dst surface with known alpha=0 to
+        // use a zero dst coeff when dual source blending isn't available.
+        tempPaint.fSrcBlendCoeff = kOne_BlendCoeff;
+        tempPaint.fDstBlendCoeff = kISC_BlendCoeff;
+    }
+    // Draw hard shadow to dstTexture with path topleft at origin 0,0.
     context->drawPath(tempPaint, path, skToGrFillType(path.getFillType()), &offset);
-    swap(srcTexture, dstTexture);
+    SkTSwap(srcTexture, dstTexture);
 
     GrMatrix sampleM;
     sampleM.setScale(GR_Scalar1 / srcTexture->width(),
@@ -925,6 +929,17 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     paint.reset();
     paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
     paint.getTextureSampler(0)->setMatrix(sampleM);
+    GrTextureEntry* origEntry = NULL;
+    if (blurType != SkMaskFilter::kNormal_BlurType) {
+        // Stash away a copy of the unblurred image.
+        origEntry = context->findApproximateKeylessTexture(desc);
+        if (NULL == origEntry) {
+            return false;
+        }
+        context->setRenderTarget(origEntry->texture()->asRenderTarget());
+        paint.setTexture(0, srcTexture);
+        context->drawRect(paint, srcRect);
+    }
     for (int i = 1; i < scaleFactor; i *= 2) {
         context->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
@@ -935,7 +950,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         paint.setTexture(0, srcTexture);
         context->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
-        swap(srcTexture, dstTexture);
+        SkTSwap(srcTexture, dstTexture);
     }
 
     SkAutoTMalloc<float> kernelStorage(kernelWidth);
@@ -947,14 +962,14 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     context->clear(NULL, 0);
     context->convolveRect(srcTexture, srcRect, imageIncrementX, kernel,
                           kernelWidth);
-    swap(srcTexture, dstTexture);
+    SkTSwap(srcTexture, dstTexture);
 
     float imageIncrementY[2] = {0.0f, 1.0f / srcTexture->height()};
     context->setRenderTarget(dstTexture->asRenderTarget());
     context->clear(NULL, 0);
     context->convolveRect(srcTexture, srcRect, imageIncrementY, kernel,
                           kernelWidth);
-    swap(srcTexture, dstTexture);
+    SkTSwap(srcTexture, dstTexture);
 
     if (scaleFactor > 1) {
         // FIXME:  This should be mitchell, not bilinear.
@@ -971,9 +986,35 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         scaleRect(&dstRect, scaleFactor);
         context->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
-        swap(srcTexture, dstTexture);
+        SkTSwap(srcTexture, dstTexture);
     }
 
+    if (blurType != SkMaskFilter::kNormal_BlurType) {
+        GrTexture* origTexture = origEntry->texture();
+        paint.getTextureSampler(0)->setFilter(GrSamplerState::kNearest_Filter);
+        sampleM.setScale(GR_Scalar1 / origTexture->width(),
+                         GR_Scalar1 / origTexture->height());
+        paint.getTextureSampler(0)->setMatrix(sampleM);
+        // Blend origTexture over srcTexture.
+        context->setRenderTarget(srcTexture->asRenderTarget());
+        paint.setTexture(0, origTexture);
+        if (SkMaskFilter::kInner_BlurType == blurType) {
+            // inner:  dst = dst * src
+            paint.fSrcBlendCoeff = kDC_BlendCoeff;
+            paint.fDstBlendCoeff = kZero_BlendCoeff;
+        } else if (SkMaskFilter::kSolid_BlurType == blurType) {
+            // solid:  dst = src + dst - src * dst
+            //             = (1 - dst) * src + 1 * dst
+            paint.fSrcBlendCoeff = kIDC_BlendCoeff;
+            paint.fDstBlendCoeff = kOne_BlendCoeff;
+        } else if (SkMaskFilter::kOuter_BlurType == blurType) {
+            // outer:  dst = dst * (1 - src)
+            //             = 0 * src + (1 - src) * dst
+            paint.fSrcBlendCoeff = kZero_BlendCoeff;
+            paint.fDstBlendCoeff = kISC_BlendCoeff;
+        }
+        context->drawRect(paint, srcRect);
+    }
     context->setRenderTarget(oldRenderTarget);
     
     if (grp->hasTextureOrMask()) {
@@ -995,8 +1036,13 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     m.postIDiv(srcTexture->width(), srcTexture->height());
     grp->getMaskSampler(MASK_IDX)->setMatrix(m);
     context->drawRect(*grp, finalRect);
+    // FIXME:  these unlockTexture() calls could be more safely done with
+    // an RAII guard class.
     context->unlockTexture(srcEntry);
     context->unlockTexture(dstEntry);
+    if (origEntry) {
+        context->unlockTexture(origEntry);
+    }
     return true;
 }
 
@@ -1138,11 +1184,9 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
 
         // transform the path into device space
         pathPtr->transform(*draw.fMatrix, devPathPtr);
-        if (USE_GPU_BLUR) {
-            drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
-                                  *draw.fMatrix, *draw.fClip, draw.fBounder,
-                                  &grPaint);
-        } else {
+        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
+                                   *draw.fMatrix, *draw.fClip, draw.fBounder,
+                                   &grPaint)) {
             drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
                                *draw.fMatrix, *draw.fClip, draw.fBounder,
                                &grPaint);
