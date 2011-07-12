@@ -836,12 +836,11 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
                                   SkMaskFilter* filter, const SkMatrix& matrix,
                                   const SkRegion& clip, SkBounder* bounder,
                                   GrPaint* grp) {
-    SkMaskFilter::BlurInfo info;
-#if USE_GPU_BLUR
-    SkMaskFilter::BlurType blurType = filter->asABlur(&info);
-#else
-    SkMaskFilter::BlurType blurType = SkMaskFilter::kNone_BlurType;
+#if !USE_GPU_BLUR
+    return false;
 #endif
+    SkMaskFilter::BlurInfo info;
+    SkMaskFilter::BlurType blurType = filter->asABlur(&info);
     if (SkMaskFilter::kNone_BlurType == blurType) {
         return false;
     }
@@ -871,10 +870,10 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     SkIRect finalIRect;
     finalRect.roundOut(&finalIRect);
     if (clip.quickReject(finalIRect)) {
-        return false;
+        return true;
     }
     if (bounder && !bounder->doIRect(finalIRect)) {
-        return false;
+        return true;
     }
     GrPoint offset = GrPoint::Make(-srcRect.fLeft, -srcRect.fTop);
     srcRect.offset(-srcRect.fLeft, -srcRect.fTop);
@@ -890,6 +889,8 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
 
     GrTextureEntry* srcEntry = context->findApproximateKeylessTexture(desc);
     GrTextureEntry* dstEntry = context->findApproximateKeylessTexture(desc);
+    GrAutoUnlockTextureEntry srcLock(context, srcEntry),
+                             dstLock(context, dstEntry);
     if (NULL == srcEntry || NULL == dstEntry) {
         return false;
     }
@@ -940,6 +941,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         paint.setTexture(0, srcTexture);
         context->drawRect(paint, srcRect);
     }
+    GrAutoUnlockTextureEntry origLock(context, origEntry);
     for (int i = 1; i < scaleFactor; i *= 2) {
         context->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
@@ -957,18 +959,14 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     float* kernel = kernelStorage.get();
     buildKernel(sigma, kernel, kernelWidth);
 
-    float imageIncrementX[2] = {1.0f / srcTexture->width(), 0.0f};
     context->setRenderTarget(dstTexture->asRenderTarget());
     context->clear(NULL, 0);
-    context->convolveRect(srcTexture, srcRect, imageIncrementX, kernel,
-                          kernelWidth);
+    context->convolveInX(srcTexture, srcRect, kernel, kernelWidth);
     SkTSwap(srcTexture, dstTexture);
 
-    float imageIncrementY[2] = {0.0f, 1.0f / srcTexture->height()};
     context->setRenderTarget(dstTexture->asRenderTarget());
     context->clear(NULL, 0);
-    context->convolveRect(srcTexture, srcRect, imageIncrementY, kernel,
-                          kernelWidth);
+    context->convolveInY(srcTexture, srcRect, kernel, kernelWidth);
     SkTSwap(srcTexture, dstTexture);
 
     if (scaleFactor > 1) {
@@ -1036,13 +1034,6 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     m.postIDiv(srcTexture->width(), srcTexture->height());
     grp->getMaskSampler(MASK_IDX)->setMatrix(m);
     context->drawRect(*grp, finalRect);
-    // FIXME:  these unlockTexture() calls could be more safely done with
-    // an RAII guard class.
-    context->unlockTexture(srcEntry);
-    context->unlockTexture(dstEntry);
-    if (origEntry) {
-        context->unlockTexture(origEntry);
-    }
     return true;
 }
 
