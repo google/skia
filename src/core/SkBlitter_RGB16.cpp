@@ -210,8 +210,8 @@ static inline black_8_pixels(U8CPU mask, uint16_t dst[])
 #define SK_BLITBWMASK_DEVTYPE               uint16_t
 #include "SkBlitBWMaskTemplate.h"
 
-void SkRGB16_Black_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
-                                     const SkIRect& SK_RESTRICT clip) {
+void SkRGB16_Black_Blitter::blitMask(const SkMask& mask,
+                                     const SkIRect& clip) {
     if (mask.fFormat == SkMask::kBW_Format) {
         SkRGB16_Black_BlitBW(fDevice, mask, clip);
     } else {
@@ -378,8 +378,8 @@ static U16CPU blend_compact(uint32_t src32, uint32_t dst32, unsigned scale5) {
     return SkCompact_rgb_16(dst32 + ((src32 - dst32) * scale5 >> 5));
 }
 
-void SkRGB16_Opaque_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
-                                      const SkIRect& SK_RESTRICT clip) {
+void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
+                                      const SkIRect& clip) {
     if (mask.fFormat == SkMask::kBW_Format) {
         SkRGB16_BlitBW(fDevice, mask, clip, fColor16);
         return;
@@ -638,8 +638,8 @@ static inline void blend_8_pixels(U8CPU bw, uint16_t dst[], unsigned dst_scale,
 #define SK_BLITBWMASK_DEVTYPE               uint16_t
 #include "SkBlitBWMaskTemplate.h"
 
-void SkRGB16_Blitter::blitMask(const SkMask& SK_RESTRICT mask,
-                               const SkIRect& SK_RESTRICT clip) {
+void SkRGB16_Blitter::blitMask(const SkMask& mask,
+                               const SkIRect& clip) {
     if (mask.fFormat == SkMask::kBW_Format) {
         SkRGB16_BlendBW(fDevice, mask, clip, 256 - fScale, fColor16);
         return;
