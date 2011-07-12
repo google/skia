@@ -491,20 +491,30 @@ public:
                      GrPixelConfig, const void* buffer, size_t stride);
 
     /**
-     * Performs a 1D convolution over a rectangle of pixels.  Set
-     * imageIncrement to (1/w, 0) for a convolution in X, (0, 1/h) for a
-     * convolution in Y, where w, h are the texture dimensions.
-     * @param srcTexture      the texture to read from
-     * @param dstRect         the destination rectangle
-     * @param imageIncrement  the displacement between pixel samples
+     * Applies a 1D convolution kernel in the X direction to a rectangle of
+     * pixels from a given texture.
+     * @param texture         the texture to read from
+     * @param rect            the destination rectangle
      * @param kernel          the convolution kernel (kernelWidth elements)
      * @param kernelWidth     the width of the convolution kernel
      */
-    void convolveRect(GrTexture* srcTexture,
-                      const SkRect& dstRect,
-                      float imageIncrement[2],
-                      const float* kernel,
-                      int kernelWidth);
+    void convolveInX(GrTexture* texture,
+                     const SkRect& rect,
+                     const float* kernel,
+                     int kernelWidth);
+    /**
+     * Applies a 1D convolution kernel in the Y direction to a rectangle of
+     * pixels from a given texture.
+     * direction.
+     * @param texture         the texture to read from
+     * @param rect            the destination rectangle
+     * @param kernel          the convolution kernel (kernelWidth elements)
+     * @param kernelWidth     the width of the convolution kernel
+     */
+    void convolveInY(GrTexture* texture,
+                     const SkRect& rect,
+                     const float* kernel,
+                     int kernelWidth);
     ///////////////////////////////////////////////////////////////////////////
     // Helpers
 
@@ -630,6 +640,12 @@ private:
     void cleanupOffscreenAA(GrDrawTarget* target,
                             GrPathRenderer* pr,
                             OffscreenRecord* record);
+
+    void convolve(GrTexture* texture,
+                  const SkRect& rect,
+                  float imageIncrement[2],
+                  const float* kernel,
+                  int kernelWidth);
     
     // computes vertex layout bits based on the paint. If paint expresses
     // a texture for a stage, the stage coords will be bound to postitions
@@ -661,6 +677,25 @@ public:
 private:
     GrContext*  fContext;
     GrMatrix    fMatrix;
+};
+
+/**
+ * Unlocks a texture entry when this goes out of scope.  Entry may be NULL.
+ */
+class GrAutoUnlockTextureEntry : ::GrNoncopyable {
+public:
+    GrAutoUnlockTextureEntry(GrContext* context, GrTextureEntry* entry)
+      : fContext(context)
+      , fEntry(entry) {
+    }
+    ~GrAutoUnlockTextureEntry() {
+        if (fContext && fEntry) {
+            fContext->unlockTexture(fEntry);
+        }
+    }
+private:
+    GrContext*      fContext;
+    GrTextureEntry* fEntry;
 };
 
 #endif
