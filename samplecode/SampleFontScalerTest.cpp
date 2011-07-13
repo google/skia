@@ -57,6 +57,12 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
+    static void rotate_about(SkCanvas* canvas, SkScalar degrees, SkScalar px, SkScalar py) {
+        canvas->translate(px, py);
+        canvas->rotate(degrees);
+        canvas->translate(-px, -py);
+    }
+
     virtual void onDrawContent(SkCanvas* canvas) {
         SkPaint paint;
 
@@ -74,35 +80,41 @@ protected:
             canvas->drawPath(path, paint);
         }
 
-        canvas->translate(200, 20);
-        canvas->rotate(30);
-
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
         SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal)));
 
 //        const char* text = "abcdefghijklmnopqrstuvwxyz";
-        const char* text = "HnHnHnHnHnHnHnHnH";
-        size_t textLen = strlen(text);
+        const char* text = "HnHnHnHnHnHnHnH";
+        const size_t textLen = strlen(text);
 
-        SkScalar x = SkIntToScalar(10);
-        SkScalar y = SkIntToScalar(20);
+        for (int j = 0; j < 2; ++j) {
+            for (int i = 0; i < 6; ++i) {
+                SkScalar x = SkIntToScalar(10);
+                SkScalar y = SkIntToScalar(20);
 
-        {
-            SkPaint p;
-            p.setColor(SK_ColorRED);
-            SkRect r;
-            r.set(0, 0, x, y*20);
-            canvas->drawRect(r, p);
-        }
+                SkAutoCanvasRestore acr(canvas, true);
+                canvas->translate(50 + i * 230, 20);
+                rotate_about(canvas, i * 7, x, y * 10);
 
-        int index = 0;
-        for (int ps = 9; ps <= 24; ps++) {
-            textLen = strlen(text);
-            paint.setTextSize(SkIntToScalar(ps));
-            canvas->drawText(text, textLen, x, y, paint);
-            y += paint.getFontMetrics(NULL);
-            index += 1;
+                {
+                    SkPaint p;
+                    p.setAntiAlias(true);
+                    SkRect r;
+                    r.set(x-3, 15, x-1, 280);
+                    canvas->drawRect(r, p);
+                }
+
+                int index = 0;
+                for (int ps = 9; ps <= 24; ps++) {
+                    paint.setTextSize(SkIntToScalar(ps));
+                    canvas->drawText(text, textLen, x, y, paint);
+                    y += paint.getFontMetrics(NULL);
+                    index += 1;
+                }
+            }
+            canvas->translate(0, 400);
+            paint.setLinearText(true);
         }
     }
 
