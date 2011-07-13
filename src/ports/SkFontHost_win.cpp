@@ -939,6 +939,22 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     return NULL;
 }
 
+static bool isLCD(const SkScalerContext::Rec& rec) {
+    return SkMask::kLCD16_Format == rec.fMaskFormat ||
+           SkMask::kLCD32_Format == rec.fMaskFormat;
+}
+
+static bool bothZero(SkScalar a, SkScalar b) {
+    return 0 == a && 0 == b;
+}
+
+// returns false if there is any non-90-rotation or skew
+static bool isAxisAligned(const SkScalerContext::Rec& rec) {
+    return 0 == rec.fPreSkewX &&
+           (bothZero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
+            bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
+}
+
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag |
@@ -948,8 +964,11 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
                                   SkScalerContext::kLCD_Vertical_Flag;
     rec->fFlags &= ~flagsWeDontSupport;
 
-    // we only support binary hinting: normal or none
     SkPaint::Hinting h = rec->getHinting();
+
+    // I think we can support no-hinting, if we get hires outlines and just
+    // use skia to rasterize into a gray-scale mask...
+#if 0
     switch (h) {
         case SkPaint::kNo_Hinting:
         case SkPaint::kSlight_Hinting:
@@ -962,7 +981,15 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         default:
             SkASSERT(!"unknown hinting");
     }
+#else
+    h = SkPaint::kNormal_Hinting;
+#endif
     rec->setHinting(h);
+
+    // Disable LCD when rotated, since GDI's output is ugly
+    if (isLCD(*rec) && !isAxisAligned(*rec)) {
+        rec->fMaskFormat = SkMask::kA8_Format;
+    }
 }
 
 #endif // WIN32
