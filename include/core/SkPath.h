@@ -581,7 +581,7 @@ public:
         kLine_Verb,     //!< iter.next returns 2 points
         kQuad_Verb,     //!< iter.next returns 3 points
         kCubic_Verb,    //!< iter.next returns 4 points
-        kClose_Verb,    //!< iter.next returns 1 point (the last point)
+        kClose_Verb,    //!< iter.next returns 1 point (contour's moveTo pt)
         kDone_Verb      //!< iter.next returns 0 points
     };
 
