@@ -760,21 +760,27 @@ bool SkMatrix::postConcat(const SkMatrix& mat) {
     }
 #endif
 
-bool SkMatrix::pdfTransform(SkScalar transform[6]) const {
-    SkMatrix identity;
-    const SkMatrix* use = this;
-    bool ret = true;
+void SkMatrix::SetAffineIdentity(SkScalar affine[6]) {
+    affine[kAScaleX] = SK_Scalar1;
+    affine[kASkewY] = 0;
+    affine[kASkewX] = 0;
+    affine[kAScaleY] = SK_Scalar1;
+    affine[kATransX] = 0;
+    affine[kATransY] = 0;
+}
+
+bool SkMatrix::asAffine(SkScalar affine[6]) const {
     if (this->hasPerspective()) {
-        identity.reset();
-        use = &identity;
-        ret = false;
+        return false;
     }
-    transform[0] = use->fMat[kMScaleX];
-    transform[1] = use->fMat[kMSkewY];
-    transform[2] = use->fMat[kMSkewX];
-    transform[3] = use->fMat[kMScaleY];
-    transform[4] = use->fMat[kMTransX];
-    transform[5] = use->fMat[kMTransY];
+    if (affine) {
+        affine[kAScaleX] = this->fMat[kMScaleX];
+        affine[kASkewY] = this->fMat[kMSkewY];
+        affine[kASkewX] = this->fMat[kMSkewX];
+        affine[kAScaleY] = this->fMat[kMScaleY];
+        affine[kATransX] = this->fMat[kMTransX];
+        affine[kATransY] = this->fMat[kMTransY];
+    }
     return true;
 }
 
