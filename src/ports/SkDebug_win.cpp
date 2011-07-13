@@ -31,5 +31,6 @@ void SkDebugf(const char format[], ...) {
     va_end(args);
 
     OutputDebugStringA(buffer);
+    printf(buffer);
 }
 
