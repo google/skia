@@ -19,6 +19,9 @@ import os
 import shutil
 import sys
 
+# TODO(epoger): allow caller to override BUILDTYPE
+BUILDTYPE = 'Debug'
+
 # TODO(epoger): add special 'all' target
 TARGET_CLEAN = 'clean'
 
@@ -30,14 +33,19 @@ GYP_SUBDIR = 'gyp'
 # Simple functions that report what they are doing, and exit(1) on failure.
 def cd(path):
     print '> cd %s' % path
-    if not os.path.exists(path):
-        print 'path %s does not exist' % path
+    if not os.path.isdir(path):
+        print 'directory %s does not exist' % path
         sys.exit(1)
     os.chdir(path)
 
 def rmtree(path):
     print '> rmtree %s' % path
     shutil.rmtree(path, ignore_errors=True)
+
+def mkdirs(path):
+    print '> mkdirs %s' % path
+    if not os.path.isdir(path):
+        os.makedirs(path)
 
 def runcommand(command):
     print '> %s' % command
@@ -92,21 +100,32 @@ def MakeWindows(args):
         args: command line arguments as a list of strings
     """
     CheckWindowsEnvironment()
-    # TODO(epoger): what about parameters?  (fixed vs float, debug vs release)
+
+    # TODO(epoger): what about fixed vs float?
     # TODO(epoger): what about "make" flags (like -j) that Windows doesn't support?
 
     # Run gyp_skia to prepare Visual Studio projects.
     cd(SCRIPT_DIR)
     runcommand('python gyp_skia')
-    
+
+    # Prepare final output dir into which we will copy all binaries.
+    msbuild_working_dir = os.path.join(SCRIPT_DIR, OUT_SUBDIR, GYP_SUBDIR)
+    msbuild_output_dir = os.path.join(msbuild_working_dir, BUILDTYPE)
+    final_output_dir = os.path.join(SCRIPT_DIR, OUT_SUBDIR, BUILDTYPE)
+    mkdirs(final_output_dir)
+
     for target in args:
         # Check for special-case targets
         if target == TARGET_CLEAN:
             MakeClean()
         else:
-            cd(os.path.join(SCRIPT_DIR, OUT_SUBDIR, GYP_SUBDIR))
-            runcommand('msbuild /target:%s %s.sln' % (target, target))
-
+            cd(msbuild_working_dir)
+            runcommand(
+                ('msbuild /nologo /property:Configuration=%s'
+                ' /target:%s /verbosity:minimal %s.sln') % (
+                    BUILDTYPE, target, target))
+            runcommand('xcopy /y %s\* %s' % (
+                msbuild_output_dir, final_output_dir))
 
 # main:
 # dispatch to appropriate Make<Platform>() variant.
@@ -117,6 +136,10 @@ elif os.name == 'posix':
     if sys.platform == 'darwin':
         print 'Mac developers should not run this script; see ' \
             'http://code.google.com/p/skia/wiki/GettingStartedOnMac'
+        sys.exit(1)
+    elif sys.platform == 'cygwin':
+        print 'Windows development on Cygwin is not currently supported; see ' \
+            'http://code.google.com/p/skia/wiki/GettingStartedOnWindows'
         sys.exit(1)
     else:
         print 'Unix developers should not run this script; see ' \
