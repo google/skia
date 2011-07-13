@@ -118,15 +118,13 @@ void TestMatrix(skiatest::Reporter* reporter) {
         }
     }
 
+    mat.reset();
     mat.set(SkMatrix::kMScaleX, SkIntToScalar(1));
     mat.set(SkMatrix::kMSkewX,  SkIntToScalar(2));
     mat.set(SkMatrix::kMTransX, SkIntToScalar(3));
     mat.set(SkMatrix::kMSkewY,  SkIntToScalar(4));
     mat.set(SkMatrix::kMScaleY, SkIntToScalar(5));
     mat.set(SkMatrix::kMTransY, SkIntToScalar(6));
-    mat.set(SkMatrix::kMPersp0, SkIntToScalar(0));
-    mat.set(SkMatrix::kMPersp1, SkIntToScalar(0));
-    mat.set(SkMatrix::kMPersp2, SkIntToScalar(1));
     SkScalar affine[6];
     REPORTER_ASSERT(reporter, mat.asAffine(affine));
 
