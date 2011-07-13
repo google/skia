@@ -258,14 +258,6 @@ SkGpuDevice::~SkGpuDevice() {
     fContext->unref();
 }
 
-intptr_t SkGpuDevice::getLayerTextureHandle() const {
-    if (fTexture) {
-        return fTexture->getTextureHandle();
-    } else {
-        return 0;
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::makeRenderTargetCurrent() {

@@ -54,6 +54,20 @@ public:
     GrTexture* asTexture() {return fTexture;}
 
     /**
+     * If this RT is multisampled, this is the multisample buffer
+     * @return the 3D API's handle to this object (e.g. FBO ID in OpenGL)
+     */
+    virtual intptr_t getRenderTargetHandle() const = 0;
+
+    /**
+     * If this RT is multisampled, this is the buffer it is resolved to.
+     * Otherwise, same as getRenderTargetHandle().
+     * (In GL a separate FBO ID is used for the msaa and resolved buffers)
+     * @return the 3D API's handle to this object (e.g. FBO ID in OpenGL)
+     */
+    virtual intptr_t getRenderTargetResolvedHandle() const = 0;
+
+    /**
      * @return true if the render target is multisampled, false otherwise
      */
     bool isMultisampled() { return fIsMultisampled; }
