@@ -12,7 +12,6 @@ class SkEvent;
 
 @interface SkUIView : UIView <UIAccelerometerDelegate> {
     BOOL fRedrawRequestPending;
-    SkOSWindow* fWind;
     SkMatrix    fMatrix, fLocalMatrix;
     bool        fNeedGestureEnded;
 
@@ -38,8 +37,6 @@ class SkEvent;
         GLint           fHeight;
     } fGL;
     
-    UILabel* fTitleLabel;
-
     enum Backend {
         kGL_Backend,
         kRaster_Backend,
@@ -48,13 +45,19 @@ class SkEvent;
     // these are visible to DetailViewController
     Backend fBackend;
     bool    fComplexClip;
+    
+    UINavigationItem* fTitle;
+    SkOSWindow* fWind;
 }
 
 @property (nonatomic, assign) SkOSWindow *fWind;
-@property (nonatomic, retain) UILabel* fTitleLabel;
+@property (nonatomic, retain) UINavigationItem* fTitle;
 @property (nonatomic, assign) Backend fBackend;
 @property (nonatomic, assign) bool fComplexClip;
 @property (nonatomic, assign, setter=setWarpState) bool fUseWarp;
+
+- (void)initGestures;
+- (void)flushLocalMatrix;
 
 - (void)setSkTitle:(const char*)title;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
