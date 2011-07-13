@@ -22,8 +22,12 @@
  */
 
 struct DiffRecord {
-    DiffRecord (const SkString filename)
+    DiffRecord (const SkString filename,
+                const SkString basePath,
+                const SkString comparisonPath)
         : fFilename (filename)
+        , fBasePath (basePath)
+        , fComparisonPath (comparisonPath)
         , fFractionDifference (0)
         , fWeightedFraction (0)
         , fAverageMismatchR (0)
@@ -31,9 +35,14 @@ struct DiffRecord {
         , fAverageMismatchB (0)
         , fMaxMismatchR (0)
         , fMaxMismatchG (0)
-        , fMaxMismatchB (0) { };
+        , fMaxMismatchB (0) {
+        SkASSERT(basePath.endsWith(filename.c_str()));
+        SkASSERT(comparisonPath.endsWith(filename.c_str()));
+    };
 
     SkString fFilename;
+    SkString fBasePath;
+    SkString fComparisonPath;
 
     SkBitmap fBaseBitmap;
     SkBitmap fComparisonBitmap;
@@ -162,31 +171,25 @@ static int compare_diff_max_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
 /// Parameterized routine to compute the color of a pixel in a difference image.
 typedef SkPMColor (*DiffMetricProc)(SkPMColor, SkPMColor);
 
-static bool get_bitmaps (DiffRecord* diffRecord,
-                         const SkString& baseDir,
-                         const SkString& comparisonDir) {
-    SkString comparePath (comparisonDir);
-    comparePath.append(diffRecord->fFilename);
-    SkFILEStream compareStream(comparePath.c_str());
+static bool get_bitmaps (DiffRecord* diffRecord) {
+    SkFILEStream compareStream(diffRecord->fComparisonPath.c_str());
     if (!compareStream.isValid()) {
         SkDebugf("WARNING: couldn't open comparison file <%s>\n",
-                 comparePath.c_str());
+                 diffRecord->fComparisonPath.c_str());
         return false;
     }
 
-    SkString basePath (baseDir);
-    basePath.append(diffRecord->fFilename);
-    SkFILEStream baseStream(basePath.c_str());
+    SkFILEStream baseStream(diffRecord->fBasePath.c_str());
     if (!baseStream.isValid()) {
         SkDebugf("ERROR: couldn't open base file <%s>\n",
-                 basePath.c_str());
+                 diffRecord->fBasePath.c_str());
         return false;
     }
 
     SkImageDecoder* codec = SkImageDecoder::Factory(&baseStream);
     if (NULL == codec) {
         SkDebugf("ERROR: no codec found for <%s>\n",
-                 basePath.c_str());
+                 diffRecord->fBasePath.c_str());
         return false;
     }
 
@@ -197,7 +200,7 @@ static bool get_bitmaps (DiffRecord* diffRecord,
                        SkBitmap::kARGB_8888_Config,
                        SkImageDecoder::kDecodePixels_Mode)) {
         SkDebugf("ERROR: codec failed for <%s>\n",
-                 basePath.c_str());
+                 diffRecord->fBasePath.c_str());
         return false;
     }
 
@@ -205,7 +208,7 @@ static bool get_bitmaps (DiffRecord* diffRecord,
                        SkBitmap::kARGB_8888_Config,
                        SkImageDecoder::kDecodePixels_Mode)) {
         SkDebugf("ERROR: codec failed for <%s>\n",
-                 comparePath.c_str());
+                 diffRecord->fComparisonPath.c_str());
         return false;
     }
 
@@ -326,6 +329,16 @@ static SkString filename_to_diff_filename (const SkString& filename) {
     return diffName;
 }
 
+static void create_diff_image(DiffRecord* drp,
+                              DiffMetricProc dmp,
+                              const int colorThreshold) {
+    const int w = drp->fBaseBitmap.width();
+    const int h = drp->fBaseBitmap.height();
+    drp->fDifferenceBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
+    drp->fDifferenceBitmap.allocPixels();
+    compute_diff(drp, dmp, colorThreshold);
+}
+
 /// Creates difference images, returns the number that have a 0 metric.
 static void create_diff_images (DiffMetricProc dmp,
                                 SkQSortCompareProc scp,
@@ -349,16 +362,16 @@ static void create_diff_images (DiffMetricProc dmp,
         if (filename.endsWith(".pdf")) {
             continue;
         }
-        DiffRecord * drp = new DiffRecord (filename);
-        if (!get_bitmaps(drp, baseDir, comparisonDir)) {
+        SkString basePath (baseDir);
+        SkString comparisonPath (comparisonDir);
+        basePath.append(filename);
+        comparisonPath.append(filename);
+        DiffRecord * drp = new DiffRecord (filename, basePath, comparisonPath);
+        if (!get_bitmaps(drp)) {
             continue;
         }
 
-        const int w = drp->fBaseBitmap.width();
-        const int h = drp->fBaseBitmap.height();
-        drp->fDifferenceBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-        drp->fDifferenceBitmap.allocPixels();
-        compute_diff(drp, dmp, colorThreshold);
+        create_diff_image(drp, dmp, colorThreshold);
 
         SkString outPath (outputDir);
         outPath.append(filename_to_diff_filename(filename));
@@ -465,15 +478,12 @@ static void print_label_cell (SkFILEWStream* stream,
 }
 
 static void print_image_cell (SkFILEWStream* stream,
-                              const SkString& directory,
-                              const SkString& filename,
+                              const SkString& path,
                               int height) {
     stream->writeText("<td><a href=\"");
-    stream->writeText(directory.c_str());
-    stream->writeText(filename.c_str());
+    stream->writeText(path.c_str());
     stream->writeText("\"><img src=\"");
-    stream->writeText(directory.c_str());
-    stream->writeText(filename.c_str());
+    stream->writeText(path.c_str());
     stream->writeText("\" height=\"");
     stream->writeDecAsText(height);
     stream->writeText("px\"></a></td>");
@@ -486,12 +496,12 @@ static void print_diff_page (const int matchCount,
                              const SkString& comparisonDir,
                              const SkString& outputDir) {
 
-    const SkString localDir ("");
     SkString outputPath (outputDir);
     outputPath.append("index.html");
     //SkFILEWStream outputStream ("index.html");
     SkFILEWStream outputStream (outputPath.c_str());
 
+    // Need to convert paths from relative-to-cwd to relative-to-outputDir
     // FIXME this doesn't work if there are '..' inside the outputDir
     unsigned int ui;
     SkString relativePath;
@@ -500,10 +510,6 @@ static void print_diff_page (const int matchCount,
             relativePath.append("../");
         }
     }
-    SkString relativeBaseDir (relativePath);
-    SkString relativeComparisonDir (relativePath);
-    relativeBaseDir.append(baseDir);
-    relativeComparisonDir.append(comparisonDir);
 
     outputStream.writeText("<html>\n<body>\n");
     print_page_header(&outputStream, matchCount, colorThreshold, differences);
@@ -515,15 +521,19 @@ static void print_diff_page (const int matchCount,
         if (0 == diff->fFractionDifference) {
             continue;
         }
+        if (!diff->fBasePath.startsWith("/")) {
+            diff->fBasePath.prepend(relativePath);
+        }
+        if (!diff->fComparisonPath.startsWith("/")) {
+            diff->fComparisonPath.prepend(relativePath);
+        }
         int height = compute_image_height(diff->fBaseBitmap);
         outputStream.writeText("<tr>\n");
         print_label_cell(&outputStream, *diff);
-        print_image_cell(&outputStream, relativeBaseDir,
-                         diff->fFilename, height);
-        print_image_cell(&outputStream, localDir,
+        print_image_cell(&outputStream, diff->fBasePath, height);
+        print_image_cell(&outputStream,
                          filename_to_diff_filename(diff->fFilename), height);
-        print_image_cell(&outputStream, relativeComparisonDir,
-                         diff->fFilename, height);
+        print_image_cell(&outputStream, diff->fComparisonPath, height);
         outputStream.writeText("</tr>\n");
         outputStream.flush();
     }
