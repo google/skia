@@ -15,9 +15,6 @@
 @rem Launches make.py on Windows, after setting Visual Studio environment variables.
 @rem See http://code.google.com/p/skia/wiki/GettingStartedOnWindows
 
-@rem Force gyp to generate .vcxproj files, as needed for msbuild.exe
-set GYP_MSVS_VERSION=2010
-
 @if "%DevEnvDir%"=="" goto setup_env_vars
 
 :run_python

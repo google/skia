@@ -80,6 +80,14 @@ if __name__ == '__main__':
   # Tell make to write its output into the same dir
   args.extend(['-Goutput_dir=.'])
 
+  # Special arguments for generating Visual Studio projects:
+  # - msvs_version forces generation of Visual Studio 2010 project so that we
+  #   can use msbuild.exe
+  # - msvs_abspath_output is a workaround for
+  #   http://code.google.com/p/gyp/issues/detail?id=201
+  args.extend(['-Gmsvs_version=2010'])
+  args.extend(['-Gmsvs_abspath_output'])
+
   print 'Updating projects from gyp files...'
   sys.stdout.flush()
 

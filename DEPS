@@ -8,7 +8,7 @@ use_relative_paths = True
 # See third_party/externals/README
 #
 deps = {
-  "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@907",
+  "third_party/externals/gyp" : "http://gyp.googlecode.com/svn/trunk@940",
 }
 
 #hooks = [
