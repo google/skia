@@ -1082,8 +1082,10 @@ SkPath::Verb SkPath::Iter::autoClose(SkPoint pts[2]) {
         fLastPt = fMoveTo;
         fCloseLine = true;
         return kLine_Verb;
+    } else {
+        pts[0] = fMoveTo;
+        return kClose_Verb;
     }
-    return kClose_Verb;
 }
 
 bool SkPath::Iter::cons_moveTo(SkPoint pts[1]) {

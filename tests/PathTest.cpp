@@ -3,6 +3,99 @@
 #include "SkParse.h"
 #include "SkSize.h"
 
+static void check_close(skiatest::Reporter* reporter, const SkPath& path) {
+    for (int i = 0; i < 2; ++i) {
+        SkPath::Iter iter(path, (bool)i);
+        SkPoint mv;
+        SkPoint pts[4];
+        SkPath::Verb v;
+        int nMT = 0;
+        int nCL = 0;
+        while (SkPath::kDone_Verb != (v = iter.next(pts))) {
+            switch (v) {
+                case SkPath::kMove_Verb:
+                    mv = pts[0];
+                    ++nMT;
+                    break;
+                case SkPath::kClose_Verb:
+                    REPORTER_ASSERT(reporter, mv == pts[0]);
+                    ++nCL;
+                    break;
+                default:
+                    break;
+            }
+        }
+        // if we force a close on the interator we should have a close
+        // for every moveTo
+        REPORTER_ASSERT(reporter, !i || nMT == nCL);
+    }
+}
+
+static void test_close(skiatest::Reporter* reporter) {
+    SkPath closePt;
+    closePt.moveTo(0, 0);
+    closePt.close();
+    check_close(reporter, closePt);
+
+    SkPath openPt;
+    openPt.moveTo(0, 0);
+    check_close(reporter, openPt);
+
+    SkPath empty;
+    check_close(reporter, empty);
+    empty.close();
+    check_close(reporter, empty);
+
+    SkPath rect;
+    rect.addRect(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
+    check_close(reporter, rect);
+    rect.close();
+    check_close(reporter, rect);
+
+    SkPath quad;
+    quad.quadTo(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
+    check_close(reporter, quad);
+    quad.close();
+    check_close(reporter, quad);
+
+    SkPath cubic;
+    quad.cubicTo(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 
+                 10*SK_Scalar1, 20 * SK_Scalar1, 20*SK_Scalar1);
+    check_close(reporter, cubic);
+    cubic.close();
+    check_close(reporter, cubic);
+
+    SkPath line;
+    line.moveTo(SK_Scalar1, SK_Scalar1);
+    line.lineTo(10 * SK_Scalar1, 10*SK_Scalar1);
+    check_close(reporter, line);
+    line.close();
+    check_close(reporter, line);
+
+    SkPath rect2;
+    rect2.addRect(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
+    rect2.close();
+    rect2.addRect(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
+    check_close(reporter, rect2);
+    rect2.close();
+    check_close(reporter, rect2);
+
+    SkPath oval3;
+    oval3.addOval(SkRect::MakeWH(SK_Scalar1*100,SK_Scalar1*100));
+    oval3.close();
+    oval3.addOval(SkRect::MakeWH(SK_Scalar1*200,SK_Scalar1*200));
+    check_close(reporter, oval3);
+    oval3.close();
+    check_close(reporter, oval3);
+
+    SkPath moves;
+    moves.moveTo(SK_Scalar1, SK_Scalar1);
+    moves.moveTo(5 * SK_Scalar1, SK_Scalar1);
+    moves.moveTo(SK_Scalar1, 10 * SK_Scalar1);
+    moves.moveTo(10 *SK_Scalar1, SK_Scalar1);
+    check_close(reporter, moves);
+}
+
 static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
                             SkPath::Convexity expected) {
     SkPath::Convexity c = SkPath::ComputeConvexity(path);
@@ -242,6 +335,7 @@ void TestPath(skiatest::Reporter* reporter) {
 
     test_convexity(reporter);
     test_convexity2(reporter);
+    test_close(reporter);
 }
 
 #include "TestClassDef.h"
