@@ -1,7 +1,8 @@
 #import "SkUIView.h"
 #include <QuartzCore/QuartzCore.h>
 
-#include "SkGpuCanvas.h"
+//#include "SkGpuCanvas.h"
+#include "SkGpuDevice.h"
 #include "SkCGUtils.h"
 #include "GrContext.h"
 
@@ -32,7 +33,7 @@ static bool should_draw() {
 #endif
 
 //#define USE_GL_1
-#define USE_GL_2
+//#define USE_GL_2
 
 #if defined(USE_GL_1) || defined(USE_GL_2)
     #define USE_GL
@@ -42,7 +43,7 @@ static bool should_draw() {
 
 
 @synthesize fWind;
-@synthesize fTitleLabel;
+@synthesize fTitle;
 @synthesize fBackend;
 @synthesize fComplexClip;
 @synthesize fUseWarp;
@@ -56,7 +57,7 @@ extern SkOSWindow* create_sk_window(void* hwnd, int argc, char** argv);
 
 #define kREDRAW_UIVIEW_GL "sk_redraw_uiview_gl_iOS"
 
-#define TITLE_HEIGHT  44
+#define TITLE_HEIGHT  0
 
 static const float SCALE_FOR_ZOOM_LENS = 4.0;
 #define Y_OFFSET_FOR_ZOOM_LENS           200
@@ -156,8 +157,8 @@ static FPSState gFPS;
     fUseWarp = false;
     fRedrawRequestPending = false;
     // FIXME:  If iOS has argc & argv, pass them here.
-    fWind = create_sk_window(self, 0, NULL);
-    fWind->setConfig(SKWIND_CONFIG);
+    //fWind = create_sk_window(self, 0, NULL);
+    //fWind->setConfig(SKWIND_CONFIG);
     fMatrix.reset();
     fLocalMatrix.reset();
     fNeedGestureEnded = false;
@@ -295,15 +296,14 @@ static void zoom_around(SkCanvas* canvas, float cx, float cy, float zoom) {
 #ifdef SHOULD_COUNTER_INIT
     gShouldCounter = SHOULD_COUNTER_INIT;
 #endif
-
     {
         int saveCount = canvas->save();
         canvas->concat(matrix);
-//        SkRect r = { 10, 10, 500, 600 }; canvas->clipRect(r);
+        //        SkRect r = { 10, 10, 500, 600 }; canvas->clipRect(r);
         fWind->draw(canvas);
         canvas->restoreToCount(saveCount);
     }
-
+    
     if (fZoomAround) {
         zoom_around(canvas, fZoomAroundX, fZoomAroundY, SCALE_FOR_ZOOM_LENS);
         canvas->concat(matrix);
@@ -328,6 +328,7 @@ static void zoom_around(SkCanvas* canvas, float cx, float cy, float zoom) {
     if ([self respondsToSelector:@selector(setContentScaleFactor:)]) {
         self.contentScaleFactor = gScreenScale;
     }
+    
     // Allocate color buffer backing based on the current layer size
     glBindRenderbufferOES(GL_RENDERBUFFER_OES, fGL.fRenderbuffer);
     [fGL.fContext renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:eaglLayer];
@@ -335,14 +336,15 @@ static void zoom_around(SkCanvas* canvas, float cx, float cy, float zoom) {
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &fGL.fWidth);
     glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &fGL.fHeight);
 
+    glBindRenderbufferOES(GL_RENDERBUFFER_OES, fGL.fStencilbuffer);
+    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, fGL.fWidth, fGL.fHeight);
+
+    
     if (glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
     {
         NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
     }
-
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, fGL.fStencilbuffer);
-    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, fGL.fWidth, fGL.fHeight);
-
+    
     W = fGL.fWidth;
     H = fGL.fHeight;
 #else
@@ -363,9 +365,9 @@ static GrContext* get_global_grctx() {
     // should be pthread-local at least
     if (NULL == gCtx) {        
 #ifdef USE_GL_1
-        gCtx = GrContext::Create(GrGpu::kOpenGL_Fixed_Engine, 0);
+        gCtx = GrContext::Create(kOpenGL_Fixed_GrEngine, 0);
 #else
-        gCtx = GrContext::Create(GrGpu::kOpenGL_Shaders_Engine, 0);
+        gCtx = GrContext::Create(kOpenGL_Shaders_GrEngine, 0);
 #endif
     }
     return gCtx;
@@ -478,17 +480,22 @@ static void draw_device(SkCanvas* canvas, SkDevice* dev, float w, float h, float
     if (scissorEnable) {
         glEnable(GL_SCISSOR_TEST);
     }
+    glViewport(0, 0, fWind->width(), fWind->height());
     
     GrContext* ctx = get_global_grctx();
-    SkGpuCanvas origCanvas(ctx);
-    origCanvas.setBitmapDevice(fWind->getBitmap());
     
-    //    gl->reset();
-    SkGpuCanvas glCanvas(ctx);
+    //SkGpuCanvas origCanvas(ctx);
+    //origCanvas.setBitmapDevice(fWind->getBitmap());
+    //gl->reset();
+    
+    SkCanvas glCanvas;
+    SkGpuDevice* dev = new SkGpuDevice(ctx, SkGpuDevice::Current3DApiRenderTarget());
+    glCanvas.setDevice(dev)->unref();
+    
     SkCanvas   rasterCanvas;
 
     SkCanvas* canvas;
-    SkDevice* dev = NULL;
+    //SkDevice* dev = NULL;
     
     switch (fBackend) {
         case kRaster_Backend:
@@ -499,18 +506,18 @@ static void draw_device(SkCanvas* canvas, SkDevice* dev, float w, float h, float
             break;
     }
 
-    if (fUseWarp || fWarpState.isActive()) {
-        if (kGL_Backend == fBackend) {
-            dev = origCanvas.createDevice(fWind->getBitmap(), true);
-            canvas->setDevice(dev)->unref();
-        } else {
-            canvas->setBitmapDevice(fWind->getBitmap());
-            dev = canvas->getDevice();
-        }
-    } else {
-        canvas->setBitmapDevice(fWind->getBitmap());
-        dev = NULL;
-    }
+//    if (fUseWarp || fWarpState.isActive()) {
+//        if (kGL_Backend == fBackend) {
+//            dev = origCanvas.createDevice(fWind->getBitmap(), true);
+//            canvas->setDevice(dev)->unref();
+//        } else {
+//            canvas->setBitmapDevice(fWind->getBitmap());
+//            dev = canvas->getDevice();
+//        }
+//    } else {
+//        canvas->setBitmapDevice(fWind->getBitmap());
+//        dev = NULL;
+//    }
     
     canvas->translate(0, TITLE_HEIGHT);
 
@@ -523,15 +530,15 @@ static void draw_device(SkCanvas* canvas, SkDevice* dev, float w, float h, float
     [self drawWithCanvas:canvas];
     FPS_EndDraw();
 
-    if (dev) {
-        draw_device(&origCanvas, dev, fWind->width(), fWind->height(),
-                    fWarpState.evaluate());
-    } else {
-        if (kRaster_Backend == fBackend) {
-            origCanvas.drawBitmap(fWind->getBitmap(), 0, 0, NULL);
-        }
-        // else GL - we're already on screen
-    }
+//    if (dev) {
+//        draw_device(&origCanvas, dev, fWind->width(), fWind->height(),
+//                    fWarpState.evaluate());
+//    } else {
+//        if (kRaster_Backend == fBackend) {
+//            origCanvas.drawBitmap(fWind->getBitmap(), 0, 0, NULL);
+//        }
+//        // else GL - we're already on screen
+//    }
 
     show_fontcache(ctx, canvas);
     ctx->flush(false);
@@ -562,13 +569,13 @@ static void draw_device(SkCanvas* canvas, SkDevice* dev, float w, float h, float
 #else   // raster case
 
 - (void)drawRect:(CGRect)rect {
-    CGContextRef cg = UIGraphicsGetCurrentContext();
-    SkCanvas* canvas = NULL;
-
+    SkCanvas canvas;
+    canvas.setBitmapDevice(fWind->getBitmap());
     FPS_StartDraw();
-    [self drawWithCanvas:canvas];
-
+    [self drawWithCanvas:&canvas];
     FPS_EndDraw();
+    
+    CGContextRef cg = UIGraphicsGetCurrentContext();
     SkCGDrawBitmap(cg, fWind->getBitmap(), 0, TITLE_HEIGHT);
 
     FPS_Flush(fWind);
@@ -629,35 +636,6 @@ static void draw_device(SkCanvas* canvas, SkDevice* dev, float w, float h, float
     }
 }
 
-- (void)handleDTapGesture:(UIGestureRecognizer*)sender {
-    [self flushLocalMatrix];
-    fMatrix.reset();
-}
-
-static float discretize(float x) {
-    return (int)x;
-}
-
-- (void)handlePanGesture:(UIPanGestureRecognizer*)sender {
-    [self commonHandleGesture:sender];
-
-    CGPoint delta = [sender translationInView:self];
-    delta.x *= gScreenScale;
-    delta.y *= gScreenScale;
-    // avoid flickering where the drawing might toggle in and out of a pixel
-    // center if translated by a fractional value
-    delta.x = discretize(delta.x);
-    delta.y = discretize(delta.y);
-    fLocalMatrix.setTranslate(delta.x, delta.y);
-    [self localMatrixWithGesture:sender];
-
-    if (UIGestureRecognizerStateEnded == sender.state) {
-        CGPoint velocity = [sender velocityInView:self];
-        fFlingState.reset(velocity.x, velocity.y);
-        fNeedGestureEnded = true;
-    }
-}
-
 - (float)limitTotalZoom:(float)scale {
     // this query works 'cause we know that we're square-scale w/ no skew/rotation
     const float curr = fMatrix[0];
@@ -668,33 +646,6 @@ static float discretize(float x) {
         scale = MIN_ZOOM_SCALE / curr;
     }
     return scale;
-}
-
-- (void)handleScaleGesture:(UIPinchGestureRecognizer*)sender {
-    [self commonHandleGesture:sender];
-
-    if ([sender numberOfTouches] == 2) {
-        float scale = sender.scale;
-        CGPoint p0 = [sender locationOfTouch:0 inView:self];
-        CGPoint p1 = [sender locationOfTouch:0 inView:self];
-        float cx = (p0.x + p1.x) * 0.5;
-        float cy = (p0.y + p1.y) * 0.5;
-
-        if (fNeedFirstPinch) {
-            fFirstPinchX = cx;
-            fFirstPinchY = cy;
-            fNeedFirstPinch = false;
-        }
-
-        scale = [self limitTotalZoom:scale];
-
-        fLocalMatrix.setTranslate(-fFirstPinchX, -fFirstPinchY);
-        fLocalMatrix.postScale(scale, scale);
-        fLocalMatrix.postTranslate(cx, cy);
-        [self localMatrixWithGesture:sender];
-    } else {
-        [self flushLocalMatrix];
-    }
 }
 
 - (void)handleLongPressGesture:(UILongPressGestureRecognizer*)sender {
@@ -727,20 +678,38 @@ static float discretize(float x) {
     [gesture release];
 }
 
+
+
+//Gesture Handlers
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    for (UITouch *touch in touches) {
+        CGPoint loc = [touch locationInView:self];
+        fWind->handleClick(loc.x, loc.y, SkView::Click::kDown_State, touch);
+    }
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    for (UITouch *touch in touches) {
+        CGPoint loc = [touch locationInView:self];
+        fWind->handleClick(loc.x, loc.y, SkView::Click::kMoved_State, touch);
+    }
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    for (UITouch *touch in touches) {
+        CGPoint loc = [touch locationInView:self];
+        fWind->handleClick(loc.x, loc.y, SkView::Click::kUp_State, touch);
+    }
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    for (UITouch *touch in touches) {
+        CGPoint loc = [touch locationInView:self];
+        fWind->handleClick(loc.x, loc.y, SkView::Click::kUp_State, touch);
+    }
+}
+
 - (void)initGestures {
-    UITapGestureRecognizer* tapG = [UITapGestureRecognizer alloc];
-    [tapG initWithTarget:self action:@selector(handleDTapGesture:)];
-    tapG.numberOfTapsRequired = 2;
-    [self addAndReleaseGesture:tapG];
-
-    UIPanGestureRecognizer* panG = [UIPanGestureRecognizer alloc];
-    [panG initWithTarget:self action:@selector(handlePanGesture:)];
-    [self addAndReleaseGesture:panG];
-    
-    UIPinchGestureRecognizer* pinchG = [UIPinchGestureRecognizer alloc];
-    [pinchG initWithTarget:self action:@selector(handleScaleGesture:)];
-    [self addAndReleaseGesture:pinchG];
-
     UILongPressGestureRecognizer* longG = [UILongPressGestureRecognizer alloc];
     [longG initWithTarget:self action:@selector(handleLongPressGesture:)];
     [self addAndReleaseGesture:longG];
@@ -807,9 +776,8 @@ static float weighted_average(float newv, float oldv) {
 ///////////////////////////////////////////////////////////////////////////////
 
 - (void)setSkTitle:(const char *)title {
-    if (fTitleLabel) {
-        fTitleLabel.text = [NSString stringWithUTF8String:title];
-        [fTitleLabel setNeedsDisplay];
+    if (fTitle) {
+        fTitle.title = [NSString stringWithUTF8String:title];
     }
 }
 
