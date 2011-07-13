@@ -15,8 +15,6 @@
  */
 
 #include "SkString.h"
-//#include "SkStream.h"
-
 #include "SkEndian.h"
 #include "SkFontHost.h"
 #include "SkDescriptor.h"
@@ -134,23 +132,6 @@ public:
 
 static const LOGFONT& get_default_font() {
     static LOGFONT gDefaultFont;
-    // don't hardcode on Windows, Win2000, XP, Vista, and international all have different default
-    // and the user could change too
-
-
-//  lfMessageFont is garbage on my XP, so skip for now
-#if 0
-    if (gDefaultFont.lfFaceName[0] != 0) {
-        return gDefaultFont;
-    }
-
-    NONCLIENTMETRICS ncm;
-    ncm.cbSize = sizeof(NONCLIENTMETRICS);
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, 0);
-
-    //memcpy(&gDefaultFont, &(ncm.lfMessageFont), sizeof(LOGFONT));
-#endif
-
     return gDefaultFont;
 }
 
@@ -599,45 +580,37 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     uint32_t bytecount = 0;
     uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
     if (GDI_ERROR != total_size && total_size > 0) {
-        uint8_t *pBuff = new uint8_t[total_size];
-        if (NULL != pBuff) {
-            total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, total_size, pBuff, &fMat22);
+        SkAutoSMalloc<1024> storage(total_size);
+        uint8_t *pBuff = (uint8_t*)storage.get();
+        total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, total_size, pBuff, &fMat22);
+        SkASSERT(total_size != GDI_ERROR);
+        SkASSERT(glyph.fWidth == gm.gmBlackBoxX);
+        SkASSERT(glyph.fHeight == gm.gmBlackBoxY);
 
-            SkASSERT(total_size != GDI_ERROR);
+        uint8_t* dst = (uint8_t*)glyph.fImage;
+        uint32_t pitch = (gm.gmBlackBoxX + 3) & ~0x3;
+        if (pitch != glyph.rowBytes()) {
+            SkASSERT(false); // glyph.fImage has different rowsize!?
+        }
 
-            SkASSERT(glyph.fWidth == gm.gmBlackBoxX);
-            SkASSERT(glyph.fHeight == gm.gmBlackBoxY);
+        for (int32_t y = gm.gmBlackBoxY - 1; y >= 0; y--) {
+            const uint8_t* src = pBuff + pitch * y;
 
-            uint8_t* dst = (uint8_t*)glyph.fImage;
-            uint32_t pitch = (gm.gmBlackBoxX + 3) & ~0x3;
-            if (pitch != glyph.rowBytes()) {
-                SkASSERT(false); // glyph.fImage has different rowsize!?
-            }
-
-            for (int32_t y = gm.gmBlackBoxY - 1; y >= 0; y--) {
-                uint8_t* src = pBuff + pitch * y;
-
-                for (uint32_t x = 0; x < gm.gmBlackBoxX; x++) {
-                    if (*src > 63) {
-                        *dst = 0xFF;
-                    }
-                    else {
-                        *dst = *src << 2; // scale to 0-255
-                    }
-                    dst++;
-                    src++;
-                    bytecount++;
+            for (uint32_t x = 0; x < gm.gmBlackBoxX; x++) {
+                if (*src > 63) {
+                    *dst = 0xFF;
+                } else {
+                    *dst = *src << 2; // scale to 0-255
                 }
-                memset(dst, 0, glyph.rowBytes() - glyph.fWidth);
-                dst += glyph.rowBytes() - glyph.fWidth;
+                dst++;
+                src++;
+                bytecount++;
             }
-
-            delete[] pBuff;
+            memset(dst, 0, glyph.rowBytes() - glyph.fWidth);
+            dst += glyph.rowBytes() - glyph.fWidth;
         }
     }
-
     SkASSERT(GDI_ERROR != total_size && total_size >= 0);
-
 }
 
 void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
@@ -967,8 +940,29 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
 }
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
-    // We don't control the hinting nor ClearType settings here
-    rec->setHinting(SkPaint::kNormal_Hinting);
+    unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
+                                  SkScalerContext::kAutohinting_Flag |
+                                  SkScalerContext::kEmbeddedBitmapText_Flag |
+                                  SkScalerContext::kEmbolden_Flag |
+                                  SkScalerContext::kLCD_BGROrder_Flag |
+                                  SkScalerContext::kLCD_Vertical_Flag;
+    rec->fFlags &= ~flagsWeDontSupport;
+
+    // we only support binary hinting: normal or none
+    SkPaint::Hinting h = rec->getHinting();
+    switch (h) {
+        case SkPaint::kNo_Hinting:
+        case SkPaint::kSlight_Hinting:
+            h = SkPaint::kNo_Hinting;
+            break;
+        case SkPaint::kNormal_Hinting:
+        case SkPaint::kFull_Hinting:
+            h = SkPaint::kNormal_Hinting;
+            break;
+        default:
+            SkASSERT(!"unknown hinting");
+    }
+    rec->setHinting(h);
 }
 
 #endif // WIN32
