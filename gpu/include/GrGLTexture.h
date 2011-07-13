@@ -86,6 +86,12 @@ public:
     GrGLuint textureFBOID() const { return fTexFBOID; }
 
     // override of GrRenderTarget 
+    virtual intptr_t getRenderTargetHandle() const {
+        return this->renderFBOID(); 
+    }
+    virtual intptr_t getRenderTargetResolvedHandle() const {
+        return this->textureFBOID();
+    }
     virtual ResolveType getResolveType() const {
         if (fRTFBOID == fTexFBOID) {
             // catches FBO 0 and non MSAA case

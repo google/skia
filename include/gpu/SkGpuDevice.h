@@ -68,18 +68,6 @@ public:
     GrContext* context() const { return fContext; }
 
     /**
-     *  If this device was built for rendering as a layer (i.e. offscreen),
-     *  then this will return the platform-specific handle to that GPU resource.
-     *  For example, in OpenGL, this will return the FBO's texture ID.
-     *  If this device was not built for rendering as a layer, then 0
-     *  is returned.
-     */
-    intptr_t getLayerTextureHandle() const;
-
-    // call to set the clip to the specified rect
-    void scissor(const SkIRect&);
-
-    /**
      *  Override from SkGpuDevice, so we can set our FBO to be the render target
      *  The canvas parameter must be a SkGpuCanvas
      */
