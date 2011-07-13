@@ -92,6 +92,18 @@ public:
         kMPersp2
     };
     
+    /** Affine arrays are in column major order
+        because that's how PDF and XPS like it.
+     */
+    enum {
+        kAScaleX,
+        kASkewY,
+        kASkewX,
+        kAScaleY,
+        kATransX,
+        kATransY
+    };
+
     SkScalar operator[](int index) const {
         SkASSERT((unsigned)index < 9);
         return fMat[index];
@@ -318,12 +330,19 @@ public:
     */
     bool invert(SkMatrix* inverse) const;
 
-    /** Fills the passed array with the tranform values in the right order
-        for PDFs.  If the matrix is a perspective transform, returns false
-        and fills the array with an identity transform.
-        @param transform  The array to fill in.
+    /** Fills the passed array with affine identity values
+        in column major order.
+        @param affine  The array to fill with affine identity values.
+        Must not be NULL.
     */
-    bool pdfTransform(SkScalar transform[6]) const;
+    static void SetAffineIdentity(SkScalar affine[6]);
+
+    /** Fills the passed array with the affine values in column major order.
+        If the matrix is a perspective transform, returns false
+        and does not change the passed array.
+        @param affine  The array to fill with affine values. Ignored if NULL.
+    */
+    bool asAffine(SkScalar affine[6]) const;
 
     /** Apply this matrix to the array of points specified by src, and write
         the transformed points into the array of points specified by dst.

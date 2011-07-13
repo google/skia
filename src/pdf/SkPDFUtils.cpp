@@ -24,7 +24,9 @@
 // static
 SkPDFArray* SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
     SkScalar values[6];
-    SkAssertResult(matrix.pdfTransform(values));
+    if (!matrix.asAffine(values)) {
+        SkMatrix::SetAffineIdentity(values);
+    }
 
     SkPDFArray* result = new SkPDFArray;
     result->reserve(6);
@@ -37,7 +39,9 @@ SkPDFArray* SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
 // static
 void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
     SkScalar values[6];
-    SkAssertResult(matrix.pdfTransform(values));
+    if (!matrix.asAffine(values)) {
+        SkMatrix::SetAffineIdentity(values);
+    }
     for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
         SkPDFScalar::Append(values[i], content);
         content->writeText(" ");
