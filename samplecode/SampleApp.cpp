@@ -34,8 +34,6 @@
 
 extern SkView* create_overview(int, const SkViewFactory[]);
 
-#define SK_SUPPORT_GL
-
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
 
@@ -45,10 +43,6 @@ extern SkView* create_overview(int, const SkViewFactory[]);
     #define FPS_REPEAT_MULTIPLIER   10
 #endif
 #define FPS_REPEAT_COUNT    (10 * FPS_REPEAT_MULTIPLIER)
-
-#ifdef SK_SUPPORT_GL
-    #include "GrGLConfig.h"
-#endif
 
 static SampleWindow* gSampleWindow;
 
@@ -174,10 +168,6 @@ SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
     fChain = gHead;
     gHead = this;
 }
-
-#if defined(SK_SUPPORT_GL)
-    #define SK_USE_SHADERS
-#endif
 
 #if 0
 #include <CoreFoundation/CoreFoundation.h>
