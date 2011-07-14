@@ -63,7 +63,7 @@ if __name__ == '__main__':
   # finickyness about the current working directory.
   # See http://b.corp.google.com/issue?id=5019517 ('Linux make build
   # (from out dir) no longer runs skia_gyp correctly')
-  os.chdir(script_dir)
+  os.chdir(os.path.abspath(script_dir))
 
   # This could give false positives since it doesn't actually do real option
   # parsing.  Oh well.
