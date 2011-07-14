@@ -1076,11 +1076,15 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
         kAlpha_8_GrPixelConfig
     };
 
-    GrTexture* texture = context->createUncachedTexture(desc, dstM.fImage,
-                                                        dstM.fRowBytes);
+    GrAutoUnlockTextureEntry aute(context,
+                                  context->findApproximateKeylessTexture(desc));
+    GrTexture* texture = aute.texture();
+
     if (NULL == texture) {
         return false;
     }
+    texture->uploadTextureData(0, 0, desc.fWidth, desc.fHeight, 
+                               dstM.fImage, dstM.fRowBytes);
 
     if (grp->hasTextureOrMask() && ivm.invert(&ivm)) {
         grp->preConcatActiveSamplerMatrices(ivm);
@@ -1090,7 +1094,6 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
     // we assume the last mask index is available for use
     GrAssert(NULL == grp->getMask(MASK_IDX));
     grp->setMask(MASK_IDX, texture);
-    texture->unref();
     grp->getMaskSampler(MASK_IDX)->setClampNoFilter();
 
     GrRect d;
@@ -1101,7 +1104,7 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 
     GrMatrix m;
     m.setTranslate(-dstM.fBounds.fLeft, -dstM.fBounds.fTop);
-    m.postIDiv(dstM.fBounds.width(), dstM.fBounds.height());
+    m.postIDiv(texture->width(), texture->height());
     grp->getMaskSampler(MASK_IDX)->setMatrix(m);
     
     context->drawRect(*grp, d);
