@@ -693,6 +693,8 @@ public:
             fContext->unlockTexture(fEntry);
         }
     }
+
+    GrTexture* texture() { return fEntry->texture(); }
 private:
     GrContext*      fContext;
     GrTextureEntry* fEntry;
