@@ -20,6 +20,10 @@ int main(int argc, char** argv){
     signal(SIGALRM, catch_alarm);
 
     gWindow = create_sk_window(NULL, argc, argv);
+
+    // drain any events that occurred before gWindow was assigned.
+    while (SkEvent::ProcessEvent());
+
     // Start normal Skia sequence
     application_init();
 
@@ -34,10 +38,9 @@ int main(int argc, char** argv){
 
 void SkEvent::SignalNonEmptyQueue()
 {
-    if (gWindow)
+    if (gWindow) {
         gWindow->post_linuxevent();
-    else
-        while (SkEvent::ProcessEvent());
+    }
 }
 
 void SkEvent::SignalQueueTimer(SkMSec delay)
