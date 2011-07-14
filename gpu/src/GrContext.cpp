@@ -1467,8 +1467,6 @@ void GrContext::writePixels(int left, int top, int width, int height,
     const GrTextureDesc desc = {
         kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
     };
-    GrAutoUnlockTextureEntry aute(this, 
-                                  this->findApproximateKeylessTexture(desc));
     GrTexture* texture = fGpu->createTexture(desc, buffer, stride);
     if (NULL == texture) {
         return;
