@@ -892,7 +892,11 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         return false;
     }
     GrRenderTarget* oldRenderTarget = context->getRenderTarget();
+    // Once this code moves into GrContext, this should be changed to use
+    // an AutoClipRestore.
+    GrClip oldClip = context->getClip();
     context->setRenderTarget(dstTexture->asRenderTarget());
+    context->setClip(srcRect);
     // FIXME:  could just clear bounds
     context->clear(NULL, 0);
     GrMatrix transM;
@@ -1006,6 +1010,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         context->drawRect(paint, srcRect);
     }
     context->setRenderTarget(oldRenderTarget);
+    context->setClip(oldClip);
     
     if (grp->hasTextureOrMask()) {
         GrMatrix inverse;
