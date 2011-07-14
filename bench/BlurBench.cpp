@@ -26,7 +26,7 @@ public:
         fRadius = rad;
         fStyle = bs;
         const char* name = rad > 0 ? gStyleName[bs] : "none";
-        fName.printf("blur_%g_%s", rad, name);
+        fName.printf("blur_%d_%s", SkScalarRound(rad), name);
     }
     
 protected:
