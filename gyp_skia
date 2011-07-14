@@ -58,6 +58,13 @@ def additional_include_files(args=[]):
 if __name__ == '__main__':
   args = sys.argv[1:]
 
+  # Set CWD to the directory containing this script.
+  # This allows us to launch it from other directories, in spite of gyp's
+  # finickyness about the current working directory.
+  # See http://b.corp.google.com/issue?id=5019517 ('Linux make build
+  # (from out dir) no longer runs skia_gyp correctly')
+  os.chdir(script_dir)
+
   # This could give false positives since it doesn't actually do real option
   # parsing.  Oh well.
   gyp_file_specified = False
@@ -68,8 +75,10 @@ if __name__ == '__main__':
 
   # If we didn't get a file, then fall back to assuming 'skia.gyp' from the
   # same directory as the script.
+  # The gypfile must be passed as a relative path, not an absolute path,
+  # or else the gyp code doesn't write into the proper output dir.
   if not gyp_file_specified:
-    args.append(os.path.join(script_dir, 'skia.gyp'))
+    args.append('skia.gyp')
 
   args.extend(['-I' + i for i in additional_include_files(args)])
   args.extend(['--depth', '.'])

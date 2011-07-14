@@ -52,7 +52,7 @@ clean:
 #
 # For the Mac, we create a convenience symlink to the generated binary.
 %:
-	./gyp_skia
+	$(CWD)/gyp_skia
 ifneq (,$(findstring Linux, $(uname)))
 	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
 endif
@@ -70,7 +70,7 @@ endif
 local_filenames := $(shell ls)
 .PHONY: $(local_filenames)
 $(local_filenames)::
-	./gyp_skia
+	$(CWD)/gyp_skia
 ifneq (,$(findstring Linux, $(uname)))
 	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
 endif
