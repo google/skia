@@ -479,6 +479,12 @@ int main (int argc, char * const argv[]) {
             for (int i = 0; i < repeatDraw; i++) {
                 SkAutoCanvasRestore acr(&canvas, true);
                 bench->draw(&canvas);
+                if (gpu) {
+                    context->flush();
+                }
+            }
+            if (gpu) {
+                glFinish();
             }
             timer.end();
             
