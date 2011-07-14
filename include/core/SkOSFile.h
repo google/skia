@@ -55,6 +55,10 @@ public:
         ~Iter();
 
         void reset(const char path[], const char suffix[] = NULL);
+        /** If getDir is true, only returns directories.
+            Results are undefined if true and false calls are
+            interleaved on a single iterator.
+        */
         bool next(SkString* name, bool getDir = false);
 
     private:
