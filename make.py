@@ -14,16 +14,24 @@
 
 # "Makefile" replacement to build skia for Windows.
 # More info at http://code.google.com/p/skia/wiki/DocRoot
+#
+# Some usage examples:
+#   make clean
+#   make tests
+#   make bench BUILDTYPE=Release
+#   make gm GYP_DEFINES=skia_scalar=fixed BUILDTYPE=Release
+#   make all
 
 import os
 import shutil
 import sys
 
-# TODO(epoger): allow caller to override BUILDTYPE
 BUILDTYPE = 'Debug'
 
-# TODO(epoger): add special 'all' target
+# special targets
+TARGET_ALL = 'all'
 TARGET_CLEAN = 'clean'
+LIST_OF_ALL_TARGETS = ['SampleApp', 'bench', 'gm', 'tests', 'tools']
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 OUT_SUBDIR = 'out'
@@ -93,16 +101,13 @@ def CheckWindowsEnvironment():
     sys.exit(1)
 
 
-def MakeWindows(args):
+def MakeWindows(targets):
     """For Windows: build as appropriate for the command line arguments.
 
     parameters:
-        args: command line arguments as a list of strings
+        targets: build targets as a list of strings
     """
     CheckWindowsEnvironment()
-
-    # TODO(epoger): what about fixed vs float?
-    # TODO(epoger): what about "make" flags (like -j) that Windows doesn't support?
 
     # Run gyp_skia to prepare Visual Studio projects.
     cd(SCRIPT_DIR)
@@ -114,41 +119,67 @@ def MakeWindows(args):
     final_output_dir = os.path.join(SCRIPT_DIR, OUT_SUBDIR, BUILDTYPE)
     mkdirs(final_output_dir)
 
-    for target in args:
-        # Check for special-case targets
-        if target == TARGET_CLEAN:
-            MakeClean()
-        else:
-            cd(msbuild_working_dir)
-            runcommand(
-                ('msbuild /nologo /property:Configuration=%s'
-                ' /target:%s /verbosity:minimal %s.sln') % (
-                    BUILDTYPE, target, target))
-            runcommand('xcopy /y %s\* %s' % (
-                msbuild_output_dir, final_output_dir))
+    for target in targets:
+        cd(msbuild_working_dir)
+        runcommand(
+            ('msbuild /nologo /property:Configuration=%s'
+            ' /target:%s /verbosity:minimal %s.sln') % (
+                BUILDTYPE, target, target))
+        runcommand('xcopy /y %s\* %s' % (
+            msbuild_output_dir, final_output_dir))
 
-# main:
-# dispatch to appropriate Make<Platform>() variant.
-if os.name == 'nt':
-    MakeWindows(sys.argv[1:])
-    sys.exit(0)
-elif os.name == 'posix':
-    if sys.platform == 'darwin':
-        print 'Mac developers should not run this script; see ' \
-            'http://code.google.com/p/skia/wiki/GettingStartedOnMac'
-        sys.exit(1)
-    elif sys.platform == 'cygwin':
-        print 'Windows development on Cygwin is not currently supported; see ' \
-            'http://code.google.com/p/skia/wiki/GettingStartedOnWindows'
-        sys.exit(1)
+
+def Make(args):
+    """Main function.
+
+    parameters:
+        args: command line arguments as a list of strings
+    """
+    # handle any variable-setting parameters or special targets
+    global BUILDTYPE
+    targets = []
+    for arg in args:
+        if arg == TARGET_ALL:
+            targets.extend(LIST_OF_ALL_TARGETS)
+        elif arg == TARGET_CLEAN:
+            MakeClean()
+        elif arg.startswith('BUILDTYPE='):
+            BUILDTYPE = arg[10:]
+        elif arg.startswith('GYP_DEFINES='):
+            os.environ['GYP_DEFINES'] = arg[12:]
+        else:
+            targets.append(arg)
+
+    # if there are no remaining targets, we're done
+    if not targets:
+        sys.exit(0)
+
+    # dispatch to appropriate Make<Platform>() variant.
+    if os.name == 'nt':
+        MakeWindows(targets)
+        sys.exit(0)
+    elif os.name == 'posix':
+        if sys.platform == 'darwin':
+            print 'Mac developers should not run this script; see ' \
+                'http://code.google.com/p/skia/wiki/GettingStartedOnMac'
+            sys.exit(1)
+        elif sys.platform == 'cygwin':
+            print 'Windows development on Cygwin is not currently supported; ' \
+                'see http://code.google.com/p/skia/wiki/GettingStartedOnWindows'
+            sys.exit(1)
+        else:
+            print 'Unix developers should not run this script; see ' \
+                'http://code.google.com/p/skia/wiki/GettingStartedOnLinux'
+            sys.exit(1)
     else:
-        print 'Unix developers should not run this script; see ' \
-            'http://code.google.com/p/skia/wiki/GettingStartedOnLinux'
+        print 'unknown platform (os.name=%s, sys.platform=%s); see %s' % (
+            os.name, sys.platform, 'http://code.google.com/p/skia/wiki/DocRoot')
         sys.exit(1)
-else:
-    print 'unknown platform (os.name=%s, sys.platform=%s); see %s' % (
-        os.name, sys.platform, 'http://code.google.com/p/skia/wiki/DocRoot')
-    sys.exit(1)
-sys.exit(0)
+    sys.exit(0)
+
+
+# main()
+Make(sys.argv[1:])
+
     
 
