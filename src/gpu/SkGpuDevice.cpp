@@ -48,7 +48,18 @@ enum {
 
 
 #define USE_GPU_BLUR 0
-#define MAX_SIGMA 4.0f
+#define MAX_BLUR_SIGMA 4.0f
+// FIXME:  This value comes from from SkBlurMaskFilter.cpp.
+// Should probably be put in a common header someplace.
+#define MAX_BLUR_RADIUS SkIntToScalar(128)
+// This constant approximates the scaling done in the software path's
+// "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
+// IMHO, it actually should be 1:  we blur "less" than we should do
+// according to the CSS and canvas specs, simply because Safari does the same.
+// Firefox used to do the same too, until 4.0 where they fixed it.  So at some
+// point we should probably get rid of these scaling constants and rebaseline
+// all the blur tests.
+#define BLUR_SIGMA_SCALE 0.6f
 ///////////////////////////////////////////////////////////////////////////////
 
 SkGpuDevice::SkAutoCachedTexture::
@@ -836,14 +847,15 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     if (SkMaskFilter::kNone_BlurType == blurType) {
         return false;
     }
-    float radius = info.fIgnoreTransform ? info.fRadius
-                                         : matrix.mapRadius(info.fRadius);
-    float sigma = radius * 0.6666f;
+    SkScalar radius = info.fIgnoreTransform ? info.fRadius
+                                            : matrix.mapRadius(info.fRadius);
+    radius = SkMinScalar(radius, MAX_BLUR_RADIUS);
+    float sigma = SkScalarToFloat(radius) * BLUR_SIGMA_SCALE;
     SkRect srcRect = path.getBounds();
 
     int scaleFactor = 1;
 
-    while (sigma > MAX_SIGMA) {
+    while (sigma > MAX_BLUR_SIGMA) {
         scaleFactor *= 2;
         sigma *= 0.5f;
     }

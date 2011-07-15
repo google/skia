@@ -41,7 +41,7 @@ static SkBitmap make_bitmap() {
     return bm;
 }
 
-class BlurView : public SkView {
+class BlurView : public SampleView {
     SkBitmap    fBM;
 public:
 	BlurView() {
@@ -61,7 +61,7 @@ protected:
         canvas->drawColor(0xFFDDDDDD);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    virtual void onDrawContent(SkCanvas* canvas) {
         drawBG(canvas);
 
         SkBlurMaskFilter::BlurStyle NONE = SkBlurMaskFilter::BlurStyle(-999);
