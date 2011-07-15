@@ -19,90 +19,15 @@
 #define GrRefCnt_DEFINED
 
 #include "GrTypes.h"
-#include "GrNoncopyable.h"
+#include "SkRefCnt.h"
 
-/**
- *  Base class for reference counting. When an object is first instantiated,
- *  its reference count is 1. If the object may be null, use GrSafeRef() and
- *  GrSafeUnref().
- *
- *  It is an error (though only checked for in the debug build) to call unref()
- *  such that the reference count becomes 0.
- */
-class GR_API GrRefCnt : GrNoncopyable {
-public:
-            GrRefCnt() : fRefCnt(1) {}
-    virtual ~GrRefCnt() {
-        GrAssert(1 == fRefCnt);
-#if GR_DEBUG
-        fRefCnt = 0;    // force validate() to trigger if called afterwards
-#endif
-    }
+typedef SkRefCnt GrRefCnt;
+typedef SkAutoRef GrAutoRef;
+typedef SkAutoUnref GrAutoUnref;
 
-    int32_t refcnt() const { return fRefCnt; }
-
-    void ref() const {
-        GrAssert(fRefCnt > 0);
-        ++fRefCnt;
-    }
-
-    void unref() const {
-        GrAssert(fRefCnt > 0);
-        if (1 == fRefCnt) {
-            delete this;
-        } else {
-            --fRefCnt;
-        }
-    }
-
-#if GR_DEBUG
-    void validate() const {
-        GrAssert(fRefCnt > 0);
-    }
-#else
-    void validate() const {}
-#endif
-
-private:
-    mutable int32_t fRefCnt;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-/**
- *  Call with instance/subclass of GrRefCnt. This does nothing if obj is null,
- *  but otherwise it calls ref().
- */
-static inline void GrSafeRef(const GrRefCnt* obj) {
-    if (obj) {
-        obj->ref();
-    }
-}
-
-/**
- *  Call with instance/subclass of GrRefCnt. This does nothing if obj is null,
- *  but otherwise it calls unref().
- */
-static inline void GrSafeUnref(const GrRefCnt* obj) {
-    if (obj) {
-        obj->unref();
-    }
-}
-
-/**
- *  Assigns src to dst, checking for NULLs in each, and correctly incrementing
- *  the reference count of src, and decrementing the reference count of dst
- */
-template<typename T>
-static inline void GrSafeAssign(T*& dst, T* src) {
-    if (src) {
-        src->ref();
-    }
-    if (dst) {
-        dst->unref();
-    }
-    dst = src;
-}
+static void GrSafeRef(const SkRefCnt* obj) { SkSafeRef(obj); }
+static void GrSafeUnref(const SkRefCnt* obj) { SkSafeUnref(obj); }
+#define GrSafeAssign(a, b)  SkRefCnt_SafeAssign(a, b)
 
 template<typename T>
 static inline void GrSafeSetNull(T*& obj) {
@@ -111,24 +36,6 @@ static inline void GrSafeSetNull(T*& obj) {
         obj = NULL;
     }
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GrAutoRef : GrNoncopyable {
-public:
-    GrAutoRef(GrRefCnt* obj) : fObj(obj) { GrSafeRef(obj); }
-    ~GrAutoRef() { GrSafeUnref(fObj); }
-private:
-    GrRefCnt* fObj;
-};
-
-class GrAutoUnref : GrNoncopyable {
-public:
-    GrAutoUnref(GrRefCnt* obj) : fObj(obj) {}
-    ~GrAutoUnref() { GrSafeUnref(fObj); }
-private:
-    GrRefCnt* fObj;
-};
 
 #endif
 
