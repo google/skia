@@ -62,12 +62,18 @@ SkDashPathEffect::SkDashPathEffect(const SkScalar intervals[], int count,
             phase = SkScalarMod(phase, len);
         }
 
+        // got to watch out for values that might make us go out of bounds
+        if (!SkScalarIsFinite(phase) || !SkScalarIsFinite(len)) {
+            goto BAD_DASH;
+        }
+
         SkASSERT(phase >= 0 && phase < len);
         fInitialDashLength = FindFirstInterval(intervals, phase, &fInitialDashIndex);
 
         SkASSERT(fInitialDashLength >= 0);
         SkASSERT(fInitialDashIndex >= 0 && fInitialDashIndex < fCount);
     } else {
+        BAD_DASH:
         fInitialDashLength = -1;    // signal bad dash intervals
     }
 }
