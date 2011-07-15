@@ -63,9 +63,45 @@ public:
         }
     }
 
+    void validate() const {
+        SkASSERT(fRefCnt > 0);
+    }
+
 private:
     mutable int32_t fRefCnt;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+
+/** Helper macro to safely assign one SkRefCnt[TS]* to another, checking for
+    null in on each side of the assignment, and ensuring that ref() is called
+    before unref(), in case the two pointers point to the same object.
+ */
+#define SkRefCnt_SafeAssign(dst, src)   \
+    do {                                \
+        if (src) src->ref();            \
+        if (dst) dst->unref();          \
+        dst = src;                      \
+    } while (0)
+
+
+/** Check if the argument is non-null, and if so, call obj->ref()
+ */
+template <typename T> static inline void SkSafeRef(T* obj) {
+    if (obj) {
+        obj->ref();
+    }
+}
+
+/** Check if the argument is non-null, and if so, call obj->unref()
+ */
+template <typename T> static inline void SkSafeUnref(T* obj) {
+    if (obj) {
+        obj->unref();
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 /**
  *  Utility class that simply unref's its argument in the destructor.
@@ -98,35 +134,13 @@ public:
     SkAutoUnref(SkRefCnt* obj) : SkAutoTUnref<SkRefCnt>(obj) {}
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-/** Helper macro to safely assign one SkRefCnt[TS]* to another, checking for
-    null in on each side of the assignment, and ensuring that ref() is called
-    before unref(), in case the two pointers point to the same object.
-*/
-#define SkRefCnt_SafeAssign(dst, src)   \
-    do {                                \
-        if (src) src->ref();            \
-        if (dst) dst->unref();          \
-        dst = src;                      \
-    } while (0)
-
-
-/** Check if the argument is non-null, and if so, call obj->ref()
- */
-template <typename T> static inline void SkSafeRef(T* obj) {
-    if (obj) {
-        obj->ref();
-    }
-}
-
-/** Check if the argument is non-null, and if so, call obj->unref()
- */
-template <typename T> static inline void SkSafeUnref(T* obj) {
-    if (obj) {
-        obj->unref();
-    }
-}
+class SkAutoRef : SkNoncopyable {
+public:
+    SkAutoRef(SkRefCnt* obj) : fObj(obj) { SkSafeRef(obj); }
+    ~SkAutoRef() { SkSafeUnref(fObj); }
+private:
+    SkRefCnt* fObj;
+};
 
 /** Wrapper class for SkRefCnt pointers. This manages ref/unref of a pointer to
     a SkRefCnt (or subclass) object.
