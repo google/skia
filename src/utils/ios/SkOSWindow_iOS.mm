@@ -7,7 +7,7 @@
 #include "SkOSMenu.h"
 #include "SkTime.h"
 #include "SkTypes.h"
-#import "SkUIView_shell.h"
+#import "SkUIView.h"
 #include "SkWindow.h"
 
 #define kINVAL_UIVIEW_EventType "inval-uiview"
@@ -31,10 +31,10 @@ bool SkOSWindow::onEvent(const SkEvent& evt) {
     if (evt.isType(kINVAL_UIVIEW_EventType)) {
         fInvalEventIsPending = false;
         const SkIRect& r = this->getDirtyBounds();
-        [(SkUIView_shell*)fHWND postInvalWithRect:&r];
+        [(SkUIView*)fHWND postInvalWithRect:&r];
         return true;
     }
-    if ([(SkUIView_shell*)fHWND onHandleEvent:evt]) {
+    if ([(SkUIView*)fHWND onHandleEvent:evt]) {
         return true;
     }
     return this->INHERITED::onEvent(evt);
@@ -45,7 +45,7 @@ bool SkOSWindow::onDispatchClick(int x, int y, Click::State state, void* owner) 
 }
 
 void SkOSWindow::onSetTitle(const char title[]) {
-    [(SkUIView_shell*)fHWND setSkTitle:title];
+    [(SkUIView*)fHWND setSkTitle:title];
 }
 
 void SkOSWindow::onAddMenu(const SkOSMenu* sk_menu) {

@@ -10,6 +10,4 @@
 @property (nonatomic, retain) IBOutlet SkUIRootViewController* fRoot;
 @property (nonatomic, retain) IBOutlet SkUIDetailViewController* fDetail;
 
-- (void)loadData;
-
 @end
