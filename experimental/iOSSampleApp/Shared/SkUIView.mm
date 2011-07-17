@@ -9,7 +9,7 @@
 #define FORCE_REDRAW
 
 //#define USE_GL_1
-//#define USE_GL_2
+#define USE_GL_2
 #if defined(USE_GL_1) || defined(USE_GL_2)
 #define USE_GL
 #endif
@@ -33,9 +33,10 @@ SkiOSDeviceManager::~SkiOSDeviceManager() {
 void SkiOSDeviceManager::init(SampleWindow* win) {
     win->attachGL();
     if (NULL == fGrContext) {
-#if defined(USE_GL_1)
+#ifdef USE_GL_1
         fGrContext = GrContext::Create(kOpenGL_Fixed_GrEngine, NULL);
-#elsif defined(USE_GL_2)
+#endif
+#ifdef USE_GL_2
         fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
 #endif
     }
