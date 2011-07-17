@@ -3,9 +3,11 @@
 @implementation SkUINavigationController
 @synthesize fRoot, fDetail;
 
-- (void)loadData {
+- (void)viewDidLoad {
+    [super viewDidLoad];
     [fRoot initSamples];
     [fDetail populateRoot:fRoot];
+    [self pushViewController:fDetail animated:NO];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -16,6 +18,12 @@
     [fRoot release];
     [fDetail release];
     [super dealloc];
+}
+
+//Table View Delegate Methods
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [fDetail goToItem:indexPath.row];
+    [self pushViewController:fDetail animated:YES];
 }
 
 @end

@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
-		26075E6013C506560034339C /* SkAlertPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 26075E5F13C506560034339C /* SkAlertPrompt.m */; };
 		260E00D513B11F5B0064D447 /* bitmapfilters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E001513B11F5B0064D447 /* bitmapfilters.cpp */; };
 		260E00D613B11F5B0064D447 /* blurs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E001613B11F5B0064D447 /* blurs.cpp */; };
 		260E00D713B11F5B0064D447 /* complexclip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E001713B11F5B0064D447 /* complexclip.cpp */; };
@@ -23,7 +22,6 @@
 		260E00DF13B11F5B0064D447 /* shapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002013B11F5B0064D447 /* shapes.cpp */; };
 		260E00E013B11F5B0064D447 /* tilemodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002113B11F5B0064D447 /* tilemodes.cpp */; };
 		260E00E113B11F5B0064D447 /* xfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002213B11F5B0064D447 /* xfermodes.cpp */; };
-		260E00E213B11F5B0064D447 /* ClockFaceView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002413B11F5B0064D447 /* ClockFaceView.cpp */; };
 		260E00E313B11F5B0064D447 /* OverView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002513B11F5B0064D447 /* OverView.cpp */; };
 		260E00E413B11F5B0064D447 /* SampleAARects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002613B11F5B0064D447 /* SampleAARects.cpp */; };
 		260E00E513B11F5B0064D447 /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002713B11F5B0064D447 /* SampleAll.cpp */; };
@@ -224,7 +222,6 @@
 		260E041013B122D40064D447 /* GrContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D713B122D40064D447 /* GrContext.cpp */; };
 		260E041113B122D40064D447 /* GrCreatePathRenderer_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D813B122D40064D447 /* GrCreatePathRenderer_none.cpp */; };
 		260E041213B122D40064D447 /* GrDrawTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D913B122D40064D447 /* GrDrawTarget.cpp */; };
-		260E041313B122D40064D447 /* GrGLDefaultInterface_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03DA13B122D40064D447 /* GrGLDefaultInterface_none.cpp */; };
 		260E041413B122D40064D447 /* GrGLIndexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03DB13B122D40064D447 /* GrGLIndexBuffer.cpp */; };
 		260E041513B122D40064D447 /* GrGLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03DC13B122D40064D447 /* GrGLInterface.cpp */; };
 		260E041613B122D40064D447 /* GrGLProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03DD13B122D40064D447 /* GrGLProgram.cpp */; };
@@ -327,7 +324,6 @@
 		260E05E013B123E80064D447 /* SkWindow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E05C813B123E80064D447 /* SkWindow.cpp */; };
 		260E05FE13B124210064D447 /* SkDOM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E05F713B124210064D447 /* SkDOM.cpp */; };
 		260E060113B124210064D447 /* SkXMLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E05FA13B124210064D447 /* SkXMLParser.cpp */; };
-		260E069013B127CC0064D447 /* SampleApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002913B11F5B0064D447 /* SampleApp.cpp */; };
 		260E075313B127E00064D447 /* SkAnimateActive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E06BC13B127E00064D447 /* SkAnimateActive.cpp */; };
 		260E075413B127E00064D447 /* SkAnimateBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E06BE13B127E00064D447 /* SkAnimateBase.cpp */; };
 		260E075513B127E00064D447 /* SkAnimateField.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E06C013B127E00064D447 /* SkAnimateField.cpp */; };
@@ -415,7 +411,6 @@
 		260E087F13B12B6F0064D447 /* SkFontHost_mac_coretext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E029813B1225D0064D447 /* SkFontHost_mac_coretext.cpp */; };
 		260E095713B134C90064D447 /* FlingState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E095513B134C90064D447 /* FlingState.cpp */; };
 		260E095813B134C90064D447 /* GrDrawMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E095613B134C90064D447 /* GrDrawMesh.cpp */; };
-		260E0AC513B1401D0064D447 /* SkIOSNotifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260E0AC413B1401D0064D447 /* SkIOSNotifier.mm */; };
 		260E147913B2734E0064D447 /* SkUISplitViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260E147813B2734E0064D447 /* SkUISplitViewController.mm */; };
 		260E16E613B2853F0064D447 /* SampleGM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004413B11F5B0064D447 /* SampleGM.cpp */; };
 		260E16F013B285540064D447 /* SampleFuzz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004313B11F5B0064D447 /* SampleFuzz.cpp */; };
@@ -434,18 +429,26 @@
 		260E1EAC13B3B15A0064D447 /* SkPDFTypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E1EA013B3B15A0064D447 /* SkPDFTypes.cpp */; };
 		260E1EAD13B3B15A0064D447 /* SkPDFUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E1EA113B3B15A0064D447 /* SkPDFUtils.cpp */; };
 		260EE9D513AFA7850064D447 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D013AFA7850064D447 /* CoreFoundation.framework */; };
-		260EEDCD13AFCBF30064D447 /* SkOSWindow_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BC13AFA7790064D447 /* SkOSWindow_iOS.mm */; };
-		260EEDD713AFCC740064D447 /* SkUIView_shell.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EEA2D13AFB1C70064D447 /* SkUIView_shell.mm */; };
 		260EF18513AFD62E0064D447 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EF18413AFD62E0064D447 /* CoreText.framework */; };
 		260EF2B013AFDBD30064D447 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
-		260EFB7113B0DBFF0064D447 /* SkUIRootViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EFB7013B0DBFF0064D447 /* SkUIRootViewController.mm */; };
-		260EFBA513B0DF600064D447 /* SkUIDetailViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EFBA413B0DF600064D447 /* SkUIDetailViewController.mm */; };
+		263BE75813CCC7BF00CCE991 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 263BE75713CCC7BF00CCE991 /* QuartzCore.framework */; };
 		2662AB7013BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */; };
 		2662AB7613BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2662AB7513BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig */; };
 		2662AB7813BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2662AB7713BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig */; };
 		26677D6613B4C548009319B8 /* SkData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26677D6513B4C548009319B8 /* SkData.cpp */; };
+		267D09CE13C64FB600A06CB1 /* ClockFaceView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002413B11F5B0064D447 /* ClockFaceView.cpp */; };
+		268F31FE13CDE72D003A1EF2 /* SkSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268F31FA13CDE726003A1EF2 /* SkSockets.cpp */; };
+		26962B2313CDF6A00039B1FB /* SkOSFile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */; };
+		26962C7D13CE256E0039B1FB /* SkAlertPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 26962C7313CE256E0039B1FB /* SkAlertPrompt.m */; };
+		26962C7F13CE256E0039B1FB /* SkiOSNotifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962C7713CE256E0039B1FB /* SkiOSNotifier.mm */; };
+		26962C8013CE256E0039B1FB /* SkUIDetailViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962C7913CE256E0039B1FB /* SkUIDetailViewController.mm */; };
+		26962C8113CE256E0039B1FB /* SkUIRootViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962C7B13CE256E0039B1FB /* SkUIRootViewController.mm */; };
+		26962CA413CE265C0039B1FB /* SkOSWindow_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962CA313CE265C0039B1FB /* SkOSWindow_iOS.mm */; };
+		26962CAB13CE268A0039B1FB /* SampleApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962CA913CE268A0039B1FB /* SampleApp.cpp */; };
+		26962CEC13CE293A0039B1FB /* SkColorPalette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962CE813CE293A0039B1FB /* SkColorPalette.cpp */; };
+		26962CED13CE293A0039B1FB /* SkNetPipeController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962CEA13CE293A0039B1FB /* SkNetPipeController.cpp */; };
+		26962D4F13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */; };
 		26E0E40A13B4E67800866555 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D113AFA7850064D447 /* OpenGLES.framework */; };
-		26E0E46413B4F28A00866555 /* SkOSFile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */; };
 		26F548C213B918EC007CC564 /* SkBlitter_4444.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022313B1225D0064D447 /* SkBlitter_4444.cpp */; };
 		26F548C313B918ED007CC564 /* SkBlitter_A1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022413B1225D0064D447 /* SkBlitter_A1.cpp */; };
 		26F548C413B918ED007CC564 /* SkBlitter_A8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022513B1225D0064D447 /* SkBlitter_A8.cpp */; };
@@ -460,6 +463,7 @@
 		26F548E913B91980007CC564 /* SkBitmapProcState_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F548E013B91980007CC564 /* SkBitmapProcState_opts_arm.cpp */; };
 		26F548EC13B91980007CC564 /* SkBlitRow_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F548E413B91980007CC564 /* SkBlitRow_opts_none.cpp */; };
 		26F548ED13B91980007CC564 /* SkUtils_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F548E613B91980007CC564 /* SkUtils_opts_none.cpp */; };
+		26FB98D313D0C87000ACBEA0 /* SkUIView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26FB98D213D0C87000ACBEA0 /* SkUIView.mm */; };
 		2860E328111B887F00E27156 /* AppDelegate_iPhone.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2860E326111B887F00E27156 /* AppDelegate_iPhone.mm */; };
 		2860E329111B887F00E27156 /* MainWindow_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2860E327111B887F00E27156 /* MainWindow_iPhone.xib */; };
 		2860E32E111B888700E27156 /* AppDelegate_iPad.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2860E32C111B888700E27156 /* AppDelegate_iPad.mm */; };
@@ -471,8 +475,6 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* iOSSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		26075E5E13C506560034339C /* SkAlertPrompt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkAlertPrompt.h; sourceTree = "<group>"; };
-		26075E5F13C506560034339C /* SkAlertPrompt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SkAlertPrompt.m; sourceTree = "<group>"; };
 		260E001513B11F5B0064D447 /* bitmapfilters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bitmapfilters.cpp; sourceTree = "<group>"; };
 		260E001613B11F5B0064D447 /* blurs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blurs.cpp; sourceTree = "<group>"; };
 		260E001713B11F5B0064D447 /* complexclip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = complexclip.cpp; sourceTree = "<group>"; };
@@ -492,7 +494,6 @@
 		260E002613B11F5B0064D447 /* SampleAARects.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleAARects.cpp; sourceTree = "<group>"; };
 		260E002713B11F5B0064D447 /* SampleAll.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleAll.cpp; sourceTree = "<group>"; };
 		260E002813B11F5B0064D447 /* SampleAnimator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleAnimator.cpp; sourceTree = "<group>"; };
-		260E002913B11F5B0064D447 /* SampleApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleApp.cpp; path = ../../samplecode/SampleApp.cpp; sourceTree = "<group>"; };
 		260E002A13B11F5B0064D447 /* SampleArc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleArc.cpp; sourceTree = "<group>"; };
 		260E002B13B11F5B0064D447 /* SampleAvoid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleAvoid.cpp; sourceTree = "<group>"; };
 		260E002C13B11F5B0064D447 /* SampleBigGradient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleBigGradient.cpp; sourceTree = "<group>"; };
@@ -954,7 +955,6 @@
 		260E03FA13B122D40064D447 /* gr_unittests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gr_unittests.cpp; sourceTree = "<group>"; };
 		260E03FC13B122D40064D447 /* SkGpuCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGpuCanvas.h; sourceTree = "<group>"; };
 		260E03FD13B122D40064D447 /* SkGpuDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGpuDevice.h; sourceTree = "<group>"; };
-		260E03FE13B122D40064D447 /* SkGpuDeviceFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGpuDeviceFactory.h; sourceTree = "<group>"; };
 		260E03FF13B122D40064D447 /* SkGr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGr.h; sourceTree = "<group>"; };
 		260E040013B122D40064D447 /* SkGrTexturePixelRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkGrTexturePixelRef.h; sourceTree = "<group>"; };
 		260E040213B122D40064D447 /* GrPrintf_skia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrPrintf_skia.cpp; sourceTree = "<group>"; };
@@ -1289,17 +1289,11 @@
 		260E080E13B1294E0064D447 /* SkImageDecoder_CG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_CG.cpp; sourceTree = "<group>"; };
 		260E083B13B12A200064D447 /* SkImageDecoder_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_Factory.cpp; sourceTree = "<group>"; };
 		260E083C13B12A200064D447 /* SkImageEncoder_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageEncoder_Factory.cpp; sourceTree = "<group>"; };
-		260E08CF13B12DBE0064D447 /* SkOSWindow_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOSWindow_iOS.h; path = ../../include/views/SkOSWindow_iOS.h; sourceTree = SOURCE_ROOT; };
 		260E08D013B12DBE0064D447 /* SkStream_NSData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkStream_NSData.h; path = ../../include/utils/ios/SkStream_NSData.h; sourceTree = SOURCE_ROOT; };
 		260E095513B134C90064D447 /* FlingState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlingState.cpp; sourceTree = "<group>"; };
 		260E095613B134C90064D447 /* GrDrawMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawMesh.cpp; sourceTree = "<group>"; };
-		260E0AC313B1401D0064D447 /* SkIOSNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkIOSNotifier.h; sourceTree = "<group>"; };
-		260E0AC413B1401D0064D447 /* SkIOSNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkIOSNotifier.mm; sourceTree = "<group>"; };
 		260E147713B2734E0064D447 /* SkUISplitViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUISplitViewController.h; sourceTree = "<group>"; };
 		260E147813B2734E0064D447 /* SkUISplitViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUISplitViewController.mm; sourceTree = "<group>"; };
-		260E157613B27A4E0064D447 /* SampleApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SampleApp.h; path = ../../samplecode/SampleApp.h; sourceTree = "<group>"; };
-		260E1B9D13B38E310064D447 /* SkUIView_withSkUIContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUIView_withSkUIContainerView.h; sourceTree = "<group>"; };
-		260E1B9E13B38E310064D447 /* SkUIView_withSkUIContainerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUIView_withSkUIContainerView.mm; sourceTree = "<group>"; };
 		260E1DCA13B3AA490064D447 /* SkUINavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUINavigationController.h; sourceTree = "<group>"; };
 		260E1DCB13B3AA490064D447 /* SkUINavigationController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUINavigationController.mm; sourceTree = "<group>"; };
 		260E1E8913B3B13B0064D447 /* SkPDFCatalog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkPDFCatalog.h; path = ../../include/pdf/SkPDFCatalog.h; sourceTree = SOURCE_ROOT; };
@@ -1328,24 +1322,38 @@
 		260E1EA113B3B15A0064D447 /* SkPDFUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkPDFUtils.cpp; path = ../../src/pdf/SkPDFUtils.cpp; sourceTree = SOURCE_ROOT; };
 		260EE8BA13AFA7790064D447 /* SkFontHost_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkFontHost_iOS.mm; path = ../../src/utils/ios/SkFontHost_iOS.mm; sourceTree = SOURCE_ROOT; };
 		260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOSFile_iOS.mm; path = ../../src/utils/ios/SkOSFile_iOS.mm; sourceTree = SOURCE_ROOT; };
-		260EE8BC13AFA7790064D447 /* SkOSWindow_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOSWindow_iOS.mm; path = ../../src/utils/ios/SkOSWindow_iOS.mm; sourceTree = SOURCE_ROOT; };
 		260EE8BF13AFA7790064D447 /* SkStream_NSData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkStream_NSData.mm; path = ../../src/utils/ios/SkStream_NSData.mm; sourceTree = SOURCE_ROOT; };
 		260EE9D013AFA7850064D447 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		260EE9D113AFA7850064D447 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		260EEA2C13AFB1C70064D447 /* SkUIView_shell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUIView_shell.h; sourceTree = "<group>"; };
-		260EEA2D13AFB1C70064D447 /* SkUIView_shell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUIView_shell.mm; sourceTree = "<group>"; };
-		260EEC9313AFC5CA0064D447 /* SkUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkUIView.h; path = ../../gpu/include/SkUIView.h; sourceTree = SOURCE_ROOT; };
-		260EEC9413AFC5D60064D447 /* SkUIView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkUIView.mm; path = ../../gpu/src/ios/SkUIView.mm; sourceTree = SOURCE_ROOT; };
 		260EF18413AFD62E0064D447 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
-		260EFB6F13B0DBFF0064D447 /* SkUIRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUIRootViewController.h; sourceTree = "<group>"; };
-		260EFB7013B0DBFF0064D447 /* SkUIRootViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUIRootViewController.mm; sourceTree = "<group>"; };
-		260EFBA313B0DF600064D447 /* SkUIDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkUIDetailViewController.h; sourceTree = "<group>"; };
-		260EFBA413B0DF600064D447 /* SkUIDetailViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkUIDetailViewController.mm; sourceTree = "<group>"; };
+		263BE75713CCC7BF00CCE991 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SkiOSSampleApp-Debug.xcconfig"; sourceTree = "<group>"; };
 		2662AB7513BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SkiOSSampleApp-Release.xcconfig"; sourceTree = "<group>"; };
 		2662AB7713BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SkiOSSampleApp-Base.xcconfig"; sourceTree = "<group>"; };
 		26677D6413B4C53E009319B8 /* SkData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkData.h; path = core/SkData.h; sourceTree = "<group>"; };
 		26677D6513B4C548009319B8 /* SkData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkData.cpp; path = core/SkData.cpp; sourceTree = "<group>"; };
+		266CB66113CF56E30011139A /* SkiOSDeviceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkiOSDeviceManager.h; sourceTree = "<group>"; };
+		268F31FA13CDE726003A1EF2 /* SkSockets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSockets.cpp; path = ../SkSockets.cpp; sourceTree = "<group>"; };
+		268F31FB13CDE726003A1EF2 /* SkSockets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSockets.h; path = ../SkSockets.h; sourceTree = "<group>"; };
+		26962C7213CE256E0039B1FB /* SkAlertPrompt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkAlertPrompt.h; path = Shared/SkAlertPrompt.h; sourceTree = "<group>"; };
+		26962C7313CE256E0039B1FB /* SkAlertPrompt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SkAlertPrompt.m; path = Shared/SkAlertPrompt.m; sourceTree = "<group>"; };
+		26962C7613CE256E0039B1FB /* SkiOSNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkiOSNotifier.h; path = Shared/SkiOSNotifier.h; sourceTree = "<group>"; };
+		26962C7713CE256E0039B1FB /* SkiOSNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkiOSNotifier.mm; path = Shared/SkiOSNotifier.mm; sourceTree = "<group>"; };
+		26962C7813CE256E0039B1FB /* SkUIDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkUIDetailViewController.h; path = Shared/SkUIDetailViewController.h; sourceTree = "<group>"; };
+		26962C7913CE256E0039B1FB /* SkUIDetailViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkUIDetailViewController.mm; path = Shared/SkUIDetailViewController.mm; sourceTree = "<group>"; };
+		26962C7A13CE256E0039B1FB /* SkUIRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkUIRootViewController.h; path = Shared/SkUIRootViewController.h; sourceTree = "<group>"; };
+		26962C7B13CE256E0039B1FB /* SkUIRootViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkUIRootViewController.mm; path = Shared/SkUIRootViewController.mm; sourceTree = "<group>"; };
+		26962C8E13CE25D60039B1FB /* iOSSampleApp_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iOSSampleApp_Prefix.pch; sourceTree = "<group>"; };
+		26962C8F13CE25D60039B1FB /* iOSSampleApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iOSSampleApp-Info.plist"; sourceTree = "<group>"; };
+		26962CA313CE265C0039B1FB /* SkOSWindow_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOSWindow_iOS.mm; path = ../../src/utils/ios/SkOSWindow_iOS.mm; sourceTree = SOURCE_ROOT; };
+		26962CA513CE26730039B1FB /* SkOSWindow_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOSWindow_iOS.h; path = ../../include/views/SkOSWindow_iOS.h; sourceTree = SOURCE_ROOT; };
+		26962CA913CE268A0039B1FB /* SampleApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleApp.cpp; path = ../../samplecode/SampleApp.cpp; sourceTree = SOURCE_ROOT; };
+		26962CAA13CE268A0039B1FB /* SampleApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SampleApp.h; path = ../../samplecode/SampleApp.h; sourceTree = SOURCE_ROOT; };
+		26962CE813CE293A0039B1FB /* SkColorPalette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkColorPalette.cpp; path = Shared/DrawingBoard/SkColorPalette.cpp; sourceTree = "<group>"; };
+		26962CE913CE293A0039B1FB /* SkColorPalette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkColorPalette.h; path = Shared/DrawingBoard/SkColorPalette.h; sourceTree = "<group>"; };
+		26962CEA13CE293A0039B1FB /* SkNetPipeController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkNetPipeController.cpp; path = Shared/DrawingBoard/SkNetPipeController.cpp; sourceTree = "<group>"; };
+		26962CEB13CE293A0039B1FB /* SkNetPipeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkNetPipeController.h; path = Shared/DrawingBoard/SkNetPipeController.h; sourceTree = "<group>"; };
+		26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLDefaultInterface_iOS.cpp; path = ../../gpu/src/ios/GrGLDefaultInterface_iOS.cpp; sourceTree = SOURCE_ROOT; };
 		26E0E5C913B5299E00866555 /* SkGPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkGPipe.h; path = ../../include/pipe/SkGPipe.h; sourceTree = SOURCE_ROOT; };
 		26F548DF13B91980007CC564 /* opts_check_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_check_arm.cpp; sourceTree = "<group>"; };
 		26F548E013B91980007CC564 /* SkBitmapProcState_opts_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_arm.cpp; sourceTree = "<group>"; };
@@ -1375,6 +1383,8 @@
 		26F5492313B91C51007CC564 /* GrGLDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrGLDefines.h; sourceTree = "<group>"; };
 		26F5492413B91C51007CC564 /* GrTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrTemplates.h; sourceTree = "<group>"; };
 		26F5492713B91CA1007CC564 /* SkTypeface_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTypeface_mac.h; path = include/ports/SkTypeface_mac.h; sourceTree = "<group>"; };
+		26FB98D113D0C87000ACBEA0 /* SkUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkUIView.h; path = Shared/SkUIView.h; sourceTree = "<group>"; };
+		26FB98D213D0C87000ACBEA0 /* SkUIView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkUIView.mm; path = Shared/SkUIView.mm; sourceTree = "<group>"; };
 		2860E325111B887F00E27156 /* AppDelegate_iPhone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate_iPhone.h; sourceTree = "<group>"; };
 		2860E326111B887F00E27156 /* AppDelegate_iPhone.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate_iPhone.mm; sourceTree = "<group>"; };
 		2860E327111B887F00E27156 /* MainWindow_iPhone.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPhone.xib; sourceTree = "<group>"; };
@@ -1383,8 +1393,6 @@
 		2860E32D111B888700E27156 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Shared/main.m; sourceTree = "<group>"; };
-		32CA4F630368D1EE00C91783 /* iOSSampleApp_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iOSSampleApp_Prefix.pch; sourceTree = "<group>"; };
-		8D1107310486CEB800E47090 /* iOSSampleApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "iOSSampleApp-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1398,6 +1406,7 @@
 				260EF18513AFD62E0064D447 /* CoreText.framework in Frameworks */,
 				260EF2B013AFDBD30064D447 /* Foundation.framework in Frameworks */,
 				26E0E40A13B4E67800866555 /* OpenGLES.framework in Frameworks */,
+				263BE75813CCC7BF00CCE991 /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1535,8 +1544,8 @@
 		260E013413B11F7A0064D447 /* SampleApp */ = {
 			isa = PBXGroup;
 			children = (
-				260E157613B27A4E0064D447 /* SampleApp.h */,
-				260E002913B11F5B0064D447 /* SampleApp.cpp */,
+				26962CAA13CE268A0039B1FB /* SampleApp.h */,
+				26962CA913CE268A0039B1FB /* SampleApp.cpp */,
 				260E001413B11F5B0064D447 /* gm */,
 				260E002313B11F5B0064D447 /* samplecode */,
 			);
@@ -2011,10 +2020,6 @@
 		260E03C813B122D40064D447 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				260E03C913B122D40064D447 /* mac */,
-				260E03CB13B122D40064D447 /* mesa */,
-				260E03CD13B122D40064D447 /* unix */,
-				260E03CF13B122D40064D447 /* win */,
 				260E095513B134C90064D447 /* FlingState.cpp */,
 				260E095613B134C90064D447 /* GrDrawMesh.cpp */,
 				260E03D113B122D40064D447 /* GrAllocPool.cpp */,
@@ -2063,40 +2068,11 @@
 			path = src;
 			sourceTree = "<group>";
 		};
-		260E03C913B122D40064D447 /* mac */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = mac;
-			sourceTree = "<group>";
-		};
-		260E03CB13B122D40064D447 /* mesa */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = mesa;
-			sourceTree = "<group>";
-		};
-		260E03CD13B122D40064D447 /* unix */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = unix;
-			sourceTree = "<group>";
-		};
-		260E03CF13B122D40064D447 /* win */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = win;
-			sourceTree = "<group>";
-		};
 		260E03FB13B122D40064D447 /* include */ = {
 			isa = PBXGroup;
 			children = (
 				260E03FC13B122D40064D447 /* SkGpuCanvas.h */,
 				260E03FD13B122D40064D447 /* SkGpuDevice.h */,
-				260E03FE13B122D40064D447 /* SkGpuDeviceFactory.h */,
 				260E03FF13B122D40064D447 /* SkGr.h */,
 				260E040013B122D40064D447 /* SkGrTexturePixelRef.h */,
 			);
@@ -2724,16 +2700,48 @@
 		260EE8B913AFA7790064D447 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				26FB98D113D0C87000ACBEA0 /* SkUIView.h */,
+				26FB98D213D0C87000ACBEA0 /* SkUIView.mm */,
+				266CB66113CF56E30011139A /* SkiOSDeviceManager.h */,
+				26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */,
+				26962CA513CE26730039B1FB /* SkOSWindow_iOS.h */,
+				26962CA313CE265C0039B1FB /* SkOSWindow_iOS.mm */,
+				260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */,
 				260EE8BA13AFA7790064D447 /* SkFontHost_iOS.mm */,
 				260E08D013B12DBE0064D447 /* SkStream_NSData.h */,
 				260EE8BF13AFA7790064D447 /* SkStream_NSData.mm */,
-				260EEC9413AFC5D60064D447 /* SkUIView.mm */,
-				260EEC9313AFC5CA0064D447 /* SkUIView.h */,
-				260E1B9D13B38E310064D447 /* SkUIView_withSkUIContainerView.h */,
-				260E1B9E13B38E310064D447 /* SkUIView_withSkUIContainerView.mm */,
-				260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */,
 			);
 			name = iOS;
+			sourceTree = "<group>";
+		};
+		26962CC813CE27390039B1FB /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */,
+				2662AB7513BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig */,
+				2662AB7713BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig */,
+			);
+			name = xcconfig;
+			sourceTree = "<group>";
+		};
+		26962CE713CE29120039B1FB /* DrawingBoard */ = {
+			isa = PBXGroup;
+			children = (
+				26962CE813CE293A0039B1FB /* SkColorPalette.cpp */,
+				26962CE913CE293A0039B1FB /* SkColorPalette.h */,
+				26962CEA13CE293A0039B1FB /* SkNetPipeController.cpp */,
+				26962CEB13CE293A0039B1FB /* SkNetPipeController.h */,
+			);
+			name = DrawingBoard;
+			sourceTree = "<group>";
+		};
+		26F67B2A13CB3564005DDCD2 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				268F31FA13CDE726003A1EF2 /* SkSockets.cpp */,
+				268F31FB13CDE726003A1EF2 /* SkSockets.h */,
+			);
+			name = Networking;
 			sourceTree = "<group>";
 		};
 		2860E324111B887F00E27156 /* iPhone */ = {
@@ -2763,18 +2771,14 @@
 		28EEBF621118D79A00187D67 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				260EFB6F13B0DBFF0064D447 /* SkUIRootViewController.h */,
-				260EFB7013B0DBFF0064D447 /* SkUIRootViewController.mm */,
-				260EFBA313B0DF600064D447 /* SkUIDetailViewController.h */,
-				260EFBA413B0DF600064D447 /* SkUIDetailViewController.mm */,
-				260EEA2C13AFB1C70064D447 /* SkUIView_shell.h */,
-				260EEA2D13AFB1C70064D447 /* SkUIView_shell.mm */,
-				260E08CF13B12DBE0064D447 /* SkOSWindow_iOS.h */,
-				260EE8BC13AFA7790064D447 /* SkOSWindow_iOS.mm */,
-				260E0AC313B1401D0064D447 /* SkIOSNotifier.h */,
-				260E0AC413B1401D0064D447 /* SkIOSNotifier.mm */,
-				26075E5E13C506560034339C /* SkAlertPrompt.h */,
-				26075E5F13C506560034339C /* SkAlertPrompt.m */,
+				26962C7213CE256E0039B1FB /* SkAlertPrompt.h */,
+				26962C7313CE256E0039B1FB /* SkAlertPrompt.m */,
+				26962C7613CE256E0039B1FB /* SkiOSNotifier.h */,
+				26962C7713CE256E0039B1FB /* SkiOSNotifier.mm */,
+				26962C7813CE256E0039B1FB /* SkUIDetailViewController.h */,
+				26962C7913CE256E0039B1FB /* SkUIDetailViewController.mm */,
+				26962C7A13CE256E0039B1FB /* SkUIRootViewController.h */,
+				26962C7B13CE256E0039B1FB /* SkUIRootViewController.mm */,
 			);
 			name = Shared;
 			sourceTree = "<group>";
@@ -2788,9 +2792,6 @@
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */,
-				2662AB7513BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig */,
-				2662AB7713BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -2798,12 +2799,15 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				29B97316FDCFA39411CA2CEA /* main.m */,
+				26962C8E13CE25D60039B1FB /* iOSSampleApp_Prefix.pch */,
+				26962C8F13CE25D60039B1FB /* iOSSampleApp-Info.plist */,
+				26962CC813CE27390039B1FB /* xcconfig */,
+				26F67B2A13CB3564005DDCD2 /* Networking */,
+				26962CE713CE29120039B1FB /* DrawingBoard */,
 				260EE8B913AFA7790064D447 /* iOS */,
 				260E013413B11F7A0064D447 /* SampleApp */,
 				260EE81F13AFA7790064D447 /* Skia */,
-				29B97316FDCFA39411CA2CEA /* main.m */,
-				32CA4F630368D1EE00C91783 /* iOSSampleApp_Prefix.pch */,
-				8D1107310486CEB800E47090 /* iOSSampleApp-Info.plist */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -2817,6 +2821,7 @@
 				260EE9D013AFA7850064D447 /* CoreFoundation.framework */,
 				288765FC0DF74451002DB57D /* CoreGraphics.framework */,
 				260EF18413AFD62E0064D447 /* CoreText.framework */,
+				263BE75713CCC7BF00CCE991 /* QuartzCore.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -2888,10 +2893,6 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				2860E328111B887F00E27156 /* AppDelegate_iPhone.mm in Sources */,
 				2860E32E111B888700E27156 /* AppDelegate_iPad.mm in Sources */,
-				260EEDCD13AFCBF30064D447 /* SkOSWindow_iOS.mm in Sources */,
-				260EEDD713AFCC740064D447 /* SkUIView_shell.mm in Sources */,
-				260EFB7113B0DBFF0064D447 /* SkUIRootViewController.mm in Sources */,
-				260EFBA513B0DF600064D447 /* SkUIDetailViewController.mm in Sources */,
 				260E00D513B11F5B0064D447 /* bitmapfilters.cpp in Sources */,
 				260E00D613B11F5B0064D447 /* blurs.cpp in Sources */,
 				260E00D713B11F5B0064D447 /* complexclip.cpp in Sources */,
@@ -2905,7 +2906,6 @@
 				260E00DF13B11F5B0064D447 /* shapes.cpp in Sources */,
 				260E00E013B11F5B0064D447 /* tilemodes.cpp in Sources */,
 				260E00E113B11F5B0064D447 /* xfermodes.cpp in Sources */,
-				260E00E213B11F5B0064D447 /* ClockFaceView.cpp in Sources */,
 				260E00E313B11F5B0064D447 /* OverView.cpp in Sources */,
 				260E00E413B11F5B0064D447 /* SampleAARects.cpp in Sources */,
 				260E00E513B11F5B0064D447 /* SampleAll.cpp in Sources */,
@@ -3106,7 +3106,6 @@
 				260E041013B122D40064D447 /* GrContext.cpp in Sources */,
 				260E041113B122D40064D447 /* GrCreatePathRenderer_none.cpp in Sources */,
 				260E041213B122D40064D447 /* GrDrawTarget.cpp in Sources */,
-				260E041313B122D40064D447 /* GrGLDefaultInterface_none.cpp in Sources */,
 				260E041413B122D40064D447 /* GrGLIndexBuffer.cpp in Sources */,
 				260E041513B122D40064D447 /* GrGLInterface.cpp in Sources */,
 				260E041613B122D40064D447 /* GrGLProgram.cpp in Sources */,
@@ -3209,7 +3208,6 @@
 				260E05E013B123E80064D447 /* SkWindow.cpp in Sources */,
 				260E05FE13B124210064D447 /* SkDOM.cpp in Sources */,
 				260E060113B124210064D447 /* SkXMLParser.cpp in Sources */,
-				260E069013B127CC0064D447 /* SampleApp.cpp in Sources */,
 				260E075313B127E00064D447 /* SkAnimateActive.cpp in Sources */,
 				260E075413B127E00064D447 /* SkAnimateBase.cpp in Sources */,
 				260E075513B127E00064D447 /* SkAnimateField.cpp in Sources */,
@@ -3297,7 +3295,6 @@
 				260E087F13B12B6F0064D447 /* SkFontHost_mac_coretext.cpp in Sources */,
 				260E095713B134C90064D447 /* FlingState.cpp in Sources */,
 				260E095813B134C90064D447 /* GrDrawMesh.cpp in Sources */,
-				260E0AC513B1401D0064D447 /* SkIOSNotifier.mm in Sources */,
 				260E147913B2734E0064D447 /* SkUISplitViewController.mm in Sources */,
 				260E16E613B2853F0064D447 /* SampleGM.cpp in Sources */,
 				260E16F013B285540064D447 /* SampleFuzz.cpp in Sources */,
@@ -3316,7 +3313,6 @@
 				260E1EAC13B3B15A0064D447 /* SkPDFTypes.cpp in Sources */,
 				260E1EAD13B3B15A0064D447 /* SkPDFUtils.cpp in Sources */,
 				26677D6613B4C548009319B8 /* SkData.cpp in Sources */,
-				26E0E46413B4F28A00866555 /* SkOSFile_iOS.mm in Sources */,
 				26F548C213B918EC007CC564 /* SkBlitter_4444.cpp in Sources */,
 				26F548C313B918ED007CC564 /* SkBlitter_A1.cpp in Sources */,
 				26F548C413B918ED007CC564 /* SkBlitter_A8.cpp in Sources */,
@@ -3331,7 +3327,19 @@
 				26F548E913B91980007CC564 /* SkBitmapProcState_opts_arm.cpp in Sources */,
 				26F548EC13B91980007CC564 /* SkBlitRow_opts_none.cpp in Sources */,
 				26F548ED13B91980007CC564 /* SkUtils_opts_none.cpp in Sources */,
-				26075E6013C506560034339C /* SkAlertPrompt.m in Sources */,
+				267D09CE13C64FB600A06CB1 /* ClockFaceView.cpp in Sources */,
+				268F31FE13CDE72D003A1EF2 /* SkSockets.cpp in Sources */,
+				26962B2313CDF6A00039B1FB /* SkOSFile_iOS.mm in Sources */,
+				26962C7D13CE256E0039B1FB /* SkAlertPrompt.m in Sources */,
+				26962C7F13CE256E0039B1FB /* SkiOSNotifier.mm in Sources */,
+				26962C8013CE256E0039B1FB /* SkUIDetailViewController.mm in Sources */,
+				26962C8113CE256E0039B1FB /* SkUIRootViewController.mm in Sources */,
+				26962CA413CE265C0039B1FB /* SkOSWindow_iOS.mm in Sources */,
+				26962CAB13CE268A0039B1FB /* SampleApp.cpp in Sources */,
+				26962CEC13CE293A0039B1FB /* SkColorPalette.cpp in Sources */,
+				26962CED13CE293A0039B1FB /* SkNetPipeController.cpp in Sources */,
+				26962D4F13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp in Sources */,
+				26FB98D313D0C87000ACBEA0 /* SkUIView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3378,7 +3386,7 @@
 					SK_DEBUG,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3398,7 +3406,7 @@
 					SK_BUILD_FOR_IOS,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.2;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;

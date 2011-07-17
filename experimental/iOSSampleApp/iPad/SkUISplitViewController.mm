@@ -7,14 +7,11 @@
     return YES; //Auto Rotation for all orientations
 }
 
-- (void)loadData {
-    [fRoot initSamples];
-    [fDetail populateRoot:fRoot];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.delegate = self;
+    [fRoot initSamples];
+    [fDetail populateRoot:fRoot];
 }
 
 - (void)dealloc {
