@@ -865,7 +865,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         sigma *= 0.5f;
     }
     scaleRect(&srcRect, 1.0f / scaleFactor);
-    int halfWidth = static_cast<int>(sigma * 3.0f);
+    int halfWidth = static_cast<int>(ceilf(sigma * 3.0f));
     int kernelWidth = halfWidth * 2 + 1;
 
     SkIRect srcIRect;

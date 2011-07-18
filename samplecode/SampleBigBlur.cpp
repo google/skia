@@ -28,7 +28,7 @@ protected:
             SkBlurMaskFilter::kHighQuality_BlurFlag);
         paint.setMaskFilter(mf)->unref();
         canvas->translate(200, 200);
-        canvas->drawCircle(100, 100, 250, paint);
+        canvas->drawCircle(100, 100, 200, paint);
         canvas->restore();
     }
 
