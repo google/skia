@@ -24,6 +24,7 @@
         '../gm/strokes.cpp',
         '../gm/texdata.cpp',
         '../gm/tilemodes.cpp',
+        '../gm/tinybitmap.cpp',
         '../gm/xfermodes.cpp',
         '../gm/shadertext.cpp',
         '../gm/complexclip.cpp',
