@@ -287,11 +287,13 @@ static SkString sweepCode(const SkShader::GradientInfo& info) {
 }
 
 SkPDFShader::~SkPDFShader() {
-    SkAutoMutexAcquire lock(canonicalShadersMutex());
+    SkAutoMutexAcquire lock(CanonicalShadersMutex());
     ShaderCanonicalEntry entry(this, fState.get());
-    int index = canonicalShaders().find(entry);
-    SkASSERT(index >= 0);
-    canonicalShaders().removeShuffle(index);
+    int index = CanonicalShaders().find(entry);
+    if (fContent.get()) {
+        SkASSERT(index >= 0);
+        CanonicalShaders().removeShuffle(index);
+    }
     fResources.unrefAll();
 }
 
@@ -323,13 +325,13 @@ SkPDFShader* SkPDFShader::getPDFShader(const SkShader& shader,
                                        const SkMatrix& matrix,
                                        const SkIRect& surfaceBBox) {
     SkRefPtr<SkPDFShader> pdfShader;
-    SkAutoMutexAcquire lock(canonicalShadersMutex());
+    SkAutoMutexAcquire lock(CanonicalShadersMutex());
     SkAutoTDelete<State> shaderState(new State(shader, matrix, surfaceBBox));
 
     ShaderCanonicalEntry entry(NULL, shaderState.get());
-    int index = canonicalShaders().find(entry);
+    int index = CanonicalShaders().find(entry);
     if (index >= 0) {
-        SkPDFShader* result = canonicalShaders()[index].fPDFShader;
+        SkPDFShader* result = CanonicalShaders()[index].fPDFShader;
         result->ref();
         return result;
     }
@@ -341,19 +343,19 @@ SkPDFShader* SkPDFShader::getPDFShader(const SkShader& shader,
         return NULL;
     }
     entry.fPDFShader = pdfShader.get();
-    canonicalShaders().push(entry);
+    CanonicalShaders().push(entry);
     return pdfShader.get();  // return the reference that came from new.
 }
 
 // static
-SkTDArray<SkPDFShader::ShaderCanonicalEntry>& SkPDFShader::canonicalShaders() {
+SkTDArray<SkPDFShader::ShaderCanonicalEntry>& SkPDFShader::CanonicalShaders() {
     // This initialization is only thread safe with gcc.
     static SkTDArray<ShaderCanonicalEntry> gCanonicalShaders;
     return gCanonicalShaders;
 }
 
 // static
-SkMutex& SkPDFShader::canonicalShadersMutex() {
+SkMutex& SkPDFShader::CanonicalShadersMutex() {
     // This initialization is only thread safe with gcc.
     static SkMutex gCanonicalShadersMutex;
     return gCanonicalShadersMutex;
@@ -363,7 +365,7 @@ SkMutex& SkPDFShader::canonicalShadersMutex() {
 SkPDFObject* SkPDFShader::rangeObject() {
     // This initialization is only thread safe with gcc.
     static SkPDFArray* range = NULL;
-    // This method is only used with canonicalShadersMutex, so it's safe to
+    // This method is only used with CanonicalShadersMutex, so it's safe to
     // populate domain.
     if (range == NULL) {
         range = new SkPDFArray;
@@ -424,7 +426,6 @@ void SkPDFShader::doFunctionShader() {
             break;
         case SkShader::kColor_GradientType:
         case SkShader::kNone_GradientType:
-            SkASSERT(false);
             return;
     }
 

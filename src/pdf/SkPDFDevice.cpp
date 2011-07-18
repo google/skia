@@ -1409,9 +1409,20 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         pdfShader = SkPDFShader::getPDFShader(*shader, transform, bounds);
         SkSafeUnref(pdfShader.get());  // getShader and SkRefPtr both took a ref
 
-        // A color shader is treated as an invalid shader so we don't have
-        // to set a shader just for a color.
-        if (pdfShader.get() == NULL) {
+        if (pdfShader.get()) {
+            // pdfShader has been canonicalized so we can directly compare
+            // pointers.
+            int resourceIndex = fShaderResources.find(pdfShader.get());
+            if (resourceIndex < 0) {
+                resourceIndex = fShaderResources.count();
+                fShaderResources.push(pdfShader.get());
+                pdfShader->ref();
+            }
+            entry->fShaderIndex = resourceIndex;
+        } else {
+            // A color shader is treated as an invalid shader so we don't have
+            // to set a shader just for a color.
+            entry->fShaderIndex = -1;
             entry->fColor = 0;
             color = 0;
 
@@ -1427,18 +1438,6 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
                 color = gradientColor;
             }
         }
-    }
-
-    if (pdfShader) {
-        // pdfShader has been canonicalized so we can directly compare
-        // pointers.
-        int resourceIndex = fShaderResources.find(pdfShader.get());
-        if (resourceIndex < 0) {
-            resourceIndex = fShaderResources.count();
-            fShaderResources.push(pdfShader.get());
-            pdfShader->ref();
-        }
-        entry->fShaderIndex = resourceIndex;
     } else {
         entry->fShaderIndex = -1;
         entry->fColor = SkColorSetA(paint.getColor(), 0xFF);
