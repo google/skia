@@ -176,6 +176,10 @@ public:
     /** Set the matrix to scale by sx and sy.
     */
     void setScale(SkScalar sx, SkScalar sy);
+    /** Set the matrix to scale by 1/divx and 1/divy. Returns false and doesn't
+        touch the matrix if either divx or divy is zero.
+    */
+    bool setIDiv(int divx, int divy);
     /** Set the matrix to rotate by the specified number of degrees, with a
         pivot point at (px, py). The pivot point is the coordinate that should
         remain unchanged by the specified transformation.
