@@ -162,51 +162,65 @@ void GrGLTexture::uploadTextureData(int x,
 
     GPUGL->setSpareTextureUnit();
 
-    // glCompressedTexSubImage2D doesn't support any formats
+    // ES2 glCompressedTexSubImage2D doesn't support any formats
     // (at least without extensions)
     GrAssert(fUploadFormat != GR_GL_PALETTE8_RGBA8);
 
     // in case we need a temporary, trimmed copy of the src pixels
-    SkAutoSMalloc<128 * 128> trimStorage;
+    SkAutoSMalloc<128 * 128> tempStorage;
 
+    if (!rowBytes) {
+        rowBytes = fUploadByteCount * width;
+    }
     /*
-     *  check if our srcData has extra bytes past each row. If so, we need
-     *  to trim those off here, since GL doesn't let us pass the rowBytes as
-     *  a parameter to glTexImage2D
+     *  check whether to allocate a temporary buffer for flipping y or
+     *  because our srcData has extra bytes past each row. If so, we need
+     *  to trim those off here, since GL ES doesn't let us specify
+     *  GL_UNPACK_ROW_LENGTH.
      */
-
-    if (GR_GL_SUPPORT_DESKTOP) {
+    bool restoreGLRowLength = false;
+    bool flipY = kBottomUp_Orientation == fOrientation;
+    if (GR_GL_SUPPORT_DESKTOP && !flipY) {
+        // can't use this for flipping, only non-neg values allowed. :(
         if (srcData && rowBytes) {
             GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
                               rowBytes / fUploadByteCount));
+            restoreGLRowLength = true;
         }
     } else {
         size_t trimRowBytes = width * fUploadByteCount;
-        if (srcData && (trimRowBytes < rowBytes)) {
+        if (srcData && (trimRowBytes < rowBytes || flipY)) {
             // copy the data into our new storage, skipping the trailing bytes
             size_t trimSize = height * trimRowBytes;
             const char* src = (const char*)srcData;
-            char* dst = (char*)trimStorage.realloc(trimSize);
+            if (flipY) {
+                src += (height - 1) * rowBytes;
+            }
+            char* dst = (char*)tempStorage.realloc(trimSize);
             for (int y = 0; y < height; y++) {
                 memcpy(dst, src, trimRowBytes);
-                src += rowBytes;
+                if (flipY) {
+                    src -= rowBytes;
+                } else {
+                    src += rowBytes;
+                }
                 dst += trimRowBytes;
             }
-            // now point srcData to our trimmed version
-            srcData = trimStorage.get();
+            // now point srcData to our copied version
+            srcData = tempStorage.get();
         }
     }
 
-    // If we need to update textures that are created upside down
-    // then we have to modify this code to flip the srcData
-    GrAssert(kTopDown_Orientation == fOrientation);
+    if (flipY) {
+        y = this->height() - (y + height);
+    }
     GR_GL(BindTexture(GR_GL_TEXTURE_2D, fTexIDObj->id()));
     GR_GL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, fUploadByteCount));
     GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height,
                         fUploadFormat, fUploadType, srcData));
 
     if (GR_GL_SUPPORT_DESKTOP) {
-        if (srcData && rowBytes) {
+        if (restoreGLRowLength) {
             GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
         }
     }

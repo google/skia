@@ -30,6 +30,9 @@ class SkMatrix;
 class SkMetaData;
 class SkRegion;
 
+// This is an opaque classes, not interpreted by skia
+class SkGpuRenderTarget;
+
 class SK_API SkDevice : public SkRefCnt {
 public:
 //    SkDevice();
@@ -135,10 +138,10 @@ public:
     virtual void lockPixels();
     virtual void unlockPixels();
 
-    /** Return the device's associated texture, or NULL. If returned, it may be
-        drawn into another device
+    /**
+     * Return the device's associated gpu render target, or NULL.
      */
-    virtual SkGpuTexture* accessTexture() { return NULL; }
+    virtual SkGpuRenderTarget* accessRenderTarget() { return NULL; }
 
     /**
      *  Called with the correct matrix and clip before this device is drawn

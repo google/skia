@@ -74,7 +74,9 @@ public:
     virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
                            const SkClipStack& clipStack);
 
-    virtual SkGpuTexture* accessTexture() { return (SkGpuTexture*)fTexture; }
+    virtual SkGpuRenderTarget* accessRenderTarget() { 
+        return (SkGpuRenderTarget*)fRenderTarget; 
+    }
 
     // overrides from SkDevice
 
