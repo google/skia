@@ -755,7 +755,7 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
                           const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
 
-    bool doStroke = paint.getStyle() == SkPaint::kStroke_Style;
+    bool doStroke = paint.getStyle() != SkPaint::kFill_Style;
     SkScalar width = paint.getStrokeWidth();
 
     /*
@@ -770,6 +770,11 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     }
     // until we aa rotated rects...
     if (!usePath && paint.isAntiAlias() && !draw.fMatrix->rectStaysRect()) {
+        usePath = true;
+    }
+    // until we can both stroke and fill rectangles
+    // with large enough miter limit...
+    if (paint.getStyle() == SkPaint::kStrokeAndFill_Style) {
         usePath = true;
     }
 
