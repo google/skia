@@ -482,6 +482,13 @@ static const ConfigData gRec[] = {
 #endif
 };
 
+namespace skiagm {
+static GrContext* gGrContext;
+GrContext* GetGr() {
+    return gGrContext;
+}
+}
+
 int main(int argc, char * const argv[]) {
     SkAutoGraphics ag;
 
@@ -533,10 +540,9 @@ int main(int argc, char * const argv[]) {
         maxH = SkMax32(size.height(), maxH);
     }
     // setup a GL context for drawing offscreen
-    GrContext* context = NULL;
     SkEGLContext eglContext;
     if (eglContext.init(maxW, maxH)) {
-        context = GrContext::CreateGLShaderContext();
+        gGrContext = GrContext::CreateGLShaderContext();
     }
 
 
@@ -558,7 +564,7 @@ int main(int argc, char * const argv[]) {
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
             bool testSuccess = test_drawing(gm, gRec[i],
-                         writePath, readPath, diffPath, context,
+                         writePath, readPath, diffPath, gGrContext,
                          &forwardRenderedBitmap);
             overallSuccess &= testSuccess;
 

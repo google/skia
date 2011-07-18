@@ -790,46 +790,60 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         return return_null_texture();
     }
 
+    // We keep GrRenderTargets in GL's normal orientation so that they
+    // can be drawn to by the outside world without the client having
+    // to render upside down.
+    glDesc.fOrientation = renderTarget ? GrGLTexture::kBottomUp_Orientation :
+                                         GrGLTexture::kTopDown_Orientation;
+
     GrAssert(as_size_t(desc.fAALevel) < GR_ARRAY_COUNT(fAASamples));
     GrGLint samples = fAASamples[desc.fAALevel];
     if (kNone_MSFBO == fMSFBOType && desc.fAALevel != kNone_GrAALevel) {
         GrPrintf("AA RT requested but not supported on this platform.");
     }
 
-    GR_GL(GenTextures(1, &glDesc.fTextureID));
-    if (!glDesc.fTextureID) {
-        return return_null_texture();
-    }
-
     glDesc.fUploadByteCount = GrBytesPerPixel(desc.fFormat);
 
     // in case we need a temporary, trimmed copy of the src pixels
-    SkAutoSMalloc<128 * 128> trimStorage;
+    SkAutoSMalloc<128 * 128> tempStorage;
 
+    if (!rowBytes) {
+        rowBytes = glDesc.fUploadByteCount * desc.fWidth;
+    }
     /*
-     *  check if our srcData has extra bytes past each row. If so, we need
-     *  to trim those off here, since GL doesn't let us pass the rowBytes as
-     *  a parameter to glTexImage2D
+     * check whether to allocate a temporary buffer for flipping y or
+     *  because our srcData has extra bytes past each row. If so, we need
+     *  to trim those off here, since GL ES doesn't let us specify
+     *  GL_UNPACK_ROW_LENGTH.
      */
-    if (GR_GL_SUPPORT_DESKTOP) {
-        if (srcData) {
+    bool flipY = GrGLTexture::kBottomUp_Orientation == glDesc.fOrientation;
+    if (GR_GL_SUPPORT_DESKTOP && !flipY) {
+        if (srcData && rowBytes != desc.fWidth * glDesc.fUploadByteCount) {
             GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
                               rowBytes / glDesc.fUploadByteCount));
         }
     } else {
         size_t trimRowBytes = desc.fWidth * glDesc.fUploadByteCount;
-        if (srcData && (trimRowBytes < rowBytes)) {
+        if (srcData && (trimRowBytes < rowBytes || flipY)) {
             // copy the data into our new storage, skipping the trailing bytes
             size_t trimSize = desc.fHeight * trimRowBytes;
             const char* src = (const char*)srcData;
-            char* dst = (char*)trimStorage.realloc(trimSize);
+            if (flipY) {
+                src += (desc.fHeight - 1) * rowBytes;
+            }
+            char* dst = (char*)tempStorage.realloc(trimSize);
             for (int y = 0; y < desc.fHeight; y++) {
                 memcpy(dst, src, trimRowBytes);
-                src += rowBytes;
+                if (flipY) {
+                    src -= rowBytes;
+                } else {
+                    src += rowBytes;
+                }
                 dst += trimRowBytes;
             }
             // now point srcData to our trimmed version
-            srcData = trimStorage.get();
+            srcData = tempStorage.get();
+            rowBytes = trimRowBytes;
         }
     }
 
@@ -854,6 +868,11 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             glDesc.fAllocHeight > fMaxTextureSize) {
             return return_null_texture();
         }
+    }
+
+    GR_GL(GenTextures(1, &glDesc.fTextureID));
+    if (!glDesc.fTextureID) {
+        return return_null_texture();
     }
 
     GR_GL(BindTexture(GR_GL_TEXTURE_2D, glDesc.fTextureID));
@@ -901,36 +920,39 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
             SkAutoSMalloc<128*128> texels(glDesc.fUploadByteCount * maxTexels);
 
-            uint32_t rowSize = desc.fWidth * glDesc.fUploadByteCount;
+            // rowBytes is actual stride between rows in srcData
+            // rowDataBytes is the actual amount of non-pad data in a row
+            // and the stride used for uploading extraH rows.
+            uint32_t rowDataBytes = desc.fWidth * glDesc.fUploadByteCount;
             if (extraH) {
                 uint8_t* lastRowStart = (uint8_t*) srcData +
-                                        (desc.fHeight - 1) * rowSize;
+                                        (desc.fHeight - 1) * rowBytes;
                 uint8_t* extraRowStart = (uint8_t*)texels.get();
 
                 for (int i = 0; i < extraH; ++i) {
-                    memcpy(extraRowStart, lastRowStart, rowSize);
-                    extraRowStart += rowSize;
+                    memcpy(extraRowStart, lastRowStart, rowDataBytes);
+                    extraRowStart += rowDataBytes;
                 }
                 GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0, desc.fHeight, desc.fWidth,
                                     extraH, glDesc.fUploadFormat, glDesc.fUploadType,
                                     texels.get()));
             }
             if (extraW) {
-                uint8_t* edgeTexel = (uint8_t*)srcData + rowSize - glDesc.fUploadByteCount;
+                uint8_t* edgeTexel = (uint8_t*)srcData + rowDataBytes - glDesc.fUploadByteCount;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
                 for (int j = 0; j < desc.fHeight; ++j) {
                     for (int i = 0; i < extraW; ++i) {
                         memcpy(extraTexel, edgeTexel, glDesc.fUploadByteCount);
                         extraTexel += glDesc.fUploadByteCount;
                     }
-                    edgeTexel += rowSize;
+                    edgeTexel += rowBytes;
                 }
                 GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, desc.fWidth, 0, extraW,
                                     desc.fHeight, glDesc.fUploadFormat,
                                     glDesc.fUploadType, texels.get()));
             }
             if (extraW && extraH) {
-                uint8_t* cornerTexel = (uint8_t*)srcData + desc.fHeight * rowSize
+                uint8_t* cornerTexel = (uint8_t*)srcData + desc.fHeight * rowBytes
                                        - glDesc.fUploadByteCount;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
                 for (int i = 0; i < extraW*extraH; ++i) {
@@ -950,7 +972,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         }
     }
 
-    glDesc.fOrientation = GrGLTexture::kTopDown_Orientation;
 
     GrGLRenderTarget::GLRenderTargetIDs rtIDs;
     rtIDs.fStencilRenderbufferID = 0;
@@ -967,12 +988,6 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         bool failed = true;
         GrGLenum status;
         GrGLint err;
-
-        // If need have both RT flag and srcData we have
-        // to invert the data before uploading because FBO
-        // will be rendered bottom up
-        GrAssert(NULL == srcData);
-        glDesc.fOrientation =  GrGLTexture::kBottomUp_Orientation;
 
         GR_GL(GenFramebuffers(1, &rtIDs.fTexFBOID));
         GrAssert(rtIDs.fTexFBOID);

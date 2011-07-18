@@ -22,6 +22,7 @@
         '../gm/shapes.cpp',
         '../gm/strokerects.cpp',
         '../gm/strokes.cpp',
+        '../gm/texdata.cpp',
         '../gm/tilemodes.cpp',
         '../gm/xfermodes.cpp',
         '../gm/shadertext.cpp',
