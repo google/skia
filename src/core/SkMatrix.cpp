@@ -220,6 +220,14 @@ void SkMatrix::setScale(SkScalar sx, SkScalar sy) {
     this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
 }
 
+bool SkMatrix::setIDiv(int divx, int divy) {
+    if (!divx || !divy) {
+        return false;
+    }
+    this->setScale(SK_Scalar1 / divx, SK_Scalar1 / divy);
+    return true;
+}
+
 bool SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
     SkMatrix    m;
     m.setScale(sx, sy, px, py);

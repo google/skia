@@ -1464,17 +1464,19 @@ void GrContext::writePixels(int left, int top, int width, int height,
     // TODO: when underlying api has a direct way to do this we should use it
     // (e.g. glDrawPixels on desktop GL).
 
+    this->flush(true);
+
     const GrTextureDesc desc = {
         kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
     };
-    GrTexture* texture = fGpu->createTexture(desc, buffer, stride);
+    GrAutoUnlockTextureEntry aute(this,
+                                    this->findApproximateKeylessTexture(desc));
+    GrTexture* texture = aute.texture();
     if (NULL == texture) {
         return;
     }
+    texture->uploadTextureData(0, 0, width, height, buffer, stride);
 
-    this->flush(true);
-
-    GrAutoUnref                     aur(texture);
     GrDrawTarget::AutoStateRestore  asr(fGpu);
 
     GrMatrix matrix;
@@ -1490,7 +1492,7 @@ void GrContext::writePixels(int left, int top, int width, int height,
 
     GrSamplerState sampler;
     sampler.setClampNoFilter();
-    matrix.setScale(GR_Scalar1 / width, GR_Scalar1 / height);
+    matrix.setIDiv(texture->width(), texture->height());
     sampler.setMatrix(matrix);
     fGpu->setSamplerState(0, sampler);
 
