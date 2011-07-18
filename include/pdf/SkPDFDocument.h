@@ -37,10 +37,23 @@ public:
     SK_API SkPDFDocument();
     SK_API ~SkPDFDocument();
 
-    /** Output the PDF to the passed stream.
+    /** Output the PDF to the passed stream.  It is an error to call this (it
+     *  will return false and not modify stream) if no pages have been added
+     *  or there are pages missing (i.e. page 1 and 3 have been added, but not
+     *  page 2).
+     *
      *  @param stream    The writable output stream to send the PDF to.
      */
     SK_API bool emitPDF(SkWStream* stream);
+
+    /** Sets the specific page to the passed PDF device. If the specified
+     *  page is already set, this overrides it. Returns true if successful.
+     *  Will fail if the document has already been emitted.
+     *
+     *  @param pageNumber The position to add the passed device (1 based).
+     *  @param pdfDevice  The page to add to this document.
+     */
+    SK_API bool setPage(int pageNumber, const SkRefPtr<SkPDFDevice>& pdfDevice);
 
     /** Append the passed pdf device to the document as a new page.  Returns
      *  true if successful.  Will fail if the document has already been emitted.

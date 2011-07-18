@@ -114,6 +114,7 @@ void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
                     catalog->addObject(curNodes[i], false);
                 } else {
                     SkSafeUnref(curNodes[i]);
+                    catalog->addObject(curNodes[i], true);
                 }
             }
 

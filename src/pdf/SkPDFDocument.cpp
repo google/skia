@@ -56,8 +56,14 @@ SkPDFDocument::~SkPDFDocument() {
 }
 
 bool SkPDFDocument::emitPDF(SkWStream* stream) {
-    if (fPages.isEmpty())
+    if (fPages.isEmpty()) {
         return false;
+    }
+    for (int i = 0; i < fPages.count(); i++) {
+        if (fPages[i] == NULL) {
+            return false;
+        }
+    }
 
     // We haven't emitted the document before if fPageTree is empty.
     if (fPageTree.count() == 0) {
@@ -147,17 +153,36 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     return true;
 }
 
-bool SkPDFDocument::appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice) {
-    if (fPageTree.count() != 0)
+bool SkPDFDocument::setPage(int pageNumber,
+                            const SkRefPtr<SkPDFDevice>& pdfDevice) {
+    if (fPageTree.count() != 0) {
         return false;
+    }
+
+    pageNumber--;
+    SkASSERT(pageNumber >= 0);
+
+    if (pageNumber > fPages.count()) {
+        int oldSize = fPages.count();
+        fPages.setCount(pageNumber + 1);
+        for (int i = oldSize; i <= pageNumber; i++) {
+            fPages[i] = NULL;
+        }
+    }
+
+    SkPDFPage* page = new SkPDFPage(pdfDevice);
+    SkSafeUnref(fPages[pageNumber]);
+    fPages[pageNumber] = page; // Reference from new passed to fPages.
+    return true;
+}
+
+bool SkPDFDocument::appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice) {
+    if (fPageTree.count() != 0) {
+        return false;
+    }
 
     SkPDFPage* page = new SkPDFPage(pdfDevice);
     fPages.push(page);  // Reference from new passed to fPages.
-    // The rest of the pages will be added to the catalog along with the rest
-    // of the page tree.  But the first page has to be marked as such, so we
-    // handle it here.
-    if (fPages.count() == 1)
-        fCatalog.addObject(page, true);
     return true;
 }
 
