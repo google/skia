@@ -95,8 +95,8 @@ private:
         }
     };
     // This should be made a hash table if performance is a problem.
-    static SkTDArray<ShaderCanonicalEntry>& canonicalShaders();
-    static SkMutex& canonicalShadersMutex();
+    static SkTDArray<ShaderCanonicalEntry>& CanonicalShaders();
+    static SkMutex& CanonicalShadersMutex();
 
     static SkPDFObject* rangeObject();
 
