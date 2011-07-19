@@ -936,8 +936,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     SkTSwap(srcTexture, dstTexture);
 
     GrMatrix sampleM;
-    sampleM.setScale(GR_Scalar1 / srcTexture->width(),
-                     GR_Scalar1 / srcTexture->height());
+    sampleM.setIDiv(srcTexture->width(), srcTexture->height());
     GrPaint paint;
     paint.reset();
     paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
@@ -955,6 +954,8 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     }
     GrAutoUnlockTextureEntry origLock(context, origEntry);
     for (int i = 1; i < scaleFactor; i *= 2) {
+        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
+        paint.getTextureSampler(0)->setMatrix(sampleM);
         context->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
         scaleRect(&dstRect, 0.5f);
@@ -984,8 +985,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     if (scaleFactor > 1) {
         // FIXME:  This should be mitchell, not bilinear.
         paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
-        sampleM.setScale(GR_Scalar1 / srcTexture->width(),
-                         GR_Scalar1 / srcTexture->height());
+        sampleM.setIDiv(srcTexture->width(), srcTexture->height());
         paint.getTextureSampler(0)->setMatrix(sampleM);
         context->setRenderTarget(dstTexture->asRenderTarget());
         // Clear out 2 pixel border for bicubic filtering.
@@ -1002,8 +1002,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     if (blurType != SkMaskFilter::kNormal_BlurType) {
         GrTexture* origTexture = origEntry->texture();
         paint.getTextureSampler(0)->setFilter(GrSamplerState::kNearest_Filter);
-        sampleM.setScale(GR_Scalar1 / origTexture->width(),
-                         GR_Scalar1 / origTexture->height());
+        sampleM.setIDiv(origTexture->width(), origTexture->height());
         paint.getTextureSampler(0)->setMatrix(sampleM);
         // Blend origTexture over srcTexture.
         context->setRenderTarget(srcTexture->asRenderTarget());
