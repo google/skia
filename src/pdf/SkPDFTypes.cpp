@@ -288,7 +288,7 @@ SkString SkPDFName::formatName(const SkString& input) {
 
 SkPDFArray::SkPDFArray() {}
 SkPDFArray::~SkPDFArray() {
-    fValue.safeUnrefAll();
+    fValue.unrefAll();
 }
 
 void SkPDFArray::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -324,15 +324,15 @@ void SkPDFArray::reserve(int length) {
 
 SkPDFObject* SkPDFArray::setAt(int offset, SkPDFObject* value) {
     SkASSERT(offset < fValue.count());
-    SkSafeUnref(fValue[offset]);
+    value->ref();
+    fValue[offset]->unref();
     fValue[offset] = value;
-    SkSafeRef(fValue[offset]);
     return value;
 }
 
 SkPDFObject* SkPDFArray::append(SkPDFObject* value) {
     SkASSERT(fValue.count() < kMaxLen);
-    SkSafeRef(value);
+    value->ref();
     fValue.push(value);
     return value;
 }
@@ -375,24 +375,26 @@ size_t SkPDFDict::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 }
 
 SkPDFObject* SkPDFDict::insert(SkPDFName* key, SkPDFObject* value) {
+    key->ref();
+    value->ref();
     struct Rec* newEntry = fValue.append();
     newEntry->key = key;
-    SkSafeRef(newEntry->key);
     newEntry->value = value;
-    SkSafeRef(newEntry->value);
     return value;
 }
 
 SkPDFObject* SkPDFDict::insert(const char key[], SkPDFObject* value) {
-    SkRefPtr<SkPDFName> keyName = new SkPDFName(key);
-    keyName->unref();  // SkRefPtr and new both took a reference.
-    return insert(keyName.get(), value);
+    value->ref();
+    struct Rec* newEntry = fValue.append();
+    newEntry->key = new SkPDFName(key);
+    newEntry->value = value;
+    return value;
 }
 
 void SkPDFDict::clear() {
     for (int i = 0; i < fValue.count(); i++) {
-        SkSafeUnref(fValue[i].key);
-        SkSafeUnref(fValue[i].value);
+        fValue[i].key->unref();
+        fValue[i].value->unref();
     }
     fValue.reset();
 }
