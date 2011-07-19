@@ -1,9 +1,10 @@
-#import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
+#import <QuartzCore/QuartzCore.h>
+#import <UIKit/UIKit.h>
 #include "SkMatrix.h"
 #include "FlingState.h"
 #include "SampleApp.h"
@@ -26,11 +27,13 @@ struct FPSState;
         GLint           fWidth;
         GLint           fHeight;
     } fGL;
-
+    
     FPSState* fFPSState;
     NSString* fTitle;
     UINavigationItem* fTitleItem;
     SkOSWindow* fWind;
+    CALayer* fRasterLayer;
+    CAEAGLLayer* fGLLayer;
     
     SkiOSDeviceManager* fDevManager;
 }
@@ -38,10 +41,13 @@ struct FPSState;
 @property (nonatomic, assign) SkOSWindow *fWind;
 @property (nonatomic, retain) UINavigationItem* fTitleItem;
 @property (nonatomic, copy) NSString* fTitle;
+@property (nonatomic, retain) CALayer* fRasterLayer;
+@property (nonatomic, retain) CAEAGLLayer* fGLLayer;
+
+- (void)forceRedraw;
 
 - (void)setSkTitle:(const char*)title;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
-
 @end
 

@@ -99,7 +99,7 @@
     printInfo.duplex = UIPrintInfoDuplexLongEdge;
     printInfo.outputType = UIPrintInfoOutputGeneral;
     fWind->saveToPdf();
-    [self.view drawRect:self.view.bounds];
+    [fSkUIView forceRedraw];
     fData = fWind->getPDFData();
     NSData* data = [NSData dataWithBytesNoCopy:(void*)fData->data() length:fData->size()];
     controller.printInfo = printInfo;
