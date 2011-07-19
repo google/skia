@@ -18,13 +18,12 @@
 #include "SkScanPriv.h"
 #include "SkBlitter.h"
 #include "SkEdge.h"
+#include "SkEdgeBuilder.h"
 #include "SkGeometry.h"
 #include "SkPath.h"
 #include "SkQuadClipper.h"
 #include "SkRegion.h"
 #include "SkTemplates.h"
-
-#define USE_NEW_BUILDER
 
 #define kEDGE_HEAD_Y    SK_MinS32
 #define kEDGE_TAIL_Y    SK_MaxS32
@@ -268,138 +267,6 @@ static void PrePostInverseBlitterProc(SkBlitter* blitter, int y, bool isStart) {
 #pragma warning ( pop )
 #endif
 
-#ifdef USE_NEW_BUILDER
-#include "SkEdgeBuilder.h"
-#else
-static int build_edges(SkEdge edge[], const SkPath& path,
-                       const SkIRect* clipRect, SkEdge* list[], int shiftUp) {
-    SkEdge**        start = list;
-    SkPath::Iter    iter(path, true);
-    SkPoint         pts[4];
-    SkPath::Verb    verb;
-
-    SkQuadClipper qclipper;
-    if (clipRect) {
-        SkIRect r;
-        r.set(clipRect->fLeft >> shiftUp, clipRect->fTop >> shiftUp,
-              clipRect->fRight >> shiftUp, clipRect->fBottom >> shiftUp);
-        qclipper.setClip(r);
-    }
-
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kLine_Verb:
-                if (edge->setLine(pts[0], pts[1], clipRect, shiftUp)) {
-                    *list++ = edge;
-                    edge = (SkEdge*)((char*)edge + sizeof(SkEdge));
-                }
-                break;
-            case SkPath::kQuad_Verb: {
-                SkPoint tmp[5], clippedPts[3];
-                SkPoint* p = tmp;
-                int     count = SkChopQuadAtYExtrema(pts, tmp);
-
-                do {
-                    const SkPoint* qpts = p;
-                    if (clipRect) {
-                        if (!qclipper.clipQuad(p, clippedPts)) {
-                            goto NEXT_CHOPPED_QUAD;
-                        }
-                        qpts = clippedPts;
-                    }
-                    if (((SkQuadraticEdge*)edge)->setQuadratic(qpts, shiftUp)) {
-                        *list++ = edge;
-                        edge = (SkEdge*)((char*)edge + sizeof(SkQuadraticEdge));
-                    }
-                NEXT_CHOPPED_QUAD:
-                    p += 2;
-                } while (--count >= 0);
-                break;
-            }
-            case SkPath::kCubic_Verb: {
-                SkPoint tmp[10];
-                SkPoint* p = tmp;
-                int     count = SkChopCubicAtYExtrema(pts, tmp);
-                SkASSERT(count >= 0 && count <= 2);
-
-                do {
-                    if (((SkCubicEdge*)edge)->setCubic(p, clipRect, shiftUp))
-                    {
-                        *list++ = edge;
-                        edge = (SkEdge*)((char*)edge + sizeof(SkCubicEdge));
-                    }
-                    p += 3;
-                } while (--count >= 0);
-                break;
-            }
-        default:
-            break;
-        }
-    }
-    return (int)(list - start);
-}
-
-#ifdef SK_DEBUG
-/* 'quick' computation of the max sized needed to allocated for
-    our edgelist.
-*/
-static int worst_case_edge_count(const SkPath& path, size_t* storage) {
-    size_t  size = 0;
-    int     edgeCount = 0;
-
-    SkPath::Iter    iter(path, true);
-    SkPath::Verb    verb;
-
-    while ((verb = iter.next(NULL)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kLine_Verb:
-                edgeCount += 1;
-                size += sizeof(SkQuadraticEdge);    // treat line like Quad (in case its > 512)
-                break;
-            case SkPath::kQuad_Verb:
-                edgeCount += 2;                     // might need 2 edges when we chop on Y extrema
-                size += 2 * sizeof(SkQuadraticEdge);
-                break;
-            case SkPath::kCubic_Verb:
-                edgeCount += 3;                     // might need 3 edges when we chop on Y extrema
-                size += 3 * sizeof(SkCubicEdge);
-                break;
-            default:
-                break;
-        }
-    }
-
-    SkASSERT(storage);
-    *storage = size;
-    return edgeCount;
-}
-#endif
-
-/* Much faster than worst_case_edge_count, but over estimates even more
-*/
-static int cheap_worst_case_edge_count(const SkPath& path, size_t* storage) {
-    int ptCount = path.getPoints(NULL, 0);
-    // worst case is curve, close, curve, close, as that is
-    //     2 lines per pt, or             : pts * 2
-    //     2 quads + 1 line per 2 pts, or : pts * 3 / 2
-    //     3 cubics + 1 line per 3 pts    : pts * 4 / 3
-    int edgeCount = ptCount << 1;
-    // worst storage, due to relative size of different edge types, is
-    // quads * 3 / 2
-    size_t quadSize = (ptCount * 3 >> 1) * sizeof(SkQuadraticEdge);
-#if 0
-    size_t lineSize = (ptCount << 1) * sizeof(SkEdge);
-    size_t cubicSize = (ptCount * 3 / 4) * sizeof(SkCubicEdge);
-    SkASSERT(lineSize <= quadSize);
-    SkASSERT(cubicSize <= quadSize);
-#endif
-    *storage = quadSize;
-    return edgeCount;
-}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
-
 extern "C" {
     static int edge_compare(const void* a, const void* b) {
         const SkEdge* edgea = *(const SkEdge**)a;
@@ -443,31 +310,10 @@ void sk_fill_path(const SkPath& path, const SkIRect* clipRect, SkBlitter* blitte
                   const SkRegion& clipRgn) {
     SkASSERT(&path && blitter);
 
-#ifdef USE_NEW_BUILDER
     SkEdgeBuilder   builder;
 
     int count = builder.build(path, clipRect, shiftEdgesUp);
     SkEdge**    list = builder.edgeList();
-#else
-    size_t  size;
-    int     maxCount = cheap_worst_case_edge_count(path, &size);
-
-#ifdef SK_DEBUG
-    {
-        size_t  size2;
-        int     maxCount2 = worst_case_edge_count(path, &size2);
-
-        SkASSERT(maxCount >= maxCount2 && size >= size2);
-    }
-#endif
-
-    SkAutoMalloc    memory(maxCount * sizeof(SkEdge*) + size);
-    SkEdge**        list = (SkEdge**)memory.get();
-    SkEdge*         initialEdge = (SkEdge*)(list + maxCount);
-    int             count = build_edges(initialEdge, path, clipRect, list,
-                                        shiftEdgesUp);
-    SkASSERT(count <= maxCount);
-#endif
 
     if (count < 2) {
         if (path.isInverseFillType()) {
