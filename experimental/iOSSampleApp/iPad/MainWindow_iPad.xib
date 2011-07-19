@@ -203,7 +203,7 @@
 									</object>
 									<object class="IBUILabel" id="706652129">
 										<reference key="NSNextResponder" ref="879616490"/>
-										<int key="NSvFlags">265</int>
+										<int key="NSvFlags">-2147483383</int>
 										<string key="NSFrame">{{525, 923}, {49, 29}}</string>
 										<reference key="NSSuperview" ref="879616490"/>
 										<bool key="IBUIOpaque">NO</bool>
@@ -245,34 +245,6 @@
 						</object>
 					</object>
 				</object>
-			</object>
-			<object class="IBUITableViewController" id="714935080">
-				<object class="IBUITableView" key="IBUIView" id="999117554">
-					<nil key="NSNextResponder"/>
-					<int key="NSvFlags">274</int>
-					<string key="NSFrame">{{184, 202}, {400, 600}}</string>
-					<object class="NSColor" key="IBUIBackgroundColor">
-						<int key="NSColorSpace">1</int>
-						<bytes key="NSRGB">MCAwIDAgMAA</bytes>
-					</object>
-					<bool key="IBUIClipsSubviews">YES</bool>
-					<string key="targetRuntimeIdentifier">IBIPadFramework</string>
-					<bool key="IBUIAlwaysBounceVertical">YES</bool>
-					<int key="IBUIStyle">1</int>
-					<int key="IBUISeparatorStyle">2</int>
-					<int key="IBUISectionIndexMinimumDisplayRowCount">0</int>
-					<bool key="IBUIShowsSelectionImmediatelyOnTouchBegin">YES</bool>
-					<float key="IBUIRowHeight">44</float>
-					<float key="IBUISectionHeaderHeight">10</float>
-				</object>
-				<object class="IBUISimulatedStatusBarMetrics" key="IBUISimulatedStatusBarMetrics">
-					<int key="IBUIStatusBarStyle">2</int>
-				</object>
-				<object class="IBUISimulatedOrientationMetrics" key="IBUISimulatedOrientationMetrics">
-					<int key="interfaceOrientation">1</int>
-				</object>
-				<string key="targetRuntimeIdentifier">IBIPadFramework</string>
-				<bool key="IBUIHorizontal">NO</bool>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -366,22 +338,6 @@
 						<reference key="destination" ref="659859393"/>
 					</object>
 					<int key="connectionID">172</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">delegate</string>
-						<reference key="source" ref="999117554"/>
-						<reference key="destination" ref="714935080"/>
-					</object>
-					<int key="connectionID">191</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBCocoaTouchOutletConnection" key="connection">
-						<string key="label">dataSource</string>
-						<reference key="source" ref="999117554"/>
-						<reference key="destination" ref="714935080"/>
-					</object>
-					<int key="connectionID">192</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -551,20 +507,6 @@
 						<reference key="object" ref="822261752"/>
 						<reference key="parent" ref="267525560"/>
 					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">185</int>
-						<reference key="object" ref="714935080"/>
-						<object class="NSMutableArray" key="children">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="999117554"/>
-						</object>
-						<reference key="parent" ref="0"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">190</int>
-						<reference key="object" ref="999117554"/>
-						<reference key="parent" ref="714935080"/>
-					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -589,9 +531,6 @@
 					<string>150.IBPluginDependency</string>
 					<string>151.IBPluginDependency</string>
 					<string>152.IBPluginDependency</string>
-					<string>185.IBEditorWindowLastContentRect</string>
-					<string>185.IBPluginDependency</string>
-					<string>190.IBPluginDependency</string>
 					<string>2.IBEditorWindowLastContentRect</string>
 					<string>2.IBPluginDependency</string>
 					<string>52.CustomClassName</string>
@@ -632,13 +571,10 @@
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-					<string>{{269, 480}, {768, 1024}}</string>
-					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
-					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>{{125, 4}, {768, 1024}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>SkUISplitViewController</string>
-					<string>{{35, 4}, {783, 1002}}</string>
+					<string>{{73, -273}, {768, 1024}}</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>com.apple.InterfaceBuilder.IBCocoaTouchPlugin</string>
 					<string>SkUIRootViewController</string>

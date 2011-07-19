@@ -1,5 +1,4 @@
 #import "SkUIView.h"
-#include <QuartzCore/QuartzCore.h>
 
 //#define SKWIND_CONFIG       SkBitmap::kRGB_565_Config
 #define SKWIND_CONFIG       SkBitmap::kARGB_8888_Config
@@ -10,9 +9,6 @@
 
 //#define USE_GL_1
 #define USE_GL_2
-#if defined(USE_GL_1) || defined(USE_GL_2)
-#define USE_GL
-#endif
 
 #include "SkCanvas.h"
 #include "GrContext.h"
@@ -25,6 +21,7 @@ SkiOSDeviceManager::SkiOSDeviceManager() {
     fGrRenderTarget = NULL;
     usingGL = false;
 }
+
 SkiOSDeviceManager::~SkiOSDeviceManager() {
     SkSafeUnref(fGrContext);
     SkSafeUnref(fGrRenderTarget);
@@ -35,8 +32,7 @@ void SkiOSDeviceManager::init(SampleWindow* win) {
     if (NULL == fGrContext) {
 #ifdef USE_GL_1
         fGrContext = GrContext::Create(kOpenGL_Fixed_GrEngine, NULL);
-#endif
-#ifdef USE_GL_2
+#else
         fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
 #endif
     }
@@ -66,7 +62,7 @@ bool SkiOSDeviceManager::prepareCanvas(SampleWindow::DeviceType dType,
     }
     else {
         //The clip needs to be applied with a device attached to the canvas
-        //canvas->setBitmapDevice(win->getBitmap());
+        canvas->setBitmapDevice(win->getBitmap());
         usingGL = false;
     }
     return true;
@@ -79,15 +75,16 @@ void SkiOSDeviceManager::publishCanvas(SampleWindow::DeviceType dType,
         fGrContext->flush();
     }
     else {
-        CGContextRef cg = UIGraphicsGetCurrentContext();
-        SkCGDrawBitmap(cg, win->getBitmap(), 0, 0);
+        //CGContextRef cg = UIGraphicsGetCurrentContext();
+        //SkCGDrawBitmap(cg, win->getBitmap(), 0, 0);
     }
     win->presentGL();
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 @implementation SkUIView
 
-@synthesize fWind, fTitle, fTitleItem;
+@synthesize fWind, fTitle, fTitleItem, fRasterLayer, fGLLayer;
 
 #include "SkApplication.h"
 #include "SkEvent.h"
@@ -169,26 +166,11 @@ static FPSState gFPS;
 #define FPS_EndDraw()   gFPS.endDraw()
 #define FPS_Flush(wind) gFPS.flush(wind)
 
-
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef USE_GL
-+ (Class) layerClass {
-	return [CAEAGLLayer class];
-}
-#endif
 
 - (id)initWithMyDefaults {
     fRedrawRequestPending = false;
     fFPSState = new FPSState;
-#ifdef USE_GL
-    CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
-    eaglLayer.opaque = TRUE;
-    eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    [NSNumber numberWithBool:NO],
-                                    kEAGLDrawablePropertyRetainedBacking,
-                                    SKGL_CONFIG,
-                                    kEAGLDrawablePropertyColorFormat,
-                                    nil];
     
 #ifdef USE_GL_1
     fGL.fContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
@@ -214,7 +196,33 @@ static FPSState gFPS;
     
     glBindRenderbuffer(GL_RENDERBUFFER, fGL.fStencilbuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fGL.fStencilbuffer);
-#endif
+
+    fGLLayer = [CAEAGLLayer layer];
+    fGLLayer.bounds = self.bounds;
+    fGLLayer.anchorPoint = CGPointMake(0, 0);
+    fGLLayer.opaque = TRUE;
+    [self.layer addSublayer:fGLLayer];
+    fGLLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
+                                   [NSNumber numberWithBool:NO],
+                                   kEAGLDrawablePropertyRetainedBacking,
+                                   SKGL_CONFIG,
+                                   kEAGLDrawablePropertyColorFormat,
+                                   nil];
+    
+    fRasterLayer = [CALayer layer];
+    fRasterLayer.anchorPoint = CGPointMake(0, 0);
+    fRasterLayer.opaque = TRUE;
+    [self.layer addSublayer:fRasterLayer];
+    
+    NSMutableDictionary *newActions = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNull null], @"onOrderIn",
+                                       [NSNull null], @"onOrderOut",
+                                       [NSNull null], @"sublayers",
+                                       [NSNull null], @"contents",
+                                       [NSNull null], @"bounds",
+                                       nil];
+    fGLLayer.actions = newActions;
+    fRasterLayer.actions = newActions;
+    [newActions release];
     
     fDevManager = new SkiOSDeviceManager;
     fWind = new SampleWindow(self, NULL, NULL, fDevManager);
@@ -244,10 +252,55 @@ static FPSState gFPS;
     delete fWind;
     delete fDevManager;
     delete fFPSState;
+    [fRasterLayer release];
+    [fGLLayer release];
     application_term();
     [fTitleItem release];
     [super dealloc];
 }
+
+- (void)layoutSubviews {
+    int W, H;
+    gScreenScale = [UIScreen mainScreen].scale;
+    
+    if ([self respondsToSelector:@selector(setContentScaleFactor:)]) {
+        self.contentScaleFactor = gScreenScale;
+    }
+    
+    // Allocate color buffer backing based on the current layer size
+    glBindRenderbuffer(GL_RENDERBUFFER, fGL.fRenderbuffer);
+    [fGL.fContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:fGLLayer];
+    
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &fGL.fWidth);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &fGL.fHeight);
+    
+    glBindRenderbuffer(GL_RENDERBUFFER, fGL.fStencilbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, fGL.fWidth, fGL.fHeight);
+    
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+    }
+    
+    if (fDevManager->isUsingGL()) {
+        W = fGL.fWidth;
+        H = fGL.fHeight;
+        CGRect rect = CGRectMake(0, 0, W, H);
+        fGLLayer.bounds = rect;
+    }
+    else {
+        CGRect rect = self.bounds;
+        W = (int)CGRectGetWidth(rect);
+        H = (int)CGRectGetHeight(rect);
+        fRasterLayer.bounds = rect;
+    }
+    
+    printf("---- layoutSubviews %d %d\n", W, H);
+    fWind->resize(W, H);
+    fWind->inval(NULL);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 - (void)drawWithCanvas:(SkCanvas*)canvas {
     fRedrawRequestPending = false;
     fFPSState->startDraw();
@@ -258,47 +311,6 @@ static FPSState gFPS;
 #endif
     fFPSState->flush(fWind);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-- (void)layoutSubviews {
-    int W, H;
-    gScreenScale = [UIScreen mainScreen].scale;
-#ifdef USE_GL
-    CAEAGLLayer* eaglLayer = (CAEAGLLayer*)self.layer;
-    if ([self respondsToSelector:@selector(setContentScaleFactor:)]) {
-        self.contentScaleFactor = gScreenScale;
-    }
-    
-    // Allocate color buffer backing based on the current layer size
-    glBindRenderbuffer(GL_RENDERBUFFER, fGL.fRenderbuffer);
-    [fGL.fContext renderbufferStorage:GL_RENDERBUFFER fromDrawable:eaglLayer];
-    
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &fGL.fWidth);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &fGL.fHeight);
-
-    glBindRenderbuffer(GL_RENDERBUFFER, fGL.fStencilbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, fGL.fWidth, fGL.fHeight);
-    
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-    }
-    
-    W = fGL.fWidth;
-    H = fGL.fHeight;
-#else
-    CGRect rect = [self bounds];
-    W = (int)CGRectGetWidth(rect);
-    H = (int)CGRectGetHeight(rect);
-#endif
-
-    printf("---- layoutSubviews %d %d\n", W, H);
-    fWind->resize(W, H);
-    fWind->inval(NULL);
-}
-
-#ifdef USE_GL
-#include "SkDevice.h"
 
 - (void)drawInGL {
     // This application only creates a single context which is already set current at this point.
@@ -317,14 +329,13 @@ static FPSState gFPS;
     if (scissorEnable) {
         glEnable(GL_SCISSOR_TEST);
     }
-    glViewport(0, 0, fWind->width(), fWind->height());
+    glViewport(0, 0, fGL.fWidth, fGL.fHeight);
     
     
     GrContext* ctx = fDevManager->getGrContext();
     SkASSERT(NULL != ctx);
     
     SkCanvas canvas;
-    canvas.setDevice(new SkGpuDevice(ctx, SkGpuDevice::Current3DApiRenderTarget()))->unref();
     
     // if we're not "retained", then we have to always redraw everything.
     // This call forces us to ignore the fDirtyRgn, and draw everywhere.
@@ -348,14 +359,20 @@ static FPSState gFPS;
 #endif
 }
 
-#else   // raster case
-
-- (void)drawRect:(CGRect)rect {
+- (void)drawInRaster {
     SkCanvas canvas;
-    canvas.setBitmapDevice(fWind->getBitmap());
     [self drawWithCanvas:&canvas];
+    CGImageRef cgimage = SkCreateCGImageRef(fWind->getBitmap());
+    fRasterLayer.contents = (id)cgimage;
+    CGImageRelease(cgimage);
 }
-#endif
+
+- (void)forceRedraw {
+    if (fDevManager->isUsingGL())
+        [self drawInGL];
+    else 
+        [self drawInRaster];
+}
 
 //Gesture Handlers
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -400,48 +417,25 @@ static FPSState gFPS;
 }
 
 - (BOOL)onHandleEvent:(const SkEvent&)evt {
-#ifdef USE_GL
-    if (evt.isType(kREDRAW_UIVIEW_GL)) {
-        [self drawInGL];
-        return true;
-    }
-#endif
     return false;
 }
 
 - (void)postInvalWithRect:(const SkIRect*)r {
-#ifdef USE_GL
-
-#if 1
     if (!fRedrawRequestPending) {
         fRedrawRequestPending = true;
-        /*
-            performSelectorOnMainThread seems to starve updating other views
-            (e.g. our FPS view in the titlebar), so we use the afterDelay
-            version
-         */
-        if (0) {
-            [self performSelectorOnMainThread:@selector(drawInGL) withObject:nil waitUntilDone:NO];
-        } else {
+        bool gl = fDevManager->isUsingGL();
+        [CATransaction begin];
+        [CATransaction setAnimationDuration:0];
+        fRasterLayer.hidden = gl;
+        fGLLayer.hidden = !gl;
+        [CATransaction commit];
+        if (gl) {
             [self performSelector:@selector(drawInGL) withObject:nil afterDelay:0];
         }
+        else {
+            [self performSelector:@selector(drawInRaster) withObject:nil afterDelay:0];
+        }
     }
-#else
-    if (!fRedrawRequestPending) {
-        SkEvent* evt = new SkEvent(kREDRAW_UIVIEW_GL);
-        evt->post(fWind->getSinkID());
-        fRedrawRequestPending = true;
-    }
-#endif
-
-#else
-    if (r) {
-        [self setNeedsDisplayInRect:CGRectMake(r->fLeft, r->fTop,
-                                               r->width(), r->height())];
-    } else {
-        [self setNeedsDisplay];
-    }
-#endif
 }
 
 @end
