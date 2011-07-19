@@ -545,6 +545,7 @@ struct GrContext::OffscreenRecord {
     GrTextureEntry*                fEntry0;
     GrTextureEntry*                fEntry1;
     GrDrawTarget::SavedDrawState   fSavedState;
+    GrClip                         fClip;
 };
 
 bool GrContext::doOffscreenAA(GrDrawTarget* target, 
@@ -658,6 +659,8 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
     record->fTileCountX = GrIDivRoundUp(boundW, record->fTileSizeX);
     record->fTileCountY = GrIDivRoundUp(boundH, record->fTileSizeY);
 
+    record->fClip = target->getClip();
+
     target->saveCurrentDrawState(&record->fSavedState);
     return true;
 }
@@ -684,15 +687,13 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     scaleM.setScale(record->fScale * GR_Scalar1, record->fScale * GR_Scalar1);
     target->postConcatViewMatrix(scaleM);
 
-    // clip gets applied in second pass
-    target->disableState(GrDrawTarget::kClip_StateBit);
-
     int w = (tileX == record->fTileCountX-1) ? boundRect.fRight - left :
                                                record->fTileSizeX;
     int h = (tileY == record->fTileCountY-1) ? boundRect.fBottom - top :
                                                record->fTileSizeY;
     GrIRect clear = SkIRect::MakeWH(record->fScale * w, 
                                     record->fScale * h);
+    target->setClip(GrClip(clear));
 #if 0
     // visualize tile boundaries by setting edges of offscreen to white
     // and interior to tranparent. black.
@@ -779,6 +780,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     int stageMask = paint.getActiveStageMask();
 
     target->restoreDrawState(record->fSavedState);
+    target->setClip(record->fClip);
 
     if (stageMask) {
         GrMatrix invVM;
