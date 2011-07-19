@@ -47,7 +47,6 @@ enum {
 };
 
 
-#define USE_GPU_BLUR 0
 #define MAX_BLUR_SIGMA 4.0f
 // FIXME:  This value comes from from SkBlurMaskFilter.cpp.
 // Should probably be put in a common header someplace.
@@ -844,7 +843,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
                                   SkMaskFilter* filter, const SkMatrix& matrix,
                                   const SkRegion& clip, SkBounder* bounder,
                                   GrPaint* grp) {
-#if !USE_GPU_BLUR
+#ifdef SK_DISABLE_GPU_BLUR
     return false;
 #endif
     SkMaskFilter::BlurInfo info;
