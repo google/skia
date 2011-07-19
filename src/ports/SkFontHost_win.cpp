@@ -160,6 +160,17 @@ SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
     return face;
 }
 
+/**
+ *  This guy is public
+ */
+void SkLOGFONTFromTypeface(const SkTypeface* face, LOGFONT* lf) {
+    if (NULL == face) {
+        *lf = get_default_font();
+    } else {
+        *lf = ((const LogFontTypeface*)face)->fLogFont;
+    }
+}
+
 SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
   // Zero means that we don't have any fallback fonts for this fontID.
   // This function is implemented on Android, but doesn't have much

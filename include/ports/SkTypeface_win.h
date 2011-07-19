@@ -25,7 +25,15 @@
  *  corresponding typeface for the specified logfont. The caller is responsible
  *  for calling unref() when it is finished.
  */
-SK_API extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
+SK_API SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
+
+/**
+ *  Copy the LOGFONT associated with this typeface into the lf parameter. Note
+ *  that the lfHeight will need to be set afterwards, since the typeface does
+ *  not track this (the paint does).
+ *  typeface may be NULL, in which case we return the logfont for the default font.
+ */
+SK_API void SkLOGFONTFromTypeface(const SkTypeface* typeface, LOGFONT* lf);
 
 #endif
 
