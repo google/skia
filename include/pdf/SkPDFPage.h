@@ -81,7 +81,7 @@ public:
      *                    nodes of the pageTree.
      *  @param rootNode   An output parameter set to the root node.
      */
-    static void generatePageTree(const SkTDArray<SkPDFPage*>& pages,
+    static void GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
                                  SkPDFCatalog* catalog,
                                  SkTDArray<SkPDFDict*>* pageTree,
                                  SkPDFDict** rootNode);

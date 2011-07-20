@@ -68,7 +68,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     // We haven't emitted the document before if fPageTree is empty.
     if (fPageTree.count() == 0) {
         SkPDFDict* pageTreeRoot;
-        SkPDFPage::generatePageTree(fPages, &fCatalog, &fPageTree,
+        SkPDFPage::GeneratePageTree(fPages, &fCatalog, &fPageTree,
                                     &pageTreeRoot);
         fDocCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 

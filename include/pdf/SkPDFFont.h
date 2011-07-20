@@ -73,7 +73,7 @@ public:
      *  @param typeface  The typeface to find.
      *  @param glyphID   Specify which section of a large font is of interest.
      */
-    SK_API static SkPDFFont* getFontResource(SkTypeface* typeface,
+    SK_API static SkPDFFont* GetFontResource(SkTypeface* typeface,
                                              uint16_t glyphID);
 
 private:
@@ -106,8 +106,8 @@ private:
     };
 
     // This should be made a hash table if performance is a problem.
-    static SkTDArray<FontRec>& canonicalFonts();
-    static SkMutex& canonicalFontsMutex();
+    static SkTDArray<FontRec>& CanonicalFonts();
+    static SkMutex& CanonicalFontsMutex();
 
     /** Construct a new font dictionary and support objects.
      *  @param fontInfo       Information about the to create.
@@ -145,7 +145,7 @@ private:
      */
     void adjustGlyphRangeForSingleByteEncoding(int16_t glyphID);
 
-    static bool find(uint32_t fontID, uint16_t glyphID, int* index);
+    static bool Find(uint32_t fontID, uint16_t glyphID, int* index);
 };
 
 #endif

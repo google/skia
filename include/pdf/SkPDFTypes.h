@@ -194,15 +194,15 @@ public:
                             bool indirect);
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
-    static SkString formatString(const char* input, size_t len);
-    static SkString formatString(const uint16_t* input, size_t len,
+    static SkString FormatString(const char* input, size_t len);
+    static SkString FormatString(const uint16_t* input, size_t len,
                                  bool wideChars);
 private:
     static const size_t kMaxLen = 65535;
 
     const SkString fValue;
 
-    static SkString doFormatString(const void* input, size_t len,
+    static SkString DoFormatString(const void* input, size_t len,
                                  bool wideInput, bool wideOutput);
 };
 
@@ -229,7 +229,7 @@ private:
 
     const SkString fValue;
 
-    static SkString formatName(const SkString& input);
+    static SkString FormatName(const SkString& input);
 };
 
 /** \class SkPDFArray

@@ -421,10 +421,10 @@ static void append_cmap_bfchar_sections(
  */
 
 SkPDFFont::~SkPDFFont() {
-    SkAutoMutexAcquire lock(canonicalFontsMutex());
+    SkAutoMutexAcquire lock(CanonicalFontsMutex());
     int index;
-    if (find(SkTypeface::UniqueID(fTypeface.get()), fFirstGlyphID, &index)) {
-        canonicalFonts().removeShuffle(index);
+    if (Find(SkTypeface::UniqueID(fTypeface.get()), fFirstGlyphID, &index)) {
+        CanonicalFonts().removeShuffle(index);
 #ifdef SK_DEBUG
         SkASSERT(!fDescendant);
     } else {
@@ -480,19 +480,19 @@ size_t SkPDFFont::glyphsToPDFFontEncoding(uint16_t* glyphIDs,
 }
 
 // static
-SkPDFFont* SkPDFFont::getFontResource(SkTypeface* typeface, uint16_t glyphID) {
-    SkAutoMutexAcquire lock(canonicalFontsMutex());
+SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
+    SkAutoMutexAcquire lock(CanonicalFontsMutex());
     const uint32_t fontID = SkTypeface::UniqueID(typeface);
     int index;
-    if (find(fontID, glyphID, &index)) {
-        canonicalFonts()[index].fFont->ref();
-        return canonicalFonts()[index].fFont;
+    if (Find(fontID, glyphID, &index)) {
+        CanonicalFonts()[index].fFont->ref();
+        return CanonicalFonts()[index].fFont;
     }
 
     SkRefPtr<SkAdvancedTypefaceMetrics> fontInfo;
     SkPDFDict* fontDescriptor = NULL;
     if (index >= 0) {
-        SkPDFFont* relatedFont = canonicalFonts()[index].fFont;
+        SkPDFFont* relatedFont = CanonicalFonts()[index].fFont;
         SkASSERT(relatedFont->fFontInfo.get());
         fontInfo = relatedFont->fFontInfo;
         fontDescriptor = relatedFont->fDescriptor.get();
@@ -510,34 +510,34 @@ SkPDFFont* SkPDFFont::getFontResource(SkTypeface* typeface, uint16_t glyphID) {
     SkPDFFont* font = new SkPDFFont(fontInfo.get(), typeface, glyphID, false,
                                     fontDescriptor);
     FontRec newEntry(font, fontID, font->fFirstGlyphID);
-    index = canonicalFonts().count();
-    canonicalFonts().push(newEntry);
+    index = CanonicalFonts().count();
+    CanonicalFonts().push(newEntry);
     return font;  // Return the reference new SkPDFFont() created.
 }
 
 // static
-SkTDArray<SkPDFFont::FontRec>& SkPDFFont::canonicalFonts() {
+SkTDArray<SkPDFFont::FontRec>& SkPDFFont::CanonicalFonts() {
     // This initialization is only thread safe with gcc.
     static SkTDArray<FontRec> gCanonicalFonts;
     return gCanonicalFonts;
 }
 
 // static
-SkMutex& SkPDFFont::canonicalFontsMutex() {
+SkMutex& SkPDFFont::CanonicalFontsMutex() {
     // This initialization is only thread safe with gcc.
     static SkMutex gCanonicalFontsMutex;
     return gCanonicalFontsMutex;
 }
 
 // static
-bool SkPDFFont::find(uint32_t fontID, uint16_t glyphID, int* index) {
+bool SkPDFFont::Find(uint32_t fontID, uint16_t glyphID, int* index) {
     // TODO(vandebo) optimize this, do only one search?
     FontRec search(NULL, fontID, glyphID);
-    *index = canonicalFonts().find(search);
+    *index = CanonicalFonts().find(search);
     if (*index >= 0)
         return true;
     search.fGlyphID = 0;
-    *index = canonicalFonts().find(search);
+    *index = CanonicalFonts().find(search);
     return false;
 }
 

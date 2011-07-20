@@ -826,7 +826,7 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
             font->glyphsToPDFFontEncoding(glyphIDs + consumedGlyphCount,
                                           numGlyphs - consumedGlyphCount);
         SkString encodedString =
-            SkPDFString::formatString(glyphIDs + consumedGlyphCount,
+            SkPDFString::FormatString(glyphIDs + consumedGlyphCount,
                                       availableGlyphs, font->multiByteGlyphs());
         content.entry()->fContent.writeText(encodedString.c_str());
         consumedGlyphCount += availableGlyphs;
@@ -899,7 +899,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
         set_text_transform(x, y, textPaint.getTextSkewX(),
                            &content.entry()->fContent);
         SkString encodedString =
-            SkPDFString::formatString(&encodedValue, 1,
+            SkPDFString::FormatString(&encodedValue, 1,
                                       font->multiByteGlyphs());
         content.entry()->fContent.writeText(encodedString.c_str());
         content.entry()->fContent.writeText(" Tj\n");
@@ -1190,7 +1190,7 @@ void SkPDFDevice::drawFormXObjectWithClip(SkPDFFormXObject* xobject,
     SkRefPtr<SkPDFFormXObject> maskFormXObject;
     createFormXObjectFromDevice(&maskFormXObject);
     SkRefPtr<SkPDFGraphicState> sMaskGS =
-        SkPDFGraphicState::getSMaskGraphicState(maskFormXObject.get(),
+        SkPDFGraphicState::GetSMaskGraphicState(maskFormXObject.get(),
                                                 invertClip);
     sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
 
@@ -1207,7 +1207,7 @@ void SkPDFDevice::drawFormXObjectWithClip(SkPDFFormXObject* xobject,
     fXObjectResources.push(xobject);
     xobject->ref();
 
-    sMaskGS = SkPDFGraphicState::getNoSMaskGraphicState();
+    sMaskGS = SkPDFGraphicState::GetNoSMaskGraphicState();
     sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &content.entry()->fContent);
@@ -1346,12 +1346,12 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
     SkRefPtr<SkPDFGraphicState> sMaskGS;
     if (xfermode == SkXfermode::kSrcIn_Mode ||
             xfermode == SkXfermode::kSrcOut_Mode) {
-        sMaskGS = SkPDFGraphicState::getSMaskGraphicState(
+        sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
                 dst, xfermode == SkXfermode::kSrcOut_Mode);
         fXObjectResources.push(srcFormXObject.get());
         srcFormXObject->ref();
     } else {
-        sMaskGS = SkPDFGraphicState::getSMaskGraphicState(
+        sMaskGS = SkPDFGraphicState::GetSMaskGraphicState(
                 srcFormXObject.get(), xfermode == SkXfermode::kDstOut_Mode);
         // dst already added to fXObjectResources in drawFormXObjectWithClip.
     }
@@ -1362,7 +1362,7 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
     SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
                                 &inClipContentEntry.entry()->fContent);
 
-    sMaskGS = SkPDFGraphicState::getNoSMaskGraphicState();
+    sMaskGS = SkPDFGraphicState::GetNoSMaskGraphicState();
     sMaskGS->unref();  // SkRefPtr and getSMaskGraphicState both took a ref.
     SkPDFUtils::ApplyGraphicState(addGraphicStateResource(sMaskGS.get()),
                                   &inClipContentEntry.entry()->fContent);
@@ -1406,7 +1406,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
         // PDF doesn't support kClamp_TileMode, so we simulate it by making
         // a pattern the size of the current clip.
         SkIRect bounds = clipRegion.getBounds();
-        pdfShader = SkPDFShader::getPDFShader(*shader, transform, bounds);
+        pdfShader = SkPDFShader::GetPDFShader(*shader, transform, bounds);
         SkSafeUnref(pdfShader.get());  // getShader and SkRefPtr both took a ref
 
         if (pdfShader.get()) {
@@ -1446,11 +1446,11 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
 
     SkRefPtr<SkPDFGraphicState> newGraphicState;
     if (color == paint.getColor()) {
-        newGraphicState = SkPDFGraphicState::getGraphicStateForPaint(paint);
+        newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(paint);
     } else {
         SkPaint newPaint = paint;
         newPaint.setColor(color);
-        newGraphicState = SkPDFGraphicState::getGraphicStateForPaint(newPaint);
+        newGraphicState = SkPDFGraphicState::GetGraphicStateForPaint(newPaint);
     }
     newGraphicState->unref();  // getGraphicState and SkRefPtr both took a ref.
     int resourceIndex = addGraphicStateResource(newGraphicState.get());
@@ -1493,7 +1493,7 @@ void SkPDFDevice::updateFont(const SkPaint& paint, uint16_t glyphID,
 }
 
 int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
-    SkRefPtr<SkPDFFont> newFont = SkPDFFont::getFontResource(typeface, glyphID);
+    SkRefPtr<SkPDFFont> newFont = SkPDFFont::GetFontResource(typeface, glyphID);
     newFont->unref();  // getFontResource and SkRefPtr both took a ref.
     int resourceIndex = fFontResources.find(newFont.get());
     if (resourceIndex < 0) {

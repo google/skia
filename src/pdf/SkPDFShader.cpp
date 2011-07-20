@@ -321,7 +321,7 @@ void SkPDFShader::getResources(SkTDArray<SkPDFObject*>* resourceList) {
 }
 
 // static
-SkPDFShader* SkPDFShader::getPDFShader(const SkShader& shader,
+SkPDFShader* SkPDFShader::GetPDFShader(const SkShader& shader,
                                        const SkMatrix& matrix,
                                        const SkIRect& surfaceBBox) {
     SkRefPtr<SkPDFShader> pdfShader;
@@ -362,7 +362,7 @@ SkMutex& SkPDFShader::CanonicalShadersMutex() {
 }
 
 // static
-SkPDFObject* SkPDFShader::rangeObject() {
+SkPDFObject* SkPDFShader::RangeObject() {
     // This initialization is only thread safe with gcc.
     static SkPDFArray* range = NULL;
     // This method is only used with CanonicalShadersMutex, so it's safe to
@@ -690,7 +690,7 @@ SkPDFStream* SkPDFShader::makePSFunction(const SkString& psCode,
     SkPDFStream* result = new SkPDFStream(funcStream.get());
     result->insertInt("FunctionType", 4);
     result->insert("Domain", domain);
-    result->insert("Range", rangeObject());
+    result->insert("Range", RangeObject());
     return result;
 }
 
