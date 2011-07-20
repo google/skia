@@ -52,7 +52,7 @@ public:
      *  other references.
      *  @param paint  The SkPaint to emulate.
      */
-    static SkPDFGraphicState* getGraphicStateForPaint(const SkPaint& paint);
+    static SkPDFGraphicState* GetGraphicStateForPaint(const SkPaint& paint);
 
     /** Make a graphic state that only sets the passed soft mask. The
      *  reference count of the object is incremented and it is the caller's
@@ -60,7 +60,7 @@ public:
      *  @param sMask  The form xobject to use as a soft mask.
      *  @param invert Indicates if the alpha of the sMask should be inverted.
      */
-    static SkPDFGraphicState* getSMaskGraphicState(SkPDFFormXObject* sMask,
+    static SkPDFGraphicState* GetSMaskGraphicState(SkPDFFormXObject* sMask,
                                                    bool invert);
 
     /** Get a graphic state that only unsets the soft mask. The reference
@@ -69,7 +69,7 @@ public:
      *  reference pattern used when the returned object is new and has no
      *  other references.
      */
-    static SkPDFGraphicState* getNoSMaskGraphicState();
+    static SkPDFGraphicState* GetNoSMaskGraphicState();
 
 private:
     const SkPaint fPaint;
@@ -92,8 +92,8 @@ private:
     };
 
     // This should be made a hash table if performance is a problem.
-    static SkTDArray<GSCanonicalEntry>& canonicalPaints();
-    static SkMutex& canonicalPaintsMutex();
+    static SkTDArray<GSCanonicalEntry>& CanonicalPaints();
+    static SkMutex& CanonicalPaintsMutex();
 
     SkPDFGraphicState();
     explicit SkPDFGraphicState(const SkPaint& paint);
@@ -102,7 +102,7 @@ private:
 
     static SkPDFObject* GetInvertFunction();
 
-    static int find(const SkPaint& paint);
+    static int Find(const SkPaint& paint);
 };
 
 #endif

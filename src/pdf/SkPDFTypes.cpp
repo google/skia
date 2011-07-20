@@ -165,15 +165,15 @@ void SkPDFScalar::Append(SkScalar value, SkWStream* stream) {
 }
 
 SkPDFString::SkPDFString(const char value[])
-    : fValue(formatString(value, strlen(value))) {
+    : fValue(FormatString(value, strlen(value))) {
 }
 
 SkPDFString::SkPDFString(const SkString& value)
-    : fValue(formatString(value.c_str(), value.size())) {
+    : fValue(FormatString(value.c_str(), value.size())) {
 }
 
 SkPDFString::SkPDFString(const uint16_t* value, size_t len, bool wideChars)
-    : fValue(formatString(value, len, wideChars)) {
+    : fValue(FormatString(value, len, wideChars)) {
 }
 
 SkPDFString::~SkPDFString() {}
@@ -192,17 +192,17 @@ size_t SkPDFString::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 }
 
 // static
-SkString SkPDFString::formatString(const char* input, size_t len) {
-    return doFormatString(input, len, false, false);
+SkString SkPDFString::FormatString(const char* input, size_t len) {
+    return DoFormatString(input, len, false, false);
 }
 
-SkString SkPDFString::formatString(const uint16_t* input, size_t len,
+SkString SkPDFString::FormatString(const uint16_t* input, size_t len,
                                    bool wideChars) {
-    return doFormatString(input, len, true, wideChars);
+    return DoFormatString(input, len, true, wideChars);
 }
 
 // static
-SkString SkPDFString::doFormatString(const void* input, size_t len,
+SkString SkPDFString::DoFormatString(const void* input, size_t len,
                                      bool wideInput, bool wideOutput) {
     SkASSERT(len <= kMaxLen);
     const uint16_t* win = (const uint16_t*) input;
@@ -254,8 +254,8 @@ SkString SkPDFString::doFormatString(const void* input, size_t len,
     return result;
 }
 
-SkPDFName::SkPDFName(const char name[]) : fValue(formatName(SkString(name))) {}
-SkPDFName::SkPDFName(const SkString& name) : fValue(formatName(name)) {}
+SkPDFName::SkPDFName(const char name[]) : fValue(FormatName(SkString(name))) {}
+SkPDFName::SkPDFName(const SkString& name) : fValue(FormatName(name)) {}
 SkPDFName::~SkPDFName() {}
 
 void SkPDFName::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -270,7 +270,7 @@ size_t SkPDFName::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 }
 
 // static
-SkString SkPDFName::formatName(const SkString& input) {
+SkString SkPDFName::FormatName(const SkString& input) {
     SkASSERT(input.size() <= kMaxLen);
 
     SkString result("/");

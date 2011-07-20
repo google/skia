@@ -57,11 +57,11 @@ static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
 }
 
 SkPDFGraphicState::~SkPDFGraphicState() {
-    SkAutoMutexAcquire lock(canonicalPaintsMutex());
+    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
     if (!fSMask) {
-        int index = find(fPaint);
+        int index = Find(fPaint);
         SkASSERT(index >= 0);
-        canonicalPaints().removeShuffle(index);
+        CanonicalPaints().removeShuffle(index);
     }
     fResources.unrefAll();
 }
@@ -89,30 +89,30 @@ size_t SkPDFGraphicState::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
 
 // static
 SkTDArray<SkPDFGraphicState::GSCanonicalEntry>&
-SkPDFGraphicState::canonicalPaints() {
+SkPDFGraphicState::CanonicalPaints() {
     // This initialization is only thread safe with gcc.
     static SkTDArray<SkPDFGraphicState::GSCanonicalEntry> gCanonicalPaints;
     return gCanonicalPaints;
 }
 
 // static
-SkMutex& SkPDFGraphicState::canonicalPaintsMutex() {
+SkMutex& SkPDFGraphicState::CanonicalPaintsMutex() {
     // This initialization is only thread safe with gcc.
     static SkMutex gCanonicalPaintsMutex;
     return gCanonicalPaintsMutex;
 }
 
 // static
-SkPDFGraphicState* SkPDFGraphicState::getGraphicStateForPaint(
+SkPDFGraphicState* SkPDFGraphicState::GetGraphicStateForPaint(
         const SkPaint& paint) {
-    SkAutoMutexAcquire lock(canonicalPaintsMutex());
-    int index = find(paint);
+    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
+    int index = Find(paint);
     if (index >= 0) {
-        canonicalPaints()[index].fGraphicState->ref();
-        return canonicalPaints()[index].fGraphicState;
+        CanonicalPaints()[index].fGraphicState->ref();
+        return CanonicalPaints()[index].fGraphicState;
     }
     GSCanonicalEntry newEntry(new SkPDFGraphicState(paint));
-    canonicalPaints().push(newEntry);
+    CanonicalPaints().push(newEntry);
     return newEntry.fGraphicState;
 }
 
@@ -143,11 +143,11 @@ SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
 }
 
 // static
-SkPDFGraphicState* SkPDFGraphicState::getSMaskGraphicState(
+SkPDFGraphicState* SkPDFGraphicState::GetSMaskGraphicState(
         SkPDFFormXObject* sMask, bool invert) {
     // The practical chances of using the same mask more than once are unlikely
     // enough that it's not worth canonicalizing.
-    SkAutoMutexAcquire lock(canonicalPaintsMutex());
+    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
 
     SkRefPtr<SkPDFDict> sMaskDict = new SkPDFDict("Mask");
     sMaskDict->unref();  // SkRefPtr and new both took a reference.
@@ -173,8 +173,8 @@ SkPDFGraphicState* SkPDFGraphicState::getSMaskGraphicState(
 }
 
 // static
-SkPDFGraphicState* SkPDFGraphicState::getNoSMaskGraphicState() {
-    SkAutoMutexAcquire lock(canonicalPaintsMutex());
+SkPDFGraphicState* SkPDFGraphicState::GetNoSMaskGraphicState() {
+    SkAutoMutexAcquire lock(CanonicalPaintsMutex());
     static SkPDFGraphicState* noSMaskGS = NULL;
     if (!noSMaskGS) {
         noSMaskGS = new SkPDFGraphicState;
@@ -188,9 +188,9 @@ SkPDFGraphicState* SkPDFGraphicState::getNoSMaskGraphicState() {
 }
 
 // static
-int SkPDFGraphicState::find(const SkPaint& paint) {
+int SkPDFGraphicState::Find(const SkPaint& paint) {
     GSCanonicalEntry search(&paint);
-    return canonicalPaints().find(search);
+    return CanonicalPaints().find(search);
 }
 
 SkPDFGraphicState::SkPDFGraphicState()

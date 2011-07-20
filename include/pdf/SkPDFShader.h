@@ -54,7 +54,7 @@ public:
      *  @param surfceBBox The bounding box of the drawing surface (with matrix
      *                    already applied).
      */
-    static SkPDFShader* getPDFShader(const SkShader& shader,
+    static SkPDFShader* GetPDFShader(const SkShader& shader,
                                      const SkMatrix& matrix,
                                      const SkIRect& surfaceBBox);
 
@@ -98,7 +98,7 @@ private:
     static SkTDArray<ShaderCanonicalEntry>& CanonicalShaders();
     static SkMutex& CanonicalShadersMutex();
 
-    static SkPDFObject* rangeObject();
+    static SkPDFObject* RangeObject();
 
     SkPDFShader(State* state);
 

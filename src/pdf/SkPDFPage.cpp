@@ -54,7 +54,7 @@ void SkPDFPage::emitPage(SkWStream* stream, SkPDFCatalog* catalog) {
 }
 
 // static
-void SkPDFPage::generatePageTree(const SkTDArray<SkPDFPage*>& pages,
+void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
                                  SkPDFCatalog* catalog,
                                  SkTDArray<SkPDFDict*>* pageTree,
                                  SkPDFDict** rootNode) {
