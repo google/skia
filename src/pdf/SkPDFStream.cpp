@@ -33,7 +33,7 @@ SkPDFStream::SkPDFStream(SkStream* stream) {
         fPlainData = stream;
         fLength = fPlainData->getLength();
     }
-    insert("Length", new SkPDFInt(fLength))->unref();
+    insertInt("Length", fLength);
 }
 
 SkPDFStream::~SkPDFStream() {

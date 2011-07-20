@@ -274,7 +274,22 @@ public:
      *  @return The value argument is returned.
      */
     SkPDFObject* append(SkPDFObject* value);
-
+    
+    /** Creates a SkPDFInt object and appends it to the array.
+     *  @param value The value to add to the array.
+     */
+    void appendInt(int32_t value);
+    
+    /** Creates a SkPDFScalar object and appends it to the array.
+     *  @param value The value to add to the array.
+     */
+    void appendScalar(SkScalar value);
+    
+    /** Creates a SkPDFName object and appends it to the array.
+     *  @param value The value to add to the array.
+     */
+    void appendName(const char name[]);
+    
 private:
     static const int kMaxLen = 8191;
     SkTDArray<SkPDFObject*> fValue;
@@ -320,7 +335,33 @@ public:
      *  @return The value argument is returned.
      */
     SkPDFObject* insert(const char key[], SkPDFObject* value);
+    
+    /** Add the int to the dictionary with the given key.
+     *  @param key   The text of the key for this dictionary entry.
+     *  @param value The int value for this dictionary entry.
+     */
+    void insertInt(const char key[], int32_t value);
+    
+    /** Add the scalar to the dictionary with the given key.
+     *  @param key   The text of the key for this dictionary entry.
+     *  @param value The scalar value for this dictionary entry.
+     */
+    void insertScalar(const char key[], SkScalar value);
+    
+    /** Add the name to the dictionary with the given key.
+     *  @param key   The text of the key for this dictionary entry.
+     *  @param name  The name for this dictionary entry.
+     */
+    void insertName(const char key[], const char name[]);
 
+    /** Add the name to the dictionary with the given key.
+     *  @param key   The text of the key for this dictionary entry.
+     *  @param name  The name for this dictionary entry.
+     */
+    void insertName(const char key[], const SkString& name) {
+        this->insertName(key, name.c_str());
+    }
+    
     /** Remove all entries from the dictionary.
      */
     void clear();

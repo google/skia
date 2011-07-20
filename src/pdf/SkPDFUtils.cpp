@@ -31,7 +31,7 @@ SkPDFArray* SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
     SkPDFArray* result = new SkPDFArray;
     result->reserve(6);
     for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
-        result->append(new SkPDFScalar(values[i]))->unref();
+        result->appendScalar(values[i]);
     }
     return result;
 }

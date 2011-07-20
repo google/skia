@@ -337,6 +337,23 @@ SkPDFObject* SkPDFArray::append(SkPDFObject* value) {
     return value;
 }
 
+void SkPDFArray::appendInt(int32_t value) {
+    SkASSERT(fValue.count() < kMaxLen);
+    fValue.push(new SkPDFInt(value));
+}
+
+void SkPDFArray::appendScalar(SkScalar value) {
+    SkASSERT(fValue.count() < kMaxLen);
+    fValue.push(new SkPDFScalar(value));
+}
+
+void SkPDFArray::appendName(const char name[]) {
+    SkASSERT(fValue.count() < kMaxLen);
+    fValue.push(new SkPDFName(name));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 SkPDFDict::SkPDFDict() {}
 
 SkPDFDict::SkPDFDict(const char type[]) {
@@ -389,6 +406,24 @@ SkPDFObject* SkPDFDict::insert(const char key[], SkPDFObject* value) {
     newEntry->key = new SkPDFName(key);
     newEntry->value = value;
     return value;
+}
+
+void SkPDFDict::insertInt(const char key[], int32_t value) {
+    struct Rec* newEntry = fValue.append();
+    newEntry->key = new SkPDFName(key);
+    newEntry->value = new SkPDFInt(value);
+}
+
+void SkPDFDict::insertScalar(const char key[], SkScalar value) {
+    struct Rec* newEntry = fValue.append();
+    newEntry->key = new SkPDFName(key);
+    newEntry->value = new SkPDFScalar(value);
+}
+
+void SkPDFDict::insertName(const char key[], const char name[]) {
+    struct Rec* newEntry = fValue.append();
+    newEntry->key = new SkPDFName(key);
+    newEntry->value = new SkPDFName(name);
 }
 
 void SkPDFDict::clear() {
