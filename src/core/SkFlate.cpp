@@ -26,11 +26,7 @@ bool SkFlate::Inflate(SkStream*, SkWStream*) { return false; }
 
 // static
 bool SkFlate::HaveFlate() {
-#ifdef SK_DEBUG
-    return false;
-#else
     return true;
-#endif
 }
 
 namespace {

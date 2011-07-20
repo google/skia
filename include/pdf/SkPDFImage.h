@@ -34,7 +34,7 @@ struct SkIRect;
 // We could play the same trick here as is done in SkPDFGraphicState, storing
 // a copy of the Bitmap object (not the pixels), the pixel generation number,
 // and settings used from the paint to canonicalize image objects.
-class SkPDFImage : public SkPDFObject {
+class SkPDFImage : public SkPDFStream {
 public:
     /** Create a new Image XObject to represent the passed bitmap.
      *  @param bitmap   The image to encode.
@@ -56,13 +56,9 @@ public:
     SkPDFImage* addSMask(SkPDFImage* mask);
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
     virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
 private:
-    SkRefPtr<SkPDFStream> fStream;
     SkTDArray<SkPDFObject*> fResources;
 
     /** Create a PDF image XObject. Entries for the image properties are
@@ -76,20 +72,6 @@ private:
      */
     SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
                const SkIRect& srcRect, bool alpha, const SkPaint& paint);
-
-    /** Add the value to the stream dictionary with the given key.  Refs value.
-     *  @param key   The key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
-    SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
-
-    /** Add the value to the stream dictionary with the given key.  Refs value.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
-    SkPDFObject* insert(const char key[], SkPDFObject* value);
 };
 
 #endif

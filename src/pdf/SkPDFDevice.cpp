@@ -1394,7 +1394,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
     entry->fClipRegion = clipRegion;
 
     // PDF treats a shader as a color, so we only set one or the other.
-    SkRefPtr<SkPDFShader> pdfShader;
+    SkRefPtr<SkPDFObject> pdfShader;
     const SkShader* shader = paint.getShader();
     SkColor color = paint.getColor();
     if (shader) {

@@ -19,6 +19,7 @@
 
 #include <sys/types.h>
 
+#include "SkPDFDocument.h"
 #include "SkPDFTypes.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
@@ -32,7 +33,7 @@ class SK_API SkPDFCatalog {
 public:
     /** Create a PDF catalog.
      */
-    SkPDFCatalog();
+    explicit SkPDFCatalog(SkPDFDocument::Flags flags);
     ~SkPDFCatalog();
 
     /** Add the passed object to the catalog.  Refs obj.
@@ -61,6 +62,10 @@ public:
      *  @param obj         The object of interest
      */
     size_t getObjectNumberSize(SkPDFObject* obj);
+
+    /** Return the document flags in effect for this catalog/document.
+     */
+    SkPDFDocument::Flags getDocumentFlags() const { return fDocumentFlags; }
 
     /** Output the cross reference table for objects in the catalog.
      *  Returns the total number of objects.
@@ -126,6 +131,8 @@ private:
     uint32_t fNextObjNum;
     // Next object number to assign on the first page.
     uint32_t fNextFirstPageObjNum;
+
+    SkPDFDocument::Flags fDocumentFlags;
 
     int findObjectIndex(SkPDFObject* obj) const;
 

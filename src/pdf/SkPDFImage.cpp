@@ -281,38 +281,14 @@ SkPDFImage* SkPDFImage::addSMask(SkPDFImage* mask) {
     return mask;
 }
 
-void SkPDFImage::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                             bool indirect) {
-    if (indirect)
-        return emitIndirectObject(stream, catalog);
-
-    fStream->emitObject(stream, catalog, indirect);
-}
-
-size_t SkPDFImage::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect)
-        return getIndirectOutputSize(catalog);
-
-    return fStream->getOutputSize(catalog, indirect);
-}
-
 void SkPDFImage::getResources(SkTDArray<SkPDFObject*>* resourceList) {
-    if (fResources.count()) {
-        resourceList->setReserve(resourceList->count() + fResources.count());
-        for (int i = 0; i < fResources.count(); i++) {
-            resourceList->push(fResources[i]);
-            fResources[i]->ref();
-            fResources[i]->getResources(resourceList);
-        }
-    }
+    GetResourcesHelper(&fResources, resourceList);
 }
 
 SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
                        const SkIRect& srcRect, bool doingAlpha,
                        const SkPaint& paint) {
-    fStream = new SkPDFStream(imageData);
-    fStream->unref();  // SkRefPtr and new both took a reference.
-
+    this->setData(imageData);
     SkBitmap::Config config = bitmap.getConfig();
     bool alphaOnly = (config == SkBitmap::kA1_Config ||
                       config == SkBitmap::kA8_Config);
@@ -371,12 +347,4 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
         decodeValue->append(scale5Val.get());
         insert("Decode", decodeValue.get());
     }
-}
-
-SkPDFObject* SkPDFImage::insert(SkPDFName* key, SkPDFObject* value) {
-    return fStream->insert(key, value);
-}
-
-SkPDFObject* SkPDFImage::insert(const char key[], SkPDFObject* value) {
-    return fStream->insert(key, value);
 }

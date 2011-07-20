@@ -32,16 +32,8 @@ class SkPDFCatalog;
     pattern color space is selected.
 */
 
-class SkPDFShader : public SkPDFObject {
+class SkPDFShader {
 public:
-    virtual ~SkPDFShader();
-
-    // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
-    virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
-
     /** Get the PDF shader for the passed SkShader. If the SkShader is
      *  invalid in some way, returns NULL. The reference count of
      *  the object is incremented and it is the caller's responsibility to
@@ -54,57 +46,27 @@ public:
      *  @param surfceBBox The bounding box of the drawing surface (with matrix
      *                    already applied).
      */
-    static SkPDFShader* GetPDFShader(const SkShader& shader,
+    static SkPDFObject* GetPDFShader(const SkShader& shader,
                                      const SkMatrix& matrix,
                                      const SkIRect& surfaceBBox);
 
-private:
-    class State {
-    public:
-        SkShader::GradientType fType;
-        SkShader::GradientInfo fInfo;
-        SkAutoFree fColorData;
-        SkMatrix fCanvasTransform;
-        SkMatrix fShaderTransform;
-        SkIRect fBBox;
-
-        SkBitmap fImage;
-        uint32_t fPixelGeneration;
-        SkShader::TileMode fImageTileModes[2];
-
-        explicit State(const SkShader& shader, const SkMatrix& canvasTransform,
-                       const SkIRect& bbox);
-        bool operator==(const State& b) const;
-    };
-
-    SkRefPtr<SkPDFDict> fContent;
-    SkTDArray<SkPDFObject*> fResources;
-    SkAutoTDelete<const State> fState;
+protected:
+    class State;
 
     class ShaderCanonicalEntry {
     public:
-        SkPDFShader* fPDFShader;
-        const State* fState;
+        ShaderCanonicalEntry(SkPDFObject* pdfShader, const State* state);
+        bool operator==(const ShaderCanonicalEntry& b) const;
 
-        bool operator==(const ShaderCanonicalEntry& b) const {
-            return fPDFShader == b.fPDFShader || *fState == *b.fState;
-        }
-        ShaderCanonicalEntry(SkPDFShader* pdfShader, const State* state)
-            : fPDFShader(pdfShader),
-              fState(state) {
-        }
+        SkPDFObject* fPDFShader;
+        const State* fState;
     };
     // This should be made a hash table if performance is a problem.
     static SkTDArray<ShaderCanonicalEntry>& CanonicalShaders();
     static SkMutex& CanonicalShadersMutex();
+    static void RemoveShader(SkPDFObject* shader);
 
-    static SkPDFObject* RangeObject();
-
-    SkPDFShader(State* state);
-
-    void doFunctionShader();
-    void doImageShader();
-    SkPDFStream* makePSFunction(const SkString& psCode, SkPDFArray* domain);
+    SkPDFShader();
 };
 
 #endif
