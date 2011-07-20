@@ -370,12 +370,12 @@ SkPDFObject* SkPDFShader::rangeObject() {
     if (range == NULL) {
         range = new SkPDFArray;
         range->reserve(6);
-        range->append(new SkPDFInt(0))->unref();
-        range->append(new SkPDFInt(1))->unref();
-        range->append(new SkPDFInt(0))->unref();
-        range->append(new SkPDFInt(1))->unref();
-        range->append(new SkPDFInt(0))->unref();
-        range->append(new SkPDFInt(1))->unref();
+        range->appendInt(0);
+        range->appendInt(1);
+        range->appendInt(0);
+        range->appendInt(1);
+        range->appendInt(0);
+        range->appendInt(1);
     }
     return range;
 }
@@ -445,10 +445,10 @@ void SkPDFShader::doFunctionShader() {
     SkRefPtr<SkPDFArray> domain = new SkPDFArray;
     domain->unref();  // SkRefPtr and new both took a reference.
     domain->reserve(4);
-    domain->append(new SkPDFScalar(bbox.fLeft))->unref();
-    domain->append(new SkPDFScalar(bbox.fRight))->unref();
-    domain->append(new SkPDFScalar(bbox.fTop))->unref();
-    domain->append(new SkPDFScalar(bbox.fBottom))->unref();
+    domain->appendScalar(bbox.fLeft);
+    domain->appendScalar(bbox.fRight);
+    domain->appendScalar(bbox.fTop);
+    domain->appendScalar(bbox.fBottom);
 
     SkString functionCode;
     // The two point radial gradient further references fState.get()->fInfo
@@ -474,14 +474,14 @@ void SkPDFShader::doFunctionShader() {
 
     SkRefPtr<SkPDFDict> pdfShader = new SkPDFDict;
     pdfShader->unref();  // SkRefPtr and new both took a reference.
-    pdfShader->insert("ShadingType", new SkPDFInt(1))->unref();
-    pdfShader->insert("ColorSpace", new SkPDFName("DeviceRGB"))->unref();
+    pdfShader->insertInt("ShadingType", 1);
+    pdfShader->insertName("ColorSpace", "DeviceRGB");
     pdfShader->insert("Domain", domain.get());
     pdfShader->insert("Function", new SkPDFObjRef(function.get()))->unref();
 
     fContent = new SkPDFDict("Pattern");
     fContent->unref();  // SkRefPtr and new both took a reference.
-    fContent->insert("PatternType", new SkPDFInt(2))->unref();
+    fContent->insertInt("PatternType", 2);
     fContent->insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
     fContent->insert("Shading", pdfShader.get());
 }
@@ -656,10 +656,10 @@ void SkPDFShader::doImageShader() {
     SkRefPtr<SkPDFArray> patternBBoxArray = new SkPDFArray;
     patternBBoxArray->unref();  // SkRefPtr and new both took a reference.
     patternBBoxArray->reserve(4);
-    patternBBoxArray->append(new SkPDFScalar(patternBBox.fLeft))->unref();
-    patternBBoxArray->append(new SkPDFScalar(patternBBox.fTop))->unref();
-    patternBBoxArray->append(new SkPDFScalar(patternBBox.fRight))->unref();
-    patternBBoxArray->append(new SkPDFScalar(patternBBox.fBottom))->unref();
+    patternBBoxArray->appendScalar(patternBBox.fLeft);
+    patternBBoxArray->appendScalar(patternBBox.fTop);
+    patternBBoxArray->appendScalar(patternBBox.fRight);
+    patternBBoxArray->appendScalar(patternBBox.fBottom);
 
     // Put the canvas into the pattern stream (fContent).
     SkRefPtr<SkStream> content = pattern.content();
@@ -668,13 +668,13 @@ void SkPDFShader::doImageShader() {
 
     fContent = new SkPDFStream(content.get());
     fContent->unref();  // SkRefPtr and new both took a reference.
-    fContent->insert("Type", new SkPDFName("Pattern"))->unref();
-    fContent->insert("PatternType", new SkPDFInt(1))->unref();
-    fContent->insert("PaintType", new SkPDFInt(1))->unref();
-    fContent->insert("TilingType", new SkPDFInt(1))->unref();
+    fContent->insertName("Type", "Pattern");
+    fContent->insertInt("PatternType", 1);
+    fContent->insertInt("PaintType", 1);
+    fContent->insertInt("TilingType", 1);
     fContent->insert("BBox", patternBBoxArray.get());
-    fContent->insert("XStep", new SkPDFScalar(patternBBox.width()))->unref();
-    fContent->insert("YStep", new SkPDFScalar(patternBBox.height()))->unref();
+    fContent->insertScalar("XStep", patternBBox.width());
+    fContent->insertScalar("YStep", patternBBox.height());
     fContent->insert("Resources", pattern.getResourceDict().get());
     fContent->insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
 
@@ -688,7 +688,7 @@ SkPDFStream* SkPDFShader::makePSFunction(const SkString& psCode,
     funcStream->unref();  // SkRefPtr and new both took a reference.
 
     SkPDFStream* result = new SkPDFStream(funcStream.get());
-    result->insert("FunctionType", new SkPDFInt(4))->unref();
+    result->insertInt("FunctionType", 4);
     result->insert("Domain", domain);
     result->insert("Range", rangeObject());
     return result;

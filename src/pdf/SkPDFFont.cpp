@@ -261,20 +261,16 @@ void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
 SkPDFArray* makeFontBBox(SkIRect glyphBBox, uint16_t emSize) {
     SkPDFArray* bbox = new SkPDFArray;
     bbox->reserve(4);
-    bbox->append(new SkPDFScalar(scaleFromFontUnits(glyphBBox.fLeft,
-                                                    emSize)))->unref();
-    bbox->append(new SkPDFScalar(scaleFromFontUnits(glyphBBox.fBottom,
-                                                    emSize)))->unref();
-    bbox->append(new SkPDFScalar(scaleFromFontUnits(glyphBBox.fRight,
-                                                    emSize)))->unref();
-    bbox->append(new SkPDFScalar(scaleFromFontUnits(glyphBBox.fTop,
-                                                    emSize)))->unref();
+    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fLeft, emSize));
+    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fBottom, emSize));
+    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fRight, emSize));
+    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fTop, emSize));
     return bbox;
 }
 
 SkPDFArray* appendWidth(const int16_t& width, uint16_t emSize,
                         SkPDFArray* array) {
-    array->append(new SkPDFScalar(scaleFromFontUnits(width, emSize)))->unref();
+    array->appendScalar(scaleFromFontUnits(width, emSize));
     return array;
 }
 
@@ -308,14 +304,14 @@ SkPDFArray* composeAdvanceData(
                 for (int j = 0; j < advanceInfo->fAdvance.count(); j++)
                     appendAdvance(advanceInfo->fAdvance[j], emSize,
                                   advanceArray.get());
-                result->append(new SkPDFInt(advanceInfo->fStartId))->unref();
+                result->appendInt(advanceInfo->fStartId);
                 result->append(advanceArray.get());
                 break;
             }
             case SkAdvancedTypefaceMetrics::WidthRange::kRun: {
                 SkASSERT(advanceInfo->fAdvance.count() == 1);
-                result->append(new SkPDFInt(advanceInfo->fStartId))->unref();
-                result->append(new SkPDFInt(advanceInfo->fEndId))->unref();
+                result->appendInt(advanceInfo->fStartId);
+                result->appendInt(advanceInfo->fEndId);
                 appendAdvance(advanceInfo->fAdvance[0], emSize, result);
                 break;
             }
@@ -594,9 +590,9 @@ SkPDFFont::SkPDFFont(class SkAdvancedTypefaceMetrics* fontInfo,
 void SkPDFFont::populateType0Font() {
     fMultiByteGlyphs = true;
 
-    insert("Subtype", new SkPDFName("Type0"))->unref();
-    insert("BaseFont", new SkPDFName(fFontInfo->fFontName))->unref();
-    insert("Encoding",  new SkPDFName("Identity-H"))->unref();
+    insertName("Subtype", "Type0");
+    insertName("BaseFont", fFontInfo->fFontName);
+    insertName("Encoding", "Identity-H");
 
     SkRefPtr<SkPDFArray> descendantFonts = new SkPDFArray();
     descendantFonts->unref();  // SkRefPtr and new took a reference.
@@ -630,13 +626,13 @@ void SkPDFFont::populateToUnicodeTable() {
 
 void SkPDFFont::populateCIDFont() {
     fMultiByteGlyphs = true;
-    insert("BaseFont", new SkPDFName(fFontInfo->fFontName))->unref();
+    insertName("BaseFont", fFontInfo->fFontName);
 
     if (fFontInfo->fType == SkAdvancedTypefaceMetrics::kType1CID_Font) {
-        insert("Subtype", new SkPDFName("CIDFontType0"))->unref();
+        insertName("Subtype", "CIDFontType0");
     } else if (fFontInfo->fType == SkAdvancedTypefaceMetrics::kTrueType_Font) {
-        insert("Subtype", new SkPDFName("CIDFontType2"))->unref();
-        insert("CIDToGIDMap", new SkPDFName("Identity"))->unref();
+        insertName("Subtype", "CIDFontType2");
+        insertName("CIDToGIDMap", "Identity");
     } else {
         SkASSERT(false);
     }
@@ -645,7 +641,7 @@ void SkPDFFont::populateCIDFont() {
     sysInfo->unref();  // SkRefPtr and new both took a reference.
     sysInfo->insert("Registry", new SkPDFString("Adobe"))->unref();
     sysInfo->insert("Ordering", new SkPDFString("Identity"))->unref();
-    sysInfo->insert("Supplement", new SkPDFInt(0))->unref();
+    sysInfo->insertInt("Supplement", 0);
     insert("CIDSystemInfo", sysInfo.get());
 
     addFontDescriptor(0);
@@ -659,8 +655,8 @@ void SkPDFFont::populateCIDFont() {
         if (widths->size())
             insert("W", widths.get());
         if (defaultWidth != 0) {
-            insert("DW", new SkPDFScalar(scaleFromFontUnits(
-                    defaultWidth, fFontInfo->fEmSize)))->unref();
+            insertScalar("DW", scaleFromFontUnits(defaultWidth,
+                                                  fFontInfo->fEmSize));
         }
     }
     if (fFontInfo->fVerticalMetrics.get()) {
@@ -714,8 +710,8 @@ bool SkPDFFont::populateType1Font(int16_t glyphID) {
     if (!addFontDescriptor(defaultWidth))
         return false;
 
-    insert("Subtype", new SkPDFName("Type1"))->unref();
-    insert("BaseFont", new SkPDFName(fFontInfo->fFontName))->unref();
+    insertName("Subtype", "Type1");
+    insertName("BaseFont", fFontInfo->fFontName);
 
     addWidthInfoFromRange(defaultWidth, widthRangeEntry);
 
@@ -728,10 +724,9 @@ bool SkPDFFont::populateType1Font(int16_t glyphID) {
     encoding->insert("Differences", encDiffs.get());
 
     encDiffs->reserve(fLastGlyphID - fFirstGlyphID + 2);
-    encDiffs->append(new SkPDFInt(1))->unref();
+    encDiffs->appendInt(1);
     for (int gID = fFirstGlyphID; gID <= fLastGlyphID; gID++) {
-        encDiffs->append(
-            new SkPDFName(fFontInfo->fGlyphNames->get()[gID]))->unref();
+        encDiffs->appendName(fFontInfo->fGlyphNames->get()[gID].c_str());
     }
 
     if (fFontInfo->fLastGlyphID <= 255)
@@ -752,7 +747,7 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
 
     adjustGlyphRangeForSingleByteEncoding(glyphID);
 
-    insert("Subtype", new SkPDFName("Type3"))->unref();
+    insertName("Subtype", "Type3");
     // Flip about the x-axis and scale by 1/1000.
     SkMatrix fontMatrix;
     fontMatrix.setScale(SkScalarInvert(1000), -SkScalarInvert(1000));
@@ -770,7 +765,7 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
     encDiffs->unref();  // SkRefPtr and new both took a reference.
     encoding->insert("Differences", encDiffs.get());
     encDiffs->reserve(fLastGlyphID - fFirstGlyphID + 2);
-    encDiffs->append(new SkPDFInt(1))->unref();
+    encDiffs->appendInt(1);
 
     SkRefPtr<SkPDFArray> widthArray = new SkPDFArray();
     widthArray->unref();  // SkRefPtr and new both took a ref.
@@ -779,10 +774,10 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
     for (int gID = fFirstGlyphID; gID <= fLastGlyphID; gID++) {
         SkString characterName;
         characterName.printf("gid%d", gID);
-        encDiffs->append(new SkPDFName(characterName))->unref();
+        encDiffs->appendName(characterName.c_str());
 
         const SkGlyph& glyph = cache->getGlyphIDMetrics(gID);
-        widthArray->append(new SkPDFScalar(SkFixedToScalar(glyph.fAdvanceX)))->unref();
+        widthArray->appendScalar(SkFixedToScalar(glyph.fAdvanceX));
         SkIRect glyphBBox = SkIRect::MakeXYWH(glyph.fLeft, glyph.fTop,
                                               glyph.fWidth, glyph.fHeight);
         bbox.join(glyphBBox);
@@ -809,14 +804,14 @@ void SkPDFFont::populateType3Font(int16_t glyphID) {
     }
 
     insert("FontBBox", makeFontBBox(bbox, 1000))->unref();
-    insert("FirstChar", new SkPDFInt(fFirstGlyphID))->unref();
-    insert("LastChar", new SkPDFInt(fLastGlyphID))->unref();
+    insertInt("FirstChar", fFirstGlyphID);
+    insertInt("LastChar", fLastGlyphID);
     insert("Widths", widthArray.get());
-    insert("CIDToGIDMap", new SkPDFName("Identity"))->unref();
+    insertName("CIDToGIDMap", "Identity");
 
-    if (fFontInfo && fFontInfo->fLastGlyphID <= 255)
+    if (fFontInfo && fFontInfo->fLastGlyphID <= 255) {
         fFontInfo = NULL;
-
+    }
     populateToUnicodeTable();
 }
 
@@ -846,9 +841,9 @@ bool SkPDFFont::addFontDescriptor(int16_t defaultWidth) {
             SkRefPtr<SkPDFStream> fontStream = new SkPDFStream(fontData);
             // SkRefPtr and new both ref()'d fontStream, pass one.
             fResources.push(fontStream.get());
-            fontStream->insert("Length1", new SkPDFInt(header))->unref();
-            fontStream->insert("Length2", new SkPDFInt(data))->unref();
-            fontStream->insert("Length3", new SkPDFInt(trailer))->unref();
+            fontStream->insertInt("Length1", header);
+            fontStream->insertInt("Length2", data);
+            fontStream->insertInt("Length3", trailer);
             fDescriptor->insert("FontFile",
                                 new SkPDFObjRef(fontStream.get()))->unref();
             break;
@@ -861,8 +856,7 @@ bool SkPDFFont::addFontDescriptor(int16_t defaultWidth) {
             // SkRefPtr and new both ref()'d fontStream, pass one.
             fResources.push(fontStream.get());
 
-            fontStream->insert("Length1",
-                               new SkPDFInt(fontData->getLength()))->unref();
+            fontStream->insertInt("Length1", fontData->getLength());
             fDescriptor->insert("FontFile2",
                                 new SkPDFObjRef(fontStream.get()))->unref();
             break;
@@ -877,10 +871,9 @@ bool SkPDFFont::addFontDescriptor(int16_t defaultWidth) {
             fResources.push(fontStream.get());
 
             if (fFontInfo->fType == SkAdvancedTypefaceMetrics::kCFF_Font) {
-                fontStream->insert("Subtype", new SkPDFName("Type1C"))->unref();
+                fontStream->insertName("Subtype", "Type1C");
             } else {
-                fontStream->insert("Subtype",
-                        new SkPDFName("CIDFontType0c"))->unref();
+                fontStream->insertName("Subtype", "CIDFontType0c");
             }
             fDescriptor->insert("FontFile3",
                                 new SkPDFObjRef(fontStream.get()))->unref();
@@ -895,25 +888,23 @@ bool SkPDFFont::addFontDescriptor(int16_t defaultWidth) {
     fDescriptor->ref();
     insert("FontDescriptor", new SkPDFObjRef(fDescriptor.get()))->unref();
 
-    fDescriptor->insert("FontName", new SkPDFName(
-            fFontInfo->fFontName))->unref();
-    fDescriptor->insert("Flags", new SkPDFInt(fFontInfo->fStyle))->unref();
-    fDescriptor->insert("Ascent", new SkPDFScalar(
-            scaleFromFontUnits(fFontInfo->fAscent, emSize)))->unref();
-    fDescriptor->insert("Descent", new SkPDFScalar(
-            scaleFromFontUnits(fFontInfo->fDescent, emSize)))->unref();
-    fDescriptor->insert("StemV", new SkPDFScalar(
-            scaleFromFontUnits(fFontInfo->fStemV, emSize)))->unref();
-    fDescriptor->insert("CapHeight", new SkPDFScalar(
-            scaleFromFontUnits(fFontInfo->fCapHeight, emSize)))->unref();
-    fDescriptor->insert("ItalicAngle", new SkPDFInt(
-            fFontInfo->fItalicAngle))->unref();
+    fDescriptor->insertName("FontName", fFontInfo->fFontName);
+    fDescriptor->insertInt("Flags", fFontInfo->fStyle);
+    fDescriptor->insertScalar("Ascent",
+                              scaleFromFontUnits(fFontInfo->fAscent, emSize));
+    fDescriptor->insertScalar("Descent",
+                              scaleFromFontUnits(fFontInfo->fDescent, emSize));
+    fDescriptor->insertScalar("StemV",
+                              scaleFromFontUnits(fFontInfo->fStemV, emSize));
+    fDescriptor->insertScalar("CapHeight",
+                             scaleFromFontUnits(fFontInfo->fCapHeight, emSize));
+    fDescriptor->insertInt("ItalicAngle", fFontInfo->fItalicAngle);
     fDescriptor->insert("FontBBox", makeFontBBox(fFontInfo->fBBox,
                                                  fFontInfo->fEmSize))->unref();
 
     if (defaultWidth > 0) {
-        fDescriptor->insert("MissingWidth", new SkPDFScalar(
-                scaleFromFontUnits(defaultWidth, emSize)))->unref();
+        fDescriptor->insertScalar("MissingWidth",
+                                  scaleFromFontUnits(defaultWidth, emSize));
     }
     return true;
 }
@@ -941,9 +932,8 @@ void SkPDFFont::addWidthInfoFromRange(
     } else {
         appendWidth(defaultWidth, 1000, widthArray.get());
     }
-    insert("FirstChar", new SkPDFInt(firstChar))->unref();
-    insert("LastChar",
-           new SkPDFInt(firstChar + widthArray->size() - 1))->unref();
+    insertInt("FirstChar", firstChar);
+    insertInt("LastChar", firstChar + widthArray->size() - 1);
     insert("Widths", widthArray.get());
 }
 

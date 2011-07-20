@@ -1045,7 +1045,7 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
         procSets->unref();  // SkRefPtr and new both took a reference.
         procSets->reserve(SK_ARRAY_COUNT(procs));
         for (size_t i = 0; i < SK_ARRAY_COUNT(procs); i++)
-            procSets->append(new SkPDFName(procs[i]))->unref();
+            procSets->appendName(procs[i]);
         fResourceDict->insert("ProcSet", procSets.get());
     }
     return fResourceDict;
@@ -1092,8 +1092,8 @@ SkRefPtr<SkPDFArray> SkPDFDevice::getMediaBox() const {
     mediaBox->reserve(4);
     mediaBox->append(zero.get());
     mediaBox->append(zero.get());
-    mediaBox->append(new SkPDFInt(fPageSize.fWidth))->unref();
-    mediaBox->append(new SkPDFInt(fPageSize.fHeight))->unref();
+    mediaBox->appendInt(fPageSize.fWidth);
+    mediaBox->appendInt(fPageSize.fHeight);
     return mediaBox;
 }
 

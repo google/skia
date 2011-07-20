@@ -126,8 +126,8 @@ SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
         SkRefPtr<SkPDFArray> domainAndRange = new SkPDFArray;
         domainAndRange->unref();  // SkRefPtr and new both took a reference.
         domainAndRange->reserve(2);
-        domainAndRange->append(new SkPDFInt(0))->unref();
-        domainAndRange->append(new SkPDFInt(1))->unref();
+        domainAndRange->appendInt(0);
+        domainAndRange->appendInt(1);
 
         static const char psInvert[] = "{1 exch sub}";
         SkRefPtr<SkMemoryStream> psInvertStream =
@@ -135,7 +135,7 @@ SkPDFObject* SkPDFGraphicState::GetInvertFunction() {
         psInvertStream->unref();  // SkRefPtr and new both took a reference.
 
         invertFunction = new SkPDFStream(psInvertStream.get());
-        invertFunction->insert("FunctionType", new SkPDFInt(4))->unref();
+        invertFunction->insertInt("FunctionType", 4);
         invertFunction->insert("Domain", domainAndRange.get());
         invertFunction->insert("Range", domainAndRange.get());
     }
@@ -151,13 +151,13 @@ SkPDFGraphicState* SkPDFGraphicState::getSMaskGraphicState(
 
     SkRefPtr<SkPDFDict> sMaskDict = new SkPDFDict("Mask");
     sMaskDict->unref();  // SkRefPtr and new both took a reference.
-    sMaskDict->insert("S", new SkPDFName("Alpha"))->unref();
+    sMaskDict->insertName("S", "Alpha");
     sMaskDict->insert("G", new SkPDFObjRef(sMask))->unref();
 
     SkPDFGraphicState* result = new SkPDFGraphicState;
     result->fPopulated = true;
     result->fSMask = true;
-    result->insert("Type", new SkPDFName("ExtGState"))->unref();
+    result->insertName("Type", "ExtGState");
     result->insert("SMask", sMaskDict.get());
     result->fResources.push(sMask);
     sMask->ref();
@@ -180,8 +180,8 @@ SkPDFGraphicState* SkPDFGraphicState::getNoSMaskGraphicState() {
         noSMaskGS = new SkPDFGraphicState;
         noSMaskGS->fPopulated = true;
         noSMaskGS->fSMask = true;
-        noSMaskGS->insert("Type", new SkPDFName("ExtGState"))->unref();
-        noSMaskGS->insert("SMask", new SkPDFName("None"))->unref();
+        noSMaskGS->insertName("Type", "ExtGState");
+        noSMaskGS->insertName("SMask", "None");
     }
     noSMaskGS->ref();
     return noSMaskGS;
@@ -208,7 +208,7 @@ SkPDFGraphicState::SkPDFGraphicState(const SkPaint& paint)
 void SkPDFGraphicState::populateDict() {
     if (!fPopulated) {
         fPopulated = true;
-        insert("Type", new SkPDFName("ExtGState"))->unref();
+        insertName("Type", "ExtGState");
 
         SkRefPtr<SkPDFScalar> alpha =
             new SkPDFScalar(fPaint.getAlpha() * SkScalarInvert(0xFF));
@@ -221,17 +221,17 @@ void SkPDFGraphicState::populateDict() {
         SK_COMPILE_ASSERT(SkPaint::kSquare_Cap == 2, paint_cap_mismatch);
         SK_COMPILE_ASSERT(SkPaint::kCapCount == 3, paint_cap_mismatch);
         SkASSERT(fPaint.getStrokeCap() >= 0 && fPaint.getStrokeCap() <= 2);
-        insert("LC", new SkPDFInt(fPaint.getStrokeCap()))->unref();
+        insertInt("LC", fPaint.getStrokeCap());
 
         SK_COMPILE_ASSERT(SkPaint::kMiter_Join == 0, paint_join_mismatch);
         SK_COMPILE_ASSERT(SkPaint::kRound_Join == 1, paint_join_mismatch);
         SK_COMPILE_ASSERT(SkPaint::kBevel_Join == 2, paint_join_mismatch);
         SK_COMPILE_ASSERT(SkPaint::kJoinCount == 3, paint_join_mismatch);
         SkASSERT(fPaint.getStrokeJoin() >= 0 && fPaint.getStrokeJoin() <= 2);
-        insert("LJ", new SkPDFInt(fPaint.getStrokeJoin()))->unref();
+        insertInt("LJ", fPaint.getStrokeJoin());
 
-        insert("LW", new SkPDFScalar(fPaint.getStrokeWidth()))->unref();
-        insert("ML", new SkPDFScalar(fPaint.getStrokeMiter()))->unref();
+        insertScalar("LW", fPaint.getStrokeWidth());
+        insertScalar("ML", fPaint.getStrokeMiter());
         insert("SA", new SkPDFBool(true))->unref();  // Auto stroke adjustment.
 
         SkXfermode::Mode xfermode = SkXfermode::kSrcOver_Mode;
@@ -244,8 +244,7 @@ void SkPDFGraphicState::populateDict() {
             xfermode = SkXfermode::kSrcOver_Mode;
             NOT_IMPLEMENTED("unsupported xfermode", false);
         }
-        insert("BM",
-               new SkPDFName(blend_mode_from_xfermode(xfermode)))->unref();
+        insertName("BM", blend_mode_from_xfermode(xfermode));
     }
 }
 
