@@ -170,7 +170,7 @@ private:
     SkTDArray<SkPDFGraphicState*> fGraphicStateResources;
     SkTDArray<SkPDFObject*> fXObjectResources;
     SkTDArray<SkPDFFont*> fFontResources;
-    SkTDArray<SkPDFShader*> fShaderResources;
+    SkTDArray<SkPDFObject*> fShaderResources;
 
     SkTScopedPtr<ContentEntry> fContentEntries;
     ContentEntry* fLastContentEntry;

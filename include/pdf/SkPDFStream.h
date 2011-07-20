@@ -34,9 +34,15 @@ public:
     /** Create a PDF stream. A Length entry is automatically added to the
      *  stream dictionary. The stream may be retained (stream->ref() may be
      *  called) so its contents must not be changed after calling this.
-     *  @param stream The data part of the stream.
+     *  @param data  The data part of the stream.
      */
+    explicit SkPDFStream(SkData* data);
+    /** Deprecated constructor. */
     explicit SkPDFStream(SkStream* stream);
+    /** Create a PDF stream with the same content and dictionary entries
+     *  as the passed one.
+     */
+    explicit SkPDFStream(const SkPDFStream& pdfStream);
     virtual ~SkPDFStream();
 
     // The SkPDFObject interface.
@@ -44,13 +50,33 @@ public:
                             bool indirect);
     virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
 
+protected:
+    /* Create a PDF stream with no data.  The setData method must be called to
+     * set the data.
+     */
+    SkPDFStream();
+
+    void setData(SkStream* stream);
+
 private:
-    size_t fLength;
-    // Only one of the two streams will be valid.
-    SkRefPtr<SkStream> fPlainData;
-    SkDynamicMemoryWStream fCompressedData;
+    enum State {
+        kUnused_State,         //!< The stream hasn't been requested yet.
+        kNoCompression_State,  //!< The stream's been requested in an
+                               //   uncompressed form.
+        kCompressed_State,     //!< The stream's already been compressed.
+    };
+    // Indicates what form (or if) the stream has been requested.
+    State fState;
+
+    // TODO(vandebo) Use SkData (after removing deprecated constructor).
+    SkRefPtr<SkStream> fData;
+    SkRefPtr<SkPDFStream> fSubstitute;
 
     typedef SkPDFDict INHERITED;
+
+    // Populate the stream dictionary.  This method returns false if
+    // fSubstitute should be used.
+    bool populate(SkPDFCatalog* catalog);
 };
 
 #endif

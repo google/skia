@@ -67,12 +67,7 @@ SkPDFGraphicState::~SkPDFGraphicState() {
 }
 
 void SkPDFGraphicState::getResources(SkTDArray<SkPDFObject*>* resourceList) {
-    resourceList->setReserve(resourceList->count() + fResources.count());
-    for (int i = 0; i < fResources.count(); i++) {
-        resourceList->push(fResources[i]);
-        fResources[i]->ref();
-        fResources[i]->getResources(resourceList);
-    }
+    GetResourcesHelper(&fResources, resourceList);
 }
 
 void SkPDFGraphicState::emitObject(SkWStream* stream, SkPDFCatalog* catalog,

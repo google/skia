@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "SkPDFCatalog.h"
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
 #include "SkPDFPage.h"
@@ -36,12 +37,13 @@ void addResourcesToCatalog(int firstIndex, bool firstPage,
     }
 }
 
-SkPDFDocument::SkPDFDocument()
+SkPDFDocument::SkPDFDocument(Flags flags)
         : fXRefFileOffset(0),
           fSecondPageFirstResourceIndex(0) {
+    fCatalog.reset(new SkPDFCatalog(flags));
     fDocCatalog = new SkPDFDict("Catalog");
     fDocCatalog->unref();  // SkRefPtr and new both took a reference.
-    fCatalog.addObject(fDocCatalog.get(), true);
+    fCatalog->addObject(fDocCatalog.get(), true);
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -68,7 +70,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     // We haven't emitted the document before if fPageTree is empty.
     if (fPageTree.count() == 0) {
         SkPDFDict* pageTreeRoot;
-        SkPDFPage::GeneratePageTree(fPages, &fCatalog, &fPageTree,
+        SkPDFPage::GeneratePageTree(fPages, fCatalog.get(), &fPageTree,
                                     &pageTreeRoot);
         fDocCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 
@@ -87,9 +89,9 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         bool firstPage = true;
         for (int i = 0; i < fPages.count(); i++) {
             int resourceCount = fPageResources.count();
-            fPages[i]->finalizePage(&fCatalog, firstPage, &fPageResources);
+            fPages[i]->finalizePage(fCatalog.get(), firstPage, &fPageResources);
             addResourcesToCatalog(resourceCount, firstPage, &fPageResources,
-                                  &fCatalog);
+                                  fCatalog.get());
             if (i == 0) {
                 firstPage = false;
                 fSecondPageFirstResourceIndex = fPageResources.count();
@@ -98,57 +100,67 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
 
         // Figure out the size of things and inform the catalog of file offsets.
         off_t fileOffset = headerSize();
-        fileOffset += fCatalog.setFileOffset(fDocCatalog.get(), fileOffset);
-        fileOffset += fCatalog.setFileOffset(fPages[0], fileOffset);
-        fileOffset += fPages[0]->getPageSize(&fCatalog, fileOffset);
-        for (int i = 0; i < fSecondPageFirstResourceIndex; i++)
-            fileOffset += fCatalog.setFileOffset(fPageResources[i], fileOffset);
+        fileOffset += fCatalog->setFileOffset(fDocCatalog.get(), fileOffset);
+        fileOffset += fCatalog->setFileOffset(fPages[0], fileOffset);
+        fileOffset += fPages[0]->getPageSize(fCatalog.get(), fileOffset);
+        for (int i = 0; i < fSecondPageFirstResourceIndex; i++) {
+            fileOffset += fCatalog->setFileOffset(fPageResources[i],
+                                                  fileOffset);
+        }
         // Add the size of resources of substitute objects used on page 1.
-        fileOffset += fCatalog.setSubstituteResourcesOffsets(fileOffset, true);
+        fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset, true);
         if (fPages.count() > 1) {
             // TODO(vandebo) For linearized format, save the start of the
             // first page xref table and calculate the size.
         }
 
         for (int i = 0; i < fPageTree.count(); i++)
-            fileOffset += fCatalog.setFileOffset(fPageTree[i], fileOffset);
+            fileOffset += fCatalog->setFileOffset(fPageTree[i], fileOffset);
 
         for (int i = 1; i < fPages.count(); i++)
-            fileOffset += fPages[i]->getPageSize(&fCatalog, fileOffset);
+            fileOffset += fPages[i]->getPageSize(fCatalog.get(), fileOffset);
 
         for (int i = fSecondPageFirstResourceIndex;
                  i < fPageResources.count();
                  i++)
-            fileOffset += fCatalog.setFileOffset(fPageResources[i], fileOffset);
+            fileOffset += fCatalog->setFileOffset(fPageResources[i],
+                                                  fileOffset);
 
-        fileOffset += fCatalog.setSubstituteResourcesOffsets(fileOffset, false);
+        fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset,
+                                                              false);
         fXRefFileOffset = fileOffset;
     }
 
     emitHeader(stream);
-    fDocCatalog->emitObject(stream, &fCatalog, true);
-    fPages[0]->emitObject(stream, &fCatalog, true);
-    fPages[0]->emitPage(stream, &fCatalog);
-    for (int i = 0; i < fSecondPageFirstResourceIndex; i++)
-        fPageResources[i]->emit(stream, &fCatalog, true);
-    fCatalog.emitSubstituteResources(stream, true);
+    fDocCatalog->emitObject(stream, fCatalog.get(), true);
+    fPages[0]->emitObject(stream, fCatalog.get(), true);
+    fPages[0]->emitPage(stream, fCatalog.get());
+    for (int i = 0; i < fSecondPageFirstResourceIndex; i++) {
+        fPageResources[i]->emit(stream, fCatalog.get(), true);
+    }
+    fCatalog->emitSubstituteResources(stream, true);
     // TODO(vandebo) support linearized format
     //if (fPages.size() > 1) {
     //    // TODO(vandebo) save the file offset for the first page xref table.
-    //    fCatalog.emitXrefTable(stream, true);
+    //    fCatalog->emitXrefTable(stream, true);
     //}
 
-    for (int i = 0; i < fPageTree.count(); i++)
-        fPageTree[i]->emitObject(stream, &fCatalog, true);
+    for (int i = 0; i < fPageTree.count(); i++) {
+        fPageTree[i]->emitObject(stream, fCatalog.get(), true);
+    }
 
-    for (int i = 1; i < fPages.count(); i++)
-        fPages[i]->emitPage(stream, &fCatalog);
+    for (int i = 1; i < fPages.count(); i++) {
+        fPages[i]->emitPage(stream, fCatalog.get());
+    }
 
-    for (int i = fSecondPageFirstResourceIndex; i < fPageResources.count(); i++)
-        fPageResources[i]->emit(stream, &fCatalog, true);
+    for (int i = fSecondPageFirstResourceIndex;
+            i < fPageResources.count();
+            i++) {
+        fPageResources[i]->emit(stream, fCatalog.get(), true);
+    }
 
-    fCatalog.emitSubstituteResources(stream, false);
-    int64_t objCount = fCatalog.emitXrefTable(stream, fPages.count() > 1);
+    fCatalog->emitSubstituteResources(stream, false);
+    int64_t objCount = fCatalog->emitXrefTable(stream, fPages.count() > 1);
     emitFooter(stream, objCount);
     return true;
 }
@@ -217,7 +229,7 @@ void SkPDFDocument::emitFooter(SkWStream* stream, int64_t objCount) {
     }
 
     stream->writeText("trailer\n");
-    fTrailerDict->emitObject(stream, &fCatalog, false);
+    fTrailerDict->emitObject(stream, fCatalog.get(), false);
     stream->writeText("\nstartxref\n");
     stream->writeBigDecAsText(fXRefFileOffset);
     stream->writeText("\n%%EOF");

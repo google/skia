@@ -48,13 +48,31 @@ void SkPDFObject::emitIndirectObject(SkWStream* stream, SkPDFCatalog* catalog) {
     stream->writeText("\nendobj\n");
 }
 
-SkPDFObjRef::SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {}
-SkPDFObjRef::~SkPDFObjRef() {}
-
 size_t SkPDFObject::getIndirectOutputSize(SkPDFCatalog* catalog) {
     return catalog->getObjectNumberSize(this) + strlen(" obj\n") +
         this->getOutputSize(catalog, false) + strlen("\nendobj\n");
 }
+
+void SkPDFObject::AddResourceHelper(SkPDFObject* resource,
+                                    SkTDArray<SkPDFObject*>* list) {
+    list->push(resource);
+    resource->ref();
+}
+
+void SkPDFObject::GetResourcesHelper(SkTDArray<SkPDFObject*>* resources,
+                                     SkTDArray<SkPDFObject*>* result) {
+    if (resources->count()) {
+        result->setReserve(result->count() + resources->count());
+        for (int i = 0; i < resources->count(); i++) {
+            result->push((*resources)[i]);
+            (*resources)[i]->ref();
+            (*resources)[i]->getResources(result);
+        }
+    }
+}
+
+SkPDFObjRef::SkPDFObjRef(SkPDFObject* obj) : fObj(obj) {}
+SkPDFObjRef::~SkPDFObjRef() {}
 
 void SkPDFObjRef::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                              bool indirect) {
@@ -258,6 +276,10 @@ SkPDFName::SkPDFName(const char name[]) : fValue(FormatName(SkString(name))) {}
 SkPDFName::SkPDFName(const SkString& name) : fValue(FormatName(name)) {}
 SkPDFName::~SkPDFName() {}
 
+bool SkPDFName::operator==(const SkPDFName& b) const {
+    return fValue == b.fValue;
+}
+
 void SkPDFName::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                            bool indirect) {
     SkASSERT(!indirect);
@@ -432,4 +454,20 @@ void SkPDFDict::clear() {
         fValue[i].value->unref();
     }
     fValue.reset();
+}
+
+SkPDFDict::Iter::Iter(const SkPDFDict& dict)
+    : fIter(dict.fValue.begin()),
+      fStop(dict.fValue.end()) {
+}
+
+SkPDFName* SkPDFDict::Iter::next(SkPDFObject** value) {
+    if (fIter != fStop) {
+        Rec* cur = fIter;
+        fIter++;
+        *value = cur->value;
+        return cur->key;
+    }
+    *value = NULL;
+    return NULL;
 }

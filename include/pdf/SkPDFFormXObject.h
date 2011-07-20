@@ -36,7 +36,7 @@ class SkPDFCatalog;
 // The caller could keep track of the form XObjects it creates and
 // canonicalize them, but the Skia API doesn't provide enough context to
 // automatically do it (trivially).
-class SkPDFFormXObject : public SkPDFObject {
+class SkPDFFormXObject : public SkPDFStream {
 public:
     /** Create a PDF form XObject. Entries for the dictionary entries are
      *  automatically added.
@@ -46,27 +46,9 @@ public:
     virtual ~SkPDFFormXObject();
 
     // The SkPDFObject interface.
-    virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                            bool indirect);
-    virtual size_t getOutputSize(SkPDFCatalog* catalog, bool indirect);
     virtual void getResources(SkTDArray<SkPDFObject*>* resourceList);
 
-    /** Add the value to the stream dictionary with the given key.  Refs value.
-     *  @param key   The key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
-    SkPDFObject* insert(SkPDFName* key, SkPDFObject* value);
-
-    /** Add the value to the stream dictionary with the given key.  Refs value.
-     *  @param key   The text of the key for this dictionary entry.
-     *  @param value The value for this dictionary entry.
-     *  @return The value argument is returned.
-     */
-    SkPDFObject* insert(const char key[], SkPDFObject* value);
-
 private:
-    SkRefPtr<SkPDFStream> fStream;
     SkTDArray<SkPDFObject*> fResources;
 };
 

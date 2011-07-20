@@ -31,8 +31,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
 
     SkRefPtr<SkStream> content = device->content();
     content->unref();  // SkRefPtr and content() both took a reference.
-    fStream = new SkPDFStream(content.get());
-    fStream->unref();  // SkRefPtr and new both took a reference.
+    setData(content.get());
 
     insert("Type", new SkPDFName("XObject"))->unref();
     insert("Subtype", new SkPDFName("Form"))->unref();
@@ -62,33 +61,6 @@ SkPDFFormXObject::~SkPDFFormXObject() {
     fResources.unrefAll();
 }
 
-void SkPDFFormXObject::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
-                             bool indirect) {
-    if (indirect)
-        return emitIndirectObject(stream, catalog);
-
-    fStream->emitObject(stream, catalog, indirect);
-}
-
-size_t SkPDFFormXObject::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect)
-        return getIndirectOutputSize(catalog);
-
-    return fStream->getOutputSize(catalog, indirect);
-}
-
 void SkPDFFormXObject::getResources(SkTDArray<SkPDFObject*>* resourceList) {
-    resourceList->setReserve(resourceList->count() + fResources.count());
-    for (int i = 0; i < fResources.count(); i++) {
-        resourceList->push(fResources[i]);
-        fResources[i]->ref();
-    }
-}
-
-SkPDFObject* SkPDFFormXObject::insert(SkPDFName* key, SkPDFObject* value) {
-    return fStream->insert(key, value);
-}
-
-SkPDFObject* SkPDFFormXObject::insert(const char key[], SkPDFObject* value) {
-    return fStream->insert(key, value);
+    GetResourcesHelper(&fResources, resourceList);
 }

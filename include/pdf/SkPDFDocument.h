@@ -17,11 +17,12 @@
 #ifndef SkPDFDocument_DEFINED
 #define SkPDFDocument_DEFINED
 
-#include "SkPDFCatalog.h"
 #include "SkPDFTypes.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"
+#include "SkTScopedPtr.h"
 
+class SkPDFCatalog;
 class SkPDFDevice;
 class SkPDFPage;
 class SkWSteam;
@@ -32,9 +33,15 @@ class SkWSteam;
 */
 class SkPDFDocument {
 public:
+    enum Flags {
+        kNoCompression_Flag = 0x01,  //!< mask disable stream compression.
+        kNoEmbedding_Flag   = 0x02,  //!< mask do not embed fonts.
+
+        kDraftMode_Flags    = 0x03,
+    };
     /** Create a PDF document.
      */
-    SK_API SkPDFDocument();
+    explicit SK_API SkPDFDocument(Flags flags = (Flags)0);
     SK_API ~SkPDFDocument();
 
     /** Output the PDF to the passed stream.  It is an error to call this (it
@@ -67,7 +74,7 @@ public:
     SK_API const SkTDArray<SkPDFPage*>& getPages();
 
 private:
-    SkPDFCatalog fCatalog;
+    SkTScopedPtr<SkPDFCatalog> fCatalog;
     int64_t fXRefFileOffset;
 
     SkTDArray<SkPDFPage*> fPages;

@@ -73,6 +73,22 @@ public:
      */
     size_t getIndirectOutputSize(SkPDFCatalog* catalog);
 
+    /** Static helper function to add a resource to a list.  The list takes
+     *  a reference.
+     * @param resource  The resource to add.
+     * @param list      The list to add the resource to.
+     */
+    static void AddResourceHelper(SkPDFObject* resource,
+                                  SkTDArray<SkPDFObject*>* list);
+
+    /** Static helper function to copy and reference the resources (and all
+     *   their subresources) into a new list.
+     * @param resources The resource list.
+     * @param result    The list to add to.
+     */
+    static void GetResourcesHelper(SkTDArray<SkPDFObject*>* resources,
+                                   SkTDArray<SkPDFObject*>* result);
+
 protected:
     /** Subclasses must implement this method to print the object to the
      *  PDF file.
@@ -218,6 +234,8 @@ public:
     explicit SkPDFName(const char name[]);
     explicit SkPDFName(const SkString& name);
     virtual ~SkPDFName();
+
+    bool operator==(const SkPDFName& b) const;
 
     // The SkPDFObject interface.
     virtual void emitObject(SkWStream* stream, SkPDFCatalog* catalog,
@@ -367,12 +385,24 @@ public:
     void clear();
 
 private:
-    static const int kMaxLen = 4095;
-
     struct Rec {
       SkPDFName* key;
       SkPDFObject* value;
     };
+
+public:
+    class Iter {
+    public:
+        explicit Iter(const SkPDFDict& dict);
+        SkPDFName* next(SkPDFObject** value);
+
+    private:
+        Rec* fIter;
+        Rec* fStop;
+    };
+
+private:
+    static const int kMaxLen = 4095;
 
     SkTDArray<struct Rec> fValue;
 };
