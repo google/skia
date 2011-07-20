@@ -983,7 +983,7 @@ void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
     fDrawingArea = drawingArea;
 }
 
-const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
+SkPDFDict* SkPDFDevice::getResourceDict() {
     if (fResourceDict.get() == NULL) {
         fResourceDict = new SkPDFDict;
         fResourceDict->unref();  // SkRefPtr and new both took a reference.
@@ -1048,7 +1048,7 @@ const SkRefPtr<SkPDFDict>& SkPDFDevice::getResourceDict() {
             procSets->appendName(procs[i]);
         fResourceDict->insert("ProcSet", procSets.get());
     }
-    return fResourceDict;
+    return fResourceDict.get();
 }
 
 void SkPDFDevice::getResources(SkTDArray<SkPDFObject*>* resourceList) const {

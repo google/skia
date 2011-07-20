@@ -123,9 +123,9 @@ public:
 
     // PDF specific methods.
 
-    /** Returns a reference to the resource dictionary for this device.
+    /** Returns the resource dictionary for this device.
      */
-    SK_API const SkRefPtr<SkPDFDict>& getResourceDict();
+    SK_API SkPDFDict* getResourceDict();
 
     /** Get the list of resources (PDF objects) used on this page.
      *  @param resourceList A list to append the resources to.

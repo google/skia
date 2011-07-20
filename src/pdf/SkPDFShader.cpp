@@ -707,7 +707,7 @@ SkPDFImageShader::SkPDFImageShader(SkPDFShader::State* state) : fState(state) {
     insert("BBox", patternBBoxArray.get());
     insertScalar("XStep", patternBBox.width());
     insertScalar("YStep", patternBBox.height());
-    insert("Resources", pattern.getResourceDict().get());
+    insert("Resources", pattern.getResourceDict());
     insert("Matrix", SkPDFUtils::MatrixToArray(finalMatrix))->unref();
 
     fState.get()->fImage.unlockPixels();

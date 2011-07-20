@@ -36,7 +36,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     insertName("Type", "XObject");
     insertName("Subtype", "Form");
     insert("BBox", device->getMediaBox().get());
-    insert("Resources", device->getResourceDict().get());
+    insert("Resources", device->getResourceDict());
 
     // We invert the initial transform and apply that to the xobject so that
     // it doesn't get applied twice. We can't just undo it because it's
