@@ -71,12 +71,12 @@ struct SK_API SkIRect {
     */
     int height() const { return fBottom - fTop; }
 
-    friend int operator==(const SkIRect& a, const SkIRect& b) {
+    friend bool operator==(const SkIRect& a, const SkIRect& b) {
         return !memcmp(&a, &b, sizeof(a));
     }
 
-    friend int operator!=(const SkIRect& a, const SkIRect& b) {
-        return memcmp(&a, &b, sizeof(a));
+    friend bool operator!=(const SkIRect& a, const SkIRect& b) {
+        return !(a == b);
     }
 
     bool is16Bit() const {
