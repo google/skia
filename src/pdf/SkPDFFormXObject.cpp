@@ -33,8 +33,8 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     content->unref();  // SkRefPtr and content() both took a reference.
     setData(content.get());
 
-    insert("Type", new SkPDFName("XObject"))->unref();
-    insert("Subtype", new SkPDFName("Form"))->unref();
+    insertName("Type", "XObject");
+    insertName("Subtype", "Form");
     insert("BBox", device->getMediaBox().get());
     insert("Resources", device->getResourceDict().get());
 
@@ -52,7 +52,7 @@ SkPDFFormXObject::SkPDFFormXObject(SkPDFDevice* device) {
     // isolated blending.  Do this conditionally if that changes.
     SkRefPtr<SkPDFDict> group = new SkPDFDict("Group");
     group->unref();  // SkRefPtr and new both took a reference.
-    group->insert("S", new SkPDFName("Transparency"))->unref();
+    group->insertName("S", "Transparency");
     group->insert("I", new SkPDFBool(true))->unref();  // Isolated.
     insert("Group", group.get());
 }
