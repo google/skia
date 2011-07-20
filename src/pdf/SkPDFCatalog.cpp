@@ -193,7 +193,7 @@ off_t SkPDFCatalog::setSubstituteResourcesOffsets(off_t fileOffset,
     for (int i = 0; i < targetList->count(); ++i) {
         offsetSum += setFileOffset((*targetList)[i], offsetSum);
     }
-    return offsetSum;
+    return offsetSum - fileOffset;
 }
 
 void SkPDFCatalog::emitSubstituteResources(SkWStream *stream, bool firstPage) {
