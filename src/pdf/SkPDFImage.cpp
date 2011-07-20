@@ -222,9 +222,9 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
 SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
     SkPDFArray* result = new SkPDFArray();
     result->reserve(4);
-    result->append(new SkPDFName("Indexed"))->unref();
-    result->append(new SkPDFName("DeviceRGB"))->unref();;
-    result->append(new SkPDFInt(table->count() - 1))->unref();
+    result->appendName("Indexed");
+    result->appendName("DeviceRGB");
+    result->appendInt(table->count() - 1);
 
     // Potentially, this could be represented in fewer bytes with a stream.
     // Max size as a string is 1.5k.
@@ -293,8 +293,8 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
     bool alphaOnly = (config == SkBitmap::kA1_Config ||
                       config == SkBitmap::kA8_Config);
 
-    insert("Type", new SkPDFName("XObject"))->unref();
-    insert("Subtype", new SkPDFName("Image"))->unref();
+    insertName("Type", "XObject");
+    insertName("Subtype", "Image");
 
     if (!doingAlpha && alphaOnly) {
         // For alpha only images, we stretch a single pixel of black for
@@ -304,19 +304,19 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
         insert("Width", one.get());
         insert("Height", one.get());
     } else {
-        insert("Width", new SkPDFInt(srcRect.width()))->unref();
-        insert("Height", new SkPDFInt(srcRect.height()))->unref();
+        insertInt("Width", srcRect.width());
+        insertInt("Height", srcRect.height());
     }
 
     // if (!image mask) {
     if (doingAlpha || alphaOnly) {
-        insert("ColorSpace", new SkPDFName("DeviceGray"))->unref();
+        insertName("ColorSpace", "DeviceGray");
     } else if (config == SkBitmap::kIndex8_Config ||
         config == SkBitmap::kRLE_Index8_Config) {
         insert("ColorSpace",
                makeIndexedColorSpace(bitmap.getColorTable()))->unref();
     } else {
-        insert("ColorSpace", new SkPDFName("DeviceRGB"))->unref();
+        insertName("ColorSpace", "DeviceRGB");
     }
     // }
 
@@ -325,7 +325,7 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
         bitsPerComp = 4;
     else if (doingAlpha && config == SkBitmap::kA1_Config)
         bitsPerComp = 1;
-    insert("BitsPerComponent", new SkPDFInt(bitsPerComp))->unref();
+    insertInt("BitsPerComponent", bitsPerComp);
 
     if (config == SkBitmap::kRGB_565_Config) {
         SkRefPtr<SkPDFInt> zeroVal = new SkPDFInt(0);

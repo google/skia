@@ -379,7 +379,7 @@ void SkPDFArray::appendName(const char name[]) {
 SkPDFDict::SkPDFDict() {}
 
 SkPDFDict::SkPDFDict(const char type[]) {
-    insert("Type", new SkPDFName(type))->unref();
+    insertName("Type", type);
 }
 
 SkPDFDict::~SkPDFDict() {
