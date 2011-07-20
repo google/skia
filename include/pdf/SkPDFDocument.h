@@ -60,14 +60,14 @@ public:
      *  @param pageNumber The position to add the passed device (1 based).
      *  @param pdfDevice  The page to add to this document.
      */
-    SK_API bool setPage(int pageNumber, const SkRefPtr<SkPDFDevice>& pdfDevice);
+    SK_API bool setPage(int pageNumber, SkPDFDevice* pdfDevice);
 
     /** Append the passed pdf device to the document as a new page.  Returns
      *  true if successful.  Will fail if the document has already been emitted.
      *
      *  @param pdfDevice The page to add to this document.
      */
-    SK_API bool appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice);
+    SK_API bool appendPage(SkPDFDevice* pdfDevice);
 
     /** Get the list of pages in this document.
      */

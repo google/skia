@@ -165,8 +165,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     return true;
 }
 
-bool SkPDFDocument::setPage(int pageNumber,
-                            const SkRefPtr<SkPDFDevice>& pdfDevice) {
+bool SkPDFDocument::setPage(int pageNumber, SkPDFDevice* pdfDevice) {
     if (fPageTree.count() != 0) {
         return false;
     }
@@ -188,7 +187,7 @@ bool SkPDFDocument::setPage(int pageNumber,
     return true;
 }
 
-bool SkPDFDocument::appendPage(const SkRefPtr<SkPDFDevice>& pdfDevice) {
+bool SkPDFDocument::appendPage(SkPDFDevice* pdfDevice) {
     if (fPageTree.count() != 0) {
         return false;
     }

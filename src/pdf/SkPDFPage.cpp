@@ -19,7 +19,7 @@
 #include "SkPDFPage.h"
 #include "SkStream.h"
 
-SkPDFPage::SkPDFPage(const SkRefPtr<SkPDFDevice>& content)
+SkPDFPage::SkPDFPage(SkPDFDevice* content)
     : SkPDFDict("Page"),
       fDevice(content) {
 }
@@ -29,7 +29,7 @@ SkPDFPage::~SkPDFPage() {}
 void SkPDFPage::finalizePage(SkPDFCatalog* catalog, bool firstPage,
                              SkTDArray<SkPDFObject*>* resourceObjects) {
     if (fContentStream.get() == NULL) {
-        insert("Resources", fDevice->getResourceDict().get());
+        insert("Resources", fDevice->getResourceDict());
         insert("MediaBox", fDevice->getMediaBox().get());
 
         SkRefPtr<SkStream> content = fDevice->content();

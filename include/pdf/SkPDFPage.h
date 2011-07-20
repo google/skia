@@ -37,7 +37,7 @@ public:
      *  have content on it yet.
      *  @param content    The page content.
      */
-    explicit SkPDFPage(const SkRefPtr<SkPDFDevice>& content);
+    explicit SkPDFPage(SkPDFDevice* content);
     ~SkPDFPage();
 
     /** Before a page and its contents can be sized and emitted, it must
