@@ -138,8 +138,8 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     return *this;
 }
 
-int operator==(const SkPaint& a, const SkPaint& b) {
-    return memcmp(&a, &b, sizeof(a)) == 0;
+bool operator==(const SkPaint& a, const SkPaint& b) {
+    return !memcmp(&a, &b, sizeof(a));
 }
 
 void SkPaint::reset() {

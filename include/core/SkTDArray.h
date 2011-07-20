@@ -71,7 +71,7 @@ public:
         return *this;
     }
 
-    friend int operator==(const SkTDArray<T>& a, const SkTDArray<T>& b) {
+    friend bool operator==(const SkTDArray<T>& a, const SkTDArray<T>& b) {
         return  a.fCount == b.fCount &&
                 (a.fCount == 0 ||
                  !memcmp(a.fArray, b.fArray, a.fCount * sizeof(T)));

@@ -56,8 +56,8 @@ public:
 
     SkPaint& operator=(const SkPaint&);
 
-    SK_API friend int operator==(const SkPaint& a, const SkPaint& b);
-    friend int operator!=(const SkPaint& a, const SkPaint& b) {
+    SK_API friend bool operator==(const SkPaint& a, const SkPaint& b);
+    friend bool operator!=(const SkPaint& a, const SkPaint& b) {
         return !(a == b);
     }
 

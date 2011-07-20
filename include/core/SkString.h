@@ -89,19 +89,19 @@ public:
         return SkStrEndsWith(fRec->data(), suffix);
     }
 
-    friend int operator==(const SkString& a, const SkString& b) {
+    friend bool operator==(const SkString& a, const SkString& b) {
         return a.equals(b);
     }
-    friend int operator!=(const SkString& a, const SkString& b) {
+    friend bool operator!=(const SkString& a, const SkString& b) {
         return !a.equals(b);
     }
 
     // these methods edit the string
 
-    SkString&   operator=(const SkString&);
-    SkString&   operator=(const char text[]);
+    SkString& operator=(const SkString&);
+    SkString& operator=(const char text[]);
 
-    char*   writable_str();
+    char* writable_str();
     char& operator[](size_t n) { return this->writable_str()[n]; }
 
     void reset();
