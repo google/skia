@@ -82,7 +82,7 @@ public:
     /** Set file offsets for the resources of substitute objects.
      *  @param fileOffset Accumulated offset of current document.
      *  @param firstPage  Indicate whether this is for the first page only.
-     *  @return           Accumulated offset of resources of substitute objects.
+     *  @return           Total size of resources of substitute objects.
      */
     off_t setSubstituteResourcesOffsets(off_t fileOffset, bool firstPage);
 
