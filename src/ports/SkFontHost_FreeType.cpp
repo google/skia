@@ -598,6 +598,17 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
 }
 ///////////////////////////////////////////////////////////////////////////
 
+static bool bothZero(SkScalar a, SkScalar b) {
+    return 0 == a && 0 == b;
+}
+
+// returns false if there is any non-90-rotation or skew
+static bool isAxisAligned(const SkScalerContext::Rec& rec) {
+    return 0 == rec.fPreSkewX &&
+           (bothZero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
+            bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
+}
+
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     if (!gLCDSupportValid) {
         InitFreetype();
@@ -618,6 +629,10 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
                SkPaint::kNo_Hinting != h) {
         // to do subpixel, we must have at most slight hinting
         h = SkPaint::kSlight_Hinting;
+    }
+    // rotated text looks bad with hinting, so we disable it as needed
+    if (!isAxisAligned(*rec)) {
+        h = SkPaint::kNo_Hinting;
     }
     rec->setHinting(h);
 }
