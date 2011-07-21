@@ -153,10 +153,12 @@ protected:
         
         SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorGREEN, SK_ColorRED };
         SkScalar pos[] = { 0, SkFloatToScalar(0.01f), SkFloatToScalar(0.99f), SK_Scalar1 };
-        SkPoint c0 = { -80, 25 };
-        SkScalar r0 = 70;
-        SkPoint c1 = { 0, 25 };
-        SkScalar r1 = 150;
+        SkPoint c0;
+        c0.iset(-80, 25);
+        SkScalar r0 = SkIntToScalar(70);
+        SkPoint c1;
+        c1.iset(0, 25);
+        SkScalar r1 = SkIntToScalar(150);
         SkShader* s = SkGradientShader::CreateTwoPointRadial(c0, r0, c1, r1, colors,
                                                              pos, SK_ARRAY_COUNT(pos),
                                                              SkShader::kClamp_TileMode);
