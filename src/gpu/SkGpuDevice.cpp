@@ -913,7 +913,9 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     GrClip oldClip = context->getClip();
     context->setRenderTarget(dstTexture->asRenderTarget());
     context->setClip(srcRect);
+    // FIXME:  could just clear bounds
     context->clear(NULL, 0);
+    GrMatrix transM;
     GrPaint tempPaint;
     tempPaint.reset();
 
@@ -957,6 +959,9 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         context->setRenderTarget(dstTexture->asRenderTarget());
         SkRect dstRect(srcRect);
         scaleRect(&dstRect, 0.5f);
+        // Clear out 1 pixel border for linear filtering.
+        // FIXME:  for now, clear everything
+        context->clear(NULL, 0);
         paint.setTexture(0, srcTexture);
         context->drawRectToRect(paint, dstRect, srcRect);
         srcRect = dstRect;
@@ -967,23 +972,13 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     float* kernel = kernelStorage.get();
     buildKernel(sigma, kernel, kernelWidth);
 
-    // Clear out a halfWidth to the right of the srcRect to prevent the
-    // X convolution from reading garbage.
-    SkIRect clearRect = SkIRect::MakeXYWH(
-        srcRect.fRight, srcRect.fTop, halfWidth, srcRect.height());
-    context->clear(&clearRect, 0x0);
-
     context->setRenderTarget(dstTexture->asRenderTarget());
+    context->clear(NULL, 0);
     context->convolveInX(srcTexture, srcRect, kernel, kernelWidth);
     SkTSwap(srcTexture, dstTexture);
 
-    // Clear out a halfWidth below the srcRect to prevent the Y
-    // convolution from reading garbage.
-    clearRect = SkIRect::MakeXYWH(
-        srcRect.fLeft, srcRect.fBottom, srcRect.width(), halfWidth);
-    context->clear(&clearRect, 0x0);
-
     context->setRenderTarget(dstTexture->asRenderTarget());
+    context->clear(NULL, 0);
     context->convolveInY(srcTexture, srcRect, kernel, kernelWidth);
     SkTSwap(srcTexture, dstTexture);
 
@@ -993,6 +988,9 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         sampleM.setIDiv(srcTexture->width(), srcTexture->height());
         paint.getTextureSampler(0)->setMatrix(sampleM);
         context->setRenderTarget(dstTexture->asRenderTarget());
+        // Clear out 2 pixel border for bicubic filtering.
+        // FIXME:  for now, clear everything
+        context->clear(NULL, 0);
         paint.setTexture(0, srcTexture);
         SkRect dstRect(srcRect);
         scaleRect(&dstRect, scaleFactor);
