@@ -9,7 +9,7 @@
         SkASSERT(top == 0 || top == -1);
         return (SkScalar)result;
     }
-    static SkScalar div(SkDScalar numer, SkDScalar denom) {
+    static SkScalar divide(SkDScalar numer, SkDScalar denom) {
         denom >>= 16;
         return numer / denom;
     }
@@ -19,7 +19,7 @@
     static SkScalar SkDScalar_toScalar(SkDScalar value) {
         return static_cast<float>(value);
     }
-    static SkScalar div(SkDScalar numer, SkDScalar denom) {
+    static SkScalar divide(SkDScalar numer, SkDScalar denom) {
         return static_cast<float>(numer / denom);
     }
 #endif
@@ -77,10 +77,10 @@ bool SkSetPoly3To3(SkMatrix* matrix, const SkPoint src[3], const SkPoint dst[3])
     M[3] = ddot(srcOP2, srcOP3, dstOP[1], dstOP[3]);
     
     matrix->reset();
-    matrix->setScaleX(div(M[0], det));
-    matrix->setSkewX( div(M[1], det));
-    matrix->setSkewY (div(M[2], det));
-    matrix->setScaleY(div(M[3], det));
+    matrix->setScaleX(divide(M[0], det));
+    matrix->setSkewX( divide(M[1], det));
+    matrix->setSkewY (divide(M[2], det));
+    matrix->setScaleY(divide(M[3], det));
     matrix->setTranslateX(dstAve.fX - dot(srcAve.fX, srcAve.fY,
                                     matrix->getScaleX(), matrix->getSkewX()));
     matrix->setTranslateY(dstAve.fY - dot(srcAve.fX, srcAve.fY,
