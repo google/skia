@@ -1736,5 +1736,6 @@ void GrContext::convolve(GrTexture* texture,
     fGpu->setSamplerState(0, sampler);
     fGpu->setViewMatrix(GrMatrix::I());
     fGpu->setTexture(0, texture);
+    fGpu->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
     fGpu->drawSimpleRect(rect, NULL, 1 << 0);
 }
