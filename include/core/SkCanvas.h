@@ -30,7 +30,6 @@
 
 class SkBounder;
 class SkDevice;
-class SkDeviceFactory;
 class SkDraw;
 class SkDrawFilter;
 class SkPicture;
@@ -54,8 +53,7 @@ class SK_API SkCanvas : public SkRefCnt {
 public:
     SkCanvas();
 
-    /** Construct a canvas with the specified device to draw into.  The device
-        factory will be retrieved from the passed device.
+    /** Construct a canvas with the specified device to draw into.
 
         @param device   Specifies a device for the canvas to draw into.
     */
@@ -803,7 +801,6 @@ private:
 
     SkBounder*  fBounder;
     SkDevice*   fLastDeviceToGainFocus;
-    SkDeviceFactory* fDeviceFactory;
 
     void prepareForDeviceDraw(SkDevice*, const SkMatrix&, const SkRegion&,
                               const SkClipStack& clipStack);
