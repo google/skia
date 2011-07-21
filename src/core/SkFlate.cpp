@@ -21,6 +21,8 @@
 #ifndef SK_ZLIB_INCLUDE
 bool SkFlate::HaveFlate() { return false; }
 bool SkFlate::Deflate(SkStream*, SkWStream*) { return false; }
+bool SkFlate::Deflate(const void*, size_t, SkWStream*) { return false; }
+bool SkFlate::Deflate(const SkData*, SkWStream*) { return false; }
 bool SkFlate::Inflate(SkStream*, SkWStream*) { return false; }
 #else
 
