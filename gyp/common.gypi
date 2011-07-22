@@ -92,9 +92,10 @@
             'Debug': {
               'msvs_settings': {
                 'VCCLCompilerTool': {
-                  'Optimization': '0',    # 0 = /Od
+                  'DebugInformationFormat': '1', # debugOldStyleInfo (/Z7)
+                  'Optimization': '0',           # optimizeDisabled (/Od)
                   'PreprocessorDefinitions': ['_DEBUG'],
-                  'RuntimeLibrary': '3',  # 3 = /MDd (debug DLL)
+                  'RuntimeLibrary': '3',         # rtMultiThreadedDebugDLL (/MDd)
                 },
                 'VCLinkerTool': {
                   'GenerateDebugInformation': 'true',
@@ -104,9 +105,10 @@
             'Release': {
               'msvs_settings': {
                 'VCCLCompilerTool': {
-                  'Optimization': '2',    # 2 = /Os
+                  'DebugInformationFormat': '0', # debugDisabled
+                  'Optimization': '2',           # optimizeMaxSpeed (/O2)
                   'PreprocessorDefinitions': ['NDEBUG'],
-                  'RuntimeLibrary': '2',  # 2 = /MD (nondebug DLL)
+                  'RuntimeLibrary': '2',         # rtMultiThreadedDLL (/MD)
                 },
                 'VCLinkerTool': {
                   'GenerateDebugInformation': 'false',
