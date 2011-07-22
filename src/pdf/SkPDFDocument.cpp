@@ -173,7 +173,7 @@ bool SkPDFDocument::setPage(int pageNumber, SkPDFDevice* pdfDevice) {
     pageNumber--;
     SkASSERT(pageNumber >= 0);
 
-    if (pageNumber > fPages.count()) {
+    if (pageNumber >= fPages.count()) {
         int oldSize = fPages.count();
         fPages.setCount(pageNumber + 1);
         for (int i = oldSize; i <= pageNumber; i++) {
