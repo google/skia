@@ -18,7 +18,6 @@
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
 #include "SkPDFPage.h"
-#include "SkPDFFont.h"
 #include "SkStream.h"
 
 // Add the resources, starting at firstIndex to the catalog, removing any dupes.
@@ -35,29 +34,6 @@ void addResourcesToCatalog(int firstIndex, bool firstPage,
         } else {
             catalog->addObject((*resourceList)[i], firstPage);
         }
-    }
-}
-
-static void perform_font_subsetting(SkPDFCatalog* catalog,
-                                    const SkTDArray<SkPDFPage*>& pages,
-                                    SkTDArray<SkPDFObject*>* substitutes) {
-    SkASSERT(catalog);
-    SkASSERT(substitutes);
-
-    SkPDFGlyphSetMap usage;
-    for (int i = 0; i < pages.count(); ++i) {
-        usage.merge(pages[i]->getFontGlyphUsage());
-    }
-    SkPDFGlyphSetMap::F2BIter iterator(usage);
-    SkPDFGlyphSetMap::FontGlyphSetPair* entry = iterator.next();
-    while (entry) {
-        SkPDFFont* subsetFont =
-            entry->fFont->getFontSubset(entry->fGlyphSet);
-        if (subsetFont) {
-            catalog->setSubstitute(entry->fFont, subsetFont);
-            substitutes->push(subsetFont);  // Transfer ownership to substitutes
-        }
-        entry = iterator.next();
     }
 }
 
@@ -79,7 +55,6 @@ SkPDFDocument::~SkPDFDocument() {
         fPageTree[i]->clear();
     fPageTree.safeUnrefAll();
     fPageResources.safeUnrefAll();
-    fSubstitutes.safeUnrefAll();
 }
 
 bool SkPDFDocument::emitPDF(SkWStream* stream) {
@@ -122,9 +97,6 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
                 fSecondPageFirstResourceIndex = fPageResources.count();
             }
         }
-
-        // Build font subsetting info before proceeding.
-        perform_font_subsetting(fCatalog.get(), fPages, &fSubstitutes);
 
         // Figure out the size of things and inform the catalog of file offsets.
         off_t fileOffset = headerSize();
