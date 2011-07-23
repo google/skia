@@ -27,12 +27,11 @@
         '../include/pdf/SkPDFTypes.h',
         '../include/pdf/SkPDFUtils.h',
 
-        '../src/pdf/SkBitSet.cpp',
+	'../src/pdf/SkBitSet.cpp',
         '../src/pdf/SkPDFCatalog.cpp',
         '../src/pdf/SkPDFDevice.cpp',
         '../src/pdf/SkPDFDocument.cpp',
         '../src/pdf/SkPDFFont.cpp',
-        '../src/pdf/SkPDFFontImpl.h',
         '../src/pdf/SkPDFFormXObject.cpp',
         '../src/pdf/SkPDFGraphicState.cpp',
         '../src/pdf/SkPDFImage.cpp',

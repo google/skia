@@ -30,7 +30,6 @@ class SkPDFDevice;
 class SkPDFDict;
 class SkPDFFont;
 class SkPDFFormXObject;
-class SkPDFGlyphSetMap;
 class SkPDFGraphicState;
 class SkPDFObject;
 class SkPDFShader;
@@ -151,16 +150,9 @@ public:
      *  for calling data->unref() when it is finished.
      */
     SK_API SkData* copyContentToData() const;
-
+    
     SK_API const SkMatrix& initialTransform() const {
         return fInitialTransform;
-    }
-
-    /** Returns a SkPDFGlyphSetMap which represents glyph usage of every font
-     *  that shows on this device.
-     */
-    const SkPDFGlyphSetMap& getFontGlyphUsage() const {
-        return *(fFontGlyphUsage.get());
     }
 
 private:
@@ -191,20 +183,17 @@ private:
     ContentEntry* getLastContentEntry();
     void setLastContentEntry(ContentEntry* contentEntry);
 
-    // Glyph ids used for each font on this device.
-    SkTScopedPtr<SkPDFGlyphSetMap> fFontGlyphUsage;
-
     SkPDFDevice(const SkISize& layerSize, const SkClipStack& existingClipStack,
                 const SkRegion& existingClipRegion);
 
     // override from SkDevice
-    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config,
-                                               int width, int height,
+    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
+                                               int width, int height, 
                                                bool isOpaque,
                                                Usage usage);
 
     void init();
-    void cleanUp(bool clearFontUsage);
+    void cleanUp();
     void createFormXObjectFromDevice(SkRefPtr<SkPDFFormXObject>* xobject);
 
     // Clear the passed clip from all existing content entries.
