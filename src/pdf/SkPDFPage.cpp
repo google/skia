@@ -141,3 +141,7 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
 const SkTDArray<SkPDFFont*>& SkPDFPage::getFontResources() const {
     return fDevice->getFontResources();
 }
+
+const SkPDFGlyphSetMap& SkPDFPage::getFontGlyphUsage() const {
+    return fDevice->getFontGlyphUsage();
+}
