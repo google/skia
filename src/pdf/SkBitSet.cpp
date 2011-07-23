@@ -73,12 +73,12 @@ void SkBitSet::setBit(int index, bool value) {
     }
 }
 
-bool SkBitSet::isBitSet(int index) {
+bool SkBitSet::isBitSet(int index) const {
     uint32_t mask = 1 << (index % 32);
     return (*internalGet(index) & mask);
 }
 
-bool SkBitSet::orBits(SkBitSet& source) {
+bool SkBitSet::orBits(const SkBitSet& source) {
     if (fBitCount != source.fBitCount) {
         return false;
     }

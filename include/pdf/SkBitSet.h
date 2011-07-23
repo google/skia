@@ -40,12 +40,12 @@ public:
 
     /** Test if bit index is set.
      */
-    bool isBitSet(int index);
+    bool isBitSet(int index) const;
 
     /** Or bits from source.  false is returned if this doesn't have the same
      *  bit count as source.
      */
-    bool orBits(SkBitSet& source);
+    bool orBits(const SkBitSet& source);
 
 private:
     SkAutoFree fBitData;
@@ -53,7 +53,7 @@ private:
     size_t fDwordCount;
     size_t fBitCount;
 
-    uint32_t* internalGet(int index) {
+    uint32_t* internalGet(int index) const {
         SkASSERT((size_t)index < fBitCount);
         size_t internalIndex = index / 32;
         SkASSERT(internalIndex < fDwordCount);
