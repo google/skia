@@ -10,6 +10,7 @@
       'type': 'executable',
       'sources': [
         '../gm/bitmapfilters.cpp',
+        '../gm/bitmapscroll.cpp',
         '../gm/blurs.cpp',
         '../gm/filltypes.cpp',
         '../gm/gradients.cpp',
