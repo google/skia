@@ -227,6 +227,11 @@ static void TestSubstitute(skiatest::Reporter* reporter) {
     proxy->emit(&buffer, &catalog, false);
     catalog.emitSubstituteResources(&buffer, false);
 
+    char objectResult[] = "2 0 obj\n<</Value 33\n>>\nendobj\n";
+    REPORTER_ASSERT(
+        reporter,
+        catalog.setFileOffset(proxy.get(), 0) == strlen(objectResult));
+
     char expectedResult[] =
         "<</Value 33\n>>1 0 obj\n<</InnerValue 44\n>>\nendobj\n";
     REPORTER_ASSERT(reporter, buffer.getOffset() == strlen(expectedResult));
