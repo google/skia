@@ -38,40 +38,10 @@
 
 //#define TRACE_BITMAP_DRAWS
 
-static bool hasCustomD1GProc(const SkDraw& draw) {
-    return draw.fProcs && draw.fProcs->fD1GProc;
-}
-
-static bool needsRasterTextBlit(const SkDraw& draw) {
-    return !hasCustomD1GProc(draw);
-}
-
-class SkAutoRestoreBounder : SkNoncopyable {
-public:
-    // note: initializing fBounder is done only to fix a warning
-    SkAutoRestoreBounder() : fDraw(NULL), fBounder(NULL) {}
-    ~SkAutoRestoreBounder() {
-        if (fDraw) {
-            fDraw->fBounder = fBounder;
-        }
-    }
-
-    void clearBounder(const SkDraw* draw) {
-        fDraw = const_cast<SkDraw*>(draw);
-        fBounder = draw->fBounder;
-        fDraw->fBounder = NULL;
-    }
-
-private:
-    SkDraw*     fDraw;
-    SkBounder*  fBounder;
-};
-
-/** Helper for allocating small blitters on the stack.
-*/
-
 #define kBlitterStorageLongCount    (sizeof(SkBitmapProcShader) >> 2)
 
+/** Helper for allocating small blitters on the stack.
+ */
 class SkAutoBlitterChoose : SkNoncopyable {
 public:
     SkAutoBlitterChoose() {
@@ -561,18 +531,6 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
         return;
     }
 
-    SkAutoRestoreBounder arb;
-
-    if (fBounder) {
-        if (!bounder_points(fBounder, mode, count, pts, paint, *fMatrix)) {
-            return;
-        }
-        // clear the bounder for the rest of this function, so we don't call it
-        // again later if we happen to call ourselves for drawRect, drawPath,
-        // etc.
-        arb.clearBounder(this);
-    }
-
     SkASSERT(pts != NULL);
     SkDEBUGCODE(this->validate();)
 
@@ -582,6 +540,19 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
         return;
     }
 
+    if (fBounder) {
+        if (!bounder_points(fBounder, mode, count, pts, paint, *fMatrix)) {
+            return;
+        }
+        
+        // clear the bounder and call this again, so we don't invoke the bounder
+        // later if we happen to call ourselves for drawRect, drawPath, etc.
+        SkDraw noBounder(*this);
+        noBounder.fBounder = NULL;
+        noBounder.drawPoints(mode, count, pts, paint, forceUseDevice);
+        return;
+    }
+    
     PtProcRec rec;
     if (!forceUseDevice && rec.init(mode, paint, fMatrix, fClip)) {
         SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, paint);
@@ -1496,6 +1467,14 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
 			} while (!clipper.done());
 		}
 	}
+}
+
+static bool hasCustomD1GProc(const SkDraw& draw) {
+    return draw.fProcs && draw.fProcs->fD1GProc;
+}
+
+static bool needsRasterTextBlit(const SkDraw& draw) {
+    return !hasCustomD1GProc(draw);
 }
 
 SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter,
