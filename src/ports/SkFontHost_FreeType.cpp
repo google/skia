@@ -630,7 +630,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         // to do subpixel, we must have at most slight hinting
         h = SkPaint::kSlight_Hinting;
     }
-#if 0 // TEMPORARILY REVERT TO UNBLOCK SKIA ROLL
+#ifndef SK_IGNORE_ROTATED_FREETYPE_FIX 
     // rotated text looks bad with hinting, so we disable it as needed
     if (!isAxisAligned(*rec)) {
         h = SkPaint::kNo_Hinting;
