@@ -495,6 +495,7 @@ int main(int argc, char * const argv[]) {
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* readPath = NULL;    // if non-null, were we read from to compare
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
+    const char* matchStr = NULL;
 
     bool doReplay = true;
     bool doSerialize = false;
@@ -520,6 +521,11 @@ int main(int argc, char * const argv[]) {
             doReplay = false;
         } else if (strcmp(*argv, "--serialize") == 0) {
             doSerialize = true;
+        } else if (strcmp(*argv, "--match") == 0) {
+            ++argv;
+            if (argv < stop && **argv) {
+                matchStr = *argv;
+            }
         } else {
           usage(commandName);
           return -1;
@@ -557,8 +563,14 @@ int main(int argc, char * const argv[]) {
     iter.reset();
     bool overallSuccess = true;
     while ((gm = iter.next()) != NULL) {
+        const char* shortName = gm->shortName();
+        if (matchStr && !strstr(shortName, matchStr)) {
+            SkDELETE(gm);
+            continue;
+        }
+
         SkISize size = gm->getISize();
-        SkDebugf("drawing... %s [%d %d]\n", gm->shortName(),
+        SkDebugf("drawing... %s [%d %d]\n", shortName,
                  size.width(), size.height());
         SkBitmap forwardRenderedBitmap;
 
