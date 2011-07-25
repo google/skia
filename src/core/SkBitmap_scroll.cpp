@@ -69,8 +69,6 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
         return true;
     }
 
-    // if we get this far, then we need to shift the pixels
-    
     char*       dst = (char*)this->getPixels();
     const char* src = dst;
     int         rowBytes = this->rowBytes();    // need rowBytes to be signed
@@ -87,13 +85,19 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
         // now invert rowbytes so we copy backwards in the loop
         rowBytes = -rowBytes;
     }
-    
+
     if (dx <= 0) {
         src -= dx << shift;
         width += dx;
     } else {
         dst += dx << shift;
         width -= dx;
+    }
+
+    // If the X-translation would push it completely beyond the region,
+    // then there's nothing to draw.
+    if (width <= 0) {
+        return true;
     }
 
     width <<= shift;    // now width is the number of bytes to move per line
@@ -104,4 +108,3 @@ bool SkBitmap::scrollRect(const SkIRect* subset, int dx, int dy,
     }
     return true;
 }
-

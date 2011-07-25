@@ -1,7 +1,9 @@
 #ifndef skiagm_DEFINED
 #define skiagm_DEFINED
 
+#include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkDevice.h"
 #include "SkPaint.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
