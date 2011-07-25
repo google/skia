@@ -118,6 +118,9 @@ public:
      *  Similar to draw sprite, this method will copy the pixels in bitmap onto
      *  the device, with the top/left corner specified by (x, y). The pixel
      *  values in the device are completely replaced: there is no blending.
+     *
+     *  Note: If you are recording drawing commands on this canvas to
+     *  SkPicture, writePixels() is ignored!
      */
     void writePixels(const SkBitmap& bitmap, int x, int y);
 
@@ -897,4 +900,3 @@ private:
 };
 
 #endif
-
