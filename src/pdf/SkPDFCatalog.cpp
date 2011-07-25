@@ -50,7 +50,7 @@ size_t SkPDFCatalog::setFileOffset(SkPDFObject* obj, size_t offset) {
     SkASSERT(fCatalog[objIndex].fFileOffset == 0);
     fCatalog[objIndex].fFileOffset = offset;
 
-    return obj->getOutputSize(this, true);
+    return getSubstituteObject(obj)->getOutputSize(this, true);
 }
 
 void SkPDFCatalog::emitObjectNumber(SkWStream* stream, SkPDFObject* obj) {
