@@ -90,6 +90,11 @@ public:
      */
     SK_API const SkTDArray<SkPDFFont*>& getFontResources() const;
 
+    /** Returns a SkPDFGlyphSetMap which represents glyph usage of every font
+     *  that shows on this page.
+     */
+    const SkPDFGlyphSetMap& getFontGlyphUsage() const;
+
 private:
     // Multiple pages may reference the content.
     SkRefPtr<SkPDFDevice> fDevice;

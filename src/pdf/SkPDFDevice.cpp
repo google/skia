@@ -424,8 +424,8 @@ void GraphicStackState::updateDrawingState(const GraphicStateEntry& state) {
     }
 }
 
-SkDevice* SkPDFDevice::onCreateCompatibleDevice(SkBitmap::Config config, 
-                                                int width, int height, 
+SkDevice* SkPDFDevice::onCreateCompatibleDevice(SkBitmap::Config config,
+                                                int width, int height,
                                                 bool isOpaque,
                                                 Usage usage) {
     SkMatrix initialTransform;
@@ -544,7 +544,7 @@ SkPDFDevice::SkPDFDevice(const SkISize& layerSize,
 }
 
 SkPDFDevice::~SkPDFDevice() {
-    this->cleanUp();
+    this->cleanUp(true);
 }
 
 void SkPDFDevice::init() {
@@ -553,18 +553,24 @@ void SkPDFDevice::init() {
     fLastContentEntry = NULL;
     fMarginContentEntries.reset();
     fLastMarginContentEntry = NULL;
-    fDrawingArea = kContent_DrawingArea; 
+    fDrawingArea = kContent_DrawingArea;
+    if (fFontGlyphUsage == NULL) {
+        fFontGlyphUsage.reset(new SkPDFGlyphSetMap());
+    }
 }
 
-void SkPDFDevice::cleanUp() {
+void SkPDFDevice::cleanUp(bool clearFontUsage) {
     fGraphicStateResources.unrefAll();
     fXObjectResources.unrefAll();
     fFontResources.unrefAll();
     fShaderResources.unrefAll();
+    if (clearFontUsage) {
+        fFontGlyphUsage->reset();
+    }
 }
 
 void SkPDFDevice::clear(SkColor color) {
-    this->cleanUp();
+    this->cleanUp(true);
     this->init();
 
     SkPaint paint;
@@ -825,6 +831,8 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
         size_t availableGlyphs =
             font->glyphsToPDFFontEncoding(glyphIDs + consumedGlyphCount,
                                           numGlyphs - consumedGlyphCount);
+        fFontGlyphUsage->noteGlyphUsage(font, glyphIDs + consumedGlyphCount,
+                                        availableGlyphs);
         SkString encodedString =
             SkPDFString::FormatString(glyphIDs + consumedGlyphCount,
                                       availableGlyphs, font->multiByteGlyphs());
@@ -893,6 +901,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
             i--;
             continue;
         }
+        fFontGlyphUsage->noteGlyphUsage(font, &encodedValue, 1);
         SkScalar x = pos[i * scalarsPerPos];
         SkScalar y = scalarsPerPos == 1 ? constY : pos[i * scalarsPerPos + 1];
         align_text(glyphCacheProc, textPaint, glyphIDs + i, 1, &x, &y, NULL);
@@ -952,6 +961,9 @@ void SkPDFDevice::drawDevice(const SkDraw& d, SkDevice* device, int x, int y,
     fXObjectResources.push(xobject);  // Transfer reference.
     SkPDFUtils::DrawFormXObject(fXObjectResources.count() - 1,
                                 &content.entry()->fContent);
+
+    // Merge glyph sets from the drawn device.
+    fFontGlyphUsage->merge(pdfDevice->getFontGlyphUsage());
 }
 
 ContentEntry* SkPDFDevice::getLastContentEntry() {
@@ -1142,7 +1154,7 @@ SkData* SkPDFDevice::copyContentToData() const {
         SkRect r = SkRect::MakeWH(this->width(), this->height());
         emit_clip(NULL, &r, &data);
     }
-    
+
     SkPDFDevice::copyContentEntriesToData(fContentEntries.get(), &data);
 
     // potentially we could cache this SkData, and only rebuild it if we
@@ -1154,7 +1166,10 @@ void SkPDFDevice::createFormXObjectFromDevice(
         SkRefPtr<SkPDFFormXObject>* xobject) {
     *xobject = new SkPDFFormXObject(this);
     (*xobject)->unref();  // SkRefPtr and new both took a reference.
-    cleanUp();  // Reset this device to have no content.
+    // We always draw the form xobjects that we create back into the device, so
+    // we simply preserve the font usage instead of pulling it out and merging
+    // it back in later.
+    cleanUp(false);  // Reset this device to have no content.
     init();
 }
 
