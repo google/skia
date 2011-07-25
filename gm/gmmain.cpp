@@ -468,6 +468,7 @@ static void usage(const char * argv0) {
     SkDebugf("    --replay: exercise SkPicture replay.\n");
     SkDebugf(
 "    --serialize: exercise SkPicture serialization & deserialization.\n");
+    SkDebugf("    --match foo will only run tests that substring match foo.\n");
 }
 
 static const ConfigData gRec[] = {
