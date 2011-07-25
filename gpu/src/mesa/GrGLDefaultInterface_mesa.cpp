@@ -86,6 +86,7 @@ void GrGLSetDefaultGLInterface() {
         GR_GL_GET_PROC(GetShaderInfoLog);
         GR_GL_GET_PROC(GetShaderiv);
         gDefaultInterface.fGetString = glGetString;
+        gDefaultInterface.fGetTexLevelParameteriv = glGetTexLevelParameteriv;
         gDefaultInterface.fGenTextures = glGenTextures;
         GR_GL_GET_PROC(GetUniformLocation);
         gDefaultInterface.fLineWidth = glLineWidth;
@@ -142,6 +143,8 @@ void GrGLSetDefaultGLInterface() {
         if (major >= 3 || has_gl_extension_from_string(
                 "GL_ARB_framebuffer_object", extString)) {
             GR_GL_GET_PROC(GenFramebuffers);
+            GR_GL_GET_PROC(GetFramebufferAttachmentParameteriv);
+            GR_GL_GET_PROC(GetRenderbufferParameteriv);
             GR_GL_GET_PROC(BindFramebuffer);
             GR_GL_GET_PROC(FramebufferTexture2D);
             GR_GL_GET_PROC(CheckFramebufferStatus);
@@ -156,6 +159,8 @@ void GrGLSetDefaultGLInterface() {
         } else if (has_gl_extension_from_string("GL_EXT_framebuffer_object",
                                                 extString)) {
             GR_GL_GET_PROC_SUFFIX(GenFramebuffers, EXT);
+            GR_GL_GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
+            GR_GL_GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
             GR_GL_GET_PROC_SUFFIX(BindFramebuffer, EXT);
             GR_GL_GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
             GR_GL_GET_PROC_SUFFIX(CheckFramebufferStatus, EXT);

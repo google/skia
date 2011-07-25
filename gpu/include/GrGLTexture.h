@@ -67,6 +67,7 @@ public:
     GrGLRenderTarget(GrGpuGL* gpu,
                      const GLRenderTargetIDs& ids,
                      GrGLTexID* texID,
+                     GrPixelConfig config,
                      GrGLuint stencilBits,
                      bool isMultisampled,
                      const GrGLIRect& fViewport,
@@ -177,7 +178,7 @@ public:
                                    int height,
                                    const void* srcData,
                                    size_t rowBytes);
-    virtual intptr_t getTextureHandle();
+    virtual intptr_t getTextureHandle() const;
 
     const TexParams& getTexParams() const { return fTexParams; }
     void setTexParams(const TexParams& texParams) { fTexParams = texParams; }
