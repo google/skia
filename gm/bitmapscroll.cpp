@@ -9,13 +9,14 @@ namespace skiagm {
  *  @param bitmap the bitmap data is written into this object
  */
 static void make_bitmap(int quarterWidth, int quarterHeight, SkBitmap *bitmap) {
-    SkPaint pRed, pWhite, pGreen, pBlue, pLine;
+    SkPaint pRed, pWhite, pGreen, pBlue, pLine, pAlphaGray;
     pRed.setColor(0xFFFF9999);
     pWhite.setColor(0xFFFFFFFF);
     pGreen.setColor(0xFF99FF99);
     pBlue.setColor(0xFF9999FF);
     pLine.setColor(0xFF000000);
     pLine.setStyle(SkPaint::kStroke_Style);
+    pAlphaGray.setColor(0x66888888);
 
     // Prepare bitmap, and a canvas that draws into it.
     bitmap->reset();
@@ -30,6 +31,7 @@ static void make_bitmap(int quarterWidth, int quarterHeight, SkBitmap *bitmap) {
     canvas.drawRectCoords(w*2,   0, w*4, h*2, pGreen);
     canvas.drawRectCoords(  0, h*2, w*2, h*4, pBlue);
     canvas.drawRectCoords(w*2, h*2, w*4, h*4, pWhite);
+    canvas.drawRectCoords(w, h, w*3, h*3, pAlphaGray);
     canvas.drawLine(w*2,   0, w*2, h*4, pLine);
     canvas.drawLine(  0, h*2, w*4, h*2, pLine);
     canvas.drawRectCoords(w, h, w*3, h*3, pLine);
@@ -53,7 +55,7 @@ protected:
 
     virtual void onDraw(SkCanvas* canvas) {
         SkIRect scrollCenterRegion = SkIRect::MakeXYWH(
-            quarterWidth, quarterHeight, quarterWidth*2, quarterHeight*2);
+            quarterWidth, quarterHeight, quarterWidth*2+1, quarterHeight*2+1);
         int x = quarterWidth;
         int y = quarterHeight;
         int xSpacing = quarterWidth * 20;
