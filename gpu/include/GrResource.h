@@ -54,6 +54,14 @@ public:
      */
     bool isValid() const { return NULL != fGpu; }
 
+    /**
+     * Retrieves the size of the object in GPU memory. This is approximate since
+     * we aren't aware of additional padding or copies made by the driver.
+     *
+     * @return the size of the buffer in bytes
+     */
+     virtual size_t sizeInBytes() const = 0;
+
 protected:
 
     virtual void onRelease() = 0;

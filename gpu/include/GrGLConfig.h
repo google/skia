@@ -202,6 +202,24 @@ extern void GrGLRestoreResetRowLength();
         GR_GL(GetIntegerv(e, p));   \
     } while (0)
 
+#define GR_GL_GetFramebufferAttachmentParameteriv(t, a, pname, p)   \
+    do {                                                            \
+        *(p) = GR_GL_INIT_ZERO;                                     \
+        GR_GL(GetFramebufferAttachmentParameteriv(t, a, pname, p)); \
+    } while (0)
+
+#define GR_GL_GetRenderbufferParameteriv(t, pname, p)    \
+    do {                                                 \
+        *(p) = GR_GL_INIT_ZERO;                          \
+        GR_GL(GetRenderbufferParameteriv(t, pname, p));  \
+    } while (0)
+
+#define GR_GL_GetTexLevelParameteriv(t, l, pname, p)    \
+    do {                                                \
+        *(p) = GR_GL_INIT_ZERO;                         \
+        GR_GL(GetTexLevelParameteriv(t, l, pname, p));  \
+    } while (0)
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #endif

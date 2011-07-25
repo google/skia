@@ -58,8 +58,8 @@ void* GrGLVertexBuffer::lock() {
     if (GPUGL->supportsBufferLocking()) {
         this->bind();
         // Let driver know it can discard the old data
-        GR_GL(BufferData(GR_GL_ARRAY_BUFFER, size(), NULL,
-                         dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
+        GR_GL(BufferData(GR_GL_ARRAY_BUFFER, this->sizeInBytes(), NULL,
+                         this->dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW));
         fLockPtr = GR_GL(MapBuffer(GR_GL_ARRAY_BUFFER, GR_GL_WRITE_ONLY));
         return fLockPtr;
     }
@@ -97,16 +97,16 @@ bool GrGLVertexBuffer::isLocked() const {
 bool GrGLVertexBuffer::updateData(const void* src, size_t srcSizeInBytes) {
     GrAssert(fBufferID);
     GrAssert(!isLocked());
-    if (srcSizeInBytes > size()) {
+    if (srcSizeInBytes > this->sizeInBytes()) {
         return false;
     }
     this->bind();
     GrGLenum usage = dynamic() ? GR_GL_DYNAMIC_DRAW : GR_GL_STATIC_DRAW;
-    if (size() == srcSizeInBytes) {
+    if (this->sizeInBytes() == srcSizeInBytes) {
         GR_GL(BufferData(GR_GL_ARRAY_BUFFER, srcSizeInBytes, src, usage));
     } else {
 #if GR_GL_USE_BUFFER_DATA_NULL_HINT
-        GR_GL(BufferData(GR_GL_ARRAY_BUFFER, size(), NULL, usage));
+        GR_GL(BufferData(GR_GL_ARRAY_BUFFER, this->sizeInBytes(), NULL, usage));
 #endif
         GR_GL(BufferSubData(GR_GL_ARRAY_BUFFER, 0, srcSizeInBytes, src));
     }
@@ -118,7 +118,7 @@ bool GrGLVertexBuffer::updateSubData(const void* src,
                                      size_t offset) {
     GrAssert(fBufferID);
     GrAssert(!isLocked());
-    if (srcSizeInBytes + offset > size()) {
+    if (srcSizeInBytes + offset > this->sizeInBytes()) {
         return false;
     }
     this->bind();
