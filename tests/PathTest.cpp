@@ -263,6 +263,134 @@ static void test_convexity(skiatest::Reporter* reporter) {
     }
 }
 
+// Simple isRect test is inline TestPath, below.
+// test_isRect provides more extensive testing.
+static void test_isRect(skiatest::Reporter* reporter) {
+    // passing tests (all moveTo / lineTo...
+    SkPoint r1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
+    SkPoint r2[] = {{1, 0}, {1, 1}, {0, 1}, {0, 0}};
+    SkPoint r3[] = {{1, 1}, {0, 1}, {0, 0}, {1, 0}};
+    SkPoint r4[] = {{0, 1}, {0, 0}, {1, 0}, {1, 1}};
+    SkPoint r5[] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}};
+    SkPoint r6[] = {{0, 1}, {1, 1}, {1, 0}, {0, 0}};
+    SkPoint r7[] = {{1, 1}, {1, 0}, {0, 0}, {0, 1}};
+    SkPoint r8[] = {{1, 0}, {0, 0}, {0, 1}, {1, 1}};
+    SkPoint r9[] = {{0, 1}, {1, 1}, {1, 0}, {0, 0}};
+    SkPoint ra[] = {{0, 0}, {0, .5f}, {0, 1}, {.5f, 1}, {1, 1}, {1, .5f},
+        {1, 0}, {.5f, 0}};
+    SkPoint rb[] = {{0, 0}, {.5f, 0}, {1, 0}, {1, .5f}, {1, 1}, {.5f, 1},
+        {0, 1}, {0, .5f}};
+    SkPoint rc[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}};
+    SkPoint rd[] = {{0, 0}, {0, 1}, {1, 1}, {1, 0}, {0, 0}};
+    SkPoint re[] = {{0, 0}, {1, 0}, {1, 0}, {1, 1}, {0, 1}};
+    
+    // failing tests
+    SkPoint f1[] = {{0, 0}, {1, 0}, {1, 1}}; // too few points
+    SkPoint f2[] = {{0, 0}, {1, 1}, {0, 1}, {1, 0}}; // diagonal
+    SkPoint f3[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}, {1, 0}}; // wraps
+    SkPoint f4[] = {{0, 0}, {1, 0}, {0, 0}, {1, 0}, {1, 1}, {0, 1}}; // backs up
+    SkPoint f5[] = {{0, 0}, {1, 0}, {1, 1}, {2, 0}}; // end overshoots
+    SkPoint f6[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 2}}; // end overshoots
+    SkPoint f7[] = {{0, 0}, {1, 0}, {1, 1}, {0, 2}}; // end overshoots
+    SkPoint f8[] = {{0, 0}, {1, 0}, {1, 1}, {1, 0}}; // 'L'
+    
+    // failing, no close
+    SkPoint c1[] = {{0, 0}, {1, 0}, {1, 1}, {0, 1}}; // close doesn't match
+    SkPoint c2[] = {{0, 0}, {1, 0}, {1, 2}, {0, 2}, {0, 1}}; // ditto
+
+    size_t testLen[] = {
+        sizeof(r1), sizeof(r2), sizeof(r3), sizeof(r4), sizeof(r5), sizeof(r6),
+        sizeof(r7), sizeof(r8), sizeof(r9), sizeof(ra), sizeof(rb), sizeof(rc),
+        sizeof(rd), sizeof(re),
+        sizeof(f1), sizeof(f2), sizeof(f3), sizeof(f4), sizeof(f5), sizeof(f6),
+        sizeof(f7), sizeof(f8),
+        sizeof(c1), sizeof(c2) 
+    };
+    SkPoint* tests[] = {
+        r1, r2, r3, r4, r5, r6, r7, r8, r9, ra, rb, rc, rd, re,
+        f1, f2, f3, f4, f5, f6, f7, f8,
+        c1, c2 
+    };
+    SkPoint* lastPass = re;
+    SkPoint* lastClose = f8;
+    bool fail = false;
+    bool close = true;
+    const size_t testCount = sizeof(tests) / sizeof(tests[0]);
+    size_t index;
+    for (size_t testIndex = 0; testIndex < testCount; ++testIndex) {
+        SkPath path;
+        path.moveTo(tests[testIndex][0].fX, tests[testIndex][0].fY);
+        for (index = 1; index < testLen[testIndex] / sizeof(SkPoint); ++index) {
+            path.lineTo(tests[testIndex][index].fX, tests[testIndex][index].fY);
+        }
+        if (close) {
+            path.close();
+        }
+        REPORTER_ASSERT(reporter, fail ^ path.isRect(0));
+        if (tests[testIndex] == lastPass) {
+            fail = true;
+        }
+        if (tests[testIndex] == lastClose) {
+            close = false;
+        }
+    }
+    
+    // fail, close then line
+    SkPath path1;
+    path1.moveTo(r1[0].fX, r1[0].fY);
+    for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+        path1.lineTo(r1[index].fX, r1[index].fY);
+    }
+    path1.close();
+    path1.lineTo(1, 0);
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
+    
+    // fail, move in the middle
+    path1.reset();
+    path1.moveTo(r1[0].fX, r1[0].fY);
+    for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+        if (index == 2) {
+            path1.moveTo(1, .5f);
+        }
+        path1.lineTo(r1[index].fX, r1[index].fY);
+    }
+    path1.close();
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
+
+    // fail, move on the edge
+    path1.reset();
+    for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+        path1.moveTo(r1[index - 1].fX, r1[index - 1].fY);
+        path1.lineTo(r1[index].fX, r1[index].fY);
+    }
+    path1.close();
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
+    
+    // fail, quad
+    path1.reset();
+    path1.moveTo(r1[0].fX, r1[0].fY);
+    for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+        if (index == 2) {
+            path1.quadTo(1, .5f, 1, .5f);
+        }
+        path1.lineTo(r1[index].fX, r1[index].fY);
+    }
+    path1.close();
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
+    
+    // fail, cubic
+    path1.reset();
+    path1.moveTo(r1[0].fX, r1[0].fY);
+    for (index = 1; index < testLen[0] / sizeof(SkPoint); ++index) {
+        if (index == 2) {
+            path1.cubicTo(1, .5f, 1, .5f, 1, .5f);
+        }
+        path1.lineTo(r1[index].fX, r1[index].fY);
+    }
+    path1.close();
+    REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
+}
+
 void TestPath(skiatest::Reporter* reporter);
 void TestPath(skiatest::Reporter* reporter) {
     {
@@ -315,9 +443,8 @@ void TestPath(skiatest::Reporter* reporter) {
     p.offset(SK_Scalar1*3, SK_Scalar1*4);
     REPORTER_ASSERT(reporter, bounds == p.getBounds());
 
-#if 0 // isRect needs to be implemented
     REPORTER_ASSERT(reporter, p.isRect(NULL));
-    bounds.setEmpty();
+    bounds2.setEmpty();
     REPORTER_ASSERT(reporter, p.isRect(&bounds2));
     REPORTER_ASSERT(reporter, bounds == bounds2);
 
@@ -325,7 +452,7 @@ void TestPath(skiatest::Reporter* reporter) {
     bounds.set(0, 0, SK_Scalar1/2, SK_Scalar1/2);
     p.addRect(bounds);
     REPORTER_ASSERT(reporter, !p.isRect(NULL));
-#endif
+    test_isRect(reporter);
 
     SkPoint pt;
 
