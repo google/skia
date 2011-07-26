@@ -186,11 +186,120 @@ bool SkPath::isEmpty() const {
     return count == 0 || (count == 1 && fVerbs[0] == kMove_Verb);
 }
 
-bool SkPath::isRect(SkRect*) const {
+/*
+ Determines if path is a rect by keeping track of changes in direction
+ and looking for a loop either clockwise or counterclockwise.
+ 
+ The direction is computed such that:
+  0: vertical up
+  1: horizontal right
+  2: vertical down
+  3: horizontal left
+ 
+A rectangle cycles up/right/down/left or up/left/down/right.
+
+The test fails if:
+  The path is closed, and followed by a line.
+  A second move creates a new endpoint.
+  A diagonal line is parsed.
+  There's more than four changes of direction.
+  There's a discontinuity on the line (e.g., a move in the middle)
+  The line reverses direction.
+  The rectangle doesn't complete a cycle.
+  The path contains a quadratic or cubic.
+  The path contains fewer than four points.
+  The final point isn't equal to the first point.
+  
+It's OK if the path has:
+  Several colinear line segments composing a rectangle side.
+  Single points on the rectangle side.
+  
+The direction takes advantage of the corners found since opposite sides
+must travel in opposite directions.
+
+FIXME: Allow colinear quads and cubics to be treated like lines.
+FIXME: If the API passes fill-only, return true if the filled stroke
+       is a rectangle, though the caller failed to close the path.
+ */
+bool SkPath::isRect(SkRect* rect) const {
     SkDEBUGCODE(this->validate();)
 
-    SkASSERT(!"unimplemented");
-    return false;
+    int corners = 0;
+    SkPoint first, last;
+    int firstDirection;
+    int lastDirection;
+    int nextDirection;
+    bool closedOrMoved;
+    bool autoClose = false;
+    const uint8_t* verbs = fVerbs.begin();
+    const uint8_t* verbStop = fVerbs.end();
+    const SkPoint* pts = fPts.begin();
+    while (verbs != verbStop) {
+        switch (*verbs++) {
+            case kClose_Verb:
+                pts = fPts.begin();
+                autoClose = true;
+            case kLine_Verb: {
+                SkScalar left = last.fX;
+                SkScalar top = last.fY;
+                SkScalar right = pts->fX;
+                SkScalar bottom = pts->fY;
+                ++pts;
+                if (left != right && top != bottom) {
+                    return false; // diagonal
+                }
+                if (left == right && top == bottom) {
+                    break; // single point on side OK
+                }
+                nextDirection = (left != right) << 0 |
+                    (left < right || top < bottom) << 1;
+                if (0 == corners) {
+                    firstDirection = nextDirection;
+                    first = last;
+                    last = pts[-1];
+                    corners = 1;
+                    closedOrMoved = false;
+                    break;
+                }
+                if (closedOrMoved) {
+                    return false; // closed followed by a line
+                }
+                closedOrMoved = autoClose;
+                if (lastDirection != nextDirection) {
+                    if (++corners > 4) {
+                        return false; // too many direction changes
+                    }
+                }
+                last = pts[-1];
+                if (lastDirection == nextDirection) {
+                    break; // colinear segment
+                }
+                // Possible values for corners are 2, 3, and 4.
+                // When corners == 3, nextDirection opposes firstDirection.
+                // Otherwise, nextDirection at corner 2 opposes corner 4.
+                int turn = firstDirection ^ corners - 1;
+                int directionCycle = 3 == corners ? 0 : nextDirection ^ turn;
+                if ((directionCycle ^ turn) != nextDirection) {
+                    return false; // direction didn't follow cycle
+                }
+                break;
+            }
+            case kQuad_Verb:
+            case kCubic_Verb:
+                return false; // quadratic, cubic not allowed
+            case kMove_Verb:
+                last = *pts++;
+                closedOrMoved = true;
+                break;
+        }
+        lastDirection = nextDirection;
+    }
+    // Success if 4 corners and first point equals last
+    bool result = 4 == corners && first == last;
+    if (result && rect) {
+        *rect = getBounds();
+    }
+    return result;
 }
 
 int SkPath::getPoints(SkPoint copy[], int max) const {
