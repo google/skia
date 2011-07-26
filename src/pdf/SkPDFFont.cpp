@@ -34,6 +34,10 @@
 #include "SkTypes.h"
 #include "SkUtils.h"
 
+#if defined (SK_SFNTLY_SUBSETTER)
+#include SK_SFNTLY_SUBSETTER
+#endif
+
 namespace {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -425,6 +429,63 @@ static SkPDFStream* generate_tounicode_cmap(
     cmapStream->unref();  // SkRefPtr and new took a reference.
     cmapStream->setData(cmap.copyToData());
     return new SkPDFStream(cmapStream.get());
+}
+
+static void sk_delete_array(const void* ptr, size_t, void*) {
+    // Use C-style cast to cast away const and cast type simultaneously.
+    delete[] (unsigned char*)ptr;
+}
+
+static int get_subset_font_stream(const char* fontName,
+                                  const SkTypeface* typeface,
+                                  const SkPDFGlyphSet* subset,
+                                  SkPDFStream** fontStream) {
+    SkRefPtr<SkStream> fontData =
+            SkFontHost::OpenStream(SkTypeface::UniqueID(typeface));
+    fontData->unref();  // SkRefPtr and OpenStream both took a ref.
+
+    int fontSize = fontData->getLength();
+
+#if defined (SK_SFNTLY_SUBSETTER)
+    // Generate glyph id array.
+    SkTDArray<unsigned int> glyphIDs;
+    glyphIDs.push(0);  // Always include glyph 0.
+    for (int i = 0; i <= SK_MaxU16; ++i) {
+        if (subset->has(i)) {
+            glyphIDs.push(i);
+        }
+    }
+
+    // Read font into buffer.
+    SkPDFStream* subsetFontStream = NULL;
+    SkTDArray<unsigned char> originalFont;
+    originalFont.setCount(fontSize);
+    if (fontData->read(originalFont.begin(), fontSize) == (size_t)fontSize) {
+        unsigned char* subsetFont = NULL;
+        int subsetFontSize = SfntlyWrapper::SubsetFont(fontName,
+                                                       originalFont.begin(),
+                                                       fontSize,
+                                                       glyphIDs.begin(),
+                                                       glyphIDs.count(),
+                                                       &subsetFont);
+        if (subsetFontSize > 0 && subsetFont != NULL) {
+            SkData* data = SkData::NewWithProc(subsetFont,
+                                               subsetFontSize,
+                                               sk_delete_array,
+                                               NULL);
+            subsetFontStream = new SkPDFStream(data);
+            fontSize = subsetFontSize;
+        }
+    }
+    if (subsetFontStream) {
+        *fontStream = subsetFontStream;
+        return fontSize;
+    }
+#endif
+
+    // Fail over: just embed the whole font.
+    *fontStream = new SkPDFStream(fontData.get());
+    return fontSize;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -858,15 +919,19 @@ bool SkPDFCIDFont::addFontDescriptor(int16_t defaultWidth,
 
     switch (getType()) {
         case SkAdvancedTypefaceMetrics::kTrueType_Font: {
-            // TODO(arthurhsu): sfntly font subsetting
-            SkRefPtr<SkStream> fontData =
-                SkFontHost::OpenStream(SkTypeface::UniqueID(typeface()));
-            fontData->unref();  // SkRefPtr and OpenStream both took a ref.
-            SkRefPtr<SkPDFStream> fontStream = new SkPDFStream(fontData.get());
+            // Font subsetting
+            SkPDFStream* rawStream = NULL;
+            int fontSize = get_subset_font_stream(fontInfo()->fFontName.c_str(),
+                                                  typeface(),
+                                                  subset,
+                                                  &rawStream);
+            SkASSERT(fontSize);
+            SkASSERT(rawStream);
+            SkRefPtr<SkPDFStream> fontStream = rawStream;
             // SkRefPtr and new both ref()'d fontStream, pass one.
             addResource(fontStream.get());
 
-            fontStream->insertInt("Length1", fontData->getLength());
+            fontStream->insertInt("Length1", fontSize);
             descriptor->insert("FontFile2",
                                 new SkPDFObjRef(fontStream.get()))->unref();
             break;
