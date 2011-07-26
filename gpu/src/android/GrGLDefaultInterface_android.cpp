@@ -67,6 +67,7 @@ void GrGLSetDefaultGLInterface() {
     glGetShaderInfoLog,
     glGetShaderiv,
     glGetString,
+    NULL, // glGetTexLevelParameteriv
     glGetUniformLocation,
     glLineWidth,
     glLinkProgram,
@@ -122,13 +123,15 @@ void GrGLSetDefaultGLInterface() {
     glFramebufferTexture2D,
     glGenFramebuffers,
     glGenRenderbuffers,
+    glGetFramebufferAttachmentParameteriv,
+    glGetRenderbufferParameteriv,
     glRenderbufferStorage,
     NULL,  // glRenderbufferStorageMultisampleEXT,
     NULL,  // glBlitFramebufferEXT,
     NULL,  // glResolveMultisampleFramebuffer
     glMapBufferOES,
     glUnmapBufferOES,
-    NULL,
+    NULL, // glBindFragDataLocationIndexed
     GrGLInterface::kStaticInitEndGuard
   };
   static bool host_StubGL_initialized = false;

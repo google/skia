@@ -133,6 +133,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetShaderInfoLogProc)(GrGLuint shader, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetShaderivProc)(GrGLuint shader, GrGLenum pname, GrGLint* params);
     typedef const GrGLubyte* (GR_GL_FUNCTION_TYPE *GrGLGetStringProc)(GrGLenum name);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetTexLevelParameteriv)(GrGLenum target, GrGLint level, GrGLenum pname, GrGLint* params);
     typedef GrGLint (GR_GL_FUNCTION_TYPE *GrGLGetUniformLocationProc)(GrGLuint program, const char* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLLineWidthProc)(GrGLfloat width);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLLinkProgramProc)(GrGLuint program);
@@ -190,6 +191,8 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFramebufferTexture2DProc)(GrGLenum target, GrGLenum attachment, GrGLenum textarget, GrGLuint texture, GrGLint level);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenFramebuffersProc)(GrGLsizei n, GrGLuint *framebuffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenRenderbuffersProc)(GrGLsizei n, GrGLuint *renderbuffers);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetFramebufferAttachmentParameterivProc)(GrGLenum target, GrGLenum attachment, GrGLenum pname, GrGLint* params);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetRenderbufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLRenderbufferStorageProc)(GrGLenum target, GrGLenum internalformat, GrGLsizei width, GrGLsizei height);
 
     // Multisampling Extension Functions
@@ -283,6 +286,7 @@ struct GrGLInterface {
     GrGLGetShaderInfoLogProc fGetShaderInfoLog;
     GrGLGetShaderivProc fGetShaderiv;
     GrGLGetStringProc fGetString;
+    GrGLGetTexLevelParameteriv fGetTexLevelParameteriv;
     GrGLGetUniformLocationProc fGetUniformLocation;
     GrGLLineWidthProc fLineWidth;
     GrGLLinkProgramProc fLinkProgram;
@@ -340,6 +344,8 @@ struct GrGLInterface {
     GrGLFramebufferTexture2DProc fFramebufferTexture2D;
     GrGLGenFramebuffersProc fGenFramebuffers;
     GrGLGenRenderbuffersProc fGenRenderbuffers;
+    GrGLGetFramebufferAttachmentParameterivProc fGetFramebufferAttachmentParameteriv;
+    GrGLGetRenderbufferParameterivProc fGetRenderbufferParameteriv;
     GrGLRenderbufferStorageProc fRenderbufferStorage;
 
     // Multisampling Extension Functions
