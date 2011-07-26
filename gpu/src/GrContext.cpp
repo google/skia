@@ -22,7 +22,7 @@
 #include "GrInOrderDrawBuffer.h"
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
-#include "GrTextureCache.h"
+#include "GrResourceCache.h"
 #include "GrTextStrike.h"
 #include "SkTrace.h"
 
@@ -135,41 +135,66 @@ int GrContext::PaintStageVertexLayoutBits(
 enum {
     kNPOTBit    = 0x1,
     kFilterBit  = 0x2,
-    kKeylessBit = 0x4,
+    kScratchBit = 0x4,
 };
 
-bool GrContext::finalizeTextureKey(GrTextureKey* key,
-                                   const GrSamplerState& sampler,
-                                   bool keyless) const {
-    uint32_t bits = 0;
-    uint16_t width = key->width();
-    uint16_t height = key->height();
+GrTexture* GrContext::TextureCacheEntry::texture() const {
+    if (NULL == fEntry) {
+        return NULL; 
+    } else {
+        return (GrTexture*) fEntry->resource();
+    }
+}
 
-    if (!fGpu->npotTextureTileSupport()) {
+namespace {
+// returns true if this is a "special" texture because of gpu NPOT limitations
+bool gen_texture_key_values(const GrGpu* gpu,
+                            const GrSamplerState& sampler,
+                            GrContext::TextureKey clientKey,
+                            int width,
+                            int height,
+                            bool scratch,
+                            uint32_t v[4]) {
+    GR_STATIC_ASSERT(sizeof(GrContext::TextureKey) == sizeof(uint64_t));
+    // we assume we only need 16 bits of width and height
+    // assert that texture creation will fail anyway if this assumption
+    // would cause key collisions.
+    GrAssert(gpu->maxTextureSize() <= SK_MaxU16);
+    v[0] = clientKey & 0xffffffffUL;
+    v[1] = (clientKey >> 32) & 0xffffffffUL;
+    v[2] = width | (height << 16);
+
+    v[3] = 0;
+    if (!gpu->npotTextureTileSupport()) {
         bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
         bool tiled = (sampler.getWrapX() != GrSamplerState::kClamp_WrapMode) ||
                      (sampler.getWrapY() != GrSamplerState::kClamp_WrapMode);
 
         if (tiled && !isPow2) {
-            bits |= kNPOTBit;
+            v[3] |= kNPOTBit;
             if (GrSamplerState::kNearest_Filter != sampler.getFilter()) {
-                bits |= kFilterBit;
+                v[3] |= kFilterBit;
             }
         }
     }
 
-    if (keyless) {
-        bits |= kKeylessBit;
+    if (scratch) {
+        v[3] |= kScratchBit;
     }
-    key->finalize(bits);
-    return 0 != bits;
+
+    return v[3] & kNPOTBit;
+}
 }
 
-GrTextureEntry* GrContext::findAndLockTexture(GrTextureKey* key,
-                                              const GrSamplerState& sampler) {
-    finalizeTextureKey(key, sampler, false);
-    return fTextureCache->findAndLock(*key);
+GrContext::TextureCacheEntry GrContext::findAndLockTexture(TextureKey key,
+                                                           int width,
+                                                           int height,
+                                                const GrSamplerState& sampler) {
+    uint32_t v[4];
+    gen_texture_key_values(fGpu, sampler, key, width, height, false, v);
+    GrResourceKey resourceKey(v);
+    return TextureCacheEntry(fTextureCache->findAndLock(resourceKey));
 }
 
 static void stretchImage(void* dst,
@@ -199,32 +224,34 @@ static void stretchImage(void* dst,
     }
 }
 
-GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
+GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
                                                 const GrSamplerState& sampler,
                                                 const GrTextureDesc& desc,
                                                 void* srcData, size_t rowBytes) {
     SK_TRACE_EVENT0("GrContext::createAndLockTexture");
-    GrAssert(key->width() == desc.fWidth);
-    GrAssert(key->height() == desc.fHeight);
 
 #if GR_DUMP_TEXTURE_UPLOAD
     GrPrintf("GrContext::createAndLockTexture [%d %d]\n", desc.fWidth, desc.fHeight);
 #endif
 
-    GrTextureEntry* entry = NULL;
-    bool special = finalizeTextureKey(key, sampler, false);
-    if (special) {
-        GrTextureEntry* clampEntry;
-        GrTextureKey clampKey(*key);
-        clampEntry = findAndLockTexture(&clampKey, GrSamplerState::ClampNoFilter());
+    TextureCacheEntry entry;
+    uint32_t v[4];
+    bool special = gen_texture_key_values(fGpu, sampler, key,
+                                          desc.fWidth, desc.fHeight, false, v);
+    GrResourceKey resourceKey(v);
 
-        if (NULL == clampEntry) {
-            clampEntry = createAndLockTexture(&clampKey,
+    if (special) {
+        TextureCacheEntry clampEntry = 
+                            findAndLockTexture(key, desc.fWidth, desc.fHeight,
+                                               GrSamplerState::ClampNoFilter());
+
+        if (NULL == clampEntry.texture()) {
+            clampEntry = createAndLockTexture(key,
                                               GrSamplerState::ClampNoFilter(),
                                               desc, srcData, rowBytes);
-            GrAssert(NULL != clampEntry);
-            if (NULL == clampEntry) {
-                return NULL;
+            GrAssert(NULL != clampEntry.texture());
+            if (NULL == clampEntry.texture()) {
+                return entry;
             }
         }
         GrTextureDesc rtDesc = desc;
@@ -241,7 +268,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
         if (NULL != texture) {
             GrDrawTarget::AutoStateRestore asr(fGpu);
             fGpu->setRenderTarget(texture->asRenderTarget());
-            fGpu->setTexture(0, clampEntry->texture());
+            fGpu->setTexture(0, clampEntry.texture());
             fGpu->disableStencil();
             fGpu->setViewMatrix(GrMatrix::I());
             fGpu->setAlpha(0xff);
@@ -276,7 +303,7 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                 verts[1].setIRectFan(0, 0, 1, 1, 2*sizeof(GrPoint));
                 fGpu->drawNonIndexed(kTriangleFan_PrimitiveType,
                                      0, 4);
-                entry = fTextureCache->createAndLock(*key, texture);
+                entry.set(fTextureCache->createAndLock(resourceKey, texture));
             }
             texture->releaseRenderTarget();
         } else {
@@ -302,69 +329,64 @@ GrTextureEntry* GrContext::createAndLockTexture(GrTextureKey* key,
                                                      stretchedPixels.get(),
                                                      stretchedRowBytes);
             GrAssert(NULL != texture);
-            entry = fTextureCache->createAndLock(*key, texture);
+            entry.set(fTextureCache->createAndLock(resourceKey, texture));
         }
-        fTextureCache->unlock(clampEntry);
+        fTextureCache->unlock(clampEntry.cacheEntry());
 
     } else {
         GrTexture* texture = fGpu->createTexture(desc, srcData, rowBytes);
         if (NULL != texture) {
-            entry = fTextureCache->createAndLock(*key, texture);
-        } else {
-            entry = NULL;
+            entry.set(fTextureCache->createAndLock(resourceKey, texture));
         }
     }
     return entry;
 }
 
-GrTextureEntry* GrContext::lockKeylessTexture(const GrTextureDesc& desc) {
-    uint32_t p0 = desc.fFormat;
-    uint32_t p1 = (desc.fAALevel << 16) | desc.fFlags;
-    GrTextureKey key(p0, p1, desc.fWidth, desc.fHeight);
-    this->finalizeTextureKey(&key, GrSamplerState::ClampNoFilter(), true);
-    
-    GrTextureEntry* entry = fTextureCache->findAndLock(key);
-    if (NULL == entry) {
-        GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
-        if (NULL != texture) {
-            entry = fTextureCache->createAndLock(key, texture);
-        }
-    }
-    // If the caller gives us the same desc/sampler twice we don't want
-    // to return the same texture the second time (unless it was previously
-    // released). So we detach the entry from the cache and reattach at release.
-    if (NULL != entry) {
-        fTextureCache->detach(entry);
-    }
-    return entry;
+namespace {
+inline void gen_scratch_tex_key_values(const GrGpu* gpu, 
+                                       const GrTextureDesc& desc,
+                                       uint32_t v[4]) {
+    // Instead of a client-provided key of the texture contents
+    // we create a key of from the descriptor.
+    GrContext::TextureKey descKey = desc.fAALevel |
+                                    (desc.fFlags << 8) |
+                                    ((uint64_t) desc.fFormat << 32);
+    // this code path isn't friendly to tiling with NPOT restricitons
+    // We just pass ClampNoFilter()
+    gen_texture_key_values(gpu, GrSamplerState::ClampNoFilter(), descKey,
+                            desc.fWidth, desc.fHeight, true, v);
+}
 }
 
-GrTextureEntry* GrContext::findApproximateKeylessTexture(
-                                                    const GrTextureDesc& inDesc) {
+GrContext::TextureCacheEntry GrContext::lockScratchTexture(
+                                                const GrTextureDesc& inDesc,
+                                                ScratchTexMatch match) {
+
     GrTextureDesc desc = inDesc;
-    // bin by pow2 with a reasonable min
-    static const int MIN_SIZE = 256;
-    desc.fWidth  = GrMax(MIN_SIZE, GrNextPow2(desc.fWidth));
-    desc.fHeight = GrMax(MIN_SIZE, GrNextPow2(desc.fHeight));
+    if (kExact_ScratchTexMatch != match) {
+        // bin by pow2 with a reasonable min
+        static const int MIN_SIZE = 256;
+        desc.fWidth  = GrMax(MIN_SIZE, GrNextPow2(desc.fWidth));
+        desc.fHeight = GrMax(MIN_SIZE, GrNextPow2(desc.fHeight));
+    }
 
     uint32_t p0 = desc.fFormat;
     uint32_t p1 = (desc.fAALevel << 16) | desc.fFlags;
     
-    GrTextureEntry* entry;
-    bool keepTrying = true;
+    GrResourceEntry* entry;
     int origWidth = desc.fWidth;
     int origHeight = desc.fHeight;
     bool doubledW = false;
     bool doubledH = false;
 
     do {
-        GrTextureKey key(p0, p1, desc.fWidth, desc.fHeight);
-        this->finalizeTextureKey(&key, GrSamplerState::ClampNoFilter(), true);
+        uint32_t v[4];
+        gen_scratch_tex_key_values(fGpu, desc, v);
+        GrResourceKey key(v);
         entry = fTextureCache->findAndLock(key);
-
         // if we miss, relax the fit of the flags...
         // then try doubling width... then height.
-        if (NULL != entry) {
+        if (NULL != entry || kExact_ScratchTexMatch == match) {
             break;
         }
         if (!(desc.fFlags & kRenderTarget_GrTextureFlagBit)) {
@@ -392,9 +414,9 @@ GrTextureEntry* GrContext::findApproximateKeylessTexture(
         desc.fHeight = origHeight;
         GrTexture* texture = fGpu->createTexture(desc, NULL, 0);
         if (NULL != texture) {
-            GrTextureKey key(p0, p1, desc.fWidth, desc.fHeight);
-            this->finalizeTextureKey(&key, GrSamplerState::ClampNoFilter(), 
-                                     true);
+            uint32_t v[4];
+            gen_scratch_tex_key_values(fGpu, desc, v);
+            GrResourceKey key(v);
             entry = fTextureCache->createAndLock(key, texture);
         }
     }
@@ -405,14 +427,17 @@ GrTextureEntry* GrContext::findApproximateKeylessTexture(
     if (NULL != entry) {
         fTextureCache->detach(entry);
     }
-    return entry;
+    return TextureCacheEntry(entry);
 }
 
-void GrContext::unlockTexture(GrTextureEntry* entry) {
-    if (kKeylessBit & entry->key().getPrivateBits()) {
-        fTextureCache->reattachAndUnlock(entry);
+void GrContext::unlockTexture(TextureCacheEntry entry) {
+    // If this is a scratch texture we detached it from the cache
+    // while it was locked (to avoid two callers simultaneously getting
+    // the same texture).
+    if (kScratchBit & entry.cacheEntry()->key().getValue32(3)) {
+        fTextureCache->reattachAndUnlock(entry.cacheEntry());
     } else {
-        fTextureCache->unlock(entry);
+        fTextureCache->unlock(entry.cacheEntry());
     }
 }
 
@@ -529,9 +554,6 @@ void GrContext::drawPaint(const GrPaint& paint) {
 ////////////////////////////////////////////////////////////////////////////////
 
 struct GrContext::OffscreenRecord {
-    OffscreenRecord() { fEntry0 = NULL; fEntry1 = NULL; }
-    ~OffscreenRecord() { GrAssert(NULL == fEntry0 && NULL == fEntry1); }
-
     enum Downsample {
         k4x4TwoPass_Downsample,
         k4x4SinglePass_Downsample,
@@ -542,8 +564,8 @@ struct GrContext::OffscreenRecord {
     int                            fTileCountX;
     int                            fTileCountY;
     int                            fScale;
-    GrTextureEntry*                fEntry0;
-    GrTextureEntry*                fEntry1;
+    GrAutoScratchTexture           fOffscreen0;
+    GrAutoScratchTexture           fOffscreen1;
     GrDrawTarget::SavedDrawState   fSavedState;
     GrClip                         fClip;
 };
@@ -585,8 +607,8 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
 
     GrAssert(GR_USE_OFFSCREEN_AA);
 
-    GrAssert(NULL == record->fEntry0);
-    GrAssert(NULL == record->fEntry1);
+    GrAssert(NULL == record->fOffscreen0.texture());
+    GrAssert(NULL == record->fOffscreen1.texture());
     GrAssert(!boundRect.isEmpty());
 
     int boundW = boundRect.width();
@@ -627,31 +649,28 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
     
     desc.fWidth *= record->fScale;
     desc.fHeight *= record->fScale;
-
-    record->fEntry0 = this->findApproximateKeylessTexture(desc);
-    if (NULL == record->fEntry0) {
+    record->fOffscreen0.set(this, desc);
+    if (NULL == record->fOffscreen0.texture()) {
         return false;
     }
     // the approximate lookup might have given us some slop space, might as well
     // use it when computing the tiles size.
     // these are scale values, will adjust after considering
     // the possible second offscreen.
-    record->fTileSizeX = record->fEntry0->texture()->width();
-    record->fTileSizeY = record->fEntry0->texture()->height();
+    record->fTileSizeX = record->fOffscreen0.texture()->width();
+    record->fTileSizeY = record->fOffscreen0.texture()->height();
 
     if (OffscreenRecord::k4x4TwoPass_Downsample == record->fDownsample) {
         desc.fWidth /= 2;
         desc.fHeight /= 2;
-        record->fEntry1 = this->findApproximateKeylessTexture(desc);
-        if (NULL == record->fEntry1) {
-            this->unlockTexture(record->fEntry0);
-            record->fEntry0 = NULL;
+        record->fOffscreen1.set(this, desc);
+        if (NULL == record->fOffscreen1.texture()) {
             return false;
         }
         record->fTileSizeX = GrMin(record->fTileSizeX, 
-                                   2 * record->fEntry0->texture()->width());
+                                   2 * record->fOffscreen0.texture()->width());
         record->fTileSizeY = GrMin(record->fTileSizeY, 
-                                   2 * record->fEntry0->texture()->height());
+                                   2 * record->fOffscreen0.texture()->height());
     }
     record->fTileSizeX /= record->fScale;
     record->fTileSizeY /= record->fScale;
@@ -670,7 +689,7 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
                                       int tileX, int tileY,
                                       OffscreenRecord* record) {
 
-    GrRenderTarget* offRT0 = record->fEntry0->texture()->asRenderTarget();
+    GrRenderTarget* offRT0 = record->fOffscreen0.texture()->asRenderTarget();
     GrAssert(NULL != offRT0);
 
     GrPaint tempPaint;
@@ -715,7 +734,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
                                  int tileX, int tileY,
                                  OffscreenRecord* record) {
     SK_TRACE_EVENT0("GrContext::doOffscreenAAPass2");
-    GrAssert(NULL != record->fEntry0);
+    GrAssert(NULL != record->fOffscreen0.texture());
     GrDrawTarget::AutoGeometryPush agp(target);
     GrIRect tileRect;
     tileRect.fLeft = boundRect.fLeft + tileX * record->fTileSizeX;
@@ -738,7 +757,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     GrSamplerState sampler(GrSamplerState::kClamp_WrapMode, 
                            GrSamplerState::kClamp_WrapMode, filter);
 
-    GrTexture* src = record->fEntry0->texture();
+    GrTexture* src = record->fOffscreen0.texture();
     int scale;
 
     enum {
@@ -746,9 +765,9 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     };
 
     if (OffscreenRecord::k4x4TwoPass_Downsample == record->fDownsample) {
-        GrAssert(NULL != record->fEntry1);
+        GrAssert(NULL != record->fOffscreen1.texture());
         scale = 2;
-        GrRenderTarget* dst = record->fEntry1->texture()->asRenderTarget();
+        GrRenderTarget* dst = record->fOffscreen1.texture()->asRenderTarget();
         
         // Do 2x2 downsample from first to second
         target->setTexture(kOffscreenStage, src);
@@ -762,7 +781,7 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
                                      scale * tileRect.height());
         target->drawSimpleRect(rect, NULL, 1 << kOffscreenStage);
         
-        src = record->fEntry1->texture();
+        src = record->fOffscreen1.texture();
     } else if (OffscreenRecord::kFSAA_Downsample == record->fDownsample) {
         scale = 1;
         GrIRect rect = SkIRect::MakeWH(tileRect.width(), tileRect.height());
@@ -811,15 +830,9 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
 void GrContext::cleanupOffscreenAA(GrDrawTarget* target,
                                    GrPathRenderer* pr,
                                    OffscreenRecord* record) {
-    this->unlockTexture(record->fEntry0);
-    record->fEntry0 = NULL;
     if (pr) {
         // Counterpart of scale() in prepareForOffscreenAA()
         //pr->scaleCurveTolerance(SkScalarInvert(SkIntToScalar(record->fScale)));
-    }
-    if (NULL != record->fEntry1) {
-        this->unlockTexture(record->fEntry1);
-        record->fEntry1 = NULL;
     }
     target->restoreDrawState(record->fSavedState);
 }
@@ -1471,9 +1484,8 @@ void GrContext::writePixels(int left, int top, int width, int height,
     const GrTextureDesc desc = {
         kNone_GrTextureFlags, kNone_GrAALevel, width, height, config
     };
-    GrAutoUnlockTextureEntry aute(this,
-                                    this->findApproximateKeylessTexture(desc));
-    GrTexture* texture = aute.texture();
+    GrAutoScratchTexture ast(this, desc);
+    GrTexture* texture = ast.texture();
     if (NULL == texture) {
         return;
     }
@@ -1630,8 +1642,8 @@ GrContext::GrContext(GrGpu* gpu) :
     fCustomPathRenderer = GrPathRenderer::CreatePathRenderer();
     fGpu->setClipPathRenderer(fCustomPathRenderer);
 
-    fTextureCache = new GrTextureCache(MAX_TEXTURE_CACHE_COUNT,
-                                       MAX_TEXTURE_CACHE_BYTES);
+    fTextureCache = new GrResourceCache(MAX_TEXTURE_CACHE_COUNT,
+                                        MAX_TEXTURE_CACHE_BYTES);
     fFontCache = new GrFontCache(fGpu);
 
     fLastDrawCategory = kUnbuffered_DrawCategory;

@@ -16,7 +16,6 @@
 
 #include "GrGpu.h"
 #include "GrTextStrike.h"
-#include "GrTextureCache.h"
 #include "GrClipIterator.h"
 #include "GrIndexBuffer.h"
 #include "GrVertexBuffer.h"
