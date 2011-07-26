@@ -22,6 +22,7 @@
 #include "SkBitmap.h"
 #include "SkDevice.h"
 #include "SkRegion.h"
+#include "GrContext.h"
 
 struct SkDrawProcs;
 struct GrSkDrawProcs;
@@ -126,18 +127,16 @@ public:
     virtual void makeRenderTargetCurrent();
 
 protected:
-
-    class TexCache;
+    typedef GrContext::TextureCacheEntry TexCache;
     enum TexType {
         kBitmap_TexType,
         kDeviceRenderTarget_TexType,
         kSaveLayerDeviceRenderTarget_TexType
     };
-    TexCache* lockCachedTexture(const SkBitmap& bitmap,
-                                const GrSamplerState& sampler,
-                                GrTexture** texture,
-                                TexType type = kBitmap_TexType);
-    void unlockCachedTexture(TexCache*);
+    TexCache lockCachedTexture(const SkBitmap& bitmap,
+                               const GrSamplerState& sampler,
+                               TexType type = kBitmap_TexType);
+    void unlockCachedTexture(TexCache);
 
     class SkAutoCachedTexture {
     public:
@@ -152,7 +151,7 @@ protected:
 
     private:
         SkGpuDevice*    fDevice;
-        TexCache*       fTex;
+        TexCache        fTex;
     };
     friend class SkAutoTexCache;
 
@@ -162,11 +161,11 @@ private:
     GrSkDrawProcs*  fDrawProcs;
 
     // state for our offscreen render-target
-    TexCache*       fCache;
-    GrTexture*      fTexture;
-    GrRenderTarget* fRenderTarget;
-    bool            fNeedClear;
-    bool            fNeedPrepareRenderTarget;
+    TexCache            fCache;
+    GrTexture*          fTexture;
+    GrRenderTarget*     fRenderTarget;
+    bool                fNeedClear;
+    bool                fNeedPrepareRenderTarget;
 
     // called from rt and tex cons
     void initFromRenderTarget(GrContext*, GrRenderTarget*);

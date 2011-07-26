@@ -67,34 +67,33 @@ SkGpuDevice::SkAutoCachedTexture::
                                  const GrSamplerState& sampler,
                                  GrTexture** texture) {
     GrAssert(texture);
-    fTex = NULL;
     *texture = this->set(device, bitmap, sampler);
 }
 
 SkGpuDevice::SkAutoCachedTexture::SkAutoCachedTexture() {
-    fTex = NULL;
 }
 
 GrTexture* SkGpuDevice::SkAutoCachedTexture::set(SkGpuDevice* device,
                                                  const SkBitmap& bitmap,
                                                  const GrSamplerState& sampler) {
-    if (fTex) {
+    if (fTex.texture()) {
         fDevice->unlockCachedTexture(fTex);
     }
     fDevice = device;
     GrTexture* texture = (GrTexture*)bitmap.getTexture();
     if (texture) {
         // return the native texture
-        fTex = NULL;
+        fTex.reset();
     } else {
         // look it up in our cache
-        fTex = device->lockCachedTexture(bitmap, sampler, &texture);
+        fTex = device->lockCachedTexture(bitmap, sampler);
+        texture = fTex.texture();
     }
     return texture;
 }
 
 SkGpuDevice::SkAutoCachedTexture::~SkAutoCachedTexture() {
-    if (fTex) {
+    if (fTex.texture()) {
         fDevice->unlockCachedTexture(fTex);
     }
 }
@@ -170,7 +169,6 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fContext = context;
     fContext->ref();
     
-    fCache = NULL;
     fTexture = NULL;
     fRenderTarget = NULL;
     fNeedClear = false;
@@ -199,7 +197,6 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
     fContext = context;
     fContext->ref();
 
-    fCache = NULL;
     fTexture = NULL;
     fRenderTarget = NULL;
     fNeedClear = false;
@@ -214,10 +211,9 @@ SkGpuDevice::SkGpuDevice(GrContext* context, SkBitmap::Config config, int width,
     TexType type = (kSaveLayer_Usage == usage) ? 
                             kSaveLayerDeviceRenderTarget_TexType :
                             kDeviceRenderTarget_TexType;
-    fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNoFilter(),
-                                     &fTexture, type);
-    if (fCache) {
-        SkASSERT(NULL != fTexture);
+    fCache = this->lockCachedTexture(bm, GrSamplerState::ClampNoFilter(), type);
+    fTexture = fCache.texture();
+    if (fTexture) {
         SkASSERT(NULL != fTexture->asRenderTarget());
         // hold a ref directly on fTexture (even though fCache has one) to match
         // other constructor paths. Simplifies cleanup.
@@ -260,10 +256,10 @@ SkGpuDevice::~SkGpuDevice() {
 
     SkSafeUnref(fTexture);
     SkSafeUnref(fRenderTarget);
-    if (fCache) {
+    if (fCache.texture()) {
         GrAssert(NULL != fTexture);
         GrAssert(fRenderTarget == fTexture->asRenderTarget());
-        fContext->unlockTexture((GrTextureEntry*)fCache);
+        fContext->unlockTexture(fCache);
     } 
     fContext->unref();
 }
@@ -895,15 +891,13 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         kRGBA_8888_GrPixelConfig
     };
 
-    GrTextureEntry* srcEntry = context->findApproximateKeylessTexture(desc);
-    GrTextureEntry* dstEntry = context->findApproximateKeylessTexture(desc);
-    GrAutoUnlockTextureEntry srcLock(context, srcEntry),
-                             dstLock(context, dstEntry);
-    if (NULL == srcEntry || NULL == dstEntry) {
+    GrAutoScratchTexture srcEntry(context, desc);
+    GrAutoScratchTexture dstEntry(context, desc);
+    if (NULL == srcEntry.texture() || NULL == dstEntry.texture()) {
         return false;
     }
-    GrTexture* srcTexture = srcEntry->texture();
-    GrTexture* dstTexture = dstEntry->texture();
+    GrTexture* srcTexture = srcEntry.texture();
+    GrTexture* dstTexture = dstEntry.texture();
     if (NULL == srcTexture || NULL == dstTexture) {
         return false;
     }
@@ -939,18 +933,18 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     paint.reset();
     paint.getTextureSampler(0)->setFilter(GrSamplerState::kBilinear_Filter);
     paint.getTextureSampler(0)->setMatrix(sampleM);
-    GrTextureEntry* origEntry = NULL;
+    GrAutoScratchTexture origEntry;
+
     if (blurType != SkMaskFilter::kNormal_BlurType) {
         // Stash away a copy of the unblurred image.
-        origEntry = context->findApproximateKeylessTexture(desc);
-        if (NULL == origEntry) {
+        origEntry.set(context, desc);
+        if (NULL == origEntry.texture()) {
             return false;
         }
-        context->setRenderTarget(origEntry->texture()->asRenderTarget());
+        context->setRenderTarget(origEntry.texture()->asRenderTarget());
         paint.setTexture(0, srcTexture);
         context->drawRect(paint, srcRect);
     }
-    GrAutoUnlockTextureEntry origLock(context, origEntry);
     for (int i = 1; i < scaleFactor; i *= 2) {
         sampleM.setIDiv(srcTexture->width(), srcTexture->height());
         paint.getTextureSampler(0)->setMatrix(sampleM);
@@ -1011,7 +1005,7 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     }
 
     if (blurType != SkMaskFilter::kNormal_BlurType) {
-        GrTexture* origTexture = origEntry->texture();
+        GrTexture* origTexture = origEntry.texture();
         paint.getTextureSampler(0)->setFilter(GrSamplerState::kNearest_Filter);
         sampleM.setIDiv(origTexture->width(), origTexture->height());
         paint.getTextureSampler(0)->setMatrix(sampleM);
@@ -1102,9 +1096,8 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
         kAlpha_8_GrPixelConfig
     };
 
-    GrAutoUnlockTextureEntry aute(context,
-                                  context->findApproximateKeylessTexture(desc));
-    GrTexture* texture = aute.texture();
+    GrAutoScratchTexture ast(context, desc);
+    GrTexture* texture = ast.texture();
 
     if (NULL == texture) {
         return false;
@@ -1723,12 +1716,10 @@ bool SkGpuDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
-                                                      const GrSamplerState& sampler,
-                                                      GrTexture** texture,
-                                                      TexType type) {
-    GrTexture* newTexture = NULL;
-    GrTextureEntry* entry = NULL;
+SkGpuDevice::TexCache SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
+                                            const GrSamplerState& sampler,
+                                            TexType type) {
+    GrContext::TextureCacheEntry entry;
     GrContext* ctx = this->context();
 
     if (kBitmap_TexType != type) {
@@ -1739,46 +1730,41 @@ SkGpuDevice::TexCache* SkGpuDevice::lockCachedTexture(const SkBitmap& bitmap,
             bitmap.height(),
             SkGr::Bitmap2PixelConfig(bitmap)
         };
+        GrContext::ScratchTexMatch match;
         if (kSaveLayerDeviceRenderTarget_TexType == type) {
             // we know layers will only be drawn through drawDevice.
             // drawDevice has been made to work with content embedded in a
             // larger texture so its okay to use the approximate version.
-            entry = ctx->findApproximateKeylessTexture(desc);
+            match = GrContext::kApprox_ScratchTexMatch;
         } else {
             SkASSERT(kDeviceRenderTarget_TexType == type);
-            entry = ctx->lockKeylessTexture(desc);
+            match = GrContext::kExact_ScratchTexMatch;
         }
+        entry = ctx->lockScratchTexture(desc, match);
     } else {
         if (!bitmap.isVolatile()) {
-            uint32_t p0, p1;
-            p0 = bitmap.getGenerationID();
-            p1 = bitmap.pixelRefOffset();
-            GrTextureKey key(p0, p1, bitmap.width(), bitmap.height());
+            GrContext::TextureKey key = bitmap.getGenerationID();
+            key |= ((uint64_t) bitmap.pixelRefOffset()) << 32;
         
-            entry = ctx->findAndLockTexture(&key, sampler);
-            if (NULL == entry)
-                entry = sk_gr_create_bitmap_texture(ctx, &key, sampler, 
+            entry = ctx->findAndLockTexture(key, bitmap.width(),
+                                            bitmap.height(), sampler);
+            if (NULL == entry.texture()) {
+                entry = sk_gr_create_bitmap_texture(ctx, key, sampler, 
                                                     bitmap);
+            }
         } else {
-            entry = sk_gr_create_bitmap_texture(ctx, NULL, sampler, bitmap);
+            entry = sk_gr_create_bitmap_texture(ctx, gUNCACHED_KEY, sampler, bitmap);
         }
-        if (NULL == entry) {
+        if (NULL == entry.texture()) {
             GrPrintf("---- failed to create texture for cache [%d %d]\n",
                      bitmap.width(), bitmap.height());
         }
     }
-
-    if (NULL != entry) {
-        newTexture = entry->texture();
-        if (texture) {
-            *texture = newTexture;
-        }
-    }
-    return (TexCache*)entry;
+    return entry;
 }
 
-void SkGpuDevice::unlockCachedTexture(TexCache* cache) {
-    this->context()->unlockTexture((GrTextureEntry*)cache);
+void SkGpuDevice::unlockCachedTexture(TexCache cache) {
+    this->context()->unlockTexture(cache);
 }
 
 SkDevice* SkGpuDevice::onCreateCompatibleDevice(SkBitmap::Config config, 

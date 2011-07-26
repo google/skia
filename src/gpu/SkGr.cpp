@@ -63,13 +63,15 @@ static void build_compressed_data(void* buffer, const SkBitmap& bitmap) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
-                                            GrTextureKey* key,
-                                            const GrSamplerState& sampler,
-                                            const SkBitmap& origBitmap) {
+GrContext::TextureCacheEntry sk_gr_create_bitmap_texture(GrContext* ctx,
+                                                GrContext::TextureKey key,
+                                                const GrSamplerState& sampler,
+                                                const SkBitmap& origBitmap) {
     SkAutoLockPixels alp(origBitmap);
+    GrContext::TextureCacheEntry entry;
+
     if (!origBitmap.readyToDraw()) {
-        return NULL;
+        return entry;
     }
 
     SkBitmap tmpBitmap;
@@ -98,12 +100,13 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
             // our compressed data will be trimmed, so pass width() for its
             // "rowBytes", since they are the same now.
             
-            if (NULL != key) {
+            if (gUNCACHED_KEY != key) {
                 return ctx->createAndLockTexture(key, sampler, desc, storage.get(),
                                                  bitmap->width());
             } else {
-                GrTextureEntry* entry = ctx->lockKeylessTexture(desc);
-                entry->texture()->uploadTextureData(0, 0, bitmap->width(), 
+                entry = ctx->lockScratchTexture(desc,
+                                        GrContext::kExact_ScratchTexMatch);
+                entry.texture()->uploadTextureData(0, 0, bitmap->width(), 
                     bitmap->height(), storage.get(), 0);
                 return entry;
             }
@@ -116,12 +119,14 @@ GrTextureEntry* sk_gr_create_bitmap_texture(GrContext* ctx,
     }
 
     desc.fFormat = SkGr::Bitmap2PixelConfig(*bitmap);
-    if (NULL != key) {
-        return ctx->createAndLockTexture(key, sampler, desc, 
-            bitmap->getPixels(), bitmap->rowBytes());
+    if (gUNCACHED_KEY != key) {
+        return ctx->createAndLockTexture(key, sampler, desc,
+                                         bitmap->getPixels(),
+                                         bitmap->rowBytes());
     } else {
-        GrTextureEntry* entry = ctx->lockKeylessTexture(desc);
-        entry->texture()->uploadTextureData(0, 0, bitmap->width(), 
+        entry = ctx->lockScratchTexture(desc,
+                                        GrContext::kExact_ScratchTexMatch);
+        entry.texture()->uploadTextureData(0, 0, bitmap->width(), 
             bitmap->height(), bitmap->getPixels(), bitmap->rowBytes());
         return entry;
     }

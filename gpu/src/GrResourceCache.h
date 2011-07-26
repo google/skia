@@ -1,5 +1,5 @@
 /*
-    Copyright 2010 Google Inc.
+    Copyright 2011 Google Inc.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -15,13 +15,13 @@
  */
 
 
-#ifndef GrTextureCache_DEFINED
-#define GrTextureCache_DEFINED
+#ifndef GrResourceCache_DEFINED
+#define GrResourceCache_DEFINED
 
 #include "GrTypes.h"
 #include "GrTHashCache.h"
 
-class GrTexture;
+class GrResource;
 
 // return true if a<b, or false if b<a
 //
@@ -36,11 +36,11 @@ class GrTexture;
     } while (0)
 
 /**
- *  Helper class for GrTextureCache, the Key is used to identify src data for
- *  a texture. It is identified by 2 32bit data fields which can hold any
+ *  Helper class for GrResourceCache, the Key is used to identify src data for
+ *  a resource. It is identified by 2 32bit data fields which can hold any
  *  data (uninterpreted by the cache) and a width/height.
  */
-class GrTextureKey {
+class GrResourceKey {
 public:
     enum {
         kHashBits   = 7,
@@ -48,51 +48,53 @@ public:
         kHashMask   = kHashCount - 1
     };
 
-    GrTextureKey(uint32_t p0, uint32_t p1, uint16_t width, uint16_t height) {
-        fP0 = p0;
-        fP1 = p1;
-        fP2 = width | (height << 16);
-        GR_DEBUGCODE(fHashIndex = -1);
+    GrResourceKey(uint32_t p0, uint32_t p1, uint32_t p2, uint32_t p3) {
+        fP[0] = p0;
+        fP[1] = p1;
+        fP[2] = p2;
+        fP[3] = p3;
+        this->computeHashIndex();
     }
 
-    GrTextureKey(const GrTextureKey& src) {
-        fP0 = src.fP0;
-        fP1 = src.fP1;
-        fP2 = src.fP2;
-        finalize(src.fPrivateBits);
+    GrResourceKey(uint32_t v[4]) {
+        memcpy(fP, v, 4 * sizeof(uint32_t));
+        this->computeHashIndex();
+    }
+
+    GrResourceKey(const GrResourceKey& src) {
+        memcpy(fP, src.fP, 4 * sizeof(uint32_t));
+#if GR_DEBUG
+        this->computeHashIndex();
+        GrAssert(fHashIndex == src.fHashIndex);
+#endif
+        fHashIndex = src.fHashIndex;
     }
 
     //!< returns hash value [0..kHashMask] for the key
     int hashIndex() const { return fHashIndex; }
 
-    friend bool operator==(const GrTextureKey& a, const GrTextureKey& b) {
+    friend bool operator==(const GrResourceKey& a, const GrResourceKey& b) {
         GR_DEBUGASSERT(-1 != a.fHashIndex && -1 != b.fHashIndex);
-        return a.fP0 == b.fP0 && a.fP1 == b.fP1 && a.fP2 == b.fP2 &&
-               a.fPrivateBits == b.fPrivateBits;
+        return 0 == memcmp(a.fP, b.fP, 4 * sizeof(uint32_t));
     }
 
-    friend bool operator!=(const GrTextureKey& a, const GrTextureKey& b) {
+    friend bool operator!=(const GrResourceKey& a, const GrResourceKey& b) {
         GR_DEBUGASSERT(-1 != a.fHashIndex && -1 != b.fHashIndex);
         return !(a == b);
     }
 
-    friend bool operator<(const GrTextureKey& a, const GrTextureKey& b) {
-        RET_IF_LT_OR_GT(a.fP0, b.fP0);
-        RET_IF_LT_OR_GT(a.fP1, b.fP1);
-        RET_IF_LT_OR_GT(a.fP2, b.fP2);
-        return a.fPrivateBits < b.fPrivateBits;
+    friend bool operator<(const GrResourceKey& a, const GrResourceKey& b) {
+        RET_IF_LT_OR_GT(a.fP[0], b.fP[0]);
+        RET_IF_LT_OR_GT(a.fP[1], b.fP[1]);
+        RET_IF_LT_OR_GT(a.fP[2], b.fP[2]);
+        return a.fP[3] < b.fP[3];
     }
 
+    uint32_t getValue32(int i) const {
+        GrAssert(i >=0 && i < 4);
+        return fP[i];
+    }
 private:
-    void finalize(uint32_t privateBits) {
-        fPrivateBits = privateBits;
-        this->computeHashIndex();
-    }
-
-    uint16_t width() const { return fP2 & 0xffff; }
-    uint16_t height() const { return (fP2 >> 16); }
-
-    uint32_t getPrivateBits() const { return fPrivateBits; }
 
     static uint32_t rol(uint32_t x) {
         return (x >> 24) | (x << 8);
@@ -105,7 +107,7 @@ private:
     }
 
     void computeHashIndex() {
-        uint32_t hash = fP0 ^ rol(fP1) ^ ror(fP2) ^ rohalf(fPrivateBits);
+        uint32_t hash = fP[0] ^ rol(fP[1]) ^ ror(fP[2]) ^ rohalf(fP[3]);
         // this way to mix and reduce hash to its index may have to change
         // depending on how many bits we allocate to the index
         hash ^= hash >> 16;
@@ -113,10 +115,7 @@ private:
         fHashIndex = hash & kHashMask;
     }
 
-    uint32_t    fP0;
-    uint32_t    fP1;
-    uint32_t    fP2;
-    uint32_t    fPrivateBits;
+    uint32_t    fP[4];
 
     // this is computed from the fP... fields
     int         fHashIndex;
@@ -126,14 +125,14 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GrTextureEntry {
+class GrResourceEntry {
 public:
-    GrTexture* texture() const { return fTexture; }
-    const GrTextureKey& key() const { return fKey; }
+    GrResource* resource() const { return fResource; }
+    const GrResourceKey& key() const { return fKey; }
 
 #if GR_DEBUG
-    GrTextureEntry* next() const { return fNext; }
-    GrTextureEntry* prev() const { return fPrev; }
+    GrResourceEntry* next() const { return fNext; }
+    GrResourceEntry* prev() const { return fPrev; }
 #endif
 
 #if GR_DEBUG
@@ -143,8 +142,8 @@ public:
 #endif
 
 private:
-    GrTextureEntry(const GrTextureKey& key, GrTexture* texture);
-    ~GrTextureEntry();
+    GrResourceEntry(const GrResourceKey& key, GrResource* resource);
+    ~GrResourceEntry();
 
     bool isLocked() const { return fLockCount != 0; }
     void lock() { ++fLockCount; }
@@ -153,18 +152,18 @@ private:
         --fLockCount;
     }
 
-    GrTextureKey    fKey;
-    GrTexture*      fTexture;
+    GrResourceKey    fKey;
+    GrResource*      fResource;
 
     // track if we're in use, used when we need to purge
     // we only purge unlocked entries
     int fLockCount;
 
     // we're a dlinklist
-    GrTextureEntry* fPrev;
-    GrTextureEntry* fNext;
+    GrResourceEntry* fPrev;
+    GrResourceEntry* fNext;
 
-    friend class GrTextureCache;
+    friend class GrResourceCache;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -172,17 +171,17 @@ private:
 #include "GrTHashCache.h"
 
 /**
- *  Cache of GrTexture objects.
+ *  Cache of GrResource objects.
  *
- *  These have a corresponding GrTextureKey, built from 96bits identifying the
- *  texture/bitmap.
+ *  These have a corresponding GrResourceKey, built from 128bits identifying the
+ *  resource.
  *
  *  The cache stores the entries in a double-linked list, which is its LRU.
  *  When an entry is "locked" (i.e. given to the caller), it is moved to the
  *  head of the list. If/when we must purge some of the entries, we walk the
  *  list backwards from the tail, since those are the least recently used.
  *
- *  For fast searches, we maintain a sorted array (based on the GrTextureKey)
+ *  For fast searches, we maintain a sorted array (based on the GrResourceKey)
  *  which we can bsearch. When a new entry is added, it is inserted into this
  *  array.
  *
@@ -190,46 +189,46 @@ private:
  *  a collision between two keys with the same hash, we fall back on the
  *  bsearch, and update the hash to reflect the most recent Key requested.
  */
-class GrTextureCache {
+class GrResourceCache {
 public:
-    GrTextureCache(int maxCount, size_t maxBytes);
-    ~GrTextureCache();
+    GrResourceCache(int maxCount, size_t maxBytes);
+    ~GrResourceCache();
 
     /**
-     *  Return the current texture cache limits.
+     *  Return the current resource cache limits.
      *
-     *  @param maxTextures If non-null, returns maximum number of textures that
-     *                     can be held in the cache.
-     *  @param maxTextureBytes If non-null, returns maximum number of bytes of
-     *                         texture memory that can be held in the cache.
+     *  @param maxResource If non-null, returns maximum number of resources 
+     *                     that can be held in the cache.
+     *  @param maxBytes    If non-null, returns maximum number of bytes of
+     *                         gpu memory that can be held in the cache.
      */
-    void getLimits(int* maxTextures, size_t* maxTextureBytes) const;
+    void getLimits(int* maxResources, size_t* maxBytes) const;
 
     /**
-     *  Specify the texture cache limits. If the current cache exceeds either
+     *  Specify the resource cache limits. If the current cache exceeds either
      *  of these, it will be purged (LRU) to keep the cache within these limits.
      *
-     *  @param maxTextures The maximum number of textures that can be held in
-     *                     the cache.
-     *  @param maxTextureBytes The maximum number of bytes of texture memory
-     *                         that can be held in the cache.
+     *  @param maxResources The maximum number of resources that can be held in
+     *                      the cache.
+     *  @param maxBytes     The maximum number of bytes of resource memory that
+     *                      can be held in the cache.
      */
-    void setLimits(int maxTextures, size_t maxTextureBytes);
+    void setLimits(int maxResource, size_t maxResourceBytes);
 
     /**
      *  Search for an entry with the same Key. If found, "lock" it and return it.
      *  If not found, return null.
      */
-    GrTextureEntry* findAndLock(const GrTextureKey&);
+    GrResourceEntry* findAndLock(const GrResourceKey&);
 
     /**
-     *  Create a new entry, based on the specified key and texture, and return
+     *  Create a new entry, based on the specified key and resource, and return
      *  its "locked" entry.
      *
-     *  Ownership of the texture is transferred to the Entry, which will unref()
+     *  Ownership of the resource is transferred to the Entry, which will unref()
      *  it when we are purged or deleted.
      */
-    GrTextureEntry* createAndLock(const GrTextureKey&, GrTexture*);
+    GrResourceEntry* createAndLock(const GrResourceKey&, GrResource*);
 
     /**
      * Detach removes an entry from the cache. This prevents the entry from
@@ -237,20 +236,20 @@ public:
      * entry still counts against the cache's budget and should be reattached
      * when exclusive access is no longer needed.
      */
-    void detach(GrTextureEntry*);
+    void detach(GrResourceEntry*);
 
     /**
-     * Reattaches a texture to the cache and unlocks it. Allows it to be found
+     * Reattaches a resource to the cache and unlocks it. Allows it to be found
      * by a subsequent findAndLock or be purged (provided its lock count is
      * now 0.)
      */
-    void reattachAndUnlock(GrTextureEntry*);
+    void reattachAndUnlock(GrResourceEntry*);
 
     /**
      *  When done with an entry, call unlock(entry) on it, which returns it to
      *  a purgable state.
      */
-    void unlock(GrTextureEntry*);
+    void unlock(GrResourceEntry*);
 
     void removeAll();
 
@@ -261,16 +260,16 @@ public:
 #endif
 
 private:
-    void internalDetach(GrTextureEntry*, bool);
-    void attachToHead(GrTextureEntry*, bool);
-    void purgeAsNeeded();   // uses kFreeTexture_DeleteMode
+    void internalDetach(GrResourceEntry*, bool);
+    void attachToHead(GrResourceEntry*, bool);
+    void purgeAsNeeded();   // uses kFreeResource_DeleteMode
 
     class Key;
-    GrTHashTable<GrTextureEntry, Key, 8> fCache;
+    GrTHashTable<GrResourceEntry, Key, 8> fCache;
 
     // manage the dlink list
-    GrTextureEntry* fHead;
-    GrTextureEntry* fTail;
+    GrResourceEntry* fHead;
+    GrResourceEntry* fTail;
 
     // our budget, used in purgeAsNeeded()
     int fMaxCount;
@@ -286,21 +285,21 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 #if GR_DEBUG
-    class GrAutoTextureCacheValidate {
+    class GrAutoResourceCacheValidate {
     public:
-        GrAutoTextureCacheValidate(GrTextureCache* cache) : fCache(cache) {
+        GrAutoResourceCacheValidate(GrResourceCache* cache) : fCache(cache) {
             cache->validate();
         }
-        ~GrAutoTextureCacheValidate() {
+        ~GrAutoResourceCacheValidate() {
             fCache->validate();
         }
     private:
-        GrTextureCache* fCache;
+        GrResourceCache* fCache;
     };
 #else
-    class GrAutoTextureCacheValidate {
+    class GrAutoResourceCacheValidate {
     public:
-        GrAutoTextureCacheValidate(GrTextureCache*) {}
+        GrAutoResourceCacheValidate(GrResourceCache*) {}
     };
 #endif
 
