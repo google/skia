@@ -33,6 +33,11 @@
 // client3d has to undefine this for now
 #define CAN_USE_LOGFONT_NAME
 
+static bool isLCD(const SkScalerContext::Rec& rec) {
+    return SkMask::kLCD16_Format == rec.fMaskFormat ||
+           SkMask::kLCD32_Format == rec.fMaskFormat;
+}
+
 using namespace skia_advanced_typeface_metrics_utils;
 
 static const uint16_t BUFFERSIZE = (16384 - 32);
@@ -53,6 +58,7 @@ static void make_canonical(LOGFONT* lf) {
 	lf->lfHeight = -gCanonicalTextSize;
     lf->lfQuality = CLEARTYPE_QUALITY;//PROOF_QUALITY;
     lf->lfCharSet = DEFAULT_CHARSET;
+//    lf->lfClipPrecision = 64;
 }
 
 static SkTypeface::Style getStyle(const LOGFONT& lf) {
@@ -290,6 +296,18 @@ static bool needHiResMetrics(const SkScalar mat[2][2]) {
     return mat[1][0] || mat[0][1];
 }
 
+static BYTE compute_quality(const SkScalerContext::Rec& rec) {
+    switch (rec.fMaskFormat) {
+        case SkMask::kBW_Format:
+            return NONANTIALIASED_QUALITY;
+        case SkMask::kLCD16_Format:
+        case SkMask::kLCD32_Format:
+            return CLEARTYPE_QUALITY;
+        default:
+            return ANTIALIASED_QUALITY;
+    }
+}
+
 SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         : SkScalerContext(desc), fDDC(0), fFont(0), fSavefont(0), fSC(0)
         , fGlyphCount(-1) {
@@ -318,6 +336,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     LOGFONT lf;
     GetLogFontByID(fRec.fFontID, &lf);
     lf.lfHeight = -gCanonicalTextSize;
+    lf.lfQuality = compute_quality(fRec);
     fFont = CreateFontIndirect(&lf);
 
     // if we're rotated, or want fractional widths, create a hires font
@@ -415,16 +434,14 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
         glyph->fAdvanceX = SkIntToFixed(gm.gmCellIncX);
         glyph->fAdvanceY = -SkIntToFixed(gm.gmCellIncY);
 
-        // we outset by 1 in all dimensions, since the lcd image may bleed outside
+        // we outset by 1 in all dimensions, since the image may bleed outside
         // of the computed bounds returned by GetGlyphOutline.
         // This was deduced by trial and error for small text (e.g. 8pt), so there
         // maybe a more precise way to make this adjustment...
-        if (SkMask::kLCD16_Format == fRec.fMaskFormat) {
-            glyph->fWidth += 2;
-            glyph->fHeight += 2;
-            glyph->fTop -= 1;
-            glyph->fLeft -= 1;
-        }
+        glyph->fWidth += 2;
+        glyph->fHeight += 2;
+        glyph->fTop -= 1;
+        glyph->fLeft -= 1;
 
         if (fHiResFont) {
             SelectObject(fDDC, fHiResFont);
@@ -479,6 +496,14 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 
 #include "SkColorPriv.h"
 
+static inline uint8_t rgb_to_a8(uint32_t rgb) {
+    // can pick any component, since we're grayscale
+    int r = (rgb >> 16) & 0xFF;
+    // invert, since we draw black-on-white, but we want the original
+    // src mask values.
+    return 255 - r;
+}
+
 static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
@@ -507,121 +532,94 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     SkASSERT(fDDC);
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
-    if ((SkMask::kLCD16_Format == fRec.fMaskFormat) || isBW) {
-        HDC dc = CreateCompatibleDC(0);
-        void* bits = 0;
-        int biWidth = isBW ? alignTo32(glyph.fWidth) : glyph.fWidth;
-        MyBitmapInfo info;
-        sk_bzero(&info, sizeof(info));
-        if (isBW) {
-            RGBQUAD blackQuad = { 0, 0, 0, 0 };
-            RGBQUAD whiteQuad = { 0xFF, 0xFF, 0xFF, 0 };
-            info.bmiColors[0] = blackQuad;
-            info.bmiColors[1] = whiteQuad;
-        }
-        info.bmiHeader.biSize = sizeof(info.bmiHeader);
-        info.bmiHeader.biWidth = biWidth;
-        info.bmiHeader.biHeight = glyph.fHeight;
-        info.bmiHeader.biPlanes = 1;
-        info.bmiHeader.biBitCount = isBW ? 1 : 32;
-        info.bmiHeader.biCompression = BI_RGB;
-        if (isBW) {
-            info.bmiHeader.biClrUsed = 2;
-        }
-        HBITMAP bm = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &bits, 0, 0);
-        SelectObject(dc, bm);
+    const bool isAA = !isLCD(fRec);
+    HDC dc = CreateCompatibleDC(0);
+    void* bits = 0;
+    int biWidth = isBW ? alignTo32(glyph.fWidth) : glyph.fWidth;
 
-        // erase to white
-        size_t srcRB = isBW ? (biWidth >> 3) : (glyph.fWidth << 2);
-        size_t size = glyph.fHeight * srcRB;
-        memset(bits, isBW ? 0 : 0xFF, size);
+    MyBitmapInfo info;
+    sk_bzero(&info, sizeof(info));
+    if (isBW) {
+        RGBQUAD blackQuad = { 0, 0, 0, 0 };
+        RGBQUAD whiteQuad = { 0xFF, 0xFF, 0xFF, 0 };
+        info.bmiColors[0] = blackQuad;
+        info.bmiColors[1] = whiteQuad;
+    }
+    info.bmiHeader.biSize = sizeof(info.bmiHeader);
+    info.bmiHeader.biWidth = biWidth;
+    info.bmiHeader.biHeight = glyph.fHeight;
+    info.bmiHeader.biPlanes = 1;
+    info.bmiHeader.biBitCount = isBW ? 1 : 32;
+    info.bmiHeader.biCompression = BI_RGB;
+    if (isBW) {
+        info.bmiHeader.biClrUsed = 2;
+    }
+    HBITMAP bm = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &bits, 0, 0);
+    SelectObject(dc, bm);
 
-        SetGraphicsMode(dc, GM_ADVANCED);
-        SetBkMode(dc, TRANSPARENT);
-        SetTextAlign(dc, TA_LEFT | TA_BASELINE);
+    // erase to white
+    size_t srcRB = isBW ? (biWidth >> 3) : (glyph.fWidth << 2);
+    size_t size = glyph.fHeight * srcRB;
+    memset(bits, isBW ? 0 : 0xFF, size);
 
-        XFORM xform = fXform;
-        xform.eDx = (float)-glyph.fLeft;
-        xform.eDy = (float)-glyph.fTop;
-        SetWorldTransform(dc, &xform);
+    SetGraphicsMode(dc, GM_ADVANCED);
+    SetBkMode(dc, TRANSPARENT);
+    SetTextAlign(dc, TA_LEFT | TA_BASELINE);
 
-        HGDIOBJ prevFont = SelectObject(dc, fFont);
-        COLORREF color = SetTextColor(dc, isBW ? 0xFFFFFF : 0);
-        SkASSERT(color != CLR_INVALID);
-        uint16_t glyphID = glyph.getGlyphID();
+    XFORM xform = fXform;
+    xform.eDx = (float)-glyph.fLeft;
+    xform.eDy = (float)-glyph.fTop;
+    SetWorldTransform(dc, &xform);
+
+    HGDIOBJ prevFont = SelectObject(dc, fFont);
+    COLORREF color = SetTextColor(dc, isBW ? 0xFFFFFF : 0);
+    SkASSERT(color != CLR_INVALID);
+    uint16_t glyphID = glyph.getGlyphID();
 #if defined(UNICODE)
-        ExtTextOut(dc, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCWSTR)&glyphID, 1, NULL);
+    ExtTextOut(dc, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCWSTR)&glyphID, 1, NULL);
 #else
-        ExtTextOut(dc, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCSTR)&glyphID, 1, NULL);
+    ExtTextOut(dc, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCSTR)&glyphID, 1, NULL);
 #endif
-        GdiFlush();
+    GdiFlush();
 
-        // downsample from rgba to rgb565
-        int width = glyph.fWidth;
-        size_t dstRB = glyph.rowBytes();
-        if (isBW) {
-            const uint8_t* src = (const uint8_t*)bits;
-            // gdi's bitmap is upside-down, so we reverse dst walking in Y
-            uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-            for (int y = 0; y < glyph.fHeight; y++) {
-                memcpy(dst, src, dstRB);
-                src += srcRB;
-                dst -= dstRB;
-            }
-        } else {    // LCD16
-            const uint32_t* src = (const uint32_t*)bits;
-            // gdi's bitmap is upside-down, so we reverse dst walking in Y
-            uint16_t* dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-            for (int y = 0; y < glyph.fHeight; y++) {
-                for (int i = 0; i < width; i++) {
-                    dst[i] = rgb_to_lcd16(src[i]);
-                }
-                src = (const uint32_t*)((const char*)src + srcRB);
-                dst = (uint16_t*)((char*)dst - dstRB);
-            }
+    // downsample from rgba to rgb565
+    int width = glyph.fWidth;
+    size_t dstRB = glyph.rowBytes();
+    if (isBW) {
+        const uint8_t* src = (const uint8_t*)bits;
+        // gdi's bitmap is upside-down, so we reverse dst walking in Y
+        uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+        for (int y = 0; y < glyph.fHeight; y++) {
+            memcpy(dst, src, dstRB);
+            src += srcRB;
+            dst -= dstRB;
         }
-
-        DeleteDC(dc);
-        DeleteObject(bm);
-        return;
-    }
-
-    GLYPHMETRICS gm;
-    memset(&gm, 0, sizeof(gm));
-    uint32_t bytecount = 0;
-    uint32_t total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, 0, NULL, &fMat22);
-    if (GDI_ERROR != total_size && total_size > 0) {
-        SkAutoSMalloc<1024> storage(total_size);
-        uint8_t *pBuff = (uint8_t*)storage.get();
-        total_size = GetGlyphOutlineW(fDDC, glyph.fID, GGO_GRAY8_BITMAP | GGO_GLYPH_INDEX, &gm, total_size, pBuff, &fMat22);
-        SkASSERT(total_size != GDI_ERROR);
-        SkASSERT(glyph.fWidth == gm.gmBlackBoxX);
-        SkASSERT(glyph.fHeight == gm.gmBlackBoxY);
-
-        uint8_t* dst = (uint8_t*)glyph.fImage;
-        uint32_t pitch = (gm.gmBlackBoxX + 3) & ~0x3;
-        if (pitch != glyph.rowBytes()) {
-            SkASSERT(false); // glyph.fImage has different rowsize!?
-        }
-
-        for (int32_t y = gm.gmBlackBoxY - 1; y >= 0; y--) {
-            const uint8_t* src = pBuff + pitch * y;
-
-            for (uint32_t x = 0; x < gm.gmBlackBoxX; x++) {
-                if (*src > 63) {
-                    *dst = 0xFF;
-                } else {
-                    *dst = *src << 2; // scale to 0-255
-                }
-                dst++;
-                src++;
-                bytecount++;
+    } else if (isAA) {
+        const uint32_t* src = (const uint32_t*)bits;
+        // gdi's bitmap is upside-down, so we reverse dst walking in Y
+        uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+        for (int y = 0; y < glyph.fHeight; y++) {
+            for (int i = 0; i < width; i++) {
+                dst[i] = rgb_to_a8(src[i]);
             }
-            memset(dst, 0, glyph.rowBytes() - glyph.fWidth);
-            dst += glyph.rowBytes() - glyph.fWidth;
+            src = (const uint32_t*)((const char*)src + srcRB);
+            dst -= dstRB;
+        }
+    } else {    // LCD16
+        const uint32_t* src = (const uint32_t*)bits;
+        // gdi's bitmap is upside-down, so we reverse dst walking in Y
+        uint16_t* dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+        for (int y = 0; y < glyph.fHeight; y++) {
+            for (int i = 0; i < width; i++) {
+                dst[i] = rgb_to_lcd16(src[i]);
+            }
+            src = (const uint32_t*)((const char*)src + srcRB);
+            dst = (uint16_t*)((char*)dst - dstRB);
         }
     }
-    SkASSERT(GDI_ERROR != total_size && total_size >= 0);
+
+    DeleteDC(dc);
+    DeleteObject(bm);
 }
 
 void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
@@ -948,11 +946,6 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     printf("SkFontHost::CreateTypefaceFromFile unimplemented");
     return NULL;
-}
-
-static bool isLCD(const SkScalerContext::Rec& rec) {
-    return SkMask::kLCD16_Format == rec.fMaskFormat ||
-           SkMask::kLCD32_Format == rec.fMaskFormat;
 }
 
 static bool bothZero(SkScalar a, SkScalar b) {
