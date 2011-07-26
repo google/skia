@@ -641,7 +641,7 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
             maxValidVertex = geoSrc.fVertexCount;
             break;
         case kBuffer_GeometrySrcType:
-            maxValidVertex = geoSrc.fVertexBuffer->size() / 
+            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() /
                              VertexSize(geoSrc.fVertexLayout);
             break;
     }
@@ -658,7 +658,7 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
             maxValidIndex = geoSrc.fIndexCount;
             break;
         case kBuffer_GeometrySrcType:
-            maxValidIndex = geoSrc.fIndexBuffer->size() / sizeof(uint16_t);
+            maxValidIndex = geoSrc.fIndexBuffer->sizeInBytes() / sizeof(uint16_t);
             break;
     }
     if (maxIndex > maxValidIndex) {
@@ -685,7 +685,7 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
             maxValidVertex = geoSrc.fVertexCount;
             break;
         case kBuffer_GeometrySrcType:
-            maxValidVertex = geoSrc.fVertexBuffer->size() / 
+            maxValidVertex = geoSrc.fVertexBuffer->sizeInBytes() /
             VertexSize(geoSrc.fVertexLayout);
             break;
     }

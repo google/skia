@@ -236,6 +236,8 @@ bool GrGLInterface::validate(GrEngine engine) const {
         NULL == fDeleteRenderbuffers ||
         NULL == fFramebufferRenderbuffer ||
         NULL == fFramebufferTexture2D ||
+        NULL == fGetFramebufferAttachmentParameteriv ||
+        NULL == fGetRenderbufferParameteriv ||
         NULL == fGenFramebuffers ||
         NULL == fGenRenderbuffers ||
         NULL == fRenderbufferStorage) {
@@ -310,9 +312,11 @@ bool GrGLInterface::validate(GrEngine engine) const {
 
     // part of desktop GL
     if (kDesktop_GrGLBinding == fBindingsExported &&
-        NULL == fLineWidth) {
+        (NULL == fLineWidth ||
+         NULL == fGetTexLevelParameteriv)) {
         return false;
     }
+
     // FBO MSAA
     if (kDesktop_GrGLBinding == fBindingsExported) {
         // GL 3.0 and the ARB extension have multisample + blit

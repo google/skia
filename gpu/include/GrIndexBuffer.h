@@ -27,7 +27,9 @@ public:
          * from the index buffer (using kTriangles_PrimitiveType).
          * @return the maximum number of quads using full size of index buffer.
          */
-        int maxQuads() const { return size() / (sizeof(uint16_t) * 6); }
+        int maxQuads() const {
+            return this->sizeInBytes() / (sizeof(uint16_t) * 6);
+        }
 protected:
     GrIndexBuffer(GrGpu* gpu, size_t sizeInBytes, bool dynamic)
         : INHERITED(gpu, sizeInBytes, dynamic) {}

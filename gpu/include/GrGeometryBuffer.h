@@ -26,12 +26,6 @@ class GrGpu;
  */
 class GrGeometryBuffer : public GrResource {
 public:
-    /**
-     * Retrieves the size of the buffer
-     *
-     * @return the size of the buffer in bytes
-     */
-    size_t size() const { return fSizeInBytes; }
 
     /**
      *Retrieves whether the buffer was created with the dynamic flag
@@ -94,6 +88,10 @@ public:
     virtual bool updateSubData(const void* src,
                                size_t srcSizeInBytes,
                                size_t offset) = 0;
+
+    // GrResource overrides
+    virtual size_t sizeInBytes() const { return fSizeInBytes; }
+
 protected:
     GrGeometryBuffer(GrGpu* gpu, size_t sizeInBytes, bool dynamic)
         : INHERITED(gpu)

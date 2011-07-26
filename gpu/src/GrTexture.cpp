@@ -29,6 +29,16 @@ bool GrRenderTarget::readPixels(int left, int top, int width, int height,
                                            config, buffer);
 }
 
+size_t GrRenderTarget::sizeInBytes() const {
+    int colorBits;
+    if (kUnknown_GrPixelConfig == fConfig) {
+        colorBits = 32; // don't know, make a guess
+    } else {
+        colorBits = GrBytesPerPixel(fConfig);
+    }
+    return fWidth * fHeight * (fStencilBits + colorBits);
+}
+
 void GrRenderTarget::flagAsNeedingResolve(const GrIRect* rect) {
     if (kCanResolve_ResolveType == getResolveType()) {
         if (NULL != rect) {
@@ -63,3 +73,4 @@ bool GrTexture::readPixels(int left, int top, int width, int height,
                                         width, height,
                                         config, buffer);
 }
+
