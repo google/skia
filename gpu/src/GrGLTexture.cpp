@@ -23,14 +23,12 @@
 GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                                    const GLRenderTargetIDs& ids,
                                    GrGLTexID* texID,
-                                   GrPixelConfig config,
                                    GrGLuint stencilBits,
                                    bool isMultisampled,
                                    const GrGLIRect& viewport,
                                    GrGLTexture* texture)
     : INHERITED(gpu, texture, viewport.fWidth, 
-                viewport.fHeight, config, 
-                stencilBits, isMultisampled) {
+                viewport.fHeight, stencilBits, isMultisampled) {
     fRTFBOID                = ids.fRTFBOID;
     fTexFBOID               = ids.fTexFBOID;
     fStencilRenderbufferID  = ids.fStencilRenderbufferID;
@@ -133,7 +131,6 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
         vp.fBottom = textureDesc.fAllocHeight - textureDesc.fContentHeight;
 
         fRenderTarget = new GrGLRenderTarget(gpu, rtIDs, fTexIDObj,
-                                             textureDesc.fFormat,
                                              textureDesc.fStencilBits,
                                              rtIDs.fRTFBOID != rtIDs.fTexFBOID,
                                              vp, this);
@@ -229,7 +226,7 @@ void GrGLTexture::uploadTextureData(int x,
     }
 }
 
-intptr_t GrGLTexture::getTextureHandle() const {
+intptr_t GrGLTexture::getTextureHandle() {
     return fTexIDObj->id();
 }
 

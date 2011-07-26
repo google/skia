@@ -72,7 +72,6 @@ void GrGLSetDefaultGLInterface() {
         gDefaultInterface.fGetShaderInfoLog = glGetShaderInfoLog;
         gDefaultInterface.fGetShaderiv = glGetShaderiv;
         gDefaultInterface.fGetString = glGetString;
-        gDefaultInterface.fGetTexLevelParameteriv = glGetTexLevelParameteriv;
         gDefaultInterface.fGenTextures = glGenTextures;
         gDefaultInterface.fGetUniformLocation = glGetUniformLocation;
         gDefaultInterface.fLineWidth = glLineWidth;
@@ -128,8 +127,6 @@ void GrGLSetDefaultGLInterface() {
 
 #if GL_ARB_framebuffer_object
         gDefaultInterface.fGenFramebuffers = glGenFramebuffers;
-        gDefaultInterface.fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
-        gDefaultInterface.fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
         gDefaultInterface.fBindFramebuffer = glBindFramebuffer;
         gDefaultInterface.fFramebufferTexture2D = glFramebufferTexture2D;
         gDefaultInterface.fCheckFramebufferStatus = glCheckFramebufferStatus;
@@ -144,8 +141,6 @@ void GrGLSetDefaultGLInterface() {
         gDefaultInterface.fBlitFramebuffer = glBlitFramebuffer;
 #elif GL_EXT_framebuffer_object
         gDefaultInterface.fGenFramebuffers = glGenFramebuffersEXT;
-        gDefaultInterface.fGetFramebufferAttachmentivParameter = glGetFramebufferAttachmentParameterivEXT;
-        gDefaultInterface.fGLGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
         gDefaultInterface.fBindFramebuffer = glBindFramebufferEXT;
         gDefaultInterface.fFramebufferTexture2D = glFramebufferTexture2DEXT;
         gDefaultInterface.fCheckFramebufferStatus = glCheckFramebufferStatusEXT;

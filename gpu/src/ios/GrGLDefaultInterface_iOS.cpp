@@ -127,8 +127,6 @@ void GrGLSetDefaultGLInterface() {
         gDefaultInterface.fViewport = glViewport;
         
         gDefaultInterface.fGenFramebuffers = glGenFramebuffers;
-        gDefaultInterface.fGetFramebufferAttachmentParameteriv = glFramebufferAttachmentParameteriv;
-        gDefaultInterface.fGetRenderbufferParameteriv = glRenderbufferParameteriv;
         gDefaultInterface.fBindFramebuffer = glBindFramebuffer;
         gDefaultInterface.fFramebufferTexture2D = glFramebufferTexture2D;
         gDefaultInterface.fCheckFramebufferStatus = glCheckFramebufferStatus;
