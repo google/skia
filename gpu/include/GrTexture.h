@@ -44,13 +44,6 @@ public:
     int height() const { return fHeight; }
 
     /**
-     * @return the pixel config. Can be kUnknown_GrPixelConfig
-     * if client asked us to render to a target that has a pixel
-     * config that isn't equivalent with one of our configs.
-     */
-    int config() const { return fConfig; }
-
-    /**
      * @return the number of stencil bits in the rendertarget
      */
     int stencilBits() const { return fStencilBits; }
@@ -112,9 +105,6 @@ public:
      */
     const GrIRect& getResolveRect() const { return fResolveRect; }
 
-    // GrResource overrides
-    virtual size_t sizeInBytes() const;
-
     /**
      * Reads a rectangle of pixels from the render target.
      * @param left          left edge of the rectangle to read (inclusive)
@@ -145,14 +135,12 @@ protected:
                    GrTexture* texture,
                    int width,
                    int height,
-                   GrPixelConfig config,
                    int stencilBits,
                    bool isMultisampled)
         : INHERITED(gpu)
         , fTexture(texture)
         , fWidth(width)
         , fHeight(height)
-        , fConfig(config)
         , fStencilBits(stencilBits)
         , fIsMultisampled(isMultisampled)
     {
@@ -172,12 +160,11 @@ protected:
 
 private:
     GrTexture* fTexture; // not ref'ed
-    int             fWidth;
-    int             fHeight;
-    GrPixelConfig   fConfig;
-    int             fStencilBits;
-    bool            fIsMultisampled;
-    GrIRect         fResolveRect;
+    int        fWidth;
+    int        fHeight;
+    int        fStencilBits;
+    bool       fIsMultisampled;
+    GrIRect    fResolveRect;
 
     // GrGpu keeps a cached clip in the render target to avoid redundantly
     // rendering the clip into the same stencil buffer.
@@ -221,7 +208,7 @@ public:
     /**
      *  Approximate number of bytes used by the texture
      */
-    virtual size_t sizeInBytes() const {
+    size_t sizeInBytes() const {
         return fWidth * fHeight * GrBytesPerPixel(fConfig);
     }
 
@@ -286,7 +273,7 @@ public:
      *  Return the native ID or handle to the texture, depending on the
      *  platform. e.g. on opengl, return the texture ID.
      */
-    virtual intptr_t getTextureHandle() const = 0;
+    virtual intptr_t getTextureHandle() = 0;
 
 #if GR_DEBUG
     void validate() const {
@@ -314,7 +301,7 @@ protected:
         fShiftFixedX = 31 - Gr_clz(fWidth);
         fShiftFixedY = 31 - Gr_clz(fHeight);
     }
-
+    
     // GrResource overrides
     virtual void onRelease() {
         releaseRenderTarget();

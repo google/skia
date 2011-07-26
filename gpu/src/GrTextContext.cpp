@@ -277,7 +277,7 @@ HAS_ATLAS:
                                        NULL);
         }
 
-        int maxQuadVertices = 4 * fContext->getQuadIndexBuffer()->maxQuads();
+        int maxQuadVertices = 4 * fContext->getQuadIndexBuffer()->size() / (6 * sizeof(uint16_t));
         if (fMaxVertices < kMinRequestedVerts) {
             fMaxVertices = kDefaultRequestedVerts;
         } else if (fMaxVertices > maxQuadVertices) {

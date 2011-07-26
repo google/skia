@@ -111,7 +111,7 @@ void GrBufferAllocPool::unlock() {
         if (block.fBuffer->isLocked()) {
             block.fBuffer->unlock();
         } else {
-            size_t flushSize = block.fBuffer->sizeInBytes() - block.fBytesFree;
+            size_t flushSize = block.fBuffer->size() - block.fBytesFree;
             flushCpuData(fBlocks.back().fBuffer, flushSize);
         }
         fBufferPtr = NULL;
@@ -137,7 +137,7 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
         GrAssert(!fBlocks[i].fBuffer->isLocked());
     }
     for (int i = 0; i < fBlocks.count(); ++i) {
-        size_t bytes = fBlocks[i].fBuffer->sizeInBytes() - fBlocks[i].fBytesFree; 
+        size_t bytes = fBlocks[i].fBuffer->size() - fBlocks[i].fBytesFree; 
         bytesInUse += bytes;
         GrAssert(bytes || unusedBlockAllowed);
     }
@@ -163,7 +163,7 @@ void* GrBufferAllocPool::makeSpace(size_t size,
 
     if (NULL != fBufferPtr) {
         BufferBlock& back = fBlocks.back();
-        size_t usedBytes = back.fBuffer->sizeInBytes() - back.fBytesFree;
+        size_t usedBytes = back.fBuffer->size() - back.fBytesFree;
         size_t pad = GrSizeAlignUpPad(usedBytes,
                                       alignment);
         if ((size + pad) <= back.fBytesFree) {
@@ -199,7 +199,7 @@ int GrBufferAllocPool::currentBufferItems(size_t itemSize) const {
     VALIDATE();
     if (NULL != fBufferPtr) {
         const BufferBlock& back = fBlocks.back();
-        size_t usedBytes = back.fBuffer->sizeInBytes() - back.fBytesFree;
+        size_t usedBytes = back.fBuffer->size() - back.fBytesFree;
         size_t pad = GrSizeAlignUpPad(usedBytes, itemSize);
         return (back.fBytesFree - pad) / itemSize;
     } else if (fPreallocBuffersInUse < fPreallocBuffers.count()) {
@@ -223,7 +223,7 @@ void GrBufferAllocPool::putBack(size_t bytes) {
         // caller shouldnt try to put back more than they've taken
         GrAssert(!fBlocks.empty());
         BufferBlock& block = fBlocks.back();
-        size_t bytesUsed = block.fBuffer->sizeInBytes() - block.fBytesFree;
+        size_t bytesUsed = block.fBuffer->size() - block.fBytesFree;
         if (bytes >= bytesUsed) {
             bytes -= bytesUsed;
             fBytesInUse -= bytesUsed;
@@ -271,7 +271,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
             prev.fBuffer->unlock();
         } else {
             flushCpuData(prev.fBuffer,
-                         prev.fBuffer->sizeInBytes() - prev.fBytesFree);
+                         prev.fBuffer->size() - prev.fBytesFree);
         }
         fBufferPtr = NULL;
     }
@@ -317,7 +317,7 @@ void GrBufferAllocPool::flushCpuData(GrGeometryBuffer* buffer,
     GrAssert(NULL != buffer);
     GrAssert(!buffer->isLocked());
     GrAssert(fCpuData.get() == fBufferPtr);
-    GrAssert(flushSize <= buffer->sizeInBytes());
+    GrAssert(flushSize <= buffer->size());
 
     bool updated = false;
     if (fGpu->supportsBufferLocking() &&
