@@ -30,6 +30,7 @@
 #include "SkStroke.h"
 #include "SkTemplatesPriv.h"
 #include "SkTextFormatParams.h"
+#include "SkTLazy.h"
 #include "SkUtils.h"
 
 #include "SkAutoKern.h"
@@ -812,24 +813,6 @@ void SkDraw::drawDevMask(const SkMask& srcM, const SkPaint& paint) const {
     blitter->blitMaskRegion(*mask, *fClip);
 }
 
-class SkAutoPaintRestoreColorStrokeWidth {
-public:
-    SkAutoPaintRestoreColorStrokeWidth(const SkPaint& paint) {
-        fPaint = (SkPaint*)&paint;
-        fColor = paint.getColor();
-        fWidth = paint.getStrokeWidth();
-    }
-    ~SkAutoPaintRestoreColorStrokeWidth() {
-        fPaint->setColor(fColor);
-        fPaint->setStrokeWidth(fWidth);
-    }
-
-private:
-    SkPaint*    fPaint;
-    SkColor     fColor;
-    SkScalar    fWidth;
-};
-
 static SkScalar fast_len(const SkVector& vec) {
     SkScalar x = SkScalarAbs(vec.fX);
     SkScalar y = SkScalarAbs(vec.fY);
@@ -859,13 +842,13 @@ static bool map_radius(const SkMatrix& matrix, SkScalar* value) {
     return false;
 }
 
-void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
+void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
     if (fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+        (origPaint.getAlpha() == 0 && origPaint.getXfermode() == NULL)) {
         return;
     }
 
@@ -876,8 +859,8 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
     const SkMatrix* matrix = fMatrix;
 
     if (prePathMatrix) {
-        if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style ||
-                paint.getRasterizer()) {
+        if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style ||
+                origPaint.getRasterizer()) {
             SkPath* result = pathPtr;
 
             if (!pathIsMutable) {
@@ -901,37 +884,41 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
         If the device thickness < 1.0, then make it a hairline, and
         modulate alpha if the thickness is even smaller (e.g. thickness == 0.5
         should modulate the alpha by 1/2)
-    */
-
-    SkAutoPaintRestoreColorStrokeWidth aprc(paint);
+     */
+    
+    const SkPaint* paint = &origPaint;
+    SkTLazy<SkPaint> lazyPaint;
 
     // can we approximate a thin (but not hairline) stroke with an alpha-modulated
     // hairline? Only if the matrix scales evenly in X and Y, and the device-width is
     // less than a pixel
-    if (paint.isAntiAlias() &&
-        paint.getStyle() == SkPaint::kStroke_Style && paint.getXfermode() == NULL) {
-        SkScalar width = paint.getStrokeWidth();
+    if (origPaint.isAntiAlias() &&
+            origPaint.getStyle() == SkPaint::kStroke_Style &&
+            origPaint.getXfermode() == NULL) {
+        SkScalar width = origPaint.getStrokeWidth();
         if (width > 0 && map_radius(*matrix, &width)) {
             int scale = (int)SkScalarMul(width, 256);
-            int alpha = paint.getAlpha() * scale >> 8;
+            int alpha = origPaint.getAlpha() * scale >> 8;
 
             // pretend to be a hairline, with a modulated alpha
-            ((SkPaint*)&paint)->setAlpha(alpha);
-            ((SkPaint*)&paint)->setStrokeWidth(0);
+            lazyPaint.set(origPaint);
+            lazyPaint.get()->setAlpha(alpha);
+            lazyPaint.get()->setStrokeWidth(0);
+            paint = lazyPaint.get();
         }
     }
 
-    if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
-        doFill = paint.getFillPath(*pathPtr, &tmpPath);
+    if (paint->getPathEffect() || paint->getStyle() != SkPaint::kFill_Style) {
+        doFill = paint->getFillPath(*pathPtr, &tmpPath);
         pathPtr = &tmpPath;
     }
 
-    if (paint.getRasterizer()) {
+    if (paint->getRasterizer()) {
         SkMask  mask;
-        if (paint.getRasterizer()->rasterize(*pathPtr, *matrix,
-                            &fClip->getBounds(), paint.getMaskFilter(), &mask,
+        if (paint->getRasterizer()->rasterize(*pathPtr, *matrix,
+                            &fClip->getBounds(), paint->getMaskFilter(), &mask,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
-            this->drawDevMask(mask, paint);
+            this->drawDevMask(mask, *paint);
             SkMask::FreeImage(mask.fImage);
         }
         return;
@@ -943,27 +930,27 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& paint,
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
 
-    SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, paint);
+    SkAutoBlitterChoose blitter(*fBitmap, *fMatrix, *paint);
 
     // how does filterPath() know to fill or hairline the path??? <mrr>
-    if (paint.getMaskFilter() &&
-            paint.getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fClip,
-                                              fBounder, blitter.get())) {
+    if (paint->getMaskFilter() &&
+            paint->getMaskFilter()->filterPath(*devPathPtr, *fMatrix, *fClip,
+                                               fBounder, blitter.get())) {
         return; // filterPath() called the blitter, so we're done
     }
 
-    if (fBounder && !fBounder->doPath(*devPathPtr, paint, doFill)) {
+    if (fBounder && !fBounder->doPath(*devPathPtr, *paint, doFill)) {
         return;
     }
 
     if (doFill) {
-        if (paint.isAntiAlias()) {
+        if (paint->isAntiAlias()) {
             SkScan::AntiFillPath(*devPathPtr, *fClip, blitter.get());
         } else {
             SkScan::FillPath(*devPathPtr, *fClip, blitter.get());
         }
     } else {    // hairline
-        if (paint.isAntiAlias()) {
+        if (paint->isAntiAlias()) {
             SkScan::AntiHairPath(*devPathPtr, fClip, blitter.get());
         } else {
             SkScan::HairPath(*devPathPtr, fClip, blitter.get());
