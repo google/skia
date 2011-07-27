@@ -32,6 +32,7 @@
 #include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
+#include <new>
 
 #include "SkAutoKern.h"
 #include "SkBitmapProcShader.h"
