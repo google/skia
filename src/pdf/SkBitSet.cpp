@@ -89,3 +89,19 @@ bool SkBitSet::orBits(const SkBitSet& source) {
     }
     return true;
 }
+
+void SkBitSet::exportTo(SkTDArray<uint32_t>* array) const {
+    SkASSERT(array);
+    uint32_t* data = (uint32_t*)fBitData.get();
+    for (unsigned int i = 0; i < fDwordCount; ++i) {
+        uint32_t value = data[i];
+        if (value) {  // There are set bits
+            unsigned int index = i * 32;
+            for (unsigned int j = 0; j < 32; ++j) {
+                if (0x1 & (value >> j)) {
+                    array->push(index + j);
+                }
+            }
+        }
+    }
+}
