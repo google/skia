@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "SkGeometry.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPDFUtils.h"
@@ -119,15 +120,10 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkWStream* content) {
                 AppendLine(args[1].fX, args[1].fY, content);
                 break;
             case SkPath::kQuad_Verb: {
-                // Convert quad to cubic (degree elevation). http://goo.gl/vS4i
-                const SkScalar three = SkIntToScalar(3);
-                args[1].scale(SkIntToScalar(2));
-                SkScalar ctl1X = SkScalarDiv(args[0].fX + args[1].fX, three);
-                SkScalar ctl1Y = SkScalarDiv(args[0].fY + args[1].fY, three);
-                SkScalar ctl2X = SkScalarDiv(args[2].fX + args[1].fX, three);
-                SkScalar ctl2Y = SkScalarDiv(args[2].fY + args[1].fY, three);
-                AppendCubic(ctl1X, ctl1Y, ctl2X, ctl2Y, args[2].fX, args[2].fY,
-                            content);
+                SkPoint cubic[4];
+                SkConvertQuadToCubic(args, cubic);
+                AppendCubic(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
+                            cubic[3].fX, cubic[3].fY, content);
                 break;
             }
             case SkPath::kCubic_Verb:
