@@ -112,13 +112,18 @@ public:
                             const SkPaint&);
 
     enum DrawingArea {
-        kContent_DrawingArea, // Drawing area for the page content.
-        kMargin_DrawingArea,  // Drawing area for the margin content.
+        kContent_DrawingArea,  // Drawing area for the page content.
+        kMargin_DrawingArea,   // Drawing area for the margin content.
     };
 
     /** Sets the drawing area for the device. Subsequent draw calls are directed
      *  to the specific drawing area (margin or content). The default drawing 
      *  area is the content drawing area.
+     *
+     *  Currently if margin content is drawn and then a complex (for PDF) xfer
+     *  mode is used, like SrcIn, Clear, etc, the margin content will get
+     *  clipped. A simple way to avoid the bug is to always draw the margin
+     *  content last.
      */
     void setDrawingArea(DrawingArea drawingArea);
 
@@ -187,7 +192,7 @@ private:
     DrawingArea fDrawingArea;
 
     // Accessor and setter functions based on the current DrawingArea.
-    SkTScopedPtr<ContentEntry>& getContentEntries();
+    SkTScopedPtr<ContentEntry>* getContentEntries();
     ContentEntry* getLastContentEntry();
     void setLastContentEntry(ContentEntry* contentEntry);
 
@@ -253,7 +258,7 @@ private:
      *  list of content entries |entry| to |data|.
      */
     void copyContentEntriesToData(ContentEntry* entry, SkWStream* data) const;
-    
+
     // Disable the default copy and assign implementation.
     SkPDFDevice(const SkPDFDevice&);
     void operator=(const SkPDFDevice&);

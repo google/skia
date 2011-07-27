@@ -82,8 +82,8 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
     SkAutoGlyphCache autoCache(paint, &ident);
     SkGlyphCache* cache = autoCache.getCache();
 
-    const char* start = (char*)glyphs;
-    const char* stop = (char*)(glyphs + len);
+    const char* start = reinterpret_cast<const char*>(glyphs);
+    const char* stop = reinterpret_cast<const char*>(glyphs + len);
     SkFixed xAdv = 0, yAdv = 0;
 
     // TODO(vandebo) This probably needs to take kerning into account.
@@ -241,7 +241,7 @@ static void skip_clip_stack_prefix(const SkClipStack& prefix,
         SkASSERT(iterEntry);
         // Because of SkClipStack does internal intersection, the last clip
         // entry may differ.
-        if(*prefixEntry != *iterEntry) {
+        if (*prefixEntry != *iterEntry) {
             SkASSERT(prefixEntry->fOp == SkRegion::kIntersect_Op);
             SkASSERT(iterEntry->fOp == SkRegion::kIntersect_Op);
             SkASSERT((iterEntry->fRect == NULL) ==
@@ -974,11 +974,11 @@ ContentEntry* SkPDFDevice::getLastContentEntry() {
     }
 }
 
-SkTScopedPtr<ContentEntry>& SkPDFDevice::getContentEntries() {
+SkTScopedPtr<ContentEntry>* SkPDFDevice::getContentEntries() {
     if (fDrawingArea == kContent_DrawingArea) {
-        return fContentEntries;
+        return &fContentEntries;
     } else {
-        return fMarginContentEntries;
+        return &fMarginContentEntries;
     }
 }
 
@@ -991,7 +991,8 @@ void SkPDFDevice::setLastContentEntry(ContentEntry* contentEntry) {
 }
 
 void SkPDFDevice::setDrawingArea(DrawingArea drawingArea) {
-    // TODO(ctguil): Verify this isn't called when a ScopedContentEntry exists.
+    // A ScopedContentEntry only exists during the course of a draw call, so
+    // this can't be called while a ScopedContentEntry exists.
     fDrawingArea = drawingArea;
 }
 
@@ -1117,15 +1118,17 @@ SkStream* SkPDFDevice::content() const {
 
 void SkPDFDevice::copyContentEntriesToData(ContentEntry* entry,
         SkWStream* data) const {
+    // TODO(ctguil): For margins, I'm not sure fExistingClipStack/Region is the
+    // right thing to pass here.
     GraphicStackState gsState(fExistingClipStack, fExistingClipRegion, data);
-    while(entry != NULL) {
+    while (entry != NULL) {
         SkIPoint translation = this->getOrigin();
         translation.negate();
         gsState.updateClip(entry->fState.fClipStack, entry->fState.fClipRegion,
                            translation);
         gsState.updateMatrix(entry->fState.fMatrix);
         gsState.updateDrawingState(entry->fState);
-        
+
         SkAutoDataUnref copy(entry->fContent.copyToData());
         data->write(copy.data(), copy.size());
         entry = entry->fNext.get();
@@ -1138,14 +1141,14 @@ SkData* SkPDFDevice::copyContentToData() const {
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
         SkPDFUtils::AppendTransform(fInitialTransform, &data);
     }
-   
+
     // TODO(aayushkumar): Apply clip along the margins.  Currently, webkit
     // colors the contentArea white before it starts drawing into it and
     // that currently acts as our clip.
     // Also, think about adding a transform here (or assume that the values
     // sent across account for that)
     SkPDFDevice::copyContentEntriesToData(fMarginContentEntries.get(), &data);
-    
+
     // If the content area is the entire page, then we don't need to clip
     // the content area (PDF area clips to the page size).  Otherwise,
     // we have to clip to the content area; we've already applied the
@@ -1303,13 +1306,13 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
         return lastContentEntry;
     }
 
-    SkTScopedPtr<ContentEntry>& contentEntries = getContentEntries();
+    SkTScopedPtr<ContentEntry>* contentEntries = getContentEntries();
     if (!lastContentEntry) {
-        contentEntries.reset(entry);
+        contentEntries->reset(entry);
         setLastContentEntry(entry);
     } else if (xfermode == SkXfermode::kDstOver_Mode) {
-        entry->fNext.reset(contentEntries.release());
-        contentEntries.reset(entry);
+        entry->fNext.reset(contentEntries->release());
+        contentEntries->reset(entry);
     } else {
         lastContentEntry->fNext.reset(entry);
         setLastContentEntry(entry);
@@ -1327,8 +1330,8 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
         SkASSERT(!dst);
         return;
     }
- 
-    SkTScopedPtr<ContentEntry>& contentEntries = getContentEntries();
+
+    ContentEntry* contentEntries = getContentEntries()->get();
     SkASSERT(dst);
     SkASSERT(!contentEntries->fNext.get());
     // We have to make a copy of these here because changing the current
@@ -1384,9 +1387,9 @@ void SkPDFDevice::finishContentEntry(const SkXfermode::Mode xfermode,
 }
 
 bool SkPDFDevice::isContentEmpty() {
-    SkTScopedPtr<ContentEntry>& contentEntries = getContentEntries();
-    if (!contentEntries.get() || contentEntries->fContent.getOffset() == 0) {
-        SkASSERT(!contentEntries.get() || !contentEntries->fNext.get());
+    ContentEntry* contentEntries = getContentEntries()->get();
+    if (!contentEntries || contentEntries->fContent.getOffset() == 0) {
+        SkASSERT(!contentEntries || !contentEntries->fNext.get());
         return true;
     }
     return false;
