@@ -410,7 +410,7 @@ SkPicturePlayback::SkPicturePlayback(SkStream* stream) {
     int typefaceCount = readTagSize(stream, PICT_TYPEFACE_TAG);
     fTFPlayback.setCount(typefaceCount);
     for (i = 0; i < typefaceCount; i++) {
-        fTFPlayback.set(i, SkTypeface::Deserialize(stream))->unref();
+        SkSafeUnref(fTFPlayback.set(i, SkTypeface::Deserialize(stream)));
     }
 
     fPictureCount = readTagSize(stream, PICT_PICTURE_TAG);
