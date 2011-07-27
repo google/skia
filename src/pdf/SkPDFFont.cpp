@@ -469,11 +469,11 @@ static int get_subset_font_stream(const char* fontName,
                                                        glyphIDs.count(),
                                                        &subsetFont);
         if (subsetFontSize > 0 && subsetFont != NULL) {
-            SkData* data = SkData::NewWithProc(subsetFont,
-                                               subsetFontSize,
-                                               sk_delete_array,
-                                               NULL);
-            subsetFontStream = new SkPDFStream(data);
+            SkAutoDataUnref data(SkData::NewWithProc(subsetFont,
+                                                     subsetFontSize,
+                                                     sk_delete_array,
+                                                     NULL));
+            subsetFontStream = new SkPDFStream(data.get());
             fontSize = subsetFontSize;
         }
     }
