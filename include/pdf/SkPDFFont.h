@@ -35,6 +35,7 @@ public:
     void set(const uint16_t* glyphIDs, int numGlyphs);
     bool has(uint16_t glyphID) const;
     void merge(const SkPDFGlyphSet& usage);
+    void exportTo(SkTDArray<uint32_t>* glyphIDs) const;
 
 private:
     SkBitSet fBitSet;

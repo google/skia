@@ -21,6 +21,12 @@ static void TestBitSet(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, set0.isBitSet(24) == true);
     REPORTER_ASSERT(reporter, set0.isBitSet(35) == true);
 
+    SkTDArray<unsigned int> data;
+    set0.exportTo(&data);
+    REPORTER_ASSERT(reporter, data.count() == 2);
+    REPORTER_ASSERT(reporter, data[0] == 24);
+    REPORTER_ASSERT(reporter, data[1] == 35);
+
     set1.setBit(12345, true);
     set1.orBits(set0);
     REPORTER_ASSERT(reporter, set0.isBitSet(12345) == false);

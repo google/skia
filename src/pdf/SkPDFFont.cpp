@@ -448,13 +448,9 @@ static int get_subset_font_stream(const char* fontName,
 
 #if defined (SK_SFNTLY_SUBSETTER)
     // Generate glyph id array.
-    SkTDArray<unsigned int> glyphIDs;
+    SkTDArray<uint32_t> glyphIDs;
     glyphIDs.push(0);  // Always include glyph 0.
-    for (int i = 0; i <= SK_MaxU16; ++i) {
-        if (subset->has(i)) {
-            glyphIDs.push(i);
-        }
-    }
+    subset->exportTo(&glyphIDs);
 
     // Read font into buffer.
     SkPDFStream* subsetFontStream = NULL;
@@ -462,6 +458,10 @@ static int get_subset_font_stream(const char* fontName,
     originalFont.setCount(fontSize);
     if (fontData->read(originalFont.begin(), fontSize) == (size_t)fontSize) {
         unsigned char* subsetFont = NULL;
+        // sfntly requires unsigned int* to be passed in, as far as we know,
+        // unsigned int is equivalent to uint32_t on all platforms.
+        SK_COMPILE_ASSERT(sizeof(unsigned int) == sizeof(uint32_t),
+                          unsigned_int_not_32_bits);
         int subsetFontSize = SfntlyWrapper::SubsetFont(fontName,
                                                        originalFont.begin(),
                                                        fontSize,
@@ -507,6 +507,10 @@ bool SkPDFGlyphSet::has(uint16_t glyphID) const {
 
 void SkPDFGlyphSet::merge(const SkPDFGlyphSet& usage) {
     fBitSet.orBits(usage.fBitSet);
+}
+
+void SkPDFGlyphSet::exportTo(SkTDArray<unsigned int>* glyphIDs) const {
+    fBitSet.exportTo(glyphIDs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

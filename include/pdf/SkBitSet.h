@@ -18,6 +18,7 @@
 #define SkBitSet_DEFINED
 
 #include "SkTypes.h"
+#include "SkTDArray.h"
 
 class SkBitSet {
 public:
@@ -46,6 +47,10 @@ public:
      *  bit count as source.
      */
     bool orBits(const SkBitSet& source);
+
+    /** Export set bits to unsigned int array. (used in font subsetting)
+     */
+    void exportTo(SkTDArray<uint32_t>* array) const;
 
 private:
     SkAutoFree fBitData;
