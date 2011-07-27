@@ -29,7 +29,7 @@
 
 BUILDTYPE ?= Debug
 CWD := $(shell pwd)
-ALL_TARGETS := SampleApp bench gm tests tools
+ALL_TARGETS := core SampleApp bench gm tests tools
 
 # Default target.  This must be listed before all other targets.
 .PHONY: default
