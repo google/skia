@@ -27,10 +27,10 @@ static void TestGeometry(skiatest::Reporter* reporter) {
     pts[2].set(SkIntToScalar(3), SkIntToScalar(3));
     SkConvertQuadToCubic(pts, dst);
     const SkPoint cubic[] = {
-        0, 0,
-        SkIntToScalar(2), 0,
-        SkIntToScalar(3), SkIntToScalar(1),
-        SkIntToScalar(3), SkIntToScalar(3)
+        { 0, 0, },
+        { SkIntToScalar(2), 0, },
+        { SkIntToScalar(3), SkIntToScalar(1), },
+        { SkIntToScalar(3), SkIntToScalar(3) },
     };
     for (int i = 0; i < 4; ++i) {
         REPORTER_ASSERT(reporter, nearly_equal(cubic[i], dst[i]));
