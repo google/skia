@@ -702,6 +702,11 @@ static inline int pack_palette(SkColorTable* ctable,
 class SkPNGImageEncoder : public SkImageEncoder {
 protected:
     virtual bool onEncode(SkWStream* stream, const SkBitmap& bm, int quality);
+private:
+    bool doEncode(SkWStream* stream, const SkBitmap& bm,
+                  const bool& hasAlpha, int colorType,
+                  int bitDepth, SkBitmap::Config config,
+                  png_color_8& sig_bit);
 };
 
 bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
@@ -763,6 +768,15 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
         // check if we can store in fewer than 8 bits
         bitDepth = computeBitDepth(ctable->count());
     }
+
+    return doEncode(stream, bitmap, hasAlpha, colorType,
+                    bitDepth, config, sig_bit);
+}
+
+bool SkPNGImageEncoder::doEncode(SkWStream* stream, const SkBitmap& bitmap,
+                  const bool& hasAlpha, int colorType,
+                  int bitDepth, SkBitmap::Config config,
+                  png_color_8& sig_bit) {
 
     png_structp png_ptr;
     png_infop info_ptr;
