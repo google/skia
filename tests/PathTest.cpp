@@ -18,6 +18,7 @@ static void check_close(skiatest::Reporter* reporter, const SkPath& path) {
         SkPath::Verb v;
         int nMT = 0;
         int nCL = 0;
+        mv.set(0, 0);
         while (SkPath::kDone_Verb != (v = iter.next(pts))) {
             switch (v) {
                 case SkPath::kMove_Verb:
