@@ -194,6 +194,10 @@ SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
     } else {
         face = NewFromFontRef(fontRef, NULL);
         SkTypefaceCache::Add(face, face->style());
+        // NewFromFontRef doesn't retain the parameter, but the typeface it
+        // creates does release it in its destructor, so we balance that with
+        // a retain call here.
+        CFRetain(fontRef);
     }
     SkASSERT(face->getRefCnt() > 1);
     return face;
