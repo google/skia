@@ -39,7 +39,7 @@ protected:
     // overrides from SkEventSink
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Texture Domian");
+            SampleCode::TitleR(evt, "Texture Domain");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -84,7 +84,8 @@ protected:
         SkMaskFilter* mf = SkBlurMaskFilter::Create(
             5,
             SkBlurMaskFilter::kNormal_BlurStyle,
-            SkBlurMaskFilter::kHighQuality_BlurFlag);
+            SkBlurMaskFilter::kHighQuality_BlurFlag |
+            SkBlurMaskFilter::kIgnoreTransform_BlurFlag);
         paint.setMaskFilter(mf)->unref();
         canvas->drawBitmapRect(deviceBitmap, &srcRect, dstRect, &paint);
 
@@ -93,6 +94,12 @@ protected:
         // but it will test a code path in SkGpuDevice::drawBitmap
         // that handles blurs with rects transformed to non-
         // orthogonal rects. It also tests the NULL src rect handling
+	mf = SkBlurMaskFilter::Create(
+            5,
+            SkBlurMaskFilter::kNormal_BlurStyle,
+            SkBlurMaskFilter::kHighQuality_BlurFlag);
+        paint.setMaskFilter(mf)->unref();
+
         dstRect.setXYWH(-150.0f, -150.0f, 300.0f, 300.0f);
         canvas->translate(550, 550);
         canvas->rotate(45);
