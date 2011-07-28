@@ -1,3 +1,10 @@
+
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #include "SampleCode.h"
 #include "SkView.h"
 #include "SkCanvas.h"
@@ -75,4 +82,3 @@ private:
 
 static SkView* MyFactory() { return new DrawBitmapView; }
 static SkViewRegister reg(MyFactory);
-
