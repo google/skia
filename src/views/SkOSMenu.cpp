@@ -1,3 +1,10 @@
+
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #include "SkOSMenu.h"
 
 static int gOSMenuCmd = 7000;

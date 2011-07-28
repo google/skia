@@ -1,3 +1,10 @@
+
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #ifndef SK_PREDEFINED_GAMMA_H
 #define SK_PREDEFINED_GAMMA_H
 

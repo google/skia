@@ -1,3 +1,10 @@
+
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #include "SkPoint.h"
 
 void setup_vertexbug(SkPoint verts[], SkPoint texs[], uint16_t index[]);
