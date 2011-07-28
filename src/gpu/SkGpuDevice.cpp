@@ -1237,33 +1237,33 @@ void SkGpuDevice::drawBitmap(const SkDraw& draw,
     }
 
     if (paint.getMaskFilter()){
-        SkBitmap        tmp;    // storage if we need a subset of bitmap
+        // Convert the bitmap to a shader so that the rect can be drawn
+        // through drawRect, which supports mask filters.
+        SkBitmap        tmp;    // subset of bitmap, if necessary
         const SkBitmap* bitmapPtr = &bitmap;
         if (srcRectPtr) {
             if (!bitmap.extractSubset(&tmp, srcRect)) {
                 return;     // extraction failed
             }
             bitmapPtr = &tmp;
+            srcRect.set(0,0, srcRect.width(), srcRect.height());
         }
         SkPaint paintWithTexture(paint);
         paintWithTexture.setShader(SkShader::CreateBitmapShader( *bitmapPtr,
             SkShader::kClamp_TileMode, SkShader::kClamp_TileMode))->unref();
-        paintWithTexture.getShader()->setLocalMatrix(m);
-
         SkRect ScalarRect;
         ScalarRect.set(srcRect);
 
-        if (m.rectStaysRect()) {
-            // Preferred drawing method, optimized for rectangles
-            m.mapRect(&ScalarRect);
-            this->drawRect(draw, ScalarRect, paintWithTexture);
-        } else {
-            // Slower drawing method, for warped or rotated rectangles
-            SkPath path;
-            path.addRect(ScalarRect);
-            path.transform(m);
-            this->drawPath(draw, path, paintWithTexture, NULL, true);
-        }
+        // Transform 'm' needs to be concatenated to the draw matrix,
+        // rather than transforming the primitive directly, so that 'm' will 
+        // also affect the behavior of the mask filter.
+        SkMatrix drawMatrix;
+        drawMatrix.setConcat(*draw.fMatrix, m);
+        SkDraw transformedDraw(draw);
+        transformedDraw.fMatrix = &drawMatrix;
+
+        this->drawRect(transformedDraw, ScalarRect, paintWithTexture);
+
         return;
     }
 
