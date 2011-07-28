@@ -53,6 +53,7 @@
         '../samplecode/SampleDegenerateTwoPtRadials.cpp',
         '../samplecode/SampleDither.cpp',
         '../samplecode/SampleDitherBitmap.cpp',
+        '../samplecode/SampleDrawBitmap.cpp',
         '../samplecode/SampleDrawLooper.cpp',
         '../samplecode/SampleEffects.cpp',
         '../samplecode/SampleEmboss.cpp',
