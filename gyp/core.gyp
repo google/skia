@@ -238,6 +238,7 @@
         '../include/core/SkThread.h',
         '../include/core/SkThread_platform.h',
         '../include/core/SkTime.h',
+        '../include/core/SkTLazy.h',
         '../include/core/SkTrace.h',
         '../include/core/SkTypeface.h',
         '../include/core/SkTypes.h',

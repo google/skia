@@ -18,7 +18,6 @@
 #include "SkTemplates.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
-#include <new>
 
 //#define SK_TRACE_SAVERESTORE
 
