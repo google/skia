@@ -1,3 +1,10 @@
+
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
 #include <GL/GL.h>
