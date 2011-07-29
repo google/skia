@@ -11,13 +11,14 @@
 #ifndef GrDrawTarget_DEFINED
 #define GrDrawTarget_DEFINED
 
-#include "GrMatrix.h"
-#include "GrColor.h"
-#include "GrRefCnt.h"
-#include "GrSamplerState.h"
 #include "GrClip.h"
-#include "GrTexture.h"
+#include "GrColor.h"
+#include "GrMatrix.h"
+#include "GrRefCnt.h"
+#include "GrRenderTarget.h"
+#include "GrSamplerState.h"
 #include "GrStencil.h"
+#include "GrTexture.h"
 
 #include "SkXfermode.h"
 
