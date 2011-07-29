@@ -138,10 +138,9 @@
           ],
           'configurations': {
             'Debug': {
-              'cflags': ['-g']
-            },
-            'Release': {
-              'cflags': ['-O2']
+              'xcode_settings': {
+                'GCC_OPTIMIZATION_LEVEL': '0',
+              },
             },
           },
           'xcode_settings': {
@@ -157,10 +156,9 @@
           ],
           'configurations': {
             'Debug': {
-              'cflags': ['-g']
-            },
-            'Release': {
-              'cflags': ['-O2']
+              'xcode_settings': {
+                'GCC_OPTIMIZATION_LEVEL': '0',
+              },
             },
           },
           'xcode_settings': {
