@@ -8,53 +8,10 @@
 
 
 #include "GrTexture.h"
+
 #include "GrContext.h"
 #include "GrGpu.h"
-
-bool GrRenderTarget::readPixels(int left, int top, int width, int height,
-                                GrPixelConfig config, void* buffer) {
-    // go through context so that all necessary flushing occurs
-    GrContext* context = this->getGpu()->getContext();
-    GrAssert(NULL != context);
-    return context->readRenderTargetPixels(this,
-                                           left, top, 
-                                           width, height,
-                                           config, buffer);
-}
-
-size_t GrRenderTarget::sizeInBytes() const {
-    int colorBits;
-    if (kUnknown_GrPixelConfig == fConfig) {
-        colorBits = 32; // don't know, make a guess
-    } else {
-        colorBits = GrBytesPerPixel(fConfig);
-    }
-    return fWidth * fHeight * (fStencilBits + colorBits);
-}
-
-void GrRenderTarget::flagAsNeedingResolve(const GrIRect* rect) {
-    if (kCanResolve_ResolveType == getResolveType()) {
-        if (NULL != rect) {
-            fResolveRect.join(*rect);
-            if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
-                fResolveRect.setEmpty();
-            }
-        } else {
-            fResolveRect.setLTRB(0, 0, this->width(), this->height());
-        }
-    }
-}
-
-void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
-    fResolveRect = rect;
-    if (fResolveRect.isEmpty()) {
-        fResolveRect.setLargestInverted();
-    } else {
-        if (!fResolveRect.intersect(0, 0, this->width(), this->height())) {
-            fResolveRect.setLargestInverted();
-        }
-    }
-}
+#include "GrRenderTarget.h"
 
 bool GrTexture::readPixels(int left, int top, int width, int height,
                            GrPixelConfig config, void* buffer) {
@@ -65,5 +22,20 @@ bool GrTexture::readPixels(int left, int top, int width, int height,
                                         left, top, 
                                         width, height,
                                         config, buffer);
+}
+
+void GrTexture::releaseRenderTarget() {
+    if (NULL != fRenderTarget) {
+        GrAssert(fRenderTarget->asTexture() == this);
+        fRenderTarget->onTextureReleaseRenderTarget();
+        fRenderTarget->unref();
+        fRenderTarget = NULL;
+    }
+}
+
+void GrTexture::onAbandon() {
+    if (NULL != fRenderTarget) {
+        fRenderTarget->abandon();
+    }
 }
 

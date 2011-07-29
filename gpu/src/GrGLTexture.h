@@ -10,12 +10,9 @@
 #ifndef GrGLTexture_DEFINED
 #define GrGLTexture_DEFINED
 
-#include "GrTexture.h"
+#include "GrGLRenderTarget.h"
 #include "GrScalar.h"
-#include "GrGLIRect.h"
-
-class GrGpuGL;
-class GrGLTexture;
+#include "GrTexture.h"
 
 /**
  * A ref counted tex id that deletes the texture in its destructor.
@@ -41,89 +38,6 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class GrGLRenderTarget : public GrRenderTarget {
-
-public:
-    // set fTexFBOID to this value to indicate that it is multisampled but
-    // Gr doesn't know how to resolve it.
-    enum { kUnresolvableFBOID = 0 };
-
-    struct GLRenderTargetIDs {
-        GrGLuint      fRTFBOID;
-        GrGLuint      fTexFBOID;
-        GrGLuint      fStencilRenderbufferID;
-        GrGLuint      fMSColorRenderbufferID;
-        bool          fOwnIDs;
-        void reset() { memset(this, 0, sizeof(GLRenderTargetIDs)); }
-    };
-
-    GrGLRenderTarget(GrGpuGL* gpu,
-                     const GLRenderTargetIDs& ids,
-                     GrGLTexID* texID,
-                     GrPixelConfig config,
-                     GrGLuint stencilBits,
-                     bool isMultisampled,
-                     const GrGLIRect& fViewport,
-                     GrGLTexture* texture);
-
-    virtual ~GrGLRenderTarget() { this->release(); }
-
-    void setViewport(const GrGLIRect& rect) { fViewport = rect; }
-    const GrGLIRect& getViewport() const { return fViewport; }
-
-    // The following two functions return the same ID when a 
-    // texture-rendertarget is multisampled, and different IDs when
-    // it is.
-    // FBO ID used to render into
-    GrGLuint renderFBOID() const { return fRTFBOID; }
-    // FBO ID that has texture ID attached.
-    GrGLuint textureFBOID() const { return fTexFBOID; }
-
-    // override of GrRenderTarget 
-    virtual intptr_t getRenderTargetHandle() const {
-        return this->renderFBOID(); 
-    }
-    virtual intptr_t getRenderTargetResolvedHandle() const {
-        return this->textureFBOID();
-    }
-    virtual ResolveType getResolveType() const {
-        if (fRTFBOID == fTexFBOID) {
-            // catches FBO 0 and non MSAA case
-            return kAutoResolves_ResolveType;
-        } else if (kUnresolvableFBOID == fTexFBOID) {
-            return kCantResolve_ResolveType;
-        } else {
-            return kCanResolve_ResolveType;
-        }
-    }
-
-protected:
-    // override of GrResource
-    virtual void onAbandon();
-    virtual void onRelease();
-
-private:
-    GrGLuint      fRTFBOID;
-    GrGLuint      fTexFBOID;
-    GrGLuint      fStencilRenderbufferID;
-    GrGLuint      fMSColorRenderbufferID;
-
-    // Should this object delete IDs when it is destroyed or does someone
-    // else own them.
-    bool        fOwnIDs;
-
-    // when we switch to this rendertarget we want to set the viewport to
-    // only render to to content area (as opposed to the whole allocation) and
-    // we want the rendering to be at top left (GL has origin in bottom left)
-    GrGLIRect fViewport;
-
-    // non-NULL if this RT was created by Gr with an associated GrGLTexture.
-    GrGLTexID* fTexIDObj;
-
-    typedef GrRenderTarget INHERITED;
-};
-
-////////////////////////////////////////////////////////////////////////////////
 
 class GrGLTexture : public GrTexture {
 
@@ -235,7 +149,6 @@ private:
     GrScalar            fScaleX;
     GrScalar            fScaleY;
     Orientation         fOrientation;
-    GrGpuGL*            fGpuGL;
 
     typedef GrTexture INHERITED;
 };
