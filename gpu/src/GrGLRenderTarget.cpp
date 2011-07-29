@@ -13,25 +13,42 @@
 
 #define GPUGL static_cast<GrGpuGL*>(getGpu())
 
-GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
-                                   const GLRenderTargetIDs& ids,
-                                   GrGLTexID* texID,
-                                   GrPixelConfig config,
-                                   GrGLuint stencilBits,
-                                   bool isMultisampled,
-                                   const GrGLIRect& viewport,
-                                   GrGLTexture* texture)
-    : INHERITED(gpu, texture, viewport.fWidth, 
-                viewport.fHeight, config, 
-                stencilBits, isMultisampled) {
-    fRTFBOID                = ids.fRTFBOID;
-    fTexFBOID               = ids.fTexFBOID;
-    fStencilRenderbufferID  = ids.fStencilRenderbufferID;
-    fMSColorRenderbufferID  = ids.fMSColorRenderbufferID;
+void GrGLRenderTarget::init(const Desc& desc,
+                            const GrGLIRect& viewport,
+                            GrGLTexID* texID) {
+    fRTFBOID                = desc.fRTFBOID;
+    fTexFBOID               = desc.fTexFBOID;
+    fMSColorRenderbufferID  = desc.fMSColorRenderbufferID;
+    fStencilRenderbufferID  = desc.fStencilRenderbufferID;
     fViewport               = viewport;
-    fOwnIDs                 = ids.fOwnIDs;
+    fOwnIDs                 = desc.fOwnIDs;
     fTexIDObj               = texID;
     GrSafeRef(fTexIDObj);
+}
+
+GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
+                                   const Desc& desc,
+                                   const GrGLIRect& viewport,
+                                   GrGLTexID* texID,
+                                   GrGLTexture* texture)
+    : INHERITED(gpu, texture, viewport.fWidth,
+                viewport.fHeight, desc.fConfig,
+                desc.fStencilBits, desc.fSampleCnt) {
+    GrAssert(NULL != texID);
+    GrAssert(NULL != texture);
+    // FBO 0 can't also be a texture, right?
+    GrAssert(0 != desc.fRTFBOID);
+    GrAssert(0 != desc.fTexFBOID);
+    this->init(desc, viewport, texID);
+}
+
+GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
+                                   const Desc& desc,
+                                   const GrGLIRect& viewport)
+    : INHERITED(gpu, NULL, viewport.fWidth,
+                viewport.fHeight, desc.fConfig,
+                desc.fStencilBits, desc.fSampleCnt) {
+    this->init(desc, viewport, NULL);
 }
 
 void GrGLRenderTarget::onRelease() {

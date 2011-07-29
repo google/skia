@@ -132,7 +132,8 @@ public:
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kRGBA_8888_GrPixelConfig;
-            desc.fStencilBits = 8;
+            GR_GL_GetIntegerv(GR_GL_STENCIL_BITS, &desc.fStencilBits);
+            GR_GL_GetIntegerv(GR_GL_SAMPLES, &desc.fSampleCnt);
             GrGLint buffer;
             GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
             desc.fPlatformRenderTarget = buffer;

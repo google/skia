@@ -77,7 +77,12 @@ public:
     /**
      * @return true if the render target is multisampled, false otherwise
      */
-    bool isMultisampled() { return fIsMultisampled; }
+    bool isMultisampled() const { return 0 != fSampleCnt; }
+
+    /**
+     * @return the number of samples-per-pixel or zero if non-MSAA.
+     */
+    int numSamples() const { return fSampleCnt; }
 
     /**
      * Call to indicate the multisample contents were modified such that the
@@ -147,14 +152,14 @@ protected:
                    int height,
                    GrPixelConfig config,
                    int stencilBits,
-                   bool isMultisampled)
+                   int sampleCnt)
         : INHERITED(gpu)
         , fTexture(texture)
         , fWidth(width)
         , fHeight(height)
         , fConfig(config)
         , fStencilBits(stencilBits)
-        , fIsMultisampled(isMultisampled)
+        , fSampleCnt(sampleCnt)
     {
         fResolveRect.setLargestInverted();
     }
@@ -176,7 +181,7 @@ private:
     int             fHeight;
     GrPixelConfig   fConfig;
     int             fStencilBits;
-    bool            fIsMultisampled;
+    int             fSampleCnt;
     GrIRect         fResolveRect;
 
     // GrGpu keeps a cached clip in the render target to avoid redundantly

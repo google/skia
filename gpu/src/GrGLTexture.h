@@ -54,7 +54,7 @@ public:
         void invalidate() { memset(this, 0xff, sizeof(TexParams)); }
     };
 
-    struct GLTextureDesc {
+    struct Desc {
         int             fContentWidth;
         int             fContentHeight;
         int             fAllocWidth;
@@ -65,16 +65,20 @@ public:
         GrGLenum        fUploadFormat;
         GrGLenum        fUploadByteCount;
         GrGLenum        fUploadType;
-        GrGLuint        fStencilBits;
         Orientation     fOrientation;
     };
 
-    typedef GrGLRenderTarget::GLRenderTargetIDs GLRenderTargetIDs;
-
+    // creates a texture that is also an RT
     GrGLTexture(GrGpuGL* gpu,
-                const GLTextureDesc& textureDesc,
-                const GLRenderTargetIDs& rtIDs,
+                const Desc& textureDesc,
+                const GrGLRenderTarget::Desc& rtDesc,
                 const TexParams& initialTexParams);
+
+    // creates a non-RT texture
+    GrGLTexture(GrGpuGL* gpu,
+                const Desc& textureDesc,
+                const TexParams& initialTexParams);
+
 
     virtual ~GrGLTexture() { this->release(); }
 
@@ -149,6 +153,11 @@ private:
     GrScalar            fScaleX;
     GrScalar            fScaleY;
     Orientation         fOrientation;
+
+    void init(GrGpuGL* gpu,
+              const Desc& textureDesc,
+              const GrGLRenderTarget::Desc* rtDesc,
+              const TexParams& initialTexParams);
 
     typedef GrTexture INHERITED;
 };

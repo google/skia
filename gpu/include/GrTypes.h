@@ -506,10 +506,14 @@ enum GrPlatformSurfaceType {
 
 enum GrPlatformRenderTargetFlags {
     kNone_GrPlatformRenderTargetFlagBit             = 0x0,
+
     /**
      * Specifies that the object being created is multisampled.
+     * WILL BE REMOVED ONCE WEBKIT STOPS USING THIS. INSTEAD
+     * SPECIFY # OF SAMPLES IN GrPlatformSurfaceDesc::fSampleCnt
      */
     kIsMultisampled_GrPlatformRenderTargetFlagBit   = 0x1,
+
     /**
      * Gives permission to Gr to perform the downsample-resolve of a
      * multisampled render target. If this is not set then read pixel
@@ -545,6 +549,13 @@ struct GrPlatformSurfaceDesc {
      * set in fFlags.
      */
     int                             fStencilBits;
+
+    /**
+     * Number of samples per-pixel. Only relevant if kIsRenderTarget is set in
+     * fFlags.
+     */
+    int                             fSampleCnt;
+
     /**
      * Texture object in 3D API. Only relevant if fSurfaceType is kTexture or
      * kTextureRenderTarget.
@@ -600,11 +611,12 @@ struct GrPlatformSurfaceDesc {
  *
  * GrPlatformSurfaceDesc renderTargetTextureDesc;
  * renderTargetTextureDesc.fSurfaceType       = kTextureRenderTarget_GrPlatformSurfaceType;
- * renderTargetTextureDesc.fRenderTargetFlags = (kIsMultisampled_GrPlatformRenderTargetFlagBit | kGrCanResolve_GrPlatformRenderTargetFlagBit);
+ * renderTargetTextureDesc.fRenderTargetFlags = kGrCanResolve_GrPlatformRenderTargetFlagBit;
  * renderTargetTextureDesc.fWidth = W;
  * renderTargetTextureDesc.fHeight = H;
  * renderTargetTextureDesc.fConfig = kRGBA_8888_GrPixelConfig
  * renderTargetTextureDesc.fStencilBits = 8;
+ * renderTargetTextureDesc.fSampleCnt = S;
  * renderTargetTextureDesc.fPlatformTexture = textureID;
  * renderTargetTextureDesc.fPlatformRenderTarget = drawFBOID;
  * renderTargetTextureDesc.fPlatformResolveDestination = readFBOID;
