@@ -45,7 +45,7 @@ static float huge() {
 }
 
 static float make_number() {
-  float v;
+  float v = 0;
   int sel;
 
   if (return_large == true && R(3) == 1) sel = R(6); else  sel = R(4);

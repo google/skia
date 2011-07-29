@@ -202,8 +202,9 @@ void SkStackViewLayout::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 
 	if ((index = dom.findList(node, "orient", "horizontal,vertical")) >= 0)
 		this->setOrient((Orient)index);
-	else
+	else {
 		assert_no_attr(dom, node, "orient");
+        }
 
 	if (dom.findScalars(node, "margin", value, 4))
 	{
@@ -211,23 +212,27 @@ void SkStackViewLayout::onInflate(const SkDOM& dom, const SkDOM::Node* node)
 		margin.set(value[0], value[1], value[2], value[3]);
 		this->setMargin(margin);
 	}
-	else
+	else {
 		assert_no_attr(dom, node, "margin");
+        }
 
 	if (dom.findScalar(node, "spacer", value))
 		this->setSpacer(value[0]);
-	else
+	else {
 		assert_no_attr(dom, node, "spacer");
+        }
 
 	if ((index = dom.findList(node, "pack", "start,center,end")) >= 0)
 		this->setPack((Pack)index);
-	else
+	else {
 		assert_no_attr(dom, node, "pack");
+        }
 
 	if ((index = dom.findList(node, "align", "start,center,end,stretch")) >= 0)
 		this->setAlign((Align)index);
-	else
+	else {
 		assert_no_attr(dom, node, "align");
+        }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
