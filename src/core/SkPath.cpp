@@ -218,10 +218,12 @@ bool SkPath::isRect(SkRect* rect) const {
 
     int corners = 0;
     SkPoint first, last;
-    int firstDirection;
-    int lastDirection;
-    int nextDirection;
-    bool closedOrMoved;
+    first.set(0, 0);
+    last.set(0, 0);
+    int firstDirection = 0;
+    int lastDirection = 0;
+    int nextDirection = 0;
+    bool closedOrMoved = false;
     bool autoClose = false;
     const uint8_t* verbs = fVerbs.begin();
     const uint8_t* verbStop = fVerbs.end();
@@ -269,7 +271,7 @@ bool SkPath::isRect(SkRect* rect) const {
                 // Possible values for corners are 2, 3, and 4.
                 // When corners == 3, nextDirection opposes firstDirection.
                 // Otherwise, nextDirection at corner 2 opposes corner 4.
-                int turn = firstDirection ^ corners - 1;
+                int turn = firstDirection ^ (corners - 1);
                 int directionCycle = 3 == corners ? 0 : nextDirection ^ turn;
                 if ((directionCycle ^ turn) != nextDirection) {
                     return false; // direction didn't follow cycle
