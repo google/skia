@@ -138,8 +138,9 @@ void SkApply::applyValues(int animatorIndex, SkOperand* values, int count,
                 animator->packARGB(&values->fScalar, count, &converted);
                 values = converted.begin();
                 count = converted.count();
-            } else
+            } else {
                 SkASSERT(count == 1);
+            }
         }
 //      SkASSERT(type == SkType_ARGB || type == SkType_String ||info->isSettable());
         if (type == SkType_String || type == SkType_DynamicString)

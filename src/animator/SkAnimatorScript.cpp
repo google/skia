@@ -465,7 +465,7 @@ bool SkAnimatorScript::Unbox(void* m, SkScriptValue* scriptValue) {
             scriptValue->fOperand.fString = SkNEW_ARGS(SkString, (boxedValue->value));
             } break;
         default: {
-            const char* id;
+            const char* id = NULL;
             bool success = maker->findKey(displayable, &id);
             SkASSERT(success);
             scriptValue->fOperand.fString = SkNEW_ARGS(SkString, (id));

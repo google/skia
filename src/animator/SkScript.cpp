@@ -184,6 +184,7 @@ SkScriptEngine::SkScriptEngine(SkOpType returnType) :
     noInitialSuppress.fOperator = kUnassigned;
     noInitialSuppress.fOpStackDepth = 0;
     noInitialSuppress.fSuppress = false;
+    noInitialSuppress.fElse = 0;
     fSuppressStack.push(noInitialSuppress);
     *fOpStack.push() = kParen;
     fTrackArray.appendClear();
@@ -1218,6 +1219,7 @@ flipSuppress:
                 suppress.fSuppress = true;
                 suppress.fOperator = match;
                 suppress.fOpStackDepth = fOpStack.count(); 
+                suppress.fElse = false;
                 fSuppressStack.push(suppress);
             } else {
                 fTypeStack.pop();

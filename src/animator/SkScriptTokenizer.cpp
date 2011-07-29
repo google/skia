@@ -505,8 +505,9 @@ bool SkScriptEngine2::innerScript(const char** scriptPtr, SkScriptValue2* value)
                 }
                 lastPush = false;
                 continue;
-            } else
+            } else {
                 SkASSERT(token_length(script) > 0);
+            }
         }
         if (lastPush != false && fTokenLength > 0) {
             if (ch == '(') {
@@ -1038,8 +1039,9 @@ void SkScriptEngine2::processLogicalOp(Op op) {
                 SkASSERT(fValueStack.top().fType == SkOperand2::kS32); // !!! add error handling, and conversion to int?
                 addTokenValue(fValueStack.top(), kAccumulator);
                 fValueStack.pop();
-            } else
+            } else {
                 SkASSERT(fAccumulatorType == SkOperand2::kS32);
+            }
             // if 'and', write beq goto opcode after end of predicate (after to bool)
             // if 'or', write bne goto to bool
             addToken(op == kLogicalAnd ? kLogicalAndInt : kLogicalOrInt);
@@ -1133,8 +1135,8 @@ bool SkScriptEngine2::processOp() {
     else if (value2.fType == SkOperand2::kString)
         typeOp = (TypeOp) (typeOp + 2);
     SkDynamicMemoryWStream stream;
-    SkOperand2::OpType saveType;
-    SkBool saveOperand;
+    SkOperand2::OpType saveType = SkOperand2::kNoType;
+    SkBool saveOperand = false;
     if (constantOperands) {
         fActiveStream = &stream;
         saveType = fAccumulatorType;
