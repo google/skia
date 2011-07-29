@@ -25,23 +25,28 @@ public:
     // Gr doesn't know how to resolve it.
     enum { kUnresolvableFBOID = 0 };
 
-    struct GLRenderTargetIDs {
+    struct Desc {
         GrGLuint      fRTFBOID;
         GrGLuint      fTexFBOID;
         GrGLuint      fStencilRenderbufferID;
         GrGLuint      fMSColorRenderbufferID;
         bool          fOwnIDs;
-        void reset() { memset(this, 0, sizeof(GLRenderTargetIDs)); }
+        GrPixelConfig fConfig;
+        int           fStencilBits;
+        int           fSampleCnt;
     };
 
-    GrGLRenderTarget(GrGpuGL* gpu,
-                     const GLRenderTargetIDs& ids,
-                     GrGLTexID* texID,
-                     GrPixelConfig config,
-                     GrGLuint stencilBits,
-                     bool isMultisampled,
-                     const GrGLIRect& fViewport,
-                     GrGLTexture* texture);
+    // creates a GrGLRenderTarget associated with a texture
+    GrGLRenderTarget(GrGpuGL*          gpu,
+                     const Desc&       desc,
+                     const GrGLIRect&  viewport,
+                     GrGLTexID*        texID,
+                     GrGLTexture*      texture);
+
+    // creates an independent GrGLRenderTarget
+    GrGLRenderTarget(GrGpuGL*          gpu,
+                     const Desc&       desc,
+                     const GrGLIRect&  viewport);
 
     virtual ~GrGLRenderTarget() { this->release(); }
 
@@ -96,6 +101,8 @@ private:
 
     // non-NULL if this RT was created by Gr with an associated GrGLTexture.
     GrGLTexID* fTexIDObj;
+
+    void init(const Desc& desc, const GrGLIRect& viewport, GrGLTexID* texID);
 
     typedef GrRenderTarget INHERITED;
 };

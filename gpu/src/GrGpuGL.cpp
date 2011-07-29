@@ -597,31 +597,45 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
     bool isRenderTarget = kRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType ||
                           kTextureRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType;
 
-    GrGLRenderTarget::GLRenderTargetIDs rtIDs;
+    GrGLRenderTarget::Desc rtDesc;
     if (isRenderTarget) {
-        rtIDs.fRTFBOID = desc.fPlatformRenderTarget;
+        rtDesc.fRTFBOID = desc.fPlatformRenderTarget;
+#if GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
+        if (desc.fSampleCnt) {
+#else
         if (kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) {
+#endif
             if (kGrCanResolve_GrPlatformRenderTargetFlagBit  & desc.fRenderTargetFlags) {
-                rtIDs.fTexFBOID = desc.fPlatformResolveDestination;
+                rtDesc.fTexFBOID = desc.fPlatformResolveDestination;
             } else {
                 GrAssert(!isTexture); // this should have been filtered by GrContext
-                rtIDs.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
+                rtDesc.fTexFBOID = GrGLRenderTarget::kUnresolvableFBOID;
             }
         } else {
-            rtIDs.fTexFBOID = desc.fPlatformRenderTarget;
+            rtDesc.fTexFBOID = desc.fPlatformRenderTarget;
         }
         // we don't know what the RB ids are without glGets and we don't care
         // since we aren't responsible for deleting them.
-        rtIDs.fStencilRenderbufferID = 0;
-        rtIDs.fMSColorRenderbufferID = 0;
-
-        rtIDs.fOwnIDs = false;
-    } else {
-        rtIDs.reset();
+        rtDesc.fStencilRenderbufferID = 0;
+        rtDesc.fMSColorRenderbufferID = 0;
+#if GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
+        rtDesc.fSampleCnt = desc.fSampleCnt;
+#else
+        if (kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) {
+            // just guess, this code path is only compiled in WK and we aren't
+            // using MSAA anyway. This will be stripped out soon when WK sets
+            // the fSampleCnt in GrPlatformSurfaceDesc.
+            rtDesc.fSampleCnt = 4;
+        } else {
+            rtDesc.fSampleCnt = 0;
+        }
+#endif
+        rtDesc.fStencilBits = desc.fStencilBits;
+        rtDesc.fOwnIDs = false;
     }
 
     if (isTexture) {
-        GrGLTexture::GLTextureDesc texDesc;
+        GrGLTexture::Desc texDesc;
         GrGLenum dontCare;
         if (!canBeTexture(desc.fConfig, &dontCare,
                          &texDesc.fUploadFormat,
@@ -636,14 +650,16 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
 
         texDesc.fFormat             = desc.fConfig;
         texDesc.fOrientation        = GrGLTexture::kBottomUp_Orientation;
-        texDesc.fStencilBits        = desc.fStencilBits;
         texDesc.fTextureID          = desc.fPlatformTexture;
         texDesc.fUploadByteCount    = GrBytesPerPixel(desc.fConfig);
         texDesc.fOwnsID             = false;
 
         params.invalidate(); // rather than do glGets.
-
-        return new GrGLTexture(this, texDesc, rtIDs, params);
+        if (isRenderTarget) {
+            return new GrGLTexture(this, texDesc, rtDesc, params);
+        } else {
+            return new GrGLTexture(this, texDesc, params);
+        }
     } else {
         GrGLIRect viewport;
         viewport.fLeft   = 0;
@@ -651,11 +667,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         viewport.fWidth  = desc.fWidth;
         viewport.fHeight = desc.fHeight;
 
-        bool isMSAA = kIsMultisampled_GrPlatformRenderTargetFlagBit &
-                     desc.fRenderTargetFlags;
-
-        return new GrGLRenderTarget(this, rtIDs, NULL, desc.fConfig,
-                                    desc.fStencilBits, isMSAA, viewport, NULL);
+        return new GrGLRenderTarget(this, rtDesc, viewport);
     }
 }
 
@@ -799,37 +811,34 @@ int get_fbo_stencil_bits(bool arbFBOExtension) {
 
 GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
 
-    GrGLRenderTarget::GLRenderTargetIDs rtIDs;
+    GrGLRenderTarget::Desc rtDesc;
 
-    GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, (GrGLint*)&rtIDs.fRTFBOID);
-    rtIDs.fTexFBOID = rtIDs.fRTFBOID;
-    rtIDs.fMSColorRenderbufferID = 0;
-    rtIDs.fStencilRenderbufferID = 0;
+    GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, (GrGLint*)&rtDesc.fRTFBOID);
+    rtDesc.fTexFBOID = rtDesc.fRTFBOID;
+    rtDesc.fMSColorRenderbufferID = 0;
+    rtDesc.fStencilRenderbufferID = 0;
 
     bool arbFBO = (GR_GL_SUPPORT_DESKTOP && (fGLVersion > 3.0 ||
                    this->hasExtension("GL_ARB_framebuffer_object")));
 
     GrGLIRect viewport;
     viewport.setFromGLViewport();
-    int stencilBits = get_fbo_stencil_bits(arbFBO);
+    rtDesc.fStencilBits = get_fbo_stencil_bits(arbFBO);
 
-    GrPixelConfig config;
-    GrGLint samples;
-    GR_GL_GetIntegerv(GR_GL_SAMPLES, &samples);
+    GR_GL_GetIntegerv(GR_GL_SAMPLES, &rtDesc.fSampleCnt);
     GrGLenum fmat = get_fbo_color_format();
     if (kUnknownGLFormat == fmat) {
-        config = get_implied_color_config(arbFBO);
+        rtDesc.fConfig = get_implied_color_config(arbFBO);
     } else {
-        config = internal_color_format_to_config(fmat);
+        rtDesc.fConfig = internal_color_format_to_config(fmat);
     }
 
     // may have to bind a texture to gets its format
     this->setSpareTextureUnit();
 
-    rtIDs.fOwnIDs = false;
+    rtDesc.fOwnIDs = false;
 
-    return new GrGLRenderTarget(this, rtIDs, NULL, config, stencilBits,
-                                (samples > 0), viewport, NULL);
+    return new GrGLRenderTarget(this, rtDesc, viewport);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -916,29 +925,28 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         GR_GL_CLAMP_TO_EDGE
     };
 
-    GrGLTexture::GLTextureDesc glDesc;
+    GrGLTexture::Desc glTexDesc;
     GrGLenum internalFormat;
 
-    glDesc.fContentWidth  = desc.fWidth;
-    glDesc.fContentHeight = desc.fHeight;
-    glDesc.fAllocWidth    = desc.fWidth;
-    glDesc.fAllocHeight   = desc.fHeight;
-    glDesc.fStencilBits   = 0;
-    glDesc.fFormat        = desc.fFormat;
-    glDesc.fOwnsID        = true;
+    glTexDesc.fContentWidth  = desc.fWidth;
+    glTexDesc.fContentHeight = desc.fHeight;
+    glTexDesc.fAllocWidth    = desc.fWidth;
+    glTexDesc.fAllocHeight   = desc.fHeight;
+    glTexDesc.fFormat        = desc.fFormat;
+    glTexDesc.fOwnsID        = true;
 
     bool renderTarget = 0 != (desc.fFlags & kRenderTarget_GrTextureFlagBit);
     if (!canBeTexture(desc.fFormat,
                       &internalFormat,
-                      &glDesc.fUploadFormat,
-                      &glDesc.fUploadType)) {
+                      &glTexDesc.fUploadFormat,
+                      &glTexDesc.fUploadType)) {
         return return_null_texture();
     }
 
     // We keep GrRenderTargets in GL's normal orientation so that they
     // can be drawn to by the outside world without the client having
     // to render upside down.
-    glDesc.fOrientation = renderTarget ? GrGLTexture::kBottomUp_Orientation :
+    glTexDesc.fOrientation = renderTarget ? GrGLTexture::kBottomUp_Orientation :
                                          GrGLTexture::kTopDown_Orientation;
 
     GrAssert(as_size_t(desc.fAALevel) < GR_ARRAY_COUNT(fAASamples));
@@ -947,13 +955,13 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         GrPrintf("AA RT requested but not supported on this platform.");
     }
 
-    glDesc.fUploadByteCount = GrBytesPerPixel(desc.fFormat);
+    glTexDesc.fUploadByteCount = GrBytesPerPixel(desc.fFormat);
 
     // in case we need a temporary, trimmed copy of the src pixels
     SkAutoSMalloc<128 * 128> tempStorage;
 
     if (!rowBytes) {
-        rowBytes = glDesc.fUploadByteCount * desc.fWidth;
+        rowBytes = glTexDesc.fUploadByteCount * desc.fWidth;
     }
     /*
      * check whether to allocate a temporary buffer for flipping y or
@@ -961,14 +969,14 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
      *  to trim those off here, since GL ES doesn't let us specify
      *  GL_UNPACK_ROW_LENGTH.
      */
-    bool flipY = GrGLTexture::kBottomUp_Orientation == glDesc.fOrientation;
+    bool flipY = GrGLTexture::kBottomUp_Orientation == glTexDesc.fOrientation;
     if (GR_GL_SUPPORT_DESKTOP && !flipY) {
-        if (srcData && rowBytes != desc.fWidth * glDesc.fUploadByteCount) {
+        if (srcData && rowBytes != desc.fWidth * glTexDesc.fUploadByteCount) {
             GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
-                              rowBytes / glDesc.fUploadByteCount));
+                              rowBytes / glTexDesc.fUploadByteCount));
         }
     } else {
-        size_t trimRowBytes = desc.fWidth * glDesc.fUploadByteCount;
+        size_t trimRowBytes = desc.fWidth * glTexDesc.fUploadByteCount;
         if (srcData && (trimRowBytes < rowBytes || flipY)) {
             // copy the data into our new storage, skipping the trailing bytes
             size_t trimSize = desc.fHeight * trimRowBytes;
@@ -994,33 +1002,33 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
 
     if (renderTarget) {
         if (!this->npotRenderTargetSupport()) {
-            glDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
-            glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
+            glTexDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
+            glTexDesc.fAllocHeight = GrNextPow2(desc.fHeight);
         }
 
-        glDesc.fAllocWidth = GrMax(fMinRenderTargetWidth,
-                                   glDesc.fAllocWidth);
-        glDesc.fAllocHeight = GrMax(fMinRenderTargetHeight,
-                                    glDesc.fAllocHeight);
-        if (glDesc.fAllocWidth > fMaxRenderTargetSize ||
-            glDesc.fAllocHeight > fMaxRenderTargetSize) {
+        glTexDesc.fAllocWidth = GrMax(fMinRenderTargetWidth,
+                                   glTexDesc.fAllocWidth);
+        glTexDesc.fAllocHeight = GrMax(fMinRenderTargetHeight,
+                                    glTexDesc.fAllocHeight);
+        if (glTexDesc.fAllocWidth > fMaxRenderTargetSize ||
+            glTexDesc.fAllocHeight > fMaxRenderTargetSize) {
             return return_null_texture();
         }
     } else if (!this->npotTextureSupport()) {
-        glDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
-        glDesc.fAllocHeight = GrNextPow2(desc.fHeight);
-        if (glDesc.fAllocWidth > fMaxTextureSize ||
-            glDesc.fAllocHeight > fMaxTextureSize) {
+        glTexDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
+        glTexDesc.fAllocHeight = GrNextPow2(desc.fHeight);
+        if (glTexDesc.fAllocWidth > fMaxTextureSize ||
+            glTexDesc.fAllocHeight > fMaxTextureSize) {
             return return_null_texture();
         }
     }
 
-    GR_GL(GenTextures(1, &glDesc.fTextureID));
-    if (!glDesc.fTextureID) {
+    GR_GL(GenTextures(1, &glTexDesc.fTextureID));
+    if (!glTexDesc.fTextureID) {
         return return_null_texture();
     }
 
-    GR_GL(BindTexture(GR_GL_TEXTURE_2D, glDesc.fTextureID));
+    GR_GL(BindTexture(GR_GL_TEXTURE_2D, glTexDesc.fTextureID));
     GR_GL(TexParameteri(GR_GL_TEXTURE_2D,
                         GR_GL_TEXTURE_MAG_FILTER,
                         DEFAULT_PARAMS.fFilter));
@@ -1034,41 +1042,41 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                         GR_GL_TEXTURE_WRAP_T,
                         DEFAULT_PARAMS.fWrapT));
 
-    GR_GL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, glDesc.fUploadByteCount));
+    GR_GL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, glTexDesc.fUploadByteCount));
     if (kIndex_8_GrPixelConfig == desc.fFormat &&
         supports8BitPalette()) {
         // ES only supports CompressedTexImage2D, not CompressedTexSubimage2D
-        GrAssert(desc.fWidth == glDesc.fAllocWidth);
-        GrAssert(desc.fHeight == glDesc.fAllocHeight);
-        GrGLsizei imageSize = glDesc.fAllocWidth * glDesc.fAllocHeight +
+        GrAssert(desc.fWidth == glTexDesc.fAllocWidth);
+        GrAssert(desc.fHeight == glTexDesc.fAllocHeight);
+        GrGLsizei imageSize = glTexDesc.fAllocWidth * glTexDesc.fAllocHeight +
                               kGrColorTableSize;
-        GR_GL(CompressedTexImage2D(GR_GL_TEXTURE_2D, 0, glDesc.fUploadFormat,
-                                   glDesc.fAllocWidth, glDesc.fAllocHeight,
+        GR_GL(CompressedTexImage2D(GR_GL_TEXTURE_2D, 0, glTexDesc.fUploadFormat,
+                                   glTexDesc.fAllocWidth, glTexDesc.fAllocHeight,
                                    0, imageSize, srcData));
         GrGLRestoreResetRowLength();
     } else {
-        if (NULL != srcData && (glDesc.fAllocWidth != desc.fWidth ||
-                                glDesc.fAllocHeight != desc.fHeight)) {
+        if (NULL != srcData && (glTexDesc.fAllocWidth != desc.fWidth ||
+                                glTexDesc.fAllocHeight != desc.fHeight)) {
             GR_GL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat,
-                             glDesc.fAllocWidth, glDesc.fAllocHeight,
-                             0, glDesc.fUploadFormat, glDesc.fUploadType, NULL));
+                             glTexDesc.fAllocWidth, glTexDesc.fAllocHeight,
+                             0, glTexDesc.fUploadFormat, glTexDesc.fUploadType, NULL));
             GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0, 0, desc.fWidth,
-                                desc.fHeight, glDesc.fUploadFormat,
-                                glDesc.fUploadType, srcData));
+                                desc.fHeight, glTexDesc.fUploadFormat,
+                                glTexDesc.fUploadType, srcData));
             GrGLRestoreResetRowLength();
 
-            int extraW = glDesc.fAllocWidth  - desc.fWidth;
-            int extraH = glDesc.fAllocHeight - desc.fHeight;
+            int extraW = glTexDesc.fAllocWidth  - desc.fWidth;
+            int extraH = glTexDesc.fAllocHeight - desc.fHeight;
             int maxTexels = extraW * extraH;
             maxTexels = GrMax(extraW * desc.fHeight, maxTexels);
             maxTexels = GrMax(desc.fWidth * extraH, maxTexels);
 
-            SkAutoSMalloc<128*128> texels(glDesc.fUploadByteCount * maxTexels);
+            SkAutoSMalloc<128*128> texels(glTexDesc.fUploadByteCount * maxTexels);
 
             // rowBytes is actual stride between rows in srcData
             // rowDataBytes is the actual amount of non-pad data in a row
             // and the stride used for uploading extraH rows.
-            uint32_t rowDataBytes = desc.fWidth * glDesc.fUploadByteCount;
+            uint32_t rowDataBytes = desc.fWidth * glTexDesc.fUploadByteCount;
             if (extraH) {
                 uint8_t* lastRowStart = (uint8_t*) srcData +
                                         (desc.fHeight - 1) * rowBytes;
@@ -1079,51 +1087,54 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
                     extraRowStart += rowDataBytes;
                 }
                 GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, 0, desc.fHeight, desc.fWidth,
-                                    extraH, glDesc.fUploadFormat, glDesc.fUploadType,
+                                    extraH, glTexDesc.fUploadFormat, glTexDesc.fUploadType,
                                     texels.get()));
             }
             if (extraW) {
-                uint8_t* edgeTexel = (uint8_t*)srcData + rowDataBytes - glDesc.fUploadByteCount;
+                uint8_t* edgeTexel = (uint8_t*)srcData + rowDataBytes - glTexDesc.fUploadByteCount;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
                 for (int j = 0; j < desc.fHeight; ++j) {
                     for (int i = 0; i < extraW; ++i) {
-                        memcpy(extraTexel, edgeTexel, glDesc.fUploadByteCount);
-                        extraTexel += glDesc.fUploadByteCount;
+                        memcpy(extraTexel, edgeTexel, glTexDesc.fUploadByteCount);
+                        extraTexel += glTexDesc.fUploadByteCount;
                     }
                     edgeTexel += rowBytes;
                 }
                 GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, desc.fWidth, 0, extraW,
-                                    desc.fHeight, glDesc.fUploadFormat,
-                                    glDesc.fUploadType, texels.get()));
+                                    desc.fHeight, glTexDesc.fUploadFormat,
+                                    glTexDesc.fUploadType, texels.get()));
             }
             if (extraW && extraH) {
                 uint8_t* cornerTexel = (uint8_t*)srcData + desc.fHeight * rowBytes
-                                       - glDesc.fUploadByteCount;
+                                       - glTexDesc.fUploadByteCount;
                 uint8_t* extraTexel = (uint8_t*)texels.get();
                 for (int i = 0; i < extraW*extraH; ++i) {
-                    memcpy(extraTexel, cornerTexel, glDesc.fUploadByteCount);
-                    extraTexel += glDesc.fUploadByteCount;
+                    memcpy(extraTexel, cornerTexel, glTexDesc.fUploadByteCount);
+                    extraTexel += glTexDesc.fUploadByteCount;
                 }
                 GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, desc.fWidth, desc.fHeight,
-                                    extraW, extraH, glDesc.fUploadFormat,
-                                    glDesc.fUploadType, texels.get()));
+                                    extraW, extraH, glTexDesc.fUploadFormat,
+                                    glTexDesc.fUploadType, texels.get()));
             }
 
         } else {
-            GR_GL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat, glDesc.fAllocWidth,
-                             glDesc.fAllocHeight, 0, glDesc.fUploadFormat,
-                             glDesc.fUploadType, srcData));
+            GR_GL(TexImage2D(GR_GL_TEXTURE_2D, 0, internalFormat, glTexDesc.fAllocWidth,
+                             glTexDesc.fAllocHeight, 0, glTexDesc.fUploadFormat,
+                             glTexDesc.fUploadType, srcData));
             GrGLRestoreResetRowLength();
         }
     }
 
 
-    GrGLRenderTarget::GLRenderTargetIDs rtIDs;
-    rtIDs.fStencilRenderbufferID = 0;
-    rtIDs.fMSColorRenderbufferID = 0;
-    rtIDs.fRTFBOID = 0;
-    rtIDs.fTexFBOID = 0;
-    rtIDs.fOwnIDs = true;
+    GrGLRenderTarget::Desc glRTDesc;
+    glRTDesc.fStencilRenderbufferID = 0;
+    glRTDesc.fMSColorRenderbufferID = 0;
+    glRTDesc.fRTFBOID = 0;
+    glRTDesc.fTexFBOID = 0;
+    glRTDesc.fOwnIDs = true;
+    glRTDesc.fConfig = glTexDesc.fFormat;
+    glRTDesc.fSampleCnt = samples;
+
     GrGLenum msColorRenderbufferFormat = -1;
 
     if (renderTarget) {
@@ -1134,29 +1145,29 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         GrGLenum status;
         GrGLint err;
 
-        GR_GL(GenFramebuffers(1, &rtIDs.fTexFBOID));
-        GrAssert(rtIDs.fTexFBOID);
+        GR_GL(GenFramebuffers(1, &glRTDesc.fTexFBOID));
+        GrAssert(glRTDesc.fTexFBOID);
 
         // If we are using multisampling and we will create two FBOS We render
         // to one and then resolve to the texture bound to the other.
         if (samples > 1 && kNone_MSFBO != fMSFBOType) {
-            GR_GL(GenFramebuffers(1, &rtIDs.fRTFBOID));
-            GrAssert(0 != rtIDs.fRTFBOID);
-            GR_GL(GenRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
-            GrAssert(0 != rtIDs.fMSColorRenderbufferID);
+            GR_GL(GenFramebuffers(1, &glRTDesc.fRTFBOID));
+            GrAssert(0 != glRTDesc.fRTFBOID);
+            GR_GL(GenRenderbuffers(1, &glRTDesc.fMSColorRenderbufferID));
+            GrAssert(0 != glRTDesc.fMSColorRenderbufferID);
             if (!fboInternalFormat(desc.fFormat, &msColorRenderbufferFormat)) {
-                GR_GL(DeleteRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
-                GR_GL(DeleteTextures(1, &glDesc.fTextureID));
-                GR_GL(DeleteFramebuffers(1, &rtIDs.fTexFBOID));
-                GR_GL(DeleteFramebuffers(1, &rtIDs.fRTFBOID));
+                GR_GL(DeleteRenderbuffers(1, &glRTDesc.fMSColorRenderbufferID));
+                GR_GL(DeleteTextures(1, &glTexDesc.fTextureID));
+                GR_GL(DeleteFramebuffers(1, &glRTDesc.fTexFBOID));
+                GR_GL(DeleteFramebuffers(1, &glRTDesc.fRTFBOID));
                 return return_null_texture();
             }
         } else {
-            rtIDs.fRTFBOID = rtIDs.fTexFBOID;
+            glRTDesc.fRTFBOID = glRTDesc.fTexFBOID;
         }
         if (!(kNoStencil_GrTextureFlagBit & desc.fFlags)) {
-            GR_GL(GenRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
-            GrAssert(0 != rtIDs.fStencilRenderbufferID);
+            GR_GL(GenRenderbuffers(1, &glRTDesc.fStencilRenderbufferID));
+            GrAssert(0 != glRTDesc.fStencilRenderbufferID);
         }
 
         // someone suggested that some systems might require
@@ -1167,7 +1178,7 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         err = ~GR_GL_NO_ERROR;
 
         int stencilFmtCnt;
-        if (rtIDs.fStencilRenderbufferID) {
+        if (glRTDesc.fStencilRenderbufferID) {
             stencilFmtCnt = fStencilFormats.count();
         } else {
             stencilFmtCnt = 1; // only 1 attempt when we don't need a stencil
@@ -1179,43 +1190,43 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             // first (painful) stencil creation.
             int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
             
-            if (rtIDs.fStencilRenderbufferID) {
+            if (glRTDesc.fStencilRenderbufferID) {
                 GR_GL(BindRenderbuffer(GR_GL_RENDERBUFFER,
-                                       rtIDs.fStencilRenderbufferID));
+                                       glRTDesc.fStencilRenderbufferID));
                 if (samples > 1) {
                     GR_GL_NO_ERR(RenderbufferStorageMultisample(
                                                 GR_GL_RENDERBUFFER,
                                                 samples,
                                                 fStencilFormats[sIdx].fEnum,
-                                                glDesc.fAllocWidth,
-                                                glDesc.fAllocHeight));
+                                                glTexDesc.fAllocWidth,
+                                                glTexDesc.fAllocHeight));
                 } else {
                     GR_GL_NO_ERR(RenderbufferStorage(GR_GL_RENDERBUFFER,
                                                      fStencilFormats[sIdx].fEnum,
-                                                     glDesc.fAllocWidth,
-                                                     glDesc.fAllocHeight));
+                                                     glTexDesc.fAllocWidth,
+                                                     glTexDesc.fAllocHeight));
                 }
                 err = GrGLGetGLInterface()->fGetError();
                 if (err != GR_GL_NO_ERROR) {
                     continue;
                 }
             }
-            if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
+            if (glRTDesc.fRTFBOID != glRTDesc.fTexFBOID) {
                 GrAssert(samples > 1);
                 GR_GL(BindRenderbuffer(GR_GL_RENDERBUFFER,
-                                       rtIDs.fMSColorRenderbufferID));
+                                       glRTDesc.fMSColorRenderbufferID));
                 GR_GL_NO_ERR(RenderbufferStorageMultisample(
                                                    GR_GL_RENDERBUFFER,
                                                    samples,
                                                    msColorRenderbufferFormat,
-                                                   glDesc.fAllocWidth,
-                                                   glDesc.fAllocHeight));
+                                                   glTexDesc.fAllocWidth,
+                                                   glTexDesc.fAllocHeight));
                 err = GrGLGetGLInterface()->fGetError();
                 if (err != GR_GL_NO_ERROR) {
                     continue;
                 }
             }
-            GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs.fTexFBOID));
+            GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRTDesc.fTexFBOID));
 
 #if GR_COLLECT_STATS
             ++fStats.fRenderTargetChngCnt;
@@ -1223,42 +1234,42 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             GR_GL(FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_TEXTURE_2D,
-                                        glDesc.fTextureID, 0));
-            if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
+                                        glTexDesc.fTextureID, 0));
+            if (glRTDesc.fRTFBOID != glRTDesc.fTexFBOID) {
                 GrGLenum status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
                 if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                     continue;
                 }
-                GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, rtIDs.fRTFBOID));
+                GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, glRTDesc.fRTFBOID));
             #if GR_COLLECT_STATS
                 ++fStats.fRenderTargetChngCnt;
             #endif
                 GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                               GR_GL_COLOR_ATTACHMENT0,
                                               GR_GL_RENDERBUFFER,
-                                              rtIDs.fMSColorRenderbufferID));
+                                              glRTDesc.fMSColorRenderbufferID));
 
             }
-            if (rtIDs.fStencilRenderbufferID) {
+            if (glRTDesc.fStencilRenderbufferID) {
                 // bind the stencil to rt fbo if present, othewise the tex fbo
                 GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                               GR_GL_STENCIL_ATTACHMENT,
                                               GR_GL_RENDERBUFFER,
-                                              rtIDs.fStencilRenderbufferID));
+                                              glRTDesc.fStencilRenderbufferID));
                 // if it is a packed format bind to depth also, otherwise 
                 // we may get an unsupported fbo completeness result
                 if (fStencilFormats[sIdx].fPacked) {
                     GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                   GR_GL_DEPTH_ATTACHMENT,
                                                   GR_GL_RENDERBUFFER,
-                                                  rtIDs.fStencilRenderbufferID));
+                                                  glRTDesc.fStencilRenderbufferID));
                 }
             }
             status = GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
 
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 // undo the depth bind
-                if (rtIDs.fStencilRenderbufferID && 
+                if (glRTDesc.fStencilRenderbufferID && 
                     fStencilFormats[sIdx].fPacked) {
                     GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                                     GR_GL_DEPTH_ATTACHMENT,
@@ -1269,30 +1280,30 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             }
             // we're successful!
             failed = false;
-            if (rtIDs.fStencilRenderbufferID) {
+            if (glRTDesc.fStencilRenderbufferID) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 if (gUNKNOWN_BITCOUNT == fStencilFormats[sIdx].fBits) {
-                    GR_GL_GetIntegerv(GR_GL_STENCIL_BITS, (GrGLint*)&glDesc.fStencilBits);
+                    GR_GL_GetIntegerv(GR_GL_STENCIL_BITS, (GrGLint*)&glRTDesc.fStencilBits);
                 } else {
-                    glDesc.fStencilBits = fStencilFormats[sIdx].fBits;
+                    glRTDesc.fStencilBits = fStencilFormats[sIdx].fBits;
                 }
             }
             break;
         }
         if (failed) {
-            if (rtIDs.fStencilRenderbufferID) {
-                GR_GL(DeleteRenderbuffers(1, &rtIDs.fStencilRenderbufferID));
+            if (glRTDesc.fStencilRenderbufferID) {
+                GR_GL(DeleteRenderbuffers(1, &glRTDesc.fStencilRenderbufferID));
             }
-            if (rtIDs.fMSColorRenderbufferID) {
-                GR_GL(DeleteRenderbuffers(1, &rtIDs.fMSColorRenderbufferID));
+            if (glRTDesc.fMSColorRenderbufferID) {
+                GR_GL(DeleteRenderbuffers(1, &glRTDesc.fMSColorRenderbufferID));
             }
-            if (rtIDs.fRTFBOID != rtIDs.fTexFBOID) {
-                GR_GL(DeleteFramebuffers(1, &rtIDs.fRTFBOID));
+            if (glRTDesc.fRTFBOID != glRTDesc.fTexFBOID) {
+                GR_GL(DeleteFramebuffers(1, &glRTDesc.fRTFBOID));
             }
-            if (rtIDs.fTexFBOID) {
-                GR_GL(DeleteFramebuffers(1, &rtIDs.fTexFBOID));
+            if (glRTDesc.fTexFBOID) {
+                GR_GL(DeleteFramebuffers(1, &glRTDesc.fTexFBOID));
             }
-            GR_GL(DeleteTextures(1, &glDesc.fTextureID));
+            GR_GL(DeleteTextures(1, &glTexDesc.fTextureID));
             return return_null_texture();
         }
     }
@@ -1300,9 +1311,9 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
     GrPrintf("--- new texture [%d] size=(%d %d) bpp=%d\n",
              tex->fTextureID, width, height, tex->fUploadByteCount);
 #endif
-    GrGLTexture* tex = new GrGLTexture(this, glDesc, rtIDs, DEFAULT_PARAMS);
-
-    if (0 != rtIDs.fTexFBOID) {
+    if (renderTarget) {
+        GrGLTexture* tex = new GrGLTexture(this, glTexDesc, 
+                                           glRTDesc, DEFAULT_PARAMS);
         GrRenderTarget* rt = tex->asRenderTarget();
         // We've messed with FBO state but may not have set the correct viewport
         // so just dirty the rendertarget state to force a resend.
@@ -1315,8 +1326,10 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
             this->clearStencil(0, ~0);
             fCurrDrawState.fRenderTarget = rtSave;
         }
+        return tex;
+    } else {
+        return new GrGLTexture(this, glTexDesc, DEFAULT_PARAMS);
     }
-    return tex;
 }
 
 GrVertexBuffer* GrGpuGL::onCreateVertexBuffer(uint32_t size, bool dynamic) {

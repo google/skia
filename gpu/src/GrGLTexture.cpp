@@ -33,14 +33,12 @@ const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
     }
 };
 
-GrGLTexture::GrGLTexture(GrGpuGL* gpu,
-                         const GLTextureDesc& textureDesc,
-                         const GLRenderTargetIDs& rtIDs,
-                         const TexParams& initialTexParams)
-    : INHERITED(gpu,
-                textureDesc.fContentWidth,
-                textureDesc.fContentHeight,
-                textureDesc.fFormat) {
+void GrGLTexture::init(GrGpuGL* gpu,
+                       const Desc& textureDesc,
+                       const GrGLRenderTarget::Desc* rtDesc,
+                       const TexParams& initialTexParams) {
+
+    GrAssert(0 != textureDesc.fTextureID);
 
     fTexParams          = initialTexParams;
     fTexIDObj           = new GrGLTexID(textureDesc.fTextureID,
@@ -56,9 +54,7 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
     fScaleY             = GrIntToScalar(textureDesc.fContentHeight) /
                             textureDesc.fAllocHeight;
 
-    GrAssert(0 != textureDesc.fTextureID);
-
-    if (rtIDs.fTexFBOID) {
+    if (NULL != rtDesc) {
         // we render to the top left
         GrGLIRect vp;
         vp.fLeft   = 0;
@@ -66,12 +62,29 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
         vp.fHeight = textureDesc.fContentHeight;
         vp.fBottom = textureDesc.fAllocHeight - textureDesc.fContentHeight;
 
-        fRenderTarget = new GrGLRenderTarget(gpu, rtIDs, fTexIDObj,
-                                             textureDesc.fFormat,
-                                             textureDesc.fStencilBits,
-                                             rtIDs.fRTFBOID != rtIDs.fTexFBOID,
-                                             vp, this);
+        fRenderTarget = new GrGLRenderTarget(gpu, *rtDesc, vp, fTexIDObj, this);
     }
+}
+
+GrGLTexture::GrGLTexture(GrGpuGL* gpu,
+                         const Desc& textureDesc,
+                         const TexParams& initialTexParams) 
+    : INHERITED(gpu,
+                textureDesc.fContentWidth,
+                textureDesc.fContentHeight,
+                textureDesc.fFormat) {
+    this->init(gpu, textureDesc, NULL, initialTexParams);
+}
+
+GrGLTexture::GrGLTexture(GrGpuGL* gpu,
+                         const Desc& textureDesc,
+                         const GrGLRenderTarget::Desc& rtDesc,
+                         const TexParams& initialTexParams)
+    : INHERITED(gpu,
+                textureDesc.fContentWidth,
+                textureDesc.fContentHeight,
+                textureDesc.fFormat) {
+    this->init(gpu, textureDesc, &rtDesc, initialTexParams);
 }
 
 void GrGLTexture::onRelease() {

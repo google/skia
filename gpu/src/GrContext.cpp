@@ -465,6 +465,7 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
         0 != desc.fRenderTargetFlags) {
             return NULL;
     }
+#if GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
     if (!(kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) &&
         (kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
             return NULL;
@@ -474,6 +475,17 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
         !(kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
         return NULL;
     }
+#else
+    if (desc.fSampleCnt &&
+        (kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
+            return NULL;
+    }
+    if (kTextureRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType &&
+        desc.fSampleCnt &&
+        !(kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
+        return NULL;
+    }
+#endif
     return fGpu->createPlatformSurface(desc);
 }
 
