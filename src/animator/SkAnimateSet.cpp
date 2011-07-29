@@ -78,8 +78,9 @@ void SkSet::onEndElement(SkAnimateMaker& maker) {
         SkASSERT(fValues.getType() == outType);
         if (fFieldInfo->fType == SkType_Array)
             comps = fValues.count();
-        else
+        else {
             SkASSERT(fValues.count() == comps);
+        }
     }
     if (formula.size() > 0) {
         comps = 1;

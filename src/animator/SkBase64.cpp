@@ -74,7 +74,8 @@ handlePad:
                 padTwo = true;
             break;
         } while (byte < 4);
-        int two, three;
+        int two = 0;
+        int three = 0;
         if (writeDestination) {
             int one = (uint8_t) (bytes[0] << 2);
             two = bytes[1];

@@ -89,8 +89,9 @@ bool SkMemberInfo::getArrayValue(const SkDisplayable* displayable, int index, Sk
         if (dispArray->values.count() <= index)
             return false;
         type = dispArray->values.getType();
-    } else
+    } else {
         SkASSERT(0); // incomplete
+    }
     size_t byteSize = GetSize(type);
     memcpy(value, valuePtr + index * byteSize, byteSize);
     return true;
@@ -257,7 +258,7 @@ scriptCommon: {
             SkASSERT(success);
             if (scriptValue.fType == SkType_Displayable) {
                 if (type == SkType_String) {
-                    const char* charPtr;
+                    const char* charPtr = NULL;
                     maker.findKey(scriptValue.fOperand.fDisplayable, &charPtr);
                     scriptValue.fOperand.fString = new SkString(charPtr);
                     scriptValue.fType = SkType_String;
