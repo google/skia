@@ -162,7 +162,7 @@ private:
 };
 
 bool SkImageEncoder_WIC::onEncode(SkWStream* stream
-                                , const SkBitmap& bm
+                                , const SkBitmap& bitmapOrig
                                 , int quality)
 {
     GUID type;
@@ -175,6 +175,18 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
             break;
         default:
             return false;
+    }
+
+    //Convert to 8888 if needed.
+    const SkBitmap* bitmap;
+    SkBitmap bitmapCopy;
+    if (SkBitmap::kARGB_8888_Config == bitmapOrig.config()) {
+        bitmap = &bitmapOrig;
+    } else {
+        if (!bitmapOrig.copyTo(&bitmapCopy, SkBitmap::kARGB_8888_Config)) {
+            return false;
+        }
+        bitmap = &bitmapCopy;
     }
 
     //Initialize COM.
@@ -237,8 +249,8 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     }
     
     //Set the size of the frame.
-    const UINT width = bm.width();
-    const UINT height = bm.height();
+    const UINT width = bitmap->width();
+    const UINT height = bitmap->height();
     if (SUCCEEDED(hr)) {
         hr = piBitmapFrameEncode->SetSize(width, height);
     }
@@ -258,9 +270,9 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     if (SUCCEEDED(hr)) {
         hr = piBitmapFrameEncode->WritePixels(
             height
-            , bm.rowBytes()
-            , bm.rowBytes()*height
-            , reinterpret_cast<BYTE*>(bm.getPixels()));
+            , bitmap->rowBytes()
+            , bitmap->rowBytes()*height
+            , reinterpret_cast<BYTE*>(bitmap->getPixels()));
     }
     
     if (SUCCEEDED(hr)) {
