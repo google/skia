@@ -96,16 +96,22 @@ inline SkFixed SkFixedFraction(SkFixed x)
 /** Converts a SkFract to a SkFixed
 */
 #define SkFractToFixed(x)   ((x) >> 14)
-/** Round a SkFixed to an integer
-*/
-#define SkFixedRound(x)     (((x) + SK_FixedHalf) >> 16)
-#define SkFixedCeil(x)      (((x) + SK_Fixed1 - 1) >> 16)
-#define SkFixedFloor(x)     ((x) >> 16)
+
+#define SkFixedRoundToInt(x)    (((x) + SK_FixedHalf) >> 16)
+#define SkFixedCeilToInt(x)     (((x) + SK_Fixed1 - 1) >> 16)
+#define SkFixedFloorToInt(x)    ((x) >> 16)
+
+#define SkFixedRoundToFixed(x)  (((x) + SK_FixedHalf) & 0xFFFF0000)
+#define SkFixedCeilToFixed(x)   (((x) + SK_Fixed1 - 1) & 0xFFFF0000)
+#define SkFixedFloorToFixed(x)  ((x) & 0xFFFF0000)
+
+// DEPRECATED
+#define SkFixedFloor(x)     SkFixedFloorToInt(x)
+#define SkFixedCeil(x)      SkFixedCeilToInt(x)
+#define SkFixedRound(x)     SkFixedRoundToInt(x)
+
 #define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
-
-// The same as SkIntToFixed(SkFixedFloor(x))
-#define SkFixedFloorToFixed(x)  ((x) & ~0xFFFF)
 
 SkFixed SkFixedMul_portable(SkFixed, SkFixed);
 SkFract SkFractMul_portable(SkFract, SkFract);
