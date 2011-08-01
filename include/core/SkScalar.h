@@ -116,15 +116,15 @@
     /** SkScalarFraction(x) returns the signed fractional part of the argument
     */
     #define SkScalarFraction(x)     sk_float_mod(x, 1.0f)
-    /** Rounds the SkScalar to the nearest integer value
-    */
-    #define SkScalarRound(x)        sk_float_round2int(x)
-    /** Returns the smallest integer that is >= the specified SkScalar
-    */
-    #define SkScalarCeil(x)         sk_float_ceil2int(x)
-    /** Returns the largest integer that is <= the specified SkScalar
-    */
-    #define SkScalarFloor(x)        sk_float_floor2int(x)
+
+    #define SkScalarFloorToScalar(x)    sk_float_floor(x)
+    #define SkScalarCeilToScalar(x)     sk_float_ceil(x)
+    #define SkScalarRoundToScalar(x)    sk_float_round(x)
+
+    #define SkScalarFloorToInt(x)       sk_float_floor2int(x)
+    #define SkScalarCeilToInt(x)        sk_float_ceil2int(x)
+    #define SkScalarRoundToInt(x)       sk_float_round2int(x)
+
     /** Returns the absolute value of the specified SkScalar
     */
     #define SkScalarAbs(x)          sk_float_abs(x)
@@ -230,9 +230,15 @@
         #define SkDoubleToScalar(n) SkDoubleToFixed(n)
     #endif
     #define SkScalarFraction(x)     SkFixedFraction(x)
-    #define SkScalarRound(x)        SkFixedRound(x)
-    #define SkScalarCeil(x)         SkFixedCeil(x)
-    #define SkScalarFloor(x)        SkFixedFloor(x)
+
+    #define SkScalarFloorToScalar(x)    SkFixedFloorToFixed(x)
+    #define SkScalarCeilToScalar(x)     SkFixedCeilToFixed(x)
+    #define SkScalarRoundToScalar(x)    SkFixedRoundToFixed(x)
+
+    #define SkScalarFloorToInt(x)       SkFixedFloorToInt(x)
+    #define SkScalarCeilToInt(x)        SkFixedCeilToInt(x)
+    #define SkScalarRoundToInt(x)       SkFixedRoundToInt(x)
+
     #define SkScalarAbs(x)          SkFixedAbs(x)
     #define SkScalarCopySign(x, y)  SkCopySign32(x, y)
     #define SkScalarClampMax(x, max) SkClampMax(x, max)
@@ -276,6 +282,12 @@
         return 0 == (x & 0xffff);
     }
 #endif
+
+// DEPRECATED : use ToInt or ToScalar variant
+#define SkScalarFloor(x)    SkScalarFloorToInt(x)
+#define SkScalarCeil(x)     SkScalarCeilToInt(x)
+#define SkScalarRound(x)    SkScalarRoundToInt(x)
+
 
 #define SK_ScalarNearlyZero         (SK_Scalar1 / (1 << 12))
 
