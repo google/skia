@@ -290,8 +290,7 @@ bool SkWindow::handleKeyUp(SkKey key)
     return false;
 }
 
-void SkWindow::addMenu(SkOSMenu* menu)
-{
+void SkWindow::addMenu(SkOSMenu* menu) {
 	*fMenus.append() = menu;
 	this->onAddMenu(menu);
 }
@@ -302,20 +301,6 @@ void SkWindow::setTitle(const char title[]) {
     }
     fTitle.set(title);
     this->onSetTitle(title);
-}
-
-bool SkWindow::handleMenu(uint32_t cmd)
-{
-	for (int i = 0; i < fMenus.count(); i++)
-	{
-		SkEvent* evt = fMenus[i]->createEvent(cmd);
-		if (evt)
-		{
-			evt->post(this->getSinkID());
-			return true;
-		}
-	}
-	return false;
 }
 
 //////////////////////////////////////////////////////////////////////
