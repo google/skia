@@ -51,9 +51,9 @@ public:
     bool    handleChar(SkUnichar);
     bool    handleKey(SkKey);
     bool    handleKeyUp(SkKey);
-    bool    handleMenu(uint32_t os_cmd);
 
     void    addMenu(SkOSMenu*);
+    const SkTDArray<SkOSMenu*>* getMenus() { return &fMenus; }
     
     const char* getTitle() const { return fTitle.c_str(); }
     void    setTitle(const char title[]);
@@ -73,7 +73,8 @@ protected:
     virtual bool onHandleChar(SkUnichar);
     virtual bool onHandleKey(SkKey);
     virtual bool onHandleKeyUp(SkKey);
-    virtual void onAddMenu(const SkOSMenu*) {}
+    virtual void onAddMenu(const SkOSMenu*) {};
+    virtual void onUpdateMenu(const SkOSMenu*) {};
     virtual void onSetTitle(const char title[]) {}
 
     // overrides from SkView
