@@ -121,6 +121,8 @@ public:
                                           , ULONG cb
                                           , ULONG* pcbWritten);
 
+    virtual HRESULT STDMETHODCALLTYPE Commit(DWORD);
+
     virtual HRESULT STDMETHODCALLTYPE Stat(STATSTG* pStatstg
                                          , DWORD grfStatFlag);
 };

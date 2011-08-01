@@ -241,6 +241,11 @@ HRESULT STDMETHODCALLTYPE SkWIStream::Write(void const* pv
 }
 
 // IStream Interface
+HRESULT STDMETHODCALLTYPE SkWIStream::Commit(DWORD) {
+    this->fSkWStream->flush();
+    return S_OK;
+}
+
 HRESULT STDMETHODCALLTYPE SkWIStream::Stat(STATSTG* pStatstg
                                          , DWORD grfStatFlag)
 {
