@@ -31,21 +31,21 @@ struct GrGpuStats {
 
     uint32_t fProgChngCnt;//<! Number of program changes (N/A for fixed)
 
-    /*
-        *  Number of times the texture is set in 3D API
-        */
+    /**
+     *  Number of times the texture is set in 3D API
+     */
     uint32_t fTextureChngCnt;
-    /*
-        *  Number of times the render target is set in 3D API
-        */
+    /**
+     *  Number of times the render target is set in 3D API
+     */
     uint32_t fRenderTargetChngCnt;
-    /*
-        *  Number of textures created (includes textures that are rendertargets).
-        */
+    /**
+     *  Number of textures created (includes textures that are rendertargets).
+     */
     uint32_t fTextureCreateCnt;
-    /*
-        *  Number of rendertargets created.
-        */
+    /**
+     *  Number of rendertargets created.
+     */
     uint32_t fRenderTargetCreateCnt;
 };
 
