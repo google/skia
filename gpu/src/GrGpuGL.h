@@ -173,6 +173,11 @@ private:
                       GrGLenum* internalFormat,
                       GrGLenum* format,
                       GrGLenum* type);
+    // helper for onCreateTexture
+    void allocateAndUploadTexData(const GrGLTexture::Desc& desc,
+                                  GrGLenum internalFormat,
+                                  const void* data,
+                                  size_t rowBytes);
 
     bool fboInternalFormat(GrPixelConfig config, GrGLenum* format);
 
