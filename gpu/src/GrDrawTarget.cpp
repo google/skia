@@ -792,6 +792,10 @@ GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageBitfield stageEnableBitfie
     }
     return layout;
 }
+
+void GrDrawTarget::clipWillBeSet(const GrClip& clip) {
+}
+
 void GrDrawTarget::SetRectVertices(const GrRect& rect,
                                    const GrMatrix* matrix, 
                                    const GrRect* srcRects[], 

@@ -16,17 +16,15 @@
  * GrDrawTarget class. The GrDrawTarget makes a subset of the stencil buffer
  * bits available for other uses by external code (clients). Client code can
  * modify these bits. GrDrawTarget will ignore ref, mask, and writemask bits
- * provided by clients that overlap the bits used to implement clipping. The
- * client can use the getUsableStencilBits() function to find out how many
- * client accessible stencil bits are available.
+ * provided by clients that overlap the bits used to implement clipping.
  *
  * When code outside the GrDrawTarget class uses the stencil buffer the contract
  * is as follows:
  *
- * > Normal stencil funcs allow the GrGpu client to modify the client bits of
- *   the stencil buffer outside of the clip.
- * > Special functions allow a test against the clip. These are more limited
- *   than the general stencil functions.
+ * > Normal stencil funcs allow the client to pass / fail regardless of the
+ *   reserved clip bits.
+ * > Additional functions allow a test against the clip along with a limited
+ *   set of tests against the client bits.
  * > Client can assume all client bits are zero initially.
  * > Client must ensure that after all its passes are finished it has only
  *   written to the color buffer in the region inside the clip. Furthermore, it
