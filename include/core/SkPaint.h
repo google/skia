@@ -159,21 +159,24 @@ public:
         return SkToBool(this->getFlags() & kSubpixelText_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kSubpixelText_Flag
-       bit @param subpixelText true to set the subpixelText bit in the paint's flags,
-                               false to clear it.
-    */
+    /**
+     *  Helper for setFlags(), setting or clearing the kSubpixelText_Flag.
+     *  @param subpixelText true to set the subpixelText bit in the paint's
+     *                      flags, false to clear it.
+     */
     void setSubpixelText(bool subpixelText);
 
     bool isLCDRenderText() const {
         return SkToBool(this->getFlags() & kLCDRenderText_Flag);
     }
 
-    /** Helper for setFlags(), setting or clearing the kLCDRenderText_Flag bit
-        @param subpixelRender true to set the subpixelRenderText bit in the paint's flags,
-                              false to clear it.
-    */
-    void setLCDRenderText(bool subpixelRender);
+    /**
+     *  Helper for setFlags(), setting or clearing the kLCDRenderText_Flag.
+     *  Note: antialiasing must also be on for lcd rendering
+     *  @param lcdText true to set the LCDRenderText bit in the paint's flags,
+     *                 false to clear it.
+     */
+    void setLCDRenderText(bool lcdText);
 
     bool isEmbeddedBitmapText() const {
         return SkToBool(this->getFlags() & kEmbeddedBitmapText_Flag);
