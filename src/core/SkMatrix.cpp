@@ -795,8 +795,10 @@ bool SkMatrix::invert(SkMatrix* inv) const {
 
     if (inv) {
         SkMatrix tmp;
-        if (inv == this)
+        if (inv == this) {
             inv = &tmp;
+        }
+        inv->setTypeMask(kUnknown_Mask);
 
         if (isPersp) {
             shift = 61 - shift;
@@ -880,7 +882,6 @@ bool SkMatrix::invert(SkMatrix* inv) const {
         if (inv == &tmp) {
             *(SkMatrix*)this = tmp;
         }
-        inv->setTypeMask(kUnknown_Mask);
     }
     return true;
 }
