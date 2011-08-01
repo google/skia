@@ -567,6 +567,18 @@ struct SK_API SkRect {
     }
 
     /**
+     *  Expand this rectangle by rounding its coordinates "out", choosing the
+     *  floor of top and left, and the ceil of right and bottom. If this rect
+     *  is already on integer coordinates, then it will be unchanged.
+     */
+    void roundOut() {
+        this->set(SkScalarFloorToScalar(fLeft),
+                  SkScalarFloorToScalar(fTop),
+                  SkScalarCeilToScalar(fRight),
+                  SkScalarCeilToScalar(fBottom));
+    }
+
+    /**
      *  Swap top/bottom or left/right if there are flipped (i.e. if width()
      *  or height() would have returned a negative value.) This should be called
      *  if the edges are computed separately, and may have crossed over each
