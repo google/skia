@@ -612,6 +612,7 @@ void GrInOrderDrawBuffer::pushClip() {
     fClipSet = false;
 }
 
-void GrInOrderDrawBuffer::clipWillBeSet(const GrClip& newClip)  {
+void GrInOrderDrawBuffer::clipWillBeSet(const GrClip& newClip) {
+    INHERITED::clipWillBeSet(newClip);
     fClipSet = true;
 }

@@ -578,8 +578,7 @@ void GrGpuGL::resetContext() {
 
     fHWDrawState.fStencilSettings.invalidate();
     fHWStencilClip = false;
-    fClipState.fClipIsDirty = true;
-    fClipState.fClipInStencil = false;
+    fClipInStencil = false;
 
     fHWGeometryState.fIndexBuffer = NULL;
     fHWGeometryState.fVertexBuffer = NULL;
@@ -1761,7 +1760,7 @@ void GrGpuGL::flushStencil() {
 
     // use stencil for clipping if clipping is enabled and the clip
     // has been written into the stencil.
-    bool stencilClip = fClipState.fClipInStencil &&
+    bool stencilClip = fClipInStencil &&
                        (kClip_StateBit & fCurrDrawState.fFlagBits);
     bool stencilChange = fHWStencilClip != stencilClip  ||
                          fHWDrawState.fStencilSettings != *settings ||

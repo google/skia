@@ -100,23 +100,6 @@ public:
     };
 
     /**
-     * The DrawTarget may reserve some of the high bits of the stencil. The draw
-     * target will automatically trim reference and mask values so that the
-     * client doesn't overwrite these bits.
-     * The number of bits available is relative to the currently set render
-      *target.
-     * @return the number of bits usable by the draw target client.
-     */
-    int getUsableStencilBits() const {
-        int bits = fCurrDrawState.fRenderTarget->stencilBits();
-        if (bits) {
-            return bits - 1;
-        } else {
-            return 0;
-        }
-    }
-
-    /**
      * Sets the stencil settings to use for the next draw.
      * Changing the clip has the side-effect of possibly zeroing
      * out the client settable stencil bits. So multipass algorithms
@@ -1234,9 +1217,9 @@ protected:
     virtual void onDrawNonIndexed(GrPrimitiveType type,
                                   int startVertex,
                                   int vertexCount) = 0;
-    // subclass overrides to be notified when clip is set.
-    virtual void clipWillBeSet(const GrClip& clip) = 0;
-
+    // subclass overrides to be notified when clip is set. Must call
+    // INHERITED::clipwillBeSet
+    virtual void clipWillBeSet(const GrClip& clip);
 
     // Helpers for drawRect, protected so subclasses that override drawRect
     // can use them.

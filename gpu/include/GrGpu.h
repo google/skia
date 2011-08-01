@@ -344,16 +344,9 @@ protected:
                                                  // clipping.
     };
 
-    /**
-     * Extensions to GrDrawTarget::StateBits to implement stencil clipping
-     */
-    struct ClipState {
-        bool            fClipInStencil;
-        bool            fClipIsDirty;
-    } fClipState;
-
-    // GrDrawTarget override
-    virtual void clipWillBeSet(const GrClip& newClip);
+    // keep track of whether we are using stencil clipping (as opposed to
+    // scissor).
+    bool    fClipInStencil;
 
     // prepares clip flushes gpu state before a draw
     bool setupClipAndFlushState(GrPrimitiveType type);

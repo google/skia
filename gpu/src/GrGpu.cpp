@@ -257,14 +257,6 @@ const GrVertexBuffer* GrGpu::getUnitSquareVertexBuffer() const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void GrGpu::clipWillBeSet(const GrClip& newClip) {
-    if (newClip != fClip) {
-        fClipState.fClipIsDirty = true;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 // stencil settings to use when clip is in stencil
 const GrStencilSettings GrGpu::gClipStencilSettings = {
     kKeep_StencilOp,             kKeep_StencilOp,
@@ -402,13 +394,12 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
         }
         r = &clipRect;
 
-        fClipState.fClipInStencil = !fClip.isRect() &&
-                                    !fClip.isEmpty() &&
-                                    !bounds.isEmpty();
+        // use the stencil clip if we can't represent the clip as a rectangle.
+        fClipInStencil = !fClip.isRect() && !fClip.isEmpty() && 
+                         !bounds.isEmpty();
 
-        if (fClipState.fClipInStencil &&
-            (fClipState.fClipIsDirty ||
-             fClip != rt.fLastStencilClip)) {
+        if (fClipInStencil &&
+            fClip != rt.fLastStencilClip) {
 
             rt.fLastStencilClip = fClip;
             // we set the current clip to the bounds so that our recursive
@@ -533,12 +524,12 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     }
                 }
             }
+            // restore clip
             fClip = clip;
-            // recusive draws would have disabled this.
-            fClipState.fClipInStencil = true;
+            // recusive draws would have disabled this since they drew with
+            // the clip bounds as clip.
+            fClipInStencil = true;
         }
-
-        fClipState.fClipIsDirty = false;
     }
 
     // Must flush the scissor after graphics state
