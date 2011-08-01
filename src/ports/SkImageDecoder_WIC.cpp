@@ -121,7 +121,7 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     
     //Copy the pixels into the bitmap.
     if (SUCCEEDED(hr)) {
-        bm->lockPixels();
+        SkAutoLockPixels alp(*bm);
         bm->eraseColor(0);
         const int stride = bm->rowBytes();
         hr = piBitmapSourceConverted->CopyPixels(
@@ -130,7 +130,6 @@ bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
             stride * height,
             reinterpret_cast<BYTE *>(bm->getPixels())
         );
-        bm->unlockPixels();
     }
     
     return SUCCEEDED(hr);
@@ -268,6 +267,7 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     
     //Write the pixels into the frame.
     if (SUCCEEDED(hr)) {
+        SkAutoLockPixels alp(*bitmap);
         hr = piBitmapFrameEncode->WritePixels(
             height
             , bitmap->rowBytes()
