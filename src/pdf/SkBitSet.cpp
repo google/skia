@@ -7,7 +7,6 @@
  */
 
 
-#include <string.h>
 #include "SkBitSet.h"
 
 SkBitSet::SkBitSet(int numberOfBits)
