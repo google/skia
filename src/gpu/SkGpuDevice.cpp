@@ -843,6 +843,9 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
     SkScalar radius = info.fIgnoreTransform ? info.fRadius
                                             : matrix.mapRadius(info.fRadius);
     radius = SkMinScalar(radius, MAX_BLUR_RADIUS);
+    if (radius <= 0) {
+        return false;
+    }
     float sigma = SkScalarToFloat(radius) * BLUR_SIGMA_SCALE;
     SkRect srcRect = path.getBounds();
 
@@ -852,14 +855,21 @@ static bool drawWithGPUMaskFilter(GrContext* context, const SkPath& path,
         scaleFactor *= 2;
         sigma *= 0.5f;
     }
-    scaleRect(&srcRect, 1.0f / scaleFactor);
     int halfWidth = static_cast<int>(ceilf(sigma * 3.0f));
     int kernelWidth = halfWidth * 2 + 1;
 
-    SkIRect srcIRect;
-    srcRect.roundOut(&srcIRect);
-    srcRect.set(srcIRect);
+    float invScale = 1.0f / scaleFactor;
+    scaleRect(&srcRect, invScale);
+    srcRect.roundOut();
     srcRect.inset(-halfWidth, -halfWidth);
+
+    SkRect clipBounds;
+    clipBounds.set(clip.getBounds());
+    scaleRect(&clipBounds, invScale);
+    clipBounds.roundOut();
+    clipBounds.inset(-halfWidth, -halfWidth);
+
+    srcRect.intersect(clipBounds);
 
     scaleRect(&srcRect, scaleFactor);
     SkRect finalRect = srcRect;
