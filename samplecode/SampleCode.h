@@ -12,7 +12,7 @@
 #include "SkEvent.h"
 #include "SkKey.h"
 #include "SkView.h"
-
+class SkOSMenu;
 class GrContext;
 
 class SampleCode {
@@ -69,11 +69,17 @@ public:
     static bool IsSampleView(SkView*);
     static bool SetRepeatDraw(SkView*, int count);
     static bool SetUsePipe(SkView*, bool);
+    
+    //call this to request menu items from a SampleView. A SampleView can 
+    //overwrite this method to add new items of various types to the menu and 
+    //change its title. The events attached to any new menu items must be 
+    //handled in the onEvent method. See SkOSMenu.h for helper functions.
+    virtual void requestMenus(SkOSMenu* menu) {}
 
 protected:
     virtual void onDrawBackground(SkCanvas*);
     virtual void onDrawContent(SkCanvas*) = 0;
-
+    
     // overrides
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);

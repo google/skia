@@ -18,6 +18,7 @@
 #include "SkTDArray.h"
 #include "SkTouchGesture.h"
 #include "SkWindow.h"
+#include "SkOSMenu.h"
 
 class GrContext;
 class GrRenderTarget;
@@ -29,9 +30,9 @@ class SkTypeface;
 class SkData;
 
 enum SkTriState {
-    kFalse_SkTriState,
-    kTrue_SkTriState,
-    kUnknown_SkTriState,
+    kFalse_SkTriState = SkOSMenu::kOffState,
+    kTrue_SkTriState = SkOSMenu::kOnState,
+    kUnknown_SkTriState = SkOSMenu::kMixedState,
 };
 
 class SampleWindow : public SkOSWindow {
@@ -83,9 +84,11 @@ public:
 
     virtual void draw(SkCanvas* canvas);
 
+    void setDeviceType(DeviceType type);
     void toggleRendering();
     void toggleSlideshow();
     void toggleFPS();
+    void togglePipe();
 
     GrContext* getGrContext() const { return fDevManager->getGrContext(); }
 
@@ -167,6 +170,11 @@ private:
     int fScrollTestX, fScrollTestY;
     SkScalar fZoomCenterX, fZoomCenterY;
 
+    //Stores global settings
+    SkOSMenu fAppMenu;
+    //Stores slide specific settings
+    SkOSMenu fSlideMenu;
+    
     void loadView(SkView*);
     void updateTitle();
 
