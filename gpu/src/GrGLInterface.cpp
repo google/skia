@@ -286,6 +286,12 @@ bool GrGLInterface::validate(GrEngine engine) const {
                 return false;
             }
         }
+        if (major >= 2 ||
+            has_gl_extension_from_string("GL_ARB_draw_buffers", ext)) {
+            if (NULL == fDrawBuffers) {
+                return false;
+            }
+        }
         if (1 < major || (1 == major && 4 <= minor) ||
             has_gl_extension_from_string("GL_EXT_blend_color", ext)) {
             if (NULL == fBlendColor) {
@@ -303,10 +309,11 @@ bool GrGLInterface::validate(GrEngine engine) const {
         }
     }
 
-    // part of desktop GL
+    // part of desktop GL, but not ES
     if (kDesktop_GrGLBinding == fBindingsExported &&
         (NULL == fLineWidth ||
-         NULL == fGetTexLevelParameteriv)) {
+         NULL == fGetTexLevelParameteriv ||
+         NULL == fDrawBuffer)) {
         return false;
     }
 

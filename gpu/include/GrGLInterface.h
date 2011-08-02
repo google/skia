@@ -111,6 +111,8 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDisableClientStateProc)(GrGLenum array);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDisableVertexAttribArrayProc)(GrGLuint index);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDrawArraysProc)(GrGLenum mode, GrGLint first, GrGLsizei count);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDrawBufferProc)(GrGLenum mode);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDrawBuffersProc)(GrGLsizei n, const GrGLenum* bufs);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDrawElementsProc)(GrGLenum mode, GrGLsizei count, GrGLenum type, const GrGLvoid* indices);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEnableProc)(GrGLenum cap);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEnableClientStateProc)(GrGLenum cap);
@@ -264,6 +266,8 @@ struct GrGLInterface {
     GrGLDisableClientStateProc fDisableClientState;
     GrGLDisableVertexAttribArrayProc fDisableVertexAttribArray;
     GrGLDrawArraysProc fDrawArrays;
+    GrGLDrawBufferProc fDrawBuffer;
+    GrGLDrawBuffersProc fDrawBuffers;
     GrGLDrawElementsProc fDrawElements;
     GrGLEnableProc fEnable;
     GrGLEnableClientStateProc fEnableClientState;
