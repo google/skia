@@ -4,26 +4,30 @@
 #include "SkApplication.h"
 #include "SkCGUtils.h"
 #include "SkData.h"
+#include "SkOSMenu.h"
 @implementation SkUIDetailViewController
-@synthesize fNavigationBar, fPrintButton, fCycleButton, fPopOverController;
+@synthesize fPrintButton, fOptionsButton, fPopOverController, fOptionsController;
 
 //Overwritten from UIViewController
 - (void)viewDidLoad {
     [super viewDidLoad];
 
     fSkUIView = (SkUIView*)self.view;
+    
     fWind = (SampleWindow*)fSkUIView.fWind;
-    fSkUIView.fTitleItem = fNavigationBar.topItem;
-
-    [NSTimer scheduledTimerWithTimeInterval:0.001 target:self
-                                   selector:@selector(redraw) userInfo:nil
-                                    repeats:YES];
+    fSkUIView.fTitleItem = self.navigationItem;
+    
     [self createButtons];
+    
+    fOptionsController = [[SkOptionsTableViewController alloc] 
+                          initWithStyle:UITableViewStyleGrouped];
+    fSkUIView.fOptionsDelegate = fOptionsController;
+    [fOptionsController registerMenus:fWind->getMenus()];
 }
 
 - (void)createButtons {
     UIToolbar* toolbar = [[UIToolbar alloc]
-                          initWithFrame:CGRectMake(0, 0, 150, 45)];
+                          initWithFrame:CGRectMake(0, 0, 125, 45)];
     [toolbar setBarStyle: UIBarStyleBlackOpaque];
     
     UIBarButtonItem* flexibleSpace = [[UIBarButtonItem alloc]
@@ -31,12 +35,11 @@
                                        target:nil
                                        action:nil];
     
-    fCycleButton = [[UIBarButtonItem alloc]
-                    initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
+    fOptionsButton = [[UIBarButtonItem alloc]
+                    initWithTitle:@"Options" 
+                    style:UIBarButtonItemStylePlain
                     target:self
-                    action:@selector(cycleDeviceType)];
-    fCycleButton.style = UIBarButtonItemStylePlain;
-    
+                    action:@selector(presentOptions)];
     UIBarButtonItem* fixedSpace = [[UIBarButtonItem alloc]
                                     initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace
                                     target:nil
@@ -49,7 +52,7 @@
                     action:@selector(printContent)];
     fPrintButton.style = UIBarButtonItemStylePlain;
 
-    [toolbar setItems:[NSArray arrayWithObjects:flexibleSpace, fCycleButton, fixedSpace, fPrintButton, nil]
+    [toolbar setItems:[NSArray arrayWithObjects:flexibleSpace, fOptionsButton, fixedSpace, fPrintButton, nil]
              animated:NO];
     
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc]
@@ -64,19 +67,15 @@
 }
 
 - (void)dealloc {
-    [fNavigationBar release];
     [fPrintButton release];
-    [fCycleButton release];
+    [fOptionsButton release];
     [fPopOverController release];
+    [fOptionsController release];
     application_term();
     [super dealloc];
 }
 
 //Instance Methods
-- (void)redraw {
-    [self.view setNeedsDisplay];
-}
-
 - (void)populateRoot:(SkUIRootViewController*)rootVC {
     for (int i = 0; i < fWind->sampleCount(); ++i) {
         [rootVC addItem:[NSString stringWithUTF8String:fWind->getSampleTitle(i).c_str()]];
@@ -85,11 +84,6 @@
 
 - (void)goToItem:(NSUInteger)index {
     fWind->goToSample(index);
-}
-
-//UI actions
-- (IBAction)usePipe:(id)sender {
-    //fWind->togglePipe();
 }
 
 - (void)printContent {
@@ -123,57 +117,42 @@
     }
 }
 
-- (IBAction)enterServerIP:(id)sender {
-    SkAlertPrompt *prompt = [[SkAlertPrompt alloc] initWithTitle:@"Enter Server IP:"
-                                                         message:@"\n"
-                                                        delegate:self
-                                               cancelButtonTitle:@"Cancel"
-                                               otherButtonTitles:@"Enter", nil];
-    // show the dialog box
-    [prompt show];
-    [prompt release];
-}
-
-- (void)cycleDeviceType {
-    fWind->toggleRendering();
-}
-
-/*
-- (void)presentActions {
-    if (!fPopOverController) {
-        SkOptionsTableViewController* controller = [[SkOptionsTableViewController alloc] 
-                                                    initWithStyle:UITableViewStyleGrouped];
-        fPopOverController = [[UIPopoverController alloc] initWithContentViewController:controller];
-        fPopOverController.popoverContentSize = CGSizeMake(500, 400);
-        [controller release];
-    }
-    
-    if (fPopOverController.isPopoverVisible)
-        [fPopOverController dismissPopoverAnimated:YES];
-    else
-        [fPopOverController presentPopoverFromBarButtonItem:fPrintButton 
-                                   permittedArrowDirections:UIPopoverArrowDirectionAny 
-                                                   animated:YES];
-
-}
- */
-
-// manage popup
-- (void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex != [alertView cancelButtonIndex])
-    {
-        NSString *entered = [(SkAlertPrompt*)alertView enteredText];
-        //fWind->setServerIP([entered UTF8String]);
+- (void)presentOptions {
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        if (nil == fPopOverController) {
+            UINavigationController* navigation = [[UINavigationController alloc] 
+                                                  initWithRootViewController:fOptionsController];
+            navigation.navigationBar.topItem.title = @"Options";
+            fPopOverController = [[UIPopoverController alloc] initWithContentViewController:navigation];
+            [navigation release];
+        }
+        
+        if (fPopOverController.isPopoverVisible)
+            [fPopOverController dismissPopoverAnimated:YES];
+        else
+            [fPopOverController presentPopoverFromBarButtonItem:fOptionsButton 
+                                       permittedArrowDirections:UIPopoverArrowDirectionAny 
+                                                       animated:YES];
+        
+    } else {
+        UIBarButtonItem* backButton = [[UIBarButtonItem alloc] initWithTitle:@"Back"
+                                                                       style:UIBarButtonItemStyleBordered
+                                                                      target:nil
+                                                                      action:nil];
+        self.navigationItem.backBarButtonItem = backButton;
+        [backButton release];
+        [self.navigationController pushViewController:fOptionsController animated:YES];
+        self.navigationController.navigationBar.topItem.title = @"Options";
     }
 }
+ 
 //Popover Management
 - (void)showRootPopoverButtonItem:(UIBarButtonItem *)barButtonItem {
-    [fNavigationBar.topItem setLeftBarButtonItem:barButtonItem animated:NO];
+    [self.navigationItem setLeftBarButtonItem:barButtonItem animated:NO];
 }
 
 - (void)invalidateRootPopoverButtonItem:(UIBarButtonItem *)barButtonItem {
-    [fNavigationBar.topItem setLeftBarButtonItem:nil animated:NO];
+    [self.navigationItem setLeftBarButtonItem:nil animated:NO];
 }
 
 @end

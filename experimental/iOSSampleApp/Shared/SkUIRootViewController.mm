@@ -7,6 +7,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.contentSizeForViewInPopover = CGSizeMake(200, self.view.bounds.size.height);
+    fSamples = [[NSMutableArray alloc] init];
 }
 
 - (void)viewDidUnload {
@@ -54,10 +55,6 @@
 //Instance methods
 - (void)addItem:(NSString*)anItem {
     [fSamples addObject:anItem];
-}
-
-- (void)initSamples {
-    fSamples = [[NSMutableArray alloc] init];
 }
 
 @end

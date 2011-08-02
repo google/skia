@@ -5,7 +5,7 @@
 #define SKGL_CONFIG         kEAGLColorFormatRGB565
 //#define SKGL_CONFIG         kEAGLColorFormatRGBA8
 
-#define FORCE_REDRAW
+//#define FORCE_REDRAW
 
 //#define USE_GL_1
 #define USE_GL_2
@@ -84,7 +84,7 @@ void SkiOSDeviceManager::publishCanvas(SampleWindow::DeviceType dType,
 ////////////////////////////////////////////////////////////////////////////////
 @implementation SkUIView
 
-@synthesize fWind, fTitle, fTitleItem, fRasterLayer, fGLLayer;
+@synthesize fWind, fTitle, fTitleItem, fRasterLayer, fGLLayer, fOptionsDelegate;
 
 #include "SkApplication.h"
 #include "SkEvent.h"
@@ -171,7 +171,6 @@ static FPSState gFPS;
 - (id)initWithMyDefaults {
     fRedrawRequestPending = false;
     fFPSState = new FPSState;
-    
 #ifdef USE_GL_1
     fGL.fContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
 #else
@@ -197,7 +196,7 @@ static FPSState gFPS;
     glBindRenderbuffer(GL_RENDERBUFFER, fGL.fStencilbuffer);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, fGL.fStencilbuffer);
 
-    fGLLayer = [CAEAGLLayer layer];
+    self.fGLLayer = [CAEAGLLayer layer];
     fGLLayer.bounds = self.bounds;
     fGLLayer.anchorPoint = CGPointMake(0, 0);
     fGLLayer.opaque = TRUE;
@@ -209,7 +208,7 @@ static FPSState gFPS;
                                    kEAGLDrawablePropertyColorFormat,
                                    nil];
     
-    fRasterLayer = [CALayer layer];
+    self.fRasterLayer = [CALayer layer];
     fRasterLayer.anchorPoint = CGPointMake(0, 0);
     fRasterLayer.opaque = TRUE;
     [self.layer addSublayer:fRasterLayer];
@@ -228,9 +227,6 @@ static FPSState gFPS;
     fWind = new SampleWindow(self, NULL, NULL, fDevManager);
     application_init();
     fWind->resize(self.frame.size.width, self.frame.size.height, SKWIND_CONFIG);
-    fMatrix.reset();
-    fZoomAround = false;
-
     return self;
 }
 
@@ -252,8 +248,9 @@ static FPSState gFPS;
     delete fWind;
     delete fDevManager;
     delete fFPSState;
-    [fRasterLayer release];
-    [fGLLayer release];
+    self.fRasterLayer = nil;
+    self.fGLLayer = nil;
+    [fGL.fContext release];
     application_term();
     [fTitleItem release];
     [super dealloc];
@@ -420,6 +417,14 @@ static FPSState gFPS;
     return false;
 }
 
+#include "SkOSMenu.h"
+- (void)onAddMenu:(const SkOSMenu*)menu {
+    [self.fOptionsDelegate view:self didAddMenu:menu];
+}
+- (void)onUpdateMenu:(const SkOSMenu*)menu {
+    [self.fOptionsDelegate view:self didUpdateMenu:menu];
+}
+
 - (void)postInvalWithRect:(const SkIRect*)r {
     if (!fRedrawRequestPending) {
         fRedrawRequestPending = true;
@@ -434,6 +439,7 @@ static FPSState gFPS;
         }
         else {
             [self performSelector:@selector(drawInRaster) withObject:nil afterDelay:0];
+            [self setNeedsDisplay];
         }
     }
 }

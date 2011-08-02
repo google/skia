@@ -5,7 +5,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [fRoot initSamples];
     [fDetail populateRoot:fRoot];
     [self pushViewController:fDetail animated:NO];
 }

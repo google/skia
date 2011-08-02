@@ -19,13 +19,18 @@
 class SkOSWindow;
 class SkEvent;
 struct FPSState;
-@interface SkUIView : UIView <UIAccelerometerDelegate> {
+@class SkUIView;
+
+@protocol SkUIViewOptionsDelegate <NSObject>
+@optional
+// Called when the view needs to handle adding an SkOSMenu
+- (void) view:(SkUIView*)view didAddMenu:(const SkOSMenu*)menu;
+- (void) view:(SkUIView*)view didUpdateMenu:(const SkOSMenu*)menu;
+@end
+
+@interface SkUIView : UIView  {
     BOOL fRedrawRequestPending;
-    SkMatrix    fMatrix;
-
-    float       fZoomAroundX, fZoomAroundY;
-    bool        fZoomAround;
-
+    
     struct {
         EAGLContext*    fContext;
         GLuint          fRenderbuffer;
@@ -35,26 +40,30 @@ struct FPSState;
         GLint           fHeight;
     } fGL;
     
-    FPSState* fFPSState;
     NSString* fTitle;
     UINavigationItem* fTitleItem;
-    SkOSWindow* fWind;
     CALayer* fRasterLayer;
     CAEAGLLayer* fGLLayer;
     
+    FPSState* fFPSState;
+    SkOSWindow* fWind;
     SkiOSDeviceManager* fDevManager;
+    
+    id<SkUIViewOptionsDelegate> fOptionsDelegate;
 }
 
-@property (nonatomic, assign) SkOSWindow *fWind;
+@property (nonatomic, readonly) SkOSWindow *fWind;
 @property (nonatomic, retain) UINavigationItem* fTitleItem;
 @property (nonatomic, copy) NSString* fTitle;
 @property (nonatomic, retain) CALayer* fRasterLayer;
 @property (nonatomic, retain) CAEAGLLayer* fGLLayer;
+@property (nonatomic, assign) id<SkUIViewOptionsDelegate> fOptionsDelegate;
 
 - (void)forceRedraw;
 
 - (void)setSkTitle:(const char*)title;
+- (void)onAddMenu:(const SkOSMenu*)menu;
+- (void)onUpdateMenu:(const SkOSMenu*)menu;
 - (void)postInvalWithRect:(const SkIRect*)rectOrNil;
 - (BOOL)onHandleEvent:(const SkEvent&)event;
 @end
-
