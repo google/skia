@@ -39,6 +39,11 @@ struct DiffRecord {
         : fFilename (filename)
         , fBasePath (basePath)
         , fComparisonPath (comparisonPath)
+        , fBaseBitmap (new SkBitmap ())
+        , fComparisonBitmap (new SkBitmap ())
+        , fDifferenceBitmap (new SkBitmap ())
+        , fBaseHeight (0)
+        , fBaseWidth (0)
         , fFractionDifference (0)
         , fWeightedFraction (0)
         , fAverageMismatchR (0)
@@ -56,9 +61,12 @@ struct DiffRecord {
     SkString fBasePath;
     SkString fComparisonPath;
 
-    SkBitmap fBaseBitmap;
-    SkBitmap fComparisonBitmap;
-    SkBitmap fDifferenceBitmap;
+    SkBitmap* fBaseBitmap;
+    SkBitmap* fComparisonBitmap;
+    SkBitmap* fDifferenceBitmap;
+
+    int fBaseHeight;
+    int fBaseWidth;
 
     /// Arbitrary floating-point metric to be used to sort images from most
     /// to least different from baseline; values of 0 will be omitted from the
@@ -208,7 +216,7 @@ static bool get_bitmaps (DiffRecord* diffRecord) {
     SkAutoTDelete<SkImageDecoder> ad(codec);
 
     baseStream.rewind();
-    if (!codec->decode(&baseStream, &diffRecord->fBaseBitmap,
+    if (!codec->decode(&baseStream, diffRecord->fBaseBitmap,
                        SkBitmap::kARGB_8888_Config,
                        SkImageDecoder::kDecodePixels_Mode)) {
         SkDebugf("ERROR: codec failed for <%s>\n",
@@ -216,7 +224,10 @@ static bool get_bitmaps (DiffRecord* diffRecord) {
         return false;
     }
 
-    if (!codec->decode(&compareStream, &diffRecord->fComparisonBitmap,
+    diffRecord->fBaseWidth = diffRecord->fBaseBitmap->width();
+    diffRecord->fBaseHeight = diffRecord->fBaseBitmap->height();
+
+    if (!codec->decode(&compareStream, diffRecord->fComparisonBitmap,
                        SkBitmap::kARGB_8888_Config,
                        SkImageDecoder::kDecodePixels_Mode)) {
         SkDebugf("ERROR: codec failed for <%s>\n",
@@ -238,9 +249,9 @@ static void force_all_opaque(const SkBitmap& bitmap) {
 }
 
 // from gm
-static bool write_bitmap(const SkString& path, const SkBitmap& bitmap) {
+static bool write_bitmap(const SkString& path, const SkBitmap* bitmap) {
     SkBitmap copy;
-    bitmap.copyTo(&copy, SkBitmap::kARGB_8888_Config);
+    bitmap->copyTo(&copy, SkBitmap::kARGB_8888_Config);
     force_all_opaque(copy);
     return SkImageEncoder::EncodeFile(path.c_str(), copy,
                                       SkImageEncoder::kPNG_Type, 100);
@@ -279,10 +290,10 @@ static inline bool colors_match_thresholded(SkPMColor c0, SkPMColor c1,
 static void compute_diff(DiffRecord* dr,
                          DiffMetricProc diffFunction,
                          const int colorThreshold) {
-    SkAutoLockPixels alp(dr->fDifferenceBitmap);
+    SkAutoLockPixels alp(*dr->fDifferenceBitmap);
 
-    const int w = dr->fComparisonBitmap.width();
-    const int h = dr->fComparisonBitmap.height();
+    const int w = dr->fComparisonBitmap->width();
+    const int h = dr->fComparisonBitmap->height();
     int mismatchedPixels = 0;
     int totalMismatchR = 0;
     int totalMismatchG = 0;
@@ -292,8 +303,8 @@ static void compute_diff(DiffRecord* dr,
     dr->fWeightedFraction = 0;
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
-            SkPMColor c0 = *dr->fBaseBitmap.getAddr32(x, y);
-            SkPMColor c1 = *dr->fComparisonBitmap.getAddr32(x, y);
+            SkPMColor c0 = *dr->fBaseBitmap->getAddr32(x, y);
+            SkPMColor c1 = *dr->fComparisonBitmap->getAddr32(x, y);
             SkPMColor trueDifference = compute_diff_pmcolor(c0, c1);
             SkPMColor outputDifference = diffFunction(c0, c1);
             uint32_t thisR = SkGetPackedR32(trueDifference);
@@ -316,9 +327,9 @@ static void compute_diff(DiffRecord* dr,
             }
             if (!colors_match_thresholded(c0, c1, colorThreshold)) {
                 mismatchedPixels++;
-                *dr->fDifferenceBitmap.getAddr32(x, y) = outputDifference;
+                *dr->fDifferenceBitmap->getAddr32(x, y) = outputDifference;
             } else {
-                *dr->fDifferenceBitmap.getAddr32(x, y) = 0;
+                *dr->fDifferenceBitmap->getAddr32(x, y) = 0;
             }
         }
     }
@@ -357,21 +368,31 @@ static SkString chrome_expected_name_to_short (const SkString& expected) {
     return shortName;
 }
 
+static void release_bitmaps(DiffRecord* drp) {
+    delete drp->fBaseBitmap;
+    drp->fBaseBitmap = NULL;
+    delete drp->fComparisonBitmap;
+    drp->fComparisonBitmap = NULL;
+    delete drp->fDifferenceBitmap;
+    drp->fDifferenceBitmap = NULL;
+}
+
 
 static void create_and_write_diff_image(DiffRecord* drp,
                                         DiffMetricProc dmp,
                                         const int colorThreshold,
                                         const SkString& outputDir,
                                         const SkString& filename) {
-    const int w = drp->fBaseBitmap.width();
-    const int h = drp->fBaseBitmap.height();
-    drp->fDifferenceBitmap.setConfig(SkBitmap::kARGB_8888_Config, w, h);
-    drp->fDifferenceBitmap.allocPixels();
+    const int w = drp->fBaseWidth;
+    const int h = drp->fBaseHeight;
+    drp->fDifferenceBitmap->setConfig(SkBitmap::kARGB_8888_Config, w, h);
+    drp->fDifferenceBitmap->allocPixels();
     compute_diff(drp, dmp, colorThreshold);
 
     SkString outPath (outputDir);
     outPath.append(filename_to_diff_filename(filename));
     write_bitmap(outPath, drp->fDifferenceBitmap);
+    release_bitmaps(drp);
 }
 
 /// Creates difference images, returns the number that have a 0 metric.
@@ -470,15 +491,15 @@ static void analyze_chromium(DiffMetricProc dmp,
 
 /// Make layout more consistent by scaling image to 240 height, 360 width,
 /// or natural size, whichever is smallest.
-static int compute_image_height (const SkBitmap& bmp) {
+static int compute_image_height (int height, int width) {
     int retval = 240;
-    if (bmp.height() < retval) {
-        retval = bmp.height();
+    if (height < retval) {
+        retval = height;
     }
-    float scale = (float) retval / bmp.height();
-    if (bmp.width() * scale > 360) {
-        scale = (float) 360 / bmp.width();
-        retval = bmp.height() * scale;
+    float scale = (float) retval / height;
+    if (width * scale > 360) {
+        scale = (float) 360 / width;
+        retval = height * scale;
     }
     return retval;
 }
@@ -521,13 +542,13 @@ static void print_pixel_count (SkFILEWStream* stream,
                                const DiffRecord& diff) {
     stream->writeText("<br>(");
     stream->writeDecAsText(diff.fFractionDifference *
-                           diff.fBaseBitmap.width() *
-                           diff.fBaseBitmap.height());
+                           diff.fBaseWidth *
+                           diff.fBaseHeight);
     stream->writeText(" pixels)");
 /*
     stream->writeDecAsText(diff.fWeightedFraction *
-                           diff.fBaseBitmap.width() *
-                           diff.fBaseBitmap.height());
+                           diff.fBaseWidth *
+                           diff.fBaseHeight);
     stream->writeText(" weighted pixels)");
 */
 }
@@ -610,7 +631,7 @@ static void print_diff_page (const int matchCount,
         if (!diff->fComparisonPath.startsWith("/")) {
             diff->fComparisonPath.prepend(relativePath);
         }
-        int height = compute_image_height(diff->fBaseBitmap);
+        int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
         outputStream.writeText("<tr>\n");
         print_label_cell(&outputStream, *diff);
         print_image_cell(&outputStream, diff->fBasePath, height);
