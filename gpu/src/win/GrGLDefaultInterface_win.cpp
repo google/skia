@@ -57,6 +57,7 @@ void GrGLSetDefaultGLInterface() {
             gDefaultInterface.fDisable = glDisable;
             gDefaultInterface.fDisableClientState = glDisableClientState;
             gDefaultInterface.fDrawArrays = glDrawArrays;
+            gDefaultInterface.fDrawBuffer = glDrawBuffer;
             gDefaultInterface.fDrawElements = glDrawElements;
             gDefaultInterface.fEnable = glEnable;
             gDefaultInterface.fEnableClientState = glEnableClientState;
@@ -102,6 +103,7 @@ void GrGLSetDefaultGLInterface() {
             GR_GL_GET_PROC(DeleteProgram);
             GR_GL_GET_PROC(DeleteShader);
             GR_GL_GET_PROC(DisableVertexAttribArray);
+            GR_GL_GET_PROC(DrawBuffers);
             GR_GL_GET_PROC(EnableVertexAttribArray);
             GR_GL_GET_PROC(GenBuffers);
             GR_GL_GET_PROC(GetBufferParameteriv);
