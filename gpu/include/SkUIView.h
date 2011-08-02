@@ -44,15 +44,6 @@ class SkEvent;
         GLint           fHeight;
     } fGL;
     
-    enum Backend {
-        kGL_Backend,
-        kRaster_Backend,
-    };
-
-    // these are visible to DetailViewController
-    Backend fBackend;
-    bool    fComplexClip;
-    
     UINavigationItem* fTitle;
     SkOSWindow* fWind;
 }

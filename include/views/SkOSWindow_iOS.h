@@ -9,14 +9,13 @@
 #define SkOSWindow_iOS_DEFINED
 
 #include "SkWindow.h"
-#include "SkMatrix.h"
+
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void* hwnd);
     ~SkOSWindow();
     void*   getHWND() const { return fHWND; }
 
-    static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
     virtual bool onDispatchClick(int x, int y, Click::State state, 
                                  void* owner);
     void    detachGL();
@@ -30,6 +29,7 @@ protected:
     virtual void onHandleInval(const SkIRect&);
     // overrides from SkView
     virtual void onAddMenu(const SkOSMenu*);
+    virtual void onUpdateMenu(const SkOSMenu*);
     virtual void onSetTitle(const char[]);
     
 private:
