@@ -156,6 +156,10 @@
           'sources!': [
             '../samplecode/SampleDecode.cpp',
           ],
+          'sources': [
+            '../src/utils/mac/skia_mac.cpp',
+            '../src/utils/mac/SkOSWindow_Mac.cpp',
+          ],
         }],
         [ 'skia_os == "ios"', {
           # TODO: This doesn't build properly yet, but it's getting there.
