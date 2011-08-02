@@ -431,13 +431,32 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fFatBitsScale = 8;
     fTypeface = SkTypeface::CreateFromTypeface(NULL, SkTypeface::kBold);
     fShowZoomer = false;
-
+    
     fZoomLevel = 0;
     fZoomScale = SK_Scalar1;
 
     fSaveToPdf = false;
     fPdfCanvas = NULL;
 
+    int sinkID = this->getSinkID();
+    fAppMenu.setTitle("Global Settings");
+    fAppMenu.appendList("Device Type", "Device Type", sinkID, 0, "Raster", "Picture", "OpenGL", NULL);
+    fAppMenu.appendTriState("AA", "AA", sinkID, SkOSMenu::kMixedState);
+    fAppMenu.appendTriState("LCD", "LCD", sinkID, SkOSMenu::kMixedState);
+    fAppMenu.appendTriState("Filter", "Filter", sinkID, SkOSMenu::kMixedState);
+    fAppMenu.appendTriState("Hinting", "Hinting", sinkID, SkOSMenu::kMixedState);
+    fAppMenu.appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
+    fAppMenu.appendSwitch("Slide Show", "Slide Show" , sinkID, false);    
+    fAppMenu.appendSwitch("Clip", "Clip" , sinkID, fUseClip);    
+    fAppMenu.appendSwitch("Measure FPS", "Measure FPS" , sinkID, fMeasureFPS);    
+    fAppMenu.appendSwitch("Flip X", "Flip X" , sinkID, false);    
+    fAppMenu.appendSwitch("Flip Y", "Flip Y" , sinkID, false);
+    fAppMenu.appendSwitch("Zoomer", "Zoomer" , sinkID, fShowZoomer);
+    fAppMenu.appendAction("Save to PDF", sinkID);
+    
+    this->addMenu(&fAppMenu);
+    this->addMenu(&fSlideMenu);
+    
 //    this->setConfig(SkBitmap::kRGB_565_Config);
     this->setConfig(SkBitmap::kARGB_8888_Config);
     this->setVisibleP(true);
@@ -578,7 +597,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
         m.preTranslate(-cx, -cy);
         canvas->concat(m);
     }
-
+    
     // Apply any gesture matrix
     if (true) {
         const SkMatrix& localM = fGesture.localM();
@@ -592,7 +611,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
             this->inval(NULL);
         }
     }
-
+    
     if (fNClip) {
         this->INHERITED::draw(canvas);
         SkBitmap orig = capture_bitmap(canvas);
@@ -629,7 +648,7 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (fShowZoomer && !fSaveToPdf) {
         showZoomer(canvas);
     }
-
+    
     // do this last
     fDevManager->publishCanvas(fDeviceType, canvas, this);
 }
@@ -1005,6 +1024,70 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->inval(NULL);
         return true;
     }
+    int selected = -1;
+    if (SkOSMenu::FindListIndex(&evt, "Device Type", &selected)) {
+        this->setDeviceType((DeviceType)selected);
+        return true; 
+    }
+    SkOSMenu::TriState state;
+    if (SkOSMenu::FindTriState(&evt, "AA", &state)) {
+        fAAState = (SkTriState)state;
+        this->updateTitle();
+        this->inval(NULL);
+    }
+    if (SkOSMenu::FindTriState(&evt, "LCD", &state)) {
+        fLCDState = (SkTriState)state;
+        this->updateTitle();
+        this->inval(NULL);
+    }
+    if (SkOSMenu::FindTriState(&evt, "Filter", &state)) {
+        fFilterState = (SkTriState)state;
+        this->updateTitle();
+        this->inval(NULL);
+    }
+    if (SkOSMenu::FindTriState(&evt, "Hinting", &state)) {
+        fHintingState = (SkTriState)state;
+        this->updateTitle();
+        this->inval(NULL);
+    }
+    if (SkOSMenu::FindSwitchState(&evt, "Pipe", NULL)) {
+        this->togglePipe();
+        return true;
+    }
+    if (SkOSMenu::FindSwitchState(&evt, "Slide Show", NULL)) {
+        this->toggleSlideshow();
+        return true;
+    }
+    if (SkOSMenu::FindSwitchState(&evt, "Clip", NULL)) {
+        fUseClip = !fUseClip;
+        this->inval(NULL);
+        this->updateTitle();
+        return true;
+    }
+    if (SkOSMenu::FindSwitchState(&evt, "Measure FPS", NULL)) {
+        this->toggleFPS();
+        return true;
+    }
+    if (SkOSMenu::FindSwitchState(&evt, "Flip X", NULL)) {
+        fFlipAxis ^= kFlipAxis_X;
+        this->updateTitle();
+        this->inval(NULL);
+        return true;
+    }
+    if (SkOSMenu::FindSwitchState(&evt, "Flip Y", NULL)) {
+        fFlipAxis ^= kFlipAxis_Y;
+        this->updateTitle();
+        this->inval(NULL);
+        return true;
+    }
+    if (SkOSMenu::FindSwitchState(&evt, "Zoomer", NULL)) {
+        this->toggleZoomer();
+        return true;
+    }
+    if (SkOSMenu::FindAction(&evt,"Save to PDF")) {
+        this->saveToPdf();
+        return true;
+    }    
     return this->INHERITED::onEvent(evt);
 }
 
@@ -1169,6 +1252,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     return this->INHERITED::onHandleChar(uni);
 }
 
+void SampleWindow::setDeviceType(DeviceType type) {
+    if (type != fDeviceType && fDevManager->supportsDeviceType(fDeviceType))
+        fDeviceType = type;
+    this->updateTitle();
+    this->inval(NULL);
+}
+
 void SampleWindow::toggleFPS() {
     fMeasureFPS = !fMeasureFPS;
     this->inval(NULL);
@@ -1189,6 +1279,11 @@ void SampleWindow::toggleRendering() {
              !fDevManager->supportsDeviceType(fDeviceType));
     this->updateTitle();
     this->inval(NULL);
+}
+
+void SampleWindow::togglePipe() {
+    fUsePipe = !fUsePipe;
+    this->updateTitle();
 }
 
 #include "SkDumpCanvas.h"
@@ -1326,6 +1421,12 @@ void SampleWindow::loadView(SkView* view) {
     this->attachChildToFront(view)->unref();
     view->setSize(this->width(), this->height());
 
+    //repopulate the slide menu when a view is loaded
+    fSlideMenu.reset();
+    if (SampleView::IsSampleView(view))
+        ((SampleView*)view)->requestMenus(&fSlideMenu);
+    this->onUpdateMenu(&fSlideMenu);
+    
     this->updateTitle();
 }
 
