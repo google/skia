@@ -18,10 +18,10 @@
 #ifndef GrRenderTarget_DEFINED
 #define GrRenderTarget_DEFINED
 
-#include "GrClip.h"
 #include "GrRect.h"
 #include "GrResource.h"
 
+class GrStencilBuffer;
 class GrTexture;
 
 /**
@@ -49,11 +49,6 @@ public:
      * config that isn't equivalent with one of our configs.
      */
     int config() const { return fConfig; }
-
-    /**
-     * @return the number of stencil bits in the rendertarget
-     */
-    int stencilBits() const { return fStencilBits; }
 
     /**
      * @return the texture associated with the rendertarget, may be NULL.
@@ -145,20 +140,25 @@ public:
     };
     virtual ResolveType getResolveType() const = 0;
 
+    /**
+     * GrStencilBuffer is not part of the public API.
+     */
+    GrStencilBuffer* getStencilBuffer() const { return fStencilBuffer; }
+    void setStencilBuffer(GrStencilBuffer* stencilBuffer);
+
 protected:
     GrRenderTarget(GrGpu* gpu,
                    GrTexture* texture,
                    int width,
                    int height,
                    GrPixelConfig config,
-                   int stencilBits,
                    int sampleCnt)
         : INHERITED(gpu)
+        , fStencilBuffer(NULL)
         , fTexture(texture)
         , fWidth(width)
         , fHeight(height)
         , fConfig(config)
-        , fStencilBits(stencilBits)
         , fSampleCnt(sampleCnt)
     {
         fResolveRect.setLargestInverted();
@@ -175,19 +175,15 @@ protected:
         fTexture = NULL;
     }
 
+    GrStencilBuffer*  fStencilBuffer;
+
 private:
-    GrTexture* fTexture; // not ref'ed
+    GrTexture*      fTexture; // not ref'ed
     int             fWidth;
     int             fHeight;
     GrPixelConfig   fConfig;
-    int             fStencilBits;
     int             fSampleCnt;
     GrIRect         fResolveRect;
-
-    // GrGpu keeps a cached clip in the render target to avoid redundantly
-    // rendering the clip into the same stencil buffer.
-    friend class GrGpu;
-    GrClip     fLastStencilClip;
 
     typedef GrResource INHERITED;
 };
