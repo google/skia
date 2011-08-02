@@ -19,7 +19,6 @@
 class GrContext;
 class GrIndexBufferAllocPool;
 class GrResource;
-class GrStencilBuffer;
 class GrVertexBufferAllocPool;
 
 /**
@@ -314,13 +313,12 @@ public:
 
     /**
      * Called to tell Gpu object that all GrResources have been lost and should
-     * be abandoned. Overrides must call INHERITED::abandonResources().
+     * be abandoned.
      */
     virtual void abandonResources();
 
     /**
-     * Called to tell Gpu object to release all GrResources. Overrides must call
-     * INHERITED::releaseResources().
+     * Called to tell Gpu object to release all GrResources.
      */
     void releaseResources();
 
@@ -471,16 +469,6 @@ protected:
                                int vertexCount,
                                int indexCount) = 0;
 
-    // width and height may be larger than rt (if underlying API allows it).
-    // Should attach the SB to the RT. Returns false if compatible sb could
-    // not be created.
-    virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
-                                                    int width, 
-                                                    int height) = 0;
-
-    // attaches an existing SB to an existing RT.
-    virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
-                                                   GrRenderTarget* rt) = 0;
 
     // The GrGpu typically records the clients requested state and then flushes
     // deltas from previous state at draw time. This function does the
@@ -524,9 +512,6 @@ private:
     bool                        fContextIsDirty;
 
     GrResource*                 fResourceHead;
-
-    // Given a rt, find or create a stencil buffer and attach it
-    bool attachStencilBufferToRenderTarget(GrRenderTarget* target);
 
     // GrDrawTarget overrides
     virtual void onDrawIndexed(GrPrimitiveType type,

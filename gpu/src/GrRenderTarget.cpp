@@ -11,7 +11,6 @@
 
 #include "GrContext.h"
 #include "GrGpu.h"
-#include "GrStencilBuffer.h"
 
 bool GrRenderTarget::readPixels(int left, int top, int width, int height,
                                 GrPixelConfig config, void* buffer) {
@@ -31,7 +30,7 @@ size_t GrRenderTarget::sizeInBytes() const {
     } else {
         colorBits = GrBytesPerPixel(fConfig);
     }
-    return fWidth * fHeight * colorBits;
+    return fWidth * fHeight * (fStencilBits + colorBits);
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const GrIRect* rect) {
@@ -56,8 +55,4 @@ void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
             fResolveRect.setLargestInverted();
         }
     }
-}
-
-void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
-    GrSafeAssign(fStencilBuffer, stencilBuffer);
 }
