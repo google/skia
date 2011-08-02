@@ -465,7 +465,7 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
         0 != desc.fRenderTargetFlags) {
             return NULL;
     }
-#if GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
+#if !GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
     if (!(kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) &&
         (kGrCanResolve_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags)) {
             return NULL;
