@@ -10,7 +10,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.delegate = self;
-    [fRoot initSamples];
     [fDetail populateRoot:fRoot];
 }
 

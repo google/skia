@@ -16,7 +16,6 @@
 @property (nonatomic, retain) UIPopoverController *popoverController;
 @property (nonatomic, retain) UIBarButtonItem *popoverButtonItem;
 
-- (void)initSamples;
 - (void)addItem:(NSString*)anItem;
 
 @end
