@@ -8,12 +8,12 @@
 
 
 #include "GrGpu.h"
-#include "GrTextStrike.h"
+#include "GrBufferAllocPool.h"
 #include "GrClipIterator.h"
 #include "GrIndexBuffer.h"
-#include "GrVertexBuffer.h"
-#include "GrBufferAllocPool.h"
 #include "GrPathRenderer.h"
+#include "GrGLStencilBuffer.h"
+#include "GrVertexBuffer.h"
 
 // probably makes no sense for this to be less than a page
 static const size_t VERTEX_POOL_VB_SIZE = 1 << 18;
@@ -140,7 +140,24 @@ void GrGpu::unimpl(const char msg[]) {
 GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
                                 const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
-    return this->onCreateTexture(desc, srcData, rowBytes);
+    GrTexture* tex = this->onCreateTexture(desc, srcData, rowBytes);
+    if (NULL != tex && 
+        (kRenderTarget_GrTextureFlagBit & desc.fFlags) &&
+        !(kNoStencil_GrTextureFlagBit & desc.fFlags)) {
+        GrAssert(NULL != tex->asRenderTarget());
+        // TODO: defer this and attach dynamically
+        if (!this->attachStencilBufferToRenderTarget(tex->asRenderTarget())) {
+            tex->unref();
+            return NULL;
+        }
+    }
+    return tex;
+}
+
+bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
+    // TODO: use a cache of stencil buffers rather than create per-rt.
+    return this->createStencilBufferForRenderTarget(rt, rt->width(),
+                                                    rt->height());
 }
 
 GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {
@@ -398,14 +415,22 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
         fClipInStencil = !fClip.isRect() && !fClip.isEmpty() && 
                          !bounds.isEmpty();
 
-        if (fClipInStencil &&
-            fClip != rt.fLastStencilClip) {
+        // TODO: dynamically attach a SB when needed.
+        GrStencilBuffer* stencilBuffer = rt.getStencilBuffer();
+        if (fClipInStencil && NULL == stencilBuffer) {
+            return false;
+        }
 
-            rt.fLastStencilClip = fClip;
+        if (fClipInStencil &&
+            stencilBuffer->mustRenderClip(fClip, rt.width(), rt.height())) {
+
+            stencilBuffer->setLastClip(fClip, rt.width(), rt.height());
+
             // we set the current clip to the bounds so that our recursive
             // draws are scissored to them. We use the copy of the complex clip
-            // in the rt to render
-            const GrClip& clip = rt.fLastStencilClip;
+            // we just stashed on the SB to render from. We set it back after
+            // we finish drawing it into the stencil.
+            const GrClip& clip = stencilBuffer->getLastClip();
             fClip.setFromRect(bounds);
 
             AutoStateRestore asr(this);
@@ -420,7 +445,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             this->disableState(kNoColorWrites_StateBit);
 #endif
             int count = clip.getElementCount();
-            int clipBit = rt.stencilBits();
+            int clipBit = stencilBuffer->bits();
             clipBit = (1 << (clipBit-1));
 
             // often we'll see the first two elements of the clip are
