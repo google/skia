@@ -77,6 +77,7 @@ void GrGLSetDefaultGLInterface() {
     NULL,  // glMatrixMode
     glPixelStorei,
     NULL,  // glPointSize
+    NULL, // glReadBuffer
     glReadPixels,
     glScissor,
     NULL,  // glShadeModel

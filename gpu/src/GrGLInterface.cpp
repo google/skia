@@ -313,7 +313,8 @@ bool GrGLInterface::validate(GrEngine engine) const {
     if (kDesktop_GrGLBinding == fBindingsExported &&
         (NULL == fLineWidth ||
          NULL == fGetTexLevelParameteriv ||
-         NULL == fDrawBuffer)) {
+         NULL == fDrawBuffer ||
+         NULL == fReadBuffer)) {
         return false;
     }
 
