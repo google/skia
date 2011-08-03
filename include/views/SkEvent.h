@@ -43,8 +43,6 @@ public:
     SkEvent(const SkEvent& src);
     ~SkEvent();
 
-//  /** Return the event's type (will never be null) */
-//  const char* getType() const;
     /** Copy the event's type into the specified SkString parameter */
     void    getType(SkString* str) const;
     /** Returns true if the event's type matches exactly the specified type (case sensitive) */
@@ -59,6 +57,17 @@ public:
         In XML, use the "type" attribute.
     */
     void    setType(const char type[], size_t len = 0);
+
+    /**
+     *  Return the target ID, or 0 if there is none.
+     */
+    SkEventSinkID getTargetID() const { return fTargetID; }
+
+    /**
+     *  Set the target ID for this event. 0 means none. Can be specified when
+     *  the event is posted or sent.
+     */
+    void setTargetID(SkEventSinkID targetID) { fTargetID = targetID; }
 
     /** Return the event's unnamed 32bit field. Default value is 0 */
     uint32_t getFast32() const { return f32; }
@@ -159,17 +168,40 @@ public:
     */
     static bool PostTime(SkEvent* evt, SkEventSinkID targetID, SkMSec time);
 
+    /**
+     *  Post to the event queue using the event's targetID. If this is 0, then
+     *  false is returned and the event is deleted, otherwise true is returned
+     *  and ownership of the event passes to the event queue.
+     */
+    bool post() {
+        return this->postDelay(0);
+    }
+    
+    /**
+     *  Post to the event queue using the event's targetID and the specifed
+     *  millisecond delay. If the event's targetID is 0, then false is returned
+     *  and the event is deleted, otherwise true is returned and ownership of
+     *  the event passes to the event queue.
+     */
+    bool postDelay(SkMSec delay);
+    
+    /**
+     *  Post to the event queue using the event's targetID and the specifed
+     *  millisecond time. If the event's targetID is 0, then false is returned
+     *  and the event is deleted, otherwise true is returned and ownership of
+     *  the event passes to the event queue.
+     */
+    bool postTime(SkMSec time);
+    
     /** Helper method for calling SkEvent::PostTime(this, ...), where the caller specifies a delay.
         The real "time" will be computed automatically by sampling the clock and adding its value
         to delay.
     */
-    bool post(SkEventSinkID sinkID, SkMSec delay = 0)
-    {
+    bool post(SkEventSinkID sinkID, SkMSec delay = 0) {
         return SkEvent::Post(this, sinkID, delay);
     }
 
-    void postTime(SkEventSinkID sinkID, SkMSec time)
-    {
+    void postTime(SkEventSinkID sinkID, SkMSec time) {
         SkEvent::PostTime(this, sinkID, time);
     }
 
@@ -232,10 +264,10 @@ private:
     SkMetaData      fMeta;
     mutable char*   fType;  // may be characters with low bit set to know that it is not a pointer
     uint32_t        f32;
+    SkEventSinkID   fTargetID;
     SkDEBUGCODE(bool fDebugTrace;)
 
     // these are for our implementation of the event queue
-    SkEventSinkID   fTargetID;
     SkMSec          fTime;
     SkEvent*        fNextEvent; // either in the delay or normal event queue
     void initialize(const char* type, size_t typeLen);
