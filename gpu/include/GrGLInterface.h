@@ -136,6 +136,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLMatrixModeProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLPointSizeProc)(GrGLfloat size);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLReadBufferProc)(GrGLenum src);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLScissorProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLShadeModelProc)(GrGLenum mode);
@@ -291,6 +292,7 @@ struct GrGLInterface {
     GrGLMatrixModeProc fMatrixMode;
     GrGLPixelStoreiProc fPixelStorei;
     GrGLPointSizeProc fPointSize;
+    GrGLReadBufferProc fReadBuffer;
     GrGLReadPixelsProc fReadPixels;
     GrGLScissorProc fScissor;
     GrGLShadeModelProc fShadeModel;

@@ -72,6 +72,7 @@ void GrGLSetDefaultGLInterface() {
             gDefaultInterface.fMatrixMode = glMatrixMode;
             gDefaultInterface.fPixelStorei = glPixelStorei;
             gDefaultInterface.fPointSize = glPointSize;
+            gDefaultInterface.fReadBuffer = glReadBuffer;
             gDefaultInterface.fReadPixels = glReadPixels;
             gDefaultInterface.fScissor = glScissor;
             gDefaultInterface.fShadeModel = glShadeModel;
