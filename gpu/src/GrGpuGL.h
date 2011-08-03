@@ -12,11 +12,11 @@
 #define GrGpuGL_DEFINED
 
 #include "GrGpu.h"
-#include "GrGLIRect.h"
-#include "GrGLTexture.h"
-
-#include "GrGLVertexBuffer.h"
 #include "GrGLIndexBuffer.h"
+#include "GrGLIRect.h"
+#include "GrGLStencilBuffer.h"
+#include "GrGLTexture.h"
+#include "GrGLVertexBuffer.h"
 
 #include "SkString.h"
 
@@ -69,8 +69,9 @@ protected:
     } fHWBounds;
 
     // GrGpu overrides
-    // overrides from GrGpu
     virtual void resetContext();
+    virtual void abandonResources();
+    virtual void releaseResources();
 
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
@@ -81,6 +82,10 @@ protected:
                                                bool dynamic);
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc);
     virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState();
+    virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
+                                                    int width, int height);
+    virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
+                                                   GrRenderTarget* rt);
 
     virtual void onClear(const GrIRect* rect, GrColor color);
 
@@ -173,11 +178,15 @@ private:
                       GrGLenum* internalFormat,
                       GrGLenum* format,
                       GrGLenum* type);
-    // helper for onCreateTexture
+    // helpers for onCreateTexture
     void allocateAndUploadTexData(const GrGLTexture::Desc& desc,
                                   GrGLenum internalFormat,
                                   const void* data,
                                   size_t rowBytes);
+
+    bool createRenderTargetObjects(int width, int height,
+                                   GrGLuint texID,
+                                   GrGLRenderTarget::Desc* desc);
 
     bool fboInternalFormat(GrPixelConfig config, GrGLenum* format);
 
@@ -186,16 +195,13 @@ private:
     friend class GrGLTexture;
     friend class GrGLRenderTarget;
 
-    static const GrGLuint gUNKNOWN_BITCOUNT = ~0;
 
-    struct StencilFormat {
-        GrGLenum  fEnum;
-        GrGLuint  fBits;
-        bool      fPacked;
-    };
-
-    GrTArray<StencilFormat, true> fStencilFormats;
-
+    GrTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
+    // we want to clear stencil buffers when they are created. We want to clear
+    // the entire buffer even if it is larger than the color attachment. We
+    // attach it to this fbo with no color attachment to do the initial clear.
+    GrGLuint fStencilClearFBO;
+    
     bool fHWBlendDisabled;
 
     GrGLuint fAASamples[4];

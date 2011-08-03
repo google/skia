@@ -28,11 +28,9 @@ public:
     struct Desc {
         GrGLuint      fRTFBOID;
         GrGLuint      fTexFBOID;
-        GrGLuint      fStencilRenderbufferID;
         GrGLuint      fMSColorRenderbufferID;
         bool          fOwnIDs;
         GrPixelConfig fConfig;
-        int           fStencilBits;
         int           fSampleCnt;
     };
 
@@ -87,7 +85,7 @@ protected:
 private:
     GrGLuint      fRTFBOID;
     GrGLuint      fTexFBOID;
-    GrGLuint      fStencilRenderbufferID;
+
     GrGLuint      fMSColorRenderbufferID;
 
     // Should this object delete IDs when it is destroyed or does someone
