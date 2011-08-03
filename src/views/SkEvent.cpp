@@ -58,20 +58,6 @@ static size_t makeCharArray(char* buffer, size_t compact)
     return strlen(buffer);
 }
 
-#if 0
-const char* SkEvent::getType() const 
-{ 
-    if ((size_t) fType & 1) {   // not a pointer
-        char chars[sizeof(size_t) + 1];
-        size_t len = makeCharArray(chars, (size_t) fType);
-        fType = (char*) sk_malloc_throw(len);
-        SkASSERT(((size_t) fType & 1) == 0);
-        memcpy(fType, chars, len);
-    }
-    return fType; 
-}
-#endif
-
 void SkEvent::getType(SkString* str) const 
 { 
     if (str) 
@@ -368,6 +354,20 @@ bool SkEvent::PostTime(SkEvent* evt, SkEventSinkID sinkID, SkMSec time)
     if ((int32_t)queueDelay != ~0)
         SkEvent::SignalQueueTimer(queueDelay);
     return true;
+}
+
+bool SkEvent::postDelay(SkMSec delay) {
+    return SkEvent::Post(this, this->getTargetID(), delay);
+}
+
+bool SkEvent::postTime(SkMSec time) {
+    SkEventSinkID target = this->getTargetID();
+    if (target) {
+        return SkEvent::PostTime(this, target, time);
+    } else {
+        delete this;
+        return false;
+    }
 }
 
 bool SkEvent::Enqueue(SkEvent* evt)
