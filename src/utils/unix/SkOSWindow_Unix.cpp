@@ -222,10 +222,8 @@ void SkOSWindow::onSetTitle(const char title[])
     XSetWMName(fUnixWindow.fDisplay, fUnixWindow.fWin, &textProp);
 }
 
-void SkOSWindow::onHandleInval(const SkIRect&)
-{
-    SkEvent* evt = new SkEvent("inval-imageview");
-    evt->post(getSinkID());
+void SkOSWindow::onHandleInval(const SkIRect&) {
+    (new SkEvent("inval-imageview", this->getSinkID()))->post();
 }
 
 bool SkOSWindow::onEvent(const SkEvent& evt)
