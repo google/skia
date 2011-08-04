@@ -40,7 +40,7 @@ static uint8_t glyphbuf[BUFFERSIZE];
 #define FONT_CACHE_MEMORY_BUDGET    (1024 * 1024)
 
 /**
- *	Since LOGFONT wants its textsize as an int, and we support fractional sizes,
+ *  Since LOGFONT wants its textsize as an int, and we support fractional sizes,
  *  and since we have a cache of LOGFONTs for our tyepfaces, we always set the
  *  lfHeight to a canonical size, and then we use the 2x2 matrix to achieve the
  *  actual requested size.
@@ -48,7 +48,7 @@ static uint8_t glyphbuf[BUFFERSIZE];
 static const int gCanonicalTextSize = 64;
 
 static void make_canonical(LOGFONT* lf) {
-	lf->lfHeight = -gCanonicalTextSize;
+    lf->lfHeight = -gCanonicalTextSize;
     lf->lfQuality = CLEARTYPE_QUALITY;//PROOF_QUALITY;
     lf->lfCharSet = DEFAULT_CHARSET;
 //    lf->lfClipPrecision = 64;
@@ -86,7 +86,7 @@ static unsigned calculateGlyphCount(HDC hdc) {
     if (GetFontData(hdc, maxpTag, 4, &glyphs, sizeof(glyphs)) != GDI_ERROR) {
         return SkEndian_SwapBE16(glyphs);
     }
-    
+
     // Binary search for glyph count.
     static const MAT2 mat2 = {{0, 1}, {0, 0}, {0, 0}, {0, 1}};
     int32_t max = SK_MaxU16 + 1;
@@ -255,7 +255,7 @@ protected:
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY);
     //virtual SkDeviceContext getDC() {return ddc;}
 private:
-	SkScalar	 fScale;	// to get from canonical size to real size
+    SkScalar     fScale;  // to get from canonical size to real size
     MAT2         fMat22;
     XFORM        fXform;
     HDC          fDDC;
@@ -306,7 +306,7 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         , fGlyphCount(-1) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
-	fScale = fRec.fTextSize / gCanonicalTextSize;
+    fScale = fRec.fTextSize / gCanonicalTextSize;
 
     fXform.eM11 = mul2float(fScale, fRec.fPost2x2[0][0]);
     fXform.eM12 = mul2float(fScale, fRec.fPost2x2[1][0]);
@@ -470,20 +470,20 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 
     if (mx) {
         mx->fTop = -fScale * otm.otmTextMetrics.tmAscent;
-		mx->fAscent = -fScale * otm.otmAscent;
-		mx->fDescent = -fScale * otm.otmDescent;
-		mx->fBottom = fScale * otm.otmTextMetrics.tmDescent;
-		mx->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
-								 + otm.otmTextMetrics.tmExternalLeading);
+        mx->fAscent = -fScale * otm.otmAscent;
+        mx->fDescent = -fScale * otm.otmDescent;
+        mx->fBottom = fScale * otm.otmTextMetrics.tmDescent;
+        mx->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
+                                 + otm.otmTextMetrics.tmExternalLeading);
     }
 
     if (my) {
-		my->fTop = -fScale * otm.otmTextMetrics.tmAscent;
-		my->fAscent = -fScale * otm.otmAscent;
-		my->fDescent = -fScale * otm.otmDescent;
-		my->fBottom = fScale * otm.otmTextMetrics.tmDescent;
-		my->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
-								 + otm.otmTextMetrics.tmExternalLeading);
+        my->fTop = -fScale * otm.otmTextMetrics.tmAscent;
+        my->fAscent = -fScale * otm.otmAscent;
+        my->fDescent = -fScale * otm.otmDescent;
+        my->fBottom = fScale * otm.otmTextMetrics.tmDescent;
+        my->fLeading = fScale * (otm.otmTextMetrics.tmInternalLeading
+                                 + otm.otmTextMetrics.tmExternalLeading);
     }
 }
 
@@ -769,7 +769,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fBBox = SkIRect::MakeEmpty();
         return info;
     }
-    
+
     // If this bit is clear the font is a fixed pitch font.
     if (!(otm.otmTextMetrics.tmPitchAndFamily & TMPF_FIXED_PITCH)) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
@@ -821,8 +821,15 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
     } else if (perGlyphInfo &
                SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
-        info->fGlyphWidths.reset(
-            getAdvanceData(hdc, glyphCount, &getWidthAdvance));
+        if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
+            appendRange(&info->fGlyphWidths, 0);
+            info->fGlyphWidths->fAdvance.append(1, &min_width);
+            finishRange(info->fGlyphWidths.get(), 0,
+                        SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+        } else {
+            info->fGlyphWidths.reset(
+                getAdvanceData(hdc, glyphCount, &getWidthAdvance));
+        }
     }
 
 Error:
