@@ -9,21 +9,22 @@
 
 #include "SkEvent.h"
 
-void SkEvent::initialize(const char* type, size_t typeLen) {
+void SkEvent::initialize(const char* type, size_t typeLen,
+                         SkEventSinkID targetID) {
     fType = NULL;
     setType(type, typeLen);
     f32 = 0;
+    fTargetID = targetID;
+    fTargetProc = NULL;
 #ifdef SK_DEBUG
-    fTargetID = 0;
     fTime = 0;
     fNextEvent = NULL;
 #endif
-    SkDEBUGCODE(fDebugTrace = false;)
 }
 
 SkEvent::SkEvent()
 {
-    initialize("", 0);
+    initialize("", 0, 0);
 }
 
 SkEvent::SkEvent(const SkEvent& src)
@@ -33,15 +34,15 @@ SkEvent::SkEvent(const SkEvent& src)
         setType(src.fType);
 }
 
-SkEvent::SkEvent(const SkString& type)
+SkEvent::SkEvent(const SkString& type, SkEventSinkID targetID)
 {
-    initialize(type.c_str(), type.size());
+    initialize(type.c_str(), type.size(), targetID);
 }
 
-SkEvent::SkEvent(const char type[])
+SkEvent::SkEvent(const char type[], SkEventSinkID targetID)
 {
     SkASSERT(type);
-    initialize(type, strlen(type));
+    initialize(type, strlen(type), targetID);
 }
 
 SkEvent::~SkEvent()
@@ -288,90 +289,50 @@ static SkGlobals::Rec* create_globals()
     return rec;
 }
 
-bool SkEvent::Post(SkEvent* evt, SkEventSinkID sinkID, SkMSec delay)
-{
-    if (delay)
-        return SkEvent::PostTime(evt, sinkID, SkTime::GetMSecs() + delay);
+///////////////////////////////////////////////////////////////////////////////
 
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
-
-    evt->fTargetID = sinkID;
-
-#ifdef SK_TRACE_EVENTS
-    {
-        SkString    str("SkEvent::Post(");
-        str.append(evt->getType());
-        str.append(", 0x");
-        str.appendHex(sinkID);
-        str.append(", ");
-        str.appendS32(delay);
-        str.append(")");
-        event_log(str.c_str());
-    }
-#endif
-
-    globals.fEventMutex.acquire();
-    bool wasEmpty = SkEvent::Enqueue(evt);
-    globals.fEventMutex.release();
-
-    // call outside of us holding the mutex
-    if (wasEmpty)
-        SkEvent::SignalNonEmptyQueue();
-    return true;
-}
-
-#if defined(SK_SIMULATE_FAILED_MALLOC) && defined(SK_FIND_MEMORY_LEAKS)
-SkMSec gMaxDrawTime;
-#endif
-
-bool SkEvent::PostTime(SkEvent* evt, SkEventSinkID sinkID, SkMSec time)
-{
-#if defined(SK_SIMULATE_FAILED_MALLOC) && defined(SK_FIND_MEMORY_LEAKS)
-    gMaxDrawTime = time;
-#endif
-    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
-
-    evt->fTargetID = sinkID;
-
-#ifdef SK_TRACE_EVENTS
-    {
-        SkString    str("SkEvent::Post(");
-        str.append(evt->getType());
-        str.append(", 0x");
-        str.appendHex(sinkID);
-        str.append(", ");
-        str.appendS32(time);
-        str.append(")");
-        event_log(str.c_str());
-    }
-#endif
-
-    globals.fEventMutex.acquire();
-    SkMSec queueDelay = SkEvent::EnqueueTime(evt, time);
-    globals.fEventMutex.release();
-
-    // call outside of us holding the mutex
-    if ((int32_t)queueDelay != ~0)
-        SkEvent::SignalQueueTimer(queueDelay);
-    return true;
-}
-
-bool SkEvent::postDelay(SkMSec delay) {
-    return SkEvent::Post(this, this->getTargetID(), delay);
-}
-
-bool SkEvent::postTime(SkMSec time) {
-    SkEventSinkID target = this->getTargetID();
-    if (target) {
-        return SkEvent::PostTime(this, target, time);
-    } else {
+void SkEvent::postDelay(SkMSec delay) {
+    if (!fTargetID && !fTargetProc) {
         delete this;
-        return false;
+        return;
+    }
+    
+    if (delay) {
+        this->postTime(SkTime::GetMSecs() + delay);
+        return;
+    }
+
+    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+
+    globals.fEventMutex.acquire();
+    bool wasEmpty = SkEvent::Enqueue(this);
+    globals.fEventMutex.release();
+    
+    // call outside of us holding the mutex
+    if (wasEmpty) {
+        SkEvent::SignalNonEmptyQueue();
     }
 }
 
-bool SkEvent::Enqueue(SkEvent* evt)
-{
+void SkEvent::postTime(SkMSec time) {
+    if (!fTargetID && !fTargetProc) {
+        delete this;
+        return;
+    }
+
+    SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
+    
+    globals.fEventMutex.acquire();
+    SkMSec queueDelay = SkEvent::EnqueueTime(this, time);
+    globals.fEventMutex.release();
+    
+    // call outside of us holding the mutex
+    if ((int32_t)queueDelay != ~0) {
+        SkEvent::SignalQueueTimer(queueDelay);
+    }
+}
+
+bool SkEvent::Enqueue(SkEvent* evt) {
     SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
     //  gEventMutex acquired by caller
 
@@ -387,37 +348,29 @@ bool SkEvent::Enqueue(SkEvent* evt)
     evt->fNextEvent = NULL;
 
     SkDEBUGCODE(++globals.fEventCounter);
-//  SkDebugf("Enqueue: count=%d\n", gEventCounter);
 
     return wasEmpty;
 }
 
-SkEvent* SkEvent::Dequeue(SkEventSinkID* sinkID)
-{
+SkEvent* SkEvent::Dequeue() {
     SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
     globals.fEventMutex.acquire();
 
     SkEvent* evt = globals.fEventQHead;
-    if (evt)
-    {
+    if (evt) {
         SkDEBUGCODE(--globals.fEventCounter);
 
-        if (sinkID)
-            *sinkID = evt->fTargetID;
-
         globals.fEventQHead = evt->fNextEvent;
-        if (globals.fEventQHead == NULL)
+        if (globals.fEventQHead == NULL) {
             globals.fEventQTail = NULL;
+        }
     }
     globals.fEventMutex.release();
-
-//  SkDebugf("Dequeue: count=%d\n", gEventCounter);
 
     return evt;
 }
 
-bool SkEvent::QHasEvents()
-{
+bool SkEvent::QHasEvents() {
     SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
 
     // this is not thread accurate, need a semaphore for that
@@ -428,60 +381,49 @@ bool SkEvent::QHasEvents()
     static int gDelayDepth;
 #endif
 
-SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time)
-{
-#ifdef SK_TRACE_EVENTS
-    SkDebugf("enqueue-delay %s %d (%d)", evt->getType(), time, gDelayDepth);
-    const char* idStr = evt->findString("id");
-    if (idStr)
-        SkDebugf(" (%s)", idStr);
-    SkDebugf("\n");
-    ++gDelayDepth;
-#endif
-
+SkMSec SkEvent::EnqueueTime(SkEvent* evt, SkMSec time) {
     SkEvent_Globals& globals = *(SkEvent_Globals*)SkGlobals::Find(SK_Event_GlobalsTag, create_globals);
     //  gEventMutex acquired by caller
 
     SkEvent* curr = globals.fDelayQHead;
     SkEvent* prev = NULL;
 
-    while (curr)
-    {
-        if (SkMSec_LT(time, curr->fTime))
+    while (curr) {
+        if (SkMSec_LT(time, curr->fTime)) {
             break;
+        }
         prev = curr;
         curr = curr->fNextEvent;
     }
 
     evt->fTime = time;
     evt->fNextEvent = curr;
-    if (prev == NULL)
+    if (prev == NULL) {
         globals.fDelayQHead = evt;
-    else
+    } else {
         prev->fNextEvent = evt;
+    }
 
     SkMSec delay = globals.fDelayQHead->fTime - SkTime::GetMSecs();
-    if ((int32_t)delay <= 0)
+    if ((int32_t)delay <= 0) {
         delay = 1;
+    }
     return delay;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 #include "SkEventSink.h"
 
-bool SkEvent::ProcessEvent()
-{
-    SkEventSinkID   sinkID;
-    SkEvent*        evt = SkEvent::Dequeue(&sinkID);
+bool SkEvent::ProcessEvent() {
+    SkEvent*                evt = SkEvent::Dequeue();
     SkAutoTDelete<SkEvent>  autoDelete(evt);
-    bool            again = false;
+    bool                    again = false;
 
     EVENT_LOGN("ProcessEvent", (int32_t)evt);
 
-    if (evt)
-    {
-        (void)SkEventSink::DoEvent(*evt, sinkID);
+    if (evt) {
+        (void)SkEventSink::DoEvent(*evt);
         again = SkEvent::QHasEvents();
     }
     return again;

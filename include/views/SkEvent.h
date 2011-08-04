@@ -21,71 +21,111 @@
 */
 typedef uint32_t SkEventSinkID;
 
-/** \class SkEvent
-
-    SkEvents are used to communicate type-safe information to SkEventSinks.
-    SkEventSinks (including SkViews) each have a unique ID, which is stored
-    in an event. This ID is used to target the event once it has been "posted".
-*/
+/**
+ *  \class SkEvent
+ *
+ *  When an event is dispatched from the event queue, it is either sent to
+ *  the eventsink matching the target ID (if not 0), or the target proc is
+ *  called (if not NULL).
+ */
 class SkEvent {
 public:
-    /** Default construct, creating an empty event.
-    */
+    /**
+     *  Function pointer that takes an event, returns true if it "handled" it.
+     */
+    typedef bool (*Proc)(const SkEvent& evt);
+
     SkEvent();
-    /** Construct a new event with the specified type.
-    */
-    explicit SkEvent(const SkString& type);
-    /** Construct a new event with the specified type.
-    */
-    explicit SkEvent(const char type[]);
-    /** Construct a new event by copying the fields from the src event.
-    */
+    explicit SkEvent(const SkString& type, SkEventSinkID = 0);
+    explicit SkEvent(const char type[], SkEventSinkID = 0);
     SkEvent(const SkEvent& src);
     ~SkEvent();
 
     /** Copy the event's type into the specified SkString parameter */
-    void    getType(SkString* str) const;
+    void getType(SkString* str) const;
+
     /** Returns true if the event's type matches exactly the specified type (case sensitive) */
-    bool    isType(const SkString& str) const;
+    bool isType(const SkString& str) const;
+
     /** Returns true if the event's type matches exactly the specified type (case sensitive) */
-    bool    isType(const char type[], size_t len = 0) const;
-    /** Set the event's type to the specified string.
-        In XML, use the "type" attribute.
-    */
-    void    setType(const SkString&);
-    /** Set the event's type to the specified string.
-        In XML, use the "type" attribute.
-    */
-    void    setType(const char type[], size_t len = 0);
+    bool isType(const char type[], size_t len = 0) const;
+
+    /**
+     *  Set the event's type to the specified string.
+     */
+    void setType(const SkString&);
+
+    /**
+     *  Set the event's type to the specified string.
+     */
+    void setType(const char type[], size_t len = 0);
 
     /**
      *  Return the target ID, or 0 if there is none.
+     *
+     *  When an event is dispatched from the event queue, it is either sent to
+     *  the eventsink matching the targetID (if not 0), or the target proc is
+     *  called (if not NULL).
      */
     SkEventSinkID getTargetID() const { return fTargetID; }
 
     /**
-     *  Set the target ID for this event. 0 means none. Can be specified when
-     *  the event is posted or sent.
+     *  Set the target ID for this event. 0 means none. Calling this will
+     *  automatically clear the targetProc to null.
+     *
+     *  When an event is dispatched from the event queue, it is either sent to
+     *  the eventsink matching the targetID (if not 0), or the target proc is
+     *  called (if not NULL).
      */
-    void setTargetID(SkEventSinkID targetID) { fTargetID = targetID; }
+    SkEvent* setTargetID(SkEventSinkID targetID) {
+        fTargetProc = NULL;
+        fTargetID = targetID;
+        return this;
+    }
 
-    /** Return the event's unnamed 32bit field. Default value is 0 */
+    /**
+     *  Return the target proc, or NULL if it has none.
+     *
+     *  When an event is dispatched from the event queue, it is either sent to
+     *  the eventsink matching the targetID (if not 0), or the target proc is
+     *  called (if not NULL).
+     */
+    Proc getTargetProc() const { return fTargetProc; }
+
+    /**
+     *  Set the target ID for this event. NULL means none. Calling this will
+     *  automatically clear the targetID to 0.
+     *
+     *  When an event is dispatched from the event queue, it is either sent to
+     *  the eventsink matching the targetID (if not 0), or the target proc is
+     *  called (if not NULL).
+     */
+    SkEvent* setTargetProc(Proc proc) {
+        fTargetID = 0;
+        fTargetProc = proc;
+        return this;
+    }
+    
+    /**
+     *  Return the event's unnamed 32bit field. Default value is 0
+     */
     uint32_t getFast32() const { return f32; }
-    /** Set the event's unnamed 32bit field. In XML, use
-        the subelement <data fast32=... />
-    */
-    void    setFast32(uint32_t x) { f32 = x; }
+
+    /**
+     *  Set the event's unnamed 32bit field.
+     */
+    void setFast32(uint32_t x) { f32 = x; }
 
     /** Return true if the event contains the named 32bit field, and return the field
         in value (if value is non-null). If there is no matching named field, return false
         and ignore the value parameter.
     */
-    bool    findS32(const char name[], int32_t* value = NULL) const { return fMeta.findS32(name, value); }
+    bool findS32(const char name[], int32_t* value = NULL) const { return fMeta.findS32(name, value); }
     /** Return true if the event contains the named SkScalar field, and return the field
         in value (if value is non-null). If there is no matching named field, return false
         and ignore the value parameter.
     */
-    bool    findScalar(const char name[], SkScalar* value = NULL) const { return fMeta.findScalar(name, value); }
+    bool findScalar(const char name[], SkScalar* value = NULL) const { return fMeta.findScalar(name, value); }
     /** Return true if the event contains the named SkScalar field, and return the fields
         in value[] (if value is non-null), and return the number of SkScalars in count (if count is non-null).
         If there is no matching named field, return false and ignore the value and count parameters.
@@ -98,112 +138,82 @@ public:
         in value (if value is non-null). If there is no matching named field, return false
         and ignore the value parameter.
     */
-    bool    findPtr(const char name[], void** value) const { return fMeta.findPtr(name, value); }
-    bool    findBool(const char name[], bool* value) const { return fMeta.findBool(name, value); }
+    bool findPtr(const char name[], void** value) const { return fMeta.findPtr(name, value); }
+    bool findBool(const char name[], bool* value) const { return fMeta.findBool(name, value); }
     const void* findData(const char name[], size_t* byteCount = NULL) const {
         return fMeta.findData(name, byteCount);
     }
 
     /** Returns true if ethe event contains the named 32bit field, and if it equals the specified value */
-    bool    hasS32(const char name[], int32_t value) const { return fMeta.hasS32(name, value); }
+    bool hasS32(const char name[], int32_t value) const { return fMeta.hasS32(name, value); }
     /** Returns true if ethe event contains the named SkScalar field, and if it equals the specified value */
-    bool    hasScalar(const char name[], SkScalar value) const { return fMeta.hasScalar(name, value); }
+    bool hasScalar(const char name[], SkScalar value) const { return fMeta.hasScalar(name, value); }
     /** Returns true if ethe event contains the named string field, and if it equals (using strcmp) the specified value */
-    bool    hasString(const char name[], const char value[]) const { return fMeta.hasString(name, value); }
+    bool hasString(const char name[], const char value[]) const { return fMeta.hasString(name, value); }
     /** Returns true if ethe event contains the named pointer field, and if it equals the specified value */
-    bool    hasPtr(const char name[], void* value) const { return fMeta.hasPtr(name, value); }
-    bool    hasBool(const char name[], bool value) const { return fMeta.hasBool(name, value); }
+    bool hasPtr(const char name[], void* value) const { return fMeta.hasPtr(name, value); }
+    bool hasBool(const char name[], bool value) const { return fMeta.hasBool(name, value); }
     bool hasData(const char name[], const void* data, size_t byteCount) const {
         return fMeta.hasData(name, data, byteCount);
     }
 
     /** Add/replace the named 32bit field to the event. In XML use the subelement <data name=... s32=... /> */
-    void    setS32(const char name[], int32_t value) { fMeta.setS32(name, value); }
+    void setS32(const char name[], int32_t value) { fMeta.setS32(name, value); }
     /** Add/replace the named SkScalar field to the event. In XML use the subelement <data name=... scalar=... /> */
-    void    setScalar(const char name[], SkScalar value) { fMeta.setScalar(name, value); }
+    void setScalar(const char name[], SkScalar value) { fMeta.setScalar(name, value); }
     /** Add/replace the named SkScalar[] field to the event. */
     SkScalar* setScalars(const char name[], int count, const SkScalar values[] = NULL) { return fMeta.setScalars(name, count, values); }
     /** Add/replace the named string field to the event. In XML use the subelement <data name=... string=... */
-    void    setString(const char name[], const SkString& value) { fMeta.setString(name, value.c_str()); }
+    void setString(const char name[], const SkString& value) { fMeta.setString(name, value.c_str()); }
     /** Add/replace the named string field to the event. In XML use the subelement <data name=... string=... */
-    void    setString(const char name[], const char value[]) { fMeta.setString(name, value); }
+    void setString(const char name[], const char value[]) { fMeta.setString(name, value); }
     /** Add/replace the named pointer field to the event. There is no XML equivalent for this call */
-    void    setPtr(const char name[], void* value) { fMeta.setPtr(name, value); }
-    void    setBool(const char name[], bool value) { fMeta.setBool(name, value); }
+    void setPtr(const char name[], void* value) { fMeta.setPtr(name, value); }
+    void setBool(const char name[], bool value) { fMeta.setBool(name, value); }
     void setData(const char name[], const void* data, size_t byteCount) {
         fMeta.setData(name, data, byteCount);
     }
 
     /** Return the underlying metadata object */
-    SkMetaData&         getMetaData() { return fMeta; }
+    SkMetaData& getMetaData() { return fMeta; }
     /** Return the underlying metadata object */
-    const SkMetaData&   getMetaData() const { return fMeta; }
-
-    void tron() { SkDEBUGCODE(fDebugTrace = true;) }
-    void troff() { SkDEBUGCODE(fDebugTrace = false;) }
-    bool isDebugTrace() const
-    {
-#ifdef SK_DEBUG
-        return fDebugTrace;
-#else
-        return false;
-#endif
-    }
+    const SkMetaData& getMetaData() const { return fMeta; }
 
     /** Call this to initialize the event from the specified XML node */
-    void    inflate(const SkDOM&, const SkDOM::Node*);
+    void inflate(const SkDOM&, const SkDOM::Node*);
 
     SkDEBUGCODE(void dump(const char title[] = NULL);)
 
-    /** Post the specified event to the event queue, targeting the specified eventsink, with an optional
-        delay. The event must be dynamically allocated for this. It cannot be a global or on the stack.
-        After this call, ownership is transfered to the system, so the caller must not retain
-        the event's ptr. Returns false if the event could not be posted (which means it will have been deleted).
-    */
-    static bool Post(SkEvent* evt, SkEventSinkID targetID, SkMSec delay = 0);
-    /** Post the specified event to the event queue, targeting the specified eventsink, to be delivered on/after the
-        specified millisecond time. The event must be dynamically allocated for this. It cannot be a global or on the stack.
-        After this call, ownership is transfered to the system, so the caller must not retain
-        the event's ptr. Returns false if the event could not be posted (which means it will have been deleted).
-    */
-    static bool PostTime(SkEvent* evt, SkEventSinkID targetID, SkMSec time);
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
-     *  Post to the event queue using the event's targetID. If this is 0, then
-     *  false is returned and the event is deleted, otherwise true is returned
-     *  and ownership of the event passes to the event queue.
+     *  Post to the event queue using the event's targetID or target-proc.
+     *
+     *  The event must be dynamically allocated, as ownership is transferred to
+     *  the event queue. It cannot be allocated on the stack or in a global.
      */
-    bool post() {
+    void post() {
         return this->postDelay(0);
     }
     
     /**
-     *  Post to the event queue using the event's targetID and the specifed
-     *  millisecond delay. If the event's targetID is 0, then false is returned
-     *  and the event is deleted, otherwise true is returned and ownership of
-     *  the event passes to the event queue.
+     *  Post to the event queue using the event's targetID or target-proc and
+     *  the specifed millisecond delay.
+     *
+     *  The event must be dynamically allocated, as ownership is transferred to
+     *  the event queue. It cannot be allocated on the stack or in a global.
      */
-    bool postDelay(SkMSec delay);
+    void postDelay(SkMSec delay);
     
     /**
-     *  Post to the event queue using the event's targetID and the specifed
-     *  millisecond time. If the event's targetID is 0, then false is returned
-     *  and the event is deleted, otherwise true is returned and ownership of
-     *  the event passes to the event queue.
+     *  Post to the event queue using the event's targetID or target-proc.
+     *  The event will be delivered no sooner than the specified millisecond
+     *  time, as measured by SkTime::GetMSecs().
+     *
+     *  The event must be dynamically allocated, as ownership is transferred to
+     *  the event queue. It cannot be allocated on the stack or in a global.
      */
-    bool postTime(SkMSec time);
-    
-    /** Helper method for calling SkEvent::PostTime(this, ...), where the caller specifies a delay.
-        The real "time" will be computed automatically by sampling the clock and adding its value
-        to delay.
-    */
-    bool post(SkEventSinkID sinkID, SkMSec delay = 0) {
-        return SkEvent::Post(this, sinkID, delay);
-    }
-
-    void postTime(SkEventSinkID sinkID, SkMSec time) {
-        SkEvent::PostTime(this, sinkID, time);
-    }
+    void postTime(SkMSec time);
 
     ///////////////////////////////////////////////
     /** Porting layer must call these functions **/
@@ -213,21 +223,21 @@ public:
         once before any other event method is called, and should be called after the
         call to SkGraphics::Init().
     */
-    static void     Init();
+    static void Init();
     /** Global cleanup function for the SkEvent system. Should be called exactly once after
         all event methods have been called, and should be called before calling SkGraphics::Term().
     */
-    static void     Term();
+    static void Term();
 
     /** Call this to process one event from the queue. If it returns true, there are more events
         to process.
     */
-    static bool     ProcessEvent();
+    static bool ProcessEvent();
     /** Call this whenever the requested timer has expired (requested by a call to SetQueueTimer).
         It will post any delayed events whose time as "expired" onto the event queue.
         It may also call SignalQueueTimer() and SignalNonEmptyQueue().
     */
-    static void     ServiceQueueTimer();
+    static void ServiceQueueTimer();
 
     /** Return the number of queued events. note that this value may be obsolete
         upon return, since another thread may have called ProcessEvent() or
@@ -264,17 +274,20 @@ private:
     SkMetaData      fMeta;
     mutable char*   fType;  // may be characters with low bit set to know that it is not a pointer
     uint32_t        f32;
+
+    // 'there can be only one' (non-zero) between target-id and target-proc
     SkEventSinkID   fTargetID;
-    SkDEBUGCODE(bool fDebugTrace;)
+    Proc            fTargetProc;
 
     // these are for our implementation of the event queue
     SkMSec          fTime;
     SkEvent*        fNextEvent; // either in the delay or normal event queue
-    void initialize(const char* type, size_t typeLen);
+
+    void initialize(const char* type, size_t typeLen, SkEventSinkID);
 
     static bool Enqueue(SkEvent* evt);
     static SkMSec EnqueueTime(SkEvent* evt, SkMSec time);
-    static SkEvent* Dequeue(SkEventSinkID* targetID);
+    static SkEvent* Dequeue();
     static bool     QHasEvents();
 };
 

@@ -96,7 +96,7 @@ protected:
     
 private:
     void postNextGM() {
-        (new SkEvent("next-gm"))->post(this->getSinkID(), 1500);
+        (new SkEvent("next-gm", this->getSinkID()))->postDelay(1500);
     }
 
     typedef SampleView INHERITED;

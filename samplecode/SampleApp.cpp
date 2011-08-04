@@ -156,8 +156,7 @@ private:
 static const char view_inval_msg[] = "view-inval-msg";
 
 void SampleWindow::postInvalDelay() {
-    SkEvent* evt = new SkEvent(view_inval_msg);
-    evt->post(this->getSinkID(), 1);
+    (new SkEvent(view_inval_msg, this->getSinkID()))->postDelay(1);
 }
 
 static bool isInvalEvent(const SkEvent& evt) {
@@ -1002,8 +1001,7 @@ int SampleWindow::sampleCount() {
 
 void SampleWindow::postAnimatingEvent() {
     if (fAnimating) {
-        SkEvent* evt = new SkEvent(ANIMATING_EVENTTYPE);
-        evt->post(this->getSinkID(), ANIMATING_DELAY);
+        (new SkEvent(ANIMATING_EVENTTYPE, this->getSinkID()))->postDelay(ANIMATING_DELAY);
     }
 }
 
@@ -1416,6 +1414,7 @@ void SampleWindow::loadView(SkView* view) {
     if (NULL == view) {
         view = create_overview(fSamples.count(), fSamples.begin());
     }
+    
     view->setVisibleP(true);
     view->setClipToBounds(false);
     this->attachChildToFront(view)->unref();
