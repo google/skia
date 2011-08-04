@@ -106,7 +106,7 @@ protected:
             canvas->drawText(buffer, len, 40, 40, paint);
             return;
         }
-        if (true) {
+        if (false) {
             SkPaint paint;
             paint.setAntiAlias(true);
             
