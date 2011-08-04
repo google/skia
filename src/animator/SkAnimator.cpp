@@ -479,7 +479,7 @@ void SkAnimator::onEventPost(SkEvent* evt, SkEventSinkID sinkID)
 #else
     SkASSERT(sinkID == this->getSinkID() || this->getHostEventSinkID() == sinkID);
 #endif
-    SkEvent::Post(evt, sinkID);
+    evt->setTargetID(sinkID)->post();
 }
 
 void SkAnimator::onEventPostTime(SkEvent* evt, SkEventSinkID sinkID, SkMSec time)
@@ -493,7 +493,7 @@ void SkAnimator::onEventPostTime(SkEvent* evt, SkEventSinkID sinkID, SkMSec time
 #else
     SkASSERT(sinkID == this->getSinkID() || this->getHostEventSinkID() == sinkID);
 #endif
-    SkEvent::PostTime(evt, sinkID, time);
+    evt->setTargetID(sinkID)->postTime(time);
 }
 
 void SkAnimator::reset() {

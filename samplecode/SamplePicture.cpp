@@ -173,7 +173,7 @@ private:
     #define INVAL_ALL_TYPE  "inval-all"
     
     void delayInval(SkMSec delay) {
-        (new SkEvent(INVAL_ALL_TYPE))->post(this->getSinkID(), delay);
+        (new SkEvent(INVAL_ALL_TYPE, this->getSinkID()))->postDelay(delay);
     }
     
     virtual bool onEvent(const SkEvent& evt) {

@@ -95,6 +95,30 @@ protected:
     virtual void onDrawContent(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
+        if (false) {
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setTextSize(50);
+            paint.setTypeface(SkTypeface::CreateFromName("Arial Unicode MS", SkTypeface::kNormal));
+            SkSafeUnref(paint.getTypeface());
+            char buffer[10];
+            size_t len = SkUTF8_FromUnichar(0x8500, buffer);
+            canvas->drawText(buffer, len, 40, 40, paint);
+            return;
+        }
+        if (true) {
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            
+            SkRect r0 = { 0, 0, 10.5f, 20 };
+            SkRect r1 = { 10.5f, 10, 20, 30 };
+            paint.setColor(SK_ColorRED);
+            canvas->drawRect(r0, paint);
+            paint.setColor(SK_ColorBLUE);
+            canvas->drawRect(r1, paint);
+            return;
+        }
+
         const struct {
             SkXfermode::Mode  fMode;
             const char*         fLabel;

@@ -121,9 +121,11 @@ extern "C" {
 
 void SkAnimateMaker::delayEnable(SkApply* apply, SkMSec time) {
     int index = fDelayed.find(apply);
-    if (index < 0)
+    if (index < 0) {
         *fDelayed.append() = apply;
-    (new SkEvent(SK_EventType_Delay))->postTime(fAnimator->getSinkID(), time);
+    }
+    
+    (new SkEvent(SK_EventType_Delay, fAnimator->getSinkID()))->postTime(time);
 }
 
 void SkAnimateMaker::deleteMembers() {

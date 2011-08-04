@@ -162,10 +162,6 @@ public:
      */
     SkView* sendQueryToParents(SkEvent*);
 
-    /** Depricated helper function. Just call event->post(sinkID, delay);
-    */
-    bool    postEvent(SkEvent* evt, SkEventSinkID sinkID, SkMSec delay) { return evt->post(sinkID, delay); }
-
     //  View hierarchy management
 
     /** Return the view's parent, or null if it has none. This does not affect the parent's reference count. */

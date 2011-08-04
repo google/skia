@@ -204,8 +204,7 @@ void SkOSWindow::updateSize()
 
 void SkOSWindow::onHandleInval(const SkIRect& r)
 {
-    SkEvent* evt = new SkEvent("inval-imageview");
-    evt->post(this->getSinkID());
+    (new SkEvent("inval-imageview", this->getSinkID()))->post();
 }
 
 bool SkOSWindow::onEvent(const SkEvent& evt) {

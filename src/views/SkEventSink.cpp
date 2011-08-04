@@ -213,58 +213,33 @@ bool SkEventSink::hasListeners() const
     return this->findTagList(kListeners_SkTagList) != NULL;
 }
 
-void SkEventSink::postToListeners(const SkEvent& evt, SkMSec delay)
-{
+void SkEventSink::postToListeners(const SkEvent& evt, SkMSec delay) {
     SkListenersTagList* list = (SkListenersTagList*)this->findTagList(kListeners_SkTagList);
-    if (list)
-    {
+    if (list) {
         SkASSERT(list->countListners() > 0);
         const SkEventSinkID* iter = list->fIDs;
         const SkEventSinkID* stop = iter + list->countListners();
-        while (iter < stop)
-            (SkNEW_ARGS(SkEvent, (evt)))->post(*iter++, delay);
+        while (iter < stop) {
+            SkEvent* copy = SkNEW_ARGS(SkEvent, (evt));
+            copy->setTargetID(*iter++)->postDelay(delay);
+        }
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkEventSink::EventResult SkEventSink::DoEvent(const SkEvent& evt, SkEventSinkID sinkID)
-{
-    SkEventSink* sink = SkEventSink::FindSink(sinkID);
-
-    if (sink)
-    {
-#ifdef SK_DEBUG
-        if (evt.isDebugTrace())
-        {
-            SkString    etype;
-            evt.getType(&etype);
-            SkDebugf("SkEventTrace: dispatching event <%s> to 0x%x", etype.c_str(), sinkID);
-            const char* idStr = evt.findString("id");
-            if (idStr)
-                SkDebugf(" (%s)", idStr);
-            SkDebugf("\n");
-        }
-#endif
+SkEventSink::EventResult SkEventSink::DoEvent(const SkEvent& evt) {
+    SkEvent::Proc proc = evt.getTargetProc();
+    if (proc) {
+        return proc(evt) ? kHandled_EventResult : kNotHandled_EventResult;
+    }
+        
+    SkEventSink* sink = SkEventSink::FindSink(evt.getTargetID());
+    if (sink) {
         return sink->doEvent(evt) ? kHandled_EventResult : kNotHandled_EventResult;
     }
-    else
-    {
-#ifdef SK_DEBUG
-        if (sinkID)
-            SkDebugf("DoEvent: Can't find sink for ID(%x)\n", sinkID);
-        else
-            SkDebugf("Event sent to 0 sinkID\n");
 
-        if (evt.isDebugTrace())
-        {
-            SkString    etype;
-            evt.getType(&etype);
-            SkDebugf("SkEventTrace: eventsink not found <%s> for 0x%x\n", etype.c_str(), sinkID);
-        }
-#endif
-        return kSinkNotFound_EventResult;
-    }
+    return kSinkNotFound_EventResult;
 }
 
 SkEventSink* SkEventSink::FindSink(SkEventSinkID sinkID)

@@ -64,7 +64,9 @@ public:
         
         //Post event associated with the menu item to target, any changes to the
         //associated event must be made prior to calling this method.
-        void postEvent() const { (new SkEvent(*(fEvent)))->post(fTarget); }
+        void postEvent() const {
+            (new SkEvent(*(fEvent)))->setTargetID(fTarget)->post();
+        }
         
         //Helper functions for predefined types
         void postEventWithBool(bool value) const; //For Switch
