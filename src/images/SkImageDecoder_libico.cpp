@@ -24,6 +24,11 @@ protected:
     virtual bool onDecode(SkStream* stream, SkBitmap* bm, Mode);
 };
 
+SkImageDecoder* SkCreateICOImageDecoder();
+SkImageDecoder* SkCreateICOImageDecoder() {
+    return new SkICOImageDecoder;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 
 //read bytes starting from the begin-th index in the buffer
@@ -355,6 +360,9 @@ static void editPixelBit32(const int pixelNo, const unsigned char* buf,
     int green = readByte(buf, xorOffset + 4*pixelNo + 1);
     int red = readByte(buf, xorOffset + 4*pixelNo + 2);
     int alphaBit = (alphaByte & m) >> shift;
+#if 1 // don't trust the alphaBit for 32bit images <mrr>
+    alphaBit = 0;
+#endif
     int alpha = readByte(buf, xorOffset + 4*pixelNo + 3) & ((alphaBit-1)&0xFF);
     *address = SkPreMultiplyARGB(alpha, red, green, blue);
 }
