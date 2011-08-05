@@ -768,6 +768,10 @@ void GrDrawTarget::drawRect(const GrRect& rect,
     GrVertexLayout layout = GetRectVertexLayout(stageEnableBitfield, srcRects);
 
     AutoReleaseGeometry geo(this, layout, 4, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
+        return;
+    }
 
     SetRectVertices(rect, matrix, srcRects, 
                     srcMatrices, layout, geo.vertices());

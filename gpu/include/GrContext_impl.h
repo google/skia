@@ -37,7 +37,7 @@ inline void GrContext::drawCustomVertices(const GrPaint& paint,
     int indexCount = (NULL != idxSrc) ? idxSrc->count() : 0;
 
     if (!geo.set(target, layout, vertexCount, indexCount)) {
-        GrPrintf("Failed to get space for vertices!");
+        GrPrintf("Failed to get space for vertices!\n");
         return;
     }
 

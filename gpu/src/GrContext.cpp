@@ -955,6 +955,10 @@ void GrContext::fillAARect(GrDrawTarget* target,
     size_t vsize = GrDrawTarget::VertexSize(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 8, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
+        return;
+    }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
 
@@ -1008,6 +1012,10 @@ void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
     size_t vsize = GrDrawTarget::VertexSize(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 16, 0);
+    if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
+        return;
+    }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
 
@@ -1149,6 +1157,7 @@ void GrContext::drawRect(const GrPaint& paint,
         GrDrawTarget::AutoReleaseGeometry geo(target, layout, worstCaseVertCount, 0);
 
         if (!geo.succeeded()) {
+            GrPrintf("Failed to get space for vertices!\n");
             return;
         }
 
@@ -1182,9 +1191,12 @@ void GrContext::drawRect(const GrPaint& paint,
     } else {
         #if GR_STATIC_RECT_VB
             GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL);
-
-            target->setVertexSourceToBuffer(layout,
-                                            fGpu->getUnitSquareVertexBuffer());
+            const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
+            if (NULL == sqVB) {
+                GrPrintf("Failed to create static rect vb.\n");
+                return;
+            }
+            target->setVertexSourceToBuffer(layout, sqVB);
             GrDrawTarget::AutoViewMatrixRestore avmr(target);
             GrMatrix m;
             m.setAll(rect.width(),    0,             rect.fLeft,
@@ -1251,7 +1263,12 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     }
     target->preConcatSamplerMatrix(GrPaint::kFirstTextureStage, m);
 
-    target->setVertexSourceToBuffer(layout, fGpu->getUnitSquareVertexBuffer());
+    const GrVertexBuffer* sqVB = fGpu->getUnitSquareVertexBuffer();
+    if (NULL == sqVB) {
+        GrPrintf("Failed to create static rect vb.\n");
+        return;
+    }
+    target->setVertexSourceToBuffer(layout, sqVB);
     target->drawNonIndexed(kTriangleFan_PrimitiveType, 0, 4);
 #else
 
@@ -1299,7 +1316,7 @@ void GrContext::drawVertices(const GrPaint& paint,
 
     if (sizeof(GrPoint) != vertexSize) {
         if (!geo.set(target, layout, vertexCount, 0)) {
-            GrPrintf("Failed to get space for vertices!");
+            GrPrintf("Failed to get space for vertices!\n");
             return;
         }
         int texOffsets[GrDrawTarget::kMaxTexCoords];
@@ -1517,9 +1534,10 @@ void GrContext::writePixels(int left, int top, int width, int height,
 
     GrVertexLayout layout = GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(0);
     static const int VCOUNT = 4;
-
+    // TODO: Use GrGpu::drawRect here
     GrDrawTarget::AutoReleaseGeometry geo(fGpu, layout, VCOUNT, 0);
     if (!geo.succeeded()) {
+        GrPrintf("Failed to get space for vertices!\n");
         return;
     }
     ((GrPoint*)geo.vertices())->setIRectFan(0, 0, width, height);

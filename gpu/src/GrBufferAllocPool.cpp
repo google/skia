@@ -220,7 +220,12 @@ void GrBufferAllocPool::putBack(size_t bytes) {
         if (bytes >= bytesUsed) {
             bytes -= bytesUsed;
             fBytesInUse -= bytesUsed;
-            destroyBlock();
+            // if we locked a vb to satisfy the make space and we're releasing
+            // beyond it, then unlock it.
+            if (block.fBuffer->isLocked()) {
+                block.fBuffer->unlock();
+            }
+            this->destroyBlock();
         } else {
             block.fBytesFree += bytes;
             fBytesInUse -= bytes;
