@@ -38,11 +38,13 @@ GrResourceCache::GrResourceCache(int maxCount, size_t maxBytes) :
         fMaxCount(maxCount),
         fMaxBytes(maxBytes) {
     fEntryCount          = 0;
+    fUnlockedEntryCount  = 0;
     fEntryBytes          = 0;
     fClientDetachedCount = 0;
     fClientDetachedBytes = 0;
 
     fHead = fTail = NULL;
+    fPurging = false;
 }
 
 GrResourceCache::~GrResourceCache() {
@@ -86,6 +88,9 @@ void GrResourceCache::internalDetach(GrResourceEntry* entry,
     } else {
         fTail = prev;
     }
+    if (!entry->isLocked()) {
+        --fUnlockedEntryCount;
+    }
 
     // update our stats
     if (clientDetach) {
@@ -107,6 +112,9 @@ void GrResourceCache::attachToHead(GrResourceEntry* entry,
     fHead = entry;
     if (NULL == fTail) {
         fTail = entry;
+    }
+    if (!entry->isLocked()) {
+        ++fUnlockedEntryCount;
     }
 
     // update our stats
@@ -153,18 +161,28 @@ GrResourceEntry* GrResourceCache::findAndLock(const GrResourceKey& key) {
     GrResourceEntry* entry = fCache.find(key);
     if (entry) {
         this->internalDetach(entry, false);
-        this->attachToHead(entry, false);
         // mark the entry as "busy" so it doesn't get purged
+        // do this between detach and attach for locked count tracking
         entry->lock();
+        this->attachToHead(entry, false);
     }
     return entry;
 }
 
 GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
                                               GrResource* resource) {
+    // we don't expect to create new resources during a purge. In theory
+    // this could cause purgeAsNeeded() into an infinite loop (e.g.
+    // each resource destroyed creates and locks 2 resources and
+    // unlocks 1 thereby causing a new purge).
+    GrAssert(!fPurging);
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceEntry* entry = new GrResourceEntry(key, resource);
+
+    // mark the entry as "busy" so it doesn't get purged
+    // do this before attach for locked count tracking
+    entry->lock();
 
     this->attachToHead(entry, false);
     fCache.insert(key, entry);
@@ -174,8 +192,6 @@ GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
              entry, fEntryCount, resource->sizeInBytes(), fEntryBytes);
 #endif
 
-    // mark the entry as "busy" so it doesn't get purged
-    entry->lock();
     this->purgeAsNeeded();
     return entry;
 }
@@ -199,34 +215,55 @@ void GrResourceCache::unlock(GrResourceEntry* entry) {
     GrAssert(fCache.find(entry->key()));
 
     entry->unlock();
+    if (!entry->isLocked()) {
+        ++fUnlockedEntryCount;
+    }
     this->purgeAsNeeded();
 }
 
+/**
+ * Destroying a resource may potentially trigger the unlock of additional 
+ * resources which in turn will trigger a nested purge. We block the nested
+ * purge using the fPurging variable. However, the initial purge will keep
+ * looping until either all resources in the cache are unlocked or we've met
+ * the budget. There is an assertion in createAndLock to check against a
+ * resource's destructor inserting new resources into the cache. If these
+ * new resources were unlocked before purgeAsNeeded completed it could
+ * potentially make purgeAsNeeded loop infinitely.
+ */
 void GrResourceCache::purgeAsNeeded() {
-    GrAutoResourceCacheValidate atcv(this);
+    if (!fPurging) {
+        fPurging = true;
+        bool withinBudget = false;
+        do {
+            GrAutoResourceCacheValidate atcv(this);
+            GrResourceEntry* entry = fTail;
+            while (entry && fUnlockedEntryCount) {
+                if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
+                    withinBudget = true;
+                    break;
+                }
 
-    GrResourceEntry* entry = fTail;
-    while (entry) {
-        if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
-            break;
-        }
+                GrResourceEntry* prev = entry->fPrev;
+                if (!entry->isLocked()) {
+                    // remove from our cache
+                    fCache.remove(entry->fKey, entry);
 
-        GrResourceEntry* prev = entry->fPrev;
-        if (!entry->isLocked()) {
-            // remove from our cache
-            fCache.remove(entry->fKey, entry);
+                    // remove from our llist
+                    this->internalDetach(entry, false);
 
-            // remove from our llist
-            this->internalDetach(entry, false);
-
-#if GR_DUMP_TEXTURE_UPLOAD
-            GrPrintf("--- ~resource from cache %p [%d %d]\n", entry->resource(),
-                     entry->resource()->width(),
-                     entry->resource()->height());
-#endif
-            delete entry;
-        }
-        entry = prev;
+        #if GR_DUMP_TEXTURE_UPLOAD
+                    GrPrintf("--- ~resource from cache %p [%d %d]\n",
+                             entry->resource(),
+                             entry->resource()->width(),
+                             entry->resource()->height());
+        #endif
+                    delete entry;
+                }
+                entry = prev;
+            }
+        } while (!withinBudget && fUnlockedEntryCount);
+        fPurging = false;
     }
 }
 
@@ -247,6 +284,7 @@ void GrResourceCache::removeAll() {
     fHead = fTail = NULL;
     fEntryCount = 0;
     fEntryBytes = 0;
+    fUnlockedEntryCount = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -282,16 +320,21 @@ void GrResourceCache::validate() const {
 
     GrResourceEntry* entry = fHead;
     int count = 0;
+    int unlockCount = 0;
     size_t bytes = 0;
     while (entry) {
         entry->validate();
         GrAssert(fCache.find(entry->key()));
         count += 1;
         bytes += entry->resource()->sizeInBytes();
+        if (!entry->isLocked()) {
+            unlockCount += 1;
+        }
         entry = entry->fNext;
     }
     GrAssert(count == fEntryCount - fClientDetachedCount);
     GrAssert(bytes == fEntryBytes  - fClientDetachedBytes);
+    GrAssert(unlockCount == fUnlockedEntryCount);
 
     count = 0;
     for (entry = fTail; entry; entry = entry->fPrev) {
