@@ -990,10 +990,13 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
 #endif
     rec->setHinting(h);
 
+// turn this off since GDI might turn A8 into BW! Need a bigger fix.
+#if 0
     // Disable LCD when rotated, since GDI's output is ugly
     if (isLCD(*rec) && !isAxisAligned(*rec)) {
         rec->fMaskFormat = SkMask::kA8_Format;
     }
+#endif
 }
 
 #endif // WIN32
