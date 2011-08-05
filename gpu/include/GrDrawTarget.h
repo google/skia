@@ -938,10 +938,10 @@ public:
                  int            vertexCount,
                  int            indexCount);
         bool succeeded() const { return NULL != fTarget; }
-        void* vertices() const { return fVertices; }
-        void* indices() const { return fIndices; }
+        void* vertices() const { GrAssert(this->succeeded()); return fVertices; }
+        void* indices() const { GrAssert(this->succeeded()); return fIndices; }
         GrPoint* positions() const {
-            return static_cast<GrPoint*>(fVertices);
+            return static_cast<GrPoint*>(this->vertices());
         }
 
     private:

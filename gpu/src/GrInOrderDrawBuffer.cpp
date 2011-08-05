@@ -87,6 +87,10 @@ void GrInOrderDrawBuffer::drawRect(const GrRect& rect,
         bool appendToPreviousDraw = false;
         GrVertexLayout layout = GetRectVertexLayout(stageEnableBitfield, srcRects);
         AutoReleaseGeometry geo(this, layout, 4, 0);
+        if (!geo.succeeded()) {
+            GrPrintf("Failed to get space for vertices!\n");
+            return;
+        }
         AutoViewMatrixRestore avmr(this);
         GrMatrix combinedMatrix = this->getViewMatrix();
         this->setViewMatrix(GrMatrix::I());
