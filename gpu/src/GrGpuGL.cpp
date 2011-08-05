@@ -1331,7 +1331,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
     // as well.
     GrGLTexture* tex = (GrGLTexture*) rt->asTexture();
     width = GrMax(width, tex->allocWidth());
-    height = GrMax(height, tex->allocWidth());
+    height = GrMax(height, tex->allocHeight());
 
     int samples = rt->numSamples();
     GrGLuint sbID;
