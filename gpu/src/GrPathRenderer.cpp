@@ -233,6 +233,9 @@ bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
 void GrDefaultPathRenderer::pathWillClear() {
     fSubpathVertCount.realloc(0);
     fTarget->resetVertexSource();
+    if (fUseIndexedDraw) {
+        fTarget->resetIndexSource();
+    }
     fPreviousSrcTol = -GR_Scalar1;
     fPreviousStages = -1;
 }
@@ -268,9 +271,6 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
         return false;
     }
 
-    fPreviousSrcTol = srcSpaceTol;
-    fPreviousStages = stages;
-
     GrVertexLayout layout = 0;
     for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
         if ((1 << s) & stages) {
@@ -298,14 +298,21 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
     }
 
     GrPoint* base;
-    fTarget->reserveVertexSpace(layout, maxPts, (void**)&base);
+    if (!fTarget->reserveVertexSpace(layout, maxPts, (void**)&base)) {
+        return false;
+    }
+    GrAssert(NULL != base);
     GrPoint* vert = base;
 
     uint16_t* idxBase = NULL;
     uint16_t* idx = NULL;
     uint16_t subpathIdxStart = 0;
     if (fUseIndexedDraw) {
-        fTarget->reserveIndexSpace(maxIdxs, (void**)&idxBase);
+        if (!fTarget->reserveIndexSpace(maxIdxs, (void**)&idxBase)) {
+            fTarget->resetVertexSource();
+            return false;
+        }
+        GrAssert(NULL != idxBase);
         idx = idxBase;
     }
 
@@ -393,6 +400,11 @@ FINISHED:
         }
     }
     }
+    // set these at the end so if we failed on first drawPath inside a
+    // setPath/clearPath block we won't assume geom was created on a subsequent
+    // drawPath in the same block.
+    fPreviousSrcTol = srcSpaceTol;
+    fPreviousStages = stages;
     return true;
 }
 
