@@ -516,14 +516,9 @@ GrGpuGL::GrGpuGL()
     }
 
     fLastSuccessfulStencilFmtIdx = 0;
-
-    fStencilClearFBO = 0;
 }
 
 GrGpuGL::~GrGpuGL() {
-    if (fStencilClearFBO) {
-        GR_GL(DeleteFramebuffers(1, &fStencilClearFBO));
-    }
 }
 
 void GrGpuGL::resetContext() {
@@ -593,21 +588,6 @@ void GrGpuGL::resetContext() {
 
     GR_GL(ColorMask(GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE, GR_GL_TRUE));
     fHWDrawState.fRenderTarget = NULL;
-}
-
-void GrGpuGL::abandonResources() {
-    INHERITED::abandonResources();
-
-    fStencilClearFBO = 0;
-}
-
-void GrGpuGL::releaseResources() {
-    INHERITED::releaseResources();
-
-    if (fStencilClearFBO) {
-        GR_GL(DeleteFramebuffers(1, &fStencilClearFBO));
-        fStencilClearFBO = 0;
-    }
 }
 
 GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) {
@@ -1374,56 +1354,6 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
                 sb->unref();
-                fHWDrawState.fRenderTarget = NULL;
-                // initial clear zeros the entire sb by attaching it alone
-                // to an fbo (that we create here on demand).
-                if (!fStencilClearFBO) {
-                    GR_GL(GenFramebuffers(1, &fStencilClearFBO));
-                    if (0 == fStencilClearFBO) {
-                        rt->setStencilBuffer(NULL);
-                        return false;
-                    }
-                    GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, fStencilClearFBO));
-                    if (GR_GL_SUPPORT_DESKTOP) {
-                        // We won't be binding a color buffer, set the draw
-                        // buffer to NONE to avoid
-                        // FRAMEBUFFER_INCOMPLETE_READ_BUFFER.
-                        GR_GL(DrawBuffer(GR_GL_NONE));
-                        // We bind to FRAMEBUFFER not DRAW_FRAMEBUFFER or
-                        // READ_FRAMEBUFFER because earlier versions of desktop
-                        // GL and unextended ES only have FRAMEBUFFER. But this
-                        // means we're binding both READ and DRAW when 
-                        // FramebufferBlit is supported. So to avoid 
-                        // FRAMEBUFFER_INCOMPLETE_READ_BUFFER status we also set
-                        // the read buffer to none.
-                        GR_GL(ReadBuffer(GR_GL_NONE));
-                        // DrawBuffer and ReadBuffer are framebuffer state so
-                        // we only have to set these the first time.
-                    }
-                } else {
-                    GR_GL(BindFramebuffer(GR_GL_FRAMEBUFFER, fStencilClearFBO));
-                }
-                GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                GR_GL_STENCIL_ATTACHMENT,
-                                                GR_GL_RENDERBUFFER, sbID));
-                if (fStencilFormats[sIdx].fPacked) {
-                    GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                GR_GL_DEPTH_ATTACHMENT,
-                                                GR_GL_RENDERBUFFER, sbID));
-                } else {
-                    GR_GL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
-                                                    GR_GL_DEPTH_ATTACHMENT,
-                                                    GR_GL_RENDERBUFFER, 0));
-                }
-#if GR_DEBUG
-                GrGLenum status = 
-                    GR_GL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
-                GrAssert(GR_GL_FRAMEBUFFER_COMPLETE == status);
-#endif
-
-                this->flushScissor(NULL);
-                GR_GL(ClearStencil(0));
-                GR_GL(Clear(GR_GL_STENCIL_BUFFER_BIT));
                 return true;
            }
            sb->abandon(); // otherwise we lose sbID
@@ -1600,7 +1530,7 @@ void GrGpuGL::onClear(const GrIRect* rect, GrColor color) {
     GR_GL(Clear(GR_GL_COLOR_BUFFER_BIT));
 }
 
-void GrGpuGL::clearStencil(uint32_t value, uint32_t mask) {
+void GrGpuGL::clearStencil() {
     if (NULL == fCurrDrawState.fRenderTarget) {
         return;
     }
@@ -1611,8 +1541,8 @@ void GrGpuGL::clearStencil(uint32_t value, uint32_t mask) {
         GR_GL(Disable(GR_GL_SCISSOR_TEST));
         fHWBounds.fScissorEnabled = false;
     }
-    GR_GL(StencilMask(mask));
-    GR_GL(ClearStencil(value));
+    GR_GL(StencilMask(0xffffffff));
+    GR_GL(ClearStencil(0));
     GR_GL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWDrawState.fStencilSettings.invalidate();
 }
