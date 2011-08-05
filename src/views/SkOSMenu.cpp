@@ -189,14 +189,15 @@ bool SkOSMenu::FindListItemCount(const SkEvent* evt, int* count) {
 bool SkOSMenu::FindListItems(const SkEvent* evt, SkString items[]) {
     if (evt->isType(gMenuEventType) && NULL != items) {
         const char* text = evt->findString(gList_Items_Str);
-        char temp[strlen(text)];
-        memcpy(temp, text, strlen(text) + 1); //make sure to copy the null terminator
-        char* token = strtok(temp, gDelimiter);
-        int index = 0;
-        while (token != NULL) {
-            items[index].set(token, strlen(token));
-            token = strtok (NULL, gDelimiter);
-            ++index;
+        if (text != NULL) {
+            SkString temp(text);
+            char* token = strtok((char*)temp.c_str(), gDelimiter);
+            int index = 0;
+            while (token != NULL) {
+                items[index].set(token, strlen(token));
+                token = strtok (NULL, gDelimiter);
+                ++index;
+            }
         }
         return true;
     }
