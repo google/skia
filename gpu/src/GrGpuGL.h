@@ -70,8 +70,6 @@ protected:
 
     // GrGpu overrides
     virtual void resetContext();
-    virtual void abandonResources();
-    virtual void releaseResources();
 
     virtual GrTexture* onCreateTexture(const GrTextureDesc& desc,
                                        const void* srcData,
@@ -104,7 +102,7 @@ protected:
                                      uint32_t vertexCount,
                                      uint32_t numVertices);
     virtual void flushScissor(const GrIRect* rect);
-    void clearStencil(uint32_t value, uint32_t mask);
+    virtual void clearStencil();
     virtual void clearStencilClip(const GrIRect& rect);
     virtual int getMaxEdges() const;
 

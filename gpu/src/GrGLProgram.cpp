@@ -1082,7 +1082,8 @@ void GrGLProgram::genStageCode(int stageNum,
                                   kernelName.c_str(), desc.fKernelWidth);
         segments->fFSUnis.appendf("uniform vec2 %s;\n",
                                   imageIncrementName.c_str());
-        segments->fVSUnis.appendf("uniform vec2 %s;\n",
+        segments->fVSUnis.appendf("uniform %s vec2 %s;\n",
+                                  GrPrecision(),
                                   imageIncrementName.c_str());
         locations->fKernelUni = kUseUniform;
         locations->fImageIncrementUni = kUseUniform;

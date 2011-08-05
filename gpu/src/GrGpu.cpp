@@ -156,8 +156,23 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     // TODO: use a cache of stencil buffers rather than create per-rt.
-    return this->createStencilBufferForRenderTarget(rt, rt->width(),
-                                                    rt->height());
+    bool ret = this->createStencilBufferForRenderTarget(rt, rt->width(),
+                                                        rt->height());
+    if (ret) {
+        // Right now we're clearing the stencil buffer here after it is
+        // attached to an RT for the first time. When we start matching
+        // stencil buffers with smaller color targets this will no longer
+        // be correct because it won't be guaranteed to clear the entire
+        // sb.
+        // We used to clear down in the GL subclass using a special purpose
+        // FBO. But iOS doesn't allow a stencil-only FBO. It reports unsupported
+        // FBO status.
+        GrRenderTarget* oldRT = fCurrDrawState.fRenderTarget;
+        fCurrDrawState.fRenderTarget = rt;
+        this->clearStencil();
+        fCurrDrawState.fRenderTarget = oldRT;
+    }
+    return ret;
 }
 
 GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {

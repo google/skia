@@ -493,6 +493,8 @@ protected:
 
     // GrGpu subclass removes the clip from the stencil buffer
     virtual void clearStencilClip(const GrIRect& rect) = 0;
+    // clears the entire stencil buffer to 0
+    virtual void clearStencil() = 0;
 
 private:
     GrContext*                  fContext; // not reffed (context refs gpu)
