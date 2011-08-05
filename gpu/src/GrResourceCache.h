@@ -255,7 +255,7 @@ public:
 private:
     void internalDetach(GrResourceEntry*, bool);
     void attachToHead(GrResourceEntry*, bool);
-    void purgeAsNeeded();   // uses kFreeResource_DeleteMode
+    void purgeAsNeeded();
 
     class Key;
     GrTHashTable<GrResourceEntry, Key, 8> fCache;
@@ -270,9 +270,13 @@ private:
 
     // our current stats, related to our budget
     int fEntryCount;
+    int fUnlockedEntryCount;
     size_t fEntryBytes;
     int fClientDetachedCount;
     size_t fClientDetachedBytes;
+    
+    // prevents recursive purging
+    bool fPurging;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
