@@ -112,6 +112,10 @@ SkScalerContext::SkScalerContext(const SkDescriptor* desc)
     fPathEffect = (SkPathEffect*)load_flattenable(desc, kPathEffect_SkDescriptorTag);
     fMaskFilter = (SkMaskFilter*)load_flattenable(desc, kMaskFilter_SkDescriptorTag);
     fRasterizer = (SkRasterizer*)load_flattenable(desc, kRasterizer_SkDescriptorTag);
+
+    // initialize based on our settings. subclasses can also force this
+    fGenerateImageFromPath = fRec.fFrameWidth > 0 || fPathEffect != NULL ||
+                             fRasterizer != NULL;
 }
 
 SkScalerContext::~SkScalerContext() {
@@ -254,7 +258,7 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         return;
     }
 
-    if (fRec.fFrameWidth > 0 || fPathEffect != NULL || fRasterizer != NULL) {
+    if (fGenerateImageFromPath) {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
 
@@ -322,6 +326,51 @@ SK_ERROR:
     glyph->fMaskFormat = fRec.fMaskFormat;
 }
 
+static bool isLCD(const SkScalerContext::Rec& rec) {
+    return SkMask::kLCD16_Format == rec.fMaskFormat ||
+           SkMask::kLCD32_Format == rec.fMaskFormat;
+}
+
+static uint16_t a8_to_rgb565(unsigned a8) {
+    return SkPackRGB16(a8 >> 3, a8 >> 2, a8 >> 3);
+}
+
+static void copyToLCD16(const SkBitmap& src, const SkGlyph& dst) {
+    SkASSERT(SkBitmap::kA8_Config == src.config());
+    SkASSERT(SkMask::kLCD16_Format == dst.fMaskFormat);
+
+    const uint8_t* srcP = src.getAddr8(0, 0);
+    size_t srcRB = src.rowBytes();
+    uint16_t* dstP = (uint16_t*)dst.fImage;
+    size_t dstRB = dst.rowBytes();
+    for (int y = 0; y < dst.fHeight; ++y) {
+        for (int x = 0; x < dst.fWidth; ++x) {
+            dstP[x] = a8_to_rgb565(srcP[x]);
+        }
+        srcP += srcRB;
+        dstP = (uint16_t*)((char*)dstP + dstRB);
+    }
+}
+
+static void copyToLCD32(const SkBitmap& src, const SkGlyph& dst) {
+    SkASSERT(SkBitmap::kA8_Config == src.config());
+    SkASSERT(SkMask::kLCD32_Format == dst.fMaskFormat);
+
+    const uint8_t* srcP = src.getAddr8(0, 0);
+    size_t srcRB = src.rowBytes();
+    SkPMColor* dstP = (SkPMColor*)dst.fImage;
+    size_t dstRB = dst.rowBytes();
+    for (int y = 0; y < dst.fHeight; ++y) {
+        for (int x = 0; x < dst.fWidth; ++x) {
+            unsigned a8 = srcP[x];
+            a8 = a8 | (a8 << 8);
+            dstP[x] = a8 | (a8 << 16);
+        }
+        srcP += srcRB;
+        dstP = (SkPMColor*)((char*)dstP + dstRB);
+    }
+}
+
 void SkScalerContext::getImage(const SkGlyph& origGlyph) {
     const SkGlyph*  glyph = &origGlyph;
     SkGlyph         tmpGlyph;
@@ -343,7 +392,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         glyph = &tmpGlyph;
     }
 
-    if (fRec.fFrameWidth > 0 || fPathEffect != NULL || fRasterizer != NULL) {
+    if (fGenerateImageFromPath) {
         SkPath      devPath, fillPath;
         SkMatrix    fillToDevMatrix;
 
@@ -367,15 +416,14 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
             SkMatrix    matrix;
             SkRegion    clip;
             SkPaint     paint;
-            SkDraw      draw;
 
-            if (SkMask::kA8_Format == fRec.fMaskFormat) {
-                config = SkBitmap::kA8_Config;
-                paint.setAntiAlias(true);
-            } else {
-                SkASSERT(SkMask::kBW_Format == fRec.fMaskFormat);
+            if (SkMask::kBW_Format == fRec.fMaskFormat) {
                 config = SkBitmap::kA1_Config;
                 paint.setAntiAlias(false);
+            } else {
+                config = SkBitmap::kA8_Config;
+                paint.setAntiAlias(true);
+                
             }
 
             clip.setRect(0, 0, glyph->fWidth, glyph->fHeight);
@@ -383,14 +431,39 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
                                 -SkIntToScalar(glyph->fTop));
             bm.setConfig(config, glyph->fWidth, glyph->fHeight,
                          glyph->rowBytes());
-            bm.setPixels(glyph->fImage);
-            sk_bzero(glyph->fImage, bm.height() * bm.rowBytes());
 
+            bool needCopyBack;
+            if (isLCD(fRec)) {
+                bm.allocPixels();
+                bm.lockPixels();
+                needCopyBack = true;
+            } else {
+                bm.setPixels(glyph->fImage);
+                needCopyBack = false;
+            }
+            sk_bzero(bm.getPixels(), bm.getSafeSize());
+
+            SkDraw  draw;
+            sk_bzero(&draw, sizeof(draw));
             draw.fClip  = &clip;
             draw.fMatrix = &matrix;
             draw.fBitmap = &bm;
-            draw.fBounder = NULL;
             draw.drawPath(devPath, paint);
+
+            // for now we just upscale A8 to lcd. Later we may respect the LCD
+            // request by scaling horizontally/vertiacally 3x
+            if (needCopyBack) {
+                switch (fRec.fMaskFormat) {
+                    case SkMask::kLCD16_Format:
+                        copyToLCD16(bm, *glyph);
+                        break;
+                    case SkMask::kLCD32_Format:
+                        copyToLCD32(bm, *glyph);
+                        break;
+                    default:
+                        SkASSERT(!"bad format for copyback");
+                }
+            }
         }
     } else {
         this->getGlyphContext(*glyph)->generateImage(*glyph);

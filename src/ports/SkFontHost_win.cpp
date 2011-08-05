@@ -23,12 +23,43 @@
 #include "tchar.h"
 #include "Usp10.h"
 
+// define this in your Makefile or .gyp to enforce AA requests
+// which GDI ignores at small sizes. This flag guarantees AA
+// for rotated text, regardless of GDI's notions.
+//#define SK_ENFORCE_ROTATED_TEXT_AA_ON_WINDOWS
+
 // client3d has to undefine this for now
 #define CAN_USE_LOGFONT_NAME
 
 static bool isLCD(const SkScalerContext::Rec& rec) {
     return SkMask::kLCD16_Format == rec.fMaskFormat ||
            SkMask::kLCD32_Format == rec.fMaskFormat;
+}
+
+static bool bothZero(SkScalar a, SkScalar b) {
+    return 0 == a && 0 == b;
+}
+
+// returns false if there is any non-90-rotation or skew
+static bool isAxisAligned(const SkScalerContext::Rec& rec) {
+    return 0 == rec.fPreSkewX &&
+           (bothZero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
+            bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
+}
+
+static bool needToRenderWithSkia(const SkScalerContext::Rec& rec) {
+#ifdef SK_ENFORCE_ROTATED_TEXT_AA_ON_WINDOWS
+    // What we really want to catch is when GDI will ignore the AA request and give
+    // us BW instead. Smallish rotated text is one heuristic, so this code is just
+    // an approximation. We shouldn't need to do this for larger sizes, but at those
+    // sizes, the quality difference gets less and less between our general
+    // scanconverter and GDI's.
+    if (SkMask::kA8_Format == rec.fMaskFormat && !isAxisAligned(rec)) {
+        return true;
+    }
+#endif
+    // false means allow GDI to generate the bits
+    return false;
 }
 
 using namespace skia_advanced_typeface_metrics_utils;
@@ -347,6 +378,10 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
         fHiResMatrix.preScale(scale, scale);
     }
     fSavefont = (HFONT)SelectObject(fDDC, fFont);
+
+    if (needToRenderWithSkia(fRec)) {
+        this->forceGenerateImageFromPath();
+    }
 }
 
 SkScalerContext_Windows::~SkScalerContext_Windows() {
@@ -946,17 +981,6 @@ void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     printf("SkFontHost::CreateTypefaceFromFile unimplemented");
     return NULL;
-}
-
-static bool bothZero(SkScalar a, SkScalar b) {
-    return 0 == a && 0 == b;
-}
-
-// returns false if there is any non-90-rotation or skew
-static bool isAxisAligned(const SkScalerContext::Rec& rec) {
-    return 0 == rec.fPreSkewX &&
-           (bothZero(rec.fPost2x2[0][1], rec.fPost2x2[1][0]) ||
-            bothZero(rec.fPost2x2[0][0], rec.fPost2x2[1][1]));
 }
 
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
