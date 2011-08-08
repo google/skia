@@ -15,7 +15,8 @@
 #include "SkMatrix.h"
 #include "FlingState.h"
 #include "SampleApp.h"
-#include "SkiOSDeviceManager.h"
+
+class SkiOSDeviceManager;
 class SkOSWindow;
 class SkEvent;
 struct FPSState;
@@ -30,7 +31,7 @@ struct FPSState;
 
 @interface SkUIView : UIView  {
     BOOL fRedrawRequestPending;
-    
+
     struct {
         EAGLContext*    fContext;
         GLuint          fRenderbuffer;

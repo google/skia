@@ -15,71 +15,82 @@
 #include "GrGLInterface.h"
 #include "SkGpuDevice.h"
 #include "SkCGUtils.h"
-
-SkiOSDeviceManager::SkiOSDeviceManager() {
-    fGrContext = NULL;
-    fGrRenderTarget = NULL;
-    usingGL = false;
-}
-
-SkiOSDeviceManager::~SkiOSDeviceManager() {
-    SkSafeUnref(fGrContext);
-    SkSafeUnref(fGrRenderTarget);
-}
-
-void SkiOSDeviceManager::init(SampleWindow* win) {
-    win->attachGL();
-    if (NULL == fGrContext) {
-#ifdef USE_GL_1
-        fGrContext = GrContext::Create(kOpenGL_Fixed_GrEngine, NULL);
-#else
-        fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
-#endif
-    }
-    fGrRenderTarget = SkGpuDevice::Current3DApiRenderTarget();
-    if (NULL == fGrContext) {
-        SkDebugf("Failed to setup 3D");
-        win->detachGL();
-    }
-}    
-bool SkiOSDeviceManager::supportsDeviceType(SampleWindow::DeviceType dType) {
-    switch (dType) {
-        case SampleWindow::kRaster_DeviceType:
-        case SampleWindow::kPicture_DeviceType: // fallthru
-            return true;
-        case SampleWindow::kGPU_DeviceType:
-            return NULL != fGrContext;
-        default:
-            return false;
-    }
-}
-bool SkiOSDeviceManager::prepareCanvas(SampleWindow::DeviceType dType,
-                                       SkCanvas* canvas,
-                                       SampleWindow* win) {
-    if (SampleWindow::kGPU_DeviceType == dType) {
-        canvas->setDevice(new SkGpuDevice(fGrContext, fGrRenderTarget))->unref();
-        usingGL = true;
-    }
-    else {
-        //The clip needs to be applied with a device attached to the canvas
-        canvas->setBitmapDevice(win->getBitmap());
+class SkiOSDeviceManager : public SampleWindow::DeviceManager {
+public:
+    SkiOSDeviceManager() {
+        fGrContext = NULL;
+        fGrRenderTarget = NULL;
         usingGL = false;
     }
-    return true;
-}
-
-void SkiOSDeviceManager::publishCanvas(SampleWindow::DeviceType dType,
-                                       SkCanvas* canvas,
-                                       SampleWindow* win) {
-    if (SampleWindow::kGPU_DeviceType == dType) {
-        fGrContext->flush();
+    virtual ~SkiOSDeviceManager() {
+        SkSafeUnref(fGrContext);
+        SkSafeUnref(fGrRenderTarget);
     }
-    else {
-        //CGContextRef cg = UIGraphicsGetCurrentContext();
-        //SkCGDrawBitmap(cg, win->getBitmap(), 0, 0);
+    
+    virtual void init(SampleWindow* win) {
+        win->attachGL();
+        if (NULL == fGrContext) {
+#ifdef USE_GL_1
+            fGrContext = GrContext::Create(kOpenGL_Fixed_GrEngine, NULL);
+#else
+            fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
+#endif
+        }
+        fGrRenderTarget = SkGpuDevice::Current3DApiRenderTarget();
+        if (NULL == fGrContext) {
+            SkDebugf("Failed to setup 3D");
+            win->detachGL();
+        }
+    }        
+    
+    virtual bool supportsDeviceType(SampleWindow::DeviceType dType) {
+        switch (dType) {
+            case SampleWindow::kRaster_DeviceType:
+            case SampleWindow::kPicture_DeviceType: // fallthru
+                return true;
+            case SampleWindow::kGPU_DeviceType:
+                return NULL != fGrContext;
+            default:
+                return false;
+        }
     }
-    win->presentGL();
-}
+    virtual bool prepareCanvas(SampleWindow::DeviceType dType,
+                               SkCanvas* canvas,
+                               SampleWindow* win) {
+        if (SampleWindow::kGPU_DeviceType == dType) {
+            canvas->setDevice(new SkGpuDevice(fGrContext, fGrRenderTarget))->unref();
+            usingGL = true;
+        }
+        else {
+            //The clip needs to be applied with a device attached to the canvas
+            canvas->setBitmapDevice(win->getBitmap());
+            usingGL = false;
+        }
+        return true;
+    }
+    virtual void publishCanvas(SampleWindow::DeviceType dType,
+                               SkCanvas* canvas,
+                               SampleWindow* win) {
+        if (SampleWindow::kGPU_DeviceType == dType) {
+            fGrContext->flush();
+        }
+        else {
+            //CGContextRef cg = UIGraphicsGetCurrentContext();
+            //SkCGDrawBitmap(cg, win->getBitmap(), 0, 0);
+        }
+        win->presentGL();
+    }
+    
+    virtual void windowSizeChanged(SampleWindow* win) {}
+    
+    bool isUsingGL() { return usingGL; }
+    
+    virtual GrContext* getGrContext() { return fGrContext; }
+private:
+    bool usingGL;
+    GrContext* fGrContext;
+    GrRenderTarget* fGrRenderTarget;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 @implementation SkUIView
@@ -90,16 +101,7 @@ void SkiOSDeviceManager::publishCanvas(SampleWindow::DeviceType dType,
 #include "SkEvent.h"
 #include "SkWindow.h"
 
-static float gScreenScale = 1;
-
 #define kREDRAW_UIVIEW_GL "sk_redraw_uiview_gl_iOS"
-
-static const float SCALE_FOR_ZOOM_LENS = 4.0;
-#define Y_OFFSET_FOR_ZOOM_LENS           200
-#define SIZE_FOR_ZOOM_LENS               250
-
-static const float MAX_ZOOM_SCALE = 4.0;
-static const float MIN_ZOOM_SCALE = 2.0 / MAX_ZOOM_SCALE;
 
 extern bool gDoTraceDraw;
 #define DO_TRACE_DRAW_MAX   100
@@ -171,6 +173,16 @@ static FPSState gFPS;
 - (id)initWithMyDefaults {
     fRedrawRequestPending = false;
     fFPSState = new FPSState;
+    
+    //Add gesture recognizer for single taps. Taps on the right half of the view
+    //will cause SampleApp to go to the next sample, taps on the left will go to 
+    //the previous sample
+    UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc]
+                                   initWithTarget:self 
+                                   action:@selector(handleTap:)];
+    [self addGestureRecognizer:tap];
+    [tap release];
+    
 #ifdef USE_GL_1
     fGL.fContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
 #else
@@ -227,6 +239,7 @@ static FPSState gFPS;
     fWind = new SampleWindow(self, NULL, NULL, fDevManager);
     application_init();
     fWind->resize(self.frame.size.width, self.frame.size.height, SKWIND_CONFIG);
+
     return self;
 }
 
@@ -258,11 +271,6 @@ static FPSState gFPS;
 
 - (void)layoutSubviews {
     int W, H;
-    gScreenScale = [UIScreen mainScreen].scale;
-    
-    if ([self respondsToSelector:@selector(setContentScaleFactor:)]) {
-        self.contentScaleFactor = gScreenScale;
-    }
     
     // Allocate color buffer backing based on the current layer size
     glBindRenderbuffer(GL_RENDERBUFFER, fGL.fRenderbuffer);
@@ -399,6 +407,15 @@ static FPSState gFPS;
         fWind->handleClick(loc.x, loc.y, SkView::Click::kUp_State, touch);
     }
 }
+
+- (void)handleTap:(UISwipeGestureRecognizer *)sender {
+//    CGPoint loc = [sender locationInView:self];
+//    if (loc.x > self.bounds.size.width/2)
+//        ((SampleWindow*)fWind)->nextSample();
+//    else
+//        ((SampleWindow*)fWind)->previousSample();
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

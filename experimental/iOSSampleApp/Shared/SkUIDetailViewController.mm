@@ -1,7 +1,6 @@
 #import "SkAlertPrompt.h"
 #import "SkUIDetailViewController.h"
 #include "SampleApp.h"
-#include "SkApplication.h"
 #include "SkCGUtils.h"
 #include "SkData.h"
 #include "SkOSMenu.h"
@@ -19,10 +18,23 @@
     
     [self createButtons];
     
+    UISwipeGestureRecognizer* swipe = [[UISwipeGestureRecognizer alloc]
+                                       initWithTarget:self 
+                                       action:@selector(handleSwipe:)];
+    [self.navigationController.navigationBar addGestureRecognizer:swipe];
+    [swipe release];
+    swipe = [[UISwipeGestureRecognizer alloc]
+             initWithTarget:self 
+             action:@selector(handleSwipe:)];
+    swipe.direction = UISwipeGestureRecognizerDirectionLeft;
+    [self.navigationController.navigationBar addGestureRecognizer:swipe];
+    [swipe release];
+    
     fOptionsController = [[SkOptionsTableViewController alloc] 
                           initWithStyle:UITableViewStyleGrouped];
     fSkUIView.fOptionsDelegate = fOptionsController;
     [fOptionsController registerMenus:fWind->getMenus()];
+    
 }
 
 - (void)createButtons {
@@ -62,6 +74,13 @@
     [toolbar release];
 }
 
+- (void)handleSwipe:(UISwipeGestureRecognizer *)sender {
+    if (UISwipeGestureRecognizerDirectionRight == sender.direction)
+        fWind->previousSample();
+    else
+        fWind->nextSample();
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     return YES; // Overriden to allow auto rotation for any direction
 }
@@ -71,7 +90,6 @@
     [fOptionsButton release];
     [fPopOverController release];
     [fOptionsController release];
-    application_term();
     [super dealloc];
 }
 

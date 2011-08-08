@@ -1,11 +1,8 @@
 #import "SkNSView.h"
 #include "SkApplication.h"
 #include "SkCanvas.h"
-#include "GrContext.h"
 #include "SkCGUtils.h"
 #include "SkEvent.h"
-#include "GrGLInterface.h"
-#include "SkGpuDevice.h"
 
 //#define FORCE_REDRAW
 @implementation SkNSView
@@ -43,8 +40,8 @@
 }
 
 -(BOOL) inLiveResize {
-    if (fWind != NULL) {
-        NSSize s = [self frame].size;
+    NSSize s = [self frame].size;
+    if (fWind != NULL && fWind->width() != s.width && fWind->height() != s.height) {
         fWind->resize(s.width, s.height);
         [fGLContext update];
     }
@@ -59,27 +56,40 @@
     [super dealloc];
 }
 
-- (void)layoutSubviews {
-    NSSize rect = self.bounds.size;
-    fWind->resize(rect.width, rect.height);
-    fWind->inval(NULL);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
-- (void)drawWithCanvas:(SkCanvas*)canvas {
+- (void)drawSkia {
     fRedrawRequestPending = false;
-    fWind->draw(canvas);
+    SkCanvas canvas(fWind->getBitmap());
+    fWind->draw(&canvas);
 #ifdef FORCE_REDRAW
     fWind->inval(NULL);
 #endif
 }
 
-- (void)drawRect:(NSRect)dirtyRect {
-    SkCanvas canvas(fWind->getBitmap());
-    [self drawWithCanvas:&canvas];
-    CGContextRef ctx = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
-    SkCGDrawBitmap(ctx, fWind->getBitmap(), 0, 0);
+- (void)setSkTitle:(const char *)title {
+    self.fTitle = [NSString stringWithUTF8String:title];
+    [[self window] setTitle:self.fTitle];
+}
+
+- (BOOL)onHandleEvent:(const SkEvent&)evt {
+    return false;
+}
+
+#include "SkOSMenu.h"
+- (void)onAddMenu:(const SkOSMenu*)menu {
+    [self.fOptionsDelegate view:self didAddMenu:menu];
+}
+
+- (void)onUpdateMenu:(const SkOSMenu*)menu {
+    [self.fOptionsDelegate view:self didUpdateMenu:menu];
+}
+
+- (void)postInvalWithRect:(const SkIRect*)r {
+    if (!fRedrawRequestPending) {
+        fRedrawRequestPending = true;
+        [self performSelector:@selector(drawSkia) withObject:nil afterDelay:0];
+    }
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +131,7 @@ static SkKey raw2key(UInt32 raw)
         { SK_Mac1Key,       k1_SkKey        },
         { SK_Mac2Key,       k2_SkKey        },
         { SK_Mac3Key,       k3_SkKey        },
-        { SK_Mac4Key,       k4_SkKey         },
+        { SK_Mac4Key,       k4_SkKey        },
         { SK_Mac5Key,       k5_SkKey        },
         { SK_Mac6Key,       k6_SkKey        },
         { SK_Mac7Key,       k7_SkKey        },
@@ -179,34 +189,16 @@ static SkKey raw2key(UInt32 raw)
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-- (void)setSkTitle:(const char *)title {
-    NSString* text = [NSString stringWithUTF8String:title];
-    if ([text length] > 0)
-        self.fTitle = text;
-    [[self window] setTitle:fTitle];
+- (void)swipeWithEvent:(NSEvent *)event {
+    CGFloat x = [event deltaX];
+    if (x < 0)
+        ((SampleWindow*)fWind)->previousSample();
+    else if (x > 0)
+        ((SampleWindow*)fWind)->nextSample();
+    else
+        ((SampleWindow*)fWind)->showOverview();
 }
 
-- (BOOL)onHandleEvent:(const SkEvent&)evt {
-    return false;
-}
-
-#include "SkOSMenu.h"
-- (void)onAddMenu:(const SkOSMenu*)menu {
-    [self.fOptionsDelegate view:self didAddMenu:menu];
-}
-
-- (void)onUpdateMenu:(const SkOSMenu*)menu {
-    [self.fOptionsDelegate view:self didUpdateMenu:menu];
-}
-
-- (void)postInvalWithRect:(const SkIRect*)r {
-    if (!fRedrawRequestPending) {
-        fRedrawRequestPending = true;
-        [self performSelector:@selector(display) withObject:nil afterDelay:0];
-    }
-}
 ///////////////////////////////////////////////////////////////////////////////
 #include <OpenGL/OpenGL.h>
 

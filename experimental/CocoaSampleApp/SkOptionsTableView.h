@@ -13,16 +13,17 @@
 @interface SkOptionsTableView : NSTableView <SkNSViewOptionsDelegate, NSTableViewDelegate, NSTableViewDataSource> {
     NSMutableArray* fItems;
     const SkTDArray<SkOSMenu*>* fMenus;
+    BOOL fShowKeys;
 }
 @property (nonatomic, retain) NSMutableArray* fItems;
 
 - (void)registerMenus:(const SkTDArray<SkOSMenu*>*)menus;
 - (void)updateMenu:(const SkOSMenu*)menu;
 - (void)loadMenu:(const SkOSMenu*)menu;
+- (IBAction)toggleKeyEquivalents:(id)sender;
 
 - (NSCell*)createAction;
 - (NSCell*)createList:(NSArray*)items current:(int)index;
-- (NSCell*)createSegmented:(NSArray*)items current:(int)index;
 - (NSCell*)createSlider:(float)value min:(float)min max:(float)max;
 - (NSCell*)createSwitch:(BOOL)state;
 - (NSCell*)createTextField:(NSString*)placeHolder;

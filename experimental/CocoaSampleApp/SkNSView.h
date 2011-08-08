@@ -2,8 +2,8 @@
 #import <Cocoa/Cocoa.h>
 #include "SampleApp.h"
 
-class SkOSWindow;
 class SkEvent;
+class SkOSWindow;
 @class SkNSView;
 
 @protocol SkNSViewOptionsDelegate <NSObject>
@@ -18,7 +18,6 @@ class SkEvent;
     
     NSString* fTitle;
     SkOSWindow* fWind;
-    
     NSOpenGLContext* fGLContext;
     id<SkNSViewOptionsDelegate> fOptionsDelegate;
 }

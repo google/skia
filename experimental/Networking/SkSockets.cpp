@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -20,8 +19,6 @@ SkSocket::SkSocket() {
     fReadSuspended = false;
     fWriteSuspended = false;
     fSockfd = this->createSocket();
-    fTimeout.tv_sec  = 0;
-    fTimeout.tv_usec = 0;
 }
 
 SkSocket::~SkSocket() {
@@ -31,7 +28,13 @@ SkSocket::~SkSocket() {
 int SkSocket::createSocket() {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        //SkDebugf("ERROR opening socket\n");
+        SkDebugf("ERROR opening socket\n");
+        return -1;
+    }
+    int reuse = 1;
+    
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) < 0) {
+        SkDebugf("error: %s\n", strerror(errno));
         return -1;
     }
 #ifdef NONBLOCKING_SOCKETS
@@ -46,8 +49,9 @@ void SkSocket::closeSocket(int sockfd) {
     if (!fReady)
         return;
     
-    //SkDebugf("Closed fd:%d\n", sockfd);
+    shutdown(sockfd, 2); //stop sending/receiving
     close(sockfd);
+    //SkDebugf("Closed fd:%d\n", sockfd);
     
     if (FD_ISSET(sockfd, &fMasterSet)) {
         FD_CLR(sockfd, &fMasterSet);
@@ -56,10 +60,8 @@ void SkSocket::closeSocket(int sockfd) {
                 fMaxfd -= 1;
         }
     }
-    if (0 == fMaxfd) {
+    if (0 == fMaxfd) 
         fConnected = false;
-        //SkDebugf("all connections closed\n");
-    }
 }
 
 void SkSocket::onFailedConnection(int sockfd) {
@@ -77,9 +79,10 @@ void SkSocket::addToMasterSet(int sockfd) {
         fMaxfd = sockfd;
 }
 
-int SkSocket::readPacket(void (*onRead)(const void*, size_t, int, DataType, 
+int SkSocket::readPacket(void (*onRead)(int, const void*, size_t, DataType, 
                                         void*), void* context) {
-    if (!fConnected || !fReady || NULL == onRead || fReadSuspended)
+    if (!fConnected || !fReady || NULL == onRead || NULL == context 
+        || fReadSuspended)
         return -1;
 
     int totalBytesRead = 0;
@@ -139,9 +142,9 @@ int SkSocket::readPacket(void (*onRead)(const void*, size_t, int, DataType,
                 failure = true;
                 break;
             }
-            //SkDebugf("read packet(done:%d, bytes:%d) from fd:%d in %d attempts\n",
+            //SkDebugf("read packet(done:%d, bytes:%d) from fd:%d in %d tries\n",
             //         h.done, h.bytes, fSockfd, attempts);
-            stream.write(packet + HEADER_SIZE, h.bytes);\
+            stream.write(packet + HEADER_SIZE, h.bytes);
             bytesReadInPacket = 0;
             attempts = 0;
             bytesReadInTransfer += h.bytes;
@@ -156,7 +159,7 @@ int SkSocket::readPacket(void (*onRead)(const void*, size_t, int, DataType,
         if (bytesReadInTransfer > 0) {
             SkData* data = stream.copyToData();
             SkASSERT(data->size() == bytesReadInTransfer);
-            onRead(data->data(), data->size(), i, h.type, context);
+            onRead(i, data->data(), data->size(), h.type, context);
             data->unref();
             
             totalBytesRead += bytesReadInTransfer;
@@ -206,7 +209,7 @@ int SkSocket::writePacket(void* data, size_t size, DataType type) {
 #ifdef NONBLOCKING_SOCKETS
                 else if (errno == EWOULDBLOCK || errno == EAGAIN) {
                     if (bytesWrittenInPacket > 0 || bytesWrittenInTransfer > 0)
-                        continue; //incomplete packet or frame, keep tring
+                        continue; //incomplete packet or frame, keep trying
                     else
                         break; //client not available, skip current transfer
                 }
@@ -220,10 +223,8 @@ int SkSocket::writePacket(void* data, size_t size, DataType type) {
             }
 
             bytesWrittenInPacket += retval;
-            if (bytesWrittenInPacket < PACKET_SIZE) {
-                //SkDebugf("Wrote %d/%d\n", bytesWrittenInPacket, PACKET_SIZE);
-                continue; //incomplete packet, keep tring
-            }
+            if (bytesWrittenInPacket < PACKET_SIZE)
+                continue; //incomplete packet, keep trying
 
             SkASSERT(bytesWrittenInPacket == PACKET_SIZE);
             //SkDebugf("wrote to packet(done:%d, bytes:%d) to fd:%d in %d tries\n",
@@ -233,15 +234,14 @@ int SkSocket::writePacket(void* data, size_t size, DataType type) {
             attempts = 0;
         }
 
-        if (failure) {
-            //SkDebugf("Failed to write to fd:%d, terminating connection\n", i);
+        if (failure)
             this->onFailedConnection(i);
-        }
 
         totalBytesWritten += bytesWrittenInTransfer;
     }
     return totalBytesWritten;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 SkTCPServer::SkTCPServer(int port) {
     sockaddr_in serverAddr;
@@ -250,33 +250,32 @@ SkTCPServer::SkTCPServer(int port) {
     serverAddr.sin_port = htons(port);
 
     if (bind(fSockfd, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
-        //SkDebugf("ERROR on binding\n");
+        SkDebugf("ERROR on binding: %s\n", strerror(errno));
         fReady = false;
     }
 }
 
 SkTCPServer::~SkTCPServer() {
-    this->disconnectAllConnections();
+    this->disconnectAll();
 }
 
-int SkTCPServer::acceptIncomingConnections() {
+int SkTCPServer::acceptConnections() {
     if (!fReady)
         return -1;
-//    if (fConnected)
-//        return 0;
 
-    listen(fSockfd, MAX_CLIENTS);
-    ////SkDebugf("Accepting Incoming connections\n");
+    listen(fSockfd, MAX_WAITING_CLIENTS);
     int newfd;
-
-    for (int i = 0; i < MAX_CLIENTS; ++i) {
+    for (int i = 0; i < MAX_WAITING_CLIENTS; ++i) {
 #ifdef NONBLOCKING_SOCKETS
         fd_set workingSet;
         FD_ZERO(&workingSet);
         FD_SET(fSockfd, &workingSet);
-        int sel = select(fSockfd + 1, &workingSet, NULL, NULL, &fTimeout);
+        timeval timeout;
+        timeout.tv_sec  = 0;
+        timeout.tv_usec = 0;
+        int sel = select(fSockfd + 1, &workingSet, NULL, NULL, &timeout);
         if (sel < 0) {
-            //SkDebugf("select() failed with error %s\n", strerror(errno));
+            SkDebugf("select() failed with error %s\n", strerror(errno));
             continue;
         }
         if (sel == 0) //select() timed out
@@ -286,10 +285,10 @@ int SkTCPServer::acceptIncomingConnections() {
         socklen_t clientLen = sizeof(clientAddr);
         newfd = accept(fSockfd, (struct sockaddr*)&clientAddr, &clientLen);
         if (newfd< 0) {
-            //SkDebugf("accept() failed with error %s\n", strerror(errno));
+            SkDebugf("accept() failed with error %s\n", strerror(errno));
             continue;
         }
-        //SkDebugf("New incoming connection - %d\n", newfd);
+        SkDebugf("New incoming connection - %d\n", newfd);
         fConnected = true;
 #ifdef NONBLOCKING_SOCKETS
         this->setNonBlocking(newfd);
@@ -300,12 +299,10 @@ int SkTCPServer::acceptIncomingConnections() {
 }
 
 
-int SkTCPServer::disconnectAllConnections() {
-    ////SkDebugf("disconnecting server\n");
+int SkTCPServer::disconnectAll() {
     if (!fConnected || !fReady)
         return -1;
-    for (int i = 0; i <= fMaxfd; ++i)
-    {
+    for (int i = 0; i <= fMaxfd; ++i) {
         if (FD_ISSET(i, &fMasterSet))
             this->closeSocket(i);
     }
@@ -331,7 +328,7 @@ SkTCPClient::SkTCPClient(const char* hostname, int port) {
     }
 }
 
-void SkTCPClient::onFailedConnection(int sockfd) {
+void SkTCPClient::onFailedConnection(int sockfd) { //cleanup and recreate socket
     SkASSERT(sockfd == fSockfd);
     this->closeSocket(fSockfd);
     fSockfd = this->createSocket();
@@ -358,6 +355,6 @@ int SkTCPClient::connectToServer() {
         }
     }
     fConnected = true;
-    //SkDebugf("Succesfully reached server\n");
+    SkDebugf("Succesfully reached server\n");
     return 0;
 }

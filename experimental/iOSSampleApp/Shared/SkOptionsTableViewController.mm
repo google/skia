@@ -70,22 +70,22 @@
         const SkOSMenu::Item* item = menu->getItem(i);
         NSString* title = [NSString stringWithUTF8String:item->getLabel()];
         
-        int index = 0;
-        NSArray* optionstrs = nil;
         if (SkOSMenu::kList_Type == item->getType()) {
+            int value = 0;
             SkOptionListItem* List = [[SkOptionListItem alloc] init];
-            //List.fCmdID = item->fOSCmd;
-            //List.getEvent() = item->getEvent();
+
             List.fItem = item;
             List.fOptions = [[SkOptionListController alloc] initWithStyle:UITableViewStyleGrouped];
             
-            NSArray* optionstrs = [[NSString stringWithUTF8String:item->getEvent()->findString(SkOSMenu::List_Items_Str)]
-                                   componentsSeparatedByString:[NSString stringWithUTF8String:SkOSMenu::Delimiter]];
-            for (NSString* optionstr in optionstrs) {
-                [List.fOptions addOption:optionstr];
-            }
-            item->getEvent()->findS32(item->getSlotName(), &index);
-            List.fOptions.fSelectedIndex = index;
+            int count = 0;
+            SkOSMenu::FindListItemCount(item->getEvent(), &count);
+            SkString options[count];
+            SkOSMenu::FindListItems(item->getEvent(), options);
+            for (int i = 0; i < count; ++i)
+                [List.fOptions addOption:[NSString stringWithUTF8String:options[i].c_str()]];
+            SkOSMenu::FindListIndex(item->getEvent(), item->getSlotName(), &value);
+            
+            List.fOptions.fSelectedIndex = value;
             List.fCell = [self createList:title
                                       default:[List.fOptions getSelectedOption]];
             List.fOptions.fParentCell = List.fCell;
@@ -95,32 +95,36 @@
         else {
             SkOptionItem* option = [[SkOptionItem alloc] init];
             option.fItem = item;
+ 
             bool state = false;
+            SkString str;
+            SkOSMenu::TriState tristate;
             switch (item->getType()) {
                 case SkOSMenu::kAction_Type:
                     option.fCell = [self createAction:title];
                     break;
                 case SkOSMenu::kSwitch_Type:
-                    item->getEvent()->findBool(item->getSlotName(), &state);
+                    SkOSMenu::FindSwitchState(item->getEvent(), item->getSlotName(), &state);
                     option.fCell = [self createSwitch:title default:(BOOL)state];
                     break;
                 case SkOSMenu::kSlider_Type:
                     SkScalar min, max, value;
-                    item->getEvent()->findScalar(SkOSMenu::Slider_Min_Scalar, &min);
-                    item->getEvent()->findScalar(SkOSMenu::Slider_Max_Scalar, &max);
-                    item->getEvent()->findScalar(item->getSlotName(), &value);
+                    SkOSMenu::FindSliderValue(item->getEvent(), item->getSlotName(), &value);
+                    SkOSMenu::FindSliderMin(item->getEvent(), &min);
+                    SkOSMenu::FindSliderMax(item->getEvent(), &max);
                     option.fCell = [self createSlider:title 
                                                   min:min 
                                                   max:max
                                               default:value];
                     break;                    
                 case SkOSMenu::kTriState_Type:
-                    item->getEvent()->findS32(item->getSlotName(), &index);
-                    option.fCell = [self createTriState:title default:index];
+                    SkOSMenu::FindTriState(item->getEvent(), item->getSlotName(), &tristate);
+                    option.fCell = [self createTriState:title default:(int)tristate];
                     break;
                 case SkOSMenu::kTextField_Type:
+                    SkOSMenu::FindText(item->getEvent(), item->getSlotName(), &str);
                     option.fCell = [self createTextField:title 
-                                                 default:item->getEvent()->findString(item->getSlotName())];
+                                                 default:[NSString stringWithUTF8String:str.c_str()]];
                     break;
                 default:
                     break;
@@ -225,7 +229,7 @@
 }
 
 - (UITableViewCell*)createTextField:(NSString*)title 
-                            default:(const char*)value {
+                            default:(NSString*)value {
     UITableViewCell* cell = [[[UITableViewCell alloc] 
                               initWithStyle:UITableViewCellStyleValue1 
                               reuseIdentifier:nil] autorelease];
@@ -236,7 +240,7 @@
     textField.adjustsFontSizeToFitWidth = YES;
     textField.textAlignment = UITextAlignmentRight;
     textField.textColor = cell.detailTextLabel.textColor;
-    textField.placeholder = [NSString stringWithUTF8String:value];
+    textField.placeholder = value;
     textField.returnKeyType = UIReturnKeyDone;
     [textField addTarget:self 
                   action:@selector(valueChanged:) 
@@ -280,7 +284,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-    id item = [fItems objectAtIndex:indexPath.row];
+    id item = [fItems objectAtIndex:[self convertPathToIndex:indexPath]];
     
     if ([item isKindOfClass:[SkOptionListItem class]]) {
         SkOptionListItem* list = (SkOptionListItem*)item;

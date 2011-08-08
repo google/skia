@@ -16,9 +16,12 @@ SkColorPalette::SkColorPalette() {
     fGradientRect = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(100));
     fSelected = 0;
     fCurrColor = 0xFF000000;
-    for (int i = 0; i < PaletteSlots; ++i) {
-        fColors[i] = 0xFF000000;
-    }
+    
+    fColors[0] = SK_ColorWHITE;
+    fColors[1] = SK_ColorBLACK;
+    fColors[2] = SK_ColorRED;
+    fColors[3] = SK_ColorGREEN;
+    fColors[4] = SK_ColorBLUE;
 }
 
 bool SkColorPalette::onEvent(const SkEvent& evt) {
@@ -26,24 +29,27 @@ bool SkColorPalette::onEvent(const SkEvent& evt) {
 }
     
 void SkColorPalette::onDraw(SkCanvas* canvas) {
-    canvas->drawColor(0xFFEEEEEE);
+    canvas->drawColor(SK_ColorWHITE);
     
     SkPaint paint;
     paint.setAntiAlias(true);
-    paint.setStyle(SkPaint::kStrokeAndFill_Style);
     
     canvas->translate(PalettePadding, PalettePadding);
+    
     for (int i = 0; i < PaletteSlots; ++i) {
         if (fSelected == i) {
             paint.setStrokeWidth(SkIntToScalar(3));
         }
         else {
-            paint.setStrokeWidth(0);
+            paint.setStrokeWidth(1);
         }
-
+        
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(SK_ColorBLACK);
+        canvas->drawRect(fSlotRect, paint);
+        paint.setStyle(SkPaint::kFill_Style);
         paint.setColor(fColors[i]);
         canvas->drawRect(fSlotRect, paint);
-        
         canvas->translate(0, fSlotRect.height() + PalettePadding);
     }
     paint.setStrokeWidth(0);

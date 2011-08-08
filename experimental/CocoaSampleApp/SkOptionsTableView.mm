@@ -15,6 +15,8 @@
     if ((self = [super initWithCoder:coder])) {
         self.dataSource = self;
         self.delegate = self;
+        fMenus = NULL;
+        fShowKeys = YES;
         [self setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleNone];
         self.fItems = [NSMutableArray array];
     }
@@ -29,6 +31,13 @@
 - (void) view:(SkNSView*)view didAddMenu:(const SkOSMenu*)menu {}
 - (void) view:(SkNSView*)view didUpdateMenu:(const SkOSMenu*)menu {
     [self updateMenu:menu];
+}
+
+- (IBAction)toggleKeyEquivalents:(id)sender {
+    fShowKeys = !fShowKeys;
+    NSMenuItem* item = (NSMenuItem*)sender;
+    [item setState:fShowKeys];
+    [self reloadData];
 }
 
 - (void)registerMenus:(const SkTDArray<SkOSMenu*>*)menus {
@@ -65,47 +74,53 @@
 - (void)loadMenu:(const SkOSMenu*)menu {
     for (int i = 0; i < menu->countItems(); ++i) {
         const SkOSMenu::Item* item = menu->getItem(i);
-        NSString* str;
-        int index = 0;
-        NSArray* optionstrs = nil;
-        
         SkOptionItem* option = [[SkOptionItem alloc] init];
         option.fItem = item;
-        bool state = false;
-        SkOSMenu::TriState tristate;
-        switch (item->getType()) {
-            case SkOSMenu::kAction_Type:
-                option.fCell = [self createAction];
-                break;                
-            case SkOSMenu::kList_Type:
-                optionstrs = [[NSString stringWithUTF8String:item->getEvent()->findString(SkOSMenu::List_Items_Str)]
-                              componentsSeparatedByString:[NSString stringWithUTF8String:SkOSMenu::Delimiter]];
-                item->getEvent()->findS32(item->getSlotName(), &index);
-                option.fCell = [self createList:optionstrs current:index];
-                break;
-            case SkOSMenu::kSlider_Type:
-                SkScalar min, max, value;
-                item->getEvent()->findScalar(SkOSMenu::Slider_Min_Scalar, &min);
-                item->getEvent()->findScalar(SkOSMenu::Slider_Max_Scalar, &max);
-                item->getEvent()->findScalar(item->getSlotName(), &value);
-                option.fCell = [self createSlider:value 
-                                              min:min 
-                                              max:max];
-                break;                    
-            case SkOSMenu::kSwitch_Type:
-                item->getEvent()->findBool(item->getSlotName(), &state);
-                option.fCell = [self createSwitch:(BOOL)state];
-                break;
-            case SkOSMenu::kTriState_Type:
-                item->getEvent()->findS32(item->getSlotName(), (int*)&tristate);
-                option.fCell = [self createTriState:[self triStateToNSState:tristate]];
-                break;
-            case SkOSMenu::kTextField_Type:
-                str = [NSString stringWithUTF8String:item->getEvent()->findString(item->getSlotName())];
-                option.fCell = [self createTextField:str];
-                break;
-            default:
-                break;
+        
+        if (SkOSMenu::kList_Type == item->getType()) {
+            int index = 0, count = 0;
+            SkOSMenu::FindListItemCount(item->getEvent(), &count);
+            NSMutableArray* optionstrs = [[NSMutableArray alloc] initWithCapacity:count];
+            SkString options[count];
+            SkOSMenu::FindListItems(item->getEvent(), options);
+            for (int i = 0; i < count; ++i)
+                [optionstrs addObject:[NSString stringWithUTF8String:options[i].c_str()]];
+            SkOSMenu::FindListIndex(item->getEvent(), item->getSlotName(), &index);
+            option.fCell = [self createList:optionstrs current:index];
+            [optionstrs release];
+        }
+        else {
+            bool state = false;
+            SkString str;
+            SkOSMenu::TriState tristate;
+            switch (item->getType()) {
+                case SkOSMenu::kAction_Type:
+                    option.fCell = [self createAction];
+                    break;
+                case SkOSMenu::kSlider_Type:
+                    SkScalar min, max, value;
+                    SkOSMenu::FindSliderValue(item->getEvent(), item->getSlotName(), &value);
+                    SkOSMenu::FindSliderMin(item->getEvent(), &min);
+                    SkOSMenu::FindSliderMax(item->getEvent(), &max);
+                    option.fCell = [self createSlider:value 
+                                                  min:min 
+                                                  max:max];
+                    break;                    
+                case SkOSMenu::kSwitch_Type:
+                    SkOSMenu::FindSwitchState(item->getEvent(), item->getSlotName(), &state);
+                    option.fCell = [self createSwitch:(BOOL)state];
+                    break;
+                case SkOSMenu::kTriState_Type:
+                    SkOSMenu::FindTriState(item->getEvent(), item->getSlotName(), &tristate);
+                    option.fCell = [self createTriState:[self triStateToNSState:tristate]];
+                    break;
+                case SkOSMenu::kTextField_Type:
+                    SkOSMenu::FindText(item->getEvent(),item->getSlotName(), &str);
+                    option.fCell = [self createTextField:[NSString stringWithUTF8String:str.c_str()]];
+                    break;
+                default:
+                    break;
+            }
         }
         [fItems addObject:option];
         [option release];
@@ -118,8 +133,14 @@
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     int columnIndex = [tableView columnWithIdentifier:[tableColumn identifier]];
-    if (columnIndex == 0)
-        return [NSString stringWithUTF8String:((SkOptionItem*)[fItems objectAtIndex:row]).fItem->getLabel()];
+    if (columnIndex == 0) {
+        const SkOSMenu::Item* item = ((SkOptionItem*)[fItems objectAtIndex:row]).fItem;
+        NSString* label = [NSString stringWithUTF8String:item->getLabel()];
+        if (fShowKeys) 
+            return [NSString stringWithFormat:@"%@ (%c)", label, item->getKeyEquivalent()];
+        else 
+            return label;
+    }
     else
         return nil;
 }
@@ -151,7 +172,6 @@
                 [cell setFloatValue:[storedCell floatValue]];
                 break;
             case SkOSMenu::kSwitch_Type:
-                [cell setTitle:storedCell.title];
                 [cell setState:[(NSButtonCell*)storedCell state]];
                 break;
             case SkOSMenu::kTextField_Type:
@@ -159,7 +179,6 @@
                     [cell setStringValue:[storedCell stringValue]];
                 break;
             case SkOSMenu::kTriState_Type:
-                [cell setTitle:storedCell.title];
                 [cell setState:[(NSButtonCell*)storedCell state]];
                 break;
             default:
@@ -226,19 +245,6 @@
     return cell; 
 }
 
-- (NSCell*)createSegmented:(NSArray*)items current:(int)index {
-    NSSegmentedCell* cell = [[[NSSegmentedCell alloc] init] autorelease];
-    [cell setSegmentStyle:NSSegmentStyleSmallSquare];
-    [cell setSegmentCount:[items count]];
-    NSUInteger i = 0;
-    for (NSString* label in items) {
-        [cell setLabel:label forSegment:i];
-        ++i;
-    }
-    [cell setSelectedSegment:index];
-    return cell; 
-}
-
 - (NSCell*)createSlider:(float)value min:(float)min max:(float)max {
     NSSliderCell* cell = [[[NSSliderCell alloc] init] autorelease];
     [cell setFloatValue:value];
@@ -249,8 +255,8 @@
 
 - (NSCell*)createSwitch:(BOOL)state {
     NSButtonCell* cell = [[[NSButtonCell alloc] init] autorelease];
-    [cell setTitle:(state) ? @"On" : @"Off"];
     [cell setState:state];
+    [cell setTitle:@""];
     [cell setButtonType:NSSwitchButton];
     return cell;
 }
@@ -265,13 +271,8 @@
 
 - (NSCell*)createTriState:(NSCellStateValue)state {
     NSButtonCell* cell = [[[NSButtonCell alloc] init] autorelease];
-    if (NSOnState == state)
-        [cell setTitle:@"On"];
-    else if (NSOffState == state)
-        [cell setTitle:@"Off"];
-    else
-        [cell setTitle:@"Mixed"];
     [cell setAllowsMixedState:TRUE];
+    [cell setTitle:@""];
     [cell setState:(NSInteger)state];
     [cell setButtonType:NSSwitchButton];
     return cell;
