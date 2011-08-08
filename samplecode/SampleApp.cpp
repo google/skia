@@ -29,17 +29,26 @@
 #include "SkPDFDocument.h"
 #include "SkStream.h"
 
-#define TEST_GPIPEx
+#define TEST_GPIPE
 
 #ifdef  TEST_GPIPE
-#define PIPE_FILE
+#define PIPE_FILEx
+#ifdef  PIPE_FILE
 #define FILE_PATH "/path/to/drawing.data"
+#endif
+
+#define PIPE_NET
+#ifdef  PIPE_NET
+#include "SkSockets.h"
+SkTCPServer gServer;
+#endif
 #endif
 
 #define USE_ARROWS_FOR_ZOOM true
 //#define DEFAULT_TO_GPU
 
 extern SkView* create_overview(int, const SkViewFactory[]);
+extern SkView* create_transition(SkView*, SkView*, int);
 
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
@@ -216,45 +225,36 @@ enum FlipAxisEnum {
     kFlipAxis_Y = (1 << 1)
 };
 
-static SkTriState cycle_tristate(SkTriState state) {
-    static const SkTriState gCycle[] = {
-        /* kFalse_SkTriState   -> */  kUnknown_SkTriState,
-        /* kTrue_SkTriState    -> */  kFalse_SkTriState,
-        /* kUnknown_SkTriState -> */  kTrue_SkTriState,
-    };
-    return gCycle[state];
-}
-
 #include "SkDrawFilter.h"
 
 class FlagsDrawFilter : public SkDrawFilter {
 public:
-    FlagsDrawFilter(SkTriState lcd, SkTriState aa, SkTriState filter,
-                    SkTriState hinting) :
+    FlagsDrawFilter(SkOSMenu::TriState lcd, SkOSMenu::TriState aa, SkOSMenu::TriState filter,
+                    SkOSMenu::TriState hinting) :
         fLCDState(lcd), fAAState(aa), fFilterState(filter), fHintingState(hinting) {}
 
     virtual void filter(SkPaint* paint, Type t) {
-        if (kText_Type == t && kUnknown_SkTriState != fLCDState) {
-            paint->setLCDRenderText(kTrue_SkTriState == fLCDState);
+        if (kText_Type == t && SkOSMenu::kMixedState != fLCDState) {
+            paint->setLCDRenderText(SkOSMenu::kOnState == fLCDState);
         }
-        if (kUnknown_SkTriState != fAAState) {
-            paint->setAntiAlias(kTrue_SkTriState == fAAState);
+        if (SkOSMenu::kMixedState != fAAState) {
+            paint->setAntiAlias(SkOSMenu::kOnState == fAAState);
         }
-        if (kUnknown_SkTriState != fFilterState) {
-            paint->setFilterBitmap(kTrue_SkTriState == fFilterState);
+        if (SkOSMenu::kMixedState != fFilterState) {
+            paint->setFilterBitmap(SkOSMenu::kOnState == fFilterState);
         }
-        if (kUnknown_SkTriState != fHintingState) {
-            paint->setHinting(kTrue_SkTriState == fHintingState ?
+        if (SkOSMenu::kMixedState != fHintingState) {
+            paint->setHinting(SkOSMenu::kOnState == fHintingState ?
                               SkPaint::kNormal_Hinting :
                               SkPaint::kSlight_Hinting);
         }
     }
 
 private:
-    SkTriState  fLCDState;
-    SkTriState  fAAState;
-    SkTriState  fFilterState;
-    SkTriState  fHintingState;
+    SkOSMenu::TriState  fLCDState;
+    SkOSMenu::TriState  fAAState;
+    SkOSMenu::TriState  fFilterState;
+    SkOSMenu::TriState  fHintingState;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -295,6 +295,15 @@ bool SampleCode::TitleQ(const SkEvent& evt) {
 void SampleCode::TitleR(SkEvent* evt, const char title[]) {
     SkASSERT(evt && TitleQ(*evt));
     evt->setString(gTitleEvtName, title);
+}
+
+bool SampleCode::RequestTitle(SkView* view, SkString* title) {
+    SkEvent evt(gTitleEvtName);
+    if (view->doQuery(&evt)) {
+        title->set(evt.findString(gTitleEvtName));
+        return true;
+    }
+    return false;
 }
 
 bool SampleCode::PrefSizeQ(const SkEvent& evt) {
@@ -370,12 +379,6 @@ bool SampleWindow::zoomOut()
     return true;
 }
 
-void SampleWindow::toggleZoomer()
-{
-    fShowZoomer = !fShowZoomer;
-    this->inval(NULL);
-}
-
 void SampleWindow::updatePointer(int x, int y)
 {
     fMouseX = x;
@@ -419,10 +422,10 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fRequestGrabImage = false;
     fUsePipe = false;
     fMeasureFPS = false;
-    fLCDState = kUnknown_SkTriState;
-    fAAState = kUnknown_SkTriState;
-    fFilterState = kUnknown_SkTriState;
-    fHintingState = kUnknown_SkTriState;
+    fLCDState = SkOSMenu::kMixedState;
+    fAAState = SkOSMenu::kMixedState;
+    fFilterState = SkOSMenu::kMixedState;
+    fHintingState = SkOSMenu::kMixedState;
     fFlipAxis = 0;
     fScrollTestX = fScrollTestY = 0;
 
@@ -433,25 +436,57 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     
     fZoomLevel = 0;
     fZoomScale = SK_Scalar1;
-
+    
+    fMagnify = false;
+    
     fSaveToPdf = false;
     fPdfCanvas = NULL;
 
+    fTransitionNext = 6;
+    fTransitionPrev = 2;
+    
     int sinkID = this->getSinkID();
     fAppMenu.setTitle("Global Settings");
-    fAppMenu.appendList("Device Type", "Device Type", sinkID, 0, "Raster", "Picture", "OpenGL", NULL);
-    fAppMenu.appendTriState("AA", "AA", sinkID, SkOSMenu::kMixedState);
-    fAppMenu.appendTriState("LCD", "LCD", sinkID, SkOSMenu::kMixedState);
-    fAppMenu.appendTriState("Filter", "Filter", sinkID, SkOSMenu::kMixedState);
-    fAppMenu.appendTriState("Hinting", "Hinting", sinkID, SkOSMenu::kMixedState);
-    fAppMenu.appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
-    fAppMenu.appendSwitch("Slide Show", "Slide Show" , sinkID, false);    
-    fAppMenu.appendSwitch("Clip", "Clip" , sinkID, fUseClip);    
-    fAppMenu.appendSwitch("Measure FPS", "Measure FPS" , sinkID, fMeasureFPS);    
-    fAppMenu.appendSwitch("Flip X", "Flip X" , sinkID, false);    
-    fAppMenu.appendSwitch("Flip Y", "Flip Y" , sinkID, false);
-    fAppMenu.appendSwitch("Zoomer", "Zoomer" , sinkID, fShowZoomer);
-    fAppMenu.appendAction("Save to PDF", sinkID);
+    int itemID;
+    
+    itemID =fAppMenu.appendList("Device Type", "Device Type", sinkID, 0, "Raster", "Picture", "OpenGL", NULL);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'd');
+    itemID = fAppMenu.appendTriState("AA", "AA", sinkID, fAAState);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'b');
+    itemID = fAppMenu.appendTriState("LCD", "LCD", sinkID, fLCDState);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'l');
+    itemID = fAppMenu.appendTriState("Filter", "Filter", sinkID, fFilterState);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'n');
+    itemID = fAppMenu.appendTriState("Hinting", "Hinting", sinkID, fHintingState);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'h');
+    itemID = fAppMenu.appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'p');
+    itemID = fAppMenu.appendSwitch("Slide Show", "Slide Show" , sinkID, false);    
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'a');    
+    itemID = fAppMenu.appendSwitch("Clip", "Clip" , sinkID, fUseClip);    
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'c');
+    itemID = fAppMenu.appendSwitch("Measure FPS", "Measure FPS" , sinkID, fMeasureFPS);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'f');
+    itemID = fAppMenu.appendSwitch("Flip X", "Flip X" , sinkID, false); 
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'x');
+    itemID = fAppMenu.appendSwitch("Flip Y", "Flip Y" , sinkID, false);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'y');
+    itemID = fAppMenu.appendSwitch("Zoomer", "Zoomer" , sinkID, fShowZoomer);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'z');
+    itemID = fAppMenu.appendSwitch("Magnify", "Magnify" , sinkID, fMagnify);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'm');
+    itemID =fAppMenu.appendList("Transition-Next", "Transition-Next", sinkID, 
+                                fTransitionNext, "Up", "Up and Right", "Right", 
+                                "Down and Right", "Down", "Down and Left", 
+                                "Left", "Up and Left", NULL);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'j');
+    itemID =fAppMenu.appendList("Transition-Prev", "Transition-Prev", sinkID, 
+                                fTransitionPrev, "Up", "Up and Right", "Right", 
+                                "Down and Right", "Down", "Down and Left", 
+                                "Left", "Up and Left", NULL);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'k');
+    itemID = fAppMenu.appendAction("Save to PDF", sinkID);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'e');
     
     this->addMenu(&fAppMenu);
     this->addMenu(&fSlideMenu);
@@ -558,7 +593,6 @@ static void drawText(SkCanvas* canvas, SkString string, SkScalar left, SkScalar 
 #define YCLIP_N  8
 
 void SampleWindow::draw(SkCanvas* canvas) {
-
     if (!fDevManager->prepareCanvas(fDeviceType, canvas, this)) {
         return;
     }
@@ -647,9 +681,47 @@ void SampleWindow::draw(SkCanvas* canvas) {
     if (fShowZoomer && !fSaveToPdf) {
         showZoomer(canvas);
     }
+    if (fMagnify && !fSaveToPdf) {
+        magnify(canvas);
+    }
     
     // do this last
     fDevManager->publishCanvas(fDeviceType, canvas, this);
+}
+
+static float clipW = 200;
+static float clipH = 200;
+void SampleWindow::magnify(SkCanvas* canvas) {
+    SkRect r;
+    int count = canvas->save();
+    
+    SkMatrix m = canvas->getTotalMatrix();
+    m.invert(&m);
+    SkPoint offset, center;
+    m.mapXY(fMouseX - clipW/2, fMouseY - clipH/2, &offset);
+    m.mapXY(fMouseX, fMouseY, &center);
+    
+    r.set(0, 0, clipW * m.getScaleX(), clipH * m.getScaleX());
+    r.offset(offset.fX, offset.fY);
+    
+    SkPaint paint;
+    paint.setColor(0xFF66AAEE);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(10.0 * m.getScaleX());
+    //lense offset
+    //canvas->translate(0, -250);
+    canvas->drawRect(r, paint);
+    canvas->clipRect(r);
+    
+    m = canvas->getTotalMatrix();
+    m.setTranslate(-center.fX, -center.fY);
+    m.postScale(0.5 * fFatBitsScale, 0.5 * fFatBitsScale);
+    m.postTranslate(center.fX, center.fY);
+    canvas->concat(m);
+    
+    this->INHERITED::draw(canvas);
+    
+    canvas->restoreToCount(count);
 }
 
 void SampleWindow::showZoomer(SkCanvas* canvas) {
@@ -968,29 +1040,28 @@ void SampleWindow::changeZoomLevel(float delta) {
 
 bool SampleWindow::previousSample() {
     fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
-    this->loadView(fSamples[fCurrIndex]());
+    this->loadView(create_transition(curr_view(this), fSamples[fCurrIndex](), 
+                                     fTransitionPrev));
     return true;
 }
 
 bool SampleWindow::nextSample() {
     fCurrIndex = (fCurrIndex + 1) % fSamples.count();
-    this->loadView(fSamples[fCurrIndex]());
+    this->loadView(create_transition(curr_view(this), fSamples[fCurrIndex](), 
+                                     fTransitionNext));
     return true;
 }
 
 bool SampleWindow::goToSample(int i) {
     fCurrIndex = (i) % fSamples.count();
-    this->loadView(fSamples[fCurrIndex]());
+    this->loadView(create_transition(curr_view(this),fSamples[fCurrIndex](), 6));
     return true;
 }
 
 SkString SampleWindow::getSampleTitle(int i) {
     SkView* view = fSamples[i]();
     SkString title;
-    SkEvent evt(gTitleEvtName);
-    if (view->doQuery(&evt)) {
-        title.set(evt.findString(gTitleEvtName));
-    }
+    SampleCode::RequestTitle(view, &title);
     view->unref();
     return title;
 }
@@ -999,12 +1070,17 @@ int SampleWindow::sampleCount() {
     return fSamples.count();
 }
 
+void SampleWindow::showOverview() {
+    this->loadView(create_transition(curr_view(this), 
+                                     create_overview(fSamples.count(), fSamples.begin()), 
+                                     4));
+}
+
 void SampleWindow::postAnimatingEvent() {
     if (fAnimating) {
         (new SkEvent(ANIMATING_EVENTTYPE, this->getSinkID()))->postDelay(ANIMATING_DELAY);
     }
 }
-
 bool SampleWindow::onEvent(const SkEvent& evt) {
     if (evt.isType(ANIMATING_EVENTTYPE)) {
         if (fAnimating) {
@@ -1013,9 +1089,12 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         }
         return true;
     }
+    if (evt.isType("unref-transition-view")) {
+        SkEventSink::FindSink(evt.getFast32())->unref();
+        return true;
+    }
     if (evt.isType("set-curr-index")) {
-        fCurrIndex = evt.getFast32() % fSamples.count();
-        this->loadView(fSamples[fCurrIndex]());
+        this->goToSample(evt.getFast32());
         return true;
     }
     if (isInvalEvent(evt)) {
@@ -1027,27 +1106,6 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->setDeviceType((DeviceType)selected);
         return true; 
     }
-    SkOSMenu::TriState state;
-    if (SkOSMenu::FindTriState(&evt, "AA", &state)) {
-        fAAState = (SkTriState)state;
-        this->updateTitle();
-        this->inval(NULL);
-    }
-    if (SkOSMenu::FindTriState(&evt, "LCD", &state)) {
-        fLCDState = (SkTriState)state;
-        this->updateTitle();
-        this->inval(NULL);
-    }
-    if (SkOSMenu::FindTriState(&evt, "Filter", &state)) {
-        fFilterState = (SkTriState)state;
-        this->updateTitle();
-        this->inval(NULL);
-    }
-    if (SkOSMenu::FindTriState(&evt, "Hinting", &state)) {
-        fHintingState = (SkTriState)state;
-        this->updateTitle();
-        this->inval(NULL);
-    }
     if (SkOSMenu::FindSwitchState(&evt, "Pipe", NULL)) {
         this->togglePipe();
         return true;
@@ -1056,14 +1114,18 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->toggleSlideshow();
         return true;
     }
-    if (SkOSMenu::FindSwitchState(&evt, "Clip", NULL)) {
-        fUseClip = !fUseClip;
+    if (SkOSMenu::FindTriState(&evt, "AA", &fAAState) ||
+        SkOSMenu::FindTriState(&evt, "LCD", &fLCDState) ||
+        SkOSMenu::FindTriState(&evt, "Filter", &fFilterState) ||
+        SkOSMenu::FindTriState(&evt, "Hinting", &fHintingState) ||
+        SkOSMenu::FindSwitchState(&evt, "Clip", &fUseClip) ||
+        SkOSMenu::FindSwitchState(&evt, "Zoomer", &fShowZoomer) ||
+        SkOSMenu::FindSwitchState(&evt, "Magnify", &fMagnify) ||
+        SkOSMenu::FindSwitchState(&evt, "Measure FPS", &fMeasureFPS) ||
+        SkOSMenu::FindListIndex(&evt, "Transition-Next", &fTransitionNext) ||
+        SkOSMenu::FindListIndex(&evt, "Transition-Prev", &fTransitionPrev)) {
         this->inval(NULL);
         this->updateTitle();
-        return true;
-    }
-    if (SkOSMenu::FindSwitchState(&evt, "Measure FPS", NULL)) {
-        this->toggleFPS();
         return true;
     }
     if (SkOSMenu::FindSwitchState(&evt, "Flip X", NULL)) {
@@ -1078,10 +1140,7 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         this->inval(NULL);
         return true;
     }
-    if (SkOSMenu::FindSwitchState(&evt, "Zoomer", NULL)) {
-        this->toggleZoomer();
-        return true;
-    }
+    
     if (SkOSMenu::FindAction(&evt,"Save to PDF")) {
         this->saveToPdf();
         return true;
@@ -1137,7 +1196,7 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             }
         }
     }
-
+    
     int dx = 0xFF;
     int dy = 0xFF;
 
@@ -1168,57 +1227,18 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
     }
 
     switch (uni) {
-        case 'a':
-            this->toggleSlideshow();
-            return true;
-        case 'b':
-            fAAState = cycle_tristate(fAAState);
-            this->updateTitle();
-            this->inval(NULL);
-            break;
-        case 'c':
-            fUseClip = !fUseClip;
-            this->inval(NULL);
-            this->updateTitle();
-            return true;
         case 'd':
             SkGraphics::SetFontCacheUsed(0);
             return true;
-        case 'e':
-            this->saveToPdf();
-            break;
-        case 'f':
-            this->toggleFPS();
-            break;
         case 'g':
             fRequestGrabImage = true;
-            this->inval(NULL);
-            break;
-        case 'h':
-            fHintingState = cycle_tristate(fHintingState);
-            this->updateTitle();
             this->inval(NULL);
             break;
         case 'i':
             this->zoomIn();
             break;
-        case 'l':
-            fLCDState = cycle_tristate(fLCDState);
-            this->updateTitle();
-            this->inval(NULL);
-            break;
-        case 'n':
-            fFilterState = cycle_tristate(fFilterState);
-            this->updateTitle();
-            this->inval(NULL);
-            break;
         case 'o':
             this->zoomOut();
-            break;
-        case 'p':
-            fUsePipe = !fUsePipe;
-            this->updateTitle();
-            this->inval(NULL);
             break;
         case 'r':
             fRotate = !fRotate;
@@ -1230,23 +1250,15 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             this->updateTitle();
             return true;
-        case 'x':
-            fFlipAxis ^= kFlipAxis_X;
-            this->updateTitle();
-            this->inval(NULL);
-            break;
-        case 'y':
-            fFlipAxis ^= kFlipAxis_Y;
-            this->updateTitle();
-            this->inval(NULL);
-            break;
-        case 'z':
-            this->toggleZoomer();
-            break;
         default:
             break;
     }
-
+    
+    if (fAppMenu.handleKeyEquivalent(uni)|| fSlideMenu.handleKeyEquivalent(uni)) {
+        this->onUpdateMenu(&fAppMenu);
+        this->onUpdateMenu(&fSlideMenu);
+        return true;
+    }
     return this->INHERITED::onHandleChar(uni);
 }
 
@@ -1255,12 +1267,6 @@ void SampleWindow::setDeviceType(DeviceType type) {
         fDeviceType = type;
     this->updateTitle();
     this->inval(NULL);
-}
-
-void SampleWindow::toggleFPS() {
-    fMeasureFPS = !fMeasureFPS;
-    this->inval(NULL);
-    this->updateTitle();
 }
 
 void SampleWindow::toggleSlideshow() {
@@ -1281,7 +1287,12 @@ void SampleWindow::toggleRendering() {
 
 void SampleWindow::togglePipe() {
     fUsePipe = !fUsePipe;
+#ifdef PIPE_NET
+    if (!fUsePipe)
+        gServer.disconnectAll();
+#endif
     this->updateTitle();
+    this->inval(NULL);
 }
 
 #include "SkDumpCanvas.h"
@@ -1297,7 +1308,6 @@ bool SampleWindow::onHandleKey(SkKey key) {
             }
         }
     }
-
     switch (key) {
         case kRight_SkKey:
             if (this->nextSample()) {
@@ -1337,7 +1347,7 @@ bool SampleWindow::onHandleKey(SkKey key) {
             }
             return true;
         case kBack_SkKey:
-            this->loadView(NULL);
+            this->showOverview();
             return true;
         default:
             break;
@@ -1360,7 +1370,13 @@ bool SampleWindow::onDispatchClick(int x, int y, Click::State state,
     // check for the resize-box
     if (w - x < 16 && h - y < 16) {
         return false;   // let the OS handle the click
-    } else {
+    } 
+    else if (fMagnify) {
+        //it's only necessary to update the drawing if there's a click
+        this->inval(NULL);
+        return false; //prevent dragging while magnify is enabled
+    }
+    else {
         return this->INHERITED::onDispatchClick(x, y, state, owner);
     }
 }
@@ -1384,6 +1400,7 @@ bool SampleWindow::onClick(Click* click) {
     if (GestureClick::IsGesture(click)) {
         float x = SkScalarToFloat(click->fCurr.fX);
         float y = SkScalarToFloat(click->fCurr.fY);
+        
         switch (click->fState) {
             case SkView::Click::kDown_State:
                 fGesture.touchBegin(click->fOwner, x, y);
@@ -1411,10 +1428,6 @@ void SampleWindow::loadView(SkView* view) {
         prev->detachFromParent();
     }
 
-    if (NULL == view) {
-        view = create_overview(fSamples.count(), fSamples.begin());
-    }
-    
     view->setVisibleP(true);
     view->setClipToBounds(false);
     this->attachChildToFront(view)->unref();
@@ -1423,7 +1436,7 @@ void SampleWindow::loadView(SkView* view) {
     //repopulate the slide menu when a view is loaded
     fSlideMenu.reset();
     if (SampleView::IsSampleView(view))
-        ((SampleView*)view)->requestMenus(&fSlideMenu);
+        ((SampleView*)view)->requestMenu(&fSlideMenu);
     this->onUpdateMenu(&fSlideMenu);
     
     this->updateTitle();
@@ -1449,11 +1462,11 @@ static const char* gDeviceTypePrefix[] = {
     "opengl: "
 };
 
-static const char* trystate_str(SkTriState state,
+static const char* trystate_str(SkOSMenu::TriState state,
                                 const char trueStr[], const char falseStr[]) {
-    if (kTrue_SkTriState == state) {
+    if (SkOSMenu::kOnState == state) {
         return trueStr;
-    } else if (kFalse_SkTriState == state) {
+    } else if (SkOSMenu::kOffState == state) {
         return falseStr;
     }
     return NULL;
@@ -1603,7 +1616,11 @@ class SimplePC : public SkGPipeController {
 public:
     SimplePC(SkCanvas* target);
     ~SimplePC();
-
+    
+    /**
+     * User this method to halt/restart pipe
+     */
+    void setWriteToPipe(bool writeToPipe) { fWriteToPipe = writeToPipe; }
     virtual void* requestBlock(size_t minRequest, size_t* actual);
     virtual void notifyWritten(size_t bytes);
 
@@ -1614,6 +1631,7 @@ private:
     size_t          fBytesWritten;
     int             fAtomsWritten;
     SkGPipeReader::Status   fStatus;
+    bool            fWriteToPipe;
 
     size_t        fTotalWritten;
 };
@@ -1624,16 +1642,32 @@ SimplePC::SimplePC(SkCanvas* target) : fReader(target) {
     fStatus = SkGPipeReader::kDone_Status;
     fTotalWritten = 0;
     fAtomsWritten = 0;
+    fWriteToPipe = true;
 }
 
 SimplePC::~SimplePC() {
 //    SkASSERT(SkGPipeReader::kDone_Status == fStatus);
-    sk_free(fBlock);
-
     if (fTotalWritten) {
         SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
-                 fAtomsWritten, fStatus);
+                     fAtomsWritten, fStatus);
+        
+        if (fWriteToPipe) {
+#ifdef  PIPE_FILE
+            //File is open in append mode
+            FILE* f = fopen(FILE_PATH, "ab");
+            SkASSERT(f != NULL);
+            fwrite((const char*)fBlock + fBytesWritten, 1, bytes, f);
+            fclose(f);
+#endif
+#ifdef PIPE_NET
+            if (fAtomsWritten > 1 && fTotalWritten > 4) { //ignore done
+                gServer.acceptConnections();
+                gServer.writePacket(fBlock, fTotalWritten);
+            }
+#endif
+        }
     }
+    sk_free(fBlock);
 }
 
 void* SimplePC::requestBlock(size_t minRequest, size_t* actual) {
@@ -1648,37 +1682,31 @@ void* SimplePC::requestBlock(size_t minRequest, size_t* actual) {
 
 void SimplePC::notifyWritten(size_t bytes) {
     SkASSERT(fBytesWritten + bytes <= fBlockSize);
-    
-#ifdef  PIPE_FILE
-    //File is open in append mode
-    FILE* f = fopen(FILE_PATH, "ab");
-    SkASSERT(f != NULL);
-    fwrite((const char*)fBlock + fBytesWritten, 1, bytes, f);
-    fclose(f);
-#endif
-    
     fStatus = fReader.playback((const char*)fBlock + fBytesWritten, bytes);
     SkASSERT(SkGPipeReader::kError_Status != fStatus);
     fBytesWritten += bytes;
     fTotalWritten += bytes;
-
+    
     fAtomsWritten += 1;
 }
 
 #endif
 
-
-void SampleView::onDraw(SkCanvas* canvas) {
-#ifdef TEST_GPIPE
-    SimplePC controller(canvas);
-    SkGPipeWriter writer;
+void SampleView::draw(SkCanvas* canvas) {
     if (fUsePipe) {
+        SkGPipeWriter writer;
+        SimplePC controller(canvas);
         uint32_t flags = SkGPipeWriter::kCrossProcess_Flag;
-//        flags = 0;
         canvas = writer.startRecording(&controller, flags);
+        //Must draw before controller goes out of scope and sends data
+        this->INHERITED::draw(canvas);
+        controller.setWriteToPipe(fUsePipe);
     }
-#endif
-
+    else {
+        this->INHERITED::draw(canvas);
+    }
+}
+void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
 
     for (int i = 0; i < fRepeatCount; i++) {
