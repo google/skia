@@ -361,21 +361,6 @@ static void append_tounicode_header(SkDynamicMemoryWStream* cmap) {
     cmap->writeText(kTypeInfo);
 }
 
-static void append_cmap_bfchar_table(uint16_t* glyph_id, SkUnichar* unicode,
-                                     size_t count,
-                                     SkDynamicMemoryWStream* cmap) {
-    cmap->writeDecAsText(count);
-    cmap->writeText(" beginbfchar\n");
-    for (size_t i = 0; i < count; ++i) {
-        cmap->writeText("<");
-        cmap->writeHexAsText(glyph_id[i], 4);
-        cmap->writeText("> <");
-        cmap->writeHexAsText(unicode[i], 4);
-        cmap->writeText(">\n");
-    }
-    cmap->writeText("endbfchar\n");
-}
-
 static void append_cmap_footer(SkDynamicMemoryWStream* cmap) {
     const char* kFooter =
         "endcmap\n"
@@ -385,38 +370,150 @@ static void append_cmap_footer(SkDynamicMemoryWStream* cmap) {
     cmap->writeText(kFooter);
 }
 
-// Generate <bfchar> table according to PDF spec 1.4 and Adobe Technote 5014.
-static void append_cmap_bfchar_sections(
-                const SkTDArray<SkUnichar>& glyphUnicode,
-                const SkPDFGlyphSet* subset, SkDynamicMemoryWStream* cmap) {
-    // PDF spec defines that every bf* list can have at most 100 entries.
-    const size_t kMaxEntries = 100;
-    uint16_t glyphId[kMaxEntries];
-    SkUnichar unicode[kMaxEntries];
-    size_t index = 0;
-    for (int i = 0; i < glyphUnicode.count(); i++) {
-        if (glyphUnicode[i] && (subset == NULL || subset->has(i))) {
-            glyphId[index] = i;
-            unicode[index] = glyphUnicode[i];
-            ++index;
-        }
-        if (index == kMaxEntries) {
-            append_cmap_bfchar_table(glyphId, unicode, index, cmap);
-            index = 0;
-        }
-    }
+struct BFChar {
+    uint16_t fGlyphId;
+    SkUnichar fUnicode;
+};
 
-    if (index) {
-        append_cmap_bfchar_table(glyphId, unicode, index, cmap);
+struct BFRange {
+    uint16_t fStart;
+    uint16_t fEnd;
+    SkUnichar fUnicode;
+};
+
+static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
+                                  SkDynamicMemoryWStream* cmap) {
+    // PDF spec defines that every bf* list can have at most 100 entries.
+    for (int i = 0; i < bfchar.count(); i += 100) {
+        int count = bfchar.count() - i;
+        count = SkMin32(count, 100);
+        cmap->writeDecAsText(count);
+        cmap->writeText(" beginbfchar\n");
+        for (int j = 0; j < count; ++j) {
+            cmap->writeText("<");
+            cmap->writeHexAsText(bfchar[i + j].fGlyphId, 4);
+            cmap->writeText("> <");
+            cmap->writeHexAsText(bfchar[i + j].fUnicode, 4);
+            cmap->writeText(">\n");
+        }
+        cmap->writeText("endbfchar\n");
     }
 }
 
+static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
+                                   SkDynamicMemoryWStream* cmap) {
+    // PDF spec defines that every bf* list can have at most 100 entries.
+    for (int i = 0; i < bfrange.count(); i += 100) {
+        int count = bfrange.count() - i;
+        count = SkMin32(count, 100);
+        cmap->writeDecAsText(count);
+        cmap->writeText(" beginbfrange\n");
+        for (int j = 0; j < count; ++j) {
+            cmap->writeText("<");
+            cmap->writeHexAsText(bfrange[i + j].fStart, 4);
+            cmap->writeText("> <");
+            cmap->writeHexAsText(bfrange[i + j].fEnd, 4);
+            cmap->writeText("> <");
+            cmap->writeHexAsText(bfrange[i + j].fUnicode, 4);
+            cmap->writeText(">\n");
+        }
+        cmap->writeText("endbfrange\n");
+    }
+}
+
+// Generate <bfchar> and <bfrange> table according to PDF spec 1.4 and Adobe
+// Technote 5014.
+// The function is not static so we can test it in unit tests.
+//
+// Current implementation guarantees bfchar and bfrange entries do not overlap.
+//
+// Current implementation does not attempt aggresive optimizations against
+// following case because the specification is not clear.
+//
+// 4 beginbfchar          1 beginbfchar
+// <0003> <0013>          <0020> <0014>
+// <0005> <0015>    to    endbfchar
+// <0007> <0017>          1 beginbfrange
+// <0020> <0014>          <0003> <0007> <0013>
+// endbfchar              endbfrange
+//
+// Adobe Technote 5014 said: "Code mappings (unlike codespace ranges) may
+// overlap, but succeeding maps superceded preceding maps."
+//
+// In case of searching text in PDF, bfrange will have higher precedence so
+// typing char id 0x0014 in search box will get glyph id 0x0004 first.  However,
+// the spec does not mention how will this kind of conflict being resolved.
+//
+// For the worst case (having 65536 continuous unicode and we use every other
+// one of them), the possible savings by aggressive optimization is 416KB
+// pre-compressed and does not provide enough motivation for implementation.
+void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
+                          const SkPDFGlyphSet* subset,
+                          SkDynamicMemoryWStream* cmap) {
+    if (glyphToUnicode.count() == 0) return;
+
+    SkTDArray<BFChar> bfcharEntries;
+    SkTDArray<BFRange> bfrangeEntries;
+
+    BFRange currentRangeEntry;
+    bool haveBase = false;
+    int continuousEntries = 0;
+
+    for (int i = 0; i < glyphToUnicode.count(); ++i) {
+        if (glyphToUnicode[i] && (subset == NULL || subset->has(i))) {
+            // PDF spec requires bfrange not changing the higher byte,
+            // e.g. <1035> <10FF> <2222> is ok, but
+            //      <1035> <1100> <2222> is no good
+            if (haveBase) {
+                ++continuousEntries;
+                if (i == currentRangeEntry.fStart + continuousEntries &&
+                            (i >> 8) == (currentRangeEntry.fStart >> 8) &&
+                            glyphToUnicode[i] == (currentRangeEntry.fUnicode +
+                                                  continuousEntries)) {
+                            currentRangeEntry.fEnd = i;
+                    if (i == glyphToUnicode.count() - 1) {
+                        // Last entry is in a range.
+                        bfrangeEntries.push(currentRangeEntry);
+                    }
+                    continue;
+                }
+
+                // Need to have at least 2 entries to form a bfrange.
+                if (continuousEntries >= 2) {
+                    bfrangeEntries.push(currentRangeEntry);
+                } else {
+                    BFChar* entry = bfcharEntries.append();
+                    entry->fGlyphId = currentRangeEntry.fStart;
+                    entry->fUnicode = currentRangeEntry.fUnicode;
+                }
+                continuousEntries = 0;
+            }
+
+            if (i != glyphToUnicode.count() - 1) {
+                currentRangeEntry.fStart = i;
+                currentRangeEntry.fEnd = i;
+                currentRangeEntry.fUnicode = glyphToUnicode[i];
+                haveBase = true;
+            } else {
+                BFChar* entry = bfcharEntries.append();
+                entry->fGlyphId = i;
+                entry->fUnicode = glyphToUnicode[i];
+            }
+        }
+    }
+
+    // The spec requires all bfchar entries for a font must come before bfrange
+    // entries.
+    append_bfchar_section(bfcharEntries, cmap);
+    append_bfrange_section(bfrangeEntries, cmap);
+}
+
 static SkPDFStream* generate_tounicode_cmap(
-                        const SkTDArray<SkUnichar>& glyphUnicode,
-                        const SkPDFGlyphSet* subset) {
+        const SkTDArray<SkUnichar>& glyphToUnicode,
+        const SkPDFGlyphSet* subset) {
     SkDynamicMemoryWStream cmap;
     append_tounicode_header(&cmap);
-    append_cmap_bfchar_sections(glyphUnicode, subset, &cmap);
+    append_cmap_sections(glyphToUnicode, subset, &cmap);
     append_cmap_footer(&cmap);
     SkRefPtr<SkMemoryStream> cmapStream = new SkMemoryStream();
     cmapStream->unref();  // SkRefPtr and new took a reference.
