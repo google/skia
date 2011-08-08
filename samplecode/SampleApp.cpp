@@ -29,7 +29,7 @@
 #include "SkPDFDocument.h"
 #include "SkStream.h"
 
-#define TEST_GPIPE
+#define TEST_GPIPEx
 
 #ifdef  TEST_GPIPE
 #define PIPE_FILEx
@@ -37,7 +37,7 @@
 #define FILE_PATH "/path/to/drawing.data"
 #endif
 
-#define PIPE_NET
+#define PIPE_NETx
 #ifdef  PIPE_NET
 #include "SkSockets.h"
 SkTCPServer gServer;
@@ -1693,6 +1693,7 @@ void SimplePC::notifyWritten(size_t bytes) {
 #endif
 
 void SampleView::draw(SkCanvas* canvas) {
+#ifdef TEST_GPIPE
     if (fUsePipe) {
         SkGPipeWriter writer;
         SimplePC controller(canvas);
@@ -1702,9 +1703,11 @@ void SampleView::draw(SkCanvas* canvas) {
         this->INHERITED::draw(canvas);
         controller.setWriteToPipe(fUsePipe);
     }
-    else {
+    else
         this->INHERITED::draw(canvas);
-    }
+#else
+    this->INHERITED::draw(canvas);
+#endif
 }
 void SampleView::onDraw(SkCanvas* canvas) {
     this->onDrawBackground(canvas);
