@@ -47,8 +47,6 @@ void GrGLTexture::init(GrGpuGL* gpu,
     fUploadByteCount    = textureDesc.fUploadByteCount;
     fUploadType         = textureDesc.fUploadType;
     fOrientation        = textureDesc.fOrientation;
-    fAllocWidth         = textureDesc.fAllocWidth;
-    fAllocHeight        = textureDesc.fAllocHeight;
     fScaleX             = GrIntToScalar(textureDesc.fContentWidth) /
                             textureDesc.fAllocWidth;
     fScaleY             = GrIntToScalar(textureDesc.fContentHeight) /
@@ -72,6 +70,8 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
     : INHERITED(gpu,
                 textureDesc.fContentWidth,
                 textureDesc.fContentHeight,
+                textureDesc.fAllocWidth,
+                textureDesc.fAllocHeight,
                 textureDesc.fFormat) {
     this->init(gpu, textureDesc, NULL, initialTexParams);
 }
@@ -83,6 +83,8 @@ GrGLTexture::GrGLTexture(GrGpuGL* gpu,
     : INHERITED(gpu,
                 textureDesc.fContentWidth,
                 textureDesc.fContentHeight,
+                textureDesc.fAllocWidth,
+                textureDesc.fAllocHeight,
                 textureDesc.fFormat) {
     this->init(gpu, textureDesc, &rtDesc, initialTexParams);
 }

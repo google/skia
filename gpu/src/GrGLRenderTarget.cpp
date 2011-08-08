@@ -30,8 +30,14 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                                    const GrGLIRect& viewport,
                                    GrGLTexID* texID,
                                    GrGLTexture* texture)
-    : INHERITED(gpu, texture, viewport.fWidth,
-                viewport.fHeight, desc.fConfig, desc.fSampleCnt) {
+    : INHERITED(gpu,
+                texture,
+                viewport.fWidth,
+                viewport.fHeight,
+                texture->allocatedWidth(),
+                texture->allocatedHeight(),
+                desc.fConfig,
+                desc.fSampleCnt) {
     GrAssert(NULL != texID);
     GrAssert(NULL != texture);
     // FBO 0 can't also be a texture, right?
@@ -43,8 +49,14 @@ GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
 GrGLRenderTarget::GrGLRenderTarget(GrGpuGL* gpu,
                                    const Desc& desc,
                                    const GrGLIRect& viewport)
-    : INHERITED(gpu, NULL, viewport.fWidth,
-                viewport.fHeight, desc.fConfig, desc.fSampleCnt) {
+    : INHERITED(gpu,
+                NULL,
+                viewport.fWidth,
+                viewport.fHeight,
+                viewport.fWidth,   // don't really need separate alloc w/h for
+                viewport.fHeight,  // non-texture RTs, repeat viewport values
+                desc.fConfig,
+                desc.fSampleCnt) {
     this->init(desc, viewport, NULL);
 }
 

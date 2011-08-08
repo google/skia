@@ -156,8 +156,8 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     // TODO: use a cache of stencil buffers rather than create per-rt.
-    bool ret = this->createStencilBufferForRenderTarget(rt, rt->width(),
-                                                        rt->height());
+    bool ret = this->createStencilBufferForRenderTarget(rt, rt->allocatedWidth(),
+                                                        rt->allocatedHeight());
     if (ret) {
         // Right now we're clearing the stencil buffer here after it is
         // attached to an RT for the first time. When we start matching

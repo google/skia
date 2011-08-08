@@ -44,6 +44,20 @@ public:
     int height() const { return fHeight; }
 
     /**
+     * Retrieves the allocated width. It may differ from width for
+     * NPOT or min-RT size reasons.
+     * @return allocated width in pixels
+     */
+    int allocatedWidth() const { return fAllocatedWidth; }
+
+    /**
+     * Retrieves the allocated height. It may differ from height for
+     * NPOT or min-RT size reasons.
+     * @return allocated height in pixels
+     */
+    int allocatedHeight() const { return fAllocatedHeight; }
+
+    /**
      * @return the pixel config. Can be kUnknown_GrPixelConfig
      * if client asked us to render to a target that has a pixel
      * config that isn't equivalent with one of our configs.
@@ -151,6 +165,8 @@ protected:
                    GrTexture* texture,
                    int width,
                    int height,
+                   int allocatedWidth,
+                   int allocatedHeight,
                    GrPixelConfig config,
                    int sampleCnt)
         : INHERITED(gpu)
@@ -158,6 +174,8 @@ protected:
         , fTexture(texture)
         , fWidth(width)
         , fHeight(height)
+        , fAllocatedWidth(allocatedWidth)
+        , fAllocatedHeight(allocatedHeight)
         , fConfig(config)
         , fSampleCnt(sampleCnt)
     {
@@ -181,6 +199,8 @@ private:
     GrTexture*      fTexture; // not ref'ed
     int             fWidth;
     int             fHeight;
+    int             fAllocatedWidth;
+    int             fAllocatedHeight;
     GrPixelConfig   fConfig;
     int             fSampleCnt;
     GrIRect         fResolveRect;
