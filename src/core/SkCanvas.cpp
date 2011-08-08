@@ -71,7 +71,7 @@ struct DeviceCM {
     const SkMatrix*     fMVMatrix;
     const SkMatrix*     fExtMatrix;
 
-	DeviceCM(SkDevice* device, int x, int y, const SkPaint* paint)
+    DeviceCM(SkDevice* device, int x, int y, const SkPaint* paint)
             : fNext(NULL) {
         if (NULL != device) {
             device->ref();
@@ -79,15 +79,15 @@ struct DeviceCM {
         }
         fDevice = device;
         fPaint = paint ? SkNEW_ARGS(SkPaint, (*paint)) : NULL;
-	}
+    }
 
-	~DeviceCM() {
+    ~DeviceCM() {
         if (NULL != fDevice) {
             fDevice->unlockPixels();
             fDevice->unref();
         }
-		SkDELETE(fPaint);
-	}
+        SkDELETE(fPaint);
+    }
 
     void updateMC(const SkMatrix& totalMatrix, const SkRegion& totalClip,
                   const SkClipStack& clipStack, SkRegion* updateClip) {
@@ -163,7 +163,7 @@ public:
         reference counted, since the real owner is either our fLayer field,
         or a previous one in a lower level.)
     */
-    DeviceCM*	fTopLayer;
+    DeviceCM*   fTopLayer;
 
     MCRec(const MCRec* prev, int flags) {
         if (NULL != prev) {
@@ -749,7 +749,7 @@ void SkCanvas::internalRestore() {
     fLocalBoundsCompareTypeDirtyBW = true;
 
     fClipStack.restore();
-	// reserve our layer (if any)
+    // reserve our layer (if any)
     DeviceCM* layer = fMCRec->fLayer;   // may be null
     // now detach it from fMCRec so we can pop(). Gets freed after its drawn
     fMCRec->fLayer = NULL;
@@ -772,7 +772,7 @@ void SkCanvas::internalRestore() {
             fDeviceCMDirty = true;
         }
         SkDELETE(layer);
-	}
+    }
 
     SkASSERT(fClipStack.getSaveCount() == this->getSaveCount() - 1);
 }
@@ -1153,7 +1153,7 @@ void SkCanvas::setExternalMatrix(const SkMatrix* matrix) {
 SkDevice* SkCanvas::createLayerDevice(SkBitmap::Config config,
                                       int width, int height,
                                       bool isOpaque) {
-    SkDevice* device = this->getDevice();
+    SkDevice* device = this->getTopDevice();
     if (device) {
         return device->createCompatibleDeviceForSaveLayer(config, width, height,
                                                           isOpaque);
