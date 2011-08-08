@@ -1,4 +1,3 @@
-
 {
   'includes': [
     'common.gypi',
@@ -180,12 +179,14 @@
             '../experimental/CocoaSampleApp/SkNSView.mm',
             '../experimental/CocoaSampleApp/SkOptionsTableView.h',
             '../experimental/CocoaSampleApp/SkOptionsTableView.mm',
-            '../experimental/CocoaSampleApp/SkOSWindow_Mac.h',
-            '../experimental/CocoaSampleApp/SkOSWindow_Mac.mm',
             '../experimental/CocoaSampleApp/SkTextFieldCell.h',
             '../experimental/CocoaSampleApp/SkTextFieldCell.m',
             '../experimental/SkEventNotifier.h',
             '../experimental/SkEventNotifier.mm',
+            
+            # Cocoa versions of SkOSWindow for Mac
+            '../include/views/SkOSWindow_Mac_Cocoa.h',
+            '../src/utils/mac/SkOSWindow_Mac_Cocoa.mm',
           ],
           'link_settings': {
             'libraries': [
@@ -201,6 +202,10 @@
           },
           'xcode_settings' : {
             'INFOPLIST_FILE' : '../experimental/CocoaSampleApp/SampleApp-Info.plist',
+            
+            # Define the compiler flag using the following line to use Cocoa
+            # To be removed when SampleApp is ready to move to Cocoa
+            'GCC_PREPROCESSOR_DEFINITIONS' : 'Sk_MAC_COCOA',
           },
           'mac_bundle_resources' : [
             '../experimental/CocoaSampleApp/SampleApp.xib',

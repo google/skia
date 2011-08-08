@@ -161,6 +161,10 @@
             '../src/utils/mac/skia_mac.cpp',
             '../src/utils/mac/SkOSWindow_Mac.cpp',
           ],
+          'dependencies': [
+            # Build Cocoa version of SampleApp
+            'CocoaSampleApp.gyp:CocoaSampleApp',
+          ],
         }],
         [ 'skia_os == "ios"', {
           # TODO: This doesn't build properly yet, but it's getting there.
