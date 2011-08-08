@@ -16,6 +16,7 @@
 #include "GrPathRenderer.h"
 #include "GrPathUtils.h"
 #include "GrResourceCache.h"
+#include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
 #include "SkTrace.h"
 
@@ -126,9 +127,14 @@ int GrContext::PaintStageVertexLayoutBits(
 ////////////////////////////////////////////////////////////////////////////////
 
 enum {
-    kNPOTBit    = 0x1,
-    kFilterBit  = 0x2,
-    kScratchBit = 0x4,
+    // flags for textures
+    kNPOTBit            = 0x1,
+    kFilterBit          = 0x2,
+    kScratchBit         = 0x4,
+
+    // resource type
+    kTextureBit         = 0x8,
+    kStencilBufferBit   = 0x10
 };
 
 GrTexture* GrContext::TextureCacheEntry::texture() const {
@@ -176,7 +182,25 @@ bool gen_texture_key_values(const GrGpu* gpu,
         v[3] |= kScratchBit;
     }
 
+    v[3] |= kTextureBit;
+
     return v[3] & kNPOTBit;
+}
+
+// we should never have more than one stencil buffer with same combo of
+// (width,height,samplecount)
+void gen_stencil_key_values(int width, int height,
+                            int sampleCnt, uint32_t v[4]) {
+    v[0] = width;
+    v[1] = height;
+    v[2] = sampleCnt;
+    v[3] = kStencilBufferBit;
+}
+
+void gen_stencil_key_values(const GrStencilBuffer* sb,
+                            uint32_t v[4]) {
+    gen_stencil_key_values(sb->width(), sb->height(),
+                           sb->numSamples(), v);
 }
 }
 
@@ -187,7 +211,34 @@ GrContext::TextureCacheEntry GrContext::findAndLockTexture(TextureKey key,
     uint32_t v[4];
     gen_texture_key_values(fGpu, sampler, key, width, height, false, v);
     GrResourceKey resourceKey(v);
-    return TextureCacheEntry(fTextureCache->findAndLock(resourceKey));
+    return TextureCacheEntry(fTextureCache->findAndLock(resourceKey,
+                                            GrResourceCache::kNested_LockType));
+}
+
+GrResourceEntry* GrContext::addAndLockStencilBuffer(GrStencilBuffer* sb) {
+    uint32_t v[4];
+    gen_stencil_key_values(sb, v);
+    GrResourceKey resourceKey(v);
+    return fTextureCache->createAndLock(resourceKey, sb);
+}
+
+GrStencilBuffer* GrContext::findStencilBuffer(int width, int height,
+                                              int sampleCnt) {
+    uint32_t v[4];
+    gen_stencil_key_values(width, height, sampleCnt, v);
+    GrResourceKey resourceKey(v);
+    GrResourceEntry* entry = fTextureCache->findAndLock(resourceKey,
+                                            GrResourceCache::kSingle_LockType);
+    if (NULL != entry) {
+        GrStencilBuffer* sb = (GrStencilBuffer*) entry->resource();
+        return sb;
+    } else {
+        return NULL;
+    }
+}
+
+void GrContext::unlockStencilBuffer(GrResourceEntry* sbEntry) {
+    fTextureCache->unlock(sbEntry);
 }
 
 static void stretchImage(void* dst,
@@ -376,7 +427,8 @@ GrContext::TextureCacheEntry GrContext::lockScratchTexture(
         uint32_t v[4];
         gen_scratch_tex_key_values(fGpu, desc, v);
         GrResourceKey key(v);
-        entry = fTextureCache->findAndLock(key);
+        entry = fTextureCache->findAndLock(key,
+                                           GrResourceCache::kNested_LockType);
         // if we miss, relax the fit of the flags...
         // then try doubling width... then height.
         if (NULL != entry || kExact_ScratchTexMatch == match) {

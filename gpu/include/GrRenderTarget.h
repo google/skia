@@ -32,8 +32,8 @@ class GrTexture;
  * that wrap externally created render targets.
  */
 class GrRenderTarget : public GrResource {
-
 public:
+
     /**
      * @return the width of the rendertarget
      */
@@ -177,8 +177,7 @@ protected:
         , fAllocatedWidth(allocatedWidth)
         , fAllocatedHeight(allocatedHeight)
         , fConfig(config)
-        , fSampleCnt(sampleCnt)
-    {
+        , fSampleCnt(sampleCnt) {
         fResolveRect.setLargestInverted();
     }
 
@@ -193,17 +192,16 @@ protected:
         fTexture = NULL;
     }
 
-    GrStencilBuffer*  fStencilBuffer;
-
 private:
-    GrTexture*      fTexture; // not ref'ed
-    int             fWidth;
-    int             fHeight;
-    int             fAllocatedWidth;
-    int             fAllocatedHeight;
-    GrPixelConfig   fConfig;
-    int             fSampleCnt;
-    GrIRect         fResolveRect;
+    GrStencilBuffer*  fStencilBuffer;
+    GrTexture*        fTexture; // not ref'ed
+    int               fWidth;
+    int               fHeight;
+    int               fAllocatedWidth;
+    int               fAllocatedHeight;
+    GrPixelConfig     fConfig;
+    int               fSampleCnt;
+    GrIRect           fResolveRect;
 
     typedef GrResource INHERITED;
 };

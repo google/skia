@@ -8,8 +8,10 @@
 
 
 #include "GrGpu.h"
+
 #include "GrBufferAllocPool.h"
 #include "GrClipIterator.h"
+#include "GrContext.h"
 #include "GrIndexBuffer.h"
 #include "GrPathRenderer.h"
 #include "GrGLStencilBuffer.h"
@@ -59,7 +61,7 @@ GrGpu::GrGpu()
 }
 
 GrGpu::~GrGpu() {
-    releaseResources();
+    this->releaseResources();
 }
 
 void GrGpu::abandonResources() {
@@ -155,10 +157,24 @@ GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
 }
 
 bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
-    // TODO: use a cache of stencil buffers rather than create per-rt.
-    bool ret = this->createStencilBufferForRenderTarget(rt, rt->allocatedWidth(),
-                                                        rt->allocatedHeight());
-    if (ret) {
+    GrAssert(NULL == rt->getStencilBuffer());
+    GrStencilBuffer* sb = 
+        this->getContext()->findStencilBuffer(rt->allocatedWidth(),
+                                              rt->allocatedHeight(),
+                                              rt->numSamples());
+    if (NULL != sb) {
+        rt->setStencilBuffer(sb);
+        bool attached = this->attachStencilBufferToRenderTarget(sb, rt);
+        if (!attached) {
+            rt->setStencilBuffer(NULL);
+        }
+        return attached;
+    }
+    if (this->createStencilBufferForRenderTarget(rt, rt->allocatedWidth(),
+                                                 rt->allocatedHeight())) {
+        rt->getStencilBuffer()->ref();
+        rt->getStencilBuffer()->transferToCacheAndLock();
+
         // Right now we're clearing the stencil buffer here after it is
         // attached to an RT for the first time. When we start matching
         // stencil buffers with smaller color targets this will no longer
@@ -171,8 +187,10 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
         fCurrDrawState.fRenderTarget = rt;
         this->clearStencil();
         fCurrDrawState.fRenderTarget = oldRT;
+        return true;
+    } else {
+        return false;
     }
-    return ret;
 }
 
 GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {

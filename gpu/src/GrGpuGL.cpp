@@ -602,6 +602,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
 
     if (isRenderTarget) {
         rtDesc.fRTFBOID = desc.fPlatformRenderTarget;
+        rtDesc.fConfig = desc.fConfig;
 #if GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
         if (desc.fSampleCnt) {
 #else
@@ -638,7 +639,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
             format.fStencilBits = desc.fStencilBits;
             format.fTotalBits = desc.fStencilBits;
             sb = new GrGLStencilBuffer(this, 0, desc.fWidth,
-                                       desc.fHeight, format);
+                                       desc.fHeight, rtDesc.fSampleCnt, format);
         }
         rtDesc.fOwnIDs = false;
     }
@@ -836,6 +837,7 @@ GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
     GrGLIRect viewport;
     viewport.setFromGLViewport();
     int stencilBits = get_fbo_stencil_bits(arbFBO);
+    GR_GL_GetIntegerv(GR_GL_SAMPLES, &rtDesc.fSampleCnt);
 
     GrGLStencilBuffer* sb = NULL;
     if (stencilBits) {
@@ -846,10 +848,10 @@ GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
         format.fStencilBits = stencilBits;
         format.fTotalBits = stencilBits;
         sb = new GrGLStencilBuffer(this, 0, viewport.fWidth,
-                                   viewport.fHeight, format);
+                                   viewport.fHeight, rtDesc.fSampleCnt,
+                                   format);
     }
 
-    GR_GL_GetIntegerv(GR_GL_SAMPLES, &rtDesc.fSampleCnt);
     GrGLenum fmat = get_fbo_color_format();
     if (kUnknownGLFormat == fmat) {
         rtDesc.fConfig = get_implied_color_config(arbFBO);
@@ -1326,7 +1328,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         // that we won't go through this loop more than once after the
         // first (painful) stencil creation.
         int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
-        // we do this if so that we don't call the multisample
+        // we do this "if" so that we don't call the multisample
         // version on a GL that doesn't have an MSAA extension.
         if (samples > 1) {
             GR_GL_NO_ERR(RenderbufferStorageMultisample(
@@ -1347,9 +1349,11 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
             // sizes GL gives us. In that case we query for the size.
             GrGLStencilBuffer::Format format = fStencilFormats[sIdx];
             get_stencil_rb_sizes(sbID, &format);
-            sb = new GrGLStencilBuffer(this, sbID, width, height, format);
+            sb = new GrGLStencilBuffer(this, sbID, width, height, 
+                                       samples, format);
             if (this->attachStencilBufferToRenderTarget(sb, rt)) {
                 fLastSuccessfulStencilFmtIdx = sIdx;
+                rt->setStencilBuffer(sb);
                 sb->unref();
                 return true;
            }
@@ -1358,7 +1362,7 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
         }
     }
     GR_GL(DeleteRenderbuffers(1, &sbID));
-    return NULL;
+    return false;
 }
 
 bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
@@ -1414,7 +1418,6 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
             }
             return false;
         } else {
-            rt->setStencilBuffer(sb);
             return true;
         }
     }

@@ -64,7 +64,9 @@ public:
      *  Approximate number of bytes used by the texture
      */
     virtual size_t sizeInBytes() const {
-        return fAllocatedWidth * fAllocatedHeight * GrBytesPerPixel(fConfig);
+        return (size_t) fAllocatedWidth *
+                        fAllocatedHeight *
+                        GrBytesPerPixel(fConfig);
     }
 
     /**

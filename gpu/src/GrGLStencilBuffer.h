@@ -25,8 +25,9 @@ public:
 
     GrGLStencilBuffer(GrGpu* gpu, GrGLint rbid, 
                       int width, int height,
+                      int sampleCnt,
                       const Format& format) 
-        : GrStencilBuffer(gpu, width, height, format.fStencilBits)
+        : GrStencilBuffer(gpu, width, height, format.fStencilBits, sampleCnt)
         , fFormat(format)
         , fRenderbufferID(rbid) {
     }
@@ -36,7 +37,10 @@ public:
     }
 
     virtual size_t sizeInBytes() const {
-        return this->width() * this->height() * fFormat.fTotalBits;
+        return (size_t) this->width() *
+                        this->height() *
+                        fFormat.fTotalBits *
+                        GrMax(1,this->numSamples());
     }
 
     GrGLuint renderbufferID() const {
