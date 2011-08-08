@@ -53,6 +53,7 @@
         '../tests/StringTest.cpp',
         '../tests/Test.cpp',
         '../tests/TestSize.cpp',
+	'../tests/ToUnicode.cpp',
         '../tests/UtilsTest.cpp',
         '../tests/Writer32Test.cpp',
         '../tests/XfermodeTest.cpp',
