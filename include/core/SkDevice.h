@@ -16,20 +16,17 @@
 #include "SkColor.h"
 
 class SkClipStack;
-class SkDevice;
 class SkDraw;
 struct SkIRect;
 class SkMatrix;
 class SkMetaData;
 class SkRegion;
 
-// This is an opaque classes, not interpreted by skia
+// This is an opaque class, not interpreted by skia
 class SkGpuRenderTarget;
 
 class SK_API SkDevice : public SkRefCnt {
 public:
-//    SkDevice();
-
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
      *  valid for the bitmap to have no pixels associated with it. In that case,
@@ -69,6 +66,8 @@ public:
                                      int width, int height,
                                      bool isOpaque);
 
+    SkMetaData& getMetaData();
+
     enum Capabilities {
         kGL_Capability     = 0x1,  //!< mask indicating GL support
         kVector_Capability = 0x2,  //!< mask indicating a vector representation
@@ -83,29 +82,18 @@ public:
     */
     virtual int height() const { return fBitmap.height(); }
 
-    /**
-     *  Return the device's origin: its offset in device coordinates from
-     *  the default origin in its canvas' matrix/clip
-     */
-    const SkIPoint& getOrigin() const { return fOrigin; }
-
-    /** Return the bitmap config of the device's pixels
+    /** Return the bounds of the device
     */
-    SkBitmap::Config config() const { return fBitmap.getConfig(); }
+    void getBounds(SkIRect* bounds) const;
+
     /** Returns true if the device's bitmap's config treats every pixels as
         implicitly opaque.
     */
     bool isOpaque() const { return fBitmap.isOpaque(); }
 
-    /** Return the bounds of the device
+    /** Return the bitmap config of the device's pixels
     */
-    void getBounds(SkIRect* bounds) const;
-
-    /** Return true if the specified rectangle intersects the bounds of the
-        device. If sect is not NULL and there is an intersection, sect returns
-        the intersection.
-    */
-    bool intersects(const SkIRect& r, SkIRect* sect = NULL) const;
+    SkBitmap::Config config() const { return fBitmap.getConfig(); }
 
     /** Return the bitmap associated with this device. Call this each time you need
         to access the bitmap, as it notifies the subclass to perform any flushing
@@ -115,26 +103,58 @@ public:
     */
     const SkBitmap& accessBitmap(bool changePixels);
 
-    /** Clears the entire device to the specified color (including alpha).
-     *  Ignores the clip.
+    /**
+     *  Copy the pixels from the device into bitmap. Returns true on success.
+     *  If false is returned, then the bitmap parameter is left unchanged.
+     *  The bitmap parameter is treated as output-only, and will be completely
+     *  overwritten (if the method returns true).
      */
-    virtual void clear(SkColor color);
+    virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
 
     /**
-     * Deprecated name for clear.
+     *  Similar to draw sprite, this method will copy the pixels in bitmap onto
+     *  the device, with the top/left corner specified by (x, y). The pixel
+     *  values in the device are completely replaced: there is no blending.
      */
-    void eraseColor(SkColor eraseColor) { this->clear(eraseColor); }
-
-    /** Called when this device is installed into a Canvas. Balanaced by a call
-        to unlockPixels() when the device is removed from a Canvas.
-    */
-    virtual void lockPixels();
-    virtual void unlockPixels();
+    virtual void writePixels(const SkBitmap& bitmap, int x, int y);
 
     /**
      * Return the device's associated gpu render target, or NULL.
      */
     virtual SkGpuRenderTarget* accessRenderTarget() { return NULL; }
+
+protected:
+    enum Usage {
+       kGeneral_Usage,
+       kSaveLayer_Usage, // <! internal use only
+    };
+
+    /**
+     *  Return the device's origin: its offset in device coordinates from
+     *  the default origin in its canvas' matrix/clip
+     */
+    const SkIPoint& getOrigin() const { return fOrigin; }
+
+    /** Return true if the specified rectangle intersects the bounds of the
+        device. If sect is not NULL and there is an intersection, sect returns
+        the intersection.
+    */
+    bool intersects(const SkIRect& r, SkIRect* sect = NULL) const;
+
+    struct TextFlags {
+        uint32_t            fFlags;     // SkPaint::getFlags()
+        SkPaint::Hinting    fHinting;
+    };
+
+    /**
+     *  Device may filter the text flags for drawing text here. If it wants to
+     *  make a change to the specified values, it should write them into the
+     *  textflags parameter (output) and return true. If the paint is fine as
+     *  is, then ignore the textflags parameter and return false.
+     *
+     *  The baseclass SkDevice filters based on its depth and blitters.
+     */
+    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*);
 
     /**
      *  Called with the correct matrix and clip before this device is drawn
@@ -157,24 +177,15 @@ public:
     virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
                            const SkClipStack&) {}
 
-    /** Causes any deferred drawing to the device to be completed.
+    /** Clears the entire device to the specified color (including alpha).
+     *  Ignores the clip.
      */
-    virtual void flush() {}
+    virtual void clear(SkColor color);
 
     /**
-     *  Copy the pixels from the device into bitmap. Returns true on success.
-     *  If false is returned, then the bitmap parameter is left unchanged.
-     *  The bitmap parameter is treated as output-only, and will be completely
-     *  overwritten (if the method returns true).
+     * Deprecated name for clear.
      */
-    virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
-
-    /**
-     *  Similar to draw sprite, this method will copy the pixels in bitmap onto
-     *  the device, with the top/left corner specified by (x, y). The pixel
-     *  values in the device are completely replaced: there is no blending.
-     */
-    virtual void writePixels(const SkBitmap& bitmap, int x, int y);
+    void eraseColor(SkColor eraseColor) { this->clear(eraseColor); }
 
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
@@ -224,46 +235,19 @@ public:
                               const SkColor colors[], SkXfermode* xmode,
                               const uint16_t indices[], int indexCount,
                               const SkPaint& paint);
+    /** The SkDevice passed will be an SkDevice which was returned by a call to
+        onCreateCompatibleDevice on this device with kSaveLayer_Usage.
+     */
     virtual void drawDevice(const SkDraw&, SkDevice*, int x, int y,
                             const SkPaint&);
 
     ///////////////////////////////////////////////////////////////////////////
 
-    SkMetaData& getMetaData();
-
-    struct TextFlags {
-        uint32_t            fFlags;     // SkPaint::getFlags()
-        SkPaint::Hinting    fHinting;
-    };
-
-    /**
-     *  Device may filter the text flags for drawing text here. If it wants to
-     *  make a change to the specified values, it should write them into the
-     *  textflags parameter (output) and return true. If the paint is fine as
-     *  is, then ignore the textflags parameter and return false.
-     *
-     *  The baseclass SkDevice filters based on its depth and blitters.
-     */
-    virtual bool filterTextFlags(const SkPaint& paint, TextFlags*);
-
-protected:
     /** Update as needed the pixel value in the bitmap, so that the caller can access
         the pixels directly. Note: only the pixels field should be altered. The config/width/height/rowbytes
         must remain unchanged.
     */
     virtual void onAccessBitmap(SkBitmap*);
-
-    enum Usage {
-       kGeneral_Usage,
-       kSaveLayer_Usage, // <! internal use only
-    };
-    /**
-     * subclasses should override this to implement createCompatibleDevice.
-     */
-    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
-                                               int width, int height, 
-                                               bool isOpaque,
-                                               Usage usage);
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
     // just for subclasses, to assign a custom pixelref
@@ -272,14 +256,37 @@ protected:
         return pr;
     }
 
+    /** Called when this device is installed into a Canvas. Balanaced by a call
+        to unlockPixels() when the device is removed from a Canvas.
+    */
+    virtual void lockPixels();
+    virtual void unlockPixels();
+
 private:
     friend class SkCanvas;
+    friend struct DeviceCM; //for setMatrixClip
+    friend class SkDraw;
+    friend class SkDrawIter;
+    friend class SkDeviceFilteredPaint;
+
     // just called by SkCanvas when built as a layer
     void setOrigin(int x, int y) { fOrigin.set(x, y); }
     // just called by SkCanvas for saveLayer
     SkDevice* createCompatibleDeviceForSaveLayer(SkBitmap::Config config, 
                                                  int width, int height,
                                                  bool isOpaque);
+
+    /**
+     * Subclasses should override this to implement createCompatibleDevice.
+     */
+    virtual SkDevice* onCreateCompatibleDevice(SkBitmap::Config config, 
+                                               int width, int height, 
+                                               bool isOpaque,
+                                               Usage usage);
+
+    /** Causes any deferred drawing to the device to be completed.
+     */
+    virtual void flush() {}
 
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;
