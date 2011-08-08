@@ -21,6 +21,7 @@ class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
 class GrResourceEntry;
 class GrResourceCache;
+class GrStencilBuffer;
 class GrVertexBufferAllocPool;
 
 
@@ -580,6 +581,17 @@ public:
     void resetStats();
     const GrGpuStats& getStats() const;
     void printStats() const;
+    /**
+     * Stencil buffers add themselves to the cache using
+     * addAndLockStencilBuffer. When a SB's RT-attachment count
+     * reaches zero the SB unlocks itself using unlockStencilBuffer and is
+     * eligible for purging. findStencilBuffer is called to check the cache for
+     * a SB that matching an RT's criteria. If a match is found that has been
+     * unlocked (its attachment count has reached 0) then it will be relocked.
+     */
+    GrResourceEntry* addAndLockStencilBuffer(GrStencilBuffer* sb);
+    void unlockStencilBuffer(GrResourceEntry* sbEntry);
+    GrStencilBuffer* findStencilBuffer(int width, int height, int sampleCnt);
 
 private:
     // used to keep track of when we need to flush the draw buffer

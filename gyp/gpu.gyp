@@ -180,6 +180,7 @@
         '../gpu/src/GrResourceCache.cpp',
         '../gpu/src/GrResourceCache.h',
         '../gpu/src/GrStencil.cpp',
+        '../gpu/src/GrStencilBuffer.cpp',
         '../gpu/src/GrStencilBuffer.h',
         '../gpu/src/GrTesselatedPathRenderer.cpp',
         '../gpu/src/GrTextContext.cpp',

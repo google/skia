@@ -209,10 +209,18 @@ public:
     void setLimits(int maxResource, size_t maxResourceBytes);
 
     /**
+     * Controls whether locks should be nestable or not.
+     */
+    enum LockType {
+        kNested_LockType,
+        kSingle_LockType,
+    };
+
+    /**
      *  Search for an entry with the same Key. If found, "lock" it and return it.
      *  If not found, return null.
      */
-    GrResourceEntry* findAndLock(const GrResourceKey&);
+    GrResourceEntry* findAndLock(const GrResourceKey&, LockType style);
 
     /**
      *  Create a new entry, based on the specified key and resource, and return

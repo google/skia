@@ -31,7 +31,10 @@ size_t GrRenderTarget::sizeInBytes() const {
     } else {
         colorBits = GrBytesPerPixel(fConfig);
     }
-    return fAllocatedWidth * fAllocatedHeight * colorBits * GrMax(1,fSampleCnt);
+    return (size_t) fAllocatedWidth *
+                    fAllocatedHeight *
+                    colorBits *
+                    GrMax(1,fSampleCnt);
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const GrIRect* rect) {
@@ -59,5 +62,13 @@ void GrRenderTarget::overrideResolveRect(const GrIRect rect) {
 }
 
 void GrRenderTarget::setStencilBuffer(GrStencilBuffer* stencilBuffer) {
-    GrSafeAssign(fStencilBuffer, stencilBuffer);
+    if (NULL != fStencilBuffer) {
+        fStencilBuffer->wasDetachedFromRenderTarget(this);
+        fStencilBuffer->unref();
+    }
+    fStencilBuffer = stencilBuffer;
+    if (NULL != fStencilBuffer) {
+        fStencilBuffer->wasAttachedToRenderTarget(this);
+        fStencilBuffer->ref();
+    }
 }

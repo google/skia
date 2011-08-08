@@ -13,11 +13,24 @@
 #include "GrClip.h"
 #include "GrResource.h"
 
+// REMOVE ME
+#include "GrRenderTarget.h"
+
+class GrRenderTarget;
+class GrResourceEntry;
+
 class GrStencilBuffer : public GrResource {
 public:
+    virtual ~GrStencilBuffer() {
+        // currently each rt that has attached this sb keeps a ref
+        // TODO: allow SB to be purged and detach itself from rts
+        GrAssert(0 == fRTAttachmentCnt);
+    }
+
     int width() const { return fWidth; }
     int height() const { return fHeight; }
     int bits() const { return fBits; }
+    int numSamples() const { return fSampleCnt; }
 
     // called to note the last clip drawn to this buffer.
     void setLastClip(const GrClip& clip, int width, int height) {
@@ -43,25 +56,42 @@ public:
         return fLastClip;
     }
 
+    // places the sb in the cache and locks it. Caller transfers
+    // a ref to the the cache which will unref when purged.
+    void transferToCacheAndLock();
+
+    void wasAttachedToRenderTarget(const GrRenderTarget* rt) {
+        ++fRTAttachmentCnt;
+    }
+
+    void wasDetachedFromRenderTarget(const GrRenderTarget* rt);
+
 protected:
-    GrStencilBuffer(GrGpu* gpu, int width, int height, int bits)
+    GrStencilBuffer(GrGpu* gpu, int width, int height, int bits, int sampleCnt)
         : GrResource(gpu)
         , fWidth(width)
         , fHeight(height)
         , fBits(bits)
+        , fSampleCnt(sampleCnt)
         , fLastClip()
         , fLastClipWidth(-1)
-        , fLastClipHeight(-1) {
+        , fLastClipHeight(-1)
+        , fCacheEntry(NULL)
+        , fRTAttachmentCnt(0) {
     }
 
 private:
     int fWidth;
     int fHeight;
     int fBits;
+    int fSampleCnt;
 
     GrClip     fLastClip;
     int        fLastClipWidth;
     int        fLastClipHeight;
+
+    GrResourceEntry* fCacheEntry;
+    int              fRTAttachmentCnt;
 
     typedef GrResource INHERITED;
 };

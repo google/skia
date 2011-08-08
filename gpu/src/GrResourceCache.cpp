@@ -155,7 +155,8 @@ public:
 #endif
 };
 
-GrResourceEntry* GrResourceCache::findAndLock(const GrResourceKey& key) {
+GrResourceEntry* GrResourceCache::findAndLock(const GrResourceKey& key,
+                                              LockType type) {
     GrAutoResourceCacheValidate atcv(this);
 
     GrResourceEntry* entry = fCache.find(key);
@@ -163,7 +164,9 @@ GrResourceEntry* GrResourceCache::findAndLock(const GrResourceKey& key) {
         this->internalDetach(entry, false);
         // mark the entry as "busy" so it doesn't get purged
         // do this between detach and attach for locked count tracking
-        entry->lock();
+        if (kNested_LockType == type || !entry->isLocked()) {
+            entry->lock();
+        }
         this->attachToHead(entry, false);
     }
     return entry;
