@@ -29,12 +29,6 @@ class SkPicture;
 class SkTypeface;
 class SkData;
 
-enum SkTriState {
-    kFalse_SkTriState = SkOSMenu::kOffState,
-    kTrue_SkTriState = SkOSMenu::kOnState,
-    kUnknown_SkTriState = SkOSMenu::kMixedState,
-};
-
 class SampleWindow : public SkOSWindow {
     SkTDArray<SkViewFactory> fSamples;
 public:
@@ -89,6 +83,7 @@ public:
     void toggleSlideshow();
     void toggleFPS();
     void togglePipe();
+    void showOverview();
 
     GrContext* getGrContext() const { return fDevManager->getGrContext(); }
 
@@ -152,7 +147,8 @@ private:
     bool fUsePipe;
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;
-
+    bool fMagnify;
+    
     // The following are for the 'fatbits' drawing
     // Latest position of the mouse.
     int fMouseX, fMouseY;
@@ -160,11 +156,11 @@ private:
     // Used by the text showing position and color values.
     SkTypeface* fTypeface;
     bool fShowZoomer;
-
-    SkTriState fLCDState;
-    SkTriState fAAState;
-    SkTriState fFilterState;
-    SkTriState fHintingState;
+    
+    SkOSMenu::TriState fLCDState;
+    SkOSMenu::TriState fAAState;
+    SkOSMenu::TriState fFilterState;
+    SkOSMenu::TriState fHintingState;
     unsigned   fFlipAxis;
 
     int fScrollTestX, fScrollTestY;
@@ -174,14 +170,16 @@ private:
     SkOSMenu fAppMenu;
     //Stores slide specific settings
     SkOSMenu fSlideMenu;
+    int fTransitionNext;
+    int fTransitionPrev;
     
     void loadView(SkView*);
     void updateTitle();
 
-    void toggleZoomer();
     bool zoomIn();
     bool zoomOut();
     void updatePointer(int x, int y);
+    void magnify(SkCanvas* canvas);
     void showZoomer(SkCanvas* canvas);
 
     void postAnimatingEvent();

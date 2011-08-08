@@ -22,6 +22,7 @@ public:
 
     static bool TitleQ(const SkEvent&);
     static void TitleR(SkEvent*, const char title[]);
+    static bool RequestTitle(SkView* view, SkString* title);
     
     static bool PrefSizeQ(const SkEvent&);
     static void PrefSizeR(SkEvent*, SkScalar width, SkScalar height);
@@ -70,11 +71,14 @@ public:
     static bool SetRepeatDraw(SkView*, int count);
     static bool SetUsePipe(SkView*, bool);
     
-    //call this to request menu items from a SampleView. A SampleView can 
-    //overwrite this method to add new items of various types to the menu and 
-    //change its title. The events attached to any new menu items must be 
-    //handled in the onEvent method. See SkOSMenu.h for helper functions.
-    virtual void requestMenus(SkOSMenu* menu) {}
+    /**
+     *  Call this to request menu items from a SampleView.
+     *  Subclassing notes: A subclass of SampleView can overwrite this method 
+     *  to add new items of various types to the menu and change its title.
+     *  The events attached to any new menu items must be handled in its onEvent
+     *  method. See SkOSMenu.h for helper functions.   
+     */
+    virtual void requestMenu(SkOSMenu* menu) {}
 
 protected:
     virtual void onDrawBackground(SkCanvas*);
@@ -83,13 +87,14 @@ protected:
     // overrides
     virtual bool onEvent(const SkEvent& evt);
     virtual bool onQuery(SkEvent* evt);
+    virtual void draw(SkCanvas*);
     virtual void onDraw(SkCanvas*);
 
+    bool fUsePipe;
+    SkColor fBGColor;
+    
 private:
     int fRepeatCount;
-    SkColor fBGColor;
-
-    bool fUsePipe;
 
     typedef SkView INHERITED;
 };

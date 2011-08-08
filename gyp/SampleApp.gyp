@@ -114,10 +114,15 @@
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
+        '../samplecode/TransitionView.cpp',
         
         # Dependencies for the pipe code in SampleApp
         '../src/pipe/SkGPipeRead.cpp',
         '../src/pipe/SkGPipeWrite.cpp',
+        
+        # Network Pipe Dependencies
+        '../experimental/Networking/SkSockets.cpp',
+        '../experimental/Networking/SkSockets.h',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile

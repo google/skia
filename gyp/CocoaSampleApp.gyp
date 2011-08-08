@@ -114,6 +114,7 @@
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
+        '../samplecode/TransitionView.cpp',
         
         # Dependencies for the pipe code in SampleApp
         '../src/pipe/SkGPipeRead.cpp',
@@ -131,11 +132,6 @@
         '../experimental/Networking/SampleNetPipeReader.cpp',
         '../experimental/Networking/SkSockets.cpp',
         '../experimental/Networking/SkSockets.h',
-        
-        # Transition
-        '../src/utils/SkInterpolator.cpp',
-        '../include/utils/SkInterpolator.h',
-        '../samplecode/TransitionView.cpp',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
