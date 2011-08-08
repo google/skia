@@ -19,7 +19,7 @@ SkOSWindow::~SkOSWindow() {
 void SkOSWindow::onHandleInval(const SkIRect& r) {
     if (!fInvalEventIsPending) {
         fInvalEventIsPending = true;
-        (new SkEvent(kINVAL_NSVIEW_EventType))->post(this->getSinkID());
+        (new SkEvent(kINVAL_NSVIEW_EventType, this->getSinkID()))->post();
     }
 }
 

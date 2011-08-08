@@ -2,7 +2,6 @@
 #include "SkEvent.h"
 #define SkEventClass @"SkEvenClass"
 @implementation SkEventNotifier
-//Overwritten from NSObject
 - (id)init {
     self = [super init];
     if (self) {
@@ -44,9 +43,12 @@
 @end
 ////////////////////////////////////////////////////////////////////////////////
 void SkEvent::SignalNonEmptyQueue() {
-    //post a SkEventClass event to the default notification center
-    [[NSNotificationCenter defaultCenter] postNotificationName:SkEventClass
-                                                        object:nil];
+    //post a SkEventClass event to the default notification queue
+    NSNotification* notification = [NSNotification notificationWithName:SkEventClass object:nil];
+    [[NSNotificationQueue defaultQueue] enqueueNotification:notification
+                                               postingStyle:NSPostWhenIdle
+                                               coalesceMask:NSNotificationNoCoalescing
+                                                   forModes:nil];
 }
 
 void SkEvent::SignalQueueTimer(SkMSec delay) {

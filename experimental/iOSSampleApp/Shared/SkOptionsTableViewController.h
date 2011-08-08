@@ -36,7 +36,7 @@
 - (UITableViewCell*)createSlider:(NSString*)title min:(float)min max:(float)max default:(float)value;
 - (UITableViewCell*)createSwitch:(NSString*)title default:(BOOL)state;
 - (UITableViewCell*)createTriState:(NSString*)title default:(int)index;
-- (UITableViewCell*)createTextField:(NSString*)title default:(const char*)value;
+- (UITableViewCell*)createTextField:(NSString*)title default:(NSString*)value;
 - (UITableViewCell*)createList:(NSString*)title default:(NSString*)value;
 
 @end

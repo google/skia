@@ -429,23 +429,25 @@
 		260EF18513AFD62E0064D447 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EF18413AFD62E0064D447 /* CoreText.framework */; };
 		260EF2B013AFDBD30064D447 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		263BE75813CCC7BF00CCE991 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 263BE75713CCC7BF00CCE991 /* QuartzCore.framework */; };
+		26591EB913EB16EB000DA8A8 /* TransitionView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26591EB813EB16EB000DA8A8 /* TransitionView.cpp */; };
 		265C7DE313D75752008329F6 /* SkOptionListController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 265C7DE213D75752008329F6 /* SkOptionListController.mm */; };
-		265C816C13D77860008329F6 /* SampleDrawingClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265C816A13D77860008329F6 /* SampleDrawingClient.cpp */; };
 		2662AB7013BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */; };
 		2662AB7613BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2662AB7513BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig */; };
 		2662AB7813BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2662AB7713BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig */; };
 		2663AC9413D5D8D400C20488 /* SkOptionsTableViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2663AC9313D5D8D400C20488 /* SkOptionsTableViewController.mm */; };
 		26677D6613B4C548009319B8 /* SkData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26677D6513B4C548009319B8 /* SkData.cpp */; };
 		26811E7913DEFAE8001A1609 /* SkBitSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26811E7813DEFAE8001A1609 /* SkBitSet.cpp */; };
-		26811E8613DEFC33001A1609 /* SampleDrawingServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 265C816B13D77860008329F6 /* SampleDrawingServer.cpp */; };
-		268F31FE13CDE72D003A1EF2 /* SkSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268F31FA13CDE726003A1EF2 /* SkSockets.cpp */; };
+		268C50D613F022820003FF9A /* SkColorPalette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50D213F022820003FF9A /* SkColorPalette.cpp */; };
+		268C50D713F022820003FF9A /* SkNetPipeController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50D413F022820003FF9A /* SkNetPipeController.cpp */; };
+		268C50DA13F022AF0003FF9A /* SampleDrawingClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50D813F022AF0003FF9A /* SampleDrawingClient.cpp */; };
+		268C50DB13F022AF0003FF9A /* SampleDrawingServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50D913F022AF0003FF9A /* SampleDrawingServer.cpp */; };
+		268C50DF13F0230C0003FF9A /* SampleNetPipeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50DC13F0230C0003FF9A /* SampleNetPipeReader.cpp */; };
+		268C50E013F0230C0003FF9A /* SkSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50DD13F0230C0003FF9A /* SkSockets.cpp */; };
 		26962B2313CDF6A00039B1FB /* SkOSFile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */; };
 		26962C8013CE256E0039B1FB /* SkUIDetailViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962C7913CE256E0039B1FB /* SkUIDetailViewController.mm */; };
 		26962C8113CE256E0039B1FB /* SkUIRootViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962C7B13CE256E0039B1FB /* SkUIRootViewController.mm */; };
 		26962CA413CE265C0039B1FB /* SkOSWindow_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962CA313CE265C0039B1FB /* SkOSWindow_iOS.mm */; };
 		26962CAB13CE268A0039B1FB /* SampleApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962CA913CE268A0039B1FB /* SampleApp.cpp */; };
-		26962CEC13CE293A0039B1FB /* SkColorPalette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962CE813CE293A0039B1FB /* SkColorPalette.cpp */; };
-		26962CED13CE293A0039B1FB /* SkNetPipeController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962CEA13CE293A0039B1FB /* SkNetPipeController.cpp */; };
 		26962D4F13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */; };
 		26A8AFF313E05D7000A3C111 /* GrResourceCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26A8AFF113E05D7000A3C111 /* GrResourceCache.cpp */; };
 		26E0E40A13B4E67800866555 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D113AFA7850064D447 /* OpenGLES.framework */; };
@@ -1325,10 +1327,9 @@
 		260EE9D113AFA7850064D447 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		260EF18413AFD62E0064D447 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		263BE75713CCC7BF00CCE991 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		26591EB813EB16EB000DA8A8 /* TransitionView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransitionView.cpp; sourceTree = "<group>"; };
 		265C7DE113D75752008329F6 /* SkOptionListController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOptionListController.h; path = Shared/SkOptionListController.h; sourceTree = "<group>"; };
 		265C7DE213D75752008329F6 /* SkOptionListController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOptionListController.mm; path = Shared/SkOptionListController.mm; sourceTree = "<group>"; };
-		265C816A13D77860008329F6 /* SampleDrawingClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleDrawingClient.cpp; sourceTree = "<group>"; };
-		265C816B13D77860008329F6 /* SampleDrawingServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleDrawingServer.cpp; sourceTree = "<group>"; };
 		2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SkiOSSampleApp-Debug.xcconfig"; sourceTree = "<group>"; };
 		2662AB7513BD0C0D00CDE7E9 /* SkiOSSampleApp-Release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SkiOSSampleApp-Release.xcconfig"; sourceTree = "<group>"; };
 		2662AB7713BD0C1E00CDE7E9 /* SkiOSSampleApp-Base.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = "SkiOSSampleApp-Base.xcconfig"; sourceTree = "<group>"; };
@@ -1336,11 +1337,17 @@
 		2663AC9313D5D8D400C20488 /* SkOptionsTableViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOptionsTableViewController.mm; path = Shared/SkOptionsTableViewController.mm; sourceTree = "<group>"; };
 		26677D6413B4C53E009319B8 /* SkData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkData.h; path = core/SkData.h; sourceTree = "<group>"; };
 		26677D6513B4C548009319B8 /* SkData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkData.cpp; path = core/SkData.cpp; sourceTree = "<group>"; };
-		266CB66113CF56E30011139A /* SkiOSDeviceManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkiOSDeviceManager.h; path = Shared/SkiOSDeviceManager.h; sourceTree = "<group>"; };
 		26811E7813DEFAE8001A1609 /* SkBitSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkBitSet.cpp; path = ../../src/pdf/SkBitSet.cpp; sourceTree = SOURCE_ROOT; };
 		26811E7A13DEFAF7001A1609 /* SkBitSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkBitSet.h; path = ../../include/pdf/SkBitSet.h; sourceTree = SOURCE_ROOT; };
-		268F31FA13CDE726003A1EF2 /* SkSockets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSockets.cpp; path = ../SkSockets.cpp; sourceTree = "<group>"; };
-		268F31FB13CDE726003A1EF2 /* SkSockets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSockets.h; path = ../SkSockets.h; sourceTree = "<group>"; };
+		268C50D213F022820003FF9A /* SkColorPalette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkColorPalette.cpp; path = ../DrawingBoard/SkColorPalette.cpp; sourceTree = SOURCE_ROOT; };
+		268C50D313F022820003FF9A /* SkColorPalette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkColorPalette.h; path = ../DrawingBoard/SkColorPalette.h; sourceTree = SOURCE_ROOT; };
+		268C50D413F022820003FF9A /* SkNetPipeController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkNetPipeController.cpp; path = ../DrawingBoard/SkNetPipeController.cpp; sourceTree = SOURCE_ROOT; };
+		268C50D513F022820003FF9A /* SkNetPipeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkNetPipeController.h; path = ../DrawingBoard/SkNetPipeController.h; sourceTree = SOURCE_ROOT; };
+		268C50D813F022AF0003FF9A /* SampleDrawingClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleDrawingClient.cpp; path = ../DrawingBoard/SampleDrawingClient.cpp; sourceTree = SOURCE_ROOT; };
+		268C50D913F022AF0003FF9A /* SampleDrawingServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleDrawingServer.cpp; path = ../DrawingBoard/SampleDrawingServer.cpp; sourceTree = SOURCE_ROOT; };
+		268C50DC13F0230C0003FF9A /* SampleNetPipeReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleNetPipeReader.cpp; path = ../Networking/SampleNetPipeReader.cpp; sourceTree = SOURCE_ROOT; };
+		268C50DD13F0230C0003FF9A /* SkSockets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkSockets.cpp; path = ../Networking/SkSockets.cpp; sourceTree = SOURCE_ROOT; };
+		268C50DE13F0230C0003FF9A /* SkSockets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkSockets.h; path = ../Networking/SkSockets.h; sourceTree = SOURCE_ROOT; };
 		26962C7813CE256E0039B1FB /* SkUIDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkUIDetailViewController.h; path = Shared/SkUIDetailViewController.h; sourceTree = "<group>"; };
 		26962C7913CE256E0039B1FB /* SkUIDetailViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkUIDetailViewController.mm; path = Shared/SkUIDetailViewController.mm; sourceTree = "<group>"; };
 		26962C7A13CE256E0039B1FB /* SkUIRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkUIRootViewController.h; path = Shared/SkUIRootViewController.h; sourceTree = "<group>"; };
@@ -1351,10 +1358,6 @@
 		26962CA513CE26730039B1FB /* SkOSWindow_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOSWindow_iOS.h; path = ../../include/views/SkOSWindow_iOS.h; sourceTree = SOURCE_ROOT; };
 		26962CA913CE268A0039B1FB /* SampleApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SampleApp.cpp; path = ../../samplecode/SampleApp.cpp; sourceTree = SOURCE_ROOT; };
 		26962CAA13CE268A0039B1FB /* SampleApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SampleApp.h; path = ../../samplecode/SampleApp.h; sourceTree = SOURCE_ROOT; };
-		26962CE813CE293A0039B1FB /* SkColorPalette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkColorPalette.cpp; path = Shared/DrawingBoard/SkColorPalette.cpp; sourceTree = "<group>"; };
-		26962CE913CE293A0039B1FB /* SkColorPalette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkColorPalette.h; path = Shared/DrawingBoard/SkColorPalette.h; sourceTree = "<group>"; };
-		26962CEA13CE293A0039B1FB /* SkNetPipeController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SkNetPipeController.cpp; path = Shared/DrawingBoard/SkNetPipeController.cpp; sourceTree = "<group>"; };
-		26962CEB13CE293A0039B1FB /* SkNetPipeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkNetPipeController.h; path = Shared/DrawingBoard/SkNetPipeController.h; sourceTree = "<group>"; };
 		26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLDefaultInterface_iOS.cpp; path = ../../gpu/src/ios/GrGLDefaultInterface_iOS.cpp; sourceTree = SOURCE_ROOT; };
 		26A8AFF113E05D7000A3C111 /* GrResourceCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrResourceCache.cpp; sourceTree = "<group>"; };
 		26A8AFF213E05D7000A3C111 /* GrResourceCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrResourceCache.h; sourceTree = "<group>"; };
@@ -1456,8 +1459,7 @@
 		260E002313B11F5B0064D447 /* samplecode */ = {
 			isa = PBXGroup;
 			children = (
-				265C816A13D77860008329F6 /* SampleDrawingClient.cpp */,
-				265C816B13D77860008329F6 /* SampleDrawingServer.cpp */,
+				26591EB813EB16EB000DA8A8 /* TransitionView.cpp */,
 				260E002413B11F5B0064D447 /* ClockFaceView.cpp */,
 				260E002513B11F5B0064D447 /* OverView.cpp */,
 				260E002613B11F5B0064D447 /* SampleAARects.cpp */,
@@ -2715,7 +2717,6 @@
 			children = (
 				26FB98D113D0C87000ACBEA0 /* SkUIView.h */,
 				26FB98D213D0C87000ACBEA0 /* SkUIView.mm */,
-				266CB66113CF56E30011139A /* SkiOSDeviceManager.h */,
 				26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */,
 				26962CA513CE26730039B1FB /* SkOSWindow_iOS.h */,
 				26962CA313CE265C0039B1FB /* SkOSWindow_iOS.mm */,
@@ -2740,10 +2741,12 @@
 		26962CE713CE29120039B1FB /* DrawingBoard */ = {
 			isa = PBXGroup;
 			children = (
-				26962CE813CE293A0039B1FB /* SkColorPalette.cpp */,
-				26962CE913CE293A0039B1FB /* SkColorPalette.h */,
-				26962CEA13CE293A0039B1FB /* SkNetPipeController.cpp */,
-				26962CEB13CE293A0039B1FB /* SkNetPipeController.h */,
+				268C50D813F022AF0003FF9A /* SampleDrawingClient.cpp */,
+				268C50D913F022AF0003FF9A /* SampleDrawingServer.cpp */,
+				268C50D213F022820003FF9A /* SkColorPalette.cpp */,
+				268C50D313F022820003FF9A /* SkColorPalette.h */,
+				268C50D413F022820003FF9A /* SkNetPipeController.cpp */,
+				268C50D513F022820003FF9A /* SkNetPipeController.h */,
 			);
 			name = DrawingBoard;
 			sourceTree = "<group>";
@@ -2751,8 +2754,9 @@
 		26F67B2A13CB3564005DDCD2 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				268F31FA13CDE726003A1EF2 /* SkSockets.cpp */,
-				268F31FB13CDE726003A1EF2 /* SkSockets.h */,
+				268C50DC13F0230C0003FF9A /* SampleNetPipeReader.cpp */,
+				268C50DD13F0230C0003FF9A /* SkSockets.cpp */,
+				268C50DE13F0230C0003FF9A /* SkSockets.h */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
@@ -3339,27 +3343,29 @@
 				26F548E913B91980007CC564 /* SkBitmapProcState_opts_arm.cpp in Sources */,
 				26F548EC13B91980007CC564 /* SkBlitRow_opts_none.cpp in Sources */,
 				26F548ED13B91980007CC564 /* SkUtils_opts_none.cpp in Sources */,
-				268F31FE13CDE72D003A1EF2 /* SkSockets.cpp in Sources */,
 				26962B2313CDF6A00039B1FB /* SkOSFile_iOS.mm in Sources */,
 				26962C8013CE256E0039B1FB /* SkUIDetailViewController.mm in Sources */,
 				26962C8113CE256E0039B1FB /* SkUIRootViewController.mm in Sources */,
 				26962CA413CE265C0039B1FB /* SkOSWindow_iOS.mm in Sources */,
 				26962CAB13CE268A0039B1FB /* SampleApp.cpp in Sources */,
-				26962CEC13CE293A0039B1FB /* SkColorPalette.cpp in Sources */,
-				26962CED13CE293A0039B1FB /* SkNetPipeController.cpp in Sources */,
 				26962D4F13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp in Sources */,
 				26FB98D313D0C87000ACBEA0 /* SkUIView.mm in Sources */,
 				2663AC9413D5D8D400C20488 /* SkOptionsTableViewController.mm in Sources */,
 				265C7DE313D75752008329F6 /* SkOptionListController.mm in Sources */,
-				265C816C13D77860008329F6 /* SampleDrawingClient.cpp in Sources */,
 				26811E7913DEFAE8001A1609 /* SkBitSet.cpp in Sources */,
-				26811E8613DEFC33001A1609 /* SampleDrawingServer.cpp in Sources */,
 				26A8AFF313E05D7000A3C111 /* GrResourceCache.cpp in Sources */,
 				26FB125E13E70310001AFF6D /* SkEventNotifier.mm in Sources */,
 				26FB129313E704AE001AFF6D /* GrGLTexture.cpp in Sources */,
 				26FB129413E704B0001AFF6D /* GrContext.cpp in Sources */,
 				26FB12B013E70D3B001AFF6D /* GrGLRenderTarget.cpp in Sources */,
 				26FB12B413E70D51001AFF6D /* GrRenderTarget.cpp in Sources */,
+				26591EB913EB16EB000DA8A8 /* TransitionView.cpp in Sources */,
+				268C50D613F022820003FF9A /* SkColorPalette.cpp in Sources */,
+				268C50D713F022820003FF9A /* SkNetPipeController.cpp in Sources */,
+				268C50DA13F022AF0003FF9A /* SampleDrawingClient.cpp in Sources */,
+				268C50DB13F022AF0003FF9A /* SampleDrawingServer.cpp in Sources */,
+				268C50DF13F0230C0003FF9A /* SampleNetPipeReader.cpp in Sources */,
+				268C50E013F0230C0003FF9A /* SkSockets.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3397,7 +3403,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
