@@ -1307,11 +1307,8 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
     // All internally created RTs are also textures. We don't create
     // SBs for a client's standalone RT (that is RT that isnt also a texture).
     GrAssert(rt->asTexture());
-    // if this thing is bloated for NPOT reasons we'll have to bloat the SB 
-    // as well.
-    GrGLTexture* tex = (GrGLTexture*) rt->asTexture();
-    width = GrMax(width, tex->allocWidth());
-    height = GrMax(height, tex->allocHeight());
+    GrAssert(width >= rt->allocatedWidth());
+    GrAssert(height >= rt->allocatedHeight());
 
     int samples = rt->numSamples();
     GrGLuint sbID;

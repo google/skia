@@ -100,20 +100,6 @@ public:
     GrGLenum uploadType() const { return fUploadType; }
 
     /**
-     * Retrieves the texture width actually allocated in texels.
-     *
-     * @return the width in texels
-     */
-    int allocWidth() const { return fAllocWidth; }
-
-    /**
-     * Retrieves the texture height actually allocated in texels.
-     *
-     * @return the height in texels
-     */
-    int allocHeight() const { return fAllocHeight; }
-
-    /**
      * @return width() / allocWidth()
      */
     GrScalar contentScaleX() const { return fScaleX; }
@@ -147,8 +133,6 @@ private:
     GrGLenum            fUploadFormat;
     GrGLenum            fUploadByteCount;
     GrGLenum            fUploadType;
-    int                 fAllocWidth;
-    int                 fAllocHeight;
     // precomputed content / alloc ratios
     GrScalar            fScaleX;
     GrScalar            fScaleY;

@@ -31,7 +31,7 @@ size_t GrRenderTarget::sizeInBytes() const {
     } else {
         colorBits = GrBytesPerPixel(fConfig);
     }
-    return fWidth * fHeight * colorBits;
+    return fAllocatedWidth * fAllocatedHeight * colorBits * GrMax(1,fSampleCnt);
 }
 
 void GrRenderTarget::flagAsNeedingResolve(const GrIRect* rect) {

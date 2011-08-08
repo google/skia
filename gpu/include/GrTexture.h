@@ -33,6 +33,20 @@ public:
     int height() const { return fHeight; }
 
     /**
+     * Retrieves the allocated width. It may differ from width for
+     * NPOT or min-RT size reasons.
+     * @return allocated width in texels
+     */
+    int allocatedWidth() const { return fAllocatedWidth; }
+
+    /**
+     * Retrieves the allocated height. It may differ from height for
+     * NPOT or min-RT size reasons.
+     * @return allocated height in texels
+     */
+    int allocatedHeight() const { return fAllocatedHeight; }
+
+    /**
      * Convert from texels to normalized texture coords for POT textures
      * only.
      */
@@ -50,7 +64,7 @@ public:
      *  Approximate number of bytes used by the texture
      */
     virtual size_t sizeInBytes() const {
-        return fWidth * fHeight * GrBytesPerPixel(fConfig);
+        return fAllocatedWidth * fAllocatedHeight * GrBytesPerPixel(fConfig);
     }
 
     /**
@@ -125,11 +139,15 @@ protected:
     GrTexture(GrGpu* gpu,
               int width,
               int height,
+              int allocatedWidth,
+              int allocatedHeight,
               GrPixelConfig config)
     : INHERITED(gpu)
     , fRenderTarget(NULL)
     , fWidth(width)
     , fHeight(height)
+    , fAllocatedWidth(allocatedWidth)
+    , fAllocatedHeight(allocatedHeight)
     , fConfig(config) {
         // only make sense if alloc size is pow2
         fShiftFixedX = 31 - Gr_clz(fWidth);
@@ -146,6 +164,9 @@ protected:
 private:
     int fWidth;
     int fHeight;
+    int fAllocatedWidth;
+    int fAllocatedHeight;
+
     // these two shift a fixed-point value into normalized coordinates
     // for this texture if the texture is power of two sized.
     int      fShiftFixedX;

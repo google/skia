@@ -462,11 +462,11 @@ void GrGpuGLShaders::flushTexelSize(int s) {
     const int& uni = fProgramData->fUniLocations.fStages[s].fNormalizedTexelSizeUni;
     if (GrGLProgram::kUnusedUniform != uni) {
         GrGLTexture* texture = (GrGLTexture*) fCurrDrawState.fTextures[s];
-        if (texture->allocWidth() != fProgramData->fTextureWidth[s] ||
-            texture->allocHeight() != fProgramData->fTextureWidth[s]) {
+        if (texture->allocatedWidth() != fProgramData->fTextureWidth[s] ||
+            texture->allocatedHeight() != fProgramData->fTextureWidth[s]) {
 
-            float texelSize[] = {1.f / texture->allocWidth(),
-                                 1.f / texture->allocHeight()};
+            float texelSize[] = {1.f / texture->allocatedWidth(),
+                                 1.f / texture->allocatedHeight()};
             GR_GL(Uniform2fv(uni, 1, texelSize));
         }
     }
