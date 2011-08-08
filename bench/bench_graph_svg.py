@@ -20,9 +20,12 @@ def usage():
     print '-t <time> the time to show (w, c, g, etc).'
     print '-s <setting>[=<value>] a setting to show (alpha, scalar, etc).'
     print '-r <revision>[:<revision>] the revisions to show.'
+    print '   Negative <revision> is taken as offset from most recent revision.'
     print '-f <revision>[:<revision>] the revisions to use for fitting.'
+    print '   Negative <revision> is taken as offset from most recent revision.'
     print '-x <int> the desired width of the svg.'
     print '-y <int> the desired height of the svg.'
+    print '-l <title> title to use for the output graph'
     print '--default-setting <setting>[=<value>] setting for those without.'
     
 
@@ -63,6 +66,22 @@ class Label:
                 hash(self.config) ^
                 hash(self.time_type) ^
                 hash(frozenset(self.settings.iteritems())))
+
+def get_latest_revision(directory):
+    """Returns the latest revision number found within this directory.
+    """
+    latest_revision_found = -1
+    for bench_file in os.listdir(directory):
+        file_name_match = re.match('bench_r(\d+)_(\S+)', bench_file)
+        if (file_name_match is None):
+            continue
+        revision = int(file_name_match.group(1))
+        if revision > latest_revision_found:
+            latest_revision_found = revision
+    if latest_revision_found < 0:
+        return None
+    else:
+        return latest_revision_found
 
 def parse_dir(directory, default_settings, oldest_revision, newest_revision):
     """Parses bench data from files like bench_r<revision>_<scalar>.
@@ -186,7 +205,7 @@ def main():
     
     try:
         opts, _ = getopt.getopt(sys.argv[1:]
-                                 , "d:b:c:t:s:r:f:x:y:"
+                                 , "d:b:c:l:t:s:r:f:x:y:"
                                  , "default-setting=")
     except getopt.GetoptError, err:
         print str(err) 
@@ -197,22 +216,31 @@ def main():
     config_of_interest = None
     bench_of_interest = None
     time_of_interest = None
-    oldest_revision = 0
-    newest_revision = bench_util.Max
-    oldest_regression = 0
-    newest_regression = bench_util.Max
+    revision_range = '0:'
+    regression_range = '0:'
+    latest_revision = None
     requested_height = None
     requested_width = None
+    title = 'Bench graph'
     settings = {}
     default_settings = {}
-    
-    def parse_range(revision_range):
-        """Takes <old>[:<new>] returns (old, new) or (old, Max)."""
-        old, _, new = revision_range.partition(":")
+
+    def parse_range(range):
+        """Takes '<old>[:<new>]' as a string and returns (old, new).
+        Any revision numbers that are dependent on the latest revision number
+        will be filled in based on latest_revision.
+        """
+        old, _, new = range.partition(":")
+        old = int(old)
+        if old < 0:
+            old += latest_revision;
         if not new:
-            return (int(old), bench_util.Max)
-        return (int(old), int(new))
-    
+            new = latest_revision;
+        new = int(new)
+        if new < 0:
+            new += latest_revision;
+        return (old, new)
+
     def add_setting(settings, setting):
         """Takes <key>[=<value>] adds {key:value} or {key:True} to settings."""
         name, _, value = setting.partition('=')
@@ -234,13 +262,15 @@ def main():
             elif option == "-s":
                 add_setting(settings, value)
             elif option == "-r":
-                oldest_revision, newest_revision = parse_range(value)
+                revision_range = value
             elif option == "-f":
-                oldest_regression, newest_regression = parse_range(value)
+                regression_range = value
             elif option == "-x":
                 requested_width = int(value)
             elif option == "-y":
                 requested_height = int(value)
+            elif option == "-l":
+                title = value
             elif option == "--default-setting":
                 add_setting(default_settings, value)
             else:
@@ -253,6 +283,10 @@ def main():
     if directory is None:
         usage()
         sys.exit(2)
+
+    latest_revision = get_latest_revision(directory)
+    oldest_revision, newest_revision = parse_range(revision_range)
+    oldest_regression, newest_regression = parse_range(regression_range)
 
     revision_data_points = parse_dir(directory
                                    , default_settings
@@ -275,7 +309,7 @@ def main():
                                    , newest_regression)
 
     output_xhtml(lines, oldest_revision, newest_revision,
-                 regressions, requested_width, requested_height)
+                 regressions, requested_width, requested_height, title)
 
 def qa(out):
     """Stringify input and quote as an xml attribute."""
@@ -307,13 +341,13 @@ def create_select(qualifier, lines, select_id=None):
     print '</select>'
 
 def output_xhtml(lines, oldest_revision, newest_revision,
-                 regressions, requested_width, requested_height):
+                 regressions, requested_width, requested_height, title):
     """Outputs an svg/xhtml view of the data."""
     print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"',
     print '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
     print '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">'
     print '<head>'
-    print '<title>Bench graph</title>'
+    print '<title>%s</title>' % title
     print '</head>'
     print '<body>'
     
@@ -412,7 +446,8 @@ def output_xhtml(lines, oldest_revision, newest_revision,
 <td width="1"><!--buttons--></td>
 <td width="10%"><!--spacing--></td>"""
 
-    print '<td>Skia Bench Performance for r%s to r%s</td>' % (
+    print '<td>%s<br></br>revisions r%s - r%s</td>' % (
+        title,
         bench_util.CreateRevisionLink(oldest_revision),
         bench_util.CreateRevisionLink(newest_revision))
     print '</tr><tr valign="top" align="center">'
