@@ -168,3 +168,11 @@ class LinearRegression:
             return max(0, (lower_right_y - upper_left_y) / regr_width)
         
         return 0
+
+def CreateRevisionLink(revision_number):
+    """Returns HTML displaying the given revision number and linking to
+    that revision's change page at code.google.com, e.g.
+    http://code.google.com/p/skia/source/detail?r=2056
+    """
+    return '<a href="http://code.google.com/p/skia/source/detail?r=%s">%s</a>'%(
+        revision_number, revision_number)

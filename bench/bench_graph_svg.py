@@ -249,27 +249,33 @@ def main():
     except ValueError:
         usage()
         sys.exit(2)
-                
+
     if directory is None:
         usage()
         sys.exit(2)
-    
+
     revision_data_points = parse_dir(directory
                                    , default_settings
                                    , oldest_revision
                                    , newest_revision)
-    
+
+    # Update oldest_revision and newest_revision based on the data we could find
+    all_revision_numbers = revision_data_points.keys()
+    oldest_revision = min(all_revision_numbers)
+    newest_revision = max(all_revision_numbers)
+
     lines = create_lines(revision_data_points
                    , settings
                    , bench_of_interest
                    , config_of_interest
                    , time_of_interest)
-    
+
     regressions = create_regressions(lines
                                    , oldest_regression
                                    , newest_regression)
-    
-    output_xhtml(lines, regressions, requested_width, requested_height)
+
+    output_xhtml(lines, oldest_revision, newest_revision,
+                 regressions, requested_width, requested_height)
 
 def qa(out):
     """Stringify input and quote as an xml attribute."""
@@ -300,7 +306,8 @@ def create_select(qualifier, lines, select_id=None):
         + ']') + '>'+qe(option)+'</option>'
     print '</select>'
 
-def output_xhtml(lines, regressions, requested_width, requested_height):
+def output_xhtml(lines, oldest_revision, newest_revision,
+                 regressions, requested_width, requested_height):
     """Outputs an svg/xhtml view of the data."""
     print '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"',
     print '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
@@ -394,13 +401,28 @@ def output_xhtml(lines, regressions, requested_width, requested_height):
         }
     }
 //]]></script>"""
-    
-    print '<form>'
-    
+
+    print '<table border="0" width="%s">' % requested_width
+    print """
+<form>
+<tr valign="bottom" align="center">
+<td width="1">Bench&nbsp;Type</td>
+<td width="1">Bitmap Config</td>
+<td width="1">Timer&nbsp;Type (Cpu/Gpu/wall)</td>
+<td width="1"><!--buttons--></td>
+<td width="10%"><!--spacing--></td>"""
+
+    print '<td>Skia Bench Performance for r%s to r%s</td>' % (
+        bench_util.CreateRevisionLink(oldest_revision),
+        bench_util.CreateRevisionLink(newest_revision))
+    print '</tr><tr valign="top" align="center">'
+    print '<td width="1">'
     create_select(lambda l: l.bench, lines, 'benchSelect')
+    print '</td><td width="1">'
     create_select(lambda l: l.config, lines)
+    print '</td><td width="1">'
     create_select(lambda l: l.time_type, lines)
-    
+
     all_settings = {}
     variant_settings = set()
     for label in lines.keys():
@@ -409,18 +431,35 @@ def output_xhtml(lines, regressions, requested_width, requested_height):
                 all_settings[key] = value
             elif all_settings[key] != value:
                 variant_settings.add(key)
-    
+
     for k in variant_settings:
         create_select(lambda l: l.settings[k], lines)
-    
-    print '<button type="button"',
+
+    print '</td><td width="1"><button type="button"',
     print 'onclick=%s' % qa("mark('url(#circleMark)'); return false;"),
-    print '>Mark</button>'
-    print '<button type="button" onclick="mark(null);">Clear</button>'
-    
-    print '</form>'
-    print '</body>'
-    print '</html>'
+    print '>Mark Points</button>'
+    print '<button type="button" onclick="mark(null);">Clear Points</button>'
+
+    print """
+</td>
+<td width="10%"></td>
+<td align="left">
+<p>Brighter red indicates tests that have gotten worse; brighter green
+indicates tests that have gotten better.</p>
+<p>To highlight individual tests, hold down CONTROL and mouse over
+graph lines.</p>
+<p>To highlight revision numbers, hold down SHIFT and mouse over
+the graph area.</p>
+<p>To only show certain tests on the graph, select any combination of
+tests in the selectors at left.  (To show all, select all.)</p>
+<p>Use buttons at left to mark/clear points on the lines for selected
+benchmarks.</p>
+</td>
+</tr>
+</form>
+</table>
+</body>
+</html>"""
     
 def compute_size(requested_width, requested_height, rev_width, time_height):
     """Converts potentially empty requested size into a concrete size.
@@ -510,8 +549,10 @@ def output_svg(lines, regressions, requested_width, requested_height):
     var previousRevisionStroke
     function highlightRevision(id) {
         if (previousRevision == id) return;
-        
-        document.getElementById('revision').firstChild.nodeValue = id;
+
+        document.getElementById('revision').firstChild.nodeValue = 'r' + id;
+        document.getElementById('rev_link').setAttribute('xlink:href',
+            'http://code.google.com/p/skia/source/detail?r=' + id);
         
         var preRevision = document.getElementById(previousRevision);
         if (preRevision) {
@@ -543,7 +584,7 @@ def output_svg(lines, regressions, requested_width, requested_height):
         print '<rect id=%s x=%s y=%s' % (qa(revision), qa(cx(x)), qa(disp_y),),
         print 'width=%s height=%s' % (qa(cw(w)), qa(disp_h),),
         print 'fill="white"',
-        print 'stroke="rgb(99%%,99%%,99%%)" stroke-width=%s' % qa(line_width),
+        print 'stroke="rgb(98%%,98%%,88%%)" stroke-width=%s' % qa(line_width),
         print 'onmouseover=%s' % qa(
                 "var event = arguments[0] || window.event;"
                 " if (event.shiftKey) {"
@@ -568,7 +609,7 @@ def output_svg(lines, regressions, requested_width, requested_height):
         left += width
         current_revision = next_revision
     print_rect(left, y, x+w - left, h, current_revision)
-    
+
     #output the lines
     print """
 <script type="text/javascript">//<![CDATA[
@@ -577,21 +618,21 @@ def output_svg(lines, regressions, requested_width, requested_height):
     var previousOpacity;
     function highlight(id) {
         if (previous == id) return;
-        
+
         document.getElementById('label').firstChild.nodeValue = id;
-        
+
         var preGroup = document.getElementById(previous);
         if (preGroup) {
             var preLine = document.getElementById(previous+'_line');
             preLine.setAttributeNS(null,'stroke', previousColor);
             preLine.setAttributeNS(null,'opacity', previousOpacity);
-            
+
             var preSlope = document.getElementById(previous+'_linear');
             if (preSlope) {
                 preSlope.setAttributeNS(null,'visibility', 'hidden');
             }
         }
-        
+
         var group = document.getElementById(id);
         previous = id;
         if (group) {
@@ -655,17 +696,20 @@ def output_svg(lines, regressions, requested_width, requested_height):
         for point in line:
             print '%s,%s' % (str(cx(point[0])), str(cy(point[1]))),
         print '"/>'
-        
+
         print '</g>'
-    
+
     #output the labels
     print '<text id="label" x="0" y=%s' % qa(font_size),
     print 'font-size=%s> </text>' % qa(font_size)
-    
-    print '<text id="revision" x="0" y=%s' % qa(font_size*2),
-    print 'font-size=%s> </text>' % qa(font_size)
-    
+
+    print '<a id="rev_link" xlink:href="" target="_top">'
+    print '<text id="revision" x="0" y=%s style="' % qa(font_size*2)
+    print 'font-size: %s; ' % qe(font_size)
+    print 'stroke: #0000dd; text-decoration: underline; '
+    print '"> </text></a>'
+
     print '</svg>'
-    
+
 if __name__ == "__main__":
     main()
