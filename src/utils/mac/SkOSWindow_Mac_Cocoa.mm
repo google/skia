@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-#include "SkOSWindow_Mac.h"
+#include "SkOSWindow_Mac_Cocoa.h"
 #include "SkOSMenu.h"
 #include "SkTypes.h"
 #include "SkWindow.h"
