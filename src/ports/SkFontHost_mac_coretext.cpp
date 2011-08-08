@@ -820,8 +820,15 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         info->fType = SkAdvancedTypefaceMetrics::kNotEmbeddable_Font;
     } else if (perGlyphInfo &
                SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo) {
-        info->fGlyphWidths.reset(
-            getAdvanceData(ctFont, glyphCount, &getWidthAdvance));
+        if (info->fStyle & SkAdvancedTypefaceMetrics::kFixedPitch_Style) {
+            appendRange(&info->fGlyphWidths, 0);
+            info->fGlyphWidths->fAdvance.append(1, &min_width);
+            finishRange(info->fGlyphWidths.get(), 0,
+                        SkAdvancedTypefaceMetrics::WidthRange::kDefault);
+        } else {
+            info->fGlyphWidths.reset(
+                getAdvanceData(ctFont, glyphCount, &getWidthAdvance));
+        }
     }
 
     CFSafeRelease(ctFont);
