@@ -598,7 +598,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
                           kTextureRenderTarget_GrPlatformSurfaceType == desc.fSurfaceType;
 
     GrGLRenderTarget::Desc rtDesc;
-    GrGLStencilBuffer* sb = NULL;
+    SkAutoTUnref<GrGLStencilBuffer> sb;
 
     if (isRenderTarget) {
         rtDesc.fRTFBOID = desc.fPlatformRenderTarget;
@@ -638,8 +638,8 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
             format.fPacked = false;
             format.fStencilBits = desc.fStencilBits;
             format.fTotalBits = desc.fStencilBits;
-            sb = new GrGLStencilBuffer(this, 0, desc.fWidth,
-                                       desc.fHeight, rtDesc.fSampleCnt, format);
+            sb.reset(new GrGLStencilBuffer(this, 0, desc.fWidth, desc.fHeight,
+                                           rtDesc.fSampleCnt, format));
         }
         rtDesc.fOwnIDs = false;
     }
@@ -667,7 +667,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         params.invalidate(); // rather than do glGets.
         if (isRenderTarget) {
             GrTexture* tex = new GrGLTexture(this, texDesc, rtDesc, params);
-            tex->asRenderTarget()->setStencilBuffer(sb);
+            tex->asRenderTarget()->setStencilBuffer(sb.get());
             return tex;
         } else {
             return new GrGLTexture(this, texDesc, params);
@@ -680,7 +680,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         viewport.fHeight = desc.fHeight;
 
         GrGLRenderTarget* rt =  new GrGLRenderTarget(this, rtDesc, viewport);
-        rt->setStencilBuffer(sb);
+        rt->setStencilBuffer(sb.get());
         return rt;
     }
 }
@@ -839,7 +839,7 @@ GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
     int stencilBits = get_fbo_stencil_bits(arbFBO);
     GR_GL_GetIntegerv(GR_GL_SAMPLES, &rtDesc.fSampleCnt);
 
-    GrGLStencilBuffer* sb = NULL;
+    SkAutoTUnref<GrGLStencilBuffer> sb;
     if (stencilBits) {
         GrGLStencilBuffer::Format format;
         // we could query this but we don't really need it
@@ -847,9 +847,9 @@ GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
         format.fPacked = false;
         format.fStencilBits = stencilBits;
         format.fTotalBits = stencilBits;
-        sb = new GrGLStencilBuffer(this, 0, viewport.fWidth,
-                                   viewport.fHeight, rtDesc.fSampleCnt,
-                                   format);
+        sb.reset(new GrGLStencilBuffer(this, 0, viewport.fWidth,
+                                       viewport.fHeight, rtDesc.fSampleCnt,
+                                       format));
     }
 
     GrGLenum fmat = get_fbo_color_format();
@@ -865,7 +865,7 @@ GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
     rtDesc.fOwnIDs = false;
 
     GrGLRenderTarget* target = new GrGLRenderTarget(this, rtDesc, viewport);
-    target->setStencilBuffer(sb);
+    target->setStencilBuffer(sb.get());
     return target;
 }
 

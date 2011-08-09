@@ -101,10 +101,15 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
  */
 template <typename T> class SkAutoTUnref : SkNoncopyable {
 public:
-    SkAutoTUnref(T* obj) : fObj(obj) {}
+    explicit SkAutoTUnref(T* obj = NULL) : fObj(obj) {}
     ~SkAutoTUnref() { SkSafeUnref(fObj); }
 
     T* get() const { return fObj; }
+
+    void reset(T* obj) {
+        SkSafeUnref(fObj);
+        fObj = obj;
+    }
 
     /**
      *  Return the hosted object (which may be null), transferring ownership.
