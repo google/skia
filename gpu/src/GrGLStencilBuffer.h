@@ -58,10 +58,12 @@ protected:
             GR_GL(DeleteRenderbuffers(1, &fRenderbufferID));
             fRenderbufferID = 0;
         }
+        INHERITED::onRelease();
     }
 
     virtual void onAbandon() {
         fRenderbufferID = 0;
+        INHERITED::onAbandon();
     }
 
 private:
