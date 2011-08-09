@@ -1079,12 +1079,13 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
     GrGLenum status;
     GrGLint err;
 
+    GrGLenum msColorFormat = 0; // suppress warning
+
     GR_GL(GenFramebuffers(1, &desc->fTexFBOID));
     if (!desc->fTexFBOID) {
         goto FAILED;
     }
     
-    GrGLenum msColorFormat = 0; // suppress warning
 
     // If we are using multisampling we will create two FBOS. We render
     // to one and then resolve to the texture bound to the other.
