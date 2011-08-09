@@ -13,9 +13,6 @@
 #include "GrClip.h"
 #include "GrResource.h"
 
-// REMOVE ME
-#include "GrRenderTarget.h"
-
 class GrRenderTarget;
 class GrResourceEntry;
 
