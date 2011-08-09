@@ -77,7 +77,17 @@ protected:
         , fRTAttachmentCnt(0) {
     }
 
+    // GrResource overrides
+
+    // subclass override must call INHERITED::onRelease
+    virtual void onRelease();
+    // subclass override must call INHERITED::onAbandon
+    virtual void onAbandon();
+
 private:
+
+    void unlockInCache();
+
     int fWidth;
     int fHeight;
     int fBits;
