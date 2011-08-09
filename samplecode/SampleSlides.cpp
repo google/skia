@@ -94,23 +94,18 @@ static void discrete_pe(SkPaint* paint) {
     paint->setPathEffect(new SkDiscretePathEffect(10, 4))->unref();
 }
 
-class TilePathEffect : public Sk2DPathEffect {
-    static SkMatrix make_mat() {
-        SkMatrix m;
-        m.setScale(12, 12);
-        return m;
-    }
-public:
-    TilePathEffect() : Sk2DPathEffect(make_mat()) {}
+static SkPathEffect* MakeTileEffect() {
+    SkMatrix m;
+    m.setScale(SkIntToScalar(12), SkIntToScalar(12));
 
-protected:
-    virtual void next(const SkPoint& loc, int u, int v, SkPath* dst) {
-        dst->addCircle(loc.fX, loc.fY, 5);
-    }
-};
+    SkPath path;
+    path.addCircle(0, 0, SkIntToScalar(5));
+    
+    return new SkPath2DPathEffect(m, path);
+}
 
 static void tile_pe(SkPaint* paint) {
-    paint->setPathEffect(new TilePathEffect)->unref();
+    paint->setPathEffect(MakeTileEffect())->unref();
 }
 
 static const PE_Proc gPE2[] = { fill_pe, discrete_pe, tile_pe };
