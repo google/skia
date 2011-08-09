@@ -36,6 +36,8 @@ public:
     virtual Factory getFactory();
     virtual void    flatten(SkFlattenableWriteBuffer&);
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
 protected:
     SkLayerRasterizer(SkFlattenableReadBuffer&);
 
@@ -46,8 +48,6 @@ protected:
 
 private:
     SkDeque fLayers;
-    
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
     typedef SkRasterizer INHERITED;
 };
