@@ -59,6 +59,10 @@ public:
     // override from SkPathEffect
     virtual bool filterPath(SkPath* dst, const SkPath& src, SkScalar* width);
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
+        return SkNEW_ARGS(SkPath1DPathEffect, (buffer));
+    }
+
 protected:
     SkPath1DPathEffect(SkFlattenableReadBuffer& buffer);
 
@@ -74,10 +78,6 @@ private:
     SkScalar    fAdvance;       // copied from constructor
     SkScalar    fInitialOffset; // computed from phase
     Style       fStyle;         // copied from constructor
-    
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
-        return SkNEW_ARGS(SkPath1DPathEffect, (buffer));
-    }
 
     typedef Sk1DPathEffect INHERITED;
 };
