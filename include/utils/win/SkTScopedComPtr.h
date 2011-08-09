@@ -20,10 +20,7 @@ private:
 public:
     explicit SkTScopedComPtr(T *ptr = NULL) : fPtr(ptr) { }
     ~SkTScopedComPtr() {
-        if (NULL != fPtr) {
-            fPtr->Release();
-            fPtr = NULL;
-        }
+        this->reset();
     }
     T &operator*() const { return *fPtr; }
     T *operator->() const { return fPtr; }
@@ -35,6 +32,12 @@ public:
      */
     T **operator&() { SkASSERT(fPtr == NULL); return &fPtr; }
     T *get() const { return fPtr; }
+    void reset() {
+        if (NULL != this->fPtr) {
+            this->fPtr->Release();
+            this->fPtr = NULL;
+        }
+    }
 };
 
 #endif
