@@ -654,8 +654,6 @@ static void S32A_Opaque_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
 static void S32A_Blend_BlitRow32_arm(SkPMColor* SK_RESTRICT dst,
                                  const SkPMColor* SK_RESTRICT src,
                                  int count, U8CPU alpha) {
-    SkASSERT(255 == alpha);
-
     asm volatile (
                   "cmp    %[count], #0               \n\t" /* comparing count with 0 */
                   "beq    3f                         \n\t" /* if zero exit */
