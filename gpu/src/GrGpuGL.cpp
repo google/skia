@@ -1084,7 +1084,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
         goto FAILED;
     }
     
-    GrGLenum msColorFormat;
+    GrGLenum msColorFormat = 0; // suppress warning
 
     // If we are using multisampling we will create two FBOS. We render
     // to one and then resolve to the texture bound to the other.
