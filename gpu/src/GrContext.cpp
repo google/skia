@@ -28,8 +28,8 @@
 
 #define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
 
-static const size_t MAX_TEXTURE_CACHE_COUNT = 128;
-static const size_t MAX_TEXTURE_CACHE_BYTES = 8 * 1024 * 1024;
+static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
+static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
 
 static const size_t DRAW_BUFFER_VBPOOL_BUFFER_SIZE = 1 << 18;
 static const int DRAW_BUFFER_VBPOOL_PREALLOC_BUFFERS = 4;
