@@ -570,46 +570,18 @@ static void r6(SkLayerRasterizer* rast, SkPaint& p)
 
 #include "Sk2DPathEffect.h"
 
-class Dot2DPathEffect : public Sk2DPathEffect {
-public:
-    Dot2DPathEffect(SkScalar radius, const SkMatrix& matrix)
-    : Sk2DPathEffect(matrix), fRadius(radius) {}
-    
-    virtual void flatten(SkFlattenableWriteBuffer& buffer)
-    {
-        this->INHERITED::flatten(buffer);
-        
-        buffer.writeScalar(fRadius);
-    }
-    virtual Factory getFactory() { return CreateProc; }
-    
-protected:
-	virtual void next(const SkPoint& loc, int u, int v, SkPath* dst)
-    {
-        dst->addCircle(loc.fX, loc.fY, fRadius);
-    }
-    
-    Dot2DPathEffect(SkFlattenableReadBuffer& buffer) : Sk2DPathEffect(buffer)
-    {
-        fRadius = buffer.readScalar();
-    }
-private:
-    SkScalar fRadius;
-    
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer)
-    {
-        return new Dot2DPathEffect(buffer);
-    }
-    
-    typedef Sk2DPathEffect INHERITED;
-};
+static SkPathEffect* MakeDotEffect(SkScalar radius, const SkMatrix& matrix) {
+    SkPath path;
+    path.addCircle(0, 0, radius);
+    return new SkPath2DPathEffect(matrix, path);
+}
 
 static void r7(SkLayerRasterizer* rast, SkPaint& p)
 {
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
-    p.setPathEffect(new Dot2DPathEffect(SK_Scalar1*4, lattice))->unref();
+    p.setPathEffect(MakeDotEffect(SK_Scalar1*4, lattice))->unref();
     rast->addLayer(p);
 }
 
@@ -620,7 +592,7 @@ static void r8(SkLayerRasterizer* rast, SkPaint& p)
     SkMatrix    lattice;
     lattice.setScale(SK_Scalar1*6, SK_Scalar1*6, 0, 0);
     lattice.postSkew(SK_Scalar1/3, 0, 0, 0);
-    p.setPathEffect(new Dot2DPathEffect(SK_Scalar1*2, lattice))->unref();
+    p.setPathEffect(MakeDotEffect(SK_Scalar1*2, lattice))->unref();
     p.setXfermodeMode(SkXfermode::kClear_Mode);
     rast->addLayer(p);
     

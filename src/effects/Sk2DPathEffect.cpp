@@ -101,7 +101,34 @@ SkFlattenable* Sk2DPathEffect::CreateProc(SkFlattenableReadBuffer& buffer)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-static SkFlattenable::Registrar gReg("Sk2DPathEffect",
-                                     Sk2DPathEffect::CreateProc);
+SkPath2DPathEffect::SkPath2DPathEffect(const SkMatrix& m, const SkPath& p)
+    : INHERITED(m), fPath(p) {
+}
+
+SkPath2DPathEffect::SkPath2DPathEffect(SkFlattenableReadBuffer& buffer)
+        : INHERITED(buffer) {
+    fPath.unflatten(buffer);
+}
+
+SkFlattenable* SkPath2DPathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
+    return SkNEW_ARGS(SkPath2DPathEffect, (buffer));
+}
+
+void SkPath2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
+    this->INHERITED::flatten(buffer);
+    fPath.flatten(buffer);
+}
+
+SkFlattenable::Factory SkPath2DPathEffect::getFactory() {
+    return CreateProc;
+}
+
+void SkPath2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {
+    dst->addPath(fPath, loc.fX, loc.fY);
+}
+
+static SkFlattenable::Registrar gReg("SkPath2DPathEffect",
+                                     SkPath2DPathEffect::CreateProc);
 
