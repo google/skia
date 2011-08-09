@@ -37,10 +37,11 @@ public:
     }
 
     virtual size_t sizeInBytes() const {
-        return (size_t) this->width() *
-                        this->height() *
-                        fFormat.fTotalBits *
-                        GrMax(1,this->numSamples());
+        uint64_t size = this->width();
+        size *= this->height();
+        size *= fFormat.fTotalBits;
+        size *= GrMax(1,this->numSamples());
+        return (size_t)(size / 8);
     }
 
     GrGLuint renderbufferID() const {
