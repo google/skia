@@ -737,8 +737,6 @@ public:
     virtual void flatten(SkFlattenableWriteBuffer& buffer) {
         this->INHERITED::flatten(buffer);
         buffer.write32(fMode);
-        buffer.write32(fSrcCoeff);
-        buffer.write32(fDstCoeff);
     }
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer& buffer) {
@@ -749,8 +747,13 @@ protected:
     SkProcCoeffXfermode(SkFlattenableReadBuffer& buffer)
             : INHERITED(buffer) {
         fMode = (SkXfermode::Mode)buffer.readU32();
-        fSrcCoeff = (Coeff)buffer.readU32();
-        fDstCoeff = (Coeff)buffer.readU32();
+
+        const ProcCoeff& rec = gProcCoeffs[fMode];
+        // these may be valid, or may be CANNOT_USE_COEFF
+        fSrcCoeff = rec.fSC;
+        fDstCoeff = rec.fDC;
+        // now update our function-ptr in the super class
+        this->INHERITED::setProc(rec.fProc);
     }
 
 private:

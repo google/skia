@@ -208,6 +208,11 @@ public:
 protected:
     SkProcXfermode(SkFlattenableReadBuffer&);
 
+    // allow subclasses to update this after we unflatten
+    void setProc(SkXfermodeProc proc) {
+        fProc = proc;
+    }
+
 private:
     SkXfermodeProc  fProc;
 
