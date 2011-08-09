@@ -130,8 +130,10 @@ static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) 
 }
 
 static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
+    SkAutoTUnref<GrRenderTarget> rtunref;
     if (SkGpuDevice::Current3DApiRenderTarget() == renderTarget) {
         renderTarget = context->createRenderTargetFrom3DApiState();
+        rtunref.reset(renderTarget);
     }
     GrTexture* texture = renderTarget->asTexture();
     GrPixelConfig config = texture ? texture->config() : kRGBA_8888_GrPixelConfig;
