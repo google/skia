@@ -762,8 +762,13 @@ void SkGpuDevice::drawRect(const SkDraw& draw, const SkRect& rect,
     if (!usePath && paint.isAntiAlias() && !draw.fMatrix->rectStaysRect()) {
         usePath = true;
     }
+    // small miter limit means right angles show bevel...
+    if (SkPaint::kMiter_Join == paint.getStrokeJoin() &&
+        paint.getStrokeMiter() < SK_ScalarSqrt2)
+    {
+        usePath = true;
+    }
     // until we can both stroke and fill rectangles
-    // with large enough miter limit...
     if (paint.getStyle() == SkPaint::kStrokeAndFill_Style) {
         usePath = true;
     }
