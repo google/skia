@@ -29,6 +29,8 @@ public:
     //  This method is not exported to java.
     virtual Factory getFactory();
 
+    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
+
 protected:
     /** New virtual, to be overridden by subclasses.
         This is called once from filterPath, and provides the
@@ -56,8 +58,6 @@ private:
     // illegal
     Sk2DPathEffect(const Sk2DPathEffect&);
     Sk2DPathEffect& operator=(const Sk2DPathEffect&);
-
-    static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
     friend class Sk2DPathEffectBlitter;
     typedef SkPathEffect INHERITED;

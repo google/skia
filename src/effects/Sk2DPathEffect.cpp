@@ -100,5 +100,8 @@ SkFlattenable* Sk2DPathEffect::CreateProc(SkFlattenableReadBuffer& buffer)
     return SkNEW_ARGS(Sk2DPathEffect, (buffer));
 }
 
+///////////////////////////////////////////////////////////////////////////////
 
+static SkFlattenable::Registrar gReg("Sk2DPathEffect",
+                                     Sk2DPathEffect::CreateProc);
 
