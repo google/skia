@@ -42,6 +42,8 @@
 #ifndef __dict_list_h_
 #define __dict_list_h_
 
+#include <sk_glu.h>
+
 /* Use #define's so that another heap implementation can use this one */
 
 #define DictKey		DictListKey
