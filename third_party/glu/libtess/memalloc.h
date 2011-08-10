@@ -42,6 +42,7 @@
 #ifndef __memalloc_simple_h_
 #define __memalloc_simple_h_
 
+#include <sk_glu.h>
 #include <stdlib.h>
 
 #define memRealloc	realloc

@@ -36,3 +36,6 @@ The following changes were made in order to incorporate this code:
 
   - In priorityq.c, render.c, and others:  the construct "if(1)...else" was
   replaced with "do{...}while(1)" to silence a warning-as-error in Mac builds.
+
+  - rename all __gl_ functions to Sk__gl_ to avoid conflicting with other
+    static linkers of this library.
