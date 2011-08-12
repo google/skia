@@ -5,7 +5,7 @@
 #define SKGL_CONFIG         kEAGLColorFormatRGB565
 //#define SKGL_CONFIG         kEAGLColorFormatRGBA8
 
-//#define FORCE_REDRAW
+#define FORCE_REDRAW
 
 //#define USE_GL_1
 #define USE_GL_2

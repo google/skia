@@ -66,18 +66,19 @@ public:
         SkUnichar   getKeyEquivalent() const { return fKey; }
         
         /**
+         * Helper functions for predefined types
+         */
+        void setBool(bool value) const;             //For Switch
+        void setScalar(SkScalar value) const;       //For Slider     
+        void setInt(int value) const;               //For List
+        void setTriState(TriState value) const;     //For Tristate
+        void setString(const char value[]) const;   //For TextField
+        
+        /**
          * Post event associated with the menu item to target, any changes to 
          * the associated event must be made prior to calling this method
          */
         void postEvent() const { (new SkEvent(*(fEvent)))->post(); }
-        
-        /**
-         * Helper functions for predefined types
-         */
-        void postEventWithBool(bool value) const;           //For Switch
-        void postEventWithScalar(SkScalar value) const;     //For Slider
-        void postEventWithInt(int value) const;             //For List, TriState
-        void postEventWithString(const char value[]) const; //For TextField
 
     private:
         int             fID;
@@ -88,11 +89,12 @@ public:
         SkUnichar       fKey;
     };
     
-    void reset();
+    void        reset();
     const char* getTitle() const { return fTitle.c_str(); }
     void        setTitle (const char title[]) { fTitle.set(title); }
-    int         countItems() const { return fItems.count(); }
-    const Item* getItem(int index) const { return fItems[index]; }
+    int         getCount() const { return fItems.count(); }
+    const Item* getItemByID(int itemID) const;
+    void        getItems(const Item* items[]) const;
     
     /**
      * Assign key to the menu item with itemID, will do nothing if there's no 
@@ -143,30 +145,30 @@ public:
      * Helper functions to retrieve information other than the stored value for
      * some predefined types
      */
-    static bool FindListItemCount(const SkEvent* evt, int* count);
+    static bool FindListItemCount(const SkEvent& evt, int* count);
     /**
      * Ensure that the items array can store n SkStrings where n is the count 
      * extracted using FindListItemCount
      */
-    static bool FindListItems(const SkEvent* evt, SkString items[]);
-    static bool FindSliderMin(const SkEvent* evt, SkScalar* min);
-    static bool FindSliderMax(const SkEvent* evt, SkScalar* max);
+    static bool FindListItems(const SkEvent& evt, SkString items[]);
+    static bool FindSliderMin(const SkEvent& evt, SkScalar* min);
+    static bool FindSliderMax(const SkEvent& evt, SkScalar* max);
     
     /**
      * Returns true if an action with the given label is found, false otherwise
      */
-    static bool FindAction(const SkEvent* evt, const char label[]);
+    static bool FindAction(const SkEvent& evt, const char label[]);
     /**
      * The following helper functions will return true if evt is generated from 
      * a predefined item type and retrieve the corresponding state information. 
      * They will return false and leave value unchanged if there's a type 
      * mismatch or slotName is incorrect
      */
-    static bool FindListIndex(const SkEvent* evt, const char slotName[], int* value);
-    static bool FindSliderValue(const SkEvent* evt, const char slotName[], SkScalar* value);
-    static bool FindSwitchState(const SkEvent* evt, const char slotName[], bool* value);
-    static bool FindTriState(const SkEvent* evt, const char slotName[], TriState* value);
-    static bool FindText(const SkEvent* evt, const char slotName[], SkString* value);
+    static bool FindListIndex(const SkEvent& evt, const char slotName[], int* value);
+    static bool FindSliderValue(const SkEvent& evt, const char slotName[], SkScalar* value);
+    static bool FindSwitchState(const SkEvent& evt, const char slotName[], bool* value);
+    static bool FindTriState(const SkEvent& evt, const char slotName[], TriState* value);
+    static bool FindText(const SkEvent& evt, const char slotName[], SkString* value);
     
 private:
     SkString fTitle;

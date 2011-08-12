@@ -38,7 +38,7 @@
 - (NSUInteger)convertPathToIndex:(NSIndexPath*)path {
     NSUInteger index = 0;
     for (NSInteger i = 0; i < path.section; ++i) {
-        index += (*fMenus)[i]->countItems();
+        index += (*fMenus)[i]->getCount();
     }
     return index + path.row;
 }
@@ -57,7 +57,7 @@
     if (menuIndex >= 0 && menuIndex < fMenus->count()) {
         NSUInteger first = 0;
         for (NSInteger i = 0; i < menuIndex; ++i) {
-            first += (*fMenus)[i]->countItems();
+            first += (*fMenus)[i]->getCount();
         }
         [fItems removeObjectsInRange:NSMakeRange(first, [fItems count] - first)];
         [self loadMenu:menu];
@@ -66,8 +66,10 @@
 }
 
 - (void)loadMenu:(const SkOSMenu*)menu {
-    for (int i = 0; i < menu->countItems(); ++i) {
-        const SkOSMenu::Item* item = menu->getItem(i);
+    const SkOSMenu::Item* menuitems[menu->getCount()];
+    menu->getItems(menuitems);
+    for (int i = 0; i < menu->getCount(); ++i) {
+        const SkOSMenu::Item* item = menuitems[i];
         NSString* title = [NSString stringWithUTF8String:item->getLabel()];
         
         if (SkOSMenu::kList_Type == item->getType()) {
@@ -78,12 +80,12 @@
             List.fOptions = [[SkOptionListController alloc] initWithStyle:UITableViewStyleGrouped];
             
             int count = 0;
-            SkOSMenu::FindListItemCount(item->getEvent(), &count);
+            SkOSMenu::FindListItemCount(*item->getEvent(), &count);
             SkString options[count];
-            SkOSMenu::FindListItems(item->getEvent(), options);
+            SkOSMenu::FindListItems(*item->getEvent(), options);
             for (int i = 0; i < count; ++i)
                 [List.fOptions addOption:[NSString stringWithUTF8String:options[i].c_str()]];
-            SkOSMenu::FindListIndex(item->getEvent(), item->getSlotName(), &value);
+            SkOSMenu::FindListIndex(*item->getEvent(), item->getSlotName(), &value);
             
             List.fOptions.fSelectedIndex = value;
             List.fCell = [self createList:title
@@ -104,25 +106,25 @@
                     option.fCell = [self createAction:title];
                     break;
                 case SkOSMenu::kSwitch_Type:
-                    SkOSMenu::FindSwitchState(item->getEvent(), item->getSlotName(), &state);
+                    SkOSMenu::FindSwitchState(*item->getEvent(), item->getSlotName(), &state);
                     option.fCell = [self createSwitch:title default:(BOOL)state];
                     break;
                 case SkOSMenu::kSlider_Type:
                     SkScalar min, max, value;
-                    SkOSMenu::FindSliderValue(item->getEvent(), item->getSlotName(), &value);
-                    SkOSMenu::FindSliderMin(item->getEvent(), &min);
-                    SkOSMenu::FindSliderMax(item->getEvent(), &max);
+                    SkOSMenu::FindSliderValue(*item->getEvent(), item->getSlotName(), &value);
+                    SkOSMenu::FindSliderMin(*item->getEvent(), &min);
+                    SkOSMenu::FindSliderMax(*item->getEvent(), &max);
                     option.fCell = [self createSlider:title 
                                                   min:min 
                                                   max:max
                                               default:value];
                     break;                    
                 case SkOSMenu::kTriState_Type:
-                    SkOSMenu::FindTriState(item->getEvent(), item->getSlotName(), &tristate);
+                    SkOSMenu::FindTriState(*item->getEvent(), item->getSlotName(), &tristate);
                     option.fCell = [self createTriState:title default:(int)tristate];
                     break;
                 case SkOSMenu::kTextField_Type:
-                    SkOSMenu::FindText(item->getEvent(), item->getSlotName(), &str);
+                    SkOSMenu::FindText(*item->getEvent(), item->getSlotName(), &str);
                     option.fCell = [self createTextField:title 
                                                  default:[NSString stringWithUTF8String:str.c_str()]];
                     break;
@@ -142,26 +144,31 @@
     if ([sender isKindOfClass:[UISlider class]]) {//Slider
         UISlider* slider = (UISlider *)sender;
         cell.detailTextLabel.text = [NSString stringWithFormat:@"%1.1f", slider.value];
-        item.fItem->postEventWithScalar(slider.value);
+        item.fItem->setScalar(slider.value);
     }
     else if ([sender isKindOfClass:[UISwitch class]]) {//Switch
         UISwitch* switch_ = (UISwitch *)sender;
-        item.fItem->postEventWithBool(switch_.on);
+        item.fItem->setBool(switch_.on);
     }
     else if ([sender isKindOfClass:[UITextField class]]) { //TextField
         UITextField* textField = (UITextField *)sender;
         [textField resignFirstResponder];
-        item.fItem->postEventWithString([textField.text UTF8String]);
+        item.fItem->setString([textField.text UTF8String]);
     }
     else if ([sender isKindOfClass:[UISegmentedControl class]]) { //Action
         UISegmentedControl* segmented = (UISegmentedControl *)sender;
-        item.fItem->postEventWithInt((2 == segmented.selectedSegmentIndex) ? 
-                                     SkOSMenu::kMixedState : 
-                                     segmented.selectedSegmentIndex);
+        SkOSMenu::TriState state;
+        if (2 == segmented.selectedSegmentIndex) {
+            state = SkOSMenu::kMixedState;
+        } else {
+            state = (SkOSMenu::TriState)segmented.selectedSegmentIndex;
+        }
+        item.fItem->setTriState(state);
     }
     else{
         NSLog(@"unknown");
     }
+    item.fItem->postEvent();
 }
 
 - (UITableViewCell*)createAction:(NSString*)title {
@@ -272,7 +279,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return (*fMenus)[section]->countItems();
+    return (*fMenus)[section]->getCount();
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -314,7 +321,8 @@
     if (self == viewController) { //when a List option is popped, trigger event
         NSString* selectedOption = [fCurrentList.fOptions getSelectedOption];
         fCurrentList.fCell.detailTextLabel.text = selectedOption;
-        fCurrentList.fItem->postEventWithInt(fCurrentList.fOptions.fSelectedIndex);
+        fCurrentList.fItem->setInt(fCurrentList.fOptions.fSelectedIndex);
+        fCurrentList.fItem->postEvent();
     }
 }
 

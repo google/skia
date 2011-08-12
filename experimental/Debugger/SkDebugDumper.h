@@ -7,21 +7,18 @@
  */
 #ifndef SkDebugDumper_DEFINED
 #define SkDebugDumper_DEFINED
-#include "SkDumpCanvasM.h"
+#include "SkDumpCanvas.h"
 #include "SkEvent.h"
 
-class CommandListView;
-class InfoPanelView;
-class ContentView;
 /** Formats the draw commands, and send them to a function-pointer provided
  by the caller.
  */
-class SkDebugDumper : public SkDumpCanvasM::Dumper {
+class SkDebugDumper : public SkDumpCanvas::Dumper {
 public:
     SkDebugDumper(SkEventSinkID cID, SkEventSinkID clID, SkEventSinkID ipID);
     // override from baseclass that does the formatting, and in turn calls
     // the function pointer that was passed to the constructor
-    virtual void dump(SkDumpCanvasM*, SkDumpCanvasM::Verb, const char str[],
+    virtual void dump(SkDumpCanvas*, SkDumpCanvas::Verb, const char str[],
                       const SkPaint*);
     
     void load() { fInit = true; };
@@ -33,9 +30,9 @@ private:
     bool            fInit;
     bool            fDisabled;
     SkEventSinkID   fContentID;
-    SkEventSinkID   fCommandListID;
-    SkEventSinkID   fInfoPanelID;
+    SkEventSinkID   fCommandsID;
+    SkEventSinkID   fStateID;
     
-    typedef SkDumpCanvasM::Dumper INHERITED;
+    typedef SkDumpCanvas::Dumper INHERITED;
 };
 #endif

@@ -54,7 +54,7 @@
     if (menuIndex >= 0 && menuIndex < fMenus->count()) {
         NSUInteger first = 0;
         for (NSInteger i = 0; i < menuIndex; ++i) {
-            first += (*fMenus)[i]->countItems();
+            first += (*fMenus)[i]->getCount();
         }
         [fItems removeObjectsInRange:NSMakeRange(first, [fItems count] - first)];
         [self loadMenu:menu];
@@ -72,20 +72,22 @@
 }
 
 - (void)loadMenu:(const SkOSMenu*)menu {
-    for (int i = 0; i < menu->countItems(); ++i) {
-        const SkOSMenu::Item* item = menu->getItem(i);
+    const SkOSMenu::Item* menuitems[menu->getCount()];
+    menu->getItems(menuitems);
+    for (int i = 0; i < menu->getCount(); ++i) {
+        const SkOSMenu::Item* item = menuitems[i];
         SkOptionItem* option = [[SkOptionItem alloc] init];
         option.fItem = item;
         
         if (SkOSMenu::kList_Type == item->getType()) {
             int index = 0, count = 0;
-            SkOSMenu::FindListItemCount(item->getEvent(), &count);
+            SkOSMenu::FindListItemCount(*item->getEvent(), &count);
             NSMutableArray* optionstrs = [[NSMutableArray alloc] initWithCapacity:count];
             SkString options[count];
-            SkOSMenu::FindListItems(item->getEvent(), options);
+            SkOSMenu::FindListItems(*item->getEvent(), options);
             for (int i = 0; i < count; ++i)
                 [optionstrs addObject:[NSString stringWithUTF8String:options[i].c_str()]];
-            SkOSMenu::FindListIndex(item->getEvent(), item->getSlotName(), &index);
+            SkOSMenu::FindListIndex(*item->getEvent(), item->getSlotName(), &index);
             option.fCell = [self createList:optionstrs current:index];
             [optionstrs release];
         }
@@ -99,23 +101,23 @@
                     break;
                 case SkOSMenu::kSlider_Type:
                     SkScalar min, max, value;
-                    SkOSMenu::FindSliderValue(item->getEvent(), item->getSlotName(), &value);
-                    SkOSMenu::FindSliderMin(item->getEvent(), &min);
-                    SkOSMenu::FindSliderMax(item->getEvent(), &max);
+                    SkOSMenu::FindSliderValue(*item->getEvent(), item->getSlotName(), &value);
+                    SkOSMenu::FindSliderMin(*item->getEvent(), &min);
+                    SkOSMenu::FindSliderMax(*item->getEvent(), &max);
                     option.fCell = [self createSlider:value 
                                                   min:min 
                                                   max:max];
                     break;                    
                 case SkOSMenu::kSwitch_Type:
-                    SkOSMenu::FindSwitchState(item->getEvent(), item->getSlotName(), &state);
+                    SkOSMenu::FindSwitchState(*item->getEvent(), item->getSlotName(), &state);
                     option.fCell = [self createSwitch:(BOOL)state];
                     break;
                 case SkOSMenu::kTriState_Type:
-                    SkOSMenu::FindTriState(item->getEvent(), item->getSlotName(), &tristate);
+                    SkOSMenu::FindTriState(*item->getEvent(), item->getSlotName(), &tristate);
                     option.fCell = [self createTriState:[self triStateToNSState:tristate]];
                     break;
                 case SkOSMenu::kTextField_Type:
-                    SkOSMenu::FindText(item->getEvent(),item->getSlotName(), &str);
+                    SkOSMenu::FindText(*item->getEvent(),item->getSlotName(), &str);
                     option.fCell = [self createTextField:[NSString stringWithUTF8String:str.c_str()]];
                     break;
                 default:
@@ -202,29 +204,30 @@
                 break;
             case SkOSMenu::kList_Type:
                 [(NSPopUpButtonCell*)cell selectItemAtIndex:[anObject intValue]];
-                item->postEventWithInt([anObject intValue]);
+                item->setInt([anObject intValue]);
                 break;
             case SkOSMenu::kSlider_Type:
                 [cell setFloatValue:[anObject floatValue]];
-                item->postEventWithScalar([anObject floatValue]);
+                item->setScalar([anObject floatValue]);
                 break;
             case SkOSMenu::kSwitch_Type:
                 [cell setState:[anObject boolValue]];
-                item->postEventWithBool([anObject boolValue]);
+                item->setBool([anObject boolValue]);
                 break;
             case SkOSMenu::kTextField_Type:
                 if ([anObject length] > 0) {
                     [cell setStringValue:anObject];
-                    item->postEventWithString([anObject UTF8String]);
+                    item->setString([anObject UTF8String]);
                 }
                 break;
             case SkOSMenu::kTriState_Type:
                 [cell setState:[anObject intValue]];
-                item->postEventWithInt([anObject intValue]);
+                item->setTriState((SkOSMenu::TriState)[anObject intValue]);
                 break;
             default:
                 break;
         }
+        item->postEvent();
     }
 }
 

@@ -8,24 +8,8 @@
     [fOptions registerMenus:fView.fWind->getMenus()];
 }
 
-static float deltaw = 120;
-static float deltah = 80;
-
-- (IBAction)decreaseWindowSize:(id)sender {
-    NSRect frame = [fWindow frame];
-    frame.origin.y += deltah;
-    frame.size.width -=deltaw;
-    frame.size.height -= deltah;
-    
-    [fWindow setFrame:frame display:YES animate:YES];
-}
-
-- (IBAction)increaseWindowSize:(id)sender {
-    NSRect frame = [fWindow frame];
-    frame.origin.y -= deltah;
-    frame.size.width += deltaw;
-    frame.size.height += deltah;
-    
+- (IBAction)toiPadSize:(id)sender {
+    NSRect frame = NSMakeRect(fWindow.frame.origin.x, fWindow.frame.origin.y, 768, 1024);
     [fWindow setFrame:frame display:YES animate:YES];
 }
 @end

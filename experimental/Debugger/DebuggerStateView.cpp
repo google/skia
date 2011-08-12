@@ -5,23 +5,24 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDebuggerViews.h"
+#include "DebuggerViews.h"
 #include "SkRect.h"
 
-SkInfoPanelView::SkInfoPanelView() {
+DebuggerStateView::DebuggerStateView() {
     fBGColor = 0xFF999999;
     fPaint.setColor(fBGColor);
+    fResizing = false;
 }
 
-bool SkInfoPanelView::onEvent(const SkEvent& evt) {
-    if (evt.isType(SkDebugger_StateType)) {
-        fMatrix = evt.findString(SkDebugger_Matrix);
-        fClip = evt.findString(SkDebugger_Clip);
+bool DebuggerStateView::onEvent(const SkEvent& evt) {
+    if (evt.isType(SKDEBUGGER_STATETYPE)) {
+        fMatrix = evt.findString(SKDEBUGGER_MATRIX);
+        fClip = evt.findString(SKDEBUGGER_CLIP);
         
         SkPaint* ptr;
-        if (evt.getMetaData().findPtr(SkDebugger_Paint, (void**)&ptr)) {
+        if (evt.getMetaData().findPtr(SKDEBUGGER_PAINT, (void**)&ptr)) {
             fPaint = *ptr;
-            fPaintInfo = evt.findString(SkDebugger_PaintInfo);
+            fPaintInfo = evt.findString(SKDEBUGGER_PAINTINFO);
         }
         this->inval(NULL);
         return true;
@@ -29,7 +30,7 @@ bool SkInfoPanelView::onEvent(const SkEvent& evt) {
     return this->INHERITED::onEvent(evt);
 }
 
-void SkInfoPanelView::onDraw(SkCanvas* canvas) {
+void DebuggerStateView::onDraw(SkCanvas* canvas) {
     canvas->drawColor(fBGColor);
     
     //Display Current Paint
@@ -37,12 +38,15 @@ void SkInfoPanelView::onDraw(SkCanvas* canvas) {
     canvas->drawRect(r, fPaint);
     //Display Information
     SkPaint p;
-    p.setTextSize(SkDebugger_TextSize);
+    p.setTextSize(SKDEBUGGER_TEXTSIZE);
     p.setAntiAlias(true);
     int x = 50;
     canvas->drawText(fPaintInfo.c_str(), fPaintInfo.size(), x, 30, p);
     canvas->drawText(fMatrix.c_str(), fMatrix.size(), x, 60, p);
     canvas->drawText(fClip.c_str(), fClip.size(), x, 90, p);
     
+    p.setColor(SKDEBUGGER_RESIZEBARCOLOR);
+    r = SkRect::MakeXYWH(0, 0, this->width(), SKDEBUGGER_RESIZEBARSIZE);
+    canvas->drawRect(r, p);
     this->INHERITED::onDraw(canvas);
 }

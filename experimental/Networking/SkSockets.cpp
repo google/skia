@@ -23,6 +23,7 @@ SkSocket::SkSocket() {
 
 SkSocket::~SkSocket() {
     this->closeSocket(fSockfd);
+    shutdown(fSockfd, 2); //stop sending/receiving
 }
 
 int SkSocket::createSocket() {
@@ -49,7 +50,6 @@ void SkSocket::closeSocket(int sockfd) {
     if (!fReady)
         return;
     
-    shutdown(sockfd, 2); //stop sending/receiving
     close(sockfd);
     //SkDebugf("Closed fd:%d\n", sockfd);
     
@@ -151,7 +151,7 @@ int SkSocket::readPacket(void (*onRead)(int, const void*, size_t, DataType,
         }
 
         if (failure) {
-            onRead(NULL, 0, i, h.type, context);
+            onRead(i, NULL, 0, h.type, context);
             this->onFailedConnection(i);
             continue;
         }
