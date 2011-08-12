@@ -119,6 +119,18 @@
         # Dependencies for the pipe code in SampleApp
         '../src/pipe/SkGPipeRead.cpp',
         '../src/pipe/SkGPipeWrite.cpp',
+        
+        # Networking dependencies
+        '../experimental/Networking/SkSockets.cpp',
+        '../experimental/Networking/SkSockets.h',
+        
+        # Debugger dependencies
+        '../experimental/Debugger/DebuggerViews.h',
+        '../experimental/Debugger/DebuggerContentView.cpp',
+        '../experimental/Debugger/DebuggerCommandsView.cpp',
+        '../experimental/Debugger/DebuggerStateView.cpp',
+        '../experimental/Debugger/SkDebugDumper.cpp',
+        '../experimental/Debugger/SkDebugDumper.h',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
