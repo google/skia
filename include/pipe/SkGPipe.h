@@ -16,6 +16,11 @@
 
 class SkCanvas;
 
+// XLib.h might have defined Status already (ugh)
+#ifdef Status
+    #undef Status
+#endif
+
 class SkGPipeReader {
 public:
     SkGPipeReader(SkCanvas* target);
