@@ -15,10 +15,9 @@
 class Sk2DPathEffectBlitter : public SkBlitter {
 public:
     Sk2DPathEffectBlitter(Sk2DPathEffect* pe, SkPath* dst)
-        : fPE(pe), fDst(dst)
-    {}
-    virtual void blitH(int x, int y, int count)
-    {
+        : fPE(pe), fDst(dst) {}
+
+    virtual void blitH(int x, int y, int count) {
         fPE->nextSpan(x, y, count, fDst);
     }
 private:
@@ -26,15 +25,13 @@ private:
     SkPath*         fDst;
 };
 
-////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat)
-{
+Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     mat.invert(&fInverse);
 }
 
-bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width)
-{
+bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width) {
     Sk2DPathEffectBlitter   blitter(this, dst);
     SkPath                  tmp;
     SkIRect                 ir;
@@ -53,8 +50,7 @@ bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src, SkScalar* width)
     return true;
 }
 
-void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path)
-{
+void Sk2DPathEffect::nextSpan(int x, int y, int count, SkPath* path) {
     const SkMatrix& mat = this->getMatrix();
     SkPoint src, dst;
 
@@ -70,18 +66,16 @@ void Sk2DPathEffect::begin(const SkIRect& uvBounds, SkPath* dst) {}
 void Sk2DPathEffect::next(const SkPoint& loc, int u, int v, SkPath* dst) {}
 void Sk2DPathEffect::end(SkPath* dst) {}
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-void Sk2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer)
-{
+void Sk2DPathEffect::flatten(SkFlattenableWriteBuffer& buffer) {
     char storage[SkMatrix::kMaxFlattenSize];
     uint32_t size = fMatrix.flatten(storage);
     buffer.write32(size);
     buffer.write(storage, size);
 }
 
-Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer)
-{
+Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer) {
     char storage[SkMatrix::kMaxFlattenSize];
     uint32_t size = buffer.readS32();
     SkASSERT(size <= sizeof(storage));
@@ -90,13 +84,11 @@ Sk2DPathEffect::Sk2DPathEffect(SkFlattenableReadBuffer& buffer)
     fMatrix.invert(&fInverse);
 }
 
-SkFlattenable::Factory Sk2DPathEffect::getFactory()
-{
+SkFlattenable::Factory Sk2DPathEffect::getFactory() {
     return CreateProc;
 }
 
-SkFlattenable* Sk2DPathEffect::CreateProc(SkFlattenableReadBuffer& buffer)
-{
+SkFlattenable* Sk2DPathEffect::CreateProc(SkFlattenableReadBuffer& buffer) {
     return SkNEW_ARGS(Sk2DPathEffect, (buffer));
 }
 
