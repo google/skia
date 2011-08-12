@@ -10,9 +10,12 @@
 #include "SkTime.h"
 #include "SkInterpolator.h"
 
+extern bool is_overview(SkView* view);
+
 static const char gIsTransitionQuery[] = "is-transition";
 static const char gReplaceTransitionEvt[] = "replace-transition-view";
-static bool isTransition(SkView* view) {
+
+bool is_transition(SkView* view) {
     SkEvent isTransition(gIsTransitionQuery);
     return view->doQuery(&isTransition);
 }
@@ -37,10 +40,13 @@ public:
         //Calling unref because next is a newly created view and TransitionView
         //is now the sole owner of fNext
         this->attachChildToFront(fNext)->unref();
+        
+        fDone = false;
+        //SkDebugf("--created transition\n");
     }
     
     ~TransitionView(){
-        //SkDebugf("deleted transition\n");
+        //SkDebugf("--deleted transition\n");
     }
     
     virtual void requestMenu(SkOSMenu* menu) {
@@ -72,11 +78,30 @@ protected:
             this->attachChildToBack(fPrev)->unref();
             this->inval(NULL);
             return true;
-        } 
+        }
+        if (evt.isType("transition-done")) {
+            fNext->setLoc(0, 0);
+            fNext->setClipToBounds(false);
+            SkEvent* evt = new SkEvent(gReplaceTransitionEvt, 
+                                       this->getParent()->getSinkID());
+            evt->setFast32(fNext->getSinkID());
+            //increate ref count of fNext so it survives detachAllChildren
+            fNext->ref();
+            this->detachAllChildren();
+            evt->post();
+            return true;
+        }
         return this->INHERITED::onEvent(evt);
     }
     virtual void onDrawBackground(SkCanvas* canvas) {}
     virtual void onDrawContent(SkCanvas* canvas) {
+        if (fDone)
+            return;
+
+        if (is_overview(fNext) || is_overview(fPrev)) {
+            fUsePipe = false;
+        }
+        
         SkScalar values[4];
         SkInterpolator::Result result = fInterp.timeToValues(SkTime::GetMSecs(), values);
         //SkDebugf("transition %x %d pipe:%d\n", this, result, fUsePipe);
@@ -89,35 +114,9 @@ protected:
             this->inval(NULL);
         }
         else {
-            fNext->setLocX(0);
-            fNext->setLocY(0);
-            fNext->setClipToBounds(false);
-            
-            SkView* parent = this->getParent();
-            int id = this->getParent()->getSinkID();
-            
-            SkEvent* evt;
-            if (isTransition(parent)) {
-                evt = new SkEvent(gReplaceTransitionEvt, id);
-                evt->setFast32(fNext->getSinkID());
-                //increate ref count of fNext so it survives detachAllChildren
-                fNext->ref();
-            }
-            else {
-                parent->attachChildToFront(fNext);
-                (void)SampleView::SetUsePipe(fNext, fUsePipe);
-                evt = new SkEvent("unref-transition-view", id);
-                evt->setFast32(this->getSinkID());
-                fUsePipe = false;
-                //keep this(TransitionView) alive so it can be deleted by its 
-                //parent through the unref-transition-view event
-                this->ref();
-                this->detachFromParent();
-            }
-            this->detachAllChildren();
-            evt->post();
+            (new SkEvent("transition-done", this->getSinkID()))->post();
+            fDone = true;
         }
-        this->inval(NULL);
     }
     
     virtual void onSizeChange() {
@@ -142,7 +141,7 @@ protected:
         fNext->setLocX(lr);
         fNext->setLocY(ud);
         
-        if (isTransition(fPrev))
+        if (is_transition(fPrev))
             lr = ud = 0;
         fEnd[kPrevX] = -lr;
         fEnd[kPrevY] = -ud;
@@ -161,6 +160,7 @@ private:
     };
     SkView* fPrev;
     SkView* fNext;
+    bool    fDone;
     SkInterpolator fInterp;
     
     enum Direction{

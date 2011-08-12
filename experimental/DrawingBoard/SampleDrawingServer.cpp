@@ -7,6 +7,25 @@
 #include "SkCornerPathEffect.h"
 #include "SkOSMenu.h"
 #include <map>
+
+/**
+ * Drawing Server
+ *
+ * This simple drawing server can accept connections from multiple drawing 
+ * clients simultaneously. It accumulates drawing data from each client each 
+ * frame, stores it in the appropriate place, and then broadcasts incremental
+ * changes back to all the clients. Each logical packet, meaning one brush
+ * stoke in this case can be of two types, append and replace. Append types are
+ * completed strokes ready to be stored in the fData queue and will no longer be
+ * modified. Replace types are drawing operations that are still in progress on 
+ * the client side, so they are appended to fBuffer. The location and size of 
+ * the buffered data for each client is stored in a map and updated properly.
+ * Each time a new replace drawing call is received from a client, its previous
+ * buffered data is discarded.
+ * Since the Server keeps all the complete drawing data and the latest buffered
+ * data, it's able to switch between vector and bitmap drawing
+ */
+
 class DrawingServerView : public SampleView {
 public:
 	DrawingServerView(){
@@ -77,14 +96,12 @@ protected:
                                  SkSocket::kPipeAppend_type);
             fTotalBytesWritten = fData.count();
             fServer->suspendWrite();
-            //this->clearBitmap();
         }
         else {
             //other types of data
         }
     }
     
-    // overrides from SkEventSink
     bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Drawing Server");
@@ -94,11 +111,11 @@ protected:
     }
     
     bool onEvent(const SkEvent& evt) {
-        if (SkOSMenu::FindAction(&evt, "Clear")) {
+        if (SkOSMenu::FindAction(evt, "Clear")) {
             this->clear();
             return true;
         }
-        if (SkOSMenu::FindSwitchState(&evt, "Vector", &fVector)) {
+        if (SkOSMenu::FindSwitchState(evt, "Vector", &fVector)) {
             this->clearBitmap();
             return true;
         }
@@ -121,33 +138,35 @@ protected:
         }
         
         size_t bytesRead;
+        SkGPipeReader::Status stat;
         SkCanvas bufferCanvas(fBase);
         SkCanvas* tempCanvas;
         while (fTotalBytesRead < fData.count()) {
-            if (fVector)
+            if (fVector) {
                 tempCanvas = canvas;
-            else
+            } else {
                 tempCanvas = &bufferCanvas;
+            }
             SkGPipeReader reader(tempCanvas);
-            SkGPipeReader::Status stat = reader.playback(fData.begin() + fTotalBytesRead,
-                                                         fData.count() - fTotalBytesRead,
-                                                         &bytesRead);
+            stat = reader.playback(fData.begin() + fTotalBytesRead,
+                                   fData.count() - fTotalBytesRead,
+                                   &bytesRead);
             SkASSERT(SkGPipeReader::kError_Status != stat);
             fTotalBytesRead += bytesRead;
-            
-            if (SkGPipeReader::kDone_Status == stat) {}
         }
-        if (fVector)
+        if (fVector) {
             fTotalBytesRead = 0;
-        else
+        } else {
             canvas->drawBitmap(fBase, 0, 0, NULL);
+        }
         
         size_t totalBytesRead = 0;
         while (totalBytesRead < fBuffer.count()) {
             SkGPipeReader reader(canvas);
-            reader.playback(fBuffer.begin() + totalBytesRead,
-                            fBuffer.count() - totalBytesRead,
-                            &bytesRead);
+            stat = reader.playback(fBuffer.begin() + totalBytesRead,
+                                   fBuffer.count() - totalBytesRead,
+                                   &bytesRead);
+            SkASSERT(SkGPipeReader::kError_Status != stat);
             totalBytesRead += bytesRead;
         }
         
@@ -159,7 +178,9 @@ protected:
     
     virtual void onSizeChange() {
         this->INHERITED::onSizeChange();
-        fBase.setConfig(SkBitmap::kARGB_8888_Config, this->width(), this->height());
+        fBase.setConfig(SkBitmap::kARGB_8888_Config, 
+                        this->width(), 
+                        this->height());
         fBase.allocPixels(NULL);
         this->clearBitmap();
     }
@@ -181,6 +202,7 @@ private:
         int bufferBase;
         int bufferSize;
     };
+    
     std::map<int, ClientState*> fClientMap;
     SkTDArray<char>             fData;
     SkTDArray<char>             fBuffer;

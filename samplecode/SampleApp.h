@@ -82,7 +82,6 @@ public:
     void toggleRendering();
     void toggleSlideshow();
     void toggleFPS();
-    void togglePipe();
     void showOverview();
 
     GrContext* getGrContext() const { return fDevManager->getGrContext(); }
@@ -144,10 +143,14 @@ private:
     bool fRotate;
     bool fScale;
     bool fRequestGrabImage;
-    bool fUsePipe;
     bool fMeasureFPS;
     SkMSec fMeasureFPS_Time;
     bool fMagnify;
+    
+    
+    bool fUsePipe;
+    int  fUsePipeMenuItemID;
+    bool fDebugger;
     
     // The following are for the 'fatbits' drawing
     // Latest position of the mouse.

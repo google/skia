@@ -23,6 +23,22 @@ void SkOSMenu::reset() {
     fTitle.reset();
 }
 
+const SkOSMenu::Item* SkOSMenu::getItemByID(int itemID) const {
+    for (int i = 0; i < fItems.count(); ++i) {
+        if (itemID == fItems[i]->getID())
+            return fItems[i];
+    }
+    return NULL;
+}
+
+void SkOSMenu::getItems(const SkOSMenu::Item* items[]) const {
+    if (NULL != items) {
+        for (int i = 0; i < fItems.count(); ++i) {
+            items[i] = fItems[i];
+        }
+    }
+}
+
 void SkOSMenu::assignKeyEquivalentToItem(int itemID, SkUnichar key) {
     for (int i = 0; i < fItems.count(); ++i) {
         if (itemID == fItems[i]->getID())
@@ -40,31 +56,31 @@ bool SkOSMenu::handleKeyEquivalent(SkUnichar key) {
             SkString list;
             switch (item->getType()) {
                 case kList_Type:
-                    SkOSMenu::FindListItemCount(item->getEvent(), &size);
-                    SkOSMenu::FindListIndex(item->getEvent(), item->getSlotName(), &value);
+                    SkOSMenu::FindListItemCount(*item->getEvent(), &size);
+                    SkOSMenu::FindListIndex(*item->getEvent(), item->getSlotName(), &value);
                     value = (value + 1) % size;
-                    item->postEventWithInt(value);
+                    item->setInt(value);
                     break;
                 case kSwitch_Type:
-                    SkOSMenu::FindSwitchState(item->getEvent(), item->getSlotName(), &state);
-                    item->postEventWithBool(!state);
+                    SkOSMenu::FindSwitchState(*item->getEvent(), item->getSlotName(), &state);
+                    item->setBool(!state);
                     break;
                 case kTriState_Type:
-                    SkOSMenu::FindTriState(item->getEvent(), item->getSlotName(), &tristate);
+                    SkOSMenu::FindTriState(*item->getEvent(), item->getSlotName(), &tristate);
                     if (kOnState == tristate)
                         tristate = kMixedState;
                     else
                         tristate = (SkOSMenu::TriState)((int)tristate + 1);
-                    item->postEventWithInt(tristate);
+                    item->setTriState(tristate);
                     break;
                 case kAction_Type:
                 case kCustom_Type:
                 case kSlider_Type:
                 case kTextField_Type:
                 default:
-                    item->postEvent();
                     break;
             }
+            item->postEvent();
             return true;
         }
     }
@@ -83,28 +99,29 @@ SkOSMenu::Item::Item(const char label[], SkOSMenu::Type type,
     fID = sk_atomic_inc(&gOSMenuCmd);
 }
 
-void SkOSMenu::Item::postEventWithBool(bool value) const {
+void SkOSMenu::Item::setBool(bool value) const {
     SkASSERT(SkOSMenu::kSwitch_Type == fType);
     fEvent->setBool(fSlotName.c_str(), value);
-    this->postEvent();
 }
 
-void SkOSMenu::Item::postEventWithScalar(SkScalar value) const {
+void SkOSMenu::Item::setScalar(SkScalar value) const {
     SkASSERT(SkOSMenu::kSlider_Type == fType);
     fEvent->setScalar(fSlotName.c_str(), value);
-    this->postEvent();
 }
 
-void SkOSMenu::Item::postEventWithInt(int value) const {
-    SkASSERT(SkOSMenu::kList_Type == fType || SkOSMenu::kTriState_Type == fType);
+void SkOSMenu::Item::setInt(int value) const {
+    SkASSERT(SkOSMenu::kList_Type == fType);
     fEvent->setS32(fSlotName.c_str(), value);
-    this->postEvent();
 }
 
-void SkOSMenu::Item::postEventWithString(const char value[]) const {
+void SkOSMenu::Item::setTriState(TriState value) const {
+    SkASSERT(SkOSMenu::kTriState_Type == fType);
+    fEvent->setS32(fSlotName.c_str(), value);
+}
+
+void SkOSMenu::Item::setString(const char value[]) const {
     SkASSERT(SkOSMenu::kTextField_Type == fType);
     fEvent->setString(fSlotName.c_str(), value);
-    this->postEvent();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -182,13 +199,13 @@ int SkOSMenu::appendTextField(const char label[], const char slotName[],
     return appendItem(label, SkOSMenu::kTextField_Type, slotName, evt);
 }
 
-bool SkOSMenu::FindListItemCount(const SkEvent* evt, int* count) {
-    return evt->isType(gMenuEventType) && evt->findS32(gList_ItemCount_S32, count);
+bool SkOSMenu::FindListItemCount(const SkEvent& evt, int* count) {
+    return evt.isType(gMenuEventType) && evt.findS32(gList_ItemCount_S32, count);
 }
 
-bool SkOSMenu::FindListItems(const SkEvent* evt, SkString items[]) {
-    if (evt->isType(gMenuEventType) && NULL != items) {
-        const char* text = evt->findString(gList_Items_Str);
+bool SkOSMenu::FindListItems(const SkEvent& evt, SkString items[]) {
+    if (evt.isType(gMenuEventType) && NULL != items) {
+        const char* text = evt.findString(gList_Items_Str);
         if (text != NULL) {
             SkString temp(text);
             char* token = strtok((char*)temp.c_str(), gDelimiter);
@@ -204,37 +221,37 @@ bool SkOSMenu::FindListItems(const SkEvent* evt, SkString items[]) {
     return false;
 }
 
-bool SkOSMenu::FindSliderMin(const SkEvent* evt, SkScalar* min) {
-    return evt->isType(gMenuEventType) && evt->findScalar(gSlider_Min_Scalar, min);
+bool SkOSMenu::FindSliderMin(const SkEvent& evt, SkScalar* min) {
+    return evt.isType(gMenuEventType) && evt.findScalar(gSlider_Min_Scalar, min);
 }
 
-bool SkOSMenu::FindSliderMax(const SkEvent* evt, SkScalar* max) {
-    return evt->isType(gMenuEventType) && evt->findScalar(gSlider_Max_Scalar, max);
+bool SkOSMenu::FindSliderMax(const SkEvent& evt, SkScalar* max) {
+    return evt.isType(gMenuEventType) && evt.findScalar(gSlider_Max_Scalar, max);
 }
 
-bool SkOSMenu::FindAction(const SkEvent* evt, const char label[]) {
-    return evt->isType(gMenuEventType) && evt->findString(label);
+bool SkOSMenu::FindAction(const SkEvent& evt, const char label[]) {
+    return evt.isType(gMenuEventType) && evt.findString(label);
 }
 
-bool SkOSMenu::FindListIndex(const SkEvent* evt, const char slotName[], int* value) {
-    return evt->isType(gMenuEventType) && evt->findS32(slotName, value); 
+bool SkOSMenu::FindListIndex(const SkEvent& evt, const char slotName[], int* value) {
+    return evt.isType(gMenuEventType) && evt.findS32(slotName, value); 
 }
 
-bool SkOSMenu::FindSliderValue(const SkEvent* evt, const char slotName[], SkScalar* value) {
-    return evt->isType(gMenuEventType) && evt->findScalar(slotName, value);
+bool SkOSMenu::FindSliderValue(const SkEvent& evt, const char slotName[], SkScalar* value) {
+    return evt.isType(gMenuEventType) && evt.findScalar(slotName, value);
 }
 
-bool SkOSMenu::FindSwitchState(const SkEvent* evt, const char slotName[], bool* value) {
-    return evt->isType(gMenuEventType) && evt->findBool(slotName, value);
+bool SkOSMenu::FindSwitchState(const SkEvent& evt, const char slotName[], bool* value) {
+    return evt.isType(gMenuEventType) && evt.findBool(slotName, value);
 }
 
-bool SkOSMenu::FindTriState(const SkEvent* evt, const char slotName[], SkOSMenu::TriState* value) {
-    return evt->isType(gMenuEventType) && evt->findS32(slotName, (int*)value);
+bool SkOSMenu::FindTriState(const SkEvent& evt, const char slotName[], SkOSMenu::TriState* value) {
+    return evt.isType(gMenuEventType) && evt.findS32(slotName, (int*)value);
 }
 
-bool SkOSMenu::FindText(const SkEvent* evt, const char slotName[], SkString* value) {
-    if (evt->isType(gMenuEventType)) {
-        const char* text = evt->findString(slotName);
+bool SkOSMenu::FindText(const SkEvent& evt, const char slotName[], SkString* value) {
+    if (evt.isType(gMenuEventType)) {
+        const char* text = evt.findString(slotName);
         if (!text || !*text)
             return false;
         else {

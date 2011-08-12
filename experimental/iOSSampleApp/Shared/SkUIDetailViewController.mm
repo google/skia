@@ -1,4 +1,3 @@
-#import "SkAlertPrompt.h"
 #import "SkUIDetailViewController.h"
 #include "SampleApp.h"
 #include "SkCGUtils.h"

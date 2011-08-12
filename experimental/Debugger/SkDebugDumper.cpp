@@ -14,31 +14,16 @@
 #include "SkColorFilter.h"
 #include "SkPathEffect.h"
 #include "SkMaskFilter.h"
-#include "SkGradientShader.h"
-#include "SkDebuggerViews.h"
-
-bool gNeverSetToTrueJustNeedToFoolLinker;
-static void init_effects() {
-    if (gNeverSetToTrueJustNeedToFoolLinker) {
-        SkPoint p = SkPoint::Make(0,0);
-        SkPoint q = SkPoint::Make(100,100);
-        SkPoint pts[] = {p, q};
-        SkColor colors[] = { SK_ColorRED, SK_ColorGREEN };
-        SkScalar pos[] = { 0, 1.0};
-        SkGradientShader::CreateLinear(pts, colors, pos, 2, 
-                                       SkShader::kMirror_TileMode);
-    }
-}
+#include "DebuggerViews.h"
 
 SkDebugDumper::SkDebugDumper(SkEventSinkID cID, SkEventSinkID clID, 
                              SkEventSinkID ipID) {
     fContentID = cID;
-    fCommandListID = clID;
-    fInfoPanelID = ipID;
+    fCommandsID = clID;
+    fStateID = ipID;
     fInit = false;
     fDisabled = false;
     fCount = 0;
-    init_effects();
 }
 
 static void appendPtr(SkString* str, const void* ptr, const char name[]) {
@@ -52,14 +37,14 @@ static void appendFlattenable(SkString* str, const SkFlattenable* ptr,
     if (ptr) {
         SkString info;
         if (ptr->toDumpString(&info)) {
-            str->appendf("%s", info.c_str());
+            str->appendf("%s\n", info.c_str());
         } else {
-            str->appendf("%s: %p", name, ptr);
+            str->appendf("%s: %p\n", name, ptr);
         }
     }
 }
 
-static SkString dumpMatrix(SkDumpCanvasM* canvas) {
+static SkString dumpMatrix(SkDumpCanvas* canvas) {
     SkString str;
     SkMatrix m = canvas->getTotalMatrix();
     str.appendf("Matrix:");
@@ -79,7 +64,7 @@ static SkString dumpMatrix(SkDumpCanvasM* canvas) {
     return str;
 }
 
-static SkString dumpClip(SkDumpCanvasM* canvas) {
+static SkString dumpClip(SkDumpCanvas* canvas) {
     SkString str;
     SkPath p;
     int maxPts = 50;
@@ -111,13 +96,12 @@ static const char* gPaintFlags[] = {
     "LCD/Subpixel Glyph Rendering",
     "Embedded Bitmap Text",
     "Freetype Autohinting",
-    
     "ALL"
 };
 
 
-static SkString dumpPaint(SkDumpCanvasM* canvas, const SkPaint* p,
-                      SkDumpCanvasM::Verb verb) {
+static SkString dumpPaint(SkDumpCanvas* canvas, const SkPaint* p,
+                      SkDumpCanvas::Verb verb) {
     SkString str;
     str.appendf("Color: #%08X\n", p->getColor()); 
     str.appendf("Flags: %s\n", gPaintFlags[p->getFlags()]);
@@ -128,7 +112,7 @@ static SkString dumpPaint(SkDumpCanvasM* canvas, const SkPaint* p,
     appendFlattenable(&str, p->getPathEffect(), "pathEffect");
     appendFlattenable(&str, p->getColorFilter(), "filter");
     
-    if (SkDumpCanvasM::kDrawText_Verb == verb) {
+    if (SkDumpCanvas::kDrawText_Verb == verb) {
         str.appendf("Text Size:%0.4g\n", SkScalarToFloat(p->getTextSize()));
         appendPtr(&str, p->getTypeface(), "typeface");
     }
@@ -136,7 +120,7 @@ static SkString dumpPaint(SkDumpCanvasM* canvas, const SkPaint* p,
     return str;
 }
 
-void SkDebugDumper::dump(SkDumpCanvasM* canvas, SkDumpCanvasM::Verb verb,
+void SkDebugDumper::dump(SkDumpCanvas* canvas, SkDumpCanvas::Verb verb,
                           const char str[], const SkPaint* p) {      
     if (!fDisabled) {
         SkString msg, tab;
@@ -150,19 +134,19 @@ void SkDebugDumper::dump(SkDumpCanvasM* canvas, SkDumpCanvasM::Verb verb,
         msg.appendf("%03d: %s%s\n", fCount, tab.c_str(), str);
         ++fCount;
         if (!fInit) {
-            SkEvent* cmd = new SkEvent(SkDebugger_CommandType);
-            cmd->setString(SkDebugger_Atom, msg);
-            cmd->post(fCommandListID, 100);
+            SkEvent* cmd = new SkEvent(SKDEBUGGER_COMMANDTYPE, fCommandsID);
+            cmd->setString(SKDEBUGGER_ATOM, msg);
+            cmd->postDelay(100);
         }
         else {
-            SkEvent* state = new SkEvent(SkDebugger_StateType);
-            state->setString(SkDebugger_Matrix, dumpMatrix(canvas));
-            state->setString(SkDebugger_Clip, dumpClip(canvas));
+            SkEvent* state = new SkEvent(SKDEBUGGER_STATETYPE, fStateID);
+            state->setString(SKDEBUGGER_MATRIX, dumpMatrix(canvas));
+            state->setString(SKDEBUGGER_CLIP, dumpClip(canvas));
             if (p) {
-                state->setString(SkDebugger_PaintInfo, dumpPaint(canvas, p, verb));
-                state->getMetaData().setPtr(SkDebugger_Paint, (void*)p, PaintProc);
+                state->setString(SKDEBUGGER_PAINTINFO, dumpPaint(canvas, p, verb));
+                state->getMetaData().setPtr(SKDEBUGGER_PAINT, (void*)p, PaintProc);
             }
-            state->post(fInfoPanelID);
+            state->post();
         }
     }
 }

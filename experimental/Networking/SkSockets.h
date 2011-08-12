@@ -52,8 +52,8 @@ public:
      * For blocking sockets, write will block indefinitely if the socket at the
      * other end of the connection doesn't receive any data.
      * NOTE: This method guarantees that all of the data will be sent unless 
-     * there was an error, so it might block temporarily when the write buffer 
-     * is full
+     * there was an error, so it may block temporarily when the write buffer is 
+     * full
      */
     int writePacket(void* data, size_t size, DataType type = kPipeAppend_type);
     
@@ -67,7 +67,7 @@ public:
      * blocking sockets, read will block indefinitely if the socket doesn't
      * receive any data.
      * NOTE: This method guarantees that all the data in a logical packet will 
-     * be read so there might be temporary delays if it's waiting for parts of a
+     * be read so it may block temporarily if it's waiting for parts of a
      * packet
      */
     int readPacket(void (*onRead)(int cid, const void* data, size_t size, 

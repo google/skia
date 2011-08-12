@@ -13,6 +13,11 @@ static const int N = 8;
 const SkScalar W = SkIntToScalar(640);
 const SkScalar H = SkIntToScalar(480); 
 
+static const char gIsOverview[] = "is-overview";
+bool is_overview(SkView* view) {
+    SkEvent isOverview(gIsOverview);
+    return view->doQuery(&isOverview); 
+}
 class OverView : public SkView {
 public:
     OverView(int count, const SkViewFactory factories[]);
@@ -31,6 +36,9 @@ protected:
     virtual bool onQuery(SkEvent* evt) {
         if (SampleCode::TitleQ(*evt)) {
             SampleCode::TitleR(evt, "Overview");
+            return true;
+        }
+        if (evt->isType(gIsOverview)) {
             return true;
         }
         return this->INHERITED::onQuery(evt);

@@ -11,6 +11,5 @@
 @property (assign) IBOutlet SkNSView* fView;
 @property (assign) IBOutlet SkOptionsTableView* fOptions;
 
-- (IBAction)decreaseWindowSize:(id)sender;
-- (IBAction)increaseWindowSize:(id)sender;
+- (IBAction)toiPadSize:(id)sender;
 @end

@@ -29,7 +29,7 @@
 #include "SkPDFDocument.h"
 #include "SkStream.h"
 
-#define TEST_GPIPEx
+#define TEST_GPIPE
 
 #ifdef  TEST_GPIPE
 #define PIPE_FILEx
@@ -42,13 +42,24 @@
 #include "SkSockets.h"
 SkTCPServer gServer;
 #endif
+
+#define DEBUGGERx
+#ifdef  DEBUGGER
+extern SkView* create_debugger(const char* data, size_t size);
+extern bool is_debugger(SkView* view);
+SkTDArray<char> gTempDataStore;
+#endif
+
 #endif
 
 #define USE_ARROWS_FOR_ZOOM true
 //#define DEFAULT_TO_GPU
 
 extern SkView* create_overview(int, const SkViewFactory[]);
+extern bool is_overview(SkView* view);
 extern SkView* create_transition(SkView*, SkView*, int);
+extern bool is_transition(SkView* view);
+
 
 #define ANIMATING_EVENTTYPE "nextSample"
 #define ANIMATING_DELAY     750
@@ -438,6 +449,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fZoomScale = SK_Scalar1;
     
     fMagnify = false;
+    fDebugger = false;
     
     fSaveToPdf = false;
     fPdfCanvas = NULL;
@@ -449,7 +461,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu.setTitle("Global Settings");
     int itemID;
     
-    itemID =fAppMenu.appendList("Device Type", "Device Type", sinkID, 0, "Raster", "Picture", "OpenGL", NULL);
+    itemID =fAppMenu.appendList("Device Type", "Device Type", sinkID, 0, 
+                                "Raster", "Picture", "OpenGL", NULL);
     fAppMenu.assignKeyEquivalentToItem(itemID, 'd');
     itemID = fAppMenu.appendTriState("AA", "AA", sinkID, fAAState);
     fAppMenu.assignKeyEquivalentToItem(itemID, 'b');
@@ -459,14 +472,16 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fAppMenu.assignKeyEquivalentToItem(itemID, 'n');
     itemID = fAppMenu.appendTriState("Hinting", "Hinting", sinkID, fHintingState);
     fAppMenu.assignKeyEquivalentToItem(itemID, 'h');
-    itemID = fAppMenu.appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'p');
+    fUsePipeMenuItemID = fAppMenu.appendSwitch("Pipe", "Pipe" , sinkID, fUsePipe);    
+    fAppMenu.assignKeyEquivalentToItem(fUsePipeMenuItemID, 'p');
+#ifdef DEBUGGER
+    itemID = fAppMenu.appendSwitch("Debugger", "Debugger", sinkID, fDebugger);
+    fAppMenu.assignKeyEquivalentToItem(itemID, 'q');
+#endif
     itemID = fAppMenu.appendSwitch("Slide Show", "Slide Show" , sinkID, false);    
     fAppMenu.assignKeyEquivalentToItem(itemID, 'a');    
     itemID = fAppMenu.appendSwitch("Clip", "Clip" , sinkID, fUseClip);    
     fAppMenu.assignKeyEquivalentToItem(itemID, 'c');
-    itemID = fAppMenu.appendSwitch("Measure FPS", "Measure FPS" , sinkID, fMeasureFPS);
-    fAppMenu.assignKeyEquivalentToItem(itemID, 'f');
     itemID = fAppMenu.appendSwitch("Flip X", "Flip X" , sinkID, false); 
     fAppMenu.assignKeyEquivalentToItem(itemID, 'x');
     itemID = fAppMenu.appendSwitch("Flip Y", "Flip Y" , sinkID, false);
@@ -914,7 +929,7 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         this->inval(NULL);
         return;
     }
-
+    
     if (fRequestGrabImage) {
         fRequestGrabImage = false;
 
@@ -969,7 +984,24 @@ void SampleWindow::afterChildren(SkCanvas* orig) {
         r.set(50, 50, 50+100, 50+100);
         bm.scrollRect(&r, dx, dy, &inval);
         paint_rgn(bm, r, inval);
-    }        
+    }
+#ifdef DEBUGGER
+    SkView* curr = curr_view(this);
+    if (fDebugger && !is_debugger(curr) && !is_transition(curr) && !is_overview(curr)) {
+        //Stop Pipe when fDebugger is active
+        fUsePipe = false;
+        (void)SampleView::SetUsePipe(curr, false);
+        fAppMenu.getItemByID(fUsePipeMenuItemID)->setBool(fUsePipe);
+        this->onUpdateMenu(&fAppMenu);
+        
+        //Reset any transformations
+        fGesture.stop();
+        fGesture.reset();
+        
+        this->loadView(create_debugger(gTempDataStore.begin(), 
+                                       gTempDataStore.count()));
+    }
+#endif
 }
 
 void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
@@ -1000,7 +1032,7 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
     } else {
         (void)SampleView::SetRepeatDraw(child, 1);
     }
-    (void)SampleView::SetUsePipe(child, fUsePipe);
+    //(void)SampleView::SetUsePipe(child, fUsePipe);
 }
 
 void SampleWindow::afterChild(SkView* child, SkCanvas* canvas) {
@@ -1089,8 +1121,8 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         }
         return true;
     }
-    if (evt.isType("unref-transition-view")) {
-        SkEventSink::FindSink(evt.getFast32())->unref();
+    if (evt.isType("replace-transition-view")) {
+        this->loadView((SkView*)SkEventSink::FindSink(evt.getFast32()));
         return true;
     }
     if (evt.isType("set-curr-index")) {
@@ -1102,49 +1134,65 @@ bool SampleWindow::onEvent(const SkEvent& evt) {
         return true;
     }
     int selected = -1;
-    if (SkOSMenu::FindListIndex(&evt, "Device Type", &selected)) {
+    if (SkOSMenu::FindListIndex(evt, "Device Type", &selected)) {
         this->setDeviceType((DeviceType)selected);
         return true; 
     }
-    if (SkOSMenu::FindSwitchState(&evt, "Pipe", NULL)) {
-        this->togglePipe();
+    if (SkOSMenu::FindSwitchState(evt, "Pipe", &fUsePipe)) {
+#ifdef PIPE_NET
+        if (!fUsePipe)
+            gServer.disconnectAll();
+#endif
+        (void)SampleView::SetUsePipe(curr_view(this), fUsePipe);
+        this->updateTitle();
+        this->inval(NULL);
         return true;
     }
-    if (SkOSMenu::FindSwitchState(&evt, "Slide Show", NULL)) {
+    if (SkOSMenu::FindSwitchState(evt, "Slide Show", NULL)) {
         this->toggleSlideshow();
         return true;
     }
-    if (SkOSMenu::FindTriState(&evt, "AA", &fAAState) ||
-        SkOSMenu::FindTriState(&evt, "LCD", &fLCDState) ||
-        SkOSMenu::FindTriState(&evt, "Filter", &fFilterState) ||
-        SkOSMenu::FindTriState(&evt, "Hinting", &fHintingState) ||
-        SkOSMenu::FindSwitchState(&evt, "Clip", &fUseClip) ||
-        SkOSMenu::FindSwitchState(&evt, "Zoomer", &fShowZoomer) ||
-        SkOSMenu::FindSwitchState(&evt, "Magnify", &fMagnify) ||
-        SkOSMenu::FindSwitchState(&evt, "Measure FPS", &fMeasureFPS) ||
-        SkOSMenu::FindListIndex(&evt, "Transition-Next", &fTransitionNext) ||
-        SkOSMenu::FindListIndex(&evt, "Transition-Prev", &fTransitionPrev)) {
+    if (SkOSMenu::FindTriState(evt, "AA", &fAAState) ||
+        SkOSMenu::FindTriState(evt, "LCD", &fLCDState) ||
+        SkOSMenu::FindTriState(evt, "Filter", &fFilterState) ||
+        SkOSMenu::FindTriState(evt, "Hinting", &fHintingState) ||
+        SkOSMenu::FindSwitchState(evt, "Clip", &fUseClip) ||
+        SkOSMenu::FindSwitchState(evt, "Zoomer", &fShowZoomer) ||
+        SkOSMenu::FindSwitchState(evt, "Magnify", &fMagnify) ||
+        SkOSMenu::FindListIndex(evt, "Transition-Next", &fTransitionNext) ||
+        SkOSMenu::FindListIndex(evt, "Transition-Prev", &fTransitionPrev)) {
         this->inval(NULL);
         this->updateTitle();
         return true;
     }
-    if (SkOSMenu::FindSwitchState(&evt, "Flip X", NULL)) {
+    if (SkOSMenu::FindSwitchState(evt, "Flip X", NULL)) {
         fFlipAxis ^= kFlipAxis_X;
         this->updateTitle();
         this->inval(NULL);
         return true;
     }
-    if (SkOSMenu::FindSwitchState(&evt, "Flip Y", NULL)) {
+    if (SkOSMenu::FindSwitchState(evt, "Flip Y", NULL)) {
         fFlipAxis ^= kFlipAxis_Y;
         this->updateTitle();
         this->inval(NULL);
         return true;
     }
-    
-    if (SkOSMenu::FindAction(&evt,"Save to PDF")) {
+    if (SkOSMenu::FindAction(evt,"Save to PDF")) {
         this->saveToPdf();
         return true;
-    }    
+    } 
+#ifdef DEBUGGER
+    if (SkOSMenu::FindSwitchState(evt, "Debugger", &fDebugger)) {
+        if (fDebugger) {
+            fUsePipe = true;
+            (void)SampleView::SetUsePipe(curr_view(this), true);
+        } else {
+            this->loadView(fSamples[fCurrIndex]());
+        }
+        this->inval(NULL);
+        return true;
+    }
+#endif
     return this->INHERITED::onEvent(evt);
 }
 
@@ -1230,6 +1278,12 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
         case 'd':
             SkGraphics::SetFontCacheUsed(0);
             return true;
+        case 'f':
+            // only 
+            fMeasureFPS = !fMeasureFPS;
+            this->updateTitle();
+            this->inval(NULL);
+            break;
         case 'g':
             fRequestGrabImage = true;
             this->inval(NULL);
@@ -1281,16 +1335,6 @@ void SampleWindow::toggleRendering() {
         fDeviceType = cycle_devicetype(fDeviceType);
     } while (origDevType != fDeviceType &&
              !fDevManager->supportsDeviceType(fDeviceType));
-    this->updateTitle();
-    this->inval(NULL);
-}
-
-void SampleWindow::togglePipe() {
-    fUsePipe = !fUsePipe;
-#ifdef PIPE_NET
-    if (!fUsePipe)
-        gServer.disconnectAll();
-#endif
     this->updateTitle();
     this->inval(NULL);
 }
@@ -1427,7 +1471,7 @@ void SampleWindow::loadView(SkView* view) {
     if (prev) {
         prev->detachFromParent();
     }
-
+    
     view->setVisibleP(true);
     view->setClipToBounds(false);
     this->attachChildToFront(view)->unref();
@@ -1435,10 +1479,16 @@ void SampleWindow::loadView(SkView* view) {
 
     //repopulate the slide menu when a view is loaded
     fSlideMenu.reset();
+#ifdef DEBUGGER
+    if (!is_debugger(view) && !is_overview(view) && !is_transition(view) && fDebugger) {
+        //Force Pipe to be on if using debugger
+        fUsePipe = true;
+    }
+#endif
+    (void)SampleView::SetUsePipe(view, fUsePipe);
     if (SampleView::IsSampleView(view))
         ((SampleView*)view)->requestMenu(&fSlideMenu);
     this->onUpdateMenu(&fSlideMenu);
-    
     this->updateTitle();
 }
 
@@ -1648,10 +1698,9 @@ SimplePC::SimplePC(SkCanvas* target) : fReader(target) {
 SimplePC::~SimplePC() {
 //    SkASSERT(SkGPipeReader::kDone_Status == fStatus);
     if (fTotalWritten) {
-        SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
-                     fAtomsWritten, fStatus);
-        
         if (fWriteToPipe) {
+            SkDebugf("--- %d bytes %d atoms, status %d\n", fTotalWritten,
+                     fAtomsWritten, fStatus);
 #ifdef  PIPE_FILE
             //File is open in append mode
             FILE* f = fopen(FILE_PATH, "ab");
@@ -1664,6 +1713,10 @@ SimplePC::~SimplePC() {
                 gServer.acceptConnections();
                 gServer.writePacket(fBlock, fTotalWritten);
             }
+#endif
+#ifdef  DEBUGGER
+            gTempDataStore.reset();
+            gTempDataStore.append(fTotalWritten, (const char*)fBlock);
 #endif
         }
     }
@@ -1701,6 +1754,9 @@ void SampleView::draw(SkCanvas* canvas) {
         canvas = writer.startRecording(&controller, flags);
         //Must draw before controller goes out of scope and sends data
         this->INHERITED::draw(canvas);
+        //explicitly end recording to ensure writer is flushed before the memory
+        //is freed in the deconstructor of the controller
+        writer.endRecording();
         controller.setWriteToPipe(fUsePipe);
     }
     else

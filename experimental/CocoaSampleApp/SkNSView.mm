@@ -204,10 +204,7 @@ static SkKey raw2key(UInt32 raw)
 
 CGLContextObj createGLContext() {
     GLint major, minor;
-    CGLContextObj ctx;
-    
     CGLGetVersion(&major, &minor);
-    SkDebugf("---- cgl version %d %d\n", major, minor);
     
     const CGLPixelFormatAttribute attributes[] = {
         kCGLPFAStencilSize, (CGLPixelFormatAttribute)8,
@@ -224,11 +221,9 @@ CGLContextObj createGLContext() {
     CGLPixelFormatObj format;
     GLint npix;
     CGLChoosePixelFormat(attributes, &format, &npix);
-    SkDebugf("----- cgl format %p\n", format);
     
+    CGLContextObj ctx;
     CGLCreateContext(format, NULL, &ctx);
-
-    SkDebugf("----- cgl context %p\n", ctx);
     CGLDestroyPixelFormat(format);
     
     static const GLint interval = 1;

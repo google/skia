@@ -5,95 +5,88 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkDebuggerViews.h"
+#include "DebuggerViews.h"
 
-SkCommandListView::SkCommandListView() {
+DebuggerCommandsView::DebuggerCommandsView() {
     fBGColor = 0xFFBBBBBB;
     fTopIndex = 0;
     fHighlight = 0;
+    fResizing = false;
     
     SkPaint p;
-    p.setTextSize(SkIntToScalar(SkDebugger_TextSize));
+    p.setTextSize(SkIntToScalar(SKDEBUGGER_TEXTSIZE));
     fSpacing = p.getFontSpacing();
     fCentered = false;
     fRange = (int)(this->height()/fSpacing) - 1;
 }
 
-bool SkCommandListView::onEvent(const SkEvent& evt) {
-    if (evt.isType(SkDebugger_CommandType)) {
-        SkString msg(evt.findString(SkDebugger_Atom));
-        fList.push_back(msg);
+DebuggerCommandsView::~DebuggerCommandsView() {
+    fList.deleteAll();
+}
+
+bool DebuggerCommandsView::onEvent(const SkEvent& evt) {
+    if (evt.isType(SKDEBUGGER_COMMANDTYPE)) {
+        *fList.append() = new SkString(evt.findString(SKDEBUGGER_ATOM));
         this->inval(NULL);
         return true;
     }
     return this->INHERITED::onEvent(evt);
 }
 
-void SkCommandListView::onSizeChange() {
-    fRange = (int)(this->height()/fSpacing) - 1;
+void DebuggerCommandsView::onSizeChange() {
+    fRange = (int)(this->height()/fSpacing);
     this->INHERITED::onSizeChange();
 }
 
-void SkCommandListView::reinit() {
-    fList.clear();
-    fTopIndex = 0;
-    fHighlight = 0;
-}
-
-void SkCommandListView::alignCenter() {
-    if (!fCentered || fHighlight < fRange/2 || fHighlight > (fList.size() - fRange/2))
+void DebuggerCommandsView::alignCenter() {
+    if (!fCentered || fHighlight < fRange/2 || fHighlight > (fList.count() - fRange/2)) {
         return;
-    else {
-        if (fHighlight > (fTopIndex + fRange/2)) {
+    } else {
+        if (fHighlight > (fTopIndex + fRange/2)) 
             fTopIndex += fHighlight - (fTopIndex + fRange/2);
-        }
-        if (fHighlight < (fTopIndex + fRange/2)) {
+        if (fHighlight < (fTopIndex + fRange/2))
             fTopIndex -= (fTopIndex + fRange/2) - fHighlight;
-        }
     }
 }
 
-int SkCommandListView::nextItem() {
-    if (fHighlight < fList.size() - 1)
+int DebuggerCommandsView::nextItem() {
+    if (fHighlight < fList.count() - 1)
         ++fHighlight;
-    if (fHighlight < fTopIndex || fHighlight > (fTopIndex + fRange)) {
+    if (fHighlight < fTopIndex || fHighlight > (fTopIndex + fRange))
         fTopIndex = fHighlight;
-    }
-    if (fHighlight == (fTopIndex + fRange)) {
+    if (fHighlight == (fTopIndex + fRange))
         ++fTopIndex;
-    }
     this->alignCenter();
     this->inval(NULL);
     return fHighlight;
 }
 
-int SkCommandListView::prevItem() {
+int DebuggerCommandsView::prevItem() {
     if (fHighlight > 0)
         --fHighlight;
-    if (fHighlight < fTopIndex || fHighlight > (fTopIndex + fRange)) {
+    if (fHighlight < fTopIndex || fHighlight > (fTopIndex + fRange))
         fTopIndex = fHighlight;
-    }
     this->alignCenter();
     this->inval(NULL);
     return fHighlight;
 }
 
-int SkCommandListView::scrollUp() {
+int DebuggerCommandsView::scrollUp() {
     if (fTopIndex > 0)
         --fTopIndex;
     this->inval(NULL);
     return fHighlight;
 }
 
-int SkCommandListView::scrollDown() {
-    if (fTopIndex < (fList.size() - 1))
+int DebuggerCommandsView::scrollDown() {
+    if (fTopIndex < (fList.count() - 1))
         ++fTopIndex;
     this->inval(NULL);
     return fHighlight;
 }
 
-void SkCommandListView::highlight(int index) {
-    SkASSERT(index >= 0 && index < fList.size());
+void DebuggerCommandsView::highlight(int index) {
+    SkASSERT(index >= 0 && index < fList.count());
     if (fHighlight != index) {
         fHighlight = index;
         this->alignCenter();
@@ -101,10 +94,10 @@ void SkCommandListView::highlight(int index) {
     }
 }
 
-int SkCommandListView::selectHighlight(int ypos) {
+int DebuggerCommandsView::selectHighlight(int ypos) {
     int i = (int)(ypos/fSpacing) + fTopIndex;
-    if (i >= fList.size()) {
-        i = fList.size() - 1;
+    if (i >= fList.count()) {
+        i = fList.count() - 1;
     }
     if (fHighlight != i) {
         fHighlight = i;
@@ -114,35 +107,39 @@ int SkCommandListView::selectHighlight(int ypos) {
     return fHighlight;
 }
 
-void SkCommandListView::toggleCentered() {
+void DebuggerCommandsView::toggleCentered() {
     fCentered = !fCentered;
     this->alignCenter();
     this->inval(NULL);
 }
 
-void SkCommandListView::onDraw(SkCanvas* canvas) {
+void DebuggerCommandsView::onDraw(SkCanvas* canvas) {
     canvas->drawColor(fBGColor);
     
     SkPaint p;
-    p.setTextSize(SkIntToScalar(SkDebugger_TextSize));
+    p.setTextSize(SkIntToScalar(SKDEBUGGER_TEXTSIZE));
     p.setAntiAlias(true);
     
     //draw highlight
     int selected = fHighlight - fTopIndex;
     SkRect r = {0, fSpacing * selected, this->width(), fSpacing * (selected+1)};
-    p.setColor(0x880033DD);
+    p.setColor(SKDEBUGGER_HIGHLIGHTCOLOR);
     canvas->drawRect(r, p);
     
     int endIndex = fTopIndex + fRange; 
-    if (endIndex > fList.size())
-        endIndex = fList.size();
+    if (endIndex > fList.count())
+        endIndex = fList.count();
     
-    p.setColor(0xFF000000);
+    p.setColor(SKDEBUGGER_TEXTCOLOR);
     int pos;
     for (int i = fTopIndex; i < endIndex; ++i) {
         pos = i - fTopIndex;
-        canvas->drawText(fList[i].c_str(), fList[i].size(), 
+        canvas->drawText(fList[i]->c_str(), fList[i]->size(), 
                          0, fSpacing - 2 + fSpacing * pos, p);
     }
+    p.setColor(SKDEBUGGER_RESIZEBARCOLOR);
+    r = SkRect::MakeXYWH(this->width() - SKDEBUGGER_RESIZEBARSIZE, 0, 
+                         SKDEBUGGER_RESIZEBARSIZE, this->height());
+    canvas->drawRect(r, p);
     this->INHERITED::onDraw(canvas);
 }
