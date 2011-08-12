@@ -141,5 +141,4 @@ void DebuggerCommandsView::onDraw(SkCanvas* canvas) {
     r = SkRect::MakeXYWH(this->width() - SKDEBUGGER_RESIZEBARSIZE, 0, 
                          SKDEBUGGER_RESIZEBARSIZE, this->height());
     canvas->drawRect(r, p);
-    this->INHERITED::onDraw(canvas);
 }

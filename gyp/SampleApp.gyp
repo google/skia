@@ -120,10 +120,6 @@
         '../src/pipe/SkGPipeRead.cpp',
         '../src/pipe/SkGPipeWrite.cpp',
         
-        # Networking dependencies
-        '../experimental/Networking/SkSockets.cpp',
-        '../experimental/Networking/SkSockets.h',
-        
         # Debugger dependencies
         '../experimental/Debugger/DebuggerViews.h',
         '../experimental/Debugger/DebuggerContentView.cpp',

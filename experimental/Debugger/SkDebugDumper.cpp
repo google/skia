@@ -64,10 +64,11 @@ static SkString dumpMatrix(SkDumpCanvas* canvas) {
     return str;
 }
 
+
+static const int maxPts = 50;
 static SkString dumpClip(SkDumpCanvas* canvas) {
     SkString str;
     SkPath p;
-    int maxPts = 50;
     if (canvas->getTotalClip().getBoundaryPath(&p)) {
         SkPoint pts[maxPts];
         int numPts = p.getPoints(pts, maxPts);
