@@ -12,6 +12,7 @@
         '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
         '../gm',       # SampleGM.cpp pulls gm.h
         '../include/pipe', # To pull in SkGPipe.h for pipe reader/writer
+        '../samplecode', # To pull SampleApp.h and SampleCode.h
       ],
       'sources': [
         # gm files needed for SampleGM.cpp
