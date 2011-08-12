@@ -14,11 +14,13 @@
 
 class SkBlurMaskFilterImpl : public SkMaskFilter {
 public:
-    SkBlurMaskFilterImpl(SkScalar radius, SkBlurMaskFilter::BlurStyle style, uint32_t flags);
+    SkBlurMaskFilterImpl(SkScalar radius, SkBlurMaskFilter::BlurStyle,
+                         uint32_t flags);
 
     // overrides from SkMaskFilter
     virtual SkMask::Format getFormat();
-    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix& matrix, SkIPoint* margin);
+    virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
+                            SkIPoint* margin);
     virtual BlurType asABlur(BlurInfo*);
 
     // overrides from SkFlattenable
@@ -37,26 +39,26 @@ private:
     typedef SkMaskFilter INHERITED;
 };
 
-SkMaskFilter* SkBlurMaskFilter::Create(SkScalar radius, SkBlurMaskFilter::BlurStyle style,
-                                       uint32_t flags)
-{
+SkMaskFilter* SkBlurMaskFilter::Create(SkScalar radius,
+                                       SkBlurMaskFilter::BlurStyle style,
+                                       uint32_t flags) {
     if (radius <= 0 || (unsigned)style >= SkBlurMaskFilter::kBlurStyleCount 
-        || flags > SkBlurMaskFilter::kAll_BlurFlag)
+        || flags > SkBlurMaskFilter::kAll_BlurFlag) {
         return NULL;
+    }
 
     return SkNEW_ARGS(SkBlurMaskFilterImpl, (radius, style, flags));
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar radius, SkBlurMaskFilter::BlurStyle style,
+SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar radius,
+                                           SkBlurMaskFilter::BlurStyle style,
                                            uint32_t flags)
-    : fRadius(radius), fBlurStyle(style), fBlurFlags(flags)
-{
+    : fRadius(radius), fBlurStyle(style), fBlurFlags(flags) {
 #if 0
     fGamma = NULL;
-    if (gammaScale)
-    {
+    if (gammaScale) {
         fGamma = new U8[256];
         if (gammaScale > 0)
             SkBlurMask::BuildSqrGamma(fGamma, gammaScale);
@@ -69,29 +71,30 @@ SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar radius, SkBlurMaskFilter::Bl
     SkASSERT(flags <= SkBlurMaskFilter::kAll_BlurFlag);
 }
 
-SkMask::Format SkBlurMaskFilterImpl::getFormat()
-{
+SkMask::Format SkBlurMaskFilterImpl::getFormat() {
     return SkMask::kA8_Format;
 }
 
-bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& matrix, SkIPoint* margin)
-{
+bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
+                                      const SkMatrix& matrix, SkIPoint* margin) {
     SkScalar radius;
-    if (fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag)
+    if (fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag) {
         radius = fRadius;
-    else
+    } else {
         radius = matrix.mapRadius(fRadius);
+    }
 
     // To avoid unseemly allocation requests (esp. for finite platforms like
     // handset) we limit the radius so something manageable. (as opposed to
     // a request like 10,000)
     static const SkScalar MAX_RADIUS = SkIntToScalar(128);
     radius = SkMinScalar(radius, MAX_RADIUS);
-    SkBlurMask::Quality blurQuality = (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ? 
-        SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
+    SkBlurMask::Quality blurQuality =
+        (fBlurFlags & SkBlurMaskFilter::kHighQuality_BlurFlag) ? 
+            SkBlurMask::kHigh_Quality : SkBlurMask::kLow_Quality;
 
-    if (SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle, blurQuality))
-    {
+    if (SkBlurMask::Blur(dst, src, radius, (SkBlurMask::Style)fBlurStyle,
+                         blurQuality)) {
         if (margin) {
             // we need to integralize radius for our margin, so take the ceil
             // just to be safe.
@@ -102,18 +105,16 @@ bool SkBlurMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src, const SkMa
     return false;
 }
 
-SkFlattenable* SkBlurMaskFilterImpl::CreateProc(SkFlattenableReadBuffer& buffer)
-{
+SkFlattenable* SkBlurMaskFilterImpl::CreateProc(SkFlattenableReadBuffer& buffer) {
     return SkNEW_ARGS(SkBlurMaskFilterImpl, (buffer));
 }
 
-SkFlattenable::Factory SkBlurMaskFilterImpl::getFactory()
-{
+SkFlattenable::Factory SkBlurMaskFilterImpl::getFactory() {
     return CreateProc;
 }
 
-SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer) : SkMaskFilter(buffer)
-{
+SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer)
+        : SkMaskFilter(buffer) {
     fRadius = buffer.readScalar();
     fBlurStyle = (SkBlurMaskFilter::BlurStyle)buffer.readS32();
     fBlurFlags = buffer.readU32() & SkBlurMaskFilter::kAll_BlurFlag;
@@ -121,8 +122,7 @@ SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkFlattenableReadBuffer& buffer) : Sk
     SkASSERT((unsigned)fBlurStyle < SkBlurMaskFilter::kBlurStyleCount);
 }
 
-void SkBlurMaskFilterImpl::flatten(SkFlattenableWriteBuffer& buffer)
-{
+void SkBlurMaskFilterImpl::flatten(SkFlattenableWriteBuffer& buffer) {
     this->INHERITED::flatten(buffer);
     buffer.writeScalar(fRadius);
     buffer.write32(fBlurStyle);

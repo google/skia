@@ -10,21 +10,6 @@
 #include "SkBlurMask.h"
 #include "SkTemplates.h"
 
-#if 0
-static void dump_sum_buffer(const uint32_t sum[], const int w, const int h) {
-    printf("---- sum buffer\n");
-    for (int y = 0; y <= h; y++) {
-        for (int x = 0; x <= w; x++) {
-            printf(" %5d", sum[x]);
-        }
-        printf("\n");
-        sum += w+1;
-    }
-}
-#else
-#define dump_sum_buffer(sum, w, h)
-#endif
-
 /** The sum buffer is an array of u32 to hold the accumulated sum of all of the
     src values at their position, plus all values above and to the left.
     When we sample into this buffer, we need an initial row and column of 0s,
@@ -35,7 +20,8 @@ static void dump_sum_buffer(const uint32_t sum[], const int w, const int h) {
  
     We assume that the sum buffer's stride == its width
  */
-static void build_sum_buffer(uint32_t sum[], int srcW, int srcH, const uint8_t src[], int srcRB) {
+static void build_sum_buffer(uint32_t sum[], int srcW, int srcH,
+                             const uint8_t src[], int srcRB) {
     int sumW = srcW + 1;
 
     SkASSERT(srcRB >= srcW);
@@ -51,21 +37,18 @@ static void build_sum_buffer(uint32_t sum[], int srcW, int srcH, const uint8_t s
     // special case first row
     uint32_t X = 0;
     *sum++ = 0; // initialze the first column to 0
-    for (x = srcW - 1; x >= 0; --x)
-    {
+    for (x = srcW - 1; x >= 0; --x) {
         X = *src++ + X;
         *sum++ = X;
     }
     src += srcRB;
 
     // now do the rest of the rows
-    for (y = srcH - 1; y > 0; --y)
-    {
+    for (y = srcH - 1; y > 0; --y) {
         uint32_t L = 0;
         uint32_t C = 0;
         *sum++ = 0; // initialze the first column to 0
-        for (x = srcW - 1; x >= 0; --x)
-        {
+        for (x = srcW - 1; x >= 0; --x) {
             uint32_t T = sum[-sumW];
             X = *src++ + L + T - C;
             *sum++ = X;
@@ -76,10 +59,11 @@ static void build_sum_buffer(uint32_t sum[], int srcW, int srcH, const uint8_t s
     }
 }
 
-/*  sw and sh are the width and height of the src. Since the sum buffer
-    matches that, but has an extra row and col at the beginning (with zeros),
-    we can just use sw and sh as our "max" values for pinning coordinates
-    when sampling into sum[][]
+/**
+ *  sw and sh are the width and height of the src. Since the sum buffer
+ *  matches that, but has an extra row and col at the beginning (with zeros),
+ *  we can just use sw and sh as our "max" values for pinning coordinates
+ *  when sampling into sum[][]
  */
 static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
                          int sw, int sh) {
@@ -115,10 +99,11 @@ static void apply_kernel(uint8_t dst[], int rx, int ry, const uint32_t sum[],
     }
 }
 
-/*  sw and sh are the width and height of the src. Since the sum buffer
- matches that, but has an extra row and col at the beginning (with zeros),
- we can just use sw and sh as our "max" values for pinning coordinates
- when sampling into sum[][]
+/**
+ *  sw and sh are the width and height of the src. Since the sum buffer
+ *  matches that, but has an extra row and col at the beginning (with zeros),
+ *  we can just use sw and sh as our "max" values for pinning coordinates
+ *  when sampling into sum[][]
  */
 static void apply_kernel_interp(uint8_t dst[], int rx, int ry,
                 const uint32_t sum[], int sw, int sh, U8CPU outer_weight) {
@@ -227,21 +212,20 @@ static void clamp_with_orig(uint8_t dst[], int dstRowBytes,
     }
 }
 
-////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 // we use a local funciton to wrap the class static method to work around
 // a bug in gcc98
 void SkMask_FreeImage(uint8_t* image);
-void SkMask_FreeImage(uint8_t* image)
-{
+void SkMask_FreeImage(uint8_t* image) {
     SkMask::FreeImage(image);
 }
 
 bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
-                      SkScalar radius, Style style, Quality quality)
-{
-    if (src.fFormat != SkMask::kA8_Format)
+                      SkScalar radius, Style style, Quality quality) {
+    if (src.fFormat != SkMask::kA8_Format) {
         return false;
+    }
 
     // Force high quality off for small radii (performance)
     if (radius < SkIntToScalar(3)) quality = kLow_Quality;
@@ -284,19 +268,20 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
         // build the blurry destination
         {
-            SkAutoTMalloc<uint32_t> storage((sw + 2 * (passCount - 1) * rx + 1) * (sh + 2 * (passCount - 1) * ry + 1));
+            const size_t storageW = sw + 2 * (passCount - 1) * rx + 1;
+            const size_t storageH = sh + 2 * (passCount - 1) * ry + 1;
+            SkAutoTMalloc<uint32_t> storage(storageW * storageH);
             uint32_t*               sumBuffer = storage.get();
 
             //pass1: sp is source, dp is destination
             build_sum_buffer(sumBuffer, sw, sh, sp, src.fRowBytes);
-            dump_sum_buffer(sumBuffer, sw, sh);
-            if (outer_weight == 255)
+            if (outer_weight == 255) {
                 apply_kernel(dp, rx, ry, sumBuffer, sw, sh);
-            else
+            } else {
                 apply_kernel_interp(dp, rx, ry, sumBuffer, sw, sh, outer_weight);
+            }
 
-            if (quality == kHigh_Quality)
-            {
+            if (quality == kHigh_Quality) {
                 //pass2: dp is source, tmpBuffer is destination
                 int tmp_sw = sw + 2 * rx;
                 int tmp_sh = sh + 2 * ry;
@@ -305,7 +290,8 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                 if (outer_weight == 255)
                     apply_kernel(tmpBuffer.get(), rx, ry, sumBuffer, tmp_sw, tmp_sh);
                 else
-                    apply_kernel_interp(tmpBuffer.get(), rx, ry, sumBuffer, tmp_sw, tmp_sh, outer_weight);
+                    apply_kernel_interp(tmpBuffer.get(), rx, ry, sumBuffer,
+                                        tmp_sw, tmp_sh, outer_weight);
 
                 //pass3: tmpBuffer is source, dp is destination
                 tmp_sw += 2 * rx;
@@ -314,7 +300,8 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
                 if (outer_weight == 255)
                     apply_kernel(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh);
                 else
-                    apply_kernel_interp(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh, outer_weight);
+                    apply_kernel_interp(dp, rx, ry, sumBuffer, tmp_sw, tmp_sh,
+                                        outer_weight);
             }
         }
 
@@ -330,13 +317,12 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
             dst->fImage = SkMask::AllocImage(srcSize);
             merge_src_with_blur(dst->fImage, src.fRowBytes,
                                 sp, src.fRowBytes,
-                                dp + passCount * (rx + ry * dst->fRowBytes), dst->fRowBytes,
-                                sw, sh);
+                                dp + passCount * (rx + ry * dst->fRowBytes),
+                                dst->fRowBytes, sw, sh);
             SkMask::FreeImage(dp);
         } else if (style != kNormal_Style) {
-            clamp_with_orig(dp + passCount * (rx + ry * dst->fRowBytes), dst->fRowBytes,
-                            sp, src.fRowBytes, sw, sh,
-                            style);
+            clamp_with_orig(dp + passCount * (rx + ry * dst->fRowBytes),
+                            dst->fRowBytes, sp, src.fRowBytes, sw, sh, style);
         }
         (void)autoCall.detach();
     }
@@ -346,53 +332,6 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
         dst->fRowBytes = src.fRowBytes;
     }
 
-#if 0
-    if (gamma && dst->fImage) {
-        uint8_t*    image = dst->fImage;
-        uint8_t*    stop = image + dst->computeImageSize();
-
-        for (; image < stop; image += 1) {
-            *image = gamma[*image];
-        }
-    }
-#endif
     return true;
 }
 
-#if 0
-void SkBlurMask::BuildSqrtGamma(uint8_t gamma[256], SkScalar percent)
-{
-    SkASSERT(gamma);
-    SkASSERT(percent >= 0 && percent <= SK_Scalar1);
-
-    int scale = SkScalarRound(percent * 256);
-
-    for (int i = 0; i < 256; i++)
-    {
-        SkFixed n = i * 257;
-        n += n >> 15;
-        SkASSERT(n >= 0 && n <= SK_Fixed1);
-        n = SkFixedSqrt(n);
-        n = n * 255 >> 16;
-        n = SkAlphaBlend(n, i, scale);
-        gamma[i] = SkToU8(n);
-    }
-}
-
-void SkBlurMask::BuildSqrGamma(uint8_t gamma[256], SkScalar percent)
-{
-    SkASSERT(gamma);
-    SkASSERT(percent >= 0 && percent <= SK_Scalar1);
-
-    int     scale = SkScalarRound(percent * 256);
-    SkFixed div255 = SK_Fixed1 / 255;
-
-    for (int i = 0; i < 256; i++)
-    {
-        int square = i * i;
-        int linear = i * 255;
-        int n = SkAlphaBlend(square, linear, scale);
-        gamma[i] = SkToU8(n * div255 >> 16);
-    }
-}
-#endif
