@@ -48,5 +48,4 @@ void DebuggerStateView::onDraw(SkCanvas* canvas) {
     p.setColor(SKDEBUGGER_RESIZEBARCOLOR);
     r = SkRect::MakeXYWH(0, 0, this->width(), SKDEBUGGER_RESIZEBARSIZE);
     canvas->drawRect(r, p);
-    this->INHERITED::onDraw(canvas);
 }
