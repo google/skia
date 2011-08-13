@@ -81,6 +81,7 @@ class SkIStream : public SkBaseIStream {
 private:
     SkStream *fSkStream;
     bool fUnrefOnRelease;
+    ULARGE_INTEGER fLocation;
 
     SkIStream(SkStream* stream, bool unrefOnRelease);
     virtual ~SkIStream();
