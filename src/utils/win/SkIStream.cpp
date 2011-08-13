@@ -107,7 +107,10 @@ SkIStream::SkIStream(SkStream* stream, bool unrefOnRelease)
     : SkBaseIStream()
     , fSkStream(stream)
     , fUnrefOnRelease(unrefOnRelease)
-{ }
+    , fLocation()
+{
+    this->fSkStream->rewind();
+}
 
 SkIStream::~SkIStream() {
     if (NULL != this->fSkStream && fUnrefOnRelease) {
@@ -126,6 +129,7 @@ HRESULT SkIStream::CreateFromSkStream(SkStream* stream
 // ISequentialStream Interface
 HRESULT STDMETHODCALLTYPE SkIStream::Read(void* pv, ULONG cb, ULONG* pcbRead) {
     *pcbRead = this->fSkStream->read(pv, cb);
+    this->fLocation.QuadPart += *pcbRead;
     return (*pcbRead == cb) ? S_OK : S_FALSE;
 }
 
@@ -141,11 +145,8 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
                                         , DWORD dwOrigin
                                         , ULARGE_INTEGER* lpNewFilePointer)
 {
-    if (lpNewFilePointer != NULL) {
-        (*lpNewFilePointer).QuadPart = NULL;
-    }
-        
     HRESULT hr = S_OK;
+
     switch(dwOrigin) {
     case STREAM_SEEK_SET: {
         if (!this->fSkStream->rewind()) {
@@ -154,6 +155,7 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
             size_t skipped = this->fSkStream->skip(
                 liDistanceToMove.QuadPart
             );
+            this->fLocation.QuadPart = skipped;
             if (skipped != liDistanceToMove.QuadPart) {
                 hr = E_FAIL;
             }
@@ -162,6 +164,7 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
     }
     case STREAM_SEEK_CUR: {
         size_t skipped = this->fSkStream->skip(liDistanceToMove.QuadPart);
+        this->fLocation.QuadPart += skipped;
         if (skipped != liDistanceToMove.QuadPart) {
             hr = E_FAIL;
         }
@@ -171,10 +174,11 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         if (!this->fSkStream->rewind()) {
             hr = E_FAIL;
         } else {
-            size_t skipped = this->fSkStream->skip(
-                this->fSkStream->getLength() + liDistanceToMove.QuadPart
-            );
-            if (skipped != liDistanceToMove.QuadPart) {
+            LONGLONG skip = this->fSkStream->getLength()
+                          + liDistanceToMove.QuadPart;
+            size_t skipped = this->fSkStream->skip(skip);
+            this->fLocation.QuadPart = skipped;
+            if (skipped != skip) {
                 hr = E_FAIL;
             }
         }
@@ -185,6 +189,9 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         break;
     }
     
+    if (NULL != lpNewFilePointer) {
+        lpNewFilePointer->QuadPart = this->fLocation.QuadPart;
+    }
     return hr;
 }
 
