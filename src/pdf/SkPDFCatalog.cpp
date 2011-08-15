@@ -106,11 +106,11 @@ int32_t SkPDFCatalog::emitXrefTable(SkWStream* stream, bool firstPage) {
     int first = -1;
     int last = fCatalog.count() - 1;
     // TODO(vandebo) support linearized format.
-    //int last = fCatalog.count() - fFirstPageCount - 1;
-    //if (firstPage) {
-    //    first = fCatalog.count() - fFirstPageCount;
-    //    last = fCatalog.count() - 1;
-    //}
+    // int last = fCatalog.count() - fFirstPageCount - 1;
+    // if (firstPage) {
+    //     first = fCatalog.count() - fFirstPageCount;
+    //     last = fCatalog.count() - 1;
+    // }
 
     stream->writeText("xref\n");
     stream->writeDecAsText(first + 1);

@@ -71,8 +71,7 @@ public:
     }
 
     virtual void setMatrixClip(const SkMatrix& m, const SkRegion& r,
-                               const SkClipStack& c)
-    {
+                               const SkClipStack& c) {
         SkDevice::setMatrixClip(m, r, c);
     }
 

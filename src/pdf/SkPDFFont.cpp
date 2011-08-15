@@ -166,10 +166,10 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
         }
         ((uint8_t *)src)[srcLen] = 0;
     } else {
-        static const size_t bufSize = 4096;
-        uint8_t buf[bufSize];
+        static const size_t kBufSize = 4096;
+        uint8_t buf[kBufSize];
         size_t amount;
-        while ((amount = srcStream->read(buf, bufSize)) > 0)
+        while ((amount = srcStream->read(buf, kBufSize)) > 0)
             dynamicStream.write(buf, amount);
         amount = 0;
         dynamicStream.write(&amount, 1);  // NULL terminator.

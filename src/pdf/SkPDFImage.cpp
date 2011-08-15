@@ -147,7 +147,7 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
             int offset2 = 8 - offset1;
             for (int y = srcRect.fTop; y < srcRect.fBottom; y++) {
                 uint8_t* src = bitmap.getAddr1(0, y);
-                // This may read up to one byte after src, but the potentially 
+                // This may read up to one byte after src, but the potentially
                 // invalid bits are never used for computation.
                 for (int x = srcRect.fLeft; x < srcRect.fRight; x += 8)  {
                     if (offset1) {

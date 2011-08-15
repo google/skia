@@ -29,7 +29,7 @@ struct SkRect;
             PRINT_NOT_IMPL("NOT_IMPLEMENTED: " #condition "\n");   \
             SkDEBUGCODE(SkASSERT(!assert);)                        \
         }                                                          \
-    } while(0)
+    } while (0)
 
 class SkPDFUtils {
 public:
