@@ -1,7 +1,6 @@
 # target_defaults used for executable targets that generate a console app
 {
   'target_defaults': {
-    'mac_bundle' : 1,
     'msvs_settings': {
       'VCLinkerTool': {
         #Allows for creation / output to console.

@@ -90,9 +90,8 @@ ifneq (,$(findstring Linux, $(uname)))
 	$(MAKE) -C out $@ BUILDTYPE=$(BUILDTYPE)
 endif
 ifneq (,$(findstring Darwin, $(uname)))
+	rm -f out/$(BUILDTYPE) || if test -d out/$(BUILDTYPE); then echo "run 'make clean' or otherwise delete out/$(BUILDTYPE)"; exit 1; fi
 	xcodebuild -project out/gyp/$@.xcodeproj -configuration $(BUILDTYPE)
-	mkdir -p out/$(BUILDTYPE)
-	rm -f out/$(BUILDTYPE)/$@
-	ln -s $(CWD)/xcodebuild/$(BUILDTYPE)/$@.app/Contents/MacOS/$@ out/$(BUILDTYPE)/$@
+	ln -s $(CWD)/xcodebuild/$(BUILDTYPE) out/$(BUILDTYPE)
 endif
 
