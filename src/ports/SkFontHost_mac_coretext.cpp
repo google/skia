@@ -29,8 +29,29 @@
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
 
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
-    #define SK_SUPPORT_MAC_FONT_SUBPIXEL
+// The calls to support subpixel are present in 10.5, but are not included in
+// the 10.5 SDK. The needed calls have been extracted from the 10.6 SDK and are
+// included below. To verify that CGContextSetShouldSubpixelQuantizeFonts, for
+// instance, is present in the 10.5 CoreGraphics libary, use:
+//   cd /Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/
+//   cd ApplicationServices.framework/Frameworks/CoreGraphics.framework/
+//   nm CoreGraphics | grep CGContextSetShouldSubpixelQuantizeFonts
+
+#if !defined(MAC_OS_X_VERSION_10_6) || \
+        MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_6
+    CG_EXTERN void CGContextSetAllowsFontSmoothing(CGContextRef context,
+        bool allowsFontSmoothing);
+    CG_EXTERN void CGContextSetAllowsFontSubpixelPositioning(
+        CGContextRef context,
+        bool allowsFontSubpixelPositioning);
+    CG_EXTERN void CGContextSetShouldSubpixelPositionFonts(CGContextRef context,
+        bool shouldSubpixelPositionFonts);
+    CG_EXTERN void CGContextSetAllowsFontSubpixelQuantization(
+        CGContextRef context,
+        bool allowsFontSubpixelQuantization);
+    CG_EXTERN void CGContextSetShouldSubpixelQuantizeFonts(
+        CGContextRef context,
+        bool shouldSubpixelQuantizeFonts);
 #endif
 
 using namespace skia_advanced_typeface_metrics_utils;
@@ -524,7 +545,6 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     if (cgFont != NULL && cgContext != NULL) {
         CGContextSetShouldSmoothFonts(cgContext, doLCD);
 
-#ifdef SK_SUPPORT_MAC_FONT_SUBPIXEL
         CGContextSetAllowsFontSmoothing(cgContext, doLCD);
 
         // need to pass the fractional part of our position to cg...
@@ -536,7 +556,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         // full fractional data from them.
         CGContextSetAllowsFontSubpixelQuantization(cgContext, false);
         CGContextSetShouldSubpixelQuantizeFonts(cgContext, false);
-#endif
+
         CGContextSetShouldAntialias(cgContext, doAA);
         CGContextSetGrayFillColor(  cgContext, grayColor, 1.0);
         CGContextSetTextDrawingMode(cgContext, kCGTextFill);
@@ -967,9 +987,6 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag;
-#ifndef SK_SUPPORT_MAC_FONT_SUBPIXEL
-    flagsWeDontSupport |= SkScalerContext::kSubpixelPositioning_Flag;
-#endif
 
     rec->fFlags &= ~flagsWeDontSupport;
     
