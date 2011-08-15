@@ -24,7 +24,7 @@ SkBitSet::SkBitSet(const SkBitSet& source)
 }
 
 const SkBitSet& SkBitSet::operator=(const SkBitSet& rhs) {
-    if (this == (SkBitSet*)&rhs) {
+    if (this == &rhs) {
         return *this;
     }
     fBitCount = rhs.fBitCount;
@@ -84,7 +84,7 @@ bool SkBitSet::orBits(const SkBitSet& source) {
 
 void SkBitSet::exportTo(SkTDArray<uint32_t>* array) const {
     SkASSERT(array);
-    uint32_t* data = (uint32_t*)fBitData.get();
+    uint32_t* data = reinterpret_cast<uint32_t*>(fBitData.get());
     for (unsigned int i = 0; i < fDwordCount; ++i) {
         uint32_t value = data[i];
         if (value) {  // There are set bits

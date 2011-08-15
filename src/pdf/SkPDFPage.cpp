@@ -103,7 +103,7 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
                 // TODO(vandebo) put the objects in strict access order.
                 // Probably doesn't matter because they are so small.
                 if (curNodes[i] != pages[0]) {
-                    pageTree->push(curNodes[i]); // Transfer reference.
+                    pageTree->push(curNodes[i]);  // Transfer reference.
                     catalog->addObject(curNodes[i], false);
                 } else {
                     SkSafeUnref(curNodes[i]);
@@ -123,9 +123,9 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
         curNodes = nextRoundNodes;
         nextRoundNodes.rewind();
         treeCapacity *= kNodeSize;
-    } while(curNodes.count() > 1);
+    } while (curNodes.count() > 1);
 
-    pageTree->push(curNodes[0]); // Transfer reference.
+    pageTree->push(curNodes[0]);  // Transfer reference.
     catalog->addObject(curNodes[0], false);
     if (rootNode)
         *rootNode = curNodes[0];

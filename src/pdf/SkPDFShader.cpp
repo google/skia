@@ -200,7 +200,7 @@ static void tileModeCode(SkShader::TileMode mode, SkString* result) {
 }
 
 static SkString linearCode(const SkShader::GradientInfo& info) {
-    SkString function("{pop\n"); // Just ditch the y value.
+    SkString function("{pop\n");  // Just ditch the y value.
     tileModeCode(info.fTileMode, &function);
     gradientFunctionCode(info, &function);
     function.append("}");
@@ -300,7 +300,7 @@ public:
 
 class SkPDFFunctionShader : public SkPDFDict, public SkPDFShader {
 public:
-    SkPDFFunctionShader(SkPDFShader::State* state);
+    explicit SkPDFFunctionShader(SkPDFShader::State* state);
     ~SkPDFFunctionShader() {
         if (isValid()) {
             RemoveShader(this);
@@ -325,7 +325,7 @@ private:
 
 class SkPDFImageShader : public SkPDFStream, public SkPDFShader {
 public:
-    SkPDFImageShader(SkPDFShader::State* state);
+    explicit SkPDFImageShader(SkPDFShader::State* state);
     ~SkPDFImageShader() {
         RemoveShader(this);
         fResources.unrefAll();
@@ -808,8 +808,8 @@ SkPDFShader::State::State(const SkShader& shader,
     } else {
         fColorData.set(sk_malloc_throw(
                     fInfo.fColorCount * (sizeof(SkColor) + sizeof(SkScalar))));
-        fInfo.fColors = (SkColor*)fColorData.get();
-        fInfo.fColorOffsets = (SkScalar*)(fInfo.fColors + fInfo.fColorCount);
+        fInfo.fColors = reinterpret_cast<SkColor*>(fColorData.get());
+        fInfo.fColorOffsets = reinterpret_cast<SkScalar*>(fInfo.fColors + fInfo.fColorCount);
         shader.asAGradient(&fInfo);
     }
 }

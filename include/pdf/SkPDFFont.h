@@ -48,7 +48,7 @@ public:
 
     class F2BIter {
     public:
-        F2BIter(const SkPDFGlyphSetMap& map);
+        explicit F2BIter(const SkPDFGlyphSetMap& map);
         FontGlyphSetPair* next() const;
         void reset(const SkPDFGlyphSetMap& map);
 

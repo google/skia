@@ -55,7 +55,7 @@ private:
         SkASSERT((size_t)index < fBitCount);
         size_t internalIndex = index / 32;
         SkASSERT(internalIndex < fDwordCount);
-        return (uint32_t*)fBitData.get() + internalIndex;
+        return reinterpret_cast<uint32_t*>(fBitData.get()) + internalIndex;
     }
 };
 

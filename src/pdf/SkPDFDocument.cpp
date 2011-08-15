@@ -161,10 +161,10 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     }
     fCatalog->emitSubstituteResources(stream, true);
     // TODO(vandebo) support linearized format
-    //if (fPages.size() > 1) {
-    //    // TODO(vandebo) save the file offset for the first page xref table.
-    //    fCatalog->emitXrefTable(stream, true);
-    //}
+    // if (fPages.size() > 1) {
+    //     // TODO(vandebo) save the file offset for the first page xref table.
+    //     fCatalog->emitXrefTable(stream, true);
+    // }
 
     for (int i = 0; i < fPageTree.count(); i++) {
         fPageTree[i]->emitObject(stream, fCatalog.get(), true);
@@ -204,7 +204,7 @@ bool SkPDFDocument::setPage(int pageNumber, SkPDFDevice* pdfDevice) {
 
     SkPDFPage* page = new SkPDFPage(pdfDevice);
     SkSafeUnref(fPages[pageNumber]);
-    fPages[pageNumber] = page; // Reference from new passed to fPages.
+    fPages[pageNumber] = page;  // Reference from new passed to fPages.
     return true;
 }
 
