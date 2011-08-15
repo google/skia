@@ -1158,6 +1158,10 @@ SkData* SkPDFDevice::copyContentToData() const {
     return data.copyToData();
 }
 
+void SkPDFDevice::setOrigin(int x, int y) {
+    INHERITED::setOrigin(x, y);
+}
+
 void SkPDFDevice::createFormXObjectFromDevice(
         SkRefPtr<SkPDFFormXObject>* xobject) {
     *xobject = new SkPDFFormXObject(this);
