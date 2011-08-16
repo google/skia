@@ -12,20 +12,16 @@
 
 #include "GrClip.h"
 #include "GrPaint.h"
+#include "GrPathRenderer.h"
 
-class GrDefaultPathRenderer;
-class GrDrawTarget;
 class GrFontCache;
 class GrGpu;
 struct GrGpuStats;
-class GrIndexBuffer;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
-class GrPathRenderer;
 class GrResourceEntry;
 class GrResourceCache;
 class GrStencilBuffer;
-class GrVertexBuffer;
 class GrVertexBufferAllocPool;
 
 
@@ -555,7 +551,7 @@ private:
     GrFontCache*        fFontCache;
 
     GrPathRenderer*         fCustomPathRenderer;
-    GrDefaultPathRenderer*  fDefaultPathRenderer;
+    GrDefaultPathRenderer   fDefaultPathRenderer;
 
     GrVertexBufferAllocPool*    fDrawBufferVBAllocPool;
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;
