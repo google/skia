@@ -137,7 +137,6 @@ protected:
 
     // Accessors for subclass.
     SkAdvancedTypefaceMetrics* fontInfo();
-    void setFontInfo(SkAdvancedTypefaceMetrics* info);
     uint16_t firstGlyphID() const;
     uint16_t lastGlyphID() const;
     void setLastGlyphID(uint16_t glyphID);
