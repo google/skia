@@ -65,6 +65,8 @@ template <typename Data, typename FontHandle>
 SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
         FontHandle fontHandle,
         int num_glyphs,
+        const uint32_t* subsetGlyphIDs,
+        uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(FontHandle fontHandle, int gId, Data* data)) {
     // Assuming that an ASCII representation of a width or a glyph id is,
     // on average, 3 characters long gives the following cut offs for
@@ -82,10 +84,17 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
     curRange = appendRange(&result, 0);
     Data lastAdvance = SK_MinS16;
     int repeats = 0;
+    uint32_t subsetIndex = 0;
     for (int gId = 0; gId <= num_glyphs; gId++) {
-        Data advance;
+        Data advance = 0;
         if (gId < num_glyphs) {
-            SkAssertResult(getAdvance(fontHandle, gId, &advance));
+            // Get glyph id only when subset is NULL, or the id is in subset.
+            if (!subsetGlyphIDs ||
+                (subsetIndex < subsetGlyphIDsLength &&
+                static_cast<uint32_t>(gId) == subsetGlyphIDs[subsetIndex])) {
+                SkAssertResult(getAdvance(fontHandle, gId, &advance));
+                ++subsetIndex;
+            }
         } else {
             advance = SK_MinS16;
         }
@@ -139,16 +148,22 @@ SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         HDC hdc,
         int num_glyphs,
+        const uint32_t* subsetGlyphIDs,
+        uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(HDC hdc, int gId, int16_t* data));
 #elif defined(SK_BUILD_FOR_UNIX)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         FT_Face face,
         int num_glyphs,
+        const uint32_t* subsetGlyphIDs,
+        uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(FT_Face face, int gId, int16_t* data));
 #elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 template SkAdvancedTypefaceMetrics::WidthRange* getAdvanceData(
         CTFontRef ctFont,
         int num_glyphs,
+        const uint32_t* subsetGlyphIDs,
+        uint32_t subsetGlyphIDsLength,
         bool (*getAdvance)(CTFontRef ctFont, int gId, int16_t* data));
 #endif
 template void resetRange(
