@@ -46,8 +46,7 @@ private:
                  const SkPDFGlyphSet* subset);
 
     bool populate(const SkPDFGlyphSet* subset);
-    bool addFontDescriptor(int16_t defaultWidth,
-                           const SkTDArray<uint32_t>* subset);
+    bool addFontDescriptor(int16_t defaultWidth, const SkPDFGlyphSet* subset);
 };
 
 class SkPDFType1Font : public SkPDFFont {

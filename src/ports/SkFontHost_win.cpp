@@ -743,9 +743,7 @@ static bool getWidthAdvance(HDC hdc, int gId, int16_t* advance) {
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) {
+        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
     LOGFONT lf;
     GetLogFontByID(fontID, &lf);
     SkAdvancedTypefaceMetrics* info = NULL;
@@ -865,11 +863,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
                         SkAdvancedTypefaceMetrics::WidthRange::kDefault);
         } else {
             info->fGlyphWidths.reset(
-                getAdvanceData(hdc,
-                               glyphCount,
-                               glyphIDs,
-                               glyphIDsCount,
-                               &getWidthAdvance));
+                getAdvanceData(hdc, glyphCount, &getWidthAdvance));
         }
     }
 

@@ -129,13 +129,13 @@ static SkTypeface* NewFromName(const char familyName[],
     CTFontDescriptorRef         ctFontDesc;
     CFStringRef                 cfFontName;
     CTFontRef                   ctFont;
-
-
+    
+    
     // Get the state we need
     ctFontDesc   = NULL;
     ctFont       = NULL;
     ctFontTraits = 0;
-
+    
     if (theStyle & SkTypeface::kBold) {
         ctFontTraits |= kCTFontBoldTrait;
     }
@@ -143,27 +143,27 @@ static SkTypeface* NewFromName(const char familyName[],
     if (theStyle & SkTypeface::kItalic) {
         ctFontTraits |= kCTFontItalicTrait;
     }
-
+    
     // Create the font info
     cfFontName   = CFStringCreateWithCString(NULL, familyName, kCFStringEncodingUTF8);
     cfFontTraits = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &ctFontTraits);
     cfAttributes = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     cfTraits     = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-
-
+    
+    
     // Create the font
     if (cfFontName != NULL && cfFontTraits != NULL && cfAttributes != NULL && cfTraits != NULL) {
         CFDictionaryAddValue(cfTraits, kCTFontSymbolicTrait, cfFontTraits);
-
+        
         CFDictionaryAddValue(cfAttributes, kCTFontFamilyNameAttribute, cfFontName);
         CFDictionaryAddValue(cfAttributes, kCTFontTraitsAttribute,     cfTraits);
-
+        
         ctFontDesc = CTFontDescriptorCreateWithAttributes(cfAttributes);
         if (ctFontDesc != NULL) {
             ctFont = CTFontCreateWithFontDescriptor(ctFontDesc, 0, NULL);
         }
     }
-
+    
     CFSafeRelease(cfFontName);
     CFSafeRelease(cfFontTraits);
     CFSafeRelease(cfAttributes);
@@ -233,7 +233,7 @@ static bool FindByNameStyle(SkTypeface* face, SkTypeface::Style style,
                             void* ctx) {
     const SkTypeface_Mac* mface = reinterpret_cast<SkTypeface_Mac*>(face);
     const NameStyleRec* rec = reinterpret_cast<const NameStyleRec*>(ctx);
-
+    
     return rec->fStyle == style && mface->fName.equals(rec->fName);
 }
 
@@ -246,7 +246,7 @@ static const char* map_css_names(const char* name) {
         { "serif",      "Times"     },
         { "monospace",  "Courier"   }
     };
-
+    
     for (size_t i = 0; i < SK_ARRAY_COUNT(gPairs); i++) {
         if (strcmp(name, gPairs[i].fFrom) == 0) {
             return gPairs[i].fTo;
@@ -262,18 +262,18 @@ SkTypeface* SkFontHost::CreateTypeface(const SkTypeface* familyFace,
     if (familyName) {
         familyName = map_css_names(familyName);
     }
-
+    
     // Clone an existing typeface
     // TODO: only clone if style matches the familyFace's style...
     if (familyName == NULL && familyFace != NULL) {
         familyFace->ref();
         return const_cast<SkTypeface*>(familyFace);
     }
-
+    
     if (!familyName || !*familyName) {
         familyName = FONT_DEFAULT_NAME;
     }
-
+    
     NameStyleRec rec = { familyName, style };
     SkTypeface* face = SkTypefaceCache::FindByProc(FindByNameStyle, &rec);
 
@@ -761,9 +761,7 @@ static bool getWidthAdvance(CTFontRef ctFont, int gId, int16_t* data) {
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
-        const uint32_t* glyphIDs,
-        uint32_t glyphIDsCount) {
+        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
     CTFontRef ctFont = GetFontRefFromFontID(fontID);
     ctFont = CTFontCreateCopyWithAttributes(ctFont, CTFontGetUnitsPerEm(ctFont),
                                             NULL, NULL);
@@ -773,11 +771,11 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     // plus 1 byte for the trailing null.
     int length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(
         fontName), kCFStringEncodingUTF8) + 1;
-    info->fFontName.resize(length);
+    info->fFontName.resize(length); 
     CFStringGetCString(fontName, info->fFontName.writable_str(), length,
         kCFStringEncodingUTF8);
     // Resize to the actual UTF-8 length used, stripping the null character.
-    info->fFontName.resize(strlen(info->fFontName.c_str()));
+    info->fFontName.resize(strlen(info->fFontName.c_str())); 
     info->fMultiMaster = false;
     CFIndex glyphCount = CTFontGetGlyphCount(ctFont);
     info->fLastGlyphID = SkToU16(glyphCount - 1);
@@ -826,7 +824,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     CGGlyph glyphs[count];
     CGRect boundingRects[count];
     if (CTFontGetGlyphsForCharacters(ctFont, stem_chars, glyphs, count)) {
-        CTFontGetBoundingRectsForGlyphs(ctFont, kCTFontHorizontalOrientation,
+        CTFontGetBoundingRectsForGlyphs(ctFont, kCTFontHorizontalOrientation, 
             glyphs, boundingRects, count);
         for (size_t i = 0; i < count; i++) {
             int16_t width = boundingRects[i].size.width;
@@ -849,11 +847,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
                         SkAdvancedTypefaceMetrics::WidthRange::kDefault);
         } else {
             info->fGlyphWidths.reset(
-                getAdvanceData(ctFont,
-                               glyphCount,
-                               glyphIDs,
-                               glyphIDsCount,
-                               &getWidthAdvance));
+                getAdvanceData(ctFont, glyphCount, &getWidthAdvance));
         }
     }
 
@@ -995,7 +989,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
                                   SkScalerContext::kAutohinting_Flag;
 
     rec->fFlags &= ~flagsWeDontSupport;
-
+    
     // we only support 2 levels of hinting
     SkPaint::Hinting h = rec->getHinting();
     if (SkPaint::kSlight_Hinting == h) {
@@ -1121,3 +1115,7 @@ size_t SkFontHost::GetTableData(SkFontID fontID, SkFontTableTag tag,
     memcpy(data, CFDataGetBytePtr(cfData) + offset, length);
     return(length);
 }
+
+
+
+
