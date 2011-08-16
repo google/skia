@@ -87,7 +87,6 @@
         '../gpu/include/GrColor.h',
         '../gpu/include/GrConfig.h',
         '../gpu/include/GrContext.h',
-        '../gpu/include/GrContext_impl.h',
         '../gpu/include/GrDrawTarget.h',
         '../gpu/include/GrFontScaler.h',
         '../gpu/include/GrGLConfig.h',
