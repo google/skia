@@ -29,3 +29,16 @@
         static TestRegistry gReg(classname::Factory);                       \
     }
 
+#define DEFINE_GPUTESTCLASS(uiname, classname, function)                    \
+    namespace skiatest {                                                    \
+        class classname : public GpuTest {                                  \
+        public:                                                             \
+            static Test* Factory(void*) { return SkNEW(classname); }        \
+        protected:                                                          \
+            virtual void onGetName(SkString* name) { name->set(uiname); }   \
+            virtual void onRun(Reporter* reporter) {                        \
+                function(reporter, fContext);                               \
+            }                                                               \
+        };                                                                  \
+        static TestRegistry gReg(classname::Factory);                       \
+    }
