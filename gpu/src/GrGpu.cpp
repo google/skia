@@ -62,6 +62,8 @@ GrGpu::GrGpu()
 
 GrGpu::~GrGpu() {
     this->releaseResources();
+    GrSafeUnref(fDefaultPathRenderer);
+    GrSafeUnref(fClientPathRenderer);
 }
 
 void GrGpu::abandonResources() {
