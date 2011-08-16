@@ -32,36 +32,8 @@
 //    #error "inconsistent GR_DEBUG and SK_DEBUG"
 #endif
 
-#if GR_SCALAR_IS_FIXED
-    #ifdef SK_SCALAR_IS_FIXED
-        #define SK_SCALAR_IS_GR_SCALAR  1
-    #else
-        #define SK_SCALAR_IS_GR_SCALAR  0
-    #endif
-    #define SkScalarToGrScalar(x)       SkScalarToFixed(x)
-
-#elif GR_SCALAR_IS_FLOAT
-
-    #ifdef SK_SCALAR_IS_FLOAT
-        #define SK_SCALAR_IS_GR_SCALAR  1
-    #else
-        #define SK_SCALAR_IS_GR_SCALAR  0
-    #endif
-    #define SkScalarToGrScalar(x)       SkScalarToFloat(x)
-
-#else
-    #error "Ganesh scalar type not defined"
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////
 // Sk to Gr Type conversions
-
-// Verify that SkPoint and GrPoint are compatible if using the same scalar type
-#if 0/*SK_SCALAR_IS_GR_SCALAR*/
-    GR_STATIC_ASSERT(sizeof(SkPoint) == sizeof(GrPoint));
-    GR_STATIC_ASSERT(offsetof(SkPoint,fX) == offsetof(GrPoint,fX)));
-    GR_STATIC_ASSERT(offsetof(SkPoint,fY) == offsetof(GrPoint,fY)));
-#endif
 
 GR_STATIC_ASSERT((int)GrSamplerState::kClamp_WrapMode == (int)SkShader::kClamp_TileMode);
 GR_STATIC_ASSERT((int)GrSamplerState::kRepeat_WrapMode ==(
