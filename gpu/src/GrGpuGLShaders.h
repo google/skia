@@ -26,6 +26,8 @@ public:
 
     virtual void abandonResources();
 
+    bool programUnitTest();
+
 protected:
     // overrides from GrGpu
     virtual bool flushGraphicsState(GrPrimitiveType type);
@@ -73,8 +75,6 @@ private:
     void flushEdgeAAData();
 
     static void DeleteProgram(CachedData* programData);
-
-    void ProgramUnitTest();
 
     void buildProgram(GrPrimitiveType type);
 

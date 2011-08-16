@@ -143,7 +143,7 @@ namespace {
     }
 };
 
-void GrGpuGLShaders::ProgramUnitTest() {
+bool GrGpuGLShaders::programUnitTest() {
 
     static const int STAGE_OPTS[] = {
         0,
@@ -185,8 +185,13 @@ void GrGpuGLShaders::ProgramUnitTest() {
         idx = (int)(random.nextF() * (kNumStages+1));
         pdesc.fFirstCoverageStage = idx;
 
-        pdesc.fEdgeAANumEdges = (random.nextF() * (getMaxEdges() + 1));
-        pdesc.fEdgeAAConcave = random.nextF() > .5f;
+        bool edgeAA = random.nextF() > .5f;
+        if (edgeAA) {
+            pdesc.fEdgeAANumEdges = random.nextF() * this->getMaxEdges() + 1;
+            pdesc.fEdgeAAConcave = random.nextF() > .5f;
+        } else {
+            pdesc.fEdgeAANumEdges = 0;
+        }
 
         if (fDualSourceBlendingSupport) {
             pdesc.fDualSrcOutput =
@@ -217,10 +222,17 @@ void GrGpuGLShaders::ProgramUnitTest() {
             stage.fModulation = random_val(&random, StageDesc::kModulationCnt);
             stage.fCoordMapping =  random_val(&random, StageDesc::kCoordMappingCnt);
             stage.fFetchMode = random_val(&random, StageDesc::kFetchModeCnt);
+            // convolution shaders don't work with persp tex matrix
+            if (stage.fFetchMode == StageDesc::kConvolution_FetchMode) {
+                stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
+            }
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
+            stage.fKernelWidth = 4 * random.nextF() + 2;
         }
         CachedData cachedData;
-        program.genProgram(&cachedData);
+        if (!program.genProgram(&cachedData)) {
+            return false;
+        }
         DeleteProgram(&cachedData);
         bool again = false;
         if (again) {
@@ -228,6 +240,7 @@ void GrGpuGLShaders::ProgramUnitTest() {
             DeleteProgram(&cachedData);
         }
     }
+    return true;
 }
 
 GrGpuGLShaders::GrGpuGLShaders() {
@@ -247,7 +260,7 @@ GrGpuGLShaders::GrGpuGLShaders() {
     fProgramCache = new ProgramCache();
 
 #if 0
-    ProgramUnitTest();
+    this->programUnitTest();
 #endif
 }
 

@@ -12,6 +12,9 @@
 #include "SkString.h"
 #include "SkTRegistry.h"
 
+class GrContext;
+class SkEGLContext;
+
 namespace skiatest {
 
     class Test;
@@ -92,6 +95,17 @@ namespace skiatest {
     private:
         Reporter*   fReporter;
         SkString    fName;
+    };
+
+    class GpuTest : public Test{
+    public:
+        GpuTest() : Test() {
+            fContext = GetContext();
+        }
+    protected:
+        GrContext* fContext;
+    private:
+        static GrContext* GetContext();
     };
 
     typedef SkTRegistry<Test*, void*> TestRegistry;
