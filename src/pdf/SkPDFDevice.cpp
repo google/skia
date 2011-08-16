@@ -1161,6 +1161,11 @@ void SkPDFDevice::setOrigin(int x, int y) {
     INHERITED::setOrigin(x, y);
 }
 
+void SkPDFDevice::setMatrixClip(const SkMatrix& m, const SkRegion& r,
+                                const SkClipStack& c) {
+    INHERITED::setMatrixClip(m, r, c);
+}
+
 void SkPDFDevice::createFormXObjectFromDevice(
         SkRefPtr<SkPDFFormXObject>* xobject) {
     *xobject = new SkPDFFormXObject(this);
