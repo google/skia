@@ -70,11 +70,6 @@ public:
         return false;
     }
 
-    virtual void setMatrixClip(const SkMatrix& m, const SkRegion& r,
-                               const SkClipStack& c) {
-        SkDevice::setMatrixClip(m, r, c);
-    }
-
     /** These are called inside the per-device-layer loop for each draw call.
      When these are called, we have already applied any saveLayer operations,
      and are handling any looping from the paint, and any effects from the
@@ -168,6 +163,8 @@ public:
 
     // TODO(vandebo) Remove this as soon as Chrome's Platform device goes away.
     void setOrigin(int x, int y);
+    virtual void setMatrixClip(const SkMatrix& m, const SkRegion& r,
+                               const SkClipStack& c);
 
 private:
     typedef SkDevice INHERITED;
