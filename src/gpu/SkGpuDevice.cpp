@@ -550,8 +550,8 @@ public:
 
     void writeValue(int i, GrPoint* dstPosition) const {
         SkASSERT(i < fCount);
-        dstPosition->fX = SkScalarToGrScalar(fPoints[i].fX);
-        dstPosition->fY = SkScalarToGrScalar(fPoints[i].fY);
+        dstPosition->fX = fPoints[i].fX;
+        dstPosition->fY = fPoints[i].fY;
     }
 private:
     const SkPoint*  fPoints;
@@ -564,8 +564,8 @@ public:
         : fCoords(coords) {}
 
     void writeValue(int i, GrPoint* dstCoord) const {
-        dstCoord->fX = SkScalarToGrScalar(fCoords[i].fX);
-        dstCoord->fY = SkScalarToGrScalar(fCoords[i].fY);
+        dstCoord->fX = fCoords[i].fX;
+        dstCoord->fY = fCoords[i].fY;
     }
 private:
     const SkPoint*  fCoords;
@@ -599,75 +599,6 @@ private:
     int             fCount;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
-#if 0 // not currently being used so don't compile,
-
-// can be used for positions or texture coordinates
-
-class SkRectFanSource {
-public:
-    SkRectFanSource(const SkRect& rect) : fRect(rect) {}
-
-    int count() const { return 4; }
-
-    void writeValue(int i, GrPoint* dstPoint) const {
-        SkASSERT(i < 4);
-        dstPoint->fX = SkScalarToGrScalar((i % 3) ? fRect.fRight :
-                                                    fRect.fLeft);
-        dstPoint->fY = SkScalarToGrScalar((i < 2) ? fRect.fTop  :
-                                                    fRect.fBottom);
-    }
-private:
-    const SkRect&   fRect;
-};
-
-class SkIRectFanSource {
-public:
-    SkIRectFanSource(const SkIRect& rect) : fRect(rect) {}
-
-    int count() const { return 4; }
-
-    void writeValue(int i, GrPoint* dstPoint) const {
-        SkASSERT(i < 4);
-        dstPoint->fX = (i % 3) ? GrIntToScalar(fRect.fRight) :
-                                 GrIntToScalar(fRect.fLeft);
-        dstPoint->fY = (i < 2) ? GrIntToScalar(fRect.fTop)  :
-                                 GrIntToScalar(fRect.fBottom);
-    }
-private:
-    const SkIRect&   fRect;
-};
-
-class SkMatRectFanSource {
-public:
-    SkMatRectFanSource(const SkRect& rect, const SkMatrix& matrix)
-        : fRect(rect), fMatrix(matrix) {}
-
-    int count() const { return 4; }
-
-    void writeValue(int i, GrPoint* dstPoint) const {
-        SkASSERT(i < 4);
-
-#if SK_SCALAR_IS_GR_SCALAR
-        fMatrix.mapXY((i % 3) ? fRect.fRight : fRect.fLeft,
-                      (i < 2) ? fRect.fTop   : fRect.fBottom,
-                      (SkPoint*)dstPoint);
-#else
-        SkPoint dst;
-        fMatrix.mapXY((i % 3) ? fRect.fRight : fRect.fLeft,
-                      (i < 2) ? fRect.fTop   : fRect.fBottom,
-                      &dst);
-        dstPoint->fX = SkScalarToGrScalar(dst.fX);
-        dstPoint->fY = SkScalarToGrScalar(dst.fY);
-#endif
-    }
-private:
-    const SkRect&   fRect;
-    const SkMatrix& fMatrix;
-};
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -723,7 +654,6 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
         return;
     }
 
-#if SK_SCALAR_IS_GR_SCALAR
     fContext->drawVertices(grPaint,
                            gPointMode2PrimtiveType[mode],
                            count,
@@ -732,11 +662,6 @@ void SkGpuDevice::drawPoints(const SkDraw& draw, SkCanvas::PointMode mode,
                            NULL,
                            NULL,
                            0);
-#else
-    fContext->drawCustomVertices(grPaint,
-                                 gPointMode2PrimtiveType[mode],
-                                 SkPositionSource(pts, count));
-#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1539,7 +1464,6 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         }
     }
 
-#if SK_SCALAR_IS_GR_SCALAR
     // even if GrColor and SkColor byte offsets match we need
     // to perform pre-multiply.
     if (NULL == colors) {
@@ -1551,9 +1475,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
                                NULL,
                                indices,
                                indexCount);
-    } else
-#endif
-    {
+    } else {
         SkTexCoordSource texSrc(texs);
         SkColorSource colSrc(colors);
         SkIndexSource idxSrc(indices, indexCount);
