@@ -391,62 +391,6 @@ public:
                       const uint16_t indices[],
                       int indexCount);
 
-    /**
-     * Similar to drawVertices but caller provides objects that convert to Gr
-     * types. The count of vertices is given by posSrc.
-     *
-     * @param   paint           describes how to color pixels.
-     * @param   primitiveType   primitives type to draw.
-     * @param   posSrc          Source of vertex positions. Must implement
-     *                              int count() const;
-     *                              void writeValue(int i, GrPoint* point) const;
-     *                          count returns the total number of vertices and
-     *                          writeValue writes a vertex position to point.
-     * @param   texSrc          optional, pass NULL to not use explicit tex
-     *                          coords. If present provides tex coords with
-     *                          method:
-     *                              void writeValue(int i, GrPoint* point) const;
-     * @param   texSrc          optional, pass NULL to not use per-vertex colors
-     *                          If present provides colors with method:
-     *                              void writeValue(int i, GrColor* point) const;
-     * @param   indices         optional, pass NULL for non-indexed drawing. If
-     *                          present supplies indices for indexed drawing
-     *                          with following methods:
-     *                              int count() const;
-     *                              void writeValue(int i, uint16_t* point) const;
-     *                          count returns the number of indices and
-     *                          writeValue supplies each index.
-     */
-    template <typename POS_SRC,
-              typename TEX_SRC,
-              typename COL_SRC,
-              typename IDX_SRC>
-    void drawCustomVertices(const GrPaint& paint,
-                            GrPrimitiveType primitiveType,
-                            const POS_SRC& posSrc,
-                            const TEX_SRC* texCoordSrc,
-                            const COL_SRC* colorSrc,
-                            const IDX_SRC* idxSrc);
-    /**
-     * To avoid the problem of having to create a typename for NULL parameters,
-     * these reduced versions of drawCustomVertices are provided.
-     */
-    template <typename POS_SRC>
-    void drawCustomVertices(const GrPaint& paint,
-                            GrPrimitiveType primitiveType,
-                            const POS_SRC& posSrc);
-    template <typename POS_SRC, typename TEX_SRC>
-    void drawCustomVertices(const GrPaint& paint,
-                            GrPrimitiveType primitiveType,
-                            const POS_SRC& posSrc,
-                            const TEX_SRC* texCoordSrc);
-    template <typename POS_SRC, typename TEX_SRC, typename COL_SRC>
-    void drawCustomVertices(const GrPaint& paint,
-                            GrPrimitiveType primitiveType,
-                            const POS_SRC& posSrc,
-                            const TEX_SRC* texCoordSrc,
-                            const COL_SRC* colorSrc);
-
     ///////////////////////////////////////////////////////////////////////////
     // Misc.
 
@@ -770,6 +714,4 @@ private:
 };
 
 #endif
-
-#include "GrContext_impl.h"
 

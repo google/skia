@@ -541,67 +541,6 @@ bool SkGpuDevice::skPaint2GrPaintShader(const SkPaint& skPaint,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class SkPositionSource {
-public:
-    SkPositionSource(const SkPoint* points, int count)
-        : fPoints(points), fCount(count) {}
-
-    int count() const { return fCount; }
-
-    void writeValue(int i, GrPoint* dstPosition) const {
-        SkASSERT(i < fCount);
-        dstPosition->fX = fPoints[i].fX;
-        dstPosition->fY = fPoints[i].fY;
-    }
-private:
-    const SkPoint*  fPoints;
-    int             fCount;
-};
-
-class SkTexCoordSource {
-public:
-    SkTexCoordSource(const SkPoint* coords)
-        : fCoords(coords) {}
-
-    void writeValue(int i, GrPoint* dstCoord) const {
-        dstCoord->fX = fCoords[i].fX;
-        dstCoord->fY = fCoords[i].fY;
-    }
-private:
-    const SkPoint*  fCoords;
-};
-
-class SkColorSource {
-public:
-    SkColorSource(const SkColor* colors) : fColors(colors) {}
-
-    void writeValue(int i, GrColor* dstColor) const {
-        *dstColor = SkGr::SkColor2GrColor(fColors[i]);
-    }
-private:
-    const SkColor* fColors;
-};
-
-class SkIndexSource {
-public:
-    SkIndexSource(const uint16_t* indices, int count)
-        : fIndices(indices), fCount(count) {
-    }
-
-    int count() const { return fCount; }
-
-    void writeValue(int i, uint16_t* dstIndex) const {
-        *dstIndex = fIndices[i];
-    }
-
-private:
-    const uint16_t* fIndices;
-    int             fCount;
-};
-
-
-///////////////////////////////////////////////////////////////////////////////
-
 void SkGpuDevice::clear(SkColor color) {
     fContext->clear(NULL, color);
 }
@@ -1464,29 +1403,23 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
         }
     }
 
-    // even if GrColor and SkColor byte offsets match we need
-    // to perform pre-multiply.
-    if (NULL == colors) {
-        fContext->drawVertices(grPaint,
-                               gVertexMode2PrimitiveType[vmode],
-                               vertexCount,
-                               (GrPoint*) vertices,
-                               (GrPoint*) texs,
-                               NULL,
-                               indices,
-                               indexCount);
-    } else {
-        SkTexCoordSource texSrc(texs);
-        SkColorSource colSrc(colors);
-        SkIndexSource idxSrc(indices, indexCount);
-
-        fContext->drawCustomVertices(grPaint,
-                                     gVertexMode2PrimitiveType[vmode],
-                                     SkPositionSource(vertices, vertexCount),
-                                     (NULL == texs) ? NULL : &texSrc,
-                                     (NULL == colors) ? NULL : &colSrc,
-                                     (NULL == indices) ? NULL : &idxSrc);
+    SkAutoSTMalloc<128, GrColor> convertedColors(0);
+    if (NULL != colors) {
+        // need to convert byte order and from non-PM to PM
+        convertedColors.realloc(vertexCount);
+        for (int i = 0; i < vertexCount; ++i) {
+            convertedColors[i] = SkGr::SkColor2GrColor(colors[i]);
+        }
+        colors = convertedColors.get();
     }
+    fContext->drawVertices(grPaint,
+                           gVertexMode2PrimitiveType[vmode],
+                           vertexCount,
+                           (GrPoint*) vertices,
+                           (GrPoint*) texs,
+                           colors,
+                           indices,
+                           indexCount);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
