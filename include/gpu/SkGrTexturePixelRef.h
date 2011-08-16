@@ -13,7 +13,9 @@
 
 #include "SkBitmap.h"
 #include "SkPixelRef.h"
-#include "GrGpu.h"
+#include "GrTexture.h"
+#include "GrRenderTarget.h"
+
 
 /**
  *  Common baseclass that implements onLockPixels() by calling onReadPixels().
