@@ -711,6 +711,10 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
 
     SkDevice* device = this->createLayerDevice(config, ir.width(), ir.height(),
                                                isOpaque);
+    if (NULL == device) {
+        SkDebugf("Unable to create device for layer.");
+        return count;
+    }
 
     device->setOrigin(ir.fLeft, ir.fTop);
     DeviceCM* layer = SkNEW_ARGS(DeviceCM, (device, ir.fLeft, ir.fTop, paint));
