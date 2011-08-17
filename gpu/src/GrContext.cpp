@@ -61,6 +61,7 @@ GrContext::~GrContext() {
     delete fDrawBuffer;
     delete fDrawBufferVBAllocPool;
     delete fDrawBufferIBAllocPool;
+    GrSafeUnref(fDefaultPathRenderer);
     GrSafeUnref(fCustomPathRenderer);
     GrSafeUnref(fAAFillRectIndexBuffer);
     GrSafeUnref(fAAStrokeRectIndexBuffer);
@@ -1706,14 +1707,14 @@ void GrContext::printStats() const {
     fGpu->printStats();
 }
 
-GrContext::GrContext(GrGpu* gpu) :
-    fDefaultPathRenderer(gpu->supportsTwoSidedStencil(),
-                         gpu->supportsStencilWrapOps()) {
-
+GrContext::GrContext(GrGpu* gpu) {
     fGpu = gpu;
     fGpu->ref();
     fGpu->setContext(this);
 
+    fDefaultPathRenderer = 
+        new GrDefaultPathRenderer(gpu->supportsTwoSidedStencil(),
+                                  gpu->supportsStencilWrapOps());
     fCustomPathRenderer = GrPathRenderer::CreatePathRenderer();
     fGpu->setClipPathRenderer(fCustomPathRenderer);
 
@@ -1785,8 +1786,8 @@ GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
         fCustomPathRenderer->canDrawPath(path, fill)) {
         return fCustomPathRenderer;
     } else {
-        GrAssert(fDefaultPathRenderer.canDrawPath(path, fill));
-        return &fDefaultPathRenderer;
+        GrAssert(fDefaultPathRenderer->canDrawPath(path, fill));
+        return fDefaultPathRenderer;
     }
 }
 
