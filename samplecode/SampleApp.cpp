@@ -24,6 +24,7 @@
 #include "SkTypeface.h"
 
 #include "GrGLInterface.h"
+#include "GrRenderTarget.h"
 
 #include "SkPDFDevice.h"
 #include "SkPDFDocument.h"
