@@ -47,14 +47,6 @@ public:
     ~GrGLProgram();
 
     /**
-     *  Streams data that can uniquely identifies the generated
-     *  gpu program into a key, for cache indexing purposes.
-     *
-     *  @param key The key object to receive the key data
-     */
-    void buildKey(GrBinHashKeyBuilder& key) const;
-
-    /**
      *  This is the heavy initilization routine for building a GLProgram.
      *  The result of heavy init is not stored in datamembers of GrGLProgam,
      *  but in a separate cacheable container.
@@ -264,6 +256,15 @@ public:
         };
 
     }; // CachedData
+
+    enum Constants {
+        kProgramKeySize = sizeof(ProgramDesc)
+    };
+
+    // Provide an opaque ProgramDesc
+    const uint32_t* keyData() const{
+        return reinterpret_cast<const uint32_t*>(&fProgramDesc);
+    }
 
 private:
     enum {
