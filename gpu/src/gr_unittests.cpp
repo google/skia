@@ -85,12 +85,10 @@ static void test_binHashKey()
         kDataLenUsedForKey = 8
     };
 
-    class Entry {};
-
-    GrBinHashKey<Entry, kDataLenUsedForKey> keyA;
+    GrBinHashKey<BogusEntry, kDataLenUsedForKey> keyA;
     keyA.setKeyData(testStringA);
     // test copy constructor and comparison
-    GrBinHashKey<Entry, kDataLenUsedForKey> keyA2(keyA);
+    GrBinHashKey<BogusEntry, kDataLenUsedForKey> keyA2(keyA);
     GrAssert(keyA.compare(keyA2) == 0);
     GrAssert(keyA.getHash() == keyA2.getHash());
     // test re-init
@@ -98,7 +96,7 @@ static void test_binHashKey()
     GrAssert(keyA.compare(keyA2) == 0);
     GrAssert(keyA.getHash() == keyA2.getHash());
     // test sorting
-    GrBinHashKey<Entry, kDataLenUsedForKey> keyB;
+    GrBinHashKey<BogusEntry, kDataLenUsedForKey> keyB;
     keyB.setKeyData(testStringB);
     GrAssert(keyA.compare(keyB) < 0);
     GrAssert(keyA.getHash() != keyB.getHash());    
