@@ -132,10 +132,21 @@ void finishRange(
         typename SkAdvancedTypefaceMetrics::AdvanceMetric<Data>::MetricType
                 type);
 
+/** Retrieve advance data for glyphs. Used by the PDF backend. It calls
+    underlying platform dependent API getAdvance to acquire the data.
+    @param num_glyphs    Total number of glyphs in the given font.
+    @param glyphIDs      For per-glyph info, specify subset of the font by
+                         giving glyph ids.  Each integer represents a glyph
+                         id.  Passing NULL means all glyphs in the font.
+    @param glyphIDsCount Number of elements in subsetGlyphIds. Ignored if
+                         glyphIDs is NULL.
+*/
 template <typename Data, typename FontHandle>
 SkAdvancedTypefaceMetrics::AdvanceMetric<Data>* getAdvanceData(
         FontHandle fontHandle,
         int num_glyphs,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount,
         bool (*getAdvance)(FontHandle fontHandle, int gId, Data* data));
 
 } // namespace skia_advanced_typeface_metrics_utils

@@ -43,7 +43,7 @@ uint32_t SkTypeface::UniqueID(const SkTypeface* face) {
     // The initial value of 0 is fine, since a typeface's uniqueID should not
     // be zero.
     static uint32_t gDefaultFontID;
-    
+
     if (0 == gDefaultFontID) {
         SkTypeface* defaultFace =
                 SkFontHost::CreateTypeface(NULL, NULL, NULL, 0,
@@ -93,6 +93,11 @@ SkTypeface* SkTypeface::Deserialize(SkStream* stream) {
 }
 
 SkAdvancedTypefaceMetrics* SkTypeface::getAdvancedTypefaceMetrics(
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) const {
-    return SkFontHost::GetAdvancedTypefaceMetrics(fUniqueID, perGlyphInfo);
+        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount) const {
+    return SkFontHost::GetAdvancedTypefaceMetrics(fUniqueID,
+                                                  perGlyphInfo,
+                                                  glyphIDs,
+                                                  glyphIDsCount);
 }
