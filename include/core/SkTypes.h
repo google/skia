@@ -478,4 +478,3 @@ private:
 #endif /* C++ */
 
 #endif
-

@@ -408,7 +408,9 @@ static void populate_glyph_to_unicode(FT_Face& face,
 // static
 SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
         uint32_t fontID,
-        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo) {
+        SkAdvancedTypefaceMetrics::PerGlyphInfo perGlyphInfo,
+        const uint32_t* glyphIDs,
+        uint32_t glyphIDsCount) {
 #if defined(SK_BUILD_FOR_MAC) || defined(ANDROID)
     return NULL;
 #else
@@ -521,7 +523,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     info->fBBox = SkIRect::MakeLTRB(face->bbox.xMin, face->bbox.yMax,
                                     face->bbox.xMax, face->bbox.yMin);
 
-    if (!canEmbed(face) || !FT_IS_SCALABLE(face) || 
+    if (!canEmbed(face) || !FT_IS_SCALABLE(face) ||
             info->fType == SkAdvancedTypefaceMetrics::kOther_Font) {
         perGlyphInfo = SkAdvancedTypefaceMetrics::kNo_PerGlyphInfo;
     }
@@ -552,7 +554,11 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
                         SkAdvancedTypefaceMetrics::WidthRange::kRange);
         } else {
             info->fGlyphWidths.reset(
-                getAdvanceData(face, face->num_glyphs, &getWidthAdvance));
+                getAdvanceData(face,
+                               face->num_glyphs,
+                               glyphIDs,
+                               glyphIDsCount,
+                               &getWidthAdvance));
         }
     }
 
@@ -588,6 +594,7 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     return info;
 #endif
 }
+
 ///////////////////////////////////////////////////////////////////////////
 
 static bool bothZero(SkScalar a, SkScalar b) {
@@ -622,7 +629,7 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         // to do subpixel, we must have at most slight hinting
         h = SkPaint::kSlight_Hinting;
     }
-#ifndef SK_IGNORE_ROTATED_FREETYPE_FIX 
+#ifndef SK_IGNORE_ROTATED_FREETYPE_FIX
     // rotated text looks bad with hinting, so we disable it as needed
     if (!isAxisAligned(*rec)) {
         h = SkPaint::kNo_Hinting;
