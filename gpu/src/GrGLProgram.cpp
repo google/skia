@@ -9,7 +9,6 @@
 
 #include "GrGLProgram.h"
 
-#include "GrBinHashKey.h"
 #include "GrGLConfig.h"
 
 #include "SkTrace.h"
@@ -163,11 +162,6 @@ void GrGLProgram::overrideBlend(GrBlendCoeff* srcCoeff,
             GrCrash("Unexpected dual source blend output");
             break;
     }
-}
-
-void GrGLProgram::buildKey(GrBinHashKeyBuilder& key) const {
-    // Add stage configuration to the key
-    key.keyData(reinterpret_cast<const uint32_t*>(&fProgramDesc), sizeof(ProgramDesc));
 }
 
 // assigns modulation of two vars to an output var

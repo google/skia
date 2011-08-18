@@ -77,72 +77,31 @@ class BogusEntry {};
 
 static void test_binHashKey()
 {
-    const char* testStringA = "abcdABCD";
-    const char* testStringB = "abcdBBCD";
+    const char* testStringA_ = "abcdABCD";
+    const char* testStringB_ = "abcdBBCD";
+    const uint32_t* testStringA = reinterpret_cast<const uint32_t*>(testStringA_);
+    const uint32_t* testStringB = reinterpret_cast<const uint32_t*>(testStringB_);
     enum {
         kDataLenUsedForKey = 8
     };
 
-    typedef GrBinHashKey<BogusEntry, kDataLenUsedForKey> KeyType;
+    class Entry {};
 
-    KeyType keyA;
-    int passCnt = 0;
-    while (keyA.doPass()) {
-        ++passCnt;
-        keyA.keyData(reinterpret_cast<const uint32_t*>(testStringA), kDataLenUsedForKey);
-    }
-    GrAssert(passCnt == 1); //We expect the static allocation to suffice
-    GrBinHashKey<BogusEntry, kDataLenUsedForKey-1> keyBust;
-    passCnt = 0;
-    while (keyBust.doPass()) {
-        ++passCnt;
-        // Exceed static storage by 1
-        keyBust.keyData(reinterpret_cast<const uint32_t*>(testStringA), kDataLenUsedForKey);
-    }
-    GrAssert(passCnt == 2); //We expect dynamic allocation to be necessary
-    GrAssert(keyA.getHash() == keyBust.getHash());
-
-    // Test that adding keyData in chunks gives
-    // the same hash as with one chunk
-    KeyType keyA2;
-    while (keyA2.doPass()) {
-        keyA2.keyData(reinterpret_cast<const uint32_t*>(testStringA), 4);
-        keyA2.keyData(&reinterpret_cast<const uint32_t*>(testStringA)[4], kDataLenUsedForKey-4);
-    }
+    GrBinHashKey<Entry, kDataLenUsedForKey> keyA;
+    keyA.setKeyData(testStringA);
+    // test copy constructor and comparison
+    GrBinHashKey<Entry, kDataLenUsedForKey> keyA2(keyA);
+    GrAssert(keyA.compare(keyA2) == 0);
     GrAssert(keyA.getHash() == keyA2.getHash());
-
-    KeyType keyB;
-    while (keyB.doPass()){
-        keyB.keyData(reinterpret_cast<const uint32_t*>(testStringB), kDataLenUsedForKey);
-    }
+    // test re-init
+    keyA2.setKeyData(testStringA);
+    GrAssert(keyA.compare(keyA2) == 0);
+    GrAssert(keyA.getHash() == keyA2.getHash());
+    // test sorting
+    GrBinHashKey<Entry, kDataLenUsedForKey> keyB;
+    keyB.setKeyData(testStringB);
     GrAssert(keyA.compare(keyB) < 0);
-    GrAssert(keyA.compare(keyA2) == 0);
-
-    //Test ownership tranfer and copying
-    keyB.copyAndTakeOwnership(keyA);
-    GrAssert(keyA.fIsValid == false);
-    GrAssert(keyB.fIsValid);
-    GrAssert(keyB.getHash() == keyA2.getHash());
-    GrAssert(keyB.compare(keyA2) == 0);
-    keyA.deepCopyFrom(keyB);
-    GrAssert(keyA.fIsValid);
-    GrAssert(keyB.fIsValid);
-    GrAssert(keyA.getHash() == keyA2.getHash());
-    GrAssert(keyA.compare(keyA2) == 0);
-
-    //Test ownership tranfer and copying with key on heap
-    GrBinHashKey<BogusEntry, kDataLenUsedForKey-1> keyBust2;
-    keyBust2.deepCopyFrom(keyBust);
-    GrAssert(keyBust.fIsValid);
-    GrAssert(keyBust2.fIsValid);
-    GrAssert(keyBust.getHash() == keyBust2.getHash());
-    GrAssert(keyBust.compare(keyBust2) == 0);
-    GrBinHashKey<BogusEntry, kDataLenUsedForKey-1> keyBust3;
-    keyBust3.deepCopyFrom(keyBust);
-    GrAssert(keyBust.fIsValid == false);
-    GrAssert(keyBust3.fIsValid);
-    GrAssert(keyBust3.getHash() == keyBust2.getHash());
-    GrAssert(keyBust3.compare(keyBust2) == 0);
+    GrAssert(keyA.getHash() != keyB.getHash());    
 }
 
 static void test_convex() {

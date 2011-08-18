@@ -24,18 +24,14 @@ class GrGpuGLShaders::ProgramCache : public ::GrNoncopyable {
 private:
     class Entry;
 
-#if GR_DEBUG
-    typedef GrBinHashKey<Entry, 4> ProgramHashKey; // Flex the dynamic allocation muscle in debug
-#else
-    typedef GrBinHashKey<Entry, 64> ProgramHashKey;
-#endif
+    typedef GrBinHashKey<Entry, GrGLProgram::kProgramKeySize> ProgramHashKey;
 
     class Entry : public ::GrNoncopyable {
     public:
         Entry() {}
         void copyAndTakeOwnership(Entry& entry) {
             fProgramData.copyAndTakeOwnership(entry.fProgramData);
-            fKey.copyAndTakeOwnership(entry.fKey); // ownership transfer
+            fKey = entry.fKey; // ownership transfer
             fLRUStamp = entry.fLRUStamp;
         }
 
@@ -84,9 +80,8 @@ public:
 
     GrGLProgram::CachedData* getProgramData(const GrGLProgram& desc) {
         Entry newEntry;
-        while (newEntry.fKey.doPass()) {
-            desc.buildKey(newEntry.fKey);
-        }
+        newEntry.fKey.setKeyData(desc.keyData());
+        
         Entry* entry = fHashCache.find(newEntry.fKey);
         if (NULL == entry) {
             if (!desc.genProgram(&newEntry.fProgramData)) {
