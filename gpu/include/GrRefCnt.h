@@ -18,8 +18,8 @@ typedef SkRefCnt GrRefCnt;
 typedef SkAutoRef GrAutoRef;
 typedef SkAutoUnref GrAutoUnref;
 
-static void GrSafeRef(const SkRefCnt* obj) { SkSafeRef(obj); }
-static void GrSafeUnref(const SkRefCnt* obj) { SkSafeUnref(obj); }
+#define GrSafeRef SkSafeRef
+#define GrSafeUnref SkSafeUnref
 #define GrSafeAssign(a, b)  SkRefCnt_SafeAssign(a, b)
 
 template<typename T>

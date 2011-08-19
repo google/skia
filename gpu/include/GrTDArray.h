@@ -12,6 +12,7 @@
 #define GrTDArray_DEFINED
 
 #include "GrTypes.h"
+#include "GrRefCnt.h"
 
 static int GrInitialArrayAllocationCount() {
     return 4;
