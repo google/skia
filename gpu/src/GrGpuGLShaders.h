@@ -19,7 +19,7 @@ class GrGpuGLProgram;
 // Programmable OpenGL or OpenGL ES 2.0
 class GrGpuGLShaders : public GrGpuGL {
 public:
-             GrGpuGLShaders();
+             GrGpuGLShaders(const GrGLInterface* glInterface);
     virtual ~GrGpuGLShaders();
 
     virtual void resetContext();
@@ -74,7 +74,8 @@ private:
     // flushes the edges for edge AA
     void flushEdgeAAData();
 
-    static void DeleteProgram(CachedData* programData);
+    static void DeleteProgram(const GrGLInterface* gl,
+                              CachedData* programData);
 
     void buildProgram(GrPrimitiveType type);
 

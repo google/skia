@@ -22,18 +22,21 @@
 
 GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 
+    const GrGLInterface* glInterface;
+
     if (kOpenGL_Shaders_GrEngine == engine ||
         kOpenGL_Fixed_GrEngine == engine) {
-        // If no GL bindings have been installed, fall-back to calling the
-        // GL functions that have been linked with the executable.
-        if (!GrGLGetGLInterface()) {
-            GrGLSetDefaultGLInterface();
-            // If there is no platform-default then just fail.
-            if (!GrGLGetGLInterface()) {
-                return NULL;
-            }
+        glInterface = reinterpret_cast<const GrGLInterface*>(context3D);
+        if (NULL == glInterface) {
+            glInterface = GrGLGetDefaultGLInterface();
         }
-        if (!GrGLGetGLInterface()->validate(engine)) {
+        if (NULL == glInterface) {
+#if GR_DEBUG
+            GrPrintf("No GL interface provided!");
+#endif
+            return NULL;
+        }
+        if (!glInterface->validate(engine)) {
 #if GR_DEBUG
             GrPrintf("Failed GL interface validation!");
 #endif
@@ -45,24 +48,12 @@ GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 
     switch (engine) {
         case kOpenGL_Shaders_GrEngine:
-            GrAssert(NULL == (void*)context3D);
-            {
-#if 0 // old code path, will be removed soon
-                gpu = new GrGpuGLShaders2;
-#else
-                gpu = new GrGpuGLShaders;
-#endif
-            }
+            GrAssert(NULL != glInterface);
+            gpu = new GrGpuGLShaders(glInterface);
             break;
         case kOpenGL_Fixed_GrEngine:
-            GrAssert(NULL == (void*)context3D);
-            gpu = new GrGpuGLFixed;
-            break;
-        case kDirect3D9_GrEngine:
-            GrAssert(NULL != (void*)context3D);
-#if GR_WIN32_BUILD
-//            gpu = new GrGpuD3D9((IDirect3DDevice9*)context3D);
-#endif
+            GrAssert(NULL != glInterface);
+            gpu = new GrGpuGLFixed(glInterface);
             break;
         default:
             GrAssert(!"unknown engine");

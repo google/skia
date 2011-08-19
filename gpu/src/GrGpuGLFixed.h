@@ -16,7 +16,7 @@
 // Fixed Pipeline OpenGL or OpenGL ES 1.x
 class GrGpuGLFixed : public GrGpuGL {
 public:
-             GrGpuGLFixed();
+             GrGpuGLFixed(const GrGLInterface* glInterface);
     virtual ~GrGpuGLFixed();
 
 protected:

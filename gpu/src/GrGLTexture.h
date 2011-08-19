@@ -20,11 +20,15 @@
 class GrGLTexID : public GrRefCnt {
 
 public:
-    GrGLTexID(GrGLuint texID, bool ownsID) : fTexID(texID), fOwnsID(ownsID) {}
+    GrGLTexID(const GrGLInterface* gl, GrGLuint texID, bool ownsID)
+        : fGL(gl)
+        , fTexID(texID)
+        , fOwnsID(ownsID) {
+    }
 
     virtual ~GrGLTexID() {
         if (0 != fTexID && fOwnsID) {
-            GR_GL(DeleteTextures(1, &fTexID));
+            GR_GL_CALL(fGL, DeleteTextures(1, &fTexID));
         }
     }
 
@@ -32,8 +36,9 @@ public:
     GrGLuint id() const { return fTexID; }
 
 private:
-    GrGLuint      fTexID;
-    bool          fOwnsID;
+    const GrGLInterface* fGL;
+    GrGLuint             fTexID;
+    bool                 fOwnsID;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +124,7 @@ public:
     // and it is up to the GrGpuGL derivative to handle y-mirroing.
     Orientation orientation() const { return fOrientation; }
 
-    static const GrGLenum* WrapMode2GLWrap();
+    static const GrGLenum* WrapMode2GLWrap(GrGLBinding binding);
 
 protected:
 

@@ -153,10 +153,12 @@ public:
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kRGBA_8888_GrPixelConfig;
-            GR_GL_GetIntegerv(GR_GL_STENCIL_BITS, &desc.fStencilBits);
-            GR_GL_GetIntegerv(GR_GL_SAMPLES, &desc.fSampleCnt);
+            const GrGLInterface* gl = GrGLGetDefaultGLInterface();
+            GrAssert(NULL != gl);
+            GR_GL_GetIntegerv(gl, GR_GL_STENCIL_BITS, &desc.fStencilBits);
+            GR_GL_GetIntegerv(gl, GR_GL_SAMPLES, &desc.fSampleCnt);
             GrGLint buffer;
-            GR_GL_GetIntegerv(GR_GL_FRAMEBUFFER_BINDING, &buffer);
+            GR_GL_GetIntegerv(gl, GR_GL_FRAMEBUFFER_BINDING, &buffer);
             desc.fPlatformRenderTarget = buffer;
 
             SkSafeUnref(fGrRenderTarget);

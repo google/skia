@@ -7,14 +7,13 @@
  */
 
 
-
 #include "GrTypes.h"
 #include "GrGLInterface.h"
 #include "GrGLDefines.h"
 
 #include <stdio.h>
 
-GrGLInterface* gGLInterface = NULL;
+static SkAutoTUnref<const GrGLInterface> gDefaultGLInterface;
 
 void gl_version_from_string(int* major, int* minor,
                             const char* versionString) {
@@ -84,32 +83,159 @@ bool has_gl_extension_from_string(const char* ext,
     return false;
 }
 
-GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface) {
-    gGLInterface = gl_interface;
+GR_API const GrGLInterface* GrGLSetDefaultGLInterface(const GrGLInterface* gl_interface) {
+    gl_interface->ref();
+    gDefaultGLInterface.reset(gl_interface);
+    return gl_interface;
 }
 
-GR_API GrGLInterface* GrGLGetGLInterface() {
-    return gGLInterface;
+GR_API const GrGLInterface* GrGLGetDefaultGLInterface() {
+    if (NULL == gDefaultGLInterface.get()) {
+        GrGLInitializeDefaultGLInterface();
+    }
+    return gDefaultGLInterface.get();
 }
 
-bool has_gl_extension(const char* ext) {
+bool has_gl_extension(const GrGLInterface* gl, const char* ext) {
     const char* glstr = reinterpret_cast<const char*>(
-                GrGLGetGLInterface()->fGetString(GR_GL_EXTENSIONS));
+                gl->fGetString(GR_GL_EXTENSIONS));
 
     return has_gl_extension_from_string(ext, glstr);
 }
 
-void gl_version(int* major, int* minor) {
+void gl_version(const GrGLInterface* gl, int* major, int* minor) {
     const char* v = reinterpret_cast<const char*>(
-                GrGLGetGLInterface()->fGetString(GR_GL_VERSION));
+                gl->fGetString(GR_GL_VERSION));
     gl_version_from_string(major, minor, v);
 }
 
-float gl_version_as_float() {
+float gl_version_as_float(const GrGLInterface* gl) {
     const char* v = reinterpret_cast<const char*>(
-                GrGLGetGLInterface()->fGetString(GR_GL_VERSION));
+                gl->fGetString(GR_GL_VERSION));
     return gl_version_as_float_from_string(v);
 }
+
+GrGLInterface::GrGLInterface() {
+    fBindingsExported = (GrGLBinding)0;
+    fNPOTRenderTargetSupport = kProbe_GrGLCapability;
+    fMinRenderTargetHeight = kProbe_GrGLCapability;
+    fMinRenderTargetWidth = kProbe_GrGLCapability;
+
+    fActiveTexture = NULL;
+    fAttachShader = NULL;
+    fBindAttribLocation = NULL;
+    fBindBuffer = NULL;
+    fBindTexture = NULL;
+    fBlendColor = NULL;
+    fBlendFunc = NULL;
+    fBufferData = NULL;
+    fBufferSubData = NULL;
+    fClear = NULL;
+    fClearColor = NULL;
+    fClearStencil = NULL;
+    fClientActiveTexture = NULL;
+    fColor4ub = NULL;
+    fColorMask = NULL;
+    fColorPointer = NULL;
+    fCompileShader = NULL;
+    fCompressedTexImage2D = NULL;
+    fCreateProgram = NULL;
+    fCreateShader = NULL;
+    fCullFace = NULL;
+    fDeleteBuffers = NULL;
+    fDeleteProgram = NULL;
+    fDeleteShader = NULL;
+    fDeleteTextures = NULL;
+    fDepthMask = NULL;
+    fDisable = NULL;
+    fDisableClientState = NULL;
+    fDisableVertexAttribArray = NULL;
+    fDrawArrays = NULL;
+    fDrawBuffer = NULL;
+    fDrawBuffers = NULL;
+    fDrawElements = NULL;
+    fEnable = NULL;
+    fEnableClientState = NULL;
+    fEnableVertexAttribArray = NULL;
+    fFrontFace = NULL;
+    fGenBuffers = NULL;
+    fGenTextures = NULL;
+    fGetBufferParameteriv = NULL;
+    fGetError = NULL;
+    fGetIntegerv = NULL;
+    fGetProgramInfoLog = NULL;
+    fGetProgramiv = NULL;
+    fGetShaderInfoLog = NULL;
+    fGetShaderiv = NULL;
+    fGetString = NULL;
+    fGetTexLevelParameteriv = NULL;
+    fGetUniformLocation = NULL;
+    fLineWidth = NULL;
+    fLinkProgram = NULL;
+    fLoadMatrixf = NULL;
+    fMatrixMode = NULL;
+    fPixelStorei = NULL;
+    fPointSize = NULL;
+    fReadBuffer = NULL;
+    fReadPixels = NULL;
+    fScissor = NULL;
+    fShadeModel = NULL;
+    fShaderSource = NULL;
+    fStencilFunc = NULL;
+    fStencilFuncSeparate = NULL;
+    fStencilMask = NULL;
+    fStencilMaskSeparate = NULL;
+    fStencilOp = NULL;
+    fStencilOpSeparate = NULL;
+    fTexCoordPointer = NULL;
+    fTexEnvi = NULL;
+    fTexImage2D = NULL;
+    fTexParameteri = NULL;
+    fTexSubImage2D = NULL;
+    fUniform1f = NULL;
+    fUniform1i = NULL;
+    fUniform1fv = NULL;
+    fUniform1iv = NULL;
+    fUniform2f = NULL;
+    fUniform2i = NULL;
+    fUniform2fv = NULL;
+    fUniform2iv = NULL;
+    fUniform3f = NULL;
+    fUniform3i = NULL;
+    fUniform3fv = NULL;
+    fUniform3iv = NULL;
+    fUniform4f = NULL;
+    fUniform4i = NULL;
+    fUniform4fv = NULL;
+    fUniform4iv = NULL;
+    fUniformMatrix2fv = NULL;
+    fUniformMatrix3fv = NULL;
+    fUniformMatrix4fv = NULL;
+    fUseProgram = NULL;
+    fVertexAttrib4fv = NULL;
+    fVertexAttribPointer = NULL;
+    fVertexPointer = NULL;
+    fViewport = NULL;
+    fBindFramebuffer = NULL;
+    fBindRenderbuffer = NULL;
+    fCheckFramebufferStatus = NULL;
+    fDeleteFramebuffers = NULL;
+    fDeleteRenderbuffers = NULL;
+    fFramebufferRenderbuffer = NULL;
+    fFramebufferTexture2D = NULL;
+    fGenFramebuffers = NULL;
+    fGenRenderbuffers = NULL;
+    fGetFramebufferAttachmentParameteriv = NULL;
+    fGetRenderbufferParameteriv = NULL;
+    fRenderbufferStorage = NULL;
+    fRenderbufferStorageMultisample = NULL;
+    fBlitFramebuffer = NULL;
+    fResolveMultisampleFramebuffer = NULL;
+    fMapBuffer = NULL;
+    fUnmapBuffer = NULL;
+    fBindFragDataLocationIndexed = NULL;
+}
+
 
 bool GrGLInterface::validateShaderFunctions() const {
     // required for GrGpuGLShaders
@@ -176,13 +302,12 @@ bool GrGLInterface::validateFixedFunctions() const {
 
 bool GrGLInterface::validate(GrEngine engine) const {
 
-    bool isDesktop = kDesktop_GrGLBinding == fBindingsExported;
+    bool isDesktop = this->supportsDesktop();
 
-    // ES1 and 2 can be supported in the same interface
-    bool isES = ((kES1_GrGLBinding | kES2_GrGLBinding) & fBindingsExported &&
-                 !(~(kES1_GrGLBinding | kES2_GrGLBinding) & fBindingsExported));
+    bool isES = this->supportsES();
     
-    if (!isDesktop && !isES) {
+    if (isDesktop == isES) {
+        // must have one, don't support both in same interface
         return false;
     }
 
@@ -261,7 +386,7 @@ bool GrGLInterface::validate(GrEngine engine) const {
     int major, minor;
     const char* ext;
 
-    gl_version(&major, &minor);
+    gl_version(this, &major, &minor);
     ext = (const char*)fGetString(GR_GL_EXTENSIONS);
 
     // Now check that baseline ES/Desktop fns not covered above are present

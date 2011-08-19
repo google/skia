@@ -173,13 +173,11 @@ static inline int16_t GrToS16(intptr_t x) {
 enum GrEngine {
     kOpenGL_Shaders_GrEngine,
     kOpenGL_Fixed_GrEngine,
-    kDirect3D9_GrEngine
 };
 
 /**
  * Engine-specific 3D context handle
- *      Unused for GL.
- *      IDirect3DDevice9* for D3D9
+ *      GrGLInterface* for OpenGL. If NULL will use the default GL interface.
  */
 typedef intptr_t GrPlatform3DContext;
 

@@ -10,14 +10,16 @@
 #include "GrGLConfig.h"
 #include "GrGLInterface.h"
 
-void GrGLClearErr() {
-    while (GR_GL_NO_ERROR != GrGLGetGLInterface()->fGetError()) {}
+void GrGLClearErr(const GrGLInterface* gl) {
+    while (GR_GL_NO_ERROR != gl->fGetError()) {}
 }
 
-void GrGLCheckErr(const char* location, const char* call) {
-    uint32_t err =  GrGLGetGLInterface()->fGetError();
+void GrGLCheckErr(const GrGLInterface* gl,
+                  const char* location,
+                  const char* call) {
+    uint32_t err = GR_GL_GET_ERROR(gl);
     if (GR_GL_NO_ERROR != err) {
-        GrPrintf("---- glGetError %x", err);
+        GrPrintf("---- glGetError %x", GR_GL_GET_ERROR(gl));
         if (NULL != location) {
             GrPrintf(" at\n\t%s", location);
         }
@@ -28,9 +30,9 @@ void GrGLCheckErr(const char* location, const char* call) {
     }
 }
 
-void GrGLRestoreResetRowLength() {
-    if (GR_GL_SUPPORT_DESKTOP) {
-        GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+void GrGLResetRowLength(const GrGLInterface* gl) {
+    if (gl->supportsDesktop()) {
+        GR_GL_CALL(gl, PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
     }
 }
 

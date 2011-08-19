@@ -13,6 +13,8 @@
 
 #define GPUGL static_cast<GrGpuGL*>(getGpu())
 
+#define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
+
 void GrGLRenderTarget::init(const Desc& desc,
                             const GrGLIRect& viewport,
                             GrGLTexID* texID) {
@@ -64,13 +66,13 @@ void GrGLRenderTarget::onRelease() {
     GPUGL->notifyRenderTargetDelete(this);
     if (fOwnIDs) {
         if (fTexFBOID) {
-            GR_GL(DeleteFramebuffers(1, &fTexFBOID));
+            GL_CALL(DeleteFramebuffers(1, &fTexFBOID));
         }
         if (fRTFBOID && fRTFBOID != fTexFBOID) {
-            GR_GL(DeleteFramebuffers(1, &fRTFBOID));
+            GL_CALL(DeleteFramebuffers(1, &fRTFBOID));
         }
         if (fMSColorRenderbufferID) {
-            GR_GL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
+            GL_CALL(DeleteRenderbuffers(1, &fMSColorRenderbufferID));
         }
     }
     fRTFBOID                = 0;
