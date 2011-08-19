@@ -23,17 +23,17 @@ struct GrGLIRect {
     GrGLsizei fWidth;
     GrGLsizei fHeight;
 
-    void pushToGLViewport() const {
-        GR_GL(Viewport(fLeft, fBottom, fWidth, fHeight));
+    void pushToGLViewport(const GrGLInterface* gl) const {
+        GR_GL_CALL(gl, Viewport(fLeft, fBottom, fWidth, fHeight));
     }
 
-    void pushToGLScissor() const {
-        GR_GL(Scissor(fLeft, fBottom, fWidth, fHeight));
+    void pushToGLScissor(const GrGLInterface* gl) const {
+        GR_GL_CALL(gl, Scissor(fLeft, fBottom, fWidth, fHeight));
     }
 
-    void setFromGLViewport() {
+    void setFromGLViewport(const GrGLInterface* gl) {
         GR_STATIC_ASSERT(sizeof(GrGLIRect) == 4*sizeof(GrGLint));
-        GR_GL_GetIntegerv(GR_GL_VIEWPORT, (GrGLint*) this);
+        GR_GL_GetIntegerv(gl, GR_GL_VIEWPORT, (GrGLint*) this);
     }
 
     // sometimes we have a GrIRect from the client that we

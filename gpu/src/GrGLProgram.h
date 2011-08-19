@@ -51,7 +51,8 @@ public:
      *  The result of heavy init is not stored in datamembers of GrGLProgam,
      *  but in a separate cacheable container.
      */
-    bool genProgram(CachedData* programData) const;
+    bool genProgram(const GrGLInterface* gl,
+                    CachedData* programData) const;
 
      /**
       * The shader may modify the blend coeffecients. Params are in/out
@@ -273,7 +274,8 @@ private:
 
     // should set all fields in locations var to kUseUniform if the
     // corresponding uniform is required for the program.
-    void genStageCode(int stageNum,
+    void genStageCode(const GrGLInterface* gl,
+                      int stageNum,
                       const ProgramDesc::StageDesc& desc,
                       const char* fsInColor, // NULL means no incoming color
                       const char* fsOutColor,
@@ -281,18 +283,21 @@ private:
                       ShaderCodeSegments* segments,
                       StageUniLocations* locations) const;
 
-    static bool CompileFSAndVS(const ShaderCodeSegments& segments, 
+    static bool CompileFSAndVS(const GrGLInterface* gl,
+                               const ShaderCodeSegments& segments, 
                                CachedData* programData);
 
     // Compiles a GL shader, returns shader ID or 0 if failed
     // params have same meaning as glShaderSource
-    static GrGLuint CompileShader(GrGLenum type, int stringCnt,
+    static GrGLuint CompileShader(const GrGLInterface* gl,
+                                  GrGLenum type, int stringCnt,
                                   const char** strings,
                                   int* stringLengths);
 
     // Creates a GL program ID, binds shader attributes to GL vertex attrs, and
     // links the program
     bool bindOutputsAttribsAndLinkProgram(
+                const GrGLInterface* gl,
                 GrStringBuilder texCoordAttrNames[GrDrawTarget::kMaxTexCoords],
                 bool bindColorOut,
                 bool bindDualSrcOut,
@@ -300,7 +305,8 @@ private:
 
     // Gets locations for all uniforms set to kUseUniform and initializes cache
     // to invalid values.
-    void getUniformLocationsAndInitCache(CachedData* programData) const;
+    void getUniformLocationsAndInitCache(const GrGLInterface* gl,
+                                         CachedData* programData) const;
 
     friend class GrGpuGLShaders;
 };

@@ -14,15 +14,13 @@
 #include <GL/glext.h>
 #include <GL/glu.h>
 
-#define GR_GL_GET_PROC(F) gDefaultInterface.f ## F = (GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC(F) defaultInterface->f ## F = (GrGL ## F ## Proc) \
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("gl" #F));
-#define GR_GL_GET_PROC_SUFFIX(F, S) gDefaultInterface.f ## F = (GrGL ## F ## Proc) \
+#define GR_GL_GET_PROC_SUFFIX(F, S) defaultInterface->f ## F = (GrGL ## F ## Proc) \
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("gl" #F #S));
 
-void GrGLSetDefaultGLInterface() {
-    static GrGLInterface gDefaultInterface;
-    static bool gDefaultInterfaceInit;
-    if (!gDefaultInterfaceInit && NULL != glXGetCurrentContext()) {
+void GrGLInitializeDefaultGLInterface() {
+    if (NULL != glXGetCurrentContext()) {
         int major, minor;
         const char* versionString = (const char*) glGetString(GL_VERSION);
         const char* extString = (const char*) glGetString(GL_EXTENSIONS);
@@ -33,82 +31,84 @@ void GrGLSetDefaultGLInterface() {
             return;
         }
 
-        gDefaultInterface.fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-        gDefaultInterface.fMinRenderTargetHeight = kProbe_GrGLCapability;
-        gDefaultInterface.fMinRenderTargetWidth = kProbe_GrGLCapability;
+        GrGLInterface* defaultInterface = new GrGLInterface();
 
-        gDefaultInterface.fActiveTexture = glActiveTexture;
+        defaultInterface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
+        defaultInterface->fMinRenderTargetHeight = kProbe_GrGLCapability;
+        defaultInterface->fMinRenderTargetWidth = kProbe_GrGLCapability;
+
+        defaultInterface->fActiveTexture = glActiveTexture;
         GR_GL_GET_PROC(AttachShader);
         GR_GL_GET_PROC(BindAttribLocation);
         GR_GL_GET_PROC(BindBuffer);
-        gDefaultInterface.fBindTexture = glBindTexture;
-        gDefaultInterface.fBlendColor = glBlendColor;
-        gDefaultInterface.fBlendFunc = glBlendFunc;
+        defaultInterface->fBindTexture = glBindTexture;
+        defaultInterface->fBlendColor = glBlendColor;
+        defaultInterface->fBlendFunc = glBlendFunc;
         GR_GL_GET_PROC(BufferData);
         GR_GL_GET_PROC(BufferSubData);
-        gDefaultInterface.fClear = glClear;
-        gDefaultInterface.fClearColor = glClearColor;
-        gDefaultInterface.fClearStencil = glClearStencil;
-        gDefaultInterface.fClientActiveTexture = glClientActiveTexture;
-        gDefaultInterface.fColorMask = glColorMask;
-        gDefaultInterface.fColorPointer = glColorPointer;
-        gDefaultInterface.fColor4ub = glColor4ub;
+        defaultInterface->fClear = glClear;
+        defaultInterface->fClearColor = glClearColor;
+        defaultInterface->fClearStencil = glClearStencil;
+        defaultInterface->fClientActiveTexture = glClientActiveTexture;
+        defaultInterface->fColorMask = glColorMask;
+        defaultInterface->fColorPointer = glColorPointer;
+        defaultInterface->fColor4ub = glColor4ub;
         GR_GL_GET_PROC(CompileShader);
-        gDefaultInterface.fCompressedTexImage2D = glCompressedTexImage2D;
+        defaultInterface->fCompressedTexImage2D = glCompressedTexImage2D;
         GR_GL_GET_PROC(CreateProgram);
         GR_GL_GET_PROC(CreateShader);
-        gDefaultInterface.fCullFace = glCullFace;
+        defaultInterface->fCullFace = glCullFace;
         GR_GL_GET_PROC(DeleteBuffers);
         GR_GL_GET_PROC(DeleteProgram);
         GR_GL_GET_PROC(DeleteShader);
-        gDefaultInterface.fDeleteTextures = glDeleteTextures;
-        gDefaultInterface.fDepthMask = glDepthMask;
-        gDefaultInterface.fDisable = glDisable;
-        gDefaultInterface.fDisableClientState = glDisableClientState;
+        defaultInterface->fDeleteTextures = glDeleteTextures;
+        defaultInterface->fDepthMask = glDepthMask;
+        defaultInterface->fDisable = glDisable;
+        defaultInterface->fDisableClientState = glDisableClientState;
         GR_GL_GET_PROC(DisableVertexAttribArray);
-        gDefaultInterface.fDrawArrays = glDrawArrays;
-        gDefaultInterface.fDrawBuffer = glDrawBuffer;
+        defaultInterface->fDrawArrays = glDrawArrays;
+        defaultInterface->fDrawBuffer = glDrawBuffer;
         GR_GL_GET_PROC(DrawBuffers);
-        gDefaultInterface.fDrawElements = glDrawElements;
-        gDefaultInterface.fEnable = glEnable;
-        gDefaultInterface.fEnableClientState = glEnableClientState;
+        defaultInterface->fDrawElements = glDrawElements;
+        defaultInterface->fEnable = glEnable;
+        defaultInterface->fEnableClientState = glEnableClientState;
         GR_GL_GET_PROC(EnableVertexAttribArray);
-        gDefaultInterface.fFrontFace = glFrontFace;
+        defaultInterface->fFrontFace = glFrontFace;
         GR_GL_GET_PROC(GenBuffers);
         GR_GL_GET_PROC(GetBufferParameteriv);
-        gDefaultInterface.fGetError = glGetError;
-        gDefaultInterface.fGetIntegerv = glGetIntegerv;
+        defaultInterface->fGetError = glGetError;
+        defaultInterface->fGetIntegerv = glGetIntegerv;
         GR_GL_GET_PROC(GetProgramInfoLog);
         GR_GL_GET_PROC(GetProgramiv);
         GR_GL_GET_PROC(GetShaderInfoLog);
         GR_GL_GET_PROC(GetShaderiv);
-        gDefaultInterface.fGetString = glGetString;
-        gDefaultInterface.fGetTexLevelParameteriv = glGetTexLevelParameteriv;
-        gDefaultInterface.fGenTextures = glGenTextures;
+        defaultInterface->fGetString = glGetString;
+        defaultInterface->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
+        defaultInterface->fGenTextures = glGenTextures;
         GR_GL_GET_PROC(GetUniformLocation);
-        gDefaultInterface.fLineWidth = glLineWidth;
+        defaultInterface->fLineWidth = glLineWidth;
         GR_GL_GET_PROC(LinkProgram);
-        gDefaultInterface.fLoadMatrixf = glLoadMatrixf;
+        defaultInterface->fLoadMatrixf = glLoadMatrixf;
         GR_GL_GET_PROC(MapBuffer);
-        gDefaultInterface.fMatrixMode = glMatrixMode;
-        gDefaultInterface.fPointSize = glPointSize;
-        gDefaultInterface.fPixelStorei = glPixelStorei;
-        gDefaultInterface.fReadBuffer = glReadBuffer;
-        gDefaultInterface.fReadPixels = glReadPixels;
-        gDefaultInterface.fScissor = glScissor;
-        gDefaultInterface.fShadeModel = glShadeModel;
+        defaultInterface->fMatrixMode = glMatrixMode;
+        defaultInterface->fPointSize = glPointSize;
+        defaultInterface->fPixelStorei = glPixelStorei;
+        defaultInterface->fReadBuffer = glReadBuffer;
+        defaultInterface->fReadPixels = glReadPixels;
+        defaultInterface->fScissor = glScissor;
+        defaultInterface->fShadeModel = glShadeModel;
         GR_GL_GET_PROC(ShaderSource);
-        gDefaultInterface.fStencilFunc = glStencilFunc;
+        defaultInterface->fStencilFunc = glStencilFunc;
         GR_GL_GET_PROC(StencilFuncSeparate);
-        gDefaultInterface.fStencilMask = glStencilMask;
+        defaultInterface->fStencilMask = glStencilMask;
         GR_GL_GET_PROC(StencilMaskSeparate);
-        gDefaultInterface.fStencilOp = glStencilOp;
+        defaultInterface->fStencilOp = glStencilOp;
         GR_GL_GET_PROC(StencilOpSeparate);
-        gDefaultInterface.fTexCoordPointer = glTexCoordPointer;
-        gDefaultInterface.fTexEnvi = glTexEnvi;
-        gDefaultInterface.fTexImage2D = glTexImage2D;
-        gDefaultInterface.fTexParameteri = glTexParameteri;
-        gDefaultInterface.fTexSubImage2D = glTexSubImage2D;
+        defaultInterface->fTexCoordPointer = glTexCoordPointer;
+        defaultInterface->fTexEnvi = glTexEnvi;
+        defaultInterface->fTexImage2D = glTexImage2D;
+        defaultInterface->fTexParameteri = glTexParameteri;
+        defaultInterface->fTexSubImage2D = glTexSubImage2D;
         GR_GL_GET_PROC(Uniform1f);
         GR_GL_GET_PROC(Uniform1i);
         GR_GL_GET_PROC(Uniform1fv);
@@ -132,8 +132,8 @@ void GrGLSetDefaultGLInterface() {
         GR_GL_GET_PROC(UseProgram);
         GR_GL_GET_PROC(VertexAttrib4fv);
         GR_GL_GET_PROC(VertexAttribPointer);
-        gDefaultInterface.fVertexPointer = glVertexPointer;
-        gDefaultInterface.fViewport = glViewport;
+        defaultInterface->fVertexPointer = glVertexPointer;
+        defaultInterface->fViewport = glViewport;
         GR_GL_GET_PROC(BindFragDataLocationIndexed);
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
@@ -180,10 +180,8 @@ void GrGLSetDefaultGLInterface() {
             // we must have FBOs
             return;
         }
-        gDefaultInterface.fBindingsExported = kDesktop_GrGLBinding;
+        defaultInterface->fBindingsExported = kDesktop_GrGLBinding;
 
-        gDefaultInterfaceInit = true;
+        GrGLSetDefaultGLInterface(defaultInterface)->unref();
     }
-    if (gDefaultInterfaceInit)
-        GrGLSetGLInterface(&gDefaultInterface);
 }

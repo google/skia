@@ -12,7 +12,7 @@
 #define GrGLInterface_DEFINED
 
 #include "GrGLConfig.h"
-#include "GrTypes.h"
+#include "GrRefCnt.h"
 
 #if !defined(GR_GL_FUNCTION_TYPE)
     #define GR_GL_FUNCTION_TYPE
@@ -32,28 +32,38 @@ bool has_gl_extension_from_string(const char* ext,
                                   const char* extensionString);
 
 // these variants call glGetString()
-bool has_gl_extension(const char* ext);
-void gl_version(int* major, int* minor);
-float gl_version_as_float();
+bool has_gl_extension(const GrGLInterface*, const char* ext);
+void gl_version(const GrGLInterface*, int* major, int* minor);
+float gl_version_as_float(const GrGLInterface*);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/*
- * Routines managing the global interface used to invoke OpenGL calls.
+/**
+ * Rather than depend on platform-specific GL headers and libraries, we require
+ * the client to provide a struct of GL function pointers. This struct can be
+ * specified per-GrContext as a parameter to GrContext::Create. If NULL is
+ * passed to Create then the "default" GL interface is used. If the default is
+ * also NULL GrContext creation will fail.
+ *
+ * The default interface is specified by calling GrGLSetDefaultInterface. If
+ * this function hasn't been called or was last called with NULL then
+ * GrGLInitializeDefaultGLInterface will be called to attempt to initialize it.
+ * There are several implementations of this function provided. Each builds a
+ * GrGLInterface for a specific platform and sets it as the default. There is
+ * also an implementation that does nothing. You can link in any of the provided
+ * implementations or your own implementation that sets up the GL function 
+ * pointers for your specific platform.
  */
-struct GrGLInterface;
-GR_API GrGLInterface* GrGLGetGLInterface();
-GR_API void GrGLSetGLInterface(GrGLInterface* gl_interface);
 
-/*
- * This is called when GrGLSetGLInterface() hasn't been called before creating
- * a GrGpuGL object. It provides a default implementation. The actual
- * implementation depends on which GrGLDefaultInterface_*.cpp has been linked.
- * There are some platform-specific implementations provided as well as
- * GrGLDefaultInterface_none.cpp which does nothing (effectively requiring an
- * explicit GrGLSetGLInterface call by the host).
- */
-void GrGLSetDefaultGLInterface();
+struct GrGLInterface;
+
+GR_API const GrGLInterface* GrGLGetDefaultGLInterface();
+// returns param so that you can unref it
+GR_API const GrGLInterface* GrGLSetDefaultGLInterface(const GrGLInterface* gl_interface);
+
+// If this is implemented it must allocate a GrGLInterface on the heap because
+// GrGLInterface subclasses SkRefCnt.
+void GrGLInitializeDefaultGLInterface();
 
 typedef unsigned int GrGLenum;
 typedef unsigned char GrGLboolean;
@@ -220,8 +230,24 @@ enum GrGLCapability {
  * functions, and extensions.  The system assumes that the address of the
  * extension pointer will be valid across contexts.
  */
-struct GrGLInterface {
+struct GR_API GrGLInterface : public GrRefCnt {
+
+    GrGLInterface();
+
     bool validate(GrEngine engine) const;
+    bool supportsDesktop() const {
+        return 0 != (kDesktop_GrGLBinding & fBindingsExported);
+    }
+    bool supportsES1() const {
+        return 0 != (kES1_GrGLBinding & fBindingsExported);
+    }
+    bool supportsES2() const {
+        return 0 !=  (kES2_GrGLBinding & fBindingsExported);
+    }
+    bool supportsES() const {
+        return 0 != ((kES1_GrGLBinding | kES2_GrGLBinding) &
+                        fBindingsExported);
+    }
 
     // Indicator variable specifying the type of GL implementation
     // exported:  GLES{1|2} or Desktop.
@@ -361,11 +387,6 @@ struct GrGLInterface {
 
     // Dual Source Blending
     GrGLBindFragDataLocationIndexedProc fBindFragDataLocationIndexed;
-
-    // Code that initializes this struct using a static initializer should
-    // make this the last entry in the static initializer. It can help to guard
-    // against failing to initialize newly-added members of this struct.
-    enum { kStaticInitEndGuard } fStaticInitEndGuard;
 
 private:
     bool validateShaderFunctions() const;

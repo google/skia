@@ -7,5 +7,5 @@
  */
 
 
-void GrGLSetDefaultGLInterface() {
+void GrGLInitializeDefaultGLInterface() {
 }

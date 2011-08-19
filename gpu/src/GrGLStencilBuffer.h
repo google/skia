@@ -32,39 +32,20 @@ public:
         , fRenderbufferID(rbid) {
     }
 
-    virtual ~GrGLStencilBuffer() {
-        this->release();
-    }
+    virtual ~GrGLStencilBuffer();
 
-    virtual size_t sizeInBytes() const {
-        uint64_t size = this->width();
-        size *= this->height();
-        size *= fFormat.fTotalBits;
-        size *= GrMax(1,this->numSamples());
-        return (size_t)(size / 8);
-    }
+    virtual size_t sizeInBytes() const;
 
     GrGLuint renderbufferID() const {
         return fRenderbufferID;
     }
 
-    const Format& format() const {
-        return fFormat;
-    }
+    const Format& format() const { return fFormat; }
 
 protected:
-    virtual void onRelease() {
-        if (0 != fRenderbufferID) {
-            GR_GL(DeleteRenderbuffers(1, &fRenderbufferID));
-            fRenderbufferID = 0;
-        }
-        INHERITED::onRelease();
-    }
+    virtual void onRelease();
 
-    virtual void onAbandon() {
-        fRenderbufferID = 0;
-        INHERITED::onAbandon();
-    }
+    virtual void onAbandon();
 
 private:
     Format fFormat;

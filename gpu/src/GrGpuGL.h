@@ -24,8 +24,11 @@ class GrGpuGL : public GrGpu {
 public:
     virtual ~GrGpuGL();
 
+    const GrGLInterface* glInterface() const { return fGL; }
+    GrGLBinding glBinding() const { return fGLBinding; }
+
 protected:
-    GrGpuGL();
+    GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
 
     struct {
         size_t                  fVertexOffset;
@@ -224,6 +227,9 @@ private:
     // we record what stencil format worked last time to hopefully exit early
     // from our loop that tries stencil formats and calls check fb status.
     int fLastSuccessfulStencilFmtIdx;
+
+    const GrGLInterface* fGL;
+    GrGLBinding fGLBinding;
 
     typedef GrGpu INHERITED;
 };

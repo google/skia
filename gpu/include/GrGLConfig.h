@@ -149,39 +149,49 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-extern void GrGLCheckErr(const char* location, const char* call);
+struct GrGLInterface;
 
-extern void GrGLClearErr();
+extern void GrGLCheckErr(const GrGLInterface* gl,
+                         const char* location,
+                         const char* call);
+
+extern void GrGLClearErr(const GrGLInterface* gl);
 
 #if GR_GL_CHECK_ERROR
     extern bool gCheckErrorGL;
-    #define GR_GL_CHECK_ERROR_IMPL(X) if (gCheckErrorGL) GrGLCheckErr(GR_FILE_AND_LINE_STR, #X)
+    #define GR_GL_CHECK_ERROR_IMPL(IFACE, X)                    \
+        if (gCheckErrorGL)                                      \
+            GrGLCheckErr(IFACE, GR_FILE_AND_LINE_STR, #X)
 #else
-    #define GR_GL_CHECK_ERROR_IMPL(X)
+    #define GR_GL_CHECK_ERROR_IMPL(IFACE, X)
 #endif
 
 #if GR_GL_LOG_CALLS
     extern bool gLogCallsGL;
-    #define GR_GL_LOG_CALLS_IMPL(X) if (gLogCallsGL) GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
+    #define GR_GL_LOG_CALLS_IMPL(X)
+        if (gLogCallsGL)                                        \
+            GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
 #else
     #define GR_GL_LOG_CALLS_IMPL(X)
 #endif
 
-#define GR_GL(X)                 GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X); GR_GL_CHECK_ERROR_IMPL(X);
-#define GR_GL_NO_ERR(X)          GrGLGetGLInterface()->f##X;; GR_GL_LOG_CALLS_IMPL(X);
+#define GR_GL_CALL(IFACE, X)                                    \
+    GR_GL_CALL_NOERRCHECK(IFACE, X)                             \
+    GR_GL_CHECK_ERROR_IMPL(IFACE, X)
 
-#define GR_GL_SUPPORT_DESKTOP   (kDesktop_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
-#define GR_GL_SUPPORT_ES1       (kES1_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
-#define GR_GL_SUPPORT_ES2       (kES2_GrGLBinding == GrGLGetGLInterface()->fBindingsExported)
-#define GR_GL_SUPPORT_ES        (GR_GL_SUPPORT_ES1 || GR_GL_SUPPORT_ES2)
+#define GR_GL_CALL_NOERRCHECK(IFACE, X)                         \
+    IFACE->f##X;                                                \
+    GR_GL_LOG_CALLS_IMPL(X);
+
+#define GR_GL_GET_ERROR(IFACE) (IFACE)->fGetError()
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- *  GrGLRestoreResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
+ *  GrGLResetRowLength() will reset GL_UNPACK_ROW_LENGTH to 0. We write
  *  this wrapper, since GL_UNPACK_ROW_LENGTH is not available on all GL versions
  */
-extern void GrGLRestoreResetRowLength();
+extern void GrGLResetRowLength(const GrGLInterface*);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -189,28 +199,28 @@ extern void GrGLRestoreResetRowLength();
  *  Some drivers want the var-int arg to be zero-initialized on input.
  */
 #define GR_GL_INIT_ZERO     0
-#define GR_GL_GetIntegerv(e, p)     \
+#define GR_GL_GetIntegerv(gl, e, p)     \
     do {                            \
         *(p) = GR_GL_INIT_ZERO;     \
-        GR_GL(GetIntegerv(e, p));   \
+        GR_GL_CALL(gl, GetIntegerv(e, p));   \
     } while (0)
 
-#define GR_GL_GetFramebufferAttachmentParameteriv(t, a, pname, p)   \
-    do {                                                            \
-        *(p) = GR_GL_INIT_ZERO;                                     \
-        GR_GL(GetFramebufferAttachmentParameteriv(t, a, pname, p)); \
+#define GR_GL_GetFramebufferAttachmentParameteriv(gl, t, a, pname, p)           \
+    do {                                                                        \
+        *(p) = GR_GL_INIT_ZERO;                                                 \
+        GR_GL_CALL(gl, GetFramebufferAttachmentParameteriv(t, a, pname, p));    \
     } while (0)
 
-#define GR_GL_GetRenderbufferParameteriv(t, pname, p)    \
-    do {                                                 \
-        *(p) = GR_GL_INIT_ZERO;                          \
-        GR_GL(GetRenderbufferParameteriv(t, pname, p));  \
+#define GR_GL_GetRenderbufferParameteriv(gl, t, pname, p)                       \
+    do {                                                                        \
+        *(p) = GR_GL_INIT_ZERO;                                                 \
+        GR_GL_CALL(gl, GetRenderbufferParameteriv(t, pname, p));                \
     } while (0)
 
-#define GR_GL_GetTexLevelParameteriv(t, l, pname, p)    \
-    do {                                                \
-        *(p) = GR_GL_INIT_ZERO;                         \
-        GR_GL(GetTexLevelParameteriv(t, l, pname, p));  \
+#define GR_GL_GetTexLevelParameteriv(gl, t, l, pname, p)                        \
+    do {                                                                        \
+        *(p) = GR_GL_INIT_ZERO;                                                 \
+        GR_GL_CALL(gl, GetTexLevelParameteriv(t, l, pname, p));                 \
     } while (0)
 
 ////////////////////////////////////////////////////////////////////////////////

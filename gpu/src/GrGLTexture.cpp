@@ -13,7 +13,9 @@
 
 #define GPUGL static_cast<GrGpuGL*>(getGpu())
 
-const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
+#define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
+
+const GrGLenum* GrGLTexture::WrapMode2GLWrap(GrGLBinding binding) {
     static const GrGLenum mirrorRepeatModes[] = {
         GR_GL_CLAMP_TO_EDGE,
         GR_GL_REPEAT,
@@ -26,7 +28,7 @@ const GrGLenum* GrGLTexture::WrapMode2GLWrap() {
         GR_GL_REPEAT
     };
 
-    if (GR_GL_SUPPORT_ES1 && !GR_GL_SUPPORT_ES2) {
+    if (kES1_GrGLBinding == binding) {
         return repeatModes;  // GL_MIRRORED_REPEAT not supported.
     } else {
         return mirrorRepeatModes;
@@ -41,7 +43,8 @@ void GrGLTexture::init(GrGpuGL* gpu,
     GrAssert(0 != textureDesc.fTextureID);
 
     fTexParams          = initialTexParams;
-    fTexIDObj           = new GrGLTexID(textureDesc.fTextureID,
+    fTexIDObj           = new GrGLTexID(GPUGL->glInterface(),
+                                        textureDesc.fTextureID,
                                         textureDesc.fOwnsID);
     fUploadFormat       = textureDesc.fUploadFormat;
     fUploadByteCount    = textureDesc.fUploadByteCount;
@@ -132,10 +135,10 @@ void GrGLTexture::uploadTextureData(int x,
      */
     bool restoreGLRowLength = false;
     bool flipY = kBottomUp_Orientation == fOrientation;
-    if (GR_GL_SUPPORT_DESKTOP && !flipY) {
+    if (kDesktop_GrGLBinding == GPUGL->glBinding() && !flipY) {
         // can't use this for flipping, only non-neg values allowed. :(
         if (srcData && rowBytes) {
-            GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
+            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH,
                               rowBytes / fUploadByteCount));
             restoreGLRowLength = true;
         }
@@ -166,14 +169,14 @@ void GrGLTexture::uploadTextureData(int x,
     if (flipY) {
         y = this->height() - (y + height);
     }
-    GR_GL(BindTexture(GR_GL_TEXTURE_2D, fTexIDObj->id()));
-    GR_GL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, fUploadByteCount));
-    GR_GL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height,
-                        fUploadFormat, fUploadType, srcData));
+    GL_CALL(BindTexture(GR_GL_TEXTURE_2D, fTexIDObj->id()));
+    GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, fUploadByteCount));
+    GL_CALL(TexSubImage2D(GR_GL_TEXTURE_2D, 0, x, y, width, height,
+                          fUploadFormat, fUploadType, srcData));
 
-    if (GR_GL_SUPPORT_DESKTOP) {
+    if (kDesktop_GrGLBinding == GPUGL->glBinding()) {
         if (restoreGLRowLength) {
-            GR_GL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
+            GL_CALL(PixelStorei(GR_GL_UNPACK_ROW_LENGTH, 0));
         }
     }
 }
