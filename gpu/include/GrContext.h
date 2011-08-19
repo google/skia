@@ -12,6 +12,9 @@
 
 #include "GrClip.h"
 #include "GrPaint.h"
+// not strictly needed but requires WK change in LayerTextureUpdaterCanvas to
+// remove.
+#include "GrRenderTarget.h" 
 
 class GrDefaultPathRenderer;
 class GrDrawTarget;
@@ -27,7 +30,6 @@ class GrResourceCache;
 class GrStencilBuffer;
 class GrVertexBuffer;
 class GrVertexBufferAllocPool;
-
 
 class GR_API GrContext : public GrRefCnt {
 public:
