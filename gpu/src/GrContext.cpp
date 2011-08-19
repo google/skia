@@ -61,11 +61,11 @@ GrContext::~GrContext() {
     delete fDrawBuffer;
     delete fDrawBufferVBAllocPool;
     delete fDrawBufferIBAllocPool;
-    GrSafeUnref(fDefaultPathRenderer);
-    GrSafeUnref(fCustomPathRenderer);
+
     GrSafeUnref(fAAFillRectIndexBuffer);
     GrSafeUnref(fAAStrokeRectIndexBuffer);
     fGpu->unref();
+    GrSafeUnref(fPathRendererChain);
 }
 
 void GrContext::contextLost() {
@@ -77,6 +77,10 @@ void GrContext::contextDestroyed() {
     // abandon first to so destructors
     // don't try to free the resources in the API.
     fGpu->abandonResources();
+
+    // a path renderer may be holding onto resources that
+    // are now unusable
+    GrSafeSetNull(fPathRendererChain);
 
     delete fDrawBuffer;
     fDrawBuffer = NULL;
@@ -103,6 +107,8 @@ void GrContext::freeGpuResources() {
     this->flush();
     fTextureCache->removeAll();
     fFontCache->freeAll();
+    // a path renderer may be holding onto resources
+    GrSafeSetNull(fPathRendererChain);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1411,7 +1417,12 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                          GrPathFill fill, const GrPoint* translate) {
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
-    GrPathRenderer* pr = this->getPathRenderer(path, fill);
+    GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
+    if (NULL == pr) {
+        GrPrintf("Unable to find path renderer compatible with path.\n");
+        return;
+    }
+
     GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, translate);
     GrDrawTarget::StageBitfield stageMask = paint.getActiveStageMask();
 
@@ -1658,6 +1669,16 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
     return target;
 }
 
+GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
+                                           const GrPath& path,
+                                           GrPathFill fill) {
+    if (NULL == fPathRendererChain) {
+        fPathRendererChain = 
+            new GrPathRendererChain(this, GrPathRendererChain::kNone_UsageFlag);
+    }
+    return fPathRendererChain->getPathRenderer(target, path, fill);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrContext::setRenderTarget(GrRenderTarget* target) {
@@ -1712,11 +1733,7 @@ GrContext::GrContext(GrGpu* gpu) {
     fGpu->ref();
     fGpu->setContext(this);
 
-    fDefaultPathRenderer = 
-        new GrDefaultPathRenderer(gpu->supportsTwoSidedStencil(),
-                                  gpu->supportsStencilWrapOps());
-    fCustomPathRenderer = GrPathRenderer::CreatePathRenderer();
-    fGpu->setClipPathRenderer(fCustomPathRenderer);
+    fPathRendererChain = NULL;
 
     fTextureCache = new GrResourceCache(MAX_TEXTURE_CACHE_COUNT,
                                         MAX_TEXTURE_CACHE_BYTES);
@@ -1778,17 +1795,6 @@ GrDrawTarget* GrContext::getTextTarget(const GrPaint& paint) {
 
 const GrIndexBuffer* GrContext::getQuadIndexBuffer() const {
     return fGpu->getQuadIndexBuffer();
-}
-
-GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
-                                           GrPathFill fill) {
-    if (NULL != fCustomPathRenderer &&
-        fCustomPathRenderer->canDrawPath(path, fill)) {
-        return fCustomPathRenderer;
-    } else {
-        GrAssert(fDefaultPathRenderer->canDrawPath(path, fill));
-        return fDefaultPathRenderer;
-    }
 }
 
 void GrContext::convolveInX(GrTexture* texture,

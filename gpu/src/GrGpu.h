@@ -11,13 +11,14 @@
 #define GrGpu_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrPathRenderer.h"
 #include "GrRect.h"
 #include "GrRefCnt.h"
 #include "GrTexture.h"
 
 class GrContext;
 class GrIndexBufferAllocPool;
+class GrPathRenderer;
+class GrPathRendererChain;
 class GrResource;
 class GrStencilBuffer;
 class GrVertexBufferAllocPool;
@@ -257,14 +258,6 @@ public:
     int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
 
     virtual void clear(const GrIRect* rect, GrColor color);
-
-    /**
-     * Installs a path renderer that will be used to draw paths that are
-     * part of the clip.
-     */
-    void setClipPathRenderer(GrPathRenderer* pathRenderer) {
-        GrSafeAssign(fClientPathRenderer, pathRenderer);
-    }
 
     /**
      * Returns an index buffer that can be used to render quads.
@@ -520,8 +513,9 @@ private:
     mutable GrVertexBuffer*     fUnitSquareVertexBuffer; // mutable so it can be
                                                          // created on-demand
 
-    GrDefaultPathRenderer*      fDefaultPathRenderer;
-    GrPathRenderer*             fClientPathRenderer;
+    // must be instantiated after GrGpu object has been given its owning
+    // GrContext ptr. (GrGpu is constructed first then handed off to GrContext).
+    GrPathRendererChain*        fPathRendererChain;
 
     bool                        fContextIsDirty;
 

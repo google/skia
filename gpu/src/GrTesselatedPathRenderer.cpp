@@ -608,8 +608,8 @@ void GrTesselatedPathRenderer::drawPathToStencil() {
     GrAlwaysAssert(!"multipass stencil should not be needed");
 }
 
-bool GrTesselatedPathRenderer::supportsAA(GrDrawTarget* target,
-                                                  const SkPath& path,
-                                                  GrPathFill fill) {
+bool GrTesselatedPathRenderer::supportsAA(const GrDrawTarget* target,
+                                          const SkPath& path,
+                                          GrPathFill fill) {
     return true;
 }

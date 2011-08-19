@@ -16,7 +16,6 @@
 // remove.
 #include "GrRenderTarget.h" 
 
-class GrDefaultPathRenderer;
 class GrDrawTarget;
 class GrFontCache;
 class GrGpu;
@@ -25,6 +24,7 @@ class GrIndexBuffer;
 class GrIndexBufferAllocPool;
 class GrInOrderDrawBuffer;
 class GrPathRenderer;
+class GrPathRendererChain;
 class GrResourceEntry;
 class GrResourceCache;
 class GrStencilBuffer;
@@ -556,8 +556,7 @@ private:
     GrResourceCache*    fTextureCache;
     GrFontCache*        fFontCache;
 
-    GrPathRenderer*         fCustomPathRenderer;
-    GrDefaultPathRenderer*  fDefaultPathRenderer;
+    GrPathRendererChain*        fPathRendererChain;
 
     GrVertexBufferAllocPool*    fDrawBufferVBAllocPool;
     GrIndexBufferAllocPool*     fDrawBufferIBAllocPool;
@@ -592,9 +591,9 @@ private:
 
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
-    void drawClipIntoStencil();
-
-    GrPathRenderer* getPathRenderer(const GrPath&, GrPathFill);
+    GrPathRenderer* getPathRenderer(const GrDrawTarget* target,
+                                    const GrPath& path,
+                                    GrPathFill fill);
 
     struct OffscreenRecord;
 
