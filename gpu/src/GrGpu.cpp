@@ -40,8 +40,7 @@ GrGpu::GrGpu()
     , fGeomPoolStateStack(&fGeoSrcStateStackStorage)
     , fQuadIndexBuffer(NULL)
     , fUnitSquareVertexBuffer(NULL)
-    , fDefaultPathRenderer(NULL)
-    , fClientPathRenderer(NULL)
+    , fPathRendererChain(NULL)
     , fContextIsDirty(true)
     , fResourceHead(NULL) {
 
@@ -62,8 +61,6 @@ GrGpu::GrGpu()
 
 GrGpu::~GrGpu() {
     this->releaseResources();
-    GrSafeUnref(fDefaultPathRenderer);
-    GrSafeUnref(fClientPathRenderer);
 }
 
 void GrGpu::abandonResources() {
@@ -81,6 +78,8 @@ void GrGpu::abandonResources() {
     fVertexPool = NULL;
     delete fIndexPool;
     fIndexPool = NULL;
+    // in case path renderer has any GrResources, start from scratch
+    GrSafeSetNull(fPathRendererChain);
 }
 
 void GrGpu::releaseResources() {
@@ -98,6 +97,8 @@ void GrGpu::releaseResources() {
     fVertexPool = NULL;
     delete fIndexPool;
     fIndexPool = NULL;
+    // in case path renderer has any GrResources, start from scratch
+    GrSafeSetNull(fPathRendererChain);
 }
 
 void GrGpu::insertResource(GrResource* resource) {
@@ -521,6 +522,11 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     fill = NonInvertedFill(fill);
                     clipPath = &clip.getPath(c);
                     pr = this->getClipPathRenderer(*clipPath, fill);
+                    if (NULL == pr) {
+                        fClipInStencil = false;
+                        fClip = clip;
+                        return false;
+                    }
                     canRenderDirectToStencil =
                         !pr->requiresStencilPass(this, *clipPath, fill);
                     arp.set(pr, this, clipPath, fill, NULL);
@@ -602,18 +608,12 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
 
 GrPathRenderer* GrGpu::getClipPathRenderer(const GrPath& path,
                                            GrPathFill fill) {
-    if (NULL != fClientPathRenderer &&
-        fClientPathRenderer->canDrawPath(path, fill)) {
-            return fClientPathRenderer;
-    } else {
-        if (NULL == fDefaultPathRenderer) {
-            fDefaultPathRenderer =
-                new GrDefaultPathRenderer(this->supportsTwoSidedStencil(),
-                                          this->supportsStencilWrapOps());
-        }
-        GrAssert(fDefaultPathRenderer->canDrawPath(path, fill));
-        return fDefaultPathRenderer;
+    if (NULL == fPathRendererChain) {
+        fPathRendererChain = 
+            new GrPathRendererChain(this->getContext(),
+                                    GrPathRendererChain::kNonAAOnly_UsageFlag);
     }
+    return fPathRendererChain->getPathRenderer(this, path, fill);
 }
 
 

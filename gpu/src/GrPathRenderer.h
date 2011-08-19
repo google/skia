@@ -11,9 +11,11 @@
 #define GrPathRenderer_DEFINED
 
 #include "GrDrawTarget.h"
-#include "SkTemplates.h"
+#include "GrTArray.h"
+#include "GrPathRendererChain.h"
 
 class SkPath;
+
 struct GrPoint;
 
 /**
@@ -29,6 +31,23 @@ struct GrPoint;
  */
 class GR_API GrPathRenderer : public GrRefCnt {
 public:
+
+    /**
+     * This is called to install custom path renderers in every GrContext at
+     * create time. The default implementation in GrCreatePathRenderer_none.cpp
+     * does not add any additional renderers. Link against another
+     * implementation to install your own. The most recently added is the
+     * most preferred path renderer.
+     *
+     * @param context   the context that will use the path renderer
+     * @param flags     flags indicating how path renderers will be used
+     * @param prChain   the chain to add path renderers to.
+     */
+    static void AddPathRenderers(GrContext* context,
+                                 GrPathRendererChain::UsageFlags flags,
+                                 GrPathRendererChain* prChain);
+
+
     GrPathRenderer(void);
     /**
      * Returns true if this path renderer is able to render the path.
@@ -71,7 +90,7 @@ public:
      * having FSAA enabled for a render target). Target is provided to
      * communicate the draw state (blend mode, stage settings, etc).
      */
-    virtual bool supportsAA(GrDrawTarget* target,
+    virtual bool supportsAA(const GrDrawTarget* target,
                             const SkPath& path,
                             GrPathFill fill) { return false; }
 
@@ -134,13 +153,6 @@ public:
     virtual void drawPathToStencil() {
         GrCrash("Unexpected call to drawPathToStencil.");
     }
-
-    /**
-     * This is called to install a custom path renderer in every GrContext at
-     * create time. The default implementation in GrCreatePathRenderer_none.cpp
-     * returns NULL. Link against another implementation to install your own.
-     */
-    static GrPathRenderer* CreatePathRenderer();
 
     /**
      * Multiply curve tolerance by the given value, increasing or decreasing
@@ -206,50 +218,6 @@ protected:
 private:
 
     typedef GrRefCnt INHERITED;
-};
-
-/**
- *  Subclass that renders the path using the stencil buffer to resolve fill
- *  rules (e.g. winding, even-odd)
- */
-class GR_API GrDefaultPathRenderer : public GrPathRenderer {
-public:
-    GrDefaultPathRenderer(bool separateStencilSupport,
-                          bool stencilWrapOpsSupport);
-
-    virtual bool canDrawPath(const SkPath& path,
-                             GrPathFill fill) const { return true; }
-
-    virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     const SkPath& path,
-                                     GrPathFill fill) const;
-
-    virtual void drawPath(GrDrawTarget::StageBitfield stages);
-    virtual void drawPathToStencil();
-
-protected:
-    virtual void pathWillClear();
-
-private:
-
-    void onDrawPath(GrDrawTarget::StageBitfield stages, bool stencilOnly);
-
-    bool createGeom(GrScalar srcSpaceTol,
-                    GrDrawTarget::StageBitfield stages);
-
-    bool    fSeparateStencil;
-    bool    fStencilWrapOps;
-
-    int                         fSubpathCount;
-    SkAutoSTMalloc<8, uint16_t> fSubpathVertCount;
-    int                         fIndexCnt;
-    int                         fVertexCnt;
-    GrScalar                    fPreviousSrcTol;
-    GrDrawTarget::StageBitfield fPreviousStages;
-    GrPrimitiveType             fPrimitiveType;
-    bool                        fUseIndexedDraw;
-
-    typedef GrPathRenderer INHERITED;
 };
 
 #endif
