@@ -15,7 +15,10 @@
 #define SK_GL_GET_PROC(T, F) F ## _func = (T)OSMesaGetProcAddress(#F);
 #define SK_GL_GET_EXT_PROC(T, F) F ## _func = (T)OSMesaGetProcAddress(#F "EXT");
 
-SkEGLContext::SkEGLContext() : context(NULL), image(NULL) {
+SkEGLContext::SkEGLContext()
+    : fFBO(0)
+    , context(NULL)
+    , image(NULL) {
 }
 
 SkEGLContext::~SkEGLContext() {
@@ -110,11 +113,10 @@ bool SkEGLContext::init(const int width, const int height) {
       return false;
     }
     
-    GLuint fboID;
     GLuint cbID;
     GLuint dsID;
-    glGenFramebuffers_func(1, &fboID);
-    glBindFramebuffer_func(GL_FRAMEBUFFER, fboID);
+    glGenFramebuffers_func(1, &fFBO);
+    glBindFramebuffer_func(GL_FRAMEBUFFER, fFBO);
     
     glGenRenderbuffers_func(1, &cbID);
     glBindRenderbuffer_func(GL_RENDERBUFFER, cbID);

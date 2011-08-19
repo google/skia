@@ -82,7 +82,6 @@ protected:
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,
                                                bool dynamic);
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc);
-    virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState();
     virtual bool createStencilBufferForRenderTarget(GrRenderTarget* rt,
                                                     int width, int height);
     virtual bool attachStencilBufferToRenderTarget(GrStencilBuffer* sb,

@@ -548,10 +548,6 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
     return fGpu->createPlatformSurface(desc);
 }
 
-GrRenderTarget* GrContext::createRenderTargetFrom3DApiState() {
-    return fGpu->createRenderTargetFrom3DApiState();
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,

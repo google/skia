@@ -196,11 +196,6 @@ bool GrGpu::attachStencilBufferToRenderTarget(GrRenderTarget* rt) {
     }
 }
 
-GrRenderTarget* GrGpu::createRenderTargetFrom3DApiState() {
-    this->handleDirtyContext();
-    return this->onCreateRenderTargetFrom3DApiState();
-}
-
 GrResource* GrGpu::createPlatformSurface(const GrPlatformSurfaceDesc& desc) {
     this->handleDirtyContext();
     return this->onCreatePlatformSurface(desc);

@@ -23,7 +23,7 @@
 #endif
 
 /**
- *  Create an offscreen opengl context
+ *  Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
  */
 class SkEGLContext {
 public:
@@ -32,7 +32,10 @@ public:
 
     bool init(const int width, const int height);
 
+    int getFBOID() const { return fFBO; }
+
 private:
+    GLuint fFBO;
 #if defined(SK_MESA)
     OSMesaContext context;
     GLfloat *image;

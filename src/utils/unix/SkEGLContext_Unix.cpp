@@ -23,7 +23,12 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
     return 0;
 }
 
-SkEGLContext::SkEGLContext() : context(NULL), display(NULL), pixmap(0), glxPixmap(0) {
+SkEGLContext::SkEGLContext() 
+    : fFBO(0)
+    , context(NULL)
+    , display(NULL)
+    , pixmap(0)
+    , glxPixmap(0) {
 }
 
 SkEGLContext::~SkEGLContext() {
@@ -249,11 +254,10 @@ bool SkEGLContext::init(const int width, const int height) {
     SK_GL_GET_PROC(PFNGLFRAMEBUFFERRENDERBUFFERPROC, glFramebufferRenderbufferEXT)
     SK_GL_GET_PROC(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT)
 
-    GLuint fboID;
     GLuint cbID;
     GLuint dsID;
-    glGenFramebuffersEXT(1, &fboID);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboID);
+    glGenFramebuffersEXT(1, &fFBO);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fFBO);
     glGenRenderbuffersEXT(1, &cbID);
     glBindRenderbufferEXT(GL_RENDERBUFFER, cbID);
     glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_RGBA, width, height);

@@ -7,7 +7,8 @@
  */
 #include "SkEGLContext.h"
 
-SkEGLContext::SkEGLContext() {
+SkEGLContext::SkEGLContext()
+    : fFBO(0) {
 }
 
 SkEGLContext::~SkEGLContext() {

@@ -50,13 +50,6 @@ public:
      */
     SkGpuDevice(GrContext*, GrTexture*);
 
-    /**
-     * Magic value that can be passed to constructor. Causes
-     * the device to infer rendertarget from underlying 3D API (e.g. GL or D3D).
-     * This isn't a valid pointer, don't attempt to dereference.
-     */
-    static GrRenderTarget* Current3DApiRenderTarget();
-
     virtual ~SkGpuDevice();
 
     GrContext* context() const { return fContext; }

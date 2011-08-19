@@ -6,20 +6,22 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+
+#include "GrContext.h"
+#include "GrRenderTarget.h"
+
 #include "SkColorPriv.h"
 #include "SkData.h"
+#include "SkDevice.h"
+#include "SkEGLContext.h"
+#include "SkGpuCanvas.h"
+#include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkRefCnt.h"
-
-#include "GrContext.h"
-#include "SkGpuCanvas.h"
-#include "SkGpuDevice.h"
-#include "SkEGLContext.h"
-#include "SkDevice.h"
 
 #ifdef SK_SUPPORT_PDF
     #include "SkPDFDevice.h"
@@ -228,6 +230,7 @@ static void setup_bitmap(const ConfigData& gRec, SkISize& size,
 // halt.
 static bool generate_image(GM* gm, const ConfigData& gRec,
                            GrContext* context,
+                           GrRenderTarget* rt,
                            SkBitmap* bitmap) {
     SkISize size (gm->getISize());
     setup_bitmap(gRec, size, bitmap);
@@ -239,8 +242,6 @@ static bool generate_image(GM* gm, const ConfigData& gRec,
         if (NULL == context) {
             return false;
         }
-        // not a real object, so don't unref it
-        GrRenderTarget* rt = SkGpuDevice::Current3DApiRenderTarget();
         SkGpuCanvas gc(context, rt);
         gc.setDevice(new SkGpuDevice(context, rt))->unref();
         gm->draw(&gc);
@@ -406,14 +407,15 @@ static bool test_drawing(GM* gm,
                          const char readPath [],
                          const char diffPath [],
                          GrContext* context,
+                         GrRenderTarget* rt,
                          SkBitmap* bitmap) {
     SkDynamicMemoryWStream pdf;
 
     if (gRec.fBackend == kRaster_Backend ||
-            gRec.fBackend == kGPU_Backend) {
+        gRec.fBackend == kGPU_Backend) {
         // Early exit if we can't generate the image, but this is
         // expected in some cases, so don't report a test failure.
-        if (!generate_image(gm, gRec, context, bitmap)) {
+        if (!generate_image(gm, gRec, context, rt, bitmap)) {
             return true;
         }
     } else if (gRec.fBackend == kPDF_Backend) {
@@ -555,10 +557,25 @@ int main(int argc, char * const argv[]) {
     }
     // setup a GL context for drawing offscreen
     SkEGLContext eglContext;
+    GrRenderTarget* rt = NULL;
     if (eglContext.init(maxW, maxH)) {
         gGrContext = GrContext::CreateGLShaderContext();
+        if (NULL != gGrContext) {
+            GrPlatformSurfaceDesc desc;
+            desc.reset();
+            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            desc.fWidth = maxW;
+            desc.fHeight = maxH;
+            desc.fStencilBits = 8;
+            desc.fPlatformRenderTarget = eglContext.getFBOID();
+            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+            rt = static_cast<GrRenderTarget*>(gGrContext->createPlatformSurface(desc));
+            if (NULL == rt) {
+                gGrContext->unref();
+                gGrContext = NULL;
+            }
+        }
     }
-
 
     if (readPath) {
         fprintf(stderr, "reading from %s\n", readPath);
@@ -585,7 +602,7 @@ int main(int argc, char * const argv[]) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
             bool testSuccess = test_drawing(gm, gRec[i],
                          writePath, readPath, diffPath, gGrContext,
-                         &forwardRenderedBitmap);
+                         rt, &forwardRenderedBitmap);
             overallSuccess &= testSuccess;
 
             if (doReplay && testSuccess) {

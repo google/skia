@@ -123,17 +123,6 @@ public:
     GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
 
     /**
-     * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
-     * viewport state from the underlying 3D API and wraps it in a
-     * GrRenderTarget. The GrRenderTarget will not attempt to delete/destroy the
-     * underlying object in its destructor and it is up to caller to guarantee
-     * that it remains valid while the GrRenderTarget is used.
-     *
-     * @return the newly created GrRenderTarget
-     */
-    GrRenderTarget* createRenderTargetFrom3DApiState();
-
-    /**
      * Creates a vertex buffer.
      *
      * @param size    size in bytes of the vertex buffer
@@ -427,7 +416,6 @@ protected:
                                        const void* srcData,
                                        size_t rowBytes) = 0;
     virtual GrResource* onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) = 0;
-    virtual GrRenderTarget* onCreateRenderTargetFrom3DApiState() = 0;
     virtual GrVertexBuffer* onCreateVertexBuffer(uint32_t size,
                                                  bool dynamic) = 0;
     virtual GrIndexBuffer* onCreateIndexBuffer(uint32_t size,

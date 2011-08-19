@@ -9,7 +9,9 @@
 //#include "SkTypes.h"
 #include <AGL/agl.h>
 
-SkEGLContext::SkEGLContext() : context(NULL) {
+SkEGLContext::SkEGLContext() 
+    : fFBO(0)
+    , context(NULL) {
 }
 
 SkEGLContext::~SkEGLContext() {
@@ -53,11 +55,10 @@ bool SkEGLContext::init(int width, int height) {
 
     // Now create our FBO render target
 
-    GLuint fboID;
     GLuint cbID;
     GLuint dsID;
-    glGenFramebuffersEXT(1, &fboID);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fboID);
+    glGenFramebuffersEXT(1, &fFBO);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fFBO);
     glGenRenderbuffers(1, &cbID);
     glBindRenderbuffer(GL_RENDERBUFFER, cbID);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, width, height);

@@ -104,10 +104,6 @@ public:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrRenderTarget* SkGpuDevice::Current3DApiRenderTarget() {
-    return (GrRenderTarget*) -1;
-}
-
 static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) {
     switch (config) {
         case kAlpha_8_GrPixelConfig:
@@ -130,13 +126,7 @@ static SkBitmap::Config grConfig2skConfig(GrPixelConfig config, bool* isOpaque) 
 }
 
 static SkBitmap make_bitmap(GrContext* context, GrRenderTarget* renderTarget) {
-    SkAutoTUnref<GrRenderTarget> rtunref;
-    if (SkGpuDevice::Current3DApiRenderTarget() == renderTarget) {
-        renderTarget = context->createRenderTargetFrom3DApiState();
-        rtunref.reset(renderTarget);
-    }
-    GrTexture* texture = renderTarget->asTexture();
-    GrPixelConfig config = texture ? texture->config() : kRGBA_8888_GrPixelConfig;
+    GrPixelConfig config = renderTarget->config();
 
     bool isOpaque;
     SkBitmap bitmap;
@@ -168,16 +158,12 @@ void SkGpuDevice::initFromRenderTarget(GrContext* context,
     fRenderTarget = NULL;
     fNeedClear = false;
     
-    if (Current3DApiRenderTarget() == renderTarget) {
-        fRenderTarget = fContext->createRenderTargetFrom3DApiState();
-    } else {
-        GrAssert(NULL != renderTarget);
-        fRenderTarget = renderTarget;
-        fRenderTarget->ref();
-        // if this RT is also a texture, hold a ref on it
-        fTexture = fRenderTarget->asTexture();
-        SkSafeRef(fTexture);
-    }
+    GrAssert(NULL != renderTarget);
+    fRenderTarget = renderTarget;
+    fRenderTarget->ref();
+    // if this RT is also a texture, hold a ref on it
+    fTexture = fRenderTarget->asTexture();
+    SkSafeRef(fTexture);
 
     SkGrRenderTargetPixelRef* pr = new SkGrRenderTargetPixelRef(fRenderTarget);
     this->setPixelRef(pr, 0)->unref();
