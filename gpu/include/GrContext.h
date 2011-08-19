@@ -251,20 +251,6 @@ public:
      */
     GrResource* createPlatformSurface(const GrPlatformSurfaceDesc& desc);
 
-    /**
-     * Reads the current target object (e.g. FBO or IDirect3DSurface9*) and
-     * viewport state from the underlying 3D API and wraps it in a
-     * GrRenderTarget. The GrRenderTarget will not attempt to delete/destroy the
-     * underlying object in its destructor and it is up to caller to guarantee
-     * that it remains valid while the GrRenderTarget is used.
-     *
-     * Will not detect that the render target is also a texture. If you need
-     * to also use the render target as a GrTexture use createPlatformSurface.
-     *
-     * @return the newly created GrRenderTarget
-     */
-    GrRenderTarget* createRenderTargetFrom3DApiState();
-
     ///////////////////////////////////////////////////////////////////////////
     // Matrix state
 

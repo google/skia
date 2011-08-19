@@ -256,8 +256,6 @@ GrGLBinding get_binding_in_use(const GrGLInterface* gl) {
 GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     : GrGpuGL(gl, get_binding_in_use(gl)) {
 
-    resetContext();
-
     f4X4DownsampleFilterSupport = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fDualSourceBlendingSupport =

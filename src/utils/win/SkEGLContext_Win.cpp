@@ -34,8 +34,9 @@ typedef void (SK_EGL_FUNCTION_TYPE *SkEGLRenderbufferStorageProc) (GLenum target
 typedef void (SK_EGL_FUNCTION_TYPE *SkEGLFramebufferRenderbufferProc) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 typedef GLenum (SK_EGL_FUNCTION_TYPE *SkEGLCheckFramebufferStatusProc) (GLenum target);
 
-SkEGLContext::SkEGLContext() :
-        fWindow(NULL)
+SkEGLContext::SkEGLContext()
+        : fFBO(0)
+        , fWindow(NULL)
         , fDeviceContext(NULL)
         , fGlRenderContext(0) {
 }
@@ -174,11 +175,10 @@ bool SkEGLContext::init(const int width, const int height) {
     SK_EGL_GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT)
     SK_EGL_GET_PROC_SUFFIX(CheckFramebufferStatus, EXT)
 
-    GLuint fboID;
     GLuint cbID;
     GLuint dsID;
-    SkEGLGenFramebuffers(1, &fboID);
-    SkEGLBindFramebuffer(SK_EGL_FRAMEBUFFER, fboID);
+    SkEGLGenFramebuffers(1, &fFBO);
+    SkEGLBindFramebuffer(SK_EGL_FRAMEBUFFER, fFBO);
     SkEGLGenRenderbuffers(1, &cbID);
     SkEGLBindRenderbuffer(SK_EGL_RENDERBUFFER, cbID);
     SkEGLRenderbufferStorage(SK_EGL_RENDERBUFFER, GL_RGBA, width, height);

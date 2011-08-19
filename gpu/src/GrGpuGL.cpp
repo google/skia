@@ -154,11 +154,6 @@ static bool gPrintStartupSpew;
 
 static bool fbo_test(const GrGLInterface* gl, int w, int h) {
 
-    GrGLint savedFBO;
-    GrGLint savedTexUnit;
-    GR_GL_GetIntegerv(gl, GR_GL_ACTIVE_TEXTURE, &savedTexUnit);
-    GR_GL_GetIntegerv(gl, GR_GL_FRAMEBUFFER_BINDING, &savedFBO);
-
     GR_GL_CALL(gl, ActiveTexture(GR_GL_TEXTURE0 + SPARE_TEX_UNIT));
 
     GrGLuint testFBO;
@@ -181,9 +176,6 @@ static bool fbo_test(const GrGLInterface* gl, int w, int h) {
     GrGLenum status = GR_GL_CALL(gl, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
     GR_GL_CALL(gl, DeleteFramebuffers(1, &testFBO));
     GR_GL_CALL(gl, DeleteTextures(1, &testRTTex));
-
-    GR_GL_CALL(gl, ActiveTexture(savedTexUnit));
-    GR_GL_CALL(gl, BindFramebuffer(GR_GL_FRAMEBUFFER, savedFBO));
 
     return status == GR_GL_FRAMEBUFFER_COMPLETE;
 }
@@ -710,193 +702,8 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
     }
 }
 
-namespace {
-
-static const GrGLenum kUnknownGLFormat = ~0;
-
-GrGLenum get_fbo_color_format(const GrGLInterface* gl) {
-    GrGLint cbType;
-    GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                                    GR_GL_COLOR_ATTACHMENT0,
-                                    GR_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
-                                    &cbType);
-    GrGLint cbID;
-    GrGLint cbFormat;
-    switch (cbType) {
-        case GR_GL_RENDERBUFFER:
-            GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                                    GR_GL_COLOR_ATTACHMENT0,
-                                    GR_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-                                    &cbID);
-            GR_GL_CALL(gl, BindRenderbuffer(GR_GL_RENDERBUFFER, cbID));
-            GR_GL_GetRenderbufferParameteriv(gl, GR_GL_RENDERBUFFER,
-                                             GR_GL_RENDERBUFFER_INTERNAL_FORMAT,
-                                             &cbFormat);
-            return cbFormat;
-            break;
-        case GR_GL_TEXTURE:
-            // ES doesn't have glGetTexLevelParameter
-            if (gl->supportsDesktop()) {
-                GrGLint cbLevel;
-                GrGLint cbFace;
-                GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                                    GR_GL_COLOR_ATTACHMENT0,
-                                    GR_GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-                                    &cbID);
-                GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                                    GR_GL_COLOR_ATTACHMENT0,
-                                    GR_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL,
-                                    &cbLevel);
-                GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                            GR_GL_COLOR_ATTACHMENT0,
-                            GR_GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE,
-                            &cbFace);
-                GrGLenum bind;
-                GrGLenum target;
-                if (cbFace) {
-                    bind = GR_GL_TEXTURE_CUBE_MAP;
-                    target = cbFace;
-                } else {
-                    bind = GR_GL_TEXTURE_2D;
-                    target = GR_GL_TEXTURE_2D;
-                }
-                GR_GL_CALL(gl, BindTexture(bind, cbID));
-                GR_GL_GetTexLevelParameteriv(gl, target, cbLevel, 
-                                    GR_GL_TEXTURE_INTERNAL_FORMAT, &cbFormat);
-                return cbFormat;
-            } else {
-                return kUnknownGLFormat;
-            }
-            break;
-        default:
-            // we can get here with FBO 0, not a render buffer or a texture
-            return kUnknownGLFormat;
-    }
-}
-
-GrPixelConfig internal_color_format_to_config(GrGLenum iFormat) {
-    switch (iFormat) {
-        case GR_GL_RGB565:
-            return kRGB_565_GrPixelConfig;
-        case GR_GL_RGBA4:
-            return kRGBA_4444_GrPixelConfig;
-        case GR_GL_RGBA8:
-        case GR_GL_SRGB8_ALPHA8:
-        case GR_GL_SRGB_ALPHA:
-        case GR_GL_RGBA:
-        case GR_GL_BGRA:
-            return kRGBA_8888_GrPixelConfig;
-        case GR_GL_RGB8:
-        case GR_GL_SRGB8:
-        case GR_GL_SRGB:
-            return kRGBX_8888_GrPixelConfig;
-        default:
-            // there are many GL formats we don't have enums
-            // for. We should still render to them if the client
-            // asks us.
-            return kUnknown_GrPixelConfig;
-    }
-}
-
-GrPixelConfig get_implied_color_config(const GrGLInterface* gl,
-                                       bool arbFBOExtension) {
-    GrGLint rSize, bSize, gSize, aSize;
-    if (arbFBOExtension) {
-        GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER, 
-                GR_GL_COLOR_ATTACHMENT0,
-                GR_GL_FRAMEBUFFER_ATTACHMENT_RED_SIZE, &rSize);
-        GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                GR_GL_COLOR_ATTACHMENT0,
-                GR_GL_FRAMEBUFFER_ATTACHMENT_GREEN_SIZE, &gSize);
-        GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER, 
-                GR_GL_COLOR_ATTACHMENT0,
-                GR_GL_FRAMEBUFFER_ATTACHMENT_BLUE_SIZE, &bSize);
-        GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                GR_GL_COLOR_ATTACHMENT0, 
-                GR_GL_FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE, &aSize);
-    } else {
-        GR_GL_GetIntegerv(gl, GR_GL_RED_BITS, &rSize);
-        GR_GL_GetIntegerv(gl, GR_GL_GREEN_BITS, &gSize);
-        GR_GL_GetIntegerv(gl, GR_GL_BLUE_BITS, &bSize);
-        GR_GL_GetIntegerv(gl, GR_GL_ALPHA_BITS, &aSize);
-    }
-
-    if(8 == rSize && 8 == gSize && 8 == bSize) {
-       if (0 == aSize) {
-           return kRGBX_8888_GrPixelConfig;
-       } else if (8 == aSize) {
-           return kRGBA_8888_GrPixelConfig;
-       }
-    } else if (4 == rSize && 4 == gSize && 4 == bSize && 4 == aSize) {
-        return kRGBA_4444_GrPixelConfig;
-    } else if (5 == rSize && 6 == gSize && 5 == bSize && 0 == aSize) {
-        return kRGB_565_GrPixelConfig;
-    }
-    return kUnknown_GrPixelConfig;
-}
-
-int get_fbo_stencil_bits(const GrGLInterface* gl, bool arbFBOExtension) {
-    GrGLint stencilBits;
-    if (arbFBOExtension) {
-        GR_GL_GetFramebufferAttachmentParameteriv(gl, GR_GL_FRAMEBUFFER,
-                                    GR_GL_STENCIL_ATTACHMENT,
-                                    GR_GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
-                                    &stencilBits);
-    } else {
-        GR_GL_GetIntegerv(gl, GR_GL_STENCIL_BITS, &stencilBits);
-    }
-    return stencilBits;
-}
-}
-
-GrRenderTarget* GrGpuGL::onCreateRenderTargetFrom3DApiState() {
-
-    GrGLRenderTarget::Desc rtDesc;
-
-    GR_GL_GetIntegerv(this->glInterface(), GR_GL_FRAMEBUFFER_BINDING, 
-                      (GrGLint*)&rtDesc.fRTFBOID);
-    rtDesc.fTexFBOID = rtDesc.fRTFBOID;
-    rtDesc.fMSColorRenderbufferID = 0;
-
-    bool arbFBO = ((kDesktop_GrGLBinding == fGLBinding) && (fGLVersion > 3.0 ||
-                   this->hasExtension("GL_ARB_framebuffer_object")));
-
-    GrGLIRect viewport;
-    viewport.setFromGLViewport(this->glInterface());
-    int stencilBits = get_fbo_stencil_bits(this->glInterface(), arbFBO);
-    GR_GL_GetIntegerv(this->glInterface(), GR_GL_SAMPLES, &rtDesc.fSampleCnt);
-
-    SkAutoTUnref<GrGLStencilBuffer> sb;
-    if (stencilBits) {
-        GrGLStencilBuffer::Format format;
-        // we could query this but we don't really need it
-        format.fInternalFormat = GrGLStencilBuffer::kUnknownInternalFormat;
-        format.fPacked = false;
-        format.fStencilBits = stencilBits;
-        format.fTotalBits = stencilBits;
-        sb.reset(new GrGLStencilBuffer(this, 0, viewport.fWidth,
-                                       viewport.fHeight, rtDesc.fSampleCnt,
-                                       format));
-    }
-
-    GrGLenum fmat = get_fbo_color_format(this->glInterface());
-    if (kUnknownGLFormat == fmat) {
-        rtDesc.fConfig = get_implied_color_config(this->glInterface(), arbFBO);
-    } else {
-        rtDesc.fConfig = internal_color_format_to_config(fmat);
-    }
-
-    // may have to bind a texture to gets its format
-    this->setSpareTextureUnit();
-
-    rtDesc.fOwnIDs = false;
-
-    GrGLRenderTarget* target = new GrGLRenderTarget(this, rtDesc, viewport);
-    target->setStencilBuffer(sb.get());
-    return target;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
+
 static const GrGLuint kUnknownBitCount = ~0;
 
 void GrGpuGL::setupStencilFormats() {

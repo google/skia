@@ -62,7 +62,7 @@ public:
      * if client asked us to render to a target that has a pixel
      * config that isn't equivalent with one of our configs.
      */
-    int config() const { return fConfig; }
+    GrPixelConfig config() const { return fConfig; }
 
     /**
      * @return the texture associated with the rendertarget, may be NULL.

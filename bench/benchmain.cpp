@@ -5,19 +5,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+
+#include "BenchTimer.h"
+
+#include "GrContext.h"
+#include "GrRenderTarget.h"
+
+#include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
+#include "SkEGLContext.h"
+#include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkString.h"
-#include "GrContext.h"
-#include "SkGpuDevice.h"
-#include "SkEGLContext.h"
-
-#include "SkBenchmark.h"
-#include "BenchTimer.h"
 
 #ifdef ANDROID
 static void log_error(const char msg[]) { SkDebugf("%s", msg); }
@@ -169,7 +173,8 @@ enum Backend {
 };
 
 static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
-                             Backend backend, GrContext* context) {
+                             Backend backend, GrContext* context,
+                             GrRenderTarget* rt) {
     SkDevice* device = NULL;
     SkBitmap bitmap;
     bitmap.setConfig(config, size.fX, size.fY);
@@ -181,7 +186,7 @@ static SkDevice* make_device(SkBitmap::Config config, const SkIPoint& size,
             device = new SkDevice(bitmap);
             break;
         case kGPU_Backend:
-            device = new SkGpuDevice(context, SkGpuDevice::Current3DApiRenderTarget());
+            device = new SkGpuDevice(context, rt);
 //            device->clear(0xFFFFFFFF);
             break;
         case kPDF_Backend:
@@ -408,11 +413,27 @@ int main (int argc, char * const argv[]) {
     }
     
     GrContext* context = NULL;
+    GrRenderTarget* rt = NULL;
     //Don't do GL when fixed.
 #if !defined(SK_SCALAR_IS_FIXED)
     SkEGLContext eglContext;
     if (eglContext.init(1024, 1024)) {
         context = GrContext::CreateGLShaderContext();
+        if (NULL != context) {
+            GrPlatformSurfaceDesc desc;
+            desc.reset();
+            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            desc.fWidth = 1024;
+            desc.fHeight = 1024;
+            desc.fStencilBits = 8;
+            desc.fPlatformRenderTarget = eglContext.getFBOID();
+            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+            rt = static_cast<GrRenderTarget*>(context->createPlatformSurface(desc));
+            if (NULL == rt) {
+                context->unref();
+                context = NULL;
+            }
+        }
     }
 #endif
     
@@ -457,7 +478,8 @@ int main (int argc, char * const argv[]) {
                 continue;
             }
             
-            SkDevice* device = make_device(outConfig, dim, backend, context);
+            SkDevice* device = make_device(outConfig, dim,
+                                           backend, context, rt);
             SkCanvas canvas(device);
             device->unref();
             
@@ -516,6 +538,9 @@ int main (int argc, char * const argv[]) {
         }
         log_progress("\n");
     }
-    
+
+    SkSafeUnref(context);
+    SkSafeUnref(rt);
+
     return 0;
 }
