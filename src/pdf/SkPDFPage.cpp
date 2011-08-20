@@ -100,7 +100,7 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
                 curNodes[i]->insert(parentName.get(), newNodeRef.get());
                 kids->append(new SkPDFObjRef(curNodes[i]))->unref();
 
-                // TODO(vandebo) put the objects in strict access order.
+                // TODO(vandebo): put the objects in strict access order.
                 // Probably doesn't matter because they are so small.
                 if (curNodes[i] != pages[0]) {
                     pageTree->push(curNodes[i]);  // Transfer reference.
@@ -127,8 +127,9 @@ void SkPDFPage::GeneratePageTree(const SkTDArray<SkPDFPage*>& pages,
 
     pageTree->push(curNodes[0]);  // Transfer reference.
     catalog->addObject(curNodes[0], false);
-    if (rootNode)
+    if (rootNode) {
         *rootNode = curNodes[0];
+    }
 }
 
 const SkTDArray<SkPDFFont*>& SkPDFPage::getFontResources() const {

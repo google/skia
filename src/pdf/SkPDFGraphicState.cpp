@@ -39,7 +39,7 @@ static const char* blend_mode_from_xfermode(SkXfermode::Mode mode) {
         case SkXfermode::kDstOut_Mode:
             return "Normal";
 
-        // TODO(vandebo) Figure out if we can support more of these modes.
+        // TODO(vandebo): Figure out if we can support more of these modes.
         case SkXfermode::kSrcATop_Mode:
         case SkXfermode::kDstATop_Mode:
         case SkXfermode::kXor_Mode:

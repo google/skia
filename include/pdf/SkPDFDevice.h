@@ -57,7 +57,7 @@ public:
      *         inverse scale+translate to accommodate the one that SkPDFDevice
      *         always does.
      */
-    // TODO(vandebo) The sizes should be SkSize and not SkISize.
+    // TODO(vandebo): The sizes should be SkSize and not SkISize.
     SK_API SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
                        const SkMatrix& initialTransform);
     SK_API virtual ~SkPDFDevice();
@@ -110,7 +110,7 @@ public:
     };
 
     /** Sets the drawing area for the device. Subsequent draw calls are directed
-     *  to the specific drawing area (margin or content). The default drawing 
+     *  to the specific drawing area (margin or content). The default drawing
      *  area is the content drawing area.
      *
      *  Currently if margin content is drawn and then a complex (for PDF) xfer
@@ -161,7 +161,7 @@ public:
         return *(fFontGlyphUsage.get());
     }
 
-    // TODO(vandebo) Remove this as soon as Chrome's Platform device goes away.
+    // TODO(vandebo): Remove this as soon as Chrome's Platform device goes away.
     void setOrigin(int x, int y);
     virtual void setMatrixClip(const SkMatrix& m, const SkRegion& r,
                                const SkClipStack& c);
@@ -169,7 +169,7 @@ public:
 private:
     typedef SkDevice INHERITED;
 
-    // TODO(vandebo) push most of SkPDFDevice's state into a core object in
+    // TODO(vandebo): push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
 

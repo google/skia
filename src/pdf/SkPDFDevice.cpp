@@ -54,10 +54,11 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
                                                     kStdFakeBoldInterpValues,
                                                     kStdFakeBoldInterpLength);
         SkScalar width = SkScalarMul(result.getTextSize(), fakeBoldScale);
-        if (result.getStyle() == SkPaint::kFill_Style)
+        if (result.getStyle() == SkPaint::kFill_Style) {
             result.setStyle(SkPaint::kStrokeAndFill_Style);
-        else
+        } else {
             width += result.getStrokeWidth();
+        }
         result.setStrokeWidth(width);
     }
     return result;
@@ -67,8 +68,9 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
 static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
                        const uint16_t* glyphs, size_t len, SkScalar* x,
                        SkScalar* y, SkScalar* width) {
-    if (paint.getTextAlign() == SkPaint::kLeft_Align && width == NULL)
+    if (paint.getTextAlign() == SkPaint::kLeft_Align && width == NULL) {
         return;
+    }
 
     SkMatrix ident;
     ident.reset();
@@ -79,16 +81,18 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
     const char* stop = reinterpret_cast<const char*>(glyphs + len);
     SkFixed xAdv = 0, yAdv = 0;
 
-    // TODO(vandebo) This probably needs to take kerning into account.
+    // TODO(vandebo): This probably needs to take kerning into account.
     while (start < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &start, 0, 0);
         xAdv += glyph.fAdvanceX;
         yAdv += glyph.fAdvanceY;
     };
-    if (width)
+    if (width) {
         *width = SkFixedToScalar(xAdv);
-    if (paint.getTextAlign() == SkPaint::kLeft_Align)
+    }
+    if (paint.getTextAlign() == SkPaint::kLeft_Align) {
         return;
+    }
 
     SkScalar xAdj = SkFixedToScalar(xAdv);
     SkScalar yAdj = SkFixedToScalar(yAdv);
@@ -277,7 +281,7 @@ static void emit_clip(SkPath* clipPath, SkRect* clipRect,
     }
 }
 
-// TODO(vandebo) Take advantage of SkClipStack::getSaveCount(), the PDF
+// TODO(vandebo): Take advantage of SkClipStack::getSaveCount(), the PDF
 // graphic state stack, and the fact that we can know all the clips used
 // on the page to optimize this.
 void GraphicStackState::updateClip(const SkClipStack& clipStack,
@@ -1280,7 +1284,7 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
             createFormXObjectFromDevice(dst);
         }
     }
-    // TODO(vandebo) Figure out how/if we can handle the following modes:
+    // TODO(vandebo): Figure out how/if we can handle the following modes:
     // SrcAtop, DestAtop, Xor, Plus.
 
     // These xfer modes don't draw source at all.

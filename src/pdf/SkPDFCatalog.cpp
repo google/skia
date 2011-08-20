@@ -29,8 +29,9 @@ SkPDFObject* SkPDFCatalog::addObject(SkPDFObject* obj, bool onFirstPage) {
         return obj;
     }
     SkASSERT(fNextFirstPageObjNum == 0);
-    if (onFirstPage)
+    if (onFirstPage) {
         fFirstPageCount++;
+    }
 
     struct Rec newEntry(obj, onFirstPage);
     fCatalog.append(1, &newEntry);
@@ -59,8 +60,9 @@ size_t SkPDFCatalog::getObjectNumberSize(SkPDFObject* obj) {
 
 int SkPDFCatalog::findObjectIndex(SkPDFObject* obj) const {
     for (int i = 0; i < fCatalog.count(); i++) {
-        if (fCatalog[i].fObject == obj)
+        if (fCatalog[i].fObject == obj) {
             return i;
+        }
     }
     // If it's not in the main array, check if it's a substitute object.
     for (int i = 0; i < fSubstituteMap.count(); ++i) {
@@ -77,12 +79,14 @@ int SkPDFCatalog::assignObjNum(SkPDFObject* obj) {
     // to the resource list.
     SkASSERT(pos >= 0);
     uint32_t currentIndex = pos;
-    if (fCatalog[currentIndex].fObjNumAssigned)
+    if (fCatalog[currentIndex].fObjNumAssigned) {
         return currentIndex + 1;
+    }
 
     // First assignment.
-    if (fNextFirstPageObjNum == 0)
+    if (fNextFirstPageObjNum == 0) {
         fNextFirstPageObjNum = fCatalog.count() - fFirstPageCount + 1;
+    }
 
     uint32_t objNum;
     if (fCatalog[currentIndex].fOnFirstPage) {
@@ -96,8 +100,9 @@ int SkPDFCatalog::assignObjNum(SkPDFObject* obj) {
     // When we assign an object an object number, we put it in that array
     // offset (minus 1 because object number 0 is reserved).
     SkASSERT(!fCatalog[objNum - 1].fObjNumAssigned);
-    if (objNum - 1 != currentIndex)
+    if (objNum - 1 != currentIndex) {
         SkTSwap(fCatalog[objNum - 1], fCatalog[currentIndex]);
+    }
     fCatalog[objNum - 1].fObjNumAssigned = true;
     return objNum;
 }
@@ -105,7 +110,7 @@ int SkPDFCatalog::assignObjNum(SkPDFObject* obj) {
 int32_t SkPDFCatalog::emitXrefTable(SkWStream* stream, bool firstPage) {
     int first = -1;
     int last = fCatalog.count() - 1;
-    // TODO(vandebo) support linearized format.
+    // TODO(vandebo): Support linearized format.
     // int last = fCatalog.count() - fFirstPageCount - 1;
     // if (firstPage) {
     //     first = fCatalog.count() - fFirstPageCount;
