@@ -68,8 +68,9 @@ SkPDFDocument::~SkPDFDocument() {
 
     // The page tree has both child and parent pointers, so it creates a
     // reference cycle.  We must clear that cycle to properly reclaim memory.
-    for (int i = 0; i < fPageTree.count(); i++)
+    for (int i = 0; i < fPageTree.count(); i++) {
         fPageTree[i]->clear();
+    }
     fPageTree.safeUnrefAll();
     fPageResources.safeUnrefAll();
     fSubstitutes.safeUnrefAll();
@@ -86,13 +87,13 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
     }
 
     // We haven't emitted the document before if fPageTree is empty.
-    if (fPageTree.count() == 0) {
+    if (fPageTree.isEmpty()) {
         SkPDFDict* pageTreeRoot;
         SkPDFPage::GeneratePageTree(fPages, fCatalog.get(), &fPageTree,
                                     &pageTreeRoot);
         fDocCatalog->insert("Pages", new SkPDFObjRef(pageTreeRoot))->unref();
 
-        /* TODO(vandebo) output intent
+        /* TODO(vandebo): output intent
         SkRefPtr<SkPDFDict> outputIntent = new SkPDFDict("OutputIntent");
         outputIntent->unref();  // SkRefPtr and new both took a reference.
         outputIntent->insert("S", new SkPDFName("GTS_PDFA1"))->unref();
@@ -131,21 +132,24 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         // Add the size of resources of substitute objects used on page 1.
         fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset, true);
         if (fPages.count() > 1) {
-            // TODO(vandebo) For linearized format, save the start of the
+            // TODO(vandebo): For linearized format, save the start of the
             // first page xref table and calculate the size.
         }
 
-        for (int i = 0; i < fPageTree.count(); i++)
+        for (int i = 0; i < fPageTree.count(); i++) {
             fileOffset += fCatalog->setFileOffset(fPageTree[i], fileOffset);
+        }
 
-        for (int i = 1; i < fPages.count(); i++)
+        for (int i = 1; i < fPages.count(); i++) {
             fileOffset += fPages[i]->getPageSize(fCatalog.get(), fileOffset);
+        }
 
         for (int i = fSecondPageFirstResourceIndex;
                  i < fPageResources.count();
-                 i++)
+                 i++) {
             fileOffset += fCatalog->setFileOffset(fPageResources[i],
                                                   fileOffset);
+        }
 
         fileOffset += fCatalog->setSubstituteResourcesOffsets(fileOffset,
                                                               false);
@@ -160,9 +164,9 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
         fPageResources[i]->emit(stream, fCatalog.get(), true);
     }
     fCatalog->emitSubstituteResources(stream, true);
-    // TODO(vandebo) support linearized format
+    // TODO(vandebo): Support linearized format
     // if (fPages.size() > 1) {
-    //     // TODO(vandebo) save the file offset for the first page xref table.
+    //     // TODO(vandebo): Save the file offset for the first page xref table.
     //     fCatalog->emitXrefTable(stream, true);
     // }
 
@@ -187,7 +191,7 @@ bool SkPDFDocument::emitPDF(SkWStream* stream) {
 }
 
 bool SkPDFDocument::setPage(int pageNumber, SkPDFDevice* pdfDevice) {
-    if (fPageTree.count() != 0) {
+    if (!fPageTree.isEmpty()) {
         return false;
     }
 
@@ -209,7 +213,7 @@ bool SkPDFDocument::setPage(int pageNumber, SkPDFDevice* pdfDevice) {
 }
 
 bool SkPDFDocument::appendPage(SkPDFDevice* pdfDevice) {
-    if (fPageTree.count() != 0) {
+    if (!fPageTree.isEmpty()) {
         return false;
     }
 
@@ -241,8 +245,8 @@ void SkPDFDocument::emitFooter(SkWStream* stream, int64_t objCount) {
         fTrailerDict = new SkPDFDict();
         fTrailerDict->unref();  // SkRefPtr and new both took a reference.
 
-        // TODO(vandebo) Linearized format will take a Prev entry too.
-        // TODO(vandebo) PDF/A requires an ID entry.
+        // TODO(vandebo): Linearized format will take a Prev entry too.
+        // TODO(vandebo): PDF/A requires an ID entry.
         fTrailerDict->insertInt("Size", objCount);
         fTrailerDict->insert("Root",
                              new SkPDFObjRef(fDocCatalog.get()))->unref();

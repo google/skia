@@ -61,7 +61,7 @@ private:
     // Indicates what form (or if) the stream has been requested.
     State fState;
 
-    // TODO(vandebo) Use SkData (after removing deprecated constructor).
+    // TODO(vandebo): Use SkData (after removing deprecated constructor).
     SkRefPtr<SkStream> fData;
     SkRefPtr<SkPDFStream> fSubstitute;
 

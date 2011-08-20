@@ -84,8 +84,9 @@ SkPDFInt::~SkPDFInt() {}
 
 void SkPDFInt::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                           bool indirect) {
-    if (indirect)
+    if (indirect) {
         return emitIndirectObject(stream, catalog);
+    }
     stream->writeDecAsText(fValue);
 }
 
@@ -104,8 +105,9 @@ void SkPDFBool::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 
 size_t SkPDFBool::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
     SkASSERT(!indirect);
-    if (fValue)
+    if (fValue) {
         return strlen("true");
+    }
     return strlen("false");
 }
 
@@ -114,8 +116,9 @@ SkPDFScalar::~SkPDFScalar() {}
 
 void SkPDFScalar::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                              bool indirect) {
-    if (indirect)
+    if (indirect) {
         return emitIndirectObject(stream, catalog);
+    }
 
     Append(fValue, stream);
 }
@@ -223,8 +226,9 @@ SkString SkPDFString::DoFormatString(const void* input, size_t len,
         SkASSERT(wideInput);
         SkString result;
         result.append("<");
-        for (size_t i = 0; i < len; i++)
+        for (size_t i = 0; i < len; i++) {
             result.appendHex(win[i], 4);
+        }
         result.append(">");
         return result;
     }
@@ -247,8 +251,9 @@ SkString SkPDFString::DoFormatString(const void* input, size_t len,
         for (size_t i = 0; i < len; i++) {
             SkASSERT(!wideInput || !(win[i] & ~0xFF));
             char val = wideInput ? win[i] : cin[i];
-            if (val == '\\' || val == '(' || val == ')')
+            if (val == '\\' || val == '(' || val == ')') {
                 result.append("\\");
+            }
             result.append(&val, 1);
         }
         result.append(")");
@@ -308,27 +313,32 @@ SkPDFArray::~SkPDFArray() {
 
 void SkPDFArray::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                             bool indirect) {
-    if (indirect)
+    if (indirect) {
         return emitIndirectObject(stream, catalog);
+    }
 
     stream->writeText("[");
     for (int i = 0; i < fValue.count(); i++) {
         fValue[i]->emit(stream, catalog, false);
-        if (i + 1 < fValue.count())
+        if (i + 1 < fValue.count()) {
             stream->writeText(" ");
+        }
     }
     stream->writeText("]");
 }
 
 size_t SkPDFArray::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect)
+    if (indirect) {
         return getIndirectOutputSize(catalog);
+    }
 
     size_t result = strlen("[]");
-    if (fValue.count())
+    if (fValue.count()) {
         result += fValue.count() - 1;
-    for (int i = 0; i < fValue.count(); i++)
+    }
+    for (int i = 0; i < fValue.count(); i++) {
         result += fValue[i]->getOutputSize(catalog, false);
+    }
     return result;
 }
 
@@ -381,8 +391,9 @@ SkPDFDict::~SkPDFDict() {
 
 void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
                            bool indirect) {
-    if (indirect)
+    if (indirect) {
         return emitIndirectObject(stream, catalog);
+    }
 
     stream->writeText("<<");
     for (int i = 0; i < fValue.count(); i++) {
@@ -395,8 +406,9 @@ void SkPDFDict::emitObject(SkWStream* stream, SkPDFCatalog* catalog,
 }
 
 size_t SkPDFDict::getOutputSize(SkPDFCatalog* catalog, bool indirect) {
-    if (indirect)
+    if (indirect) {
         return getIndirectOutputSize(catalog);
+    }
 
     size_t result = strlen("<<>>") + (fValue.count() * 2);
     for (int i = 0; i < fValue.count(); i++) {

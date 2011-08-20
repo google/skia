@@ -75,10 +75,12 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                     dst += 3;
                     alphaDst[0] = (SkGetPackedA4444(src[x]) << 4) |
                         SkGetPackedA4444(src[x + 1]);
-                    if (alphaDst[0] != 0xFF)
+                    if (alphaDst[0] != 0xFF) {
                         hasAlpha = true;
-                    if (alphaDst[0])
+                    }
+                    if (alphaDst[0]) {
                         isTransparent = false;
+                    }
                     alphaDst++;
                 }
                 if (srcRect.width() & 1) {
@@ -87,10 +89,12 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                     dst[1] = (SkGetPackedB4444(src[x]) << 4);
                     dst += 2;
                     alphaDst[0] = (SkGetPackedA4444(src[x]) << 4);
-                    if (alphaDst[0] != 0xF0)
+                    if (alphaDst[0] != 0xF0) {
                         hasAlpha = true;
-                    if (alphaDst[0] & 0xF0)
+                    }
+                    if (alphaDst[0] & 0xF0) {
                         isTransparent = false;
+                    }
                     alphaDst++;
                 }
             }
@@ -126,10 +130,12 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                     dst[2] = SkGetPackedB32(src[x]);
                     dst += 3;
                     alphaDst[0] = SkGetPackedA32(src[x]);
-                    if (alphaDst[0] != 0xFF)
+                    if (alphaDst[0] != 0xFF) {
                         hasAlpha = true;
-                    if (alphaDst[0])
+                    }
+                    if (alphaDst[0]) {
                         isTransparent = false;
+                    }
                     alphaDst++;
                 }
             }
@@ -156,20 +162,24 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                     } else {
                         alphaDst[0] = src[x / 8];
                     }
-                    if (x + 7 < srcRect.fRight && alphaDst[0] != 0xFF)
+                    if (x + 7 < srcRect.fRight && alphaDst[0] != 0xFF) {
                         hasAlpha = true;
-                    if (x + 7 < srcRect.fRight && alphaDst[0])
+                    }
+                    if (x + 7 < srcRect.fRight && alphaDst[0]) {
                         isTransparent = false;
+                    }
                     alphaDst++;
                 }
                 // Calculate the mask of bits we're interested in within the
                 // last byte of alphaDst.
                 // width mod 8  == 1 -> 0x80 ... width mod 8 == 7 -> 0xFE
                 uint8_t mask = ~((1 << (8 - (srcRect.width() % 8))) - 1);
-                if (srcRect.width() % 8 && (alphaDst[-1] & mask) != mask)
+                if (srcRect.width() % 8 && (alphaDst[-1] & mask) != mask) {
                     hasAlpha = true;
-                if (srcRect.width() % 8 && (alphaDst[-1] & mask))
+                }
+                if (srcRect.width() % 8 && (alphaDst[-1] & mask)) {
                     isTransparent = false;
+                }
             }
             break;
         }
@@ -185,10 +195,12 @@ void extractImageData(const SkBitmap& bitmap, const SkIRect& srcRect,
                 uint8_t* src = bitmap.getAddr8(0, y);
                 for (int x = srcRect.fLeft; x < srcRect.fRight; x++) {
                     alphaDst[0] = src[x];
-                    if (alphaDst[0] != 0xFF)
+                    if (alphaDst[0] != 0xFF) {
                         hasAlpha = true;
-                    if (alphaDst[0])
+                    }
+                    if (alphaDst[0]) {
                         isTransparent = false;
+                    }
                     alphaDst++;
                 }
             }
@@ -240,8 +252,9 @@ SkPDFArray* makeIndexedColorSpace(SkColorTable* table) {
 SkPDFImage* SkPDFImage::CreateImage(const SkBitmap& bitmap,
                                     const SkIRect& srcRect,
                                     const SkPaint& paint) {
-    if (bitmap.getConfig() == SkBitmap::kNo_Config)
+    if (bitmap.getConfig() == SkBitmap::kNo_Config) {
         return NULL;
+    }
 
     SkStream* imageData = NULL;
     SkStream* alphaData = NULL;
@@ -314,10 +327,11 @@ SkPDFImage::SkPDFImage(SkStream* imageData, const SkBitmap& bitmap,
     // }
 
     int bitsPerComp = 8;
-    if (config == SkBitmap::kARGB_4444_Config)
+    if (config == SkBitmap::kARGB_4444_Config) {
         bitsPerComp = 4;
-    else if (doingAlpha && config == SkBitmap::kA1_Config)
+    } else if (doingAlpha && config == SkBitmap::kA1_Config) {
         bitsPerComp = 1;
+    }
     insertInt("BitsPerComponent", bitsPerComp);
 
     if (config == SkBitmap::kRGB_565_Config) {

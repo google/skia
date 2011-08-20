@@ -141,18 +141,20 @@ void SkPDFUtils::ClosePath(SkWStream* content) {
 // static
 void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
                            SkWStream* content) {
-    if (style == SkPaint::kFill_Style)
+    if (style == SkPaint::kFill_Style) {
         content->writeText("f");
-    else if (style == SkPaint::kStrokeAndFill_Style)
+    } else if (style == SkPaint::kStrokeAndFill_Style) {
         content->writeText("B");
-    else if (style == SkPaint::kStroke_Style)
+    } else if (style == SkPaint::kStroke_Style) {
         content->writeText("S");
+    }
 
     if (style != SkPaint::kStroke_Style) {
         NOT_IMPLEMENTED(fill == SkPath::kInverseEvenOdd_FillType, false);
         NOT_IMPLEMENTED(fill == SkPath::kInverseWinding_FillType, false);
-        if (fill == SkPath::kEvenOdd_FillType)
+        if (fill == SkPath::kEvenOdd_FillType) {
             content->writeText("*");
+        }
     }
     content->writeText("\n");
 }

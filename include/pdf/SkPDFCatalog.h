@@ -110,10 +110,10 @@ private:
         SkPDFObject* fSubstitute;
     };
 
-    // TODO(vandebo) Make this a hash if it's a performance problem.
+    // TODO(vandebo): Make this a hash if it's a performance problem.
     SkTDArray<struct Rec> fCatalog;
 
-    // TODO(arthurhsu) Make this a hash if it's a performance problem.
+    // TODO(arthurhsu): Make this a hash if it's a performance problem.
     SkTDArray<SubstituteMapping> fSubstituteMap;
     SkTDArray<SkPDFObject*> fSubstituteResourcesFirstPage;
     SkTDArray<SkPDFObject*> fSubstituteResourcesRemaining;

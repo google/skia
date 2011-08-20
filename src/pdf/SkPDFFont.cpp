@@ -44,18 +44,20 @@ bool parsePFBSection(const uint8_t** src, size_t* len, int sectionType,
     // an ASCII section (includes a length), type two is a binary section
     // (includes a length) and type three is an EOF marker with no length.
     const uint8_t* buf = *src;
-    if (*len < 2 || buf[0] != 0x80 || buf[1] != sectionType)
+    if (*len < 2 || buf[0] != 0x80 || buf[1] != sectionType) {
         return false;
-    if (buf[1] == 3)
+    } else if (buf[1] == 3) {
         return true;
-    if (*len < 6)
+    } else if (*len < 6) {
         return false;
+    }
 
     *size = (size_t)buf[2] | ((size_t)buf[3] << 8) | ((size_t)buf[4] << 16) |
             ((size_t)buf[5] << 24);
     size_t consumed = *size + 6;
-    if (consumed > *len)
+    if (consumed > *len) {
         return false;
+    }
     *src = *src + consumed;
     *len = *len - consumed;
     return true;
@@ -85,17 +87,20 @@ bool parsePFA(const char* src, size_t size, size_t* headerLen,
     const char* end = src + size;
 
     const char* dataPos = strstr(src, "eexec");
-    if (!dataPos)
+    if (!dataPos) {
         return false;
+    }
     dataPos += strlen("eexec");
     while ((*dataPos == '\n' || *dataPos == '\r' || *dataPos == ' ') &&
-            dataPos < end)
+            dataPos < end) {
         dataPos++;
+    }
     *headerLen = dataPos - src;
 
     const char* trailerPos = strstr(dataPos, "cleartomark");
-    if (!trailerPos)
+    if (!trailerPos) {
         return false;
+    }
     int zeroCount = 0;
     for (trailerPos--; trailerPos > dataPos && zeroCount < 512; trailerPos--) {
         if (*trailerPos == '\n' || *trailerPos == '\r' || *trailerPos == ' ') {
@@ -106,8 +111,9 @@ bool parsePFA(const char* src, size_t size, size_t* headerLen,
             return false;
         }
     }
-    if (zeroCount != 512)
+    if (zeroCount != 512) {
         return false;
+    }
 
     *hexDataLen = trailerPos - src - *headerLen;
     *trailerLen = size - *headerLen - *hexDataLen;
@@ -115,10 +121,12 @@ bool parsePFA(const char* src, size_t size, size_t* headerLen,
     // Verify that the data section is hex encoded and count the bytes.
     int nibbles = 0;
     for (; dataPos < trailerPos; dataPos++) {
-        if (isspace(*dataPos))
+        if (isspace(*dataPos)) {
             continue;
-        if (!isxdigit(*dataPos))
+        }
+        if (!isxdigit(*dataPos)) {
             return false;
+        }
         nibbles++;
     }
     *dataLen = (nibbles + 1) / 2;
@@ -127,11 +135,15 @@ bool parsePFA(const char* src, size_t size, size_t* headerLen,
 }
 
 int8_t hexToBin(uint8_t c) {
-    if (!isxdigit(c))
+    if (!isxdigit(c)) {
         return -1;
-    if (c <= '9') return c - '0';
-    if (c <= 'F') return c - 'A' + 10;
-    if (c <= 'f') return c - 'a' + 10;
+    } else if (c <= '9') {
+        return c - '0';
+    } else if (c <= 'F') {
+        return c - 'A' + 10;
+    } else if (c <= 'f') {
+        return c - 'a' + 10;
+    }
     return -1;
 }
 
@@ -158,8 +170,9 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
             while (read < srcLen) {
                 size_t got = srcStream->read((void *)staticStream->getAtPos(),
                                              srcLen - read);
-                if (got == 0)
+                if (got == 0) {
                     return NULL;
+                }
                 read += got;
                 staticStream->seek(read);
             }
@@ -169,8 +182,9 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
         static const size_t kBufSize = 4096;
         uint8_t buf[kBufSize];
         size_t amount;
-        while ((amount = srcStream->read(buf, kBufSize)) > 0)
+        while ((amount = srcStream->read(buf, kBufSize)) > 0) {
             dynamicStream.write(buf, amount);
+        }
         amount = 0;
         dynamicStream.write(&amount, 1);  // NULL terminator.
         data = dynamicStream.copyToData();
@@ -211,8 +225,9 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
         bool highNibble = true;
         for (; hexData < trailer; hexData++) {
             char curNibble = hexToBin(*hexData);
-            if (curNibble < 0)
+            if (curNibble < 0) {
                 continue;
+            }
             if (highNibble) {
                 dataByte = curNibble << 4;
                 highNibble = false;
@@ -222,8 +237,9 @@ SkStream* handleType1Stream(SkStream* srcStream, size_t* headerLen,
                 ((char *)result->getAtPos())[outputOffset++] = dataByte;
             }
         }
-        if (!highNibble)
+        if (!highNibble) {
             ((char *)result->getAtPos())[outputOffset++] = dataByte;
+        }
         SkASSERT(outputOffset == *dataLen);
         result->seek(*headerLen + outputOffset);
 
@@ -450,7 +466,9 @@ static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
 void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                           const SkPDFGlyphSet* subset,
                           SkDynamicMemoryWStream* cmap) {
-    if (glyphToUnicode.count() == 0) return;
+    if (glyphToUnicode.isEmpty()) {
+        return;
+    }
 
     SkTDArray<BFChar> bfcharEntries;
     SkTDArray<BFRange> bfrangeEntries;
@@ -795,11 +813,12 @@ SkMutex& SkPDFFont::CanonicalFontsMutex() {
 
 // static
 bool SkPDFFont::Find(uint32_t fontID, uint16_t glyphID, int* index) {
-    // TODO(vandebo) optimize this, do only one search?
+    // TODO(vandebo): Optimize this, do only one search?
     FontRec search(NULL, fontID, glyphID);
     *index = CanonicalFonts().find(search);
-    if (*index >= 0)
+    if (*index >= 0) {
         return true;
+    }
     search.fGlyphID = 0;
     *index = CanonicalFonts().find(search);
     return false;
@@ -927,14 +946,16 @@ void SkPDFFont::adjustGlyphRangeForSingleByteEncoding(int16_t glyphID) {
 }
 
 bool SkPDFFont::FontRec::operator==(const SkPDFFont::FontRec& b) const {
-    if (fFontID != b.fFontID)
+    if (fFontID != b.fFontID) {
         return false;
+    }
     if (fFont != NULL && b.fFont != NULL) {
         return fFont->fFirstGlyphID == b.fFont->fFirstGlyphID &&
             fFont->fLastGlyphID == b.fFont->fLastGlyphID;
     }
-    if (fGlyphID == 0 || b.fGlyphID == 0)
+    if (fGlyphID == 0 || b.fGlyphID == 0) {
         return true;
+    }
 
     if (fFont != NULL) {
         return fFont->fFirstGlyphID <= b.fGlyphID &&
@@ -1242,8 +1263,9 @@ bool SkPDFType1Font::populate(int16_t glyphID) {
         }
     }
 
-    if (!addFontDescriptor(defaultWidth))
+    if (!addFontDescriptor(defaultWidth)) {
         return false;
+    }
 
     insertName("Subtype", "Type1");
     insertName("BaseFont", fontInfo()->fFontName);
@@ -1286,8 +1308,9 @@ void SkPDFType1Font::addWidthInfoFromRange(
         } else {
             firstChar = startIndex + widthRangeEntry->fStartId;
         }
-        for (int i = startIndex; i < endIndex; i++)
+        for (int i = startIndex; i < endIndex; i++) {
             appendWidth(widthRangeEntry->fAdvance[i], emSize, widthArray.get());
+        }
     } else {
         appendWidth(defaultWidth, 1000, widthArray.get());
     }
