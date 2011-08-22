@@ -121,10 +121,12 @@ protected:
                 // Scroll a new copy of the bitmap, and then draw it.
                 // scrollRect() should always return true, even if it's a no-op
                 SkBitmap scrolledBitmap;
-                SkASSERT(origBitmap.copyTo(
-                    &scrolledBitmap, origBitmap.config()));
-                SkASSERT(scrolledBitmap.scrollRect(
-                    subset, scrollX * xMult, scrollY * yMult));
+                bool copyToReturnValue = origBitmap.copyTo(
+                    &scrolledBitmap, origBitmap.config());
+                SkASSERT(copyToReturnValue);
+                bool scrollRectReturnValue = scrolledBitmap.scrollRect(
+                    subset, scrollX * xMult, scrollY * yMult);
+                SkASSERT(scrollRectReturnValue);
                 canvas->drawBitmap(scrolledBitmap, bitmapX, bitmapY);
             }
         }
