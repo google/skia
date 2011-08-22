@@ -16,6 +16,7 @@
 #include "SkPicture.h"
 #include "SkScalarCompare.h"
 #include "SkTemplates.h"
+#include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
@@ -1381,6 +1382,78 @@ private:
     SkLazyPaint     fLazy;
 };
 
+void SkCanvas::DrawRect(const SkDraw& draw, const SkPaint& paint,
+                        const SkRect& r, SkScalar textSize) {
+    if (paint.getStyle() == SkPaint::kFill_Style) {
+        draw.fDevice->drawRect(draw, r, paint);
+    } else {
+        SkPaint p(paint);
+        p.setStrokeWidth(SkScalarMul(textSize, paint.getStrokeWidth()));
+        draw.fDevice->drawRect(draw, r, p);
+    }
+}
+
+void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
+                                   const char text[], size_t byteLength,
+                                   SkScalar x, SkScalar y) {
+    SkASSERT(byteLength == 0 || text != NULL);
+
+    // nothing to draw
+    if (text == NULL || byteLength == 0 ||
+        draw.fClip->isEmpty() ||
+        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+        return;
+    }
+
+    SkScalar    width = 0;
+    SkPoint     start;
+
+    start.set(0, 0);    // to avoid warning
+    if (paint.getFlags() & (SkPaint::kUnderlineText_Flag |
+                            SkPaint::kStrikeThruText_Flag)) {
+        width = paint.measureText(text, byteLength);
+
+        SkScalar offsetX = 0;
+        if (paint.getTextAlign() == SkPaint::kCenter_Align) {
+            offsetX = SkScalarHalf(width);
+        } else if (paint.getTextAlign() == SkPaint::kRight_Align) {
+            offsetX = width;
+        }
+        start.set(x - offsetX, y);
+    }
+
+    if (0 == width) {
+        return;
+    }
+
+    uint32_t flags = paint.getFlags();
+
+    if (flags & (SkPaint::kUnderlineText_Flag |
+                 SkPaint::kStrikeThruText_Flag)) {
+        SkScalar textSize = paint.getTextSize();
+        SkScalar height = SkScalarMul(textSize, kStdUnderline_Thickness);
+        SkRect   r;
+
+        r.fLeft = start.fX;
+        r.fRight = start.fX + width;
+
+        if (flags & SkPaint::kUnderlineText_Flag) {
+            SkScalar offset = SkScalarMulAdd(textSize, kStdUnderline_Offset,
+                                             start.fY);
+            r.fTop = offset;
+            r.fBottom = offset + height;
+            DrawRect(draw, paint, r, textSize);
+        }
+        if (flags & SkPaint::kStrikeThruText_Flag) {
+            SkScalar offset = SkScalarMulAdd(textSize, kStdStrikeThru_Offset,
+                                             start.fY);
+            r.fTop = offset;
+            r.fBottom = offset + height;
+            DrawRect(draw, paint, r, textSize);
+        }
+    }
+}
+
 void SkCanvas::drawText(const void* text, size_t byteLength,
                         SkScalar x, SkScalar y, const SkPaint& paint) {
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
@@ -1388,6 +1461,8 @@ void SkCanvas::drawText(const void* text, size_t byteLength,
     while (iter.next()) {
         SkDeviceFilteredPaint dfp(iter.fDevice, looper.paint());
         iter.fDevice->drawText(iter, text, byteLength, x, y, dfp.paint());
+        DrawTextDecorations(iter, dfp.paint(),
+                            static_cast<const char*>(text), byteLength, x, y);
     }
 
     LOOPER_END

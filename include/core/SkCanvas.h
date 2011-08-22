@@ -816,6 +816,11 @@ private:
     // shared by save() and saveLayer()
     int internalSave(SaveFlags flags);
     void internalRestore();
+    static void DrawRect(const SkDraw& draw, const SkPaint& paint,
+                         const SkRect& r, SkScalar textSize);
+    static void DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
+                                    const char text[], size_t byteLength,
+                                    SkScalar x, SkScalar y);
 
     /*  These maintain a cache of the clip bounds in local coordinates,
         (converted to 2s-compliment if floats are slow).

@@ -21,7 +21,6 @@
 #include "SkShader.h"
 #include "SkStroke.h"
 #include "SkTemplatesPriv.h"
-#include "SkTextFormatParams.h"
 #include "SkTLazy.h"
 #include "SkUtils.h"
 
@@ -1277,47 +1276,6 @@ void SkDraw::drawText_asPaths(const char text[], size_t byteLength,
     }
 }
 
-static void draw_paint_rect(const SkDraw* draw, const SkPaint& paint,
-                            const SkRect& r, SkScalar textSize) {
-    if (paint.getStyle() == SkPaint::kFill_Style) {
-        draw->drawRect(r, paint);
-    } else {
-        SkPaint p(paint);
-        p.setStrokeWidth(SkScalarMul(textSize, paint.getStrokeWidth()));
-        draw->drawRect(r, p);
-    }
-}
-
-static void handle_aftertext(const SkDraw* draw, const SkPaint& paint,
-                             SkScalar width, const SkPoint& start) {
-    uint32_t flags = paint.getFlags();
-
-    if (flags & (SkPaint::kUnderlineText_Flag |
-                 SkPaint::kStrikeThruText_Flag)) {
-        SkScalar textSize = paint.getTextSize();
-        SkScalar height = SkScalarMul(textSize, kStdUnderline_Thickness);
-        SkRect   r;
-
-        r.fLeft = start.fX;
-        r.fRight = start.fX + width;
-
-        if (flags & SkPaint::kUnderlineText_Flag) {
-            SkScalar offset = SkScalarMulAdd(textSize, kStdUnderline_Offset,
-                                             start.fY);
-            r.fTop = offset;
-            r.fBottom = offset + height;
-            draw_paint_rect(draw, paint, r, textSize);
-        }
-        if (flags & SkPaint::kStrikeThruText_Flag) {
-            SkScalar offset = SkScalarMulAdd(textSize, kStdStrikeThru_Offset,
-                                             start.fY);
-            r.fTop = offset;
-            r.fBottom = offset + height;
-            draw_paint_rect(draw, paint, r, textSize);
-        }
-    }
-}
-
 // disable warning : local variable used without having been initialized
 #if defined _WIN32 && _MSC_VER >= 1300
 #pragma warning ( push )
@@ -1513,27 +1471,9 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         return;
     }
 
-    SkScalar    underlineWidth = 0;
-    SkPoint     underlineStart;
-
-    underlineStart.set(0, 0);    // to avoid warning
-    if (paint.getFlags() & (SkPaint::kUnderlineText_Flag |
-                            SkPaint::kStrikeThruText_Flag)) {
-        underlineWidth = paint.measureText(text, byteLength);
-
-        SkScalar offsetX = 0;
-        if (paint.getTextAlign() == SkPaint::kCenter_Align) {
-            offsetX = SkScalarHalf(underlineWidth);
-        } else if (paint.getTextAlign() == SkPaint::kRight_Align) {
-            offsetX = underlineWidth;
-        }
-        underlineStart.set(x - offsetX, y);
-    }
-
     if (/*paint.isLinearText() ||*/
         (fMatrix->hasPerspective())) {
         this->drawText_asPaths(text, byteLength, x, y, paint);
-        handle_aftertext(this, paint, underlineWidth, underlineStart);
         return;
     }
 
@@ -1601,8 +1541,8 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     }
 
     SkAutoKern          autokern;
-	SkDraw1Glyph        d1g;
-	SkDraw1Glyph::Proc  proc = d1g.init(this, blitter.get(), cache);
+    SkDraw1Glyph        d1g;
+    SkDraw1Glyph::Proc  proc = d1g.init(this, blitter.get(), cache);
 
     while (text < stop) {
         const SkGlyph& glyph  = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
@@ -1610,15 +1550,10 @@ void SkDraw::drawText(const char text[], size_t byteLength,
         fx += autokern.adjust(glyph);
 
         if (glyph.fWidth) {
-			proc(d1g, fx, fy, glyph);
+            proc(d1g, fx, fy, glyph);
         }
         fx += glyph.fAdvanceX;
         fy += glyph.fAdvanceY;
-    }
-
-    if (underlineWidth) {
-        autoCache.release();    // release this now to free up the RAM
-        handle_aftertext(this, paint, underlineWidth, underlineStart);
     }
 }
 

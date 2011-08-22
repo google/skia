@@ -837,26 +837,6 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
         content.entry()->fContent.writeText(" Tj\n");
     }
     content.entry()->fContent.writeText("ET\n");
-
-    // Draw underline and/or strikethrough if the paint has them.
-    // drawPosText() and drawTextOnPath() don't draw underline or strikethrough
-    // because the raster versions don't.  Use paint instead of textPaint
-    // because we may have changed strokeWidth to do fakeBold text.
-    if (paint.isUnderlineText() || paint.isStrikeThruText()) {
-        SkScalar textSize = paint.getTextSize();
-        SkScalar height = SkScalarMul(textSize, kStdUnderline_Thickness);
-
-        if (paint.isUnderlineText()) {
-            SkScalar top = SkScalarMulAdd(textSize, kStdUnderline_Offset, y);
-            SkRect r = SkRect::MakeXYWH(x, top - height, width, height);
-            drawRect(d, r, paint);
-        }
-        if (paint.isStrikeThruText()) {
-            SkScalar top = SkScalarMulAdd(textSize, kStdStrikeThru_Offset, y);
-            SkRect r = SkRect::MakeXYWH(x, top - height, width, height);
-            drawRect(d, r, paint);
-        }
-    }
 }
 
 void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,

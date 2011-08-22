@@ -217,6 +217,10 @@ protected:
                             const SkMatrix& matrix, const SkPaint& paint);
     virtual void drawSprite(const SkDraw&, const SkBitmap& bitmap,
                             int x, int y, const SkPaint& paint);
+    /**
+     *  Does not handle text decoration.
+     *  Decorations (underline and stike-thru) will be handled by SkCanvas.
+     */
     virtual void drawText(const SkDraw&, const void* text, size_t len,
                           SkScalar x, SkScalar y, const SkPaint& paint);
     virtual void drawPosText(const SkDraw&, const void* text, size_t len,
