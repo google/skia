@@ -1540,13 +1540,11 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkDrawCacheProc glyphCacheProc = paint.getDrawCacheProc();
 
     const SkMatrix* matrix = fMatrix;
-    SkFixed finalFYMask = ~0xFFFF;  // trunc fy;
     if (hasCustomD1GProc(*this)) {
         // only support the fMVMatrix (for now) for the GPU case, which also
         // sets the fD1GProc
         if (fMVMatrix) {
             matrix = fMVMatrix;
-            finalFYMask = ~0;  // don't truncate
         }
     }
 
@@ -1596,7 +1594,6 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     // apply the bias here, so we don't have to add 1/2 in the loop
     fx += SK_FixedHalf;
     fy += SK_FixedHalf;
-    fyMask &= finalFYMask;
 
     SkAutoBlitterChoose blitter;
     if (needsRasterTextBlit(*this)) {
