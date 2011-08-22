@@ -200,6 +200,7 @@ GrResourceEntry* GrResourceCache::createAndLock(const GrResourceKey& key,
 }
 
 void GrResourceCache::detach(GrResourceEntry* entry) {
+    GrAutoResourceCacheValidate atcv(this);
     internalDetach(entry, true);
     fCache.remove(entry->fKey, entry);
 }
@@ -239,9 +240,9 @@ void GrResourceCache::purgeAsNeeded() {
         fPurging = true;
         bool withinBudget = false;
         do {
-            GrAutoResourceCacheValidate atcv(this);
             GrResourceEntry* entry = fTail;
             while (entry && fUnlockedEntryCount) {
+                GrAutoResourceCacheValidate atcv(this);
                 if (fEntryCount <= fMaxCount && fEntryBytes <= fMaxBytes) {
                     withinBudget = true;
                     break;
@@ -271,23 +272,31 @@ void GrResourceCache::purgeAsNeeded() {
 }
 
 void GrResourceCache::removeAll() {
+    GrAutoResourceCacheValidate atcv(this);
     GrAssert(!fClientDetachedCount);
     GrAssert(!fClientDetachedBytes);
 
     GrResourceEntry* entry = fHead;
-    while (entry) {
-        GrAssert(!entry->isLocked());
 
-        GrResourceEntry* next = entry->fNext;
-        delete entry;
-        entry = next;
-    }
+    // we can have one GrResource holding a lock on another
+    // so we don't want to just do a simple loop kicking each
+    // entry out. Instead change the budget and purge.
 
-    fCache.removeAll();
-    fHead = fTail = NULL;
-    fEntryCount = 0;
-    fEntryBytes = 0;
-    fUnlockedEntryCount = 0;
+    int savedMaxBytes = fMaxBytes;
+    int savedMaxCount = fMaxCount;
+    fMaxBytes = -1;
+    fMaxCount = 0;
+    this->purgeAsNeeded();
+
+    GrAssert(!fCache.count());
+    GrAssert(!fUnlockedEntryCount);
+    GrAssert(!fEntryCount);
+    GrAssert(!fEntryBytes);
+    GrAssert(NULL == fHead);
+    GrAssert(NULL == fTail);
+
+    fMaxBytes = savedMaxBytes;
+    fMaxCount = savedMaxCount;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
