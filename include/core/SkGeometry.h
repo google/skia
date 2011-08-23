@@ -105,7 +105,11 @@ void SkEvalCubicAt(const SkPoint src[4], SkScalar t, SkPoint* locOrNull,
     dst[0..3] and dst[3..6]
 */
 void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t);
-void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], const SkScalar t[],
+/** Given a src cubic bezier, chop it at the specified t values,
+    where 0 < t < 1, and return the new cubics in dst:
+    dst[0..3],dst[3..6],...,dst[3*t_count..3*(t_count+1)]
+*/
+void SkChopCubicAt(const SkPoint src[4], SkPoint dst[], const SkScalar t[],
                    int t_count);
 
 /** Given a src cubic bezier, chop it at the specified t == 1/2,
@@ -141,8 +145,8 @@ int SkChopCubicAtXExtrema(const SkPoint src[4], SkPoint dst[10]);
 */
 int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[2]);
 
-/** Return 1 for no chop, or 2 for having chopped the cubic at its
-    inflection point.
+/** Return 1 for no chop, 2 for having chopped the cubic at a single
+    inflection point, 3 for having chopped at 2 inflection points.
 */
 int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 

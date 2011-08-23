@@ -1419,21 +1419,11 @@ void SkPath::validate() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/**
- *  Returns -1 || 0 || 1 depending on the sign of value:
- *  -1 if value < 0
- *   0 if vlaue == 0
- *   1 if value > 0
- */
-static int SkScalarSign(SkScalar value) {
-    return value < 0 ? -1 : (value > 0);
-}
-
 static int sign(SkScalar x) { return x < 0; }
 #define kValueNeverReturnedBySign   2
 
 static int CrossProductSign(const SkVector& a, const SkVector& b) {
-    return SkScalarSign(SkPoint::CrossProduct(a, b));
+    return SkScalarSignAsInt(SkPoint::CrossProduct(a, b));
 }
 
 // only valid for a single contour
