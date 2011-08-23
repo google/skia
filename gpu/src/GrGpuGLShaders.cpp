@@ -256,13 +256,16 @@ GrGLBinding get_binding_in_use(const GrGLInterface* gl) {
 GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     : GrGpuGL(gl, get_binding_in_use(gl)) {
 
-    f4X4DownsampleFilterSupport = true;
+    fShaderSupport = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fDualSourceBlendingSupport =
                             fGLVersion >= 3.3f ||
                             this->hasExtension("GL_ARB_blend_func_extended");
+        fShaderDerivativeSupport = true;
     } else {
         fDualSourceBlendingSupport = false;
+        fShaderDerivativeSupport =
+                            this->hasExtension("GL_OES_standard_derivatives");
     }
 
     fProgramData = NULL;

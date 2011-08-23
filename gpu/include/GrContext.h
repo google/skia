@@ -182,7 +182,9 @@ public:
     /**
      *  Returns true if the specified use of an indexed texture is supported.
      */
-    bool supportsIndex8PixelConfig(const GrSamplerState&, int width, int height);
+    bool supportsIndex8PixelConfig(const GrSamplerState&,
+                                   int width,
+                                   int height) const;
 
     /**
      *  Return the current texture cache limits.
@@ -387,6 +389,11 @@ public:
     // Misc.
 
     /**
+     * Currently needed by SkGpuDevice. Ideally this shouldn't be exposed.
+     */
+    bool supportsShaders() const;
+
+    /**
      * Flags that affect flush() behavior.
      */
     enum FlushBits {
@@ -510,6 +517,7 @@ public:
     ///////////////////////////////////////////////////////////////////////////
     // Functions intended for internal use only.
     GrGpu* getGpu() { return fGpu; }
+    const GrGpu* getGpu() const { return fGpu; }
     GrFontCache* getFontCache() { return fFontCache; }
     GrDrawTarget* getTextTarget(const GrPaint& paint);
     void flushText();

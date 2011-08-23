@@ -31,7 +31,8 @@ public:
          * Average of 4 bilinear filterings spaced +/- 1 texel from sample
          * position in x and y. Intended for averaging 16 texels in a downsample
          * pass. (rasterizing such that texture samples fall exactly halfway
-         * between texels in x and y spaced 4 texels apart.)
+         * between texels in x and y spaced 4 texels apart.) Only supported
+         * on shader backends.
          */
         k4x4Downsample_Filter,
         /**
