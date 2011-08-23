@@ -45,7 +45,7 @@ public:
             fFaces[i] = SkTypeface::CreateFromName(gFaces[i].fName,
                                                    gFaces[i].fStyle);
         }
-        this->setBGColor(0xFFDDDDDD);
+//        this->setBGColor(0xFFDDDDDD);
     }
 
     virtual ~FontScalerTestView() {
@@ -87,12 +87,13 @@ protected:
             canvas->drawPath(path, paint);
         }
 
+//        paint.setSubpixelText(true);
         paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
         SkSafeUnref(paint.setTypeface(SkTypeface::CreateFromName("Times Roman", SkTypeface::kNormal)));
 
 //        const char* text = "abcdefghijklmnopqrstuvwxyz";
-        const char* text = "HnHnHnHnHnHnHnH";
+        const char* text = "Hamburgefons ooo mmm";
         const size_t textLen = strlen(text);
 
         for (int j = 0; j < 2; ++j) {
@@ -102,7 +103,7 @@ protected:
 
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->translate(50 + i * 230, 20);
-                rotate_about(canvas, i * 7, x, y * 10);
+                rotate_about(canvas, i * 5, x, y * 10);
 
                 {
                     SkPaint p;
@@ -113,7 +114,7 @@ protected:
                 }
 
                 int index = 0;
-                for (int ps = 9; ps <= 24; ps++) {
+                for (int ps = 6; ps <= 22; ps++) {
                     paint.setTextSize(SkIntToScalar(ps));
                     canvas->drawText(text, textLen, x, y, paint);
                     y += paint.getFontMetrics(NULL);
@@ -121,7 +122,7 @@ protected:
                 }
             }
             canvas->translate(0, 400);
-            paint.setLinearText(true);
+            paint.setSubpixelText(true);
         }
     }
 
