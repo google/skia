@@ -429,9 +429,10 @@ struct SK_API SkRect {
         this->offset(delta.fX, delta.fY);
     }
 
-    /** Inset the rectangle by (dx,dy). If dx is positive, then the sides are moved inwards,
-        making the rectangle narrower. If dx is negative, then the sides are moved outwards,
-        making the rectangle wider. The same hods true for dy and the top and bottom.
+    /** Inset the rectangle by (dx,dy). If dx is positive, then the sides are
+        moved inwards, making the rectangle narrower. If dx is negative, then
+        the sides are moved outwards, making the rectangle wider. The same holds
+         true for dy and the top and bottom.
     */
     void inset(SkScalar dx, SkScalar dy)  {
         fLeft   += dx;
@@ -439,6 +440,13 @@ struct SK_API SkRect {
         fRight  -= dx;
         fBottom -= dy;
     }
+
+   /** Outset the rectangle by (dx,dy). If dx is positive, then the sides are
+       moved outwards, making the rectangle wider. If dx is negative, then the
+       sides are moved inwards, making the rectangle narrower. The same hods
+       true for dy and the top and bottom.
+    */
+    void outset(SkScalar dx, SkScalar dy)  { this->inset(-dx, -dy); }
 
     /** If this rectangle intersects r, return true and set this rectangle to that
         intersection, otherwise return false and do not change this rectangle.

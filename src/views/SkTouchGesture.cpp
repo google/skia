@@ -28,8 +28,8 @@ static double getseconds() {
 }
 
 // returns +1 or -1, depending on the sign of x
-// returns +1 if x is zero
-static SkScalar SkScalarSign(SkScalar x) {
+// returns +1 if z is zero
+static SkScalar SkScalarSignNonZero(SkScalar x) {
     SkScalar sign = SK_Scalar1;
     if (x < 0) {
         sign = -sign;
@@ -41,9 +41,9 @@ static void unit_axis_align(SkVector* unit) {
     const SkScalar TOLERANCE = SkDoubleToScalar(0.15);
     if (SkScalarAbs(unit->fX) < TOLERANCE) {
         unit->fX = 0;
-        unit->fY = SkScalarSign(unit->fY);
+        unit->fY = SkScalarSignNonZero(unit->fY);
     } else if (SkScalarAbs(unit->fY) < TOLERANCE) {
-        unit->fX = SkScalarSign(unit->fX);
+        unit->fX = SkScalarSignNonZero(unit->fX);
         unit->fY = 0;
     }
 }

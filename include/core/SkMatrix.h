@@ -364,6 +364,31 @@ public:
         this->mapPoints(pts, pts, count);
     }
     
+    /** Like mapPoints but with custom byte stride between the points. Stride
+     *  should be a multiple of sizeof(SkScalar).
+     */
+    void mapPointsWithStride(SkPoint pts[], size_t stride, int count) const {
+        SkASSERT(stride >= sizeof(SkPoint));
+        SkASSERT(0 == stride % sizeof(SkScalar));
+        for (int i = 0; i < count; ++i) {
+            this->mapPoints(pts, pts, 1);
+            pts = (SkPoint*)((intptr_t)pts + stride);
+        }
+    }
+
+    /** Like mapPoints but with custom byte stride between the points.
+    */
+    void mapPointsWithStride(SkPoint dst[], SkPoint src[],
+                             size_t stride, int count) const {
+        SkASSERT(stride >= sizeof(SkPoint));
+        SkASSERT(0 == stride % sizeof(SkScalar));
+        for (int i = 0; i < count; ++i) {
+            this->mapPoints(dst, src, 1);
+            src = (SkPoint*)((intptr_t)src + stride);
+            dst = (SkPoint*)((intptr_t)dst + stride);
+        }
+    }
+
     void mapXY(SkScalar x, SkScalar y, SkPoint* result) const {
         SkASSERT(result);
         this->getMapXYProc()(*this, x, y, result);
@@ -411,13 +436,6 @@ public:
         return this->mapRect(rect, *rect);
     }
 
-    void mapPointsWithStride(SkPoint pts[], size_t stride, int count) const {
-        for (int i = 0; i < count; ++i) {            
-            this->mapPoints(pts, pts, 1);
-            pts = (SkPoint*)((intptr_t)pts + stride);
-        }
-    }
-    
     /** Return the mean radius of a circle after it has been mapped by
         this matrix. NOTE: in perspective this value assumes the circle
         has its center at the origin.

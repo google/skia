@@ -359,7 +359,25 @@ bool SkPoint::setLength(SkFixed ox, SkFixed oy, SkFixed length) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a, 
+SkScalar SkPoint::distanceToLineBetweenSqd(const SkPoint& a,
+                                           const SkPoint& b,
+                                           Side* side) const {
+
+    SkVector u = b - a;
+    SkVector v = *this - a;
+    
+    SkScalar uLengthSqd = u.lengthSqd();
+    SkScalar det = u.cross(v);
+    if (NULL != side) {
+        SkASSERT(-1 == SkPoint::kLeft_Side &&
+                  0 == SkPoint::kOn_Side &&
+                  1 == kRight_Side);
+        *side = (Side) SkScalarSignAsInt(det);
+    }
+    return SkScalarMulDiv(det, det, uLengthSqd);
+}
+
+SkScalar SkPoint::distanceToLineSegmentBetweenSqd(const SkPoint& a,
                                                   const SkPoint& b) const {
     // See comments to distanceToLineBetweenSqd. If the projection of c onto
     // u is between a and b then this returns the same result as that 

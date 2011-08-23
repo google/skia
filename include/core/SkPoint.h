@@ -361,13 +361,67 @@ struct SK_API SkPoint {
         SkScalar dy = fY - pt.fY;
         return SkScalarMul(dx, dx) + SkScalarMul(dy, dy);
     }
-    
-    SkScalar distanceToLineSegmentBetweenSqd(const SkPoint& a, 
+
+    /**
+     * The side of a point relative to a line. If the line is from a to b then
+     * the values are consistent with the sign of (b-a) cross (pt-a)
+     */
+    enum Side {
+        kLeft_Side  = -1,
+        kOn_Side    =  0,
+        kRight_Side =  1
+    };
+
+    /**
+     * Returns the squared distance to the infinite line between two pts. Also
+     * optionally returns the side of the line that the pt falls on (looking
+     * along line from a to b)
+     */
+    SkScalar distanceToLineBetweenSqd(const SkPoint& a,
+                                      const SkPoint& b,
+                                      Side* side = NULL) const;
+
+    /**
+     * Returns the distance to the infinite line between two pts. Also
+     * optionally returns the side of the line that the pt falls on (looking
+     * along the line from a to b)
+     */
+    SkScalar distanceToLineBetween(const SkPoint& a,
+                                   const SkPoint& b,
+                                   Side* side = NULL) const {
+        return SkScalarSqrt(this->distanceToLineBetweenSqd(a, b, side));
+    }
+
+    /**
+     * Returns the squared distance to the line segment between pts a and b
+     */
+    SkScalar distanceToLineSegmentBetweenSqd(const SkPoint& a,
                                              const SkPoint& b) const;
-    
-    SkScalar distanceToLineSegmentBetween(const SkPoint& a, 
+
+    /**
+     * Returns the distance to the line segment between pts a and b.
+     */
+    SkScalar distanceToLineSegmentBetween(const SkPoint& a,
                                           const SkPoint& b) const {
         return SkScalarSqrt(this->distanceToLineSegmentBetweenSqd(a, b));
+    }
+
+    /**
+     * Make this vector be orthogonal to vec. Looking down vec the
+     * new vector will point in direction indicated by side (which
+     * must be kLeft_Side or kRight_Side).
+     */
+    void setOrthog(const SkPoint& vec, Side side = kLeft_Side) {
+        // vec could be this
+        SkScalar tmp = vec.fX;
+        if (kLeft_Side == side) {
+            fX = -vec.fY;
+            fY = tmp;
+        } else {
+            SkASSERT(kRight_Side == side);
+            fX = vec.fY;
+            fY = -tmp;
+        }
     }
 };
 

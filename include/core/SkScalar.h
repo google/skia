@@ -288,6 +288,20 @@
 #define SkScalarCeil(x)     SkScalarCeilToInt(x)
 #define SkScalarRound(x)    SkScalarRoundToInt(x)
 
+/**
+ *  Returns -1 || 0 || 1 depending on the sign of value:
+ *  -1 if x < 0
+ *   0 if x == 0
+ *   1 if x > 0
+ */
+static inline int SkScalarSignAsInt(SkScalar x) {
+    return x < 0 ? -1 : (x > 0);
+}
+
+// Scalar result version of above
+static inline SkScalar SkScalarSignAsScalar(SkScalar x) {
+    return x < 0 ? -SK_Scalar1 : ((x > 0) ? SK_Scalar1 : 0);
+}
 
 #define SK_ScalarNearlyZero         (SK_Scalar1 / (1 << 12))
 
