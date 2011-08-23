@@ -66,9 +66,9 @@ static SkPaint calculate_text_paint(const SkPaint& paint) {
 
 // Stolen from measure_text in SkDraw.cpp and then tweaked.
 static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
-                       const uint16_t* glyphs, size_t len, SkScalar* x,
-                       SkScalar* y, SkScalar* width) {
-    if (paint.getTextAlign() == SkPaint::kLeft_Align && width == NULL) {
+                       const uint16_t* glyphs, size_t len,
+                       SkScalar* x, SkScalar* y) {
+    if (paint.getTextAlign() == SkPaint::kLeft_Align) {
         return;
     }
 
@@ -87,9 +87,6 @@ static void align_text(SkDrawCacheProc glyphCacheProc, const SkPaint& paint,
         xAdv += glyph.fAdvanceX;
         yAdv += glyph.fAdvanceY;
     };
-    if (width) {
-        *width = SkFixedToScalar(xAdv);
-    }
     if (paint.getTextAlign() == SkPaint::kLeft_Align) {
         return;
     }
@@ -809,14 +806,8 @@ void SkPDFDevice::drawText(const SkDraw& d, const void* text, size_t len,
         memcpy(glyphIDs, text, len);
     }
 
-    SkScalar width;
-    SkScalar* widthPtr = NULL;
-    if (textPaint.isUnderlineText() || textPaint.isStrikeThruText())
-        widthPtr = &width;
-
     SkDrawCacheProc glyphCacheProc = textPaint.getDrawCacheProc();
-    align_text(glyphCacheProc, textPaint, glyphIDs, numGlyphs, &x, &y,
-               widthPtr);
+    align_text(glyphCacheProc, textPaint, glyphIDs, numGlyphs, &x, &y);
     content.entry()->fContent.writeText("BT\n");
     set_text_transform(x, y, textPaint.getTextSkewX(),
                        &content.entry()->fContent);
@@ -880,7 +871,7 @@ void SkPDFDevice::drawPosText(const SkDraw& d, const void* text, size_t len,
         fFontGlyphUsage->noteGlyphUsage(font, &encodedValue, 1);
         SkScalar x = pos[i * scalarsPerPos];
         SkScalar y = scalarsPerPos == 1 ? constY : pos[i * scalarsPerPos + 1];
-        align_text(glyphCacheProc, textPaint, glyphIDs + i, 1, &x, &y, NULL);
+        align_text(glyphCacheProc, textPaint, glyphIDs + i, 1, &x, &y);
         set_text_transform(x, y, textPaint.getTextSkewX(),
                            &content.entry()->fContent);
         SkString encodedString =
