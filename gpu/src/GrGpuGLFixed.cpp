@@ -62,7 +62,8 @@ GrGLBinding get_binding_in_use(const GrGLInterface* gl) {
 
 GrGpuGLFixed::GrGpuGLFixed(const GrGLInterface* gl)
     : GrGpuGL(gl, get_binding_in_use(gl)) {
-    f4X4DownsampleFilterSupport = false;
+    fShaderSupport = false;
+    fShaderDerivativeSupport = false;
     fDualSourceBlendingSupport = false;
 }
 

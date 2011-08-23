@@ -551,7 +551,7 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
 ///////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
-                                          int width, int height) {
+                                          int width, int height) const {
     if (!fGpu->supports8BitPalette()) {
         return false;
     }
@@ -639,7 +639,10 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
     if (!paint.fAntiAlias) {
         return false;
     }
-    if (isHairLines && target->willUseHWAALines()) {
+    // Line primitves are always rasterized as 1 pixel wide.
+    // Super-sampling would make them too thin but MSAA would be OK.
+    if (isHairLines &&
+        (!PREFER_MSAA_OFFSCREEN_AA || !fGpu->supportsFullsceneAA())) {
         return false;
     }
     if (target->getRenderTarget()->isMultisampled()) {
@@ -693,7 +696,7 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
         record->fScale = 1;
         desc.fAALevel = kMed_GrAALevel;
     } else {
-        record->fDownsample = (fGpu->supports4x4DownsampleFilter()) ?
+        record->fDownsample = (fGpu->supportsShaders()) ?
                                 OffscreenRecord::k4x4SinglePass_Downsample :
                                 OffscreenRecord::k4x4TwoPass_Downsample;
         record->fScale = OFFSCREEN_SSAA_SCALE;
@@ -1491,6 +1494,10 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+bool GrContext::supportsShaders() const {
+    return fGpu->supportsShaders();
+}
 
 void GrContext::flush(int flagsBitfield) {
     if (kDiscard_FlushBit & flagsBitfield) {

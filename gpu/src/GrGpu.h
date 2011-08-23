@@ -184,6 +184,16 @@ public:
     bool supportsHWAALines() const { return fAALineSupport; }
 
     /**
+     * Are shaders supported.
+     */
+    bool supportsShaders() const { return fShaderSupport; }
+
+    /**
+     * Are derivative instructions supported in fragment shaders
+     */
+    bool supportsShaderDerivatives() const { return fShaderDerivativeSupport; }
+
+    /**
      * Does the subclass support GrSamplerState::k4x4Downsample_Filter
      */
     bool supports4x4DownsampleFilter() const { return f4X4DownsampleFilterSupport; }
@@ -193,8 +203,8 @@ public:
      * blending with partial coverage with certain blend modes (dst coeff is
      * not 1, ISA, or ISC)
      */
-    bool supportsDualSourceBlending() const { 
-        return fDualSourceBlendingSupport; 
+    bool supportsDualSourceBlending() const {
+        return fDualSourceBlendingSupport;
     }
 
     /**
@@ -363,6 +373,8 @@ protected:
     bool fTwoSidedStencilSupport;
     bool fStencilWrapOpsSupport;
     bool fAALineSupport;
+    bool fShaderSupport;
+    bool fShaderDerivativeSupport;
     bool fFSAASupport;
     bool f4X4DownsampleFilterSupport; // supports GrSamplerState::k4x4Downsample_Filter
     bool fDualSourceBlendingSupport;
