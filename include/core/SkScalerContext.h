@@ -293,5 +293,31 @@ private:
 #define kMaskFilter_SkDescriptorTag     SkSetFourByteTag('m', 's', 'k', 'f')
 #define kRasterizer_SkDescriptorTag     SkSetFourByteTag('r', 'a', 's', 't')
 
+///////////////////////////////////////////////////////////////////////////////
+
+enum SkAxisAlignment {
+    kNone_SkAxisAlignment,
+    kX_SkAxisAlignment,
+    kY_SkAxisAlignment
+};
+
+/**
+ *  Return the axis (if any) that the baseline for horizontal text will land on
+ *  after running through the specified matrix.
+ *
+ *  As an example, the identity matrix will return kX_SkAxisAlignment
+ */
+static SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
+    SkASSERT(!matrix.hasPerspective());
+    
+    if (0 == matrix[SkMatrix::kMSkewY]) {
+        return kX_SkAxisAlignment;
+    }
+    if (0 == matrix[SkMatrix::kMScaleX]) {
+        return kY_SkAxisAlignment;
+    }
+    return kNone_SkAxisAlignment;
+}
+
 #endif
 

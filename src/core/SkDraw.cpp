@@ -1438,24 +1438,6 @@ SkDraw1Glyph::Proc SkDraw1Glyph::init(const SkDraw* draw, SkBlitter* blitter,
     }
 }
 
-enum RoundBaseline {
-    kDont_Round_Baseline,
-    kRound_X_Baseline,
-    kRound_Y_Baseline
-};
-
-static RoundBaseline computeRoundBaseline(const SkMatrix& mat) {
-    if (mat[1] == 0 && mat[3] == 0) {
-        // we're 0 or 180 degrees, round the y coordinate of the baseline
-        return kRound_Y_Baseline;
-    } else if (mat[0] == 0 && mat[4] == 0) {
-        // we're 90 or 270 degrees, round the x coordinate of the baseline
-        return kRound_X_Baseline;
-    } else {
-        return kDont_Round_Baseline;
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkDraw::drawText(const char text[], size_t byteLength,
@@ -1523,11 +1505,10 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkFixed fxMask = ~0;
     SkFixed fyMask = ~0;
     if (paint.isSubpixelText()) {
-        RoundBaseline roundBaseline = computeRoundBaseline(*matrix);
-        if (kRound_Y_Baseline == roundBaseline) {
+        SkAxisAlignment baseline = SkComputeAxisAlignmentForHText(*matrix);
+        if (kX_SkAxisAlignment == baseline) {
             fyMask = 0;
-//            fy = (fy + 0x8000) & ~0xFFFF;
-        } else if (kRound_X_Baseline == roundBaseline) {
+        } else if (kY_SkAxisAlignment == baseline) {
             fxMask = 0;
         }
     }
@@ -1698,7 +1679,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
 
     if (paint.isSubpixelText()) {
         // maybe we should skip the rounding if linearText is set
-        RoundBaseline roundBaseline = computeRoundBaseline(*matrix);
+        SkAxisAlignment roundBaseline = SkComputeAxisAlignmentForHText(*matrix);
 
         if (SkPaint::kLeft_Align == paint.getTextAlign()) {
             while (text < stop) {
@@ -1710,9 +1691,9 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                 SkFixed fxMask = ~0;
                 SkFixed fyMask = ~0;
 
-                if (kRound_Y_Baseline == roundBaseline) {
+                if (kX_SkAxisAlignment == roundBaseline) {
                     fyMask = 0;
-                } else if (kRound_X_Baseline == roundBaseline) {
+                } else if (kY_SkAxisAlignment == roundBaseline) {
                     fxMask = 0;
                 }
 
@@ -1743,9 +1724,9 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
                         fx = fixedLoc.fX;
                         fy = fixedLoc.fY;
 
-                        if (kRound_Y_Baseline == roundBaseline) {
+                        if (kX_SkAxisAlignment == roundBaseline) {
                             fyMask = 0;
-                        } else if (kRound_X_Baseline == roundBaseline) {
+                        } else if (kY_SkAxisAlignment == roundBaseline) {
                             fxMask = 0;
                         }
                     }
