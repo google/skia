@@ -536,6 +536,13 @@ public:
     bool canDisableBlend() const;
 
     /**
+     * Given the current draw state, vertex layout, and hw support, will HW AA
+     * lines be used (if line primitive type is drawn)? (Note that lines are
+     * always 1 pixel wide)
+     */
+    virtual bool willUseHWAALines() const = 0;
+
+    /**
      * Sets the edge data required for edge antialiasing.
      *
      * @param edges       3 * 6 float values, representing the edge
@@ -1142,7 +1149,13 @@ public:
     static void VertexLayoutUnitTest();
 
 protected:
-    
+
+    // determines whether HW blending can be disabled or not
+    static bool CanDisableBlend(GrVertexLayout layout, const DrState& state);
+
+    // determines whether HW AA lines can be used or not
+    static bool CanUseHWAALines(GrVertexLayout layout, const DrState& state);
+
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified
         kReserved_GeometrySrcType, //<! src was set using reserve*Space

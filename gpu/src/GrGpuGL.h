@@ -164,8 +164,6 @@ private:
 
     void setSpareTextureUnit();
 
-    bool useSmoothLines();
-
     // bound is region that may be modified and therefore has to be resolved.
     // NULL means whole target. Can be an empty rect.
     void flushRenderTarget(const GrIRect* bound);

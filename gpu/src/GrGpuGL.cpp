@@ -1813,18 +1813,6 @@ void GrGpuGL::flushStencil() {
     }
 }
 
-bool GrGpuGL::useSmoothLines() {
-    // there is a conflict between using smooth lines and our use of
-    // premultiplied alpha. Smooth lines tweak the incoming alpha value
-    // but not in a premul-alpha way. So we only use them when our alpha
-    // is 0xff.
-
-    // TODO: write a smarter line frag shader.
-
-    return (kAntialias_StateBit & fCurrDrawState.fFlagBits) &&
-           canDisableBlend();
-}
-
 void GrGpuGL::flushAAState(GrPrimitiveType type) {
     if (kDesktop_GrGLBinding == this->glBinding()) {
         // ES doesn't support toggling GL_MULTISAMPLE and doesn't have
@@ -1833,7 +1821,7 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
         // we prefer smooth lines over multisampled lines
         // msaa should be disabled if drawing smooth lines.
         if (GrIsPrimTypeLines(type)) {
-            bool smooth = useSmoothLines();
+            bool smooth = this->willUseHWAALines();
             if (!fHWAAState.fSmoothLineEnabled && smooth) {
                 GL_CALL(Enable(GR_GL_LINE_SMOOTH));
                 fHWAAState.fSmoothLineEnabled = true;
@@ -1863,7 +1851,7 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
 void GrGpuGL::flushBlend(GrPrimitiveType type, 
                          GrBlendCoeff srcCoeff, 
                          GrBlendCoeff dstCoeff) {
-    if (GrIsPrimTypeLines(type) && useSmoothLines()) {
+    if (GrIsPrimTypeLines(type) && this->willUseHWAALines()) {
         if (fHWBlendDisabled) {
             GL_CALL(Enable(GR_GL_BLEND));
             fHWBlendDisabled = false;
