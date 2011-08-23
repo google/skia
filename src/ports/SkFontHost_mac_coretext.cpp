@@ -63,6 +63,26 @@ static bool isLCDFormat(unsigned format) {
     return SkMask::kLCD16_Format == format || SkMask::kLCD32_Format == format;
 }
 
+static CGFloat ScalarToCG(SkScalar scalar) {
+    if (sizeof(CGFloat) == sizeof(float)) {
+        return SkScalarToFloat(scalar);
+    } else {
+        SkASSERT(sizeof(CGFloat) == sizeof(double));
+        return SkScalarToDouble(scalar);
+    }
+}
+
+static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix,
+                                                   float sx = 1, float sy = 1) {
+    return CGAffineTransformMake(ScalarToCG(matrix[SkMatrix::kMScaleX]) * sx,
+                                 -ScalarToCG(matrix[SkMatrix::kMSkewY]) * sy,
+                                 -ScalarToCG(matrix[SkMatrix::kMSkewX]) * sx,
+                                 ScalarToCG(matrix[SkMatrix::kMScaleY]) * sy,
+                                 ScalarToCG(matrix[SkMatrix::kMTransX]) * sx,
+                                 ScalarToCG(matrix[SkMatrix::kMTransY]) * sy);
+}
+
+
 //============================================================================
 //      Macros
 //----------------------------------------------------------------------------
@@ -343,17 +363,11 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 //    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 //    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
     mColorSpaceGray = CGColorSpaceCreateDeviceGray();
-
-    mTransform  = CGAffineTransformMake(SkScalarToFloat(skMatrix[SkMatrix::kMScaleX]),
-                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewY]),
-                                        -SkScalarToFloat(skMatrix[SkMatrix::kMSkewX]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMScaleY]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransX]),
-                                        SkScalarToFloat(skMatrix[SkMatrix::kMTransY]));
+    mTransform = MatrixToCGAffineTransform(skMatrix);
 
     // since our matrix includes everything, we pass 1 for pointSize
     mFont       = CTFontCreateCopyWithAttributes(ctFont, 1, &mTransform, NULL);
-    mGlyphCount = (uint16_t) numGlyphs;
+    mGlyphCount = SkToU16(numGlyphs);
 }
 
 SkScalerContext_Mac::~SkScalerContext_Mac(void)
@@ -547,10 +561,16 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
 
         CGContextSetAllowsFontSmoothing(cgContext, doLCD);
 
-        // need to pass the fractional part of our position to cg...
         bool doSubPosition = SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
         CGContextSetAllowsFontSubpixelPositioning(cgContext, doSubPosition);
         CGContextSetShouldSubpixelPositionFonts(cgContext, doSubPosition);
+
+        float subX = 0;
+        float subY = 0;
+        if (doSubPosition) {
+            subX = SkFixedToFloat(glyph.getSubXFixed());
+            subY = SkFixedToFloat(glyph.getSubYFixed());
+        }
 
         // skia handles quantization itself, so we disable this for cg to get
         // full fractional data from them.
@@ -563,7 +583,9 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         CGContextSetFont(           cgContext, cgFont);
         CGContextSetFontSize(       cgContext, 1); // cgFont know's its size
         CGContextSetTextMatrix(     cgContext, mTransform);
-        CGContextShowGlyphsAtPoint( cgContext, -glyph.fLeft, glyph.fTop + glyph.fHeight, &cgGlyph, 1);
+        CGContextShowGlyphsAtPoint( cgContext, -glyph.fLeft + subX,
+                                    glyph.fTop + glyph.fHeight - subY,
+                                    &cgGlyph, 1);
 
         if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
             // downsample from rgba to rgb565
@@ -608,14 +630,65 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     CFSafeRelease(cgContext);
 }
 
+/*
+ *  Our subpixel resolution is only 2 bits in each direction, so a scale of 4
+ *  seems sufficient, and possibly even correct, to allow the hinted outline
+ *  to be subpixel positioned.
+ */
+#define kScaleForSubPixelPositionHinting  4
+
 void SkScalerContext_Mac::generatePath(const SkGlyph& glyph, SkPath* path) {
+    CTFontRef font = mFont;
+    float scaleX = 1;
+    float scaleY = 1;
+
+    /*
+     *  For subpixel positioning, we want to return an unhinted outline, so it
+     *  can be positioned nicely at fractional offsets. However, we special-case
+     *  if the baseline of the (horizontal) text is axis-aligned. In those cases
+     *  we want to retain hinting in the direction orthogonal to the baseline.
+     *  e.g. for horizontal baseline, we want to retain hinting in Y.
+     *  The way we remove hinting is to scale the font by some value (4) in that
+     *  direction, ask for the path, and then scale the path back down.
+     */
+    if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
+        SkMatrix m;
+        fRec.getSingleMatrix(&m);
+
+        // start out by assuming that we want no hining in X and Y
+        scaleX = scaleY = kScaleForSubPixelPositionHinting;
+        // now see if we need to restore hinting for axis-aligned baselines
+        switch (SkComputeAxisAlignmentForHText(m)) {
+            case kX_SkAxisAlignment:
+                scaleY = 1; // want hinting in the Y direction
+                break;
+            case kY_SkAxisAlignment:
+                scaleX = 1; // want hinting in the X direction
+                break;
+            default:
+                break;
+        }
+
+        CGAffineTransform xform = MatrixToCGAffineTransform(m, scaleX, scaleY);
+        // need to release font when we're done
+        font = CTFontCreateCopyWithAttributes(mFont, 1, &xform, NULL);
+    }
+    
     CGGlyph   cgGlyph = (CGGlyph)glyph.getGlyphID(fBaseGlyphCount);
-    CGPathRef cgPath  = CTFontCreatePathForGlyph(mFont, cgGlyph, NULL);
+    CGPathRef cgPath  = CTFontCreatePathForGlyph(font, cgGlyph, NULL);
 
     path->reset();
     if (cgPath != NULL) {
         CGPathApply(cgPath, path, SkScalerContext_Mac::CTPathElement);
         CFRelease(cgPath);
+    }
+
+    if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
+        SkMatrix m;
+        m.setScale(SkFloatToScalar(1 / scaleX), SkFloatToScalar(1 / scaleY));
+        path->transform(m);
+        // balance the call to CTFontCreateCopyWithAttributes
+        CFRelease(font);
     }
 }
 
