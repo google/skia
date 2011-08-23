@@ -658,8 +658,10 @@ void GrDrawTarget::drawIndexed(GrPrimitiveType type, int startVertex,
         GrCrash("Indexed drawing outside valid index range.");
     }
 #endif
-    this->onDrawIndexed(type, startVertex, startIndex,
-                        vertexCount, indexCount);
+    if (indexCount > 0) {
+        this->onDrawIndexed(type, startVertex, startIndex,
+                            vertexCount, indexCount);
+    }
 }
 
 
@@ -686,7 +688,9 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
         GrCrash("Non-indexed drawing outside valid vertex range.");
     }
 #endif
-    this->onDrawNonIndexed(type, startVertex, vertexCount);
+    if (vertexCount > 0) {
+        this->onDrawNonIndexed(type, startVertex, vertexCount);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
