@@ -16,8 +16,9 @@
 #include "GrAllocator.h"
 #include "GrClip.h"
 
-class GrVertexBufferAllocPool;
+class GrGpu;
 class GrIndexBufferAllocPool;
+class GrVertexBufferAllocPool;
 
 /**
  * GrInOrderDrawBuffer is an implementation of GrDrawTarget that queues up
@@ -37,12 +38,16 @@ public:
     /**
      * Creates a GrInOrderDrawBuffer
      *
+     * @param gpu        the gpu object where this will be played back
+     *                   (possible indirectly). GrResources used with the draw
+     *                   buffer are created by this gpu object.
      * @param vertexPool pool where vertices for queued draws will be saved when
      *                   the vertex source is either reserved or array.
      * @param indexPool  pool where indices for queued draws will be saved when
      *                   the index source is either reserved or array.
      */
-    GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
+    GrInOrderDrawBuffer(const GrGpu* gpu,
+                        GrVertexBufferAllocPool* vertexPool,
                         GrIndexBufferAllocPool* indexPool);
 
     virtual ~GrInOrderDrawBuffer();
@@ -85,6 +90,8 @@ public:
                                int* indexCount) const;
 
     virtual void clear(const GrIRect* rect, GrColor color);
+
+    virtual bool willUseHWAALines() const;
 
 private:
 
@@ -138,6 +145,7 @@ private:
     void pushState();
     void pushClip();
 
+    const GrGpu*                    fGpu;
     GrTAllocator<Draw>              fDraws;
     GrTAllocator<SavedDrawState>    fStates;
     GrTAllocator<Clear>             fClears;

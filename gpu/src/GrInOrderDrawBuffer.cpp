@@ -15,9 +15,11 @@
 #include "GrVertexBuffer.h"
 #include "GrGpu.h"
 
-GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
+GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
+                                         GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
-    : fDraws(&fDrawStorage)
+    : fGpu(gpu)
+    , fDraws(&fDrawStorage)
     , fStates(&fStateStorage)
     , fClears(&fClearStorage)
     , fClips(&fClipStorage)
@@ -35,6 +37,8 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
     GrAssert(NULL != vertexPool);
     GrAssert(NULL != indexPool);
 
+    gpu->ref();
+
     GeometryPoolState& poolState = fGeoPoolStateStack.push_back();
     poolState.fUsedPoolVertexBytes = 0;
     poolState.fUsedPoolIndexBytes = 0;
@@ -49,6 +53,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(GrVertexBufferAllocPool* vertexPool,
 GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
     this->reset();
     GrSafeUnref(fQuadIndexBuffer);
+    fGpu->unref();
 }
 
 void GrInOrderDrawBuffer::initializeDrawStateAndClip(const GrDrawTarget& target) {
@@ -620,3 +625,9 @@ void GrInOrderDrawBuffer::clipWillBeSet(const GrClip& newClip) {
     INHERITED::clipWillBeSet(newClip);
     fClipSet = true;
 }
+
+bool GrInOrderDrawBuffer::willUseHWAALines() const {
+    return fGpu->supportsHWAALines() &&
+           CanUseHWAALines(this->getGeomSrc().fVertexLayout, fCurrDrawState);
+}
+

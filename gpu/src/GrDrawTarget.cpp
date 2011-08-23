@@ -695,47 +695,47 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrDrawTarget::canDisableBlend() const {
+bool GrDrawTarget::CanDisableBlend(GrVertexLayout layout, const DrState& state) {
     // If we compute a coverage value (using edge AA or a coverage stage) then
     // we can't force blending off.
-    if (fCurrDrawState.fEdgeAANumEdges > 0) {
+    if (state.fEdgeAANumEdges > 0) {
         return false;
     }
-    for (int s = fCurrDrawState.fFirstCoverageStage; s < kNumStages; ++s) {
-        if (this->isStageEnabled(s)) {
+    for (int s = state.fFirstCoverageStage; s < kNumStages; ++s) {
+        if (StageWillBeUsed(s, layout, state)) {
             return false;
         }
     }
 
-    if ((kOne_BlendCoeff == fCurrDrawState.fSrcBlend) &&
-        (kZero_BlendCoeff == fCurrDrawState.fDstBlend)) {
+    if ((kOne_BlendCoeff == state.fSrcBlend) &&
+        (kZero_BlendCoeff == state.fDstBlend)) {
             return true;
     }
 
     // If we have vertex color without alpha then we can't force blend off
-    if ((this->getGeomSrc().fVertexLayout & kColor_VertexLayoutBit) ||
-         0xff != GrColorUnpackA(fCurrDrawState.fColor)) {
+    if ((layout & kColor_VertexLayoutBit) ||
+         0xff != GrColorUnpackA(state.fColor)) {
         return false;
     }
 
     // If the src coef will always be 1...
-    if (kSA_BlendCoeff != fCurrDrawState.fSrcBlend &&
-        kOne_BlendCoeff != fCurrDrawState.fSrcBlend) {
+    if (kSA_BlendCoeff != state.fSrcBlend &&
+        kOne_BlendCoeff != state.fSrcBlend) {
         return false;
     }
 
     // ...and the dst coef is always 0...
-    if (kISA_BlendCoeff != fCurrDrawState.fDstBlend &&
-        kZero_BlendCoeff != fCurrDrawState.fDstBlend) {
+    if (kISA_BlendCoeff != state.fDstBlend &&
+        kZero_BlendCoeff != state.fDstBlend) {
         return false;
     }
 
     // ...and there isn't a texture stage with an alpha channel...
-    for (int s = 0; s < fCurrDrawState.fFirstCoverageStage; ++s) {
-        if (this->isStageEnabled(s)) {
-            GrAssert(NULL != fCurrDrawState.fTextures[s]);
+    for (int s = 0; s < state.fFirstCoverageStage; ++s) {
+        if (StageWillBeUsed(s, layout, state)) {
+            GrAssert(NULL != state.fTextures[s]);
 
-            GrPixelConfig config = fCurrDrawState.fTextures[s]->config();
+            GrPixelConfig config = state.fTextures[s]->config();
 
             if (!GrPixelConfigIsOpaque(config)) {
                 return false;
@@ -746,7 +746,7 @@ bool GrDrawTarget::canDisableBlend() const {
     // ...and there isn't an interesting color filter...
     // TODO: Consider being more aggressive with regards to disabling
     // blending when a color filter is used.
-    if (SkXfermode::kDst_Mode != fCurrDrawState.fColorFilterXfermode) {
+    if (SkXfermode::kDst_Mode != state.fColorFilterXfermode) {
         return false;
     }
 
@@ -754,7 +754,21 @@ bool GrDrawTarget::canDisableBlend() const {
     return true;
 }
 
+bool GrDrawTarget::CanUseHWAALines(GrVertexLayout layout, const DrState& state) {
+    // there is a conflict between using smooth lines and our use of
+    // premultiplied alpha. Smooth lines tweak the incoming alpha value
+    // but not in a premul-alpha way. So we only use them when our alpha
+    // is 0xff.
+    return (kAntialias_StateBit & state.fFlagBits) &&
+           CanDisableBlend(layout, state);
+}
+
+bool GrDrawTarget::canDisableBlend() const {
+    return CanDisableBlend(this->getGeomSrc().fVertexLayout, fCurrDrawState);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
+
 void GrDrawTarget::setEdgeAAData(const Edge* edges, int numEdges) {
     GrAssert(numEdges <= kMaxEdges);
     memcpy(fCurrDrawState.fEdgeAAEdges, edges, numEdges * sizeof(Edge));

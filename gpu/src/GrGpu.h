@@ -181,7 +181,7 @@ public:
      * Does the 3D API support anti-aliased lines. If so then line primitive
      * types will use this functionality when the AA state flag is set.
      */
-    bool supportsAALines() const { return fAALineSupport; }
+    bool supportsHWAALines() const { return fAALineSupport; }
 
     /**
      * Does the subclass support GrSamplerState::k4x4Downsample_Filter
@@ -318,6 +318,9 @@ public:
      * @param resource  the resource to remove.
      */
     void removeResource(GrResource* resource);
+
+    // GrDrawTarget overrides
+    virtual bool willUseHWAALines() const;
 
 protected:
     enum PrivateStateBits {

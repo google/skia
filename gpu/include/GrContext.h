@@ -586,7 +586,7 @@ private:
     // determines whether offscreen AA should be applied
     bool doOffscreenAA(GrDrawTarget* target, 
                        const GrPaint& paint,
-                       bool isLines) const;
+                       bool isHairLines) const;
 
     // attempts to setup offscreen AA. All paint state must be transferred to
     // target by the time this is called.

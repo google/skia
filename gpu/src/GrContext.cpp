@@ -630,16 +630,16 @@ struct GrContext::OffscreenRecord {
     GrClip                         fClip;
 };
 
-bool GrContext::doOffscreenAA(GrDrawTarget* target, 
+bool GrContext::doOffscreenAA(GrDrawTarget* target,
                               const GrPaint& paint,
-                              bool isLines) const {
+                              bool isHairLines) const {
 #if !GR_USE_OFFSCREEN_AA
     return false;
 #else
     if (!paint.fAntiAlias) {
         return false;
     }
-    if (isLines && fGpu->supportsAALines()) {
+    if (isHairLines && target->willUseHWAALines()) {
         return false;
     }
     if (target->getRenderTarget()->isMultisampled()) {
@@ -1114,7 +1114,6 @@ static bool isIRect(const GrRect& r) {
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,
-                             GrGpu* gpu,
                              const GrPaint& paint,
                              const GrRect& rect,
                              GrScalar width, 
@@ -1134,7 +1133,7 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         return false;
     }
 
-    if (0 == width && gpu->supportsAALines()) {
+    if (0 == width && target->willUseHWAALines()) {
         return false;
     }
 
@@ -1174,7 +1173,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
     GrRect devRect = rect;
     GrMatrix combinedMatrix;
-    bool doAA = apply_aa_to_rect(target, fGpu, paint, rect, width, matrix, 
+    bool doAA = apply_aa_to_rect(target, paint, rect, width, matrix, 
                                  &combinedMatrix, &devRect);
 
     if (doAA) {
@@ -1769,7 +1768,8 @@ void GrContext::setupDrawBuffer() {
                                    DRAW_BUFFER_IBPOOL_BUFFER_SIZE,
                                    DRAW_BUFFER_IBPOOL_PREALLOC_BUFFERS);
 
-    fDrawBuffer = new GrInOrderDrawBuffer(fDrawBufferVBAllocPool,
+    fDrawBuffer = new GrInOrderDrawBuffer(fGpu,
+                                          fDrawBufferVBAllocPool,
                                           fDrawBufferIBAllocPool);
 #endif
 
