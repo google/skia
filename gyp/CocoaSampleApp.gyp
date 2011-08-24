@@ -62,7 +62,7 @@
         #'../samplecode/SampleFilter.cpp',
         #'../samplecode/SampleFilter2.cpp',
         #'../samplecode/SampleFontCache.cpp',
-        #'../samplecode/SampleFontScalerTest.cpp',
+        '../samplecode/SampleFontScalerTest.cpp',
         #'../samplecode/SampleFuzz.cpp',
         #'../samplecode/SampleGM.cpp',
         #'../samplecode/SampleGradients.cpp',
