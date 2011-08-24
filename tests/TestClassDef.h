@@ -37,7 +37,9 @@
         protected:                                                          \
             virtual void onGetName(SkString* name) { name->set(uiname); }   \
             virtual void onRun(Reporter* reporter) {                        \
-                function(reporter, fContext);                               \
+                if (fContext) {                                             \
+                    function(reporter, fContext);                           \
+                }                                                           \
             }                                                               \
         };                                                                  \
         static TestRegistry gReg(classname::Factory);                       \
