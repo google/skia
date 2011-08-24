@@ -307,17 +307,7 @@ enum SkAxisAlignment {
  *
  *  As an example, the identity matrix will return kX_SkAxisAlignment
  */
-static SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
-    SkASSERT(!matrix.hasPerspective());
-    
-    if (0 == matrix[SkMatrix::kMSkewY]) {
-        return kX_SkAxisAlignment;
-    }
-    if (0 == matrix[SkMatrix::kMScaleX]) {
-        return kY_SkAxisAlignment;
-    }
-    return kNone_SkAxisAlignment;
-}
+SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix);
 
 #endif
 

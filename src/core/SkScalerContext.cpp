@@ -710,6 +710,18 @@ void SkScalerContext::Rec::getSingleMatrix(SkMatrix* m) const {
     m->postConcat(deviceMatrix);
 }
 
+SkAxisAlignment SkComputeAxisAlignmentForHText(const SkMatrix& matrix) {
+    SkASSERT(!matrix.hasPerspective());
+    
+    if (0 == matrix[SkMatrix::kMSkewY]) {
+        return kX_SkAxisAlignment;
+    }
+    if (0 == matrix[SkMatrix::kMScaleX]) {
+        return kY_SkAxisAlignment;
+    }
+    return kNone_SkAxisAlignment;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkFontHost.h"
