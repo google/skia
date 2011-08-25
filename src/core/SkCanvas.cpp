@@ -528,7 +528,6 @@ SkDevice* SkCanvas::setDevice(SkDevice* device) {
         while ((rec = (MCRec*)iter.next()) != NULL) {
             (void)rec->fRegion->op(bounds, SkRegion::kIntersect_Op);
         }
-        fClipStack.clipDevRect(bounds, SkRegion::kIntersect_Op);
     }
     return device;
 }
