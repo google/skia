@@ -118,7 +118,7 @@ public:
      *  clipped. A simple way to avoid the bug is to always draw the margin
      *  content last.
      */
-    void setDrawingArea(DrawingArea drawingArea);
+    SK_API void setDrawingArea(DrawingArea drawingArea);
 
     // PDF specific methods.
 
