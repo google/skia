@@ -488,7 +488,7 @@ void append_cmap_sections(const SkTDArray<SkUnichar>& glyphToUnicode,
                             (i >> 8) == (currentRangeEntry.fStart >> 8) &&
                             glyphToUnicode[i] == (currentRangeEntry.fUnicode +
                                                   continuousEntries)) {
-                            currentRangeEntry.fEnd = i;
+                    currentRangeEntry.fEnd = i;
                     if (i == glyphToUnicode.count() - 1) {
                         // Last entry is in a range.
                         bfrangeEntries.push(currentRangeEntry);
