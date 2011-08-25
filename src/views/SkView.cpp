@@ -363,7 +363,7 @@ void SkView::Click::copyType(const char type[])
 SkView::Click* SkView::findClickHandler(SkScalar x, SkScalar y)
 {
 	if (x < 0 || y < 0 || x >= fWidth || y >= fHeight) {
-		return false;
+		return NULL;
     }
 
     if (this->onSendClickToChildren(x, y)) {
