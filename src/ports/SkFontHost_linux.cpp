@@ -129,7 +129,7 @@ static SkTypeface* find_from_uniqueID(uint32_t uniqueID) {
         }
         curr = curr->fNext;
     }
-    return false;
+    return NULL;
 }
 
 static bool valid_uniqueID(uint32_t uniqueID) {

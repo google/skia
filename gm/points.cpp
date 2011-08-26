@@ -28,8 +28,14 @@ protected:
     }
 
     static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
-        for (size_t i = 0; i < n; i++)
-            pts[i].set(rand->nextUScalar1() * 640, rand->nextUScalar1() * 480);
+        for (size_t i = 0; i < n; i++) {
+            // Compute these independently and store in variables, rather
+            // than in the parameter-passing expression, to get consistent
+            // evaluation order across compilers.
+            float y = rand->nextUScalar1() * 480;
+            float x = rand->nextUScalar1() * 640;
+            pts[i].set(x, y);
+        }
     }
 
     virtual void onDraw(SkCanvas* canvas) {
