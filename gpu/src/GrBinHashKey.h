@@ -36,7 +36,7 @@ public:
         return *this;
     }
 
-    virtual ~GrBinHashKey() {
+    ~GrBinHashKey() {
     }
 
     void setKeyData(const uint32_t *data) {

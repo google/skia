@@ -130,7 +130,7 @@ const char* SkParse::FindHex(const char str[], uint32_t* value)
             *value = n;
         return str;
     }
-    return false;
+    return NULL;
 }
 
 const char* SkParse::FindS32(const char str[], int32_t* value)

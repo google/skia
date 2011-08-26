@@ -517,7 +517,6 @@ SkPDFDevice::SkPDFDevice(const SkISize& pageSize, const SkISize& contentSize,
     fInitialTransform.preConcat(initialTransform);
 
     SkIRect existingClip = SkIRect::MakeWH(this->width(), this->height());
-    fExistingClipStack.clipDevRect(existingClip);
     fExistingClipRegion.setRect(existingClip);
 
     this->init();

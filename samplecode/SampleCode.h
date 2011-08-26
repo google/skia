@@ -61,7 +61,7 @@ private:
 
 class SampleView : public SkView {
 public:
-    SampleView() : fRepeatCount(1), fBGColor(SK_ColorWHITE) {
+    SampleView() : fBGColor(SK_ColorWHITE), fRepeatCount(1) {
         fUsePipe = false;
     }
 
