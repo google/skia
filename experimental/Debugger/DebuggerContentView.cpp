@@ -43,7 +43,7 @@ public:
             int offset = 0;
             int frameBound = 0;
             size_t bytesRead;
-            while (static_cast<unsigned>(offset) < size) {
+            while (offset < size) {
                 SkGPipeReader::Status s = dumpReader->playback(data + offset, 
                                                                size - offset, 
                                                                &bytesRead, 
