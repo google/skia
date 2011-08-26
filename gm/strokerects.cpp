@@ -38,11 +38,9 @@ protected:
         SkScalar y = rand.nextUScalar1() * H;
         SkScalar w = rand.nextUScalar1() * (W >> 2);
         SkScalar h = rand.nextUScalar1() * (H >> 2);
-        SkScalar hoffset = rand.nextSScalar1();
-        SkScalar woffset = rand.nextSScalar1();
         
         r->set(x, y, x + w, y + h);
-        r->offset(-w/2 + woffset, -h/2 + hoffset);
+        r->offset(-w/2 + rand.nextSScalar1(), -h/2 +  + rand.nextSScalar1());
     }
 
     virtual void onDraw(SkCanvas* canvas) {

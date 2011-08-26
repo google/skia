@@ -22,7 +22,7 @@
 
 GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 
-    const GrGLInterface* glInterface = NULL;
+    const GrGLInterface* glInterface;
 
     if (kOpenGL_Shaders_GrEngine == engine ||
         kOpenGL_Fixed_GrEngine == engine) {
