@@ -138,9 +138,13 @@ void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
         }
     }
     fConservativeBoundsValid = false;
-    if (isectRectValid && rectCount) {
-        fConservativeBounds = fList[0].fRect;
+    if (isectRectValid) {
         fConservativeBoundsValid = true;
+        if (rectCount > 0) {
+            fConservativeBounds = fList[0].fRect;
+        } else {
+            fConservativeBounds.setEmpty();
+        }
     } else if (NULL != conservativeBounds) {
         fConservativeBounds = *conservativeBounds;
         fConservativeBoundsValid = true;
