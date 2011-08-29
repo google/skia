@@ -1388,15 +1388,15 @@ void GrGpuGL::clearStencil() {
     fHWDrawState.fStencilSettings.invalidate();
 }
 
-void GrGpuGL::clearStencilClip(const GrIRect& rect) {
+void GrGpuGL::clearStencilClip(const GrIRect& rect, bool insideClip) {
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
     // this should only be called internally when we know we have a
     // stencil buffer.
     GrAssert(NULL != fCurrDrawState.fRenderTarget->getStencilBuffer());
-#if 0
     GrGLint stencilBitCount = 
         fCurrDrawState.fRenderTarget->getStencilBuffer()->bits();
+#if 0
     GrAssert(stencilBitCount > 0);
     GrGLint clipStencilMask  = (1 << (stencilBitCount - 1));
 #else
@@ -1407,10 +1407,16 @@ void GrGpuGL::clearStencilClip(const GrIRect& rect) {
     // zero the client's clip bits. So we just clear the whole thing.
     static const GrGLint clipStencilMask  = ~0;
 #endif
+    GrGLint value;
+    if (insideClip) {
+        value = (1 << (stencilBitCount - 1));
+    } else {
+        value = 0;
+    }
     this->flushRenderTarget(&GrIRect::EmptyIRect());
     this->flushScissor(&rect);
     GL_CALL(StencilMask(clipStencilMask));
-    GL_CALL(ClearStencil(0));
+    GL_CALL(ClearStencil(value));
     GL_CALL(Clear(GR_GL_STENCIL_BUFFER_BIT));
     fHWDrawState.fStencilSettings.invalidate();
 }

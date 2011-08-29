@@ -61,7 +61,9 @@ public:
     GrSetOp getOp(int i) const { return fList[i].fOp; }
 
     bool isRect() const {
-        if (1 == fList.count() && kRect_ClipType == fList[0].fType) {
+        if (1 == fList.count() && kRect_ClipType == fList[0].fType && 
+            (kIntersect_SetOp == fList[0].fOp ||
+             kReplace_SetOp == fList[0].fOp)) {
             // if we determined that the clip is a single rect
             // we ought to have also used that rect as the bounds.
             GrAssert(fConservativeBoundsValid);

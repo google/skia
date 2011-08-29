@@ -105,7 +105,7 @@ protected:
                                      uint32_t numVertices);
     virtual void flushScissor(const GrIRect* rect);
     virtual void clearStencil();
-    virtual void clearStencilClip(const GrIRect& rect);
+    virtual void clearStencilClip(const GrIRect& rect, bool insideClip);
     virtual int getMaxEdges() const;
 
     // binds texture unit in GL
