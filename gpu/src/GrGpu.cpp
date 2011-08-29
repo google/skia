@@ -415,6 +415,87 @@ void GrGpu::ConvertStencilFuncAndMask(GrStencilFunc func,
     #define SET_RANDOM_COLOR
 #endif
 
+namespace {
+// determines how many elements at the head of the clip can be skipped and
+// whether the initial clear should be to the inside- or outside-the-clip value,
+// and what op should be used to draw the first element that isn't skipped.
+int process_initial_clip_elements(const GrClip& clip,
+                                  bool* clearToInside,
+                                  GrSetOp* startOp) {
+
+    // logically before the first element of the clip stack is 
+    // processed the clip is entirely open. However, depending on the
+    // first set op we may prefer to clear to 0 for performance. We may
+    // also be able to skip the initial clip paths/rects. We loop until
+    // we cannot skip an element.
+    int curr;
+    bool done = false;
+    *clearToInside = true;
+    int count = clip.getElementCount();
+
+    for (curr = 0; curr < count && !done; ++curr) {
+        switch (clip.getOp(curr)) {
+            case kReplace_SetOp:
+                // replace ignores everything previous
+                *startOp = kReplace_SetOp;
+                *clearToInside = false;
+                done = true;
+                break;
+            case kIntersect_SetOp:
+                // if everything is initially clearToInside then intersect is
+                // same as clear to 0 and treat as a replace. Otherwise,
+                // set stays empty.
+                if (*clearToInside) {
+                    *startOp = kReplace_SetOp;
+                    *clearToInside = false;
+                    done = true;
+                }
+                break;
+                // we can skip a leading union.
+            case kUnion_SetOp:
+                // if everything is initially outside then union is
+                // same as replace. Otherwise, every pixel is still 
+                // clearToInside
+                if (!*clearToInside) {
+                    *startOp = kReplace_SetOp;
+                    done = true;
+                }
+                break;
+            case kXor_SetOp:
+                // xor is same as difference or replace both of which
+                // can be 1-pass instead of 2 for xor.
+                if (*clearToInside) {
+                    *startOp = kDifference_SetOp;
+                } else {
+                    *startOp = kReplace_SetOp;
+                }
+                done = true;
+                break;
+            case kDifference_SetOp:
+                // if all pixels are clearToInside then we have to process the
+                // difference, otherwise it has no effect and all pixels
+                // remain outside.
+                if (*clearToInside) {
+                    *startOp = kDifference_SetOp;
+                    done = true;
+                }
+                break;
+            case kReverseDifference_SetOp:
+                // if all pixels are clearToInside then reverse difference
+                // produces empty set. Otherise it is same as replace
+                if (*clearToInside) {
+                    *clearToInside = false;
+                } else {
+                    *startOp = kReplace_SetOp;
+                    done = true;
+                }
+                break;
+        }
+    }
+    return done ? curr-1 : count;
+}
+}
+
 bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
     const GrIRect* r = NULL;
     GrIRect clipRect;
@@ -475,7 +556,6 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             AutoGeometryPush agp(this);
 
             this->setViewMatrix(GrMatrix::I());
-            this->clearStencilClip(clipRect);
             this->flushScissor(NULL);
 #if !VISUALIZE_COMPLEX_CLIP
             this->enableState(kNoColorWrites_StateBit);
@@ -485,21 +565,17 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             int count = clip.getElementCount();
             int clipBit = stencilBuffer->bits();
             clipBit = (1 << (clipBit-1));
+            
+            bool clearToInside;
+            GrSetOp startOp;
+            int start = process_initial_clip_elements(clip, &clearToInside,
+                                                      &startOp);
 
-            // often we'll see the first two elements of the clip are
-            // the full rt size and another element intersected with it.
-            // We can skip the first full-size rect and save a big rect draw.
-            int firstElement = 0;
-            if (clip.getElementCount() > 1 &&
-                kRect_ClipType == clip.getElementType(0) &&
-                kIntersect_SetOp == clip.getOp(1)&&
-                clip.getRect(0).contains(bounds)) {
-                firstElement = 1;
-            }
+            this->clearStencilClip(clipRect, clearToInside);
 
             // walk through each clip element and perform its set op
             // with the existing clip.
-            for (int c = firstElement; c < count; ++c) {
+            for (int c = start; c < count; ++c) {
                 GrPathFill fill;
                 bool fillInverted;
                 // enabled at bottom of loop
@@ -534,7 +610,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     arp.set(pr, this, clipPath, fill, NULL);
                 }
 
-                GrSetOp op = firstElement == c ? kReplace_SetOp : clip.getOp(c);
+                GrSetOp op = (c == start) ? startOp : clip.getOp(c);
                 int passes;
                 GrStencilSettings stencilSettings[GrStencilSettings::kMaxStencilClipPasses];
 

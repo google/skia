@@ -61,6 +61,7 @@ void GrClip::setFromRect(const GrRect& r) {
         fList.push_back();
         fList.back().fRect = r;
         fList.back().fType = kRect_ClipType;
+        fList.back().fOp = kReplace_SetOp;
         fConservativeBounds = r;
         fConservativeBoundsValid = true;
     }
@@ -75,6 +76,7 @@ void GrClip::setFromIRect(const GrIRect& r) {
         fList.push_back();
         fList.back().fRect.set(r);
         fList.back().fType = kRect_ClipType;
+        fList.back().fOp = kReplace_SetOp;
         fConservativeBounds.set(r);
         fConservativeBoundsValid = true;
     }
@@ -110,7 +112,7 @@ void GrClip::setFromIterator(GrClipIterator* iter, GrScalar tx, GrScalar ty,
                     }
                     ++rectCount;
                     if (isectRectValid) {
-                        if (1 == rectCount || kIntersect_SetOp == e.fOp) {
+                        if (kIntersect_SetOp == e.fOp) {
                             GrAssert(fList.count() <= 2);
                             if (fList.count() > 1) {
                                 GrAssert(2 == rectCount);

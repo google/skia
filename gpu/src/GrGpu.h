@@ -487,8 +487,11 @@ protected:
     // Sets the scissor rect, or disables if rect is NULL.
     virtual void flushScissor(const GrIRect* rect) = 0;
 
-    // GrGpu subclass removes the clip from the stencil buffer
-    virtual void clearStencilClip(const GrIRect& rect) = 0;
+    // GrGpu subclass sets clip bit in the stencil buffer. The subclass is
+    // free to clear the remaining bits to zero if masked clears are more
+    // expensive than clearing all bits.
+    virtual void clearStencilClip(const GrIRect& rect, bool insideClip) = 0;
+
     // clears the entire stencil buffer to 0
     virtual void clearStencil() = 0;
 
