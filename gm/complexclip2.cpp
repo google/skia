@@ -70,8 +70,6 @@ public:
         }
     }
 
-    virtual bool validForPicture() const { return false; }
-
 protected:
 
     static const int kRows = 5;
@@ -79,11 +77,14 @@ protected:
     static const int kPadX = 20;
     static const int kPadY = 20;
 
-    SkString onShortName() {
+    virtual SkString onShortName() {
         return SkString("complexclip2");
     }
 
-    SkISize onISize() { return make_isize(fTotalWidth, fTotalHeight); }
+    virtual SkISize onISize() {
+        return make_isize(SkScalarRoundToInt(fTotalWidth),
+                          SkScalarRoundToInt(fTotalHeight));
+    }
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SkColorSetRGB(0xDD,0xA0,0xDD));
