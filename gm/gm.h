@@ -39,6 +39,8 @@ namespace skiagm {
             return fShortName.c_str();
         }
 
+        virtual bool validForPicture() const { return true; }
+
 	protected:
 		virtual void onDraw(SkCanvas*) = 0;
 		virtual SkISize onISize() = 0;
