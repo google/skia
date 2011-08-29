@@ -31,9 +31,9 @@ public:
         kNone_UsageFlag      = 0,
         kNonAAOnly_UsageFlag = 1,
     };
-    
+
     GrPathRendererChain(GrContext* context, UsageFlags flags);
-    
+
     ~GrPathRendererChain();
 
     // takes a ref and unrefs in destructor
