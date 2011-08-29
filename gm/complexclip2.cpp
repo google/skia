@@ -1,10 +1,11 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+
 #include "gm.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
@@ -32,38 +33,41 @@ public:
         fWidth = xF - xA;
         fHeight = yF - yA;
 
-        fRects[0].fLeft   = xB;
-        fRects[0].fTop    = yB;
-        fRects[0].fRight  = xE;
-        fRects[0].fBottom = yE;
+        fRects[0].set(xB, yB, xE, yE);
         fRectColors[0] = SK_ColorRED;
 
-        fRects[1].fLeft   = xA;
-        fRects[1].fTop    = yA;
-        fRects[1].fRight  = xD;
-        fRects[1].fBottom = yD;
+        fRects[1].set(xA, yA, xD, yD);
         fRectColors[1] = SK_ColorGREEN;
 
-        fRects[2].fLeft   = xC;
-        fRects[2].fTop    = yA;
-        fRects[2].fRight  = xF;
-        fRects[2].fBottom = yD;
+        fRects[2].set(xC, yA, xF, yD);
         fRectColors[2] = SK_ColorBLUE;
 
-        fRects[3].fLeft   = xA;
-        fRects[3].fTop    = yC;
-        fRects[3].fRight  = xD;
-        fRects[3].fBottom = yF;
+        fRects[3].set(xA, yC, xD, yF);
         fRectColors[3] = SK_ColorYELLOW;
 
-        fRects[4].fLeft   = xC;
-        fRects[4].fTop    = yC;
-        fRects[4].fRight  = xF;
-        fRects[4].fBottom = yF;
+        fRects[4].set(xC, yC, xF, yF);
         fRectColors[4] = SK_ColorCYAN;
 
         fTotalWidth = kCols * fWidth + SK_Scalar1 * (kCols + 1) * kPadX;
         fTotalHeight = kRows * fHeight + SK_Scalar1 * (kRows + 1) * kPadY;
+
+        SkRegion::Op ops[] = {
+            SkRegion::kDifference_Op,
+            SkRegion::kIntersect_Op,
+            SkRegion::kUnion_Op,
+            SkRegion::kXOR_Op,
+            SkRegion::kReverseDifference_Op,
+            SkRegion::kReplace_Op,
+        };
+
+        SkRandom r;
+        for (int i = 0; i < kRows; ++i) {
+            for (int j = 0; j < kCols; ++j) {
+                for (int k = 0; k < 5; ++k) {
+                    fOps[j*kRows+i][k] = ops[r.nextU() % SK_ARRAY_COUNT(ops)];
+                }
+            }
+        }
     }
 
     virtual bool validForPicture() const { return false; }
@@ -83,24 +87,6 @@ protected:
 
     void drawBG(SkCanvas* canvas) {
         canvas->drawColor(SkColorSetRGB(0xDD,0xA0,0xDD));
-        SkRegion::Op ops[] = {
-            SkRegion::kDifference_Op,
-            SkRegion::kIntersect_Op,
-            SkRegion::kUnion_Op,
-            SkRegion::kXOR_Op,
-            SkRegion::kReverseDifference_Op,
-            SkRegion::kReplace_Op,
-        };
-
-        SkRandom r;
-        for (int i = 0; i < kRows; ++i) {
-            for (int j = 0; j < kCols; ++j) {
-                for (int k = 0; k < 5; ++k) {
-                    fOps[j*kRows+i][k] = ops[r.nextU() % SK_ARRAY_COUNT(ops)];
-                }
-            }
-        }
-
     }
 
     virtual void onDraw(SkCanvas* canvas) {
