@@ -32,6 +32,7 @@
         '../bench/DecodeBench.cpp',
         '../bench/FPSBench.cpp',
         '../bench/GradientBench.cpp',
+        '../bench/MathBench.cpp',
         '../bench/MatrixBench.cpp',
         '../bench/PathBench.cpp',
         '../bench/RectBench.cpp',

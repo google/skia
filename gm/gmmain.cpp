@@ -435,6 +435,10 @@ static bool test_picture_playback(GM* gm,
                                   const SkBitmap& comparisonBitmap,
                                   const char readPath [],
                                   const char diffPath []) {
+    if (!gm->validForPicture()) {
+        return true;
+    }
+
     SkPicture* pict = generate_new_picture(gm);
     SkAutoUnref aur(pict);
 
