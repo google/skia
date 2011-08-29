@@ -128,14 +128,47 @@ void SkPictureRecord::setMatrix(const SkMatrix& matrix) {
     this->INHERITED::setMatrix(matrix);
 }
 
+static bool regionOpExpands(SkRegion::Op op) {
+    switch (op) {
+        case SkRegion::kUnion_Op:
+        case SkRegion::kXOR_Op:
+        case SkRegion::kReverseDifference_Op:
+        case SkRegion::kReplace_Op:
+            return true;
+        case SkRegion::kIntersect_Op:
+        case SkRegion::kDifference_Op:
+            return false;
+        default:
+            SkASSERT(!"unknown region op");
+            return false;
+    }
+}
+
+void SkPictureRecord::recordOffsetForRestore(SkRegion::Op op) {
+    if (regionOpExpands(op)) {
+        // Run back through any previous clip ops, and mark their offset to
+        // be 0, disabling their ability to trigger a jump-to-restore, otherwise
+        // they could hide this clips ability to expand the clip (i.e. go from
+        // empty to non-empty).
+        uint32_t offset = fRestoreOffsetStack.top();
+        while (offset) {
+            uint32_t* peek = fWriter.peek32(offset);
+            offset = *peek;
+            *peek = 0;
+        }
+    }
+    
+    size_t offset = fWriter.size();
+    addInt(fRestoreOffsetStack.top());
+    fRestoreOffsetStack.top() = offset;
+}
+
 bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op) {
     addDraw(CLIP_RECT);
     addRect(rect);
     addInt(op);
 
-    size_t offset = fWriter.size();
-    addInt(fRestoreOffsetStack.top());
-    fRestoreOffsetStack.top() = offset;
+    this->recordOffsetForRestore(op);
 
     validate();
     return this->INHERITED::clipRect(rect, op);
@@ -146,9 +179,7 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op) {
     addPath(path);
     addInt(op);
 
-    size_t offset = fWriter.size();
-    addInt(fRestoreOffsetStack.top());
-    fRestoreOffsetStack.top() = offset;
+    this->recordOffsetForRestore(op);
 
     validate();
 
@@ -164,9 +195,7 @@ bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
     addRegion(region);
     addInt(op);
 
-    size_t offset = fWriter.size();
-    addInt(fRestoreOffsetStack.top());
-    fRestoreOffsetStack.top() = offset;
+    this->recordOffsetForRestore(op);
 
     validate();
     return this->INHERITED::clipRegion(region, op);

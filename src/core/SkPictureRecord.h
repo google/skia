@@ -182,6 +182,9 @@ private:
     
     uint32_t fRecordFlags;
 
+    // helper function to handle save/restore culling offsets
+    void recordOffsetForRestore(SkRegion::Op op);
+
     friend class SkPicturePlayback;
 
     typedef SkCanvas INHERITED;

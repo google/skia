@@ -511,8 +511,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkPath& path = getPath();
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
-                // HACK (false) until I can handle op==kReplace
-                if (!canvas.clipPath(path, op)) {
+                if (!canvas.clipPath(path, op) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipPath.recordSkip(offsetToRestore - fReader.offset());
 #endif
@@ -523,7 +522,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkRegion& region = getRegion();
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
-                if (!canvas.clipRegion(region, op)) {
+                if (!canvas.clipRegion(region, op) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRegion.recordSkip(offsetToRestore - fReader.offset());
 #endif
@@ -534,7 +533,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkRect* rect = fReader.skipRect();
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
-                if (!canvas.clipRect(*rect, op)) {
+                if (!canvas.clipRect(*rect, op) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRect.recordSkip(offsetToRestore - fReader.offset());
 #endif
