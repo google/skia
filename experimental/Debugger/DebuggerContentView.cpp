@@ -1,8 +1,4 @@
 #include "SampleCode.h"
-#include "SkView.h"
-#include "SkCanvas.h"
-#include "SkGradientShader.h"
-#include "SkGPipe.h"
 #include "SkOSMenu.h"
 
 #include "DebuggerViews.h"

@@ -179,8 +179,6 @@ int SkSocket::writePacket(void* data, size_t size, DataType type) {
         if (!FD_ISSET (i, &fMasterSet))
             continue;
 
-        //Don't signal broken pipe
-        setsockopt(i, SOL_SOCKET, SO_NOSIGPIPE, (void*)1, sizeof(int));
         int bytesWrittenInTransfer = 0;
         int bytesWrittenInPacket = 0;
         int attempts = 0;

@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
-		2605F44213F18B1B0044A072 /* DebuggerView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2605F43C13F18B1B0044A072 /* DebuggerView.cpp */; };
+		2605F44213F18B1B0044A072 /* DebuggerContentView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2605F43C13F18B1B0044A072 /* DebuggerContentView.cpp */; };
 		2605F44313F18B1B0044A072 /* DebuggerCommandsView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2605F43E13F18B1B0044A072 /* DebuggerCommandsView.cpp */; };
 		2605F44413F18B1B0044A072 /* SkDebugDumper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2605F43F13F18B1B0044A072 /* SkDebugDumper.cpp */; };
 		2605F44513F18B1B0044A072 /* DebuggerStateView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2605F44113F18B1B0044A072 /* DebuggerStateView.cpp */; };
@@ -178,7 +178,6 @@
 		260E040D13B122D40064D447 /* GrAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D213B122D40064D447 /* GrAtlas.cpp */; };
 		260E040E13B122D40064D447 /* GrBufferAllocPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D413B122D40064D447 /* GrBufferAllocPool.cpp */; };
 		260E040F13B122D40064D447 /* GrClip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D613B122D40064D447 /* GrClip.cpp */; };
-		260E041113B122D40064D447 /* GrCreatePathRenderer_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D813B122D40064D447 /* GrCreatePathRenderer_none.cpp */; };
 		260E041213B122D40064D447 /* GrDrawTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D913B122D40064D447 /* GrDrawTarget.cpp */; };
 		260E041413B122D40064D447 /* GrGLIndexBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03DB13B122D40064D447 /* GrGLIndexBuffer.cpp */; };
 		260E041513B122D40064D447 /* GrGLInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03DC13B122D40064D447 /* GrGLInterface.cpp */; };
@@ -247,7 +246,6 @@
 		260E057A13B123DE0064D447 /* SkCubicInterval.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E055A13B123DE0064D447 /* SkCubicInterval.cpp */; };
 		260E057B13B123DE0064D447 /* SkCullPoints.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E055B13B123DE0064D447 /* SkCullPoints.cpp */; };
 		260E057C13B123DE0064D447 /* SkDumpCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E055C13B123DE0064D447 /* SkDumpCanvas.cpp */; };
-		260E057D13B123DE0064D447 /* SkEGLContext_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E055D13B123DE0064D447 /* SkEGLContext_none.cpp */; };
 		260E057E13B123DE0064D447 /* SkInterpolator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E055E13B123DE0064D447 /* SkInterpolator.cpp */; };
 		260E057F13B123DE0064D447 /* SkLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E055F13B123DE0064D447 /* SkLayer.cpp */; };
 		260E058013B123DE0064D447 /* SkMatrix44.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E056013B123DE0064D447 /* SkMatrix44.cpp */; };
@@ -385,8 +383,61 @@
 		260EE9D513AFA7850064D447 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D013AFA7850064D447 /* CoreFoundation.framework */; };
 		260EF18513AFD62E0064D447 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EF18413AFD62E0064D447 /* CoreText.framework */; };
 		260EF2B013AFDBD30064D447 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		2612C0D1140D2F9B001B6925 /* ClockFaceView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002413B11F5B0064D447 /* ClockFaceView.cpp */; };
+		2612C0D2140D2F9C001B6925 /* SampleAARects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002613B11F5B0064D447 /* SampleAARects.cpp */; };
+		2612C0D3140D2F9C001B6925 /* SampleAnimator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002813B11F5B0064D447 /* SampleAnimator.cpp */; };
+		2612C0D4140D2F9D001B6925 /* SampleAll.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002713B11F5B0064D447 /* SampleAll.cpp */; };
+		2612C0D5140D2F9F001B6925 /* SampleBigGradient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002C13B11F5B0064D447 /* SampleBigGradient.cpp */; };
+		2612C0D6140D2F9F001B6925 /* SampleBitmapRect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002D13B11F5B0064D447 /* SampleBitmapRect.cpp */; };
+		2612C0D7140D2FA1001B6925 /* SampleCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E002F13B11F5B0064D447 /* SampleCamera.cpp */; };
+		2612C0D8140D2FA2001B6925 /* SampleColorFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003213B11F5B0064D447 /* SampleColorFilter.cpp */; };
+		2612C0D9140D2FA3001B6925 /* SampleConcavePaths.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003413B11F5B0064D447 /* SampleConcavePaths.cpp */; };
+		2612C0DA140D2FA4001B6925 /* SampleDecode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003613B11F5B0064D447 /* SampleDecode.cpp */; };
+		2612C0DB140D2FA5001B6925 /* SampleDither.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003713B11F5B0064D447 /* SampleDither.cpp */; };
+		2612C0DC140D2FA8001B6925 /* SampleDitherBitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003813B11F5B0064D447 /* SampleDitherBitmap.cpp */; };
+		2612C0DD140D2FAA001B6925 /* SampleDrawLooper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003913B11F5B0064D447 /* SampleDrawLooper.cpp */; };
+		2612C0DE140D2FAA001B6925 /* SampleEffects.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003A13B11F5B0064D447 /* SampleEffects.cpp */; };
+		2612C0DF140D2FAB001B6925 /* SampleEmboss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003B13B11F5B0064D447 /* SampleEmboss.cpp */; };
+		2612C0E0140D2FAB001B6925 /* SampleEncode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003C13B11F5B0064D447 /* SampleEncode.cpp */; };
+		2612C0E1140D2FAC001B6925 /* SampleExtractAlpha.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003D13B11F5B0064D447 /* SampleExtractAlpha.cpp */; };
+		2612C0E2140D2FAD001B6925 /* SampleFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E003F13B11F5B0064D447 /* SampleFilter.cpp */; };
+		2612C0E3140D2FAE001B6925 /* SampleFilter2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004013B11F5B0064D447 /* SampleFilter2.cpp */; };
+		2612C0E4140D2FAE001B6925 /* SampleFontCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004113B11F5B0064D447 /* SampleFontCache.cpp */; };
+		2612C0E5140D2FAF001B6925 /* SampleFontScalerTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004213B11F5B0064D447 /* SampleFontScalerTest.cpp */; };
+		2612C0E6140D2FAF001B6925 /* SampleFuzz.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004313B11F5B0064D447 /* SampleFuzz.cpp */; };
+		2612C0E7140D2FB1001B6925 /* SampleGradients.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004513B11F5B0064D447 /* SampleGradients.cpp */; };
+		2612C0E8140D2FB1001B6925 /* SampleHairline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004613B11F5B0064D447 /* SampleHairline.cpp */; };
+		2612C0E9140D2FB2001B6925 /* SampleImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004713B11F5B0064D447 /* SampleImage.cpp */; };
+		2612C0EA140D2FB2001B6925 /* SampleImageDir.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004813B11F5B0064D447 /* SampleImageDir.cpp */; };
+		2612C0EB140D2FB3001B6925 /* SampleLayerMask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004A13B11F5B0064D447 /* SampleLayerMask.cpp */; };
+		2612C0EC140D2FB4001B6925 /* SampleLayers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004B13B11F5B0064D447 /* SampleLayers.cpp */; };
+		2612C0ED140D2FB4001B6925 /* SampleLineClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004C13B11F5B0064D447 /* SampleLineClipper.cpp */; };
+		2612C0EE140D2FB5001B6925 /* SampleLines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004D13B11F5B0064D447 /* SampleLines.cpp */; };
+		2612C0EF140D2FB7001B6925 /* SampleMeasure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004E13B11F5B0064D447 /* SampleMeasure.cpp */; };
+		2612C0F0140D2FB8001B6925 /* SampleMipMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E004F13B11F5B0064D447 /* SampleMipMap.cpp */; };
+		2612C0F1140D2FB8001B6925 /* SampleMovie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005013B11F5B0064D447 /* SampleMovie.cpp */; };
+		2612C0F2140D2FB9001B6925 /* SampleNinePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005113B11F5B0064D447 /* SampleNinePatch.cpp */; };
+		2612C0F3140D2FBA001B6925 /* SampleOvalTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005213B11F5B0064D447 /* SampleOvalTest.cpp */; };
+		2612C0F4140D2FBB001B6925 /* SampleOverflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005313B11F5B0064D447 /* SampleOverflow.cpp */; };
+		2612C0F5140D2FBB001B6925 /* SamplePageFlip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005413B11F5B0064D447 /* SamplePageFlip.cpp */; };
+		2612C0F6140D2FBC001B6925 /* SamplePatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005513B11F5B0064D447 /* SamplePatch.cpp */; };
+		2612C0F7140D2FBD001B6925 /* SampleRepeatTile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005D13B11F5B0064D447 /* SampleRepeatTile.cpp */; };
+		2612C0F8140D2FBE001B6925 /* SampleShaderText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005E13B11F5B0064D447 /* SampleShaderText.cpp */; };
+		2612C0F9140D2FBE001B6925 /* SampleShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E005F13B11F5B0064D447 /* SampleShaders.cpp */; };
+		2612C0FA140D2FC0001B6925 /* SampleSkLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E006113B11F5B0064D447 /* SampleSkLayer.cpp */; };
+		2612C0FB140D2FC1001B6925 /* SampleStrokePath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E006313B11F5B0064D447 /* SampleStrokePath.cpp */; };
+		2612C0FC140D2FC2001B6925 /* SampleStrokeText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E006413B11F5B0064D447 /* SampleStrokeText.cpp */; };
+		2612C0FE140D2FC3001B6925 /* SampleTextureDomain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E006B13B11F5B0064D447 /* SampleTextureDomain.cpp */; };
+		2612C0FF140D2FC4001B6925 /* SampleTiling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E006C13B11F5B0064D447 /* SampleTiling.cpp */; };
+		2612C100140D2FC5001B6925 /* SampleTinyBitmap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E006D13B11F5B0064D447 /* SampleTinyBitmap.cpp */; };
+		2612C101140D2FC6001B6925 /* SampleXfermodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E007213B11F5B0064D447 /* SampleXfermodes.cpp */; };
+		2612C102140D2FC7001B6925 /* SampleXfermodesBlur.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E007313B11F5B0064D447 /* SampleXfermodesBlur.cpp */; };
+		2612C106140D2FE3001B6925 /* SkEventNotifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2612C105140D2FE3001B6925 /* SkEventNotifier.mm */; };
+		2612C110140D300B001B6925 /* GrDefaultPathRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2612C109140D300B001B6925 /* GrDefaultPathRenderer.cpp */; };
+		2612C111140D300B001B6925 /* GrGLStencilBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2612C10B140D300B001B6925 /* GrGLStencilBuffer.cpp */; };
+		2612C112140D300B001B6925 /* GrPathRendererChain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2612C10E140D300B001B6925 /* GrPathRendererChain.cpp */; };
+		2612C122140D30B0001B6925 /* GrAddPathRenderers_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2612C121140D30B0001B6925 /* GrAddPathRenderers_none.cpp */; };
 		263BE75813CCC7BF00CCE991 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 263BE75713CCC7BF00CCE991 /* QuartzCore.framework */; };
-		2645945F13F34FB100DCF534 /* test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2645945E13F34FB100DCF534 /* test.cpp */; };
 		26591EB913EB16EB000DA8A8 /* TransitionView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26591EB813EB16EB000DA8A8 /* TransitionView.cpp */; };
 		265C7DE313D75752008329F6 /* SkOptionListController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 265C7DE213D75752008329F6 /* SkOptionListController.mm */; };
 		2662AB7013BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 2662AB6F13BD067900CDE7E9 /* SkiOSSampleApp-Debug.xcconfig */; };
@@ -397,8 +448,6 @@
 		26811E7913DEFAE8001A1609 /* SkBitSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26811E7813DEFAE8001A1609 /* SkBitSet.cpp */; };
 		268C50D613F022820003FF9A /* SkColorPalette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50D213F022820003FF9A /* SkColorPalette.cpp */; };
 		268C50D713F022820003FF9A /* SkNetPipeController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50D413F022820003FF9A /* SkNetPipeController.cpp */; };
-		268C50DA13F022AF0003FF9A /* SampleDrawingClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50D813F022AF0003FF9A /* SampleDrawingClient.cpp */; };
-		268C50DF13F0230C0003FF9A /* SampleNetPipeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50DC13F0230C0003FF9A /* SampleNetPipeReader.cpp */; };
 		268C50E013F0230C0003FF9A /* SkSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 268C50DD13F0230C0003FF9A /* SkSockets.cpp */; };
 		26962B2313CDF6A00039B1FB /* SkOSFile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 260EE8BB13AFA7790064D447 /* SkOSFile_iOS.mm */; };
 		26962C8013CE256E0039B1FB /* SkUIDetailViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26962C7913CE256E0039B1FB /* SkUIDetailViewController.mm */; };
@@ -422,7 +471,6 @@
 		26F548E913B91980007CC564 /* SkBitmapProcState_opts_arm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F548E013B91980007CC564 /* SkBitmapProcState_opts_arm.cpp */; };
 		26F548EC13B91980007CC564 /* SkBlitRow_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F548E413B91980007CC564 /* SkBlitRow_opts_none.cpp */; };
 		26F548ED13B91980007CC564 /* SkUtils_opts_none.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26F548E613B91980007CC564 /* SkUtils_opts_none.cpp */; };
-		26FB125E13E70310001AFF6D /* SkEventNotifier.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26FB125D13E70310001AFF6D /* SkEventNotifier.mm */; };
 		26FB129313E704AE001AFF6D /* GrGLTexture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03DF13B122D40064D447 /* GrGLTexture.cpp */; };
 		26FB129413E704B0001AFF6D /* GrContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E03D713B122D40064D447 /* GrContext.cpp */; };
 		26FB12B013E70D3B001AFF6D /* GrGLRenderTarget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26FB12AD13E70D3B001AFF6D /* GrGLRenderTarget.cpp */; };
@@ -439,7 +487,7 @@
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* iOSSampleApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iOSSampleApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		2605F43C13F18B1B0044A072 /* DebuggerView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebuggerView.cpp; sourceTree = "<group>"; };
+		2605F43C13F18B1B0044A072 /* DebuggerContentView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebuggerContentView.cpp; sourceTree = "<group>"; };
 		2605F43D13F18B1B0044A072 /* DebuggerViews.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DebuggerViews.h; sourceTree = "<group>"; };
 		2605F43E13F18B1B0044A072 /* DebuggerCommandsView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebuggerCommandsView.cpp; sourceTree = "<group>"; };
 		2605F43F13F18B1B0044A072 /* SkDebugDumper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkDebugDumper.cpp; sourceTree = "<group>"; };
@@ -524,7 +572,6 @@
 		260E006213B11F5B0064D447 /* SampleSlides.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleSlides.cpp; sourceTree = "<group>"; };
 		260E006313B11F5B0064D447 /* SampleStrokePath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleStrokePath.cpp; sourceTree = "<group>"; };
 		260E006413B11F5B0064D447 /* SampleStrokeText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleStrokeText.cpp; sourceTree = "<group>"; };
-		260E006513B11F5B0064D447 /* SampleTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleTests.cpp; sourceTree = "<group>"; };
 		260E006613B11F5B0064D447 /* SampleText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleText.cpp; sourceTree = "<group>"; };
 		260E006713B11F5B0064D447 /* SampleTextAlpha.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleTextAlpha.cpp; sourceTree = "<group>"; };
 		260E006813B11F5B0064D447 /* SampleTextBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleTextBox.cpp; sourceTree = "<group>"; };
@@ -883,7 +930,6 @@
 		260E03D513B122D40064D447 /* GrBufferAllocPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrBufferAllocPool.h; sourceTree = "<group>"; };
 		260E03D613B122D40064D447 /* GrClip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrClip.cpp; sourceTree = "<group>"; };
 		260E03D713B122D40064D447 /* GrContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrContext.cpp; sourceTree = "<group>"; };
-		260E03D813B122D40064D447 /* GrCreatePathRenderer_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrCreatePathRenderer_none.cpp; sourceTree = "<group>"; };
 		260E03D913B122D40064D447 /* GrDrawTarget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrDrawTarget.cpp; sourceTree = "<group>"; };
 		260E03DA13B122D40064D447 /* GrGLDefaultInterface_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLDefaultInterface_none.cpp; sourceTree = "<group>"; };
 		260E03DB13B122D40064D447 /* GrGLIndexBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLIndexBuffer.cpp; sourceTree = "<group>"; };
@@ -1022,7 +1068,6 @@
 		260E055A13B123DE0064D447 /* SkCubicInterval.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkCubicInterval.cpp; sourceTree = "<group>"; };
 		260E055B13B123DE0064D447 /* SkCullPoints.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkCullPoints.cpp; sourceTree = "<group>"; };
 		260E055C13B123DE0064D447 /* SkDumpCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkDumpCanvas.cpp; sourceTree = "<group>"; };
-		260E055D13B123DE0064D447 /* SkEGLContext_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkEGLContext_none.cpp; sourceTree = "<group>"; };
 		260E055E13B123DE0064D447 /* SkInterpolator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkInterpolator.cpp; sourceTree = "<group>"; };
 		260E055F13B123DE0064D447 /* SkLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkLayer.cpp; sourceTree = "<group>"; };
 		260E056013B123DE0064D447 /* SkMatrix44.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkMatrix44.cpp; sourceTree = "<group>"; };
@@ -1290,8 +1335,17 @@
 		260EE9D013AFA7850064D447 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		260EE9D113AFA7850064D447 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		260EF18413AFD62E0064D447 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
+		2612C104140D2FE3001B6925 /* SkEventNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkEventNotifier.h; path = ../../src/utils/mac/SkEventNotifier.h; sourceTree = SOURCE_ROOT; };
+		2612C105140D2FE3001B6925 /* SkEventNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkEventNotifier.mm; path = ../../src/utils/mac/SkEventNotifier.mm; sourceTree = SOURCE_ROOT; };
+		2612C109140D300B001B6925 /* GrDefaultPathRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrDefaultPathRenderer.cpp; sourceTree = "<group>"; };
+		2612C10A140D300B001B6925 /* GrDefaultPathRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrDefaultPathRenderer.h; sourceTree = "<group>"; };
+		2612C10B140D300B001B6925 /* GrGLStencilBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLStencilBuffer.cpp; sourceTree = "<group>"; };
+		2612C10C140D300B001B6925 /* GrGLStencilBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrGLStencilBuffer.h; sourceTree = "<group>"; };
+		2612C10D140D300B001B6925 /* GrPathRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrPathRenderer.h; sourceTree = "<group>"; };
+		2612C10E140D300B001B6925 /* GrPathRendererChain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrPathRendererChain.cpp; sourceTree = "<group>"; };
+		2612C10F140D300B001B6925 /* GrPathRendererChain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrPathRendererChain.h; sourceTree = "<group>"; };
+		2612C121140D30B0001B6925 /* GrAddPathRenderers_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrAddPathRenderers_none.cpp; sourceTree = "<group>"; };
 		263BE75713CCC7BF00CCE991 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
-		2645945E13F34FB100DCF534 /* test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = test.cpp; sourceTree = SOURCE_ROOT; };
 		26591EB813EB16EB000DA8A8 /* TransitionView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransitionView.cpp; sourceTree = "<group>"; };
 		265C7DE113D75752008329F6 /* SkOptionListController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkOptionListController.h; path = Shared/SkOptionListController.h; sourceTree = "<group>"; };
 		265C7DE213D75752008329F6 /* SkOptionListController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkOptionListController.mm; path = Shared/SkOptionListController.mm; sourceTree = "<group>"; };
@@ -1355,8 +1409,6 @@
 		26F5492313B91C51007CC564 /* GrGLDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrGLDefines.h; sourceTree = "<group>"; };
 		26F5492413B91C51007CC564 /* GrTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrTemplates.h; sourceTree = "<group>"; };
 		26F5492713B91CA1007CC564 /* SkTypeface_mac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkTypeface_mac.h; path = include/ports/SkTypeface_mac.h; sourceTree = "<group>"; };
-		26FB125C13E70310001AFF6D /* SkEventNotifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkEventNotifier.h; path = ../SkEventNotifier.h; sourceTree = SOURCE_ROOT; };
-		26FB125D13E70310001AFF6D /* SkEventNotifier.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SkEventNotifier.mm; path = ../SkEventNotifier.mm; sourceTree = SOURCE_ROOT; };
 		26FB12AD13E70D3B001AFF6D /* GrGLRenderTarget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrGLRenderTarget.cpp; sourceTree = "<group>"; };
 		26FB12AE13E70D3B001AFF6D /* GrGLRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrGLRenderTarget.h; sourceTree = "<group>"; };
 		26FB12AF13E70D3B001AFF6D /* GrGLTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrGLTexture.h; sourceTree = "<group>"; };
@@ -1402,7 +1454,7 @@
 		2605F43B13F18B1B0044A072 /* Debugger */ = {
 			isa = PBXGroup;
 			children = (
-				2605F43C13F18B1B0044A072 /* DebuggerView.cpp */,
+				2605F43C13F18B1B0044A072 /* DebuggerContentView.cpp */,
 				2605F43D13F18B1B0044A072 /* DebuggerViews.h */,
 				2605F43E13F18B1B0044A072 /* DebuggerCommandsView.cpp */,
 				2605F43F13F18B1B0044A072 /* SkDebugDumper.cpp */,
@@ -1438,7 +1490,6 @@
 		260E002313B11F5B0064D447 /* samplecode */ = {
 			isa = PBXGroup;
 			children = (
-				2645945E13F34FB100DCF534 /* test.cpp */,
 				26591EB813EB16EB000DA8A8 /* TransitionView.cpp */,
 				260E002413B11F5B0064D447 /* ClockFaceView.cpp */,
 				260E002513B11F5B0064D447 /* OverView.cpp */,
@@ -1504,7 +1555,6 @@
 				260E006213B11F5B0064D447 /* SampleSlides.cpp */,
 				260E006313B11F5B0064D447 /* SampleStrokePath.cpp */,
 				260E006413B11F5B0064D447 /* SampleStrokeText.cpp */,
-				260E006513B11F5B0064D447 /* SampleTests.cpp */,
 				260E006613B11F5B0064D447 /* SampleText.cpp */,
 				260E006713B11F5B0064D447 /* SampleTextAlpha.cpp */,
 				260E006813B11F5B0064D447 /* SampleTextBox.cpp */,
@@ -2008,6 +2058,14 @@
 		260E03C813B122D40064D447 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2612C121140D30B0001B6925 /* GrAddPathRenderers_none.cpp */,
+				2612C109140D300B001B6925 /* GrDefaultPathRenderer.cpp */,
+				2612C10A140D300B001B6925 /* GrDefaultPathRenderer.h */,
+				2612C10B140D300B001B6925 /* GrGLStencilBuffer.cpp */,
+				2612C10C140D300B001B6925 /* GrGLStencilBuffer.h */,
+				2612C10D140D300B001B6925 /* GrPathRenderer.h */,
+				2612C10E140D300B001B6925 /* GrPathRendererChain.cpp */,
+				2612C10F140D300B001B6925 /* GrPathRendererChain.h */,
 				2605F66413F19EB80044A072 /* GrStencilBuffer.cpp */,
 				26FB12B313E70D51001AFF6D /* GrRenderTarget.cpp */,
 				26FB12AD13E70D3B001AFF6D /* GrGLRenderTarget.cpp */,
@@ -2024,7 +2082,6 @@
 				260E03D513B122D40064D447 /* GrBufferAllocPool.h */,
 				260E03D613B122D40064D447 /* GrClip.cpp */,
 				260E03D713B122D40064D447 /* GrContext.cpp */,
-				260E03D813B122D40064D447 /* GrCreatePathRenderer_none.cpp */,
 				260E03D913B122D40064D447 /* GrDrawTarget.cpp */,
 				260E03DA13B122D40064D447 /* GrGLDefaultInterface_none.cpp */,
 				260E03DB13B122D40064D447 /* GrGLIndexBuffer.cpp */,
@@ -2312,7 +2369,6 @@
 				260E055A13B123DE0064D447 /* SkCubicInterval.cpp */,
 				260E055B13B123DE0064D447 /* SkCullPoints.cpp */,
 				260E055C13B123DE0064D447 /* SkDumpCanvas.cpp */,
-				260E055D13B123DE0064D447 /* SkEGLContext_none.cpp */,
 				260E055E13B123DE0064D447 /* SkInterpolator.cpp */,
 				260E055F13B123DE0064D447 /* SkLayer.cpp */,
 				260E056013B123DE0064D447 /* SkMatrix44.cpp */,
@@ -2769,8 +2825,8 @@
 		28EEBF621118D79A00187D67 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				26FB125C13E70310001AFF6D /* SkEventNotifier.h */,
-				26FB125D13E70310001AFF6D /* SkEventNotifier.mm */,
+				2612C104140D2FE3001B6925 /* SkEventNotifier.h */,
+				2612C105140D2FE3001B6925 /* SkEventNotifier.mm */,
 				26962C7813CE256E0039B1FB /* SkUIDetailViewController.h */,
 				26962C7913CE256E0039B1FB /* SkUIDetailViewController.mm */,
 				26962C7A13CE256E0039B1FB /* SkUIRootViewController.h */,
@@ -3044,7 +3100,6 @@
 				260E040D13B122D40064D447 /* GrAtlas.cpp in Sources */,
 				260E040E13B122D40064D447 /* GrBufferAllocPool.cpp in Sources */,
 				260E040F13B122D40064D447 /* GrClip.cpp in Sources */,
-				260E041113B122D40064D447 /* GrCreatePathRenderer_none.cpp in Sources */,
 				260E041213B122D40064D447 /* GrDrawTarget.cpp in Sources */,
 				260E041413B122D40064D447 /* GrGLIndexBuffer.cpp in Sources */,
 				260E041513B122D40064D447 /* GrGLInterface.cpp in Sources */,
@@ -3113,7 +3168,6 @@
 				260E057A13B123DE0064D447 /* SkCubicInterval.cpp in Sources */,
 				260E057B13B123DE0064D447 /* SkCullPoints.cpp in Sources */,
 				260E057C13B123DE0064D447 /* SkDumpCanvas.cpp in Sources */,
-				260E057D13B123DE0064D447 /* SkEGLContext_none.cpp in Sources */,
 				260E057E13B123DE0064D447 /* SkInterpolator.cpp in Sources */,
 				260E057F13B123DE0064D447 /* SkLayer.cpp in Sources */,
 				260E058013B123DE0064D447 /* SkMatrix44.cpp in Sources */,
@@ -3274,7 +3328,6 @@
 				265C7DE313D75752008329F6 /* SkOptionListController.mm in Sources */,
 				26811E7913DEFAE8001A1609 /* SkBitSet.cpp in Sources */,
 				26A8AFF313E05D7000A3C111 /* GrResourceCache.cpp in Sources */,
-				26FB125E13E70310001AFF6D /* SkEventNotifier.mm in Sources */,
 				26FB129313E704AE001AFF6D /* GrGLTexture.cpp in Sources */,
 				26FB129413E704B0001AFF6D /* GrContext.cpp in Sources */,
 				26FB12B013E70D3B001AFF6D /* GrGLRenderTarget.cpp in Sources */,
@@ -3282,10 +3335,8 @@
 				26591EB913EB16EB000DA8A8 /* TransitionView.cpp in Sources */,
 				268C50D613F022820003FF9A /* SkColorPalette.cpp in Sources */,
 				268C50D713F022820003FF9A /* SkNetPipeController.cpp in Sources */,
-				268C50DA13F022AF0003FF9A /* SampleDrawingClient.cpp in Sources */,
-				268C50DF13F0230C0003FF9A /* SampleNetPipeReader.cpp in Sources */,
 				268C50E013F0230C0003FF9A /* SkSockets.cpp in Sources */,
-				2605F44213F18B1B0044A072 /* DebuggerView.cpp in Sources */,
+				2605F44213F18B1B0044A072 /* DebuggerContentView.cpp in Sources */,
 				2605F44313F18B1B0044A072 /* DebuggerCommandsView.cpp in Sources */,
 				2605F44413F18B1B0044A072 /* SkDebugDumper.cpp in Sources */,
 				2605F44513F18B1B0044A072 /* DebuggerStateView.cpp in Sources */,
@@ -3304,7 +3355,60 @@
 				2605F83A13F1AE520044A072 /* complexclip.cpp in Sources */,
 				2605F83B13F1AE520044A072 /* blurs.cpp in Sources */,
 				2605F83C13F1AE530044A072 /* bitmapfilters.cpp in Sources */,
-				2645945F13F34FB100DCF534 /* test.cpp in Sources */,
+				2612C0D1140D2F9B001B6925 /* ClockFaceView.cpp in Sources */,
+				2612C0D2140D2F9C001B6925 /* SampleAARects.cpp in Sources */,
+				2612C0D3140D2F9C001B6925 /* SampleAnimator.cpp in Sources */,
+				2612C0D4140D2F9D001B6925 /* SampleAll.cpp in Sources */,
+				2612C0D5140D2F9F001B6925 /* SampleBigGradient.cpp in Sources */,
+				2612C0D6140D2F9F001B6925 /* SampleBitmapRect.cpp in Sources */,
+				2612C0D7140D2FA1001B6925 /* SampleCamera.cpp in Sources */,
+				2612C0D8140D2FA2001B6925 /* SampleColorFilter.cpp in Sources */,
+				2612C0D9140D2FA3001B6925 /* SampleConcavePaths.cpp in Sources */,
+				2612C0DA140D2FA4001B6925 /* SampleDecode.cpp in Sources */,
+				2612C0DB140D2FA5001B6925 /* SampleDither.cpp in Sources */,
+				2612C0DC140D2FA8001B6925 /* SampleDitherBitmap.cpp in Sources */,
+				2612C0DD140D2FAA001B6925 /* SampleDrawLooper.cpp in Sources */,
+				2612C0DE140D2FAA001B6925 /* SampleEffects.cpp in Sources */,
+				2612C0DF140D2FAB001B6925 /* SampleEmboss.cpp in Sources */,
+				2612C0E0140D2FAB001B6925 /* SampleEncode.cpp in Sources */,
+				2612C0E1140D2FAC001B6925 /* SampleExtractAlpha.cpp in Sources */,
+				2612C0E2140D2FAD001B6925 /* SampleFilter.cpp in Sources */,
+				2612C0E3140D2FAE001B6925 /* SampleFilter2.cpp in Sources */,
+				2612C0E4140D2FAE001B6925 /* SampleFontCache.cpp in Sources */,
+				2612C0E5140D2FAF001B6925 /* SampleFontScalerTest.cpp in Sources */,
+				2612C0E6140D2FAF001B6925 /* SampleFuzz.cpp in Sources */,
+				2612C0E7140D2FB1001B6925 /* SampleGradients.cpp in Sources */,
+				2612C0E8140D2FB1001B6925 /* SampleHairline.cpp in Sources */,
+				2612C0E9140D2FB2001B6925 /* SampleImage.cpp in Sources */,
+				2612C0EA140D2FB2001B6925 /* SampleImageDir.cpp in Sources */,
+				2612C0EB140D2FB3001B6925 /* SampleLayerMask.cpp in Sources */,
+				2612C0EC140D2FB4001B6925 /* SampleLayers.cpp in Sources */,
+				2612C0ED140D2FB4001B6925 /* SampleLineClipper.cpp in Sources */,
+				2612C0EE140D2FB5001B6925 /* SampleLines.cpp in Sources */,
+				2612C0EF140D2FB7001B6925 /* SampleMeasure.cpp in Sources */,
+				2612C0F0140D2FB8001B6925 /* SampleMipMap.cpp in Sources */,
+				2612C0F1140D2FB8001B6925 /* SampleMovie.cpp in Sources */,
+				2612C0F2140D2FB9001B6925 /* SampleNinePatch.cpp in Sources */,
+				2612C0F3140D2FBA001B6925 /* SampleOvalTest.cpp in Sources */,
+				2612C0F4140D2FBB001B6925 /* SampleOverflow.cpp in Sources */,
+				2612C0F5140D2FBB001B6925 /* SamplePageFlip.cpp in Sources */,
+				2612C0F6140D2FBC001B6925 /* SamplePatch.cpp in Sources */,
+				2612C0F7140D2FBD001B6925 /* SampleRepeatTile.cpp in Sources */,
+				2612C0F8140D2FBE001B6925 /* SampleShaderText.cpp in Sources */,
+				2612C0F9140D2FBE001B6925 /* SampleShaders.cpp in Sources */,
+				2612C0FA140D2FC0001B6925 /* SampleSkLayer.cpp in Sources */,
+				2612C0FB140D2FC1001B6925 /* SampleStrokePath.cpp in Sources */,
+				2612C0FC140D2FC2001B6925 /* SampleStrokeText.cpp in Sources */,
+				2612C0FE140D2FC3001B6925 /* SampleTextureDomain.cpp in Sources */,
+				2612C0FF140D2FC4001B6925 /* SampleTiling.cpp in Sources */,
+				2612C100140D2FC5001B6925 /* SampleTinyBitmap.cpp in Sources */,
+				2612C101140D2FC6001B6925 /* SampleXfermodes.cpp in Sources */,
+				2612C102140D2FC7001B6925 /* SampleXfermodesBlur.cpp in Sources */,
+				2612C106140D2FE3001B6925 /* SkEventNotifier.mm in Sources */,
+				2612C110140D300B001B6925 /* GrDefaultPathRenderer.cpp in Sources */,
+				2612C111140D300B001B6925 /* GrGLStencilBuffer.cpp in Sources */,
+				2612C112140D300B001B6925 /* GrPathRendererChain.cpp in Sources */,
+				2612C122140D30B0001B6925 /* GrAddPathRenderers_none.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
