@@ -156,7 +156,7 @@ static SkKey raw2key(UInt32 raw)
 }
 
 - (void)keyDown:(NSEvent *)event {
-    if (NULL != fWind)
+    if (NULL == fWind)
         return;
     
     SkKey key = raw2key([event keyCode]);
@@ -169,7 +169,7 @@ static SkKey raw2key(UInt32 raw)
 }
 
 - (void)keyUp:(NSEvent *)event {
-    if (NULL != fWind)
+    if (NULL == fWind)
         return;
     
     SkKey key = raw2key([event keyCode]);
