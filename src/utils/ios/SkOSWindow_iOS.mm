@@ -62,5 +62,4 @@ bool SkOSWindow::attachGL() {
 void SkOSWindow::detachGL() {}
 
 void SkOSWindow::presentGL() {
-    glFlush();
 }
