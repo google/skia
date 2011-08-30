@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		2605F44213F18B1B0044A072 /* DebuggerContentView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2605F43C13F18B1B0044A072 /* DebuggerContentView.cpp */; };
 		2605F44313F18B1B0044A072 /* DebuggerCommandsView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2605F43E13F18B1B0044A072 /* DebuggerCommandsView.cpp */; };
@@ -456,6 +455,8 @@
 		26962CAB13CE268A0039B1FB /* SampleApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962CA913CE268A0039B1FB /* SampleApp.cpp */; };
 		26962D4F13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */; };
 		26A8AFF313E05D7000A3C111 /* GrResourceCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 26A8AFF113E05D7000A3C111 /* GrResourceCache.cpp */; };
+		26D91223140D576B0036A311 /* SkSampleUIView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26D91222140D576B0036A311 /* SkSampleUIView.mm */; };
+		26D9122A140D57BD0036A311 /* skia_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = 26D91229140D57BD0036A311 /* skia_ios.mm */; };
 		26E0E40A13B4E67800866555 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 260EE9D113AFA7850064D447 /* OpenGLES.framework */; };
 		26F548C213B918EC007CC564 /* SkBlitter_4444.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022313B1225D0064D447 /* SkBlitter_4444.cpp */; };
 		26F548C313B918ED007CC564 /* SkBlitter_A1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 260E022413B1225D0064D447 /* SkBlitter_A1.cpp */; };
@@ -809,7 +810,6 @@
 		260E029013B1225D0064D447 /* SkUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkUtils.cpp; sourceTree = "<group>"; };
 		260E029113B1225D0064D447 /* SkWriter32.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkWriter32.cpp; sourceTree = "<group>"; };
 		260E029213B1225D0064D447 /* SkXfermode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkXfermode.cpp; sourceTree = "<group>"; };
-		260E029413B1225D0064D447 /* opts_check_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_check_SSE2.cpp; sourceTree = "<group>"; };
 		260E029613B1225D0064D447 /* SkDebug_stdio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkDebug_stdio.cpp; sourceTree = "<group>"; };
 		260E029813B1225D0064D447 /* SkFontHost_mac_coretext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkFontHost_mac_coretext.cpp; sourceTree = "<group>"; };
 		260E029A13B1225D0064D447 /* SkGlobals_global.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkGlobals_global.cpp; sourceTree = "<group>"; };
@@ -957,7 +957,6 @@
 		260E03F113B122D40064D447 /* GrRedBlackTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrRedBlackTree.h; sourceTree = "<group>"; };
 		260E03F213B122D40064D447 /* GrResource.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrResource.cpp; sourceTree = "<group>"; };
 		260E03F313B122D40064D447 /* GrStencil.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrStencil.cpp; sourceTree = "<group>"; };
-		260E03F413B122D40064D447 /* GrTesselatedPathRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrTesselatedPathRenderer.cpp; sourceTree = "<group>"; };
 		260E03F513B122D40064D447 /* GrTextContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextContext.cpp; sourceTree = "<group>"; };
 		260E03F613B122D40064D447 /* GrTextStrike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrTextStrike.cpp; sourceTree = "<group>"; };
 		260E03F713B122D40064D447 /* GrTextStrike_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrTextStrike_impl.h; sourceTree = "<group>"; };
@@ -981,9 +980,6 @@
 		260E044D13B1232F0064D447 /* SkFlipPixelRef.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkFlipPixelRef.cpp; sourceTree = "<group>"; };
 		260E044E13B1232F0064D447 /* SkImageDecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder.cpp; sourceTree = "<group>"; };
 		260E045613B1232F0064D447 /* SkImageEncoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageEncoder.cpp; sourceTree = "<group>"; };
-		260E04B513B123730064D447 /* SkBitmapProcState_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_SSE2.cpp; sourceTree = "<group>"; };
-		260E04B613B123730064D447 /* SkBlitRow_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_SSE2.cpp; sourceTree = "<group>"; };
-		260E04B713B123730064D447 /* SkUtils_opts_SSE2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkUtils_opts_SSE2.cpp; sourceTree = "<group>"; };
 		260E04C813B123840064D447 /* SkSVGAttribute.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkSVGAttribute.h; sourceTree = "<group>"; };
 		260E04C913B123840064D447 /* SkSVGBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkSVGBase.h; sourceTree = "<group>"; };
 		260E04CA13B123840064D447 /* SkSVGPaintState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkSVGPaintState.h; sourceTree = "<group>"; };
@@ -1294,7 +1290,6 @@
 		260E07CF13B128870064D447 /* SkImageRefPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageRefPool.cpp; sourceTree = "<group>"; };
 		260E07D013B128870064D447 /* SkImageRefPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkImageRefPool.h; sourceTree = "<group>"; };
 		260E07D613B1289C0064D447 /* SkImageRef_GlobalPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageRef_GlobalPool.cpp; sourceTree = "<group>"; };
-		260E07DB13B128AD0064D447 /* SkMovie_gif.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkMovie_gif.cpp; sourceTree = "<group>"; };
 		260E080E13B1294E0064D447 /* SkImageDecoder_CG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_CG.cpp; sourceTree = "<group>"; };
 		260E083B13B12A200064D447 /* SkImageDecoder_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageDecoder_Factory.cpp; sourceTree = "<group>"; };
 		260E083C13B12A200064D447 /* SkImageEncoder_Factory.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkImageEncoder_Factory.cpp; sourceTree = "<group>"; };
@@ -1380,12 +1375,11 @@
 		26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GrGLDefaultInterface_iOS.cpp; path = ../../gpu/src/ios/GrGLDefaultInterface_iOS.cpp; sourceTree = SOURCE_ROOT; };
 		26A8AFF113E05D7000A3C111 /* GrResourceCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GrResourceCache.cpp; sourceTree = "<group>"; };
 		26A8AFF213E05D7000A3C111 /* GrResourceCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GrResourceCache.h; sourceTree = "<group>"; };
+		26D91221140D576B0036A311 /* SkSampleUIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkSampleUIView.h; sourceTree = "<group>"; };
+		26D91222140D576B0036A311 /* SkSampleUIView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkSampleUIView.mm; sourceTree = "<group>"; };
+		26D91229140D57BD0036A311 /* skia_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = skia_ios.mm; path = Shared/skia_ios.mm; sourceTree = "<group>"; };
 		26E0E5C913B5299E00866555 /* SkGPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SkGPipe.h; path = ../../include/pipe/SkGPipe.h; sourceTree = SOURCE_ROOT; };
-		26F548DF13B91980007CC564 /* opts_check_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = opts_check_arm.cpp; sourceTree = "<group>"; };
 		26F548E013B91980007CC564 /* SkBitmapProcState_opts_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_arm.cpp; sourceTree = "<group>"; };
-		26F548E113B91980007CC564 /* SkBitmapProcState_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBitmapProcState_opts_none.cpp; sourceTree = "<group>"; };
-		26F548E213B91980007CC564 /* SkBitmapProcState_opts_SSE2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBitmapProcState_opts_SSE2.h; sourceTree = "<group>"; };
-		26F548E313B91980007CC564 /* SkBlitRow_opts_arm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_arm.cpp; sourceTree = "<group>"; };
 		26F548E413B91980007CC564 /* SkBlitRow_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkBlitRow_opts_none.cpp; sourceTree = "<group>"; };
 		26F548E513B91980007CC564 /* SkBlitRow_opts_SSE2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkBlitRow_opts_SSE2.h; sourceTree = "<group>"; };
 		26F548E613B91980007CC564 /* SkUtils_opts_none.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkUtils_opts_none.cpp; sourceTree = "<group>"; };
@@ -1422,7 +1416,6 @@
 		2860E32C111B888700E27156 /* AppDelegate_iPad.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate_iPad.mm; sourceTree = "<group>"; };
 		2860E32D111B888700E27156 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
 		288765FC0DF74451002DB57D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Shared/main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1723,7 +1716,6 @@
 			children = (
 				26677D6513B4C548009319B8 /* SkData.cpp */,
 				260E020A13B1225D0064D447 /* core */,
-				260E029313B1225D0064D447 /* opts */,
 				260E029513B1225D0064D447 /* ports */,
 			);
 			path = src;
@@ -1869,14 +1861,6 @@
 				260E029213B1225D0064D447 /* SkXfermode.cpp */,
 			);
 			path = core;
-			sourceTree = "<group>";
-		};
-		260E029313B1225D0064D447 /* opts */ = {
-			isa = PBXGroup;
-			children = (
-				260E029413B1225D0064D447 /* opts_check_SSE2.cpp */,
-			);
-			path = opts;
 			sourceTree = "<group>";
 		};
 		260E029513B1225D0064D447 /* ports */ = {
@@ -2109,7 +2093,6 @@
 				260E03F113B122D40064D447 /* GrRedBlackTree.h */,
 				260E03F213B122D40064D447 /* GrResource.cpp */,
 				260E03F313B122D40064D447 /* GrStencil.cpp */,
-				260E03F413B122D40064D447 /* GrTesselatedPathRenderer.cpp */,
 				260E03F513B122D40064D447 /* GrTextContext.cpp */,
 				260E03F613B122D40064D447 /* GrTextStrike.cpp */,
 				260E03F713B122D40064D447 /* GrTextStrike_impl.h */,
@@ -2197,7 +2180,6 @@
 				260E07CF13B128870064D447 /* SkImageRefPool.cpp */,
 				260E07D013B128870064D447 /* SkImageRefPool.h */,
 				260E07D613B1289C0064D447 /* SkImageRef_GlobalPool.cpp */,
-				260E07DB13B128AD0064D447 /* SkMovie_gif.cpp */,
 			);
 			path = images;
 			sourceTree = "<group>";
@@ -2213,18 +2195,11 @@
 		260E04B413B123730064D447 /* opts */ = {
 			isa = PBXGroup;
 			children = (
-				26F548DF13B91980007CC564 /* opts_check_arm.cpp */,
 				26F548E013B91980007CC564 /* SkBitmapProcState_opts_arm.cpp */,
-				26F548E113B91980007CC564 /* SkBitmapProcState_opts_none.cpp */,
-				26F548E213B91980007CC564 /* SkBitmapProcState_opts_SSE2.h */,
-				26F548E313B91980007CC564 /* SkBlitRow_opts_arm.cpp */,
 				26F548E413B91980007CC564 /* SkBlitRow_opts_none.cpp */,
 				26F548E513B91980007CC564 /* SkBlitRow_opts_SSE2.h */,
 				26F548E613B91980007CC564 /* SkUtils_opts_none.cpp */,
 				26F548E713B91980007CC564 /* SkUtils_opts_SSE2.h */,
-				260E04B513B123730064D447 /* SkBitmapProcState_opts_SSE2.cpp */,
-				260E04B613B123730064D447 /* SkBlitRow_opts_SSE2.cpp */,
-				260E04B713B123730064D447 /* SkUtils_opts_SSE2.cpp */,
 			);
 			name = opts;
 			path = ../../src/opts;
@@ -2752,6 +2727,7 @@
 		260EE8B913AFA7790064D447 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
+				26D91229140D57BD0036A311 /* skia_ios.mm */,
 				26FB98D113D0C87000ACBEA0 /* SkUIView.h */,
 				26FB98D213D0C87000ACBEA0 /* SkUIView.mm */,
 				26962D4E13CE2D780039B1FB /* GrGLDefaultInterface_iOS.cpp */,
@@ -2855,7 +2831,8 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				29B97316FDCFA39411CA2CEA /* main.m */,
+				26D91221140D576B0036A311 /* SkSampleUIView.h */,
+				26D91222140D576B0036A311 /* SkSampleUIView.mm */,
 				26962C8E13CE25D60039B1FB /* iOSSampleApp_Prefix.pch */,
 				26962C8F13CE25D60039B1FB /* iOSSampleApp-Info.plist */,
 				26962CC813CE27390039B1FB /* xcconfig */,
@@ -2947,7 +2924,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				2860E328111B887F00E27156 /* AppDelegate_iPhone.mm in Sources */,
 				2860E32E111B888700E27156 /* AppDelegate_iPad.mm in Sources */,
 				260E00E313B11F5B0064D447 /* OverView.cpp in Sources */,
@@ -3409,6 +3385,8 @@
 				2612C111140D300B001B6925 /* GrGLStencilBuffer.cpp in Sources */,
 				2612C112140D300B001B6925 /* GrPathRendererChain.cpp in Sources */,
 				2612C122140D30B0001B6925 /* GrAddPathRenderers_none.cpp in Sources */,
+				26D91223140D576B0036A311 /* SkSampleUIView.mm in Sources */,
+				26D9122A140D57BD0036A311 /* skia_ios.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

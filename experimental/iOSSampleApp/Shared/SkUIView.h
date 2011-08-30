@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
@@ -12,14 +11,9 @@
 #import <OpenGLES/ES2/glext.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
-#include "SkMatrix.h"
-#include "FlingState.h"
-#include "SampleApp.h"
-
-class SkiOSDeviceManager;
+#include "SkWindow.h"
 class SkOSWindow;
 class SkEvent;
-struct FPSState;
 @class SkUIView;
 
 @protocol SkUIViewOptionsDelegate <NSObject>
@@ -30,37 +24,19 @@ struct FPSState;
 @end
 
 @interface SkUIView : UIView  {
-    BOOL fRedrawRequestPending;
-
-    struct {
-        EAGLContext*    fContext;
-        GLuint          fRenderbuffer;
-        GLuint          fStencilbuffer;
-        GLuint          fFramebuffer;
-        GLint           fWidth;
-        GLint           fHeight;
-    } fGL;
-    
-    NSString* fTitle;
     UINavigationItem* fTitleItem;
-    CALayer* fRasterLayer;
-    CAEAGLLayer* fGLLayer;
-    
-    FPSState* fFPSState;
     SkOSWindow* fWind;
-    SkiOSDeviceManager* fDevManager;
-    
     id<SkUIViewOptionsDelegate> fOptionsDelegate;
 }
 
 @property (nonatomic, readonly) SkOSWindow *fWind;
 @property (nonatomic, retain) UINavigationItem* fTitleItem;
-@property (nonatomic, copy) NSString* fTitle;
-@property (nonatomic, retain) CALayer* fRasterLayer;
-@property (nonatomic, retain) CAEAGLLayer* fGLLayer;
 @property (nonatomic, assign) id<SkUIViewOptionsDelegate> fOptionsDelegate;
 
+- (id)initWithDefaults;
+- (void)setUpWindow;
 - (void)forceRedraw;
+- (void)drawInRaster;
 
 - (void)setSkTitle:(const char*)title;
 - (void)onAddMenu:(const SkOSMenu*)menu;
