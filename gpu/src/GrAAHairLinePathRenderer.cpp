@@ -252,7 +252,7 @@ int num_quad_subdivs(const SkPoint p[3]) {
         log = GrMin(GrMax(0, log), kMaxSub);
         return log;
 #else
-        SkScalar log = SkScalarLog(SkScalarDiv(dsqd,kTol*kTol));
+        SkScalar log = SkScalarLog(SkScalarDiv(dsqd,gSubdivTol*gSubdivTol));
         static const SkScalar conv = SkScalarInvert(SkScalarLog(2));
         log = SkScalarMul(log, conv);
         return  GrMin(GrMax(0, SkScalarCeilToInt(log)),kMaxSub);
