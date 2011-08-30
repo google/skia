@@ -168,7 +168,7 @@ extern void GrGLClearErr(const GrGLInterface* gl);
 
 #if GR_GL_LOG_CALLS
     extern bool gLogCallsGL;
-    #define GR_GL_LOG_CALLS_IMPL(X)
+    #define GR_GL_LOG_CALLS_IMPL(X)                             \
         if (gLogCallsGL)                                        \
             GrPrintf(GR_FILE_AND_LINE_STR "GL: " #X "\n")
 #else
