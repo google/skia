@@ -143,7 +143,7 @@ void GrGLInitializeDefaultGLInterface() {
 #endif
     defaultInterface->fBindFragDataLocationIndexed = NULL;
         
-    defaultInterface->fBindingsExported = kES2_GrGLBinding | kES1_GrGLBinding;
+    defaultInterface->fBindingsExported = (GrGLBinding)(kES2_GrGLBinding | kES1_GrGLBinding);
 
-    GrGLSetDefaultGLInterface(&defaultInterface)->unref();
+    GrGLSetDefaultGLInterface(defaultInterface)->unref();
 }

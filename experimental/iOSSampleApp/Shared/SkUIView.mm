@@ -36,7 +36,7 @@ public:
             fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
 #endif
         }
-        fGrRenderTarget = SkGpuDevice::Current3DApiRenderTarget();
+        
         if (NULL == fGrContext) {
             SkDebugf("Failed to setup 3D");
             win->detachGL();
@@ -81,8 +81,30 @@ public:
         win->presentGL();
     }
     
-    virtual void windowSizeChanged(SampleWindow* win) {}
-    
+    virtual void windowSizeChanged(SampleWindow* win) {
+        if (fGrContext) {
+            win->attachGL();
+            
+            GrPlatformSurfaceDesc desc;
+            desc.reset();
+            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+            desc.fWidth = SkScalarRound(win->width());
+            desc.fHeight = SkScalarRound(win->height());
+            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            const GrGLInterface* gl = GrGLGetDefaultGLInterface();
+            GrAssert(NULL != gl);
+            GR_GL_GetIntegerv(gl, GR_GL_STENCIL_BITS, &desc.fStencilBits);
+            GR_GL_GetIntegerv(gl, GR_GL_SAMPLES, &desc.fSampleCnt);
+            GrGLint buffer;
+            GR_GL_GetIntegerv(gl, GR_GL_FRAMEBUFFER_BINDING, &buffer);
+            desc.fPlatformRenderTarget = buffer;
+            
+            SkSafeUnref(fGrRenderTarget);
+            fGrRenderTarget = static_cast<GrRenderTarget*>(
+                                                           fGrContext->createPlatformSurface(desc));
+        }
+    }
+
     bool isUsingGL() { return usingGL; }
     
     virtual GrContext* getGrContext() { return fGrContext; }

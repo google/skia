@@ -5,10 +5,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#import "SkNSWindow.h"
-@interface SampleWindow : SkNSWindow {
-    IBOutlet SkNSView* fView;
-    SkView* fSampleSkView;
-}
-@end
 
+/*
+ * Simple hello world app for skia on Mac OS (Cocoa)
+ */
+
+#import "SkNSView.h"
+@interface SimpleNSView : SkNSView
+- (id)initWithDefaults;
+@end
