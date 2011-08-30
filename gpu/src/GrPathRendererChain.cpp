@@ -43,7 +43,7 @@ GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
                     !target->getRenderTarget()->isMultisampled();
     GrPathRenderer* nonAAPR = NULL;
     for (int i = 0; i < fChain.count(); ++i) {
-        if (fChain[i]->canDrawPath(path, fill)) {
+        if (fChain[i]->canDrawPath(target, path, fill)) {
             if (!preferAA || fChain[i]->supportsAA(target, path, fill)) {
                 return fChain[i];
             } else {

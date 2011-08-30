@@ -186,8 +186,21 @@ bool GrGpuGLShaders::programUnitTest() {
 
         bool edgeAA = random.nextF() > .5f;
         if (edgeAA) {
-            pdesc.fEdgeAANumEdges = random.nextF() * this->getMaxEdges() + 1;
-            pdesc.fEdgeAAConcave = random.nextF() > .5f;
+            bool vertexEdgeAA = random.nextF() > .5f;
+            if (vertexEdgeAA) {
+                pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
+                if (this->supportsShaderDerivatives()) {
+                    pdesc.fVertexEdgeType = random.nextF() > 0.5f ?
+                                                        kHairQuad_EdgeType :
+                                                        kHairLine_EdgeType;
+                } else {
+                    pdesc.fVertexEdgeType = kHairLine_EdgeType;
+                }
+                pdesc.fEdgeAANumEdges = 0;
+            } else {
+                pdesc.fEdgeAANumEdges = random.nextF() * this->getMaxEdges() + 1;
+                pdesc.fEdgeAAConcave = random.nextF() > .5f;
+            }
         } else {
             pdesc.fEdgeAANumEdges = 0;
         }
@@ -307,6 +320,7 @@ void GrGpuGLShaders::resetContext() {
     fHWGeometryState.fVertexLayout = 0;
     fHWGeometryState.fVertexOffset = ~0;
     GL_CALL(DisableVertexAttribArray(GrGLProgram::ColorAttributeIdx()));
+    GL_CALL(DisableVertexAttribArray(GrGLProgram::EdgeAttributeIdx()));
     for (int t = 0; t < kMaxTexCoords; ++t) {
         GL_CALL(DisableVertexAttribArray(GrGLProgram::TexCoordAttributeIdx(t)));
     }
@@ -641,17 +655,22 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
 
     int newColorOffset;
     int newTexCoordOffsets[kMaxTexCoords];
+    int newEdgeOffset;
 
     GrGLsizei newStride = VertexSizeAndOffsetsByIdx(
                                             this->getGeomSrc().fVertexLayout,
                                             newTexCoordOffsets,
-                                            &newColorOffset);
+                                            &newColorOffset,
+                                            &newEdgeOffset);
     int oldColorOffset;
     int oldTexCoordOffsets[kMaxTexCoords];
+    int oldEdgeOffset;
+
     GrGLsizei oldStride = VertexSizeAndOffsetsByIdx(
                                             fHWGeometryState.fVertexLayout,
                                             oldTexCoordOffsets,
-                                            &oldColorOffset);
+                                            &oldColorOffset,
+                                            &oldEdgeOffset);
     bool indexed = NULL != startIndex;
 
     int extraVertexOffset;
@@ -727,12 +746,32 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
         GL_CALL(DisableVertexAttribArray(GrGLProgram::ColorAttributeIdx()));
     }
 
+    if (newEdgeOffset > 0) {
+        GrGLvoid* edgeOffset = (int8_t*)(vertexOffset + newEdgeOffset);
+        int idx = GrGLProgram::EdgeAttributeIdx();
+        if (oldEdgeOffset <= 0) {
+            GL_CALL(EnableVertexAttribArray(idx));
+            GL_CALL(VertexAttribPointer(idx, 4, scalarType,
+                                        false, newStride, edgeOffset));
+        } else if (allOffsetsChange || newEdgeOffset != oldEdgeOffset) {
+            GL_CALL(VertexAttribPointer(idx, 4, scalarType,
+                                        false, newStride, edgeOffset));
+        }
+    } else if (oldEdgeOffset > 0) {
+        GL_CALL(DisableVertexAttribArray(GrGLProgram::EdgeAttributeIdx()));
+    }
+
     fHWGeometryState.fVertexLayout = this->getGeomSrc().fVertexLayout;
     fHWGeometryState.fArrayPtrsDirty = false;
 }
 
 void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     ProgramDesc& desc = fCurrentProgram.fProgramDesc;
+
+    // The descriptor is used as a cache key. Thus when a field of the
+    // descriptor will not affect program generation (because of the vertex
+    // layout in use or other descriptor field settings) it should be set
+    // to a canonical value to avoid duplicate programs with different keys.
 
     // Must initialize all fields or cache will have false negatives!
     desc.fVertexLayout = this->getGeomSrc().fVertexLayout;
@@ -766,6 +805,13 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     desc.fEdgeAAConcave = desc.fEdgeAANumEdges > 0 && SkToBool(fCurrDrawState.fFlagBits & kEdgeAAConcave_StateBit);
 
     int lastEnabledStage = -1;
+
+    if (desc.fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit) {
+        desc.fVertexEdgeType = fCurrDrawState.fVertexEdgeType;
+    } else {
+        // use canonical value when not set to avoid cache misses
+        desc.fVertexEdgeType = GrDrawTarget::kHairLine_EdgeType;
+    }
 
     for (int s = 0; s < kNumStages; ++s) {
         StageDesc& stage = desc.fStages[s];

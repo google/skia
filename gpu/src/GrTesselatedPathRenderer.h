@@ -17,7 +17,8 @@ public:
     GrTesselatedPathRenderer();
 
     virtual void drawPath(GrDrawTarget::StageBitfield stages);
-    virtual bool canDrawPath(const GrPath& path,
+    virtual bool canDrawPath(const GrDrawTarget* target,
+                             const GrPath& path,
                              GrPathFill fill) const;
 
     virtual bool requiresStencilPass(const GrDrawTarget* target,

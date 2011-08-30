@@ -52,13 +52,28 @@ public:
     /**
      * Returns true if this path renderer is able to render the path.
      * Returning false allows the caller to fallback to another path renderer.
+     * When searching for a path renderer capable of rendering a path this
+     * function is called. The path renderer can examine the path, fill rule,
+     * and draw settings that will be used (via the targetparameter). If "true"
+     * is reported note that the caller is permitted to make modifications to
+     * the following settings of the target between the calls to canDrawPath and
+     * drawPath:
+     *     1. view matrix: The matrix at drawPath time may have additional scale
+     *                     scale and translation applied
+     *     2. render target: The render target may change between canDrawPath 
+     *                       and drawPath.
+     * The GrPathRenderer subclass's decision about whether to return true
+     * or false in its implementation of this function should consider these
+     * possible state changes.
      *
      * @param path      The path to draw
      * @param fill      The fill rule to use
      *
      * @return  true if the path can be drawn by this object, false otherwise.
      */
-    virtual bool canDrawPath(const SkPath& path, GrPathFill fill) const = 0;
+    virtual bool canDrawPath(const GrDrawTarget* target,
+                             const SkPath& path,
+                             GrPathFill fill) const = 0;
 
     /**
      * For complex clips Gr uses the stencil buffer. The path renderer must be

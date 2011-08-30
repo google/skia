@@ -276,15 +276,22 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
 
     int newColorOffset;
     int newTexCoordOffsets[kNumStages];
+    int newEdgeOffset;
 
     GrGLsizei newStride = VertexSizeAndOffsetsByStage(this->getGeomSrc().fVertexLayout,
                                                       newTexCoordOffsets,
-                                                      &newColorOffset);
+                                                      &newColorOffset,
+                                                      &newEdgeOffset);
+    GrAssert(-1 == newEdgeOffset); // not supported by fixed pipe
+
     int oldColorOffset;
     int oldTexCoordOffsets[kNumStages];
+    int oldEdgeOffset;
     GrGLsizei oldStride = VertexSizeAndOffsetsByStage(fHWGeometryState.fVertexLayout,
                                                       oldTexCoordOffsets,
-                                                      &oldColorOffset);
+                                                      &oldColorOffset,
+                                                      &oldEdgeOffset);
+    GrAssert(-1 == oldEdgeOffset);
 
     bool indexed = NULL != startIndex;
 

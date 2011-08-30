@@ -59,6 +59,20 @@ public:
         kMaxEdges = 32
     };
 
+     /**
+     * When specifying edges as vertex data this enum specifies what type of
+     * edges are in use. The edges are always 4 GrScalars in memory, even when
+     * the edge type requires fewer than 4.
+     */
+    enum VertexEdgeType {
+        /* 1-pixel wide line
+           2D implicit line eq (a*x + b*y +c = 0). 4th component unused */
+        kHairLine_EdgeType,
+        /* 1-pixel wide quadratic
+           u^2-v canonical coords (only 2 components used) */
+        kHairQuad_EdgeType
+    };
+
     /**
      *  Bitfield used to indicate which stages are in use.
      */
@@ -167,6 +181,7 @@ protected:
 
         GrStencilSettings       fStencilSettings;
         GrMatrix                fViewMatrix;
+        VertexEdgeType          fVertexEdgeType;
         Edge                    fEdgeAAEdges[kMaxEdges];
         int                     fEdgeAANumEdges;
         bool operator ==(const DrState& s) const {
@@ -256,7 +271,7 @@ public:
     }
 
     /**
-     * Shortcut for preConcatSamplerMatrix on all stages in mask with same 
+     * Shortcut for preConcatSamplerMatrix on all stages in mask with same
      * matrix
      */
     void preConcatSamplerMatrices(int stageMask, const GrMatrix& matrix) {
@@ -265,6 +280,18 @@ public:
                 this->preConcatSamplerMatrix(i, matrix);
             }
         }
+    }
+
+    /**
+     * Shortcut for preConcatSamplerMatrix on all enabled stages in mask with
+     * same matrix
+     *
+     * @param stage   the stage of the sampler to set
+     * @param matrix  the matrix to concat
+     */
+    void preConcatEnabledSamplerMatrices(const GrMatrix& matrix) {
+        StageBitfield stageMask = this->enabledStages();
+        this->preConcatSamplerMatrices(stageMask, matrix);
     }
 
     /**
@@ -535,6 +562,15 @@ public:
      */
     bool canDisableBlend() const;
 
+     /**
+      * Determines the interpretation per-vertex edge data when the
+      * kEdge_VertexLayoutBit is set (see below). When per-vertex edges are not
+      * specified the value of this setting has no effect.
+      */
+    void setVertexEdgeType(VertexEdgeType type) {
+        fCurrDrawState.fVertexEdgeType = type;
+    }
+
     /**
      * Given the current draw state, vertex layout, and hw support, will HW AA
      * lines be used (if line primitive type is drawn)? (Note that lines are
@@ -575,15 +611,14 @@ public:
      * Additional Bits that can be specified in GrVertexLayout.
      */
     enum VertexLayoutBits {
-
+        /* vertices have colors */
         kColor_VertexLayoutBit              = 1 << (STAGE_BIT_CNT + 0),
-                                                //<! vertices have colors
+                                                
+        /* Use text vertices. (Pos and tex coords may be a different type for
+           text [GrGpuTextVertex vs GrPoint].) */
         kTextFormat_VertexLayoutBit         = 1 << (STAGE_BIT_CNT + 1),
-                                                //<! use text vertices. (Pos
-                                                //   and tex coords may be
-                                                //   a different type for
-                                                //   text [GrGpuTextVertex vs
-                                                //   GrPoint].)
+
+        kEdge_VertexLayoutBit               = 1 << (STAGE_BIT_CNT + 2),
         // for below assert
         kDummyVertexLayoutBit,
         kHighVertexLayoutBit = kDummyVertexLayoutBit - 1
@@ -1030,6 +1065,13 @@ public:
      */
     static int VertexColorOffset(GrVertexLayout vertexLayout);
 
+     /**
+      * Helper function to compute the offset of the edge pts in a vertex
+      * @return offset of edge in vertex layout or -1 if the
+      *         layout has no edge.
+      */
+     static int VertexEdgeOffset(GrVertexLayout vertexLayout);
+
     /**
      * Helper function to determine if vertex layout contains explicit texture
      * coordinates of some index.
@@ -1069,7 +1111,8 @@ public:
      */
     static int VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
                                          int texCoordOffsetsByIdx[kMaxTexCoords],
-                                         int *colorOffset);
+                                         int *colorOffset,
+                                         int* edgeOffset);
 
     /**
      * Helper function to compute the size of each vertex and the offsets of
@@ -1086,7 +1129,8 @@ public:
      */
     static int VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
                                            int texCoordOffsetsByStage[kNumStages],
-                                           int *colorOffset);
+                                           int *colorOffset,
+                                           int* edgeOffset);
 
     /**
      * Accessing positions, texture coords, or colors, of a vertex within an
@@ -1185,13 +1229,21 @@ protected:
     
     // given a vertex layout and a draw state, will a stage be used?
     static bool StageWillBeUsed(int stage, GrVertexLayout layout, 
-                         const DrState& state) {
+                                const DrState& state) {
         return NULL != state.fTextures[stage] && VertexUsesStage(stage, layout);
     }
 
     bool isStageEnabled(int stage) const {
         return StageWillBeUsed(stage, this->getGeomSrc().fVertexLayout, 
                                fCurrDrawState);
+    }
+
+    StageBitfield enabledStages() const {
+        StageBitfield mask = 0;
+        for (int s = 0; s < kNumStages; ++s) {
+            mask |= this->isStageEnabled(s) ? 1 : 0;
+        }
+        return mask;
     }
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
