@@ -83,17 +83,11 @@ const SkBitmap& SkDevice::accessBitmap(bool changePixels) {
     return fBitmap;
 }
 
-void SkDevice::getBounds(SkIRect* bounds) const {
+void SkDevice::getGlobalBounds(SkIRect* bounds) const {
     if (bounds) {
-        bounds->set(0, 0, fBitmap.width(), fBitmap.height());
+        bounds->setXYWH(fOrigin.x(), fOrigin.y(),
+                        fBitmap.width(), fBitmap.height());
     }
-}
-
-bool SkDevice::intersects(const SkIRect& r, SkIRect* sect) const {
-    SkIRect bounds;
-
-    this->getBounds(&bounds);
-    return sect ? sect->intersect(r, bounds) : SkIRect::Intersects(r, bounds);
 }
 
 void SkDevice::clear(SkColor color) {
