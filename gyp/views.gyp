@@ -76,8 +76,8 @@
         [ 'skia_os == "mac"', {
           'link_settings': {
             'libraries': [
-              '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
-              '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
+              '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
+              '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
             ],
           },
         }],

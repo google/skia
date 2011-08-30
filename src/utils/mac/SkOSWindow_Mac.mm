@@ -1,11 +1,21 @@
-#import <Cocoa/Cocoa.h>
-#include "SkOSWindow_Mac_Cocoa.h"
+
+/*
+ * Copyright 2011 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#if defined(SK_BUILD_FOR_MAC) && !defined(SK_USE_WXWIDGETS)
+
+#import  <Cocoa/Cocoa.h>
+#include "SkOSWindow_Mac.h"
 #include "SkOSMenu.h"
 #include "SkTypes.h"
 #include "SkWindow.h"
-#import "SkNSView.h"
-#import "SkEventNotifier.h"
-#define kINVAL_NSVIEW_EventType "inval-nsview"
+#import  "SkNSView.h"
+#import  "SkEventNotifier.h"
+#define  kINVAL_NSVIEW_EventType "inval-nsview"
 
 SkOSWindow::SkOSWindow(void* hWnd) : fHWND(hWnd) {
     fInvalEventIsPending = false;
@@ -64,3 +74,5 @@ void SkOSWindow::detachGL() {
 void SkOSWindow::presentGL() {
     [(SkNSView*)fHWND presentGL];
 }
+
+#endif

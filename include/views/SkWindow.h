@@ -105,11 +105,7 @@ private:
 #ifdef SK_USE_WXWIDGETS
     #include "SkOSWindow_wxwidgets.h"
 #elif defined(SK_BUILD_FOR_MAC)
-#ifdef Sk_MAC_COCOA
-    #include "SkOSWindow_Mac_Cocoa.h"
-#else
     #include "SkOSWindow_Mac.h"
-#endif
 #elif defined(SK_BUILD_FOR_WIN)
     #include "SkOSWindow_Win.h"
 #elif defined(ANDROID)

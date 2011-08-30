@@ -1,5 +1,4 @@
-#import "SkNSView.h"
-#include "SkApplication.h"
+#import "SkNSView.h"s
 #include "SkCanvas.h"
 #include "SkCGUtils.h"
 #include "SkEvent.h"
@@ -10,25 +9,32 @@
 
 - (id)initWithCoder:(NSCoder*)coder {
     if ((self = [super initWithCoder:coder])) {
-        self = [self initWithMyDefaults];
+        self = [self initWithDefaults];
+        [self setUpWindow];
     }
     return self;
 }
 
 - (id)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
-        self = [self initWithMyDefaults];
+        self = [self initWithDefaults];
+        [self setUpWindow];
     }
     return self;
 }
 
-- (id)initWithMyDefaults {
+- (id)initWithDefaults {
     fRedrawRequestPending = false;
-    fWind = new SampleWindow(self, NULL, NULL, NULL);
-    application_init();
-    fWind->resize(self.frame.size.width, self.frame.size.height, 
-                  SkBitmap::kARGB_8888_Config);
+    fWind = NULL;
     return self;
+}
+
+- (void)setUpWindow {
+    if (NULL != fWind) {
+        fWind->setVisibleP(true);
+        fWind->resize(self.frame.size.width, self.frame.size.height, 
+                      SkBitmap::kARGB_8888_Config);
+    }
 }
 
 -(BOOL) isFlipped {
@@ -39,32 +45,35 @@
     return YES;
 }
 
--(BOOL) inLiveResize {
+- (void)viewDidEndLiveResize {
     NSSize s = [self frame].size;
-    if (fWind != NULL && fWind->width() != s.width && fWind->height() != s.height) {
+    if (NULL != fWind && fWind->width() != s.width && fWind->height() != s.height) {
         fWind->resize(s.width, s.height);
-        [fGLContext update];
+        if (nil != fGLContext) {
+            [fGLContext update];
+            glClear(GL_STENCIL_BUFFER_BIT);
+        }
     }
-    return [super inLiveResize];
 }
 
 - (void)dealloc {
     delete fWind;
     self.fGLContext = nil;
     self.fTitle = nil;
-    application_term();
     [super dealloc];
 }
 
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////0//////////////////////////////////
 
 - (void)drawSkia {
     fRedrawRequestPending = false;
-    SkCanvas canvas(fWind->getBitmap());
-    fWind->draw(&canvas);
+    if (NULL != fWind) {
+        SkCanvas canvas(fWind->getBitmap());
+        fWind->draw(&canvas);
 #ifdef FORCE_REDRAW
-    fWind->inval(NULL);
+        fWind->inval(NULL);
 #endif
+    }
 }
 
 - (void)setSkTitle:(const char *)title {
@@ -88,6 +97,7 @@
 - (void)postInvalWithRect:(const SkIRect*)r {
     if (!fRedrawRequestPending) {
         fRedrawRequestPending = true;
+        [self setNeedsDisplay:YES];
         [self performSelector:@selector(drawSkia) withObject:nil afterDelay:0];
     }
 }
@@ -146,6 +156,9 @@ static SkKey raw2key(UInt32 raw)
 }
 
 - (void)keyDown:(NSEvent *)event {
+    if (NULL != fWind)
+        return;
+    
     SkKey key = raw2key([event keyCode]);
     if (kNONE_SkKey != key)
         fWind->handleKey(key);
@@ -156,18 +169,20 @@ static SkKey raw2key(UInt32 raw)
 }
 
 - (void)keyUp:(NSEvent *)event {
+    if (NULL != fWind)
+        return;
+    
     SkKey key = raw2key([event keyCode]);
     if (kNONE_SkKey != key)
         fWind->handleKeyUp(key);
     else{
         unichar c = [[event characters] characterAtIndex:0];
-        //fWind->handleChar((SkUnichar)c);
     }
 }
 
 - (void)mouseDown:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
-    if ([self mouse:p inRect:[self bounds]]) { //unecessary for a window with a single view
+    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
         fWind->handleClick(loc.x, loc.y, SkView::Click::kDown_State, self);
     }
@@ -175,7 +190,7 @@ static SkKey raw2key(UInt32 raw)
 
 - (void)mouseDragged:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
-    if ([self mouse:p inRect:[self bounds]]) {
+    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
         fWind->handleClick(loc.x, loc.y, SkView::Click::kMoved_State, self);
     }
@@ -183,20 +198,10 @@ static SkKey raw2key(UInt32 raw)
 
 - (void)mouseUp:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
-    if ([self mouse:p inRect:[self bounds]]) {
+    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];
         fWind->handleClick(loc.x, loc.y, SkView::Click::kUp_State, self);
     }
-}
-
-- (void)swipeWithEvent:(NSEvent *)event {
-    CGFloat x = [event deltaX];
-    if (x < 0)
-        ((SampleWindow*)fWind)->previousSample();
-    else if (x > 0)
-        ((SampleWindow*)fWind)->nextSample();
-    else
-        ((SampleWindow*)fWind)->showOverview();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,7 +245,6 @@ CGLContextObj createGLContext() {
     //it must NOT be deferred or should have been on screen at least once)
     if ([fGLContext view] != self && nil != self.window) {
         [fGLContext setView:self];
-        glClear(GL_STENCIL_BUFFER_BIT);
     }
 }
 - (void)attachGL {

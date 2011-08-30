@@ -11,17 +11,21 @@
         '../experimental/SimpleCocoaApp/',
       ],
       'sources': [
-        '../experimental/SimpleCocoaApp/main.m',
-        '../experimental/SimpleCocoaApp/SampleWindow.h',
-        '../experimental/SimpleCocoaApp/SampleWindow.mm',
-        '../experimental/SimpleCocoaApp/SimpleCocoaAppDelegate.h',
-        '../experimental/SimpleCocoaApp/SimpleCocoaAppDelegate.mm',
-        '../experimental/SimpleCocoaApp/SkNSView.h',
-        '../experimental/SimpleCocoaApp/SkNSView.mm',
-        '../experimental/SimpleCocoaApp/SkNSWindow.h',
-        '../experimental/SimpleCocoaApp/SkNSWindow.mm',
-        '../experimental/SimpleCocoaApp/SimpleCocoaApp-Info.plist',
-        '../experimental/SimpleCocoaApp/SimpleCocoaApp_Prefix.pch',
+        '../src/utils/mac/SkEventNotifier.h',
+        '../src/utils/mac/SkEventNotifier.mm',
+        '../src/utils/mac/skia_mac.mm',
+        '../src/utils/mac/SkNSView.h',
+        '../src/utils/mac/SkNSView.mm',
+        '../src/utils/mac/SkOptionsTableView.h',
+        '../src/utils/mac/SkOptionsTableView.mm',
+        '../src/utils/mac/SkOSWindow_Mac.mm',
+        '../src/utils/mac/SkTextFieldCell.h',
+        '../src/utils/mac/SkTextFieldCell.m',
+        
+        '../experimental/SimpleCocoaApp/SimpleApp-Info.plist',
+        '../experimental/SimpleCocoaApp/SimpleApp.h',
+        '../experimental/SimpleCocoaApp/SimpleApp.mm',
+        
       ],
       'dependencies': [
         'core.gyp:core',
@@ -39,23 +43,14 @@
           ],
           'link_settings': {
             'libraries': [
-              '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
-              '$(SDKROOT)/System/Library/Frameworks/AppKit.framework',
-            ],
-            'libraries!': [
-              # Currently skia mac apps rely on Carbon and AGL for UI. Future
-              # apps should use Cocoa instead and dependencies on Carbon and AGL
-              # should eventually be removed
-              '$(SDKROOT)/System/Library/Frameworks/Carbon.framework',
-              '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
             ],
           },
           'xcode_settings' : {
-            'INFOPLIST_FILE' : '../experimental/SimpleCocoaApp/SimpleCocoaApp-Info.plist',
+            'INFOPLIST_FILE' : '../experimental/SimpleCocoaApp/SimpleApp-Info.plist',
           },
           'mac_bundle_resources' : [
-            '../experimental/SimpleCocoaApp/English.lproj/InfoPlist.strings',
-            '../experimental/SimpleCocoaApp/English.lproj/MainMenu.xib',
+            '../experimental/SimpleCocoaApp/SimpleApp.xib',
           ],
         }],
       ],
