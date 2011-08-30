@@ -82,9 +82,12 @@ public:
     */
     virtual int height() const { return fBitmap.height(); }
 
-    /** Return the bounds of the device
-    */
-    void getBounds(SkIRect* bounds) const;
+    /**
+     *  Return the bounds of the device in the coordinate space of the root
+     *  canvas. The root device will have its top-left at 0,0, but other devices
+     *  such as those associated with saveLayer may have a non-zero origin.
+     */
+    void getGlobalBounds(SkIRect* bounds) const;
 
     /** Returns true if the device's bitmap's config treats every pixels as
         implicitly opaque.
@@ -134,12 +137,6 @@ protected:
      *  the default origin in its canvas' matrix/clip
      */
     const SkIPoint& getOrigin() const { return fOrigin; }
-
-    /** Return true if the specified rectangle intersects the bounds of the
-        device. If sect is not NULL and there is an intersection, sect returns
-        the intersection.
-    */
-    bool intersects(const SkIRect& r, SkIRect* sect = NULL) const;
 
     struct TextFlags {
         uint32_t            fFlags;     // SkPaint::getFlags()
