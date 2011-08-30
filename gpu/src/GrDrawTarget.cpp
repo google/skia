@@ -63,6 +63,17 @@ bool check_layout(GrVertexLayout layout) {
     return true;
 }
 
+int num_tex_coords(GrVertexLayout layout) {
+    int cnt = 0;
+    // figure out how many tex coordinates are present
+    for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
+        if (tex_coord_idx_mask(t) & layout) {
+            ++cnt;
+        }
+    }
+    return cnt;
+}
+
 } //unnamed namespace
 
 size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
@@ -73,13 +84,12 @@ size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
                         sizeof(GrPoint);
 
     size_t size = vecSize; // position
-    for (int t = 0; t < kMaxTexCoords; ++t) {
-        if (tex_coord_idx_mask(t) & vertexLayout) {
-            size += vecSize;
-        }
-    }
+    size += num_tex_coords(vertexLayout) * vecSize;
     if (vertexLayout & kColor_VertexLayoutBit) {
         size += sizeof(GrColor);
+    }
+    if (vertexLayout & kEdge_VertexLayoutBit) {
+        size += 4 * sizeof(GrScalar);
     }
     return size;
 }
@@ -111,16 +121,27 @@ int GrDrawTarget::VertexStageCoordOffset(int stage, GrVertexLayout vertexLayout)
 int  GrDrawTarget::VertexColorOffset(GrVertexLayout vertexLayout) {
     GrAssert(check_layout(vertexLayout));
 
+    // color is after the pos and tex coords
     if (vertexLayout & kColor_VertexLayoutBit) {
         int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
                                     sizeof(GrGpuTextVertex) :
                                     sizeof(GrPoint);
-        int offset = vecSize; // position
-        // figure out how many tex coordinates are present and precede this one.
-        for (int t = 0; t < kMaxTexCoords; ++t) {
-            if (tex_coord_idx_mask(t) & vertexLayout) {
-                offset += vecSize;
-            }
+        return vecSize * (num_tex_coords(vertexLayout) + 1); //+1 for pos
+    }
+    return -1;
+}
+
+int  GrDrawTarget::VertexEdgeOffset(GrVertexLayout vertexLayout) {
+    GrAssert(check_layout(vertexLayout));
+
+    // edge pts are after the pos, tex coords, and color
+    if (vertexLayout & kEdge_VertexLayoutBit) {
+        int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
+                                    sizeof(GrGpuTextVertex) :
+                                    sizeof(GrPoint);
+        int offset = vecSize * (num_tex_coords(vertexLayout) + 1); //+1 for pos
+        if (vertexLayout & kColor_VertexLayoutBit) {
+            offset += sizeof(GrColor);
         }
         return offset;
     }
@@ -129,11 +150,13 @@ int  GrDrawTarget::VertexColorOffset(GrVertexLayout vertexLayout) {
 
 int GrDrawTarget::VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
                                              int texCoordOffsetsByIdx[kMaxTexCoords],
-                                             int* colorOffset) {
+                                             int* colorOffset,
+                                             int* edgeOffset) {
     GrAssert(check_layout(vertexLayout));
 
     GrAssert(NULL != texCoordOffsetsByIdx);
     GrAssert(NULL != colorOffset);
+    GrAssert(NULL != edgeOffset);
 
     int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
                                                     sizeof(GrGpuTextVertex) :
@@ -154,21 +177,30 @@ int GrDrawTarget::VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
     } else {
         *colorOffset = -1;
     }
+    if (kEdge_VertexLayoutBit & vertexLayout) {
+        *edgeOffset = size;
+        size += 4 * sizeof(GrScalar);
+    } else {
+        *edgeOffset = -1;
+    }
     return size;
 }
 
 int GrDrawTarget::VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
                                               int texCoordOffsetsByStage[kNumStages],
-                                              int* colorOffset) {
+                                              int* colorOffset,
+                                              int* edgeOffset) {
     GrAssert(check_layout(vertexLayout));
 
     GrAssert(NULL != texCoordOffsetsByStage);
     GrAssert(NULL != colorOffset);
+    GrAssert(NULL != edgeOffset);
 
     int texCoordOffsetsByIdx[kMaxTexCoords];
     int size = VertexSizeAndOffsetsByIdx(vertexLayout,
                                          texCoordOffsetsByIdx,
-                                         colorOffset);
+                                         colorOffset,
+                                         edgeOffset);
     for (int s = 0; s < kNumStages; ++s) {
         int tcIdx;
         if (StagePosAsTexCoordVertexLayoutBit(s) & vertexLayout) {
@@ -250,22 +282,39 @@ void GrDrawTarget::VertexLayoutUnitTest() {
                     GrAssert(VertexUsesStage(s2, posAsTex));
                     GrAssert(2*sizeof(GrPoint) == VertexSize(posAsTex));
                     GrAssert(-1 == VertexTexCoordsForStage(s2, posAsTex));
+                    GrAssert(-1 == VertexEdgeOffset(posAsTex));
                 }
+                GrAssert(-1 == VertexEdgeOffset(tcMask));
+                GrAssert(-1 == VertexColorOffset(tcMask));
             #if GR_DEBUG
                 GrVertexLayout withColor = tcMask | kColor_VertexLayoutBit;
             #endif
                 GrAssert(2*sizeof(GrPoint) == VertexColorOffset(withColor));
                 GrAssert(2*sizeof(GrPoint) + sizeof(GrColor) == VertexSize(withColor));
+            #if GR_DEBUG
+                GrVertexLayout withEdge = tcMask | kEdge_VertexLayoutBit;
+            #endif
+                GrAssert(-1 == VertexColorOffset(withEdge));
+                GrAssert(2*sizeof(GrPoint) == VertexEdgeOffset(withEdge));
+                GrAssert(4*sizeof(GrPoint) == VertexSize(withEdge));
+            #if GR_DEBUG
+                GrVertexLayout withColorAndEdge = withColor | kEdge_VertexLayoutBit;
+            #endif
+                GrAssert(2*sizeof(GrPoint) == VertexColorOffset(withColorAndEdge));
+                GrAssert(2*sizeof(GrPoint) + sizeof(GrColor) == VertexEdgeOffset(withColorAndEdge));
+                GrAssert(4*sizeof(GrPoint) + sizeof(GrColor) == VertexSize(withColorAndEdge));
             }
             GrAssert(tex_coord_idx_mask(t) == tcMask);
             GrAssert(check_layout(tcMask));
 
             int stageOffsets[kNumStages];
             int colorOffset;
+            int edgeOffset;
             int size;
-            size = VertexSizeAndOffsetsByStage(tcMask, stageOffsets, &colorOffset);
+            size = VertexSizeAndOffsetsByStage(tcMask, stageOffsets, &colorOffset, &edgeOffset);
             GrAssert(2*sizeof(GrPoint) == size);
             GrAssert(-1 == colorOffset);
+            GrAssert(-1 == edgeOffset);
             for (int s = 0; s < kNumStages; ++s) {
                 GrAssert(VertexUsesStage(s, tcMask));
                 GrAssert(sizeof(GrPoint) == stageOffsets[s]);
@@ -698,7 +747,8 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 bool GrDrawTarget::CanDisableBlend(GrVertexLayout layout, const DrState& state) {
     // If we compute a coverage value (using edge AA or a coverage stage) then
     // we can't force blending off.
-    if (state.fEdgeAANumEdges > 0) {
+    if (state.fEdgeAANumEdges > 0 || 
+        layout & kEdge_VertexLayoutBit) {
         return false;
     }
     for (int s = state.fFirstCoverageStage; s < kNumStages; ++s) {
@@ -837,8 +887,11 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
 
     int stageOffsets[kNumStages];
     int colorOffset;
-    int vsize = VertexSizeAndOffsetsByStage(layout, stageOffsets, &colorOffset);
+    int edgeOffset;
+    int vsize = VertexSizeAndOffsetsByStage(layout, stageOffsets, 
+                                            &colorOffset, &edgeOffset);
     GrAssert(-1 == colorOffset);
+    GrAssert(-1 == edgeOffset);
 
     GrTCast<GrPoint*>(vertices)->setRectFan(rect.fLeft, rect.fTop, 
                                             rect.fRight, rect.fBottom,

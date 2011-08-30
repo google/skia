@@ -126,7 +126,9 @@
         '../gpu/include/GrTypes.h',
         '../gpu/include/GrUserConfig.h',
 
-        '../gpu/src/GrAddPathRenderers_none.cpp',
+        '../gpu/src/GrAAHairlinePathRenderer.cpp',
+        '../gpu/src/GrAAHairlinePathRenderer.h',
+        '../gpu/src/GrAddPathRenderers_aahairline.cpp',
         '../gpu/src/GrAllocPool.cpp',
         '../gpu/src/GrAtlas.cpp',
         '../gpu/src/GrBinHashKey.h',

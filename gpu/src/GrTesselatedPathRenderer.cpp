@@ -599,7 +599,8 @@ FINISHED:
     }
 }
 
-bool GrTesselatedPathRenderer::canDrawPath(const SkPath& path,
+bool GrTesselatedPathRenderer::canDrawPath(const GrDrawTarget* target,
+                                           const SkPath& path,
                                            GrPathFill fill) const {
     return kHairLine_PathFill != fill;
 }

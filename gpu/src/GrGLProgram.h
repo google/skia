@@ -65,6 +65,8 @@ public:
     static int PositionAttributeIdx() { return 0; }
     static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
     static int ColorAttributeIdx() { return 1 + GrDrawTarget::kMaxTexCoords; }
+    static int EdgeAttributeIdx() { return 2 + GrDrawTarget::kMaxTexCoords; }
+
     static int ViewMatrixAttributeIdx() {
         return 2 + GrDrawTarget::kMaxTexCoords;
     }
@@ -149,6 +151,8 @@ private:
 
             kDualSrcOutputCnt
         };
+
+        GrDrawTarget::VertexEdgeType fVertexEdgeType;
 
         // stripped of bits that don't affect prog generation
         GrVertexLayout fVertexLayout;

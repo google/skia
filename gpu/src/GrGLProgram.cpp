@@ -44,6 +44,7 @@ const char* GrShaderPrecision(const GrGLInterface* gl) {
 
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
+#define EDGE_ATTR_NAME "aEdge"
 #define COL_UNI_NAME "uColor"
 #define EDGES_UNI_NAME "uEdges"
 #define COL_FILTER_UNI_NAME "uColorFilter"
@@ -539,6 +540,25 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
                 segments.fFSCode.append(";\n");
             }
             inCoverage = "edgeAlpha";
+        } else  if (layout & GrDrawTarget::kEdge_VertexLayoutBit) {
+            segments.fVSAttrs.append("attribute vec4 " EDGE_ATTR_NAME ";\n");
+            segments.fVaryings.append("varying vec4 vEdge;\n");
+            segments.fVSCode.append("\tvEdge = " EDGE_ATTR_NAME ";\n");
+            if (GrDrawTarget::kHairLine_EdgeType == fProgramDesc.fVertexEdgeType) {
+                segments.fFSCode.append("\tfloat edgeAlpha = abs(dot(vec3(gl_FragCoord.xy,1), vEdge.xyz));\n");
+            } else {
+                GrAssert(GrDrawTarget::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType);
+                // for now we know we're not in perspective, so we could compute this
+                // per-quadratic rather than per pixel
+                segments.fFSCode.append("\tvec2 duvdx = dFdx(vEdge.xy);\n");
+                segments.fFSCode.append("\tvec2 duvdy = dFdy(vEdge.xy);\n");
+                segments.fFSCode.append("\tfloat dfdx = 2.0*vEdge.x*duvdx.x - duvdx.y;\n");
+                segments.fFSCode.append("\tfloat dfdy = 2.0*vEdge.x*duvdy.x - duvdy.y;\n");
+                segments.fFSCode.append("\tfloat edgeAlpha = (vEdge.x*vEdge.x - vEdge.y);\n");
+                segments.fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / (dfdx*dfdx + dfdy*dfdy));\n");
+            }
+            segments.fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+            inCoverage = "edgeAlpha";
         }
 
         GrStringBuilder outCoverage;
@@ -839,8 +859,10 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
         }
     }
 
-    GR_GL_CALL(gl, BindAttribLocation(progID, ColorAttributeIdx(), 
+    GR_GL_CALL(gl, BindAttribLocation(progID, ColorAttributeIdx(),
                                       COL_ATTR_NAME));
+    GR_GL_CALL(gl, BindAttribLocation(progID, EdgeAttributeIdx(),
+                                      EDGE_ATTR_NAME));
 
     GR_GL_CALL(gl, LinkProgram(progID));
 

@@ -1176,7 +1176,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
     GrRect devRect = rect;
     GrMatrix combinedMatrix;
-    bool doAA = apply_aa_to_rect(target, paint, rect, width, matrix, 
+    bool doAA = apply_aa_to_rect(target, paint, rect, width, matrix,
                                  &combinedMatrix, &devRect);
 
     if (doAA) {
@@ -1378,9 +1378,12 @@ void GrContext::drawVertices(const GrPaint& paint,
         }
         int texOffsets[GrDrawTarget::kMaxTexCoords];
         int colorOffset;
+        int edgeOffset;
         GrDrawTarget::VertexSizeAndOffsetsByIdx(layout,
                                                 texOffsets,
-                                                &colorOffset);
+                                                &colorOffset,
+                                                &edgeOffset);
+        GrAssert(-1 == edgeOffset);
         void* curVertex = geo.vertices();
 
         for (int i = 0; i < vertexCount; ++i) {

@@ -20,7 +20,8 @@ public:
     GrDefaultPathRenderer(bool separateStencilSupport,
                           bool stencilWrapOpsSupport);
 
-    virtual bool canDrawPath(const SkPath& path,
+    virtual bool canDrawPath(const GrDrawTarget* target,
+                             const SkPath& path,
                              GrPathFill fill) const { return true; }
 
     virtual bool requiresStencilPass(const GrDrawTarget* target,
