@@ -67,10 +67,11 @@ public:
     bool preservesAxisAlignment() const { return this->rectStaysRect(); }
 
     /**
-     *  Returns true if the perspective contains perspective elements.
+     *  Returns true if the matrix contains perspective elements.
      */
     bool hasPerspective() const {
-        return SkToBool(this->getType() & kPerspective_Mask);
+        return SkToBool(this->getPerspectiveTypeMaskOnly() &
+                        kPerspective_Mask);
     }
 
     enum {
@@ -536,6 +537,11 @@ private:
         */
         kRectStaysRect_Mask = 0x10,
 
+        /** Set if the perspective bit is valid even though the rest of
+            the matrix is Unknown.
+        */
+        kOnlyPerspectiveValid_Mask = 0x40,
+
         kUnknown_Mask = 0x80,
 
         kORableMasks =  kTranslate_Mask |
@@ -554,10 +560,13 @@ private:
     mutable uint8_t fTypeMask;
 
     uint8_t computeTypeMask() const;
+    uint8_t computePerspectiveTypeMask() const;
 
     void setTypeMask(int mask) {
         // allow kUnknown or a valid mask
-        SkASSERT(kUnknown_Mask == mask || (mask & kAllMasks) == mask);
+        SkASSERT(kUnknown_Mask == mask || (mask & kAllMasks) == mask ||
+                 ((kUnknown_Mask | kOnlyPerspectiveValid_Mask | kPerspective_Mask) & mask)
+                 == mask);
         fTypeMask = SkToU8(mask);
     }
 
@@ -570,6 +579,24 @@ private:
         // only allow a valid mask
         SkASSERT((mask & kAllMasks) == mask);
         fTypeMask &= ~mask;
+    }
+
+    TypeMask getPerspectiveTypeMaskOnly() const {
+        if ((fTypeMask & kUnknown_Mask) &&
+            !(fTypeMask & kOnlyPerspectiveValid_Mask)) {
+            fTypeMask = this->computePerspectiveTypeMask();
+        }
+        return (TypeMask)(fTypeMask & 0xF);
+    }
+
+    /** Returns true if we already know that the matrix is identity;
+        false otherwise.
+    */
+    bool isTriviallyIdentity() const {
+        if (fTypeMask & kUnknown_Mask) {
+            return false;
+        }
+        return ((fTypeMask & 0xF) == 0);
     }
     
     static bool Poly2Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);

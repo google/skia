@@ -10,6 +10,7 @@
 
 #include "GrContext.h"
 #include "GrPathUtils.h"
+#include "SkString.h"
 #include "SkTrace.h"
 
 
@@ -372,9 +373,6 @@ FINISHED:
 void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                                        bool stencilOnly) {
 
-    SK_TRACE_EVENT1("GrDefaultPathRenderer::onDrawPath",
-                    "points", SkStringPrintf("%i", path.countPoints()).c_str());
-
     GrMatrix viewM = fTarget->getViewMatrix();
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
@@ -502,8 +500,6 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
     }
 
     {
-    SK_TRACE_EVENT1("GrDefaultPathRenderer::onDrawPath::renderPasses",
-                    "verts", SkStringPrintf("%i", vert - base).c_str());
     for (int p = 0; p < passCount; ++p) {
         fTarget->setDrawFace(drawFace[p]);
         if (NULL != passes[p]) {

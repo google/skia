@@ -1480,7 +1480,7 @@ void SkGpuDevice::drawText(const SkDraw& draw, const void* text,
                           const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
 
-    if (draw.fMatrix->getType() & SkMatrix::kPerspective_Mask) {
+    if (draw.fMatrix->hasPerspective()) {
         // this guy will just call our drawPath()
         draw.drawText((const char*)text, byteLength, x, y, paint);
     } else {
@@ -1508,7 +1508,7 @@ void SkGpuDevice::drawPosText(const SkDraw& draw, const void* text,
                              const SkPaint& paint) {
     CHECK_SHOULD_DRAW(draw);
 
-    if (draw.fMatrix->getType() & SkMatrix::kPerspective_Mask) {
+    if (draw.fMatrix->hasPerspective()) {
         // this guy will just call our drawPath()
         draw.drawPosText((const char*)text, byteLength, pos, constY,
                          scalarsPerPos, paint);
