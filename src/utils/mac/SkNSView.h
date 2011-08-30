@@ -1,9 +1,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import <Cocoa/Cocoa.h>
-#include "SampleApp.h"
-
+#import "SkWindow.h"
 class SkEvent;
-class SkOSWindow;
 @class SkNSView;
 
 @protocol SkNSViewOptionsDelegate <NSObject>
@@ -27,8 +25,8 @@ class SkOSWindow;
 @property (nonatomic, retain) NSOpenGLContext* fGLContext;
 @property (nonatomic, assign) id<SkNSViewOptionsDelegate> fOptionsDelegate;
 
-- (id)initWithMyDefaults;
-
+- (id)initWithDefaults;
+- (void)setUpWindow;
 - (void)setSkTitle:(const char*)title;
 - (void)onAddMenu:(const SkOSMenu*)menu;
 - (void)onUpdateMenu:(const SkOSMenu*)menu;

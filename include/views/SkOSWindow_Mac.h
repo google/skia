@@ -6,33 +6,23 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkOSWindow_MacCocoa_DEFINED
+#define SkOSWindow_MacCocoa_DEFINED
 
-#ifndef SkOSWindow_Mac_DEFINED
-#define SkOSWindow_Mac_DEFINED
-
-#include <Carbon/Carbon.h>
 #include "SkWindow.h"
 
 class SkOSWindow : public SkWindow {
 public:
     SkOSWindow(void* hwnd);
-
+    ~SkOSWindow();
     void*   getHWND() const { return fHWND; }
-    void*   getHVIEW() const { return fHVIEW; }
-    void    updateSize();
-
-    static bool PostEvent(SkEvent* evt, SkEventSinkID, SkMSec delay);
-
-    static OSStatus EventHandler(EventHandlerCallRef inHandler,
-                                 EventRef inEvent, void* userData);
-
-    void   doPaint(void* ctx);
-
-
-    bool attachGL();
-    void detachGL();
-    void presentGL();
-
+    
+    virtual bool onDispatchClick(int x, int y, Click::State state, 
+                                 void* owner);
+    void    detachGL();
+    bool    attachGL();
+    void    presentGL();
+    
 protected:
     // overrides from SkEventSink
     virtual bool onEvent(const SkEvent& evt);
@@ -40,16 +30,15 @@ protected:
     virtual void onHandleInval(const SkIRect&);
     // overrides from SkView
     virtual void onAddMenu(const SkOSMenu*);
+    virtual void onUpdateMenu(const SkOSMenu*);
     virtual void onSetTitle(const char[]);
     
-
 private:
     void*   fHWND;
-    void*   fHVIEW;
-    void*   fAGLCtx;
-
+    bool    fInvalEventIsPending;
+    void*   fNotifier;
+    void*   fGLContext;
     typedef SkWindow INHERITED;
 };
 
 #endif
-

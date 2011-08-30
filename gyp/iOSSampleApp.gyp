@@ -1,18 +1,19 @@
-
 {
   'includes': [
-    'common.gypi',
+    'target_defaults.gypi',
+  ],
+  'defines!': [
+    'SK_BUILD_FOR_MAC',
   ],
   'targets': [
     {
-      'target_name': 'SampleApp',
+      'target_name': 'iOSSampleApp',
       'type': 'executable',
       'mac_bundle' : 1,
       'include_dirs' : [
         '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
         '../gm',       # SampleGM.cpp pulls gm.h
         '../include/pipe', # To pull in SkGPipe.h for pipe reader/writer
-        '../samplecode', # To pull SampleApp.h and SampleCode.h
       ],
       'sources': [
         # gm files needed for SampleGM.cpp
@@ -115,32 +116,28 @@
         '../samplecode/SampleVertices.cpp',
         '../samplecode/SampleXfermodes.cpp',
         '../samplecode/SampleXfermodesBlur.cpp',
-        '../samplecode/TransitionView.cpp',
         
         # Dependencies for the pipe code in SampleApp
         '../src/pipe/SkGPipeRead.cpp',
         '../src/pipe/SkGPipeWrite.cpp',
         
         # DrawingBoard
-        #'../experimental/DrawingBoard/SkColorPalette.h',
-        #'../experimental/DrawingBoard/SkColorPalette.cpp',
-        #'../experimental/DrawingBoard/SkNetPipeController.h',
-        #'../experimental/DrawingBoard/SkNetPipeController.cpp',
-        #'../experimental/DrawingBoard/SampleDrawingClient.cpp',
-        #'../experimental/DrawingBoard/SampleDrawingServer.cpp',
+        '../experimental/DrawingBoard/SkColorPalette.h',
+        '../experimental/DrawingBoard/SkColorPalette.cpp',
+        '../experimental/DrawingBoard/SkNetPipeController.h',
+        '../experimental/DrawingBoard/SkNetPipeController.cpp',
+        '../experimental/DrawingBoard/SampleDrawingClient.cpp',
+        '../experimental/DrawingBoard/SampleDrawingServer.cpp',
     
         # Networking
-        #'../experimental/Networking/SampleNetPipeReader.cpp',
-        #'../experimental/Networking/SkSockets.cpp',
-        #'../experimental/Networking/SkSockets.h',
+        '../experimental/Networking/SampleNetPipeReader.cpp',
+        '../experimental/Networking/SkSockets.cpp',
+        '../experimental/Networking/SkSockets.h',
         
-        # Debugger
-        '../experimental/Debugger/DebuggerViews.h',
-        '../experimental/Debugger/DebuggerContentView.cpp',
-        '../experimental/Debugger/DebuggerCommandsView.cpp',
-        '../experimental/Debugger/DebuggerStateView.cpp',
-        '../experimental/Debugger/SkDebugDumper.cpp',
-        '../experimental/Debugger/SkDebugDumper.h',
+        # Transition
+        '../src/utils/SkInterpolator.cpp',
+        '../include/utils/SkInterpolator.h',
+        '../samplecode/TransitionView.cpp',
       ],
       'sources!': [
         '../samplecode/SampleSkLayer.cpp', #relies on SkMatrix44 which doesn't compile
@@ -163,81 +160,87 @@
         'pdf.gyp:pdf',
       ],
       'conditions' : [
-       [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
+       [ 'OS == "linux" or OS == "freebsd" or OS == "openbsd" or OS == "solaris"', {
          'sources!': [
             '../samplecode/SampleDecode.cpp',
          ],
         }],
-        [ 'skia_os == "win"', {
+        [ 'OS == "win"', {
           'sources!': [
             # require UNIX functions
             '../samplecode/SampleEncode.cpp',
             '../samplecode/SamplePageFlip.cpp',
           ],
         }],
-        [ 'skia_os == "mac"', {
+        [ 'OS == "mac"', {
           'sources!': [
             '../samplecode/SampleDecode.cpp',
+            '../gpu/src/mac/GrGLDefaultInterface_mac.cpp',
           ],
           'sources': [
-            # Sample App specific files
-            '../src/utils/mac/SampleApp-Info.plist',
-            '../src/utils/mac/SampleAppDelegate.h',
-            '../src/utils/mac/SampleAppDelegate.mm',
-            '../src/utils/mac/SkSampleNSView.h',
-            '../src/utils/mac/SkSampleNSView.mm',
-            
-            # Mac files
-            '../src/utils/mac/SkEventNotifier.h',
-            '../src/utils/mac/SkEventNotifier.mm',
-            '../src/utils/mac/skia_mac.mm',
-            '../src/utils/mac/SkNSView.h',
-            '../src/utils/mac/SkNSView.mm',
-            '../src/utils/mac/SkOptionsTableView.h',
-            '../src/utils/mac/SkOptionsTableView.mm',
-            '../src/utils/mac/SkOSWindow_Mac.mm',
-            '../src/utils/mac/SkTextFieldCell.h',
-            '../src/utils/mac/SkTextFieldCell.m',
-          ],
-          'libraries': [
-            '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
-            '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
-          ],
-          'xcode_settings' : {
-            'INFOPLIST_FILE' : '../src/utils/mac/SampleApp-Info.plist',
-          },
-          'mac_bundle_resources' : [
-            '../src/utils/mac/SampleApp.xib',
-          ],
-        }],
-        [ 'skia_os == "ios"', {
-          # TODO: This doesn't build properly yet, but it's getting there.
-          'sources!': [
-            '../samplecode/SampleDecode.cpp',
-          ],
-          'sources': [
-            '../experimental/iOSSampleApp/SkIOSNotifier.mm',
-            '../experimental/iOSSampleApp/SkTime_iOS.mm',
-            '../experimental/iOSSampleApp/SkUIDetailViewController.mm',
-            '../experimental/iOSSampleApp/SkUIRootViewController.mm',
-            '../experimental/iOSSampleApp/SkUIView_shell.mm',
-
+            # Shared resources
+            '../experimental/SkEventNotifier.h',
+            '../experimental/SkEventNotifier.mm',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
+            '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
+            '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',
             '../experimental/iOSSampleApp/iOSSampleApp_Prefix.pch',
+            '../experimental/iOSSampleApp/Shared/SkOptionListController.h',
+            '../experimental/iOSSampleApp/Shared/SkOptionListController.mm',
+            '../experimental/iOSSampleApp/Shared/SkUIRootViewController.h',
+            '../experimental/iOSSampleApp/Shared/SkUIRootViewController.mm',
+            '../experimental/iOSSampleApp/Shared/SkOptionsTableViewController.h',
+            '../experimental/iOSSampleApp/Shared/SkOptionsTableViewController.mm',
+            '../experimental/iOSSampleApp/Shared/SkUIView.h',
+            '../experimental/iOSSampleApp/Shared/SkUIView.mm',
+            '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.h',
+            '../experimental/iOSSampleApp/Shared/SkUIDetailViewController.mm',
             '../experimental/iOSSampleApp/Shared/main.m',
+            
+            # iPad
+            '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.h',
             '../experimental/iOSSampleApp/iPad/AppDelegate_iPad.mm',
+            '../experimental/iOSSampleApp/iPad/SkUISplitViewController.h',
             '../experimental/iOSSampleApp/iPad/SkUISplitViewController.mm',
+            '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
+            
+            # iPhone
+            '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.h',
             '../experimental/iOSSampleApp/iPhone/AppDelegate_iPhone.mm',
+            '../experimental/iOSSampleApp/iPhone/SkUINavigationController.h',
             '../experimental/iOSSampleApp/iPhone/SkUINavigationController.mm',
+            '../experimental/iOSSampleApp/iPhone/MainWindow_iPhone.xib',
 
             '../src/utils/ios/SkOSWindow_iOS.mm',
             '../src/utils/ios/SkImageDecoder_iOS.mm',
             '../src/utils/ios/SkStream_NSData.mm',
             '../src/utils/ios/SkOSFile_iOS.mm',
 
+            '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Debug.xcconfig',
             '../experimental/iOSSampleApp/SkiOSSampleApp-Release.xcconfig',
           ],
+          'link_settings': {
+            'libraries': [
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/CoreFoundation.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/CoreGraphics.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/CoreText.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/UIKit.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/Foundation.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/QuartzCore.framework',
+              '/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/System/Library/Frameworks/OpenGLES.framework',
+            ],
+            'libraries!': [
+              #remove mac dependencies
+              '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
+              '$(SDKROOT)/System/Library/Frameworks/Foundation.framework',
+              '$(SDKROOT)/System/Library/Frameworks/QuartzCore.framework',
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
+              '$(SDKROOT)/System/Library/Frameworks/ApplicationServices.framework',
+            ],
+          },
           'include_dirs' : [
             '../experimental/iOSSampleApp',
             '../experimental/iOSSampleApp/iPad',
@@ -245,6 +248,17 @@
             '../include/utils/ios',
             '../../gpu/include',
           ],
+          #'xcode_settings' : {
+          #  'INFOPLIST_FILE' : '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',
+          #  'ARCHS' : 'armv6 armv7',
+          #  'IPHONEOS_DEPLOYMENT_TARGET' : '4.2',
+          #  'SDKROOT' : 'iphoneos',
+          #  'TARGETED_DEVICE_FAMILY' : '1,2',
+          #  'USER_HEADER_SEARCH_PATHS' : '../../gpu/include/** ../../include/**',
+          #  'CODE_SIGN_IDENTITY' : 'iPhone Developer',
+          #  'GCC_PREPROCESSOR_DEFINITIONS' : 'SK_BUILD_FOR_IOS',
+          #  'GCC_OPTIMIZATION_LEVEL' : '0',
+          #},
           'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
           'mac_bundle_resources' : [
             '../experimental/iOSSampleApp/iPad/MainWindow_iPad.xib',
@@ -253,14 +267,6 @@
         }],
 
       ],
-      'msvs_settings': {
-        'VCLinkerTool': {
-          'SubSystem': '2',
-          'AdditionalDependencies': [
-            'd3d9.lib',
-          ],
-        },
-      },
     },
   ],
 }

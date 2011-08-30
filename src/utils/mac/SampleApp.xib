@@ -12,8 +12,8 @@
 		</object>
 		<array class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<integer value="24"/>
-			<integer value="634"/>
 			<integer value="372"/>
+			<integer value="634"/>
 		</array>
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3536,7 +3536,7 @@
 				<string key="371.editorWindowContentRectSynchronizationRect">{{33, 99}, {480, 360}}</string>
 				<string key="371.windowTemplate.maxSize">{3.40282e+38, 3.40282e+38}</string>
 				<string key="371.windowTemplate.minSize">{0, 0}</string>
-				<string key="372.CustomClassName">SkNSView</string>
+				<string key="372.CustomClassName">SkSampleNSView</string>
 				<string key="372.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<object class="NSAffineTransform" key="372.IBViewBoundsToFrameTransform"/>
 				<string key="375.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -3719,7 +3719,7 @@
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">../../experimental/CocoaSampleApp/SampleAppDelegate.h</string>
+						<string key="minorKey">../../src/utils/mac/SampleAppDelegate.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -3738,7 +3738,7 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">../../experimental/CocoaSampleApp/SkNSView.h</string>
+						<string key="minorKey">../../src/utils/mac/SkNSView.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -3757,7 +3757,15 @@
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">../../experimental/CocoaSampleApp/SkOptionsTableView.h</string>
+						<string key="minorKey">../../src/utils/mac/SkOptionsTableView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">SkSampleNSView</string>
+					<string key="superclassName">SkNSView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">../../src/utils/mac/SkSampleNSView.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -3765,7 +3773,7 @@
 					<string key="superclassName">NSTextFieldCell</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">../../experimental/CocoaSampleApp/SkTextFieldCell.h</string>
+						<string key="minorKey">../../src/utils/mac/SkTextFieldCell.h</string>
 					</object>
 				</object>
 			</array>
@@ -3944,7 +3952,7 @@
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
-		<string key="IBDocument.LastKnownRelativeProjectPath">../../out/gyp/CocoaSampleApp.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">../../../out/gyp/SampleApp.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 		<dictionary class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
 			<string key="NSMenuCheckmark">{9, 8}</string>

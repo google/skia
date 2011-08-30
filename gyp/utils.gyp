@@ -113,8 +113,8 @@
             '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
             '../src/utils/mac/SkEGLContext_mac.cpp',
-            '../src/utils/mac/skia_mac.cpp',
-            '../src/utils/mac/SkOSWindow_Mac.cpp',
+            '../src/utils/mac/skia_mac.mm',
+            '../src/utils/mac/SkOSWindow_Mac.mm',
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
