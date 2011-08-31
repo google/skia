@@ -957,13 +957,14 @@ GrIndexBuffer* GrContext::aaFillRectIndexBuffer() {
     if (NULL == fAAFillRectIndexBuffer) {
         fAAFillRectIndexBuffer = fGpu->createIndexBuffer(sizeof(gFillAARectIdx),
                                                          false);
-        GrAssert(NULL != fAAFillRectIndexBuffer);
-#if GR_DEBUG
-        bool updated =
-#endif
-        fAAFillRectIndexBuffer->updateData(gFillAARectIdx,
-                                           sizeof(gFillAARectIdx));
-        GR_DEBUGASSERT(updated);
+        if (NULL != fAAFillRectIndexBuffer) {
+    #if GR_DEBUG
+            bool updated =
+    #endif
+            fAAFillRectIndexBuffer->updateData(gFillAARectIdx,
+                                               sizeof(gFillAARectIdx));
+            GR_DEBUGASSERT(updated);
+        }
     }
     return fAAFillRectIndexBuffer;
 }
@@ -993,13 +994,14 @@ GrIndexBuffer* GrContext::aaStrokeRectIndexBuffer() {
     if (NULL == fAAStrokeRectIndexBuffer) {
         fAAStrokeRectIndexBuffer = fGpu->createIndexBuffer(sizeof(gStrokeAARectIdx),
                                                            false);
-        GrAssert(NULL != fAAStrokeRectIndexBuffer);
-#if GR_DEBUG
-        bool updated =
-#endif
-        fAAStrokeRectIndexBuffer->updateData(gStrokeAARectIdx,
-                                             sizeof(gStrokeAARectIdx));
-        GR_DEBUGASSERT(updated);
+        if (NULL != fAAStrokeRectIndexBuffer) {
+    #if GR_DEBUG
+            bool updated =
+    #endif
+            fAAStrokeRectIndexBuffer->updateData(gStrokeAARectIdx,
+                                                 sizeof(gStrokeAARectIdx));
+            GR_DEBUGASSERT(updated);
+        }
     }
     return fAAStrokeRectIndexBuffer;
 }
@@ -1015,6 +1017,11 @@ void GrContext::fillAARect(GrDrawTarget* target,
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 8, 0);
     if (!geo.succeeded()) {
         GrPrintf("Failed to get space for vertices!\n");
+        return;
+    }
+    GrIndexBuffer* indexBuffer = this->aaFillRectIndexBuffer();
+    if (NULL == indexBuffer) {
+        GrPrintf("Failed to create index buffer!\n");
         return;
     }
 
@@ -1037,7 +1044,7 @@ void GrContext::fillAARect(GrDrawTarget* target,
         *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
     }
 
-    target->setIndexSourceToBuffer(this->aaFillRectIndexBuffer());
+    target->setIndexSourceToBuffer(indexBuffer);
 
     target->drawIndexed(kTriangles_PrimitiveType, 0,
                          0, 8, this->aaFillRectIndexCount());
@@ -1074,6 +1081,11 @@ void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
         GrPrintf("Failed to get space for vertices!\n");
         return;
     }
+    GrIndexBuffer* indexBuffer = this->aaStrokeRectIndexBuffer();
+    if (NULL == indexBuffer) {
+        GrPrintf("Failed to create index buffer!\n");
+        return;
+    }
 
     intptr_t verts = reinterpret_cast<intptr_t>(geo.vertices());
 
@@ -1103,7 +1115,7 @@ void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }
 
-    target->setIndexSourceToBuffer(aaStrokeRectIndexBuffer());
+    target->setIndexSourceToBuffer(indexBuffer);
     target->drawIndexed(kTriangles_PrimitiveType,
                         0, 0, 16, aaStrokeRectIndexCount());
 }
