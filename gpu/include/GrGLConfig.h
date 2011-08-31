@@ -71,7 +71,7 @@
  */
 
 #if !defined(GR_GL_LOG_CALLS)
-    #define GR_GL_LOG_CALLS                 0
+    #define GR_GL_LOG_CALLS                 GR_DEBUG
 #endif
 
 #if !defined(GR_GL_LOG_CALLS_START)
