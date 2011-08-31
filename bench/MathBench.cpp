@@ -51,7 +51,7 @@ int gMathBench_NonStaticGlobal;
 
 class NoOpMathBench : public MathBench {
 public:
-    NoOpMathBench(void* param) : INHERITED(param, "slowIsqrt") {}
+    NoOpMathBench(void* param) : INHERITED(param, "noOp") {}
 protected:
     virtual void performTest(float dst[], const float src[], int count) {
         for (int i = 0; i < count; ++i) {
