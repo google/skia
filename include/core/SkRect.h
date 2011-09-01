@@ -336,12 +336,12 @@ struct SK_API SkRect {
     SkScalar    centerX() const { return SkScalarHalf(fLeft + fRight); }
     SkScalar    centerY() const { return SkScalarHalf(fTop + fBottom); }
 
-    friend int operator==(const SkRect& a, const SkRect& b) {
-        return !memcmp(&a, &b, sizeof(a));
+    friend bool operator==(const SkRect& a, const SkRect& b) {
+        return 0 == memcmp(&a, &b, sizeof(a));
     }
 
-    friend int operator!=(const SkRect& a, const SkRect& b) {
-        return memcmp(&a, &b, sizeof(a));
+    friend bool operator!=(const SkRect& a, const SkRect& b) {
+        return 0 != memcmp(&a, &b, sizeof(a));
     }
 
     /** return the 4 points that enclose the rectangle
