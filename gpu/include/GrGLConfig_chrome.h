@@ -21,4 +21,7 @@
 // with NULL.
 #define GR_GL_USE_BUFFER_DATA_NULL_HINT 0
 
+// chrome uses this to set the context on each GL call.
+#define GR_GL_PER_GL_FUNC_CALLBACK      1
+
 #endif

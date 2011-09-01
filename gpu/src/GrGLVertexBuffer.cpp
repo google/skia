@@ -56,7 +56,9 @@ void* GrGLVertexBuffer::lock() {
         GL_CALL(BufferData(GR_GL_ARRAY_BUFFER, this->sizeInBytes(), NULL,
                            this->dynamic() ? GR_GL_DYNAMIC_DRAW :
                                              GR_GL_STATIC_DRAW));
-        fLockPtr = GL_CALL(MapBuffer(GR_GL_ARRAY_BUFFER, GR_GL_WRITE_ONLY));
+        GR_GL_CALL_RET(GPUGL->glInterface(),
+                       fLockPtr,
+                       MapBuffer(GR_GL_ARRAY_BUFFER, GR_GL_WRITE_ONLY));
         return fLockPtr;
     }
     return NULL;

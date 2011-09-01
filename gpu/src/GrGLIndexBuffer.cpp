@@ -59,8 +59,10 @@ void* GrGLIndexBuffer::lock() {
                            NULL,
                            this->dynamic() ? GR_GL_DYNAMIC_DRAW :
                                              GR_GL_STATIC_DRAW));
-        fLockPtr = GL_CALL(MapBuffer(GR_GL_ELEMENT_ARRAY_BUFFER,
-                                     GR_GL_WRITE_ONLY));
+        GR_GL_CALL_RET(GPUGL->glInterface(),
+                       fLockPtr,
+                       MapBuffer(GR_GL_ELEMENT_ARRAY_BUFFER,
+                                 GR_GL_WRITE_ONLY));
 
         return fLockPtr;
     }

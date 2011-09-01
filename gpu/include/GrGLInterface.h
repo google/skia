@@ -53,6 +53,10 @@ float gl_version_as_float(const GrGLInterface*);
  * also an implementation that does nothing. You can link in any of the provided
  * implementations or your own implementation that sets up the GL function 
  * pointers for your specific platform.
+ *
+ * By defining GR_GL_PER_GL_CALL_IFACE_CALLBACK to 1 the client can specify a
+ * callback function that will be called prior to each GL function call. See
+ * comments in GrGLConfig.h
  */
 
 struct GrGLInterface;
@@ -216,6 +220,12 @@ extern "C" {
     // Dual source blending
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationIndexedProc)(GrGLuint program, GrGLuint colorNumber, GrGLuint index, const GrGLchar * name);
 }  // extern "C"
+
+#if GR_GL_PER_GL_FUNC_CALLBACK
+typedef void (*GrGLInterfaceCallbackProc)(const GrGLInterface*);
+typedef intptr_t GrGLInterfaceCallbackData;
+#endif
+
 
 enum GrGLCapability {
     kProbe_GrGLCapability = -1
@@ -387,6 +397,12 @@ struct GR_API GrGLInterface : public GrRefCnt {
 
     // Dual Source Blending
     GrGLBindFragDataLocationIndexedProc fBindFragDataLocationIndexed;
+
+    // Per-GL func callback
+#if GR_GL_PER_GL_FUNC_CALLBACK
+    GrGLInterfaceCallbackProc fCallback;
+    GrGLInterfaceCallbackData fCallbackData;
+#endif
 
 private:
     bool validateShaderFunctions() const;

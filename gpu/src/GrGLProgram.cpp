@@ -774,7 +774,8 @@ GrGLuint GrGLProgram::CompileShader(const GrGLInterface* gl,
     SK_TRACE_EVENT1("GrGLProgram::CompileShader",
                     "stringCount", SkStringPrintf("%i", stringCnt).c_str());
 
-    GrGLuint shader = GR_GL_CALL(gl, CreateShader(type));
+    GrGLuint shader;
+    GR_GL_CALL_RET(gl, shader, CreateShader(type));
     if (0 == shader) {
         return 0;
     }
@@ -813,7 +814,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
                                         bool bindColorOut,
                                         bool bindDualSrcOut,
                                         CachedData* programData) const {
-    programData->fProgramID = GR_GL_CALL(gl, CreateProgram());
+    GR_GL_CALL_RET(gl, programData->fProgramID, CreateProgram());
     if (!programData->fProgramID) {
         return false;
     }
@@ -890,24 +891,24 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
     const GrGLint& progID = programData->fProgramID;
 
     if (kUseUniform == programData->fUniLocations.fViewMatrixUni) {
-        programData->fUniLocations.fViewMatrixUni =
-                GR_GL_CALL(gl, GetUniformLocation(progID, VIEW_MATRIX_NAME));
+        GR_GL_CALL_RET(gl, programData->fUniLocations.fViewMatrixUni,
+                       GetUniformLocation(progID, VIEW_MATRIX_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fViewMatrixUni);
     }
     if (kUseUniform == programData->fUniLocations.fColorUni) {
-        programData->fUniLocations.fColorUni =
-                    GR_GL_CALL(gl, GetUniformLocation(progID, COL_UNI_NAME));
+        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorUni,
+                       GetUniformLocation(progID, COL_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fColorUni);
     }
     if (kUseUniform == programData->fUniLocations.fColorFilterUni) {
-        programData->fUniLocations.fColorFilterUni =
-                GR_GL_CALL(gl, GetUniformLocation(progID, COL_FILTER_UNI_NAME));
+        GR_GL_CALL_RET(gl, programData->fUniLocations.fColorFilterUni, 
+                       GetUniformLocation(progID, COL_FILTER_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fColorFilterUni);
     }
 
     if (kUseUniform == programData->fUniLocations.fEdgesUni) {
-        programData->fUniLocations.fEdgesUni =
-            GR_GL_CALL(gl, GetUniformLocation(progID, EDGES_UNI_NAME));
+        GR_GL_CALL_RET(gl, programData->fUniLocations.fEdgesUni,
+                       GetUniformLocation(progID, EDGES_UNI_NAME));
         GrAssert(kUnusedUniform != programData->fUniLocations.fEdgesUni);
     } else {
         programData->fUniLocations.fEdgesUni = kUnusedUniform;
@@ -919,58 +920,55 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
             if (kUseUniform == locations.fTextureMatrixUni) {
                 GrStringBuilder texMName;
                 tex_matrix_name(s, &texMName);
-                locations.fTextureMatrixUni = 
-                   GR_GL_CALL(gl, GetUniformLocation(progID, texMName.c_str()));
+                GR_GL_CALL_RET(gl, locations.fTextureMatrixUni,
+                               GetUniformLocation(progID, texMName.c_str()));
                 GrAssert(kUnusedUniform != locations.fTextureMatrixUni);
             }
 
             if (kUseUniform == locations.fSamplerUni) {
                 GrStringBuilder samplerName;
                 sampler_name(s, &samplerName);
-                locations.fSamplerUni =
-                    GR_GL_CALL(gl, GetUniformLocation(progID,
-                                                      samplerName.c_str()));
+                GR_GL_CALL_RET(gl, locations.fSamplerUni,
+                               GetUniformLocation(progID,samplerName.c_str()));
                 GrAssert(kUnusedUniform != locations.fSamplerUni);
             }
 
             if (kUseUniform == locations.fNormalizedTexelSizeUni) {
                 GrStringBuilder texelSizeName;
                 normalized_texel_size_name(s, &texelSizeName);
-                locations.fNormalizedTexelSizeUni =
-                   GR_GL_CALL(gl, GetUniformLocation(progID, 
-                              texelSizeName.c_str()));
+                GR_GL_CALL_RET(gl, locations.fNormalizedTexelSizeUni,
+                               GetUniformLocation(progID, texelSizeName.c_str()));
                 GrAssert(kUnusedUniform != locations.fNormalizedTexelSizeUni);
             }
 
             if (kUseUniform == locations.fRadial2Uni) {
                 GrStringBuilder radial2ParamName;
                 radial2_param_name(s, &radial2ParamName);
-                locations.fRadial2Uni =
-                    GR_GL_CALL(gl, GetUniformLocation(progID,
-                                   radial2ParamName.c_str()));
+                GR_GL_CALL_RET(gl, locations.fRadial2Uni,
+                               GetUniformLocation(progID, radial2ParamName.c_str()));
                 GrAssert(kUnusedUniform != locations.fRadial2Uni);
             }
 
             if (kUseUniform == locations.fTexDomUni) {
                 GrStringBuilder texDomName;
                 tex_domain_name(s, &texDomName);
-                locations.fTexDomUni =
-                    GR_GL_CALL(gl, GetUniformLocation(progID,
-                                                      texDomName.c_str()));
+                GR_GL_CALL_RET(gl, locations.fTexDomUni,
+                               GetUniformLocation(progID, texDomName.c_str()));
                 GrAssert(kUnusedUniform != locations.fTexDomUni);
             }
 
             GrStringBuilder kernelName, imageIncrementName;
             convolve_param_names(s, &kernelName, &imageIncrementName);
             if (kUseUniform == locations.fKernelUni) {
-                locations.fKernelUni = GR_GL_CALL(gl, GetUniformLocation(
-                                                  progID, kernelName.c_str()));
+                GR_GL_CALL_RET(gl, locations.fKernelUni, 
+                               GetUniformLocation(progID, kernelName.c_str()));
                 GrAssert(kUnusedUniform != locations.fKernelUni);
             }
 
             if (kUseUniform == locations.fImageIncrementUni) {
-                locations.fImageIncrementUni = GR_GL_CALL(gl, GetUniformLocation(progID,
-                                                         imageIncrementName.c_str()));
+                GR_GL_CALL_RET(gl, locations.fImageIncrementUni, 
+                               GetUniformLocation(progID, 
+                                                  imageIncrementName.c_str()));
                 GrAssert(kUnusedUniform != locations.fImageIncrementUni);
             }
         }
