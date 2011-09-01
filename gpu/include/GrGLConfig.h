@@ -68,34 +68,47 @@
  * However, this can cause a performance decrease on Chrome cmd buffer because
  * it will create a new allocation and memset the whole thing to zero (for
  * security reasons). Defaults to 1 (enabled).
+ *
+ * GR_GL_PER_GL_FUNC_CALLBACK: When set to 1 the GrGLInterface object provides
+ * a function pointer that is called just before every gl function. The ptr must
+ * be valid (i.e. there is no NULL check). However, by default the callback will
+ * be set to a function that does nothing. The signature of the function is:
+ *    void function(const GrGLInterface*)
+ * It is not extern "C".
+ * The GrGLInterface field fCallback specifies the function ptr and there is an
+ * additional field fCallbackData of type intptr_t for client data.
  */
 
 #if !defined(GR_GL_LOG_CALLS)
-    #define GR_GL_LOG_CALLS                 GR_DEBUG
+    #define GR_GL_LOG_CALLS                     GR_DEBUG
 #endif
 
 #if !defined(GR_GL_LOG_CALLS_START)
-    #define GR_GL_LOG_CALLS_START           0
+    #define GR_GL_LOG_CALLS_START               0
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR)
-    #define GR_GL_CHECK_ERROR               GR_DEBUG
+    #define GR_GL_CHECK_ERROR                   GR_DEBUG
 #endif
 
 #if !defined(GR_GL_CHECK_ERROR_START)
-    #define GR_GL_CHECK_ERROR_START         1
+    #define GR_GL_CHECK_ERROR_START             1
 #endif
 
 #if !defined(GR_GL_NO_CONSTANT_ATTRIBUTES)
-    #define GR_GL_NO_CONSTANT_ATTRIBUTES    0
+    #define GR_GL_NO_CONSTANT_ATTRIBUTES        0
 #endif
 
 #if !defined(GR_GL_ATTRIBUTE_MATRICES)
-    #define GR_GL_ATTRIBUTE_MATRICES        0
+    #define GR_GL_ATTRIBUTE_MATRICES            0
 #endif
 
 #if !defined(GR_GL_USE_BUFFER_DATA_NULL_HINT)
-    #define GR_GL_USE_BUFFER_DATA_NULL_HINT 1
+    #define GR_GL_USE_BUFFER_DATA_NULL_HINT     1
+#endif
+
+#if !defined(GR_GL_PER_GL_FUNC_CALLBACK)
+    #define GR_GL_PER_GL_FUNC_CALLBACK          0
 #endif
 
 #if(GR_GL_NO_CONSTANT_ATTRIBUTES) && (GR_GL_ATTRIBUTE_MATRICES)
@@ -175,13 +188,37 @@ extern void GrGLClearErr(const GrGLInterface* gl);
     #define GR_GL_LOG_CALLS_IMPL(X)
 #endif
 
+#if GR_GL_PER_GL_FUNC_CALLBACK
+    #define GR_GL_CALLBACK_IMPL(IFACE) (IFACE)->fCallback(IFACE)
+#else
+    #define GR_GL_CALLBACK_IMPL(IFACE)
+#endif
+
 #define GR_GL_CALL(IFACE, X)                                    \
-    GR_GL_CALL_NOERRCHECK(IFACE, X)                             \
-    GR_GL_CHECK_ERROR_IMPL(IFACE, X)
+    do {                                                        \
+        GR_GL_CALL_NOERRCHECK(IFACE, X);                        \
+        GR_GL_CHECK_ERROR_IMPL(IFACE, X);                       \
+    } while (false)
 
 #define GR_GL_CALL_NOERRCHECK(IFACE, X)                         \
-    IFACE->f##X;                                                \
-    GR_GL_LOG_CALLS_IMPL(X);
+    do {                                                        \
+        GR_GL_CALLBACK_IMPL(IFACE);                             \
+        (IFACE)->f##X;                                          \
+        GR_GL_LOG_CALLS_IMPL(X);                                \
+    } while (false)
+
+#define GR_GL_CALL_RET(IFACE, RET, X)                           \
+    do {                                                        \
+        GR_GL_CALL_RET_NOERRCHECK(IFACE, RET, X);               \
+        GR_GL_CHECK_ERROR_IMPL(IFACE, X);                       \
+    } while (false)
+
+#define GR_GL_CALL_RET_NOERRCHECK(IFACE, RET, X)                \
+    do {                                                        \
+        GR_GL_CALLBACK_IMPL(IFACE);                             \
+        (RET) = (IFACE)->f##X;                                  \
+        GR_GL_LOG_CALLS_IMPL(X);                                \
+    } while (false)
 
 #define GR_GL_GET_ERROR(IFACE) (IFACE)->fGetError()
 

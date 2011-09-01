@@ -16,6 +16,7 @@ static const GrGLuint GR_MAX_GLUINT = ~0;
 static const GrGLint  GR_INVAL_GLINT = ~0;
 
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
+#define GL_CALL_RET(RET, X) GR_GL_CALL_RET(this->glInterface(), RET, X)
 
 // we use a spare texture unit to avoid
 // mucking with the state of any of the stages.
@@ -173,7 +174,8 @@ static bool fbo_test(const GrGLInterface* gl, int w, int h) {
     GR_GL_CALL(gl, FramebufferTexture2D(GR_GL_FRAMEBUFFER,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_TEXTURE_2D, testRTTex, 0));
-    GrGLenum status = GR_GL_CALL(gl, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+    GrGLenum status;
+    GR_GL_CALL_RET(gl, status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
     GR_GL_CALL(gl, DeleteFramebuffers(1, &testFBO));
     GR_GL_CALL(gl, DeleteTextures(1, &testRTTex));
 
@@ -278,11 +280,15 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
 
     GrGLClearErr(fGL);
 
+    const GrGLubyte* ext;
+    GL_CALL_RET(ext, GetString(GR_GL_EXTENSIONS));
     if (gPrintStartupSpew) {
-        const GrGLubyte* vendor = GL_CALL(GetString(GR_GL_VENDOR));
-        const GrGLubyte* renderer = GL_CALL(GetString(GR_GL_RENDERER));
-        const GrGLubyte* version = GL_CALL(GetString(GR_GL_VERSION));
-        const GrGLubyte* ext = GL_CALL(GetString(GR_GL_EXTENSIONS));
+        const GrGLubyte* vendor;
+        const GrGLubyte* renderer;
+        const GrGLubyte* version;
+        GL_CALL_RET(vendor, GetString(GR_GL_VENDOR));
+        GL_CALL_RET(renderer, GetString(GR_GL_RENDERER));
+        GL_CALL_RET(version, GetString(GR_GL_VERSION));
         GrPrintf("------------------------- create GrGpuGL %p --------------\n",
                  this);
         GrPrintf("------ VENDOR %s\n", vendor);
@@ -292,7 +298,7 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
     }
 
     fGLVersion = gl_version_as_float(gl);
-    fExtensionString = (const char*) GL_CALL(GetString(GR_GL_EXTENSIONS));
+    fExtensionString = (const char*) ext;
 
     this->resetDirtyFlags();
 
@@ -953,7 +959,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
                                       GR_GL_COLOR_ATTACHMENT0,
                                       GR_GL_RENDERBUFFER,
                                       desc->fMSColorRenderbufferID));
-        GrGLenum status = GL_CALL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             goto FAILED;
         }
@@ -964,7 +970,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
                                  GR_GL_COLOR_ATTACHMENT0,
                                  GR_GL_TEXTURE_2D,
                                  texID, 0));
-    status = GL_CALL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+    GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
     if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
         goto FAILED;
     }
@@ -1220,8 +1226,8 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
                                           GR_GL_DEPTH_ATTACHMENT,
                                           GR_GL_RENDERBUFFER, 0));
 #if GR_DEBUG
-            GrGLenum status = 
-                GL_CALL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+            GrGLenum status;
+            GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
             GrAssert(GR_GL_FRAMEBUFFER_COMPLETE == status);
 #endif
         }
@@ -1245,7 +1251,8 @@ bool GrGpuGL::attachStencilBufferToRenderTarget(GrStencilBuffer* sb,
                                           GR_GL_RENDERBUFFER, 0));
         }
 
-        GrGLenum status = GL_CALL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        GrGLenum status;
+        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
                                           GR_GL_STENCIL_ATTACHMENT,
@@ -1495,7 +1502,8 @@ void GrGpuGL::flushRenderTarget(const GrIRect* bound) {
         ++fStats.fRenderTargetChngCnt;
     #endif
     #if GR_DEBUG
-        GrGLenum status = GL_CALL(CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
+        GrGLenum status;
+        GL_CALL_RET(status, CheckFramebufferStatus(GR_GL_FRAMEBUFFER));
         if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
             GrPrintf("GrGpuGL::flushRenderTarget glCheckFramebufferStatus %x\n", status);
         }

@@ -13,6 +13,12 @@
 
 #include <stdio.h>
 
+#if GR_GL_PER_GL_FUNC_CALLBACK
+namespace {
+void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
+}
+#endif
+
 static SkAutoTUnref<const GrGLInterface> gDefaultGLInterface;
 
 void gl_version_from_string(int* major, int* minor,
@@ -26,7 +32,7 @@ void gl_version_from_string(int* major, int* minor,
 
     int n = sscanf(versionString, "%d.%d", major, minor);
     if (2 == n) {
-      return;
+        return;
     }
 
     char profile[2];
@@ -234,6 +240,11 @@ GrGLInterface::GrGLInterface() {
     fMapBuffer = NULL;
     fUnmapBuffer = NULL;
     fBindFragDataLocationIndexed = NULL;
+
+#if GR_GL_PER_GL_FUNC_CALLBACK
+    fCallback = GrGLDefaultInterfaceCallback;
+    fCallbackData = 0;
+#endif
 }
 
 
