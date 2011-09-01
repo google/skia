@@ -29,10 +29,6 @@ public:
      *  GrRenderTarget represents the rendering destination in the underlying
      *  3D API. Its reference count is incremented in the constructor and
      *  decremented in the destructor.
-     *  SkGpuDevice::Current3DApiRenderTarget() can be passed as a special
-     *  value that will cause the factory to create a render target object
-     *  that reflects the state of the underlying 3D API at the time of
-     *  construction.
      */
     explicit SkGpuCanvas(GrContext*, GrRenderTarget*);
     virtual ~SkGpuCanvas();
