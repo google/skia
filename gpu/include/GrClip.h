@@ -119,7 +119,6 @@ private:
             switch (fType) {
                 case kRect_ClipType:
                     return fRect == e.fRect;
-                    break;
                 case kPath_ClipType:
                     return fPath == e.fPath;
                 default:
