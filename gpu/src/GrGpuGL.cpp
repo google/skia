@@ -626,11 +626,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
     if (isRenderTarget) {
         rtDesc.fRTFBOID = desc.fPlatformRenderTarget;
         rtDesc.fConfig = desc.fConfig;
-#if GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
         if (desc.fSampleCnt) {
-#else
-        if (kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) {
-#endif
             if (kGrCanResolve_GrPlatformRenderTargetFlagBit  & desc.fRenderTargetFlags) {
                 rtDesc.fTexFBOID = desc.fPlatformResolveDestination;
             } else {
@@ -643,18 +639,7 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
         // we don't know what the RB ids are without glGets and we don't care
         // since we aren't responsible for deleting them.
         rtDesc.fMSColorRenderbufferID = 0;
-#if GR_USE_PLATFORM_CREATE_SAMPLE_COUNT
         rtDesc.fSampleCnt = desc.fSampleCnt;
-#else
-        if (kIsMultisampled_GrPlatformRenderTargetFlagBit & desc.fRenderTargetFlags) {
-            // just guess, this code path is only compiled in WK and we aren't
-            // using MSAA anyway. This will be stripped out soon when WK sets
-            // the fSampleCnt in GrPlatformSurfaceDesc.
-            rtDesc.fSampleCnt = 4;
-        } else {
-            rtDesc.fSampleCnt = 0;
-        }
-#endif
         if (desc.fStencilBits) {
             GrGLStencilBuffer::Format format;
             format.fInternalFormat = GrGLStencilBuffer::kUnknownInternalFormat;

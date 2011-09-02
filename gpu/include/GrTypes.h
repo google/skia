@@ -506,13 +506,6 @@ enum GrPlatformRenderTargetFlags {
     kNone_GrPlatformRenderTargetFlagBit             = 0x0,
 
     /**
-     * Specifies that the object being created is multisampled.
-     * WILL BE REMOVED ONCE WEBKIT STOPS USING THIS. INSTEAD
-     * SPECIFY # OF SAMPLES IN GrPlatformSurfaceDesc::fSampleCnt
-     */
-    kIsMultisampled_GrPlatformRenderTargetFlagBit   = 0x1,
-
-    /**
      * Gives permission to Gr to perform the downsample-resolve of a
      * multisampled render target. If this is not set then read pixel
      * operations may fail. If the object is both a texture and render target
