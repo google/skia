@@ -788,7 +788,7 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
             if (flipY) {
                 src += (desc.fContentHeight - 1) * rowBytes;
             }
-            char* dst = (char*)tempStorage.realloc(trimSize);
+            char* dst = (char*)tempStorage.reset(trimSize);
             for (int y = 0; y < desc.fContentHeight; y++) {
                 memcpy(dst, src, trimRowBytes);
                 if (flipY) {

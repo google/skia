@@ -1393,7 +1393,7 @@ void SkGpuDevice::drawVertices(const SkDraw& draw, SkCanvas::VertexMode vmode,
     SkAutoSTMalloc<128, GrColor> convertedColors(0);
     if (NULL != colors) {
         // need to convert byte order and from non-PM to PM
-        convertedColors.realloc(vertexCount);
+        convertedColors.reset(vertexCount);
         for (int i = 0; i < vertexCount; ++i) {
             convertedColors[i] = SkGr::SkColor2GrColor(colors[i]);
         }

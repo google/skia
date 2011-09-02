@@ -91,7 +91,7 @@ void GrBufferAllocPool::reset() {
         fFirstPreallocBuffer = (fFirstPreallocBuffer + fPreallocBuffersInUse) %
                                fPreallocBuffers.count();
     }
-    fCpuData.alloc(fGpu->supportsBufferLocking() ? 0 : fMinBlockSize);
+    fCpuData.reset(fGpu->supportsBufferLocking() ? 0 : fMinBlockSize);
     GrAssert(0 == fPreallocBuffersInUse);
     VALIDATE();
 }
@@ -283,7 +283,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
     }
 
     if (NULL == fBufferPtr) {
-        fBufferPtr = fCpuData.alloc(size);
+        fBufferPtr = fCpuData.reset(size);
     }
 
     VALIDATE(true);

@@ -95,7 +95,7 @@ bool GrAtlas::addSubImage(int width, int height, const void* image,
     if (BORDER) {
         const int bpp = GrMaskFormatBytesPerPixel(fMaskFormat);
         const size_t dstRB = dstW * bpp;
-        uint8_t* dst = (uint8_t*)storage.realloc(dstH * dstRB);
+        uint8_t* dst = (uint8_t*)storage.reset(dstH * dstRB);
         Gr_bzero(dst, dstRB);                // zero top row
         dst += dstRB;
         for (int y = 0; y < height; y++) {

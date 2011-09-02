@@ -193,7 +193,7 @@ bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
 }
 
 void GrDefaultPathRenderer::pathWillClear() {
-    fSubpathVertCount.realloc(0);
+    fSubpathVertCount.reset(0);
     fTarget->resetVertexSource();
     if (fUseIndexedDraw) {
         fTarget->resetIndexSource();
@@ -278,7 +278,7 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
         idx = idxBase;
     }
 
-    fSubpathVertCount.realloc(fSubpathCount);
+    fSubpathVertCount.reset(fSubpathCount);
 
     GrPoint pts[4];
 

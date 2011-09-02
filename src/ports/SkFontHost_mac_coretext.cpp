@@ -547,7 +547,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     } else if (SkMask::kBW_Format == glyph.fMaskFormat) {
         rowBytes = SkAlign4(glyph.fWidth);
         size_t size = glyph.fHeight * rowBytes;
-        image = storage.realloc(size);
+        image = storage.reset(size);
         sk_bzero(image, size);
         doAA = false;
     }
