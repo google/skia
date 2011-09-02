@@ -151,7 +151,7 @@ void GrGLTexture::uploadTextureData(int x,
             if (flipY) {
                 src += (height - 1) * rowBytes;
             }
-            char* dst = (char*)tempStorage.realloc(trimSize);
+            char* dst = (char*)tempStorage.reset(trimSize);
             for (int y = 0; y < height; y++) {
                 memcpy(dst, src, trimRowBytes);
                 if (flipY) {

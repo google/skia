@@ -181,7 +181,7 @@ public:
     }
 
     // doesn't preserve contents
-    void realloc (size_t count) {
+    void reset (size_t count) {
         sk_free(fPtr);
         fPtr = fPtr = (T*)sk_malloc_flags(count * sizeof(T), SK_MALLOC_THROW | SK_MALLOC_TEMP);
     }
@@ -225,7 +225,7 @@ public:
     }
 
     // doesn't preserve contents
-    void realloc (size_t count) {
+    void reset(size_t count) {
         if (fPtr != fTStorage) {
             sk_free(fPtr);
         }

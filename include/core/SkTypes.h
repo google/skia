@@ -387,20 +387,57 @@ private:
     SkAutoFree& operator=(const SkAutoFree&);
 };
 
-class SkAutoMalloc : public SkAutoFree {
+/**
+ *  Manage an allocated block of heap memory. This object is the sole manager of
+ *  the lifetime of the block, so the caller must not call sk_free() or delete
+ *  on the block.
+ */
+class SkAutoMalloc : public SkNoncopyable {
 public:
-    explicit SkAutoMalloc(size_t size)
-        : SkAutoFree(sk_malloc_flags(size, SK_MALLOC_THROW | SK_MALLOC_TEMP)) {}
-
-    SkAutoMalloc(size_t size, unsigned flags)
-        : SkAutoFree(sk_malloc_flags(size, flags)) {}
-    SkAutoMalloc() {}
-
-    void* alloc(size_t size,
-                unsigned flags = (SK_MALLOC_THROW | SK_MALLOC_TEMP)) {
-        sk_free(set(sk_malloc_flags(size, flags)));
-        return get();
+    explicit SkAutoMalloc(size_t size = 0,
+                          unsigned flags = SK_MALLOC_THROW | SK_MALLOC_TEMP) {
+        fPtr = size ? sk_malloc_flags(size, flags) : NULL;
+        fSize = size;
     }
+
+    ~SkAutoMalloc() {
+        sk_free(fPtr);
+    }
+
+    /**
+     *  Reallocates the block to a new size. The ptr may or may not change.
+     */
+    void* reset(size_t size,
+                 unsigned flags = (SK_MALLOC_THROW | SK_MALLOC_TEMP)) {
+        if (size != fSize) {
+            sk_free(fPtr);
+            fPtr = size ? sk_malloc_flags(size, flags) : NULL;
+            fSize = size;
+        }
+        return fPtr;
+    }
+
+    /**
+     *  Releases the block back to the heap
+     */
+    void free() {
+        this->reset(0);
+    }
+
+    /**
+     *  Return the allocated block.
+     */
+    void* get() { return fPtr; }
+    const void* get() const { return fPtr; }
+
+    /**
+     * Gets the size of the block in bytes
+     */
+    size_t getSize() const { return fSize; }
+
+private:
+    void*   fPtr;
+    size_t  fSize;
 };
 
 /**
@@ -413,7 +450,7 @@ template <size_t kSize> class SkAutoSMalloc : SkNoncopyable {
 public:
     /**
      *  Creates initially empty storage. get() returns a ptr, but it is to
-     *  a zero-byte allocation. Must call realloc(size) to return an allocated
+     *  a zero-byte allocation. Must call reset(size) to return an allocated
      *  block.
      */
     SkAutoSMalloc() {
@@ -427,7 +464,7 @@ public:
      */
     explicit SkAutoSMalloc(size_t size) {
         fPtr = fStorage;
-        this->realloc(size);
+        this->reset(size);
     }
 
     /**
@@ -454,7 +491,7 @@ public:
      *  then the return block may be allocated locally, rather than from the
      *  heap.
      */
-    void* realloc(size_t size) {
+    void* reset(size_t size) {
         if (fPtr != (void*)fStorage) {
             sk_free(fPtr);
         }
