@@ -222,7 +222,9 @@ void SkMask_FreeImage(uint8_t* image) {
 }
 
 bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
-                      SkScalar radius, Style style, Quality quality) {
+                      SkScalar radius, Style style, Quality quality,
+                      SkIPoint* margin)
+{
     if (src.fFormat != SkMask::kA8_Format) {
         return false;
     }
@@ -247,6 +249,9 @@ bool SkBlurMask::Blur(SkMask* dst, const SkMask& src,
 
     int padx = passCount * rx;
     int pady = passCount * ry;
+    if (margin) {
+        margin->set(padx, pady);
+    }
     dst->fBounds.set(src.fBounds.fLeft - padx, src.fBounds.fTop - pady,
         src.fBounds.fRight + padx, src.fBounds.fBottom + pady);
     dst->fRowBytes = dst->fBounds.width();

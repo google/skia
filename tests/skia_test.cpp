@@ -104,11 +104,20 @@ private:
 
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
-    
+
     bool androidMode = false;
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "-android")) {
+    const char* matchStr = NULL;
+
+    char* const* stop = argv + argc;
+    for (++argv; argv < stop; ++argv) {
+        if (strcmp(*argv, "-android") == 0) {
             androidMode = true;
+        
+        } else if (strcmp(*argv, "--match") == 0) {
+            ++argv;
+            if (argv < stop && **argv) {
+                matchStr = *argv;
+            }
         }
     }
 
@@ -118,17 +127,24 @@ int main (int argc, char * const argv[]) {
 
     const int count = Iter::Count();
     int index = 0;
-    int successCount = 0;
+    int failCount = 0;
+    int skipCount = 0;
     while ((test = iter.next()) != NULL) {
         reporter.setIndexOfTotal(index, count);
-        successCount += test->run();
+        if (NULL != matchStr && !strstr(test->getName(), matchStr)) {
+            ++skipCount;
+        } else {
+            if (!test->run()) {
+                ++failCount;
+            }
+        }
         SkDELETE(test);
         index += 1;
     }
 
     if (!androidMode) {
-        SkDebugf("Finished %d tests, %d failures.\n", count,
-                 count - successCount);
+        SkDebugf("Finished %d tests, %d failures, %d skipped.\n",
+                 count, failCount, skipCount);
     }
-    return (count == successCount) ? 0 : 1;
+    return (failCount == 0) ? 0 : 1;
 }

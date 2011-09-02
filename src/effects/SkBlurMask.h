@@ -28,7 +28,9 @@ public:
         kHigh_Quality   //!< three pass box blur (similar to gaussian)
     };
 
-    static bool Blur(SkMask* dst, const SkMask& src, SkScalar radius, Style, Quality quality);
+    static bool Blur(SkMask* dst, const SkMask& src,
+                     SkScalar radius, Style style, Quality quality,
+                     SkIPoint* margin = NULL);
 };
 
 #endif

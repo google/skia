@@ -2441,9 +2441,6 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
         return false;
     }
 
-    SkIPoint   margin;
-    margin.set(0, 0);
-
     //  init our bounds from the path
     {
         SkRect pathBounds = devPath.getBounds();
@@ -2451,10 +2448,11 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
         pathBounds.roundOut(bounds);
     }
 
+    SkIPoint margin;
     if (filter) {
         SkASSERT(filterMatrix);
 
-        SkMask  srcM, dstM;
+        SkMask srcM, dstM;
 
         srcM.fBounds = *bounds;
         srcM.fFormat = SkMask::kA8_Format;
@@ -2462,18 +2460,12 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
         if (!filter->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
             return false;
         }
-        *bounds = dstM.fBounds;
     }
 
-    if (clipBounds && !SkIRect::Intersects(*clipBounds, *bounds)) {
-        return false;
-    }
-
-    // (possibly) trim the srcM bounds to reflect the clip
+    // (possibly) trim the bounds to reflect the clip
     // (plus whatever slop the filter needs)
-    if (clipBounds && !clipBounds->contains(*bounds)) {
-        SkIRect tmp = *bounds;
-        (void)tmp.intersect(*clipBounds);
+    if (clipBounds) {
+        SkIRect tmp = *clipBounds;
         // Ugh. Guard against gigantic margins from wacky filters. Without this
         // check we can request arbitrary amounts of slop beyond our visible
         // clip, and bring down the renderer (at least on finite RAM machines
@@ -2483,7 +2475,9 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
         static const int MAX_MARGIN = 128;
         tmp.inset(-SkMin32(margin.fX, MAX_MARGIN),
                   -SkMin32(margin.fY, MAX_MARGIN));
-        (void)bounds->intersect(tmp);
+        if (!bounds->intersect(tmp)) {
+            return false;
+        }
     }
 
     return true;
