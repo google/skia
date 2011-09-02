@@ -208,7 +208,6 @@
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',
-        'GR_USE_PLATFORM_CREATE_SAMPLE_COUNT=1',
       ],
       'conditions': [
         [ 'skia_os == "linux"', {
