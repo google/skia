@@ -462,14 +462,20 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
         glyph->fAdvanceX = SkIntToFixed(gm.gmCellIncX);
         glyph->fAdvanceY = -SkIntToFixed(gm.gmCellIncY);
 
-        // we outset by 1 in all dimensions, since the image may bleed outside
+        // we outset in all dimensions, since the image may bleed outside
         // of the computed bounds returned by GetGlyphOutline.
         // This was deduced by trial and error for small text (e.g. 8pt), so there
         // maybe a more precise way to make this adjustment...
-        glyph->fWidth += 2;
-        glyph->fHeight += 2;
-        glyph->fTop -= 1;
-        glyph->fLeft -= 1;
+        //
+        // This test shows us clipping the tops of some of the CJK fonts unless we
+        // increase the top of the box by 2, hence the height by 4. This seems to
+        // correspond to an embedded bitmap font, but not sure.
+        //     LayoutTests/fast/text/backslash-to-yen-sign-euc.html
+        //
+        glyph->fWidth += 4;
+        glyph->fHeight += 4;
+        glyph->fTop -= 2;
+        glyph->fLeft -= 2;
 
         if (fHiResFont) {
             SelectObject(fDDC, fHiResFont);
