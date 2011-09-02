@@ -539,7 +539,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         // need tmp storage for 32bit RGB offscreen
         rowBytes = glyph.fWidth << 2;
         size_t size = glyph.fHeight * rowBytes;
-        image = storage.realloc(size);
+        image = storage.reset(size);
         // we draw black-on-white (and invert in rgb_to_lcd16)
         sk_memset32((uint32_t*)image, 0xFFFFFFFF, size >> 2);
         grayColor = 0;  // black
