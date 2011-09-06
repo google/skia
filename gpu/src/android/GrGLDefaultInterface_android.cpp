@@ -10,11 +10,11 @@
 #define GL_GLEXT_PROTOTYPES
 #endif
 
-#include "gl2.h"
-#include "gl2ext.h"
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 void GrGLInitializeDefaultGLInterface() {
-    GrGLSetGLInterface* glInterface = new GrGLInterface;
+    GrGLInterface* glInterface = new GrGLInterface;
 
     glInterface->fBindingsExported = kES2_GrGLBinding;
     glInterface->fActiveTexture = glActiveTexture;
@@ -108,8 +108,9 @@ void GrGLInitializeDefaultGLInterface() {
     glInterface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
     glInterface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
     glInterface->fRenderbufferStorage = glRenderbufferStorage;
-    glInterface->fMapBufferOES = glMapBufferOES;
-    glInterface->fUnmapBufferOES = glUnmapBufferOES;
-
-    GrGLSetDefaultInterface(glInterface)->unref();
+#if GL_OES_mapbuffer
+    glInterface->fMapBuffer = glMapBufferOES;
+    glInterface->fUnmapBuffer = glUnmapBufferOES;
+#endif
+    GrGLSetDefaultGLInterface(glInterface)->unref();
 }
