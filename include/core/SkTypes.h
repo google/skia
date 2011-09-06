@@ -69,7 +69,21 @@ static inline void sk_bzero(void* buffer, size_t size) {
     memset(buffer, 0, size);
 }
 
-///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_OVERRIDE_GLOBAL_NEW
+#include <new>
+
+inline void* operator new(size_t size) {
+    return sk_malloc_throw(size);
+}
+
+inline void operator delete(void* p) {
+    sk_free(p);
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 
 #define SK_INIT_TO_AVOID_WARNING    = 0
 
