@@ -18,6 +18,7 @@
         '../gm/gmmain.cpp',
         '../gm/gradients.cpp',
         '../gm/lcdtext.cpp',
+        '../gm/ninepatchstretch.cpp',
         '../gm/nocolorbleed.cpp',
         '../gm/pathfill.cpp',
         '../gm/points.cpp',
