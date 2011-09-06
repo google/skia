@@ -222,13 +222,20 @@ int get_float_exp(float x) {
 // if it returns -1 then should be drawn as lines
 int num_quad_subdivs(const SkPoint p[3]) {
     static const SkScalar gDegenerateToLineTol = SK_Scalar1;
+    static const SkScalar gDegenerateToLineTolSqd = 
+        SkScalarMul(gDegenerateToLineTol, gDegenerateToLineTol);
 
-    GrScalar dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
-    if (dsqd < gDegenerateToLineTol*gDegenerateToLineTol) {
+    if (p[0].distanceToSqd(p[1]) < gDegenerateToLineTolSqd ||
+        p[1].distanceToSqd(p[2]) < gDegenerateToLineTolSqd) {
         return -1;
     }
-    if (p[2].distanceToLineBetweenSqd(p[1],p[0]) <
-        gDegenerateToLineTol*gDegenerateToLineTol) {
+
+    GrScalar dsqd = p[1].distanceToLineBetweenSqd(p[0], p[2]);
+    if (dsqd < gDegenerateToLineTolSqd) {
+        return -1;
+    }
+
+    if (p[2].distanceToLineBetweenSqd(p[1], p[0]) < gDegenerateToLineTolSqd) {
         return -1;
     }
 
