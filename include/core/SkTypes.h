@@ -444,6 +444,17 @@ public:
     void* get() { return fPtr; }
     const void* get() const { return fPtr; }
 
+   /** Transfer ownership of the current ptr to the caller, setting the
+       internal reference to null. Note the caller is reponsible for calling
+       sk_free on the returned address.
+    */
+    void* detach() {
+        void* ptr = fPtr;
+        fPtr = NULL;
+        fSize = 0;
+        return ptr;
+    }
+
     /**
      * Gets the size of the block in bytes
      */
