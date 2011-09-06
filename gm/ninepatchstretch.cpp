@@ -75,7 +75,7 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorBLACK);
+        canvas->drawColor(SK_ColorWHITE);
 
         SkBitmap bm;
         SkIRect center;

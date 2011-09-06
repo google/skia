@@ -66,7 +66,7 @@ protected:
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
-        GrContext* ctx = NULL;//SampleCode::GetGr();
+        GrContext* ctx = SampleCode::GetGr();
 
         const SkIRect src[] = {
             { 0, 0, 32, 32 },
