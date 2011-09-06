@@ -200,28 +200,36 @@ bool SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkMatrix::setScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
-    fMat[kMScaleX] = sx;
-    fMat[kMScaleY] = sy;
-    fMat[kMTransX] = px - SkScalarMul(sx, px);
-    fMat[kMTransY] = py - SkScalarMul(sy, py);
-    fMat[kMPersp2] = kMatrix22Elem;
+    if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
+        this->reset();
+    } else {
+        fMat[kMScaleX] = sx;
+        fMat[kMScaleY] = sy;
+        fMat[kMTransX] = px - SkScalarMul(sx, px);
+        fMat[kMTransY] = py - SkScalarMul(sy, py);
+        fMat[kMPersp2] = kMatrix22Elem;
 
-    fMat[kMSkewX]  = fMat[kMSkewY] = 
-    fMat[kMPersp0] = fMat[kMPersp1] = 0;
-    
-    this->setTypeMask(kScale_Mask | kTranslate_Mask | kRectStaysRect_Mask);
+        fMat[kMSkewX]  = fMat[kMSkewY] = 
+        fMat[kMPersp0] = fMat[kMPersp1] = 0;
+        
+        this->setTypeMask(kScale_Mask | kTranslate_Mask | kRectStaysRect_Mask);
+    }
 }
 
 void SkMatrix::setScale(SkScalar sx, SkScalar sy) {
-    fMat[kMScaleX] = sx;
-    fMat[kMScaleY] = sy;
-    fMat[kMPersp2] = kMatrix22Elem;
+    if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
+        this->reset();
+    } else {
+        fMat[kMScaleX] = sx;
+        fMat[kMScaleY] = sy;
+        fMat[kMPersp2] = kMatrix22Elem;
 
-    fMat[kMTransX] = fMat[kMTransY] =
-    fMat[kMSkewX]  = fMat[kMSkewY] = 
-    fMat[kMPersp0] = fMat[kMPersp1] = 0;
+        fMat[kMTransX] = fMat[kMTransY] =
+        fMat[kMSkewX]  = fMat[kMSkewY] = 
+        fMat[kMPersp0] = fMat[kMPersp1] = 0;
 
-    this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
+        this->setTypeMask(kScale_Mask | kRectStaysRect_Mask);
+    }
 }
 
 bool SkMatrix::setIDiv(int divx, int divy) {
@@ -239,6 +247,10 @@ bool SkMatrix::preScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
 }
 
 bool SkMatrix::preScale(SkScalar sx, SkScalar sy) {
+    if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
+        return true;
+    }
+
 #ifdef SK_SCALAR_IS_FIXED
     SkMatrix    m;
     m.setScale(sx, sy);
@@ -263,12 +275,18 @@ bool SkMatrix::preScale(SkScalar sx, SkScalar sy) {
 }
 
 bool SkMatrix::postScale(SkScalar sx, SkScalar sy, SkScalar px, SkScalar py) {
+    if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
+        return true;
+    }
     SkMatrix    m;
     m.setScale(sx, sy, px, py);
     return this->postConcat(m);
 }
 
 bool SkMatrix::postScale(SkScalar sx, SkScalar sy) {
+    if (SK_Scalar1 == sx && SK_Scalar1 == sy) {
+        return true;
+    }
     SkMatrix    m;
     m.setScale(sx, sy);
     return this->postConcat(m);
