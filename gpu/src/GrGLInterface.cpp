@@ -103,22 +103,21 @@ GR_API const GrGLInterface* GrGLGetDefaultGLInterface() {
 }
 
 bool has_gl_extension(const GrGLInterface* gl, const char* ext) {
-    const char* glstr = reinterpret_cast<const char*>(
-                gl->fGetString(GR_GL_EXTENSIONS));
-
-    return has_gl_extension_from_string(ext, glstr);
+    const GrGLubyte* glstr;
+    GR_GL_CALL_RET(gl, glstr, GetString(GR_GL_EXTENSIONS));
+    return has_gl_extension_from_string(ext, (const char*) glstr);
 }
 
 void gl_version(const GrGLInterface* gl, int* major, int* minor) {
-    const char* v = reinterpret_cast<const char*>(
-                gl->fGetString(GR_GL_VERSION));
-    gl_version_from_string(major, minor, v);
+    const GrGLubyte* v;
+    GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
+    gl_version_from_string(major, minor, (const char*) v);
 }
 
 float gl_version_as_float(const GrGLInterface* gl) {
-    const char* v = reinterpret_cast<const char*>(
-                gl->fGetString(GR_GL_VERSION));
-    return gl_version_as_float_from_string(v);
+    const GrGLubyte* v;
+    GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
+    return gl_version_as_float_from_string((const char*)v);
 }
 
 GrGLInterface::GrGLInterface() {
