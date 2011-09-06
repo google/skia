@@ -12,24 +12,62 @@
 #include "SkNinePatch.h"
 #include "SkPaint.h"
 #include "SkUnPreMultiply.h"
+#include "SkGpuDevice.h"
+
+static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
+    SkDevice* dev;
+    SkCanvas canvas;
+    
+    const int kFixed = 28;
+    const int kStretchy = 8;
+    const int kSize = 2*kFixed + kStretchy;
+
+    if (ctx) {
+        dev = new SkGpuDevice(ctx, SkBitmap::kARGB_8888_Config, kSize, kSize);
+        *bitmap = dev->accessBitmap(false);
+    } else {
+        bitmap->setConfig(SkBitmap::kARGB_8888_Config, kSize, kSize);
+        bitmap->allocPixels();
+        dev = new SkDevice(*bitmap);
+    }
+
+    canvas.setDevice(dev)->unref();
+    canvas.clear(0);
+
+    SkRect r = SkRect::MakeWH(SkIntToScalar(kSize), SkIntToScalar(kSize));
+    const SkScalar strokeWidth = SkIntToScalar(6);
+    const SkScalar radius = SkIntToScalar(kFixed) - strokeWidth/2;
+
+    center->setXYWH(kFixed, kFixed, kStretchy, kStretchy);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+
+#if 0
+    r.inset(strokeWidth/2, strokeWidth/2);
+
+    paint.setColor(SK_ColorBLUE);
+    canvas.drawRoundRect(r, radius, radius, paint);
+    paint.setColor(SK_ColorRED);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(strokeWidth);
+    canvas.drawRoundRect(r, radius, radius, paint);
+#else
+    paint.setColor(0xFFFF0000);
+    canvas.drawRoundRect(r, radius, radius, paint);
+    r.setXYWH(SkIntToScalar(kFixed), 0, SkIntToScalar(kStretchy), SkIntToScalar(kSize));
+    paint.setColor(0x8800FF00);
+    canvas.drawRect(r, paint);
+    r.setXYWH(0, SkIntToScalar(kFixed), SkIntToScalar(kSize), SkIntToScalar(kStretchy));
+    paint.setColor(0x880000FF);
+    canvas.drawRect(r, paint);
+#endif
+}
+
 
 class NinePatchView : public SampleView {
 public:
-    SkBitmap fBM;
-
-	NinePatchView() {
-        SkImageDecoder::DecodeFile("/skimages/btn_default_normal_disable.9.png", &fBM);
-        
-        // trim off the edge guide-lines
-        SkBitmap tmp;
-        SkIRect r;
-        r.set(1, 1, fBM.width() - 1, fBM.height() - 1);
-        fBM.extractSubset(&tmp, r);
-        fBM.swap(tmp);
-        
-        fX = SkIntToScalar(fBM.width());
-        fY = 0;
-    }
+	NinePatchView() {}
 
 protected:
     // overrides from SkEventSink
@@ -40,75 +78,48 @@ protected:
         }
         return this->INHERITED::onQuery(evt);
     }
-    
-    virtual void onDrawBackground(SkCanvas* canvas) {
-        SkPaint p;
-        p.setDither(true);
-        p.setColor(0xFF909090);
-        canvas->drawPaint(p);
-    }
 
-    static void test_rects(SkCanvas* canvas, const SkBitmap& bm, const SkPaint* paint) {
-        static const SkIRect src[] = {
-            { 0, 0, 18, 34 },
-            { 18, 0, 19, 34 },
-            { 19, 0, 36, 34 },
-            { 0, 34, 18, 35 },
-            { 18, 34, 19, 35 },
-            { 19, 34, 36, 35 },
-            { 0, 35, 18, 72 },
-            { 18, 35, 19, 72 },
-            { 19, 35, 36, 72 },
-        };
-        static const SkRect dst[] = {
-            { 0, 0, 18, 34 },
-            { 18, 0, 283, 34 },
-            { 283, 0, 300, 34 },
-            { 0, 34, 18, 163 },
-            { 18, 34, 283, 163 },
-            { 283, 34, 300, 163 },
-            { 0, 163, 18, 200 },
-            { 18, 163, 283, 200 },
-            { 283, 163, 300, 200 },
-        };
-        for (size_t i = 0; i < SK_ARRAY_COUNT(src); i++) {
-            canvas->drawBitmapRect(bm, &src[i], dst[i], paint);
-        }
+    static void drawNine(SkCanvas* canvas, const SkRect& dst, const SkBitmap& bm,
+                         const SkIRect& center, const SkPaint* paint) {
+        SkIRect margin;
+        margin.set(center.fLeft, center.fTop, bm.width() - center.fRight,
+                   bm.height() - center.fBottom);
+        SkNinePatch::DrawNine(canvas, dst, bm, margin, paint);
     }
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        canvas->drawBitmap(fBM, 0, 0);
-        
-        SkIRect margins;
-        SkRect  dst;
-        int d = 25;
-        
-        margins.set(d, d, d, d);
-        margins.fLeft   = fBM.width()/2 - 1;
-        margins.fTop    = fBM.height()/2 - 1;
-        margins.fRight  = fBM.width() - margins.fLeft - 1;
-        margins.fBottom = fBM.height() - margins.fTop - 1;
+        SkBitmap bm;
+        SkIRect center;
+        make_bitmap(&bm, SampleCode::GetGr(), &center);
 
-   //     canvas->translate(fX/5, fY/5);
-        canvas->translate(0, 76);
+        // amount of bm that should not be stretched (unless we have to)
+        const SkScalar fixed = SkIntToScalar(bm.width() - center.width());
 
-        dst.set(0, 0, SkIntToScalar(200), SkIntToScalar(200));
-        
+        const SkTSize<SkScalar> size[] = {
+            { fixed * 4 / 5, fixed * 4 / 5 },   // shrink in both axes
+            { fixed * 4 / 5, fixed * 4 },       // shrink in X
+            { fixed * 4,     fixed * 4 / 5 },   // shrink in Y
+            { fixed * 4,     fixed * 4 }
+        };
+
+        canvas->drawBitmap(bm, SkIntToScalar(10), SkIntToScalar(10), NULL);
+
+        SkScalar x = SkIntToScalar(100);
+        SkScalar y = SkIntToScalar(100);
+
         SkPaint paint;
-        paint.setAntiAlias(false);
-        paint.setDither(true);
-        paint.setFilterBitmap(false);
-    //    SkNinePatch::DrawNine(canvas, dst, fBM, margins, &paint);
-        test_rects(canvas, fBM, &paint);
+        paint.setFilterBitmap(true);
+
+        for (int iy = 0; iy < 2; ++iy) {
+            for (int ix = 0; ix < 2; ++ix) {
+                int i = ix * 2 + iy;
+                SkRect r = SkRect::MakeXYWH(x + ix * fixed, y + iy * fixed,
+                                            size[i].width(), size[i].height());
+                drawNine(canvas, r, bm, center, &paint);
+            }
+        }
     }
     
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y) {
-        fX = x / 1.5f;
-        fY = y / 1.5f;
-        fX = x; fY = y;
-        this->inval(NULL);
-        return this->INHERITED::onFindClickHandler(x, y);
-    }
 private:
     SkScalar fX, fY;
     typedef SampleView INHERITED;
