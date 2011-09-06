@@ -6,12 +6,9 @@
  * found in the LICENSE file.
  */
 #include "SampleCode.h"
-#include "SkView.h"
 #include "SkCanvas.h"
-#include "SkImageDecoder.h"
 #include "SkNinePatch.h"
 #include "SkPaint.h"
-#include "SkUnPreMultiply.h"
 #include "SkGpuDevice.h"
 
 static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
@@ -43,16 +40,6 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     SkPaint paint;
     paint.setAntiAlias(true);
 
-#if 0
-    r.inset(strokeWidth/2, strokeWidth/2);
-
-    paint.setColor(SK_ColorBLUE);
-    canvas.drawRoundRect(r, radius, radius, paint);
-    paint.setColor(SK_ColorRED);
-    paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(strokeWidth);
-    canvas.drawRoundRect(r, radius, radius, paint);
-#else
     paint.setColor(0xFFFF0000);
     canvas.drawRoundRect(r, radius, radius, paint);
     r.setXYWH(SkIntToScalar(kFixed), 0, SkIntToScalar(kStretchy), SkIntToScalar(kSize));
@@ -61,7 +48,6 @@ static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     r.setXYWH(0, SkIntToScalar(kFixed), SkIntToScalar(kSize), SkIntToScalar(kStretchy));
     paint.setColor(0x880000FF);
     canvas.drawRect(r, paint);
-#endif
 }
 
 
