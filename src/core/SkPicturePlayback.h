@@ -95,7 +95,7 @@ private:
 
     const SkRect* getRectPtr() {
         if (fReader.readBool()) {
-            return fReader.skipRect();
+            return &fReader.skipT<SkRect>();
         } else {
             return NULL;
         }
@@ -103,7 +103,7 @@ private:
 
     const SkIRect* getIRectPtr() {
         if (fReader.readBool()) {
-            return (const SkIRect*)fReader.skip(sizeof(SkIRect));
+            return &fReader.skipT<SkIRect>();
         } else {
             return NULL;
         }

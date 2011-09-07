@@ -11,8 +11,6 @@
 #define SkReader32_DEFINED
 
 #include "SkScalar.h"
-#include "SkPoint.h"
-#include "SkRect.h"
 
 class SkString;
 
@@ -66,14 +64,6 @@ public:
         return value;
     }
     
-    const SkPoint* skipPoint() {
-        return (const SkPoint*)this->skip(sizeof(SkPoint));
-    }
-    
-    const SkRect* skipRect() {
-        return (const SkRect*)this->skip(sizeof(SkRect));
-    }
-
     const void* skip(size_t size) {
         SkASSERT(ptr_align_4(fCurr));
         const void* addr = fCurr;
@@ -82,6 +72,11 @@ public:
         return addr;
     }
     
+    template <typename T> const T& skipT() {
+        SkASSERT(SkAlign4(sizeof(T)) == sizeof(T));
+        return *(const T*)this->skip(sizeof(T));
+    }
+
     void read(void* dst, size_t size) {
         SkASSERT(0 == size || dst != NULL);
         SkASSERT(ptr_align_4(fCurr));
@@ -115,8 +110,7 @@ private:
     const char* fBase;  // beginning of buffer
     
 #ifdef SK_DEBUG
-    static bool ptr_align_4(const void* ptr)
-    {
+    static bool ptr_align_4(const void* ptr) {
         return (((const char*)ptr - (const char*)NULL) & 3) == 0;
     }
 #endif
