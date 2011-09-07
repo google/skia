@@ -199,6 +199,16 @@ struct SK_API SkPoint {
     SkScalar length() const { return SkPoint::Length(fX, fY); }
     SkScalar distanceToOrigin() const { return this->length(); }
 
+    /**
+     *  Return true if the computed length of the vector is >= the internal
+     *  tolerance (used to avoid dividing by tiny values).
+     */
+    static bool CanNormalize(SkScalar dx, SkScalar dy);
+
+    bool canNormalize() const {
+        return CanNormalize(fX, fY);
+    }
+
     /** Set the point (vector) to be unit-length in the same direction as it
         already points.  If the point has a degenerate length (i.e. nearly 0)
         then return false and do nothing; otherwise return true.
@@ -317,7 +327,8 @@ struct SK_API SkPoint {
     static SkScalar Length(SkScalar x, SkScalar y);
 
     /** Normalize pt, returning its previous length. If the prev length is too
-        small (degenerate), return 0 and leave pt unchanged.
+        small (degenerate), return 0 and leave pt unchanged. This uses the same
+        tolerance as CanNormalize.
 
         Note that this method may be significantly more expensive than
         the non-static normalize(), because it has to return the previous length

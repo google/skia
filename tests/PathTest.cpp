@@ -6,9 +6,46 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkPaint.h"
 #include "SkPath.h"
 #include "SkParse.h"
 #include "SkSize.h"
+
+static void stroke_cubic(const SkPoint pts[4]) {
+    SkPath path;
+    path.moveTo(pts[0]);
+    path.cubicTo(pts[1], pts[2], pts[3]);
+    
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeWidth(SK_Scalar1 * 2);
+    
+    SkPath fill;
+    paint.getFillPath(path, &fill);
+}
+
+// just ensure this can run w/o any SkASSERTS firing in the debug build
+// we used to assert due to differences in how we determine a degenerate vector
+// but that was fixed with the introduction of SkPoint::CanNormalize
+static void stroke_tiny_cubic() {
+    SkPoint p0[] = {
+        { 372.0f,   92.0f },
+        { 372.0f,   92.0f },
+        { 372.0f,   92.0f },
+        { 372.0f,   92.0f },
+    };
+    
+    stroke_cubic(p0);
+    
+    SkPoint p1[] = {
+        { 372.0f,       92.0f },
+        { 372.0007f,    92.000755f },
+        { 371.99927f,   92.003922f },
+        { 371.99826f,   92.003899f },
+    };
+    
+    stroke_cubic(p1);
+}
 
 static void check_close(skiatest::Reporter* reporter, const SkPath& path) {
     for (int i = 0; i < 2; ++i) {
@@ -102,6 +139,8 @@ static void test_close(skiatest::Reporter* reporter) {
     moves.moveTo(SK_Scalar1, 10 * SK_Scalar1);
     moves.moveTo(10 *SK_Scalar1, SK_Scalar1);
     check_close(reporter, moves);
+
+    stroke_tiny_cubic();
 }
 
 static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
