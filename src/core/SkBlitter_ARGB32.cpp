@@ -67,10 +67,11 @@ static void blit_lcd16_opaque(SkPMColor dst[], const uint16_t src[],
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
 
-        dst[i] = SkPackARGB32(blend32(0xFF, dstA, maskA),
-                              blend32(srcR, dstR, maskR),
-                              blend32(srcG, dstG, maskG),
-                              blend32(srcB, dstB, maskB));
+        // nocheck version for now, until we cleanup GDI's garbage bits
+        dst[i] = SkPackARGB32NoCheck(blend32(0xFF, dstA, maskA),
+                                     blend32(srcR, dstR, maskR),
+                                     blend32(srcG, dstG, maskG),
+                                     blend32(srcB, dstB, maskB));
     }
 }
 
