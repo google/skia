@@ -258,11 +258,21 @@ void SkPictureRecord::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
 }
 
 void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
-                              const SkPaint* paint) {
+                                       const SkPaint* paint) {
     addDraw(DRAW_BITMAP_MATRIX);
     addPaintPtr(paint);
     addBitmap(bitmap);
     addMatrix(matrix);
+    validate();
+}
+
+void SkPictureRecord::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                     const SkRect& dst, const SkPaint* paint) {
+    addDraw(DRAW_BITMAP_NINE);
+    addPaintPtr(paint);
+    addBitmap(bitmap);
+    addIRect(center);
+    addRect(dst);
     validate();
 }
 
@@ -536,6 +546,10 @@ void SkPictureRecord::addRectPtr(const SkRect* rect) {
     if (fWriter.writeBool(rect != NULL)) {
         fWriter.writeRect(*rect);
     }
+}
+
+void SkPictureRecord::addIRect(const SkIRect& rect) {
+    fWriter.write(&rect, sizeof(rect));
 }
 
 void SkPictureRecord::addIRectPtr(const SkIRect* rect) {

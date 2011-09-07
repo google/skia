@@ -489,6 +489,10 @@ struct SkipClipRec {
 };
 #endif
 
+static const SkIRect* skipIRect(SkReader32& reader) {
+    return (const SkIRect*)reader.skip(sizeof(SkIRect));
+}
+
 void SkPicturePlayback::draw(SkCanvas& canvas) {
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
@@ -561,6 +565,13 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 const SkBitmap& bitmap = getBitmap();
                 const SkMatrix* matrix = getMatrix();
                 canvas.drawBitmapMatrix(bitmap, *matrix, paint);
+            } break;
+            case DRAW_BITMAP_NINE: {
+                const SkPaint* paint = getPaint();
+                const SkBitmap& bitmap = getBitmap();
+                const SkIRect* src = skipIRect(fReader);
+                const SkRect* dst = fReader.skipRect();
+                canvas.drawBitmapNine(bitmap, *src, *dst, paint);
             } break;
             case DRAW_CLEAR:
                 canvas.clear(getInt());
