@@ -351,18 +351,9 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
     GrAssert(GrDrawTarget::kBoth_DrawFace == fTarget->getDrawFace());
 
     GrMatrix viewM = fTarget->getViewMatrix();
-    // In order to tesselate the path we get a bound on how much the matrix can
-    // stretch when mapping to screen coordinates.
-    GrScalar stretch = viewM.getMaxStretch();
-    bool useStretch = stretch > 0;
-    GrScalar tol = fCurveTolerance;
 
-    if (!useStretch) {
-        // TODO: deal with perspective in some better way.
-        tol /= 10;
-    } else {
-        tol = GrScalarDiv(tol, stretch);
-    }
+    GrScalar tol = GR_Scalar1;
+    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM);
     GrScalar tolSqd = GrMul(tol, tol);
 
     int subpathCnt;

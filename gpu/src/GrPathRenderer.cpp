@@ -9,8 +9,7 @@
 #include "GrPathRenderer.h"
 
 GrPathRenderer::GrPathRenderer()
-    : fCurveTolerance (GR_Scalar1)
-    , fPath(NULL)
+    : fPath(NULL)
     , fTarget(NULL) {
 }
 

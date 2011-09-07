@@ -374,18 +374,9 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                                        bool stencilOnly) {
 
     GrMatrix viewM = fTarget->getViewMatrix();
-    // In order to tesselate the path we get a bound on how much the matrix can
-    // stretch when mapping to screen coordinates.
-    GrScalar stretch = viewM.getMaxStretch();
-    bool useStretch = stretch > 0;
-    GrScalar tol = fCurveTolerance;
+    GrScalar tol = GR_Scalar1;
+    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM);
 
-    if (!useStretch) {
-        // TODO: deal with perspective in some better way.
-        tol /= 10;
-    } else {
-        tol = GrScalarDiv(tol, stretch);
-    }
     // FIXME: It's really dumb that we recreate the verts for a new vertex
     // layout. We only do that because the GrDrawTarget API doesn't allow
     // us to change the vertex layout after reserveVertexSpace(). We won't

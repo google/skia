@@ -36,8 +36,8 @@ public:
      * This is called to install custom path renderers in every GrContext at
      * create time. The default implementation in GrCreatePathRenderer_none.cpp
      * does not add any additional renderers. Link against another
-     * implementation to install your own. The most recently added is the
-     * most preferred path renderer.
+     * implementation to install your own. The first added is the most preferred
+     * path renderer, second is second most preferred, etc.
      *
      * @param context   the context that will use the path renderer
      * @param flags     flags indicating how path renderers will be used
@@ -170,16 +170,6 @@ public:
     }
 
     /**
-     * Multiply curve tolerance by the given value, increasing or decreasing
-     * the maximum error permitted in tesselating curves with short straight
-     * line segments.
-     */
-    void scaleCurveTolerance(GrScalar multiplier) {
-        GrAssert(multiplier > 0);
-        fCurveTolerance = SkScalarMul(fCurveTolerance, multiplier);
-    }
-
-    /**
      * Helper that sets a path and automatically remove it in destructor.
      */
     class AutoClearPath {
@@ -224,7 +214,6 @@ protected:
     virtual void pathWasSet() {}
     virtual void pathWillClear() {}
 
-    GrScalar fCurveTolerance;
     const SkPath*               fPath;
     GrDrawTarget*               fTarget;
     GrPathFill                  fFill;

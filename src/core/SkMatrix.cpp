@@ -1674,10 +1674,6 @@ bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[],
 SkScalar SkMatrix::getMaxStretch() const {
     TypeMask mask = this->getType();
 
-    if (mask & kPerspective_Mask) {
-        return -SK_Scalar1;
-    }
-    
     SkScalar stretch;
     
     if (this->isIdentity()) {
@@ -1702,7 +1698,8 @@ SkScalar SkMatrix::getMaxStretch() const {
         // and roots are guaraunteed to be pos and real).
         SkScalar largerRoot;
         SkScalar bSqd = SkScalarMul(b,b);
-        if (bSqd <= SkFloatToScalar(1e-10)) { // will be true if upper left 2x2 is orthogonal, which is common, so save some math
+        // if upper left 2x2 is orthogonal save some math
+        if (bSqd <= SK_ScalarNearlyZero) {
             largerRoot = SkMaxScalar(a, c);
         } else {
             SkScalar aminusc = a - c;
@@ -1710,8 +1707,17 @@ SkScalar SkMatrix::getMaxStretch() const {
             SkScalar x = SkScalarSqrt(SkScalarMul(aminusc, aminusc) + 4 * bSqd) / 2;
             largerRoot = apluscdiv2 + x;
         }
-        
         stretch = SkScalarSqrt(largerRoot);
+        if (mask & kPerspective_Mask) {
+            stretch = -stretch;
+            if (fMat[kMPersp2] != kMatrix22Elem) {
+#if defined(SK_SCALAR_IS_FLOAT)
+                stretch /= fMat[kMPersp2];
+#else
+                stretch = SkFractDiv(stretch, fMat[kMPersp2]);
+#endif
+            }
+        }
     }
 #if defined(SK_DEBUG) && 0
     // test a bunch of vectors. None should be scaled by more than stretch
