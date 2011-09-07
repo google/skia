@@ -28,11 +28,6 @@ protected:
 
 
     virtual void onDrawContent(SkCanvas* canvas) {
-        SkMatrix m;
-        m.reset();
-        m.setPerspX(0.00020);
-        canvas->concat(m);
-
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -43,7 +38,6 @@ protected:
         SkPath curves;
         SkPath hulls;
         SkPath ctrlPts;
-
         for (int i = 0; i < 100; ++i) {
             SkScalar pts[] = {
                 rand.nextUScalar1(), rand.nextUScalar1(),
