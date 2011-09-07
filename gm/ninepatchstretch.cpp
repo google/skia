@@ -8,7 +8,6 @@
 #include "gm.h"
 
 #include "SkGpuDevice.h"
-#include "SkNinePatch.h"
 
 static void make_bitmap(SkBitmap* bitmap, GrContext* ctx, SkIRect* center) {
     SkDevice* dev;
@@ -66,14 +65,6 @@ protected:
         return make_isize(400, 400);
     }
 
-    static void drawNine(SkCanvas* canvas, const SkRect& dst, const SkBitmap& bm,
-                         const SkIRect& center, const SkPaint* paint) {
-        SkIRect margin;
-        margin.set(center.fLeft, center.fTop, bm.width() - center.fRight,
-                   bm.height() - center.fBottom);
-        SkNinePatch::DrawNine(canvas, dst, bm, margin, paint);
-    }
-    
     virtual void onDraw(SkCanvas* canvas) {
         canvas->drawColor(SK_ColorWHITE);
 
@@ -104,7 +95,7 @@ protected:
                 int i = ix * 2 + iy;
                 SkRect r = SkRect::MakeXYWH(x + ix * fixed, y + iy * fixed,
                                             size[i].width(), size[i].height());
-                drawNine(canvas, r, bm, center, &paint);
+                canvas->drawBitmapNine(bm, center, r, &paint);
             }
         }
     }

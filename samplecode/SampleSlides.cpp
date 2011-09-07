@@ -314,7 +314,6 @@ static void textonpath_slide(SkCanvas* canvas) {
 #include "SkOSFile.h"
 #include "SkRandom.h"
 #include "SkStream.h"
-#include "SkNinePatch.h"
 
 static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;

@@ -7,7 +7,6 @@
  */
 #include "SampleCode.h"
 #include "SkCanvas.h"
-#include "SkNinePatch.h"
 #include "SkPaint.h"
 #include "SkGpuDevice.h"
 
@@ -65,14 +64,6 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    static void drawNine(SkCanvas* canvas, const SkRect& dst, const SkBitmap& bm,
-                         const SkIRect& center, const SkPaint* paint) {
-        SkIRect margin;
-        margin.set(center.fLeft, center.fTop, bm.width() - center.fRight,
-                   bm.height() - center.fBottom);
-        SkNinePatch::DrawNine(canvas, dst, bm, margin, paint);
-    }
-
     virtual void onDrawContent(SkCanvas* canvas) {
         SkBitmap bm;
         SkIRect center;
@@ -101,7 +92,7 @@ protected:
                 int i = ix * 2 + iy;
                 SkRect r = SkRect::MakeXYWH(x + ix * fixed, y + iy * fixed,
                                             size[i].width(), size[i].height());
-                drawNine(canvas, r, bm, center, &paint);
+                canvas->drawBitmapNine(bm, center, r, &paint);
             }
         }
     }

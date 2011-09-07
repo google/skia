@@ -24,7 +24,6 @@
 
 #include "SkOSFile.h"
 #include "SkStream.h"
-#include "SkNinePatch.h"
 
 static SkShader* make_shader0(SkIPoint* size) {
     SkBitmap    bm;
