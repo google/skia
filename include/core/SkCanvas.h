@@ -542,6 +542,23 @@ public:
     virtual void drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m,
                                   const SkPaint* paint = NULL);
 
+    /**
+     *  Draw the bitmap stretched differentially to fit into dst.
+     *  center is a rect within the bitmap, and logically divides the bitmap
+     *  into 9 sections (3x3). For example, if the middle pixel of a [5x5]
+     *  bitmap is the "center", then the center-rect should be [2, 2, 3, 3].
+     *
+     *  If the dst is >= the bitmap size, then...
+     *  - The 4 corners are not stretch at all.
+     *  - The sides are stretch in only one axis.
+     *  - The center is stretch in both axes.
+     * Else, for each axis where dst < bitmap,
+     *  - The corners shrink proportionally
+     *  - The sides (along the shrink axis) and center are not drawn
+     */
+    virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                const SkRect& dst, const SkPaint* paint = NULL);
+
     /** Draw the specified bitmap, with its top/left corner at (x,y),
         NOT transformed by the current matrix. Note: if the paint
         contains a maskfilter that generates a mask which extends beyond the
@@ -810,8 +827,16 @@ private:
                                 bool isOpaque);
 
     SkDevice* init(SkDevice*);
+
+    // internal methods are not virtual, so they can safely be called by other
+    // canvas apis, without confusing subclasses (like SkPictureRecording)
     void internalDrawBitmap(const SkBitmap&, const SkIRect*, const SkMatrix& m,
                                   const SkPaint* paint);
+    void internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
+                                const SkRect& dst, const SkPaint* paint);
+    void internalDrawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                const SkRect& dst, const SkPaint* paint);
+        
     void drawDevice(SkDevice*, int x, int y, const SkPaint*);
     // shared by save() and saveLayer()
     int internalSave(SaveFlags flags);

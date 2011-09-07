@@ -46,6 +46,8 @@ public:
                                 const SkRect& dst, const SkPaint*);
     virtual void drawBitmapMatrix(const SkBitmap&, const SkMatrix&,
                                   const SkPaint*);
+    virtual void drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                                const SkRect& dst, const SkPaint*);
     virtual void drawSprite(const SkBitmap&, int left, int top,
                             const SkPaint*);
     virtual void drawText(const void* text, size_t byteLength, SkScalar x, 
@@ -116,6 +118,7 @@ private:
     void addPoints(const SkPoint pts[], int count);
     void addRect(const SkRect& rect);
     void addRectPtr(const SkRect* rect);
+    void addIRect(const SkIRect& rect);
     void addIRectPtr(const SkIRect* rect);
     void addRegion(const SkRegion& region);
     void addText(const void* text, size_t byteLength);
