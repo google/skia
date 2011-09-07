@@ -489,10 +489,6 @@ struct SkipClipRec {
 };
 #endif
 
-static const SkIRect* skipIRect(SkReader32& reader) {
-    return (const SkIRect*)reader.skip(sizeof(SkIRect));
-}
-
 void SkPicturePlayback::draw(SkCanvas& canvas) {
 #ifdef ENABLE_TIME_DRAW
     SkAutoTime  at("SkPicture::draw", 50);
@@ -534,10 +530,10 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
                 }
             } break;
             case CLIP_RECT: {
-                const SkRect* rect = fReader.skipRect();
+                const SkRect& rect = fReader.skipT<SkRect>();
                 SkRegion::Op op = (SkRegion::Op) getInt();
                 size_t offsetToRestore = getInt();
-                if (!canvas.clipRect(*rect, op) && offsetToRestore) {
+                if (!canvas.clipRect(rect, op) && offsetToRestore) {
 #ifdef SPEW_CLIP_SKIPPING
                     skipRect.recordSkip(offsetToRestore - fReader.offset());
 #endif
@@ -550,15 +546,15 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             case DRAW_BITMAP: {
                 const SkPaint* paint = getPaint();
                 const SkBitmap& bitmap = getBitmap();
-                const SkPoint* loc = fReader.skipPoint();
-                canvas.drawBitmap(bitmap, loc->fX, loc->fY, paint);
+                const SkPoint& loc = fReader.skipT<SkPoint>();
+                canvas.drawBitmap(bitmap, loc.fX, loc.fY, paint);
             } break;
             case DRAW_BITMAP_RECT: {
                 const SkPaint* paint = getPaint();
                 const SkBitmap& bitmap = getBitmap();
                 const SkIRect* src = this->getIRectPtr();   // may be null
-                const SkRect* dst = fReader.skipRect();     // required
-                canvas.drawBitmapRect(bitmap, src, *dst, paint);
+                const SkRect& dst = fReader.skipT<SkRect>();     // required
+                canvas.drawBitmapRect(bitmap, src, dst, paint);
             } break;
             case DRAW_BITMAP_MATRIX: {
                 const SkPaint* paint = getPaint();
@@ -569,9 +565,9 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             case DRAW_BITMAP_NINE: {
                 const SkPaint* paint = getPaint();
                 const SkBitmap& bitmap = getBitmap();
-                const SkIRect* src = skipIRect(fReader);
-                const SkRect* dst = fReader.skipRect();
-                canvas.drawBitmapNine(bitmap, *src, *dst, paint);
+                const SkIRect& src = fReader.skipT<SkIRect>();
+                const SkRect& dst = fReader.skipT<SkRect>();
+                canvas.drawBitmapNine(bitmap, src, dst, paint);
             } break;
             case DRAW_CLEAR:
                 canvas.clear(getInt());
@@ -629,7 +625,7 @@ void SkPicturePlayback::draw(SkCanvas& canvas) {
             } break;
             case DRAW_RECT: {
                 const SkPaint& paint = *getPaint();
-                canvas.drawRect(*fReader.skipRect(), paint);
+                canvas.drawRect(fReader.skipT<SkRect>(), paint);
             } break;
             case DRAW_SPRITE: {
                 const SkPaint* paint = getPaint();
