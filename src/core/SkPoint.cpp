@@ -100,16 +100,21 @@ SkScalar SkPoint::Normalize(SkPoint* pt) {
 
 #ifdef SK_SCALAR_IS_FLOAT
 
+bool SkPoint::CanNormalize(SkScalar dx, SkScalar dy) {
+    float mag2 = dx * dx + dy * dy;
+    return mag2 > SK_ScalarNearlyZero * SK_ScalarNearlyZero;
+}
+
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
     return sk_float_sqrt(dx * dx + dy * dy);
 }
 
 bool SkPoint::setLength(float x, float y, float length) {
-    float mag = sk_float_sqrt(x * x + y * y);
-    if (mag > SK_ScalarNearlyZero) {
-        length /= mag;
-        fX = x * length;
-        fY = y * length;
+    float mag2 = x * x + y * y;
+    if (mag2 > SK_ScalarNearlyZero * SK_ScalarNearlyZero) {
+        float scale = length / sk_float_sqrt(mag2);
+        fX = x * scale;
+        fY = y * scale;
         return true;
     }
     return false;
@@ -118,6 +123,23 @@ bool SkPoint::setLength(float x, float y, float length) {
 #else
 
 #include "Sk64.h"
+
+bool SkPoint::CanNormalize(SkScalar dx, SkScalar dy) {
+    Sk64    tmp1, tmp2, tolSqr;
+    
+    tmp1.setMul(dx, dx);
+    tmp2.setMul(dy, dy);
+    tmp1.add(tmp2);
+
+    // we want nearlyzero^2, but to compute it fast we want to just do a
+    // 32bit multiply, so we require that it not exceed 31bits. That is true
+    // if nearlyzero is <= 0xB504, which should be trivial, since usually
+    // nearlyzero is a very small fixed-point value.
+    SkASSERT(SK_ScalarNearlyZero <= 0xB504);
+
+    tolSqr.set(0, SK_ScalarNearlyZero * SK_ScalarNearlyZero);
+    return tmp1 > tolSqr;
+}
 
 SkScalar SkPoint::Length(SkScalar dx, SkScalar dy) {
     Sk64    tmp1, tmp2;

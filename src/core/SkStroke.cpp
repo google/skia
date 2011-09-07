@@ -15,7 +15,7 @@
 #define kMaxCubicSubdivide  4
 
 static inline bool degenerate_vector(const SkVector& v) {
-    return SkScalarNearlyZero(v.fX) && SkScalarNearlyZero(v.fY);
+    return !SkPoint::CanNormalize(v.fX, v.fY);
 }
 
 static inline bool degenerate_line(const SkPoint& a, const SkPoint& b,
