@@ -8,10 +8,27 @@
 
 
 #include "GrPathUtils.h"
+
 #include "GrPoint.h"
 
+GrScalar GrPathUtils::scaleToleranceToSrc(GrScalar devTol,
+                                          const GrMatrix& viewM) {
+    // In order to tesselate the path we get a bound on how much the matrix can
+    // stretch when mapping to screen coordinates.
+    GrScalar stretch = viewM.getMaxStretch();
+    GrScalar srcTol = devTol;
+
+    if (stretch < 0) {
+        // TODO: deal with perspective in some better way.
+        srcTol /= 5;
+        stretch = -stretch;
+    }
+    srcTol = GrScalarDiv(srcTol, stretch);
+    return srcTol;
+}
+
 static const int MAX_POINTS_PER_CURVE = 1 << 10;
-const GrScalar GrPathUtils::gMinCurveTol (GrFloatToScalar(0.0001f));
+static const GrScalar gMinCurveTol = GrFloatToScalar(0.0001f);
 
 uint32_t GrPathUtils::quadraticPointCount(const GrPoint points[],
                                           GrScalar tol) {

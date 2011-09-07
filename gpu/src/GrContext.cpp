@@ -692,11 +692,6 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
         GR_STATIC_ASSERT(4 == OFFSCREEN_SSAA_SCALE);
         desc.fAALevel = kNone_GrAALevel;
     }
-    // Avoid overtesselating paths in AA buffers; may unduly reduce quality
-    // of simple circles?
-    if (pr) {
-        //pr->scaleCurveTolerance(GrIntToScalar(record->fScale));
-    }
     
     desc.fWidth *= record->fScale;
     desc.fHeight *= record->fScale;
@@ -881,10 +876,6 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
 void GrContext::cleanupOffscreenAA(GrDrawTarget* target,
                                    GrPathRenderer* pr,
                                    OffscreenRecord* record) {
-    if (pr) {
-        // Counterpart of scale() in prepareForOffscreenAA()
-        //pr->scaleCurveTolerance(SkScalarInvert(SkIntToScalar(record->fScale)));
-    }
     target->restoreDrawState(record->fSavedState);
 }
 

@@ -501,10 +501,12 @@ public:
     void toDumpString(SkString*) const;
 
     /**
-     * Calculates the maximum stretching factor of the matrix. Only defined if
-     * the matrix does not have perspective.
+     * Calculates the maximum stretching factor of the matrix. If the matrix has
+     * perspective the max stretch at the origin (in the pre-matrix space) is
+     * computed and returned as a negative.
      *
-     * @return maximum strecthing factor or negative if matrix has perspective.
+     * @return maximum strecthing factor or negative max stretching factor at
+     * the origin if matrix has perspective.
      */
     SkScalar getMaxStretch() const;
 
