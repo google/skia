@@ -1273,19 +1273,20 @@ void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
     this->internalDrawBitmap(bitmap, NULL, matrix, paint);
 }
 
-void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
-                              const SkRect& dst, const SkPaint* paint) {
+// this one is non-virtual, so it can be called safely by other canvas apis
+void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
+                                      const SkRect& dst, const SkPaint* paint) {
     if (bitmap.width() == 0 || bitmap.height() == 0 || dst.isEmpty()) {
         return;
     }
-
+    
     // do this now, to avoid the cost of calling extract for RLE bitmaps
     if (this->quickReject(dst, paint2EdgeType(paint))) {
         return;
     }
-
+    
     const SkBitmap* bitmapPtr = &bitmap;
-
+    
     SkMatrix matrix;
     SkRect tmpSrc;
     if (src) {
@@ -1305,7 +1306,7 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
                    SkIntToScalar(bitmap.height()));
     }
     matrix.setRectToRect(tmpSrc, dst, SkMatrix::kFill_ScaleToFit);
-
+    
     // ensure that src is "valid" before we pass it to our internal routines
     // and to SkDevice. i.e. sure it is contained inside the original bitmap.
     SkIRect tmpISrc;
@@ -1317,6 +1318,12 @@ void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
         src = &tmpISrc;
     }
     this->internalDrawBitmap(*bitmapPtr, src, matrix, paint);
+}
+
+void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
+                              const SkRect& dst, const SkPaint* paint) {
+    SkDEBUGCODE(bitmap.validate();)
+    this->internalDrawBitmapRect(bitmap, src, dst, paint);
 }
 
 void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
@@ -1336,6 +1343,65 @@ void SkCanvas::commonDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect,
     }
 
     LOOPER_END
+}
+
+void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
+                                      const SkIRect& center, const SkRect& dst,
+                                      const SkPaint* paint) {
+    const int32_t w = bitmap.width();
+    const int32_t h = bitmap.height();
+
+    SkIRect c = center;
+    // pin center to the bounds of the bitmap
+    c.fLeft = SkMax32(0, center.fLeft);
+    c.fTop = SkMax32(0, center.fTop);
+    c.fRight = SkPin32(center.fRight, c.fLeft, w);
+    c.fBottom = SkPin32(center.fBottom, c.fTop, h);
+
+    const int32_t srcX[4] = { 0, c.fLeft, c.fRight, w };
+    const int32_t srcY[4] = { 0, c.fTop, c.fBottom, h };
+    SkScalar dstX[4] = {
+        dst.fLeft, dst.fLeft + SkIntToScalar(c.fLeft),
+        dst.fRight - SkIntToScalar(w - c.fRight), dst.fRight
+    };
+    SkScalar dstY[4] = {
+        dst.fTop, dst.fTop + SkIntToScalar(c.fTop),
+        dst.fBottom - SkIntToScalar(h - c.fBottom), dst.fBottom
+    };
+    
+    if (dstX[1] > dstX[2]) {
+        dstX[1] = dstX[0] + (dstX[3] - dstX[0]) * c.fLeft / (w - c.width());
+        dstX[2] = dstX[1];
+    }
+    
+    if (dstY[1] > dstY[2]) {
+        dstY[1] = dstY[0] + (dstY[3] - dstY[0]) * c.fTop / (h - c.height());
+        dstY[2] = dstY[1];
+    }
+    
+    SkIRect s;
+    SkRect  d;
+    for (int y = 0; y < 3; y++) {
+        s.fTop = srcY[y];
+        s.fBottom = srcY[y+1];
+        d.fTop = dstY[y];
+        d.fBottom = dstY[y+1];
+        for (int x = 0; x < 3; x++) {
+            s.fLeft = srcX[x];
+            s.fRight = srcX[x+1];
+            d.fLeft = dstX[x];
+            d.fRight = dstX[x+1];
+            this->internalDrawBitmapRect(bitmap, &s, d, paint);
+        }
+    }
+}
+
+void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
+                              const SkRect& dst, const SkPaint* paint) {
+    SkDEBUGCODE(bitmap.validate();)
+
+    // Need a device entry-point, so gpu can use a mesh
+    this->internalDrawBitmapNine(bitmap, center, dst, paint);
 }
 
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
