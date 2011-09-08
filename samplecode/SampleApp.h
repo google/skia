@@ -141,6 +141,8 @@ private:
     bool fRepeatDrawing;
     bool fAnimating;
     bool fRotate;
+    bool fPerspAnim;
+    SkScalar fPerspAnimTime;
     bool fScale;
     bool fRequestGrabImage;
     bool fMeasureFPS;

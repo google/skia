@@ -432,6 +432,8 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     fRepeatDrawing = false;
     fAnimating = false;
     fRotate = false;
+    fPerspAnim = false;
+    fPerspAnimTime = 0;
     fScale = false;
     fRequestGrabImage = false;
     fUsePipe = false;
@@ -615,8 +617,14 @@ void SampleWindow::draw(SkCanvas* canvas) {
         return;
     }
     // update the animation time
-    gAnimTimePrev = gAnimTime;
-    gAnimTime = SkTime::GetMSecs();
+    if (!gAnimTimePrev && !gAnimTime) {
+        // first time make delta be 0
+        gAnimTime = SkTime::GetMSecs();
+        gAnimTimePrev = gAnimTime;
+    } else {
+        gAnimTimePrev = gAnimTime;
+        gAnimTime = SkTime::GetMSecs();
+    }
 
     SkScalar cx = fZoomCenterX;
     SkScalar cy = fZoomCenterY;
@@ -1023,6 +1031,22 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         canvas->rotate(SkIntToScalar(30));
         canvas->translate(-cx, -cy);
     }
+    if (fPerspAnim) {
+        fPerspAnimTime += SampleCode::GetAnimSecondsDelta();
+
+        static const SkScalar gAnimPeriod = 10 * SK_Scalar1;
+        static const SkScalar gAnimMag = SK_Scalar1 / 1000;
+        SkScalar t = SkScalarMod(fPerspAnimTime, gAnimPeriod);
+        if (SkScalarFloorToInt(SkScalarDiv(fPerspAnimTime, gAnimPeriod)) & 0x1) {
+            t = gAnimPeriod - t;
+        }
+        t = 2 * t - gAnimPeriod;
+        t = SkScalarMul(SkScalarDiv(t, gAnimPeriod), gAnimMag);
+        SkMatrix m;
+        m.reset();
+        m.setPerspY(t);
+        canvas->concat(m);
+    }
 
     canvas->setDrawFilter(new FlagsDrawFilter(fLCDState, fAAState,
                                        fFilterState, fHintingState))->unref();
@@ -1034,6 +1058,9 @@ void SampleWindow::beforeChild(SkView* child, SkCanvas* canvas) {
         }
     } else {
         (void)SampleView::SetRepeatDraw(child, 1);
+    }
+    if (fPerspAnim) {
+        this->inval(NULL);
     }
     //(void)SampleView::SetUsePipe(child, fUsePipe);
 }
@@ -1302,6 +1329,11 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             this->updateTitle();
             return true;
+        case 'k':
+            fPerspAnim = !fPerspAnim;
+            this->inval(NULL);
+            this->updateTitle();
+            return true;
         case 's':
             fScale = !fScale;
             this->inval(NULL);
@@ -1554,6 +1586,9 @@ void SampleWindow::updateTitle() {
     }
     if (fNClip) {
         title.prepend("<C> ");
+    }
+    if (fPerspAnim) {
+        title.prepend("<K> ");
     }
 
     title.prepend(trystate_str(fLCDState, "LCD ", "lcd "));
