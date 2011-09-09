@@ -502,11 +502,9 @@ public:
 
     /**
      * Calculates the maximum stretching factor of the matrix. If the matrix has
-     * perspective the max stretch at the origin (in the pre-matrix space) is
-     * computed and returned as a negative.
+     * perspective -1 is returned.
      *
-     * @return maximum strecthing factor or negative max stretching factor at
-     * the origin if matrix has perspective.
+     * @return maximum strecthing factor
      */
     SkScalar getMaxStretch() const;
 

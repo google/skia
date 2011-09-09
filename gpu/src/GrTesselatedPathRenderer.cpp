@@ -353,7 +353,7 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
     GrMatrix viewM = fTarget->getViewMatrix();
 
     GrScalar tol = GR_Scalar1;
-    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM);
+    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, fPath->getBounds());
     GrScalar tolSqd = GrMul(tol, tol);
 
     int subpathCnt;

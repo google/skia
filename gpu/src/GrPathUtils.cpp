@@ -12,16 +12,23 @@
 #include "GrPoint.h"
 
 GrScalar GrPathUtils::scaleToleranceToSrc(GrScalar devTol,
-                                          const GrMatrix& viewM) {
+                                          const GrMatrix& viewM,
+                                          const GrRect& pathBounds) {
     // In order to tesselate the path we get a bound on how much the matrix can
     // stretch when mapping to screen coordinates.
     GrScalar stretch = viewM.getMaxStretch();
     GrScalar srcTol = devTol;
 
     if (stretch < 0) {
-        // TODO: deal with perspective in some better way.
-        srcTol /= 5;
-        stretch = -stretch;
+        // take worst case mapRadius amoung four corners.
+        // (less than perfect)
+        for (int i = 0; i < 4; ++i) {
+            GrMatrix mat;
+            mat.setTranslate((i % 2) ? pathBounds.fLeft : pathBounds.fRight,
+                             (i < 2) ? pathBounds.fTop : pathBounds.fBottom);
+            mat.postConcat(viewM);
+            stretch = SkMaxScalar(stretch, mat.mapRadius(SK_Scalar1));
+        }
     }
     srcTol = GrScalarDiv(srcTol, stretch);
     return srcTol;
