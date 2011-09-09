@@ -269,7 +269,132 @@ static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
     }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////
+
+static int alignTo32(int n) {
+    return (n + 31) & ~31;
+}
+
+struct MyBitmapInfo : public BITMAPINFO {
+    RGBQUAD fMoreSpaceForColors[1];
+};
+
+class HDCOffscreen {
+public:
+    HDCOffscreen() {
+        fFont = 0;
+        fDC = 0;
+        fBM = 0;
+        fBits = NULL;
+        fWidth = fHeight = 0;
+        fIsBW = false;
+    }
+
+    ~HDCOffscreen() {
+        if (fDC) {
+            DeleteDC(fDC);
+        }
+        if (fBM) {
+            DeleteObject(fBM);
+        }
+    }
+
+    void init(HFONT font, const XFORM& xform) {
+        fFont = font;
+        fXform = xform;
+    }
+
+    const void* draw(const SkGlyph&, bool isBW, size_t* srcRBPtr);
+
+private:
+    HDC     fDC;
+    HBITMAP fBM;
+    HFONT   fFont;
+    XFORM   fXform;
+    void*   fBits;  // points into fBM
+    int     fWidth;
+    int     fHeight;
+    bool    fIsBW;
+};
+
+const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW, size_t* srcRBPtr) {
+    if (0 == fDC) {
+        fDC = CreateCompatibleDC(0);
+        if (0 == fDC) {
+            return NULL;
+        }
+        SetGraphicsMode(fDC, GM_ADVANCED);
+        SetBkMode(fDC, TRANSPARENT);
+        SetTextAlign(fDC, TA_LEFT | TA_BASELINE);
+        SelectObject(fDC, fFont);
+        COLORREF color = SetTextColor(fDC, fIsBW ? 0xFFFFFF : 0);
+        SkASSERT(color != CLR_INVALID);
+    }
+
+    if (fBM && (fIsBW != isBW || fWidth < glyph.fWidth || fHeight < glyph.fHeight)) {
+        DeleteObject(fBM);
+        fBM = 0;
+    }
+
+    if (fIsBW != isBW) {
+        fIsBW = isBW;
+        COLORREF color = SetTextColor(fDC, fIsBW ? 0xFFFFFF : 0);
+        SkASSERT(color != CLR_INVALID);
+    }
+    fWidth = SkMax32(fWidth, glyph.fWidth);
+    fHeight = SkMax32(fHeight, glyph.fHeight);
+
+    int biWidth = isBW ? alignTo32(fWidth) : fWidth;
+
+    if (0 == fBM) {
+        MyBitmapInfo info;
+        sk_bzero(&info, sizeof(info));
+        if (isBW) {
+            RGBQUAD blackQuad = { 0, 0, 0, 0 };
+            RGBQUAD whiteQuad = { 0xFF, 0xFF, 0xFF, 0 };
+            info.bmiColors[0] = blackQuad;
+            info.bmiColors[1] = whiteQuad;
+        }
+        info.bmiHeader.biSize = sizeof(info.bmiHeader);
+        info.bmiHeader.biWidth = biWidth;
+        info.bmiHeader.biHeight = fHeight;
+        info.bmiHeader.biPlanes = 1;
+        info.bmiHeader.biBitCount = isBW ? 1 : 32;
+        info.bmiHeader.biCompression = BI_RGB;
+        if (isBW) {
+            info.bmiHeader.biClrUsed = 2;
+        }
+        fBM = CreateDIBSection(fDC, &info, DIB_RGB_COLORS, &fBits, 0, 0);
+        if (0 == fBM) {
+            return NULL;
+        }
+        SelectObject(fDC, fBM);
+    }
+
+    // erase
+    size_t srcRB = isBW ? (biWidth >> 3) : (fWidth << 2);
+    size_t size = fHeight * srcRB;
+    memset(fBits, isBW ? 0 : 0xFF, size);
+
+    XFORM xform = fXform;
+    xform.eDx = (float)-glyph.fLeft;
+    xform.eDy = (float)-glyph.fTop;
+    SetWorldTransform(fDC, &xform);
+
+    uint16_t glyphID = glyph.getGlyphID();
+#if defined(UNICODE)
+    ExtTextOut(fDC, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCWSTR)&glyphID, 1, NULL);
+#else
+    ExtTextOut(fDC, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCSTR)&glyphID, 1, NULL);
+#endif
+    GdiFlush();
+
+    *srcRBPtr = srcRB;
+    // offset to the start of the image
+    return (const char*)fBits + (fHeight - glyph.fHeight) * srcRB;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////
 
 class SkScalerContext_Windows : public SkScalerContext {
 public:
@@ -284,8 +409,9 @@ protected:
     virtual void generateImage(const SkGlyph& glyph);
     virtual void generatePath(const SkGlyph& glyph, SkPath* path);
     virtual void generateFontMetrics(SkPaint::FontMetrics* mX, SkPaint::FontMetrics* mY);
-    //virtual SkDeviceContext getDC() {return ddc;}
+
 private:
+    HDCOffscreen fOffscreen;
     SkScalar     fScale;  // to get from canonical size to real size
     MAT2         fMat22;
     XFORM        fXform;
@@ -382,6 +508,8 @@ SkScalerContext_Windows::SkScalerContext_Windows(const SkDescriptor* desc)
     if (needToRenderWithSkia(fRec)) {
         this->forceGenerateImageFromPath();
     }
+
+    fOffscreen.init(fFont, fXform);
 }
 
 SkScalerContext_Windows::~SkScalerContext_Windows() {
@@ -539,25 +667,12 @@ static inline uint8_t rgb_to_a8(uint32_t rgb) {
 }
 
 static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
+    rgb = ~rgb; // 255 - each component
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
-
-    // invert, since we draw black-on-white, but we want the original
-    // src mask values.
-    r = 255 - r;
-    g = 255 - g;
-    b = 255 - b;
     return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
 }
-
-static int alignTo32(int n) {
-    return (n + 31) & ~31;
-}
-
-struct MyBitmapInfo : public BITMAPINFO {
-    RGBQUAD fMoreSpaceForColors[1];
-};
 
 void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
@@ -567,56 +682,14 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     const bool isAA = !isLCD(fRec);
-    HDC dc = CreateCompatibleDC(0);
-    void* bits = 0;
-    int biWidth = isBW ? alignTo32(glyph.fWidth) : glyph.fWidth;
 
-    MyBitmapInfo info;
-    sk_bzero(&info, sizeof(info));
-    if (isBW) {
-        RGBQUAD blackQuad = { 0, 0, 0, 0 };
-        RGBQUAD whiteQuad = { 0xFF, 0xFF, 0xFF, 0 };
-        info.bmiColors[0] = blackQuad;
-        info.bmiColors[1] = whiteQuad;
+    size_t srcRB;
+    const void* bits = fOffscreen.draw(glyph, isBW, &srcRB);
+    if (!bits) {
+        sk_bzero(glyph.fImage, glyph.computeImageSize());
+        return;
     }
-    info.bmiHeader.biSize = sizeof(info.bmiHeader);
-    info.bmiHeader.biWidth = biWidth;
-    info.bmiHeader.biHeight = glyph.fHeight;
-    info.bmiHeader.biPlanes = 1;
-    info.bmiHeader.biBitCount = isBW ? 1 : 32;
-    info.bmiHeader.biCompression = BI_RGB;
-    if (isBW) {
-        info.bmiHeader.biClrUsed = 2;
-    }
-    HBITMAP bm = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &bits, 0, 0);
-    SelectObject(dc, bm);
 
-    // erase to white
-    size_t srcRB = isBW ? (biWidth >> 3) : (glyph.fWidth << 2);
-    size_t size = glyph.fHeight * srcRB;
-    memset(bits, isBW ? 0 : 0xFF, size);
-
-    SetGraphicsMode(dc, GM_ADVANCED);
-    SetBkMode(dc, TRANSPARENT);
-    SetTextAlign(dc, TA_LEFT | TA_BASELINE);
-
-    XFORM xform = fXform;
-    xform.eDx = (float)-glyph.fLeft;
-    xform.eDy = (float)-glyph.fTop;
-    SetWorldTransform(dc, &xform);
-
-    HGDIOBJ prevFont = SelectObject(dc, fFont);
-    COLORREF color = SetTextColor(dc, isBW ? 0xFFFFFF : 0);
-    SkASSERT(color != CLR_INVALID);
-    uint16_t glyphID = glyph.getGlyphID();
-#if defined(UNICODE)
-    ExtTextOut(dc, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCWSTR)&glyphID, 1, NULL);
-#else
-    ExtTextOut(dc, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCSTR)&glyphID, 1, NULL);
-#endif
-    GdiFlush();
-
-    // downsample from rgba to rgb565
     int width = glyph.fWidth;
     size_t dstRB = glyph.rowBytes();
     if (isBW) {
@@ -651,9 +724,6 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
             dst = (uint16_t*)((char*)dst - dstRB);
         }
     }
-
-    DeleteDC(dc);
-    DeleteObject(bm);
 }
 
 void SkScalerContext_Windows::generatePath(const SkGlyph& glyph, SkPath* path) {
