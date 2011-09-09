@@ -375,7 +375,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
 
     GrMatrix viewM = fTarget->getViewMatrix();
     GrScalar tol = GR_Scalar1;
-    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM);
+    tol = GrPathUtils::scaleToleranceToSrc(tol, viewM, fPath->getBounds());
 
     // FIXME: It's really dumb that we recreate the verts for a new vertex
     // layout. We only do that because the GrDrawTarget API doesn't allow
