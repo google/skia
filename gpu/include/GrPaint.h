@@ -108,6 +108,16 @@ public:
     }
 
     GrPaint(const GrPaint& paint) {
+        for (int i = 0; i < kMaxTextures; ++i) {
+            fTextures[i] = NULL;
+        }
+        for (int i = 0; i < kMaxMasks; ++i) {
+            fMaskTextures[i] = NULL;
+        }
+        *this = paint;
+    }
+
+    GrPaint& operator=(const GrPaint& paint) {
         fSrcBlendCoeff = paint.fSrcBlendCoeff;
         fDstBlendCoeff = paint.fDstBlendCoeff;
         fAntiAlias = paint.fAntiAlias;
@@ -119,15 +129,18 @@ public:
         fColorFilterXfermode = paint.fColorFilterXfermode;
 
         for (int i = 0; i < kMaxTextures; ++i) {
+            GrSafeUnref(fTextures[i]);
             fTextureSamplers[i] = paint.fTextureSamplers[i];
             fTextures[i] = paint.fTextures[i];
             GrSafeRef(fTextures[i]);
         }
         for (int i = 0; i < kMaxMasks; ++i) {
+            GrSafeUnref(fMaskTextures[i]);
             fMaskSamplers[i] = paint.fMaskSamplers[i];
             fMaskTextures[i] = paint.fMaskTextures[i];
             GrSafeRef(fMaskTextures[i]);
         }
+        return *this;
     }
 
     ~GrPaint() {
