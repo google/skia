@@ -30,7 +30,12 @@ public:
 
     /**  Destruct, asserting that the reference count is 1.
     */
-    virtual ~SkRefCnt() { SkASSERT(fRefCnt == 1); }
+    virtual ~SkRefCnt() {
+#ifdef SK_DEBUG
+        SkASSERT(fRefCnt == 1);
+        fRefCnt = 0;    // illegal value, to catch us if we reuse after delete
+#endif
+    }
 
     /** Return the reference count.
     */
