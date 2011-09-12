@@ -338,10 +338,13 @@ void SkGpuDevice::prepareRenderTarget(const SkDraw& draw) {
     }
 }
 
-void SkGpuDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
-                                const SkClipStack& clipStack) {
-    this->INHERITED::setMatrixClip(matrix, clip, clipStack);
-    // We don't need to set them now because the context may not reflect this device.
+void SkGpuDevice::markMatrixDirty() {
+    INHERITED::markMatrixDirty();
+    fNeedPrepareRenderTarget = true;
+}
+
+void SkGpuDevice::markClipDirty() {
+    INHERITED::markClipDirty();
     fNeedPrepareRenderTarget = true;
 }
 
