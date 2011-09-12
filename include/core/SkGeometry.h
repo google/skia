@@ -147,6 +147,7 @@ int SkFindCubicInflections(const SkPoint src[4], SkScalar tValues[2]);
 
 /** Return 1 for no chop, 2 for having chopped the cubic at a single
     inflection point, 3 for having chopped at 2 inflection points.
+    dst will hold the resulting 1, 2, or 3 cubics.
 */
 int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 

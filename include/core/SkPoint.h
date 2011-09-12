@@ -189,6 +189,16 @@ struct SK_API SkPoint {
     }
     void setRectFan(SkScalar l, SkScalar t, SkScalar r, SkScalar b, size_t stride);
 
+    static void Offset(SkPoint points[], int count, const SkPoint& offset) {
+        Offset(points, count, offset.fX, offset.fY);
+    }
+
+    static void Offset(SkPoint points[], int count, SkScalar dx, SkScalar dy) {
+        for (int i = 0; i < count; ++i) {
+            points[i].offset(dx, dy);
+        }
+    }
+
     void offset(SkScalar dx, SkScalar dy) {
         fX += dx;
         fY += dy;

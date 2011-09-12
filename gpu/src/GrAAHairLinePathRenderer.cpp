@@ -3,6 +3,7 @@
 #include "GrContext.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
+#include "GrPathUtils.h"
 #include "SkGeometry.h"
 #include "SkTemplates.h"
 
@@ -116,9 +117,7 @@ bool GrAAHairLinePathRenderer::supportsAA(GrDrawTarget* target,
 bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
                                            const SkPath& path,
                                            GrPathFill fill) const {
-    // TODO: support perspective
-    return kHairLine_PathFill == fill &&
-           !target->getViewMatrix().hasPerspective();
+    return kHairLine_PathFill == fill;
 }
 
 void GrAAHairLinePathRenderer::pathWillClear() {
@@ -145,6 +144,7 @@ typedef GrTArray<int, true> IntArray;
  * We convert cubics to quadratics (for now).
  */
 void convert_noninflect_cubic_to_quads(const SkPoint p[4],
+                                       SkScalar tolScale,
                                        PtArray* quads,
                                        int sublevel = 0) {
     SkVector ab = p[1];
@@ -153,8 +153,9 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     dc -= p[3];
 
     static const SkScalar gLengthScale = 3 * SK_Scalar1 / 2;
-    static const SkScalar gDistanceSqdTol = 2 * SK_Scalar1;
-    static const int kMaxSubdivs = 30;
+    // base tolerance is 2 pixels in dev coords.
+    const SkScalar distanceSqdTol = SkScalarMul(tolScale, 2 * SK_Scalar1);
+    static const int kMaxSubdivs = 10;
 
     ab.scale(gLengthScale);
     dc.scale(gLengthScale);
@@ -165,7 +166,7 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     c1 += dc;
 
     SkScalar dSqd = c0.distanceToSqd(c1);
-    if (sublevel > kMaxSubdivs || dSqd <= gDistanceSqdTol) {
+    if (sublevel > kMaxSubdivs || dSqd <= distanceSqdTol) {
         SkPoint cAvg = c0;
         cAvg += c1;
         cAvg.scale(SK_ScalarHalf);
@@ -180,18 +181,22 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     } else {
         SkPoint choppedPts[7];
         SkChopCubicAtHalf(p, choppedPts);
-        convert_noninflect_cubic_to_quads(choppedPts + 0, quads, sublevel + 1);
-        convert_noninflect_cubic_to_quads(choppedPts + 3, quads, sublevel + 1);
+        convert_noninflect_cubic_to_quads(choppedPts + 0, tolScale, 
+                                          quads, sublevel + 1);
+        convert_noninflect_cubic_to_quads(choppedPts + 3, tolScale,
+                                          quads, sublevel + 1);
     }
 }
 
-void convert_cubic_to_quads(const SkPoint p[4], PtArray* quads) {
+void convert_cubic_to_quads(const SkPoint p[4],
+                            SkScalar tolScale,
+                            PtArray* quads) {
     SkPoint chopped[13];
     int count = SkChopCubicAtInflections(p, chopped);
 
     for (int i = 0; i < count; ++i) {
         SkPoint* cubic = chopped + 3*i;
-        convert_noninflect_cubic_to_quads(cubic, quads);
+        convert_noninflect_cubic_to_quads(cubic, tolScale, quads);
     }
 }
 
@@ -267,74 +272,117 @@ int num_quad_subdivs(const SkPoint p[3]) {
     }
 }
 
-int get_lines_and_quads(const SkPath& path, const SkMatrix& m, GrIRect clip,
-                        PtArray* lines, PtArray* quads,
-                        IntArray* quadSubdivCnts) {
+/**
+ * Generates the lines and quads to be rendered. Lines are always recorded in
+ * device space. We will do a device space bloat to account for the 1pixel
+ * thickness.
+ * Quads are recorded in device space unless m contains
+ * perspective, then in they are in src space. We do this because we will
+ * subdivide large quads to reduce over-fill. This subdivision has to be
+ * performed before applying the perspective matrix.
+ */
+int generate_lines_and_quads(const SkPath& path,
+                             const SkMatrix& m,
+                             const SkVector& translate,
+                             GrIRect clip,
+                             PtArray* lines,
+                             PtArray* quads,
+                             IntArray* quadSubdivCnts) {
     SkPath::Iter iter(path, false);
 
     int totalQuadCount = 0;
     GrRect bounds;
     GrIRect ibounds;
+
+    bool persp = m.hasPerspective();
+
     for (;;) {
         GrPoint pts[4];
+        GrPoint devPts[4];
         GrPathCmd cmd = (GrPathCmd)iter.next(pts);
         switch (cmd) {
             case kMove_PathCmd:
                 break;
             case kLine_PathCmd:
-                m.mapPoints(pts,2);
-                bounds.setBounds(pts, 2);
+                SkPoint::Offset(pts, 2, translate);
+                m.mapPoints(devPts, pts, 2);
+                bounds.setBounds(devPts, 2);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(clip, ibounds)) {
-                    lines->push_back() = pts[0];
-                    lines->push_back() = pts[1];
+                    lines->push_back() = devPts[0];
+                    lines->push_back() = devPts[1];
                 }
                 break;
-            case kQuadratic_PathCmd: {
-                bounds.setBounds(pts, 3);
+            case kQuadratic_PathCmd:
+                SkPoint::Offset(pts, 3, translate);
+                m.mapPoints(devPts, pts, 3);
+                bounds.setBounds(devPts, 3);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(clip, ibounds)) {
-                    m.mapPoints(pts, 3);
-                    int subdiv = num_quad_subdivs(pts);
+                    int subdiv = num_quad_subdivs(devPts);
                     GrAssert(subdiv >= -1);
                     if (-1 == subdiv) {
-                        lines->push_back() = pts[0];
-                        lines->push_back() = pts[1];
-                        lines->push_back() = pts[1];
-                        lines->push_back() = pts[2];
+                        lines->push_back() = devPts[0];
+                        lines->push_back() = devPts[1];
+                        lines->push_back() = devPts[1];
+                        lines->push_back() = devPts[2];
                     } else {
-                        quads->push_back() = pts[0];
-                        quads->push_back() = pts[1];
-                        quads->push_back() = pts[2];
+                        // when in perspective keep quads in src space
+                        SkPoint* qPts = persp ? pts : devPts;
+                        quads->push_back() = qPts[0];
+                        quads->push_back() = qPts[1];
+                        quads->push_back() = qPts[2];
                         quadSubdivCnts->push_back() = subdiv;
                         totalQuadCount += 1 << subdiv;
                     }
                 }
-            } break;
-            case kCubic_PathCmd: {
-                bounds.setBounds(pts, 4);
+            break;
+            case kCubic_PathCmd:
+                SkPoint::Offset(pts, 4, translate);
+                m.mapPoints(devPts, pts, 4);
+                bounds.setBounds(devPts, 4);
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(clip, ibounds)) {
-                    m.mapPoints(pts, 4);
                     SkPoint stackStorage[32];
                     PtArray q((void*)stackStorage, 32);
-                    convert_cubic_to_quads(pts, &q);
+                    // in perspective have to do conversion in src space
+                    if (persp) {
+                        SkScalar tolScale = 
+                            GrPathUtils::scaleToleranceToSrc(SK_Scalar1, m,
+                                                             path.getBounds());
+                        convert_cubic_to_quads(pts, tolScale, &q);
+                    } else {
+                        convert_cubic_to_quads(devPts, SK_Scalar1, &q);
+                    }
                     for (int i = 0; i < q.count(); i += 3) {
-                        bounds.setBounds(&q[i], 3);
+                        SkPoint* qInDevSpace;
+                        // bounds has to be calculated in device space, but q is
+                        // in src space when there is perspective.
+                        if (persp) {
+                            m.mapPoints(devPts, &q[i], 3);
+                            bounds.setBounds(devPts, 3);
+                            qInDevSpace = devPts;
+                        } else {
+                            bounds.setBounds(&q[i], 3);
+                            qInDevSpace = &q[i];
+                        }
                         bounds.outset(SK_Scalar1, SK_Scalar1);
                         bounds.roundOut(&ibounds);
                         if (SkIRect::Intersects(clip, ibounds)) {
-                            int subdiv = num_quad_subdivs(&q[i]);
+                            int subdiv = num_quad_subdivs(qInDevSpace);
                             GrAssert(subdiv >= -1);
                             if (-1 == subdiv) {
-                                lines->push_back() = q[0 + i];
-                                lines->push_back() = q[1 + i];
-                                lines->push_back() = q[1 + i];
-                                lines->push_back() = q[2 + i];
+                                // lines should always be in device coords
+                                lines->push_back() = qInDevSpace[0];
+                                lines->push_back() = qInDevSpace[1];
+                                lines->push_back() = qInDevSpace[1];
+                                lines->push_back() = qInDevSpace[2];
                             } else {
+                                // q is already in src space when there is no
+                                // perspective and dev coords otherwise.
                                 quads->push_back() = q[0 + i];
                                 quads->push_back() = q[1 + i];
                                 quads->push_back() = q[2 + i];
@@ -344,7 +392,7 @@ int get_lines_and_quads(const SkPath& path, const SkMatrix& m, GrIRect clip,
                         }
                     }
                 }
-            } break;
+            break;
             case kClose_PathCmd:
                 break;
             case kEnd_PathCmd:
@@ -387,11 +435,38 @@ void intersect_lines(const SkPoint& ptA, const SkVector& normA,
     result->fY = SkScalarMul(result->fY, wInv);
 }
 
-void bloat_quad(const SkPoint qpts[3], Vertex verts[kVertsPerQuad]) {
+void bloat_quad(const SkPoint qpts[3], const GrMatrix* toDevice,
+                const GrMatrix* toSrc, Vertex verts[kVertsPerQuad]) {
+    GrAssert(!toDevice == !toSrc);
     // original quad is specified by tri a,b,c
-    const SkPoint& a = qpts[0];
-    const SkPoint& b = qpts[1];
-    const SkPoint& c = qpts[2];
+    SkPoint a = qpts[0];
+    SkPoint b = qpts[1];
+    SkPoint c = qpts[2];
+
+    // compute a matrix that goes from device coords to U,V quad params
+    // this should be in the src space, not dev coords, when we have perspective
+    SkMatrix DevToUV;
+    DevToUV.setAll(a.fX,           b.fX,          c.fX,
+                   a.fY,           b.fY,          c.fY,
+                   SK_Scalar1,     SK_Scalar1,    SK_Scalar1);
+    DevToUV.invert(&DevToUV);
+    // can't make this static, no cons :(
+    SkMatrix UVpts;
+    UVpts.setAll(0,                 SK_ScalarHalf,  SK_Scalar1,
+                 0,                 0,              SK_Scalar1,
+                 SK_Scalar1,        SK_Scalar1,     SK_Scalar1);
+    DevToUV.postConcat(UVpts);
+
+    // We really want to avoid perspective matrix muls.
+    // These may wind up really close to zero
+    DevToUV.setPerspX(0);
+    DevToUV.setPerspY(0);
+
+    if (toDevice) {
+        toDevice->mapPoints(&a, 1);
+        toDevice->mapPoints(&b, 1);
+        toDevice->mapPoints(&c, 1);
+    }
     // make a new poly where we replace a and c by a 1-pixel wide edges orthog
     // to edges ab and bc:
     //
@@ -409,24 +484,6 @@ void bloat_quad(const SkPoint qpts[3], Vertex verts[kVertsPerQuad]) {
     Vertex& b0 = verts[2];
     Vertex& c0 = verts[3];
     Vertex& c1 = verts[4];
-
-    // compute a matrix that goes from device coords to U,V quad params
-    SkMatrix DevToUV;
-    DevToUV.setAll(a.fX,           b.fX,          c.fX,
-                   a.fY,           b.fY,          c.fY,
-                   SK_Scalar1,     SK_Scalar1,    SK_Scalar1);
-    DevToUV.invert(&DevToUV);
-    // can't make this static, no cons :(
-    SkMatrix UVpts;
-    UVpts.setAll(0,                 SK_ScalarHalf,  SK_Scalar1,
-                 0,                 0,              SK_Scalar1,
-                 SK_Scalar1,        SK_Scalar1,     SK_Scalar1);
-    DevToUV.postConcat(UVpts);
-
-    // We really want to avoid perspective matrix muls.
-    // These may wind up really close to zero
-    DevToUV.setPerspX(0);
-    DevToUV.setPerspY(0);
 
     SkVector ab = b;
     ab -= a;
@@ -464,27 +521,33 @@ void bloat_quad(const SkPoint qpts[3], Vertex verts[kVertsPerQuad]) {
 
     intersect_lines(a0.fPos, abN, c0.fPos, cbN, &b0.fPos);
 
+    if (toSrc) {
+        toSrc->mapPointsWithStride(&verts[0].fPos, sizeof(Vertex), kVertsPerQuad);
+    }
     DevToUV.mapPointsWithStride(&verts[0].fQuadCoord,
                                 &verts[0].fPos, sizeof(Vertex), kVertsPerQuad);
 }
 
 void add_quads(const SkPoint p[3],
                int subdiv,
+               const GrMatrix* toDevice,
+               const GrMatrix* toSrc,
                Vertex** vert) {
     GrAssert(subdiv >= 0);
     if (subdiv) {
         SkPoint newP[5];
         SkChopQuadAtHalf(p, newP);
-        add_quads(newP + 0, subdiv-1, vert);
-        add_quads(newP + 2, subdiv-1, vert);
+        add_quads(newP + 0, subdiv-1, toDevice, toSrc, vert);
+        add_quads(newP + 2, subdiv-1, toDevice, toSrc, vert);
     } else {
-        bloat_quad(p, *vert);
+        bloat_quad(p, toDevice, toSrc, *vert);
         *vert += kVertsPerQuad;
     }
 }
 
 void add_line(const SkPoint p[2],
               int rtHeight,
+              const SkMatrix* toSrc,
               Vertex** vert) {
     const SkPoint& a = p[0];
     const SkPoint& b = p[1];
@@ -516,6 +579,11 @@ void add_line(const SkPoint p[2],
             (*vert)[i].fLine.fB = normal.fY;
             (*vert)[i].fLine.fC = lineC;
         }
+        if (NULL != toSrc) {
+            toSrc->mapPointsWithStride(&(*vert)->fPos,
+                                       sizeof(Vertex),
+                                       kVertsPerLineSeg);
+        }
     } else {
         // just make it degenerate and likely offscreen
         (*vert)[0].fPos.set(SK_ScalarMax, SK_ScalarMax);
@@ -541,8 +609,12 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
         clip.setLargest();
     }
 
+    // If none of the inputs that affect generation of path geometry have
+    // have changed since last previous path draw then we can reuse the
+    // previous geoemtry.
     if (stages == fPreviousStages &&
         fPreviousViewMatrix == fTarget->getViewMatrix() &&
+        fPreviousTranslate == fTranslate &&
         rtHeight == fPreviousRTHeight &&
         fClipRect == clip) {
         return true;
@@ -556,15 +628,14 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
     }
 
     GrMatrix viewM = fTarget->getViewMatrix();
-    viewM.preTranslate(fTranslate.fX, fTranslate.fY);
 
     GrAlignedSTStorage<128, GrPoint> lineStorage;
     GrAlignedSTStorage<128, GrPoint> quadStorage;
     PtArray lines(&lineStorage);
     PtArray quads(&quadStorage);
     IntArray qSubdivs;
-    fQuadCnt = get_lines_and_quads(*fPath, viewM, clip,
-                                   &lines, &quads, &qSubdivs);
+    fQuadCnt = generate_lines_and_quads(*fPath, viewM, fTranslate, clip,
+                                        &lines, &quads, &qSubdivs);
 
     fLineSegmentCnt = lines.count() / 2;
     int vertCnt = kVertsPerLineSeg * fLineSegmentCnt + kVertsPerQuad * fQuadCnt;
@@ -575,37 +646,52 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
     if (!fTarget->reserveVertexSpace(layout, vertCnt, (void**)&verts)) {
         return false;
     }
+    Vertex* base = verts;
+
+    const GrMatrix* toDevice = NULL;
+    const GrMatrix* toSrc = NULL;
+    GrMatrix ivm;
+
+    if (viewM.hasPerspective()) {
+        if (viewM.invert(&ivm)) {
+            toDevice = &viewM;
+            toSrc = &ivm;
+        }
+    }
 
     for (int i = 0; i < fLineSegmentCnt; ++i) {
-        add_line(&lines[2*i], rtHeight, &verts);
+        add_line(&lines[2*i], rtHeight, toSrc, &verts);
     }
+
     int unsubdivQuadCnt = quads.count() / 3;
     for (int i = 0; i < unsubdivQuadCnt; ++i) {
         GrAssert(qSubdivs[i] >= 0);
-        add_quads(&quads[3*i], qSubdivs[i], &verts);
+        add_quads(&quads[3*i], qSubdivs[i], toDevice, toSrc, &verts);
     }
 
     fPreviousStages = stages;
     fPreviousViewMatrix = fTarget->getViewMatrix();
     fPreviousRTHeight = rtHeight;
     fClipRect = clip;
+    fPreviousTranslate = fTranslate;
     return true;
 }
 
 void GrAAHairLinePathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
-    GrDrawTarget::AutoStateRestore asr(fTarget);
-
-    GrMatrix ivm;
 
     if (!this->createGeom(stages)) {
         return;
     }
 
-    if (fTarget->getViewInverse(&ivm)) {
-        fTarget->preConcatSamplerMatrices(stages, ivm);
+    GrDrawTarget::AutoStateRestore asr;
+    if (!fTarget->getViewMatrix().hasPerspective()) {
+        asr.set(fTarget);
+        GrMatrix ivm;
+        if (fTarget->getViewInverse(&ivm)) {
+            fTarget->preConcatSamplerMatrices(stages, ivm);
+        }
+        fTarget->setViewMatrix(GrMatrix::I());
     }
-
-    fTarget->setViewMatrix(GrMatrix::I());
 
     // TODO: See whether rendering lines as degenerate quads improves perf
     // when we have a mix

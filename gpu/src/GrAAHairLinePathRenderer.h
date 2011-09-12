@@ -47,6 +47,7 @@ private:
     // have to recreate geometry if stages in use changes :(
     GrDrawTarget::StageBitfield fPreviousStages;
     int                         fPreviousRTHeight;
+    SkVector                    fPreviousTranslate;
     GrIRect                     fClipRect;
 
     // this path renderer draws everything in device coordinates
