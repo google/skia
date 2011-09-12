@@ -645,6 +645,7 @@ private:
  */
 class GrAutoMatrix : GrNoncopyable {
 public:
+    GrAutoMatrix() : fContext(NULL) {}
     GrAutoMatrix(GrContext* ctx) : fContext(ctx) {
         fMatrix = ctx->getMatrix();
     }
@@ -652,8 +653,25 @@ public:
         fMatrix = ctx->getMatrix();
         ctx->setMatrix(matrix);
     }
+    void set(GrContext* ctx) {
+        if (NULL != fContext) {
+            fContext->setMatrix(fMatrix);
+        }
+        fMatrix = ctx->getMatrix();
+        fContext = ctx;
+    }
+    void set(GrContext* ctx, const GrMatrix& matrix) {
+        if (NULL != fContext) {
+            fContext->setMatrix(fMatrix);
+        }
+        fMatrix = ctx->getMatrix();
+        ctx->setMatrix(matrix);
+        fContext = ctx;
+    }
     ~GrAutoMatrix() {
-        fContext->setMatrix(fMatrix);
+        if (NULL != fContext) {
+            fContext->setMatrix(fMatrix);
+        }
     }
 
 private:

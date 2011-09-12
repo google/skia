@@ -590,13 +590,26 @@ void GrContext::drawPaint(const GrPaint& paint) {
     r.setLTRB(0, 0,
               GrIntToScalar(getRenderTarget()->width()),
               GrIntToScalar(getRenderTarget()->height()));
+    GrAutoMatrix am;
     GrMatrix inverse;
-    if (fGpu->getViewInverse(&inverse)) {
+    // We attempt to map r by the inverse matrix and draw that. mapRect will
+    // map the four corners and bound them with a new rect. This will not
+    // produce a correct result for some perspective matrices.
+    if (!this->getMatrix().hasPerspective() &&
+        fGpu->getViewInverse(&inverse)) {
         inverse.mapRect(&r);
     } else {
-        GrPrintf("---- fGpu->getViewInverse failed\n");
+        am.set(this, GrMatrix::I());
     }
-    this->drawRect(paint, r);
+    GrPaint tmpPaint;
+    const GrPaint* p = &paint;
+    // by definition this fills the entire clip, no need for AA
+    if (paint.fAntiAlias) {
+        tmpPaint = paint;
+        tmpPaint.fAntiAlias = false;
+        p = &tmpPaint;
+    }
+    this->drawRect(*p, r);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
