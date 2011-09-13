@@ -336,6 +336,13 @@ public:
     */
     bool getClipBounds(SkRect* bounds, EdgeType et = kAA_EdgeType) const;
 
+    /** Return the bounds of the current clip, in device coordinates; returns
+        true if non-empty. Maybe faster than getting the clip explicitly and
+        then taking its bounds.
+    */
+    bool getClipDeviceBounds(SkIRect* bounds) const;
+       
+
     /** Fill the entire canvas' bitmap (restricted to the current clip) with the
         specified ARGB color, using the specified mode.
         @param a    the alpha component (0..255) of the color to fill the canvas
@@ -742,6 +749,17 @@ public:
         @return The current matrix on the canvas.
     */
     const SkMatrix& getTotalMatrix() const;
+
+    enum ClipType {
+        kEmpty_ClipType = 0,
+        kRect_ClipType,
+        kComplex_ClipType
+    };
+
+    /** Returns a description of the total clip; may be cheaper than
+        getting the clip and querying it directly.
+    */
+    ClipType getClipType() const;
 
     /** Return the current device clip (concatenation of all clip calls).
         This does not account for the translate in any of the devices.
