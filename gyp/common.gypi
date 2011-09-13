@@ -70,7 +70,7 @@
               'WarningLevel': '1',
               'WarnAsError': 'false',
               'DebugInformationFormat': '3',
-              'AdditionalOptions': '/MP',
+              'AdditionalOptions': ['/MP',],
             },
             'VCLinkerTool': {
               'AdditionalDependencies': [
