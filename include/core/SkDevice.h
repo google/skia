@@ -73,14 +73,14 @@ public:
         kVector_Capability = 0x2,  //!< mask indicating a vector representation
         kAll_Capabilities  = 0x3
     };
-    virtual uint32_t getDeviceCapabilities();
+    virtual uint32_t getDeviceCapabilities() { return 0; }
 
     /** Return the width of the device (in pixels).
     */
-    virtual int width() const;
+    virtual int width() const { return fBitmap.width(); }
     /** Return the height of the device (in pixels).
     */
-    virtual int height() const;
+    virtual int height() const { return fBitmap.height(); }
 
     /**
      *  Return the bounds of the device in the coordinate space of the root
@@ -154,22 +154,25 @@ protected:
     virtual bool filterTextFlags(const SkPaint& paint, TextFlags*);
 
     /**
-     * Let the device know that its matrix has changed; it can query the
-     * matrix when it needs it.
-     */
-    virtual void markMatrixDirty();
-
-    /**
-     * Let the device know that its clip has changed; it can query the
-     * clip (region or stack) when or if it needs it.
-     */
-    virtual void markClipDirty();
+     *  Called with the correct matrix and clip before this device is drawn
+     *  to using those settings. If your subclass overrides this, be sure to
+     *  call through to the base class as well.
+     *
+     *  The clipstack is another view of the clip. It records the actual
+     *  geometry that went into building the region. It is present for devices
+     *  that want to parse it, but is not required: the region is a complete
+     *  picture of the current clip. (i.e. if you regionize all of the geometry
+     *  in the clipstack, you will arrive at an equivalent region to the one
+     *  passed in).
+    */
+    virtual void setMatrixClip(const SkMatrix&, const SkRegion&,
+                               const SkClipStack&);
 
     /** Called when this device gains focus (i.e becomes the current device
         for drawing).
     */
     virtual void gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
-                           const SkClipStack&);
+                           const SkClipStack&) {}
 
     /** Clears the entire device to the specified color (including alpha).
      *  Ignores the clip.
@@ -287,7 +290,7 @@ private:
 
     /** Causes any deferred drawing to the device to be completed.
      */
-    virtual void flush();
+    virtual void flush() {}
 
     SkBitmap    fBitmap;
     SkIPoint    fOrigin;

@@ -63,18 +63,6 @@ SkMetaData& SkDevice::getMetaData() {
     return *fMetaData;
 }
 
-uint32_t SkDevice::getDeviceCapabilities() {
-    return 0;
-}
-
-int SkDevice::width() const {
-    return fBitmap.width();
-}
-
-int SkDevice::height() const {
-    return fBitmap.height();
-}
-
 void SkDevice::lockPixels() {
     if (fBitmap.lockPixelsAreWritable()) {
         fBitmap.lockPixels();
@@ -106,8 +94,10 @@ void SkDevice::clear(SkColor color) {
     fBitmap.eraseColor(color);
 }
 
-void SkDevice::onAccessBitmap(SkBitmap* bitmap) {
+void SkDevice::onAccessBitmap(SkBitmap* bitmap) {}
 
+void SkDevice::setMatrixClip(const SkMatrix& matrix, const SkRegion& region,
+                             const SkClipStack& clipStack) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -250,22 +240,5 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     }
     // we're cool with the paint as is
     return false;
-}
-
-void SkDevice::markMatrixDirty() {
-
-}
-
-void SkDevice::markClipDirty() {
-
-}
-
-void SkDevice::gainFocus(SkCanvas*, const SkMatrix&, const SkRegion&,
-                        const SkClipStack&) {
-
-}
-
-void SkDevice::flush() {
-
 }
 

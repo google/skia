@@ -71,8 +71,8 @@ public:
     virtual bool readPixels(const SkIRect& srcRect, SkBitmap* bitmap);
     virtual void writePixels(const SkBitmap& bitmap, int x, int y);
 
-    virtual void markMatrixDirty();
-    virtual void markClipDirty();
+    virtual void setMatrixClip(const SkMatrix& matrix, const SkRegion& clip,
+                               const SkClipStack&);
 
     virtual void drawPaint(const SkDraw&, const SkPaint& paint);
     virtual void drawPoints(const SkDraw&, SkCanvas::PointMode mode, size_t count,

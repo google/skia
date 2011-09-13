@@ -118,9 +118,7 @@ struct DeviceCM {
                            SkRegion::kDifference_Op);
         }
 
-        //fDevice->setMatrixClip(*fMatrix, fClip, clipStack);
-        fDevice->markMatrixDirty();
-        fDevice->markClipDirty();
+        fDevice->setMatrixClip(*fMatrix, fClip, clipStack);
 
 #ifdef SK_DEBUG
         if (!fClip.isEmpty()) {
@@ -214,19 +212,14 @@ private:
 
 class SkDrawIter : public SkDraw {
 public:
-    SkDrawIter(SkCanvas* canvas, bool skipEmptyClips = true)
-        : fCanvas(canvas)
-        , fCurrLayer(NULL)
-        , fSkipEmptyClips(skipEmptyClips) {
-
-        if (!canvas) {
-            return;
-        }
+    SkDrawIter(SkCanvas* canvas, bool skipEmptyClips = true) {
+        fCanvas = canvas;
         canvas->updateDeviceCMCache();
 
         fClipStack = &canvas->getTotalClipStack();
         fBounder = canvas->getBounder();
         fCurrLayer = canvas->fMCRec->fTopLayer;
+        fSkipEmptyClips = skipEmptyClips;
     }
 
     bool next() {
