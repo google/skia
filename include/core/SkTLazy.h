@@ -29,14 +29,15 @@ public:
     }
 
     SkTLazy(const SkTLazy<T>& src) : fPtr(NULL) {
-        const T* ptr = src.get();
-        if (ptr) {
-            fPtr = new (fStorage) T(*ptr);
+        if (src.isValid()) {
+            fPtr = new (fStorage) T(*src->get());
+        } else {
+            fPtr = NULL;
         }
     }
 
     ~SkTLazy() {
-        if (fPtr) {
+        if (this->isValid()) {
             fPtr->~T();
         }
     }
@@ -48,13 +49,13 @@ public:
      *  always returned.
      */
     T* init() {
-        if (fPtr) {
+        if (this->isValid()) {
             fPtr->~T();
         }
         fPtr = new (fStorage) T;
         return fPtr;
     }
-        
+
     /**
      *  Copy src into this, and return a pointer to a copy of it. Note this
      *  will always return the same pointer, so if it is called on a lazy that
@@ -62,19 +63,25 @@ public:
      *  contents.
      */
     T* set(const T& src) {
-        if (fPtr) {
+        if (this->isValid()) {
             *fPtr = src;
         } else {
             fPtr = new (fStorage) T(src);
         }
         return fPtr;
     }
+
+    /**
+     *  Returns true if a valid object has been initialized in the SkTLazy,
+     *  false otherwise.
+     */
+    bool isValid() const { return NULL != fPtr; }
     
     /**
      *  Returns either NULL, or a copy of the object that was passed to
      *  set() or the constructor.
      */
-    T* get() const { return fPtr; }
+    T* get() const { SkASSERT(this->isValid()); return fPtr; }
     
 private:
     T*   fPtr; // NULL or fStorage

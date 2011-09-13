@@ -15,6 +15,7 @@
         '../gm/complexclip.cpp',
         '../gm/complexclip2.cpp',
         '../gm/filltypes.cpp',
+        '../gm/filltypespersp.cpp',
         '../gm/gmmain.cpp',
         '../gm/gradients.cpp',
         '../gm/lcdtext.cpp',

@@ -18,6 +18,7 @@
 #include "GrResourceCache.h"
 #include "GrStencilBuffer.h"
 #include "GrTextStrike.h"
+#include "SkTLazy.h"
 #include "SkTrace.h"
 
 // Using MSAA seems to be slower for some yet unknown reason.
@@ -592,22 +593,37 @@ void GrContext::drawPaint(const GrPaint& paint) {
               GrIntToScalar(getRenderTarget()->height()));
     GrAutoMatrix am;
     GrMatrix inverse;
+    SkTLazy<GrPaint> tmpPaint;
+    const GrPaint* p = &paint;
     // We attempt to map r by the inverse matrix and draw that. mapRect will
     // map the four corners and bound them with a new rect. This will not
     // produce a correct result for some perspective matrices.
-    if (!this->getMatrix().hasPerspective() &&
-        fGpu->getViewInverse(&inverse)) {
+    if (!this->getMatrix().hasPerspective()) {
+        if (!fGpu->getViewInverse(&inverse)) {
+            GrPrintf("Could not invert matrix");
+            return;
+        }
         inverse.mapRect(&r);
     } else {
+        if (paint.getActiveMaskStageMask() || paint.getActiveStageMask()) {
+            if (!fGpu->getViewInverse(&inverse)) {
+                GrPrintf("Could not invert matrix");
+                return;
+            }
+            tmpPaint.set(paint);
+            tmpPaint.get()->preConcatActiveSamplerMatrices(inverse);
+            p = tmpPaint.get();
+        }
         am.set(this, GrMatrix::I());
     }
-    GrPaint tmpPaint;
-    const GrPaint* p = &paint;
     // by definition this fills the entire clip, no need for AA
     if (paint.fAntiAlias) {
-        tmpPaint = paint;
-        tmpPaint.fAntiAlias = false;
-        p = &tmpPaint;
+        if (!tmpPaint.isValid()) {
+            tmpPaint.set(paint);
+            p = tmpPaint.get();
+        }
+        GrAssert(p == tmpPaint.get());
+        tmpPaint.get()->fAntiAlias = false;
     }
     this->drawRect(*p, r);
 }

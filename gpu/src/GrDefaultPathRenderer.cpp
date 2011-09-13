@@ -509,8 +509,19 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                                GrIntToScalar(fTarget->getRenderTarget()->width()),
                                GrIntToScalar(fTarget->getRenderTarget()->height()));
                 GrMatrix vmi;
-                if (fTarget->getViewInverse(&vmi)) {
+                // mapRect through persp matrix may not be correct
+                if (!fTarget->getViewMatrix().hasPerspective() &&
+                    fTarget->getViewInverse(&vmi)) {
                     vmi.mapRect(&bounds);
+                } else {
+                    if (stages) {
+                        if (!fTarget->getViewInverse(&vmi)) {
+                            GrPrintf("Could not invert matrix.");
+                            return;
+                        }
+                        fTarget->preConcatSamplerMatrices(stages, vmi);
+                    }
+                    fTarget->setViewMatrix(GrMatrix::I());
                 }
             } else {
                 bounds = fPath->getBounds();
