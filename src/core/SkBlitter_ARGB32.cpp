@@ -27,8 +27,8 @@ static inline int blend32(int src, int dst, int scale) {
     return dst + ((src - dst) * scale >> 5);
 }
 
-static void blit_lcd16_opaque(SkPMColor dst[], const uint16_t src[],
-                              SkColor color, int width) {
+static void blit_lcd16_row(SkPMColor dst[], const uint16_t src[],
+                              SkColor color, int width, SkPMColor) {
     int srcA = SkColorGetA(color);
     int srcR = SkColorGetR(color);
     int srcG = SkColorGetG(color);
@@ -75,8 +75,53 @@ static void blit_lcd16_opaque(SkPMColor dst[], const uint16_t src[],
     }
 }
 
-static void blit_lcd32_opaque(SkPMColor dst[], const uint32_t src[],
-                              SkColor color, int width) {
+static void blit_lcd16_opaque_row(SkPMColor dst[], const uint16_t src[],
+                                  SkColor color, int width, SkPMColor opaqueDst) {
+    int srcR = SkColorGetR(color);
+    int srcG = SkColorGetG(color);
+    int srcB = SkColorGetB(color);
+    
+    for (int i = 0; i < width; i++) {
+        uint16_t mask = src[i];
+        if (0 == mask) {
+            continue;
+        }
+        if (0xFFFF == mask) {
+            dst[i] = opaqueDst;
+            continue;
+        }
+
+        SkPMColor d = dst[i];
+        
+        /*  We want all of these in 5bits, hence the shifts in case one of them
+         *  (green) is 6bits.
+         */
+        int maskR = SkGetPackedR16(mask) >> (SK_R16_BITS - 5);
+        int maskG = SkGetPackedG16(mask) >> (SK_G16_BITS - 5);
+        int maskB = SkGetPackedB16(mask) >> (SK_B16_BITS - 5);
+
+        // Now upscale them to 0..32, so we can use blend32
+        maskR = upscale31To32(maskR);
+        maskG = upscale31To32(maskG);
+        maskB = upscale31To32(maskB);
+
+        int maskA = SkMax32(SkMax32(maskR, maskG), maskB);
+
+        int dstA = SkGetPackedA32(d);
+        int dstR = SkGetPackedR32(d);
+        int dstG = SkGetPackedG32(d);
+        int dstB = SkGetPackedB32(d);
+
+        // nocheck version for now, until we cleanup GDI's garbage bits
+        dst[i] = SkPackARGB32NoCheck(blend32(0xFF, dstA, maskA),
+                                     blend32(srcR, dstR, maskR),
+                                     blend32(srcG, dstG, maskG),
+                                     blend32(srcB, dstB, maskB));
+    }
+}
+
+static void blit_lcd32_row(SkPMColor dst[], const uint32_t src[],
+                           SkColor color, int width, SkPMColor) {
     int srcA = SkColorGetA(color);
     int srcR = SkColorGetR(color);
     int srcG = SkColorGetG(color);
@@ -128,9 +173,20 @@ static void blitmask_lcd16(const SkBitmap& device, const SkMask& mask,
 
     SkPMColor*		dstRow = device.getAddr32(x, y);
     const uint16_t* srcRow = mask.getAddrLCD16(x, y);
+    SkPMColor opaqueDst;
+
+    void (*proc)(SkPMColor dst[], const uint16_t src[],
+                 SkColor color, int width, SkPMColor);
+    if (0xFF == SkColorGetA(srcColor)) {
+        proc = blit_lcd16_opaque_row;
+        opaqueDst = SkPreMultiplyColor(srcColor);
+    } else {
+        proc = blit_lcd16_row;
+        opaqueDst = 0;  // ignored
+    }
 
     do {
-        blit_lcd16_opaque(dstRow, srcRow, srcColor, width);
+        proc(dstRow, srcRow, srcColor, width, opaqueDst);
         dstRow = (SkPMColor*)((char*)dstRow + device.rowBytes());
         srcRow = (const uint16_t*)((const char*)srcRow + mask.fRowBytes);
     } while (--height != 0);
@@ -147,7 +203,7 @@ static void blitmask_lcd32(const SkBitmap& device, const SkMask& mask,
     const uint32_t* srcRow = mask.getAddrLCD32(x, y);
 
     do {
-        blit_lcd32_opaque(dstRow, srcRow, srcColor, width);
+        blit_lcd32_row(dstRow, srcRow, srcColor, width, 0);
         dstRow = (SkPMColor*)((char*)dstRow + device.rowBytes());
         srcRow = (const uint32_t*)((const char*)srcRow + mask.fRowBytes);
     } while (--height != 0);
