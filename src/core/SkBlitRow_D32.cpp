@@ -153,7 +153,8 @@ SkBlitRow::Proc32 SkBlitRow::ColorProcFactory() {
     return proc;
 }
 
-void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[],
+void SkBlitRow::Color32(SkPMColor* SK_RESTRICT dst,
+                        const SkPMColor* SK_RESTRICT src,
                         int count, SkPMColor color) {
     if (count > 0) {
         if (0 == color) {
@@ -177,8 +178,8 @@ void SkBlitRow::Color32(SkPMColor dst[], const SkPMColor src[],
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static void D32_Mask_Color(void* dst, size_t dstRB, SkBitmap::Config,
-                           const uint8_t* mask, size_t maskRB, SkColor color,
+static void D32_Mask_Color(void* SK_RESTRICT dst, size_t dstRB, SkBitmap::Config,
+                           const uint8_t* SK_RESTRICT mask, size_t maskRB, SkColor color,
                            int width, int height) {
     SkPMColor pmc = SkPreMultiplyColor(color);
     size_t dstOffset = dstRB - (width << 2);
@@ -196,8 +197,8 @@ static void D32_Mask_Color(void* dst, size_t dstRB, SkBitmap::Config,
     } while (--height != 0);
 }
 
-static void D32_Mask_Opaque(void* dst, size_t dstRB, SkBitmap::Config,
-                            const uint8_t* mask, size_t maskRB, SkColor color,
+static void D32_Mask_Opaque(void* SK_RESTRICT dst, size_t dstRB, SkBitmap::Config,
+                            const uint8_t* SK_RESTRICT mask, size_t maskRB, SkColor color,
                             int width, int height) {
     SkPMColor pmc = SkPreMultiplyColor(color);
     uint32_t* device = (uint32_t*)dst;
@@ -216,8 +217,8 @@ static void D32_Mask_Opaque(void* dst, size_t dstRB, SkBitmap::Config,
     } while (--height != 0);
 }
 
-static void D32_Mask_Black(void* dst, size_t dstRB, SkBitmap::Config,
-                           const uint8_t* mask, size_t maskRB, SkColor,
+static void D32_Mask_Black(void* SK_RESTRICT dst, size_t dstRB, SkBitmap::Config,
+                           const uint8_t* SK_RESTRICT mask, size_t maskRB, SkColor,
                            int width, int height) {
     uint32_t* device = (uint32_t*)dst;
 
