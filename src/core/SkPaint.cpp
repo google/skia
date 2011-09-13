@@ -1224,6 +1224,17 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
     return h;
 }
 
+// Beyond this size, LCD doesn't appreciably improve quality, but it always
+// cost more RAM and draws slower, so we set a cap.
+static const SkScalar SK_MAX_SIZE_FOR_LCDTEXT = SkIntToScalar(48);
+
+static bool tooBigForLCD(const SkScalerContext::Rec& rec) {
+    SkScalar area = SkScalarMul(rec.fPost2x2[0][0], rec.fPost2x2[1][1]) -
+                    SkScalarMul(rec.fPost2x2[1][0], rec.fPost2x2[0][1]);
+    SkScalar size = SkScalarMul(area, rec.fTextSize);
+    return SkScalarAbs(size) > SK_MAX_SIZE_FOR_LCDTEXT;
+}
+
 /*
  *  Return the scalar with only limited fractional precision. Used to consolidate matrices
  *  that vary only slightly when we create our key into the font cache, since the font scaler
@@ -1308,7 +1319,7 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     {
         SkFontHost::LCDOrder order = SkFontHost::GetSubpixelOrder();
         SkFontHost::LCDOrientation orient = SkFontHost::GetSubpixelOrientation();
-        if (SkFontHost::kNONE_LCDOrder == order) {
+        if (SkFontHost::kNONE_LCDOrder == order || tooBigForLCD(*rec)) {
             // eeek, can't support LCD
             rec->fMaskFormat = SkMask::kA8_Format;
         } else {
