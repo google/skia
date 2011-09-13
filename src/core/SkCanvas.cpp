@@ -678,12 +678,12 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
 
     fDeviceCMDirty = true;
 
-    SkIRect         ir;
-    const SkIRect&  clipBounds = this->getTotalClip().getBounds();
-    if (clipBounds.isEmpty()) {
+    SkIRect clipBounds;
+    if (!this->getClipDeviceBounds(&clipBounds)) {
         return count;
     }
 
+    SkIRect ir;
     if (NULL != bounds) {
         SkRect r;
 
@@ -691,8 +691,9 @@ int SkCanvas::saveLayer(const SkRect* bounds, const SkPaint* paint,
         r.roundOut(&ir);
         // early exit if the layer's bounds are clipped out
         if (!ir.intersect(clipBounds)) {
-            if (bounds_affects_clip(flags))
+            if (bounds_affects_clip(flags)) {
                 fMCRec->fRegion->setEmpty();
+            }
             return count;
         }
     } else {    // no user bounds, so just use the clip
@@ -1095,11 +1096,8 @@ bool SkCanvas::quickRejectY(SkScalar top, SkScalar bottom, EdgeType et) const {
 }
 
 bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
-    const SkRegion& clip = *fMCRec->fRegion;
-    if (clip.isEmpty()) {
-        if (bounds) {
-            bounds->setEmpty();
-        }
+    SkIRect ibounds;
+    if (!getClipDeviceBounds(&ibounds)) {
         return false;
     }
 
@@ -1113,22 +1111,39 @@ bool SkCanvas::getClipBounds(SkRect* bounds, EdgeType et) const {
     }
 
     if (NULL != bounds) {
-        SkRect   r;
-        // get the clip's bounds
-        const SkIRect& ibounds = clip.getBounds();
+        SkRect r;
         // adjust it outwards if we are antialiasing
         int inset = (kAA_EdgeType == et);
         r.iset(ibounds.fLeft - inset,  ibounds.fTop - inset,
                ibounds.fRight + inset, ibounds.fBottom + inset);
-
-        // invert into local coordinates
         inverse.mapRect(bounds, r);
+    }
+    return true;
+}
+
+bool SkCanvas::getClipDeviceBounds(SkIRect* bounds) const {
+    const SkRegion& clip = *fMCRec->fRegion;
+    if (clip.isEmpty()) {
+        if (bounds) {
+            bounds->setEmpty();
+        }
+        return false;
+    }
+
+    if (NULL != bounds) {
+        *bounds = clip.getBounds();
     }
     return true;
 }
 
 const SkMatrix& SkCanvas::getTotalMatrix() const {
     return *fMCRec->fMatrix;
+}
+
+SkCanvas::ClipType SkCanvas::getClipType() const {
+    if (fMCRec->fRegion->isEmpty()) return kEmpty_ClipType;
+    if (fMCRec->fRegion->isRect()) return kRect_ClipType;
+    return kComplex_ClipType;
 }
 
 const SkRegion& SkCanvas::getTotalClip() const {
