@@ -171,11 +171,10 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
         cAvg += c1;
         cAvg.scale(SK_ScalarHalf);
 
-        int idx = quads->count();
-        quads->push_back_n(3);
-        (*quads)[idx+0] = p[0];
-        (*quads)[idx+1] = cAvg;
-        (*quads)[idx+2] = p[3];
+        SkPoint* pts = quads->push_back_n(3);
+        pts[0] = p[0];
+        pts[1] = cAvg;
+        pts[2] = p[3];
 
         return;
     } else {
@@ -310,8 +309,9 @@ int generate_lines_and_quads(const SkPath& path,
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(clip, ibounds)) {
-                    lines->push_back() = devPts[0];
-                    lines->push_back() = devPts[1];
+                    SkPoint* pts = lines->push_back_n(2);
+                    pts[0] = devPts[0];
+                    pts[1] = devPts[1];
                 }
                 break;
             case kQuadratic_PathCmd:
@@ -324,16 +324,18 @@ int generate_lines_and_quads(const SkPath& path,
                     int subdiv = num_quad_subdivs(devPts);
                     GrAssert(subdiv >= -1);
                     if (-1 == subdiv) {
-                        lines->push_back() = devPts[0];
-                        lines->push_back() = devPts[1];
-                        lines->push_back() = devPts[1];
-                        lines->push_back() = devPts[2];
+                        SkPoint* pts = lines->push_back_n(4);
+                        pts[0] = devPts[0];
+                        pts[1] = devPts[1];
+                        pts[2] = devPts[1];
+                        pts[3] = devPts[2];
                     } else {
                         // when in perspective keep quads in src space
                         SkPoint* qPts = persp ? pts : devPts;
-                        quads->push_back() = qPts[0];
-                        quads->push_back() = qPts[1];
-                        quads->push_back() = qPts[2];
+                        SkPoint* pts = quads->push_back_n(3);
+                        pts[0] = qPts[0];
+                        pts[1] = qPts[1];
+                        pts[2] = qPts[2];
                         quadSubdivCnts->push_back() = subdiv;
                         totalQuadCount += 1 << subdiv;
                     }
@@ -375,17 +377,19 @@ int generate_lines_and_quads(const SkPath& path,
                             int subdiv = num_quad_subdivs(qInDevSpace);
                             GrAssert(subdiv >= -1);
                             if (-1 == subdiv) {
+                                SkPoint* pts = lines->push_back_n(4);
                                 // lines should always be in device coords
-                                lines->push_back() = qInDevSpace[0];
-                                lines->push_back() = qInDevSpace[1];
-                                lines->push_back() = qInDevSpace[1];
-                                lines->push_back() = qInDevSpace[2];
+                                pts[0] = qInDevSpace[0];
+                                pts[1] = qInDevSpace[1];
+                                pts[2] = qInDevSpace[1];
+                                pts[3] = qInDevSpace[2];
                             } else {
+                                SkPoint* pts = quads->push_back_n(3);
                                 // q is already in src space when there is no
                                 // perspective and dev coords otherwise.
-                                quads->push_back() = q[0 + i];
-                                quads->push_back() = q[1 + i];
-                                quads->push_back() = q[2 + i];
+                                pts[0] = q[0 + i];
+                                pts[1] = q[1 + i];
+                                pts[2] = q[2 + i];
                                 quadSubdivCnts->push_back() = subdiv;
                                 totalQuadCount += 1 << subdiv;
                             }

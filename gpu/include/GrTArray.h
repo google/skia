@@ -187,6 +187,11 @@ public:
 
     bool empty() const { return !fCount; }
 
+    /**
+     * Adds 1 new default-constructed T value and returns in by reference. Note
+     * the reference only remains valid until the next call that adds or removes
+     * elements.
+     */
     T& push_back() {
         checkRealloc(1);
         new ((char*)fMemArray+sizeof(T)*fCount) T;
@@ -194,13 +199,19 @@ public:
         return fItemArray[fCount-1];
     }
 
-    void push_back_n(int n) {
+    /**
+     * Allocates n more default T values, and returns the address of the start
+     * of that new range. Note: this address is only valid until the next API
+     * call made on the array that might add or remove elements.
+     */
+    T* push_back_n(int n) {
         GrAssert(n >= 0);
         checkRealloc(n);
         for (int i = 0; i < n; ++i) {
             new (fItemArray + fCount + i) T;
         }
         fCount += n;
+        return fItemArray + fCount - n;
     }
 
     void pop_back() {
