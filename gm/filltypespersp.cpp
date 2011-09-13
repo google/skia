@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
+#include "SkGradientShader.h"
 
 namespace skiagm {
 
@@ -72,9 +73,12 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         // do perspective drawPaint as the background;
         SkPaint bkgnrd;
-        SkPoint center = SkPoint::Make(SkIntToScalar(100), SkIntToScalar(100));
-        SkColor colors[] = {SK_ColorBLACK, SK_ColorGREEN, SK_ColorYELLOW, SK_ColorWHITE};
-        SkScalar pos[] = {0, SK_ScalarHalf / 2, 3 * SK_ScalarHalf / 2, SK_Scalar1};
+        SkPoint center = SkPoint::Make(SkIntToScalar(100),
+                                       SkIntToScalar(100));
+        SkColor colors[] = {SK_ColorBLACK, SK_ColorCYAN,
+                            SK_ColorYELLOW, SK_ColorWHITE};
+        SkScalar pos[] = {0, SK_ScalarHalf / 2,
+                          3 * SK_ScalarHalf / 2, SK_Scalar1};
         SkShader* s = SkGradientShader::CreateRadial(center,
                                                      SkIntToScalar(1000),
                                                      colors,
@@ -86,7 +90,7 @@ protected:
             canvas->translate(SkIntToScalar(100), SkIntToScalar(100));
             SkMatrix mat;
             mat.reset();
-            mat.setPerspY(SK_Scalar1 / 300);
+            mat.setPerspY(SK_Scalar1 / 1000);
             canvas->concat(mat);
             canvas->drawPaint(bkgnrd);
         canvas->restore();
@@ -94,7 +98,8 @@ protected:
         // draw the paths in perspective
         SkMatrix persp;
         persp.reset();
-        persp.setPerspX(-SK_Scalar1 / 300);
+        persp.setPerspX(-SK_Scalar1 / 1800);
+        persp.setPerspY(SK_Scalar1 / 500);
         canvas->concat(persp);
 
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
@@ -102,12 +107,12 @@ protected:
 
         showFour(canvas, SK_Scalar1, false);
         canvas->translate(SkIntToScalar(450), 0);
-        showFour(canvas, scale, paint);
+        showFour(canvas, scale, false);
 
         canvas->translate(SkIntToScalar(-450), SkIntToScalar(450));
         showFour(canvas, SK_Scalar1, true);
         canvas->translate(SkIntToScalar(450), 0);
-        showFour(canvas, scale, paint);
+        showFour(canvas, scale, true);
     }
     
 private:
@@ -116,7 +121,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-static GM* MyFactory(void*) { return new FillTypeGM; }
+static GM* MyFactory(void*) { return new FillTypePerspGM; }
 static GMRegistry reg(MyFactory);
 
 }
