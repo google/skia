@@ -1226,13 +1226,15 @@ static SkPaint::Hinting computeHinting(const SkPaint& paint) {
 
 // Beyond this size, LCD doesn't appreciably improve quality, but it always
 // cost more RAM and draws slower, so we set a cap.
-static const SkScalar SK_MAX_SIZE_FOR_LCDTEXT = SkIntToScalar(48);
+#ifndef SK_MAX_SIZE_FOR_LCDTEXT
+    #define SK_MAX_SIZE_FOR_LCDTEXT    48
+#endif
 
 static bool tooBigForLCD(const SkScalerContext::Rec& rec) {
     SkScalar area = SkScalarMul(rec.fPost2x2[0][0], rec.fPost2x2[1][1]) -
                     SkScalarMul(rec.fPost2x2[1][0], rec.fPost2x2[0][1]);
     SkScalar size = SkScalarMul(area, rec.fTextSize);
-    return SkScalarAbs(size) > SK_MAX_SIZE_FOR_LCDTEXT;
+    return SkScalarAbs(size) > SkIntToScalar(SK_MAX_SIZE_FOR_LCDTEXT);
 }
 
 /*
