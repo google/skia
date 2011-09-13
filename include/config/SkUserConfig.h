@@ -137,6 +137,13 @@
  */
 //#define SK_ALLOW_OVER_32K_BITMAPS
 
+/*  Define this to set the upper limit for text to support LCD. Values that
+    are very large increase the cost in the font cache and draw slower, without
+    improving readability. If this is undefined, Skia will use its default
+    value (e.g. 48)
+ */
+//#define SK_MAX_SIZE_FOR_LCDTEXT     48
+
 /*  If SK_DEBUG is defined, then you can optionally define SK_SUPPORT_UNITTEST
     which will run additional self-tests at startup. These can take a long time,
     so this flag is optional.
