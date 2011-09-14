@@ -66,7 +66,7 @@ public:
                 SkString(const SkString&);
                 ~SkString();
 
-    bool        isEmpty() const { return fRec->fLength == 0; }
+    bool        isEmpty() const { return 0 == fRec->fLength; }
     size_t      size() const { return (size_t) fRec->fLength; }
     const char* c_str() const { return fRec->data(); }
     char operator[](size_t n) const { return this->c_str()[n]; }
@@ -151,8 +151,8 @@ public:
 private:
     struct Rec {
     public:
-        uint16_t    fLength;
-        uint16_t    fRefCnt;
+        size_t      fLength;
+        int32_t     fRefCnt;
         char        fBeginningOfData;
 
         char* data() { return &fBeginningOfData; }
@@ -168,7 +168,7 @@ private:
 #endif
 
     static const Rec gEmptyRec;
-    static Rec* AllocRec(const char text[], U16CPU len);
+    static Rec* AllocRec(const char text[], size_t len);
     static Rec* RefRec(Rec*);
 };
 
