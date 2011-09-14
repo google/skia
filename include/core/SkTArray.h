@@ -85,7 +85,7 @@ public:
         fCount              = array.count();
         fReserveCount       = gMIN_ALLOC_COUNT;
         fAllocCount         = SkMax32(fReserveCount, fCount);
-        fMemArray           = sk_malloc(sizeof(T) * fAllocCount);
+        fMemArray           = sk_malloc_throw(sizeof(T) * fAllocCount);
         fPreAllocMemArray   = NULL;
 
         if (DATA_TYPE) {
@@ -107,7 +107,7 @@ public:
         fCount              = count;
         fReserveCount       = gMIN_ALLOC_COUNT;
         fAllocCount         = SkMax32(fReserveCount, fCount);
-        fMemArray           = sk_malloc(sizeof(T) * fAllocCount);
+        fMemArray           = sk_malloc_throw(sizeof(T) * fAllocCount);
         fPreAllocMemArray   = NULL;
         if (DATA_TYPE) {
             memcpy(fMemArray, array, sizeof(T) * fCount);
