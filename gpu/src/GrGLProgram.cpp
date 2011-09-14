@@ -556,6 +556,9 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
                 segments.fFSCode.append("\tfloat dfdy = 2.0*vEdge.x*duvdy.x - duvdy.y;\n");
                 segments.fFSCode.append("\tfloat edgeAlpha = (vEdge.x*vEdge.x - vEdge.y);\n");
                 segments.fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / (dfdx*dfdx + dfdy*dfdy));\n");
+                if (gl->supportsES()) {
+                    segments.fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
+                }
             }
             segments.fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
             inCoverage = "edgeAlpha";
