@@ -13,8 +13,6 @@
 #include "GrMatrix.h"
 #include "GrPath.h"
 
-class GrPoint;
-
 /**
  *  Utilities for evaluating paths.
  */
