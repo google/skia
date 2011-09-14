@@ -52,7 +52,7 @@ public:
         if (this->isValid()) {
             fPtr->~T();
         }
-        fPtr = new (fStorage) T;
+        fPtr = new (SkTCast<T*>(fStorage)) T;
         return fPtr;
     }
 
@@ -66,7 +66,7 @@ public:
         if (this->isValid()) {
             *fPtr = src;
         } else {
-            fPtr = new (fStorage) T(src);
+            fPtr = new (SkTCast<T*>(fStorage)) T(src);
         }
         return fPtr;
     }
