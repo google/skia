@@ -790,8 +790,11 @@ GrGLuint GrGLProgram::CompileShader(const GrGLInterface* gl,
         GR_GL_CALL(gl, GetShaderiv(shader, GR_GL_INFO_LOG_LENGTH, &infoLen));
         SkAutoMalloc log(sizeof(char)*(infoLen+1)); // outside if for debugger
         if (infoLen > 0) {
+            // retrieve length even though we don't need it to workaround
+            // bug in chrome cmd buffer param validation.
+            GrGLsizei length = GR_GL_INIT_ZERO;
             GR_GL_CALL(gl, GetShaderInfoLog(shader, infoLen+1, 
-                                            NULL, (char*)log.get()));
+                                            &length, (char*)log.get()));
             for (int i = 0; i < stringCnt; ++i) {
                 if (NULL == stringLengths || stringLengths[i] < 0) {
                     GrPrintf(strings[i]);
@@ -874,8 +877,11 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
         GR_GL_CALL(gl, GetProgramiv(progID, GR_GL_INFO_LOG_LENGTH, &infoLen));
         SkAutoMalloc log(sizeof(char)*(infoLen+1));  // outside if for debugger
         if (infoLen > 0) {
+            // retrieve length even though we don't need it to workaround
+            // bug in chrome cmd buffer param validation.
+            GrGLsizei length = GR_GL_INIT_ZERO;
             GR_GL_CALL(gl, GetProgramInfoLog(progID, infoLen+1,
-                                             NULL, (char*)log.get()));
+                                             &length, (char*)log.get()));
             GrPrintf((char*)log.get());
         }
         GrAssert(!"Error linking program");
