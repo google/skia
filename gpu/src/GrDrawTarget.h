@@ -1315,10 +1315,10 @@ private:
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
     };
-    GrAlignedSTStorage<kPreallocGeoSrcStateStackCnt, 
+    SkAlignedSTStorage<kPreallocGeoSrcStateStackCnt, 
                         GeometrySrcState> 
                                      fGeoSrcStateStackStorage;
-    GrTArray<GeometrySrcState, true> fGeoSrcStateStack;
+    SkTArray<GeometrySrcState, true> fGeoSrcStateStack;
     
 };
 

@@ -11,8 +11,9 @@
 #define GrPathRenderer_DEFINED
 
 #include "GrDrawTarget.h"
-#include "GrTArray.h"
 #include "GrPathRendererChain.h"
+
+#include "SkTArray.h"
 
 class SkPath;
 

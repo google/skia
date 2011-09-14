@@ -137,8 +137,8 @@ void GrAAHairLinePathRenderer::resetGeom() {
 
 namespace {
 
-typedef GrTArray<SkPoint, true> PtArray;
-typedef GrTArray<int, true> IntArray;
+typedef SkTArray<SkPoint, true> PtArray;
+typedef SkTArray<int, true> IntArray;
 
 /**
  * We convert cubics to quadratics (for now).
@@ -633,8 +633,8 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
 
     GrMatrix viewM = fTarget->getViewMatrix();
 
-    GrAlignedSTStorage<128, GrPoint> lineStorage;
-    GrAlignedSTStorage<128, GrPoint> quadStorage;
+    SkAlignedSTStorage<128, GrPoint> lineStorage;
+    SkAlignedSTStorage<128, GrPoint> quadStorage;
     PtArray lines(&lineStorage);
     PtArray quads(&quadStorage);
     IntArray qSubdivs;

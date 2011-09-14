@@ -12,7 +12,7 @@
 #define GrAllocator_DEFINED
 
 #include "GrConfig.h"
-#include "GrTArray.h"
+#include "SkTArray.h"
 
 class GrAllocator {
 public:
@@ -128,7 +128,7 @@ public:
 private:
     static const int NUM_INIT_BLOCK_PTRS = 8;
     
-    GrTArray<void*> fBlocks;
+    SkTArray<void*> fBlocks;
     size_t          fBlockSize;
     char            fBlockInitialStorage[NUM_INIT_BLOCK_PTRS*sizeof(void*)];
     size_t          fItemSize;
@@ -163,7 +163,7 @@ public:
      *                          and the size of subsequent blocks.
      */
     template <int N>
-    GrTAllocator(GrAlignedSTStorage<N,T>* initialBlock)
+    GrTAllocator(SkAlignedSTStorage<N,T>* initialBlock)
         : fAllocator(sizeof(T), N, initialBlock->get()) {}
     
     /**

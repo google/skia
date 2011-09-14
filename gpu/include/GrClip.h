@@ -14,9 +14,9 @@
 #include "GrClipIterator.h"
 #include "GrRect.h"
 #include "GrPath.h"
-#include "GrTArray.h"
 #include "GrTemplates.h"
 
+#include "SkTArray.h"
 
 class GrClip {
 public:
@@ -135,8 +135,8 @@ private:
     enum {
         kPreAllocElements = 4,
     };
-    GrAlignedSTStorage<kPreAllocElements, Element>  fListStorage;
-    GrTArray<Element>   fList;
+    SkAlignedSTStorage<kPreAllocElements, Element>  fListStorage;
+    SkTArray<Element>   fList;
 };
 #endif
 
