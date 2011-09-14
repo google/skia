@@ -262,5 +262,37 @@ private:
     };
 };
 
+/**
+ * Reserves memory that is aligned on double and pointer boundaries.
+ * Hopefully this is sufficient for all practical purposes.
+ */
+template <size_t N> class SkAlignedSStorage : SkNoncopyable {
+public:
+    void* get() { return fData; }
+private:
+    union {
+        void*   fPtr;
+        double  fDouble;
+        char    fData[N];
+    };
+};
+
+/**
+ * Reserves memory that is aligned on double and pointer boundaries.
+ * Hopefully this is sufficient for all practical purposes. Otherwise,
+ * we have to do some arcane trickery to determine alignment of non-POD
+ * types. Lifetime of the memory is the lifetime of the object.
+ */
+template <int N, typename T> class SkAlignedSTStorage : SkNoncopyable {
+public:
+    /**
+     * Returns void* because this object does not initialize the
+     * memory. Use placement new for types that require a cons.
+     */
+    void* get() { return fStorage.get(); }
+private:
+    SkAlignedSStorage<sizeof(T)*N> fStorage;
+};
+
 #endif
 

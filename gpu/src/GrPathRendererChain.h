@@ -11,7 +11,7 @@
 #define GrPathRendererChain_DEFINED
 
 #include "GrRefCnt.h"
-#include "GrTArray.h"
+#include "SkTArray.h"
 
 class GrContext;
 class GrDrawTarget;
@@ -55,8 +55,8 @@ private:
     bool fInit;
     GrContext*                                          fOwner;
     UsageFlags                                          fFlags;
-    GrAlignedSTStorage<kPreAllocCount, GrPathRenderer*> fStorage;
-    GrTArray<GrPathRenderer*, true>                     fChain;
+    SkAlignedSTStorage<kPreAllocCount, GrPathRenderer*> fStorage;
+    SkTArray<GrPathRenderer*, true>                     fChain;
 };
 
 GR_MAKE_BITFIELD_OPS(GrPathRendererChain::UsageFlags)

@@ -172,7 +172,7 @@ private:
         size_t                          fUsedPoolVertexBytes;
         size_t                          fUsedPoolIndexBytes;
     };
-    GrTArray<GeometryPoolState> fGeoPoolStateStack;
+    SkTArray<GeometryPoolState> fGeoPoolStateStack;
 
     
     enum {
@@ -183,11 +183,11 @@ private:
         kGeoPoolStatePreAllocCnt = 4,
     };
 
-    GrAlignedSTStorage<kDrawPreallocCnt, Draw>              fDrawStorage;
-    GrAlignedSTStorage<kStatePreallocCnt, SavedDrawState>   fStateStorage;
-    GrAlignedSTStorage<kClipPreallocCnt, GrClip>            fClipStorage;
-    GrAlignedSTStorage<kClearPreallocCnt, Clear>            fClearStorage;
-    GrAlignedSTStorage<kGeoPoolStatePreAllocCnt, 
+    SkAlignedSTStorage<kDrawPreallocCnt, Draw>              fDrawStorage;
+    SkAlignedSTStorage<kStatePreallocCnt, SavedDrawState>   fStateStorage;
+    SkAlignedSTStorage<kClipPreallocCnt, GrClip>            fClipStorage;
+    SkAlignedSTStorage<kClearPreallocCnt, Clear>            fClearStorage;
+    SkAlignedSTStorage<kGeoPoolStatePreAllocCnt, 
                         GeometryPoolState>                  fGeoStackStorage;
 
     typedef GrDrawTarget INHERITED;

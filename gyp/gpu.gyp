@@ -115,7 +115,6 @@
         '../gpu/include/GrStencil.h',
         '../gpu/include/GrStopwatch.h',
         '../gpu/include/GrStringBuilder.h',
-        '../gpu/include/GrTArray.h',
         '../gpu/include/GrTBSearch.h',
         '../gpu/include/GrTDArray.h',
         '../gpu/include/GrTextContext.h',

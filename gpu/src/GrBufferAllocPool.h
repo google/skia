@@ -13,7 +13,8 @@
 
 #include "GrNoncopyable.h"
 #include "GrTDArray.h"
-#include "GrTArray.h"
+
+#include "SkTArray.h"
 
 class GrGeometryBuffer;
 class GrGpu;
@@ -173,7 +174,7 @@ private:
     size_t                          fMinBlockSize;
     BufferType                      fBufferType;
 
-    GrTArray<BufferBlock>           fBlocks;
+    SkTArray<BufferBlock>           fBlocks;
     int                             fPreallocBuffersInUse;
     int                             fFirstPreallocBuffer;
     SkAutoMalloc                    fCpuData;

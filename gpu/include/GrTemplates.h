@@ -25,38 +25,6 @@ template <typename Dst, typename Src> Dst GrTCast(Src src) {
 }
 
 /**
- * Reserves memory that is aligned on double and pointer boundaries.
- * Hopefully this is sufficient for all practical purposes.
- */
-template <size_t N> class GrAlignedSStorage : GrNoncopyable {
-public:
-    void* get() { return fData; }
-private:
-    union {
-        void*   fPtr;
-        double  fDouble;
-        char    fData[N];
-    };
-};
-
-/**
- * Reserves memory that is aligned on double and pointer boundaries.
- * Hopefully this is sufficient for all practical purposes. Otherwise,
- * we have to do some arcane trickery to determine alignment of non-POD
- * types. Lifetime of the memory is the lifetime of the object.
- */
-template <int N, typename T> class GrAlignedSTStorage : GrNoncopyable {
-public:
-    /**
-     * Returns void* because this object does not initialize the
-     * memory. Use placement new for types that require a cons.
-     */
-    void* get() { return fStorage.get(); }
-private:
-    GrAlignedSStorage<sizeof(T)*N> fStorage;
-};
-
-/**
  * saves value of T* in and restores in destructor
  * e.g.:
  * {
