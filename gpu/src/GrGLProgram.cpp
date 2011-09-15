@@ -321,6 +321,87 @@ static void addColorFilter(GrStringBuilder* fsCode, const char * outputVar,
     add_helper(outputVar, colorStr.c_str(), constStr.c_str(), fsCode);
 }
 
+void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
+                                  GrVertexLayout layout,
+                                  CachedData* programData,
+                                  GrStringBuilder* coverageVar,
+                                  ShaderCodeSegments* segments) const {
+    if (fProgramDesc.fEdgeAANumEdges > 0) {
+        segments->fFSUnis.append("uniform vec3 " EDGES_UNI_NAME "[");
+        segments->fFSUnis.appendS32(fProgramDesc.fEdgeAANumEdges);
+        segments->fFSUnis.append("];\n");
+        programData->fUniLocations.fEdgesUni = kUseUniform;
+        int count = fProgramDesc.fEdgeAANumEdges;
+        segments->fFSCode.append(
+            "\tvec3 pos = vec3(gl_FragCoord.xy, 1);\n");
+        for (int i = 0; i < count; i++) {
+            segments->fFSCode.append("\tfloat a");
+            segments->fFSCode.appendS32(i);
+            segments->fFSCode.append(" = clamp(dot(" EDGES_UNI_NAME "[");
+            segments->fFSCode.appendS32(i);
+            segments->fFSCode.append("], pos), 0.0, 1.0);\n");
+        }
+        if (fProgramDesc.fEdgeAAConcave && (count & 0x01) == 0) {
+            // For concave polys, we consider the edges in pairs.
+            segments->fFSFunctions.append("float cross2(vec2 a, vec2 b) {\n");
+            segments->fFSFunctions.append("\treturn dot(a, vec2(b.y, -b.x));\n");
+            segments->fFSFunctions.append("}\n");
+            for (int i = 0; i < count; i += 2) {
+                segments->fFSCode.appendf("\tfloat eb%d;\n", i / 2);
+                segments->fFSCode.appendf("\tif (cross2(" EDGES_UNI_NAME "[%d].xy, " EDGES_UNI_NAME "[%d].xy) < 0.0) {\n", i, i + 1);
+                segments->fFSCode.appendf("\t\teb%d = a%d * a%d;\n", i / 2, i, i + 1);
+                segments->fFSCode.append("\t} else {\n");
+                segments->fFSCode.appendf("\t\teb%d = a%d + a%d - a%d * a%d;\n", i / 2, i, i + 1, i, i + 1);
+                segments->fFSCode.append("\t}\n");
+            }
+            segments->fFSCode.append("\tfloat edgeAlpha = ");
+            for (int i = 0; i < count / 2 - 1; i++) {
+                segments->fFSCode.appendf("min(eb%d, ", i);
+            }
+            segments->fFSCode.appendf("eb%d", count / 2 - 1);
+            for (int i = 0; i < count / 2 - 1; i++) {
+                segments->fFSCode.append(")");
+            }
+            segments->fFSCode.append(";\n");
+        } else {
+            segments->fFSCode.append("\tfloat edgeAlpha = ");
+            for (int i = 0; i < count - 1; i++) {
+                segments->fFSCode.appendf("min(a%d * a%d, ", i, i + 1);
+            }
+            segments->fFSCode.appendf("a%d * a0", count - 1);
+            for (int i = 0; i < count - 1; i++) {
+                segments->fFSCode.append(")");
+            }
+            segments->fFSCode.append(";\n");
+        }
+        *coverageVar = "edgeAlpha";
+    } else  if (layout & GrDrawTarget::kEdge_VertexLayoutBit) {
+        segments->fVSAttrs.append("attribute vec4 " EDGE_ATTR_NAME ";\n");
+        segments->fVaryings.append("varying vec4 vEdge;\n");
+        segments->fVSCode.append("\tvEdge = " EDGE_ATTR_NAME ";\n");
+        if (GrDrawTarget::kHairLine_EdgeType == fProgramDesc.fVertexEdgeType) {
+            segments->fFSCode.append("\tfloat edgeAlpha = abs(dot(vec3(gl_FragCoord.xy,1), vEdge.xyz));\n");
+        } else {
+            GrAssert(GrDrawTarget::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType);
+            // for now we know we're not in perspective, so we could compute this
+            // per-quadratic rather than per pixel
+            segments->fFSCode.append("\tvec2 duvdx = dFdx(vEdge.xy);\n");
+            segments->fFSCode.append("\tvec2 duvdy = dFdy(vEdge.xy);\n");
+            segments->fFSCode.append("\tfloat dfdx = 2.0*vEdge.x*duvdx.x - duvdx.y;\n");
+            segments->fFSCode.append("\tfloat dfdy = 2.0*vEdge.x*duvdy.x - duvdy.y;\n");
+            segments->fFSCode.append("\tfloat edgeAlpha = (vEdge.x*vEdge.x - vEdge.y);\n");
+            segments->fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / (dfdx*dfdx + dfdy*dfdy));\n");
+            if (gl->supportsES()) {
+                segments->fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
+            }
+        }
+        segments->fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
+        *coverageVar = "edgeAlpha";
+    } else {
+        coverageVar->reset();
+    }
+}
+
 bool GrGLProgram::genProgram(const GrGLInterface* gl, 
                              GrGLProgram::CachedData* programData) const {
 
@@ -491,78 +572,9 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     // output will be zero and we don't have a dual src blend output.
     if (!wroteFragColorZero ||
         ProgramDesc::kNone_DualSrcOutput != fProgramDesc.fDualSrcOutput) {
-        if (fProgramDesc.fEdgeAANumEdges > 0) {
-            segments.fFSUnis.append("uniform vec3 " EDGES_UNI_NAME "[");
-            segments.fFSUnis.appendS32(fProgramDesc.fEdgeAANumEdges);
-            segments.fFSUnis.append("];\n");
-            programData->fUniLocations.fEdgesUni = kUseUniform;
-            int count = fProgramDesc.fEdgeAANumEdges;
-            segments.fFSCode.append(
-                "\tvec3 pos = vec3(gl_FragCoord.xy, 1);\n");
-            for (int i = 0; i < count; i++) {
-                segments.fFSCode.append("\tfloat a");
-                segments.fFSCode.appendS32(i);
-                segments.fFSCode.append(" = clamp(dot(" EDGES_UNI_NAME "[");
-                segments.fFSCode.appendS32(i);
-                segments.fFSCode.append("], pos), 0.0, 1.0);\n");
-            }
-            if (fProgramDesc.fEdgeAAConcave && (count & 0x01) == 0) {
-                // For concave polys, we consider the edges in pairs.
-                segments.fFSFunctions.append("float cross2(vec2 a, vec2 b) {\n");
-                segments.fFSFunctions.append("\treturn dot(a, vec2(b.y, -b.x));\n");
-                segments.fFSFunctions.append("}\n");
-                for (int i = 0; i < count; i += 2) {
-                    segments.fFSCode.appendf("\tfloat eb%d;\n", i / 2);
-                    segments.fFSCode.appendf("\tif (cross2(" EDGES_UNI_NAME "[%d].xy, " EDGES_UNI_NAME "[%d].xy) < 0.0) {\n", i, i + 1);
-                    segments.fFSCode.appendf("\t\teb%d = a%d * a%d;\n", i / 2, i, i + 1);
-                    segments.fFSCode.append("\t} else {\n");
-                    segments.fFSCode.appendf("\t\teb%d = a%d + a%d - a%d * a%d;\n", i / 2, i, i + 1, i, i + 1);
-                    segments.fFSCode.append("\t}\n");
-                }
-                segments.fFSCode.append("\tfloat edgeAlpha = ");
-                for (int i = 0; i < count / 2 - 1; i++) {
-                    segments.fFSCode.appendf("min(eb%d, ", i);
-                }
-                segments.fFSCode.appendf("eb%d", count / 2 - 1);
-                for (int i = 0; i < count / 2 - 1; i++) {
-                    segments.fFSCode.append(")");
-                }
-                segments.fFSCode.append(";\n");
-            } else {
-                segments.fFSCode.append("\tfloat edgeAlpha = ");
-                for (int i = 0; i < count - 1; i++) {
-                    segments.fFSCode.appendf("min(a%d * a%d, ", i, i + 1);
-                }
-                segments.fFSCode.appendf("a%d * a0", count - 1);
-                for (int i = 0; i < count - 1; i++) {
-                    segments.fFSCode.append(")");
-                }
-                segments.fFSCode.append(";\n");
-            }
-            inCoverage = "edgeAlpha";
-        } else  if (layout & GrDrawTarget::kEdge_VertexLayoutBit) {
-            segments.fVSAttrs.append("attribute vec4 " EDGE_ATTR_NAME ";\n");
-            segments.fVaryings.append("varying vec4 vEdge;\n");
-            segments.fVSCode.append("\tvEdge = " EDGE_ATTR_NAME ";\n");
-            if (GrDrawTarget::kHairLine_EdgeType == fProgramDesc.fVertexEdgeType) {
-                segments.fFSCode.append("\tfloat edgeAlpha = abs(dot(vec3(gl_FragCoord.xy,1), vEdge.xyz));\n");
-            } else {
-                GrAssert(GrDrawTarget::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType);
-                // for now we know we're not in perspective, so we could compute this
-                // per-quadratic rather than per pixel
-                segments.fFSCode.append("\tvec2 duvdx = dFdx(vEdge.xy);\n");
-                segments.fFSCode.append("\tvec2 duvdy = dFdy(vEdge.xy);\n");
-                segments.fFSCode.append("\tfloat dfdx = 2.0*vEdge.x*duvdx.x - duvdx.y;\n");
-                segments.fFSCode.append("\tfloat dfdy = 2.0*vEdge.x*duvdy.x - duvdy.y;\n");
-                segments.fFSCode.append("\tfloat edgeAlpha = (vEdge.x*vEdge.x - vEdge.y);\n");
-                segments.fFSCode.append("\tedgeAlpha = sqrt(edgeAlpha*edgeAlpha / (dfdx*dfdx + dfdy*dfdy));\n");
-                if (gl->supportsES()) {
-                    segments.fHeader.printf("#extension GL_OES_standard_derivatives: enable\n");
-                }
-            }
-            segments.fFSCode.append("\tedgeAlpha = max(1.0 - edgeAlpha, 0.0);\n");
-            inCoverage = "edgeAlpha";
-        }
+
+        // get edge AA coverage and use it as inCoverage to first coverage stage
+        this->genEdgeCoverage(gl, layout, programData, &inCoverage, &segments);
 
         GrStringBuilder outCoverage;
         const int& startStage = fProgramDesc.fFirstCoverageStage;
