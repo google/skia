@@ -206,9 +206,23 @@ void GrResourceCache::detach(GrResourceEntry* entry) {
 }
 
 void GrResourceCache::reattachAndUnlock(GrResourceEntry* entry) {
-    attachToHead(entry, true);
-    fCache.insert(entry->key(), entry);
-    unlock(entry);
+    GrAutoResourceCacheValidate atcv(this);
+    if (entry->resource()->isValid()) {
+        attachToHead(entry, true);
+        fCache.insert(entry->key(), entry);
+    } else {
+        // If the resource went invalid while it was detached then purge it
+        // This can happen when a 3D context was lost,
+        // the client called GrContext::contextDestroyed() to notify Gr,
+        // and then later an SkGpuDevice's destructor releases its backing
+        // texture (which was invalidated at contextDestroyed time).
+        fClientDetachedCount -= 1;
+        fEntryCount -= 1;
+        size_t size = entry->resource()->sizeInBytes();
+        fClientDetachedBytes -= size;
+        fEntryBytes -= size;
+    }
+    this->unlock(entry);
 }
 
 void GrResourceCache::unlock(GrResourceEntry* entry) {
@@ -273,8 +287,6 @@ void GrResourceCache::purgeAsNeeded() {
 
 void GrResourceCache::removeAll() {
     GrAutoResourceCacheValidate atcv(this);
-    GrAssert(!fClientDetachedCount);
-    GrAssert(!fClientDetachedBytes);
 
     GrResourceEntry* entry = fHead;
 
@@ -290,8 +302,10 @@ void GrResourceCache::removeAll() {
 
     GrAssert(!fCache.count());
     GrAssert(!fUnlockedEntryCount);
-    GrAssert(!fEntryCount);
-    GrAssert(!fEntryBytes);
+    // Items may have been detached from the cache (such as the backing texture
+    // for an SkGpuDevice). The above purge would not have removed them.
+    GrAssert(fEntryCount == fClientDetachedCount);
+    GrAssert(fEntryBytes == fClientDetachedBytes);
     GrAssert(NULL == fHead);
     GrAssert(NULL == fTail);
 
@@ -360,5 +374,3 @@ void GrResourceCache::validate() const {
     }
 }
 #endif
-
-
