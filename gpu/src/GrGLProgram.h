@@ -286,6 +286,13 @@ private:
                       const char* vsInCoord,
                       ShaderCodeSegments* segments,
                       StageUniLocations* locations) const;
+    
+    // generates code to compute coverage based on edge AA.
+    void genEdgeCoverage(const GrGLInterface* gl,
+                         GrVertexLayout layout,
+                         CachedData* programData,
+                         GrStringBuilder* coverageVar,
+                         ShaderCodeSegments* segments) const;
 
     static bool CompileFSAndVS(const GrGLInterface* gl,
                                const ShaderCodeSegments& segments, 
