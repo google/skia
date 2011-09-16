@@ -19,8 +19,6 @@ void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
 }
 #endif
 
-static SkAutoTUnref<const GrGLInterface> gDefaultGLInterface;
-
 void gl_version_from_string(int* major, int* minor,
                             const char* versionString) {
     if (NULL == versionString) {
@@ -87,19 +85,6 @@ bool has_gl_extension_from_string(const char* ext,
     }
 
     return false;
-}
-
-GR_API const GrGLInterface* GrGLSetDefaultGLInterface(const GrGLInterface* gl_interface) {
-    gl_interface->ref();
-    gDefaultGLInterface.reset(gl_interface);
-    return gl_interface;
-}
-
-GR_API const GrGLInterface* GrGLGetDefaultGLInterface() {
-    if (NULL == gDefaultGLInterface.get()) {
-        GrGLInitializeDefaultGLInterface();
-    }
-    return gDefaultGLInterface.get();
 }
 
 bool has_gl_extension(const GrGLInterface* gl, const char* ext) {

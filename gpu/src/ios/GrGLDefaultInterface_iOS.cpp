@@ -15,135 +15,138 @@
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
-void GrGLInitializeDefaultGLInterface() {
-    GrGLInterface* defaultInterface = new GrGLInterface();
+const GrGLInterface* GrGLDefaultInterface() {
+    static SkAutoTUnref<GrGLInterface> glInterface;
+    if (!glInterface.get()) {
+        GrGLInteface* interface = new GrGLInterface;
+        glInterface.reset(interface);
 
-    defaultInterface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-    defaultInterface->fMinRenderTargetHeight = kProbe_GrGLCapability;
-    defaultInterface->fMinRenderTargetWidth = kProbe_GrGLCapability;
-    defaultInterface->fActiveTexture = glActiveTexture;
-    defaultInterface->fAttachShader = glAttachShader;
-    defaultInterface->fBindAttribLocation = glBindAttribLocation;
-    defaultInterface->fBindBuffer = glBindBuffer;
-    defaultInterface->fBindTexture = glBindTexture;
-    defaultInterface->fBlendColor = glBlendColor;
-    defaultInterface->fBlendFunc = glBlendFunc;
-    defaultInterface->fBufferData = (GrGLBufferDataProc)glBufferData;
-    defaultInterface->fBufferSubData = (GrGLBufferSubDataProc)glBufferSubData;
-    defaultInterface->fClear = glClear;
-    defaultInterface->fClearColor = glClearColor;
-    defaultInterface->fClearStencil = glClearStencil;
-    defaultInterface->fClientActiveTexture = glClientActiveTexture;
-    defaultInterface->fColorMask = glColorMask;
-    defaultInterface->fColorPointer = glColorPointer;
-    defaultInterface->fColor4ub = glColor4ub;
-    defaultInterface->fCompileShader = glCompileShader;
-    defaultInterface->fCompressedTexImage2D = glCompressedTexImage2D;
-    defaultInterface->fCreateProgram = glCreateProgram;
-    defaultInterface->fCreateShader = glCreateShader;
-    defaultInterface->fCullFace = glCullFace;
-    defaultInterface->fDeleteBuffers = glDeleteBuffers;
-    defaultInterface->fDeleteProgram = glDeleteProgram;
-    defaultInterface->fDeleteShader = glDeleteShader;
-    defaultInterface->fDeleteTextures = glDeleteTextures;
-    defaultInterface->fDepthMask = glDepthMask;
-    defaultInterface->fDisable = glDisable;
-    defaultInterface->fDisableClientState = glDisableClientState;
-    defaultInterface->fDisableVertexAttribArray =
-    glDisableVertexAttribArray;
-    defaultInterface->fDrawArrays = glDrawArrays;
-    defaultInterface->fDrawBuffer = NULL;
-    defaultInterface->fDrawBuffers = NULL;
-    defaultInterface->fDrawElements = glDrawElements;
-    defaultInterface->fEnable = glEnable;
-    defaultInterface->fEnableClientState = glEnableClientState;
-    defaultInterface->fEnableVertexAttribArray = glEnableVertexAttribArray;
-    defaultInterface->fFrontFace = glFrontFace;
-    defaultInterface->fGenBuffers = glGenBuffers;
-    defaultInterface->fGetBufferParameteriv = glGetBufferParameteriv;
-    defaultInterface->fGetError = glGetError;
-    defaultInterface->fGetIntegerv = glGetIntegerv;
-    defaultInterface->fGetProgramInfoLog = glGetProgramInfoLog;
-    defaultInterface->fGetProgramiv = glGetProgramiv;
-    defaultInterface->fGetShaderInfoLog = glGetShaderInfoLog;
-    defaultInterface->fGetShaderiv = glGetShaderiv;
-    defaultInterface->fGetString = glGetString;
-    defaultInterface->fGenTextures = glGenTextures;
-    defaultInterface->fGetUniformLocation = glGetUniformLocation;
-    defaultInterface->fLineWidth = glLineWidth;
-    defaultInterface->fLinkProgram = glLinkProgram;
-    defaultInterface->fLoadMatrixf = glLoadMatrixf;
-    defaultInterface->fMatrixMode = glMatrixMode;
-    defaultInterface->fPointSize = glPointSize;
-    defaultInterface->fPixelStorei = glPixelStorei;
-    defaultInterface->fReadBuffer = NULL;
-    defaultInterface->fReadPixels = glReadPixels;
-    defaultInterface->fScissor = glScissor;
-    defaultInterface->fShadeModel = glShadeModel;
-    defaultInterface->fShaderSource = glShaderSource;
-    defaultInterface->fStencilFunc = glStencilFunc;
-    defaultInterface->fStencilFuncSeparate = glStencilFuncSeparate;
-    defaultInterface->fStencilMask = glStencilMask;
-    defaultInterface->fStencilMaskSeparate = glStencilMaskSeparate;
-    defaultInterface->fStencilOp = glStencilOp;
-    defaultInterface->fStencilOpSeparate = glStencilOpSeparate;
-    defaultInterface->fTexCoordPointer = glTexCoordPointer;
-    defaultInterface->fTexEnvi = glTexEnvi;
-    // mac uses GLenum for internalFormat param (non-standard)
-    // amounts to int vs. uint.
-    defaultInterface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
-    defaultInterface->fTexParameteri = glTexParameteri;
-    defaultInterface->fTexSubImage2D = glTexSubImage2D;
-    defaultInterface->fUniform1f = glUniform1f;
-    defaultInterface->fUniform1i = glUniform1i;
-    defaultInterface->fUniform1fv = glUniform1fv;
-    defaultInterface->fUniform1iv = glUniform1iv;
-    defaultInterface->fUniform2f = glUniform2f;
-    defaultInterface->fUniform2i = glUniform2i;
-    defaultInterface->fUniform2fv = glUniform2fv;
-    defaultInterface->fUniform2iv = glUniform2iv;
-    defaultInterface->fUniform3f = glUniform3f;
-    defaultInterface->fUniform3i = glUniform3i;
-    defaultInterface->fUniform3fv = glUniform3fv;
-    defaultInterface->fUniform3iv = glUniform3iv;
-    defaultInterface->fUniform4f = glUniform4f;
-    defaultInterface->fUniform4i = glUniform4i;
-    defaultInterface->fUniform4fv = glUniform4fv;
-    defaultInterface->fUniform4iv = glUniform4iv;
-    defaultInterface->fUniform4fv = glUniform4fv;
-    defaultInterface->fUniformMatrix2fv = glUniformMatrix2fv;
-    defaultInterface->fUniformMatrix3fv = glUniformMatrix3fv;
-    defaultInterface->fUniformMatrix4fv = glUniformMatrix4fv;
-    defaultInterface->fUseProgram = glUseProgram;
-    defaultInterface->fVertexAttrib4fv = glVertexAttrib4fv;
-    defaultInterface->fVertexAttribPointer = glVertexAttribPointer;
-    defaultInterface->fVertexPointer = glVertexPointer;
-    defaultInterface->fViewport = glViewport;
-    defaultInterface->fGenFramebuffers = glGenFramebuffers;
-    defaultInterface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
-    defaultInterface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
-    defaultInterface->fBindFramebuffer = glBindFramebuffer;
-    defaultInterface->fFramebufferTexture2D = glFramebufferTexture2D;
-    defaultInterface->fCheckFramebufferStatus = glCheckFramebufferStatus;
-    defaultInterface->fDeleteFramebuffers = glDeleteFramebuffers;
-    defaultInterface->fRenderbufferStorage = glRenderbufferStorage;
-    defaultInterface->fGenRenderbuffers = glGenRenderbuffers;
-    defaultInterface->fDeleteRenderbuffers = glDeleteRenderbuffers;
-    defaultInterface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
-    defaultInterface->fBindRenderbuffer = glBindRenderbuffer;
+        interface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
+        interface->fMinRenderTargetHeight = kProbe_GrGLCapability;
+        interface->fMinRenderTargetWidth = kProbe_GrGLCapability;
+        interface->fActiveTexture = glActiveTexture;
+        interface->fAttachShader = glAttachShader;
+        interface->fBindAttribLocation = glBindAttribLocation;
+        interface->fBindBuffer = glBindBuffer;
+        interface->fBindTexture = glBindTexture;
+        interface->fBlendColor = glBlendColor;
+        interface->fBlendFunc = glBlendFunc;
+        interface->fBufferData = (GrGLBufferDataProc)glBufferData;
+        interface->fBufferSubData = (GrGLBufferSubDataProc)glBufferSubData;
+        interface->fClear = glClear;
+        interface->fClearColor = glClearColor;
+        interface->fClearStencil = glClearStencil;
+        interface->fClientActiveTexture = glClientActiveTexture;
+        interface->fColorMask = glColorMask;
+        interface->fColorPointer = glColorPointer;
+        interface->fColor4ub = glColor4ub;
+        interface->fCompileShader = glCompileShader;
+        interface->fCompressedTexImage2D = glCompressedTexImage2D;
+        interface->fCreateProgram = glCreateProgram;
+        interface->fCreateShader = glCreateShader;
+        interface->fCullFace = glCullFace;
+        interface->fDeleteBuffers = glDeleteBuffers;
+        interface->fDeleteProgram = glDeleteProgram;
+        interface->fDeleteShader = glDeleteShader;
+        interface->fDeleteTextures = glDeleteTextures;
+        interface->fDepthMask = glDepthMask;
+        interface->fDisable = glDisable;
+        interface->fDisableClientState = glDisableClientState;
+        interface->fDisableVertexAttribArray = glDisableVertexAttribArray;
+        interface->fDrawArrays = glDrawArrays;
+        interface->fDrawBuffer = NULL;
+        interface->fDrawBuffers = NULL;
+        interface->fDrawElements = glDrawElements;
+        interface->fEnable = glEnable;
+        interface->fEnableClientState = glEnableClientState;
+        interface->fEnableVertexAttribArray = glEnableVertexAttribArray;
+        interface->fFrontFace = glFrontFace;
+        interface->fGenBuffers = glGenBuffers;
+        interface->fGetBufferParameteriv = glGetBufferParameteriv;
+        interface->fGetError = glGetError;
+        interface->fGetIntegerv = glGetIntegerv;
+        interface->fGetProgramInfoLog = glGetProgramInfoLog;
+        interface->fGetProgramiv = glGetProgramiv;
+        interface->fGetShaderInfoLog = glGetShaderInfoLog;
+        interface->fGetShaderiv = glGetShaderiv;
+        interface->fGetString = glGetString;
+        interface->fGenTextures = glGenTextures;
+        interface->fGetUniformLocation = glGetUniformLocation;
+        interface->fLineWidth = glLineWidth;
+        interface->fLinkProgram = glLinkProgram;
+        interface->fLoadMatrixf = glLoadMatrixf;
+        interface->fMatrixMode = glMatrixMode;
+        interface->fPointSize = glPointSize;
+        interface->fPixelStorei = glPixelStorei;
+        interface->fReadBuffer = NULL;
+        interface->fReadPixels = glReadPixels;
+        interface->fScissor = glScissor;
+        interface->fShadeModel = glShadeModel;
+        interface->fShaderSource = glShaderSource;
+        interface->fStencilFunc = glStencilFunc;
+        interface->fStencilFuncSeparate = glStencilFuncSeparate;
+        interface->fStencilMask = glStencilMask;
+        interface->fStencilMaskSeparate = glStencilMaskSeparate;
+        interface->fStencilOp = glStencilOp;
+        interface->fStencilOpSeparate = glStencilOpSeparate;
+        interface->fTexCoordPointer = glTexCoordPointer;
+        interface->fTexEnvi = glTexEnvi;
+        // mac uses GLenum for internalFormat param (non-standard)
+        // amounts to int vs. uint.
+        interface->fTexImage2D = (GrGLTexImage2DProc)glTexImage2D;
+        interface->fTexParameteri = glTexParameteri;
+        interface->fTexSubImage2D = glTexSubImage2D;
+        interface->fUniform1f = glUniform1f;
+        interface->fUniform1i = glUniform1i;
+        interface->fUniform1fv = glUniform1fv;
+        interface->fUniform1iv = glUniform1iv;
+        interface->fUniform2f = glUniform2f;
+        interface->fUniform2i = glUniform2i;
+        interface->fUniform2fv = glUniform2fv;
+        interface->fUniform2iv = glUniform2iv;
+        interface->fUniform3f = glUniform3f;
+        interface->fUniform3i = glUniform3i;
+        interface->fUniform3fv = glUniform3fv;
+        interface->fUniform3iv = glUniform3iv;
+        interface->fUniform4f = glUniform4f;
+        interface->fUniform4i = glUniform4i;
+        interface->fUniform4fv = glUniform4fv;
+        interface->fUniform4iv = glUniform4iv;
+        interface->fUniform4fv = glUniform4fv;
+        interface->fUniformMatrix2fv = glUniformMatrix2fv;
+        interface->fUniformMatrix3fv = glUniformMatrix3fv;
+        interface->fUniformMatrix4fv = glUniformMatrix4fv;
+        interface->fUseProgram = glUseProgram;
+        interface->fVertexAttrib4fv = glVertexAttrib4fv;
+        interface->fVertexAttribPointer = glVertexAttribPointer;
+        interface->fVertexPointer = glVertexPointer;
+        interface->fViewport = glViewport;
+        interface->fGenFramebuffers = glGenFramebuffers;
+        interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
+        interface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
+        interface->fBindFramebuffer = glBindFramebuffer;
+        interface->fFramebufferTexture2D = glFramebufferTexture2D;
+        interface->fCheckFramebufferStatus = glCheckFramebufferStatus;
+        interface->fDeleteFramebuffers = glDeleteFramebuffers;
+        interface->fRenderbufferStorage = glRenderbufferStorage;
+        interface->fGenRenderbuffers = glGenRenderbuffers;
+        interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
+        interface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
+        interface->fBindRenderbuffer = glBindRenderbuffer;
        
-#if GL_OES_mapbuffer
-    defaultInterface->fMapBuffer = glMapBufferOES;
-    defaultInterface->fUnmapBuffer = glUnmapBufferOES;
-#endif
+    #if GL_OES_mapbuffer
+        interface->fMapBuffer = glMapBufferOES;
+        interface->fUnmapBuffer = glUnmapBufferOES;
+    #endif
         
-#if GL_APPLE_framebuffer_multisample
-    defaultInterface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleAPPLE;
-    defaultInterface->fResolveMultisampleFramebuffer = glResolveMultisampleFramebufferAPPLE;
-#endif
-    defaultInterface->fBindFragDataLocationIndexed = NULL;
+    #if GL_APPLE_framebuffer_multisample
+        interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleAPPLE;
+        interface->fResolveMultisampleFramebuffer = glResolveMultisampleFramebufferAPPLE;
+    #endif
+        interface->fBindFragDataLocationIndexed = NULL;
         
-    defaultInterface->fBindingsExported = (GrGLBinding)(kES2_GrGLBinding | kES1_GrGLBinding);
-
-    GrGLSetDefaultGLInterface(defaultInterface)->unref();
+        interface->fBindingsExported = (GrGLBinding)(kES2_GrGLBinding | kES1_GrGLBinding);
+    }
+    glInterface.get()->ref();
+    return glInterface.get();
 }
