@@ -541,6 +541,9 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
 }
 
 GrGpuGL::~GrGpuGL() {
+    // This subclass must do this before the base class destructor runs
+    // since we will unref the GrGLInterface.
+    this->releaseResources();
     fGL->unref();
 }
 
