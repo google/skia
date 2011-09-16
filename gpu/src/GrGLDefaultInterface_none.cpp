@@ -6,7 +6,7 @@
  * found in the LICENSE file.
  */
 
-struct GrGLInterface;
+#include "GrGLInterface.h"
 
 const GrGLInterface* GrGLDefaultInterface() {
     return NULL;
