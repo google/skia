@@ -18,13 +18,13 @@
  * An instance of this class initializes COM on creation
  * and closes the COM library on destruction.
  */
-class AutoCoInitialize : SkNoncopyable {
+class SkAutoCoInitialize : SkNoncopyable {
 private:
     HRESULT fHR;
 public:
-    AutoCoInitialize();
-    ~AutoCoInitialize();
-    HRESULT getHR();
+    SkAutoCoInitialize();
+    ~SkAutoCoInitialize();
+    bool succeeded();
 };
 
 #endif
