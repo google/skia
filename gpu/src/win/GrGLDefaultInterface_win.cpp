@@ -18,12 +18,14 @@
  * Otherwise, a springboard would be needed that hides the calling convention.
  */
 
-#define GR_GL_GET_PROC(F) defaultInterface->f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F);
-#define GR_GL_GET_PROC_SUFFIX(F, S) defaultInterface->f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F #S);
+#define GR_GL_GET_PROC(F) interface->f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F);
+#define GR_GL_GET_PROC_SUFFIX(F, S) interface->f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F #S);
 
-void GrGLInitializeDefaultGLInterface() {
-
+const GrGLInterface* GrGLDefaultInterface() {
     // wglGetProcAddress requires a context.
+    // GL Function pointers retrieved in one context may not be valid in another
+    // context. For that reason we create a new GrGLInterface each time we're 
+    // called.
     if (NULL != wglGetCurrentContext()) {
         int major, minor;
         const char* versionString = (const char*) glGetString(GL_VERSION);
@@ -32,58 +34,58 @@ void GrGLInitializeDefaultGLInterface() {
 
         if (major == 1 && minor < 5) {
             // We must have array and element_array buffer objects.
-            return;
+            return NULL;
         }
-        GrGLInterface* defaultInterface = new GrGLInterface();
+        GrGLInterface* interface = new GrGLInterface();
 
-        defaultInterface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
-        defaultInterface->fMinRenderTargetHeight = kProbe_GrGLCapability;
-        defaultInterface->fMinRenderTargetWidth = kProbe_GrGLCapability;
+        interface->fNPOTRenderTargetSupport = kProbe_GrGLCapability;
+        interface->fMinRenderTargetHeight = kProbe_GrGLCapability;
+        interface->fMinRenderTargetWidth = kProbe_GrGLCapability;
 
         // Functions that are part of GL 1.1 will return NULL in
         // wglGetProcAddress
-        defaultInterface->fBlendFunc = glBlendFunc;
-        defaultInterface->fClear = glClear;
-        defaultInterface->fClearColor = glClearColor;
-        defaultInterface->fClearStencil = glClearStencil;
-        defaultInterface->fColor4ub = glColor4ub;
-        defaultInterface->fColorMask = glColorMask;
-        defaultInterface->fColorPointer = glColorPointer;
-        defaultInterface->fCullFace = glCullFace;
-        defaultInterface->fDeleteTextures = glDeleteTextures;
-        defaultInterface->fDepthMask = glDepthMask;
-        defaultInterface->fDisable = glDisable;
-        defaultInterface->fDisableClientState = glDisableClientState;
-        defaultInterface->fDrawArrays = glDrawArrays;
-        defaultInterface->fDrawElements = glDrawElements;
-        defaultInterface->fDrawBuffer = glDrawBuffer;
-        defaultInterface->fEnable = glEnable;
-        defaultInterface->fEnableClientState = glEnableClientState;
-        defaultInterface->fFrontFace = glFrontFace;
-        defaultInterface->fGenTextures = glGenTextures;
-        defaultInterface->fGetError = glGetError;
-        defaultInterface->fGetIntegerv = glGetIntegerv;
-        defaultInterface->fGetString = glGetString;
-        defaultInterface->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
-        defaultInterface->fLineWidth = glLineWidth;
-        defaultInterface->fLoadMatrixf = glLoadMatrixf;
-        defaultInterface->fMatrixMode = glMatrixMode;
-        defaultInterface->fPixelStorei = glPixelStorei;
-        defaultInterface->fPointSize = glPointSize;
-        defaultInterface->fReadBuffer = glReadBuffer;
-        defaultInterface->fReadPixels = glReadPixels;
-        defaultInterface->fScissor = glScissor;
-        defaultInterface->fShadeModel = glShadeModel;
-        defaultInterface->fStencilFunc = glStencilFunc;
-        defaultInterface->fStencilMask = glStencilMask;
-        defaultInterface->fStencilOp = glStencilOp;
-        defaultInterface->fTexImage2D = glTexImage2D;
-        defaultInterface->fTexParameteri = glTexParameteri;
-        defaultInterface->fTexCoordPointer = glTexCoordPointer;
-        defaultInterface->fTexEnvi = glTexEnvi;
-        defaultInterface->fTexSubImage2D = glTexSubImage2D;
-        defaultInterface->fViewport = glViewport;
-        defaultInterface->fVertexPointer = glVertexPointer;
+        interface->fBlendFunc = glBlendFunc;
+        interface->fClear = glClear;
+        interface->fClearColor = glClearColor;
+        interface->fClearStencil = glClearStencil;
+        interface->fColor4ub = glColor4ub;
+        interface->fColorMask = glColorMask;
+        interface->fColorPointer = glColorPointer;
+        interface->fCullFace = glCullFace;
+        interface->fDeleteTextures = glDeleteTextures;
+        interface->fDepthMask = glDepthMask;
+        interface->fDisable = glDisable;
+        interface->fDisableClientState = glDisableClientState;
+        interface->fDrawArrays = glDrawArrays;
+        interface->fDrawElements = glDrawElements;
+        interface->fDrawBuffer = glDrawBuffer;
+        interface->fEnable = glEnable;
+        interface->fEnableClientState = glEnableClientState;
+        interface->fFrontFace = glFrontFace;
+        interface->fGenTextures = glGenTextures;
+        interface->fGetError = glGetError;
+        interface->fGetIntegerv = glGetIntegerv;
+        interface->fGetString = glGetString;
+        interface->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
+        interface->fLineWidth = glLineWidth;
+        interface->fLoadMatrixf = glLoadMatrixf;
+        interface->fMatrixMode = glMatrixMode;
+        interface->fPixelStorei = glPixelStorei;
+        interface->fPointSize = glPointSize;
+        interface->fReadBuffer = glReadBuffer;
+        interface->fReadPixels = glReadPixels;
+        interface->fScissor = glScissor;
+        interface->fShadeModel = glShadeModel;
+        interface->fStencilFunc = glStencilFunc;
+        interface->fStencilMask = glStencilMask;
+        interface->fStencilOp = glStencilOp;
+        interface->fTexImage2D = glTexImage2D;
+        interface->fTexParameteri = glTexParameteri;
+        interface->fTexCoordPointer = glTexCoordPointer;
+        interface->fTexEnvi = glTexEnvi;
+        interface->fTexSubImage2D = glTexSubImage2D;
+        interface->fViewport = glViewport;
+        interface->fVertexPointer = glVertexPointer;
 
         GR_GL_GET_PROC(ActiveTexture);
         GR_GL_GET_PROC(AttachShader);
@@ -178,13 +180,16 @@ void GrGLInitializeDefaultGLInterface() {
             }
         } else {
             // we must have FBOs
-            return;
+            delete interface;
+            return NULL;
         }
         GR_GL_GET_PROC(MapBuffer);
         GR_GL_GET_PROC(UnmapBuffer);
 
-        defaultInterface->fBindingsExported = kDesktop_GrGLBinding;
+        interface->fBindingsExported = kDesktop_GrGLBinding;
 
-        GrGLSetDefaultGLInterface(defaultInterface)->unref();
+        return interface;
+    } else {
+        return NULL;
     }
 }

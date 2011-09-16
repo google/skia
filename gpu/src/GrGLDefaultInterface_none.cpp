@@ -7,5 +7,6 @@
  */
 
 
-void GrGLInitializeDefaultGLInterface() {
+const GrGLInterface* GrGLDefaultInterface() {
+    return NULL;
 }

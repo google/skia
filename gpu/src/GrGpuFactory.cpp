@@ -23,12 +23,17 @@
 GrGpu* GrGpu::Create(GrEngine engine, GrPlatform3DContext context3D) {
 
     const GrGLInterface* glInterface = NULL;
+    SkAutoTUnref<const GrGLInterface> glInterfaceUnref;
 
     if (kOpenGL_Shaders_GrEngine == engine ||
         kOpenGL_Fixed_GrEngine == engine) {
         glInterface = reinterpret_cast<const GrGLInterface*>(context3D);
         if (NULL == glInterface) {
-            glInterface = GrGLGetDefaultGLInterface();
+            glInterface = GrGLDefaultInterface();
+            // By calling GrGLDefaultInterface we've taken a ref on the
+            // returned object. We only want to hold that ref until after
+            // the GrGpu is constructed and has taken ownership.
+            glInterfaceUnref.reset(glInterface);
         }
         if (NULL == glInterface) {
 #if GR_DEBUG

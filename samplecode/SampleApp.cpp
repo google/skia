@@ -81,11 +81,13 @@ public:
     DefaultDeviceManager() {
         fGrRenderTarget = NULL;
         fGrContext = NULL;
+        fGL = NULL;
     }
 
     virtual ~DefaultDeviceManager() {
         SkSafeUnref(fGrRenderTarget);
         SkSafeUnref(fGrContext);
+        SkSafeUnref(fGL);
     }
 
     virtual void init(SampleWindow* win) {
@@ -93,7 +95,10 @@ public:
         if (NULL == fGrContext) {
             fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
         }
-        if (NULL == fGrContext) {
+        if (NULL == fGL) {
+            fGL = GrGLDefaultInterface();
+        }
+        if (NULL == fGrContext || NULL == fGL) {
             SkDebugf("Failed to setup 3D");
             win->detachGL();
         }
@@ -153,12 +158,10 @@ public:
             desc.fWidth = SkScalarRound(win->width());
             desc.fHeight = SkScalarRound(win->height());
             desc.fConfig = kRGBA_8888_GrPixelConfig;
-            const GrGLInterface* gl = GrGLGetDefaultGLInterface();
-            GrAssert(NULL != gl);
-            GR_GL_GetIntegerv(gl, GR_GL_STENCIL_BITS, &desc.fStencilBits);
-            GR_GL_GetIntegerv(gl, GR_GL_SAMPLES, &desc.fSampleCnt);
+            GR_GL_GetIntegerv(fGL, GR_GL_STENCIL_BITS, &desc.fStencilBits);
+            GR_GL_GetIntegerv(fGL, GR_GL_SAMPLES, &desc.fSampleCnt);
             GrGLint buffer;
-            GR_GL_GetIntegerv(gl, GR_GL_FRAMEBUFFER_BINDING, &buffer);
+            GR_GL_GetIntegerv(fGL, GR_GL_FRAMEBUFFER_BINDING, &buffer);
             desc.fPlatformRenderTarget = buffer;
 
             SkSafeUnref(fGrRenderTarget);
@@ -172,6 +175,7 @@ public:
     }
 private:
     GrContext* fGrContext;
+    const GrGLInterface* fGL;
     GrRenderTarget* fGrRenderTarget;
 };
 
