@@ -25,8 +25,12 @@ protected:
 
 bool SkImageDecoder_WIC::onDecode(SkStream* stream, SkBitmap* bm, Mode mode) {
     //Initialize COM.
-    AutoCoInitialize scopedCo;
-    HRESULT hr = scopedCo.getHR();
+    SkAutoCoInitialize scopedCo;
+    if (!scopedCo.succeeded()) {
+        return false;
+    }
+    
+    HRESULT hr = S_OK;
     
     //Create Windows Imaging Component ImagingFactory.
     SkTScopedComPtr<IWICImagingFactory> piImagingFactory;
@@ -189,8 +193,12 @@ bool SkImageEncoder_WIC::onEncode(SkWStream* stream
     }
 
     //Initialize COM.
-    AutoCoInitialize scopedCo;
-    HRESULT hr = scopedCo.getHR();
+    SkAutoCoInitialize scopedCo;
+    if (!scopedCo.succeeded()) {
+        return false;
+    }
+    
+    HRESULT hr = S_OK;
     
     //Create Windows Imaging Component ImagingFactory.
     SkTScopedComPtr<IWICImagingFactory> piImagingFactory;
