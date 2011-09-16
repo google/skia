@@ -138,7 +138,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fBlitFramebuffer = glBlitFramebuffer;
     #elif GL_EXT_framebuffer_object
         interface->fGenFramebuffers = glGenFramebuffersEXT;
-        interface->fGetFramebufferAttachmentivParameter = glGetFramebufferAttachmentParameterivEXT;
+        interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameterivEXT;
         interface->fGLGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
         interface->fBindFramebuffer = glBindFramebufferEXT;
         interface->fFramebufferTexture2D = glFramebufferTexture2DEXT;
@@ -146,7 +146,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fDeleteFramebuffers = glDeleteFramebuffersEXT;
         interface->fRenderbufferStorage = glRenderbufferStorageEXT;
         interface->fGenRenderbuffers = glGenRenderbuffersEXT;
-        interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
+        interface->fDeleteRenderbuffers = glDeleteRenderbuffersEXT;
         interface->fFramebufferRenderbuffer = 
                                                 glFramebufferRenderbufferEXT;
         interface->fBindRenderbuffer = glBindRenderbufferEXT;

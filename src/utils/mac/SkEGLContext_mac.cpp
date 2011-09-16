@@ -59,18 +59,18 @@ bool SkEGLContext::init(int width, int height) {
     GLuint dsID;
     glGenFramebuffersEXT(1, &fFBO);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fFBO);
-    glGenRenderbuffers(1, &cbID);
-    glBindRenderbuffer(GL_RENDERBUFFER, cbID);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, cbID);
-    glGenRenderbuffers(1, &dsID);
-    glBindRenderbuffer(GL_RENDERBUFFER, dsID);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_STENCIL, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dsID);
+    glGenRenderbuffersEXT(1, &cbID);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, cbID);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, width, height);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER_EXT, cbID);
+    glGenRenderbuffersEXT(1, &dsID);
+    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, dsID);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_STENCIL, width, height);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER_EXT, dsID);
     glViewport(0, 0, width, height);
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT);
 
-    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    return GL_FRAMEBUFFER_COMPLETE == status;
+    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+    return GL_FRAMEBUFFER_COMPLETE_EXT == status;
 }
