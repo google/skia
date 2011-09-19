@@ -511,6 +511,7 @@ int main(int argc, char * const argv[]) {
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
     const char* matchStr = NULL;
 
+    bool doPDF = true;
     bool doReplay = true;
     bool doSerialize = false;
     const char* const commandName = argv[0];
@@ -533,6 +534,8 @@ int main(int argc, char * const argv[]) {
             }
         } else if (strcmp(*argv, "--noreplay") == 0) {
             doReplay = false;
+        } else if (strcmp(*argv, "--nopdf") == 0) {
+            doPDF = false;
         } else if (strcmp(*argv, "--serialize") == 0) {
             doSerialize = true;
         } else if (strcmp(*argv, "--match") == 0) {
@@ -604,6 +607,10 @@ int main(int argc, char * const argv[]) {
         SkBitmap forwardRenderedBitmap;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
+            if ((kPDF_Backend == gRec[i].fBackend) && !doPDF) {
+                continue;
+            }
+
             bool testSuccess = test_drawing(gm, gRec[i],
                          writePath, readPath, diffPath, gGrContext,
                          rt, &forwardRenderedBitmap);

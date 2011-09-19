@@ -18,6 +18,7 @@
         '../gm/filltypespersp.cpp',
         '../gm/gmmain.cpp',
         '../gm/gradients.cpp',
+        '../gm/hairmodes.cpp',
         '../gm/lcdtext.cpp',
         '../gm/ninepatchstretch.cpp',
         '../gm/nocolorbleed.cpp',
