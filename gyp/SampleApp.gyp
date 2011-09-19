@@ -71,6 +71,7 @@
         '../samplecode/SampleGradients.cpp',
         '../samplecode/SampleHairCurves.cpp',
         '../samplecode/SampleHairline.cpp',
+        '../samplecode/SampleHairModes.cpp',
         '../samplecode/SampleImage.cpp',
         '../samplecode/SampleImageDir.cpp',
         '../samplecode/SampleLayerMask.cpp',
