@@ -862,7 +862,15 @@ bool SkDrawTreatAsHairline(const SkPaint& paint, const SkMatrix& matrix,
     SkScalar len1 = fast_len(dst[1]);
     if (len0 <= SK_Scalar1 && len1 <= SK_Scalar1) {
         SkScalar modulate = SkScalarAve(len0, len1);
+#if 0
         *newAlpha = SkToU8(SkScalarRoundToInt(modulate * paint.getAlpha()));
+#else
+        // this is the old technique, which we preserve for now so we don't
+        // change previous results (testing)
+        // the new way seems fine, its just (a tiny bit) different
+        int scale = (int)SkScalarMul(modulate, 256);
+        *newAlpha = paint.getAlpha() * scale >> 8;
+#endif
         return true;
     }
     return false;
