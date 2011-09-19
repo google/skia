@@ -435,10 +435,6 @@ static bool test_picture_playback(GM* gm,
                                   const SkBitmap& comparisonBitmap,
                                   const char readPath [],
                                   const char diffPath []) {
-    if (!gm->validForPicture()) {
-        return true;
-    }
-
     SkPicture* pict = generate_new_picture(gm);
     SkAutoUnref aur(pict);
 
@@ -607,7 +603,10 @@ int main(int argc, char * const argv[]) {
         SkBitmap forwardRenderedBitmap;
 
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
-            if ((kPDF_Backend == gRec[i].fBackend) && !doPDF) {
+            uint32_t gmFlags = gm->getFlags();
+
+            if ((kPDF_Backend == gRec[i].fBackend) && !doPDF ||
+                (gmFlags & GM::kSkipPDF_Flag)) {
                 continue;
             }
 
@@ -616,7 +615,7 @@ int main(int argc, char * const argv[]) {
                          rt, &forwardRenderedBitmap);
             overallSuccess &= testSuccess;
 
-            if (doReplay && testSuccess) {
+            if (doReplay && testSuccess && !(gmFlags & GM::kSkipPicture_Flag)) {
                 testSuccess = test_picture_playback(gm, gRec[i],
                                       forwardRenderedBitmap,
                                       readPath, diffPath);

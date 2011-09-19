@@ -30,6 +30,11 @@ namespace skiagm {
         GM();
         virtual ~GM();
 		
+        enum Flags {
+            kSkipPDF_Flag       = 1 << 0,
+            kSkipPicture_Flag   = 1 << 1
+        };
+
 		void draw(SkCanvas*);
 		SkISize getISize() { return this->onISize(); }
         const char* shortName() {
@@ -39,12 +44,15 @@ namespace skiagm {
             return fShortName.c_str();
         }
 
-        virtual bool validForPicture() const { return true; }
+        uint32_t getFlags() const {
+            return this->onGetFlags();
+        }
 
 	protected:
 		virtual void onDraw(SkCanvas*) = 0;
 		virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
+        virtual uint32_t onGetFlags() const { return 0; }
         
     private:
         SkString fShortName;
