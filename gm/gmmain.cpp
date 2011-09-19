@@ -605,8 +605,9 @@ int main(int argc, char * const argv[]) {
         for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); i++) {
             uint32_t gmFlags = gm->getFlags();
 
-            if ((kPDF_Backend == gRec[i].fBackend) && !doPDF ||
-                (gmFlags & GM::kSkipPDF_Flag)) {
+            if ((kPDF_Backend == gRec[i].fBackend) && 
+                (!doPDF || (gmFlags & GM::kSkipPDF_Flag)))
+            {
                 continue;
             }
 
