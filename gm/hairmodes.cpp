@@ -138,6 +138,10 @@ namespace skiagm {
                 canvas->translate(W * 5 / 4, 0);
             }
         }
+
+        // disable pdf for now, since it crashes on mac
+        virtual uint32_t onGetFlags() const { return kSkipPDF_Flag; }
+
     private:
         typedef GM INHERITED;
     };
