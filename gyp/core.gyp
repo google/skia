@@ -227,6 +227,7 @@
         '../include/core/SkStream.h',
         '../include/core/SkString.h',
         '../include/core/SkStroke.h',
+        '../include/core/SkTArray.h',
         '../include/core/SkTDArray.h',
         '../include/core/SkTDStack.h',
         '../include/core/SkTDict.h',
