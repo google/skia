@@ -18,7 +18,17 @@
 
 class GrBinHashKeyBuilder;
 
-struct ShaderCodeSegments;
+struct ShaderCodeSegments {
+    GrStringBuilder fHeader; // VS+FS, GLSL version, etc
+    GrStringBuilder fVSUnis;
+    GrStringBuilder fVSAttrs;
+    GrStringBuilder fVaryings;
+    GrStringBuilder fFSUnis;
+    GrStringBuilder fFSOutputs;
+    GrStringBuilder fFSFunctions;
+    GrStringBuilder fVSCode;
+    GrStringBuilder fFSCode;
+};
 
 /**
  * This class manages a GPU program and records per-program information.
@@ -31,11 +41,6 @@ struct ShaderCodeSegments;
  */
 class GrGLProgram {
 public:
-    enum GLSLVersion {
-        k120_GLSLVersion, // Desktop GLSL 1.2 and ES2 shading lang
-        k150_GLSLVersion  // Desktop GLSL 1.5
-    };
-
     class CachedData;
 
     GrGLProgram();
@@ -47,7 +52,6 @@ public:
      *  but in a separate cacheable container.
      */
     bool genProgram(const GrGLInterface* gl,
-                    GLSLVersion glslVersion,
                     CachedData* programData) const;
 
      /**
@@ -282,7 +286,7 @@ private:
                       const char* vsInCoord,
                       ShaderCodeSegments* segments,
                       StageUniLocations* locations) const;
-
+    
     // generates code to compute coverage based on edge AA.
     void genEdgeCoverage(const GrGLInterface* gl,
                          GrVertexLayout layout,
@@ -291,7 +295,6 @@ private:
                          ShaderCodeSegments* segments) const;
 
     static bool CompileFSAndVS(const GrGLInterface* gl,
-                               GLSLVersion glslVersion,
                                const ShaderCodeSegments& segments, 
                                CachedData* programData);
 
