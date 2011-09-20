@@ -46,7 +46,7 @@ public:
      *
      * @return pointer to the added item.
      */
-    void* push_back() {        
+    void* push_back() {
         int indexInBlock = fCount % fItemsPerBlock;
         // we always have at least one block
         if (0 == indexInBlock) {
@@ -153,7 +153,7 @@ public:
      *                          Must be at least size(T)*itemsPerBlock sized.
      *                          Caller is responsible for freeing this memory.
      */
-    GrTAllocator(int itemsPerBlock, void* initialBlock)
+    explicit GrTAllocator(int itemsPerBlock, void* initialBlock = NULL)
         : fAllocator(sizeof(T), itemsPerBlock, initialBlock) {}
 
     /**
@@ -163,7 +163,7 @@ public:
      *                          and the size of subsequent blocks.
      */
     template <int N>
-    GrTAllocator(SkAlignedSTStorage<N,T>* initialBlock)
+    explicit GrTAllocator(SkAlignedSTStorage<N,T>* initialBlock)
         : fAllocator(sizeof(T), N, initialBlock->get()) {}
     
     /**
@@ -177,7 +177,14 @@ public:
         new (item) T;
         return *(T*)item;
     }
-    
+
+    T& push_back(const T& t) {
+        void* item = fAllocator.push_back();
+        GrAssert(NULL != item);
+        new (item) T(t);
+        return *(T*)item;
+    }
+
     /**
      * removes all added items
      */
