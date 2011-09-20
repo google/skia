@@ -26,6 +26,7 @@ public:
 
     const GrGLInterface* glInterface() const { return fGL; }
     GrGLBinding glBinding() const { return fGLBinding; }
+    float glVersion() const { return fGLVersion; }
 
 protected:
     GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
@@ -45,10 +46,6 @@ protected:
 
     DrState   fHWDrawState;
     bool      fHWStencilClip;
-
-    // read these once at begining and then never again
-    SkString fExtensionString;
-    float fGLVersion;
 
     // As flush of GL state proceeds it updates fHDrawState
     // to reflect the new state. Later parts of the state flush
@@ -193,13 +190,16 @@ private:
     friend class GrGLTexture;
     friend class GrGLRenderTarget;
 
+    // read these once at begining and then never again
+    SkString fExtensionString;
+    float fGLVersion;
 
     SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
     // we want to clear stencil buffers when they are created. We want to clear
     // the entire buffer even if it is larger than the color attachment. We
     // attach it to this fbo with no color attachment to do the initial clear.
     GrGLuint fStencilClearFBO;
-    
+
     bool fHWBlendDisabled;
 
     GrGLuint fAASamples[4];
