@@ -836,13 +836,13 @@ static inline bool no_need_for_clamp(int fx, int dx, int count) {
     } while (0)
 
 
-void Linear_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
+void Linear_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
     SkASSERT(count > 0);
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
-    const SkPMColor*    cache = this->getCache32();
+    const SkPMColor* SK_RESTRICT cache = this->getCache32();
 #ifdef USE_DITHER_32BIT_GRADIENT
     int                 toggle = ((x ^ y) & 1) << kCache32Bits;
     const int           TOGGLE_MASK = (1 << kCache32Bits);
@@ -987,13 +987,13 @@ static void dither_memset16(uint16_t dst[], uint16_t value, uint16_t other,
     } while (0)
 
 
-void Linear_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
+void Linear_Gradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int count) {
     SkASSERT(count > 0);
 
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
-    const uint16_t*     cache = this->getCache16();
+    const uint16_t* SK_RESTRICT cache = this->getCache16();
     int                 toggle = ((x ^ y) & 1) << kCache16Bits;
     const int           TOGGLE_MASK = (1 << kCache32Bits);
 
@@ -1147,13 +1147,13 @@ public:
         rad_to_unit_matrix(center, radius, &fPtsToUnit);
     }
 
-    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) {
+    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
         SkASSERT(count > 0);
 
         SkPoint             srcPt;
         SkMatrix::MapXYProc dstProc = fDstToIndexProc;
         TileProc            proc = fTileProc;
-        const SkPMColor*    cache = this->getCache32();
+        const SkPMColor* SK_RESTRICT cache = this->getCache32();
 
         if (fDstToIndexClass != kPerspective_MatrixClass) {
             dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
@@ -1173,7 +1173,7 @@ public:
             }
 
             if (proc == clamp_tileproc) {
-                const uint8_t* sqrt_table = gSqrt8Table;
+                const uint8_t* SK_RESTRICT sqrt_table = gSqrt8Table;
                 fx >>= 1;
                 dx >>= 1;
                 fy >>= 1;
@@ -1226,13 +1226,13 @@ public:
         }
     }
 
-    virtual void shadeSpan16(int x, int y, uint16_t dstC[], int count) {
+    virtual void shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int count) {
         SkASSERT(count > 0);
 
         SkPoint             srcPt;
         SkMatrix::MapXYProc dstProc = fDstToIndexProc;
         TileProc            proc = fTileProc;
-        const uint16_t*     cache = this->getCache16();
+        const uint16_t* SK_RESTRICT cache = this->getCache16();
         int                 toggle = ((x ^ y) & 1) << kCache16Bits;
 
         if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -1253,7 +1253,7 @@ public:
             }
 
             if (proc == clamp_tileproc) {
-                const uint8_t* sqrt_table = gSqrt8Table;
+                const uint8_t* SK_RESTRICT sqrt_table = gSqrt8Table;
 
                 /* knock these down so we can pin against +- 0x7FFF, which is an immediate load,
                     rather than 0xFFFF which is slower. This is a compromise, since it reduces our
@@ -1532,7 +1532,7 @@ public:
         return kRadial2_GradientType;
     }
 
-    virtual void shadeSpan(int x, int y, SkPMColor dstC[], int count) {
+    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
         SkASSERT(count > 0);
 
         // Zero difference between radii:  fill with transparent black.
@@ -1542,7 +1542,7 @@ public:
         }
         SkMatrix::MapXYProc dstProc = fDstToIndexProc;
         TileProc            proc = fTileProc;
-        const SkPMColor*    cache = this->getCache32();
+        const SkPMColor* SK_RESTRICT cache = this->getCache32();
 
         SkScalar foura = fA * 4;
         bool posRoot = fDiffRadius < 0;
@@ -1962,10 +1962,10 @@ static unsigned SkATan2_255(SkFixed y, SkFixed x) {
     return result;
 }
 
-void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
+void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
     SkMatrix::MapXYProc proc = fDstToIndexProc;
     const SkMatrix&     matrix = fDstToIndex;
-    const SkPMColor*    cache = this->getCache32();
+    const SkPMColor* SK_RESTRICT cache = this->getCache32();
     SkPoint             srcPt;
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
@@ -2003,10 +2003,10 @@ void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor dstC[], int count) {
     }
 }
 
-void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t dstC[], int count) {
+void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int count) {
     SkMatrix::MapXYProc proc = fDstToIndexProc;
     const SkMatrix&     matrix = fDstToIndex;
-    const uint16_t*     cache = this->getCache16();
+    const uint16_t* SK_RESTRICT cache = this->getCache16();
     int                 toggle = ((x ^ y) & 1) << kCache16Bits;
     SkPoint             srcPt;
 
