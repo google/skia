@@ -246,16 +246,6 @@ public:
     }
 
     /**
-     * Version of above that uses a copy constructor to initialize the new item
-     */
-    T& push_back(const T& t) {
-        checkRealloc(1);
-        new ((char*)fMemArray+sizeof(T)*fCount) T(t);
-        ++fCount;
-        return fItemArray[fCount-1];
-    }
-
-    /**
      * Allocates n more default T values, and returns the address of the start
      * of that new range. Note: this address is only valid until the next API
      * call made on the array that might add or remove elements.
@@ -265,34 +255,6 @@ public:
         checkRealloc(n);
         for (int i = 0; i < n; ++i) {
             new (fItemArray + fCount + i) T;
-        }
-        fCount += n;
-        return fItemArray + fCount - n;
-    }
-
-    /**
-     * Version of above that uses a copy constructor to initialize all n items
-     * to the same T.
-     */
-    T* push_back_n(int n, const T& t) {
-        SkASSERT(n >= 0);
-        checkRealloc(n);
-        for (int i = 0; i < n; ++i) {
-            new (fItemArray + fCount + i) T(t);
-        }
-        fCount += n;
-        return fItemArray + fCount - n;
-    }
-
-    /**
-     * Version of above that uses a copy constructor to initialize the n items
-     * to separate T values.
-     */
-    T* push_back_n(int n, const T t[]) {
-        SkASSERT(n >= 0);
-        checkRealloc(n);
-        for (int i = 0; i < n; ++i) {
-            new (fItemArray + fCount + i) T(t[i]);
         }
         fCount += n;
         return fItemArray + fCount - n;
