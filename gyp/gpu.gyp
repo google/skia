@@ -149,6 +149,7 @@
         '../gpu/src/GrGLProgram.h',
         '../gpu/src/GrGLRenderTarget.cpp',
         '../gpu/src/GrGLRenderTarget.h',
+        '../gpu/src/GrGLShaderVar.h',
         '../gpu/src/GrGLStencilBuffer.cpp',
         '../gpu/src/GrGLStencilBuffer.h',
         '../gpu/src/GrGLTexture.cpp',

@@ -51,15 +51,19 @@ private:
     enum {
         kMaxEntries = 32
     };
-    Entry                 fEntries[kMaxEntries];
-    int                   fCount;
-    unsigned int          fCurrLRUStamp;
-    const GrGLInterface*  fGL;
+    Entry                       fEntries[kMaxEntries];
+    int                         fCount;
+    unsigned int                fCurrLRUStamp;
+    const GrGLInterface*        fGL;
+    GrGLProgram::GLSLVersion    fGLSLVersion;
+
 public:
-    ProgramCache(const GrGLInterface* gl) 
+    ProgramCache(const GrGLInterface* gl,
+                 GrGLProgram::GLSLVersion glslVersion) 
         : fCount(0)
         , fCurrLRUStamp(0)
-        , fGL(gl) {
+        , fGL(gl)
+        , fGLSLVersion(glslVersion) {
     }
 
     ~ProgramCache() {
@@ -85,7 +89,7 @@ public:
         
         Entry* entry = fHashCache.find(newEntry.fKey);
         if (NULL == entry) {
-            if (!desc.genProgram(fGL, &newEntry.fProgramData)) {
+            if (!desc.genProgram(fGL, fGLSLVersion, &newEntry.fProgramData)) {
                 return NULL;
             }
             if (fCount < kMaxEntries) {
@@ -136,14 +140,33 @@ void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
 #define GL_CALL(X) GR_GL_CALL(this->glInterface(), X)
 
 namespace {
-    template <typename T>
-    T random_val(GrRandom* r, T count) {
-        return (T)(int)(r->nextF() * count);
+
+GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding, float glVersion) {
+    switch (binding) {
+        case kDesktop_GrGLBinding:
+            // TODO: proper check of the glsl version string
+            return (glVersion >= 3.0) ? GrGLProgram::k130_GLSLVersion :
+                                        GrGLProgram::k120_GLSLVersion;
+        case kES2_GrGLBinding:
+            return GrGLProgram::k120_GLSLVersion;
+        default:
+            GrCrash("Attempting to get GLSL version in unknown or fixed-"
+                     "function GL binding.");
+            return GrGLProgram::k120_GLSLVersion; // suppress warning
     }
-};
+}
+
+template <typename T>
+T random_val(GrRandom* r, T count) {
+    return (T)(int)(r->nextF() * count);
+}
+
+}
 
 bool GrGpuGLShaders::programUnitTest() {
 
+    GrGLProgram::GLSLVersion glslVersion = 
+            get_glsl_version(this->glBinding(), this->glVersion());
     static const int STAGE_OPTS[] = {
         0,
         StageDesc::kNoPerspective_OptFlagBit,
@@ -242,15 +265,12 @@ bool GrGpuGLShaders::programUnitTest() {
             stage.fKernelWidth = 4 * random.nextF() + 2;
         }
         CachedData cachedData;
-        if (!program.genProgram(this->glInterface(), &cachedData)) {
+        if (!program.genProgram(this->glInterface(),
+                                glslVersion,
+                                &cachedData)) {
             return false;
         }
         DeleteProgram(this->glInterface(), &cachedData);
-        bool again = false;
-        if (again) {
-            program.genProgram(this->glInterface(), &cachedData);
-            DeleteProgram(this->glInterface(), &cachedData);
-        }
     }
     return true;
 }
@@ -272,7 +292,8 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     fShaderSupport = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fDualSourceBlendingSupport =
-                            fGLVersion >= 3.3f ||
+                            this->glVersion() >= 3.25f || // TODO: when resolving Issue 387 change 
+                                                          // this back to 3.3
                             this->hasExtension("GL_ARB_blend_func_extended");
         fShaderDerivativeSupport = true;
     } else {
@@ -282,7 +303,9 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     }
 
     fProgramData = NULL;
-    fProgramCache = new ProgramCache(gl);
+    GrGLProgram::GLSLVersion glslVersion =
+        get_glsl_version(this->glBinding(), this->glVersion());
+    fProgramCache = new ProgramCache(gl, glslVersion);
 
 #if 0
     this->programUnitTest();
