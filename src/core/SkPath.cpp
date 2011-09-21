@@ -1323,7 +1323,7 @@ void SkPath::flatten(SkWriter32& buffer) const {
 
     buffer.write32(fPts.count());
     buffer.write32(fVerbs.count());
-    buffer.write32(fFillType);
+    buffer.write32((fFillType << 8) | fSegmentMask);
     buffer.writeMul4(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.writePad(fVerbs.begin(), fVerbs.count());
 }
@@ -1331,7 +1331,9 @@ void SkPath::flatten(SkWriter32& buffer) const {
 void SkPath::unflatten(SkReader32& buffer) {
     fPts.setCount(buffer.readS32());
     fVerbs.setCount(buffer.readS32());
-    fFillType = buffer.readS32();
+    uint32_t packed = buffer.readS32();
+    fFillType = packed >> 8;
+    fSegmentMask = packed & 0xFF;
     buffer.read(fPts.begin(), sizeof(SkPoint) * fPts.count());
     buffer.read(fVerbs.begin(), fVerbs.count());
 
