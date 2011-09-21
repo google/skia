@@ -569,6 +569,19 @@ public:
         this->setLastPt(p.fX, p.fY);
     }
 
+    enum SegmentMask {
+        kLine_SegmentMask   = 1 << 0,
+        kQuad_SegmentMask   = 1 << 1,
+        kCubic_SegmentMask  = 1 << 2
+    };
+
+    /**
+     *  Returns a mask, where each bit corresponding to a SegmentMask is
+     *  set if the path contains 1 or more segments of that type.
+     *  Returns 0 for an empty path (no segments).
+     */
+    uint32_t getSegmentMasks() const { return fSegmentMask; }
+
     enum Verb {
         kMove_Verb,     //!< iter.next returns 1 point
         kLine_Verb,     //!< iter.next returns 2 points
@@ -642,8 +655,9 @@ private:
     SkTDArray<SkPoint>  fPts;
     SkTDArray<uint8_t>  fVerbs;
     mutable SkRect      fBounds;
-    mutable uint8_t     fBoundsIsDirty;
     uint8_t             fFillType;
+    uint8_t             fSegmentMask;
+    mutable uint8_t     fBoundsIsDirty;
     mutable uint8_t     fConvexity;
 #ifdef ANDROID
     uint32_t            fGenerationID;
