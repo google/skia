@@ -95,6 +95,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindBufferProc)(GrGLenum target, GrGLuint buffer);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendColorProc)(GrGLclampf red, GrGLclampf green, GrGLclampf blue, GrGLclampf alpha);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindFragDataLocationProc)(GrGLuint program, GrGLuint colorNumber, const GrGLchar* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBlendFuncProc)(GrGLenum sfactor, GrGLenum dfactor);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferDataProc)(GrGLenum target, GrGLsizeiptr size, const GrGLvoid* data, GrGLenum usage);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBufferSubDataProc)(GrGLenum target, GrGLintptr offset, GrGLsizeiptr size, const GrGLvoid* data);
@@ -271,6 +272,7 @@ struct GR_API GrGLInterface : public GrRefCnt {
     GrGLAttachShaderProc fAttachShader;
     GrGLBindAttribLocationProc fBindAttribLocation;
     GrGLBindBufferProc fBindBuffer;
+    GrGLBindFragDataLocationProc fBindFragDataLocation;
     GrGLBindTextureProc fBindTexture;
     GrGLBlendColorProc fBlendColor;
     GrGLBlendFuncProc fBlendFunc;

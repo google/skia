@@ -965,8 +965,8 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
     GR_GL_CALL(gl, AttachShader(progID, programData->fFShaderID));
 
     if (bindColorOut) {
-        GR_GL_CALL(gl, BindFragDataLocationIndexed(programData->fProgramID,
-                                          0, 0, declared_color_output_name()));
+        GR_GL_CALL(gl, BindFragDataLocation(programData->fProgramID,
+                                          0, declared_color_output_name()));
     }
     if (bindDualSrcOut) {
         GR_GL_CALL(gl, BindFragDataLocationIndexed(programData->fProgramID,

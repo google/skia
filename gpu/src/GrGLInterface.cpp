@@ -115,6 +115,7 @@ GrGLInterface::GrGLInterface() {
     fAttachShader = NULL;
     fBindAttribLocation = NULL;
     fBindBuffer = NULL;
+    fBindFragDataLocation = NULL;
     fBindTexture = NULL;
     fBlendColor = NULL;
     fBlendFunc = NULL;
@@ -405,6 +406,9 @@ bool GrGLInterface::validate(GrEngine engine) const {
                 NULL == fStencilOpSeparate) {
                 return false;
             }
+        }
+        if (major >= 3 && NULL == fBindFragDataLocation) {
+            return false;
         }
         if (major >= 2 ||
             has_gl_extension_from_string("GL_ARB_draw_buffers", ext)) {

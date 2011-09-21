@@ -92,6 +92,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         GR_GL_GET_PROC(BindAttribLocation);
         GR_GL_GET_PROC(BindBuffer);
         GR_GL_GET_PROC(BindTexture);
+        GR_GL_GET_PROC(BindFragDataLocation);
         GR_GL_GET_PROC(BlendColor);
         GR_GL_GET_PROC(BufferData);
         GR_GL_GET_PROC(BufferSubData);
