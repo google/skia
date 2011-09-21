@@ -438,6 +438,8 @@ static void test_isRect(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 }
 
+#define kCurveSegmentMask   (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)
+
 void TestPath(skiatest::Reporter* reporter);
 void TestPath(skiatest::Reporter* reporter) {
     {
@@ -454,6 +456,7 @@ void TestPath(skiatest::Reporter* reporter) {
     SkRect  bounds, bounds2;
 
     REPORTER_ASSERT(reporter, p.isEmpty());
+    REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, p.isConvex());
     REPORTER_ASSERT(reporter, p.getFillType() == SkPath::kWinding_FillType);
     REPORTER_ASSERT(reporter, !p.isInverseFillType());
@@ -466,14 +469,20 @@ void TestPath(skiatest::Reporter* reporter) {
 
     p.addRoundRect(bounds, SK_Scalar1, SK_Scalar1);
     check_convex_bounds(reporter, p, bounds);
+    // we have quads or cubics
+    REPORTER_ASSERT(reporter, p.getSegmentMasks() & kCurveSegmentMask);
 
     p.reset();
+    REPORTER_ASSERT(reporter, 0 == p.getSegmentMasks());
+
     p.addOval(bounds);
     check_convex_bounds(reporter, p, bounds);
 
     p.reset();
     p.addRect(bounds);
     check_convex_bounds(reporter, p, bounds);
+    // we have only lines
+    REPORTER_ASSERT(reporter, SkPath::kLine_SegmentMask == p.getSegmentMasks());
 
     REPORTER_ASSERT(reporter, p != p2);
     REPORTER_ASSERT(reporter, !(p == p2));
@@ -510,6 +519,17 @@ void TestPath(skiatest::Reporter* reporter) {
     test_convexity(reporter);
     test_convexity2(reporter);
     test_close(reporter);
+
+    p.reset();
+    p.moveTo(0, 0);
+    p.quadTo(100, 100, 200, 200);
+    REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == p.getSegmentMasks());
+    p.cubicTo(100, 100, 200, 200, 300, 300);
+    REPORTER_ASSERT(reporter, kCurveSegmentMask == p.getSegmentMasks());
+    p.reset();
+    p.moveTo(0, 0);
+    p.cubicTo(100, 100, 200, 200, 300, 300);
+    REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
 }
 
 #include "TestClassDef.h"

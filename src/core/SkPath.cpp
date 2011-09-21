@@ -90,6 +90,7 @@ static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 
 SkPath::SkPath() : fBoundsIsDirty(true), fFillType(kWinding_FillType) {
     fConvexity = kUnknown_Convexity;
+    fSegmentMask = 0;
 #ifdef ANDROID
     fGenerationID = 0;
 #endif
@@ -118,6 +119,7 @@ SkPath& SkPath::operator=(const SkPath& src) {
         fFillType       = src.fFillType;
         fBoundsIsDirty  = src.fBoundsIsDirty;
         fConvexity      = src.fConvexity;
+        fSegmentMask    = src.fSegmentMask;
         GEN_ID_INC;
     }
     SkDEBUGCODE(this->validate();)
@@ -127,8 +129,14 @@ SkPath& SkPath::operator=(const SkPath& src) {
 bool operator==(const SkPath& a, const SkPath& b) {
     // note: don't need to look at isConvex or bounds, since just comparing the
     // raw data is sufficient.
+
+    // We explicitly check fSegmentMask as a quick-reject. We could skip it,
+    // since it is only a cache of info in the fVerbs, but its a fast way to
+    // notice a difference
+
     return &a == &b ||
-        (a.fFillType == b.fFillType && a.fVerbs == b.fVerbs && a.fPts == b.fPts);
+        (a.fFillType == b.fFillType && a.fSegmentMask == b.fSegmentMask &&
+         a.fVerbs == b.fVerbs && a.fPts == b.fPts);
 }
 
 void SkPath::swap(SkPath& other) {
@@ -141,6 +149,7 @@ void SkPath::swap(SkPath& other) {
         SkTSwap<uint8_t>(fFillType, other.fFillType);
         SkTSwap<uint8_t>(fBoundsIsDirty, other.fBoundsIsDirty);
         SkTSwap<uint8_t>(fConvexity, other.fConvexity);
+        SkTSwap<uint8_t>(fSegmentMask, other.fSegmentMask);
         GEN_ID_INC;
     }
 }
@@ -159,6 +168,7 @@ void SkPath::reset() {
     GEN_ID_INC;
     fBoundsIsDirty = true;
     fConvexity = kUnknown_Convexity;
+    fSegmentMask = 0;
 }
 
 void SkPath::rewind() {
@@ -169,6 +179,7 @@ void SkPath::rewind() {
     GEN_ID_INC;
     fBoundsIsDirty = true;
     fConvexity = kUnknown_Convexity;
+    fSegmentMask = 0;
 }
 
 bool SkPath::isEmpty() const {
@@ -405,6 +416,7 @@ void SkPath::lineTo(SkScalar x, SkScalar y) {
     }
     fPts.append()->set(x, y);
     *fVerbs.append() = kLine_Verb;
+    fSegmentMask |= kLine_SegmentMask;
 
     GEN_ID_INC;
     DIRTY_AFTER_EDIT;
@@ -428,6 +440,7 @@ void SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
     *fVerbs.append() = kQuad_Verb;
+    fSegmentMask |= kQuad_SegmentMask;
 
     GEN_ID_INC;
     DIRTY_AFTER_EDIT;
@@ -452,6 +465,7 @@ void SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     pts[1].set(x2, y2);
     pts[2].set(x3, y3);
     *fVerbs.append() = kCubic_Verb;
+    fSegmentMask |= kCubic_SegmentMask;
 
     GEN_ID_INC;
     DIRTY_AFTER_EDIT;
@@ -1414,6 +1428,21 @@ void SkPath::validate() const {
             fBounds.contains(bounds);
         }
     }
+
+    uint32_t mask = 0;
+    for (int i = 0; i < fVerbs.count(); i++) {
+        switch (fVerbs[i]) {
+            case kLine_Verb:
+                mask |= kLine_SegmentMask;
+                break;
+            case kQuad_Verb:
+                mask |= kQuad_SegmentMask;
+                break;
+            case kCubic_Verb:
+                mask |= kCubic_SegmentMask;
+        }
+    }
+    SkASSERT(mask == fSegmentMask);
 }
 #endif
 
