@@ -1115,6 +1115,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fVerbs = fVerbs;
             dst->fPts.setCount(fPts.count());
             dst->fFillType = fFillType;
+            dst->fSegmentMask = fSegmentMask;
         }
         matrix.mapPoints(dst->fPts.begin(), fPts.begin(), fPts.count());
         SkDEBUGCODE(dst->validate();)
