@@ -88,7 +88,9 @@ static void compute_pt_bounds(SkRect* bounds, const SkTDArray<SkPoint>& pts) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-SkPath::SkPath() : fBoundsIsDirty(true), fFillType(kWinding_FillType) {
+SkPath::SkPath() 
+    : fFillType(kWinding_FillType)
+    , fBoundsIsDirty(true) {
     fConvexity = kUnknown_Convexity;
     fSegmentMask = 0;
 #ifdef ANDROID
