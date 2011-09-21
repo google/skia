@@ -515,7 +515,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
 
     // the dual source output has no canonical var name, have to
     // declare an output, which is incompatible with gl_FragColor/gl_FragData.
-    const char* fsColorOutput;
+    const char* fsColorOutput = NULL;
     bool dualSourceOutputWritten = false;
     segments.fHeader.printf(glsl_version_string(gl, glslVersion));
     bool isColorDeclared = decl_and_get_fs_color_output(glslVersion,

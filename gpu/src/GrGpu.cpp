@@ -490,6 +490,8 @@ int process_initial_clip_elements(const GrClip& clip,
                     done = true;
                 }
                 break;
+            default:
+                GrCrash("Unknown set op.");
         }
     }
     return done ? curr-1 : count;
@@ -567,7 +569,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
             clipBit = (1 << (clipBit-1));
             
             bool clearToInside;
-            GrSetOp startOp;
+            GrSetOp startOp = kReplace_SetOp; // suppress warning
             int start = process_initial_clip_elements(clip, &clearToInside,
                                                       &startOp);
 

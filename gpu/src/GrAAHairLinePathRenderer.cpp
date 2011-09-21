@@ -219,7 +219,8 @@ int get_float_exp(float x) {
         GrAssert(get_float_exp(3000000.f) == 21);
     }
 #endif
-    return (((*(int*)&x) & 0x7f800000) >> 23) - 127;
+    const int* iptr = (const int*)&x;
+    return (((*iptr) & 0x7f800000) >> 23) - 127;
 }
 
 // we subdivide the quads to avoid huge overfill
