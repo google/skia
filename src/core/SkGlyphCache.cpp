@@ -293,6 +293,10 @@ const void* SkGlyphCache::findImage(const SkGlyph& glyph) {
             // check that alloc() actually succeeded
             if (glyph.fImage) {
                 fScalerContext->getImage(glyph);
+                // TODO: the scaler may have changed the maskformat during
+                // getImage (e.g. from AA or LCD to BW) which means we may have
+                // overallocated the buffer. Check if the new computedImageSize
+                // is smaller, and if so, strink the alloc size in fImageAlloc.
                 fMemoryUsed += size;
             }
         }
