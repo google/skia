@@ -17,6 +17,7 @@
 #include "SkColorFilter.h"
 #include "SkDrawProcs.h"
 #include "SkGlyphCache.h"
+#include "SkTLazy.h"
 #include "SkUtils.h"
 
 #define CACHE_LAYER_TEXTURES 1
@@ -992,13 +993,32 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
 }
 
 void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
-                           const SkPaint& paint, const SkMatrix* prePathMatrix,
+                           const SkPaint& origPaint, const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
     CHECK_SHOULD_DRAW(draw);
 
+    bool             doFill = true;
+    SkTLazy<SkPaint> lazyPaint;
+    const SkPaint* paint = &origPaint;
+    
+    // can we cheat, and threat a thin stroke as a hairline (w/ modulated alpha)
+    // if we can, we draw lots faster (raster device does this same test)
+    {
+        SkAlpha newAlpha;
+        if (SkDrawTreatAsHairline(*paint, *draw.fMatrix, &newAlpha)) {
+            lazyPaint.set(*paint);
+            lazyPaint.get()->setAlpha(newAlpha);
+            lazyPaint.get()->setStrokeWidth(0);
+            paint = lazyPaint.get();
+            doFill = false;
+        }
+    }
+    // must reference paint from here down, and not origPaint
+    // since we may have change the paint (using lazyPaint for storage)
+    
     GrPaint grPaint;
     SkAutoCachedTexture act;
-    if (!this->skPaint2GrPaintShader(paint,
+    if (!this->skPaint2GrPaintShader(*paint,
                                      &act,
                                      *draw.fMatrix,
                                      &grPaint,
@@ -1006,11 +1026,11 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
         return;
     }
 
-    // BEGIN lift from SkDraw::drawPath()
-
-    SkPath*         pathPtr = const_cast<SkPath*>(&origSrcPath);
-    bool            doFill = true;
-    SkPath          tmpPath;
+    // If we have a prematrix, apply it to the path, optimizing for the case
+    // where the original path can in fact be modified in place (even though
+    // its parameter type is const).
+    SkPath* pathPtr = const_cast<SkPath*>(&origSrcPath);
+    SkPath  tmpPath;
 
     if (prePathMatrix) {
         SkPath* result = pathPtr;
@@ -1027,38 +1047,25 @@ void SkGpuDevice::drawPath(const SkDraw& draw, const SkPath& origSrcPath,
     // at this point we're done with prePathMatrix
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
-    // This "if" is not part of the SkDraw::drawPath() lift.
-    // When we get a 1.0 wide stroke we hairline stroke it instead of creating
-    // a new stroked-path. This is motivated by canvas2D sites that draw
-    // lines as 1.0 wide stroked paths. We can consider doing an alpha-modulated-
-    // hairline for width < 1.0 when AA is enabled.
-    static const int gMatrixMask = ~(SkMatrix::kIdentity_Mask | 
-                                     SkMatrix::kTranslate_Mask);
-    if (!paint.getPathEffect() && 
-        SkPaint::kStroke_Style == paint.getStyle() &&
-        !(draw.fMatrix->getType() & gMatrixMask) &&
-        SK_Scalar1 == paint.getStrokeWidth()) {
-        doFill = false;
-    }
-
-    if (doFill && (paint.getPathEffect() || 
-                   paint.getStyle() != SkPaint::kFill_Style)) {
-        doFill = paint.getFillPath(*pathPtr, &tmpPath);
+    if (doFill && (paint->getPathEffect() || 
+                   paint->getStyle() != SkPaint::kFill_Style)) {
+        // it is safe to use tmpPath here, even if we already used it for the
+        // prepathmatrix, since getFillPath can take the same object for its
+        // input and output safely.
+        doFill = paint->getFillPath(*pathPtr, &tmpPath);
         pathPtr = &tmpPath;
     }
 
-    // END lift from SkDraw::drawPath()
-
-    if (paint.getMaskFilter()) {
+    if (paint->getMaskFilter()) {
         // avoid possibly allocating a new path in transform if we can
         SkPath* devPathPtr = pathIsMutable ? pathPtr : &tmpPath;
 
         // transform the path into device space
         pathPtr->transform(*draw.fMatrix, devPathPtr);
-        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
+        if (!drawWithGPUMaskFilter(fContext, *devPathPtr, paint->getMaskFilter(),
                                    *draw.fMatrix, *draw.fClip, draw.fBounder,
                                    &grPaint)) {
-            drawWithMaskFilter(fContext, *devPathPtr, paint.getMaskFilter(),
+            drawWithMaskFilter(fContext, *devPathPtr, paint->getMaskFilter(),
                                *draw.fMatrix, *draw.fClip, draw.fBounder,
                                &grPaint);
         }
