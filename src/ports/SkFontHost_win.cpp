@@ -600,10 +600,12 @@ void SkScalerContext_Windows::generateMetrics(SkGlyph* glyph) {
         // correspond to an embedded bitmap font, but not sure.
         //     LayoutTests/fast/text/backslash-to-yen-sign-euc.html
         //
-        glyph->fWidth += 4;
-        glyph->fHeight += 4;
-        glyph->fTop -= 2;
-        glyph->fLeft -= 2;
+        if (glyph->fWidth) {    // don't outset an empty glyph
+            glyph->fWidth += 4;
+            glyph->fHeight += 4;
+            glyph->fTop -= 2;
+            glyph->fLeft -= 2;
+        }
 
         if (fHiResFont) {
             SelectObject(fDDC, fHiResFont);
@@ -658,20 +660,117 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 
 #include "SkColorPriv.h"
 
-static inline uint8_t rgb_to_a8(uint32_t rgb) {
-    // can pick any component, since we're grayscale
-    int r = (rgb >> 16) & 0xFF;
-    // invert, since we draw black-on-white, but we want the original
-    // src mask values.
-    return 255 - r;
+// always packed xxRRGGBB
+typedef uint32_t SkGdiRGB;
+
+// gdi's bitmap is upside-down, so we reverse dst walking in Y
+// whenever we copy it into skia's buffer
+
+static inline uint8_t rgb_to_a8(SkGdiRGB rgb) {
+    // can pick any component (low 3 bytes), since we're grayscale
+    // but must invert since we draw black-on-white
+    return ~rgb & 0xFF;
 }
 
-static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
+static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb) {
     rgb = ~rgb; // 255 - each component
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
     return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
+}
+
+static bool is_black_or_white(SkGdiRGB c) {
+    c &= 0x00FFFFFF;
+    bool isBW = 0 == c || 0x00FFFFFF == c;
+    bool isBW2 = 0 == ((c + (c & 1)) & 0x00FFFFFF);
+    SkASSERT(isBW == isBW2);
+    return isBW;
+}
+
+static bool is_rgb_really_bw(const SkGdiRGB* src, int width, int height, int srcRB) {
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            if (!is_black_or_white(src[x])) {
+                return false;
+            }
+        }
+        src = (const SkGdiRGB*)((const char*)src + srcRB);
+    }
+    return true;
+}
+
+static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
+                      const SkGlyph& glyph) {
+    const int width = glyph.fWidth;
+    const size_t dstRB = (width + 7) >> 3;
+    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+
+    int byteCount = width >> 3;
+    int bitCount = width & 7;
+
+    // adjust srcRB to skip the values in our byteCount loop,
+    // since we increment src locally there
+    srcRB -= byteCount * 8 * sizeof(SkGdiRGB);
+
+    for (int y = 0; y < glyph.fHeight; ++y) {
+        if (byteCount > 0) {
+            unsigned byte = 0;
+            for (int i = 0; i < byteCount; ++i) {
+                byte |= src[0] & (1 << 7);
+                byte |= src[1] & (1 << 6);
+                byte |= src[2] & (1 << 5);
+                byte |= src[3] & (1 << 4);
+                byte |= src[4] & (1 << 3);
+                byte |= src[5] & (1 << 2);
+                byte |= src[6] & (1 << 1);
+                byte |= src[7] & (1 << 0);
+                dst[i] = ~byte;
+                src += 8;
+            }
+        }
+        if (bitCount > 0) {
+            unsigned byte = 0;
+            unsigned mask = 0x80;
+            for (int i = 0; i < bitCount; i++) {
+                byte |= ~src[i] & mask;
+                mask >>= 1;
+            }
+            dst[byteCount] = byte;
+        }
+        src = (const SkGdiRGB*)((const char*)src + srcRB);
+        dst -= dstRB;
+    }
+}
+
+static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
+                      const SkGlyph& glyph) {
+    const size_t dstRB = glyph.rowBytes();
+    const int width = glyph.fWidth;
+    uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+
+    for (int y = 0; y < glyph.fHeight; y++) {
+        for (int i = 0; i < width; i++) {
+            dst[i] = rgb_to_a8(src[i]);
+        }
+        src = (const SkGdiRGB*)((const char*)src + srcRB);
+        dst -= dstRB;
+    }
+}
+
+static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
+                         const SkGlyph& glyph) {
+    const size_t dstRB = glyph.rowBytes();
+    const int width = glyph.fWidth;
+    uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+
+    for (int y = 0; y < glyph.fHeight; y++) {
+        for (int i = 0; i < width; i++) {
+            dst[i] = rgb_to_lcd16(src[i]);
+        }
+        src = (const SkGdiRGB*)((const char*)src + srcRB);
+        dst = (uint16_t*)((char*)dst - dstRB);
+    }
 }
 
 void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
@@ -694,7 +793,6 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
     size_t dstRB = glyph.rowBytes();
     if (isBW) {
         const uint8_t* src = (const uint8_t*)bits;
-        // gdi's bitmap is upside-down, so we reverse dst walking in Y
         uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
         for (int y = 0; y < glyph.fHeight; y++) {
             memcpy(dst, src, dstRB);
@@ -702,26 +800,23 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
             dst -= dstRB;
         }
     } else if (isAA) {
-        const uint32_t* src = (const uint32_t*)bits;
-        // gdi's bitmap is upside-down, so we reverse dst walking in Y
-        uint8_t* dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-        for (int y = 0; y < glyph.fHeight; y++) {
-            for (int i = 0; i < width; i++) {
-                dst[i] = rgb_to_a8(src[i]);
-            }
-            src = (const uint32_t*)((const char*)src + srcRB);
-            dst -= dstRB;
+        const SkGdiRGB* src = (const SkGdiRGB*)bits;
+#if 0 // can't do this (yet) since caller may really want gray8 for maskfilters
+        if (is_rgb_really_bw(src, width, glyph.fHeight, srcRB)) {
+            rgb_to_bw(src, srcRB, glyph);
+            ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
+        } else
+#endif
+        {
+            rgb_to_a8(src, srcRB, glyph);
         }
     } else {    // LCD16
-        const uint32_t* src = (const uint32_t*)bits;
-        // gdi's bitmap is upside-down, so we reverse dst walking in Y
-        uint16_t* dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
-        for (int y = 0; y < glyph.fHeight; y++) {
-            for (int i = 0; i < width; i++) {
-                dst[i] = rgb_to_lcd16(src[i]);
-            }
-            src = (const uint32_t*)((const char*)src + srcRB);
-            dst = (uint16_t*)((char*)dst - dstRB);
+        const SkGdiRGB* src = (const SkGdiRGB*)bits;
+        if (is_rgb_really_bw(src, width, glyph.fHeight, srcRB)) {
+            rgb_to_bw(src, srcRB, glyph);
+            ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
+        } else {
+            rgb_to_lcd16(src, srcRB, glyph);
         }
     }
 }
