@@ -15,6 +15,10 @@
 #include "SkTemplates.h"
 #include "SkBitmapCache.h"
 
+#if defined(SK_SCALAR_IS_FLOAT) && !defined(SK_DONT_USE_FLOAT_SQRT)
+    #define SK_USE_FLOAT_SQRT
+#endif
+
 #ifndef SK_DISABLE_DITHER_32BIT_GRADIENT
     #define USE_DITHER_32BIT_GRADIENT
 #endif
@@ -1160,16 +1164,27 @@ public:
                                  SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
             SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
             SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
+#ifdef SK_USE_FLOAT_SQRT
+            float fdx, fdy;
+#endif
 
             if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
                 SkFixed storage[2];
                 (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &storage[0], &storage[1]);
                 dx = storage[0];
                 dy = storage[1];
+#ifdef SK_USE_FLOAT_SQRT
+                fdx = SkFixedToFloat(storage[0]);
+                fdy = SkFixedToFloat(storage[1]);
+#endif
             } else {
                 SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
                 dx = SkScalarToFixed(fDstToIndex.getScaleX());
                 dy = SkScalarToFixed(fDstToIndex.getSkewY());
+#ifdef SK_USE_FLOAT_SQRT
+                fdx = fDstToIndex.getScaleX();
+                fdy = fDstToIndex.getSkewY();
+#endif
             }
 
             if (proc == clamp_tileproc) {
@@ -1188,6 +1203,18 @@ public:
                     fy += dy;
                 } while (--count != 0);
             } else if (proc == mirror_tileproc) {
+#ifdef SK_USE_FLOAT_SQRT
+                float ffx = srcPt.fX;
+                float ffy = srcPt.fY;
+                do {
+                    float fdist = sk_float_sqrt(ffx*ffx + ffy*ffy);
+                    unsigned fi = mirror_tileproc(SkFloatToFixed(fdist));
+                    SkASSERT(fi <= 0xFFFF);
+                    *dstC++ = cache[fi >> (16 - kCache32Bits)];
+                    ffx += fdx;
+                    ffy += fdy;
+                } while (--count != 0);
+#else
                 do {
                     SkFixed magnitudeSquared = SkFixedSquare(fx) + SkFixedSquare(fy);
                     if (magnitudeSquared < 0) // Overflow.
@@ -1199,6 +1226,7 @@ public:
                     fx += dx;
                     fy += dy;
                 } while (--count != 0);
+#endif
             } else {
                 SkASSERT(proc == repeat_tileproc);
                 do {
@@ -1907,6 +1935,23 @@ static unsigned atan_0_90(SkFixed y, SkFixed x) {
 }
 
 //  returns angle in a circle [0..2PI) -> [0..255]
+#ifdef SK_SCALAR_IS_FLOAT
+static unsigned SkATan2_255(float y, float x) {
+    //    static const float g255Over2PI = 255 / (2 * SK_ScalarPI);
+    static const float g255Over2PI = 40.584510488433314f;
+    
+    float result = sk_float_atan2(y, x);
+    if (result < 0) {
+        result += 2 * SK_ScalarPI;
+    }
+    SkASSERT(result >= 0);
+    // since our value is always >= 0, we can cast to int, which is faster than
+    // calling floorf()
+    int ir = (int)(result * g255Over2PI);
+    SkASSERT(ir >= 0 && ir <= 255);
+    return ir;
+}
+#else
 static unsigned SkATan2_255(SkFixed y, SkFixed x) {
     if (x == 0) {
         if (y == 0) {
@@ -1961,6 +2006,7 @@ static unsigned SkATan2_255(SkFixed y, SkFixed x) {
     SkASSERT(result < 256);
     return result;
 }
+#endif
 
 void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
     SkMatrix::MapXYProc proc = fDstToIndexProc;
@@ -1971,19 +2017,19 @@ void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int co
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
                      SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-        SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
+        SkScalar dx, fx = srcPt.fX;
+        SkScalar dy, fy = srcPt.fY;
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed storage[2];
             (void)matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf,
                                       &storage[0], &storage[1]);
-            dx = storage[0];
-            dy = storage[1];
+            dx = SkFixedToScalar(storage[0]);
+            dy = SkFixedToScalar(storage[1]);
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = SkScalarToFixed(matrix.getScaleX());
-            dy = SkScalarToFixed(matrix.getSkewY());
+            dx = matrix.getScaleX();
+            dy = matrix.getSkewY();
         }
 
         for (; count > 0; --count) {
@@ -1994,11 +2040,8 @@ void Sweep_Gradient::shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int co
     } else {  // perspective case
         for (int stop = x + count; x < stop; x++) {
             proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
-                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-
-            int index = SkATan2_255(SkScalarToFixed(srcPt.fY),
-                                    SkScalarToFixed(srcPt.fX));
-            *dstC++ = cache[index];
+                         SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+            *dstC++ = cache[SkATan2_255(srcPt.fY, srcPt.fX)];
         }
     }
 }
@@ -2013,19 +2056,19 @@ void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int c
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
                      SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-        SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-        SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
+        SkScalar dx, fx = srcPt.fX;
+        SkScalar dy, fy = srcPt.fY;
 
         if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
             SkFixed storage[2];
             (void)matrix.fixedStepInX(SkIntToScalar(y) + SK_ScalarHalf,
                                       &storage[0], &storage[1]);
-            dx = storage[0];
-            dy = storage[1];
+            dx = SkFixedToScalar(storage[0]);
+            dy = SkFixedToScalar(storage[1]);
         } else {
             SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-            dx = SkScalarToFixed(matrix.getScaleX());
-            dy = SkScalarToFixed(matrix.getSkewY());
+            dx = matrix.getScaleX();
+            dy = matrix.getSkewY();
         }
 
         for (; count > 0; --count) {
@@ -2040,8 +2083,7 @@ void Sweep_Gradient::shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int c
             proc(matrix, SkIntToScalar(x) + SK_ScalarHalf,
                          SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
 
-            int index = SkATan2_255(SkScalarToFixed(srcPt.fY),
-                                    SkScalarToFixed(srcPt.fX));
+            int index = SkATan2_255(srcPt.fY, srcPt.fX);
             index >>= (8 - kCache16Bits);
             *dstC++ = cache[toggle + index];
             toggle ^= (1 << kCache16Bits);
