@@ -9,7 +9,9 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkParse.h"
+#include "SkReader32.h"
 #include "SkSize.h"
+#include "SkWriter32.h"
 
 static void stroke_cubic(const SkPoint pts[4]) {
     SkPath path;
@@ -438,6 +440,63 @@ static void test_isRect(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, fail ^ path1.isRect(0));
 }
 
+static void test_flattening(skiatest::Reporter* reporter) {
+    SkPath p;
+
+    static const SkPoint pts[] = {
+        { 0, 0 },
+        { SkIntToScalar(10), SkIntToScalar(10) },
+        { SkIntToScalar(20), SkIntToScalar(10) }, { SkIntToScalar(20), 0 },
+        { 0, 0 }, { 0, SkIntToScalar(10) }, { SkIntToScalar(1), SkIntToScalar(10) }
+    };
+    p.moveTo(pts[0]);
+    p.lineTo(pts[1]);
+    p.quadTo(pts[2], pts[3]);
+    p.cubicTo(pts[4], pts[5], pts[6]);
+
+    SkWriter32 writer(100);
+    p.flatten(writer);
+    size_t size = writer.size();
+    SkAutoMalloc storage(size);
+    writer.flatten(storage.get());
+    SkReader32 reader(storage.get(), size);
+
+    SkPath p1;
+    REPORTER_ASSERT(reporter, p1 != p);
+    p1.unflatten(reader);
+    REPORTER_ASSERT(reporter, p1 == p);
+}
+
+static void test_transform(skiatest::Reporter* reporter) {
+    SkPath p, p1;
+    
+    static const SkPoint pts[] = {
+        { 0, 0 },
+        { SkIntToScalar(10), SkIntToScalar(10) },
+        { SkIntToScalar(20), SkIntToScalar(10) }, { SkIntToScalar(20), 0 },
+        { 0, 0 }, { 0, SkIntToScalar(10) }, { SkIntToScalar(1), SkIntToScalar(10) }
+    };
+    p.moveTo(pts[0]);
+    p.lineTo(pts[1]);
+    p.quadTo(pts[2], pts[3]);
+    p.cubicTo(pts[4], pts[5], pts[6]);
+    
+    SkMatrix matrix;
+    matrix.reset();
+    p.transform(matrix, &p1);
+    REPORTER_ASSERT(reporter, p == p1);
+    
+    matrix.setScale(SK_Scalar1 * 2, SK_Scalar1 * 3);
+    p.transform(matrix, &p1);
+    SkPoint pts1[7];
+    int count = p1.getPoints(pts1, 7);
+    REPORTER_ASSERT(reporter, 7 == count);
+    for (int i = 0; i < count; ++i) {
+        SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);
+        REPORTER_ASSERT(reporter, newPt == pts1[i]);
+    }
+}
+
 #define kCurveSegmentMask   (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)
 
 void TestPath(skiatest::Reporter* reporter);
@@ -530,6 +589,9 @@ void TestPath(skiatest::Reporter* reporter) {
     p.moveTo(0, 0);
     p.cubicTo(100, 100, 200, 200, 300, 300);
     REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
+
+    test_flattening(reporter);
+    test_transform(reporter);
 }
 
 #include "TestClassDef.h"
