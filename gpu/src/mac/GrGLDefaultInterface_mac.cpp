@@ -22,6 +22,9 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fAttachShader = glAttachShader;
         interface->fBindAttribLocation = glBindAttribLocation;
         interface->fBindBuffer = glBindBuffer;
+#if GL_VERSION_3_0
+        interface->fBindFragDataLocation = glBindFragDataLocation;
+#endif
         interface->fBindTexture = glBindTexture;
         interface->fBlendColor = glBlendColor;
         interface->fBlendFunc = glBlendFunc;
