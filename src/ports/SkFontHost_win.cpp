@@ -935,12 +935,18 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     OUTLINETEXTMETRIC otm;
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm) ||
         !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
+        DWORD error_code = GetLastError();
+        SkASSERT(error_code == 0);  // GDI error, possibly caused by sandboxing.
+        SkASSERT(false);  // GDI corruption.
         goto Error;
     }
     lf.lfHeight = -SkToS32(otm.otmEMSquare);
     designFont = CreateFontIndirect(&lf);
     SelectObject(hdc, designFont);
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
+        DWORD error_code = GetLastError();
+        SkASSERT(error_code == 0);  // GDI error, possibly caused by sandboxing.
+        SkASSERT(false);  // GDI corruption.
         goto Error;
     }
     const unsigned glyphCount = calculateGlyphCount(hdc);
