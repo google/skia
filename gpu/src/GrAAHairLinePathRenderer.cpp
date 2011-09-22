@@ -87,7 +87,7 @@ GrPathRenderer* GrAAHairLinePathRenderer::Create(GrContext* context) {
 }
 
 bool GrAAHairLinePathRenderer::CanBeUsed(const GrContext* context) {
-    return context->getGpu()->supportsShaderDerivatives();
+    return context->getGpu()->getCaps().fShaderDerivativeSupport;
 
 }
 

@@ -213,7 +213,7 @@ bool GrGpuGLShaders::programUnitTest() {
             bool vertexEdgeAA = random.nextF() > .5f;
             if (vertexEdgeAA) {
                 pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
-                if (this->supportsShaderDerivatives()) {
+                if (this->getCaps().fShaderDerivativeSupport) {
                     pdesc.fVertexEdgeType = random.nextF() > 0.5f ?
                                                         kHairQuad_EdgeType :
                                                         kHairLine_EdgeType;
@@ -229,7 +229,7 @@ bool GrGpuGLShaders::programUnitTest() {
             pdesc.fEdgeAANumEdges = 0;
         }
 
-        if (fDualSourceBlendingSupport) {
+        if (this->getCaps().fDualSourceBlendingSupport) {
             pdesc.fDualSrcOutput =
                (ProgramDesc::DualSrcOutput)
                (int)(random.nextF() * ProgramDesc::kDualSrcOutputCnt);
@@ -290,15 +290,15 @@ GrGLBinding get_binding_in_use(const GrGLInterface* gl) {
 GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     : GrGpuGL(gl, get_binding_in_use(gl)) {
 
-    fShaderSupport = true;
+    fCaps.fShaderSupport = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        fDualSourceBlendingSupport =
+        fCaps.fDualSourceBlendingSupport =
                             this->glVersion() >= GR_GL_VER(3,3) ||
                             this->hasExtension("GL_ARB_blend_func_extended");
-        fShaderDerivativeSupport = true;
+        fCaps.fShaderDerivativeSupport = true;
     } else {
-        fDualSourceBlendingSupport = false;
-        fShaderDerivativeSupport =
+        fCaps.fDualSourceBlendingSupport = false;
+        fCaps.fShaderDerivativeSupport =
                             this->hasExtension("GL_OES_standard_derivatives");
     }
 
@@ -937,7 +937,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
         // (e.g. solid draw, and dst coeff is kZero. It's correct to make
         // the dst coeff be kISA. Or solid draw with kSA can be tweaked to be
         // kOne).
-        if (fDualSourceBlendingSupport) {
+        if (this->getCaps().fDualSourceBlendingSupport) {
             if (kZero_BlendCoeff == fCurrDrawState.fDstBlend) {
                 // write the coverage value to second color
                 desc.fDualSrcOutput =  ProgramDesc::kCoverage_DualSrcOutput;

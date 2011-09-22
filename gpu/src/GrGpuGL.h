@@ -146,9 +146,14 @@ protected:
     static bool BlendCoeffReferencesConstant(GrBlendCoeff coeff);
 
 private:
+    // Inits GrDrawTarget::Caps and GLCaps, sublcass may enable
+    // additional caps.
+    void initCaps();
+
+    void initFSAASupport();
 
     // determines valid stencil formats
-    void setupStencilFormats();
+    void initStencilFormats();
 
     // notify callbacks to update state tracking when related
     // objects are bound to GL or deleted outside of the class
@@ -194,30 +199,49 @@ private:
     SkString fExtensionString;
     GrGLVersion fGLVersion;
 
-    SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
+    struct GLCaps {
+        // prealloc space for 8 stencil formats
+        GLCaps() : fStencilFormats(8) {}
+        SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
+
+        enum {
+            /**
+             * no support for MSAA FBOs
+             */
+            kNone_MSFBO = 0,  
+            /**
+             * GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
+             */
+            kDesktopARB_MSFBO,
+            /**
+             * earlier GL_EXT_framebuffer* extensions
+             */
+            kDesktopEXT_MSFBO,
+            /**
+             * GL_APPLE_framebuffer_multisample ES extension
+             */
+            kAppleES_MSFBO,
+        } fMSFBOType;
+
+        // TODO: get rid of GrAALevel and use sample cnt directly
+        GrGLuint fAASamples[4];
+
+        // The maximum number of fragment uniform vectors (GLES has min. 16).
+        int fMaxFragmentUniformVectors;
+
+        // ES requires an extension to support RGBA8 in RenderBufferStorage
+        bool fRGBA8Renderbuffer;
+
+        void print() const;
+    } fGLCaps;
+
+
     // we want to clear stencil buffers when they are created. We want to clear
     // the entire buffer even if it is larger than the color attachment. We
     // attach it to this fbo with no color attachment to do the initial clear.
     GrGLuint fStencilClearFBO;
 
     bool fHWBlendDisabled;
-
-    GrGLuint fAASamples[4];
-    enum {
-        kNone_MSFBO = 0,  //<! no support for MSAA FBOs
-        kDesktopARB_MSFBO,//<! GL3.0-style MSAA FBO (GL_ARB_framebuffer_object)
-        kDesktopEXT_MSFBO,//<! earlier GL_EXT_framebuffer* extensions
-        kAppleES_MSFBO,   //<! GL_APPLE_framebuffer_multisample ES extension
-    } fMSFBOType;
-
-    // Do we have stencil wrap ops.
-    bool fHasStencilWrap;
-
-    // The maximum number of fragment uniform vectors (GLES has min. 16).
-    int fMaxFragmentUniformVectors;
-
-    // ES requires an extension to support RGBA8 in RenderBufferStorage
-    bool fRGBA8Renderbuffer;
 
     int fActiveTextureUnitIdx;
 
@@ -227,6 +251,8 @@ private:
 
     const GrGLInterface* fGL;
     GrGLBinding fGLBinding;
+
+    bool fPrintedCaps;
 
     typedef GrGpu INHERITED;
 };

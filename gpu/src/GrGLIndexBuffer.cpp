@@ -51,7 +51,7 @@ GrGLuint GrGLIndexBuffer::bufferID() const {
 void* GrGLIndexBuffer::lock() {
     GrAssert(fBufferID);
     GrAssert(!isLocked());
-    if (GPUGL->supportsBufferLocking()) {
+    if (this->getGpu()->getCaps().fBufferLockSupport) {
         this->bind();
         // Let driver know it can discard the old data
         GL_CALL(BufferData(GR_GL_ELEMENT_ARRAY_BUFFER,
@@ -76,7 +76,7 @@ void* GrGLIndexBuffer::lockPtr() const {
 void GrGLIndexBuffer::unlock() {
     GrAssert(fBufferID);
     GrAssert(isLocked());
-    GrAssert(GPUGL->supportsBufferLocking());
+    GrAssert(this->getGpu()->getCaps().fBufferLockSupport);
 
     this->bind();
     GL_CALL(UnmapBuffer(GR_GL_ELEMENT_ARRAY_BUFFER));
@@ -85,7 +85,7 @@ void GrGLIndexBuffer::unlock() {
 
 bool GrGLIndexBuffer::isLocked() const {
 #if GR_DEBUG
-    if (this->isValid() && GPUGL->supportsBufferLocking()) {
+    if (this->isValid() && this->getGpu()->getCaps().fBufferLockSupport) {
         this->bind();
         GrGLint mapped;
         GL_CALL(GetBufferParameteriv(GR_GL_ELEMENT_ARRAY_BUFFER,

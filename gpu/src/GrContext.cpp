@@ -166,13 +166,13 @@ bool gen_texture_key_values(const GrGpu* gpu,
     // we assume we only need 16 bits of width and height
     // assert that texture creation will fail anyway if this assumption
     // would cause key collisions.
-    GrAssert(gpu->maxTextureSize() <= SK_MaxU16);
+    GrAssert(gpu->getCaps().fMaxTextureSize <= SK_MaxU16);
     v[0] = clientKey & 0xffffffffUL;
     v[1] = (clientKey >> 32) & 0xffffffffUL;
     v[2] = width | (height << 16);
 
     v[3] = 0;
-    if (!gpu->npotTextureTileSupport()) {
+    if (!gpu->getCaps().fNPOTTextureTileSupport) {
         bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
         bool tiled = (sampler.getWrapX() != GrSamplerState::kClamp_WrapMode) ||
@@ -310,10 +310,12 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
         rtDesc.fFlags =  rtDesc.fFlags |
                          kRenderTarget_GrTextureFlagBit |
                          kNoStencil_GrTextureFlagBit;
-        rtDesc.fWidth  = GrNextPow2(GrMax<int>(desc.fWidth,
-                                               fGpu->minRenderTargetWidth()));
-        rtDesc.fHeight = GrNextPow2(GrMax<int>(desc.fHeight,
-                                               fGpu->minRenderTargetHeight()));
+        rtDesc.fWidth  =
+            GrNextPow2(GrMax<int>(desc.fWidth,
+                                  fGpu->getCaps().fMinRenderTargetWidth));
+        rtDesc.fHeight =
+            GrNextPow2(GrMax<int>(desc.fHeight,
+                                  fGpu->getCaps().fMinRenderTargetHeight));
 
         GrTexture* texture = fGpu->createTexture(rtDesc, NULL, 0);
 
@@ -510,11 +512,11 @@ void GrContext::setTextureCacheLimits(int maxTextures, size_t maxTextureBytes) {
 }
 
 int GrContext::getMaxTextureSize() const {
-    return fGpu->maxTextureSize();
+    return fGpu->getCaps().fMaxTextureSize;
 }
 
 int GrContext::getMaxRenderTargetSize() const {
-    return fGpu->maxRenderTargetSize();
+    return fGpu->getCaps().fMaxRenderTargetSize;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -541,21 +543,21 @@ GrResource* GrContext::createPlatformSurface(const GrPlatformSurfaceDesc& desc) 
 
 bool GrContext::supportsIndex8PixelConfig(const GrSamplerState& sampler,
                                           int width, int height) const {
-    if (!fGpu->supports8BitPalette()) {
+    const GrDrawTarget::Caps& caps = fGpu->getCaps();
+    if (!caps.f8BitPaletteSupport) {
         return false;
     }
-
 
     bool isPow2 = GrIsPow2(width) && GrIsPow2(height);
 
     if (!isPow2) {
-        if (!fGpu->npotTextureSupport()) {
+        if (!caps.fNPOTTextureSupport) {
             return false;
         }
 
         bool tiled = sampler.getWrapX() != GrSamplerState::kClamp_WrapMode ||
                      sampler.getWrapY() != GrSamplerState::kClamp_WrapMode;
-        if (tiled && !fGpu->npotTextureTileSupport()) {
+        if (tiled && !caps.fNPOTTextureTileSupport) {
             return false;
         }
     }
@@ -659,7 +661,7 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
     // Line primitves are always rasterized as 1 pixel wide.
     // Super-sampling would make them too thin but MSAA would be OK.
     if (isHairLines &&
-        (!PREFER_MSAA_OFFSCREEN_AA || !fGpu->supportsFullsceneAA())) {
+        (!PREFER_MSAA_OFFSCREEN_AA || !fGpu->getCaps().fFSAASupport)) {
         return false;
     }
     if (target->getRenderTarget()->isMultisampled()) {
@@ -708,12 +710,12 @@ bool GrContext::prepareForOffscreenAA(GrDrawTarget* target,
 
     desc.fFormat = kRGBA_8888_GrPixelConfig;
 
-    if (PREFER_MSAA_OFFSCREEN_AA && fGpu->supportsFullsceneAA()) {
+    if (PREFER_MSAA_OFFSCREEN_AA && fGpu->getCaps().fFSAASupport) {
         record->fDownsample = OffscreenRecord::kFSAA_Downsample;
         record->fScale = 1;
         desc.fAALevel = kMed_GrAALevel;
     } else {
-        record->fDownsample = (fGpu->supportsShaders()) ?
+        record->fDownsample = fGpu->getCaps().fShaderSupport ?
                                 OffscreenRecord::k4x4SinglePass_Downsample :
                                 OffscreenRecord::k4x4TwoPass_Downsample;
         record->fScale = OFFSCREEN_SSAA_SCALE;
@@ -1519,7 +1521,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrContext::supportsShaders() const {
-    return fGpu->supportsShaders();
+    return fGpu->getCaps().fShaderSupport;
 }
 
 void GrContext::flush(int flagsBitfield) {
@@ -1773,8 +1775,8 @@ GrContext::GrContext(GrGpu* gpu) {
     fAAFillRectIndexBuffer = NULL;
     fAAStrokeRectIndexBuffer = NULL;
     
-    int gpuMaxOffscreen = fGpu->maxRenderTargetSize();
-    if (!PREFER_MSAA_OFFSCREEN_AA || !fGpu->supportsFullsceneAA()) {
+    int gpuMaxOffscreen = gpu->getCaps().fMaxRenderTargetSize;
+    if (!PREFER_MSAA_OFFSCREEN_AA || !gpu->getCaps().fFSAASupport) {
         gpuMaxOffscreen /= OFFSCREEN_SSAA_SCALE;
     }
     fMaxOffscreenAASize = GrMin(GR_MAX_OFFSCREEN_AA_SIZE, gpuMaxOffscreen);
