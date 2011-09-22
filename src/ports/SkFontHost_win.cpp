@@ -680,18 +680,22 @@ static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb) {
     return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
 }
 
-static bool is_black_or_white(SkGdiRGB c) {
-    c &= 0x00FFFFFF;
-    bool isBW = 0 == c || 0x00FFFFFF == c;
-    bool isBW2 = 0 == ((c + (c & 1)) & 0x00FFFFFF);
-    SkASSERT(isBW == isBW2);
-    return isBW;
+// Is this GDI color neither black nor white? If so, we have to keep this
+// image as is, rather than smashing it down to a BW mask.
+//
+// returns int instead of bool, since we don't want/have to pay to convert
+// the zero/non-zero value into a bool
+static int is_not_black_or_white(SkGdiRGB c) {
+    // same as (but faster than)
+    //      c &= 0x00FFFFFF;
+    //      return 0 == c || 0x00FFFFFF == c;
+    return (c + (c & 1)) & 0x00FFFFFF;
 }
 
 static bool is_rgb_really_bw(const SkGdiRGB* src, int width, int height, int srcRB) {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            if (!is_black_or_white(src[x])) {
+            if (is_not_black_or_white(src[x])) {
                 return false;
             }
         }
