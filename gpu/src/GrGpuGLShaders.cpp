@@ -141,12 +141,13 @@ void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
 
 namespace {
 
-GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding, float glVersion) {
+GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding, GrGLVersion glVersion) {
     switch (binding) {
         case kDesktop_GrGLBinding:
             // TODO: proper check of the glsl version string
-            return (glVersion >= 3.0) ? GrGLProgram::k130_GLSLVersion :
-                                        GrGLProgram::k120_GLSLVersion;
+            return (glVersion >= GR_GL_VER(3,0)) ? 
+                                                GrGLProgram::k130_GLSLVersion :
+                                                GrGLProgram::k120_GLSLVersion;
         case kES2_GrGLBinding:
             return GrGLProgram::k120_GLSLVersion;
         default:
@@ -292,8 +293,7 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     fShaderSupport = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fDualSourceBlendingSupport =
-                            this->glVersion() >= 3.25f || // TODO: when resolving Issue 387 change 
-                                                          // this back to 3.3
+                            this->glVersion() >= GR_GL_VER(3,3) ||
                             this->hasExtension("GL_ARB_blend_func_extended");
         fShaderDerivativeSupport = true;
     } else {

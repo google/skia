@@ -26,7 +26,7 @@ public:
 
     const GrGLInterface* glInterface() const { return fGL; }
     GrGLBinding glBinding() const { return fGLBinding; }
-    float glVersion() const { return fGLVersion; }
+    GrGLVersion glVersion() const { return fGLVersion; }
 
 protected:
     GrGpuGL(const GrGLInterface* glInterface, GrGLBinding glBinding);
@@ -129,7 +129,7 @@ protected:
                     GrBlendCoeff dstCoeff);
 
     bool hasExtension(const char* ext) {
-        return has_gl_extension_from_string(ext, fExtensionString.c_str());
+        return GrGLHasExtensionFromString(ext, fExtensionString.c_str());
     }
 
     // adjusts texture matrix to account for orientation, size, and npotness
@@ -192,7 +192,7 @@ private:
 
     // read these once at begining and then never again
     SkString fExtensionString;
-    float fGLVersion;
+    GrGLVersion fGLVersion;
 
     SkTArray<GrGLStencilBuffer::Format, true> fStencilFormats;
     // we want to clear stencil buffers when they are created. We want to clear

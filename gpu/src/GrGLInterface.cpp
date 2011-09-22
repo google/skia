@@ -19,58 +19,31 @@ void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
 }
 #endif
 
-void gl_version_from_string(int* major, int* minor,
-                            const char* versionString) {
-    if (NULL == versionString) {
-        GrAssert(0);
-        *major = 0;
-        *minor = 0;
-        return;
-    }
+GrGLVersion GrGLGetVersionFromString(const char* versionString) {
+    GrAssert(versionString);
+    int major, minor;
 
-    int n = sscanf(versionString, "%d.%d", major, minor);
+    int n = sscanf(versionString, "%d.%d", &major, &minor);
     if (2 == n) {
-        return;
+        return GR_GL_VER(major, minor);
     }
 
     char profile[2];
     n = sscanf(versionString, "OpenGL ES-%c%c %d.%d", profile, profile+1,
-               major, minor);
-    bool ok = 4 == n;
-    if (!ok) {
-        n = sscanf(versionString, "OpenGL ES %d.%d", major, minor);
-        ok = 2 == n;
+               &major, &minor);
+    if (4 == n) {
+        return GR_GL_VER(major, minor);
+    }
+    
+    n = sscanf(versionString, "OpenGL ES %d.%d", &major, &minor);
+    if (2 == n) {
+        return GR_GL_VER(major, minor);
     }
 
-    if (!ok) {
-        GrAssert(0);
-        *major = 0;
-        *minor = 0;
-        return;
-    }
+    return 0;
 }
 
-float gl_version_as_float_from_string(const char* versionString) {
-    int major, minor;
-    gl_version_from_string(&major, &minor, versionString);
-    GrAssert(minor >= 0);
-    // AFAIK there are only single digit minor numbers
-    if (minor < 10) {
-        return major + minor / 10.f;
-    } else if (minor < 100) {
-        return major + minor / 100.f;
-    } else if (minor < 1000) {
-        return major + minor / 1000.f;
-    } else {
-        GrAssert(!"Why so many digits in minor revision number?");
-        char temp[32];
-        sprintf(temp, "%d.%d", major, minor);
-        return (float) atof(temp);
-    }
-}
-
-bool has_gl_extension_from_string(const char* ext,
-                                  const char* extensionString) {
+bool GrGLHasExtensionFromString(const char* ext, const char* extensionString) {
     int extLength = strlen(ext);
 
     while (true) {
@@ -87,22 +60,16 @@ bool has_gl_extension_from_string(const char* ext,
     return false;
 }
 
-bool has_gl_extension(const GrGLInterface* gl, const char* ext) {
+bool GrGLHasExtension(const GrGLInterface* gl, const char* ext) {
     const GrGLubyte* glstr;
     GR_GL_CALL_RET(gl, glstr, GetString(GR_GL_EXTENSIONS));
-    return has_gl_extension_from_string(ext, (const char*) glstr);
+    return GrGLHasExtensionFromString(ext, (const char*) glstr);
 }
 
-void gl_version(const GrGLInterface* gl, int* major, int* minor) {
+GrGLVersion GrGLGetVersion(const GrGLInterface* gl) {
     const GrGLubyte* v;
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
-    gl_version_from_string(major, minor, (const char*) v);
-}
-
-float gl_version_as_float(const GrGLInterface* gl) {
-    const GrGLubyte* v;
-    GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
-    return gl_version_as_float_from_string((const char*)v);
+    return GrGLGetVersionFromString((const char*) v);
 }
 
 GrGLInterface::GrGLInterface() {
@@ -379,10 +346,8 @@ bool GrGLInterface::validate(GrEngine engine) const {
             return false;
     }
 
-    int major, minor;
     const char* ext;
-
-    gl_version(this, &major, &minor);
+    GrGLVersion glVer = GrGLGetVersion(this);
     ext = (const char*)fGetString(GR_GL_EXTENSIONS);
 
     // Now check that baseline ES/Desktop fns not covered above are present
@@ -400,24 +365,24 @@ bool GrGLInterface::validate(GrEngine engine) const {
             return false;
         }
     } else if (kDesktop_GrGLBinding == fBindingsExported) {
-        if (major >= 2) {
+        if (glVer >= GR_GL_VER(2,0)) {
             if (NULL == fStencilFuncSeparate ||
                 NULL == fStencilMaskSeparate ||
                 NULL == fStencilOpSeparate) {
                 return false;
             }
         }
-        if (major >= 3 && NULL == fBindFragDataLocation) {
+        if (glVer >= GR_GL_VER(3,0) && NULL == fBindFragDataLocation) {
             return false;
         }
-        if (major >= 2 ||
-            has_gl_extension_from_string("GL_ARB_draw_buffers", ext)) {
+        if (glVer >= GR_GL_VER(2,0) ||
+            GrGLHasExtensionFromString("GL_ARB_draw_buffers", ext)) {
             if (NULL == fDrawBuffers) {
                 return false;
             }
         }
-        if (1 < major || (1 == major && 4 <= minor) ||
-            has_gl_extension_from_string("GL_EXT_blend_color", ext)) {
+        if (glVer >= GR_GL_VER(1,4) ||
+            GrGLHasExtensionFromString("GL_EXT_blend_color", ext)) {
             if (NULL == fBlendColor) {
                 return false;
             }
@@ -426,8 +391,8 @@ bool GrGLInterface::validate(GrEngine engine) const {
 
     // optional function on desktop before 1.3
     if (kDesktop_GrGLBinding != fBindingsExported ||
-        (1 < major || (1 == major && 3 <= minor)) ||
-        has_gl_extension_from_string("GL_ARB_texture_compression", ext)) {
+        (glVer >= GR_GL_VER(1,3) ||
+        GrGLHasExtensionFromString("GL_ARB_texture_compression", ext))) {
         if (NULL == fCompressedTexImage2D) {
             return false;
         }
@@ -445,29 +410,29 @@ bool GrGLInterface::validate(GrEngine engine) const {
     // FBO MSAA
     if (kDesktop_GrGLBinding == fBindingsExported) {
         // GL 3.0 and the ARB extension have multisample + blit
-        if ((major >= 3) || has_gl_extension_from_string("GL_ARB_framebuffer_object", ext)) {
+        if (glVer >= GR_GL_VER(3,0) || GrGLHasExtensionFromString("GL_ARB_framebuffer_object", ext)) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fBlitFramebuffer) {
                 return false;
             }
         } else {
-            if (has_gl_extension_from_string("GL_EXT_framebuffer_blit", ext) &&
+            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_blit", ext) &&
                 NULL == fBlitFramebuffer) {
                 return false;
             }
-            if (has_gl_extension_from_string("GL_EXT_framebuffer_multisample", ext) &&
+            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_multisample", ext) &&
                 NULL == fRenderbufferStorageMultisample) {
                 return false;
             }
         }
     } else {
-        if (has_gl_extension_from_string("GL_CHROMIUM_framebuffer_multisample", ext)) {
+        if (GrGLHasExtensionFromString("GL_CHROMIUM_framebuffer_multisample", ext)) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fBlitFramebuffer) {
                 return false;
             }
         }
-        if (has_gl_extension_from_string("GL_APPLE_framebuffer_multisample", ext)) {
+        if (GrGLHasExtensionFromString("GL_APPLE_framebuffer_multisample", ext)) {
             if (NULL == fRenderbufferStorageMultisample ||
                 NULL == fResolveMultisampleFramebuffer) {
                 return false;
@@ -479,7 +444,7 @@ bool GrGLInterface::validate(GrEngine engine) const {
     // buffer mapping was part of original VBO extension
     // which we require.
     if (kDesktop_GrGLBinding == fBindingsExported  || 
-        has_gl_extension_from_string("GL_OES_mapbuffer", ext)) {
+        GrGLHasExtensionFromString("GL_OES_mapbuffer", ext)) {
         if (NULL == fMapBuffer ||
             NULL == fUnmapBuffer) {
             return false;
@@ -488,8 +453,8 @@ bool GrGLInterface::validate(GrEngine engine) const {
 
     // Dual source blending
     if (kDesktop_GrGLBinding == fBindingsExported  &&
-        (has_gl_extension_from_string("GL_ARB_blend_func_extended", ext) ||
-         (3 < major) || (3 == major && 3 <= minor))) {
+        (glVer >= GR_GL_VER(3,3) || 
+         GrGLHasExtensionFromString("GL_ARB_blend_func_extended", ext))) {
         if (NULL == fBindFragDataLocationIndexed) {
             return false;
         }
