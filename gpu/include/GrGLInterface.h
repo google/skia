@@ -24,7 +24,7 @@
  * Helpers for glGetString()
  */
 
-typedef GrFixed GrGLVersion;
+typedef uint32_t GrGLVersion;
 
 #define GR_GL_VER(major, minor) (((int)(major) << 16) | ((int)(minor)))
 
