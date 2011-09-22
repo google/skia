@@ -257,9 +257,9 @@ static int probe_for_min_render_target_width(const GrGLInterface* gl,
     return minRenderTargetWidth;
 }
 
+GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding) {
 
-GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding) 
-    : fStencilFormats(8) {
+    fPrintedCaps = false;
 
     gl->ref();
     fGL = gl;
@@ -303,241 +303,7 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
 
     this->resetDirtyFlags();
 
-    GrGLint maxTextureUnits;
-    // check FS and fixed-function texture unit limits
-    // we only use textures in the fragment stage currently.
-    // checks are > to make sure we have a spare unit.
-    if (kES1_GrGLBinding != this->glBinding()) {
-        GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-        GrAssert(maxTextureUnits > kNumStages);
-    }
-    if (kES2_GrGLBinding != this->glBinding()) {
-        GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
-        GrAssert(maxTextureUnits > kNumStages);
-    }
-    if (kES2_GrGLBinding == this->glBinding()) {
-        GR_GL_GetIntegerv(gl, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
-                          &fMaxFragmentUniformVectors);
-    } else if (kDesktop_GrGLBinding != this->glBinding()) {
-        GrGLint max;
-        GR_GL_GetIntegerv(gl, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
-        fMaxFragmentUniformVectors = max / 4;
-    } else {
-        fMaxFragmentUniformVectors = 16;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Check for supported features.
-
-    this->setupStencilFormats();
-
-    GrGLint numFormats;
-    GR_GL_GetIntegerv(gl, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    SkAutoSTMalloc<10, GrGLint> formats(numFormats);
-    GR_GL_GetIntegerv(gl, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
-    for (int i = 0; i < numFormats; ++i) {
-        if (formats[i] == GR_GL_PALETTE8_RGBA8) {
-            f8bitPaletteSupport = true;
-            break;
-        }
-    }
-
-    if (gPrintStartupSpew) {
-        GrPrintf("Palette8 support: %s\n", (f8bitPaletteSupport ? "YES" : "NO"));
-    }
-
-    GR_STATIC_ASSERT(0 == kNone_GrAALevel);
-    GR_STATIC_ASSERT(1 == kLow_GrAALevel);
-    GR_STATIC_ASSERT(2 == kMed_GrAALevel);
-    GR_STATIC_ASSERT(3 == kHigh_GrAALevel);
-
-    memset(fAASamples, 0, sizeof(fAASamples));
-    fMSFBOType = kNone_MSFBO;
-    if (kDesktop_GrGLBinding != this->glBinding()) {
-       if (this->hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
-           // chrome's extension is equivalent to the EXT msaa
-           // and fbo_blit extensions.
-            fMSFBOType = kDesktopEXT_MSFBO;
-       } else if (this->hasExtension("GL_APPLE_framebuffer_multisample")) {
-            fMSFBOType = kAppleES_MSFBO;
-        }
-    } else {
-        if ((fGLVersion >= GR_GL_VER(3,0)) || this->hasExtension("GL_ARB_framebuffer_object")) {
-            fMSFBOType = kDesktopARB_MSFBO;
-        } else if (this->hasExtension("GL_EXT_framebuffer_multisample") &&
-                   this->hasExtension("GL_EXT_framebuffer_blit")) {
-            fMSFBOType = kDesktopEXT_MSFBO;
-        }
-    }
-    if (gPrintStartupSpew) {
-        switch (fMSFBOType) {
-            case kNone_MSFBO:
-                GrPrintf("MSAA Support: NONE\n");
-                break;
-            case kDesktopARB_MSFBO:
-                GrPrintf("MSAA Support: DESKTOP ARB.\n");
-                break;
-            case kDesktopEXT_MSFBO:
-                GrPrintf("MSAA Support: DESKTOP EXT.\n");
-                break;
-            case kAppleES_MSFBO:
-                GrPrintf("MSAA Support: APPLE ES.\n");
-                break;
-        }
-    }
-
-    if (kNone_MSFBO != fMSFBOType) {
-        GrGLint maxSamples;
-        GR_GL_GetIntegerv(gl, GR_GL_MAX_SAMPLES, &maxSamples);
-        if (maxSamples > 1 ) {
-            fAASamples[kNone_GrAALevel] = 0;
-            fAASamples[kLow_GrAALevel] = GrMax(2,
-                                               GrFixedFloorToInt((GR_FixedHalf) *
-                                               maxSamples));
-            fAASamples[kMed_GrAALevel] = GrMax(2,
-                                               GrFixedFloorToInt(((GR_Fixed1*3)/4) *
-                                               maxSamples));
-            fAASamples[kHigh_GrAALevel] = maxSamples;
-        }
-        if (gPrintStartupSpew) {
-            GrPrintf("\tMax Samples: %d\n", maxSamples);
-        }
-    }
-    fFSAASupport = fAASamples[kHigh_GrAALevel] > 0;
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        fHasStencilWrap = (fGLVersion >= GR_GL_VER(1,4)) ||
-                          this->hasExtension("GL_EXT_stencil_wrap");
-    } else {
-        fHasStencilWrap = (fGLVersion >= GR_GL_VER(2,0)) || 
-                          this->hasExtension("GL_OES_stencil_wrap");
-    }
-    if (gPrintStartupSpew) {
-        GrPrintf("Stencil Wrap: %s\n", (fHasStencilWrap ? "YES" : "NO"));
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        // we could also look for GL_ATI_separate_stencil extension or
-        // GL_EXT_stencil_two_side but they use different function signatures
-        // than GL2.0+ (and than each other).
-        fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
-        // supported on GL 1.4 and higher or by extension
-        fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(1,4)) ||
-                                  this->hasExtension("GL_EXT_stencil_wrap");
-    } else {
-        // ES 2 has two sided stencil but 1.1 doesn't. There doesn't seem to be
-        // an ES1 extension.
-        fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
-        // stencil wrap support is in ES2, ES1 requires extension.
-        fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(2,0)) ||
-                                 this->hasExtension("GL_OES_stencil_wrap");
-    }
-    if (gPrintStartupSpew) {
-        GrPrintf("Stencil Caps: TwoSide: %s, Wrap: %s\n",
-                (fTwoSidedStencilSupport ? "YES" : "NO"),
-                (fStencilWrapOpsSupport ? "YES" : "NO"));
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        fRGBA8Renderbuffer = true;
-    } else {
-        fRGBA8Renderbuffer = this->hasExtension("GL_OES_rgb8_rgba8");
-    }
-    if (gPrintStartupSpew) {
-        GrPrintf("RGBA Renderbuffer: %s\n", (fRGBA8Renderbuffer ? "YES" : "NO"));
-    }
-
-
-    if (kDesktop_GrGLBinding != this->glBinding()) {
-        if (GR_GL_32BPP_COLOR_FORMAT == GR_GL_BGRA) {
-            GrAssert(this->hasExtension("GL_EXT_texture_format_BGRA8888"));
-        }
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        fBufferLockSupport = true; // we require VBO support and the desktop VBO
-                                   // extension includes glMapBuffer.
-    } else {
-        fBufferLockSupport = this->hasExtension("GL_OES_mapbuffer");
-    }
-
-    if (gPrintStartupSpew) {
-        GrPrintf("Map Buffer: %s\n", (fBufferLockSupport ? "YES" : "NO"));
-    }
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        if (fGLVersion >= GR_GL_VER(2,0) || 
-            this->hasExtension("GL_ARB_texture_non_power_of_two")) {
-            fNPOTTextureTileSupport = true;
-            fNPOTTextureSupport = true;
-        } else {
-            fNPOTTextureTileSupport = false;
-            fNPOTTextureSupport = false;
-        }
-    } else {
-        if (fGLVersion >= GR_GL_VER(2,0)) {
-            fNPOTTextureSupport = true;
-            fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
-        } else {
-            fNPOTTextureSupport =
-                        this->hasExtension("GL_APPLE_texture_2D_limited_npot");
-            fNPOTTextureTileSupport = false;
-        }
-    }
-
-    fAALineSupport = (kDesktop_GrGLBinding == this->glBinding());
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Experiments to determine limitations that can't be queried.
-    // TODO: Make these a preprocess that generate some compile time constants.
-    // TODO: probe once at startup, rather than once per context creation.
-
-    int expectNPOTTargets = gl->fNPOTRenderTargetSupport;
-    if (expectNPOTTargets == kProbe_GrGLCapability) {
-        fNPOTRenderTargetSupport =
-            probe_for_npot_render_target_support(gl, fNPOTTextureSupport);
-    } else {
-        GrAssert(expectNPOTTargets == 0 || expectNPOTTargets == 1);
-        fNPOTRenderTargetSupport = static_cast<bool>(expectNPOTTargets);
-    }
-
-    if (gPrintStartupSpew) {
-        if (fNPOTTextureSupport) {
-            GrPrintf("NPOT textures supported\n");
-            if (fNPOTTextureTileSupport) {
-                GrPrintf("NPOT texture tiling supported\n");
-            } else {
-                GrPrintf("NPOT texture tiling NOT supported\n");
-            }
-            if (fNPOTRenderTargetSupport) {
-                GrPrintf("NPOT render targets supported\n");
-            } else {
-                GrPrintf("NPOT render targets NOT supported\n");
-            }
-        } else {
-            GrPrintf("NPOT textures NOT supported\n");
-        }
-    }
-
-    GR_GL_GetIntegerv(gl, GR_GL_MAX_TEXTURE_SIZE, &fMaxTextureSize);
-    GR_GL_GetIntegerv(gl, GR_GL_MAX_RENDERBUFFER_SIZE, &fMaxRenderTargetSize);
-    // Our render targets are always created with textures as the color
-    // attachment, hence this min:
-    fMaxRenderTargetSize = GrMin(fMaxTextureSize, fMaxRenderTargetSize);
-
-    fMinRenderTargetHeight = gl->fMinRenderTargetHeight;
-    if (fMinRenderTargetHeight == kProbe_GrGLCapability) {
-        fMinRenderTargetHeight =
-            probe_for_min_render_target_height(gl,fNPOTRenderTargetSupport,
-                                               fMaxRenderTargetSize);
-    }
-
-    fMinRenderTargetWidth = gl->fMinRenderTargetWidth;
-    if (fMinRenderTargetWidth == kProbe_GrGLCapability) {
-        fMinRenderTargetWidth =
-            probe_for_min_render_target_width(gl, fNPOTRenderTargetSupport,
-                                              fMaxRenderTargetSize);
-    }
+    this->initCaps();
 
     fLastSuccessfulStencilFmtIdx = 0;
 }
@@ -549,7 +315,255 @@ GrGpuGL::~GrGpuGL() {
     fGL->unref();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+static const GrGLuint kUnknownBitCount = ~0;
+
+void GrGpuGL::initCaps() {
+    GrGLint maxTextureUnits;
+    // check FS and fixed-function texture unit limits
+    // we only use textures in the fragment stage currently.
+    // checks are > to make sure we have a spare unit.
+    if (kES1_GrGLBinding != this->glBinding()) {
+        GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+        GrAssert(maxTextureUnits > kNumStages);
+    }
+    if (kES2_GrGLBinding != this->glBinding()) {
+        GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
+        GrAssert(maxTextureUnits > kNumStages);
+    }
+    if (kES2_GrGLBinding == this->glBinding()) {
+        GR_GL_GetIntegerv(fGL, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
+                          &fGLCaps.fMaxFragmentUniformVectors);
+    } else if (kDesktop_GrGLBinding != this->glBinding()) {
+        GrGLint max;
+        GR_GL_GetIntegerv(fGL, GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &max);
+        fGLCaps.fMaxFragmentUniformVectors = max / 4;
+    } else {
+        fGLCaps.fMaxFragmentUniformVectors = 16;
+    }
+
+    GrGLint numFormats;
+    GR_GL_GetIntegerv(fGL, GR_GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
+    SkAutoSTMalloc<10, GrGLint> formats(numFormats);
+    GR_GL_GetIntegerv(fGL, GR_GL_COMPRESSED_TEXTURE_FORMATS, formats);
+    for (int i = 0; i < numFormats; ++i) {
+        if (formats[i] == GR_GL_PALETTE8_RGBA8) {
+            fCaps.f8BitPaletteSupport = true;
+            break;
+        }
+    }
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(1,4)) ||
+                                    this->hasExtension("GL_EXT_stencil_wrap");
+    } else {
+        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(2,0)) ||
+                                this->hasExtension("GL_OES_stencil_wrap");
+    }
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        // we could also look for GL_ATI_separate_stencil extension or
+        // GL_EXT_stencil_two_side but they use different function signatures
+        // than GL2.0+ (and than each other).
+        fCaps.fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
+        // supported on GL 1.4 and higher or by extension
+        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(1,4)) ||
+                                       this->hasExtension("GL_EXT_stencil_wrap");
+    } else {
+        // ES 2 has two sided stencil but 1.1 doesn't. There doesn't seem to be
+        // an ES1 extension.
+        fCaps.fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
+        // stencil wrap support is in ES2, ES1 requires extension.
+        fCaps.fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(2,0)) ||
+                                       this->hasExtension("GL_OES_stencil_wrap");
+    }
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        fGLCaps.fRGBA8Renderbuffer = true;
+    } else {
+        fGLCaps.fRGBA8Renderbuffer = this->hasExtension("GL_OES_rgb8_rgba8");
+    }
+
+
+    if (kDesktop_GrGLBinding != this->glBinding()) {
+        if (GR_GL_32BPP_COLOR_FORMAT == GR_GL_BGRA) {
+            GrAssert(this->hasExtension("GL_EXT_texture_format_BGRA8888"));
+        }
+    }
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        fCaps.fBufferLockSupport = true; // we require VBO support and the desktop VBO
+                                         // extension includes glMapBuffer.
+    } else {
+        fCaps.fBufferLockSupport = this->hasExtension("GL_OES_mapbuffer");
+    }
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        if (fGLVersion >= GR_GL_VER(2,0) || 
+            this->hasExtension("GL_ARB_texture_non_power_of_two")) {
+            fCaps.fNPOTTextureTileSupport = true;
+            fCaps.fNPOTTextureSupport = true;
+        } else {
+            fCaps.fNPOTTextureTileSupport = false;
+            fCaps.fNPOTTextureSupport = false;
+        }
+    } else {
+        if (fGLVersion >= GR_GL_VER(2,0)) {
+            fCaps.fNPOTTextureSupport = true;
+            fCaps.fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
+        } else {
+            fCaps.fNPOTTextureSupport =
+                        this->hasExtension("GL_APPLE_texture_2D_limited_npot");
+            fCaps.fNPOTTextureTileSupport = false;
+        }
+    }
+
+    fCaps.fHWAALineSupport = (kDesktop_GrGLBinding == this->glBinding());
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Experiments to determine limitations that can't be queried.
+    // TODO: Make these a preprocess that generate some compile time constants.
+    // TODO: probe once at startup, rather than once per context creation.
+
+    int expectNPOTTargets = fGL->fNPOTRenderTargetSupport;
+    if (expectNPOTTargets == kProbe_GrGLCapability) {
+        fCaps.fNPOTRenderTargetSupport =
+            probe_for_npot_render_target_support(fGL, fCaps.fNPOTTextureSupport);
+    } else {
+        GrAssert(expectNPOTTargets == 0 || expectNPOTTargets == 1);
+        fCaps.fNPOTRenderTargetSupport = static_cast<bool>(expectNPOTTargets);
+    }
+
+    GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_SIZE, &fCaps.fMaxTextureSize);
+    GR_GL_GetIntegerv(fGL, GR_GL_MAX_RENDERBUFFER_SIZE, &fCaps.fMaxRenderTargetSize);
+    // Our render targets are always created with textures as the color
+    // attachment, hence this min:
+    fCaps.fMaxRenderTargetSize = GrMin(fCaps.fMaxTextureSize, fCaps.fMaxRenderTargetSize);
+
+    fCaps.fMinRenderTargetHeight = fGL->fMinRenderTargetHeight;
+    if (fCaps.fMinRenderTargetHeight == kProbe_GrGLCapability) {
+        fCaps.fMinRenderTargetHeight =
+            probe_for_min_render_target_height(fGL, fCaps.fNPOTRenderTargetSupport,
+                                               fCaps.fMaxRenderTargetSize);
+    }
+
+    fCaps.fMinRenderTargetWidth = fGL->fMinRenderTargetWidth;
+    if (fCaps.fMinRenderTargetWidth == kProbe_GrGLCapability) {
+        fCaps.fMinRenderTargetWidth =
+            probe_for_min_render_target_width(fGL, fCaps.fNPOTRenderTargetSupport,
+                                              fCaps.fMaxRenderTargetSize);
+    }
+
+    this->initFSAASupport();
+    this->initStencilFormats();
+}
+
+void GrGpuGL::initFSAASupport() {
+    // TODO: Get rid of GrAALevel and use # samples directly.
+    GR_STATIC_ASSERT(0 == kNone_GrAALevel);
+    GR_STATIC_ASSERT(1 == kLow_GrAALevel);
+    GR_STATIC_ASSERT(2 == kMed_GrAALevel);
+    GR_STATIC_ASSERT(3 == kHigh_GrAALevel);
+    memset(fGLCaps.fAASamples, 0, sizeof(fGLCaps.fAASamples));
+
+    fGLCaps.fMSFBOType = GLCaps::kNone_MSFBO;
+    if (kDesktop_GrGLBinding != this->glBinding()) {
+       if (this->hasExtension("GL_CHROMIUM_framebuffer_multisample")) {
+           // chrome's extension is equivalent to the EXT msaa
+           // and fbo_blit extensions.
+            fGLCaps.fMSFBOType = GLCaps::kDesktopEXT_MSFBO;
+       } else if (this->hasExtension("GL_APPLE_framebuffer_multisample")) {
+            fGLCaps.fMSFBOType = GLCaps::kAppleES_MSFBO;
+        }
+    } else {
+        if ((fGLVersion >= GR_GL_VER(3,0)) || this->hasExtension("GL_ARB_framebuffer_object")) {
+            fGLCaps.fMSFBOType = GLCaps::kDesktopARB_MSFBO;
+        } else if (this->hasExtension("GL_EXT_framebuffer_multisample") &&
+                   this->hasExtension("GL_EXT_framebuffer_blit")) {
+            fGLCaps.fMSFBOType = GLCaps::kDesktopEXT_MSFBO;
+        }
+    }
+
+    if (GLCaps::kNone_MSFBO != fGLCaps.fMSFBOType) {
+        GrGLint maxSamples;
+        GR_GL_GetIntegerv(fGL, GR_GL_MAX_SAMPLES, &maxSamples);
+        if (maxSamples > 1 ) {
+            fGLCaps.fAASamples[kNone_GrAALevel] = 0;
+            fGLCaps.fAASamples[kLow_GrAALevel] =
+                GrMax(2, GrFixedFloorToInt((GR_FixedHalf) * maxSamples));
+            fGLCaps.fAASamples[kMed_GrAALevel] =
+                GrMax(2, GrFixedFloorToInt(((GR_Fixed1*3)/4) * maxSamples));
+            fGLCaps.fAASamples[kHigh_GrAALevel] = maxSamples;
+        }
+    }
+    fCaps.fFSAASupport = fGLCaps.fAASamples[kHigh_GrAALevel] > 0;
+}
+
+void GrGpuGL::initStencilFormats() {
+
+    // Build up list of legal stencil formats (though perhaps not supported on
+    // the particular gpu/driver) from most preferred to least.
+
+    // these consts are in order of most preferred to least preferred
+    // we don't bother with GL_STENCIL_INDEX1 or GL_DEPTH32F_STENCIL8
+    static const GrGLStencilBuffer::Format
+                  // internal Format      stencil bits      total bits        packed?
+        gS8    = {GR_GL_STENCIL_INDEX8,   8,                8,                false},
+        gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
+        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true },
+        gS4    = {GR_GL_STENCIL_INDEX4,   4,                4,                false},
+        gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
+        gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
+
+    if (kDesktop_GrGLBinding == this->glBinding()) {
+        bool supportsPackedDS = fGLVersion >= GR_GL_VER(3,0) || 
+                                this->hasExtension("GL_EXT_packed_depth_stencil") ||
+                                this->hasExtension("GL_ARB_framebuffer_object");
+
+        // S1 thru S16 formats are in GL 3.0+, EXT_FBO, and ARB_FBO since we
+        // require FBO support we can expect these are legal formats and don't
+        // check. These also all support the unsized GL_STENCIL_INDEX.
+        fGLCaps.fStencilFormats.push_back() = gS8;
+        fGLCaps.fStencilFormats.push_back() = gS16;
+        if (supportsPackedDS) {
+            fGLCaps.fStencilFormats.push_back() = gD24S8;
+        }
+        fGLCaps.fStencilFormats.push_back() = gS4;
+        if (supportsPackedDS) {
+            fGLCaps.fStencilFormats.push_back() = gDS;
+        }
+    } else {
+        // ES2 has STENCIL_INDEX8 without extensions.
+        // ES1 with GL_OES_framebuffer_object (which we require for ES1)
+        // introduces tokens for S1 thu S8 but there are separate extensions
+        // that make them legal (GL_OES_stencil1, ...).
+        // GL_OES_packed_depth_stencil adds DEPTH24_STENCIL8
+        // ES doesn't support using the unsized formats.
+
+        if (fGLVersion >= GR_GL_VER(2,0) ||
+            this->hasExtension("GL_OES_stencil8")) {
+            fGLCaps.fStencilFormats.push_back() = gS8;
+        }
+        //fStencilFormats.push_back() = gS16;
+        if (this->hasExtension("GL_OES_packed_depth_stencil")) {
+            fGLCaps.fStencilFormats.push_back() = gD24S8;
+        }
+        if (this->hasExtension("GL_OES_stencil4")) {
+            fGLCaps.fStencilFormats.push_back() = gS4;
+        }
+        // we require some stencil format.
+        GrAssert(fGLCaps.fStencilFormats.count() > 0);
+    }
+}
+
 void GrGpuGL::resetContext() {
+    if (gPrintStartupSpew && !fPrintedCaps) {
+        fPrintedCaps = true;
+        this->getCaps().print();
+        fGLCaps.print();
+    }
+
     // We detect cases when blending is effectively off
     fHWBlendDisabled = false;
     GL_CALL(Enable(GR_GL_BLEND));
@@ -698,66 +712,6 @@ GrResource* GrGpuGL::onCreatePlatformSurface(const GrPlatformSurfaceDesc& desc) 
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-
-static const GrGLuint kUnknownBitCount = ~0;
-
-void GrGpuGL::setupStencilFormats() {
-
-    // Build up list of legal stencil formats (though perhaps not supported on
-    // the particular gpu/driver) from most preferred to least.
-
-    // these consts are in order of most preferred to least preferred
-    // we don't bother with GL_STENCIL_INDEX1 or GL_DEPTH32F_STENCIL8
-    static const GrGLStencilBuffer::Format
-                  // internal Format      stencil bits      total bits        packed?
-        gS8    = {GR_GL_STENCIL_INDEX8,   8,                8,                false},
-        gS16   = {GR_GL_STENCIL_INDEX16,  16,               16,               false},
-        gD24S8 = {GR_GL_DEPTH24_STENCIL8, 8,                32,               true },
-        gS4    = {GR_GL_STENCIL_INDEX4,   4,                4,                false},
-        gS     = {GR_GL_STENCIL_INDEX,    kUnknownBitCount, kUnknownBitCount, false},
-        gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
-
-    if (kDesktop_GrGLBinding == this->glBinding()) {
-        bool supportsPackedDS = fGLVersion >= GR_GL_VER(3,0) || 
-                                this->hasExtension("GL_EXT_packed_depth_stencil") ||
-                                this->hasExtension("GL_ARB_framebuffer_object");
-
-        // S1 thru S16 formats are in GL 3.0+, EXT_FBO, and ARB_FBO since we
-        // require FBO support we can expect these are legal formats and don't
-        // check. These also all support the unsized GL_STENCIL_INDEX.
-        fStencilFormats.push_back() = gS8;
-        fStencilFormats.push_back() = gS16;
-        if (supportsPackedDS) {
-            fStencilFormats.push_back() = gD24S8;
-        }
-        fStencilFormats.push_back() = gS4;
-        if (supportsPackedDS) {
-            fStencilFormats.push_back() = gDS;
-        }
-    } else {
-        // ES2 has STENCIL_INDEX8 without extensions.
-        // ES1 with GL_OES_framebuffer_object (which we require for ES1)
-        // introduces tokens for S1 thu S8 but there are separate extensions
-        // that make them legal (GL_OES_stencil1, ...).
-        // GL_OES_packed_depth_stencil adds DEPTH24_STENCIL8
-        // ES doesn't support using the unsized formats.
-
-        if (fGLVersion >= GR_GL_VER(2,0) ||
-            this->hasExtension("GL_OES_stencil8")) {
-            fStencilFormats.push_back() = gS8;
-        }
-        //fStencilFormats.push_back() = gS16;
-        if (this->hasExtension("GL_OES_packed_depth_stencil")) {
-            fStencilFormats.push_back() = gD24S8;
-        }
-        if (this->hasExtension("GL_OES_stencil4")) {
-            fStencilFormats.push_back() = gS4;
-        }
-        // we require some stencil format.
-        GrAssert(fStencilFormats.count() > 0);
-    }
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -812,7 +766,7 @@ void GrGpuGL::allocateAndUploadTexData(const GrGLTexture::Desc& desc,
 
     GL_CALL(PixelStorei(GR_GL_UNPACK_ALIGNMENT, desc.fUploadByteCount));
     if (kIndex_8_GrPixelConfig == desc.fFormat &&
-        supports8BitPalette()) {
+        this->getCaps().f8BitPaletteSupport) {
         // ES only supports CompressedTexImage2D, not CompressedTexSubimage2D
         GrAssert(desc.fContentWidth == desc.fAllocWidth);
         GrAssert(desc.fContentHeight == desc.fAllocHeight);
@@ -920,7 +874,7 @@ bool GrGpuGL::createRenderTargetObjects(int width, int height,
 
     // If we are using multisampling we will create two FBOS. We render
     // to one and then resolve to the texture bound to the other.
-    if (desc->fSampleCnt > 1 && kNone_MSFBO != fMSFBOType) {
+    if (desc->fSampleCnt > 1 && GLCaps::kNone_MSFBO != fGLCaps.fMSFBOType) {
         GL_CALL(GenFramebuffers(1, &desc->fRTFBOID));
         GL_CALL(GenRenderbuffers(1, &desc->fMSColorRenderbufferID));
         if (!desc->fRTFBOID ||
@@ -1032,39 +986,42 @@ GrTexture* GrGpuGL::onCreateTexture(const GrTextureDesc& desc,
         return return_null_texture();
     }
 
+    const Caps& caps = this->getCaps();
+
     // We keep GrRenderTargets in GL's normal orientation so that they
     // can be drawn to by the outside world without the client having
     // to render upside down.
     glTexDesc.fOrientation = renderTarget ? GrGLTexture::kBottomUp_Orientation :
                                             GrGLTexture::kTopDown_Orientation;
 
-    GrAssert(as_size_t(desc.fAALevel) < GR_ARRAY_COUNT(fAASamples));
-    glRTDesc.fSampleCnt = fAASamples[desc.fAALevel];
-    if (kNone_MSFBO == fMSFBOType && desc.fAALevel != kNone_GrAALevel) {
+    GrAssert(as_size_t(desc.fAALevel) < GR_ARRAY_COUNT(fGLCaps.fAASamples));
+    glRTDesc.fSampleCnt = fGLCaps.fAASamples[desc.fAALevel];
+    if (GLCaps::kNone_MSFBO == fGLCaps.fMSFBOType &&
+        desc.fAALevel != kNone_GrAALevel) {
         GrPrintf("AA RT requested but not supported on this platform.");
     }
 
     glTexDesc.fUploadByteCount = GrBytesPerPixel(desc.fFormat);
 
     if (renderTarget) {
-        if (!this->npotRenderTargetSupport()) {
+        if (!caps.fNPOTRenderTargetSupport) {
             glTexDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
             glTexDesc.fAllocHeight = GrNextPow2(desc.fHeight);
         }
 
-        glTexDesc.fAllocWidth = GrMax(fMinRenderTargetWidth,
+        glTexDesc.fAllocWidth = GrMax(caps.fMinRenderTargetWidth,
                                       glTexDesc.fAllocWidth);
-        glTexDesc.fAllocHeight = GrMax(fMinRenderTargetHeight,
+        glTexDesc.fAllocHeight = GrMax(caps.fMinRenderTargetHeight,
                                        glTexDesc.fAllocHeight);
-        if (glTexDesc.fAllocWidth > fMaxRenderTargetSize ||
-            glTexDesc.fAllocHeight > fMaxRenderTargetSize) {
+        if (glTexDesc.fAllocWidth > caps.fMaxRenderTargetSize ||
+            glTexDesc.fAllocHeight > caps.fMaxRenderTargetSize) {
             return return_null_texture();
         }
-    } else if (!this->npotTextureSupport()) {
+    } else if (!caps.fNPOTTextureSupport) {
         glTexDesc.fAllocWidth  = GrNextPow2(desc.fWidth);
         glTexDesc.fAllocHeight = GrNextPow2(desc.fHeight);
-        if (glTexDesc.fAllocWidth > fMaxTextureSize ||
-            glTexDesc.fAllocHeight > fMaxTextureSize) {
+        if (glTexDesc.fAllocWidth > caps.fMaxTextureSize ||
+            glTexDesc.fAllocHeight > caps.fMaxTextureSize) {
             return return_null_texture();
         }
     }
@@ -1156,13 +1113,14 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
 
     GrGLStencilBuffer* sb = NULL;
 
-    int stencilFmtCnt = fStencilFormats.count();
+    int stencilFmtCnt = fGLCaps.fStencilFormats.count();
     for (int i = 0; i < stencilFmtCnt; ++i) {
         GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbID));
         // we start with the last stencil format that succeeded in hopes
         // that we won't go through this loop more than once after the
         // first (painful) stencil creation.
         int sIdx = (i + fLastSuccessfulStencilFmtIdx) % stencilFmtCnt;
+        const GrGLStencilBuffer::Format& sFmt = fGLCaps.fStencilFormats[sIdx];
         // we do this "if" so that we don't call the multisample
         // version on a GL that doesn't have an MSAA extension.
         if (samples > 1) {
@@ -1170,21 +1128,21 @@ bool GrGpuGL::createStencilBufferForRenderTarget(GrRenderTarget* rt,
                                   RenderbufferStorageMultisample(
                                         GR_GL_RENDERBUFFER,
                                         samples,
-                                        fStencilFormats[sIdx].fInternalFormat,
+                                        sFmt.fInternalFormat,
                                         width,
                                         height));
         } else {
             GR_GL_CALL_NOERRCHECK(this->glInterface(),
                                   RenderbufferStorage(GR_GL_RENDERBUFFER,
-                                        fStencilFormats[sIdx].fInternalFormat,
-                                        width, height));
+                                                      sFmt.fInternalFormat,
+                                                      width, height));
         }
 
         GrGLenum err = GR_GL_GET_ERROR(this->glInterface());
         if (err == GR_GL_NO_ERROR) {
             // After sized formats we attempt an unsized format and take whatever
             // sizes GL gives us. In that case we query for the size.
-            GrGLStencilBuffer::Format format = fStencilFormats[sIdx];
+            GrGLStencilBuffer::Format format = sFmt;
             get_stencil_rb_sizes(this->glInterface(), sbID, &format);
             sb = new GrGLStencilBuffer(this, sbID, width, height, 
                                        samples, format);
@@ -1606,7 +1564,7 @@ void GrGpuGL::onGpuDrawNonIndexed(GrPrimitiveType type,
 void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
 
     if (rt->needsResolve()) {
-        GrAssert(kNone_MSFBO != fMSFBOType);
+        GrAssert(GLCaps::kNone_MSFBO != fGLCaps.fMSFBOType);
         GrAssert(rt->textureFBOID() != rt->renderFBOID());
         GL_CALL(BindFramebuffer(GR_GL_READ_FRAMEBUFFER,
                                 rt->renderFBOID()));
@@ -1624,7 +1582,7 @@ void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
         r.setRelativeTo(vp, dirtyRect.fLeft, dirtyRect.fTop, 
                         dirtyRect.width(), dirtyRect.height());
 
-        if (kAppleES_MSFBO == fMSFBOType) {
+        if (GLCaps::kAppleES_MSFBO == fGLCaps.fMSFBOType) {
             // Apple's extension uses the scissor as the blit bounds.
             GL_CALL(Enable(GR_GL_SCISSOR_TEST));
             GL_CALL(Scissor(r.fLeft, r.fBottom,
@@ -1633,10 +1591,10 @@ void GrGpuGL::resolveRenderTarget(GrGLRenderTarget* rt) {
             fHWBounds.fScissorRect.invalidate();
             fHWBounds.fScissorEnabled = true;
         } else {
-            if (kDesktopARB_MSFBO != fMSFBOType) {
+            if (GLCaps::kDesktopARB_MSFBO != fGLCaps.fMSFBOType) {
                 // this respects the scissor during the blit, so disable it.
-                GrAssert(kDesktopEXT_MSFBO == fMSFBOType);
-                flushScissor(NULL);
+                GrAssert(GLCaps::kDesktopEXT_MSFBO == fGLCaps.fMSFBOType);
+                this->flushScissor(NULL);
             }
             int right = r.fLeft + r.fWidth;
             int top = r.fBottom + r.fHeight;
@@ -1716,7 +1674,7 @@ void GrGpuGL::flushStencil() {
         } else {
             GL_CALL(Enable(GR_GL_STENCIL_TEST));
     #if GR_DEBUG
-            if (!fStencilWrapOpsSupport) {
+            if (!this->getCaps().fStencilWrapOpsSupport) {
                 GrAssert(settings->fFrontPassOp != kIncWrap_StencilOp);
                 GrAssert(settings->fFrontPassOp != kDecWrap_StencilOp);
                 GrAssert(settings->fFrontFailOp != kIncWrap_StencilOp);
@@ -1768,7 +1726,7 @@ void GrGpuGL::flushStencil() {
                      (unsigned) settings->fBackFailOp < GR_ARRAY_COUNT(grToGLStencilOp));
             GrAssert(settings->fBackPassOp >= 0 &&
                      (unsigned) settings->fBackPassOp < GR_ARRAY_COUNT(grToGLStencilOp));
-            if (fTwoSidedStencilSupport) {
+            if (this->getCaps().fTwoSidedStencilSupport) {
                 GrGLenum backFunc;
 
                 unsigned int backRef  = settings->fBackFuncRef;
@@ -2133,7 +2091,7 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
             *type = GR_GL_UNSIGNED_SHORT_4_4_4_4;
             break;
         case kIndex_8_GrPixelConfig:
-            if (this->supports8BitPalette()) {
+            if (this->getCaps().f8BitPaletteSupport) {
                 *format = GR_GL_PALETTE8_RGBA8;
                 *internalFormat = GR_GL_PALETTE8_RGBA8;
                 *type = GR_GL_UNSIGNED_BYTE;   // unused I think
@@ -2177,7 +2135,7 @@ bool GrGpuGL::fboInternalFormat(GrPixelConfig config, GrGLenum* format) {
     switch (config) {
         case kRGBA_8888_GrPixelConfig:
         case kRGBX_8888_GrPixelConfig:
-            if (fRGBA8Renderbuffer) {
+            if (fGLCaps.fRGBA8Renderbuffer) {
                 *format = GR_GL_RGBA8;
                 return true;
             } else {
@@ -2267,6 +2225,32 @@ void GrGpuGL::setBuffers(bool indexed,
 int GrGpuGL::getMaxEdges() const {
     // FIXME:  This is a pessimistic estimate based on how many other things
     // want to add uniforms.  This should be centralized somewhere.
-    return GR_CT_MIN(fMaxFragmentUniformVectors - 8, kMaxEdges);
+    return GR_CT_MIN(fGLCaps.fMaxFragmentUniformVectors - 8, kMaxEdges);
 }
 
+void GrGpuGL::GLCaps::print() const {
+    for (int i = 0; i < fStencilFormats.count(); ++i) {
+        GrPrintf("Stencil Format %d, stencil bits: %02d, total bits: %02d\n",
+                 i,
+                 fStencilFormats[i].fStencilBits,
+                 fStencilFormats[i].fTotalBits);
+    }
+
+    GR_STATIC_ASSERT(0 == kNone_MSFBO);
+    GR_STATIC_ASSERT(1 == kDesktopARB_MSFBO);
+    GR_STATIC_ASSERT(2 == kDesktopEXT_MSFBO);
+    GR_STATIC_ASSERT(3 == kAppleES_MSFBO);
+    static const char* gMSFBOExtStr[] = {
+        "None",
+        "ARB",
+        "EXT",
+        "Apple",
+    };
+    GrPrintf("MSAA Type: %s\n", gMSFBOExtStr[fMSFBOType]);
+    for (int i = 0; i < GR_ARRAY_COUNT(fAASamples); ++i) {
+        GrPrintf("AA Level %d has %d samples\n", i, fAASamples[i]);
+    }
+    GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
+    GrPrintf("Support RGBA8 Render Buffer: %s\n",
+             (fRGBA8Renderbuffer ? "YES": "NO"));
+}

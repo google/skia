@@ -1041,3 +1041,23 @@ void GrDrawTarget::AutoReleaseGeometry::reset() {
     fIndices = NULL;
 }
 
+void GrDrawTarget::Caps::print() const {
+    static const char* gNY[] = {"NO", "YES"};
+    GrPrintf("8 Bit Palette Support       : %s\n", gNY[f8BitPaletteSupport]);
+    GrPrintf("NPOT Texture Support        : %s\n", gNY[fNPOTTextureSupport]);
+    GrPrintf("NPOT Texture Tile Support   : %s\n", gNY[fNPOTTextureTileSupport]);
+    GrPrintf("NPOT Render Target Support  : %s\n", gNY[fNPOTRenderTargetSupport]);
+    GrPrintf("Two Sided Stencil Support   : %s\n", gNY[fTwoSidedStencilSupport]);
+    GrPrintf("Stencil Wrap Ops  Support   : %s\n", gNY[fStencilWrapOpsSupport]);
+    GrPrintf("HW AA Lines Support         : %s\n", gNY[fHWAALineSupport]);
+    GrPrintf("Shader Support              : %s\n", gNY[fShaderSupport]);
+    GrPrintf("Shader Derivative Support   : %s\n", gNY[fShaderDerivativeSupport]);
+    GrPrintf("FSAA Support                : %s\n", gNY[fFSAASupport]);
+    GrPrintf("Dual Source Blending Support: %s\n", gNY[fDualSourceBlendingSupport]);
+    GrPrintf("Buffer Lock Support         : %s\n", gNY[fBufferLockSupport]);
+    GrPrintf("Min Render Target Width     : %d\n", fMinRenderTargetWidth);
+    GrPrintf("Min Render Target Height    : %d\n", fMinRenderTargetHeight);
+    GrPrintf("Max Texture Size            : %d\n", fMaxTextureSize);
+    GrPrintf("Max Render Target Size      : %d\n", fMaxRenderTargetSize);
+}
+

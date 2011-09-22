@@ -31,8 +31,7 @@ extern void gr_run_unittests();
 #define DEBUG_INVAL_START_IDX -1
 
 GrGpu::GrGpu()
-    : f8bitPaletteSupport(false)
-    , fContext(NULL)
+    : fContext(NULL)
     , fVertexPool(NULL)
     , fIndexPool(NULL)
     , fVertexPoolUseCnt(0)

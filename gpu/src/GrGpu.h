@@ -54,6 +54,7 @@ struct GrGpuStats {
 class GrGpu : public GrDrawTarget {
 
 public:
+
     /**
      * Additional blend coeffecients for dual source blending, not exposed
      * through GrPaint/GrContext.
@@ -147,118 +148,6 @@ public:
     GrIndexBuffer* createIndexBuffer(uint32_t size, bool dynamic);
 
     /**
-     * Are 8 bit paletted textures supported.
-     *
-     * @return    true if 8bit palette textures are supported, false otherwise
-     */
-    bool supports8BitPalette() const { return f8bitPaletteSupport; }
-
-    /**
-     * returns true if two sided stenciling is supported. If false then only
-     * the front face values of the GrStencilSettings
-     * @return    true if only a single stencil pass is needed.
-     */
-    bool supportsTwoSidedStencil() const
-                                        { return fTwoSidedStencilSupport; }
-
-    /**
-     * returns true if stencil wrap is supported. If false then
-     * kIncWrap_StencilOp and kDecWrap_StencilOp are treated as
-     * kIncClamp_StencilOp and kDecClamp_StencilOp, respectively.
-     * @return    true if stencil wrap ops are supported.
-     */
-    bool supportsStencilWrapOps() const
-                                        { return fStencilWrapOpsSupport; }
-
-    /**
-     * Checks whether locking vertex and index buffers is supported.
-     *
-     * @return true if locking is supported.
-     */
-    bool supportsBufferLocking() const { return fBufferLockSupport; }
-
-    /**
-     * Does the 3D API support anti-aliased lines. If so then line primitive
-     * types will use this functionality when the AA state flag is set.
-     */
-    bool supportsHWAALines() const { return fAALineSupport; }
-
-    /**
-     * Are shaders supported.
-     */
-    bool supportsShaders() const { return fShaderSupport; }
-
-    /**
-     * Are derivative instructions supported in fragment shaders
-     */
-    bool supportsShaderDerivatives() const { return fShaderDerivativeSupport; }
-
-    /**
-     * Does the subclass support GrSamplerState::k4x4Downsample_Filter
-     */
-    bool supports4x4DownsampleFilter() const { return f4X4DownsampleFilterSupport; }
-
-    /**
-     * Does this instance support dual-source blending? Required for proper
-     * blending with partial coverage with certain blend modes (dst coeff is
-     * not 1, ISA, or ISC)
-     */
-    bool supportsDualSourceBlending() const {
-        return fDualSourceBlendingSupport;
-    }
-
-    /**
-     * Gets the minimum width of a render target. If a texture/rt is created
-     * with a width less than this size the GrGpu object will clamp it to this
-     * value.
-     */
-    int minRenderTargetWidth() const { return fMinRenderTargetWidth; }
-
-    /**
-     * Gets the minimum width of a render target. If a texture/rt is created
-     * with a height less than this size the GrGpu object will clamp it to this
-     * value.
-     */
-    int minRenderTargetHeight() const  { return fMinRenderTargetHeight; }
-    
-    /**
-     * Reports whether full scene anti-aliasing is supported.
-     */
-    bool supportsFullsceneAA() const { return fFSAASupport; }
-
-    /**
-     * Returns true if NPOT textures can be created
-     *
-     * @return    true if NPOT textures can be created
-     */
-    bool npotTextureSupport() const { return fNPOTTextureSupport; }
-
-    /**
-     * Returns true if NPOT textures can be repeat/mirror tiled.
-     *
-     * @return    true if NPOT textures can be tiled
-     */
-    bool npotTextureTileSupport() const { return fNPOTTextureTileSupport; }
-
-    /**
-     * Returns true if a NPOT texture can be a rendertarget
-     *
-     * @return    the true if NPOT texture/rendertarget can be created.
-     */
-    bool npotRenderTargetSupport() const { return fNPOTRenderTargetSupport; }
-
-    /**
-     * Gets the largest allowed width and height of a texture.
-     */
-    int maxTextureSize() const { return fMaxTextureSize; }
-    /**
-     * Gets the largest allowed width and height of a render target.
-     */
-    int maxRenderTargetSize() const { return fMaxRenderTargetSize; }
-
-    virtual void clear(const GrIRect* rect, GrColor color);
-
-    /**
      * Returns an index buffer that can be used to render quads.
      * Six indices per quad: 0, 1, 2, 0, 2, 3, etc.
      * The max number of quads can be queried using GrIndexBuffer::maxQuads().
@@ -331,6 +220,7 @@ public:
 
     // GrDrawTarget overrides
     virtual bool willUseHWAALines() const;
+    virtual void clear(const GrIRect* rect, GrColor color);
 
 protected:
     enum PrivateStateBits {
@@ -363,31 +253,6 @@ protected:
     // and the client isn't using the stencil test.
     static const GrStencilSettings gClipStencilSettings;
 
-    // defaults to false, subclass can set true to support palleted textures
-    bool f8bitPaletteSupport;
-
-    // set by subclass
-    bool fNPOTTextureSupport;
-    bool fNPOTTextureTileSupport;
-    bool fNPOTRenderTargetSupport;
-    bool fTwoSidedStencilSupport;
-    bool fStencilWrapOpsSupport;
-    bool fAALineSupport;
-    bool fShaderSupport;
-    bool fShaderDerivativeSupport;
-    bool fFSAASupport;
-    bool f4X4DownsampleFilterSupport; // supports GrSamplerState::k4x4Downsample_Filter
-    bool fDualSourceBlendingSupport;
-
-    // set by subclass to true if index and vertex buffers can be locked, false
-    // otherwise.
-    bool fBufferLockSupport;
-
-    // set by subclass
-    int fMinRenderTargetWidth;
-    int fMinRenderTargetHeight;
-    int fMaxRenderTargetSize;
-    int fMaxTextureSize;
 
     GrGpuStats fStats;
 

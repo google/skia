@@ -30,6 +30,35 @@ class GrIndexBuffer;
 class GrDrawTarget : public GrRefCnt {
 public:
     /**
+     * Represents the draw target capabilities.
+     */
+    struct Caps {
+        Caps() { memset(this, 0, sizeof(Caps)); }
+        Caps(const Caps& c) { *this = c; }
+        Caps& operator= (const Caps& c) {
+            memcpy(this, &c, sizeof(Caps));
+            return *this;
+        }
+        void print() const;
+        bool f8BitPaletteSupport        : 1;
+        bool fNPOTTextureSupport        : 1;
+        bool fNPOTTextureTileSupport    : 1;
+        bool fNPOTRenderTargetSupport   : 1;
+        bool fTwoSidedStencilSupport    : 1;
+        bool fStencilWrapOpsSupport     : 1;
+        bool fHWAALineSupport           : 1;
+        bool fShaderSupport             : 1;
+        bool fShaderDerivativeSupport   : 1;
+        bool fFSAASupport               : 1;
+        bool fDualSourceBlendingSupport : 1;
+        bool fBufferLockSupport         : 1;
+        int fMinRenderTargetWidth;
+        int fMinRenderTargetHeight;
+        int fMaxRenderTargetSize;
+        int fMaxTextureSize;
+    };
+
+    /**
      * Number of texture stages. Each stage takes as input a color and
      * 2D texture coordinates. The color input to the first enabled stage is the
      * per-vertex color or the constant color (setColor/setAlpha) if there are
@@ -47,7 +76,6 @@ public:
         kNumStages = 3,
         kMaxTexCoords = kNumStages
     };
-
 
     /**
      * The absolute maximum number of edges that may be specified for
@@ -195,6 +223,11 @@ public:
 
     GrDrawTarget();
     virtual ~GrDrawTarget();
+
+    /**
+     * Gets the capabilities of the draw target.
+     */
+    const Caps& getCaps() const { return fCaps; }
 
     /**
      * Sets the current clip to the region specified by clip. All draws will be
@@ -1306,6 +1339,8 @@ protected:
     GrClip fClip;
 
     DrState fCurrDrawState;
+
+    Caps fCaps;
 
 private:
     // called when setting a new vert/idx source to unref prev vb/ib
