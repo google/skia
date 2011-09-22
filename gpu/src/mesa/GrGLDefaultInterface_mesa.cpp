@@ -20,12 +20,11 @@
 
 const GrGLInterface* GrGLDefaultInterface() {
     if (NULL != OSMesaGetCurrentContext()) {
-        int major, minor;
         const char* versionString = (const char*) glGetString(GL_VERSION);
         const char* extString = (const char*) glGetString(GL_EXTENSIONS);
-        gl_version_from_string(&major, &minor, versionString);
+        GrGLVersion glVer = GrGLGetVersionFromString(versionString);
 
-        if (major == 1 && minor < 5) {
+        if (glVer < GR_GL_VER(1,5)) {
             // We must have array and element_array buffer objects.
             return NULL;
         }
@@ -34,7 +33,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fMinRenderTargetHeight = kProbe_GrGLCapability;
         interface->fMinRenderTargetWidth = kProbe_GrGLCapability;
 
-        interface->fActiveTexture = glActiveTexture;
+        interface->fActiveTexture = glActiveTexture;GrGLIn
         GR_GL_GET_PROC(AttachShader);
         GR_GL_GET_PROC(BindAttribLocation);
         GR_GL_GET_PROC(BindBuffer);
@@ -136,8 +135,9 @@ const GrGLInterface* GrGLDefaultInterface() {
 
         // First look for GL3.0 FBO or GL_ARB_framebuffer_object (same since
         // GL_ARB_framebuffer_object doesn't use ARB suffix.)
-        if (major >= 3 || has_gl_extension_from_string(
-                "GL_ARB_framebuffer_object", extString)) {
+        if (glVer >= GR_GL_VER(3,0) ||
+            GrGLHasExtensionFromString("GL_ARB_framebuffer_object",
+                                        extString)) {
             GR_GL_GET_PROC(GenFramebuffers);
             GR_GL_GET_PROC(GetFramebufferAttachmentParameteriv);
             GR_GL_GET_PROC(GetRenderbufferParameteriv);
@@ -152,8 +152,8 @@ const GrGLInterface* GrGLDefaultInterface() {
             GR_GL_GET_PROC(BindRenderbuffer);
             GR_GL_GET_PROC(RenderbufferStorageMultisample);
             GR_GL_GET_PROC(BlitFramebuffer);
-        } else if (has_gl_extension_from_string("GL_EXT_framebuffer_object",
-                                                extString)) {
+        } else if (GrGLHasExtensionFromString("GL_EXT_framebuffer_object",
+                                              extString)) {
             GR_GL_GET_PROC_SUFFIX(GenFramebuffers, EXT);
             GR_GL_GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
             GR_GL_GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
@@ -166,12 +166,12 @@ const GrGLInterface* GrGLDefaultInterface() {
             GR_GL_GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
             GR_GL_GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
             GR_GL_GET_PROC_SUFFIX(BindRenderbuffer, EXT);
-            if (has_gl_extension_from_string("GL_EXT_framebuffer_multisample",
-                                             extString)) {
+            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_multisample",
+                                           extString)) {
                 GR_GL_GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
             }
-            if (has_gl_extension_from_string("GL_EXT_framebuffer_blit",
-                                             extString)) {
+            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_blit",
+                                           extString)) {
                 GR_GL_GET_PROC_SUFFIX(BlitFramebuffer, EXT);
             }
         } else {

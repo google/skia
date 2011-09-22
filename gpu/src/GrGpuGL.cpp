@@ -297,7 +297,8 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
         GrPrintf("------ EXTENSIONS\n %s \n", ext);
     }
 
-    fGLVersion = gl_version_as_float(gl);
+    fGLVersion = GrGLGetVersion(gl);
+    GrAssert(0 != fGLVersion);
     fExtensionString = (const char*) ext;
 
     this->resetDirtyFlags();
@@ -361,7 +362,7 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
             fMSFBOType = kAppleES_MSFBO;
         }
     } else {
-        if ((fGLVersion >= 3.f) || this->hasExtension("GL_ARB_framebuffer_object")) {
+        if ((fGLVersion >= GR_GL_VER(3,0)) || this->hasExtension("GL_ARB_framebuffer_object")) {
             fMSFBOType = kDesktopARB_MSFBO;
         } else if (this->hasExtension("GL_EXT_framebuffer_multisample") &&
                    this->hasExtension("GL_EXT_framebuffer_blit")) {
@@ -405,10 +406,11 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
     fFSAASupport = fAASamples[kHigh_GrAALevel] > 0;
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        fHasStencilWrap = (fGLVersion >= 1.4f) ||
+        fHasStencilWrap = (fGLVersion >= GR_GL_VER(1,4)) ||
                           this->hasExtension("GL_EXT_stencil_wrap");
     } else {
-        fHasStencilWrap = (fGLVersion >= 2.0f) || this->hasExtension("GL_OES_stencil_wrap");
+        fHasStencilWrap = (fGLVersion >= GR_GL_VER(2,0)) || 
+                          this->hasExtension("GL_OES_stencil_wrap");
     }
     if (gPrintStartupSpew) {
         GrPrintf("Stencil Wrap: %s\n", (fHasStencilWrap ? "YES" : "NO"));
@@ -418,16 +420,16 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
         // we could also look for GL_ATI_separate_stencil extension or
         // GL_EXT_stencil_two_side but they use different function signatures
         // than GL2.0+ (and than each other).
-        fTwoSidedStencilSupport = (fGLVersion >= 2.f);
+        fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
         // supported on GL 1.4 and higher or by extension
-        fStencilWrapOpsSupport = (fGLVersion >= 1.4f) ||
+        fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(1,4)) ||
                                   this->hasExtension("GL_EXT_stencil_wrap");
     } else {
         // ES 2 has two sided stencil but 1.1 doesn't. There doesn't seem to be
         // an ES1 extension.
-        fTwoSidedStencilSupport = (fGLVersion >= 2.f);
+        fTwoSidedStencilSupport = (fGLVersion >= GR_GL_VER(2,0));
         // stencil wrap support is in ES2, ES1 requires extension.
-        fStencilWrapOpsSupport = (fGLVersion >= 2.f) ||
+        fStencilWrapOpsSupport = (fGLVersion >= GR_GL_VER(2,0)) ||
                                  this->hasExtension("GL_OES_stencil_wrap");
     }
     if (gPrintStartupSpew) {
@@ -464,7 +466,7 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
     }
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        if (fGLVersion >= 2.f || 
+        if (fGLVersion >= GR_GL_VER(2,0) || 
             this->hasExtension("GL_ARB_texture_non_power_of_two")) {
             fNPOTTextureTileSupport = true;
             fNPOTTextureSupport = true;
@@ -473,7 +475,7 @@ GrGpuGL::GrGpuGL(const GrGLInterface* gl, GrGLBinding glBinding)
             fNPOTTextureSupport = false;
         }
     } else {
-        if (fGLVersion >= 2.f) {
+        if (fGLVersion >= GR_GL_VER(2,0)) {
             fNPOTTextureSupport = true;
             fNPOTTextureTileSupport = this->hasExtension("GL_OES_texture_npot");
         } else {
@@ -717,7 +719,7 @@ void GrGpuGL::setupStencilFormats() {
         gDS    = {GR_GL_DEPTH_STENCIL,    kUnknownBitCount, kUnknownBitCount, true };
 
     if (kDesktop_GrGLBinding == this->glBinding()) {
-        bool supportsPackedDS = fGLVersion >= 3.0f || 
+        bool supportsPackedDS = fGLVersion >= GR_GL_VER(3,0) || 
                                 this->hasExtension("GL_EXT_packed_depth_stencil") ||
                                 this->hasExtension("GL_ARB_framebuffer_object");
 
@@ -741,7 +743,8 @@ void GrGpuGL::setupStencilFormats() {
         // GL_OES_packed_depth_stencil adds DEPTH24_STENCIL8
         // ES doesn't support using the unsized formats.
 
-        if (fGLVersion >= 2.f || this->hasExtension("GL_OES_stencil8")) {
+        if (fGLVersion >= GR_GL_VER(2,0) ||
+            this->hasExtension("GL_OES_stencil8")) {
             fStencilFormats.push_back() = gS8;
         }
         //fStencilFormats.push_back() = gS16;

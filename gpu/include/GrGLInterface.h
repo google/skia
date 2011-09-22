@@ -24,17 +24,17 @@
  * Helpers for glGetString()
  */
 
+typedef GrFixed GrGLVersion;
+
+#define GR_GL_VER(major, minor) (((int)(major) << 16) | ((int)(minor)))
+
 // these variants assume caller already has a string from glGetString()
-void gl_version_from_string(int* major, int* minor,
-                            const char* versionString);
-float gl_version_as_float_from_string(const char* versionString);
-bool has_gl_extension_from_string(const char* ext,
-                                  const char* extensionString);
+GrGLVersion GrGLGetVersionFromString(const char* versionString);
+bool GrGLHasExtensionFromString(const char* ext, const char* extensionString);
 
 // these variants call glGetString()
-bool has_gl_extension(const GrGLInterface*, const char* ext);
-void gl_version(const GrGLInterface*, int* major, int* minor);
-float gl_version_as_float(const GrGLInterface*);
+bool GrGLGetString(const GrGLInterface*, const char* ext);
+GrGLVersion GrGLGetVersion(const GrGLInterface*);
 
 ////////////////////////////////////////////////////////////////////////////////
 
