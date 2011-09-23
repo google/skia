@@ -595,6 +595,28 @@ public:
      */
     bool canDisableBlend() const;
 
+    /**
+     * Color alpha and coverage are two inputs to the drawing pipeline. For some
+     * blend modes it is safe to fold the coverage into constant or per-vertex
+     * color alpha value. For other blend modes they must be handled separately.
+     * Depending on features available in the underlying 3D API this may or may
+     * not be possible.
+     *
+     * This function looks at the current blend on the draw target and the draw
+     * target's capabilities to determine whether coverage can be handled
+     * correctly.
+     */
+    bool canApplyCoverage() const;
+
+    /**
+     * Determines whether incorporating partial pixel coverage into the constant
+     * color specified by setColor or per-vertex colors will give the right
+     * blending result.
+     */
+    bool canTweakAlphaForCoverage() const {
+        return CanTweakAlphaForCoverage(fCurrDrawState.fDstBlend);
+    }
+
      /**
       * Determines the interpretation per-vertex edge data when the
       * kEdge_VertexLayoutBit is set (see below). When per-vertex edges are not
@@ -1227,6 +1249,10 @@ public:
 
 protected:
 
+    // Determines whether it is correct to apply partial pixel coverage
+    // by multiplying the src color by the fractional coverage.
+    static bool CanTweakAlphaForCoverage(GrBlendCoeff dstCoeff);
+    
     // determines whether HW blending can be disabled or not
     static bool CanDisableBlend(GrVertexLayout layout, const DrState& state);
 

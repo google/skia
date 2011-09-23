@@ -592,8 +592,7 @@ private:
     struct OffscreenRecord;
 
     // determines whether offscreen AA should be applied
-    bool doOffscreenAA(GrDrawTarget* target, 
-                       const GrPaint& paint,
+    bool doOffscreenAA(GrDrawTarget* target,
                        bool isHairLines) const;
 
     // attempts to setup offscreen AA. All paint state must be transferred to

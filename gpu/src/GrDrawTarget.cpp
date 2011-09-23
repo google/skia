@@ -744,6 +744,25 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Some blend modes allow folding a partial coverage value into the color's
+// alpha channel, while others will blend incorrectly.
+bool GrDrawTarget::CanTweakAlphaForCoverage(GrBlendCoeff dstCoeff) {
+    /**
+     * The fractional coverage is f
+     * The src and dst coeffs are Cs and Cd
+     * The dst and src colors are S and D
+     * We want the blend to compute: f*Cs*S + (f*Cd + (1-f))D
+     * By tweaking the source color's alpha we're replacing S with S'=fS. It's
+     * obvious that that first term will always be ok. The second term can be
+     * rearranged as [1-(1-Cd)f]D. By substituing in the various possbilities
+     * for Cd we find that only 1, ISA, and ISC produce the correct depth
+     * coeffecient in terms of S' and D.
+     */
+    return kOne_BlendCoeff == dstCoeff ||
+           kISA_BlendCoeff == dstCoeff ||
+           kISC_BlendCoeff == dstCoeff;
+}
+
 bool GrDrawTarget::CanDisableBlend(GrVertexLayout layout, const DrState& state) {
     // If we compute a coverage value (using edge AA or a coverage stage) then
     // we can't force blending off.
@@ -808,9 +827,15 @@ bool GrDrawTarget::CanUseHWAALines(GrVertexLayout layout, const DrState& state) 
     // there is a conflict between using smooth lines and our use of
     // premultiplied alpha. Smooth lines tweak the incoming alpha value
     // but not in a premul-alpha way. So we only use them when our alpha
-    // is 0xff.
+    // is 0xff and tweaking the color for partial coverage is OK
     return (kAntialias_StateBit & state.fFlagBits) &&
-           CanDisableBlend(layout, state);
+           CanDisableBlend(layout, state) &&
+           CanTweakAlphaForCoverage(state.fDstBlend);
+}
+
+bool GrDrawTarget::canApplyCoverage() const {
+    return this->getCaps().fDualSourceBlendingSupport ||
+           CanTweakAlphaForCoverage(fCurrDrawState.fDstBlend);
 }
 
 bool GrDrawTarget::canDisableBlend() const {
