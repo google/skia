@@ -32,6 +32,14 @@
  * images into the second directory, also writing index.html there.
  */
 
+#if SK_BUILD_FOR_WIN32
+    #define PATH_DIV_STR "\\"
+    #define PATH_DIV_CHAR '\\'
+#else
+    #define PATH_DIV_STR "/"
+    #define PATH_DIV_CHAR '/'
+#endif
+
 struct DiffRecord {
     DiffRecord (const SkString filename,
                 const SkString basePath,
@@ -481,8 +489,8 @@ static void analyze_chromium(DiffMetricProc dmp,
         }
         SkString fullname (dirname);
         fullname.append(newdirname);
-        if (!fullname.endsWith("/")) {
-            fullname.append("/");
+        if (!fullname.endsWith(PATH_DIV_STR)) {
+            fullname.append(PATH_DIV_STR);
         }
         analyze_chromium(dmp, colorThreshold, differences,
                          fullname, outputDir, summary);
@@ -610,8 +618,8 @@ static void print_diff_page (const int matchCount,
     unsigned int ui;
     SkString relativePath;
     for (ui = 0; ui < outputDir.size(); ui++) {
-        if (outputDir[ui] == '/') {
-            relativePath.append("../");
+        if (outputDir[ui] == PATH_DIV_CHAR) {
+            relativePath.append(".." PATH_DIV_STR);
         }
     }
 
@@ -625,10 +633,10 @@ static void print_diff_page (const int matchCount,
         if (0 == diff->fFractionDifference) {
             continue;
         }
-        if (!diff->fBasePath.startsWith("/")) {
+        if (!diff->fBasePath.startsWith(PATH_DIV_STR)) {
             diff->fBasePath.prepend(relativePath);
         }
-        if (!diff->fComparisonPath.startsWith("/")) {
+        if (!diff->fComparisonPath.startsWith(PATH_DIV_STR)) {
             diff->fComparisonPath.prepend(relativePath);
         }
         int height = compute_image_height(diff->fBaseHeight, diff->fBaseWidth);
@@ -764,25 +772,25 @@ int main (int argc, char ** argv) {
         return 0;
     }
 
-    if (!baseDir.endsWith("/")) {
-        baseDir.append("/");
+    if (!baseDir.endsWith(PATH_DIV_STR)) {
+        baseDir.append(PATH_DIV_STR);
     }
-    if (!comparisonDir.endsWith("/")) {
-        comparisonDir.append("/");
+    if (!comparisonDir.endsWith(PATH_DIV_STR)) {
+        comparisonDir.append(PATH_DIV_STR);
     }
-    if (!outputDir.endsWith("/")) {
-        outputDir.append("/");
+    if (!outputDir.endsWith(PATH_DIV_STR)) {
+        outputDir.append(PATH_DIV_STR);
     }
 
     if (analyzeChromium) {
-        baseDir.append("webkit/");
+        baseDir.append("webkit" PATH_DIV_STR);
         if (chromiumRelease) {
-            baseDir.append("Release/");
+            baseDir.append("Release" PATH_DIV_STR);
         }
         if (chromiumDebug) {
-            baseDir.append("Debug/");
+            baseDir.append("Debug" PATH_DIV_STR);
         }
-        baseDir.append("layout-test-results/");
+        baseDir.append("layout-test-results" PATH_DIV_STR);
         analyze_chromium(diffProc, colorThreshold, &differences,
                          baseDir, outputDir, &summary);
     } else {
