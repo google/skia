@@ -29,6 +29,10 @@
 
 #define BATCH_RECT_TO_RECT (1 && !GR_STATIC_RECT_VB)
 
+// When we're using coverage AA but the blend is incompatible (given gpu
+// limitations) should we disable AA or draw wrong?
+#define DISABLE_COVERAGE_AA_FOR_BLEND 0
+
 static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
 
@@ -632,6 +636,12 @@ void GrContext::drawPaint(const GrPaint& paint) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace {
+inline bool disable_coverage_aa_for_blend(GrDrawTarget* target) {
+    return DISABLE_COVERAGE_AA_FOR_BLEND && !target->canApplyCoverage();
+}
+}
+
 struct GrContext::OffscreenRecord {
     enum Downsample {
         k4x4TwoPass_Downsample,
@@ -650,12 +660,11 @@ struct GrContext::OffscreenRecord {
 };
 
 bool GrContext::doOffscreenAA(GrDrawTarget* target,
-                              const GrPaint& paint,
                               bool isHairLines) const {
 #if !GR_USE_OFFSCREEN_AA
     return false;
 #else
-    if (!paint.fAntiAlias) {
+    if (!target->isAntialiasState()) {
         return false;
     }
     // Line primitves are always rasterized as 1 pixel wide.
@@ -667,14 +676,7 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
     if (target->getRenderTarget()->isMultisampled()) {
         return false;
     }
-    // we have to be sure that the blend equation is expressible
-    // as simple src / dst coeffecients when the source 
-    // is already modulated by the coverage fraction.
-    // We could use dual-source blending to get the correct per-pixel
-    // dst coeffecient for the remaining cases.
-    if (kISC_BlendCoeff != paint.fDstBlendCoeff &&
-        kOne_BlendCoeff != paint.fDstBlendCoeff &&
-        kISA_BlendCoeff != paint.fDstBlendCoeff) {
+    if (disable_coverage_aa_for_blend(target)) {
         return false;
     }
     return true;
@@ -1139,7 +1141,6 @@ static bool isIRect(const GrRect& r) {
 }
 
 static bool apply_aa_to_rect(GrDrawTarget* target,
-                             const GrPaint& paint,
                              const GrRect& rect,
                              GrScalar width, 
                              const GrMatrix* matrix,
@@ -1150,7 +1151,11 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     // will be axis-aligned,the render target is not
     // multisampled, and the rect won't land on integer coords.
 
-    if (!paint.fAntiAlias) {
+    if (!target->isAntialiasState()) {
+        return false;
+    }
+
+    if (!target->canTweakAlphaForCoverage()) {
         return false;
     }
 
@@ -1198,7 +1203,7 @@ void GrContext::drawRect(const GrPaint& paint,
 
     GrRect devRect = rect;
     GrMatrix combinedMatrix;
-    bool doAA = apply_aa_to_rect(target, paint, rect, width, matrix,
+    bool doAA = apply_aa_to_rect(target, rect, width, matrix,
                                  &combinedMatrix, &devRect);
 
     if (doAA) {
@@ -1440,6 +1445,15 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                          GrPathFill fill, const GrPoint* translate) {
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
+
+    // An Assumption here is that path renderer would use some form of tweaking
+    // the src color (either the input alpha or in the frag shader) to implement
+    // aa. If we have some future driver-mojo path AA that can do the right
+    // thing WRT to the blend then we'll need some query on the PR.
+    if (disable_coverage_aa_for_blend(target)) {
+        target->disableState(GrDrawTarget::kAntialias_StateBit);
+    }
+    
     GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
     if (NULL == pr) {
         GrPrintf("Unable to find path renderer compatible with path.\n");
@@ -1450,7 +1464,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     GrDrawTarget::StageBitfield stageMask = paint.getActiveStageMask();
 
     if (!pr->supportsAA(target, path, fill) &&
-        this->doOffscreenAA(target, paint, kHairLine_PathFill == fill)) {
+        this->doOffscreenAA(target, kHairLine_PathFill == fill)) {
 
         bool needsStencil = pr->requiresStencilPass(target, path, fill);
 
@@ -1666,6 +1680,10 @@ void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
     }
     target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     target->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
+
+    if (paint.getActiveMaskStageMask() && !target->canApplyCoverage()) {
+        GrPrintf("Partial pixel coverage will be incorrectly blended.\n");
+    }
 }
 
 GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
