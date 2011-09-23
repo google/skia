@@ -2247,7 +2247,7 @@ void GrGpuGL::GLCaps::print() const {
         "Apple",
     };
     GrPrintf("MSAA Type: %s\n", gMSFBOExtStr[fMSFBOType]);
-    for (int i = 0; i < GR_ARRAY_COUNT(fAASamples); ++i) {
+    for (int i = 0; i < (int)GR_ARRAY_COUNT(fAASamples); ++i) {
         GrPrintf("AA Level %d has %d samples\n", i, fAASamples[i]);
     }
     GrPrintf("Max FS Uniform Vectors: %d\n", fMaxFragmentUniformVectors);
