@@ -66,36 +66,26 @@ bool push_quad_index_data(GrIndexBuffer* qIdxBuffer) {
 }
 
 GrPathRenderer* GrAAHairLinePathRenderer::Create(GrContext* context) {
-    if (CanBeUsed(context)) {
-        const GrIndexBuffer* lIdxBuffer = context->getQuadIndexBuffer();
-        if (NULL == lIdxBuffer) {
-            return NULL;
-        }
-        GrGpu* gpu = context->getGpu();
-        GrIndexBuffer* qIdxBuf = gpu->createIndexBuffer(kQuadIdxSBufize, false);
-        SkAutoTUnref<GrIndexBuffer> qIdxBuffer(qIdxBuf); // cons will take a ref
-        if (NULL == qIdxBuf ||
-            !push_quad_index_data(qIdxBuffer.get())) {
-            return NULL;
-        }
-        return new GrAAHairLinePathRenderer(context,
-                                            lIdxBuffer,
-                                            qIdxBuf);
-    } else {
+    const GrIndexBuffer* lIdxBuffer = context->getQuadIndexBuffer();
+    if (NULL == lIdxBuffer) {
         return NULL;
     }
-}
-
-bool GrAAHairLinePathRenderer::CanBeUsed(const GrContext* context) {
-    return context->getGpu()->getCaps().fShaderDerivativeSupport;
-
+    GrGpu* gpu = context->getGpu();
+    GrIndexBuffer* qIdxBuf = gpu->createIndexBuffer(kQuadIdxSBufize, false);
+    SkAutoTUnref<GrIndexBuffer> qIdxBuffer(qIdxBuf);
+    if (NULL == qIdxBuf ||
+        !push_quad_index_data(qIdxBuf)) {
+        return NULL;
+    }
+    return new GrAAHairLinePathRenderer(context,
+                                        lIdxBuffer,
+                                        qIdxBuf);
 }
 
 GrAAHairLinePathRenderer::GrAAHairLinePathRenderer(
                                         const GrContext* context,
                                         const GrIndexBuffer* linesIndexBuffer,
                                         const GrIndexBuffer* quadsIndexBuffer) {
-    GrAssert(CanBeUsed(context));
     fLinesIndexBuffer = linesIndexBuffer;
     linesIndexBuffer->ref();
     fQuadsIndexBuffer = quadsIndexBuffer;
@@ -117,7 +107,12 @@ bool GrAAHairLinePathRenderer::supportsAA(GrDrawTarget* target,
 bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
                                            const SkPath& path,
                                            GrPathFill fill) const {
-    return kHairLine_PathFill == fill;
+    static const uint32_t gReqDerivMask = SkPath::kCubic_SegmentMask |
+                                          SkPath::kQuad_SegmentMask;
+    return (kHairLine_PathFill == fill &&
+            target->isAntialiasState() &&
+            (target->getCaps().fShaderDerivativeSupport ||
+             !(gReqDerivMask & path.getSegmentMasks())));
 }
 
 void GrAAHairLinePathRenderer::pathWillClear() {

@@ -33,7 +33,6 @@ protected:
 private:
     void resetGeom();
 
-    static bool CanBeUsed(const GrContext* context);
     GrAAHairLinePathRenderer(const GrContext* context,
                              const GrIndexBuffer* fLinesIndexBuffer,
                              const GrIndexBuffer* fQuadsIndexBuffer);
