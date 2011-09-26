@@ -178,6 +178,45 @@ private:
     typedef GM INHERITED;
 };
 
+/// Tests correctness of *optimized* codepaths in gradients.
+
+class ClampedGradientsGM : public GM {
+public:
+    ClampedGradientsGM() {}
+
+protected:
+    SkString onShortName() { return SkString("clamped_gradients"); }
+
+    virtual SkISize onISize() { return make_isize(640, 510); }
+
+    void drawBG(SkCanvas* canvas) {
+        canvas->drawColor(0xFFDDDDDD);
+    }
+
+    virtual void onDraw(SkCanvas* canvas) {
+        this->drawBG(canvas);
+
+        SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(300) };
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        SkPoint center;
+        center.iset(0, 300);
+        canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
+        SkShader* shader = SkGradientShader::CreateRadial(
+            SkPoint(center),
+            200, gColors, NULL, 5,
+            SkShader::kClamp_TileMode, NULL);
+        paint.setShader(shader);
+        canvas->drawRect(r, paint);
+        shader->unref();
+    }
+
+private:
+    typedef GM INHERITED;
+};
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static GM* MyFactory(void*) { return new GradientsGM; }
@@ -185,6 +224,9 @@ static GMRegistry reg(MyFactory);
 
 static GM* MyFactory2(void*) { return new GradientsDegenrate2PointGM; }
 static GMRegistry reg2(MyFactory2);
+
+static GM* MyFactory3(void*) { return new ClampedGradientsGM; }
+static GMRegistry reg3(MyFactory3);
 
 }
 
