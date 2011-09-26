@@ -288,6 +288,7 @@ public:
         fBits = NULL;
         fWidth = fHeight = 0;
         fIsBW = false;
+        fColor = kInvalid_Color;
     }
 
     ~HDCOffscreen() {
@@ -304,7 +305,8 @@ public:
         fXform = xform;
     }
 
-    const void* draw(const SkGlyph&, bool isBW, size_t* srcRBPtr);
+    const void* draw(const SkGlyph&, bool isBW, bool whiteFG,
+                     size_t* srcRBPtr);
 
 private:
     HDC     fDC;
@@ -312,12 +314,20 @@ private:
     HFONT   fFont;
     XFORM   fXform;
     void*   fBits;  // points into fBM
+    COLORREF fColor;
     int     fWidth;
     int     fHeight;
     bool    fIsBW;
+
+    enum {
+        // will always trigger us to reset the color, since we
+        // should only store 0 or 0xFFFFFF
+        kInvalid_Color = 12345
+    };
 };
 
-const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW, size_t* srcRBPtr) {
+const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
+                               bool whiteFG, size_t* srcRBPtr) {
     if (0 == fDC) {
         fDC = CreateCompatibleDC(0);
         if (0 == fDC) {
@@ -327,20 +337,25 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW, size_t* srcRBPtr
         SetBkMode(fDC, TRANSPARENT);
         SetTextAlign(fDC, TA_LEFT | TA_BASELINE);
         SelectObject(fDC, fFont);
-        COLORREF color = SetTextColor(fDC, fIsBW ? 0xFFFFFF : 0);
-        SkASSERT(color != CLR_INVALID);
+        fColor = kInvalid_Color;
     }
 
     if (fBM && (fIsBW != isBW || fWidth < glyph.fWidth || fHeight < glyph.fHeight)) {
         DeleteObject(fBM);
         fBM = 0;
     }
+    fIsBW = isBW;
 
-    if (fIsBW != isBW) {
-        fIsBW = isBW;
-        COLORREF color = SetTextColor(fDC, fIsBW ? 0xFFFFFF : 0);
-        SkASSERT(color != CLR_INVALID);
+    COLORREF color = 0;
+    if (fIsBW || whiteFG) {
+        color = 0xFFFFFF;
     }
+    if (fColor != color) {
+        fColor = color;
+        COLORREF prev = SetTextColor(fDC, color);
+        SkASSERT(prev != CLR_INVALID);
+    }
+
     fWidth = SkMax32(fWidth, glyph.fWidth);
     fHeight = SkMax32(fHeight, glyph.fHeight);
 
@@ -374,7 +389,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW, size_t* srcRBPtr
     // erase
     size_t srcRB = isBW ? (biWidth >> 3) : (fWidth << 2);
     size_t size = fHeight * srcRB;
-    memset(fBits, isBW ? 0 : 0xFF, size);
+    memset(fBits, ~color & 0xFF, size);
 
     XFORM xform = fXform;
     xform.eDx = (float)-glyph.fLeft;
@@ -668,16 +683,22 @@ typedef uint32_t SkGdiRGB;
 
 static inline uint8_t rgb_to_a8(SkGdiRGB rgb) {
     // can pick any component (low 3 bytes), since we're grayscale
-    // but must invert since we draw black-on-white
-    return ~rgb & 0xFF;
+    return rgb & 0xFF;
 }
 
 static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb) {
-    rgb = ~rgb; // 255 - each component
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
     return SkPackRGB16(SkR32ToR16(r), SkG32ToG16(g), SkB32ToB16(b));
+}
+
+static inline SkPMColor rgb_to_lcd32(SkGdiRGB rgb) {
+    int r = (rgb >> 16) & 0xFF;
+    int g = (rgb >>  8) & 0xFF;
+    int b = (rgb >>  0) & 0xFF;
+    int a = SkMax32(r, SkMax32(g, b));
+    return SkPackARGB32(a, r, g, b);
 }
 
 // Is this GDI color neither black nor white? If so, we have to keep this
@@ -705,7 +726,7 @@ static bool is_rgb_really_bw(const SkGdiRGB* src, int width, int height, int src
 }
 
 static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                      const SkGlyph& glyph) {
+                      const SkGlyph& glyph, int32_t xorMask) {
     const int width = glyph.fWidth;
     const size_t dstRB = (width + 7) >> 3;
     uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
@@ -721,14 +742,14 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
         if (byteCount > 0) {
             unsigned byte = 0;
             for (int i = 0; i < byteCount; ++i) {
-                byte |= src[0] & (1 << 7);
-                byte |= src[1] & (1 << 6);
-                byte |= src[2] & (1 << 5);
-                byte |= src[3] & (1 << 4);
-                byte |= src[4] & (1 << 3);
-                byte |= src[5] & (1 << 2);
-                byte |= src[6] & (1 << 1);
-                byte |= src[7] & (1 << 0);
+                byte |= (src[0] ^ xorMask) & (1 << 7);
+                byte |= (src[1] ^ xorMask) & (1 << 6);
+                byte |= (src[2] ^ xorMask) & (1 << 5);
+                byte |= (src[3] ^ xorMask) & (1 << 4);
+                byte |= (src[4] ^ xorMask) & (1 << 3);
+                byte |= (src[5] ^ xorMask) & (1 << 2);
+                byte |= (src[6] ^ xorMask) & (1 << 1);
+                byte |= (src[7] ^ xorMask) & (1 << 0);
                 dst[i] = ~byte;
                 src += 8;
             }
@@ -737,7 +758,7 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
             unsigned byte = 0;
             unsigned mask = 0x80;
             for (int i = 0; i < bitCount; i++) {
-                byte |= ~src[i] & mask;
+                byte |= ~(src[i] ^ xorMask) & mask;
                 mask >>= 1;
             }
             dst[byteCount] = byte;
@@ -748,14 +769,14 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
 }
 
 static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                      const SkGlyph& glyph) {
+                      const SkGlyph& glyph, int32_t xorMask) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.fWidth;
     uint8_t* SK_RESTRICT dst = (uint8_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_a8(src[i]);
+            dst[i] = rgb_to_a8(src[i] ^ xorMask);
         }
         src = (const SkGdiRGB*)((const char*)src + srcRB);
         dst -= dstRB;
@@ -763,17 +784,32 @@ static void rgb_to_a8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
 }
 
 static void rgb_to_lcd16(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
-                         const SkGlyph& glyph) {
+                         const SkGlyph& glyph, int32_t xorMask) {
     const size_t dstRB = glyph.rowBytes();
     const int width = glyph.fWidth;
     uint16_t* SK_RESTRICT dst = (uint16_t*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
 
     for (int y = 0; y < glyph.fHeight; y++) {
         for (int i = 0; i < width; i++) {
-            dst[i] = rgb_to_lcd16(src[i]);
+            dst[i] = rgb_to_lcd16(src[i] ^ xorMask);
         }
         src = (const SkGdiRGB*)((const char*)src + srcRB);
         dst = (uint16_t*)((char*)dst - dstRB);
+    }
+}
+
+static void rgb_to_lcd32(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
+                         const SkGlyph& glyph, int32_t xorMask) {
+    const size_t dstRB = glyph.rowBytes();
+    const int width = glyph.fWidth;
+    SkPMColor* SK_RESTRICT dst = (SkPMColor*)((char*)glyph.fImage + (glyph.fHeight - 1) * dstRB);
+
+    for (int y = 0; y < glyph.fHeight; y++) {
+        for (int i = 0; i < width; i++) {
+            dst[i] = rgb_to_lcd32(src[i] ^ xorMask);
+        }
+        src = (const SkGdiRGB*)((const char*)src + srcRB);
+        dst = (SkPMColor*)((char*)dst - dstRB);
     }
 }
 
@@ -785,9 +821,11 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     const bool isBW = SkMask::kBW_Format == fRec.fMaskFormat;
     const bool isAA = !isLCD(fRec);
+    const bool isWhite = SkToBool(fRec.fFlags & SkScalerContext::kGammaForWhite_Flag);
+    const uint32_t rgbXOR = isWhite ? 0 : ~0;
 
     size_t srcRB;
-    const void* bits = fOffscreen.draw(glyph, isBW, &srcRB);
+    const void* bits = fOffscreen.draw(glyph, isBW, isWhite, &srcRB);
     if (!bits) {
         sk_bzero(glyph.fImage, glyph.computeImageSize());
         return;
@@ -812,15 +850,20 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         } else
 #endif
         {
-            rgb_to_a8(src, srcRB, glyph);
+            rgb_to_a8(src, srcRB, glyph, rgbXOR);
         }
     } else {    // LCD16
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
         if (is_rgb_really_bw(src, width, glyph.fHeight, srcRB)) {
-            rgb_to_bw(src, srcRB, glyph);
+            rgb_to_bw(src, srcRB, glyph, rgbXOR);
             ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
         } else {
-            rgb_to_lcd16(src, srcRB, glyph);
+            if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
+                rgb_to_lcd16(src, srcRB, glyph, rgbXOR);
+            } else {
+                SkASSERT(SkMask::kLCD32_Format == glyph.fMaskFormat);
+                rgb_to_lcd32(src, srcRB, glyph, rgbXOR);
+            }
         }
     }
 }
@@ -935,18 +978,12 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     OUTLINETEXTMETRIC otm;
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm) ||
         !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
-        DWORD error_code = GetLastError();
-        SkASSERT(error_code == 0);  // GDI error, possibly caused by sandboxing.
-        SkASSERT(false);  // GDI corruption.
         goto Error;
     }
     lf.lfHeight = -SkToS32(otm.otmEMSquare);
     designFont = CreateFontIndirect(&lf);
     SelectObject(hdc, designFont);
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
-        DWORD error_code = GetLastError();
-        SkASSERT(error_code == 0);  // GDI error, possibly caused by sandboxing.
-        SkASSERT(false);  // GDI corruption.
         goto Error;
     }
     const unsigned glyphCount = calculateGlyphCount(hdc);
@@ -1156,15 +1193,6 @@ size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
         return 0;   // nothing to do
 }
 
-int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
-    return 0;
-}
-
-void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
-    tables[0] = NULL;   // black gamma (e.g. exp=1.4)
-    tables[1] = NULL;   // white gamma (e.g. exp= 1/1.4)
-}
-
 SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[]) {
     printf("SkFontHost::CreateTypefaceFromFile unimplemented");
     return NULL;
@@ -1208,6 +1236,49 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         rec->fMaskFormat = SkMask::kA8_Format;
     }
 #endif
+
+#if 0
+    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
+        rec->fMaskFormat = SkMask::kLCD32_Format;
+    }
+#endif
+    if (!isLCD(*rec)) {
+        rec->fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
+                         SkScalerContext::kGammaForWhite_Flag);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void SkFontHost::GetGammaTables(const uint8_t* tables[2]) {
+    tables[0] = NULL;
+    tables[1] = NULL;
+}
+
+// If the luminance is <= this value, then apply the black gamma table
+#define BLACK_GAMMA_THRESHOLD   0x40
+
+// If the luminance is >= this value, then apply the white gamma table
+#define WHITE_GAMMA_THRESHOLD   0xA0
+
+int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
+    if (paint.getShader() == NULL && paint.getColorFilter() == NULL) {
+        SkColor c = paint.getColor();
+        int r = SkColorGetR(c);
+        int g = SkColorGetG(c);
+        int b = SkColorGetB(c);
+        int luminance = (r * 2 + g * 5 + b) >> 3;
+
+#if 0   // we basically default to black, so don't need to return it
+        if (luminance <= BLACK_GAMMA_THRESHOLD) {
+            return SkScalerContext::kGammaForBlack_Flag;
+        }
+#endif
+        if (luminance >= WHITE_GAMMA_THRESHOLD) {
+            return SkScalerContext::kGammaForWhite_Flag;
+        }
+    }
+    return 0;
 }
 
 #endif // WIN32
