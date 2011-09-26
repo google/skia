@@ -98,9 +98,9 @@ GrAAHairLinePathRenderer::~GrAAHairLinePathRenderer() {
     fQuadsIndexBuffer->unref();
 }
 
-bool GrAAHairLinePathRenderer::supportsAA(GrDrawTarget* target,
+bool GrAAHairLinePathRenderer::supportsAA(const GrDrawTarget* target,
                                           const SkPath& path,
-                                          GrPathFill fill) { 
+                                          GrPathFill fill) const {
     return kHairLine_PathFill == fill;
 }
 

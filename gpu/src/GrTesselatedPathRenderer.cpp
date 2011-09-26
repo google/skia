@@ -602,6 +602,6 @@ void GrTesselatedPathRenderer::drawPathToStencil() {
 
 bool GrTesselatedPathRenderer::supportsAA(const GrDrawTarget* target,
                                           const SkPath& path,
-                                          GrPathFill fill) {
+                                          GrPathFill fill) const {
     return true;
 }

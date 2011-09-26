@@ -17,9 +17,9 @@ public:
 
     static GrPathRenderer* Create(GrContext* context);
     // GrPathRenderer overrides
-    virtual bool supportsAA(GrDrawTarget* target,
+    virtual bool supportsAA(const GrDrawTarget* target,
                             const SkPath& path,
-                            GrPathFill fill);
+                            GrPathFill fill) const;
     virtual bool canDrawPath(const GrDrawTarget* target,
                              const SkPath& path,
                              GrPathFill fill) const;
@@ -39,7 +39,6 @@ private:
 
     bool createGeom(GrDrawTarget::StageBitfield stages);
 
-    GrContext*                  fContext;
     const GrIndexBuffer*        fLinesIndexBuffer;
     const GrIndexBuffer*        fQuadsIndexBuffer;
 

@@ -27,7 +27,7 @@ public:
     virtual void drawPathToStencil();
     virtual bool supportsAA(const GrDrawTarget* target,
                             const GrPath& path,
-                            GrPathFill fill);
+                            GrPathFill fill) const;
 };
 
 #endif
