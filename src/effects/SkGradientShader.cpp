@@ -1151,109 +1151,7 @@ public:
         rad_to_unit_matrix(center, radius, &fPtsToUnit);
     }
 
-    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count) {
-        SkASSERT(count > 0);
-
-        SkPoint             srcPt;
-        SkMatrix::MapXYProc dstProc = fDstToIndexProc;
-        TileProc            proc = fTileProc;
-        const SkPMColor* SK_RESTRICT cache = this->getCache32();
-
-        if (fDstToIndexClass != kPerspective_MatrixClass) {
-            dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
-                                 SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
-            SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
-            SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
-#ifdef SK_USE_FLOAT_SQRT
-            float fdx, fdy;
-#endif
-
-            if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
-                SkFixed storage[2];
-                (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &storage[0], &storage[1]);
-                dx = storage[0];
-                dy = storage[1];
-#ifdef SK_USE_FLOAT_SQRT
-                fdx = SkFixedToFloat(storage[0]);
-                fdy = SkFixedToFloat(storage[1]);
-#endif
-            } else {
-                SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
-                dx = SkScalarToFixed(fDstToIndex.getScaleX());
-                dy = SkScalarToFixed(fDstToIndex.getSkewY());
-#ifdef SK_USE_FLOAT_SQRT
-                fdx = fDstToIndex.getScaleX();
-                fdy = fDstToIndex.getSkewY();
-#endif
-            }
-
-            if (proc == clamp_tileproc) {
-                const uint8_t* SK_RESTRICT sqrt_table = gSqrt8Table;
-                fx >>= 1;
-                dx >>= 1;
-                fy >>= 1;
-                dy >>= 1;
-                do {
-                    unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
-                    unsigned fi = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
-                    fi = (xx * xx + fi * fi) >> (14 + 16 - kSQRT_TABLE_BITS);
-                    fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
-                    *dstC++ = cache[sqrt_table[fi] >> (8 - kCache32Bits)];
-                    fx += dx;
-                    fy += dy;
-                } while (--count != 0);
-            } else if (proc == mirror_tileproc) {
-#ifdef SK_USE_FLOAT_SQRT
-                float ffx = srcPt.fX;
-                float ffy = srcPt.fY;
-                do {
-                    float fdist = sk_float_sqrt(ffx*ffx + ffy*ffy);
-                    unsigned fi = mirror_tileproc(SkFloatToFixed(fdist));
-                    SkASSERT(fi <= 0xFFFF);
-                    *dstC++ = cache[fi >> (16 - kCache32Bits)];
-                    ffx += fdx;
-                    ffy += fdy;
-                } while (--count != 0);
-#else
-                do {
-                    SkFixed magnitudeSquared = SkFixedSquare(fx) + SkFixedSquare(fy);
-                    if (magnitudeSquared < 0) // Overflow.
-                        magnitudeSquared = SK_FixedMax;
-                    SkFixed dist = SkFixedSqrt(magnitudeSquared);
-                    unsigned fi = mirror_tileproc(dist);
-                    SkASSERT(fi <= 0xFFFF);
-                    *dstC++ = cache[fi >> (16 - kCache32Bits)];
-                    fx += dx;
-                    fy += dy;
-                } while (--count != 0);
-#endif
-            } else {
-                SkASSERT(proc == repeat_tileproc);
-                do {
-                    SkFixed magnitudeSquared = SkFixedSquare(fx) + SkFixedSquare(fy);
-                    if (magnitudeSquared < 0) // Overflow.
-                        magnitudeSquared = SK_FixedMax;
-                    SkFixed dist = SkFixedSqrt(magnitudeSquared);
-                    unsigned fi = repeat_tileproc(dist);
-                    SkASSERT(fi <= 0xFFFF);
-                    *dstC++ = cache[fi >> (16 - kCache32Bits)];
-                    fx += dx;
-                    fy += dy;
-                } while (--count != 0);
-            }
-        } else {    // perspective case
-            SkScalar dstX = SkIntToScalar(x);
-            SkScalar dstY = SkIntToScalar(y);
-            do {
-                dstProc(fDstToIndex, dstX, dstY, &srcPt);
-                unsigned fi = proc(SkScalarToFixed(srcPt.length()));
-                SkASSERT(fi <= 0xFFFF);
-                *dstC++ = cache[fi >> (16 - kCache32Bits)];
-                dstX += SK_Scalar1;
-            } while (--count != 0);
-        }
-    }
-
+    virtual void shadeSpan(int x, int y, SkPMColor* SK_RESTRICT dstC, int count);
     virtual void shadeSpan16(int x, int y, uint16_t* SK_RESTRICT dstC, int count) {
         SkASSERT(count > 0);
 
@@ -1405,6 +1303,176 @@ private:
     const SkPoint fCenter;
     const SkScalar fRadius;
 };
+
+static inline bool radial_completely_pinned(int fx, int dx, int fy, int dy) {
+    // fast, overly-conservative test: checks unit square instead
+    // of unit circle
+    bool xClamped = (fx >= SK_FixedHalf && dx >= 0) ||
+                    (fx <= -SK_FixedHalf && dx <= 0);
+    bool yClamped = (fy >= SK_FixedHalf && dy >= 0) ||
+                    (fy <= -SK_FixedHalf && dy <= 0);
+
+    return xClamped || yClamped;
+}
+
+// Return true if (fx * fy) is always inside the unit circle
+// SkPin32 is expensive, but so are all the SkFixedMul in this test,
+// so it shouldn't be run if count is small.
+static inline bool no_need_for_radial_pin(int fx, int dx,
+                                          int fy, int dy, int count) {
+    SkASSERT(count > 0);
+    if (SkAbs32(fx) > 0x7FFF || SkAbs32(fy) > 0x7FFF) {
+        return false;
+    }
+    if (fx*fx + fy*fy > 0x7FFF*0x7FFF) {
+        return false;
+    }
+    fx += (count - 1) * dx;
+    fy += (count - 1) * dy;
+    if (SkAbs32(fx) > 0x7FFF || SkAbs32(fy) > 0x7FFF) {
+        return false;
+    }
+    return fx*fx + fy*fy <= 0x7FFF*0x7FFF;
+}
+
+#define UNPINNED_RADIAL_STEP \
+    fi = (fx * fx + fy * fy) >> (14 + 16 - kSQRT_TABLE_BITS); \
+    *dstC++ = cache[sqrt_table[fi] >> (8 - kCache32Bits)]; \
+    fx += dx; \
+    fy += dy;
+
+// On Linux, this is faster with SkPMColor[] params than SkPMColor* SK_RESTRICT
+static void radial_clamp(SkFixed fx, SkFixed fy, SkFixed dx, SkFixed dy,
+                         SkPMColor* dstC, int count, const SkPMColor* cache,
+                         const int kCache32Bits, const int kCache32Count) {
+    // Floating point seems to be slower than fixed point,
+    // even when we have float hardware.
+    const uint8_t* sqrt_table = gSqrt8Table;
+    fx >>= 1;
+    dx >>= 1;
+    fy >>= 1;
+    dy >>= 1;
+    if ((count > 4) && radial_completely_pinned(fx, dx, fy, dy)) {
+        sk_memset32(dstC, cache[kCache32Count - 1], count);
+    } else if ((count > 4) &&
+               no_need_for_radial_pin(fx, dx, fy, dy, count)) {
+        unsigned fi;
+        // 4x unroll appears to be no faster than 2x unroll on Linux
+        while (count > 1) {
+            UNPINNED_RADIAL_STEP;
+            UNPINNED_RADIAL_STEP;
+            count -= 2;
+        }
+        if (count) {
+            UNPINNED_RADIAL_STEP;
+        }
+    }
+    else  {
+        do {
+            unsigned xx = SkPin32(fx, -0xFFFF >> 1, 0xFFFF >> 1);
+            unsigned fi = SkPin32(fy, -0xFFFF >> 1, 0xFFFF >> 1);
+            fi = (xx * xx + fi * fi) >> (14 + 16 - kSQRT_TABLE_BITS);
+            fi = SkFastMin32(fi, 0xFFFF >> (16 - kSQRT_TABLE_BITS));
+            *dstC++ = cache[sqrt_table[fi] >> (8 - kCache32Bits)];
+            fx += dx;
+            fy += dy;
+        } while (--count != 0);
+    }
+}
+
+void Radial_Gradient::shadeSpan(int x, int y,
+                                SkPMColor* SK_RESTRICT dstC, int count) {
+    SkASSERT(count > 0);
+
+    SkPoint             srcPt;
+    SkMatrix::MapXYProc dstProc = fDstToIndexProc;
+    TileProc            proc = fTileProc;
+    const SkPMColor*    cache = this->getCache32();
+
+    if (fDstToIndexClass != kPerspective_MatrixClass) {
+        dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
+                             SkIntToScalar(y) + SK_ScalarHalf, &srcPt);
+        SkFixed dx, fx = SkScalarToFixed(srcPt.fX);
+        SkFixed dy, fy = SkScalarToFixed(srcPt.fY);
+#ifdef SK_USE_FLOAT_SQRT
+        float fdx, fdy;
+#endif
+
+        if (fDstToIndexClass == kFixedStepInX_MatrixClass) {
+            SkFixed storage[2];
+            (void)fDstToIndex.fixedStepInX(SkIntToScalar(y), &storage[0], &storage[1]);
+            dx = storage[0];
+            dy = storage[1];
+#ifdef SK_USE_FLOAT_SQRT
+            fdx = SkFixedToFloat(storage[0]);
+            fdy = SkFixedToFloat(storage[1]);
+#endif
+        } else {
+            SkASSERT(fDstToIndexClass == kLinear_MatrixClass);
+            dx = SkScalarToFixed(fDstToIndex.getScaleX());
+            dy = SkScalarToFixed(fDstToIndex.getSkewY());
+#ifdef SK_USE_FLOAT_SQRT
+            fdx = fDstToIndex.getScaleX();
+            fdy = fDstToIndex.getSkewY();
+#endif
+        }
+
+        if (proc == clamp_tileproc) {
+            radial_clamp(fx, fy, dx, dy, dstC, count, cache,
+                         kCache32Bits, kCache32Count);
+        } else if (proc == mirror_tileproc) {
+#ifdef SK_USE_FLOAT_SQRT
+            float ffx = srcPt.fX;
+            float ffy = srcPt.fY;
+            do {
+                float fdist = sk_float_sqrt(ffx*ffx + ffy*ffy);
+                unsigned fi = mirror_tileproc(SkFloatToFixed(fdist));
+                SkASSERT(fi <= 0xFFFF);
+                *dstC++ = cache[fi >> (16 - kCache32Bits)];
+                ffx += fdx;
+                ffy += fdy;
+            } while (--count != 0);
+#else
+            do {
+                SkFixed magnitudeSquared = SkFixedSquare(fx) +
+                    SkFixedSquare(fy);
+                if (magnitudeSquared < 0) // Overflow.
+                    magnitudeSquared = SK_FixedMax;
+                SkFixed dist = SkFixedSqrt(magnitudeSquared);
+                unsigned fi = mirror_tileproc(dist);
+                SkASSERT(fi <= 0xFFFF);
+                *dstC++ = cache[fi >> (16 - kCache32Bits)];
+                fx += dx;
+                fy += dy;
+            } while (--count != 0);
+#endif
+        } else {
+            SkASSERT(proc == repeat_tileproc);
+            do {
+                SkFixed magnitudeSquared = SkFixedSquare(fx) +
+                    SkFixedSquare(fy);
+                if (magnitudeSquared < 0) // Overflow.
+                    magnitudeSquared = SK_FixedMax;
+                SkFixed dist = SkFixedSqrt(magnitudeSquared);
+                unsigned fi = repeat_tileproc(dist);
+                SkASSERT(fi <= 0xFFFF);
+                *dstC++ = cache[fi >> (16 - kCache32Bits)];
+                fx += dx;
+                fy += dy;
+            } while (--count != 0);
+        }
+    } else {    // perspective case
+        SkScalar dstX = SkIntToScalar(x);
+        SkScalar dstY = SkIntToScalar(y);
+        do {
+            dstProc(fDstToIndex, dstX, dstY, &srcPt);
+            unsigned fi = proc(SkScalarToFixed(srcPt.length()));
+            SkASSERT(fi <= 0xFFFF);
+            *dstC++ = cache[fi >> (16 - kCache32Bits)];
+            dstX += SK_Scalar1;
+        } while (--count != 0);
+    }
+}
 
 /* Two-point radial gradients are specified by two circles, each with a center
    point and radius.  The gradient can be considered to be a series of
