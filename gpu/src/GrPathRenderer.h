@@ -108,7 +108,7 @@ public:
      */
     virtual bool supportsAA(const GrDrawTarget* target,
                             const SkPath& path,
-                            GrPathFill fill) { return false; }
+                            GrPathFill fill) const { return false; }
 
     /**
      * Sets the path to render and target to render into. All calls to drawPath
