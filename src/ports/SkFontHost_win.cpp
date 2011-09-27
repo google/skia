@@ -740,8 +740,8 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
 
     for (int y = 0; y < glyph.fHeight; ++y) {
         if (byteCount > 0) {
-            unsigned byte = 0;
             for (int i = 0; i < byteCount; ++i) {
+                unsigned byte = 0;
                 byte |= (src[0] ^ xorMask) & (1 << 7);
                 byte |= (src[1] ^ xorMask) & (1 << 6);
                 byte |= (src[2] ^ xorMask) & (1 << 5);
