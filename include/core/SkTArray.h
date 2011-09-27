@@ -35,66 +35,14 @@ public:
      * elements.
      */
     explicit SkTArray(int reserveCount) {
-        SkASSERT(reserveCount >= 0);
-        fCount = 0;
-        fReserveCount = reserveCount > gMIN_ALLOC_COUNT ? reserveCount :
-                                                          gMIN_ALLOC_COUNT;
-        fAllocCount = fReserveCount;
-        fMemArray = sk_malloc_throw(sizeof(T) * fReserveCount);
-        fPreAllocMemArray = NULL;
+        this->init(NULL, 0, NULL, reserveCount);
     }
-
-    /**
-     * Creates an empty array that will use the passed storage block until it
-     * is insufficiently large to hold the entire array.
-     */
-    template <int N>
-    SkTArray(SkAlignedSTStorage<N,T>* storage) {
-        SkASSERT(N > 0);
-        fCount              = 0;
-        fReserveCount       = N;
-        fAllocCount         = N;
-        fMemArray           = storage->get();
-        fPreAllocMemArray   = storage->get();
-    }
-
-    /**
-     * Creates an empty array that will use the passed memory block until the
-     * count exceeds preAllocCount. Be careful not to use this constructor
-     * when you really want the (T*, int) version.
-     */
-    SkTArray(void* preAllocStorage, int preAllocCount) {
-        SkASSERT(preAllocCount >= 0);
-        // we allow NULL,0 args and revert to the default cons. behavior
-        // this makes it possible for a owner-object to use same constructor
-        // to get either prealloc or nonprealloc behavior based using same line
-        SkASSERT((NULL == preAllocStorage) == !preAllocCount);
-
-        fCount              = 0;
-        fReserveCount       = preAllocCount > 0 ? preAllocCount :
-                                                  gMIN_ALLOC_COUNT;
-        fAllocCount         = preAllocCount;
-        fMemArray           = preAllocStorage;
-        fPreAllocMemArray   = preAllocStorage;
-    }
-
+  
     /**
      * Copies one array to another. The new array will be heap allocated.
      */
     explicit SkTArray(const SkTArray& array) {
-        fCount              = array.count();
-        fReserveCount       = gMIN_ALLOC_COUNT;
-        fAllocCount         = SkMax32(fReserveCount, fCount);
-        fMemArray           = sk_malloc_throw(sizeof(T) * fAllocCount);
-        fPreAllocMemArray   = NULL;
-
-        if (DATA_TYPE) {
-            memcpy(fMemArray, array.fMemArray, sizeof(T) * fCount);
-        } else {
-            for (int i = 0; i < fCount; ++i) {
-                new (fItemArray + i) T(array[i]);
-            }
-        }
+        this->init(array.fItemArray, array.fCount, NULL, 0);
     }
 
     /**
@@ -103,90 +51,7 @@ public:
      * when you really want the (void*, int) version.
      */
     SkTArray(const T* array, int count) {
-        SkASSERT(count >= 0);
-        fCount              = count;
-        fReserveCount       = gMIN_ALLOC_COUNT;
-        fAllocCount         = SkMax32(fReserveCount, fCount);
-        fMemArray           = sk_malloc_throw(sizeof(T) * fAllocCount);
-        fPreAllocMemArray   = NULL;
-        if (DATA_TYPE) {
-            memcpy(fMemArray, array, sizeof(T) * fCount);
-        } else {
-            for (int i = 0; i < fCount; ++i) {
-                new (fItemArray + i) T(array[i]);
-            }
-        }
-    }
-
-    /**
-     * Copy another array, using preallocated storage if preAllocCount >=
-     * array.count(). Otherwise preAllocStorage is only used if the array
-     * shrinks to fit.
-     */
-    SkTArray(const SkTArray& array,
-             void* preAllocStorage, int preAllocCount) {
-
-        SkASSERT(preAllocCount >= 0);
-
-        // for same reason as non-copying cons we allow NULL, 0 for prealloc
-        SkASSERT((NULL == preAllocStorage) == !preAllocCount);
-
-        fCount              = array.count();
-        fReserveCount       = preAllocCount > 0 ? preAllocCount :
-                                                  gMIN_ALLOC_COUNT;
-        fPreAllocMemArray   = preAllocStorage;
-
-        if (fReserveCount >= fCount && preAllocCount) {
-            fAllocCount = fReserveCount;
-            fMemArray = preAllocStorage;
-        } else {
-            fAllocCount = SkMax32(fCount, fReserveCount);
-            fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
-        }
-
-        if (DATA_TYPE) {
-            memcpy(fMemArray, array.fMemArray, sizeof(T) * fCount);
-        } else {
-            for (int i = 0; i < fCount; ++i) {
-                new (fItemArray + i) T(array[i]);
-            }
-        }
-    }
-
-    /**
-     * Copy C array to SkTArray, using preallocated storage if preAllocCount >=
-     * preAllocCount. Otherwise preAllocStorage is only used if the array
-     * shrinks to fit.
-     */
-    SkTArray(const T* array, int count,
-             void* preAllocStorage, int preAllocCount) {
-
-        SkASSERT(count >= 0);
-        SkASSERT(preAllocCount >= 0);
-
-        // for same reason as non-copying cons we allow NULL, 0 for prealloc
-        SkASSERT((NULL == preAllocStorage) == !preAllocCount);
-
-        fCount              = count;
-        fReserveCount       = (preAllocCount > 0) ? preAllocCount :
-                                                    gMIN_ALLOC_COUNT;
-        fPreAllocMemArray   = preAllocStorage;
-
-        if (fReserveCount >= fCount && preAllocCount) {
-            fAllocCount = fReserveCount;
-            fMemArray = preAllocStorage;
-        } else {
-            fAllocCount = SkMax32(fCount, fReserveCount);
-            fMemArray = sk_malloc_throw(fAllocCount * sizeof(T));
-        }
-
-        if (DATA_TYPE) {
-            memcpy(fMemArray, array, sizeof(T) * fCount);
-        } else {
-            for (int i = 0; i < fCount; ++i) {
-                new (fItemArray + i) T(array[i]);
-            }
-        }
+        this->init(array, count, NULL, 0);
     }
 
     /**
@@ -209,7 +74,7 @@ public:
         return *this;
     }
 
-    ~SkTArray() {
+    virtual ~SkTArray() {
         for (int i = 0; i < fCount; ++i) {
             fItemArray[i].~T();
         }
@@ -379,6 +244,63 @@ public:
         return fItemArray[fCount - i - 1];
     }
 
+protected:
+    /**
+     * Creates an empty array that will use the passed storage block until it
+     * is insufficiently large to hold the entire array.
+     */
+    template <int N>
+    SkTArray(SkAlignedSTStorage<N,T>* storage) {
+        this->init(NULL, 0, storage->get(), N);
+    }
+
+    /**
+     * Copy another array, using preallocated storage if preAllocCount >=
+     * array.count(). Otherwise storage will only be used when array shrinks
+     * to fit.
+     */
+    template <int N>
+    SkTArray(const SkTArray& array, SkAlignedSTStorage<N,T>* storage) {
+        this->init(array.fItemArray, array.fCount, storage->get(), N);
+    }
+
+    /**
+     * Copy a C array, using preallocated storage if preAllocCount >=
+     * count. Otherwise storage will only be used when array shrinks
+     * to fit.
+     */
+    template <int N>
+    SkTArray(const T* array, int count, SkAlignedSTStorage<N,T>* storage) {
+        this->init(array, count, storage->get(), N);
+    }
+
+    void init(const T* array, int count,
+               void* preAllocStorage, int preAllocOrReserveCount) {
+        GrAssert(count >= 0);
+        GrAssert(preAllocOrReserveCount >= 0);
+        fCount              = count;
+        fReserveCount       = (preAllocOrReserveCount > 0) ?
+                                    preAllocOrReserveCount :
+                                    gMIN_ALLOC_COUNT;
+        fPreAllocMemArray   = preAllocStorage;
+        if (fReserveCount >= fCount &&
+            NULL != preAllocStorage) {
+            fAllocCount = fReserveCount;
+            fMemArray = preAllocStorage;
+        } else {
+            fAllocCount = GrMax(fCount, fReserveCount);
+            fMemArray = GrMalloc(fAllocCount * sizeof(T));
+        }
+
+        if (DATA_TYPE) {
+            memcpy(fMemArray, array, sizeof(T) * fCount);
+        } else {
+            for (int i = 0; i < fCount; ++i) {
+                new (fItemArray + i) T(array[i]);
+            }
+        }
+    }
+
 private:
 
     static const int gMIN_ALLOC_COUNT = 8;
@@ -434,6 +356,43 @@ private:
         T*       fItemArray;
         void*    fMemArray;
     };
+};
+
+/**
+ * Subclass of SkTArray that contains a preallocated memory block for the array.
+ */
+template <int N, typename T, bool DATA_TYPE = false>
+class SkSTArray : public SkTArray<T, DATA_TYPE> {
+private:
+    typedef SkTArray<T, DATA_TYPE> INHERITED;
+
+public:
+    SkSTArray() : INHERITED(&fStorage) {
+    }
+
+    SkSTArray(const SkSTArray& array)
+        : INHERITED(array, &fStorage) {
+    }
+
+    explicit SkSTArray(const INHERITED& array)
+        : INHERITED(array, &fStorage) {
+    }
+
+    SkSTArray(const T* array, int count)
+        : INHERITED(array, count, &fStorage) {
+    }
+
+    SkSTArray& operator= (const SkSTArray& array) {
+        return *this = *(const INHERITED*)&array;
+    }
+
+    SkSTArray& operator= (const INHERITED& array) {
+        INHERITED::operator=(array);
+        return *this;
+    }
+
+private:
+    SkAlignedSTStorage<N,T> fStorage;
 };
 
 #endif

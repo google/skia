@@ -30,7 +30,6 @@ public:
      *                          Caller is responsible for freeing this memory.
      */
     GrAllocator(size_t itemSize, int itemsPerBlock, void* initialBlock) :
-            fBlocks(fBlockInitialStorage, NUM_INIT_BLOCK_PTRS),
             fItemSize(itemSize),
             fItemsPerBlock(itemsPerBlock),
             fOwnFirstBlock(NULL == initialBlock),
@@ -128,13 +127,12 @@ public:
 private:
     static const int NUM_INIT_BLOCK_PTRS = 8;
     
-    SkTArray<void*> fBlocks;
-    size_t          fBlockSize;
-    char            fBlockInitialStorage[NUM_INIT_BLOCK_PTRS*sizeof(void*)];
-    size_t          fItemSize;
-    int             fItemsPerBlock;
-    bool            fOwnFirstBlock;
-    int             fCount;
+    SkSTArray<NUM_INIT_BLOCK_PTRS, void*>   fBlocks;
+    size_t                                  fBlockSize;
+    size_t                                  fItemSize;
+    int                                     fItemsPerBlock;
+    bool                                    fOwnFirstBlock;
+    int                                     fCount;
 };
 
 template <typename T>

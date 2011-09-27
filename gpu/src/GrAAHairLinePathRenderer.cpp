@@ -133,6 +133,7 @@ void GrAAHairLinePathRenderer::resetGeom() {
 namespace {
 
 typedef SkTArray<SkPoint, true> PtArray;
+#define PREALLOC_PTARRAY(N) SkSTArray<(N),SkPoint, true>
 typedef SkTArray<int, true> IntArray;
 
 /**
@@ -344,8 +345,7 @@ int generate_lines_and_quads(const SkPath& path,
                 bounds.outset(SK_Scalar1, SK_Scalar1);
                 bounds.roundOut(&ibounds);
                 if (SkIRect::Intersects(clip, ibounds)) {
-                    SkPoint stackStorage[32];
-                    PtArray q((void*)stackStorage, 32);
+                    PREALLOC_PTARRAY(32) q;
                     // in perspective have to do conversion in src space
                     if (persp) {
                         SkScalar tolScale = 
@@ -629,10 +629,8 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
 
     GrMatrix viewM = fTarget->getViewMatrix();
 
-    SkAlignedSTStorage<128, GrPoint> lineStorage;
-    SkAlignedSTStorage<128, GrPoint> quadStorage;
-    PtArray lines(&lineStorage);
-    PtArray quads(&quadStorage);
+    PREALLOC_PTARRAY(128) lines;
+    PREALLOC_PTARRAY(128) quads;
     IntArray qSubdivs;
     fQuadCnt = generate_lines_and_quads(*fPath, viewM, fTranslate, clip,
                                         &lines, &quads, &qSubdivs);

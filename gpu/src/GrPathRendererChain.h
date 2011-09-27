@@ -55,8 +55,7 @@ private:
     bool fInit;
     GrContext*                                          fOwner;
     UsageFlags                                          fFlags;
-    SkAlignedSTStorage<kPreAllocCount, GrPathRenderer*> fStorage;
-    SkTArray<GrPathRenderer*, true>                     fChain;
+    SkSTArray<kPreAllocCount, GrPathRenderer*, true>    fChain;
 };
 
 GR_MAKE_BITFIELD_OPS(GrPathRendererChain::UsageFlags)

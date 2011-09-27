@@ -329,8 +329,7 @@ void GrDrawTarget::VertexLayoutUnitTest() {
 #define DEBUG_INVAL_BUFFER 0xdeadcafe
 #define DEBUG_INVAL_START_IDX -1
 
-GrDrawTarget::GrDrawTarget() 
-: fGeoSrcStateStack(&fGeoSrcStateStackStorage) {
+GrDrawTarget::GrDrawTarget() {
 #if GR_DEBUG
     VertexLayoutUnitTest();
 #endif

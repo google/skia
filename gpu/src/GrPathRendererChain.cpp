@@ -16,8 +16,7 @@
 GrPathRendererChain::GrPathRendererChain(GrContext* context, UsageFlags flags)
     : fInit(false)
     , fOwner(context)
-    , fFlags(flags)
-    , fChain(fStorage.get(), kPreAllocCount) {
+    , fFlags(flags) {
     fInit = false;
 }
     
