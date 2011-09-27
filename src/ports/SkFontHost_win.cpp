@@ -750,7 +750,7 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
                 byte |= (src[5] ^ xorMask) & (1 << 2);
                 byte |= (src[6] ^ xorMask) & (1 << 1);
                 byte |= (src[7] ^ xorMask) & (1 << 0);
-                dst[i] = ~byte;
+                dst[i] = byte;
                 src += 8;
             }
         }
@@ -758,7 +758,7 @@ static void rgb_to_bw(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
             unsigned byte = 0;
             unsigned mask = 0x80;
             for (int i = 0; i < bitCount; i++) {
-                byte |= ~(src[i] ^ xorMask) & mask;
+                byte |= (src[i] ^ xorMask) & mask;
                 mask >>= 1;
             }
             dst[byteCount] = byte;
@@ -845,7 +845,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         const SkGdiRGB* src = (const SkGdiRGB*)bits;
 #if 0 // can't do this (yet) since caller may really want gray8 for maskfilters
         if (is_rgb_really_bw(src, width, glyph.fHeight, srcRB)) {
-            rgb_to_bw(src, srcRB, glyph);
+            rgb_to_bw(src, srcRB, glyph, rgbXOR);
             ((SkGlyph*)&glyph)->fMaskFormat = SkMask::kBW_Format;
         } else
 #endif
