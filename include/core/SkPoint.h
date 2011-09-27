@@ -10,6 +10,7 @@
 #ifndef SkPoint_DEFINED
 #define SkPoint_DEFINED
 
+#include "SkMath.h"
 #include "SkScalar.h"
 
 /** \struct SkIPoint

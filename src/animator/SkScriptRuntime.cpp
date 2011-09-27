@@ -7,6 +7,7 @@
  */
 #include "SkScriptRuntime.h"
 #include "SkScript2.h"
+#include "SkMath.h"
 #include "SkParse.h"
 #include "SkScriptCallBack.h"
 #include "SkString.h"
