@@ -374,9 +374,8 @@ private:
     enum {
         kPreallocGeomPoolStateStackCnt = 4,
     };
-    SkAlignedSTStorage<kPreallocGeomPoolStateStackCnt, 
-                       GeometryPoolState>           fGeoSrcStateStackStorage;
-    SkTArray<GeometryPoolState, true>               fGeomPoolStateStack;
+    SkSTArray<kPreallocGeomPoolStateStackCnt,
+              GeometryPoolState, true>              fGeomPoolStateStack;
     
     mutable GrIndexBuffer*      fQuadIndexBuffer; // mutable so it can be
                                                   // created on-demand

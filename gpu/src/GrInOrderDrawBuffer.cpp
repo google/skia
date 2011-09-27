@@ -30,8 +30,7 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
     , fCurrQuad(0)
 
     , fVertexPool(*vertexPool)
-    , fIndexPool(*indexPool)
-    , fGeoPoolStateStack(&fGeoStackStorage) {
+    , fIndexPool(*indexPool) {
 
     fCaps = gpu->getCaps();
 

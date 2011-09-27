@@ -135,8 +135,7 @@ private:
     enum {
         kPreAllocElements = 4,
     };
-    SkAlignedSTStorage<kPreAllocElements, Element>  fListStorage;
-    SkTArray<Element>   fList;
+    SkSTArray<kPreAllocElements, Element>   fList;
 };
 #endif
 

@@ -1376,10 +1376,8 @@ private:
     enum {
         kPreallocGeoSrcStateStackCnt = 4,
     };
-    SkAlignedSTStorage<kPreallocGeoSrcStateStackCnt, 
-                        GeometrySrcState> 
-                                     fGeoSrcStateStackStorage;
-    SkTArray<GeometrySrcState, true> fGeoSrcStateStack;
+    SkSTArray<kPreallocGeoSrcStateStackCnt, 
+              GeometrySrcState, true>           fGeoSrcStateStack;
     
 };
 

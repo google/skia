@@ -10,30 +10,25 @@
 
 #include "GrClip.h"
 
-GrClip::GrClip()
-    : fList(&fListStorage) {
+GrClip::GrClip() {
     fConservativeBounds.setEmpty();
     fConservativeBoundsValid = true;
 }
 
-GrClip::GrClip(const GrClip& src)
-    : fList(&fListStorage) {
+GrClip::GrClip(const GrClip& src) {
     *this = src;
 }
 
-GrClip::GrClip(const GrIRect& rect)
-    : fList(&fListStorage) {
+GrClip::GrClip(const GrIRect& rect) {
     this->setFromIRect(rect);
 }
 
-GrClip::GrClip(const GrRect& rect)
-    : fList(&fListStorage) {
+GrClip::GrClip(const GrRect& rect) {
     this->setFromRect(rect);
 }
 
 GrClip::GrClip(GrClipIterator* iter, GrScalar tx, GrScalar ty,
-               const GrRect* bounds)
-    : fList(&fListStorage) {
+               const GrRect* bounds) {
     this->setFromIterator(iter, tx, ty, bounds);
 }
 
