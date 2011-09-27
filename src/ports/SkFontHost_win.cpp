@@ -978,12 +978,22 @@ SkAdvancedTypefaceMetrics* SkFontHost::GetAdvancedTypefaceMetrics(
     OUTLINETEXTMETRIC otm;
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm) ||
         !GetTextFace(hdc, LF_FACESIZE, lf.lfFaceName)) {
+        // TODO(arthurhsu): remove after resolving http://crbug.com/94421
+        DWORD error_code = GetLastError();
+        SK_DEBUGBREAK(error_code == 0);  // Possibly caused by sandboxing.
+        SK_DEBUGBREAK(false);  // GDI corruption.
+
         goto Error;
     }
     lf.lfHeight = -SkToS32(otm.otmEMSquare);
     designFont = CreateFontIndirect(&lf);
     SelectObject(hdc, designFont);
     if (!GetOutlineTextMetrics(hdc, sizeof(otm), &otm)) {
+        // TODO(arthurhsu): remove after resolving http://crbug.com/94421
+        DWORD error_code = GetLastError();
+        SK_DEBUGBREAK(error_code == 0);  // Possibly caused by sandboxing.
+        SK_DEBUGBREAK(false);  // GDI corruption.
+
         goto Error;
     }
     const unsigned glyphCount = calculateGlyphCount(hdc);
