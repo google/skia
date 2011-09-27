@@ -7,6 +7,7 @@
  */
 
 
+#include "SkMath.h"
 #include "SkScalar.h"
 
 SkScalar SkScalarInterpFunc(SkScalar searchKey, const SkScalar keys[],
