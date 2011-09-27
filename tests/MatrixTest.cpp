@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 #include "Test.h"
+#include "SkMath.h"
 #include "SkMatrix.h"
 #include "SkRandom.h"
 

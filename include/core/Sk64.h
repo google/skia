@@ -11,7 +11,6 @@
 #define Sk64_DEFINED
 
 #include "SkFixed.h"
-#include "SkMath.h"
 
 /** \class Sk64
 

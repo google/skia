@@ -11,7 +11,6 @@
 #define SkDOM_DEFINED
 
 #include "SkChunkAlloc.h"
-#include "SkMath.h"
 #include "SkScalar.h"
 #include "SkTemplates.h"
 

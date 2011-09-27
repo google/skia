@@ -10,7 +10,6 @@
 #ifndef SkXMLParser_DEFINED
 #define SkXMLParser_DEFINED
 
-#include "SkMath.h"
 #include "SkString.h"
 
 class SkStream;

@@ -8,6 +8,7 @@
 
 
 #include "SkBlurMask.h"
+#include "SkMath.h"
 #include "SkTemplates.h"
 
 /** The sum buffer is an array of u32 to hold the accumulated sum of all of the

@@ -7,6 +7,7 @@
  */
 #include "Test.h"
 #include "SkColor.h"
+#include "SkMath.h"
 #include "SkUnPreMultiply.h"
 
 static void test_premul(skiatest::Reporter* reporter) {

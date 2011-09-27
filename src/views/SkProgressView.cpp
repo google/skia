@@ -7,6 +7,7 @@
  */
 #include "SkWidget.h"
 #include "SkCanvas.h"
+#include "SkMath.h"
 #include "SkShader.h"
 #include "SkInterpolator.h"
 #include "SkTime.h"

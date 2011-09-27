@@ -8,6 +8,7 @@
 
 
 #include "SkEmbossMask.h"
+#include "SkMath.h"
 
 static inline int nonzero_to_one(int x) {
 #if 0
