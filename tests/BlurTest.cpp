@@ -8,6 +8,7 @@
 #include "Test.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkMath.h"
 #include "SkPaint.h"
 #include "SkRandom.h"
 

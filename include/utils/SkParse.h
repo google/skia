@@ -11,7 +11,6 @@
 #define SkParse_DEFINED
 
 #include "SkColor.h"
-#include "SkMath.h"
 
 class SkParse {
 public:

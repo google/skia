@@ -11,7 +11,6 @@
 #define SkPaint_DEFINED
 
 #include "SkColor.h"
-#include "SkMath.h"
 #include "SkXfermode.h"
 
 class SkAutoGlyphCache;

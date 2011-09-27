@@ -8,6 +8,7 @@
 
 
 #include "Sk64.h"
+#include "SkMath.h"
 
 #define shift_left(hi, lo)          \
     hi = (hi << 1) | (lo >> 31);    \

@@ -6,6 +6,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkMath.h"
 
 
 #define SCALE_NOFILTER_NAME     MAKENAME(_nofilter_scale)
