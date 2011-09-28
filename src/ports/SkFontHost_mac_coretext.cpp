@@ -1088,6 +1088,10 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         h = SkPaint::kNormal_Hinting;
     }
     rec->setHinting(h);
+
+    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
+        rec->fMaskFormat = SkMask::kLCD32_Format;
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////
