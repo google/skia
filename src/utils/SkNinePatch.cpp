@@ -55,10 +55,18 @@ static void fillRow(SkPoint verts[], SkPoint texs[],
     texs->set(0, ty); texs++;
     for (int x = 0; x < numXDivs; x++) {
         SkScalar tx = SkIntToScalar(xDivs[x]);
-        if (x & 1) {
-            vx += stretchX;
+        if (stretchX >= 0) {
+            if (x & 1) {
+                vx += stretchX;
+            } else {
+                vx += tx;
+            }
         } else {
-            vx += tx;
+            if (x & 1) {
+                ; // do nothing
+            } else {
+                vx += SkScalarMul(tx, -stretchX);
+            }
         }
         verts->set(vx, vy); verts++;
         texs->set(tx, ty); texs++;
@@ -110,8 +118,6 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
     const int numYStretch = (numYDivs + 1) >> 1;
     
     if (numXStretch < 1 && numYStretch < 1) {
-    BITMAP_RECT:
-//        SkDebugf("------ drawasamesh revert to bitmaprect\n");
         canvas->drawBitmapRect(bitmap, NULL, bounds, paint);
         return;
     }
@@ -136,7 +142,8 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         int fixed = bitmap.width() - stretchSize;
         stretchX = (bounds.width() - SkIntToScalar(fixed)) / numXStretch;
         if (stretchX < 0) {
-            goto BITMAP_RECT;
+            // reuse stretchX, but keep it negative as a signal
+            stretchX = -bitmap.width() / fixed;
         }
     }
     
@@ -148,7 +155,8 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         int fixed = bitmap.height() - stretchSize;
         stretchY = (bounds.height() - SkIntToScalar(fixed)) / numYStretch;
         if (stretchY < 0) {
-            goto BITMAP_RECT;
+            // reuse stretchY, but keep it negative as a signal
+            stretchY = -bitmap.height() / fixed;
         }
     }
     
@@ -191,10 +199,18 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
     texs += numXDivs + 2;
     for (int y = 0; y < numYDivs; y++) {
         const SkScalar ty = SkIntToScalar(yDivs[y]);
-        if (y & 1) {
-            vy += stretchY;
-        } else {
-            vy += ty;
+        if (stretchY >= 0) {
+            if (y & 1) {
+                vy += stretchY;
+            } else {
+                vy += ty;
+            }
+        } else {    // shrink fixed sections, and collaps stretchy sections
+            if (y & 1) {
+                ;// do nothing
+            } else {
+                vy += SkScalarMul(ty, -stretchY);
+            }
         }
         fillRow(verts, texs, vy, ty, bounds, xDivs, numXDivs,
                 stretchX, bitmap.width());
