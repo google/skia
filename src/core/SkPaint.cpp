@@ -1195,6 +1195,7 @@ static void add_flattenable(SkDescriptor* desc, uint32_t tag,
     buffer->flatten(desc->addEntry(tag, buffer->size(), NULL));
 }
 
+// SkFontHost can override this choice in FilterRec()
 static SkMask::Format computeMaskFormat(const SkPaint& paint) {
     uint32_t flags = paint.getFlags();
 
@@ -1204,11 +1205,7 @@ static SkMask::Format computeMaskFormat(const SkPaint& paint) {
     }
 
     if (flags & SkPaint::kLCDRenderText_Flag) {
-#if !defined(SK_SUPPORT_888_TEXT)    
         return SkMask::kLCD16_Format;
-#else
-        return SkMask::kLCD32_Format;
-#endif
     }
 
     return SkMask::kA8_Format;
