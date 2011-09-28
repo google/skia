@@ -1354,6 +1354,12 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
         entries.
      */
     SkFontHost::FilterRec(rec);
+
+    // No need to differentiate gamma if we're BW
+    if (SkMask::kBW_Format == rec->fMaskFormat) {
+        rec->fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
+                         SkScalerContext::kGammaForWhite_Flag);
+    }
 }
 
 #define MIN_SIZE_FOR_EFFECT_BUFFER  1024
