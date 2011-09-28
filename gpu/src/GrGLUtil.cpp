@@ -19,7 +19,7 @@ void GrGLCheckErr(const GrGLInterface* gl,
                   const char* call) {
     uint32_t err = GR_GL_GET_ERROR(gl);
     if (GR_GL_NO_ERROR != err) {
-        GrPrintf("---- glGetError %x", GR_GL_GET_ERROR(gl));
+        GrPrintf("---- glGetError %x", err);
         if (NULL != location) {
             GrPrintf(" at\n\t%s", location);
         }
