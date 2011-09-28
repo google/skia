@@ -9,6 +9,7 @@
 #include "SkView.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
+#include "SkColorShader.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
@@ -26,6 +27,8 @@
 #include "SkOSFile.h"
 #include "SkStream.h"
 #include "SkKey.h"
+
+extern void skia_set_text_gamma(float blackGamma, float whiteGamma);
 
 #ifdef SK_BUILD_FOR_WIN
 extern SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT&);
@@ -54,7 +57,7 @@ public:
 		tf0->unref();
 		tf1->unref();
 #endif
-	}
+    }
 
 protected:
     // overrides from SkEventSink
@@ -67,17 +70,22 @@ protected:
         return this->INHERITED::onQuery(evt);
     }
 
-    virtual void onDrawContent(SkCanvas* canvas) {
+    void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
+        SkAutoCanvasRestore acr(canvas, true);
+
+        canvas->clipRect(SkRect::MakeWH(w, h));
+        canvas->drawColor(bg);
 		SkScalar margin = 20;
         SkTextBox tbox;
 		tbox.setMode(SkTextBox::kLineBreak_Mode);
 		tbox.setBox(margin, margin,
-					this->width() - margin, this->height() - margin);
+					w - margin, h - margin);
 		tbox.setSpacing(SkIntToScalar(3)/3, 0);
 
 		SkPaint paint;
 		paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
+        paint.setColor(fg);
 		tbox.setText(gText, strlen(gText), paint);
 
 		for (int i = 9; i < 24; i += 2) {
@@ -85,6 +93,17 @@ protected:
 			tbox.draw(canvas);
 			canvas->translate(0, tbox.getTextHeight() + paint.getFontSpacing());
 		}
+    }
+
+    virtual void onDrawContent(SkCanvas* canvas) {
+        SkScalar width = this->width() / 3;
+        drawTest(canvas, width, this->height(), SK_ColorBLACK, SK_ColorWHITE);
+        canvas->translate(width, 0);
+        drawTest(canvas, width, this->height(), SK_ColorWHITE, SK_ColorBLACK);
+        canvas->translate(width, 0);
+        drawTest(canvas, width, this->height()/2, SK_ColorGRAY, SK_ColorWHITE);
+        canvas->translate(0, this->height()/2);
+        drawTest(canvas, width, this->height()/2, SK_ColorGRAY, SK_ColorBLACK);
     }
 
 private:
