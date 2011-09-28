@@ -14,9 +14,9 @@
 #include "GrConfig.h"
 #include "SkTArray.h"
 
-class GrAllocator {
+class GrAllocator : GrNoncopyable {
 public:
-    virtual ~GrAllocator() {
+    ~GrAllocator() {
         reset();
     }
 
@@ -133,13 +133,13 @@ private:
     int                                     fItemsPerBlock;
     bool                                    fOwnFirstBlock;
     int                                     fCount;
+
+    typedef GrNoncopyable INHERITED;
 };
 
 template <typename T>
-class GrTAllocator {
-private:
-    GrAllocator fAllocator;
-    
+class GrTAllocator : GrNoncopyable {
+
 public:
     virtual ~GrTAllocator() {};
 
@@ -151,19 +151,9 @@ public:
      *                          Must be at least size(T)*itemsPerBlock sized.
      *                          Caller is responsible for freeing this memory.
      */
-    explicit GrTAllocator(int itemsPerBlock, void* initialBlock = NULL)
-        : fAllocator(sizeof(T), itemsPerBlock, initialBlock) {}
+    explicit GrTAllocator(int itemsPerBlock)
+        : fAllocator(sizeof(T), itemsPerBlock, NULL) {}
 
-    /**
-     * Create an allocator using a GrAlignedTAlloc as the initial block.
-     *
-     * @param   initialBlock    specifies the storage for the initial block
-     *                          and the size of subsequent blocks.
-     */
-    template <int N>
-    explicit GrTAllocator(SkAlignedSTStorage<N,T>* initialBlock)
-        : fAllocator(sizeof(T), N, initialBlock->get()) {}
-    
     /**
      * Adds an item and returns it.
      *
@@ -232,7 +222,28 @@ public:
      */
     const T& operator[] (int i) const {
         return *(const T*)(fAllocator[i]);
-    }    
+    }
+
+protected:
+    GrTAllocator(int itemsPerBlock, void* initialBlock)
+        : fAllocator(sizeof(T), itemsPerBlock, initialBlock) {
+    }
+
+private:
+    GrAllocator fAllocator;
+    typedef GrNoncopyable INHERITED;
+};
+
+template <int N, typename T> class GrSTAllocator : public GrTAllocator<T> {
+private:
+    typedef GrTAllocator<T> INHERITED;
+
+public:
+    GrSTAllocator() : INHERITED(N, fStorage.get()) {
+    }
+
+private:
+    SkAlignedSTStorage<N, T> fStorage;
 };
 
 #endif
