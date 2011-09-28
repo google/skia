@@ -8,6 +8,7 @@
         'defines': [
           'SK_BUILD_FOR_WIN32',
           'SK_IGNORE_STDINT_DOT_H',
+          '_CRT_SECURE_NO_WARNINGS',
         ],
         'msvs_cygwin_shell': 0,
         'msvs_settings': {
@@ -28,26 +29,40 @@
           'Debug': {
             'msvs_settings': {
               'VCCLCompilerTool': {
-                'DebugInformationFormat': '1', # debugOldStyleInfo (/Z7)
+                'DebugInformationFormat': '4', # editAndContiue (/ZI)
+                'ProgramDataBaseFileName': '$(OutDir)$(ProjectName).pdb',
                 'Optimization': '0',           # optimizeDisabled (/Od)
                 'PreprocessorDefinitions': ['_DEBUG'],
                 'RuntimeLibrary': '3',         # rtMultiThreadedDebugDLL (/MDd)
+                'ExceptionHandling': '0',
+                'RuntimeTypeInfo': 'false',      # /GR-
+                'WarningLevel': '3',             # level3 (/W3)
               },
               'VCLinkerTool': {
-                'GenerateDebugInformation': 'true',
+                'GenerateDebugInformation': 'true', # /DEBUG
+                'LinkIncremental': '2',             # /INCREMENTAL
               },
             },
           },
           'Release': {
             'msvs_settings': {
               'VCCLCompilerTool': {
-                'DebugInformationFormat': '0', # debugDisabled
-                'Optimization': '2',           # optimizeMaxSpeed (/O2)
+                'DebugInformationFormat': '3',   # programDatabase (/Zi)
+                'ProgramDataBaseFileName': '$(OutDir)$(ProjectName).pdb',
+                'Optimization': '3',             # full (/Ox)
+                'WholeProgramOptimization': 'true', #/GL
+               # Changing the floating point model requires rebaseling gm images
+               #'FloatingPointModel': '2',       # fast (/fp:fast)
+                'FavorSizeOrSpeed': '1',         # speed (/Ot)
                 'PreprocessorDefinitions': ['NDEBUG'],
-                'RuntimeLibrary': '2',         # rtMultiThreadedDLL (/MD)
+                'RuntimeLibrary': '2',           # rtMultiThreadedDLL (/MD)
+                'ExceptionHandling': '0',
+                'RuntimeTypeInfo': 'false',      # /GR-
+                'WarningLevel': '3',             # level3 (/W3)
               },
               'VCLinkerTool': {
-                'GenerateDebugInformation': 'false',
+                'GenerateDebugInformation': 'true', # /DEBUG
+                'LinkTimeCodeGeneration': '1',      # useLinkTimeCodeGeneration /LTCG
               },
             },
           },
