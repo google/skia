@@ -31,7 +31,7 @@
 
 // When we're using coverage AA but the blend is incompatible (given gpu
 // limitations) should we disable AA or draw wrong?
-#define DISABLE_COVERAGE_AA_FOR_BLEND 0
+#define DISABLE_COVERAGE_AA_FOR_BLEND 1
 
 static const size_t MAX_TEXTURE_CACHE_COUNT = 256;
 static const size_t MAX_TEXTURE_CACHE_BYTES = 16 * 1024 * 1024;
