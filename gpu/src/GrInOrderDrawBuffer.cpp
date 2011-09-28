@@ -18,17 +18,11 @@
 GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
                                          GrVertexBufferAllocPool* vertexPool,
                                          GrIndexBufferAllocPool* indexPool)
-    : fDraws(&fDrawStorage)
-    , fStates(&fStateStorage)
-    , fClears(&fClearStorage)
-    , fClips(&fClipStorage)
-    , fClipSet(true)
-
+    : fClipSet(true)
     , fLastRectVertexLayout(0)
     , fQuadIndexBuffer(NULL)
     , fMaxQuads(0)
     , fCurrQuad(0)
-
     , fVertexPool(*vertexPool)
     , fIndexPool(*indexPool) {
 

@@ -144,13 +144,22 @@ private:
 
     void pushState();
     void pushClip();
+    
+    enum {
+        kDrawPreallocCnt         = 8,
+        kStatePreallocCnt        = 8,
+        kClipPreallocCnt         = 8,
+        kClearPreallocCnt        = 4,
+        kGeoPoolStatePreAllocCnt = 4,
+    };
 
     const GrGpu*                    fGpu;
-    GrTAllocator<Draw>              fDraws;
-    GrTAllocator<SavedDrawState>    fStates;
-    GrTAllocator<Clear>             fClears;
 
-    GrTAllocator<GrClip>            fClips;
+    GrSTAllocator<kDrawPreallocCnt, Draw>               fDraws;
+    GrSTAllocator<kStatePreallocCnt, SavedDrawState>    fStates;
+    GrSTAllocator<kClearPreallocCnt, Clear>             fClears;
+    GrSTAllocator<kClipPreallocCnt, GrClip>             fClips;
+    
     bool                            fClipSet;
 
     GrVertexLayout                  fLastRectVertexLayout;
@@ -161,14 +170,6 @@ private:
     GrVertexBufferAllocPool&        fVertexPool;
 
     GrIndexBufferAllocPool&         fIndexPool;
-
-    enum {
-        kDrawPreallocCnt         = 8,
-        kStatePreallocCnt        = 8,
-        kClipPreallocCnt         = 8,
-        kClearPreallocCnt        = 4,
-        kGeoPoolStatePreAllocCnt = 4,
-    };
 
     struct GeometryPoolState {
         const GrVertexBuffer*           fPoolVertexBuffer;
@@ -182,11 +183,6 @@ private:
         size_t                          fUsedPoolIndexBytes;
     };
     SkSTArray<kGeoPoolStatePreAllocCnt, GeometryPoolState> fGeoPoolStateStack;
-
-    SkAlignedSTStorage<kDrawPreallocCnt, Draw>              fDrawStorage;
-    SkAlignedSTStorage<kStatePreallocCnt, SavedDrawState>   fStateStorage;
-    SkAlignedSTStorage<kClipPreallocCnt, GrClip>            fClipStorage;
-    SkAlignedSTStorage<kClearPreallocCnt, Clear>            fClearStorage;
 
     typedef GrDrawTarget INHERITED;
 };
