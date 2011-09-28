@@ -359,9 +359,14 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 
 
     // Initialise ourselves
-    mColorSpaceRGB = CGColorSpaceCreateDeviceRGB();
+    if (fRec.fFlags & (SkScalerContext::kGammaForBlack_Flag |
+                       SkScalerContext::kGammaForWhite_Flag)) {
+        mColorSpaceRGB = CGColorSpaceCreateDeviceRGB();
+    } else {
+        // in hopes that this won't perform any gamma correction
+        mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
+    }
 //    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-//    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
     mColorSpaceGray = CGColorSpaceCreateDeviceGray();
     mTransform = MatrixToCGAffineTransform(skMatrix);
 
@@ -485,22 +490,14 @@ static inline uint16_t rgb_to_lcd16(uint32_t rgb) {
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
 
-    // invert, since we draw black-on-white, but we want the original
-    // src mask values.
-    r = 255 - r;
-    g = 255 - g;
-    b = 255 - b;
-
     return SkPackRGB16(r32_to_16(r), g32_to_16(g), b32_to_16(b));
 }
 
 static inline uint32_t rgb_to_lcd32(uint32_t rgb) {
-    // invert, since we draw black-on-white, but we want the original
-    // src mask values.
-    rgb = ~rgb;
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
+
     return SkPackARGB32(0xFF, r, g, b);
 }
 
@@ -528,6 +525,11 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     bool doAA = true;
     bool doLCD = false;
 
+    bool isBlack = SkToBool(fRec.fFlags & SkScalerContext::kGammaForBlack_Flag);
+    bool isWhite = SkToBool(fRec.fFlags & SkScalerContext::kGammaForWhite_Flag);
+    uint32_t xorMask;
+    bool needToDoubleSrc = false;
+
     /*  For LCD16, we first create a temp offscreen cg-context in 32bit,
      *  erase to white, and then draw a black glyph into it. Then we can
      *  extract the r,g,b values, invert-them, and now we have the original
@@ -540,9 +542,18 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         rowBytes = glyph.fWidth << 2;
         size_t size = glyph.fHeight * rowBytes;
         image = storage.reset(size);
-        // we draw black-on-white (and invert in rgb_to_lcd16)
-        sk_memset32((uint32_t*)image, 0xFFFFFFFF, size >> 2);
-        grayColor = 0;  // black
+        unsigned erase;
+
+        if (isBlack) {
+            erase = 0xFF;
+            xorMask = ~0;
+            grayColor = 0;
+        } else {    /* white or neutral (with a linear colorspace) */
+            erase = 0;
+            xorMask = 0;
+            grayColor = 1;
+        }
+        memset(image, erase, size);
         doLCD = true;
     } else if (SkMask::kBW_Format == glyph.fMaskFormat) {
         rowBytes = SkAlign4(glyph.fWidth);
@@ -595,7 +606,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
             size_t dstRB = glyph.rowBytes();
             for (int y = 0; y < glyph.fHeight; y++) {
                 for (int i = 0; i < width; i++) {
-                    dst[i] = rgb_to_lcd16(src[i]);
+                    dst[i] = rgb_to_lcd16(src[i] ^ xorMask);
                 }
                 src = (const uint32_t*)((const char*)src + rowBytes);
                 dst = (uint16_t*)((char*)dst + dstRB);
@@ -607,7 +618,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
             size_t dstRB = glyph.rowBytes();
             for (int y = 0; y < glyph.fHeight; y++) {
                 for (int i = 0; i < width; i++) {
-                    dst[i] = rgb_to_lcd32(src[i]);
+                    dst[i] = rgb_to_lcd32(src[i] ^ xorMask);
                 }
                 src = (const uint32_t*)((const char*)src + rowBytes);
                 dst = (uint32_t*)((char*)dst + dstRB);
@@ -1088,7 +1099,40 @@ size_t SkFontHost::ShouldPurgeFontCache(size_t sizeAllocatedSoFar) {
     return 0;
 }
 
+#include "SkColorFilter.h"
+
+static bool justAColor(const SkPaint& paint, SkColor* color) {
+    if (paint.getShader()) {
+        return false;
+    }
+    SkColor c = paint.getColor();
+    if (paint.getColorFilter()) {
+        c = paint.getColorFilter()->filterColor(c);
+    }
+    if (color) {
+        *color = c;
+    }
+    return true;
+}
+
+#define BLACK_GAMMA_THRESHOLD   0x40
+#define WHITE_GAMMA_THRESHOLD   0xA0
+
 int SkFontHost::ComputeGammaFlag(const SkPaint& paint) {
+    SkColor c;
+    if (justAColor(paint, &c)) {
+        int r = SkColorGetR(c);
+        int g = SkColorGetG(c);
+        int b = SkColorGetB(c);
+        int luminance = (r * 2 + g * 5 + b) >> 3;
+
+        if (luminance <= BLACK_GAMMA_THRESHOLD) {
+            return SkScalerContext::kGammaForBlack_Flag;
+        }
+        if (luminance >= WHITE_GAMMA_THRESHOLD) {
+            return SkScalerContext::kGammaForWhite_Flag;
+        }
+    }
     return 0;
 }
 
