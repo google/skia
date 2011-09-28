@@ -1309,11 +1309,6 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         rec->fMaskFormat = SkMask::kLCD32_Format;
     }
 #endif
-    // don't specify gamma if we BW (perhaps caller should do this check)
-    if (SkMask::kBW_Format == rec->fMaskFormat) {
-        rec->fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
-                         SkScalerContext::kGammaForWhite_Flag);
-    }
 }
 
 //////////////////////////////////////////////////////////////////////////
