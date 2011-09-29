@@ -432,7 +432,7 @@ void GrGpuGL::initCaps() {
             probe_for_npot_render_target_support(fGL, fCaps.fNPOTTextureSupport);
     } else {
         GrAssert(expectNPOTTargets == 0 || expectNPOTTargets == 1);
-        fCaps.fNPOTRenderTargetSupport = static_cast<bool>(expectNPOTTargets);
+        fCaps.fNPOTRenderTargetSupport = (0 != expectNPOTTargets);
     }
 
     GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_SIZE, &fCaps.fMaxTextureSize);

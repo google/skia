@@ -143,7 +143,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         stretchX = (bounds.width() - SkIntToScalar(fixed)) / numXStretch;
         if (stretchX < 0) {
             // reuse stretchX, but keep it negative as a signal
-            stretchX = -bitmap.width() / fixed;
+            stretchX = -SkIntToScalar(bitmap.width()) / fixed;
         }
     }
     
@@ -156,7 +156,7 @@ void SkNinePatch::DrawMesh(SkCanvas* canvas, const SkRect& bounds,
         stretchY = (bounds.height() - SkIntToScalar(fixed)) / numYStretch;
         if (stretchY < 0) {
             // reuse stretchY, but keep it negative as a signal
-            stretchY = -bitmap.height() / fixed;
+            stretchY = -SkIntToScalar(bitmap.height()) / fixed;
         }
     }
     

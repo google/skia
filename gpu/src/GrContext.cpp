@@ -856,8 +856,8 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
                          scale * GR_Scalar1 / src->height());
         sampler.setMatrix(sampleM);
         target->setSamplerState(kOffscreenStage, sampler);
-        GrRect rect = SkRect::MakeWH(scale * tileRect.width(),
-                                     scale * tileRect.height());
+        GrRect rect = SkRect::MakeWH(SkIntToScalar(scale * tileRect.width()),
+                                     SkIntToScalar(scale * tileRect.height()));
         target->drawSimpleRect(rect, NULL, 1 << kOffscreenStage);
         
         src = record->fOffscreen1.texture();
@@ -896,7 +896,8 @@ void GrContext::doOffscreenAAPass2(GrDrawTarget* target,
     sampleM.setScale(scale * GR_Scalar1 / src->width(),
                      scale * GR_Scalar1 / src->height());
     sampler.setMatrix(sampleM);
-    sampleM.setTranslate(-tileRect.fLeft, -tileRect.fTop);
+    sampleM.setTranslate(SkIntToScalar(-tileRect.fLeft),
+                         SkIntToScalar(-tileRect.fTop));
     sampler.preConcatMatrix(sampleM);
     target->setSamplerState(kOffscreenStage, sampler);
 
@@ -1506,23 +1507,23 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                 GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
                 GrRect rect;
                 if (clipIBounds.fTop < bound.fTop) {
-                    rect.setLTRB(clipIBounds.fLeft, clipIBounds.fTop, 
-                                 clipIBounds.fRight, bound.fTop);
+                    rect.iset(clipIBounds.fLeft, clipIBounds.fTop, 
+                              clipIBounds.fRight, bound.fTop);
                     target->drawSimpleRect(rect, NULL, stageMask);
                 }
                 if (clipIBounds.fLeft < bound.fLeft) {
-                    rect.setLTRB(clipIBounds.fLeft, bound.fTop, 
-                                 bound.fLeft, bound.fBottom);
+                    rect.iset(clipIBounds.fLeft, bound.fTop, 
+                              bound.fLeft, bound.fBottom);
                     target->drawSimpleRect(rect, NULL, stageMask);
                 }
                 if (clipIBounds.fRight > bound.fRight) {
-                    rect.setLTRB(bound.fRight, bound.fTop, 
-                                 clipIBounds.fRight, bound.fBottom);
+                    rect.iset(bound.fRight, bound.fTop, 
+                              clipIBounds.fRight, bound.fBottom);
                     target->drawSimpleRect(rect, NULL, stageMask);
                 }
                 if (clipIBounds.fBottom > bound.fBottom) {
-                    rect.setLTRB(clipIBounds.fLeft, bound.fBottom, 
-                                 clipIBounds.fRight, clipIBounds.fBottom);
+                    rect.iset(clipIBounds.fLeft, bound.fBottom, 
+                              clipIBounds.fRight, clipIBounds.fBottom);
                     target->drawSimpleRect(rect, NULL, stageMask);
                 }
             }

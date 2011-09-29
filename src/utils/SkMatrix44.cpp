@@ -164,9 +164,9 @@ void SkMatrix44::setRotateAbout(SkMScalar x, SkMScalar y, SkMScalar z,
             return;
         }
         double scale = 1 / sqrt(len2);
-        x *= scale;
-        y *= scale;
-        z *= scale;
+        x = SkDoubleToMScalar(x * scale);
+        y = SkDoubleToMScalar(y * scale);
+        z = SkDoubleToMScalar(z * scale);
     }
     this->setRotateAboutUnit(x, y, z, radians);
 }
@@ -187,9 +187,17 @@ void SkMatrix44::setRotateAboutUnit(SkMScalar x, SkMScalar y, SkMScalar z,
     double zxC = z * xC;
 
     // if you're looking at wikipedia, remember that we're column major.
-    this->set3x3(x * xC + c,    xyC + zs,       zxC - ys,
-                 xyC - zs,      y * yC + c,     yzC + xs,
-                 zxC + ys,      yzC - xs,       z * zC + c);
+    this->set3x3(SkDoubleToMScalar(x * xC + c),     // scale x
+                 SkDoubleToMScalar(xyC + zs),       // skew x
+                 SkDoubleToMScalar(zxC - ys),       // trans x
+
+                 SkDoubleToMScalar(xyC - zs),       // skew y
+                 SkDoubleToMScalar(y * yC + c),     // scale y
+                 SkDoubleToMScalar(yzC + xs),       // trans y
+
+                 SkDoubleToMScalar(zxC + ys),       // persp x
+                 SkDoubleToMScalar(yzC - xs),       // persp y
+                 SkDoubleToMScalar(z * zC + c));    // persp 2
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -211,7 +219,7 @@ void SkMatrix44::setConcat(const SkMatrix44& a, const SkMatrix44& b) {
 ///////////////////////////////////////////////////////////////////////////////
 
 static inline SkMScalar det2x2(double m00, double m01, double m10, double m11) {
-    return m00 * m11 - m10 * m01;
+    return SkDoubleToMScalar(m00 * m11 - m10 * m01);
 }
 
 static inline double det3x3(double m00, double m01, double m02,

@@ -238,7 +238,9 @@ bool GrGpuGLShaders::programUnitTest() {
                 }
                 pdesc.fEdgeAANumEdges = 0;
             } else {
-                pdesc.fEdgeAANumEdges = random.nextF() * this->getMaxEdges() + 1;
+                pdesc.fEdgeAANumEdges = 
+                    static_cast<int8_t>(1 + random.nextF() *
+                                        this->getMaxEdges());
                 pdesc.fEdgeAAConcave = random.nextF() > .5f;
             }
         } else {
@@ -279,7 +281,7 @@ bool GrGpuGLShaders::programUnitTest() {
                 stage.fOptFlags |= StageDesc::kNoPerspective_OptFlagBit;
             }
             stage.setEnabled(VertexUsesStage(s, pdesc.fVertexLayout));
-            stage.fKernelWidth = 4 * random.nextF() + 2;
+            stage.fKernelWidth = static_cast<int8_t>(4 * random.nextF() + 2);
         }
         CachedData cachedData;
         if (!program.genProgram(this->glInterface(),
@@ -562,7 +564,8 @@ void GrGpuGLShaders::flushEdgeAAData() {
         int count = fCurrDrawState.fEdgeAANumEdges;
         Edge edges[kMaxEdges];
         // Flip the edges in Y
-        float height = fCurrDrawState.fRenderTarget->height();
+        float height = 
+            static_cast<float>(fCurrDrawState.fRenderTarget->height());
         for (int i = 0; i < count; ++i) {
             edges[i] = fCurrDrawState.fEdgeAAEdges[i];
             float b = edges[i].fY;
@@ -822,7 +825,7 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
 
     desc.fEmitsPointSize = kPoints_PrimitiveType == type;
 
-    bool requiresAttributeColors = desc.fVertexLayout & kColor_VertexLayoutBit;
+    bool requiresAttributeColors = 0 != (desc.fVertexLayout & kColor_VertexLayoutBit);
     // fColorType records how colors are specified for the program. Strip
     // the bit from the layout to avoid false negatives when searching for an
     // existing program in the cache.

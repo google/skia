@@ -984,7 +984,8 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
               GrIntToScalar(dstM.fBounds.fBottom));
 
     GrMatrix m;
-    m.setTranslate(-dstM.fBounds.fLeft, -dstM.fBounds.fTop);
+    m.setTranslate(-dstM.fBounds.fLeft*SK_Scalar1,
+                   -dstM.fBounds.fTop*SK_Scalar1);
     m.postIDiv(texture->width(), texture->height());
     grp->getMaskSampler(MASK_IDX)->setMatrix(m);
     
