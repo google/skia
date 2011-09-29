@@ -220,7 +220,8 @@ bool GrGpuGLShaders::programUnitTest() {
         pdesc.fFirstCoverageStage = idx;
 
 #if GR_GL_EXPERIMENTAL_GS
-        pdesc.fExperimentalGS = random.nextF() > .5f;
+        pdesc.fExperimentalGS = this->getCaps().fGeometryShaderSupport &&
+                                random.nextF() > .5f;
 #endif
 
         bool edgeAA = random.nextF() > .5f;
