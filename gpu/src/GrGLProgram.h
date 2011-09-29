@@ -20,6 +20,10 @@ class GrBinHashKeyBuilder;
 
 struct ShaderCodeSegments;
 
+// optionally compile the experimental GS code. Set to GR_DEBUG
+// so that debug build bots will execute the code.
+#define GR_GL_EXPERIMENTAL_GS GR_DEBUG
+
 /**
  * This class manages a GPU program and records per-program information.
  * We can specify the attribute locations so that they are constant
@@ -32,8 +36,9 @@ struct ShaderCodeSegments;
 class GrGLProgram {
 public:
     enum GLSLVersion {
-        k120_GLSLVersion, // Desktop GLSL 1.2 and ES2 shading lang
-        k130_GLSLVersion  // Desktop GLSL 1.3
+        k120_GLSLVersion, // Desktop GLSL 1.20 and ES2 shading lang
+        k130_GLSLVersion, // Desktop GLSL 1.30
+        k150_GLSLVersion  // Dekstop GLSL 1.50
     };
 
     class CachedData;
@@ -155,6 +160,12 @@ private:
 
         StageDesc fStages[GrDrawTarget::kNumStages];
 
+        // To enable experimental geometry shader code (not for use in
+        // production)
+#if GR_GL_EXPERIMENTAL_GS
+        bool fExperimentalGS;
+#endif
+
         uint8_t fColorType;  // casts to enum ColorType
         uint8_t fDualSrcOutput;  // casts to enum DualSrcOutput
         int8_t fFirstCoverageStage;
@@ -167,6 +178,7 @@ private:
         uint8_t fPadTo32bLengthMultiple [1];
 
     } fProgramDesc;
+    GR_STATIC_ASSERT(!(sizeof(ProgramDesc) % 4));
 
     const ProgramDesc& getDesc() { return fProgramDesc; }
 
@@ -231,6 +243,7 @@ public:
 
         // IDs
         GrGLuint    fVShaderID;
+        GrGLuint    fGShaderID;
         GrGLuint    fFShaderID;
         GrGLuint    fProgramID;
         // shader uniform locations (-1 if shader doesn't use them)
@@ -283,6 +296,10 @@ private:
                       ShaderCodeSegments* segments,
                       StageUniLocations* locations) const;
 
+    void genGeometryShader(const GrGLInterface* gl,
+                           GLSLVersion glslVersion,
+                           ShaderCodeSegments* segments) const;
+
     // generates code to compute coverage based on edge AA.
     void genEdgeCoverage(const GrGLInterface* gl,
                          GrVertexLayout layout,
@@ -290,7 +307,7 @@ private:
                          GrStringBuilder* coverageVar,
                          ShaderCodeSegments* segments) const;
 
-    static bool CompileFSAndVS(const GrGLInterface* gl,
+    static bool CompileShaders(const GrGLInterface* gl,
                                GLSLVersion glslVersion,
                                const ShaderCodeSegments& segments, 
                                CachedData* programData);

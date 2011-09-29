@@ -49,6 +49,7 @@ public:
         bool fHWAALineSupport           : 1;
         bool fShaderSupport             : 1;
         bool fShaderDerivativeSupport   : 1;
+        bool fGeometryShaderSupport     : 1;
         bool fFSAASupport               : 1;
         bool fDualSourceBlendingSupport : 1;
         bool fBufferLockSupport         : 1;

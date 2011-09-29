@@ -1076,6 +1076,7 @@ void GrDrawTarget::Caps::print() const {
     GrPrintf("HW AA Lines Support         : %s\n", gNY[fHWAALineSupport]);
     GrPrintf("Shader Support              : %s\n", gNY[fShaderSupport]);
     GrPrintf("Shader Derivative Support   : %s\n", gNY[fShaderDerivativeSupport]);
+    GrPrintf("Geometry Shader Support     : %s\n", gNY[fGeometryShaderSupport]);
     GrPrintf("FSAA Support                : %s\n", gNY[fFSAASupport]);
     GrPrintf("Dual Source Blending Support: %s\n", gNY[fDualSourceBlendingSupport]);
     GrPrintf("Buffer Lock Support         : %s\n", gNY[fBufferLockSupport]);

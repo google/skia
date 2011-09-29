@@ -20,7 +20,11 @@ void GrGLDefaultInterfaceCallback(const GrGLInterface*) {}
 #endif
 
 GrGLVersion GrGLGetVersionFromString(const char* versionString) {
-    GrAssert(versionString);
+    if (NULL == versionString) {
+        GrAssert(!"NULL GL version string.");
+        return 0;
+    }
+
     int major, minor;
 
     int n = sscanf(versionString, "%d.%d", &major, &minor);
@@ -40,6 +44,26 @@ GrGLVersion GrGLGetVersionFromString(const char* versionString) {
         return GR_GL_VER(major, minor);
     }
 
+    return 0;
+}
+
+GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString) {
+    if (NULL == versionString) {
+        GrAssert(!"NULL GLSL version string.");
+        return 0;
+    }
+
+    int major, minor;
+
+    int n = sscanf(versionString, "%d.%d", &major, &minor);
+    if (2 == n) {
+        return GR_GLSL_VER(major, minor);
+    }
+    
+    n = sscanf(versionString, "OpenGL ES GLSL ES %d.%d", &major, &minor);
+    if (2 == n) {
+        return GR_GLSL_VER(major, minor);
+    }
     return 0;
 }
 
@@ -70,6 +94,12 @@ GrGLVersion GrGLGetVersion(const GrGLInterface* gl) {
     const GrGLubyte* v;
     GR_GL_CALL_RET(gl, v, GetString(GR_GL_VERSION));
     return GrGLGetVersionFromString((const char*) v);
+}
+
+GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface* gl) {
+    const GrGLubyte* v;
+    GR_GL_CALL_RET(gl, v, GetString(GR_GL_SHADING_LANGUAGE_VERSION));
+    return GrGLGetGLSLVersionFromString((const char*) v);
 }
 
 GrGLInterface::GrGLInterface() {

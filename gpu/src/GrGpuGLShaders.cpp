@@ -130,6 +130,9 @@ void GrGpuGLShaders::abandonResources(){
 void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
                                    CachedData* programData) {
     GR_GL_CALL(gl, DeleteShader(programData->fVShaderID));
+    if (programData->fGShaderID) {
+        GR_GL_CALL(gl, DeleteShader(programData->fGShaderID));
+    }
     GR_GL_CALL(gl, DeleteShader(programData->fFShaderID));
     GR_GL_CALL(gl, DeleteProgram(programData->fProgramID));
     GR_DEBUGCODE(memset(programData, 0, sizeof(*programData));)
@@ -141,14 +144,22 @@ void GrGpuGLShaders::DeleteProgram(const GrGLInterface* gl,
 
 namespace {
 
-GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding, GrGLVersion glVersion) {
+GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding,
+                                          const GrGLInterface* gl) {
+    GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
     switch (binding) {
         case kDesktop_GrGLBinding:
-            // TODO: proper check of the glsl version string
-            return (glVersion >= GR_GL_VER(3,0)) ? 
-                                                GrGLProgram::k130_GLSLVersion :
-                                                GrGLProgram::k120_GLSLVersion;
+            GrAssert(ver >= GR_GLSL_VER(1,20));
+            if (ver >= GR_GLSL_VER(1,50)) {
+                return GrGLProgram::k150_GLSLVersion;
+            } else if (ver >= GR_GLSL_VER(1,30)) {
+                return GrGLProgram::k130_GLSLVersion;
+            } else {
+                return GrGLProgram::k120_GLSLVersion;
+            }
         case kES2_GrGLBinding:
+            // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
+            GrAssert(ver >= GR_GL_VER(1,00));
             return GrGLProgram::k120_GLSLVersion;
         default:
             GrCrash("Attempting to get GLSL version in unknown or fixed-"
@@ -167,7 +178,7 @@ T random_val(GrRandom* r, T count) {
 bool GrGpuGLShaders::programUnitTest() {
 
     GrGLProgram::GLSLVersion glslVersion = 
-            get_glsl_version(this->glBinding(), this->glVersion());
+            get_glsl_version(this->glBinding(), this->glInterface());
     static const int STAGE_OPTS[] = {
         0,
         StageDesc::kNoPerspective_OptFlagBit,
@@ -207,6 +218,10 @@ bool GrGpuGLShaders::programUnitTest() {
 
         idx = (int)(random.nextF() * (kNumStages+1));
         pdesc.fFirstCoverageStage = idx;
+
+#if GR_GL_EXPERIMENTAL_GS
+        pdesc.fExperimentalGS = random.nextF() > .5f;
+#endif
 
         bool edgeAA = random.nextF() > .5f;
         if (edgeAA) {
@@ -290,21 +305,26 @@ GrGLBinding get_binding_in_use(const GrGLInterface* gl) {
 GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
     : GrGpuGL(gl, get_binding_in_use(gl)) {
 
+    GrGLProgram::GLSLVersion glslVersion =
+        get_glsl_version(this->glBinding(), gl);
+
+    // Enable supported shader-releated caps
     fCaps.fShaderSupport = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fCaps.fDualSourceBlendingSupport =
                             this->glVersion() >= GR_GL_VER(3,3) ||
                             this->hasExtension("GL_ARB_blend_func_extended");
         fCaps.fShaderDerivativeSupport = true;
+        // we don't support GL_ARB_geometry_shader4, just GL 3.2+ GS
+        fCaps.fGeometryShaderSupport = 
+                                this->glVersion() >= GR_GL_VER(3,2) &&
+                                glslVersion >= GrGLProgram::k150_GLSLVersion;
     } else {
-        fCaps.fDualSourceBlendingSupport = false;
         fCaps.fShaderDerivativeSupport =
                             this->hasExtension("GL_OES_standard_derivatives");
     }
 
     fProgramData = NULL;
-    GrGLProgram::GLSLVersion glslVersion =
-        get_glsl_version(this->glBinding(), this->glVersion());
     fProgramCache = new ProgramCache(gl, glslVersion);
 
 #if 0
@@ -923,6 +943,14 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     }
 
     desc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
+
+    // currently the experimental GS will only work with triangle prims
+    // (and it doesn't do anything other than pass through values from
+    // the VS to the FS anyway).
+#if 0 && GR_GL_EXPERIMENTAL_GS
+    desc.fExperimentalGS = this->getCaps().fGeometryShaderSupport;
+#endif
+
     // use canonical value when coverage/color distinction won't affect
     // generated code to prevent duplicate programs.
     desc.fFirstCoverageStage = kNumStages;
