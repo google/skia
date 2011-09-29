@@ -174,7 +174,6 @@ bool SkWindow::update(SkIRect* updateArea, SkCanvas* canvas)
 #endif
 
 		SkCanvas	rasterCanvas;
-        SkDevice*   device;
 
         if (NULL == canvas) {
             canvas = &rasterCanvas;

@@ -100,7 +100,7 @@ char* tchar_to_utf8(const TCHAR* str) {
     str8[size] = '\0';
     return str8;
 #else
-    return strdup(str);
+    return _strdup(str);
 #endif
 }
 

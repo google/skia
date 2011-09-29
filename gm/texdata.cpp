@@ -103,7 +103,9 @@ protected:
                 paint.fDstBlendCoeff = kISA_BlendCoeff;
                 GrMatrix vm;
                 if (i) {
-                    vm.setRotate(90, S , S);
+                    vm.setRotate(90 * SK_Scalar1,
+                                 S * SK_Scalar1,
+                                 S * SK_Scalar1);
                 } else {
                     vm.reset();
                 }

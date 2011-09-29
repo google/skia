@@ -67,7 +67,7 @@ void SkBitSet::setBit(int index, bool value) {
 
 bool SkBitSet::isBitSet(int index) const {
     uint32_t mask = 1 << (index % 32);
-    return (*internalGet(index) & mask);
+    return 0 != (*internalGet(index) & mask);
 }
 
 bool SkBitSet::orBits(const SkBitSet& source) {

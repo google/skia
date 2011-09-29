@@ -153,7 +153,7 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
             hr = E_FAIL;
         } else {
             size_t skipped = this->fSkStream->skip(
-                liDistanceToMove.QuadPart
+                static_cast<size_t>(liDistanceToMove.QuadPart)
             );
             this->fLocation.QuadPart = skipped;
             if (skipped != liDistanceToMove.QuadPart) {
@@ -163,7 +163,9 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         break;
     }
     case STREAM_SEEK_CUR: {
-        size_t skipped = this->fSkStream->skip(liDistanceToMove.QuadPart);
+        size_t skipped = this->fSkStream->skip(
+            static_cast<size_t>(liDistanceToMove.QuadPart)
+        );
         this->fLocation.QuadPart += skipped;
         if (skipped != liDistanceToMove.QuadPart) {
             hr = E_FAIL;
@@ -176,7 +178,7 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
         } else {
             LONGLONG skip = this->fSkStream->getLength()
                           + liDistanceToMove.QuadPart;
-            size_t skipped = this->fSkStream->skip(skip);
+            size_t skipped = this->fSkStream->skip(static_cast<size_t>(skip));
             this->fLocation.QuadPart = skipped;
             if (skipped != skip) {
                 hr = E_FAIL;
@@ -198,7 +200,7 @@ HRESULT STDMETHODCALLTYPE SkIStream::Seek(LARGE_INTEGER liDistanceToMove
 HRESULT STDMETHODCALLTYPE SkIStream::Stat(STATSTG* pStatstg
                                         , DWORD grfStatFlag)
 {
-    if (0 == grfStatFlag & STATFLAG_NONAME) {
+    if (0 == (grfStatFlag & STATFLAG_NONAME)) {
         return STG_E_INVALIDFLAG;
     }
     pStatstg->pwcsName = NULL;
@@ -256,7 +258,7 @@ HRESULT STDMETHODCALLTYPE SkWIStream::Commit(DWORD) {
 HRESULT STDMETHODCALLTYPE SkWIStream::Stat(STATSTG* pStatstg
                                          , DWORD grfStatFlag)
 {
-    if (0 == grfStatFlag & STATFLAG_NONAME) {
+    if (0 == (grfStatFlag & STATFLAG_NONAME)) {
         return STG_E_INVALIDFLAG;
     }
     pStatstg->pwcsName = NULL;
