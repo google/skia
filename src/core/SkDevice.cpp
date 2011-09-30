@@ -225,7 +225,7 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     }
 
     if (SkBitmap::kARGB_8888_Config != fBitmap.config() ||
-        !fBitmap.isOpaque() ||
+//        !fBitmap.isOpaque() ||
         paint.getShader() ||
         paint.getXfermode() || // unless its srcover
         paint.getMaskFilter() ||
