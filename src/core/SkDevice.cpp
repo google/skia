@@ -225,7 +225,6 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
     }
 
     if (SkBitmap::kARGB_8888_Config != fBitmap.config() ||
-//        !fBitmap.isOpaque() ||
         paint.getShader() ||
         paint.getXfermode() || // unless its srcover
         paint.getMaskFilter() ||
@@ -236,10 +235,6 @@ bool SkDevice::filterTextFlags(const SkPaint& paint, TextFlags* flags) {
         paint.getStyle() != SkPaint::kFill_Style) {
         // turn off lcd
         flags->fFlags = paint.getFlags() & ~SkPaint::kLCDRenderText_Flag;
-#ifdef SK_BUILD_FOR_WIN
-        // flag that we *really* want AA
-        flags->fFlags |= SkPaint::kForceAAText_Flag;
-#endif
         flags->fHinting = paint.getHinting();
         return true;
     }
