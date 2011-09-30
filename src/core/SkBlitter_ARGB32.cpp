@@ -60,18 +60,16 @@ static void blit_lcd16_row(SkPMColor dst[], const uint16_t src[],
         maskG = maskG * srcA >> 8;
         maskB = maskB * srcA >> 8;
 
-        int maskA = SkMax32(SkMax32(maskR, maskG), maskB);
-
-        int dstA = SkGetPackedA32(d);
         int dstR = SkGetPackedR32(d);
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
 
-        // nocheck version for now, until we cleanup GDI's garbage bits
-        dst[i] = SkPackARGB32NoCheck(blend32(0xFF, dstA, maskA),
-                                     blend32(srcR, dstR, maskR),
-                                     blend32(srcG, dstG, maskG),
-                                     blend32(srcB, dstB, maskB));
+        // LCD blitting is only supported if the dst is known/required\
+        // to be opaque
+        dst[i] = SkPackARGB32(0xFF,
+                              blend32(srcR, dstR, maskR),
+                              blend32(srcG, dstG, maskG),
+                              blend32(srcB, dstB, maskB));
     }
 }
 
@@ -105,18 +103,16 @@ static void blit_lcd16_opaque_row(SkPMColor dst[], const uint16_t src[],
         maskG = upscale31To32(maskG);
         maskB = upscale31To32(maskB);
 
-        int maskA = SkMax32(SkMax32(maskR, maskG), maskB);
-
-        int dstA = SkGetPackedA32(d);
         int dstR = SkGetPackedR32(d);
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
 
-        // nocheck version for now, until we cleanup GDI's garbage bits
-        dst[i] = SkPackARGB32NoCheck(blend32(0xFF, dstA, maskA),
-                                     blend32(srcR, dstR, maskR),
-                                     blend32(srcG, dstG, maskG),
-                                     blend32(srcB, dstB, maskB));
+        // LCD blitting is only supported if the dst is known/required
+        // to be opaque
+        dst[i] = SkPackARGB32(0xFF,
+                              blend32(srcR, dstR, maskR),
+                              blend32(srcG, dstG, maskG),
+                              blend32(srcB, dstB, maskB));
     }
 }
 
@@ -150,14 +146,13 @@ static void blit_lcd32_row(SkPMColor dst[], const uint32_t src[],
         maskG = maskG * srcA >> 8;
         maskB = maskB * srcA >> 8;
 
-        int maskA = SkMax32(SkMax32(maskR, maskG), maskB);
-
-        int dstA = SkGetPackedA32(d);
         int dstR = SkGetPackedR32(d);
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
 
-        dst[i] = SkPackARGB32(SkAlphaBlend(0xFF, dstA, maskA),
+        // LCD blitting is only supported if the dst is known/required
+        // to be opaque
+        dst[i] = SkPackARGB32(0xFF,
                               SkAlphaBlend(srcR, dstR, maskR),
                               SkAlphaBlend(srcG, dstG, maskG),
                               SkAlphaBlend(srcB, dstB, maskB));

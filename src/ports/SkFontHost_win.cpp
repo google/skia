@@ -31,11 +31,6 @@ template <typename T> T* SkTAddByteOffset(T* ptr, size_t byteOffset) {
     return (T*)((char*)ptr + byteOffset);
 }
 
-// When we request ANTIALIAS quality, we often seemt to get BW instead
-// This flag "fixes" that by actually requesting LCD output, and filtering
-// it down to gray-aa
-#define FORCE_AA_BY_CAPTURING_LCD_OUTPUT
-
 // define this in your Makefile or .gyp to enforce AA requests
 // which GDI ignores at small sizes. This flag guarantees AA
 // for rotated text, regardless of GDI's notions.
@@ -483,11 +478,15 @@ static BYTE compute_quality(const SkScalerContext::Rec& rec) {
         case SkMask::kLCD32_Format:
             return CLEARTYPE_QUALITY;
         default:
-#ifdef FORCE_AA_BY_CAPTURING_LCD_OUTPUT
-            return CLEARTYPE_QUALITY;
-#else
-            return ANTIALIASED_QUALITY;
-#endif
+            // here we just want AA, but we may have to force the issue
+            // since sometimes GDI will instead really give us BW
+            // (for some fonts and some sizes)
+            if (rec.fFlags & SkScalerContext::kForceAA_Flag) {
+                return CLEARTYPE_QUALITY;
+            } else {
+                return ANTIALIASED_QUALITY;
+            }
+            break;
     }
 }
 
@@ -697,19 +696,11 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
 // whenever we copy it into skia's buffer
 
 static inline uint8_t rgb_to_a8(SkGdiRGB rgb) {
-#ifdef FORCE_AA_BY_CAPTURING_LCD_OUTPUT
     int r = (rgb >> 16) & 0xFF;
     int g = (rgb >>  8) & 0xFF;
     int b = (rgb >>  0) & 0xFF;
 
-//    int ave = (r * 5 + g * 6 + b * 5) >> 4;
-    int ave = (r * 2 + g * 5 + b) >> 3;  // luminance
-
-    return ave;
-#else
-    // can pick any component (low 3 bytes), since we're grayscale
-    return rgb & 0xFF;
-#endif
+    return (r * 2 + g * 5 + b) >> 3;  // luminance
 }
 
 static inline uint16_t rgb_to_lcd16(SkGdiRGB rgb) {
@@ -1309,6 +1300,11 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
         rec->fMaskFormat = SkMask::kLCD32_Format;
     }
 #endif
+    // don't specify gamma if we BW (perhaps caller should do this check)
+    if (SkMask::kBW_Format == rec->fMaskFormat) {
+        rec->fFlags &= ~(SkScalerContext::kGammaForBlack_Flag |
+                         SkScalerContext::kGammaForWhite_Flag);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -1340,6 +1340,11 @@ void SkScalerContext::MakeRec(const SkPaint& paint,
     if (paint.isAutohinted()) {
         flags |= SkScalerContext::kAutohinting_Flag;
     }
+#ifdef SK_BUILD_FOR_WIN
+    if (paint.getFlags() & SkPaint::kForceAAText_Flag) {
+        flags |= SkScalerContext::kForceAA_Flag;
+    }
+#endif
     rec->fFlags = SkToU16(flags);
 
     // setHinting modifies fFlags, so do this last
