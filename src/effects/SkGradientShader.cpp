@@ -1343,11 +1343,12 @@ static inline bool no_need_for_radial_pin(int fx, int dx,
 
 // On Linux, this is faster with SkPMColor[] params than SkPMColor* SK_RESTRICT
 static void radial_clamp(SkFixed fx, SkFixed fy, SkFixed dx, SkFixed dy,
-                         SkPMColor* dstC, int count, const SkPMColor* cache,
+                         SkPMColor* SK_RESTRICT dstC, int count,
+                         const SkPMColor* SK_RESTRICT cache,
                          const int kCache32Bits, const int kCache32Count) {
     // Floating point seems to be slower than fixed point,
     // even when we have float hardware.
-    const uint8_t* sqrt_table = gSqrt8Table;
+    const uint8_t* SK_RESTRICT sqrt_table = gSqrt8Table;
     fx >>= 1;
     dx >>= 1;
     fy >>= 1;
@@ -1387,7 +1388,7 @@ void Radial_Gradient::shadeSpan(int x, int y,
     SkPoint             srcPt;
     SkMatrix::MapXYProc dstProc = fDstToIndexProc;
     TileProc            proc = fTileProc;
-    const SkPMColor*    cache = this->getCache32();
+    const SkPMColor* SK_RESTRICT cache = this->getCache32();
 
     if (fDstToIndexClass != kPerspective_MatrixClass) {
         dstProc(fDstToIndex, SkIntToScalar(x) + SK_ScalarHalf,
