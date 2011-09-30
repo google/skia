@@ -175,6 +175,9 @@ public:
         // these should only ever be set if fMaskFormat is LCD16 or LCD32
         kLCD_Vertical_Flag  = 0x400,    // else Horizontal
         kLCD_BGROrder_Flag  = 0x800,    // else RGB order
+
+        // experimental
+        kForceAA_Flag       = 0x1000
     };
 private:
     enum {
