@@ -62,7 +62,8 @@ public:
     static void AntiFillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
 #endif
     
-    static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
+    static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*,
+                             bool forceRLE = false);
 
     static void AntiHairLine(const SkPoint&, const SkPoint&, const SkRegion*,
                              SkBlitter*);
