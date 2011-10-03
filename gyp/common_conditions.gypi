@@ -30,7 +30,7 @@
             'msvs_settings': {
               'VCCLCompilerTool': {
                 'DebugInformationFormat': '4', # editAndContiue (/ZI)
-                'ProgramDataBaseFileName': '$(OutDir)$(ProjectName).pdb',
+                'ProgramDataBaseFileName': '$(OutDir)\\$(ProjectName).pdb',
                 'Optimization': '0',           # optimizeDisabled (/Od)
                 'PreprocessorDefinitions': ['_DEBUG'],
                 'RuntimeLibrary': '3',         # rtMultiThreadedDebugDLL (/MDd)
@@ -48,7 +48,7 @@
             'msvs_settings': {
               'VCCLCompilerTool': {
                 'DebugInformationFormat': '3',   # programDatabase (/Zi)
-                'ProgramDataBaseFileName': '$(OutDir)$(ProjectName).pdb',
+                'ProgramDataBaseFileName': '$(OutDir)\\$(ProjectName).pdb',
                 'Optimization': '3',             # full (/Ox)
                 'WholeProgramOptimization': 'true', #/GL
                # Changing the floating point model requires rebaseling gm images
