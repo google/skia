@@ -238,9 +238,8 @@ bool GrGpuGLShaders::programUnitTest() {
                 }
                 pdesc.fEdgeAANumEdges = 0;
             } else {
-                pdesc.fEdgeAANumEdges = 
-                    static_cast<int8_t>(1 + random.nextF() *
-                                        this->getMaxEdges());
+                pdesc.fEdgeAANumEdges =  SkToS8(1 + random.nextF() *
+                                                this->getMaxEdges());
                 pdesc.fEdgeAAConcave = random.nextF() > .5f;
             }
         } else {

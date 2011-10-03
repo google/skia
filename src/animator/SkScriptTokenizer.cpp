@@ -603,7 +603,7 @@ scalarCommon:
         }
         if (ch ==  '.') {
             if (fTokenLength == 0) {
-                SkDEBUGCODE(SkScriptValue2 scriptValue);
+                SkDEBUGCODE(SkScriptValue2 scriptValue;)
                 SkDEBUGCODE(scriptValue.fOperand.fObject = NULL);
                 int tokenLength = token_length(++script);
                 const char* token = script;
