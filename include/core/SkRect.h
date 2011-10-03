@@ -49,20 +49,32 @@ struct SK_API SkIRect {
         r.set(x, y, x + w, y + h);
         return r;
     }
+
+    int left() const { return fLeft; }
+    int top() const { return fTop; }
+    int right() const { return fRight; }
+    int bottom() const { return fBottom; }
     
-    /** Return true if the rectangle's width or height are <= 0
-    */
-    bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
-
-    /** Returns the rectangle's width. This does not check for a valid rectangle (i.e. left <= right)
-        so the result may be negative.
-    */
+    /** return the left edge of the rect */
+    int x() const { return fLeft; }
+    /** return the top edge of the rect */
+    int y() const { return fTop; }
+    /**
+     *  Returns the rectangle's width. This does not check for a valid rect
+     *  (i.e. left <= right) so the result may be negative.
+     */
     int width() const { return fRight - fLeft; }
-
-    /** Returns the rectangle's height. This does not check for a valid rectangle (i.e. top <= bottom)
-        so the result may be negative.
-    */
+    
+    /**
+     *  Returns the rectangle's height. This does not check for a valid rect
+     *  (i.e. top <= bottom) so the result may be negative.
+     */
     int height() const { return fBottom - fTop; }
+    
+    /**
+     *  Return true if the rectangle's width or height are <= 0
+     */
+    bool isEmpty() const { return fLeft >= fRight || fTop >= fBottom; }
 
     friend bool operator==(const SkIRect& a, const SkIRect& b) {
         return !memcmp(&a, &b, sizeof(a));
