@@ -409,7 +409,7 @@ static int overflows_short_shift(int value, int shift) {
 }
 
 void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
-                          SkBlitter* blitter) {
+                          SkBlitter* blitter, bool forceRLE) {
     if (clip.isEmpty()) {
         return;
     }
@@ -460,7 +460,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
 
     // MaskSuperBlitter can't handle drawing outside of ir, so we can't use it
     // if we're an inverse filltype
-    if (!path.isInverseFillType() && MaskSuperBlitter::CanHandleRect(ir)) {
+    if (!path.isInverseFillType() && MaskSuperBlitter::CanHandleRect(ir) && !forceRLE) {
         MaskSuperBlitter    superBlit(blitter, ir, clip);
         SkASSERT(SkIntToScalar(ir.fTop) <= path.getBounds().fTop);
         sk_fill_path(path, superClipRect, &superBlit, ir.fTop, ir.fBottom, SHIFT, clip);
