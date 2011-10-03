@@ -161,14 +161,7 @@ public:
         return *(fFontGlyphUsage.get());
     }
 
-    // TODO(vandebo): Remove this as soon as Chrome's Platform device goes away.
-    void setOrigin(int x, int y);
-    virtual void setMatrixClip(const SkMatrix& m, const SkRegion& r,
-                               const SkClipStack& c);
-
 private:
-    typedef SkDevice INHERITED;
-
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;

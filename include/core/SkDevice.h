@@ -263,11 +263,6 @@ protected:
     virtual void lockPixels();
     virtual void unlockPixels();
 
-    // just called by SkCanvas when built as a layer
-    // TEMPORARY: promote from private to protected, until we find a better
-    // solution for proxy devices
-    void setOrigin(int x, int y) { fOrigin.set(x, y); }
-
 private:
     friend class SkCanvas;
     friend struct DeviceCM; //for setMatrixClip
@@ -275,6 +270,8 @@ private:
     friend class SkDrawIter;
     friend class SkDeviceFilteredPaint;
 
+    // just called by SkCanvas when built as a layer
+    void setOrigin(int x, int y) { fOrigin.set(x, y); }
     // just called by SkCanvas for saveLayer
     SkDevice* createCompatibleDeviceForSaveLayer(SkBitmap::Config config, 
                                                  int width, int height,
