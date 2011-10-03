@@ -12,7 +12,7 @@
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
 
-struct BenchSysTimer {
+class BenchSysTimer {
 public:
     void startWall();
     void startCpu();
