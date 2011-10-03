@@ -245,7 +245,23 @@
 #define DEBUG_CLIENTBLOCK
 #endif // _DEBUG
 
+
 #endif
 
+#endif
+
+//////////////////////////////////////////////////////////////////////
+
+#ifndef SK_OVERRIDE
+#if defined(SK_BUILD_FOR_WIN)
+#define SK_OVERRIDE override
+#elif defined(__clang__)
+// Some documentation suggests we should be using __attribute__((override)),
+// but it doesn't work.
+#define SK_OVERRIDE override
+#else
+// Linux GCC ignores "__attribute__((override))" and rejects "override".
+#define SK_OVERRIDE
+#endif
 #endif
 

@@ -53,7 +53,7 @@ public:
 
 protected:
     SkPairPathEffect(SkFlattenableReadBuffer&);
-    virtual void flatten(SkFlattenableWriteBuffer&);
+    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
     // these are visible to our subclasses
     SkPathEffect* fPE0, *fPE1;
     
@@ -85,7 +85,7 @@ public:
     }
 
 protected:
-    virtual Factory getFactory() { return CreateProc; }
+    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
 private:
     SkComposePathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
@@ -120,7 +120,7 @@ public:
     }
 
 protected:
-    virtual Factory getFactory() { return CreateProc; }
+    virtual Factory getFactory() SK_OVERRIDE { return CreateProc; }
 
 private:
     SkSumPathEffect(SkFlattenableReadBuffer& buffer) : INHERITED(buffer) {}
