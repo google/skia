@@ -64,6 +64,9 @@
                 'GenerateDebugInformation': 'true', # /DEBUG
                 'LinkTimeCodeGeneration': '1',      # useLinkTimeCodeGeneration /LTCG
               },
+              'VCLibrarianTool': {
+                'LinkTimeCodeGeneration': 'true',   # useLinkTimeCodeGeneration /LTCG
+              },
             },
           },
         },
