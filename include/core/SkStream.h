@@ -124,9 +124,9 @@ public:
     */
     void setPath(const char path[]);
 
-    virtual bool rewind();
-    virtual size_t read(void* buffer, size_t size);
-    virtual const char* getFileName();
+    virtual bool rewind() SK_OVERRIDE;
+    virtual size_t read(void* buffer, size_t size) SK_OVERRIDE;
+    virtual const char* getFileName() SK_OVERRIDE;
 
 private:
     SkFILE*     fFILE;
@@ -148,9 +148,9 @@ public:
      */
     bool isValid() const { return fFD >= 0; }
     
-    virtual bool rewind();
-    virtual size_t read(void* buffer, size_t size);
-    virtual const char* getFileName() { return NULL; }
+    virtual bool rewind() SK_OVERRIDE;
+    virtual size_t read(void* buffer, size_t size) SK_OVERRIDE;
+    virtual const char* getFileName() SK_OVERRIDE { return NULL; }
     
 private:
     int     fFD;
@@ -194,9 +194,9 @@ public:
     SkData* setData(SkData*);
 
     void skipToAlign4();
-    virtual bool rewind();
-    virtual size_t read(void* buffer, size_t size);
-    virtual const void* getMemoryBase();
+    virtual bool rewind() SK_OVERRIDE;
+    virtual size_t read(void* buffer, size_t size) SK_OVERRIDE;
+    virtual const void* getMemoryBase() SK_OVERRIDE;
     const void* getAtPos();
     size_t seek(size_t offset);
     size_t peek() const { return fOffset; }
@@ -230,10 +230,10 @@ public:
     SkBufferStream(SkStream* proxy, void* buffer, size_t bufferSize);
     virtual ~SkBufferStream();
 
-    virtual bool        rewind();
-    virtual const char* getFileName();
-    virtual size_t      read(void* buffer, size_t size);
-    virtual const void* getMemoryBase();
+    virtual bool        rewind() SK_OVERRIDE;
+    virtual const char* getFileName() SK_OVERRIDE;
+    virtual size_t      read(void* buffer, size_t size) SK_OVERRIDE;
+    virtual const void* getMemoryBase() SK_OVERRIDE;
 
 private:
     enum {
@@ -262,8 +262,8 @@ public:
     */
     bool isValid() const { return fFILE != NULL; }
 
-    virtual bool write(const void* buffer, size_t size);
-    virtual void flush();
+    virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
+    virtual void flush() SK_OVERRIDE;
 private:
     SkFILE* fFILE;
 };
@@ -271,7 +271,7 @@ private:
 class SkMemoryWStream : public SkWStream {
 public:
     SkMemoryWStream(void* buffer, size_t size);
-    virtual bool write(const void* buffer, size_t size);
+    virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
     
 private:
     char*   fBuffer;
@@ -284,7 +284,7 @@ public:
     SkDynamicMemoryWStream();
     virtual ~SkDynamicMemoryWStream();
 
-    virtual bool write(const void* buffer, size_t size);
+    virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
     // random access write
     // modifies stream and returns true if offset + size is less than or equal to getOffset()
     bool write(const void* buffer, size_t offset, size_t size);
@@ -318,8 +318,8 @@ private:
 class SkDebugWStream : public SkWStream {
 public:
     // overrides
-    virtual bool write(const void* buffer, size_t size);
-    virtual void newline();
+    virtual bool write(const void* buffer, size_t size) SK_OVERRIDE;
+    virtual void newline() SK_OVERRIDE;
 };
 
 // for now

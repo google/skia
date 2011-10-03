@@ -270,7 +270,7 @@ public:
     static SkShader* CreateBitmapShader(const SkBitmap& src,
                                         TileMode tmx, TileMode tmy);
 
-    virtual void flatten(SkFlattenableWriteBuffer& );
+    virtual void flatten(SkFlattenableWriteBuffer& ) SK_OVERRIDE;
 protected:
     enum MatrixClass {
         kLinear_MatrixClass,            // no perspective

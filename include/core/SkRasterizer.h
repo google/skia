@@ -28,7 +28,7 @@ public:
                    const SkIRect* clipBounds, SkMaskFilter* filter,
                    SkMask* mask, SkMask::CreateMode mode);
 
-    virtual void flatten(SkFlattenableWriteBuffer& ) {}
+    virtual void flatten(SkFlattenableWriteBuffer& ) SK_OVERRIDE {}
 protected:
     SkRasterizer(SkFlattenableReadBuffer&);
 
