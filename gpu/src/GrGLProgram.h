@@ -125,7 +125,7 @@ private:
             uint8_t fKernelWidth;
 
             inline bool isEnabled() const {
-                return 0 != (fOptFlags & kIsEnabled_OptFlagBit);
+                return SkToBool(fOptFlags & kIsEnabled_OptFlagBit);
             }
             inline void setEnabled(bool newValue) {
                 if (newValue) {
