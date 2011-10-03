@@ -690,6 +690,34 @@ void SkScalerContext_Windows::generateFontMetrics(SkPaint::FontMetrics* mx, SkPa
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
+
+static void build_power_table(uint8_t table[], float ee) {
+    for (int i = 0; i < 256; i++) {
+        float x = i / 255.f;
+        x = powf(x, ee);
+        int xx = SkScalarRound(SkFloatToScalar(x * 255));
+        table[i] = SkToU8(xx);
+    }
+}
+
+// This will invert the gamma applied by GDI, so we can sort-of get linear values.
+// Needed when we draw non-black, non-white text, and don't know how to bias it.
+static const uint8_t* getInverseGammaTable() {
+    static bool gInited;
+    static uint8_t gTable[256];
+    if (!gInited) {
+        UINT level = 0;
+        if (!SystemParametersInfo(SPI_GETFONTSMOOTHINGCONTRAST, 0, &level, 0) || !level) {
+            // can't get the data, so use a default
+            level = 1400;
+        }
+        build_power_table(gTable, level / 1000.0f);
+        gInited = true;
+    }
+    return gTable;
+}
+
 #include "SkColorPriv.h"
 
 // gdi's bitmap is upside-down, so we reverse dst walking in Y
@@ -836,7 +864,6 @@ static inline unsigned clamp255(unsigned x) {
 }
 
 void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
-
     SkAutoMutexAcquire  ac(gFTMutex);
 
     SkASSERT(fDDC);
@@ -851,7 +878,7 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
 
     SkGdiRGB fgColor;
     uint32_t rgbXOR;
-    bool upgradeGrayToWhite = false;
+    const uint8_t* table = NULL;
     if (isBW || isWhite) {
         fgColor = 0x00FFFFFF;
         rgbXOR = 0;
@@ -859,10 +886,9 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         fgColor = 0;
         rgbXOR = ~0;
     } else {
-        // not bw, no gamma bias for black or white
-        fgColor = 0x00808080;
+        table = getInverseGammaTable();
+        fgColor = 0x00FFFFFF;
         rgbXOR = 0;
-        upgradeGrayToWhite = true;
     }
 
     size_t srcRB;
@@ -872,14 +898,14 @@ void SkScalerContext_Windows::generateImage(const SkGlyph& glyph) {
         return;
     }
 
-    if (upgradeGrayToWhite) {
+    if (table) {
         SkGdiRGB* addr = (SkGdiRGB*)bits;
         for (int y = 0; y < glyph.fHeight; ++y) {
             for (int x = 0; x < glyph.fWidth; ++x) {
                 int r = (addr[x] >> 16) & 0xFF;
                 int g = (addr[x] >>  8) & 0xFF;
                 int b = (addr[x] >>  0) & 0xFF;
-                addr[x] = (clamp255(2*r) << 16) | (clamp255(2*g) << 8) | clamp255(2*b);
+                addr[x] = (table[r] << 16) | (table[g] << 8) | table[b];
             }
             addr = SkTAddByteOffset(addr, srcRB);
         }
