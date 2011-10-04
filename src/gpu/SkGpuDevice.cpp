@@ -926,14 +926,13 @@ static bool drawWithMaskFilter(GrContext* context, const SkPath& path,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
         return false;
     }
-
-    SkAutoMaskImage autoSrc(&srcM, false);
+    SkAutoMaskFreeImage autoSrc(srcM.fImage);
 
     if (!filter->filterMask(&dstM, srcM, matrix, NULL)) {
         return false;
     }
     // this will free-up dstM when we're done (allocated in filterMask())
-    SkAutoMaskImage autoDst(&dstM, false);
+    SkAutoMaskFreeImage autoDst(dstM.fImage);
 
     if (clip.quickReject(dstM.fBounds)) {
         return false;

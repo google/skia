@@ -791,7 +791,7 @@ void SkDraw::drawDevMask(const SkMask& srcM, const SkPaint& paint) const {
     } else {
         dstM.fImage = NULL;
     }
-    SkAutoMaskImage ami(&dstM, false);
+    SkAutoMaskFreeImage ami(dstM.fImage);
 
     if (fBounder && !fBounder->doIRect(mask->fBounds)) {
         return;

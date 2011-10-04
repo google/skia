@@ -28,14 +28,13 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode)) {
         return false;
     }
-
-    SkAutoMaskImage autoSrc(&srcM, false);
+    SkAutoMaskFreeImage autoSrc(srcM.fImage);
 
     if (!this->filterMask(&dstM, srcM, matrix, NULL)) {
         return false;
     }
+    SkAutoMaskFreeImage autoDst(dstM.fImage);
 
-    SkAutoMaskImage         autoDst(&dstM, false);
     SkRegion::Cliperator    clipper(clip, dstM.fBounds);
 
     if (!clipper.done() && (bounder == NULL || bounder->doIRect(dstM.fBounds))) {
