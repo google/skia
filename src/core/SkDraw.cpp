@@ -527,8 +527,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
     SkDEBUGCODE(this->validate();)
 
      // nothing to draw
-    if (fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+    if (fClip->isEmpty()) {
         return;
     }
 
@@ -697,8 +696,7 @@ void SkDraw::drawRect(const SkRect& rect, const SkPaint& paint) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
-    if (fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+    if (fClip->isEmpty()) {
         return;
     }
 
@@ -881,8 +879,7 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
-    if (fClip->isEmpty() ||
-        (origPaint.getAlpha() == 0 && origPaint.getXfermode() == NULL)) {
+    if (fClip->isEmpty()) {
         return;
     }
 
@@ -1098,8 +1095,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     // nothing to draw
     if (fClip->isEmpty() ||
             bitmap.width() == 0 || bitmap.height() == 0 ||
-            bitmap.getConfig() == SkBitmap::kNo_Config ||
-            (origPaint.getAlpha() == 0 && origPaint.getXfermode() == NULL)) {
+            bitmap.getConfig() == SkBitmap::kNo_Config) {
         return;
     }
 
@@ -1193,8 +1189,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y,
     // nothing to draw
     if (fClip->isEmpty() ||
             bitmap.width() == 0 || bitmap.height() == 0 ||
-            bitmap.getConfig() == SkBitmap::kNo_Config ||
-            (origPaint.getAlpha() == 0 && origPaint.getXfermode() == NULL)) {
+            bitmap.getConfig() == SkBitmap::kNo_Config) {
         return;
     }
 
@@ -1475,9 +1470,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
-    if (text == NULL || byteLength == 0 ||
-        fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+    if (text == NULL || byteLength == 0 || fClip->isEmpty()) {
         return;
     }
 
@@ -1667,9 +1660,7 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw
-    if (text == NULL || byteLength == 0 ||
-        fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+    if (text == NULL || byteLength == 0 || fClip->isEmpty()) {
         return;
     }
 
@@ -1875,9 +1866,7 @@ void SkDraw::drawTextOnPath(const char text[], size_t byteLength,
     SkASSERT(byteLength == 0 || text != NULL);
 
     // nothing to draw
-    if (text == NULL || byteLength == 0 ||
-        fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+    if (text == NULL || byteLength == 0 || fClip->isEmpty()) {
         return;
     }
 
@@ -1923,8 +1912,7 @@ void SkDraw::drawPosTextOnPath(const char text[], size_t byteLength,
                                const SkPoint pos[], const SkPaint& paint,
                                const SkPath& path, const SkMatrix* matrix) const {
     // nothing to draw
-    if (text == NULL || byteLength == 0 || fClip->isEmpty() ||
-        (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+    if (text == NULL || byteLength == 0 || fClip->isEmpty()) {
         return;
     }
 
@@ -2222,8 +2210,7 @@ void SkDraw::drawVertices(SkCanvas::VertexMode vmode, int count,
     SkASSERT(0 == count || NULL != vertices);
 
     // abort early if there is nothing to draw
-    if (count < 3 || (indices && indexCount < 3) || fClip->isEmpty() ||
-            (paint.getAlpha() == 0 && paint.getXfermode() == NULL)) {
+    if (count < 3 || (indices && indexCount < 3) || fClip->isEmpty()) {
         return;
     }
 

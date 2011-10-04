@@ -1833,3 +1833,26 @@ const SkPath* SkTextToPathIter::next(SkScalar* xpos) {
     }
     return NULL;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+bool SkPaint::nothingToDraw() const {
+    SkXfermode::Mode mode;
+    if (SkXfermode::AsMode(fXfermode, &mode)) {
+        switch (mode) {
+            case SkXfermode::kSrcOver_Mode:
+            case SkXfermode::kSrcATop_Mode:
+            case SkXfermode::kDstOut_Mode:
+            case SkXfermode::kDstOver_Mode:
+            case SkXfermode::kPlus_Mode:
+                return 0 == this->getAlpha();
+            case SkXfermode::kDst_Mode:
+                return true;
+            default:
+                break;
+        }
+    }
+    return false;
+}
+
+

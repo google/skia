@@ -865,6 +865,10 @@ private:
     const SkRect& computeStrokeFastBounds(const SkRect& orig,
                                           SkRect* storage) const;
 
+    // returns true if the paint's settings (e.g. xfermode + alpha) resolve to
+    // mean that we need not draw at all (e.g. SrcOver + 0-alpha)
+    bool nothingToDraw() const;
+
     enum {
         kCanonicalTextSizeForPaths = 64
     };
