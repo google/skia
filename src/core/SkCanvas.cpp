@@ -53,8 +53,12 @@ static SkCanvas::EdgeType paint2EdgeType(const SkPaint* paint) {
             SkCanvas::kAA_EdgeType : SkCanvas::kBW_EdgeType;
 }
 
-#define CHECK_NOTHING_TO_DRAW(paint)    \
-    do { if ((paint).nothingToDraw()) return; } while (0)
+#if 0
+    #define CHECK_NOTHING_TO_DRAW(paint)    \
+        do { if ((paint).nothingToDraw()) return; } while (0)
+#else
+    #define CHECK_NOTHING_TO_DRAW(paint)    do {} while (0)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
