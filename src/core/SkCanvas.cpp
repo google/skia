@@ -53,6 +53,9 @@ static SkCanvas::EdgeType paint2EdgeType(const SkPaint* paint) {
             SkCanvas::kAA_EdgeType : SkCanvas::kBW_EdgeType;
 }
 
+#define CHECK_NOTHING_TO_DRAW(paint)    \
+    do { if ((paint).nothingToDraw()) return; } while (0)
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /*  This is the record we keep for each SkDevice that the user installs.
@@ -822,6 +825,10 @@ void SkCanvas::internalDrawBitmap(const SkBitmap& bitmap, const SkIRect* srcRect
 
 void SkCanvas::drawDevice(SkDevice* device, int x, int y,
                           const SkPaint* paint) {
+    if (paint) {
+        CHECK_NOTHING_TO_DRAW(*paint);
+    }
+
     SkPaint tmp;
     if (NULL == paint) {
         tmp.setDither(true);
@@ -1206,6 +1213,8 @@ void SkCanvas::clear(SkColor color) {
 }
 
 void SkCanvas::drawPaint(const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     LOOPER_BEGIN(paint, SkDrawFilter::kPaint_Type)
 
     while (iter.next()) {
@@ -1217,6 +1226,7 @@ void SkCanvas::drawPaint(const SkPaint& paint) {
 
 void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                           const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
     if ((long)count <= 0) {
         return;
     }
@@ -1233,6 +1243,8 @@ void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
 }
 
 void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     if (paint.canComputeFastBounds()) {
         SkRect storage;
         if (this->quickReject(paint.computeFastBounds(r, &storage),
@@ -1251,6 +1263,8 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     if (paint.canComputeFastBounds()) {
         SkRect storage;
         const SkRect& bounds = path.getBounds();
@@ -1272,6 +1286,10 @@ void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
 void SkCanvas::drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y,
                           const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
+
+    if (paint) {
+        CHECK_NOTHING_TO_DRAW(*paint);
+    }
 
     if (NULL == paint || (paint->getMaskFilter() == NULL)) {
         SkRect fastBounds;
@@ -1338,11 +1356,17 @@ void SkCanvas::internalDrawBitmapRect(const SkBitmap& bitmap, const SkIRect* src
 void SkCanvas::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
                               const SkRect& dst, const SkPaint* paint) {
     SkDEBUGCODE(bitmap.validate();)
+    if (paint) {
+        CHECK_NOTHING_TO_DRAW(*paint);
+    }
     this->internalDrawBitmapRect(bitmap, src, dst, paint);
 }
 
 void SkCanvas::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
                                 const SkPaint* paint) {
+    if (paint) {
+        CHECK_NOTHING_TO_DRAW(*paint);
+    }
     SkDEBUGCODE(bitmap.validate();)
     this->internalDrawBitmap(bitmap, NULL, matrix, paint);
 }
@@ -1413,6 +1437,9 @@ void SkCanvas::internalDrawBitmapNine(const SkBitmap& bitmap,
 
 void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                               const SkRect& dst, const SkPaint* paint) {
+    if (paint) {
+        CHECK_NOTHING_TO_DRAW(*paint);
+    }
     SkDEBUGCODE(bitmap.validate();)
 
     // Need a device entry-point, so gpu can use a mesh
@@ -1421,6 +1448,9 @@ void SkCanvas::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
 
 void SkCanvas::drawSprite(const SkBitmap& bitmap, int x, int y,
                           const SkPaint* paint) {
+    if (paint) {
+        CHECK_NOTHING_TO_DRAW(*paint);
+    }
     SkDEBUGCODE(bitmap.validate();)
 
     if (reject_bitmap(bitmap)) {
@@ -1536,6 +1566,8 @@ void SkCanvas::DrawTextDecorations(const SkDraw& draw, const SkPaint& paint,
 
 void SkCanvas::drawText(const void* text, size_t byteLength,
                         SkScalar x, SkScalar y, const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
 
     while (iter.next()) {
@@ -1550,6 +1582,8 @@ void SkCanvas::drawText(const void* text, size_t byteLength,
 
 void SkCanvas::drawPosText(const void* text, size_t byteLength,
                            const SkPoint pos[], const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
 
     while (iter.next()) {
@@ -1564,6 +1598,8 @@ void SkCanvas::drawPosText(const void* text, size_t byteLength,
 void SkCanvas::drawPosTextH(const void* text, size_t byteLength,
                             const SkScalar xpos[], SkScalar constY,
                             const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
 
     while (iter.next()) {
@@ -1578,6 +1614,8 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength,
 void SkCanvas::drawTextOnPath(const void* text, size_t byteLength,
                               const SkPath& path, const SkMatrix* matrix,
                               const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
 
     while (iter.next()) {
@@ -1592,6 +1630,7 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength,
 void SkCanvas::drawPosTextOnPath(const void* text, size_t byteLength,
                                  const SkPoint pos[], const SkPaint& paint,
                                  const SkPath& path, const SkMatrix* matrix) {
+    CHECK_NOTHING_TO_DRAW(paint);
 
     LOOPER_BEGIN(paint, SkDrawFilter::kText_Type)
 
@@ -1609,6 +1648,8 @@ void SkCanvas::drawVertices(VertexMode vmode, int vertexCount,
                             const SkColor colors[], SkXfermode* xmode,
                             const uint16_t indices[], int indexCount,
                             const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type)
 
     while (iter.next()) {
@@ -1686,6 +1727,8 @@ void SkCanvas::drawRectCoords(SkScalar left, SkScalar top,
 
 void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
                           const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     if (radius < 0) {
         radius = 0;
     }
@@ -1708,6 +1751,8 @@ void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius,
 
 void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
                              const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     if (rx > 0 && ry > 0) {
         if (paint.canComputeFastBounds()) {
             SkRect storage;
@@ -1726,6 +1771,8 @@ void SkCanvas::drawRoundRect(const SkRect& r, SkScalar rx, SkScalar ry,
 }
 
 void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     if (paint.canComputeFastBounds()) {
         SkRect storage;
         if (this->quickReject(paint.computeFastBounds(oval, &storage),
@@ -1742,6 +1789,8 @@ void SkCanvas::drawOval(const SkRect& oval, const SkPaint& paint) {
 void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
                        SkScalar sweepAngle, bool useCenter,
                        const SkPaint& paint) {
+    CHECK_NOTHING_TO_DRAW(paint);
+
     if (SkScalarAbs(sweepAngle) >= SkIntToScalar(360)) {
         this->drawOval(oval, paint);
     } else {
