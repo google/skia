@@ -16,7 +16,6 @@
       'sources': [
         '../include/gpu/SkGpuCanvas.h',
         '../include/gpu/SkGpuDevice.h',
-        '../include/gpu/SkGpuDeviceFactory.h',
         '../include/gpu/SkGr.h',
         '../include/gpu/SkGrTexturePixelRef.h',
 
