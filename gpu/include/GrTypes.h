@@ -249,8 +249,11 @@ enum GrMaskFormat {
  *  Return the number of bytes-per-pixel for the specified mask format.
  */
 static inline int GrMaskFormatBytesPerPixel(GrMaskFormat format) {
-    GrAssert((unsigned)format <= 1);
-    return (int)format + 1;
+    GrAssert((unsigned)format <= 2);
+    // kA8   (0) -> 1
+    // kA565 (1) -> 2
+    // kA888 (2) -> 4
+    return 1 << (int)format;
 }
 
 /**
