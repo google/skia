@@ -97,16 +97,13 @@ protected:
     Stack class used to manage the fImage buffer in a SkMask.
     When this object loses scope, the buffer is freed with SkMask::FreeImage().
 */
-class SkAutoMaskImage {
+class SkAutoMaskFreeImage {
 public:
-    SkAutoMaskImage(SkMask* mask, bool alloc) {
-        if (alloc) {
-            mask->fImage = SkMask::AllocImage(mask->computeImageSize());
-        }
-        fImage = mask->fImage;
+    SkAutoMaskFreeImage(uint8_t* maskImage) {
+        fImage = maskImage;
     }
 
-    ~SkAutoMaskImage() {
+    ~SkAutoMaskFreeImage() {
         SkMask::FreeImage(fImage);
     }
 private:

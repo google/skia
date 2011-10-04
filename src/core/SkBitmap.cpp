@@ -1326,15 +1326,14 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
         tmpBitmap.swap(*dst);
         return true;
     }
-
-    SkAutoMaskImage srcCleanup(&srcM, true);
+    srcM.fImage = SkMask::AllocImage(srcM.computeImageSize());
+    SkAutoMaskFreeImage srcCleanup(srcM.fImage);
 
     GetBitmapAlpha(*this, srcM.fImage, srcM.fRowBytes);
     if (!filter->filterMask(&dstM, srcM, identity, NULL)) {
         goto NO_FILTER_CASE;
     }
-
-    SkAutoMaskImage dstCleanup(&dstM, false);
+    SkAutoMaskFreeImage dstCleanup(dstM.fImage);
 
     tmpBitmap.setConfig(SkBitmap::kA8_Config, dstM.fBounds.width(),
                    dstM.fBounds.height(), dstM.fRowBytes);
