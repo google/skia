@@ -18,14 +18,14 @@ public:
                          uint32_t flags);
 
     // overrides from SkMaskFilter
-    virtual SkMask::Format getFormat();
+    virtual SkMask::Format getFormat() SK_OVERRIDE;
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
-                            SkIPoint* margin);
-    virtual BlurType asABlur(BlurInfo*);
+                            SkIPoint* margin) SK_OVERRIDE;
+    virtual BlurType asABlur(BlurInfo*) const SK_OVERRIDE;
 
     // overrides from SkFlattenable
-    virtual Factory getFactory();
-    virtual void flatten(SkFlattenableWriteBuffer&);
+    virtual Factory getFactory() SK_OVERRIDE;
+    virtual void flatten(SkFlattenableWriteBuffer&) SK_OVERRIDE;
 
     static SkFlattenable* CreateProc(SkFlattenableReadBuffer&);
 
@@ -128,7 +128,7 @@ static const SkMaskFilter::BlurType gBlurStyle2BlurType[] = {
     SkMaskFilter::kInner_BlurType,
 };
 
-SkMaskFilter::BlurType SkBlurMaskFilterImpl::asABlur(BlurInfo* info) {
+SkMaskFilter::BlurType SkBlurMaskFilterImpl::asABlur(BlurInfo* info) const {
     if (info) {
         info->fRadius = fRadius;
         info->fIgnoreTransform = SkToBool(fBlurFlags & SkBlurMaskFilter::kIgnoreTransform_BlurFlag);

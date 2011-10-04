@@ -85,7 +85,7 @@ public:
      *  (if not null). If they cannot be described as a blur, they return
      *  kNone_BlurType and ignore the info parameter.
      */
-    virtual BlurType asABlur(BlurInfo*);
+    virtual BlurType asABlur(BlurInfo*) const;
 
 protected:
     // empty for now, but lets get our subclass to remember to init us for the future
