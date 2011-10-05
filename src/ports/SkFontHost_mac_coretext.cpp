@@ -29,6 +29,8 @@
 #include "SkUtils.h"
 #include "SkTypefaceCache.h"
 
+#include <sys/utsname.h>
+
 // The calls to support subpixel are present in 10.5, but are not included in
 // the 10.5 SDK. The needed calls have been extracted from the 10.6 SDK and are
 // included below. To verify that CGContextSetShouldSubpixelQuantizeFonts, for
@@ -59,6 +61,43 @@ using namespace skia_advanced_typeface_metrics_utils;
 static const size_t FONT_CACHE_MEMORY_BUDGET    = 1024 * 1024;
 static const char FONT_DEFAULT_NAME[]           = "Lucida Sans";
 
+// see Source/WebKit/chromium/base/mac/mac_util.mm DarwinMajorVersionInternal 
+// for original source
+static int readVersion() {
+    struct utsname info;
+    if (uname(&info) != 0) {
+        SkDebugf("uname failed\n");
+        return 0;
+    }
+    if (strcmp(info.sysname, "Darwin") != 0) {
+        SkDebugf("unexpected uname sysname %s\n", info.sysname);
+        return 0;
+    }
+    char* dot = strchr(info.release, '.');
+    if (!dot) {
+        SkDebugf("expected dot in uname release %s\n", info.release);
+        return 0;
+    }
+    int version = atoi(info.release);
+    if (version == 0) {
+        SkDebugf("could not parse uname release %s\n", info.release);
+    }
+    return version;
+}
+
+static int darwinVersion() {
+    static int darwin_version = readVersion();
+    return darwin_version;
+}
+
+static bool isLeopard() {
+    return darwinVersion() == 9;
+}
+
+static bool isLion() {
+    return darwinVersion() == 11;
+}
+
 static bool isLCDFormat(unsigned format) {
     return SkMask::kLCD16_Format == format || SkMask::kLCD32_Format == format;
 }
@@ -72,6 +111,15 @@ static CGFloat ScalarToCG(SkScalar scalar) {
     }
 }
 
+static SkScalar CGToScalar(CGFloat cgFloat) {
+    if (sizeof(CGFloat) == sizeof(float)) {
+        return SkFloatToScalar(cgFloat);
+    } else {
+        SkASSERT(sizeof(CGFloat) == sizeof(double));
+        return SkDoubleToScalar(cgFloat);
+    }
+}
+
 static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix,
                                                    float sx = 1, float sy = 1) {
     return CGAffineTransformMake(ScalarToCG(matrix[SkMatrix::kMScaleX]) * sx,
@@ -82,6 +130,12 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix,
                                  ScalarToCG(matrix[SkMatrix::kMTransY]) * sy);
 }
 
+static void CGAffineTransformToMatrix(const CGAffineTransform& xform, SkMatrix* matrix) {
+    matrix->setAll(
+                   CGToScalar(xform.a), CGToScalar(xform.c), CGToScalar(xform.tx),
+                   CGToScalar(xform.b), CGToScalar(xform.d), CGToScalar(xform.ty),
+                   0, 0, SK_Scalar1);
+}
 
 //============================================================================
 //      Macros
@@ -370,8 +424,20 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
     mColorSpaceGray = CGColorSpaceCreateDeviceGray();
     mTransform = MatrixToCGAffineTransform(skMatrix);
 
-    // since our matrix includes everything, we pass 1 for pointSize
-    mFont       = CTFontCreateCopyWithAttributes(ctFont, 1, &mTransform, NULL);
+    if (isLeopard()) {
+        // passing 1 for pointSize to Leopard sets the font size to 1 pt.
+        // pass 0 to use the CoreText size
+        // extract the font size out of the matrix, but leave the skewing for italic
+        CGFloat fontSize = CTFontGetSize(ctFont);
+        float reciprocal = fontSize ? 1.0f / fontSize : 1.0f;
+        SkMatrix sizelessMatrix = skMatrix;
+        sizelessMatrix.preScale(reciprocal, reciprocal);
+        CGAffineTransform transform = MatrixToCGAffineTransform(sizelessMatrix);
+        mFont       = CTFontCreateCopyWithAttributes(ctFont, 0, &transform, NULL);
+    } else {
+        // since our matrix includes everything, we pass 1 for pointSize
+        mFont       = CTFontCreateCopyWithAttributes(ctFont, 1, &mTransform, NULL);
+    }
     mGlyphCount = SkToU16(numGlyphs);
 }
 
@@ -442,10 +508,37 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     glyph->zeroMetrics();
     glyph->fAdvanceX =  SkFloatToFixed(theAdvance.width);
     glyph->fAdvanceY = -SkFloatToFixed(theAdvance.height);
-    glyph->fWidth    =  sk_float_round2int(theBounds.size.width);
-    glyph->fHeight   =  sk_float_round2int(theBounds.size.height);
+    if (isLion()) {
+        // Lion returns fractions in the bounds
+        glyph->fWidth = sk_float_ceil2int(theBounds.size.width);
+        glyph->fHeight = sk_float_ceil2int(theBounds.size.height);
+    } else {
+        glyph->fWidth = sk_float_round2int(theBounds.size.width);
+        glyph->fHeight = sk_float_round2int(theBounds.size.height);
+    }
     glyph->fTop      = -sk_float_round2int(CGRectGetMaxY(theBounds));
     glyph->fLeft     =  sk_float_round2int(CGRectGetMinX(theBounds));
+    if (isLion() && glyph->fLeft < 0) {
+        // Lion returns negative left bounds where Snow Leopard is positive.
+        // Increasing the width by the left side + 1 avoid clipping the bits.
+        glyph->fWidth -= glyph->fLeft - 1;
+    }
+    if (isLeopard()) {
+        // Leopard does not consider the matrix skew in its bounds.
+        // Run the bounding rectangle through the skew matrix to determine
+        // the true bounds.
+        CGAffineTransform cgMatrix = CTFontGetMatrix(mFont);
+        SkMatrix skMatrix;
+        CGAffineTransformToMatrix(cgMatrix, &skMatrix);
+        SkRect glyphBounds = SkRect::MakeXYWH(
+                SkIntToScalar(glyph->fLeft), SkIntToScalar(glyph->fTop),
+                SkIntToScalar(glyph->fWidth), SkIntToScalar(glyph->fHeight));
+        skMatrix.mapRect(&glyphBounds);
+        glyph->fLeft = SkScalarRoundToInt(glyphBounds.fLeft);
+        glyph->fTop = SkScalarRoundToInt(glyphBounds.fTop);
+        glyph->fWidth = SkScalarRoundToInt(glyphBounds.width());
+        glyph->fHeight = SkScalarRoundToInt(glyphBounds.height());
+    }
 }
 
 #include "SkColorPriv.h"
@@ -570,7 +663,10 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     if (cgFont != NULL && cgContext != NULL) {
         CGContextSetShouldSmoothFonts(cgContext, doLCD);
 
+#if 0
+// TODO: Add an alternate interface for the client to override device setting
         CGContextSetAllowsFontSmoothing(cgContext, doLCD);
+#endif
 
         bool doSubPosition = SkToBool(fRec.fFlags & kSubpixelPositioning_Flag);
         CGContextSetAllowsFontSubpixelPositioning(cgContext, doSubPosition);
@@ -794,6 +890,9 @@ SkTypeface* SkFontHost::CreateTypefaceFromFile(const char path[])
 static void populate_glyph_to_unicode(CTFontRef ctFont,
         const unsigned glyphCount, SkTDArray<SkUnichar>* glyphToUnicode) {
     CFCharacterSetRef charSet = CTFontCopyCharacterSet(ctFont);
+    if (!charSet) {
+        return;
+    }
     CFDataRef bitmap = CFCharacterSetCreateBitmapRepresentation(
         kCFAllocatorDefault, charSet);
     if (!bitmap) {
