@@ -30,16 +30,23 @@ public:
     void swap(SkAAClip&);
 
     bool isEmpty() const { return SkAAClip_gEmptyPtr == fRunHead; }
-    bool isRect() const { return SkAAClip_gRectPtr == fRunHead; }
-    bool isComplex() const { return !this->isEmpty() && !this->isRect(); }
+//    bool isRect() const { return SkAAClip_gRectPtr == fRunHead; }
+    bool isComplex() const { return !this->isEmpty() /*&& !this->isRect()*/; }
     const SkIRect& getBounds() const { return fBounds; }
 
     bool setEmpty();
     bool setRect(const SkIRect&);
     bool setRect(const SkRect&);
-    bool setPath(const SkPath&, const SkRegion& clip);
+    bool setPath(const SkPath&, const SkRegion* clip = NULL);
+    bool set(const SkAAClip&);
 
     bool op(const SkAAClip&, const SkAAClip&, SkRegion::Op);
+
+    /**
+     *  Allocates a mask the size of the aaclip, and expands its data into
+     *  the mask, using kA8_Format
+     */
+    void copyToMask(SkMask*) const;
 
     // called internally
     
@@ -47,16 +54,17 @@ public:
     const uint8_t* findRow(int y, int* lastYForRow) const;
     const uint8_t* findX(const uint8_t data[], int x, int* initialCount) const;
 
-private:
+    class Iter;
     struct RunHead;
     struct YOffset;
+    class Builder;
 
+private:
     SkIRect  fBounds;
     RunHead* fRunHead;
 
     void freeRuns();
 
-    class Builder;
     friend class Builder;
     class BuilderBlitter;
     friend class BuilderBlitter;
