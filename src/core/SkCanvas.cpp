@@ -1217,6 +1217,10 @@ void SkCanvas::clear(SkColor color) {
 }
 
 void SkCanvas::drawPaint(const SkPaint& paint) {
+    this->internalDrawPaint(paint);
+}
+
+void SkCanvas::internalDrawPaint(const SkPaint& paint) {
     CHECK_NOTHING_TO_DRAW(paint);
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPaint_Type)
@@ -1269,13 +1273,19 @@ void SkCanvas::drawRect(const SkRect& r, const SkPaint& paint) {
 void SkCanvas::drawPath(const SkPath& path, const SkPaint& paint) {
     CHECK_NOTHING_TO_DRAW(paint);
 
-    if (paint.canComputeFastBounds()) {
+    if (!path.isInverseFillType() && paint.canComputeFastBounds()) {
         SkRect storage;
         const SkRect& bounds = path.getBounds();
         if (this->quickReject(paint.computeFastBounds(bounds, &storage),
                               paint2EdgeType(&paint))) {
             return;
         }
+    }
+    if (path.isEmpty()) {
+        if (path.isInverseFillType()) {
+            this->internalDrawPaint(paint);
+        }
+        return;
     }
 
     LOOPER_BEGIN(paint, SkDrawFilter::kPath_Type)

@@ -1445,6 +1445,16 @@ void GrContext::drawVertices(const GrPaint& paint,
 void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                          GrPathFill fill, const GrPoint* translate) {
 
+    if (path.isEmpty()) {
+#if GR_DEBUG
+       GrPrintf("Empty path should have been caught by canvas.\n");
+#endif
+       if (GrIsFillInverted(fill)) {
+           this->drawPaint(paint);
+       }
+       return;
+    }
+
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
     // An Assumption here is that path renderer would use some form of tweaking
@@ -1503,7 +1513,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
                 }
             }
             this->cleanupOffscreenAA(target, pr, &record);
-            if (IsFillInverted(fill) && bound != clipIBounds) {
+            if (GrIsFillInverted(fill) && bound != clipIBounds) {
                 GrDrawTarget::AutoDeviceCoordDraw adcd(target, stageMask);
                 GrRect rect;
                 if (clipIBounds.fTop < bound.fTop) {

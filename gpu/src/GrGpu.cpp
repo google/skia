@@ -596,8 +596,8 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     fillInverted = false;
                 } else {
                     fill = clip.getPathFill(c);
-                    fillInverted = IsFillInverted(fill);
-                    fill = NonInvertedFill(fill);
+                    fillInverted = GrIsFillInverted(fill);
+                    fill = GrNonInvertedFill(fill);
                     clipPath = &clip.getPath(c);
                     pr = this->getClipPathRenderer(*clipPath, fill);
                     if (NULL == pr) {

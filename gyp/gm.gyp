@@ -14,6 +14,7 @@
         '../gm/blurs.cpp',
         '../gm/complexclip.cpp',
         '../gm/complexclip2.cpp',
+        '../gm/emptypath.cpp',
         '../gm/filltypes.cpp',
         '../gm/filltypespersp.cpp',
         '../gm/gmmain.cpp',

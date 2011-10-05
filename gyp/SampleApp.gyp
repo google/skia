@@ -59,6 +59,7 @@
         '../samplecode/SampleDrawLooper.cpp',
         '../samplecode/SampleEffects.cpp',
         '../samplecode/SampleEmboss.cpp',
+        '../samplecode/SampleEmptyPath.cpp',
         '../samplecode/SampleEncode.cpp',
         '../samplecode/SampleExtractAlpha.cpp',
         '../samplecode/SampleFillType.cpp',
