@@ -366,7 +366,7 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
         }
     }
 
-    bool inverted = IsFillInverted(fFill);
+    bool inverted = GrIsFillInverted(fFill);
     if (inverted) {
         maxPts += 4;
         subpathCnt++;

@@ -435,7 +435,7 @@ enum GrPathFill {
     kPathFillCount
 };
 
-static inline GrPathFill NonInvertedFill(GrPathFill fill) {
+static inline GrPathFill GrNonInvertedFill(GrPathFill fill) {
     static const GrPathFill gNonInvertedFills[] = {
         kWinding_PathFill, // kWinding_PathFill
         kEvenOdd_PathFill, // kEvenOdd_PathFill
@@ -452,7 +452,7 @@ static inline GrPathFill NonInvertedFill(GrPathFill fill) {
     return gNonInvertedFills[fill];
 }
 
-static inline bool IsFillInverted(GrPathFill fill) {
+static inline bool GrIsFillInverted(GrPathFill fill) {
     static const bool gIsFillInverted[] = {
         false, // kWinding_PathFill
         false, // kEvenOdd_PathFill
