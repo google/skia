@@ -413,14 +413,10 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 
 
     // Initialise ourselves
-    if (fRec.fFlags & (SkScalerContext::kGammaForBlack_Flag |
-                       SkScalerContext::kGammaForWhite_Flag)) {
-        mColorSpaceRGB = CGColorSpaceCreateDeviceRGB();
-    } else {
-        // in hopes that this won't perform any gamma correction
-        mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
-    }
+    mColorSpaceRGB = CGColorSpaceCreateDeviceRGB();
+//    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGBLinear);
 //    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+
     mColorSpaceGray = CGColorSpaceCreateDeviceGray();
     mTransform = MatrixToCGAffineTransform(skMatrix);
 
@@ -484,15 +480,11 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     CGRect      theBounds;
     CGGlyph     cgGlyph;
 
-
-
     // Get the state we need
     cgGlyph = (CGGlyph) glyph->getGlyphID(fBaseGlyphCount);
 
     CTFontGetBoundingRectsForGlyphs(mFont, kCTFontDefaultOrientation, &cgGlyph, &theBounds,  1);
     CTFontGetAdvancesForGlyphs(     mFont, kCTFontDefaultOrientation, &cgGlyph, &theAdvance, 1);
-
-
 
     // Adjust the bounds
     //
@@ -501,8 +493,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     //
     // The bounds are also expanded by 1 pixel, to give CG room for anti-aliasing.
     theBounds = CGRectInset(theBounds, -1, -1);
-
-
 
     // Get the metrics
     glyph->zeroMetrics();
@@ -542,6 +532,41 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
 }
 
 #include "SkColorPriv.h"
+
+static void build_power_table(uint8_t table[], float ee) {
+    for (int i = 0; i < 256; i++) {
+        float x = i / 255.f;
+        x = powf(x, ee);
+        int xx = SkScalarRound(SkFloatToScalar(x * 255));
+        table[i] = SkToU8(xx);
+    }
+}
+
+static const uint8_t* getInverseTable(bool isWhite) {
+    static uint8_t gWhiteTable[256];
+    static uint8_t gTable[256];
+    static bool gInited;
+    if (!gInited) {
+        build_power_table(gWhiteTable, 1.5f);
+        build_power_table(gTable, 2.2f);
+        gInited = true;
+    }
+    return isWhite ? gWhiteTable : gTable;
+}
+
+static void invertGammaMask(bool isWhite, uint32_t rgb[], size_t rb, int height) {
+    const uint8_t* table = getInverseTable(isWhite);
+    for (int y = 0; y < height; ++y) {
+        uint32_t* stop = (uint32_t*)((char*)rgb + rb);
+        while (rgb < stop) {
+            uint32_t c = *rgb;
+            int r = (c >> 16) & 0xFF;
+            int g = (c >>  8) & 0xFF;
+            int b = (c >>  0) & 0xFF;
+            *rgb++ = (table[r] << 16) | (table[g] << 8) | table[b];
+        }
+    }
+}
 
 static void bytes_to_bits(uint8_t dst[], const uint8_t src[], int count) {
     while (count > 0) {
@@ -621,7 +646,7 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
     bool isBlack = SkToBool(fRec.fFlags & SkScalerContext::kGammaForBlack_Flag);
     bool isWhite = SkToBool(fRec.fFlags & SkScalerContext::kGammaForWhite_Flag);
     uint32_t xorMask;
-    bool needToDoubleSrc = false;
+    bool invertGamma = false;
 
     /*  For LCD16, we first create a temp offscreen cg-context in 32bit,
      *  erase to white, and then draw a black glyph into it. Then we can
@@ -641,10 +666,11 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
             erase = 0xFF;
             xorMask = ~0;
             grayColor = 0;
-        } else {    /* white or neutral (with a linear colorspace) */
+        } else {    /* white or neutral */
             erase = 0;
             xorMask = 0;
             grayColor = 1;
+            invertGamma = true;
         }
         memset(image, erase, size);
         doLCD = true;
@@ -693,6 +719,10 @@ void SkScalerContext_Mac::generateImage(const SkGlyph& glyph) {
         CGContextShowGlyphsAtPoint( cgContext, -glyph.fLeft + subX,
                                     glyph.fTop + glyph.fHeight - subY,
                                     &cgGlyph, 1);
+
+        if (invertGamma) {
+            invertGammaMask(isWhite, (uint32_t*)image, rowBytes, glyph.fHeight);
+        }
 
         if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
             // downsample from rgba to rgb565
