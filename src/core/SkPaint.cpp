@@ -1837,6 +1837,9 @@ const SkPath* SkTextToPathIter::next(SkScalar* xpos) {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkPaint::nothingToDraw() const {
+    if (fLooper) {
+        return false;
+    }
     SkXfermode::Mode mode;
     if (SkXfermode::AsMode(fXfermode, &mode)) {
         switch (mode) {
