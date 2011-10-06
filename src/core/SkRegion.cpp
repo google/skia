@@ -777,11 +777,10 @@ private:
     SkRegion::RunType   fTop;
 };
 
-static int operate( const SkRegion::RunType a_runs[],
-                    const SkRegion::RunType b_runs[],
-                    SkRegion::RunType dst[],
-                    SkRegion::Op op)
-{
+static int operate(const SkRegion::RunType a_runs[],
+                   const SkRegion::RunType b_runs[],
+                   SkRegion::RunType dst[],
+                   SkRegion::Op op) {
     const SkRegion::RunType gSentinel[] = {
         SkRegion::kRunTypeSentinel,
         // just need a 2nd value, since spanRec.init() reads 2 values, even
@@ -805,83 +804,67 @@ static int operate( const SkRegion::RunType a_runs[],
     bool firstInterval = true;
     int prevBot = SkRegion::kRunTypeSentinel; // so we fail the first test
     
-    while (a_bot < SkRegion::kRunTypeSentinel || b_bot < SkRegion::kRunTypeSentinel)
-    {
-        int         top, bot SK_INIT_TO_AVOID_WARNING;
+    while (a_bot < SkRegion::kRunTypeSentinel ||
+           b_bot < SkRegion::kRunTypeSentinel) {
+        int                         top, bot SK_INIT_TO_AVOID_WARNING;
         const SkRegion::RunType*    run0 = gSentinel;
         const SkRegion::RunType*    run1 = gSentinel;
-        bool        a_flush = false;
-        bool        b_flush = false;
-        int         inside;
+        bool                        a_flush = false;
+        bool                        b_flush = false;
 
-        if (a_top < b_top)
-        {
-            inside = 1;
+        if (a_top < b_top) {
             top = a_top;
             run0 = a_runs;
-            if (a_bot <= b_top) // [...] <...>
-            {
+            if (a_bot <= b_top) {   // [...] <...>
                 bot = a_bot;
                 a_flush = true;
-            }
-            else // [...<..]...> or [...<...>...]
+            } else {  // [...<..]...> or [...<...>...]
                 bot = a_top = b_top;
-        }
-        else if (b_top < a_top)
-        {
-            inside = 2;
+            }
+        } else if (b_top < a_top) {
             top = b_top;
             run1 = b_runs;
-            if (b_bot <= a_top) // [...] <...>
-            {
+            if (b_bot <= a_top) {   // [...] <...>
                 bot = b_bot;
                 b_flush = true;
-            }
-            else // [...<..]...> or [...<...>...]
+            } else {    // [...<..]...> or [...<...>...]
                 bot = b_top = a_top;
-        }
-        else    // a_top == b_top
-        {
-            inside = 3;
+            }
+        } else {    // a_top == b_top
             top = a_top;    // or b_top
             run0 = a_runs;
             run1 = b_runs;
-            if (a_bot <= b_bot)
-            {
+            if (a_bot <= b_bot) {
                 bot = b_top = a_bot;
                 a_flush = true;
             }
-            if (b_bot <= a_bot)
-            {
+            if (b_bot <= a_bot) {
                 bot = a_top = b_bot;
                 b_flush = true;
             }
         }
         
-        if (top > prevBot)
+        if (top > prevBot) {
             oper.addSpan(top, gSentinel, gSentinel);
-
-//      if ((unsigned)(inside - oper.fMin) <= (unsigned)(oper.fMax - oper.fMin))
-        {
-            oper.addSpan(bot, run0, run1);
-            firstInterval = false;
         }
+        oper.addSpan(bot, run0, run1);
+        firstInterval = false;
 
-        if (a_flush)
-        {
+        if (a_flush) {
             a_runs = skip_scanline(a_runs);
             a_top = a_bot;
             a_bot = *a_runs++;
-            if (a_bot == SkRegion::kRunTypeSentinel)
+            if (a_bot == SkRegion::kRunTypeSentinel) {
                 a_top = a_bot;
+            }
         }
-        if (b_flush)
-        {
+        if (b_flush) {
             b_runs = skip_scanline(b_runs);
             b_top = b_bot;
             b_bot = *b_runs++;
-            if (b_bot == SkRegion::kRunTypeSentinel)
+            if (b_bot == SkRegion::kRunTypeSentinel) {
                 b_top = b_bot;
+            }
         }
         
         prevBot = bot;
