@@ -205,7 +205,7 @@ protected:
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
         SkShader* shader = SkGradientShader::CreateRadial(
             SkPoint(center),
-            200, gColors, NULL, 5,
+            SkIntToScalar(200), gColors, NULL, 5,
             SkShader::kClamp_TileMode, NULL);
         paint.setShader(shader);
         canvas->drawRect(r, paint);
