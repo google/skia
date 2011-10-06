@@ -484,8 +484,31 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     cgGlyph = (CGGlyph) glyph->getGlyphID(fBaseGlyphCount);
 
     CTFontGetBoundingRectsForGlyphs(mFont, kCTFontDefaultOrientation, &cgGlyph, &theBounds,  1);
-    CTFontGetAdvancesForGlyphs(     mFont, kCTFontDefaultOrientation, &cgGlyph, &theAdvance, 1);
+    CTFontGetAdvancesForGlyphs(mFont, kCTFontDefaultOrientation, &cgGlyph, &theAdvance, 1);
 
+    // BUG?
+    // 0x200B (zero-advance space) seems to return a huge (garbage) bounds, when
+    // it should be empty. So, if we see a zero-advance, we check if it has an
+    // empty path or not, and if so, we jam the bounds to 0. Hopefully a zero-advance
+    // is rare, so we won't incur a big performance cost for this extra check.
+    if (0 == theAdvance.width && 0 == theAdvance.height) {
+        CGPathRef path = CTFontCreatePathForGlyph(mFont, cgGlyph, NULL);
+        if (NULL == path || CGPathIsEmpty(path)) {
+            theBounds = CGRectMake(0, 0, 0, 0);
+        }
+        if (path) {
+            CGPathRelease(path);
+        }
+    }
+    
+    glyph->zeroMetrics();
+    glyph->fAdvanceX =  SkFloatToFixed(theAdvance.width);
+    glyph->fAdvanceY = -SkFloatToFixed(theAdvance.height);
+
+    if (CGRectIsEmpty(theBounds)) {
+        return;
+    }
+    
     // Adjust the bounds
     //
     // CTFontGetBoundingRectsForGlyphs ignores the font transform, so we need
@@ -495,9 +518,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
     theBounds = CGRectInset(theBounds, -1, -1);
 
     // Get the metrics
-    glyph->zeroMetrics();
-    glyph->fAdvanceX =  SkFloatToFixed(theAdvance.width);
-    glyph->fAdvanceY = -SkFloatToFixed(theAdvance.height);
     if (isLion()) {
         // Lion returns fractions in the bounds
         glyph->fWidth = sk_float_ceil2int(theBounds.size.width);
