@@ -105,13 +105,6 @@
  */
 //#define SkDebugf(...)  MyFunction(__VA_ARGS__)
 
-/**
- *  Used only for lcdtext, define this to pack glyphs using 8 bits per component
- *  instead of 5-6-5. This can increase fidelity with the native font scaler,
- *  but doubles the RAM used by the font cache.
-*/
-//#define SK_SUPPORT_888_TEXT
-
 /* If defined, use CoreText instead of ATSUI on OS X.
 */
 //#define SK_USE_MAC_CORE_TEXT
