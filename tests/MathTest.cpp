@@ -10,40 +10,35 @@
 #include "SkMath.h"
 #include "SkPoint.h"
 #include "SkRandom.h"
+#include "SkColorPriv.h"
 
-#if 0
-static U8CPU premul_fast(U8CPU a, U8CPU x) {
-    return a * x * 32897 >> 23;
+static float float_blend(int src, int dst, float unit) {
+    return dst + (src - dst) * unit;
 }
 
-static U8CPU premul_trunc(U8CPU a, U8CPU x) {
-    double result = a * x;
-    result /= 255.0;
-    return (unsigned)floor(result + 0.0);
-}
+static void test_blend(skiatest::Reporter* reporter) {
+    for (int src = 0; src <= 255; src++) {
+        for (int dst = 0; dst <= 255; dst++) {
+            for (int a = 0; a <= 255; a++) {
+                int r0 = SkAlphaBlend255(src, dst, a);
+                float f1 = float_blend(src, dst, a / 255.f);
+                int r1 = SkScalarRoundToInt(f1);
 
-static U8CPU premul_round(U8CPU a, U8CPU x) {
-    double result = a * x;
-    result /= 255.0;
-    return (unsigned)floor(result + 0.5);
-}
-
-static void test_premul(skiatest::Reporter* reporter) {
-    for (int a = 0; a <= 255; a++) {
-        for (int x = 0; x <= 255; x++) {
-            unsigned curr_trunc = SkMulDiv255Trunc(a, x);
-            unsigned curr_round = SkMulDiv255Round(a, x);
-            unsigned fast = premul_fast(a, x);
-            unsigned slow_round = premul_round(a, x);
-            unsigned slow_trunc = premul_trunc(a, x);
-            if (fast != slow || curr != fast) {
-                SkDebugf("---- premul(%d %d) curr=%d fast=%d slow=%d\n", a, x,
-                         curr, fast, slow);
+                if (r0 != r1) {
+                    float diff = sk_float_abs(f1 - r1);
+                    diff = sk_float_abs(diff - 0.5f);
+                    if (diff > (1 / 255.f)) {
+#ifdef SK_DEBUG
+                        SkDebugf("src:%d dst:%d a:%d result:%d float:%g\n",
+                                 src, dst, a, r0, f1);
+#endif
+                        REPORTER_ASSERT(reporter, false);
+                    }
+                }
             }
         }
     }
 }
-#endif
 
 #if defined(SkLONGLONG)
 static int symmetric_fixmul(int a, int b) {
@@ -501,7 +496,9 @@ static void TestMath(skiatest::Reporter* reporter) {
     SkDebugf("SinCos: maximum error = %d\n", maxDiff);
 #endif
 
-//    test_premul(reporter);
+#ifdef SK_SCALAR_IS_FLOAT
+    test_blend(reporter);
+#endif
 }
 
 #include "TestClassDef.h"
