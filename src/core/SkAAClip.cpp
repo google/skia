@@ -112,7 +112,7 @@ void SkAAClip::Iter::next() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkAAClip::freeRuns() {
-    if (this->isComplex()) {
+    if (fRunHead) {
         SkASSERT(fRunHead->fRefCnt >= 1);
         if (1 == sk_atomic_dec(&fRunHead->fRefCnt)) {
             sk_free(fRunHead);
@@ -122,11 +122,11 @@ void SkAAClip::freeRuns() {
 
 SkAAClip::SkAAClip() {
     fBounds.setEmpty();
-    fRunHead = SkAAClip_gEmptyPtr;
+    fRunHead = NULL;
 }
 
 SkAAClip::SkAAClip(const SkAAClip& src) {
-    fRunHead = SkAAClip_gEmptyPtr;
+    fRunHead = NULL;
     *this = src;
 }
 
@@ -139,7 +139,7 @@ SkAAClip& SkAAClip::operator=(const SkAAClip& src) {
         this->freeRuns();
         fBounds = src.fBounds;
         fRunHead = src.fRunHead;
-        if (this->isComplex()) {
+        if (fRunHead) {
             sk_atomic_inc(&fRunHead->fRefCnt);
         }
     }
@@ -163,7 +163,7 @@ bool operator==(const SkAAClip& a, const SkAAClip& b) {
     }
 
     // now we insist that both are complex (but different ptrs)
-    if (!a.isComplex() || !b.isComplex()) {
+    if (!a.fRunHead || !b.fRunHead) {
         return false;
     }
 
@@ -185,7 +185,7 @@ bool SkAAClip::set(const SkAAClip& src) {
 bool SkAAClip::setEmpty() {
     this->freeRuns();
     fBounds.setEmpty();
-    fRunHead = SkAAClip_gEmptyPtr;
+    fRunHead = NULL;
     return false;
 }
 
@@ -193,10 +193,14 @@ bool SkAAClip::setRect(const SkIRect& bounds) {
     if (bounds.isEmpty()) {
         return this->setEmpty();
     }
-    this->freeRuns();
-    fBounds = bounds;
-    fRunHead = SkAAClip_gRectPtr;
-    return true;
+
+    // TODO: special case this
+
+    SkRect r;
+    r.set(bounds);
+    SkPath path;
+    path.addRect(r);
+    return this->setPath(path);
 }
 
 bool SkAAClip::setRect(const SkRect& r) {
@@ -212,7 +216,7 @@ bool SkAAClip::setRect(const SkRect& r) {
 ///////////////////////////////////////////////////////////////////////////////
 
 const uint8_t* SkAAClip::findRow(int y, int* lastYForRow) const {
-    SkASSERT(this->isComplex());
+    SkASSERT(fRunHead);
 
     if (!y_in_rect(y, fBounds)) {
         return NULL;
@@ -892,6 +896,22 @@ bool SkAAClip::op(const SkAAClip& clipAOrig, const SkAAClip& clipBOrig,
     fRunHead = builder.finish();
     
     return !this->isEmpty();
+}
+
+bool SkAAClip::op(const SkIRect& r, SkRegion::Op op) {
+    SkAAClip clip;
+    clip.setRect(r);
+    return this->op(*this, clip, op);
+}
+
+bool SkAAClip::op(const SkRect& r, SkRegion::Op op) {
+    SkAAClip clip;
+    clip.setRect(r);
+    return this->op(*this, clip, op);
+}
+
+bool SkAAClip::op(const SkAAClip& clip, SkRegion::Op op) {
+    return this->op(*this, clip, op);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -12,9 +12,6 @@
 #include "SkBlitter.h"
 #include "SkRegion.h"
 
-#define SkAAClip_gEmptyPtr   ((SkAAClip::RunHead*)-1)
-#define SkAAClip_gRectPtr    NULL
-
 class SkAAClip {
 public:
     SkAAClip();
@@ -29,9 +26,7 @@ public:
 
     void swap(SkAAClip&);
 
-    bool isEmpty() const { return SkAAClip_gEmptyPtr == fRunHead; }
-//    bool isRect() const { return SkAAClip_gRectPtr == fRunHead; }
-    bool isComplex() const { return !this->isEmpty() /*&& !this->isRect()*/; }
+    bool isEmpty() const { return NULL == fRunHead; }
     const SkIRect& getBounds() const { return fBounds; }
 
     bool setEmpty();
@@ -41,6 +36,11 @@ public:
     bool set(const SkAAClip&);
 
     bool op(const SkAAClip&, const SkAAClip&, SkRegion::Op);
+
+    // Helpers for op()
+    bool op(const SkIRect&, SkRegion::Op);
+    bool op(const SkRect&, SkRegion::Op);
+    bool op(const SkAAClip&, SkRegion::Op);
 
     /**
      *  Allocates a mask the size of the aaclip, and expands its data into
