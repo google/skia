@@ -1,12 +1,9 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-
 
 #ifndef SkTArray_DEFINED
 #define SkTArray_DEFINED
@@ -15,9 +12,41 @@
 #include "SkTypes.h"
 #include "SkTemplates.h"
 
-// DATA_TYPE indicates that T has a trivial cons, destructor
-// and can be shallow-copied
-template <typename T, bool DATA_TYPE = false> class SkTArray {
+template <typename T, bool MEM_COPY = false> class SkTArray;
+
+namespace SkTArrayExt {
+
+template<typename T>
+inline void copy(SkTArray<T, true>* self, const T* array) {
+    memcpy(self->fMemArray, array, self->fCount * sizeof(T));
+}
+template<typename T>
+inline void copyAndDelete(SkTArray<T, true>* self, char* newMemArray) {
+    memcpy(newMemArray, self->fMemArray, self->fCount * sizeof(T));
+}
+
+template<typename T>
+inline void copy(SkTArray<T, false>* self, const T* array) {
+    for (int i = 0; i < self->fCount; ++i) {
+        new (self->fItemArray + i) T(array[i]);
+    }
+}
+template<typename T>
+inline void copyAndDelete(SkTArray<T, false>* self, char* newMemArray) {
+    for (int i = 0; i < self->fCount; ++i) {
+        new (newMemArray + sizeof(T) * i) T(self->fItemArray[i]);
+        self->fItemArray[i].~T();
+    }
+}
+
+}
+
+/** When MEM_COPY is true T will be bit copied when moved.
+    When MEM_COPY is false, T will be copy constructed / destructed.
+    In all cases T's constructor will be called on allocation,
+    and its destructor will be called from this object's destructor.
+*/
+template <typename T, bool MEM_COPY> class SkTArray {
 public:
     /**
      * Creates an empty array with no initial storage
@@ -64,13 +93,7 @@ public:
         fCount = 0;
         checkRealloc((int)array.count());
         fCount = array.count();
-        if (DATA_TYPE) {
-            memcpy(fMemArray, array.fMemArray, sizeof(T) * fCount);
-        } else {
-            for (int i = 0; i < fCount; ++i) {
-                new (fItemArray + i) T(array[i]);
-            }
-        }
+        SkTArrayExt::copy(this, static_cast<const T*>(array.fMemArray));
         return *this;
     }
 
@@ -292,13 +315,7 @@ protected:
             fMemArray = GrMalloc(fAllocCount * sizeof(T));
         }
 
-        if (DATA_TYPE) {
-            memcpy(fMemArray, array, sizeof(T) * fCount);
-        } else {
-            for (int i = 0; i < fCount; ++i) {
-                new (fItemArray + i) T(array[i]);
-            }
-        }
+        SkTArrayExt::copy(this, array);
     }
 
 private:
@@ -312,41 +329,40 @@ private:
         SkASSERT(-delta <= fCount);
 
         int newCount = fCount + delta;
-        int fNewAllocCount = fAllocCount;
+        int newAllocCount = fAllocCount;
 
         if (newCount > fAllocCount) {
-            fNewAllocCount = SkMax32(newCount + ((newCount + 1) >> 1),
+            newAllocCount = SkMax32(newCount + ((newCount + 1) >> 1),
                                    fReserveCount);
         } else if (newCount < fAllocCount / 3) {
-            fNewAllocCount = SkMax32(fAllocCount / 2, fReserveCount);
+            newAllocCount = SkMax32(fAllocCount / 2, fReserveCount);
         }
 
-        if (fNewAllocCount != fAllocCount) {
+        if (newAllocCount != fAllocCount) {
 
-            fAllocCount = fNewAllocCount;
-            char* fNewMemArray;
+            fAllocCount = newAllocCount;
+            char* newMemArray;
 
             if (fAllocCount == fReserveCount && NULL != fPreAllocMemArray) {
-                fNewMemArray = (char*) fPreAllocMemArray;
+                newMemArray = (char*) fPreAllocMemArray;
             } else {
-                fNewMemArray = (char*) sk_malloc_throw(fAllocCount*sizeof(T));
+                newMemArray = (char*) sk_malloc_throw(fAllocCount*sizeof(T));
             }
 
-            if (DATA_TYPE) {
-                memcpy(fNewMemArray, fMemArray, fCount * sizeof(T));
-            } else {
-                for (int i = 0; i < fCount; ++i) {
-                    new (fNewMemArray + sizeof(T) * i) T(fItemArray[i]);
-                    fItemArray[i].~T();
-                }
-            }
+            SkTArrayExt::copyAndDelete<T>(this, newMemArray);
 
             if (fMemArray != fPreAllocMemArray) {
                 sk_free(fMemArray);
             }
-            fMemArray = fNewMemArray;
+            fMemArray = newMemArray;
         }
     }
+
+    template<typename T> friend void SkTArrayExt::copy(SkTArray<T, true>* that, const T*);
+    template<typename T> friend void SkTArrayExt::copyAndDelete(SkTArray<T, true>* that, char*);
+
+    template<typename T> friend void SkTArrayExt::copy(SkTArray<T, false>* that, const T*);
+    template<typename T> friend void SkTArrayExt::copyAndDelete(SkTArray<T, false>* that, char*);
 
     int fReserveCount;
     int fCount;
