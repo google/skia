@@ -40,7 +40,7 @@ void DebuggerStateView::onDraw(SkCanvas* canvas) {
     SkPaint p;
     p.setTextSize(SKDEBUGGER_TEXTSIZE);
     p.setAntiAlias(true);
-    int x = 50;
+    SkScalar x = 50 * SK_Scalar1;
     canvas->drawText(fPaintInfo.c_str(), fPaintInfo.size(), x, 30, p);
     canvas->drawText(fMatrix.c_str(), fMatrix.size(), x, 60, p);
     canvas->drawText(fClip.c_str(), fClip.size(), x, 90, p);

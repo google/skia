@@ -179,12 +179,12 @@ static int compare_diff_mean_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
 /// Comparison routine for qsort;  sorts by max(fMaxMismatch{RGB})
 /// from largest to smallest.
 static int compare_diff_max_mismatches (DiffRecord** lhs, DiffRecord** rhs) {
-    float leftValue = MAX3((*lhs)->fMaxMismatchR,
-                           (*lhs)->fMaxMismatchG,
-                           (*lhs)->fMaxMismatchB);
-    float rightValue = MAX3((*rhs)->fMaxMismatchR,
-                            (*rhs)->fMaxMismatchG,
-                            (*rhs)->fMaxMismatchB);
+    uint32_t leftValue = MAX3((*lhs)->fMaxMismatchR,
+                              (*lhs)->fMaxMismatchG,
+                              (*lhs)->fMaxMismatchB);
+    uint32_t rightValue = MAX3((*rhs)->fMaxMismatchR,
+                               (*rhs)->fMaxMismatchG,
+                               (*rhs)->fMaxMismatchB);
     if (leftValue < rightValue) {
         return 1;
     }
@@ -507,7 +507,7 @@ static int compute_image_height (int height, int width) {
     float scale = (float) retval / height;
     if (width * scale > 360) {
         scale = (float) 360 / width;
-        retval = height * scale;
+        retval = static_cast<int>(height * scale);
     }
     return retval;
 }
@@ -549,9 +549,9 @@ static void print_page_header (SkFILEWStream* stream,
 static void print_pixel_count (SkFILEWStream* stream,
                                const DiffRecord& diff) {
     stream->writeText("<br>(");
-    stream->writeDecAsText(diff.fFractionDifference *
-                           diff.fBaseWidth *
-                           diff.fBaseHeight);
+    stream->writeDecAsText(static_cast<int>(diff.fFractionDifference *
+                                            diff.fBaseWidth *
+                                            diff.fBaseHeight));
     stream->writeText(" pixels)");
 /*
     stream->writeDecAsText(diff.fWeightedFraction *
@@ -579,9 +579,9 @@ static void print_label_cell (SkFILEWStream* stream,
         print_pixel_count(stream, diff);
     }
     stream->writeText("<br>Average color mismatch ");
-    stream->writeDecAsText(MAX3(diff.fAverageMismatchR,
-                                diff.fAverageMismatchG,
-                                diff.fAverageMismatchB));
+    stream->writeDecAsText(static_cast<int>(MAX3(diff.fAverageMismatchR,
+                                                 diff.fAverageMismatchG,
+                                                 diff.fAverageMismatchB)));
     stream->writeText("<br>Max color mismatch ");
     stream->writeDecAsText(MAX3(diff.fMaxMismatchR,
                                 diff.fMaxMismatchG,

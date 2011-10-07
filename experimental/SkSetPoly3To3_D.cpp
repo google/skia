@@ -11,7 +11,7 @@ typedef int64_t SkDScalar;
 
 static SkScalar SkDScalar_toScalar(SkDScalar value) {
     SkDScalar result = (value + (1 << 15)) >> 16;
-    int top = result >> 31;
+    SkDEBUGCODE(int top = static_cast<int>(result >> 31);)
     SkASSERT(top == 0 || top == -1);
     return (SkScalar)result;
 }
