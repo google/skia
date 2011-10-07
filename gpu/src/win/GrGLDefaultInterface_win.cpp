@@ -43,6 +43,7 @@ const GrGLInterface* GrGLDefaultInterface() {
 
         // Functions that are part of GL 1.1 will return NULL in
         // wglGetProcAddress
+        interface->fBindTexture = glBindTexture;
         interface->fBlendFunc = glBlendFunc;
         interface->fClear = glClear;
         interface->fClearColor = glClearColor;
@@ -90,7 +91,6 @@ const GrGLInterface* GrGLDefaultInterface() {
         GR_GL_GET_PROC(AttachShader);
         GR_GL_GET_PROC(BindAttribLocation);
         GR_GL_GET_PROC(BindBuffer);
-        GR_GL_GET_PROC(BindTexture);
         GR_GL_GET_PROC(BindFragDataLocation);
         GR_GL_GET_PROC(BlendColor);
         GR_GL_GET_PROC(BufferData);
