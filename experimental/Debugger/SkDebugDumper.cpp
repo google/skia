@@ -58,9 +58,9 @@ static SkString dumpMatrix(SkDumpCanvas* canvas) {
                  SkScalarToFloat(m.get(SkMatrix::kMSkewX)), 
                  SkScalarToFloat(m.get(SkMatrix::kMSkewY)));
     str.appendf("Perspective (%0.4g, %0.4g, %0.4g) ", 
-                 SkScalarToFloat(m.get(SkMatrix::kMPersp0)), 
-                 SkScalarToFloat(m.get(SkMatrix::kMPersp1)),
-                 SkScalarToFloat(m.get(SkMatrix::kMPersp2)));
+                 SkScalarToFloat(SkPerspToScalar(m.get(SkMatrix::kMPersp0))), 
+                 SkScalarToFloat(SkPerspToScalar(m.get(SkMatrix::kMPersp1))),
+                 SkScalarToFloat(SkPerspToScalar(m.get(SkMatrix::kMPersp2))));
     return str;
 }
 
