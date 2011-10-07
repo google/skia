@@ -81,12 +81,12 @@ void test_matrix_max_stretch(skiatest::Reporter* reporter) {
 
     SkMatrix perspX;
     perspX.reset();
-    perspX.setPerspX(SK_Scalar1 / 1000);
+    perspX.setPerspX(SkScalarToPersp(SK_Scalar1 / 1000));
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspX.getMaxStretch());
 
     SkMatrix perspY;
     perspY.reset();
-    perspY.setPerspX(-SK_Scalar1 / 500);
+    perspY.setPerspX(SkScalarToPersp(-SK_Scalar1 / 500));
     REPORTER_ASSERT(reporter, -SK_Scalar1 == perspY.getMaxStretch());
 
     SkMatrix baseMats[] = {scale, rot90Scale, rotate,
@@ -234,7 +234,7 @@ void TestMatrix(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, affineEqual(TransY));
     #undef affineEqual
 
-    mat.set(SkMatrix::kMPersp1, SkIntToScalar(1));
+    mat.set(SkMatrix::kMPersp1, SkScalarToPersp(SK_Scalar1 / 2));
     REPORTER_ASSERT(reporter, !mat.asAffine(affine));
 
     test_matrix_max_stretch(reporter);
