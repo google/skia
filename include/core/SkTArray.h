@@ -358,11 +358,11 @@ private:
         }
     }
 
-    template<typename T> friend void SkTArrayExt::copy(SkTArray<T, true>* that, const T*);
-    template<typename T> friend void SkTArrayExt::copyAndDelete(SkTArray<T, true>* that, char*);
+    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, true>* that, const X*);
+    template<typename X> friend void SkTArrayExt::copyAndDelete(SkTArray<X, true>* that, char*);
 
-    template<typename T> friend void SkTArrayExt::copy(SkTArray<T, false>* that, const T*);
-    template<typename T> friend void SkTArrayExt::copyAndDelete(SkTArray<T, false>* that, char*);
+    template<typename X> friend void SkTArrayExt::copy(SkTArray<X, false>* that, const X*);
+    template<typename X> friend void SkTArrayExt::copyAndDelete(SkTArray<X, false>* that, char*);
 
     int fReserveCount;
     int fCount;
