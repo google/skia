@@ -11,6 +11,7 @@
       'sources': [
         '../src/core/ARGB32_Clamp_Bilinear_BitmapShader.h',
         '../src/core/Sk64.cpp',
+        '../src/core/SkAAClip.cpp',
         '../src/core/SkAdvancedTypefaceMetrics.cpp',
         '../src/core/SkAlphaRuns.cpp',
         '../src/core/SkAntiRun.h',
