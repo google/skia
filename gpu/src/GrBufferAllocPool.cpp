@@ -169,10 +169,13 @@ void* GrBufferAllocPool::makeSpace(size_t size,
         }
     }
 
-    // We could honor the space request using updateSubData on the current VB
-    // (if there is room). But we don't currently use draw calls to GL that
+    // We could honor the space request using by a partial update of the current
+    // VB (if there is room). But we don't currently use draw calls to GL that
     // allow the driver to know that previously issued draws won't read from
-    // the part of the buffer we update.
+    // the part of the buffer we update. Also, the GL buffer implementation
+    // may be cheating on the actual buffer size by shrinking the buffer on
+    // updateData() if the amount of data passed is less than the full buffer
+    // size.
     
     if (!createBlock(size)) {
         return NULL;

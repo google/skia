@@ -356,9 +356,9 @@ inline void GrCrash(const char* msg) { GrPrintf(msg); GrAlwaysAssert(false); }
 
 /**
  * GR_GEOM_BUFFER_LOCK_THRESHOLD gives a threshold (in bytes) for when Gr should
- * lock a GrGeometryBuffer to update its contents. It will use Lock() if the
- * size of the udpated region is greater than the threshold. Otherwise it will
- * use updateData() or updateSubData().
+ * lock a GrGeometryBuffer to update its contents. It will use lock() if the
+ * size of the updated region is greater than the threshold. Otherwise it will
+ * use updateData().
  */
 #if !defined(GR_GEOM_BUFFER_LOCK_THRESHOLD)
     #define GR_GEOM_BUFFER_LOCK_THRESHOLD (1 << 15)

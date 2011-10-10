@@ -71,17 +71,6 @@ public:
      */
     virtual bool updateData(const void* src, size_t srcSizeInBytes) = 0;
 
-    /**
-     * Updates a portion of the buffer data.
-     *
-     * The contents of the buffer outside the update region are preserved.
-     *
-     * @return returns true if the update succeeds, false otherwise.
-     */
-    virtual bool updateSubData(const void* src,
-                               size_t srcSizeInBytes,
-                               size_t offset) = 0;
-
     // GrResource overrides
     virtual size_t sizeInBytes() const { return fSizeInBytes; }
 
