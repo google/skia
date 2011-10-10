@@ -26,9 +26,6 @@ public:
     virtual void unlock();
     virtual bool isLocked() const;
     virtual bool updateData(const void* src, size_t srcSizeInBytes);
-    virtual bool updateSubData(const void* src,
-                               size_t srcSizeInBytes,
-                               size_t offset);
     GrGLuint bufferID() const;
 
 protected:

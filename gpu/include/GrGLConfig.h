@@ -65,9 +65,9 @@
  *  glBufferData(GL_..._BUFFER, size, NULL, usage);       //<--hint, NULL means
  *  glBufferSubData(GL_..._BUFFER, 0, lessThanSize, data) //   old data can't be
  *                                                        //   used again.
- * However, this can cause a performance decrease on Chrome cmd buffer because
- * it will create a new allocation and memset the whole thing to zero (for
- * security reasons). Defaults to 1 (enabled).
+ * However, this can be an unoptimization on some platforms, esp. Chrome.
+ * Chrome's cmd buffer will create a new allocation and memset the whole thing
+ * to zero (for security reasons). Defaults to 1 (enabled).
  *
  * GR_GL_PER_GL_FUNC_CALLBACK: When set to 1 the GrGLInterface object provides
  * a function pointer that is called just before every gl function. The ptr must
