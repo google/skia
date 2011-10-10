@@ -768,6 +768,14 @@ public:
     const SkRegion& getTotalClip() const;
 
     /**
+     *  Return true if the current clip is non-empty.
+     *
+     *  If bounds is not NULL, set it to the bounds of the current clip
+     *  in global coordinates.
+     */
+    bool getTotalClipBounds(SkIRect* bounds) const;
+
+    /**
      *  Return the current clipstack. This mirrors the result in getTotalClip()
      *  but is represented as a stack of geometric clips + region-ops.
      */

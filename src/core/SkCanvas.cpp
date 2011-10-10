@@ -1151,6 +1151,13 @@ SkCanvas::ClipType SkCanvas::getClipType() const {
     return kComplex_ClipType;
 }
 
+bool SkCanvas::getTotalClipBounds(SkIRect* bounds) const {
+    if (bounds) {
+        *bounds = fMCRec->fRegion->getBounds();
+    }
+    return !fMCRec->fRegion->isEmpty();
+}
+
 const SkRegion& SkCanvas::getTotalClip() const {
     return *fMCRec->fRegion;
 }
