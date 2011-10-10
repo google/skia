@@ -43,9 +43,16 @@
         'gpu.gyp:skgr',
         'images.gyp:images',
         'pdf.gyp:pdf',
-        'utils.gyp:utils',
-        'xps.gyp:xps',
+        'utils.gyp:utils',        
       ],
+      #mac does not like empty dependency.
+      'conditions': [
+        [ 'skia_os == "win"', {
+          'dependencies': [
+            'xps.gyp:xps',
+          ],
+        }],
+      ],  
     },
   ],
 }
