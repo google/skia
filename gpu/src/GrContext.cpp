@@ -1496,7 +1496,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     // thing WRT to the blend then we'll need some query on the PR.
     if (disable_coverage_aa_for_blend(target)) {
 #if GR_DEBUG
-        GrPrintf("Turning off AA to correctly apply blend.\n")
+        GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
         target->disableState(GrDrawTarget::kAntialias_StateBit);
     }
