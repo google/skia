@@ -12,6 +12,8 @@
 #include "SkScan.h"
 #include "SkThread.h"
 
+#define kMaxInt32   0x7FFFFFFF
+
 static inline bool x_in_rect(int x, const SkIRect& rect) {
     return (unsigned)(x - rect.fLeft) < (unsigned)rect.width();
 }
@@ -62,9 +64,9 @@ public:
     Iter(const SkAAClip&);
 
     bool done() const { return fDone; }
-    int top() const { SkASSERT(!fDone); return fTop; }
-    int bottom() const { SkASSERT(!fDone); return fBottom; }
-    const uint8_t* data() const { SkASSERT(!fDone); return fData; }
+    int top() const { return fTop; }
+    int bottom() const { return fBottom; }
+    const uint8_t* data() const { return fData; }
     void next();
 
 private:
@@ -79,6 +81,8 @@ private:
 SkAAClip::Iter::Iter(const SkAAClip& clip) {
     if (clip.isEmpty()) {
         fDone = true;
+        fTop = fBottom = clip.fBounds.fBottom;
+        fData = NULL;
         return;
     }
     
@@ -94,18 +98,21 @@ SkAAClip::Iter::Iter(const SkAAClip& clip) {
 }
 
 void SkAAClip::Iter::next() {
-    SkASSERT(!fDone);
+    if (!fDone) {
+        const YOffset* prev = fCurrYOff;
+        const YOffset* curr = prev + 1;
+        SkASSERT(curr <= fStopYOff);
 
-    const YOffset* prev = fCurrYOff;
-    const YOffset* curr = prev + 1;
-
-    if (curr >= fStopYOff) {
-        fDone = true;
-    } else {
         fTop = fBottom;
-        fBottom += curr->fY - prev->fY;
-        fData += curr->fOffset - prev->fOffset;
-        fCurrYOff = curr;
+        if (curr >= fStopYOff) {
+            fDone = true;
+            fBottom = kMaxInt32;
+            fData = NULL;
+        } else {
+            fBottom += curr->fY - prev->fY;
+            fData += curr->fOffset - prev->fOffset;
+            fCurrYOff = curr;
+        }
     }
 }
 
@@ -395,7 +402,7 @@ public:
             SkDebugf("\n");
         }
 
-#if 1
+#if 0
         int prevY = -1;
         for (y = 0; y < fRows.count(); ++y) {
             const Row& row = fRows[y];
@@ -635,25 +642,36 @@ public:
     RowIter(const uint8_t* row, const SkIRect& bounds) {
         fRow = row;
         fLeft = bounds.fLeft;
-        fRight = bounds.fLeft + row[0];
         fBoundsRight = bounds.fRight;
-        SkASSERT(fRight <= fBoundsRight);
-        fDone = false;
+        if (row) {
+            fRight = bounds.fLeft + row[0];
+            SkASSERT(fRight <= fBoundsRight);
+            fAlpha = row[1];
+            fDone = false;
+        } else {
+            fDone = true;
+            fRight = kMaxInt32;
+            fAlpha = 0;
+        }
     }
 
     bool done() const { return fDone; }
-    int left() const { SkASSERT(!done()); return fLeft; }
-    int right() const { SkASSERT(!done()); return fRight; }
-    U8CPU alpha() const { SkASSERT(!done()); return fRow[1]; }
+    int left() const { return fLeft; }
+    int right() const { return fRight; }
+    U8CPU alpha() const { return fAlpha; }
     void next() {
-        SkASSERT(!done());
-        if (fRight == fBoundsRight) {
-            fDone = true;
-        } else {
-            fRow += 2;
+        if (!fDone) {
             fLeft = fRight;
-            fRight += fRow[0];
-            SkASSERT(fRight <= fBoundsRight);
+            if (fRight == fBoundsRight) {
+                fDone = true;
+                fRight = kMaxInt32;
+                fAlpha = 0;
+            } else {
+                fRow += 2;
+                fRight += fRow[0];
+                fAlpha = fRow[1];
+                SkASSERT(fRight <= fBoundsRight);
+            }
         }
     }
 
@@ -663,99 +681,94 @@ private:
     int             fRight;
     int             fBoundsRight;
     bool            fDone;
+    uint8_t         fAlpha;
 };
 
-static void adjust_row(RowIter& iter, int& leftA, int& riteA,
-                       int left, int rite) {
-    if (leftA == left) {
-        leftA = rite;
-        if (leftA == riteA) {
-            if (iter.done()) {
-                leftA = 0x7FFFFFFF;
-                riteA = 0x7FFFFFFF;
-            } else {
-                iter.next();
-                leftA = iter.left();
-                riteA = iter.right();
-            }
-        }
+static void adjust_row(RowIter& iter, int& leftA, int& riteA, int rite) {
+    if (rite == riteA) {
+        iter.next();
+        leftA = iter.left();
+        riteA = iter.right();
     }
+}
+
+static bool intersect(int& min, int& max, int boundsMin, int boundsMax) {
+    SkASSERT(min < max);
+    SkASSERT(boundsMin < boundsMax);
+    if (min >= boundsMax || max <= boundsMin) {
+        return false;
+    }
+    if (min < boundsMin) {
+        min = boundsMin;
+    }
+    if (max > boundsMax) {
+        max = boundsMax;
+    }
+    return true;
 }
 
 static void operatorX(SkAAClip::Builder& builder, int lastY,
                       RowIter& iterA, RowIter& iterB,
                       AlphaProc proc, const SkIRect& bounds) {
-    SkASSERT(!iterA.done());
     int leftA = iterA.left();
     int riteA = iterA.right();
-    SkASSERT(!iterB.done());
     int leftB = iterB.left();
     int riteB = iterB.right();
 
-    for (;;) {
+    int prevRite = bounds.fLeft;
+
+    do {
         U8CPU alphaA = 0;
         U8CPU alphaB = 0;
-        
         int left, rite;
-        if (riteA <= leftB) {         // all A
+ 
+        if (leftA < leftB) {
             left = leftA;
-            rite = riteA;
             alphaA = iterA.alpha();
-        } else if (riteB <= leftA) {  // all B
-            left = leftB;
-            rite = riteB;
-            alphaB = iterB.alpha();
-        } else {
-            // some overlap
-            alphaA = iterA.alpha();
-            alphaB = iterB.alpha();
-            if (leftA <= leftB) {
-                left = leftA;
-                if (leftA == leftB) {
-                    rite = SkMin32(riteA, riteB);
-                } else{
-                    rite = leftB;
-                }
-            } else {    // leftB < leftA
-                left = leftB;
-                rite = leftA;
+            if (riteA <= leftB) {
+                rite = riteA;
+            } else {
+                rite = leftA = leftB;
             }
+        } else if (leftB < leftA) {
+            left = leftB;
+            alphaB = iterB.alpha();
+            if (riteB <= leftA) {
+                rite = riteB;
+            } else {
+                rite = leftB = leftA;
+            }
+        } else {
+            left = leftA;   // or leftB, since leftA == leftB
+            rite = leftA = leftB = SkMin32(riteA, riteB);
+            alphaA = iterA.alpha();
+            alphaB = iterB.alpha();
         }
 
         if (left >= bounds.fRight) {
             break;
         }
-        
-        SkASSERT(rite <= bounds.fRight);
         if (left >= bounds.fLeft) {
+            SkASSERT(rite > left);
             builder.addRun(left, lastY, proc(alphaA, alphaB), rite - left);
-        } else {
-            SkASSERT(rite <= bounds.fLeft);
+            prevRite = rite;
         }
-        
-        if (rite == bounds.fRight) {
-            break;
-        }
-        
-        adjust_row(iterA, leftA, riteA, left, rite);
-        adjust_row(iterB, leftB, riteB, left, rite);
+
+        adjust_row(iterA, leftA, riteA, rite);
+        adjust_row(iterB, leftB, riteB, rite);
+    } while (!iterA.done() || !iterB.done());
+
+    if (prevRite < bounds.fRight) {
+        builder.addRun(prevRite, lastY, 0, bounds.fRight - prevRite);
     }
 }
 
-static void adjust_iter(SkAAClip::Iter& iter, int& topA, int& botA,
-                        int top, int bot) {
-    if (topA == top) {
-        topA = bot;
-        if (topA == botA) {
-            if (iter.done()) {
-                topA = 0x7FFFFFFF;
-                botA = 0x7FFFFFFF;
-            } else {
-                iter.next();
-                topA = iter.top();
-                botA = iter.bottom();
-            }
-        }
+static void adjust_iter(SkAAClip::Iter& iter, int& topA, int& botA, int bot) {
+    if (bot == botA) {
+        iter.next();
+        topA = botA;
+        SkASSERT(botA == iter.top());
+        botA = iter.bottom();
     }
 }
 
@@ -774,61 +787,50 @@ static void operateY(SkAAClip::Builder& builder, const SkAAClip& A,
     int topB = iterB.top();
     int botB = iterB.bottom();
 
-    for (;;) {
-        SkASSERT(topA < botA);
-        SkASSERT(topB < botB);
-
-        const uint8_t* rowA = gEmptyRow;
-        const uint8_t* rowB = gEmptyRow;
-
-        // find the vertical
+    do {
+        const uint8_t* rowA = NULL;
+        const uint8_t* rowB = NULL;
         int top, bot;
-        if (botA <= topB) {         // all A
+
+        if (topA < topB) {
             top = topA;
-            bot = botA;
             rowA = iterA.data();
-        } else if (botB <= topA) {  // all B
-            top = topB;
-            bot = botB;
-            rowB = iterB.data();
-        } else {
-            // some overlap
-            rowA = iterA.data();
-            rowB = iterB.data();
-            if (topA <= topB) {
-                top = topA;
-                if (topA == topB) {
-                    bot = SkMin32(botA, botB);
-                } else{
-                    bot = topB;
-                }
-            } else {    // topB < topA
-                top = topB;
-                bot = topA;
+            if (botA <= topB) {
+                bot = botA;
+            } else {
+                bot = topA = topB;
             }
+            
+        } else if (topB < topA) {
+            top = topB;
+            rowB = iterB.data();
+            if (botB <= topA) {
+                bot = botB;
+            } else {
+                bot = topB = topA;
+            }
+        } else {
+            top = topA;   // or topB, since topA == topB
+            bot = topA = topB = SkMin32(botA, botB);
+            rowA = iterA.data();
+            rowB = iterB.data();
         }
 
         if (top >= bounds.fBottom) {
             break;
         }
-
-        SkASSERT(bot <= bounds.fBottom);
-        if (top >= bounds.fTop) {
-            RowIter rowIterA(rowA, A.getBounds());
-            RowIter rowIterB(rowB, B.getBounds());
+        if (!rowA && !rowB) {
+            builder.addRun(bounds.fLeft, bot - 1, 0, bounds.width());
+        } else if (top >= bounds.fTop) {
+            SkASSERT(bot <= bounds.fBottom);
+            RowIter rowIterA(rowA, rowA ? A.getBounds() : bounds);
+            RowIter rowIterB(rowB, rowB ? B.getBounds() : bounds);
             operatorX(builder, bot - 1, rowIterA, rowIterB, proc, bounds);
-        } else {
-            SkASSERT(bot <= bounds.fTop);
         }
 
-        if (bot == bounds.fBottom) {
-            break;
-        }
-        
-        adjust_iter(iterA, topA, botA, top, bot);
-        adjust_iter(iterB, topB, botB, top, bot);
-    }
-    
+        adjust_iter(iterA, topA, botA, bot);
+        adjust_iter(iterB, topB, botB, bot);
+    } while (!iterA.done() || !iterB.done());
 }
 
 bool SkAAClip::op(const SkAAClip& clipAOrig, const SkAAClip& clipBOrig,
@@ -884,7 +886,6 @@ bool SkAAClip::op(const SkAAClip& clipAOrig, const SkAAClip& clipBOrig,
             return !this->isEmpty();
     }
 
-    SkASSERT(SkIRect::Intersects(clipA->fBounds, clipB->fBounds));
     SkASSERT(SkIRect::Intersects(bounds, clipB->fBounds));
     SkASSERT(SkIRect::Intersects(bounds, clipB->fBounds));
 
@@ -1077,6 +1078,32 @@ const SkBitmap* SkAAClipBlitter::justAnOpaqueColor(uint32_t* value) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+bool SkAAClip::offset(int dx, int dy) {
+    if (this->isEmpty()) {
+        return false;
+    }
+
+    fBounds.offset(dx, dy);
+    return true;
+}
+
+bool SkAAClip::offset(int dx, int dy, SkAAClip* dst) const {
+    if (this == dst) {
+        return dst->offset(dx, dy);
+    }
+
+    dst->setEmpty();
+    if (this->isEmpty()) {
+        return false;
+    }
+
+    sk_atomic_inc(&fRunHead->fRefCnt);
+    dst->fRunHead = fRunHead;
+    dst->fBounds = fBounds;
+    dst->fBounds.offset(dx, dy);
+    return true;
+}
 
 static void expand_row_to_mask(uint8_t* SK_RESTRICT mask,
                                const uint8_t* SK_RESTRICT row,

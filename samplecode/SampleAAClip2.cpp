@@ -57,22 +57,19 @@ public:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    void build_rgn(SkAAClip* clip, SkRegion::Op op) {
-        clip->setRect(fBase);
-#if 0
-        SkIRect r = fBase;
-        r.offset(75, 20);
-        rgn->op(r, SkRegion::kUnion_Op);
-#endif
-
+    static void setAAClip(SkAAClip* clip, const SkIRect& rect) {
         SkRect r;
-        r.set(fRect);
+        r.set(rect);
         SkPath path;
-        path.addOval(r);
+        path.addRoundRect(r, SkIntToScalar(5), SkIntToScalar(5));
+        clip->setPath(path);
+    }
+
+    void build_rgn(SkAAClip* clip, SkRegion::Op op) {
+        setAAClip(clip, fBase);
+
         SkAAClip clip2;
-        clip2.setPath(path);
-        // hack
-        op = SkRegion::kIntersect_Op;
+        setAAClip(&clip2, fRect);
         clip->op(clip2, op);
     }
 
@@ -101,6 +98,17 @@ protected:
         canvas->drawRect(r, paint);
     }
     
+    static void outer_frame(SkCanvas* canvas, const SkIRect& rect) {
+        SkRect r;
+        r.set(rect);
+        r.inset(-SK_ScalarHalf, -SK_ScalarHalf);
+        
+        SkPaint paint;
+        paint.setColor(SK_ColorGRAY);
+        paint.setStyle(SkPaint::kStroke_Style);
+        canvas->drawRect(r, paint);
+    }
+
     void drawRgnOped(SkCanvas* canvas, SkRegion::Op op, SkColor color) {
         SkAAClip clip;
 
@@ -115,6 +123,11 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setColor(color);
         paint_rgn(canvas, clip, paint);
+        
+        SkAAClip clip2(clip);
+        clip2.offset(0, 80);
+        outer_frame(canvas, clip2.getBounds());
+        paint_rgn(canvas, clip2, paint);
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
@@ -135,10 +148,6 @@ protected:
         textPaint.setTextSize(SK_Scalar1*24);
 
         this->drawOrig(canvas, false);
-        canvas->save();
-            canvas->translate(SkIntToScalar(200), 0);
-            this->drawRgnOped(canvas, SkRegion::kUnion_Op, SK_ColorBLACK);
-        canvas->restore();
         
         canvas->translate(0, SkIntToScalar(200));
 
