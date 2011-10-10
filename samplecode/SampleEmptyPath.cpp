@@ -79,8 +79,8 @@ protected:
         canvas->save();
         canvas->translate(80 * SK_Scalar1, 0);
         canvas->save();
-        for (int style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
-            for (int fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
+        for (size_t style = 0; style < SK_ARRAY_COUNT(gStyles); ++style) {
+            for (size_t fill = 0; fill < SK_ARRAY_COUNT(gFills); ++fill) {
                 if (0 == i % 4) {
                     canvas->restore();
                     canvas->translate(0, rect.height() + 50 * SK_Scalar1);
