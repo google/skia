@@ -35,6 +35,7 @@
         '../samplecode/OverView.cpp',
         '../samplecode/Sample2PtRadial.cpp',
         '../samplecode/SampleAARects.cpp',
+        '../samplecode/SampleAARectModes.cpp',
         '../samplecode/SampleAll.cpp',
         '../samplecode/SampleAnimator.cpp',
         '../samplecode/SampleApp.cpp',

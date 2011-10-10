@@ -81,6 +81,7 @@ struct ShaderCodeSegments {
 
 #define POS_ATTR_NAME "aPosition"
 #define COL_ATTR_NAME "aColor"
+#define COV_ATTR_NAME "aCoverage"
 #define EDGE_ATTR_NAME "aEdge"
 #define COL_UNI_NAME "uColor"
 #define EDGES_UNI_NAME "uEdges"
@@ -751,6 +752,23 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         // get edge AA coverage and use it as inCoverage to first coverage stage
         this->genEdgeCoverage(gl, layout, programData, &inCoverage, &segments);
 
+        // include explicit per-vertex coverage if we have it
+        if (GrDrawTarget::kCoverage_VertexLayoutBit & layout) {
+            segments.fVSAttrs.push_back().set(GrGLShaderVar::kFloat_Type,
+                                              COV_ATTR_NAME);
+            const char *vsName, *fsName;
+            append_varying(GrGLShaderVar::kFloat_Type, "Coverage", 
+                           &segments, &vsName, &fsName);
+            segments.fVSCode.appendf("\t%s = " COV_ATTR_NAME ";\n", vsName);
+            if (inCoverage.size()) {
+                segments.fFSCode.appendf("\tfloat edgeAndAttrCov = %s * %s;\n",
+                                         fsName, inCoverage.c_str());
+                inCoverage = "edgeAndAttrCov";
+            } else {
+                inCoverage = fsName;
+            }
+        }
+
         GrStringBuilder outCoverage;
         const int& startStage = fProgramDesc.fFirstCoverageStage;
         for (int s = startStage; s < GrDrawTarget::kNumStages; ++s) {
@@ -1100,6 +1118,8 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
 
     GR_GL_CALL(gl, BindAttribLocation(progID, ColorAttributeIdx(),
                                       COL_ATTR_NAME));
+    GR_GL_CALL(gl, BindAttribLocation(progID, CoverageAttributeIdx(),
+                                      COV_ATTR_NAME));
     GR_GL_CALL(gl, BindAttribLocation(progID, EdgeAttributeIdx(),
                                       EDGE_ATTR_NAME));
 

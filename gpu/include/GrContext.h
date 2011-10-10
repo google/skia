@@ -563,13 +563,13 @@ private:
     GrContext(GrGpu* gpu);
 
     void fillAARect(GrDrawTarget* target,
-                    const GrPaint& paint,
-                    const GrRect& devRect);
+                    const GrRect& devRect,
+                    bool useVertexCoverage);
 
     void strokeAARect(GrDrawTarget* target,
-                      const GrPaint& paint,
                       const GrRect& devRect,
-                      const GrVec& devStrokeSize);
+                      const GrVec& devStrokeSize,
+                      bool useVertexCoverage);
 
     inline int aaFillRectIndexCount() const;
     GrIndexBuffer* aaFillRectIndexBuffer();
