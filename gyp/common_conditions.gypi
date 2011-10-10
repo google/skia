@@ -105,6 +105,11 @@
               'GCC_OPTIMIZATION_LEVEL': '0',
             },
           },
+          'Release': {
+            'xcode_settings': {
+              'GCC_OPTIMIZATION_LEVEL': '3',
+            },
+          },
         },
         'xcode_settings': {
           'SYMROOT': '<(DEPTH)/xcodebuild',

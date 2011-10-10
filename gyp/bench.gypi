@@ -22,7 +22,6 @@
     '../bench/BitmapBench.cpp',
     '../bench/BlurBench.cpp',
     '../bench/DecodeBench.cpp',
-    '../bench/FPSBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/MathBench.cpp',
     '../bench/MatrixBench.cpp',
