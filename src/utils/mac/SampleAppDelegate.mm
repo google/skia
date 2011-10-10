@@ -5,6 +5,7 @@
 -(void) applicationDidFinishLaunching:(NSNotification *)aNotification {
     //Load specified skia views after launching
     fView.fOptionsDelegate = fOptions;
+    [fWindow setAcceptsMouseMovedEvents:YES];
     [fOptions registerMenus:fView.fWind->getMenus()];
 }
 

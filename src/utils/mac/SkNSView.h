@@ -35,6 +35,7 @@ class SkEvent;
 
 - (id)initWithDefaults;
 - (void)setUpWindow;
+- (void)resizeSkView:(NSSize)newSize;
 - (void)setSkTitle:(const char*)title;
 - (void)onAddMenu:(const SkOSMenu*)menu;
 - (void)onUpdateMenu:(const SkOSMenu*)menu;

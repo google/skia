@@ -65,7 +65,6 @@
         '../samplecode/SampleEmboss.cpp',
         '../samplecode/SampleEmptyPath.cpp',
         '../samplecode/SampleEncode.cpp',
-        '../samplecode/SampleExtractAlpha.cpp',
         '../samplecode/SampleFillType.cpp',
         '../samplecode/SampleFilter.cpp',
         '../samplecode/SampleFilter2.cpp',
