@@ -31,8 +31,9 @@ public:
 
     bool setEmpty();
     bool setRect(const SkIRect&);
-    bool setRect(const SkRect&);
-    bool setPath(const SkPath&, const SkRegion* clip = NULL);
+    bool setRect(const SkRect&, bool doAA = true);
+    bool setPath(const SkPath&, const SkRegion* clip = NULL, bool doAA = true);
+    bool setRegion(const SkRegion&);
     bool set(const SkAAClip&);
 
     bool op(const SkAAClip&, const SkAAClip&, SkRegion::Op);

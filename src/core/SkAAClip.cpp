@@ -210,14 +210,30 @@ bool SkAAClip::setRect(const SkIRect& bounds) {
     return this->setPath(path);
 }
 
-bool SkAAClip::setRect(const SkRect& r) {
+bool SkAAClip::setRect(const SkRect& r, bool doAA) {
     if (r.isEmpty()) {
         return this->setEmpty();
     }
 
     SkPath path;
     path.addRect(r);
-    return this->setPath(path);
+    return this->setPath(path, NULL, doAA);
+}
+
+bool SkAAClip::setRegion(const SkRegion& rgn) {
+    if (rgn.isEmpty()) {
+        return this->setEmpty();
+    }
+    if (rgn.isRect()) {
+        return this->setRect(rgn.getBounds());
+    }
+    
+    SkAAClip clip;
+    SkRegion::Iterator iter(rgn);
+    for (; !iter.done(); iter.next()) {
+        clip.op(iter.rect(), SkRegion::kUnion_Op);
+    }
+    this->swap(clip);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -544,7 +560,7 @@ private:
     }
 };
 
-bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip) {
+bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
     if (clip && clip->isEmpty()) {
         return this->setEmpty();
     }
@@ -567,7 +583,11 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip) {
     Builder        builder(ibounds);
     BuilderBlitter blitter(&builder);
 
-    SkScan::AntiFillPath(path, *clip, &blitter, true);
+    if (doAA) {
+        SkScan::AntiFillPath(path, *clip, &blitter, true);
+    } else {
+        SkScan::FillPath(path, *clip, &blitter);
+    }
 
     this->freeRuns();
     fBounds = ibounds;
