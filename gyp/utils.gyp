@@ -78,11 +78,13 @@
         
         #windows
         '../include/utils/win/SkAutoCoInitialize.h',
+        '../include/utils/win/SkHRESULT.h',
         '../include/utils/win/SkIStream.h',
         '../include/utils/win/SkTScopedComPtr.h',
         '../src/utils/win/SkAutoCoInitialize.cpp',
         '../src/utils/win/skia_win.cpp',
         '../src/utils/win/SkEGLContext_Win.cpp',
+        '../src/utils/win/SkHRESULT.cpp',
         '../src/utils/win/SkIStream.cpp',
         '../src/utils/win/SkOSWindow_Win.cpp',
       ],
@@ -152,11 +154,13 @@
           ],
           'sources!': [
             '../include/utils/win/SkAutoCoInitialize.h',
+            '../include/utils/win/SkHRESULT.h',
             '../include/utils/win/SkIStream.h',
             '../include/utils/win/SkTScopedComPtr.h',
             '../src/utils/win/SkAutoCoInitialize.cpp',
             '../src/utils/win/skia_win.cpp',
             '../src/utils/win/SkEGLContext_Win.cpp',
+            '../src/utils/win/SkHRESULT.cpp',
             '../src/utils/win/SkIStream.cpp',
             '../src/utils/win/SkOSWindow_Win.cpp',
           ],

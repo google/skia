@@ -1,12 +1,11 @@
-
 /*
  * Copyright 2011 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "gm.h"
 
+#include "gm.h"
 #include "GrContext.h"
 #include "GrRenderTarget.h"
 
@@ -26,6 +25,10 @@
 #ifdef SK_SUPPORT_PDF
     #include "SkPDFDevice.h"
     #include "SkPDFDocument.h"
+#endif
+
+#ifdef SK_SUPPORT_XPS
+    #include "SkXPSDevice.h"
 #endif
 
 #ifdef SK_BUILD_FOR_MAC
@@ -195,9 +198,10 @@ static bool compare(const SkBitmap& target, const SkBitmap& base,
     return true;
 }
 
-static bool write_pdf(const SkString& path, const SkDynamicMemoryWStream& pdf) {
+static bool write_document(const SkString& path,
+                           const SkDynamicMemoryWStream& document) {
     SkFILEWStream stream(path.c_str());
-    SkAutoDataUnref data(pdf.copyToData());
+    SkAutoDataUnref data(document.copyToData());
     return stream.writeData(data.get());
 }
 
@@ -205,6 +209,7 @@ enum Backend {
   kRaster_Backend,
   kGPU_Backend,
   kPDF_Backend,
+  kXPS_Backend,
 };
 
 struct ConfigData {
@@ -278,21 +283,55 @@ static void generate_pdf(GM* gm, SkDynamicMemoryWStream& pdf) {
 #endif
 }
 
+static void generate_xps(GM* gm, SkDynamicMemoryWStream& xps) {
+#ifdef SK_SUPPORT_XPS
+    SkISize size = gm->getISize();
+    
+    SkSize trimSize = SkSize::Make(SkIntToScalar(size.width()),
+                                   SkIntToScalar(size.height()));
+    static const double inchesPerMeter = 10000.0 / 254.0;
+    static const double upm = 72 * inchesPerMeter;
+    SkVector unitsPerMeter = SkPoint::Make(SkDoubleToScalar(upm),
+                                           SkDoubleToScalar(upm));
+    static const double ppm = 200 * inchesPerMeter;
+    SkVector pixelsPerMeter = SkPoint::Make(SkDoubleToScalar(ppm),
+                                            SkDoubleToScalar(ppm));
+
+    SkXPSDevice* dev = new SkXPSDevice();
+    SkAutoUnref aur(dev);
+
+    SkCanvas c(dev);
+    dev->beginPortfolio(&xps);
+    dev->beginSheet(unitsPerMeter, pixelsPerMeter, trimSize);
+    gm->draw(&c);
+    dev->endSheet();
+    dev->endPortfolio();
+
+#endif
+}
+
 static bool write_reference_image(const ConfigData& gRec,
                                   const char writePath [],
                                   const char renderModeDescriptor [],
                                   const SkString& name,
                                   SkBitmap& bitmap,
-                                  SkDynamicMemoryWStream* pdf) {
+                                  SkDynamicMemoryWStream* document) {
     SkString path;
     bool success = false;
-    if (gRec.fBackend != kPDF_Backend || CAN_IMAGE_PDF) {
+    if (gRec.fBackend == kRaster_Backend ||
+        gRec.fBackend == kGPU_Backend ||
+        (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF)) {
+    
         path = make_filename(writePath, renderModeDescriptor, name, "png");
         success = write_bitmap(path, bitmap);
     }
     if (kPDF_Backend == gRec.fBackend) {
         path = make_filename(writePath, renderModeDescriptor, name, "pdf");
-        success = write_pdf(path, *pdf);
+        success = write_document(path, *document);
+    }
+    if (kXPS_Backend == gRec.fBackend) {
+        path = make_filename(writePath, renderModeDescriptor, name, "xps");
+        success = write_document(path, *document);
     }
     if (!success) {
         fprintf(stderr, "FAILED to write %s\n", path.c_str());
@@ -355,7 +394,10 @@ static bool handle_test_results(GM* gm,
     if (writePath) {
         write_reference_image(gRec, writePath, renderModeDescriptor,
                               name, bitmap, pdf);
-    } else if (readPath && (gRec.fBackend != kPDF_Backend || CAN_IMAGE_PDF)) {
+    } else if (readPath && (
+                   gRec.fBackend == kRaster_Backend ||
+                   gRec.fBackend == kGPU_Backend ||
+                   (gRec.fBackend == kPDF_Backend && CAN_IMAGE_PDF))) {
         return compare_to_reference_image(readPath, name, bitmap,
                                    diffPath, renderModeDescriptor);
     } else if (comparisonBitmap) {
@@ -409,7 +451,7 @@ static bool test_drawing(GM* gm,
                          GrContext* context,
                          GrRenderTarget* rt,
                          SkBitmap* bitmap) {
-    SkDynamicMemoryWStream pdf;
+    SkDynamicMemoryWStream document;
 
     if (gRec.fBackend == kRaster_Backend ||
         gRec.fBackend == kGPU_Backend) {
@@ -419,15 +461,17 @@ static bool test_drawing(GM* gm,
             return true;
         }
     } else if (gRec.fBackend == kPDF_Backend) {
-        generate_pdf(gm, pdf);
+        generate_pdf(gm, document);
 #if CAN_IMAGE_PDF
         SkAutoDataUnref data(pdf.copyToData());
         SkMemoryStream stream(data.data(), data.size());
         SkPDFDocumentToBitmap(&stream, bitmap);
 #endif
+    } else if (gRec.fBackend == kXPS_Backend) {
+        generate_xps(gm, document);
     }
     return handle_test_results(gm, gRec, writePath, readPath, diffPath,
-                        "", *bitmap, &pdf, NULL);
+                               "", *bitmap, &document, NULL);
 }
 
 static bool test_picture_playback(GM* gm,
@@ -489,6 +533,9 @@ static const ConfigData gRec[] = {
 #endif
 #ifdef SK_SUPPORT_PDF
     { SkBitmap::kARGB_8888_Config, kPDF_Backend,    "pdf" },
+#endif
+#ifdef SK_SUPPORT_XPS
+    { SkBitmap::kARGB_8888_Config, kXPS_Backend,    "xps" },
 #endif
 };
 

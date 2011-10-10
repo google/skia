@@ -44,6 +44,7 @@
         'images.gyp:images',
         'pdf.gyp:pdf',
         'utils.gyp:utils',
+        'xps.gyp:xps',
       ],
     },
   ],
