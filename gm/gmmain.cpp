@@ -463,7 +463,7 @@ static bool test_drawing(GM* gm,
     } else if (gRec.fBackend == kPDF_Backend) {
         generate_pdf(gm, document);
 #if CAN_IMAGE_PDF
-        SkAutoDataUnref data(pdf.copyToData());
+        SkAutoDataUnref data(document.copyToData());
         SkMemoryStream stream(data.data(), data.size());
         SkPDFDocumentToBitmap(&stream, bitmap);
 #endif
