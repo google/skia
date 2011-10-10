@@ -53,15 +53,17 @@
     return YES;
 }
 
-- (void)viewDidEndLiveResize {
-    NSSize s = [self frame].size;
-    if (NULL != fWind && fWind->width() != s.width && fWind->height() != s.height) {
-        fWind->resize(s.width, s.height);
-        if (nil != fGLContext) {
-            [fGLContext update];
-            glClear(GL_STENCIL_BUFFER_BIT);
-        }
+- (void)resizeSkView:(NSSize)newSize {
+    if (NULL != fWind && (fWind->width() != newSize.width || fWind->height() != newSize.height)) {
+        fWind->resize(newSize.width, newSize.height);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        [fGLContext update];
     }
+}
+
+- (void) setFrameSize:(NSSize)newSize {
+    [super setFrameSize:newSize];
+    [self resizeSkView:newSize];
 }
 
 - (void)dealloc {
@@ -71,7 +73,7 @@
     [super dealloc];
 }
 
-/////////////////////////////////////////////0//////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)drawSkia {
     fRedrawRequestPending = false;
@@ -197,6 +199,14 @@ static SkKey raw2key(UInt32 raw)
 }
 
 - (void)mouseDragged:(NSEvent *)event {
+    NSPoint p = [event locationInWindow];
+    if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
+        NSPoint loc = [self convertPoint:p fromView:nil];
+        fWind->handleClick(loc.x, loc.y, SkView::Click::kMoved_State, self);
+    }
+}
+
+- (void)mouseMoved:(NSEvent *)event {
     NSPoint p = [event locationInWindow];
     if ([self mouse:p inRect:[self bounds]] && NULL != fWind) {
         NSPoint loc = [self convertPoint:p fromView:nil];

@@ -127,8 +127,8 @@ bool SkAnimatorView::decodeStream(SkStream* stream) {
 #include "SkTime.h"
 
 void SkAnimatorView::onDraw(SkCanvas* canvas) {
+    canvas->drawColor(SK_ColorWHITE);
     if (fAnimator) {
-        canvas->drawColor(SK_ColorWHITE);
         fAnimator->draw(canvas, 0);
 #if 0
         canvas->save();
