@@ -42,6 +42,9 @@ public:
     bool op(const SkRect&, SkRegion::Op);
     bool op(const SkAAClip&, SkRegion::Op);
 
+    bool offset(int dx, int dy);
+    bool offset(int dx, int dy, SkAAClip* dst) const;
+
     /**
      *  Allocates a mask the size of the aaclip, and expands its data into
      *  the mask, using kA8_Format
