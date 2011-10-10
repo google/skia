@@ -677,6 +677,7 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
         return false;
     }
     if (disable_coverage_aa_for_blend(target)) {
+        GrPrintf("Turning off AA to correctly apply blend.\n");
         return false;
     }
     return true;
@@ -937,18 +938,6 @@ static void setStrokeRectStrip(GrPoint verts[10], GrRect rect,
     verts[9] = verts[1];
 }
 
-static GrColor getColorForMesh(const GrPaint& paint) {
-    // FIXME: This was copied from SkGpuDevice, seems like
-    // we should have already smeared a in caller if that
-    // is what is desired.
-    if (paint.hasTexture()) {
-        unsigned a = GrColorUnpackA(paint.fColor);
-        return GrColorPackRGBA(a, a, a, a);
-    } else {
-        return paint.fColor;
-    }
-}
-
 static void setInsetFan(GrPoint* pts, size_t stride,
                         const GrRect& r, GrScalar dx, GrScalar dy) {
     pts->setRectFan(r.fLeft + dx, r.fTop + dy, r.fRight - dx, r.fBottom - dy, stride);
@@ -1019,11 +1008,26 @@ GrIndexBuffer* GrContext::aaStrokeRectIndexBuffer() {
     return fAAStrokeRectIndexBuffer;
 }
 
+static GrVertexLayout aa_rect_layout(const GrDrawTarget* target,
+                                     bool useCoverage) {
+    GrVertexLayout layout = 0;
+    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+        if (NULL != target->getTexture(s)) {
+            layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
+        }
+    }
+    if (useCoverage) {
+        layout |= GrDrawTarget::kCoverage_VertexLayoutBit;
+    } else {
+        layout |= GrDrawTarget::kColor_VertexLayoutBit;
+    }
+    return layout;
+}
+
 void GrContext::fillAARect(GrDrawTarget* target,
-                           const GrPaint& paint,
-                           const GrRect& devRect) {
-    GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL) |
-                            GrDrawTarget::kColor_VertexLayoutBit;
+                           const GrRect& devRect,
+                           bool useVertexCoverage) {
+    GrVertexLayout layout = aa_rect_layout(target, useVertexCoverage);
 
     size_t vsize = GrDrawTarget::VertexSize(layout);
 
@@ -1051,7 +1055,13 @@ void GrContext::fillAARect(GrDrawTarget* target,
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }
 
-    GrColor innerColor = getColorForMesh(paint);
+    GrColor innerColor;
+    if (useVertexCoverage) {
+        innerColor = GrColorPackRGBA(0,0,0,0xff);
+    } else {
+        innerColor = target->getColor();
+    }
+
     verts += 4 * vsize;
     for (int i = 0; i < 4; ++i) {
         *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
@@ -1063,15 +1073,14 @@ void GrContext::fillAARect(GrDrawTarget* target,
                          0, 8, this->aaFillRectIndexCount());
 }
 
-void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
-                             const GrRect& devRect, const GrVec& devStrokeSize) {
+void GrContext::strokeAARect(GrDrawTarget* target,
+                             const GrRect& devRect,
+                             const GrVec& devStrokeSize,
+                             bool useVertexCoverage) {
     const GrScalar& dx = devStrokeSize.fX;
     const GrScalar& dy = devStrokeSize.fY;
     const GrScalar rx = GrMul(dx, GR_ScalarHalf);
     const GrScalar ry = GrMul(dy, GR_ScalarHalf);
-
-    GrVertexLayout layout = PaintStageVertexLayoutBits(paint, NULL) |
-                            GrDrawTarget::kColor_VertexLayoutBit;
 
     GrScalar spare;
     {
@@ -1083,10 +1092,10 @@ void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
     if (spare <= 0) {
         GrRect r(devRect);
         r.inset(-rx, -ry);
-        fillAARect(target, paint, r);
+        fillAARect(target, r, useVertexCoverage);
         return;
     }
-
+    GrVertexLayout layout = aa_rect_layout(target, useVertexCoverage);
     size_t vsize = GrDrawTarget::VertexSize(layout);
 
     GrDrawTarget::AutoReleaseGeometry geo(target, layout, 16, 0);
@@ -1117,7 +1126,12 @@ void GrContext::strokeAARect(GrDrawTarget* target, const GrPaint& paint,
         *reinterpret_cast<GrColor*>(verts + i * vsize) = 0;
     }
 
-    GrColor innerColor = getColorForMesh(paint);
+    GrColor innerColor;
+    if (useVertexCoverage) {
+        innerColor = GrColorPackRGBA(0,0,0,0xff);
+    } else {
+        innerColor = target->getColor();
+    }
     verts += 4 * vsize;
     for (int i = 0; i < 8; ++i) {
         *reinterpret_cast<GrColor*>(verts + i * vsize) = innerColor;
@@ -1146,7 +1160,8 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
                              GrScalar width, 
                              const GrMatrix* matrix,
                              GrMatrix* combinedMatrix,
-                             GrRect* devRect) {
+                             GrRect* devRect,
+                             bool* useVertexCoverage) {
     // we use a simple alpha ramp to do aa on axis-aligned rects
     // do AA with alpha ramp if the caller requested AA, the rect 
     // will be axis-aligned,the render target is not
@@ -1156,8 +1171,22 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
         return false;
     }
 
+    // we are keeping around the "tweak the alpha" trick because
+    // it is our only hope for the fixed-pipe implementation.
+    // In a shader implementation we can give a separate coverage input
+    *useVertexCoverage = false;
     if (!target->canTweakAlphaForCoverage()) {
-        return false;
+        if (target->getCaps().fSupportPerVertexCoverage) {
+            if (disable_coverage_aa_for_blend(target)) {
+                GrPrintf("Turning off AA to correctly apply blend.\n");
+                return false;
+            } else {
+                *useVertexCoverage = true;
+            }
+        } else {
+            GrPrintf("Rect AA dropped because no support for coverage.\n");
+            return false;
+        }
     }
 
     if (target->getRenderTarget()->isMultisampled()) {
@@ -1204,8 +1233,9 @@ void GrContext::drawRect(const GrPaint& paint,
 
     GrRect devRect = rect;
     GrMatrix combinedMatrix;
+    bool useVertexCoverage;
     bool doAA = apply_aa_to_rect(target, rect, width, matrix,
-                                 &combinedMatrix, &devRect);
+                                 &combinedMatrix, &devRect, &useVertexCoverage);
 
     if (doAA) {
         GrDrawTarget::AutoViewMatrixRestore avm(target);
@@ -1225,9 +1255,9 @@ void GrContext::drawRect(const GrPaint& paint,
             } else {
                 strokeSize.set(GR_Scalar1, GR_Scalar1);
             }
-            strokeAARect(target, paint, devRect, strokeSize);
+            strokeAARect(target, devRect, strokeSize, useVertexCoverage);
         } else {
-            fillAARect(target, paint, devRect);
+            fillAARect(target, devRect, useVertexCoverage);
         }
         return;
     }
@@ -1406,12 +1436,11 @@ void GrContext::drawVertices(const GrPaint& paint,
         }
         int texOffsets[GrDrawTarget::kMaxTexCoords];
         int colorOffset;
-        int edgeOffset;
         GrDrawTarget::VertexSizeAndOffsetsByIdx(layout,
                                                 texOffsets,
                                                 &colorOffset,
-                                                &edgeOffset);
-        GrAssert(-1 == edgeOffset);
+                                                NULL,
+                                                NULL);
         void* curVertex = geo.vertices();
 
         for (int i = 0; i < vertexCount; ++i) {
@@ -1462,6 +1491,7 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
     if (disable_coverage_aa_for_blend(target)) {
+        GrPrintf("Turning off AA to correctly apply blend.\n");
         target->disableState(GrDrawTarget::kAntialias_StateBit);
     }
     

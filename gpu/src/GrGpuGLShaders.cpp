@@ -219,6 +219,10 @@ bool GrGpuGLShaders::programUnitTest() {
         idx = (int)(random.nextF() * (kNumStages+1));
         pdesc.fFirstCoverageStage = idx;
 
+        pdesc.fVertexLayout |= (random.nextF() > .5f) ?
+                                    GrDrawTarget::kCoverage_VertexLayoutBit :
+                                    0;
+
 #if GR_GL_EXPERIMENTAL_GS
         pdesc.fExperimentalGS = this->getCaps().fGeometryShaderSupport &&
                                 random.nextF() > .5f;
@@ -238,8 +242,8 @@ bool GrGpuGLShaders::programUnitTest() {
                 }
                 pdesc.fEdgeAANumEdges = 0;
             } else {
-                pdesc.fEdgeAANumEdges =  SkToS8(1 + random.nextF() *
-                                                this->getMaxEdges());
+                pdesc.fEdgeAANumEdges =  static_cast<int>(1 + random.nextF() *
+                                                          this->getMaxEdges());
                 pdesc.fEdgeAAConcave = random.nextF() > .5f;
             }
         } else {
@@ -312,6 +316,7 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
 
     // Enable supported shader-releated caps
     fCaps.fShaderSupport = true;
+    fCaps.fSupportPerVertexCoverage = true;
     if (kDesktop_GrGLBinding == this->glBinding()) {
         fCaps.fDualSourceBlendingSupport =
                             this->glVersion() >= GR_GL_VER(3,3) ||
@@ -700,6 +705,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
                                     int indexCount) {
 
     int newColorOffset;
+    int newCoverageOffset;
     int newTexCoordOffsets[kMaxTexCoords];
     int newEdgeOffset;
 
@@ -707,8 +713,10 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
                                             this->getGeomSrc().fVertexLayout,
                                             newTexCoordOffsets,
                                             &newColorOffset,
+                                            &newCoverageOffset,
                                             &newEdgeOffset);
     int oldColorOffset;
+    int oldCoverageOffset;
     int oldTexCoordOffsets[kMaxTexCoords];
     int oldEdgeOffset;
 
@@ -716,6 +724,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
                                             fHWGeometryState.fVertexLayout,
                                             oldTexCoordOffsets,
                                             &oldColorOffset,
+                                            &oldCoverageOffset,
                                             &oldEdgeOffset);
     bool indexed = NULL != startIndex;
 
@@ -790,6 +799,23 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
         }
     } else if (oldColorOffset > 0) {
         GL_CALL(DisableVertexAttribArray(GrGLProgram::ColorAttributeIdx()));
+    }
+
+    if (newCoverageOffset > 0) {
+        // bind just alpha channel.
+        GrGLvoid* coverageOffset = (int8_t*)(vertexOffset + newCoverageOffset +
+                                             GrColor_INDEX_A);
+        int idx = GrGLProgram::CoverageAttributeIdx();
+        if (oldCoverageOffset <= 0) {
+            GL_CALL(EnableVertexAttribArray(idx));
+            GL_CALL(VertexAttribPointer(idx, 1, GR_GL_UNSIGNED_BYTE,
+                                        true, newStride, coverageOffset));
+        } else if (allOffsetsChange || newCoverageOffset != oldCoverageOffset) {
+            GL_CALL(VertexAttribPointer(idx, 1, GR_GL_UNSIGNED_BYTE,
+                                        true, newStride, coverageOffset));
+        }
+    } else if (oldCoverageOffset > 0) {
+        GL_CALL(DisableVertexAttribArray(GrGLProgram::CoverageAttributeIdx()));
     }
 
     if (newEdgeOffset > 0) {
@@ -954,13 +980,30 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
     desc.fExperimentalGS = this->getCaps().fGeometryShaderSupport;
 #endif
 
-    // use canonical value when coverage/color distinction won't affect
-    // generated code to prevent duplicate programs.
+    // we want to avoid generating programs with different "first cov stage"
+    // values when they would compute the same result.
+    // We set field in the desc to kNumStages when either there are no 
+    // coverage stages or the distinction between coverage and color is
+    // immaterial.
+    int firstCoverageStage = kNumStages;
     desc.fFirstCoverageStage = kNumStages;
-    if (fCurrDrawState.fFirstCoverageStage <= lastEnabledStage) {
+    bool hasCoverage = fCurrDrawState.fFirstCoverageStage <= lastEnabledStage;
+    if (hasCoverage) {
+        firstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+    }
+
+    // other coverage inputs
+    if (!hasCoverage) {
+        hasCoverage =
+               desc.fEdgeAANumEdges ||
+               (desc.fVertexLayout & GrDrawTarget::kCoverage_VertexLayoutBit) ||
+               (desc.fVertexLayout & GrDrawTarget::kEdge_VertexLayoutBit);
+    }
+
+    if (hasCoverage) {
         // color filter is applied between color/coverage computation
         if (SkXfermode::kDst_Mode != desc.fColorFilterXfermode) {
-            desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+            desc.fFirstCoverageStage = firstCoverageStage;
         }
 
         // We could consider cases where the final color is solid (0xff alpha)
@@ -972,17 +1015,17 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type) {
             if (kZero_BlendCoeff == fCurrDrawState.fDstBlend) {
                 // write the coverage value to second color
                 desc.fDualSrcOutput =  ProgramDesc::kCoverage_DualSrcOutput;
-                desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+                desc.fFirstCoverageStage = firstCoverageStage;
             } else if (kSA_BlendCoeff == fCurrDrawState.fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially 
                 // cover
                 desc.fDualSrcOutput = ProgramDesc::kCoverageISA_DualSrcOutput;
-                desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+                desc.fFirstCoverageStage = firstCoverageStage;
             } else if (kSC_BlendCoeff == fCurrDrawState.fDstBlend) {
                 // SA dst coeff becomes 1-(1-SA)*coverage when dst is partially
                 // cover
                 desc.fDualSrcOutput = ProgramDesc::kCoverageISC_DualSrcOutput;
-                desc.fFirstCoverageStage = fCurrDrawState.fFirstCoverageStage;
+                desc.fFirstCoverageStage = firstCoverageStage;
             }
         }
     }

@@ -272,23 +272,29 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
                                  int indexCount) {
 
     int newColorOffset;
+    int newCoverageOffset;
     int newTexCoordOffsets[kNumStages];
     int newEdgeOffset;
 
     GrGLsizei newStride = VertexSizeAndOffsetsByStage(this->getGeomSrc().fVertexLayout,
                                                       newTexCoordOffsets,
                                                       &newColorOffset,
+                                                      &newCoverageOffset,
                                                       &newEdgeOffset);
     GrAssert(-1 == newEdgeOffset); // not supported by fixed pipe
+    GrAssert(-1 == newCoverageOffset); // not supported by fixed pipe
 
     int oldColorOffset;
+    int oldCoverageOffset;
     int oldTexCoordOffsets[kNumStages];
     int oldEdgeOffset;
     GrGLsizei oldStride = VertexSizeAndOffsetsByStage(fHWGeometryState.fVertexLayout,
                                                       oldTexCoordOffsets,
                                                       &oldColorOffset,
+                                                      &oldCoverageOffset,
                                                       &oldEdgeOffset);
     GrAssert(-1 == oldEdgeOffset);
+    GrAssert(-1 == oldCoverageOffset);
 
     bool indexed = NULL != startIndex;
 

@@ -53,6 +53,7 @@ public:
         bool fFSAASupport               : 1;
         bool fDualSourceBlendingSupport : 1;
         bool fBufferLockSupport         : 1;
+        bool fSupportPerVertexCoverage  : 1;
         int fMinRenderTargetWidth;
         int fMinRenderTargetHeight;
         int fMaxRenderTargetSize;
@@ -408,6 +409,12 @@ public:
     void setColor(GrColor);
 
     /**
+     * Gets the currently set color.
+     * @return the current color.
+     */
+    GrColor getColor() const { return fCurrDrawState.fColor; }
+
+    /**
      * Add a color filter that can be represented by a color and a mode.
      */
     void setColorFilter(GrColor, SkXfermode::Mode);
@@ -517,77 +524,6 @@ public:
     GrColor getBlendConstant() const { return fCurrDrawState.fBlendConstant; }
 
     /**
-     * Used to save and restore the GrGpu's drawing state
-     */
-    struct SavedDrawState {
-    private:
-        DrState fState;
-        friend class GrDrawTarget;
-    };
-
-    /**
-     * Saves the current draw state. The state can be restored at a later time
-     * with restoreDrawState.
-     *
-     * See also AutoStateRestore class.
-     *
-     * @param   state will hold the state after the function returns.
-     */
-    void saveCurrentDrawState(SavedDrawState* state) const;
-
-    /**
-     * Restores previously saved draw state. The client guarantees that state
-     * was previously passed to saveCurrentDrawState and that the rendertarget
-     * and texture set at save are still valid.
-     *
-     * See also AutoStateRestore class.
-     *
-     * @param   state the previously saved state to restore.
-     */
-    void restoreDrawState(const SavedDrawState& state);
-
-    /**
-     * Copies the draw state from another target to this target.
-     *
-     * @param srcTarget     draw target used as src of the draw state.
-     */
-    void copyDrawState(const GrDrawTarget& srcTarget);
-
-    /**
-     * The format of vertices is represented as a bitfield of flags.
-     * Flags that indicate the layout of vertex data. Vertices always contain
-     * positions and may also contain up to kMaxTexCoords sets of 2D texture
-     * coordinates and per-vertex colors. Each stage can use any of the texture
-     * coordinates as its input texture coordinates or it may use the positions.
-     *
-     * If no texture coordinates are specified for a stage then the stage is
-     * disabled.
-     *
-     * Only one type of texture coord can be specified per stage. For
-     * example StageTexCoordVertexLayoutBit(0, 2) and
-     * StagePosAsTexCoordVertexLayoutBit(0) cannot both be specified.
-     *
-     * The order in memory is always (position, texture coord 0, ..., color)
-     * with any unused fields omitted. Note that this means that if only texture
-     * coordinates 1 is referenced then there is no texture coordinates 0 and
-     * the order would be (position, texture coordinate 1[, color]).
-     */
-
-    /**
-     * Generates a bit indicating that a texture stage uses texture coordinates
-     *
-     * @param stage       the stage that will use texture coordinates.
-     * @param texCoordIdx the index of the texture coordinates to use
-     *
-     * @return the bit to add to a GrVertexLayout bitfield.
-     */
-    static int StageTexCoordVertexLayoutBit(int stage, int texCoordIdx) {
-        GrAssert(stage < kNumStages);
-        GrAssert(texCoordIdx < kMaxTexCoords);
-        return 1 << (stage + (texCoordIdx * kNumStages));
-    }
-
-    /**
      * Determines if blend is effectively disabled.
      *
      * @return true if blend can be disabled without changing the rendering
@@ -642,6 +578,79 @@ public:
      */
      void setEdgeAAData(const Edge* edges, int numEdges);
 
+    /**
+     * Used to save and restore the GrGpu's drawing state
+     */
+    struct SavedDrawState {
+    private:
+        DrState fState;
+        friend class GrDrawTarget;
+    };
+
+    /**
+     * Saves the current draw state. The state can be restored at a later time
+     * with restoreDrawState.
+     *
+     * See also AutoStateRestore class.
+     *
+     * @param   state will hold the state after the function returns.
+     */
+    void saveCurrentDrawState(SavedDrawState* state) const;
+
+    /**
+     * Restores previously saved draw state. The client guarantees that state
+     * was previously passed to saveCurrentDrawState and that the rendertarget
+     * and texture set at save are still valid.
+     *
+     * See also AutoStateRestore class.
+     *
+     * @param   state the previously saved state to restore.
+     */
+    void restoreDrawState(const SavedDrawState& state);
+
+    /**
+     * Copies the draw state from another target to this target.
+     *
+     * @param srcTarget     draw target used as src of the draw state.
+     */
+    void copyDrawState(const GrDrawTarget& srcTarget);
+
+    /**
+     * The format of vertices is represented as a bitfield of flags.
+     * Flags that indicate the layout of vertex data. Vertices always contain
+     * positions and may also contain up to kMaxTexCoords sets of 2D texture
+     * coordinates, per-vertex colors, and per-vertex coverage. Each stage can 
+     * use any of the texture coordinates as its input texture coordinates or it
+     * may use the positions as texture coordinates.
+     *
+     * If no texture coordinates are specified for a stage then the stage is
+     * disabled.
+     *
+     * Only one type of texture coord can be specified per stage. For
+     * example StageTexCoordVertexLayoutBit(0, 2) and
+     * StagePosAsTexCoordVertexLayoutBit(0) cannot both be specified.
+     *
+     * The order in memory is always (position, texture coord 0, ..., color, 
+     * coverage) with any unused fields omitted. Note that this means that if 
+     * only texture coordinates 1 is referenced then there is no texture
+     * coordinates 0 and the order would be (position, texture coordinate 1
+     * [, color][, coverage]).
+     */
+
+    /**
+     * Generates a bit indicating that a texture stage uses texture coordinates
+     *
+     * @param stage       the stage that will use texture coordinates.
+     * @param texCoordIdx the index of the texture coordinates to use
+     *
+     * @return the bit to add to a GrVertexLayout bitfield.
+     */
+    static int StageTexCoordVertexLayoutBit(int stage, int texCoordIdx) {
+        GrAssert(stage < kNumStages);
+        GrAssert(texCoordIdx < kMaxTexCoords);
+        return 1 << (stage + (texCoordIdx * kNumStages));
+    }
+
 private:
     static const int TEX_COORD_BIT_CNT = kNumStages*kMaxTexCoords;
 public:
@@ -658,6 +667,7 @@ public:
         GrAssert(stage < kNumStages);
         return (1 << (TEX_COORD_BIT_CNT + stage));
     }
+
 private:
     static const int STAGE_BIT_CNT = TEX_COORD_BIT_CNT + kNumStages;
 
@@ -667,14 +677,15 @@ public:
      * Additional Bits that can be specified in GrVertexLayout.
      */
     enum VertexLayoutBits {
-        /* vertices have colors */
+        /* vertices have colors (GrColor) */
         kColor_VertexLayoutBit              = 1 << (STAGE_BIT_CNT + 0),
-                                                
+        /* vertices have coverage (GrColor where only the alpha chan is used */
+        kCoverage_VertexLayoutBit           = 1 << (STAGE_BIT_CNT + 1),
         /* Use text vertices. (Pos and tex coords may be a different type for
            text [GrGpuTextVertex vs GrPoint].) */
-        kTextFormat_VertexLayoutBit         = 1 << (STAGE_BIT_CNT + 1),
+        kTextFormat_VertexLayoutBit         = 1 << (STAGE_BIT_CNT + 2),
 
-        kEdge_VertexLayoutBit               = 1 << (STAGE_BIT_CNT + 2),
+        kEdge_VertexLayoutBit               = 1 << (STAGE_BIT_CNT + 3),
         // for below assert
         kDummyVertexLayoutBit,
         kHighVertexLayoutBit = kDummyVertexLayoutBit - 1
@@ -1121,6 +1132,13 @@ public:
      */
     static int VertexColorOffset(GrVertexLayout vertexLayout);
 
+    /**
+     * Helper function to compute the offset of the coverage in a vertex
+     * @return offset of coverage in vertex layout or -1 if the
+     *         layout has no coverage.
+     */
+    static int VertexCoverageOffset(GrVertexLayout vertexLayout);
+
      /**
       * Helper function to compute the offset of the edge pts in a vertex
       * @return offset of edge in vertex layout or -1 if the
@@ -1162,12 +1180,24 @@ public:
      * @param vertexLayout          the layout to query
      * @param texCoordOffsetsByIdx  after return it is the offset of each
      *                              tex coord index in the vertex or -1 if
-     *                              index isn't used.
+     *                              index isn't used. (optional)
+     * @param colorOffset           after return it is the offset of the
+     *                              color field in each vertex, or -1 if
+     *                              there aren't per-vertex colors. (optional)
+     * @param coverageOffset        after return it is the offset of the
+     *                              coverage field in each vertex, or -1 if
+     *                              there aren't per-vertex coeverages.
+     *                              (optional)
+     * @param edgeOffset            after return it is the offset of the
+     *                              edge eq field in each vertex, or -1 if
+     *                              there aren't per-vertex edge equations.
+     *                              (optional)
      * @return size of a single vertex
      */
     static int VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
                                          int texCoordOffsetsByIdx[kMaxTexCoords],
                                          int *colorOffset,
+                                         int *coverageOffset,
                                          int* edgeOffset);
 
     /**
@@ -1180,12 +1210,25 @@ public:
      * @param vertexLayout              the layout to query
      * @param texCoordOffsetsByStage    after return it is the offset of each
      *                                  tex coord index in the vertex or -1 if
-     *                                  index isn't used.
+     *                                  index isn't used. (optional)
+     * @param colorOffset               after return it is the offset of the
+     *                                  color field in each vertex, or -1 if
+     *                                  there aren't per-vertex colors.
+     *                                  (optional)
+     * @param coverageOffset            after return it is the offset of the
+     *                                  coverage field in each vertex, or -1 if
+     *                                  there aren't per-vertex coeverages.
+     *                                  (optional)
+     * @param edgeOffset                after return it is the offset of the
+     *                                  edge eq field in each vertex, or -1 if
+     *                                  there aren't per-vertex edge equations.
+     *                                  (optional)
      * @return size of a single vertex
      */
     static int VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
                                            int texCoordOffsetsByStage[kNumStages],
                                            int *colorOffset,
+                                           int *coverageOffset,
                                            int* edgeOffset);
 
     /**

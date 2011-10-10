@@ -9,6 +9,7 @@
       'target_name': 'gm',
       'type': 'executable',
       'sources': [
+        '../gm/aarectmodes.cpp',
         '../gm/bitmapfilters.cpp',
         '../gm/bitmapscroll.cpp',
         '../gm/blurs.cpp',
