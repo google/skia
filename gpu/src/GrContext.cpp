@@ -677,7 +677,9 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
         return false;
     }
     if (disable_coverage_aa_for_blend(target)) {
+#if GR_DEBUG
         GrPrintf("Turning off AA to correctly apply blend.\n");
+#endif
         return false;
     }
     return true;
@@ -1178,7 +1180,9 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
     if (!target->canTweakAlphaForCoverage()) {
         if (target->getCaps().fSupportPerVertexCoverage) {
             if (disable_coverage_aa_for_blend(target)) {
+#if GR_DEBUG
                 GrPrintf("Turning off AA to correctly apply blend.\n");
+#endif
                 return false;
             } else {
                 *useVertexCoverage = true;
@@ -1491,13 +1495,17 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
     // aa. If we have some future driver-mojo path AA that can do the right
     // thing WRT to the blend then we'll need some query on the PR.
     if (disable_coverage_aa_for_blend(target)) {
-        GrPrintf("Turning off AA to correctly apply blend.\n");
+#if GR_DEBUG
+        GrPrintf("Turning off AA to correctly apply blend.\n")
+#endif
         target->disableState(GrDrawTarget::kAntialias_StateBit);
     }
     
     GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
     if (NULL == pr) {
+#if GR_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
+#endif
         return;
     }
 
