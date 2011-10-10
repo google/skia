@@ -41,9 +41,24 @@ public:
      */
     bool orBits(const SkBitSet& source);
 
-    /** Export set bits to unsigned int array. (used in font subsetting)
+    /** Export indices of set bits to T array.
      */
-    void exportTo(SkTDArray<uint32_t>* array) const;
+    template<typename T>
+    void exportTo(SkTDArray<T>* array) const {
+        SkASSERT(array);
+        uint32_t* data = reinterpret_cast<uint32_t*>(fBitData.get());
+        for (unsigned int i = 0; i < fDwordCount; ++i) {
+            uint32_t value = data[i];
+            if (value) {  // There are set bits
+                unsigned int index = i * 32;
+                for (unsigned int j = 0; j < 32; ++j) {
+                    if (0x1 & (value >> j)) {
+                        array->push(index + j);
+                    }
+                }
+            }
+        }
+    }
 
 private:
     SkAutoFree fBitData;

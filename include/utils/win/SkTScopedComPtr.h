@@ -6,11 +6,18 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkSkTScopedPtr_DEFINED
 #define SkSkTScopedPtr_DEFINED
 
+#include "SkTypes.h"
 #include "SkTemplates.h"
+
+template<typename T>
+class SkBlockComRef : public T {
+private:
+    virtual ULONG STDMETHODCALLTYPE AddRef(void) = 0;
+    virtual ULONG STDMETHODCALLTYPE Release(void) = 0;
+};
 
 template<typename T>
 class SkTScopedComPtr : SkNoncopyable {
@@ -23,7 +30,9 @@ public:
         this->reset();
     }
     T &operator*() const { return *fPtr; }
-    T *operator->() const { return fPtr; }
+    SkBlockComRef<T> *operator->() const {
+        return static_cast<SkBlockComRef<T>*>(fPtr);
+    }
     /**
      * Returns the address of the underlying pointer.
      * This is dangerous -- it breaks encapsulation and the reference escapes.
@@ -37,6 +46,18 @@ public:
             this->fPtr->Release();
             this->fPtr = NULL;
         }
+    }
+    
+    void swap(SkTScopedComPtr<T>& that) {
+        T* temp = this->fPtr;
+        this->fPtr = that.fPtr;
+        that.fPtr = temp;
+    }
+    
+    T* release() {
+        T* temp = this->fPtr;
+        this->fPtr = NULL;
+        return temp;
     }
 };
 
