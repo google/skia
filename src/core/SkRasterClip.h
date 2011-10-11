@@ -14,6 +14,7 @@
 class SkRasterClip {
 public:
     SkRasterClip();
+    SkRasterClip(const SkIRect&);
     SkRasterClip(const SkRasterClip&);
     ~SkRasterClip();
 
@@ -26,17 +27,20 @@ public:
     const SkIRect& getBounds() const;
 
     bool setEmpty();
-    bool setIRect(const SkIRect&);
+    bool setRect(const SkIRect&);
 
     bool setPath(const SkPath& path, const SkRegion& clip, bool doAA);
     bool setPath(const SkPath& path, const SkIRect& clip, bool doAA);
     bool setPath(const SkPath& path, const SkRasterClip&, bool doAA);
 
     bool op(const SkIRect&, SkRegion::Op);
+    bool op(const SkRegion&, SkRegion::Op);
     bool op(const SkRasterClip&, SkRegion::Op);
 
     const SkRegion& bwRgn() const { SkASSERT(fIsBW); return fBW; }
     const SkAAClip& aaRgn() const { SkASSERT(!fIsBW); return fAA; }
+
+    const SkRegion& forceGetBW();
 
 private:
     SkRegion    fBW;
