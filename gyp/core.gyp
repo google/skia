@@ -107,6 +107,7 @@
         '../src/core/SkPtrRecorder.cpp',
         '../src/core/SkQuadClipper.cpp',
         '../src/core/SkQuadClipper.h',
+        '../src/core/SkRasterClip.cpp',
         '../src/core/SkRasterizer.cpp',
         '../src/core/SkRect.cpp',
         '../src/core/SkRefDict.cpp',
