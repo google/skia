@@ -171,13 +171,18 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
     return (SkTypeface::Style)style;
 }
 
+static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
+    ATSFontRef ats = CTFontGetPlatformFont(fontRef, NULL);
+    return (SkFontID)ats;
+}
+
 class SkTypeface_Mac : public SkTypeface {
 public:
     SkTypeface_Mac(SkTypeface::Style style, SkFontID fontID, bool isMonospace,
                    CTFontRef fontRef, const char name[])
     : SkTypeface(style, fontID, isMonospace) {
         SkASSERT(fontRef);
-        fFontRef = fontRef; // we take over ownership
+        fFontRef = fontRef; // caller has already called CFRetain for us
         fName.set(name);
     }
 
@@ -191,8 +196,9 @@ static SkTypeface* NewFromFontRef(CTFontRef fontRef, const char name[]) {
     SkASSERT(fontRef);
     bool isMonospace;
     SkTypeface::Style style = computeStyleBits(fontRef, &isMonospace);
-    return new SkTypeface_Mac(style, SkTypefaceCache::NewFontID(),
-                              isMonospace, fontRef, name);
+    SkFontID fontID = CTFontRef_to_SkFontID(fontRef);
+
+    return new SkTypeface_Mac(style, fontID, isMonospace, fontRef, name);
 }
 
 static SkTypeface* NewFromName(const char familyName[],
@@ -267,23 +273,12 @@ static SkTypeface* GetDefaultFace() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct FontRefRec {
-    CTFontRef   fFontRef;
-};
-
-static bool FindByFontRef(SkTypeface* face, SkTypeface::Style, void* ctx) {
-    const SkTypeface_Mac* mface = reinterpret_cast<SkTypeface_Mac*>(face);
-    const FontRefRec* rec = reinterpret_cast<const FontRefRec*>(ctx);
-
-    return rec->fFontRef == mface->fFontRef;
-}
-
 /*  This function is visible on the outside. It first searches the cache, and if
  *  not found, returns a new entry (after adding it to the cache).
  */
 SkTypeface* SkCreateTypefaceFromCTFont(CTFontRef fontRef) {
-    FontRefRec rec = { fontRef };
-    SkTypeface* face = SkTypefaceCache::FindByProc(FindByFontRef, &rec);
+    SkFontID fontID = CTFontRef_to_SkFontID(fontRef);
+    SkTypeface* face = SkTypefaceCache::FindByID(fontID);
     if (face) {
         face->ref();
     } else {
