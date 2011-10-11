@@ -679,12 +679,18 @@ public:
     enum VertexLayoutBits {
         /* vertices have colors (GrColor) */
         kColor_VertexLayoutBit              = 1 << (STAGE_BIT_CNT + 0),
-        /* vertices have coverage (GrColor where only the alpha chan is used */
+        /* vertices have coverage (GrColor where all channels should have the 
+         * same value)
+         */
         kCoverage_VertexLayoutBit           = 1 << (STAGE_BIT_CNT + 1),
         /* Use text vertices. (Pos and tex coords may be a different type for
-           text [GrGpuTextVertex vs GrPoint].) */
+         * text [GrGpuTextVertex vs GrPoint].)
+         */
         kTextFormat_VertexLayoutBit         = 1 << (STAGE_BIT_CNT + 2),
 
+        /* Each vertex specificies an edge. Distance to the edge is used to
+         * compute a coverage. See setVertexEdgeType().
+         */
         kEdge_VertexLayoutBit               = 1 << (STAGE_BIT_CNT + 3),
         // for below assert
         kDummyVertexLayoutBit,
