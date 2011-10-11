@@ -12,6 +12,12 @@ SkRasterClip::SkRasterClip() {
     fIsBW = true;
 }
 
+SkRasterClip::SkRasterClip(const SkIRect& bounds) : fBW(bounds) {
+    fIsBW = true;
+}
+
+SkRasterClip::~SkRasterClip() {}
+
 bool SkRasterClip::isEmpty() const {
     return fIsBW ? fBW.isEmpty() : fAA.isEmpty();
 }
@@ -35,7 +41,7 @@ bool SkRasterClip::setEmpty() {
     return false;
 }
 
-bool SkRasterClip::setIRect(const SkIRect& rect) {
+bool SkRasterClip::setRect(const SkIRect& rect) {
     fIsBW = true;
     fAA.setEmpty();
     return fBW.setRect(rect);
@@ -76,6 +82,16 @@ bool SkRasterClip::op(const SkIRect& rect, SkRegion::Op op) {
     return fIsBW ? fBW.op(rect, op) : fAA.op(rect, op);
 }
 
+bool SkRasterClip::op(const SkRegion& rgn, SkRegion::Op op) {
+    if (fIsBW) {
+        return fBW.op(rgn, op);
+    } else {
+        SkAAClip tmp;
+        tmp.setRegion(rgn);
+        return fAA.op(tmp, op);
+    }
+}
+
 bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
     if (this->isBW() && clip.isBW()) {
         return fBW.op(clip.fBW, op);
@@ -94,6 +110,13 @@ bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
         }
         return fAA.op(*other, op);
     }
+}
+
+const SkRegion& SkRasterClip::forceGetBW() {
+    if (!fIsBW) {
+        fBW.setRect(fAA.getBounds());
+    }
+    return fBW;
 }
 
 void SkRasterClip::convertToAA() {
