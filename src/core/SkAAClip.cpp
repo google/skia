@@ -234,6 +234,7 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
         clip.op(iter.rect(), SkRegion::kUnion_Op);
     }
     this->swap(clip);
+    return !this->isEmpty();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -530,7 +531,7 @@ public:
         { unexpected(); }
 
     virtual const SkBitmap* justAnOpaqueColor(uint32_t*) SK_OVERRIDE {
-        return false;
+        return NULL;
     }
 
     virtual void blitH(int x, int y, int width) SK_OVERRIDE {
@@ -593,7 +594,8 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
     fBounds = ibounds;
     fRunHead = builder.finish();
 
-    builder.dump();
+    //builder.dump();
+    return !this->isEmpty();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
