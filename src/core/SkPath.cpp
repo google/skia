@@ -327,17 +327,20 @@ SkPoint SkPath::getPoint(int index) const {
     return SkPoint::Make(0, 0);
 }
 
-void SkPath::getLastPt(SkPoint* lastPt) const {
+bool SkPath::getLastPt(SkPoint* lastPt) const {
     SkDEBUGCODE(this->validate();)
 
-    if (lastPt) {
-        int count = fPts.count();
-        if (count == 0) {
-            lastPt->set(0, 0);
-        } else {
+    int count = fPts.count();
+    if (count > 0) {
+        if (lastPt) {
             *lastPt = fPts[count - 1];
         }
+        return true;
     }
+    if (lastPt) {
+        lastPt->set(0, 0);
+    }
+    return false;
 }
 
 void SkPath::setLastPt(SkScalar x, SkScalar y) {
