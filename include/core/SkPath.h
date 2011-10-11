@@ -546,11 +546,12 @@ public:
     }
 
     /** Return the last point on the path. If no points have been added, (0,0)
-        is returned.
+        is returned. If there are no points, this returns false, otherwise it
+        returns true.
      
         @param lastPt   The last point on the path is returned here
     */
-    void getLastPt(SkPoint* lastPt) const;
+    bool getLastPt(SkPoint* lastPt) const;
 
     /** Set the last point on the path. If no points have been added,
         moveTo(x,y) is automatically called.
