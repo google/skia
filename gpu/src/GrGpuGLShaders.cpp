@@ -802,9 +802,8 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
     }
 
     if (newCoverageOffset > 0) {
-        // bind just alpha channel.
-        GrGLvoid* coverageOffset = (int8_t*)(vertexOffset + newCoverageOffset +
-                                             GrColor_INDEX_A);
+        // bind a single channel, they should all have the same value.
+        GrGLvoid* coverageOffset = (int8_t*)(vertexOffset + newCoverageOffset);
         int idx = GrGLProgram::CoverageAttributeIdx();
         if (oldCoverageOffset <= 0) {
             GL_CALL(EnableVertexAttribArray(idx));

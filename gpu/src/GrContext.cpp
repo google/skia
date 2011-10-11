@@ -1059,7 +1059,7 @@ void GrContext::fillAARect(GrDrawTarget* target,
 
     GrColor innerColor;
     if (useVertexCoverage) {
-        innerColor = GrColorPackRGBA(0,0,0,0xff);
+        innerColor = 0xffffffff;
     } else {
         innerColor = target->getColor();
     }
@@ -1130,7 +1130,7 @@ void GrContext::strokeAARect(GrDrawTarget* target,
 
     GrColor innerColor;
     if (useVertexCoverage) {
-        innerColor = GrColorPackRGBA(0,0,0,0xff);
+        innerColor = 0xffffffff;
     } else {
         innerColor = target->getColor();
     }
