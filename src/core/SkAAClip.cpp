@@ -521,6 +521,8 @@ class SkAAClip::BuilderBlitter : public SkBlitter {
 public:
     BuilderBlitter(Builder* builder) {
         fBuilder = builder;
+        fLeft = builder->getBounds().fLeft;
+        fRight = builder->getBounds().fRight;
     }
 
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE
@@ -545,7 +547,30 @@ public:
             if (count <= 0) {
                 return;
             }
-            fBuilder->addRun(x, y, *alpha, count);
+
+            // The supersampler's buffer can be the width of the device, so
+            // we may have to trim the run to our bounds. If so, we assert that
+            // the extra spans are always alpha==0
+            int localX = x;
+            int localCount = count;
+            if (x < fLeft) {
+                SkASSERT(0 == *alpha);
+                int gap = fLeft - x;
+                SkASSERT(gap <= count);
+                localX += gap;
+                localCount -= gap;
+            }
+            int right = x + count;
+            if (right > fRight) {
+                SkASSERT(0 == *alpha);
+                localCount -= right - fRight;
+                SkASSERT(localCount >= 0);
+            }
+            
+            if (localCount) {
+                fBuilder->addRun(localX, y, *alpha, localCount);
+            }
+        NEXT_RUN:
             runs += count;
             alpha += count;
             x += count;
@@ -554,6 +579,8 @@ public:
 
 private:
     Builder* fBuilder;
+    int      fLeft; // cache of builder's bounds' left edge
+    int      fRight;
 
     void unexpected() {
         SkDebugf("---- did not expect to get called here");
