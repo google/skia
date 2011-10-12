@@ -58,12 +58,12 @@ void SkProxyCanvas::setMatrix(const SkMatrix& matrix) {
     fProxy->setMatrix(matrix);
 }
 
-bool SkProxyCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
-    return fProxy->clipRect(rect, op);
+bool SkProxyCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+    return fProxy->clipRect(rect, op, doAA);
 }
 
-bool SkProxyCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
-    return fProxy->clipPath(path, op);
+bool SkProxyCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
+    return fProxy->clipPath(path, op, doAA);
 }
 
 bool SkProxyCanvas::clipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {

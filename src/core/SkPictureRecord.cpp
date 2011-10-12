@@ -163,7 +163,7 @@ void SkPictureRecord::recordOffsetForRestore(SkRegion::Op op) {
     fRestoreOffsetStack.top() = offset;
 }
 
-bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op) {
+bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     addDraw(CLIP_RECT);
     addRect(rect);
     addInt(op);
@@ -171,10 +171,10 @@ bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op) {
     this->recordOffsetForRestore(op);
 
     validate();
-    return this->INHERITED::clipRect(rect, op);
+    return this->INHERITED::clipRect(rect, op, doAA);
 }
 
-bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op) {
+bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     addDraw(CLIP_PATH);
     addPath(path);
     addInt(op);
@@ -184,9 +184,9 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op) {
     validate();
 
     if (fRecordFlags & SkPicture::kUsePathBoundsForClip_RecordingFlag) {
-        return this->INHERITED::clipRect(path.getBounds(), op);
+        return this->INHERITED::clipRect(path.getBounds(), op, doAA);
     } else {
-        return this->INHERITED::clipPath(path, op);
+        return this->INHERITED::clipPath(path, op, doAA);
     }
 }
 

@@ -33,10 +33,8 @@ public:
     virtual bool skew(SkScalar sx, SkScalar sy);
     virtual bool concat(const SkMatrix& matrix);
     virtual void setMatrix(const SkMatrix& matrix);
-    virtual bool clipRect(const SkRect& rect,
-                          SkRegion::Op op = SkRegion::kIntersect_Op);
-    virtual bool clipPath(const SkPath& path,
-                          SkRegion::Op op = SkRegion::kIntersect_Op);
+    virtual bool clipRect(const SkRect&, SkRegion::Op, bool) SK_OVERRIDE;
+    virtual bool clipPath(const SkPath&, SkRegion::Op, bool) SK_OVERRIDE;
     virtual bool clipRegion(const SkRegion& deviceRgn,
                             SkRegion::Op op = SkRegion::kIntersect_Op);
 

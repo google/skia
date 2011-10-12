@@ -245,7 +245,8 @@ public:
         @return true if the canvas' clip is non-empty
     */
     virtual bool clipRect(const SkRect& rect,
-                          SkRegion::Op op = SkRegion::kIntersect_Op);
+                          SkRegion::Op op = SkRegion::kIntersect_Op,
+                          bool doAntiAlias = false);
 
     /** Modify the current clip with the specified path.
         @param path The path to apply to the current clip
@@ -253,7 +254,8 @@ public:
         @return true if the canvas' new clip is non-empty
     */
     virtual bool clipPath(const SkPath& path,
-                          SkRegion::Op op = SkRegion::kIntersect_Op);
+                          SkRegion::Op op = SkRegion::kIntersect_Op,
+                          bool doAntiAlias = false);
 
     /** Modify the current clip with the specified region. Note that unlike
         clipRect() and clipPath() which transform their arguments by the current

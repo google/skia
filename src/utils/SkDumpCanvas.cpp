@@ -233,18 +233,24 @@ void SkDumpCanvas::setMatrix(const SkMatrix& matrix) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkDumpCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
-    SkString str;
-    toString(rect, &str);
-    this->dump(kClip_Verb, NULL, "clipRect(%s %s)", str.c_str(), toString(op));
-    return this->INHERITED::clipRect(rect, op);
+static const char* bool_to_aastring(bool doAA) {
+    return doAA ? "AA" : "BW";
 }
 
-bool SkDumpCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
+bool SkDumpCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
+    SkString str;
+    toString(rect, &str);
+    this->dump(kClip_Verb, NULL, "clipRect(%s %s %s)", str.c_str(), toString(op),
+               bool_to_aastring(doAA));
+    return this->INHERITED::clipRect(rect, op, doAA);
+}
+
+bool SkDumpCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     SkString str;
     toString(path, &str);
-    this->dump(kClip_Verb, NULL, "clipPath(%s %s)", str.c_str(), toString(op));
-    return this->INHERITED::clipPath(path, op);
+    this->dump(kClip_Verb, NULL, "clipPath(%s %s %s)", str.c_str(), toString(op),
+               bool_to_aastring(doAA));
+    return this->INHERITED::clipPath(path, op, doAA);
 }
 
 bool SkDumpCanvas::clipRegion(const SkRegion& deviceRgn, SkRegion::Op op) {
