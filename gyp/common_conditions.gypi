@@ -113,6 +113,7 @@
         },
         'xcode_settings': {
           'SYMROOT': '<(DEPTH)/xcodebuild',
+          'SDKROOT': 'macosx10.6',
         },
       },
     ],
