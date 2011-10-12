@@ -249,7 +249,7 @@
             '../experimental/iOSSampleApp/iPad',
             '../experimental/iOSSampleApp/iPhone',
             '../include/utils/ios',
-            '../../gpu/include',
+            '../../include/gpu',
           ],
           'xcode_config_file': '../experimental/iOSSampleApp/SkiOSSampleApp-Base.xcconfig',
           'mac_bundle_resources' : [

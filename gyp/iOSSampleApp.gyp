@@ -175,7 +175,7 @@
         [ 'OS == "mac"', {
           'sources!': [
             '../samplecode/SampleDecode.cpp',
-            '../gpu/src/mac/GrGLDefaultInterface_mac.cpp',
+            '../src/gpu/mac/GrGLDefaultInterface_mac.cpp',
           ],
           'sources': [
             # Shared resources
@@ -246,7 +246,7 @@
             '../experimental/iOSSampleApp/iPad',
             '../experimental/iOSSampleApp/iPhone',
             '../include/utils/ios',
-            '../../gpu/include',
+            '../../include/gpu',
           ],
           #'xcode_settings' : {
           #  'INFOPLIST_FILE' : '../experimental/iOSSampleApp/iOSSampleApp-Info.plist',

@@ -10,7 +10,7 @@
       'type': 'executable',
       'include_dirs' : [
         '../src/core',
-        '../gpu/src',
+        '../src/gpu',
       ],
       'sources': [
         '../tests/BitmapCopyTest.cpp',
