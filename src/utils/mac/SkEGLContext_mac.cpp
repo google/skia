@@ -62,11 +62,12 @@ bool SkEGLContext::init(int width, int height) {
     glGenRenderbuffersEXT(1, &cbID);
     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, cbID);
     glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, width, height);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER_EXT, cbID);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_RENDERBUFFER_EXT, cbID);
     glGenRenderbuffersEXT(1, &dsID);
     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, dsID);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_STENCIL, width, height);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER_EXT, dsID);
+    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_STENCIL_EXT, width, height);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dsID);
+    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, dsID);
     glViewport(0, 0, width, height);
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT);

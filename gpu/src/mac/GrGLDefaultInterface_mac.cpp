@@ -142,7 +142,7 @@ const GrGLInterface* GrGLDefaultInterface() {
     #elif GL_EXT_framebuffer_object
         interface->fGenFramebuffers = glGenFramebuffersEXT;
         interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameterivEXT;
-        interface->fGLGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
+        interface->fGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
         interface->fBindFramebuffer = glBindFramebufferEXT;
         interface->fFramebufferTexture2D = glFramebufferTexture2DEXT;
         interface->fCheckFramebufferStatus = glCheckFramebufferStatusEXT;
