@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2009 The Android Open Source Project
  *
@@ -12,6 +11,7 @@
 #endif
 
 #include "SkBlitRow.h"
+#include "SkBlitMask.h"
 #include "SkColorPriv.h"
 #include "SkDither.h"
 

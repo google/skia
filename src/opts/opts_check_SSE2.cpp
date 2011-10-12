@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2009 The Android Open Source Project
  *
@@ -6,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkBitmapProcState_opts_SSE2.h"
+#include "SkBlitMask.h"
 #include "SkBlitRow_opts_SSE2.h"
 #include "SkUtils_opts_SSE2.h"
 #include "SkUtils.h"
