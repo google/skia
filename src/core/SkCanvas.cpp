@@ -896,7 +896,7 @@ void SkCanvas::resetMatrix() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
+bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -923,12 +923,12 @@ bool SkCanvas::clipRect(const SkRect& rect, SkRegion::Op op) {
         SkPath  path;
 
         path.addRect(rect);
-        return this->SkCanvas::clipPath(path, op);
+        return this->SkCanvas::clipPath(path, op, doAA);
     }
 }
 
 static bool clipPathHelper(const SkCanvas* canvas, SkRegion* currRgn,
-                           const SkPath& devPath, SkRegion::Op op) {
+                           const SkPath& devPath, SkRegion::Op op, bool doAA) {
     // base is used to limit the size (and therefore memory allocation) of the
     // region that results from scan converting devPath.
     SkRegion base;
@@ -959,7 +959,7 @@ static bool clipPathHelper(const SkCanvas* canvas, SkRegion* currRgn,
     }
 }
 
-bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
+bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     AutoValidateClip avc(this);
 
     fDeviceCMDirty = true;
@@ -972,7 +972,7 @@ bool SkCanvas::clipPath(const SkPath& path, SkRegion::Op op) {
     // if we called path.swap() we could avoid a deep copy of this path
     fClipStack.clipDevPath(devPath, op);
 
-    return clipPathHelper(this, fMCRec->fRegion, devPath, op);
+    return clipPathHelper(this, fMCRec->fRegion, devPath, op, doAA);
 }
 
 bool SkCanvas::clipRegion(const SkRegion& rgn, SkRegion::Op op) {
@@ -1001,7 +1001,7 @@ void SkCanvas::validateClip() const {
     const SkClipStack::B2FIter::Clip*   clip;
     while ((clip = iter.next()) != NULL) {
         if (clip->fPath) {
-            clipPathHelper(this, &clipRgn, *clip->fPath, clip->fOp);
+            clipPathHelper(this, &clipRgn, *clip->fPath, clip->fOp, false);
         } else if (clip->fRect) {
             clip->fRect->round(&ir);
             clipRgn.op(ir, clip->fOp);
