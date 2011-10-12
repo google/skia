@@ -12,6 +12,7 @@
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     SkClipStack s;
+    bool doAA = false;
 
     // Build up a clip stack with a path, an empty clip, and a rect.
     s.save();
@@ -20,17 +21,17 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     p.lineTo(7, 8);
     p.lineTo(5, 9);
     p.close();
-    s.clipDevPath(p);
+    s.clipDevPath(p, SkRegion::kIntersect_Op, doAA);
 
     s.save();
     SkRect r = SkRect::MakeLTRB(1, 2, 3, 4);
-    s.clipDevRect(r);
+    s.clipDevRect(r, SkRegion::kIntersect_Op, doAA);
     r = SkRect::MakeLTRB(10, 11, 12, 13);
-    s.clipDevRect(r);
+    s.clipDevRect(r, SkRegion::kIntersect_Op, doAA);
 
     s.save();
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipDevRect(r, SkRegion::kUnion_Op);
+    s.clipDevRect(r, SkRegion::kUnion_Op, doAA);
 
     // Test that assignment works.
     SkClipStack copy = s;
@@ -43,14 +44,14 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     // Test that an equal, but not copied version is equal.
     s.save();
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipDevRect(r, SkRegion::kUnion_Op);
+    s.clipDevRect(r, SkRegion::kUnion_Op, doAA);
     REPORTER_ASSERT(reporter, s == copy);
 
     // Test that a different op on one level triggers not equal.
     s.restore();
     s.save();
     r = SkRect::MakeLTRB(14, 15, 16, 17);
-    s.clipDevRect(r);
+    s.clipDevRect(r, SkRegion::kIntersect_Op, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
     // Test that different state (clip type) triggers not equal.
@@ -58,14 +59,14 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     SkPath rp;
     rp.addRect(r);
-    s.clipDevPath(rp, SkRegion::kUnion_Op);
+    s.clipDevPath(rp, SkRegion::kUnion_Op, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
     // Test that different rects triggers not equal.
     s.restore();
     s.save();
     r = SkRect::MakeLTRB(24, 25, 26, 27);
-    s.clipDevRect(r, SkRegion::kUnion_Op);
+    s.clipDevRect(r, SkRegion::kUnion_Op, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 
     // Sanity check
@@ -80,7 +81,7 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.restore();
     s.save();
     p.addRect(r);
-    s.clipDevPath(p);
+    s.clipDevPath(p, SkRegion::kIntersect_Op, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 }
 
@@ -108,7 +109,7 @@ static void TestClipStack(skiatest::Reporter* reporter) {
         { 0, 0, 75, 75 }
     };
     for (size_t i = 0; i < SK_ARRAY_COUNT(gRects); i++) {
-        stack.clipDevRect(gRects[i]);
+        stack.clipDevRect(gRects[i], SkRegion::kIntersect_Op);
     }
 
     // all of the above rects should have been intersected, leaving only 1 rect
