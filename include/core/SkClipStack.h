@@ -34,10 +34,10 @@ public:
                      SkRegion::Op op = SkRegion::kIntersect_Op) {
         SkRect r;
         r.set(ir);
-        this->clipDevRect(r, op);
+        this->clipDevRect(r, op, false);
     }
-    void clipDevRect(const SkRect&, SkRegion::Op = SkRegion::kIntersect_Op);
-    void clipDevPath(const SkPath&, SkRegion::Op = SkRegion::kIntersect_Op);
+    void clipDevRect(const SkRect&, SkRegion::Op, bool doAA);
+    void clipDevPath(const SkPath&, SkRegion::Op, bool doAA);
 
     class B2FIter {
     public:
@@ -55,6 +55,7 @@ public:
             const SkRect*   fRect;  // if non-null, this is a rect clip
             const SkPath*   fPath;  // if non-null, this is a path clip
             SkRegion::Op    fOp;
+            bool            fDoAA;
         };
 
         /**

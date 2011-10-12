@@ -927,9 +927,9 @@ bool SkAAClip::op(const SkIRect& r, SkRegion::Op op) {
     return this->op(*this, clip, op);
 }
 
-bool SkAAClip::op(const SkRect& r, SkRegion::Op op) {
+bool SkAAClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
     SkAAClip clip;
-    clip.setRect(r);
+    clip.setRect(r, doAA);
     return this->op(*this, clip, op);
 }
 

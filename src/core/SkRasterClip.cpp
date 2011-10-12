@@ -112,6 +112,35 @@ bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
     }
 }
 
+// return true if x is nearly integral (within 1/256) since that is the highest
+// precision our aa code can have.
+static bool is_integral(SkScalar x) {
+    int ix = SkScalarRoundToInt(x);
+    SkScalar sx = SkIntToScalar(ix);
+    return SkScalarAbs(sx - x) < (SK_Scalar1 / 256);
+}
+
+bool SkRasterClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
+    if (doAA) {
+        // check that the rect really needs aa
+        if (is_integral(r.fLeft) && is_integral(r.fTop) &&
+            is_integral(r.fRight) && is_integral(r.fBottom)) {
+            doAA = false;
+        }
+    }
+
+    if (fIsBW && !doAA) {
+        SkIRect ir;
+        r.round(&ir);
+        fBW.op(ir, op);
+    } else {
+        if (fIsBW) {
+            this->convertToAA();
+        }
+        fAA.op(r, op, doAA);
+    }
+}
+
 const SkRegion& SkRasterClip::forceGetBW() {
     if (!fIsBW) {
         fBW.setRect(fAA.getBounds());

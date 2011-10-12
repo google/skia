@@ -21,22 +21,26 @@ struct SkClipStack::Rec {
     int             fSaveCount;
     SkRegion::Op    fOp;
     State           fState;
+    bool            fDoAA;
 
-    Rec(int saveCount, const SkRect& rect, SkRegion::Op op) : fRect(rect) {
+    Rec(int saveCount, const SkRect& rect, SkRegion::Op op, bool doAA) : fRect(rect) {
         fSaveCount = saveCount;
         fOp = op;
         fState = kRect_State;
+        fDoAA = doAA;
     }
 
-    Rec(int saveCount, const SkPath& path, SkRegion::Op op) : fPath(path) {
+    Rec(int saveCount, const SkPath& path, SkRegion::Op op, bool doAA) : fPath(path) {
         fRect.setEmpty();
         fSaveCount = saveCount;
         fOp = op;
         fState = kPath_State;
+        fDoAA = doAA;
     }
 
     bool operator==(const Rec& b) const {
-        if (fSaveCount != b.fSaveCount || fOp != b.fOp || fState != b.fState) {
+        if (fSaveCount != b.fSaveCount || fOp != b.fOp || fState != b.fState ||
+                fDoAA != b.fDoAA) {
             return false;
         }
         switch (fState) {
@@ -138,7 +142,7 @@ void SkClipStack::restore() {
     }
 }
 
-void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op) {
+void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op, bool doAA) {
     Rec* rec = (Rec*)fDeque.back();
     if (rec && rec->canBeIntersected(fSaveCount, op)) {
         switch (rec->fState) {
@@ -157,10 +161,10 @@ void SkClipStack::clipDevRect(const SkRect& rect, SkRegion::Op op) {
                 break;
         }
     }
-    new (fDeque.push_back()) Rec(fSaveCount, rect, op);
+    new (fDeque.push_back()) Rec(fSaveCount, rect, op, doAA);
 }
 
-void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op) {
+void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op, bool doAA) {
     Rec* rec = (Rec*)fDeque.back();
     if (rec && rec->canBeIntersected(fSaveCount, op)) {
         const SkRect& pathBounds = path.getBounds();
@@ -181,7 +185,7 @@ void SkClipStack::clipDevPath(const SkPath& path, SkRegion::Op op) {
                 break;
         }
     }
-    new (fDeque.push_back()) Rec(fSaveCount, path, op);
+    new (fDeque.push_back()) Rec(fSaveCount, path, op, doAA);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -191,7 +195,7 @@ SkClipStack::B2FIter::B2FIter() {
 
 bool operator==(const SkClipStack::B2FIter::Clip& a,
                const SkClipStack::B2FIter::Clip& b) {
-    return a.fOp == b.fOp &&
+    return a.fOp == b.fOp && a.fDoAA == b.fDoAA &&
            ((a.fRect == NULL && b.fRect == NULL) ||
                (a.fRect != NULL && b.fRect != NULL && *a.fRect == *b.fRect)) &&
            ((a.fPath == NULL && b.fPath == NULL) ||
@@ -228,6 +232,7 @@ const SkClipStack::B2FIter::Clip* SkClipStack::B2FIter::next() {
             break;
     }
     fClip.fOp = rec->fOp;
+    fClip.fDoAA = rec->fDoAA;
     return &fClip;
 }
 

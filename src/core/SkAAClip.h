@@ -40,7 +40,7 @@ public:
 
     // Helpers for op()
     bool op(const SkIRect&, SkRegion::Op);
-    bool op(const SkRect&, SkRegion::Op);
+    bool op(const SkRect&, SkRegion::Op, bool doAA);
     bool op(const SkAAClip&, SkRegion::Op);
 
     bool offset(int dx, int dy);

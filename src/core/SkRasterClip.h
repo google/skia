@@ -36,6 +36,7 @@ public:
     bool op(const SkIRect&, SkRegion::Op);
     bool op(const SkRegion&, SkRegion::Op);
     bool op(const SkRasterClip&, SkRegion::Op);
+    bool op(const SkRect&, SkRegion::Op, bool doAA);
 
     const SkRegion& bwRgn() const { SkASSERT(fIsBW); return fBW; }
     const SkAAClip& aaRgn() const { SkASSERT(!fIsBW); return fAA; }
