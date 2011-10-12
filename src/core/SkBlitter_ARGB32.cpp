@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkCoreBlitters.h"
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkUtils.h"
 #include "SkXfermode.h"
+#include "SkBlitMask.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

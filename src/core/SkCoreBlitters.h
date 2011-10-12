@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -6,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkCoreBlitters_DEFINED
 #define SkCoreBlitters_DEFINED
 
 #include "SkBlitter.h"
+#include "SkBlitMask.h"
 #include "SkBlitRow.h"
 
 class SkRasterBlitter : public SkBlitter {
