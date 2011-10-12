@@ -1219,7 +1219,8 @@ ContentEntry* SkPDFDevice::setUpContentEntry(const SkClipStack* clipStack,
             synthesizedClipStack = fExistingClipStack;
             SkPath clipPath;
             clipRegion.getBoundaryPath(&clipPath);
-            synthesizedClipStack.clipDevPath(clipPath, SkRegion::kReplace_Op);
+            synthesizedClipStack.clipDevPath(clipPath, SkRegion::kReplace_Op,
+                                             false);
             clipStack = &synthesizedClipStack;
         }
     }
