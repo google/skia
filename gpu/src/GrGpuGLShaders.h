@@ -57,7 +57,7 @@ private:
     void flushTextureDomain(int stage);
 
     // sets the color specified by GrDrawTarget::setColor()
-    void flushColor();
+    void flushColor(GrColor color);
 
     // sets the MVP matrix uniform for currently bound program
     void flushViewMatrix();
@@ -77,7 +77,9 @@ private:
     static void DeleteProgram(const GrGLInterface* gl,
                               CachedData* programData);
 
-    void buildProgram(GrPrimitiveType type);
+    void buildProgram(GrPrimitiveType typeBlend,
+                      BlendOptFlags blendOpts,
+                      GrBlendCoeff dstCoeff);
 
     ProgramCache*               fProgramCache;
     CachedData*                 fProgramData;

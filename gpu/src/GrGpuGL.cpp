@@ -1811,8 +1811,8 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
     }
 }
 
-void GrGpuGL::flushBlend(GrPrimitiveType type, 
-                         GrBlendCoeff srcCoeff, 
+void GrGpuGL::flushBlend(GrPrimitiveType type,
+                         GrBlendCoeff srcCoeff,
                          GrBlendCoeff dstCoeff) {
     if (GrIsPrimTypeLines(type) && this->willUseHWAALines()) {
         if (fHWBlendDisabled) {
@@ -1827,7 +1827,11 @@ void GrGpuGL::flushBlend(GrPrimitiveType type,
             fHWDrawState.fDstBlend = kISA_BlendCoeff;
         }
     } else {
-        bool blendOff = canDisableBlend();
+        // any optimization to disable blending should
+        // have already been applied and tweaked the coeffs
+        // to (1, 0).
+        bool blendOff = kOne_BlendCoeff == srcCoeff &&
+                        kZero_BlendCoeff == dstCoeff;
         if (fHWBlendDisabled != blendOff) {
             if (blendOff) {
                 GL_CALL(Disable(GR_GL_BLEND));

@@ -616,9 +616,3 @@ void GrInOrderDrawBuffer::clipWillBeSet(const GrClip& newClip) {
     INHERITED::clipWillBeSet(newClip);
     fClipSet = true;
 }
-
-bool GrInOrderDrawBuffer::willUseHWAALines() const {
-    return this->getCaps().fHWAALineSupport &&
-           CanUseHWAALines(this->getGeomSrc().fVertexLayout, fCurrDrawState);
-}
-

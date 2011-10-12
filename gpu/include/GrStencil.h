@@ -154,6 +154,16 @@ struct GrStencilSettings {
                kAlways_StencilFunc == fFrontFunc &&
                kAlways_StencilFunc == fBackFunc;
     }
+    bool doesWrite() const {
+        return !((kNever_StencilFunc == fFrontFunc ||
+                  kKeep_StencilOp == fFrontPassOp)  &&
+                 (kNever_StencilFunc == fBackFunc ||
+                  kKeep_StencilOp == fBackPassOp)    &&
+                 (kAlways_StencilFunc == fFrontFunc ||
+                  kKeep_StencilOp == fFrontFailOp)  &&
+                 (kAlways_StencilFunc == fBackFunc ||
+                  kKeep_StencilOp == fBackFailOp));
+    }
     void invalidate()  {
         // just write an illegal value to the first member
         fFrontPassOp = (GrStencilOp)-1;

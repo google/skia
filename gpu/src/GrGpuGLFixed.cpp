@@ -172,7 +172,13 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
         return false;
     }
 
-    this->flushBlend(type, fCurrDrawState.fSrcBlend, fCurrDrawState.fDstBlend);
+    GrBlendCoeff srcCoeff, dstCoeff;
+    if (kSkipDraw_BlendOptFlag & 
+        this->getBlendOpts(false, &srcCoeff, &dstCoeff)) {
+        return false;
+    }
+
+    this->flushBlend(type, srcCoeff, dstCoeff);
 
     if (fDirtyFlags.fRenderTargetChanged) {
         flushProjectionMatrix();

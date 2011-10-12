@@ -140,13 +140,6 @@ void GrGpu::unimpl(const char msg[]) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool GrGpu::willUseHWAALines() const {
-    return (kAntialias_StateBit & fCurrDrawState.fFlagBits) &&
-           CanUseHWAALines(this->getGeomSrc().fVertexLayout, fCurrDrawState);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 GrTexture* GrGpu::createTexture(const GrTextureDesc& desc,
                                 const void* srcData, size_t rowBytes) {
     this->handleDirtyContext();
