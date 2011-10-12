@@ -132,12 +132,12 @@ bool SkRasterClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
     if (fIsBW && !doAA) {
         SkIRect ir;
         r.round(&ir);
-        fBW.op(ir, op);
+        return fBW.op(ir, op);
     } else {
         if (fIsBW) {
             this->convertToAA();
         }
-        fAA.op(r, op, doAA);
+        return fAA.op(r, op, doAA);
     }
 }
 
