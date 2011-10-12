@@ -12,6 +12,7 @@
 
 #include "SkRect.h"
 
+class SkRasterClip;
 class SkRegion;
 class SkBlitter;
 class SkPath;
@@ -75,6 +76,10 @@ public:
                           const SkRegion*, SkBlitter*);
     static void AntiFrameRect(const SkRect&, const SkPoint& strokeSize,
                               const SkRegion*, SkBlitter*);
+
+    // rasterclip
+    static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+    static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
 };
 
 /** Assign an SkXRect from a SkIRect, by promoting the src rect's coordinates
