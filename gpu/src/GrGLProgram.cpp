@@ -598,6 +598,20 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         uniformCoeff = SkXfermode::kZero_Coeff;
     }
 
+    // If we know the final color is going to be all zeros then we can
+    // simplify the color filter coeffecients. needComputedColor will then
+    // come out false below.
+    if (ProgramDesc::kTransBlack_ColorType == fProgramDesc.fColorType) {
+        colorCoeff = SkXfermode::kZero_Coeff;
+        if (SkXfermode::kDC_Coeff == uniformCoeff ||
+            SkXfermode::kDA_Coeff == uniformCoeff) {
+            uniformCoeff = SkXfermode::kZero_Coeff;
+        } else if (SkXfermode::kIDC_Coeff == uniformCoeff ||
+                   SkXfermode::kIDA_Coeff == uniformCoeff) {
+            uniformCoeff = SkXfermode::kOne_Coeff;
+        }
+    }
+
     bool needColorFilterUniform;
     bool needComputedColor;
     needBlendInputs(uniformCoeff, colorCoeff,
@@ -645,8 +659,13 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
                 programData->fUniLocations.fColorUni = kUseUniform;
                 inColor = COL_UNI_NAME;
                 break;
+            case ProgramDesc::kTransBlack_ColorType:
+                GrAssert(!"needComputedColor should be false.");
+                break;
+            case ProgramDesc::kSolidWhite_ColorType:
+                break;
             default:
-                GrAssert(ProgramDesc::kNone_ColorType == fProgramDesc.fColorType);
+                GrCrash("Unknown color type.");
                 break;
         }
     }
@@ -708,15 +727,18 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         }
     }
 
-    // if have all ones for the "dst" input to the color filter then we can make
-    // additional optimizations.
-    if (needColorFilterUniform && !inColor.size() &&
-        (SkXfermode::kIDC_Coeff == uniformCoeff ||
-         SkXfermode::kIDA_Coeff == uniformCoeff)) {
-          uniformCoeff = SkXfermode::kZero_Coeff;
-          bool bogus;
-          needBlendInputs(SkXfermode::kZero_Coeff, colorCoeff,
-                          &needColorFilterUniform, &bogus);
+    // if have all ones or zeros for the "dst" input to the color filter then we
+    // may be able to make additional optimizations.
+    if (needColorFilterUniform && needComputedColor && !inColor.size()) {
+        GrAssert(ProgramDesc::kSolidWhite_ColorType == fProgramDesc.fColorType);
+        bool uniformCoeffIsZero = SkXfermode::kIDC_Coeff == uniformCoeff ||
+                                  SkXfermode::kIDA_Coeff == uniformCoeff;
+        if (uniformCoeffIsZero) {
+            uniformCoeff = SkXfermode::kZero_Coeff;
+            bool bogus;
+            needBlendInputs(SkXfermode::kZero_Coeff, colorCoeff,
+                            &needColorFilterUniform, &bogus);
+        }
     }
     if (needColorFilterUniform) {
         segments.fFSUnis.push_back().set(GrGLShaderVar::kVec4f_Type,
@@ -733,7 +755,16 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
         wroteFragColorZero = true;
     } else if (SkXfermode::kDst_Mode != fProgramDesc.fColorFilterXfermode) {
         segments.fFSCode.appendf("\tvec4 filteredColor;\n");
-        const char* color = inColor.size() ? inColor.c_str() : all_ones_vec(4);
+        const char* color;
+        if (inColor.size()) {
+            color = inColor.c_str();
+        } else {
+            if (ProgramDesc::kSolidWhite_ColorType == fProgramDesc.fColorType) {
+                color = all_ones_vec(4);
+            } else {
+                color = all_zeros_vec(4);
+            }
+        }
         addColorFilter(&segments.fFSCode, "filteredColor", uniformCoeff,
                        colorCoeff, color);
         inColor = "filteredColor";

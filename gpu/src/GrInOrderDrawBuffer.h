@@ -91,8 +91,6 @@ public:
 
     virtual void clear(const GrIRect* rect, GrColor color);
 
-    virtual bool willUseHWAALines() const;
-
 private:
 
     struct Draw {

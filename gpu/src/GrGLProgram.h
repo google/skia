@@ -139,10 +139,15 @@ private:
             }
         };
 
+        // Specifies where the intitial color comes from before the stages are
+        // applied.
         enum ColorType {
-            kNone_ColorType         = 0,
-            kAttribute_ColorType    = 1,
-            kUniform_ColorType      = 2,
+            kSolidWhite_ColorType,
+            kTransBlack_ColorType,
+            kAttribute_ColorType,
+            kUniform_ColorType,
+
+            kColorTypeCnt
         };
         // Dual-src blending makes use of a secondary output color that can be
         // used as a per-pixel blend coeffecient. This controls whether a

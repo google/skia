@@ -825,7 +825,7 @@ void GrDrawTarget::drawNonIndexed(GrPrimitiveType type,
 
 // Some blend modes allow folding a partial coverage value into the color's
 // alpha channel, while others will blend incorrectly.
-bool GrDrawTarget::CanTweakAlphaForCoverage(GrBlendCoeff dstCoeff) {
+bool GrDrawTarget::canTweakAlphaForCoverage() const {
     /**
      * The fractional coverage is f
      * The src and dst coeffs are Cs and Cd
@@ -837,89 +837,186 @@ bool GrDrawTarget::CanTweakAlphaForCoverage(GrBlendCoeff dstCoeff) {
      * for Cd we find that only 1, ISA, and ISC produce the correct depth
      * coeffecient in terms of S' and D.
      */
-    return kOne_BlendCoeff == dstCoeff ||
-           kISA_BlendCoeff == dstCoeff ||
-           kISC_BlendCoeff == dstCoeff;
+    return kOne_BlendCoeff == fCurrDrawState.fDstBlend||
+           kISA_BlendCoeff == fCurrDrawState.fDstBlend ||
+           kISC_BlendCoeff == fCurrDrawState.fDstBlend;
 }
 
-bool GrDrawTarget::CanDisableBlend(GrVertexLayout layout, const DrState& state) {
-    // If we compute a coverage value (using edge AA or a coverage stage) then
-    // we can't force blending off.
-    if (state.fEdgeAANumEdges > 0 ||
-        (layout & kEdge_VertexLayoutBit) ||
-        (layout & kCoverage_VertexLayoutBit)) {
-        return false;
-    }
-    for (int s = state.fFirstCoverageStage; s < kNumStages; ++s) {
-        if (StageWillBeUsed(s, layout, state)) {
-            return false;
-        }
-    }
 
-    if ((kOne_BlendCoeff == state.fSrcBlend) &&
-        (kZero_BlendCoeff == state.fDstBlend)) {
-            return true;
-    }
+bool GrDrawTarget::srcAlphaWillBeOne() const {
+    const GrVertexLayout& layout = this->getGeomSrc().fVertexLayout;
 
-    // If we have vertex color without alpha then we can't force blend off
+    // Check if per-vertex or constant color may have partial alpha
     if ((layout & kColor_VertexLayoutBit) ||
-         0xff != GrColorUnpackA(state.fColor)) {
+        0xff != GrColorUnpackA(fCurrDrawState.fColor)) {
         return false;
     }
-
-    // If the src coef will always be 1...
-    if (kSA_BlendCoeff != state.fSrcBlend &&
-        kOne_BlendCoeff != state.fSrcBlend) {
+    // Check if color filter could introduce an alpha
+    // (TODO: Consider being more aggressive with regards to detecting 0xff
+    // final alpha from color filter).
+    if (SkXfermode::kDst_Mode != fCurrDrawState.fColorFilterXfermode) {
         return false;
     }
-
-    // ...and the dst coef is always 0...
-    if (kISA_BlendCoeff != state.fDstBlend &&
-        kZero_BlendCoeff != state.fDstBlend) {
-        return false;
-    }
-
-    // ...and there isn't a texture stage with an alpha channel...
-    for (int s = 0; s < state.fFirstCoverageStage; ++s) {
-        if (StageWillBeUsed(s, layout, state)) {
-            GrAssert(NULL != state.fTextures[s]);
-
-            GrPixelConfig config = state.fTextures[s]->config();
-
+    // Check if a color stage could create a partial alpha
+    for (int s = 0; s < fCurrDrawState.fFirstCoverageStage; ++s) {
+        if (StageWillBeUsed(s, layout, fCurrDrawState)) {
+            GrAssert(NULL != fCurrDrawState.fTextures[s]);
+            GrPixelConfig config = fCurrDrawState.fTextures[s]->config();
             if (!GrPixelConfigIsOpaque(config)) {
                 return false;
             }
         }
     }
-
-    // ...and there isn't an interesting color filter...
-    // TODO: Consider being more aggressive with regards to disabling
-    // blending when a color filter is used.
-    if (SkXfermode::kDst_Mode != state.fColorFilterXfermode) {
-        return false;
-    }
-
-    // ...then we disable blend.
     return true;
 }
 
-bool GrDrawTarget::CanUseHWAALines(GrVertexLayout layout, const DrState& state) {
+GrDrawTarget::BlendOptFlags
+GrDrawTarget::getBlendOpts(bool forceCoverage,
+                           GrBlendCoeff* srcCoeff,
+                           GrBlendCoeff* dstCoeff) const {
+
+    const GrVertexLayout& layout = this->getGeomSrc().fVertexLayout;
+
+    GrBlendCoeff bogusSrcCoeff, bogusDstCoeff;
+    if (NULL == srcCoeff) {
+        srcCoeff = &bogusSrcCoeff;
+    }
+    *srcCoeff = fCurrDrawState.fSrcBlend;
+
+    if (NULL == dstCoeff) {
+        dstCoeff = &bogusDstCoeff;
+    }
+    *dstCoeff = fCurrDrawState.fDstBlend;
+
+    // We don't ever expect source coeffecients to reference the source
+    GrAssert(kSA_BlendCoeff != *srcCoeff &&
+             kISA_BlendCoeff != *srcCoeff &&
+             kSC_BlendCoeff != *srcCoeff &&
+             kISC_BlendCoeff != *srcCoeff);
+    // same for dst
+    GrAssert(kDA_BlendCoeff != *dstCoeff &&
+             kIDA_BlendCoeff != *dstCoeff &&
+             kDC_BlendCoeff != *dstCoeff &&
+             kIDC_BlendCoeff != *dstCoeff);
+
+    if (SkToBool(kNoColorWrites_StateBit & fCurrDrawState.fFlagBits)) {
+        *srcCoeff = kZero_BlendCoeff;
+        *dstCoeff = kOne_BlendCoeff;
+    }
+
+    bool srcAIsOne = this->srcAlphaWillBeOne();
+    bool dstCoeffIsOne = kOne_BlendCoeff == *dstCoeff ||
+                         (kSA_BlendCoeff == *dstCoeff && srcAIsOne);
+    bool dstCoeffIsZero = kZero_BlendCoeff == *dstCoeff ||
+                         (kISA_BlendCoeff == *dstCoeff && srcAIsOne);
+
+
+    // When coeffs are (0,1) there is no reason to draw at all, unless
+    // stenciling is enabled. Having color writes disabled is effectively
+    // (0,1).
+    if ((kZero_BlendCoeff == *srcCoeff && dstCoeffIsOne)) {
+        if (fCurrDrawState.fStencilSettings.doesWrite()) {
+            if (fCaps.fShaderSupport) {
+                return kDisableBlend_BlendOptFlag |
+                       kEmitTransBlack_BlendOptFlag;
+            } else {
+                return kDisableBlend_BlendOptFlag;
+            }
+        } else {
+            return kSkipDraw_BlendOptFlag;
+        }
+    }
+
+    // check for coverage due to edge aa or coverage texture stage
+    bool hasCoverage = forceCoverage ||
+                       fCurrDrawState.fEdgeAANumEdges > 0 ||
+                       (layout & kCoverage_VertexLayoutBit) ||
+                       (layout & kEdge_VertexLayoutBit);
+    for (int s = fCurrDrawState.fFirstCoverageStage;
+         !hasCoverage && s < kNumStages;
+         ++s) {
+        if (StageWillBeUsed(s, layout, fCurrDrawState)) {
+            hasCoverage = true;
+        }
+    }
+
+    // if we don't have coverage we can check whether the dst
+    // has to read at all. If not, we'll disable blending.
+    if (!hasCoverage) {
+        if (dstCoeffIsZero) {
+            if (kOne_BlendCoeff == *srcCoeff) {
+                // if there is no coverage and coeffs are (1,0) then we
+                // won't need to read the dst at all, it gets replaced by src
+                return kDisableBlend_BlendOptFlag;
+            } else if (kZero_BlendCoeff == *srcCoeff &&
+                       fCaps.fShaderSupport) {
+                // if the op is "clear" then we don't need to emit a color
+                // or blend, just write transparent black into the dst.
+                *srcCoeff = kOne_BlendCoeff;
+                *dstCoeff = kZero_BlendCoeff;
+                return kDisableBlend_BlendOptFlag |
+                       kEmitTransBlack_BlendOptFlag;
+            }
+        }
+    } else {
+        // check whether coverage can be safely rolled into alpha
+        // of if we can skip color computation and just emit coverage
+        if (this->canTweakAlphaForCoverage()) {
+            return kCoverageAsAlpha_BlendOptFlag;
+        }
+        // We haven't implemented support for these optimizations in the
+        // fixed pipe (which is on its deathbed)
+        if (fCaps.fShaderSupport) {
+            if (dstCoeffIsZero) {
+                if (kZero_BlendCoeff == *srcCoeff) {
+                    // the source color is not included in the blend
+                    // the dst coeff is effectively zero so blend works out to:
+                    // (c)(0)D + (1-c)D = (1-c)D.
+                    *dstCoeff = kISA_BlendCoeff;
+                    return  kEmitCoverage_BlendOptFlag;
+                } else if (srcAIsOne) {
+                    // the dst coeff is effectively zero so blend works out to:
+                    // cS + (c)(0)D + (1-c)D = cS + (1-c)D.
+                    // If Sa is 1 then we can replace Sa with c 
+                    // and set dst coeff to 1-Sa.
+                    *dstCoeff = kISA_BlendCoeff;
+                    return  kCoverageAsAlpha_BlendOptFlag;
+                }
+            } else if (dstCoeffIsOne) {
+                // the dst coeff is effectively one so blend works out to:
+                // cS + (c)(1)D + (1-c)D = cS + D.
+                *dstCoeff = kOne_BlendCoeff;
+                return  kCoverageAsAlpha_BlendOptFlag;
+            }
+        }
+    }
+    return kNone_BlendOpt;
+}
+
+bool GrDrawTarget::willUseHWAALines() const {
     // there is a conflict between using smooth lines and our use of
     // premultiplied alpha. Smooth lines tweak the incoming alpha value
     // but not in a premul-alpha way. So we only use them when our alpha
     // is 0xff and tweaking the color for partial coverage is OK
-    return (kAntialias_StateBit & state.fFlagBits) &&
-           CanDisableBlend(layout, state) &&
-           CanTweakAlphaForCoverage(state.fDstBlend);
+    if (!fCaps.fHWAALineSupport ||
+        !(kAntialias_StateBit & fCurrDrawState.fFlagBits)) {
+        return false;
+    }
+    BlendOptFlags opts = this->getBlendOpts();
+    return (kDisableBlend_BlendOptFlag & opts) &&
+           (kCoverageAsAlpha_BlendOptFlag & opts);
 }
 
 bool GrDrawTarget::canApplyCoverage() const {
+    // we can correctly apply coverage if a) we have dual source blending
+    // or b) one of our blend optimizations applies.
     return this->getCaps().fDualSourceBlendingSupport ||
-           CanTweakAlphaForCoverage(fCurrDrawState.fDstBlend);
+           kNone_BlendOpt != this->getBlendOpts(true);
 }
 
-bool GrDrawTarget::canDisableBlend() const {
-    return CanDisableBlend(this->getGeomSrc().fVertexLayout, fCurrDrawState);
+bool GrDrawTarget::drawWillReadDst() const {
+    return SkToBool((kDisableBlend_BlendOptFlag | kSkipDraw_BlendOptFlag) &
+                    this->getBlendOpts());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

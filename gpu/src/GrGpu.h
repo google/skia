@@ -219,7 +219,6 @@ public:
     void removeResource(GrResource* resource);
 
     // GrDrawTarget overrides
-    virtual bool willUseHWAALines() const;
     virtual void clear(const GrIRect* rect, GrColor color);
 
 protected:

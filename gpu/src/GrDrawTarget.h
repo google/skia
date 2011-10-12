@@ -131,7 +131,6 @@ public:
                                         //   pairs for convexity while 
                                         //   rasterizing.  Set this if the
                                         //   source polygon is non-convex.
-
         // subclass may use additional bits internally
         kDummyStateBit,
         kLastPublicStateBit = kDummyStateBit-1
@@ -524,13 +523,13 @@ public:
     GrColor getBlendConstant() const { return fCurrDrawState.fBlendConstant; }
 
     /**
-     * Determines if blend is effectively disabled.
+     * Determines if blending will require a read of a dst given the current
+     * state set on the draw target
      *
-     * @return true if blend can be disabled without changing the rendering
-     *  result given the current state including the vertex layout specified
-     *  with the vertex source.
+     * @return true if the dst surface will be read at each pixel hit by the
+     *         a draw operation.
      */
-    bool canDisableBlend() const;
+    bool drawWillReadDst() const;
 
     /**
      * Color alpha and coverage are two inputs to the drawing pipeline. For some
@@ -550,9 +549,7 @@ public:
      * color specified by setColor or per-vertex colors will give the right
      * blending result.
      */
-    bool canTweakAlphaForCoverage() const {
-        return CanTweakAlphaForCoverage(fCurrDrawState.fDstBlend);
-    }
+    bool canTweakAlphaForCoverage() const;
 
      /**
       * Determines the interpretation per-vertex edge data when the
@@ -568,7 +565,7 @@ public:
      * lines be used (if line primitive type is drawn)? (Note that lines are
      * always 1 pixel wide)
      */
-    virtual bool willUseHWAALines() const = 0;
+     bool willUseHWAALines() const;
 
     /**
      * Sets the edge data required for edge antialiasing.
@@ -653,6 +650,7 @@ public:
 
 private:
     static const int TEX_COORD_BIT_CNT = kNumStages*kMaxTexCoords;
+
 public:
     /**
      * Generates a bit indicating that a texture stage uses the position
@@ -1299,15 +1297,57 @@ public:
 
 protected:
 
-    // Determines whether it is correct to apply partial pixel coverage
-    // by multiplying the src color by the fractional coverage.
-    static bool CanTweakAlphaForCoverage(GrBlendCoeff dstCoeff);
-    
-    // determines whether HW blending can be disabled or not
-    static bool CanDisableBlend(GrVertexLayout layout, const DrState& state);
+    /**
+     * Optimizations for blending / coverage to be applied based on the current
+     * state.
+     * Subclasses that actually draw (as opposed to those that just buffer for
+     * playback) must implement the flags that replace the output color.
+     */
+    enum BlendOptFlags {
+        /**
+         * No optimization
+         */
+        kNone_BlendOpt = 0,
+        /**
+         * Don't draw at all
+         */
+        kSkipDraw_BlendOptFlag = 0x2,
+        /**
+         * Emit the src color, disable HW blending (replace dst with src)
+         */
+        kDisableBlend_BlendOptFlag = 0x4,
+        /**
+         * The coverage value does not have to be computed separately from
+         * alpha, the the output color can be the modulation of the two.
+         */
+        kCoverageAsAlpha_BlendOptFlag = 0x1,
+        /**
+         * Instead of emitting a src color, emit coverage in the alpha channel
+         * and r,g,b are "don't cares".
+         */
+        kEmitCoverage_BlendOptFlag = 0x10,
+        /**
+         * Emit transparent black instead of the src color, no need to compute
+         * coverage.
+         */
+        kEmitTransBlack_BlendOptFlag = 0x8,
+    };
+    GR_DECL_BITFIELD_OPS_FRIENDS(BlendOptFlags);
 
-    // determines whether HW AA lines can be used or not
-    static bool CanUseHWAALines(GrVertexLayout layout, const DrState& state);
+    // Determines what optimizations can be applied based on the blend.
+    // The coeffecients may have to be tweaked in order for the optimization
+    // to work. srcCoeff and dstCoeff are optional params that receive the
+    // tweaked coeffecients.
+    // Normally the function looks at the current state to see if coverage
+    // is enabled. By setting forceCoverage the caller can speculatively
+    // determine the blend optimizations that would be used if there was
+    // partial pixel coverage
+    BlendOptFlags getBlendOpts(bool forceCoverage = false,
+                               GrBlendCoeff* srcCoeff = NULL,
+                               GrBlendCoeff* dstCoeff = NULL) const;
+
+    // determine if src alpha is guaranteed to be one for all src pixels
+    bool srcAlphaWillBeOne() const;
 
     enum GeometrySrcType {
         kNone_GeometrySrcType,     //<! src has not been specified
@@ -1430,5 +1470,7 @@ private:
               GeometrySrcState, true>           fGeoSrcStateStack;
     
 };
+
+GR_MAKE_BITFIELD_OPS(GrDrawTarget::BlendOptFlags);
 
 #endif

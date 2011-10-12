@@ -179,7 +179,7 @@ static inline bool single_pass_path(const GrDrawTarget& target,
         return hint == kConvex_ConvexHint ||
                hint == kNonOverlappingConvexPieces_ConvexHint ||
                (hint == kSameWindingConvexPieces_ConvexHint &&
-                target.canDisableBlend() && !target.isDitherState());
+                !target.drawWillReadDst() && !target.isDitherState());
 
     }
     return false;

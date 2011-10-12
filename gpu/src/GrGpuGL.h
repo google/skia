@@ -123,7 +123,10 @@ protected:
     // line width
     bool flushGLStateCommon(GrPrimitiveType type);
 
-    // subclass should call this to flush the blend state
+    // Subclasses should call this to flush the blend state.
+    // The params should be the final coeffecients to apply
+    // (after any blending optimizations or dual source blending considerations
+    // have been accounted for).
     void flushBlend(GrPrimitiveType type,
                     GrBlendCoeff srcCoeff,
                     GrBlendCoeff dstCoeff);
