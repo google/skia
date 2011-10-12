@@ -473,3 +473,44 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& clip,
         sk_blit_below(blitter, ir, clip);
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+#include "SkRasterClip.h"
+
+void SkScan::FillPath(const SkPath& path, const SkRasterClip& clip,
+                          SkBlitter* blitter) {
+    if (clip.isEmpty()) {
+        return;
+    }
+    
+    if (clip.isBW()) {
+        FillPath(path, clip.bwRgn(), blitter);
+    } else {
+        SkRegion        tmp;
+        SkAAClipBlitter aaBlitter;
+        
+        tmp.setRect(clip.getBounds());
+        aaBlitter.init(blitter, &clip.aaRgn());
+        SkScan::FillPath(path, tmp, &aaBlitter);
+    }
+}
+
+void SkScan::AntiFillPath(const SkPath& path, const SkRasterClip& clip,
+                          SkBlitter* blitter) {
+    if (clip.isEmpty()) {
+        return;
+    }
+
+    if (clip.isBW()) {
+        AntiFillPath(path, clip.bwRgn(), blitter);
+    } else {
+        SkRegion        tmp;
+        SkAAClipBlitter aaBlitter;
+
+        tmp.setRect(clip.getBounds());
+        aaBlitter.init(blitter, &clip.aaRgn());
+        SkScan::AntiFillPath(path, tmp, &aaBlitter, true);
+    }
+}
+
