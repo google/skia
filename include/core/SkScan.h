@@ -78,6 +78,7 @@ public:
                               const SkRegion*, SkBlitter*);
 
     // rasterclip
+    static void FillIRect(const SkIRect&, const SkRasterClip&, SkBlitter*);
     static void FillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
     static void AntiFillPath(const SkPath&, const SkRasterClip&, SkBlitter*);
 };
