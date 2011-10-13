@@ -125,7 +125,7 @@ protected:
         paint_rgn(canvas, clip, paint);
         
         SkAAClip clip2(clip);
-        clip2.offset(0, 80);
+        clip2.translate(0, 80);
         outer_frame(canvas, clip2.getBounds());
         paint_rgn(canvas, clip2, paint);
     }
