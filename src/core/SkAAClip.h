@@ -43,8 +43,10 @@ public:
     bool op(const SkRect&, SkRegion::Op, bool doAA);
     bool op(const SkAAClip&, SkRegion::Op);
 
-    bool offset(int dx, int dy);
-    bool offset(int dx, int dy, SkAAClip* dst) const;
+    bool translate(int dx, int dy, SkAAClip* dst) const;
+    bool translate(int dx, int dy) {
+        return this->translate(dx, dy, this);
+    }
 
     /**
      *  Allocates a mask the size of the aaclip, and expands its data into

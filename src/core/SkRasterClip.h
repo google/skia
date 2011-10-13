@@ -20,6 +20,8 @@ public:
 
     bool isBW() const { return fIsBW; }
     bool isAA() const { return !fIsBW; }
+    const SkRegion& bwRgn() const { SkASSERT(fIsBW); return fBW; }
+    const SkAAClip& aaRgn() const { SkASSERT(!fIsBW); return fAA; }
 
     bool isEmpty() const;
     bool isRect() const;
@@ -38,9 +40,22 @@ public:
     bool op(const SkRasterClip&, SkRegion::Op);
     bool op(const SkRect&, SkRegion::Op, bool doAA);
 
-    const SkRegion& bwRgn() const { SkASSERT(fIsBW); return fBW; }
-    const SkAAClip& aaRgn() const { SkASSERT(!fIsBW); return fAA; }
+    void translate(int dx, int dy, SkRasterClip* dst) const;
+    void translate(int dx, int dy) {
+        this->translate(dx, dy, this);
+    }
 
+    /**
+     *  Return true if this region is empty, or if the specified rectangle does
+     *  not intersect the region. Returning false is not a guarantee that they
+     *  intersect, but returning true is a guarantee that they do not.
+     */
+    bool quickReject(const SkIRect& rect) const {
+        return this->isEmpty() || rect.isEmpty() ||
+               !SkIRect::Intersects(this->getBounds(), rect);
+    }
+    
+    // hack for SkCanvas::getTotalClip
     const SkRegion& forceGetBW();
 
 private:

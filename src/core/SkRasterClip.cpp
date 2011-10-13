@@ -12,6 +12,15 @@ SkRasterClip::SkRasterClip() {
     fIsBW = true;
 }
 
+SkRasterClip::SkRasterClip(const SkRasterClip& src) {
+    fIsBW = src.fIsBW;
+    if (fIsBW) {
+        fBW = src.fBW;
+    } else {
+        fAA = src.fAA;
+    }
+}
+
 SkRasterClip::SkRasterClip(const SkIRect& bounds) : fBW(bounds) {
     fIsBW = true;
 }
@@ -140,6 +149,32 @@ bool SkRasterClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
         return fAA.op(r, op, doAA);
     }
 }
+
+void SkRasterClip::translate(int dx, int dy, SkRasterClip* dst) const {
+    if (NULL == dst) {
+        return;
+    }
+
+    if (this->isEmpty()) {
+        dst->setEmpty();
+        return;
+    }
+    if (0 == (dx | dy)) {
+        *dst = *this;
+        return;
+    }
+
+    dst->fIsBW = fIsBW;
+    if (fIsBW) {
+        fBW.translate(dx, dy, &dst->fBW);
+        dst->fAA.setEmpty();
+    } else {
+        fAA.translate(dx, dy, &dst->fAA);
+        dst->fBW.setEmpty();
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 const SkRegion& SkRasterClip::forceGetBW() {
     if (!fIsBW) {
