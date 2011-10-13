@@ -11,6 +11,7 @@
 #include "SkPath.h"
 #include "SkScan.h"
 #include "SkThread.h"
+#include "SkUtils.h"
 
 #define kMaxInt32   0x7FFFFFFF
 
@@ -797,6 +798,10 @@ static void operatorX(SkAAClip::Builder& builder, int lastY,
         if (left >= bounds.fRight) {
             break;
         }
+        if (rite > bounds.fRight) {
+            rite = bounds.fRight;
+        }
+
         if (left >= bounds.fLeft) {
             SkASSERT(rite > left);
             builder.addRun(left, lastY, proc(alphaA, alphaB), rite - left);
@@ -868,6 +873,12 @@ static void operateY(SkAAClip::Builder& builder, const SkAAClip& A,
         if (top >= bounds.fBottom) {
             break;
         }
+
+        if (bot > bounds.fBottom) {
+            bot = bounds.fBottom;
+        }
+        SkASSERT(top < bot);
+
         if (!rowA && !rowB) {
             builder.addRun(bounds.fLeft, bot - 1, 0, bounds.width());
         } else if (top >= bounds.fTop) {
@@ -1006,6 +1017,7 @@ void SkAAClipBlitter::ensureRunsAndAA() {
                                           count * sizeof(SkAlpha));
         fAA = (SkAlpha*)(fRuns + count);
     }
+    SkDEBUGCODE(sk_memset16((uint16_t*)fRuns, 0xFFFF, fAAClipBounds.width() + 1);)
 }
 
 void SkAAClipBlitter::blitH(int x, int y, int width) {
@@ -1071,6 +1083,7 @@ static void merge(const uint8_t* SK_RESTRICT row, int rowN,
         SkDEBUGCODE(accumulated += minN;)
         SkASSERT(accumulated <= width);
     }
+    dstRuns[0] = 0;
 }
 
 void SkAAClipBlitter::blitAntiH(int x, int y, const SkAlpha aa[],
@@ -1128,28 +1141,20 @@ const SkBitmap* SkAAClipBlitter::justAnOpaqueColor(uint32_t* value) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkAAClip::offset(int dx, int dy) {
+bool SkAAClip::translate(int dx, int dy, SkAAClip* dst) const {
+    if (NULL == dst) {
+        return !this->isEmpty();
+    }
+
     if (this->isEmpty()) {
-        return false;
+        return dst->setEmpty();
     }
 
-    fBounds.offset(dx, dy);
-    return true;
-}
-
-bool SkAAClip::offset(int dx, int dy, SkAAClip* dst) const {
-    if (this == dst) {
-        return dst->offset(dx, dy);
+    if (this != dst) {
+        sk_atomic_inc(&fRunHead->fRefCnt);
+        dst->fRunHead = fRunHead;
+        dst->fBounds = fBounds;
     }
-
-    dst->setEmpty();
-    if (this->isEmpty()) {
-        return false;
-    }
-
-    sk_atomic_inc(&fRunHead->fRefCnt);
-    dst->fRunHead = fRunHead;
-    dst->fBounds = fBounds;
     dst->fBounds.offset(dx, dy);
     return true;
 }
