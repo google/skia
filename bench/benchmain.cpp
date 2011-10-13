@@ -15,7 +15,7 @@
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
@@ -416,8 +416,8 @@ int main (int argc, char * const argv[]) {
     GrRenderTarget* rt = NULL;
     //Don't do GL when fixed.
 #if !defined(SK_SCALAR_IS_FIXED)
-    SkEGLContext eglContext;
-    if (eglContext.init(1024, 1024)) {
+    SkGLContext glContext;
+    if (glContext.init(1024, 1024)) {
         context = GrContext::CreateGLShaderContext();
         if (NULL != context) {
             GrPlatformSurfaceDesc desc;
@@ -426,7 +426,7 @@ int main (int argc, char * const argv[]) {
             desc.fWidth = 1024;
             desc.fHeight = 1024;
             desc.fStencilBits = 8;
-            desc.fPlatformRenderTarget = eglContext.getFBOID();
+            desc.fPlatformRenderTarget = glContext.getFBOID();
             desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
             rt = static_cast<GrRenderTarget*>(context->createPlatformSurface(desc));
             if (NULL == rt) {

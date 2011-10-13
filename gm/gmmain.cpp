@@ -12,7 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDevice.h"
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 #include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
@@ -606,9 +606,9 @@ int main(int argc, char * const argv[]) {
         maxH = SkMax32(size.height(), maxH);
     }
     // setup a GL context for drawing offscreen
-    SkEGLContext eglContext;
+    SkGLContext glContext;
     GrRenderTarget* rt = NULL;
-    if (eglContext.init(maxW, maxH)) {
+    if (glContext.init(maxW, maxH)) {
         gGrContext = GrContext::CreateGLShaderContext();
         if (NULL != gGrContext) {
             GrPlatformSurfaceDesc desc;
@@ -617,7 +617,7 @@ int main(int argc, char * const argv[]) {
             desc.fWidth = maxW;
             desc.fHeight = maxH;
             desc.fStencilBits = 8;
-            desc.fPlatformRenderTarget = eglContext.getFBOID();
+            desc.fPlatformRenderTarget = glContext.getFBOID();
             desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
             rt = static_cast<GrRenderTarget*>(gGrContext->createPlatformSurface(desc));
             if (NULL == rt) {

@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 #include "SkTypes.h"
 
 #include "GL/osmesa.h"
@@ -15,13 +15,13 @@
 #define SK_GL_GET_PROC(T, F) F ## _func = (T)OSMesaGetProcAddress(#F);
 #define SK_GL_GET_EXT_PROC(T, F) F ## _func = (T)OSMesaGetProcAddress(#F "EXT");
 
-SkEGLContext::SkEGLContext()
+SkGLContext::SkGLContext()
     : fFBO(0)
     , context(NULL)
     , image(NULL) {
 }
 
-SkEGLContext::~SkEGLContext() {
+SkGLContext::~SkGLContext() {
     if (this->image)
         free(this->image);
     
@@ -46,7 +46,7 @@ SkEGLContext::~SkEGLContext() {
     #define SK_OSMESA_COLOR_ORDER OSMESA_RGBA
 #endif
 
-bool SkEGLContext::init(const int width, const int height) {
+bool SkGLContext::init(const int width, const int height) {
     /* Create an RGBA-mode context */
 #if OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 305
     /* specify Z, stencil, accum sizes */

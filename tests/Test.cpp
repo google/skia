@@ -8,7 +8,7 @@
 #include "Test.h"
 
 #include "GrContext.h"
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 #include "SkTLazy.h"
 
 using namespace skiatest;
@@ -79,12 +79,12 @@ bool Test::run() {
 
 GrContext* GpuTest::GetContext() {
     // preserve this order, we want gGrContext destroyed after gEGLContext
-    static SkTLazy<SkEGLContext> gEGLContext;
+    static SkTLazy<SkGLContext> gGLContext;
     static SkAutoTUnref<GrContext> gGrContext;
 
     if (NULL == gGrContext.get()) {
-        gEGLContext.init();
-        if (gEGLContext.get()->init(800, 600)) {
+        gGLContext.init();
+        if (gGLContext.get()->init(800, 600)) {
             gGrContext.reset(GrContext::Create(kOpenGL_Shaders_GrEngine, NULL));
         }
     }

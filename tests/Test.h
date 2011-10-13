@@ -13,7 +13,7 @@
 #include "SkTRegistry.h"
 
 class GrContext;
-class SkEGLContext;
+class SkGLContext;
 
 namespace skiatest {
 

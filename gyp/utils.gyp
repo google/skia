@@ -23,7 +23,6 @@
         '../include/utils/SkCubicInterval.h',
         '../include/utils/SkCullPoints.h',
         '../include/utils/SkDumpCanvas.h',
-        '../include/utils/SkEGLContext.h',
         '../include/utils/SkGLCanvas.h',
         '../include/utils/SkInterpolator.h',
         '../include/utils/SkLayer.h',
@@ -45,7 +44,6 @@
         '../src/utils/SkCubicInterval.cpp',
         '../src/utils/SkCullPoints.cpp',
         '../src/utils/SkDumpCanvas.cpp',
-        '../src/utils/SkEGLContext_none.cpp',
         '../src/utils/SkInterpolator.cpp',
         '../src/utils/SkLayer.cpp',
         '../src/utils/SkMatrix44.cpp',
@@ -63,17 +61,12 @@
         #mac
         '../include/utils/mac/SkCGUtils.h',
         '../src/utils/mac/SkCreateCGImageRef.cpp',
-        '../src/utils/mac/SkEGLContext_mac.cpp',
-
-        #mesa
-        '../src/utils/mesa/SkEGLContext_Mesa.cpp',
 
         #sdl
         '../src/utils/SDL/SkOSWindow_SDL.cpp',
 
         #*nix
         '../src/utils/unix/keysym2ucs.c',
-        '../src/utils/unix/SkEGLContext_Unix.cpp',
         '../src/utils/unix/SkOSWindow_Unix.cpp',
         
         #windows
@@ -83,20 +76,15 @@
         '../include/utils/win/SkTScopedComPtr.h',
         '../src/utils/win/SkAutoCoInitialize.cpp',
         '../src/utils/win/skia_win.cpp',
-        '../src/utils/win/SkEGLContext_Win.cpp',
         '../src/utils/win/SkHRESULT.cpp',
         '../src/utils/win/SkIStream.cpp',
         '../src/utils/win/SkOSWindow_Win.cpp',
       ],
       'sources!': [
-          '../src/utils/mesa/SkEGLContext_Mesa.cpp',
           '../src/utils/SDL/SkOSWindow_SDL.cpp',
       ],
       'conditions': [
         [ 'skia_os == "mac"', {
-          'sources!': [
-            '../src/utils/SkEGLContext_none.cpp',
-          ],
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/AGL.framework',
@@ -114,15 +102,11 @@
           'sources!': [
             '../include/utils/mac/SkCGUtils.h',
             '../src/utils/mac/SkCreateCGImageRef.cpp',
-            '../src/utils/mac/SkEGLContext_mac.cpp',
             '../src/utils/mac/skia_mac.mm',
             '../src/utils/mac/SkOSWindow_Mac.mm',
           ],
         }],
         [ 'skia_os in ["linux", "freebsd", "openbsd", "solaris"]', {
-          'sources!': [
-            '../src/utils/SkEGLContext_none.cpp',
-          ],
           'link_settings': {
             'libraries': [
               '-lGL',
@@ -135,14 +119,10 @@
           ],
           'sources!': [
             '../src/utils/unix/keysym2ucs.c',
-            '../src/utils/unix/SkEGLContext_Unix.cpp',
             '../src/utils/unix/SkOSWindow_Unix.cpp',
           ],
         }],
         [ 'skia_os == "win"', {
-          'sources!': [
-            '../src/utils/SkEGLContext_none.cpp',
-          ],
           'direct_dependent_settings': {
             'include_dirs': [
               '../include/utils/win',
@@ -159,7 +139,6 @@
             '../include/utils/win/SkTScopedComPtr.h',
             '../src/utils/win/SkAutoCoInitialize.cpp',
             '../src/utils/win/skia_win.cpp',
-            '../src/utils/win/SkEGLContext_Win.cpp',
             '../src/utils/win/SkHRESULT.cpp',
             '../src/utils/win/SkIStream.cpp',
             '../src/utils/win/SkOSWindow_Win.cpp',
