@@ -9,7 +9,7 @@
 
 #include "SkScan.h"
 #include "SkBlitter.h"
-#include "SkRegion.h"
+#include "SkRasterClip.h"
 
 static inline void blitrect(SkBlitter* blitter, const SkIRect& r) {
     blitter->blitRect(r.fLeft, r.fTop, r.width(), r.height());
@@ -64,4 +64,26 @@ void SkScan::FillRect(const SkRect& r, const SkRegion* clip,
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+void SkScan::FillIRect(const SkIRect& r, const SkRasterClip& clip,
+                       SkBlitter* blitter) {
+    if (clip.isEmpty() || r.isEmpty()) {
+        return;
+    }
+    
+    if (clip.isBW()) {
+        FillIRect(r, &clip.bwRgn(), blitter);
+        return;
+    }
+
+    const SkAAClip* aaClip = &clip.aaRgn();
+    SkRegion        tmp;
+    SkAAClipBlitter aaBlitter;
+    
+    tmp.setRect(aaClip->getBounds());
+    aaBlitter.init(blitter, aaClip);
+    FillIRect(r, &tmp, &aaBlitter);
+}
 
