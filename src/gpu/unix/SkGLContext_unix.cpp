@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 #include "SkTypes.h"
 
 #include <GL/gl.h>
@@ -23,7 +23,7 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
     return 0;
 }
 
-SkEGLContext::SkEGLContext() 
+SkGLContext::SkGLContext() 
     : fFBO(0)
     , context(NULL)
     , display(NULL)
@@ -31,7 +31,7 @@ SkEGLContext::SkEGLContext()
     , glxPixmap(0) {
 }
 
-SkEGLContext::~SkEGLContext() {
+SkGLContext::~SkGLContext() {
     if (this->display) {
         glXMakeCurrent(this->display, 0, 0);
 
@@ -48,7 +48,7 @@ SkEGLContext::~SkEGLContext() {
     }
 }
 
-bool SkEGLContext::init(const int width, const int height) {
+bool SkGLContext::init(const int width, const int height) {
     Display *display = XOpenDisplay(0);
     this->display = display;
 

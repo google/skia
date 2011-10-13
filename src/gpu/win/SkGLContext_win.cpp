@@ -9,39 +9,39 @@
 #include <Windows.h>
 #include <GL/GL.h>
 
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 #include "SkTypes.h"
 
-#define SK_EGL_DECLARE_PROC(F) SkEGL ## F ## Proc SkEGL ## F = NULL;
-#define SK_EGL_GET_PROC(F) SkEGL ## F = (SkEGL ## F ## Proc) \
+#define SK_GL_DECLARE_PROC(F) SkGL ## F ## Proc SkGL ## F = NULL;
+#define SK_GL_GET_PROC(F) SkGL ## F = (SkGL ## F ## Proc) \
         wglGetProcAddress("gl" #F);
-#define SK_EGL_GET_PROC_SUFFIX(F, S) SkEGL ## F = (SkEGL ## F ## Proc) \
+#define SK_GL_GET_PROC_SUFFIX(F, S) SkGL ## F = (SkGL ## F ## Proc) \
         wglGetProcAddress("gl" #F #S);
 
-#define SK_EGL_FRAMEBUFFER 0x8D40
-#define SK_EGL_RENDERBUFFER 0x8D41
-#define SK_EGL_COLOR_ATTACHMENT0 0x8CE0
-#define SK_EGL_DEPTH_STENCIL 0x84F9
-#define SK_EGL_DEPTH_STENCIL_ATTACHMENT 0x821A
-#define SK_EGL_FRAMEBUFFER_COMPLETE 0x8CD5
+#define SK_GL_FRAMEBUFFER 0x8D40
+#define SK_GL_RENDERBUFFER 0x8D41
+#define SK_GL_COLOR_ATTACHMENT0 0x8CE0
+#define SK_GL_DEPTH_STENCIL 0x84F9
+#define SK_GL_DEPTH_STENCIL_ATTACHMENT 0x821A
+#define SK_GL_FRAMEBUFFER_COMPLETE 0x8CD5
 
-#define SK_EGL_FUNCTION_TYPE __stdcall
-typedef void (SK_EGL_FUNCTION_TYPE *SkEGLGenFramebuffersProc) (GLsizei n, GLuint *framebuffers);
-typedef void (SK_EGL_FUNCTION_TYPE *SkEGLBindFramebufferProc) (GLenum target, GLuint framebuffer);
-typedef void (SK_EGL_FUNCTION_TYPE *SkEGLGenRenderbuffersProc) (GLsizei n, GLuint *renderbuffers);
-typedef void (SK_EGL_FUNCTION_TYPE *SkEGLBindRenderbufferProc) (GLenum target, GLuint renderbuffer);
-typedef void (SK_EGL_FUNCTION_TYPE *SkEGLRenderbufferStorageProc) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-typedef void (SK_EGL_FUNCTION_TYPE *SkEGLFramebufferRenderbufferProc) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-typedef GLenum (SK_EGL_FUNCTION_TYPE *SkEGLCheckFramebufferStatusProc) (GLenum target);
+#define SK_GL_FUNCTION_TYPE __stdcall
+typedef void (SK_GL_FUNCTION_TYPE *SkGLGenFramebuffersProc) (GLsizei n, GLuint *framebuffers);
+typedef void (SK_GL_FUNCTION_TYPE *SkGLBindFramebufferProc) (GLenum target, GLuint framebuffer);
+typedef void (SK_GL_FUNCTION_TYPE *SkGLGenRenderbuffersProc) (GLsizei n, GLuint *renderbuffers);
+typedef void (SK_GL_FUNCTION_TYPE *SkGLBindRenderbufferProc) (GLenum target, GLuint renderbuffer);
+typedef void (SK_GL_FUNCTION_TYPE *SkGLRenderbufferStorageProc) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+typedef void (SK_GL_FUNCTION_TYPE *SkGLFramebufferRenderbufferProc) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+typedef GLenum (SK_GL_FUNCTION_TYPE *SkGLCheckFramebufferStatusProc) (GLenum target);
 
-SkEGLContext::SkEGLContext()
+SkGLContext::SkGLContext()
         : fFBO(0)
         , fWindow(NULL)
         , fDeviceContext(NULL)
         , fGlRenderContext(0) {
 }
 
-SkEGLContext::~SkEGLContext() {
+SkGLContext::~SkGLContext() {
     if (this->fGlRenderContext) {
         wglDeleteContext(this->fGlRenderContext);
     }
@@ -53,7 +53,7 @@ SkEGLContext::~SkEGLContext() {
     }
 }
 
-bool skEGLCheckExtension(const char* ext,
+bool skGLCheckExtension(const char* ext,
                          const char* extensionString) {
     int extLength = strlen(ext);
 
@@ -71,7 +71,7 @@ bool skEGLCheckExtension(const char* ext,
     return false;
 }
 
-bool SkEGLContext::init(const int width, const int height) {
+bool SkGLContext::init(const int width, const int height) {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
 
     WNDCLASS wc;
@@ -152,51 +152,51 @@ bool SkEGLContext::init(const int width, const int height) {
     //Setup the framebuffers
     const char* glExts =
         reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
-    if (!skEGLCheckExtension(
+    if (!skGLCheckExtension(
           "GL_EXT_framebuffer_object"
           , glExts))
     {
         SkDebugf("GL_EXT_framebuffer_object not found.\n");
         return false;
     }
-    SK_EGL_DECLARE_PROC(GenFramebuffers)
-    SK_EGL_DECLARE_PROC(BindFramebuffer)
-    SK_EGL_DECLARE_PROC(GenRenderbuffers)
-    SK_EGL_DECLARE_PROC(BindRenderbuffer)
-    SK_EGL_DECLARE_PROC(RenderbufferStorage)
-    SK_EGL_DECLARE_PROC(FramebufferRenderbuffer)
-    SK_EGL_DECLARE_PROC(CheckFramebufferStatus)
+    SK_GL_DECLARE_PROC(GenFramebuffers)
+    SK_GL_DECLARE_PROC(BindFramebuffer)
+    SK_GL_DECLARE_PROC(GenRenderbuffers)
+    SK_GL_DECLARE_PROC(BindRenderbuffer)
+    SK_GL_DECLARE_PROC(RenderbufferStorage)
+    SK_GL_DECLARE_PROC(FramebufferRenderbuffer)
+    SK_GL_DECLARE_PROC(CheckFramebufferStatus)
 
-    SK_EGL_GET_PROC_SUFFIX(GenFramebuffers, EXT)
-    SK_EGL_GET_PROC_SUFFIX(BindFramebuffer, EXT)
-    SK_EGL_GET_PROC_SUFFIX(GenRenderbuffers, EXT)
-    SK_EGL_GET_PROC_SUFFIX(BindRenderbuffer, EXT)
-    SK_EGL_GET_PROC_SUFFIX(RenderbufferStorage, EXT)
-    SK_EGL_GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT)
-    SK_EGL_GET_PROC_SUFFIX(CheckFramebufferStatus, EXT)
+    SK_GL_GET_PROC_SUFFIX(GenFramebuffers, EXT)
+    SK_GL_GET_PROC_SUFFIX(BindFramebuffer, EXT)
+    SK_GL_GET_PROC_SUFFIX(GenRenderbuffers, EXT)
+    SK_GL_GET_PROC_SUFFIX(BindRenderbuffer, EXT)
+    SK_GL_GET_PROC_SUFFIX(RenderbufferStorage, EXT)
+    SK_GL_GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT)
+    SK_GL_GET_PROC_SUFFIX(CheckFramebufferStatus, EXT)
 
     GLuint cbID;
     GLuint dsID;
-    SkEGLGenFramebuffers(1, &fFBO);
-    SkEGLBindFramebuffer(SK_EGL_FRAMEBUFFER, fFBO);
-    SkEGLGenRenderbuffers(1, &cbID);
-    SkEGLBindRenderbuffer(SK_EGL_RENDERBUFFER, cbID);
-    SkEGLRenderbufferStorage(SK_EGL_RENDERBUFFER, GL_RGBA, width, height);
-    SkEGLFramebufferRenderbuffer(SK_EGL_FRAMEBUFFER
-                                 , SK_EGL_COLOR_ATTACHMENT0
-                                 , SK_EGL_RENDERBUFFER, cbID);
-    SkEGLGenRenderbuffers(1, &dsID);
-    SkEGLBindRenderbuffer(SK_EGL_RENDERBUFFER, dsID);
-    SkEGLRenderbufferStorage(SK_EGL_RENDERBUFFER, SK_EGL_DEPTH_STENCIL
+    SkGLGenFramebuffers(1, &fFBO);
+    SkGLBindFramebuffer(SK_GL_FRAMEBUFFER, fFBO);
+    SkGLGenRenderbuffers(1, &cbID);
+    SkGLBindRenderbuffer(SK_GL_RENDERBUFFER, cbID);
+    SkGLRenderbufferStorage(SK_GL_RENDERBUFFER, GL_RGBA, width, height);
+    SkGLFramebufferRenderbuffer(SK_GL_FRAMEBUFFER
+                                , SK_GL_COLOR_ATTACHMENT0
+                                , SK_GL_RENDERBUFFER, cbID);
+    SkGLGenRenderbuffers(1, &dsID);
+    SkGLBindRenderbuffer(SK_GL_RENDERBUFFER, dsID);
+    SkGLRenderbufferStorage(SK_GL_RENDERBUFFER, SK_GL_DEPTH_STENCIL
                              , width, height);
-    SkEGLFramebufferRenderbuffer(SK_EGL_FRAMEBUFFER
-                                 , SK_EGL_DEPTH_STENCIL_ATTACHMENT
-                                 , SK_EGL_RENDERBUFFER
+    SkGLFramebufferRenderbuffer(SK_GL_FRAMEBUFFER
+                                 , SK_GL_DEPTH_STENCIL_ATTACHMENT
+                                 , SK_GL_RENDERBUFFER
                                  , dsID);
     glViewport(0, 0, width, height);
     glClearStencil(0);
     glClear(GL_STENCIL_BUFFER_BIT);
 
-    GLenum status = SkEGLCheckFramebufferStatus(SK_EGL_FRAMEBUFFER);
-    return SK_EGL_FRAMEBUFFER_COMPLETE == status;
+    GLenum status = SkGLCheckFramebufferStatus(SK_GL_FRAMEBUFFER);
+    return SK_GL_FRAMEBUFFER_COMPLETE == status;
 }

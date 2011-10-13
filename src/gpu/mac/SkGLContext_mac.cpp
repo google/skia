@@ -5,22 +5,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 //#include "SkTypes.h"
 #include <AGL/agl.h>
 
-SkEGLContext::SkEGLContext() 
+SkGLContext::SkGLContext() 
     : fFBO(0)
     , context(NULL) {
 }
 
-SkEGLContext::~SkEGLContext() {
+SkGLContext::~SkGLContext() {
     if (this->context) {
         aglDestroyContext(this->context);
     }
 }
 
-bool SkEGLContext::init(int width, int height) {
+bool SkGLContext::init(int width, int height) {
     GLint major, minor;
     AGLContext ctx;
 

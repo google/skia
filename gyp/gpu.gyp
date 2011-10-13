@@ -2,6 +2,89 @@
   'includes': [
     'common.gypi',
   ],
+  'target_defaults': {
+    'conditions': [
+      ['skia_os != "win"', {
+        'sources/': [ ['exclude', '_win.(h|cpp)$'],
+        ],
+      }],
+      ['skia_os != "mac"', {
+        'sources/': [ ['exclude', '_mac.(h|cpp)$'],
+        ],
+      }],
+      ['skia_os != "linux"', {
+        'sources/': [ ['exclude', '_unix.(h|cpp)$'],
+        ],
+      }],
+      ['skia_os != "ios"', {
+        'sources/': [ ['exclude', '_iOS.(h|cpp)$'],
+        ],
+      }],
+      ['skia_os != "android"', {
+        'sources/': [ ['exclude', '_android.(h|cpp)$'],
+        ],
+      }],
+      [ 'skia_os == "android"', {
+        'defines': [
+          'GR_ANDROID_BUILD=1',
+        ],
+      }],
+      [ 'skia_os == "mac"', {
+        'defines': [
+          'GR_MAC_BUILD=1',
+        ],
+      }],
+      [ 'skia_os == "linux"', {
+        'defines': [
+          'GR_LINUX_BUILD=1',
+        ],
+      }],
+      [ 'skia_os == "ios"', {
+        'defines': [
+          'GR_IOS_BUILD=1',
+        ],
+      }],
+      [ 'skia_os == "win"', {
+        'defines': [
+          'GR_WIN32_BUILD=1',
+          'GR_GL_FUNCTION_TYPE=__stdcall',
+        ],
+      }],
+    ],
+    'direct_dependent_settings': {
+      'conditions': [
+        [ 'skia_os == "android"', {
+          'defines': [
+            'GR_ANDROID_BUILD=1',
+          ],
+        }],
+        [ 'skia_os == "mac"', {
+          'defines': [
+            'GR_MAC_BUILD=1',
+          ],
+        }],
+        [ 'skia_os == "linux"', {
+          'defines': [
+            'GR_LINUX_BUILD=1',
+          ],
+        }],
+        [ 'skia_os == "ios"', {
+          'defines': [
+            'GR_IOS_BUILD=1',
+          ],
+        }],
+        [ 'skia_os == "win"', {
+          'defines': [
+            'GR_WIN32_BUILD=1',
+            'GR_GL_FUNCTION_TYPE=__stdcall',
+          ],
+        }],
+      ],
+      'include_dirs': [
+        '../include/gpu',
+      ],
+    },
+  },
   'targets': [
     {
       'target_name': 'skgr',
@@ -24,46 +107,19 @@
         '../src/gpu/SkGr.cpp',
         '../src/gpu/SkGrFontScaler.cpp',
         '../src/gpu/SkGrTexturePixelRef.cpp',
+
+        '../src/gpu/mac/SkGLContext_mac.cpp',
+
+        '../src/gpu/win/SkGLContext_win.cpp',
+
+        '../src/gpu/unix/SkGLContext_unix.cpp',
+
+        '../src/gpu/mesa/SkGLContext_mesa.cpp',
       ],
-      'conditions': [
-          [ 'skia_os == "linux"', {
-          'defines': [
-              'GR_LINUX_BUILD=1',
-          ],
-          }],
-          [ 'skia_os == "mac"', {
-          'defines': [
-              'GR_MAC_BUILD=1',
-          ],
-          }],
-          [ 'skia_os == "win"', {
-          'defines': [
-              'GR_WIN32_BUILD=1',
-          ],
-          }],
+      # Removed for now
+      'sources!': [
+        '../src/gpu/mesa/SkGLContext_mesa.cpp',
       ],
-      'direct_dependent_settings': {
-        'conditions': [
-          [ 'skia_os == "linux"', {
-            'defines': [
-              'GR_LINUX_BUILD=1',
-            ],
-          }],
-          [ 'skia_os == "mac"', {
-            'defines': [
-              'GR_MAC_BUILD=1',
-            ],
-          }],
-          [ 'skia_os == "win"', {
-            'defines': [
-              'GR_WIN32_BUILD=1',
-            ],
-          }],
-        ],
-        'include_dirs': [
-          '../include/gpu',
-        ],
-      },
     },
     {
       'target_name': 'gr',
@@ -201,6 +257,7 @@
 
         '../src/gpu/mesa/GrGLDefaultInterface_mesa.cpp',
       ],
+      # Removed for now
       'sources!': [
         '../src/gpu/mesa/GrGLDefaultInterface_mesa.cpp',
       ],
@@ -209,9 +266,6 @@
       ],
       'conditions': [
         [ 'skia_os == "linux"', {
-          'defines': [
-              'GR_LINUX_BUILD=1',
-          ],
           'sources!': [
             '../src/gpu/GrGLDefaultInterface_none.cpp',
           ],
@@ -223,9 +277,6 @@
           },
         }],
         [ 'skia_os == "mac"', {
-          'defines': [
-              'GR_MAC_BUILD=1',
-          ],
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
@@ -236,53 +287,11 @@
           ],
           }],
         [ 'skia_os == "win"', {
-          'defines': [
-            'GR_WIN32_BUILD=1',
-            'GR_GL_FUNCTION_TYPE=__stdcall',
-          ],
           'sources!': [
             '../src/gpu/GrGLDefaultInterface_none.cpp',
           ],
         }],
-        [ 'skia_os != "win"', {
-          'sources!': [
-            '../src/gpu/win/GrGLDefaultInterface_win.cpp',
-          ],
-        }],
-        [ 'skia_os != "mac"', {
-          'sources!': [
-            '../src/gpu/mac/GrGLDefaultInterface_mac.cpp',
-          ],
-        }],
-        [ 'skia_os != "linux"', {
-          'sources!': [
-            '../src/gpu/unix/GrGLDefaultInterface_unix.cpp',
-          ],
-        }],
       ],
-      'direct_dependent_settings': {
-        'conditions': [
-          [ 'skia_os == "linux"', {
-            'defines': [
-              'GR_LINUX_BUILD=1',
-            ],
-          }],
-          [ 'skia_os == "mac"', {
-            'defines': [
-              'GR_MAC_BUILD=1',
-            ],
-          }],
-          [ 'skia_os == "win"', {
-            'defines': [
-              'GR_WIN32_BUILD=1',
-              'GR_GL_FUNCTION_TYPE=__stdcall',
-            ],
-          }],
-        ],
-        'include_dirs': [
-          '../include/gpu',
-        ],
-      },
     },
   ],
 }

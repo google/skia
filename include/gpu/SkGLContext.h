@@ -5,8 +5,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkEGLContext_DEFINED
-#define SkEGLContext_DEFINED
+#ifndef SkGLContext_DEFINED
+#define SkGLContext_DEFINED
 
 #if defined(SK_MESA)
     #include "GL/osmesa.h"
@@ -25,10 +25,10 @@
 /**
  *  Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
  */
-class SkEGLContext {
+class SkGLContext {
 public:
-    SkEGLContext();
-    ~SkEGLContext();
+    SkGLContext();
+    ~SkGLContext();
 
     bool init(const int width, const int height);
 

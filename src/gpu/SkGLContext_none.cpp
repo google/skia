@@ -5,15 +5,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkEGLContext.h"
+#include "SkGLContext.h"
 
-SkEGLContext::SkEGLContext()
+SkGLContext::SkGLContext()
     : fFBO(0) {
 }
 
-SkEGLContext::~SkEGLContext() {
+SkGLContext::~SkGLContext() {
 }
 
-bool SkEGLContext::init(int width, int height) {
+bool SkGLContext::init(int width, int height) {
     return false;
 }
