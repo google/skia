@@ -759,7 +759,6 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
     SkPDFDict* relatedFontDescriptor = NULL;
     if (relatedFontIndex >= 0) {
         SkPDFFont* relatedFont = CanonicalFonts()[relatedFontIndex].fFont;
-        SkASSERT(relatedFont->fFontInfo.get());
         fontMetrics = relatedFont->fontInfo();
         relatedFontDescriptor = relatedFont->getFontDescriptor();
     } else {
@@ -775,7 +774,8 @@ SkPDFFont* SkPDFFont::GetFontResource(SkTypeface* typeface, uint16_t glyphID) {
             SkFontHost::GetAdvancedTypefaceMetrics(fontID, info, NULL, 0);
 #if defined (SK_SFNTLY_SUBSETTER)
         SkSafeUnref(fontMetrics.get());  // SkRefPtr and Get both took a ref.
-        if (fontMetrics->fType != SkAdvancedTypefaceMetrics::kTrueType_Font) {
+        if (fontMetrics &&
+            fontMetrics->fType != SkAdvancedTypefaceMetrics::kTrueType_Font) {
             // Font does not support subsetting, get new info with advance.
             info = SkTBitOr<SkAdvancedTypefaceMetrics::PerGlyphInfo>(
                       info, SkAdvancedTypefaceMetrics::kHAdvance_PerGlyphInfo);
