@@ -64,28 +64,22 @@ SkScalar SkStream::readScalar() {
     return value;
 }
 
+#define SK_MAX_BYTE_FOR_U8          0xFD
+#define SK_BYTE_SENTINEL_FOR_U16    0xFE
+#define SK_BYTE_SENTINEL_FOR_U32    0xFF
+
 size_t SkStream::readPackedUInt() {
     uint8_t byte;    
     if (!this->read(&byte, 1)) {
         return 0;
     }
-    if (byte != 0xFF) {
+    if (SK_BYTE_SENTINEL_FOR_U16 == byte) {
+        return this->readU16();
+    } else if (SK_BYTE_SENTINEL_FOR_U32 == byte) {
+        return this->readU32();
+    } else {
         return byte;
     }
-    
-    uint16_t word;
-    if (!this->read(&word, 2)) {
-        return 0;
-    }
-    if (word != 0xFFFF) {
-        return word;
-    }
-    
-    uint32_t quad;
-    if (!this->read(&quad, 4)) {
-        return 0;
-    }
-    return quad;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -156,13 +150,23 @@ bool SkWStream::writeScalar(SkScalar value) {
 }
 
 bool SkWStream::writePackedUInt(size_t value) {
-    if (value < 0xFF) {
-        return this->write8(value);
-    } else if (value < 0xFFFF) {
-        return this->write8(0xFF) && this->write16(value);
+    uint8_t data[5];
+    size_t len = 1;
+    if (value <= SK_MAX_BYTE_FOR_U8) {
+        data[0] = value;
+        len = 1;
+    } else if (value <= 0xFFFF) {
+        uint16_t value16 = value;
+        data[0] = SK_BYTE_SENTINEL_FOR_U16;
+        memcpy(&data[1], &value16, 2);
+        len = 3;
     } else {
-        return this->write16(0xFFFF) && this->write32(value);
+        uint32_t value32 = value;
+        data[0] = SK_BYTE_SENTINEL_FOR_U32;
+        memcpy(&data[1], &value32, 4);
+        len = 5;
     }
+    return this->write(data, len);
 }
 
 bool SkWStream::writeStream(SkStream* stream, size_t length) {
