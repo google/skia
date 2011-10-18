@@ -29,7 +29,7 @@ static void SkARGB32_Blit32(const SkBitmap& device, const SkMask& mask,
     int height = clip.height();
 
     SkPMColor*		 dstRow = device.getAddr32(x, y);
-    const SkPMColor* srcRow = reinterpret_cast<const SkPMColor*>(mask.getAddr(x, y));
+    const SkPMColor* srcRow = reinterpret_cast<const SkPMColor*>(mask.getAddr8(x, y));
 
     do {
 		proc(dstRow, srcRow, width, alpha);

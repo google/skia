@@ -66,7 +66,7 @@ struct SkMask {
         Asserts that the mask is kA8_Format, and that x,y are in range.
         x,y are in the same coordiate space as fBounds.
     */
-    uint8_t* getAddr(int x, int y) const {
+    uint8_t* getAddr8(int x, int y) const {
         SkASSERT(kA8_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);

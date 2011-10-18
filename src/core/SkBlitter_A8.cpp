@@ -140,7 +140,7 @@ void SkA8_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     int width = clip.width();
     int height = clip.height();
     uint8_t* device = fDevice.getAddr8(x, y);
-    const uint8_t* alpha = mask.getAddr(x, y);
+    const uint8_t* alpha = mask.getAddr8(x, y);
     unsigned    srcA = fSrcA;
 
     while (--height >= 0) {
@@ -328,7 +328,7 @@ void SkA8_Shader_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     int width = clip.width();
     int height = clip.height();
     uint8_t* device = fDevice.getAddr8(x, y);
-    const uint8_t* alpha = mask.getAddr(x, y);
+    const uint8_t* alpha = mask.getAddr8(x, y);
 
     SkPMColor*  span = fBuffer;
 

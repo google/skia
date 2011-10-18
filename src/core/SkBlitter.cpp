@@ -151,7 +151,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         int                         width = clip.width();
         SkAutoSTMalloc<64, int16_t> runStorage(width + 1);
         int16_t*                    runs = runStorage.get();
-        const uint8_t*              aa = mask.getAddr(clip.fLeft, clip.fTop);
+        const uint8_t*              aa = mask.getAddr8(clip.fLeft, clip.fTop);
 
         sk_memset16((uint16_t*)runs, 1, width);
         runs[width] = 0;
@@ -513,7 +513,7 @@ public:
         SkASSERT(fMask->fBounds.contains(x + count - 1, y));
 
         size_t          size = fMask->computeImageSize();
-        const uint8_t*  alpha = fMask->getAddr(x, y);
+        const uint8_t*  alpha = fMask->getAddr8(x, y);
         const uint8_t*  mulp = alpha + size;
         const uint8_t*  addp = mulp + size;
 
