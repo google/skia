@@ -14,197 +14,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static inline int upscale31To32(int value) {
-    SkASSERT((unsigned)value <= 31);
-    return value + (value >> 4);
-}
-
-static inline int blend32(int src, int dst, int scale) {
-    SkASSERT((unsigned)src <= 0xFF);
-    SkASSERT((unsigned)dst <= 0xFF);
-    SkASSERT((unsigned)scale <= 32);
-    return dst + ((src - dst) * scale >> 5);
-}
-
-static void blit_lcd16_row(SkPMColor dst[], const uint16_t src[],
-                              SkColor color, int width, SkPMColor) {
-    int srcA = SkColorGetA(color);
-    int srcR = SkColorGetR(color);
-    int srcG = SkColorGetG(color);
-    int srcB = SkColorGetB(color);
-    
-    srcA = SkAlpha255To256(srcA);
-
-    for (int i = 0; i < width; i++) {
-        uint16_t mask = src[i];
-        if (0 == mask) {
-            continue;
-        }
-
-        SkPMColor d = dst[i];
-        
-        /*  We want all of these in 5bits, hence the shifts in case one of them
-         *  (green) is 6bits.
-         */
-        int maskR = SkGetPackedR16(mask) >> (SK_R16_BITS - 5);
-        int maskG = SkGetPackedG16(mask) >> (SK_G16_BITS - 5);
-        int maskB = SkGetPackedB16(mask) >> (SK_B16_BITS - 5);
-
-        // Now upscale them to 0..32, so we can use blend32
-        maskR = upscale31To32(maskR);
-        maskG = upscale31To32(maskG);
-        maskB = upscale31To32(maskB);
-
-        maskR = maskR * srcA >> 8;
-        maskG = maskG * srcA >> 8;
-        maskB = maskB * srcA >> 8;
-
-        int dstR = SkGetPackedR32(d);
-        int dstG = SkGetPackedG32(d);
-        int dstB = SkGetPackedB32(d);
-
-        // LCD blitting is only supported if the dst is known/required\
-        // to be opaque
-        dst[i] = SkPackARGB32(0xFF,
-                              blend32(srcR, dstR, maskR),
-                              blend32(srcG, dstG, maskG),
-                              blend32(srcB, dstB, maskB));
-    }
-}
-
-static void blit_lcd16_opaque_row(SkPMColor dst[], const uint16_t src[],
-                                  SkColor color, int width, SkPMColor opaqueDst) {
-    int srcR = SkColorGetR(color);
-    int srcG = SkColorGetG(color);
-    int srcB = SkColorGetB(color);
-    
-    for (int i = 0; i < width; i++) {
-        uint16_t mask = src[i];
-        if (0 == mask) {
-            continue;
-        }
-        if (0xFFFF == mask) {
-            dst[i] = opaqueDst;
-            continue;
-        }
-
-        SkPMColor d = dst[i];
-        
-        /*  We want all of these in 5bits, hence the shifts in case one of them
-         *  (green) is 6bits.
-         */
-        int maskR = SkGetPackedR16(mask) >> (SK_R16_BITS - 5);
-        int maskG = SkGetPackedG16(mask) >> (SK_G16_BITS - 5);
-        int maskB = SkGetPackedB16(mask) >> (SK_B16_BITS - 5);
-
-        // Now upscale them to 0..32, so we can use blend32
-        maskR = upscale31To32(maskR);
-        maskG = upscale31To32(maskG);
-        maskB = upscale31To32(maskB);
-
-        int dstR = SkGetPackedR32(d);
-        int dstG = SkGetPackedG32(d);
-        int dstB = SkGetPackedB32(d);
-
-        // LCD blitting is only supported if the dst is known/required
-        // to be opaque
-        dst[i] = SkPackARGB32(0xFF,
-                              blend32(srcR, dstR, maskR),
-                              blend32(srcG, dstG, maskG),
-                              blend32(srcB, dstB, maskB));
-    }
-}
-
-static void blit_lcd32_row(SkPMColor dst[], const uint32_t src[],
-                           SkColor color, int width, SkPMColor) {
-    int srcA = SkColorGetA(color);
-    int srcR = SkColorGetR(color);
-    int srcG = SkColorGetG(color);
-    int srcB = SkColorGetB(color);
-
-    srcA = SkAlpha255To256(srcA);
-
-    for (int i = 0; i < width; i++) {
-        uint32_t mask = src[i];
-        if (0 == mask) {
-            continue;
-        }
-
-        SkPMColor d = dst[i];
-        
-        int maskR = SkGetPackedR32(mask);
-        int maskG = SkGetPackedG32(mask);
-        int maskB = SkGetPackedB32(mask);
-
-        // Now upscale them to 0..256, so we can use SkAlphaBlend
-        maskR = SkAlpha255To256(maskR);
-        maskG = SkAlpha255To256(maskG);
-        maskB = SkAlpha255To256(maskB);
-
-        maskR = maskR * srcA >> 8;
-        maskG = maskG * srcA >> 8;
-        maskB = maskB * srcA >> 8;
-
-        int dstR = SkGetPackedR32(d);
-        int dstG = SkGetPackedG32(d);
-        int dstB = SkGetPackedB32(d);
-
-        // LCD blitting is only supported if the dst is known/required
-        // to be opaque
-        dst[i] = SkPackARGB32(0xFF,
-                              SkAlphaBlend(srcR, dstR, maskR),
-                              SkAlphaBlend(srcG, dstG, maskG),
-                              SkAlphaBlend(srcB, dstB, maskB));
-    }
-}
-
-static void blitmask_lcd16(const SkBitmap& device, const SkMask& mask,
-                           const SkIRect& clip, SkColor srcColor) {
-    int x = clip.fLeft;
-    int y = clip.fTop;
-    int width = clip.width();
-    int height = clip.height();
-
-    SkPMColor*		dstRow = device.getAddr32(x, y);
-    const uint16_t* srcRow = mask.getAddrLCD16(x, y);
-    SkPMColor opaqueDst;
-
-    void (*proc)(SkPMColor dst[], const uint16_t src[],
-                 SkColor color, int width, SkPMColor);
-    if (0xFF == SkColorGetA(srcColor)) {
-        proc = blit_lcd16_opaque_row;
-        opaqueDst = SkPreMultiplyColor(srcColor);
-    } else {
-        proc = blit_lcd16_row;
-        opaqueDst = 0;  // ignored
-    }
-
-    do {
-        proc(dstRow, srcRow, srcColor, width, opaqueDst);
-        dstRow = (SkPMColor*)((char*)dstRow + device.rowBytes());
-        srcRow = (const uint16_t*)((const char*)srcRow + mask.fRowBytes);
-    } while (--height != 0);
-}
-
-static void blitmask_lcd32(const SkBitmap& device, const SkMask& mask,
-                           const SkIRect& clip, SkColor srcColor) {
-    int x = clip.fLeft;
-    int y = clip.fTop;
-    int width = clip.width();
-    int height = clip.height();
-
-    SkPMColor*		dstRow = device.getAddr32(x, y);
-    const uint32_t* srcRow = mask.getAddrLCD32(x, y);
-
-    do {
-        blit_lcd32_row(dstRow, srcRow, srcColor, width, 0);
-        dstRow = (SkPMColor*)((char*)dstRow + device.rowBytes());
-        srcRow = (const uint32_t*)((const char*)srcRow + mask.fRowBytes);
-    } while (--height != 0);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////
-
 static void SkARGB32_Blit32(const SkBitmap& device, const SkMask& mask,
 							const SkIRect& clip, SkPMColor srcColor) {
 	U8CPU alpha = SkGetPackedA32(srcColor);
@@ -244,9 +53,6 @@ SkARGB32_Blitter::SkARGB32_Blitter(const SkBitmap& device, const SkPaint& paint)
 
     fPMColor = SkPackARGB32(fSrcA, fSrcR, fSrcG, fSrcB);
     fColor32Proc = SkBlitRow::ColorProcFactory();
-
-    // init the pro for blitmask
-    fBlitMaskProc = SkBlitMask::Factory(SkBitmap::kARGB_8888_Config, color);
 }
 
 const SkBitmap* SkARGB32_Blitter::justAnOpaqueColor(uint32_t* value) {
@@ -348,55 +154,30 @@ void SkARGB32_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         return;
     }
 
-    if (mask.fFormat == SkMask::kBW_Format) {
-        SkARGB32_BlendBW(fDevice, mask, clip, fPMColor, SkAlpha255To256(255 - fSrcA));
-        return;
-    } else if (SkMask::kARGB32_Format == mask.fFormat) {
-		SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
-		return;
-    } else if (SkMask::kLCD16_Format == mask.fFormat) {
-        blitmask_lcd16(fDevice, mask, clip, fColor);
-        return;
-    } else if (SkMask::kLCD32_Format == mask.fFormat) {
-        blitmask_lcd32(fDevice, mask, clip, fColor);
+    if (SkBlitMask::BlitColor(fDevice, mask, clip, fColor)) {
         return;
     }
 
-    int x = clip.fLeft;
-    int y = clip.fTop;
-
-    fBlitMaskProc(fDevice.getAddr32(x, y), fDevice.rowBytes(),
-                  SkBitmap::kARGB_8888_Config,
-                  mask.getAddr(x, y), mask.fRowBytes,
-                  fColor, clip.width(), clip.height());
+    if (mask.fFormat == SkMask::kBW_Format) {
+        SkARGB32_BlendBW(fDevice, mask, clip, fPMColor, SkAlpha255To256(255 - fSrcA));
+    } else if (SkMask::kARGB32_Format == mask.fFormat) {
+		SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
+    }
 }
 
 void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
                                        const SkIRect& clip) {
     SkASSERT(mask.fBounds.contains(clip));
 
+    if (SkBlitMask::BlitColor(fDevice, mask, clip, fColor)) {
+        return;
+    }
+    
     if (mask.fFormat == SkMask::kBW_Format) {
         SkARGB32_BlitBW(fDevice, mask, clip, fPMColor);
-        return;
     } else if (SkMask::kARGB32_Format == mask.fFormat) {
 		SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
-		return;
-    } else if (SkMask::kLCD16_Format == mask.fFormat) {
-        blitmask_lcd16(fDevice, mask, clip, fColor);
-        return;
-    } else if (SkMask::kLCD32_Format == mask.fFormat) {
-        blitmask_lcd32(fDevice, mask, clip, fColor);
-        return;
 	}
-
-    int x = clip.fLeft;
-    int y = clip.fTop;
-    int width = clip.width();
-    int height = clip.height();
-
-    fBlitMaskProc(fDevice.getAddr32(x, y), fDevice.rowBytes(),
-                  SkBitmap::kARGB_8888_Config,
-                  mask.getAddr(x, y), mask.fRowBytes, fColor, width, height);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -451,27 +232,6 @@ void SkARGB32_Blitter::blitRect(int x, int y, int width, int height) {
 #endif
 
 ///////////////////////////////////////////////////////////////////////
-
-void SkARGB32_Black_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
-    SkASSERT(mask.fBounds.contains(clip));
-    SkPMColor black = (SkPMColor)(SK_A32_MASK << SK_A32_SHIFT);
-
-    if (mask.fFormat == SkMask::kBW_Format) {
-        SkARGB32_BlitBW(fDevice, mask, clip, black);
-    } else if (SkMask::kARGB32_Format == mask.fFormat) {
-		SkARGB32_Blit32(fDevice, mask, clip, fPMColor);
-    } else if (SkMask::kLCD16_Format == mask.fFormat) {
-        blitmask_lcd16(fDevice, mask, clip, fColor);
-    } else if (SkMask::kLCD32_Format == mask.fFormat) {
-        blitmask_lcd32(fDevice, mask, clip, fColor);
-    } else {
-        fBlitMaskProc(fDevice.getAddr32(clip.fLeft, clip.fTop),
-                      fDevice.rowBytes(),
-                      SkBitmap::kARGB_8888_Config,
-                      mask.getAddr(clip.fLeft, clip.fTop), mask.fRowBytes,
-                      black, clip.width(), clip.height());
-    }
-}
 
 void SkARGB32_Black_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
                                        const int16_t runs[]) {

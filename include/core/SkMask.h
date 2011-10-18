@@ -56,7 +56,7 @@ struct SkMask {
         x,y are in the same coordiate space as fBounds.
     */
     uint8_t* getAddr1(int x, int y) const {
-        SkASSERT(fFormat == kBW_Format);
+        SkASSERT(kBW_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);
         return fImage + ((x - fBounds.fLeft) >> 3) + (y - fBounds.fTop) * fRowBytes;
@@ -67,7 +67,7 @@ struct SkMask {
         x,y are in the same coordiate space as fBounds.
     */
     uint8_t* getAddr(int x, int y) const {
-        SkASSERT(fFormat != kBW_Format);
+        SkASSERT(kA8_Format == fFormat);
         SkASSERT(fBounds.contains(x, y));
         SkASSERT(fImage != NULL);
         return fImage + x - fBounds.fLeft + (y - fBounds.fTop) * fRowBytes;
