@@ -99,9 +99,41 @@ static void TestWStream(skiatest::Reporter* reporter) {
     delete[] dst;
 }
 
+static void TestPackedUInt(skiatest::Reporter* reporter) {
+    // we know that packeduint tries to write 1, 2 or 4 bytes for the length,
+    // so we test values around each of those transitions (and a few others)
+    const size_t sizes[] = {
+        0, 1, 2, 0xFC, 0xFD, 0xFE, 0xFF, 0x100, 0x101, 32767, 32768, 32769,
+        0xFFFD, 0xFFFE, 0xFFFF, 0x10000, 0x10001,
+        0xFFFFFD, 0xFFFFFE, 0xFFFFFF, 0x1000000, 0x1000001,
+        0x7FFFFFFE, 0x7FFFFFFF, 0x80000000, 0x80000001, 0xFFFFFFFE, 0xFFFFFFFF
+    };
+    
+    
+    size_t i;
+    char buffer[sizeof(sizes) * 4];
+    
+    SkMemoryWStream wstream(buffer, sizeof(buffer));
+    for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
+        bool success = wstream.writePackedUInt(sizes[i]);
+        REPORTER_ASSERT(reporter, success);
+    }
+    wstream.flush();
+    
+    SkMemoryStream rstream(buffer, sizeof(buffer));
+    for (i = 0; i < SK_ARRAY_COUNT(sizes); ++i) {
+        size_t n = rstream.readPackedUInt();
+        if (sizes[i] != n) {
+            SkDebugf("-- %d: sizes:%x n:%x\n", i, sizes[i], n);
+        }
+        REPORTER_ASSERT(reporter, sizes[i] == n);
+    }
+}
+
 static void TestStreams(skiatest::Reporter* reporter) {
     TestRStream(reporter);
     TestWStream(reporter);
+    TestPackedUInt(reporter);
 }
 
 #include "TestClassDef.h"
