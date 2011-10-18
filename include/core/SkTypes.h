@@ -408,9 +408,8 @@ private:
  */
 class SkAutoMalloc : public SkNoncopyable {
 public:
-    explicit SkAutoMalloc(size_t size = 0,
-                          unsigned flags = SK_MALLOC_THROW | SK_MALLOC_TEMP) {
-        fPtr = size ? sk_malloc_flags(size, flags) : NULL;
+    explicit SkAutoMalloc(size_t size = 0) {
+        fPtr = size ? sk_malloc_throw(size) : NULL;
         fSize = size;
     }
 
@@ -421,11 +420,10 @@ public:
     /**
      *  Reallocates the block to a new size. The ptr may or may not change.
      */
-    void* reset(size_t size,
-                 unsigned flags = (SK_MALLOC_THROW | SK_MALLOC_TEMP)) {
+    void* reset(size_t size) {
         if (size != fSize) {
             sk_free(fPtr);
-            fPtr = size ? sk_malloc_flags(size, flags) : NULL;
+            fPtr = size ? sk_malloc_throw(size) : NULL;
             fSize = size;
         }
         return fPtr;
