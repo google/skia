@@ -345,38 +345,13 @@ SkBlitMask::Proc SkBlitMask::Factory(SkBitmap::Config config,
     return NULL;
 }
 
-static const int gMaskFormatToShift[] = {
-    ~0, // BW
-    0,  // A8
-    0,  // 3D
-    2,  // ARGB32
-    1,  // LCD16
-    2   // LCD32
-};
-
-static int maskFormatToShift(SkMask::Format format) {
-    SkASSERT((unsigned)format < SK_ARRAY_COUNT(gMaskFormatToShift));
-    SkASSERT(SkMask::kBW_Format != format);
-    return gMaskFormatToShift[format];
-}
-    
-static const void* getAddr(const SkMask& mask, int x, int y) {
-    SkASSERT(mask.fBounds.contains(x, y));
-    SkASSERT(mask.fImage);
-
-    const char* addr = (const char*)mask.fImage;
-    addr += (y - mask.fBounds.fTop) * mask.fRowBytes;
-    addr += (x - mask.fBounds.fLeft) << maskFormatToShift(mask.fFormat);
-    return addr;
-}
-
 bool SkBlitMask::BlitColor(const SkBitmap& device, const SkMask& mask,
                            const SkIRect& clip, SkColor color) {
     Proc proc = Factory(device.config(), mask.fFormat, color);
     if (proc) {
         int x = clip.fLeft;
         int y = clip.fTop;
-        proc(device.getAddr32(x, y), device.rowBytes(), getAddr(mask, x, y),
+        proc(device.getAddr32(x, y), device.rowBytes(), mask.getAddr(x, y),
              mask.fRowBytes, color, clip.width(), clip.height());
         return true;
     }

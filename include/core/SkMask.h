@@ -99,6 +99,20 @@ struct SkMask {
         return row + (x - fBounds.fLeft);
     }
 
+    /**
+     *  Returns the address of the specified pixel, computing the pixel-size
+     *  at runtime based on the mask format. This will be slightly slower than
+     *  using one of the routines where the format is implied by the name
+     *  e.g. getAddr8 or getAddrLCD32.
+     *
+     *  x,y must be contained by the mask's bounds (this is asserted in the
+     *  debug build, but not checked in the release build.)
+     *
+     *  This should not be called with kBW_Format, as it will give unspecified
+     *  results (and assert in the debug build).
+     */
+    void* getAddr(int x, int y) const;
+
     static uint8_t* AllocImage(size_t bytes);
     static void FreeImage(void* image);
 
