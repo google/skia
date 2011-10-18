@@ -123,5 +123,27 @@ struct SkMask {
     };
 };
 
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  \class SkAutoMaskImage
+ *
+ *  Stack class used to manage the fImage buffer in a SkMask.
+ *  When this object loses scope, the buffer is freed with SkMask::FreeImage().
+ */
+class SkAutoMaskFreeImage {
+public:
+    SkAutoMaskFreeImage(uint8_t* maskImage) {
+        fImage = maskImage;
+    }
+    
+    ~SkAutoMaskFreeImage() {
+        SkMask::FreeImage(fImage);
+    }
+
+private:
+    uint8_t* fImage;
+};
+
 #endif
 
