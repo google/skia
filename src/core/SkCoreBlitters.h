@@ -9,7 +9,6 @@
 #define SkCoreBlitters_DEFINED
 
 #include "SkBlitter.h"
-#include "SkBlitMask.h"
 #include "SkBlitRow.h"
 
 class SkRasterBlitter : public SkBlitter {
@@ -95,7 +94,6 @@ protected:
     SkColor                fColor;
     SkPMColor              fPMColor;
     SkBlitRow::ColorProc   fColor32Proc;
-    SkBlitMask::Proc       fBlitMaskProc;
 
 private:
     unsigned fSrcA, fSrcR, fSrcG, fSrcB;
@@ -120,7 +118,6 @@ class SkARGB32_Black_Blitter : public SkARGB32_Opaque_Blitter {
 public:
     SkARGB32_Black_Blitter(const SkBitmap& device, const SkPaint& paint)
         : INHERITED(device, paint) {}
-    virtual void blitMask(const SkMask&, const SkIRect&);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
 
 private:

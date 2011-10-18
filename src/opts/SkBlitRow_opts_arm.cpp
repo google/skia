@@ -1311,6 +1311,7 @@ SkBlitRow::ColorProc SkBlitRow::PlatformColorProc() {
 
 
 SkBlitMask::Proc SkBlitMask::PlatformProcs(SkBitmap::Config dstConfig,
+                                           SkMask::Format maskFormat,
                                            SkColor color)
 {
    return NULL;

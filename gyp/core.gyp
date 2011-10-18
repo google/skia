@@ -30,6 +30,7 @@
         '../src/core/SkBitmapShaderTemplate.h',
         '../src/core/SkBitmap_scroll.cpp',
         '../src/core/SkBlitBWMaskTemplate.h',
+        '../src/core/SkBlitMask_D32.cpp',
         '../src/core/SkBlitRow_D16.cpp',
         '../src/core/SkBlitRow_D32.cpp',
         '../src/core/SkBlitRow_D4444.cpp',
