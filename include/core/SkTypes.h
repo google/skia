@@ -506,7 +506,7 @@ public:
      */
     explicit SkAutoSMalloc(size_t size) {
         fPtr = fStorage;
-        fSize = size;
+        fSize = 0;
         this->reset(size);
     }
 
