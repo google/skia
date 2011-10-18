@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2007 The Android Open Source Project
  *
@@ -46,5 +45,33 @@ uint8_t* SkMask::AllocImage(size_t size) {
 */
 void SkMask::FreeImage(void* image) {
     sk_free(image);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+static const int gMaskFormatToShift[] = {
+    ~0, // BW -- not supported
+    0,  // A8
+    0,  // 3D
+    2,  // ARGB32
+    1,  // LCD16
+    2   // LCD32
+};
+
+static int maskFormatToShift(SkMask::Format format) {
+    SkASSERT((unsigned)format < SK_ARRAY_COUNT(gMaskFormatToShift));
+    SkASSERT(SkMask::kBW_Format != format);
+    return gMaskFormatToShift[format];
+}
+
+void* SkMask::getAddr(int x, int y) const {
+    SkASSERT(kBW_Format != fFormat);
+    SkASSERT(fBounds.contains(x, y));
+    SkASSERT(fImage);
+    
+    char* addr = (char*)fImage;
+    addr += (y - fBounds.fTop) * fRowBytes;
+    addr += (x - fBounds.fLeft) << maskFormatToShift(fFormat);
+    return addr;
 }
 
