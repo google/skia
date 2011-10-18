@@ -208,7 +208,7 @@ void SkRGB16_Black_Blitter::blitMask(const SkMask& mask,
         SkRGB16_Black_BlitBW(fDevice, mask, clip);
     } else {
         uint16_t* SK_RESTRICT device = fDevice.getAddr16(clip.fLeft, clip.fTop);
-        const uint8_t* SK_RESTRICT alpha = mask.getAddr(clip.fLeft, clip.fTop);
+        const uint8_t* SK_RESTRICT alpha = mask.getAddr8(clip.fLeft, clip.fTop);
         unsigned width = clip.width();
         unsigned height = clip.height();
         unsigned deviceRB = fDevice.rowBytes() - (width << 1);
@@ -378,7 +378,7 @@ void SkRGB16_Opaque_Blitter::blitMask(const SkMask& mask,
     }
 
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(clip.fLeft, clip.fTop);
-    const uint8_t* SK_RESTRICT alpha = mask.getAddr(clip.fLeft, clip.fTop);
+    const uint8_t* SK_RESTRICT alpha = mask.getAddr8(clip.fLeft, clip.fTop);
     int width = clip.width();
     int height = clip.height();
     unsigned    deviceRB = fDevice.rowBytes() - (width << 1);
@@ -638,7 +638,7 @@ void SkRGB16_Blitter::blitMask(const SkMask& mask,
     }
 
     uint16_t* SK_RESTRICT device = fDevice.getAddr16(clip.fLeft, clip.fTop);
-    const uint8_t* SK_RESTRICT alpha = mask.getAddr(clip.fLeft, clip.fTop);
+    const uint8_t* SK_RESTRICT alpha = mask.getAddr8(clip.fLeft, clip.fTop);
     int width = clip.width();
     int height = clip.height();
     unsigned    deviceRB = fDevice.rowBytes() - (width << 1);

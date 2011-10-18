@@ -335,7 +335,7 @@ void SkARGB4444_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
     int height = clip.height();
 
     SkPMColor16*    device = fDevice.getAddr16(x, y);
-    const uint8_t*  alpha = mask.getAddr(x, y);
+    const uint8_t*  alpha = mask.getAddr8(x, y);
     SkPMColor16     srcColor = fPMColor16;
     unsigned        devRB = fDevice.rowBytes() - (width << 1);
     unsigned        maskRB = mask.fRowBytes - width;
