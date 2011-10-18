@@ -998,6 +998,8 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
             stage.fOptFlags     = 0;
             stage.fCoordMapping = (StageDesc::CoordMapping)0;
             stage.fModulation   = (StageDesc::Modulation)0;
+            stage.fFetchMode = (StageDesc::FetchMode) 0;
+            stage.fKernelWidth = 0;
         }
     }
 
