@@ -14,6 +14,22 @@
 #include "SkString.h"
 #include "SkTemplates.h"
 
+enum FontQuality {
+    kBW,
+    kAA,
+    kLCD
+};
+
+static const char* fontQualityName(const SkPaint& paint) {
+    if (!paint.isAntiAlias()) {
+        return "BW";
+    }
+    if (paint.isLCDRenderText()) {
+        return "LCD";
+    }
+    return "AA";
+}
+
 /*  Some considerations for performance:
         short -vs- long strings (measuring overhead)
         tiny -vs- large pointsize (measure blit -vs- overhead)
@@ -25,53 +41,30 @@
  */
 class TextBench : public SkBenchmark {
     SkPaint     fPaint;
-    int         fCount;
-    SkPoint*    fPos;
     SkString    fText;
     SkString    fName;
-    enum { N = 600 };
+    FontQuality fFQ;
+    enum { N = 800 };
 public:
-    TextBench(void* param, const char text[], int ps, bool linearText,
-              bool posText, SkColor color = SK_ColorBLACK) : INHERITED(param) {
+    TextBench(void* param, const char text[], int ps,
+              SkColor color, FontQuality fq) : INHERITED(param) {
+        fFQ = fq;
         fText.set(text);
 
-        fPaint.setAntiAlias(true);
+        fPaint.setAntiAlias(kBW != fq);
+        fPaint.setLCDRenderText(kLCD == fq);
         fPaint.setTextSize(SkIntToScalar(ps));
-        fPaint.setLinearText(linearText);
         fPaint.setColor(color);
-
-        if (posText) {
-            SkAutoTArray<SkScalar> storage(fText.size());
-            SkScalar* widths = storage.get();
-            fCount = fPaint.getTextWidths(fText.c_str(), fText.size(), widths);
-            fPos = new SkPoint[fCount];
-            SkScalar x = 0;
-            for (int i = 0; i < fCount; i++) {
-                fPos[i].set(x, 0);
-                x += widths[i];
-            }
-        } else {
-            fCount = 0;
-            fPos = NULL;
-        }
-    }
-
-    virtual ~TextBench() {
-        delete[] fPos;
     }
 
 protected:
     virtual const char* onGetName() {
         fName.printf("text_%g", SkScalarToFloat(fPaint.getTextSize()));
-        if (fPaint.isLinearText()) {
-            fName.append("_linear");
-        }
-        if (fPos) {
-            fName.append("_pos");
-        }
-
+        fName.appendf("_%s", fontQualityName(fPaint));
         if (SK_ColorBLACK != fPaint.getColor()) {
             fName.appendf("_%02X", fPaint.getAlpha());
+        } else {
+            fName.appendf("_BK");
         }
         return fName.c_str();
     }
@@ -82,7 +75,10 @@ protected:
 
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
-        paint.setColor(fPaint.getColor());  // need our specified color
+        // explicitly need these
+        paint.setColor(fPaint.getColor());
+        paint.setAntiAlias(kBW != fFQ);
+        paint.setLCDRenderText(kLCD == fFQ);
 
         const SkScalar x0 = SkIntToScalar(-10);
         const SkScalar y0 = SkIntToScalar(-10);
@@ -90,14 +86,7 @@ protected:
         for (int i = 0; i < N; i++) {
             SkScalar x = x0 + rand.nextUScalar1() * dim.fX;
             SkScalar y = y0 + rand.nextUScalar1() * dim.fY;
-            if (fPos) {
-                canvas->save(SkCanvas::kMatrix_SaveFlag);
-                canvas->translate(x, y);
-                canvas->drawPosText(fText.c_str(), fText.size(), fPos, paint);
-                canvas->restore();
-            } else {
-                canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
-            }
+            canvas->drawText(fText.c_str(), fText.size(), x, y, paint);
         }
     }
 
@@ -108,35 +97,28 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 #define STR     "Hamburgefons"
-#define SMALL   9
-#define BIG     48
 
-static SkBenchmark* Fact0(void* p) { return new TextBench(p, STR, SMALL, false, false); }
-static SkBenchmark* Fact01(void* p) { return new TextBench(p, STR, SMALL, false, false, 0xFFFF0000); }
-static SkBenchmark* Fact02(void* p) { return new TextBench(p, STR, SMALL, false, false, 0x88FF0000); }
+static SkBenchmark* Fact01(void* p) { return new TextBench(p, STR, 16, 0xFF000000, kBW); }
+static SkBenchmark* Fact02(void* p) { return new TextBench(p, STR, 16, 0xFFFF0000, kBW); }
+static SkBenchmark* Fact03(void* p) { return new TextBench(p, STR, 16, 0x88FF0000, kBW); }
 
-static SkBenchmark* Fact1(void* p) { return new TextBench(p, STR, SMALL, false, true); }
-static SkBenchmark* Fact2(void* p) { return new TextBench(p, STR, SMALL, true, false); }
-static SkBenchmark* Fact3(void* p) { return new TextBench(p, STR, SMALL, true, true); }
+static SkBenchmark* Fact11(void* p) { return new TextBench(p, STR, 16, 0xFF000000, kAA); }
+static SkBenchmark* Fact12(void* p) { return new TextBench(p, STR, 16, 0xFFFF0000, kAA); }
+static SkBenchmark* Fact13(void* p) { return new TextBench(p, STR, 16, 0x88FF0000, kAA); }
 
-static SkBenchmark* Fact4(void* p) { return new TextBench(p, STR, BIG, false, false); }
-static SkBenchmark* Fact41(void* p) { return new TextBench(p, STR, BIG, false, false, 0xFFFF0000); }
-static SkBenchmark* Fact42(void* p) { return new TextBench(p, STR, BIG, false, false, 0x88FF0000); }
+static SkBenchmark* Fact21(void* p) { return new TextBench(p, STR, 16, 0xFF000000, kLCD); }
+static SkBenchmark* Fact22(void* p) { return new TextBench(p, STR, 16, 0xFFFF0000, kLCD); }
+static SkBenchmark* Fact23(void* p) { return new TextBench(p, STR, 16, 0x88FF0000, kLCD); }
 
-static SkBenchmark* Fact5(void* p) { return new TextBench(p, STR, BIG, false, true); }
-static SkBenchmark* Fact6(void* p) { return new TextBench(p, STR, BIG, true, false); }
-static SkBenchmark* Fact7(void* p) { return new TextBench(p, STR, BIG, true, true); }
-
-static BenchRegistry gReg0(Fact0);
 static BenchRegistry gReg01(Fact01);
 static BenchRegistry gReg02(Fact02);
-static BenchRegistry gReg1(Fact1);
-static BenchRegistry gReg2(Fact2);
-static BenchRegistry gReg3(Fact3);
-static BenchRegistry gReg4(Fact4);
-static BenchRegistry gReg41(Fact41);
-static BenchRegistry gReg42(Fact42);
-static BenchRegistry gReg5(Fact5);
-static BenchRegistry gReg6(Fact6);
-static BenchRegistry gReg7(Fact7);
+static BenchRegistry gReg03(Fact03);
+
+static BenchRegistry gReg11(Fact11);
+static BenchRegistry gReg12(Fact12);
+static BenchRegistry gReg13(Fact13);
+
+static BenchRegistry gReg21(Fact21);
+static BenchRegistry gReg22(Fact22);
+static BenchRegistry gReg23(Fact23);
 
