@@ -335,6 +335,8 @@ SkBlitMask::Proc SkBlitMask::Factory(SkBitmap::Config config,
                     return D32_LCD16_Proc;
                 case SkMask::kLCD32_Format:
                     return D32_LCD32_Factory(color);
+                default:
+                    break;
             }
             break;
         default:
