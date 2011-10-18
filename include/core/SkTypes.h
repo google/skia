@@ -404,7 +404,7 @@ private:
 /**
  *  Manage an allocated block of heap memory. This object is the sole manager of
  *  the lifetime of the block, so the caller must not call sk_free() or delete
- *  on the block.
+ *  on the block, unless detach() was called.
  */
 class SkAutoMalloc : public SkNoncopyable {
 public:
@@ -418,14 +418,37 @@ public:
     }
 
     /**
+     *  Passed to reset to specify what happens if the requested size is smaller
+     *  than the current size (and the current block was dynamically allocated).
+     */
+    enum OnShrink {
+        /**
+         *  If the requested size is smaller than the current size, and the
+         *  current block is dynamically allocated, free the old block and
+         *  malloc a new block of the smaller size.
+         */
+        kAlloc_OnShrink,
+        
+        /**
+         *  If the requested size is smaller than the current size, and the
+         *  current block is dynamically allocated, just return the old
+         *  block.
+         */
+        kReuse_OnShrink,
+    };
+
+    /**
      *  Reallocates the block to a new size. The ptr may or may not change.
      */
-    void* reset(size_t size) {
-        if (size != fSize) {
-            sk_free(fPtr);
-            fPtr = size ? sk_malloc_throw(size) : NULL;
-            fSize = size;
+    void* reset(size_t size, OnShrink shrink = kAlloc_OnShrink) {
+        if (size == fSize || (kReuse_OnShrink == shrink && size < fSize)) {
+            return fPtr;
         }
+
+        sk_free(fPtr);
+        fPtr = size ? sk_malloc_throw(size) : NULL;
+        fSize = size;
+
         return fPtr;
     }
 
@@ -453,14 +476,9 @@ public:
         return ptr;
     }
 
-    /**
-     * Gets the size of the block in bytes
-     */
-    size_t getSize() const { return fSize; }
-
 private:
     void*   fPtr;
-    size_t  fSize;
+    size_t  fSize;  // can be larger than the requested size (see kReuse)
 };
 
 /**
@@ -478,6 +496,7 @@ public:
      */
     SkAutoSMalloc() {
         fPtr = fStorage;
+        fSize = 0;
     }
 
     /**
@@ -487,6 +506,7 @@ public:
      */
     explicit SkAutoSMalloc(size_t size) {
         fPtr = fStorage;
+        fSize = size;
         this->reset(size);
     }
 
@@ -514,7 +534,13 @@ public:
      *  then the return block may be allocated locally, rather than from the
      *  heap.
      */
-    void* reset(size_t size) {
+    void* reset(size_t size,
+                SkAutoMalloc::OnShrink shrink = SkAutoMalloc::kAlloc_OnShrink) {
+        if (size == fSize || (SkAutoMalloc::kReuse_OnShrink == shrink &&
+                              size < fSize)) {
+            return fPtr;
+        }
+
         if (fPtr != (void*)fStorage) {
             sk_free(fPtr);
         }
@@ -529,10 +555,8 @@ public:
 
 private:
     void*       fPtr;
+    size_t      fSize;  // can be larger than the requested size (see kReuse)
     uint32_t    fStorage[(kSize + 3) >> 2];
-    // illegal
-    SkAutoSMalloc(const SkAutoSMalloc&);
-    SkAutoSMalloc& operator=(const SkAutoSMalloc&);
 };
 
 #endif /* C++ */
