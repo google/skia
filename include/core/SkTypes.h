@@ -36,12 +36,12 @@
 /** Called internally if we run out of memory. The platform implementation must
     not return, but should either throw an exception or otherwise exit.
 */
-extern void  sk_out_of_memory(void);
+SK_API extern void sk_out_of_memory(void);
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw
     an exception or otherwise exit.
 */
-extern void  sk_throw(void);
+SK_API extern void sk_throw(void);
 
 enum {
     SK_MALLOC_TEMP  = 0x01, //!< hint to sk_malloc that the requested memory will be freed in the scope of the stack frame
@@ -55,14 +55,14 @@ enum {
 SK_API extern void* sk_malloc_flags(size_t size, unsigned flags);
 /** Same as sk_malloc(), but hard coded to pass SK_MALLOC_THROW as the flag
 */
-extern void* sk_malloc_throw(size_t size);
+SK_API extern void* sk_malloc_throw(size_t size);
 /** Same as standard realloc(), but this one never returns null on failure. It will throw
     an exception if it fails.
 */
-extern void* sk_realloc_throw(void* buffer, size_t size);
+SK_API extern void* sk_realloc_throw(void* buffer, size_t size);
 /** Free memory returned by sk_malloc(). It is safe to pass null.
 */
-SK_API extern void  sk_free(void*);
+SK_API extern void sk_free(void*);
 
 // bzero is safer than memset, but we can't rely on it, so... sk_bzero()
 static inline void sk_bzero(void* buffer, size_t size) {
