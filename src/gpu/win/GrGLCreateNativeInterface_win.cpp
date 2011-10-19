@@ -91,6 +91,7 @@ const GrGLInterface* GrGLCreateNativeInterface() {
 
         GR_GL_GET_PROC(ActiveTexture);
         GR_GL_GET_PROC(AttachShader);
+        GR_GL_GET_PROC(BeginQuery);
         GR_GL_GET_PROC(BindAttribLocation);
         GR_GL_GET_PROC(BindBuffer);
         GR_GL_GET_PROC(BindFragDataLocation);
@@ -103,13 +104,28 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         GR_GL_GET_PROC(CreateProgram);
         GR_GL_GET_PROC(CreateShader);
         GR_GL_GET_PROC(DeleteBuffers);
+        GR_GL_GET_PROC(DeleteQueries);
         GR_GL_GET_PROC(DeleteProgram);
         GR_GL_GET_PROC(DeleteShader);
         GR_GL_GET_PROC(DisableVertexAttribArray);
         GR_GL_GET_PROC(DrawBuffers);
         GR_GL_GET_PROC(EnableVertexAttribArray);
+        GR_GL_GET_PROC(EndQuery);
         GR_GL_GET_PROC(GenBuffers);
+        GR_GL_GET_PROC(GenQueries);
         GR_GL_GET_PROC(GetBufferParameteriv);
+        GR_GL_GET_PROC(GetQueryiv);
+        GR_GL_GET_PROC(GetQueryObjectiv);
+        GR_GL_GET_PROC(GetQueryObjectuiv);
+        if (glVer > GR_GL_VER(3,3) || 
+            GrGLHasExtensionFromString("GL_ARB_timer_query", extString)) {
+            GR_GL_GET_PROC(GetQueryObjecti64v);
+            GR_GL_GET_PROC(GetQueryObjectui64v);
+            GR_GL_GET_PROC(QueryCounter);
+        } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extString)) {
+            GR_GL_GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
+            GR_GL_GET_PROC(GetQueryObjectui64v, EXT);
+        }
         GR_GL_GET_PROC(GetProgramInfoLog);
         GR_GL_GET_PROC(GetProgramiv);
         GR_GL_GET_PROC(GetShaderInfoLog);
