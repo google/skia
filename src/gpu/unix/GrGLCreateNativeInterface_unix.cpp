@@ -91,8 +91,8 @@ const GrGLInterface* GrGLCreateNativeInterface() {
             GR_GL_GET_PROC(GetQueryObjectui64v);
             GR_GL_GET_PROC(QueryCounter);
         } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extString)) {
-            GR_GL_GET_PROC_SUFFIX(GetQueryObjecti64v, "EXT");
-            GR_GL_GET_PROC_SUFFIX(GetQueryObjectui64v, "EXT");
+            GR_GL_GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
+            GR_GL_GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
         }
         GR_GL_GET_PROC(GetQueryiv);
         GR_GL_GET_PROC(GetProgramInfoLog);
@@ -111,7 +111,6 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fMatrixMode = glMatrixMode;
         interface->fPointSize = glPointSize;
         interface->fPixelStorei = glPixelStorei;
-
         interface->fReadBuffer = glReadBuffer;
         interface->fReadPixels = glReadPixels;
         interface->fScissor = glScissor;

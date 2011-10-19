@@ -92,8 +92,8 @@ const GrGLInterface* GrGLCreateMesaInterface() {
             GR_GL_GET_PROC(GetQueryObjectui64v)
             GR_GL_GET_PROC(QueryCounter);
         } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extString)) {
-            GR_GL_GET_PROC_SUFFIX(GetQueryObjecti64v, "EXT");
-            GR_GL_GET_PROC_SUFFIX(GetQueryObjectui64v, "EXT");
+            GR_GL_GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
+            GR_GL_GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
         }
         GR_GL_GET_PROC(GetQueryObjectiv);
         GR_GL_GET_PROC(GetQueryObjectuiv);

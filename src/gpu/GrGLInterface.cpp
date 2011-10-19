@@ -110,6 +110,7 @@ GrGLInterface::GrGLInterface() {
 
     fActiveTexture = NULL;
     fAttachShader = NULL;
+    fBeginQuery = NULL;
     fBindAttribLocation = NULL;
     fBindBuffer = NULL;
     fBindFragDataLocation = NULL;
@@ -132,6 +133,7 @@ GrGLInterface::GrGLInterface() {
     fCullFace = NULL;
     fDeleteBuffers = NULL;
     fDeleteProgram = NULL;
+    fDeleteQueries = NULL;
     fDeleteShader = NULL;
     fDeleteTextures = NULL;
     fDepthMask = NULL;
@@ -142,15 +144,24 @@ GrGLInterface::GrGLInterface() {
     fDrawBuffer = NULL;
     fDrawBuffers = NULL;
     fDrawElements = NULL;
+    fEndQuery = NULL;
+    fFinish = NULL;
+    fFlush = NULL;
     fEnable = NULL;
     fEnableClientState = NULL;
     fEnableVertexAttribArray = NULL;
     fFrontFace = NULL;
     fGenBuffers = NULL;
+    fGenQueries = NULL;
     fGenTextures = NULL;
     fGetBufferParameteriv = NULL;
     fGetError = NULL;
     fGetIntegerv = NULL;
+    fGetQueryiv = NULL;
+    fGetQueryObjecti64v = NULL;
+    fGetQueryObjectiv = NULL;
+    fGetQueryObjectui64v = NULL;
+    fGetQueryObjectuiv = NULL;
     fGetProgramInfoLog = NULL;
     fGetProgramiv = NULL;
     fGetShaderInfoLog = NULL;
@@ -164,6 +175,7 @@ GrGLInterface::GrGLInterface() {
     fMatrixMode = NULL;
     fPixelStorei = NULL;
     fPointSize = NULL;
+    fQueryCounter = NULL;
     fReadBuffer = NULL;
     fReadPixels = NULL;
     fScissor = NULL;
