@@ -58,6 +58,7 @@ double BenchSysTimer::endWall() {
         return 0.0L;
     } else {
         return static_cast<double>(ticks_elapsed.QuadPart)
-            /  static_cast<double>(frequency.QuadPart * 1000);
+             / static_cast<double>(frequency.QuadPart)
+             * 1000.0L;
     }
 }
