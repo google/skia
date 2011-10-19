@@ -15,7 +15,7 @@
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkGLContext.h"
+#include "SkNativeGLContext.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
@@ -416,9 +416,11 @@ int main (int argc, char * const argv[]) {
     GrRenderTarget* rt = NULL;
     //Don't do GL when fixed.
 #if !defined(SK_SCALAR_IS_FIXED)
-    SkGLContext glContext;
+    SkNativeGLContext glContext;
     if (glContext.init(1024, 1024)) {
-        context = GrContext::CreateGLShaderContext();
+        GrPlatform3DContext ctx =
+            reinterpret_cast<GrPlatform3DContext>(glContext.gl());
+        context = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
         if (NULL != context) {
             GrPlatformSurfaceDesc desc;
             desc.reset();
@@ -435,9 +437,11 @@ int main (int argc, char * const argv[]) {
             }
         }
     }
+    BenchTimer timer = BenchTimer(&glContext);
+#else
+    BenchTimer timer = BenchTimer();
 #endif
     
-    BenchTimer timer = BenchTimer();
     
     Iter iter(&defineDict);
     SkBenchmark* bench;
@@ -500,7 +504,7 @@ int main (int argc, char * const argv[]) {
                 bench->draw(&canvas);
                 if (gpu) {
                     context->flush();
-                    glFinish();
+                    SK_GL(glContext, Finish());
                 }
             }
             
@@ -513,7 +517,7 @@ int main (int argc, char * const argv[]) {
                 }
             }
             if (gpu) {
-                glFinish();
+                SK_GL(glContext, Finish());
             }
             timer.end();
             

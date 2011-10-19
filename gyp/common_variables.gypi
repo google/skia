@@ -9,9 +9,11 @@
   'variables': {
     'skia_scalar%': 'float',
     'skia_os%': '<(OS)',
+    'skia_mesa%': 0,
   },
   'skia_scalar%': '<(skia_scalar)',
   'skia_os': '<(skia_os)',
+  'skia_mesa': '<(skia_mesa)',
 }
 
 # Local Variables:

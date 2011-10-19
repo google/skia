@@ -5,17 +5,10 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SkGLContext.h"
-#include "SkTypes.h"
+#include "SkNativeGLContext.h"
 
-#include <GL/gl.h>
-#include <GL/glext.h>
 #include <GL/glu.h>
-#include <GL/glx.h>
-#include <X11/Xlib.h>
 
-#define SK_GL_GET_PROC(T, F) T F = NULL; \
-        F = (T) glXGetProcAddressARB(reinterpret_cast<const GLubyte*>(#F));
 
 static bool ctxErrorOccurred = false;
 static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
@@ -23,75 +16,76 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
     return 0;
 }
 
-SkGLContext::SkGLContext() 
-    : fFBO(0)
-    , context(NULL)
-    , display(NULL)
-    , pixmap(0)
-    , glxPixmap(0) {
+SkNativeGLContext::SkNativeGLContext() 
+    : fContext(NULL)
+    , fDisplay(NULL)
+    , fPixmap(0)
+    , fGlxPixmap(0) {
 }
 
-SkGLContext::~SkGLContext() {
-    if (this->display) {
-        glXMakeCurrent(this->display, 0, 0);
+SkNativeGLContext::~SkNativeGLContext() {
+    this->destroyGLContext();
+}
 
-        if (this->context)
-            glXDestroyContext(this->display, this->context);
+void SkNativeGLContext::destroyGLContext() {
+    if (fDisplay) {
+        glXMakeCurrent(fDisplay, 0, 0);
 
-        if (this->glxPixmap)
-            glXDestroyGLXPixmap(this->display, this->glxPixmap);
+        if (fContext) {
+            glXDestroyContext(fDisplay, fContext);
+            fContext = NULL;
+        }
 
-        if (this->pixmap)
-            XFreePixmap(this->display, this->pixmap);
+        if (fGlxPixmap) {
+            glXDestroyGLXPixmap(fDisplay, fGlxPixmap);
+            fGlxPixmap = 0;
+        }
 
-        XCloseDisplay(this->display);
+        if (fPixmap) {
+            XFreePixmap(fDisplay, fPixmap);
+            fPixmap = 0;
+        }
+
+        XCloseDisplay(fDisplay);
+        fDisplay = NULL;
     }
 }
 
-bool SkGLContext::init(const int width, const int height) {
-    Display *display = XOpenDisplay(0);
-    this->display = display;
+const GrGLInterface* SkNativeGLContext::createGLContext() {
+    fDisplay = XOpenDisplay(0);
 
-    if (!display) {
+    if (!fDisplay) {
         SkDebugf("Failed to open X display.\n");
-        return false;
+        this->destroyGLContext();
+        return NULL;
     }
 
     // Get a matching FB config
     static int visual_attribs[] = {
         GLX_X_RENDERABLE    , True,
         GLX_DRAWABLE_TYPE   , GLX_PIXMAP_BIT,
-        GLX_RENDER_TYPE     , GLX_RGBA_BIT,
-        GLX_X_VISUAL_TYPE   , GLX_TRUE_COLOR,
-        GLX_RED_SIZE        , 8,
-        GLX_GREEN_SIZE      , 8,
-        GLX_BLUE_SIZE       , 8,
-        GLX_ALPHA_SIZE      , 8,
-        GLX_DEPTH_SIZE      , 24,
-        GLX_STENCIL_SIZE    , 8,
-        GLX_DOUBLEBUFFER    , True,
-        //GLX_SAMPLE_BUFFERS  , 1,
-        //GLX_SAMPLES         , 4,
         None
     };
 
     int glx_major, glx_minor;
 
     // FBConfigs were added in GLX version 1.3.
-    if (!glXQueryVersion( display, &glx_major, &glx_minor) ||
+    if (!glXQueryVersion(fDisplay, &glx_major, &glx_minor) ||
             ( (glx_major == 1) && (glx_minor < 3) ) || (glx_major < 1))
     {
         SkDebugf("Invalid GLX version.");
-        return false;
+        this->destroyGLContext();
+        return NULL;
     }
 
     //SkDebugf("Getting matching framebuffer configs.\n");
     int fbcount;
-    GLXFBConfig *fbc = glXChooseFBConfig(display, DefaultScreen(display),
+    GLXFBConfig *fbc = glXChooseFBConfig(fDisplay, DefaultScreen(fDisplay),
                                           visual_attribs, &fbcount);
     if (!fbc) {
         SkDebugf("Failed to retrieve a framebuffer config.\n");
-        return false;
+        this->destroyGLContext();
+        return NULL;
     }
     //SkDebugf("Found %d matching FB configs.\n", fbcount);
 
@@ -101,11 +95,11 @@ bool SkGLContext::init(const int width, const int height) {
 
     int i;
     for (i = 0; i < fbcount; ++i) {
-        XVisualInfo *vi = glXGetVisualFromFBConfig(display, fbc[i]);
+        XVisualInfo *vi = glXGetVisualFromFBConfig(fDisplay, fbc[i]);
         if (vi) {
             int samp_buf, samples;
-            glXGetFBConfigAttrib(display, fbc[i], GLX_SAMPLE_BUFFERS, &samp_buf);
-            glXGetFBConfigAttrib(display, fbc[i], GLX_SAMPLES, &samples);
+            glXGetFBConfigAttrib(fDisplay, fbc[i], GLX_SAMPLE_BUFFERS, &samp_buf);
+            glXGetFBConfigAttrib(fDisplay, fbc[i], GLX_SAMPLES, &samples);
 
             //SkDebugf("  Matching fbconfig %d, visual ID 0x%2x: SAMPLE_BUFFERS = %d,"
             //       " SAMPLES = %d\n",
@@ -125,27 +119,23 @@ bool SkGLContext::init(const int width, const int height) {
     XFree(fbc);
 
     // Get a visual
-    XVisualInfo *vi = glXGetVisualFromFBConfig(display, bestFbc);
+    XVisualInfo *vi = glXGetVisualFromFBConfig(fDisplay, bestFbc);
     //SkDebugf("Chosen visual ID = 0x%x\n", (unsigned int)vi->visualid);
 
-    Pixmap pixmap = XCreatePixmap(
-        display, RootWindow(display, vi->screen), width, height, vi->depth
-    );
+    fPixmap = XCreatePixmap(fDisplay, RootWindow(fDisplay, vi->screen), 10, 10, vi->depth);
 
-    this->pixmap = pixmap;
-    if (!pixmap) {
+    if (!fPixmap) {
         SkDebugf("Failed to create pixmap.\n");
-        return false;
+        this->destroyGLContext();
+        return NULL;
     }
 
-    GLXPixmap glxPixmap = glXCreateGLXPixmap(display, vi, pixmap);
-    this->glxPixmap = glxPixmap;
+    fGlxPixmap = glXCreateGLXPixmap(fDisplay, vi, fPixmap);
 
     // Done with the visual info data
     XFree(vi);
 
     // Create the context
-    GLXContext ctx = 0;
 
     // Install an X error handler so the application won't exit if GL 3.0
     // context allocation fails.
@@ -160,7 +150,7 @@ bool SkGLContext::init(const int width, const int height) {
 
     // Get the default screen's GLX extension list
     const char *glxExts = glXQueryExtensionsString(
-        display, DefaultScreen(display)
+        fDisplay, DefaultScreen(fDisplay)
     );
     // Check for the GLX_ARB_create_context extension string and the function.
     // If either is not present, use GLX 1.3 context creation method.
@@ -170,25 +160,26 @@ bool SkGLContext::init(const int width, const int height) {
     {
         //SkDebugf("GLX_ARB_create_context not found."
         //       " Using old-style GLX context.\n");
-        ctx = glXCreateNewContext(display, bestFbc, GLX_RGBA_TYPE, 0, True);
+        fContext = glXCreateNewContext(fDisplay, bestFbc, GLX_RGBA_TYPE, 0, True);
 
     } else {
         //SkDebugf("Creating context.\n");
 
-        SK_GL_GET_PROC(PFNGLXCREATECONTEXTATTRIBSARBPROC, glXCreateContextAttribsARB)
+        PFNGLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = 
+            (PFNGLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddressARB((GrGLubyte*)"glXCreateContextAttribsARB");
         int context_attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
             GLX_CONTEXT_MINOR_VERSION_ARB, 0,
             //GLX_CONTEXT_FLAGS_ARB        , GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
             None
         };
-        ctx = glXCreateContextAttribsARB(
-            display, bestFbc, 0, True, context_attribs
+        fContext = glXCreateContextAttribsARB(
+            fDisplay, bestFbc, 0, True, context_attribs
         );
 
         // Sync to ensure any errors generated are processed.
-        XSync(display, False);
-        if (!ctxErrorOccurred && ctx) {
+        XSync(fDisplay, False);
+        if (!ctxErrorOccurred && fContext) {
            //SkDebugf( "Created GL 3.0 context.\n" );
         } else {
             // Couldn't create GL 3.0 context.
@@ -206,70 +197,49 @@ bool SkGLContext::init(const int width, const int height) {
 
             //SkDebugf("Failed to create GL 3.0 context."
             //       " Using old-style GLX context.\n");
-            ctx = glXCreateContextAttribsARB(
-                display, bestFbc, 0, True, context_attribs
+            fContext = glXCreateContextAttribsARB(
+                fDisplay, bestFbc, 0, True, context_attribs
             );
         }
     }
 
     // Sync to ensure any errors generated are processed.
-    XSync(display, False);
+    XSync(fDisplay, False);
 
     // Restore the original error handler
     XSetErrorHandler(oldHandler);
 
-    if (ctxErrorOccurred || !ctx) {
+    if (ctxErrorOccurred || !fContext) {
         SkDebugf("Failed to create an OpenGL context.\n");
-        return false;
+        this->destroyGLContext();
+        return NULL;
     }
-    this->context = ctx;
 
     // Verify that context is a direct context
-    if (!glXIsDirect(display, ctx)) {
+    if (!glXIsDirect(fDisplay, fContext)) {
         //SkDebugf("Indirect GLX rendering context obtained.\n");
     } else {
         //SkDebugf("Direct GLX rendering context obtained.\n");
     }
 
     //SkDebugf("Making context current.\n");
-    if (!glXMakeCurrent(display, glxPixmap, ctx)) {
+    if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
       SkDebugf("Could not set the context.\n");
-      return false;
+        this->destroyGLContext();
+        return NULL;
     }
 
-    //Setup the framebuffers
-    const GLubyte* glExts = glGetString(GL_EXTENSIONS);
-    if (!gluCheckExtension(
-          reinterpret_cast<const GLubyte*>("GL_EXT_framebuffer_object")
-          , glExts))
-    {
-      SkDebugf("GL_EXT_framebuffer_object not found.\n");
-      return false;
+    const GrGLInterface* interface = GrGLCreateNativeInterface();
+    if (!interface) {
+        SkDebugf("Failed to create gl interface");
+        this->destroyGLContext();
+        return NULL;
     }
-    SK_GL_GET_PROC(PFNGLGENFRAMEBUFFERSEXTPROC, glGenFramebuffersEXT)
-    SK_GL_GET_PROC(PFNGLBINDFRAMEBUFFEREXTPROC, glBindFramebufferEXT)
-    SK_GL_GET_PROC(PFNGLGENRENDERBUFFERSPROC, glGenRenderbuffersEXT)
-    SK_GL_GET_PROC(PFNGLBINDRENDERBUFFERPROC, glBindRenderbufferEXT)
-    SK_GL_GET_PROC(PFNGLRENDERBUFFERSTORAGEPROC, glRenderbufferStorageEXT)
-    SK_GL_GET_PROC(PFNGLFRAMEBUFFERRENDERBUFFERPROC, glFramebufferRenderbufferEXT)
-    SK_GL_GET_PROC(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT)
+    return interface;
+}
 
-    GLuint cbID;
-    GLuint dsID;
-    glGenFramebuffersEXT(1, &fFBO);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fFBO);
-    glGenRenderbuffersEXT(1, &cbID);
-    glBindRenderbufferEXT(GL_RENDERBUFFER, cbID);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_RGBA, width, height);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, cbID);
-    glGenRenderbuffersEXT(1, &dsID);
-    glBindRenderbufferEXT(GL_RENDERBUFFER, dsID);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH_STENCIL, width, height);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dsID);
-    glViewport(0, 0, width, height);
-    glClearStencil(0);
-    glClear(GL_STENCIL_BUFFER_BIT);
-
-    GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
-    return GL_FRAMEBUFFER_COMPLETE == status;
+void SkNativeGLContext::makeCurrent() const {
+    if (!glXMakeCurrent(fDisplay, fGlxPixmap, fContext)) {
+        SkDebugf("Could not set the context.\n");
+    }
 }

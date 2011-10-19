@@ -12,7 +12,9 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
 
-const GrGLInterface* GrGLDefaultInterface() {
+const GrGLInterface* GrGLCreateNativeInterface() {
+    // The gl functions are not context-specific so we create one global 
+    // interface
     static SkAutoTUnref<GrGLInterface> glInterface;
     if (!glInterface.get()) {
         GrGLInterface* interface = new GrGLInterface;
@@ -20,6 +22,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fBindingsExported = kDesktop_GrGLBinding;
         interface->fActiveTexture = glActiveTexture;
         interface->fAttachShader = glAttachShader;
+        interface->fBeginQuery = glBeginQuery;
         interface->fBindAttribLocation = glBindAttribLocation;
         interface->fBindBuffer = glBindBuffer;
 #if GL_VERSION_3_0
@@ -44,12 +47,13 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fCullFace = glCullFace;
         interface->fDeleteBuffers = glDeleteBuffers;
         interface->fDeleteProgram = glDeleteProgram;
+        interface->fDeleteQueries = glDeleteQueries;
         interface->fDeleteShader = glDeleteShader;
         interface->fDeleteTextures = glDeleteTextures;
         interface->fDepthMask = glDepthMask;
         interface->fDisable = glDisable;
         interface->fDisableClientState = glDisableClientState;
-        interface->fDisableVertexAttribArray = 
+        interface->fDisableVertexAttribArray =
                                             glDisableVertexAttribArray;
         interface->fDrawArrays = glDrawArrays;
         interface->fDrawBuffer = glDrawBuffer;
@@ -58,13 +62,20 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fEnable = glEnable;
         interface->fEnableClientState = glEnableClientState;
         interface->fEnableVertexAttribArray = glEnableVertexAttribArray;
+        interface->fEndQuery = glEndQuery;
+        interface->fFinish = glFinish;
+        interface->fFlush = glFlush;
         interface->fFrontFace = glFrontFace;
         interface->fGenBuffers = glGenBuffers;
+        interface->fGenQueries = glGenQueries;
         interface->fGetBufferParameteriv = glGetBufferParameteriv;
         interface->fGetError = glGetError;
         interface->fGetIntegerv = glGetIntegerv;
         interface->fGetProgramInfoLog = glGetProgramInfoLog;
         interface->fGetProgramiv = glGetProgramiv;
+        interface->fGetQueryiv = glGetQueryiv;
+        interface->fGetQueryObjectiv = glGetQueryObjectiv;
+        interface->fGetQueryObjectuiv = glGetQueryObjectuiv;
         interface->fGetShaderInfoLog = glGetShaderInfoLog;
         interface->fGetShaderiv = glGetShaderiv;
         interface->fGetString = glGetString;
@@ -123,9 +134,19 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fVertexPointer = glVertexPointer;
         interface->fViewport = glViewport;
 
+    #if GL_ARB_timer_query || GL_VERSION_3_3
+        interface->fQueryCounter = glQueryCounter;
+        interface->fGetQueryObjecti64v = glGetQueryObjecti64v;
+        interface->fGetQueryObjectui64v = glGetQueryObjectui64v;
+    #elif GL_EXT_timer_query
+        interface->fGetQueryObjecti64v = glGetQueryObjecti64vEXT;
+        interface->fGetQueryObjectui64v = glGetQueryObjectui64vEXT;
+    #endif
+        
     #if GL_ARB_framebuffer_object
         interface->fGenFramebuffers = glGenFramebuffers;
-        interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
+        interface->fGetFramebufferAttachmentParameteriv =
+                                        glGetFramebufferAttachmentParameteriv;
         interface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
         interface->fBindFramebuffer = glBindFramebuffer;
         interface->fFramebufferTexture2D = glFramebufferTexture2D;
@@ -141,8 +162,10 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fBlitFramebuffer = glBlitFramebuffer;
     #elif GL_EXT_framebuffer_object
         interface->fGenFramebuffers = glGenFramebuffersEXT;
-        interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameterivEXT;
-        interface->fGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
+        interface->fGetFramebufferAttachmentParameteriv = 
+                                    glGetFramebufferAttachmentParameterivEXT;
+        interface->fGetRenderbufferParameteriv =
+                                                glGetRenderbufferParameterivEXT;
         interface->fBindFramebuffer = glBindFramebufferEXT;
         interface->fFramebufferTexture2D = glFramebufferTexture2DEXT;
         interface->fCheckFramebufferStatus = glCheckFramebufferStatusEXT;
@@ -150,8 +173,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fRenderbufferStorage = glRenderbufferStorageEXT;
         interface->fGenRenderbuffers = glGenRenderbuffersEXT;
         interface->fDeleteRenderbuffers = glDeleteRenderbuffersEXT;
-        interface->fFramebufferRenderbuffer = 
-                                                glFramebufferRenderbufferEXT;
+        interface->fFramebufferRenderbuffer = glFramebufferRenderbufferEXT;
         interface->fBindRenderbuffer = glBindRenderbufferEXT;
     #if GL_EXT_framebuffer_multisample
         interface->fRenderbufferStorageMultisample = 

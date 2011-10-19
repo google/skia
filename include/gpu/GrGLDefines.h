@@ -589,6 +589,19 @@
 #define GR_GL_MEDIUM_INT                     0x8DF4
 #define GR_GL_HIGH_INT                       0x8DF5
 
+/* Queries */
+#define GR_GL_QUERY_COUNTER_BITS             0x8864
+#define GR_GL_CURRENT_QUERY                  0x8865
+#define GR_GL_QUERY_RESULT                   0x8866
+#define GR_GL_QUERY_RESULT_AVAILABLE         0x8867
+#define GR_GL_SAMPLES_PASSED                 0x8914
+#define GR_GL_ANY_SAMPLES_PASSED             0x8C2F
+#define GR_GL_TIME_ELAPSED                   0x88BF
+#define GR_GL_TIMESTAMP                      0x8E28
+#define GR_GL_PRIMITIVES_GENERATED           0x8C87
+#define GR_GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN 0x8C88
+
+
 /* Framebuffer Object. */
 #define GR_GL_FRAMEBUFFER                    0x8D40
 #define GR_GL_READ_FRAMEBUFFER               0x8CA8

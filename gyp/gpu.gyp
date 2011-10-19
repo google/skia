@@ -96,29 +96,41 @@
         '../include/gpu',
       ],
       'sources': [
+        '../include/gpu/SkGLContext.h',
+        '../include/gpu/SkMesaGLContext.h',
+        '../include/gpu/SkNativeGLContext.h',
         '../include/gpu/SkGpuCanvas.h',
         '../include/gpu/SkGpuDevice.h',
         '../include/gpu/SkGr.h',
         '../include/gpu/SkGrTexturePixelRef.h',
 
         '../src/gpu/GrPrintf_skia.cpp',
+        '../src/gpu/SkGLContext.cpp',
         '../src/gpu/SkGpuCanvas.cpp',
         '../src/gpu/SkGpuDevice.cpp',
         '../src/gpu/SkGr.cpp',
         '../src/gpu/SkGrFontScaler.cpp',
         '../src/gpu/SkGrTexturePixelRef.cpp',
 
-        '../src/gpu/mac/SkGLContext_mac.cpp',
+        '../src/gpu/mac/SkNativeGLContext_mac.cpp',
 
-        '../src/gpu/win/SkGLContext_win.cpp',
+        '../src/gpu/win/SkNativeGLContext_win.cpp',
 
-        '../src/gpu/unix/SkGLContext_unix.cpp',
+        '../src/gpu/unix/SkNativeGLContext_unix.cpp',
 
-        '../src/gpu/mesa/SkGLContext_mesa.cpp',
+        '../src/gpu/mesa/SkMesaGLContext.cpp',
       ],
-      # Removed for now
-      'sources!': [
-        '../src/gpu/mesa/SkGLContext_mesa.cpp',
+      'conditions': [
+        [ 'not skia_mesa', {
+          'sources!': [
+            '../src/gpu/mesa/SkMesaGLContext.cpp',
+          ],
+        }],
+        [ 'skia_mesa and skia_os == "mac"', {
+          'include_dirs': [
+             '$(SDKROOT)/usr/X11/include/',
+          ],
+        }],
       ],
     },
     {
@@ -194,7 +206,9 @@
         '../src/gpu/GrDrawTarget.cpp',
         '../src/gpu/GrDrawTarget.h',
         '../src/gpu/GrGeometryBuffer.h',
+        '../src/gpu/GrGLCreateNativeInterface_none.cpp',
         '../src/gpu/GrGLDefaultInterface_none.cpp',
+        '../src/gpu/GrGLDefaultInterface_native.cpp',
         '../src/gpu/GrGLIndexBuffer.cpp',
         '../src/gpu/GrGLIndexBuffer.h',
         '../src/gpu/GrGLInterface.cpp',
@@ -249,17 +263,14 @@
         '../src/gpu/GrVertexBuffer.h',
         '../src/gpu/gr_unittests.cpp',
 
-        '../src/gpu/mac/GrGLDefaultInterface_mac.cpp',
 
-        '../src/gpu/win/GrGLDefaultInterface_win.cpp',
+        '../src/gpu/mac/GrGLCreateNativeInterface_mac.cpp',
 
-        '../src/gpu/unix/GrGLDefaultInterface_unix.cpp',
+        '../src/gpu/win/GrGLCreateNativeInterface_win.cpp',
 
-        '../src/gpu/mesa/GrGLDefaultInterface_mesa.cpp',
-      ],
-      # Removed for now
-      'sources!': [
-        '../src/gpu/mesa/GrGLDefaultInterface_mesa.cpp',
+        '../src/gpu/unix/GrGLCreateNativeInterface_unix.cpp',
+
+        '../src/gpu/mesa/GrGLCreateMesaInterface.cpp',
       ],
       'defines': [
         'GR_IMPLEMENTATION=1',
@@ -268,11 +279,19 @@
         [ 'skia_os == "linux"', {
           'sources!': [
             '../src/gpu/GrGLDefaultInterface_none.cpp',
+            '../src/gpu/GrGLCreateNativeInterface_none.cpp',
           ],
           'link_settings': {
             'libraries': [
               '-lGL',
               '-lX11',
+            ],
+          },
+        }],
+        [ 'skia_mesa and skia_os == "linux"', {
+          'link_settings': {
+            'libraries': [
+              '-lOSMesa',
             ],
           },
         }],
@@ -284,11 +303,28 @@
           },
           'sources!': [
             '../src/gpu/GrGLDefaultInterface_none.cpp',
+            '../src/gpu/GrGLCreateNativeInterface_none.cpp',
           ],
-          }],
+        }],
+        [ 'skia_mesa and skia_os == "mac"', {
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/usr/X11/lib/libOSMesa.dylib',
+            ],
+          },
+          'include_dirs': [
+             '$(SDKROOT)/usr/X11/include/',
+          ],
+        }],
+        [ 'not skia_mesa', {
+          'sources!': [
+            '../src/gpu/mesa/GrGLCreateMesaInterface.cpp',
+          ],
+        }],
         [ 'skia_os == "win"', {
           'sources!': [
             '../src/gpu/GrGLDefaultInterface_none.cpp',
+            '../src/gpu/GrGLCreateNativeInterface_none.cpp',
           ],
         }],
       ],

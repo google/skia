@@ -15,6 +15,8 @@
       'conditions': [
         ['skia_os != OS and not (skia_os == "ios" and OS == "mac")',
           {'error': '<!(Cannot build with skia_os=<(skia_os) on OS=<(OS))'}],
+        ['skia_mesa and skia_os not in ["mac", "linux"]',
+          {'error': '<!(skia_mesa=1 only supported with skia_os="mac" or "linux".)'}],
       ],
     },
     'includes': [
@@ -34,6 +36,16 @@
           ],
         }
       ],
+      [ 'skia_mesa', {
+        'defines': [
+          'SK_MESA',
+        ],
+        'direct_dependent_settings': {
+          'defines': [
+            'SK_MESA',
+          ],
+        },
+      }],
     ],
     'configurations': {
       'Debug': {

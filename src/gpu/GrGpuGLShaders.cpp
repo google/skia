@@ -149,22 +149,22 @@ GrGLProgram::GLSLVersion get_glsl_version(GrGLBinding binding,
     GrGLSLVersion ver = GrGLGetGLSLVersion(gl);
     switch (binding) {
         case kDesktop_GrGLBinding:
-            GrAssert(ver >= GR_GLSL_VER(1,20));
+            GrAssert(ver >= GR_GLSL_VER(1,10));
             if (ver >= GR_GLSL_VER(1,50)) {
                 return GrGLProgram::k150_GLSLVersion;
             } else if (ver >= GR_GLSL_VER(1,30)) {
                 return GrGLProgram::k130_GLSLVersion;
             } else {
-                return GrGLProgram::k120_GLSLVersion;
+                return GrGLProgram::k110_GLSLVersion;
             }
         case kES2_GrGLBinding:
             // version 1.00 of ES GLSL based on ver 1.20 of desktop GLSL
             GrAssert(ver >= GR_GL_VER(1,00));
-            return GrGLProgram::k120_GLSLVersion;
+            return GrGLProgram::k110_GLSLVersion;
         default:
             GrCrash("Attempting to get GLSL version in unknown or fixed-"
                      "function GL binding.");
-            return GrGLProgram::k120_GLSLVersion; // suppress warning
+            return GrGLProgram::k110_GLSLVersion; // suppress warning
     }
 }
 

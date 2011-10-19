@@ -38,7 +38,7 @@ GrGLSLVersion GrGLGetGLSLVersionFromString(const char* versionString);
 bool GrGLHasExtensionFromString(const char* ext, const char* extensionString);
 
 // these variants call glGetString()
-bool GrGLGetString(const GrGLInterface*, const char* ext);
+bool GrGLHasExtension(const GrGLInterface*, const char* ext);
 GrGLVersion GrGLGetVersion(const GrGLInterface*);
 GrGLSLVersion GrGLGetGLSLVersion(const GrGLInterface*);
 
@@ -69,6 +69,10 @@ struct GrGLInterface;
 
 const GrGLInterface* GrGLDefaultInterface();
 
+const GrGLInterface* GrGLCreateNativeInterface();
+
+const GrGLInterface* GrGLCreateMesaInterface();
+
 typedef unsigned int GrGLenum;
 typedef unsigned char GrGLboolean;
 typedef unsigned int GrGLbitfield;
@@ -77,9 +81,11 @@ typedef char GrGLchar;
 typedef short GrGLshort;
 typedef int GrGLint;
 typedef int GrGLsizei;
+typedef int64_t GrGLint64;
 typedef unsigned char GrGLubyte;
 typedef unsigned short GrGLushort;
 typedef unsigned int GrGLuint;
+typedef uint64_t GrGLuint64;
 typedef float GrGLfloat;
 typedef float GrGLclampf;
 typedef double GrGLdouble;
@@ -97,6 +103,7 @@ enum GrGLBinding {
 extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLActiveTextureProc)(GrGLenum texture);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLAttachShaderProc)(GrGLuint program, GrGLuint shader);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBeginQueryProc)(GrGLenum target, GrGLuint id);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindAttribLocationProc)(GrGLuint program, GrGLuint index, const char* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindBufferProc)(GrGLenum target, GrGLuint buffer);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLBindTextureProc)(GrGLenum target, GrGLuint texture);
@@ -119,6 +126,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLCullFaceProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteBuffersProc)(GrGLsizei n, const GrGLuint* buffers);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteProgramProc)(GrGLuint program);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteQueriesProc)(GrGLsizei n, const GrGLuint *ids);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteShaderProc)(GrGLuint shader);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDeleteTexturesProc)(GrGLsizei n, const GrGLuint* textures);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLDepthMaskProc)(GrGLboolean flag);
@@ -132,18 +140,27 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEnableProc)(GrGLenum cap);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEnableClientStateProc)(GrGLenum cap);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEnableVertexAttribArrayProc)(GrGLuint index);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLEndQueryProc)(GrGLenum target);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFinishProc)();
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFlushProc)();
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLFrontFaceProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenBuffersProc)(GrGLsizei n, GrGLuint* buffers);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenQueriesProc)(GrGLsizei n, GrGLuint *ids);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGenTexturesProc)(GrGLsizei n, GrGLuint* textures);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetBufferParameterivProc)(GrGLenum target, GrGLenum pname, GrGLint* params);
-    typedef GrGLenum (GR_GL_FUNCTION_TYPE *GrGLGetErrorProc)(void);
+    typedef GrGLenum (GR_GL_FUNCTION_TYPE *GrGLGetErrorProc)();
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetIntegervProc)(GrGLenum pname, GrGLint* params);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetProgramInfoLogProc)(GrGLuint program, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetProgramivProc)(GrGLuint program, GrGLenum pname, GrGLint* params);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryivProc)(GrGLenum GLtarget, GrGLenum pname, GrGLint *params);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryObjecti64vProc)(GrGLuint id, GrGLenum pname, GrGLint64 *params);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryObjectivProc)(GrGLuint id, GrGLenum pname, GrGLint *params);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryObjectui64vProc)(GrGLuint id, GrGLenum pname, GrGLuint64 *params);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetQueryObjectuivProc)(GrGLuint id, GrGLenum pname, GrGLuint *params);    
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetShaderInfoLogProc)(GrGLuint shader, GrGLsizei bufsize, GrGLsizei* length, char* infolog);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetShaderivProc)(GrGLuint shader, GrGLenum pname, GrGLint* params);
     typedef const GrGLubyte* (GR_GL_FUNCTION_TYPE *GrGLGetStringProc)(GrGLenum name);
-    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetTexLevelParameteriv)(GrGLenum target, GrGLint level, GrGLenum pname, GrGLint* params);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLGetTexLevelParameterivProc)(GrGLenum target, GrGLint level, GrGLenum pname, GrGLint* params);
     typedef GrGLint (GR_GL_FUNCTION_TYPE *GrGLGetUniformLocationProc)(GrGLuint program, const char* name);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLLineWidthProc)(GrGLfloat width);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLLinkProgramProc)(GrGLuint program);
@@ -151,6 +168,7 @@ extern "C" {
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLMatrixModeProc)(GrGLenum mode);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLPixelStoreiProc)(GrGLenum pname, GrGLint param);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLPointSizeProc)(GrGLfloat size);
+    typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLQueryCounterProc)(GrGLuint id, GrGLenum target);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLReadBufferProc)(GrGLenum src);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLReadPixelsProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height, GrGLenum format, GrGLenum type, GrGLvoid* pixels);
     typedef GrGLvoid (GR_GL_FUNCTION_TYPE *GrGLScissorProc)(GrGLint x, GrGLint y, GrGLsizei width, GrGLsizei height);
@@ -276,6 +294,7 @@ struct GR_API GrGLInterface : public GrRefCnt {
 
     GrGLActiveTextureProc fActiveTexture;
     GrGLAttachShaderProc fAttachShader;
+    GrGLBeginQueryProc fBeginQuery;
     GrGLBindAttribLocationProc fBindAttribLocation;
     GrGLBindBufferProc fBindBuffer;
     GrGLBindFragDataLocationProc fBindFragDataLocation;
@@ -298,6 +317,7 @@ struct GR_API GrGLInterface : public GrRefCnt {
     GrGLCullFaceProc fCullFace;
     GrGLDeleteBuffersProc fDeleteBuffers;
     GrGLDeleteProgramProc fDeleteProgram;
+    GrGLDeleteQueriesProc fDeleteQueries;
     GrGLDeleteShaderProc fDeleteShader;
     GrGLDeleteTexturesProc fDeleteTextures;
     GrGLDepthMaskProc fDepthMask;
@@ -311,18 +331,27 @@ struct GR_API GrGLInterface : public GrRefCnt {
     GrGLEnableProc fEnable;
     GrGLEnableClientStateProc fEnableClientState;
     GrGLEnableVertexAttribArrayProc fEnableVertexAttribArray;
+    GrGLEndQueryProc fEndQuery;
+    GrGLFinishProc fFinish;
+    GrGLFlushProc fFlush;
     GrGLFrontFaceProc fFrontFace;
     GrGLGenBuffersProc fGenBuffers;
+    GrGLGenQueriesProc fGenQueries;
     GrGLGenTexturesProc fGenTextures;
     GrGLGetBufferParameterivProc fGetBufferParameteriv;
     GrGLGetErrorProc fGetError;
     GrGLGetIntegervProc fGetIntegerv;
+    GrGLGetQueryObjecti64vProc fGetQueryObjecti64v;
+    GrGLGetQueryObjectivProc fGetQueryObjectiv;
+    GrGLGetQueryObjectui64vProc fGetQueryObjectui64v;
+    GrGLGetQueryObjectuivProc fGetQueryObjectuiv;
+    GrGLGetQueryivProc fGetQueryiv;
     GrGLGetProgramInfoLogProc fGetProgramInfoLog;
     GrGLGetProgramivProc fGetProgramiv;
     GrGLGetShaderInfoLogProc fGetShaderInfoLog;
     GrGLGetShaderivProc fGetShaderiv;
     GrGLGetStringProc fGetString;
-    GrGLGetTexLevelParameteriv fGetTexLevelParameteriv;
+    GrGLGetTexLevelParameterivProc fGetTexLevelParameteriv;
     GrGLGetUniformLocationProc fGetUniformLocation;
     GrGLLineWidthProc fLineWidth;
     GrGLLinkProgramProc fLinkProgram;
@@ -330,6 +359,7 @@ struct GR_API GrGLInterface : public GrRefCnt {
     GrGLMatrixModeProc fMatrixMode;
     GrGLPixelStoreiProc fPixelStorei;
     GrGLPointSizeProc fPointSize;
+    GrGLQueryCounterProc fQueryCounter;
     GrGLReadBufferProc fReadBuffer;
     GrGLReadPixelsProc fReadPixels;
     GrGLScissorProc fScissor;

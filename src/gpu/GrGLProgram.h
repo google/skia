@@ -35,10 +35,21 @@ struct ShaderCodeSegments;
  */
 class GrGLProgram {
 public:
+    // Limited set of GLSL versions we build shaders for. Caller should round
+    // down the GLSL version to one of these enums.
     enum GLSLVersion {
-        k120_GLSLVersion, // Desktop GLSL 1.20 and ES2 shading lang
-        k130_GLSLVersion, // Desktop GLSL 1.30
-        k150_GLSLVersion  // Dekstop GLSL 1.50
+        /**
+         * Desktop GLSL 1.10 and ES2 shading lang (based on desktop GLSL 1.20)
+         */
+        k110_GLSLVersion,
+        /**
+         * Desktop GLSL 1.30
+         */
+        k130_GLSLVersion,
+        /**
+         * Dekstop GLSL 1.50
+         */
+        k150_GLSLVersion,
     };
 
     class CachedData;

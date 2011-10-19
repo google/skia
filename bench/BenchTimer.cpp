@@ -16,40 +16,40 @@
     #include "BenchSysTimer_c.h"
 #endif
 
-#if defined(SK_MESA) || \
-    defined(SK_BUILD_FOR_WIN32) || \
-    defined(SK_BUILD_FOR_MAC) || \
-    defined(SK_BUILD_FOR_UNIX)
-    #include "BenchGpuTimer_gl.h"
+#include "BenchGpuTimer_gl.h"
 
-#else
-    #include "BenchGpuTimer_none.h"
-#endif
-
-BenchTimer::BenchTimer()
+BenchTimer::BenchTimer(SkGLContext* gl)
         : fCpu(-1.0)
         , fWall(-1.0)
         , fGpu(-1.0)
 {
-    this->fSysTimer = new BenchSysTimer();
-    this->fGpuTimer = new BenchGpuTimer();
+    fSysTimer = new BenchSysTimer();
+    if (gl) {
+        fGpuTimer = new BenchGpuTimer(gl);
+    } else {
+        fGpuTimer = NULL;
+    }
 }
 
 BenchTimer::~BenchTimer() {
-    delete this->fSysTimer;
-    delete this->fGpuTimer;
+    delete fSysTimer;
+    delete fGpuTimer;
 }
 
 void BenchTimer::start() {
-    this->fSysTimer->startWall();
-    this->fGpuTimer->startGpu();
-    this->fSysTimer->startCpu();
+    fSysTimer->startWall();
+    if (fGpuTimer) {
+        fGpuTimer->startGpu();
+    }
+    fSysTimer->startCpu();
 }
 
 void BenchTimer::end() {
-    this->fCpu = this->fSysTimer->endCpu();
+    fCpu = fSysTimer->endCpu();
     //It is important to stop the cpu clocks first,
     //as the following will cpu wait for the gpu to finish.
-    this->fGpu = this->fGpuTimer->endGpu();
-    this->fWall = this->fSysTimer->endWall();
+    if (fGpuTimer) {
+        fGpu = fGpuTimer->endGpu();
+    }
+    fWall = fSysTimer->endWall();
 }

@@ -8,51 +8,49 @@
 #ifndef SkGLContext_DEFINED
 #define SkGLContext_DEFINED
 
-#if defined(SK_MESA)
-    #include "GL/osmesa.h"
-#elif defined(SK_BUILD_FOR_MAC)
-    #include <AGL/agl.h>
-#elif defined(SK_BUILD_FOR_UNIX)
-    #include <X11/Xlib.h>
-    #include <GL/glx.h>
-#elif defined(SK_BUILD_FOR_WIN32)
-    #include <Windows.h>
-    #include <GL/GL.h>
-#else
-
-#endif
+#include "GrGLInterface.h"
 
 /**
- *  Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
+ * Create an offscreen opengl context with an RGBA8 / 8bit stencil FBO.
+ * Provides a GrGLInterface struct of function pointers for the context.
  */
-class SkGLContext {
+
+class SkGLContext : public SkRefCnt {
 public:
     SkGLContext();
-    ~SkGLContext();
+    virtual ~SkGLContext();
 
     bool init(const int width, const int height);
 
     int getFBOID() const { return fFBO; }
 
-private:
-    GLuint fFBO;
-#if defined(SK_MESA)
-    OSMesaContext context;
-    GLfloat *image;
-#elif defined(SK_BUILD_FOR_MAC)
-    AGLContext context;
-#elif defined(SK_BUILD_FOR_UNIX)
-    GLXContext context;
-    Display *display;
-    Pixmap pixmap;
-    GLXPixmap glxPixmap;
-#elif defined(SK_BUILD_FOR_WIN32)
-    HWND fWindow;
-    HDC fDeviceContext;
-    HGLRC fGlRenderContext;
-#else
+    const GrGLInterface* gl() const { return fGL; }
 
-#endif
+    virtual void makeCurrent() const = 0;
+
+protected:
+    /**
+     * Subclass implements this to make a GL context. The returned GrGLInterface 
+     * should be populated with functions compatible with the context. The 
+     * format and size of backbuffers does not matter since an FBO will be
+     * created.
+     */
+    virtual const GrGLInterface* createGLContext() = 0;
+
+    /**
+     * Subclass should destroy the underlying GL context.
+     */
+    virtual void destroyGLContext() = 0;
+
+private:
+    GrGLuint fFBO;
+    const GrGLInterface* fGL;
 };
+
+/**
+ * Helper macro for using the GL context through the GrGLInterface. Example:
+ * SK_GL(glCtx, GenTextures(1, &texID));
+ */
+#define SK_GL(ctx, X) (ctx).gl()->f ## X
 
 #endif

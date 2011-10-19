@@ -363,13 +363,13 @@ namespace {
 const char* glsl_version_string(const GrGLInterface* gl,
                                 GrGLProgram::GLSLVersion v) {
     switch (v) {
-        case GrGLProgram::k120_GLSLVersion:
+        case GrGLProgram::k110_GLSLVersion:
             if (gl->supportsES()) {
                 // ES2s shader language is based on version 1.20 but is version
                 // 1.00 of the ES language.
                 return "#version 100\n";
             } else {
-                return "#version 120\n";
+                return "#version 110\n";
             }
         case GrGLProgram::k130_GLSLVersion:
             GrAssert(!gl->supportsES());
@@ -524,7 +524,7 @@ bool decl_and_get_fs_color_output(GrGLProgram::GLSLVersion v,
                                   VarArray* fsOutputs,
                                   const char** name) {
     switch (v) {
-        case GrGLProgram::k120_GLSLVersion:
+        case GrGLProgram::k110_GLSLVersion:
             *name = "gl_FragColor";
             return false;
             break;
@@ -977,10 +977,10 @@ bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
 
     static const char* gVaryingPrefixes[2][2] = {{"varying", "varying"},
                                                  {"out", "in"}};
-    const char** varyingPrefixes = k120_GLSLVersion == glslVersion ?
+    const char** varyingPrefixes = k110_GLSLVersion == glslVersion ?
                                                     gVaryingPrefixes[0] :
                                                     gVaryingPrefixes[1];
-    const char* attributePrefix = k120_GLSLVersion == glslVersion ?
+    const char* attributePrefix = k110_GLSLVersion == glslVersion ?
                                                     "attribute" :
                                                     "in";
 
@@ -1031,8 +1031,8 @@ bool GrGLProgram::CompileShaders(const GrGLInterface* gl,
     append_string(precisionStr, &strs, &lengths);
     append_decls(segments.fFSUnis, gl, "uniform", &strs, &lengths, &temps);
     append_decls(segments.fFSInputs, gl, varyingPrefixes[1], &strs, &lengths, &temps);
-    // We shouldn't have declared outputs on 1.2
-    GrAssert(k120_GLSLVersion != glslVersion || segments.fFSOutputs.empty());
+    // We shouldn't have declared outputs on 1.10
+    GrAssert(k110_GLSLVersion != glslVersion || segments.fFSOutputs.empty());
     append_decls(segments.fFSOutputs, gl, "out", &strs, &lengths, &temps);
     append_string(segments.fFSFunctions, &strs, &lengths);
     append_string(segments.fFSCode, &strs, &lengths);
