@@ -437,7 +437,7 @@ int main (int argc, char * const argv[]) {
             }
         }
     }
-    BenchTimer timer = BenchTimer(&glContext);
+    BenchTimer timer = BenchTimer(context ?&glContext : NULL);
 #else
     BenchTimer timer = BenchTimer();
 #endif
