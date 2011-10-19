@@ -61,7 +61,7 @@ public:
      void overrideBlend(GrBlendCoeff* srcCoeff, GrBlendCoeff* dstCoeff) const;
 
     /**
-     * Attribute indices
+     * Attribute indices. These should not overlap. Matrices consume 3 slots.
      */
     static int PositionAttributeIdx() { return 0; }
     static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
@@ -72,10 +72,10 @@ public:
     static int EdgeAttributeIdx() { return 3 + GrDrawTarget::kMaxTexCoords; }
 
     static int ViewMatrixAttributeIdx() {
-        return 2 + GrDrawTarget::kMaxTexCoords;
+        return 4 + GrDrawTarget::kMaxTexCoords;
     }
     static int TextureMatrixAttributeIdx(int stage) {
-        return 5 + GrDrawTarget::kMaxTexCoords + 3 * stage;
+        return 7 + GrDrawTarget::kMaxTexCoords + 3 * stage;
     }
 
 private:

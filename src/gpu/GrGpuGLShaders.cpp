@@ -325,6 +325,8 @@ GrGpuGLShaders::GrGpuGLShaders(const GrGLInterface* gl)
                             this->hasExtension("GL_OES_standard_derivatives");
     }
 
+    GR_GL_GetIntegerv(gl, GR_GL_MAX_VERTEX_ATTRIBS, &fMaxVertexAttribs);
+
     fProgramData = NULL;
     fProgramCache = new ProgramCache(gl, glslVersion);
 
@@ -361,14 +363,27 @@ void GrGpuGLShaders::recordHWSamplerMatrix(int stage, const GrMatrix& matrix) {
 void GrGpuGLShaders::resetContext() {
     INHERITED::resetContext();
 
-    fHWGeometryState.fVertexLayout = 0;
     fHWGeometryState.fVertexOffset = ~0;
-    GL_CALL(DisableVertexAttribArray(GrGLProgram::ColorAttributeIdx()));
-    GL_CALL(DisableVertexAttribArray(GrGLProgram::EdgeAttributeIdx()));
-    for (int t = 0; t < kMaxTexCoords; ++t) {
-        GL_CALL(DisableVertexAttribArray(GrGLProgram::TexCoordAttributeIdx(t)));
+
+    // Third party GL code may have left vertex attributes enabled. Some GL
+    // implementations (osmesa) may read vetex attributes that are not required
+    // by the current shader. Therefore, we have to ensure that only the
+    // attributes we require for the current draw are enabled or we may cause an
+    // invalid read.
+
+    // Disable all vertex layout bits so that next flush will assume all
+    // optional vertex attributes are disabled.
+    fHWGeometryState.fVertexLayout = 0;
+
+    // We always use the this attribute and assume it is always enabled.
+    int posAttrIdx = GrGLProgram::PositionAttributeIdx();
+    GL_CALL(EnableVertexAttribArray(posAttrIdx));
+    // Disable all other vertex attributes.
+    for  (int va = 0; va < fMaxVertexAttribs; ++va) {
+        if (va != posAttrIdx) {
+            GL_CALL(DisableVertexAttribArray(va));
+        }
     }
-    GL_CALL(EnableVertexAttribArray(GrGLProgram::PositionAttributeIdx()));
 
     fHWProgramID = 0;
 }
