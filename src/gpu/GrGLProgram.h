@@ -341,6 +341,47 @@ private:
     void getUniformLocationsAndInitCache(const GrGLInterface* gl,
                                          CachedData* programData) const;
 
+    const char* genRadialVS(int stageNum, ShaderCodeSegments* segments,
+                            StageUniLocations* locations,
+                            const char** radial2VaryingVSName,
+                            const char** radial2VaryingFSName,
+                            const char* varyingVSName,
+                            int varyingDims, int coordDims) const;
+
+    void gen2x2FS(int stageNum,
+                  ShaderCodeSegments* segments,
+                  StageUniLocations* locations,
+                  GrStringBuilder* sampleCoords,
+                  const char* samplerName,
+                  const char* texelSizeName,
+                  const char* smear,
+                  const char* fsOutColor,
+                  GrStringBuilder& texFunc,
+                  GrStringBuilder& modulate,
+                  bool complexCoord,
+                  int coordDims) const;
+
+    void genConvolutionVS(int stageNum,
+                          const ProgramDesc::StageDesc& desc,
+                          ShaderCodeSegments* segments,
+                          StageUniLocations* locations,
+                          const char** kernelName,
+                          const char** imageIncrementName,
+                          const char* varyingVSName) const;
+
+
+    void genConvolutionFS(int stageNum,
+                          const ProgramDesc::StageDesc& desc,
+                          ShaderCodeSegments* segments,
+                          const char* samplerName,
+                          const char* kernelName,
+                          const char* smear,
+                          const char* imageIncrementName,
+                          const char* fsOutColor,
+                          GrStringBuilder& sampleCoords,
+                          GrStringBuilder& texFunc,
+                          GrStringBuilder& modulate) const;
+
     friend class GrGpuGLShaders;
 };
 

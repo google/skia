@@ -1287,6 +1287,100 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
 // Stage code generation
 //============================================================================
 
+static bool genRadial2GradientCoordMapping(int stageNum,
+                                           ShaderCodeSegments* segments,
+                                           const char* radial2VaryingFSName,
+                                           const char* radial2ParamsName,
+                                           GrStringBuilder& sampleCoords,
+                                           GrStringBuilder& fsCoordName,
+                                           int varyingDims,
+                                           int coordDims) {
+    GrStringBuilder cName("c");
+    GrStringBuilder ac4Name("ac4");
+    GrStringBuilder rootName("root");
+
+    cName.appendS32(stageNum);
+    ac4Name.appendS32(stageNum);
+    rootName.appendS32(stageNum);
+
+    // if we were able to interpolate the linear component bVar is the varying
+    // otherwise compute it
+    GrStringBuilder bVar;
+    if (coordDims == varyingDims) {
+        bVar = radial2VaryingFSName;
+        GrAssert(2 == varyingDims);
+    } else {
+        GrAssert(3 == varyingDims);
+        bVar = "b";
+        bVar.appendS32(stageNum);
+        segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s[2] * %s.x - %s[3]);\n",
+                                    bVar.c_str(), radial2ParamsName,
+                                    fsCoordName.c_str(), radial2ParamsName);
+    }
+
+    // c = (x^2)+(y^2) - params[4]
+    segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s[4];\n",
+                              cName.c_str(), fsCoordName.c_str(),
+                              fsCoordName.c_str(),
+                              radial2ParamsName);
+    // ac4 = 4.0 * params[0] * c
+    segments->fFSCode.appendf("\tfloat %s = %s[0] * 4.0 * %s;\n",
+                              ac4Name.c_str(), radial2ParamsName,
+                              cName.c_str());
+
+    // root = sqrt(b^2-4ac)
+    // (abs to avoid exception due to fp precision)
+    segments->fFSCode.appendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
+                              rootName.c_str(), bVar.c_str(), bVar.c_str(),
+                              ac4Name.c_str());
+
+    // x coord is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
+    // y coord is 0.5 (texture is effectively 1D)
+    sampleCoords.printf("vec2((-%s + %s[5] * %s) * %s[1], 0.5)",
+                        bVar.c_str(), radial2ParamsName,
+                        rootName.c_str(), radial2ParamsName);
+    return true;
+}
+
+static bool genRadial2GradientDegenerateCoordMapping(int stageNum,
+                ShaderCodeSegments* segments,
+                const char* radial2VaryingFSName,
+                const char* radial2ParamsName,
+                GrStringBuilder& sampleCoords,
+                GrStringBuilder& fsCoordName,
+                int varyingDims,
+                int coordDims) {
+    GrStringBuilder cName("c");
+
+    cName.appendS32(stageNum);
+
+    // if we were able to interpolate the linear component bVar is the varying
+    // otherwise compute it
+    GrStringBuilder bVar;
+    if (coordDims == varyingDims) {
+        bVar = radial2VaryingFSName;
+        GrAssert(2 == varyingDims);
+    } else {
+        GrAssert(3 == varyingDims);
+        bVar = "b";
+        bVar.appendS32(stageNum);
+        segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s[2] * %s.x - %s[3]);\n",
+                                    bVar.c_str(), radial2ParamsName,
+                                    fsCoordName.c_str(), radial2ParamsName);
+    }
+
+    // c = (x^2)+(y^2) - params[4]
+    segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s[4];\n",
+                              cName.c_str(), fsCoordName.c_str(),
+                              fsCoordName.c_str(),
+                              radial2ParamsName);
+
+    // x coord is: -c/b
+    // y coord is 0.5 (texture is effectively 1D)
+    sampleCoords.printf("vec2((-%s / %s), 0.5)", cName.c_str(), bVar.c_str());
+    return true;
+}
+
 void GrGLProgram::genStageCode(const GrGLInterface* gl,
                                int stageNum,
                                const GrGLProgram::StageDesc& desc,
@@ -1366,60 +1460,19 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
 
     if (StageDesc::kRadial2Gradient_CoordMapping == desc.fCoordMapping ||
         StageDesc::kRadial2GradientDegenerate_CoordMapping == desc.fCoordMapping) {
-
-        GrGLShaderVar* radial2FSParams = &segments->fFSUnis.push_back();
-        radial2FSParams->setType(GrGLShaderVar::kFloat_Type);
-        radial2FSParams->setArrayCount(6);
-        radial2_param_name(stageNum, radial2FSParams->accessName());
-        segments->fVSUnis.push_back(*radial2FSParams).setEmitPrecision(true);
-        radial2ParamsName = radial2FSParams->getName().c_str();
-
-        locations->fRadial2Uni = kUseUniform;
-
-        // for radial grads without perspective we can pass the linear
-        // part of the quadratic as a varying.
-        if (varyingDims == coordDims) {
-            GrAssert(2 == coordDims);
-            append_varying(GrGLShaderVar::kFloat_Type,
-                           "Radial2BCoeff",
-                           stageNum,
-                           segments,
-                           &radial2VaryingVSName,
-                           &radial2VaryingFSName);
-
-            // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
-            const char* r2ParamName = radial2FSParams->getName().c_str();
-            segments->fVSCode.appendf("\t%s = 2.0 *(%s[2] * %s.x - %s[3]);\n",
-                                      radial2VaryingVSName, r2ParamName,
-                                      varyingVSName, r2ParamName);
-        }
+        radial2ParamsName = this->genRadialVS(stageNum, segments,
+                                              locations,
+                                              &radial2VaryingVSName,
+                                              &radial2VaryingFSName,
+                                              varyingVSName,
+                                              varyingDims, coordDims);
     }
 
     const char* kernelName = NULL;
     const char* imageIncrementName = NULL;
     if (ProgramDesc::StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
-
-        GrGLShaderVar* kernel = &segments->fFSUnis.push_back();
-        kernel->setType(GrGLShaderVar::kFloat_Type);
-        kernel->setArrayCount(desc.fKernelWidth);
-        GrGLShaderVar* imgInc = &segments->fFSUnis.push_back();
-        imgInc->setType(GrGLShaderVar::kVec2f_Type);
-
-        convolve_param_names(stageNum,
-                             kernel->accessName(),
-                             imgInc->accessName());
-        kernelName = kernel->getName().c_str();
-        imageIncrementName = imgInc->getName().c_str();
-
-        // need image increment in both VS and FS
-        segments->fVSUnis.push_back(*imgInc).setEmitPrecision(true);
-
-        locations->fKernelUni = kUseUniform;
-        locations->fImageIncrementUni = kUseUniform;
-        float scale = (desc.fKernelWidth - 1) * 0.5f;
-        segments->fVSCode.appendf("\t%s -= vec2(%g, %g) * %s;\n",
-                                  varyingVSName, scale, scale,
-                                  imageIncrementName);
+        this->genConvolutionVS(stageNum, desc, segments, locations,
+                               &kernelName, &imageIncrementName, varyingVSName);
     }
 
     /// Fragment Shader Stuff
@@ -1465,84 +1518,22 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
         sampleCoords.printf("vec2(length(%s.xy), 0.5)", fsCoordName.c_str());
         complexCoord = true;
         break;
-    case StageDesc::kRadial2Gradient_CoordMapping: {
-        GrStringBuilder cName("c");
-        GrStringBuilder ac4Name("ac4");
-        GrStringBuilder rootName("root");
+    case StageDesc::kRadial2Gradient_CoordMapping:
+        complexCoord = genRadial2GradientCoordMapping(
+                           stageNum, segments,
+                           radial2VaryingFSName, radial2ParamsName,
+                           sampleCoords, fsCoordName,
+                           varyingDims, coordDims);
 
-        cName.appendS32(stageNum);
-        ac4Name.appendS32(stageNum);
-        rootName.appendS32(stageNum);
+        break;
+    case StageDesc::kRadial2GradientDegenerate_CoordMapping:
+        complexCoord = genRadial2GradientDegenerateCoordMapping(
+                           stageNum, segments,
+                           radial2VaryingFSName, radial2ParamsName,
+                           sampleCoords, fsCoordName,
+                           varyingDims, coordDims);
+        break;
 
-        // if we were able to interpolate the linear component bVar is the varying
-        // otherwise compute it
-        GrStringBuilder bVar;
-        if (coordDims == varyingDims) {
-            bVar = radial2VaryingFSName;
-            GrAssert(2 == varyingDims);
-        } else {
-            GrAssert(3 == varyingDims);
-            bVar = "b";
-            bVar.appendS32(stageNum);
-            segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s[2] * %s.x - %s[3]);\n",
-                                        bVar.c_str(), radial2ParamsName,
-                                        fsCoordName.c_str(), radial2ParamsName);
-        }
-
-        // c = (x^2)+(y^2) - params[4]
-        segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s[4];\n",
-                                  cName.c_str(), fsCoordName.c_str(),
-                                  fsCoordName.c_str(),
-                                  radial2ParamsName);
-        // ac4 = 4.0 * params[0] * c
-        segments->fFSCode.appendf("\tfloat %s = %s[0] * 4.0 * %s;\n",
-                                  ac4Name.c_str(), radial2ParamsName,
-                                  cName.c_str());
-
-        // root = sqrt(b^2-4ac)
-        // (abs to avoid exception due to fp precision)
-        segments->fFSCode.appendf("\tfloat %s = sqrt(abs(%s*%s - %s));\n",
-                                  rootName.c_str(), bVar.c_str(), bVar.c_str(),
-                                  ac4Name.c_str());
-
-        // x coord is: (-b + params[5] * sqrt(b^2-4ac)) * params[1]
-        // y coord is 0.5 (texture is effectively 1D)
-        sampleCoords.printf("vec2((-%s + %s[5] * %s) * %s[1], 0.5)",
-                            bVar.c_str(), radial2ParamsName,
-                            rootName.c_str(), radial2ParamsName);
-        complexCoord = true;
-        break;}
-    case StageDesc::kRadial2GradientDegenerate_CoordMapping: {
-        GrStringBuilder cName("c");
-
-        cName.appendS32(stageNum);
-
-        // if we were able to interpolate the linear component bVar is the varying
-        // otherwise compute it
-        GrStringBuilder bVar;
-        if (coordDims == varyingDims) {
-            bVar = radial2VaryingFSName;
-            GrAssert(2 == varyingDims);
-        } else {
-            GrAssert(3 == varyingDims);
-            bVar = "b";
-            bVar.appendS32(stageNum);
-            segments->fFSCode.appendf("\tfloat %s = 2.0 * (%s[2] * %s.x - %s[3]);\n",
-                                        bVar.c_str(), radial2ParamsName,
-                                        fsCoordName.c_str(), radial2ParamsName);
-        }
-
-        // c = (x^2)+(y^2) - params[4]
-        segments->fFSCode.appendf("\tfloat %s = dot(%s, %s) - %s[4];\n",
-                                  cName.c_str(), fsCoordName.c_str(),
-                                  fsCoordName.c_str(),
-                                  radial2ParamsName);
-
-        // x coord is: -c/b
-        // y coord is 0.5 (texture is effectively 1D)
-        sampleCoords.printf("vec2((-%s / %s), 0.5)", cName.c_str(), bVar.c_str());
-        complexCoord = true;
-        break;}
     };
 
     const char* smear;
@@ -1572,52 +1563,158 @@ void GrGLProgram::genStageCode(const GrGLInterface* gl,
         locations->fTexDomUni = kUseUniform;
     }
 
-    if (StageDesc::k2x2_FetchMode == desc.fFetchMode) {
-        locations->fNormalizedTexelSizeUni = kUseUniform;
-        if (complexCoord) {
-            // assign the coord to a var rather than compute 4x.
-            GrStringBuilder coordVar("tCoord");
-            coordVar.appendS32(stageNum);
-            segments->fFSCode.appendf("\t%s %s = %s;\n",
-                                float_vector_type_str(coordDims),
-                                coordVar.c_str(), sampleCoords.c_str());
-            sampleCoords = coordVar;
-        }
-        GrAssert(2 == coordDims);
-        GrStringBuilder accumVar("accum");
-        accumVar.appendS32(stageNum);
-        segments->fFSCode.appendf("\tvec4 %s  = %s(%s, %s + vec2(-%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords.c_str(), texelSizeName, texelSizeName, smear);
-        segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords.c_str(), texelSizeName, texelSizeName, smear);
-        segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords.c_str(), texelSizeName, texelSizeName, smear);
-        segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords.c_str(), texelSizeName, texelSizeName, smear);
-        segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), modulate.c_str());
-    } else if (ProgramDesc::StageDesc::kConvolution_FetchMode == desc.fFetchMode) {
-        GrStringBuilder sumVar("sum");
-        sumVar.appendS32(stageNum);
-        GrStringBuilder coordVar("coord");
-        coordVar.appendS32(stageNum);
-
-        segments->fFSCode.appendf("\tvec4 %s = vec4(0, 0, 0, 0);\n",
-                                  sumVar.c_str());
-        segments->fFSCode.appendf("\tvec2 %s = %s;\n", 
-                                  coordVar.c_str(),
-                                  sampleCoords.c_str());
-        segments->fFSCode.appendf("\tfor (int i = 0; i < %d; i++) {\n",
-                                  desc.fKernelWidth);
-        segments->fFSCode.appendf("\t\t%s += %s(%s, %s)%s * %s[i];\n",
-                                  sumVar.c_str(), texFunc.c_str(),
-                                  samplerName, coordVar.c_str(), smear,
-                                  kernelName);
-        segments->fFSCode.appendf("\t\t%s += %s;\n",
-                                  coordVar.c_str(),
-                                  imageIncrementName);
-        segments->fFSCode.appendf("\t}\n");
-        segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
-                                  sumVar.c_str(), modulate.c_str());
-    } else {
+    switch (desc.fFetchMode) {
+    case StageDesc::k2x2_FetchMode:
+        this->gen2x2FS(stageNum, segments, locations, &sampleCoords,
+            samplerName, texelSizeName, smear, fsOutColor,
+            texFunc, modulate, complexCoord, coordDims);
+        break;
+    case ProgramDesc::StageDesc::kConvolution_FetchMode:
+        this->genConvolutionFS(stageNum, desc, segments,
+            samplerName, kernelName, smear, imageIncrementName, fsOutColor,
+            sampleCoords, texFunc, modulate);
+        break;
+    default:
         segments->fFSCode.appendf("\t%s = %s(%s, %s)%s%s;\n",
                                   fsOutColor, texFunc.c_str(), 
                                   samplerName, sampleCoords.c_str(),
                                   smear, modulate.c_str());
     }
 }
+
+const char* GrGLProgram::genRadialVS(int stageNum,
+                                     ShaderCodeSegments* segments,
+                                     StageUniLocations* locations,
+                                     const char** radial2VaryingVSName,
+                                     const char** radial2VaryingFSName,
+                                     const char* varyingVSName,
+                                     int varyingDims, int coordDims) const {
+
+    GrGLShaderVar* radial2FSParams = &segments->fFSUnis.push_back();
+    radial2FSParams->setType(GrGLShaderVar::kFloat_Type);
+    radial2FSParams->setArrayCount(6);
+    radial2_param_name(stageNum, radial2FSParams->accessName());
+    segments->fVSUnis.push_back(*radial2FSParams).setEmitPrecision(true);
+
+    locations->fRadial2Uni = kUseUniform;
+
+    // for radial grads without perspective we can pass the linear
+    // part of the quadratic as a varying.
+    if (varyingDims == coordDims) {
+        GrAssert(2 == coordDims);
+        append_varying(GrGLShaderVar::kFloat_Type,
+                       "Radial2BCoeff",
+                       stageNum,
+                       segments,
+                       radial2VaryingVSName,
+                       radial2VaryingFSName);
+
+        // r2Var = 2 * (r2Parm[2] * varCoord.x - r2Param[3])
+        const char* r2ParamName = radial2FSParams->getName().c_str();
+        segments->fVSCode.appendf("\t%s = 2.0 *(%s[2] * %s.x - %s[3]);\n",
+                                  *radial2VaryingVSName, r2ParamName,
+                                  varyingVSName, r2ParamName);
+    }
+
+    return radial2FSParams->getName().c_str();
+}
+
+
+void GrGLProgram::gen2x2FS(int stageNum,
+                           ShaderCodeSegments* segments,
+                           StageUniLocations* locations,
+                           GrStringBuilder* sampleCoords,
+                           const char* samplerName,
+                           const char* texelSizeName,
+                           const char* smear,
+                           const char* fsOutColor,
+                           GrStringBuilder& texFunc,
+                           GrStringBuilder& modulate,
+                           bool complexCoord,
+                           int coordDims) const {
+    locations->fNormalizedTexelSizeUni = kUseUniform;
+    if (complexCoord) {
+        // assign the coord to a var rather than compute 4x.
+        GrStringBuilder coordVar("tCoord");
+        coordVar.appendS32(stageNum);
+        segments->fFSCode.appendf("\t%s %s = %s;\n",
+                            float_vector_type_str(coordDims),
+                            coordVar.c_str(), sampleCoords->c_str());
+        *sampleCoords = coordVar;
+    }
+    GrAssert(2 == coordDims);
+    GrStringBuilder accumVar("accum");
+    accumVar.appendS32(stageNum);
+    segments->fFSCode.appendf("\tvec4 %s  = %s(%s, %s + vec2(-%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,-%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(-%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
+    segments->fFSCode.appendf("\t%s += %s(%s, %s + vec2(+%s.x,+%s.y))%s;\n", accumVar.c_str(), texFunc.c_str(), samplerName, sampleCoords->c_str(), texelSizeName, texelSizeName, smear);
+    segments->fFSCode.appendf("\t%s = .25 * %s%s;\n", fsOutColor, accumVar.c_str(), modulate.c_str());
+
+}
+
+void GrGLProgram::genConvolutionVS(int stageNum,
+                                   const ProgramDesc::StageDesc& desc,
+                                   ShaderCodeSegments* segments,
+                                   StageUniLocations* locations,
+                                   const char** kernelName,
+                                   const char** imageIncrementName,
+                                   const char* varyingVSName) const {
+    GrGLShaderVar* kernel = &segments->fFSUnis.push_back();
+    kernel->setType(GrGLShaderVar::kFloat_Type);
+    kernel->setArrayCount(desc.fKernelWidth);
+    GrGLShaderVar* imgInc = &segments->fFSUnis.push_back();
+    imgInc->setType(GrGLShaderVar::kVec2f_Type);
+
+    convolve_param_names(stageNum,
+                         kernel->accessName(),
+                         imgInc->accessName());
+    *kernelName = kernel->getName().c_str();
+    *imageIncrementName = imgInc->getName().c_str();
+
+    // need image increment in both VS and FS
+    segments->fVSUnis.push_back(*imgInc).setEmitPrecision(true);
+
+    locations->fKernelUni = kUseUniform;
+    locations->fImageIncrementUni = kUseUniform;
+    float scale = (desc.fKernelWidth - 1) * 0.5f;
+    segments->fVSCode.appendf("\t%s -= vec2(%g, %g) * %s;\n",
+                                  varyingVSName, scale, scale,
+                                  *imageIncrementName);
+}
+
+void GrGLProgram::genConvolutionFS(int stageNum,
+                                   const ProgramDesc::StageDesc& desc,
+                                   ShaderCodeSegments* segments,
+                                   const char* samplerName,
+                                   const char* kernelName,
+                                   const char* smear,
+                                   const char* imageIncrementName,
+                                   const char* fsOutColor,
+                                   GrStringBuilder& sampleCoords,
+                                   GrStringBuilder& texFunc,
+                                   GrStringBuilder& modulate) const {
+    GrStringBuilder sumVar("sum");
+    sumVar.appendS32(stageNum);
+    GrStringBuilder coordVar("coord");
+    coordVar.appendS32(stageNum);
+
+    segments->fFSCode.appendf("\tvec4 %s = vec4(0, 0, 0, 0);\n",
+                              sumVar.c_str());
+    segments->fFSCode.appendf("\tvec2 %s = %s;\n", 
+                              coordVar.c_str(),
+                              sampleCoords.c_str());
+    segments->fFSCode.appendf("\tfor (int i = 0; i < %d; i++) {\n",
+                              desc.fKernelWidth);
+    segments->fFSCode.appendf("\t\t%s += %s(%s, %s)%s * %s[i];\n",
+                              sumVar.c_str(), texFunc.c_str(),
+                              samplerName, coordVar.c_str(), smear,
+                              kernelName);
+    segments->fFSCode.appendf("\t\t%s += %s;\n",
+                              coordVar.c_str(),
+                              imageIncrementName);
+    segments->fFSCode.appendf("\t}\n");
+    segments->fFSCode.appendf("\t%s = %s%s;\n", fsOutColor,
+                              sumVar.c_str(), modulate.c_str());
+}
+
