@@ -502,10 +502,12 @@ int main (int argc, char * const argv[]) {
             if (repeatDraw > 1) {
                 SkAutoCanvasRestore acr(&canvas, true);
                 bench->draw(&canvas);
+#if !defined(SK_SCALAR_IS_FIXED)
                 if (gpu) {
                     context->flush();
                     SK_GL(glContext, Finish());
                 }
+#endif
             }
             
             timer.start();
@@ -516,10 +518,12 @@ int main (int argc, char * const argv[]) {
                     context->flush();
                 }
             }
-            if (gpu) {
+ #if !defined(SK_SCALAR_IS_FIXED)
+           if (gpu) {
                 SK_GL(glContext, Finish());
-            }
-            timer.end();
+           }
+ #endif
+           timer.end();
             
             if (repeatDraw > 1) {
                 SkString str;
