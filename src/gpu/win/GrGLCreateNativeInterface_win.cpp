@@ -8,7 +8,7 @@
 
 
 #include "GrGLInterface.h"
-
+#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <GL/GL.h>
 
@@ -21,7 +21,7 @@
 #define GR_GL_GET_PROC(F) interface->f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F);
 #define GR_GL_GET_PROC_SUFFIX(F, S) interface->f ## F = (GrGL ## F ## Proc) wglGetProcAddress("gl" #F #S);
 
-const GrGLInterface* GrGLDefaultInterface() {
+const GrGLInterface* GrGLCreateNativeInterface() {
     // wglGetProcAddress requires a context.
     // GL Function pointers retrieved in one context may not be valid in another
     // context. For that reason we create a new GrGLInterface each time we're 
@@ -62,6 +62,8 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fEnable = glEnable;
         interface->fEnableClientState = glEnableClientState;
         interface->fFrontFace = glFrontFace;
+        interface->fFinish = glFinish;
+        interface->fFlush = glFlush;
         interface->fGenTextures = glGenTextures;
         interface->fGetError = glGetError;
         interface->fGetIntegerv = glGetIntegerv;

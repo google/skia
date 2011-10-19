@@ -19,7 +19,7 @@
 #define GR_GL_GET_PROC_SUFFIX(F, S) interface->f ## F = (GrGL ## F ## Proc) \
         glXGetProcAddress(reinterpret_cast<const GLubyte*>("gl" #F #S));
 
-const GrGLInterface* GrGLDefaultInterface() {
+const GrGLInterface* GrGLCreateNativeInterface() {
     if (NULL != glXGetCurrentContext()) {
         const char* versionString = (const char*) glGetString(GL_VERSION);
         const char* extString = (const char*) glGetString(GL_EXTENSIONS);
@@ -41,6 +41,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         GR_GL_GET_PROC(BindAttribLocation);
         GR_GL_GET_PROC(BindBuffer);
         GR_GL_GET_PROC(BindFragDataLocation);
+        GR_GL_GET_PROC(BeginQuery);
         interface->fBindTexture = glBindTexture;
         interface->fBlendColor = glBlendColor;
         interface->fBlendFunc = glBlendFunc;
@@ -60,6 +61,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fCullFace = glCullFace;
         GR_GL_GET_PROC(DeleteBuffers);
         GR_GL_GET_PROC(DeleteProgram);
+        GR_GL_GET_PROC(DeleteQueries);
         GR_GL_GET_PROC(DeleteShader);
         interface->fDeleteTextures = glDeleteTextures;
         interface->fDepthMask = glDepthMask;
@@ -73,17 +75,33 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fEnable = glEnable;
         interface->fEnableClientState = glEnableClientState;
         GR_GL_GET_PROC(EnableVertexAttribArray);
+        GR_GL_GET_PROC(EndQuery);
+        interface->fFinish = glFinish;
+        interface->fFlush = glFlush;
         interface->fFrontFace = glFrontFace;
         GR_GL_GET_PROC(GenBuffers);
         GR_GL_GET_PROC(GetBufferParameteriv);
         interface->fGetError = glGetError;
         interface->fGetIntegerv = glGetIntegerv;
+        GR_GL_GET_PROC(GetQueryObjectiv);
+        GR_GL_GET_PROC(GetQueryObjectuiv);
+        if (glVer >= GR_GL_VER(3,3) ||
+            GrGLHasExtensionFromString("GL_ARB_timer_query", extString)) {
+            GR_GL_GET_PROC(GetQueryObjecti64v);
+            GR_GL_GET_PROC(GetQueryObjectui64v);
+            GR_GL_GET_PROC(QueryCounter);
+        } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extString)) {
+            GR_GL_GET_PROC_SUFFIX(GetQueryObjecti64v, "EXT");
+            GR_GL_GET_PROC_SUFFIX(GetQueryObjectui64v, "EXT");
+        }
+        GR_GL_GET_PROC(GetQueryiv);
         GR_GL_GET_PROC(GetProgramInfoLog);
         GR_GL_GET_PROC(GetProgramiv);
         GR_GL_GET_PROC(GetShaderInfoLog);
         GR_GL_GET_PROC(GetShaderiv);
         interface->fGetString = glGetString;
         interface->fGetTexLevelParameteriv = glGetTexLevelParameteriv;
+        GR_GL_GET_PROC(GenQueries);
         interface->fGenTextures = glGenTextures;
         GR_GL_GET_PROC(GetUniformLocation);
         interface->fLineWidth = glLineWidth;
@@ -93,6 +111,7 @@ const GrGLInterface* GrGLDefaultInterface() {
         interface->fMatrixMode = glMatrixMode;
         interface->fPointSize = glPointSize;
         interface->fPixelStorei = glPixelStorei;
+
         interface->fReadBuffer = glReadBuffer;
         interface->fReadPixels = glReadPixels;
         interface->fScissor = glScissor;

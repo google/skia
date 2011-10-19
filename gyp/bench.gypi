@@ -13,8 +13,6 @@
     '../bench/BenchSysTimer_windows.cpp',
     '../bench/BenchGpuTimer_gl.h',
     '../bench/BenchGpuTimer_gl.cpp',
-    '../bench/BenchGpuTimer_none.h',
-    '../bench/BenchGpuTimer_none.cpp',
 
     '../bench/SkBenchmark.h',
     '../bench/SkBenchmark.cpp',
@@ -54,17 +52,6 @@
       'sources!': [
         '../bench/BenchSysTimer_windows.h',
         '../bench/BenchSysTimer_windows.cpp',
-      ],
-    }],
-    [ 'skia_os in ["win", "mac", "linux", "freebsd", "openbsd", "solaris"]', {
-      'sources!': [
-        '../bench/BenchGpuTimer_none.h',
-        '../bench/BenchGpuTimer_none.cpp',
-      ],
-    },{
-      'sources!': [
-        '../bench/BenchGpuTimer_gl.h',
-        '../bench/BenchGpuTimer_gl.cpp',
       ],
     }],
   ],

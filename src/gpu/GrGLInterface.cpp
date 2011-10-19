@@ -345,6 +345,8 @@ bool GrGLInterface::validate(GrEngine engine) const {
         NULL == fCheckFramebufferStatus ||
         NULL == fDeleteFramebuffers ||
         NULL == fDeleteRenderbuffers ||
+        NULL == fFinish ||
+        NULL == fFlush ||
         NULL == fFramebufferRenderbuffer ||
         NULL == fFramebufferTexture2D ||
         NULL == fGetFramebufferAttachmentParameteriv ||
@@ -414,6 +416,32 @@ bool GrGLInterface::validate(GrEngine engine) const {
         if (glVer >= GR_GL_VER(1,4) ||
             GrGLHasExtensionFromString("GL_EXT_blend_color", ext)) {
             if (NULL == fBlendColor) {
+                return false;
+            }
+        }
+        if (glVer >= GR_GL_VER(1,5) ||
+            GrGLHasExtensionFromString("GL_ARB_occlusion_query", ext)) {
+            if (NULL == fGenQueries ||
+                NULL == fDeleteQueries ||
+                NULL == fBeginQuery ||
+                NULL == fEndQuery ||
+                NULL == fGetQueryiv ||
+                NULL == fGetQueryObjectiv ||
+                NULL == fGetQueryObjectuiv) {
+                return false;
+            }
+        }
+        if (glVer >= GR_GL_VER(3,3) ||
+            GrGLHasExtensionFromString("GL_ARB_timer_query", ext) ||
+            GrGLHasExtensionFromString("GL_EXT_timer_query", ext)) {
+            if (NULL == fGetQueryObjecti64v ||
+                NULL == fGetQueryObjectui64v) {
+                return false;
+            }
+        }
+        if (glVer >= GR_GL_VER(3,3) ||
+            GrGLHasExtensionFromString("GL_ARB_timer_query", ext)) {
+            if (NULL == fQueryCounter) {
                 return false;
             }
         }

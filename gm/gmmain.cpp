@@ -12,12 +12,13 @@
 #include "SkColorPriv.h"
 #include "SkData.h"
 #include "SkDevice.h"
-#include "SkGLContext.h"
 #include "SkGpuCanvas.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageDecoder.h"
 #include "SkImageEncoder.h"
+#include "SkNativeGLContext.h"
+#include "SkMesaGLContext.h"
 #include "SkPicture.h"
 #include "SkStream.h"
 #include "SkRefCnt.h"
@@ -522,6 +523,9 @@ static void usage(const char * argv0) {
     SkDebugf(
 "    --serialize: exercise SkPicture serialization & deserialization.\n");
     SkDebugf("    --match foo will only run tests that substring match foo.\n");
+#if SK_MESA
+    SkDebugf("    --mesagl will run using the osmesa sw gl rasterizer.\n");
+#endif
 }
 
 static const ConfigData gRec[] = {
@@ -557,6 +561,8 @@ int main(int argc, char * const argv[]) {
     bool doPDF = true;
     bool doReplay = true;
     bool doSerialize = false;
+    bool useMesa = false;
+    
     const char* const commandName = argv[0];
     char* const* stop = argv + argc;
     for (++argv; argv < stop; ++argv) {
@@ -586,6 +592,10 @@ int main(int argc, char * const argv[]) {
             if (argv < stop && **argv) {
                 matchStr = *argv;
             }
+#if SK_MESA
+        } else if (strcmp(*argv, "--mesagl") == 0) {
+            useMesa = true;
+#endif
         } else {
           usage(commandName);
           return -1;
@@ -606,10 +616,21 @@ int main(int argc, char * const argv[]) {
         maxH = SkMax32(size.height(), maxH);
     }
     // setup a GL context for drawing offscreen
-    SkGLContext glContext;
+    SkAutoTUnref<SkGLContext> glContext;
+#if SK_MESA
+    if (useMesa) {
+        glContext.reset(new SkMesaGLContext());
+    } else
+#endif
+    {
+        glContext.reset(new SkNativeGLContext());
+    }
+
     GrRenderTarget* rt = NULL;
-    if (glContext.init(maxW, maxH)) {
-        gGrContext = GrContext::CreateGLShaderContext();
+    if (glContext.get()->init(maxW, maxH)) {
+        GrPlatform3DContext ctx =
+            reinterpret_cast<GrPlatform3DContext>(glContext.get()->gl());
+        gGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
         if (NULL != gGrContext) {
             GrPlatformSurfaceDesc desc;
             desc.reset();
@@ -617,7 +638,7 @@ int main(int argc, char * const argv[]) {
             desc.fWidth = maxW;
             desc.fHeight = maxH;
             desc.fStencilBits = 8;
-            desc.fPlatformRenderTarget = glContext.getFBOID();
+            desc.fPlatformRenderTarget = glContext.get()->getFBOID();
             desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
             rt = static_cast<GrRenderTarget*>(gGrContext->createPlatformSurface(desc));
             if (NULL == rt) {
@@ -625,6 +646,8 @@ int main(int argc, char * const argv[]) {
                 gGrContext = NULL;
             }
         }
+    } else {
+        fprintf(stderr, "could not create GL context.\n");
     }
 
     if (readPath) {
