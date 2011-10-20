@@ -66,6 +66,11 @@ void SkTypefaceCache::purge(int numToPurge) {
     }
 }
 
+void SkTypefaceCache::purgeAll() {
+    this->purge(fArray.count());
+    fArray.reset();
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 SkTypefaceCache& SkTypefaceCache::Get() {
@@ -93,6 +98,10 @@ SkTypeface* SkTypefaceCache::FindByID(SkFontID fontID) {
 SkTypeface* SkTypefaceCache::FindByProc(FindProc proc, void* ctx) {
     SkAutoMutexAcquire ama(gMutex);
     return Get().findByProc(proc, ctx);
+}
+
+void SkTypefaceCache::PurgeAll() {
+    Get().purgeAll();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
