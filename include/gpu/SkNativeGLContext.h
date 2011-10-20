@@ -28,24 +28,6 @@ public:
 
     virtual void makeCurrent() const SK_OVERRIDE;
 
-    class AutoContextRestore {
-    public:
-        AutoContextRestore();
-        ~AutoContextRestore();
-
-    private:
-    #if defined(SK_BUILD_FOR_MAC)
-        AGLContext fOldAGLContext;
-    #elif defined(SK_BUILD_FOR_UNIX)
-        GLXContext fOldGLXContext;
-        Display* fOldDisplay;
-        GLXDrawable fOldDrawable;
-    #elif defined(SK_BUILD_FOR_WIN32)
-        HDC fOldHDC;
-        HGLRC fOldHGLRC;
-    #endif
-    };
-
 protected:
     virtual const GrGLInterface* createGLContext() SK_OVERRIDE;
     void destroyGLContext() SK_OVERRIDE;

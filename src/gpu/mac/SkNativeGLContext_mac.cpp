@@ -7,16 +7,6 @@
  */
 #include "SkNativeGLContext.h"
 
-SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldAGLContext = aglGetCurrentContext();
-}
-
-SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    aglSetCurrentContext(fOldAGLContext);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 SkNativeGLContext::SkNativeGLContext() 
     : fContext(NULL) {
 }

@@ -30,7 +30,6 @@
         '../tests/FillPathTest.cpp',
         '../tests/FlateTest.cpp',
         '../tests/GeometryTest.cpp',
-        '../tests/GLInterfaceValidation.cpp',
         '../tests/GLProgramsTest.cpp',
         '../tests/InfRectTest.cpp',
         '../tests/MathTest.cpp',

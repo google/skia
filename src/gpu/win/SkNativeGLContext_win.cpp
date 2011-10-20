@@ -11,23 +11,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 
-SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldHGLRC = wglGetCurrentContext();
-    fOldHDC = wglGetCurrentDC();
-}
-
-SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    wglMakeCurrent(fOldHDC, fOldHGLRC);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
 ATOM SkNativeGLContext::gWC = 0;
 
 SkNativeGLContext::SkNativeGLContext()
-    : fWindow(NULL)
-    , fDeviceContext(NULL)
-    , fGlRenderContext(0) {
+        : fWindow(NULL)
+        , fDeviceContext(NULL)
+        , fGlRenderContext(0) {
 }
 
 SkNativeGLContext::~SkNativeGLContext() {
