@@ -406,11 +406,7 @@ const void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW,
     SetWorldTransform(fDC, &xform);
 
     uint16_t glyphID = glyph.getGlyphID();
-#if defined(UNICODE)
-    ExtTextOut(fDC, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCWSTR)&glyphID, 1, NULL);
-#else
-    ExtTextOut(fDC, 0, 0, ETO_GLYPH_INDEX, NULL, (LPCSTR)&glyphID, 1, NULL);
-#endif
+    ExtTextOutW(fDC, 0, 0, ETO_GLYPH_INDEX, NULL, reinterpret_cast<LPCWSTR>(&glyphID), 1, NULL);
     GdiFlush();
 
     *srcRBPtr = srcRB;
