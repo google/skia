@@ -53,6 +53,13 @@ public:
     static SkTypeface* FindByProc(FindProc proc, void* ctx);
 
     /**
+     *  This will unref all of the typefaces in the cache. Normally this is
+     *  handled automatically as needed. This function is exposed for clients
+     *  that explicitly want to purge the entire cache (e.g. to look for leaks).
+     */
+    static void PurgeAll();
+
+    /**
      *  Debugging only: dumps the status of the typefaces in the cache
      */
     static void Dump();
@@ -64,6 +71,7 @@ private:
     SkTypeface* findByID(SkFontID findID) const;
     SkTypeface* findByProc(FindProc proc, void* ctx) const;
     void purge(int count);
+    void purgeAll();
 
     struct Rec {
         SkTypeface*         fFace;
