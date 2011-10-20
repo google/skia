@@ -10,6 +10,7 @@
 #define GrGLShaderVar_DEFINED
 
 #include "GrGLInterface.h"
+#include "GrStringBuilder.h"
 
 /**
  * Represents a variable in a shader
