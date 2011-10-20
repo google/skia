@@ -69,8 +69,17 @@ struct GrGLInterface;
 
 const GrGLInterface* GrGLDefaultInterface();
 
+/**
+ * Creates a GrGLInterface for a "native" GL context (e.g. WGL on windows,
+ * GLX on linux, AGL on Mac). On platforms that have context-specific function
+ * pointers for GL extensions (e.g. windows) the returned interface is only 
+ * valid for the context that was current at creation.
+ */
 const GrGLInterface* GrGLCreateNativeInterface();
 
+/**
+ * Creates a GrGLInterface for an OSMesa context.
+ */
 const GrGLInterface* GrGLCreateMesaInterface();
 
 typedef unsigned int GrGLenum;
