@@ -89,9 +89,6 @@ GrContext* GpuTest::GetContext() {
             gGrContext.reset(GrContext::Create(kOpenGL_Shaders_GrEngine, ctx));
         }
     }
-    if (gGLContext.get()) {
-        gGLContext.get()->makeCurrent();
-    }
     return gGrContext.get();
 }
 

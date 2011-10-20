@@ -9,19 +9,6 @@
 
 #include <GL/glu.h>
 
-SkNativeGLContext::AutoContextRestore::AutoContextRestore() {
-    fOldGLXContext = glXGetCurrentContext();
-    fOldDisplay = glXGetCurrentDisplay();
-    fOldDrawable = glXGetCurrentDrawable();
-}
-
-SkNativeGLContext::AutoContextRestore::~AutoContextRestore() {
-    if (NULL != fOldDisplay) {
-        glXMakeCurrent(fOldDisplay, fOldDrawable, fOldGLXContext);
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 
 static bool ctxErrorOccurred = false;
 static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
