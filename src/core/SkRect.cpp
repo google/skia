@@ -122,6 +122,21 @@ bool SkRect::intersect(const SkRect& r) {
     return this->intersect(r.fLeft, r.fTop, r.fRight, r.fBottom);
 }
 
+bool SkRect::intersect(const SkRect& a, const SkRect& b) {
+    SkASSERT(&a && &b);
+
+    if (!a.isEmpty() && !b.isEmpty() &&
+        a.fLeft < b.fRight && b.fLeft < a.fRight &&
+        a.fTop < b.fBottom && b.fTop < a.fBottom) {
+        fLeft   = SkMaxScalar(a.fLeft,   b.fLeft);
+        fTop    = SkMaxScalar(a.fTop,    b.fTop);
+        fRight  = SkMinScalar(a.fRight,  b.fRight);
+        fBottom = SkMinScalar(a.fBottom, b.fBottom);
+        return true;
+    }
+    return false;
+}
+
 void SkRect::join(SkScalar left, SkScalar top, SkScalar right,
                   SkScalar bottom) {
     // do nothing if the params are empty
