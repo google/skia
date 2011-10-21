@@ -485,6 +485,12 @@ struct SK_API SkRect {
                fLeft < right && left < fRight &&
                fTop < bottom && top < fBottom;
     }
+
+    /** If rectangles a and b intersect, return true and set this rectangle to
+     *  that intersection, otherwise return false and do not change this
+     *  rectangle. If either rectangle is empty, do nothing and return false.
+     */
+    bool intersect(const SkRect& a, const SkRect& b);
     
     /**
      *  Return true if rectangles a and b are not empty and intersect.
