@@ -556,41 +556,60 @@ static void antifillrect(const SkXRect& xr, SkBlitter* blitter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
+void SkScan::AntiFillXRect(const SkXRect& xr, const SkRegion* clip,
                           SkBlitter* blitter) {
-    SkAAClipBlitterWrapper wrapper(clip, blitter);
-    const SkRegion* clipRgn = &wrapper.getRgn();
-    blitter = wrapper.getBlitter();
+    if (NULL == clip) {
+        antifillrect(xr, blitter);
+    } else {
+        SkIRect outerBounds;
+        XRect_roundOut(xr, &outerBounds);
 
-    SkIRect outerBounds;
-    XRect_roundOut(xr, &outerBounds);
+        if (clip->isRect()) {
+            const SkIRect& clipBounds = clip->getBounds();
 
-    if (clipRgn->isRect()) {
-        const SkIRect& clipBounds = clipRgn->getBounds();
-
-        if (clipBounds.contains(outerBounds)) {
-            antifillrect(xr, blitter);
+            if (clipBounds.contains(outerBounds)) {
+                antifillrect(xr, blitter);
+            } else {
+                SkXRect tmpR;
+                // this keeps our original edges fractional
+                XRect_set(&tmpR, clipBounds);
+                if (tmpR.intersect(xr)) {
+                    antifillrect(tmpR, blitter);
+                }
+            }
         } else {
-            SkXRect tmpR;
-            // this keeps our original edges fractional
-            XRect_set(&tmpR, clipBounds);
-            if (tmpR.intersect(xr)) {
-                antifillrect(tmpR, blitter);
+            SkRegion::Cliperator clipper(*clip, outerBounds);
+            const SkIRect&       rr = clipper.rect();
+            
+            while (!clipper.done()) {
+                SkXRect  tmpR;
+                
+                // this keeps our original edges fractional
+                XRect_set(&tmpR, rr);
+                if (tmpR.intersect(xr)) {
+                    antifillrect(tmpR, blitter);
+                }
+                clipper.next();
             }
         }
+    }
+}
+
+void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
+                           SkBlitter* blitter) {
+    if (clip.isBW()) {
+        AntiFillXRect(xr, &clip.bwRgn(), blitter);
     } else {
-        SkRegion::Cliperator clipper(*clipRgn, outerBounds);
-        const SkIRect&       rr = clipper.rect();
-        
-        while (!clipper.done()) {
-            SkXRect  tmpR;
-            
-            // this keeps our original edges fractional
-            XRect_set(&tmpR, rr);
-            if (tmpR.intersect(xr)) {
-                antifillrect(tmpR, blitter);
-            }
-            clipper.next();
+        SkIRect outerBounds;
+        XRect_roundOut(xr, &outerBounds);
+
+        if (clip.quickContains(outerBounds)) {
+            AntiFillXRect(xr, NULL, blitter);
+        } else {
+            SkAAClipBlitterWrapper wrapper(clip, blitter);
+            blitter = wrapper.getBlitter();
+
+            AntiFillXRect(xr, &wrapper.getRgn(), wrapper.getBlitter());
         }
     }
 }
