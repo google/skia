@@ -33,7 +33,10 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
     bm.setPixels(mask.fImage);
     
     SkPaint paint;
-    canvas->drawBitmap(bm, mask.fBounds.fLeft, mask.fBounds.fTop, &paint);
+    canvas->drawBitmap(bm,
+                       SK_Scalar1 * mask.fBounds.fLeft,
+                       SK_Scalar1 * mask.fBounds.fTop,
+                       &paint);
 }
 
 static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
@@ -48,7 +51,10 @@ static void paint_rgn(SkCanvas* canvas, const SkAAClip& clip,
                  mask.fBounds.height(), mask.fRowBytes);
     bm.setPixels(mask.fImage);
     
-    canvas->drawBitmap(bm, mask.fBounds.fLeft, mask.fBounds.fTop, &paint);
+    canvas->drawBitmap(bm,
+                       SK_Scalar1 * mask.fBounds.fLeft,
+                       SK_Scalar1 * mask.fBounds.fTop,
+                       &paint);
 }
 
 class AAClipView2 : public SampleView {

@@ -725,7 +725,7 @@ public:
             if (localCount) {
                 fBuilder->addRun(localX, y, *alpha, localCount);
             }
-        NEXT_RUN:
+            // Next run
             runs += count;
             alpha += count;
             x += count;
