@@ -14,7 +14,7 @@
 #include "SkMaskFilter.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkRegion.h"
+#include "../core/SkRasterClip.h"
 #include "SkXfermode.h"
 #include <new>
 
@@ -107,13 +107,13 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
     }
 
     if (SkMask::kJustComputeBounds_CreateMode != mode) {
-        SkBitmap device;
-        SkDraw   draw;
-        SkMatrix translatedMatrix;  // this translates us to our local pixels
-        SkMatrix drawMatrix;        // this translates the path by each layer's offset
-        SkRegion rectClip;
+        SkBitmap        device;
+        SkRasterClip    rectClip;
+        SkDraw          draw;
+        SkMatrix        translatedMatrix;  // this translates us to our local pixels
+        SkMatrix        drawMatrix;        // this translates the path by each layer's offset
 
-        rectClip.setRect(0, 0, mask->fBounds.width(), mask->fBounds.height());
+        rectClip.setRect(SkIRect::MakeWH(mask->fBounds.width(), mask->fBounds.height()));
 
         translatedMatrix = matrix;
         translatedMatrix.postTranslate(-SkIntToScalar(mask->fBounds.fLeft),
@@ -124,7 +124,8 @@ bool SkLayerRasterizer::onRasterize(const SkPath& path, const SkMatrix& matrix,
 
         draw.fBitmap    = &device;
         draw.fMatrix    = &drawMatrix;
-        draw.fClip      = &rectClip;
+        draw.fRC        = &rectClip;
+        draw.fClip      = &rectClip.bwRgn();
         // we set the matrixproc in the loop, as the matrix changes each time (potentially)
         draw.fBounder   = NULL;
 

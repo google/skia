@@ -58,6 +58,7 @@ protected:
 
     SkDEBUGCODE(int fCurrX;)
     int fCurrY;
+    int fTop;
 };
 
 BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
@@ -72,8 +73,14 @@ BaseSuperBlitter::BaseSuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
     fLeft = left;
     fSuperLeft = left << SHIFT;
     fWidth = right - left;
+#if 0
     fCurrIY = -1;
     fCurrY = -1;
+#else
+    fTop = ir.fTop;
+    fCurrIY = ir.fTop - 1;
+    fCurrY = (ir.fTop << SHIFT) - 1;
+#endif
     SkDEBUGCODE(fCurrX = -1;)
 }
 
@@ -111,14 +118,14 @@ SuperBlitter::SuperBlitter(SkBlitter* realBlitter, const SkIRect& ir,
 }
 
 void SuperBlitter::flush() {
-    if (fCurrIY >= 0) {
+    if (fCurrIY >= fTop) {
         if (!fRuns.empty()) {
         //  SkDEBUGCODE(fRuns.dump();)
             fRealBlitter->blitAntiH(fLeft, fCurrIY, fRuns.fAlpha, fRuns.fRuns);
             fRuns.reset(fWidth);
             fOffsetX = 0;
         }
-        fCurrIY = -1;
+        fCurrIY = fTop - 1;
         SkDEBUGCODE(fCurrX = -1;)
     }
 }

@@ -12,7 +12,7 @@
 #include "SkBounder.h"
 #include "SkBuffer.h"
 #include "SkDraw.h"
-#include "SkRegion.h"
+#include "SkRasterClip.h"
 
 bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
                               SkIPoint*) {
@@ -20,7 +20,7 @@ bool SkMaskFilter::filterMask(SkMask*, const SkMask&, const SkMatrix&,
 }
 
 bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
-                              const SkRegion& clip, SkBounder* bounder,
+                              const SkRasterClip& clip, SkBounder* bounder,
                               SkBlitter* blitter) {
     SkMask  srcM, dstM;
 
@@ -35,7 +35,11 @@ bool SkMaskFilter::filterPath(const SkPath& devPath, const SkMatrix& matrix,
     }
     SkAutoMaskFreeImage autoDst(dstM.fImage);
 
-    SkRegion::Cliperator    clipper(clip, dstM.fBounds);
+    // if we get here, we need to (possibly) resolve the clip and blitter
+    SkAAClipBlitterWrapper wrapper(clip, blitter);
+    blitter = wrapper.getBlitter();
+
+    SkRegion::Cliperator clipper(wrapper.getRgn(), dstM.fBounds);
 
     if (!clipper.done() && (bounder == NULL || bounder->doIRect(dstM.fBounds))) {
         const SkIRect& cr = clipper.rect();

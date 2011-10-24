@@ -66,7 +66,7 @@ static SkCanvas::EdgeType paint2EdgeType(const SkPaint* paint) {
 struct DeviceCM {
     DeviceCM*           fNext;
     SkDevice*           fDevice;
-    SkRegion            fClip;
+    SkRasterClip        fClip;
     const SkMatrix*     fMatrix;
     SkPaint*            fPaint; // may be null (in the future)
     // optional, related to canvas' external matrix
@@ -91,8 +91,8 @@ struct DeviceCM {
         SkDELETE(fPaint);
     }
 
-    void updateMC(const SkMatrix& totalMatrix, const SkRegion& totalClip,
-                  const SkClipStack& clipStack, SkRegion* updateClip) {
+    void updateMC(const SkMatrix& totalMatrix, const SkRasterClip& totalClip,
+                  const SkClipStack& clipStack, SkRasterClip* updateClip) {
         int x = fDevice->getOrigin().x();
         int y = fDevice->getOrigin().y();
         int width = fDevice->width();
@@ -110,16 +110,16 @@ struct DeviceCM {
             totalClip.translate(-x, -y, &fClip);
         }
 
-        fClip.op(0, 0, width, height, SkRegion::kIntersect_Op);
+        fClip.op(SkIRect::MakeWH(width, height), SkRegion::kIntersect_Op);
 
         // intersect clip, but don't translate it (yet)
 
         if (updateClip) {
-            updateClip->op(x, y, x + width, y + height,
+            updateClip->op(SkIRect::MakeXYWH(x, y, width, height),
                            SkRegion::kDifference_Op);
         }
 
-        fDevice->setMatrixClip(*fMatrix, fClip, clipStack);
+        fDevice->setMatrixClip(*fMatrix, fClip.forceGetBW(), clipStack);
 
 #ifdef SK_DEBUG
         if (!fClip.isEmpty()) {
@@ -235,7 +235,8 @@ public:
             const DeviceCM* rec = fCurrLayer;
 
             fMatrix = rec->fMatrix;
-            fClip   = &rec->fClip;
+            fClip   = &((SkRasterClip*)&rec->fClip)->forceGetBW();
+            fRC     = &rec->fClip;
             fDevice = rec->fDevice;
             fBitmap = &fDevice->accessBitmap(true);
             fPaint  = rec->fPaint;
@@ -576,7 +577,7 @@ void SkCanvas::writePixels(const SkBitmap& bitmap, int x, int y) {
 void SkCanvas::updateDeviceCMCache() {
     if (fDeviceCMDirty) {
         const SkMatrix& totalMatrix = this->getTotalMatrix();
-        const SkRegion& totalClip = this->getTotalClip();
+        const SkRasterClip& totalClip = *fMCRec->fRasterClip;
         DeviceCM*       layer = fMCRec->fTopLayer;
 
         if (NULL == layer->fNext) {   // only one layer
@@ -586,8 +587,7 @@ void SkCanvas::updateDeviceCMCache() {
                                             fExternalInverse);
             }
         } else {
-            SkRegion clip;
-            clip = totalClip;  // make a copy
+            SkRasterClip clip(totalClip);
             do {
                 layer->updateMC(totalMatrix, clip, fClipStack, &clip);
                 if (fUseExternalMatrix) {

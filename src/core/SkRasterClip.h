@@ -45,6 +45,11 @@ public:
         this->translate(dx, dy, this);
     }
 
+    bool quickContains(const SkIRect& rect) const;
+    bool quickContains(int left, int top, int right, int bottom) const {
+        return quickContains(SkIRect::MakeLTRB(left, top, right, bottom));
+    }
+    
     /**
      *  Return true if this region is empty, or if the specified rectangle does
      *  not intersect the region. Returning false is not a guarantee that they
@@ -58,12 +63,77 @@ public:
     // hack for SkCanvas::getTotalClip
     const SkRegion& forceGetBW();
 
+#ifdef SK_DEBUG
+    void validate() const;
+#else
+    void validate() const {}
+#endif
+
 private:
     SkRegion    fBW;
     SkAAClip    fAA;
     bool        fIsBW;
 
     void convertToAA();
+};
+
+class SkAutoRasterClipValidate : SkNoncopyable {
+public:
+    SkAutoRasterClipValidate(const SkRasterClip& rc) : fRC(rc) {
+        fRC.validate();
+    }
+    ~SkAutoRasterClipValidate() {
+        fRC.validate();
+    }
+private:
+    const SkRasterClip& fRC;
+};
+
+#ifdef SK_DEBUG
+    #define AUTO_RASTERCLIP_VALIDATE(rc)    SkAutoRasterClipValidate arcv(rc)
+#else
+    #define AUTO_RASTERCLIP_VALIDATE(rc)
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ *  Encapsulates the logic of deciding if we need to change/wrap the blitter
+ *  for aaclipping. If so, getRgn and getBlitter return modified values. If
+ *  not, they return the raw blitter and (bw) clip region.
+ *
+ *  We need to keep the constructor/destructor cost as small as possible, so we
+ *  can freely put this guy on the stack, and not pay too much for the case when
+ *  we're really BW anyways.
+ */
+class SkAAClipBlitterWrapper {
+public:
+    SkAAClipBlitterWrapper();
+    SkAAClipBlitterWrapper(const SkRasterClip&, SkBlitter*);
+    SkAAClipBlitterWrapper(const SkAAClip*, SkBlitter*);
+    
+    void init(const SkRasterClip&, SkBlitter*);
+
+    const SkIRect& getBounds() const {
+        SkASSERT(fClipRgn);
+        return fClipRgn->getBounds();
+    }
+    const SkRegion& getRgn() const {
+        SkASSERT(fClipRgn);
+        return *fClipRgn;
+    }
+    SkBlitter* getBlitter() {
+        SkASSERT(fBlitter);
+        return fBlitter;
+    }
+    
+private:
+    const SkAAClip* fAAClip;
+    SkRegion        fBWRgn;
+    SkAAClipBlitter fAABlitter;
+    // what we return
+    const SkRegion* fClipRgn;
+    SkBlitter* fBlitter;
 };
 
 #endif

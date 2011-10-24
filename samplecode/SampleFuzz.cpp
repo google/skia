@@ -354,7 +354,6 @@ protected:
     }
     
     virtual void onDrawContent(SkCanvas* canvas) {
-        SkIRect r = canvas->getTotalClip().getBounds();
         do_fuzz(canvas);
         this->inval(NULL);
     }

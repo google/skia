@@ -32,12 +32,12 @@ struct FakeBlitter : public SkBlitter {
 // but skipped after tessellation, should be cleared by the blitter.
 static void TestFillPathInverse(skiatest::Reporter* reporter) {
   FakeBlitter blitter;
-  SkRegion clip;
+  SkIRect clip;
   SkPath path;
   int height = 100;
   int width  = 200;
   int expected_lines = 5;
-  clip.setRect(0, height - expected_lines, width, height);
+  clip.set(0, height - expected_lines, width, height);
   path.moveTo(0.0, 0.0);
   path.quadTo(width/2, height, width, 0.0);
   path.close();
