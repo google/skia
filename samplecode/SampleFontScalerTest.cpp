@@ -102,7 +102,8 @@ protected:
                 SkScalar y = SkIntToScalar(20);
 
                 SkAutoCanvasRestore acr(canvas, true);
-                canvas->translate(50 + i * 230, 20);
+                canvas->translate(SkIntToScalar(50 + i * 230),
+                                  SkIntToScalar(20));
                 rotate_about(canvas, i * 5, x, y * 10);
 
                 {

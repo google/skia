@@ -23,7 +23,10 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
     bm.setPixels(mask.fImage);
 
     SkPaint paint;
-    canvas->drawBitmap(bm, mask.fBounds.fLeft, mask.fBounds.fTop, &paint);
+    canvas->drawBitmap(bm,
+                       SK_Scalar1 * mask.fBounds.fLeft,
+                       SK_Scalar1 * mask.fBounds.fTop,
+                       &paint);
 }
 
 class AAClipView : public SampleView {

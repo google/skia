@@ -222,15 +222,15 @@ class GetTypeMatrixBench : public MatrixBench {
 public:
     GetTypeMatrixBench(void* param)
         : INHERITED(param, "gettype") {
-        fArray[0] = fRnd.nextS();
-        fArray[1] = fRnd.nextS();
-        fArray[2] = fRnd.nextS();
-        fArray[3] = fRnd.nextS();
-        fArray[4] = fRnd.nextS();
-        fArray[5] = fRnd.nextS();
-        fArray[6] = fRnd.nextS();
-        fArray[7] = fRnd.nextS();
-        fArray[8] = fRnd.nextS();
+        fArray[0] = (float) fRnd.nextS();
+        fArray[1] = (float) fRnd.nextS();
+        fArray[2] = (float) fRnd.nextS();
+        fArray[3] = (float) fRnd.nextS();
+        fArray[4] = (float) fRnd.nextS();
+        fArray[5] = (float) fRnd.nextS();
+        fArray[6] = (float) fRnd.nextS();
+        fArray[7] = (float) fRnd.nextS();
+        fArray[8] = (float) fRnd.nextS();
     }
 protected:
     // Putting random generation of the matrix inside performTest()
@@ -272,10 +272,10 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
                        fRandom.nextS(), fRandom.nextS(), fRandom.nextS());
         int i;
         for (i = 0; i < fCount; i++) {
-            fSrc[i].fX = fRandom.nextS();
-            fSrc[i].fY = fRandom.nextS();
-            fDst[i].fX = fRandom.nextS();
-            fDst[i].fY = fRandom.nextS();
+            fSrc[i].fX = fRandom.nextSScalar1();
+            fSrc[i].fY = fRandom.nextSScalar1();
+            fDst[i].fX = fRandom.nextSScalar1();
+            fDst[i].fY = fRandom.nextSScalar1();
         }
     }
  protected:
@@ -309,10 +309,10 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
         init9(fMatrix);
         int i;
         for (i = 0; i < fCount; i++) {
-            fSrc[i].fX = fRandom.nextS();
-            fSrc[i].fY = fRandom.nextS();
-            fDst[i].fX = fRandom.nextS();
-            fDst[i].fY = fRandom.nextS();
+            fSrc[i].fX = fRandom.nextSScalar1();
+            fSrc[i].fY = fRandom.nextSScalar1();
+            fDst[i].fX = fRandom.nextSScalar1();
+            fDst[i].fY = fRandom.nextSScalar1();
         }
     }
  protected:
@@ -321,10 +321,10 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
         const SkPoint* src = fSrc;
         int count = fCount;
         // As doubles, on Z600 Linux systems this is 2.5x as expensive as mixed mode
-        float mx = fMatrix[SkMatrix::kMScaleX];
-        float my = fMatrix[SkMatrix::kMScaleY];
-        float tx = fMatrix[SkMatrix::kMTransX];
-        float ty = fMatrix[SkMatrix::kMTransY];
+        float mx = (float) fMatrix[SkMatrix::kMScaleX];
+        float my = (float) fMatrix[SkMatrix::kMScaleY];
+        float tx = (float) fMatrix[SkMatrix::kMTransX];
+        float ty = (float) fMatrix[SkMatrix::kMTransY];
         do {
             dst->fY = src->fY * my + ty;
             dst->fX = src->fX * mx + tx;

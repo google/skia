@@ -728,8 +728,10 @@ void SampleWindow::magnify(SkCanvas* canvas) {
     SkMatrix m = canvas->getTotalMatrix();
     m.invert(&m);
     SkPoint offset, center;
-    m.mapXY(fMouseX - clipW/2, fMouseY - clipH/2, &offset);
-    m.mapXY(fMouseX, fMouseY, &center);
+    SkScalar mouseX = fMouseX * SK_Scalar1;
+    SkScalar mouseY = fMouseY * SK_Scalar1;
+    m.mapXY(mouseX - clipW/2, mouseY - clipH/2, &offset);
+    m.mapXY(mouseX, mouseY, &center);
     
     r.set(0, 0, clipW * m.getScaleX(), clipH * m.getScaleX());
     r.offset(offset.fX, offset.fY);
@@ -737,7 +739,7 @@ void SampleWindow::magnify(SkCanvas* canvas) {
     SkPaint paint;
     paint.setColor(0xFF66AAEE);
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(10.0 * m.getScaleX());
+    paint.setStrokeWidth(10.f * m.getScaleX());
     //lense offset
     //canvas->translate(0, -250);
     canvas->drawRect(r, paint);
@@ -745,7 +747,7 @@ void SampleWindow::magnify(SkCanvas* canvas) {
     
     m = canvas->getTotalMatrix();
     m.setTranslate(-center.fX, -center.fY);
-    m.postScale(0.5 * fFatBitsScale, 0.5 * fFatBitsScale);
+    m.postScale(0.5f * fFatBitsScale, 0.5f * fFatBitsScale);
     m.postTranslate(center.fX, center.fY);
     canvas->concat(m);
     
