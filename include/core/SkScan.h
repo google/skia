@@ -80,6 +80,7 @@ private:
     static void FillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
     static void AntiFillRect(const SkRect&, const SkRegion* clip, SkBlitter*);
 #endif
+    static void AntiFillXRect(const SkXRect&, const SkRegion*, SkBlitter*);
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
     static void AntiFillPath(const SkPath&, const SkRegion& clip, SkBlitter*,
                              bool forceRLE = false);
