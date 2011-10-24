@@ -20,6 +20,9 @@ public:
     SkGLContext();
     virtual ~SkGLContext();
 
+    /**
+     * Initializes the context and makes it current.
+     */
     bool init(const int width, const int height);
 
     int getFBOID() const { return fFBO; }
