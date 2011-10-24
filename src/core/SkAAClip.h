@@ -57,6 +57,10 @@ public:
     // called internally
     
     bool quickContains(int left, int top, int right, int bottom) const;
+    bool quickContains(const SkIRect& r) const {
+        return this->quickContains(r.fLeft, r.fTop, r.fRight, r.fBottom);
+    }
+
     const uint8_t* findRow(int y, int* lastYForRow) const;
     const uint8_t* findX(const uint8_t data[], int x, int* initialCount) const;
 
@@ -65,11 +69,18 @@ public:
     struct YOffset;
     class Builder;
 
+#ifdef SK_DEBUG
+    void validate() const;
+#else
+    void validate() const {}
+#endif
+
 private:
     SkIRect  fBounds;
     RunHead* fRunHead;
 
     void freeRuns();
+    bool trimBounds();
 
     friend class Builder;
     class BuilderBlitter;
@@ -80,7 +91,7 @@ private:
 
 class SkAAClipBlitter : public SkBlitter {
 public:
-    SkAAClipBlitter() : fRuns(NULL) {}
+    SkAAClipBlitter() : fScanlineScratch(NULL) {}
     virtual ~SkAAClipBlitter();
 
     void init(SkBlitter* blitter, const SkAAClip* aaclip) {
@@ -103,9 +114,15 @@ private:
     const SkAAClip* fAAClip;
     SkIRect         fAAClipBounds;
 
-    // lazily allocated
+    // point into fScanlineScratch
     int16_t*        fRuns;
-    SkAlpha*        fAA;    // points into fRuns allocation
+    SkAlpha*        fAA;
+
+    enum {
+        kSize = 32 * 32
+    };
+    SkAutoSMalloc<kSize> fGrayMaskScratch;  // used for blitMask
+    void* fScanlineScratch;  // enough for a mask at 32bit, or runs+aa
 
     void ensureRunsAndAA();
 };

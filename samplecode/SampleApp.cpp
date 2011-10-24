@@ -893,7 +893,7 @@ SkCanvas* SampleWindow::beforeChildren(SkCanvas* canvas) {
 
     if (fUseClip) {
         canvas->drawColor(0xFFFF88FF);
-        canvas->clipPath(fClipPath);
+        canvas->clipPath(fClipPath, SkRegion::kIntersect_Op, true);
     }
 
     return canvas;

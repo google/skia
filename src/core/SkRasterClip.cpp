@@ -13,6 +13,8 @@ SkRasterClip::SkRasterClip() {
 }
 
 SkRasterClip::SkRasterClip(const SkRasterClip& src) {
+    AUTO_RASTERCLIP_VALIDATE(src);
+    
     fIsBW = src.fIsBW;
     if (fIsBW) {
         fBW = src.fBW;
@@ -25,7 +27,9 @@ SkRasterClip::SkRasterClip(const SkIRect& bounds) : fBW(bounds) {
     fIsBW = true;
 }
 
-SkRasterClip::~SkRasterClip() {}
+SkRasterClip::~SkRasterClip() {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+}
 
 bool SkRasterClip::isEmpty() const {
     return fIsBW ? fBW.isEmpty() : fAA.isEmpty();
@@ -44,6 +48,8 @@ const SkIRect& SkRasterClip::getBounds() const {
 }
 
 bool SkRasterClip::setEmpty() {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+
     fIsBW = true;
     fBW.setEmpty();
     fAA.setEmpty();
@@ -51,12 +57,16 @@ bool SkRasterClip::setEmpty() {
 }
 
 bool SkRasterClip::setRect(const SkIRect& rect) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    
     fIsBW = true;
     fAA.setEmpty();
     return fBW.setRect(rect);
 }
 
 bool SkRasterClip::setPath(const SkPath& path, const SkRegion& clip, bool doAA) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+
     if (this->isBW() && !doAA) {
         return fBW.setPath(path, clip);
     } else {
@@ -88,10 +98,14 @@ bool SkRasterClip::setPath(const SkPath& path, const SkRasterClip& clip,
 }
 
 bool SkRasterClip::op(const SkIRect& rect, SkRegion::Op op) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    
     return fIsBW ? fBW.op(rect, op) : fAA.op(rect, op);
 }
 
 bool SkRasterClip::op(const SkRegion& rgn, SkRegion::Op op) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    
     if (fIsBW) {
         return fBW.op(rgn, op);
     } else {
@@ -102,6 +116,9 @@ bool SkRasterClip::op(const SkRegion& rgn, SkRegion::Op op) {
 }
 
 bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    clip.validate();
+
     if (this->isBW() && clip.isBW()) {
         return fBW.op(clip.fBW, op);
     } else {
@@ -121,15 +138,17 @@ bool SkRasterClip::op(const SkRasterClip& clip, SkRegion::Op op) {
     }
 }
 
-// return true if x is nearly integral (within 1/256) since that is the highest
+// return true if x is nearly integral (within 1/16) since that is the highest
 // precision our aa code can have.
 static bool is_integral(SkScalar x) {
     int ix = SkScalarRoundToInt(x);
     SkScalar sx = SkIntToScalar(ix);
-    return SkScalarAbs(sx - x) < (SK_Scalar1 / 256);
+    return SkScalarAbs(sx - x) < (SK_Scalar1 / 16);
 }
 
 bool SkRasterClip::op(const SkRect& r, SkRegion::Op op, bool doAA) {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    
     if (doAA) {
         // check that the rect really needs aa
         if (is_integral(r.fLeft) && is_integral(r.fTop) &&
@@ -155,6 +174,8 @@ void SkRasterClip::translate(int dx, int dy, SkRasterClip* dst) const {
         return;
     }
 
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    
     if (this->isEmpty()) {
         dst->setEmpty();
         return;
@@ -174,9 +195,15 @@ void SkRasterClip::translate(int dx, int dy, SkRasterClip* dst) const {
     }
 }
 
+bool SkRasterClip::quickContains(const SkIRect& ir) const {
+    return fIsBW ? fBW.quickContains(ir) : fAA.quickContains(ir);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 const SkRegion& SkRasterClip::forceGetBW() {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    
     if (!fIsBW) {
         fBW.setRect(fAA.getBounds());
     }
@@ -184,8 +211,60 @@ const SkRegion& SkRasterClip::forceGetBW() {
 }
 
 void SkRasterClip::convertToAA() {
+    AUTO_RASTERCLIP_VALIDATE(*this);
+    
     SkASSERT(fIsBW);
     fAA.setRegion(fBW);
     fIsBW = false;
+}
+
+#ifdef SK_DEBUG
+void SkRasterClip::validate() const {
+    // can't ever assert that fBW is empty, since we may have called forceGetBW
+    if (fIsBW) {
+        SkASSERT(fAA.isEmpty());
+    }
+
+    fBW.validate();
+    fAA.validate();
+}
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+
+SkAAClipBlitterWrapper::SkAAClipBlitterWrapper() {
+    SkDEBUGCODE(fClipRgn = NULL;)
+    SkDEBUGCODE(fBlitter = NULL;)
+}
+
+SkAAClipBlitterWrapper::SkAAClipBlitterWrapper(const SkRasterClip& clip,
+                                               SkBlitter* blitter) {
+    this->init(clip, blitter);
+}
+
+SkAAClipBlitterWrapper::SkAAClipBlitterWrapper(const SkAAClip* aaclip,
+                                               SkBlitter* blitter) {
+    SkASSERT(blitter);
+    SkASSERT(aaclip);
+    fBWRgn.setRect(aaclip->getBounds());
+    fAABlitter.init(blitter, aaclip);
+    // now our return values
+    fClipRgn = &fBWRgn;
+    fBlitter = &fAABlitter;
+}
+
+void SkAAClipBlitterWrapper::init(const SkRasterClip& clip, SkBlitter* blitter) {
+    SkASSERT(blitter);
+    if (clip.isBW()) {
+        fClipRgn = &clip.bwRgn();
+        fBlitter = blitter;
+    } else {
+        const SkAAClip& aaclip = clip.aaRgn();
+        fBWRgn.setRect(aaclip.getBounds());
+        fAABlitter.init(blitter, &aaclip);
+        // now our return values
+        fClipRgn = &fBWRgn;
+        fBlitter = &fAABlitter;
+    }
 }
 

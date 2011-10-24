@@ -11,7 +11,7 @@
 #include "SkBlitter.h"
 #include "SkColorPriv.h"
 #include "SkLineClipper.h"
-#include "SkRegion.h"
+#include "SkRasterClip.h"
 #include "SkFDot6.h"
 
 /*  Our attempt to compute the worst case "bounds" for the horizontal and
@@ -387,8 +387,8 @@ static void do_anti_hairline(SkFDot6 x0, SkFDot6 y0, SkFDot6 x1, SkFDot6 y1,
     }
 }
 
-void SkScan::AntiHairLine(const SkPoint& pt0, const SkPoint& pt1,
-                          const SkRegion* clip, SkBlitter* blitter) {
+void SkScan::AntiHairLineRgn(const SkPoint& pt0, const SkPoint& pt1,
+                             const SkRegion* clip, SkBlitter* blitter) {
     if (clip && clip->isEmpty()) {
         return;
     }
@@ -455,7 +455,7 @@ void SkScan::AntiHairLine(const SkPoint& pt0, const SkPoint& pt1,
     do_anti_hairline(x0, y0, x1, y1, NULL, blitter);
 }
 
-void SkScan::AntiHairRect(const SkRect& rect, const SkRegion* clip,
+void SkScan::AntiHairRect(const SkRect& rect, const SkRasterClip& clip,
                           SkBlitter* blitter) {
     SkPoint p0, p1;
 
@@ -556,42 +556,42 @@ static void antifillrect(const SkXRect& xr, SkBlitter* blitter) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkScan::AntiFillXRect(const SkXRect& xr, const SkRegion* clip,
+void SkScan::AntiFillXRect(const SkXRect& xr, const SkRasterClip& clip,
                           SkBlitter* blitter) {
-    if (clip) {
-        SkIRect outerBounds;
-        XRect_roundOut(xr, &outerBounds);
+    SkAAClipBlitterWrapper wrapper(clip, blitter);
+    const SkRegion* clipRgn = &wrapper.getRgn();
+    blitter = wrapper.getBlitter();
 
-        if (clip->isRect()) {
-            const SkIRect& clipBounds = clip->getBounds();
+    SkIRect outerBounds;
+    XRect_roundOut(xr, &outerBounds);
 
-            if (clipBounds.contains(outerBounds)) {
-                antifillrect(xr, blitter);
-            } else {
-                SkXRect tmpR;
-                // this keeps our original edges fractional
-                XRect_set(&tmpR, clipBounds);
-                if (tmpR.intersect(xr)) {
-                    antifillrect(tmpR, blitter);
-                }
-            }
+    if (clipRgn->isRect()) {
+        const SkIRect& clipBounds = clipRgn->getBounds();
+
+        if (clipBounds.contains(outerBounds)) {
+            antifillrect(xr, blitter);
         } else {
-            SkRegion::Cliperator clipper(*clip, outerBounds);
-            const SkIRect&       rr = clipper.rect();
-            
-            while (!clipper.done()) {
-                SkXRect  tmpR;
-                
-                // this keeps our original edges fractional
-                XRect_set(&tmpR, rr);
-                if (tmpR.intersect(xr)) {
-                    antifillrect(tmpR, blitter);
-                }
-                clipper.next();
+            SkXRect tmpR;
+            // this keeps our original edges fractional
+            XRect_set(&tmpR, clipBounds);
+            if (tmpR.intersect(xr)) {
+                antifillrect(tmpR, blitter);
             }
         }
     } else {
-        antifillrect(xr, blitter);
+        SkRegion::Cliperator clipper(*clipRgn, outerBounds);
+        const SkIRect&       rr = clipper.rect();
+        
+        while (!clipper.done()) {
+            SkXRect  tmpR;
+            
+            // this keeps our original edges fractional
+            XRect_set(&tmpR, rr);
+            if (tmpR.intersect(xr)) {
+                antifillrect(tmpR, blitter);
+            }
+            clipper.next();
+        }
     }
 }
 
@@ -642,6 +642,16 @@ void SkScan::AntiFillRect(const SkRect& origR, const SkRegion* clip,
         }
     } else {
         antifillrect(origR, blitter);
+    }
+}
+
+void SkScan::AntiFillRect(const SkRect& r, const SkRasterClip& clip,
+                          SkBlitter* blitter) {
+    if (clip.isBW()) {
+        AntiFillRect(r, &clip.bwRgn(), blitter);
+    } else {
+        SkAAClipBlitterWrapper wrap(clip, blitter);
+        AntiFillRect(r, &wrap.getRgn(), wrap.getBlitter());
     }
 }
 
@@ -805,3 +815,14 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
         innerstrokedot8(L, T, R, B, blitter);
     }
 }
+
+void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
+                           const SkRasterClip& clip, SkBlitter* blitter) {
+    if (clip.isBW()) {
+        AntiFrameRect(r, strokeSize, &clip.bwRgn(), blitter);
+    } else {
+        SkAAClipBlitterWrapper wrap(clip, blitter);
+        AntiFrameRect(r, strokeSize, &wrap.getRgn(), wrap.getBlitter());
+    }
+}
+

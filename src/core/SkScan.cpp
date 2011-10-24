@@ -78,12 +78,41 @@ void SkScan::FillIRect(const SkIRect& r, const SkRasterClip& clip,
         return;
     }
 
-    const SkAAClip* aaClip = &clip.aaRgn();
-    SkRegion        tmp;
-    SkAAClipBlitter aaBlitter;
-    
-    tmp.setRect(aaClip->getBounds());
-    aaBlitter.init(blitter, aaClip);
-    FillIRect(r, &tmp, &aaBlitter);
+    SkAAClipBlitterWrapper wrapper(clip, blitter);
+    FillIRect(r, &wrapper.getRgn(), wrapper.getBlitter());
 }
+
+void SkScan::FillXRect(const SkXRect& xr, const SkRasterClip& clip,
+                       SkBlitter* blitter) {
+    if (clip.isEmpty() || xr.isEmpty()) {
+        return;
+    }
+    
+    if (clip.isBW()) {
+        FillXRect(xr, &clip.bwRgn(), blitter);
+        return;
+    }
+
+    SkAAClipBlitterWrapper wrapper(clip, blitter);
+    FillXRect(xr, &wrapper.getRgn(), wrapper.getBlitter());
+}
+
+#ifdef SK_SCALAR_IS_FLOAT
+
+void SkScan::FillRect(const SkRect& r, const SkRasterClip& clip,
+                      SkBlitter* blitter) {
+    if (clip.isEmpty() || r.isEmpty()) {
+        return;
+    }
+    
+    if (clip.isBW()) {
+        FillRect(r, &clip.bwRgn(), blitter);
+        return;
+    }
+
+    SkAAClipBlitterWrapper wrapper(clip, blitter);
+    FillRect(r, &wrapper.getRgn(), wrapper.getBlitter());
+}
+
+#endif
 

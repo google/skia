@@ -16,6 +16,8 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
     SkBitmap bm;
     
     clip.copyToMask(&mask);
+    SkAutoMaskFreeImage amfi(mask.fImage);
+
     bm.setConfig(SkBitmap::kA8_Config, mask.fBounds.width(),
                  mask.fBounds.height(), mask.fRowBytes);
     bm.setPixels(mask.fImage);

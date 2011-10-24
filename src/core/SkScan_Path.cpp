@@ -14,6 +14,7 @@
 #include "SkGeometry.h"
 #include "SkPath.h"
 #include "SkQuadClipper.h"
+#include "SkRasterClip.h"
 #include "SkRegion.h"
 #include "SkTemplates.h"
 
@@ -474,6 +475,12 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
     }
 }
 
+void SkScan::FillPath(const SkPath& path, const SkIRect& ir,
+                      SkBlitter* blitter) {
+    SkRegion rgn(ir);
+    FillPath(path, rgn, blitter);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static int build_tri_edges(SkEdge edge[], const SkPoint pts[],
@@ -535,9 +542,9 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
     walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, NULL);
 }
 
-void SkScan::FillTriangle(const SkPoint pts[], const SkRegion* clip,
+void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
                           SkBlitter* blitter) {
-    if (clip && clip->isEmpty()) {
+    if (clip.isEmpty()) {
         return;
     }
 
@@ -545,12 +552,21 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRegion* clip,
     SkIRect ir;
     r.set(pts, 3);
     r.round(&ir);
-    if (ir.isEmpty()) {
+    if (ir.isEmpty() || !SkIRect::Intersects(ir, clip.getBounds())) {
         return;
     }
 
-    SkScanClipper   clipper(blitter, clip, ir);
+    SkAAClipBlitterWrapper wrap;
+    const SkRegion* clipRgn;
+    if (clip.isBW()) {
+        clipRgn = &clip.bwRgn();
+    } else {
+        wrap.init(clip, blitter);
+        clipRgn = &wrap.getRgn();
+        blitter = wrap.getBlitter();
+    }
 
+    SkScanClipper clipper(blitter, clipRgn, ir);
     blitter = clipper.getBlitter();
     if (NULL != blitter) {
         sk_fill_triangle(pts, clipper.getClipRect(), blitter, ir);

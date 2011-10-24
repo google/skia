@@ -15,7 +15,7 @@
 #include "SkMaskFilter.h"
 #include "SkPathEffect.h"
 #include "SkRasterizer.h"
-#include "SkRegion.h"
+#include "SkRasterClip.h"
 #include "SkStroke.h"
 #include "SkThread.h"
 
@@ -448,8 +448,8 @@ static void generateMask(const SkMask& mask, const SkPath& path) {
         }
     }
 
-    SkRegion    clip;
-    clip.setRect(0, 0, dstW, dstH);
+    SkRasterClip clip;
+    clip.setRect(SkIRect::MakeWH(dstW, dstH));
 
     SkBitmap bm;
     bm.setConfig(config, dstW, dstH, dstRB);
@@ -464,7 +464,8 @@ static void generateMask(const SkMask& mask, const SkPath& path) {
     
     SkDraw  draw;
     sk_bzero(&draw, sizeof(draw));
-    draw.fClip  = &clip;
+    draw.fRC    = &clip;
+    draw.fClip  = &clip.bwRgn();
     draw.fMatrix = &matrix;
     draw.fBitmap = &bm;
     draw.drawPath(path, paint);

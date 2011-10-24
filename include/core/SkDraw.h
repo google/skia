@@ -23,6 +23,7 @@ class SkClipStack;
 class SkDevice;
 class SkPath;
 class SkRegion;
+class SkRasterClip;
 struct SkDrawProcs;
 
 class SkDraw {
@@ -105,7 +106,8 @@ private:
 public:
     const SkBitmap* fBitmap;        // required
     const SkMatrix* fMatrix;        // required
-    const SkRegion* fClip;          // required
+    const SkRegion* fClip;          // DEPRECATED
+    const SkRasterClip* fRC;        // required
 
     const SkClipStack* fClipStack;  // optional
     SkDevice*       fDevice;        // optional

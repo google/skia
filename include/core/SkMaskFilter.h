@@ -17,7 +17,7 @@ class SkBlitter;
 class SkBounder;
 class SkMatrix;
 class SkPath;
-class SkRegion;
+class SkRasterClip;
 
 /** \class SkMaskFilter
 
@@ -55,14 +55,6 @@ public:
     virtual bool filterMask(SkMask* dst, const SkMask& src, const SkMatrix&,
                             SkIPoint* margin);
 
-    /** Helper method that, given a path in device space, will rasterize it into a kA8_Format mask
-        and then call filterMask(). If this returns true, the specified blitter will be called
-        to render that mask. Returns false if filterMask() returned false.
-        This method is not exported to java.
-    */
-    bool filterPath(const SkPath& devPath, const SkMatrix& devMatrix,
-                    const SkRegion& devClip, SkBounder*, SkBlitter* blitter);
-
     virtual void flatten(SkFlattenableWriteBuffer& ) {}
 
     enum BlurType {
@@ -90,6 +82,17 @@ public:
 protected:
     // empty for now, but lets get our subclass to remember to init us for the future
     SkMaskFilter(SkFlattenableReadBuffer&) {}
+
+private:
+    friend class SkDraw;
+
+    /** Helper method that, given a path in device space, will rasterize it into a kA8_Format mask
+     and then call filterMask(). If this returns true, the specified blitter will be called
+     to render that mask. Returns false if filterMask() returned false.
+     This method is not exported to java.
+     */
+    bool filterPath(const SkPath& devPath, const SkMatrix& devMatrix,
+                    const SkRasterClip&, SkBounder*, SkBlitter* blitter);
 };
 
 #endif
