@@ -10,6 +10,23 @@
 
 #include "SkMesaGLContext.h"
 
+SkMesaGLContext::AutoContextRestore::AutoContextRestore() {
+    fOldContext = (Context)OSMesaGetCurrentContext();
+    if (NULL != (OSMesaContext)fOldContext) {
+        OSMesaGetColorBuffer((OSMesaContext)fOldContext,
+                              &fOldWidth, &fOldHeight,
+                              &fOldFormat, &fOldImage); 
+    }
+}
+
+SkMesaGLContext::AutoContextRestore::~AutoContextRestore() {
+    if (NULL != fOldContext) {
+        OSMesaMakeCurrent((OSMesaContext)fOldContext, fOldImage, 
+                          fOldFormat, fOldWidth, fOldHeight);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 
 SkMesaGLContext::SkMesaGLContext()
     : fContext(NULL)
