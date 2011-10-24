@@ -93,7 +93,7 @@ static void make_canonical(LOGFONT* lf) {
 //    lf->lfClipPrecision = 64;
 }
 
-static SkTypeface::Style getStyle(const LOGFONT& lf) {
+static SkTypeface::Style get_style(const LOGFONT& lf) {
     unsigned style = 0;
     if (lf.lfWeight >= FW_BOLD) {
         style |= SkTypeface::kBold;
@@ -101,7 +101,7 @@ static SkTypeface::Style getStyle(const LOGFONT& lf) {
     if (lf.lfItalic) {
         style |= SkTypeface::kItalic;
     }
-    return (SkTypeface::Style)style;
+    return static_cast<SkTypeface::Style>(style);
 }
 
 static void setStyle(LOGFONT* lf, SkTypeface::Style style) {
@@ -144,16 +144,6 @@ static unsigned calculateGlyphCount(HDC hdc) {
     return min;
 }
 
-static SkTypeface::Style GetFontStyle(const LOGFONT& lf) {
-    int style = SkTypeface::kNormal;
-    if (lf.lfWeight == FW_SEMIBOLD || lf.lfWeight == FW_DEMIBOLD || lf.lfWeight == FW_BOLD)
-        style |= SkTypeface::kBold;
-    if (lf.lfItalic)
-        style |= SkTypeface::kItalic;
-
-    return (SkTypeface::Style)style;
-}
-
 class LogFontTypeface : public SkTypeface {
 public:
     LogFontTypeface(SkTypeface::Style style, SkFontID fontID, const LOGFONT& lf) :
@@ -162,7 +152,7 @@ public:
     LOGFONT fLogFont;
 
     static LogFontTypeface* Create(const LOGFONT& lf) {
-        SkTypeface::Style style = GetFontStyle(lf);
+        SkTypeface::Style style = get_style(lf);
         SkFontID fontID = SkTypefaceCache::NewFontID();
         return new LogFontTypeface(style, fontID, lf);
     }
@@ -177,7 +167,7 @@ static bool FindByLogFont(SkTypeface* face, SkTypeface::Style requestedStyle, vo
     LogFontTypeface* lface = reinterpret_cast<LogFontTypeface*>(face);
     const LOGFONT* lf = reinterpret_cast<const LOGFONT*>(ctx);
 
-    return getStyle(lface->fLogFont) == requestedStyle &&
+    return get_style(lface->fLogFont) == requestedStyle &&
            !memcmp(&lface->fLogFont, lf, sizeof(LOGFONT));
 }
 
@@ -193,7 +183,7 @@ SkTypeface* SkCreateTypefaceFromLOGFONT(const LOGFONT& origLF) {
         face->ref();
     } else {
         face = LogFontTypeface::Create(lf);
-        SkTypefaceCache::Add(face, getStyle(lf));
+        SkTypefaceCache::Add(face, get_style(lf));
     }
     return face;
 }
@@ -1217,8 +1207,8 @@ SkScalerContext* SkFontHost::CreateScalerContext(const SkDescriptor* desc) {
 /** Return the closest matching typeface given either an existing family
  (specified by a typeface in that family) or by a familyName, and a
  requested style.
- 1) If familyFace is null, use famillyName.
- 2) If famillyName is null, use familyFace.
+ 1) If familyFace is null, use familyName.
+ 2) If familyName is null, use familyFace.
  3) If both are null, return the default font that best matches style
  This MUST not return NULL.
  */
