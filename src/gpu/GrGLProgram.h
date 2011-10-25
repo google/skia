@@ -89,7 +89,7 @@ public:
         return 7 + GrDrawTarget::kMaxTexCoords + 3 * stage;
     }
 
-private:
+public:
 
     // Parameters that affect code generation
     // These structs should be kept compact; they are the input to an
@@ -199,10 +199,12 @@ private:
     } fProgramDesc;
     GR_STATIC_ASSERT(!(sizeof(ProgramDesc) % 4));
 
-    const ProgramDesc& getDesc() { return fProgramDesc; }
-
     // for code readability
     typedef ProgramDesc::StageDesc StageDesc;
+
+private:
+
+    const ProgramDesc& getDesc() { return fProgramDesc; }
 
 public:
     enum {
@@ -300,12 +302,8 @@ public:
     }
 
 private:
-    enum {
-        kUseUniform = 2000
-    };
 
-    // should set all fields in locations var to kUseUniform if the
-    // corresponding uniform is required for the program.
+    // Determines which uniforms will need to be bound.
     void genStageCode(const GrGLInterface* gl,
                       int stageNum,
                       const ProgramDesc::StageDesc& desc,
@@ -347,51 +345,9 @@ private:
                 bool bindDualSrcOut,
                 CachedData* programData) const;
 
-    // Gets locations for all uniforms set to kUseUniform and initializes cache
-    // to invalid values.
+    // Binds uniforms; initializes cache to invalid values.
     void getUniformLocationsAndInitCache(const GrGLInterface* gl,
                                          CachedData* programData) const;
-
-    const char* genRadialVS(int stageNum, ShaderCodeSegments* segments,
-                            StageUniLocations* locations,
-                            const char** radial2VaryingVSName,
-                            const char** radial2VaryingFSName,
-                            const char* varyingVSName,
-                            int varyingDims, int coordDims) const;
-
-    void gen2x2FS(int stageNum,
-                  ShaderCodeSegments* segments,
-                  StageUniLocations* locations,
-                  GrStringBuilder* sampleCoords,
-                  const char* samplerName,
-                  const char* texelSizeName,
-                  const char* smear,
-                  const char* fsOutColor,
-                  GrStringBuilder& texFunc,
-                  GrStringBuilder& modulate,
-                  bool complexCoord,
-                  int coordDims) const;
-
-    void genConvolutionVS(int stageNum,
-                          const ProgramDesc::StageDesc& desc,
-                          ShaderCodeSegments* segments,
-                          StageUniLocations* locations,
-                          const char** kernelName,
-                          const char** imageIncrementName,
-                          const char* varyingVSName) const;
-
-
-    void genConvolutionFS(int stageNum,
-                          const ProgramDesc::StageDesc& desc,
-                          ShaderCodeSegments* segments,
-                          const char* samplerName,
-                          const char* kernelName,
-                          const char* smear,
-                          const char* imageIncrementName,
-                          const char* fsOutColor,
-                          GrStringBuilder& sampleCoords,
-                          GrStringBuilder& texFunc,
-                          GrStringBuilder& modulate) const;
 
     friend class GrGpuGLShaders;
 };
