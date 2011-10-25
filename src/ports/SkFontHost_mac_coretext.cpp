@@ -390,6 +390,7 @@ private:
     CGColorSpaceRef                     mColorSpaceGray;
     CGColorSpaceRef                     mColorSpaceRGB;
     CGAffineTransform                   mTransform;
+    SkMatrix                            mMatrix;
 
     CTFontRef                           mFont;
     uint16_t                            mGlyphCount;
@@ -399,12 +400,11 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
         : SkScalerContext(desc)
 {   CFIndex             numGlyphs;
     CTFontRef           ctFont;
-    SkMatrix            skMatrix;
 
 
 
     // Get the state we need
-    fRec.getSingleMatrix(&skMatrix);
+    fRec.getSingleMatrix(&mMatrix);
 
     ctFont    = GetFontRefFromFontID(fRec.fFontID);
     numGlyphs = CTFontGetGlyphCount(ctFont);
@@ -417,7 +417,7 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
 //    mColorSpaceRGB = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 
     mColorSpaceGray = CGColorSpaceCreateDeviceGray();
-    mTransform = MatrixToCGAffineTransform(skMatrix);
+    mTransform = MatrixToCGAffineTransform(mMatrix);
 
     if (isLeopard()) {
         // passing 1 for pointSize to Leopard sets the font size to 1 pt.
@@ -425,9 +425,10 @@ SkScalerContext_Mac::SkScalerContext_Mac(const SkDescriptor* desc)
         // extract the font size out of the matrix, but leave the skewing for italic
         CGFloat fontSize = CTFontGetSize(ctFont);
         float reciprocal = fontSize ? 1.0f / fontSize : 1.0f;
-        SkMatrix sizelessMatrix = skMatrix;
-        sizelessMatrix.preScale(reciprocal, reciprocal);
-        CGAffineTransform transform = MatrixToCGAffineTransform(sizelessMatrix);
+        mMatrix.preScale(reciprocal, reciprocal);
+        CGAffineTransform transform = MatrixToCGAffineTransform(mMatrix);
+        mMatrix.setSkewX(-mMatrix.getSkewX()); // flip to fix up bounds later
+        mMatrix.setSkewY(-mMatrix.getSkewY());
         mFont       = CTFontCreateCopyWithAttributes(ctFont, 0, &transform, NULL);
     } else {
         // since our matrix includes everything, we pass 1 for pointSize
@@ -508,6 +509,19 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
         return;
     }
     
+    if (isLeopard()) {
+        // Leopard does not consider the matrix skew in its bounds.
+        // Run the bounding rectangle through the skew matrix to determine
+        // the true bounds.
+        SkRect glyphBounds = SkRect::MakeXYWH(
+                theBounds.origin.x, theBounds.origin.y,
+                theBounds.size.width, theBounds.size.height);
+        mMatrix.mapRect(&glyphBounds);
+        theBounds.origin.x = glyphBounds.fLeft;
+        theBounds.origin.y = glyphBounds.fTop;
+        theBounds.size.width = glyphBounds.width();
+        theBounds.size.height = glyphBounds.height();
+    }
     // Adjust the bounds
     //
     // CTFontGetBoundingRectsForGlyphs ignores the font transform, so we need
@@ -531,22 +545,6 @@ void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph)
         // Lion returns negative left bounds where Snow Leopard is positive.
         // Increasing the width by the left side + 1 avoid clipping the bits.
         glyph->fWidth -= glyph->fLeft - 1;
-    }
-    if (isLeopard()) {
-        // Leopard does not consider the matrix skew in its bounds.
-        // Run the bounding rectangle through the skew matrix to determine
-        // the true bounds.
-        CGAffineTransform cgMatrix = CTFontGetMatrix(mFont);
-        SkMatrix skMatrix;
-        CGAffineTransformToMatrix(cgMatrix, &skMatrix);
-        SkRect glyphBounds = SkRect::MakeXYWH(
-                SkIntToScalar(glyph->fLeft), SkIntToScalar(glyph->fTop),
-                SkIntToScalar(glyph->fWidth), SkIntToScalar(glyph->fHeight));
-        skMatrix.mapRect(&glyphBounds);
-        glyph->fLeft = SkScalarRoundToInt(glyphBounds.fLeft);
-        glyph->fTop = SkScalarRoundToInt(glyphBounds.fTop);
-        glyph->fWidth = SkScalarRoundToInt(glyphBounds.width());
-        glyph->fHeight = SkScalarRoundToInt(glyphBounds.height());
     }
 }
 
