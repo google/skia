@@ -173,7 +173,11 @@ static SkTypeface::Style computeStyleBits(CTFontRef font, bool* isMonospace) {
 
 static SkFontID CTFontRef_to_SkFontID(CTFontRef fontRef) {
     ATSFontRef ats = CTFontGetPlatformFont(fontRef, NULL);
-    return (SkFontID)ats;
+    // CTFontGetPlatformFont returns NULL if the font is local 
+    // (e.g., was created by a CSS3 @font-face rule).
+    // FIXME: This may fail if fontRef is reused, or if the 64 bit pointer
+    // duplicates the lowest 32 bits.  
+    return ats ? (SkFontID)ats : (SkFontID)fontRef;
 }
 
 class SkTypeface_Mac : public SkTypeface {
