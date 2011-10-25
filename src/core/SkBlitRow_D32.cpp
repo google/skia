@@ -162,6 +162,7 @@ void SkBlitRow::Color32(SkPMColor* SK_RESTRICT dst,
             if (src != dst) {
                 memcpy(dst, src, count * sizeof(SkPMColor));
             }
+            return;
         }
         unsigned colorA = SkGetPackedA32(color);
         if (255 == colorA) {

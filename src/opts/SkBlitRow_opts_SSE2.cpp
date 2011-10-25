@@ -318,6 +318,7 @@ void Color32_SSE2(SkPMColor dst[], const SkPMColor src[], int count,
         if (src != dst) {
             memcpy(dst, src, count * sizeof(SkPMColor));
         }
+        return;
     }
 
     unsigned colorA = SkGetPackedA32(color);
