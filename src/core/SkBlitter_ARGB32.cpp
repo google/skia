@@ -180,7 +180,7 @@ void SkARGB32_Opaque_Blitter::blitMask(const SkMask& mask,
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 void SkARGB32_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     if (alpha == 0 || fSrcA == 0) {
@@ -195,17 +195,9 @@ void SkARGB32_Blitter::blitV(int x, int y, int height, SkAlpha alpha) {
     }
 
     unsigned dst_scale = 255 - SkGetPackedA32(color);
-    uint32_t prevDst = ~device[0];
-    uint32_t result  SK_INIT_TO_AVOID_WARNING;
     uint32_t rowBytes = fDevice.rowBytes();
-
     while (--height >= 0) {
-        uint32_t dst = device[0];
-        if (dst != prevDst) {
-            result = color + SkAlphaMulQ(dst, dst_scale);
-            prevDst = dst;
-        }
-        device[0] = result;
+        device[0] = color + SkAlphaMulQ(device[0], dst_scale);
         device = (uint32_t*)((char*)device + rowBytes);
     }
 }
