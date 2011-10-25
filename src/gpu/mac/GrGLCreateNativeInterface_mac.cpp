@@ -12,6 +12,21 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
 
+#include <mach-o/dyld.h>
+
+
+// This uses deprecated functions, should rewrite using dlopen, dlsym, dlclose
+void* GetProcAddress(const char* name) {
+    NSSymbol symbol = NULL;
+    if (NSIsSymbolNameDefined(name)) {
+        symbol = NSLookupAndBindSymbol(name);
+    }
+    return NULL == symbol ? NULL : NSAddressOfSymbol(symbol); 
+}
+
+#define GET_PROC(name) ((GrGL ## name ## Proc) GetProcAddress("_gl" #name))
+#define GET_PROC_SUFFIX(name, suffix) ((GrGL ## name ## Proc) GetProcAddress("_gl" #name #suffix))
+
 const GrGLInterface* GrGLCreateNativeInterface() {
     // The gl functions are not context-specific so we create one global 
     // interface
@@ -19,15 +34,23 @@ const GrGLInterface* GrGLCreateNativeInterface() {
     if (!glInterface.get()) {
         GrGLInterface* interface = new GrGLInterface;
         glInterface.reset(interface);
+        const char* verStr = (const char*) glGetString(GL_VERSION);
+        GrGLVersion ver = GrGLGetVersionFromString(verStr);
+        const char* extStr = (const char*) glGetString(GL_EXTENSIONS);
+        
         interface->fBindingsExported = kDesktop_GrGLBinding;
         interface->fActiveTexture = glActiveTexture;
         interface->fAttachShader = glAttachShader;
         interface->fBeginQuery = glBeginQuery;
         interface->fBindAttribLocation = glBindAttribLocation;
         interface->fBindBuffer = glBindBuffer;
-#if GL_VERSION_3_0
-        interface->fBindFragDataLocation = glBindFragDataLocation;
-#endif
+        if (ver >= GR_GL_VER(3,0)) {
+            #if GL_VERSION_3_0
+                interface->fBindFragDataLocation = glBindFragDataLocation;
+            #else
+                interface->fBindFragDataLocation = GET_PROC(BindFragDataLocation);
+            #endif
+        }
         interface->fBindTexture = glBindTexture;
         interface->fBlendColor = glBlendColor;
         interface->fBlendFunc = glBlendFunc;
@@ -134,56 +157,113 @@ const GrGLInterface* GrGLCreateNativeInterface() {
         interface->fVertexPointer = glVertexPointer;
         interface->fViewport = glViewport;
 
-    #if GL_ARB_timer_query || GL_VERSION_3_3
-        interface->fQueryCounter = glQueryCounter;
-        interface->fGetQueryObjecti64v = glGetQueryObjecti64v;
-        interface->fGetQueryObjectui64v = glGetQueryObjectui64v;
-    #elif GL_EXT_timer_query
-        interface->fGetQueryObjecti64v = glGetQueryObjecti64vEXT;
-        interface->fGetQueryObjectui64v = glGetQueryObjectui64vEXT;
-    #endif
-        
-    #if GL_ARB_framebuffer_object
-        interface->fGenFramebuffers = glGenFramebuffers;
-        interface->fGetFramebufferAttachmentParameteriv =
-                                        glGetFramebufferAttachmentParameteriv;
-        interface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
-        interface->fBindFramebuffer = glBindFramebuffer;
-        interface->fFramebufferTexture2D = glFramebufferTexture2D;
-        interface->fCheckFramebufferStatus = glCheckFramebufferStatus;
-        interface->fDeleteFramebuffers = glDeleteFramebuffers;
-        interface->fRenderbufferStorage = glRenderbufferStorage;
-        interface->fGenRenderbuffers = glGenRenderbuffers;
-        interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
-        interface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
-        interface->fBindRenderbuffer = glBindRenderbuffer;
-        interface->fRenderbufferStorageMultisample = 
-                                        glRenderbufferStorageMultisample;
-        interface->fBlitFramebuffer = glBlitFramebuffer;
-    #elif GL_EXT_framebuffer_object
-        interface->fGenFramebuffers = glGenFramebuffersEXT;
-        interface->fGetFramebufferAttachmentParameteriv = 
-                                    glGetFramebufferAttachmentParameterivEXT;
-        interface->fGetRenderbufferParameteriv =
-                                                glGetRenderbufferParameterivEXT;
-        interface->fBindFramebuffer = glBindFramebufferEXT;
-        interface->fFramebufferTexture2D = glFramebufferTexture2DEXT;
-        interface->fCheckFramebufferStatus = glCheckFramebufferStatusEXT;
-        interface->fDeleteFramebuffers = glDeleteFramebuffersEXT;
-        interface->fRenderbufferStorage = glRenderbufferStorageEXT;
-        interface->fGenRenderbuffers = glGenRenderbuffersEXT;
-        interface->fDeleteRenderbuffers = glDeleteRenderbuffersEXT;
-        interface->fFramebufferRenderbuffer = glFramebufferRenderbufferEXT;
-        interface->fBindRenderbuffer = glBindRenderbufferEXT;
-    #if GL_EXT_framebuffer_multisample
-        interface->fRenderbufferStorageMultisample = 
-                                            glRenderbufferStorageMultisampleEXT;
-    #endif
-    #if GL_EXT_framebuffer_blit
-        interface->fBlitFramebuffer = glBlitFramebufferEXT;
-    #endif
-    #endif
-        interface->fBindFragDataLocationIndexed = NULL;
+        if (ver >= GR_GL_VER(3,3) || GrGLHasExtensionFromString("GL_ARB_timer_query", extStr)) {
+            // ARB extension doesn't use the ARB suffix on the function name
+            #if GL_ARB_timer_query || GL_VERSION_3_3
+                interface->fQueryCounter = glQueryCounter;
+                interface->fGetQueryObjecti64v = glGetQueryObjecti64v;
+                interface->fGetQueryObjectui64v = glGetQueryObjectui64v;
+            #else
+                interface->fQueryCounter = GET_PROC(QueryCounter);
+                interface->fGetQueryObjecti64v = GET_PROC(GetQueryObjecti64v);
+                interface->fGetQueryObjectui64v = GET_PROC(GetQueryObjectui64v);
+            #endif
+        } else if (GrGLHasExtensionFromString("GL_EXT_timer_query", extStr)) {
+            #if GL_EXT_timer_query
+                interface->fGetQueryObjecti64v = glGetQueryObjecti64vEXT;
+                interface->fGetQueryObjectui64v = glGetQueryObjectui64vEXT;
+            #else
+                interface->fGetQueryObjecti64v = GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
+                interface->fGetQueryObjectui64v = GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
+            #endif            
+        }
+            
+        if (ver >= GR_GL_VER(3,0) || GrGLHasExtensionFromString("GL_ARB_framebuffer_object", extStr)) {
+            // ARB extension doesn't use the ARB suffix on the function names
+            #if GL_VERSION_3_0 || GL_ARB_framebuffer_object
+                interface->fGenFramebuffers = glGenFramebuffers;
+                interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameteriv;
+                interface->fGetRenderbufferParameteriv = glGetRenderbufferParameteriv;
+                interface->fBindFramebuffer = glBindFramebuffer;
+                interface->fFramebufferTexture2D = glFramebufferTexture2D;
+                interface->fCheckFramebufferStatus = glCheckFramebufferStatus;
+                interface->fDeleteFramebuffers = glDeleteFramebuffers;
+                interface->fRenderbufferStorage = glRenderbufferStorage;
+                interface->fGenRenderbuffers = glGenRenderbuffers;
+                interface->fDeleteRenderbuffers = glDeleteRenderbuffers;
+                interface->fFramebufferRenderbuffer = glFramebufferRenderbuffer;
+                interface->fBindRenderbuffer = glBindRenderbuffer;
+                interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisample;
+                interface->fBlitFramebuffer = glBlitFramebuffer;
+            #else
+                interface->fGenFramebuffers = GET_PROC(GenFramebuffers);
+                interface->fGetFramebufferAttachmentParameteriv = GET_PROC(GetFramebufferAttachmentParameteriv);
+                interface->fGetRenderbufferParameteriv = GET_PROC(GetRenderbufferParameteriv);
+                interface->fBindFramebuffer = GET_PROC(BindFramebuffer);
+                interface->fFramebufferTexture2D = GET_PROC(FramebufferTexture2D);
+                interface->fCheckFramebufferStatus = GET_PROC(CheckFramebufferStatus);
+                interface->fDeleteFramebuffers = GET_PROC(DeleteFramebuffers);
+                interface->fRenderbufferStorage = GET_PROC(RenderbufferStorage);
+                interface->fGenRenderbuffers = GET_PROC(GenRenderbuffers);
+                interface->fDeleteRenderbuffers = GET_PROC(DeleteRenderbuffers);
+                interface->fFramebufferRenderbuffer = GET_PROC(FramebufferRenderbuffer);
+                interface->fBindRenderbuffer = GET_PROC(BindRenderbuffer);
+                interface->fRenderbufferStorageMultisample = GET_PROC(RenderbufferStorageMultisample);
+                interface->fBlitFramebuffer = GET_PROC(BlitFramebuffer);
+            #endif
+        } else {
+            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_object", extStr)) {
+                #if GL_EXT_framebuffer_object
+                    interface->fGenFramebuffers = glGenFramebuffersEXT;
+                    interface->fGetFramebufferAttachmentParameteriv = glGetFramebufferAttachmentParameterivEXT;
+                    interface->fGetRenderbufferParameteriv = glGetRenderbufferParameterivEXT;
+                    interface->fBindFramebuffer = glBindFramebufferEXT;
+                    interface->fFramebufferTexture2D = glFramebufferTexture2DEXT;
+                    interface->fCheckFramebufferStatus = glCheckFramebufferStatusEXT;
+                    interface->fDeleteFramebuffers = glDeleteFramebuffersEXT;
+                    interface->fRenderbufferStorage = glRenderbufferStorageEXT;
+                    interface->fGenRenderbuffers = glGenRenderbuffersEXT;
+                    interface->fDeleteRenderbuffers = glDeleteRenderbuffersEXT;
+                    interface->fFramebufferRenderbuffer = glFramebufferRenderbufferEXT;
+                    interface->fBindRenderbuffer = glBindRenderbufferEXT;
+                #else
+                    interface->fGenFramebuffers = GET_PROC_SUFFIX(GenFramebuffers, EXT);
+                    interface->fGetFramebufferAttachmentParameteriv = GET_PROC_SUFFIX(GetFramebufferAttachmentParameteriv, EXT);
+                    interface->fGetRenderbufferParameteriv = GET_PROC_SUFFIX(GetRenderbufferParameteriv, EXT);
+                    interface->fBindFramebuffer = GET_PROC_SUFFIX(BindFramebuffer, EXT);
+                    interface->fFramebufferTexture2D = GET_PROC_SUFFIX(FramebufferTexture2D, EXT);
+                    interface->fCheckFramebufferStatus = GET_PROC_SUFFIX(CheckFramebufferStatus, EXT);
+                    interface->fDeleteFramebuffers = GET_PROC_SUFFIX(DeleteFramebuffers, EXT);
+                    interface->fRenderbufferStorage = GET_PROC_SUFFIX(RenderbufferStorage, EXT);
+                    interface->fGenRenderbuffers = GET_PROC_SUFFIX(GenRenderbuffers, EXT);
+                    interface->fDeleteRenderbuffers = GET_PROC_SUFFIX(DeleteRenderbuffers, EXT);
+                    interface->fFramebufferRenderbuffer = GET_PROC_SUFFIX(FramebufferRenderbuffer, EXT);
+                    interface->fBindRenderbuffer = GET_PROC_SUFFIX(BindRenderbuffer, EXT);
+                #endif
+            }
+            if (GrGLHasExtensionFromString("GL_EXT_framebuffer_multisample", extStr)) {
+                #if GL_EXT_framebuffer_multisample
+                    interface->fRenderbufferStorageMultisample = glRenderbufferStorageMultisampleEXT;
+                #else
+                    interface->fRenderbufferStorageMultisample = GET_PROC_SUFFIX(RenderbufferStorageMultisample, EXT);
+                #endif
+            }
+            if (GrGLHasExtensionFromString("", extStr)) {
+                #if GL_EXT_framebuffer_blit
+                    interface->fBlitFramebuffer = glBlitFramebufferEXT;
+                #else
+                    interface->fBlitFramebuffer = GET_PROC_SUFFIX(BlitFramebuffer, EXT);
+                #endif
+            }
+        }
+        if (ver >= GR_GL_VER(3,3) || GrGLHasExtensionFromString("GL_ARB_blend_func_extended", extStr)) {
+            // ARB extension doesn't use the ARB suffix on the function name
+            #if GL_VERSION_3_3 || GL_ARB_blend_func_extended
+                interface->fBindFragDataLocationIndexed = glBindFragDataLocationIndexed;
+            #else
+                interface->fBindFragDataLocationIndexed = GET_PROC(BindFragDataLocationIndexed);
+            #endif
+        }
 
         interface->fBindingsExported = kDesktop_GrGLBinding;
     }
