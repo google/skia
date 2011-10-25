@@ -1121,6 +1121,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             dst->fPts.setCount(fPts.count());
             dst->fFillType = fFillType;
             dst->fSegmentMask = fSegmentMask;
+            dst->fConvexity = fConvexity;
         }
         matrix.mapPoints(dst->fPts.begin(), fPts.begin(), fPts.count());
         SkDEBUGCODE(dst->validate();)
