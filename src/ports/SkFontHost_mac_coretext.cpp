@@ -1220,6 +1220,30 @@ SkFontID SkFontHost::NextLogicalFont(SkFontID currFontID, SkFontID origFontID) {
     return nextFontID;
 }
 
+static bool supports_LCD() {
+    static int gSupportsLCD = -1;
+    if (gSupportsLCD >= 0) {
+        return (bool) gSupportsLCD;
+    }
+    int rgb = 0;
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef cgContext = CGBitmapContextCreate(&rgb, 1, 1, 8, 4, colorspace,
+                                                   BITMAP_INFO_RGB);
+    CGContextSelectFont(cgContext, "Helvetica", 16, kCGEncodingMacRoman);
+    CGContextSetShouldSmoothFonts(cgContext, true);
+    CGContextSetShouldAntialias(cgContext, true);
+    CGContextSetTextDrawingMode(cgContext, kCGTextFill);
+    CGContextSetGrayFillColor(  cgContext, 1, 1.0);
+    CGContextShowTextAtPoint(cgContext, -1, 0, "|", 1);
+    CFSafeRelease(colorspace);
+    CFSafeRelease(cgContext);
+    int r = (rgb >> 16) & 0xFF;
+    int g = (rgb >>  8) & 0xFF;
+    int b = (rgb >>  0) & 0xFF;
+    gSupportsLCD = r != g || r != b;
+    return (bool) gSupportsLCD;
+}
+
 void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     unsigned flagsWeDontSupport = SkScalerContext::kDevKernText_Flag |
                                   SkScalerContext::kAutohinting_Flag;
@@ -1235,8 +1259,13 @@ void SkFontHost::FilterRec(SkScalerContext::Rec* rec) {
     }
     rec->setHinting(h);
 
-    if (SkMask::kLCD16_Format == rec->fMaskFormat) {
-        rec->fMaskFormat = SkMask::kLCD32_Format;
+    if (SkMask::kLCD16_Format == rec->fMaskFormat
+            || SkMask::kLCD32_Format == rec->fMaskFormat) {
+        if (supports_LCD()) {
+            rec->fMaskFormat = SkMask::kLCD32_Format;
+        } else {
+            rec->fMaskFormat = SkMask::kA8_Format;
+        }
     }
 }
 
