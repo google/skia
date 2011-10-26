@@ -478,12 +478,14 @@ class SkAAClip::Builder {
     Row* fCurrRow;
     int fPrevY;
     int fWidth;
+    int fMinY;
 
 public:
     Builder(const SkIRect& bounds) : fBounds(bounds) {
         fPrevY = -1;
         fWidth = bounds.width();
         fCurrRow = NULL;
+        fMinY = bounds.fTop;
     }
 
     ~Builder() {
@@ -550,6 +552,11 @@ public:
             return target->setEmpty();
         }
 
+        SkASSERT(fMinY >= fBounds.fTop);
+        SkASSERT(fMinY < fBounds.fBottom);
+        int adjustY = fMinY - fBounds.fTop;
+        fBounds.fTop = fMinY;
+
         RunHead* head = RunHead::Alloc(fRows.count(), dataSize);
         YOffset* yoffset = head->yoffsets();
         uint8_t* data = head->data();
@@ -557,7 +564,7 @@ public:
 
         row = fRows.begin();
         while (row < stop) {
-            yoffset->fY = row->fY;
+            yoffset->fY = row->fY - adjustY;
             yoffset->fOffset = data - baseData;
             yoffset += 1;
             
@@ -614,7 +621,13 @@ public:
 #endif
     }
 
+    // only called by BuilderBlitter
+    void setMinY(int y) {
+        fMinY = y;
+    }
+
 private:
+
     Row* flushRow(bool readyForAnother) {
         Row* next = NULL;
         int count = fRows.count();
@@ -676,6 +689,13 @@ public:
         fBuilder = builder;
         fLeft = builder->getBounds().fLeft;
         fRight = builder->getBounds().fRight;
+        fMinY = SK_MaxS32;
+    }
+
+    void finish() {
+        if (fMinY < SK_MaxS32) {
+            fBuilder->setMinY(fMinY);
+        }
     }
 
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE
@@ -692,11 +712,13 @@ public:
     }
 
     virtual void blitH(int x, int y, int width) SK_OVERRIDE {
+        this->recordMinY(y);
         fBuilder->addRun(x, y, 0xFF, width);
     }
 
     virtual void blitAntiH(int x, int y, const SkAlpha alpha[],
                            const int16_t runs[]) SK_OVERRIDE {
+        this->recordMinY(y);
         for (;;) {
             int count = *runs;
             if (count <= 0) {
@@ -736,6 +758,19 @@ private:
     Builder* fBuilder;
     int      fLeft; // cache of builder's bounds' left edge
     int      fRight;
+    int      fMinY;
+
+    /*
+     *  We track this, in case the scan converter skipped some number of
+     *  scanlines at the (relative to the bounds it was given). This allows
+     *  the builder, during its finish, to trip its bounds down to the "real"
+     *  top.
+     */
+    void recordMinY(int y) {
+        if (y < fMinY) {
+            fMinY = y;
+        }
+    }
 
     void unexpected() {
         SkDebugf("---- did not expect to get called here");
@@ -776,6 +811,7 @@ bool SkAAClip::setPath(const SkPath& path, const SkRegion* clip, bool doAA) {
         SkScan::FillPath(path, *clip, &blitter);
     }
 
+    blitter.finish();
     return builder.finish(this);
 }
 

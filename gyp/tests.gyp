@@ -13,6 +13,7 @@
         '../src/gpu',
       ],
       'sources': [
+        '../tests/AAClipTest.cpp',
         '../tests/BitmapCopyTest.cpp',
         '../tests/BitmapGetColorTest.cpp',
         '../tests/BitSetTest.cpp',
