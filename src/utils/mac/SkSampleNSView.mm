@@ -8,11 +8,12 @@
 
 #import "SkSampleNSView.h"
 #include "SampleApp.h"
+#include <crt_externs.h>
 @implementation SkSampleNSView
 
 - (id)initWithDefaults {
     if (self = [super initWithDefaults]) {
-        fWind = new SampleWindow(self, NULL, NULL, NULL);
+        fWind = new SampleWindow(self, *_NSGetArgc(), *_NSGetArgv(), NULL);
     }
     return self;
 }
