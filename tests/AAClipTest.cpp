@@ -9,6 +9,16 @@
 #include "SkAAClip.h"
 #include "SkPath.h"
 
+static void imoveTo(SkPath& path, int x, int y) {
+    path.moveTo(SkIntToScalar(x), SkIntToScalar(y));
+}
+
+static void icubicTo(SkPath& path, int x0, int y0, int x1, int y1, int x2, int y2) {
+    path.cubicTo(SkIntToScalar(x0), SkIntToScalar(y0),
+                 SkIntToScalar(x1), SkIntToScalar(y1),
+                 SkIntToScalar(x2), SkIntToScalar(y2));
+}
+
 static void test_trim_bounds(skiatest::Reporter* reporter) {
     SkPath path;
     SkAAClip clip;
@@ -28,8 +38,8 @@ static void test_trim_bounds(skiatest::Reporter* reporter) {
     //
     const int teardrop_height = 12;
     path.reset();
-    path.moveTo(0, 20);
-    path.cubicTo(40, 40, 40, 0, 0, 20);
+    imoveTo(path, 0, 20);
+    icubicTo(path, 40, 40, 40, 0, 0, 20);
     REPORTER_ASSERT(reporter, sheight == path.getBounds().height());
     clip.setPath(path, NULL, true);
     REPORTER_ASSERT(reporter, teardrop_height == clip.getBounds().height());
