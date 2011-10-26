@@ -121,6 +121,26 @@ int main (int argc, char * const argv[]) {
         }
     }
 
+    {
+        SkString header("Skia UnitTests:");
+        if (matchStr) {
+            header.appendf(" --match %s", matchStr);
+        }
+#ifdef SK_DEBUG
+        header.append(" SK_DEBUG");
+#else
+        header.append(" SK_RELEASE");
+#endif
+#ifdef SK_SCALAR_IS_FIXED
+        header.append(" SK_SCALAR_IS_FIXED");
+#else
+        header.append(" SK_SCALAR_IS_FLOAT");
+#endif
+        if (!androidMode) {
+            SkDebugf("%s\n", header.c_str());
+        }
+    }
+
     DebugfReporter reporter(androidMode);
     Iter iter(&reporter);
     Test* test;
