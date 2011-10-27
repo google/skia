@@ -35,7 +35,8 @@ public:
     enum DeviceType {
         kRaster_DeviceType,
         kPicture_DeviceType,
-        kGPU_DeviceType
+        kGPU_DeviceType,
+        kNullGPU_DeviceType
     };
     /**
      * SampleApp ports can subclass this manager class if they want to:
@@ -70,7 +71,7 @@ public:
         virtual void windowSizeChanged(SampleWindow* win) = 0;
 
         // return the GrContext backing gpu devices
-        virtual GrContext* getGrContext() = 0;
+        virtual GrContext* getGrContext(DeviceType dType) = 0;
     };
 
     SampleWindow(void* hwnd, int argc, char** argv, DeviceManager*);
@@ -84,7 +85,7 @@ public:
     void toggleFPS();
     void showOverview();
 
-    GrContext* getGrContext() const { return fDevManager->getGrContext(); }
+    GrContext* getGrContext() const { return fDevManager->getGrContext(fDeviceType); }
 
     void setZoomCenter(float x, float y);
     void changeZoomLevel(float delta);

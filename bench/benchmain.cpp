@@ -15,10 +15,11 @@
 #include "SkBenchmark.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
-#include "SkNativeGLContext.h"
 #include "SkGpuDevice.h"
 #include "SkGraphics.h"
 #include "SkImageEncoder.h"
+#include "SkNativeGLContext.h"
+#include "SkNullGLContext.h"
 #include "SkNWayCanvas.h"
 #include "SkPicture.h"
 #include "SkString.h"
@@ -233,6 +234,7 @@ int main (int argc, char * const argv[]) {
     const char* matchStr = NULL;
     bool hasStrokeWidth = false;
     float strokeWidth;
+    bool useNullGL = false;
     
     SkString outDir;
     SkBitmap::Config outConfig = SkBitmap::kNo_Config;
@@ -356,6 +358,8 @@ int main (int argc, char * const argv[]) {
                 log_error("incomplete '-Dfoo bar' definition\n");
                 return -1;
             }
+        } else if (strcmp(*argv, "-nullgl") == 0) {
+            useNullGL = true;
         } else {
             SkString str;
             str.printf("unrecognized arg %s\n", *argv);
@@ -415,11 +419,16 @@ int main (int argc, char * const argv[]) {
     GrContext* context = NULL;
     GrRenderTarget* rt = NULL;
     //Don't do GL when fixed.
+    SkAutoTUnref<SkGLContext> glctx;
 #if !defined(SK_SCALAR_IS_FIXED)
-    SkNativeGLContext glContext;
-    if (glContext.init(1024, 1024)) {
+    if (useNullGL) {
+        glctx.reset(new SkNullGLContext);
+    } else {
+        glctx.reset(new SkNativeGLContext);
+    }
+    if (glctx.get()->init(1024, 1024)) {
         GrPlatform3DContext ctx =
-            reinterpret_cast<GrPlatform3DContext>(glContext.gl());
+            reinterpret_cast<GrPlatform3DContext>(glctx.get()->gl());
         context = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
         if (NULL != context) {
             GrPlatformSurfaceDesc desc;
@@ -428,7 +437,7 @@ int main (int argc, char * const argv[]) {
             desc.fWidth = 1024;
             desc.fHeight = 1024;
             desc.fStencilBits = 8;
-            desc.fPlatformRenderTarget = glContext.getFBOID();
+            desc.fPlatformRenderTarget = glctx.get()->getFBOID();
             desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
             rt = static_cast<GrRenderTarget*>(context->createPlatformSurface(desc));
             if (NULL == rt) {
@@ -437,12 +446,9 @@ int main (int argc, char * const argv[]) {
             }
         }
     }
-    BenchTimer timer = BenchTimer(context ?&glContext : NULL);
-#else
-    BenchTimer timer = BenchTimer();
 #endif
-    
-    
+    BenchTimer timer = BenchTimer(context ? glctx.get() : NULL);
+
     Iter iter(&defineDict);
     SkBenchmark* bench;
     while ((bench = iter.next()) != NULL) {
@@ -505,7 +511,7 @@ int main (int argc, char * const argv[]) {
 #if !defined(SK_SCALAR_IS_FIXED)
                 if (gpu) {
                     context->flush();
-                    SK_GL(glContext, Finish());
+                    SK_GL(*glctx.get(), Finish());
                 }
 #endif
             }
@@ -520,7 +526,7 @@ int main (int argc, char * const argv[]) {
             }
  #if !defined(SK_SCALAR_IS_FIXED)
            if (gpu) {
-                SK_GL(glContext, Finish());
+                SK_GL(*glctx.get(), Finish());
            }
  #endif
            timer.end();

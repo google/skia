@@ -82,6 +82,12 @@ const GrGLInterface* GrGLCreateNativeInterface();
  */
 const GrGLInterface* GrGLCreateMesaInterface();
 
+/**
+ * Creates a null GrGLInterface that doesn't draw anything. Used for measuring
+ * CPU overhead.
+ */
+const GrGLInterface* GrGLCreateNullInterface();
+
 typedef unsigned int GrGLenum;
 typedef unsigned char GrGLboolean;
 typedef unsigned int GrGLbitfield;
