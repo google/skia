@@ -32,8 +32,8 @@ protected:
             // Compute these independently and store in variables, rather
             // than in the parameter-passing expression, to get consistent
             // evaluation order across compilers.
-            float y = rand->nextUScalar1() * 480;
-            float x = rand->nextUScalar1() * 640;
+            SkScalar y = rand->nextUScalar1() * 480;
+            SkScalar x = rand->nextUScalar1() * 640;
             pts[i].set(x, y);
         }
     }

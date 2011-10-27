@@ -326,7 +326,7 @@ void SkMatrix44::map(const SkScalar src[4], SkScalar dst[4]) const {
         for (int j = 0; j < 4; j++) {
             value += fMat[j][i] * src[j];
         }
-        result[i] = value;
+        result[i] = SkMScalarToScalar(value);
     }
     memcpy(dst, result, sizeof(result));
 }
@@ -355,12 +355,12 @@ void SkMatrix44::dump() const {
 
 static void initFromMatrix(SkMScalar dst[4][4], const SkMatrix& src) {
     sk_bzero(dst, 16 * sizeof(SkMScalar));
-    dst[0][0] = src[SkMatrix::kMScaleX];
-    dst[1][0] = src[SkMatrix::kMSkewX];
-    dst[3][0] = src[SkMatrix::kMTransX];
-    dst[0][1] = src[SkMatrix::kMSkewY];
-    dst[1][1] = src[SkMatrix::kMScaleY];
-    dst[3][1] = src[SkMatrix::kMTransY];
+    dst[0][0] = SkScalarToMScalar(src[SkMatrix::kMScaleX]);
+    dst[1][0] = SkScalarToMScalar(src[SkMatrix::kMSkewX]);
+    dst[3][0] = SkScalarToMScalar(src[SkMatrix::kMTransX]);
+    dst[0][1] = SkScalarToMScalar(src[SkMatrix::kMSkewY]);
+    dst[1][1] = SkScalarToMScalar(src[SkMatrix::kMScaleY]);
+    dst[3][1] = SkScalarToMScalar(src[SkMatrix::kMTransY]);
     dst[2][2] = dst[3][3] = 1;
 }
 
@@ -377,13 +377,13 @@ SkMatrix44::operator SkMatrix() const {
     SkMatrix dst;
     dst.reset();    // setup our perspective correctly for identity
 
-    dst[SkMatrix::kMScaleX]  = SkMScalarToFloat(fMat[0][0]);
-    dst[SkMatrix::kMSkewX]  = SkMScalarToFloat(fMat[1][0]);
-    dst[SkMatrix::kMTransX] = SkMScalarToFloat(fMat[3][0]);
+    dst[SkMatrix::kMScaleX]  = SkMScalarToScalar(fMat[0][0]);
+    dst[SkMatrix::kMSkewX]  = SkMScalarToScalar(fMat[1][0]);
+    dst[SkMatrix::kMTransX] = SkMScalarToScalar(fMat[3][0]);
 
-    dst[SkMatrix::kMSkewY]  = SkMScalarToFloat(fMat[0][1]);
-    dst[SkMatrix::kMScaleY] = SkMScalarToFloat(fMat[1][1]);
-    dst[SkMatrix::kMTransY] = SkMScalarToFloat(fMat[3][1]);
+    dst[SkMatrix::kMSkewY]  = SkMScalarToScalar(fMat[0][1]);
+    dst[SkMatrix::kMScaleY] = SkMScalarToScalar(fMat[1][1]);
+    dst[SkMatrix::kMTransY] = SkMScalarToScalar(fMat[3][1]);
 
     return dst;
 }
