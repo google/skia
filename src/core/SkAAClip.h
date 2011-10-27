@@ -81,6 +81,8 @@ private:
 
     void freeRuns();
     bool trimBounds();
+    bool trimTopBottom();
+    bool trimLeftRight();
 
     friend class Builder;
     class BuilderBlitter;

@@ -11,19 +11,16 @@
 #include "SkRandom.h"
 
 static const SkRegion::Op gRgnOps[] = {
-//    SkRegion::kDifference_Op,
+    SkRegion::kDifference_Op,
     SkRegion::kIntersect_Op,
     SkRegion::kUnion_Op,
     SkRegion::kXOR_Op,
-//    SkRegion::kReverseDifference_Op,
+    SkRegion::kReverseDifference_Op,
     SkRegion::kReplace_Op
 };
 
 static const char* gRgnOpNames[] = {
-//    "DIFF",
-    "SECT", "UNION", "XOR",
-//    "RDIFF",
-    "REPLACE"
+    "DIFF", "INTERSECT", "UNION", "XOR", "REVERSE_DIFF", "REPLACE"
 };
 
 static void imoveTo(SkPath& path, int x, int y) {
@@ -104,7 +101,7 @@ static void rand_irect(SkIRect* r, int N, SkRandom& rand) {
 static void test_irect(skiatest::Reporter* reporter) {
     SkRandom rand;
 
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10000; i++) {
         SkAAClip clip0, clip1;
         SkRegion rgn0, rgn1;
         SkIRect r0, r1;

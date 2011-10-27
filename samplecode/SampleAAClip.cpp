@@ -11,6 +11,34 @@
 #include "SkCanvas.h"
 #include "SkAAClip.h"
 
+static void testop(const SkIRect& r0, const SkIRect& r1, SkRegion::Op op,
+                   const SkIRect& expectedR) {
+    SkAAClip c0, c1, c2;
+    c0.setRect(r0);
+    c1.setRect(r1);
+    c2.op(c0, c1, op);
+    
+    SkIRect r2 = c2.getBounds();
+    SkASSERT(r2 == expectedR);
+}
+
+static const struct {
+    SkIRect r0;
+    SkIRect r1;
+    SkRegion::Op op;
+    SkIRect expectedR;
+} gRec[] = {
+    {{ 1, 2, 9, 3 }, { -3, 2, 5, 11 }, SkRegion::kDifference_Op, { 5, 2, 9, 3 }},
+    {{ 1, 10, 5, 13 }, { 1, 2, 5, 11 }, SkRegion::kDifference_Op, { 1, 11, 5, 13 }},
+    {{ 1, 10, 5, 13 }, { 1, 2, 5, 11 }, SkRegion::kReverseDifference_Op, { 1, 2, 5, 10 }},
+};
+
+static void testop() {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(gRec); ++i) {
+        testop(gRec[i].r0, gRec[i].r1, gRec[i].op, gRec[i].expectedR);
+    }
+}
+
 static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
     SkMask mask;
     SkBitmap bm;
@@ -32,6 +60,7 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
 class AAClipView : public SampleView {
 public:
     AAClipView() {
+        testop();
     }
 
 protected:
