@@ -1337,9 +1337,9 @@ static void D1G_NoBounder_RectClip(const SkDraw1Glyph& state,
     int left = SkFixedFloor(fx);
     int top = SkFixedFloor(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
-	SkASSERT(NULL == state.fBounder);
-    SkASSERT(NULL == state.fClip && state.fAAClip ||
-             state.fClip && NULL == state.fAAClip && state.fClip->isRect());
+    SkASSERT(NULL == state.fBounder);
+    SkASSERT((NULL == state.fClip && state.fAAClip) ||
+             (state.fClip && NULL == state.fAAClip && state.fClip->isRect()));
 
     left += glyph.fLeft;
     top  += glyph.fTop;
@@ -1347,42 +1347,42 @@ static void D1G_NoBounder_RectClip(const SkDraw1Glyph& state,
     int right   = left + glyph.fWidth;
     int bottom  = top + glyph.fHeight;
 
-	SkMask		mask;
-	SkIRect		storage;
-	SkIRect*	bounds = &mask.fBounds;
+    SkMask		mask;
+    SkIRect		storage;
+    SkIRect*	bounds = &mask.fBounds;
 
-	mask.fBounds.set(left, top, right, bottom);
+    mask.fBounds.set(left, top, right, bottom);
 
-	// this extra test is worth it, assuming that most of the time it succeeds
-	// since we can avoid writing to storage
-	if (!state.fClipBounds.containsNoEmptyCheck(left, top, right, bottom)) {
-		if (!storage.intersectNoEmptyCheck(mask.fBounds, state.fClipBounds))
-			return;
-		bounds = &storage;
-	}
+    // this extra test is worth it, assuming that most of the time it succeeds
+    // since we can avoid writing to storage
+    if (!state.fClipBounds.containsNoEmptyCheck(left, top, right, bottom)) {
+        if (!storage.intersectNoEmptyCheck(mask.fBounds, state.fClipBounds))
+            return;
+        bounds = &storage;
+    }
 
-	uint8_t* aa = (uint8_t*)glyph.fImage;
-	if (NULL == aa) {
-		aa = (uint8_t*)state.fCache->findImage(glyph);
-		if (NULL == aa) {
-			return; // can't rasterize glyph
+    uint8_t* aa = (uint8_t*)glyph.fImage;
+    if (NULL == aa) {
+        aa = (uint8_t*)state.fCache->findImage(glyph);
+        if (NULL == aa) {
+            return; // can't rasterize glyph
         }
-	}
+    }
 
-	mask.fRowBytes = glyph.rowBytes();
-	mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
-	mask.fImage = aa;
-	state.fBlitter->blitMask(mask, *bounds);
+    mask.fRowBytes = glyph.rowBytes();
+    mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
+    mask.fImage = aa;
+    state.fBlitter->blitMask(mask, *bounds);
 }
 
 static void D1G_NoBounder_RgnClip(const SkDraw1Glyph& state,
                                   SkFixed fx, SkFixed fy,
-								  const SkGlyph& glyph) {
+                                  const SkGlyph& glyph) {
     int left = SkFixedFloor(fx);
     int top = SkFixedFloor(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
-	SkASSERT(!state.fClip->isRect());
-	SkASSERT(NULL == state.fBounder);
+    SkASSERT(!state.fClip->isRect());
+    SkASSERT(NULL == state.fBounder);
 
     SkMask  mask;
 
@@ -1390,31 +1390,31 @@ static void D1G_NoBounder_RgnClip(const SkDraw1Glyph& state,
     top  += glyph.fTop;
 
     mask.fBounds.set(left, top, left + glyph.fWidth, top + glyph.fHeight);
-	SkRegion::Cliperator clipper(*state.fClip, mask.fBounds);
+    SkRegion::Cliperator clipper(*state.fClip, mask.fBounds);
 
-	if (!clipper.done()) {
-		const SkIRect&  cr = clipper.rect();
-		const uint8_t*  aa = (const uint8_t*)glyph.fImage;
-		if (NULL == aa) {
-			aa = (uint8_t*)state.fCache->findImage(glyph);
-			if (NULL == aa) {
-				return;
+    if (!clipper.done()) {
+        const SkIRect&  cr = clipper.rect();
+        const uint8_t*  aa = (const uint8_t*)glyph.fImage;
+        if (NULL == aa) {
+            aa = (uint8_t*)state.fCache->findImage(glyph);
+            if (NULL == aa) {
+            	return;
             }
-		}
+        }
 
-		mask.fRowBytes = glyph.rowBytes();
-		mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
-		mask.fImage = (uint8_t*)aa;
-		do {
-			state.fBlitter->blitMask(mask, cr);
-			clipper.next();
-		} while (!clipper.done());
-	}
+        mask.fRowBytes = glyph.rowBytes();
+        mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
+        mask.fImage = (uint8_t*)aa;
+        do {
+            state.fBlitter->blitMask(mask, cr);
+            clipper.next();
+        } while (!clipper.done());
+    }
 }
 
 static void D1G_Bounder(const SkDraw1Glyph& state,
                         SkFixed fx, SkFixed fy,
-						const SkGlyph& glyph) {
+                        const SkGlyph& glyph) {
     int left = SkFixedFloor(fx);
     int top = SkFixedFloor(fy);
     SkASSERT(glyph.fWidth > 0 && glyph.fHeight > 0);
@@ -1427,30 +1427,30 @@ static void D1G_Bounder(const SkDraw1Glyph& state,
     mask.fBounds.set(left, top, left + glyph.fWidth, top + glyph.fHeight);
     SkRegion::Cliperator clipper(*state.fClip, mask.fBounds);
     
-	if (!clipper.done()) {
-		const SkIRect&  cr = clipper.rect();
-		const uint8_t*  aa = (const uint8_t*)glyph.fImage;
-		if (NULL == aa) {
-			aa = (uint8_t*)state.fCache->findImage(glyph);
-			if (NULL == aa) {
-				return;
+    if (!clipper.done()) {
+        const SkIRect&  cr = clipper.rect();
+        const uint8_t*  aa = (const uint8_t*)glyph.fImage;
+        if (NULL == aa) {
+            aa = (uint8_t*)state.fCache->findImage(glyph);
+            if (NULL == aa) {
+                return;
             }
-		}
+    	}
         
         // we need to pass the origin, which we approximate with our
         // (unadjusted) left,top coordinates (the caller called fixedfloor)
-		if (state.fBounder->doIRectGlyph(cr,
+        if (state.fBounder->doIRectGlyph(cr,
                                          left - glyph.fLeft,
                                          top - glyph.fTop, glyph)) {
-			mask.fRowBytes = glyph.rowBytes();
-			mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
-			mask.fImage = (uint8_t*)aa;
-			do {
-				state.fBlitter->blitMask(mask, cr);
-				clipper.next();
-			} while (!clipper.done());
-		}
-	}
+            mask.fRowBytes = glyph.rowBytes();
+            mask.fFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
+            mask.fImage = (uint8_t*)aa;
+            do {
+                state.fBlitter->blitMask(mask, cr);
+                clipper.next();
+            } while (!clipper.done());
+        }
+    }
 }
 
 static void D1G_Bounder_AAClip(const SkDraw1Glyph& state,
