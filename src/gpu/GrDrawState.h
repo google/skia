@@ -75,10 +75,10 @@ struct GrDrawState {
         Edge(float x, float y, float z) : fX(x), fY(y), fZ(z) {}
         GrPoint intersect(const Edge& other) {
             return GrPoint::Make(
-                (fY * other.fZ - other.fY * fZ) /
-                  (fX * other.fY - other.fX * fY),
-                (fX * other.fZ - other.fX * fZ) /
-                  (other.fX * fY - fX * other.fY));
+                SkFloatToScalar((fY * other.fZ - other.fY * fZ) /
+                                (fX * other.fY - other.fX * fY)),
+                SkFloatToScalar((fX * other.fZ - other.fX * fZ) /
+                                (other.fX * fY - fX * other.fY)));
         }
         float fX, fY, fZ;
     };

@@ -52,7 +52,7 @@ protected:
         paint->setColor(SK_ColorRED);
         paint->setStyle(SkPaint::kFill_Style);
         SkScalar x = D/2;
-        float y = D/2 - (fm.fAscent + fm.fDescent)/2;
+        SkScalar y = D/2 - (fm.fAscent + fm.fDescent)/2;
         SkString str;
         str.appendS32(count);
         canvas->drawText(str.c_str(), str.size(), x, y, *paint);

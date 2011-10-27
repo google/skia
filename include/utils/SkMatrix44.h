@@ -46,6 +46,20 @@
     static const SkMScalar SK_MScalarPI = 3.14159265f;
 #endif
 
+#ifdef SK_SCALAR_IS_FLOAT
+    #define SkMScalarToScalar SkMScalarToFloat
+    #define SkScalarToMScalar SkFloatToMScalar
+#else
+    #if SK_MSCALAR_IS_DOUBLE
+        // we don't have fixed <-> double macros, use double<->scalar macros
+        #define SkMScalarToScalar SkDoubleToScalar
+        #define SkScalarToMScalar SkScalarToDouble
+    #else
+        #define SkMScalarToScalar SkFloatToFixed
+        #define SkScalarToMScalar SkFixedToFloat
+    #endif
+#endif
+
 static const SkMScalar SK_MScalar1 = 1;
 
 ///////////////////////////////////////////////////////////////////////////////
