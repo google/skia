@@ -331,7 +331,7 @@ static int trim_row_left_right(uint8_t* row, int width, int leftZ, int riteZ) {
 
 #ifdef SK_DEBUG
 // assert that this row is exactly this width
-static int assert_row_width(const uint8_t* row, int width) {
+static void assert_row_width(const uint8_t* row, int width) {
     while (width > 0) {
         int n = row[0];
         SkASSERT(n > 0);
