@@ -501,10 +501,10 @@ void GrGLProgram::genEdgeCoverage(const GrGLInterface* gl,
         append_varying(GrGLShaderVar::kVec4f_Type, "Edge", segments, &vsName, &fsName);
         segments->fVSAttrs.push_back().set(GrGLShaderVar::kVec4f_Type, EDGE_ATTR_NAME);
         segments->fVSCode.appendf("\t%s = " EDGE_ATTR_NAME ";\n", vsName);
-        if (GrDrawTarget::kHairLine_EdgeType == fProgramDesc.fVertexEdgeType) {
+        if (GrDrawState::kHairLine_EdgeType == fProgramDesc.fVertexEdgeType) {
             segments->fFSCode.appendf("\tfloat edgeAlpha = abs(dot(vec3(gl_FragCoord.xy,1), %s.xyz));\n", fsName);
         } else {
-            GrAssert(GrDrawTarget::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType);
+            GrAssert(GrDrawState::kHairQuad_EdgeType == fProgramDesc.fVertexEdgeType);
             // for now we know we're not in perspective, so we could compute this
             // per-quadratic rather than per pixel
             segments->fFSCode.appendf("\tvec2 duvdx = dFdx(%s.xy);\n", fsName);
@@ -710,8 +710,8 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
     segments.fFSCode.append("void main() {\n");
 
     // add texture coordinates that are used to the list of vertex attr decls
-    GrStringBuilder texCoordAttrs[GrDrawTarget::kMaxTexCoords];
-    for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
+    GrStringBuilder texCoordAttrs[GrDrawState::kMaxTexCoords];
+    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         if (GrDrawTarget::VertexUsesTexCoordIdx(t, layout)) {
             tex_attr_name(t, texCoordAttrs + t);
             segments.fVSAttrs.push_back().set(GrGLShaderVar::kVec2f_Type,
@@ -822,7 +822,7 @@ bool GrGLProgram::genProgram(const GrGLInterface* gl,
 
         GrStringBuilder outCoverage;
         const int& startStage = fProgramDesc.fFirstCoverageStage;
-        for (int s = startStage; s < GrDrawTarget::kNumStages; ++s) {
+        for (int s = startStage; s < GrDrawState::kNumStages; ++s) {
             if (fProgramDesc.fStages[s].isEnabled()) {
                 // create var to hold stage output
                 outCoverage = "coverage";
@@ -1142,7 +1142,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
     // Bind the attrib locations to same values for all shaders
     GR_GL_CALL(gl, BindAttribLocation(progID, PositionAttributeIdx(),
                                       POS_ATTR_NAME));
-    for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
+    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         if (texCoordAttrNames[t].size()) {
             GR_GL_CALL(gl, BindAttribLocation(progID,
                                               TexCoordAttributeIdx(t),
@@ -1156,7 +1156,7 @@ bool GrGLProgram::bindOutputsAttribsAndLinkProgram(
                                           VIEW_MATRIX_NAME));
     }
 
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         const StageUniLocations& unis = programData->fUniLocations.fStages[s];
         if (kSetAsAttribute == unis.fTextureMatrixUni) {
             GrStringBuilder matName;
@@ -1226,7 +1226,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
         programData->fUniLocations.fEdgesUni = kUnusedUniform;
     }
 
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         StageUniLocations& locations = programData->fUniLocations.fStages[s];
         if (fProgramDesc.fStages[s].isEnabled()) {
             if (kUseUniform == locations.fTextureMatrixUni) {
@@ -1288,7 +1288,7 @@ void GrGLProgram::getUniformLocationsAndInitCache(const GrGLInterface* gl,
     GR_GL_CALL(gl, UseProgram(progID));
 
     // init sampler unis and set bogus values for state tracking
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (kUnusedUniform != programData->fUniLocations.fStages[s].fSamplerUni) {
             GR_GL_CALL(gl, Uniform1i(programData->fUniLocations.fStages[s].fSamplerUni, s));
         }

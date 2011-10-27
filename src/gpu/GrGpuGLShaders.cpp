@@ -210,7 +210,7 @@ bool GrGpuGLShaders::programUnitTest() {
         int idx = (int)(random.nextF() * (SkXfermode::kCoeffModesCnt));
         pdesc.fColorFilterXfermode = (SkXfermode::Mode)idx;
 
-        idx = (int)(random.nextF() * (kNumStages+1));
+        idx = (int)(random.nextF() * (GrDrawState::kNumStages + 1));
         pdesc.fFirstCoverageStage = idx;
 
         pdesc.fVertexLayout |= (random.nextF() > .5f) ?
@@ -229,10 +229,10 @@ bool GrGpuGLShaders::programUnitTest() {
                 pdesc.fVertexLayout |= GrDrawTarget::kEdge_VertexLayoutBit;
                 if (this->getCaps().fShaderDerivativeSupport) {
                     pdesc.fVertexEdgeType = random.nextF() > 0.5f ?
-                                                        kHairQuad_EdgeType :
-                                                        kHairLine_EdgeType;
+                        GrDrawState::kHairQuad_EdgeType :
+                        GrDrawState::kHairLine_EdgeType;
                 } else {
-                    pdesc.fVertexEdgeType = kHairLine_EdgeType;
+                    pdesc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
                 }
                 pdesc.fEdgeAANumEdges = 0;
             } else {
@@ -252,12 +252,12 @@ bool GrGpuGLShaders::programUnitTest() {
             pdesc.fDualSrcOutput = ProgramDesc::kNone_DualSrcOutput;
         }
 
-        for (int s = 0; s < kNumStages; ++s) {
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             // enable the stage?
             if (random.nextF() > .5f) {
                 // use separate tex coords?
                 if (random.nextF() > .5f) {
-                    int t = (int)(random.nextF() * kMaxTexCoords);
+                    int t = (int)(random.nextF() * GrDrawState::kMaxTexCoords);
                     pdesc.fVertexLayout |= StageTexCoordVertexLayoutBit(s, t);
                 } else {
                     pdesc.fVertexLayout |= StagePosAsTexCoordVertexLayoutBit(s);
@@ -575,7 +575,7 @@ void GrGpuGLShaders::flushEdgeAAData() {
     const int& uni = fProgramData->fUniLocations.fEdgesUni;
     if (GrGLProgram::kUnusedUniform != uni) {
         int count = fCurrDrawState.fEdgeAANumEdges;
-        Edge edges[kMaxEdges];
+        GrDrawState::Edge edges[GrDrawState::kMaxEdges];
         // Flip the edges in Y
         float height = 
             static_cast<float>(fCurrDrawState.fRenderTarget->height());
@@ -701,7 +701,7 @@ bool GrGpuGLShaders::flushGraphicsState(GrPrimitiveType type) {
         *currViewMatrix = fCurrDrawState.fViewMatrix;
     }
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         this->flushTextureMatrix(s);
 
         this->flushRadial2(s);
@@ -727,7 +727,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
 
     int newColorOffset;
     int newCoverageOffset;
-    int newTexCoordOffsets[kMaxTexCoords];
+    int newTexCoordOffsets[GrDrawState::kMaxTexCoords];
     int newEdgeOffset;
 
     GrGLsizei newStride = VertexSizeAndOffsetsByIdx(
@@ -738,7 +738,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
                                             &newEdgeOffset);
     int oldColorOffset;
     int oldCoverageOffset;
-    int oldTexCoordOffsets[kMaxTexCoords];
+    int oldTexCoordOffsets[GrDrawState::kMaxTexCoords];
     int oldEdgeOffset;
 
     GrGLsizei oldStride = VertexSizeAndOffsetsByIdx(
@@ -789,7 +789,7 @@ void GrGpuGLShaders::setupGeometry(int* startVertex,
         fHWGeometryState.fVertexOffset = vertexOffset;
     }
 
-    for (int t = 0; t < kMaxTexCoords; ++t) {
+    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         if (newTexCoordOffsets[t] > 0) {
             GrGLvoid* texCoordOffset = (GrGLvoid*)(vertexOffset + newTexCoordOffsets[t]);
             int idx = GrGLProgram::TexCoordAttributeIdx(t);
@@ -924,10 +924,10 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
         desc.fVertexEdgeType = fCurrDrawState.fVertexEdgeType;
     } else {
         // use canonical value when not set to avoid cache misses
-        desc.fVertexEdgeType = GrDrawTarget::kHairLine_EdgeType;
+        desc.fVertexEdgeType = GrDrawState::kHairLine_EdgeType;
     }
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         StageDesc& stage = desc.fStages[s];
 
         stage.fOptFlags = 0;
@@ -1032,8 +1032,8 @@ void GrGpuGLShaders::buildProgram(GrPrimitiveType type,
     // We set field in the desc to kNumStages when either there are no 
     // coverage stages or the distinction between coverage and color is
     // immaterial.
-    int firstCoverageStage = kNumStages;
-    desc.fFirstCoverageStage = kNumStages;
+    int firstCoverageStage = GrDrawState::kNumStages;
+    desc.fFirstCoverageStage = GrDrawState::kNumStages;
     bool hasCoverage = fCurrDrawState.fFirstCoverageStage <= lastEnabledStage;
     if (hasCoverage) {
         firstCoverageStage = fCurrDrawState.fFirstCoverageStage;

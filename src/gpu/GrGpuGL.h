@@ -11,6 +11,7 @@
 #ifndef GrGpuGL_DEFINED
 #define GrGpuGL_DEFINED
 
+#include "GrDrawState.h"
 #include "GrGpu.h"
 #include "GrGLIndexBuffer.h"
 #include "GrGLIRect.h"
@@ -44,8 +45,8 @@ protected:
         bool fSmoothLineEnabled;
     } fHWAAState;
 
-    DrState   fHWDrawState;
-    bool      fHWStencilClip;
+    GrDrawState fHWDrawState;
+    bool        fHWStencilClip;
 
     // As flush of GL state proceeds it updates fHDrawState
     // to reflect the new state. Later parts of the state flush
@@ -56,7 +57,7 @@ protected:
         bool fRenderTargetChanged : 1;
         int  fTextureChangedMask;
     } fDirtyFlags;
-    GR_STATIC_ASSERT(8 * sizeof(int) >= kNumStages);
+    GR_STATIC_ASSERT(8 * sizeof(int) >= GrDrawState::kNumStages);
 
     // clears the dirty flags
     void resetDirtyFlags();

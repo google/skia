@@ -9,6 +9,7 @@
 #include "GrAAHairLinePathRenderer.h"
 
 #include "GrContext.h"
+#include "GrDrawState.h"
 #include "GrGpu.h"
 #include "GrIndexBuffer.h"
 #include "GrPathUtils.h"
@@ -624,7 +625,7 @@ bool GrAAHairLinePathRenderer::createGeom(GrDrawTarget::StageBitfield stages) {
     }
 
     GrVertexLayout layout = GrDrawTarget::kEdge_VertexLayoutBit;
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if ((1 << s) & stages) {
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
         }
@@ -701,7 +702,7 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
     int nBufLines = fLinesIndexBuffer->maxQuads();
     while (lines < fLineSegmentCnt) {
         int n = GrMin(fLineSegmentCnt-lines, nBufLines);
-        fTarget->setVertexEdgeType(GrDrawTarget::kHairLine_EdgeType);
+        fTarget->setVertexEdgeType(GrDrawState::kHairLine_EdgeType);
         fTarget->drawIndexed(kTriangles_PrimitiveType,
                              kVertsPerLineSeg*lines,    // startV
                              0,                         // startI
@@ -714,7 +715,7 @@ void GrAAHairLinePathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
     int quads = 0;
     while (quads < fQuadCnt) {
         int n = GrMin(fQuadCnt-quads, kNumQuadsInIdxBuffer);
-        fTarget->setVertexEdgeType(GrDrawTarget::kHairQuad_EdgeType);
+        fTarget->setVertexEdgeType(GrDrawState::kHairQuad_EdgeType);
         fTarget->drawIndexed(kTriangles_PrimitiveType,
                              4*fLineSegmentCnt + kVertsPerQuad*quads, // startV
                              0,                                       // startI

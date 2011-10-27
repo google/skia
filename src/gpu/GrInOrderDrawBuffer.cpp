@@ -324,8 +324,8 @@ void GrInOrderDrawBuffer::reset() {
     this->resetIndexSource();
     uint32_t numStates = fStates.count();
     for (uint32_t i = 0; i < numStates; ++i) {
-        const DrState& dstate = this->accessSavedDrawState(fStates[i]);
-        for (int s = 0; s < kNumStages; ++s) {
+        const GrDrawState& dstate = this->accessSavedDrawState(fStates[i]);
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             GrSafeUnref(dstate.fTextures[s]);
         }
         GrSafeUnref(dstate.fRenderTarget);
@@ -585,13 +585,13 @@ bool GrInOrderDrawBuffer::needsNewState() const {
      if (fStates.empty()) {
         return true;
      } else {
-         const DrState& old = this->accessSavedDrawState(fStates.back());
+        const GrDrawState& old = this->accessSavedDrawState(fStates.back());
         return old != fCurrDrawState;
      }
 }
 
 void GrInOrderDrawBuffer::pushState() {
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         GrSafeRef(fCurrDrawState.fTextures[s]);
     }
     GrSafeRef(fCurrDrawState.fRenderTarget);

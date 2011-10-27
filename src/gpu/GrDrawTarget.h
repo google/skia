@@ -13,6 +13,7 @@
 
 #include "GrClip.h"
 #include "GrColor.h"
+#include "GrDrawState.h"
 #include "GrMatrix.h"
 #include "GrRefCnt.h"
 #include "GrRenderTarget.h"
@@ -61,53 +62,10 @@ public:
     };
 
     /**
-     * Number of texture stages. Each stage takes as input a color and
-     * 2D texture coordinates. The color input to the first enabled stage is the
-     * per-vertex color or the constant color (setColor/setAlpha) if there are
-     * no per-vertex colors. For subsequent stages the input color is the output
-     * color from the previous enabled stage. The output color of each stage is
-     * the input color modulated with the result of a texture lookup. Texture
-     * lookups are specified by a texture a sampler (setSamplerState). Texture
-     * coordinates for each stage come from the vertices based on a
-     * GrVertexLayout bitfield. The output fragment color is the output color of
-     * the last enabled stage. The presence or absence of texture coordinates
-     * for each stage in the vertex layout indicates whether a stage is enabled
-     * or not.
-     */
-    enum {
-        kNumStages = 3,
-        kMaxTexCoords = kNumStages
-    };
-
-    /**
-     * The absolute maximum number of edges that may be specified for
-     * a single draw call when performing edge antialiasing.  This is used for
-     * the size of several static buffers, so implementations of getMaxEdges()
-     * (below) should clamp to this value.
-     */
-    enum {
-        kMaxEdges = 32
-    };
-
-     /**
-     * When specifying edges as vertex data this enum specifies what type of
-     * edges are in use. The edges are always 4 GrScalars in memory, even when
-     * the edge type requires fewer than 4.
-     */
-    enum VertexEdgeType {
-        /* 1-pixel wide line
-           2D implicit line eq (a*x + b*y +c = 0). 4th component unused */
-        kHairLine_EdgeType,
-        /* 1-pixel wide quadratic
-           u^2-v canonical coords (only 2 components used) */
-        kHairQuad_EdgeType
-    };
-
-    /**
      *  Bitfield used to indicate which stages are in use.
      */
     typedef int StageBitfield;
-    GR_STATIC_ASSERT(sizeof(StageBitfield)*8 >= kNumStages);
+    GR_STATIC_ASSERT(sizeof(StageBitfield)*8 >= GrDrawState::kNumStages);
 
     /**
      *  Flags that affect rendering. Controlled using enable/disableState(). All
@@ -144,12 +102,6 @@ public:
         kLastPublicStateBit = kDummyStateBit-1
     };
 
-    enum DrawFace {
-        kBoth_DrawFace,
-        kCCW_DrawFace,
-        kCW_DrawFace,
-    };
-
     /**
      * Sets the stencil settings to use for the next draw.
      * Changing the clip has the side-effect of possibly zeroing
@@ -167,65 +119,6 @@ public:
     void disableStencil() {
         fCurrDrawState.fStencilSettings.setDisabled();
     }
-
-    class Edge {
-      public:
-        Edge() {}
-        Edge(float x, float y, float z) : fX(x), fY(y), fZ(z) {}
-        GrPoint intersect(const Edge& other) {
-            return GrPoint::Make(
-                (fY * other.fZ - other.fY * fZ) /
-                  (fX * other.fY - other.fX * fY),
-                (fX * other.fZ - other.fX * fZ) /
-                  (other.fX * fY - fX * other.fY));
-        }
-        float fX, fY, fZ;
-    };
-
-protected:
-
-    struct DrState {
-        DrState() {
-            // make sure any pad is zero for memcmp
-            // all DrState members should default to something
-            // valid by the memset
-            memset(this, 0, sizeof(DrState));
-            
-            // memset exceptions
-            fColorFilterXfermode = SkXfermode::kDstIn_Mode;
-            fFirstCoverageStage = kNumStages;
-
-            // pedantic assertion that our ptrs will
-            // be NULL (0 ptr is mem addr 0)
-            GrAssert((intptr_t)(void*)NULL == 0LL);
-
-            // default stencil setting should be disabled
-            GrAssert(fStencilSettings.isDisabled());
-            fFirstCoverageStage = kNumStages;
-        }
-        uint32_t                fFlagBits;
-        GrBlendCoeff            fSrcBlend;
-        GrBlendCoeff            fDstBlend;
-        GrColor                 fBlendConstant;
-        GrTexture*              fTextures[kNumStages];
-        GrSamplerState          fSamplerStates[kNumStages];
-        int                     fFirstCoverageStage;
-        GrRenderTarget*         fRenderTarget;
-        GrColor                 fColor;
-        DrawFace                fDrawFace;
-        GrColor                 fColorFilterColor;
-        SkXfermode::Mode        fColorFilterXfermode;
-
-        GrStencilSettings       fStencilSettings;
-        GrMatrix                fViewMatrix;
-        VertexEdgeType          fVertexEdgeType;
-        Edge                    fEdgeAAEdges[kMaxEdges];
-        int                     fEdgeAANumEdges;
-        bool operator ==(const DrState& s) const {
-            return 0 == memcmp(this, &s, sizeof(DrState));
-        }
-        bool operator !=(const DrState& s) const { return !(*this == s); }
-    };
 
 public:
     ///////////////////////////////////////////////////////////////////////////
@@ -308,7 +201,7 @@ public:
      * @param matrix  the matrix to concat
      */
     void preConcatSamplerMatrix(int stage, const GrMatrix& matrix)  {
-        GrAssert(stage >= 0 && stage < kNumStages);
+        GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
         fCurrDrawState.fSamplerStates[stage].preConcatMatrix(matrix);
     }
 
@@ -317,7 +210,7 @@ public:
      * matrix
      */
     void preConcatSamplerMatrices(int stageMask, const GrMatrix& matrix) {
-        for (int i = 0; i < kNumStages; ++i) {
+        for (int i = 0; i < GrDrawState::kNumStages; ++i) {
             if ((1 << i) & stageMask) {
                 this->preConcatSamplerMatrix(i, matrix);
             }
@@ -438,7 +331,9 @@ public:
      * Controls whether clockwise, counterclockwise, or both faces are drawn.
      * @param face  the face(s) to draw.
      */
-    void setDrawFace(DrawFace face) { fCurrDrawState.fDrawFace = face; }
+    void setDrawFace(GrDrawState::DrawFace face) {
+        fCurrDrawState.fDrawFace = face;
+    }
 
     /**
      * A common pattern is to compute a color with the initial stages and then
@@ -446,8 +341,8 @@ public:
      * filters, glyph mask, etc). Color-filters, xfermodes, etc should be 
      * computed based on the pre-coverage-modulated color. The division of 
      * stages between color-computing and coverage-computing is specified by 
-     * this method. Initially this is kNumStages (all stages are color-
-     * computing).
+     * this method. Initially this is GrDrawState::kNumStages (all stages
+     * are color-computing).
      */
     void setFirstCoverageStage(int firstCoverageStage) { 
         fCurrDrawState.fFirstCoverageStage = firstCoverageStage; 
@@ -465,7 +360,9 @@ public:
      * or both faces.
      * @return the current draw face(s).
      */
-    DrawFace getDrawFace() const { return fCurrDrawState.fDrawFace; }
+    GrDrawState::DrawFace getDrawFace() const {
+        return fCurrDrawState.fDrawFace;
+    }
 
     /**
      * Enable render state settings.
@@ -564,7 +461,7 @@ public:
       * kEdge_VertexLayoutBit is set (see below). When per-vertex edges are not
       * specified the value of this setting has no effect.
       */
-    void setVertexEdgeType(VertexEdgeType type) {
+    void setVertexEdgeType(GrDrawState::VertexEdgeType type) {
         fCurrDrawState.fVertexEdgeType = type;
     }
 
@@ -573,7 +470,7 @@ public:
      * lines be used (if line primitive type is drawn)? (Note that lines are
      * always 1 pixel wide)
      */
-     bool willUseHWAALines() const;
+    bool willUseHWAALines() const;
 
     /**
      * Sets the edge data required for edge antialiasing.
@@ -581,14 +478,14 @@ public:
      * @param edges       3 * 6 float values, representing the edge
      *                    equations in Ax + By + C form
      */
-     void setEdgeAAData(const Edge* edges, int numEdges);
+    void setEdgeAAData(const GrDrawState::Edge* edges, int numEdges);
 
     /**
      * Used to save and restore the GrGpu's drawing state
      */
     struct SavedDrawState {
     private:
-        DrState fState;
+        GrDrawState fState;
         friend class GrDrawTarget;
     };
 
@@ -623,8 +520,9 @@ public:
     /**
      * The format of vertices is represented as a bitfield of flags.
      * Flags that indicate the layout of vertex data. Vertices always contain
-     * positions and may also contain up to kMaxTexCoords sets of 2D texture
-     * coordinates, per-vertex colors, and per-vertex coverage. Each stage can 
+     * positions and may also contain up to GrDrawState::kMaxTexCoords sets
+     * of 2D texture * coordinates, per-vertex colors, and per-vertex coverage.
+     * Each stage can 
      * use any of the texture coordinates as its input texture coordinates or it
      * may use the positions as texture coordinates.
      *
@@ -651,13 +549,14 @@ public:
      * @return the bit to add to a GrVertexLayout bitfield.
      */
     static int StageTexCoordVertexLayoutBit(int stage, int texCoordIdx) {
-        GrAssert(stage < kNumStages);
-        GrAssert(texCoordIdx < kMaxTexCoords);
-        return 1 << (stage + (texCoordIdx * kNumStages));
+        GrAssert(stage < GrDrawState::kNumStages);
+        GrAssert(texCoordIdx < GrDrawState::kMaxTexCoords);
+        return 1 << (stage + (texCoordIdx * GrDrawState::kNumStages));
     }
 
 private:
-    static const int TEX_COORD_BIT_CNT = kNumStages*kMaxTexCoords;
+    static const int TEX_COORD_BIT_CNT = GrDrawState::kNumStages *
+                                         GrDrawState::kMaxTexCoords;
 
 public:
     /**
@@ -670,12 +569,13 @@ public:
      * @return the bit to add to a GrVertexLayout bitfield.
      */
     static int StagePosAsTexCoordVertexLayoutBit(int stage) {
-        GrAssert(stage < kNumStages);
+        GrAssert(stage < GrDrawState::kNumStages);
         return (1 << (TEX_COORD_BIT_CNT + stage));
     }
 
 private:
-    static const int STAGE_BIT_CNT = TEX_COORD_BIT_CNT + kNumStages;
+    static const int STAGE_BIT_CNT = TEX_COORD_BIT_CNT +
+        GrDrawState::kNumStages;
 
 public:
 
@@ -1040,7 +940,7 @@ public:
     private:
         GrDrawTarget*       fDrawTarget;
         GrMatrix            fViewMatrix;
-        GrMatrix            fSamplerMatrices[kNumStages];
+        GrMatrix            fSamplerMatrices[GrDrawState::kNumStages];
         int                 fStageMask;
     };
 
@@ -1207,10 +1107,10 @@ public:
      * @return size of a single vertex
      */
     static int VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
-                                         int texCoordOffsetsByIdx[kMaxTexCoords],
-                                         int *colorOffset,
-                                         int *coverageOffset,
-                                         int* edgeOffset);
+                   int texCoordOffsetsByIdx[GrDrawState::kMaxTexCoords],
+                   int *colorOffset,
+                   int *coverageOffset,
+                   int* edgeOffset);
 
     /**
      * Helper function to compute the size of each vertex and the offsets of
@@ -1238,10 +1138,10 @@ public:
      * @return size of a single vertex
      */
     static int VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
-                                           int texCoordOffsetsByStage[kNumStages],
-                                           int *colorOffset,
-                                           int *coverageOffset,
-                                           int* edgeOffset);
+                   int texCoordOffsetsByStage[GrDrawState::kNumStages],
+                   int* colorOffset,
+                   int* coverageOffset,
+                   int* edgeOffset);
 
     /**
      * Accessing positions, texture coords, or colors, of a vertex within an
@@ -1386,7 +1286,7 @@ protected:
     
     // given a vertex layout and a draw state, will a stage be used?
     static bool StageWillBeUsed(int stage, GrVertexLayout layout, 
-                                const DrState& state) {
+                                const GrDrawState& state) {
         return NULL != state.fTextures[stage] && VertexUsesStage(stage, layout);
     }
 
@@ -1397,7 +1297,7 @@ protected:
 
     StageBitfield enabledStages() const {
         StageBitfield mask = 0;
-        for (int s = 0; s < kNumStages; ++s) {
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             mask |= this->isStageEnabled(s) ? 1 : 0;
         }
         return mask;
@@ -1405,9 +1305,9 @@ protected:
 
     // Helpers for GrDrawTarget subclasses that won't have private access to
     // SavedDrawState but need to peek at the state values.
-    static DrState& accessSavedDrawState(SavedDrawState& sds)
+    static GrDrawState& accessSavedDrawState(SavedDrawState& sds)
                                                         { return sds.fState; }
-    static const DrState& accessSavedDrawState(const SavedDrawState& sds)
+    static const GrDrawState& accessSavedDrawState(const SavedDrawState& sds)
                                                         { return sds.fState; }
 
     // implemented by subclass to allocate space for reserved geom
@@ -1462,7 +1362,7 @@ protected:
 
     GrClip fClip;
 
-    DrState fCurrDrawState;
+    GrDrawState fCurrDrawState;
 
     Caps fCaps;
 

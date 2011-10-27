@@ -10,6 +10,7 @@
 #ifndef GrGLProgram_DEFINED
 #define GrGLProgram_DEFINED
 
+#include "GrDrawState.h"
 #include "GrGLInterface.h"
 #include "GrStringBuilder.h"
 #include "GrGpu.h"
@@ -76,17 +77,17 @@ public:
      */
     static int PositionAttributeIdx() { return 0; }
     static int TexCoordAttributeIdx(int tcIdx) { return 1 + tcIdx; }
-    static int ColorAttributeIdx() { return 1 + GrDrawTarget::kMaxTexCoords; }
+    static int ColorAttributeIdx() { return 1 + GrDrawState::kMaxTexCoords; }
     static int CoverageAttributeIdx() {
-        return 2 + GrDrawTarget::kMaxTexCoords;
+        return 2 + GrDrawState::kMaxTexCoords;
     }
-    static int EdgeAttributeIdx() { return 3 + GrDrawTarget::kMaxTexCoords; }
+    static int EdgeAttributeIdx() { return 3 + GrDrawState::kMaxTexCoords; }
 
     static int ViewMatrixAttributeIdx() {
-        return 4 + GrDrawTarget::kMaxTexCoords;
+        return 4 + GrDrawState::kMaxTexCoords;
     }
     static int TextureMatrixAttributeIdx(int stage) {
-        return 7 + GrDrawTarget::kMaxTexCoords + 3 * stage;
+        return 7 + GrDrawState::kMaxTexCoords + 3 * stage;
     }
 
 public:
@@ -172,12 +173,12 @@ public:
             kDualSrcOutputCnt
         };
 
-        GrDrawTarget::VertexEdgeType fVertexEdgeType;
+        GrDrawState::VertexEdgeType fVertexEdgeType;
 
         // stripped of bits that don't affect prog generation
         GrVertexLayout fVertexLayout;
 
-        StageDesc fStages[GrDrawTarget::kNumStages];
+        StageDesc fStages[GrDrawState::kNumStages];
 
         // To enable experimental geometry shader code (not for use in
         // production)
@@ -236,13 +237,13 @@ public:
         GrGLint fColorUni;
         GrGLint fEdgesUni;
         GrGLint fColorFilterUni;
-        StageUniLocations fStages[GrDrawTarget::kNumStages];
+        StageUniLocations fStages[GrDrawState::kNumStages];
         void reset() {
             fViewMatrixUni = kUnusedUniform;
             fColorUni = kUnusedUniform;
             fEdgesUni = kUnusedUniform;
             fColorFilterUni = kUnusedUniform;
-            for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
                 fStages[s].reset();
             }
         }
@@ -276,14 +277,14 @@ public:
         // (GL uniform values travel with program)
         GrColor                     fColor;
         GrColor                     fColorFilterColor;
-        GrMatrix                    fTextureMatrices[GrDrawTarget::kNumStages];
+        GrMatrix                    fTextureMatrices[GrDrawState::kNumStages];
         // width and height used for normalized texel size
-        int                         fTextureWidth[GrDrawTarget::kNumStages];
-        int                         fTextureHeight[GrDrawTarget::kNumStages]; 
-        GrScalar                    fRadial2CenterX1[GrDrawTarget::kNumStages];
-        GrScalar                    fRadial2Radius0[GrDrawTarget::kNumStages];
-        bool                        fRadial2PosRoot[GrDrawTarget::kNumStages];
-        GrRect                      fTextureDomain[GrDrawTarget::kNumStages];
+        int                         fTextureWidth[GrDrawState::kNumStages];
+        int                         fTextureHeight[GrDrawState::kNumStages]; 
+        GrScalar                    fRadial2CenterX1[GrDrawState::kNumStages];
+        GrScalar                    fRadial2Radius0[GrDrawState::kNumStages];
+        bool                        fRadial2PosRoot[GrDrawState::kNumStages];
+        GrRect                      fTextureDomain[GrDrawState::kNumStages];
 
     private:
         enum Constants {
@@ -340,7 +341,7 @@ private:
     // links the program
     bool bindOutputsAttribsAndLinkProgram(
                 const GrGLInterface* gl,
-                GrStringBuilder texCoordAttrNames[GrDrawTarget::kMaxTexCoords],
+                GrStringBuilder texCoordAttrNames[GrDrawState::kMaxTexCoords],
                 bool bindColorOut,
                 bool bindDualSrcOut,
                 CachedData* programData) const;
