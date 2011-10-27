@@ -141,7 +141,7 @@ template <typename T>
 class GrTAllocator : GrNoncopyable {
 
 public:
-    virtual ~GrTAllocator() {};
+    virtual ~GrTAllocator() { this->reset(); };
 
     /**
      * Create an allocator
