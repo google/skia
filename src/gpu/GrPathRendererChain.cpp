@@ -32,25 +32,20 @@ GrPathRenderer* GrPathRendererChain::addPathRenderer(GrPathRenderer* pr) {
     return pr;
 }
 
-GrPathRenderer* GrPathRendererChain::getPathRenderer(const GrDrawTarget* target,
-                                                     const GrPath& path,
-                                                     GrPathFill fill) {
+GrPathRenderer* GrPathRendererChain::getPathRenderer(
+                                        const GrDrawTarget::Caps& targetCaps,
+                                        const GrPath& path,
+                                        GrPathFill fill,
+                                        bool antiAlias) {
     if (!fInit) {
         this->init();
     }
-    bool preferAA = target->isAntialiasState() && 
-                    !target->getRenderTarget()->isMultisampled();
-    GrPathRenderer* nonAAPR = NULL;
     for (int i = 0; i < fChain.count(); ++i) {
-        if (fChain[i]->canDrawPath(target, path, fill)) {
-            if (!preferAA || fChain[i]->supportsAA(target, path, fill)) {
-                return fChain[i];
-            } else {
-                nonAAPR = fChain[i];
-            }
+        if (fChain[i]->canDrawPath(targetCaps, path, fill, antiAlias)) {
+            return fChain[i];
         }
     }
-    return nonAAPR;
+    return NULL;
 }
 
 void GrPathRendererChain::init() {

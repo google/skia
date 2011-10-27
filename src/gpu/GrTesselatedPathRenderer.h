@@ -17,17 +17,11 @@ public:
     GrTesselatedPathRenderer();
 
     virtual void drawPath(GrDrawTarget::StageBitfield stages);
-    virtual bool canDrawPath(const GrDrawTarget* target,
+    virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
                              const GrPath& path,
-                             GrPathFill fill) const;
-
-    virtual bool requiresStencilPass(const GrDrawTarget* target,
-                                     const GrPath& path,
-                                     GrPathFill fill) const { return false; }
-    virtual void drawPathToStencil();
-    virtual bool supportsAA(const GrDrawTarget* target,
-                            const GrPath& path,
-                            GrPathFill fill) const;
+                             GrPathFill fill,
+                             bool antiAlias) const SK_OVERRIDE;
+    virtual void drawPathToStencil() SK_OVERRIDE;
 };
 
 #endif

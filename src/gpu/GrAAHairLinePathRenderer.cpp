@@ -106,20 +106,15 @@ GrAAHairLinePathRenderer::~GrAAHairLinePathRenderer() {
     fQuadsIndexBuffer->unref();
 }
 
-bool GrAAHairLinePathRenderer::supportsAA(const GrDrawTarget* target,
-                                          const SkPath& path,
-                                          GrPathFill fill) const {
-    return kHairLine_PathFill == fill;
-}
-
-bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget* target,
+bool GrAAHairLinePathRenderer::canDrawPath(const GrDrawTarget::Caps& targetCaps,
                                            const SkPath& path,
-                                           GrPathFill fill) const {
+                                           GrPathFill fill,
+                                           bool antiAlias) const {
     static const uint32_t gReqDerivMask = SkPath::kCubic_SegmentMask |
                                           SkPath::kQuad_SegmentMask;
     return (kHairLine_PathFill == fill &&
-            target->isAntialiasState() &&
-            (target->getCaps().fShaderDerivativeSupport ||
+            antiAlias &&
+            (targetCaps.fShaderDerivativeSupport ||
              !(gReqDerivMask & path.getSegmentMasks())));
 }
 

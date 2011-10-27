@@ -17,18 +17,16 @@ public:
 
     static GrPathRenderer* Create(GrContext* context);
     // GrPathRenderer overrides
-    virtual bool supportsAA(const GrDrawTarget* target,
-                            const SkPath& path,
-                            GrPathFill fill) const;
-    virtual bool canDrawPath(const GrDrawTarget* target,
+    virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
                              const SkPath& path,
-                             GrPathFill fill) const;
-    virtual void drawPath(GrDrawTarget::StageBitfield stages);
+                             GrPathFill fill,
+                             bool antiAlias) const  SK_OVERRIDE;
+    virtual void drawPath(GrDrawTarget::StageBitfield stages) SK_OVERRIDE;
 
 protected:
 
     // GrPathRenderer overrides
-    virtual void pathWillClear();
+    virtual void pathWillClear()  SK_OVERRIDE;
 
 private:
     void resetGeom();

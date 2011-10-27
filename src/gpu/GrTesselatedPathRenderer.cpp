@@ -457,7 +457,7 @@ FINISHED:
     }
 
     if (subpathCnt == 1 && !inverted && fPath->isConvex()) {
-        if (fTarget->isAntialiasState()) {
+        if (fAntiAlias) {
             GrEdgeArray edges;
             GrMatrix inverse, matrix = fTarget->getViewMatrix();
             fTarget->getViewInverse(&inverse);
@@ -492,7 +492,7 @@ FINISHED:
         return;
     }
 
-    if (fTarget->isAntialiasState()) {
+    if (fAntiAlias) {
         // Run the tesselator once to get the boundaries.
         GrBoundaryTess btess(count, fill_type_to_glu_winding_rule(fFill));
         btess.addVertices(base, subpathVertCount, subpathCnt);
@@ -590,9 +590,10 @@ FINISHED:
     }
 }
 
-bool GrTesselatedPathRenderer::canDrawPath(const GrDrawTarget* target,
+bool GrTesselatedPathRenderer::canDrawPath(const GrDrawTarget::Caps& caps,
                                            const SkPath& path,
-                                           GrPathFill fill) const {
+                                           GrPathFill fill,
+                                           bool antiAlias) const {
     return kHairLine_PathFill != fill;
 }
 
@@ -600,8 +601,3 @@ void GrTesselatedPathRenderer::drawPathToStencil() {
     GrAlwaysAssert(!"multipass stencil should not be needed");
 }
 
-bool GrTesselatedPathRenderer::supportsAA(const GrDrawTarget* target,
-                                          const SkPath& path,
-                                          GrPathFill fill) const {
-    return true;
-}

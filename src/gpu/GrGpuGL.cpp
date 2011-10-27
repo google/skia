@@ -1798,7 +1798,7 @@ void GrGpuGL::flushAAState(GrPrimitiveType type) {
                 fHWAAState.fMSAAEnabled = false;
             }
         } else if (fCurrDrawState.fRenderTarget->isMultisampled() &&
-                   !!(kAntialias_StateBit & fCurrDrawState.fFlagBits) !=
+                   SkToBool(kHWAntialias_StateBit & fCurrDrawState.fFlagBits) !=
                    fHWAAState.fMSAAEnabled) {
             if (fHWAAState.fMSAAEnabled) {
                 GL_CALL(Disable(GR_GL_MULTISAMPLE));
