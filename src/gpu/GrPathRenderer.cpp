@@ -16,6 +16,7 @@ GrPathRenderer::GrPathRenderer()
 void GrPathRenderer::setPath(GrDrawTarget* target,
                              const SkPath* path,
                              GrPathFill fill,
+                             bool antiAlias,
                              const GrPoint* translate) {
     GrAssert(NULL == fPath);
     GrAssert(NULL == fTarget);
@@ -24,6 +25,7 @@ void GrPathRenderer::setPath(GrDrawTarget* target,
     fTarget = target;
     fPath = path;
     fFill = fill;
+    fAntiAlias = antiAlias;
     if (NULL != translate) {
         fTranslate = *translate;
     } else {

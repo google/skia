@@ -10,11 +10,12 @@
 #ifndef GrPathRendererChain_DEFINED
 #define GrPathRendererChain_DEFINED
 
+#include "GrDrawTarget.h"
 #include "GrRefCnt.h"
 #include "SkTArray.h"
 
 class GrContext;
-class GrDrawTarget;
+
 class SkPath;
 class GrPathRenderer;
 
@@ -39,9 +40,10 @@ public:
     // takes a ref and unrefs in destructor
     GrPathRenderer* addPathRenderer(GrPathRenderer* pr);
 
-    GrPathRenderer* getPathRenderer(const GrDrawTarget* target,
+    GrPathRenderer* getPathRenderer(const GrDrawTarget::Caps& targetCaps,
                                     const SkPath& path,
-                                    GrPathFill fill);
+                                    GrPathFill fill,
+                                    bool antiAlias);
 
 private:
 

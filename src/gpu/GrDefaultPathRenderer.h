@@ -20,16 +20,17 @@ public:
     GrDefaultPathRenderer(bool separateStencilSupport,
                           bool stencilWrapOpsSupport);
 
-    virtual bool canDrawPath(const GrDrawTarget* target,
+    virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
                              const SkPath& path,
-                             GrPathFill fill) const { return true; }
+                             GrPathFill fill,
+                             bool antiAlias) const SK_OVERRIDE;
 
     virtual bool requiresStencilPass(const GrDrawTarget* target,
                                      const SkPath& path,
-                                     GrPathFill fill) const;
+                                     GrPathFill fill) const SK_OVERRIDE;
 
-    virtual void drawPath(GrDrawTarget::StageBitfield stages);
-    virtual void drawPathToStencil();
+    virtual void drawPath(GrDrawTarget::StageBitfield stages) SK_OVERRIDE;
+    virtual void drawPathToStencil() SK_OVERRIDE;
 
 protected:
     virtual void pathWillClear();

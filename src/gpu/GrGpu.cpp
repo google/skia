@@ -600,7 +600,7 @@ bool GrGpu::setupClipAndFlushState(GrPrimitiveType type) {
                     }
                     canRenderDirectToStencil =
                         !pr->requiresStencilPass(this, *clipPath, fill);
-                    arp.set(pr, this, clipPath, fill, NULL);
+                    arp.set(pr, this, clipPath, fill, false, NULL);
                 }
 
                 GrSetOp op = (c == start) ? startOp : clip.getOp(c);
@@ -684,7 +684,8 @@ GrPathRenderer* GrGpu::getClipPathRenderer(const GrPath& path,
             new GrPathRendererChain(this->getContext(),
                                     GrPathRendererChain::kNonAAOnly_UsageFlag);
     }
-    return fPathRendererChain->getPathRenderer(this, path, fill);
+    return fPathRendererChain->getPathRenderer(this->getCaps(),
+                                               path, fill, false);
 }
 
 

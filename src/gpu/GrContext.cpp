@@ -333,7 +333,7 @@ GrContext::TextureCacheEntry GrContext::createAndLockTexture(TextureKey key,
             fGpu->setBlendFunc(kOne_BlendCoeff, kZero_BlendCoeff);
             fGpu->disableState(GrDrawTarget::kDither_StateBit |
                                GrDrawTarget::kClip_StateBit   |
-                               GrDrawTarget::kAntialias_StateBit);
+                               GrDrawTarget::kHWAntialias_StateBit);
             GrSamplerState::Filter filter;
             // if filtering is not desired then we want to ensure all
             // texels in the resampled image are copies of texels from
@@ -664,9 +664,6 @@ bool GrContext::doOffscreenAA(GrDrawTarget* target,
 #if !GR_USE_OFFSCREEN_AA
     return false;
 #else
-    if (!target->isAntialiasState()) {
-        return false;
-    }
     // Line primitves are always rasterized as 1 pixel wide.
     // Super-sampling would make them too thin but MSAA would be OK.
     if (isHairLines &&
@@ -778,6 +775,9 @@ void GrContext::setupOffscreenAAPass1(GrDrawTarget* target,
     tempPaint.reset();
     SetPaint(tempPaint, target);
     target->setRenderTarget(offRT0);
+#if PREFER_MSAA_OFFSCREEN_AA
+    target->enableState(GrDrawTarget::kHWAntialias_StateBit);
+#endif
 
     GrMatrix transM;
     int left = boundRect.fLeft + tileX * record->fTileSizeX;
@@ -1166,16 +1166,12 @@ static bool apply_aa_to_rect(GrDrawTarget* target,
                              bool* useVertexCoverage) {
     // we use a simple alpha ramp to do aa on axis-aligned rects
     // do AA with alpha ramp if the caller requested AA, the rect 
-    // will be axis-aligned,the render target is not
-    // multisampled, and the rect won't land on integer coords.
-
-    if (!target->isAntialiasState()) {
-        return false;
-    }
+    // will be axis-aligned, and the rect won't land on integer coords.
 
     // we are keeping around the "tweak the alpha" trick because
     // it is our only hope for the fixed-pipe implementation.
     // In a shader implementation we can give a separate coverage input
+    // TODO: remove this ugliness when we drop the fixed-pipe impl
     *useVertexCoverage = false;
     if (!target->canTweakAlphaForCoverage()) {
         if (target->getCaps().fSupportPerVertexCoverage) {
@@ -1238,8 +1234,11 @@ void GrContext::drawRect(const GrPaint& paint,
     GrRect devRect = rect;
     GrMatrix combinedMatrix;
     bool useVertexCoverage;
-    bool doAA = apply_aa_to_rect(target, rect, width, matrix,
-                                 &combinedMatrix, &devRect, &useVertexCoverage);
+    bool needAA = paint.fAntiAlias &&
+                  !this->getRenderTarget()->isMultisampled();
+    bool doAA = needAA && apply_aa_to_rect(target, rect, width, matrix,
+                                           &combinedMatrix, &devRect,
+                                           &useVertexCoverage);
 
     if (doAA) {
         GrDrawTarget::AutoViewMatrixRestore avm(target);
@@ -1490,6 +1489,8 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
 
     GrDrawTarget* target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 
+    bool prAA = paint.fAntiAlias && !this->getRenderTarget()->isMultisampled();
+
     // An Assumption here is that path renderer would use some form of tweaking
     // the src color (either the input alpha or in the frag shader) to implement
     // aa. If we have some future driver-mojo path AA that can do the right
@@ -1498,10 +1499,22 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
 #if GR_DEBUG
         GrPrintf("Turning off AA to correctly apply blend.\n");
 #endif
-        target->disableState(GrDrawTarget::kAntialias_StateBit);
+        prAA = false;
     }
-    
-    GrPathRenderer* pr = this->getPathRenderer(target, path, fill);
+
+    bool doOSAA = false;
+    GrPathRenderer* pr = NULL;
+    if (prAA) {
+        pr = this->getPathRenderer(path, fill, true);
+        if (NULL == pr) {
+            prAA = false;
+            doOSAA = this->doOffscreenAA(target, kHairLine_PathFill == fill);
+            pr = this->getPathRenderer(path, fill, false);
+        }
+    } else {
+        pr = this->getPathRenderer(path, fill, false);
+    }
+
     if (NULL == pr) {
 #if GR_DEBUG
         GrPrintf("Unable to find path renderer compatible with path.\n");
@@ -1509,12 +1522,10 @@ void GrContext::drawPath(const GrPaint& paint, const GrPath& path,
         return;
     }
 
-    GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, translate);
+    GrPathRenderer::AutoClearPath arp(pr, target, &path, fill, prAA, translate);
     GrDrawTarget::StageBitfield stageMask = paint.getActiveStageMask();
 
-    if (!pr->supportsAA(target, path, fill) &&
-        this->doOffscreenAA(target, kHairLine_PathFill == fill)) {
-
+    if (doOSAA) {
         bool needsStencil = pr->requiresStencilPass(target, path, fill);
 
         // compute bounds as intersection of rt size, clip, and path
@@ -1723,9 +1734,9 @@ void GrContext::SetPaint(const GrPaint& paint, GrDrawTarget* target) {
         target->disableState(GrDrawTarget::kDither_StateBit);
     }
     if (paint.fAntiAlias) {
-        target->enableState(GrDrawTarget::kAntialias_StateBit);
+        target->enableState(GrDrawTarget::kHWAntialias_StateBit);
     } else {
-        target->disableState(GrDrawTarget::kAntialias_StateBit);
+        target->disableState(GrDrawTarget::kHWAntialias_StateBit);
     }
     target->setBlendFunc(paint.fSrcBlendCoeff, paint.fDstBlendCoeff);
     target->setColorFilter(paint.fColorFilterColor, paint.fColorFilterXfermode);
@@ -1763,14 +1774,15 @@ GrDrawTarget* GrContext::prepareToDraw(const GrPaint& paint,
     return target;
 }
 
-GrPathRenderer* GrContext::getPathRenderer(const GrDrawTarget* target,
-                                           const GrPath& path,
-                                           GrPathFill fill) {
+GrPathRenderer* GrContext::getPathRenderer(const GrPath& path,
+                                           GrPathFill fill,
+                                           bool antiAlias) {
     if (NULL == fPathRendererChain) {
         fPathRendererChain = 
             new GrPathRendererChain(this, GrPathRendererChain::kNone_UsageFlag);
     }
-    return fPathRendererChain->getPathRenderer(target, path, fill);
+    return fPathRendererChain->getPathRenderer(fGpu->getCaps(), path,
+                                               fill, antiAlias);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

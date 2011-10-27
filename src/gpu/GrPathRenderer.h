@@ -24,7 +24,7 @@ struct GrPoint;
  *  Paths may be drawn multiple times as when tiling for supersampling. The 
  *  calls on GrPathRenderer to draw a path will look like this:
  *  
- *  pr->setPath(target, path, fill, translate); // sets the path to draw
+ *  pr->setPath(target, path, fill, aa, translate); // sets the path to draw
  *      pr->drawPath(...);  // draw the path
  *      pr->drawPath(...);
  *      ...
@@ -54,27 +54,20 @@ public:
      * Returns true if this path renderer is able to render the path.
      * Returning false allows the caller to fallback to another path renderer.
      * When searching for a path renderer capable of rendering a path this
-     * function is called. The path renderer can examine the path, fill rule,
-     * and draw settings that will be used (via the targetparameter). If "true"
-     * is reported note that the caller is permitted to make modifications to
-     * the following settings of the target between the calls to canDrawPath and
-     * drawPath:
-     *     1. view matrix: The matrix at drawPath time may have additional scale
-     *                     scale and translation applied
-     *     2. render target: The render target may change between canDrawPath 
-     *                       and drawPath.
-     * The GrPathRenderer subclass's decision about whether to return true
-     * or false in its implementation of this function should consider these
-     * possible state changes.
+     * function is called.
      *
-     * @param path      The path to draw
-     * @param fill      The fill rule to use
+     * @param targetCaps The caps of the draw target that will be used to draw
+     *                   the path.
+     * @param path       The path to draw
+     * @param fill       The fill rule to use
+     * @param antiAlias  True if anti-aliasing is required.
      *
      * @return  true if the path can be drawn by this object, false otherwise.
      */
-    virtual bool canDrawPath(const GrDrawTarget* target,
+    virtual bool canDrawPath(const GrDrawTarget::Caps& targetCaps,
                              const SkPath& path,
-                             GrPathFill fill) const = 0;
+                             GrPathFill fill,
+                             bool antiAlias) const = 0;
 
     /**
      * For complex clips Gr uses the stencil buffer. The path renderer must be
@@ -102,15 +95,6 @@ public:
                                      GrPathFill fill) const { return false; }
 
     /**
-     * @return true if the path renderer can perform anti-aliasing (aside from
-     * having FSAA enabled for a render target). Target is provided to
-     * communicate the draw state (blend mode, stage settings, etc).
-     */
-    virtual bool supportsAA(const GrDrawTarget* target,
-                            const SkPath& path,
-                            GrPathFill fill) const { return false; }
-
-    /**
      * Sets the path to render and target to render into. All calls to drawPath
      * and drawPathToStencil must occur between setPath and clearPath. The
      * path cannot be modified externally between setPath and clearPath. The
@@ -125,12 +109,14 @@ public:
      * @param target                the target to draw into.
      * @param path                  the path to draw.
      * @param fill                  the fill rule to apply.
+     * @param antiAlias             perform antiAliasing when drawing the path.
      * @param translate             optional additional translation to apply to
      *                              the path. NULL means (0,0).
      */
     void setPath(GrDrawTarget* target,
                  const SkPath* path,
                  GrPathFill fill,
+                 bool antiAlias,
                  const GrPoint* translate);
 
     /**
@@ -179,24 +165,26 @@ public:
             fPathRenderer = NULL;
         }
         AutoClearPath(GrPathRenderer* pr,
-                       GrDrawTarget* target,
-                       const SkPath* path,
-                       GrPathFill fill,
-                       const GrPoint* translate) {
+                      GrDrawTarget* target,
+                      const SkPath* path,
+                      GrPathFill fill,
+                      bool antiAlias,
+                      const GrPoint* translate) {
             GrAssert(NULL != pr);
-            pr->setPath(target, path, fill, translate);
+            pr->setPath(target, path, fill, antiAlias, translate);
             fPathRenderer = pr;
         }
         void set(GrPathRenderer* pr,
                  GrDrawTarget* target,
                  const SkPath* path,
                  GrPathFill fill,
+                 bool antiAlias,
                  const GrPoint* translate) {
             if (NULL != fPathRenderer) {
                 fPathRenderer->clearPath();
             }
             GrAssert(NULL != pr);
-            pr->setPath(target, path, fill, translate);
+            pr->setPath(target, path, fill, antiAlias, translate);
             fPathRenderer = pr;
         }
         ~AutoClearPath() {
@@ -219,6 +207,7 @@ protected:
     GrDrawTarget*               fTarget;
     GrPathFill                  fFill;
     GrPoint                     fTranslate;
+    bool                        fAntiAlias;
 
 private:
 

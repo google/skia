@@ -25,6 +25,16 @@ GrDefaultPathRenderer::GrDefaultPathRenderer(bool separateStencilSupport,
     fTarget = NULL;
 }
 
+bool GrDefaultPathRenderer::canDrawPath(const GrDrawTarget::Caps& targetCaps,
+                                        const SkPath& path,
+                                        GrPathFill fill,
+                                        bool antiAlias) const {
+    // this class can draw any path with any fill but doesn't do any 
+    // anti-aliasing.
+    return !antiAlias; 
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Stencil rules for paths
 
@@ -187,7 +197,7 @@ static inline bool single_pass_path(const GrDrawTarget& target,
 }
 
 bool GrDefaultPathRenderer::requiresStencilPass(const GrDrawTarget* target,
-                                                const GrPath& path, 
+                                                const GrPath& path,
                                                 GrPathFill fill) const {
     return !single_pass_path(*target, path, fill);
 }

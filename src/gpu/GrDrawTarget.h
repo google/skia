@@ -114,23 +114,31 @@ public:
      *  default to disabled.
      */
     enum StateBits {
-        kDither_StateBit        = 0x01, //<! Perform color dithering
-        kAntialias_StateBit     = 0x02, //<! Perform anti-aliasing. The render-
-                                        //   target must support some form of AA
-                                        //   (msaa, coverage sampling, etc). For
-                                        //   GrGpu-created rendertarget/textures
-                                        //   this is controlled by parameters
-                                        //   passed to createTexture.
-        kClip_StateBit          = 0x04, //<! Controls whether drawing is clipped
-                                        //   against the region specified by
-                                        //   setClip.
-        kNoColorWrites_StateBit = 0x08, //<! If set it disables writing colors.
-                                        //   Useful while performing stencil
-                                        //   ops.
-        kEdgeAAConcave_StateBit =  0x10,//<! If set, edge AA will test edge
-                                        //   pairs for convexity while 
-                                        //   rasterizing.  Set this if the
-                                        //   source polygon is non-convex.
+        /**
+         * Perform dithering. TODO: Re-evaluate whether we need this bit
+         */
+        kDither_StateBit        = 0x01,
+        /**
+         * Perform HW anti-aliasing. This means either HW FSAA, if supported
+         * by the render target, or smooth-line rendering if a line primitive
+         * is drawn and line smoothing is supported by the 3D API.
+         */
+        kHWAntialias_StateBit   = 0x02,
+        /**
+         * Draws will respect the clip, otherwise the clip is ignored.
+         */
+        kClip_StateBit          = 0x04,
+        /**
+         * Disables writing to the color buffer. Useful when performing stencil
+         * operations.
+         */
+        kNoColorWrites_StateBit = 0x08,
+        /**
+         * Modifies the behavior of edge AA specified by setEdgeAA. If set, 
+         * will test edge pairs for convexity when rasterizing. Set this if the 
+         * source polygon is non-convex.
+         */
+        kEdgeAAConcave_StateBit =  0x10,
         // subclass may use additional bits internally
         kDummyStateBit,
         kLastPublicStateBit = kDummyStateBit-1
@@ -477,8 +485,8 @@ public:
         return 0 != (fCurrDrawState.fFlagBits & kDither_StateBit);
     }
 
-    bool isAntialiasState() const {
-        return 0 != (fCurrDrawState.fFlagBits & kAntialias_StateBit);
+    bool isHWAntialiasState() const {
+        return 0 != (fCurrDrawState.fFlagBits & kHWAntialias_StateBit);
     }
 
     bool isClipState() const {

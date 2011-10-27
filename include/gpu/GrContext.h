@@ -585,9 +585,9 @@ private:
 
     GrDrawTarget* prepareToDraw(const GrPaint& paint, DrawCategory drawType);
 
-    GrPathRenderer* getPathRenderer(const GrDrawTarget* target,
-                                    const GrPath& path,
-                                    GrPathFill fill);
+    GrPathRenderer* getPathRenderer(const GrPath& path,
+                                    GrPathFill fill,
+                                    bool antiAlias);
 
     struct OffscreenRecord;
 

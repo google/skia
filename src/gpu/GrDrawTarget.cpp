@@ -999,7 +999,7 @@ bool GrDrawTarget::willUseHWAALines() const {
     // but not in a premul-alpha way. So we only use them when our alpha
     // is 0xff and tweaking the color for partial coverage is OK
     if (!fCaps.fHWAALineSupport ||
-        !(kAntialias_StateBit & fCurrDrawState.fFlagBits)) {
+        !(kHWAntialias_StateBit & fCurrDrawState.fFlagBits)) {
         return false;
     }
     BlendOptFlags opts = this->getBlendOpts();
