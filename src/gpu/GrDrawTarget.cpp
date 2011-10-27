@@ -24,7 +24,7 @@ int stage_mask_recur(int stage) {
            stage_mask_recur<N+1>(stage);
 }
 template<> 
-int stage_mask_recur<GrDrawTarget::kNumStages>(int) { return 0; }
+int stage_mask_recur<GrDrawState::kNumStages>(int) { return 0; }
 
 // mask of all tex coord indices for one stage
 int stage_tex_coord_mask(int stage) {
@@ -45,7 +45,7 @@ int tex_coord_mask_recur(int texCoordIdx) {
            tex_coord_mask_recur<N+1>(texCoordIdx);
 }
 template<> 
-int tex_coord_mask_recur<GrDrawTarget::kMaxTexCoords>(int) { return 0; }
+int tex_coord_mask_recur<GrDrawState::kMaxTexCoords>(int) { return 0; }
 
 // mask of all bits relevant to one texture coordinate index
 int tex_coord_idx_mask(int texCoordIdx) {
@@ -54,7 +54,7 @@ int tex_coord_idx_mask(int texCoordIdx) {
 
 bool check_layout(GrVertexLayout layout) {
     // can only have 1 or 0 bits set for each stage.
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         int stageBits = layout & stage_mask(s);
         if (stageBits && !GrIsPow2(stageBits)) {
             return false;
@@ -66,7 +66,7 @@ bool check_layout(GrVertexLayout layout) {
 int num_tex_coords(GrVertexLayout layout) {
     int cnt = 0;
     // figure out how many tex coordinates are present
-    for (int t = 0; t < GrDrawTarget::kMaxTexCoords; ++t) {
+    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         if (tex_coord_idx_mask(t) & layout) {
             ++cnt;
         }
@@ -107,7 +107,7 @@ size_t GrDrawTarget::VertexSize(GrVertexLayout vertexLayout) {
  * Position
  * Tex Coord 0
  * ...
- * Tex Coord kMaxTexCoords-1
+ * Tex Coord GrDrawState::kMaxTexCoords-1
  * Color
  * Coverage
  */
@@ -185,11 +185,12 @@ int  GrDrawTarget::VertexEdgeOffset(GrVertexLayout vertexLayout) {
     return -1;
 }
 
-int GrDrawTarget::VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
-                                            int texCoordOffsetsByIdx[kMaxTexCoords],
-                                            int* colorOffset,
-                                            int* coverageOffset,
-                                            int* edgeOffset) {
+int GrDrawTarget::VertexSizeAndOffsetsByIdx(
+        GrVertexLayout vertexLayout,
+        int texCoordOffsetsByIdx[GrDrawState::kMaxTexCoords],
+        int* colorOffset,
+        int* coverageOffset,
+        int* edgeOffset) {
     GrAssert(check_layout(vertexLayout));
 
     int vecSize = (vertexLayout & kTextFormat_VertexLayoutBit) ?
@@ -197,7 +198,7 @@ int GrDrawTarget::VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
                                                     sizeof(GrPoint);
     int size = vecSize; // position
 
-    for (int t = 0; t < kMaxTexCoords; ++t) {
+    for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
         if (tex_coord_idx_mask(t) & vertexLayout) {
             if (NULL != texCoordOffsetsByIdx) {
                 texCoordOffsetsByIdx[t] = size;
@@ -242,14 +243,15 @@ int GrDrawTarget::VertexSizeAndOffsetsByIdx(GrVertexLayout vertexLayout,
     return size;
 }
 
-int GrDrawTarget::VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
-                                              int texCoordOffsetsByStage[kNumStages],
-                                              int* colorOffset,
-                                              int* coverageOffset,
-                                              int* edgeOffset) {
+int GrDrawTarget::VertexSizeAndOffsetsByStage(
+        GrVertexLayout vertexLayout,
+        int texCoordOffsetsByStage[GrDrawState::kNumStages],
+        int* colorOffset,
+        int* coverageOffset,
+        int* edgeOffset) {
     GrAssert(check_layout(vertexLayout));
 
-    int texCoordOffsetsByIdx[kMaxTexCoords];
+    int texCoordOffsetsByIdx[GrDrawState::kMaxTexCoords];
     int size = VertexSizeAndOffsetsByIdx(vertexLayout,
                                          (NULL == texCoordOffsetsByStage) ?
                                                NULL :
@@ -258,7 +260,7 @@ int GrDrawTarget::VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
                                          coverageOffset,
                                          edgeOffset);
     if (NULL != texCoordOffsetsByStage) {
-        for (int s = 0; s < kNumStages; ++s) {
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
             int tcIdx;
             if (StagePosAsTexCoordVertexLayoutBit(s) & vertexLayout) {
                 texCoordOffsetsByStage[s] = 0;
@@ -275,20 +277,21 @@ int GrDrawTarget::VertexSizeAndOffsetsByStage(GrVertexLayout vertexLayout,
 ////////////////////////////////////////////////////////////////////////////////
 
 bool GrDrawTarget::VertexUsesStage(int stage, GrVertexLayout vertexLayout) {
-    GrAssert(stage < kNumStages);
+    GrAssert(stage < GrDrawState::kNumStages);
     GrAssert(check_layout(vertexLayout));
     return !!(stage_mask(stage) & vertexLayout);
 }
 
 bool GrDrawTarget::VertexUsesTexCoordIdx(int coordIndex,
                                          GrVertexLayout vertexLayout) {
-    GrAssert(coordIndex < kMaxTexCoords);
+    GrAssert(coordIndex < GrDrawState::kMaxTexCoords);
     GrAssert(check_layout(vertexLayout));
     return !!(tex_coord_idx_mask(coordIndex) & vertexLayout);
 }
 
-int GrDrawTarget::VertexTexCoordsForStage(int stage, GrVertexLayout vertexLayout) {
-    GrAssert(stage < kNumStages);
+int GrDrawTarget::VertexTexCoordsForStage(int stage,
+                                          GrVertexLayout vertexLayout) {
+    GrAssert(stage < GrDrawState::kNumStages);
     GrAssert(check_layout(vertexLayout));
     int bit = vertexLayout & stage_tex_coord_mask(stage);
     if (bit) {
@@ -296,7 +299,7 @@ int GrDrawTarget::VertexTexCoordsForStage(int stage, GrVertexLayout vertexLayout
         // bits are ordered T0S0, T0S1, T0S2, ..., T1S0, T1S1, ...
         // and start at bit 0.
         GR_STATIC_ASSERT(sizeof(GrVertexLayout) <= sizeof(uint32_t));
-        return (32 - Gr_clz(bit) - 1) / kNumStages;
+        return (32 - Gr_clz(bit) - 1) / GrDrawState::kNumStages;
     }
     return -1;
 }
@@ -308,31 +311,32 @@ void GrDrawTarget::VertexLayoutUnitTest() {
     static bool run;
     if (!run) {
         run = true;
-        for (int s = 0; s < kNumStages; ++s) {
+        for (int s = 0; s < GrDrawState::kNumStages; ++s) {
 
             GrAssert(!VertexUsesStage(s, 0));
             GrAssert(-1 == VertexStageCoordOffset(s, 0));
             GrVertexLayout stageMask = 0;
-            for (int t = 0; t < kMaxTexCoords; ++t) {
+            for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
                 stageMask |= StageTexCoordVertexLayoutBit(s,t);
             }
-            GrAssert(1 == kMaxTexCoords || !check_layout(stageMask));
+            GrAssert(1 == GrDrawState::kMaxTexCoords ||
+                     !check_layout(stageMask));
             GrAssert(stage_tex_coord_mask(s) == stageMask);
             stageMask |= StagePosAsTexCoordVertexLayoutBit(s);
             GrAssert(stage_mask(s) == stageMask);
             GrAssert(!check_layout(stageMask));
         }
-        for (int t = 0; t < kMaxTexCoords; ++t) {
+        for (int t = 0; t < GrDrawState::kMaxTexCoords; ++t) {
             GrVertexLayout tcMask = 0;
             GrAssert(!VertexUsesTexCoordIdx(t, 0));
-            for (int s = 0; s < kNumStages; ++s) {
+            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
                 tcMask |= StageTexCoordVertexLayoutBit(s,t);
                 GrAssert(VertexUsesStage(s, tcMask));
                 GrAssert(sizeof(GrPoint) == VertexStageCoordOffset(s, tcMask));
                 GrAssert(VertexUsesTexCoordIdx(t, tcMask));
                 GrAssert(2*sizeof(GrPoint) == VertexSize(tcMask));
                 GrAssert(t == VertexTexCoordsForStage(s, tcMask));
-                for (int s2 = s + 1; s2 < kNumStages; ++s2) {
+                for (int s2 = s + 1; s2 < GrDrawState::kNumStages; ++s2) {
                     GrAssert(-1 == VertexStageCoordOffset(s2, tcMask));
                     GrAssert(!VertexUsesStage(s2, tcMask));
                     GrAssert(-1 == VertexTexCoordsForStage(s2, tcMask));
@@ -384,18 +388,19 @@ void GrDrawTarget::VertexLayoutUnitTest() {
             GrAssert(tex_coord_idx_mask(t) == tcMask);
             GrAssert(check_layout(tcMask));
 
-            int stageOffsets[kNumStages];
+            int stageOffsets[GrDrawState::kNumStages];
             int colorOffset;
             int edgeOffset;
             int coverageOffset;
             int size;
-            size = VertexSizeAndOffsetsByStage(tcMask, stageOffsets, &colorOffset,
+            size = VertexSizeAndOffsetsByStage(tcMask,
+                                               stageOffsets, &colorOffset,
                                                &coverageOffset, &edgeOffset);
             GrAssert(2*sizeof(GrPoint) == size);
             GrAssert(-1 == colorOffset);
             GrAssert(-1 == coverageOffset);
             GrAssert(-1 == edgeOffset);
-            for (int s = 0; s < kNumStages; ++s) {
+            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
                 GrAssert(VertexUsesStage(s, tcMask));
                 GrAssert(sizeof(GrPoint) == stageOffsets[s]);
                 GrAssert(sizeof(GrPoint) == VertexStageCoordOffset(s, tcMask));
@@ -444,17 +449,17 @@ const GrClip& GrDrawTarget::getClip() const {
 }
 
 void GrDrawTarget::setTexture(int stage, GrTexture* tex) {
-    GrAssert(stage >= 0 && stage < kNumStages);
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
     fCurrDrawState.fTextures[stage] = tex;
 }
 
 const GrTexture* GrDrawTarget::getTexture(int stage) const {
-    GrAssert(stage >= 0 && stage < kNumStages);
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
     return fCurrDrawState.fTextures[stage];
 }
 
 GrTexture* GrDrawTarget::getTexture(int stage) {
-    GrAssert(stage >= 0 && stage < kNumStages);
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
     return fCurrDrawState.fTextures[stage];
 }
 
@@ -501,7 +506,7 @@ bool GrDrawTarget::getViewInverse(GrMatrix* matrix) const {
 }
 
 void GrDrawTarget::setSamplerState(int stage, const GrSamplerState& state) {
-    GrAssert(stage >= 0 && stage < kNumStages);
+    GrAssert(stage >= 0 && stage < GrDrawState::kNumStages);
     fCurrDrawState.fSamplerStates[stage] = state;
 }
 
@@ -933,7 +938,7 @@ GrDrawTarget::getBlendOpts(bool forceCoverage,
                        (layout & kCoverage_VertexLayoutBit) ||
                        (layout & kEdge_VertexLayoutBit);
     for (int s = fCurrDrawState.fFirstCoverageStage;
-         !hasCoverage && s < kNumStages;
+         !hasCoverage && s < GrDrawState::kNumStages;
          ++s) {
         if (StageWillBeUsed(s, layout, fCurrDrawState)) {
             hasCoverage = true;
@@ -1021,9 +1026,10 @@ bool GrDrawTarget::drawWillReadDst() const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrDrawTarget::setEdgeAAData(const Edge* edges, int numEdges) {
-    GrAssert(numEdges <= kMaxEdges);
-    memcpy(fCurrDrawState.fEdgeAAEdges, edges, numEdges * sizeof(Edge));
+void GrDrawTarget::setEdgeAAData(const GrDrawState::Edge* edges, int numEdges) {
+    GrAssert(numEdges <= GrDrawState::kMaxEdges);
+    memcpy(fCurrDrawState.fEdgeAAEdges, edges,
+           numEdges * sizeof(GrDrawState::Edge));
     fCurrDrawState.fEdgeAANumEdges = numEdges;
 }
 
@@ -1053,7 +1059,7 @@ GrVertexLayout GrDrawTarget::GetRectVertexLayout(StageBitfield stageEnableBitfie
                                                  const GrRect* srcRects[]) {
     GrVertexLayout layout = 0;
 
-    for (int i = 0; i < kNumStages; ++i) {
+    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
         int numTC = 0;
         if (stageEnableBitfield & (1 << i)) {
             if (NULL != srcRects && NULL != srcRects[i]) {
@@ -1078,7 +1084,7 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
                                    void* vertices) {
 #if GR_DEBUG
     // check that the layout and srcRects agree
-    for (int i = 0; i < kNumStages; ++i) {
+    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
         if (VertexTexCoordsForStage(i, layout) >= 0) {
             GR_DEBUGASSERT(NULL != srcRects && NULL != srcRects[i]);
         } else {
@@ -1087,7 +1093,7 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
     }
 #endif
 
-    int stageOffsets[kNumStages];
+    int stageOffsets[GrDrawState::kNumStages];
     int vsize = VertexSizeAndOffsetsByStage(layout, stageOffsets,
                                             NULL, NULL, NULL);
 
@@ -1098,7 +1104,7 @@ void GrDrawTarget::SetRectVertices(const GrRect& rect,
         matrix->mapPointsWithStride(GrTCast<GrPoint*>(vertices), vsize, 4);
     }
 
-    for (int i = 0; i < kNumStages; ++i) {
+    for (int i = 0; i < GrDrawState::kNumStages; ++i) {
         if (stageOffsets[i] > 0) {
             GrPoint* coords = GrTCast<GrPoint*>(GrTCast<intptr_t>(vertices) +
                                                 stageOffsets[i]);
@@ -1155,7 +1161,7 @@ GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawTarget* target,
     if (fStageMask) {
         GrMatrix invVM;
         if (fViewMatrix.invert(&invVM)) {
-            for (int s = 0; s < kNumStages; ++s) {
+            for (int s = 0; s < GrDrawState::kNumStages; ++s) {
                 if (fStageMask & (1 << s)) {
                     fSamplerMatrices[s] = target->getSamplerMatrix(s);
                 }
@@ -1171,7 +1177,7 @@ GrDrawTarget::AutoDeviceCoordDraw::AutoDeviceCoordDraw(GrDrawTarget* target,
 
 GrDrawTarget::AutoDeviceCoordDraw::~AutoDeviceCoordDraw() {
     fDrawTarget->setViewMatrix(fViewMatrix);
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (fStageMask & (1 << s)) {
             fDrawTarget->setSamplerMatrix(s, fSamplerMatrices[s]);
         }

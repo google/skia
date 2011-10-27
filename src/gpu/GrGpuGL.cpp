@@ -20,7 +20,7 @@ static const GrGLint  GR_INVAL_GLINT = ~0;
 
 // we use a spare texture unit to avoid
 // mucking with the state of any of the stages.
-static const int SPARE_TEX_UNIT = GrGpuGL::kNumStages;
+static const int SPARE_TEX_UNIT = GrDrawState::kNumStages;
 
 #define SKIP_CACHE_CHECK    true
 
@@ -326,11 +326,11 @@ void GrGpuGL::initCaps() {
     // checks are > to make sure we have a spare unit.
     if (kES1_GrGLBinding != this->glBinding()) {
         GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-        GrAssert(maxTextureUnits > kNumStages);
+        GrAssert(maxTextureUnits > GrDrawState::kNumStages);
     }
     if (kES2_GrGLBinding != this->glBinding()) {
         GR_GL_GetIntegerv(fGL, GR_GL_MAX_TEXTURE_UNITS, &maxTextureUnits);
-        GrAssert(maxTextureUnits > kNumStages);
+        GrAssert(maxTextureUnits > GrDrawState::kNumStages);
     }
     if (kES2_GrGLBinding == this->glBinding()) {
         GR_GL_GetIntegerv(fGL, GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS,
@@ -574,7 +574,7 @@ void GrGpuGL::resetContext() {
 
     GL_CALL(Disable(GR_GL_CULL_FACE));
     GL_CALL(FrontFace(GR_GL_CCW));
-    fHWDrawState.fDrawFace = kBoth_DrawFace;
+    fHWDrawState.fDrawFace = GrDrawState::kBoth_DrawFace;
 
     GL_CALL(Disable(GR_GL_DITHER));
     if (kDesktop_GrGLBinding == this->glBinding()) {
@@ -605,7 +605,7 @@ void GrGpuGL::resetContext() {
 
     fHWDrawState.fViewMatrix = GrMatrix::InvalidMatrix();
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         fHWDrawState.fTextures[s] = NULL;
         fHWDrawState.fSamplerStates[s].setRadial2Params(-GR_ScalarMax,
                                                         -GR_ScalarMax,
@@ -1885,7 +1885,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
     // and bailed if not true.
     GrAssert(NULL != fCurrDrawState.fRenderTarget);
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         // bind texture and set sampler state
         if (this->isStageEnabled(s)) {
             GrGLTexture* nextTexture = (GrGLTexture*)fCurrDrawState.fTextures[s];
@@ -1984,15 +1984,15 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
     if (fHWDrawState.fDrawFace != fCurrDrawState.fDrawFace) {
         switch (fCurrDrawState.fDrawFace) {
-            case kCCW_DrawFace:
+            case GrDrawState::kCCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_BACK));
                 break;
-            case kCW_DrawFace:
+            case GrDrawState::kCW_DrawFace:
                 GL_CALL(Enable(GR_GL_CULL_FACE));
                 GL_CALL(CullFace(GR_GL_FRONT));
                 break;
-            case kBoth_DrawFace:
+            case GrDrawState::kBoth_DrawFace:
                 GL_CALL(Disable(GR_GL_CULL_FACE));
                 break;
             default:
@@ -2003,7 +2003,7 @@ bool GrGpuGL::flushGLStateCommon(GrPrimitiveType type) {
 
 #if GR_DEBUG
     // check for circular rendering
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         GrAssert(!this->isStageEnabled(s) ||
                  NULL == fCurrDrawState.fRenderTarget ||
                  NULL == fCurrDrawState.fTextures[s] ||
@@ -2056,7 +2056,7 @@ void GrGpuGL::notifyRenderTargetDelete(GrRenderTarget* renderTarget) {
 }
 
 void GrGpuGL::notifyTextureDelete(GrGLTexture* texture) {
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (fCurrDrawState.fTextures[s] == texture) {
             fCurrDrawState.fTextures[s] = NULL;
         }
@@ -2115,7 +2115,7 @@ bool GrGpuGL::canBeTexture(GrPixelConfig config,
 }
 
 void GrGpuGL::setTextureUnit(int unit) {
-    GrAssert(unit >= 0 && unit < kNumStages);
+    GrAssert(unit >= 0 && unit < GrDrawState::kNumStages);
     if (fActiveTextureUnitIdx != unit) {
         GL_CALL(ActiveTexture(GR_GL_TEXTURE0 + unit));
         fActiveTextureUnitIdx = unit;
@@ -2229,7 +2229,8 @@ void GrGpuGL::setBuffers(bool indexed,
 int GrGpuGL::getMaxEdges() const {
     // FIXME:  This is a pessimistic estimate based on how many other things
     // want to add uniforms.  This should be centralized somewhere.
-    return GR_CT_MIN(fGLCaps.fMaxFragmentUniformVectors - 8, kMaxEdges);
+    return GR_CT_MIN(fGLCaps.fMaxFragmentUniformVectors - 8,
+                     GrDrawState::kMaxEdges);
 }
 
 void GrGpuGL::GLCaps::print() const {

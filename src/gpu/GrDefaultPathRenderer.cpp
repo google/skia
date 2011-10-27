@@ -9,6 +9,7 @@
 #include "GrDefaultPathRenderer.h"
 
 #include "GrContext.h"
+#include "GrDrawState.h"
 #include "GrPathUtils.h"
 #include "SkString.h"
 #include "SkTrace.h"
@@ -244,7 +245,7 @@ bool GrDefaultPathRenderer::createGeom(GrScalar srcSpaceTol,
     }
 
     GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if ((1 << s) & stages) {
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
         }
@@ -406,11 +407,11 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
     GrDrawTarget::AutoStateRestore asr(fTarget);
     bool colorWritesWereDisabled = fTarget->isColorWriteDisabled();
     // face culling doesn't make sense here
-    GrAssert(GrDrawTarget::kBoth_DrawFace == fTarget->getDrawFace());
+    GrAssert(GrDrawState::kBoth_DrawFace == fTarget->getDrawFace());
 
     int                         passCount = 0;
     const GrStencilSettings*    passes[3];
-    GrDrawTarget::DrawFace      drawFace[3];
+    GrDrawState::DrawFace       drawFace[3];
     bool                        reverse = false;
     bool                        lastPassIsBounds;
 
@@ -422,7 +423,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
             passes[0] = NULL;
         }
         lastPassIsBounds = false;
-        drawFace[0] = GrDrawTarget::kBoth_DrawFace;
+        drawFace[0] = GrDrawState::kBoth_DrawFace;
     } else {
         if (single_pass_path(*fTarget, *fPath, fFill)) {
             passCount = 1;
@@ -431,7 +432,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
             } else {
                 passes[0] = NULL;
             }
-            drawFace[0] = GrDrawTarget::kBoth_DrawFace;
+            drawFace[0] = GrDrawState::kBoth_DrawFace;
             lastPassIsBounds = false;
         } else {
             switch (fFill) {
@@ -452,7 +453,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                             passes[1] = &gEOColorPass;
                         }
                     }
-                    drawFace[0] = drawFace[1] = GrDrawTarget::kBoth_DrawFace;
+                    drawFace[0] = drawFace[1] = GrDrawState::kBoth_DrawFace;
                     break;
 
                 case kInverseWinding_PathFill:
@@ -466,7 +467,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                             passes[0] = &gWindStencilSeparateNoWrap;
                         }
                         passCount = 2;
-                        drawFace[0] = GrDrawTarget::kBoth_DrawFace;
+                        drawFace[0] = GrDrawState::kBoth_DrawFace;
                     } else {
                         if (fStencilWrapOps) {
                             passes[0] = &gWindSingleStencilWithWrapInc;
@@ -476,8 +477,8 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                             passes[1] = &gWindSingleStencilNoWrapDec;
                         }
                         // which is cw and which is ccw is arbitrary.
-                        drawFace[0] = GrDrawTarget::kCW_DrawFace;
-                        drawFace[1] = GrDrawTarget::kCCW_DrawFace;
+                        drawFace[0] = GrDrawState::kCW_DrawFace;
+                        drawFace[1] = GrDrawState::kCCW_DrawFace;
                         passCount = 3;
                     }
                     if (stencilOnly) {
@@ -485,7 +486,7 @@ void GrDefaultPathRenderer::onDrawPath(GrDrawTarget::StageBitfield stages,
                         --passCount;
                     } else {
                         lastPassIsBounds = true;
-                        drawFace[passCount-1] = GrDrawTarget::kBoth_DrawFace;
+                        drawFace[passCount-1] = GrDrawState::kBoth_DrawFace;
                         if (reverse) {
                             passes[passCount-1] = &gInvWindColorPass;
                         } else {

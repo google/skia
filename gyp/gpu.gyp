@@ -188,6 +188,7 @@
         '../src/gpu/GrContext.cpp',
         '../src/gpu/GrDefaultPathRenderer.cpp',
         '../src/gpu/GrDefaultPathRenderer.h',
+        '../src/gpu/GrDrawState.h',
         '../src/gpu/GrDrawTarget.cpp',
         '../src/gpu/GrDrawTarget.h',
         '../src/gpu/GrGeometryBuffer.h',

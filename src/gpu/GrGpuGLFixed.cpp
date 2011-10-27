@@ -72,7 +72,7 @@ void GrGpuGLFixed::resetContext() {
 
     GL_CALL(Disable(GR_GL_TEXTURE_2D));
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         setTextureUnit(s);
         GL_CALL(EnableClientState(GR_GL_VERTEX_ARRAY));
         GL_CALL(TexEnvi(GR_GL_TEXTURE_ENV,
@@ -150,9 +150,9 @@ void GrGpuGLFixed::flushProjectionMatrix() {
 
 bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
 
-    bool usingTextures[kNumStages];
+    bool usingTextures[GrDrawState::kNumStages];
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         usingTextures[s] = this->isStageEnabled(s);
         if (usingTextures[s] && fCurrDrawState.fSamplerStates[s].isGradient()) {
             unimpl("Fixed pipe doesn't support radial/sweep gradients");
@@ -184,7 +184,7 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
         flushProjectionMatrix();
     }
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         bool wasUsingTexture = StageWillBeUsed(s, fHWGeometryState.fVertexLayout, fHWDrawState);
         if (usingTextures[s] != wasUsingTexture) {
             setTextureUnit(s);
@@ -220,7 +220,7 @@ bool GrGpuGLFixed::flushGraphicsState(GrPrimitiveType type) {
     }
 
     // set texture environment, decide whether we are modulating by RGB or A.
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (usingTextures[s]) {
             GrGLTexture* texture = (GrGLTexture*)fCurrDrawState.fTextures[s];
             if (NULL != texture) {
@@ -279,7 +279,7 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
 
     int newColorOffset;
     int newCoverageOffset;
-    int newTexCoordOffsets[kNumStages];
+    int newTexCoordOffsets[GrDrawState::kNumStages];
     int newEdgeOffset;
 
     GrGLsizei newStride = VertexSizeAndOffsetsByStage(this->getGeomSrc().fVertexLayout,
@@ -292,7 +292,7 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
 
     int oldColorOffset;
     int oldCoverageOffset;
-    int oldTexCoordOffsets[kNumStages];
+    int oldTexCoordOffsets[GrDrawState::kNumStages];
     int oldEdgeOffset;
     GrGLsizei oldStride = VertexSizeAndOffsetsByStage(fHWGeometryState.fVertexLayout,
                                                       oldTexCoordOffsets,
@@ -340,7 +340,7 @@ void GrGpuGLFixed::setupGeometry(int* startVertex,
         fHWGeometryState.fVertexOffset = vertexOffset;
     }
 
-    for (int s = 0; s < kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         // need to enable array if tex coord offset is 0
         // (using positions as coords)
         if (newTexCoordOffsets[s] >= 0) {

@@ -1013,7 +1013,7 @@ GrIndexBuffer* GrContext::aaStrokeRectIndexBuffer() {
 static GrVertexLayout aa_rect_layout(const GrDrawTarget* target,
                                      bool useCoverage) {
     GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if (NULL != target->getTexture(s)) {
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
         }
@@ -1397,8 +1397,8 @@ void GrContext::drawRectToRect(const GrPaint& paint,
     target = this->prepareToDraw(paint, kUnbuffered_DrawCategory);
 #endif
 
-    const GrRect* srcRects[GrDrawTarget::kNumStages] = {NULL};
-    const GrMatrix* srcMatrices[GrDrawTarget::kNumStages] = {NULL};
+    const GrRect* srcRects[GrDrawState::kNumStages] = {NULL};
+    const GrMatrix* srcMatrices[GrDrawState::kNumStages] = {NULL};
     srcRects[0] = &srcRect;
     srcMatrices[0] = srcMatrix;
 
@@ -1437,7 +1437,7 @@ void GrContext::drawVertices(const GrPaint& paint,
             GrPrintf("Failed to get space for vertices!\n");
             return;
         }
-        int texOffsets[GrDrawTarget::kMaxTexCoords];
+        int texOffsets[GrDrawState::kMaxTexCoords];
         int colorOffset;
         GrDrawTarget::VertexSizeAndOffsetsByIdx(layout,
                                                 texOffsets,

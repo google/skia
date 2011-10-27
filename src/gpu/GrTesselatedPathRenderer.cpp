@@ -9,6 +9,7 @@
 
 #include "GrTesselatedPathRenderer.h"
 
+#include "GrDrawState.h"
 #include "GrPathUtils.h"
 #include "GrPoint.h"
 #include "GrTDArray.h"
@@ -18,7 +19,7 @@
 #include <limits.h>
 #include <sk_glu.h>
 
-typedef GrTDArray<GrDrawTarget::Edge> GrEdgeArray;
+typedef GrTDArray<GrDrawState::Edge> GrEdgeArray;
 typedef GrTDArray<GrPoint> GrPointArray;
 typedef GrTDArray<uint16_t> GrIndexArray;
 typedef void (*TESSCB)();
@@ -28,13 +29,13 @@ typedef void (*TESSCB)();
 // vertex components,
 const float kMaxVertexValue = 1e18f;
 
-static inline GrDrawTarget::Edge computeEdge(const GrPoint& p,
+static inline GrDrawState::Edge computeEdge(const GrPoint& p,
                                              const GrPoint& q,
                                              float sign) {
     GrVec tangent = GrVec::Make(p.fY - q.fY, q.fX - p.fX);
     float scale = sign / tangent.length();
     float cross2 = p.fX * q.fY - q.fX * p.fY;
-    return GrDrawTarget::Edge(tangent.fX * scale,
+    return GrDrawState::Edge(tangent.fX * scale,
                               tangent.fY * scale,
                               cross2 * scale);
 }
@@ -165,7 +166,7 @@ public:
     ~GrEdgePolygonTess() {
         delete[] fEdges;
     }
-    const GrDrawTarget::Edge* edges() const { return fEdges; }
+    const GrDrawState::Edge* edges() const { return fEdges; }
 private:
     void addEdge(int index0, int index1) {
         GrPoint p = fVertices[index0];
@@ -175,15 +176,15 @@ private:
         p = sanitizePoint(p);
         q = sanitizePoint(q);
         if (p == q) return;
-        GrDrawTarget::Edge edge = computeEdge(p, q, 1.0f);
+        GrDrawState::Edge edge = computeEdge(p, q, 1.0f);
         fEdges[index0 * 2 + 1] = edge;
         fEdges[index1 * 2] = edge;
     }
     virtual void begin(GLenum type) {
         GR_DEBUGASSERT(type == GL_TRIANGLES);
         int count = fVertices.count() * 2;
-        fEdges = new GrDrawTarget::Edge[count];
-        memset(fEdges, 0, count * sizeof(GrDrawTarget::Edge));
+        fEdges = new GrDrawState::Edge[count];
+        memset(fEdges, 0, count * sizeof(GrDrawState::Edge));
     }
     virtual void edgeFlag(bool flag) {
         fEdgeFlag = flag;
@@ -215,7 +216,7 @@ private:
     GrMatrix fMatrix;
     bool fEdgeFlag;
     int fEdgeVertex, fTriStartVertex;
-    GrDrawTarget::Edge* fEdges;
+    GrDrawState::Edge* fEdges;
 };
 
 class GrBoundaryTess : public GrTess {
@@ -260,7 +261,7 @@ static bool nearlyEqual(const GrPoint& a, const GrPoint& b) {
     return nearlyEqual(a.fX, b.fX) && nearlyEqual(a.fY, b.fY);
 }
 
-static bool parallel(const GrDrawTarget::Edge& a, const GrDrawTarget::Edge& b) {
+static bool parallel(const GrDrawState::Edge& a, const GrDrawState::Edge& b) {
     return (nearlyEqual(a.fX, b.fX) && nearlyEqual(a.fY, b.fY)) ||
            (nearlyEqual(a.fX, -b.fX) && nearlyEqual(a.fY, -b.fY));
 }
@@ -297,7 +298,7 @@ static bool isCCW(const GrPoint* pts, int count) {
     return v1.cross(v2) < 0;
 }
 
-static bool validEdge(const GrDrawTarget::Edge& edge) {
+static bool validEdge(const GrDrawState::Edge& edge) {
     return !(edge.fX == 0.0f && edge.fY == 0.0f && edge.fZ == 0.0f);
 }
 
@@ -320,7 +321,7 @@ static size_t computeEdgesAndIntersect(const GrMatrix& matrix,
         if (p == q) {
             continue;
         }
-        GrDrawTarget::Edge edge = computeEdge(p, q, sign);
+        GrDrawState::Edge edge = computeEdge(p, q, sign);
         edge.fZ += 0.5f;    // Offset by half a pixel along the tangent.
         *edges->append() = edge;
         p = q;
@@ -329,9 +330,9 @@ static size_t computeEdgesAndIntersect(const GrMatrix& matrix,
     if (count == 0) {
         return 0;
     }
-    GrDrawTarget::Edge prev_edge = edges->at(0);
+    GrDrawState::Edge prev_edge = edges->at(0);
     for (int i = 0; i < count; ++i) {
-        GrDrawTarget::Edge edge = edges->at(i < count - 1 ? i + 1 : 0);
+        GrDrawState::Edge edge = edges->at(i < count - 1 ? i + 1 : 0);
         if (parallel(edge, prev_edge)) {
             // 3 points are collinear; offset by half the tangent instead
             vertices[i].fX -= edge.fX * 0.5f;
@@ -348,7 +349,7 @@ static size_t computeEdgesAndIntersect(const GrMatrix& matrix,
 void GrTesselatedPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
     GrDrawTarget::AutoStateRestore asr(fTarget);
     // face culling doesn't make sense here
-    GrAssert(GrDrawTarget::kBoth_DrawFace == fTarget->getDrawFace());
+    GrAssert(GrDrawState::kBoth_DrawFace == fTarget->getDrawFace());
 
     GrMatrix viewM = fTarget->getViewMatrix();
 
@@ -360,7 +361,7 @@ void GrTesselatedPathRenderer::drawPath(GrDrawTarget::StageBitfield stages) {
     int maxPts = GrPathUtils::worstCasePointCount(*fPath, &subpathCnt, tol);
 
     GrVertexLayout layout = 0;
-    for (int s = 0; s < GrDrawTarget::kNumStages; ++s) {
+    for (int s = 0; s < GrDrawState::kNumStages; ++s) {
         if ((1 << s) & stages) {
             layout |= GrDrawTarget::StagePosAsTexCoordVertexLayoutBit(s);
         }
@@ -536,7 +537,7 @@ FINISHED:
         fTarget->enableState(GrDrawTarget::kEdgeAAConcave_StateBit);
         const GrPointArray& vertices = ptess.vertices();
         const GrIndexArray& indices = ptess.indices();
-        const GrDrawTarget::Edge* edges = ptess.edges();
+        const GrDrawState::Edge* edges = ptess.edges();
         GR_DEBUGASSERT(indices.count() % 3 == 0);
         for (int i = 0; i < indices.count(); i += 3) {
             GrPoint tri_verts[3];
@@ -546,14 +547,14 @@ FINISHED:
             tri_verts[0] = vertices[index0];
             tri_verts[1] = vertices[index1];
             tri_verts[2] = vertices[index2];
-            GrDrawTarget::Edge tri_edges[6];
+            GrDrawState::Edge tri_edges[6];
             int t = 0;
-            const GrDrawTarget::Edge& edge0 = edges[index0 * 2];
-            const GrDrawTarget::Edge& edge1 = edges[index0 * 2 + 1];
-            const GrDrawTarget::Edge& edge2 = edges[index1 * 2];
-            const GrDrawTarget::Edge& edge3 = edges[index1 * 2 + 1];
-            const GrDrawTarget::Edge& edge4 = edges[index2 * 2];
-            const GrDrawTarget::Edge& edge5 = edges[index2 * 2 + 1];
+            const GrDrawState::Edge& edge0 = edges[index0 * 2];
+            const GrDrawState::Edge& edge1 = edges[index0 * 2 + 1];
+            const GrDrawState::Edge& edge2 = edges[index1 * 2];
+            const GrDrawState::Edge& edge3 = edges[index1 * 2 + 1];
+            const GrDrawState::Edge& edge4 = edges[index2 * 2];
+            const GrDrawState::Edge& edge5 = edges[index2 * 2 + 1];
             if (validEdge(edge0) && validEdge(edge1)) {
                 tri_edges[t++] = edge0;
                 tri_edges[t++] = edge1;

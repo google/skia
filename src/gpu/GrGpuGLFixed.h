@@ -11,6 +11,7 @@
 #ifndef GrGpuGLFixed_DEFINED
 #define GrGpuGLFixed_DEFINED
 
+#include "GrDrawState.h"
 #include "GrGpuGL.h"
 
 // Fixed Pipeline OpenGL or OpenGL ES 1.x
@@ -47,7 +48,7 @@ private:
         kAlpha_TextureEnvRGBOperand,
         kColor_TextureEnvRGBOperand,
     };
-    TextureEnvRGBOperands fHWRGBOperand0[kNumStages];
+    TextureEnvRGBOperands fHWRGBOperand0[GrDrawState::kNumStages];
 
     void flushProjectionMatrix();
 
