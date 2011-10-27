@@ -19,6 +19,7 @@
 
     '../bench/BitmapBench.cpp',
     '../bench/BlurBench.cpp',
+    '../bench/ChromeBench.cpp',
     '../bench/DecodeBench.cpp',
     '../bench/GradientBench.cpp',
     '../bench/MathBench.cpp',
