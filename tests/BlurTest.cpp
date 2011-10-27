@@ -121,7 +121,7 @@ static void test_blur(skiatest::Reporter* reporter) {
             paint.setMaskFilter(filter);
             filter->unref();
 
-            for (int test = 0; test < SK_ARRAY_COUNT(tests); ++test) {
+            for (size_t test = 0; test < SK_ARRAY_COUNT(tests); ++test) {
                 SkPath path;
                 tests[test].addPath(&path);
                 SkPath strokedPath;

@@ -92,7 +92,7 @@ void test_matrix_max_stretch(skiatest::Reporter* reporter) {
     SkMatrix baseMats[] = {scale, rot90Scale, rotate,
                            translate, perspX, perspY};
     SkMatrix mats[2*SK_ARRAY_COUNT(baseMats)];
-    for (int i = 0; i < SK_ARRAY_COUNT(baseMats); ++i) {
+    for (size_t i = 0; i < SK_ARRAY_COUNT(baseMats); ++i) {
         mats[i] = baseMats[i];
         bool invertable = mats[i].invert(&mats[i + SK_ARRAY_COUNT(baseMats)]);
         REPORTER_ASSERT(reporter, invertable);
@@ -125,7 +125,7 @@ void test_matrix_max_stretch(skiatest::Reporter* reporter) {
         static const SkScalar gMaxStretchTol = (97 * SK_Scalar1) / 100;
         SkScalar max = 0;
         SkVector vectors[1000];
-        for (int i = 0; i < SK_ARRAY_COUNT(vectors); ++i) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(vectors); ++i) {
             vectors[i].fX = rand.nextSScalar1();
             vectors[i].fY = rand.nextSScalar1();
             if (!vectors[i].normalize()) {
@@ -134,7 +134,7 @@ void test_matrix_max_stretch(skiatest::Reporter* reporter) {
             }
         }
         mat.mapVectors(vectors, SK_ARRAY_COUNT(vectors));
-        for (int i = 0; i < SK_ARRAY_COUNT(vectors); ++i) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(vectors); ++i) {
             SkScalar d = vectors[i].length();
             REPORTER_ASSERT(reporter, SkScalarDiv(d, stretch) < gStretchTol);
             if (max < d) {

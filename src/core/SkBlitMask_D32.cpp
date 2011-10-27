@@ -115,7 +115,7 @@ static void blit_lcd16_row(SkPMColor dst[], const uint16_t src[],
         int dstG = SkGetPackedG32(d);
         int dstB = SkGetPackedB32(d);
         
-        // LCD blitting is only supported if the dst is known/required\
+        // LCD blitting is only supported if the dst is known/required
         // to be opaque
         dst[i] = SkPackARGB32(0xFF,
                               blend32(srcR, dstR, maskR),
