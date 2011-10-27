@@ -169,10 +169,12 @@ void SkAAClip::Iter::next() {
 }
 
 #ifdef SK_DEBUG
+// assert we're exactly width-wide, and then return the number of bytes used
 static size_t compute_row_length(const uint8_t row[], int width) {
     const uint8_t* origRow = row;
     while (width > 0) {
         int n = row[0];
+        SkASSERT(n > 0);
         SkASSERT(n <= width);
         row += 2;
         width -= n;
@@ -194,40 +196,339 @@ void SkAAClip::validate() const {
 
     const YOffset* yoff = head->yoffsets();
     const YOffset* ystop = yoff + head->fRowCount;
-    const uint8_t* row = head->data();
-    SkASSERT(0 == yoff->fOffset);
-    // y values must be monotonic
-    int y = -1;
-    int32_t offset = -1;
-    size_t computedOffset = 0;
+    const int lastY = fBounds.height() - 1;
+
+    // Y and offset must be monotonic
+    int prevY = -1;
+    int32_t prevOffset = -1;
     while (yoff < ystop) {
-        SkASSERT(y < yoff->fY);
-        y = yoff->fY;
-        SkASSERT(offset < (int32_t)yoff->fOffset);
-        offset = yoff->fOffset;
-        SkASSERT(yoff->fOffset == computedOffset);
-        yoff += 1;
-        
+        SkASSERT(prevY < yoff->fY);
+        SkASSERT(yoff->fY <= lastY);
+        prevY = yoff->fY;
+        SkASSERT(prevOffset < (int32_t)yoff->fOffset);
+        prevOffset = yoff->fOffset;
+        const uint8_t* row = head->data() + yoff->fOffset;
         size_t rowLength = compute_row_length(row, fBounds.width());
-        row += rowLength;
-        computedOffset += rowLength;
+        SkASSERT(yoff->fOffset + rowLength <= head->fDataSize);
+        yoff += 1;
     }
-    SkASSERT(head->fDataSize == computedOffset);
     // check the last entry;
     --yoff;
-    SkASSERT(yoff->fY == fBounds.height() - 1);
-
+    SkASSERT(yoff->fY == lastY);
 }
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
+
+static void count_left_right_zeros(const uint8_t* row, int width,
+                                   int* leftZ, int* riteZ) {
+    int zeros = 0;
+    do {
+        if (row[1]) {
+            break;
+        }
+        int n = row[0];
+        SkASSERT(n > 0);
+        SkASSERT(n <= width);
+        zeros += n;
+        row += 2;
+        width -= n;
+    } while (width > 0);
+    *leftZ = zeros;
+
+    zeros = 0;
+    while (width > 0) {
+        int n = row[0];
+        SkASSERT(n > 0);
+        if (0 == row[1]) {
+            zeros += n;
+        } else {
+            zeros = 0;
+        }
+        row += 2;
+        width -= n;
+    }
+    *riteZ = zeros;
+}
+
+#ifdef SK_DEBUG
+static void test_count_left_right_zeros() {
+    static bool gOnce;
+    if (gOnce) {
+        return;
+    }
+    gOnce = true;
+
+    const uint8_t data0[] = {  0, 0,     10, 0xFF };
+    const uint8_t data1[] = {  0, 0,     5, 0xFF, 2, 0, 3, 0xFF };
+    const uint8_t data2[] = {  7, 0,     5, 0, 2, 0, 3, 0xFF };
+    const uint8_t data3[] = {  0, 5,     5, 0xFF, 2, 0, 3, 0 };
+    const uint8_t data4[] = {  2, 3,     2, 0, 5, 0xFF, 3, 0 };
+    const uint8_t data5[] = { 10, 0,     10, 0 };
+    const uint8_t data6[] = {  2, 2,     2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
+
+    const uint8_t* array[] = {
+        data0, data1, data2, data3, data4, data5, data6
+    };
+
+    for (size_t i = 0; i < SK_ARRAY_COUNT(array); ++i) {
+        const uint8_t* data = array[i];
+        const int expectedL = *data++;
+        const int expectedR = *data++;
+        int L = 12345, R = 12345;
+        count_left_right_zeros(data, 10, &L, &R);
+        SkASSERT(expectedL == L);
+        SkASSERT(expectedR == R);
+    }
+}
+#endif
+
+// modify row in place, trimming off (zeros) from the left and right sides.
+// return the number of bytes that were completely eliminated from the left
+static int trim_row_left_right(uint8_t* row, int width, int leftZ, int riteZ) {
+    int trim = 0;
+    while (leftZ > 0) {
+        SkASSERT(0 == row[1]);
+        int n = row[0];
+        SkASSERT(n > 0);
+        SkASSERT(n <= width);
+        width -= n;
+        row += 2;
+        if (n > leftZ) {
+            row[-2] = n - leftZ;
+            break;
+        }
+        trim += 2;
+        leftZ -= n;
+        SkASSERT(leftZ >= 0);
+    }
+
+    if (riteZ) {
+        // walk row to the end, and then we'll back up to trim riteZ
+        while (width > 0) {
+            int n = row[0];
+            SkASSERT(n <= width);
+            width -= n;
+            row += 2;
+        }
+        // now skip whole runs of zeros
+        do {
+            row -= 2;
+            SkASSERT(0 == row[1]);
+            int n = row[0];
+            SkASSERT(n > 0);
+            if (n > riteZ) {
+                row[0] = n - riteZ;
+                break;
+            }
+            riteZ -= n;
+            SkASSERT(riteZ >= 0);
+        } while (riteZ > 0);
+    }
+    
+    return trim;
+}
+
+#ifdef SK_DEBUG
+// assert that this row is exactly this width
+static int assert_row_width(const uint8_t* row, int width) {
+    while (width > 0) {
+        int n = row[0];
+        SkASSERT(n > 0);
+        SkASSERT(n <= width);
+        width -= n;
+        row += 2;
+    }
+    SkASSERT(0 == width);
+}
+
+static void test_trim_row_left_right() {
+    static bool gOnce;
+    if (gOnce) {
+        return;
+    }
+    gOnce = true;
+    
+    uint8_t data0[] = {  0, 0, 0,   10,    10, 0xFF };
+    uint8_t data1[] = {  2, 0, 0,   10,    5, 0, 2, 0, 3, 0xFF };
+    uint8_t data2[] = {  5, 0, 2,   10,    5, 0, 2, 0, 3, 0xFF };
+    uint8_t data3[] = {  6, 0, 2,   10,    5, 0, 2, 0, 3, 0xFF };
+    uint8_t data4[] = {  0, 0, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
+    uint8_t data5[] = {  1, 0, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
+    uint8_t data6[] = {  0, 1, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
+    uint8_t data7[] = {  1, 1, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
+    uint8_t data8[] = {  2, 2, 2,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
+    uint8_t data9[] = {  5, 2, 4,   10,    2, 0, 2, 0, 2, 0, 2, 0xFF, 2, 0 };
+    uint8_t data10[] ={  74, 0, 4, 150,    9, 0, 65, 0, 76, 0xFF };
+    
+    uint8_t* array[] = {
+        data0, data1, data2, data3, data4,
+        data5, data6, data7, data8, data9,
+        data10
+    };
+    
+    for (size_t i = 0; i < SK_ARRAY_COUNT(array); ++i) {
+        uint8_t* data = array[i];
+        const int trimL = *data++;
+        const int trimR = *data++;
+        const int expectedSkip = *data++;
+        const int origWidth = *data++;
+        assert_row_width(data, origWidth);
+        int skip = trim_row_left_right(data, origWidth, trimL, trimR);
+        SkASSERT(expectedSkip == skip);
+        int expectedWidth = origWidth - trimL - trimR;
+        assert_row_width(data + skip, expectedWidth);
+    }
+}
+#endif
+
+bool SkAAClip::trimLeftRight() {
+    SkDEBUGCODE(test_trim_row_left_right();)
+
+    if (this->isEmpty()) {
+        return false;
+    }
+    
+    AUTO_AACLIP_VALIDATE(*this);
+
+    const int width = fBounds.width();
+    RunHead* head = fRunHead;
+    YOffset* yoff = head->yoffsets();
+    YOffset* stop = yoff + head->fRowCount;
+    uint8_t* base = head->data();
+
+    int leftZeros = width;
+    int riteZeros = width;
+    while (yoff < stop) {
+        int L, R;
+        count_left_right_zeros(base + yoff->fOffset, width, &L, &R);
+        if (L < leftZeros) {
+            leftZeros = L;
+        }
+        if (R < riteZeros) {
+            riteZeros = R;
+        }
+        if (0 == (leftZeros | riteZeros)) {
+            // no trimming to do
+            return true;
+        }
+        yoff += 1;
+    }
+
+    SkASSERT(leftZeros || riteZeros);
+    if (width == (leftZeros + riteZeros)) {
+        return this->setEmpty();
+    }
+
+    this->validate();
+
+    fBounds.fLeft += leftZeros;
+    fBounds.fRight -= riteZeros;
+    SkASSERT(!fBounds.isEmpty());
+
+    // For now we don't realloc the storage (for time), we just shrink in place
+    // This means we don't have to do any memmoves either, since we can just
+    // play tricks with the yoff->fOffset for each row
+    yoff = head->yoffsets();
+    while (yoff < stop) {
+        uint8_t* row = base + yoff->fOffset;
+        SkDEBUGCODE((void)compute_row_length(row, width);)
+        yoff->fOffset += trim_row_left_right(row, width, leftZeros, riteZeros);
+        SkDEBUGCODE((void)compute_row_length(base + yoff->fOffset, width - leftZeros - riteZeros);)
+        yoff += 1;
+    }
+    return true;
+}
+
+static bool row_is_all_zeros(const uint8_t* row, int width) {
+    SkASSERT(width > 0);
+    do {
+        if (row[1]) {
+            return false;
+        }
+        int n = row[0];
+        SkASSERT(n <= width);
+        width -= n;
+        row += 2;
+    } while (width > 0);
+    SkASSERT(0 == width);
+    return true;
+}
+
+bool SkAAClip::trimTopBottom() {
+    if (this->isEmpty()) {
+        return false;
+    }
+
+    const int width = fBounds.width();
+    RunHead* head = fRunHead;
+    YOffset* yoff = head->yoffsets();
+    YOffset* stop = yoff + head->fRowCount;
+    const uint8_t* base = head->data();
+
+    //  Look to trim away empty rows from the top.
+    //
+    int skip = 0;
+    while (yoff < stop) {
+        const uint8_t* data = base + yoff->fOffset;
+        if (!row_is_all_zeros(data, width)) {
+            break;
+        }
+        skip += 1;
+        yoff += 1;
+    }
+    SkASSERT(skip <= head->fRowCount);
+    if (skip == head->fRowCount) {
+        return this->setEmpty();
+    }
+    if (skip > 0) {
+        // adjust fRowCount and fBounds.fTop, and slide all the data up
+        // as we remove [skip] number of YOffset entries
+        yoff = head->yoffsets();
+        int dy = yoff[skip - 1].fY + 1;
+        for (int i = skip; i < head->fRowCount; ++i) {
+            SkASSERT(yoff[i].fY >= dy);
+            yoff[i].fY -= dy;
+        }
+        YOffset* dst = head->yoffsets();
+        size_t size = head->fRowCount * sizeof(YOffset) + head->fDataSize;
+        memmove(dst, dst + skip, size - skip * sizeof(YOffset));
+
+        fBounds.fTop += dy;
+        SkASSERT(!fBounds.isEmpty());
+        head->fRowCount -= skip;
+        SkASSERT(head->fRowCount > 0);
+    }
+
+    //  Look to trim away empty rows from the bottom.
+    //  We know that we have at least one non-zero row, so we can just walk
+    //  backwards without checking for running past the start.
+    //
+    stop = yoff = head->yoffsets() + head->fRowCount;
+    do {
+        yoff -= 1;
+    } while (row_is_all_zeros(base + yoff->fOffset, width));
+    skip = stop - yoff - 1;
+    SkASSERT(skip >= 0 && skip < head->fRowCount);
+    if (skip > 0) {
+        // removing from the bottom is easier than from the top, as we don't
+        // have to adjust any of the Y values, we just have to trim the array
+        memmove(stop - skip, stop, head->fDataSize);
+
+        fBounds.fBottom = fBounds.fTop + yoff->fY + 1;
+        SkASSERT(!fBounds.isEmpty());
+        head->fRowCount -= skip;
+        SkASSERT(head->fRowCount > 0);
+    }
+
+    return true;
+}
 
 // can't validate before we're done, since trimming is part of the process of
 // making us valid after the Builder. Since we build from top to bottom, its
 // possible our fBounds.fBottom is bigger than our last scanline of data, so
 // we trim fBounds.fBottom back up.
 //
-// TODO: look to trim our bounds on top, left, right.
 // TODO: check for duplicates in X and Y to further compress our data
 //
 bool SkAAClip::trimBounds() {
@@ -243,7 +544,9 @@ bool SkAAClip::trimBounds() {
     SkASSERT(lastY.fY + 1 <= fBounds.height());
     fBounds.fBottom = fBounds.fTop + lastY.fY + 1;
     SkASSERT(lastY.fY + 1 == fBounds.height());
-    return true;
+    SkASSERT(!fBounds.isEmpty());
+
+    return this->trimTopBottom() && this->trimLeftRight();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -563,13 +866,21 @@ public:
         uint8_t* baseData = data;
 
         row = fRows.begin();
+        SkDEBUGCODE(int prevY = row->fY - 1;)
         while (row < stop) {
+            SkASSERT(prevY < row->fY);  // must be monotonic
+            SkDEBUGCODE(prevY = row->fY);
+
             yoffset->fY = row->fY - adjustY;
             yoffset->fOffset = data - baseData;
             yoffset += 1;
             
             size_t n = row->fData->count();
             memcpy(data, row->fData->begin(), n);
+#ifdef SK_DEBUG
+            int bytesNeeded = compute_row_length(data, fBounds.width());
+            SkASSERT(bytesNeeded == n);
+#endif
             data += n;
             
             row += 1;
