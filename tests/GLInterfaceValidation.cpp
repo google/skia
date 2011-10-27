@@ -20,6 +20,7 @@ static void GLInterfaceValidationTest(skiatest::Reporter* reporter) {
 #if SK_MESA
         {GrGLCreateMesaInterface, "Mesa"},
 #endif
+        {GrGLCreateNullInterface, "Null"},
     };
 
     // On some platforms GrGLCreateNativeInterface will fail unless an OpenGL

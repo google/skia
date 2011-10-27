@@ -82,25 +82,39 @@ public:
         fGrRenderTarget = NULL;
         fGrContext = NULL;
         fGL = NULL;
+        fNullGrContext = NULL;
+        fNullGrRenderTarget = NULL;
     }
 
     virtual ~DefaultDeviceManager() {
         SkSafeUnref(fGrRenderTarget);
         SkSafeUnref(fGrContext);
         SkSafeUnref(fGL);
+        SkSafeUnref(fNullGrContext);
+        SkSafeUnref(fNullGrRenderTarget);
     }
 
     virtual void init(SampleWindow* win) {
-        win->attachGL();
-        if (NULL == fGrContext) {
-            fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine, NULL);
+        if (!win->attachGL()) {
+            SkDebugf("Failed to initialize GL");
         }
         if (NULL == fGL) {
-            fGL = GrGLDefaultInterface();
+            fGL = GrGLCreateNativeInterface();
+            GrAssert(NULL == fGrContext);
+            fGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
+                                           (GrPlatform3DContext) fGL);
         }
         if (NULL == fGrContext || NULL == fGL) {
+            SkSafeUnref(fGrContext);
+            SkSafeUnref(fGL);
             SkDebugf("Failed to setup 3D");
             win->detachGL();
+        }
+        if (NULL == fNullGrContext) {
+            const GrGLInterface* nullGL = GrGLCreateNullInterface();
+            fNullGrContext = GrContext::Create(kOpenGL_Shaders_GrEngine,
+                                               (GrPlatform3DContext) nullGL);
+            nullGL->unref();
         }
     }
 
@@ -111,6 +125,8 @@ public:
                 return true;
             case kGPU_DeviceType:
                 return NULL != fGrContext && NULL != fGrRenderTarget;
+            case kNullGPU_DeviceType:
+                return NULL != fNullGrContext && NULL != fNullGrRenderTarget;
             default:
                 return false;
         }
@@ -119,13 +135,23 @@ public:
     virtual bool prepareCanvas(SampleWindow::DeviceType dType,
                                SkCanvas* canvas,
                                SampleWindow* win) {
-        if (kGPU_DeviceType == dType) {
-            if (fGrContext) {
-                canvas->setDevice(new SkGpuDevice(fGrContext,
-                                                fGrRenderTarget))->unref();
-            } else {
-                return false;
-            }
+        switch (dType) {
+            case kGPU_DeviceType:
+                if (fGrContext) {
+                    canvas->setDevice(new SkGpuDevice(fGrContext,
+                                                    fGrRenderTarget))->unref();
+                } else {
+                    return false;
+                }
+                break;
+            case kNullGPU_DeviceType:
+                if (fNullGrContext) {
+                    canvas->setDevice(new SkGpuDevice(fNullGrContext,
+                                                      fNullGrRenderTarget))->unref();
+                } else {
+                    return false;
+                }
+                break;
         }
         return true;
     }
@@ -136,7 +162,11 @@ public:
         if (fGrContext) {
             // in case we have queued drawing calls
             fGrContext->flush();
-            if (dType != kGPU_DeviceType) {
+            if (NULL != fNullGrContext) {
+                fNullGrContext->flush();
+            }
+            if (dType != kGPU_DeviceType &&
+                dType != kNullGPU_DeviceType) {
                 // need to send the raster bits to the (gpu) window
                 fGrContext->setRenderTarget(fGrRenderTarget);
                 const SkBitmap& bm = win->getBitmap();
@@ -168,15 +198,34 @@ public:
             fGrRenderTarget = static_cast<GrRenderTarget*>(
                                             fGrContext->createPlatformSurface(desc));
         }
+        if (NULL != fNullGrContext) {
+            GrPlatformSurfaceDesc desc;
+            desc.reset();
+            desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
+            desc.fWidth = SkScalarRound(win->width());
+            desc.fHeight = SkScalarRound(win->height());
+            desc.fConfig = kRGBA_8888_GrPixelConfig;
+            desc.fStencilBits = 8;
+            desc.fSampleCnt = 0;
+            desc.fPlatformRenderTarget = 0;
+            fNullGrRenderTarget = static_cast<GrRenderTarget*>(
+                                            fNullGrContext->createPlatformSurface(desc));
+        }
     }
 
-    virtual GrContext* getGrContext() {
-        return fGrContext;
+    virtual GrContext* getGrContext(SampleWindow::DeviceType dType) {
+        if (kNullGPU_DeviceType == dType) {
+            return fNullGrContext;
+        } else {
+            return fGrContext;
+        }
     }
 private:
     GrContext* fGrContext;
     const GrGLInterface* fGL;
     GrRenderTarget* fGrRenderTarget;
+    GrContext* fNullGrContext;
+    GrRenderTarget* fNullGrRenderTarget;
 };
 
 ///////////////
@@ -410,6 +459,7 @@ static inline SampleWindow::DeviceType cycle_devicetype(SampleWindow::DeviceType
     static const SampleWindow::DeviceType gCT[] = {
         SampleWindow::kPicture_DeviceType,
         SampleWindow::kGPU_DeviceType,
+        SampleWindow::kRaster_DeviceType, // skip the null gpu device in normal cycling
         SampleWindow::kRaster_DeviceType
     };
     return gCT[ct];
@@ -1340,6 +1390,13 @@ bool SampleWindow::onHandleChar(SkUnichar uni) {
             this->inval(NULL);
             this->updateTitle();
             return true;
+        case '\\':
+            if (fDevManager->supportsDeviceType(kNullGPU_DeviceType)) {
+                fDeviceType=  kNullGPU_DeviceType;
+                this->inval(NULL);
+                this->updateTitle();
+            }
+            return true;
         case 's':
             fScale = !fScale;
             this->inval(NULL);
@@ -1550,7 +1607,8 @@ static const char* configToString(SkBitmap::Config c) {
 static const char* gDeviceTypePrefix[] = {
     "raster: ",
     "picture: ",
-    "opengl: "
+    "opengl: ",
+    "null-gl: "
 };
 
 static const char* trystate_str(SkOSMenu::TriState state,

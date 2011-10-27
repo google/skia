@@ -99,6 +99,7 @@
         '../include/gpu/SkGLContext.h',
         '../include/gpu/SkMesaGLContext.h',
         '../include/gpu/SkNativeGLContext.h',
+        '../include/gpu/SkNullGLContext.h',
         '../include/gpu/SkGpuCanvas.h',
         '../include/gpu/SkGpuDevice.h',
         '../include/gpu/SkGr.h',
@@ -111,6 +112,7 @@
         '../src/gpu/SkGr.cpp',
         '../src/gpu/SkGrFontScaler.cpp',
         '../src/gpu/SkGrTexturePixelRef.cpp',
+        '../src/gpu/SkNullGLContext.cpp',
 
         '../src/gpu/mac/SkNativeGLContext_mac.cpp',
 
@@ -193,6 +195,7 @@
         '../src/gpu/GrDrawTarget.h',
         '../src/gpu/GrGeometryBuffer.h',
         '../src/gpu/GrGLCreateNativeInterface_none.cpp',
+        '../src/gpu/GrGLCreateNullInterface.cpp',
         '../src/gpu/GrGLDefaultInterface_none.cpp',
         '../src/gpu/GrGLDefaultInterface_native.cpp',
         '../src/gpu/GrGLIndexBuffer.cpp',
