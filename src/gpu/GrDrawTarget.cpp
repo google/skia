@@ -430,13 +430,20 @@ GrDrawTarget::GrDrawTarget() {
 }
 
 GrDrawTarget::~GrDrawTarget() {
+    GrAssert(1 == fGeoSrcStateStack.count());
+    GeometrySrcState& geoSrc = fGeoSrcStateStack.back();
+    GrAssert(kNone_GeometrySrcType == geoSrc.fIndexSrc);
+    GrAssert(kNone_GeometrySrcType == geoSrc.fVertexSrc);
+}
+
+void GrDrawTarget::releaseGeometry() {
     int popCnt = fGeoSrcStateStack.count() - 1;
     while (popCnt) {
         this->popGeometrySource();
         --popCnt;
     }
-    this->releasePreviousVertexSource();
-    this->releasePreviousIndexSource();
+    this->resetVertexSource();
+    this->resetIndexSource();
 }
 
 void GrDrawTarget::setClip(const GrClip& clip) {
