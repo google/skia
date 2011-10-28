@@ -29,6 +29,7 @@
     '../bench/RepeatTileBench.cpp',
     '../bench/ScalarBench.cpp',
     '../bench/TextBench.cpp',
+    '../bench/VertBench.cpp',
   ],
   'conditions': [
     [ 'skia_os != "mac"', {
