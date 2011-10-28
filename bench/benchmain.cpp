@@ -216,6 +216,22 @@ static int findConfig(const char config[]) {
     return -1;
 }
 
+static void determine_gpu_context_size(SkTDict<const char*>& defineDict,
+                                       int* contextWidth,
+                                       int* contextHeight) {
+    Iter iter(&defineDict);
+    SkBenchmark* bench;
+    while ((bench = iter.next()) != NULL) {
+        SkIPoint dim = bench->getSize();
+        if (*contextWidth < dim.fX) {
+            *contextWidth = dim.fX;
+        }
+        if (*contextHeight < dim.fY) {
+            *contextHeight = dim.fY;
+        }
+    }
+}
+
 int main (int argc, char * const argv[]) {
     SkAutoGraphics ag;
     
@@ -426,7 +442,10 @@ int main (int argc, char * const argv[]) {
     } else {
         glctx.reset(new SkNativeGLContext);
     }
-    if (glctx.get()->init(1024, 1024)) {
+    int contextWidth = 1024;
+    int contextHeight = 1024;
+    determine_gpu_context_size(defineDict, &contextWidth, &contextHeight);
+    if (glctx.get()->init(contextWidth, contextHeight)) {
         GrPlatform3DContext ctx =
             reinterpret_cast<GrPlatform3DContext>(glctx.get()->gl());
         context = GrContext::Create(kOpenGL_Shaders_GrEngine, ctx);
@@ -434,8 +453,8 @@ int main (int argc, char * const argv[]) {
             GrPlatformSurfaceDesc desc;
             desc.reset();
             desc.fConfig = kRGBA_8888_GrPixelConfig;
-            desc.fWidth = 1024;
-            desc.fHeight = 1024;
+            desc.fWidth = contextWidth;
+            desc.fHeight = contextHeight;
             desc.fStencilBits = 8;
             desc.fPlatformRenderTarget = glctx.get()->getFBOID();
             desc.fSurfaceType = kRenderTarget_GrPlatformSurfaceType;
