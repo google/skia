@@ -103,7 +103,7 @@ class BitmapBench : public SkBenchmark {
     bool        fForceUpdate; //bitmap marked as dirty before each draw. forces bitmap to be updated on device cache
     int         fTileX, fTileY; // -1 means don't use shader
     SkString    fName;
-    enum { N = 300 };
+    enum { N = SkBENCHLOOP(300) };
 public:
     BitmapBench(void* param, bool isOpaque, SkBitmap::Config c,
                 bool forceUpdate = false, bool bitmapVolatile = false, 

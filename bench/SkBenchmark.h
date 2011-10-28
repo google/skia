@@ -13,6 +13,12 @@
 #include "SkTDict.h"
 #include "SkTRegistry.h"
 
+#ifdef SK_DEBUG
+    #define SkBENCHLOOP(n) 1
+#else
+    #define SkBENCHLOOP(n) n
+#endif
+
 class SkCanvas;
 class SkPaint;
 

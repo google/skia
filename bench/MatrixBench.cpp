@@ -28,7 +28,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        int n = N * this->mulLoopCount();
+        int n = SkBENCHLOOP(N * this->mulLoopCount());
         for (int i = 0; i < n; i++) {
             this->performTest();
         }
@@ -271,7 +271,7 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
                        fRandom.nextS(), fRandom.nextS(), fRandom.nextS(),
                        fRandom.nextS(), fRandom.nextS(), fRandom.nextS());
         int i;
-        for (i = 0; i < fCount; i++) {
+        for (i = 0; i < SkBENCHLOOP(fCount); i++) {
             fSrc[i].fX = fRandom.nextSScalar1();
             fSrc[i].fY = fRandom.nextSScalar1();
             fDst[i].fX = fRandom.nextSScalar1();
@@ -282,7 +282,7 @@ class ScaleTransMixedMatrixBench : public MatrixBench {
     virtual void performTest() {
         SkPoint* dst = fDst;
         const SkPoint* src = fSrc;
-        int count = fCount;
+        int count = SkBENCHLOOP(fCount);
         float mx = fMatrix[SkMatrix::kMScaleX];
         float my = fMatrix[SkMatrix::kMScaleY];
         float tx = fMatrix[SkMatrix::kMTransX];
@@ -308,7 +308,7 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
     ScaleTransDoubleMatrixBench(void* p) : INHERITED(p, "scaletrans_double"), fCount (16) {
         init9(fMatrix);
         int i;
-        for (i = 0; i < fCount; i++) {
+        for (i = 0; i < SkBENCHLOOP(fCount); i++) {
             fSrc[i].fX = fRandom.nextSScalar1();
             fSrc[i].fY = fRandom.nextSScalar1();
             fDst[i].fX = fRandom.nextSScalar1();
@@ -319,7 +319,7 @@ class ScaleTransDoubleMatrixBench : public MatrixBench {
     virtual void performTest() {
         SkPoint* dst = fDst;
         const SkPoint* src = fSrc;
-        int count = fCount;
+        int count = SkBENCHLOOP(fCount);
         // As doubles, on Z600 Linux systems this is 2.5x as expensive as mixed mode
         float mx = (float) fMatrix[SkMatrix::kMScaleX];
         float my = (float) fMatrix[SkMatrix::kMScaleY];

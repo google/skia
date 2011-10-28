@@ -28,7 +28,7 @@ class PathBench : public SkBenchmark {
     SkPaint     fPaint;
     SkString    fName;
     Flags       fFlags;
-    enum { N = 1000 };
+    enum { N = SkBENCHLOOP(1000) };
 public:
     PathBench(void* param, Flags flags) : INHERITED(param), fFlags(flags) {
         fPaint.setStyle(flags & kStroke_Flag ? SkPaint::kStroke_Style :

@@ -165,7 +165,7 @@ public:
             { SkIntToScalar(W), SkIntToScalar(H) }
         };
         
-        fCount = N * gGrads[gradType].fRepeat;
+        fCount = SkBENCHLOOP(N * gGrads[gradType].fRepeat);
         fShader = gGrads[gradType].fMaker(pts, gGradData[0], tm, NULL, scale);
         fGeomType = geomType;
     }
@@ -223,7 +223,7 @@ protected:
             { SkIntToScalar(100), SkIntToScalar(100) },
         };
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < SkBENCHLOOP(1000); i++) {
             const int a = i % 256;
             SkColor colors[] = {
                 SK_ColorBLACK,
