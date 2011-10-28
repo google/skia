@@ -82,11 +82,12 @@ protected:
     virtual void onDraw(SkCanvas* canvas) {
         SkPaint paint;
         this->setupPaint(&paint);
-
+#if 0
         for (int i = 0; i < N; i++) {
             canvas->drawVertices(SkCanvas::kTriangles_VertexMode, PTS,
                                  fPts, NULL, fColors, NULL, fIdx, IDX, paint);
         }
+#endif
     }
 private:
     typedef SkBenchmark INHERITED;
