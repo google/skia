@@ -44,6 +44,8 @@ GrInOrderDrawBuffer::GrInOrderDrawBuffer(const GrGpu* gpu,
 
 GrInOrderDrawBuffer::~GrInOrderDrawBuffer() {
     this->reset();
+    // This must be called by before the GrDrawTarget destructor
+    this->releaseGeometry();
     GrSafeUnref(fQuadIndexBuffer);
 }
 

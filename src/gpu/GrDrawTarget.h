@@ -1366,6 +1366,10 @@ protected:
 
     Caps fCaps;
 
+    // subclasses must call this in their destructors to ensure all vertex
+    // and index sources have been released (including those held by 
+    // pushGeometrySource())
+    void releaseGeometry();
 private:
     // called when setting a new vert/idx source to unref prev vb/ib
     void releasePreviousVertexSource();
