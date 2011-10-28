@@ -86,7 +86,7 @@ static void convertToIndex666(const SkBitmap& src, SkBitmap* dst) {
 class RepeatTileBench : public SkBenchmark {
     SkPaint     fPaint;
     SkString    fName;
-    enum { N = 20 };
+    enum { N = SkBENCHLOOP(20) };
 public:
     RepeatTileBench(void* param, SkBitmap::Config c) : INHERITED(param) {
         const int w = 50;

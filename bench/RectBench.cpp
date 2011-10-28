@@ -18,7 +18,7 @@ public:
     enum {
         W = 640,
         H = 480,
-        N = 300
+        N = SkBENCHLOOP(300)
     };
     SkRect  fRects[N];
     SkColor fColors[N];

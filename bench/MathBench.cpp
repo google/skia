@@ -31,7 +31,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        int n = kLoop * this->mulLoopCount();
+        int n = SkBENCHLOOP(kLoop * this->mulLoopCount());
         for (int i = 0; i < n; i++) {
             this->performTest(fDst, fSrc, kBuffer);
         }

@@ -18,7 +18,7 @@ class DecodeBench : public SkBenchmark {
     const char* fFilename;
     SkBitmap::Config fPrefConfig;
     SkString fName;
-    enum { N = 10 };
+    enum { N = SkBENCHLOOP(10) };
 public:
     DecodeBench(void* param, SkBitmap::Config c) : SkBenchmark(param) {
         fFilename = this->findDefine("decode-filename");

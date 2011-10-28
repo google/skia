@@ -44,7 +44,7 @@ class TextBench : public SkBenchmark {
     SkString    fText;
     SkString    fName;
     FontQuality fFQ;
-    enum { N = 800 };
+    enum { N = SkBENCHLOOP(800) };
 public:
     TextBench(void* param, const char text[], int ps,
               SkColor color, FontQuality fq) : INHERITED(param) {
