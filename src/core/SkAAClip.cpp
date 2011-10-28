@@ -460,6 +460,8 @@ bool SkAAClip::trimTopBottom() {
         return false;
     }
 
+    this->validate();
+
     const int width = fBounds.width();
     RunHead* head = fRunHead;
     YOffset* yoff = head->yoffsets();
@@ -498,6 +500,10 @@ bool SkAAClip::trimTopBottom() {
         SkASSERT(!fBounds.isEmpty());
         head->fRowCount -= skip;
         SkASSERT(head->fRowCount > 0);
+        
+        this->validate();
+        // need to reset this after the memmove
+        base = head->data();
     }
 
     //  Look to trim away empty rows from the bottom.
@@ -520,6 +526,7 @@ bool SkAAClip::trimTopBottom() {
         head->fRowCount -= skip;
         SkASSERT(head->fRowCount > 0);
     }
+    this->validate();
 
     return true;
 }
@@ -922,7 +929,9 @@ public:
             SkASSERT(!(count & 1));
             int w = 0;
             for (int x = 0; x < count; x += 2) {
-                w += ptr[0];
+                int n = ptr[0];
+                SkASSERT(n > 0);
+                w += n;
                 SkASSERT(w <= fWidth);
                 ptr += 2;
             }
