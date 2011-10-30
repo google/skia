@@ -54,6 +54,7 @@ SkPDFGraphicState::~SkPDFGraphicState() {
     if (!fSMask) {
         int index = Find(fPaint);
         SkASSERT(index >= 0);
+        SkASSERT(CanonicalPaints()[index].fGraphicState == this);
         CanonicalPaints().removeShuffle(index);
     }
     fResources.unrefAll();

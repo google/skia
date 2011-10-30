@@ -703,7 +703,8 @@ SkPDFGlyphSet* SkPDFGlyphSetMap::getGlyphSetForFont(SkPDFFont* font) {
 SkPDFFont::~SkPDFFont() {
     SkAutoMutexAcquire lock(CanonicalFontsMutex());
     int index;
-    if (Find(SkTypeface::UniqueID(fTypeface.get()), fFirstGlyphID, &index)) {
+    if (Find(SkTypeface::UniqueID(fTypeface.get()), fFirstGlyphID, &index) &&
+            CanonicalFonts()[index].fFont == this) {
         CanonicalFonts().removeShuffle(index);
     }
     fResources.unrefAll();
