@@ -70,11 +70,10 @@ static void* draw_proc(void* context) {
             // this must be local to the loop, since it needs to forget the pixels
             // its writing to after each iteration, since we do the swap
             SkCanvas    canvas(update.bitmap());
-            canvas.clipRect(clipR, SkRegion::kIntersect_Op, true);
-
             canvas.clipRegion(update.dirty());
-            
             canvas.drawColor(0, SkXfermode::kClear_Mode);            
+            canvas.clipRect(clipR, SkRegion::kIntersect_Op, true);
+            
             canvas.drawOval(oval, paint);
         }
         bounce(&x, &dx, WIDTH-OVALW);
