@@ -1247,7 +1247,7 @@ void SkGpuDevice::internalDrawBitmap(const SkDraw& draw,
         return;
     }
 
-    grPaint->setTexture(kShaderTextureIdx, texture);
+    grPaint->setTexture(kBitmapTextureIdx, texture);
 
     GrRect dstRect = SkRect::MakeWH(GrIntToScalar(srcRect.width()),
                                     GrIntToScalar(srcRect.height()));
