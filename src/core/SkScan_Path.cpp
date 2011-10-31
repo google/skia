@@ -1,11 +1,9 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 
 #include "SkScanPriv.h"
 #include "SkBlitter.h"
@@ -224,9 +222,15 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
     SkEdge* leftE = prevHead->fNext;
     SkEdge* riteE = leftE->fNext;
     SkEdge* currE = riteE->fNext;
-    
+
+#if 0
     int local_top = leftE->fFirstY;
     SkASSERT(local_top == riteE->fFirstY);
+#else
+    // our edge choppers for curves can result in the initial edges
+    // not lining up, so we take the max.
+    int local_top = SkMax32(leftE->fFirstY, riteE->fFirstY);
+#endif
     SkASSERT(local_top >= start_y);
     
     int gLoops = 0;
@@ -262,6 +266,7 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
                 left += count * dLeft;
                 rite += count * dRite;
             }
+            local_top = local_bot + 1;
         } else {
             do {
                 int L = (left + SK_Fixed1/2) >> 16;
