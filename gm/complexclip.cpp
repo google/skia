@@ -16,6 +16,7 @@ namespace skiagm {
 class ComplexClipGM : public GM {
 public:
 	ComplexClipGM() {
+        this->setBGColor(SkColorSetRGB(0xA0,0xDD,0xA0));
     }
 
 protected:
@@ -25,10 +26,6 @@ protected:
     }
 
     SkISize onISize() { return make_isize(550, 1000); }
-
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SkColorSetRGB(0xA0,0xDD,0xA0));
-    }
 
     virtual void onDraw(SkCanvas* canvas) {
         SkPath path;
@@ -70,7 +67,6 @@ protected:
         clipB.close();
         SkColor colorB = SK_ColorRED;
 
-        drawBG(canvas);
         SkPaint paint;
         paint.setAntiAlias(true);
 

@@ -56,7 +56,7 @@ SkTDArray<char> gTempDataStore;
 #define USE_ARROWS_FOR_ZOOM true
 //#define DEFAULT_TO_GPU
 
-extern SkView* create_overview(int, const SkViewFactory[]);
+extern SkView* create_overview(int, const SkViewFactory*[]);
 extern bool is_overview(SkView* view);
 extern SkView* create_transition(SkView*, SkView*, int);
 extern bool is_transition(SkView* view);
@@ -240,16 +240,73 @@ static bool isInvalEvent(const SkEvent& evt) {
 }
 //////////////////
 
-SkViewRegister* SkViewRegister::gHead;
-SkViewRegister::SkViewRegister(SkViewFactory fact) : fFact(fact) {
-    static bool gOnce;
-    if (!gOnce) {
-        gHead = NULL;
-        gOnce = true;
-    }
+SkFuncViewFactory::SkFuncViewFactory(SkViewCreateFunc func)
+    : fCreateFunc(func) {
+}
 
+SkView* SkFuncViewFactory::operator() () const SK_OVERRIDE {
+    return (*fCreateFunc)();
+}
+
+#include "GMSampleView.h"
+
+SkGMSampleViewFactory::SkGMSampleViewFactory(GMFactoryFunc func)
+    : fFunc(func) {
+}
+
+SkView* SkGMSampleViewFactory::operator() () const {
+    return new GMSampleView(fFunc(NULL));
+}
+
+SkViewRegister* SkViewRegister::gHead;
+SkViewRegister::SkViewRegister(SkViewFactory* fact) : fFact(fact) {
+    fFact->ref();
     fChain = gHead;
     gHead = this;
+}
+
+SkViewRegister::SkViewRegister(SkViewCreateFunc func) {
+    fFact = new SkFuncViewFactory(func);
+    fChain = gHead;
+    gHead = this;
+}
+
+SkViewRegister::SkViewRegister(GMFactoryFunc func) {
+    fFact = new SkGMSampleViewFactory(func);
+    fChain = gHead;
+    gHead = this;
+}
+
+class AutoUnrefArray {
+public:
+    AutoUnrefArray() {}
+    ~AutoUnrefArray() {
+        int count = fObjs.count();
+        for (int i = 0; i < count; ++i) {
+            fObjs[i]->unref();
+        }
+    }
+    SkRefCnt*& push_back() { return *fObjs.append(); }
+    
+private:
+    SkTDArray<SkRefCnt*> fObjs;
+};
+
+// registers GMs as Samples
+// This can't be performed during static initialization because it could be
+// run before GMRegistry has been fully built.
+void SkGMRegistyToSampleRegistry() {
+    static bool gOnce;
+    static AutoUnrefArray fRegisters; 
+
+    if (!gOnce) {
+        const skiagm::GMRegistry* gmreg = skiagm::GMRegistry::Head();
+        while (gmreg) {
+            fRegisters.push_back() = new SkViewRegister(gmreg->factory());
+            gmreg = gmreg->next();
+        }
+        gOnce = true;
+    }
 }
 
 #if 0
@@ -416,6 +473,11 @@ GrContext* SampleCode::GetGr() {
     return gSampleWindow ? gSampleWindow->getGrContext() : NULL;
 }
 
+// some GMs rely on having a skiagm::GetGr function defined
+namespace skiagm {
+    GrContext* GetGr() { return SampleCode::GetGr(); }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 static SkView* curr_view(SkWindow* wind) {
@@ -570,6 +632,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
     this->setVisibleP(true);
     this->setClipToBounds(false);
 
+    SkGMRegistyToSampleRegistry();
     {
         const SkViewRegister* reg = SkViewRegister::Head();
         while (reg) {
@@ -591,7 +654,7 @@ SampleWindow::SampleWindow(void* hwnd, int argc, char** argv, DeviceManager* dev
             fprintf(stderr, "Unknown sample \"%s\"\n", argv[1]);
         }
     }
-    this->loadView(fSamples[fCurrIndex]());
+    this->loadView((*fSamples[fCurrIndex])());
     
     fPDFData = NULL;
 
@@ -1158,26 +1221,26 @@ void SampleWindow::changeZoomLevel(float delta) {
 
 bool SampleWindow::previousSample() {
     fCurrIndex = (fCurrIndex - 1 + fSamples.count()) % fSamples.count();
-    this->loadView(create_transition(curr_view(this), fSamples[fCurrIndex](), 
+    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(), 
                                      fTransitionPrev));
     return true;
 }
 
 bool SampleWindow::nextSample() {
     fCurrIndex = (fCurrIndex + 1) % fSamples.count();
-    this->loadView(create_transition(curr_view(this), fSamples[fCurrIndex](), 
+    this->loadView(create_transition(curr_view(this), (*fSamples[fCurrIndex])(), 
                                      fTransitionNext));
     return true;
 }
 
 bool SampleWindow::goToSample(int i) {
     fCurrIndex = (i) % fSamples.count();
-    this->loadView(create_transition(curr_view(this),fSamples[fCurrIndex](), 6));
+    this->loadView(create_transition(curr_view(this),(*fSamples[fCurrIndex])(), 6));
     return true;
 }
 
 SkString SampleWindow::getSampleTitle(int i) {
-    SkView* view = fSamples[i]();
+    SkView* view = (*fSamples[i])();
     SkString title;
     SampleCode::RequestTitle(view, &title);
     view->unref();
@@ -1288,7 +1351,7 @@ bool SampleWindow::onQuery(SkEvent* query) {
         return true;
     }
     if (query->isType("get-slide-title")) {
-        SkView* view = fSamples[query->getFast32()]();
+        SkView* view = (*fSamples[query->getFast32()])();
         SkEvent evt(gTitleEvtName);
         if (view->doQuery(&evt)) {
             query->setString("title", evt.findString(gTitleEvtName));

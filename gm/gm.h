@@ -35,27 +35,29 @@ namespace skiagm {
             kSkipPicture_Flag   = 1 << 1
         };
 
-		void draw(SkCanvas*);
+        void draw(SkCanvas*);
+        void drawBackground(SkCanvas*);
+        void drawContent(SkCanvas*);
+        
 		SkISize getISize() { return this->onISize(); }
-        const char* shortName() {
-            if (fShortName.size() == 0) {
-                fShortName = this->onShortName();
-            }
-            return fShortName.c_str();
-        }
+        const char* shortName();
 
         uint32_t getFlags() const {
             return this->onGetFlags();
         }
+        
+        void setBGColor(SkColor);
 
 	protected:
 		virtual void onDraw(SkCanvas*) = 0;
+		virtual void onDrawBackground(SkCanvas*);
 		virtual SkISize onISize() = 0;
         virtual SkString onShortName() = 0;
         virtual uint32_t onGetFlags() const { return 0; }
         
     private:
         SkString fShortName;
+        SkColor  fBGColor;
     };
 
     typedef SkTRegistry<GM*, void*> GMRegistry;

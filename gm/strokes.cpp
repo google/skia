@@ -49,9 +49,7 @@ protected:
         return make_isize(W, H*2);
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-        
+    virtual void onDraw(SkCanvas* canvas) {        
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(SkIntToScalar(9)/2);

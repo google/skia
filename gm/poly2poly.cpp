@@ -21,10 +21,6 @@ protected:
 	virtual SkISize onISize() {
         return make_isize(835, 840);
     }
-
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
 	
     static void doDraw(SkCanvas* canvas, SkPaint* paint, const int isrc[],
                        const int idst[], int count) {
@@ -60,9 +56,7 @@ protected:
         canvas->restore();
     }
     
-    virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-        
+    virtual void onDraw(SkCanvas* canvas) {        
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(4));

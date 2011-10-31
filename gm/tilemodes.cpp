@@ -80,12 +80,7 @@ protected:
     
 	SkISize onISize() { return make_isize(880, 560); }
     
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-    
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
         
         SkRect r = { 0, 0, SkIntToScalar(gWidth*2), SkIntToScalar(gHeight*2) };
 

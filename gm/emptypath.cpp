@@ -23,10 +23,6 @@ protected:
         
     SkISize onISize() { return make_isize(600, 280); }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
     void drawEmpty(SkCanvas* canvas,
                     SkColor color,
                     const SkRect& clip,
@@ -44,7 +40,6 @@ protected:
     }
     
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
         struct FillAndName {
             SkPath::FillType fFill;
             const char*      fName;

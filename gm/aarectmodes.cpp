@@ -107,7 +107,6 @@ namespace skiagm {
         virtual SkISize onISize() { return make_isize(640, 480); }
 
         virtual void onDraw(SkCanvas* canvas) {
-            canvas->drawColor(SK_ColorWHITE);
 
             const SkRect bounds = SkRect::MakeWH(W, H);
             static const SkAlpha gAlphaValue[] = { 0xFF, 0x88, 0x88 };

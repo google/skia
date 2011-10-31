@@ -49,6 +49,7 @@ public:
     BitmapScrollGM() {
         // Create the original bitmap.
         make_bitmap(quarterWidth, quarterHeight, &origBitmap);
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -68,8 +69,7 @@ protected:
         int xSpacing = quarterWidth * 20;
         int ySpacing = quarterHeight * 16;
 
-        // Draw background and left-hand text labels.
-        canvas->drawColor(0xFFDDDDDD);
+        // Draw left-hand text labels.
         drawLabel(canvas, "scroll entire bitmap",
                   x, y, x, y + ySpacing);
         drawLabel(canvas, "scroll part of bitmap",

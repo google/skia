@@ -23,10 +23,6 @@ protected:
         return make_isize(640, 490);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
     static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
         for (size_t i = 0; i < n; i++) {
             // Compute these independently and store in variables, rather
@@ -39,8 +35,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
         canvas->translate(SK_Scalar1, SK_Scalar1);
 
         SkRandom rand;

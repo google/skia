@@ -10,27 +10,18 @@
       'mac_bundle' : 1,
       'include_dirs' : [
         '../src/core', # needed to get SkConcaveToTriangle, maybe this should be moved to include dir?
-        '../gm',       # SampleGM.cpp pulls gm.h
+        '../gm',       # needed to pull gm.h
         '../include/pipe', # To pull in SkGPipe.h for pipe reader/writer
         '../samplecode', # To pull SampleApp.h and SampleCode.h
       ],
+      'includes': [
+        'gmslides.gypi',
+      ],
       'sources': [
-        # gm files needed for SampleGM.cpp
-        '../gm/bitmapfilters.cpp',
-        '../gm/blurs.cpp',
-        '../gm/complexclip.cpp',
-        '../gm/filltypes.cpp',
+        '../gm/gm.cpp',
         '../gm/gm.h',
-        '../gm/gradients.cpp',
-        '../gm/nocolorbleed.cpp',
-        '../gm/points.cpp',
-        '../gm/poly2poly.cpp',
-        '../gm/shadertext.cpp',
-        '../gm/shadows.cpp',
-        '../gm/shapes.cpp',
-        '../gm/tilemodes.cpp',
-        '../gm/xfermodes.cpp',
 
+        '../samplecode/GMSampleView.h',
         '../samplecode/ClockFaceView.cpp',
         '../samplecode/OverView.cpp',
         '../samplecode/Sample2PtRadial.cpp',
@@ -71,7 +62,6 @@
         '../samplecode/SampleFontCache.cpp',
         '../samplecode/SampleFontScalerTest.cpp',
         '../samplecode/SampleFuzz.cpp',
-        '../samplecode/SampleGM.cpp',
         '../samplecode/SampleGradients.cpp',
         '../samplecode/SampleHairCurves.cpp',
         '../samplecode/SampleHairline.cpp',

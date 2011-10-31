@@ -50,6 +50,8 @@ class ShapesGM : public GM {
     SkMatrixRef*    fMatrixRefs[4];
 public:
 	ShapesGM() {
+        this->setBGColor(0xFFDDDDDD);
+        
         SkMatrix m;
         fGroup.appendShape(make_shape0(false))->unref();
         m.setRotate(SkIntToScalar(30), SkIntToScalar(50), SkIntToScalar(50));
@@ -83,13 +85,7 @@ protected:
         return make_isize(380, 480);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
         SkMatrix matrix;
 
         SkGroupShape* gs = new SkGroupShape;

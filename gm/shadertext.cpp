@@ -109,7 +109,9 @@ static const GradMaker gGradMakers[] = {
 
 class ShaderTextGM : public GM {
 public:
-	ShaderTextGM() {}
+	ShaderTextGM() {
+        this->setBGColor(0xFFDDDDDD);
+    }
 
 protected:
 
@@ -119,13 +121,7 @@ protected:
 
 	SkISize onISize() { return make_isize(1450, 500); }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
-
         const char text[] = "Shaded Text";
         const int textLen = SK_ARRAY_COUNT(text) - 1;
         const int pointSize = 36;

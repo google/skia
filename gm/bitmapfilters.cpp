@@ -86,6 +86,7 @@ public:
         fBM8.copyTo(&fBM4444, SkBitmap::kARGB_4444_Config);
         fBM8.copyTo(&fBM16, SkBitmap::kRGB_565_Config);
         fBM8.copyTo(&fBM32, SkBitmap::kARGB_8888_Config);
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -98,7 +99,6 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
 
         SkScalar x = SkIntToScalar(10);
         SkScalar y = SkIntToScalar(10);

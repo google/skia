@@ -80,7 +80,9 @@ static const GradMaker gGradMakers[] = {
 
 class GradientsGM : public GM {
 public:
-	GradientsGM() {}
+	GradientsGM() {
+        this->setBGColor(0xFFDDDDDD);
+    }
     
 protected:
     SkString onShortName() {
@@ -88,13 +90,8 @@ protected:
     }
     
     virtual SkISize onISize() { return make_isize(640, 510); }
-    
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFDDDDDD);
-    }
-    
+        
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
         
         SkPoint pts[2] = {
             { 0, 0 },

@@ -16,6 +16,8 @@ namespace skiagm {
 class ComplexClip2GM : public GM {
 public:
     ComplexClip2GM() {
+        this->setBGColor(SkColorSetRGB(0xDD,0xA0,0xDD));
+        
         SkScalar xA =  0 * SK_Scalar1;
         SkScalar xB = 10 * SK_Scalar1;
         SkScalar xC = 20 * SK_Scalar1;
@@ -86,12 +88,7 @@ protected:
                           SkScalarRoundToInt(fTotalHeight));
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SkColorSetRGB(0xDD,0xA0,0xDD));
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
-        this->drawBG(canvas);
         SkPaint rectPaint;
         rectPaint.setStyle(SkPaint::kStroke_Style);
         rectPaint.setStrokeWidth(-1);

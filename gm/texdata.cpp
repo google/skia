@@ -18,7 +18,9 @@ static const int S = 200;
 
 class TexDataGM : public GM {
 public:
-    TexDataGM() {}
+    TexDataGM() {
+        this->setBGColor(0xff000000);
+    }
 
 protected:
     virtual SkString onShortName() {
@@ -29,12 +31,7 @@ protected:
         return make_isize(2*S, 2*S);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xff000000);
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
-        drawBG(canvas);
         SkDevice* device = canvas->getDevice();
         GrRenderTarget* target = (GrRenderTarget*) device->accessRenderTarget();
         GrContext* ctx = GetGr();

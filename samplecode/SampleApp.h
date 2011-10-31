@@ -30,7 +30,7 @@ class SkTypeface;
 class SkData;
 
 class SampleWindow : public SkOSWindow {
-    SkTDArray<SkViewFactory> fSamples;
+    SkTDArray<const SkViewFactory*> fSamples;
 public:
     enum DeviceType {
         kRaster_DeviceType,

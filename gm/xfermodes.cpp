@@ -78,14 +78,8 @@ protected:
         return make_isize(790, 640);
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(SK_ColorWHITE);
-    }
-
     virtual void onDraw(SkCanvas* canvas) {
         canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
-
-        this->drawBG(canvas);
 
         const struct {
             SkXfermode::Mode  fMode;
