@@ -255,14 +255,12 @@ static void walk_convex_edges(SkEdge* prevHead, SkPath::FillType,
         SkFixed dRite = riteE->fDX;
         int count = local_bot - local_top;
         SkASSERT(count >= 0);
-//        if (0 == (dLeft | dRite)) {
-        if (false) {
+        if (0 == (dLeft | dRite)) {
             int L = (left + SK_Fixed1/2) >> 16;
             int R = (rite + SK_Fixed1/2) >> 16;
             if (L < R) {
                 count += 1;
                 blitter->blitRect(L, local_top, R - L, count);
-                local_top = local_bot + 1;
                 left += count * dLeft;
                 rite += count * dRite;
             }

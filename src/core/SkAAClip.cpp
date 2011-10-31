@@ -1021,8 +1021,12 @@ public:
     virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE
         { unexpected(); }
 
-    //  let the default impl call blitH
-//    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE
+    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
+//        SkDebugf("blitRect Y:%d H:%d\n", y, height);
+        while (--height >= 0) {
+            this->blitH(x, y++, width);
+        }
+    }
 
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE
         { unexpected(); }
