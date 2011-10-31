@@ -846,6 +846,19 @@ public:
         SkASSERT(row->fWidth <= fBounds.width());
     }
 
+    void addRectRun(int x, int y, int width, int height) {
+        SkASSERT(fBounds.contains(x + width - 1, y + height - 1));
+        this->addRun(x, y, 0xFF, width);
+
+        // we assum the rect must be all we'll see for these scanlines
+        // so we ensure our row goes all the way to our right
+        this->flushRowH(fCurrRow);
+
+        y -= fBounds.fTop;
+        SkASSERT(y == fCurrRow->fY);
+        fCurrRow->fY = y + height - 1;
+    }
+
     bool finish(SkAAClip* target) {
         this->flushRow(false);
 
@@ -947,17 +960,19 @@ public:
     }
 
 private:
+    void flushRowH(Row* row) {
+        // flush current row if needed
+        if (row->fWidth < fWidth) {
+            AppendRun(*row->fData, 0, fWidth - row->fWidth);
+            row->fWidth = fWidth;
+        }
+    }
 
     Row* flushRow(bool readyForAnother) {
         Row* next = NULL;
         int count = fRows.count();
         if (count > 0) {
-            // flush current row if needed
-            Row* curr = &fRows[count - 1];
-            if (curr->fWidth < fWidth) {
-                AppendRun(*curr->fData, 0, fWidth - curr->fWidth);
-                curr->fWidth = fWidth;
-            }
+            this->flushRowH(&fRows[count - 1]);
         }
         if (count > 1) {
             // are our last two runs the same?
@@ -1022,10 +1037,8 @@ public:
         { unexpected(); }
 
     virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE {
-//        SkDebugf("blitRect Y:%d H:%d\n", y, height);
-        while (--height >= 0) {
-            this->blitH(x, y++, width);
-        }
+        this->recordMinY(y);
+        fBuilder->addRectRun(x, y, width, height);
     }
 
     virtual void blitMask(const SkMask&, const SkIRect& clip) SK_OVERRIDE
