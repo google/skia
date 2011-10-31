@@ -583,6 +583,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     SkPath::Iter    iter(src, false);
     SkPoint         pts[4];
     SkPath::Verb    verb, lastSegment = SkPath::kMove_Verb;
+    bool            hasCloseVerb = false;
 
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
@@ -607,6 +608,7 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 break;
             case SkPath::kClose_Verb:
                 stroker.close(lastSegment == SkPath::kLine_Verb);
+                hasCloseVerb = true;
                 break;
             default:
                 break;
@@ -627,7 +629,21 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     if (fDoFill) {
         dst->addPath(src);
     } else {
-        if (src.countPoints() == 2) {
+        //  I though all 2-point paths would be convex, but if its closed (i.e.
+        //  a line that doubles back on itself) it may not be convex.
+        //
+        //  e.g. this construct is not convex (though maybe that's a bug)
+        //
+        //  path.moveTo(100, 25); path.lineTo(200, 25); path.close();
+        //  paint.setStrokeWidth(250); paint.setStrokeJoin(kRound);
+        //
+        //  Hence our safety test to see if it was closed
+        //
+        if (2 == src.countPoints() && !hasCloseVerb) {
+#ifdef SK_DEBUG
+            SkPath::Convexity c = dst->getConvexity();
+            SkASSERT(SkPath::kConvex_Convexity == c);
+#endif
             dst->setIsConvex(true);
         }
     }
