@@ -9,8 +9,12 @@
     {
       'target_name': 'bench',
       'type': 'executable',
+      'include_dirs' : [
+        '../src/core',
+        '../src/gpu',
+      ],
       'includes': [
-	'bench.gypi'
+        'bench.gypi'
       ],
       'dependencies': [
         'core.gyp:core',

@@ -17,6 +17,7 @@
     '../bench/SkBenchmark.h',
     '../bench/SkBenchmark.cpp',
 
+    '../bench/AAClipBench.cpp',
     '../bench/BitmapBench.cpp',
     '../bench/BlurBench.cpp',
     '../bench/ChromeBench.cpp',
