@@ -540,6 +540,20 @@ static const ConfigData gRec[] = {
 #endif
 };
 
+static bool skip_name(const SkTDArray<const char*> array, const char name[]) {
+    if (0 == array.count()) {
+        // no names, so don't skip anything
+        return false;
+    }
+    for (int i = 0; i < array.count(); ++i) {
+        if (strstr(name, array[i])) {
+            // found the name, so don't skip
+            return false;
+        }
+    }
+    return true;
+}
+
 namespace skiagm {
 static GrContext* gGrContext;
 GrContext* GetGr() {
@@ -553,8 +567,9 @@ int main(int argc, char * const argv[]) {
     const char* writePath = NULL;   // if non-null, where we write the originals
     const char* readPath = NULL;    // if non-null, were we read from to compare
     const char* diffPath = NULL;    // if non-null, where we write our diffs (from compare)
-    const char* matchStr = NULL;
 
+    SkTDArray<const char*> fMatches;
+    
     bool doPDF = true;
     bool doReplay = true;
     bool doSerialize = false;
@@ -587,7 +602,8 @@ int main(int argc, char * const argv[]) {
         } else if (strcmp(*argv, "--match") == 0) {
             ++argv;
             if (argv < stop && **argv) {
-                matchStr = *argv;
+                // just record the ptr, no need for a deep copy
+                *fMatches.append() = *argv;
             }
 #if SK_MESA
         } else if (strcmp(*argv, "--mesagl") == 0) {
@@ -659,7 +675,7 @@ int main(int argc, char * const argv[]) {
     bool overallSuccess = true;
     while ((gm = iter.next()) != NULL) {
         const char* shortName = gm->shortName();
-        if (matchStr && !strstr(shortName, matchStr)) {
+        if (skip_name(fMatches, shortName)) {
             SkDELETE(gm);
             continue;
         }
