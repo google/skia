@@ -244,7 +244,7 @@ SkFuncViewFactory::SkFuncViewFactory(SkViewCreateFunc func)
     : fCreateFunc(func) {
 }
 
-SkView* SkFuncViewFactory::operator() () const SK_OVERRIDE {
+SkView* SkFuncViewFactory::operator() () const {
     return (*fCreateFunc)();
 }
 
