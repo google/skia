@@ -583,7 +583,6 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     SkPath::Iter    iter(src, false);
     SkPoint         pts[4];
     SkPath::Verb    verb, lastSegment = SkPath::kMove_Verb;
-    bool            hasCloseVerb = false;
 
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         switch (verb) {
@@ -608,7 +607,6 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                 break;
             case SkPath::kClose_Verb:
                 stroker.close(lastSegment == SkPath::kLine_Verb);
-                hasCloseVerb = true;
                 break;
             default:
                 break;
@@ -629,23 +627,25 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
     if (fDoFill) {
         dst->addPath(src);
     } else {
-        //  I though all 2-point paths would be convex, but if its closed (i.e.
-        //  a line that doubles back on itself) it may not be convex.
-        //
-        //  e.g. this construct is not convex (though maybe that's a bug)
-        //
-        //  path.moveTo(100, 25); path.lineTo(200, 25); path.close();
-        //  paint.setStrokeWidth(250); paint.setStrokeJoin(kRound);
-        //
-        //  Hence our safety test to see if it was closed
-        //
-        if (2 == src.countPoints() && !hasCloseVerb) {
-#ifdef SK_DEBUG
-            SkPath::Convexity c = dst->getConvexity();
-            SkASSERT(SkPath::kConvex_Convexity == c);
+        //  Seems like we can assume that a 2-point src would always result in
+        //  a convex stroke, but testing has proved otherwise.
+        //  TODO: fix the stroker to make this assumption true (without making
+        //  it slower that the work that will be done in computeConvexity())
+#if 0
+        // this test results in a non-convex stroke :(
+        static void test(SkCanvas* canvas) {
+            SkPoint pts[] = { 146.333328,  192.333328, 300.333344, 293.333344 };
+            SkPaint paint;
+            paint.setStrokeWidth(7);
+            paint.setStrokeCap(SkPaint::kRound_Cap);
+            canvas->drawLine(pts[0].fX, pts[0].fY, pts[1].fX, pts[1].fY, paint);
+        }        
 #endif
+#if 0
+        if (2 == src.countPoints()) {
             dst->setIsConvex(true);
         }
+#endif
     }
 }
 
