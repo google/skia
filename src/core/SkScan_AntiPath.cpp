@@ -41,10 +41,10 @@ public:
                      const SkRegion& clip);
 
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[],
-                           const int16_t runs[]) {
+                           const int16_t runs[]) SK_OVERRIDE {
         SkASSERT(!"How did I get here?");
     }
-    virtual void blitV(int x, int y, int height, SkAlpha alpha) {
+    virtual void blitV(int x, int y, int height, SkAlpha alpha) SK_OVERRIDE {
         SkASSERT(!"How did I get here?");
     }
 
@@ -93,7 +93,8 @@ public:
 
     void flush();
 
-    virtual void blitH(int x, int y, int width);
+    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
+    virtual void blitRect(int x, int y, int width, int height) SK_OVERRIDE;
 
 private:
     SkAlphaRuns fRuns;
@@ -135,6 +136,8 @@ static inline int coverage_to_alpha(int aa) {
 #define SUPER_Mask      ((1 << SHIFT) - 1)
 
 void SuperBlitter::blitH(int x, int y, int width) {
+    SkASSERT(width > 0);
+
     int iy = y >> SHIFT;
     SkASSERT(iy >= fCurrIY);
 
@@ -193,6 +196,126 @@ void SuperBlitter::blitH(int x, int y, int width) {
 #endif
 }
 
+static void set_left_rite_runs(SkAlphaRuns& runs, int ileft, U8CPU leftA,
+                               int n, U8CPU riteA) {
+    SkASSERT(leftA <= 0xFF);
+    SkASSERT(riteA <= 0xFF);
+
+    int16_t* run = runs.fRuns;
+    uint8_t* aa = runs.fAlpha;
+
+    if (ileft > 0) {
+        run[0] = ileft;
+        aa[0] = 0;
+        run += ileft;
+        aa += ileft;
+    }
+
+    SkASSERT(leftA < 0xFF);
+    if (leftA > 0) {
+        *run++ = 1;
+        *aa++ = leftA;
+    }
+
+    if (n > 0) {
+        run[0] = n;
+        aa[0] = 0xFF;
+        run += n;
+        aa += n;
+    }
+
+    SkASSERT(riteA < 0xFF);
+    if (riteA > 0) {
+        *run++ = 1;
+        *aa++ = riteA;
+    }
+    run[0] = 0;
+}
+
+void SuperBlitter::blitRect(int x, int y, int width, int height) {
+    SkASSERT(width > 0);
+    SkASSERT(height > 0);
+
+    while ((y & SUPER_Mask)) {
+        this->blitH(x, y++, width);
+        if (--height <= 0) {
+            return;
+        }
+    }
+    SkASSERT(height > 0);
+
+    int start_y = y >> SHIFT;
+    int stop_y = (y + height) >> SHIFT;
+    int count = stop_y - start_y;
+    if (count > 0) {
+        y += count << SHIFT;
+        height -= count << SHIFT;
+
+        // save original X for our tail blitH() loop at the bottom
+        int origX = x;
+
+        x -= fSuperLeft;
+        // hack, until I figure out why my cubics (I think) go beyond the bounds
+        if (x < 0) {
+            width += x;
+            x = 0;
+        }
+
+        int ileft = x >> SHIFT;
+        int xleft = x & SUPER_Mask;
+        int irite = (x + width) >> SHIFT;
+        int xrite = (x + width) & SUPER_Mask;
+        int n = irite - ileft - 1;
+        if (n < 0) {
+            // only one pixel, call blitV()?
+            xleft = xrite - xleft;
+            n = 0;
+            xrite = 0;
+        } else {
+            if (0 == xleft) {
+                n += 1;
+            } else {
+                xleft = (1 << SHIFT) - xleft;
+            }
+        }
+
+        // here we go
+        SkASSERT(start_y > fCurrIY);
+        this->flush();
+
+        const int coverageL = coverage_to_alpha(xleft);
+        const int coverageR = coverage_to_alpha(xrite);
+        SkASSERT(n + (coverageR != 0) <= fWidth);
+
+        for (int i = start_y; i < stop_y; ++i) {
+            // note: we should only need to call set_left_rite once, but
+            // our clipping blitters sometimes modify runs/alpha in-place,
+            // so for now we reset fRuns each time :(
+            //
+            //  TODO:
+            //  - don't modify in-place, or at least tell us when you're going to
+            //  - pass height down to blitAntiH (blitAntiHV) so that aaclip and
+            //    other can take advantage of the vertical-repeat explicitly
+            //
+            set_left_rite_runs(fRuns, ileft, coverageL, n, coverageR);
+            fRealBlitter->blitAntiH(fLeft, i, fRuns.fAlpha, fRuns.fRuns);
+        }
+
+        // preamble for our next call to blitH()
+        fCurrIY = stop_y - 1;
+        fOffsetX = 0;
+        fCurrY = y - 1;
+        fRuns.reset(fWidth);
+        x = origX;
+    }
+
+    // catch any remaining few
+    SkASSERT(height <= SUPER_Mask);
+    while (--height >= 0) {
+        this->blitH(x, y++, width);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class MaskSuperBlitter : public BaseSuperBlitter {
@@ -203,7 +326,7 @@ public:
         fRealBlitter->blitMask(fMask, fClipRect);
     }
 
-    virtual void blitH(int x, int y, int width);
+    virtual void blitH(int x, int y, int width) SK_OVERRIDE;
 
     static bool CanHandleRect(const SkIRect& bounds) {
 #ifdef FORCE_RLE
